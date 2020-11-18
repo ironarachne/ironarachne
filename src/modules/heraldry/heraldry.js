@@ -1,5 +1,6 @@
 import * as Tincture from "./tinctures.js";
 import * as Field from "./fields.js";
+import * as Variation from "./variations.js";
 import * as Charge from "./charges.js";
 import * as Words from "../words.js";
 import * as iarnd from "../random.js";
@@ -7,20 +8,25 @@ var _ = require("lodash");
 const { create } = require("xmlbuilder2");
 
 export function generate(charges) {
-  let t1 = Tincture.randomWeighted();
-  let t2 = Tincture.randomWeightedExcluding(t1);
-  let t3 = Tincture.randomContrasting(t1);
-  let tinctures = [];
-
   let f = Field.random();
 
-  if (f.tinctures === 1) {
-    tinctures = [t1];
-  } else {
-    tinctures = [t1, t2];
+  let variations = [];
+
+  for (let i = 0; i < f.variationCount; i++) {
+    let v = Variation.randomWeighted();
+    v.tinctures = [];
+    let oldT = Tincture.randomWeighted();
+    for (let j = 0; j < v.tinctureCount; j++) {
+      let t = Tincture.randomWeightedExcluding(oldT);
+      v.tinctures.push(t);
+      oldT = t;
+    }
+    variations.push(v);
   }
 
-  let blazon = Field.renderBlazon(f, tinctures);
+  f.variations = variations;
+
+  let blazon = Field.renderBlazon(f);
 
   let charge = Charge.random(charges);
 
@@ -28,20 +34,27 @@ export function generate(charges) {
 
   let chargePosition = "center";
 
+  let chargeTincture = Tincture.randomContrasting(variations[0].tinctures[0]);
+
   if (numberOfCharges == 1) {
     blazon +=
-      ", " + Words.article(charge.name) + " " + charge.name + " " + t3.name;
+      ", " +
+      Words.article(charge.name) +
+      " " +
+      charge.name +
+      " " +
+      chargeTincture.name;
   } else if (numberOfCharges == 2) {
-    blazon += ", two " + charge.plural + " " + t3.name;
+    blazon += ", two " + charge.plural + " " + chargeTincture.name;
   } else {
-    blazon += ", three " + charge.plural + " " + t3.name;
+    blazon += ", three " + charge.plural + " " + chargeTincture.name;
   }
 
   let heraldry = {
     field: f,
     blazon: blazon,
-    fieldTinctures: tinctures,
-    chargeTincture: t3,
+    variations: variations,
+    chargeTincture: chargeTincture,
     charge: charge,
     numberOfCharges: numberOfCharges,
     chargePosition: chargePosition,
@@ -78,46 +91,34 @@ export function renderSVG(heraldry) {
   const shieldHeight = 660;
 
   let shieldSVG =
-    '<path fill="#ffffff" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>';
+    '<path fill="url(#Division)" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>';
 
   let armsSVG =
     '<svg width="600" height="660" xmlns="http://www.w3.org/2000/svg" version="1.1">';
   let defsSVG = "<defs>";
 
-  let fieldPatternSVG = heraldry.field.pattern;
+  defsSVG += heraldry.field.pattern;
 
-  let tincture1Fill = heraldry.fieldTinctures[0].hexColor;
-
-  if (heraldry.fieldTinctures[0].type == "fur") {
-    defsSVG += heraldry.fieldTinctures[0].pattern;
-    tincture1Fill = "url(#" + heraldry.fieldTinctures[0].name + ")";
-  }
-
-  if (heraldry.field.tinctures > 1) {
-    let tincture2Fill = "";
-    if (heraldry.fieldTinctures[1].type == "fur") {
-      defsSVG += heraldry.fieldTinctures[1].pattern;
-      tincture2Fill = "url(#" + heraldry.fieldTinctures[1].name + ")";
-    } else {
-      tincture2Fill = heraldry.fieldTinctures[1].hexColor;
+  for (let i = 0; i < heraldry.variations.length; i++) {
+    for (let j = 0; j < heraldry.variations[i].tinctures.length; j++) {
+      pattern = heraldry.variations[i].tinctures[j].pattern;
+      defsSVG += heraldry.variations[i].tinctures[j].pattern;
     }
-    shieldSVG = shieldSVG.replaceAll("#ffffff", "url(#Division)");
-    fieldPatternSVG = fieldPatternSVG.replaceAll("#ffffff", tincture1Fill);
-    fieldPatternSVG = fieldPatternSVG.replaceAll("#00ff00", tincture2Fill);
-    defsSVG += fieldPatternSVG;
-  } else {
-    shieldSVG = shieldSVG.replaceAll("#ffffff", tincture1Fill);
+    let pattern = Variation.renderSVGPattern(heraldry.variations[i]);
+    pattern = pattern.replaceAll("variation", "variation" + (i + 1));
+    defsSVG += pattern;
   }
-
-  let tincture3Fill = heraldry.chargeTincture.hexColor;
 
   let chargeSVGString = heraldry.charge.svg;
 
-  if (tincture3Fill == "#000000") {
+  if (heraldry.chargeTincture.hexColor == "#000000") {
     chargeSVGString = chargeSVGString.replaceAll("#010101", "#ffffff");
     chargeSVGString = chargeSVGString.replaceAll("#000000", "#ffffff");
   }
-  chargeSVGString = chargeSVGString.replaceAll("#FFFFFF", tincture3Fill);
+  chargeSVGString = chargeSVGString.replaceAll(
+    "#FFFFFF",
+    heraldry.chargeTincture.hexColor
+  );
 
   let chargeObject = create(chargeSVGString).toObject();
 

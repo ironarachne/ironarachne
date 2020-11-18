@@ -6,23 +6,41 @@ export function all() {
 
 export function colors() {
   return [
-    { name: "azure", hexColor: "#0731BA", type: "color" },
+    {
+      name: "azure",
+      hexColor: "#0731BA",
+      pattern:
+        '<pattern id="azure" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#0731BA"/></pattern>',
+      type: "color",
+    },
     {
       name: "gules",
       hexColor: "#D40D02",
+      pattern:
+        '<pattern id="gules" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#D40D02"/></pattern>',
       type: "color",
     },
     {
       name: "vert",
       hexColor: "#0B731B",
+      pattern:
+        '<pattern id="vert" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#0B731B"/></pattern>',
       type: "color",
     },
     {
       name: "sable",
       hexColor: "#000000",
+      pattern:
+        '<pattern id="sable" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#000000"/></pattern>',
       type: "color",
     },
-    { name: "purpure", hexColor: "#6131B5", type: "color" },
+    {
+      name: "purpure",
+      hexColor: "#6131B5",
+      pattern:
+        '<pattern id="purpure" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#6131B5"/></pattern>',
+      type: "color",
+    },
   ];
 }
 
@@ -68,9 +86,17 @@ export function metals() {
     {
       name: "argent",
       hexColor: "#ffffff",
+      pattern:
+        '<pattern id="argent" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#ffffff"/></pattern>',
       type: "metal",
     },
-    { name: "Or", hexColor: "#F0D41F", type: "metal" },
+    {
+      name: "Or",
+      hexColor: "#F0D41F",
+      pattern:
+        '<pattern id="Or" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#F0D41F"/></pattern>',
+      type: "metal",
+    },
   ];
 }
 
