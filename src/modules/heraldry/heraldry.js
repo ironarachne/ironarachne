@@ -12,10 +12,11 @@ export function generate(charges) {
 
   let variations = [];
 
+  let oldT = Tincture.randomWeighted();
+
   for (let i = 0; i < f.variationCount; i++) {
     let v = Variation.randomWeighted();
     v.tinctures = [];
-    let oldT = Tincture.randomWeighted();
     for (let j = 0; j < v.tinctureCount; j++) {
       let t = Tincture.randomWeightedExcluding(oldT);
       v.tinctures.push(t);
