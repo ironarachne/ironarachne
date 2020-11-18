@@ -208,8 +208,8 @@ export function all() {
       svg: "",
     },
     {
-      name: "lion's head erased'",
-      plural: "lions's heads erased'",
+      name: "lion's head erased",
+      plural: "lion's heads erased",
       fileName: "lions-head-erased.svg",
       type: "regular",
       svg: "",
