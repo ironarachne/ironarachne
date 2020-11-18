@@ -9,9 +9,12 @@
   },
   "dependencies": {
     "@types/random": "^2.1.1",
+    "axios": "^0.21.0",
     "core-js": "^3.6.5",
     "random": "^2.2.0",
-    "vue": "^2.6.11"
+    "vue": "^2.6.11",
+    "vue-router": "^3.4.9",
+    "xmlbuilder2": "^2.4.0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",

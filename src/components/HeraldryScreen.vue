@@ -2,40 +2,34 @@
   <section class="heraldry main">
     <h2>Heraldry Generator</h2>
     <p>This is the heraldry generator.</p>
+    <div class="input-group">
+      <label for="seed">Random Seed</label>
+      <input type="text" name="seed" v-model="seed" />
+    </div>
     <button v-on:click="generateHeraldry">Generate</button>
-    <p class="blazon">{{ blazon }}</p>
-    <div class="coat-of-arms" v-html="image"></div>
   </section>
 </template>
 
 <script>
-  import * as Heraldry from '../modules/heraldry/heraldry.js'
+import * as iarnd from "../modules/random.js";
 
-  export default {
-    name: 'HeraldryScreen',
-    data: function() {
-      return {
-        blazon: '',
-        image: ''
-      }
+export default {
+  name: "HeraldryScreen",
+  data: function () {
+    return {
+      seed: "",
+    };
+  },
+  methods: {
+    generateHeraldry: function () {
+      this.$router.push({
+        name: "heraldry-generator",
+        params: { seed: this.seed },
+      });
     },
-    methods: {
-      generateHeraldry: function() {
-        let h = Heraldry.generate()
-        this.blazon = h.blazon
-        this.image = h.svg
-      }
-    }
-  }
+  },
+  created: function () {
+    this.seed = iarnd.randomString(13);
+  },
+};
 </script>
-
-<style type="scss">
-  div.coat-of-arms {
-    width: 600px;
-    height: 600px;
-    margin: 0 auto;
-  }
-  p.blazon {
-    text-align: center;
-  }
-</style>
