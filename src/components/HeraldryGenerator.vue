@@ -83,6 +83,7 @@ div.coat-of-arms {
   height: 660px;
   margin: 0 auto;
 }
+
 p.blazon {
   text-align: center;
 }

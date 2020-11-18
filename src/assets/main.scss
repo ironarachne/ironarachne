@@ -78,11 +78,13 @@ html {
   line-height: 1.5rem;
 }
 
-header,
-div#app,
-footer {
-  width: 968px;
-  margin: 0 auto;
+@media only screen and (min-width: 1000px) {
+  header,
+  div#app,
+  footer {
+    width: 968px;
+    margin: 0 auto;
+  }
 }
 
 h1,

@@ -90,12 +90,17 @@ label {
 }
 
 input {
+  font-size: 1rem;
   line-height: 1rem;
   padding: 0.25rem;
 }
 
 div.input-group {
   margin-bottom: 1rem;
+}
+
+div.coat-of-arms {
+  max-width: 100%;
 }
 
 /*# sourceMappingURL=main.css.map */

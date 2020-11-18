@@ -30,9 +30,11 @@ $tan: #5c5031;
 $gold: #fad037;
 
 #app {
-  div.primary {
-    display: grid;
-    grid-template-columns: 200px auto;
+  @media only screen and (min-width: 1000px) {
+    div.primary {
+      display: grid;
+      grid-template-columns: 200px auto;
+    }
   }
 
   section.main {
