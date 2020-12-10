@@ -3,9 +3,11 @@
     <h2>Navigation</h2>
 
     <ul>
-      <li><router-link to="/">Home</router-link></li>
+      <li><router-link to="/home">Home</router-link></li>
       <li><h3>Generators</h3></li>
+      <li><router-link to="/culture">Culture</router-link></li>
       <li><router-link to="/heraldry">Heraldry</router-link></li>
+      <li><router-link to="/chopshop">Chop Shop</router-link></li>
     </ul>
   </section>
 </template>
@@ -26,13 +28,27 @@ section.sidebar {
     background: $tan;
     border-radius: 0px;
     border: 0px solid #000;
-    color: white;
+    border-radius: 3px;
+    color: $ironarachnegreen;
+    display: inline-block;
     font-size: 0.9rem;
     line-height: 0.9rem;
     margin: 0;
+    margin-bottom: 0.5rem;
     width: 100%;
     text-decoration: none;
-    padding: 0 0.5rem;
+    padding: 0.5rem;
+    text-shadow: 1px 1px 1px rgba(255, 255, 255, 0.22);
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.29),
+      inset 1px 1px 1px rgba(255, 255, 255, 0.44);
+    transition: all 0.15s ease;
+  }
+  a:hover {
+    box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.29),
+      inset 0px 0px 2px rgba(0, 0, 0, 0.5);
+  }
+  a:active {
+    box-shadow: inset 0px 0px 3px rgba(0, 0, 0, 0.8);
   }
   a.router-link-active {
     background: $gold;
@@ -42,7 +58,17 @@ section.sidebar {
     font-size: 1.2rem;
     line-height: 1.2rem;
   }
+  h3,
+  h4 {
+    font-size: 1rem;
+  }
   border-right: 1px solid #eee;
   margin-right: 1.5rem;
+  ul {
+    li {
+      list-style: none;
+      margin-left: 0;
+    }
+  }
 }
 </style>

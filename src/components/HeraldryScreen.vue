@@ -1,12 +1,12 @@
 <template>
   <section class="heraldry main">
     <h2>Heraldry Generator</h2>
-    <p>This is the heraldry generator.</p>
+    <p>Generate random coats-of-arms that loosely adhere to heraldic rules.</p>
     <div class="input-group">
       <label for="seed">Random Seed</label>
       <input type="text" name="seed" v-model="seed" />
     </div>
-    <button v-on:click="generateHeraldry">Generate</button>
+    <button v-on:click="generateHeraldry">Load the Generator</button>
   </section>
 </template>
 

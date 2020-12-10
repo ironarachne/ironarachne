@@ -105,6 +105,14 @@ h2 {
   padding: 3px;
 }
 
+h3 {
+  font-size: 2rem;
+}
+
+h4 {
+  font-size: 1.5rem;
+}
+
 p {
   margin-bottom: 0.5rem;
 }
@@ -122,4 +130,11 @@ input {
 
 div.input-group {
   margin-bottom: 1rem;
+}
+
+ul {
+  li {
+    list-style-type: disc;
+    margin-left: 1rem;
+  }
 }
