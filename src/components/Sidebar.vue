@@ -4,10 +4,19 @@
 
     <ul>
       <li><router-link to="/home">Home</router-link></li>
-      <li><h3>Generators</h3></li>
+    </ul>
+
+    <h3>Fantasy</h3>
+
+    <ul>
       <li><router-link to="/culture">Culture</router-link></li>
       <li><router-link to="/region">Region</router-link></li>
       <li><router-link to="/heraldry">Heraldry</router-link></li>
+    </ul>
+
+    <h3>Cyberpunk</h3>
+
+    <ul>
       <li><router-link to="/chopshop">Chop Shop</router-link></li>
     </ul>
   </section>

@@ -1,7 +1,7 @@
 <template>
   <section class="culture main">
     <h2>Culture Generator</h2>
-    <p>This generator lets you create fictional cultures.</p>
+    <p>This generator lets you create fantasy cultures.</p>
     <div class="input-group">
       <label for="seed">Random Seed</label>
       <input type="text" name="seed" v-model="seed" />
@@ -10,8 +10,6 @@
     <button v-on:click="newSeed">New Seed</button>
 
     <h3>The {{ name }} Culture</h3>
-
-    <p>The {{ name }} society is {{ societyType }}.</p>
 
     <h4>Common Names</h4>
 
@@ -46,6 +44,18 @@
     <h4>Taboos</h4>
 
     <p v-for="(taboo, index) in taboos" :key="index">{{ taboo }}</p>
+
+    <h4>Greetings</h4>
+
+    <p>{{ greeting }}</p>
+
+    <h4>Meals</h4>
+
+    <p>{{ eatingTrait }}</p>
+
+    <h4>Design</h4>
+
+    <p>{{ designTrait }}</p>
   </section>
 </template>
 
@@ -74,7 +84,9 @@ export default {
       familyNames: [],
       religion: "",
       taboos: [],
-      societyType: "",
+      greeting: "",
+      eatingTrait: "",
+      designTrait: "",
     };
   },
   methods: {
@@ -85,11 +97,11 @@ export default {
       this.maleNames = culture.maleNames;
       this.femaleNames = culture.femaleNames;
       this.familyNames = culture.familyNames;
-      this.societyType = culture.societyType;
-
       this.religion = culture.religion.description;
-
       this.taboos = culture.taboos;
+      this.greeting = culture.greeting;
+      this.eatingTrait = culture.eatingTrait;
+      this.designTrait = culture.designTrait;
     },
     newSeed: function () {
       this.seed = iarnd.randomString(13);
