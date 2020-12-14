@@ -1,8 +1,16 @@
 <template>
   <section class="region main">
     <h2>Region Generator</h2>
+
     <p>Generate fantasy regions.</p>
+
+    <div class="input-group">
+      <label for="seed">Random Seed</label>
+      <input type="text" name="seed" v-model="seed" />
+    </div>
     <button v-on:click="generateRegion">Generate</button>
+    <button v-on:click="newSeed">New Seed</button>
+
     <p>{{ description }}</p>
     <h3>Notable Towns</h3>
     <article v-for="(item, index) in towns" :key="index">
@@ -18,6 +26,7 @@
 </template>
 
 <script>
+import * as iarnd from "../modules/random.js";
 import * as Region from "../modules/region.js";
 
 const random = require("random");
@@ -42,9 +51,13 @@ export default {
       this.organizations = region.organizations;
       this.towns = region.towns;
     },
+    newSeed: function () {
+      this.seed = iarnd.randomString(13);
+      this.generateRegion();
+    },
   },
   created: function () {
-    this.generateRegion();
+    this.newSeed();
   },
 };
 </script>
