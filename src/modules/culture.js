@@ -17,21 +17,48 @@ export function generate() {
   culture.familyNames = familyNames;
   culture.religion = Religion.generate();
   culture.taboos = [];
-  culture.societyType = randomSocietyType();
-
-  for (let i = 0; i < 2; i++) {
-    culture.taboos.push(randomTaboo());
-  }
+  culture.greeting = randomGreeting();
+  culture.taboos = randomTaboos();
+  culture.eatingTrait = randomEatingTrait();
+  culture.designTrait = randomDesignTrait();
 
   return culture;
 }
 
-function randomSocietyType() {
-  return iarnd.item(["agricultural", "pastoral", "nomadic", "foraging-based"]);
+function randomDesignTrait() {
+  return iarnd.item([
+    "Bright, vibrant colors are favored in designs.",
+    "Circles, loops, and other round shapes are represented often in design work.",
+    "Triangles are common in design patterns.",
+    "Colors are usually muted, with black being seen as respectful.",
+    "Squares and right angles are seen as symbols of strength and are heavily represented.",
+    "Intricate geometric designs are everywhere.",
+    "Stylized images of animals are common in design.",
+    "Stylized images of heroes and religious figures feature prominently.",
+  ]);
 }
 
-function randomTaboo() {
+function randomEatingTrait() {
   return iarnd.item([
+    "Eating in large, multi-family or neighborhood groups is common. Strangers are welcome at these communal meals.",
+    "Meals are served in large common vessels and each person is expected to serve themselves.",
+    "Most meals are accompanied by a wide variety of small side dishes.",
+    "A common custom to welcome a new person to a community is to serve them a special dish at a meal in their honor.",
+    "Food is considered the great equalizer, and at communal feasts, social status is ignored.",
+  ]);
+}
+
+function randomGreeting() {
+  return iarnd.item([
+    "Bowing is customary. The person of lower status bows lower, though both bow.",
+    "Friends or family clasp hands in greeting. In formal situations, shaking hands is expected.",
+    "Formal situations require the lesser person to kneel. If the status difference is slight, it is only kneeling on one knee. If the status difference is great, the lesser person must prostrate themselves. In informal situations, simple nodding the head is acceptable.",
+    "In casual situations like with friends, waving is a common greeting. Formal situations require slight bowing and recitation of a ritual greeting.",
+  ]);
+}
+
+function randomTaboos() {
+  let possible = [
     "The baring of skin other than the face is forbidden in public.",
     "The eating of animals is strictly forbidden.",
     "A gift of red fruit is considered a death threat, as red fruit is commonly seen as poisonous.",
@@ -59,6 +86,18 @@ function randomTaboo() {
     "Giving sharp objects as gifts is taboo, as they symbolize ending a relationship.",
     "Uttering the name given at birth will result in death.",
     "Saying the names of the dead is forbidden.",
-    "Eating and drinking must never be done in the company of others.",
-  ]);
+  ];
+
+  let taboos = [];
+
+  for (let i = 0; i < 2; i++) {
+    let taboo = iarnd.item(possible);
+    if (!taboos.includes(taboo)) {
+      taboos.push(taboo);
+    } else {
+      i--;
+    }
+  }
+
+  return taboos;
 }
