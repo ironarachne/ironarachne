@@ -5,6 +5,7 @@ import ChopShopGenerator from "./components/ChopShopGenerator.vue";
 import CultureGenerator from "./components/CultureGenerator.vue";
 import HeraldryGenerator from "./components/HeraldryGenerator.vue";
 import HeraldryScreen from "./components/HeraldryScreen.vue";
+import RegionGenerator from "./components/RegionGenerator.vue";
 import TavernGenerator from "./components/TavernGenerator.vue";
 import App from "./App.vue";
 import "./assets/reset.scss";
@@ -23,6 +24,7 @@ const routes = [
     name: "heraldry-generator",
     component: HeraldryGenerator,
   },
+  { path: "/region", component: RegionGenerator },
   {
     path: "/tavern",
     component: TavernGenerator,

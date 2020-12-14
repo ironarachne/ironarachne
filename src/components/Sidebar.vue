@@ -6,6 +6,7 @@
       <li><router-link to="/home">Home</router-link></li>
       <li><h3>Generators</h3></li>
       <li><router-link to="/culture">Culture</router-link></li>
+      <li><router-link to="/region">Region</router-link></li>
       <li><router-link to="/heraldry">Heraldry</router-link></li>
       <li><router-link to="/chopshop">Chop Shop</router-link></li>
     </ul>

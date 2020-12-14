@@ -8,10 +8,15 @@
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@types/d3": "^6.2.0",
+    "@types/priorityqueuejs": "^1.0.1",
     "@types/random": "^2.1.1",
     "axios": "^0.21.0",
     "core-js": "^3.6.5",
+    "d3": "^6.3.1",
+    "d3-delaunay": "^5.3.0",
     "lodash": "^4.17.20",
+    "priorityqueuejs": "^2.0.0",
     "random": "^2.2.0",
     "vue": "^2.6.11",
     "vue-router": "^3.4.9",
