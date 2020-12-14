@@ -14,6 +14,12 @@
       <li><router-link to="/heraldry">Heraldry</router-link></li>
     </ul>
 
+    <h3>Sci-Fi</h3>
+
+    <ul>
+      <li><router-link to="/starsystem">Star System</router-link></li>
+    </ul>
+
     <h3>Cyberpunk</h3>
 
     <ul>
