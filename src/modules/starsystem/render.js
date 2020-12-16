@@ -1,13 +1,23 @@
 const random = require("random");
 
-export function renderPlanet(width, height, texture, hasAtmosphere) {
+export function renderPlanet(width, height, texture, hasAtmosphere, sizeClass) {
   let midX = Math.floor(width / 2);
   let midY = Math.floor(height / 2);
 
   let planetId = random.int(0, 1000);
 
   let min = Math.min(width, height);
-  let radius = (Math.floor(min) * random.float(0.5, 0.7)) / 2;
+
+  let radius = 0.0;
+
+  if (sizeClass == "small") {
+    radius = (Math.floor(min) * random.float(0.2, 0.4)) / 2;
+  } else if (sizeClass == "medium") {
+    radius = (Math.floor(min) * random.float(0.5, 0.7)) / 2;
+  } else {
+    radius = (Math.floor(min) * random.float(0.8, 0.9)) / 2;
+  }
+
   let atmosphereRadius = Math.floor(radius * 1.1);
 
   let background = renderStarfield(width, height);
@@ -23,23 +33,24 @@ export function renderPlanet(width, height, texture, hasAtmosphere) {
     height +
     '">';
 
-  svg +=
-    '<defs><radialGradient id="atmosphere-' +
-    planetId +
-    '"><stop offset="95%" stop-color="blue" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient></defs>';
+  svg += "<defs>";
 
   svg +=
-    '<mask id="planetMask-' +
+    '<radialGradient id="atmosphere-' +
     planetId +
-    '"><circle cx="' +
-    midX +
-    '" cy="' +
-    midY +
-    '" + r="' +
-    radius +
-    '" fill="white" /></mask>';
+    '"><stop offset="95%" stop-color="blue" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient>';
 
-  svg += '<filter id="planetSurface-' + planetId + '">' + texture + "</filter>";
+  svg +=
+    '<radialGradient id="planetShadow" cx="0.5" cy="0.5" r="0.75" fx="0.275" fy="0.275"><stop offset="0%" stop-color="rgb(0,0,0)" stop-opacity="0" /><stop offset="80%" stop-color="rgb(0,0,70)" stop-opacity="0.8" /><stop offset="90%" stop-color="rgb(0,0,0)" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(0,00,40)" stop-opacity="0.6" /></radialGradient>';
+
+  svg +=
+    '<pattern id="planetTexture-' +
+    planetId +
+    '" x="0" y="0" width="1" height="1">' +
+    texture +
+    "</pattern>";
+
+  svg += "</defs>";
 
   svg += background;
 
@@ -63,11 +74,18 @@ export function renderPlanet(width, height, texture, hasAtmosphere) {
     midY +
     '" r="' +
     radius +
-    '" fill="black" filter="url(#planetSurface-' +
-    planetId +
-    ')" mask="url(#planetMask-' +
+    '" fill="url(#planetTexture-' +
     planetId +
     ')" />';
+
+  svg +=
+    '<circle cx="' +
+    midX +
+    '" cy="' +
+    midY +
+    '" r="' +
+    radius +
+    '" fill="url(#planetShadow)" />';
 
   return svg;
 }
