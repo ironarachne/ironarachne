@@ -6,13 +6,6 @@
       <router-view></router-view>
     </div>
     <Footer />
-    <!-- Cloudflare Web Analytics -->
-    <script
-      defer
-      src="https://static.cloudflareinsights.com/beacon.min.js"
-      data-cf-beacon='{"token": "ffbc969a542e49e3a8cea8dc23375a72"}'
-    ></script>
-    <!-- End Cloudflare Web Analytics -->
   </div>
 </template>
 
