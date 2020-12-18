@@ -8,6 +8,7 @@ import HeraldryScreen from "./components/HeraldryScreen.vue";
 import RegionGenerator from "./components/RegionGenerator.vue";
 import StarSystemGenerator from "./components/StarSystemGenerator.vue";
 import TavernGenerator from "./components/TavernGenerator.vue";
+import UWCharacterGenerator from "./components/UWCharacterGenerator.vue";
 import App from "./App.vue";
 import "./assets/reset.scss";
 import "./assets/main.scss";
@@ -35,6 +36,7 @@ const routes = [
     component: ChopShopGenerator,
   },
   { path: "/starsystem", component: StarSystemGenerator },
+  { path: "/unchartedworlds/character", component: UWCharacterGenerator },
 ];
 
 const router = new VueRouter({

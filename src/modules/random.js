@@ -13,6 +13,17 @@ export function randomString(length) {
     .slice(1);
 }
 
+export function shuffle(items) {
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * i);
+    const temp = items[i];
+    items[i] = items[j];
+    items[j] = temp;
+  }
+
+  return items;
+}
+
 export function weighted(items) {
   let ceiling = 0;
 
