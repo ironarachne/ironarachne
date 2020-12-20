@@ -1,4 +1,5 @@
 import * as iarnd from "../random.js";
+import * as CommonNames from "../names/common.js";
 
 export function generate() {
   let organization = {
@@ -63,6 +64,90 @@ function randomType() {
           "{name} is a vicious mercenary company with a reputation for excessive violence.",
           "{name} is a merc company that prides itself on its professionalism and integrity.",
           "{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.",
+        ]);
+      },
+    },
+    {
+      name: "trading company",
+      minSize: 20,
+      maxSize: 200,
+      leaderTitle: "president",
+      randomName: function () {
+        let nameTypes = [
+          {
+            name: "generic",
+            randomName: function () {
+              let prefixes = ["Dynasty", "Gilded", "Luxury"];
+
+              let prefix = iarnd.item(prefixes);
+
+              let suffix = iarnd.item([
+                "Trading Company",
+                "Traders",
+                "Navigation Company",
+                "Trade Company",
+                "Trade and Navigation Company",
+              ]);
+
+              return prefix + " " + suffix;
+            },
+          },
+          {
+            name: "geographic",
+            randomName: function () {
+              let direction = iarnd.item(["North", "West", "South", "East"]);
+              let feature = iarnd.item(["Wind", "Sea", "Mountain", "Ocean"]);
+
+              let suffix = iarnd.item([
+                "Trading Company",
+                "Traders",
+                "Navigation Company",
+                "Trade Company",
+                "Trade and Navigation Company",
+              ]);
+
+              return direction + " " + feature + " " + suffix;
+            },
+          },
+          {
+            name: "family",
+            randomName: function () {
+              let familyNames = CommonNames.lastNames();
+
+              let familyName = iarnd.item(familyNames);
+
+              let moniker = iarnd.item([
+                " Brothers",
+                " & Sons",
+                " & Son",
+                " Family",
+                "",
+              ]);
+
+              let suffix = iarnd.item([
+                "Trading Company",
+                "Traders",
+                "Navigation Company",
+                "Trade Company",
+                "Trade and Navigation Company",
+              ]);
+
+              return familyName + " " + moniker + " " + suffix;
+            },
+          },
+        ];
+
+        let namer = iarnd.item(nameTypes);
+
+        return namer.randomName();
+      },
+      randomDescription: function () {
+        return iarnd.item([
+          "The {name} is noted for the quality of their goods.",
+          "The {name} has a reputation for always delivering goods to their intended destination.",
+          "The {name} appears to be reputable on the surface, but are rumored to be involved in many underhanded dealings.",
+          "The {name} often openly uses bullying and strong-arming in their dealings.",
+          "The {name} deals in a wide variety of goods.",
         ]);
       },
     },
