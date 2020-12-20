@@ -41,7 +41,7 @@ export function generate() {
   for (let i = 0; i < numberOfInnerPlanets; i++) {
     let planetType = randomInnerPlanetType();
     let planet = randomPlanet(planetType);
-    planet.name = starsystem.name + " " + Words.romanize(planetCount);
+    planet.name = starsystem.name + " " + Words.romanize(planetCount - 1);
     let planetTexture = planetType.renderSVG();
     planet.svg = StarSystemRender.renderPlanet(
       graphicWidth,
