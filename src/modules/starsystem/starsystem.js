@@ -48,6 +48,7 @@ export function generate() {
       graphicHeight,
       planetTexture,
       planetType.hasAtmosphere,
+      planetType.atmosphereColor,
       planetType.sizeClass
     );
     planetCount++;
@@ -64,6 +65,7 @@ export function generate() {
       graphicHeight,
       planetTexture,
       planetType.hasAtmosphere,
+      planetType.atmosphereColor,
       planetType.sizeClass
     );
     planetCount++;
@@ -80,6 +82,7 @@ export function generate() {
       graphicHeight,
       planetTexture,
       planetType.hasAtmosphere,
+      planetType.atmosphereColor,
       planetType.sizeClass
     );
     planetCount++;
@@ -108,16 +111,22 @@ function allPlanetTypes() {
       habitationChance: 0,
       sizeClass: "small",
       hasAtmosphere: false,
+      atmosphereColor: "blue",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
         svg +=
-          '<radialGradient id="craterTrough" cx="0.6" cy="0.6" fx="0.4" fy="0.4"><stop offset="0%" stop-color="rgb(170,170,170)" /><stop offset="5%" stop-color="rgb(150,150,150)" /><stop offset="95%" stop-color="rgb(150,150,150)" stop-opacity="0" /><stop offset="100%" stop-color="rgb(110,110,110)" /></radialGradient>';
+          '<radialGradient id="craterTrough' +
+          hash +
+          '" cx="0.6" cy="0.6" fx="0.4" fy="0.4"><stop offset="0%" stop-color="rgb(170,170,170)" /><stop offset="5%" stop-color="rgb(150,150,150)" /><stop offset="95%" stop-color="rgb(150,150,150)" stop-opacity="0" /><stop offset="100%" stop-color="rgb(110,110,110)" /></radialGradient>';
 
         svg +=
-          '<filter id="barrenTexture1"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
+          '<filter id="barrenTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
 
         svg += "</defs>";
         svg +=
@@ -144,7 +153,9 @@ function allPlanetTypes() {
             amount +
             ", " +
             amount +
-            ')" filter="url(#barrenTexture1)" />';
+            ')" filter="url(#barrenTexture' +
+            hash +
+            ')" />';
         }
 
         let numberOfCraters = random.int(55, 80);
@@ -160,7 +171,9 @@ function allPlanetTypes() {
             y +
             '" r="' +
             r +
-            '" fill="url(#craterTrough)" />';
+            '" fill="url(#craterTrough' +
+            hash +
+            ')" />';
           svg += crater;
         }
 
@@ -174,17 +187,23 @@ function allPlanetTypes() {
       possibleRegions: ["inner", "goldilocks"],
       habitationChance: 15,
       hasAtmosphere: true,
+      atmosphereColor: "rgb(170,224,211)",
       sizeClass: "medium",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
         svg +=
-          '<radialGradient id="aridCrater" cx="0.6" cy="0.6" fx="0.4" fy="0.4"><stop offset="0%" stop-color="rgb(237,220,151)" /><stop offset="5%" stop-color="rgb(227,210,141)" /><stop offset="95%" stop-color="rgb(217,200,131)" stop-opacity="0" /><stop offset="100%" stop-color="rgb(197,190,121)" /></radialGradient>';
+          '<radialGradient id="aridCrater' +
+          hash +
+          '" cx="0.6" cy="0.6" fx="0.4" fy="0.4"><stop offset="0%" stop-color="rgb(237,220,151)" /><stop offset="5%" stop-color="rgb(227,210,141)" /><stop offset="95%" stop-color="rgb(217,200,131)" stop-opacity="0" /><stop offset="100%" stop-color="rgb(197,190,121)" /></radialGradient>';
 
         svg +=
-          '<filter id="aridTexture1"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
+          '<filter id="aridTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
 
         svg += "</defs>";
         svg +=
@@ -211,7 +230,9 @@ function allPlanetTypes() {
             (210 + amount) +
             ", " +
             (141 + amount) +
-            ')" filter="url(#aridTexture1)" />';
+            ')" filter="url(#aridTexture' +
+            hash +
+            ')" />';
         }
 
         let numberOfCraters = random.int(25, 30);
@@ -227,7 +248,9 @@ function allPlanetTypes() {
             y +
             '" r="' +
             r +
-            '" fill="url(#aridCrater)" />';
+            '" fill="url(#aridCrater' +
+            hash +
+            ')" />';
           svg += crater;
         }
 
@@ -241,21 +264,29 @@ function allPlanetTypes() {
       possibleRegions: ["goldilocks"],
       habitationChance: 85,
       hasAtmosphere: true,
+      atmosphereColor: "blue",
       sizeClass: "medium",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
 
         svg +=
-          '<radialGradient id="gardenContinentGradient"><stop offset="0%" stop-color="rgb(130,181,91)" /><stop offset="100%" stop-color="rgb(120,153,55)" /></radialGradient>';
+          '<radialGradient id="gardenContinentGradient' +
+          hash +
+          '"><stop offset="0%" stop-color="rgb(130,181,91)" /><stop offset="100%" stop-color="rgb(120,153,55)" /></radialGradient>';
 
         svg +=
-          '<filter id="gardenTexture1"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
+          '<filter id="gardenTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
 
         svg +=
-          '<filter id="cloudTexture"><feTurbulence type="turbulence" baseFrequency="0.2" numOctaves="2" result="turbulence" /><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="30" xChannelSelector="R" yChannelSelector="G" /><feGaussianBlur stdDeviation="0.1" /></filter>';
+          '<filter id="cloudTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.45" numOctaves="2" result="turbulence" /><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="30" xChannelSelector="R" yChannelSelector="G" /><feGaussianBlur stdDeviation="0.2" /></filter>';
 
         svg += "</defs>";
         svg +=
@@ -275,7 +306,11 @@ function allPlanetTypes() {
             y +
             '" r="' +
             r +
-            '" fill="url(#gardenContinentGradient)" filter="url(#gardenTexture1)" />';
+            '" fill="url(#gardenContinentGradient' +
+            hash +
+            ')" filter="url(#gardenTexture' +
+            hash +
+            ')" />';
         }
 
         let numberOfClouds = random.int(20, 30);
@@ -283,7 +318,7 @@ function allPlanetTypes() {
         for (let i = 0; i < numberOfClouds; i++) {
           let x = random.int(15, 100);
           let y = random.int(15, 100);
-          let rx = random.int(5, 9);
+          let rx = random.int(5, 13);
           let ry = random.int(5, 9);
 
           svg +=
@@ -295,7 +330,9 @@ function allPlanetTypes() {
             rx +
             '" ry="' +
             ry +
-            '" fill="white" filter="url(#cloudTexture)" />';
+            '" fill="white" filter="url(#cloudTexture' +
+            hash +
+            ')" />';
         }
 
         svg += "</svg>";
@@ -308,21 +345,29 @@ function allPlanetTypes() {
       possibleRegions: ["goldilocks"],
       habitationChance: 65,
       hasAtmosphere: true,
+      atmosphereColor: "blue",
       sizeClass: "medium",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
 
         svg +=
-          '<linearGradient id="jungleLakeGradient"><stop offset="0%" stop-color="rgb(17,109,128)" /><stop offset="100%" stop-color="rgb(7,99,118)" /></linearGradient>';
+          '<linearGradient id="jungleLakeGradient' +
+          hash +
+          '"><stop offset="0%" stop-color="rgb(17,109,128)" /><stop offset="100%" stop-color="rgb(7,99,118)" /></linearGradient>';
 
         svg +=
-          '<filter id="jungleTexture1"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
+          '<filter id="jungleTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
 
         svg +=
-          '<filter id="cloudTexture"><feTurbulence type="turbulence" baseFrequency="0.2" numOctaves="2" result="turbulence" /><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="30" xChannelSelector="R" yChannelSelector="G" /><feGaussianBlur stdDeviation="0.1" /></filter>';
+          '<filter id="cloudTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.2" numOctaves="2" result="turbulence" /><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="30" xChannelSelector="R" yChannelSelector="G" /><feGaussianBlur stdDeviation="0.1" /></filter>';
 
         svg += "</defs>";
         svg +=
@@ -349,7 +394,9 @@ function allPlanetTypes() {
             (96 + amount) +
             ", " +
             (42 + amount) +
-            ')" filter="url(#jungleTexture1)" />';
+            ')" filter="url(#jungleTexture' +
+            hash +
+            ')" />';
         }
 
         let numberOfOceans = random.int(4, 7);
@@ -366,7 +413,11 @@ function allPlanetTypes() {
             y +
             '" r="' +
             r +
-            '" fill="url(#jungleLakeGradient)" filter="url(#jungleTexture1)" />';
+            '" fill="url(#jungleLakeGradient' +
+            hash +
+            ')" filter="url(#jungleTexture' +
+            hash +
+            ')" />';
         }
 
         let numberOfClouds = random.int(40, 60);
@@ -386,7 +437,9 @@ function allPlanetTypes() {
             rx +
             '" ry="' +
             ry +
-            '" fill="white" filter="url(#cloudTexture)" />';
+            '" fill="white" filter="url(#cloudTexture' +
+            hash +
+            ')" />';
         }
 
         svg += "</svg>";
@@ -399,17 +452,23 @@ function allPlanetTypes() {
       possibleRegions: ["inner"],
       habitationChance: 15,
       hasAtmosphere: true,
+      atmosphereColor: "rgb(224,153,47)",
       sizeClass: "medium",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
         svg +=
-          '<radialGradient id="volcanicCrater" cx="0.6" cy="0.6" fx="0.4" fy="0.4"><stop offset="0%" stop-color="rgb(67,50,45)" /><stop offset="5%" stop-color="rgb(57,40,35)" /><stop offset="95%" stop-color="rgb(47,30,25)" stop-opacity="0" /><stop offset="100%" stop-color="rgb(37,20,15)" /></radialGradient>';
+          '<radialGradient id="volcanicCrater' +
+          hash +
+          '" cx="0.6" cy="0.6" fx="0.4" fy="0.4"><stop offset="0%" stop-color="rgb(67,50,45)" /><stop offset="5%" stop-color="rgb(57,40,35)" /><stop offset="95%" stop-color="rgb(47,30,25)" stop-opacity="0" /><stop offset="100%" stop-color="rgb(37,20,15)" /></radialGradient>';
 
         svg +=
-          '<filter id="volcanicTexture1"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
+          '<filter id="volcanicTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
 
         svg += "</defs>";
         svg +=
@@ -436,7 +495,9 @@ function allPlanetTypes() {
             (40 + amount) +
             ", " +
             (35 + amount) +
-            ')" filter="url(#volcanicTexture1)" />';
+            ')" filter="url(#volcanicTexture' +
+            hash +
+            ')" />';
         }
 
         let numberOfLavaLakes = random.int(26, 30);
@@ -460,7 +521,9 @@ function allPlanetTypes() {
             (132 + amount) +
             ", " +
             (5 + amount) +
-            ')" filter="url(#volcanicTexture1)" />';
+            ')" filter="url(#volcanicTexture' +
+            hash +
+            ')" />';
         }
 
         svg += "</svg>";
@@ -473,15 +536,19 @@ function allPlanetTypes() {
       possibleRegions: ["outer"],
       habitationChance: 0,
       hasAtmosphere: false,
+      atmosphereColor: "blue",
       sizeClass: "large",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
 
         svg +=
-          '<filter id="bandFilter"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
+          '<filter id="bandFilter' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
 
         svg += "</defs>";
 
@@ -518,7 +585,9 @@ function allPlanetTypes() {
             g +
             ", " +
             b +
-            ')" filter="url(#bandFilter)" />';
+            ')" filter="url(#bandFilter' +
+            hash +
+            ')" />';
 
           bandsSVG += bandSVG;
 
@@ -542,18 +611,24 @@ function allPlanetTypes() {
       possibleRegions: ["inner", "goldilocks"],
       habitationChance: 5,
       hasAtmosphere: true,
+      atmosphereColor: "rgb(171,224,45)",
       sizeClass: "medium",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
 
         svg +=
-          '<linearGradient id="toxicLakeGradient"><stop offset="0%" stop-color="rgb(152,222,52)" /><stop offset="100%" stop-color="rgb(172,232,67)" /></linearGradient>';
+          '<linearGradient id="toxicLakeGradient' +
+          hash +
+          '"><stop offset="0%" stop-color="rgb(152,222,52)" /><stop offset="100%" stop-color="rgb(172,232,67)" /></linearGradient>';
 
         svg +=
-          '<filter id="toxicTexture1"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
+          '<filter id="toxicTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
 
         svg += "</defs>";
         svg +=
@@ -580,7 +655,9 @@ function allPlanetTypes() {
             (155 + amount) +
             ", " +
             (39 + amount) +
-            ')" filter="url(#toxicTexture1)" />';
+            ')" filter="url(#toxicTexture' +
+            hash +
+            ')" />';
         }
 
         let numberOfToxicOceans = random.int(4, 7);
@@ -597,7 +674,11 @@ function allPlanetTypes() {
             y +
             '" r="' +
             r +
-            '" fill="url(#toxicLakeGradient)" filter="url(#toxicTexture1)" />';
+            '" fill="url(#toxicLakeGradient' +
+            hash +
+            ')" filter="url(#toxicTexture' +
+            hash +
+            ')" />';
         }
 
         svg += "</svg>";
@@ -610,17 +691,23 @@ function allPlanetTypes() {
       possibleRegions: ["outer"],
       habitationChance: 15,
       hasAtmosphere: true,
+      atmosphereColor: "rgb(125,229,255)",
       sizeClass: "medium",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
         svg +=
-          '<radialGradient id="iceCrater" cx="0.6" cy="0.6" fx="0.4" fy="0.4"><stop offset="0%" stop-color="rgb(234,255,255)" /><stop offset="5%" stop-color="rgb(224,250,255)" /><stop offset="95%" stop-color="rgb(214,240,245)" stop-opacity="0" /><stop offset="100%" stop-color="rgb(204,230,235)" /></radialGradient>';
+          '<radialGradient id="iceCrater' +
+          hash +
+          '" cx="0.6" cy="0.6" fx="0.4" fy="0.4"><stop offset="0%" stop-color="rgb(234,255,255)" /><stop offset="5%" stop-color="rgb(224,250,255)" /><stop offset="95%" stop-color="rgb(214,240,245)" stop-opacity="0" /><stop offset="100%" stop-color="rgb(204,230,235)" /></radialGradient>';
 
         svg +=
-          '<filter id="iceTexture1"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
+          '<filter id="iceTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.05" numOctaves="2" result="turbulence"/><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="15" xChannelSelector="R" yChannelSelector="G" /></filter>';
 
         svg += "</defs>";
         svg +=
@@ -647,7 +734,9 @@ function allPlanetTypes() {
             (230 + amount) +
             ", " +
             (235 + amount) +
-            ')" filter="url(#iceTexture1)" />';
+            ')" filter="url(#iceTexture' +
+            hash +
+            ')" />';
         }
 
         svg += "</svg>";
@@ -660,23 +749,31 @@ function allPlanetTypes() {
       possibleRegions: ["goldilocks"],
       habitationChance: 20,
       hasAtmosphere: true,
+      atmosphereColor: "blue",
       sizeClass: "medium",
       renderSVG: function () {
+        let hash = iarnd.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
         svg += "<defs>";
 
         svg +=
-          '<radialGradient id="oceanGradient" cx="0.5" cy="0.5"><stop offset="0%" stop-color="rgb(45,14,201)" /><stop offset="100%" stop-color="rgb(95,117,227)" />';
+          '<radialGradient id="oceanGradient' +
+          hash +
+          '" cx="0.5" cy="0.5"><stop offset="0%" stop-color="rgb(45,14,201)" /><stop offset="100%" stop-color="rgb(95,117,227)" />';
 
         svg +=
-          '<filter id="cloudTexture"><feTurbulence type="turbulence" baseFrequency="0.2" numOctaves="2" result="turbulence" /><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="30" xChannelSelector="R" yChannelSelector="G" /><feGaussianBlur stdDeviation="0.1" /></filter>';
+          '<filter id="cloudTexture' +
+          hash +
+          '"><feTurbulence type="turbulence" baseFrequency="0.2" numOctaves="2" result="turbulence" /><feDisplacementMap in2="turbulence" in="SourceGraphic" scale="30" xChannelSelector="R" yChannelSelector="G" /><feGaussianBlur stdDeviation="0.1" /></filter>';
 
         svg += "</defs>";
 
         svg +=
-          '<rect x="0" y="0" width="256" height="256" fill="url(#oceanGradient)" />';
+          '<rect x="0" y="0" width="256" height="256" fill="url(#oceanGradient' +
+          hash +
+          ')" />';
 
         svg += "</svg>";
 
@@ -697,7 +794,9 @@ function allPlanetTypes() {
             rx +
             '" ry="' +
             ry +
-            '" fill="white" filter="url(#cloudTexture)" />';
+            '" fill="white" filter="url(#cloudTexture' +
+            hash +
+            ')" />';
         }
 
         return svg;

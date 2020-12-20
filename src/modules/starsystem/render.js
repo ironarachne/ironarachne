@@ -1,6 +1,13 @@
 const random = require("random");
 
-export function renderPlanet(width, height, texture, hasAtmosphere, sizeClass) {
+export function renderPlanet(
+  width,
+  height,
+  texture,
+  hasAtmosphere,
+  atmosphereColor,
+  sizeClass
+) {
   let midX = Math.floor(width / 2);
   let midY = Math.floor(height / 2);
 
@@ -38,7 +45,9 @@ export function renderPlanet(width, height, texture, hasAtmosphere, sizeClass) {
   svg +=
     '<radialGradient id="atmosphere-' +
     planetId +
-    '"><stop offset="95%" stop-color="blue" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient>';
+    '"><stop offset="95%" stop-color="' +
+    atmosphereColor +
+    '" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient>';
 
   svg +=
     '<radialGradient id="planetShadow" cx="0.5" cy="0.5" r="0.75" fx="0.275" fy="0.275"><stop offset="0%" stop-color="rgb(0,0,0)" stop-opacity="0" /><stop offset="80%" stop-color="rgb(0,0,70)" stop-opacity="0.8" /><stop offset="90%" stop-color="rgb(0,0,0)" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(0,00,40)" stop-opacity="0.6" /></radialGradient>';
