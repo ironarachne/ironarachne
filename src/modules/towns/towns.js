@@ -26,7 +26,10 @@ export function generate(size, possibleNames) {
   let description = randomDescription();
 
   description = description.replace("{size}", townSize.name);
-  description = description.replace("{population}", population);
+  description = description.replace(
+    "{population}",
+    new Intl.NumberFormat().format(population)
+  );
   description = description.replace("{name}", town.name);
   description += " " + townSize.randomDescription();
 
@@ -107,7 +110,7 @@ function allSizes() {
           "The sprawling buildings of this city resemble nothing so much as a sea of wood and stone.",
           "The walls of this city create a formidable barrier between it and the rest of the world.",
           "Though marred by soot and the signs of industry run rampant, this city has a liveliness to it that's infectious.",
-          "Buildings in the wealth districts here are beautiful and ornate. Closer to the city walls, however, are large slums filled with human detritus.",
+          "Buildings in the wealthy districts here are beautiful and ornate. Closer to the city walls, however, are large slums filled with human detritus.",
         ]);
       },
     },
