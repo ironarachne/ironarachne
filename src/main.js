@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import HomeScreen from "./components/HomeScreen.vue";
 import ChopShopGenerator from "./components/ChopShopGenerator.vue";
 import CultureGenerator from "./components/CultureGenerator.vue";
+import FantasyOrgGenerator from "./components/FantasyOrgGenerator.vue";
 import HeraldryGenerator from "./components/HeraldryGenerator.vue";
 import HeraldryScreen from "./components/HeraldryScreen.vue";
 import RegionGenerator from "./components/RegionGenerator.vue";
@@ -20,6 +21,7 @@ const routes = [
   { path: "/", redirect: "/home" },
   { path: "/home", component: HomeScreen },
   { path: "/culture", component: CultureGenerator },
+  { path: "/fantasy/organization", component: FantasyOrgGenerator },
   { path: "/heraldry", component: HeraldryScreen },
   {
     path: "/heraldry/:seed",

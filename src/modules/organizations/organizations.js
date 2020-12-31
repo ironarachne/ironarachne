@@ -1,10 +1,14 @@
 import * as iarnd from "../random.js";
 import * as CommonNames from "../names/common.js";
+import * as FantasyCharacter from "../characters/fantasy.js";
+
+const random = require("random");
 
 export function generate() {
   let organization = {
     name: "",
     description: "",
+    memberCount: 0,
   };
 
   let orgType = randomType();
@@ -15,8 +19,23 @@ export function generate() {
     "{name}",
     organization.name
   );
+  organization.memberCount = random.int(orgType.minSize, orgType.maxSize);
+  organization.description += " It has " + organization.memberCount + " members. ";
+  organization.description += randomPopularity();
+  organization.leadership = orgType.randomLeadership();
 
   return organization;
+}
+
+function randomPopularity() {
+  return iarnd.item([
+    "They enjoy a surprising amount of local popularity.",
+    "They are not terribly popular locally.",
+    "They're disliked by the local population.",
+    "They're fairly popular locally but relatively unknown in the wider region.",
+    "While locals are ambivalent about them, they are fairly popular in the wider region.",
+    "The locals actively hate them.",
+  ]);
 }
 
 function randomType() {
@@ -65,6 +84,13 @@ function randomType() {
           "{name} is a merc company that prides itself on its professionalism and integrity.",
           "{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.",
         ]);
+      },
+      randomLeadership: function () {
+        let leader = FantasyCharacter.generateByAgeGroup("adult");
+
+        let description = "They are lead by " + leader.firstName + " " + leader.lastName + ". " + leader.description;
+
+        return description;
       },
     },
     {
@@ -150,6 +176,13 @@ function randomType() {
           "The {name} deals in a wide variety of goods.",
         ]);
       },
+      randomLeadership: function () {
+        let leader = FantasyCharacter.generateByAgeGroup("adult");
+
+        let description = "They are lead by " + leader.firstName + " " + leader.lastName + ". " + leader.description;
+
+        return description;
+      },
     },
     {
       name: "wizard school",
@@ -178,6 +211,13 @@ function randomType() {
           "{name} has a reputation for experimentation, and there are rumors that sometimes they experiment on their own students.",
           "{name} is an egalitarian wizard school that accepts new students from every walk of life.",
         ]);
+      },
+      randomLeadership: function () {
+        let leader = FantasyCharacter.generateByAgeGroup("elderly");
+
+        let description = "The school is led by Headmaster " + leader.firstName + " " + leader.lastName + ". " + leader.description;
+
+        return description;
       },
     },
   ]);
