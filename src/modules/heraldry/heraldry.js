@@ -7,7 +7,7 @@ import * as iarnd from "../random.js";
 var _ = require("lodash");
 const { create } = require("xmlbuilder2");
 
-export function generate(charges) {
+export function generate(charges, width, height) {
   let f = Field.random();
 
   let variations = [];
@@ -61,7 +61,7 @@ export function generate(charges) {
     chargePosition: chargePosition,
   };
 
-  let svg = renderSVG(heraldry);
+  let svg = renderSVG(heraldry, width, height);
 
   return {
     blazon: blazon,
@@ -87,7 +87,7 @@ export function randomNumberOfCharges() {
   return result;
 }
 
-export function renderSVG(heraldry) {
+export function renderSVG(heraldry, width, height) {
   const shieldWidth = 600;
   const shieldHeight = 660;
 
@@ -95,7 +95,7 @@ export function renderSVG(heraldry) {
     '<path fill="url(#Division)" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>';
 
   let armsSVG =
-    '<svg width="600" height="660" xmlns="http://www.w3.org/2000/svg" version="1.1">';
+    '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + shieldWidth + " " + shieldHeight + '" xmlns="http://www.w3.org/2000/svg" version="1.1">';
   let defsSVG = "<defs>";
 
   defsSVG += heraldry.field.pattern;

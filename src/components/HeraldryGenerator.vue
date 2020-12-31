@@ -40,7 +40,7 @@ export default {
   methods: {
     generateHeraldry: function () {
       random.use(seedrandom(this.seed));
-      let h = Heraldry.generate(this.charges);
+      let h = Heraldry.generate(this.charges, 600, 660);
       this.blazon = h.blazon;
       this.image = h.svg;
     },
