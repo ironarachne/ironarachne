@@ -13,7 +13,7 @@
 
     <h3>{{ name }}</h3>
 
-    <div class="coat-of-arms" v-html="heraldry.svg"></div>
+    <div class="org-arms" v-html="heraldry.svg"></div>
 
     <p>{{ description }}</p>
 
@@ -78,7 +78,7 @@ export default {
 </script>
 
 <style>
-div.coat-of-arms {
+div.org-arms {
   width: 200px;
   height: 220px;
   margin: 0 auto;
