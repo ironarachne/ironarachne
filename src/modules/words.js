@@ -43,6 +43,54 @@ export function capitalize(word) {
   return word[0].toUpperCase() + word.slice(1);
 }
 
+export function genderNoun(gender, ageGroupName) {
+  let noun = "";
+
+  if (gender == "female") {
+    noun = "woman";
+
+    if (ageGroupName == "infant") {
+      noun = "baby girl";
+    } else if (ageGroupName == "child" || ageGroupName == "teenager") {
+      noun = "girl";
+    }
+  } else {
+    noun = "man";
+
+    if (ageGroupName == "infant") {
+      noun = "baby boy";
+    } else if (ageGroupName == "child" || ageGroupName == "teenager") {
+      noun = "boy";
+    }
+  }
+
+  return noun;
+}
+
+export function pronoun(gender, wordCase) {
+  let pronoun = "";
+
+  if (gender == "female") {
+    if (wordCase == "subjective") {
+      pronoun = "she";
+    } else if (wordCase == "possessive") {
+      pronoun = "her";
+    } else if (wordCase == "objective") {
+      pronoun = "her";
+    }
+  } else {
+    if (wordCase == "subjective") {
+      pronoun = "he";
+    } else if (wordCase == "possessive") {
+      pronoun = "his";
+    } else if (wordCase == "objective") {
+      pronoun = "him";
+    }
+  }
+
+  return pronoun;
+}
+
 export function romanize(num) {
   if (isNaN(num)) return NaN;
   var digits = String(+num).split(""),
