@@ -37,7 +37,7 @@ export function weighted(items) {
     let item = items[i];
     randomValue -= item.weight;
     if (randomValue <= 0) {
-      return item.item;
+      return item;
     }
   }
 

@@ -70,9 +70,9 @@ export function getRandomHeight(ageGroup, gender) {
   let height = 0;
 
   if (gender == "female") {
-    height = Dice.roll(ageGroup.femaleHeight);
+    height = Dice.roll(ageGroup.femaleHeightMetric);
   } else {
-    height = Dice.roll(ageGroup.maleHeight);
+    height = Dice.roll(ageGroup.maleHeightMetric);
   }
 
   return height;
@@ -100,9 +100,9 @@ export function getRandomWeight(ageGroup, gender) {
   let weight = 0;
 
   if (gender == "female") {
-    weight = Dice.roll(ageGroup.femaleWeight);
+    weight = Dice.roll(ageGroup.femaleWeightMetric);
   } else {
-    weight = Dice.roll(ageGroup.maleWeight);
+    weight = Dice.roll(ageGroup.maleWeightMetric);
   }
 
   return weight;

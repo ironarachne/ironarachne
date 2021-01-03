@@ -74,7 +74,7 @@ export function randomWeighted() {
   let result = {};
 
   for (let i = 0; i < variations.length; i++) {
-    if (variations[i].name == resultName) {
+    if (variations[i].name == resultName.item) {
       result = variations[i];
       break;
     }

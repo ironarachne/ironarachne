@@ -7,6 +7,7 @@ import FantasyOrgGenerator from "./components/FantasyOrgGenerator.vue";
 import HeraldryGenerator from "./components/HeraldryGenerator.vue";
 import HeraldryScreen from "./components/HeraldryScreen.vue";
 import RegionGenerator from "./components/RegionGenerator.vue";
+import SpeciesStatsTool from "./components/SpeciesStatsTool.vue";
 import StarSystemGenerator from "./components/StarSystemGenerator.vue";
 import TavernGenerator from "./components/TavernGenerator.vue";
 import UWCharacterGenerator from "./components/UWCharacterGenerator.vue";
@@ -29,14 +30,9 @@ const routes = [
     component: HeraldryGenerator,
   },
   { path: "/region", component: RegionGenerator },
-  {
-    path: "/tavern",
-    component: TavernGenerator,
-  },
-  {
-    path: "/chopshop",
-    component: ChopShopGenerator,
-  },
+  { path: "/tavern", component: TavernGenerator, },
+  { path: "/chopshop", component: ChopShopGenerator,},
+  { path: "/species-stats", component: SpeciesStatsTool },
   { path: "/starsystem", component: StarSystemGenerator },
   { path: "/unchartedworlds/character", component: UWCharacterGenerator },
 ];

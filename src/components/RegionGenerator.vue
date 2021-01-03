@@ -13,14 +13,14 @@
 
     <p>{{ description }}</p>
     <h3>Notable Towns</h3>
-    <article v-for="(item, index) in towns" :key="index">
-      <h4>{{ item.name }}</h4>
-      <p>{{ item.description }}</p>
+    <article v-for="(town, townIndex) in towns" :key="townIndex">
+      <h4>{{ town.name }}</h4>
+      <p>{{ town.description }}</p>
     </article>
     <h3>Notable Organizations</h3>
-    <article v-for="(item, index) in organizations" :key="index">
-      <h4>{{ item.name }}</h4>
-      <p>{{ item.description }}</p>
+    <article v-for="(organization, orgIndex) in organizations" :key="orgIndex">
+      <h4>{{ organization.name }}</h4>
+      <p>{{ organization.description }}</p>
     </article>
   </section>
 </template>

@@ -31,6 +31,12 @@
     <ul>
       <li><router-link to="/chopshop">Chop Shop</router-link></li>
     </ul>
+
+    <h3>Tools</h3>
+
+    <ul>
+      <li><router-link to="/species-stats">Species Stats</router-link></li>
+    </ul>
   </section>
 </template>
 

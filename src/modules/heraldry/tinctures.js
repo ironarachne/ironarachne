@@ -186,7 +186,7 @@ export function randomWeightedType() {
 
   let tinctureType = iarnd.weighted(weights);
 
-  return tinctureType;
+  return tinctureType.item;
 }
 
 export function randomMetal() {

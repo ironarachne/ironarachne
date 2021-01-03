@@ -84,7 +84,7 @@ export function randomNumberOfCharges() {
 
   let result = iarnd.weighted(weights);
 
-  return result;
+  return result.item;
 }
 
 export function renderSVG(heraldry, width, height) {

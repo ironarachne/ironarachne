@@ -88,7 +88,7 @@ function randomSeasoningCount() {
 
   let result = iarnd.weighted(weights);
 
-  return result;
+  return result.item;
 }
 
 function randomVegetable() {
