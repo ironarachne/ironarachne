@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import HomeScreen from "./components/HomeScreen.vue";
 import ChopShopGenerator from "./components/ChopShopGenerator.vue";
 import CultureGenerator from "./components/CultureGenerator.vue";
+import DrugGenerator from "./components/DrugGenerator.vue";
 import FantasyOrgGenerator from "./components/FantasyOrgGenerator.vue";
 import HeraldryGenerator from "./components/HeraldryGenerator.vue";
 import HeraldryScreen from "./components/HeraldryScreen.vue";
@@ -31,7 +32,8 @@ const routes = [
   },
   { path: "/region", component: RegionGenerator },
   { path: "/tavern", component: TavernGenerator, },
-  { path: "/chopshop", component: ChopShopGenerator,},
+  { path: "/chopshop", component: ChopShopGenerator, },
+  { path: "/drug", component: DrugGenerator, },
   { path: "/species-stats", component: SpeciesStatsTool },
   { path: "/starsystem", component: StarSystemGenerator },
   { path: "/unchartedworlds/character", component: UWCharacterGenerator },

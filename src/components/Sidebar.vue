@@ -30,6 +30,7 @@
 
     <ul>
       <li><router-link to="/chopshop">Chop Shop</router-link></li>
+      <li><router-link to="/drug">Drug</router-link></li>
     </ul>
 
     <h3>Tools</h3>
