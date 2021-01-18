@@ -1,187 +1,171 @@
-var _ = require("lodash");
+import * as iarnd from "../random.js";
+
 const random = require("random");
 
 export function generate() {
-  let width = random.int(600, 800);
-  let height = random.int(400, 600);
+  let tavernMap = generateMap(40, 30);
 
-  let svg =
-    '<svg width="900" height="700" xmlns="http://www.w3.org/2000/svg" version="1.1">';
-
-  svg += "<style>.label { font-weight: 700;}</style>";
-
-  svg += '<rect x="0" y="0" width="900" height="700" fill="white"/>';
-
-  let done = false;
-  let rooms = [{ x: 0, y: 0, width: width, height: height }];
-  let minimumArea = Math.floor(width * height * 0.1);
-  let numberOfSplits = 0;
-  let roomCount = 0;
-
-  while (!done) {
-    let newRooms = [];
-    let commonRoomCount = 0;
-    for (let i = 0; i < rooms.length; i++) {
-      let shouldSplit = false;
-      let roomArea = rooms[i].width * rooms[i].height;
-
-      if (commonRoomCount < 1) {
-        shouldSplit = true;
-      } else if (
-        roomArea > minimumArea &&
-        roomCount > 1 &&
-        rooms[i].name != "common room"
-      ) {
-        shouldSplit = true;
-      }
-
-      if (shouldSplit) {
-        let splitType = "horizontal";
-        let splitAmount = random.float(0.25, 0.55);
-
-        if (rooms[i].width > rooms[i].height) {
-          splitType = "vertical";
-        }
-
-        if (commonRoomCount == 0) {
-          splitAmount = random.float(0.7, 0.8);
-        }
-
-        if (splitType == "vertical") {
-          let newX1 = rooms[i].x;
-          let newY1 = rooms[i].y;
-          let newWidth1 = Math.floor(rooms[i].width * splitAmount);
-          let newHeight1 = rooms[i].height;
-
-          let newRoom1 = {
-            x: newX1,
-            y: newY1,
-            width: newWidth1,
-            height: newHeight1,
-            name: "",
-          };
-
-          if (commonRoomCount == 0) {
-            commonRoomCount = 1;
-            newRoom1.name = "common room";
-          }
-
-          newRooms.push(newRoom1);
-
-          let newX2 = Math.floor(rooms[i].width * splitAmount) + rooms[i].x;
-          let newY2 = rooms[i].y;
-          let newWidth2 = rooms[i].width - newWidth1;
-          let newHeight2 = rooms[i].height;
-          let newRoom2 = {
-            x: newX2,
-            y: newY2,
-            width: newWidth2,
-            height: newHeight2,
-            name: "",
-          };
-
-          if (commonRoomCount == 0) {
-            commonRoomCount = 1;
-            newRoom2.name = "common room";
-          }
-
-          newRooms.push(newRoom2);
-        } else {
-          let newX1 = rooms[i].x;
-          let newY1 = rooms[i].y;
-          let newWidth1 = rooms[i].width;
-          let newHeight1 = Math.floor(rooms[i].height * splitAmount);
-          let newRoom1 = {
-            x: newX1,
-            y: newY1,
-            width: newWidth1,
-            height: newHeight1,
-            name: "",
-          };
-
-          if (commonRoomCount == 0) {
-            commonRoomCount = 1;
-            newRoom1.name = "common room";
-          }
-
-          newRooms.push(newRoom1);
-
-          let newX2 = rooms[i].x;
-          let newY2 = Math.floor(rooms[i].height * splitAmount) + rooms[i].y;
-          let newWidth2 = rooms[i].width;
-          let newHeight2 = rooms[i].height - newHeight1;
-          let newRoom2 = {
-            x: newX2,
-            y: newY2,
-            width: newWidth2,
-            height: newHeight2,
-            name: "",
-          };
-
-          if (commonRoomCount == 0) {
-            commonRoomCount = 1;
-            newRoom2.name = "common room";
-          }
-
-          newRooms.push(newRoom2);
-        }
-        numberOfSplits++;
-      } else {
-        newRooms.push(rooms[i]);
-      }
-    }
-
-    rooms = _.cloneDeep(newRooms);
-    roomCount = rooms.length;
-
-    if (numberOfSplits >= 2 && commonRoomCount == 1) {
-      done = true;
-    }
-  }
-
-  svg += "<g>";
-
-  let lastLabel = "";
-
-  for (let i = 0; i < rooms.length; i++) {
-    if (rooms[i].name != "common room") {
-      if (lastLabel == "common room") {
-        rooms[i].name = "bar";
-      }
-    }
-
-    let roomSVG =
-      '<rect x="' +
-      rooms[i].x +
-      '" y="' +
-      rooms[i].y +
-      '" width="' +
-      rooms[i].width +
-      '" height="' +
-      rooms[i].height +
-      '" stroke="black" fill="white"/>';
-
-    if (rooms[i].name != "") {
-      let labelX = rooms[i].x + rooms[i].width / 2;
-      let labelY = rooms[i].y + rooms[i].height / 2;
-
-      roomSVG +=
-        '<text x="' +
-        labelX +
-        '" y="' +
-        labelY +
-        '" class="label" text-anchor="middle">' +
-        rooms[i].name +
-        "</text>";
-    }
-
-    svg += roomSVG;
-    lastLabel = rooms[i].name;
-    console.log(rooms[i]);
-  }
-  svg += "</g>";
-
-  svg += "</svg>";
+  let svg = renderMap(tavernMap);
 
   return svg;
 }
+
+function generateMap(width, height) {
+  let map = {
+    rooms: [],
+    width: width,
+    height: height,
+  };
+
+  let firstRoom = {
+    center: {
+      x: Math.floor(width/2),
+      y: Math.floor(height/2),
+    },
+    vertices: [],
+    width: Math.floor(random.float(width * 0.16, width * 0.33)),
+    height: Math.floor(random.float(height * 0.16, height * 0.33)),
+    edges: [],
+    doors: [],
+    type: "main",
+  };
+
+  let halfWidth = firstRoom.width/2;
+  let halfHeight = firstRoom.height/2;
+
+  if (firstRoom.width % 2 != 0) {
+    firstRoom.center.x -= 0.5;
+  }
+
+  if (firstRoom.height % 2 != 0) {
+    firstRoom.center.y -= 0.5;
+  }
+
+  firstRoom.vertices = [
+    {
+      x: firstRoom.center.x - halfWidth,
+      y: firstRoom.center.y - halfHeight,
+    },
+    {
+      x: firstRoom.center.x + halfWidth,
+      y: firstRoom.center.y - halfHeight,
+    },
+    {
+      x: firstRoom.center.x + halfWidth,
+      y: firstRoom.center.y + halfHeight,
+    },
+    {
+      x: firstRoom.center.x - halfWidth,
+      y: firstRoom.center.y + halfHeight,
+    },
+  ];
+
+  firstRoom.edges.push({A: firstRoom.vertices[0], B: firstRoom.vertices[1]});
+  firstRoom.edges.push({A: firstRoom.vertices[1], B: firstRoom.vertices[2]});
+  firstRoom.edges.push({A: firstRoom.vertices[2], B: firstRoom.vertices[3]});
+  firstRoom.edges.push({A: firstRoom.vertices[3], B: firstRoom.vertices[0]});
+
+  let doorEdge = iarnd.item(firstRoom.edges);
+
+  let doorX = 0;
+  let doorY = 0;
+  let doorOrientation = "vertical";
+
+  if (doorEdge.A.x == doorEdge.B.x) {
+    doorX = doorEdge.A.x;
+  } else {
+    let min = Math.min(doorEdge.A.x, doorEdge.B.x) + 1;
+    let max = Math.max(doorEdge.A.x, doorEdge.B.x) - 2;
+
+    doorX = random.int(min, max) + 0.5;
+    doorOrientation = "horizontal";
+  }
+
+  if (doorEdge.A.y == doorEdge.B.y) {
+    doorY = doorEdge.A.y;
+  } else {
+    let min = Math.min(doorEdge.A.y, doorEdge.B.y) + 1;
+    let max = Math.max(doorEdge.A.y, doorEdge.B.y) - 2;
+
+    doorY = random.int(min, max) + 0.5;
+  }
+
+  firstRoom.doors.push({
+    x: doorX,
+    y: doorY,
+    orientation: doorOrientation,
+  });
+
+  map.rooms.push(firstRoom);
+
+  return map;
+}
+
+function renderMap(map) {
+  let imageHeight = 600;
+  let imageWidth = 800;
+
+  let gridSize = imageHeight / map.height;
+
+  let svg = '<svg width="' + imageWidth + '" height="' + imageHeight + '" viewBox="0 0 ' + imageWidth + ' ' + imageHeight + '" xmlns="http://www.w3.org/2000/svg" version="1.1">';
+
+  svg += '<defs>';
+
+  svg += '<pattern id="grid" width="' + gridSize + '" height="' + gridSize + '" patternUnits="userSpaceOnUse">';
+  svg += '<rect width="' + gridSize + '" height="' + gridSize + '" fill="none" stroke="gray" stroke-width="1"/>';
+  svg += '</pattern>';
+
+  svg += '</defs>';
+
+  svg += '<rect x="0" y="0" width="' + imageWidth + '" height="' + imageHeight + '" fill="url(#grid)" stroke="black" stroke-width="3" />';
+
+  let doors = [];
+
+  for (let i=0;i<map.rooms.length;i++) {
+    let topX = (map.rooms[i].center.x - (map.rooms[i].width / 2));
+    let topY = (map.rooms[i].center.y - (map.rooms[i].height / 2));
+    let roomWidth = map.rooms[i].width * gridSize;
+    let roomHeight = map.rooms[i].height * gridSize;
+
+    let roomSVG = '<rect x="' + (topX * gridSize) + '" y="' + (topY * gridSize) + '" width="' + roomWidth + '" height="' + roomHeight + '"';
+
+    roomSVG += ' stroke="black" fill="none" stroke-width="2" />';
+
+    for (let j=0;j<map.rooms[i].doors.length;j++) {
+      doors.push(map.rooms[i].doors[j]);
+    }
+
+    svg += roomSVG;
+  }
+
+  let doorThickness = gridSize / 3;
+  let doorLength = gridSize;
+
+  for (let i=0;i<doors.length;i++) {
+    let doorTopLeftX = 0;
+    let doorTopLeftY = 0;
+    let doorWidth = 0;
+    let doorHeight = 0;
+
+    if (doors[i].orientation == "vertical") {
+      doorTopLeftX = (doors[i].x * gridSize) - (doorThickness / 2);
+      doorTopLeftY = (doors[i].y * gridSize) - (doorLength / 2);
+      doorWidth = doorThickness;
+      doorHeight = doorLength;
+    } else {
+      doorTopLeftX = (doors[i].x * gridSize) - (doorLength / 2);
+      doorTopLeftY = (doors[i].y * gridSize) - (doorThickness / 2);
+      doorWidth = doorLength;
+      doorHeight = doorThickness;
+    }
+
+    let doorSVG = '<rect x="' + doorTopLeftX + '" y="' + doorTopLeftY + '" width="' + doorWidth + '" height="' + doorHeight + '" stroke="black" fill="white" />';
+
+    svg += doorSVG;
+  }
+
+  svg += '</svg>';
+
+  return svg;
+}
+
