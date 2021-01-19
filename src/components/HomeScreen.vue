@@ -14,6 +14,8 @@
       If you find this site useful, please consider buying me a coffee.
       <a href="https://www.buymeacoffee.com/benovermyer" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-green.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
     </p>
+    <h2>Recent Changes</h2>
+    <p>Planets in the Star System generator now have notable features added to their descriptions.</p>
   </section>
 </template>
 
