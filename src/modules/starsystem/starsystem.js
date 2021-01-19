@@ -112,6 +112,13 @@ function allPlanetTypes() {
       sizeClass: "small",
       hasAtmosphere: false,
       atmosphereColor: "blue",
+      notableFeatures: [
+        "unusual craters",
+        "rich mineral resources",
+        "complete lack of anything interesting",
+        "dust",
+        "debris from wrecked starships",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -189,6 +196,13 @@ function allPlanetTypes() {
       hasAtmosphere: true,
       atmosphereColor: "rgb(170,224,211)",
       sizeClass: "medium",
+      notableFeatures: [
+        "dust storms",
+        "sand storms",
+        "thin atmosphere",
+        "high gravity",
+        "low gravity",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -266,6 +280,15 @@ function allPlanetTypes() {
       hasAtmosphere: true,
       atmosphereColor: "blue",
       sizeClass: "medium",
+      notableFeatures: [
+        "vibrant native life",
+        "torrential downpours",
+        "rich vegetation",
+        "unusual fauna",
+        "unusual flora",
+        "high gravity",
+        "low gravity",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -347,6 +370,16 @@ function allPlanetTypes() {
       hasAtmosphere: true,
       atmosphereColor: "blue",
       sizeClass: "medium",
+      notableFeatures: [
+        "remarkably resilient wildlife",
+        "prolific plantlife",
+        "terrifying local predators",
+        "monstrous predators",
+        "fierce wildlife",
+        "vibrant ecosystems",
+        "torrential rainstorms",
+        "deadly wildlife",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -454,6 +487,13 @@ function allPlanetTypes() {
       hasAtmosphere: true,
       atmosphereColor: "rgb(224,153,47)",
       sizeClass: "medium",
+      notableFeatures: [
+        "massive volcanoes",
+        "vast lava seas",
+        "intense gravity",
+        "intense heat",
+        "rich mineral resources",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -538,6 +578,13 @@ function allPlanetTypes() {
       hasAtmosphere: false,
       atmosphereColor: "blue",
       sizeClass: "large",
+      notableFeatures: [
+        "inescapable gravity",
+        "bizarre gas-borne wildlife",
+        "enormous size",
+        "vast storms",
+        "planet-wide lightning storms",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -613,6 +660,14 @@ function allPlanetTypes() {
       hasAtmosphere: true,
       atmosphereColor: "rgb(171,224,45)",
       sizeClass: "medium",
+      notableFeatures: [
+        "seas of acid",
+        "oceans of acid",
+        "deadly atmosphere",
+        "rich mineral resources",
+        "crushing gravity",
+        "incredibly resilient wildlife",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -693,6 +748,13 @@ function allPlanetTypes() {
       hasAtmosphere: true,
       atmosphereColor: "rgb(125,229,255)",
       sizeClass: "medium",
+      notableFeatures: [
+        "deep oceans under the ice",
+        "mountain ranges made entirely of ice",
+        "long stretches of flat ice",
+        "fierce cold",
+        "incredible snowstorms",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -751,6 +813,12 @@ function allPlanetTypes() {
       hasAtmosphere: true,
       atmosphereColor: "blue",
       sizeClass: "medium",
+      notableFeatures: [
+        "varied wildlife",
+        "frequent hurricanes",
+        "warm water and beautiful islands",
+        "deep sea leviathans",
+      ],
       renderSVG: function () {
         let hash = iarnd.randomString(4);
         let svg =
@@ -837,6 +905,8 @@ function randomPlanet(planetType) {
   } else if (planet.numberOfMoons > 1) {
     planet.description += " It has " + planet.numberOfMoons + " moons.";
   }
+
+  planet.description += " It is notable for " + iarnd.item(planetType.notableFeatures) + ".";
 
   return planet;
 }
