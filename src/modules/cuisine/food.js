@@ -5,7 +5,7 @@ const random = require("random");
 export function generateDish() {
   let dish = randomCookingMethod() + " ";
 
-  dish += randomProtein();
+  dish += randomMainComponent();
 
   let vegetableChance = random.int(1, 100);
 
@@ -16,7 +16,13 @@ export function generateDish() {
 
   let seasoning = randomSeasoning();
 
-  dish += " with " + seasoning;
+  let seasoningPhrase = iarnd.item([
+    "seasoned with",
+    "flavored with",
+    "spiced with",
+  ]);
+
+  dish += ", " + seasoningPhrase + " " + seasoning;
 
   return dish;
 }
@@ -27,26 +33,90 @@ function randomCookingMethod() {
   return iarnd.item(items);
 }
 
-function randomProtein() {
+function randomFocus() {
   let items = [
-    "chicken",
-    "beef",
-    "pork",
-    "elk",
-    "boar",
-    "venison",
-    "rabbit",
-    "duck",
+    {
+      name: "vegetable",
+      options: [
+        "summer squash",
+        "butternut squash",
+        "eggplant",
+        "pumpkin",
+        "potatoes",
+        "sweet potato",
+        "turnips",
+        "beets",
+        "fennel",
+        "carrots",
+        "celeriac",
+      ],
+    },
+    {
+      name: "fish",
+      options: [
+        "trout",
+        "bass",
+        "salmon",
+        "tuna",
+        "rainbow trout",
+        "cod",
+        "red snapper",
+        "halibut",
+        "catfish",
+        "tilapia",
+      ],
+    },
+    {
+      name: "poultry",
+      options: [
+        "chicken",
+        "quail",
+        "turkey",
+        "duck",
+        "pheasant",
+        "goose",
+        "squab",
+        "guineafowl",
+      ],
+    },
+    {
+      name: "livestock",
+      options: [
+        "beef",
+        "pork",
+        "lamb",
+        "goat",
+      ],
+    },
+    {
+      name: "game",
+      options: [
+        "bison",
+        "caribou",
+        "elk",
+        "pronghorn",
+        "rabbit",
+        "squirrel",
+        "venison",
+        "wild boar",
+      ],
+    },
   ];
 
-  let protein = iarnd.item(items);
+  let focus = iarnd.item(items);
+
+  return iarnd.item(focus.options);
+}
+
+function randomMainComponent() {
+  let mainComponent = randomFocus();
 
   let modifierChance = random.int(1, 100);
   if (modifierChance > 80) {
-    protein += " " + iarnd.item(["sausage", "stew"]);
+    mainComponent += " " + iarnd.item(["sausage", "stew"]);
   }
 
-  return protein;
+  return mainComponent;
 }
 
 function randomSeasoning() {
@@ -106,7 +176,6 @@ function randomVegetable() {
     "yellow onions",
     "kidney beans",
     "kale",
-    "beets",
     "mushrooms",
   ];
 
