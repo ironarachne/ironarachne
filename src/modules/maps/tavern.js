@@ -17,55 +17,55 @@ function generateMap(width, height) {
     height: height,
   };
 
-  let firstRoom = {
+  let mainRoom = {
     center: {
       x: Math.floor(width/2),
       y: Math.floor(height/2),
     },
     vertices: [],
-    width: Math.floor(random.float(width * 0.16, width * 0.33)),
-    height: Math.floor(random.float(height * 0.16, height * 0.33)),
+    width: random.int(12, 15),
+    height: random.int(12, 15),
     edges: [],
     doors: [],
     type: "main",
   };
 
-  let halfWidth = firstRoom.width/2;
-  let halfHeight = firstRoom.height/2;
+  let halfWidth = mainRoom.width/2;
+  let halfHeight = mainRoom.height/2;
 
-  if (firstRoom.width % 2 != 0) {
-    firstRoom.center.x -= 0.5;
+  if (mainRoom.width % 2 != 0) {
+    mainRoom.center.x -= 0.5;
   }
 
-  if (firstRoom.height % 2 != 0) {
-    firstRoom.center.y -= 0.5;
+  if (mainRoom.height % 2 != 0) {
+    mainRoom.center.y -= 0.5;
   }
 
-  firstRoom.vertices = [
+  mainRoom.vertices = [
     {
-      x: firstRoom.center.x - halfWidth,
-      y: firstRoom.center.y - halfHeight,
+      x: mainRoom.center.x - halfWidth,
+      y: mainRoom.center.y - halfHeight,
     },
     {
-      x: firstRoom.center.x + halfWidth,
-      y: firstRoom.center.y - halfHeight,
+      x: mainRoom.center.x + halfWidth,
+      y: mainRoom.center.y - halfHeight,
     },
     {
-      x: firstRoom.center.x + halfWidth,
-      y: firstRoom.center.y + halfHeight,
+      x: mainRoom.center.x + halfWidth,
+      y: mainRoom.center.y + halfHeight,
     },
     {
-      x: firstRoom.center.x - halfWidth,
-      y: firstRoom.center.y + halfHeight,
+      x: mainRoom.center.x - halfWidth,
+      y: mainRoom.center.y + halfHeight,
     },
   ];
 
-  firstRoom.edges.push({A: firstRoom.vertices[0], B: firstRoom.vertices[1]});
-  firstRoom.edges.push({A: firstRoom.vertices[1], B: firstRoom.vertices[2]});
-  firstRoom.edges.push({A: firstRoom.vertices[2], B: firstRoom.vertices[3]});
-  firstRoom.edges.push({A: firstRoom.vertices[3], B: firstRoom.vertices[0]});
+  mainRoom.edges.push({A: mainRoom.vertices[0], B: mainRoom.vertices[1]});
+  mainRoom.edges.push({A: mainRoom.vertices[1], B: mainRoom.vertices[2]});
+  mainRoom.edges.push({A: mainRoom.vertices[2], B: mainRoom.vertices[3]});
+  mainRoom.edges.push({A: mainRoom.vertices[3], B: mainRoom.vertices[0]});
 
-  let doorEdge = iarnd.item(firstRoom.edges);
+  let doorEdge = iarnd.item(mainRoom.edges);
 
   let doorX = 0;
   let doorY = 0;
@@ -90,13 +90,22 @@ function generateMap(width, height) {
     doorY = random.int(min, max) + 0.5;
   }
 
-  firstRoom.doors.push({
+  mainRoom.doors.push({
     x: doorX,
     y: doorY,
     orientation: doorOrientation,
   });
 
-  map.rooms.push(firstRoom);
+  map.rooms.push(mainRoom);
+
+  // TODO: Add the bar to the main room
+  // TODO: Add tables and chairs/benches to the main room
+  // TODO: Add a fireplace to the main room
+
+  // TODO: Optionally add a staircase to the main room and a second floor
+  // TODO: Add a kitchen
+  // TODO: Add a wine cellar and stairs going down to it
+  // TODO: Add doors to other rooms
 
   return map;
 }
