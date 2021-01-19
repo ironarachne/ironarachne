@@ -906,7 +906,25 @@ function randomPlanet(planetType) {
     planet.description += " It has " + planet.numberOfMoons + " moons.";
   }
 
-  planet.description += " It is notable for " + iarnd.item(planetType.notableFeatures) + ".";
+  let notableFeatures = planetType.notableFeatures;
+
+  if (planet.inhabited) {
+    let inhabitedFeatures = [
+      "giant cities",
+      "idyllic vacation spots",
+      "filthy cities",
+      "violent local gangs",
+      "important trading centers",
+      "important scientific community",
+      "horrible pollution",
+    ];
+
+    notableFeatures = notableFeatures.concat(inhabitedFeatures);
+  }
+
+  let notableFeature = iarnd.item(notableFeatures);
+
+  planet.description += " It's notable for its " + notableFeature + ".";
 
   return planet;
 }
