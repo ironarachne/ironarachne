@@ -123,4 +123,20 @@ strong {
   font-weight: 700;
 }
 
+table {
+  width: 100%;
+}
+table thead tr {
+  border-bottom: 3px solid black;
+}
+table thead tr th {
+  border: 1px solid black;
+  font-weight: 700;
+  text-align: left;
+}
+table th,
+table td {
+  padding: 0.25rem;
+}
+
 /*# sourceMappingURL=main.css.map */

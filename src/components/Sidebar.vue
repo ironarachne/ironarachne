@@ -12,7 +12,10 @@
       <li><router-link to="/culture">Culture</router-link></li>
       <li><router-link to="/region">Region</router-link></li>
       <li><router-link to="/heraldry">Heraldry</router-link></li>
-      <li><router-link to="/fantasy/organization">Organization</router-link></li>
+      <li><router-link to="/fantasy/equipment">Equipment</router-link></li>
+      <li>
+        <router-link to="/fantasy/organization">Organization</router-link>
+      </li>
     </ul>
 
     <h3>Sci-Fi</h3>

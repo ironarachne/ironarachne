@@ -148,3 +148,21 @@ ul {
 strong {
   font-weight: 700;
 }
+
+table {
+  width: 100%;
+  thead {
+    tr {
+      border-bottom: 3px solid black;
+      th {
+        font-weight: 700;
+        text-align: left;
+      }
+    }
+  }
+  th,
+  td {
+    border: 1px solid black;
+    padding: 0.25rem;
+  }
+}
