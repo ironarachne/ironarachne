@@ -23,6 +23,8 @@
     </p>
     <h2>Recent Changes</h2>
     <p>
+      <strong>Feb. 4, 2021: </strong> Stars Without Number character generator added.</p>
+    <p>
       <strong>Jan. 25, 2021: </strong> Fantasy equipment list page has been
       added.
     </p>

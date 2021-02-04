@@ -23,6 +23,9 @@
     <ul>
       <li><router-link to="/starsystem">Star System</router-link></li>
       <li>
+        <router-link to="/swn/character">Stars Without Number Character</router-link>
+      </li>
+      <li>
         <router-link to="/unchartedworlds/character"
           >Uncharted Worlds Character</router-link
         >
