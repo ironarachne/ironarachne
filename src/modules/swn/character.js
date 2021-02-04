@@ -773,8 +773,6 @@ function randomStats() {
     }
   }
 
-  // TODO: make the lowest score a 14 instead
-
   return stats;
 }
 
