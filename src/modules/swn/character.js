@@ -741,6 +741,25 @@ function randomStats() {
 
   for (let i=0;i<stats.length;i++) {
     stats[i].score = Dice.roll("3d6");
+  }
+
+  let lowest = 100;
+  let lowestName = '';
+
+  for (let i=0;i<stats.length;i++) {
+    if (stats[i].score < lowest) {
+      lowest = stats[i].score;
+      lowestName = stats[i].name;
+    }
+  }
+
+  for (let i=0;i<stats.length;i++) {
+    if (stats[i].name == lowestName) {
+      stats[i].score = 14;
+    }
+  }
+
+  for (let i=0;i<stats.length;i++) {
     if (stats[i].score < 4) {
       stats[i].modifier = -2;
     } else if (stats[i].score < 8) {
