@@ -65,7 +65,7 @@ export default {
     saveHeraldry: function () {
       const blob = new Blob([this.image], { type: "image/svg+xml" });
       const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
+      link.href = window.URL.createObjectURL(blob);
       link.download = "heraldry.svg";
       link.click();
       URL.revokeObjectURL(link.href);

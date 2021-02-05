@@ -225,5 +225,5 @@ export function renderSVG(heraldry, width, height) {
   svg += chargeGroup;
   svg += "</svg>";
 
-  return svg;
+  return svg.replace(/<\?xml.*\?>/g, '');
 }

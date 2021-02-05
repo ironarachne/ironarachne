@@ -110,7 +110,5 @@ export function renderSVGPattern(variation) {
     );
   }
 
-  svg += "</pattern>";
-
   return svg;
 }
