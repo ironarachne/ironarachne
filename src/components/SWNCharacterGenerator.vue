@@ -8,6 +8,7 @@
     </div>
     <button v-on:click="generateCharacter">Generate</button>
     <button v-on:click="newSeed">New Seed</button>
+    <button v-on:click="saveCharacter">Save</button>
 
     <h3>Character</h3>
 
@@ -142,6 +143,82 @@ export default {
     newSeed: function () {
       this.seed = iarnd.randomString(13);
       this.generateCharacter();
+    },
+    saveCharacter: function () {
+      let character = '';
+
+      character += 'Stars Without Number Character\n\n';
+
+      character += 'Background: ' + this.background.name + '\n';
+      character += 'Class: ' + this.characterClass.name + '\n';
+      character += 'Hit Points: ' + this.hitPoints + '\n';
+
+      if (character.effort != 0) {
+        character += 'Effort: ' + this.effort + '\n';
+      }
+
+      character += 'Base Attack Bonus: ' + this.baseAttackBonus + '\n';
+      character += 'Armor Class: ' + this.armorClass + '\n';
+      character += 'Credits: ' + this.credits + '\n';
+
+      character += '\nSaving Throws\n\n';
+
+      character += 'Evasion: ' + this.savingThrowEvasion + '\n';
+      character += 'Mental: ' + this.savingThrowMental + '\n';
+      character += 'Physical: ' + this.savingThrowPhysical + '\n';
+
+      character += '\nFocuses\n\n';
+
+      for (let i=0;i<this.focuses.length;i++) {
+        character += this.focuses[i].name + ', Level ' + this.focuses[i].level + '\n';
+      }
+
+      character += '\nStats\n\n';
+
+      for (let i=0;i<this.stats.length;i++) {
+        character += this.stats[i].abbreviation + ' ' + this.stats[i].score + ' (' + this.stats[i].modifier + ')\n';
+      }
+
+      character += '\nSkills\n\n';
+
+      for (let i=0;i<this.skills.length;i++) {
+        character += this.skills[i].name + '-' + this.skills[i].level + '\n';
+      }
+
+      character += '\nAbilities\n\n';
+
+      for (let i=0;i<this.abilities.length;i++) {
+        character += this.abilities[i] + '\n\n';
+      }
+
+      character += '\nWeapons\n\n';
+
+      for (let i=0;i<this.rangedWeapons.length;i++) {
+        character += this.rangedWeapons[i].name + ': ' + this.rangedWeapons[i].damage + ' damage, ' + this.rangedAttackBonus + ' attack bonus\n';
+      }
+
+      for (let i=0;i<this.meleeWeapons.length;i++) {
+        character += this.meleeWeapons[i].name + ': ' + this.meleeWeapons[i].damage + ' damage, ' + this.meleeAttackBonus + ' attack bonus\n';
+      }
+
+      character += '\nArmor\n\n';
+
+      for (let i=0;i<this.armor.length;i++) {
+        character += this.armor[i].name + ': ' + this.armor[i].AC + ' AC\n';
+      }
+
+      character += '\nEquipment\n\n';
+
+      for (let i=0;i<this.equipment.length;i++) {
+        character += '- ' + this.equipment[i] + '\n';
+      }
+
+      const blob = new Blob([character], { type: "text/plain" });
+      const link = document.createElement("a");
+      link.href = window.URL.createObjectURL(blob);
+      link.download = "swn-character.txt";
+      link.click();
+      URL.revokeObjectURL(link.href);
     },
   },
   created: function () {

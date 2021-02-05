@@ -23,7 +23,10 @@
     </p>
     <h2>Recent Changes</h2>
     <p>
-      <strong>Feb. 5, 2021: </strong> Fixed the download of heraldry.
+      <strong>Feb. 5, 2021: </strong> Added ability to download SWN characters.
+    </p>
+    <p>
+      <strong>Feb. 5, 2021: </strong> Fixed the download of heraldry images.
     </p>
     <p>
       <strong>Feb. 4, 2021: </strong> Stars Without Number character generator added.
