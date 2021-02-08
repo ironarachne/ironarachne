@@ -23,6 +23,9 @@
     </p>
     <h2>Recent Changes</h2>
     <p>
+      <strong>Feb. 8, 2021: </strong> Added Stars Without Number starship generator.
+    </p>
+    <p>
       <strong>Feb. 5, 2021: </strong> Added ability to download SWN characters.
     </p>
     <p>

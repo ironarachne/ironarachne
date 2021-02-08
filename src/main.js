@@ -12,6 +12,7 @@ import RegionGenerator from "./components/RegionGenerator.vue";
 import SpeciesStatsTool from "./components/SpeciesStatsTool.vue";
 import StarSystemGenerator from "./components/StarSystemGenerator.vue";
 import SWNCharacterGenerator from "./components/SWNCharacterGenerator.vue";
+import SWNStarshipGenerator from "./components/SWNStarshipGenerator.vue";
 import TavernGenerator from "./components/TavernGenerator.vue";
 import UWCharacterGenerator from "./components/UWCharacterGenerator.vue";
 import App from "./App.vue";
@@ -40,6 +41,7 @@ const routes = [
   { path: "/species-stats", component: SpeciesStatsTool },
   { path: "/starsystem", component: StarSystemGenerator },
   { path: "/swn/character", component: SWNCharacterGenerator },
+  { path: "/swn/starship", component: SWNStarshipGenerator },
   { path: "/unchartedworlds/character", component: UWCharacterGenerator },
 ];
 
