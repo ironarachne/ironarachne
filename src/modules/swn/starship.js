@@ -27,79 +27,6 @@ export function generate() {
   let powerBudget = starship.hullType.power;
   let hardpointBudget = starship.hullType.hardpoints;
 
-  if (starship.ownerType.systemOnly) {
-    let systemDrive = {
-      name: "System Drive",
-      type: "drive",
-      cost: 0,
-      costExpands: true,
-      power: 0,
-      powerExpands: true,
-      mass: 0,
-      massExpands: true,
-      minimumClass: 0,
-      maximumClass: 3,
-      effect: "Replace spike drive with small system drive",
-    };
-
-    starship.hullType.cost = Math.floor(starship.hullType.cost * 0.9);
-
-    let powerModifier = 1;
-    if (starship.hullType.hullClass == 1) {
-      powerModifier = 2;
-    } else if (starship.hullType.hullClass == 2) {
-      powerModifier = 3;
-    } else if (starship.hullType.hullClass == 3) {
-      powerModifier = 4;
-    }
-
-    starship.hullType.power += powerModifier;
-    starship.hullType.mass += (powerModifier * 2);
-    starship.fittings.push(systemDrive);
-    starship.drive = 'System Drive';
-
-    massBudget = starship.hullType.mass;
-    powerBudget = starship.hullType.power;
-
-  } else {
-    let chanceOfDriveUpgrade = random.int(0, 100);
-
-    if (chanceOfDriveUpgrade > 0) {
-      let allDrives = allDriveFittings();
-      let drives = [];
-      for (let i=0;i<allDrives.length;i++) {
-        let driveMassCost = allDrives[i].mass;
-        let drivePowerCost = allDrives[i].power;
-
-        if (allDrives[i].massExpands) {
-          driveMassCost *= massMultiplier;
-        }
-
-        if (allDrives[i].powerExpands) {
-          drivePowerCost *= powerMultiplier;
-        }
-
-        if (allDrives[i].minimumClass <= starship.hullType.hullClass && allDrives[i].maximumClass >= starship.hullType.hullClass) {
-
-          if (drivePowerCost <= powerBudget && driveMassCost <= massBudget) {
-            drives.push(allDrives[i]);
-          }
-        }
-      }
-
-      if (drives.length > 0) {
-        let driveUpgrade = iarnd.item(drives);
-
-        starship.fittings.push(driveUpgrade);
-        starship.drive = driveUpgrade.name;
-
-        massBudget -= (driveUpgrade.mass * massMultiplier);
-        powerBudget -= (driveUpgrade.power * powerMultiplier);
-        starship.totalCost += (driveUpgrade.cost * costMultiplier);
-      }
-    }
-  }
-
   let costMultiplier = 1;
   let massMultiplier = 1;
   let powerMultiplier = 1;
@@ -118,6 +45,70 @@ export function generate() {
     costMultiplier = 100;
     powerMultiplier = 4;
     massMultiplier = 4;
+  }
+
+  if (starship.ownerType.systemOnly) {
+    let systemDrive = {
+      name: "System Drive",
+      type: "drive",
+      cost: 0,
+      costExpands: true,
+      power: 0,
+      powerExpands: true,
+      mass: 0,
+      massExpands: true,
+      minimumClass: 0,
+      maximumClass: 3,
+      effect: "Replace spike drive with small system drive",
+    };
+
+    starship.hullType.cost = Math.floor(starship.hullType.cost * 0.9);
+
+    starship.hullType.power += powerMultiplier;
+    starship.hullType.mass += (powerMultiplier * 2);
+    starship.fittings.push(systemDrive);
+    starship.drive = 'System Drive';
+
+    massBudget = starship.hullType.mass;
+    powerBudget = starship.hullType.power;
+
+  } else {
+    let chanceOfDriveUpgrade = random.int(1, 100);
+
+    if (chanceOfDriveUpgrade > 70) {
+      let allDrives = allDriveFittings();
+      let drives = [];
+
+      for (let i=0;i<allDrives.length;i++) {
+        let driveMassCost = allDrives[i].mass;
+        let drivePowerCost = allDrives[i].power;
+
+        if (allDrives[i].massExpands) {
+          driveMassCost *= massMultiplier;
+        }
+
+        if (allDrives[i].powerExpands) {
+          drivePowerCost *= powerMultiplier;
+        }
+
+        if (allDrives[i].minimumClass <= starship.hullType.hullClass && allDrives[i].maximumClass >= starship.hullType.hullClass) {
+          if (drivePowerCost <= powerBudget && driveMassCost <= massBudget) {
+            drives.push(allDrives[i]);
+          }
+        }
+      }
+
+      if (drives.length > 0) {
+        let driveUpgrade = iarnd.item(drives);
+
+        starship.fittings.push(driveUpgrade);
+        starship.drive = driveUpgrade.name;
+
+        massBudget -= (driveUpgrade.mass * massMultiplier);
+        powerBudget -= (driveUpgrade.power * powerMultiplier);
+        starship.totalCost += (driveUpgrade.cost * costMultiplier);
+      }
+    }
   }
 
   if (starship.ownerType.isArmed) {
