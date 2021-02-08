@@ -8,8 +8,8 @@
       <label for="seed">Random Seed</label>
       <input type="text" name="seed" v-model="seed" />
     </div>
-    <button v-on:click="generateFantasyOrganization">Generate</button>
-    <button v-on:click="newSeed">New Seed</button>
+    <button v-on:click="generateFantasyOrganization">Generate From Seed</button>
+    <button v-on:click="newSeed">Random Seed (and Generate)</button>
 
     <h3>{{ name }}</h3>
 

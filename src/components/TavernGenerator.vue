@@ -1,7 +1,7 @@
 <template>
   <section class="tavern main">
     <h2>Tavern Generator</h2>
-    <button v-on:click="generateTavern">Generate</button>
+    <button v-on:click="generateTavern">Generate From Seed</button>
     <h3>{{ tavernName }}</h3>
     <p>{{ tavernDescription }}</p>
     <div class="image-container" v-html="tavernMap"></div>

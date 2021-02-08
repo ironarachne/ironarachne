@@ -10,8 +10,8 @@
       <label for="seed">Random Seed</label>
       <input type="text" name="seed" v-model="seed" />
     </div>
-    <button v-on:click="generateHeraldry">Generate</button>
-    <button v-on:click="newSeed">New Seed</button>
+    <button v-on:click="generateHeraldry">Generate From Seed</button>
+    <button v-on:click="newSeed">Random Seed (and Generate)</button>
     <button v-on:click="saveHeraldry" :disabled="image == ''">Save</button>
 
     <p class="blazon">{{ blazon }}</p>

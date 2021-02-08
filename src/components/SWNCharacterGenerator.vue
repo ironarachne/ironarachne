@@ -6,8 +6,8 @@
       <label for="seed">Random Seed</label>
       <input type="text" name="seed" v-model="seed" />
     </div>
-    <button v-on:click="generateCharacter">Generate</button>
-    <button v-on:click="newSeed">New Seed</button>
+    <button v-on:click="generateCharacter">Generate From Seed</button>
+    <button v-on:click="newSeed">Random Seed (and Generate)</button>
     <button v-on:click="saveCharacter">Save</button>
 
     <h3>Character</h3>

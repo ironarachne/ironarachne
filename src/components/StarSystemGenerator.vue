@@ -5,8 +5,8 @@
       <label for="seed">Random Seed</label>
       <input type="text" name="seed" v-model="seed" />
     </div>
-    <button v-on:click="generateStarSystem">Generate</button>
-    <button v-on:click="newSeed">New Seed</button>
+    <button v-on:click="generateStarSystem">Generate From Seed</button>
+    <button v-on:click="newSeed">Random Seed (and Generate)</button>
 
     <h3>The {{ name }} System</h3>
 
