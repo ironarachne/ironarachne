@@ -22,6 +22,8 @@
     <p><strong>Mass Used:</strong> {{ starship.usedMass }}</p>
     <p><strong>Maximum Power:</strong> {{ starship.hullType.power }}</p>
     <p><strong>Power Used:</strong> {{ starship.usedPower }}</p>
+    <p><strong>Speed:</strong> {{ starship.hullType.speed }}</p>
+    <p><strong>Armor:</strong> {{ starship.hullType.armor }}</p>
     <p><strong>AC:</strong> {{ starship.hullType.AC }}</p>
     <p><strong>HP:</strong> {{ starship.hullType.HP }}</p>
     <p><strong>Minimum Crew:</strong> {{ starship.hullType.crewMinimum }}</p>
