@@ -1,5 +1,5 @@
 <template>
-  <section class="uwchargen main">
+  <section class="main scifi">
     <h2>Uncharted Worlds Character Generator</h2>
 
     <p>Generate starting characters for Uncharted Worlds.</p>

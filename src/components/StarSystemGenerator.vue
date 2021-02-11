@@ -1,5 +1,5 @@
 <template>
-  <section class="starsystem main">
+  <section class="main scifi">
     <h2>Star System Generator</h2>
     <div class="input-group">
       <label for="seed">Random Seed</label>

@@ -1,5 +1,5 @@
 <template>
-  <section class="heraldry main">
+  <section class="fantasy main">
     <h2>Heraldry Generator</h2>
     <p>Generate random coats-of-arms that loosely adhere to heraldic rules.</p>
     <div class="input-group">

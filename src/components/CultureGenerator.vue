@@ -1,5 +1,5 @@
 <template>
-  <section class="culture main">
+  <section class="fantasy main">
     <h2>Culture Generator</h2>
     <p>This generator lets you create fantasy cultures.</p>
     <div class="input-group">

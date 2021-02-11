@@ -1,5 +1,5 @@
 <template>
-  <section class="chopshop main">
+  <section class="cyberpunk main">
     <h2>Chop Shop Generator</h2>
     <p>This is a cyberpunk chop shop generator.</p>
     <button v-on:click="generateChopShop">Generate</button>

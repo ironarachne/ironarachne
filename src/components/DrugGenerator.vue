@@ -1,6 +1,6 @@
 <template>
-  <section class="drug main">
-    <h2>Cyberpunk Drug Generator</h2>
+  <section class="cyberpunk main">
+    <h2>Drug Generator</h2>
 
     <p>I suppose you could also use this for any sci-fi setting, really.</p>
 

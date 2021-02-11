@@ -1,5 +1,5 @@
 <template>
-  <section class="organization main">
+  <section class="fantasy main">
     <h2>Organization Generator</h2>
 
     <p>This generates fantasy organizations.</p>

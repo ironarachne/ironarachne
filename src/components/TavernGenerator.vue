@@ -1,5 +1,5 @@
 <template>
-  <section class="tavern main">
+  <section class="fantasy main">
     <h2>Tavern Generator</h2>
     <button v-on:click="generateTavern">Generate From Seed</button>
     <h3>{{ tavernName }}</h3>

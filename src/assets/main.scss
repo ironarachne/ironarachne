@@ -1,6 +1,20 @@
 @charset "utf-8";
 
 @font-face {
+  font-family: 'alienleague';
+  src: url('fonts/alienleagueregular-9d3z-webfont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'azonix';
+  src: url('fonts/azonix-webfont.woff2') format('woff2');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
   font-family: "libre_baskerville";
   src: url("fonts/librebaskerville-bold-webfont.woff2") format("woff2"),
     url("fonts/librebaskerville-bold-webfont.woff") format("woff");
@@ -79,8 +93,7 @@ html {
 }
 
 @media only screen and (min-width: 1000px) {
-  header,
-  div#app,
+  div.primary,
   footer {
     width: 968px;
     margin: 0 auto;
@@ -95,6 +108,37 @@ h5,
 h6 {
   font-family: "eczar", Helvetica, sans-serif;
   margin: 0.5rem 0;
+}
+
+pre {
+  white-space: pre-wrap;
+}
+
+.cyberpunk {
+  background: black;
+  color: white;
+  h1,h2,h3,h4,h5,h6 {
+    color: #D8F6B0;
+    font-family: 'azonix';
+    text-shadow: 0 0 6px #86FF00;
+  }
+}
+
+.fantasy {
+  h1,h2,h3,h4,h5,h6 {
+    font-family: 'eczar';
+  }
+}
+
+.scifi {
+  background: rgb(16,17,25);
+  background: linear-gradient(90deg, rgba(16,17,25,1) 0%, rgba(38,58,96,1) 49%, rgba(16,17,25,1) 100%);
+  color: white;
+  h1,h2,h3,h4,h5,h6 {
+    color: #A2D4FF;
+    text-shadow: 0 0 6px #0086FF;
+    font-family: 'alienleague';
+  }
 }
 
 h2 {
@@ -141,7 +185,7 @@ div.input-group {
 ul {
   li {
     list-style-type: disc;
-    margin-left: 1rem;
+    margin-left: 2rem;
   }
 }
 
@@ -164,5 +208,56 @@ table {
   td {
     border: 1px solid black;
     padding: 0.25rem;
+  }
+}
+
+.center {
+  text-align: center;
+}
+
+$ironarachnegreen: #76e841;
+$tan: #5c5031;
+$gold: #fad037;
+
+@media only screen and (min-width: 1000px) {
+  div.primary {
+    display: grid;
+    grid-template-columns: 200px 768px;
+  }
+}
+
+section.main {
+  padding: 0.5rem;
+  button {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(
+      165deg,
+      rgba(92, 86, 73, 1) 0%,
+      rgba(10, 10, 10, 1) 100%
+    );
+    border: 3px solid $tan;
+    border-radius: 3px;
+    color: #fff;
+    font-size: 1rem;
+    line-height: 1rem;
+    margin: 0.1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  button:active {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(
+      339deg,
+      rgba(92, 86, 73, 1) 0%,
+      rgba(10, 10, 10, 1) 100%
+    );
+    color: $ironarachnegreen;
+    transform: translateY(2px);
+  }
+
+  button:disabled {
+    background: #666;
+    color: #777;
+    border-color: #999;
   }
 }

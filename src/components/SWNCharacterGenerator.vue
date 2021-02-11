@@ -1,5 +1,5 @@
 <template>
-  <section class="main">
+  <section class="main scifi">
     <h2>Stars Without Number Character Generator</h2>
 
     <div class="input-group">

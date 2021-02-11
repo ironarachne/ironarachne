@@ -1,5 +1,5 @@
 <template>
-  <section class="heraldry main">
+  <section class="fantasy main">
     <h2>Heraldry Generator</h2>
     <p>
       Generate fantasy coats-of-arms. Note: if you change the seed, the page URL

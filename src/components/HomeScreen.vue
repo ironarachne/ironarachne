@@ -14,42 +14,74 @@
     </p>
     <p>
       If you find this site useful, please consider buying me a coffee.
+    </p>
+    <div class="center">
       <a href="https://www.buymeacoffee.com/benovermyer" target="_blank"
-        ><img
-          src="https://cdn.buymeacoffee.com/buttons/v2/default-green.png"
-          alt="Buy Me A Coffee"
-          style="height: 60px !important; width: 217px !important"
-      /></a>
-    </p>
+      ><img
+        src="https://cdn.buymeacoffee.com/buttons/v2/default-green.png"
+        alt="Buy Me A Coffee"
+        style="height: 60px !important; width: 217px !important"
+    /></a>
+    </div>
     <h2>Recent Changes</h2>
-    <p>
-      <strong>Feb. 11, 2021:</strong> Added missing speed and armor attributes to SWN starship generator.
-    </p>
-    <p>
-      <strong>Feb. 8, 2021: </strong> Added Stars Without Number starship generator.
-    </p>
-    <p>
-      <strong>Feb. 5, 2021: </strong> Added ability to download SWN characters.
-    </p>
-    <p>
-      <strong>Feb. 5, 2021: </strong> Fixed the download of heraldry images.
-    </p>
-    <p>
-      <strong>Feb. 4, 2021: </strong> Stars Without Number character generator added.
-    </p>
-    <p>
-      <strong>Jan. 25, 2021: </strong> Fantasy equipment list page has been
-      added.
-    </p>
-    <p>
-      <strong>Jan. 19, 2021: </strong> Planets in the Star System generator now
-      have notable features added to their descriptions.
-    </p>
+    <div v-for="update in updates" :key="update.date">
+      <h3>{{ update.date }}</h3>
+      <ul>
+        <li v-for="text in update.updates" :key="text">{{ text }}</li>
+      </ul>
+    </div>
   </section>
 </template>
 
 <script>
 export default {
   name: "HomeScreen",
+  data: function() {
+    return {
+      updates: [
+        {
+          date: "Feb. 11, 2021",
+          updates: [
+            "Added missing speed and armor attributes to SWN starship generator",
+            "Fixed an index bug in several generators",
+            "Added the ability to save Uncharted Worlds characters",
+            "Added a new town name generation scheme",
+            "Made several major site design changes",
+          ],
+        },
+        {
+          date: "Feb. 8, 2021",
+          updates: [
+            "Added Stars Without Number starship generator",
+          ],
+        },
+        {
+          date: "Feb. 5, 2021",
+          updates: [
+            "Fixed the download of heraldry images",
+            "Added ability to download SWN characters",
+          ],
+        },
+        {
+          date: "Feb. 4, 2021",
+          updates: [
+            "Stars Without Number character generator added",
+          ],
+        },
+        {
+          date: "Jan. 25, 2021",
+          updates: [
+            "Fantasy equipment list page has been added",
+          ],
+        },
+        {
+          date: "Jan. 19, 2021",
+          updates: [
+            "Planets in the Star System generator now have notable features added to their descriptions",
+          ],
+        },
+      ]
+    }
+  }
 };
 </script>

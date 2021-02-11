@@ -1,5 +1,5 @@
 <template>
-  <section class="equipment main">
+  <section class="fantasy main">
     <h2>Fantasy Equipment Lists</h2>
     <p>
       This page is meant to be a comprehensive list of equipment for fantasy

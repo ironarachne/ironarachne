@@ -1,5 +1,5 @@
 <template>
-  <section class="region main">
+  <section class="fantasy main">
     <h2>Region Generator</h2>
 
     <p>Generate fantasy regions.</p>
