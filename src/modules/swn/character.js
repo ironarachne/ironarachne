@@ -1,5 +1,6 @@
 import * as iarnd from "../random.js";
 import * as Dice from "../dice.js";
+import * as Text from "../textformat.js";
 
 export function generate() {
   let character = {
@@ -1862,4 +1863,88 @@ function randomCombatSkill() {
   ];
 
   return iarnd.item(skills);
+}
+
+export function formatAsText(character) {
+  let description = Text.header('Stars Without Number Character');
+
+  description += 'Background: ' + character.background.name + '\n';
+  description += 'Class: ' + character.characterClass.name + '\n';
+  description += 'Hit Points: ' + character.hitPoints + '\n';
+
+  if (character.effort != 0) {
+    description += 'Effort: ' + character.effort + '\n';
+  }
+
+  description += 'Base Attack Bonus: ' + character.baseAttackBonus + '\n';
+  description += 'Armor Class: ' + character.armorClass + '\n';
+  description += 'Credits: ' + character.credits + '\n';
+
+  description += Text.header('Saving Throws');
+
+  description += 'Evasion: ' + character.savingThrowEvasion + '\n';
+  description += 'Mental: ' + character.savingThrowMental + '\n';
+  description += 'Physical: ' + character.savingThrowPhysical + '\n';
+
+  description += Text.header('Focuses');
+
+  let focuses = [];
+
+  for (let i=0;i<character.focuses.length;i++) {
+    focuses.push(character.focuses[i].name + ', Level ' + character.focuses[i].currentLevel);
+  }
+
+  description += Text.list(focuses);
+
+  description += Text.header('Stats');
+
+  for (let i=0;i<character.stats.length;i++) {
+    description += character.stats[i].abbreviation + ' ' + character.stats[i].score + ' (' + character.stats[i].modifier + ')\n';
+  }
+
+  description += Text.header('Skills');
+
+  let skills = [];
+
+  for (let i=0;i<character.skills.length;i++) {
+    skills.push(character.skills[i].name + '-' + character.skills[i].level);
+  }
+
+  description += Text.list(skills);
+
+  description += Text.header('Abilities');
+
+  for (let i=0;i<character.abilities.length;i++) {
+    description += character.abilities[i] + '\n\n';
+  }
+
+  description += Text.header('Weapons');
+
+  let weapons = [];
+
+  for (let i=0;i<character.rangedWeapons.length;i++) {
+    weapons.push(character.rangedWeapons[i].name + ': ' + character.rangedWeapons[i].damage + ' damage, ' + character.rangedAttackBonus + ' attack bonus');
+  }
+
+  for (let i=0;i<character.meleeWeapons.length;i++) {
+    weapons.push(character.meleeWeapons[i].name + ': ' + character.meleeWeapons[i].damage + ' damage, ' + character.meleeAttackBonus + ' attack bonus');
+  }
+
+  description += Text.list(weapons);
+
+  description += Text.header('Armor');
+
+  let armor = [];
+
+  for (let i=0;i<character.armor.length;i++) {
+    armor.push(character.armor[i].name + ': ' + character.armor[i].AC + ' AC');
+  }
+
+  description += Text.list(armor);
+
+  description += Text.header('Equipment');
+
+  description += Text.list(character.equipment);
+
+  return description;
 }
