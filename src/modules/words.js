@@ -91,6 +91,18 @@ export function pronoun(gender, wordCase) {
   return pronoun;
 }
 
+export function removeEntry(word, words) {
+  let newWords = [];
+
+  for (let i=0;i<words.length;i++) {
+    if (words[i] != word) {
+      newWords.push(words[i]);
+    }
+  }
+
+  return newWords;
+}
+
 export function romanize(num) {
   if (isNaN(num)) return NaN;
   var digits = String(+num).split(""),
