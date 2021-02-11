@@ -1,5 +1,6 @@
 import * as iarnd from "../random.js";
 import * as Words from "../words.js";
+import * as Text from "../textformat.js";
 
 export function generate() {
   let character = {
@@ -1968,4 +1969,53 @@ function skillsInclude(skillName, skills) {
   });
 
   return includes;
+}
+
+export function formatAsText(character) {
+  let description = Text.header("Uncharted Worlds Character");
+
+  description += Text.header("Statistics");
+
+  description += "Physique: " + character.stats.physique + "\n";
+  description += "Mettle: " + character.stats.mettle + "\n";
+  description += "Expertise: " + character.stats.expertise + "\n";
+  description += "Influence: " + character.stats.influence + "\n";
+  description += "Interface: " + character.stats.interface + "\n";
+
+  description += Text.header("Careers");
+
+  let careers = [];
+
+  for (let i=0;i<character.careers.length;i++) {
+    careers.push(character.careers[i].name);
+  }
+
+  description += Text.list(careers);
+
+  description += "Origin: " + character.origin.name + "\n";
+
+  description += "Descriptors: " + character.descriptors + "\n";
+
+  description += Text.header("Skills");
+
+  for (let i=0;i<character.skills.length;i++) {
+    description += Text.header(character.skills[i].name);
+    description += character.skills[i].description + "\n";
+  }
+
+  description += "\nAdvancement: " + character.advancement + "\n";
+
+  description += Text.header("Assets");
+
+  for (let i=0;i<character.assets.length;i++) {
+    description += Text.header(character.assets[i].name);
+
+    description += character.assets[i].description + "\n";
+
+    for (let j=0;j<character.assets[i].upgrades.length;j++) {
+      description += character.assets[i].upgrades[j].name + ": " + character.assets[i].upgrades[j].description + "\n";
+    }
+  }
+
+  return description;
 }
