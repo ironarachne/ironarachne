@@ -3,7 +3,7 @@ import * as Biome from "./biome.js";
 import * as Nation from "./nation.js";
 import * as Organization from "./organizations/organizations.js";
 import * as Town from "./towns/towns.js";
-import * as CommonNames from "./names/common.js";
+import * as TownNames from "./names/towns.js";
 import * as Words from "./words.js";
 const random = require("random");
 
@@ -70,8 +70,11 @@ function randomOrganizations() {
 }
 
 function randomTowns() {
-  let names = CommonNames.towns();
+  let names = TownNames.randomSet(100);
   let capital = Town.generate("large", names);
+
+  names = Words.removeEntry(capital.name, names);
+
   let numberOfMediumTowns = random.int(1, 3);
   let numberOfSmallTowns = random.int(3, 5);
   let towns = [];
@@ -80,11 +83,15 @@ function randomTowns() {
   towns.push(capital);
 
   for (let i = 0; i < numberOfMediumTowns; i++) {
-    towns.push(Town.generate("medium", names));
+    let town = Town.generate("medium", names);
+    towns.push(town);
+    names = Words.removeEntry(town.name, names);
   }
 
   for (let i = 0; i < numberOfSmallTowns; i++) {
-    towns.push(Town.generate("small", names));
+    let town = Town.generate("small", names);
+    towns.push(town);
+    names = Words.removeEntry(town.name, names);
   }
 
   return towns;
