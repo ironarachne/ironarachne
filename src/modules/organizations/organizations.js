@@ -191,18 +191,43 @@ function randomType() {
       leaderTitle: "headmaster",
       randomName: function () {
         let schoolType = iarnd.item(["School", "Academy", "College"]);
-        let suffix = iarnd.item([
-          "Arcane Studies",
-          "Mystical Arts",
-          "Arcane Arts",
-          "Mystical Studies",
-          "Wizardry",
-          "Witchcraft and Wizardry",
-          "Sorcery",
-          "Eldritch Sciences",
-        ]);
 
-        return "The " + schoolType + " of " + suffix;
+        let suffixTypes = [
+          {
+            generate: function() {
+              return iarnd.item([
+                "Witchcraft",
+                "Wizardry",
+                "Sorcery",
+                "Mysticism",
+              ]);
+            },
+          },
+          {
+            generate: function() {
+              let first = [
+                'Arcane',
+                'Mystical',
+                'Eldritch',
+                'Occult',
+              ];
+
+              let second = [
+                'Arts',
+                'Sciences',
+                'Paths',
+                'Ways',
+                'Secrets',
+              ];
+
+              return iarnd.item(first) + " " + iarnd.item(second);
+            }
+          }
+        ];
+
+        let suffixType = iarnd.item(suffixTypes);
+
+        return "The " + schoolType + " of " + suffixType.generate();
       },
       randomDescription: function () {
         return iarnd.item([
