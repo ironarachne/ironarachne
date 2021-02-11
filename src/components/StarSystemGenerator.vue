@@ -15,8 +15,8 @@
     <h4>Stars</h4>
 
     <article
-      v-for="(star, starIndex) in stars"
-      :key="starIndex"
+      v-for="star in stars"
+      :key="star.name"
       class="media-banner"
     >
       <div class="image-container" v-html="star.svg"></div>
@@ -29,8 +29,8 @@
     <h4>Planets</h4>
 
     <article
-      v-for="(planet, planetIndex) in planets"
-      :key="planetIndex"
+      v-for="planet in planets"
+      :key="planet.name"
       class="media-banner"
     >
       <div class="image-container" v-html="planet.svg"></div>
