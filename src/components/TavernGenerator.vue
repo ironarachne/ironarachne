@@ -1,27 +1,35 @@
 <template>
   <section class="fantasy main">
     <h2>Tavern Generator</h2>
-    <button v-on:click="generateTavern">Generate From Seed</button>
-    <h3>{{ tavernName }}</h3>
-    <p>{{ tavernDescription }}</p>
-    <div class="image-container" v-html="tavernMap"></div>
+
+    <div class="input-group">
+      <label for="seed">Random Seed</label>
+      <input type="text" name="seed" v-model="seed" />
+    </div>
+    <button v-on:click="generate">Generate From Seed</button>
+    <button v-on:click="newSeed">Random Seed (and Generate)</button>
+
+    <h3>{{ tavern.name }}</h3>
+    <p>{{ tavern.description }}</p>
     <div class="drink-menu">
       <h4>Drink Menu</h4>
       <ul>
-        <li v-for="(item, index) in drinkItems" :key="index">{{ item }}</li>
+        <li v-for="(item, index) in tavern.drinks" :key="index">{{ item }}</li>
       </ul>
     </div>
     <div class="food-menu">
       <h4>Food Menu</h4>
       <ul>
-        <li v-for="(item, index) in foodItems" :key="index">{{ item }}</li>
+        <li v-for="(item, index) in tavern.food" :key="index">{{ item }}</li>
       </ul>
     </div>
   </section>
 </template>
 
 <script>
+import * as iarnd from "../modules/random.js";
 import * as Tavern from "../modules/tavern.js";
+
 const random = require("random");
 const seedrandom = require("seedrandom");
 
@@ -29,27 +37,21 @@ export default {
   name: "TavernGenerator",
   data: function () {
     return {
-      tavernDescription: "",
-      tavernMap: "",
-      tavernName: "",
-      foodItems: [],
-      drinkItems: [],
+      tavern: {},
     };
   },
   methods: {
-    generateTavern: function () {
+    generate: function () {
       random.use(seedrandom(this.seed));
-      let tavern = Tavern.generate();
-
-      this.tavernDescription = tavern.description;
-      this.tavernMap = tavern.map;
-      this.tavernName = tavern.name;
-      this.foodItems = tavern.food;
-      this.drinkItems = tavern.drinks;
+      this.tavern = Tavern.generate();
+    },
+    newSeed: function () {
+      this.seed = iarnd.randomString(13);
+      this.generate();
     },
   },
   created: function () {
-    this.generateTavern();
+    this.newSeed();
   },
 };
 </script>

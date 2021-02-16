@@ -1,5 +1,4 @@
 import * as TavernName from "./names/taverns.js";
-import * as TavernMap from "./maps/tavern.js";
 import * as Food from "./cuisine/food.js";
 import * as Drink from "./cuisine/drink.js";
 import * as iarnd from "./random.js";
@@ -12,13 +11,11 @@ export function generate() {
   let tavern = {
     description: "",
     name: "",
-    map: {},
     food: [],
     drinks: [],
   };
 
   tavern.name = TavernName.generate();
-  tavern.map = TavernMap.generate();
   tavern.food = randomFood();
   tavern.drinks = randomDrinks();
   tavern.description = randomDescription(tavern);
