@@ -9,7 +9,7 @@
     <button v-on:click="generateCulture">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
 
-    <h3>The {{ name }} Culture</h3>
+    <h3>The {{ culture.name }} Culture</h3>
 
     <h4>Common Names</h4>
 
@@ -17,13 +17,13 @@
       <div>
         <h5>Male Names</h5>
         <ul>
-          <li v-for="(name, index) in maleNames" :key="index">{{ name }}</li>
+          <li v-for="(name, index) in culture.maleNames" :key="index">{{ name }}</li>
         </ul>
       </div>
       <div>
         <h5>Female Names</h5>
         <ul>
-          <li v-for="(name, index) in femaleNames" :key="index">
+          <li v-for="(name, index) in culture.femaleNames" :key="index">
             {{ name }}
           </li>
         </ul>
@@ -31,7 +31,7 @@
       <div>
         <h5>Family Names</h5>
         <ul>
-          <li v-for="(name, index) in familyNames" :key="index">
+          <li v-for="(name, index) in culture.familyNames" :key="index">
             {{ name }}
           </li>
         </ul>
@@ -39,23 +39,23 @@
     </div>
 
     <h4>Religion</h4>
-    <p>{{ religion }}</p>
+    <p>{{ culture.religion.description }}</p>
 
     <h4>Taboos</h4>
 
-    <p v-for="(taboo, index) in taboos" :key="index">{{ taboo }}</p>
+    <p v-for="(taboo, index) in culture.taboos" :key="index">{{ taboo }}</p>
 
     <h4>Greetings</h4>
 
-    <p>{{ greeting }}</p>
+    <p>{{ culture.greeting }}</p>
 
     <h4>Meals</h4>
 
-    <p>{{ eatingTrait }}</p>
+    <p>{{ culture.eatingTrait }}</p>
 
     <h4>Design</h4>
 
-    <p>{{ designTrait }}</p>
+    <p>{{ culture.designTrait }}</p>
   </section>
 </template>
 
@@ -78,30 +78,13 @@ export default {
   name: "CultureGenerator",
   data: function () {
     return {
-      name: "",
-      maleNames: [],
-      femaleNames: [],
-      familyNames: [],
-      religion: "",
-      taboos: [],
-      greeting: "",
-      eatingTrait: "",
-      designTrait: "",
+      culture: {},
     };
   },
   methods: {
     generateCulture: function () {
       random.use(seedrandom(this.seed));
-      let culture = Culture.generate();
-      this.name = culture.name;
-      this.maleNames = culture.maleNames;
-      this.femaleNames = culture.femaleNames;
-      this.familyNames = culture.familyNames;
-      this.religion = culture.religion.description;
-      this.taboos = culture.taboos;
-      this.greeting = culture.greeting;
-      this.eatingTrait = culture.eatingTrait;
-      this.designTrait = culture.designTrait;
+      this.culture = Culture.generate();
     },
     newSeed: function () {
       this.seed = iarnd.randomString(13);
