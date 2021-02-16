@@ -27,6 +27,7 @@ function generateMap(width, height) {
     height: random.int(12, 15),
     edges: [],
     doors: [],
+    floor: 0,
     type: "main",
   };
 
@@ -107,7 +108,75 @@ function generateMap(width, height) {
   // TODO: Add a wine cellar and stairs going down to it
   // TODO: Add doors to other rooms
 
+  map.rooms = addRoom(map.rooms);
+
   return map;
+}
+
+function addRoom(rooms) {
+  let roomType = iarnd.item(getPossibleRoomTypes(rooms));
+
+  let newRooms = [];
+
+  for (let i=0;i<rooms.length;i++) {
+    newRooms.push(rooms[i]);
+  }
+
+  let newRoom = {
+    width: random.int(roomType.widthMin, roomType.widthMax),
+    height: random.int(roomType.heightMin, roomType.heightMax),
+    edges: [],
+    doors: [],
+    floor: random.int(roomType.floorMin, roomType.floorMax),
+    type: roomType.name,
+  };
+
+  newRooms.push(newRoom);
+
+  return newRooms;
+}
+
+function getAllRoomTypes() {
+  return [
+    {
+      name: "kitchen",
+      heightMin: 3,
+      heightMax: 5,
+      widthMin: 3,
+      widthMax: 5,
+      floorMin: 0,
+      floorMax: 0,
+    },
+    {
+      name: "wine cellar",
+      heightMin: 3,
+      heightMax: 5,
+      widthMin: 3,
+      widthMax: 5,
+      floorMin: -1,
+      floorMax: -1,
+    },
+  ];
+}
+
+function getPossibleRoomTypes(existingRooms) {
+  let possibleTypes = getAllRoomTypes();
+
+  let result = [];
+
+  for (let i=0;i<possibleTypes.length;i++) {
+    let found = false;
+    for (let j=0;j<existingRooms.length;j++) {
+      if (existingRooms[j].name == possibleTypes[i].name) {
+        found = true;
+      }
+    }
+    if (!found) {
+      result.push(possibleTypes[i]);
+    }
+  }
+
+  return result;
 }
 
 function renderMap(map) {
