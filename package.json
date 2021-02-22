@@ -18,6 +18,7 @@
     "lodash": "^4.17.20",
     "priorityqueuejs": "^2.0.0",
     "random": "^2.2.0",
+    "three": "^0.125.2",
     "vue": "^2.6.11",
     "vue-router": "^3.4.9",
     "xmlbuilder2": "^2.4.0"

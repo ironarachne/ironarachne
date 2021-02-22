@@ -8,6 +8,7 @@ import FantasyEquipmentLists from "./components/FantasyEquipmentLists.vue";
 import FantasyOrgGenerator from "./components/FantasyOrgGenerator.vue";
 import HeraldryGenerator from "./components/HeraldryGenerator.vue";
 import HeraldryScreen from "./components/HeraldryScreen.vue";
+import PlanetGenerator from "./components/PlanetGenerator.vue";
 import RegionGenerator from "./components/RegionGenerator.vue";
 import SpeciesStatsTool from "./components/SpeciesStatsTool.vue";
 import StarSystemGenerator from "./components/StarSystemGenerator.vue";
@@ -38,6 +39,7 @@ const routes = [
   { path: "/tavern", component: TavernGenerator },
   { path: "/chopshop", component: ChopShopGenerator },
   { path: "/drug", component: DrugGenerator },
+  { path: "/planet", component: PlanetGenerator },
   { path: "/species-stats", component: SpeciesStatsTool },
   { path: "/starsystem", component: StarSystemGenerator },
   { path: "/swn/character", component: SWNCharacterGenerator },
