@@ -18,10 +18,9 @@
     <p><strong>Hull Type:</strong> {{ starship.hullType.name }}</p>
     <p><strong>Hull Class:</strong> {{ starship.hullType.hullClassName }}</p>
     <p><strong>Drive:</strong> {{ starship.drive }}</p>
-    <p><strong>Maximum Mass:</strong> {{ starship.hullType.mass }}</p>
-    <p><strong>Mass Used:</strong> {{ starship.usedMass }}</p>
-    <p><strong>Maximum Power:</strong> {{ starship.hullType.power }}</p>
-    <p><strong>Power Used:</strong> {{ starship.usedPower }}</p>
+    <p><strong>Mass:</strong> {{ starship.usedMass }}/{{ starship.hullType.mass }} ({{ starship.hullType.mass - starship.usedMass }} free)</p>
+    <p><strong>Power:</strong> {{ starship.usedPower }}/{{ starship.hullType.power }} ({{ starship.hullType.power - starship.usedPower }} free)</p>
+    <p><strong>Hardpoints:</strong> {{ starship.usedHardpoints }}/{{ starship.hullType.hardpoints }} ({{ starship.hullType.hardpoints - starship.usedHardpoints }} free)</p>
     <p><strong>Speed:</strong> {{ starship.hullType.speed }}</p>
     <p><strong>Armor:</strong> {{ starship.hullType.armor }}</p>
     <p><strong>AC:</strong> {{ starship.hullType.AC }}</p>

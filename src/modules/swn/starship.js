@@ -332,6 +332,7 @@ export function generate() {
 
   starship.usedMass = starship.hullType.mass - massBudget;
   starship.usedPower = starship.hullType.power - powerBudget;
+  starship.usedHardpoints = starship.hullType.hardpoints - hardpointBudget;
 
   return starship;
 }
