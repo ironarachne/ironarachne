@@ -78,6 +78,14 @@
 
         this.scene.add(planet);
 
+        let cloudsShader = planetMap.cloudShader;
+        let planetCloudGeometry = new THREE.SphereGeometry(8.1, 32, 32);
+        let cloudsMaterial = new THREE.ShaderMaterial({ uniforms:uniforms, fragmentShader: cloudsShader, vertexShader: vertexShader, transparent: true});
+        let clouds = new THREE.Mesh(planetCloudGeometry, cloudsMaterial);
+        clouds.position.set(0, 10, 0);
+
+        this.scene.add(clouds);
+
         /* TODO: finish atmosphere
         let atmosphereShader = planetMap.atmosphereShader;
         let planetAtmosphereGeometry = new THREE.SphereGeometry(8.1, 32, 32);
