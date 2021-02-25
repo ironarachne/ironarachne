@@ -2,6 +2,8 @@
   <section class="main scifi">
     <h2>Planet Generator</h2>
 
+    <p>This lets you generate a planet. It uses WebGL and your graphics card.</p>
+
     <div class="input-group">
       <label for="seed">Random Seed</label>
       <input type="text" name="seed" v-model="seed" />
@@ -23,6 +25,11 @@
     <canvas id="render"></canvas>
 
     <p>{{ description }}</p>
+
+    <p><strong>Population:</strong> {{ population }}</p>
+    <p><strong>Government:</strong> {{ government }}</p>
+    <p><strong>Culture:</strong> {{ culture }}</p>
+    <p><strong>Habitations:</strong> {{ habitations }}</p>
   </section>
 </template>
 
@@ -30,7 +37,7 @@
   import * as iarnd from "../modules/random.js";
   import * as PlanetMap from "../modules/maps/planet.js";
   import * as THREE from "three";
-  import StarfieldShader from "../modules/shaders/starfield.glsl.js";
+  import * as StarfieldShader from "../modules/shaders/starfield.glsl.js";
 
   const random = require("random");
   const seedrandom = require("seedrandom");
@@ -50,6 +57,10 @@
         geometries: [],
         planetType: "random",
         planetTypes: [],
+        population: "",
+        government: "",
+        culture: "",
+        habitations: "",
       };
     },
     methods: {
@@ -80,6 +91,10 @@
         let planetMap = PlanetMap.generate(this.planetType);
         this.planetName = planetMap.name;
         this.description = planetMap.description;
+        this.population = planetMap.population;
+        this.government = planetMap.government;
+        this.culture = planetMap.culture;
+        this.habitations = planetMap.habitations;
 
         this.render(planetMap);
       },
@@ -104,7 +119,7 @@
 
         let starfieldGeometry = new THREE.PlaneGeometry(50, 50, 50);
         this.geometries.push(starfieldGeometry);
-        let starfieldMaterial = new THREE.ShaderMaterial({fragmentShader: StarfieldShader});
+        let starfieldMaterial = new THREE.ShaderMaterial({ fragmentShader: StarfieldShader.generate() });
         this.materials.push(starfieldMaterial);
         let plane = new THREE.Mesh(starfieldGeometry, starfieldMaterial);
         this.meshes.push(plane);

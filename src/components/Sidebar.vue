@@ -27,6 +27,7 @@
 
       <ul>
         <li><router-link to="/starsystem">Star System</router-link></li>
+        <li><router-link to="/planet">Planet</router-link></li>
       </ul>
 
       <h4>Stars Without Number</h4>

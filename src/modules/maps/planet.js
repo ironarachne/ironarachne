@@ -38,6 +38,11 @@ export function allPlanetTypes() {
           size: 7,
         },
       ],
+      habitationTypes: [
+        "domed cities",
+        "underground cities",
+        "floating cities",
+      ],
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -127,6 +132,12 @@ export function allPlanetTypes() {
           name: "large",
           size: 8,
         },
+      ],
+      habitationTypes: [
+        "sprawling cities",
+        "dense cities",
+        "congested cities",
+        "cities of various sizes",
       ],
       hasCloudLayer: true,
       generateFragmentShader: function () {
@@ -238,6 +249,10 @@ export function allPlanetTypes() {
           size: 10,
         },
       ],
+      habitationTypes: [
+        "floating cities",
+        "vast space stations in orbit",
+      ],
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
         let goldNoiseFunction = ShaderTools.goldNoise();
@@ -325,6 +340,11 @@ export function allPlanetTypes() {
           name: "large",
           size: 8,
         },
+      ],
+      habitationTypes: [
+        "domed cities",
+        "underwater cities",
+        "floating cities",
       ],
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
@@ -417,6 +437,11 @@ export function allPlanetTypes() {
           size: 8,
         },
       ],
+      habitationTypes: [
+        "gigantic spire-cities",
+        "underwater cities",
+        "floating cities",
+      ],
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -504,6 +529,11 @@ export function allPlanetTypes() {
           name: "large",
           size: 7,
         },
+      ],
+      habitationTypes: [
+        "domed cities",
+        "underground cities",
+        "fortified, enclosed cities",
       ],
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
@@ -616,7 +646,11 @@ export function generate(planetTypeName) {
   planetMap.planetType = planetType.name;
   planetMap.name = PlanetName.generate();
   planetMap.size = iarnd.item(planetType.sizeOptions);
+  planetMap.population = randomPopulation();
   planetMap.description = generateDescription(planetMap);
+  planetMap.government = randomGovernment();
+  planetMap.culture = randomCulture();
+  planetMap.habitations = iarnd.item(planetType.habitationTypes);
 
   return planetMap;
 }
@@ -626,6 +660,67 @@ function generateDescription(planetMap) {
   description += " " + planetMap.planetType + " world.";
 
   return description;
+}
+
+function randomCulture() {
+  let options = [
+    "Sexist",
+    "Religious",
+    "Artistic",
+    "Ritualized",
+    "Conservative",
+    "Xenophobic",
+    "Overriding Taboo",
+    "Deceptive",
+    "Liberal",
+    "Honorable",
+    "Influenced",
+    "Fusion",
+    "Barbaric",
+    "Remnant",
+    "Degenerate",
+    "Progressive",
+    "Recovering",
+    "Nexus",
+    "Tourist Attraction",
+    "Violent",
+    "Peaceful",
+    "Obsessed",
+  ];
+
+  return iarnd.item(options);
+}
+
+function randomGovernment() {
+  let options = [
+    "Corporations",
+    "Participatory Democracy",
+    "Self-Perpetuating Oligarchy",
+    "Representative Democracy",
+    "Feudal Technocracy",
+    "Captive Government",
+    "Balkanized",
+    "Civil Service Bureaucracy",
+    "Charismatic Dictator",
+    "Non-Charismatic Leader",
+    "Charismatic Oligarchy",
+    "Religious Dictatorship",
+    "Religious Autocracy",
+    "Totalitarian Oligarchy",
+  ];
+
+  return iarnd.item(options);
+}
+
+function randomPopulation() {
+  let formatter = new Intl.NumberFormat();
+  let options = [
+    "" + random.int(10, 700) + " thousand",
+    "" + formatter.format(random.float(10.0, 900.0)) + " million",
+    "" + formatter.format(random.float(1.0, 10.0)) + " billion",
+  ];
+
+  return iarnd.item(options);
 }
 
 export function generateVertexShader() {

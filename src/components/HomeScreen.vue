@@ -40,6 +40,13 @@ export default {
     return {
       updates: [
         {
+          date: "Feb. 25, 2021",
+          updates: [
+            "Added the planet generator",
+            "Fixed missing hardpoints attribute to SWN starship generator",
+          ],
+        },
+        {
           date: "Feb. 11, 2021",
           updates: [
             "Added missing speed and armor attributes to SWN starship generator",
