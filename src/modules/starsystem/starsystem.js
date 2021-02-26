@@ -1,6 +1,6 @@
 import * as iarnd from "../random.js";
 import * as StarSystemRenderer from "./render.js";
-import * as StarSystemName from "./name.js";
+import * as StarSystemName from "../names/starsystems.js";
 import * as Words from "../words.js";
 import * as Planet from "../planets/planet.js";
 import * as PlanetRenderer from "../renderers/planets/planet-svg.js";
