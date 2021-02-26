@@ -177,10 +177,10 @@ function getFragmentShaderByClassification(classification) {
         ${noiseFunction}
 
         vec3 biome(float height) {
-          vec3 LOWLANDS = vec3(0.8, 0.6, 0.4);
-          vec3 DESERT = vec3(0.7, 0.5, 0.35);
-          vec3 HILLS = vec3(0.6, 0.5, 0.3);
-          vec3 MOUNTAINS = vec3(0.55, 0.45, 0.2);
+          vec3 LOWLANDS = vec3(0.6, 0.6, 0.55);
+          vec3 DESERT = vec3(0.67, 0.67, 0.65);
+          vec3 HILLS = vec3(0.5, 0.5, 0.45);
+          vec3 MOUNTAINS = vec3(0.55, 0.55, 0.55);
 
           if (height < 0.5) {
             return LOWLANDS;
@@ -498,23 +498,21 @@ function getFragmentShaderByClassification(classification) {
         vec3 biome(float height, float moisture, float temperature) {
           vec3 OCEAN = vec3(0.0, 0.0, 0.6);
           vec3 COAST = vec3(0.0, 0.1, 0.6);
-          vec3 PLAINS = vec3(0.1, 0.45, 0.2);
-          vec3 DESERT = vec3(0.55, 0.55, 0.35);
+          vec3 FOREST = vec3(0.0, 0.4, 0.0);
+          vec3 BANEFOREST = vec3(0.15, 0.35, 0.0);
           vec3 MOUNTAINS = vec3(0.5, 0.5, 0.4);
-          vec3 FOREST = vec3(0.1, 0.35, 0.18);
+          vec3 RAINFOREST = vec3(0.0, 0.5, 0.1);
 
           if (height < 0.45) {
             return OCEAN;
           } else if (height < 0.5) {
             return COAST;
-          } else if (height < 0.6) {
-            return mix(PLAINS, DESERT, moisture);
-          } else if (height < 0.8) {
-            return mix(PLAINS, FOREST, moisture);
-          } else if (height < 0.9) {
-            return mix(FOREST, MOUNTAINS, height);
+          } else if (height < 0.7) {
+            return mix(BANEFOREST, FOREST, moisture);
+          } else if (height < 0.99) {
+            return mix(FOREST, RAINFOREST, height);
           } else {
-            return MOUNTAINS;
+            return mix(RAINFOREST, MOUNTAINS, height);
           }
         }
 
@@ -663,25 +661,20 @@ function getFragmentShaderByClassification(classification) {
         ${noiseFunction}
 
         vec3 biome(float height, float moisture, float temperature) {
-          vec3 OCEAN = vec3(0.0, 0.0, 0.6);
-          vec3 COAST = vec3(0.0, 0.1, 0.6);
-          vec3 PLAINS = vec3(0.1, 0.45, 0.2);
-          vec3 DESERT = vec3(0.55, 0.55, 0.35);
-          vec3 MOUNTAINS = vec3(0.5, 0.5, 0.4);
-          vec3 FOREST = vec3(0.1, 0.35, 0.18);
+          vec3 OCEAN = vec3(0.05, 0.2, 0.2);
+          vec3 COAST = vec3(0.0, 0.3, 0.25);
+          vec3 FOREST = vec3(0.0, 0.4, 0.0);
+          vec3 SWAMP = vec3(0.2, 0.25, 0.1);
+          vec3 DEEP_FOREST = vec3(0.0, 0.5, 0.0);
 
           if (height < 0.45) {
             return OCEAN;
           } else if (height < 0.5) {
             return COAST;
-          } else if (height < 0.6) {
-            return mix(PLAINS, DESERT, moisture);
-          } else if (height < 0.8) {
-            return mix(PLAINS, FOREST, moisture);
-          } else if (height < 0.9) {
-            return mix(FOREST, MOUNTAINS, height);
+          } else if (height < 0.7) {
+            return mix(SWAMP, FOREST, moisture);
           } else {
-            return MOUNTAINS;
+            return mix(FOREST, DEEP_FOREST, height);
           }
         }
 
@@ -757,25 +750,20 @@ function getFragmentShaderByClassification(classification) {
         ${noiseFunction}
 
         vec3 biome(float height, float moisture, float temperature) {
-          vec3 OCEAN = vec3(0.0, 0.0, 0.6);
-          vec3 COAST = vec3(0.0, 0.1, 0.6);
-          vec3 PLAINS = vec3(0.1, 0.45, 0.2);
-          vec3 DESERT = vec3(0.55, 0.55, 0.35);
-          vec3 MOUNTAINS = vec3(0.5, 0.5, 0.4);
-          vec3 FOREST = vec3(0.1, 0.35, 0.18);
+          vec3 OCEAN = vec3(0.5, 0.8, 0.0);
+          vec3 COAST = vec3(0.7, 0.8, 0.5);
+          vec3 SLUDGE_FENS = vec3(0.25, 0.45, 0.1);
+          vec3 VILE_FOREST = vec3(0.2, 0.25, 0.1);
+          vec3 WASTELAND = vec3(0.5, 0.5, 0.3);
 
           if (height < 0.45) {
             return OCEAN;
           } else if (height < 0.5) {
             return COAST;
-          } else if (height < 0.6) {
-            return mix(PLAINS, DESERT, moisture);
-          } else if (height < 0.8) {
-            return mix(PLAINS, FOREST, moisture);
-          } else if (height < 0.9) {
-            return mix(FOREST, MOUNTAINS, height);
+          } else if (height < 0.7) {
+            return mix(SLUDGE_FENS, VILE_FOREST, moisture);
           } else {
-            return MOUNTAINS;
+            return mix(VILE_FOREST, WASTELAND, height);
           }
         }
 
