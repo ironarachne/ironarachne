@@ -37,6 +37,12 @@
       <div>
         <h5>{{ planet.name }}</h5>
         <p>{{ planet.description }}</p>
+        <p><strong>Planet Type:</strong> {{ planet.classification }}</p>
+        <p><strong>Distance from Star:</strong> {{ new Intl.NumberFormat().format(planet.distance_from_sun) }} AU</p>
+        <p><strong>Mass:</strong> {{ new Intl.NumberFormat().format(planet.mass) }} &times; 10<sup>24</sup> kg</p>
+        <p><strong>Diameter:</strong> {{ new Intl.NumberFormat().format(Math.floor(planet.diameter)) }} km</p>
+        <p><strong>Gravity:</strong> {{ new Intl.NumberFormat().format(planet.gravity) }} m/s<sup>2</sup></p>
+        <p><strong>Orbital Period:</strong> {{ new Intl.NumberFormat().format(Math.floor(planet.orbital_period)) }} days</p>
       </div>
     </article>
   </section>
