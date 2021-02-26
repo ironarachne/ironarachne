@@ -20,24 +20,31 @@
     <button v-on:click="generate">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
 
-    <h3>{{ planetName }}</h3>
+    <h3>{{ planet.name }}</h3>
 
     <canvas id="render"></canvas>
 
-    <p>{{ description }}</p>
+    <p>{{ planet.description }}</p>
 
-    <p><strong>Population:</strong> {{ population }}</p>
-    <p><strong>Government:</strong> {{ government }}</p>
-    <p><strong>Culture:</strong> {{ culture }}</p>
-    <p><strong>Habitations:</strong> {{ habitations }}</p>
+    <p><strong>Planet Type:</strong> {{ planet.classification }}</p>
+    <p><strong>Population:</strong> {{ planet.population }}</p>
+    <p><strong>Government:</strong> {{ planet.government }}</p>
+    <p><strong>Culture:</strong> {{ planet.culture }}</p>
+    <p><strong>Distance from Star:</strong> {{ new Intl.NumberFormat().format(planet.distance_from_sun) }} AU</p>
+    <p><strong>Mass:</strong> {{ new Intl.NumberFormat().format(planet.mass) }} &times; 10<sup>24</sup> kg</p>
+    <p><strong>Diameter:</strong> {{ new Intl.NumberFormat().format(Math.floor(planet.diameter)) }} km</p>
+    <p><strong>Gravity:</strong> {{ new Intl.NumberFormat().format(planet.gravity) }} m/s<sup>2</sup></p>
+    <p><strong>Orbital Period:</strong> {{ new Intl.NumberFormat().format(Math.floor(planet.orbital_period)) }} days</p>
   </section>
 </template>
 
 <script>
   import * as iarnd from "../modules/random.js";
-  import * as PlanetMap from "../modules/maps/planet.js";
+  import * as Planet from "../modules/planets/planet.js";
+  import * as PlanetRenderer from "../modules/renderers/planets/planet-webgl.js";
   import * as THREE from "three";
-  import * as StarfieldShader from "../modules/shaders/starfield.glsl.js";
+  import * as StarfieldShader from "../modules/renderers/starfields/starfield-webgl.js";
+  import VertexShader from "../modules/shaders/basic-vertex.glsl.js";
 
   const random = require("random");
   const seedrandom = require("seedrandom");
@@ -46,8 +53,7 @@
     name: "PlanetGenerator",
     data: function () {
       return {
-        planetName: "",
-        description: "",
+        planet: {},
         seed: "",
         renderer: {},
         scene: {},
@@ -57,10 +63,6 @@
         geometries: [],
         planetType: "random",
         planetTypes: [],
-        population: "",
-        government: "",
-        culture: "",
-        habitations: "",
       };
     },
     methods: {
@@ -88,15 +90,14 @@
 
         random.use(seedrandom(this.seed));
 
-        let planetMap = PlanetMap.generate(this.planetType);
-        this.planetName = planetMap.name;
-        this.description = planetMap.description;
-        this.population = planetMap.population;
-        this.government = planetMap.government;
-        this.culture = planetMap.culture;
-        this.habitations = planetMap.habitations;
+        let planet = Planet.generate(this.planetType);
+        planet.fragmentShader = PlanetRenderer.getFragmentShader(planet);
+        planet.vertexShader = VertexShader;
+        planet.cloudShader = PlanetRenderer.getCloudShader();
 
-        this.render(planetMap);
+        this.planet = planet;
+
+        this.render();
       },
       animate: function () {
         requestAnimationFrame(this.animate);
@@ -106,7 +107,7 @@
         this.seed = iarnd.randomString(13);
         this.generate();
       },
-      render: function (planetMap) {
+      render: function () {
         if (this.planetType == "") {
           this.planetType = "random";
         }
@@ -125,8 +126,8 @@
         this.meshes.push(plane);
         this.scene.add(plane);
 
-        let fragmentShader = planetMap.baseFragmentShader;
-        let vertexShader = planetMap.vertexShader;
+        let fragmentShader = this.planet.fragmentShader;
+        let vertexShader = this.planet.vertexShader;
 
         let uniforms = THREE.UniformsUtils.merge([
           THREE.UniformsLib[ "lights" ],
@@ -134,7 +135,7 @@
 
         uniforms.u_resolution = { value: { x: 600, y: 400 } };
 
-        let planetSize = planetMap.size.size;
+        let planetSize = PlanetRenderer.translateDiameterToModelSize(this.planet.diameter);
 
         let planetGeometry = new THREE.SphereGeometry(planetSize, 32, 32);
         this.geometries.push(planetGeometry);
@@ -148,8 +149,8 @@
 
         this.scene.add(planet);
 
-        if (planetMap.hasCloudLayer) {
-          let cloudsShader = planetMap.cloudShader;
+        if (this.planet.has_clouds) {
+          let cloudsShader = this.planet.cloudShader;
           let planetCloudGeometry = new THREE.SphereGeometry(planetSize + 0.1, 32, 32);
           this.geometries.push(planetCloudGeometry);
           let cloudsMaterial = new THREE.ShaderMaterial({ uniforms:uniforms, fragmentShader: cloudsShader, vertexShader: vertexShader, transparent: true});
@@ -166,7 +167,7 @@
       }
     },
     created: function () {
-      this.planetTypes = PlanetMap.listPlanetTypes();
+      this.planetTypes = Planet.listPlanetTypes();
     },
     mounted: function () {
       this.newSeed();

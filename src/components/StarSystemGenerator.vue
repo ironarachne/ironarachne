@@ -38,6 +38,9 @@
         <h5>{{ planet.name }}</h5>
         <p>{{ planet.description }}</p>
         <p><strong>Planet Type:</strong> {{ planet.classification }}</p>
+        <p><strong>Population:</strong> {{ planet.population }}</p>
+        <p><strong>Culture:</strong> {{ planet.culture }}</p>
+        <p><strong>Government:</strong> {{ planet.government }}</p>
         <p><strong>Distance from Star:</strong> {{ new Intl.NumberFormat().format(planet.distance_from_sun) }} AU</p>
         <p><strong>Mass:</strong> {{ new Intl.NumberFormat().format(planet.mass) }} &times; 10<sup>24</sup> kg</p>
         <p><strong>Diameter:</strong> {{ new Intl.NumberFormat().format(Math.floor(planet.diameter)) }} km</p>

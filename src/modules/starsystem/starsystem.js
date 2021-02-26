@@ -1,8 +1,8 @@
 import * as iarnd from "../random.js";
-import * as StarSystemRender from "./render.js";
+import * as StarSystemRenderer from "./render.js";
 import * as StarSystemName from "./name.js";
 import * as Words from "../words.js";
-import * as Planet from "./planet.js";
+import * as Planet from "../planets/planet.js";
 import * as PlanetRenderer from "../renderers/planets/planet-svg.js";
 
 const random = require("random");
@@ -22,7 +22,7 @@ export function generate() {
 
   let star = randomStar(graphicWidth, graphicHeight);
   star.name = starsystem.name;
-  star.svg = StarSystemRender.renderStar(
+  star.svg = StarSystemRenderer.renderStar(
     graphicWidth,
     graphicHeight,
     star.color,
