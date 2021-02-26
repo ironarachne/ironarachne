@@ -50,7 +50,9 @@ export function generate() {
   });
 
   for (let i=0;i<starsystem.planets.length;i++) {
-    starsystem.planets[i].name = starsystem.name + " " + Words.romanize(i + 1);
+    if (!starsystem.planets[i].is_inhabited) {
+      starsystem.planets[i].name = starsystem.name + " " + Words.romanize(i + 1);
+    }
   }
 
   starsystem.description =
