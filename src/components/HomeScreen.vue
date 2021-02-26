@@ -1,5 +1,5 @@
 <template>
-  <section class="home main">
+  <section class="home main default">
     <p>Welcome to Iron Arachne!</p>
     <p>
       This site lets you randomly generate content for tabletop role-playing
@@ -39,6 +39,13 @@ export default {
   data: function() {
     return {
       updates: [
+        {
+          date: "Feb. 26, 2021",
+          updates: [
+            "Made star system generator and planet generator use the same underlying library for planet generation",
+            "Updated button styles for each of the sections",
+          ],
+        },
         {
           date: "Feb. 25, 2021",
           updates: [

@@ -127,11 +127,72 @@ sup {
     font-family: 'azonix';
     text-shadow: 0 0 6px #86FF00;
   }
+  button {
+    background: rgb(0,0,0);
+    border: 3px solid $ironarachnegreen;
+    border-radius: 3px;
+    color: $ironarachnegreen;
+    font-family: 'azonix';
+    font-size: 1rem;
+    line-height: 1rem;
+    margin: 0.1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  button:active {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(
+      339deg,
+      rgba(92, 86, 73, 1) 0%,
+      rgba(10, 10, 10, 1) 100%
+    );
+    color: $ironarachnegreen;
+    transform: translateY(2px);
+  }
+
+  button:disabled {
+    background: #666;
+    color: #777;
+    border-color: #999;
+  }
 }
 
 .fantasy {
   h1,h2,h3,h4,h5,h6 {
     font-family: 'eczar';
+  }
+  button {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(
+      165deg,
+      rgba(92, 86, 73, 1) 0%,
+      rgba(10, 10, 10, 1) 100%
+    );
+    border: 3px solid $tan;
+    border-radius: 3px;
+    color: #fff;
+    font-family: 'eczar';
+    font-size: 1.15rem;
+    line-height: 1rem;
+    margin: 0.1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  button:active {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(
+      339deg,
+      rgba(92, 86, 73, 1) 0%,
+      rgba(10, 10, 10, 1) 100%
+    );
+    color: $ironarachnegreen;
+    transform: translateY(2px);
+  }
+
+  button:disabled {
+    background: #666;
+    color: #777;
+    border-color: #999;
   }
 }
 
@@ -143,6 +204,40 @@ sup {
     color: #A2D4FF;
     text-shadow: 0 0 6px #0086FF;
     font-family: 'alienleague';
+  }
+
+  button {
+    background: rgb(2, 37, 95);
+    background: linear-gradient(
+      165deg,
+      rgb(2, 37, 95) 0%,
+      rgba(10, 10, 10, 1) 100%
+    );
+    border: 3px solid rgb(108, 146, 255);
+    border-radius: 3px;
+    color: #fff;
+    font-family: 'alienleague';
+    font-size: 1.15rem;
+    line-height: 1rem;
+    margin: 0.1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  button:active {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(
+      339deg,
+      rgba(92, 86, 73, 1) 0%,
+      rgba(10, 10, 10, 1) 100%
+    );
+    color: rgb(108, 146, 255);
+    transform: translateY(2px);
+  }
+
+  button:disabled {
+    background: #666;
+    color: #777;
+    border-color: #999;
   }
 }
 
@@ -231,8 +326,7 @@ $gold: #fad037;
   }
 }
 
-section.main {
-  padding: 0.5rem;
+section.default {
   button {
     background: rgb(92, 86, 73);
     background: linear-gradient(
@@ -265,4 +359,8 @@ section.main {
     color: #777;
     border-color: #999;
   }
+}
+
+section.main {
+  padding: 0.5rem;
 }

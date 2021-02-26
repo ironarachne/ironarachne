@@ -1,5 +1,5 @@
 <template>
-  <section class="main">
+  <section class="main default">
     <h2>Species Stats Tool</h2>
     <p>This tool helps in the construction of non-human species. I built it to help me input standard
       fantasy species. To use it, just enter the percentage of human size you want to use for height and weight.</p>

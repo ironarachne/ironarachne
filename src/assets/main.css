@@ -102,9 +102,54 @@ sup {
   font-family: "azonix";
   text-shadow: 0 0 6px #86FF00;
 }
+.cyberpunk button {
+  background: black;
+  border: 3px solid #76e841;
+  border-radius: 3px;
+  color: #76e841;
+  font-family: "azonix";
+  font-size: 1rem;
+  line-height: 1rem;
+  margin: 0.1rem;
+  padding: 0.5rem 1rem;
+}
+.cyberpunk button:active {
+  background: #5c5649;
+  background: linear-gradient(339deg, #5c5649 0%, #0a0a0a 100%);
+  color: #76e841;
+  transform: translateY(2px);
+}
+.cyberpunk button:disabled {
+  background: #666;
+  color: #777;
+  border-color: #999;
+}
 
 .fantasy h1, .fantasy h2, .fantasy h3, .fantasy h4, .fantasy h5, .fantasy h6 {
   font-family: "eczar";
+}
+.fantasy button {
+  background: #5c5649;
+  background: linear-gradient(165deg, #5c5649 0%, #0a0a0a 100%);
+  border: 3px solid #5c5031;
+  border-radius: 3px;
+  color: #fff;
+  font-family: "eczar";
+  font-size: 1.15rem;
+  line-height: 1rem;
+  margin: 0.1rem;
+  padding: 0.5rem 1rem;
+}
+.fantasy button:active {
+  background: #5c5649;
+  background: linear-gradient(339deg, #5c5649 0%, #0a0a0a 100%);
+  color: #76e841;
+  transform: translateY(2px);
+}
+.fantasy button:disabled {
+  background: #666;
+  color: #777;
+  border-color: #999;
 }
 
 .scifi {
@@ -116,6 +161,29 @@ sup {
   color: #A2D4FF;
   text-shadow: 0 0 6px #0086FF;
   font-family: "alienleague";
+}
+.scifi button {
+  background: #02255f;
+  background: linear-gradient(165deg, #02255f 0%, #0a0a0a 100%);
+  border: 3px solid #6c92ff;
+  border-radius: 3px;
+  color: #fff;
+  font-family: "alienleague";
+  font-size: 1.15rem;
+  line-height: 1rem;
+  margin: 0.1rem;
+  padding: 0.5rem 1rem;
+}
+.scifi button:active {
+  background: #5c5649;
+  background: linear-gradient(339deg, #5c5649 0%, #0a0a0a 100%);
+  color: #6c92ff;
+  transform: translateY(2px);
+}
+.scifi button:disabled {
+  background: #666;
+  color: #777;
+  border-color: #999;
 }
 
 h2 {
@@ -194,10 +262,7 @@ table td {
     grid-template-columns: 200px 768px;
   }
 }
-section.main {
-  padding: 0.5rem;
-}
-section.main button {
+section.default button {
   background: #5c5649;
   background: linear-gradient(165deg, #5c5649 0%, #0a0a0a 100%);
   border: 3px solid #5c5031;
@@ -208,16 +273,20 @@ section.main button {
   margin: 0.1rem;
   padding: 0.5rem 1rem;
 }
-section.main button:active {
+section.default button:active {
   background: #5c5649;
   background: linear-gradient(339deg, #5c5649 0%, #0a0a0a 100%);
   color: #76e841;
   transform: translateY(2px);
 }
-section.main button:disabled {
+section.default button:disabled {
   background: #666;
   color: #777;
   border-color: #999;
+}
+
+section.main {
+  padding: 0.5rem;
 }
 
 /*# sourceMappingURL=main.css.map */
