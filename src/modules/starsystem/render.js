@@ -108,12 +108,14 @@ export function renderStar(width, height, color, classification) {
     starColor = "rgb(255,146,20)";
   } else if (color == "yellow") {
     starColor = "rgb(255,223,18)";
+  } else if (color == "yellow-white") {
+    starColor = "rgb(251, 255, 168)";
   } else if (color == "white") {
     starColor = "rgb(255,255,255)";
+  } else if (color == "blue-white") {
+    starColor = "rgb(198, 243, 247)";
   } else if (color == "blue") {
     starColor = "rgb(59,118,255)";
-  } else if (color == "green") {
-    starColor = "rgb(21,230,118)";
   }
 
   let midX = Math.floor(width / 2);
@@ -124,6 +126,10 @@ export function renderStar(width, height, color, classification) {
 
   if (classification == "main sequence") {
     radius = (Math.floor(min) * random.float(0.6, 0.7)) / 2;
+  } else if (classification == "giant") {
+    radius = (Math.floor(min) * random.float(0.8, 0.9)) / 2;
+  } else if (classification == "supergiant") {
+    radius = (Math.floor(min) * random.float(0.9, 1.1)) / 2;
   } else {
     radius = (Math.floor(min) * random.float(0.2, 0.4)) / 2;
   }

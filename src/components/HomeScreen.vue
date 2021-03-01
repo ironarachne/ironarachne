@@ -42,6 +42,7 @@ export default {
         {
           date: "Mar. 1, 2021",
           updates: [
+            "Added more detail to star generation.",
             "Added hazards to planet generation.",
           ],
         },

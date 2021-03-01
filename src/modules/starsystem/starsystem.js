@@ -1,7 +1,6 @@
-import * as iarnd from "../random.js";
 import * as StarSystemRenderer from "./render.js";
-import * as StarSystemName from "../names/starsystems.js";
 import * as Words from "../words.js";
+import * as Star from "../stars/star.js";
 import * as Planet from "../planets/planet.js";
 import * as PlanetRenderer from "../renderers/planets/planet-svg.js";
 
@@ -18,16 +17,16 @@ export function generate() {
   let graphicWidth = 128;
   let graphicHeight = 128;
 
-  starsystem.name = StarSystemName.generate();
+  let star = Star.generate();
 
-  let star = randomStar(graphicWidth, graphicHeight);
-  star.name = starsystem.name;
   star.svg = StarSystemRenderer.renderStar(
     graphicWidth,
     graphicHeight,
     star.color,
     star.classification
   );
+
+  starsystem.name = star.name;
 
   starsystem.stars.push(star);
 
@@ -67,80 +66,4 @@ export function generate() {
   }
 
   return starsystem;
-}
-
-function randomStar() {
-  let star = iarnd.item([
-    {
-      color: "red",
-      classification: "main sequence",
-      minInner: 1,
-      maxInner: 3,
-      minGoldilocks: 1,
-      maxGoldilocks: 3,
-      minOuter: 1,
-      maxOuter: 4,
-    },
-    {
-      color: "yellow",
-      classification: "main sequence",
-      minInner: 1,
-      maxInner: 3,
-      minGoldilocks: 1,
-      maxGoldilocks: 3,
-      minOuter: 1,
-      maxOuter: 4,
-    },
-    {
-      color: "orange",
-      classification: "main sequence",
-      minInner: 1,
-      maxInner: 3,
-      minGoldilocks: 1,
-      maxGoldilocks: 3,
-      minOuter: 1,
-      maxOuter: 4,
-    },
-    {
-      color: "white",
-      classification: "main sequence",
-      minInner: 1,
-      maxInner: 3,
-      minGoldilocks: 0,
-      maxGoldilocks: 2,
-      minOuter: 1,
-      maxOuter: 4,
-    },
-    {
-      color: "red",
-      classification: "dwarf",
-      minInner: 0,
-      maxInner: 3,
-      minGoldilocks: 0,
-      maxGoldilocks: 0,
-      minOuter: 2,
-      maxOuter: 4,
-    },
-    {
-      color: "white",
-      classification: "dwarf",
-      minInner: 0,
-      maxInner: 3,
-      minGoldilocks: 0,
-      maxGoldilocks: 0,
-      minOuter: 0,
-      maxOuter: 4,
-    },
-  ]);
-
-  star.description =
-    "This is " +
-    Words.article(star.color) +
-    " " +
-    star.color +
-    " " +
-    star.classification +
-    " star.";
-
-  return star;
 }

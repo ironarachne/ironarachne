@@ -23,6 +23,10 @@
       <div>
         <h5>{{ star.name }}</h5>
         <p>{{ star.description }}</p>
+        <p><strong>Radius:</strong> {{ new Intl.NumberFormat().format(star.radius) }} km</p>
+        <p><strong>Mass:</strong> {{ new Intl.NumberFormat().format(star.mass) }} &times; 10<sup>30</sup> kg</p>
+        <p><strong>Luminosity:</strong> {{ new Intl.NumberFormat().format(star.luminosity) }} &times; 10<sup>26</sup> W</p>
+        <p><strong>Temperature:</strong> {{ new Intl.NumberFormat().format(star.temperature) }}K</p>
       </div>
     </article>
 
