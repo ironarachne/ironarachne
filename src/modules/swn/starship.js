@@ -1,17 +1,29 @@
 import * as iarnd from "../random.js";
 import * as Text from "../textformat.js";
+import * as ModelNumber from "../names/modelnumbers.js";
 
 const random = require("random");
 
+export class SWNStarship {
+  name;
+  className;
+  manufacturer;
+  hullType;
+  currentCrew;
+  totalCost = 0;
+  tonsOfCargo;
+  usedMass;
+  usedPower;
+  usedHardpoints;
+  ownerType;
+  weapons = [];
+  defenses = [];
+  fittings = [];
+  drive = 'Spike Drive-1';
+}
+
 export function generate() {
-  let starship = {
-    name: '',
-    ownerType: {},
-    weapons: [],
-    defenses: [],
-    fittings: [],
-    drive: 'Spike Drive-1',
-  };
+  let starship = new SWNStarship();
 
   starship.ownerType = randomStarshipOwnerType();
 
@@ -580,7 +592,9 @@ function randomStarshipOwnerType() {
           "Shannon",
         ];
 
-        return iarnd.item(shipClassNames);
+        let modelNumber = ModelNumber.generate();
+
+        return modelNumber + " " + iarnd.item(shipClassNames);
       },
       getRandomShipName: function() {
         let shipNames = [
@@ -687,7 +701,9 @@ function randomStarshipOwnerType() {
           "Shannon",
         ];
 
-        return iarnd.item(shipClassNames);
+        let modelNumber = ModelNumber.generate();
+
+        return modelNumber + " " + iarnd.item(shipClassNames);
       },
       getRandomShipName: function() {
         let shipNames = [
@@ -782,7 +798,9 @@ function randomStarshipOwnerType() {
           "Hulk",
         ];
 
-        return iarnd.item(shipClassNames);
+        let modelNumber = ModelNumber.generate();
+
+        return modelNumber + " " + iarnd.item(shipClassNames);
       },
       getRandomShipName: function() {
         let shipNames = [
@@ -874,7 +892,9 @@ function randomStarshipOwnerType() {
           "Badge",
         ];
 
-        return iarnd.item(shipClassNames);
+        let modelNumber = ModelNumber.generate();
+
+        return modelNumber + " " + iarnd.item(shipClassNames);
       },
       getRandomShipName: function() {
         let shipName = "";
@@ -1145,7 +1165,9 @@ function randomStarshipOwnerType() {
           "Shannon",
         ];
 
-        return iarnd.item(shipClassNames);
+        let modelNumber = ModelNumber.generate();
+
+        return modelNumber + " " + iarnd.item(shipClassNames);
       },
       getRandomShipName: function() {
         let shipNames = [
@@ -1233,7 +1255,9 @@ function randomStarshipOwnerType() {
           "Shannon",
         ];
 
-        return iarnd.item(shipClassNames);
+        let modelNumber = ModelNumber.generate();
+
+        return modelNumber + " " + iarnd.item(shipClassNames);
       },
       getRandomShipName: function() {
         let shipNames = [
