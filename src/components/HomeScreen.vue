@@ -40,6 +40,12 @@ export default {
     return {
       updates: [
         {
+          date: "Mar. 1, 2021",
+          updates: [
+            "Added hazards to planet generation.",
+          ],
+        },
+        {
           date: "Feb. 26, 2021",
           updates: [
             "Made star system generator and planet generator use the same underlying library for planet generation",

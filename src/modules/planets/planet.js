@@ -5,7 +5,7 @@ const random = require("random");
 
 export class Planet {
   name;
-  description;
+  description = '';
   culture;
   government;
   population;
@@ -64,6 +64,73 @@ export function getAllClassifications() {
   ];
 }
 
+function getHazardsForClassification(classification) {
+  let hazards = {
+    arid: [
+      "The atmosphere is very thin and breathing apparatus is required outside.",
+      "Vast sandstorms occasionally sweep across the surface of the planet.",
+      "High winds sometimes create dangerous dust storms that can destroy unprotected buildings and ships.",
+      "Dune seas across the planet are home to a dangerous species of predator.",
+    ],
+    barren: [
+      "There is no atmosphere. A vaccsuit is required.",
+      "Meteor strikes are frequent.",
+      "The landscape is peppered with debris from meteor strikes, making travel difficult.",
+      "Unprotected by an atmosphere, this world is constantly bombarded by powerful radiation.",
+    ],
+    garden: [
+      "Life is prolific here, and there are many dangerous native predators.",
+      "A local virus is highly dangerous to non-natives.",
+      "There are many dangerous plants and animals on this world.",
+      "Rainstorms on this planet cause frequent floods in the lower-lying areas.",
+    ],
+    "gas giant": [
+      "Vast storms the size of small planets rage across the surface.",
+      "An aggressive species of floating leviathan is widespread across this planet.",
+      "Navigating the upper atmosphere is possible but dangerous due to the many chaotic weather systems.",
+      "The gasses making up the planet's atmosphere are highly corrosive and dangerous to spacecraft.",
+    ],
+    ice: [
+      "Fierce winds whip the surface, chilling the air well below the normal temperatures.",
+      "The ice is thinner in places and cannot hold heavy vehicles or starships.",
+      "Occasional meteor storms cause explosions of sharp shattered ice that shower for miles.",
+      "Pockets of superheated gas beneath the ice sometimes cause the surface to burst and unleash a geyser of hot gas, boiling water, and shards of ice.",
+    ],
+    jungle: [
+      "There are numerous species of deadly predator living in the jungle.",
+      "The heat and humidity of this world make it a constant struggle to keep plantlife from claiming settlements.",
+      "It is unbearably hot for non-natives most of the time, requiring a suit for outdoor activity.",
+      "Hidden throughout the greenery of the jungle are spots of quicksand that will devour unwary travellers.",
+    ],
+    ocean: [
+      "The still waters hide monstrous leviathans that can devour entire cities.",
+      "Ferocious swarms of fish plague the surface.",
+      "Vast blooms of algae can corrode even the most advanced armor.",
+      "The water contains acidic substances that erode metal but leave plastics untouched.",
+    ],
+    swamp: [
+      "It's very difficult to tell where solid land is. Landing on what appears to be a muddy plain might result in sinking forever into the muck.",
+      "A species of parasitic insect local to the planet carries a nasty disease that is highly contagious.",
+      "The complicated ecosystem is easy to upset, and outside interference can cause widespread destruction.",
+      "The atmosphere is very thick, requiring breathing apparatus for outside activity.",
+    ],
+    toxic: [
+      "The air is corrosive and will erode unprotected equipment.",
+      "The planet's surface is covered in many acid lakes.",
+      "Toxins in the air are so virulent that they will eat through even heavy protection eventually.",
+      "Corrosive elements in the water make the seas and rain deadly to manmade structures.",
+    ],
+    volcanic: [
+      "Deadly eruptions are frequent.",
+      "Lava flows in several areas are unpredictable and quick to change direction.",
+      "The air is filled with poisonous gases released by eruptions.",
+      "Acid rains frequently plague this world.",
+    ],
+  };
+
+  return Reflect.get(hazards, classification.name);
+}
+
 function calculateGravity(diameter, mass) {
   const G = (9.8 * Math.pow(6378000, 2)) / 5972190000000000000000000.0;
 
@@ -120,6 +187,8 @@ export function generate(classificationName) {
     planet.culture = 'N/A';
     planet.government = 'N/A';
   }
+
+  planet.description += iarnd.item(getHazardsForClassification(classification));
 
   return planet;
 }
