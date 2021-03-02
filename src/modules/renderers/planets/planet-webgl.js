@@ -1134,23 +1134,24 @@ export function getShaderData(classification) {
             specular = pow(specAngle, 39.0);
           }
 
-          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          float density = 1.0 * snoise(vec3(x * 4.0, y * 4.0, 1.0), ${seed});
           density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
           density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
-          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
           density *= 0.8;
 
           float opacity = mix(0.2, 1.0, density);
 
-          if (density < 0.5) {
+          if (density < 0.45) {
             opacity = 0.0;
           }
 
           vec3 ambientColor = vec3(0.0, 0.0, 0.0);
           vec3 specularColor = vec3(1.0, 1.0, 0.3);
+          vec3 diffuseColor = vec3(0.9, 1.0, 1.0);
 
           gl_FragColor = vec4(1.0 * ambientColor +
-            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            1.0 * lambertian * diffuseColor +
             0.12 * specular * specularColor, opacity);
         }`;
 
