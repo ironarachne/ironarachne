@@ -44,7 +44,6 @@
   import * as PlanetRenderer from "../modules/renderers/planets/planet-webgl.js";
   import * as THREE from "three";
   import * as StarfieldShader from "../modules/renderers/starfields/starfield-webgl.js";
-  import VertexShader from "../modules/shaders/basic-vertex.glsl.js";
 
   const random = require("random");
   const seedrandom = require("seedrandom");
@@ -91,9 +90,11 @@
         random.use(seedrandom(this.seed));
 
         let planet = Planet.generate(this.planetType);
-        planet.fragmentShader = PlanetRenderer.getFragmentShader(planet);
-        planet.vertexShader = VertexShader;
-        planet.cloudShader = PlanetRenderer.getCloudShader();
+
+        let shaderData = PlanetRenderer.getShaderData(planet.classification);
+        planet.fragmentShader = shaderData.generateFragmentShader();
+        planet.vertexShader = shaderData.generateVertexShader();
+        planet.cloudShader = shaderData.generateCloudShader();
 
         this.planet = planet;
 

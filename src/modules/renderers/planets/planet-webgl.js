@@ -12,77 +12,67 @@ export function translateDiameterToModelSize(diameter) {
   return size;
 }
 
-export function getFragmentShader(planet) {
-  let shaderData = getFragmentShaderByClassification(planet.classification);
+export function getShaderData(classification) {
+  let options = {
+    arid: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
 
-  let shader = shaderData.generateFragmentShader();
+        let seed = random.float(0.0, 200.0);
 
-  return shader;
-}
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
 
-export function getCloudShader() {
-  let noiseFunction = ShaderTools.simplexNoise();
+        uniform vec2 u_resolution;
 
-  let seed = random.float(0.0, 200.0);
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
 
-  let shader = `#ifdef GL_ES
-  precision mediump float;
-  #endif
+        ${noiseFunction}
 
-  uniform vec2 u_resolution;
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
 
-  varying vec2 vUv;
-  varying vec3 vertPos;
-  varying vec3 v_Normal;
+          float x = vUv.x;
+          float y = vUv.y;
 
-  ${noiseFunction}
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
 
-  void main(void) {
-    vec3 lightPos = vec3(-15.0, 15.0, 2.0);
-    vec3 N = normalize(v_Normal);
-    vec3 L = normalize(lightPos - vertPos);
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
 
-    float x = vUv.x;
-    float y = vUv.y;
+          float opacity = mix(0.2, 1.0, density);
 
-    // Lambert's cosine law
-    float lambertian = max(dot(N, L), 0.0);
-    float specular = 0.0;
-    if(lambertian > 0.0) {
-      vec3 R = reflect(-L, N);      // Reflected light vector
-      vec3 V = normalize(-vertPos); // Vector to viewer
-      // Compute the specular term
-      float specAngle = max(dot(R, V), 0.0);
-      specular = pow(specAngle, 39.0);
-    }
+          if (density < 0.5) {
+            opacity = 0.0;
+          }
 
-    float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
-    density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
-    density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
-    //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
-    density *= 0.8;
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
 
-    float opacity = mix(0.2, 1.0, density);
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            0.12 * specular * specularColor, opacity);
+        }`;
 
-    if (density < 0.5) {
-      opacity = 0.0;
-    }
-
-    vec3 ambientColor = vec3(0.0, 0.0, 0.0);
-    vec3 specularColor = vec3(1.0, 1.0, 0.3);
-
-    gl_FragColor = vec4(1.0 * ambientColor +
-      1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
-      0.12 * specular * specularColor, opacity);
-  }`;
-
-  return shader;
-}
-
-function getFragmentShaderByClassification(classification) {
-  let options = [
-    {
-      name: "arid",
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -156,9 +146,81 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "barren",
+    barren: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.5) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -232,9 +294,81 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "garden",
+    garden: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.5) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -326,9 +460,81 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "gas giant",
+    "gas giant": {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.5) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
         let goldNoiseFunction = ShaderTools.goldNoise();
@@ -399,9 +605,81 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "ice",
+    ice: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.5) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -475,9 +753,81 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "jungle",
+    jungle: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.5) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -567,9 +917,81 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "ocean",
+    ocean: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.5) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -640,9 +1062,81 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "swamp",
+    swamp: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.5) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -729,9 +1223,82 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "toxic",
+    toxic: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.4) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+          vec3 diffuseColor = vec3(1.0, 1.0, 0.75);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * diffuseColor +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -818,9 +1385,82 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
+
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
     },
-    {
-      name: "volcanic",
+    volcanic: {
+      generateCloudShader: function() {
+        let noiseFunction = ShaderTools.simplexNoise();
+
+        let seed = random.float(0.0, 200.0);
+
+        let shader = `#ifdef GL_ES
+        precision mediump float;
+        #endif
+
+        uniform vec2 u_resolution;
+
+        varying vec2 vUv;
+        varying vec3 vertPos;
+        varying vec3 v_Normal;
+
+        ${noiseFunction}
+
+        void main(void) {
+          vec3 lightPos = vec3(-15.0, 15.0, 2.0);
+          vec3 N = normalize(v_Normal);
+          vec3 L = normalize(lightPos - vertPos);
+
+          float x = vUv.x;
+          float y = vUv.y;
+
+          // Lambert's cosine law
+          float lambertian = max(dot(N, L), 0.0);
+          float specular = 0.0;
+          if(lambertian > 0.0) {
+            vec3 R = reflect(-L, N);      // Reflected light vector
+            vec3 V = normalize(-vertPos); // Vector to viewer
+            // Compute the specular term
+            float specAngle = max(dot(R, V), 0.0);
+            specular = pow(specAngle, 39.0);
+          }
+
+          float density = 1.0 * snoise(vec3(x * 6.0, y * 6.0, 1.0), ${seed});
+          density += 0.35 * snoise(vec3(x * 32.0, y * 32.0, 1.0), ${seed});
+          density += 0.15 * snoise(vec3(x * 48.0, y * 48.0, 1.0), ${seed});
+          //density += 0.05 * snoise(vec3(x * 128.0, y * 128.0, 1.0), ${seed});
+          density *= 0.8;
+
+          float opacity = mix(0.2, 1.0, density);
+
+          if (density < 0.4) {
+            opacity = 0.0;
+          }
+
+          vec3 ambientColor = vec3(0.0, 0.0, 0.0);
+          vec3 specularColor = vec3(1.0, 1.0, 0.3);
+          vec3 diffuseColor = vec3(0.6, 0.6, 0.55);
+
+          gl_FragColor = vec4(1.0 * ambientColor +
+            1.0 * lambertian * diffuseColor +
+            0.12 * specular * specularColor, opacity);
+        }`;
+
+        return shader;
+      },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
@@ -897,12 +1537,23 @@ function getFragmentShaderByClassification(classification) {
 
         return shader;
       },
-    },
-  ];
+      generateVertexShader: function () {
+        let shader = `varying vec3 vertPos;
+        varying vec2 vUv;
+        varying vec3 v_Normal;
 
-  for (let i=0;i<options.length;i++) {
-    if (options[i].name == classification) {
-      return options[i];
-    }
-  }
+        void main() {
+          vUv = uv;
+          vec4 vertPos4 = modelViewMatrix * vec4(position, 1.0);
+          vertPos = vec3(vertPos4) / vertPos4.w;
+          gl_Position = projectionMatrix * vertPos4;
+          v_Normal = (modelViewMatrix * vec4(normal, 0.0)).xyz;
+        }`;
+
+        return shader;
+      },
+    },
+  };
+
+  return Reflect.get(options, classification);
 }
