@@ -40,6 +40,13 @@ export default {
     return {
       updates: [
         {
+          date: "Mar. 2, 2021",
+          updates: [
+            "Made barren planets a little deformed in WebGL rendering.",
+            "Tweaked cloud layers on some planet types in WebGL rendering.",
+          ],
+        },
+        {
           date: "Mar. 1, 2021",
           updates: [
             "Added model numbers to SWN starships.",
