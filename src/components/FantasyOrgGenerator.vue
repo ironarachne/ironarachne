@@ -18,12 +18,19 @@
     <p>{{ description }}</p>
 
     <p>{{ leadership }}</p>
+
+    <h4>Notable Members</h4>
+
+    <p v-for="member in notableMembers" :key="member.lastName">
+      <strong>{{ member.getPrimaryTitle() }} {{ member.firstName }} {{ member.lastName }}:</strong>
+      {{ member.description }}
+    </p>
   </section>
 </template>
 
 <script>
 import * as Heraldry from "../modules/heraldry/heraldry.js";
-import * as Organization from "../modules/organizations/organizations.js";
+import * as Organization from "../modules/organizations/fantasy.js";
 import * as iarnd from "../modules/random.js";
 import axios from "axios";
 
@@ -37,6 +44,7 @@ export default {
       name: "",
       description: "",
       leadership: "",
+      notableMembers: [],
       charges: [],
       heraldry: {},
       seed: "",
@@ -49,7 +57,8 @@ export default {
 
       this.name = org.name;
       this.description = org.description;
-      this.leadership = org.leadership;
+      this.leadership = org.leadership.description;
+      this.notableMembers = org.notableMembers;
       this.heraldry = Heraldry.generate(this.charges, 200, 220);
     },
     loadCharges: function () {

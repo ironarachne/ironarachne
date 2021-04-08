@@ -2,11 +2,13 @@ import * as iarnd from "../random.js";
 import * as Dice from "../dice.js";
 import * as Measurements from "../measurements.js";
 import * as Words from "../words.js";
+import Character from "./character.js";
+import * as PersonalityTraits from "./personality.js";
 
 const random = require("random");
 
 export function generate(species, ageGroupName, gender, firstNames, lastNames) {
-  let character = {};
+  let character = new Character();
 
   character.species = species;
 
@@ -44,7 +46,9 @@ function describe(character) {
     traits.push(character.traits[i].description);
   }
 
-  description += Words.arrayToPhrase(traits) + ".";
+  description += Words.arrayToPhrase(traits) + '. ';
+
+  description += getRandomPersonality(character.gender) + '.'
 
   return description;
 }
@@ -76,6 +80,57 @@ export function getRandomHeight(ageGroup, gender) {
   }
 
   return height;
+}
+
+export function getRandomPersonality(gender) {
+  let positiveTraits = []
+  let negativeTraits = []
+
+  let allPositiveTraits = PersonalityTraits.getAllPositiveTraits()
+  let allNegativeTraits = PersonalityTraits.getAllNegativeTraits()
+
+  let numberOfPositiveTraits = random.int(2,3)
+  let numberOfNegativeTraits = random.int(1,2)
+
+  allPositiveTraits = iarnd.shuffle(allPositiveTraits)
+  for (let i=0;i<numberOfPositiveTraits;i++) {
+    positiveTraits.push(allPositiveTraits.pop())
+  }
+
+  allNegativeTraits = iarnd.shuffle(allNegativeTraits)
+  for (let i=0;i<numberOfNegativeTraits;i++) {
+    let negativeTrait = allNegativeTraits.pop()
+    let opposed = false
+    for (let j=0;j<positiveTraits.length;j++) {
+      if (positiveTraits[j].opposingTags.includes(negativeTrait.name)) {
+        opposed = true
+      }
+    }
+
+    if (!opposed) {
+      negativeTraits.push(negativeTrait)
+    }
+  }
+
+  let positive = []
+
+  for (let i=0;i<positiveTraits.length;i++) {
+    positive.push(positiveTraits[i].name)
+  }
+
+  let negative = []
+
+  for (let i=0;i<negativeTraits.length;i++) {
+    negative.push(negativeTraits[i].name)
+  }
+
+  let description = Words.capitalize(Words.pronoun(gender, 'subjective')) + ' is ' + Words.arrayToPhrase(positive)
+
+  if (negative.length > 0) {
+    description += ', but also ' + Words.arrayToPhrase(negative)
+  }
+
+  return description
 }
 
 export function getRandomTraits(species) {

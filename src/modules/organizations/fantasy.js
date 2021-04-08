@@ -1,30 +1,72 @@
 import * as iarnd from "../random.js";
 import * as CommonNames from "../names/common.js";
 import * as FantasyCharacter from "../characters/fantasy.js";
+import Organization from "./organization.js";
+import Rank from "./rank.js";
+import Title from "../characters/title.js";
 
 const random = require("random");
 
 export function generate() {
-  let organization = {
-    name: "",
-    description: "",
-    memberCount: 0,
-  };
+  let orgType = randomType()
+  let memberCount = random.int(orgType.minSize, orgType.maxSize)
 
-  let orgType = randomType();
-
-  organization.name = orgType.randomName();
-  organization.description = orgType.randomDescription();
-  organization.description = organization.description.replace(
+  let org = new Organization(orgType.randomName(), orgType, orgType.randomDescription(), memberCount, orgType.randomLeadership(), orgType.getRanks())
+  org.description = org.description.replace(
     "{name}",
-    organization.name
-  );
-  organization.memberCount = random.int(orgType.minSize, orgType.maxSize);
-  organization.description += " It has " + organization.memberCount + " members. ";
-  organization.description += randomPopularity();
-  organization.leadership = orgType.randomLeadership();
+    org.name
+  )
 
-  return organization;
+  org.description += " It has " + org.memberCount + " members. "
+  org.description += randomPopularity()
+
+  org.notableMembers = randomNotableMembers(org)
+
+  org.leadership.description = 'They are led by ' + org.leadership.getPrimaryTitle() + ' ' + org.leadership.firstName + ' ' + org.leadership.lastName + '. ' + org.leadership.description
+
+  return org;
+}
+
+function randomNotableMembers(org) {
+  let tiers = 1
+  let rank = org.ranks
+  let notableMembers = []
+
+  let numberOfInferiors = rank.inferiors.length
+
+  while (numberOfInferiors > 0) {
+    tiers++
+    rank = rank.inferiors[0]
+    numberOfInferiors = rank.inferiors.length
+  }
+
+  if (tiers <= 1) {
+    return []
+  }
+
+  for (let i=0;i<tiers;i++) {
+    let possibleRanks = org.getRanksOfTier(i)
+
+    let numberOfMembers = 1
+
+    if (i == 1) {
+      numberOfMembers = random.int(2,4)
+    } else if (i == 2) {
+      numberOfMembers = random.int(1,3)
+    }
+
+    if (i > 0) {
+      for (let k=0;k<numberOfMembers;k++) {
+        let memberRank = iarnd.item(possibleRanks)
+
+        let member = FantasyCharacter.generateByAgeGroup(memberRank.ageGroupName)
+        member.titles.push(memberRank.title)
+        notableMembers.push(member)
+      }
+    }
+  }
+
+  return notableMembers
 }
 
 function randomPopularity() {
@@ -42,8 +84,8 @@ function randomType() {
   return iarnd.item([
     {
       name: "mercenary company",
-      minSize: 10,
-      maxSize: 50,
+      minSize: 20,
+      maxSize: 80,
       leaderTitle: "captain",
       randomName: function () {
         let prefix = iarnd.item([
@@ -86,18 +128,29 @@ function randomType() {
         ]);
       },
       randomLeadership: function () {
-        let leader = FantasyCharacter.generateByAgeGroup("adult");
+        let leader = FantasyCharacter.generateByAgeGroup("adult")
+        let ranks = this.getRanks()
+        leader.titles.push(ranks.title)
 
-        let description = "They are lead by " + leader.firstName + " " + leader.lastName + ". " + leader.description;
-
-        return description;
+        return leader
       },
+      getRanks: function () {
+        let captain = new Rank(new Title('Captain', 'Captain', 'Captain', 'Captain', false, '', 0), 'military', 'adult')
+        let lieutenant = new Rank(new Title('Lieutenant', 'Lieutenant', 'Lieutenant', 'Lieutenant', false, '', 1), 'military', 'adult')
+        let sergeant = new Rank(new Title('Sergeant', 'Sergeant', 'Sergeant', 'Sergeant', false, '', 2), 'military', 'adult')
+        let member = new Rank(new Title('Mercenary', 'Mercenary', '', '', false, '', 3), 'military', 'adult')
+
+        sergeant.addInferior(member)
+        lieutenant.addInferior(sergeant)
+        captain.addInferior(lieutenant)
+        return captain
+      }
     },
     {
       name: "trading company",
-      minSize: 20,
+      minSize: 30,
       maxSize: 200,
-      leaderTitle: "president",
+      leaderTitle: "proprietor",
       randomName: function () {
         let nameTypes = [
           {
@@ -177,12 +230,21 @@ function randomType() {
         ]);
       },
       randomLeadership: function () {
-        let leader = FantasyCharacter.generateByAgeGroup("adult");
+        let leader = FantasyCharacter.generateByAgeGroup("adult")
+        let ranks = this.getRanks()
+        leader.titles.push(ranks.title)
 
-        let description = "They are lead by " + leader.firstName + " " + leader.lastName + ". " + leader.description;
-
-        return description;
+        return leader
       },
+      getRanks: function() {
+        let owner = new Rank(new Title('Proprietor', 'Proprietor', '', '', false, '', 0), 'commercial', 'adult')
+        let manager = new Rank(new Title('Manager', 'Manager', '', '', false, '', 1), 'commercial', 'adult')
+        let employee = new Rank(new Title('Employee', 'Employee', '', '', false, '', 2), 'commercial', 'adult')
+
+        manager.addInferior(employee)
+        owner.addInferior(manager)
+        return owner
+      }
     },
     {
       name: "wizard school",
@@ -238,12 +300,21 @@ function randomType() {
         ]);
       },
       randomLeadership: function () {
-        let leader = FantasyCharacter.generateByAgeGroup("elderly");
+        let leader = FantasyCharacter.generateByAgeGroup("elderly")
+        let ranks = this.getRanks()
+        leader.titles.push(ranks.title)
 
-        let description = "The school is led by Headmaster " + leader.firstName + " " + leader.lastName + ". " + leader.description;
-
-        return description;
+        return leader
       },
+      getRanks: function() {
+        let headmaster = new Rank(new Title('Headmaster', 'Headmaster', 'Headmaster', 'Headmaster', false, '', 0), 'arcane', 'elderly')
+        let professor = new Rank(new Title('Professor', 'Professor', 'Professor', 'Professor', false, '', 1), 'arcane', 'adult')
+        let student = new Rank(new Title('Student', 'Student', '', '', false, '', 2), 'arcane', 'young adult')
+
+        professor.addInferior(student)
+        headmaster.addInferior(professor)
+        return headmaster
+      }
     },
   ]);
 }

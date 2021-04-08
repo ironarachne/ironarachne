@@ -40,6 +40,13 @@ export default {
     return {
       updates: [
         {
+          date: "Apr. 8, 2021",
+          updates: [
+            "Added personality traits to character descriptions.",
+            "Added notable members to organizations.",
+          ],
+        },
+        {
           date: "Mar. 2, 2021",
           updates: [
             "Made barren planets a little deformed in WebGL rendering.",

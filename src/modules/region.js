@@ -1,7 +1,7 @@
 import * as iarnd from "./random.js";
 import * as Biome from "./biome.js";
 import * as Nation from "./nation.js";
-import * as Organization from "./organizations/organizations.js";
+import * as Organization from "./organizations/fantasy.js";
 import * as Town from "./towns/towns.js";
 import * as TownNames from "./names/towns.js";
 import * as Words from "./words.js";
