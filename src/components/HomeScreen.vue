@@ -40,6 +40,12 @@ export default {
     return {
       updates: [
         {
+          date: "Apr. 16, 2021",
+          updates: [
+            "Added a magic weapon generator.",
+          ]
+        },
+        {
           date: "Apr. 8, 2021",
           updates: [
             "Added personality traits to character descriptions.",
