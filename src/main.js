@@ -8,6 +8,7 @@ import FantasyEquipmentLists from "./components/FantasyEquipmentLists.vue";
 import FantasyOrgGenerator from "./components/FantasyOrgGenerator.vue";
 import HeraldryGenerator from "./components/HeraldryGenerator.vue";
 import HeraldryScreen from "./components/HeraldryScreen.vue";
+import MagicWeaponGenerator from "./components/MagicWeaponGenerator.vue";
 import PlanetGenerator from "./components/PlanetGenerator.vue";
 import RegionGenerator from "./components/RegionGenerator.vue";
 import SpeciesStatsTool from "./components/SpeciesStatsTool.vue";
@@ -29,6 +30,7 @@ const routes = [
   { path: "/culture", component: CultureGenerator },
   { path: "/fantasy/equipment", component: FantasyEquipmentLists },
   { path: "/fantasy/organization", component: FantasyOrgGenerator },
+  { path: "/fantasy/weapon", component: MagicWeaponGenerator },
   { path: "/heraldry", component: HeraldryScreen },
   {
     path: "/heraldry/:seed",
