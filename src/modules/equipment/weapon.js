@@ -35,6 +35,11 @@ export function generate(category, theme) {
     theme = iarnd.item(domains)
   }
 
+  if (category == 'any') {
+    let categories = getAllWeaponCategories()
+    category = iarnd.item(categories)
+  }
+
   let all = getAllDescriptors()
 
   let types = getWeaponTypesOfCategory(category)
@@ -233,87 +238,10 @@ function getAllDescriptors() {
   return descriptors
 }
 
-function getAllEffects() {
-  return [
-    new WeaponEffect('glows with an unearthly light', ['light', 'the sun', 'good']),
-    new WeaponEffect('has a perpetual layer of frost', ['winter']),
-    new WeaponEffect('glows bright yellow on command', ['light', 'the sun', 'dawn']),
-    new WeaponEffect('glows bright green on command', ['light']),
-    new WeaponEffect('glows bright blue on command', ['light']),
-    new WeaponEffect('glows bright red on command', ['light', 'evil']),
-    new WeaponEffect('is sentient and desires combat', ['war']),
-    new WeaponEffect('is sentient and aids its wielder', ['wisdom']),
-    new WeaponEffect('is sentient and has great knowledge of ages past', ['wisdom', 'knowledge']),
-    new WeaponEffect('is wreathed in flame that does not harm its wielder', ['summer', 'fire', 'the sun']),
-    new WeaponEffect('is sentient and fights its wielder whenever it can', ['trickery']),
-    new WeaponEffect('imparts great strength to its wielder', ['strength']),
-    new WeaponEffect('can make plants grow to full size from just a touch', ['plants', 'nature']),
-    new WeaponEffect('reveals hidden passages to its wielder', ['wisdom']),
-    new WeaponEffect('can heal as well as harm', ['mercy', 'healing', 'hope']),
-    new WeaponEffect('allows its wielder to breathe underwater', ['water', 'oceans', 'rivers']),
-    new WeaponEffect('allows its wielder to fly', ['sky', 'air']),
-    new WeaponEffect('lets its wielder pause time for the rest of creation for a few seconds at a time', ['time']),
-    new WeaponEffect('prevents its wielder from dying while they hold it', ['persistence']),
-    new WeaponEffect('greatly enhances its wielder\'s speed when trying to reach a friend in need', ['protection']),
-    new WeaponEffect('slowly drives its wielder insane', ['evil', 'chaos']),
-    new WeaponEffect('allows its wielder to speak and understand all languages', ['languages']),
-    new WeaponEffect('shimmers with a white light at night', ['the moon', 'stars']),
-    new WeaponEffect('can alter its form to appear as a harmless necklace at will', ['trickery']),
-    new WeaponEffect('can summon a mystical steed for its wielder to ride', ['travel']),
-    new WeaponEffect('can influence trade bargains in its wielder\'s favor', ['trade']),
-    new WeaponEffect('can summon powerful gusts of wind', ['air']),
-    new WeaponEffect('allows its wielder to talk to animals', ['animals']),
-    new WeaponEffect('allows its wielder to transform into one type of animal', ['animals']),
-    new WeaponEffect('causes the blood of its victims to turn to ink', ['art']),
-    new WeaponEffect('causes the blood of its victims to turn to paint', ['art']),
-    new WeaponEffect('surrounds its wielder with a storm of dead leaves', ['autumn']),
-    new WeaponEffect('causes its wielder to take the same damage dealt to its victims', ['balance']),
-    new WeaponEffect('surrounds its wielder with a sphere of magical darkness', ['darkness']),
-    new WeaponEffect('causes all nearby light sources to temporarily go out', ['darkness']),
-    new WeaponEffect('casts a warm yellow light on command', ['dawn']),
-    new WeaponEffect('instantly kills anyone harmed by it', ['death']),
-    new WeaponEffect('can summon a swarm of imps from the depths of the underworld', ['demons']),
-    new WeaponEffect('allows the wielder to summon and banish demons', ['demons']),
-    new WeaponEffect('causes everything around the target to be damaged on a strike except the wielder', ['destruction']),
-    new WeaponEffect('slowly reduces the light level in the area until it seems to be dusk', ['dusk']),
-    new WeaponEffect('can cause stone to melt and reform near the wielder', ['earth']),
-    new WeaponEffect('turns its victims into stone', ['earth']),
-    new WeaponEffect('causes fear in all who see it other than its wielder', ['fear']),
-    new WeaponEffect('causes barren soil and living things to become fertile', ['fertility']),
-    new WeaponEffect('allows its wielder to transform into a fox', ['foxes']),
-    new WeaponEffect('makes everyone seeing it feel calm and tranquil', ['good']),
-    new WeaponEffect('allows its wielder to transform anything into food', ['harvests']),
-    new WeaponEffect('can summon a magical steed on command', ['horses']),
-    new WeaponEffect('allows its wielder to transform into a horse', ['horses']),
-    new WeaponEffect('allows its wielder to track any living thing unerringly', ['hunting']),
-    new WeaponEffect('compels its wielder to right all wrongs they perceive', ['justice']),
-    new WeaponEffect('embues its wielder with the ability to understand and speak all languages', ['language']),
-    new WeaponEffect('prevents all in its presence from breaking any law', ['law']),
-    new WeaponEffect('causes flowers to spring up in its wielder\'s footsteps', ['life', 'flowers', 'plants', 'spring']),
-    new WeaponEffect('can restore the dead to life', ['life']),
-    new WeaponEffect('allows the wielder to call down lightning from the heavens', ['lightning']),
-    new WeaponEffect('encourages the seed of love to blossom in everyone in its presence', ['love']),
-    new WeaponEffect('endows its wielder with uncanny good luck', ['luck']),
-    new WeaponEffect('curses its victims with uncanny bad luck for a time', ['luck']),
-    new WeaponEffect('allows its wielder to fill the area with unearthly music', ['music']),
-    new WeaponEffect('protects its wielder from filthy peasants', ['nobility']),
-    new WeaponEffect('makes its wielder appear to be wealthy beyond compare', ['nobility', 'wealth', 'trade']),
-    new WeaponEffect('causes anyone who strikes its wielder to take the same damage and effects in return', ['revenge']),
-    new WeaponEffect('causes seeds to grow and flowers to bloom', ['spring', 'plants']),
-    new WeaponEffect('periodically teleports objects valuable to their owners into the wielder\'s pockets or backpack', ['thieves']),
-    new WeaponEffect('creates a thunderous boom on command', ['thunder']),
-  ]
-}
-
 function getAllEffectsForTheme(theme) {
-  let all = getAllEffects()
-  let result = []
+  let domainDetails = Domain.getSpecificDomain(theme)
 
-  for (let i=0;i<all.length;i++) {
-    if (all[i].tags.includes(theme)) {
-      result.push(all[i])
-    }
-  }
+  let result = [].concat(domainDetails.weaponEffects, domainDetails.otherEffects)
 
   return result
 }
