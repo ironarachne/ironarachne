@@ -17,6 +17,7 @@
         <li><router-link to="/heraldry">Heraldry</router-link></li>
         <li><router-link to="/fantasy/organization">Organization</router-link></li>
         <li><router-link to="/fantasy/equipment">Equipment Lists</router-link></li>
+        <li><router-link to="/fantasy/religion">Religion</router-link></li>
         <li><router-link to="/fantasy/weapon">Magic Weapon</router-link></li>
       </ul>
     </div>

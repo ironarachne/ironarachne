@@ -5,15 +5,12 @@ import * as Character from "./common.js";
 import * as CommonNames from "../names/common.js"; // TODO: support nonhuman names and cultural names
 
 export function generate() {
-  let character = {};
-
   let speciesOptions = FantasySpecies.all();
-
   let species = iarnd.weighted(speciesOptions);
 
   species = Species.calculateAgeCategories(species);
 
-  let ageGroupName = iarnd.item(species.ageGroups);
+  let ageGroupName = iarnd.item(species.ageGroups).name;
 
   let gender = iarnd.item(["female", "male"]);
 
@@ -26,16 +23,13 @@ export function generate() {
     firstNames = CommonNames.maleFirstNames();
   }
 
-  character = Character.generate(species, ageGroupName, gender, firstNames, lastNames);
+  let character = Character.generate(species, ageGroupName, gender, firstNames, lastNames);
 
   return character;
 }
 
 export function generateByAgeGroup(ageGroupName) {
-  let character = {};
-
   let speciesOptions = FantasySpecies.all();
-
   let species = iarnd.weighted(speciesOptions);
 
   species = Species.calculateAgeCategories(species);
@@ -51,7 +45,7 @@ export function generateByAgeGroup(ageGroupName) {
     firstNames = CommonNames.maleFirstNames();
   }
 
-  character = Character.generate(species, ageGroupName, gender, firstNames, lastNames);
+  let character = Character.generate(species, ageGroupName, gender, firstNames, lastNames);
 
   return character;
 }
