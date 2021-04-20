@@ -1,59 +1,61 @@
+import * as Species from "./common.js"
+
 export function all() {
   return [
-    {
-      name: "dwarf",
-      pluralName: "dwarves",
-      adjective: "dwarven",
-      weight: 20,
-      maxAge: 400,
-      heightScale: 0.8,
-      weightScale: 1.1,
-      traits: [
-        {
-          name: "hair color",
-          descriptionTemplate: "{name} hair",
-          options: [
+    new Species.Species(
+      "dwarf",
+      "dwarves",
+      "dwarven",
+      20,
+      400,
+      0.8,
+      1.1,
+      [
+        new Species.AppearanceTrait(
+          "hair color",
+          "{name} hair",
+          [
             "dark",
             "black",
             "russet",
             "brown",
             "red",
           ],
-        },
-        {
-          name: "skin color",
-          descriptionTemplate: "{name} skin",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "skin color",
+          "{name} skin",
+          [
             "tan",
             "bronzed",
             "ruddy",
           ],
-        },
-        {
-          name: "eye color",
-          descriptionTemplate: "{name} eyes",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "eye color",
+          "{name} eyes",
+          [
             "green",
             "brown",
             "dark",
             "amber",
           ],
-        },
+        ),
       ]
-    },
-    {
-      name: "elf",
-      pluralName: "elves",
-      adjective: "elven",
-      weight: 30,
-      maxAge: 700,
-      heightScale: 0.9,
-      weightScale: 0.6,
-      traits: [
-        {
-          name: "hair color",
-          descriptionTemplate: "{name} hair",
-          options: [
+    ),
+    new Species.Species(
+      "elf",
+      "elves",
+      "elven",
+      30,
+      700,
+      0.9,
+      0.6,
+      [
+        new Species.AppearanceTrait(
+          "hair color",
+          "{name} hair",
+          [
             "blonde",
             "dark",
             "black",
@@ -62,22 +64,22 @@ export function all() {
             "brown",
             "red",
           ],
-        },
-        {
-          name: "skin color",
-          descriptionTemplate: "{name} skin",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "skin color",
+          "{name} skin",
+          [
             "tan",
             "light",
             "bronzed",
             "white",
             "pale",
           ],
-        },
-        {
-          name: "eye color",
-          descriptionTemplate: "{name} eyes",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "eye color",
+          "{name} eyes",
+          [
             "blue",
             "green",
             "brown",
@@ -85,22 +87,22 @@ export function all() {
             "amber",
             "grey",
           ],
-        },
+        ),
       ]
-    },
-    {
-      name: "gnome",
-      pluralName: "gnomes",
-      adjective: "gnome",
-      weight: 20,
-      maxAge: 500,
-      heightScale: 0.6,
-      weightScale: 0.4,
-      traits: [
-        {
-          name: "hair color",
-          descriptionTemplate: "{name} hair",
-          options: [
+    ),
+    new Species.Species(
+      "gnome",
+      "gnomes",
+      "gnome",
+      20,
+      500,
+      0.6,
+      0.4,
+      [
+        new Species.AppearanceTrait(
+          "hair color",
+          "{name} hair",
+          [
             "blonde",
             "dark",
             "black",
@@ -109,44 +111,44 @@ export function all() {
             "brown",
             "red",
           ],
-        },
-        {
-          name: "skin color",
-          descriptionTemplate: "{name} skin",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "skin color",
+          "{name} skin",
+          [
             "tan",
             "light",
             "bronzed",
             "white",
             "pale",
           ],
-        },
-        {
-          name: "eye color",
-          descriptionTemplate: "{name} eyes",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "eye color",
+          "{name} eyes",
+          [
             "blue",
             "green",
             "brown",
             "dark",
             "amber",
           ],
-        },
+        ),
       ]
-    },
-    {
-      name: "halfling",
-      pluralName: "halflings",
-      adjective: "halfling",
-      weight: 40,
-      maxAge: 200,
-      heightScale: 0.5,
-      weightScale: 0.3,
-      traits: [
-        {
-          name: "hair color",
-          descriptionTemplate: "{name} hair",
-          options: [
+    ),
+    new Species.Species(
+      "halfling",
+      "halflings",
+      "halfling",
+      40,
+      200,
+      0.5,
+      0.3,
+      [
+        new Species.AppearanceTrait(
+          "hair color",
+          "{name} hair",
+          [
             "blonde",
             "dark",
             "black",
@@ -155,44 +157,44 @@ export function all() {
             "brown",
             "red",
           ],
-        },
-        {
-          name: "skin color",
-          descriptionTemplate: "{name} skin",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "skin color",
+          "{name} skin",
+          [
             "tan",
             "light",
             "bronzed",
             "white",
             "pale",
           ],
-        },
-        {
-          name: "eye color",
-          descriptionTemplate: "{name} eyes",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "eye color",
+          "{name} eyes",
+          [
             "blue",
             "green",
             "brown",
             "dark",
             "amber",
           ],
-        },
+        ),
       ]
-    },
-    {
-      name: "half-elf",
-      pluralName: "half-elves",
-      adjective: "half-elf",
-      weight: 15,
-      maxAge: 185,
-      heightScale: 0.95,
-      weightScale: 0.9,
-      traits: [
-        {
-          name: "hair color",
-          descriptionTemplate: "{name} hair",
-          options: [
+    ),
+    new Species.Species(
+      "half-elf",
+      "half-elves",
+      "half-elf",
+      15,
+      185,
+      0.95,
+      0.9,
+      [
+        new Species.AppearanceTrait(
+          "hair color",
+          "{name} hair",
+          [
             "blonde",
             "dark",
             "black",
@@ -201,44 +203,44 @@ export function all() {
             "brown",
             "red",
           ],
-        },
-        {
-          name: "skin color",
-          descriptionTemplate: "{name} skin",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "skin color",
+          "{name} skin",
+          [
             "tan",
             "light",
             "bronzed",
             "white",
             "pale",
           ],
-        },
-        {
-          name: "eye color",
-          descriptionTemplate: "{name} eyes",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "eye color",
+          "{name} eyes",
+          [
             "blue",
             "green",
             "brown",
             "dark",
             "amber",
           ],
-        },
+        ),
       ]
-    },
-    {
-      name: "half-orc",
-      pluralName: "half-orcs",
-      adjective: "half-orc",
-      weight: 10,
-      maxAge: 80,
-      heightScale: 0.95,
-      weightScale: 0.95,
-      traits: [
-        {
-          name: "hair color",
-          descriptionTemplate: "{name} hair",
-          options: [
+    ),
+    new Species.Species(
+      "half-orc",
+      "half-orcs",
+      "half-orc",
+      10,
+      80,
+      0.95,
+      0.95,
+      [
+        new Species.AppearanceTrait(
+          "hair color",
+          "{name} hair",
+          [
             "blonde",
             "dark",
             "black",
@@ -247,11 +249,11 @@ export function all() {
             "brown",
             "red",
           ],
-        },
-        {
-          name: "skin color",
-          descriptionTemplate: "{name} skin",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "skin color",
+          "{name} skin",
+          [
             "grey",
             "green",
             "olive",
@@ -263,33 +265,33 @@ export function all() {
             "white",
             "pale",
           ],
-        },
-        {
-          name: "eye color",
-          descriptionTemplate: "{name} eyes",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "eye color",
+          "{name} eyes",
+          [
             "blue",
             "green",
             "brown",
             "dark",
             "amber",
           ],
-        },
+        ),
       ]
-    },
-    {
-      name: "human",
-      pluralName: "humans",
-      adjective: "human",
-      weight: 200,
-      maxAge: 100,
-      heightScale: 1,
-      weightScale: 1,
-      traits: [
-        {
-          name: "hair color",
-          descriptionTemplate: "{name} hair",
-          options: [
+    ),
+    new Species.Species(
+      "human",
+      "humans",
+      "human",
+      200,
+      100,
+      1,
+      1,
+      [
+        new Species.AppearanceTrait(
+          "hair color",
+          "{name} hair",
+          [
             "blonde",
             "dark",
             "black",
@@ -298,11 +300,11 @@ export function all() {
             "brown",
             "red",
           ],
-        },
-        {
-          name: "skin color",
-          descriptionTemplate: "{name} skin",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "skin color",
+          "{name} skin",
+          [
             "tan",
             "light",
             "bronzed",
@@ -311,19 +313,19 @@ export function all() {
             "white",
             "pale",
           ],
-        },
-        {
-          name: "eye color",
-          descriptionTemplate: "{name} eyes",
-          options: [
+        ),
+        new Species.AppearanceTrait(
+          "eye color",
+          "{name} eyes",
+          [
             "blue",
             "green",
             "brown",
             "dark",
             "amber",
           ],
-        },
+        ),
       ]
-    },
+    ),
   ];
 }

@@ -1,17 +1,17 @@
 import * as iarnd from "../random.js";
-import * as Species from "../species/fantasy.js";
-import * as SpeciesCommon from "../species/common.js";
+import * as FantasySpecies from "../species/fantasy.js";
+import * as Species from "../species/common.js";
 import * as Character from "./common.js";
 import * as CommonNames from "../names/common.js"; // TODO: support nonhuman names and cultural names
 
 export function generate() {
   let character = {};
 
-  let speciesOptions = Species.all();
+  let speciesOptions = FantasySpecies.all();
 
   let species = iarnd.weighted(speciesOptions);
 
-  species = SpeciesCommon.calculateAgeCategories(species);
+  species = Species.calculateAgeCategories(species);
 
   let ageGroupName = iarnd.item(species.ageGroups);
 
@@ -34,11 +34,11 @@ export function generate() {
 export function generateByAgeGroup(ageGroupName) {
   let character = {};
 
-  let speciesOptions = Species.all();
+  let speciesOptions = FantasySpecies.all();
 
   let species = iarnd.weighted(speciesOptions);
 
-  species = SpeciesCommon.calculateAgeCategories(species);
+  species = Species.calculateAgeCategories(species);
 
   let gender = iarnd.item(["female", "male"]);
 

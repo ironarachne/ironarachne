@@ -2,6 +2,27 @@ import * as Age from "../age.js";
 import * as Dice from "../dice.js";
 import * as Measurement from "../measurements.js";
 
+export class Species {
+  constructor(name, pluralName, adjective, weight, maxAge, heightScale, weightScale, traits) {
+    this.name = name
+    this.pluralName = pluralName
+    this.adjective = adjective
+    this.weight = weight
+    this.maxAge = maxAge
+    this.heightScale = heightScale
+    this.weightScale = weightScale
+    this.traits = traits
+  }
+}
+
+export class AppearanceTrait {
+  constructor(name, descriptionTemplate, options) {
+    this.name = name
+    this.descriptionTemplate = descriptionTemplate
+    this.options = options
+  }
+}
+
 export function calculateAgeCategories(species) {
   let ageScale = species.maxAge / 100;
   let heightScale = species.heightScale;
