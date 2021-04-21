@@ -40,6 +40,12 @@ export default {
     return {
       updates: [
         {
+          date: "Apr. 21, 2021",
+          updates: [
+            "Added a religion generator.",
+          ],
+        },
+        {
           date: "Apr. 19, 2021",
           updates: [
             "Made the magic weapon generator more flexible.",
