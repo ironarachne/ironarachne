@@ -60,6 +60,9 @@ export function generate() {
     }
   }
 
+  let gatheringDescription = randomGatheringTimes() + ' For these gatherings, ' + randomGatheringPlace() + '.'
+  religion.description = gatheringDescription
+
   return religion
 }
 
@@ -120,14 +123,16 @@ function randomDeities(domainSets, realms) {
     }
   }
 
-  for (let i=0;i<deities.length;i++) {
-    let relationships = []
-    for (let j=0;j<deities[i].relationships.length;j++) {
-      relationships.push(Relationship.getRandomVerbForStrength(deities[i].relationships[j].strength) + ' ' + deities[i].relationships[j].target)
-    }
-    let relationshipDescription = ' ' + deities[i].name + ' ' + Words.arrayToPhrase(relationships) + '.'
+  if (deities.length > 1) {
+    for (let i=0;i<deities.length;i++) {
+      let relationships = []
+      for (let j=0;j<deities[i].relationships.length;j++) {
+        relationships.push(Relationship.getRandomVerbForStrength(deities[i].relationships[j].strength) + ' ' + deities[i].relationships[j].target)
+      }
+      let relationshipDescription = ' ' + deities[i].name + ' ' + Words.arrayToPhrase(relationships) + '.'
 
-    deities[i].description += relationshipDescription
+      deities[i].description += relationshipDescription
+    }
   }
 
   return deities
@@ -156,6 +161,58 @@ function randomDomainSets(numberOfSets) {
   }
 
   return sets
+}
+
+function randomGatheringPlace() {
+  let description = iarnd.item([
+    '{follower} gather in {place} for {service}',
+    '{follower} congregate in {place} to be led in {service} by a {leader}',
+  ])
+
+  let follower = iarnd.item([
+    'adherents',
+    'followers',
+    'the faithful',
+  ])
+
+  let place = iarnd.item([
+    'temples',
+    'churches',
+    'open spaces',
+    'lodges',
+  ])
+
+  let service = iarnd.item([
+    'silent meditation',
+    'ritual dance',
+    'solemn service',
+    'wild service',
+    'ritual music',
+    'structured recitation',
+    'ritual chanting',
+  ])
+
+  let leader = iarnd.item([
+    'priest',
+    'priestess',
+    'shaman',
+    'community leader',
+    'hereditary priest',
+    'hereditary priestess',
+    'member of the nobility',
+  ])
+
+  description = description.replace('{follower}', follower).replace('{place}', place).replace('{service}', service).replace('{leader}', leader)
+
+  return description
+}
+
+function randomGatheringTimes() {
+  return iarnd.item([
+    'Regular gatherings happen once a week.',
+    'Regular gatherings happen daily.',
+    'Regular gatherings happen once a month.',
+  ])
 }
 
 function randomRealms() {

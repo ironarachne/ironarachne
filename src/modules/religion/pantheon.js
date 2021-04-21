@@ -42,6 +42,13 @@ export function randomClassification() {
       5,
       12,
     ),
+    new Classification(
+      'monotheistic domain',
+      false,
+      '',
+      1,
+      1,
+    ),
   ]
 
   return iarnd.item(classifications)
