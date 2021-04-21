@@ -40,8 +40,8 @@ function randomDeities(domainSets, realms) {
     deity.realm = iarnd.item(realms)
 
     for (let j=0;j<domainSets[i].length;j++) {
-      possibleHolyItems = [].concat(possibleHolyItems, domainSets[i].holyItems)
-      possibleHolySymbols = [].concat(possibleHolySymbols, domainSets[i].holySymbols)
+      possibleHolyItems = possibleHolyItems.concat(domainSets[i][j].holyItems)
+      possibleHolySymbols = possibleHolySymbols.concat(domainSets[i][j].holySymbols)
     }
 
     deity.holyItem = iarnd.item(possibleHolyItems)

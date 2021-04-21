@@ -27,6 +27,9 @@
     <div v-for="deity in religion.pantheon.deities" :key="deity.name">
       <h4>{{ deity.name }}</h4>
 
+      <p><strong>Holy Item:</strong> {{ deity.holyItem }}</p>
+      <p><strong>Holy Symbol:</strong> {{ deity.holySymbol }}</p>
+
       <p>{{ deity.description }}</p>
     </div>
   </section>
