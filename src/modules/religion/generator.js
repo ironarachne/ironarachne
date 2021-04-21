@@ -5,6 +5,7 @@ import * as FantasyCharacter from "../characters/fantasy.js"
 import * as iarnd from "../random.js"
 import * as Pantheon from "./pantheon.js"
 import * as Realm from "./realm.js"
+import * as Relationship from "../characters/relationship.js"
 import * as Religion from "./religion.js"
 import * as Words from "../words.js"
 
@@ -64,6 +65,34 @@ function randomDeities(domainSets, realms) {
     deity.description = Deity.describe(deity)
 
     deities.push(deity)
+  }
+
+  for (let j=0;j<3;j++) {
+    for (let i=0;i<deities.length;i++) {
+      let strength = random.int(0, 3)
+      let target = iarnd.item(deities).name
+      if (target != deities[i].name) {
+        let alreadyExists = false
+        for (let k=0;k<deities[i].relationships.length;k++) {
+          if (deities[i].relationships[k].target == target) {
+            alreadyExists = true
+          }
+        }
+        if (!alreadyExists) {
+          deities[i].relationships.push(new Relationship.Relationship(strength, target))
+        }
+      }
+    }
+  }
+
+  for (let i=0;i<deities.length;i++) {
+    let relationships = []
+    for (let j=0;j<deities[i].relationships.length;j++) {
+      relationships.push(Relationship.getRandomVerbForStrength(deities[i].relationships[j].strength) + ' ' + deities[i].relationships[j].target)
+    }
+    let relationshipDescription = ' ' + deities[i].name + ' ' + Words.arrayToPhrase(relationships) + '.'
+
+    deities[i].description += relationshipDescription
   }
 
   return deities
