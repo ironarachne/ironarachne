@@ -3,7 +3,7 @@ import * as iarnd from "../random.js"
 export class Pantheon {
   constructor(name, description, classification) {
     this.name = name
-    this.descripton = description
+    this.description = description
     this.deities = []
     this.classification = classification
   }
@@ -22,21 +22,21 @@ export class Classification {
 export function randomClassification() {
   let classifications = [
     new Classification(
-      'a patriarchal autocracy',
+      'patriarchal autocracy',
       true,
       'male',
       5,
       12,
     ),
     new Classification(
-      'a matriarchal autocracy',
+      'matriarchal autocracy',
       true,
       'female',
       5,
       12,
     ),
     new Classification(
-      'egalitarian',
+      'egalitarian society',
       false,
       '',
       5,

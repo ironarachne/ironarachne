@@ -18,12 +18,47 @@ export function generate() {
 
   let numberOfDeities = random.int(classification.minSize, classification.maxSize)
 
+  let pantheonDescription = 'This pantheon is ' + Words.article(classification.name) + ` ${classification.name}`
+
+  if (numberOfDeities > 1) {
+    pantheonDescription += ` with ${numberOfDeities} gods.`
+  } else {
+    pantheonDescription += ` with a single all-powerful god.`
+  }
+
   let domainSets = randomDomainSets(numberOfDeities)
 
   let religion = new Religion.Religion('')
   religion.realms = realms
-  religion.pantheon = new Pantheon.Pantheon('', '', classification)
+  religion.pantheon = new Pantheon.Pantheon('', pantheonDescription, classification)
   religion.pantheon.deities = randomDeities(domainSets, realms)
+
+  if (classification.hasLeader) {
+    let leaderOptions = []
+    if (classification.leaderGender == 'any') {
+      leaderOptions = religion.pantheon.deities
+    } else {
+      for (let i=0;i<religion.pantheon.deities.length;i++) {
+        if (religion.pantheon.deities[i].gender == classification.leaderGender) {
+          leaderOptions.push(religion.pantheon.deities[i])
+        }
+      }
+    }
+    let leader = iarnd.item(leaderOptions)
+
+    for (let i=0;i<religion.pantheon.deities.length;i++) {
+      if (leader.name == religion.pantheon.deities[i].name) {
+        let leaderTitle = 'Queen of the Gods'
+        if (leader.gender == 'male') {
+          leaderTitle = 'King of the Gods'
+        }
+
+        religion.pantheon.deities[i].titles.push(leaderTitle)
+
+        religion.pantheon.description += ` ${leader.name} is the ${leaderTitle}.`
+      }
+    }
+  }
 
   return religion
 }
