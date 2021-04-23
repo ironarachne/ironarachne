@@ -5,6 +5,7 @@
 
       <ul>
         <li><router-link to="/home">Home</router-link></li>
+        <li><a href="https://www.reddit.com/r/ironarachne/">r/ironarachne subreddit</a></li>
       </ul>
     </div>
 
