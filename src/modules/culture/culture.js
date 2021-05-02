@@ -1,11 +1,13 @@
-import * as iarnd from "./random.js"
-import * as Name from "./names/cultures.js"
-import * as Religion from "./religion.js"
-import * as Music from "./music/style.js"
+import * as iarnd from "../random.js"
+import * as Name from "../names/cultures.js"
+import * as Religion from "../religion.js"
+import * as Music from "../music/style.js"
+import * as Organization from "./organization.js"
 
 export class Culture {
-  constructor(name, maleNames, femaleNames, familyNames, religion, taboos, greeting, eatingTrait, designTrait, musicStyle) {
+  constructor(name, organization, maleNames, femaleNames, familyNames, religion, taboos, greeting, eatingTrait, designTrait, musicStyle) {
     this.name = name
+    this.organization = organization
     this.maleNames = maleNames
     this.femaleNames = femaleNames
     this.familyNames = familyNames
@@ -26,6 +28,7 @@ export function generate() {
 
   let culture = new Culture(
     Name.generate(),
+    Organization.generate(),
     maleNames,
     femaleNames,
     familyNames,

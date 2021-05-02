@@ -43,6 +43,7 @@ export default {
           date: "May 2, 2021",
           updates: [
             "Expanded culture generator with music style.",
+            "Added social organization to the culture generator.",
           ],
         },
         {

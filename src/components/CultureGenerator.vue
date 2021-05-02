@@ -38,7 +38,12 @@
       </div>
     </div>
 
+    <h4>Organization</h4>
+
+    <p>{{ culture.organization.description }}</p>
+
     <h4>Religion</h4>
+
     <p>{{ culture.religion.description }}</p>
 
     <h4>Taboos</h4>
@@ -74,7 +79,7 @@
 
 <script>
 import * as iarnd from "../modules/random.js";
-import * as Culture from "../modules/culture.js";
+import * as Culture from "../modules/culture/culture.js";
 const random = require("random");
 const seedrandom = require("seedrandom");
 
