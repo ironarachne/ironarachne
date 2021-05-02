@@ -56,6 +56,10 @@
     <h4>Design</h4>
 
     <p>{{ culture.designTrait }}</p>
+
+    <h4>Music</h4>
+
+    <p>{{ culture.musicStyle.description }}</p>
   </section>
 </template>
 

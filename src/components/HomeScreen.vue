@@ -40,6 +40,12 @@ export default {
     return {
       updates: [
         {
+          date: "May 2, 2021",
+          updates: [
+            "Expanded culture generator with music style.",
+          ],
+        },
+        {
           date: "Apr. 21, 2021",
           updates: [
             "Added a religion generator.",
