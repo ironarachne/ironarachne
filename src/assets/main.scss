@@ -17,7 +17,7 @@
 @font-face {
   font-family: "libre_baskerville";
   src: url("fonts/librebaskerville-bold-webfont.woff2") format("woff2"),
-    url("fonts/librebaskerville-bold-webfont.woff") format("woff");
+  url("fonts/librebaskerville-bold-webfont.woff") format("woff");
   font-weight: bold;
   font-style: normal;
 }
@@ -25,7 +25,7 @@
 @font-face {
   font-family: "libre_baskerville";
   src: url("fonts/librebaskerville-italic-webfont.woff2") format("woff2"),
-    url("fonts/librebaskerville-italic-webfont.woff") format("woff");
+  url("fonts/librebaskerville-italic-webfont.woff") format("woff");
   font-weight: normal;
   font-style: italic;
 }
@@ -33,7 +33,7 @@
 @font-face {
   font-family: "libre_baskerville";
   src: url("fonts/librebaskerville-regular-webfont.woff2") format("woff2"),
-    url("fonts/librebaskerville-regular-webfont.woff") format("woff");
+  url("fonts/librebaskerville-regular-webfont.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
@@ -81,11 +81,11 @@ body,
 html {
   background: rgb(199, 196, 184);
   background: linear-gradient(
-    90deg,
-    rgba(199, 196, 184, 1) 0%,
-    rgba(247, 243, 228, 1) 15%,
-    rgba(247, 243, 228, 1) 85%,
-    rgba(199, 196, 184, 1) 100%
+      90deg,
+      rgba(199, 196, 184, 1) 0%,
+      rgba(247, 243, 228, 1) 15%,
+      rgba(247, 243, 228, 1) 85%,
+      rgba(199, 196, 184, 1) 100%
   );
   font-family: "libre_baskerville", Georgia, serif;
   font-size: 20px;
@@ -122,13 +122,15 @@ sup {
 .cyberpunk {
   background: black;
   color: white;
-  h1,h2,h3,h4,h5,h6 {
+
+  h1, h2, h3, h4, h5, h6 {
     color: #D8F6B0;
     font-family: 'azonix';
     text-shadow: 0 0 6px #86FF00;
   }
+
   button {
-    background: rgb(0,0,0);
+    background: rgb(0, 0, 0);
     border: 3px solid $ironarachnegreen;
     border-radius: 3px;
     color: $ironarachnegreen;
@@ -142,9 +144,9 @@ sup {
   button:active {
     background: rgb(92, 86, 73);
     background: linear-gradient(
-      339deg,
-      rgba(92, 86, 73, 1) 0%,
-      rgba(10, 10, 10, 1) 100%
+        339deg,
+        rgba(92, 86, 73, 1) 0%,
+        rgba(10, 10, 10, 1) 100%
     );
     color: $ironarachnegreen;
     transform: translateY(2px);
@@ -158,15 +160,16 @@ sup {
 }
 
 .fantasy {
-  h1,h2,h3,h4,h5,h6 {
+  h1, h2, h3, h4, h5, h6 {
     font-family: 'eczar';
   }
+
   button {
     background: rgb(92, 86, 73);
     background: linear-gradient(
-      165deg,
-      rgba(92, 86, 73, 1) 0%,
-      rgba(10, 10, 10, 1) 100%
+        165deg,
+        rgba(92, 86, 73, 1) 0%,
+        rgba(10, 10, 10, 1) 100%
     );
     border: 3px solid $tan;
     border-radius: 3px;
@@ -181,9 +184,9 @@ sup {
   button:active {
     background: rgb(92, 86, 73);
     background: linear-gradient(
-      339deg,
-      rgba(92, 86, 73, 1) 0%,
-      rgba(10, 10, 10, 1) 100%
+        339deg,
+        rgba(92, 86, 73, 1) 0%,
+        rgba(10, 10, 10, 1) 100%
     );
     color: $ironarachnegreen;
     transform: translateY(2px);
@@ -197,10 +200,11 @@ sup {
 }
 
 .scifi {
-  background: rgb(16,17,25);
-  background: linear-gradient(90deg, rgba(16,17,25,1) 0%, rgba(38,58,96,1) 49%, rgba(16,17,25,1) 100%);
+  background: rgb(16, 17, 25);
+  background: linear-gradient(90deg, rgba(16, 17, 25, 1) 0%, rgba(38, 58, 96, 1) 49%, rgba(16, 17, 25, 1) 100%);
   color: white;
-  h1,h2,h3,h4,h5,h6 {
+
+  h1, h2, h3, h4, h5, h6 {
     color: #A2D4FF;
     text-shadow: 0 0 6px #0086FF;
     font-family: 'alienleague';
@@ -209,9 +213,9 @@ sup {
   button {
     background: rgb(2, 37, 95);
     background: linear-gradient(
-      165deg,
-      rgb(2, 37, 95) 0%,
-      rgba(10, 10, 10, 1) 100%
+        165deg,
+        rgb(2, 37, 95) 0%,
+        rgba(10, 10, 10, 1) 100%
     );
     border: 3px solid rgb(108, 146, 255);
     border-radius: 3px;
@@ -226,9 +230,9 @@ sup {
   button:active {
     background: rgb(92, 86, 73);
     background: linear-gradient(
-      339deg,
-      rgba(92, 86, 73, 1) 0%,
-      rgba(10, 10, 10, 1) 100%
+        339deg,
+        rgba(92, 86, 73, 1) 0%,
+        rgba(10, 10, 10, 1) 100%
     );
     color: rgb(108, 146, 255);
     transform: translateY(2px);
@@ -295,15 +299,18 @@ strong {
 
 table {
   width: 100%;
+
   thead {
     tr {
       border-bottom: 3px solid black;
+
       th {
         font-weight: 700;
         text-align: left;
       }
     }
   }
+
   th,
   td {
     border: 1px solid black;
@@ -330,9 +337,9 @@ section.default {
   button {
     background: rgb(92, 86, 73);
     background: linear-gradient(
-      165deg,
-      rgba(92, 86, 73, 1) 0%,
-      rgba(10, 10, 10, 1) 100%
+        165deg,
+        rgba(92, 86, 73, 1) 0%,
+        rgba(10, 10, 10, 1) 100%
     );
     border: 3px solid $tan;
     border-radius: 3px;
@@ -346,9 +353,9 @@ section.default {
   button:active {
     background: rgb(92, 86, 73);
     background: linear-gradient(
-      339deg,
-      rgba(92, 86, 73, 1) 0%,
-      rgba(10, 10, 10, 1) 100%
+        339deg,
+        rgba(92, 86, 73, 1) 0%,
+        rgba(10, 10, 10, 1) 100%
     );
     color: $ironarachnegreen;
     transform: translateY(2px);

@@ -1,7 +1,9 @@
+"use strict";
+
 import * as TavernName from "./names/taverns.js";
 import * as Food from "./cuisine/food.js";
 import * as Drink from "./cuisine/drink.js";
-import * as iarnd from "./random.js";
+import * as RND from "./random.js";
 import * as Dice from "./dice.js";
 import * as Currency from "./currency.js";
 
@@ -24,13 +26,13 @@ export function generate() {
 }
 
 function randomDescription(tavern) {
-  let description = iarnd.item([
+  let description = RND.item([
     tavern.name,
     "This tavern",
     "This establishment",
   ]);
 
-  let quality = iarnd.item([
+  let quality = RND.item([
     "has seen better days",
     "looks newly painted",
     "is well kept",
@@ -39,7 +41,7 @@ function randomDescription(tavern) {
 
   description += " " + quality + ". ";
 
-  let patrons = iarnd.item([
+  let patrons = RND.item([
     "It caters to a diverse crowd.",
     "Some of its patrons are less savory types.",
     "It has a welcoming atmosphere.",

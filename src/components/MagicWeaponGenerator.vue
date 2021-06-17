@@ -22,7 +22,7 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generate">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -34,42 +34,42 @@
 </template>
 
 <script>
-import * as Domain from "../modules/religion/domain.js"
-import * as Weapon from "../modules/equipment/weapon.js"
-import * as iarnd from "../modules/random.js"
+import * as Domain from "../modules/religion/domain.js";
+import * as Weapon from "../modules/equipment/weapon.js";
+import * as RND from "../modules/random.js";
 
 const random = require("random");
 const seedrandom = require("seedrandom");
 
 export default {
-  name: 'MagicWeaponGenerator',
+  name: "MagicWeaponGenerator",
   data: function () {
     return {
       weapon: {},
       themes: [],
       categories: [],
-      category: 'any',
-      theme: 'any',
-    }
+      category: "any",
+      theme: "any",
+    };
   },
   methods: {
-    generate: function() {
-      random.use(seedrandom(this.seed))
+    generate: function () {
+      random.use(seedrandom(this.seed));
 
-      let weapon = Weapon.generate(this.category, this.theme)
-      weapon.description = weapon.name + ' is ' + weapon.description
+      let weapon = Weapon.generate(this.category, this.theme);
+      weapon.description = weapon.name + " is " + weapon.description;
 
-      this.weapon = weapon
+      this.weapon = weapon;
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generate();
     },
   },
   created: function () {
-    this.categories = Weapon.getAllWeaponCategories().sort()
-    this.themes = Domain.getAllDomainNames().sort()
+    this.categories = Weapon.getAllWeaponCategories().sort();
+    this.themes = Domain.getAllDomainNames().sort();
     this.newSeed();
   },
-}
+};
 </script>

@@ -1,10 +1,13 @@
-import * as iarnd from "./random.js";
+"use strict";
+
+import * as RND from "./random.js";
 import * as Biome from "./biome.js";
 import * as Nation from "./nation.js";
 import * as Organization from "./organizations/fantasy.js";
 import * as Town from "./towns/towns.js";
 import * as TownNames from "./names/towns.js";
 import * as Words from "./words.js";
+
 const random = require("random");
 
 export function generate() {
@@ -42,7 +45,7 @@ function randomNation() {
       secondNation.name +
       " both claim this region, ";
 
-    let nextPart = iarnd.item([
+    let nextPart = RND.item([
       "and it's the subject of an active war.",
       "though both have bigger problems right now than to argue over it.",
       "and a war may be coming soon over it.",

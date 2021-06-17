@@ -1,12 +1,14 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 
 export function generate(patterns) {
   let name = "";
-  let pattern = iarnd.item(patterns);
+  let pattern = RND.item(patterns);
 
   for (let i = 0; i < pattern.length; i++) {
     let letter = parsePatternElement(pattern[i]);
-    if (i == 0) {
+    if (i === 0) {
       letter = letter.toUpperCase();
     }
     name += letter;
@@ -19,20 +21,20 @@ export function generate(patterns) {
 function parsePatternElement(element) {
   let letter = "";
 
-  if (element == "c") {
+  if (element === "c") {
     letter = randomConsonant();
-  } else if (element == "v") {
+  } else if (element === "v") {
     letter = randomVowel();
-  } else if (element == "p") {
+  } else if (element === "p") {
     letter = randomConsonant();
     letter = letter + letter;
-  } else if (element == "n") {
+  } else if (element === "n") {
     letter = randomNasal();
-  } else if (element == "g") {
+  } else if (element === "g") {
     letter = randomGlottal();
-  } else if (element == "s") {
+  } else if (element === "s") {
     letter = randomSibilant();
-  } else if (element == "f") {
+  } else if (element === "f") {
     letter = randomSoftVowel();
   } else {
     letter = element.toLowerCase();
@@ -42,7 +44,7 @@ function parsePatternElement(element) {
 }
 
 export function randomConsonant() {
-  return iarnd.item([
+  return RND.item([
     "b",
     "c",
     "d",
@@ -68,21 +70,21 @@ export function randomConsonant() {
 }
 
 export function randomGlottal() {
-  return iarnd.item(["g", "k"]);
+  return RND.item(["g", "k"]);
 }
 
 export function randomNasal() {
-  return iarnd.item(["m", "n"]);
+  return RND.item(["m", "n"]);
 }
 
 export function randomSibilant() {
-  return iarnd.item(["f", "s"]);
+  return RND.item(["f", "s"]);
 }
 
 export function randomSoftVowel() {
-  return iarnd.item(["a", "i"]);
+  return RND.item(["a", "i"]);
 }
 
 export function randomVowel() {
-  return iarnd.item(["a", "e", "i", "o", "u"]);
+  return RND.item(["a", "e", "i", "o", "u"]);
 }

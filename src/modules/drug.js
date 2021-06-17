@@ -1,14 +1,16 @@
-import * as iarnd from "./random.js";
+"use strict";
+
+import * as RND from "./random.js";
 import * as Words from "./words.js";
 
 export function generate() {
   let drug = {};
 
-  drug.drugType = iarnd.item(allTypes());
+  drug.drugType = RND.item(allTypes());
   drug.name = randomName();
-  drug.method = iarnd.item(drug.drugType.methods);
+  drug.method = RND.item(drug.drugType.methods);
   drug.effectType = randomEffectType();
-  drug.effectDescription = iarnd.item(drug.effectType.effects);
+  drug.effectDescription = RND.item(drug.effectType.effects);
   drug.strength = randomStrength();
   drug.color = randomColor();
   drug.duration = randomDuration();
@@ -60,7 +62,7 @@ function allTypes() {
 }
 
 function randomColor() {
-  let color = iarnd.item([
+  let color = RND.item([
     "blue",
     "green",
     "red",
@@ -74,7 +76,7 @@ function randomColor() {
     "emerald",
   ]);
 
-  let modifier = iarnd.item([
+  let modifier = RND.item([
     "light",
     "dark",
     "bright",
@@ -86,7 +88,7 @@ function randomColor() {
 }
 
 function randomCommonality() {
-  return iarnd.item([
+  return RND.item([
     "You can find it just about everywhere.",
     "It's hard to find.",
     "It's easy to find.",
@@ -97,7 +99,7 @@ function randomCommonality() {
 }
 
 function randomDuration() {
-  return iarnd.item([
+  return RND.item([
     "One dose lasts for a few minutes.",
     "One dose lasts for an hour or two.",
     "One dose lasts for several hours.",
@@ -107,7 +109,7 @@ function randomDuration() {
 }
 
 function randomEffectType() {
-  return iarnd.item([
+  return RND.item([
     {
       name: "hallucinogen",
       effects: [
@@ -156,11 +158,11 @@ function randomEffectType() {
 }
 
 function randomName() {
-  let nameType = iarnd.item([
+  let nameType = RND.item([
     {
       name: "single word",
-      generate: function() {
-        return iarnd.item([
+      generate: function () {
+        return RND.item([
           "Slice",
           "Dreg",
           "Shadow",
@@ -182,8 +184,8 @@ function randomName() {
     },
     {
       name: "phrase",
-      generate: function() {
-        let prefix = iarnd.item([
+      generate: function () {
+        let prefix = RND.item([
           "White",
           "Blue",
           "Black",
@@ -199,7 +201,7 @@ function randomName() {
           "Angel",
         ]);
 
-        let suffix = iarnd.item([
+        let suffix = RND.item([
           "Fantasy",
           "Spice",
           "Dust",
@@ -225,7 +227,7 @@ function randomName() {
 }
 
 function randomSideEffect() {
-  return iarnd.item([
+  return RND.item([
     "a burning sensation over your entire body",
     "horrific nightmares",
     "dry mouth",
@@ -250,7 +252,7 @@ function randomSideEffect() {
 }
 
 function randomStrength() {
-  return iarnd.item([
+  return RND.item([
     "really potent",
     "potent",
     "weak",

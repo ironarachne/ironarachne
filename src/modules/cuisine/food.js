@@ -1,5 +1,8 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 import * as words from "../words.js";
+
 const random = require("random");
 
 export function generateDish() {
@@ -10,13 +13,13 @@ export function generateDish() {
   let vegetableChance = random.int(1, 100);
 
   if (vegetableChance > 50) {
-    let combiningWord = iarnd.item(["and", "on", "with"]);
+    let combiningWord = RND.item(["and", "on", "with"]);
     dish += " " + combiningWord + " " + randomVegetable();
   }
 
   let seasoning = randomSeasoning();
 
-  let seasoningPhrase = iarnd.item([
+  let seasoningPhrase = RND.item([
     "seasoned with",
     "flavored with",
     "spiced with",
@@ -30,7 +33,7 @@ export function generateDish() {
 function randomCookingMethod() {
   let items = ["roasted", "fried", "baked", "broiled", "seared", "charbroiled"];
 
-  return iarnd.item(items);
+  return RND.item(items);
 }
 
 function randomFocus() {
@@ -103,9 +106,9 @@ function randomFocus() {
     },
   ];
 
-  let focus = iarnd.item(items);
+  let focus = RND.item(items);
 
-  return iarnd.item(focus.options);
+  return RND.item(focus.options);
 }
 
 function randomMainComponent() {
@@ -113,7 +116,7 @@ function randomMainComponent() {
 
   let modifierChance = random.int(1, 100);
   if (modifierChance > 80) {
-    mainComponent += " " + iarnd.item(["sausage", "stew"]);
+    mainComponent += " " + RND.item(["sausage", "stew"]);
   }
 
   return mainComponent;
@@ -127,7 +130,7 @@ function randomSeasoning() {
   options = options.concat(herbs());
 
   for (let i = 0; i < seasoningCount; i++) {
-    let component = iarnd.item(options);
+    let component = RND.item(options);
     if (!components.includes(component)) {
       components.push(component);
     } else {
@@ -156,7 +159,7 @@ function randomSeasoningCount() {
     },
   ];
 
-  let result = iarnd.weighted(weights);
+  let result = RND.weighted(weights);
 
   return result.item;
 }
@@ -179,7 +182,7 @@ function randomVegetable() {
     "mushrooms",
   ];
 
-  return iarnd.item(items);
+  return RND.item(items);
 }
 
 function spices() {

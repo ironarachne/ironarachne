@@ -1,6 +1,7 @@
 "use strict";
 
-import { Delaunay } from "d3-delaunay";
+import {Delaunay} from "d3-delaunay";
+
 const random = require("random");
 
 export function generate(width, height) {
@@ -62,26 +63,26 @@ function generatePoints(width, height) {
 
 function renderMap(map, width, height) {
   let svg =
-    '<svg width="' +
+    "<svg width=\"" +
     width +
-    '" height="' +
+    "\" height=\"" +
     height +
-    '" viewBox="0,0,' +
+    "\" viewBox=\"0,0," +
     width +
     "," +
     height +
-    '">';
+    "\">";
 
   map.cells.forEach(function (cell) {
     let color = "#33aa33";
     if (cell.is_water) {
       color = "#0011aa";
     }
-    svg += '<polygon points="';
+    svg += "<polygon points=\"";
     cell.corners.forEach(function (corner) {
       svg += corner[0] + "," + corner[1] + " ";
     });
-    svg += '" fill="' + color + '" stroke="' + color + '"/>';
+    svg += "\" fill=\"" + color + "\" stroke=\"" + color + "\"/>";
   });
 
   svg += "</svg>";

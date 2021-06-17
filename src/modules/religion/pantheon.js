@@ -1,55 +1,57 @@
-import * as iarnd from "../random.js"
+"use strict";
+
+import * as RND from "../random.js";
 
 export class Pantheon {
   constructor(name, description, classification) {
-    this.name = name
-    this.description = description
-    this.deities = []
-    this.classification = classification
+    this.name = name;
+    this.description = description;
+    this.deities = [];
+    this.classification = classification;
   }
 }
 
 export class Classification {
   constructor(name, hasLeader, leaderGender, minSize, maxSize) {
-    this.name = name
-    this.hasLeader = hasLeader
-    this.leaderGender = leaderGender
-    this.minSize = minSize
-    this.maxSize = maxSize
+    this.name = name;
+    this.hasLeader = hasLeader;
+    this.leaderGender = leaderGender;
+    this.minSize = minSize;
+    this.maxSize = maxSize;
   }
 }
 
 export function randomClassification() {
   let classifications = [
     new Classification(
-      'patriarchal autocracy',
+      "patriarchal autocracy",
       true,
-      'male',
+      "male",
       5,
       12,
     ),
     new Classification(
-      'matriarchal autocracy',
+      "matriarchal autocracy",
       true,
-      'female',
+      "female",
       5,
       12,
     ),
     new Classification(
-      'egalitarian society',
+      "egalitarian society",
       false,
-      '',
+      "",
       5,
       12,
     ),
     new Classification(
-      'monotheistic domain',
+      "monotheistic domain",
       false,
-      '',
+      "",
       1,
       1,
     ),
-  ]
+  ];
 
-  return iarnd.item(classifications)
+  return RND.item(classifications);
 }

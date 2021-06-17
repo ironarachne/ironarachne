@@ -1,3 +1,5 @@
+"use strict";
+
 const random = require("random");
 
 export function renderPlanet(
@@ -17,9 +19,9 @@ export function renderPlanet(
 
   let radius = 0.0;
 
-  if (sizeClass == "small") {
+  if (sizeClass === "small") {
     radius = (Math.floor(min) * random.float(0.2, 0.4)) / 2;
-  } else if (sizeClass == "medium") {
+  } else if (sizeClass === "medium") {
     radius = (Math.floor(min) * random.float(0.5, 0.7)) / 2;
   } else {
     radius = (Math.floor(min) * random.float(0.8, 0.9)) / 2;
@@ -30,32 +32,32 @@ export function renderPlanet(
   let background = renderStarfield(width, height);
 
   let svg =
-    '<svg width="' +
+    "<svg width=\"" +
     width +
-    '" height="' +
+    "\" height=\"" +
     height +
-    '" viewBox="0 0 ' +
+    "\" viewBox=\"0 0 " +
     width +
     " " +
     height +
-    '">';
+    "\">";
 
   svg += "<defs>";
 
   svg +=
-    '<radialGradient id="atmosphere-' +
+    "<radialGradient id=\"atmosphere-" +
     planetId +
-    '"><stop offset="95%" stop-color="' +
+    "\"><stop offset=\"95%\" stop-color=\"" +
     atmosphereColor +
-    '" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient>';
+    "\" stop-opacity=\"0.8\" /><stop offset=\"100%\" stop-color=\"rgb(255,255,255)\" stop-opacity=\"0\" /></radialGradient>";
 
   svg +=
-    '<radialGradient id="planetShadow" cx="0.5" cy="0.5" r="0.75" fx="0.275" fy="0.275"><stop offset="0%" stop-color="rgb(0,0,0)" stop-opacity="0" /><stop offset="80%" stop-color="rgb(0,0,70)" stop-opacity="0.8" /><stop offset="90%" stop-color="rgb(0,0,0)" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(0,00,40)" stop-opacity="0.6" /></radialGradient>';
+    "<radialGradient id=\"planetShadow\" cx=\"0.5\" cy=\"0.5\" r=\"0.75\" fx=\"0.275\" fy=\"0.275\"><stop offset=\"0%\" stop-color=\"rgb(0,0,0)\" stop-opacity=\"0\" /><stop offset=\"80%\" stop-color=\"rgb(0,0,70)\" stop-opacity=\"0.8\" /><stop offset=\"90%\" stop-color=\"rgb(0,0,0)\" stop-opacity=\"0.8\" /><stop offset=\"100%\" stop-color=\"rgb(0,00,40)\" stop-opacity=\"0.6\" /></radialGradient>";
 
   svg +=
-    '<pattern id="planetTexture-' +
+    "<pattern id=\"planetTexture-" +
     planetId +
-    '" x="0" y="0" width="1" height="1">' +
+    "\" x=\"0\" y=\"0\" width=\"1\" height=\"1\">" +
     texture +
     "</pattern>";
 
@@ -65,36 +67,36 @@ export function renderPlanet(
 
   if (hasAtmosphere) {
     svg +=
-      '<circle cx="' +
+      "<circle cx=\"" +
       midX +
-      '" cy="' +
+      "\" cy=\"" +
       midY +
-      '" r="' +
+      "\" r=\"" +
       atmosphereRadius +
-      '" fill="url(#atmosphere-' +
+      "\" fill=\"url(#atmosphere-" +
       planetId +
-      ')" />';
+      ")\" />";
   }
 
   svg +=
-    '<circle cx="' +
+    "<circle cx=\"" +
     midX +
-    '" cy="' +
+    "\" cy=\"" +
     midY +
-    '" r="' +
+    "\" r=\"" +
     radius +
-    '" fill="url(#planetTexture-' +
+    "\" fill=\"url(#planetTexture-" +
     planetId +
-    ')" />';
+    ")\" />";
 
   svg +=
-    '<circle cx="' +
+    "<circle cx=\"" +
     midX +
-    '" cy="' +
+    "\" cy=\"" +
     midY +
-    '" r="' +
+    "\" r=\"" +
     radius +
-    '" fill="url(#planetShadow)" />';
+    "\" fill=\"url(#planetShadow)\" />";
 
   return svg;
 }
@@ -139,61 +141,61 @@ export function renderStar(width, height, color, classification) {
   let background = renderStarfield(width, height);
 
   let svg =
-    '<svg width="' +
+    "<svg width=\"" +
     width +
-    '" height="' +
+    "\" height=\"" +
     height +
-    '" viewBox="0 0 ' +
+    "\" viewBox=\"0 0 " +
     width +
     " " +
     height +
-    '">';
+    "\">";
 
   svg +=
-    '<defs><radialGradient id="starglow"><stop offset="60%" stop-color="' +
+    "<defs><radialGradient id=\"starglow\"><stop offset=\"60%\" stop-color=\"" +
     starColor +
-    '" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient></defs>';
+    "\" stop-opacity=\"0.8\" /><stop offset=\"100%\" stop-color=\"rgb(255,255,255)\" stop-opacity=\"0\" /></radialGradient></defs>";
 
-  svg += '<filter id="starSurface">';
+  svg += "<filter id=\"starSurface\">";
   svg +=
-    '<feFlood x="0%" y="0%" width="100%" height="100%" flood-color="' +
+    "<feFlood x=\"0%\" y=\"0%\" width=\"100%\" height=\"100%\" flood-color=\"" +
     starColor +
-    '" result="base" />';
+    "\" result=\"base\" />";
   svg +=
-    '<feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noise" />';
-  svg += '<feBlend in2="base" in="noise" mode="multiply" />';
+    "<feTurbulence type=\"fractalNoise\" baseFrequency=\"0.05\" numOctaves=\"2\" result=\"noise\" />";
+  svg += "<feBlend in2=\"base\" in=\"noise\" mode=\"multiply\" />";
   svg += "</filter>";
 
   svg +=
-    '<mask id="starMask"><circle cx="' +
+    "<mask id=\"starMask\"><circle cx=\"" +
     midX +
-    '" cy="' +
+    "\" cy=\"" +
     midY +
-    '" + r="' +
+    "\" + r=\"" +
     radius +
-    '" fill="white" /></mask>';
+    "\" fill=\"white\" /></mask>";
 
   svg += background;
 
   svg +=
-    '<circle cx="' +
+    "<circle cx=\"" +
     midX +
-    '" cy="' +
+    "\" cy=\"" +
     midY +
-    '" r="' +
+    "\" r=\"" +
     glowRadius +
-    '" fill="url(#starglow)" />';
+    "\" fill=\"url(#starglow)\" />";
 
   svg +=
-    '<circle cx="' +
+    "<circle cx=\"" +
     midX +
-    '" cy="' +
+    "\" cy=\"" +
     midY +
-    '" r="' +
+    "\" r=\"" +
     radius +
-    '" fill="' +
+    "\" fill=\"" +
     starColor +
-    '" filter="url(#starSurface)" mask="url(#starMask)" />';
+    "\" filter=\"url(#starSurface)\" mask=\"url(#starMask)\" />";
 
   svg += "</svg>";
 
@@ -202,17 +204,17 @@ export function renderStar(width, height, color, classification) {
 
 export function renderStarfield(width, height) {
   let svg =
-    '<svg width="' +
+    "<svg width=\"" +
     width +
-    '" height="' +
+    "\" height=\"" +
     height +
-    '" viewBox="0 0 ' +
+    "\" viewBox=\"0 0 " +
     width +
     " " +
     height +
-    '">';
+    "\">";
 
-  svg += '<rect width="' + width + '" height="' + height + '" fill="black" />';
+  svg += "<rect width=\"" + width + "\" height=\"" + height + "\" fill=\"black\" />";
 
   let numberOfStars = Math.floor(width * height * 0.005);
 
@@ -221,13 +223,13 @@ export function renderStarfield(width, height) {
     let y = random.int(0, height);
 
     svg +=
-      '<rect x="' +
+      "<rect x=\"" +
       x +
-      '" y="' +
+      "\" y=\"" +
       y +
-      '" width="1" height="1" fill="' +
+      "\" width=\"1\" height=\"1\" fill=\"" +
       randomStarColor() +
-      '" />';
+      "\" />";
   }
 
   svg += "</svg>";

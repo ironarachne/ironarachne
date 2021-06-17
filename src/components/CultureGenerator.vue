@@ -4,7 +4,7 @@
     <p>This generator lets you create fantasy cultures.</p>
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generateCulture">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -78,8 +78,9 @@
 </style>
 
 <script>
-import * as iarnd from "../modules/random.js";
+import * as RND from "../modules/random.js";
 import * as Culture from "../modules/culture/culture.js";
+
 const random = require("random");
 const seedrandom = require("seedrandom");
 
@@ -96,7 +97,7 @@ export default {
       this.culture = Culture.generate();
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generateCulture();
     },
   },

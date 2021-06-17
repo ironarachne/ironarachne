@@ -1,3 +1,5 @@
+"use strict";
+
 export function convertCopper(amount) {
   let copper = 0;
   let silver = 0;

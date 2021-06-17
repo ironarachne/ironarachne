@@ -1,4 +1,6 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 import * as FantasySpecies from "../species/fantasy.js";
 import * as Species from "../species/common.js";
 import * as Character from "./common.js";
@@ -6,47 +8,43 @@ import * as CommonNames from "../names/common.js"; // TODO: support nonhuman nam
 
 export function generate() {
   let speciesOptions = FantasySpecies.all();
-  let species = iarnd.weighted(speciesOptions);
+  let species = RND.weighted(speciesOptions);
 
   species = Species.calculateAgeCategories(species);
 
-  let ageGroupName = iarnd.item(species.ageGroups).name;
+  let ageGroupName = RND.item(species.ageGroups).name;
 
-  let gender = iarnd.item(["female", "male"]);
+  let gender = RND.item(["female", "male"]);
 
   let firstNames = [];
   let lastNames = CommonNames.lastNames();
 
-  if (gender == "female") {
+  if (gender === "female") {
     firstNames = CommonNames.femaleFirstNames();
   } else {
     firstNames = CommonNames.maleFirstNames();
   }
 
-  let character = Character.generate(species, ageGroupName, gender, firstNames, lastNames);
-
-  return character;
+  return Character.generate(species, ageGroupName, gender, firstNames, lastNames);
 }
 
 export function generateByAgeGroup(ageGroupName) {
   let speciesOptions = FantasySpecies.all();
-  let species = iarnd.weighted(speciesOptions);
+  let species = RND.weighted(speciesOptions);
 
   species = Species.calculateAgeCategories(species);
 
-  let gender = iarnd.item(["female", "male"]);
+  let gender = RND.item(["female", "male"]);
 
   let firstNames = [];
   let lastNames = CommonNames.lastNames();
 
-  if (gender == "female") {
+  if (gender === "female") {
     firstNames = CommonNames.femaleFirstNames();
   } else {
     firstNames = CommonNames.maleFirstNames();
   }
 
-  let character = Character.generate(species, ageGroupName, gender, firstNames, lastNames);
-
-  return character;
+  return Character.generate(species, ageGroupName, gender, firstNames, lastNames);
 }
 

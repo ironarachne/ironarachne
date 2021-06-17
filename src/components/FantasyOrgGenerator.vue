@@ -6,7 +6,7 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generateFantasyOrganization">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -31,8 +31,7 @@
 <script>
 import * as Heraldry from "../modules/heraldry/heraldry.js";
 import * as Organization from "../modules/organizations/fantasy.js";
-import * as iarnd from "../modules/random.js";
-import axios from "axios";
+import * as RND from "../modules/random.js";
 
 const random = require("random");
 const seedrandom = require("seedrandom");
@@ -48,42 +47,31 @@ export default {
       charges: [],
       heraldry: {},
       seed: "",
-    }
+    };
   },
   methods: {
-    generateFantasyOrganization: function() {
+    generateFantasyOrganization: function () {
       random.use(seedrandom(this.seed));
       let org = Organization.generate();
-
       this.name = org.name;
       this.description = org.description;
       this.leadership = org.leadership.description;
       this.notableMembers = org.notableMembers;
       this.heraldry = Heraldry.generate(this.charges, 200, 220);
     },
-    loadCharges: function () {
-      var self = this;
-      let charges = Heraldry.getCharges();
-
-      charges.forEach(function (charge) {
-        axios
-          .get("/images/heraldry/charges/" + charge.fileName)
-          .then(function (response) {
-            let chargeSVG = response.data;
-            charge.svg = chargeSVG;
-            self.charges.push(charge);
-          });
-      });
+    loadCharges: function (charges) {
+      this.charges = charges;
+      this.newSeed();
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generateFantasyOrganization();
     },
   },
   created: function () {
-    this.loadCharges();
+    Heraldry.loadCharges().then(this.loadCharges);
   },
-}
+};
 </script>
 
 <style>

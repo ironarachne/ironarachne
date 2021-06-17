@@ -1,4 +1,6 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 import * as Text from "../textformat.js";
 import * as ModelNumber from "../names/modelnumbers.js";
 
@@ -19,7 +21,7 @@ export class SWNStarship {
   weapons = [];
   defenses = [];
   fittings = [];
-  drive = 'Spike Drive-1';
+  drive = "Spike Drive-1";
 }
 
 export function generate() {
@@ -31,7 +33,7 @@ export function generate() {
   starship.className = starship.ownerType.getRandomClassName();
   starship.manufacturer = randomManufacturerName();
 
-  let hullTypeName = iarnd.item(starship.ownerType.possibleHullTypes);
+  let hullTypeName = RND.item(starship.ownerType.possibleHullTypes);
   starship.hullType = getHullType(hullTypeName);
   starship.currentCrew = random.int(starship.hullType.crewMinimum, starship.hullType.crewMaximum);
 
@@ -45,15 +47,15 @@ export function generate() {
 
   starship.totalCost = starship.hullType.cost;
 
-  if (starship.hullType.hullClass == 1) {
+  if (starship.hullType.hullClass === 1) {
     costMultiplier = 10;
     powerMultiplier = 2;
     massMultiplier = 2;
-  } else if (starship.hullType.hullClass == 2) {
+  } else if (starship.hullType.hullClass === 2) {
     costMultiplier = 25;
     powerMultiplier = 3;
     massMultiplier = 3;
-  } else if (starship.hullType.hullClass == 3) {
+  } else if (starship.hullType.hullClass === 3) {
     costMultiplier = 100;
     powerMultiplier = 4;
     massMultiplier = 4;
@@ -79,7 +81,7 @@ export function generate() {
     starship.hullType.power += powerMultiplier;
     starship.hullType.mass += (powerMultiplier * 2);
     starship.fittings.push(systemDrive);
-    starship.drive = 'System Drive';
+    starship.drive = "System Drive";
 
     massBudget = starship.hullType.mass;
     powerBudget = starship.hullType.power;
@@ -91,7 +93,7 @@ export function generate() {
       let allDrives = allDriveFittings();
       let drives = [];
 
-      for (let i=0;i<allDrives.length;i++) {
+      for (let i = 0; i < allDrives.length; i++) {
         let driveMassCost = allDrives[i].mass;
         let drivePowerCost = allDrives[i].power;
 
@@ -111,7 +113,7 @@ export function generate() {
       }
 
       if (drives.length > 0) {
-        let driveUpgrade = iarnd.item(drives);
+        let driveUpgrade = RND.item(drives);
 
         starship.fittings.push(driveUpgrade);
         starship.drive = driveUpgrade.name;
@@ -126,7 +128,7 @@ export function generate() {
   if (starship.ownerType.isArmed) {
     let weaponList = allWeapons();
     let possibleWeapons = [];
-    for (let i=0;i<weaponList.length;i++) {
+    for (let i = 0; i < weaponList.length; i++) {
       let weaponCost = weaponList[i].cost;
       let weaponMassCost = weaponList[i].mass;
       let weaponPowerCost = weaponList[i].power;
@@ -150,8 +152,8 @@ export function generate() {
     }
 
     let numberOfWeapons = random.int(1, 2);
-    for (let i=0;i<numberOfWeapons;i++) {
-      let newWeapon = iarnd.item(possibleWeapons);
+    for (let i = 0; i < numberOfWeapons; i++) {
+      let newWeapon = RND.item(possibleWeapons);
 
       let weaponCost = newWeapon.cost;
       let weaponMassCost = newWeapon.mass;
@@ -185,7 +187,7 @@ export function generate() {
     let defenseList = allDefenses();
     let possibleDefenses = [];
 
-    for (let i=0;i<defenseList.length;i++) {
+    for (let i = 0; i < defenseList.length; i++) {
       if (defenseList[i].hullClass <= starship.hullType.hullClass) {
         possibleDefenses.push(defenseList[i]);
       }
@@ -193,8 +195,8 @@ export function generate() {
 
     let numberOfDefenses = random.int(0, 2);
 
-    for (let i=0;i<numberOfDefenses;i++) {
-      let newDefense = iarnd.item(possibleDefenses);
+    for (let i = 0; i < numberOfDefenses; i++) {
+      let newDefense = RND.item(possibleDefenses);
 
       let defenseCost = newDefense.cost;
       let defenseMassCost = newDefense.mass;
@@ -232,7 +234,7 @@ export function generate() {
   requiredFittingOptions = filterFittingsByHullClass(requiredFittingOptions, starship.hullType.hullClass);
 
   if (requiredFittingOptions.length > 0) {
-    let requiredFitting = iarnd.item(requiredFittingOptions);
+    let requiredFitting = RND.item(requiredFittingOptions);
     starship.fittings.push(requiredFitting);
 
     let requiredFittingCost = requiredFitting.cost;
@@ -262,8 +264,8 @@ export function generate() {
 
   let maxNumberOfFittings = random.int(1, 3);
 
-  for (let i=0;i<maxNumberOfFittings;i++) {
-    let newFitting = iarnd.item(fittingOptions);
+  for (let i = 0; i < maxNumberOfFittings; i++) {
+    let newFitting = RND.item(fittingOptions);
 
     let fittingCost = newFitting.cost;
     let fittingMassCost = newFitting.mass;
@@ -312,16 +314,16 @@ export function generate() {
 
     let tonsMultiplier = 2;
 
-    if (starship.hullType.hullClass == 1) {
+    if (starship.hullType.hullClass === 1) {
       tonsMultiplier = 20;
-    } else if (starship.hullType.hullClass == 2) {
+    } else if (starship.hullType.hullClass === 2) {
       tonsMultiplier = 200;
-    } else if (starship.hullType.hullClass == 3) {
+    } else if (starship.hullType.hullClass === 3) {
       tonsMultiplier = 2000;
     }
 
-    for (let i=0;i<starship.fittings.length;i++) {
-      if (starship.fittings[i].name == "Cargo space") {
+    for (let i = 0; i < starship.fittings.length; i++) {
+      if (starship.fittings[i].name === "Cargo space") {
         foundCargo = true;
         tonsOfCargo = tonsMultiplier;
       }
@@ -334,7 +336,7 @@ export function generate() {
 
     let numberOfCargoFittings = massBudget * 1;
 
-    for (let i=0;i<numberOfCargoFittings;i++) {
+    for (let i = 0; i < numberOfCargoFittings; i++) {
       tonsOfCargo += tonsMultiplier;
       massBudget--;
     }
@@ -352,7 +354,7 @@ export function generate() {
 function filterFittingsByHullClass(fittings, hullClass) {
   let result = [];
 
-  for (let i=0;i<fittings.length;i++) {
+  for (let i = 0; i < fittings.length; i++) {
     if (fittings[i].minimumClass <= hullClass && fittings[i].maximumClass >= hullClass) {
       result.push(fittings[i]);
     }
@@ -366,7 +368,7 @@ function getAllAppropriateFittings(fittingTypes) {
 
   let fittings = [];
 
-  for (let i=0;i<all.length;i++) {
+  for (let i = 0; i < all.length; i++) {
     if (fittingTypes.includes(all[i].type)) {
       fittings.push(all[i]);
     }
@@ -376,13 +378,13 @@ function getAllAppropriateFittings(fittingTypes) {
 }
 
 function getHullClassName(hullClassLevel) {
-  if (hullClassLevel == 0) {
+  if (hullClassLevel === 0) {
     return "fighter";
-  } else if (hullClassLevel == 1) {
+  } else if (hullClassLevel === 1) {
     return "frigate";
-  } else if (hullClassLevel == 2) {
+  } else if (hullClassLevel === 2) {
     return "cruiser";
-  } else if (hullClassLevel == 3) {
+  } else if (hullClassLevel === 3) {
     return "capital";
   } else {
     return "station";
@@ -404,7 +406,7 @@ function getHullType(hullTypeName) {
       mass: 2,
       hardpoints: 1,
       hullClass: 0,
-      crewSkill: '+2',
+      crewSkill: "+2",
     },
     {
       name: "shuttle",
@@ -419,7 +421,7 @@ function getHullType(hullTypeName) {
       mass: 5,
       hardpoints: 1,
       hullClass: 0,
-      crewSkill: '+1',
+      crewSkill: "+1",
     },
     {
       name: "free merchant",
@@ -434,7 +436,7 @@ function getHullType(hullTypeName) {
       mass: 15,
       hardpoints: 2,
       hullClass: 1,
-      crewSkill: '+1',
+      crewSkill: "+1",
     },
     {
       name: "patrol boat",
@@ -449,7 +451,7 @@ function getHullType(hullTypeName) {
       mass: 10,
       hardpoints: 4,
       hullClass: 1,
-      crewSkill: '+2',
+      crewSkill: "+2",
     },
     {
       name: "corvette",
@@ -464,7 +466,7 @@ function getHullType(hullTypeName) {
       mass: 15,
       hardpoints: 6,
       hullClass: 1,
-      crewSkill: '+2',
+      crewSkill: "+2",
     },
     {
       name: "heavy frigate",
@@ -479,7 +481,7 @@ function getHullType(hullTypeName) {
       mass: 20,
       hardpoints: 8,
       hullClass: 1,
-      crewSkill: '+2',
+      crewSkill: "+2",
     },
     {
       name: "bulk freighter",
@@ -494,7 +496,7 @@ function getHullType(hullTypeName) {
       mass: 25,
       hardpoints: 2,
       hullClass: 2,
-      crewSkill: '+1',
+      crewSkill: "+1",
     },
     {
       name: "fleet cruiser",
@@ -509,7 +511,7 @@ function getHullType(hullTypeName) {
       mass: 30,
       hardpoints: 10,
       hullClass: 2,
-      crewSkill: '+2',
+      crewSkill: "+2",
     },
     {
       name: "battleship",
@@ -524,7 +526,7 @@ function getHullType(hullTypeName) {
       mass: 50,
       hardpoints: 15,
       hullClass: 3,
-      crewSkill: '+3',
+      crewSkill: "+3",
     },
     {
       name: "carrier",
@@ -539,13 +541,13 @@ function getHullType(hullTypeName) {
       mass: 100,
       hardpoints: 4,
       hullClass: 3,
-      crewSkill: '+3',
+      crewSkill: "+3",
     },
   ];
 
-  for (let i=0;i<types.length;i++) {
+  for (let i = 0; i < types.length; i++) {
     types[i].hullClassName = getHullClassName(types[i].hullClass);
-    if (types[i].name == hullTypeName) {
+    if (types[i].name === hullTypeName) {
       return types[i];
     }
   }
@@ -561,7 +563,7 @@ function randomStarshipOwnerType() {
         "shuttle",
         "free merchant",
       ],
-      getRandomClassName: function() {
+      getRandomClassName: function () {
         let shipClassNames = [
           "Coventry",
           "Hermes",
@@ -594,9 +596,9 @@ function randomStarshipOwnerType() {
 
         let modelNumber = ModelNumber.generate();
 
-        return modelNumber + " " + iarnd.item(shipClassNames);
+        return modelNumber + " " + RND.item(shipClassNames);
       },
-      getRandomShipName: function() {
+      getRandomShipName: function () {
         let shipNames = [
           "Mistral",
           "Dictator",
@@ -641,7 +643,7 @@ function randomStarshipOwnerType() {
           "Alistair",
         ];
 
-        return iarnd.item(shipNames);
+        return RND.item(shipNames);
       },
       requiredFittingType: "cargo",
       fillWithCargo: false,
@@ -670,7 +672,7 @@ function randomStarshipOwnerType() {
         "free merchant",
         "bulk freighter",
       ],
-      getRandomClassName: function() {
+      getRandomClassName: function () {
         let shipClassNames = [
           "Coventry",
           "Hermes",
@@ -703,9 +705,9 @@ function randomStarshipOwnerType() {
 
         let modelNumber = ModelNumber.generate();
 
-        return modelNumber + " " + iarnd.item(shipClassNames);
+        return modelNumber + " " + RND.item(shipClassNames);
       },
-      getRandomShipName: function() {
+      getRandomShipName: function () {
         let shipNames = [
           "Mistral",
           "Dictator",
@@ -750,7 +752,7 @@ function randomStarshipOwnerType() {
           "Alistair",
         ];
 
-        return iarnd.item(shipNames);
+        return RND.item(shipNames);
       },
       requiredFittingType: "cargo",
       fillWithCargo: true,
@@ -780,7 +782,7 @@ function randomStarshipOwnerType() {
         "free merchant",
         "bulk freighter",
       ],
-      getRandomClassName: function() {
+      getRandomClassName: function () {
         let shipClassNames = [
           "Behemoth",
           "Leviathan",
@@ -800,9 +802,9 @@ function randomStarshipOwnerType() {
 
         let modelNumber = ModelNumber.generate();
 
-        return modelNumber + " " + iarnd.item(shipClassNames);
+        return modelNumber + " " + RND.item(shipClassNames);
       },
-      getRandomShipName: function() {
+      getRandomShipName: function () {
         let shipNames = [
           "Mistral",
           "Dictator",
@@ -847,7 +849,7 @@ function randomStarshipOwnerType() {
           "Alistair",
         ];
 
-        return iarnd.item(shipNames);
+        return RND.item(shipNames);
       },
       requiredFittingType: "mining",
       fillWithCargo: true,
@@ -875,7 +877,7 @@ function randomStarshipOwnerType() {
       possibleHullTypes: [
         "patrol boat",
       ],
-      getRandomClassName: function() {
+      getRandomClassName: function () {
         let shipClassNames = [
           "Shrike",
           "Shooting Star",
@@ -894,12 +896,12 @@ function randomStarshipOwnerType() {
 
         let modelNumber = ModelNumber.generate();
 
-        return modelNumber + " " + iarnd.item(shipClassNames);
+        return modelNumber + " " + RND.item(shipClassNames);
       },
-      getRandomShipName: function() {
+      getRandomShipName: function () {
         let shipName = "";
 
-        let designation = iarnd.item([
+        let designation = RND.item([
           "PS",
           "SPS",
           "SP",
@@ -950,7 +952,7 @@ function randomStarshipOwnerType() {
         "battleship",
         "carrier",
       ],
-      getRandomClassName: function() {
+      getRandomClassName: function () {
         let shipClassNames = [
           "Vindicator",
           "Imperator",
@@ -970,11 +972,11 @@ function randomStarshipOwnerType() {
           "Juggernaut",
         ];
 
-        let className = iarnd.item(shipClassNames) + "-class";
+        let className = RND.item(shipClassNames) + "-class";
 
         return className;
       },
-      getRandomShipName: function() {
+      getRandomShipName: function () {
         let shipNames = [
           "Righteousness",
           "Hammer of God",
@@ -1004,13 +1006,13 @@ function randomStarshipOwnerType() {
           "Gryphon",
         ];
 
-        let designator = iarnd.item([
+        let designator = RND.item([
           "HMS",
           "USS",
           "ISS",
         ]);
 
-        let shipName = designator + " " + iarnd.item(shipNames);
+        let shipName = designator + " " + RND.item(shipNames);
 
         return shipName;
       },
@@ -1044,7 +1046,7 @@ function randomStarshipOwnerType() {
         "corvette",
         "heavy frigate",
       ],
-      getRandomClassName: function() {
+      getRandomClassName: function () {
         let shipClassNames = [
           "Vanguard",
           "Shrike",
@@ -1063,11 +1065,11 @@ function randomStarshipOwnerType() {
           "Paladin",
         ];
 
-        let className = iarnd.item(shipClassNames) + "-class";
+        let className = RND.item(shipClassNames) + "-class";
 
         return className;
       },
-      getRandomShipName: function() {
+      getRandomShipName: function () {
         let shipNames = [
           "Gibraltar",
           "Biddeford",
@@ -1094,13 +1096,13 @@ function randomStarshipOwnerType() {
           "Hind",
         ];
 
-        let designator = iarnd.item([
+        let designator = RND.item([
           "HMS",
           "USS",
           "ISS",
         ]);
 
-        let shipName = designator + " " + iarnd.item(shipNames);
+        let shipName = designator + " " + RND.item(shipNames);
 
         return shipName;
       },
@@ -1134,7 +1136,7 @@ function randomStarshipOwnerType() {
         "corvette",
         "heavy frigate",
       ],
-      getRandomClassName: function() {
+      getRandomClassName: function () {
         let shipClassNames = [
           "Coventry",
           "Hermes",
@@ -1167,9 +1169,9 @@ function randomStarshipOwnerType() {
 
         let modelNumber = ModelNumber.generate();
 
-        return modelNumber + " " + iarnd.item(shipClassNames);
+        return modelNumber + " " + RND.item(shipClassNames);
       },
-      getRandomShipName: function() {
+      getRandomShipName: function () {
         let shipNames = [
           "Revenge",
           "Blood",
@@ -1196,7 +1198,7 @@ function randomStarshipOwnerType() {
           "Solar Tide",
         ];
 
-        return iarnd.item(shipNames);
+        return RND.item(shipNames);
       },
       requiredFittingType: "weapons",
       fillWithCargo: false,
@@ -1224,7 +1226,7 @@ function randomStarshipOwnerType() {
         "free merchant",
         "patrol boat",
       ],
-      getRandomClassName: function() {
+      getRandomClassName: function () {
         let shipClassNames = [
           "Coventry",
           "Hermes",
@@ -1257,9 +1259,9 @@ function randomStarshipOwnerType() {
 
         let modelNumber = ModelNumber.generate();
 
-        return modelNumber + " " + iarnd.item(shipClassNames);
+        return modelNumber + " " + RND.item(shipClassNames);
       },
-      getRandomShipName: function() {
+      getRandomShipName: function () {
         let shipNames = [
           "Mistral",
           "Dictator",
@@ -1304,7 +1306,7 @@ function randomStarshipOwnerType() {
           "Alistair",
         ];
 
-        return iarnd.item(shipNames);
+        return RND.item(shipNames);
       },
       requiredFittingType: "smuggling",
       fillWithCargo: true,
@@ -1326,7 +1328,7 @@ function randomStarshipOwnerType() {
     },
   ];
 
-  return iarnd.item(types);
+  return RND.item(types);
 }
 
 function allDriveFittings() {
@@ -1403,8 +1405,8 @@ function getFittingsByType(fittingType) {
   let all = allFittings();
   let result = [];
 
-  for (let i=0;i<all.length;i++) {
-    if (all[i].type == fittingType) {
+  for (let i = 0; i < all.length; i++) {
+    if (all[i].type === fittingType) {
       result.push(all[i]);
     }
   }
@@ -1895,7 +1897,7 @@ function allFittings() {
       maximumClass: 3,
       effect: "Automated tech workshops for maintenance",
     },
-  ]
+  ];
 }
 
 function allDefenses() {
@@ -2268,8 +2270,8 @@ function allWeapons() {
 function randomManufacturerName() {
   let nameTypes = [
     {
-      generate: function() {
-        let prefix = iarnd.item([
+      generate: function () {
+        let prefix = RND.item([
           "Aether",
           "Kurich",
           "Bulior",
@@ -2286,7 +2288,7 @@ function randomManufacturerName() {
           "Interstellar",
         ]);
 
-        let suffix = iarnd.item([
+        let suffix = RND.item([
           "Corporation",
           "Limited",
           "Technologies",
@@ -2297,8 +2299,8 @@ function randomManufacturerName() {
       }
     },
     {
-      generate: function() {
-        let pre1 = iarnd.item([
+      generate: function () {
+        let pre1 = RND.item([
           "Xa",
           "Ka",
           "Ga",
@@ -2322,7 +2324,7 @@ function randomManufacturerName() {
           "Si",
         ]);
 
-        let pre2 = iarnd.item([
+        let pre2 = RND.item([
           "la",
           "ka",
           "ra",
@@ -2355,7 +2357,7 @@ function randomManufacturerName() {
           "pu",
         ]);
 
-        let suffix = iarnd.item([
+        let suffix = RND.item([
           "dyne",
           "tech",
           "tronics",
@@ -2367,7 +2369,7 @@ function randomManufacturerName() {
     }
   ];
 
-  let nameType = iarnd.item(nameTypes);
+  let nameType = RND.item(nameTypes);
 
   return nameType.generate();
 }
@@ -2375,7 +2377,7 @@ function randomManufacturerName() {
 function removeFittingFromList(fitting, fittings) {
   let options = [];
 
-  for (let i=0;i<fittings.length;i++) {
+  for (let i = 0; i < fittings.length; i++) {
     if (fittings[i].name != fitting.name) {
       options.push(fittings[i]);
     }
@@ -2402,14 +2404,14 @@ export function formatAsText(starship) {
   description += "Minimum Crew: " + starship.hullType.crewMinimum + "\n";
   description += "Maximum Crew: " + starship.hullType.crewMaximum + "\n";
   description += "Current Crew: " + starship.currentCrew + "\n";
-  description += "Total Ship Value: " + new Intl.NumberFormat('en-US').format(starship.totalCost) + " credits\n";
-  description += "Total Crew Cost: " + new Intl.NumberFormat('en-US').format(starship.currentCrew * 43800) + " credits per year\n";
+  description += "Total Ship Value: " + new Intl.NumberFormat("en-US").format(starship.totalCost) + " credits\n";
+  description += "Total Crew Cost: " + new Intl.NumberFormat("en-US").format(starship.currentCrew * 43800) + " credits per year\n";
   description += "Crew Skill: " + starship.hullType.crewSkill + "\n";
   description += "Cargo Space: " + starship.tonsOfCargo + " tons\n";
 
   let fittings = [];
 
-  for (let i=0;i<starship.fittings.length;i++) {
+  for (let i = 0; i < starship.fittings.length; i++) {
     let fitting = starship.fittings[i].name + ": " + starship.fittings[i].effect;
     fittings.push(fitting);
   }
@@ -2420,8 +2422,8 @@ export function formatAsText(starship) {
 
   let weapons = [];
 
-  for (let i=0;i<starship.weapons.length;i++) {
-    let weapon = starship.weapons[i].name + ": " + starship.weapons[i].damage + " damage, " + starship.weapons[i].qualities.join(', ');
+  for (let i = 0; i < starship.weapons.length; i++) {
+    let weapon = starship.weapons[i].name + ": " + starship.weapons[i].damage + " damage, " + starship.weapons[i].qualities.join(", ");
     weapons.push(weapon);
   }
 
@@ -2431,7 +2433,7 @@ export function formatAsText(starship) {
 
   let defenses = [];
 
-  for (let i=0;i<starship.defenses.length;i++) {
+  for (let i = 0; i < starship.defenses.length; i++) {
     let defense = starship.defenses[i].name + ": " + starship.defenses[i].effect;
     defenses.push(defense);
   }

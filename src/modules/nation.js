@@ -1,4 +1,6 @@
-import * as iarnd from "./random.js";
+"use strict";
+
+import * as RND from "./random.js";
 import * as CommonNames from "./names/common.js";
 
 export function generate() {
@@ -9,7 +11,7 @@ export function generate() {
 
   let nationType = randomType();
 
-  let name = iarnd.item(CommonNames.nations());
+  let name = RND.item(CommonNames.nations());
 
   nation.name = nationType.nameTemplate.replace("{name}", name);
 
@@ -17,7 +19,7 @@ export function generate() {
 }
 
 function randomType() {
-  return iarnd.item([
+  return RND.item([
     {
       name: "monarchy",
       nameTemplate: "the Kingdom of {name}",

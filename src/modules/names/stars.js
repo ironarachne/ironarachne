@@ -1,4 +1,6 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 
 export function generate() {
   let prefixes = [
@@ -44,5 +46,5 @@ export function generate() {
     "oic",
   ];
 
-  return iarnd.item(prefixes) + iarnd.item(suffixes);
+  return RND.item(prefixes) + RND.item(suffixes);
 }

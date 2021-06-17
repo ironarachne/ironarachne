@@ -1,3 +1,5 @@
+"use strict";
+
 export function goldNoise() {
   return `float PHI = 1.61803398874989484820459;  // Φ = Golden Ratio
 

@@ -1,8 +1,9 @@
+"use strict";
+
 const random = require("random");
 
 export function item(items) {
-  let item = items[random.int(0, items.length - 1)];
-  return item;
+  return items[random.int(0, items.length - 1)];
 }
 
 export function randomString(length) {

@@ -46,24 +46,24 @@
       <h3>{{ equipmentList.title }}</h3>
       <table>
         <thead>
-          <tr>
-            <th>Name</th>
-            <th>Cost</th>
-          </tr>
+        <tr>
+          <th>Name</th>
+          <th>Cost</th>
+        </tr>
         </thead>
         <tbody>
-          <tr
-            v-for="(equipment, equipmentIndex) in equipmentList.items"
-            :key="equipmentIndex"
-          >
-            <td>{{ equipment.name }}</td>
-            <td v-if="currency == 'D&D currency'">
-              {{ convertDNDCost(equipment.cost) }}
-            </td>
-            <td v-if="currency == 'English currency'">
-              {{ convertEnglishCost(equipment.cost) }}
-            </td>
-          </tr>
+        <tr
+          v-for="(equipment, equipmentIndex) in equipmentList.items"
+          :key="equipmentIndex"
+        >
+          <td>{{ equipment.name }}</td>
+          <td v-if="currency == 'D&D currency'">
+            {{ convertDNDCost(equipment.cost) }}
+          </td>
+          <td v-if="currency == 'English currency'">
+            {{ convertEnglishCost(equipment.cost) }}
+          </td>
+        </tr>
         </tbody>
       </table>
     </div>

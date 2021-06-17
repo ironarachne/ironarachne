@@ -1,3 +1,5 @@
+"use strict";
+
 export function categories() {
   return [
     {
@@ -65,5 +67,5 @@ export function categories() {
       femaleWeightModifier: 20,
       maleWeightModifier: 40,
     },
-  ]
+  ];
 }

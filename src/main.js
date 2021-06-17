@@ -1,3 +1,5 @@
+"use strict";
+
 import Vue from "vue";
 import VueRouter from "vue-router";
 import HomeScreen from "./components/HomeScreen.vue";
@@ -26,29 +28,29 @@ Vue.use(VueRouter);
 Vue.config.productionTip = false;
 
 const routes = [
-  { path: "/", redirect: "/home" },
-  { path: "/home", component: HomeScreen },
-  { path: "/culture", component: CultureGenerator },
-  { path: "/fantasy/equipment", component: FantasyEquipmentLists },
-  { path: "/fantasy/organization", component: FantasyOrgGenerator },
-  { path: "/fantasy/religion", component: ReligionGenerator },
-  { path: "/fantasy/weapon", component: MagicWeaponGenerator },
-  { path: "/heraldry", component: HeraldryScreen },
+  {path: "/", redirect: "/home"},
+  {path: "/home", component: HomeScreen},
+  {path: "/culture", component: CultureGenerator},
+  {path: "/fantasy/equipment", component: FantasyEquipmentLists},
+  {path: "/fantasy/organization", component: FantasyOrgGenerator},
+  {path: "/fantasy/religion", component: ReligionGenerator},
+  {path: "/fantasy/weapon", component: MagicWeaponGenerator},
+  {path: "/heraldry", component: HeraldryScreen},
   {
     path: "/heraldry/:seed",
     name: "heraldry-generator",
     component: HeraldryGenerator,
   },
-  { path: "/region", component: RegionGenerator },
-  { path: "/tavern", component: TavernGenerator },
-  { path: "/chopshop", component: ChopShopGenerator },
-  { path: "/drug", component: DrugGenerator },
-  { path: "/planet", component: PlanetGenerator },
-  { path: "/species-stats", component: SpeciesStatsTool },
-  { path: "/starsystem", component: StarSystemGenerator },
-  { path: "/swn/character", component: SWNCharacterGenerator },
-  { path: "/swn/starship", component: SWNStarshipGenerator },
-  { path: "/unchartedworlds/character", component: UWCharacterGenerator },
+  {path: "/region", component: RegionGenerator},
+  {path: "/tavern", component: TavernGenerator},
+  {path: "/chopshop", component: ChopShopGenerator},
+  {path: "/drug", component: DrugGenerator},
+  {path: "/planet", component: PlanetGenerator},
+  {path: "/species-stats", component: SpeciesStatsTool},
+  {path: "/starsystem", component: StarSystemGenerator},
+  {path: "/swn/character", component: SWNCharacterGenerator},
+  {path: "/swn/starship", component: SWNStarshipGenerator},
+  {path: "/unchartedworlds/character", component: UWCharacterGenerator},
 ];
 
 const router = new VueRouter({

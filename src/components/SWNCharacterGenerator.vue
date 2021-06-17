@@ -4,7 +4,7 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generateCharacter">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -81,7 +81,7 @@
 </template>
 
 <script>
-import * as iarnd from "../modules/random.js";
+import * as RND from "../modules/random.js";
 import * as CharGen from "../modules/swn/character.js";
 
 const random = require("random");
@@ -92,8 +92,8 @@ export default {
   data: function () {
     return {
       character: {},
-      seed: '',
-    }
+      seed: "",
+    };
   },
   methods: {
     generateCharacter: function () {
@@ -101,13 +101,13 @@ export default {
       this.character = CharGen.generate();
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generateCharacter();
     },
     saveCharacter: function () {
       let character = CharGen.formatAsText(this.character);
 
-      const blob = new Blob([character], { type: "text/plain" });
+      const blob = new Blob([character], {type: "text/plain"});
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
       link.download = "swn-character.txt";
@@ -118,7 +118,7 @@ export default {
   created: function () {
     this.newSeed();
   },
-}
+};
 </script>
 
 <style>

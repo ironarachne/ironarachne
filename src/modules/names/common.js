@@ -1,4 +1,6 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 
 export function maleFirstNames() {
   return [
@@ -974,7 +976,7 @@ export function nations() {
   let names = [];
 
   for (let i = 0; i < 50; i++) {
-    let name = iarnd.item(prefixes) + iarnd.item(suffixes);
+    let name = RND.item(prefixes) + RND.item(suffixes);
     names.push(name);
   }
 

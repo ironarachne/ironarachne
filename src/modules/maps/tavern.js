@@ -1,13 +1,13 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 
 const random = require("random");
 
 export function generate() {
   let tavernMap = generateMap(40, 30);
 
-  let svg = renderMap(tavernMap);
-
-  return svg;
+  return renderMap(tavernMap);
 }
 
 function generateMap(width, height) {
@@ -19,8 +19,8 @@ function generateMap(width, height) {
 
   let mainRoom = {
     center: {
-      x: Math.floor(width/2),
-      y: Math.floor(height/2),
+      x: Math.floor(width / 2),
+      y: Math.floor(height / 2),
     },
     vertices: [],
     width: random.int(12, 15),
@@ -31,8 +31,8 @@ function generateMap(width, height) {
     type: "main",
   };
 
-  let halfWidth = mainRoom.width/2;
-  let halfHeight = mainRoom.height/2;
+  let halfWidth = mainRoom.width / 2;
+  let halfHeight = mainRoom.height / 2;
 
   if (mainRoom.width % 2 != 0) {
     mainRoom.center.x -= 0.5;
@@ -66,7 +66,7 @@ function generateMap(width, height) {
   mainRoom.edges.push({A: mainRoom.vertices[2], B: mainRoom.vertices[3]});
   mainRoom.edges.push({A: mainRoom.vertices[3], B: mainRoom.vertices[0]});
 
-  let doorEdge = iarnd.item(mainRoom.edges);
+  let doorEdge = RND.item(mainRoom.edges);
 
   let doorX = 0;
   let doorY = 0;
@@ -114,11 +114,11 @@ function generateMap(width, height) {
 }
 
 function addRoom(rooms) {
-  let roomType = iarnd.item(getPossibleRoomTypes(rooms));
+  let roomType = RND.item(getPossibleRoomTypes(rooms));
 
   let newRooms = [];
 
-  for (let i=0;i<rooms.length;i++) {
+  for (let i = 0; i < rooms.length; i++) {
     newRooms.push(rooms[i]);
   }
 
@@ -164,9 +164,9 @@ function getPossibleRoomTypes(existingRooms) {
 
   let result = [];
 
-  for (let i=0;i<possibleTypes.length;i++) {
+  for (let i = 0; i < possibleTypes.length; i++) {
     let found = false;
-    for (let j=0;j<existingRooms.length;j++) {
+    for (let j = 0; j < existingRooms.length; j++) {
       if (existingRooms[j].name == possibleTypes[i].name) {
         found = true;
       }
@@ -185,31 +185,31 @@ function renderMap(map) {
 
   let gridSize = imageHeight / map.height;
 
-  let svg = '<svg width="' + imageWidth + '" height="' + imageHeight + '" viewBox="0 0 ' + imageWidth + ' ' + imageHeight + '" xmlns="http://www.w3.org/2000/svg" version="1.1">';
+  let svg = "<svg width=\"" + imageWidth + "\" height=\"" + imageHeight + "\" viewBox=\"0 0 " + imageWidth + " " + imageHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
 
-  svg += '<defs>';
+  svg += "<defs>";
 
-  svg += '<pattern id="grid" width="' + gridSize + '" height="' + gridSize + '" patternUnits="userSpaceOnUse">';
-  svg += '<rect width="' + gridSize + '" height="' + gridSize + '" fill="none" stroke="gray" stroke-width="1"/>';
-  svg += '</pattern>';
+  svg += "<pattern id=\"grid\" width=\"" + gridSize + "\" height=\"" + gridSize + "\" patternUnits=\"userSpaceOnUse\">";
+  svg += "<rect width=\"" + gridSize + "\" height=\"" + gridSize + "\" fill=\"none\" stroke=\"gray\" stroke-width=\"1\"/>";
+  svg += "</pattern>";
 
-  svg += '</defs>';
+  svg += "</defs>";
 
-  svg += '<rect x="0" y="0" width="' + imageWidth + '" height="' + imageHeight + '" fill="url(#grid)" stroke="black" stroke-width="3" />';
+  svg += "<rect x=\"0\" y=\"0\" width=\"" + imageWidth + "\" height=\"" + imageHeight + "\" fill=\"url(#grid)\" stroke=\"black\" stroke-width=\"3\" />";
 
   let doors = [];
 
-  for (let i=0;i<map.rooms.length;i++) {
+  for (let i = 0; i < map.rooms.length; i++) {
     let topX = (map.rooms[i].center.x - (map.rooms[i].width / 2));
     let topY = (map.rooms[i].center.y - (map.rooms[i].height / 2));
     let roomWidth = map.rooms[i].width * gridSize;
     let roomHeight = map.rooms[i].height * gridSize;
 
-    let roomSVG = '<rect x="' + (topX * gridSize) + '" y="' + (topY * gridSize) + '" width="' + roomWidth + '" height="' + roomHeight + '"';
+    let roomSVG = "<rect x=\"" + (topX * gridSize) + "\" y=\"" + (topY * gridSize) + "\" width=\"" + roomWidth + "\" height=\"" + roomHeight + "\"";
 
-    roomSVG += ' stroke="black" fill="none" stroke-width="2" />';
+    roomSVG += " stroke=\"black\" fill=\"none\" stroke-width=\"2\" />";
 
-    for (let j=0;j<map.rooms[i].doors.length;j++) {
+    for (let j = 0; j < map.rooms[i].doors.length; j++) {
       doors.push(map.rooms[i].doors[j]);
     }
 
@@ -219,7 +219,7 @@ function renderMap(map) {
   let doorThickness = gridSize / 3;
   let doorLength = gridSize;
 
-  for (let i=0;i<doors.length;i++) {
+  for (let i = 0; i < doors.length; i++) {
     let doorTopLeftX = 0;
     let doorTopLeftY = 0;
     let doorWidth = 0;
@@ -237,12 +237,12 @@ function renderMap(map) {
       doorHeight = doorThickness;
     }
 
-    let doorSVG = '<rect x="' + doorTopLeftX + '" y="' + doorTopLeftY + '" width="' + doorWidth + '" height="' + doorHeight + '" stroke="black" fill="white" />';
+    let doorSVG = "<rect x=\"" + doorTopLeftX + "\" y=\"" + doorTopLeftY + "\" width=\"" + doorWidth + "\" height=\"" + doorHeight + "\" stroke=\"black\" fill=\"white\" />";
 
     svg += doorSVG;
   }
 
-  svg += '</svg>';
+  svg += "</svg>";
 
   return svg;
 }

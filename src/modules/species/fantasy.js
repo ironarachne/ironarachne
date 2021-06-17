@@ -1,4 +1,6 @@
-import * as Species from "./common.js"
+"use strict";
+
+import * as Species from "./common.js";
 
 export function all() {
   return [

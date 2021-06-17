@@ -1,4 +1,6 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 import * as Common from "./common.js";
 
 export function all() {
@@ -211,7 +213,7 @@ export function all() {
 export function randomSet(numberOfNames) {
   let nameTypes = [
     {
-      generate: function() {
+      generate: function () {
         let first = [
           "Two",
           "Three",
@@ -240,16 +242,16 @@ export function randomSet(numberOfNames) {
           "Falls",
         ];
 
-        return iarnd.item(first) + " " + iarnd.item(second);
+        return RND.item(first) + " " + RND.item(second);
       }
     },
     {
-      generate: function() {
+      generate: function () {
         let firstNames = Common.maleFirstNames();
 
-        let first = iarnd.item(firstNames);
+        let first = RND.item(firstNames);
 
-        let second = iarnd.item([
+        let second = RND.item([
           "Folly",
           "Boon",
           "Rest",
@@ -267,8 +269,8 @@ export function randomSet(numberOfNames) {
       }
     },
     {
-      generate: function() {
-        let first = iarnd.item([
+      generate: function () {
+        let first = RND.item([
           "Lake",
           "River",
           "Fire",
@@ -290,7 +292,7 @@ export function randomSet(numberOfNames) {
           "Night",
         ]);
 
-        let second = iarnd.item([
+        let second = RND.item([
           "stead",
           "town",
           "bend",
@@ -315,8 +317,8 @@ export function randomSet(numberOfNames) {
 
   let names = [];
 
-  for (let i=0;i<numberOfNames;i++) {
-    let nameType = iarnd.item(nameTypes);
+  for (let i = 0; i < numberOfNames; i++) {
+    let nameType = RND.item(nameTypes);
     let name = nameType.generate();
 
     if (!names.includes(name)) {

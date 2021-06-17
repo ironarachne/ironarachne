@@ -1,8 +1,9 @@
-import * as iarnd from "./random.js";
+"use strict";
+
+import * as RND from "./random.js";
 
 export function generate() {
-  let description =
-    getCSFront() +
+  return getCSFront() +
     " " +
     getCSEntry() +
     " " +
@@ -11,8 +12,6 @@ export function generate() {
     getCSCustomers() +
     " " +
     getCSBack();
-
-  return description;
 }
 
 function getCSFront() {
@@ -22,7 +21,7 @@ function getCSFront() {
     "The shop's dark exterior walls are offset by neon lights bordering the doorway, giving it the appearance of a portal into another world.",
   ];
 
-  return iarnd.item(choices);
+  return RND.item(choices);
 }
 
 function getCSEntry() {
@@ -32,7 +31,7 @@ function getCSEntry() {
     "Entry to the shop sets off a soft chime to alert the staff.",
   ];
 
-  return iarnd.item(choices);
+  return RND.item(choices);
 }
 
 function getCSProductDisplays() {
@@ -43,7 +42,7 @@ function getCSProductDisplays() {
     "A couple attendants in bright uniforms greet customers and answer questions about the shop's offerings.",
   ];
 
-  return iarnd.item(choices);
+  return RND.item(choices);
 }
 
 function getCSCustomers() {
@@ -53,7 +52,7 @@ function getCSCustomers() {
     "Several people are standing in front of the display screens, flipping curiously through the options. The chairs and benches in the patient lobby are all full.",
   ];
 
-  return iarnd.item(choices);
+  return RND.item(choices);
 }
 
 function getCSBack() {
@@ -63,5 +62,5 @@ function getCSBack() {
     "In the back, the sole cyberdoc of the shop stands over an operating table. Tools of various types and sizes sit on shelves nearby.",
   ];
 
-  return iarnd.item(choices);
+  return RND.item(choices);
 }

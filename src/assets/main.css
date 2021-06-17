@@ -4,60 +4,70 @@
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   font-family: "azonix";
   src: url("fonts/azonix-webfont.woff2") format("woff2");
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   font-family: "libre_baskerville";
   src: url("fonts/librebaskerville-bold-webfont.woff2") format("woff2"), url("fonts/librebaskerville-bold-webfont.woff") format("woff");
   font-weight: bold;
   font-style: normal;
 }
+
 @font-face {
   font-family: "libre_baskerville";
   src: url("fonts/librebaskerville-italic-webfont.woff2") format("woff2"), url("fonts/librebaskerville-italic-webfont.woff") format("woff");
   font-weight: normal;
   font-style: italic;
 }
+
 @font-face {
   font-family: "libre_baskerville";
   src: url("fonts/librebaskerville-regular-webfont.woff2") format("woff2"), url("fonts/librebaskerville-regular-webfont.woff") format("woff");
   font-weight: normal;
   font-style: normal;
 }
+
 @font-face {
   font-family: "eczar";
   src: url("fonts/Eczar-Bold-webfont.woff") format("woff");
   font-weight: 700;
   font-style: normal;
 }
+
 @font-face {
   font-family: "eczar";
   src: url("fonts/Eczar-ExtraBold-webfont.woff") format("woff");
   font-weight: 800;
   font-style: normal;
 }
+
 @font-face {
   font-family: "eczar";
   src: url("fonts/Eczar-Medium-webfont.woff") format("woff");
   font-weight: 500;
   font-style: normal;
 }
+
 @font-face {
   font-family: "eczar";
   src: url("fonts/Eczar-Regular-webfont.woff") format("woff");
   font-weight: 400;
   font-style: normal;
 }
+
 @font-face {
   font-family: "eczar";
   src: url("fonts/Eczar-SemiBold-webfont.woff") format("woff");
   font-weight: 600;
   font-style: normal;
 }
+
 body,
 html {
   background: #c7c4b8;
@@ -69,11 +79,12 @@ html {
 
 @media only screen and (min-width: 1000px) {
   div.primary,
-footer {
+  footer {
     width: 968px;
     margin: 0 auto;
   }
 }
+
 h1,
 h2,
 h3,
@@ -97,11 +108,13 @@ sup {
   background: black;
   color: white;
 }
+
 .cyberpunk h1, .cyberpunk h2, .cyberpunk h3, .cyberpunk h4, .cyberpunk h5, .cyberpunk h6 {
   color: #D8F6B0;
   font-family: "azonix";
   text-shadow: 0 0 6px #86FF00;
 }
+
 .cyberpunk button {
   background: black;
   border: 3px solid #76e841;
@@ -113,12 +126,14 @@ sup {
   margin: 0.1rem;
   padding: 0.5rem 1rem;
 }
+
 .cyberpunk button:active {
   background: #5c5649;
   background: linear-gradient(339deg, #5c5649 0%, #0a0a0a 100%);
   color: #76e841;
   transform: translateY(2px);
 }
+
 .cyberpunk button:disabled {
   background: #666;
   color: #777;
@@ -128,6 +143,7 @@ sup {
 .fantasy h1, .fantasy h2, .fantasy h3, .fantasy h4, .fantasy h5, .fantasy h6 {
   font-family: "eczar";
 }
+
 .fantasy button {
   background: #5c5649;
   background: linear-gradient(165deg, #5c5649 0%, #0a0a0a 100%);
@@ -140,12 +156,14 @@ sup {
   margin: 0.1rem;
   padding: 0.5rem 1rem;
 }
+
 .fantasy button:active {
   background: #5c5649;
   background: linear-gradient(339deg, #5c5649 0%, #0a0a0a 100%);
   color: #76e841;
   transform: translateY(2px);
 }
+
 .fantasy button:disabled {
   background: #666;
   color: #777;
@@ -157,11 +175,13 @@ sup {
   background: linear-gradient(90deg, #101119 0%, #263a60 49%, #101119 100%);
   color: white;
 }
+
 .scifi h1, .scifi h2, .scifi h3, .scifi h4, .scifi h5, .scifi h6 {
   color: #A2D4FF;
   text-shadow: 0 0 6px #0086FF;
   font-family: "alienleague";
 }
+
 .scifi button {
   background: #02255f;
   background: linear-gradient(165deg, #02255f 0%, #0a0a0a 100%);
@@ -174,12 +194,14 @@ sup {
   margin: 0.1rem;
   padding: 0.5rem 1rem;
 }
+
 .scifi button:active {
   background: #5c5649;
   background: linear-gradient(339deg, #5c5649 0%, #0a0a0a 100%);
   color: #6c92ff;
   transform: translateY(2px);
 }
+
 .scifi button:disabled {
   background: #666;
   color: #777;
@@ -239,13 +261,16 @@ strong {
 table {
   width: 100%;
 }
+
 table thead tr {
   border-bottom: 3px solid black;
 }
+
 table thead tr th {
   font-weight: 700;
   text-align: left;
 }
+
 table th,
 table td {
   border: 1px solid black;
@@ -262,6 +287,7 @@ table td {
     grid-template-columns: 200px 768px;
   }
 }
+
 section.default button {
   background: #5c5649;
   background: linear-gradient(165deg, #5c5649 0%, #0a0a0a 100%);
@@ -273,12 +299,14 @@ section.default button {
   margin: 0.1rem;
   padding: 0.5rem 1rem;
 }
+
 section.default button:active {
   background: #5c5649;
   background: linear-gradient(339deg, #5c5649 0%, #0a0a0a 100%);
   color: #76e841;
   transform: translateY(2px);
 }
+
 section.default button:disabled {
   background: #666;
   color: #777;

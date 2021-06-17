@@ -1,13 +1,11 @@
-export function cmToInches(cm) {
-  let inches = Math.floor(cm * 0.3937);
+"use strict";
 
-  return inches;
+export function cmToInches(cm) {
+  return Math.floor(cm * 0.3937);
 }
 
 export function kgToPounds(kg) {
-  let pounds = Math.floor(kg * 2.2046);
-
-  return pounds;
+  return Math.floor(kg * 2.2046);
 }
 
 export function inchesToFeet(inches) {
@@ -17,7 +15,7 @@ export function inchesToFeet(inches) {
 
   let remainder = inches % 12;
 
-  expression += feet + "'" + remainder + '"';
+  expression += feet + "'" + remainder + "\"";
 
   return expression;
 }

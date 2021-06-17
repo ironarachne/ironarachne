@@ -6,7 +6,7 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
 
     <button v-on:click="generateDrug">Generate From Seed</button>
@@ -19,30 +19,30 @@
 
 <script>
 import * as Drug from "../modules/drug.js";
-import * as iarnd from "../modules/random.js";
+import * as RND from "../modules/random.js";
 
 const random = require("random");
 const seedrandom = require("seedrandom");
 
 export default {
   name: "DrugGenerator",
-  data: function() {
+  data: function () {
     return {
       description: "",
-    }
+    };
   },
   methods: {
-    generateDrug: function() {
+    generateDrug: function () {
       random.use(seedrandom(this.seed));
       this.description = Drug.generate();
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generateDrug();
     },
   },
-  created: function() {
+  created: function () {
     this.newSeed();
   },
-}
+};
 </script>

@@ -3,7 +3,7 @@
     <h2>Star System Generator</h2>
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generateStarSystem">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -25,7 +25,8 @@
         <p>{{ star.description }}</p>
         <p><strong>Radius:</strong> {{ new Intl.NumberFormat().format(star.radius) }} km</p>
         <p><strong>Mass:</strong> {{ new Intl.NumberFormat().format(star.mass) }} &times; 10<sup>30</sup> kg</p>
-        <p><strong>Luminosity:</strong> {{ new Intl.NumberFormat().format(star.luminosity) }} &times; 10<sup>26</sup> W</p>
+        <p><strong>Luminosity:</strong> {{ new Intl.NumberFormat().format(star.luminosity) }} &times; 10<sup>26</sup> W
+        </p>
         <p><strong>Temperature:</strong> {{ new Intl.NumberFormat().format(star.temperature) }}K</p>
       </div>
     </article>
@@ -49,7 +50,8 @@
         <p><strong>Mass:</strong> {{ new Intl.NumberFormat().format(planet.mass) }} &times; 10<sup>24</sup> kg</p>
         <p><strong>Diameter:</strong> {{ new Intl.NumberFormat().format(Math.floor(planet.diameter)) }} km</p>
         <p><strong>Gravity:</strong> {{ new Intl.NumberFormat().format(planet.gravity) }} m/s<sup>2</sup></p>
-        <p><strong>Orbital Period:</strong> {{ new Intl.NumberFormat().format(Math.floor(planet.orbital_period)) }} days</p>
+        <p><strong>Orbital Period:</strong> {{ new Intl.NumberFormat().format(Math.floor(planet.orbital_period)) }} days
+        </p>
       </div>
     </article>
   </section>
@@ -57,7 +59,7 @@
 
 <script>
 import * as StarSystem from "../modules/starsystem/starsystem.js";
-import * as iarnd from "../modules/random.js";
+import * as RND from "../modules/random.js";
 
 const random = require("random");
 const seedrandom = require("seedrandom");
@@ -84,7 +86,7 @@ export default {
       this.stars = starSystem.stars;
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generateStarSystem();
     },
   },

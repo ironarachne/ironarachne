@@ -1,4 +1,6 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 import * as Words from "../words.js";
 import * as Text from "../textformat.js";
 
@@ -10,9 +12,9 @@ export function generate() {
   };
 
   let descriptors = [];
-  descriptors.push(iarnd.item(character.careers[0].descriptors));
-  descriptors.push(iarnd.item(character.careers[1].descriptors));
-  descriptors.push(iarnd.item(character.origin.descriptors));
+  descriptors.push(RND.item(character.careers[0].descriptors));
+  descriptors.push(RND.item(character.careers[1].descriptors));
+  descriptors.push(RND.item(character.origin.descriptors));
 
   character.descriptors = Words.arrayToPhrase(descriptors);
 
@@ -21,14 +23,14 @@ export function generate() {
     character.careers[1].skills
   );
 
-  careerSkills = iarnd.shuffle(careerSkills);
+  careerSkills = RND.shuffle(careerSkills);
 
   for (let i = 0; i < 3; i++) {
     let newSkill = careerSkills.pop();
     skills.push(newSkill);
   }
 
-  let originSkills = iarnd.shuffle(character.origin.skills);
+  let originSkills = RND.shuffle(character.origin.skills);
 
   skills.push(originSkills.pop());
 
@@ -38,13 +40,13 @@ export function generate() {
     character.careers[1].workspaces
   );
 
-  character.workspace = iarnd.item(workspaceOptions);
+  character.workspace = RND.item(workspaceOptions);
 
   let advancements = character.careers[0].advancements.concat(
     character.careers[1].advancements
   );
 
-  character.advancement = iarnd.item(advancements);
+  character.advancement = RND.item(advancements);
 
   character.assets = randomAssets();
 
@@ -64,7 +66,7 @@ export function generate() {
   }
 
   if (skillsInclude("Unique Weapon", character.skills)) {
-    let weaponType = iarnd.item(["Firearm", "Heavy Weapon"]);
+    let weaponType = RND.item(["Firearm", "Heavy Weapon"]);
 
     let uniqueWeapon = randomAssetOfType(weaponType, 3);
     character.assets.push(uniqueWeapon);
@@ -936,7 +938,7 @@ function randomAssets() {
 function randomAsset(assetClass) {
   let all = allAssets();
 
-  let assetTemplate = iarnd.item(all);
+  let assetTemplate = RND.item(all);
   let upgrades = [];
 
   let possibleUpgrades = [];
@@ -944,7 +946,7 @@ function randomAsset(assetClass) {
   let extraUpgrades = 0;
 
   if (assetTemplate.upgrades.length > 0) {
-    possibleUpgrades = iarnd.shuffle(assetTemplate.upgrades);
+    possibleUpgrades = RND.shuffle(assetTemplate.upgrades);
   }
 
   if (assetTemplate.commonTraits.length > 0) {
@@ -971,7 +973,7 @@ function randomAsset(assetClass) {
   }
 
   if (assetTemplate.types.length > 0) {
-    assetType = iarnd.item(assetTemplate.types);
+    assetType = RND.item(assetTemplate.types);
     assetName += " (" + assetType.name + ")";
     description = assetType.description;
   }
@@ -998,7 +1000,7 @@ function randomAssetOfType(assetType, assetClass) {
     }
   });
 
-  let assetTemplate = iarnd.item(options);
+  let assetTemplate = RND.item(options);
   let upgrades = [];
 
   let description = "";
@@ -1013,7 +1015,7 @@ function randomAssetOfType(assetType, assetClass) {
     });
   }
 
-  let possibleUpgrades = iarnd.shuffle(assetTemplate.upgrades);
+  let possibleUpgrades = RND.shuffle(assetTemplate.upgrades);
 
   for (let i = 0; i < assetClass + extraUpgrades; i++) {
     let upgrade = possibleUpgrades.pop();
@@ -1024,7 +1026,7 @@ function randomAssetOfType(assetType, assetClass) {
   let chosenAssetType = "";
 
   if (assetTemplate.types.length > 0) {
-    chosenAssetType = iarnd.item(assetTemplate.types);
+    chosenAssetType = RND.item(assetTemplate.types);
     assetName += " (" + chosenAssetType.name + ")";
     description = chosenAssetType.description;
   }
@@ -1122,7 +1124,7 @@ function randomCareers() {
         },
       ],
       advancements: [
-        'An intentional "accident" happens.',
+        "An intentional \"accident\" happens.",
         "A victim experiences true fear.",
         "A conspiracy is uncovered.",
         "An act is performed covertly.",
@@ -1294,7 +1296,7 @@ function randomCareers() {
       ],
       advancements: [
         "A piece of junk proves pivotal.",
-        'A piece of technology is "improved."',
+        "A piece of technology is \"improved.\"",
         "A breakage occurs.",
         "An explosion alters the situation.",
         "A structural weakness is exposed.",
@@ -1600,7 +1602,7 @@ function randomCareers() {
     },
   ];
 
-  let careerOne = iarnd.item(careers);
+  let careerOne = RND.item(careers);
 
   let newCareerList = [];
 
@@ -1610,7 +1612,7 @@ function randomCareers() {
     }
   });
 
-  let careerTwo = iarnd.item(newCareerList);
+  let careerTwo = RND.item(newCareerList);
 
   return [careerOne, careerTwo];
 }
@@ -1934,7 +1936,7 @@ function randomOrigin() {
       ],
     },
   ];
-  return iarnd.item(origins);
+  return RND.item(origins);
 }
 
 function randomStats() {
@@ -1948,7 +1950,7 @@ function randomStats() {
     interface: "",
   };
 
-  stats = iarnd.shuffle(stats);
+  stats = RND.shuffle(stats);
 
   result.physique = stats.pop();
   result.mettle = stats.pop();
@@ -1986,7 +1988,7 @@ export function formatAsText(character) {
 
   let careers = [];
 
-  for (let i=0;i<character.careers.length;i++) {
+  for (let i = 0; i < character.careers.length; i++) {
     careers.push(character.careers[i].name);
   }
 
@@ -1998,7 +2000,7 @@ export function formatAsText(character) {
 
   description += Text.header("Skills");
 
-  for (let i=0;i<character.skills.length;i++) {
+  for (let i = 0; i < character.skills.length; i++) {
     description += Text.header(character.skills[i].name);
     description += character.skills[i].description + "\n";
   }
@@ -2007,12 +2009,12 @@ export function formatAsText(character) {
 
   description += Text.header("Assets");
 
-  for (let i=0;i<character.assets.length;i++) {
+  for (let i = 0; i < character.assets.length; i++) {
     description += Text.header(character.assets[i].name);
 
     description += character.assets[i].description + "\n";
 
-    for (let j=0;j<character.assets[i].upgrades.length;j++) {
+    for (let j = 0; j < character.assets[i].upgrades.length; j++) {
       description += character.assets[i].upgrades[j].name + ": " + character.assets[i].upgrades[j].description + "\n";
     }
   }

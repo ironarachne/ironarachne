@@ -1,3 +1,5 @@
+"use strict";
+
 import * as StarSystemRenderer from "./render.js";
 import * as Words from "../words.js";
 import * as Star from "../stars/star.js";
@@ -32,13 +34,13 @@ export function generate() {
 
   let numberOfPlanets = random.int(3, 12);
 
-  for (let i=0;i<numberOfPlanets;i++) {
-    let planet = Planet.generate('random');
+  for (let i = 0; i < numberOfPlanets; i++) {
+    let planet = Planet.generate("random");
     planet.svg = PlanetRenderer.render(graphicWidth, graphicHeight, planet);
     starsystem.planets.push(planet);
   }
 
-  starsystem.planets.sort(function(x, y) {
+  starsystem.planets.sort(function (x, y) {
     if (x.distance_from_sun < y.distance_from_sun) {
       return -1;
     }
@@ -48,7 +50,7 @@ export function generate() {
     return 0;
   });
 
-  for (let i=0;i<starsystem.planets.length;i++) {
+  for (let i = 0; i < starsystem.planets.length; i++) {
     if (!starsystem.planets[i].is_inhabited) {
       starsystem.planets[i].name = starsystem.name + " " + Words.romanize(i + 1);
     }

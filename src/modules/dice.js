@@ -1,3 +1,5 @@
+"use strict";
+
 const random = require("random");
 
 export function describeDice(dice) {
@@ -8,42 +10,42 @@ export function describeDice(dice) {
   }
 
   if (dice.d6 > 0) {
-    if (diceExpression != "") {
+    if (diceExpression !== "") {
       diceExpression += "+";
     }
     diceExpression += dice.d6 + "d6";
   }
 
   if (dice.d8 > 0) {
-    if (diceExpression != "") {
+    if (diceExpression !== "") {
       diceExpression += "+";
     }
     diceExpression += dice.d8 + "d8";
   }
 
   if (dice.d10 > 0) {
-    if (diceExpression != "") {
+    if (diceExpression !== "") {
       diceExpression += "+";
     }
     diceExpression += dice.d10 + "d10";
   }
 
   if (dice.d12 > 0) {
-    if (diceExpression != "") {
+    if (diceExpression !== "") {
       diceExpression += "+";
     }
     diceExpression += dice.d12 + "d12";
   }
 
   if (dice.d20 > 0) {
-    if (diceExpression != "") {
+    if (diceExpression !== "") {
       diceExpression += "+";
     }
     diceExpression += dice.d20 + "d20";
   }
 
   if (dice.d100 > 0) {
-    if (diceExpression != "") {
+    if (diceExpression !== "") {
       diceExpression += "+";
     }
     diceExpression += dice.d100 + "d100";
@@ -94,7 +96,7 @@ export function rangeToDiceExpression(range) {
     remains -= 6;
     dice.d6++;
   }
-  while (remains >=4 && remains > 0) {
+  while (remains >= 4 && remains > 0) {
     remains -= 4;
     dice.d4++;
   }
@@ -108,7 +110,7 @@ export function roll(expression) {
   let parts = expression.split("+");
   let result = 0;
 
-  for(let i=0;i<parts.length;i++) {
+  for (let i = 0; i < parts.length; i++) {
     let phrase = parts[i];
 
     if (phrase.includes("d")) {
@@ -116,7 +118,7 @@ export function roll(expression) {
       let number = Number(splitPhrase[0]);
       let sides = Number(splitPhrase[1]);
 
-      for (let j=0; j<number; j++) {
+      for (let j = 0; j < number; j++) {
         result += random.int(1, sides);
       }
     } else {

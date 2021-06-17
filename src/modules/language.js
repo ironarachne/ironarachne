@@ -1,15 +1,17 @@
+"use strict";
+
 function shuffled(list) {
-  var newlist = [];
+  let newList = [];
   for (let i = 0; i < list.length; i++) {
-    newlist.push(list[i]);
+    newList.push(list[i]);
   }
   for (let i = list.length - 1; i > 0; i--) {
-    var tmp = newlist[i];
-    var j = randrange(i);
-    newlist[i] = newlist[j];
-    newlist[j] = tmp;
+    let tmp = newList[i];
+    let j = randRange(i);
+    newList[i] = newList[j];
+    newList[j] = tmp;
   }
-  return newlist;
+  return newList;
 }
 
 function choose(list, exponent) {
@@ -17,8 +19,8 @@ function choose(list, exponent) {
   return list[Math.floor(Math.pow(Math.random(), exponent) * list.length)];
 }
 
-function randrange(lo, hi) {
-  if (hi == undefined) {
+function randRange(lo, hi) {
+  if (hi === undefined) {
     hi = lo;
     lo = 0;
   }
@@ -26,9 +28,9 @@ function randrange(lo, hi) {
 }
 
 function join(list, sep) {
-  if (list.length == 0) return "";
+  if (list.length === 0) return "";
   sep = sep || "";
-  var s = list[0];
+  let s = list[0];
   for (let i = 1; i < list.length; i++) {
     s += sep;
     s += list[i];
@@ -42,9 +44,9 @@ function capitalize(word) {
 
 function spell(lang, syll) {
   if (lang.noortho) return syll;
-  var s = "";
+  let s = "";
   for (let i = 0; i < syll.length; i++) {
-    var c = syll[i];
+    let c = syll[i];
     s += lang.cortho[c] || lang.vortho[c] || defaultOrtho[c] || c;
   }
   return s;
@@ -53,10 +55,10 @@ function spell(lang, syll) {
 function makeSyllable(lang) {
   let keepGoing = true;
   while (keepGoing) {
-    var syll = "";
+    let syll = "";
     for (let i = 0; i < lang.structure.length; i++) {
-      var ptype = lang.structure[i];
-      if (lang.structure[i + 1] == "?") {
+      let ptype = lang.structure[i];
+      if (lang.structure[i + 1] === "?") {
         i++;
         if (Math.random() < 0.5) {
           continue;
@@ -64,7 +66,7 @@ function makeSyllable(lang) {
       }
       syll += choose(lang.phonemes[ptype], lang.exponent);
     }
-    var bad = false;
+    let bad = false;
     for (let i = 0; i < lang.restricts.length; i++) {
       if (lang.restricts[i].test(syll)) {
         bad = true;
@@ -81,15 +83,15 @@ function getMorpheme(lang, key) {
     return makeSyllable(lang);
   }
   key = key || "";
-  var list = lang.morphemes[key] || [];
-  var extras = 10;
+  let list = lang.morphemes[key] || [];
+  let extras = 10;
   if (key) extras = 1;
   let keepGoing = true;
   while (keepGoing) {
-    var n = randrange(list.length + extras);
+    let n = randRange(list.length + extras);
     if (list[n]) return list[n];
-    var morph = makeSyllable(lang);
-    var bad = false;
+    let morph = makeSyllable(lang);
+    let bad = false;
     for (let k in lang.morphemes) {
       if (lang.morphemes[k].includes(morph)) {
         bad = true;
@@ -104,10 +106,10 @@ function getMorpheme(lang, key) {
 }
 
 function makeWord(lang, key) {
-  var nsylls = randrange(lang.minsyll, lang.maxsyll + 1);
-  var w = "";
-  var keys = [];
-  keys[randrange(nsylls)] = key;
+  let nsylls = randRange(lang.minsyll, lang.maxsyll + 1);
+  let w = "";
+  let keys = [];
+  keys[randRange(nsylls)] = key;
   for (let i = 0; i < nsylls; i++) {
     w += getMorpheme(lang, keys[i]);
   }
@@ -116,18 +118,18 @@ function makeWord(lang, key) {
 
 function getWord(lang, key) {
   key = key || "";
-  var ws = lang.words[key] || [];
-  var extras = 3;
+  let ws = lang.words[key] || [];
+  let extras = 3;
   if (key) extras = 2;
   let keepGoing = true;
   while (keepGoing) {
-    var n = randrange(ws.length + extras);
-    var w = ws[n];
+    let n = randRange(ws.length + extras);
+    let w = ws[n];
     if (w) {
       return w;
     }
     w = makeWord(lang, key);
-    var bad = false;
+    let bad = false;
     for (let k in lang.words) {
       if (lang.words[k].includes(w)) {
         bad = true;
@@ -147,13 +149,13 @@ export function makeName(lang, key) {
   lang.definite = lang.definite || getMorpheme(lang, "the");
   let keepGoing = true;
   while (keepGoing) {
-    var name = null;
+    let name = null;
     if (Math.random() < 0.5) {
       name = capitalize(getWord(lang, key));
     } else {
-      var w1 = capitalize(getWord(lang, Math.random() < 0.6 ? key : ""));
-      var w2 = capitalize(getWord(lang, Math.random() < 0.6 ? key : ""));
-      if (w1 == w2) continue;
+      let w1 = capitalize(getWord(lang, Math.random() < 0.6 ? key : ""));
+      let w2 = capitalize(getWord(lang, Math.random() < 0.6 ? key : ""));
+      if (w1 === w2) continue;
       if (Math.random() > 0.5) {
         name = join([w1, w2], lang.joiner);
       } else {
@@ -165,9 +167,9 @@ export function makeName(lang, key) {
     }
 
     if (name.length < lang.minchar || name.length > lang.maxchar) continue;
-    var used = false;
+    let used = false;
     for (let i = 0; i < lang.names.length; i++) {
-      var name2 = lang.names[i];
+      let name2 = lang.names[i];
       if (name.indexOf(name2) != -1 || name2.indexOf(name) != -1) {
         used = true;
         break;
@@ -208,13 +210,13 @@ function makeBasicLanguage() {
 }
 
 export function makeOrthoLanguage() {
-  var lang = makeBasicLanguage();
+  let lang = makeBasicLanguage();
   lang.noortho = false;
   return lang;
 }
 
 export function makeRandomLanguage() {
-  var lang = makeBasicLanguage();
+  let lang = makeBasicLanguage();
   lang.noortho = false;
   lang.nomorph = false;
   lang.nowordpool = false;
@@ -227,13 +229,14 @@ export function makeRandomLanguage() {
   lang.restricts = ressets[2].res;
   lang.cortho = choose(corthsets, 2).orth;
   lang.vortho = choose(vorthsets, 2).orth;
-  lang.minsyll = randrange(1, 3);
+  lang.minsyll = randRange(1, 3);
   if (lang.structure.length < 3) lang.minsyll++;
-  lang.maxsyll = randrange(lang.minsyll + 1, 7);
+  lang.maxsyll = randRange(lang.minsyll + 1, 7);
   lang.joiner = choose("   -");
   return lang;
 }
-var defaultOrtho = {
+
+let defaultOrtho = {
   ʃ: "sh",
   ʒ: "zh",
   ʧ: "ch",
@@ -250,7 +253,7 @@ var defaultOrtho = {
   U: "ú",
 };
 
-var corthsets = [
+let corthsets = [
   {
     name: "Default",
     orth: {},
@@ -296,7 +299,7 @@ var corthsets = [
   },
 ];
 
-var vorthsets = [
+let vorthsets = [
   {
     name: "Ácutes",
     orth: {},
@@ -343,7 +346,7 @@ var vorthsets = [
   },
 ];
 
-var consets = [
+let consets = [
   {
     name: "Minimal",
     C: "ptkmnls",
@@ -378,7 +381,7 @@ var consets = [
   },
 ];
 
-var ssets = [
+let ssets = [
   {
     name: "Just s",
     S: "s",
@@ -393,7 +396,7 @@ var ssets = [
   },
 ];
 
-var lsets = [
+let lsets = [
   {
     name: "r l",
     L: "rl",
@@ -416,7 +419,7 @@ var lsets = [
   },
 ];
 
-var fsets = [
+let fsets = [
   {
     name: "m n",
     F: "mn",
@@ -435,7 +438,7 @@ var fsets = [
   },
 ];
 
-var vowsets = [
+let vowsets = [
   {
     name: "Standard 5-vowel",
     V: "aeiou",
@@ -466,7 +469,7 @@ var vowsets = [
   },
 ];
 
-var syllstructs = [
+let syllstructs = [
   "CVC",
   "CVV?C",
   "CVVC?",
@@ -491,7 +494,7 @@ var syllstructs = [
   "C?VLC?",
 ];
 
-var ressets = [
+let ressets = [
   {
     name: "None",
     res: [],

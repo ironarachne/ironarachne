@@ -1,6 +1,6 @@
 <template>
   <header>
-    <img src="images/logo-glyphonly-green.svg" />
+    <img src="images/logo-glyphonly-green.svg"/>
     <div>
       <h1>Iron Arachne</h1>
       <p>
@@ -24,8 +24,8 @@ $tan: #5c5031;
 $gold: #fad037;
 
 header {
-  background: rgb(0,0,0);
-  background: linear-gradient(180deg, rgba(0,0,0,1) 0%, rgba(89,89,89,1) 100%);
+  background: rgb(0, 0, 0);
+  background: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(89, 89, 89, 1) 100%);
   border-bottom: 1px solid black;
   font-size: 1.75rem;
   line-height: 1.75rem;

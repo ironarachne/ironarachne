@@ -1,5 +1,7 @@
+"use strict";
+
 import * as Invented from "./invented.js";
-import * as iarnd from "../random.js";
+import * as RND from "../random.js";
 
 export function generate() {
   return Invented.generate(patterns());
@@ -16,14 +18,14 @@ export function generateNameList(gender, patterns) {
   for (let i = 0; i < patterns.length; i++) {
     femalePatterns.push(patterns[i] + "f");
     malePatterns.push(patterns[i]);
-    familyPatterns.push(patterns[i] + iarnd.item(["cv", "vcv"]));
+    familyPatterns.push(patterns[i] + RND.item(["cv", "vcv"]));
   }
 
-  if (gender == "male") {
+  if (gender === "male") {
     namePatterns = malePatterns;
-  } else if (gender == "female") {
+  } else if (gender === "female") {
     namePatterns = femalePatterns;
-  } else if (gender == "family") {
+  } else if (gender === "family") {
     namePatterns = familyPatterns;
   }
 
@@ -43,7 +45,7 @@ export function randomNameRoots() {
   let patterns = [];
 
   for (let i = 0; i < 2; i++) {
-    patterns.push(iarnd.item(prefixes) + iarnd.item(suffixes));
+    patterns.push(RND.item(prefixes) + RND.item(suffixes));
   }
 
   return patterns;

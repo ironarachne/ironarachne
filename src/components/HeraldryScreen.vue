@@ -4,14 +4,14 @@
     <p>Generate random coats-of-arms that loosely adhere to heraldic rules.</p>
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generateHeraldry">Load the Generator</button>
   </section>
 </template>
 
 <script>
-import * as iarnd from "../modules/random.js";
+import * as RND from "../modules/random.js";
 
 export default {
   name: "HeraldryScreen",
@@ -24,12 +24,12 @@ export default {
     generateHeraldry: function () {
       this.$router.push({
         name: "heraldry-generator",
-        params: { seed: this.seed },
+        params: {seed: this.seed},
       });
     },
   },
   created: function () {
-    this.seed = iarnd.randomString(13);
+    this.seed = RND.randomString(13);
   },
 };
 </script>

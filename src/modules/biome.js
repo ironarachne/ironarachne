@@ -1,4 +1,6 @@
-import * as iarnd from "./random.js";
+"use strict";
+
+import * as RND from "./random.js";
 
 export function generate() {
   let biome = {
@@ -19,7 +21,7 @@ function allBiomes() {
     {
       name: "desert",
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "The dunes here resemble a vast sandy sea.",
           "Sand and dry earth stretch out as far as the eye can see.",
           "Between rocky cliffs and short mesas lies sand dunes of varying sizes.",
@@ -29,7 +31,7 @@ function allBiomes() {
     {
       name: "forest",
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "This is an old forest region. Some of the trees here are bigger around than ten men linking arms could wrap around.",
           "Deciduous trees cover this area. Thick canopies give way to the occasional meadow.",
           "This forest is filled with conifers and light underbrush.",
@@ -39,7 +41,7 @@ function allBiomes() {
     {
       name: "grassland",
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "This area's broad open spaces are covered in tall grasses.",
           "Low rolling hills make up this region.",
           "The occasional hill breaks up what is otherwise a vast expanse of flat grassland.",
@@ -49,7 +51,7 @@ function allBiomes() {
     {
       name: "mountain",
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "This is a craggy mountainous region, with few trees and a lot of shrubs.",
           "This mountain area is covered in coniferous trees.",
           "Some trees are scattered about this mountainous region.",
@@ -60,5 +62,5 @@ function allBiomes() {
 }
 
 function random() {
-  return iarnd.item(allBiomes());
+  return RND.item(allBiomes());
 }

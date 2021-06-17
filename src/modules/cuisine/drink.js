@@ -1,5 +1,8 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 import * as Words from "../words.js";
+
 const random = require("random");
 
 export function generateDrink() {
@@ -11,10 +14,10 @@ export function generateDrink() {
     strength: 0,
     cost: "",
     type: {},
-  }
+  };
 
   drink.type = randomType();
-  drink.appearance = iarnd.item(drink.type.appearances);
+  drink.appearance = RND.item(drink.type.appearances);
   drink.strength = random.int(drink.type.strengthMin, drink.type.strengthMax);
   drink.quality = random.int(0, 6);
   drink.cost = randomCost(drink);
@@ -43,21 +46,19 @@ function describe(drink) {
     adjectives.push(describeQuality(drink.quality));
   }
 
-  let description = Words.arrayToPhrase(adjectives) + " " + drink.type.name;
-
-  return description;
+  return Words.arrayToPhrase(adjectives) + " " + drink.type.name;
 }
 
 function describeStrength(strength) {
-  if (strength == 0) {
+  if (strength === 0) {
     return "very weak";
-  } else if (strength == 1) {
+  } else if (strength === 1) {
     return "weak";
-  } else if (strength == 2) {
+  } else if (strength === 2) {
     return "moderately strong";
-  } else if (strength == 3) {
+  } else if (strength === 3) {
     return "potent";
-  } else if (strength == 4) {
+  } else if (strength === 4) {
     return "very strong";
   }
 
@@ -65,17 +66,17 @@ function describeStrength(strength) {
 }
 
 function describeQuality(quality) {
-  if (quality == 0) {
+  if (quality === 0) {
     return "nasty";
-  } else if (quality == 1) {
+  } else if (quality === 1) {
     return "awful";
-  } else if (quality == 2) {
+  } else if (quality === 2) {
     return "acceptable";
-  } else if (quality == 3) {
+  } else if (quality === 3) {
     return "decent";
-  } else if (quality == 4) {
+  } else if (quality === 4) {
     return "good";
-  } else if (quality == 5) {
+  } else if (quality === 5) {
     return "excellent";
   }
 
@@ -86,13 +87,13 @@ function randomCost(drink) {
   let cost = random.int(drink.type.costMin, drink.type.costMax);
 
   cost += drink.quality;
-  cost += Math.floor(drink.strength/2);
+  cost += Math.floor(drink.strength / 2);
 
   return cost;
 }
 
 function randomType() {
-  return iarnd.item([
+  return RND.item([
     {
       name: "ale",
       strengthMin: 0,

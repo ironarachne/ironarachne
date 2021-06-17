@@ -1,4 +1,7 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
+
 const random = require("random");
 
 export function generate() {
@@ -7,10 +10,10 @@ export function generate() {
   let adjectiveChance = random.int(0, 100);
 
   if (adjectiveChance > 60) {
-    name += iarnd.item(adjectives()) + " ";
+    name += RND.item(adjectives()) + " ";
   }
 
-  name += iarnd.item(nouns());
+  name += RND.item(nouns());
 
   return name;
 }

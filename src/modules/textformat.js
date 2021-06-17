@@ -1,7 +1,9 @@
+"use strict";
+
 export function list(items) {
   let result = "";
 
-  for (let i=0;i<items.length;i++) {
+  for (let i = 0; i < items.length; i++) {
     result += "- " + items[i] + "\n";
   }
 

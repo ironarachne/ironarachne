@@ -1,4 +1,7 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
+
 const random = require("random");
 
 export function generate(size, possibleNames) {
@@ -7,17 +10,17 @@ export function generate(size, possibleNames) {
     description: "",
   };
 
-  town.name = iarnd.item(possibleNames);
+  town.name = RND.item(possibleNames);
 
   let townSize = {};
 
-  if (size == "random") {
+  if (size === "random") {
     townSize = randomSize();
-  } else if (size == "small") {
+  } else if (size === "small") {
     townSize = randomSizeSmall();
-  } else if (size == "medium") {
+  } else if (size === "medium") {
     townSize = randomSizeMedium();
-  } else if (size == "large") {
+  } else if (size === "large") {
     townSize = randomSizeLarge();
   }
 
@@ -47,7 +50,7 @@ function allSizes() {
         return random.int(10, 49);
       },
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "This sleepy community only has a few families working together to survive.",
           "Though small, the inhabitants seem full of life, ready to take on any challenge.",
           "This place has fallen on hard times.",
@@ -61,7 +64,7 @@ function allSizes() {
         return random.int(50, 499);
       },
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "The inhabitants congregate at the lone inn in town every evening.",
           "The village head runs a tight ship here, and everyone knows their part.",
           "Sometimes villages are prosperous and lively. This one isn't.",
@@ -75,7 +78,7 @@ function allSizes() {
         return random.int(500, 9999);
       },
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "It's a bustling place with multiple inns and taverns.",
           "The people here are a little coarse but friendly.",
           "The people here avoid strangers, and even the merchants are tight-lipped.",
@@ -91,7 +94,7 @@ function allSizes() {
         return random.int(10000, 19999);
       },
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "Multiple industries make their home here. This community is on the rise.",
           "Trade flourishes here, and the people seem safe and happy.",
           "Though it would be a stretch to call this place prosperous, the people are friendly and open.",
@@ -106,7 +109,7 @@ function allSizes() {
         return random.int(20000, 49999);
       },
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "The sprawling buildings of this city resemble nothing so much as a sea of wood and stone.",
           "The walls of this city create a formidable barrier between it and the rest of the world.",
           "Though marred by soot and the signs of industry run rampant, this city has a liveliness to it that's infectious.",
@@ -121,7 +124,7 @@ function allSizes() {
         return random.int(50000, 3000000);
       },
       randomDescription: function () {
-        return iarnd.item([
+        return RND.item([
           "This metropolis is vast and sprawling, with many different districts of varying prosperity and character.",
           "The outer districts of this metropolis are filled with inns and taverns of all descriptions and traders are constantly arriving.",
           "Despite the vast size of this metropolis, it's comprised of many smaller, tight-knit communities that each have their own character and customs.",
@@ -132,29 +135,29 @@ function allSizes() {
 }
 
 function randomDescription() {
-  return iarnd.item(["{name} is a {size} of {population} people."]);
+  return RND.item(["{name} is a {size} of {population} people."]);
 }
 
 function randomSize() {
-  return iarnd.item(allSizes());
+  return RND.item(allSizes());
 }
 
 function randomSizeLarge() {
   let sizes = sizesByClass("large");
 
-  return iarnd.item(sizes);
+  return RND.item(sizes);
 }
 
 function randomSizeMedium() {
   let sizes = sizesByClass("medium");
 
-  return iarnd.item(sizes);
+  return RND.item(sizes);
 }
 
 function randomSizeSmall() {
   let sizes = sizesByClass("small");
 
-  return iarnd.item(sizes);
+  return RND.item(sizes);
 }
 
 function sizesByClass(sizeClass) {
@@ -163,7 +166,7 @@ function sizesByClass(sizeClass) {
   let sizes = [];
 
   all.forEach(function (element) {
-    if (element.sizeClass == sizeClass) {
+    if (element.sizeClass === sizeClass) {
       sizes.push(element);
     }
   });

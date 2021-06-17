@@ -21,7 +21,7 @@
         src="https://cdn.buymeacoffee.com/buttons/v2/default-green.png"
         alt="Buy Me A Coffee"
         style="height: 60px !important; width: 217px !important"
-    /></a>
+      /></a>
     </div>
     <h2>Recent Changes</h2>
     <div v-for="update in updates" :key="update.date">
@@ -36,7 +36,7 @@
 <script>
 export default {
   name: "HomeScreen",
-  data: function() {
+  data: function () {
     return {
       updates: [
         {
@@ -142,7 +142,7 @@ export default {
           ],
         },
       ]
-    }
+    };
   }
 };
 </script>

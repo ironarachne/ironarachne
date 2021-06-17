@@ -1,11 +1,15 @@
+"use strict";
+
 import * as Tincture from "./tinctures.js";
 import * as Field from "./fields.js";
 import * as Variation from "./variations.js";
-import * as Charge from "./charges.js";
+import * as Charge from "./charge.js";
+import * as Charges from "./charges.js";
 import * as Words from "../words.js";
-import * as iarnd from "../random.js";
-var _ = require("lodash");
-const { create } = require("xmlbuilder2");
+import * as RND from "../random.js";
+
+const _ = require("lodash");
+const {create} = require("xmlbuilder2");
 
 export function generate(charges, width, height) {
   let f = Field.random();
@@ -29,7 +33,7 @@ export function generate(charges, width, height) {
 
   let blazon = Field.renderBlazon(f);
 
-  let charge = Charge.random(charges);
+  let charge = Charges.random(charges);
 
   let numberOfCharges = randomNumberOfCharges();
 
@@ -37,7 +41,7 @@ export function generate(charges, width, height) {
 
   let chargeTincture = Tincture.randomContrasting(variations[0].tinctures[0]);
 
-  if (numberOfCharges == 1) {
+  if (numberOfCharges === 1) {
     blazon +=
       ", " +
       Words.article(charge.name) +
@@ -45,7 +49,7 @@ export function generate(charges, width, height) {
       charge.name +
       " " +
       chargeTincture.name;
-  } else if (numberOfCharges == 2) {
+  } else if (numberOfCharges === 2) {
     blazon += ", two " + charge.plural + " " + chargeTincture.name;
   } else {
     blazon += ", three " + charge.plural + " " + chargeTincture.name;
@@ -69,20 +73,27 @@ export function generate(charges, width, height) {
   };
 }
 
-export function getCharges() {
-  let charges = Charge.all();
+export async function loadCharges() {
+  let charges = Charges.all();
+  let hydratedCharges = [];
 
-  return charges;
+  for await (const chargeData of charges) {
+    let charge = new Charge.Charge(chargeData.name, chargeData.plural, chargeData.fileName, chargeData.type);
+    charge.SVG = await charge.loadSVG();
+    hydratedCharges.push(charge);
+  }
+
+  return hydratedCharges;
 }
 
 export function randomNumberOfCharges() {
   let weights = [
-    { item: 1, weight: 50 },
-    { item: 2, weight: 5 },
-    { item: 3, weight: 3 },
+    {item: 1, weight: 50},
+    {item: 2, weight: 5},
+    {item: 3, weight: 3},
   ];
 
-  let result = iarnd.weighted(weights);
+  let result = RND.weighted(weights);
 
   return result.item;
 }
@@ -92,17 +103,16 @@ export function renderSVG(heraldry, width, height) {
   const shieldHeight = 660;
 
   let shieldSVG =
-    '<path fill="url(#Division)" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>';
+    "<path fill=\"url(#Division)\" stroke=\"#000000\" stroke-width=\"3\" d=\"M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z\"/>";
 
   let armsSVG =
-    '<svg width="' + width + '" height="' + height + '" viewBox="0 0 ' + shieldWidth + " " + shieldHeight + '" xmlns="http://www.w3.org/2000/svg" version="1.1">';
+    "<svg width=\"" + width + "\" height=\"" + height + "\" viewBox=\"0 0 " + shieldWidth + " " + shieldHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
   let defsSVG = "<defs>";
 
   defsSVG += heraldry.field.pattern;
 
   for (let i = 0; i < heraldry.variations.length; i++) {
     for (let j = 0; j < heraldry.variations[i].tinctures.length; j++) {
-      pattern = heraldry.variations[i].tinctures[j].pattern;
       defsSVG += heraldry.variations[i].tinctures[j].pattern;
     }
     let pattern = Variation.renderSVGPattern(heraldry.variations[i]);
@@ -110,9 +120,9 @@ export function renderSVG(heraldry, width, height) {
     defsSVG += pattern;
   }
 
-  let chargeSVGString = heraldry.charge.svg;
+  let chargeSVGString = heraldry.charge.SVG;
 
-  if (heraldry.chargeTincture.hexColor == "#000000") {
+  if (heraldry.chargeTincture.hexColor === "#000000") {
     chargeSVGString = chargeSVGString.replaceAll("#010101", "#ffffff");
     chargeSVGString = chargeSVGString.replaceAll("#000000", "#ffffff");
   }
@@ -130,9 +140,9 @@ export function renderSVG(heraldry, width, height) {
 
   let sizeAdjustment = 0.6;
 
-  if (heraldry.numberOfCharges == 2) {
+  if (heraldry.numberOfCharges === 2) {
     sizeAdjustment = 0.4;
-  } else if (heraldry.numberOfCharges == 3) {
+  } else if (heraldry.numberOfCharges === 3) {
     sizeAdjustment = 0.3;
   }
 
@@ -149,7 +159,7 @@ export function renderSVG(heraldry, width, height) {
 
   let chargeGroup = "";
 
-  if (heraldry.numberOfCharges == 1) {
+  if (heraldry.numberOfCharges === 1) {
     let xMove = (shieldWidth - chargeWidth * scaleAmount) / 2;
     let yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
 
@@ -162,7 +172,7 @@ export function renderSVG(heraldry, width, height) {
 
     chargeGroup =
       "<g transform='" + transform + "'>" + chargeSVG.end() + "</g>";
-  } else if (heraldry.numberOfCharges == 2) {
+  } else if (heraldry.numberOfCharges === 2) {
     let chargeObject2 = _.cloneDeep(chargeObject);
 
     let xMove = (shieldWidth - (chargeWidth * 2 + 20) * scaleAmount) / 2;
@@ -185,7 +195,7 @@ export function renderSVG(heraldry, width, height) {
       chargeSVG1.end() +
       chargeSVG2.end() +
       "</g>";
-  } else if (heraldry.numberOfCharges == 3) {
+  } else if (heraldry.numberOfCharges === 3) {
     let chargeObject2 = _.cloneDeep(chargeObject);
     let chargeObject3 = _.cloneDeep(chargeObject);
 
@@ -225,5 +235,5 @@ export function renderSVG(heraldry, width, height) {
   svg += chargeGroup;
   svg += "</svg>";
 
-  return svg.replace(/<\?xml.*\?>/g, '');
+  return svg.replace(/<\?xml.*\?>/g, "");
 }

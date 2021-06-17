@@ -1,4 +1,6 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 import * as Dice from "../dice.js";
 import * as Measurements from "../measurements.js";
 import * as Words from "../words.js";
@@ -21,8 +23,8 @@ export function generate(species, ageGroupName, gender, firstNames, lastNames) {
   character.height = getRandomHeight(ageGroup, gender);
   character.traits = getRandomTraits(species);
 
-  character.firstName = iarnd.item(firstNames);
-  character.lastName = iarnd.item(lastNames);
+  character.firstName = RND.item(firstNames);
+  character.lastName = RND.item(lastNames);
 
   character.description = describe(character);
 
@@ -42,13 +44,13 @@ function describe(character) {
 
   let traits = [];
 
-  for (let i=0;i<character.traits.length;i++) {
+  for (let i = 0; i < character.traits.length; i++) {
     traits.push(character.traits[i].description);
   }
 
-  description += Words.arrayToPhrase(traits) + '. ';
+  description += Words.arrayToPhrase(traits) + ". ";
 
-  description += getRandomPersonality(character.gender) + '.'
+  description += getRandomPersonality(character.gender) + ".";
 
   return description;
 }
@@ -56,7 +58,7 @@ function describe(character) {
 export function getAgeData(species, ageGroupName) {
   let ageGroup = {};
 
-  for (let i=0;i<species.ageGroups.length;i++) {
+  for (let i = 0; i < species.ageGroups.length; i++) {
     let group = species.ageGroups[i];
     if (group.name == ageGroupName) {
       ageGroup = group;
@@ -83,23 +85,23 @@ export function getRandomHeight(ageGroup, gender) {
 }
 
 export function getRandomPersonality(gender) {
-  let numberOfPositiveTraits = random.int(2,3)
-  let numberOfNegativeTraits = random.int(1,2)
+  let numberOfPositiveTraits = random.int(2, 3);
+  let numberOfNegativeTraits = random.int(1, 2);
 
-  return PersonalityTraits.getRandomTraits(gender, numberOfNegativeTraits, numberOfPositiveTraits)
+  return PersonalityTraits.getRandomTraits(gender, numberOfNegativeTraits, numberOfPositiveTraits);
 }
 
 export function getRandomTraits(species) {
   let traits = [];
 
-  for (let i=0;i<species.traits.length;i++) {
+  for (let i = 0; i < species.traits.length; i++) {
     let newTrait = {
       name: species.traits[i].name,
       template: species.traits[i].descriptionTemplate,
-      option: iarnd.item(species.traits[i].options),
+      option: RND.item(species.traits[i].options),
     };
 
-    newTrait.description = newTrait.template.replace('{name}', newTrait.option);
+    newTrait.description = newTrait.template.replace("{name}", newTrait.option);
 
     traits.push(newTrait);
   }

@@ -1,32 +1,34 @@
-import * as iarnd from "../random.js"
-import * as Name from "../names/cultures.js"
-import * as Religion from "../religion.js"
-import * as Music from "../music/style.js"
-import * as Organization from "./organization.js"
+"use strict";
+
+import * as RND from "../random.js";
+import * as Name from "../names/cultures.js";
+import * as Religion from "../religion.js";
+import * as Music from "../music/style.js";
+import * as Organization from "./organization.js";
 
 export class Culture {
   constructor(name, organization, maleNames, femaleNames, familyNames, religion, taboos, greeting, eatingTrait, designTrait, musicStyle) {
-    this.name = name
-    this.organization = organization
-    this.maleNames = maleNames
-    this.femaleNames = femaleNames
-    this.familyNames = familyNames
-    this.religion = religion
-    this.taboos = taboos
-    this.greeting = greeting
-    this.eatingTrait = eatingTrait
-    this.designTrait = designTrait
-    this.musicStyle = musicStyle
+    this.name = name;
+    this.organization = organization;
+    this.maleNames = maleNames;
+    this.femaleNames = femaleNames;
+    this.familyNames = familyNames;
+    this.religion = religion;
+    this.taboos = taboos;
+    this.greeting = greeting;
+    this.eatingTrait = eatingTrait;
+    this.designTrait = designTrait;
+    this.musicStyle = musicStyle;
   }
 }
 
 export function generate() {
-  let namePatterns = Name.randomNameRoots()
-  let maleNames = Name.generateNameList("male", namePatterns)
-  let femaleNames = Name.generateNameList("female", namePatterns)
-  let familyNames = Name.generateNameList("family", namePatterns)
+  let namePatterns = Name.randomNameRoots();
+  let maleNames = Name.generateNameList("male", namePatterns);
+  let femaleNames = Name.generateNameList("female", namePatterns);
+  let familyNames = Name.generateNameList("family", namePatterns);
 
-  let culture = new Culture(
+  return new Culture(
     Name.generate(),
     Organization.generate(),
     maleNames,
@@ -38,13 +40,11 @@ export function generate() {
     randomEatingTrait(),
     randomDesignTrait(),
     Music.generate(),
-  )
-
-  return culture
+  );
 }
 
 function randomDesignTrait() {
-  return iarnd.item([
+  return RND.item([
     "Bright, vibrant colors are favored in designs.",
     "Circles, loops, and other round shapes are represented often in design work.",
     "Triangles are common in design patterns.",
@@ -53,26 +53,26 @@ function randomDesignTrait() {
     "Intricate geometric designs are everywhere.",
     "Stylized images of animals are common in design.",
     "Stylized images of heroes and religious figures feature prominently.",
-  ])
+  ]);
 }
 
 function randomEatingTrait() {
-  return iarnd.item([
+  return RND.item([
     "Eating in large, multi-family or neighborhood groups is common. Strangers are welcome at these communal meals.",
     "Meals are served in large common vessels and each person is expected to serve themselves.",
     "Most meals are accompanied by a wide variety of small side dishes.",
     "A common custom to welcome a new person to a community is to serve them a special dish at a meal in their honor.",
     "Food is considered the great equalizer, and at communal feasts, social status is ignored.",
-  ])
+  ]);
 }
 
 function randomGreeting() {
-  return iarnd.item([
+  return RND.item([
     "Bowing is customary. The person of lower status bows lower, though both bow.",
     "Friends or family clasp hands in greeting. In formal situations, shaking hands is expected.",
     "Formal situations require the lesser person to kneel. If the status difference is slight, it is only kneeling on one knee. If the status difference is great, the lesser person must prostrate themselves. In informal situations, simple nodding the head is acceptable.",
     "In casual situations like with friends, waving is a common greeting. Formal situations require slight bowing and recitation of a ritual greeting.",
-  ])
+  ]);
 }
 
 function randomTaboos() {
@@ -104,18 +104,18 @@ function randomTaboos() {
     "Giving sharp objects as gifts is taboo, as they symbolize ending a relationship.",
     "Uttering the name given at birth will result in death.",
     "Saying the names of the dead is forbidden.",
-  ]
+  ];
 
-  let taboos = []
+  let taboos = [];
 
   for (let i = 0; i < 2; i++) {
-    let taboo = iarnd.item(possible)
+    let taboo = RND.item(possible);
     if (!taboos.includes(taboo)) {
-      taboos.push(taboo)
+      taboos.push(taboo);
     } else {
-      i--
+      i--;
     }
   }
 
-  return taboos
+  return taboos;
 }

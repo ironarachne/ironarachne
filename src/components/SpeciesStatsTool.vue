@@ -25,8 +25,10 @@
     <div v-for="(category, index) in ageCategories" :key="index">
       <h4>{{ category.name }}</h4>
       <p><strong>Age Range:</strong> {{ category.minAge }} to {{ category.maxAge }}</p>
-      <p><strong>Female Height:</strong> {{ category.femaleHeightMetric }} cm ({{ category.femaleHeightImperial }} in.)</p>
-      <p><strong>Female Weight:</strong> {{ category.femaleWeightMetric }} kg ({{ category.femaleWeightImperial }} lbs.)</p>
+      <p><strong>Female Height:</strong> {{ category.femaleHeightMetric }} cm ({{ category.femaleHeightImperial }} in.)
+      </p>
+      <p><strong>Female Weight:</strong> {{ category.femaleWeightMetric }} kg ({{ category.femaleWeightImperial }} lbs.)
+      </p>
       <p><strong>Male Height:</strong> {{ category.maleHeightMetric }} cm ({{ category.maleHeightImperial }} in.)</p>
       <p><strong>Male Weight:</strong> {{ category.maleWeightMetric }} kg ({{ category.maleWeightImperial }} lbs.)</p>
     </div>
@@ -39,22 +41,22 @@ import * as SpeciesCommon from "../modules/species/common.js";
 
 export default {
   name: "SpeciesStatsTool",
-  data: function() {
+  data: function () {
     return {
       maximumAge: 100,
       percentOfHumanHeight: 100,
       percentOfHumanWeight: 100,
-    }
+    };
   },
   computed: {
-    ageCategories: function() {
+    ageCategories: function () {
       let ageScale = this.maximumAge / 100;
       let heightScale = this.percentOfHumanHeight / 100;
       let weightScale = this.percentOfHumanWeight / 100;
 
       let categories = Age.categories();
 
-      for(let i=0;i<categories.length;i++) {
+      for (let i = 0; i < categories.length; i++) {
         categories[i].minAge = Math.ceil(categories[i].minAge * ageScale);
         categories[i].maxAge = Math.ceil(categories[i].maxAge * ageScale);
         categories[i].femaleHeightMetric = SpeciesCommon.getHeightMetric(heightScale, categories[i], "female");
@@ -70,5 +72,5 @@ export default {
       return categories;
     },
   },
-}
+};
 </script>

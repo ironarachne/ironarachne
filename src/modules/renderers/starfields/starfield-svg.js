@@ -1,18 +1,20 @@
+"use strict";
+
 const random = require("random");
 
 export function render(width, height) {
   let svg =
-    '<svg width="' +
+    "<svg width=\"" +
     width +
-    '" height="' +
+    "\" height=\"" +
     height +
-    '" viewBox="0 0 ' +
+    "\" viewBox=\"0 0 " +
     width +
     " " +
     height +
-    '">';
+    "\">";
 
-  svg += '<rect width="' + width + '" height="' + height + '" fill="black" />';
+  svg += "<rect width=\"" + width + "\" height=\"" + height + "\" fill=\"black\" />";
 
   let numberOfStars = Math.floor(width * height * 0.005);
 
@@ -21,13 +23,13 @@ export function render(width, height) {
     let y = random.int(0, height);
 
     svg +=
-      '<rect x="' +
+      "<rect x=\"" +
       x +
-      '" y="' +
+      "\" y=\"" +
       y +
-      '" width="1" height="1" fill="' +
+      "\" width=\"1\" height=\"1\" fill=\"" +
       randomStarColor() +
-      '" />';
+      "\" />";
   }
 
   svg += "</svg>";
@@ -45,7 +47,7 @@ function randomStarColor() {
   let tweaked = false;
 
   let tweakBlueChance = random.int(1, 100);
-  if (tweakBlueChance > 70 && tweaked == false) {
+  if (tweakBlueChance > 70 && tweaked === false) {
     b += random.int(10, 20);
     tweaked = true;
   }

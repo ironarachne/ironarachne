@@ -1,3 +1,5 @@
+"use strict";
+
 import * as ShaderTools from "../../shadertools.js";
 
 const random = require("random");
@@ -15,12 +17,12 @@ export function translateDiameterToModelSize(diameter) {
 export function getShaderData(classification) {
   let options = {
     arid: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        return `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -70,15 +72,13 @@ export function getShaderData(classification) {
             1.0 * lambertian * vec3(1.0, 1.0, 1.0) +
             0.12 * specular * specularColor, opacity);
         }`;
-
-        return shader;
       },
       generateFragmentShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        return `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -143,8 +143,6 @@ export function getShaderData(classification) {
             diffuseI * lambertian * biomeColor +
             specularI * specular * specularColor, 1.0);
         }`;
-
-        return shader;
       },
       generateVertexShader: function () {
         let shader = `varying vec3 vertPos;
@@ -163,7 +161,7 @@ export function getShaderData(classification) {
       },
     },
     barren: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
@@ -330,7 +328,7 @@ export function getShaderData(classification) {
       },
     },
     garden: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
@@ -496,7 +494,7 @@ export function getShaderData(classification) {
       },
     },
     "gas giant": {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
@@ -561,7 +559,7 @@ export function getShaderData(classification) {
         let seed = random.float(0.0, 100.0);
 
         let colors = [];
-        for (let i=0;i<6;i++) {
+        for (let i = 0; i < 6; i++) {
           colors.push(random.float(0.0, 1.0));
         }
 
@@ -641,7 +639,7 @@ export function getShaderData(classification) {
       },
     },
     ice: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
@@ -789,7 +787,7 @@ export function getShaderData(classification) {
       },
     },
     jungle: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
@@ -953,7 +951,7 @@ export function getShaderData(classification) {
       },
     },
     ocean: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
@@ -1098,7 +1096,7 @@ export function getShaderData(classification) {
       },
     },
     swamp: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
@@ -1260,7 +1258,7 @@ export function getShaderData(classification) {
       },
     },
     toxic: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);
@@ -1422,7 +1420,7 @@ export function getShaderData(classification) {
       },
     },
     volcanic: {
-      generateCloudShader: function() {
+      generateCloudShader: function () {
         let noiseFunction = ShaderTools.simplexNoise();
 
         let seed = random.float(0.0, 200.0);

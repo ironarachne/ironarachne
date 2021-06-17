@@ -1,4 +1,6 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 
 const random = require("random");
 
@@ -11,7 +13,7 @@ export function generate() {
   let chance = random.int(1, 100);
 
   if (chance > 85) {
-    let number = iarnd.item([
+    let number = RND.item([
       "Prime",
       "II",
       "Secondus",
@@ -29,7 +31,7 @@ export function generate() {
 }
 
 function randomPrefix() {
-  let f = iarnd.item([
+  let f = RND.item([
     "K",
     "S",
     "L",
@@ -44,7 +46,7 @@ function randomPrefix() {
     "Th",
   ]);
 
-  let s = iarnd.item([
+  let s = RND.item([
     "a",
     "o",
     "e",
@@ -53,12 +55,12 @@ function randomPrefix() {
     "y",
   ]);
 
-  let prefix = f+s;
+  let prefix = f + s;
 
   let chance = random.int(1, 100);
 
   if (chance >= 70) {
-    prefix += iarnd.item([
+    prefix += RND.item([
       "l",
       "r",
       "s",
@@ -102,5 +104,5 @@ function randomSuffix() {
     "eka",
   ];
 
-  return iarnd.item(options);
+  return RND.item(options);
 }

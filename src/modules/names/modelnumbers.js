@@ -1,13 +1,15 @@
-import * as iarnd from "../random.js";
+"use strict";
+
+import * as RND from "../random.js";
 
 const random = require("random");
 
 export function generate() {
-  let nameType = iarnd.item([
+  let nameType = RND.item([
     {
-      generate: function() {
-        let modelNumberPrefix = iarnd.item([
-          'Y', 'M', 'R', 'X', 'T', 'S', 'J', 'G', 'H',
+      generate: function () {
+        let modelNumberPrefix = RND.item([
+          "Y", "M", "R", "X", "T", "S", "J", "G", "H",
         ]);
 
         let modelNumberSuffix = random.int(1, 9) * 10;
@@ -16,12 +18,12 @@ export function generate() {
       },
     },
     {
-      generate: function() {
-        let modelNumberPrefix1 = iarnd.item([
-          'A', 'E', 'I', 'O', 'U'
+      generate: function () {
+        let modelNumberPrefix1 = RND.item([
+          "A", "E", "I", "O", "U"
         ]);
-        let modelNumberPrefix2 = iarnd.item([
-          'Y', 'M', 'R', 'X', 'T', 'S', 'J', 'G', 'H',
+        let modelNumberPrefix2 = RND.item([
+          "Y", "M", "R", "X", "T", "S", "J", "G", "H",
         ]);
 
         let modelNumberSuffix = random.int(1, 9) * 10;
@@ -30,12 +32,12 @@ export function generate() {
       }
     },
     {
-      generate: function() {
-        let modelNumberPrefix1 = iarnd.item([
-          'B', 'R', 'X', 'S', 'N'
+      generate: function () {
+        let modelNumberPrefix1 = RND.item([
+          "B", "R", "X", "S", "N"
         ]);
-        let modelNumberPrefix2 = iarnd.item([
-          'Y', 'M', 'I', 'K', 'T', 'Q', 'J', 'G', 'H',
+        let modelNumberPrefix2 = RND.item([
+          "Y", "M", "I", "K", "T", "Q", "J", "G", "H",
         ]);
 
         let modelNumberSuffix = random.int(1, 99) * 100;

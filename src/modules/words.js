@@ -1,3 +1,5 @@
+"use strict";
+
 export function article(word) {
   let exceptions = ["honor", "honest", "herb"];
 
@@ -15,21 +17,21 @@ export function article(word) {
 }
 
 export function arrayToPhrase(words) {
-  if (words.length == 1) {
+  if (words.length === 1) {
     return words[0];
-  } else if (words.length == 2) {
+  } else if (words.length === 2) {
     return words[0] + " and " + words[1];
   }
 
   let phrase = "";
 
   for (let i = 0; i < words.length; i++) {
-    if (i == words.length - 1) {
+    if (i === words.length - 1) {
       if (words.length > 2) {
         phrase += ",";
       }
       phrase += " and " + words[i];
-    } else if (i == 0) {
+    } else if (i === 0) {
       phrase = words[i];
     } else {
       phrase += ", " + words[i];
@@ -40,30 +42,30 @@ export function arrayToPhrase(words) {
 }
 
 export function capitalize(word) {
-  return word[0].toUpperCase() + word.slice(1)
+  return word[0].toUpperCase() + word.slice(1);
 }
 
 export function uncapitalize(word) {
-  return word[0].toLowerCase() + word.slice(1)
+  return word[0].toLowerCase() + word.slice(1);
 }
 
 export function genderNoun(gender, ageGroupName) {
   let noun = "";
 
-  if (gender == "female") {
+  if (gender === "female") {
     noun = "woman";
 
-    if (ageGroupName == "infant") {
+    if (ageGroupName === "infant") {
       noun = "baby girl";
-    } else if (ageGroupName == "child" || ageGroupName == "teenager") {
+    } else if (ageGroupName === "child" || ageGroupName === "teenager") {
       noun = "girl";
     }
   } else {
     noun = "man";
 
-    if (ageGroupName == "infant") {
+    if (ageGroupName === "infant") {
       noun = "baby boy";
-    } else if (ageGroupName == "child" || ageGroupName == "teenager") {
+    } else if (ageGroupName === "child" || ageGroupName === "teenager") {
       noun = "boy";
     }
   }
@@ -74,20 +76,20 @@ export function genderNoun(gender, ageGroupName) {
 export function pronoun(gender, wordCase) {
   let pronoun = "";
 
-  if (gender == "female") {
-    if (wordCase == "subjective") {
+  if (gender === "female") {
+    if (wordCase === "subjective") {
       pronoun = "she";
-    } else if (wordCase == "possessive") {
+    } else if (wordCase === "possessive") {
       pronoun = "her";
-    } else if (wordCase == "objective") {
+    } else if (wordCase === "objective") {
       pronoun = "her";
     }
   } else {
-    if (wordCase == "subjective") {
+    if (wordCase === "subjective") {
       pronoun = "he";
-    } else if (wordCase == "possessive") {
+    } else if (wordCase === "possessive") {
       pronoun = "his";
-    } else if (wordCase == "objective") {
+    } else if (wordCase === "objective") {
       pronoun = "him";
     }
   }
@@ -98,7 +100,7 @@ export function pronoun(gender, wordCase) {
 export function removeEntry(word, words) {
   let newWords = [];
 
-  for (let i=0;i<words.length;i++) {
+  for (let i = 0; i < words.length; i++) {
     if (words[i] != word) {
       newWords.push(words[i]);
     }

@@ -1,17 +1,19 @@
-import * as iarnd from "./random.js";
+"use strict";
+
+import * as RND from "./random.js";
 
 export function generate() {
   let religion = randomReligion();
 
-  religion.trait = iarnd.item(religion.religionType.possibleTraits);
+  religion.trait = RND.item(religion.religionType.possibleTraits);
   religion.description = religion.trait + " " + religion.organization;
 
   return religion;
 }
 
 function randomReligion() {
-  let religionType = iarnd.item(religionTypes());
-  let organization = iarnd.item([
+  let religionType = RND.item(religionTypes());
+  let organization = RND.item([
     "Each town has its own temple with at least one priest responsible for it.",
     "Spiritual worship is a very personal thing. There are no priests, only individual practice.",
     "Multiple different denominations exist with divided viewpoints. Any given town might have one or several.",

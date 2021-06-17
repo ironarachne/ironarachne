@@ -6,7 +6,7 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generateRegion">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import * as iarnd from "../modules/random.js";
+import * as RND from "../modules/random.js";
 import * as Region from "../modules/region.js";
 
 const random = require("random");
@@ -52,7 +52,7 @@ export default {
       this.towns = region.towns;
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generateRegion();
     },
   },

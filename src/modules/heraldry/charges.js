@@ -1,6 +1,8 @@
-import { create } from "xmlbuilder2";
+"use strict";
+
+import {create} from "xmlbuilder2";
 import axios from "axios";
-import * as iarnd from "../random.js";
+import * as RND from "../random.js";
 
 export function all() {
   return [
@@ -366,5 +368,5 @@ export function load(fileName) {
 }
 
 export function random(charges) {
-  return iarnd.item(charges);
+  return RND.item(charges);
 }

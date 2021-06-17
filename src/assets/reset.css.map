@@ -1,1 +1,10 @@
-{"version":3,"sourceRoot":"","sources":["reset.scss"],"names":[],"mappings":"AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;EAaA;EACA;EACA;EACA;EACA;EACA;;;AAEA;AACA;AAAA;EAEA;;;AAEA;EACA;;;AAEA;EACA;;;AAEA;EACA;;;AAEA;AAAA;EAEA;EACA;;;AAEA;EACA;EACA","file":"reset.css"}
+{
+  "version": 3,
+  "sourceRoot": "",
+  "sources": [
+    "reset.scss"
+  ],
+  "names": [],
+  "mappings": "AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;EAaA;EACA;EACA;EACA;EACA;EACA;;;AAEA;AACA;AAAA;EAEA;;;AAEA;EACA;;;AAEA;EACA;;;AAEA;EACA;;;AAEA;AAAA;EAEA;EACA;;;AAEA;EACA;EACA",
+  "file": "reset.css"
+}

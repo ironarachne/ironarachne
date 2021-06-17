@@ -1,3 +1,5 @@
+"use strict";
+
 const random = require("random");
 
 export function generate() {

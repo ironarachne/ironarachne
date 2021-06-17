@@ -4,7 +4,7 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generate">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -27,7 +27,7 @@
 </template>
 
 <script>
-import * as iarnd from "../modules/random.js";
+import * as RND from "../modules/random.js";
 import * as Tavern from "../modules/tavern.js";
 
 const random = require("random");
@@ -46,7 +46,7 @@ export default {
       this.tavern = Tavern.generate();
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generate();
     },
   },

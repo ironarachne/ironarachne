@@ -8,7 +8,7 @@
     </p>
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed" />
+      <input type="text" name="seed" v-model="seed"/>
     </div>
     <button v-on:click="generateHeraldry">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -21,8 +21,8 @@
 
 <script>
 import * as Heraldry from "../modules/heraldry/heraldry.js";
-import * as iarnd from "../modules/random.js";
-import axios from "axios";
+import * as RND from "../modules/random.js";
+
 
 const random = require("random");
 const seedrandom = require("seedrandom");
@@ -44,26 +44,16 @@ export default {
       this.blazon = h.blazon;
       this.image = h.svg;
     },
-    loadCharges: function () {
-      var self = this;
-      let charges = Heraldry.getCharges();
-
-      charges.forEach(function (charge) {
-        axios
-          .get("/images/heraldry/charges/" + charge.fileName)
-          .then(function (response) {
-            let chargeSVG = response.data;
-            charge.svg = chargeSVG;
-            self.charges.push(charge);
-          });
-      });
+    loadCharges: function (charges) {
+      this.charges = charges;
+      this.newSeed();
     },
     newSeed: function () {
-      this.seed = iarnd.randomString(13);
+      this.seed = RND.randomString(13);
       this.generateHeraldry();
     },
     saveHeraldry: function () {
-      const blob = new Blob([this.image], { type: "image/svg+xml" });
+      const blob = new Blob([this.image], {type: "image/svg+xml"});
       const link = document.createElement("a");
       link.href = window.URL.createObjectURL(blob);
       link.download = "heraldry.svg";
@@ -72,7 +62,7 @@ export default {
     },
   },
   created: function () {
-    this.loadCharges();
+    Heraldry.loadCharges().then(this.loadCharges);
   },
 };
 </script>
