@@ -6,12 +6,12 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed"/>
+      <input type="text" name="seed" v-model="seed" id="seed"/>
     </div>
 
     <div class="input-group">
       <label for="planetType">Planet Type</label>
-      <select v-model="planetType">
+      <select v-model="planetType" id="planetType">
         <option>random</option>
         <option v-for="pType in planetTypes" :key="pType">{{ pType }}</option>
       </select>

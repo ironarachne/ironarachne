@@ -6,7 +6,7 @@
 
     <div class="input-group">
       <label for="theme">Theme</label>
-      <select name="theme" v-model="theme">
+      <select name="theme" v-model="theme" id="theme">
         <option>any</option>
         <option v-for="item in themes" :key="item">{{ item }}</option>
       </select>
@@ -14,7 +14,7 @@
 
     <div class="input-group">
       <label for="category">Category</label>
-      <select name="category" v-model="category">
+      <select name="category" v-model="category" id="category">
         <option>any</option>
         <option v-for="item in categories" :key="item">{{ item }}</option>
       </select>
@@ -22,7 +22,7 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed"/>
+      <input type="text" name="seed" v-model="seed" id="seed"/>
     </div>
     <button v-on:click="generate">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -50,6 +50,7 @@ export default {
       categories: [],
       category: "any",
       theme: "any",
+      seed: "",
     };
   },
   methods: {

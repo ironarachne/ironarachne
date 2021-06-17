@@ -4,7 +4,7 @@
     <p>Generate random coats-of-arms that loosely adhere to heraldic rules.</p>
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed"/>
+      <input type="text" name="seed" v-model="seed" id="seed"/>
     </div>
     <button v-on:click="generateHeraldry">Load the Generator</button>
   </section>

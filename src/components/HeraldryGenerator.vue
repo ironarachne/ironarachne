@@ -8,11 +8,11 @@
     </p>
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed"/>
+      <input type="text" name="seed" v-model="seed" id="seed"/>
     </div>
     <button v-on:click="generateHeraldry">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
-    <button v-on:click="saveHeraldry" :disabled="image == ''">Save</button>
+    <button v-on:click="saveHeraldry" :disabled="image === ''">Save</button>
 
     <p class="blazon">{{ blazon }}</p>
     <div class="coat-of-arms" v-html="image"></div>

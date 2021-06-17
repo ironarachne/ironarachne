@@ -6,7 +6,7 @@
 
     <div class="input-group">
       <label for="seed">Random Seed</label>
-      <input type="text" name="seed" v-model="seed"/>
+      <input type="text" name="seed" v-model="seed" id="seed"/>
     </div>
     <button v-on:click="generateRegion">Generate From Seed</button>
     <button v-on:click="newSeed">Random Seed (and Generate)</button>
@@ -39,6 +39,7 @@ export default {
       description: "",
       towns: [],
       organizations: [],
+      seed: "",
     };
   },
   methods: {
