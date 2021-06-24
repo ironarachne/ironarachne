@@ -34,9 +34,9 @@
 </template>
 
 <script>
-import * as Domain from "../modules/religion/domain.js";
-import * as Weapon from "../modules/equipment/weapon.js";
-import * as RND from "../modules/random.js";
+import * as Domain from "../modules/religion/domain";
+import * as Weapon from "../modules/equipment/weapon";
+import * as RND from "../modules/random";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

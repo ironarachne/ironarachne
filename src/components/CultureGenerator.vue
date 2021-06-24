@@ -78,8 +78,8 @@
 </style>
 
 <script>
-import * as RND from "../modules/random.js";
-import * as Culture from "../modules/culture/culture.js";
+import * as RND from "../modules/random";
+import * as Culture from "../modules/culture/culture";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

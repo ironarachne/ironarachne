@@ -58,8 +58,8 @@
 </template>
 
 <script>
-import * as RND from "../modules/random.js";
-import * as Gen from "../modules/swn/starship.js";
+import * as RND from "../modules/random";
+import * as Gen from "../modules/swn/starship";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

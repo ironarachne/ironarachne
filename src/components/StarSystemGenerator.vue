@@ -58,8 +58,8 @@
 </template>
 
 <script>
-import * as StarSystem from "../modules/starsystem/starsystem.js";
-import * as RND from "../modules/random.js";
+import * as StarSystem from "../modules/starsystem/starsystem";
+import * as RND from "../modules/random";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

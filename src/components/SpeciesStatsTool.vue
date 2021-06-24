@@ -7,17 +7,17 @@
 
     <div class="input-group">
       <label for="maxAge">Maximum Age (Years)</label>
-      <input type="number" name="maxAge" v-model="maximumAge">
+      <input type="number" name="maxAge" v-model="maximumAge" id="maxAge">
     </div>
 
     <div class="input-group">
       <label for="height">% of Human Height</label>
-      <input type="number" name="height" v-model="percentOfHumanHeight">
+      <input type="number" name="height" v-model="percentOfHumanHeight" id="height">
     </div>
 
     <div class="input-group">
       <label for="weight">% of Human Weight</label>
-      <input type="number" name="weight" v-model="percentOfHumanWeight">
+      <input type="number" name="weight" v-model="percentOfHumanWeight" id="weight">
     </div>
 
     <h3>Calculated Stats</h3>
@@ -36,8 +36,8 @@
 </template>
 
 <script>
-import * as Age from "../modules/age.js";
-import * as SpeciesCommon from "../modules/species/common.js";
+import * as Age from "../modules/age";
+import * as SpeciesCommon from "../modules/species/common";
 
 export default {
   name: "SpeciesStatsTool",

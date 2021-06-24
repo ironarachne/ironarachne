@@ -81,8 +81,8 @@
 </template>
 
 <script>
-import * as RND from "../modules/random.js";
-import * as CharGen from "../modules/swn/character.js";
+import * as RND from "../modules/random";
+import * as CharGen from "../modules/swn/character";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

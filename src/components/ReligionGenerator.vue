@@ -40,8 +40,8 @@
 </template>
 
 <script>
-import * as RND from "../modules/random.js";
-import * as FantasyReligion from "../modules/religion/generator.js";
+import * as RND from "../modules/random";
+import * as FantasyReligion from "../modules/religion/generator";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

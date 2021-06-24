@@ -20,8 +20,8 @@
 </template>
 
 <script>
-import * as Heraldry from "../modules/heraldry/heraldry.js";
-import * as RND from "../modules/random.js";
+import * as Heraldry from "../modules/heraldry/heraldry";
+import * as RND from "../modules/random";
 
 
 const random = require("random");

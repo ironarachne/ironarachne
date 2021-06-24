@@ -71,7 +71,7 @@
 </template>
 
 <script>
-import * as Currency from "../modules/currency.js";
+import * as Currency from "../modules/currency";
 
 import axios from "axios";
 

@@ -26,8 +26,8 @@
 </template>
 
 <script>
-import * as RND from "../modules/random.js";
-import * as Region from "../modules/region.js";
+import * as RND from "../modules/random";
+import * as Region from "../modules/region";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

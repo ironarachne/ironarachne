@@ -18,8 +18,8 @@
 </template>
 
 <script>
-import * as Drug from "../modules/drug.js";
-import * as RND from "../modules/random.js";
+import * as Drug from "../modules/drug";
+import * as RND from "../modules/random";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

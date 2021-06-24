@@ -65,8 +65,8 @@
 </template>
 
 <script>
-import * as RND from "../modules/random.js";
-import * as CharGen from "../modules/unchartedworlds/character.js";
+import * as RND from "../modules/random";
+import * as CharGen from "../modules/unchartedworlds/character";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

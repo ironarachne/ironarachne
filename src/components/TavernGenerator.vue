@@ -27,8 +27,8 @@
 </template>
 
 <script>
-import * as RND from "../modules/random.js";
-import * as Tavern from "../modules/tavern.js";
+import * as RND from "../modules/random";
+import * as Tavern from "../modules/tavern";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

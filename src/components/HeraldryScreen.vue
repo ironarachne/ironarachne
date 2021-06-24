@@ -11,7 +11,7 @@
 </template>
 
 <script>
-import * as RND from "../modules/random.js";
+import * as RND from "../modules/random";
 
 export default {
   name: "HeraldryScreen",

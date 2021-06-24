@@ -39,11 +39,11 @@
 </template>
 
 <script>
-import * as RND from "../modules/random.js";
-import * as Planet from "../modules/planets/planet.js";
-import * as PlanetRenderer from "../modules/renderers/planets/planet-webgl.js";
+import * as RND from "../modules/random";
+import * as Planet from "../modules/planets/planet";
+import * as PlanetRenderer from "../modules/renderers/planets/planet-webgl";
 import * as THREE from "three";
-import * as StarfieldShader from "../modules/renderers/starfields/starfield-webgl.js";
+import * as StarfieldShader from "../modules/renderers/starfields/starfield-webgl";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

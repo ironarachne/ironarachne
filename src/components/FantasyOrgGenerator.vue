@@ -29,9 +29,9 @@
 </template>
 
 <script>
-import * as Heraldry from "../modules/heraldry/heraldry.js";
-import * as Organization from "../modules/organizations/fantasy.js";
-import * as RND from "../modules/random.js";
+import * as Heraldry from "../modules/heraldry/heraldry";
+import * as Organization from "../modules/organizations/fantasy";
+import * as RND from "../modules/random";
 
 const random = require("random");
 const seedrandom = require("seedrandom");

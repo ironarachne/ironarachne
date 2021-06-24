@@ -8,7 +8,7 @@
 </template>
 
 <script>
-import * as ChopShop from "../modules/chopshop.js";
+import * as ChopShop from "../modules/chopshop";
 
 const random = require("random");
 const seedrandom = require("seedrandom");
