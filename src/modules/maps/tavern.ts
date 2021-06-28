@@ -4,35 +4,89 @@ import * as RND from "../random";
 
 const random = require("random");
 
+export class Vertex {
+  x: number;
+  y: number;
+
+  constructor(x: number, y: number) {
+    this.x = x;
+    this.y = y;
+  }
+}
+
+export class Edge {
+  A: Vertex;
+  B: Vertex;
+
+  constructor(A: Vertex, B: Vertex) {
+    this.A = A;
+    this.B = B;
+  }
+}
+
+export class Door {
+  x: number;
+  y: number;
+  orientation: string;
+
+  constructor(x: number, y: number, orientation: string) {
+    this.x = x;
+    this.y = y;
+    this.orientation = orientation;
+  }
+}
+
+export class Room {
+  name: string;
+  center: Vertex;
+  vertices: Vertex[];
+  width: number;
+  height: number;
+  edges: Edge[];
+  doors: Door[];
+  floor: number;
+  type: string;
+
+  constructor(center: Vertex, width: number, height: number, roomType: string) {
+    this.center = center;
+    this.vertices = [];
+    this.width = width;
+    this.height = height;
+    this.edges = [];
+    this.doors = [];
+    this.floor = 0;
+    this.type = roomType;
+    this.name = "";
+  }
+}
+
+export class TavernMap {
+  rooms: Room[];
+  width: number;
+  height: number;
+
+  constructor(width: number, height: number) {
+    this.rooms = [];
+    this.width = width;
+    this.height = height;
+  }
+}
+
 export function generate() {
-  let tavernMap = generateMap(40, 30);
+  const tavernMap = generateMap(40, 30);
 
   return renderMap(tavernMap);
 }
 
 function generateMap(width: number, height: number) {
-  let map = {
-    rooms: [],
-    width: width,
-    height: height,
-  };
+  const map = new TavernMap(width, height);
 
-  let mainRoom = {
-    center: {
-      x: Math.floor(width / 2),
-      y: Math.floor(height / 2),
-    },
-    vertices: [],
-    width: random.int(12, 15),
-    height: random.int(12, 15),
-    edges: [],
-    doors: [],
-    floor: 0,
-    type: "main",
-  };
+  const center = new Vertex(Math.floor(width / 2), Math.floor(height / 2));
 
-  let halfWidth = mainRoom.width / 2;
-  let halfHeight = mainRoom.height / 2;
+  const mainRoom = new Room(center, random.int(12, 15), random.int(12, 15), "main");
+
+  const halfWidth = mainRoom.width / 2;
+  const halfHeight = mainRoom.height / 2;
 
   if (mainRoom.width % 2 != 0) {
     mainRoom.center.x -= 0.5;
@@ -43,30 +97,30 @@ function generateMap(width: number, height: number) {
   }
 
   mainRoom.vertices = [
-    {
-      x: mainRoom.center.x - halfWidth,
-      y: mainRoom.center.y - halfHeight,
-    },
-    {
-      x: mainRoom.center.x + halfWidth,
-      y: mainRoom.center.y - halfHeight,
-    },
-    {
-      x: mainRoom.center.x + halfWidth,
-      y: mainRoom.center.y + halfHeight,
-    },
-    {
-      x: mainRoom.center.x - halfWidth,
-      y: mainRoom.center.y + halfHeight,
-    },
+    new Vertex(
+      mainRoom.center.x - halfWidth,
+      mainRoom.center.y - halfHeight,
+    ),
+    new Vertex(
+      mainRoom.center.x + halfWidth,
+      mainRoom.center.y - halfHeight,
+    ),
+    new Vertex(
+      mainRoom.center.x + halfWidth,
+      mainRoom.center.y + halfHeight,
+    ),
+    new Vertex(
+      mainRoom.center.x - halfWidth,
+      mainRoom.center.y + halfHeight,
+    ),
   ];
 
-  mainRoom.edges.push({A: mainRoom.vertices[0], B: mainRoom.vertices[1]});
-  mainRoom.edges.push({A: mainRoom.vertices[1], B: mainRoom.vertices[2]});
-  mainRoom.edges.push({A: mainRoom.vertices[2], B: mainRoom.vertices[3]});
-  mainRoom.edges.push({A: mainRoom.vertices[3], B: mainRoom.vertices[0]});
+  mainRoom.edges.push(new Edge(mainRoom.vertices[0], mainRoom.vertices[1]));
+  mainRoom.edges.push(new Edge(mainRoom.vertices[1], mainRoom.vertices[2]));
+  mainRoom.edges.push(new Edge(mainRoom.vertices[2], mainRoom.vertices[3]));
+  mainRoom.edges.push(new Edge(mainRoom.vertices[3], mainRoom.vertices[0]));
 
-  let doorEdge = RND.item(mainRoom.edges);
+  const doorEdge = RND.item(mainRoom.edges);
 
   let doorX = 0;
   let doorY = 0;
@@ -75,8 +129,8 @@ function generateMap(width: number, height: number) {
   if (doorEdge.A.x == doorEdge.B.x) {
     doorX = doorEdge.A.x;
   } else {
-    let min = Math.min(doorEdge.A.x, doorEdge.B.x) + 1;
-    let max = Math.max(doorEdge.A.x, doorEdge.B.x) - 2;
+    const min = Math.min(doorEdge.A.x, doorEdge.B.x) + 1;
+    const max = Math.max(doorEdge.A.x, doorEdge.B.x) - 2;
 
     doorX = random.int(min, max) + 0.5;
     doorOrientation = "horizontal";
@@ -85,8 +139,8 @@ function generateMap(width: number, height: number) {
   if (doorEdge.A.y == doorEdge.B.y) {
     doorY = doorEdge.A.y;
   } else {
-    let min = Math.min(doorEdge.A.y, doorEdge.B.y) + 1;
-    let max = Math.max(doorEdge.A.y, doorEdge.B.y) - 2;
+    const min = Math.min(doorEdge.A.y, doorEdge.B.y) + 1;
+    const max = Math.max(doorEdge.A.y, doorEdge.B.y) - 2;
 
     doorY = random.int(min, max) + 0.5;
   }
@@ -113,23 +167,21 @@ function generateMap(width: number, height: number) {
   return map;
 }
 
-function addRoom(rooms) {
-  let roomType = RND.item(getPossibleRoomTypes(rooms));
+function addRoom(rooms: Room[]) {
+  const roomType = RND.item(getPossibleRoomTypes(rooms));
 
-  let newRooms = [];
+  const newRooms = [];
 
   for (let i = 0; i < rooms.length; i++) {
     newRooms.push(rooms[i]);
   }
 
-  let newRoom = {
-    width: random.int(roomType.widthMin, roomType.widthMax),
-    height: random.int(roomType.heightMin, roomType.heightMax),
-    edges: [],
-    doors: [],
-    floor: random.int(roomType.floorMin, roomType.floorMax),
-    type: roomType.name,
-  };
+  const newRoom = new Room(
+    random.int(roomType.widthMin, roomType.widthMax),
+    random.int(roomType.heightMin, roomType.heightMax),
+    random.int(roomType.floorMin, roomType.floorMax),
+    roomType.name,
+  );
 
   newRooms.push(newRoom);
 
@@ -159,10 +211,10 @@ function getAllRoomTypes() {
   ];
 }
 
-function getPossibleRoomTypes(existingRooms) {
-  let possibleTypes = getAllRoomTypes();
+function getPossibleRoomTypes(existingRooms: Room[]) {
+  const possibleTypes = getAllRoomTypes();
 
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < possibleTypes.length; i++) {
     let found = false;
@@ -179,11 +231,11 @@ function getPossibleRoomTypes(existingRooms) {
   return result;
 }
 
-function renderMap(map) {
-  let imageHeight = 600;
-  let imageWidth = 800;
+function renderMap(map: TavernMap) {
+  const imageHeight = 600;
+  const imageWidth = 800;
 
-  let gridSize = imageHeight / map.height;
+  const gridSize = imageHeight / map.height;
 
   let svg = "<svg width=\"" + imageWidth + "\" height=\"" + imageHeight + "\" viewBox=\"0 0 " + imageWidth + " " + imageHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
 
@@ -197,13 +249,13 @@ function renderMap(map) {
 
   svg += "<rect x=\"0\" y=\"0\" width=\"" + imageWidth + "\" height=\"" + imageHeight + "\" fill=\"url(#grid)\" stroke=\"black\" stroke-width=\"3\" />";
 
-  let doors = [];
+  const doors = [];
 
   for (let i = 0; i < map.rooms.length; i++) {
-    let topX = (map.rooms[i].center.x - (map.rooms[i].width / 2));
-    let topY = (map.rooms[i].center.y - (map.rooms[i].height / 2));
-    let roomWidth = map.rooms[i].width * gridSize;
-    let roomHeight = map.rooms[i].height * gridSize;
+    const topX = (map.rooms[i].center.x - (map.rooms[i].width / 2));
+    const topY = (map.rooms[i].center.y - (map.rooms[i].height / 2));
+    const roomWidth = map.rooms[i].width * gridSize;
+    const roomHeight = map.rooms[i].height * gridSize;
 
     let roomSVG = "<rect x=\"" + (topX * gridSize) + "\" y=\"" + (topY * gridSize) + "\" width=\"" + roomWidth + "\" height=\"" + roomHeight + "\"";
 
@@ -216,8 +268,8 @@ function renderMap(map) {
     svg += roomSVG;
   }
 
-  let doorThickness = gridSize / 3;
-  let doorLength = gridSize;
+  const doorThickness = gridSize / 3;
+  const doorLength = gridSize;
 
   for (let i = 0; i < doors.length; i++) {
     let doorTopLeftX = 0;
@@ -237,7 +289,7 @@ function renderMap(map) {
       doorHeight = doorThickness;
     }
 
-    let doorSVG = "<rect x=\"" + doorTopLeftX + "\" y=\"" + doorTopLeftY + "\" width=\"" + doorWidth + "\" height=\"" + doorHeight + "\" stroke=\"black\" fill=\"white\" />";
+    const doorSVG = "<rect x=\"" + doorTopLeftX + "\" y=\"" + doorTopLeftY + "\" width=\"" + doorWidth + "\" height=\"" + doorHeight + "\" stroke=\"black\" fill=\"white\" />";
 
     svg += doorSVG;
   }

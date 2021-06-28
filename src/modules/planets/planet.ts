@@ -20,6 +20,7 @@ export class Planet {
   distance_from_sun: number; // in AU
   has_clouds: boolean;
   has_atmosphere: boolean;
+  svg: string;
 
   constructor() {
     this.name = "";
@@ -36,6 +37,7 @@ export class Planet {
     this.distance_from_sun = 0;
     this.has_clouds = false;
     this.has_atmosphere = false;
+    this.svg = "";
   }
 }
 

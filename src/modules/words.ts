@@ -1,13 +1,13 @@
 "use strict";
 
-export function article(word) {
-  let exceptions = ["honor", "honest", "herb"];
+export function article(word: string) {
+  const exceptions = ["honor", "honest", "herb"];
 
   if (exceptions.includes(word)) {
     return "an";
   }
 
-  let vowels = ["a", "e", "i", "o", "u"];
+  const vowels = ["a", "e", "i", "o", "u"];
 
   if (vowels.includes(word.substr(0, 1))) {
     return "an";
@@ -16,7 +16,7 @@ export function article(word) {
   }
 }
 
-export function arrayToPhrase(words) {
+export function arrayToPhrase(words: string[]) {
   if (words.length === 1) {
     return words[0];
   } else if (words.length === 2) {
@@ -41,15 +41,15 @@ export function arrayToPhrase(words) {
   return phrase;
 }
 
-export function capitalize(word) {
+export function capitalize(word: string) {
   return word[0].toUpperCase() + word.slice(1);
 }
 
-export function uncapitalize(word) {
+export function uncapitalize(word: string) {
   return word[0].toLowerCase() + word.slice(1);
 }
 
-export function genderNoun(gender, ageGroupName) {
+export function genderNoun(gender: string, ageGroupName: string) {
   let noun = "";
 
   if (gender === "female") {
@@ -73,7 +73,7 @@ export function genderNoun(gender, ageGroupName) {
   return noun;
 }
 
-export function pronoun(gender, wordCase) {
+export function pronoun(gender: string, wordCase: string) {
   let pronoun = "";
 
   if (gender === "female") {
@@ -97,8 +97,8 @@ export function pronoun(gender, wordCase) {
   return pronoun;
 }
 
-export function removeEntry(word, words) {
-  let newWords = [];
+export function removeEntry(word: string, words: string[]) {
+  const newWords = [];
 
   for (let i = 0; i < words.length; i++) {
     if (words[i] != word) {
@@ -109,10 +109,10 @@ export function removeEntry(word, words) {
   return newWords;
 }
 
-export function romanize(num) {
+export function romanize(num: number) {
   if (isNaN(num)) return NaN;
-  var digits = String(+num).split(""),
-    key = [
+  const digits = String(+num).split("");
+  const key = [
       "",
       "C",
       "CC",
@@ -143,9 +143,16 @@ export function romanize(num) {
       "VII",
       "VIII",
       "IX",
-    ],
-    roman = "",
-    i = 3;
-  while (i--) roman = (key[+digits.pop() + i * 10] || "") + roman;
+    ];
+  let roman = "";
+  let i = 3;
+  while (i--) {
+    if (digits.length > 0) {
+      const digit = digits.pop();
+      if (typeof(digit) == 'string') {
+        roman = (key[+digit + i * 10] || "") + roman;
+      }
+    }
+  }
   return Array(+digits.join("") + 1).join("M") + roman;
 }

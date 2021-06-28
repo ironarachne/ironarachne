@@ -156,12 +156,12 @@ export function getAllAppearanceTraits() {
 }
 
 export function getAllAppearanceTraitsForRealmConcept(concept: Concept) {
-  let all = getAllAppearanceTraits();
+  const all = getAllAppearanceTraits();
 
-  let result: string[] = [];
+  let result: AppearanceTrait.AppearanceTrait[] = [];
 
   for (let i = 0; i < concept.appearanceTags.length; i++) {
-    let discovered = AppearanceTrait.getAllTraitsWithTag(all, concept.appearanceTags[i]);
+    const discovered = AppearanceTrait.getAllTraitsWithTag(all, concept.appearanceTags[i]);
 
     result = [...result, ...discovered];
   }

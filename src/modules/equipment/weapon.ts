@@ -45,38 +45,38 @@ export class WeaponEffect {
 
 export function generate(category: string, theme: string) {
   if (theme == "any") {
-    let domains = Domain.getAllDomainNames();
+    const domains = Domain.getAllDomainNames();
     theme = RND.item(domains);
   }
 
   if (category == "any") {
-    let categories = getAllWeaponCategories();
+    const categories = getAllWeaponCategories();
     category = RND.item(categories);
   }
 
-  let all = getAllDescriptors();
+  const all = getAllDescriptors();
 
-  let types = getWeaponTypesOfCategory(category);
+  const types = getWeaponTypesOfCategory(category);
 
-  let weaponType = RND.item(types);
+  const weaponType = RND.item(types);
 
-  let materialSet = Material.getRandomMaterialSetForCategory(category);
-  let bodyMaterial = Material.getRandomMaterialForCategory(materialSet.body);
-  let headMaterial = Material.getRandomMaterialForCategory(materialSet.head);
-  let ornamentationMaterial = Material.getRandomMaterialForCategory(materialSet.ornamentation);
+  const materialSet = Material.getRandomMaterialSetForCategory(category);
+  const bodyMaterial = Material.getRandomMaterialForCategory(materialSet.body);
+  const headMaterial = Material.getRandomMaterialForCategory(materialSet.head);
+  const ornamentationMaterial = Material.getRandomMaterialForCategory(materialSet.ornamentation);
 
   let descriptors = Descriptor.getDescriptorsMatchingType(all, category);
 
   descriptors = Descriptor.getDescriptorsMatchingTag(descriptors, theme);
 
-  let effects = getAllEffectsForTheme(theme);
-  let effect = RND.item(effects);
+  const effects = getAllEffectsForTheme(theme);
+  const effect = RND.item(effects);
 
-  let descriptor = RND.item(descriptors);
+  const descriptor = RND.item(descriptors);
   let descriptorDescription = descriptor.description.replace("{head}", headMaterial.name);
   descriptorDescription = descriptorDescription.replace("{ornamentation}", ornamentationMaterial.name);
 
-  let name = Name.generate();
+  const name = Name.generate();
 
   let description = Words.article(bodyMaterial.name) + ` ${bodyMaterial.name} ${weaponType.name} `;
   description += descriptorDescription;
@@ -85,27 +85,27 @@ export function generate(category: string, theme: string) {
 }
 
 export function checkForMissingMatches() {
-  let allDomains = Domain.getAllDomainNames();
-  let domainsMissingEffects = [];
-  let domainsMissingDescriptors = [];
-  let domainsMissingWeaponDescriptors = [];
+  const allDomains = Domain.getAllDomainNames();
+  const domainsMissingEffects = [];
+  const domainsMissingDescriptors = [];
+  const domainsMissingWeaponDescriptors = [];
 
-  let descriptors = getAllDescriptors();
+  const descriptors = getAllDescriptors();
 
-  let allWeaponCategories = getAllWeaponCategories();
+  const allWeaponCategories = getAllWeaponCategories();
 
   for (let i = 0; i < allDomains.length; i++) {
-    let countEffects = getAllEffectsForTheme(allDomains[i]);
+    const countEffects = getAllEffectsForTheme(allDomains[i]);
     if (countEffects.length == 0) {
       domainsMissingEffects.push(allDomains[i]);
     }
-    let countDescriptors = Descriptor.getDescriptorsMatchingTag(descriptors, allDomains[i]);
+    const countDescriptors = Descriptor.getDescriptorsMatchingTag(descriptors, allDomains[i]);
     if (countDescriptors.length == 0) {
       domainsMissingDescriptors.push(allDomains[i]);
     }
     for (let j = 0; j < allWeaponCategories.length; j++) {
-      let weaponDescriptors = Descriptor.getDescriptorsMatchingType(descriptors, allWeaponCategories[j]);
-      let domainWeaponDescriptors = Descriptor.getDescriptorsMatchingTag(weaponDescriptors, allDomains[i]);
+      const weaponDescriptors = Descriptor.getDescriptorsMatchingType(descriptors, allWeaponCategories[j]);
+      const domainWeaponDescriptors = Descriptor.getDescriptorsMatchingTag(weaponDescriptors, allDomains[i]);
       if (domainWeaponDescriptors.length == 0) {
         domainsMissingWeaponDescriptors.push(allDomains[i] + " for " + allWeaponCategories[j]);
       }
@@ -120,16 +120,16 @@ export function checkForMissingMatches() {
 }
 
 function getAllDescriptors() {
-  let bladed = ["sword", "axe", "knife", "dagger", "scythe"];
-  let hilted = ["sword", "dagger"];
-  let shafted = ["staff", "spear", "polearm"];
-  let blunt = ["hammer", "mace", "club"];
-  let blunthead = ["hammer", "mace"];
-  let woodbodied = ["staff", "bow", "crossbow", "club", "spear", "polearm", "scythe", "mace", "hammer"];
-  let staff = ["staff"];
-  let whip = ["whip"];
+  const bladed = ["sword", "axe", "knife", "dagger", "scythe"];
+  const hilted = ["sword", "dagger"];
+  const shafted = ["staff", "spear", "polearm"];
+  const blunt = ["hammer", "mace", "club"];
+  const blunthead = ["hammer", "mace"];
+  const woodbodied = ["staff", "bow", "crossbow", "club", "spear", "polearm", "scythe", "mace", "hammer"];
+  const staff = ["staff"];
+  const whip = ["whip"];
 
-  let descriptors = [
+  const descriptors = [
     new Descriptor.Descriptor("topped with a {head} wing", staff, ["air", "wing", "bird"]),
     new Descriptor.Descriptor("topped with a cluster of carved {head} wings", staff, ["air", "wing", "bird"]),
     new Descriptor.Descriptor("carved with sunrises in relief", blunt, ["air", "the sun", "dawn", "good"]),
@@ -203,7 +203,7 @@ function getAllDescriptors() {
     new Descriptor.Descriptor("engraved with an open eye", bladed, ["wisdom"]),
   ];
 
-  let pairings = [
+  const pairings = [
     {
       method: "carved with",
       objects: woodbodied,
@@ -238,12 +238,12 @@ function getAllDescriptors() {
     },
   ];
 
-  let allDomains = Domain.all();
+  const allDomains = Domain.all();
 
   for (let i = 0; i < allDomains.length; i++) {
     for (let j = 0; j < pairings.length; j++) {
       for (let k = 0; k < allDomains[i].holySymbols.length; k++) {
-        let descriptor = new Descriptor.Descriptor(pairings[j].method + " " + Words.article(allDomains[i].holySymbols[k]) + " " + allDomains[i].holySymbols[k], pairings[j].objects, [allDomains[i].name]);
+        const descriptor = new Descriptor.Descriptor(pairings[j].method + " " + Words.article(allDomains[i].holySymbols[k]) + " " + allDomains[i].holySymbols[k], pairings[j].objects, [allDomains[i].name]);
         descriptors.push(descriptor);
       }
     }
@@ -253,15 +253,15 @@ function getAllDescriptors() {
 }
 
 function getAllEffectsForTheme(theme: string) {
-  let domainDetails = Domain.getSpecificDomain(theme);
+  const domainDetails = Domain.getSpecificDomain(theme);
 
-  return [].concat(domainDetails.weaponEffects, domainDetails.otherEffects);
+  return domainDetails.weaponEffects.concat(domainDetails.otherEffects);
 }
 
 export function getAllWeaponCategories() {
-  let allTypes = getAllWeaponTypes();
+  const allTypes = getAllWeaponTypes();
 
-  let result: string[] = [];
+  const result: string[] = [];
 
   for (let i = 0; i < allTypes.length; i++) {
     if (!result.includes(allTypes[i].category)) {
@@ -319,9 +319,9 @@ function getAllWeaponTypes() {
 }
 
 function getWeaponTypesOfCategory(category: string) {
-  let all = getAllWeaponTypes();
+  const all = getAllWeaponTypes();
 
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].category == category) {

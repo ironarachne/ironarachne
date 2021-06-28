@@ -4,7 +4,13 @@ import * as RND from "../random";
 import * as Words from "../words";
 
 export class Organization {
-  constructor(dominantGender, powerConcentration, socialMobility, dominantProfession) {
+  dominantGender: string;
+  powerConcentration: string;
+  socialMobility: string;
+  dominantProfession: string;
+  description: string;
+
+  constructor(dominantGender: string, powerConcentration: string, socialMobility: string, dominantProfession: string) {
     this.dominantGender = dominantGender;
     this.powerConcentration = powerConcentration;
     this.socialMobility = socialMobility;
@@ -13,7 +19,7 @@ export class Organization {
   }
 }
 
-export function describe(organization) {
+export function describe(organization: Organization) {
   let description = `In this culture, ${organization.powerConcentration}. `;
 
   description += Words.capitalize(organization.dominantProfession) + " are most highly regarded. ";
@@ -26,7 +32,7 @@ export function describe(organization) {
 }
 
 export function generate() {
-  let organization = new Organization(
+  const organization = new Organization(
     randomDominantGender(),
     randomPowerConcentration(),
     randomSocialMobility(),

@@ -15,6 +15,7 @@ export class Star {
   mass: number; // in 10^30 kg
   temperature: number; // in K
   luminosity: number; // in 10^26 W
+  svg: string;
 
   constructor() {
     this.name = "";
@@ -25,6 +26,7 @@ export class Star {
     this.mass = 0;
     this.temperature = 0;
     this.luminosity = 0;
+    this.svg = "";
   }
 }
 
@@ -93,9 +95,9 @@ export function randomWeightedClassification() {
 }
 
 export function generate() {
-  let classification = randomWeightedClassification();
+  const classification = randomWeightedClassification();
 
-  let star = new Star();
+  const star = new Star();
 
   star.classification = classification.name;
   star.radius = random.float(classification.radius_min, classification.radius_max) * 695508;
@@ -104,7 +106,7 @@ export function generate() {
   star.luminosity = random.float(classification.luminosity_min, classification.luminosity_max) * 3.828;
   star.color = getColorFromTemperature(star.temperature);
 
-  let article = Words.article(star.color);
+  const article = Words.article(star.color);
   star.description = `This is ${article} ${star.color} ${star.classification} star.`;
   star.name = StarNames.generate();
 

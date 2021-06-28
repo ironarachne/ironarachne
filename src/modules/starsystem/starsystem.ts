@@ -8,18 +8,27 @@ import * as PlanetRenderer from "../renderers/planets/planet-svg";
 
 const random = require("random");
 
+export class StarSystem {
+  name: string;
+  description: string;
+  stars: Star.Star[];
+  planets: Planet.Planet[];
+
+  constructor() {
+    this.name = "";
+    this.description = "";
+    this.stars = [];
+    this.planets = [];
+  }
+}
+
 export function generate() {
-  let starsystem = {
-    name: "",
-    description: "",
-    stars: [],
-    planets: [],
-  };
+  const starsystem = new StarSystem();
 
-  let graphicWidth = 128;
-  let graphicHeight = 128;
+  const graphicWidth = 128;
+  const graphicHeight = 128;
 
-  let star = Star.generate();
+  const star = Star.generate();
 
   star.svg = StarSystemRenderer.renderStar(
     graphicWidth,
@@ -32,10 +41,10 @@ export function generate() {
 
   starsystem.stars.push(star);
 
-  let numberOfPlanets = random.int(3, 12);
+  const numberOfPlanets = random.int(3, 12);
 
   for (let i = 0; i < numberOfPlanets; i++) {
-    let planet = Planet.generate("random");
+    const planet = Planet.generate("random");
     planet.svg = PlanetRenderer.render(graphicWidth, graphicHeight, planet);
     starsystem.planets.push(planet);
   }
@@ -59,7 +68,7 @@ export function generate() {
   starsystem.description =
     `The ${starsystem.name} system has ${numberOfPlanets} planets`;
 
-  let asteroidBeltChance = random.int(1, 100);
+  const asteroidBeltChance = random.int(1, 100);
 
   if (asteroidBeltChance > 70) {
     starsystem.description += " and an asteroid belt.";

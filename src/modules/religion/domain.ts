@@ -631,9 +631,9 @@ export function all() {
 }
 
 export function getAllDomainNames() {
-  let allDomains = all();
+  const allDomains = all();
 
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < allDomains.length; i++) {
     result.push(allDomains[i].name);
@@ -643,7 +643,7 @@ export function getAllDomainNames() {
 }
 
 export function getSpecificDomain(name: string) {
-  let allDomains = all();
+  const allDomains = all();
 
   for (let i = 0; i < allDomains.length; i++) {
     if (allDomains[i].name == name) {
@@ -652,5 +652,5 @@ export function getSpecificDomain(name: string) {
   }
 
   console.log("failed to find domain name: " + name);
-  return null;
+  return allDomains[0];
 }

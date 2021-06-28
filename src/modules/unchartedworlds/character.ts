@@ -5,7 +5,7 @@ import * as Words from "../words";
 import * as Text from "../textformat";
 
 export class UWCharacter {
-  descriptors: string[];
+  descriptors: string;
   stats: StatBlock;
   careers: Career[];
   origin: Origin;
@@ -18,7 +18,7 @@ export class UWCharacter {
     this.stats = stats;
     this.careers = careers;
     this.origin = origin;
-    this.descriptors = [];
+    this.descriptors = "";
     this.skills = [];
     this.workspace = workspace;
     this.advancement = "";
@@ -27,30 +27,30 @@ export class UWCharacter {
 }
 
 export function generate() {
-  let stats = randomStats();
-  let careers = randomCareers();
-  let origin = randomOrigin();
-  let workspaceOptions = careers[0].workspaces.concat(
+  const stats = randomStats();
+  const careers = randomCareers();
+  const origin = randomOrigin();
+  const workspaceOptions = careers[0].workspaces.concat(
     careers[1].workspaces
   );
 
-  let workspace = RND.item(workspaceOptions);
+  const workspace = RND.item(workspaceOptions);
 
-  let character = new UWCharacter(
+  const character = new UWCharacter(
     stats,
     careers,
     origin,
     workspace
   )
 
-  let descriptors = [];
+  const descriptors = [];
   descriptors.push(RND.item(character.careers[0].descriptors));
   descriptors.push(RND.item(character.careers[1].descriptors));
   descriptors.push(RND.item(character.origin.descriptors));
 
   character.descriptors = Words.arrayToPhrase(descriptors);
 
-  let skills = [];
+  const skills = [];
   let careerSkills = character.careers[0].skills.concat(
     character.careers[1].skills
   );
@@ -58,17 +58,17 @@ export function generate() {
   careerSkills = RND.shuffle(careerSkills);
 
   for (let i = 0; i < 3; i++) {
-    let newSkill = careerSkills.pop();
+    const newSkill = careerSkills.pop();
     skills.push(newSkill);
   }
 
-  let originSkills = RND.shuffle(character.origin.skills);
+  const originSkills = RND.shuffle(character.origin.skills);
 
   skills.push(originSkills.pop());
 
   character.skills = skills;
 
-  let advancements = character.careers[0].advancements.concat(
+  const advancements = character.careers[0].advancements.concat(
     character.careers[1].advancements
   );
 
@@ -77,24 +77,24 @@ export function generate() {
   character.assets = randomAssets();
 
   if (skillsInclude("Custom Flyer", character.skills)) {
-    let customFlyer = randomAssetOfType("Flyer", 3);
+    const customFlyer = randomAssetOfType("Flyer", 3);
     character.assets.push(customFlyer);
   }
 
   if (skillsInclude("Custom Vehicle", character.skills)) {
-    let customVehicle = randomAssetOfType("Land Vehicle", 3);
+    const customVehicle = randomAssetOfType("Land Vehicle", 3);
     character.assets.push(customVehicle);
   }
 
   if (skillsInclude("Leadership", character.skills)) {
-    let crew = randomAssetOfType("Crew", 3);
+    const crew = randomAssetOfType("Crew", 3);
     character.assets.push(crew);
   }
 
   if (skillsInclude("Unique Weapon", character.skills)) {
-    let weaponType = RND.item(["Firearm", "Heavy Weapon"]);
+    const weaponType = RND.item(["Firearm", "Heavy Weapon"]);
 
-    let uniqueWeapon = randomAssetOfType(weaponType, 3);
+    const uniqueWeapon = randomAssetOfType(weaponType, 3);
     character.assets.push(uniqueWeapon);
   }
 
@@ -899,12 +899,12 @@ function allAssets() {
 }
 
 function randomAssets() {
-  let assets = [];
+  const assets = [];
 
-  let attireAsset = randomAssetOfType("Attire", 0);
-  let asset1 = randomAsset(1);
-  let asset2 = randomAsset(1);
-  let asset3 = randomAsset(2);
+  const attireAsset = randomAssetOfType("Attire", 0);
+  const asset1 = randomAsset(1);
+  const asset2 = randomAsset(1);
+  const asset3 = randomAsset(2);
 
   assets.push(attireAsset);
   assets.push(asset1);
@@ -915,10 +915,10 @@ function randomAssets() {
 }
 
 function randomAsset(assetClass: number) {
-  let all = allAssets();
+  const all = allAssets();
 
-  let assetTemplate = RND.item(all);
-  let upgrades = [];
+  const assetTemplate = RND.item(all);
+  const upgrades = [];
 
   let possibleUpgrades = [];
   let description = "";
@@ -939,7 +939,7 @@ function randomAsset(assetClass: number) {
 
   if (possibleUpgrades.length > 0) {
     for (let i = 0; i < assetClass + extraUpgrades; i++) {
-      let upgrade = possibleUpgrades.pop();
+      const upgrade = possibleUpgrades.pop();
       upgrades.push(upgrade);
     }
   }
@@ -967,9 +967,9 @@ function randomAsset(assetClass: number) {
 }
 
 function randomAssetOfType(assetTypeName: string, assetClass: number) {
-  let all = allAssets();
+  const all = allAssets();
 
-  let options = [];
+  const options = [];
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].name === assetTypeName) {
@@ -977,8 +977,8 @@ function randomAssetOfType(assetTypeName: string, assetClass: number) {
     }
   }
 
-  let assetTemplate = RND.item(options);
-  let upgrades = [];
+  const assetTemplate = RND.item(options);
+  const upgrades = [];
 
   let description = "";
   let extraUpgrades = 0;
@@ -992,10 +992,10 @@ function randomAssetOfType(assetTypeName: string, assetClass: number) {
     }
   }
 
-  let possibleUpgrades = RND.shuffle(assetTemplate.upgrades);
+  const possibleUpgrades = RND.shuffle(assetTemplate.upgrades);
 
   for (let i = 0; i < assetClass + extraUpgrades; i++) {
-    let upgrade = possibleUpgrades.pop();
+    const upgrade = possibleUpgrades.pop();
     upgrades.push(upgrade);
   }
 
@@ -1549,10 +1549,10 @@ function randomCareers() {
 
   careers = RND.shuffle(careers);
 
-  let careerOne = careers.pop();
-  let careerTwo = careers.pop();
+  const careerOne = careers.pop();
+  const careerTwo = careers.pop();
 
-  let result = [];
+  const result = [];
 
   if (typeof (careerOne) === 'object') {
     result.push(careerOne);
@@ -1578,7 +1578,7 @@ export class Origin {
 }
 
 function randomOrigin() {
-  let origins = [
+  const origins = [
     new Origin(
       "Advanced",
       [
@@ -1878,7 +1878,7 @@ export class StatBlock {
 function randomStats() {
   let stats = [2, 1, 1, 0, -1];
 
-  let statBlock = new StatBlock();
+  const statBlock = new StatBlock();
 
   stats = RND.shuffle(stats);
 
@@ -1924,7 +1924,7 @@ export function formatAsText(character: UWCharacter) {
 
   description += Text.header("Careers");
 
-  let careers = [];
+  const careers = [];
 
   for (let i = 0; i < character.careers.length; i++) {
     careers.push(character.careers[i].name);

@@ -3,363 +3,314 @@
 import {create} from "xmlbuilder2";
 import axios from "axios";
 import * as RND from "../random";
+import {Charge} from "@/modules/heraldry/charge";
 
 export function all() {
   return [
-    {
-      name: "antelope passant",
-      plural: "antelopes passant",
-      fileName: "antelope-passant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "antelope rampant",
-      plural: "antelopes rampant",
-      fileName: "antelope-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "bat volant",
-      plural: "bats volant",
-      fileName: "bat-volant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "battleaxe",
-      plural: "battleaxes",
-      fileName: "battleaxe.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "bear head couped",
-      plural: "bear heads couped",
-      fileName: "bear-head-couped.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "bear rampant",
-      plural: "bears rampant",
-      fileName: "bear-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "bear statant",
-      plural: "bears statant",
-      fileName: "bear-statant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "bee volant",
-      plural: "bees volant",
-      fileName: "bee-volant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "bell",
-      plural: "bells",
-      fileName: "bell.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "boar head erased",
-      plural: "boar heads erased",
-      fileName: "boar-head-erased.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "boar passant",
-      plural: "boars passant",
-      fileName: "boar-passant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "boar rampant",
-      plural: "boars rampant",
-      fileName: "boar-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "castle",
-      plural: "castles",
-      fileName: "castle.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "cock",
-      plural: "cocks",
-      fileName: "cock.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "cockatrice",
-      plural: "cockatrices",
-      fileName: "cockatrice.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "dolphin hauriant",
-      plural: "dolphins hauriant",
-      fileName: "dolphin-hauriant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "double-headed eagle displayed",
-      plural: "double-headed eagles displayed",
-      fileName: "double-headed-eagle-displayed.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "dragon rampant",
-      plural: "dragons rampant",
-      fileName: "dragon-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "eagle's head erased",
-      plural: "eagle's heads erased",
-      fileName: "eagles-head-erased.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "fox sejant",
-      plural: "foxes sejant",
-      fileName: "fox-sejant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "gryphon segreant",
-      plural: "gryphons segreant",
-      fileName: "gryphon-segreant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "hare salient",
-      plural: "hares salient",
-      fileName: "hare-salient.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "hare",
-      plural: "hares",
-      fileName: "hare.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "heron",
-      plural: "herons",
-      fileName: "heron.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "horse passant",
-      plural: "horses passant",
-      fileName: "horse-passant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "horse rampant",
-      plural: "horses rampant",
-      fileName: "horse-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "leopard passant",
-      plural: "leopards passant",
-      fileName: "leopard-passant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "lion passant",
-      plural: "lions passant",
-      fileName: "lion-passant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "lion rampant",
-      plural: "lions rampant",
-      fileName: "lion-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "lion's head erased",
-      plural: "lion's heads erased",
-      fileName: "lions-head-erased.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "owl",
-      plural: "owls",
-      fileName: "owl.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "pegasus passant",
-      plural: "pegasuses passant",
-      fileName: "pegasus-passant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "pegasus rampant",
-      plural: "pegasuses rampant",
-      fileName: "pegasus-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "ram rampant",
-      plural: "rams rampant",
-      fileName: "ram-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "ram statant",
-      plural: "rams statant",
-      fileName: "ram-statant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "rose",
-      plural: "roses",
-      fileName: "rose.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "sea horse",
-      plural: "sea horses",
-      fileName: "sea-horse.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "squirrel",
-      plural: "squirrels",
-      fileName: "squirrel.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "stag lodged",
-      plural: "stags lodged",
-      fileName: "stag-lodged.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "stag statant",
-      plural: "stags statant",
-      fileName: "stag-statant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "sun in splendor",
-      plural: "suns in splendor",
-      fileName: "sun-in-splendor.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "tiger passant",
-      plural: "tigers passant",
-      fileName: "tiger-passant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "tiger rampant",
-      plural: "tigers rampant",
-      fileName: "tiger-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "tower",
-      plural: "towers",
-      fileName: "tower.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "two axes in saltire",
-      plural: "axes in saltire",
-      fileName: "two-axes-in-saltire.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "two bones in saltire",
-      plural: "bones in saltire",
-      fileName: "two-bones-in-saltire.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "unicorn statant",
-      plural: "unicorns statant",
-      fileName: "unicorn-statant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "wolf passant",
-      plural: "wolves passant",
-      fileName: "wolf-passant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "wolf rampant",
-      plural: "wolves rampant",
-      fileName: "wolf-rampant.svg",
-      type: "regular",
-      svg: "",
-    },
-    {
-      name: "wyvern",
-      plural: "wyverns",
-      fileName: "wyvern.svg",
-      type: "regular",
-      svg: "",
-    },
+    new Charge(
+      "antelope passant",
+      "antelopes passant",
+      "antelope-passant.svg",
+      "regular"
+    ),
+    new Charge(
+      "antelope rampant",
+      "antelopes rampant",
+      "antelope-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "bat volant",
+      "bats volant",
+      "bat-volant.svg",
+      "regular"
+    ),
+    new Charge(
+      "battleaxe",
+      "battleaxes",
+      "battleaxe.svg",
+      "regular"
+    ),
+    new Charge(
+      "bear head couped",
+      "bear heads couped",
+      "bear-head-couped.svg",
+      "regular"
+    ),
+    new Charge(
+      "bear rampant",
+      "bears rampant",
+      "bear-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "bear statant",
+      "bears statant",
+      "bear-statant.svg",
+      "regular"
+    ),
+    new Charge(
+      "bee volant",
+      "bees volant",
+      "bee-volant.svg",
+      "regular"
+    ),
+    new Charge(
+      "bell",
+      "bells",
+      "bell.svg",
+      "regular"
+    ),
+    new Charge(
+      "boar head erased",
+      "boar heads erased",
+      "boar-head-erased.svg",
+      "regular"
+    ),
+    new Charge(
+      "boar passant",
+      "boars passant",
+      "boar-passant.svg",
+      "regular"
+    ),
+    new Charge(
+      "boar rampant",
+      "boars rampant",
+      "boar-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "castle",
+      "castles",
+      "castle.svg",
+      "regular"
+    ),
+    new Charge(
+      "cock",
+      "cocks",
+      "cock.svg",
+      "regular"
+    ),
+    new Charge(
+      "cockatrice",
+      "cockatrices",
+      "cockatrice.svg",
+      "regular"
+    ),
+    new Charge(
+      "dolphin hauriant",
+      "dolphins hauriant",
+      "dolphin-hauriant.svg",
+      "regular"
+    ),
+    new Charge(
+      "double-headed eagle displayed",
+      "double-headed eagles displayed",
+      "double-headed-eagle-displayed.svg",
+      "regular"
+    ),
+    new Charge(
+      "dragon rampant",
+      "dragons rampant",
+      "dragon-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "eagle's head erased",
+      "eagle's heads erased",
+      "eagles-head-erased.svg",
+      "regular"
+    ),
+    new Charge(
+      "fox sejant",
+      "foxes sejant",
+      "fox-sejant.svg",
+      "regular"
+    ),
+    new Charge(
+      "gryphon segreant",
+      "gryphons segreant",
+      "gryphon-segreant.svg",
+      "regular"
+    ),
+    new Charge(
+      "hare salient",
+      "hares salient",
+      "hare-salient.svg",
+      "regular"
+    ),
+    new Charge(
+      "hare",
+      "hares",
+      "hare.svg",
+      "regular"
+    ),
+    new Charge(
+      "heron",
+      "herons",
+      "heron.svg",
+      "regular"
+    ),
+    new Charge(
+      "horse passant",
+      "horses passant",
+      "horse-passant.svg",
+      "regular"
+    ),
+    new Charge(
+      "horse rampant",
+      "horses rampant",
+      "horse-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "leopard passant",
+      "leopards passant",
+      "leopard-passant.svg",
+      "regular"
+    ),
+    new Charge(
+      "lion passant",
+      "lions passant",
+      "lion-passant.svg",
+      "regular"
+    ),
+    new Charge(
+      "lion rampant",
+      "lions rampant",
+      "lion-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "lion's head erased",
+      "lion's heads erased",
+      "lions-head-erased.svg",
+      "regular"
+    ),
+    new Charge(
+      "owl",
+      "owls",
+      "owl.svg",
+      "regular"
+    ),
+    new Charge(
+      "pegasus passant",
+      "pegasuses passant",
+      "pegasus-passant.svg",
+      "regular"
+    ),
+    new Charge(
+      "pegasus rampant",
+      "pegasuses rampant",
+      "pegasus-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "ram rampant",
+      "rams rampant",
+      "ram-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "ram statant",
+      "rams statant",
+      "ram-statant.svg",
+      "regular"
+    ),
+    new Charge(
+      "rose",
+      "roses",
+      "rose.svg",
+      "regular"
+    ),
+    new Charge(
+      "sea horse",
+      "sea horses",
+      "sea-horse.svg",
+      "regular"
+    ),
+    new Charge(
+      "squirrel",
+      "squirrels",
+      "squirrel.svg",
+      "regular"
+    ),
+    new Charge(
+      "stag lodged",
+      "stags lodged",
+      "stag-lodged.svg",
+      "regular"
+    ),
+    new Charge(
+      "stag statant",
+      "stags statant",
+      "stag-statant.svg",
+      "regular"
+    ),
+    new Charge(
+      "sun in splendor",
+      "suns in splendor",
+      "sun-in-splendor.svg",
+      "regular"
+    ),
+    new Charge(
+      "tiger passant",
+      "tigers passant",
+      "tiger-passant.svg",
+      "regular"
+    ),
+    new Charge(
+      "tiger rampant",
+      "tigers rampant",
+      "tiger-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "tower",
+      "towers",
+      "tower.svg",
+      "regular"
+    ),
+    new Charge(
+      "two axes in saltire",
+      "axes in saltire",
+      "two-axes-in-saltire.svg",
+      "regular"
+    ),
+    new Charge(
+      "two bones in saltire",
+      "bones in saltire",
+      "two-bones-in-saltire.svg",
+      "regular"
+    ),
+    new Charge(
+      "unicorn statant",
+      "unicorns statant",
+      "unicorn-statant.svg",
+      "regular"
+    ),
+    new Charge(
+      "wolf passant",
+      "wolves passant",
+      "wolf-passant.svg",
+      "regular"
+    ),
+    new Charge(
+      "wolf rampant",
+      "wolves rampant",
+      "wolf-rampant.svg",
+      "regular"
+    ),
+    new Charge(
+      "wyvern",
+      "wyverns",
+      "wyvern.svg",
+      "regular"
+    ),
   ];
 }
 
-export function load(fileName) {
+export function load(fileName: string) {
   return axios
     .get("/images/heraldry/charges/" + fileName)
     .then(function (response) {
@@ -367,6 +318,6 @@ export function load(fileName) {
     });
 }
 
-export function random(charges) {
+export function random(charges: Charge[]) {
   return RND.item(charges);
 }

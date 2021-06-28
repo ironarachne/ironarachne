@@ -32,17 +32,17 @@ export class Heraldry {
 }
 
 export function generate(charges: Charge.Charge[], width: number, height: number) {
-  let f = Field.random();
+  const f = Field.random();
 
-  let variations = [];
+  const variations = [];
 
   let oldT = Tincture.randomWeighted();
 
   for (let i = 0; i < f.variationCount; i++) {
-    let v = Variation.randomWeighted();
+    const v = Variation.randomWeighted();
     v.tinctures = [];
     for (let j = 0; j < v.tinctureCount; j++) {
-      let t = Tincture.randomWeightedExcluding(oldT);
+      const t = Tincture.randomWeightedExcluding(oldT);
       v.tinctures.push(t);
       oldT = t;
     }
@@ -53,13 +53,13 @@ export function generate(charges: Charge.Charge[], width: number, height: number
 
   let blazon = Field.renderBlazon(f);
 
-  let charge = Charges.random(charges);
+  const charge = Charges.random(charges);
 
-  let numberOfCharges = randomNumberOfCharges();
+  const numberOfCharges = randomNumberOfCharges();
 
-  let chargePosition = "center";
+  const chargePosition = "center";
 
-  let chargeTincture = Tincture.randomContrasting(variations[0].tinctures[0]);
+  const chargeTincture = Tincture.randomContrasting(variations[0].tinctures[0]);
 
   if (numberOfCharges === 1) {
     blazon +=
@@ -75,17 +75,17 @@ export function generate(charges: Charge.Charge[], width: number, height: number
     blazon += ", three " + charge.plural + " " + chargeTincture.name;
   }
 
-  let heraldry = {
-    field: f,
-    blazon: blazon,
-    variations: variations,
-    chargeTincture: chargeTincture,
-    charge: charge,
-    numberOfCharges: numberOfCharges,
-    chargePosition: chargePosition,
-  };
+  const heraldry = new Heraldry(
+    f,
+    blazon,
+    variations,
+    chargeTincture,
+    charge,
+    numberOfCharges,
+    chargePosition,
+  );
 
-  let svg = renderSVG(heraldry, width, height);
+  const svg = renderSVG(heraldry, width, height);
 
   return {
     blazon: blazon,
@@ -94,11 +94,11 @@ export function generate(charges: Charge.Charge[], width: number, height: number
 }
 
 export async function loadCharges() {
-  let charges = Charges.all();
-  let hydratedCharges = [];
+  const charges = Charges.all();
+  const hydratedCharges = [];
 
   for await (const chargeData of charges) {
-    let charge = new Charge.Charge(chargeData.name, chargeData.plural, chargeData.fileName, chargeData.type);
+    const charge = new Charge.Charge(chargeData.name, chargeData.pluralName, chargeData.fileName, chargeData.chargeType);
     charge.SVG = await charge.loadSVG();
     hydratedCharges.push(charge);
   }
@@ -107,13 +107,13 @@ export async function loadCharges() {
 }
 
 export function randomNumberOfCharges() {
-  let weights = [
+  const weights = [
     {item: 1, weight: 50},
     {item: 2, weight: 5},
     {item: 3, weight: 3},
   ];
 
-  let result = RND.weighted(weights);
+  const result = RND.weighted(weights);
 
   return result.item;
 }
@@ -122,10 +122,10 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
   const shieldWidth = 600;
   const shieldHeight = 660;
 
-  let shieldSVG =
+  const shieldSVG =
     "<path fill=\"url(#Division)\" stroke=\"#000000\" stroke-width=\"3\" d=\"M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z\"/>";
 
-  let armsSVG =
+  const armsSVG =
     "<svg width=\"" + width + "\" height=\"" + height + "\" viewBox=\"0 0 " + shieldWidth + " " + shieldHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
   let defsSVG = "<defs>";
 
@@ -151,10 +151,10 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
     heraldry.chargeTincture.hexColor
   );
 
-  let chargeObject = create(chargeSVGString).toObject();
+  const chargeObject = create(chargeSVGString).toObject();
 
-  let chargeWidth = chargeObject.svg["@width"];
-  let chargeHeight = chargeObject.svg["@height"];
+  const chargeWidth = chargeObject.svg["@width"];
+  const chargeHeight = chargeObject.svg["@height"];
 
   // Begin number-of-charges logic
 
@@ -166,8 +166,8 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
     sizeAdjustment = 0.3;
   }
 
-  let maxHeight = shieldHeight * sizeAdjustment;
-  let maxWidth = shieldWidth * sizeAdjustment;
+  const maxHeight = shieldHeight * sizeAdjustment;
+  const maxWidth = shieldWidth * sizeAdjustment;
 
   let scaleAmount = 0;
 
@@ -180,23 +180,23 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
   let chargeGroup = "";
 
   if (heraldry.numberOfCharges === 1) {
-    let xMove = (shieldWidth - chargeWidth * scaleAmount) / 2;
-    let yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
+    const xMove = (shieldWidth - chargeWidth * scaleAmount) / 2;
+    const yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
 
     chargeObject.svg["@x"] = xMove / scaleAmount;
     chargeObject.svg["@y"] = yMove / scaleAmount;
 
-    let chargeSVG = create(chargeObject);
+    const chargeSVG = create(chargeObject);
 
-    let transform = "scale(" + scaleAmount + ")";
+    const transform = "scale(" + scaleAmount + ")";
 
     chargeGroup =
       "<g transform='" + transform + "'>" + chargeSVG.end() + "</g>";
   } else if (heraldry.numberOfCharges === 2) {
-    let chargeObject2 = _.cloneDeep(chargeObject);
+    const chargeObject2 = _.cloneDeep(chargeObject);
 
-    let xMove = (shieldWidth - (chargeWidth * 2 + 20) * scaleAmount) / 2;
-    let yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
+    const xMove = (shieldWidth - (chargeWidth * 2 + 20) * scaleAmount) / 2;
+    const yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
 
     chargeObject.svg["@x"] = xMove / scaleAmount;
     chargeObject.svg["@y"] = yMove / scaleAmount;
@@ -205,8 +205,8 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
       (xMove + chargeWidth * scaleAmount) / scaleAmount + 20;
     chargeObject2.svg["@y"] = yMove / scaleAmount;
 
-    let chargeSVG1 = create(chargeObject);
-    let chargeSVG2 = create(chargeObject2);
+    const chargeSVG1 = create(chargeObject);
+    const chargeSVG2 = create(chargeObject2);
 
     chargeGroup =
       "<g transform='scale(" +
@@ -216,11 +216,11 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
       chargeSVG2.end() +
       "</g>";
   } else if (heraldry.numberOfCharges === 3) {
-    let chargeObject2 = _.cloneDeep(chargeObject);
-    let chargeObject3 = _.cloneDeep(chargeObject);
+    const chargeObject2 = _.cloneDeep(chargeObject);
+    const chargeObject3 = _.cloneDeep(chargeObject);
 
-    let xMove = (shieldWidth - (chargeWidth * 2 + 50) * scaleAmount) / 2;
-    let yMove = (shieldHeight - (chargeHeight * 2 + 50) * scaleAmount) / 2;
+    const xMove = (shieldWidth - (chargeWidth * 2 + 50) * scaleAmount) / 2;
+    const yMove = (shieldHeight - (chargeHeight * 2 + 50) * scaleAmount) / 2;
 
     chargeObject.svg["@x"] = xMove / scaleAmount;
     chargeObject.svg["@y"] = yMove / scaleAmount;
@@ -234,9 +234,9 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
     chargeObject3.svg["@y"] =
       (yMove + chargeHeight * scaleAmount) / scaleAmount + 50;
 
-    let chargeSVG1 = create(chargeObject);
-    let chargeSVG2 = create(chargeObject2);
-    let chargeSVG3 = create(chargeObject3);
+    const chargeSVG1 = create(chargeObject);
+    const chargeSVG2 = create(chargeObject2);
+    const chargeSVG3 = create(chargeObject3);
 
     chargeGroup =
       "<g transform='scale(" +
