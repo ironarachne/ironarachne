@@ -4,14 +4,14 @@ import * as RND from "./random";
 import * as CommonNames from "./names/common";
 
 export function generate() {
-  let nation = {
+  const nation = {
     name: "",
     description: "",
   };
 
-  let nationType = randomType();
+  const nationType = randomType();
 
-  let name = RND.item(CommonNames.nations());
+  const name = RND.item(CommonNames.nations());
 
   nation.name = nationType.nameTemplate.replace("{name}", name);
 

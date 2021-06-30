@@ -12,9 +12,9 @@ import {AgeCategory} from "@/modules/age";
 const random = require("random");
 
 export function generate(species: Species, ageGroupName: string, gender: string, firstNames: string[], lastNames: string[]) {
-  let character = new Character(species);
+  const character = new Character(species);
 
-  let ageGroup = getAgeData(species, ageGroupName);
+  const ageGroup = getAgeData(species, ageGroupName);
 
   character.age = getRandomAge(ageGroup);
   character.ageGroupName = ageGroupName;
@@ -34,7 +34,7 @@ export function generate(species: Species, ageGroupName: string, gender: string,
 function describe(character: Character) {
   let description = "";
 
-  let subjectivePronoun = Words.pronoun(character.gender, "subjective");
+  const subjectivePronoun = Words.pronoun(character.gender, "subjective");
 
   description += character.firstName + " is " + Words.article(character.species.adjective) + " " + character.species.adjective;
   description += " " + Words.genderNoun(character.gender, character.ageGroupName) + " of " + character.age + " years. ";
@@ -75,17 +75,17 @@ export function getRandomHeight(ageGroup: AgeCategory, gender: string) {
 }
 
 export function getRandomPersonality(gender: string) {
-  let numberOfPositiveTraits = random.int(2, 3);
-  let numberOfNegativeTraits = random.int(1, 2);
+  const numberOfPositiveTraits = random.int(2, 3);
+  const numberOfNegativeTraits = random.int(1, 2);
 
   return PersonalityTraits.getRandomTraits(gender, numberOfNegativeTraits, numberOfPositiveTraits);
 }
 
 export function getRandomTraits(species: Species) {
-  let traits = [];
+  const traits = [];
 
   for (let i = 0; i < species.traits.length; i++) {
-    let newTrait = species.traits[i].descriptionTemplate.replace("{name}", RND.item(species.traits[i].options));
+    const newTrait = species.traits[i].descriptionTemplate.replace("{name}", RND.item(species.traits[i].options));
 
     traits.push(newTrait);
   }

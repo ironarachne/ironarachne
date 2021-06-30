@@ -23,8 +23,8 @@ export default class Organization {
   }
 
   getRanksOfTier(tier: number) {
-    let ranks = [];
-    let currentRank = this.ranks;
+    const ranks = [];
+    const currentRank = this.ranks;
 
     if (tier === 0) {
       return [currentRank];

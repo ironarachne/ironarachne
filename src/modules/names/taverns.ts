@@ -7,7 +7,7 @@ const random = require("random");
 export function generate() {
   let name = "The ";
 
-  let adjectiveChance = random.int(0, 100);
+  const adjectiveChance = random.int(0, 100);
 
   if (adjectiveChance > 60) {
     name += RND.item(adjectives()) + " ";

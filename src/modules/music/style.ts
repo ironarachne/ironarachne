@@ -58,7 +58,7 @@ export function describe(style: MusicStyle) {
 }
 
 export function generate() {
-  let style = new MusicStyle(
+  const style = new MusicStyle(
     randomRhythm(),
     randomBeat(),
     randomDynamic(),
@@ -75,7 +75,7 @@ export function generate() {
 }
 
 function randomBeat() {
-  let options = [
+  const options = [
     {
       value: "very fast",
       weight: 5,
@@ -98,12 +98,12 @@ function randomBeat() {
     },
   ];
 
-  let result = RND.weighted(options);
+  const result = RND.weighted(options);
   return result.value;
 }
 
 function randomDynamic() {
-  let options = [
+  const options = [
     {
       value: "very quiet",
       weight: 5,
@@ -122,12 +122,12 @@ function randomDynamic() {
     },
   ];
 
-  let result = RND.weighted(options);
+  const result = RND.weighted(options);
   return result.value;
 }
 
 function randomHarmony() {
-  let options = [
+  const options = [
     {
       value: "simple harmony",
       weight: 10,
@@ -142,12 +142,12 @@ function randomHarmony() {
     },
   ];
 
-  let result = RND.weighted(options);
+  const result = RND.weighted(options);
   return result.value;
 }
 
 function randomKey() {
-  let options = [
+  const options = [
     {
       value: "major",
       weight: 10,
@@ -158,12 +158,12 @@ function randomKey() {
     },
   ];
 
-  let result = RND.weighted(options);
+  const result = RND.weighted(options);
   return result.value;
 }
 
 function randomMelody() {
-  let options = [
+  const options = [
     {
       value: "simple",
       weight: 10,
@@ -182,12 +182,12 @@ function randomMelody() {
     },
   ];
 
-  let result = RND.weighted(options);
+  const result = RND.weighted(options);
   return result.value;
 }
 
 function randomPitch() {
-  let options = [
+  const options = [
     {
       value: "low",
       weight: 5,
@@ -202,12 +202,12 @@ function randomPitch() {
     },
   ];
 
-  let result = RND.weighted(options);
+  const result = RND.weighted(options);
   return result.value;
 }
 
 function randomRhythm() {
-  let options = [
+  const options = [
     {
       value: "a single rhythm",
       weight: 100,
@@ -222,7 +222,7 @@ function randomRhythm() {
     },
   ];
 
-  let result = RND.weighted(options);
+  const result = RND.weighted(options);
   return result.value;
 }
 

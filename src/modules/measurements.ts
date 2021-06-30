@@ -11,9 +11,9 @@ export function kgToPounds(kg: number) {
 export function inchesToFeet(inches: number) {
   let expression = "";
 
-  let feet = Math.floor(inches / 12);
+  const feet = Math.floor(inches / 12);
 
-  let remainder = inches % 12;
+  const remainder = inches % 12;
 
   expression += feet + "'" + remainder + "\"";
 

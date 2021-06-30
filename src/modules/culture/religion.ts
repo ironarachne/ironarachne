@@ -27,7 +27,7 @@ export class CultureReligionType {
 }
 
 export function generate() {
-  let religion = new CultureReligion();
+  const religion = new CultureReligion();
 
   religion.trait = RND.item(religion.religionType.possibleTraits);
   religion.description = religion.trait + " " + religion.organization;

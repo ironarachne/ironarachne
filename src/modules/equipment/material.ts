@@ -66,9 +66,9 @@ function getAllMaterials() {
 }
 
 export function getMaterialSetsForCategory(category: string) {
-  let all = getAllMaterialSets();
+  const all = getAllMaterialSets();
 
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].categories.includes(category)) {
@@ -80,9 +80,9 @@ export function getMaterialSetsForCategory(category: string) {
 }
 
 export function getMaterialsForCategory(category: string) {
-  let all = getAllMaterials();
+  const all = getAllMaterials();
 
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].category == category) {
@@ -94,13 +94,13 @@ export function getMaterialsForCategory(category: string) {
 }
 
 export function getRandomMaterialSetForCategory(category: string) {
-  let options = getMaterialSetsForCategory(category);
+  const options = getMaterialSetsForCategory(category);
 
   return RND.item(options);
 }
 
 export function getRandomMaterialForCategory(category: string) {
-  let options = getMaterialsForCategory(category);
+  const options = getMaterialsForCategory(category);
 
   return RND.item(options);
 }

@@ -5,15 +5,15 @@ import * as RND from "../random";
 const random = require("random");
 
 export function generate() {
-  let prefix = randomPrefix();
-  let suffix = randomSuffix();
+  const prefix = randomPrefix();
+  const suffix = randomSuffix();
 
   let name = prefix + suffix;
 
-  let chance = random.int(1, 100);
+  const chance = random.int(1, 100);
 
   if (chance > 85) {
-    let number = RND.item([
+    const number = RND.item([
       "Prime",
       "II",
       "Secondus",
@@ -31,7 +31,7 @@ export function generate() {
 }
 
 function randomPrefix() {
-  let f = RND.item([
+  const f = RND.item([
     "K",
     "S",
     "L",
@@ -46,7 +46,7 @@ function randomPrefix() {
     "Th",
   ]);
 
-  let s = RND.item([
+  const s = RND.item([
     "a",
     "o",
     "e",
@@ -57,7 +57,7 @@ function randomPrefix() {
 
   let prefix = f + s;
 
-  let chance = random.int(1, 100);
+  const chance = random.int(1, 100);
 
   if (chance >= 70) {
     prefix += RND.item([
@@ -75,7 +75,7 @@ function randomPrefix() {
 }
 
 function randomSuffix() {
-  let options = [
+  const options = [
     "loon",
     "ari",
     "ex",

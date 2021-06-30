@@ -5,11 +5,11 @@ import * as TownCategory from "@/modules/towns/category";
 import {Town} from "@/modules/towns/town";
 
 export function generate(size: string, possibleNames: string[]) {
-  let town = new Town(RND.item(possibleNames));
+  const town = new Town(RND.item(possibleNames));
 
-  let townCategory = selectCategory(size);
+  const townCategory = selectCategory(size);
 
-  let population = townCategory.randomPopulation();
+  const population = townCategory.randomPopulation();
 
   let description = randomDescription();
 
@@ -47,27 +47,27 @@ function randomCategory() {
 }
 
 function randomCategoryLarge() {
-  let sizes = sizesByClass("large");
+  const sizes = sizesByClass("large");
 
   return RND.item(sizes);
 }
 
 function randomCategoryMedium() {
-  let sizes = sizesByClass("medium");
+  const sizes = sizesByClass("medium");
 
   return RND.item(sizes);
 }
 
 function randomCategorySmall() {
-  let sizes = sizesByClass("small");
+  const sizes = sizesByClass("small");
 
   return RND.item(sizes);
 }
 
 function sizesByClass(sizeClass: string) {
-  let all = TownCategory.all();
+  const all = TownCategory.all();
 
-  let sizes: TownCategory.TownCategory[] = [];
+  const sizes: TownCategory.TownCategory[] = [];
 
   all.forEach(function (element) {
     if (element.sizeClass === sizeClass) {

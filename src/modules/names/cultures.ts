@@ -8,11 +8,11 @@ export function generate() {
 }
 
 export function generateNameList(gender: string, patterns: string[]) {
-  let names = [];
+  const names = [];
 
-  let femalePatterns = [];
-  let familyPatterns = [];
-  let malePatterns = [];
+  const femalePatterns = [];
+  const familyPatterns = [];
+  const malePatterns = [];
   let namePatterns: string[] = [];
 
   for (let i = 0; i < patterns.length; i++) {
@@ -30,7 +30,7 @@ export function generateNameList(gender: string, patterns: string[]) {
   }
 
   for (let i = 0; i < 10; i++) {
-    let name = Invented.generate(namePatterns);
+    const name = Invented.generate(namePatterns);
     names.push(name);
   }
 
@@ -39,10 +39,10 @@ export function generateNameList(gender: string, patterns: string[]) {
 
 // Generates a set of similar patterns
 export function randomNameRoots() {
-  let prefixes = ["cvc", "cvp", "vcv", "cvc"];
-  let suffixes = ["vc", "vcv", "vn", "sv", "vs"];
+  const prefixes = ["cvc", "cvp", "vcv", "cvc"];
+  const suffixes = ["vc", "vcv", "vn", "sv", "vs"];
 
-  let patterns = [];
+  const patterns = [];
 
   for (let i = 0; i < 2; i++) {
     patterns.push(RND.item(prefixes) + RND.item(suffixes));

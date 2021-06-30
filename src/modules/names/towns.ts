@@ -211,10 +211,10 @@ export function all() {
 }
 
 export function randomSet(numberOfNames: number) {
-  let nameTypes = [
+  const nameTypes = [
     {
       generate: function () {
-        let first = [
+        const first = [
           "Two",
           "Three",
           "Four",
@@ -228,7 +228,7 @@ export function randomSet(numberOfNames: number) {
           "Triple",
         ];
 
-        let second = [
+        const second = [
           "Towers",
           "Rivers",
           "Mountains",
@@ -247,11 +247,11 @@ export function randomSet(numberOfNames: number) {
     },
     {
       generate: function () {
-        let firstNames = Common.maleFirstNames();
+        const firstNames = Common.maleFirstNames();
 
-        let first = RND.item(firstNames);
+        const first = RND.item(firstNames);
 
-        let second = RND.item([
+        const second = RND.item([
           "Folly",
           "Boon",
           "Rest",
@@ -270,7 +270,7 @@ export function randomSet(numberOfNames: number) {
     },
     {
       generate: function () {
-        let first = RND.item([
+        const first = RND.item([
           "Lake",
           "River",
           "Fire",
@@ -292,7 +292,7 @@ export function randomSet(numberOfNames: number) {
           "Night",
         ]);
 
-        let second = RND.item([
+        const second = RND.item([
           "stead",
           "town",
           "bend",
@@ -315,11 +315,11 @@ export function randomSet(numberOfNames: number) {
     }
   ];
 
-  let names: string[] = [];
+  const names: string[] = [];
 
   for (let i = 0; i < numberOfNames; i++) {
-    let nameType = RND.item(nameTypes);
-    let name = nameType.generate();
+    const nameType = RND.item(nameTypes);
+    const name = nameType.generate();
 
     if (!names.includes(name)) {
       names.push(name);

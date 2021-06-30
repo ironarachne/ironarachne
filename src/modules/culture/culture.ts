@@ -36,10 +36,10 @@ export class Culture {
 }
 
 export function generate() {
-  let namePatterns = Name.randomNameRoots();
-  let maleNames = Name.generateNameList("male", namePatterns);
-  let femaleNames = Name.generateNameList("female", namePatterns);
-  let familyNames = Name.generateNameList("family", namePatterns);
+  const namePatterns = Name.randomNameRoots();
+  const maleNames = Name.generateNameList("male", namePatterns);
+  const femaleNames = Name.generateNameList("female", namePatterns);
+  const familyNames = Name.generateNameList("family", namePatterns);
 
   return new Culture(
     Name.generate(),
@@ -89,7 +89,7 @@ function randomGreeting() {
 }
 
 function randomTaboos() {
-  let possible = [
+  const possible = [
     "The baring of skin other than the face is forbidden in public.",
     "The eating of animals is strictly forbidden.",
     "A gift of red fruit is considered a death threat, as red fruit is commonly seen as poisonous.",
@@ -119,10 +119,10 @@ function randomTaboos() {
     "Saying the names of the dead is forbidden.",
   ];
 
-  let taboos: string[] = [];
+  const taboos: string[] = [];
 
   for (let i = 0; i < 2; i++) {
-    let taboo = RND.item(possible);
+    const taboo = RND.item(possible);
     if (!taboos.includes(taboo)) {
       taboos.push(taboo);
     } else {

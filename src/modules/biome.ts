@@ -23,7 +23,7 @@ export class BiomeType {
 }
 
 export function generate() {
-  let biomeType = randomBiomeType();
+  const biomeType = randomBiomeType();
 
   return new Biome(biomeType.name, biomeType.randomDescription());
 }

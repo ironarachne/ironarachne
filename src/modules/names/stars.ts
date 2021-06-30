@@ -3,7 +3,7 @@
 import * as RND from "../random";
 
 export function generate() {
-  let prefixes = [
+  const prefixes = [
     "Ar",
     "Ab",
     "Al",
@@ -23,7 +23,7 @@ export function generate() {
     "Zor",
   ];
 
-  let suffixes = [
+  const suffixes = [
     "o",
     "ao",
     "an",

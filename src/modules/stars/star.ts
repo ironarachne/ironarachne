@@ -89,7 +89,7 @@ export function getAllClassifications() {
 }
 
 export function randomWeightedClassification() {
-  let all = getAllClassifications();
+  const all = getAllClassifications();
 
   return RND.weighted(all);
 }

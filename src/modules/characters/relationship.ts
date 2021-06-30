@@ -13,7 +13,7 @@ export class Relationship {
 }
 
 export function getRandomVerbForStrength(strength: number) {
-  let verbs = [
+  const verbs = [
     ["hates", "despises", "loathes", "can't stand", "fears"],
     ["dislikes", "distrusts", "mistrusts", "is suspicious of", "envies"],
     ["likes", "enjoys", "is entertained by"],

@@ -73,7 +73,7 @@ export function all() {
 }
 
 export function random() {
-  let options = all();
+  const options = all();
   return RND.item(options);
 }
 

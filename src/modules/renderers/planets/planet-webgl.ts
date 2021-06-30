@@ -16,12 +16,12 @@ export function translateDiameterToModelSize(diameter: number) {
 }
 
 export function getShaderData(classification: PlanetClassification) {
-  let options = {
+  const options = {
     arid: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
         return `#ifdef GL_ES
         precision mediump float;
@@ -75,9 +75,9 @@ export function getShaderData(classification: PlanetClassification) {
         }`;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
         return `#ifdef GL_ES
         precision mediump float;
@@ -146,7 +146,7 @@ export function getShaderData(classification: PlanetClassification) {
         }`;
       },
       generateVertexShader: function () {
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -163,11 +163,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     barren: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -221,11 +221,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -294,11 +294,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -330,11 +330,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     garden: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -388,11 +388,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -479,7 +479,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -496,11 +496,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     "gas giant": {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -554,17 +554,17 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
-        let goldNoiseFunction = ShaderTools.goldNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
+        const goldNoiseFunction = ShaderTools.goldNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let colors = [];
+        const colors = [];
         for (let i = 0; i < 6; i++) {
           colors.push(random.float(0.0, 1.0));
         }
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -624,7 +624,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -641,11 +641,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     ice: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -699,11 +699,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -772,7 +772,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -789,11 +789,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     jungle: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -847,11 +847,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -936,7 +936,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -953,11 +953,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     ocean: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -1011,11 +1011,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -1081,7 +1081,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -1098,11 +1098,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     swamp: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -1157,11 +1157,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -1243,7 +1243,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -1260,11 +1260,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     toxic: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -1319,11 +1319,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -1405,7 +1405,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        let shader = `varying vec3 vertPos;
+        const shader = `varying vec3 vertPos;
         varying vec2 vUv;
         varying vec3 v_Normal;
 
@@ -1422,11 +1422,11 @@ export function getShaderData(classification: PlanetClassification) {
     },
     volcanic: {
       generateCloudShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 200.0);
+        const seed = random.float(0.0, 200.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 
@@ -1481,11 +1481,11 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        let noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = ShaderTools.simplexNoise();
 
-        let seed = random.float(0.0, 100.0);
+        const seed = random.float(0.0, 100.0);
 
-        let shader = `#ifdef GL_ES
+        const shader = `#ifdef GL_ES
         precision mediump float;
         #endif
 

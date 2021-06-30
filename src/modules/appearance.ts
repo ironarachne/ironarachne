@@ -13,7 +13,7 @@ export class AppearanceTrait {
 }
 
 export function getAllTraitsWithTag(traits: AppearanceTrait[], tag: string) {
-  let results = [];
+  const results = [];
 
   for (let i = 0; i < traits.length; i++) {
     if (traits[i].tags.includes(tag)) {

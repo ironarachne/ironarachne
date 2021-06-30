@@ -13,7 +13,7 @@ export class Descriptor {
 }
 
 export function getDescriptorsMatchingType(descriptors: Descriptor[], objectType: string) {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < descriptors.length; i++) {
     if (descriptors[i].objectTypes.includes(objectType)) {
@@ -25,7 +25,7 @@ export function getDescriptorsMatchingType(descriptors: Descriptor[], objectType
 }
 
 export function getDescriptorsMatchingTag(descriptors: Descriptor[], tag: string) {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < descriptors.length; i++) {
     if (descriptors[i].tags.includes(tag)) {

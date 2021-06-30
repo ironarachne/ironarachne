@@ -43,10 +43,10 @@ export class Deity {
 }
 
 export function describe(deity: Deity) {
-  let speciesAdj = deity.species.adjective;
-  let subjectivePronoun = Words.pronoun(deity.gender, "subjective");
+  const speciesAdj = deity.species.adjective;
+  const subjectivePronoun = Words.pronoun(deity.gender, "subjective");
   let noun = "god";
-  let domainNames = [];
+  const domainNames = [];
 
   for (let i = 0; i < deity.domains.length; i++) {
     domainNames.push(deity.domains[i].name);
@@ -65,8 +65,8 @@ export function describe(deity: Deity) {
 }
 
 export function getRandomPersonality(gender: string) {
-  let numberOfPositiveTraits = random.int(2, 3);
-  let numberOfNegativeTraits = random.int(1, 2);
+  const numberOfPositiveTraits = random.int(2, 3);
+  const numberOfNegativeTraits = random.int(1, 2);
 
   return PersonalityTraits.getRandomTraits(gender, numberOfNegativeTraits, numberOfPositiveTraits);
 }

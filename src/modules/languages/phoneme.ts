@@ -33,7 +33,7 @@ export function random() {
 }
 
 export function soundToSpelling(sound: string) {
-  let sounds: { [key: string]: string } = {
+  const sounds: { [key: string]: string } = {
     ʃ: 'sh',
     ʒ: 'zh',
     ð: 'th',

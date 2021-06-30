@@ -4,7 +4,7 @@ import * as RND from "../random";
 
 export function generate(patterns: string[]) {
   let name = "";
-  let pattern = RND.item(patterns);
+  const pattern = RND.item(patterns);
 
   for (let i = 0; i < pattern.length; i++) {
     let letter = parsePatternElement(pattern[i]);

@@ -69,13 +69,13 @@ export function all() {
 }
 
 export function random() {
-  let options = all();
+  const options = all();
   return RND.item(options);
 }
 
 export function randomWeighted() {
-  let variations = all();
-  let weights = [];
+  const variations = all();
+  const weights = [];
 
   for (let i = 0; i < variations.length; i++) {
     weights.push({
@@ -84,7 +84,7 @@ export function randomWeighted() {
     });
   }
 
-  let resultName = RND.weighted(weights);
+  const resultName = RND.weighted(weights);
 
   let result = variations[0];
 

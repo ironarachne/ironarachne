@@ -43,11 +43,11 @@ export class AppearanceTrait {
 }
 
 export function calculateAgeCategories(species: Species) {
-  let ageScale = species.maxAge / 100;
-  let heightScale = species.heightScale;
-  let weightScale = species.weightScale;
+  const ageScale = species.maxAge / 100;
+  const heightScale = species.heightScale;
+  const weightScale = species.weightScale;
 
-  let categories = Age.categories();
+  const categories = Age.categories();
 
   species.ageGroups = [];
 

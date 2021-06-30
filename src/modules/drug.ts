@@ -50,7 +50,7 @@ export class EffectType {
 }
 
 export function generate() {
-  let drug = new Drug(RND.item(allTypes()), randomEffectType());
+  const drug = new Drug(RND.item(allTypes()), randomEffectType());
 
   drug.name = randomName();
   drug.method = RND.item(drug.drugType.methods);
@@ -106,7 +106,7 @@ function allTypes() {
 }
 
 function randomColor() {
-  let color = RND.item([
+  const color = RND.item([
     "blue",
     "green",
     "red",
@@ -120,7 +120,7 @@ function randomColor() {
     "emerald",
   ]);
 
-  let modifier = RND.item([
+  const modifier = RND.item([
     "light",
     "dark",
     "bright",
@@ -202,7 +202,7 @@ function randomEffectType() {
 }
 
 function randomName() {
-  let nameType = RND.item([
+  const nameType = RND.item([
     {
       name: "single word",
       generate: function () {
@@ -229,7 +229,7 @@ function randomName() {
     {
       name: "phrase",
       generate: function () {
-        let prefix = RND.item([
+        const prefix = RND.item([
           "White",
           "Blue",
           "Black",
@@ -245,7 +245,7 @@ function randomName() {
           "Angel",
         ]);
 
-        let suffix = RND.item([
+        const suffix = RND.item([
           "Fantasy",
           "Spice",
           "Dust",

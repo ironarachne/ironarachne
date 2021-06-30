@@ -7,17 +7,17 @@ import * as Character from "./common";
 import * as CommonNames from "../names/common"; // TODO: support nonhuman names and cultural names
 
 export function generate() {
-  let speciesOptions = FantasySpecies.all();
+  const speciesOptions = FantasySpecies.all();
   let species = RND.weighted(speciesOptions);
 
   species = Species.calculateAgeCategories(species);
 
-  let ageGroupName = RND.item(species.ageGroups).name;
+  const ageGroupName = RND.item(species.ageGroups).name;
 
-  let gender = RND.item(["female", "male"]);
+  const gender = RND.item(["female", "male"]);
 
   let firstNames = [];
-  let lastNames = CommonNames.lastNames();
+  const lastNames = CommonNames.lastNames();
 
   if (gender === "female") {
     firstNames = CommonNames.femaleFirstNames();
@@ -29,15 +29,15 @@ export function generate() {
 }
 
 export function generateByAgeGroup(ageGroupName: string) {
-  let speciesOptions = FantasySpecies.all();
+  const speciesOptions = FantasySpecies.all();
   let species = RND.weighted(speciesOptions);
 
   species = Species.calculateAgeCategories(species);
 
-  let gender = RND.item(["female", "male"]);
+  const gender = RND.item(["female", "male"]);
 
   let firstNames = [];
-  let lastNames = CommonNames.lastNames();
+  const lastNames = CommonNames.lastNames();
 
   if (gender === "female") {
     firstNames = CommonNames.femaleFirstNames();

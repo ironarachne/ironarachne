@@ -83,7 +83,7 @@ export function describeDice(dice: DicePool) {
 export function rangeToDiceExpression(range: number) {
   let remains = range;
 
-  let dice = new DicePool();
+  const dice = new DicePool();
 
   while (remains >= 100 && remains > 0) {
     remains -= 100;
@@ -120,16 +120,16 @@ export function rangeToDiceExpression(range: number) {
 }
 
 export function roll(expression: string) {
-  let parts = expression.split("+");
+  const parts = expression.split("+");
   let result = 0;
 
   for (let i = 0; i < parts.length; i++) {
-    let phrase = parts[i];
+    const phrase = parts[i];
 
     if (phrase.includes("d")) {
-      let splitPhrase = phrase.split("d");
-      let number = Number(splitPhrase[0]);
-      let sides = Number(splitPhrase[1]);
+      const splitPhrase = phrase.split("d");
+      const number = Number(splitPhrase[0]);
+      const sides = Number(splitPhrase[1]);
 
       for (let j = 0; j < number; j++) {
         result += random.int(1, sides);
@@ -144,7 +144,7 @@ export function roll(expression: string) {
 
 export function simplify(dice: DicePool) {
   // This function takes a set of dice and simplifies them to a single die type, dropping everything else
-  let result = new DicePool();
+  const result = new DicePool();
 
   if (dice.d100 > 0) {
     result.d100 = dice.d100;

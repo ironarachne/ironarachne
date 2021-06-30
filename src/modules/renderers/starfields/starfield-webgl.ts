@@ -3,7 +3,7 @@
 const random = require("random");
 
 export function generate() {
-  let seed = random.float(0.0, 100.0);
+  const seed = random.float(0.0, 100.0);
 
   return `uniform vec2 resolution;
   uniform float time;

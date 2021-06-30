@@ -35,7 +35,7 @@ export function weighted(items: any[]) {
   let randomValue = random.int(0, ceiling);
 
   for (let i = 0; i < items.length; i++) {
-    let item = items[i];
+    const item = items[i];
     randomValue -= item.weight;
     if (randomValue <= 0) {
       return item;

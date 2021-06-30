@@ -87,7 +87,7 @@ export function getAllClassifications() {
 }
 
 function getHazardsForClassification(classification: PlanetClassification) {
-  let hazards = {
+  const hazards = {
     arid: [
       "The atmosphere is very thin and breathing apparatus is required outside.",
       "Vast sandstorms occasionally sweep across the surface of the planet.",
@@ -156,7 +156,7 @@ function getHazardsForClassification(classification: PlanetClassification) {
 function calculateGravity(diameter: number, mass: number) {
   const G = (9.8 * Math.pow(6378000, 2)) / 5972190000000000000000000.0;
 
-  let r = diameter / 2.0;
+  const r = diameter / 2.0;
 
   return (G * mass) / (Math.pow(r, 2));
 }
@@ -170,7 +170,7 @@ function getClassification(classificationName: string) {
 }
 
 function getClassificationByName(name: string) {
-  let options = getAllClassifications();
+  const options = getAllClassifications();
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].name == name) {
@@ -180,9 +180,9 @@ function getClassificationByName(name: string) {
 }
 
 export function generate(classificationName: string) {
-  let classification = getClassification(classificationName);
+  const classification = getClassification(classificationName);
 
-  let planet = new Planet();
+  const planet = new Planet();
   planet.name = PlanetName.generate();
   planet.classification = classification.name;
   planet.mass = random.float(classification.mass_min, classification.mass_max);
@@ -194,7 +194,7 @@ export function generate(classificationName: string) {
   planet.has_atmosphere = classification.has_atmosphere;
 
   if (classification.is_inhabitable) {
-    let chance = random.int(1, 100);
+    const chance = random.int(1, 100);
     if (chance > 60) {
       planet.is_inhabited = true;
     }
@@ -216,9 +216,9 @@ export function generate(classificationName: string) {
 }
 
 export function listPlanetTypes() {
-  let allTypes = getAllClassifications();
+  const allTypes = getAllClassifications();
 
-  let types = [];
+  const types = [];
 
   for (let i = 0; i < allTypes.length; i++) {
     types.push(allTypes[i].name);
@@ -228,7 +228,7 @@ export function listPlanetTypes() {
 }
 
 function randomCulture() {
-  let options = [
+  const options = [
     "Sexist",
     "Religious",
     "Artistic",
@@ -257,7 +257,7 @@ function randomCulture() {
 }
 
 function randomGovernment() {
-  let options = [
+  const options = [
     "Corporations",
     "Participatory Democracy",
     "Self-Perpetuating Oligarchy",
@@ -278,8 +278,8 @@ function randomGovernment() {
 }
 
 function randomPopulation() {
-  let formatter = new Intl.NumberFormat();
-  let options = [
+  const formatter = new Intl.NumberFormat();
+  const options = [
     "" + random.int(10, 700) + " thousand",
     "" + formatter.format(random.float(10.0, 900.0)) + " million",
     "" + formatter.format(random.float(1.0, 10.0)) + " billion",

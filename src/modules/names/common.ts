@@ -831,7 +831,7 @@ export function lastNames() {
 }
 
 export function nations() {
-  let prefixes = [
+  const prefixes = [
     "Ali",
     "Ana",
     "Ago",
@@ -915,7 +915,7 @@ export function nations() {
     "Zo",
   ];
 
-  let suffixes = [
+  const suffixes = [
     "ali",
     "anar",
     "asar",
@@ -973,10 +973,10 @@ export function nations() {
     "zem",
   ];
 
-  let names = [];
+  const names = [];
 
   for (let i = 0; i < 50; i++) {
-    let name = RND.item(prefixes) + RND.item(suffixes);
+    const name = RND.item(prefixes) + RND.item(suffixes);
     names.push(name);
   }
 

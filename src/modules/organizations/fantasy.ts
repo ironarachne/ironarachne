@@ -11,10 +11,10 @@ import {OrganizationType} from "@/modules/organizations/type";
 const random = require("random");
 
 export function generate() {
-  let orgType = randomType();
-  let memberCount = random.int(orgType.minSize, orgType.maxSize);
+  const orgType = randomType();
+  const memberCount = random.int(orgType.minSize, orgType.maxSize);
 
-  let org = new Organization(orgType.randomName(), orgType, orgType.randomDescription(), memberCount, orgType.randomLeadership(), orgType.getRanks());
+  const org = new Organization(orgType.randomName(), orgType, orgType.randomDescription(), memberCount, orgType.randomLeadership(), orgType.getRanks());
   org.description = org.description.replace(
     "{name}",
     org.name
@@ -33,7 +33,7 @@ export function generate() {
 function randomNotableMembers(org: Organization) {
   let tiers = 1;
   let rank = org.ranks;
-  let notableMembers = [];
+  const notableMembers = [];
 
   let numberOfInferiors = rank.inferiors.length;
 
@@ -48,7 +48,7 @@ function randomNotableMembers(org: Organization) {
   }
 
   for (let i = 0; i < tiers; i++) {
-    let possibleRanks = org.getRanksOfTier(i);
+    const possibleRanks = org.getRanksOfTier(i);
 
     let numberOfMembers = 1;
 
@@ -60,9 +60,9 @@ function randomNotableMembers(org: Organization) {
 
     if (i > 0) {
       for (let k = 0; k < numberOfMembers; k++) {
-        let memberRank = RND.item(possibleRanks);
+        const memberRank = RND.item(possibleRanks);
 
-        let member = FantasyCharacter.generateByAgeGroup(memberRank.ageGroupName);
+        const member = FantasyCharacter.generateByAgeGroup(memberRank.ageGroupName);
         member.titles.push(memberRank.title);
         notableMembers.push(member);
       }
@@ -91,7 +91,7 @@ function randomType() {
       80,
       "captain",
       function () {
-        let prefix = RND.item([
+        const prefix = RND.item([
           "Black",
           "Blood",
           "Burning",
@@ -104,7 +104,7 @@ function randomType() {
           "Silver",
           "White",
         ]);
-        let suffix = RND.item([
+        const suffix = RND.item([
           "Axes",
           "Army",
           "Bears",
@@ -131,17 +131,17 @@ function randomType() {
         ]);
       },
       function (this:OrganizationType) {
-        let leader = FantasyCharacter.generateByAgeGroup("adult");
-        let ranks = this.getRanks();
+        const leader = FantasyCharacter.generateByAgeGroup("adult");
+        const ranks = this.getRanks();
         leader.titles.push(ranks.title);
 
         return leader;
       },
       function () {
-        let captain = new Rank(new Title("Captain", "Captain", "Captain", "Captain", false, "", 0), "military", "adult");
-        let lieutenant = new Rank(new Title("Lieutenant", "Lieutenant", "Lieutenant", "Lieutenant", false, "", 1), "military", "adult");
-        let sergeant = new Rank(new Title("Sergeant", "Sergeant", "Sergeant", "Sergeant", false, "", 2), "military", "adult");
-        let member = new Rank(new Title("Mercenary", "Mercenary", "", "", false, "", 3), "military", "adult");
+        const captain = new Rank(new Title("Captain", "Captain", "Captain", "Captain", false, "", 0), "military", "adult");
+        const lieutenant = new Rank(new Title("Lieutenant", "Lieutenant", "Lieutenant", "Lieutenant", false, "", 1), "military", "adult");
+        const sergeant = new Rank(new Title("Sergeant", "Sergeant", "Sergeant", "Sergeant", false, "", 2), "military", "adult");
+        const member = new Rank(new Title("Mercenary", "Mercenary", "", "", false, "", 3), "military", "adult");
 
         sergeant.addInferior(member);
         lieutenant.addInferior(sergeant);
@@ -155,15 +155,15 @@ function randomType() {
       200,
       "proprietor",
       function () {
-        let nameTypes = [
+        const nameTypes = [
           {
             name: "generic",
             randomName: function () {
-              let prefixes = ["Dynasty", "Gilded", "Luxury"];
+              const prefixes = ["Dynasty", "Gilded", "Luxury"];
 
-              let prefix = RND.item(prefixes);
+              const prefix = RND.item(prefixes);
 
-              let suffix = RND.item([
+              const suffix = RND.item([
                 "Trading Company",
                 "Traders",
                 "Navigation Company",
@@ -177,10 +177,10 @@ function randomType() {
           {
             name: "geographic",
             randomName: function () {
-              let direction = RND.item(["North", "West", "South", "East"]);
-              let feature = RND.item(["Wind", "Sea", "Mountain", "Ocean"]);
+              const direction = RND.item(["North", "West", "South", "East"]);
+              const feature = RND.item(["Wind", "Sea", "Mountain", "Ocean"]);
 
-              let suffix = RND.item([
+              const suffix = RND.item([
                 "Trading Company",
                 "Traders",
                 "Navigation Company",
@@ -194,11 +194,11 @@ function randomType() {
           {
             name: "family",
             randomName: function () {
-              let familyNames = CommonNames.lastNames();
+              const familyNames = CommonNames.lastNames();
 
-              let familyName = RND.item(familyNames);
+              const familyName = RND.item(familyNames);
 
-              let moniker = RND.item([
+              const moniker = RND.item([
                 " Brothers",
                 " & Sons",
                 " & Son",
@@ -206,7 +206,7 @@ function randomType() {
                 "",
               ]);
 
-              let suffix = RND.item([
+              const suffix = RND.item([
                 "Trading Company",
                 "Traders",
                 "Navigation Company",
@@ -219,7 +219,7 @@ function randomType() {
           },
         ];
 
-        let namer = RND.item(nameTypes);
+        const namer = RND.item(nameTypes);
 
         return namer.randomName();
       },
@@ -233,16 +233,16 @@ function randomType() {
         ]);
       },
       function (this:OrganizationType) {
-        let leader = FantasyCharacter.generateByAgeGroup("adult");
-        let ranks = this.getRanks();
+        const leader = FantasyCharacter.generateByAgeGroup("adult");
+        const ranks = this.getRanks();
         leader.titles.push(ranks.title);
 
         return leader;
       },
       function () {
-        let owner = new Rank(new Title("Proprietor", "Proprietor", "", "", false, "", 0), "commercial", "adult");
-        let manager = new Rank(new Title("Manager", "Manager", "", "", false, "", 1), "commercial", "adult");
-        let employee = new Rank(new Title("Employee", "Employee", "", "", false, "", 2), "commercial", "adult");
+        const owner = new Rank(new Title("Proprietor", "Proprietor", "", "", false, "", 0), "commercial", "adult");
+        const manager = new Rank(new Title("Manager", "Manager", "", "", false, "", 1), "commercial", "adult");
+        const employee = new Rank(new Title("Employee", "Employee", "", "", false, "", 2), "commercial", "adult");
 
         manager.addInferior(employee);
         owner.addInferior(manager);
@@ -255,9 +255,9 @@ function randomType() {
       600,
       "headmaster",
       function () {
-        let schoolType = RND.item(["School", "Academy", "College"]);
+        const schoolType = RND.item(["School", "Academy", "College"]);
 
-        let suffixTypes = [
+        const suffixTypes = [
           {
             generate: function () {
               return RND.item([
@@ -270,14 +270,14 @@ function randomType() {
           },
           {
             generate: function () {
-              let first = [
+              const first = [
                 "Arcane",
                 "Mystical",
                 "Eldritch",
                 "Occult",
               ];
 
-              let second = [
+              const second = [
                 "Arts",
                 "Sciences",
                 "Paths",
@@ -290,7 +290,7 @@ function randomType() {
           }
         ];
 
-        let suffixType = RND.item(suffixTypes);
+        const suffixType = RND.item(suffixTypes);
 
         return "The " + schoolType + " of " + suffixType.generate();
       },
@@ -303,16 +303,16 @@ function randomType() {
         ]);
       },
       function (this:OrganizationType) {
-        let leader = FantasyCharacter.generateByAgeGroup("elderly");
-        let ranks = this.getRanks();
+        const leader = FantasyCharacter.generateByAgeGroup("elderly");
+        const ranks = this.getRanks();
         leader.titles.push(ranks.title);
 
         return leader;
       },
       function () {
-        let headmaster = new Rank(new Title("Headmaster", "Headmaster", "Headmaster", "Headmaster", false, "", 0), "arcane", "elderly");
-        let professor = new Rank(new Title("Professor", "Professor", "Professor", "Professor", false, "", 1), "arcane", "adult");
-        let student = new Rank(new Title("Student", "Student", "", "", false, "", 2), "arcane", "young adult");
+        const headmaster = new Rank(new Title("Headmaster", "Headmaster", "Headmaster", "Headmaster", false, "", 0), "arcane", "elderly");
+        const professor = new Rank(new Title("Professor", "Professor", "Professor", "Professor", false, "", 1), "arcane", "adult");
+        const student = new Rank(new Title("Student", "Student", "", "", false, "", 2), "arcane", "young adult");
 
         professor.addInferior(student);
         headmaster.addInferior(professor);

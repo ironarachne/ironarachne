@@ -16,11 +16,11 @@ export function render(width: number, height: number) {
 
   svg += "<rect width=\"" + width + "\" height=\"" + height + "\" fill=\"black\" />";
 
-  let numberOfStars = Math.floor(width * height * 0.005);
+  const numberOfStars = Math.floor(width * height * 0.005);
 
   for (let i = 0; i < numberOfStars; i++) {
-    let x = random.int(0, width);
-    let y = random.int(0, height);
+    const x = random.int(0, width);
+    const y = random.int(0, height);
 
     svg +=
       "<rect x=\"" +
@@ -38,7 +38,7 @@ export function render(width: number, height: number) {
 }
 
 function randomStarColor() {
-  let colorBase = random.int(80, 180);
+  const colorBase = random.int(80, 180);
 
   let r = colorBase;
   let g = colorBase;
@@ -46,19 +46,19 @@ function randomStarColor() {
 
   let tweaked = false;
 
-  let tweakBlueChance = random.int(1, 100);
+  const tweakBlueChance = random.int(1, 100);
   if (tweakBlueChance > 70 && tweaked === false) {
     b += random.int(10, 20);
     tweaked = true;
   }
 
-  let tweakRedChance = random.int(1, 100);
+  const tweakRedChance = random.int(1, 100);
   if (tweakRedChance > 70 && tweaked == false) {
     r += random.int(10, 20);
     tweaked = true;
   }
 
-  let tweakGreenChance = random.int(1, 100);
+  const tweakGreenChance = random.int(1, 100);
   if (tweakGreenChance > 70 && tweaked == false) {
     g += random.int(10, 20);
     tweaked = true;

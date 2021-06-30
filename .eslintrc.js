@@ -1,4 +1,5 @@
 module.exports = {
+  plugins: ['vue', '@typescript-eslint'],
   root: true,
   env: {
     node: true

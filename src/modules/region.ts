@@ -11,10 +11,10 @@ import * as Words from "./words";
 const random = require("random");
 
 export function generate() {
-  let biome = randomBiome();
-  let towns = randomTowns();
-  let organizations = randomOrganizations();
-  let nation = randomNation();
+  const biome = randomBiome();
+  const towns = randomTowns();
+  const organizations = randomOrganizations();
+  const nation = randomNation();
 
   let description = biome.description;
 
@@ -32,12 +32,12 @@ function randomBiome() {
 }
 
 function randomNation() {
-  let nation = Nation.generate();
+  const nation = Nation.generate();
 
-  let conflictChance = random.int(0, 100);
+  const conflictChance = random.int(0, 100);
 
   if (conflictChance > 70) {
-    let secondNation = Nation.generate();
+    const secondNation = Nation.generate();
 
     let nationDescription =
       Words.capitalize(nation.name) +
@@ -45,7 +45,7 @@ function randomNation() {
       secondNation.name +
       " both claim this region, ";
 
-    let nextPart = RND.item([
+    const nextPart = RND.item([
       "and it's the subject of an active war.",
       "though both have bigger problems right now than to argue over it.",
       "and a war may be coming soon over it.",
@@ -62,8 +62,8 @@ function randomNation() {
 }
 
 function randomOrganizations() {
-  let orgs = [];
-  let numberOfOrganizations = random.int(1, 3);
+  const orgs = [];
+  const numberOfOrganizations = random.int(1, 3);
 
   for (let i = 0; i < numberOfOrganizations; i++) {
     orgs.push(Organization.generate());
@@ -74,25 +74,25 @@ function randomOrganizations() {
 
 function randomTowns() {
   let names = TownNames.randomSet(100);
-  let capital = Town.generate("large", names);
+  const capital = Town.generate("large", names);
 
   names = Words.removeEntry(capital.name, names);
 
-  let numberOfMediumTowns = random.int(1, 3);
-  let numberOfSmallTowns = random.int(3, 5);
-  let towns = [];
+  const numberOfMediumTowns = random.int(1, 3);
+  const numberOfSmallTowns = random.int(3, 5);
+  const towns = [];
 
   capital.description += " This is the capital of the region.";
   towns.push(capital);
 
   for (let i = 0; i < numberOfMediumTowns; i++) {
-    let town = Town.generate("medium", names);
+    const town = Town.generate("medium", names);
     towns.push(town);
     names = Words.removeEntry(town.name, names);
   }
 
   for (let i = 0; i < numberOfSmallTowns; i++) {
-    let town = Town.generate("small", names);
+    const town = Town.generate("small", names);
     towns.push(town);
     names = Words.removeEntry(town.name, names);
   }

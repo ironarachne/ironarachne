@@ -15,11 +15,11 @@ export class Language {
 }
 
 export function generate() {
-  let phonemes = PC.random();
+  const phonemes = PC.random();
 
-  let name = randomWordRoot(phonemes);
+  const name = randomWordRoot(phonemes);
 
-  let language = new Language(name, phonemes);
+  const language = new Language(name, phonemes);
 
   for (let i=0;i<language.lexicon.words.length;i++) {
     language.lexicon.words[i].root = randomWordRoot(phonemes);
@@ -45,7 +45,7 @@ function randomMatchingSound(part: string, phonemes: PC.PhonemeCollection) {
 }
 
 function randomWordRoot(phonemes: PC.PhonemeCollection) {
-  let wordPattern = randomWordPattern();
+  const wordPattern = randomWordPattern();
   let word = "";
 
   for (let i=0;i<wordPattern.length;i++) {

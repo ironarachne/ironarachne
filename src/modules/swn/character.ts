@@ -56,7 +56,7 @@ export class SWNCharacter {
   }
 
   equipmentList() {
-    let list: string[] = [];
+    const list: string[] = [];
 
     for (let i = 0; i < this.equipment.length; i++) {
       list.push(this.equipment[i].name);
@@ -67,7 +67,7 @@ export class SWNCharacter {
 }
 
 export function generate() {
-  let character = new SWNCharacter();
+  const character = new SWNCharacter();
 
   let dexterity = 0;
   let strength = 0;
@@ -98,7 +98,7 @@ export function generate() {
 
   character.skills = randomStartingSkills(character.background);
 
-  let equipmentPackage = getEquipmentPackage(character.background.equipmentPackage);
+  const equipmentPackage = getEquipmentPackage(character.background.equipmentPackage);
 
   for (let i = 0; i < equipmentPackage.items.length; i++) {
     equipmentPackage.items[i].addTo(character);
@@ -116,7 +116,7 @@ export function generate() {
     }
   }
 
-  let firstFocus = randomNonPsychicFocus();
+  const firstFocus = randomNonPsychicFocus();
 
   character.focuses.push(firstFocus);
 
@@ -128,7 +128,7 @@ export function generate() {
     character.focuses[i].addTo(character);
   }
 
-  let hobbySkill = new BonusSkillOfType(['non-combat', 'combat']);
+  const hobbySkill = new BonusSkillOfType(['non-combat', 'combat']);
   hobbySkill.addTo(character);
 
   for (let i = 0; i < character.skills.length; i++) {
@@ -148,7 +148,7 @@ export function generate() {
           new SpecialAbility("Psychic Succor-1: The psychic’s touch can automatically stabilize a mortally-wounded target as a Main Action. This power must be used on a target within six rounds of their collapse, and does not function on targets that have been decapitated or killed by Heavy weapons. It’s the GM’s decision as to whether a target is intact enough for this power to work. Also heal 1d6+1 hit points of damage. If used on a mortally-wounded target, they revive with the rolled hit points and can act normally on the next round.")
         );
 
-        let ability = randomPsionicAbilityOfDiscipline("Biopsionics");
+        const ability = randomPsionicAbilityOfDiscipline("Biopsionics");
         character.abilities.push(
           new SpecialAbility(ability.name + ": " + ability.description)
         );
@@ -164,7 +164,7 @@ export function generate() {
         );
         character.effort++;
 
-        let ability = randomPsionicAbilityOfDiscipline("Metapsionics");
+        const ability = randomPsionicAbilityOfDiscipline("Metapsionics");
         character.abilities.push(
           new SpecialAbility(ability.name + ": " + ability.description)
         );
@@ -179,7 +179,7 @@ export function generate() {
           new SpecialAbility("Oracle-1: The precog gains a progressively-greater intuitive understanding of their own future. Each invocation of the Oracle technique requires a Main Action and that the user Commit Effort for the day. Once triggered, the adept gets a single brief vision related to the question about the future that they’re asking. This vision is always from their own personal vantage point and never reveals more than a minute of insight, though the psychic processes it almost instantly as part of the power’s use. Range: One day into the future.")
         );
 
-        let ability = randomPsionicAbilityOfDiscipline("Precognition");
+        const ability = randomPsionicAbilityOfDiscipline("Precognition");
         character.abilities.push(
           new SpecialAbility(ability.name + ": " + ability.description)
         );
@@ -194,7 +194,7 @@ export function generate() {
           new SpecialAbility("Telekinetic Manipulation-1: The psychic can manipulate objects as if with both hands and can lift up to two hundred kilograms with this ability.")
         );
 
-        let ability = randomPsionicAbilityOfDiscipline("Telekinesis");
+        const ability = randomPsionicAbilityOfDiscipline("Telekinesis");
         character.abilities.push(
           new SpecialAbility(ability.name + ": " + ability.description)
         );
@@ -209,7 +209,7 @@ export function generate() {
           new SpecialAbility("Telepathic Contact-1: A shallow gestalt with the target’s language centers allows the telepath to understand any form of communication made by the target. If the psychic has the requisite body parts to speak the target’s language, they can communicate with it in turn.")
         );
 
-        let ability = randomPsionicAbilityOfDiscipline("Telepathy");
+        const ability = randomPsionicAbilityOfDiscipline("Telepathy");
         character.abilities.push(
           new SpecialAbility(ability.name + ": " + ability.description)
         );
@@ -224,7 +224,7 @@ export function generate() {
           new SpecialAbility("Personal Apportation-1: The psychic can teleport up to 100 meters.")
         );
 
-        let ability = randomPsionicAbilityOfDiscipline("Teleportation");
+        const ability = randomPsionicAbilityOfDiscipline("Teleportation");
         character.abilities.push(
           new SpecialAbility(ability.name + ": " + ability.description)
         );
@@ -253,7 +253,7 @@ export class BonusSkill {
       }
     }
     if (!skillAddressed) {
-      let newSkill = getSkillByName(this.skillName);
+      const newSkill = getSkillByName(this.skillName);
       character.skills.push(newSkill);
     }
   }
@@ -270,7 +270,7 @@ export class BonusSkillFromList {
 
   addTo(character: SWNCharacter) {
     let skillAddressed = false;
-    let newSkillName = RND.item(this.skills);
+    const newSkillName = RND.item(this.skills);
 
     for (let j = 0; j < character.skills.length; j++) {
       if (character.skills[j].name === newSkillName) {
@@ -296,8 +296,8 @@ export class BonusSkillOfType {
 
   addTo(character: SWNCharacter) {
     let skillAddressed = false;
-    let skillType = RND.item(this.skillTypes);
-    let newSkill = randomSkillOfType(skillType);
+    const skillType = RND.item(this.skillTypes);
+    const newSkill = randomSkillOfType(skillType);
 
     for (let j = 0; j < character.skills.length; j++) {
       if (character.skills[j].name === newSkill) {
@@ -360,7 +360,7 @@ export class Focus {
   }
 
   addTo(character: SWNCharacter) {
-    let levelOneAbility = new SpecialAbility(
+    const levelOneAbility = new SpecialAbility(
       `From Focus ${this.name}: ${this.levelOneEffect.description}`
     )
     character.abilities.push(levelOneAbility);
@@ -542,7 +542,7 @@ function allFocuses() {
 }
 
 function randomBackground() {
-  let backgrounds = allBackgrounds();
+  const backgrounds = allBackgrounds();
 
   return RND.item(backgrounds);
 }
@@ -571,8 +571,8 @@ export class BonusFocus {
   }
 
   addTo(character: SWNCharacter) {
-    let newFocusType = RND.item(this.focusTypes);
-    let newFocus = randomFocusOfType(newFocusType);
+    const newFocusType = RND.item(this.focusTypes);
+    const newFocus = randomFocusOfType(newFocusType);
     if (character.focuses[0].name === newFocus.name) {
       character.focuses[0].currentLevel = 2;
     } else {
@@ -684,15 +684,15 @@ function allClasses() {
 }
 
 function randomClass() {
-  let classes = allClasses();
+  const classes = allClasses();
 
   return RND.item(classes);
 }
 
 function randomFocusOfType(focusType: string) {
-  let all = allFocuses();
+  const all = allFocuses();
 
-  let focuses = [];
+  const focuses = [];
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].focusType === focusType) {
@@ -704,9 +704,9 @@ function randomFocusOfType(focusType: string) {
 }
 
 function randomNonPsychicFocus() {
-  let all = allFocuses();
+  const all = allFocuses();
 
-  let focuses = [];
+  const focuses = [];
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].focusType != "psychic") {
@@ -718,9 +718,9 @@ function randomNonPsychicFocus() {
 }
 
 function randomStartingSkills(background: Background) {
-  let skills = [];
+  const skills = [];
 
-  let startingSkills = background.quickSkills;
+  const startingSkills = background.quickSkills;
 
   for (let i = 0; i < startingSkills.length; i++) {
     let skill = new Skill(
@@ -760,7 +760,7 @@ export class Stat {
 }
 
 function randomStats() {
-  let stats = [
+  const stats = [
     new Stat(
       "strength",
       "STR",
@@ -1258,9 +1258,9 @@ function allBackgrounds() {
 }
 
 function randomSkillOfType(skillType: string) {
-  let all = allSkills();
+  const all = allSkills();
 
-  let skills = [];
+  const skills = [];
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].skillType === skillType) {
@@ -1268,15 +1268,15 @@ function randomSkillOfType(skillType: string) {
     }
   }
 
-  let newSkill = RND.item(skills);
+  const newSkill = RND.item(skills);
 
   return newSkill.name;
 }
 
 function randomPsionicAbilityOfDiscipline(discipline: string) {
-  let all = allPsionicAbilities();
+  const all = allPsionicAbilities();
 
-  let abilities = [];
+  const abilities = [];
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].discipline === discipline) {
@@ -1403,7 +1403,7 @@ function allPsionicAbilities() {
 }
 
 function getEquipmentPackage(name: string) {
-  let all = allEquipmentPackages();
+  const all = allEquipmentPackages();
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].name === name) {
@@ -1678,7 +1678,7 @@ function allSkills() {
 }
 
 function getSkillByName(skillName: string) {
-  let all = allSkills();
+  const all = allSkills();
 
   for (let i = 0; i < all.length; i++) {
     if (all[i].name === skillName) {
@@ -1690,7 +1690,7 @@ function getSkillByName(skillName: string) {
 }
 
 function randomCombatSkill() {
-  let skills = [
+  const skills = [
     "Punch",
     "Shoot",
     "Stab",
@@ -1725,7 +1725,7 @@ export function formatAsText(character: SWNCharacter) {
 
   description += Text.header("Focuses");
 
-  let focuses = [];
+  const focuses = [];
 
   for (let i = 0; i < character.focuses.length; i++) {
     focuses.push(character.focuses[i].name + ", Level " + character.focuses[i].currentLevel);
@@ -1741,7 +1741,7 @@ export function formatAsText(character: SWNCharacter) {
 
   description += Text.header("Skills");
 
-  let skills = [];
+  const skills = [];
 
   for (let i = 0; i < character.skills.length; i++) {
     skills.push(character.skills[i].name + "-" + character.skills[i].level);
@@ -1757,7 +1757,7 @@ export function formatAsText(character: SWNCharacter) {
 
   description += Text.header("Weapons");
 
-  let weapons = [];
+  const weapons = [];
 
   for (let i = 0; i < character.rangedWeapons.length; i++) {
     weapons.push(character.rangedWeapons[i].name + ": " + character.rangedWeapons[i].damage + " damage, " + character.rangedAttackBonus + " attack bonus");
@@ -1771,7 +1771,7 @@ export function formatAsText(character: SWNCharacter) {
 
   description += Text.header("Armor");
 
-  let armor = [];
+  const armor = [];
 
   for (let i = 0; i < character.armor.length; i++) {
     armor.push(character.armor[i].name + ": " + character.armor[i].ac + " AC");

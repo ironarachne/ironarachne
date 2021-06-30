@@ -24,7 +24,7 @@ export class Tavern {
 }
 
 export function generate() {
-  let tavern = new Tavern(TavernName.generate(), randomFood(), randomDrinks());
+  const tavern = new Tavern(TavernName.generate(), randomFood(), randomDrinks());
 
   tavern.description = randomDescription(tavern);
 
@@ -38,7 +38,7 @@ function randomDescription(tavern: Tavern) {
     "This establishment",
   ]);
 
-  let quality = RND.item([
+  const quality = RND.item([
     "has seen better days",
     "looks newly painted",
     "is well kept",
@@ -47,7 +47,7 @@ function randomDescription(tavern: Tavern) {
 
   description += " " + quality + ". ";
 
-  let patrons = RND.item([
+  const patrons = RND.item([
     "It caters to a diverse crowd.",
     "Some of its patrons are less savory types.",
     "It has a welcoming atmosphere.",
@@ -62,16 +62,16 @@ function randomDescription(tavern: Tavern) {
 }
 
 function randomDrinks() {
-  let drinks = [];
+  const drinks = [];
 
-  let numberOfItems = random.int(2, 4);
+  const numberOfItems = random.int(2, 4);
 
   for (let i = 0; i < numberOfItems; i++) {
-    let drink = Drink.generateDrink();
+    const drink = Drink.generateDrink();
 
-    let cost = Currency.convertCopper(drink.cost);
+    const cost = Currency.convertCopper(drink.cost);
 
-    let drinkDescription = drink.description + " (cost: " + cost + ")";
+    const drinkDescription = drink.description + " (cost: " + cost + ")";
 
     drinks.push(drinkDescription);
   }
@@ -80,17 +80,17 @@ function randomDrinks() {
 }
 
 function randomFood() {
-  let food = [];
+  const food = [];
 
-  let numberOfItems = random.int(2, 4);
+  const numberOfItems = random.int(2, 4);
 
   for (let i = 0; i < numberOfItems; i++) {
-    let quality = Dice.roll("2d6");
+    const quality = Dice.roll("2d6");
 
-    let dish = Food.generateDish();
-    let cost = Currency.convertCopper(quality);
+    const dish = Food.generateDish();
+    const cost = Currency.convertCopper(quality);
 
-    let foodDescription = dish + " (cost: " + cost + ")";
+    const foodDescription = dish + " (cost: " + cost + ")";
 
     food.push(foodDescription);
   }

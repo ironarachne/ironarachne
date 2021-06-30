@@ -16,7 +16,7 @@ export class PersonalityTrait {
 }
 
 export function getTraitsWithOpposingTag(traits: PersonalityTrait[], tag: string) {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < traits.length; i++) {
     if (traits[i].opposingTags.includes(tag)) {
@@ -28,7 +28,7 @@ export function getTraitsWithOpposingTag(traits: PersonalityTrait[], tag: string
 }
 
 export function getTraitsWithoutOpposingTag(traits: PersonalityTrait[], tag: string) {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < traits.length; i++) {
     if (!traits[i].opposingTags.includes(tag)) {
@@ -40,7 +40,7 @@ export function getTraitsWithoutOpposingTag(traits: PersonalityTrait[], tag: str
 }
 
 export function getTraitsWithoutOpposingTags(traits: PersonalityTrait[], tags: string[]) {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < traits.length; i++) {
     let opposed = false;
@@ -58,7 +58,7 @@ export function getTraitsWithoutOpposingTags(traits: PersonalityTrait[], tags: s
 }
 
 export function getTraitsWithTag(traits: PersonalityTrait[], tag: string) {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < traits.length; i++) {
     if (traits[i].tags.includes(tag)) {
@@ -70,7 +70,7 @@ export function getTraitsWithTag(traits: PersonalityTrait[], tag: string) {
 }
 
 export function getTraitsWithoutTag(traits: PersonalityTrait[], tag: string) {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < traits.length; i++) {
     if (!traits[i].tags.includes(tag)) {
@@ -82,7 +82,7 @@ export function getTraitsWithoutTag(traits: PersonalityTrait[], tag: string) {
 }
 
 export function getTraitsWithoutTags(traits: PersonalityTrait[], tags: string[]) {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < traits.length; i++) {
     let opposed = false;
@@ -100,8 +100,8 @@ export function getTraitsWithoutTags(traits: PersonalityTrait[], tags: string[])
 }
 
 export function getRandomTraits(gender: string, numberOfNegativeTraits: number, numberOfPositiveTraits: number) {
-  let positiveTraits = [];
-  let negativeTraits = [];
+  const positiveTraits = [];
+  const negativeTraits = [];
 
   let allPositiveTraits = getAllPositiveTraits();
   let allNegativeTraits = getAllNegativeTraits();
@@ -113,7 +113,7 @@ export function getRandomTraits(gender: string, numberOfNegativeTraits: number, 
 
   for (let i = 0; i < numberOfPositiveTraits; i++) {
     allPositiveTraits = getTraitsWithoutOpposingTags(allPositiveTraits, opposingTags);
-    let positiveTrait = allPositiveTraits.pop();
+    const positiveTrait = allPositiveTraits.pop();
 
     if (typeof positiveTrait == 'object') {
       positiveTraits.push(positiveTrait);
@@ -133,7 +133,7 @@ export function getRandomTraits(gender: string, numberOfNegativeTraits: number, 
   allNegativeTraits = RND.shuffle(allNegativeTraits);
   for (let i = 0; i < numberOfNegativeTraits; i++) {
     allNegativeTraits = getTraitsWithoutOpposingTags(allNegativeTraits, opposingTags);
-    let negativeTrait = allNegativeTraits.pop();
+    const negativeTrait = allNegativeTraits.pop();
     if (typeof negativeTrait == 'object') {
       negativeTraits.push(negativeTrait);
       opposingTags = [...opposingTags, ...negativeTrait.opposingTags];
@@ -141,13 +141,13 @@ export function getRandomTraits(gender: string, numberOfNegativeTraits: number, 
     }
   }
 
-  let positive = [];
+  const positive = [];
 
   for (let i = 0; i < positiveTraits.length; i++) {
     positive.push(positiveTraits[i].name);
   }
 
-  let negative = [];
+  const negative = [];
 
   for (let i = 0; i < negativeTraits.length; i++) {
     negative.push(negativeTraits[i].name);
@@ -171,7 +171,7 @@ export function getAllPositiveTraits() {
   // Wisdom = wise
   // Charisma = caring
   // Intelligent = clever
-  let traits = [
+  const traits = [
     new PersonalityTrait("active", [], ["physical"]),
     new PersonalityTrait("adaptable", [], ["flexible"]),
     new PersonalityTrait("admirable", [], []),
@@ -409,7 +409,7 @@ export function getAllPositiveTraits() {
 }
 
 export function getAllNegativeTraits() {
-  let traits = [
+  const traits = [
     new PersonalityTrait("abrasive", [], ["angry"]),
     new PersonalityTrait("abrupt", [], ["angry"]),
     new PersonalityTrait("absentminded", [], ["clever"]),

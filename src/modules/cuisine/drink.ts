@@ -28,7 +28,7 @@ export class Drink {
 }
 
 export function generateDrink() {
-  let drink = new Drink();
+  const drink = new Drink();
   drink.appearance = RND.item(drink.drinkType.appearances);
   drink.strength = random.int(drink.drinkType.strengthMin, drink.drinkType.strengthMax);
   drink.quality = random.int(0, 6);
@@ -41,19 +41,19 @@ export function generateDrink() {
 }
 
 function describe(drink: Drink) {
-  let adjectives = [];
+  const adjectives = [];
 
-  let adjectiveChance = random.int(1, 100);
+  const adjectiveChance = random.int(1, 100);
   if (adjectiveChance > 30) {
     adjectives.push(drink.appearance);
   }
 
-  let strengthChance = random.int(1, 100);
+  const strengthChance = random.int(1, 100);
   if (strengthChance > 70) {
     adjectives.push(describeStrength(drink.strength));
   }
 
-  let qualityChance = random.int(1, 100);
+  const qualityChance = random.int(1, 100);
   if (qualityChance > 70) {
     adjectives.push(describeQuality(drink.quality));
   }

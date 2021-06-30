@@ -10,16 +10,16 @@ export function generateDish() {
 
   dish += randomMainComponent();
 
-  let vegetableChance = random.int(1, 100);
+  const vegetableChance = random.int(1, 100);
 
   if (vegetableChance > 50) {
-    let combiningWord = RND.item(["and", "on", "with"]);
+    const combiningWord = RND.item(["and", "on", "with"]);
     dish += " " + combiningWord + " " + randomVegetable();
   }
 
-  let seasoning = randomSeasoning();
+  const seasoning = randomSeasoning();
 
-  let seasoningPhrase = RND.item([
+  const seasoningPhrase = RND.item([
     "seasoned with",
     "flavored with",
     "spiced with",
@@ -31,13 +31,13 @@ export function generateDish() {
 }
 
 function randomCookingMethod() {
-  let items = ["roasted", "fried", "baked", "broiled", "seared", "charbroiled"];
+  const items = ["roasted", "fried", "baked", "broiled", "seared", "charbroiled"];
 
   return RND.item(items);
 }
 
 function randomFocus() {
-  let items = [
+  const items = [
     {
       name: "vegetable",
       options: [
@@ -106,7 +106,7 @@ function randomFocus() {
     },
   ];
 
-  let focus = RND.item(items);
+  const focus = RND.item(items);
 
   return RND.item(focus.options);
 }
@@ -114,7 +114,7 @@ function randomFocus() {
 function randomMainComponent() {
   let mainComponent = randomFocus();
 
-  let modifierChance = random.int(1, 100);
+  const modifierChance = random.int(1, 100);
   if (modifierChance > 80) {
     mainComponent += " " + RND.item(["sausage", "stew"]);
   }
@@ -123,14 +123,14 @@ function randomMainComponent() {
 }
 
 function randomSeasoning() {
-  let seasoningCount = randomSeasoningCount();
-  let components: string[] = [];
+  const seasoningCount = randomSeasoningCount();
+  const components: string[] = [];
 
   let options = spices();
   options = options.concat(herbs());
 
   for (let i = 0; i < seasoningCount; i++) {
-    let component = RND.item(options);
+    const component = RND.item(options);
     if (!components.includes(component)) {
       components.push(component);
     } else {
@@ -142,7 +142,7 @@ function randomSeasoning() {
 }
 
 function randomSeasoningCount() {
-  let weights = [
+  const weights = [
     {
       item: 1,
       weight: 50,
@@ -157,13 +157,13 @@ function randomSeasoningCount() {
     },
   ];
 
-  let result = RND.weighted(weights);
+  const result = RND.weighted(weights);
 
   return result.item;
 }
 
 function randomVegetable() {
-  let items = [
+  const items = [
     "broccoli",
     "spinach",
     "lettuce",

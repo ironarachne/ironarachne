@@ -34,7 +34,7 @@ export class Classification {
 }
 
 export function randomClassification() {
-  let classifications = [
+  const classifications = [
     new Classification(
       "patriarchal autocracy",
       true,
