@@ -1,10 +1,6 @@
 image: node:16.4.2
 
 pages:
-  script:
-    - yarn set version berry
-    - yarn
-    - yarn build
   artifacts:
     paths:
       - public
