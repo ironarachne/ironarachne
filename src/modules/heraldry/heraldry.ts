@@ -70,9 +70,9 @@ export function generate(charges: Charge.Charge[], width: number, height: number
       " " +
       chargeTincture.name;
   } else if (numberOfCharges === 2) {
-    blazon += ", two " + charge.plural + " " + chargeTincture.name;
+    blazon += ", two " + charge.pluralName + " " + chargeTincture.name;
   } else {
-    blazon += ", three " + charge.plural + " " + chargeTincture.name;
+    blazon += ", three " + charge.pluralName + " " + chargeTincture.name;
   }
 
   const heraldry = new Heraldry(
