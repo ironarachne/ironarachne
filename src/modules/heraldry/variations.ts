@@ -1,7 +1,7 @@
 "use strict";
 
 import * as RND from "../random";
-import {Tincture} from "@/modules/heraldry/tinctures";
+import {Tincture} from "./tinctures";
 
 export class Variation {
   name: string;

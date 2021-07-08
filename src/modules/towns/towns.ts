@@ -1,8 +1,8 @@
 "use strict";
 
 import * as RND from "../random";
-import * as TownCategory from "@/modules/towns/category";
-import {Town} from "@/modules/towns/town";
+import * as TownCategory from "./category";
+import {Town} from "./town";
 
 export function generate(size: string, possibleNames: string[]) {
   const town = new Town(RND.item(possibleNames));

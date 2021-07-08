@@ -2,10 +2,10 @@
 
 import * as RND from "../random";
 import * as Words from "../words";
-import {DrinkType} from "@/modules/cuisine/drinktype";
-import * as DrinkTypes from "@/modules/cuisine/drinktypes";
+import {DrinkType} from "./drinktype";
+import * as DrinkTypes from "./drinktypes";
 
-const random = require("random");
+import random from "random";
 
 export class Drink {
   name: string;

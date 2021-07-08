@@ -8,7 +8,7 @@ import * as Town from "./towns/towns";
 import * as TownNames from "./names/towns";
 import * as Words from "./words";
 
-const random = require("random");
+import random from "random";
 
 export function generate() {
   const biome = randomBiome();

@@ -7,7 +7,7 @@ import * as RND from "./random";
 import * as Dice from "./dice";
 import * as Currency from "./currency";
 
-const random = require("random");
+import random from "random";
 
 export class Tavern {
   name: string;

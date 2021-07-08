@@ -12,7 +12,7 @@ import * as Religion from "./religion";
 import * as Words from "../words";
 import {Concept} from "./realm";
 
-const random = require("random");
+import random from "random";
 
 export function generate() {
   const realms = randomRealms();

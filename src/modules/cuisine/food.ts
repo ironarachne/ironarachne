@@ -3,7 +3,7 @@
 import * as RND from "../random";
 import * as words from "../words";
 
-const random = require("random");
+import random from "random";
 
 export function generateDish() {
   let dish = randomCookingMethod() + " ";

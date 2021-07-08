@@ -1,6 +1,6 @@
 "use strict";
 
-const random = require("random");
+import random from "random";
 
 export function render(width: number, height: number) {
   let svg =

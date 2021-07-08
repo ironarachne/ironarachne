@@ -4,7 +4,7 @@ import * as RND from "../random";
 import * as Text from "../textformat";
 import * as ModelNumber from "../names/modelnumbers";
 
-const random = require("random");
+import random from "random";
 
 export class SWNStarship {
   name: string;
@@ -126,7 +126,7 @@ export function generate() {
         const driveUpgrade = RND.item(drives);
 
         starship.fittings.push(driveUpgrade);
-        starship.drive = driveUpgrade.name;
+        starship.drive = driveUpgrade;
 
         massBudget -= (driveUpgrade.mass * massMultiplier);
         powerBudget -= (driveUpgrade.power * powerMultiplier);
@@ -137,7 +137,7 @@ export function generate() {
 
   if (starship.ownerType.isArmed) {
     const weaponList = allWeapons();
-    let possibleWeapons = [];
+    let possibleWeapons: Weapon[] = [];
     for (let i = 0; i < weaponList.length; i++) {
       const weaponMassCost = weaponList[i].mass;
       const weaponPowerCost = weaponList[i].power;
@@ -155,7 +155,7 @@ export function generate() {
       let weaponCost = newWeapon.cost;
       let weaponMassCost = newWeapon.mass;
       let weaponPowerCost = newWeapon.power;
-      const weaponHardpoints = newWeapon.hardpoints;
+      const weaponHardpoints = newWeapon.hardPoints;
 
       if (newWeapon.massExpands) {
         weaponMassCost = weaponMassCost * massMultiplier;
@@ -2554,7 +2554,7 @@ export function formatAsText(starship: SWNStarship) {
   description += "Model: " + starship.className + "\n";
   description += "Hull Type: " + starship.hullType.name + "\n";
   description += "Hull Class: " + starship.hullType.hullClassName + "\n";
-  description += "Drive: " + starship.drive + "\n";
+  description += "Drive: " + starship.drive.name + "\n";
   description += "Maximum Mass: " + starship.hullType.mass + "\n";
   description += "Mass Used: " + starship.usedMass + "\n";
   description += "Maximum Power: " + starship.hullType.power + "\n";

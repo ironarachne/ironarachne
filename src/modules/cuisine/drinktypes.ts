@@ -1,4 +1,4 @@
-import {DrinkType} from "@/modules/cuisine/drinktype";
+import {DrinkType} from "./drinktype";
 
 export function all() {
   return [

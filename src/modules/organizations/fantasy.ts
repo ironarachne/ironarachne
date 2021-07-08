@@ -6,9 +6,9 @@ import * as FantasyCharacter from "../characters/fantasy";
 import Organization from "./organization";
 import Rank from "./rank";
 import Title from "../characters/title";
-import {OrganizationType} from "@/modules/organizations/type";
+import {OrganizationType} from "./type";
 
-const random = require("random");
+import random from "random";
 
 export function generate() {
   const orgType = randomType();

@@ -1,6 +1,6 @@
 "use strict";
 
-const random = require("random");
+import random from "random";
 
 export function renderPlanet(
   width: number,

@@ -1,7 +1,7 @@
 "use strict";
 
 import * as RND from "../random";
-import {Deity} from "@/modules/religion/deity";
+import {Deity} from "./deity";
 
 export class Pantheon {
   name: string;

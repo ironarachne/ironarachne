@@ -73,6 +73,59 @@ export function genderNoun(gender: string, ageGroupName: string) {
   return noun;
 }
 
+export function getMonthAbbr(month: number) {
+  const months = [
+    'Jan.',
+    'Feb.',
+    'Mar.',
+    'Apr.',
+    'May',
+    'Jun.',
+    'Jul.',
+    'Aug.',
+    'Sep.',
+    'Oct.',
+    'Nov.',
+    'Dec.'
+  ];
+
+  return months[month];
+}
+
+export function getMonthName(month: number) {
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December'
+  ];
+
+  return months[month];
+}
+
+export function getOrdinal(number: number) {
+  const lastDigitOfNumber = number % 10;
+
+  switch (lastDigitOfNumber) {
+      case 1:
+          return 'st';
+      case 2:
+          return 'nd';
+      case 3:
+          return 'rd';
+      default:
+          return 'th';
+  }
+}
+
 export function pronoun(gender: string, wordCase: string) {
   let pronoun = "";
 

@@ -1,6 +1,6 @@
 "use strict";
 
-import Title from "@/modules/characters/title";
+import Title from "../characters/title";
 
 export default class Rank {
   title: Title;

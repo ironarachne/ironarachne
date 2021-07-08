@@ -1,4 +1,4 @@
-import * as RND from "@/modules/random";
+import * as RND from "../random";
 
 export class PhonemeCollection {
   consonants: string[];

@@ -300,7 +300,7 @@ export class BonusSkillOfType {
     const newSkill = randomSkillOfType(skillType);
 
     for (let j = 0; j < character.skills.length; j++) {
-      if (character.skills[j].name === newSkill) {
+      if (character.skills[j].name === newSkill.name) {
         character.skills[j].level++;
         skillAddressed = true;
       }
@@ -1270,7 +1270,7 @@ function randomSkillOfType(skillType: string) {
 
   const newSkill = RND.item(skills);
 
-  return newSkill.name;
+  return newSkill;
 }
 
 function randomPsionicAbilityOfDiscipline(discipline: string) {
@@ -1752,7 +1752,7 @@ export function formatAsText(character: SWNCharacter) {
   description += Text.header("Abilities");
 
   for (let i = 0; i < character.abilities.length; i++) {
-    description += character.abilities[i] + "\n\n";
+    description += character.abilities[i].description + "\n\n";
   }
 
   description += Text.header("Weapons");

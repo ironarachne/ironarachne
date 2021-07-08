@@ -1,7 +1,7 @@
 "use strict";
 
-import {Realm} from "@/modules/religion/realm";
-import {Pantheon} from "@/modules/religion/pantheon";
+import {Realm} from "./realm";
+import {Pantheon} from "./pantheon";
 
 export class Religion {
   name: string;

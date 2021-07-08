@@ -6,10 +6,10 @@ import * as Measurements from "../measurements";
 import * as Words from "../words";
 import Character from "./character";
 import * as PersonalityTraits from "./personality";
-import {Species} from "@/modules/species/common";
-import {AgeCategory} from "@/modules/age";
+import {Species} from "../species/common";
+import {AgeCategory} from "../age";
 
-const random = require("random");
+import random from "random";
 
 export function generate(species: Species, ageGroupName: string, gender: string, firstNames: string[], lastNames: string[]) {
   const character = new Character(species);

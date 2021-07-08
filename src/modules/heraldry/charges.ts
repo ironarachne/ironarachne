@@ -1,321 +1,362 @@
 "use strict";
 
-import {create} from "xmlbuilder2";
-import axios from "axios";
 import * as RND from "../random";
-import {Charge} from "@/modules/heraldry/charge";
+import {Charge} from "./charge";
+
+import antelopepassant from "./charge-images/antelope-passant.svg";
+import anteloperampant from "./charge-images/antelope-rampant.svg";
+import batvolant from "./charge-images/bat-volant.svg";
+import battleaxe from "./charge-images/battleaxe.svg";
+import bearheadcouped from "./charge-images/bear-head-couped.svg";
+import bearrampant from "./charge-images/bear-rampant.svg";
+import bearstatant from "./charge-images/bear-statant.svg";
+import beevolant from "./charge-images/bee-volant.svg";
+import bell from "./charge-images/bell.svg";
+import boarheaderased from "./charge-images/boar-head-erased.svg";
+import boarpassant from "./charge-images/boar-passant.svg";
+import boarrampant from "./charge-images/boar-rampant.svg";
+import castle from "./charge-images/castle.svg";
+import cock from "./charge-images/cock.svg";
+import cockatrice from "./charge-images/cockatrice.svg";
+import dolphinhauriant from "./charge-images/dolphin-hauriant.svg";
+import doubleheadedeagledisplayed from "./charge-images/double-headed-eagle-displayed.svg";
+import dragonrampant from "./charge-images/dragon-rampant.svg";
+import eaglesheaderased from "./charge-images/eagles-head-erased.svg";
+import foxsejant from "./charge-images/fox-sejant.svg";
+import gryphonsegreant from "./charge-images/gryphon-segreant.svg";
+import haresalient from "./charge-images/hare-salient.svg";
+import hare from "./charge-images/hare.svg";
+import heron from "./charge-images/heron.svg";
+import horsepassant from "./charge-images/horse-passant.svg";
+import horserampant from "./charge-images/horse-rampant.svg";
+import leopardpassant from "./charge-images/leopard-passant.svg";
+import lionpassant from "./charge-images/lion-passant.svg";
+import lionrampant from "./charge-images/lion-rampant.svg";
+import lionsheaderased from "./charge-images/lions-head-erased.svg";
+import owl from "./charge-images/owl.svg";
+import pegasuspassant from "./charge-images/pegasus-passant.svg";
+import pegasusrampant from "./charge-images/pegasus-rampant.svg";
+import ramrampant from "./charge-images/ram-rampant.svg";
+import ramstatant from "./charge-images/ram-statant.svg";
+import rose from "./charge-images/rose.svg";
+import seahorse from "./charge-images/sea-horse.svg";
+import squirrel from "./charge-images/squirrel.svg";
+import staglodged from "./charge-images/stag-lodged.svg";
+import stagstatant from "./charge-images/stag-statant.svg";
+import suninsplendor from "./charge-images/sun-in-splendor.svg";
+import tigerpassant from "./charge-images/tiger-passant.svg";
+import tigerrampant from "./charge-images/tiger-rampant.svg";
+import tower from "./charge-images/tower.svg";
+import twoaxesinsaltire from "./charge-images/two-axes-in-saltire.svg";
+import twobonesinsaltire from "./charge-images/two-bones-in-saltire.svg";
+import unicornstatant from "./charge-images/unicorn-statant.svg";
+import wolfpassant from "./charge-images/wolf-passant.svg";
+import wolframpant from "./charge-images/wolf-rampant.svg";
+import wyvern from "./charge-images/wyvern.svg";
 
 export function all() {
   return [
     new Charge(
       "antelope passant",
       "antelopes passant",
-      "antelope-passant.svg",
+      antelopepassant,
       "regular"
     ),
     new Charge(
       "antelope rampant",
       "antelopes rampant",
-      "antelope-rampant.svg",
+      anteloperampant,
       "regular"
     ),
     new Charge(
       "bat volant",
       "bats volant",
-      "bat-volant.svg",
+      batvolant,
       "regular"
     ),
     new Charge(
       "battleaxe",
       "battleaxes",
-      "battleaxe.svg",
+      battleaxe,
       "regular"
     ),
     new Charge(
       "bear head couped",
       "bear heads couped",
-      "bear-head-couped.svg",
+      bearheadcouped,
       "regular"
     ),
     new Charge(
       "bear rampant",
       "bears rampant",
-      "bear-rampant.svg",
+      bearrampant,
       "regular"
     ),
     new Charge(
       "bear statant",
       "bears statant",
-      "bear-statant.svg",
+      bearstatant,
       "regular"
     ),
     new Charge(
       "bee volant",
       "bees volant",
-      "bee-volant.svg",
+      beevolant,
       "regular"
     ),
     new Charge(
       "bell",
       "bells",
-      "bell.svg",
+      bell,
       "regular"
     ),
     new Charge(
       "boar head erased",
       "boar heads erased",
-      "boar-head-erased.svg",
+      boarheaderased,
       "regular"
     ),
     new Charge(
       "boar passant",
       "boars passant",
-      "boar-passant.svg",
+      boarpassant,
       "regular"
     ),
     new Charge(
       "boar rampant",
       "boars rampant",
-      "boar-rampant.svg",
+      boarrampant,
       "regular"
     ),
     new Charge(
       "castle",
       "castles",
-      "castle.svg",
+      castle,
       "regular"
     ),
     new Charge(
       "cock",
       "cocks",
-      "cock.svg",
+      cock,
       "regular"
     ),
     new Charge(
       "cockatrice",
       "cockatrices",
-      "cockatrice.svg",
+      cockatrice,
       "regular"
     ),
     new Charge(
       "dolphin hauriant",
       "dolphins hauriant",
-      "dolphin-hauriant.svg",
+      dolphinhauriant,
       "regular"
     ),
     new Charge(
-      "double-headed eagle displayed",
-      "double-headed eagles displayed",
-      "double-headed-eagle-displayed.svg",
+      "doubleheaded eagle displayed",
+      "doubleheaded eagles displayed",
+      doubleheadedeagledisplayed,
       "regular"
     ),
     new Charge(
       "dragon rampant",
       "dragons rampant",
-      "dragon-rampant.svg",
+      dragonrampant,
       "regular"
     ),
     new Charge(
       "eagle's head erased",
       "eagle's heads erased",
-      "eagles-head-erased.svg",
+      eaglesheaderased,
       "regular"
     ),
     new Charge(
       "fox sejant",
       "foxes sejant",
-      "fox-sejant.svg",
+      foxsejant,
       "regular"
     ),
     new Charge(
       "gryphon segreant",
       "gryphons segreant",
-      "gryphon-segreant.svg",
+      gryphonsegreant,
       "regular"
     ),
     new Charge(
       "hare salient",
       "hares salient",
-      "hare-salient.svg",
+      haresalient,
       "regular"
     ),
     new Charge(
       "hare",
       "hares",
-      "hare.svg",
+      hare,
       "regular"
     ),
     new Charge(
       "heron",
       "herons",
-      "heron.svg",
+      heron,
       "regular"
     ),
     new Charge(
       "horse passant",
       "horses passant",
-      "horse-passant.svg",
+      horsepassant,
       "regular"
     ),
     new Charge(
       "horse rampant",
       "horses rampant",
-      "horse-rampant.svg",
+      horserampant,
       "regular"
     ),
     new Charge(
       "leopard passant",
       "leopards passant",
-      "leopard-passant.svg",
+      leopardpassant,
       "regular"
     ),
     new Charge(
       "lion passant",
       "lions passant",
-      "lion-passant.svg",
+      lionpassant,
       "regular"
     ),
     new Charge(
       "lion rampant",
       "lions rampant",
-      "lion-rampant.svg",
+      lionrampant,
       "regular"
     ),
     new Charge(
       "lion's head erased",
       "lion's heads erased",
-      "lions-head-erased.svg",
+      lionsheaderased,
       "regular"
     ),
     new Charge(
       "owl",
       "owls",
-      "owl.svg",
+      owl,
       "regular"
     ),
     new Charge(
       "pegasus passant",
       "pegasuses passant",
-      "pegasus-passant.svg",
+      pegasuspassant,
       "regular"
     ),
     new Charge(
       "pegasus rampant",
       "pegasuses rampant",
-      "pegasus-rampant.svg",
+      pegasusrampant,
       "regular"
     ),
     new Charge(
       "ram rampant",
       "rams rampant",
-      "ram-rampant.svg",
+      ramrampant,
       "regular"
     ),
     new Charge(
       "ram statant",
       "rams statant",
-      "ram-statant.svg",
+      ramstatant,
       "regular"
     ),
     new Charge(
       "rose",
       "roses",
-      "rose.svg",
+      rose,
       "regular"
     ),
     new Charge(
       "sea horse",
       "sea horses",
-      "sea-horse.svg",
+      seahorse,
       "regular"
     ),
     new Charge(
       "squirrel",
       "squirrels",
-      "squirrel.svg",
+      squirrel,
       "regular"
     ),
     new Charge(
       "stag lodged",
       "stags lodged",
-      "stag-lodged.svg",
+      staglodged,
       "regular"
     ),
     new Charge(
       "stag statant",
       "stags statant",
-      "stag-statant.svg",
+      stagstatant,
       "regular"
     ),
     new Charge(
       "sun in splendor",
       "suns in splendor",
-      "sun-in-splendor.svg",
+      suninsplendor,
       "regular"
     ),
     new Charge(
       "tiger passant",
       "tigers passant",
-      "tiger-passant.svg",
+      tigerpassant,
       "regular"
     ),
     new Charge(
       "tiger rampant",
       "tigers rampant",
-      "tiger-rampant.svg",
+      tigerrampant,
       "regular"
     ),
     new Charge(
       "tower",
       "towers",
-      "tower.svg",
+      tower,
       "regular"
     ),
     new Charge(
       "two axes in saltire",
       "axes in saltire",
-      "two-axes-in-saltire.svg",
+      twoaxesinsaltire,
       "regular"
     ),
     new Charge(
       "two bones in saltire",
       "bones in saltire",
-      "two-bones-in-saltire.svg",
+      twobonesinsaltire,
       "regular"
     ),
     new Charge(
       "unicorn statant",
       "unicorns statant",
-      "unicorn-statant.svg",
+      unicornstatant,
       "regular"
     ),
     new Charge(
       "wolf passant",
       "wolves passant",
-      "wolf-passant.svg",
+      wolfpassant,
       "regular"
     ),
     new Charge(
       "wolf rampant",
       "wolves rampant",
-      "wolf-rampant.svg",
+      wolframpant,
       "regular"
     ),
     new Charge(
       "wyvern",
       "wyverns",
-      "wyvern.svg",
+      wyvern,
       "regular"
     ),
   ];
-}
-
-export function load(fileName: string) {
-  return axios
-    .get("/images/heraldry/charges/" + fileName)
-    .then(function (response) {
-      return create(response.data);
-    });
 }
 
 export function random(charges: Charge[]) {

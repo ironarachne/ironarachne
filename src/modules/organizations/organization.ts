@@ -1,7 +1,7 @@
 "use strict";
 
-import Rank from "@/modules/organizations/rank";
-import Character from "@/modules/characters/character";
+import Rank from "./rank";
+import Character from "../characters/character";
 
 export default class Organization {
   name: string;

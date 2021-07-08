@@ -1,7 +1,8 @@
 .DS_Store
 node_modules
 /dist
-
+.cache
+.yarn
 
 # local env files
 .env.local

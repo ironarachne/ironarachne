@@ -2,13 +2,12 @@
 
 import * as PersonalityTraits from "../characters/personality";
 import * as Words from "../words";
-import {Species} from "@/modules/species/common";
-import {Domain} from "@/modules/religion/domain";
-import Title from "@/modules/characters/title";
-import {Realm} from "@/modules/religion/realm";
-import {Relationship} from "@/modules/characters/relationship";
+import {Species} from "../species/common";
+import {Domain} from "./domain";
+import {Realm} from "./realm";
+import {Relationship} from "../characters/relationship";
 
-const random = require("random");
+import random from "random";
 
 export class Deity {
   name: string;

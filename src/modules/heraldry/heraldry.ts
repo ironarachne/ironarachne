@@ -8,8 +8,8 @@ import * as Charges from "./charges";
 import * as Words from "../words";
 import * as RND from "../random";
 
-const _ = require("lodash");
-const {create} = require("xmlbuilder2");
+import * as _ from "lodash";
+import {create} from "xmlbuilder2";
 
 export class Heraldry {
   field: Field.Field;
@@ -91,19 +91,6 @@ export function generate(charges: Charge.Charge[], width: number, height: number
     blazon: blazon,
     svg: svg,
   };
-}
-
-export async function loadCharges() {
-  const charges = Charges.all();
-  const hydratedCharges = [];
-
-  for await (const chargeData of charges) {
-    const charge = new Charge.Charge(chargeData.name, chargeData.pluralName, chargeData.fileName, chargeData.chargeType);
-    charge.SVG = await charge.loadSVG();
-    hydratedCharges.push(charge);
-  }
-
-  return hydratedCharges;
 }
 
 export function randomNumberOfCharges() {

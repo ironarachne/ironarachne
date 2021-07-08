@@ -1,7 +1,7 @@
 "use strict";
 
-import Title from "@/modules/characters/title";
-import {Species} from "@/modules/species/common";
+import Title from "./title";
+import {Species} from "../species/common";
 
 export default class Character {
   titles: Title[];

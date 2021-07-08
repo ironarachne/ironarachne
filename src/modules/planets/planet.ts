@@ -3,7 +3,7 @@
 import * as RND from "../random";
 import * as PlanetName from "../names/planets";
 
-const random = require("random");
+import random from "random";
 
 export class Planet {
   name: string;

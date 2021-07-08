@@ -1,6 +1,6 @@
-import * as RND from "@/modules/random";
+import * as RND from "../random";
 
-const random = require("random");
+import random from "random";
 
 export class TownCategory {
   name: string;

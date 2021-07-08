@@ -2,9 +2,9 @@
 
 import * as RND from "../../random";
 import * as StarfieldRenderer from "../starfields/starfield-svg";
-import {Planet} from "@/modules/planets/planet";
+import {Planet} from "../../planets/planet";
 
-const random = require("random");
+import random from "random";
 
 export function render(
   width: number,

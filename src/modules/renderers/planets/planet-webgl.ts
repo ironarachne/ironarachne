@@ -1,9 +1,9 @@
 "use strict";
 
 import * as ShaderTools from "../../shadertools";
-import {PlanetClassification} from "@/modules/planets/planet";
+import {PlanetClassification} from "../../planets/planet";
 
-const random = require("random");
+import random from "random";
 
 export function translateDiameterToModelSize(diameter: number) {
   let size = Math.floor(diameter / 2000) + 1;

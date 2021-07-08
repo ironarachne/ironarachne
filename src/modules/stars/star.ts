@@ -4,7 +4,7 @@ import * as RND from "../random";
 import * as StarNames from "../names/stars";
 import * as Words from "../words";
 
-const random = require("random");
+import random from "random";
 
 export class Star {
   name: string;

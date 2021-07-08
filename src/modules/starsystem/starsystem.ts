@@ -6,7 +6,7 @@ import * as Star from "../stars/star";
 import * as Planet from "../planets/planet";
 import * as PlanetRenderer from "../renderers/planets/planet-svg";
 
-const random = require("random");
+import random from "random";
 
 export class StarSystem {
   name: string;

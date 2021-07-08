@@ -1,6 +1,6 @@
-import * as PC from "@/modules/languages/phoneme";
-import * as RND from "@/modules/random";
-import * as Lexicon from "@/modules/languages/lexicon";
+import * as PC from "./phoneme";
+import * as RND from "../random";
+import * as Lexicon from "./lexicon";
 
 export class Language {
   name: string;

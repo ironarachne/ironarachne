@@ -1,6 +1,6 @@
 "use strict";
 
-const random = require("random");
+import random from "random";
 
 export function item(items: any[]) {
   return items[random.int(0, items.length - 1)];
