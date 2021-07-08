@@ -1,0 +1,8 @@
+pages:
+  script:
+    - npm install -g yarn
+    - yarn
+    - yarn build
+  artifacts:
+    paths:
+      - public
