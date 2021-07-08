@@ -2,7 +2,6 @@ image: node:16.4.2
 
 pages:
   script:
-    - npm install -g yarn
     - yarn
     - yarn build
   artifacts:
