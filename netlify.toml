@@ -2,6 +2,17 @@
 publish = "public"
 command = "yarn build"
 
+[build.environment]
+  # Yarn classic version used to bootstrap. Default for @netlify/build < 4 is 1.17, which isn't enough
+  YARN_VERSION = "1.22.5"
+  # Only needed in case Yarn can't be detected in your base folder
+  NETLIFY_USE_YARN = "true"
+  # Feature flag to cache all the node_modules folders of the workspaces detected by `YARN_IGNORE_PATH=1 yarn workspaces --json info`
+  # Only use this if you have `workspaces` in your package.json
+  NETLIFY_YARN_WORKSPACES = "true"
+  # Equivalent to setting `cacheFolder` in your .yarnrc.yml
+  YARN_CACHE_FOLDER = "/opt/buildhome/.yarn_cache"
+
 [[redirects]]
   from = "/culture"
   to = "/#/culture"
