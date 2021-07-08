@@ -1,0 +1,8 @@
+image: node:16.4.2
+
+pages:
+  script:
+    - echo "No build necessary, because Zero Install."
+  artifacts:
+    paths:
+      - public
