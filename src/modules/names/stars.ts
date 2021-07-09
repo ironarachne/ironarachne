@@ -1,50 +1,32 @@
 "use strict";
 
-import * as RND from "../random";
+import * as Invented from "./invented";
 
 export function generate() {
-  const prefixes = [
-    "Ar",
-    "Ab",
-    "Al",
-    "Meb",
-    "Pher",
-    "Sched",
-    "Tay",
-    "Ser",
-    "San",
-    "Dor",
-    "Kan",
-    "Kel",
-    "Mep",
-    "Frin",
-    "Vuat",
-    "Qin",
-    "Zor",
+  const patterns = [
+    "pvn",
+    "pvnvn",
+    "pvnvv",
+    "slvnvn",
+    "lvfv",
+    "lvfvn",
+    "tvtv",
+    "pvtun",
+    "pvtu",
+    "pudv",
+    "tudv",
+    "sludvv",
+    "pvnvlv",
+    "pvnvlvnv",
+    "svnvlvnv",
+    "pullvlv",
+    "pvpvpun",
+    "sludun",
+    "slvdvn",
+    "slvdvnv",
+    "slvpvpv",
+    "slvpupv",
   ];
 
-  const suffixes = [
-    "o",
-    "ao",
-    "an",
-    "am",
-    "un",
-    "uy",
-    "to",
-    "va",
-    "du",
-    "ado",
-    "ano",
-    "ast",
-    "est",
-    "il",
-    "gro",
-    "shec",
-    "sheb",
-    "rep",
-    "aab",
-    "oic",
-  ];
-
-  return RND.item(prefixes) + RND.item(suffixes);
+  return Invented.generate(patterns);
 }
