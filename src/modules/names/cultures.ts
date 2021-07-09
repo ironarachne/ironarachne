@@ -16,7 +16,7 @@ export function generateNameList(gender: string, patterns: string[]) {
   let namePatterns: string[] = [];
 
   for (let i = 0; i < patterns.length; i++) {
-    femalePatterns.push(patterns[i] + "f");
+    femalePatterns.push(patterns[i] + RND.item(["A", "I"]));
     malePatterns.push(patterns[i]);
     familyPatterns.push(patterns[i] + RND.item(["cv", "vcv"]));
   }
@@ -39,7 +39,7 @@ export function generateNameList(gender: string, patterns: string[]) {
 
 // Generates a set of similar patterns
 export function randomNameRoots() {
-  const prefixes = ["cvc", "cvp", "vcv", "cvc"];
+  const prefixes = ["cvc", "cvd", "vcv", "cvc"];
   const suffixes = ["vc", "vcv", "vn", "sv", "vs"];
 
   const patterns = [];
@@ -52,5 +52,5 @@ export function randomNameRoots() {
 }
 
 function patterns() {
-  return ["cvpv", "vccvc", "gvcvc", "cvMANI", "cvcDARI", "cApERI", "cvcAcI"];
+  return ["cvdv", "vccvc", "pvcvc", "cvMANI", "cvcDARI", "cAdERI", "cvcAcI"];
 }

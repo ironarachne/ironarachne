@@ -21,21 +21,22 @@ export function generate(patterns: string[]) {
 function parsePatternElement(element: string) {
   let letter = "";
 
-  if (element === "c") {
-    letter = randomConsonant();
-  } else if (element === "v") {
-    letter = randomVowel();
-  } else if (element === "p") {
-    letter = randomConsonant();
-    letter = letter + letter;
-  } else if (element === "n") {
-    letter = randomNasal();
-  } else if (element === "g") {
-    letter = randomGlottal();
-  } else if (element === "s") {
-    letter = randomSibilant();
-  } else if (element === "f") {
-    letter = randomSoftVowel();
+  const elements = {
+    a: randomAffricate(),
+    c: randomConsonant(),
+    d: (() => { let result = randomConsonant(); return result + result; })(),
+    f: randomFricative(),
+    l: randomLiquid(),
+    n: randomNasal(),
+    p: randomPlosive(),
+    s: randomSibilant(),
+    t: randomStrident(),
+    u: (() => { let result = randomVowel(); return result + result })(),
+    v: randomVowel(),
+  }
+
+  if ("acdflnpstv".includes(element)) {
+    letter = elements[element];
   } else {
     letter = element.toLowerCase();
   }
@@ -69,20 +70,32 @@ export function randomConsonant() {
   ]);
 }
 
-export function randomGlottal() {
-  return RND.item(["g", "k"]);
+export function randomAffricate() {
+  return RND.item(["ch", "j"]);
+}
+
+export function randomFricative() {
+  return RND.item(["f", "v"]);
+}
+
+export function randomLiquid() {
+  return RND.item(["l", "r"]);
+}
+
+export function randomPlosive() {
+  return RND.item(["g", "k", "p", "b", "t", "d", "q"]);
 }
 
 export function randomNasal() {
-  return RND.item(["m", "n"]);
+  return RND.item(["m", "n", "ng"]);
 }
 
 export function randomSibilant() {
-  return RND.item(["f", "s"]);
+  return RND.item(["s", "sh", "z", "zh"]);
 }
 
-export function randomSoftVowel() {
-  return RND.item(["a", "i"]);
+export function randomStrident() {
+  return RND.item(["f", "v", "s", "sh", "z", "zh"]);
 }
 
 export function randomVowel() {
