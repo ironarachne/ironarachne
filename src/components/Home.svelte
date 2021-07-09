@@ -2,6 +2,11 @@
   import ChangeLog from "../modules/changelog";
 
   let updates = [
+    new ChangeLog("2021-7-9", [
+      "Changed how star and planet names are constructed.",
+      "Added a chance for inhabited planets to have a notable starport.",
+      "Changed how planetary cultures and governments are generated.",
+    ]),
     new ChangeLog("2021-7-8", [
       "Rewrote the site from JavaScript + Vue + Webpack to TypeScript + Svelte + Rollup.",
       "Fixed several subtle bugs in the Stars Without Number generators.",
