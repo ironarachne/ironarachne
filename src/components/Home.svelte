@@ -2,6 +2,11 @@
   import ChangeLog from "../modules/changelog";
 
   let updates = [
+    new ChangeLog("2021-7-13", [
+      "Added more variety to biomes.",
+      "Added an arms manufacturer generator.",
+      "Fixed a bug in calculating ordinals for the changelog.",
+    ]),
     new ChangeLog("2021-7-9", [
       "Changed how star and planet names are constructed.",
       "Added a chance for inhabited planets to have a notable starport.",

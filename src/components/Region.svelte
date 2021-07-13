@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as RND from "../modules/random";
-  import * as Region from "../modules/region";
+  import * as Region from "../modules/region/region";
 
   import random from "random";
   import seedrandom from "seedrandom";

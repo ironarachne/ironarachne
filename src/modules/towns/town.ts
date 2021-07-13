@@ -1,4 +1,4 @@
-export class Town {
+export default class Town {
   name: string;
   description: string;
 

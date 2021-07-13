@@ -49,6 +49,9 @@
 
     <ul>
       <li>
+        <a href="#/arms-manufacturer" class:active={$location === '/arms-manufacturer'}>Arms Manufacturer</a>
+      </li>
+      <li>
         <a href="#/starsystem" class:active={$location === '/starsystem'}>Star System</a>
       </li>
       <li>

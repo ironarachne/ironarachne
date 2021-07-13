@@ -1,3 +1,5 @@
+"use strict";
+
 import * as Words from "./words";
 
 export default class ChangeLog {

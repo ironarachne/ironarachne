@@ -112,6 +112,10 @@ export function getMonthName(month: number) {
 }
 
 export function getOrdinal(number: number) {
+  if (number > 3 && number < 21) {
+    return 'th';
+  }
+
   const lastDigitOfNumber = number % 10;
 
   switch (lastDigitOfNumber) {

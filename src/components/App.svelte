@@ -5,6 +5,7 @@
   import Home from "./Home.svelte";
   import Router from "svelte-spa-router";
   import Sidebar from "./Sidebar.svelte";
+  import ArmsManufacturer from "./ArmsManufacturer.svelte";
   import Culture from "./Culture.svelte";
   import Drug from "./Drug.svelte";
   import FantasyEquipment from "./FantasyEquipment.svelte";
@@ -22,6 +23,7 @@
 
   const routes = {
     "/": Home,
+    "/arms-manufacturer": ArmsManufacturer,
     "/chopshop": ChopShop,
     "/culture": Culture,
     "/drug": Drug,
