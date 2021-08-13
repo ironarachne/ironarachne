@@ -6,12 +6,14 @@ export function item(items: any[]) {
   return items[random.int(0, items.length - 1)];
 }
 
-export function randomString(length: number) {
-  return Math.round(
-    Math.pow(36, length + 1) - Math.random() * Math.pow(36, length)
-  )
-    .toString(36)
-    .slice(1);
+export function randomString(length: number): string {
+  let result: string = '';
+
+  for (let i=0;i<length;i++) {
+    result += Math.random().toString(36).slice(2)[0];
+  }
+
+  return result;
 }
 
 export function shuffle(items: any[]) {

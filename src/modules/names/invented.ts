@@ -1,20 +1,17 @@
 "use strict";
 
 import * as RND from "../random";
+import * as Words from "../words";
 
 export function generate(patterns: string[]) {
   let name = "";
   const pattern = RND.item(patterns);
 
   for (let i = 0; i < pattern.length; i++) {
-    let letter = parsePatternElement(pattern[i]);
-    if (i === 0) {
-      letter = letter.toUpperCase();
-    }
-    name += letter;
+    name += parsePatternElement(pattern[i]);;
   }
 
-  return name;
+  return Words.capitalize(name);
 }
 
 // Note that any uppercase character is used as-is in lowercase form

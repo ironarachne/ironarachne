@@ -2,6 +2,12 @@
   import ChangeLog from "../modules/changelog";
 
   let updates = [
+    new ChangeLog("2021-8-13", [
+      "Fixed bug in seed generator that right-padded it with zeroes.",
+      "Added more variety to town names.",
+      "Made the random seed field monospace.",
+      "Expanded the list of clothing in the fantasy equipment lists.",
+    ]),
     new ChangeLog("2021-7-13", [
       "Added more variety to biomes.",
       "Added an arms manufacturer generator.",
