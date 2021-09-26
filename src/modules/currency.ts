@@ -1,8 +1,9 @@
 "use strict";
 
-export function convertCopper(amount: number) {
+export function convertCopper(amount: number, useElectrum: boolean, usePlatinum: boolean, enableExact: boolean = true) {
   let copper = 0;
   let silver = 0;
+  let electrum = 0;
   let gold = 0;
   let platinum = 0;
   let remaining = 0;
@@ -10,12 +11,15 @@ export function convertCopper(amount: number) {
   remaining += amount;
 
   while (remaining > 0) {
-    if (remaining >= 1000) {
+    if (remaining >= 1000 && usePlatinum) {
       platinum++;
       remaining -= 1000;
     } else if (remaining >= 100) {
       gold++;
       remaining -= 100;
+    } else if (remaining >= 50 && useElectrum) {
+      electrum++;
+      remaining -= 50;
     } else if (remaining >= 10) {
       silver++;
       remaining -= 10;
@@ -29,14 +33,30 @@ export function convertCopper(amount: number) {
 
   if (platinum > 0) {
     result += platinum + " pp ";
+    if (!enableExact) {
+      return result.trim();
+    }
   }
 
   if (gold > 0) {
     result += gold + " gp ";
+    if (!enableExact) {
+      return result.trim();
+    }
+  }
+
+  if (electrum > 0) {
+    result += electrum + " ep ";
+    if (!enableExact) {
+      return result.trim();
+    }
   }
 
   if (silver > 0) {
     result += silver + " sp ";
+    if (!enableExact) {
+      return result.trim();
+    }
   }
 
   if (copper > 0) {

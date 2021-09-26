@@ -1,13 +1,12 @@
 <script lang="ts">
   import * as Currency from "../modules/currency";
   import * as FantasyEquipmentList from "../modules/equipment/fantasylist";
-  import { EquipmentList } from "../modules/equipment/list";
 
   let currency = "D&D currency";
   let equipmentLists = FantasyEquipmentList.all();
 
   function convertDNDCost(cost: number) {
-    return Currency.convertCopper(cost);
+    return Currency.convertCopper(cost, false, false);
   }
 
   function convertEnglishCost(cost: number) {
@@ -44,8 +43,9 @@
     <ul>
       <li>cp: copper piece</li>
       <li>sp: silver piece (worth 10 copper pieces)</li>
+      <li>ep: electrum piece (worth 50 copper pieces, rare)</li>
       <li>gp: gold piece (worth 10 silver pieces)</li>
-      <li>pp: platinum piece (worth 10 gold pieces)</li>
+      <li>pp: platinum piece (worth 10 gold pieces, rare)</li>
     </ul>
   </div>
   {:else if currency === 'English currency'}

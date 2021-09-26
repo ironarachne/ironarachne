@@ -2,7 +2,7 @@
 
 import * as RND from "../random";
 import * as Dice from "../dice";
-import * as Text from "../textformat";
+import * as Text from "../format/text";
 
 export class SWNCharacter {
   stats: Stat[];

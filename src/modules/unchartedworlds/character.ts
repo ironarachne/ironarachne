@@ -2,7 +2,7 @@
 
 import * as RND from "../random";
 import * as Words from "../words";
-import * as Text from "../textformat";
+import * as Text from "../format/text";
 
 export class UWCharacter {
   descriptors: string;

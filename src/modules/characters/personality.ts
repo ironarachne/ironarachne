@@ -141,6 +141,8 @@ export function getRandomTraits(gender: string, numberOfNegativeTraits: number, 
     }
   }
 
+  console.log(uniqueOpposingTags); // TODO: Figure out why I was calculating unique opposing tags
+
   const positive = [];
 
   for (let i = 0; i < positiveTraits.length; i++) {

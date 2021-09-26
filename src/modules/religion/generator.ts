@@ -10,7 +10,6 @@ import * as Realm from "./realm";
 import * as Relationship from "../characters/relationship";
 import * as Religion from "./religion";
 import * as Words from "../words";
-import {Concept} from "./realm";
 
 import random from "random";
 

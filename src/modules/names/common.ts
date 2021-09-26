@@ -1,7 +1,5 @@
 "use strict";
 
-import * as RND from "../random";
-
 export function maleFirstNames() {
   return [
     "Abaet",

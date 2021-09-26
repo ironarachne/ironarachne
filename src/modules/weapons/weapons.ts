@@ -3,13 +3,9 @@ import Weapon from "./weapon";
 import * as RND from "../random";
 import * as Words from "../words";
 import random from "random";
-import * as _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 
 export function generate(weaponType: WeaponType, maker: string) {
-  const base = RND.item(weaponType.bases);
-  const cosmetic = RND.item(weaponType.cosmetics);
-  const effect = RND.item(weaponType.effects);
-
   let description = randomDescription(weaponType);
 
   const damage = weaponType.damageType;
@@ -40,7 +36,7 @@ function randomCosmetics(weaponType: WeaponType): string[] {
 
   const numberOfCosmetics = random.int(1, 3);
 
-  let possibleCosmetics = _.cloneDeep(weaponType.cosmetics);
+  let possibleCosmetics = cloneDeep(weaponType.cosmetics);
   possibleCosmetics = RND.shuffle(possibleCosmetics);
 
   for (let i=0;i<numberOfCosmetics;i++) {
@@ -56,7 +52,7 @@ function randomEffects(weaponType: WeaponType): string[] {
 
   const numberOfEffects = random.int(1, 3);
 
-  let possibleEffects = _.cloneDeep(weaponType.effects);
+  let possibleEffects = cloneDeep(weaponType.effects);
   possibleEffects = RND.shuffle(possibleEffects);
 
   for (let i=0;i<numberOfEffects;i++) {

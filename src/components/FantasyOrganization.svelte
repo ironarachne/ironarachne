@@ -1,5 +1,4 @@
 <script lang="ts">
-  import Character from "../modules/characters/character";
   import * as Charges from "../modules/heraldry/charges";
   import * as Heraldry from "../modules/heraldry/heraldry";
   import * as Organization from "../modules/organizations/fantasy";
@@ -8,13 +7,14 @@
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let name: string = "";
-  let description: string = "";
-  let leadership: string = "";
-  let notableMembers: Character[] = [];
-  let charges = Charges.all();
-  let heraldry: object | null = null;
   let seed: string = RND.randomString(13);
+  let org = Organization.generate();
+  let name = org.name;
+  let description = org.description;
+  let leadership = org.leadership.description;
+  let notableMembers = org.notableMembers;
+  let charges = Charges.all();
+  let heraldry = Heraldry.generate(charges, 200, 200);
 
   function generateFantasyOrganization() {
     random.use(seedrandom(seed));
@@ -30,8 +30,6 @@
     seed = RND.randomString(13);
     generateFantasyOrganization();
   }
-
-  newSeed();
 </script>
 
 <svelte:head>

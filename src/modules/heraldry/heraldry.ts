@@ -8,7 +8,7 @@ import * as Charges from "./charges";
 import * as Words from "../words";
 import * as RND from "../random";
 
-import * as _ from "lodash";
+import cloneDeep from "lodash/cloneDeep";
 import {create} from "xmlbuilder2";
 
 export class Heraldry {
@@ -140,8 +140,8 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
 
   const chargeObject = create(chargeSVGString).toObject();
 
-  const chargeWidth = chargeObject.svg["@width"];
-  const chargeHeight = chargeObject.svg["@height"];
+  const chargeWidth = chargeObject["svg"]["@width"];
+  const chargeHeight = chargeObject["svg"]["@height"];
 
   // Begin number-of-charges logic
 
@@ -170,8 +170,8 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
     const xMove = (shieldWidth - chargeWidth * scaleAmount) / 2;
     const yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
 
-    chargeObject.svg["@x"] = xMove / scaleAmount;
-    chargeObject.svg["@y"] = yMove / scaleAmount;
+    chargeObject["svg"]["@x"] = xMove / scaleAmount;
+    chargeObject["svg"]["@y"] = yMove / scaleAmount;
 
     const chargeSVG = create(chargeObject);
 
@@ -180,17 +180,17 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
     chargeGroup =
       "<g transform='" + transform + "'>" + chargeSVG.end() + "</g>";
   } else if (heraldry.numberOfCharges === 2) {
-    const chargeObject2 = _.cloneDeep(chargeObject);
+    const chargeObject2 = cloneDeep(chargeObject);
 
     const xMove = (shieldWidth - (chargeWidth * 2 + 20) * scaleAmount) / 2;
     const yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
 
-    chargeObject.svg["@x"] = xMove / scaleAmount;
-    chargeObject.svg["@y"] = yMove / scaleAmount;
+    chargeObject["svg"]["@x"] = xMove / scaleAmount;
+    chargeObject["svg"]["@y"] = yMove / scaleAmount;
 
-    chargeObject2.svg["@x"] =
+    chargeObject2["svg"]["@x"] =
       (xMove + chargeWidth * scaleAmount) / scaleAmount + 20;
-    chargeObject2.svg["@y"] = yMove / scaleAmount;
+    chargeObject2["svg"]["@y"] = yMove / scaleAmount;
 
     const chargeSVG1 = create(chargeObject);
     const chargeSVG2 = create(chargeObject2);
@@ -203,22 +203,22 @@ export function renderSVG(heraldry: Heraldry, width: number, height: number) {
       chargeSVG2.end() +
       "</g>";
   } else if (heraldry.numberOfCharges === 3) {
-    const chargeObject2 = _.cloneDeep(chargeObject);
-    const chargeObject3 = _.cloneDeep(chargeObject);
+    const chargeObject2 = cloneDeep(chargeObject);
+    const chargeObject3 = cloneDeep(chargeObject);
 
     const xMove = (shieldWidth - (chargeWidth * 2 + 50) * scaleAmount) / 2;
     const yMove = (shieldHeight - (chargeHeight * 2 + 50) * scaleAmount) / 2;
 
-    chargeObject.svg["@x"] = xMove / scaleAmount;
-    chargeObject.svg["@y"] = yMove / scaleAmount;
+    chargeObject["svg"]["@x"] = xMove / scaleAmount;
+    chargeObject["svg"]["@y"] = yMove / scaleAmount;
 
-    chargeObject2.svg["@x"] =
+    chargeObject2["svg"]["@x"] =
       (xMove + chargeWidth * scaleAmount) / scaleAmount + 50;
-    chargeObject2.svg["@y"] = yMove / scaleAmount;
+    chargeObject2["svg"]["@y"] = yMove / scaleAmount;
 
-    chargeObject3.svg["@x"] =
+    chargeObject3["svg"]["@x"] =
       (shieldWidth - chargeWidth * scaleAmount) / 2 / scaleAmount;
-    chargeObject3.svg["@y"] =
+    chargeObject3["svg"]["@y"] =
       (yMove + chargeHeight * scaleAmount) / scaleAmount + 50;
 
     const chargeSVG1 = create(chargeObject);

@@ -1,7 +1,7 @@
 "use strict";
 
 import * as RND from "../random";
-import * as Text from "../textformat";
+import * as Text from "../format/text";
 import * as ModelNumber from "../names/modelnumbers";
 
 import random from "random";

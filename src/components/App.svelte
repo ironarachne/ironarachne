@@ -1,20 +1,21 @@
 <script lang="ts">
-  import ChopShop from "./ChopShop.svelte";
-  import Footer from "./Footer.svelte";
-  import Header from "./Header.svelte";
-  import Home from "./Home.svelte";
-  import Router from "svelte-spa-router";
-  import Sidebar from "./Sidebar.svelte";
   import ArmsManufacturer from "./ArmsManufacturer.svelte";
+  import ChopShop from "./ChopShop.svelte";
   import Culture from "./Culture.svelte";
   import Drug from "./Drug.svelte";
   import FantasyEquipment from "./FantasyEquipment.svelte";
+  import FantasyMerchant from "./FantasyMerchant.svelte";
   import FantasyOrganization from "./FantasyOrganization.svelte";
+  import Footer from "./Footer.svelte";
+  import Header from "./Header.svelte";
   import Heraldry from "./Heraldry.svelte";
+  import Home from "./Home.svelte";
   import MagicWeapon from "./MagicWeapon.svelte";
   import Planet from "./Planet.svelte";
   import Region from "./Region.svelte";
   import Religion from "./Religion.svelte";
+  import Router from "svelte-spa-router";
+  import Sidebar from "./Sidebar.svelte";
   import SpeciesStatsTool from "./SpeciesStats.svelte";
   import StarSystem from "./StarSystem.svelte";
   import SWNCharacter from "./SWNCharacter.svelte";
@@ -28,6 +29,7 @@
     "/culture": Culture,
     "/drug": Drug,
     "/fantasy/equipment": FantasyEquipment,
+    "/fantasy/merchant": FantasyMerchant,
     "/fantasy/organization": FantasyOrganization,
     "/fantasy/religion": Religion,
     "/fantasy/weapon": MagicWeapon,

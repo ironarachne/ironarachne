@@ -5,20 +5,18 @@
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let culture = {};
   let seed = RND.randomString(13);
+  let culture = Culture.generate();
 
-  function generateCulture() {
+  function generate() {
     random.use(seedrandom(seed));
     culture = Culture.generate();
   }
 
   function newSeed() {
     seed = RND.randomString(13);
-    generateCulture();
+    generate();
   }
-
-  newSeed();
 </script>
 
 <svelte:head>
@@ -41,7 +39,7 @@
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
   </div>
-  <button on:click={generateCulture}>Generate From Seed</button>
+  <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
   <h3>The { culture.name } Culture</h3>

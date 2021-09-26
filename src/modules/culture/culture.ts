@@ -13,14 +13,14 @@ export class Culture {
   maleNames: string[];
   femaleNames: string[];
   familyNames: string[];
-  religion: object;
+  religion: Religion.CultureReligion;
   taboos: string[];
   greeting: string;
   eatingTrait: string;
   designTrait: string;
   musicStyle: MusicStyle;
 
-  constructor(name: string, organization: Organization.Organization, maleNames: string[], femaleNames: string[], familyNames: string[], religion: object, taboos: any[], greeting: string, eatingTrait: string, designTrait: string, musicStyle: Music.MusicStyle) {
+  constructor(name: string, organization: Organization.Organization, maleNames: string[], femaleNames: string[], familyNames: string[], religion: Religion.CultureReligion, taboos: any[], greeting: string, eatingTrait: string, designTrait: string, musicStyle: Music.MusicStyle) {
     this.name = name;
     this.organization = organization;
     this.maleNames = maleNames;

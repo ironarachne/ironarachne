@@ -69,7 +69,7 @@ function randomDrinks() {
   for (let i = 0; i < numberOfItems; i++) {
     const drink = Drink.generateDrink();
 
-    const cost = Currency.convertCopper(drink.cost);
+    const cost = Currency.convertCopper(drink.cost, false, false);
 
     const drinkDescription = drink.description + " (cost: " + cost + ")";
 
@@ -88,7 +88,7 @@ function randomFood() {
     const quality = Dice.roll("2d6");
 
     const dish = Food.generateDish();
-    const cost = Currency.convertCopper(quality);
+    const cost = Currency.convertCopper(quality, false, false);
 
     const foodDescription = dish + " (cost: " + cost + ")";
 

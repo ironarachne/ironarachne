@@ -1,8 +1,9 @@
 <script>
 
-import { metals } from "../modules/heraldry/tinctures";
+let date = new Date();
+let year = date.getFullYear();
 
 </script>
 <footer>
-  <p>Copyright &copy; 2021 Ben Overmyer. All rights reserved.</p>
+  <p>Copyright &copy; {year} Ben Overmyer. All rights reserved.</p>
 </footer>

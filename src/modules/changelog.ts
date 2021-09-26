@@ -13,7 +13,10 @@ export default class ChangeLog {
 
   niceDate() {
     const components = this.date.split('-');
-    const fullDate = new Date(components[0], components[1] - 1, components[2]);
+    const year = Number(components[0]);
+    const month = Number(components[1]) - 1;
+    const day = Number(components[2]);
+    const fullDate = new Date(year, month, day);
     let ordinal = Words.getOrdinal(fullDate.getDate());
     let monthAbbr = Words.getMonthAbbr(fullDate.getMonth());
 

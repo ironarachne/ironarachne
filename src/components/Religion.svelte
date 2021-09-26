@@ -4,7 +4,6 @@
 
   import random from "random";
   import seedrandom from "seedrandom";
-  import { Pantheon } from "../modules/religion/pantheon";
 
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
