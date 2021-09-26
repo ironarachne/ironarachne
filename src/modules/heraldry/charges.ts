@@ -60,305 +60,392 @@ export function all() {
       "antelope passant",
       "antelopes passant",
       antelopepassant,
-      "regular"
+      "regular",
+      ["animal", "antelope", "hunting"],
     ),
     new Charge(
       "antelope rampant",
       "antelopes rampant",
       anteloperampant,
-      "regular"
+      "regular",
+      ["animal", "antelope", "hunting"],
     ),
     new Charge(
       "bat volant",
       "bats volant",
       batvolant,
-      "regular"
+      "regular",
+      ["animal", "bat", "evil", "night"],
     ),
     new Charge(
       "battleaxe",
       "battleaxes",
       battleaxe,
-      "regular"
+      "regular",
+      ["axe", "warrior", "weapon"],
     ),
     new Charge(
       "bear head couped",
       "bear heads couped",
       bearheadcouped,
-      "regular"
+      "regular",
+      ["animal", "bear", "strength"],
     ),
     new Charge(
       "bear rampant",
       "bears rampant",
       bearrampant,
-      "regular"
+      "regular",
+      ["animal", "bear", "strength"],
     ),
     new Charge(
       "bear statant",
       "bears statant",
       bearstatant,
-      "regular"
+      "regular",
+      ["animal", "bear", "strength"],
     ),
     new Charge(
       "bee volant",
       "bees volant",
       beevolant,
-      "regular"
+      "regular",
+      ["animal", "bee", "insect"],
     ),
     new Charge(
       "bell",
       "bells",
       bell,
-      "regular"
+      "regular",
+      ["bell", "holy"],
     ),
     new Charge(
       "boar head erased",
       "boar heads erased",
       boarheaderased,
-      "regular"
+      "regular",
+      ["animal", "boar", "hunting"],
     ),
     new Charge(
       "boar passant",
       "boars passant",
       boarpassant,
-      "regular"
+      "regular",
+      ["animal", "boar", "hunting"],
     ),
     new Charge(
       "boar rampant",
       "boars rampant",
       boarrampant,
-      "regular"
+      "regular",
+      ["animal", "boar", "hunting"],
     ),
     new Charge(
       "castle",
       "castles",
       castle,
-      "regular"
+      "regular",
+      ["castle", "protection", "warrior"],
     ),
     new Charge(
       "cock",
       "cocks",
       cock,
-      "regular"
+      "regular",
+      ["animal", "bird", "cock"],
     ),
     new Charge(
       "cockatrice",
       "cockatrices",
       cockatrice,
-      "regular"
+      "regular",
+      ["monster", "cockatrice"],
     ),
     new Charge(
       "dolphin hauriant",
       "dolphins hauriant",
       dolphinhauriant,
-      "regular"
+      "regular",
+      ["dolphin", "fish", "ocean"],
     ),
     new Charge(
       "doubleheaded eagle displayed",
       "doubleheaded eagles displayed",
       doubleheadedeagledisplayed,
-      "regular"
+      "regular",
+      ["animal", "bird", "eagle"],
     ),
     new Charge(
       "dragon rampant",
       "dragons rampant",
       dragonrampant,
-      "regular"
+      "regular",
+      ["monster", "dragon"],
     ),
     new Charge(
       "eagle's head erased",
       "eagle's heads erased",
       eaglesheaderased,
-      "regular"
+      "regular",
+      ["animal", "bird", "eagle"],
     ),
     new Charge(
       "fox sejant",
       "foxes sejant",
       foxsejant,
-      "regular"
+      "regular",
+      ["animal", "fox"],
     ),
     new Charge(
       "gryphon segreant",
       "gryphons segreant",
       gryphonsegreant,
-      "regular"
+      "regular",
+      ["monster", "griffin", "gryphon", "griffon"],
     ),
     new Charge(
       "hare salient",
       "hares salient",
       haresalient,
-      "regular"
+      "regular",
+      ["animal", "hare", "rabbit"],
     ),
     new Charge(
       "hare",
       "hares",
       hare,
-      "regular"
+      "regular",
+      ["animal", "hare", "rabbit"],
     ),
     new Charge(
       "heron",
       "herons",
       heron,
-      "regular"
+      "regular",
+      ["animal", "bird", "heron"],
     ),
     new Charge(
       "horse passant",
       "horses passant",
       horsepassant,
-      "regular"
+      "regular",
+      ["animal", "horse"],
     ),
     new Charge(
       "horse rampant",
       "horses rampant",
       horserampant,
-      "regular"
+      "regular",
+      ["animal", "horse"],
     ),
     new Charge(
       "leopard passant",
       "leopards passant",
       leopardpassant,
-      "regular"
+      "regular",
+      ["animal", "cat", "leopard"],
     ),
     new Charge(
       "lion passant",
       "lions passant",
       lionpassant,
-      "regular"
+      "regular",
+      ["animal", "cat", "lion"],
     ),
     new Charge(
       "lion rampant",
       "lions rampant",
       lionrampant,
-      "regular"
+      "regular",
+      ["animal", "cat", "lion"],
     ),
     new Charge(
       "lion's head erased",
       "lion's heads erased",
       lionsheaderased,
-      "regular"
+      "regular",
+      ["animal", "cat", "lion"],
     ),
     new Charge(
       "owl",
       "owls",
       owl,
-      "regular"
+      "regular",
+      ["animal", "bird", "owl"],
     ),
     new Charge(
       "pegasus passant",
       "pegasuses passant",
       pegasuspassant,
-      "regular"
+      "regular",
+      ["monster", "pegasus"],
     ),
     new Charge(
       "pegasus rampant",
       "pegasuses rampant",
       pegasusrampant,
-      "regular"
+      "regular",
+      ["monster", "pegasus"],
     ),
     new Charge(
       "ram rampant",
       "rams rampant",
       ramrampant,
-      "regular"
+      "regular",
+      ["animal", "ram"],
     ),
     new Charge(
       "ram statant",
       "rams statant",
       ramstatant,
-      "regular"
+      "regular",
+      ["animal", "ram"],
     ),
     new Charge(
       "rose",
       "roses",
       rose,
-      "regular"
+      "regular",
+      ["flower", "plant", "rose"],
     ),
     new Charge(
       "sea horse",
       "sea horses",
       seahorse,
-      "regular"
+      "regular",
+      ["animal", "sea horse", "ocean"],
     ),
     new Charge(
       "squirrel",
       "squirrels",
       squirrel,
-      "regular"
+      "regular",
+      ["animal", "squirrel"],
     ),
     new Charge(
       "stag lodged",
       "stags lodged",
       staglodged,
-      "regular"
+      "regular",
+      ["animal", "stag", "hunting"],
     ),
     new Charge(
       "stag statant",
       "stags statant",
       stagstatant,
-      "regular"
+      "regular",
+      ["animal", "stag", "hunting"],
     ),
     new Charge(
       "sun in splendor",
       "suns in splendor",
       suninsplendor,
-      "regular"
+      "regular",
+      ["sun"],
     ),
     new Charge(
       "tiger passant",
       "tigers passant",
       tigerpassant,
-      "regular"
+      "regular",
+      ["animal", "cat", "tiger"],
     ),
     new Charge(
       "tiger rampant",
       "tigers rampant",
       tigerrampant,
-      "regular"
+      "regular",
+      ["animal", "cat", "tiger"],
     ),
     new Charge(
       "tower",
       "towers",
       tower,
-      "regular"
+      "regular",
+      ["tower", "protection"],
     ),
     new Charge(
       "two axes in saltire",
       "axes in saltire",
       twoaxesinsaltire,
-      "regular"
+      "regular",
+      ["axe", "warrior", "weapon"],
     ),
     new Charge(
       "two bones in saltire",
       "bones in saltire",
       twobonesinsaltire,
-      "regular"
+      "regular",
+      ["bone", "evil", "pirate"],
     ),
     new Charge(
       "unicorn statant",
       "unicorns statant",
       unicornstatant,
-      "regular"
+      "regular",
+      ["monster", "unicorn"],
     ),
     new Charge(
       "wolf passant",
       "wolves passant",
       wolfpassant,
-      "regular"
+      "regular",
+      ["animal", "wolf"],
     ),
     new Charge(
       "wolf rampant",
       "wolves rampant",
       wolframpant,
-      "regular"
+      "regular",
+      ["animal", "wolf"],
     ),
     new Charge(
       "wyvern",
       "wyverns",
       wyvern,
-      "regular"
+      "regular",
+      ["monster", "wyvern"],
     ),
   ];
 }
 
-export function random(charges: Charge[]) {
+export function random(charges: Charge[]): Charge {
   return RND.item(charges);
+}
+
+export function randomWithTag(tag: string, charges: Charge[]): Charge {
+  let matching = matchingTag(tag, charges);
+
+  return random(matching);
+}
+
+export function matchingTag(tag: string, charges: Charge[]): Charge[] {
+  let result: Charge[] = [];
+
+  for (let i=0;i<charges.length;i++) {
+    for (let j=0;j<charges[i].tags.length;j++) {
+      if (!result.includes(charges[i]) && charges[i].tags[j] == tag) {
+        result.push(charges[i]);
+        continue;
+      }
+    }
+  }
+
+  return result;
+}
+
+export function allChargeTags(): string[] {
+  let charges = all();
+
+  let result: string[] = [];
+
+  for (let i=0;i<charges.length;i++) {
+    for (let j=0;j<charges[i].tags.length;j++) {
+      if (!result.includes(charges[i].tags[j])) {
+        result.push(charges[i].tags[j]);
+      }
+    }
+  }
+
+  return result.sort();
 }

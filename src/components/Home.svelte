@@ -2,6 +2,9 @@
   import ChangeLog from "../modules/changelog";
 
   let updates = [
+    new ChangeLog("2021-9-26", [
+      "Added ability to filter heraldry charges by tag.",
+    ]),
     new ChangeLog("2021-8-13", [
       "Fixed bug in seed generator that right-padded it with zeroes.",
       "Added more variety to town names.",

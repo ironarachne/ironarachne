@@ -10,6 +10,17 @@
   let image = "";
   let seed = RND.randomString(13);
   let charges = Charges.all();
+  let allCharges = Charges.all();
+  let heraldryTag = 'any';
+  let availableTags = Charges.allChargeTags();
+
+  function changeCharges() {
+    if (heraldryTag == 'any') {
+      charges = allCharges;
+    } else {
+      charges = Charges.matchingTag(heraldryTag, allCharges);
+    }
+  }
 
   function generate() {
     random.use(seedrandom(seed));
@@ -44,6 +55,15 @@
   <div class="input-group">
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
+  </div>
+  <div class="input-group">
+    <label for="tag">Charge Tag</label>
+    <select name="tag" bind:value={heraldryTag} on:change={changeCharges}>
+      <option>any</option>
+      {#each availableTags as tag}
+      <option>{tag}</option>
+      {/each}
+    </select>
   </div>
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
