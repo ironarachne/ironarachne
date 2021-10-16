@@ -17,6 +17,7 @@
   import Router from "svelte-spa-router";
   import Sidebar from "./Sidebar.svelte";
   import SpeciesStatsTool from "./SpeciesStats.svelte";
+  import SpookyShip from "./SpookyShip.svelte";
   import StarSystem from "./StarSystem.svelte";
   import SWNCharacter from "./SWNCharacter.svelte";
   import SWNStarship from "./SWNStarship.svelte";
@@ -37,6 +38,7 @@
     "/planet": Planet,
     "/region": Region,
     "/species-stats": SpeciesStatsTool,
+    "/spooky-ship": SpookyShip,
     "/starsystem": StarSystem,
     "/swn/character": SWNCharacter,
     "/swn/starship": SWNStarship,

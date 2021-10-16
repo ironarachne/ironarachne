@@ -2,6 +2,9 @@
   import ChangeLog from "../modules/changelog";
 
   let updates = [
+    new ChangeLog("2021-10-16", [
+      "Added spooky ship generator.",
+    ]),
     new ChangeLog("2021-9-26", [
       "Added ability to filter heraldry charges by tag.",
     ]),
