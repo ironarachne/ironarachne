@@ -1,17 +1,26 @@
 "use strict";
 
-export function article(word: string) {
+export function article(word: string, appendWord: boolean = false) {
   const exceptions = ["honor", "honest", "herb"];
 
   if (exceptions.includes(word)) {
+    if (appendWord) {
+      return `an ${word}`;
+    }
     return "an";
   }
 
   const vowels = ["a", "e", "i", "o", "u"];
 
   if (vowels.includes(word.substr(0, 1))) {
+    if (appendWord) {
+      return `an ${word}`;
+    }
     return "an";
   } else {
+    if (appendWord) {
+      return `a ${word}`;
+    }
     return "a";
   }
 }
