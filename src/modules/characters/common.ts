@@ -31,18 +31,21 @@ export function generate(species: Species, ageGroupName: string, gender: string,
   return character;
 }
 
-function describe(character: Character) {
+function describe(character: Character): string {
   let description = "";
 
-  const subjectivePronoun = Words.pronoun(character.gender, "subjective");
+  const sbj = Words.pronoun(character.gender, "subjective");
+  const ucSbj = Words.capitalize(sbj);
 
-  description += character.firstName + " is " + Words.article(character.species.adjective) + " " + character.species.adjective;
-  description += " " + Words.genderNoun(character.gender, character.ageGroupName) + " of " + character.age + " years. ";
-  description += Words.capitalize(subjectivePronoun) + " is " + character.height + " cm (";
-  description += Measurements.inchesToFeet(Measurements.cmToInches(character.height)) + ") tall and weighs ";
-  description += character.weight + " kg (" + Measurements.kgToPounds(character.weight) + " lbs). " + Words.capitalize(subjectivePronoun) + " has ";
+  const height = character.height + " cm (" + Measurements.inchesToFeet(Measurements.cmToInches(character.height)) + ")";
+  const weight = character.weight + " kg (" + Measurements.kgToPounds(character.weight) + " lb.)";
+  const spPhrase = character.species.adjective + " " + Words.genderNoun(character.gender, character.ageGroupName);
+  const traits = Words.arrayToPhrase(character.traits);
 
-  description += Words.arrayToPhrase(character.traits) + ". ";
+  description = RND.item([
+    `${character.firstName} ${character.lastName} is a ${height} tall ${spPhrase}. ${ucSbj} is ${character.age} years old. ${character.firstName} has ${traits}. `,
+    `${character.firstName} is ${Words.article(spPhrase)} ${spPhrase} of ${character.age} years. ${ucSbj} is ${height} tall and weighs ${weight}. ${ucSbj} has ${traits}. `,
+  ]);
 
   description += getRandomPersonality(character.gender) + ".";
 
