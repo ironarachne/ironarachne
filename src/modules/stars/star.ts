@@ -40,9 +40,9 @@ export class StarClassification {
   temperature_max: number; // in K
   luminosity_min: number; // relative to the sun
   luminosity_max: number; // relative to the sun
-  weight: number; // commonality in the universe
+  commonality: number; // commonality in the universe
 
-  constructor(name: string, radius_min: number, radius_max: number, mass_min: number, mass_max: number, temperature_min: number, temperature_max: number, luminosity_min: number, luminosity_max: number, weight: number) {
+  constructor(name: string, radius_min: number, radius_max: number, mass_min: number, mass_max: number, temperature_min: number, temperature_max: number, luminosity_min: number, luminosity_max: number, commonality: number) {
     this.name = name;
     this.radius_min = radius_min;
     this.radius_max = radius_max;
@@ -52,7 +52,7 @@ export class StarClassification {
     this.temperature_max = temperature_max;
     this.luminosity_min = luminosity_min;
     this.luminosity_max = luminosity_max;
-    this.weight = weight;
+    this.commonality = commonality;
   }
 }
 

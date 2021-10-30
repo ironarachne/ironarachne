@@ -145,15 +145,15 @@ function randomSeasoningCount() {
   const weights = [
     {
       item: 1,
-      weight: 50,
+      commonality: 50,
     },
     {
       item: 2,
-      weight: 20,
+      commonality: 20,
     },
     {
       item: 3,
-      weight: 5,
+      commonality: 5,
     },
   ];
 

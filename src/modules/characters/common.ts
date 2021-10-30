@@ -1,26 +1,26 @@
 "use strict";
 
+import * as Age from "../age";
 import * as RND from "../random";
-import * as Dice from "../dice";
+import * as Gender from "../gender";
 import * as Measurements from "../measurements";
 import * as Words from "../words";
 import Character from "./character";
 import * as PersonalityTraits from "./personality";
 import {Species} from "../species/common";
-import {AgeCategory} from "../age";
 
 import random from "random";
 
-export function generate(species: Species, ageGroupName: string, gender: string, firstNames: string[], lastNames: string[]) {
+export function generate(species: Species, ageCategoryName: string, gender: Gender.Gender, firstNames: string[], lastNames: string[]) {
   const character = new Character(species);
 
-  const ageGroup = getAgeData(species, ageGroupName);
+  const ageCategory = Age.getCategoryFromName(ageCategoryName, gender.ageCategories);
 
-  character.age = getRandomAge(ageGroup);
-  character.ageGroupName = ageGroupName;
+  character.age = ageCategory.randomAge();
+  character.ageCategory = ageCategory;
   character.gender = gender;
-  character.weight = getRandomWeight(ageGroup, gender);
-  character.height = getRandomHeight(ageGroup, gender);
+  character.height = ageCategory.randomHeight();
+  character.weight = ageCategory.randomWeight();
   character.traits = getRandomTraits(species);
 
   character.firstName = RND.item(firstNames);
@@ -34,12 +34,13 @@ export function generate(species: Species, ageGroupName: string, gender: string,
 function describe(character: Character): string {
   let description = "";
 
-  const sbj = Words.pronoun(character.gender, "subjective");
+  const sbj = character.gender.subjectivePronoun;
   const ucSbj = Words.capitalize(sbj);
+  const genderNoun = character.ageCategory.noun;
 
   const height = character.height + " cm (" + Measurements.inchesToFeet(Measurements.cmToInches(character.height)) + ")";
   const weight = character.weight + " kg (" + Measurements.kgToPounds(character.weight) + " lb.)";
-  const spPhrase = character.species.adjective + " " + Words.genderNoun(character.gender, character.ageGroupName);
+  const spPhrase = character.species.adjective + " " + genderNoun;
   const traits = Words.arrayToPhrase(character.traits);
 
   description = RND.item([
@@ -47,34 +48,9 @@ function describe(character: Character): string {
     `${character.firstName} is ${Words.article(spPhrase)} ${spPhrase} of ${character.age} years. ${ucSbj} is ${height} tall and weighs ${weight}. ${ucSbj} has ${traits}. `,
   ]);
 
-  description += getRandomPersonality(character.gender) + ".";
+  description += getRandomPersonality(character.gender.name) + ".";
 
   return description;
-}
-
-export function getAgeData(species: Species, ageGroupName: string) {
-  let group = species.ageGroups[0];
-
-  for (let i = 0; i < species.ageGroups.length; i++) {
-    group = species.ageGroups[i];
-    if (group.name == ageGroupName) {
-      return group;
-    }
-  }
-
-  return group;
-}
-
-export function getRandomAge(ageGroup: AgeCategory) {
-  return random.int(ageGroup.minAge, ageGroup.maxAge);
-}
-
-export function getRandomHeight(ageGroup: AgeCategory, gender: string) {
-  if (gender == "female") {
-    return Dice.roll(ageGroup.femaleHeightMetric);
-  }
-
-  return Dice.roll(ageGroup.maleHeightMetric);
 }
 
 export function getRandomPersonality(gender: string) {
@@ -94,12 +70,4 @@ export function getRandomTraits(species: Species) {
   }
 
   return traits;
-}
-
-export function getRandomWeight(ageGroup: AgeCategory, gender: string) {
-  if (gender == "female") {
-    return Dice.roll(ageGroup.femaleWeightMetric);
-  }
-
-  return Dice.roll(ageGroup.maleWeightMetric);
 }

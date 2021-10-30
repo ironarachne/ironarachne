@@ -58,30 +58,6 @@ export function uncapitalize(word: string) {
   return word[0].toLowerCase() + word.slice(1);
 }
 
-export function genderNoun(gender: string, ageGroupName: string) {
-  let noun = "";
-
-  if (gender === "female") {
-    noun = "woman";
-
-    if (ageGroupName === "infant") {
-      noun = "baby girl";
-    } else if (ageGroupName === "child" || ageGroupName === "teenager") {
-      noun = "girl";
-    }
-  } else {
-    noun = "man";
-
-    if (ageGroupName === "infant") {
-      noun = "baby boy";
-    } else if (ageGroupName === "child" || ageGroupName === "teenager") {
-      noun = "boy";
-    }
-  }
-
-  return noun;
-}
-
 export function getMonthAbbr(month: number) {
   const months = [
     'Jan.',

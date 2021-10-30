@@ -1,33 +1,49 @@
 <script lang="ts">
   import * as Age from "../modules/age";
-  import * as SpeciesCommon from "../modules/species/common";
 
   let maximumAge = 100;
-  let percentOfHumanHeight = 100;
-  let percentOfHumanWeight = 100;
-  let ageCategories = [];
+  let femaleHeightModifier = 100;
+  let femaleWeightModifier = 100;
+  let maleHeightModifier = 110;
+  let maleWeightModifier = 120;
+  let femaleCategories = [];
+  let maleCategories = [];
+  let ingeniumDescription = '';
 
   function calculate() {
     let ageScale = maximumAge / 100;
-    let heightScale = percentOfHumanHeight / 100;
-    let weightScale = percentOfHumanWeight / 100;
 
-    let categories = Age.categories();
+    femaleCategories = Age.getHumanVariant(ageScale, femaleWeightModifier / 100, femaleHeightModifier / 100);
+    maleCategories = Age.getHumanVariant(ageScale, maleWeightModifier / 100, maleHeightModifier / 100);
 
-    for (let i = 0; i < categories.length; i++) {
-      categories[i].minAge = Math.ceil(categories[i].minAge * ageScale);
-      categories[i].maxAge = Math.ceil(categories[i].maxAge * ageScale);
-      categories[i].femaleHeightMetric = SpeciesCommon.getHeightMetric(heightScale, categories[i], "female");
-      categories[i].femaleHeightImperial = SpeciesCommon.getHeightImperial(heightScale, categories[i], "female");
-      categories[i].maleHeightMetric = SpeciesCommon.getHeightMetric(heightScale, categories[i], "male");
-      categories[i].maleHeightImperial = SpeciesCommon.getHeightImperial(heightScale, categories[i], "male");
-      categories[i].femaleWeightMetric = SpeciesCommon.getWeightMetric(weightScale, categories[i], "female");
-      categories[i].femaleWeightImperial = SpeciesCommon.getWeightImperial(weightScale, categories[i], "female");
-      categories[i].maleWeightMetric = SpeciesCommon.getWeightMetric(weightScale, categories[i], "male");
-      categories[i].maleWeightImperial = SpeciesCommon.getWeightImperial(weightScale, categories[i], "male");
+    getIngenium();
+  }
+
+  function getIngenium() {
+    let description = '';
+    let adultAge = '';
+
+    for (let i=0;i<femaleCategories.length;i++) {
+      if (femaleCategories[i].name == "adult") {
+        description += '\\textbf{Female Height:} ' + femaleCategories[i].getHeightRange() + '\n\n';
+        description += '\\textbf{Female Weight:} ' + femaleCategories[i].getWeightRange() + '\n\n';
+
+        adultAge = '\\textbf{Adulthood Age:} ' + femaleCategories[i].minAge + '\n\n';
+      }
     }
 
-    ageCategories = categories;
+    for (let i=0;i<maleCategories.length;i++) {
+      if (maleCategories[i].name == "adult") {
+        description += '\\textbf{Male Height:} ' + maleCategories[i].getHeightRange() + '\n\n';
+        description += '\\textbf{Male Weight:} ' + maleCategories[i].getWeightRange() + '\n\n';
+      }
+    }
+
+    description += adultAge;
+
+    description += '\\textbf{Average Maximum Lifespan:} ' + maximumAge;
+
+    ingeniumDescription = description;
   }
 
   calculate();
@@ -41,35 +57,70 @@
   <h2>Species Stats Tool</h2>
   <p>This tool helps in the construction of non-human species. I built it to help me input standard
     fantasy species. To use it, just enter the percentage of human size you want to use for height and weight.</p>
-  <p>For now, male/female size ratios are locked to the human standard. This will change in a future update.</p>
+
+  <p>All numbers use modern human female as a base.</p>
+
+  <h3>Settings</h3>
 
   <div class="input-group">
     <label for="maxAge">Maximum Age (Years)</label>
     <input type="number" name="maxAge" on:change={calculate} bind:value={maximumAge} id="maxAge">
   </div>
 
+  <h4>Female</h4>
+
   <div class="input-group">
-    <label for="height">% of Human Height</label>
-    <input type="number" name="height" on:change={calculate} bind:value={percentOfHumanHeight} id="height">
+    <label for="female-height">% of Base Height</label>
+    <input type="number" name="female-height" on:change={calculate} bind:value={femaleHeightModifier} id="height">
   </div>
 
   <div class="input-group">
-    <label for="weight">% of Human Weight</label>
-    <input type="number" name="weight" on:change={calculate} bind:value={percentOfHumanWeight} id="weight">
+    <label for="female-weight">% of Base Weight</label>
+    <input type="number" name="female-weight" on:change={calculate} bind:value={femaleWeightModifier} id="weight">
+  </div>
+
+  <h4>Male</h4>
+
+  <div class="input-group">
+    <label for="male-height">% of Base Height</label>
+    <input type="number" name="male-height" on:change={calculate} bind:value={maleHeightModifier} id="height">
+  </div>
+
+  <div class="input-group">
+    <label for="male-weight">% of Base Weight</label>
+    <input type="number" name="male-weight" on:change={calculate} bind:value={maleWeightModifier} id="weight">
   </div>
 
   <h3>Calculated Stats</h3>
 
-  {#each ageCategories as category}
-  <div>
-    <h4>{ category.name }</h4>
-    <p><strong>Age Range:</strong> { category.minAge } to { category.maxAge }</p>
-    <p><strong>Female Height:</strong> { category.femaleHeightMetric } cm ({ category.femaleHeightImperial } in.)
-    </p>
-    <p><strong>Female Weight:</strong> { category.femaleWeightMetric } kg ({ category.femaleWeightImperial } lbs.)
-    </p>
-    <p><strong>Male Height:</strong> { category.maleHeightMetric } cm ({ category.maleHeightImperial } in.)</p>
-    <p><strong>Male Weight:</strong> { category.maleWeightMetric } kg ({ category.maleWeightImperial } lbs.)</p>
+  <div style="display:flex">
+    <div class="half-column">
+      <h4>Female</h4>
+      {#each femaleCategories as category}
+      <div>
+        <h5>{ category.name }</h5>
+        <p><strong>Age Range:</strong> { category.minAge } to { category.maxAge } years</p>
+        <p><strong>Female Height:</strong> { category.getHeightRange() }</p>
+        <p><strong>Female Weight:</strong> { category.getWeightRange() }</p>
+      </div>
+      {/each}
+    </div>
+    <div class="half-column">
+      <h4>Male</h4>
+      {#each maleCategories as category}
+      <div>
+        <h5>{ category.name }</h5>
+        <p><strong>Age Range:</strong> { category.minAge } to { category.maxAge } years</p>
+        <p><strong>Male Height:</strong> { category.getHeightRange() }</p>
+        <p><strong>Male Weight:</strong> { category.getWeightRange() }</p>
+      </div>
+      {/each}
+    </div>
   </div>
-  {/each}
+
+  <h3>For Ingenium Second Edition</h3>
+
+  <p>This is specifically for the manuscript for Ingenium Second Edition bloodline stats.</p>
+
+  <pre>{ ingeniumDescription }</pre>
 </section>

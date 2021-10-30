@@ -181,9 +181,9 @@ export function randomWeightedExcluding(tincture: Tincture) {
 
 export function randomWeightedType() {
   const weights = [
-    {item: "fur", weight: 5},
-    {item: "color", weight: 25},
-    {item: "metal", weight: 20},
+    {item: "fur", commonality: 5},
+    {item: "color", commonality: 25},
+    {item: "metal", commonality: 20},
   ];
 
   const tinctureType = RND.weighted(weights);

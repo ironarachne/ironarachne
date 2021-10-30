@@ -95,9 +95,9 @@ export function generate(charges: Charge.Charge[], width: number, height: number
 
 export function randomNumberOfCharges() {
   const weights = [
-    {item: 1, weight: 50},
-    {item: 2, weight: 5},
-    {item: 3, weight: 3},
+    {item: 1, commonality: 50},
+    {item: 2, commonality: 5},
+    {item: 3, commonality: 3},
   ];
 
   const result = RND.weighted(weights);

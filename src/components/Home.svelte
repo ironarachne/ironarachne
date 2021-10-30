@@ -2,6 +2,11 @@
   import ChangeLog from "../modules/changelog";
 
   let updates = [
+    new ChangeLog("2021-10-30", [
+      "Expanded how gender is handled behind the scenes.",
+      "Added male and female controls to Species Stats.",
+      "Added a little more variety to character descriptions.",
+    ]),
     new ChangeLog("2021-10-16", [
       "Added spooky ship generator.",
     ]),

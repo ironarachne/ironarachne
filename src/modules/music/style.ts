@@ -78,23 +78,23 @@ function randomBeat() {
   const options = [
     {
       value: "very fast",
-      weight: 5,
+      commonality: 5,
     },
     {
       value: "fast",
-      weight: 5,
+      commonality: 5,
     },
     {
       value: "moderate",
-      weight: 10,
+      commonality: 10,
     },
     {
       value: "slow",
-      weight: 5,
+      commonality: 5,
     },
     {
       value: "very slow",
-      weight: 5,
+      commonality: 5,
     },
   ];
 
@@ -106,19 +106,19 @@ function randomDynamic() {
   const options = [
     {
       value: "very quiet",
-      weight: 5,
+      commonality: 5,
     },
     {
       value: "quiet",
-      weight: 15,
+      commonality: 15,
     },
     {
       value: "loud",
-      weight: 15,
+      commonality: 15,
     },
     {
       value: "very loud",
-      weight: 5,
+      commonality: 5,
     },
   ];
 
@@ -130,15 +130,15 @@ function randomHarmony() {
   const options = [
     {
       value: "simple harmony",
-      weight: 10,
+      commonality: 10,
     },
     {
       value: "two harmonies",
-      weight: 1,
+      commonality: 1,
     },
     {
       value: "no harmony",
-      weight: 5,
+      commonality: 5,
     },
   ];
 
@@ -150,11 +150,11 @@ function randomKey() {
   const options = [
     {
       value: "major",
-      weight: 10,
+      commonality: 10,
     },
     {
       value: "minor",
-      weight: 2,
+      commonality: 2,
     },
   ];
 
@@ -166,19 +166,19 @@ function randomMelody() {
   const options = [
     {
       value: "simple",
-      weight: 10,
+      commonality: 10,
     },
     {
       value: "complex",
-      weight: 2,
+      commonality: 2,
     },
     {
       value: "wandering",
-      weight: 2,
+      commonality: 2,
     },
     {
       value: "chaotic",
-      weight: 1,
+      commonality: 1,
     },
   ];
 
@@ -190,15 +190,15 @@ function randomPitch() {
   const options = [
     {
       value: "low",
-      weight: 5,
+      commonality: 5,
     },
     {
       value: "medium",
-      weight: 5,
+      commonality: 5,
     },
     {
       value: "high",
-      weight: 5,
+      commonality: 5,
     },
   ];
 
@@ -210,15 +210,15 @@ function randomRhythm() {
   const options = [
     {
       value: "a single rhythm",
-      weight: 100,
+      commonality: 100,
     },
     {
       value: "a cross-rhythm",
-      weight: 10,
+      commonality: 10,
     },
     {
       value: "complex polyrhythm",
-      weight: 1,
+      commonality: 1,
     },
   ];
 

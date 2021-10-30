@@ -1,115 +1,202 @@
 "use strict";
 
+import * as Dice from "./dice";
+import * as Measurements from "./measurements";
+import random from "random";
+
 export class AgeCategory {
   name: string;
+  noun: string;
   minAge: number;
   maxAge: number;
-  femaleHeightBase: number;
-  maleHeightBase: number;
-  femaleHeightModifier: number;
-  maleHeightModifier: number;
-  femaleWeightBase: number;
-  maleWeightBase: number;
-  femaleWeightModifier: number;
-  maleWeightModifier: number;
-  femaleHeightImperial: string;
-  maleHeightImperial: string;
-  femaleHeightMetric: string;
-  maleHeightMetric: string;
-  femaleWeightImperial: string;
-  maleWeightImperial: string;
-  femaleWeightMetric: string;
-  maleWeightMetric: string;
+  minHeight: number; // in cm
+  maxHeight: number; // in cm
+  minWeight: number; // in kg
+  maxWeight: number; // in kg
 
-  constructor(name: string, minAge: number, maxAge: number, femaleHeightBase: number, maleHeightBase: number, femaleHeightModifier: number, maleHeightModifier: number, femaleWeightBase: number, maleWeightBase: number, femaleWeightModifier: number, maleWeightModifier: number) {
+  constructor(name: string, noun: string, minAge: number, maxAge: number, minHeight: number, minWeight: number) {
     this.name = name;
+    this.noun = noun;
     this.minAge = minAge;
     this.maxAge = maxAge;
-    this.femaleHeightBase = femaleHeightBase;
-    this.maleHeightBase = maleHeightBase;
-    this.femaleHeightModifier = femaleHeightModifier;
-    this.maleHeightModifier = maleHeightModifier;
-    this.femaleWeightBase = femaleWeightBase;
-    this.maleWeightBase = maleWeightBase;
-    this.femaleWeightModifier = femaleWeightModifier;
-    this.maleWeightModifier = maleWeightModifier;
-    this.femaleHeightImperial = "";
-    this.maleHeightImperial = "";
-    this.femaleHeightMetric = "";
-    this.maleHeightMetric = "";
-    this.femaleWeightImperial = "";
-    this.maleWeightImperial = "";
-    this.femaleWeightMetric = "";
-    this.maleWeightMetric = "";
+    this.minHeight = minHeight;
+    this.maxHeight = Math.floor(minHeight * 1.2);
+    this.minWeight = minWeight;
+    this.maxWeight = Math.floor(minWeight * 1.2);
+  }
+
+  getHeightRange(): string {
+    const metricHeightModifier = Math.max(this.maxHeight - this.minHeight, 4);
+    const metric = this.minHeight + " + " + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricHeightModifier))) + " cm";
+    const imperialHeightModifier = Math.max(Measurements.cmToInches(this.maxHeight - this.minHeight), 4);
+    const imperial = Measurements.inchesToFeet(Measurements.cmToInches(this.minHeight)) + " + " + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialHeightModifier))) + " in.";
+
+    return `${metric} (${imperial})`;
+  }
+
+  getWeightRange(): string {
+    const metricWeightModifier = Math.max(this.maxWeight - this.minWeight, 4);
+    const metric = this.minWeight + " + " + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricWeightModifier))) + " kg";
+    const imperialWeightModifier = Math.max(Measurements.kgToPounds(this.maxWeight - this.minWeight), 4);
+    const imperial = Measurements.kgToPounds(this.minWeight) + " + " + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialWeightModifier))) + " lb.";
+
+    return `${metric} (${imperial})`;
+  }
+
+  randomAge(): number {
+    return random.int(this.minAge, this.maxAge);
+  }
+
+  randomHeight(): number {
+    return random.int(this.minHeight, this.maxHeight);
+  }
+
+  randomWeight(): number {
+    return random.int(this.minWeight, this.maxWeight);
   }
 }
 
-export function categories() {
+export function getCategoryFromName(name: string, ageGroups: AgeCategory[]): AgeCategory {
+  for (let i=0;i<ageGroups.length;i++) {
+    if (ageGroups[i].name == name) {
+      return ageGroups[i];
+    }
+  }
+}
+
+export function getHumanVariant(ageModifier: number, weightModifier: number, heightModifier: number): AgeCategory[] {
+  let categories = humanStandardFemale();
+
+  for (let i=0;i<categories.length;i++) {
+    categories[i].minAge = Math.floor(categories[i].minAge * ageModifier);
+    categories[i].maxAge = Math.ceil(categories[i].maxAge * ageModifier);
+    categories[i].minHeight = Math.ceil(categories[i].minHeight * heightModifier);
+    categories[i].maxHeight = Math.ceil(categories[i].maxHeight * heightModifier);
+    categories[i].minWeight = Math.ceil(categories[i].minWeight * weightModifier);
+    categories[i].maxWeight = Math.ceil(categories[i].maxWeight * weightModifier);
+  }
+
+  return categories;
+}
+
+export function humanStandardFemale(): AgeCategory[] {
   return [
     new AgeCategory(
       "infant",
+      "baby girl",
       0,
       1,
-      50,
-      50,
-      20,
-      20,
+      49,
+      2,
+    ),
+    new AgeCategory(
+      "toddler",
+      "toddler",
+      2,
+      3,
+      80,
+      14,
+    ),
+    new AgeCategory(
+      "young child",
+      "young girl",
+      4,
       6,
-      7,
-      4,
-      4,
+      115,
+      19,
     ),
     new AgeCategory(
       "child",
-      2,
+      "girl",
+      7,
       12,
-      100,
-      100,
-      40,
-      40,
-      20,
-      20,
-      20,
+      149,
       20,
     ),
     new AgeCategory(
       "young adult",
+      "young woman",
       13,
       19,
-      152,
-      147,
-      10,
-      40,
-      46,
-      56,
-      10,
-      10,
+      163,
+      57,
     ),
     new AgeCategory(
       "adult",
+      "woman",
       20,
       60,
-      152,
-      163,
-      20,
-      20,
-      46,
-      70,
-      20,
-      40,
+      168,
+      64,
     ),
     new AgeCategory(
       "elderly",
+      "woman",
       61,
       100,
-      152,
-      163,
+      165,
+      60,
+    ),
+  ];
+}
+
+export function humanStandardMale(): AgeCategory[] {
+  return [
+    new AgeCategory(
+      "infant",
+      "baby boy",
+      0,
+      1,
+      50,
+      2,
+    ),
+    new AgeCategory(
+      "toddler",
+      "toddler",
+      2,
+      3,
+      85,
+      14,
+    ),
+    new AgeCategory(
+      "young child",
+      "young boy",
+      4,
+      6,
+      115,
       20,
+    ),
+    new AgeCategory(
+      "child",
+      "boy",
+      7,
+      12,
+      145,
+      36,
+    ),
+    new AgeCategory(
+      "young adult",
+      "young man",
+      13,
+      19,
+      176,
+      68,
+    ),
+    new AgeCategory(
+      "adult",
+      "man",
       20,
-      46,
+      60,
+      180,
       70,
-      20,
-      40,
+    ),
+    new AgeCategory(
+      "elderly",
+      "man",
+      61,
+      100,
+      175,
+      65,
     ),
   ];
 }

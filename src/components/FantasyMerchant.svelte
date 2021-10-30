@@ -65,7 +65,7 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <p>{ merchant.description } { Words.capitalize(Words.pronoun(merchant.character.gender, 'possessive')) } wares include:</p>
+  <p>{ merchant.description } { Words.capitalize(merchant.character.gender.possessivePronoun) } wares include:</p>
 
   <h3>Stock List</h3>
 

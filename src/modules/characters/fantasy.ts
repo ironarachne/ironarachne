@@ -2,7 +2,6 @@
 
 import * as RND from "../random";
 import * as FantasySpecies from "../species/fantasy";
-import * as Species from "../species/common";
 import * as Character from "./common";
 import * as CommonNames from "../names/common"; // TODO: support nonhuman names and cultural names
 
@@ -10,16 +9,14 @@ export function generate() {
   const speciesOptions = FantasySpecies.all();
   let species = RND.weighted(speciesOptions);
 
-  species = Species.calculateAgeCategories(species);
+  const ageGroupName = RND.item(species.genders[0].ageGroups).name;
 
-  const ageGroupName = RND.item(species.ageGroups).name;
-
-  const gender = RND.item(["female", "male"]);
+  const gender = RND.item(species.genders);
 
   let firstNames = [];
   const lastNames = CommonNames.lastNames();
 
-  if (gender === "female") {
+  if (gender.name === "female") {
     firstNames = CommonNames.femaleFirstNames();
   } else {
     firstNames = CommonNames.maleFirstNames();
@@ -32,14 +29,12 @@ export function generateByAgeGroup(ageGroupName: string) {
   const speciesOptions = FantasySpecies.all();
   let species = RND.weighted(speciesOptions);
 
-  species = Species.calculateAgeCategories(species);
-
-  const gender = RND.item(["female", "male"]);
+  const gender = RND.item(species.genders);
 
   let firstNames = [];
   const lastNames = CommonNames.lastNames();
 
-  if (gender === "female") {
+  if (gender.name === "female") {
     firstNames = CommonNames.femaleFirstNames();
   } else {
     firstNames = CommonNames.maleFirstNames();

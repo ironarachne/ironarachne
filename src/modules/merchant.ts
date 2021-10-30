@@ -26,14 +26,14 @@ export function generate(itemCategory: string, valueThreshold: number): Merchant
   let character = FantasyCharacter.generateByAgeGroup("adult");
   let description = RND.item([
     `${character.firstName} ${character.lastName} is ${Words.article(itemCategory)} ${itemCategory} merchant.`,
-    `${character.firstName} ${character.lastName}, ${Words.article(character.species.name)} ${character.species.name} ${Words.genderNoun(character.gender, character.ageGroupName)}, is ${Words.article(itemCategory)} ${itemCategory} merchant.`,
+    `${character.firstName} ${character.lastName}, ${Words.article(character.species.name)} ${character.species.name} ${character.ageCategory.noun}, is ${Words.article(itemCategory)} ${itemCategory} merchant.`,
   ]);
   let wares = StockList.getList(itemCategory, 10, valueThreshold);
   let priceVariance = random.float(0.8, 1.2);
   if (priceVariance > 1.0) {
-    description += ' ' + Words.capitalize(Words.pronoun(character.gender, 'subjective')) + ' charges more than others.';
+    description += ' ' + Words.capitalize(character.gender.subjectivePronoun) + ' charges more than others.';
   } else if (priceVariance < 1.0) {
-    description += ' ' + Words.capitalize(Words.pronoun(character.gender, 'subjective')) + ' charges less than others.';
+    description += ' ' + Words.capitalize(character.gender.subjectivePronoun) + ' charges less than others.';
   }
 
   return new Merchant(character, description, wares, priceVariance);

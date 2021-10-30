@@ -74,7 +74,7 @@ function randomDeities(domainSets: Domain.Domain[][], realms: Realm.Realm[]) {
     let possibleHolyItems: string[] = [];
     let possibleHolySymbols: string[] = [];
     const characterDetails = FantasyCharacter.generate();
-    const deity = new Deity.Deity(characterDetails.firstName, characterDetails.species, characterDetails.gender, RND.item(realms), domainSets[i]);
+    const deity = new Deity.Deity(characterDetails.firstName, characterDetails.species, characterDetails.gender, characterDetails.ageCategory, RND.item(realms), domainSets[i]);
 
     for (let j = 0; j < domainSets[i].length; j++) {
       possibleHolyItems = possibleHolyItems.concat(domainSets[i][j].holyItems);
@@ -92,7 +92,7 @@ function randomDeities(domainSets: Domain.Domain[][], realms: Realm.Realm[]) {
       appearanceTraits.push(RND.item(deity.realm.appearanceTraits).phrase);
     }
 
-    deity.personality = Character.getRandomPersonality(deity.gender);
+    deity.personality = Character.getRandomPersonality(deity.gender.name);
     deity.appearance = Words.arrayToPhrase(appearanceTraits);
     deity.description = Deity.describe(deity);
 

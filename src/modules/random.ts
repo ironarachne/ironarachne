@@ -31,14 +31,14 @@ export function weighted(items: any[]) {
   let ceiling = 0;
 
   items.forEach(function (item: any) {
-    ceiling += item.weight;
+    ceiling += item.commonality;
   });
 
   let randomValue = random.int(0, ceiling);
 
   for (let i = 0; i < items.length; i++) {
     const item = items[i];
-    randomValue -= item.weight;
+    randomValue -= item.commonality;
     if (randomValue <= 0) {
       return item;
     }

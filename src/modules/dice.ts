@@ -2,7 +2,7 @@
 
 import random from "random";
 
-class DicePool {
+export class DicePool {
   d4: number;
   d6: number;
   d8: number;
@@ -27,36 +27,11 @@ class DicePool {
 export function describeDice(dice: DicePool) {
   let diceExpression = "";
 
-  if (dice.d4 > 0) {
-    diceExpression += dice.d4 + "d4";
-  }
-
-  if (dice.d6 > 0) {
+  if (dice.d100 > 0) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d6 + "d6";
-  }
-
-  if (dice.d8 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
-    }
-    diceExpression += dice.d8 + "d8";
-  }
-
-  if (dice.d10 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
-    }
-    diceExpression += dice.d10 + "d10";
-  }
-
-  if (dice.d12 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
-    }
-    diceExpression += dice.d12 + "d12";
+    diceExpression += dice.d100 + "d100";
   }
 
   if (dice.d20 > 0) {
@@ -66,15 +41,46 @@ export function describeDice(dice: DicePool) {
     diceExpression += dice.d20 + "d20";
   }
 
-  if (dice.d100 > 0) {
+  if (dice.d12 > 0) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d100 + "d100";
+    diceExpression += dice.d12 + "d12";
+  }
+
+  if (dice.d10 > 0) {
+    if (diceExpression !== "") {
+      diceExpression += "+";
+    }
+    diceExpression += dice.d10 + "d10";
+  }
+
+  if (dice.d8 > 0) {
+    if (diceExpression !== "") {
+      diceExpression += "+";
+    }
+    diceExpression += dice.d8 + "d8";
+  }
+
+  if (dice.d6 > 0) {
+    if (diceExpression !== "") {
+      diceExpression += "+";
+    }
+    diceExpression += dice.d6 + "d6";
+  }
+
+  if (dice.d4 > 0) {
+    if (diceExpression !== "") {
+      diceExpression += "+";
+    }
+    diceExpression += dice.d4 + "d4";
   }
 
   if (dice.modifier > 0) {
-    diceExpression += "+" + dice.modifier;
+    if (diceExpression !== "") {
+      diceExpression += "+";
+    }
+    diceExpression += dice.modifier;
   }
 
   return diceExpression;
@@ -142,7 +148,7 @@ export function roll(expression: string) {
   return result;
 }
 
-export function simplify(dice: DicePool) {
+export function simplify(dice: DicePool): DicePool {
   // This function takes a set of dice and simplifies them to a single die type, dropping everything else
   const result = new DicePool();
 

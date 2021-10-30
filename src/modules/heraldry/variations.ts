@@ -80,7 +80,7 @@ export function randomWeighted() {
   for (let i = 0; i < variations.length; i++) {
     weights.push({
       item: variations[i].name,
-      weight: variations[i].weight,
+      commonality: variations[i].weight,
     });
   }
 

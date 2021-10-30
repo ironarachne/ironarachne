@@ -1,5 +1,7 @@
 "use strict";
 
+import * as Age from "../age";
+import * as Gender from "../gender";
 import Title from "./title";
 import {Species} from "../species/common";
 
@@ -7,9 +9,9 @@ export default class Character {
   titles: Title[];
   species: Species;
   description: string;
-  gender: string;
+  gender: Gender.Gender;
   age: number;
-  ageGroupName: string;
+  ageCategory: Age.AgeCategory;
   height: number;
   weight: number;
   traits: string[];
@@ -20,9 +22,7 @@ export default class Character {
     this.titles = [];
     this.species = species;
     this.description = "";
-    this.gender = "";
     this.age = 0;
-    this.ageGroupName = "";
     this.height = 0;
     this.weight = 0;
     this.traits = [];
@@ -46,6 +46,6 @@ export default class Character {
       return "";
     }
 
-    return primaryTitle.getTitle(this.gender);
+    return primaryTitle.getTitle(this.gender.name);
   }
 }
