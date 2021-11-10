@@ -1,6 +1,0 @@
-[build]
-publish = "public"
-
-[[redirects]]
-  from = "/culture"
-  to = "/#/culture"
