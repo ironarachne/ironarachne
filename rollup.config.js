@@ -1,9 +1,8 @@
 import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
-import typescript from '@rollup/plugin-typescript';
+import esbuild from 'rollup-plugin-esbuild';
 import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser';
 import svg from 'rollup-plugin-svg-import';
 import preprocess from 'svelte-preprocess';
 import scss from 'rollup-plugin-scss';
@@ -49,7 +48,30 @@ export default {
       'process.env.NODE_ENV': JSON.stringify(environmentLabel),
       preventAssignment: true,
     }),
-    typescript(),
+    esbuild({
+      // All options are optional
+      include: /\.[jt]sx?$/, // default, inferred from `loaders` option
+      exclude: /node_modules/, // default
+      sourceMap: false, // default
+      minify: process.env.NODE_ENV === 'production',
+      target: 'es2017', // default, or 'es20XX', 'esnext'
+      jsx: 'transform', // default, or 'preserve'
+      jsxFactory: 'React.createElement',
+      jsxFragment: 'React.Fragment',
+      // Like @rollup/plugin-replace
+      define: {
+        __VERSION__: '"x.y.z"',
+      },
+      tsconfig: 'tsconfig.json', // default
+      // Add extra loaders
+      loaders: {
+        // Add .json files support
+        // require @rollup/plugin-commonjs
+        '.json': 'json',
+        // Enable JSX in .js files too
+        '.js': 'jsx',
+      },
+    }),
 		svelte({
 			compilerOptions: {
 				// enable run-time checks when not in production
@@ -84,10 +106,6 @@ export default {
 		// Watch the `public` directory and refresh the
 		// browser on changes when not in production
 		!production && livereload('public'),
-
-		// If we're building for production (npm run build
-		// instead of npm run dev), minify
-		production && terser(),
 	],
 	watch: {
 		clearScreen: false
