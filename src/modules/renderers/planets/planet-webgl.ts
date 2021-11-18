@@ -1,11 +1,12 @@
 "use strict";
 
-import * as ShaderTools from "../../shadertools";
+import GoldNoise from "../../shaders/gold-noise.glsl";
+import SimplexNoise from "../../shaders/simplex-noise.glsl";
 import {PlanetClassification} from "../../planets/planet";
 
 import random from "random";
 
-export function translateDiameterToModelSize(diameter: number) {
+export function translateDiameterToModelSize(diameter: number): number {
   let size = Math.floor(diameter / 2000) + 1;
 
   if (diameter > 19000) {
@@ -19,7 +20,7 @@ export function getShaderData(classification: PlanetClassification) {
   const options = {
     arid: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -75,7 +76,7 @@ export function getShaderData(classification: PlanetClassification) {
         }`;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -163,7 +164,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     barren: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -221,7 +222,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -294,7 +295,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateVertexShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -330,7 +331,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     garden: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -388,7 +389,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -496,7 +497,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     "gas giant": {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -554,8 +555,8 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
-        const goldNoiseFunction = ShaderTools.goldNoise();
+        const noiseFunction = SimplexNoise;
+        const goldNoiseFunction = GoldNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -641,7 +642,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     ice: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -699,7 +700,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -789,7 +790,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     jungle: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -847,7 +848,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -953,7 +954,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     ocean: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -1011,7 +1012,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -1098,7 +1099,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     swamp: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -1157,7 +1158,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -1260,7 +1261,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     toxic: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -1319,7 +1320,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 
@@ -1422,7 +1423,7 @@ export function getShaderData(classification: PlanetClassification) {
     },
     volcanic: {
       generateCloudShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 200.0);
 
@@ -1481,7 +1482,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
       generateFragmentShader: function () {
-        const noiseFunction = ShaderTools.simplexNoise();
+        const noiseFunction = SimplexNoise;
 
         const seed = random.float(0.0, 100.0);
 

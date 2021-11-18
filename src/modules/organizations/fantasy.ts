@@ -1,12 +1,12 @@
 "use strict";
 
 import * as RND from "../random";
-import * as CommonNames from "../names/common";
 import * as FantasyCharacter from "../characters/fantasy";
 import Organization from "./organization";
-import Rank from "./rank";
-import Title from "../characters/title";
-import {OrganizationType} from "./type";
+import * as MercCompany from "./fantasy/mercenarycompany";
+import * as TradingCompany from "./fantasy/tradingcompany";
+import * as WizardSchool from "./fantasy/wizardschool";
+import OrganizationType from "./type";
 
 import random from "random";
 
@@ -72,7 +72,7 @@ function randomNotableMembers(org: Organization) {
   return notableMembers;
 }
 
-function randomPopularity() {
+function randomPopularity(): string {
   return RND.item([
     "They enjoy a surprising amount of local popularity.",
     "They are not terribly popular locally.",
@@ -83,241 +83,18 @@ function randomPopularity() {
   ]);
 }
 
-function randomType() {
-  return RND.item([
-    new OrganizationType(
-      "mercenary company",
-      20,
-      80,
-      "captain",
-      function () {
-        const prefix = RND.item([
-          "Black",
-          "Blood",
-          "Burning",
-          "Crimson",
-          "Free",
-          "Gilded",
-          "Golden",
-          "Iron",
-          "Red",
-          "Silver",
-          "White",
-        ]);
-        const suffix = RND.item([
-          "Axes",
-          "Army",
-          "Bears",
-          "Blades",
-          "Coins",
-          "Company",
-          "Dragons",
-          "Giants",
-          "Lords",
-          "Pikes",
-          "Sentinels",
-          "Swords",
-          "Wolves",
-          "Wyverns",
-        ]);
+function allTypes(): OrganizationType[] {
+  const mercCompany = MercCompany.generateType();
+  const tradingCompany = TradingCompany.generateType();
+  const wizardSchool = WizardSchool.generateType();
 
-        return "The " + prefix + " " + suffix;
-      },
-      function () {
-        return RND.item([
-          "{name} is a vicious mercenary company with a reputation for excessive violence.",
-          "{name} is a merc company that prides itself on its professionalism and integrity.",
-          "{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.",
-        ]);
-      },
-      function (this:OrganizationType) {
-        const leader = FantasyCharacter.generateByAgeGroup("adult");
-        const ranks = this.getRanks();
-        leader.titles.push(ranks.title);
+  return [
+    mercCompany,
+    tradingCompany,
+    wizardSchool,
+  ];
+}
 
-        return leader;
-      },
-      function () {
-        const captain = new Rank(new Title("Captain", "Captain", "Captain", "Captain", false, "", 0), "military", "adult");
-        const lieutenant = new Rank(new Title("Lieutenant", "Lieutenant", "Lieutenant", "Lieutenant", false, "", 1), "military", "adult");
-        const sergeant = new Rank(new Title("Sergeant", "Sergeant", "Sergeant", "Sergeant", false, "", 2), "military", "adult");
-        const member = new Rank(new Title("Mercenary", "Mercenary", "", "", false, "", 3), "military", "adult");
-
-        sergeant.addInferior(member);
-        lieutenant.addInferior(sergeant);
-        captain.addInferior(lieutenant);
-        return captain;
-      }
-    ),
-    new OrganizationType(
-      "trading company",
-      30,
-      200,
-      "proprietor",
-      function () {
-        const nameTypes = [
-          {
-            name: "generic",
-            randomName: function () {
-              const prefixes = ["Dynasty", "Gilded", "Luxury"];
-
-              const prefix = RND.item(prefixes);
-
-              const suffix = RND.item([
-                "Trading Company",
-                "Traders",
-                "Navigation Company",
-                "Trade Company",
-                "Trade and Navigation Company",
-              ]);
-
-              return prefix + " " + suffix;
-            },
-          },
-          {
-            name: "geographic",
-            randomName: function () {
-              const direction = RND.item(["North", "West", "South", "East"]);
-              const feature = RND.item(["Wind", "Sea", "Mountain", "Ocean"]);
-
-              const suffix = RND.item([
-                "Trading Company",
-                "Traders",
-                "Navigation Company",
-                "Trade Company",
-                "Trade and Navigation Company",
-              ]);
-
-              return direction + " " + feature + " " + suffix;
-            },
-          },
-          {
-            name: "family",
-            randomName: function () {
-              const familyNames = CommonNames.lastNames();
-
-              const familyName = RND.item(familyNames);
-
-              const moniker = RND.item([
-                " Brothers",
-                " & Sons",
-                " & Son",
-                " Family",
-                "",
-              ]);
-
-              const suffix = RND.item([
-                "Trading Company",
-                "Traders",
-                "Navigation Company",
-                "Trade Company",
-                "Trade and Navigation Company",
-              ]);
-
-              return familyName + " " + moniker + " " + suffix;
-            },
-          },
-        ];
-
-        const namer = RND.item(nameTypes);
-
-        return namer.randomName();
-      },
-      function () {
-        return RND.item([
-          "The {name} is noted for the quality of their goods.",
-          "The {name} has a reputation for always delivering goods to their intended destination.",
-          "The {name} appears to be reputable on the surface, but are rumored to be involved in many underhanded dealings.",
-          "The {name} often openly uses bullying and strong-arming in their dealings.",
-          "The {name} deals in a wide variety of goods.",
-        ]);
-      },
-      function (this:OrganizationType) {
-        const leader = FantasyCharacter.generateByAgeGroup("adult");
-        const ranks = this.getRanks();
-        leader.titles.push(ranks.title);
-
-        return leader;
-      },
-      function () {
-        const owner = new Rank(new Title("Proprietor", "Proprietor", "", "", false, "", 0), "commercial", "adult");
-        const manager = new Rank(new Title("Manager", "Manager", "", "", false, "", 1), "commercial", "adult");
-        const employee = new Rank(new Title("Employee", "Employee", "", "", false, "", 2), "commercial", "adult");
-
-        manager.addInferior(employee);
-        owner.addInferior(manager);
-        return owner;
-      }
-    ),
-    new OrganizationType(
-      "wizard school",
-      100,
-      600,
-      "headmaster",
-      function () {
-        const schoolType = RND.item(["School", "Academy", "College"]);
-
-        const suffixTypes = [
-          {
-            generate: function () {
-              return RND.item([
-                "Witchcraft",
-                "Wizardry",
-                "Sorcery",
-                "Mysticism",
-              ]);
-            },
-          },
-          {
-            generate: function () {
-              const first = [
-                "Arcane",
-                "Mystical",
-                "Eldritch",
-                "Occult",
-              ];
-
-              const second = [
-                "Arts",
-                "Sciences",
-                "Paths",
-                "Ways",
-                "Secrets",
-              ];
-
-              return RND.item(first) + " " + RND.item(second);
-            }
-          }
-        ];
-
-        const suffixType = RND.item(suffixTypes);
-
-        return "The " + schoolType + " of " + suffixType.generate();
-      },
-      function () {
-        return RND.item([
-          "{name} is a hidden wizard school that avoids contact with the outside world.",
-          "{name} is a proud institution whose students primarily come from the nobility.",
-          "{name} has a reputation for experimentation, and there are rumors that sometimes they experiment on their own students.",
-          "{name} is an egalitarian wizard school that accepts new students from every walk of life.",
-        ]);
-      },
-      function (this:OrganizationType) {
-        const leader = FantasyCharacter.generateByAgeGroup("elderly");
-        const ranks = this.getRanks();
-        leader.titles.push(ranks.title);
-
-        return leader;
-      },
-      function () {
-        const headmaster = new Rank(new Title("Headmaster", "Headmaster", "Headmaster", "Headmaster", false, "", 0), "arcane", "elderly");
-        const professor = new Rank(new Title("Professor", "Professor", "Professor", "Professor", false, "", 1), "arcane", "adult");
-        const student = new Rank(new Title("Student", "Student", "", "", false, "", 2), "arcane", "young adult");
-
-        professor.addInferior(student);
-        headmaster.addInferior(professor);
-        return headmaster;
-      }
-    ),
-  ]);
+function randomType(): OrganizationType {
+  return RND.item(allTypes());
 }

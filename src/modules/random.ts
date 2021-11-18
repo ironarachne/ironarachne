@@ -2,6 +2,10 @@
 
 import random from "random";
 
+export function chance(max: number): number {
+  return random.int(1, max);
+}
+
 export function item(items: any[]) {
   return items[random.int(0, items.length - 1)];
 }

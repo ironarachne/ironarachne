@@ -1,7 +1,7 @@
 "use strict";
 
 import * as RND from "../random";
-import {Charge} from "./charge";
+import Charge from "./charge";
 
 import antelopepassant from "./charge-images/antelope-passant.svg";
 import anteloperampant from "./charge-images/antelope-rampant.svg";
@@ -425,6 +425,21 @@ export function matchingTag(tag: string, charges: Charge[]): Charge[] {
   for (let i=0;i<charges.length;i++) {
     for (let j=0;j<charges[i].tags.length;j++) {
       if (!result.includes(charges[i]) && charges[i].tags[j] == tag) {
+        result.push(charges[i]);
+        continue;
+      }
+    }
+  }
+
+  return result;
+}
+
+export function matchingAnyTags(tags: string[], charges: Charge[]): Charge[] {
+  let result: Charge[] = [];
+
+  for (let i=0;i<charges.length;i++) {
+    for (let j=0;j<charges[i].tags.length;j++) {
+      if (!result.includes(charges[i]) && tags.includes(charges[i].tags[j])) {
         result.push(charges[i]);
         continue;
       }

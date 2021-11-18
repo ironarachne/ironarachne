@@ -1,100 +1,104 @@
 "use strict";
 
-import * as Tincture from "./tinctures";
-import * as Field from "./fields";
-import * as Variation from "./variations";
-import * as Charge from "./charge";
+import Tincture from "./tincture";
+import * as Tinctures from "./tinctures";
+import * as Fields from "./fields";
+import Variation from "./variation";
+import * as Variations from "./variations";
+import ChargeGroup from "./chargegroup";
+import * as Arrangements from "./chargegrouparrangements";
 import * as Charges from "./charges";
-import * as Words from "../words";
 import * as RND from "../random";
 
-import cloneDeep from "lodash/cloneDeep";
-import {create} from "xmlbuilder2";
+import Device from "./device";
+import GeneratorConfig from "./generatorconfig";
 
 export class Heraldry {
-  field: Field.Field;
+  device: Device;
   blazon: string;
-  variations: Variation.Variation[];
-  chargeTincture: Tincture.Tincture;
-  charge: Charge.Charge;
-  numberOfCharges: number;
-  chargePosition: string;
+  svg: string;
 
-  constructor(field: Field.Field, blazon: string, variations: Variation.Variation[], chargeTincture: Tincture.Tincture, charge: Charge.Charge, numberOfCharges: number, chargePosition: string) {
-    this.field = field;
+  constructor(device: Device, blazon: string, svg: string) {
+    this.device = device;
     this.blazon = blazon;
-    this.variations = variations;
-    this.chargeTincture = chargeTincture;
-    this.charge = charge;
-    this.numberOfCharges = numberOfCharges;
-    this.chargePosition = chargePosition;
+    this.svg = svg;
   }
 }
 
-export function generate(charges: Charge.Charge[], width: number, height: number) {
-  const f = Field.random();
+export function generate(config: GeneratorConfig) {
+  let chargeGroups = [];
 
-  const variations = [];
+  if (config.chargeCount > 0) {
+    let charge = Charges.random(config.chargeOptions);
+    charge.tincture = Tinctures.randomFrom(config.chargeTinctures);
+    let chargeArrangement = Arrangements.randomByNumber(config.chargeCount);
+    let chargeGroup = new ChargeGroup(charge, config.chargeCount, chargeArrangement);
+    chargeGroups = [chargeGroup];
+  }
 
-  let oldT = Tincture.randomWeighted();
+  let field = Fields.randomFrom(config.fieldOptions);
 
-  for (let i = 0; i < f.variationCount; i++) {
-    const v = Variation.randomWeighted();
-    v.tinctures = [];
-    for (let j = 0; j < v.tinctureCount; j++) {
-      const t = Tincture.randomWeightedExcluding(oldT);
-      v.tinctures.push(t);
-      oldT = t;
+  field.variations = generateVariations(field.variationCount, config.fieldTinctures1, config.fieldTinctures2, config.variationOptions);
+
+  const device = new Device(field, chargeGroups);
+
+  const blazon = device.renderBlazon();
+
+  const svg = renderSVG(device, config.width, config.height);
+
+  return new Heraldry(device, blazon, svg);
+}
+
+export function generateVariations(count: number, tinctures1: Tincture[], tinctures2: Tincture[], options: Variation[]): Variation[] {
+  let result = [];
+  let furCount = 0; // This function has an inherent limit of a single fur in a set of variations.
+
+  for (let i=0;i<count;i++) {
+    let tinctureSet1 = tinctures1;
+    let tinctureSet2 = tinctures2;
+    let variation = Variations.randomWeightedFrom(options);
+    options = Variations.removeFromSet(variation, options);
+
+    let firstTincture = Tinctures.randomFrom(tinctureSet1);
+    tinctureSet1 = Tinctures.exclude(firstTincture, tinctureSet1);
+    tinctureSet2 = Tinctures.exclude(firstTincture, tinctureSet2);
+    if (firstTincture.type == 'fur' && furCount == 0) {
+      furCount = 1;
+      tinctureSet1 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet1);
     }
-    variations.push(v);
+    let secondTincture = Tinctures.randomFrom(tinctureSet2);
+    tinctureSet2 = Tinctures.exclude(secondTincture, tinctureSet2);
+    if (secondTincture.type == 'fur' && furCount == 0) {
+      furCount = 1;
+      tinctureSet2 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet2);
+    }
+
+    variation.tinctures = [firstTincture, secondTincture];
+    result.push(variation);
   }
 
-  f.variations = variations;
-
-  let blazon = Field.renderBlazon(f);
-
-  const charge = Charges.random(charges);
-
-  const numberOfCharges = randomNumberOfCharges();
-
-  const chargePosition = "center";
-
-  const chargeTincture = Tincture.randomContrasting(variations[0].tinctures[0]);
-
-  if (numberOfCharges === 1) {
-    blazon +=
-      ", " +
-      Words.article(charge.name) +
-      " " +
-      charge.name +
-      " " +
-      chargeTincture.name;
-  } else if (numberOfCharges === 2) {
-    blazon += ", two " + charge.pluralName + " " + chargeTincture.name;
-  } else {
-    blazon += ", three " + charge.pluralName + " " + chargeTincture.name;
-  }
-
-  const heraldry = new Heraldry(
-    f,
-    blazon,
-    variations,
-    chargeTincture,
-    charge,
-    numberOfCharges,
-    chargePosition,
-  );
-
-  const svg = renderSVG(heraldry, width, height);
-
-  return {
-    blazon: blazon,
-    svg: svg,
-  };
+  return result;
 }
 
-export function randomNumberOfCharges() {
+export function getDefaultConfig(): GeneratorConfig {
+  let config = new GeneratorConfig();
+
+  config.chargeCount = RND.item([0, 1, 2, 3]);
+  config.chargeOptions = Charges.all();
+  config.chargeTinctures = Tinctures.ofTypes(['metal', 'color']);
+  config.fieldOptions = Fields.all();
+  config.fieldTinctures1 = Tinctures.ofTypes(['fur', 'metal', 'color', 'stain']);
+  config.fieldTinctures2 = Tinctures.ofTypes(['fur', 'metal', 'color', 'stain']);
+  config.variationOptions = Variations.all();
+  config.width = 600;
+  config.height = 660;
+
+  return config;
+}
+
+export function randomNumberOfCharges(): number {
   const weights = [
+    {item: 0, commonality: 20},
     {item: 1, commonality: 50},
     {item: 2, commonality: 5},
     {item: 3, commonality: 3},
@@ -105,141 +109,68 @@ export function randomNumberOfCharges() {
   return result.item;
 }
 
-export function renderSVG(heraldry: Heraldry, width: number, height: number) {
+export function random(width: number, height: number) {
+  let config = new GeneratorConfig();
+  config.fieldOptions = Fields.all();
+  config.chargeOptions = Charges.all();
+  config.variationOptions = Variations.all();
+
+  let chargeTinctureType = RND.item(['metal', 'color', 'stain']);
+  config.chargeTinctures = Tinctures.ofTypes([chargeTinctureType]);
+  let fieldTinctures1 = [];
+  let fieldTinctures2 = [];
+
+  if (chargeTinctureType == 'metal') {
+    fieldTinctures1 = Tinctures.ofTypes(['color', 'fur', 'stain']);
+    fieldTinctures2 = Tinctures.ofTypes(['color', 'fur', 'stain']);
+  } else {
+    fieldTinctures1 = Tinctures.ofTypes(['metal', 'fur']);
+    fieldTinctures2 = Tinctures.ofTypes(['metal', 'fur']);
+  }
+
+  config.fieldTinctures1 = fieldTinctures1
+  config.fieldTinctures2 = fieldTinctures2
+
+  config.chargeCount = randomNumberOfCharges();
+  config.width = width;
+  config.height = height;
+
+  return generate(config);
+}
+
+export function renderSVG(device: Device, width: number, height: number) {
   const shieldWidth = 600;
   const shieldHeight = 660;
 
   const shieldSVG =
-    "<path fill=\"url(#Division)\" stroke=\"#000000\" stroke-width=\"3\" d=\"M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z\"/>";
+    `<path fill="url(#Division)" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>`;
 
-  const armsSVG =
-    "<svg width=\"" + width + "\" height=\"" + height + "\" viewBox=\"0 0 " + shieldWidth + " " + shieldHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
-  let defsSVG = "<defs>";
+  const svgHeader =
+    `<svg width="${width}" height="${height}" viewBox="0 0 ${shieldWidth} ${shieldHeight}" xmlns="http://www.w3.org/2000/svg" version="1.1">`;
+  let defsSVG = "";
 
-  defsSVG += heraldry.field.pattern;
+  defsSVG += device.field.pattern;
 
-  for (let i = 0; i < heraldry.variations.length; i++) {
-    for (let j = 0; j < heraldry.variations[i].tinctures.length; j++) {
-      defsSVG += heraldry.variations[i].tinctures[j].pattern;
+  for (let i = 0; i < device.field.variations.length; i++) {
+    for (let j = 0; j < device.field.variations[i].tinctures.length; j++) {
+      defsSVG += device.field.variations[i].tinctures[j].pattern;
     }
-    let pattern = Variation.renderSVGPattern(heraldry.variations[i]);
+    let pattern = device.field.variations[i].renderSVGPattern();
     pattern = pattern.replaceAll("variation", "variation" + (i + 1));
     defsSVG += pattern;
   }
 
-  let chargeSVGString = heraldry.charge.SVG;
+  let chargeGroupsSVG = '';
 
-  if (heraldry.chargeTincture.hexColor === "#000000") {
-    chargeSVGString = chargeSVGString.replaceAll("#010101", "#ffffff");
-    chargeSVGString = chargeSVGString.replaceAll("#000000", "#ffffff");
-  }
-  chargeSVGString = chargeSVGString.replaceAll(
-    "#FFFFFF",
-    heraldry.chargeTincture.hexColor
-  );
-
-  const chargeObject = create(chargeSVGString).toObject();
-
-  const chargeWidth = chargeObject["svg"]["@width"];
-  const chargeHeight = chargeObject["svg"]["@height"];
-
-  // Begin number-of-charges logic
-
-  let sizeAdjustment = 0.6;
-
-  if (heraldry.numberOfCharges === 2) {
-    sizeAdjustment = 0.4;
-  } else if (heraldry.numberOfCharges === 3) {
-    sizeAdjustment = 0.3;
+  for (let i=0;i<device.chargeGroups.length;i++) {
+    chargeGroupsSVG += device.chargeGroups[i].renderSVG(shieldWidth, shieldHeight); // TODO: handle different centerPosition and arrangement
   }
 
-  const maxHeight = shieldHeight * sizeAdjustment;
-  const maxWidth = shieldWidth * sizeAdjustment;
+  let svg = svgHeader;
 
-  let scaleAmount = 0;
-
-  if (chargeWidth > chargeHeight) {
-    scaleAmount = maxWidth / chargeWidth;
-  } else {
-    scaleAmount = maxHeight / chargeHeight;
-  }
-
-  let chargeGroup = "";
-
-  if (heraldry.numberOfCharges === 1) {
-    const xMove = (shieldWidth - chargeWidth * scaleAmount) / 2;
-    const yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
-
-    chargeObject["svg"]["@x"] = xMove / scaleAmount;
-    chargeObject["svg"]["@y"] = yMove / scaleAmount;
-
-    const chargeSVG = create(chargeObject);
-
-    const transform = "scale(" + scaleAmount + ")";
-
-    chargeGroup =
-      "<g transform='" + transform + "'>" + chargeSVG.end() + "</g>";
-  } else if (heraldry.numberOfCharges === 2) {
-    const chargeObject2 = cloneDeep(chargeObject);
-
-    const xMove = (shieldWidth - (chargeWidth * 2 + 20) * scaleAmount) / 2;
-    const yMove = (shieldHeight - chargeHeight * scaleAmount) / 2;
-
-    chargeObject["svg"]["@x"] = xMove / scaleAmount;
-    chargeObject["svg"]["@y"] = yMove / scaleAmount;
-
-    chargeObject2["svg"]["@x"] =
-      (xMove + chargeWidth * scaleAmount) / scaleAmount + 20;
-    chargeObject2["svg"]["@y"] = yMove / scaleAmount;
-
-    const chargeSVG1 = create(chargeObject);
-    const chargeSVG2 = create(chargeObject2);
-
-    chargeGroup =
-      "<g transform='scale(" +
-      scaleAmount +
-      ")'>" +
-      chargeSVG1.end() +
-      chargeSVG2.end() +
-      "</g>";
-  } else if (heraldry.numberOfCharges === 3) {
-    const chargeObject2 = cloneDeep(chargeObject);
-    const chargeObject3 = cloneDeep(chargeObject);
-
-    const xMove = (shieldWidth - (chargeWidth * 2 + 50) * scaleAmount) / 2;
-    const yMove = (shieldHeight - (chargeHeight * 2 + 50) * scaleAmount) / 2;
-
-    chargeObject["svg"]["@x"] = xMove / scaleAmount;
-    chargeObject["svg"]["@y"] = yMove / scaleAmount;
-
-    chargeObject2["svg"]["@x"] =
-      (xMove + chargeWidth * scaleAmount) / scaleAmount + 50;
-    chargeObject2["svg"]["@y"] = yMove / scaleAmount;
-
-    chargeObject3["svg"]["@x"] =
-      (shieldWidth - chargeWidth * scaleAmount) / 2 / scaleAmount;
-    chargeObject3["svg"]["@y"] =
-      (yMove + chargeHeight * scaleAmount) / scaleAmount + 50;
-
-    const chargeSVG1 = create(chargeObject);
-    const chargeSVG2 = create(chargeObject2);
-    const chargeSVG3 = create(chargeObject3);
-
-    chargeGroup =
-      "<g transform='scale(" +
-      scaleAmount +
-      ")'>" +
-      chargeSVG1.end() +
-      chargeSVG2.end() +
-      chargeSVG3.end() +
-      "</g>";
-  }
-
-  let svg = armsSVG;
-
-  svg += defsSVG + "</defs>";
+  svg += `<defs>${defsSVG}</defs>`;
   svg += shieldSVG;
-  svg += chargeGroup;
+  svg += chargeGroupsSVG;
   svg += "</svg>";
 
   return svg.replace(/<\?xml.*\?>/g, "");

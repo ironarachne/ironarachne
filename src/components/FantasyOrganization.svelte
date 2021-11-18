@@ -13,8 +13,10 @@
   let description = org.description;
   let leadership = org.leadership.description;
   let notableMembers = org.notableMembers;
-  let charges = Charges.all();
-  let heraldry = Heraldry.generate(charges, 200, 200);
+  let heraldryConfig = org.organizationType.heraldryConfig;
+  heraldryConfig.width = 200;
+  heraldryConfig.height = 200;
+  let heraldry = Heraldry.generate(heraldryConfig);
 
   function generateFantasyOrganization() {
     random.use(seedrandom(seed));
@@ -23,7 +25,10 @@
     description = org.description;
     leadership = org.leadership.description;
     notableMembers = org.notableMembers;
-    heraldry = Heraldry.generate(charges, 200, 220);
+    heraldryConfig = org.organizationType.heraldryConfig;
+    heraldryConfig.width = 200;
+    heraldryConfig.height = 200;
+    heraldry = Heraldry.generate(heraldryConfig);
   }
 
   function newSeed() {

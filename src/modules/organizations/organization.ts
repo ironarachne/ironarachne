@@ -2,17 +2,20 @@
 
 import Rank from "./rank";
 import Character from "../characters/character";
+import * as Heraldry from "../heraldry/heraldry";
+import OrganizationType from "./type";
 
 export default class Organization {
   name: string;
-  organizationType: string;
+  organizationType: OrganizationType;
   description: string;
   memberCount: number;
   leadership: Character;
   notableMembers: Character[];
   ranks: Rank;
+  heraldry: Heraldry.Heraldry;
 
-  constructor(name: string, orgType: string, description: string, memberCount: number, leadership: Character, ranks: Rank) {
+  constructor(name: string, orgType: OrganizationType, description: string, memberCount: number, leadership: Character, ranks: Rank) {
     this.name = name;
     this.organizationType = orgType;
     this.description = description;

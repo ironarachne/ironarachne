@@ -1,7 +1,12 @@
-export class Charge {
+"use strict";
+
+import Tincture from "./tincture";
+
+export default class Charge {
   name: string;
   pluralName: string;
   chargeType: string;
+  tincture: Tincture;
   SVG: string;
   tags: string[];
 
