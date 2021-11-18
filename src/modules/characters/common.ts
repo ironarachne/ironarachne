@@ -48,12 +48,12 @@ function describe(character: Character): string {
     `${character.firstName} is ${Words.article(spPhrase)} ${spPhrase} of ${character.age} years. ${ucSbj} is ${height} tall and weighs ${weight}. ${ucSbj} has ${traits}. `,
   ]);
 
-  description += getRandomPersonality(character.gender.name) + ".";
+  description += getRandomPersonality(character.gender) + ".";
 
   return description;
 }
 
-export function getRandomPersonality(gender: string) {
+export function getRandomPersonality(gender: Gender.Gender) {
   const numberOfPositiveTraits = random.int(2, 3);
   const numberOfNegativeTraits = random.int(1, 2);
 

@@ -5,6 +5,7 @@
     new ChangeLog("2021-11-18", [
       "Rewrote the heraldry system to allow much greater flexibility.",
       "Added the ability to specify the number of charges and their tincture to the heraldry generator.",
+      "Expanded the variety of personality descriptions for characters.",
     ]),
     new ChangeLog("2021-10-30", [
       "Expanded how gender is handled behind the scenes.",
