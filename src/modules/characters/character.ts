@@ -1,6 +1,6 @@
 "use strict";
 
-import * as Age from "../age";
+import * as AgeCategories from "../age/agecategories";
 import * as Gender from "../gender";
 import Title from "./title";
 import {Species} from "../species/common";

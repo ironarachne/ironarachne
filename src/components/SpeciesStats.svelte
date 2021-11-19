@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Age from "../modules/age";
+  import * as AgeCategories from "../modules/age/agecategories";
 
   let maximumAge = 100;
   let femaleHeightModifier = 100;
@@ -13,8 +13,8 @@
   function calculate() {
     let ageScale = maximumAge / 100;
 
-    femaleCategories = Age.getHumanVariant(ageScale, femaleWeightModifier / 100, femaleHeightModifier / 100);
-    maleCategories = Age.getHumanVariant(ageScale, maleWeightModifier / 100, maleHeightModifier / 100);
+    femaleCategories = AgeCategories.getHumanVariant(ageScale, femaleWeightModifier / 100, femaleHeightModifier / 100);
+    maleCategories = AgeCategories.getHumanVariant(ageScale, maleWeightModifier / 100, maleHeightModifier / 100);
 
     getIngenium();
   }

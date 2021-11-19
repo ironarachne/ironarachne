@@ -1,9 +1,9 @@
 "use strict";
 
-import {Realm} from "./realm";
-import {Pantheon} from "./pantheon";
+import Realm from "./realm";
+import Pantheon from "./pantheon";
 
-export class Religion {
+export default class Religion {
   name: string;
   description: string;
   realms: Realm[];

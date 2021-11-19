@@ -91,7 +91,7 @@ export function getTraitsWithoutTags(traits: PersonalityTrait[], tags: string[])
   return result;
 }
 
-export function getRandomTraits(gender: Gender, numberOfNegativeTraits: number, numberOfPositiveTraits: number) {
+export function getRandomTraits(gender: Gender, numberOfNegativeTraits: number, numberOfPositiveTraits: number): string {
   const positiveTraits = [];
   const negativeTraits = [];
 
@@ -133,7 +133,7 @@ export function getRandomTraits(gender: Gender, numberOfNegativeTraits: number, 
     }
   }
 
-  console.log(uniqueOpposingTags); // TODO: Figure out why I was calculating unique opposing tags
+  console.debug(uniqueOpposingTags); // TODO: Figure out why I was calculating unique opposing tags
 
   const positive = [];
 

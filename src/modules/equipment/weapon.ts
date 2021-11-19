@@ -2,7 +2,7 @@
 
 import * as Descriptor from "./descriptor";
 import * as Material from "./material";
-import * as Domain from "../religion/domain";
+import * as Domains from "../religion/domains";
 import * as RND from "../random";
 import * as Words from "../words";
 import * as Name from "../names/magicitems";
@@ -43,22 +43,24 @@ export class WeaponEffect {
   }
 }
 
-export function generate(category: string, theme: string) {
+export function generate(category: string, theme: string): Weapon {
   if (theme == "any") {
-    const domains = Domain.getAllDomainNames();
+    console.debug('getting random domain name...');
+    const domains = Domains.getAllDomainNames();
     theme = RND.item(domains);
   }
 
   if (category == "any") {
+    console.debug('getting random weapon category...');
     const categories = getAllWeaponCategories();
     category = RND.item(categories);
   }
 
   const all = getAllDescriptors();
 
-  const types = getWeaponTypesOfCategory(category);
+  const types: WeaponType[] = getWeaponTypesOfCategory(category);
 
-  const weaponType = RND.item(types);
+  const weaponType: WeaponType = RND.item(types);
 
   const materialSet = Material.getRandomMaterialSetForCategory(category);
   const bodyMaterial = Material.getRandomMaterialForCategory(materialSet.body);
@@ -81,11 +83,11 @@ export function generate(category: string, theme: string) {
   let description = Words.article(bodyMaterial.name) + ` ${bodyMaterial.name} ${weaponType.name} `;
   description += descriptorDescription;
 
-  return new Weapon(name, description, weaponType, effect);
+  return new Weapon(name, description, weaponType.name, effect);
 }
 
-export function checkForMissingMatches() {
-  const allDomains = Domain.getAllDomainNames();
+export function checkForMissingMatches(): string {
+  const allDomains = Domains.getAllDomainNames();
   const domainsMissingEffects = [];
   const domainsMissingDescriptors = [];
   const domainsMissingWeaponDescriptors = [];
@@ -119,7 +121,7 @@ export function checkForMissingMatches() {
   return theList;
 }
 
-function getAllDescriptors() {
+function getAllDescriptors(): Descriptor.Descriptor[] {
   const bladed = ["sword", "axe", "knife", "dagger", "scythe"];
   const hilted = ["sword", "dagger"];
   const shafted = ["staff", "spear", "polearm"];
@@ -238,7 +240,7 @@ function getAllDescriptors() {
     },
   ];
 
-  const allDomains = Domain.all();
+  const allDomains = Domains.all();
 
   for (let i = 0; i < allDomains.length; i++) {
     for (let j = 0; j < pairings.length; j++) {
@@ -252,13 +254,13 @@ function getAllDescriptors() {
   return descriptors;
 }
 
-function getAllEffectsForTheme(theme: string) {
-  const domainDetails = Domain.getSpecificDomain(theme);
+function getAllEffectsForTheme(theme: string): string[] {
+  const domainDetails = Domains.getSpecificDomain(theme);
 
   return domainDetails.weaponEffects.concat(domainDetails.otherEffects);
 }
 
-export function getAllWeaponCategories() {
+export function getAllWeaponCategories(): string[] {
   const allTypes = getAllWeaponTypes();
 
   const result: string[] = [];
@@ -272,7 +274,7 @@ export function getAllWeaponCategories() {
   return result;
 }
 
-function getAllWeaponTypes() {
+function getAllWeaponTypes(): WeaponType[] {
   return [
     new WeaponType("short sword", "1H", "sword"),
     new WeaponType("long sword", "1H", "sword"),
@@ -318,7 +320,7 @@ function getAllWeaponTypes() {
   ];
 }
 
-function getWeaponTypesOfCategory(category: string) {
+function getWeaponTypesOfCategory(category: string): WeaponType[] {
   const all = getAllWeaponTypes();
 
   const result = [];

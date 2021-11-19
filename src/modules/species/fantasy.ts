@@ -7,9 +7,10 @@ import halfelf from "./half-elf";
 import halfling from "./halfling";
 import halforc from "./half-orc";
 import human from "./human";
-import * as Species from "./common";
+import Species from "./species";
+import * as RND from "../random";
 
-export function all(): Species.Species[] {
+export function all(): Species[] {
   return [
     dwarf,
     elf,
@@ -19,4 +20,10 @@ export function all(): Species.Species[] {
     halforc,
     human,
   ];
+}
+
+export function randomWeighted(): Species {
+  const options = all();
+
+  return RND.weighted(options);
 }

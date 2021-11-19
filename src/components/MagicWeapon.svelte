@@ -1,12 +1,12 @@
 <script lang="ts">
-  import * as Domain from "../modules/religion/domain";
+  import * as Domains from "../modules/religion/domains";
   import * as Weapon from "../modules/equipment/weapon";
   import * as RND from "../modules/random";
 
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let themes = Domain.getAllDomainNames().sort();
+  let themes = Domains.getAllDomainNames().sort();
   let categories = Weapon.getAllWeaponCategories().sort();
   let category = "any";
   let theme = "any";

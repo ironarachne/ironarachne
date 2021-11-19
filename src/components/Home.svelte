@@ -2,6 +2,9 @@
   import ChangeLog from "../modules/changelog";
 
   let updates = [
+    new ChangeLog("2021-11-19", [
+      "Fixed a bug in the religion generator that was causing it to crash.",
+    ]),
     new ChangeLog("2021-11-18", [
       "Rewrote the heraldry system to allow much greater flexibility.",
       "Added the ability to specify the number of charges and their tincture to the heraldry generator.",

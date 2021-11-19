@@ -1,20 +1,20 @@
 "use strict";
 
-import * as Age from "../age";
+import * as AgeCategories from "../age/agecategories";
 import * as RND from "../random";
 import * as Gender from "../gender";
 import * as Measurements from "../measurements";
 import * as Words from "../words";
 import Character from "./character";
 import * as PersonalityTraits from "./personality";
-import {Species} from "../species/common";
+import Species from "../species/species";
 
 import random from "random";
 
-export function generate(species: Species, ageCategoryName: string, gender: Gender.Gender, firstNames: string[], lastNames: string[]) {
+export function generate(species: Species, ageCategoryName: string, gender: Gender.Gender, firstNames: string[], lastNames: string[]): Character {
   const character = new Character(species);
 
-  const ageCategory = Age.getCategoryFromName(ageCategoryName, gender.ageCategories);
+  const ageCategory = AgeCategories.getCategoryFromName(ageCategoryName, gender.ageCategories);
 
   character.age = ageCategory.randomAge();
   character.ageCategory = ageCategory;
@@ -53,14 +53,14 @@ function describe(character: Character): string {
   return description;
 }
 
-export function getRandomPersonality(gender: Gender.Gender) {
+export function getRandomPersonality(gender: Gender.Gender): string {
   const numberOfPositiveTraits = random.int(2, 3);
   const numberOfNegativeTraits = random.int(1, 2);
 
   return PersonalityTraits.getRandomTraits(gender, numberOfNegativeTraits, numberOfPositiveTraits);
 }
 
-export function getRandomTraits(species: Species) {
+export function getRandomTraits(species: Species): string[] {
   const traits = [];
 
   for (let i = 0; i < species.traits.length; i++) {

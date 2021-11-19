@@ -1,17 +1,15 @@
 "use strict";
 
-import * as PersonalityTraits from "../characters/personality";
 import * as Words from "../words";
 import {Gender} from "../gender";
-import {Species} from "../species/common";
-import {Domain} from "./domain";
-import {Realm} from "./realm";
+import Species from "../species/species";
+import Domain from "./domain";
+import Realm from "./realm";
 import {Relationship} from "../characters/relationship";
 
-import random from "random";
 import { AgeCategory } from "../age";
 
-export class Deity {
+export default class Deity {
   name: string;
   species: Species;
   gender: Gender;
@@ -43,33 +41,26 @@ export class Deity {
     this.holySymbol = "";
     this.isAlive = true;
   }
-}
 
-export function describe(deity: Deity) {
-  const speciesAdj = deity.species.adjective;
-  const subjectivePronoun = deity.gender.subjectivePronoun;
-  let noun = "god";
-  const domainNames = [];
+  describe(): string {
+    const speciesAdj = this.species.adjective;
+    const subjectivePronoun = this.gender.subjectivePronoun;
+    let noun = "god";
+    const domainNames = [];
 
-  for (let i = 0; i < deity.domains.length; i++) {
-    domainNames.push(deity.domains[i].name);
+    for (let i = 0; i < this.domains.length; i++) {
+      domainNames.push(this.domains[i].name);
+    }
+
+    if (this.gender.name === "female") {
+      noun = "goddess";
+    }
+
+    let description = `${this.name} appears as ${Words.article(speciesAdj)} ${speciesAdj} ${this.ageCategory.noun}.`;
+    description += ` ${Words.capitalize(subjectivePronoun)} has ${this.appearance}. ${this.personality}.`;
+    description += ` ${this.name} is the ${noun} of ${Words.arrayToPhrase(domainNames)}.`;
+    description += ` ${Words.capitalize(subjectivePronoun)} resides in ${Words.uncapitalize(this.realm.name)}.`;
+
+    return description;
   }
-
-  if (deity.gender.name === "female") {
-    noun = "goddess";
-  }
-
-  let description = `${deity.name} appears as ${Words.article(speciesAdj)} ${speciesAdj} ${deity.ageCategory.noun}.`;
-  description += ` ${Words.capitalize(subjectivePronoun)} has ${deity.appearance}. ${deity.personality}.`;
-  description += ` ${deity.name} is the ${noun} of ${Words.arrayToPhrase(domainNames)}.`;
-  description += ` ${Words.capitalize(subjectivePronoun)} resides in ${Words.uncapitalize(deity.realm.name)}.`;
-
-  return description;
-}
-
-export function getRandomPersonality(gender: string) {
-  const numberOfPositiveTraits = random.int(2, 3);
-  const numberOfNegativeTraits = random.int(1, 2);
-
-  return PersonalityTraits.getRandomTraits(gender, numberOfNegativeTraits, numberOfPositiveTraits);
 }

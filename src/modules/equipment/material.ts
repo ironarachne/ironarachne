@@ -28,7 +28,7 @@ export class Material {
   }
 }
 
-function getAllMaterialSets() {
+function getAllMaterialSets(): MaterialSet[] {
   return [
     new MaterialSet("wooden", "wood", "wood", "soft metal", ["staff", "bow", "crossbow"]),
     new MaterialSet("wood and metal", "wood", "hard metal", "soft metal", ["staff", "club", "hammer", "polearm", "scythe", "mace", "spear"]),
@@ -39,7 +39,7 @@ function getAllMaterialSets() {
   ];
 }
 
-function getAllMaterials() {
+function getAllMaterials(): Material[] {
   return [
     new Material("copper", "soft metal"),
     new Material("bronze", "hard metal"),

@@ -1,16 +1,17 @@
 "use strict";
 
-import * as Age from "../age";
+import * as AgeCategories from "../age/agecategories";
 import {Gender} from "../gender";
-import * as Species from "./common";
+import Species from "./species";
+import SpeciesAppearanceTrait from "./appearancetrait";
 
-export default new Species.Species(
+export default new Species(
   "halfling",
   "halflings",
   "halfling",
   20,
   [
-    new Species.AppearanceTrait(
+    new SpeciesAppearanceTrait(
       "hair color",
       "{name} hair",
       [
@@ -23,7 +24,7 @@ export default new Species.Species(
         "red",
       ],
     ),
-    new Species.AppearanceTrait(
+    new SpeciesAppearanceTrait(
       "skin color",
       "{name} skin",
       [
@@ -34,7 +35,7 @@ export default new Species.Species(
         "pale",
       ],
     ),
-    new Species.AppearanceTrait(
+    new SpeciesAppearanceTrait(
       "eye color",
       "{name} eyes",
       [
@@ -47,7 +48,7 @@ export default new Species.Species(
     ),
   ],
   [
-    new Gender("female", "she", "her", "her", "woman", "girl", 150, Age.getHumanVariant(1.5, 0.5, 0.6)),
-    new Gender("male", "he", "him", "his", "man", "boy", 150, Age.getHumanVariant(1.5, 0.5, 0.6)),
+    new Gender("female", "she", "her", "her", "woman", "girl", 150, AgeCategories.getHumanVariant(1.5, 0.5, 0.6)),
+    new Gender("male", "he", "him", "his", "man", "boy", 150, AgeCategories.getHumanVariant(1.5, 0.5, 0.6)),
   ],
 );

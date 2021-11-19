@@ -1,22 +1,26 @@
 "use strict";
 
+import * as AppearanceTraits from "./appearancetraits";
 import * as Character from "../characters/common";
-import * as Deity from "./deity";
-import * as Domain from "./domain";
+import Deity from "./deity";
+import * as Domains from "./domains";
+import Domain from "./domain";
 import * as FantasyCharacter from "../characters/fantasy";
 import * as RND from "../random";
-import * as Pantheon from "./pantheon";
-import * as Realm from "./realm";
+import Pantheon from "./pantheon";
+import * as Classifications from "./classifications";
+import Realm from "./realm";
+import * as RealmConcepts from "./realmconcepts";
 import * as Relationship from "../characters/relationship";
-import * as Religion from "./religion";
+import Religion from "./religion";
 import * as Words from "../words";
 
 import random from "random";
 
-export function generate() {
+export function generate(): Religion {
   const realms = randomRealms();
 
-  const classification = Pantheon.randomClassification();
+  const classification = Classifications.random();
 
   const numberOfDeities = random.int(classification.minSize, classification.maxSize);
 
@@ -30,9 +34,9 @@ export function generate() {
 
   const domainSets = randomDomainSets(numberOfDeities);
 
-  const religion = new Religion.Religion("");
+  const religion = new Religion("");
   religion.realms = realms;
-  religion.pantheon = new Pantheon.Pantheon("", pantheonDescription, classification);
+  religion.pantheon = new Pantheon("", pantheonDescription, classification);
   religion.pantheon.deities = randomDeities(domainSets, realms);
 
   if (classification.hasLeader) {
@@ -41,7 +45,7 @@ export function generate() {
       leaderOptions = religion.pantheon.deities;
     } else {
       for (let i = 0; i < religion.pantheon.deities.length; i++) {
-        if (religion.pantheon.deities[i].gender === classification.leaderGender) {
+        if (religion.pantheon.deities[i].gender.name === classification.leaderGender) {
           leaderOptions.push(religion.pantheon.deities[i]);
         }
       }
@@ -51,12 +55,11 @@ export function generate() {
     for (let i = 0; i < religion.pantheon.deities.length; i++) {
       if (leader.name === religion.pantheon.deities[i].name) {
         let leaderTitle = "Queen of the Gods";
-        if (leader.gender === "male") {
+        if (leader.gender.name === "male") {
           leaderTitle = "King of the Gods";
         }
 
         religion.pantheon.deities[i].titles.push(leaderTitle);
-
         religion.pantheon.description += ` ${leader.name} is the ${leaderTitle}.`;
       }
     }
@@ -67,14 +70,21 @@ export function generate() {
   return religion;
 }
 
-function randomDeities(domainSets: Domain.Domain[][], realms: Realm.Realm[]) {
+function randomDeities(domainSets: Domain[][], realms: Realm[]): Deity[] {
   const deities = [];
 
   for (let i = 0; i < domainSets.length; i++) {
+    console.debug('adding a new deity for domain set...');
     let possibleHolyItems: string[] = [];
     let possibleHolySymbols: string[] = [];
+
+    console.debug('generating character details for deity...');
     const characterDetails = FantasyCharacter.generate();
-    const deity = new Deity.Deity(characterDetails.firstName, characterDetails.species, characterDetails.gender, characterDetails.ageCategory, RND.item(realms), domainSets[i]);
+
+    console.debug('creating deity object...');
+    let deity = new Deity(characterDetails.firstName, characterDetails.species, characterDetails.gender, characterDetails.ageCategory, RND.item(realms), domainSets[i]);
+
+    console.debug(`deity ${deity.name} generated, now adding holy item and holy symbol...`);
 
     for (let j = 0; j < domainSets[i].length; j++) {
       possibleHolyItems = possibleHolyItems.concat(domainSets[i][j].holyItems);
@@ -92,9 +102,9 @@ function randomDeities(domainSets: Domain.Domain[][], realms: Realm.Realm[]) {
       appearanceTraits.push(RND.item(deity.realm.appearanceTraits).phrase);
     }
 
-    deity.personality = Character.getRandomPersonality(deity.gender.name);
+    deity.personality = Character.getRandomPersonality(deity.gender);
     deity.appearance = Words.arrayToPhrase(appearanceTraits);
-    deity.description = Deity.describe(deity);
+    deity.description = deity.describe();
 
     deities.push(deity);
   }
@@ -132,10 +142,10 @@ function randomDeities(domainSets: Domain.Domain[][], realms: Realm.Realm[]) {
   return deities;
 }
 
-function randomDomainSets(numberOfSets: number) {
+function randomDomainSets(numberOfSets: number): Domain[][] {
   const sets = [];
 
-  const domains = RND.shuffle(Domain.all());
+  const domains = RND.shuffle(Domains.all());
 
   for (let i = 0; i < numberOfSets; i++) {
     let numberOfDomainsInSet = 1;
@@ -157,7 +167,7 @@ function randomDomainSets(numberOfSets: number) {
   return sets;
 }
 
-function randomGatheringPlace() {
+function randomGatheringPlace(): string {
   let description = RND.item([
     "{follower} gather in {place} for {service}",
     "{follower} congregate in {place} to be led in {service} by a {leader}",
@@ -201,7 +211,7 @@ function randomGatheringPlace() {
   return description;
 }
 
-function randomGatheringTimes() {
+function randomGatheringTimes(): string {
   return RND.item([
     "Regular gatherings happen once a week.",
     "Regular gatherings happen daily.",
@@ -209,12 +219,12 @@ function randomGatheringTimes() {
   ]);
 }
 
-function randomRealms() {
+function randomRealms(): Realm[] {
   const realms = [];
 
   const numberOfRealms = random.int(1, 3);
 
-  let allConcepts = Realm.allConcepts();
+  let allConcepts = RealmConcepts.all();
   allConcepts = RND.shuffle(allConcepts);
 
   for (let i = 0; i < numberOfRealms; i++) {
@@ -223,12 +233,12 @@ function randomRealms() {
     if (typeof concept == 'object') {
       const realmName = RND.item(concept.nameOptions);
 
-      const appearanceTraits = Realm.getAllAppearanceTraitsForRealmConcept(concept);
+      const appearanceTraits = AppearanceTraits.getAllAppearanceTraitsForRealmConcept(concept);
 
       let description = RND.item(concept.descriptionOptions).replace("{name}", Words.uncapitalize(realmName));
       description = Words.capitalize(description);
 
-      const realm = new Realm.Realm(realmName, description, [], appearanceTraits);
+      const realm = new Realm(realmName, description, [], appearanceTraits);
 
       realms.push(realm);
     }
