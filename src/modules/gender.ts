@@ -1,8 +1,8 @@
 "use strict";
 
-import * as Age from "./age";
+import AgeCategory from "./age/agecategory";
 
-export class Gender {
+export default class Gender {
   name: string;
   subjectivePronoun: string;
   objectivePronoun: string;
@@ -10,9 +10,9 @@ export class Gender {
   adultNoun: string;
   childNoun: string;
   maxAge: number;
-  ageCategories: Age.AgeCategory[];
+  ageCategories: AgeCategory[];
 
-  constructor(name: string, subj: string, obj: string, pos: string, adult: string, child: string, maxAge: number, ageCategories: Age.AgeCategory[]) {
+  constructor(name: string, subj: string, obj: string, pos: string, adult: string, child: string, maxAge: number, ageCategories: AgeCategory[]) {
     this.name = name;
     this.subjectivePronoun = subj;
     this.objectivePronoun = obj;

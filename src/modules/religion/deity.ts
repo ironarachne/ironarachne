@@ -1,7 +1,7 @@
 "use strict";
 
 import * as Words from "../words";
-import {Gender} from "../gender";
+import Gender from "../gender";
 import Species from "../species/species";
 import Domain from "./domain";
 import Realm from "./realm";

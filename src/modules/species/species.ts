@@ -1,6 +1,6 @@
 "use strict";
 
-import { Gender } from "../gender";
+import Gender from "../gender";
 import SpeciesAppearanceTrait from "./appearancetrait";
 
 export default class Species {

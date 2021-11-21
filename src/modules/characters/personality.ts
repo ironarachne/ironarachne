@@ -5,7 +5,7 @@ import * as RND from "../random";
 import PersonalityTrait from "./personality/personalitytrait";
 import * as PositiveTraits from "./personality/positivetraits";
 import * as NegativeTraits from "./personality/negativetraits";
-import { Gender } from "../gender";
+import Gender from "../gender";
 
 export function getTraitsWithOpposingTag(traits: PersonalityTrait[], tag: string) {
   const result = [];

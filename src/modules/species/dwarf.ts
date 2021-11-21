@@ -1,7 +1,7 @@
 "use strict";
 
 import * as AgeCategories from "../age/agecategories";
-import {Gender} from "../gender";
+import Gender from "../gender";
 import SpeciesAppearanceTrait from "./appearancetrait";
 import Species from "./species";
 
