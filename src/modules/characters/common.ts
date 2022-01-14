@@ -2,7 +2,7 @@
 
 import * as AgeCategories from "../age/agecategories";
 import * as RND from "../random";
-import * as Gender from "../gender";
+import Gender from "../gender";
 import * as Measurements from "../measurements";
 import * as Words from "../words";
 import Character from "./character";
@@ -11,7 +11,7 @@ import Species from "../species/species";
 
 import random from "random";
 
-export function generate(species: Species, ageCategoryName: string, gender: Gender.Gender, firstNames: string[], lastNames: string[]): Character {
+export function generate(species: Species, ageCategoryName: string, gender: Gender, firstNames: string[], lastNames: string[]): Character {
   const character = new Character(species);
 
   const ageCategory = AgeCategories.getCategoryFromName(ageCategoryName, gender.ageCategories);
@@ -53,7 +53,7 @@ function describe(character: Character): string {
   return description;
 }
 
-export function getRandomPersonality(gender: Gender.Gender): string {
+export function getRandomPersonality(gender: Gender): string {
   const numberOfPositiveTraits = random.int(2, 3);
   const numberOfNegativeTraits = random.int(1, 2);
 

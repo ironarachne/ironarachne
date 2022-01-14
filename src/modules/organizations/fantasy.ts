@@ -1,11 +1,12 @@
 "use strict";
 
 import * as RND from "../random";
-import * as FantasyCharacter from "../characters/fantasy";
+import * as PremadeConfigs from "../characters/premadeconfigs";
 import Organization from "./organization";
 import * as MercCompany from "./fantasy/mercenarycompany";
 import * as TradingCompany from "./fantasy/tradingcompany";
 import * as WizardSchool from "./fantasy/wizardschool";
+import CharacterGenerator from "../characters/generator";
 import OrganizationType from "./type";
 
 import random from "random";
@@ -60,14 +61,20 @@ function randomNotableMembers(org: Organization) {
 
     if (i > 0) {
       for (let k = 0; k < numberOfMembers; k++) {
-        const memberRank = RND.item(possibleRanks);
+        let memberRank = RND.item(possibleRanks);
 
-        const member = FantasyCharacter.generateByAgeGroup(memberRank.ageGroupName);
+        let charGenConfig = PremadeConfigs.getFantasy();
+        charGenConfig.ageCategories = [memberRank.ageGroupName];
+        let charGen = new CharacterGenerator(charGenConfig);
+
+        let member = charGen.generate();
         member.titles.push(memberRank.title);
         notableMembers.push(member);
       }
     }
   }
+
+  console.debug(notableMembers);
 
   return notableMembers;
 }

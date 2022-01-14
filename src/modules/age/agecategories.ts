@@ -2,6 +2,18 @@
 
 import AgeCategory from "./agecategory";
 
+export function getCategoryList(): string[] {
+  const categories = humanStandardFemale();
+
+  let results = [];
+
+  for (let i=0;i<categories.length;i++) {
+    results.push(categories[i].name);
+  }
+
+  return results;
+}
+
 export function getCategoryFromName(name: string, ageGroups: AgeCategory[]): AgeCategory {
   for (let i=0;i<ageGroups.length;i++) {
     if (ageGroups[i].name == name) {
@@ -10,8 +22,12 @@ export function getCategoryFromName(name: string, ageGroups: AgeCategory[]): Age
   }
 }
 
-export function getHumanVariant(ageModifier: number, weightModifier: number, heightModifier: number): AgeCategory[] {
+export function getHumanVariant(ageModifier: number, weightModifier: number, heightModifier: number, gender: string): AgeCategory[] {
   let categories = humanStandardFemale();
+
+  if (gender == "male") {
+    categories = humanStandardMale();
+  }
 
   for (let i=0;i<categories.length;i++) {
     categories[i].minAge = Math.floor(categories[i].minAge * ageModifier);

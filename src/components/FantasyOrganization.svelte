@@ -1,5 +1,4 @@
 <script lang="ts">
-  import * as Charges from "../modules/heraldry/charges";
   import * as Heraldry from "../modules/heraldry/heraldry";
   import * as Organization from "../modules/organizations/fantasy";
   import * as RND from "../modules/random";

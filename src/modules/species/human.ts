@@ -50,7 +50,7 @@ export default new Species(
     ),
   ],
   [
-    new Gender("female", "she", "her", "her", "woman", "girl", 100, AgeCategories.humanStandardFemale()),
-    new Gender("male", "he", "him", "his", "man", "boy", 100, AgeCategories.humanStandardMale()),
+    new Gender("female", "she", "her", "her", 100, AgeCategories.humanStandardFemale()),
+    new Gender("male", "he", "him", "his", 100, AgeCategories.humanStandardMale()),
   ],
 );

@@ -2,6 +2,16 @@
   import ChangeLog from "../modules/changelog";
 
   let updates = [
+    new ChangeLog("2022-01-14", [
+      "Fixed a bug where non-humans would always be women.",
+      "Added names, types, and rulers to regions.",
+      "Added claimant list to regions, including their heraldry.",
+      "Added proper kingdom and empire generation subsystems instead of just names.",
+      "Added ruler heraldry.",
+      "Made unique name generators for each fantasy race.",
+      "Expanded the options available to the underlying made-up word generation algorithm. Better names!",
+      "Added dragonborn.",
+    ]),
     new ChangeLog("2021-11-19", [
       "Fixed a bug in the religion generator that was causing it to crash.",
     ]),

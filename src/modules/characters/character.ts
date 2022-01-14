@@ -1,17 +1,19 @@
 "use strict";
 
-import * as AgeCategories from "../age/agecategories";
-import * as Gender from "../gender";
+import AgeCategory from "../age/agecategory";
+import Gender from "../gender";
 import Title from "./title";
-import {Species} from "../species/common";
+import Species from "../species/species";
+import { Heraldry } from "../heraldry/heraldry";
 
 export default class Character {
   titles: Title[];
+  heraldry: Heraldry|null;
   species: Species;
   description: string;
-  gender: Gender.Gender;
+  gender: Gender;
   age: number;
-  ageCategory: Age.AgeCategory;
+  ageCategory: AgeCategory;
   height: number;
   weight: number;
   traits: string[];
@@ -20,6 +22,7 @@ export default class Character {
 
   constructor(species: Species) {
     this.titles = [];
+    this.heraldry = null;
     this.species = species;
     this.description = "";
     this.age = 0;

@@ -3,7 +3,7 @@
 import * as RND from "../random";
 import * as Words from "../words";
 
-export function generate(patterns: string[]) {
+export function generate(patterns: string[]): string {
   let name = "";
   const pattern = RND.item(patterns);
 
@@ -15,24 +15,27 @@ export function generate(patterns: string[]) {
 }
 
 // Note that any uppercase character is used as-is in lowercase form
-function parsePatternElement(element: string) {
+function parsePatternElement(element: string): string {
   let letter = "";
 
   const elements = {
     a: randomAffricate(),
     c: randomConsonant(),
     d: (() => { let result = randomConsonant(); return result + result; })(),
+    e: randomDental(),
     f: randomFricative(),
     l: randomLiquid(),
     n: randomNasal(),
     p: randomPlosive(),
     s: randomSibilant(),
     t: randomStrident(),
+    o: randomStop(),
     u: (() => { let result = randomVowel(); return result + result })(),
     v: randomVowel(),
+    w: randomVelar(),
   }
 
-  if ("acdflnpstv".includes(element)) {
+  if ("acdeflnpstouvw".includes(element)) {
     letter = elements[element];
   } else {
     letter = element.toLowerCase();
@@ -41,7 +44,7 @@ function parsePatternElement(element: string) {
   return letter;
 }
 
-export function randomConsonant() {
+export function randomConsonant(): string {
   return RND.item([
     "b",
     "c",
@@ -67,34 +70,46 @@ export function randomConsonant() {
   ]);
 }
 
-export function randomAffricate() {
+export function randomAffricate(): string {
   return RND.item(["ch", "j"]);
 }
 
-export function randomFricative() {
+export function randomDental(): string {
+  return RND.item(["d", "n", "t", "l"]);
+}
+
+export function randomFricative(): string {
   return RND.item(["f", "v"]);
 }
 
-export function randomLiquid() {
+export function randomLiquid(): string {
   return RND.item(["l", "r"]);
 }
 
-export function randomPlosive() {
+export function randomPlosive(): string {
   return RND.item(["g", "k", "p", "b", "t", "d", "q"]);
 }
 
-export function randomNasal() {
+export function randomNasal(): string {
   return RND.item(["m", "n", "ng"]);
 }
 
-export function randomSibilant() {
+export function randomSibilant(): string {
   return RND.item(["s", "sh", "z", "zh"]);
 }
 
-export function randomStrident() {
+export function randomStrident(): string {
   return RND.item(["f", "v", "s", "sh", "z", "zh"]);
 }
 
-export function randomVowel() {
+export function randomStop(): string {
+  return RND.item(["t", "d", "p"]);
+}
+
+export function randomVelar(): string {
+  return RND.item(["w", "wh", "g"]);
+}
+
+export function randomVowel(): string {
   return RND.item(["a", "e", "i", "o", "u"]);
 }

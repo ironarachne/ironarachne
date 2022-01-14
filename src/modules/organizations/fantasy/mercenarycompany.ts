@@ -1,12 +1,14 @@
 "use strict";
 
 import * as Charges from "../../heraldry/charges";
-import * as FantasyCharacter from "../../characters/fantasy";
+import CharacterGenerator from "../../characters/generator";
+import * as PremadeConfigs from "../../characters/premadeconfigs";
 import * as Heraldry from "../../heraldry/heraldry";
 import Rank from "../rank";
 import Title from "../../characters/title";
 import OrganizationType from "../type";
 import * as RND from "../../random";
+import Character from "../../characters/character";
 
 export function generateType(): OrganizationType {
   let config = Heraldry.getDefaultConfig();
@@ -18,7 +20,7 @@ export function generateType(): OrganizationType {
     20,
     80,
     "captain",
-    function () {
+    function (): string {
       const prefix = RND.item([
         "Black",
         "Blood",
@@ -51,21 +53,25 @@ export function generateType(): OrganizationType {
 
       return "The " + prefix + " " + suffix;
     },
-    function () {
+    function (): string {
       return RND.item([
         "{name} is a vicious mercenary company with a reputation for excessive violence.",
         "{name} is a merc company that prides itself on its professionalism and integrity.",
         "{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.",
       ]);
     },
-    function (this:OrganizationType) {
-      const leader = FantasyCharacter.generateByAgeGroup("adult");
+    function (): Character {
+      let charGenConfig = PremadeConfigs.getFantasy();
+      charGenConfig.ageCategories = ['adult'];
+
+      const charGen = new CharacterGenerator(charGenConfig);
+      const leader = charGen.generate();
       const ranks = this.getRanks();
       leader.titles.push(ranks.title);
 
       return leader;
     },
-    function () {
+    function (): Rank {
       const captain = new Rank(new Title("Captain", "Captain", "Captain", "Captain", false, "", 0), "military", "adult");
       const lieutenant = new Rank(new Title("Lieutenant", "Lieutenant", "Lieutenant", "Lieutenant", false, "", 1), "military", "adult");
       const sergeant = new Rank(new Title("Sergeant", "Sergeant", "Sergeant", "Sergeant", false, "", 2), "military", "adult");

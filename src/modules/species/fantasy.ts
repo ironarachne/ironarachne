@@ -1,5 +1,6 @@
 "use strict";
 
+import dragonborn from "./dragonborn";
 import dwarf from "./dwarf";
 import elf from "./elf";
 import gnome from "./gnome";
@@ -12,6 +13,7 @@ import * as RND from "../random";
 
 export function all(): Species[] {
   return [
+    dragonborn,
     dwarf,
     elf,
     gnome,

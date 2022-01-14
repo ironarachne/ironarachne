@@ -48,7 +48,7 @@ export default new Species(
     ),
   ],
   [
-    new Gender("female", "she", "her", "her", "woman", "girl", 185, AgeCategories.getHumanVariant(1.85, 0.9, 0.95)),
-    new Gender("male", "he", "him", "his", "man", "boy", 185, AgeCategories.getHumanVariant(1.85, 0.9, 0.95)),
+    new Gender("female", "she", "her", "her", 185, AgeCategories.getHumanVariant(1.85, 0.9, 0.95, "female")),
+    new Gender("male", "he", "him", "his", 185, AgeCategories.getHumanVariant(1.85, 0.9, 0.95, "male")),
   ],
 );

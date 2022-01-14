@@ -1,6 +1,5 @@
 "use strict";
 
-import Coordinate from "../coordinate";
 import Charge from "./charge";
 import * as Words from "../words";
 import ChargeGroupArrangement from "./chargegrouparrangement";

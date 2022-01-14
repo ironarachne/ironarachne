@@ -1,7 +1,8 @@
 "use strict";
 
 import Character from "./characters/character";
-import * as FantasyCharacter from "./characters/fantasy";
+import CharacterGenerator from "./characters/generator";
+import * as PremadeConfigs from "./characters/premadeconfigs";
 import { Item } from "./equipment/item";
 import * as StockList from "./equipment/stocklist";
 import random from "random";
@@ -23,7 +24,11 @@ export class Merchant {
 }
 
 export function generate(itemCategory: string, valueThreshold: number): Merchant {
-  let character = FantasyCharacter.generateByAgeGroup("adult");
+  let charGenConfig = PremadeConfigs.getFantasy();
+  charGenConfig.ageCategories = ['adult'];
+
+  const charGen = new CharacterGenerator(charGenConfig);
+  let character = charGen.generate();
   let description = RND.item([
     `${character.firstName} ${character.lastName} is ${Words.article(itemCategory)} ${itemCategory} merchant.`,
     `${character.firstName} ${character.lastName}, ${Words.article(character.species.name)} ${character.species.name} ${character.ageCategory.noun}, is ${Words.article(itemCategory)} ${itemCategory} merchant.`,

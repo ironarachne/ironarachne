@@ -10,6 +10,18 @@ export function item(items: any[]) {
   return items[random.int(0, items.length - 1)];
 }
 
+export function randomSet(itemCount: number, items: any[]): any[] {
+  let result = [];
+
+  items = shuffle(items);
+
+  for (let i=0;i<itemCount;i++) {
+    result.push(items.pop());
+  }
+
+  return result;
+}
+
 export function randomString(length: number): string {
   let result: string = '';
 

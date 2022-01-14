@@ -1,7 +1,8 @@
 "use strict";
 
 import * as Charges from "../../heraldry/charges";
-import * as FantasyCharacter from "../../characters/fantasy";
+import CharacterGenerator from "../../characters/generator";
+import * as PremadeConfigs from "../../characters/premadeconfigs";
 import * as Heraldry from "../../heraldry/heraldry";
 import Rank from "../rank";
 import Title from "../../characters/title";
@@ -66,8 +67,12 @@ export function generateType(): OrganizationType {
         "{name} is an egalitarian wizard school that accepts new students from every walk of life.",
       ]);
     },
-    function (this:OrganizationType) {
-      const leader = FantasyCharacter.generateByAgeGroup("elderly");
+    function () {
+      let charGenConfig = PremadeConfigs.getFantasy();
+      charGenConfig.ageCategories = ['elderly'];
+
+      const charGen = new CharacterGenerator(charGenConfig);
+      const leader = charGen.generate();
       const ranks = this.getRanks();
       leader.titles.push(ranks.title);
 

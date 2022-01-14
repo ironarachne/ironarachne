@@ -5,7 +5,8 @@ import * as Character from "../characters/common";
 import Deity from "./deity";
 import * as Domains from "./domains";
 import Domain from "./domain";
-import * as FantasyCharacter from "../characters/fantasy";
+import CharacterGenerator from "../characters/generator";
+import * as PremadeConfigs from "../characters/premadeconfigs";
 import * as RND from "../random";
 import Pantheon from "./pantheon";
 import * as Classifications from "./classifications";
@@ -79,7 +80,10 @@ function randomDeities(domainSets: Domain[][], realms: Realm[]): Deity[] {
     let possibleHolySymbols: string[] = [];
 
     console.debug('generating character details for deity...');
-    const characterDetails = FantasyCharacter.generate();
+    let charGenConfig = PremadeConfigs.getFantasy();
+
+    const charGen = new CharacterGenerator(charGenConfig);
+    const characterDetails = charGen.generate();
 
     console.debug('creating deity object...');
     let deity = new Deity(characterDetails.firstName, characterDetails.species, characterDetails.gender, characterDetails.ageCategory, RND.item(realms), domainSets[i]);

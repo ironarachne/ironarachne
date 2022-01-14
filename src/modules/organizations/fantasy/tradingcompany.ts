@@ -2,12 +2,14 @@
 
 import * as Charges from "../../heraldry/charges";
 import * as CommonNames from "../../names/common";
-import * as FantasyCharacter from "../../characters/fantasy";
+import CharacterGenerator from "../../characters/generator";
+import * as PremadeConfigs from "../../characters/premadeconfigs";
 import * as Heraldry from "../../heraldry/heraldry";
 import Rank from "../rank";
 import Title from "../../characters/title";
 import OrganizationType from "../type";
 import * as RND from "../../random";
+import Character from "../../characters/character";
 
 export function generateType(): OrganizationType {
   let config = Heraldry.getDefaultConfig();
@@ -19,7 +21,7 @@ export function generateType(): OrganizationType {
       30,
       200,
       "proprietor",
-      function () {
+      function (): string {
         const nameTypes = [
           {
             name: "generic",
@@ -88,7 +90,7 @@ export function generateType(): OrganizationType {
 
         return namer.randomName();
       },
-      function () {
+      function (): string {
         return RND.item([
           "The {name} is noted for the quality of their goods.",
           "The {name} has a reputation for always delivering goods to their intended destination.",
@@ -97,8 +99,12 @@ export function generateType(): OrganizationType {
           "The {name} deals in a wide variety of goods.",
         ]);
       },
-      function (this:OrganizationType) {
-        const leader = FantasyCharacter.generateByAgeGroup("adult");
+      function (): Character {
+        let charGenConfig = PremadeConfigs.getFantasy();
+        charGenConfig.ageCategories = ['adult'];
+
+        const charGen = new CharacterGenerator(charGenConfig);
+        const leader = charGen.generate();
         const ranks = this.getRanks();
         leader.titles.push(ranks.title);
 
