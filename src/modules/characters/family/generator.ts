@@ -81,7 +81,12 @@ export default class FamilyGenerator {
       if (family.members[i].character.age > AgeCategories.getMaxAge(family.members[i].character.gender.ageCategories)) {
         family.members[i].character.status = "dead";
       } else {
-        family.members[i].character.ageCategory = AgeCategories.getCategoryFromAge(family.members[i].character.age, family.members[i].character.gender.ageCategories);
+        let newAgeCategory = AgeCategories.getCategoryFromAge(family.members[i].character.age, family.members[i].character.gender.ageCategories);
+        if (newAgeCategory.name != family.members[i].character.ageCategory.name) {
+          family.members[i].character.height = newAgeCategory.randomHeight();
+          family.members[i].character.weight = newAgeCategory.randomWeight();
+        }
+        family.members[i].character.ageCategory = newAgeCategory;
       }
 
       family.members[i].character.description = charGen.describe(family.members[i].character);
