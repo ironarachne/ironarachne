@@ -159,7 +159,7 @@ function getNewChild(parent1Index: number, parent2Index: number, family: Family)
 
   let charConfig = new CharacterGeneratorConfig();
   charConfig.speciesOptions = [parent1.species, parent2.species];
-  charConfig.ageCategories = ["infant"];
+  charConfig.ageCategories = ["infant", "toddler"];
   charConfig.familyNameGenerator = family.familyNameGenerator;
   charConfig.femaleNameGenerator = family.femaleNameGenerator;
   charConfig.maleNameGenerator = family.maleNameGenerator;
