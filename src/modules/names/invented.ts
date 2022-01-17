@@ -33,9 +33,10 @@ function parsePatternElement(element: string): string {
     u: (() => { let result = randomVowel(); return result + result })(),
     v: randomVowel(),
     w: randomVelar(),
+    x: randomAccentedVowel(),
   }
 
-  if ("acdeflnpstouvw".includes(element)) {
+  if ("acdeflnpstouvwx".includes(element)) {
     letter = elements[element];
   } else {
     letter = element.toLowerCase();
@@ -68,6 +69,10 @@ export function randomConsonant(): string {
     "y",
     "z",
   ]);
+}
+
+export function randomAccentedVowel(): string {
+  return RND.item(["á", "é", "í", "ó", "ú"]);
 }
 
 export function randomAffricate(): string {

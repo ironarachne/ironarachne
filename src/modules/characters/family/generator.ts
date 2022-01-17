@@ -95,8 +95,8 @@ export default class FamilyGenerator {
         continue;
       }
 
-      if (RND.chance(100) > 95) {
-        // There's a 5% chance something horrible kills this person
+      if (RND.chance(100) > 98) {
+        // There's a 2% chance something horrible kills this person
         family.members[i].character.status = "dead";
         continue;
       }

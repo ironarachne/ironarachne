@@ -18,7 +18,7 @@ export default class DwarfMaleGenerator implements NameGenerator {
       "THvlIM",
       "pvMLI",
       "pvNLI",
-      "plOIN",
+      "plxIN",
       "pvFUR",
       "pvFvl",
       "slvlIN",

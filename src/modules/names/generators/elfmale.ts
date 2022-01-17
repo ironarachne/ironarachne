@@ -17,6 +17,10 @@ export default class ElfMaleGenerator implements NameGenerator {
       "vlMIEL",
       "vlMvRION",
       "vRvnoUR",
+      "vNxlION",
+      "vNDxRIL",
+      "vNDxNE",
+      "vRvNxRE",
     ];
   }
 

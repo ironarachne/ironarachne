@@ -21,6 +21,7 @@ export default class ElfFemaleGenerator implements NameGenerator {
       "vsvLME",
       "cvlwEN",
       "vnovMIEL",
+      "vlIxN",
     ];
   }
 
