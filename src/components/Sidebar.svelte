@@ -10,6 +10,9 @@
       <li>
         <a href="#/" class:active={$location === '/'}>Home</a>
       </li>
+      <li>
+        <a href="#/changelog" class:active={$location === '/changelog'}>Change Log</a>
+      </li>
       <li><a href="https://www.reddit.com/r/ironarachne/">r/ironarachne subreddit</a></li>
     </ul>
   </div>
@@ -22,22 +25,25 @@
         <a href="#/culture" class:active={$location === '/culture'}>Culture</a>
       </li>
       <li>
-        <a href="#/region" class:active={$location === '/region'}>Region</a>
+        <a href="#/fantasy/equipment" class:active={$location === '/fantasy/equipment'}>Equipment Lists</a>
+      </li>
+      <li>
+        <a href="#/fantasy/family" class:active={$location === '/fantasy/family'}>Family</a>
       </li>
       <li>
         <a href="#/heraldry" class:active={$location === '/heraldry'}>Heraldry</a>
       </li>
       <li>
+        <a href="#/fantasy/weapon" class:active={$location === '/fantasy/weapon'}>Magic Weapon</a>
+      </li>
+      <li>
         <a href="#/fantasy/organization" class:active={$location === '/fantasy/organization'}>Organization</a>
       </li>
       <li>
-        <a href="#/fantasy/equipment" class:active={$location === '/fantasy/equipment'}>Equipment Lists</a>
+        <a href="#/region" class:active={$location === '/region'}>Region</a>
       </li>
       <li>
         <a href="#/fantasy/religion" class:active={$location === '/fantasy/religion'}>Religion</a>
-      </li>
-      <li>
-        <a href="#/fantasy/weapon" class:active={$location === '/fantasy/weapon'}>Magic Weapon</a>
       </li>
     </ul>
   </div>
@@ -52,13 +58,13 @@
         <a href="#/arms-manufacturer" class:active={$location === '/arms-manufacturer'}>Arms Manufacturer</a>
       </li>
       <li>
+        <a href="#/planet" class:active={$location === '/planet'}>Planet</a>
+      </li>
+      <li>
         <a href="#/spooky-ship" class:active={$location === '/spooky-ship'}>Spooky Ship</a>
       </li>
       <li>
         <a href="#/starsystem" class:active={$location === '/starsystem'}>Star System</a>
-      </li>
-      <li>
-        <a href="#/planet" class:active={$location === '/planet'}>Planet</a>
       </li>
     </ul>
 

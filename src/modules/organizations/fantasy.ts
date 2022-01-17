@@ -74,8 +74,6 @@ function randomNotableMembers(org: Organization) {
     }
   }
 
-  console.debug(notableMembers);
-
   return notableMembers;
 }
 

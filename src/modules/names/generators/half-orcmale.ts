@@ -29,7 +29,7 @@ export default class HalfOrcMaleGenerator implements NameGenerator {
       "svRM",
       "svRN",
       "svRNpvK",
-      "pdpvK",
+      "pupvK",
     ];
   }
 

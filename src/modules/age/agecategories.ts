@@ -14,6 +14,14 @@ export function getCategoryList(): string[] {
   return results;
 }
 
+export function getCategoryFromAge(age: number, categories: AgeCategory[]): AgeCategory {
+  for (let i=0;i<categories.length;i++) {
+    if (categories[i].minAge <= age && categories[i].maxAge >= age) {
+      return categories[i];
+    }
+  }
+}
+
 export function getCategoryFromName(name: string, ageGroups: AgeCategory[]): AgeCategory {
   for (let i=0;i<ageGroups.length;i++) {
     if (ageGroups[i].name == name) {
@@ -30,7 +38,9 @@ export function getHumanVariant(ageModifier: number, weightModifier: number, hei
   }
 
   for (let i=0;i<categories.length;i++) {
-    categories[i].minAge = Math.floor(categories[i].minAge * ageModifier);
+    if (i > 0) {
+      categories[i].minAge = categories[i-1].maxAge + 1;
+    }
     categories[i].maxAge = Math.ceil(categories[i].maxAge * ageModifier);
     categories[i].minHeight = Math.ceil(categories[i].minHeight * heightModifier);
     categories[i].maxHeight = Math.ceil(categories[i].maxHeight * heightModifier);
@@ -39,6 +49,18 @@ export function getHumanVariant(ageModifier: number, weightModifier: number, hei
   }
 
   return categories;
+}
+
+export function getMaxAge(categories: AgeCategory[]): number {
+  let maxAge = 0;
+
+  for (let i=0;i<categories.length;i++) {
+    if (maxAge < categories[i].maxAge) {
+      maxAge = categories[i].maxAge;
+    }
+  }
+
+  return maxAge;
 }
 
 export function humanStandardFemale(): AgeCategory[] {

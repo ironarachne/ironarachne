@@ -1,8 +1,8 @@
 "use strict";
 
 import * as AppearanceTraits from "./appearancetraits";
-import * as Character from "../characters/common";
-import Deity from "./deity";
+
+import Deity from "./deities/deity";
 import * as Domains from "./domains";
 import Domain from "./domain";
 import CharacterGenerator from "../characters/generator";
@@ -75,20 +75,15 @@ function randomDeities(domainSets: Domain[][], realms: Realm[]): Deity[] {
   const deities = [];
 
   for (let i = 0; i < domainSets.length; i++) {
-    console.debug('adding a new deity for domain set...');
     let possibleHolyItems: string[] = [];
     let possibleHolySymbols: string[] = [];
 
-    console.debug('generating character details for deity...');
     let charGenConfig = PremadeConfigs.getFantasy();
 
     const charGen = new CharacterGenerator(charGenConfig);
     const characterDetails = charGen.generate();
 
-    console.debug('creating deity object...');
     let deity = new Deity(characterDetails.firstName, characterDetails.species, characterDetails.gender, characterDetails.ageCategory, RND.item(realms), domainSets[i]);
-
-    console.debug(`deity ${deity.name} generated, now adding holy item and holy symbol...`);
 
     for (let j = 0; j < domainSets[i].length; j++) {
       possibleHolyItems = possibleHolyItems.concat(domainSets[i][j].holyItems);
@@ -100,13 +95,19 @@ function randomDeities(domainSets: Domain[][], realms: Realm[]): Deity[] {
 
     const chanceOfRealmTrait = random.int(1, 100);
 
-    const appearanceTraits = characterDetails.traits;
+    const physicalTraits = characterDetails.physicalTraits;
+    let appearanceTraits = [];
+
+    for (let i=0;i<physicalTraits.length;i++) {
+      appearanceTraits.push(physicalTraits[i].description);
+    }
 
     if (chanceOfRealmTrait > 80) {
       appearanceTraits.push(RND.item(deity.realm.appearanceTraits).phrase);
     }
 
-    deity.personality = Character.getRandomPersonality(deity.gender);
+    deity.personalityTraits = characterDetails.personalityTraits;
+    deity.personality = describePersonality(deity);
     deity.appearance = Words.arrayToPhrase(appearanceTraits);
     deity.description = deity.describe();
 
@@ -144,6 +145,16 @@ function randomDeities(domainSets: Domain[][], realms: Realm[]): Deity[] {
   }
 
   return deities;
+}
+
+function describePersonality(deity: Deity): string {
+  let traits = [];
+
+  for (let i=0;i<deity.personalityTraits.length;i++) {
+    traits.push(deity.personalityTraits[i].descriptor);
+  }
+
+  return Words.capitalize(deity.gender.subjectivePronoun) + " is " + Words.arrayToPhrase(traits);
 }
 
 function randomDomainSets(numberOfSets: number): Domain[][] {

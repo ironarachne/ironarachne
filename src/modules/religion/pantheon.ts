@@ -1,6 +1,6 @@
 "use strict";
 
-import Deity from "./deity";
+import Deity from "./deities/deity";
 import PantheonClassification from "./pantheonclassification";
 
 export default class Pantheon {

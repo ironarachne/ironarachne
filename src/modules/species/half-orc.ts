@@ -3,57 +3,70 @@
 import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
 import Species from "./species";
-import SpeciesAppearanceTrait from "./appearancetrait";
+import PhysicalTraitGenerator from "../physicaltraits/generator";
 
-export default new Species(
-  "half-orc",
-  "half-orcs",
-  "half-orc",
-  10,
-  [
-    new SpeciesAppearanceTrait(
-      "hair color",
-      "{name} hair",
-      [
-        "blonde",
-        "dark",
-        "black",
-        "russet",
-        "light",
-        "brown",
-        "red",
-      ],
-    ),
-    new SpeciesAppearanceTrait(
-      "skin color",
-      "{name} skin",
-      [
-        "grey",
-        "green",
-        "olive",
-        "tan",
-        "light",
-        "bronzed",
-        "black",
-        "ebony",
-        "white",
-        "pale",
-      ],
-    ),
-    new SpeciesAppearanceTrait(
-      "eye color",
-      "{name} eyes",
-      [
-        "blue",
-        "green",
-        "brown",
-        "dark",
-        "amber",
-      ],
-    ),
-  ],
-  [
-    new Gender("female", "she", "her", "her", 80, AgeCategories.getHumanVariant(0.8, 0.85, 0.9, "female")),
-    new Gender("male", "he", "him", "his", 80, AgeCategories.getHumanVariant(0.8, 0.9, 0.95, "male")),
-  ],
-);
+export default class HalfOrc implements Species {
+  name: string;
+  pluralName: string;
+  adjective: string;
+  commonality: number;
+  physicalTraitGenerators: PhysicalTraitGenerator[];
+  genders: Gender[];
+
+  constructor() {
+    this.name = "half-orc";
+    this.pluralName = "half-orcs";
+    this.adjective = "half-orc";
+    this.commonality = 10;
+    this.physicalTraitGenerators = [
+      new PhysicalTraitGenerator(
+        "hair",
+        "hair",
+        [
+          "black",
+          "blonde",
+          "brown",
+          "dark",
+          "light",
+          "red",
+          "russet",
+        ],
+        ["hair"]
+      ),
+      new PhysicalTraitGenerator(
+        "skin",
+        "skin",
+        [
+          "black",
+          "bronzed",
+          "ebony",
+          "green",
+          "grey",
+          "light",
+          "olive",
+          "pale",
+          "tan",
+          "white",
+        ],
+        ["skin"]
+      ),
+      new PhysicalTraitGenerator(
+        "eyes",
+        "eyes",
+        [
+          "amber",
+          "blue",
+          "brown",
+          "dark",
+          "green",
+        ],
+        ["eyes"]
+      )
+    ];
+    this.genders = [
+      new Gender("female", "she", "her", "her", 80, AgeCategories.getHumanVariant(0.8, 0.85, 0.9, "female")),
+      new Gender("male", "he", "him", "his", 80, AgeCategories.getHumanVariant(0.8, 0.9, 0.95, "male")),
+    ];
+  }
+}
+

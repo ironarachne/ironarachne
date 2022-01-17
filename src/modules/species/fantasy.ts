@@ -1,26 +1,26 @@
 "use strict";
 
-import dragonborn from "./dragonborn";
-import dwarf from "./dwarf";
-import elf from "./elf";
-import gnome from "./gnome";
-import halfelf from "./half-elf";
-import halfling from "./halfling";
-import halforc from "./half-orc";
-import human from "./human";
+import Dragonborn from "./dragonborn";
+import Dwarf from "./dwarf";
+import Elf from "./elf";
+import Gnome from "./gnome";
+import HalfElf from "./half-elf";
+import Halfling from "./halfling";
+import HalfOrc from "./half-orc";
+import Human from "./human";
 import Species from "./species";
 import * as RND from "../random";
 
 export function all(): Species[] {
   return [
-    dragonborn,
-    dwarf,
-    elf,
-    gnome,
-    halfelf,
-    halfling,
-    halforc,
-    human,
+    new Dragonborn(),
+    new Dwarf(),
+    new Elf(),
+    new Gnome(),
+    new HalfElf(),
+    new Halfling(),
+    new HalfOrc(),
+    new Human(),
   ];
 }
 

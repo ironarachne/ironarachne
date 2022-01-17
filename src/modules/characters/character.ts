@@ -5,6 +5,8 @@ import Gender from "../gender";
 import Title from "./title";
 import Species from "../species/species";
 import { Heraldry } from "../heraldry/heraldry";
+import PhysicalTrait from "../physicaltraits/physicaltrait";
+import PersonalityTrait from "./personality/personalitytrait";
 
 export default class Character {
   titles: Title[];
@@ -17,8 +19,11 @@ export default class Character {
   height: number;
   weight: number;
   traits: string[];
+  personalityTraits: PersonalityTrait[];
+  physicalTraits: PhysicalTrait[];
   firstName: string;
   lastName: string;
+  status: string;
 
   constructor(species: Species) {
     this.titles = [];
@@ -29,8 +34,10 @@ export default class Character {
     this.height = 0;
     this.weight = 0;
     this.traits = [];
+    this.physicalTraits = [];
     this.firstName = "";
     this.lastName = "";
+    this.status = "alive";
   }
 
   getPrimaryTitle() {

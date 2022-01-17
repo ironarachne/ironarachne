@@ -1,21 +1,13 @@
 "use strict";
 
 import Gender from "../gender";
-import SpeciesAppearanceTrait from "./appearancetrait";
+import PhysicalTraitGenerator from "../physicaltraits/generator";
 
-export default class Species {
+export default interface Species {
   name: string;
   pluralName: string;
   adjective: string;
   commonality: number;
-  traits: SpeciesAppearanceTrait[];
+  physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
-  constructor(name: string, pluralName: string, adjective: string, commonality: number, traits: SpeciesAppearanceTrait[], genders: Gender[]) {
-    this.name = name;
-    this.pluralName = pluralName;
-    this.adjective = adjective;
-    this.commonality = commonality;
-    this.traits = traits;
-    this.genders = genders;
-  }
 }

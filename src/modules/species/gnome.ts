@@ -3,52 +3,64 @@
 import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
 import Species from "./species";
-import SpeciesAppearanceTrait from "./appearancetrait";
+import PhysicalTraitGenerator from "../physicaltraits/generator";
 
-export default new Species(
-  "gnome",
-  "gnomes",
-  "gnome",
-  20,
-  [
-    new SpeciesAppearanceTrait(
-      "hair color",
-      "{name} hair",
-      [
-        "blonde",
-        "dark",
-        "black",
-        "russet",
-        "light",
-        "brown",
-        "red",
-      ],
-    ),
-    new SpeciesAppearanceTrait(
-      "skin color",
-      "{name} skin",
-      [
-        "tan",
-        "light",
-        "bronzed",
-        "white",
-        "pale",
-      ],
-    ),
-    new SpeciesAppearanceTrait(
-      "eye color",
-      "{name} eyes",
-      [
-        "blue",
-        "green",
-        "brown",
-        "dark",
-        "amber",
-      ],
-    ),
-  ],
-  [
-    new Gender("female", "she", "her", "her", 500, AgeCategories.getHumanVariant(5, 0.4, 0.4, "female")),
-    new Gender("male", "he", "him", "his", 500, AgeCategories.getHumanVariant(5, 0.5, 0.5, "male")),
-  ],
-);
+export default class Gnome implements Species {
+  name: string;
+  pluralName: string;
+  adjective: string;
+  commonality: number;
+  physicalTraitGenerators: PhysicalTraitGenerator[];
+  genders: Gender[];
+
+  constructor() {
+    this.name = "gnome";
+    this.pluralName = "gnomes";
+    this.adjective = "gnomish";
+    this.commonality = 20;
+    this.physicalTraitGenerators = [
+      new PhysicalTraitGenerator(
+        "hair",
+        "hair",
+        [
+          "black",
+          "blonde",
+          "brown",
+          "dark",
+          "light",
+          "red",
+          "russet",
+        ],
+        ["hair"]
+      ),
+      new PhysicalTraitGenerator(
+        "skin",
+        "skin",
+        [
+          "bronzed",
+          "light",
+          "pale",
+          "tan",
+          "white",
+        ],
+        ["skin"]
+      ),
+      new PhysicalTraitGenerator(
+        "eyes",
+        "eyes",
+        [
+          "amber",
+          "blue",
+          "brown",
+          "dark",
+          "green",
+        ],
+        ["eyes"]
+      ),
+    ];
+    this.genders = [
+      new Gender("female", "she", "her", "her", 500, AgeCategories.getHumanVariant(5, 0.4, 0.4, "female")),
+      new Gender("male", "he", "him", "his", 500, AgeCategories.getHumanVariant(5, 0.5, 0.5, "male")),
+    ];
+  }
+}

@@ -31,8 +31,6 @@ export default class HeraldryGenerator {
     let fields = Fields.all();
     let variations = Variations.all();
 
-    console.debug(fields, variations);
-
     let types1 = [];
     let types2 = [];
 

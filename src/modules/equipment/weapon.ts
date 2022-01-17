@@ -45,13 +45,11 @@ export class WeaponEffect {
 
 export function generate(category: string, theme: string): Weapon {
   if (theme == "any") {
-    console.debug('getting random domain name...');
     const domains = Domains.getAllDomainNames();
     theme = RND.item(domains);
   }
 
   if (category == "any") {
-    console.debug('getting random weapon category...');
     const categories = getAllWeaponCategories();
     category = RND.item(categories);
   }
