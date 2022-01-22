@@ -20,6 +20,8 @@
   <div class="fantasy button-group">
     <h3>Fantasy</h3>
 
+    <h4>Generic</h4>
+
     <ul>
       <li>
         <a href="#/culture" class:active={$location === '/culture'}>Culture</a>
@@ -44,6 +46,14 @@
       </li>
       <li>
         <a href="#/fantasy/religion" class:active={$location === '/fantasy/religion'}>Religion</a>
+      </li>
+    </ul>
+
+    <h4>Dungeon Crawl Classics</h4>
+
+    <ul>
+      <li>
+        <a href="#/fantasy/dcc/character" class:active={$location === '/fantasy/dcc/character'}>DCC Character</a>
       </li>
     </ul>
   </div>

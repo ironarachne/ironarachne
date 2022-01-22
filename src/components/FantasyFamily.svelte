@@ -5,9 +5,6 @@
   import random from "random";
   import seedrandom from "seedrandom";
   import FamilyGeneratorConfig from "../modules/characters/family/generatorconfig";
-  import GenericFantasyFamilyGenerator from "../modules/names/generators/genericfantasyfamily";
-  import GenericFantasyFemaleGenerator from "../modules/names/generators/genericfantasyfemale";
-  import GenericFantasyMaleGenerator from "../modules/names/generators/genericfantasymale";
   import * as NameGenerators from "../modules/names/generators";
   import FamilyGenerator from "../modules/characters/family/generator";
   import Gender from "../modules/gender";

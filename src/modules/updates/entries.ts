@@ -16,6 +16,11 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog("2022-01-22", [
+      "Reworked the biome and climate system underlying region generation.",
+      "Added geographic features to town descriptions.",
+      "Added Dungeon Crawl Classics character generator.",
+    ]),
     new ChangeLog("2022-01-17", [
       "Added a fantasy family generator.",
       "Changed how personalities are generated to be faster and more rational.",

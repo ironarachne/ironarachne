@@ -3,6 +3,7 @@
   import ChangeLog from "./ChangeLog.svelte";
   import ChopShop from "./ChopShop.svelte";
   import Culture from "./Culture.svelte";
+  import DCCCharacter from "./DCCCharacter.svelte";
   import Drug from "./Drug.svelte";
   import FantasyEquipment from "./FantasyEquipment.svelte";
   import FantasyFamily from "./FantasyFamily.svelte";
@@ -32,6 +33,7 @@
     "/chopshop": ChopShop,
     "/culture": Culture,
     "/drug": Drug,
+    "/fantasy/dcc/character": DCCCharacter,
     "/fantasy/equipment": FantasyEquipment,
     "/fantasy/family": FantasyFamily,
     "/fantasy/merchant": FantasyMerchant,
