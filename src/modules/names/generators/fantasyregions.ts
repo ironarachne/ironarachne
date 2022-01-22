@@ -17,6 +17,7 @@ export default class FantasyRegionsGenerator implements NameGenerator {
       "vpvlY",
       "flvnv",
       "vfpvlION",
+      "vlxRIA",
     ];
   }
 

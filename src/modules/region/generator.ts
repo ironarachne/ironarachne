@@ -1,26 +1,28 @@
 "use strict";
 
 import * as RND from "../random";
-import * as Biomes from "../environment/biomes";
 import Nation from "../nations/nation";
 import * as NationGenerator from "../nations/fantasy";
 import * as Organizations from "../organizations/fantasy";
 import Organization from "../organizations/organization";
-import * as Towns from "../towns/towns";
+import TownGeneratorConfig from "../towns/generatorconfig";
+import TownGenerator from "../towns/generator";
 import Region from "./region";
-import * as TownNames from "../names/towns";
 import * as Words from "../words";
 
 import random from "random";
+import EnvironmentGenerator from "../environment/generator";
+import Environment from "../environment/environment";
 
 export function generate(): Region {
-  const biome = Biomes.random();
-  const towns = randomTowns();
+  const envGen = new EnvironmentGenerator();
+  const environment = envGen.generate();
+  const towns = randomTowns(environment);
   const organizations = randomOrganizations();
 
   const claimants = randomClaimants();
 
-  let description = RND.item(biome.descriptions) + " " + RND.item(biome.features) + " " + RND.item(biome.weatherEvents);
+  let description = environment.description;
 
   description += " " + describeClaimants(claimants);
 
@@ -28,7 +30,7 @@ export function generate(): Region {
 
   let name = sovereignTerritory.longName;
 
-  return new Region(name, description, towns, claimants, sovereignTerritory, organizations);
+  return new Region(name, environment, description, towns, claimants, sovereignTerritory, organizations);
 }
 
 function randomClaimants(): Nation[] {
@@ -81,11 +83,12 @@ function randomOrganizations() {
   return orgs;
 }
 
-function randomTowns() {
-  let names = TownNames.randomSet(100);
-  const capital = Towns.generate("large", names);
-
-  names = Words.removeEntry(capital.name, names);
+function randomTowns(environment: Environment) {
+  let townGenConfig = new TownGeneratorConfig();
+  townGenConfig.size = "large";
+  townGenConfig.environment = environment;
+  let townGen = new TownGenerator(townGenConfig);
+  const capital = townGen.generate();
 
   const numberOfMediumTowns = random.int(1, 3);
   const numberOfSmallTowns = random.int(3, 5);
@@ -95,15 +98,15 @@ function randomTowns() {
   towns.push(capital);
 
   for (let i = 0; i < numberOfMediumTowns; i++) {
-    const town = Towns.generate("medium", names);
+    townGen.config.size = "medium";
+    const town = townGen.generate();
     towns.push(town);
-    names = Words.removeEntry(town.name, names);
   }
 
   for (let i = 0; i < numberOfSmallTowns; i++) {
-    const town = Towns.generate("small", names);
+    townGen.config.size = "small";
+    const town = townGen.generate();
     towns.push(town);
-    names = Words.removeEntry(town.name, names);
   }
 
   return towns;
