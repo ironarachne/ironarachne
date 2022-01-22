@@ -408,7 +408,7 @@ export function all(): DCCOccupation[] {
     ),
     new DCCOccupation(
       "guild beggar",
-      new DCCWeapon("sling", "sl40/80/160ing", "", "1d4", 50),
+      new DCCWeapon("sling", "sling", "40/80/160", "1d4", 50),
       new DCCGear("crutches", 1),
       2,
       function(character: DCCCharacter): DCCCharacter {
@@ -453,7 +453,7 @@ export function all(): DCCOccupation[] {
     ),
     new DCCOccupation(
       "halfling gypsy",
-      new DCCWeapon("sling", "sl40/80/160ing", "", "1d4", 50),
+      new DCCWeapon("sling", "sling", "40/80/160", "1d4", 50),
       new DCCGear("hex doll", 1),
       1,
       function(character: DCCCharacter): DCCCharacter {
