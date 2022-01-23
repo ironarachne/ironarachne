@@ -13,6 +13,15 @@ import DCCLuckyRoll from "./luckyroll";
 import DCCOccupation from "./occupation";
 import DCCGear from "./equipment/gear";
 import DCCLanguage from "./languages/language";
+import ElfFamilyGenerator from "../names/generators/elffamily";
+import ElfFemaleGenerator from "../names/generators/elffemale";
+import ElfMaleGenerator from "../names/generators/elfmale";
+import DwarfFamilyGenerator from "../names/generators/dwarffamily";
+import DwarfFemaleGenerator from "../names/generators/dwarffemale";
+import DwarfMaleGenerator from "../names/generators/dwarfmale";
+import HalflingFamilyGenerator from "../names/generators/halflingfamily";
+import HalflingFemaleGenerator from "../names/generators/halflingfemale";
+import HalflingMaleGenerator from "../names/generators/halflingmale";
 
 export default class DCCCharacterGenerator {
   config: DCCCharacterGeneratorConfig;
@@ -67,6 +76,36 @@ export default class DCCCharacterGenerator {
 
     character = character.occupation.apply(character);
     character = character.luckyRoll.apply(character);
+
+    if (character.occupation.name.includes("elven")) {
+      let famGen = new ElfFamilyGenerator();
+      character.lastName = famGen.generate(1)[0];
+      let firstGen = new ElfFemaleGenerator();
+      if (character.gender == "male") {
+        firstGen = new ElfMaleGenerator();
+      }
+      character.firstName = firstGen.generate(1)[0];
+    } else if (character.occupation.name.includes("dwarven")) {
+      let famGen = new DwarfFamilyGenerator();
+      character.lastName = famGen.generate(1)[0];
+      let firstGen = new DwarfFemaleGenerator();
+      if (character.gender == "male") {
+        firstGen = new DwarfMaleGenerator();
+      }
+      character.firstName = firstGen.generate(1)[0];
+    } else if (character.occupation.name.includes("halfling")) {
+      let famGen = new HalflingFamilyGenerator();
+      character.lastName = famGen.generate(1)[0];
+      let firstGen = new HalflingFemaleGenerator();
+      if (character.gender == "male") {
+        firstGen = new HalflingMaleGenerator();
+      }
+      character.firstName = firstGen.generate(1)[0];
+    }
+
+    if (character.hp < 1) {
+      character.hp = 1;
+    }
 
     character.languages = getLanguages(character);
 

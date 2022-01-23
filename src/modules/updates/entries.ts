@@ -16,6 +16,11 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog("2022-01-23", [
+      "Added about twenty new occupations to the DCC character generator.",
+      "Fixed a bug in the DCC character generator where HP could be lower than 1.",
+      "Made elf, dwarf, and halfling characters in the DCC character generator have names matching their cultures.",
+    ]),
     new ChangeLog("2022-01-22", [
       "Reworked the biome and climate system underlying region generation.",
       "Added geographic features to town descriptions.",

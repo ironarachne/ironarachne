@@ -260,9 +260,6 @@ export function all(): DCCLuckyRoll[] {
       rule += `${this.modifier} (taken into account)`;
       character.specialRules.push(rule);
       character.hp += this.modifier;
-      if (character.hp < 1) {
-        character.hp = 1;
-      }
       return character;
     }),
     new DCCLuckyRoll("Warrior's arm", "Critical hit tables",
