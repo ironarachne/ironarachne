@@ -16,6 +16,9 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog("2022-01-27", [
+      "Added tieflings.",
+    ]),
     new ChangeLog("2022-01-23", [
       "Added about twenty new occupations to the DCC character generator.",
       "Fixed a bug in the DCC character generator where HP could be lower than 1.",

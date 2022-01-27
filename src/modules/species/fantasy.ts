@@ -10,6 +10,7 @@ import HalfOrc from "./half-orc";
 import Human from "./human";
 import Species from "./species";
 import * as RND from "../random";
+import Tiefling from "./tiefling";
 
 export function all(): Species[] {
   return [
@@ -21,6 +22,7 @@ export function all(): Species[] {
     new Halfling(),
     new HalfOrc(),
     new Human(),
+    new Tiefling(),
   ];
 }
 

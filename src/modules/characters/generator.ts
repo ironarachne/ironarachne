@@ -3,7 +3,7 @@
 import * as RND from "../random";
 import Character from "./character";
 import * as AgeCategories from "../age/agecategories";
-import * as Names from "../names/names";
+import * as NameGenerators from "../names/generators";
 import * as Words from "../words";
 import * as Measurements from "../measurements";
 import Species from "../species/species";
@@ -54,9 +54,9 @@ export default class CharacterGenerator {
     let maleNameGenerator = this.config.maleNameGenerator;
 
     if (this.config.useAdaptiveNames) {
-      familyNameGenerator = Names.getGeneratorByType(`${species.name} family`);
-      femaleNameGenerator = Names.getGeneratorByType(`${species.name} female`);
-      maleNameGenerator = Names.getGeneratorByType(`${species.name} male`);
+      familyNameGenerator = NameGenerators.byName(`${species.name} family`);
+      femaleNameGenerator = NameGenerators.byName(`${species.name} female`);
+      maleNameGenerator = NameGenerators.byName(`${species.name} male`);
     }
 
     let firstNames = [];

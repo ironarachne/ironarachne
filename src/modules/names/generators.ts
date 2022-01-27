@@ -29,6 +29,9 @@ import HalflingMaleGenerator from "./generators/halflingmale";
 import HumanFamilyGenerator from "./generators/humanfamily";
 import HumanFemaleGenerator from "./generators/humanfemale";
 import HumanMaleGenerator from "./generators/humanmale";
+import TieflingFamilyGenerator from "./generators/tieflingfamily";
+import TieflingFemaleGenerator from "./generators/tieflingfemale";
+import TieflingMaleGenerator from "./generators/tieflingmale";
 
 export function all(): NameGenerator[] {
   return [
@@ -60,6 +63,9 @@ export function all(): NameGenerator[] {
     new HumanFamilyGenerator(),
     new HumanFemaleGenerator(),
     new HumanMaleGenerator(),
+    new TieflingFamilyGenerator(),
+    new TieflingFemaleGenerator(),
+    new TieflingMaleGenerator(),
   ];
 }
 
