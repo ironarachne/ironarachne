@@ -17,6 +17,7 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 export function all(): ChangeLog[] {
   return [
     new ChangeLog('2022-02-04', [
+      'Added ability to allow or disallow occupations by race for DCC character generator.',
       'Expanded how culture taboos are generated.',
       'Rewrote how character, town, region, and culture names are generated.',
       'Rewrote how towns are structured to make it easier to implement certain future features.',

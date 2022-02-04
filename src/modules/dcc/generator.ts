@@ -60,7 +60,7 @@ export default class DCCCharacterGenerator {
     character.xp = 0;
     character.level = 0;
     character.alignment = RND.item(['Law', 'Chaos', 'Neutrality']);
-    character.occupation = randomOccupation();
+    character.occupation = randomOccupation(this.config.allowedOccupations);
     character.equipment.push(character.occupation.trainedWeapon);
     character.equipment.push(character.occupation.tradeGoods);
     character.weapons.push(character.occupation.trainedWeapon);
@@ -188,8 +188,8 @@ function randomLuckyRoll(modifier: number): DCCLuckyRoll {
   return roll;
 }
 
-function randomOccupation(): DCCOccupation {
-  const occupations = Occupations.all();
+function randomOccupation(allowedOccupations: string[]): DCCOccupation {
+  const occupations = Occupations.get(allowedOccupations);
 
   let occupation = RND.weighted(occupations);
 

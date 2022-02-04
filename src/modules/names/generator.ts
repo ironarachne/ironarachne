@@ -4,5 +4,5 @@ export default abstract class NameGenerator {
   name: string;
   patterns: string[];
 
-  generate: () => string[];
+  generate: (numberOfNames: number) => string[];
 }

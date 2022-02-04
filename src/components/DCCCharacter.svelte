@@ -6,6 +6,10 @@
   import DCCCharacterGenerator from "../modules/dcc/generator";
   import DCCCharacterGeneratorConfig from "../modules/dcc/generatorconfig";
 
+  let allowDwarves = true;
+  let allowElves = true;
+  let allowHalflings = true;
+  let allowHumans = true;
   let seed = RND.randomString(13);
   let genConfig = new DCCCharacterGeneratorConfig();
   let charGen = new DCCCharacterGenerator(genConfig);
@@ -22,6 +26,27 @@
 
   function generate() {
     random.use(seedrandom(seed));
+
+    let allowedOccupations = [];
+
+    if (allowDwarves) {
+      allowedOccupations.push('dwarf');
+    }
+
+    if (allowElves) {
+      allowedOccupations.push('elf');
+    }
+
+    if (allowHalflings) {
+      allowedOccupations.push('halfling');
+    }
+
+    if (allowHumans) {
+      allowedOccupations.push('human');
+    }
+
+    charGen.config.allowedOccupations = allowedOccupations;
+
     character = charGen.generate();
     spellsKnown = getSpellsKnown();
   }
@@ -58,6 +83,26 @@
   <div class="input-group">
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+  </div>
+
+  <div class="input-group">
+    <label for="allowDwarves">Allow Dwarves</label>
+    <input type="checkbox" name="allowDwarves" bind:checked={allowDwarves} id="allowDwarves"/>
+  </div>
+
+  <div class="input-group">
+    <label for="allowElves">Allow Elves</label>
+    <input type="checkbox" name="allowElves" bind:checked={allowElves} id="allowElves"/>
+  </div>
+
+  <div class="input-group">
+    <label for="allowHalflings">Allow Halflings</label>
+    <input type="checkbox" name="allowHalflings" bind:checked={allowHalflings} id="allowHalflings"/>
+  </div>
+
+  <div class="input-group">
+    <label for="allowHumans">Allow Humans</label>
+    <input type="checkbox" name="allowHumans" bind:checked={allowHumans} id="allowHumans"/>
   </div>
 
   <button on:click={generate}>Generate From Seed</button>
