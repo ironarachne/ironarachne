@@ -1,25 +1,25 @@
-"use strict";
+'use strict';
 
 export function list(items: string[]): string {
-  let result = "\\begin{itemize}\n";
+  let result = '\\begin{itemize}\n';
 
   for (let i = 0; i < items.length; i++) {
-    result += "  \\item " + items[i] + "\n";
+    result += '  \\item ' + items[i] + '\n';
   }
 
-  result += "\\end{itemize}\n\n";
+  result += '\\end{itemize}\n\n';
 
   return result;
 }
 
-export function namedList(items: { header: string, content: string }[]): string {
-  let result = "\\begin{itemize}\n";
+export function namedList(items: { header: string; content: string }[]): string {
+  let result = '\\begin{itemize}\n';
 
   for (let i = 0; i < items.length; i++) {
     result += `  \\item \\textbf{${items[i].header}} ${items[i].content}\n`;
   }
 
-  result += "\\end{itemize}\n\n";
+  result += '\\end{itemize}\n\n';
 
   return result;
 }

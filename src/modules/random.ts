@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import random from "random";
+import random from 'random';
 
 export function chance(max: number): number {
   return random.int(1, max);
@@ -15,7 +15,7 @@ export function randomSet(itemCount: number, items: any[]): any[] {
 
   items = shuffle(items);
 
-  for (let i=0;i<itemCount;i++) {
+  for (let i = 0; i < itemCount; i++) {
     result.push(items.pop());
   }
 
@@ -25,7 +25,7 @@ export function randomSet(itemCount: number, items: any[]): any[] {
 export function randomString(length: number): string {
   let result: string = '';
 
-  for (let i=0;i<length;i++) {
+  for (let i = 0; i < length; i++) {
     result += Math.random().toString(36).slice(2)[0];
   }
 

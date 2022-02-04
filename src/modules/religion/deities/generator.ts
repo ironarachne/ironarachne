@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-import Deity from "./deity";
-import DeityGeneratorConfig from "./generatorconfig";
-import * as RND from "../../random";
-import * as Words from "../../words";
-import random from "random";
+import Deity from './deity';
+import DeityGeneratorConfig from './generatorconfig';
+import * as RND from '../../random';
+import * as Words from '../../words';
+import random from 'random';
 
 export default class DeityGenerator {
   config: DeityGeneratorConfig;
@@ -20,11 +20,18 @@ export default class DeityGenerator {
     const characterDetails = this.config.characterGenerator.generate();
 
     let deityName = this.config.femaleNameGenerator.generate(1)[0];
-    if (characterDetails.gender.name == "male") {
+    if (characterDetails.gender.name == 'male') {
       deityName = this.config.maleNameGenerator.generate(1)[0];
     }
 
-    let deity = new Deity(deityName, characterDetails.species, characterDetails.gender, characterDetails.ageCategory, RND.item(this.config.realms), this.config.domainSet);
+    let deity = new Deity(
+      deityName,
+      characterDetails.species,
+      characterDetails.gender,
+      characterDetails.ageCategory,
+      RND.item(this.config.realms),
+      this.config.domainSet,
+    );
 
     possibleHolyItems = this.config.domainSet.primary.holyItems;
     possibleHolySymbols = this.config.domainSet.primary.holySymbols;
@@ -37,7 +44,7 @@ export default class DeityGenerator {
     const physicalTraits = characterDetails.physicalTraits;
     let appearanceTraits = [];
 
-    for (let i=0;i<physicalTraits.length;i++) {
+    for (let i = 0; i < physicalTraits.length; i++) {
       appearanceTraits.push(physicalTraits[i].description);
     }
 
@@ -57,9 +64,9 @@ export default class DeityGenerator {
 function describePersonality(deity: Deity): string {
   let traits = [];
 
-  for (let i=0;i<deity.personalityTraits.length;i++) {
+  for (let i = 0; i < deity.personalityTraits.length; i++) {
     traits.push(deity.personalityTraits[i].descriptor);
   }
 
-  return Words.capitalize(deity.gender.subjectivePronoun) + " is " + Words.arrayToPhrase(traits);
+  return Words.capitalize(deity.gender.subjectivePronoun) + ' is ' + Words.arrayToPhrase(traits);
 }

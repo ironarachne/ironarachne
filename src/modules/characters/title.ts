@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default class Title {
   femaleTitle: string;
@@ -9,7 +9,15 @@ export default class Title {
   landName: string;
   precedence: number;
 
-  constructor(femaleTitle: string, maleTitle: string, femaleHonorific: string, maleHonorific: string, hasLands: boolean, landName: string, precedence: number) {
+  constructor(
+    femaleTitle: string,
+    maleTitle: string,
+    femaleHonorific: string,
+    maleHonorific: string,
+    hasLands: boolean,
+    landName: string,
+    precedence: number,
+  ) {
     this.femaleTitle = femaleTitle;
     this.maleTitle = maleTitle;
     this.femaleHonorific = femaleHonorific;
@@ -20,14 +28,14 @@ export default class Title {
   }
 
   getTitle(gender: string) {
-    if (gender === "female") {
+    if (gender === 'female') {
       return this.femaleTitle;
     }
     return this.maleTitle;
   }
 
   getHonorific(gender: string) {
-    if (gender === "female") {
+    if (gender === 'female') {
       return this.femaleHonorific;
     }
     return this.maleHonorific;

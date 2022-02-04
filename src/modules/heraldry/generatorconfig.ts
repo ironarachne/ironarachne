@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import Charge from "./charge";
-import Field from "./field";
-import Tincture from "./tincture";
-import Variation from "./variation";
+import Charge from './charge';
+import Field from './field';
+import Tincture from './tincture';
+import Variation from './variation';
 
 export default class GeneratorConfig {
   chargeCount: number;

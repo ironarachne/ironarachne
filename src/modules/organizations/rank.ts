@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-import Title from "../characters/title";
+import Title from '../characters/title';
 
 export default class Rank {
   title: Title;
   inferiors: Rank[];
-  superior: Rank|null;
+  superior: Rank | null;
   classification: string;
   ageGroupName: string;
 

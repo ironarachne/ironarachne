@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export interface Item {
   name: string;
@@ -22,7 +22,13 @@ export class Armor implements WornItem {
   armorClass: number;
   value: number;
 
-  constructor(name: string, description: string, areaOfBody: string, armorClass: number, value: number) {
+  constructor(
+    name: string,
+    description: string,
+    areaOfBody: string,
+    armorClass: number,
+    value: number,
+  ) {
     this.name = name;
     this.description = description;
     this.areaOfBody = areaOfBody;
@@ -71,7 +77,16 @@ export class RangedWeapon implements Weapon {
   hands: number;
   value: number;
 
-  constructor(name: string, description: string, damage: string, shortRange: number, longRange: number, ammunitionType: string, hands: number, value: number) {
+  constructor(
+    name: string,
+    description: string,
+    damage: string,
+    shortRange: number,
+    longRange: number,
+    ammunitionType: string,
+    hands: number,
+    value: number,
+  ) {
     this.name = name;
     this.description = description;
     this.damage = damage;

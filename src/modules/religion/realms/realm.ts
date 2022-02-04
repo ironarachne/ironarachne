@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default class Realm {
   name: string;
@@ -6,7 +6,12 @@ export default class Realm {
   personalityTraits: string[];
   appearanceTraits: string[];
 
-  constructor(name: string, description: string, personalityTraits: string[], appearanceTraits: any[]) {
+  constructor(
+    name: string,
+    description: string,
+    personalityTraits: string[],
+    appearanceTraits: any[],
+  ) {
     this.name = name;
     this.description = description;
     this.personalityTraits = personalityTraits;

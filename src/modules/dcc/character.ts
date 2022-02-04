@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-import CoinPurse from "../currency/coinpurse";
-import DCCAttribute from "./attribute";
-import DCCItem from "./equipment/item";
-import DCCWeapon from "./equipment/weapon";
-import DCCLuckyRoll from "./luckyroll";
-import DCCOccupation from "./occupation";
+import CoinPurse from '../currency/coinpurse';
+import DCCAttribute from './attribute';
+import DCCItem from './equipment/item';
+import DCCWeapon from './equipment/weapon';
+import DCCLuckyRoll from './luckyroll';
+import DCCOccupation from './occupation';
 
 export default class DCCCharacter {
   firstName: string;

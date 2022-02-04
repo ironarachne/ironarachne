@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import Variation from "./variation";
+import Variation from './variation';
 
 export default class Field {
   name: string;
@@ -20,16 +20,10 @@ export default class Field {
   renderBlazon() {
     let blazon = this.blazon;
 
-    blazon = blazon.replace(
-      "variation1",
-      this.variations[0].renderBlazon()
-    );
+    blazon = blazon.replace('variation1', this.variations[0].renderBlazon());
 
     if (this.variations.length > 1) {
-      blazon = blazon.replace(
-        "variation2",
-        this.variations[1].renderBlazon()
-      );
+      blazon = blazon.replace('variation2', this.variations[1].renderBlazon());
     }
 
     return blazon;

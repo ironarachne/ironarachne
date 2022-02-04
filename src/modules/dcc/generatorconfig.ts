@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import NameGenerator from "../names/generator";
-import HumanSet from "../names/races/human";
+import NameGenerator from '../names/generator';
+import HumanSet from '../names/races/human';
 
 export default class DCCCharacterGeneratorConfig {
   nameGeneratorMale: NameGenerator;

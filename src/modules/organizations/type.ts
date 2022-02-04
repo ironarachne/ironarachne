@@ -1,4 +1,4 @@
-import GeneratorConfig from "../heraldry/generatorconfig";
+import GeneratorConfig from '../heraldry/generatorconfig';
 
 export default class OrganizationType {
   name: string;
@@ -11,7 +11,17 @@ export default class OrganizationType {
   getRanks: Function;
   heraldryConfig: GeneratorConfig;
 
-  constructor(name: string, minSize: number, maxSize: number, leaderTitle: string, randomName: Function, randomDescription: Function, randomLeadership: Function, getRanks: Function, heraldryConfig: GeneratorConfig) {
+  constructor(
+    name: string,
+    minSize: number,
+    maxSize: number,
+    leaderTitle: string,
+    randomName: Function,
+    randomDescription: Function,
+    randomLeadership: Function,
+    getRanks: Function,
+    heraldryConfig: GeneratorConfig,
+  ) {
     this.name = name;
     this.minSize = minSize;
     this.maxSize = maxSize;

@@ -1,6 +1,6 @@
-import * as PC from "./phoneme";
-import * as RND from "../random";
-import * as Lexicon from "./lexicon";
+import * as PC from './phoneme';
+import * as RND from '../random';
+import * as Lexicon from './lexicon';
 
 export class Language {
   name: string;
@@ -21,7 +21,7 @@ export function generate() {
 
   const language = new Language(name, phonemes);
 
-  for (let i=0;i<language.lexicon.words.length;i++) {
+  for (let i = 0; i < language.lexicon.words.length; i++) {
     language.lexicon.words[i].root = randomWordRoot(phonemes);
   }
 
@@ -31,13 +31,13 @@ export function generate() {
 function randomMatchingSound(part: string, phonemes: PC.PhonemeCollection) {
   let options = phonemes.consonants;
 
-  if (part === "V") {
+  if (part === 'V') {
     options = phonemes.vowels;
-  } else if (part === "S") {
+  } else if (part === 'S') {
     options = phonemes.sibilants;
-  } else if (part === "F") {
+  } else if (part === 'F') {
     options = phonemes.fricatives;
-  } else if (part === "L") {
+  } else if (part === 'L') {
     options = phonemes.liquids;
   }
 
@@ -46,9 +46,9 @@ function randomMatchingSound(part: string, phonemes: PC.PhonemeCollection) {
 
 function randomWordRoot(phonemes: PC.PhonemeCollection) {
   const wordPattern = randomWordPattern();
-  let word = "";
+  let word = '';
 
-  for (let i=0;i<wordPattern.length;i++) {
+  for (let i = 0; i < wordPattern.length; i++) {
     word += PC.soundToSpelling(randomMatchingSound(wordPattern[i], phonemes));
   }
 
@@ -56,15 +56,5 @@ function randomWordRoot(phonemes: PC.PhonemeCollection) {
 }
 
 function randomWordPattern() {
-  return RND.item([
-    "CVC",
-    "VCC",
-    "VCCV",
-    "CVVC",
-    "CVCV",
-    "CVS",
-    "CVF",
-    "CVCS",
-    "CVCF",
-  ]);
+  return RND.item(['CVC', 'VCC', 'VCCV', 'CVVC', 'CVCV', 'CVS', 'CVF', 'CVCS', 'CVCF']);
 }

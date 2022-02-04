@@ -1,16 +1,16 @@
-"use strict";
+'use strict';
 
-import * as AgeCategories from "../../age/agecategories";
-import Character from "../character";
-import CharacterGenerator from "../generator";
-import CharacterGeneratorConfig from "../generatorconfig";
-import Family from "./family";
-import FamilyMember from "./familymember";
-import FamilyGeneratorConfig from "./generatorconfig";
+import * as AgeCategories from '../../age/agecategories';
+import Character from '../character';
+import CharacterGenerator from '../generator';
+import CharacterGeneratorConfig from '../generatorconfig';
+import Family from './family';
+import FamilyMember from './familymember';
+import FamilyGeneratorConfig from './generatorconfig';
 
-import random from "random";
-import Gender from "../../gender";
-import * as RND from "../../random";
+import random from 'random';
+import Gender from '../../gender';
+import * as RND from '../../random';
 
 export default class FamilyGenerator {
   config: FamilyGeneratorConfig;
@@ -27,7 +27,7 @@ export default class FamilyGenerator {
 
     let charGenConfig = new CharacterGeneratorConfig();
     charGenConfig.speciesOptions = [this.config.species];
-    charGenConfig.ageCategories = ["young adult"];
+    charGenConfig.ageCategories = ['young adult'];
     charGenConfig.familyNameGenerator = family.familyNameGenerator;
     charGenConfig.femaleNameGenerator = family.femaleNameGenerator;
     charGenConfig.maleNameGenerator = family.maleNameGenerator;
@@ -61,7 +61,7 @@ export default class FamilyGenerator {
     family.members.push(parent1);
     family.members.push(parent2);
 
-    for (let i=0;i<this.config.iterations;i++) {
+    for (let i = 0; i < this.config.iterations; i++) {
       family = this.iterate(family);
     }
 
@@ -73,15 +73,21 @@ export default class FamilyGenerator {
     let charGenConfig = new CharacterGeneratorConfig();
     const charGen = new CharacterGenerator(charGenConfig);
 
-    for (let i=0;i<family.members.length;i++) {
-      if (family.members[i].character.status == "alive") {
+    for (let i = 0; i < family.members.length; i++) {
+      if (family.members[i].character.status == 'alive') {
         family.members[i].character.age += ageStep;
       }
 
-      if (family.members[i].character.age > AgeCategories.getMaxAge(family.members[i].character.gender.ageCategories)) {
-        family.members[i].character.status = "dead";
+      if (
+        family.members[i].character.age >
+        AgeCategories.getMaxAge(family.members[i].character.gender.ageCategories)
+      ) {
+        family.members[i].character.status = 'dead';
       } else {
-        let newAgeCategory = AgeCategories.getCategoryFromAge(family.members[i].character.age, family.members[i].character.gender.ageCategories);
+        let newAgeCategory = AgeCategories.getCategoryFromAge(
+          family.members[i].character.age,
+          family.members[i].character.gender.ageCategories,
+        );
         if (newAgeCategory.name != family.members[i].character.ageCategory.name) {
           family.members[i].character.height = newAgeCategory.randomHeight();
           family.members[i].character.weight = newAgeCategory.randomWeight();
@@ -91,19 +97,19 @@ export default class FamilyGenerator {
 
       family.members[i].character.description = charGen.describe(family.members[i].character);
 
-      if (family.members[i].character.status == "dead") {
+      if (family.members[i].character.status == 'dead') {
         continue;
       }
 
       if (RND.chance(100) > 98) {
         // There's a 2% chance something horrible kills this person
-        family.members[i].character.status = "dead";
+        family.members[i].character.status = 'dead';
         continue;
       }
 
       if (needsChildren(family.members[i]) && RND.chance(100) > 30) {
         let numberOfChildren = random.int(1, 4);
-        for (let j=0;j<numberOfChildren;j++) {
+        for (let j = 0; j < numberOfChildren; j++) {
           let child = getNewChild(i, family.members[i].mate, family);
           let newMember = new FamilyMember(family.members.length);
           newMember.character = child;
@@ -111,10 +117,13 @@ export default class FamilyGenerator {
           family.members[i].children.push(newMember.id);
           family.members[family.members[i].mate].children.push(newMember.id);
 
-          if (family.members[i].character.gender.name == this.config.dominantFamilyNameGender.name) {
+          if (
+            family.members[i].character.gender.name == this.config.dominantFamilyNameGender.name
+          ) {
             newMember.character.lastName = family.members[i].character.lastName;
           } else {
-            newMember.character.lastName = family.members[family.members[i].mate].character.lastName;
+            newMember.character.lastName =
+              family.members[family.members[i].mate].character.lastName;
           }
 
           family.members.push(newMember);
@@ -150,7 +159,7 @@ function getNewChild(parent1Index: number, parent2Index: number, family: Family)
   let uniqueNames = [];
   let traitOverrides = [];
   physicalTraits = RND.shuffle(physicalTraits);
-  for (let i=0;i<physicalTraits.length;i++) {
+  for (let i = 0; i < physicalTraits.length; i++) {
     if (!uniqueNames.includes(physicalTraits[i].name)) {
       traitOverrides.push(physicalTraits[i]);
       uniqueNames.push(physicalTraits[i].name);
@@ -159,7 +168,7 @@ function getNewChild(parent1Index: number, parent2Index: number, family: Family)
 
   let charConfig = new CharacterGeneratorConfig();
   charConfig.speciesOptions = [parent1.species, parent2.species];
-  charConfig.ageCategories = ["infant", "toddler"];
+  charConfig.ageCategories = ['infant', 'toddler'];
   charConfig.familyNameGenerator = family.familyNameGenerator;
   charConfig.femaleNameGenerator = family.femaleNameGenerator;
   charConfig.maleNameGenerator = family.maleNameGenerator;
@@ -178,7 +187,7 @@ function getNewMate(member: FamilyMember, family: Family): Character {
 
   let charConfig = new CharacterGeneratorConfig();
   charConfig.speciesOptions = [member.character.species];
-  charConfig.ageCategories = ["adult"];
+  charConfig.ageCategories = ['adult'];
   charConfig.familyNameGenerator = family.familyNameGenerator;
   charConfig.femaleNameGenerator = family.femaleNameGenerator;
   charConfig.maleNameGenerator = family.maleNameGenerator;
@@ -192,7 +201,7 @@ function getNewMate(member: FamilyMember, family: Family): Character {
 }
 
 function getMateGender(gender1: Gender, genders: Gender[]): Gender {
-  for (let i=0;i<genders.length;i++) {
+  for (let i = 0; i < genders.length; i++) {
     if (genders[i].name != gender1.name) {
       return genders[i];
     }
@@ -202,7 +211,11 @@ function getMateGender(gender1: Gender, genders: Gender[]): Gender {
 }
 
 function needsChildren(member: FamilyMember): boolean {
-  if (member.mate != -1 && member.children.length == 0 && member.character.ageCategory.name == "adult") {
+  if (
+    member.mate != -1 &&
+    member.children.length == 0 &&
+    member.character.ageCategory.name == 'adult'
+  ) {
     return true;
   }
 
@@ -210,7 +223,7 @@ function needsChildren(member: FamilyMember): boolean {
 }
 
 function needsMate(member: FamilyMember): boolean {
-  if (member.character.ageCategory.name == "adult" && member.mate == -1) {
+  if (member.character.ageCategory.name == 'adult' && member.mate == -1) {
     return true;
   }
 

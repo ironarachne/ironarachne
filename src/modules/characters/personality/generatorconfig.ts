@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import * as PossibleTraits from "./alltraits";
-import PersonalityTrait from "./personalitytrait";
+import * as PossibleTraits from './alltraits';
+import PersonalityTrait from './personalitytrait';
 
 export default class PersonalityGeneratorConfig {
   numberOfPositiveTraits: number;

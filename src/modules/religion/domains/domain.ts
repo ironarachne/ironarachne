@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default class Domain {
   name: string;
@@ -7,7 +7,13 @@ export default class Domain {
   weaponEffects: string[];
   otherEffects: string[];
 
-  constructor(name: string, holyItems: string[], holySymbols: string[], weaponEffects: string[], otherEffects: string[]) {
+  constructor(
+    name: string,
+    holyItems: string[],
+    holySymbols: string[],
+    weaponEffects: string[],
+    otherEffects: string[],
+  ) {
     this.name = name;
     this.holyItems = holyItems;
     this.holySymbols = holySymbols;

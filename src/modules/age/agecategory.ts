@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import * as Dice from "../dice";
-import * as Measurements from "../measurements";
-import random from "random";
+import * as Dice from '../dice';
+import * as Measurements from '../measurements';
+import random from 'random';
 
 export default class AgeCategory {
   name: string;
@@ -14,7 +14,14 @@ export default class AgeCategory {
   minWeight: number; // in kg
   maxWeight: number; // in kg
 
-  constructor(name: string, noun: string, minAge: number, maxAge: number, minHeight: number, minWeight: number) {
+  constructor(
+    name: string,
+    noun: string,
+    minAge: number,
+    maxAge: number,
+    minHeight: number,
+    minWeight: number,
+  ) {
     this.name = name;
     this.noun = noun;
     this.minAge = minAge;
@@ -27,18 +34,40 @@ export default class AgeCategory {
 
   getHeightRange(): string {
     const metricHeightModifier = Math.max(this.maxHeight - this.minHeight, 4);
-    const metric = this.minHeight + " + " + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricHeightModifier))) + " cm";
-    const imperialHeightModifier = Math.max(Measurements.cmToInches(this.maxHeight - this.minHeight), 4);
-    const imperial = Measurements.inchesToFeet(Measurements.cmToInches(this.minHeight)) + " + " + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialHeightModifier))) + " in.";
+    const metric =
+      this.minHeight +
+      ' + ' +
+      Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricHeightModifier))) +
+      ' cm';
+    const imperialHeightModifier = Math.max(
+      Measurements.cmToInches(this.maxHeight - this.minHeight),
+      4,
+    );
+    const imperial =
+      Measurements.inchesToFeet(Measurements.cmToInches(this.minHeight)) +
+      ' + ' +
+      Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialHeightModifier))) +
+      ' in.';
 
     return `${metric} (${imperial})`;
   }
 
   getWeightRange(): string {
     const metricWeightModifier = Math.max(this.maxWeight - this.minWeight, 4);
-    const metric = this.minWeight + " + " + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricWeightModifier))) + " kg";
-    const imperialWeightModifier = Math.max(Measurements.kgToPounds(this.maxWeight - this.minWeight), 4);
-    const imperial = Measurements.kgToPounds(this.minWeight) + " + " + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialWeightModifier))) + " lb.";
+    const metric =
+      this.minWeight +
+      ' + ' +
+      Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricWeightModifier))) +
+      ' kg';
+    const imperialWeightModifier = Math.max(
+      Measurements.kgToPounds(this.maxWeight - this.minWeight),
+      4,
+    );
+    const imperial =
+      Measurements.kgToPounds(this.minWeight) +
+      ' + ' +
+      Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialWeightModifier))) +
+      ' lb.';
 
     return `${metric} (${imperial})`;
   }

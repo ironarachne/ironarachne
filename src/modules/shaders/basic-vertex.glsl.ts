@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default `varying vec3 vertPos;
 varying vec2 vUv;

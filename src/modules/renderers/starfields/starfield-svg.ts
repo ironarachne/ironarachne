@@ -1,20 +1,20 @@
-"use strict";
+'use strict';
 
-import random from "random";
+import random from 'random';
 
 export function render(width: number, height: number) {
   let svg =
-    "<svg width=\"" +
+    '<svg width="' +
     width +
-    "\" height=\"" +
+    '" height="' +
     height +
-    "\" viewBox=\"0 0 " +
+    '" viewBox="0 0 ' +
     width +
-    " " +
+    ' ' +
     height +
-    "\">";
+    '">';
 
-  svg += "<rect width=\"" + width + "\" height=\"" + height + "\" fill=\"black\" />";
+  svg += '<rect width="' + width + '" height="' + height + '" fill="black" />';
 
   const numberOfStars = Math.floor(width * height * 0.005);
 
@@ -23,16 +23,10 @@ export function render(width: number, height: number) {
     const y = random.int(0, height);
 
     svg +=
-      "<rect x=\"" +
-      x +
-      "\" y=\"" +
-      y +
-      "\" width=\"1\" height=\"1\" fill=\"" +
-      randomStarColor() +
-      "\" />";
+      '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + randomStarColor() + '" />';
   }
 
-  svg += "</svg>";
+  svg += '</svg>';
 
   return svg;
 }
@@ -64,5 +58,5 @@ function randomStarColor() {
     tweaked = true;
   }
 
-  return "rgb(" + r + "," + g + "," + b + ")";
+  return 'rgb(' + r + ',' + g + ',' + b + ')';
 }

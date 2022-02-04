@@ -1,16 +1,16 @@
-"use strict";
+'use strict';
 
-import AgeCategory from "../age/agecategory";
-import Gender from "../gender";
-import Title from "./title";
-import type Species from "../species/species";
-import { Heraldry } from "../heraldry/heraldry";
-import PhysicalTrait from "../physicaltraits/physicaltrait";
-import PersonalityTrait from "./personality/personalitytrait";
+import AgeCategory from '../age/agecategory';
+import Gender from '../gender';
+import Title from './title';
+import type Species from '../species/species';
+import { Heraldry } from '../heraldry/heraldry';
+import PhysicalTrait from '../physicaltraits/physicaltrait';
+import PersonalityTrait from './personality/personalitytrait';
 
 export default class Character {
   titles: Title[];
-  heraldry: Heraldry|null;
+  heraldry: Heraldry | null;
   species: Species;
   description: string;
   gender: Gender;
@@ -29,15 +29,15 @@ export default class Character {
     this.titles = [];
     this.heraldry = null;
     this.species = species;
-    this.description = "";
+    this.description = '';
     this.age = 0;
     this.height = 0;
     this.weight = 0;
     this.traits = [];
     this.physicalTraits = [];
-    this.firstName = "";
-    this.lastName = "";
-    this.status = "alive";
+    this.firstName = '';
+    this.lastName = '';
+    this.status = 'alive';
   }
 
   getPrimaryTitle() {
@@ -53,7 +53,7 @@ export default class Character {
     }
 
     if (primaryTitle == null) {
-      return "";
+      return '';
     }
 
     return primaryTitle.getTitle(this.gender.name);

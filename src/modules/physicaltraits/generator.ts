@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import PhysicalTrait from "./physicaltrait";
+import * as RND from '../random';
+import PhysicalTrait from './physicaltrait';
 
 export default class PhysicalTraitGenerator {
   name: string;
@@ -17,7 +17,7 @@ export default class PhysicalTraitGenerator {
   }
 
   generate(): PhysicalTrait {
-    let description = RND.item(this.options) + " " + this.name;
+    let description = RND.item(this.options) + ' ' + this.name;
 
     return new PhysicalTrait(this.name, description, this.category, this.tags);
   }

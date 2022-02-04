@@ -1,6 +1,11 @@
-"use strict";
+'use strict';
 
-export function convertCopper(amount: number, useElectrum: boolean, usePlatinum: boolean, enableExact: boolean = true) {
+export function convertCopper(
+  amount: number,
+  useElectrum: boolean,
+  usePlatinum: boolean,
+  enableExact: boolean = true,
+) {
   let copper = 0;
   let silver = 0;
   let electrum = 0;
@@ -29,38 +34,38 @@ export function convertCopper(amount: number, useElectrum: boolean, usePlatinum:
     }
   }
 
-  let result = "";
+  let result = '';
 
   if (platinum > 0) {
-    result += platinum + " pp ";
+    result += platinum + ' pp ';
     if (!enableExact) {
       return result.trim();
     }
   }
 
   if (gold > 0) {
-    result += gold + " gp ";
+    result += gold + ' gp ';
     if (!enableExact) {
       return result.trim();
     }
   }
 
   if (electrum > 0) {
-    result += electrum + " ep ";
+    result += electrum + ' ep ';
     if (!enableExact) {
       return result.trim();
     }
   }
 
   if (silver > 0) {
-    result += silver + " sp ";
+    result += silver + ' sp ';
     if (!enableExact) {
       return result.trim();
     }
   }
 
   if (copper > 0) {
-    result += copper + " cp ";
+    result += copper + ' cp ';
   }
 
   return result.trim();
@@ -95,26 +100,26 @@ export function convertFarthings(amount: number) {
     }
   }
 
-  let result = "";
+  let result = '';
 
   if (pounds > 0) {
-    result += "£" + pounds + " ";
+    result += '£' + pounds + ' ';
   }
 
   if (crowns > 0) {
-    result += crowns + " c ";
+    result += crowns + ' c ';
   }
 
   if (shillings > 0) {
-    result += shillings + " s ";
+    result += shillings + ' s ';
   }
 
   if (pence > 0) {
-    result += pence + " d ";
+    result += pence + ' d ';
   }
 
   if (farthings > 0) {
-    result += farthings + " f ";
+    result += farthings + ' f ';
   }
 
   return result.trim();

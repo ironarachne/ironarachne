@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import * as RND from "../../random";
+import * as RND from '../../random';
 
-import random from "random";
+import random from 'random';
 
 export default class SettlementCategory {
   name: string;
@@ -12,10 +12,10 @@ export default class SettlementCategory {
   possibleDescriptions: string[];
 
   constructor() {
-    this.name = "";
+    this.name = '';
     this.minSize = 0;
     this.maxSize = 0;
-    this.sizeClass = "";
+    this.sizeClass = '';
     this.possibleDescriptions = [];
   }
 

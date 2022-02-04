@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import * as PlanetName from "../names/planets";
-import * as Culture from "./culture";
-import * as Government from "./government";
+import * as RND from '../random';
+import * as PlanetName from '../names/planets';
+import * as Culture from './culture';
+import * as Government from './government';
 
-import random from "random";
+import random from 'random';
 
 export class Planet {
   name: string;
@@ -25,13 +25,13 @@ export class Planet {
   svg: string;
 
   constructor() {
-    this.name = "";
-    this.description = "";
-    this.culture = "N/A";
-    this.government = "N/A";
-    this.population = "Uninhabited";
+    this.name = '';
+    this.description = '';
+    this.culture = 'N/A';
+    this.government = 'N/A';
+    this.population = 'Uninhabited';
     this.is_inhabited = false;
-    this.classification = "";
+    this.classification = '';
     this.mass = 0;
     this.gravity = 0;
     this.diameter = 0;
@@ -39,7 +39,7 @@ export class Planet {
     this.distance_from_sun = 0;
     this.has_clouds = false;
     this.has_atmosphere = false;
-    this.svg = "";
+    this.svg = '';
   }
 }
 
@@ -57,7 +57,20 @@ export class PlanetClassification {
   has_clouds: boolean;
   has_atmosphere: boolean;
 
-  constructor(name: string, diameter_min: number, diameter_max: number, mass_min: number, mass_max: number, orbital_period_min: number, orbital_period_max: number, distance_from_sun_min: number, distance_from_sun_max: number, is_inhabitable: boolean, has_clouds: boolean, has_atmosphere: boolean) {
+  constructor(
+    name: string,
+    diameter_min: number,
+    diameter_max: number,
+    mass_min: number,
+    mass_max: number,
+    orbital_period_min: number,
+    orbital_period_max: number,
+    distance_from_sun_min: number,
+    distance_from_sun_max: number,
+    is_inhabitable: boolean,
+    has_clouds: boolean,
+    has_atmosphere: boolean,
+  ) {
     this.name = name;
     this.diameter_min = diameter_min;
     this.diameter_max = diameter_max;
@@ -75,91 +88,208 @@ export class PlanetClassification {
 
 export function getAllClassifications() {
   return [
-    new PlanetClassification("arid", 9500, 19000, 1.0, 8.0, 237, 500, 0.4, 2.4, true, true, true),
-    new PlanetClassification("barren", 4800, 19000, 0.3, 0.65, 80, 1500, 0.3, 6.0, false, false, false),
-    new PlanetClassification("garden", 9500, 19000, 1.791, 11.94, 237, 500, 0.95, 2.4, true, true, true),
-    new PlanetClassification("gas giant", 45000, 150000, 85.0, 1900.0, 4000, 70000, 5.0, 40.0, false, false, true),
-    new PlanetClassification("ice", 4800, 19000, 0.3, 0.65, 4000, 80000, 5.0, 60.0, true, true, true),
-    new PlanetClassification("jungle", 9500, 19000, 1.791, 11.94, 237, 500, 0.95, 2.4, true, true, true),
-    new PlanetClassification("ocean", 9500, 19000, 1.791, 11.94, 237, 500, 0.95, 2.4, true, true, true),
-    new PlanetClassification("swamp", 9500, 19000, 1.791, 11.94, 237, 500, 0.95, 2.4, true, true, true),
-    new PlanetClassification("toxic", 9500, 19000, 1.791, 11.94, 237, 500, 0.95, 2.4, true, true, true),
-    new PlanetClassification("volcanic", 9500, 19000, 1.791, 11.94, 237, 500, 0.95, 2.4, true, true, true),
+    new PlanetClassification('arid', 9500, 19000, 1.0, 8.0, 237, 500, 0.4, 2.4, true, true, true),
+    new PlanetClassification(
+      'barren',
+      4800,
+      19000,
+      0.3,
+      0.65,
+      80,
+      1500,
+      0.3,
+      6.0,
+      false,
+      false,
+      false,
+    ),
+    new PlanetClassification(
+      'garden',
+      9500,
+      19000,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true,
+    ),
+    new PlanetClassification(
+      'gas giant',
+      45000,
+      150000,
+      85.0,
+      1900.0,
+      4000,
+      70000,
+      5.0,
+      40.0,
+      false,
+      false,
+      true,
+    ),
+    new PlanetClassification(
+      'ice',
+      4800,
+      19000,
+      0.3,
+      0.65,
+      4000,
+      80000,
+      5.0,
+      60.0,
+      true,
+      true,
+      true,
+    ),
+    new PlanetClassification(
+      'jungle',
+      9500,
+      19000,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true,
+    ),
+    new PlanetClassification(
+      'ocean',
+      9500,
+      19000,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true,
+    ),
+    new PlanetClassification(
+      'swamp',
+      9500,
+      19000,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true,
+    ),
+    new PlanetClassification(
+      'toxic',
+      9500,
+      19000,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true,
+    ),
+    new PlanetClassification(
+      'volcanic',
+      9500,
+      19000,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true,
+    ),
   ];
 }
 
 function getHazardsForClassification(classification: PlanetClassification) {
   const hazards = {
     arid: [
-      "The atmosphere is very thin and breathing apparatus is required outside.",
-      "Vast sandstorms occasionally sweep across the surface of the planet.",
-      "High winds sometimes create dangerous dust storms that can destroy unprotected buildings and ships.",
-      "Dune seas across the planet are home to a dangerous species of predator.",
-      "Sandstorms of horrific velocity arise without warning.",
+      'The atmosphere is very thin and breathing apparatus is required outside.',
+      'Vast sandstorms occasionally sweep across the surface of the planet.',
+      'High winds sometimes create dangerous dust storms that can destroy unprotected buildings and ships.',
+      'Dune seas across the planet are home to a dangerous species of predator.',
+      'Sandstorms of horrific velocity arise without warning.',
     ],
     barren: [
-      "There is no atmosphere. A vaccsuit is required.",
-      "Meteor strikes are frequent.",
-      "The landscape is peppered with debris from meteor strikes, making travel difficult.",
-      "Unprotected by an atmosphere, this world is constantly bombarded by powerful radiation.",
-      "The surface is covered in radioactive remains of crashed starships.",
+      'There is no atmosphere. A vaccsuit is required.',
+      'Meteor strikes are frequent.',
+      'The landscape is peppered with debris from meteor strikes, making travel difficult.',
+      'Unprotected by an atmosphere, this world is constantly bombarded by powerful radiation.',
+      'The surface is covered in radioactive remains of crashed starships.',
     ],
     garden: [
-      "Life is prolific here, and there are many dangerous native predators.",
-      "A local virus is highly dangerous to non-natives.",
-      "There are many dangerous plants and animals on this world.",
-      "Rainstorms on this planet cause frequent floods in the lower-lying areas.",
-      "Several species of local insects are highly venomous.",
-      "A primitive local sapient species is extremely aggressive.",
+      'Life is prolific here, and there are many dangerous native predators.',
+      'A local virus is highly dangerous to non-natives.',
+      'There are many dangerous plants and animals on this world.',
+      'Rainstorms on this planet cause frequent floods in the lower-lying areas.',
+      'Several species of local insects are highly venomous.',
+      'A primitive local sapient species is extremely aggressive.',
     ],
-    "gas giant": [
-      "Vast storms the size of small planets rage across the surface.",
-      "An aggressive species of floating leviathan is widespread across this planet.",
-      "Navigating the upper atmosphere is possible but dangerous due to the many chaotic weather systems.",
+    'gas giant': [
+      'Vast storms the size of small planets rage across the surface.',
+      'An aggressive species of floating leviathan is widespread across this planet.',
+      'Navigating the upper atmosphere is possible but dangerous due to the many chaotic weather systems.',
       "The gasses making up the planet's atmosphere are highly corrosive and dangerous to spacecraft.",
-      "The highly-combustible gasses of the upper atmosphere are easily ignited.",
+      'The highly-combustible gasses of the upper atmosphere are easily ignited.',
     ],
     ice: [
-      "Fierce winds whip the surface, chilling the air well below the normal temperatures.",
-      "The ice is thinner in places and cannot hold heavy vehicles or starships.",
-      "Occasional meteor storms cause explosions of sharp shattered ice that shower for miles.",
-      "Pockets of superheated gas beneath the ice sometimes cause the surface to burst and unleash a geyser of hot gas, boiling water, and shards of ice.",
-      "Ice storms are common all over the planet.",
+      'Fierce winds whip the surface, chilling the air well below the normal temperatures.',
+      'The ice is thinner in places and cannot hold heavy vehicles or starships.',
+      'Occasional meteor storms cause explosions of sharp shattered ice that shower for miles.',
+      'Pockets of superheated gas beneath the ice sometimes cause the surface to burst and unleash a geyser of hot gas, boiling water, and shards of ice.',
+      'Ice storms are common all over the planet.',
     ],
     jungle: [
-      "There are numerous species of deadly predator living in the jungle.",
-      "The heat and humidity of this world make it a constant struggle to keep plantlife from claiming settlements.",
-      "It is unbearably hot for non-natives most of the time, requiring a suit for outdoor activity.",
-      "Hidden throughout the greenery of the jungle are spots of quicksand that will devour unwary travellers.",
-      "Local life is massive and even the herbivores are extremely dangerous.",
+      'There are numerous species of deadly predator living in the jungle.',
+      'The heat and humidity of this world make it a constant struggle to keep plantlife from claiming settlements.',
+      'It is unbearably hot for non-natives most of the time, requiring a suit for outdoor activity.',
+      'Hidden throughout the greenery of the jungle are spots of quicksand that will devour unwary travellers.',
+      'Local life is massive and even the herbivores are extremely dangerous.',
     ],
     ocean: [
-      "The still waters hide monstrous leviathans that can devour entire cities.",
-      "Ferocious swarms of fish plague the surface.",
-      "Vast blooms of algae can corrode even the most advanced armor.",
-      "The water contains acidic substances that erode metal but leave plastics untouched.",
-      "A local species of fish emits an unbearable sonic blast when threatened.",
+      'The still waters hide monstrous leviathans that can devour entire cities.',
+      'Ferocious swarms of fish plague the surface.',
+      'Vast blooms of algae can corrode even the most advanced armor.',
+      'The water contains acidic substances that erode metal but leave plastics untouched.',
+      'A local species of fish emits an unbearable sonic blast when threatened.',
     ],
     swamp: [
       "It's very difficult to tell where solid land is. Landing on what appears to be a muddy plain might result in sinking forever into the muck.",
-      "A species of parasitic insect local to the planet carries a nasty disease that is highly contagious.",
-      "The complicated ecosystem is easy to upset, and outside interference can cause widespread destruction.",
-      "The atmosphere is very thick, requiring breathing apparatus for outside activity.",
-      "A species of aerial predator makes being exposed highly dangerous.",
+      'A species of parasitic insect local to the planet carries a nasty disease that is highly contagious.',
+      'The complicated ecosystem is easy to upset, and outside interference can cause widespread destruction.',
+      'The atmosphere is very thick, requiring breathing apparatus for outside activity.',
+      'A species of aerial predator makes being exposed highly dangerous.',
     ],
     toxic: [
-      "The air is corrosive and will erode unprotected equipment.",
+      'The air is corrosive and will erode unprotected equipment.',
       "The planet's surface is covered in many acid lakes.",
-      "Toxins in the air are so virulent that they will eat through even heavy protection eventually.",
-      "Corrosive elements in the water make the seas and rain deadly to manmade structures.",
-      "Acid rainstorms are frequent.",
+      'Toxins in the air are so virulent that they will eat through even heavy protection eventually.',
+      'Corrosive elements in the water make the seas and rain deadly to manmade structures.',
+      'Acid rainstorms are frequent.',
     ],
     volcanic: [
-      "Deadly eruptions are frequent.",
-      "Lava flows in several areas are unpredictable and quick to change direction.",
-      "The air is filled with poisonous gases released by eruptions.",
-      "Acid rains frequently plague this world.",
-      "Ashes from eruptions cause havoc with unfiltered systems.",
+      'Deadly eruptions are frequent.',
+      'Lava flows in several areas are unpredictable and quick to change direction.',
+      'The air is filled with poisonous gases released by eruptions.',
+      'Acid rains frequently plague this world.',
+      'Ashes from eruptions cause havoc with unfiltered systems.',
     ],
   };
 
@@ -171,11 +301,11 @@ function calculateGravity(diameter: number, mass: number) {
 
   const r = diameter / 2.0;
 
-  return (G * mass) / (Math.pow(r, 2));
+  return (G * mass) / Math.pow(r, 2);
 }
 
 function getClassification(classificationName: string) {
-  if (classificationName == "random") {
+  if (classificationName == 'random') {
     return RND.item(getAllClassifications());
   }
 
@@ -200,8 +330,14 @@ export function generate(classificationName: string) {
   planet.classification = classification.name;
   planet.mass = random.float(classification.mass_min, classification.mass_max);
   planet.diameter = random.float(classification.diameter_min, classification.diameter_max);
-  planet.orbital_period = random.float(classification.orbital_period_min, classification.orbital_period_max);
-  planet.distance_from_sun = random.float(classification.distance_from_sun_min, classification.distance_from_sun_max);
+  planet.orbital_period = random.float(
+    classification.orbital_period_min,
+    classification.orbital_period_max,
+  );
+  planet.distance_from_sun = random.float(
+    classification.distance_from_sun_min,
+    classification.distance_from_sun_max,
+  );
   planet.gravity = calculateGravity(planet.diameter * 1000, planet.mass * Math.pow(10, 24));
   planet.has_clouds = classification.has_clouds;
   planet.has_atmosphere = classification.has_atmosphere;
@@ -223,7 +359,7 @@ export function generate(classificationName: string) {
     const chanceOfStarport = random.int(1, 100);
 
     if (chanceOfStarport > 85) {
-      planet.description += " " + randomStarport();
+      planet.description += ' ' + randomStarport();
     }
   }
 
@@ -245,39 +381,29 @@ export function listPlanetTypes() {
 function randomPopulation() {
   const formatter = new Intl.NumberFormat();
   const options = [
-    "" + random.int(10, 700) + " thousand",
-    "" + formatter.format(random.float(10.0, 900.0)) + " million",
-    "" + formatter.format(random.float(1.0, 10.0)) + " billion",
+    '' + random.int(10, 700) + ' thousand',
+    '' + formatter.format(random.float(10.0, 900.0)) + ' million',
+    '' + formatter.format(random.float(1.0, 10.0)) + ' billion',
   ];
 
   return RND.item(options);
 }
 
 function randomStarport() {
-  const starportType = RND.item(["military", "civilian"]);
+  const starportType = RND.item(['military', 'civilian']);
 
   const notable = {
     civilian: [
-      "important trade route position",
-      "usage by smugglers and pirates",
-      "beautiful architecture",
+      'important trade route position',
+      'usage by smugglers and pirates',
+      'beautiful architecture',
     ],
-    military: [
-      "strategic position",
-      "regular starfighter drills",
-      "oppressive presence",
-    ],
+    military: ['strategic position', 'regular starfighter drills', 'oppressive presence'],
   };
 
   const feature = RND.item(notable[starportType]);
 
-  const descriptor = RND.item([
-    "major",
-    "minor",
-    "curious",
-    "sprawling",
-    "towering",
-  ])
+  const descriptor = RND.item(['major', 'minor', 'curious', 'sprawling', 'towering']);
 
   return `There is a ${descriptor} ${starportType} starport here, notable for its ${feature}.`;
 }

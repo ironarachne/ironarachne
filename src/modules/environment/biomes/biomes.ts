@@ -1,12 +1,12 @@
-import Biome from "./biome";
-import * as RND from "../../random";
-import Desert from "./desert";
-import DeciduousForest from "./deciduousforest";
-import ConiferousForest from "./coniferousforest";
-import Rainforest from "./rainforest";
-import Grassland from "./grassland";
-import Mountain from "./mountain";
-import Tundra from "./tundra";
+import Biome from './biome';
+import * as RND from '../../random';
+import Desert from './desert';
+import DeciduousForest from './deciduousforest';
+import ConiferousForest from './coniferousforest';
+import Rainforest from './rainforest';
+import Grassland from './grassland';
+import Mountain from './mountain';
+import Tundra from './tundra';
 
 export function all(): Biome[] {
   return [

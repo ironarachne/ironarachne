@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import CharacterGeneratorConfig from "./generatorconfig";
-import * as FantasySpecies from "../species/fantasy";
+import CharacterGeneratorConfig from './generatorconfig';
+import * as FantasySpecies from '../species/fantasy';
 
 export function getFantasy(): CharacterGeneratorConfig {
   const speciesOptions = FantasySpecies.all();

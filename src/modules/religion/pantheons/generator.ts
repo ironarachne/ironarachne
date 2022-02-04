@@ -1,18 +1,18 @@
-"use strict";
+'use strict';
 
-import DeityGeneratorConfig from "../deities/generatorconfig";
-import DomainSet from "../domains/domainset";
-import DomainGenerator from "../domains/generator";
-import DomainGeneratorConfig from "../domains/generatorconfig";
-import Pantheon from "./pantheon";
-import PantheonMember from "./pantheonmember";
-import PantheonGeneratorConfig from "./generatorconfig";
-import * as RND from "../../random";
-import * as Words from "../../words";
-import random from "random";
-import DeityGenerator from "../deities/generator";
-import Relationship from "../../relationships/relationship";
-import RelationshipGenerator from "../../relationships/generator";
+import DeityGeneratorConfig from '../deities/generatorconfig';
+import DomainSet from '../domains/domainset';
+import DomainGenerator from '../domains/generator';
+import DomainGeneratorConfig from '../domains/generatorconfig';
+import Pantheon from './pantheon';
+import PantheonMember from './pantheonmember';
+import PantheonGeneratorConfig from './generatorconfig';
+import * as RND from '../../random';
+import * as Words from '../../words';
+import random from 'random';
+import DeityGenerator from '../deities/generator';
+import Relationship from '../../relationships/relationship';
+import RelationshipGenerator from '../../relationships/generator';
 
 export default class PantheonGenerator {
   config: PantheonGeneratorConfig;
@@ -75,11 +75,17 @@ export default class PantheonGenerator {
       for (let i = 0; i < pantheon.members.length; i++) {
         let relationships = [];
 
-        for (let x=0;x<pantheon.members[i].relationships.length;x++) {
-          relationships.push(getRelationshipPhrase(pantheon.members[i].relationships[x], pantheon.members[pantheon.members[i].relationships[x].target].deity.name));
+        for (let x = 0; x < pantheon.members[i].relationships.length; x++) {
+          relationships.push(
+            getRelationshipPhrase(
+              pantheon.members[i].relationships[x],
+              pantheon.members[pantheon.members[i].relationships[x].target].deity.name,
+            ),
+          );
         }
 
-        const relationshipDescription = " " + pantheon.members[i].deity.name + " " + Words.arrayToPhrase(relationships) + ".";
+        const relationshipDescription =
+          ' ' + pantheon.members[i].deity.name + ' ' + Words.arrayToPhrase(relationships) + '.';
 
         pantheon.members[i].deity.description += relationshipDescription;
       }
@@ -103,7 +109,7 @@ function randomDomainSets(numberOfSets: number): DomainSet[] {
   for (let i = 0; i < numberOfSets; i++) {
     let domains = [];
 
-    for (let j=0;j<domainGen.config.numberOfDomains+1;j++) {
+    for (let j = 0; j < domainGen.config.numberOfDomains + 1; j++) {
       domains.push(allDomains.pop());
     }
 

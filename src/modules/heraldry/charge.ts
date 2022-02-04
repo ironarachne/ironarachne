@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import Tincture from "./tincture";
+import Tincture from './tincture';
 
 export default class Charge {
   name: string;

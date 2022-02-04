@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-import * as Charges from "./charges";
-import * as Fields from "./fields";
-import * as Heraldry from "./heraldry";
-import * as RND from "../random";
-import * as Tinctures from "./tinctures";
-import * as Variations from "./variations";
-import GeneratorConfig from "./generatorconfig";
+import * as Charges from './charges';
+import * as Fields from './fields';
+import * as Heraldry from './heraldry';
+import * as RND from '../random';
+import * as Tinctures from './tinctures';
+import * as Variations from './variations';
+import GeneratorConfig from './generatorconfig';
 
 export default class HeraldryGenerator {
   config: GeneratorConfig;

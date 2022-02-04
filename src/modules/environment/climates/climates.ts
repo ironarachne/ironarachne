@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-import Climate from "./climate";
-import ContinentalClimate from "./continental";
-import DryClimate from "./dry";
-import PolarClimate from "./polar";
-import TemperateClimate from "./temperate";
-import TropicalClimate from "./tropical";
-import * as RND from "../../random";
+import Climate from './climate';
+import ContinentalClimate from './continental';
+import DryClimate from './dry';
+import PolarClimate from './polar';
+import TemperateClimate from './temperate';
+import TropicalClimate from './tropical';
+import * as RND from '../../random';
 
 export function all(): Climate[] {
   return [

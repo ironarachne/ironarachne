@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import DomainSet from "./domainset";
-import DomainGeneratorConfig from "./generatorconfig";
-import * as RND from "../../random";
+import DomainSet from './domainset';
+import DomainGeneratorConfig from './generatorconfig';
+import * as RND from '../../random';
 
 export default class DomainGenerator {
   config: DomainGeneratorConfig;
@@ -18,7 +18,7 @@ export default class DomainGenerator {
 
     domainSet.primary = this.config.domains.pop();
 
-    for (let i=0;i<this.config.numberOfDomains;i++) {
+    for (let i = 0; i < this.config.numberOfDomains; i++) {
       const d = this.config.domains.pop();
       domainSet.secondaries.push(d);
     }

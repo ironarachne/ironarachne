@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import Season from "../seasons/season";
+import Season from '../seasons/season';
 
 export default interface Climate {
   name: string;

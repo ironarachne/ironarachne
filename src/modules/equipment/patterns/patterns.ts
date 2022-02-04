@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-import * as Components from "../components/components";
-import * as Item from "../item";
-import * as ArmorPattern from "./armor";
-import * as ClothingPattern from "./clothing";
-import * as WeaponPattern from "./weapons";
+import * as Components from '../components/components';
+import * as Item from '../item';
+import * as ArmorPattern from './armor';
+import * as ClothingPattern from './clothing';
+import * as WeaponPattern from './weapons';
 
 export interface Pattern {
   name: string;
@@ -28,7 +28,7 @@ export function forCategory(category: string): Pattern[] {
 
   let result = [];
 
-  for (let i=0;i<options.length;i++) {
+  for (let i = 0; i < options.length; i++) {
     if (options[i].tags.includes(category)) {
       result.push(options[i]);
     }

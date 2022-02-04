@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import Field from "./field";
-import ChargeGroup from "./chargegroup";
-import * as Words from "../words";
+import Field from './field';
+import ChargeGroup from './chargegroup';
+import * as Words from '../words';
 
 export default class Device {
   field: Field;
@@ -16,7 +16,7 @@ export default class Device {
   renderBlazon(): string {
     let chargeGroupBlazons = [];
 
-    for (let i=0;i<this.chargeGroups.length;i++) {
+    for (let i = 0; i < this.chargeGroups.length; i++) {
       chargeGroupBlazons.push(this.chargeGroups[i].renderBlazon());
     }
 

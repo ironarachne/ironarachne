@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default class PersonalityTrait {
   name: string;
@@ -10,7 +10,7 @@ export default class PersonalityTrait {
   constructor(name: string, negativeDescriptor: string, positiveDescriptor: string) {
     this.name = name;
     this.score = 0;
-    this.descriptor = "";
+    this.descriptor = '';
     this.negativeDescriptor = negativeDescriptor;
     this.positiveDescriptor = positiveDescriptor;
   }

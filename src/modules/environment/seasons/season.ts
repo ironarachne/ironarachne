@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import PrecipitationType from "../precipitationtype";
+import PrecipitationType from '../precipitationtype';
 
 export default class Season {
   name: string;

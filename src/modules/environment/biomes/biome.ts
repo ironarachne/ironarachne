@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default interface Biome {
   name: string;

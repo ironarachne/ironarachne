@@ -1,4 +1,4 @@
-import PageData from "./pagedata";
+import PageData from './pagedata';
 
 export default class Page {
   title: string;

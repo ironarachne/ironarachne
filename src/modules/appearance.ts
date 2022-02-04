@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export class AppearanceTrait {
   phrase: string;
@@ -23,5 +23,3 @@ export function getAllTraitsWithTag(traits: AppearanceTrait[], tag: string) {
 
   return results;
 }
-
-

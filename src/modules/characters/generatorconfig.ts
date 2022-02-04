@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-import * as AgeCategories from "../age/agecategories";
-import Gender from "../gender";
-import NameGenerator from "../names/generator";
-import PhysicalTrait from "../physicaltraits/physicaltrait";
-import type Species from "../species/species";
-import Human from "../species/human";
-import HumanSet from "../names/races/human";
+import * as AgeCategories from '../age/agecategories';
+import Gender from '../gender';
+import NameGenerator from '../names/generator';
+import PhysicalTrait from '../physicaltraits/physicaltrait';
+import type Species from '../species/species';
+import Human from '../species/human';
+import HumanSet from '../names/races/human';
 
 export default class CharacterGeneratorConfig {
   ageCategories: string[];

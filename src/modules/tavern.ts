@@ -1,13 +1,13 @@
-"use strict";
+'use strict';
 
-import * as TavernName from "./names/taverns";
-import * as Food from "./cuisine/food";
-import * as Drink from "./cuisine/drink";
-import * as RND from "./random";
-import * as Dice from "./dice";
-import * as Currency from "./currency";
+import * as TavernName from './names/taverns';
+import * as Food from './cuisine/food';
+import * as Drink from './cuisine/drink';
+import * as RND from './random';
+import * as Dice from './dice';
+import * as Currency from './currency';
 
-import random from "random";
+import random from 'random';
 
 export class Tavern {
   name: string;
@@ -19,7 +19,7 @@ export class Tavern {
     this.name = name;
     this.food = food;
     this.drinks = drinks;
-    this.description = "";
+    this.description = '';
   }
 }
 
@@ -32,27 +32,23 @@ export function generate() {
 }
 
 function randomDescription(tavern: Tavern) {
-  let description = RND.item([
-    tavern.name,
-    "This tavern",
-    "This establishment",
-  ]);
+  let description = RND.item([tavern.name, 'This tavern', 'This establishment']);
 
   const quality = RND.item([
-    "has seen better days",
-    "looks newly painted",
-    "is well kept",
-    "has an air of wealth about it",
+    'has seen better days',
+    'looks newly painted',
+    'is well kept',
+    'has an air of wealth about it',
   ]);
 
-  description += " " + quality + ". ";
+  description += ' ' + quality + '. ';
 
   const patrons = RND.item([
-    "It caters to a diverse crowd.",
-    "Some of its patrons are less savory types.",
-    "It has a welcoming atmosphere.",
-    "The crowd is friendly and boisterous.",
-    "The patrons all keep to themselves and talk quietly.",
+    'It caters to a diverse crowd.',
+    'Some of its patrons are less savory types.',
+    'It has a welcoming atmosphere.',
+    'The crowd is friendly and boisterous.',
+    'The patrons all keep to themselves and talk quietly.',
     "There's a rough crowd here.",
   ]);
 
@@ -71,7 +67,7 @@ function randomDrinks() {
 
     const cost = Currency.convertCopper(drink.cost, false, false);
 
-    const drinkDescription = drink.description + " (cost: " + cost + ")";
+    const drinkDescription = drink.description + ' (cost: ' + cost + ')';
 
     drinks.push(drinkDescription);
   }
@@ -85,12 +81,12 @@ function randomFood() {
   const numberOfItems = random.int(2, 4);
 
   for (let i = 0; i < numberOfItems; i++) {
-    const quality = Dice.roll("2d6");
+    const quality = Dice.roll('2d6');
 
     const dish = Food.generateDish();
     const cost = Currency.convertCopper(quality, false, false);
 
-    const foodDescription = dish + " (cost: " + cost + ")";
+    const foodDescription = dish + ' (cost: ' + cost + ')';
 
     food.push(foodDescription);
   }

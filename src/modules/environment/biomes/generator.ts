@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import BiomeGeneratorConfig from "./generatorconfig";
-import * as RND from "../../random";
-import Biome from "./biome";
+import BiomeGeneratorConfig from './generatorconfig';
+import * as RND from '../../random';
+import Biome from './biome';
 
 export default class BiomeGenerator {
   config: BiomeGeneratorConfig;
@@ -14,13 +14,18 @@ export default class BiomeGenerator {
   generate(): Biome {
     let options = [];
 
-    for (let i=0;i<this.config.availableBiomes.length;i++) {
+    for (let i = 0; i < this.config.availableBiomes.length; i++) {
       let biome = this.config.availableBiomes[i];
       let humidityMin = this.config.climate.precipitationAmount - 2;
       let humidityMax = this.config.climate.precipitationAmount + 2;
       let tempMin = this.config.climate.temperatureMin;
       let tempMax = this.config.climate.temperatureMax;
-      if (biome.humidity <= humidityMax && biome.humidity >= humidityMin && biome.temperature <= tempMax && biome.temperature >= tempMin) {
+      if (
+        biome.humidity <= humidityMax &&
+        biome.humidity >= humidityMin &&
+        biome.temperature <= tempMax &&
+        biome.temperature >= tempMin
+      ) {
         options.push(biome);
       }
     }

@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import Deity from "../deities/deity";
-import Relationship from "../../relationships/relationship";
+import Deity from '../deities/deity';
+import Relationship from '../../relationships/relationship';
 
 export default class PantheonMember {
   deity: Deity;

@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import DCCItem from "./item";
+import DCCItem from './item';
 
 export default class DCCGear implements DCCItem {
   name: string;

@@ -1,18 +1,18 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import Nation from "../nations/nation";
-import * as NationGenerator from "../nations/fantasy";
-import * as Organizations from "../organizations/fantasy";
-import Organization from "../organizations/organization";
-import SettlementGeneratorConfig from "../settlements/generatorconfig";
-import SettlementGenerator from "../settlements/generator";
-import Region from "./region";
-import * as Words from "../words";
+import * as RND from '../random';
+import Nation from '../nations/nation';
+import * as NationGenerator from '../nations/fantasy';
+import * as Organizations from '../organizations/fantasy';
+import Organization from '../organizations/organization';
+import SettlementGeneratorConfig from '../settlements/generatorconfig';
+import SettlementGenerator from '../settlements/generator';
+import Region from './region';
+import * as Words from '../words';
 
-import random from "random";
-import EnvironmentGenerator from "../environment/generator";
-import Environment from "../environment/environment";
+import random from 'random';
+import EnvironmentGenerator from '../environment/generator';
+import Environment from '../environment/environment';
 
 export function generate(): Region {
   const envGen = new EnvironmentGenerator();
@@ -24,13 +24,21 @@ export function generate(): Region {
 
   let description = environment.description;
 
-  description += " " + describeClaimants(claimants);
+  description += ' ' + describeClaimants(claimants);
 
   let sovereignTerritory = RND.item(claimants[0].subdivisions);
 
   let name = sovereignTerritory.longName;
 
-  return new Region(name, environment, description, towns, claimants, sovereignTerritory, organizations);
+  return new Region(
+    name,
+    environment,
+    description,
+    towns,
+    claimants,
+    sovereignTerritory,
+    organizations,
+  );
 }
 
 function randomClaimants(): Nation[] {
@@ -52,18 +60,19 @@ function randomClaimants(): Nation[] {
 }
 
 function describeClaimants(claimants: Nation[]): string {
-  let description = Words.capitalize(claimants[0].name) + " claims this as part of its domain."
+  let description = Words.capitalize(claimants[0].name) + ' claims this as part of its domain.';
 
   if (claimants.length > 1) {
-    description = Words.capitalize(claimants[0].name) +
-    " and " +
-    claimants[1].name +
-    " both claim this region, ";
+    description =
+      Words.capitalize(claimants[0].name) +
+      ' and ' +
+      claimants[1].name +
+      ' both claim this region, ';
 
     const nextPart = RND.item([
       "and it's the subject of an active war.",
-      "though both have bigger problems right now than to argue over it.",
-      "and a war may be coming soon over it.",
+      'though both have bigger problems right now than to argue over it.',
+      'and a war may be coming soon over it.',
     ]);
 
     description += nextPart;
@@ -85,7 +94,7 @@ function randomOrganizations() {
 
 function randomSettlements(environment: Environment) {
   let settlementGenConfig = new SettlementGeneratorConfig();
-  settlementGenConfig.size = "large";
+  settlementGenConfig.size = 'large';
   settlementGenConfig.environment = environment;
   let settlementGen = new SettlementGenerator(settlementGenConfig);
   const capital = settlementGen.generate();
@@ -94,17 +103,17 @@ function randomSettlements(environment: Environment) {
   const numberOfSmallTowns = random.int(3, 5);
   const towns = [];
 
-  capital.description += " This is the capital of the region.";
+  capital.description += ' This is the capital of the region.';
   towns.push(capital);
 
   for (let i = 0; i < numberOfMediumTowns; i++) {
-    settlementGen.config.size = "medium";
+    settlementGen.config.size = 'medium';
     const town = settlementGen.generate();
     towns.push(town);
   }
 
   for (let i = 0; i < numberOfSmallTowns; i++) {
-    settlementGen.config.size = "small";
+    settlementGen.config.size = 'small';
     const town = settlementGen.generate();
     towns.push(town);
   }

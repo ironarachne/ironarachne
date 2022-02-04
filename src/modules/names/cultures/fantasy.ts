@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import GenericNameGenerator from "../generators/generic";
-import GeneratorSet from "../generatorset";
+import GenericNameGenerator from '../generators/generic';
+import GeneratorSet from '../generatorset';
 
 export default class FantasySet extends GeneratorSet {
   constructor() {
@@ -18,12 +18,7 @@ export default class FantasySet extends GeneratorSet {
 function culture(): GenericNameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = [
-    "pmlMyNmN",
-    "kmlMyNm",
-    "kyTHmkI",
-    "pOhRAkI",
-  ];
+  gen.patterns = ['pmlMyNmN', 'kmlMyNm', 'kyTHmkI', 'pOhRAkI'];
 
   return gen;
 }
@@ -31,15 +26,7 @@ function culture(): GenericNameGenerator {
 function country(): GenericNameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = [
-    "pvlvlIA",
-    "lvpvpIA",
-    "vnvlvpA",
-    "vpvlY",
-    "flvnv",
-    "vfpvlION",
-    "vlxRIA",
-  ];
+  gen.patterns = ['pvlvlIA', 'lvpvpIA', 'vnvlvpA', 'vpvlY', 'flvnv', 'vfpvlION', 'vlxRIA'];
 
   return gen;
 }
@@ -48,24 +35,24 @@ function family(): GenericNameGenerator {
   let gen = new GenericNameGenerator();
 
   gen.patterns = [
-    "Apvlnvn",
-    "vpvcnvn",
-    "vSHlvnp",
-    "SnvTH",
-    "pvvLOR",
-    "kyPER",
-    "sLvTCHER",
-    "svRRIER",
-    "pvnDElSON",
-    "pvnDElS",
-    "ypSBURG",
-    "ypSBERG",
-    "vlnvTHION",
-    "vpRvHAM",
-    "vkLAND",
-    "yfpLmND",
-    "vcfFORD",
-    "vSnFvRD",
+    'Apvlnvn',
+    'vpvcnvn',
+    'vSHlvnp',
+    'SnvTH',
+    'pvvLOR',
+    'kyPER',
+    'sLvTCHER',
+    'svRRIER',
+    'pvnDElSON',
+    'pvnDElS',
+    'ypSBURG',
+    'ypSBERG',
+    'vlnvTHION',
+    'vpRvHAM',
+    'vkLAND',
+    'yfpLmND',
+    'vcfFORD',
+    'vSnFvRD',
   ];
 
   return gen;
@@ -74,16 +61,7 @@ function family(): GenericNameGenerator {
 function female(): GenericNameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = [
-    "vnvlA",
-    "ynA",
-    "vbvlyN",
-    "vlvnA",
-    "vcnvA",
-    "pvlvNIA",
-    "tvlvNA",
-    "pvSSvkA",
-  ];
+  gen.patterns = ['vnvlA', 'ynA', 'vbvlyN', 'vlvnA', 'vcnvA', 'pvlvNIA', 'tvlvNA', 'pvSSvkA'];
 
   return gen;
 }
@@ -92,17 +70,17 @@ function male(): GenericNameGenerator {
   let gen = new GenericNameGenerator();
 
   gen.patterns = [
-    "jmB",
-    "vFFlvn",
-    "evplvn",
-    "vpylvn",
-    "fvLLyn",
-    "fvlvpml",
-    "vppvl",
-    "pmspvn",
-    "pulvn",
-    "pvlsvp",
-    "pvDRvC",
+    'jmB',
+    'vFFlvn',
+    'evplvn',
+    'vpylvn',
+    'fvLLyn',
+    'fvlvpml',
+    'vppvl',
+    'pmspvn',
+    'pulvn',
+    'pvlsvp',
+    'pvDRvC',
   ];
 
   return gen;
@@ -134,25 +112,25 @@ function town(): GenericNameGenerator {
   ];
 
   const second = [
-    "Barrows",
-    "Cliffs",
-    "Falls",
-    "Hills",
-    "Hollows",
-    "Mountains",
-    "Peaks",
-    "Ridges",
-    "Rivers",
-    "Rocks",
-    "Streams",
-    "Towers",
-    "Trees",
-    "Valleys",
-    "Waters",
+    'Barrows',
+    'Cliffs',
+    'Falls',
+    'Hills',
+    'Hollows',
+    'Mountains',
+    'Peaks',
+    'Ridges',
+    'Rivers',
+    'Rocks',
+    'Streams',
+    'Towers',
+    'Trees',
+    'Valleys',
+    'Waters',
   ];
 
-  for (let i=0;i<first.length;i++) {
-    for (let j=0;j<second.length;j++) {
+  for (let i = 0; i < first.length; i++) {
+    for (let j = 0; j < second.length; j++) {
       gen.patterns.push(first[i].toUpperCase() + ' ' + second[j].toUpperCase());
     }
   }
@@ -176,17 +154,13 @@ function town(): GenericNameGenerator {
     'Bulwark',
   ];
 
-  for (let i=0;i<firstNames.length;i++) {
-    for (let j=0;j<suffixes.length;j++) {
+  for (let i = 0; i < firstNames.length; i++) {
+    for (let j = 0; j < suffixes.length; j++) {
       gen.patterns.push(firstNames[i] + "'S " + suffixes[j].toUpperCase());
     }
   }
 
-  let patterns = [
-    'vlpvl',
-    'tvnv',
-    'lvpcv',
-  ];
+  let patterns = ['vlpvl', 'tvnv', 'lvpcv'];
 
   let additions = [
     'arm',
@@ -211,8 +185,8 @@ function town(): GenericNameGenerator {
     'ville',
   ];
 
-  for (let i=0;i<patterns.length;i++) {
-    for (let j=0;j<additions.length;j++) {
+  for (let i = 0; i < patterns.length; i++) {
+    for (let j = 0; j < additions.length; j++) {
       gen.patterns.push(patterns[i] + additions[j].toUpperCase());
     }
   }
@@ -258,8 +232,8 @@ function town(): GenericNameGenerator {
     'ford',
   ];
 
-  for (let i=0;i<patterns.length;i++) {
-    for (let j=0;j<additions.length;j++) {
+  for (let i = 0; i < patterns.length; i++) {
+    for (let j = 0; j < additions.length; j++) {
       gen.patterns.push(patterns[i].toUpperCase() + additions[j].toUpperCase());
     }
   }

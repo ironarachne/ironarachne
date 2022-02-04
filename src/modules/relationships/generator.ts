@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import Relationship from "./relationship";
-import * as RND from "../random";
+import Relationship from './relationship';
+import * as RND from '../random';
 
 export default class RelationshipGenerator {
   strength: number;
@@ -11,24 +11,29 @@ export default class RelationshipGenerator {
   }
 
   generate(): Relationship {
-    let verb = "";
-    let noun = "";
+    let verb = '';
+    let noun = '';
 
     if (this.strength == -1) {
-      verb = RND.item(["dislikes", "distrusts", "mistrusts", "is annoyed by"]);
-      noun = "enemy";
+      verb = RND.item(['dislikes', 'distrusts', 'mistrusts', 'is annoyed by']);
+      noun = 'enemy';
     } else if (this.strength == -2) {
-      verb = RND.item(["fears", "hates", "loathes", "can't stand"]);
-      noun = "enemy";
+      verb = RND.item(['fears', 'hates', 'loathes', "can't stand"]);
+      noun = 'enemy';
     } else if (this.strength == 0) {
-      verb = RND.item(["is intrigued by", "is ambivalent towards", "is neutral towards", "is suspicious of"]);
-      noun = "acquaintance";
+      verb = RND.item([
+        'is intrigued by',
+        'is ambivalent towards',
+        'is neutral towards',
+        'is suspicious of',
+      ]);
+      noun = 'acquaintance';
     } else if (this.strength == 1) {
-      verb = RND.item(["likes", "is amused by", "enjoys the company of", "enjoys", "trusts"]);
-      noun = "friend";
+      verb = RND.item(['likes', 'is amused by', 'enjoys the company of', 'enjoys', 'trusts']);
+      noun = 'friend';
     } else {
-      verb = RND.item(["loves", "deeply trusts", "adores"]);
-      noun = "friend";
+      verb = RND.item(['loves', 'deeply trusts', 'adores']);
+      noun = 'friend';
     }
 
     return new Relationship(noun, verb, 0, this.strength);

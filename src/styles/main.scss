@@ -15,60 +15,60 @@
 }
 
 @font-face {
-  font-family: "libre_baskerville";
-  src: url("./fonts/librebaskerville-bold-webfont.woff2") format("woff2"),
-  url("./fonts/librebaskerville-bold-webfont.woff") format("woff");
+  font-family: 'libre_baskerville';
+  src: url('./fonts/librebaskerville-bold-webfont.woff2') format('woff2'),
+    url('./fonts/librebaskerville-bold-webfont.woff') format('woff');
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "libre_baskerville";
-  src: url("./fonts/librebaskerville-italic-webfont.woff2") format("woff2"),
-  url("./fonts/librebaskerville-italic-webfont.woff") format("woff");
+  font-family: 'libre_baskerville';
+  src: url('./fonts/librebaskerville-italic-webfont.woff2') format('woff2'),
+    url('./fonts/librebaskerville-italic-webfont.woff') format('woff');
   font-weight: normal;
   font-style: italic;
 }
 
 @font-face {
-  font-family: "libre_baskerville";
-  src: url("./fonts/librebaskerville-regular-webfont.woff2") format("woff2"),
-  url("./fonts/librebaskerville-regular-webfont.woff") format("woff");
+  font-family: 'libre_baskerville';
+  src: url('./fonts/librebaskerville-regular-webfont.woff2') format('woff2'),
+    url('./fonts/librebaskerville-regular-webfont.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "eczar";
-  src: url("./fonts/Eczar-Bold-webfont.woff") format("woff");
+  font-family: 'eczar';
+  src: url('./fonts/Eczar-Bold-webfont.woff') format('woff');
   font-weight: 700;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "eczar";
-  src: url("./fonts/Eczar-ExtraBold-webfont.woff") format("woff");
+  font-family: 'eczar';
+  src: url('./fonts/Eczar-ExtraBold-webfont.woff') format('woff');
   font-weight: 800;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "eczar";
-  src: url("./fonts/Eczar-Medium-webfont.woff") format("woff");
+  font-family: 'eczar';
+  src: url('./fonts/Eczar-Medium-webfont.woff') format('woff');
   font-weight: 500;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "eczar";
-  src: url("./fonts/Eczar-Regular-webfont.woff") format("woff");
+  font-family: 'eczar';
+  src: url('./fonts/Eczar-Regular-webfont.woff') format('woff');
   font-weight: 400;
   font-style: normal;
 }
 
 @font-face {
-  font-family: "eczar";
-  src: url("./fonts/Eczar-SemiBold-webfont.woff") format("woff");
+  font-family: 'eczar';
+  src: url('./fonts/Eczar-SemiBold-webfont.woff') format('woff');
   font-weight: 600;
   font-style: normal;
 }
@@ -81,13 +81,13 @@ body,
 html {
   background: rgb(199, 196, 184);
   background: linear-gradient(
-      90deg,
-      rgba(199, 196, 184, 1) 0%,
-      rgba(247, 243, 228, 1) 15%,
-      rgba(247, 243, 228, 1) 85%,
-      rgba(199, 196, 184, 1) 100%
+    90deg,
+    rgba(199, 196, 184, 1) 0%,
+    rgba(247, 243, 228, 1) 15%,
+    rgba(247, 243, 228, 1) 85%,
+    rgba(199, 196, 184, 1) 100%
   );
-  font-family: "libre_baskerville", Georgia, serif;
+  font-family: 'libre_baskerville', Georgia, serif;
   font-size: 20px;
   line-height: 1.5rem;
 }
@@ -111,7 +111,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "eczar", Helvetica, sans-serif;
+  font-family: 'eczar', Helvetica, sans-serif;
   margin: 0.5rem 0;
 }
 
@@ -133,10 +133,15 @@ div.half-column {
   background: black;
   color: white;
 
-  h1, h2, h3, h4, h5, h6 {
-    color: #D8F6B0;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #d8f6b0;
     font-family: 'azonix', sans-serif;
-    text-shadow: 0 0 6px #86FF00;
+    text-shadow: 0 0 6px #86ff00;
   }
 
   button {
@@ -153,11 +158,7 @@ div.half-column {
 
   button:active {
     background: rgb(92, 86, 73);
-    background: linear-gradient(
-        339deg,
-        rgba(92, 86, 73, 1) 0%,
-        rgba(10, 10, 10, 1) 100%
-    );
+    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
     color: $ironArachneGreen;
     transform: translateY(2px);
   }
@@ -170,17 +171,18 @@ div.half-column {
 }
 
 .fantasy {
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'eczar', sans-serif;
   }
 
   button {
     background: rgb(92, 86, 73);
-    background: linear-gradient(
-        165deg,
-        rgba(92, 86, 73, 1) 0%,
-        rgba(10, 10, 10, 1) 100%
-    );
+    background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
     border: 3px solid $tan;
     border-radius: 3px;
     color: #fff;
@@ -193,11 +195,7 @@ div.half-column {
 
   button:active {
     background: rgb(92, 86, 73);
-    background: linear-gradient(
-        339deg,
-        rgba(92, 86, 73, 1) 0%,
-        rgba(10, 10, 10, 1) 100%
-    );
+    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
     color: $ironArachneGreen;
     transform: translateY(2px);
   }
@@ -211,22 +209,28 @@ div.half-column {
 
 .scifi {
   background: rgb(16, 17, 25);
-  background: linear-gradient(90deg, rgba(16, 17, 25, 1) 0%, rgba(38, 58, 96, 1) 49%, rgba(16, 17, 25, 1) 100%);
+  background: linear-gradient(
+    90deg,
+    rgba(16, 17, 25, 1) 0%,
+    rgba(38, 58, 96, 1) 49%,
+    rgba(16, 17, 25, 1) 100%
+  );
   color: white;
 
-  h1, h2, h3, h4, h5, h6 {
-    color: #A2D4FF;
-    text-shadow: 0 0 6px #0086FF;
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #a2d4ff;
+    text-shadow: 0 0 6px #0086ff;
     font-family: 'alienleague', sans-serif;
   }
 
   button {
     background: rgb(2, 37, 95);
-    background: linear-gradient(
-        165deg,
-        rgb(2, 37, 95) 0%,
-        rgba(10, 10, 10, 1) 100%
-    );
+    background: linear-gradient(165deg, rgb(2, 37, 95) 0%, rgba(10, 10, 10, 1) 100%);
     border: 3px solid rgb(108, 146, 255);
     border-radius: 3px;
     color: #fff;
@@ -239,11 +243,7 @@ div.half-column {
 
   button:active {
     background: rgb(92, 86, 73);
-    background: linear-gradient(
-        339deg,
-        rgba(92, 86, 73, 1) 0%,
-        rgba(10, 10, 10, 1) 100%
-    );
+    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
     color: rgb(108, 146, 255);
     transform: translateY(2px);
   }
@@ -291,7 +291,8 @@ article {
   margin: 1rem 0;
 }
 
-input, select {
+input,
+select {
   font-size: 1rem;
   line-height: 1rem;
   padding: 0.25rem;
@@ -348,11 +349,7 @@ pre {
 section.default {
   button {
     background: rgb(92, 86, 73);
-    background: linear-gradient(
-        165deg,
-        rgba(92, 86, 73, 1) 0%,
-        rgba(10, 10, 10, 1) 100%
-    );
+    background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
     border: 3px solid $tan;
     border-radius: 3px;
     color: #fff;
@@ -364,11 +361,7 @@ section.default {
 
   button:active {
     background: rgb(92, 86, 73);
-    background: linear-gradient(
-        339deg,
-        rgba(92, 86, 73, 1) 0%,
-        rgba(10, 10, 10, 1) 100%
-    );
+    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
     color: $ironArachneGreen;
     transform: translateY(2px);
   }
@@ -446,14 +439,14 @@ section.sidebar {
 
   .cyberpunk {
     border-top-left-radius: 12px;
-    text-shadow: 0 0 2px #86FF00;
+    text-shadow: 0 0 2px #86ff00;
 
     a {
       background: black;
       border-radius: 7px 1px 7px 1px;
       border: 1px solid $ironArachneGreen;
       box-shadow: none;
-      color: #D8F6B0;
+      color: #d8f6b0;
       font-size: 1rem;
       font-family: 'azonix', sans-serif;
     }
@@ -490,7 +483,12 @@ section.sidebar {
 
     a.active {
       background: rgb(255, 209, 0);
-      background: linear-gradient(180deg, rgba(255, 209, 0, 1) 0%, rgba(255, 240, 138, 1) 63%, rgba(255, 209, 0, 1) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(255, 209, 0, 1) 0%,
+        rgba(255, 240, 138, 1) 63%,
+        rgba(255, 209, 0, 1) 100%
+      );
       text-shadow: none;
       color: black;
     }
@@ -499,7 +497,13 @@ section.sidebar {
   .normal {
     a {
       background: rgb(182, 151, 88);
-      background: linear-gradient(180deg, rgba(182, 151, 88, 1) 0%, rgba(128, 118, 37, 1) 53%, rgba(121, 110, 9, 1) 56%, rgba(89, 89, 89, 1) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(182, 151, 88, 1) 0%,
+        rgba(128, 118, 37, 1) 53%,
+        rgba(121, 110, 9, 1) 56%,
+        rgba(89, 89, 89, 1) 100%
+      );
       border: 0 solid #000;
       border-radius: 3px;
       color: white;
@@ -511,14 +515,12 @@ section.sidebar {
       text-decoration: none;
       padding: 0.4rem 0;
       text-align: center;
-      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.29),
-      inset 1px 1px 1px rgba(255, 255, 255, 0.44);
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.29), inset 1px 1px 1px rgba(255, 255, 255, 0.44);
       transition: all 0.15s ease;
     }
 
     a:hover {
-      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.29),
-      inset 0 0 2px rgba(0, 0, 0, 0.5);
+      box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.29), inset 0 0 2px rgba(0, 0, 0, 0.5);
     }
 
     a:active {
@@ -527,7 +529,12 @@ section.sidebar {
 
     a.active {
       background: rgb(255, 209, 0);
-      background: linear-gradient(180deg, rgba(255, 209, 0, 1) 0%, rgba(255, 240, 138, 1) 63%, rgba(255, 209, 0, 1) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(255, 209, 0, 1) 0%,
+        rgba(255, 240, 138, 1) 63%,
+        rgba(255, 209, 0, 1) 100%
+      );
       color: black;
     }
 
@@ -549,7 +556,12 @@ section.sidebar {
 
     a {
       background: rgb(51, 57, 136);
-      background: linear-gradient(180deg, rgba(51, 57, 136, 1) 0%, rgba(41, 74, 187, 1) 50%, rgba(51, 57, 136, 1) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(51, 57, 136, 1) 0%,
+        rgba(41, 74, 187, 1) 50%,
+        rgba(51, 57, 136, 1) 100%
+      );
       box-shadow: 0 0 3px rgba(0, 180, 255, 1);
       color: white;
       font-family: 'alienleague', sans-serif;
@@ -558,7 +570,12 @@ section.sidebar {
 
     a.active {
       background: rgb(255, 209, 0);
-      background: linear-gradient(180deg, rgba(255, 209, 0, 1) 0%, rgba(255, 240, 138, 1) 63%, rgba(255, 209, 0, 1) 100%);
+      background: linear-gradient(
+        180deg,
+        rgba(255, 209, 0, 1) 0%,
+        rgba(255, 240, 138, 1) 63%,
+        rgba(255, 209, 0, 1) 100%
+      );
       box-shadow: 0 0 5px rgba(255, 255, 0, 1);
       color: black;
     }

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default class ReligionCategory {
   name: string;
@@ -9,8 +9,8 @@ export default class ReligionCategory {
   maxDeities: number;
 
   constructor() {
-    this.name = "";
-    this.description = "";
+    this.name = '';
+    this.description = '';
     this.hasDeities = false;
     this.hasLeader = false;
     this.minDeities = 0;

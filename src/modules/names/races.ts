@@ -1,16 +1,16 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import GeneratorSet from "./generatorset";
-import DragonbornSet from "./races/dragonborn";
-import DwarfSet from "./races/dwarf";
-import ElfSet from "./races/elf";
-import GnomeSet from "./races/gnome";
-import HalfElfSet from "./races/halfelf";
-import HalflingSet from "./races/halfling";
-import HalfOrcSet from "./races/halforc";
-import HumanSet from "./races/human";
-import TieflingSet from "./races/tiefling";
+import * as RND from '../random';
+import GeneratorSet from './generatorset';
+import DragonbornSet from './races/dragonborn';
+import DwarfSet from './races/dwarf';
+import ElfSet from './races/elf';
+import GnomeSet from './races/gnome';
+import HalfElfSet from './races/halfelf';
+import HalflingSet from './races/halfling';
+import HalfOrcSet from './races/halforc';
+import HumanSet from './races/human';
+import TieflingSet from './races/tiefling';
 
 export function allGenSets(): GeneratorSet[] {
   return [

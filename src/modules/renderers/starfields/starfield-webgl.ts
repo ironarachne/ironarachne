@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import random from "random";
+import random from 'random';
 
 export function generate() {
   const seed = random.float(0.0, 100.0);

@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 
-import Tincture from "./tincture";
-import * as Tinctures from "./tinctures";
-import * as Fields from "./fields";
-import Variation from "./variation";
-import * as Variations from "./variations";
-import ChargeGroup from "./chargegroup";
-import * as Arrangements from "./chargegrouparrangements";
-import * as Charges from "./charges";
-import * as RND from "../random";
+import Tincture from './tincture';
+import * as Tinctures from './tinctures';
+import * as Fields from './fields';
+import Variation from './variation';
+import * as Variations from './variations';
+import ChargeGroup from './chargegroup';
+import * as Arrangements from './chargegrouparrangements';
+import * as Charges from './charges';
+import * as RND from '../random';
 
-import Device from "./device";
-import GeneratorConfig from "./generatorconfig";
+import Device from './device';
+import GeneratorConfig from './generatorconfig';
 
 export class Heraldry {
   device: Device;
@@ -38,7 +38,12 @@ export function generate(config: GeneratorConfig) {
 
   let field = Fields.randomFrom(config.fieldOptions);
 
-  field.variations = generateVariations(field.variationCount, config.fieldTinctures1, config.fieldTinctures2, config.variationOptions);
+  field.variations = generateVariations(
+    field.variationCount,
+    config.fieldTinctures1,
+    config.fieldTinctures2,
+    config.variationOptions,
+  );
 
   let device = new Device(field, chargeGroups);
 
@@ -49,11 +54,16 @@ export function generate(config: GeneratorConfig) {
   return new Heraldry(device, blazon, svg);
 }
 
-export function generateVariations(count: number, tinctures1: Tincture[], tinctures2: Tincture[], options: Variation[]): Variation[] {
+export function generateVariations(
+  count: number,
+  tinctures1: Tincture[],
+  tinctures2: Tincture[],
+  options: Variation[],
+): Variation[] {
   let result = [];
   let furCount = 0; // This function has an inherent limit of a single fur in a set of variations.
 
-  for (let i=0;i<count;i++) {
+  for (let i = 0; i < count; i++) {
     let tinctureSet1 = tinctures1;
     let tinctureSet2 = tinctures2;
     let variation = Variations.randomWeightedFrom(options);
@@ -98,10 +108,10 @@ export function getDefaultConfig(): GeneratorConfig {
 
 export function randomNumberOfCharges(): number {
   const weights = [
-    {item: 0, commonality: 20},
-    {item: 1, commonality: 50},
-    {item: 2, commonality: 5},
-    {item: 3, commonality: 3},
+    { item: 0, commonality: 20 },
+    { item: 1, commonality: 50 },
+    { item: 2, commonality: 5 },
+    { item: 3, commonality: 3 },
   ];
 
   const result = RND.weighted(weights);
@@ -128,8 +138,8 @@ export function random(width: number, height: number) {
     fieldTinctures2 = Tinctures.ofTypes(['metal', 'fur']);
   }
 
-  config.fieldTinctures1 = fieldTinctures1
-  config.fieldTinctures2 = fieldTinctures2
+  config.fieldTinctures1 = fieldTinctures1;
+  config.fieldTinctures2 = fieldTinctures2;
 
   config.chargeCount = randomNumberOfCharges();
   config.width = width;
@@ -144,27 +154,27 @@ export function renderSVG(device: Device, width: number, height: number) {
 
   const uid = RND.randomString(4);
 
-  const shieldSVG =
-    `<path fill="url(#Division${uid})" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>`;
+  const shieldSVG = `<path fill="url(#Division${uid})" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>`;
 
-  const svgHeader =
-    `<svg width="${width}" height="${height}" viewBox="0 0 ${shieldWidth} ${shieldHeight}" xmlns="http://www.w3.org/2000/svg" version="1.1">`;
-  let defsSVG = "";
+  const svgHeader = `<svg width="${width}" height="${height}" viewBox="0 0 ${shieldWidth} ${shieldHeight}" xmlns="http://www.w3.org/2000/svg" version="1.1">`;
+  let defsSVG = '';
 
-  defsSVG += device.field.pattern.replaceAll("variation", `variation${uid}`).replaceAll("Division", `Division${uid}`);
+  defsSVG += device.field.pattern
+    .replaceAll('variation', `variation${uid}`)
+    .replaceAll('Division', `Division${uid}`);
 
   for (let i = 0; i < device.field.variations.length; i++) {
     for (let j = 0; j < device.field.variations[i].tinctures.length; j++) {
       defsSVG += device.field.variations[i].tinctures[j].pattern;
     }
     let pattern = device.field.variations[i].renderSVGPattern();
-    pattern = pattern.replaceAll("variation", `variation${uid}` + (i + 1));
+    pattern = pattern.replaceAll('variation', `variation${uid}` + (i + 1));
     defsSVG += pattern;
   }
 
   let chargeGroupsSVG = '';
 
-  for (let i=0;i<device.chargeGroups.length;i++) {
+  for (let i = 0; i < device.chargeGroups.length; i++) {
     chargeGroupsSVG += device.chargeGroups[i].renderSVG(shieldWidth, shieldHeight); // TODO: handle different centerPosition and arrangement
   }
 
@@ -173,7 +183,7 @@ export function renderSVG(device: Device, width: number, height: number) {
   svg += `<defs>${defsSVG}</defs>`;
   svg += shieldSVG;
   svg += chargeGroupsSVG;
-  svg += "</svg>";
+  svg += '</svg>';
 
-  return svg.replace(/<\?xml.*\?>/g, "");
+  return svg.replace(/<\?xml.*\?>/g, '');
 }

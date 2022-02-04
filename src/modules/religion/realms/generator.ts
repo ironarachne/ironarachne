@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-import RealmGeneratorConfig from "./generatorconfig";
-import Realm from "./realm";
-import * as AppearanceTraits from "../appearancetraits";
-import * as RealmConcepts from "./realmconcepts";
-import * as RND from "../../random";
-import * as Words from "../../words";
+import RealmGeneratorConfig from './generatorconfig';
+import Realm from './realm';
+import * as AppearanceTraits from '../appearancetraits';
+import * as RealmConcepts from './realmconcepts';
+import * as RND from '../../random';
+import * as Words from '../../words';
 
 export default class RealmGenerator {
   config: RealmGeneratorConfig;
@@ -30,7 +30,10 @@ export default class RealmGenerator {
 
         const appearanceTraits = AppearanceTraits.getAllAppearanceTraitsForRealmConcept(concept);
 
-        let description = RND.item(concept.descriptionOptions).replace("{name}", Words.uncapitalize(realmName));
+        let description = RND.item(concept.descriptionOptions).replace(
+          '{name}',
+          Words.uncapitalize(realmName),
+        );
         description = Words.capitalize(description);
 
         const realm = new Realm(realmName, description, [], appearanceTraits);

@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default class MusicStyle {
   rhythm: string;
@@ -11,7 +11,16 @@ export default class MusicStyle {
   timbre: string;
   description: string;
 
-  constructor(rhythm: string, beat: string, dynamic: string, harmony: string, melody: string, pitch: string, key: string, timbre: string) {
+  constructor(
+    rhythm: string,
+    beat: string,
+    dynamic: string,
+    harmony: string,
+    melody: string,
+    pitch: string,
+    key: string,
+    timbre: string,
+  ) {
     this.rhythm = rhythm;
     this.beat = beat;
     this.dynamic = dynamic;
@@ -20,8 +29,6 @@ export default class MusicStyle {
     this.pitch = pitch;
     this.key = key;
     this.timbre = timbre;
-    this.description = "";
+    this.description = '';
   }
 }
-
-

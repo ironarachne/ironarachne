@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-import Domain from "../domains/domain";
-import Realm from "../realms/realm";
-import * as Domains from "../domains/domains";
-import NameGenerator from "../../names/generator";
-import HumanSet from "../../names/races/human";
+import Domain from '../domains/domain';
+import Realm from '../realms/realm';
+import * as Domains from '../domains/domains';
+import NameGenerator from '../../names/generator';
+import HumanSet from '../../names/races/human';
 
 export default class PantheonGeneratorConfig {
   domains: Domain[];

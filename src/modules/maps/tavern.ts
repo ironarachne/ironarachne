@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
+import * as RND from '../random';
 
-import random from "random";
+import random from 'random';
 
 export class Vertex {
   x: number;
@@ -56,7 +56,7 @@ export class Room {
     this.doors = [];
     this.floor = 0;
     this.type = roomType;
-    this.name = "";
+    this.name = '';
   }
 }
 
@@ -83,7 +83,7 @@ function generateMap(width: number, height: number) {
 
   const center = new Vertex(Math.floor(width / 2), Math.floor(height / 2));
 
-  const mainRoom = new Room(center, random.int(12, 15), random.int(12, 15), "main");
+  const mainRoom = new Room(center, random.int(12, 15), random.int(12, 15), 'main');
 
   const halfWidth = mainRoom.width / 2;
   const halfHeight = mainRoom.height / 2;
@@ -97,22 +97,10 @@ function generateMap(width: number, height: number) {
   }
 
   mainRoom.vertices = [
-    new Vertex(
-      mainRoom.center.x - halfWidth,
-      mainRoom.center.y - halfHeight,
-    ),
-    new Vertex(
-      mainRoom.center.x + halfWidth,
-      mainRoom.center.y - halfHeight,
-    ),
-    new Vertex(
-      mainRoom.center.x + halfWidth,
-      mainRoom.center.y + halfHeight,
-    ),
-    new Vertex(
-      mainRoom.center.x - halfWidth,
-      mainRoom.center.y + halfHeight,
-    ),
+    new Vertex(mainRoom.center.x - halfWidth, mainRoom.center.y - halfHeight),
+    new Vertex(mainRoom.center.x + halfWidth, mainRoom.center.y - halfHeight),
+    new Vertex(mainRoom.center.x + halfWidth, mainRoom.center.y + halfHeight),
+    new Vertex(mainRoom.center.x - halfWidth, mainRoom.center.y + halfHeight),
   ];
 
   mainRoom.edges.push(new Edge(mainRoom.vertices[0], mainRoom.vertices[1]));
@@ -124,7 +112,7 @@ function generateMap(width: number, height: number) {
 
   let doorX = 0;
   let doorY = 0;
-  let doorOrientation = "vertical";
+  let doorOrientation = 'vertical';
 
   if (doorEdge.A.x == doorEdge.B.x) {
     doorX = doorEdge.A.x;
@@ -133,7 +121,7 @@ function generateMap(width: number, height: number) {
     const max = Math.max(doorEdge.A.x, doorEdge.B.x) - 2;
 
     doorX = random.int(min, max) + 0.5;
-    doorOrientation = "horizontal";
+    doorOrientation = 'horizontal';
   }
 
   if (doorEdge.A.y == doorEdge.B.y) {
@@ -191,7 +179,7 @@ function addRoom(rooms: Room[]) {
 function getAllRoomTypes() {
   return [
     {
-      name: "kitchen",
+      name: 'kitchen',
       heightMin: 3,
       heightMax: 5,
       widthMin: 3,
@@ -200,7 +188,7 @@ function getAllRoomTypes() {
       floorMax: 0,
     },
     {
-      name: "wine cellar",
+      name: 'wine cellar',
       heightMin: 3,
       heightMax: 5,
       widthMin: 3,
@@ -237,29 +225,62 @@ function renderMap(map: TavernMap) {
 
   const gridSize = imageHeight / map.height;
 
-  let svg = "<svg width=\"" + imageWidth + "\" height=\"" + imageHeight + "\" viewBox=\"0 0 " + imageWidth + " " + imageHeight + "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
+  let svg =
+    '<svg width="' +
+    imageWidth +
+    '" height="' +
+    imageHeight +
+    '" viewBox="0 0 ' +
+    imageWidth +
+    ' ' +
+    imageHeight +
+    '" xmlns="http://www.w3.org/2000/svg" version="1.1">';
 
-  svg += "<defs>";
+  svg += '<defs>';
 
-  svg += "<pattern id=\"grid\" width=\"" + gridSize + "\" height=\"" + gridSize + "\" patternUnits=\"userSpaceOnUse\">";
-  svg += "<rect width=\"" + gridSize + "\" height=\"" + gridSize + "\" fill=\"none\" stroke=\"gray\" stroke-width=\"1\"/>";
-  svg += "</pattern>";
+  svg +=
+    '<pattern id="grid" width="' +
+    gridSize +
+    '" height="' +
+    gridSize +
+    '" patternUnits="userSpaceOnUse">';
+  svg +=
+    '<rect width="' +
+    gridSize +
+    '" height="' +
+    gridSize +
+    '" fill="none" stroke="gray" stroke-width="1"/>';
+  svg += '</pattern>';
 
-  svg += "</defs>";
+  svg += '</defs>';
 
-  svg += "<rect x=\"0\" y=\"0\" width=\"" + imageWidth + "\" height=\"" + imageHeight + "\" fill=\"url(#grid)\" stroke=\"black\" stroke-width=\"3\" />";
+  svg +=
+    '<rect x="0" y="0" width="' +
+    imageWidth +
+    '" height="' +
+    imageHeight +
+    '" fill="url(#grid)" stroke="black" stroke-width="3" />';
 
   const doors = [];
 
   for (let i = 0; i < map.rooms.length; i++) {
-    const topX = (map.rooms[i].center.x - (map.rooms[i].width / 2));
-    const topY = (map.rooms[i].center.y - (map.rooms[i].height / 2));
+    const topX = map.rooms[i].center.x - map.rooms[i].width / 2;
+    const topY = map.rooms[i].center.y - map.rooms[i].height / 2;
     const roomWidth = map.rooms[i].width * gridSize;
     const roomHeight = map.rooms[i].height * gridSize;
 
-    let roomSVG = "<rect x=\"" + (topX * gridSize) + "\" y=\"" + (topY * gridSize) + "\" width=\"" + roomWidth + "\" height=\"" + roomHeight + "\"";
+    let roomSVG =
+      '<rect x="' +
+      topX * gridSize +
+      '" y="' +
+      topY * gridSize +
+      '" width="' +
+      roomWidth +
+      '" height="' +
+      roomHeight +
+      '"';
 
-    roomSVG += " stroke=\"black\" fill=\"none\" stroke-width=\"2\" />";
+    roomSVG += ' stroke="black" fill="none" stroke-width="2" />';
 
     for (let j = 0; j < map.rooms[i].doors.length; j++) {
       doors.push(map.rooms[i].doors[j]);
@@ -277,25 +298,33 @@ function renderMap(map: TavernMap) {
     let doorWidth = 0;
     let doorHeight = 0;
 
-    if (doors[i].orientation == "vertical") {
-      doorTopLeftX = (doors[i].x * gridSize) - (doorThickness / 2);
-      doorTopLeftY = (doors[i].y * gridSize) - (doorLength / 2);
+    if (doors[i].orientation == 'vertical') {
+      doorTopLeftX = doors[i].x * gridSize - doorThickness / 2;
+      doorTopLeftY = doors[i].y * gridSize - doorLength / 2;
       doorWidth = doorThickness;
       doorHeight = doorLength;
     } else {
-      doorTopLeftX = (doors[i].x * gridSize) - (doorLength / 2);
-      doorTopLeftY = (doors[i].y * gridSize) - (doorThickness / 2);
+      doorTopLeftX = doors[i].x * gridSize - doorLength / 2;
+      doorTopLeftY = doors[i].y * gridSize - doorThickness / 2;
       doorWidth = doorLength;
       doorHeight = doorThickness;
     }
 
-    const doorSVG = "<rect x=\"" + doorTopLeftX + "\" y=\"" + doorTopLeftY + "\" width=\"" + doorWidth + "\" height=\"" + doorHeight + "\" stroke=\"black\" fill=\"white\" />";
+    const doorSVG =
+      '<rect x="' +
+      doorTopLeftX +
+      '" y="' +
+      doorTopLeftY +
+      '" width="' +
+      doorWidth +
+      '" height="' +
+      doorHeight +
+      '" stroke="black" fill="white" />';
 
     svg += doorSVG;
   }
 
-  svg += "</svg>";
+  svg += '</svg>';
 
   return svg;
 }
-

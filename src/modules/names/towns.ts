@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import * as Common from "./common";
-import * as Invented from "./invented";
+import * as RND from '../random';
+import * as Common from './common';
+import * as Invented from './invented';
 
 export function randomSet(numberOfNames: number) {
   const nameTypes = [
@@ -31,25 +31,25 @@ export function randomSet(numberOfNames: number) {
         ];
 
         const second = [
-          "Barrows",
-          "Cliffs",
-          "Falls",
-          "Hills",
-          "Hollows",
-          "Mountains",
-          "Peaks",
-          "Ridges",
-          "Rivers",
-          "Rocks",
-          "Streams",
-          "Towers",
-          "Trees",
-          "Valleys",
-          "Waters",
+          'Barrows',
+          'Cliffs',
+          'Falls',
+          'Hills',
+          'Hollows',
+          'Mountains',
+          'Peaks',
+          'Ridges',
+          'Rivers',
+          'Rocks',
+          'Streams',
+          'Towers',
+          'Trees',
+          'Valleys',
+          'Waters',
         ];
 
-        return RND.item(first) + " " + RND.item(second);
-      }
+        return RND.item(first) + ' ' + RND.item(second);
+      },
     },
     {
       generate: function () {
@@ -72,15 +72,11 @@ export function randomSet(numberOfNames: number) {
         ]);
 
         return first + "'s " + second;
-      }
+      },
     },
     {
       generate: function () {
-        const patterns = [
-          'vlpvl',
-          'tvnv',
-          'lvpcv',
-        ]
+        const patterns = ['vlpvl', 'tvnv', 'lvpcv'];
 
         const first = Invented.generate(patterns);
 
@@ -108,7 +104,7 @@ export function randomSet(numberOfNames: number) {
         ]);
 
         return first + second;
-      }
+      },
     },
     {
       generate: function () {
@@ -154,8 +150,8 @@ export function randomSet(numberOfNames: number) {
         ]);
 
         return first + second;
-      }
-    }
+      },
+    },
   ];
 
   const names: string[] = [];

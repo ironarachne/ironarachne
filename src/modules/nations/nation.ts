@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import { Heraldry } from "../heraldry/heraldry";
-import Subdivision from "./subdivision";
+import { Heraldry } from '../heraldry/heraldry';
+import Subdivision from './subdivision';
 
 export default abstract class Nation {
   name: string;

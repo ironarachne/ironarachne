@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import Character from "../../characters/character";
-import { Heraldry } from "../../heraldry/heraldry";
-import Nation from "../nation";
-import Subdivision from "../subdivision";
+import Character from '../../characters/character';
+import { Heraldry } from '../../heraldry/heraldry';
+import Nation from '../nation';
+import Subdivision from '../subdivision';
 
 export default class Empire implements Nation {
   name: string;

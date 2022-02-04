@@ -1,4 +1,4 @@
-import * as RND from "../random";
+import * as RND from '../random';
 
 export class PhonemeCollection {
   consonants: string[];
@@ -19,11 +19,11 @@ export class PhonemeCollection {
 export function all() {
   return [
     new PhonemeCollection(
-      ["p", "t", "k", "b", "d", "g", "m", "n", "l", "r", "s", "ʃ", "z", "ʒ", "ʧ"],
-      ["a", "e", "i", "o", "u"],
-      ["s", "z", "ʒ", "ʃ"],
-      ["r", "l"],
-      ["v", "f", "ð", "θ", "z", "s", "ʒ", "ʃ", "h"]
+      ['p', 't', 'k', 'b', 'd', 'g', 'm', 'n', 'l', 'r', 's', 'ʃ', 'z', 'ʒ', 'ʧ'],
+      ['a', 'e', 'i', 'o', 'u'],
+      ['s', 'z', 'ʒ', 'ʃ'],
+      ['r', 'l'],
+      ['v', 'f', 'ð', 'θ', 'z', 's', 'ʒ', 'ʃ', 'h'],
     ),
   ];
 }
@@ -66,7 +66,7 @@ export function soundToSpelling(sound: string) {
     x: 'x',
     y: 'y',
     z: 'z',
-  }
+  };
 
   return sounds[sound];
 }

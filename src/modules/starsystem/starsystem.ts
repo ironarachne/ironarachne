@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-import * as StarSystemRenderer from "./render";
-import * as Words from "../words";
-import * as Star from "../stars/star";
-import * as Planet from "../planets/planet";
-import * as PlanetRenderer from "../renderers/planets/planet-svg";
+import * as StarSystemRenderer from './render';
+import * as Words from '../words';
+import * as Star from '../stars/star';
+import * as Planet from '../planets/planet';
+import * as PlanetRenderer from '../renderers/planets/planet-svg';
 
-import random from "random";
+import random from 'random';
 
 export class StarSystem {
   name: string;
@@ -15,8 +15,8 @@ export class StarSystem {
   planets: Planet.Planet[];
 
   constructor() {
-    this.name = "";
-    this.description = "";
+    this.name = '';
+    this.description = '';
     this.stars = [];
     this.planets = [];
   }
@@ -34,7 +34,7 @@ export function generate() {
     graphicWidth,
     graphicHeight,
     star.color,
-    star.classification
+    star.classification,
   );
 
   starsystem.name = star.name;
@@ -44,7 +44,7 @@ export function generate() {
   const numberOfPlanets = random.int(3, 12);
 
   for (let i = 0; i < numberOfPlanets; i++) {
-    const planet = Planet.generate("random");
+    const planet = Planet.generate('random');
     planet.svg = PlanetRenderer.render(graphicWidth, graphicHeight, planet);
     starsystem.planets.push(planet);
   }
@@ -61,19 +61,18 @@ export function generate() {
 
   for (let i = 0; i < starsystem.planets.length; i++) {
     if (!starsystem.planets[i].is_inhabited) {
-      starsystem.planets[i].name = starsystem.name + " " + Words.romanize(i + 1);
+      starsystem.planets[i].name = starsystem.name + ' ' + Words.romanize(i + 1);
     }
   }
 
-  starsystem.description =
-    `The ${starsystem.name} system has ${numberOfPlanets} planets`;
+  starsystem.description = `The ${starsystem.name} system has ${numberOfPlanets} planets`;
 
   const asteroidBeltChance = random.int(1, 100);
 
   if (asteroidBeltChance > 70) {
-    starsystem.description += " and an asteroid belt.";
+    starsystem.description += ' and an asteroid belt.';
   } else {
-    starsystem.description += ".";
+    starsystem.description += '.';
   }
 
   return starsystem;

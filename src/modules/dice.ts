@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import random from "random";
+import random from 'random';
 
 export class DicePool {
   d4: number;
@@ -25,60 +25,60 @@ export class DicePool {
 }
 
 export function describeDice(dice: DicePool) {
-  let diceExpression = "";
+  let diceExpression = '';
 
   if (dice.d100 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
-    diceExpression += dice.d100 + "d100";
+    diceExpression += dice.d100 + 'd100';
   }
 
   if (dice.d20 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
-    diceExpression += dice.d20 + "d20";
+    diceExpression += dice.d20 + 'd20';
   }
 
   if (dice.d12 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
-    diceExpression += dice.d12 + "d12";
+    diceExpression += dice.d12 + 'd12';
   }
 
   if (dice.d10 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
-    diceExpression += dice.d10 + "d10";
+    diceExpression += dice.d10 + 'd10';
   }
 
   if (dice.d8 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
-    diceExpression += dice.d8 + "d8";
+    diceExpression += dice.d8 + 'd8';
   }
 
   if (dice.d6 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
-    diceExpression += dice.d6 + "d6";
+    diceExpression += dice.d6 + 'd6';
   }
 
   if (dice.d4 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
-    diceExpression += dice.d4 + "d4";
+    diceExpression += dice.d4 + 'd4';
   }
 
   if (dice.modifier > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += dice.modifier;
   }
@@ -126,14 +126,14 @@ export function rangeToDiceExpression(range: number) {
 }
 
 export function roll(expression: string) {
-  const parts = expression.split("+");
+  const parts = expression.split('+');
   let result = 0;
 
   for (let i = 0; i < parts.length; i++) {
     const phrase = parts[i];
 
-    if (phrase.includes("d")) {
-      const splitPhrase = phrase.split("d");
+    if (phrase.includes('d')) {
+      const splitPhrase = phrase.split('d');
       const number = Number(splitPhrase[0]);
       const sides = Number(splitPhrase[1]);
 

@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import Domain from "./domain";
-import * as Domains from "./domains";
+import Domain from './domain';
+import * as Domains from './domains';
 
 export default class DomainGeneratorConfig {
   numberOfDomains: number;

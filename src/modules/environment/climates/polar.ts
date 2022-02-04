@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import Climate from "./climate";
+import Climate from './climate';
 
-import * as PrecipitationTypes from "../precipitationtypes";
-import Season from "../seasons/season";
+import * as PrecipitationTypes from '../precipitationtypes';
+import Season from '../seasons/season';
 
 export default class PolarClimate implements Climate {
   name: string;
@@ -18,7 +18,7 @@ export default class PolarClimate implements Climate {
   seasons: Season[];
 
   constructor() {
-    this.name = "polar";
+    this.name = 'polar';
     this.cloudCover = 3;
     this.windStrength = 3;
     this.windDirection = 6;
@@ -27,12 +27,8 @@ export default class PolarClimate implements Climate {
     this.precipitationAmount = 8;
     this.precipitationFrequency = 4;
     this.seasons = [
-      new Season(
-        "wet", PrecipitationTypes.byName("snow"), 3
-      ),
-      new Season(
-        "dry", PrecipitationTypes.byName("snow"), 0
-      ),
+      new Season('wet', PrecipitationTypes.byName('snow'), 3),
+      new Season('dry', PrecipitationTypes.byName('snow'), 0),
     ];
   }
 }

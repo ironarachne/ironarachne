@@ -1,16 +1,16 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
+import * as RND from '../random';
 
-import random from "random";
+import random from 'random';
 
 export function generate() {
-  let name = "The ";
+  let name = 'The ';
 
   const adjectiveChance = random.int(0, 100);
 
   if (adjectiveChance > 60) {
-    name += RND.item(adjectives()) + " ";
+    name += RND.item(adjectives()) + ' ';
   }
 
   name += RND.item(nouns());
@@ -20,52 +20,52 @@ export function generate() {
 
 function adjectives() {
   return [
-    "Blue",
-    "Red",
-    "Green",
-    "White",
-    "Black",
-    "Gold",
-    "Ivory",
-    "Steel",
-    "Iron",
-    "Old",
-    "Little",
-    "Fat",
-    "Laughing",
-    "Growling",
-    "Chortling",
-    "Dancing",
+    'Blue',
+    'Red',
+    'Green',
+    'White',
+    'Black',
+    'Gold',
+    'Ivory',
+    'Steel',
+    'Iron',
+    'Old',
+    'Little',
+    'Fat',
+    'Laughing',
+    'Growling',
+    'Chortling',
+    'Dancing',
   ];
 }
 
 function nouns() {
   return [
-    "Dolphyn",
-    "Griffin",
-    "Dragon",
-    "Wyvern",
-    "Wolf",
-    "Boar",
-    "Pannier",
+    'Dolphyn',
+    'Griffin',
+    'Dragon',
+    'Wyvern',
+    'Wolf',
+    'Boar',
+    'Pannier',
     "King's Head",
-    "Pot",
+    'Pot',
     "Horse's Head",
     "Ram's Head",
-    "Crane",
-    "Cony",
-    "Ball",
-    "Basket",
-    "Cross",
-    "Cup",
-    "Garland",
-    "Gate",
-    "Hammer",
-    "Lattice",
-    "Rose",
-    "Ship",
-    "Mare",
-    "Sheep",
-    "Pig",
+    'Crane',
+    'Cony',
+    'Ball',
+    'Basket',
+    'Cross',
+    'Cup',
+    'Garland',
+    'Gate',
+    'Hammer',
+    'Lattice',
+    'Rose',
+    'Ship',
+    'Mare',
+    'Sheep',
+    'Pig',
   ];
 }

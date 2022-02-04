@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import Domain from "./domain";
+import Domain from './domain';
 
 export default class DomainSet {
   primary: Domain;

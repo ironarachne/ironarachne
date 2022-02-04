@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
+import * as RND from '../random';
 
 export class Relationship {
   strength: number;
@@ -14,10 +14,10 @@ export class Relationship {
 
 export function getRandomVerbForStrength(strength: number) {
   const verbs = [
-    ["hates", "despises", "loathes", "can't stand", "fears"],
-    ["dislikes", "distrusts", "mistrusts", "is suspicious of", "envies"],
-    ["likes", "enjoys", "is entertained by"],
-    ["loves", "adores", "is enamored of"],
+    ['hates', 'despises', 'loathes', "can't stand", 'fears'],
+    ['dislikes', 'distrusts', 'mistrusts', 'is suspicious of', 'envies'],
+    ['likes', 'enjoys', 'is entertained by'],
+    ['loves', 'adores', 'is enamored of'],
   ];
 
   return RND.item(verbs[strength]);

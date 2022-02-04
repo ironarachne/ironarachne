@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import Climate from "./climate";
+import Climate from './climate';
 
-import * as PrecipitationTypes from "../precipitationtypes";
-import Season from "../seasons/season";
+import * as PrecipitationTypes from '../precipitationtypes';
+import Season from '../seasons/season';
 
 export default class TropicalClimate implements Climate {
   name: string;
@@ -18,7 +18,7 @@ export default class TropicalClimate implements Climate {
   seasons: Season[];
 
   constructor() {
-    this.name = "tropical";
+    this.name = 'tropical';
     this.cloudCover = 8;
     this.windStrength = 3;
     this.windDirection = 4;
@@ -27,12 +27,8 @@ export default class TropicalClimate implements Climate {
     this.precipitationAmount = 10;
     this.precipitationFrequency = 8;
     this.seasons = [
-      new Season(
-        "dry", PrecipitationTypes.byName("rain"), 5
-      ),
-      new Season(
-        "wet", PrecipitationTypes.byName("rain"), 9
-      ),
-    ]
+      new Season('dry', PrecipitationTypes.byName('rain'), 5),
+      new Season('wet', PrecipitationTypes.byName('rain'), 9),
+    ];
   }
 }

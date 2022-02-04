@@ -1,7 +1,7 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import * as Words from "../words";
+import * as RND from '../random';
+import * as Words from '../words';
 
 export class Organization {
   dominantGender: string;
@@ -10,23 +10,28 @@ export class Organization {
   dominantProfession: string;
   description: string;
 
-  constructor(dominantGender: string, powerConcentration: string, socialMobility: string, dominantProfession: string) {
+  constructor(
+    dominantGender: string,
+    powerConcentration: string,
+    socialMobility: string,
+    dominantProfession: string,
+  ) {
     this.dominantGender = dominantGender;
     this.powerConcentration = powerConcentration;
     this.socialMobility = socialMobility;
     this.dominantProfession = dominantProfession;
-    this.description = "";
+    this.description = '';
   }
 }
 
 export function describe(organization: Organization) {
   let description = `In this culture, ${organization.powerConcentration}. `;
 
-  description += Words.capitalize(organization.dominantProfession) + " are most highly regarded. ";
+  description += Words.capitalize(organization.dominantProfession) + ' are most highly regarded. ';
 
-  description += Words.capitalize(organization.dominantGender) + ". ";
+  description += Words.capitalize(organization.dominantGender) + '. ';
 
-  description += Words.capitalize(organization.socialMobility) + ". ";
+  description += Words.capitalize(organization.socialMobility) + '. ';
 
   return description;
 }
@@ -36,7 +41,7 @@ export function generate() {
     randomDominantGender(),
     randomPowerConcentration(),
     randomSocialMobility(),
-    randomDominantProfession()
+    randomDominantProfession(),
   );
 
   organization.description = describe(organization);
@@ -45,34 +50,25 @@ export function generate() {
 }
 
 function randomDominantGender() {
-  return RND.item([
-    "women are dominant",
-    "men are dominant",
-    "neither gender is dominant",
-  ]);
+  return RND.item(['women are dominant', 'men are dominant', 'neither gender is dominant']);
 }
 
 function randomPowerConcentration() {
   return RND.item([
-    "everyone has a say in how things are run",
-    "a single group has control of society",
-    "one individual has control of society",
+    'everyone has a say in how things are run',
+    'a single group has control of society',
+    'one individual has control of society',
   ]);
 }
 
 function randomSocialMobility() {
   return RND.item([
-    "no one leaves the status they are born into",
-    "some gain higher status by marrying someone above them",
-    "everyone has the freedom to gain or lose status based on their own efforts",
+    'no one leaves the status they are born into',
+    'some gain higher status by marrying someone above them',
+    'everyone has the freedom to gain or lose status based on their own efforts',
   ]);
 }
 
 function randomDominantProfession() {
-  return RND.item([
-    "landowners",
-    "merchants",
-    "religious leaders",
-    "intellectuals",
-  ]);
+  return RND.item(['landowners', 'merchants', 'religious leaders', 'intellectuals']);
 }

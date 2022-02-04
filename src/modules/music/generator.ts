@@ -1,35 +1,35 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import * as Words from "../words";
-import MusicStyle from "./style";
+import * as RND from '../random';
+import * as Words from '../words';
+import MusicStyle from './style';
 
 export function describe(style: MusicStyle) {
-  let description = "This style of music has ";
-  description += style.rhythm + " with ";
-  description += Words.article(style.beat) + " " + style.beat + " beat. It is ";
-  description += style.dynamic + ", with ";
-  description += style.harmony + ". It has ";
+  let description = 'This style of music has ';
+  description += style.rhythm + ' with ';
+  description += Words.article(style.beat) + ' ' + style.beat + ' beat. It is ';
+  description += style.dynamic + ', with ';
+  description += style.harmony + '. It has ';
 
-  if (style.rhythm === "a single rhythm") {
-    description += Words.article(style.melody) + " ";
+  if (style.rhythm === 'a single rhythm') {
+    description += Words.article(style.melody) + ' ';
   }
 
-  description += style.melody + " ";
+  description += style.melody + ' ';
 
-  if (style.rhythm === "a single rhythm") {
-    description += "melody";
+  if (style.rhythm === 'a single rhythm') {
+    description += 'melody';
   } else {
-    description += "melodies";
+    description += 'melodies';
   }
 
-  description += " with ";
+  description += ' with ';
 
-  description += Words.article(style.pitch) + " " + style.pitch + " pitch in a ";
+  description += Words.article(style.pitch) + ' ' + style.pitch + ' pitch in a ';
 
-  description += style.key + " key. Usually, it has ";
+  description += style.key + ' key. Usually, it has ';
 
-  description += Words.article(style.timbre) + " " + style.timbre + " timbre.";
+  description += Words.article(style.timbre) + ' ' + style.timbre + ' timbre.';
 
   return description;
 }
@@ -54,23 +54,23 @@ export function generate() {
 function randomBeat() {
   const options = [
     {
-      value: "very fast",
+      value: 'very fast',
       commonality: 5,
     },
     {
-      value: "fast",
+      value: 'fast',
       commonality: 5,
     },
     {
-      value: "moderate",
+      value: 'moderate',
       commonality: 10,
     },
     {
-      value: "slow",
+      value: 'slow',
       commonality: 5,
     },
     {
-      value: "very slow",
+      value: 'very slow',
       commonality: 5,
     },
   ];
@@ -82,19 +82,19 @@ function randomBeat() {
 function randomDynamic() {
   const options = [
     {
-      value: "very quiet",
+      value: 'very quiet',
       commonality: 5,
     },
     {
-      value: "quiet",
+      value: 'quiet',
       commonality: 15,
     },
     {
-      value: "loud",
+      value: 'loud',
       commonality: 15,
     },
     {
-      value: "very loud",
+      value: 'very loud',
       commonality: 5,
     },
   ];
@@ -106,15 +106,15 @@ function randomDynamic() {
 function randomHarmony() {
   const options = [
     {
-      value: "simple harmony",
+      value: 'simple harmony',
       commonality: 10,
     },
     {
-      value: "two harmonies",
+      value: 'two harmonies',
       commonality: 1,
     },
     {
-      value: "no harmony",
+      value: 'no harmony',
       commonality: 5,
     },
   ];
@@ -126,11 +126,11 @@ function randomHarmony() {
 function randomKey() {
   const options = [
     {
-      value: "major",
+      value: 'major',
       commonality: 10,
     },
     {
-      value: "minor",
+      value: 'minor',
       commonality: 2,
     },
   ];
@@ -142,19 +142,19 @@ function randomKey() {
 function randomMelody() {
   const options = [
     {
-      value: "simple",
+      value: 'simple',
       commonality: 10,
     },
     {
-      value: "complex",
+      value: 'complex',
       commonality: 2,
     },
     {
-      value: "wandering",
+      value: 'wandering',
       commonality: 2,
     },
     {
-      value: "chaotic",
+      value: 'chaotic',
       commonality: 1,
     },
   ];
@@ -166,15 +166,15 @@ function randomMelody() {
 function randomPitch() {
   const options = [
     {
-      value: "low",
+      value: 'low',
       commonality: 5,
     },
     {
-      value: "medium",
+      value: 'medium',
       commonality: 5,
     },
     {
-      value: "high",
+      value: 'high',
       commonality: 5,
     },
   ];
@@ -186,15 +186,15 @@ function randomPitch() {
 function randomRhythm() {
   const options = [
     {
-      value: "a single rhythm",
+      value: 'a single rhythm',
       commonality: 100,
     },
     {
-      value: "a cross-rhythm",
+      value: 'a cross-rhythm',
       commonality: 10,
     },
     {
-      value: "complex polyrhythm",
+      value: 'complex polyrhythm',
       commonality: 1,
     },
   ];
@@ -205,18 +205,18 @@ function randomRhythm() {
 
 function randomTimbre() {
   return RND.item([
-    "booming",
-    "bright",
-    "brilliant",
-    "dark",
-    "emotional",
-    "full",
-    "mellow",
-    "metallic",
-    "nasal",
-    "reedy",
-    "resonant",
-    "rough",
-    "smooth",
+    'booming',
+    'bright',
+    'brilliant',
+    'dark',
+    'emotional',
+    'full',
+    'mellow',
+    'metallic',
+    'nasal',
+    'reedy',
+    'resonant',
+    'rough',
+    'smooth',
   ]);
 }

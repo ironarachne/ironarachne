@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-import * as AgeCategories from "../age/agecategories";
-import Gender from "../gender";
-import type Species from "./species";
-import PhysicalTraitGenerator from "../physicaltraits/generator";
-import GeneratorSet from "../names/generatorset";
-import HumanSet from "../names/races/human";
+import * as AgeCategories from '../age/agecategories';
+import Gender from '../gender';
+import type Species from './species';
+import PhysicalTraitGenerator from '../physicaltraits/generator';
+import GeneratorSet from '../names/generatorset';
+import HumanSet from '../names/races/human';
 
 export default class Human implements Species {
   name: string;
@@ -17,57 +17,34 @@ export default class Human implements Species {
   genders: Gender[];
 
   constructor() {
-    this.name = "human";
+    this.name = 'human';
     this.nameGeneratorSet = new HumanSet();
-    this.pluralName = "humans";
-    this.adjective = "human";
+    this.pluralName = 'humans';
+    this.adjective = 'human';
     this.commonality = 200;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
-        "hair",
-        "hair",
-        [
-          "black",
-          "blonde",
-          "brown",
-          "dark",
-          "light",
-          "red",
-          "russet",
-        ],
-        ["hair"]
+        'hair',
+        'hair',
+        ['black', 'blonde', 'brown', 'dark', 'light', 'red', 'russet'],
+        ['hair'],
       ),
       new PhysicalTraitGenerator(
-        "skin",
-        "skin",
-        [
-          "black",
-          "bronzed",
-          "ebony",
-          "light",
-          "pale",
-          "tan",
-          "white",
-        ],
-        ["skin"]
+        'skin',
+        'skin',
+        ['black', 'bronzed', 'ebony', 'light', 'pale', 'tan', 'white'],
+        ['skin'],
       ),
       new PhysicalTraitGenerator(
-        "eyes",
-        "eyes",
-        [
-          "amber",
-          "blue",
-          "brown",
-          "dark",
-          "green",
-        ],
-        ["eyes"]
+        'eyes',
+        'eyes',
+        ['amber', 'blue', 'brown', 'dark', 'green'],
+        ['eyes'],
       ),
     ];
     this.genders = [
-      new Gender("female", "she", "her", "her", 100, AgeCategories.humanStandardFemale()),
-      new Gender("male", "he", "him", "his", 100, AgeCategories.humanStandardMale()),
+      new Gender('female', 'she', 'her', 'her', 100, AgeCategories.humanStandardFemale()),
+      new Gender('male', 'he', 'him', 'his', 100, AgeCategories.humanStandardMale()),
     ];
   }
 }
-

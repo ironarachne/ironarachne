@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import ReligionCategory from "./categories/category";
-import * as Categories from "./categories/categories";
-import NameGenerator from "../names/generator";
-import HumanSet from "../names/races/human";
+import ReligionCategory from './categories/category';
+import * as Categories from './categories/categories';
+import NameGenerator from '../names/generator';
+import HumanSet from '../names/races/human';
 
 export default class ReligionGeneratorConfig {
   categories: ReligionCategory[];

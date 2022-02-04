@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import DCCItem from "./item";
+import DCCItem from './item';
 
 export default class DCCWeapon implements DCCItem {
   name: string;

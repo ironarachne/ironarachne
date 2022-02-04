@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import NameGenerator from "./generator";
+import NameGenerator from './generator';
 
 export default class GeneratorSet {
   culture: NameGenerator;

@@ -1,32 +1,44 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import * as PremadeConfigs from "../characters/premadeconfigs";
-import Organization from "./organization";
-import * as MercCompany from "./fantasy/mercenarycompany";
-import * as TradingCompany from "./fantasy/tradingcompany";
-import * as WizardSchool from "./fantasy/wizardschool";
-import CharacterGenerator from "../characters/generator";
-import OrganizationType from "./type";
+import * as RND from '../random';
+import * as PremadeConfigs from '../characters/premadeconfigs';
+import Organization from './organization';
+import * as MercCompany from './fantasy/mercenarycompany';
+import * as TradingCompany from './fantasy/tradingcompany';
+import * as WizardSchool from './fantasy/wizardschool';
+import CharacterGenerator from '../characters/generator';
+import OrganizationType from './type';
 
-import random from "random";
+import random from 'random';
 
 export function generate() {
   const orgType = randomType();
   const memberCount = random.int(orgType.minSize, orgType.maxSize);
 
-  const org = new Organization(orgType.randomName(), orgType, orgType.randomDescription(), memberCount, orgType.randomLeadership(), orgType.getRanks());
-  org.description = org.description.replace(
-    "{name}",
-    org.name
+  const org = new Organization(
+    orgType.randomName(),
+    orgType,
+    orgType.randomDescription(),
+    memberCount,
+    orgType.randomLeadership(),
+    orgType.getRanks(),
   );
+  org.description = org.description.replace('{name}', org.name);
 
-  org.description += " It has " + org.memberCount + " members. ";
+  org.description += ' It has ' + org.memberCount + ' members. ';
   org.description += randomPopularity();
 
   org.notableMembers = randomNotableMembers(org);
 
-  org.leadership.description = "They are led by " + org.leadership.getPrimaryTitle() + " " + org.leadership.firstName + " " + org.leadership.lastName + ". " + org.leadership.description;
+  org.leadership.description =
+    'They are led by ' +
+    org.leadership.getPrimaryTitle() +
+    ' ' +
+    org.leadership.firstName +
+    ' ' +
+    org.leadership.lastName +
+    '. ' +
+    org.leadership.description;
 
   return org;
 }
@@ -79,12 +91,12 @@ function randomNotableMembers(org: Organization) {
 
 function randomPopularity(): string {
   return RND.item([
-    "They enjoy a surprising amount of local popularity.",
-    "They are not terribly popular locally.",
+    'They enjoy a surprising amount of local popularity.',
+    'They are not terribly popular locally.',
     "They're disliked by the local population.",
     "They're fairly popular locally but relatively unknown in the wider region.",
-    "While locals are ambivalent about them, they are fairly popular in the wider region.",
-    "The locals actively hate them.",
+    'While locals are ambivalent about them, they are fairly popular in the wider region.',
+    'The locals actively hate them.',
   ]);
 }
 
@@ -93,11 +105,7 @@ function allTypes(): OrganizationType[] {
   const tradingCompany = TradingCompany.generateType();
   const wizardSchool = WizardSchool.generateType();
 
-  return [
-    mercCompany,
-    tradingCompany,
-    wizardSchool,
-  ];
+  return [mercCompany, tradingCompany, wizardSchool];
 }
 
 function randomType(): OrganizationType {

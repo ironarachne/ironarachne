@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import Download from "../download";
+import Download from '../download';
 
 export default function (svg: string, width: number, height: number, fileName: string) {
-  const blob = new Blob([svg], { type: "image/svg+xml" });
+  const blob = new Blob([svg], { type: 'image/svg+xml' });
   let blobURL = window.URL.createObjectURL(blob);
   let image = new Image();
   image.onload = () => {

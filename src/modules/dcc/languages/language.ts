@@ -1,4 +1,4 @@
-"use strict";
+'use strict';
 
 export default class DCCLanguage {
   name: string;

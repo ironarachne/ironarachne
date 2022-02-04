@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import Gender from "../../gender";
-import NameGenerator from "../../names/generator";
-import type Species from "../../species/species";
+import Gender from '../../gender';
+import NameGenerator from '../../names/generator';
+import type Species from '../../species/species';
 
 export default class FamilyGeneratorConfig {
   species: Species;
@@ -12,7 +12,14 @@ export default class FamilyGeneratorConfig {
   rootMaleNameGenerator: NameGenerator;
   dominantFamilyNameGender: Gender;
 
-  constructor(species: Species, iterations: number, nameGenFamily: NameGenerator, nameGenFemale: NameGenerator, nameGenMale: NameGenerator, dominantFamilyNameGender: Gender) {
+  constructor(
+    species: Species,
+    iterations: number,
+    nameGenFamily: NameGenerator,
+    nameGenFemale: NameGenerator,
+    nameGenMale: NameGenerator,
+    dominantFamilyNameGender: Gender,
+  ) {
     this.species = species;
     this.iterations = iterations;
     this.rootFamilyNameGenerator = nameGenFamily;

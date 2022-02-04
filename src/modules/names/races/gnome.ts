@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import NameGenerator from "../generator";
-import GenericNameGenerator from "../generators/generic";
-import GeneratorSet from "../generatorset";
+import NameGenerator from '../generator';
+import GenericNameGenerator from '../generators/generic';
+import GeneratorSet from '../generatorset';
 
 export default class GnomeSet extends GeneratorSet {
   constructor() {
@@ -16,61 +16,55 @@ export default class GnomeSet extends GeneratorSet {
 function family(): NameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = [
-    "vPSpvMS",
-    "cvnKLER",
-    "cvdLER",
-    "cvdER",
-    "pvpLOp",
-  ];
+  gen.patterns = ['vPSpvMS', 'cvnKLER', 'cvdLER', 'cvdER', 'pvpLOp'];
 
   const prefixes = [
-    "AGATE",
-    "ALLOY",
-    "COPPER",
-    "CRYSTAL",
-    "DIAMOND",
-    "DUST",
-    "GEM",
-    "GOLD",
-    "IRON",
-    "JADE",
-    "JET",
-    "JEWEL",
-    "ONYX",
-    "OPAL",
-    "PELLET",
-    "RUBY",
-    "SAPPHIRE",
-    "SILVER",
-    "WIRE",
+    'AGATE',
+    'ALLOY',
+    'COPPER',
+    'CRYSTAL',
+    'DIAMOND',
+    'DUST',
+    'GEM',
+    'GOLD',
+    'IRON',
+    'JADE',
+    'JET',
+    'JEWEL',
+    'ONYX',
+    'OPAL',
+    'PELLET',
+    'RUBY',
+    'SAPPHIRE',
+    'SILVER',
+    'WIRE',
   ];
 
   const suffixes = [
-    "BITER",
-    "BOPPER",
-    "BRANDER",
-    "CHARMER",
-    "CHEST",
-    "DROPPER",
-    "HAMMER",
-    "MALLET",
-    "POPPER",
-    "SEEDER",
-    "SENDER",
-    "SHAPER",
-    "SWEEPER",
-    "TINKER",
-    "TRADER",
-    "WATCHER",
-    "WEAVER",
-    "WINKER",
-    "WOOSHER",
-    "WORKER",
+    'BITER',
+    'BOPPER',
+    'BRANDER',
+    'CHARMER',
+    'CHEST',
+    'DROPPER',
+    'HAMMER',
+    'MALLET',
+    'POPPER',
+    'SEEDER',
+    'SENDER',
+    'SHAPER',
+    'SWEEPER',
+    'TINKER',
+    'TRADER',
+    'WATCHER',
+    'WEAVER',
+    'WINKER',
+    'WOOSHER',
+    'WORKER',
   ];
 
-  for (let i=0;i<prefixes.length;i++) {
-    for (let j=0;j<suffixes.length;j++) {
+  for (let i = 0; i < prefixes.length; i++) {
+    for (let j = 0; j < suffixes.length; j++) {
       gen.patterns.push(prefixes[i] + suffixes[j]);
     }
   }
@@ -82,15 +76,15 @@ function female(): NameGenerator {
   let gen = new GenericNameGenerator();
 
   gen.patterns = [
-    "avNNA",
-    "SHvNvDDI",
-    "MvoLI",
-    "voAnA",
-    "voAnI",
-    "vvTHNE",
-    "ovpv",
-    "SNvflvnv",
-    "pvdvnv",
+    'avNNA',
+    'SHvNvDDI',
+    'MvoLI',
+    'voAnA',
+    'voAnI',
+    'vvTHNE',
+    'ovpv',
+    'SNvflvnv',
+    'pvdvnv',
   ];
 
   return gen;
@@ -99,16 +93,7 @@ function female(): NameGenerator {
 function male(): NameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = [
-    "Blvocvf",
-    "oOdvp",
-    "pvnlv",
-    "pvnp",
-    "cvlVER",
-    "wvlVER",
-    "pvlwvl",
-    "pvlwv",
-  ];
+  gen.patterns = ['Blvocvf', 'oOdvp', 'pvnlv', 'pvnp', 'cvlVER', 'wvlVER', 'pvlwvl', 'pvlwv'];
 
   return gen;
 }

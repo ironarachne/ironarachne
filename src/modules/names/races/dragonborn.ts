@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import NameGenerator from "../generator";
-import GenericNameGenerator from "../generators/generic";
-import GeneratorSet from "../generatorset";
+import NameGenerator from '../generator';
+import GenericNameGenerator from '../generators/generic';
+import GeneratorSet from '../generatorset';
 
 export default class DragonbornSet extends GeneratorSet {
   constructor() {
@@ -16,50 +16,34 @@ export default class DragonbornSet extends GeneratorSet {
 function family(): NameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = [
-    "vlpvlvn",
-    "ovlMvRvV",
-    "pvRRcYlION",
-    "pvRRcYlIvN",
-    "pvdcYlIvN",
-    "cvRvXIUS",
-  ];
+  gen.patterns = ['vlpvlvn', 'ovlMvRvV', 'pvRRcYlION', 'pvRRcYlIvN', 'pvdcYlIvN', 'cvRvXIUS'];
 
   let prefixes = [
-    "WHITE",
-    "GREEN",
-    "BLUE",
-    "WILD",
-    "SUMMER",
-    "WINTER",
-    "WIND",
-    "DAWN",
-    "DUSK",
-    "SKY",
-    "NIGHT",
-    "FIRE",
-    "FLAME",
-    "RAGE",
-    "HAMMER",
-    "RED",
-    "DARK",
-    "SPELL",
-    "WAR",
+    'WHITE',
+    'GREEN',
+    'BLUE',
+    'WILD',
+    'SUMMER',
+    'WINTER',
+    'WIND',
+    'DAWN',
+    'DUSK',
+    'SKY',
+    'NIGHT',
+    'FIRE',
+    'FLAME',
+    'RAGE',
+    'HAMMER',
+    'RED',
+    'DARK',
+    'SPELL',
+    'WAR',
   ];
 
-  let suffixes = [
-    "BLADE",
-    "BROW",
-    "SCALE",
-    "SPEAR",
-    "RIDER",
-    "WALKER",
-    "RUNNER",
-    "TALON",
-  ];
+  let suffixes = ['BLADE', 'BROW', 'SCALE', 'SPEAR', 'RIDER', 'WALKER', 'RUNNER', 'TALON'];
 
-  for (let i=0;i<prefixes.length;i++) {
-    for (let j=0;j<suffixes.length;j++) {
+  for (let i = 0; i < prefixes.length; i++) {
+    for (let j = 0; j < suffixes.length; j++) {
       gen.patterns.push(prefixes[i] + suffixes[j]);
     }
   }
@@ -70,13 +54,7 @@ function family(): NameGenerator {
 function female(): NameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = [
-    "tvMvt",
-    "cul",
-    "cvlv",
-    "ovRRv",
-    "lAIvNN",
-  ];
+  gen.patterns = ['tvMvt', 'cul', 'cvlv', 'ovRRv', 'lAIvNN'];
 
   return gen;
 }
@@ -84,12 +62,7 @@ function female(): NameGenerator {
 function male(): NameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = [
-    "vlKvSIA",
-    "cvLvSAR",
-    "cvlvt",
-    "ovnuR",
-  ];
+  gen.patterns = ['vlKvSIA', 'cvLvSAR', 'cvlvt', 'ovnuR'];
 
   return gen;
 }

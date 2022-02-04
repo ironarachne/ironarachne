@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-import GoldNoise from "../../shaders/gold-noise.glsl";
-import SimplexNoise from "../../shaders/simplex-noise.glsl";
-import {PlanetClassification} from "../../planets/planet";
+import GoldNoise from '../../shaders/gold-noise.glsl';
+import SimplexNoise from '../../shaders/simplex-noise.glsl';
+import { PlanetClassification } from '../../planets/planet';
 
-import random from "random";
+import random from 'random';
 
 export function translateDiameterToModelSize(diameter: number): number {
   let size = Math.floor(diameter / 2000) + 1;
@@ -495,7 +495,7 @@ export function getShaderData(classification: PlanetClassification) {
         return shader;
       },
     },
-    "gas giant": {
+    'gas giant': {
       generateCloudShader: function () {
         const noiseFunction = SimplexNoise;
 

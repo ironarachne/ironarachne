@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
+import * as RND from '../random';
 
 export default class PrecipitationType {
   name: string;
@@ -8,7 +8,12 @@ export default class PrecipitationType {
   moderateEvents: string[];
   strongEvents: string[];
 
-  constructor(name: string, mildEvents: string[], moderateEvents: string[], strongEvents: string[]) {
+  constructor(
+    name: string,
+    mildEvents: string[],
+    moderateEvents: string[],
+    strongEvents: string[],
+  ) {
     this.name = name;
     this.mildEvents = mildEvents;
     this.moderateEvents = moderateEvents;

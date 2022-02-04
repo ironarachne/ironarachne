@@ -1,33 +1,33 @@
-"use strict";
+'use strict';
 
-import CharacterGenerator from "../../characters/generator";
-import NameGenerator from "../../names/generator";
-import Kingdom from "./kingdom";
-import HeraldryGenerator from "../../heraldry/generator";
-import * as Words from "../../words";
-import * as RND from "../../random";
-import * as PremadeConfigs from "../../characters/premadeconfigs";
-import NationGenerator from "../generator";
-import Subdivision from "../subdivision";
-import Barony from "./subdivisions/barony";
-import Principality from "./subdivisions/principality";
-import County from "./subdivisions/county";
-import Duchy from "./subdivisions/duchy";
+import CharacterGenerator from '../../characters/generator';
+import NameGenerator from '../../names/generator';
+import Kingdom from './kingdom';
+import HeraldryGenerator from '../../heraldry/generator';
+import * as Words from '../../words';
+import * as RND from '../../random';
+import * as PremadeConfigs from '../../characters/premadeconfigs';
+import NationGenerator from '../generator';
+import Subdivision from '../subdivision';
+import Barony from './subdivisions/barony';
+import Principality from './subdivisions/principality';
+import County from './subdivisions/county';
+import Duchy from './subdivisions/duchy';
 
-import random from "random";
-import Title from "../../characters/title";
-import Earldom from "./subdivisions/earldom";
+import random from 'random';
+import Title from '../../characters/title';
+import Earldom from './subdivisions/earldom';
 
 export default class KingdomGenerator implements NationGenerator {
   generate(nameGenerator: NameGenerator): Kingdom {
-    let name = "the Kingdom of " + nameGenerator.generate(1);
+    let name = 'the Kingdom of ' + nameGenerator.generate(1);
 
     let charGenConfig = PremadeConfigs.getFantasy();
 
     const charGen = new CharacterGenerator(charGenConfig);
 
     let monarch = charGen.generate();
-    monarch.titles.push(new Title("Queen", "King", "Queen", "King", true, name, 6));
+    monarch.titles.push(new Title('Queen', 'King', 'Queen', 'King', true, name, 6));
 
     let kingdom = new Kingdom(name, monarch);
     kingdom.description = this.describe(kingdom);
@@ -40,16 +40,23 @@ export default class KingdomGenerator implements NationGenerator {
   }
 
   describe(kingdom: Kingdom): string {
-    let description = Words.capitalize(kingdom.name) + ` is ruled by ${kingdom.monarch.getPrimaryTitle()} ${kingdom.monarch.firstName} ${kingdom.monarch.lastName}`;
+    let description =
+      Words.capitalize(kingdom.name) +
+      ` is ruled by ${kingdom.monarch.getPrimaryTitle()} ${kingdom.monarch.firstName} ${
+        kingdom.monarch.lastName
+      }`;
 
     return description;
   }
 
-  generateSubdivisions(territoryNameGenerator: NameGenerator, characterNameGenerator: NameGenerator): Subdivision[] {
+  generateSubdivisions(
+    territoryNameGenerator: NameGenerator,
+    characterNameGenerator: NameGenerator,
+  ): Subdivision[] {
     let subdivisions = [];
     const numberOfSubdivisions = 3;
 
-    for (let i=0;i<numberOfSubdivisions; i++) {
+    for (let i = 0; i < numberOfSubdivisions; i++) {
       let name = territoryNameGenerator.generate(1)[0];
       let subdivision = RND.item([
         new Barony(name),

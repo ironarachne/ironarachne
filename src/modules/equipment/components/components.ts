@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import * as Item from "../item";
+import * as Item from '../item';
 
 export class Component implements Item.Item {
   name: string;
@@ -10,7 +10,14 @@ export class Component implements Item.Item {
   subType: string;
   value: number;
 
-  constructor(name: string, description: string, descriptor: string, category: string, subType: string, value: number) {
+  constructor(
+    name: string,
+    description: string,
+    descriptor: string,
+    category: string,
+    subType: string,
+    value: number,
+  ) {
     this.name = name;
     this.description = description;
     this.descriptor = descriptor;

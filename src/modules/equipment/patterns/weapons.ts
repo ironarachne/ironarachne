@@ -1,25 +1,25 @@
-"use strict";
+'use strict';
 
-import * as Components from "../components/components";
-import * as ComponentCollection from "../components/collection";
-import * as Item from "../item";
-import * as Patterns from "./patterns";
-import * as Words from "../../words";
-import * as RND from "../../random";
-import random from "random";
+import * as Components from '../components/components';
+import * as ComponentCollection from '../components/collection';
+import * as Item from '../item';
+import * as Patterns from './patterns';
+import * as Words from '../../words';
+import * as RND from '../../random';
+import random from 'random';
 
 export function all(): Patterns.Pattern[] {
   return [
-    new AxePattern("battleaxe", 1, "1d8", 1000),
-    new AxePattern("greataxe", 1, "1d12", 3000),
-    new AxePattern("handaxe", 1, "1d6", 500),
-    new ClubPattern("club", 1, "1d4", 10),
-    new ClubPattern("greatclub", 2, "1d8", 20),
-    new StaffPattern("quarterstaff", 2, "1d6", 20),
-    new StaffPattern("staff", 2, "1d6", 20),
-    new SwordPattern("short sword", 1, "1d6", 1000),
-    new SwordPattern("long sword", 1, "1d8", 1500),
-    new SwordPattern("great sword", 2, "2d6", 5000),
+    new AxePattern('battleaxe', 1, '1d8', 1000),
+    new AxePattern('greataxe', 1, '1d12', 3000),
+    new AxePattern('handaxe', 1, '1d6', 500),
+    new ClubPattern('club', 1, '1d4', 10),
+    new ClubPattern('greatclub', 2, '1d8', 20),
+    new StaffPattern('quarterstaff', 2, '1d6', 20),
+    new StaffPattern('staff', 2, '1d6', 20),
+    new SwordPattern('short sword', 1, '1d6', 1000),
+    new SwordPattern('long sword', 1, '1d8', 1500),
+    new SwordPattern('great sword', 2, '2d6', 5000),
   ];
 }
 
@@ -39,8 +39,16 @@ export class AxePattern implements Patterns.Pattern {
   }
 
   complete(componentOptions: Components.Component[], valueThreshold: number): Item.MeleeWeapon {
-    let blade = ComponentCollection.getComponentForCategory("hard metal", componentOptions, valueThreshold);
-    let handle = ComponentCollection.getComponentForCategory("wood", componentOptions, valueThreshold);
+    let blade = ComponentCollection.getComponentForCategory(
+      'hard metal',
+      componentOptions,
+      valueThreshold,
+    );
+    let handle = ComponentCollection.getComponentForCategory(
+      'wood',
+      componentOptions,
+      valueThreshold,
+    );
 
     let cosmeticBlade = RND.item([
       'serrated',
@@ -52,12 +60,7 @@ export class AxePattern implements Patterns.Pattern {
       'wickedly curved',
     ]);
 
-    let cosmeticHandle = RND.item([
-      'carved',
-      'padded',
-      'embossed',
-      'sanded',
-    ]);
+    let cosmeticHandle = RND.item(['carved', 'padded', 'embossed', 'sanded']);
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
@@ -73,7 +76,10 @@ export class AxePattern implements Patterns.Pattern {
 
     if (random.int(1, 100) > 70) {
       description += RND.item([
-        `, with a ` + RND.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) + ` ribbon ` + RND.item(['wrapped around it', 'trailing from it', 'tied to it']),
+        `, with a ` +
+          RND.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
+          ` ribbon ` +
+          RND.item(['wrapped around it', 'trailing from it', 'tied to it']),
         `, exquisitely crafted`,
         ` inlaid with ${RND.item(['gold', 'silver', 'copper', 'brass'])}`,
       ]);
@@ -103,23 +109,20 @@ export class ClubPattern implements Patterns.Pattern {
   }
 
   complete(componentOptions: Components.Component[], valueThreshold: number): Item.MeleeWeapon {
-    let body = ComponentCollection.getComponentForCategory("wood", componentOptions, valueThreshold);
-    let handle = ComponentCollection.getComponentForCategory("leather", componentOptions, valueThreshold);
+    let body = ComponentCollection.getComponentForCategory(
+      'wood',
+      componentOptions,
+      valueThreshold,
+    );
+    let handle = ComponentCollection.getComponentForCategory(
+      'leather',
+      componentOptions,
+      valueThreshold,
+    );
 
-    let cosmeticBody = RND.item([
-      'carved',
-      'spiked',
-      'heavy',
-      'bulbous',
-      'square',
-    ]);
+    let cosmeticBody = RND.item(['carved', 'spiked', 'heavy', 'bulbous', 'square']);
 
-    let cosmeticHandle = RND.item([
-      'short',
-      'long',
-      'comfortable',
-      'broad',
-    ]);
+    let cosmeticHandle = RND.item(['short', 'long', 'comfortable', 'broad']);
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
@@ -157,14 +160,13 @@ export class StaffPattern implements Patterns.Pattern {
   }
 
   complete(componentOptions: Components.Component[], valueThreshold: number): Item.MeleeWeapon {
-    let body = ComponentCollection.getComponentForCategory("wood", componentOptions, valueThreshold);
+    let body = ComponentCollection.getComponentForCategory(
+      'wood',
+      componentOptions,
+      valueThreshold,
+    );
 
-    let cosmeticBody = RND.item([
-      'carved',
-      'engraved',
-      'stained',
-      'painted',
-    ]);
+    let cosmeticBody = RND.item(['carved', 'engraved', 'stained', 'painted']);
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
@@ -175,8 +177,21 @@ export class StaffPattern implements Patterns.Pattern {
 
     if (random.int(1, 100) > 70) {
       description += RND.item([
-        ` topped with a ${RND.item(['crystal globe', 'raw crystal', 'rough crystal', 'polished crystal'])}`,
-        ` capped on top and bottom with ${RND.item(['steel', 'gold', 'silver', 'bronze', 'brass', 'iron', 'tin'])}`,
+        ` topped with a ${RND.item([
+          'crystal globe',
+          'raw crystal',
+          'rough crystal',
+          'polished crystal',
+        ])}`,
+        ` capped on top and bottom with ${RND.item([
+          'steel',
+          'gold',
+          'silver',
+          'bronze',
+          'brass',
+          'iron',
+          'tin',
+        ])}`,
       ]);
     }
 
@@ -204,9 +219,21 @@ export class SwordPattern implements Patterns.Pattern {
   }
 
   complete(componentOptions: Components.Component[], valueThreshold: number): Item.MeleeWeapon {
-    let blade = ComponentCollection.getComponentForCategory("hard metal", componentOptions, valueThreshold);
-    let hilt = ComponentCollection.getComponentForCategory("hard metal", componentOptions, valueThreshold);
-    let handle = ComponentCollection.getComponentForCategory("wood", componentOptions, valueThreshold);
+    let blade = ComponentCollection.getComponentForCategory(
+      'hard metal',
+      componentOptions,
+      valueThreshold,
+    );
+    let hilt = ComponentCollection.getComponentForCategory(
+      'hard metal',
+      componentOptions,
+      valueThreshold,
+    );
+    let handle = ComponentCollection.getComponentForCategory(
+      'wood',
+      componentOptions,
+      valueThreshold,
+    );
 
     let cosmeticBlade = RND.item([
       'serrated',
@@ -218,18 +245,9 @@ export class SwordPattern implements Patterns.Pattern {
       'grooved',
     ]);
 
-    let cosmeticHandle = RND.item([
-      'carved',
-      'padded',
-      'embossed',
-    ]);
+    let cosmeticHandle = RND.item(['carved', 'padded', 'embossed']);
 
-    let cosmeticHilt = RND.item([
-      'gem-studded',
-      'spiked',
-      'curved',
-      'inlaid',
-    ])
+    let cosmeticHilt = RND.item(['gem-studded', 'spiked', 'curved', 'inlaid']);
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
@@ -250,8 +268,14 @@ export class SwordPattern implements Patterns.Pattern {
 
     if (random.int(1, 100) > 70) {
       description += RND.item([
-        `, with a ` + RND.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) + ` ribbon ` + RND.item(['wrapped around it', 'trailing from it', 'tied to it']),
-        `, with a ${RND.item(['leather thong', RND.item(['gold', 'brass', 'silver', 'iron']) + ' chain'])} attached to the pommel`,
+        `, with a ` +
+          RND.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
+          ` ribbon ` +
+          RND.item(['wrapped around it', 'trailing from it', 'tied to it']),
+        `, with a ${RND.item([
+          'leather thong',
+          RND.item(['gold', 'brass', 'silver', 'iron']) + ' chain',
+        ])} attached to the pommel`,
         `, exquisitely crafted`,
         ` inlaid with ${RND.item(['gold', 'silver', 'copper', 'brass'])}`,
       ]);

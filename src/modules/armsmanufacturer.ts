@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-import * as RND from "./random";
-import * as InventedNames from "./names/invented";
-import * as SciFiWeaponTypes from "./weapons/scifi";
-import * as Weapons from "./weapons/weapons";
-import Weapon from "./weapons/weapon";
-import random from "random";
+import * as RND from './random';
+import * as InventedNames from './names/invented';
+import * as SciFiWeaponTypes from './weapons/scifi';
+import * as Weapons from './weapons/weapons';
+import Weapon from './weapons/weapon';
+import random from 'random';
 
 export class ArmsManufacturer {
   name: string;
@@ -39,17 +39,17 @@ export function generate(): ArmsManufacturer {
 
   let nameGenerator = randomWeaponNameGenerator();
 
-  const numberOfPrimary = random.int(3,4);
+  const numberOfPrimary = random.int(3, 4);
 
-  for (let i=0;i<numberOfPrimary;i++) {
+  for (let i = 0; i < numberOfPrimary; i++) {
     let model = Weapons.generate(specialty, name);
     model.name = nameGenerator() + ` ${specialty.name}`;
     models.push(model);
   }
 
-  const numberOfSecondary = random.int(0,2);
+  const numberOfSecondary = random.int(0, 2);
 
-  for (let i=0;i<numberOfSecondary;i++) {
+  for (let i = 0; i < numberOfSecondary; i++) {
     let model = Weapons.generate(secondary, name);
     model.name = nameGenerator() + ` ${secondary.name}`;
     models.push(model);
@@ -64,39 +64,36 @@ function randomSpecialty() {
 
 function randomOutlook(): string {
   return RND.item([
-    " They focus exclusively on quality, and their products are very expensive.",
-    " They focus heavily on reliability.",
-    " They are devoted to profit above all else and their products are lower in quality.",
-    " They pride themselves on their workmanship.",
+    ' They focus exclusively on quality, and their products are very expensive.',
+    ' They focus heavily on reliability.',
+    ' They are devoted to profit above all else and their products are lower in quality.',
+    ' They pride themselves on their workmanship.',
   ]);
 }
 
 function randomReputation(): string {
   return RND.item([
-    " Their products are widely regarded as the standard to beat.",
-    " Their products have a following among bounty hunters and mercenaries.",
-    " Their products are well-regarded by military powers.",
-    " They sometimes suffer derision because of their attitude.",
-    " Their market presence is almost nonexistent.",
-    " Some black markets focus exclusively on their products.",
+    ' Their products are widely regarded as the standard to beat.',
+    ' Their products have a following among bounty hunters and mercenaries.',
+    ' Their products are well-regarded by military powers.',
+    ' They sometimes suffer derision because of their attitude.',
+    ' Their market presence is almost nonexistent.',
+    ' Some black markets focus exclusively on their products.',
   ]);
 }
 
 function randomName() {
-  const patterns = [
-    "pvlul",
-    "vpvfv",
-  ];
+  const patterns = ['pvlul', 'vpvfv'];
 
   let nameFragment = InventedNames.generate(patterns);
 
   const suffixes = [
-    "Heavy Industries",
-    "Arms, Limited",
-    "Incorporated",
-    "Consolidated",
-    "Corporation",
-    "Applied Sciences",
+    'Heavy Industries',
+    'Arms, Limited',
+    'Incorporated',
+    'Consolidated',
+    'Corporation',
+    'Applied Sciences',
   ];
 
   let suffix = RND.item(suffixes);
@@ -107,44 +104,31 @@ function randomName() {
 function randomWeaponNameGenerator() {
   return RND.item([
     () => {
-      const patterns = [
-        "v",
-        "c",
-        "cc",
-        "pc",
-        "vc",
-        "ccc",
-      ];
+      const patterns = ['v', 'c', 'cc', 'pc', 'vc', 'ccc'];
 
       const nameFragment = InventedNames.generate(patterns);
 
-      const suffix = "-" + random.int(1, 99);
+      const suffix = '-' + random.int(1, 99);
 
       return nameFragment + suffix;
     },
     () => {
-      const patterns = [
-        "v",
-        "c",
-      ];
+      const patterns = ['v', 'c'];
 
       const nameFragment = InventedNames.generate(patterns);
 
-      const suffix = "" + random.int(1, 99);
+      const suffix = '' + random.int(1, 99);
 
       return nameFragment + suffix;
     },
     () => {
-      const patterns = [
-        "v",
-        "c",
-      ];
+      const patterns = ['v', 'c'];
 
       const nameFragment = InventedNames.generate(patterns);
 
-      const suffix = "-" + random.int(1, 99);
+      const suffix = '-' + random.int(1, 99);
 
       return nameFragment + suffix;
     },
-  ])
+  ]);
 }

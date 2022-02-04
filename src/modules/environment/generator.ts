@@ -1,10 +1,10 @@
-"use strict";
+'use strict';
 
-import BiomeGenerator from "./biomes/generator";
-import BiomeGeneratorConfig from "./biomes/generatorconfig";
-import * as Climates from "./climates/climates";
-import * as RND from "../random";
-import Environment from "./environment";
+import BiomeGenerator from './biomes/generator';
+import BiomeGeneratorConfig from './biomes/generatorconfig';
+import * as Climates from './climates/climates';
+import * as RND from '../random';
+import Environment from './environment';
 
 export default class EnvironmentGenerator {
   generate(): Environment {
@@ -17,7 +17,7 @@ export default class EnvironmentGenerator {
     let environment = new Environment(biome, climate);
 
     environment.description = `${RND.item(biome.descriptions)} ${RND.item(biome.features)}`;
-    environment.description += " " + environment.climate.description;
+    environment.description += ' ' + environment.climate.description;
 
     return environment;
   }

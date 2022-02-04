@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import Gender from "../gender";
-import GeneratorSet from "../names/generatorset";
-import PhysicalTraitGenerator from "../physicaltraits/generator";
+import Gender from '../gender';
+import GeneratorSet from '../names/generatorset';
+import PhysicalTraitGenerator from '../physicaltraits/generator';
 
 export default interface Species {
   name: string;

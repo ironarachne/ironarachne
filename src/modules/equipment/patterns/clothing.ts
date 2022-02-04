@@ -1,12 +1,12 @@
-"use strict";
+'use strict';
 
-import * as Components from "../components/components";
-import * as ComponentCollection from "../components/collection";
-import * as Item from "../item";
-import * as Patterns from "./patterns";
-import * as Words from "../../words";
-import * as RND from "../../random";
-import random from "random";
+import * as Components from '../components/components';
+import * as ComponentCollection from '../components/collection';
+import * as Item from '../item';
+import * as Patterns from './patterns';
+import * as Words from '../../words';
+import * as RND from '../../random';
+import random from 'random';
 
 export function all(): Patterns.Pattern[] {
   return [
@@ -39,8 +39,16 @@ export class BeltPattern implements Patterns.Pattern {
   }
 
   complete(componentOptions: Components.Component[], valueThreshold: number): Item.Clothing {
-    let body = ComponentCollection.getComponentForCategory("leather", componentOptions, valueThreshold);
-    let hardware = ComponentCollection.getComponentForCategory("metal", componentOptions, valueThreshold);
+    let body = ComponentCollection.getComponentForCategory(
+      'leather',
+      componentOptions,
+      valueThreshold,
+    );
+    let hardware = ComponentCollection.getComponentForCategory(
+      'metal',
+      componentOptions,
+      valueThreshold,
+    );
 
     let description = RND.item([
       `${Words.article(this.name)} ${this.name} `,
@@ -48,7 +56,11 @@ export class BeltPattern implements Patterns.Pattern {
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name} `,
     ]);
 
-    description += `with ${Words.article(hardware.descriptor)} ${hardware.descriptor} ${RND.item(['clasp', 'buckle', 'closure'])}`;
+    description += `with ${Words.article(hardware.descriptor)} ${hardware.descriptor} ${RND.item([
+      'clasp',
+      'buckle',
+      'closure',
+    ])}`;
 
     if (random.int(1, 100) >= 70) {
       description += RND.item([
@@ -77,7 +89,11 @@ export class DressPattern implements Patterns.Pattern {
   }
 
   complete(componentOptions: Components.Component[], valueThreshold: number): Item.Clothing {
-    let body = ComponentCollection.getComponentForCategory("fabric", componentOptions, valueThreshold);
+    let body = ComponentCollection.getComponentForCategory(
+      'fabric',
+      componentOptions,
+      valueThreshold,
+    );
 
     let description = `${Words.article(this.name)} ${this.name} `;
 
@@ -93,8 +109,12 @@ export class DressPattern implements Patterns.Pattern {
 
     description += ' with ';
 
-    let sleeves = RND.item(['short', 'long', 'wide', 'narrow', 'bunched', 'volumnous', 'no']) + ' sleeves';
-    let lacing = RND.item(['tight ', '', 'double ', 'wide ']) + 'lacing ' + RND.item(['down the middle', 'at the top', 'halfway down', 'down the back']);
+    let sleeves =
+      RND.item(['short', 'long', 'wide', 'narrow', 'bunched', 'volumnous', 'no']) + ' sleeves';
+    let lacing =
+      RND.item(['tight ', '', 'double ', 'wide ']) +
+      'lacing ' +
+      RND.item(['down the middle', 'at the top', 'halfway down', 'down the back']);
     let neck = RND.item(['a wide neck', 'a v-neck', 'a deep neck']);
     let waist = RND.item(['a tight waist', 'a narrow waist', 'a cinched waist', 'a belted waist']);
 
@@ -102,7 +122,7 @@ export class DressPattern implements Patterns.Pattern {
 
     let name = `${body.descriptor} ${this.name}`;
 
-    let value = this.baseValue + (body.value * 2);
+    let value = this.baseValue + body.value * 2;
 
     return new Item.Clothing(name, description, 'torso', value);
   }
@@ -120,15 +140,26 @@ export class PantPattern implements Patterns.Pattern {
   }
 
   complete(componentOptions: Components.Component[], valueThreshold: number): Item.Clothing {
-    let body = ComponentCollection.getComponentForCategory("fabric", componentOptions, valueThreshold);
-    let hardware = ComponentCollection.getComponentForCategory("soft metal", componentOptions, valueThreshold);
+    let body = ComponentCollection.getComponentForCategory(
+      'fabric',
+      componentOptions,
+      valueThreshold,
+    );
+    let hardware = ComponentCollection.getComponentForCategory(
+      'soft metal',
+      componentOptions,
+      valueThreshold,
+    );
 
     let description = `${this.name} `;
 
     description += RND.item([`made of ${body.descriptor} with `, 'with ']);
 
     let lacing = ` ${RND.item(['tight', 'loose', ''])} lacing`;
-    let closures = RND.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) + ` ${hardware.descriptor} ` + RND.item(['buttons', 'clasps']);
+    let closures =
+      RND.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) +
+      ` ${hardware.descriptor} ` +
+      RND.item(['buttons', 'clasps']);
 
     description += RND.item([lacing, closures]);
 
@@ -159,17 +190,29 @@ export class TopPattern implements Patterns.Pattern {
   }
 
   complete(componentOptions: Components.Component[], valueThreshold: number): Item.Clothing {
-    let body = ComponentCollection.getComponentForCategory("fabric", componentOptions, valueThreshold);
-    let hardware = ComponentCollection.getComponentForCategory("soft metal", componentOptions, valueThreshold);
+    let body = ComponentCollection.getComponentForCategory(
+      'fabric',
+      componentOptions,
+      valueThreshold,
+    );
+    let hardware = ComponentCollection.getComponentForCategory(
+      'soft metal',
+      componentOptions,
+      valueThreshold,
+    );
 
     let description = `${Words.article(this.name)} ${this.name} `;
 
     description += RND.item([`made of ${body.descriptor} with `, 'with ']);
 
-    let sleeves = RND.item(['short', 'long', 'wide', 'narrow', 'bunched', 'volumnous']) + ' sleeves';
+    let sleeves =
+      RND.item(['short', 'long', 'wide', 'narrow', 'bunched', 'volumnous']) + ' sleeves';
     let lacing = 'lacing ' + RND.item(['down the middle', 'at the top', 'halfway down']);
     let collar = `a ${RND.item(['wide', 'tight', 'open'])} collar`;
-    let closures = RND.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) + ` ${hardware.descriptor} ` + RND.item(['buttons', 'clasps']);
+    let closures =
+      RND.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) +
+      ` ${hardware.descriptor} ` +
+      RND.item(['buttons', 'clasps']);
 
     description += RND.item([sleeves, collar, lacing, closures]);
 
@@ -188,5 +231,3 @@ export class TopPattern implements Patterns.Pattern {
     return new Item.Clothing(name, description, 'torso', value);
   }
 }
-
-

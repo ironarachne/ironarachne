@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import Climate from "./climate";
+import Climate from './climate';
 
-import * as PrecipitationTypes from "../precipitationtypes";
-import Season from "../seasons/season";
+import * as PrecipitationTypes from '../precipitationtypes';
+import Season from '../seasons/season';
 
 export default class TemperateClimate implements Climate {
   name: string;
@@ -18,7 +18,7 @@ export default class TemperateClimate implements Climate {
   seasons: Season[];
 
   constructor() {
-    this.name = "temperate";
+    this.name = 'temperate';
     this.cloudCover = 5;
     this.windStrength = 3;
     this.windDirection = 4;
@@ -27,18 +27,10 @@ export default class TemperateClimate implements Climate {
     this.precipitationAmount = 5;
     this.precipitationFrequency = 5;
     this.seasons = [
-      new Season(
-        "spring", PrecipitationTypes.byName("rain"), 5
-      ),
-      new Season(
-        "summer", PrecipitationTypes.byName("rain"), 3
-      ),
-      new Season(
-        "autumn", PrecipitationTypes.byName("rain"), 3
-      ),
-      new Season(
-        "winter", PrecipitationTypes.byName("snow"), 5
-      ),
+      new Season('spring', PrecipitationTypes.byName('rain'), 5),
+      new Season('summer', PrecipitationTypes.byName('rain'), 3),
+      new Season('autumn', PrecipitationTypes.byName('rain'), 3),
+      new Season('winter', PrecipitationTypes.byName('snow'), 5),
     ];
   }
 }

@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import * as Words from "../words";
+import * as Words from '../words';
 
 export default class ChangeLog {
   date: string;

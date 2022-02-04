@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import Character from "../character";
+import Character from '../character';
 
 export default class FamilyMember {
   id: number;

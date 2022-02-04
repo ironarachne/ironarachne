@@ -1,11 +1,11 @@
-"use strict";
+'use strict';
 
-import * as RND from "../random";
-import Nation from "./nation";
-import NationGenerator from "./generator";
-import KingdomGenerator from "./kingdoms/generator";
-import EmpireGenerator from "./empires/generator";
-import FantasySet from "../names/cultures/fantasy";
+import * as RND from '../random';
+import Nation from './nation';
+import NationGenerator from './generator';
+import KingdomGenerator from './kingdoms/generator';
+import EmpireGenerator from './empires/generator';
+import FantasySet from '../names/cultures/fantasy';
 
 export function generate(): Nation {
   const generator = RND.item(allGenerators());
@@ -18,8 +18,5 @@ export function generate(): Nation {
 }
 
 function allGenerators(): NationGenerator[] {
-  return [
-    new KingdomGenerator(),
-    new EmpireGenerator(),
-  ]
+  return [new KingdomGenerator(), new EmpireGenerator()];
 }

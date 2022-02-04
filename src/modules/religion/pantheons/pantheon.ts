@@ -1,6 +1,6 @@
-"use strict";
+'use strict';
 
-import PantheonMember from "./pantheonmember";
+import PantheonMember from './pantheonmember';
 
 export default class Pantheon {
   name: string;
@@ -9,8 +9,8 @@ export default class Pantheon {
   leader: number;
 
   constructor() {
-    this.name = "";
-    this.description = "";
+    this.name = '';
+    this.description = '';
     this.members = [];
     this.leader = -1;
   }

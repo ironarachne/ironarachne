@@ -1,8 +1,8 @@
-"use strict";
+'use strict';
 
-import Charge from "./charge";
-import * as Words from "../words";
-import ChargeGroupArrangement from "./chargegrouparrangement";
+import Charge from './charge';
+import * as Words from '../words';
+import ChargeGroupArrangement from './chargegrouparrangement';
 
 export default class ChargeGroup {
   charge: Charge;
@@ -40,12 +40,12 @@ export default class ChargeGroup {
 }
 
 function setChargeColor(hexColor: string, chargeSVG: string): string {
-  if (hexColor === "#000000") {
-    chargeSVG = chargeSVG.replaceAll("#010101", "#ffffff");
-    chargeSVG = chargeSVG.replaceAll("#000000", "#ffffff");
+  if (hexColor === '#000000') {
+    chargeSVG = chargeSVG.replaceAll('#010101', '#ffffff');
+    chargeSVG = chargeSVG.replaceAll('#000000', '#ffffff');
   }
 
-  chargeSVG = chargeSVG.replaceAll("#FFFFFF", hexColor);
+  chargeSVG = chargeSVG.replaceAll('#FFFFFF', hexColor);
 
   return chargeSVG;
 }

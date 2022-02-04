@@ -12,38 +12,38 @@ const production = !process.env.ROLLUP_WATCH;
 const environmentLabel = production ? 'production' : 'development';
 
 function serve() {
-	let server;
+  let server;
 
-	function toExit() {
-		if (server) server.kill(0);
-	}
+  function toExit() {
+    if (server) server.kill(0);
+  }
 
-	return {
-		writeBundle() {
-			if (server) return;
-			server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-				stdio: ['ignore', 'inherit', 'inherit'],
-				shell: true
-			});
+  return {
+    writeBundle() {
+      if (server) return;
+      server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
+        stdio: ['ignore', 'inherit', 'inherit'],
+        shell: true,
+      });
 
-			process.on('SIGTERM', toExit);
-			process.on('exit', toExit);
-		}
-	};
+      process.on('SIGTERM', toExit);
+      process.on('exit', toExit);
+    },
+  };
 }
 
 export default {
-	input: 'src/main.ts',
-	output: {
-		sourcemap: true,
-		format: 'iife',
-		name: 'app',
-		file: 'public/js/bundle.js',
+  input: 'src/main.ts',
+  output: {
+    sourcemap: true,
+    format: 'iife',
+    name: 'app',
+    file: 'public/js/bundle.js',
     globals: {
       crypto: 'crypto',
-    }
-	},
-	plugins: [
+    },
+  },
+  plugins: [
     replace({
       'process.env.NODE_ENV': JSON.stringify(environmentLabel),
       preventAssignment: true,
@@ -72,42 +72,42 @@ export default {
         '.js': 'jsx',
       },
     }),
-		svelte({
-			compilerOptions: {
-				// enable run-time checks when not in production
-				dev: !production
-			},
-      preprocess: preprocess()
-		}),
+    svelte({
+      compilerOptions: {
+        // enable run-time checks when not in production
+        dev: !production,
+      },
+      preprocess: preprocess(),
+    }),
     scss({
-      include: ["/**/*.css", "/**/*.scss", "/**/*.sass"],
-      output: "public/css/style.css",
+      include: ['/**/*.css', '/**/*.scss', '/**/*.sass'],
+      output: 'public/css/style.css',
       failOnError: true,
-      insert: true
+      insert: true,
     }),
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration -
-		// consult the documentation for details:
-		// https://github.com/rollup/plugins/tree/master/packages/commonjs
-		resolve({
-			browser: true,
-			dedupe: ['svelte']
-		}),
-		commonjs(),
+    // If you have external dependencies installed from
+    // npm, you'll most likely need these plugins. In
+    // some cases you'll need additional configuration -
+    // consult the documentation for details:
+    // https://github.com/rollup/plugins/tree/master/packages/commonjs
+    resolve({
+      browser: true,
+      dedupe: ['svelte'],
+    }),
+    commonjs(),
     svg({
-      stringify: true
+      stringify: true,
     }),
 
-		// In dev mode, call `npm run start` once
-		// the bundle has been generated
-		!production && serve(),
+    // In dev mode, call `npm run start` once
+    // the bundle has been generated
+    !production && serve(),
 
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
-		!production && livereload('public'),
-	],
-	watch: {
-		clearScreen: false
-	}
+    // Watch the `public` directory and refresh the
+    // browser on changes when not in production
+    !production && livereload('public'),
+  ],
+  watch: {
+    clearScreen: false,
+  },
 };
