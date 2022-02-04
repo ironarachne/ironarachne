@@ -8,7 +8,7 @@ import HalfElf from "./half-elf";
 import Halfling from "./halfling";
 import HalfOrc from "./half-orc";
 import Human from "./human";
-import Species from "./species";
+import type Species from "./species";
 import * as RND from "../random";
 import Tiefling from "./tiefling";
 

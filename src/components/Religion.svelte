@@ -1,17 +1,20 @@
 <script>
   import * as RND from "../modules/random";
-  import * as FantasyReligion from "../modules/religion/generator";
+  import ReligionGeneratorConfig from "../modules/religion/generatorconfig";
+  import ReligionGenerator from "../modules/religion/generator";
 
   import random from "random";
   import seedrandom from "seedrandom";
 
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
-  let religion = FantasyReligion.generate();
+  let genConfig = new ReligionGeneratorConfig();
+  let generator = new ReligionGenerator(genConfig);
+  let religion = generator.generate();
 
   function generate() {
     random.use(seedrandom(seed));
-    religion = FantasyReligion.generate();
+    religion = generator.generate();
   }
 
   function newSeed() {
@@ -53,16 +56,16 @@
 
   <p>{religion.pantheon.description}</p>
 
-  {#each religion.pantheon.deities as deity}
+  {#each religion.pantheon.members as member}
     <div>
-      <h4>{deity.name}</h4>
+      <h4>{member.deity.name}</h4>
 
-      <p>{deity.titles.join(",")}</p>
+      <p>{member.deity.titles.join(",")}</p>
 
-      <p><strong>Holy Item:</strong> {deity.holyItem}</p>
-      <p><strong>Holy Symbol:</strong> {deity.holySymbol}</p>
+      <p><strong>Holy Item:</strong> {member.deity.holyItem}</p>
+      <p><strong>Holy Symbol:</strong> {member.deity.holySymbol}</p>
 
-      <p>{deity.description}</p>
+      <p>{member.deity.description}</p>
     </div>
   {/each}
 </section>

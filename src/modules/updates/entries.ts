@@ -7,7 +7,7 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
   let entries = [];
 
-  for (let i=0;i<numberOfEntries;i++) {
+  for (let i = 0; i < numberOfEntries; i++) {
     entries.push(allEntries[i]);
   }
 
@@ -16,6 +16,14 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog("2022-02-04", [
+      "Expanded how culture taboos are generated.",
+      "Rewrote how character, town, region, and culture names are generated.",
+      "Rewrote how towns are structured to make it easier to implement certain future features.",
+      "Added an environment/climate/biome system to add diversity to towns and regions.",
+      "Made cultures use the religion generator for religion information.",
+      "Added country and town name lists to the culture generator.",
+    ]),
     new ChangeLog("2022-01-27", [
       "Added tieflings.",
     ]),

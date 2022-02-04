@@ -2,11 +2,14 @@
 
 import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
-import Species from "./species";
+import type Species from "./species";
 import PhysicalTraitGenerator from "../physicaltraits/generator";
+import GeneratorSet from "../names/generatorset";
+import HalfOrcSet from "../names/races/halforc";
 
 export default class HalfOrc implements Species {
   name: string;
+  nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
   commonality: number;
@@ -15,6 +18,7 @@ export default class HalfOrc implements Species {
 
   constructor() {
     this.name = "half-orc";
+    this.nameGeneratorSet = new HalfOrcSet();
     this.pluralName = "half-orcs";
     this.adjective = "half-orc";
     this.commonality = 10;

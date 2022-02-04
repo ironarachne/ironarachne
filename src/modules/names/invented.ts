@@ -20,23 +20,29 @@ function parsePatternElement(element: string): string {
 
   const elements = {
     a: randomAffricate(),
+    b: randomVoicedDentalPlosive(),
     c: randomConsonant(),
     d: (() => { let result = randomConsonant(); return result + result; })(),
     e: randomDental(),
     f: randomFricative(),
+    h: randomVoicelessDentalPlosive(),
+    i: randomVoiceless(),
+    k: randomVelarPlosive(),
     l: randomLiquid(),
+    m: randomCloseMidVowel(),
     n: randomNasal(),
+    o: randomStop(),
     p: randomPlosive(),
     s: randomSibilant(),
     t: randomStrident(),
-    o: randomStop(),
     u: (() => { let result = randomVowel(); return result + result })(),
     v: randomVowel(),
     w: randomVelar(),
+    y: randomOpenVowel(),
     x: randomAccentedVowel(),
   }
 
-  if ("acdeflnpstouvwx".includes(element)) {
+  if ("abcdefhiklmnopstuvwyx".includes(element)) {
     letter = elements[element];
   } else {
     letter = element.toLowerCase();
@@ -79,6 +85,10 @@ export function randomAffricate(): string {
   return RND.item(["ch", "j"]);
 }
 
+export function randomCloseMidVowel(): string {
+  return RND.item(["i", "ö", "eu", "oe", "e"]);
+}
+
 export function randomDental(): string {
   return RND.item(["d", "n", "t", "l"]);
 }
@@ -89,6 +99,10 @@ export function randomFricative(): string {
 
 export function randomLiquid(): string {
   return RND.item(["l", "r"]);
+}
+
+export function randomOpenVowel(): string {
+  return RND.item(["e", "ee", "i", "oo", "y", "ie"]);
 }
 
 export function randomPlosive(): string {
@@ -113,6 +127,22 @@ export function randomStop(): string {
 
 export function randomVelar(): string {
   return RND.item(["w", "wh", "g"]);
+}
+
+export function randomVelarPlosive(): string {
+  return RND.item(["c", "k"]);
+}
+
+export function randomVoicedDentalPlosive(): string {
+  return RND.item(["d", "dh"]);
+}
+
+export function randomVoiceless(): string {
+  return RND.item(["h", "f"]);
+}
+
+export function randomVoicelessDentalPlosive(): string {
+  return RND.item(["t", "th"]);
 }
 
 export function randomVowel(): string {

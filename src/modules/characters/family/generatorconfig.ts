@@ -2,7 +2,7 @@
 
 import Gender from "../../gender";
 import NameGenerator from "../../names/generator";
-import Species from "../../species/species";
+import type Species from "../../species/species";
 
 export default class FamilyGeneratorConfig {
   species: Species;

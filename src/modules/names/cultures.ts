@@ -2,17 +2,32 @@
 
 import * as Invented from "./invented";
 import * as RND from "../random";
+import GenericNameGenerator from "./generators/generic";
+import GeneratorSet from "./generatorset";
+import GermanicSet from "./cultures/germanic";
+import FantasySet from "./cultures/fantasy";
 
-export function generate() {
+export function allGenSets(): GeneratorSet[] {
+  return [
+    new GermanicSet(),
+    new FantasySet(),
+  ];
+}
+
+export function randomGenSet(): GeneratorSet {
+  let all = allGenSets();
+
+  return RND.item(all);
+}
+
+export function generate(): string {
   return Invented.generate(patterns());
 }
 
-export function generateNameList(gender: string, patterns: string[]) {
-  const names = [];
-
-  const femalePatterns = [];
-  const familyPatterns = [];
-  const malePatterns = [];
+export function getNameGenerator(gender: string, patterns: string[]): GenericNameGenerator {
+  let femalePatterns = [];
+  let familyPatterns = [];
+  let malePatterns = [];
   let namePatterns: string[] = [];
 
   for (let i = 0; i < patterns.length; i++) {
@@ -29,16 +44,14 @@ export function generateNameList(gender: string, patterns: string[]) {
     namePatterns = familyPatterns;
   }
 
-  for (let i = 0; i < 10; i++) {
-    const name = Invented.generate(namePatterns);
-    names.push(name);
-  }
+  let nameGenerator = new GenericNameGenerator();
+  nameGenerator.patterns = namePatterns;
 
-  return names;
+  return nameGenerator;
 }
 
 // Generates a set of similar patterns
-export function randomNameRoots() {
+export function randomNameRoots(): string[] {
   const prefixes = ["cvc", "cvd", "vcv", "cvc"];
   const suffixes = ["vc", "vcv", "vn", "sv", "vs"];
 
@@ -51,6 +64,6 @@ export function randomNameRoots() {
   return patterns;
 }
 
-function patterns() {
+function patterns(): string[] {
   return ["cvdv", "vccvc", "pvcvc", "cvMANI", "cvcDARI", "cAdERI", "cvcAcI"];
 }

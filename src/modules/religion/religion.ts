@@ -1,7 +1,7 @@
 "use strict";
 
-import Realm from "./realm";
-import Pantheon from "./pantheon";
+import Realm from "./realms/realm";
+import Pantheon from "./pantheons/pantheon";
 
 export default class Religion {
   name: string;

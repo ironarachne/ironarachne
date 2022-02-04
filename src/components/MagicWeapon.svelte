@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Domains from "../modules/religion/domains";
+  import * as Domains from "../modules/religion/domains/domains";
   import * as Weapon from "../modules/equipment/weapon";
   import * as RND from "../modules/random";
 

@@ -1,9 +1,7 @@
 "use strict";
 
 import NameGenerator from "../names/generator";
-import GenericFantasyFamilyGenerator from "../names/generators/genericfantasyfamily";
-import GenericFantasyFemaleGenerator from "../names/generators/genericfantasyfemale";
-import GenericFantasyMaleGenerator from "../names/generators/genericfantasymale";
+import HumanSet from "../names/races/human";
 
 export default class DCCCharacterGeneratorConfig {
   nameGeneratorMale: NameGenerator;
@@ -11,8 +9,9 @@ export default class DCCCharacterGeneratorConfig {
   nameGeneratorFamily: NameGenerator;
 
   constructor() {
-    this.nameGeneratorFamily = new GenericFantasyFamilyGenerator();
-    this.nameGeneratorFemale = new GenericFantasyFemaleGenerator();
-    this.nameGeneratorMale = new GenericFantasyMaleGenerator();
+    let genSet = new HumanSet();
+    this.nameGeneratorFamily = genSet.family;
+    this.nameGeneratorFemale = genSet.female;
+    this.nameGeneratorMale = genSet.male;
   }
 }

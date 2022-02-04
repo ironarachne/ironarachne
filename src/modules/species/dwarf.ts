@@ -2,11 +2,14 @@
 
 import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
+import GeneratorSet from "../names/generatorset";
+import DwarfSet from "../names/races/dwarf";
 import PhysicalTraitGenerator from "../physicaltraits/generator";
-import Species from "./species";
+import type Species from "./species";
 
 export default class Dwarf implements Species {
   name: string;
+  nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
   commonality: number;
@@ -15,6 +18,7 @@ export default class Dwarf implements Species {
 
   constructor() {
     this.name = "dwarf";
+    this.nameGeneratorSet = new DwarfSet();
     this.pluralName = "dwarves";
     this.adjective = "dwarven";
     this.commonality = 20;

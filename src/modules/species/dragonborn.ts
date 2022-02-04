@@ -2,11 +2,14 @@
 
 import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
-import Species from "./species";
+import type Species from "./species";
 import PhysicalTraitGenerator from "../physicaltraits/generator";
+import GeneratorSet from "../names/generatorset";
+import DragonbornSet from "../names/races/dragonborn";
 
 export default class Dragonborn implements Species {
   name: string;
+  nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
   commonality: number;
@@ -15,6 +18,7 @@ export default class Dragonborn implements Species {
 
   constructor() {
     this.name = "dragonborn";
+    this.nameGeneratorSet = new DragonbornSet();
     this.pluralName = "dragonborn";
     this.adjective = "dragonborn";
     this.commonality = 10;

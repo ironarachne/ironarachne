@@ -3,7 +3,7 @@
 import AgeCategory from "../age/agecategory";
 import Gender from "../gender";
 import Title from "./title";
-import Species from "../species/species";
+import type Species from "../species/species";
 import { Heraldry } from "../heraldry/heraldry";
 import PhysicalTrait from "../physicaltraits/physicaltrait";
 import PersonalityTrait from "./personality/personalitytrait";

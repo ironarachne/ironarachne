@@ -13,15 +13,9 @@ import DCCLuckyRoll from "./luckyroll";
 import DCCOccupation from "./occupation";
 import DCCGear from "./equipment/gear";
 import DCCLanguage from "./languages/language";
-import ElfFamilyGenerator from "../names/generators/elffamily";
-import ElfFemaleGenerator from "../names/generators/elffemale";
-import ElfMaleGenerator from "../names/generators/elfmale";
-import DwarfFamilyGenerator from "../names/generators/dwarffamily";
-import DwarfFemaleGenerator from "../names/generators/dwarffemale";
-import DwarfMaleGenerator from "../names/generators/dwarfmale";
-import HalflingFamilyGenerator from "../names/generators/halflingfamily";
-import HalflingFemaleGenerator from "../names/generators/halflingfemale";
-import HalflingMaleGenerator from "../names/generators/halflingmale";
+import ElfSet from "../names/races/elf";
+import DwarfSet from "../names/races/dwarf";
+import HalflingSet from "../names/races/halfling";
 
 export default class DCCCharacterGenerator {
   config: DCCCharacterGeneratorConfig;
@@ -78,29 +72,29 @@ export default class DCCCharacterGenerator {
     character = character.luckyRoll.apply(character);
 
     if (character.occupation.name.includes("elven")) {
-      let famGen = new ElfFamilyGenerator();
-      character.lastName = famGen.generate(1)[0];
-      let firstGen = new ElfFemaleGenerator();
+      let genSet = new ElfSet();
+      character.lastName = genSet.family.generate(1)[0];
       if (character.gender == "male") {
-        firstGen = new ElfMaleGenerator();
+        character.firstName = genSet.male.generate(1)[0];
+      } else {
+        character.firstName = genSet.female.generate(1)[0];
       }
-      character.firstName = firstGen.generate(1)[0];
     } else if (character.occupation.name.includes("dwarven")) {
-      let famGen = new DwarfFamilyGenerator();
-      character.lastName = famGen.generate(1)[0];
-      let firstGen = new DwarfFemaleGenerator();
+      let genSet = new DwarfSet();
+      character.lastName = genSet.family.generate(1)[0];
       if (character.gender == "male") {
-        firstGen = new DwarfMaleGenerator();
+        character.firstName = genSet.male.generate(1)[0];
+      } else {
+        character.firstName = genSet.female.generate(1)[0];
       }
-      character.firstName = firstGen.generate(1)[0];
     } else if (character.occupation.name.includes("halfling")) {
-      let famGen = new HalflingFamilyGenerator();
-      character.lastName = famGen.generate(1)[0];
-      let firstGen = new HalflingFemaleGenerator();
+      let genSet = new HalflingSet();
+      character.lastName = genSet.family.generate(1)[0];
       if (character.gender == "male") {
-        firstGen = new HalflingMaleGenerator();
+        character.firstName = genSet.male.generate(1)[0];
+      } else {
+        character.firstName = genSet.female.generate(1)[0];
       }
-      character.firstName = firstGen.generate(1)[0];
     }
 
     if (character.hp < 1) {

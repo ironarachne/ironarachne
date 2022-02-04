@@ -2,32 +2,30 @@
 
 import * as Words from "../../words";
 import Gender from "../../gender";
-import Species from "../../species/species";
-import Domain from "../domain";
-import Realm from "../realm";
-import {Relationship} from "../../characters/relationship";
+import type Species from "../../species/species";
+import Realm from "../realms/realm";
 
 import AgeCategory from "../../age/agecategory";
 import PersonalityTrait from "../../characters/personality/personalitytrait";
+import DomainSet from "../domains/domainset";
 
 export default class Deity {
   name: string;
   species: Species;
   gender: Gender;
   ageCategory: AgeCategory;
-  domains: Domain[];
+  domains: DomainSet;
   titles: string[];
   realm: Realm;
   description: string;
   personalityTraits: PersonalityTrait[];
   personality: string;
   appearance: string;
-  relationships: Relationship[];
   holyItem: string;
   holySymbol: string;
   isAlive: boolean;
 
-  constructor(name: string, species: Species, gender: Gender, ageCategory: AgeCategory, realm: Realm, domains: Domain[]) {
+  constructor(name: string, species: Species, gender: Gender, ageCategory: AgeCategory, realm: Realm, domains: DomainSet) {
     this.name = name;
     this.species = species;
     this.gender = gender;
@@ -38,7 +36,6 @@ export default class Deity {
     this.description = "";
     this.personality = "";
     this.appearance = "";
-    this.relationships = [];
     this.holyItem = "";
     this.holySymbol = "";
     this.isAlive = true;
@@ -50,8 +47,10 @@ export default class Deity {
     let noun = "god";
     const domainNames = [];
 
-    for (let i = 0; i < this.domains.length; i++) {
-      domainNames.push(this.domains[i].name);
+    domainNames.push(this.domains.primary.name);
+
+    for (let i = 0; i < this.domains.secondaries.length; i++) {
+      domainNames.push(this.domains.secondaries[i].name);
     }
 
     if (this.gender.name === "female") {

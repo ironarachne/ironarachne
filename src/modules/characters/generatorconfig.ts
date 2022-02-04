@@ -4,11 +4,9 @@ import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
 import NameGenerator from "../names/generator";
 import PhysicalTrait from "../physicaltraits/physicaltrait";
-import Species from "../species/species";
+import type Species from "../species/species";
 import Human from "../species/human";
-import GenericFantasyFamilyGenerator from "../names/generators/genericfantasyfamily";
-import GenericFantasyFemaleGenerator from "../names/generators/genericfantasyfemale";
-import GenericFantasyMaleGenerator from "../names/generators/genericfantasymale";
+import HumanSet from "../names/races/human";
 
 export default class CharacterGeneratorConfig {
   ageCategories: string[];
@@ -22,9 +20,10 @@ export default class CharacterGeneratorConfig {
 
   constructor() {
     this.ageCategories = AgeCategories.getCategoryList();
-    this.familyNameGenerator = new GenericFantasyFamilyGenerator();
-    this.femaleNameGenerator = new GenericFantasyFemaleGenerator();
-    this.maleNameGenerator = new GenericFantasyMaleGenerator();
+    let genSet = new HumanSet();
+    this.familyNameGenerator = genSet.family;
+    this.femaleNameGenerator = genSet.female;
+    this.maleNameGenerator = genSet.male;
     this.speciesOptions = [];
 
     let human = new Human();

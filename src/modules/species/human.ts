@@ -2,11 +2,14 @@
 
 import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
-import Species from "./species";
+import type Species from "./species";
 import PhysicalTraitGenerator from "../physicaltraits/generator";
+import GeneratorSet from "../names/generatorset";
+import HumanSet from "../names/races/human";
 
 export default class Human implements Species {
   name: string;
+  nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
   commonality: number;
@@ -15,6 +18,7 @@ export default class Human implements Species {
 
   constructor() {
     this.name = "human";
+    this.nameGeneratorSet = new HumanSet();
     this.pluralName = "humans";
     this.adjective = "human";
     this.commonality = 200;

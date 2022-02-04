@@ -1,16 +1,24 @@
 <script lang="ts">
   import * as RND from "../modules/random";
-  import * as Culture from "../modules/culture/culture";
+  import * as CultureNames from "../modules/names/cultures";
 
   import random from "random";
   import seedrandom from "seedrandom";
+  import CultureGeneratorConfig from "../modules/culture/generatorconfig";
+  import CultureGenerator from "../modules/culture/generator";
 
   let seed = RND.randomString(13);
-  let culture = Culture.generate();
+  let genConfig = new CultureGeneratorConfig();
+  let genSet = CultureNames.randomGenSet();
+  genConfig.generatorSet = genSet;
+  let generator = new CultureGenerator(genConfig);
+  let culture = generator.generate();
 
   function generate() {
     random.use(seedrandom(seed));
-    culture = Culture.generate();
+    genSet = CultureNames.randomGenSet();
+    generator.config.generatorSet = genSet;
+    culture = generator.generate();
   }
 
   function newSeed() {
@@ -72,6 +80,29 @@
       </ul>
     </div>
   </div>
+
+  <div class="namelist">
+    <div>
+      <h5>Country Names</h5>
+
+      <ul>
+        {#each culture.countryNames as name}
+        <li>{ name }</li>
+        {/each}
+      </ul>
+    </div>
+    <div>
+      <h5>Town Names</h5>
+
+      <ul>
+        {#each culture.townNames as name}
+        <li>{ name }</li>
+        {/each}
+      </ul>
+    </div>
+  </div>
+
+
 
   <h4>Organization</h4>
 

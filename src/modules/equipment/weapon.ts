@@ -2,7 +2,7 @@
 
 import * as Descriptor from "./descriptor";
 import * as Material from "./material";
-import * as Domains from "../religion/domains";
+import * as Domains from "../religion/domains/domains";
 import * as RND from "../random";
 import * as Words from "../words";
 import * as Name from "../names/magicitems";

@@ -3,10 +3,9 @@
 import * as RND from "../random";
 import Character from "./character";
 import * as AgeCategories from "../age/agecategories";
-import * as NameGenerators from "../names/generators";
 import * as Words from "../words";
 import * as Measurements from "../measurements";
-import Species from "../species/species";
+import type Species from "../species/species";
 import PhysicalTrait from "../physicaltraits/physicaltrait";
 import CharacterGeneratorConfig from "./generatorconfig";
 
@@ -54,9 +53,9 @@ export default class CharacterGenerator {
     let maleNameGenerator = this.config.maleNameGenerator;
 
     if (this.config.useAdaptiveNames) {
-      familyNameGenerator = NameGenerators.byName(`${species.name} family`);
-      femaleNameGenerator = NameGenerators.byName(`${species.name} female`);
-      maleNameGenerator = NameGenerators.byName(`${species.name} male`);
+      familyNameGenerator = species.nameGeneratorSet.family;
+      femaleNameGenerator = species.nameGeneratorSet.female;
+      maleNameGenerator = species.nameGeneratorSet.male;
     }
 
     let firstNames = [];

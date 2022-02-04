@@ -61,11 +61,11 @@
     <div><p>{Words.capitalize(region.name)} is ruled by {ruler.getPrimaryTitle()} {ruler.firstName} {ruler.lastName}. {ruler.description}</p></div>
   </div>
 
-  <h4>Notable Towns</h4>
-  {#each region.towns as town}
+  <h4>Notable Settlements</h4>
+  {#each region.settlements as settlement}
     <article>
-      <h5>{town.name}</h5>
-      <p>{town.description}</p>
+      <h5>{settlement.name}</h5>
+      <p>{settlement.description}</p>
     </article>
   {/each}
   <h4>Notable Organizations</h4>

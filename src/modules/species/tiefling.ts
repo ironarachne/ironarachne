@@ -2,11 +2,14 @@
 
 import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
-import Species from "./species";
+import type Species from "./species";
 import PhysicalTraitGenerator from "../physicaltraits/generator";
+import GeneratorSet from "../names/generatorset";
+import TieflingSet from "../names/races/tiefling";
 
 export default class Tiefling implements Species {
   name: string;
+  nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
   commonality: number;
@@ -15,6 +18,7 @@ export default class Tiefling implements Species {
 
   constructor() {
     this.name = "tiefling";
+    this.nameGeneratorSet = new TieflingSet();
     this.pluralName = "tieflings";
     this.adjective = "tiefling";
     this.commonality = 5;

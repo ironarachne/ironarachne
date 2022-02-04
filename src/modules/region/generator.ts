@@ -5,8 +5,8 @@ import Nation from "../nations/nation";
 import * as NationGenerator from "../nations/fantasy";
 import * as Organizations from "../organizations/fantasy";
 import Organization from "../organizations/organization";
-import TownGeneratorConfig from "../towns/generatorconfig";
-import TownGenerator from "../towns/generator";
+import SettlementGeneratorConfig from "../settlements/generatorconfig";
+import SettlementGenerator from "../settlements/generator";
 import Region from "./region";
 import * as Words from "../words";
 
@@ -17,7 +17,7 @@ import Environment from "../environment/environment";
 export function generate(): Region {
   const envGen = new EnvironmentGenerator();
   const environment = envGen.generate();
-  const towns = randomTowns(environment);
+  const towns = randomSettlements(environment);
   const organizations = randomOrganizations();
 
   const claimants = randomClaimants();
@@ -83,12 +83,12 @@ function randomOrganizations() {
   return orgs;
 }
 
-function randomTowns(environment: Environment) {
-  let townGenConfig = new TownGeneratorConfig();
-  townGenConfig.size = "large";
-  townGenConfig.environment = environment;
-  let townGen = new TownGenerator(townGenConfig);
-  const capital = townGen.generate();
+function randomSettlements(environment: Environment) {
+  let settlementGenConfig = new SettlementGeneratorConfig();
+  settlementGenConfig.size = "large";
+  settlementGenConfig.environment = environment;
+  let settlementGen = new SettlementGenerator(settlementGenConfig);
+  const capital = settlementGen.generate();
 
   const numberOfMediumTowns = random.int(1, 3);
   const numberOfSmallTowns = random.int(3, 5);
@@ -98,14 +98,14 @@ function randomTowns(environment: Environment) {
   towns.push(capital);
 
   for (let i = 0; i < numberOfMediumTowns; i++) {
-    townGen.config.size = "medium";
-    const town = townGen.generate();
+    settlementGen.config.size = "medium";
+    const town = settlementGen.generate();
     towns.push(town);
   }
 
   for (let i = 0; i < numberOfSmallTowns; i++) {
-    townGen.config.size = "small";
-    const town = townGen.generate();
+    settlementGen.config.size = "small";
+    const town = settlementGen.generate();
     towns.push(town);
   }
 

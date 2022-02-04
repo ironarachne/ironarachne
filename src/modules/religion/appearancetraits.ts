@@ -1,7 +1,7 @@
 "use strict";
 
 import * as AppearanceTrait from "../appearance";
-import RealmConcept from "./realmconcept";
+import RealmConcept from "./realms/realmconcept";
 
 export function all() {
   return [

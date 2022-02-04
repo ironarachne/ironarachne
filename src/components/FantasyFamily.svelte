@@ -5,19 +5,18 @@
   import random from "random";
   import seedrandom from "seedrandom";
   import FamilyGeneratorConfig from "../modules/characters/family/generatorconfig";
-  import * as NameGenerators from "../modules/names/generators";
   import FamilyGenerator from "../modules/characters/family/generator";
   import Gender from "../modules/gender";
-  import Species from "../modules/species/species";
+  import type Species from "../modules/species/species";
 
   let seed = RND.randomString(13);
   let availableSpecies = FantasySpecies.all();
   let selectedSpecies = "any";
   let species = FantasySpecies.randomWeighted();
   let iterations = 2;
-  let familyNameGen = NameGenerators.byName(species.name + " family");
-  let femaleNameGen = NameGenerators.byName(species.name + " female");
-  let maleNameGen = NameGenerators.byName(species.name + " male");
+  let familyNameGen = species.nameGeneratorSet.family;
+  let femaleNameGen = species.nameGeneratorSet.female;
+  let maleNameGen = species.nameGeneratorSet.male;
   let lastNameTradition = "male";
   let config = new FamilyGeneratorConfig(species, iterations, familyNameGen, femaleNameGen, maleNameGen, getDominantGender());
   let generator = new FamilyGenerator(config);
@@ -26,9 +25,9 @@
   function generate() {
     random.use(seedrandom(seed));
     species = getSpecies(selectedSpecies);
-    familyNameGen = NameGenerators.byName(species.name + " family");
-    femaleNameGen = NameGenerators.byName(species.name + " female");
-    maleNameGen = NameGenerators.byName(species.name + " male");
+    familyNameGen = species.nameGeneratorSet.family;
+    femaleNameGen = species.nameGeneratorSet.female;
+    maleNameGen = species.nameGeneratorSet.male;
     config = new FamilyGeneratorConfig(species, iterations, familyNameGen, femaleNameGen, maleNameGen, getDominantGender());
     generator.config = config;
     family = generator.generate();

@@ -4,13 +4,15 @@ import * as RND from "../random";
 import Nation from "./nation";
 import NationGenerator from "./generator";
 import KingdomGenerator from "./kingdoms/generator";
-import FantasyRegionsGenerator from "../names/generators/fantasyregions";
 import EmpireGenerator from "./empires/generator";
+import FantasySet from "../names/cultures/fantasy";
 
 export function generate(): Nation {
   const generator = RND.item(allGenerators());
 
-  const nameGenerator = new FantasyRegionsGenerator();
+  const genSet = new FantasySet();
+
+  const nameGenerator = genSet.country;
 
   return generator.generate(nameGenerator);
 }

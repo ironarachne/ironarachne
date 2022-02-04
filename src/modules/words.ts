@@ -58,6 +58,19 @@ export function uncapitalize(word: string) {
   return word[0].toLowerCase() + word.slice(1);
 }
 
+export function title(phrase: string) {
+  let elements = phrase.split(' ');
+  let result = '';
+
+  for (let i=0;i<elements.length;i++) {
+    result += capitalize(elements[i]) + ' ';
+  }
+
+  result = result.trimEnd();
+
+  return result;
+}
+
 export function getMonthAbbr(month: number) {
   const months = [
     'Jan.',

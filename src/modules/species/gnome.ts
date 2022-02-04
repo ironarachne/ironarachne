@@ -2,11 +2,14 @@
 
 import * as AgeCategories from "../age/agecategories";
 import Gender from "../gender";
-import Species from "./species";
+import type Species from "./species";
 import PhysicalTraitGenerator from "../physicaltraits/generator";
+import GeneratorSet from "../names/generatorset";
+import GnomeSet from "../names/races/gnome";
 
 export default class Gnome implements Species {
   name: string;
+  nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
   commonality: number;
@@ -15,6 +18,7 @@ export default class Gnome implements Species {
 
   constructor() {
     this.name = "gnome";
+    this.nameGeneratorSet = new GnomeSet();
     this.pluralName = "gnomes";
     this.adjective = "gnomish";
     this.commonality = 20;
