@@ -3,19 +3,55 @@
   import * as RND from "../modules/random";
   import * as RegionGenerator from "../modules/region/generator";
   import * as Words from "../modules/words";
+  import * as MapBiomes from "../modules/region/maps/biomes";
 
   import random from "random";
   import seedrandom from "seedrandom";
+  import RegionMapGeneratorConfig from "../modules/region/maps/generatorconfig";
+  import RegionMapGenerator from "../modules/region/maps/generator";
+  import MapFeature from "../modules/region/maps/feature";
+  import MeshMapSVGRenderer from "../modules/region/maps/renderers/meshsvg";
 
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
   let region = RegionGenerator.generate();
   let ruler = region.sovereign.authority;
+  let mapGenConfig = new RegionMapGeneratorConfig(60, 40);
+  mapGenConfig.elevationTransform = MapBiomes.getElevationFunctionForBiome(region.environment.biome.name);
+  mapGenConfig.humidityTransform = MapBiomes.getHumidityFunctionForBiome(region.environment.biome.name);
+  mapGenConfig.temperatureTransform = MapBiomes.getTemperatureFunctionForBiome(region.environment.biome.name);
+  let mapFeatures = [];
+
+  for (let i=0;i<region.settlements.length;i++) {
+    let feature = new MapFeature(region.settlements[i].name, region.settlements[i].category.name);
+    mapFeatures.push(feature);
+  }
+  mapGenConfig.features = mapFeatures;
+
+  let mapGen = new RegionMapGenerator(mapGenConfig);
+  let map = mapGen.generateMesh();
+  let mapRenderer = new MeshMapSVGRenderer(map);
+  let mapSVG = mapRenderer.render();
 
   function generate() {
     random.use(seedrandom(seed));
     region = RegionGenerator.generate();
     ruler = region.sovereign.authority;
+    mapGenConfig = new RegionMapGeneratorConfig(60, 40);
+    mapGenConfig.elevationTransform = MapBiomes.getElevationFunctionForBiome(region.environment.biome.name);
+    mapGenConfig.humidityTransform = MapBiomes.getHumidityFunctionForBiome(region.environment.biome.name);
+    mapGenConfig.temperatureTransform = MapBiomes.getTemperatureFunctionForBiome(region.environment.biome.name);
+    mapFeatures = [];
+
+    for (let i=0;i<region.settlements.length;i++) {
+      let feature = new MapFeature(region.settlements[i].name, region.settlements[i].category.name);
+      mapFeatures.push(feature);
+    }
+    mapGenConfig.features = mapFeatures;
+    mapGen = new RegionMapGenerator(mapGenConfig);
+    map = mapGen.generateMesh();
+    mapRenderer = new MeshMapSVGRenderer(map);
+    mapSVG = mapRenderer.render();
   }
 
   function newSeed() {
@@ -43,6 +79,8 @@
   <h3>{Words.capitalize(region.name)}</h3>
 
   <p>{region.description}</p>
+
+  <div class="region-map">{@html mapSVG}</div>
 
   <h4>Claimants</h4>
 

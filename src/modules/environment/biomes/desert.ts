@@ -1,6 +1,6 @@
 'use strict';
 
-import Biome from './biome';
+import type Biome from './biome';
 
 export default class Desert implements Biome {
   name: string;
