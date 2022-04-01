@@ -16,6 +16,10 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-04-01', [
+      'Added anchor and barrel heraldic charges.',
+      'Added link to the source code in the footer.',
+    ]),
     new ChangeLog('2022-02-04', [
       'Added ability to allow or disallow occupations by race for DCC character generator.',
       'Expanded how culture taboos are generated.',

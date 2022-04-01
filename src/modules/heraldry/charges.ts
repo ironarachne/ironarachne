@@ -3,8 +3,10 @@
 import * as RND from '../random';
 import Charge from './charge';
 
+import anchor from './charge-images/anchor.svg';
 import antelopepassant from './charge-images/antelope-passant.svg';
 import anteloperampant from './charge-images/antelope-rampant.svg';
+import barrel from './charge-images/barrel.svg';
 import batvolant from './charge-images/bat-volant.svg';
 import battleaxe from './charge-images/battleaxe.svg';
 import bearheadcouped from './charge-images/bear-head-couped.svg';
@@ -56,6 +58,16 @@ import wyvern from './charge-images/wyvern.svg';
 
 export function all() {
   return [
+    new Charge('anchor', 'anchors', anchor, 'regular', [
+      'anchor',
+      'ocean',
+      'sea',
+      'navy',
+      'ship',
+      'sailor',
+      'coast',
+      'trade',
+    ]),
     new Charge('antelope passant', 'antelopes passant', antelopepassant, 'regular', [
       'animal',
       'antelope',
@@ -65,6 +77,11 @@ export function all() {
       'animal',
       'antelope',
       'hunting',
+    ]),
+    new Charge('barrel', 'barrels', barrel, 'regular', [
+      'barrel',
+      'trade',
+      'wine',
     ]),
     new Charge('bat volant', 'bats volant', batvolant, 'regular', [
       'animal',

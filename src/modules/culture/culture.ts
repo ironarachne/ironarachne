@@ -5,6 +5,7 @@ import * as Organization from './organization';
 import MusicStyle from '../music/style';
 import GeneratorSet from '../names/generatorset';
 
+// Culture is understood as the patterns, rules, and meanings of social interaction; these are the foundation of all social order.
 export default class Culture {
   name: string;
   organization: Organization.Organization;

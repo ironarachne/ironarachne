@@ -14,7 +14,7 @@ import Character from '../../characters/character';
 export function generateType(): OrganizationType {
   let config = Heraldry.getDefaultConfig();
   config.chargeCount = RND.item([0, 1]);
-  config.chargeOptions = Charges.matchingAnyTags(['coin', 'money', 'ocean'], Charges.all());
+  config.chargeOptions = Charges.matchingAnyTags(['coin', 'money', 'trade'], Charges.all());
 
   let company = new OrganizationType(
     'trading company',

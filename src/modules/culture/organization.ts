@@ -49,6 +49,16 @@ export function generate() {
   return organization;
 }
 
+function generatePowerStructure() {
+  // is there a dominant gender? if so, which is it?
+  // is power concentrated in a large group, a small group, or individuals?
+  // what is the source of status? wealth, religion, land, strength?
+  // who is in charge of towns?
+  // are there different types of authority? e.g., town council made of men, but women's council that can overrule them
+  // who is in charge of groups of towns?
+  // what is the source of authority, if it's different from status?
+}
+
 function randomDominantGender() {
   return RND.item(['women are dominant', 'men are dominant', 'neither gender is dominant']);
 }
@@ -66,6 +76,11 @@ function randomSocialMobility() {
     'no one leaves the status they are born into',
     'some gain higher status by marrying someone above them',
     'everyone has the freedom to gain or lose status based on their own efforts',
+    'it\'s possible to marry outside your social class, but frowned upon',
+    'marrying outside of your social class is an acceptable way to change your status',
+    'there is a rigid caste system and marrying outside of your caste is forbidden',
+    'there is a rigid caste system but marrying outside of your caste is allowed in some situations',
+    'there is a caste system, but it is starting to fall away as the younger generations pay less attention to it',
   ]);
 }
 
