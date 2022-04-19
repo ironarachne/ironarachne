@@ -116,6 +116,9 @@
 
     <ul>
       <li>
+        <a href="#/language" class:active={$location === '/language'}>Language Generator</a>
+      </li>
+      <li>
         <a href="#/species-stats" class:active={$location === '/species-stats'}>Species Height/Weight Calculator</a>
       </li>
     </ul>

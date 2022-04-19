@@ -13,6 +13,7 @@
   import Header from "./Header.svelte";
   import Heraldry from "./Heraldry.svelte";
   import Home from "./Home.svelte";
+  import Language from "./Language.svelte";
   import MagicWeapon from "./MagicWeapon.svelte";
   import Planet from "./Planet.svelte";
   import Region from "./Region.svelte";
@@ -41,6 +42,7 @@
     "/fantasy/religion": Religion,
     "/fantasy/weapon": MagicWeapon,
     "/heraldry": Heraldry,
+    "/language": Language,
     "/planet": Planet,
     "/region": Region,
     "/species-stats": SpeciesStatsTool,
