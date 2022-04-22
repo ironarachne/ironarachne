@@ -2,12 +2,12 @@
 
 import * as RND from '../../random';
 import * as StarfieldRenderer from '../starfields/starfield-svg';
-import { Planet } from '../../planets/planet';
+import Planet from '../../planets/planet';
 
 import random from 'random';
 
 export function render(width: number, height: number, planet: Planet) {
-  const textureRenderer = getPlanetRenderer(planet.classification);
+  const textureRenderer = getPlanetRenderer(planet.classification.name);
   const texture = textureRenderer.renderSVG();
 
   let sizeClass = 'medium';
@@ -26,14 +26,20 @@ export function render(width: number, height: number, planet: Planet) {
   const min = Math.min(width, height);
 
   let radius = 0.0;
+  const planetDiameterModifier = (planet.diameter - planet.classification.diameter_min) / (planet.classification.diameter_max - planet.classification.diameter_min);
+  let rangeMin = 0.8;
+  let rangeMax = 0.9;
 
   if (sizeClass === 'small') {
-    radius = (Math.floor(min) * random.float(0.2, 0.4)) / 2;
+    rangeMin = 0.2;
+    rangeMax = 0.4;
   } else if (sizeClass === 'medium') {
-    radius = (Math.floor(min) * random.float(0.5, 0.7)) / 2;
-  } else {
-    radius = (Math.floor(min) * random.float(0.8, 0.9)) / 2;
+    rangeMin = 0.5;
+    rangeMax = 0.7;
   }
+
+  let size = ((rangeMax - rangeMin) * planetDiameterModifier) + rangeMin;
+  radius = (Math.floor(min) * size) / 2;
 
   const atmosphereRadius = Math.floor(radius * 1.1);
 

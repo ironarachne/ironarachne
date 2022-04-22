@@ -16,6 +16,11 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-04-22', [
+      'Tweaked the SVG rendering of planets in the star system generator to properly size them.',
+      'Added comparison to Earth for some planet statistics, for context.',
+      'Reorganized the planet and star generation code a bit behind the scenes.',
+    ]),
     new ChangeLog('2022-04-01', [
       'Added anchor and barrel heraldic charges.',
       'Added link to the source code in the footer.',

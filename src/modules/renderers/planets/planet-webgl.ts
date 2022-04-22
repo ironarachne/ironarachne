@@ -2,7 +2,6 @@
 
 import GoldNoise from '../../shaders/gold-noise.glsl';
 import SimplexNoise from '../../shaders/simplex-noise.glsl';
-import { PlanetClassification } from '../../planets/planet';
 
 import random from 'random';
 
@@ -16,7 +15,7 @@ export function translateDiameterToModelSize(diameter: number): number {
   return size;
 }
 
-export function getShaderData(classification: PlanetClassification) {
+export function getShaderData(classification: string) {
   const options = {
     arid: {
       generateCloudShader: function () {

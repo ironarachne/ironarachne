@@ -2,17 +2,21 @@
 
 import * as StarSystemRenderer from './render';
 import * as Words from '../words';
-import * as Star from '../stars/star';
-import * as Planet from '../planets/planet';
+import Planet from '../planets/planet';
+import PlanetGenerator from '../planets/generator';
 import * as PlanetRenderer from '../renderers/planets/planet-svg';
 
 import random from 'random';
+import PlanetGeneratorConfig from '../planets/generatorconfig';
+import Star from '../stars/star';
+import StarGeneratorConfig from '../stars/generatorconfig';
+import StarGenerator from '../stars/generator';
 
 export class StarSystem {
   name: string;
   description: string;
-  stars: Star.Star[];
-  planets: Planet.Planet[];
+  stars: Star[];
+  planets: Planet[];
 
   constructor() {
     this.name = '';
@@ -28,7 +32,10 @@ export function generate() {
   const graphicWidth = 128;
   const graphicHeight = 128;
 
-  const star = Star.generate();
+  let starGenConfig = new StarGeneratorConfig();
+  let starGen = new StarGenerator(starGenConfig);
+
+  const star = starGen.generate();
 
   star.svg = StarSystemRenderer.renderStar(
     graphicWidth,
@@ -43,8 +50,11 @@ export function generate() {
 
   const numberOfPlanets = random.int(3, 12);
 
+  let planetGenConfig = new PlanetGeneratorConfig();
+  let planetGenerator = new PlanetGenerator(planetGenConfig);
+
   for (let i = 0; i < numberOfPlanets; i++) {
-    const planet = Planet.generate('random');
+    const planet = planetGenerator.generate();
     planet.svg = PlanetRenderer.render(graphicWidth, graphicHeight, planet);
     starsystem.planets.push(planet);
   }

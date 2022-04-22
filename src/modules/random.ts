@@ -10,6 +10,18 @@ export function item(items: any[]) {
   return items[random.int(0, items.length - 1)];
 }
 
+export function bellFloat(min: number, max: number): number {
+  const divisor = (max - min) / 3;
+
+  let result = min;
+
+  for (let i=0;i<3;i++) {
+    result += random.float(0, divisor);
+  }
+
+  return result;
+}
+
 export function randomSet(itemCount: number, items: any[]): any[] {
   let result = [];
 

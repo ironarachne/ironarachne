@@ -121,6 +121,10 @@ pre {
 
 sup {
   vertical-align: super;
+  font-size: 0.6rem;
+}
+
+h3 > sup {
   font-size: 1.1rem;
 }
 

@@ -1,24 +1,28 @@
 <script>
-  import * as RND from "../modules/random";
-  import * as Planet from "../modules/planets/planet";
-  import * as PlanetRenderer from "../modules/renderers/planets/planet-webgl";
-  import * as THREE from "three";
-  import * as StarfieldShader from "../modules/renderers/starfields/starfield-webgl";
+  import * as RND from '../modules/random';
+  import * as Classifications from '../modules/planets/classifications';
+  import * as PlanetRenderer from '../modules/renderers/planets/planet-webgl';
+  import * as THREE from 'three';
+  import * as StarfieldShader from '../modules/renderers/starfields/starfield-webgl';
 
-  import random from "random";
-  import seedrandom from "seedrandom";
+  import random from 'random';
+  import seedrandom from 'seedrandom';
 
   import { onMount } from 'svelte';
+  import PlanetGeneratorConfig from '../modules/planets/generatorconfig';
+  import PlanetGenerator from '../modules/planets/generator';
 
   let materials = [];
   let meshes = [];
   let geometries = [];
-  let planetTypes = Planet.listPlanetTypes();
+  let planetTypes = Classifications.getClassificationNames();
 
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
-  let planetType = "random";
-  let planet = Planet.generate(planetType);
+  let planetType = 'random';
+  let planetGenConfig = new PlanetGeneratorConfig();
+  let planetGen = new PlanetGenerator(planetGenConfig);
+  let planet = planetGen.generate();
   let initialized = false;
   let scene = new THREE.Scene();
   let camera = {};
@@ -49,9 +53,18 @@
     }
 
     random.use(seedrandom(seed));
-    planet = Planet.generate(planetType);
 
-    let shaderData = PlanetRenderer.getShaderData(planet.classification);
+    if (planetType == 'random') {
+      planetGen.config.possibleClassifications = Classifications.all();
+    } else {
+      planetGen.config.possibleClassifications = [
+        Classifications.getClassificationByName(planetType),
+      ];
+    }
+
+    planet = planetGen.generate();
+
+    let shaderData = PlanetRenderer.getShaderData(planet.classification.name);
     planet.fragmentShader = shaderData.generateFragmentShader();
     planet.vertexShader = shaderData.generateVertexShader();
     planet.cloudShader = shaderData.generateCloudShader();
@@ -70,10 +83,10 @@
   }
 
   function render() {
-    if (planetType == "") {
-      planetType = "random";
+    if (planetType == '') {
+      planetType = 'random';
     }
-    canvas = document.getElementById("render");
+    canvas = document.getElementById('render');
     scene = new THREE.Scene();
     camera = new THREE.PerspectiveCamera(65, 600 / 400, 0.1, 100);
     camera.position.set(0, 10, 20);
@@ -93,13 +106,11 @@
     let fragmentShader = planet.fragmentShader;
     let vertexShader = planet.vertexShader;
 
-    let uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib["lights"]]);
+    let uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib['lights']]);
 
     uniforms.u_resolution = { value: { x: 600, y: 400 } };
 
-    let planetSize = PlanetRenderer.translateDiameterToModelSize(
-      planet.diameter
-    );
+    let planetSize = PlanetRenderer.translateDiameterToModelSize(planet.diameter);
 
     let planetGeometry = new THREE.SphereGeometry(planetSize, 32, 32);
     geometries.push(planetGeometry);
@@ -120,11 +131,7 @@
 
     if (planet.has_clouds) {
       let cloudsShader = planet.cloudShader;
-      let planetCloudGeometry = new THREE.SphereGeometry(
-        planetSize + 0.1,
-        32,
-        32
-      );
+      let planetCloudGeometry = new THREE.SphereGeometry(planetSize + 0.1, 32, 32);
       geometries.push(planetCloudGeometry);
       let cloudsMaterial = new THREE.ShaderMaterial({
         uniforms: uniforms,
@@ -182,7 +189,7 @@
 
   <p>{planet.description}</p>
 
-  <p><strong>Planet Type:</strong> {planet.classification}</p>
+  <p><strong>Planet Type:</strong> {planet.classification.name}</p>
   <p><strong>Population:</strong> {planet.population}</p>
   <p><strong>Government:</strong> {planet.government}</p>
   <p><strong>Culture:</strong> {planet.culture}</p>
@@ -192,15 +199,20 @@
   </p>
   <p>
     <strong>Mass:</strong>
-    {new Intl.NumberFormat().format(planet.mass)} &times; 10<sup>24</sup> kg
+    {new Intl.NumberFormat().format(planet.mass)} &times; 10<sup>24</sup> kg ({new Intl.NumberFormat().format(
+      Math.floor((planet.mass / 5.9722) * 100),
+    )}% Earth's mass)
   </p>
   <p>
     <strong>Diameter:</strong>
-    {new Intl.NumberFormat().format(Math.floor(planet.diameter))} km
+    {new Intl.NumberFormat().format(Math.floor(planet.diameter))} km ({new Intl.NumberFormat().format(
+      Math.floor((planet.diameter / 12756) * 100),
+    )}% Earth's diameter)
   </p>
   <p>
     <strong>Gravity:</strong>
     {new Intl.NumberFormat().format(planet.gravity)} m/s<sup>2</sup>
+    ({new Intl.NumberFormat().format(Math.floor((planet.gravity / 9.81) * 100))}% Earth's gravity)
   </p>
   <p>
     <strong>Orbital Period:</strong>

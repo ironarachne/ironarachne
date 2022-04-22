@@ -75,7 +75,7 @@
       <div>
         <h5>{planet.name}</h5>
         <p>{planet.description}</p>
-        <p><strong>Planet Type:</strong> {planet.classification}</p>
+        <p><strong>Planet Type:</strong> {planet.classification.name}</p>
         <p><strong>Population:</strong> {planet.population}</p>
         <p><strong>Culture:</strong> {planet.culture}</p>
         <p><strong>Government:</strong> {planet.government}</p>
@@ -93,7 +93,7 @@
         </p>
         <p>
           <strong>Gravity:</strong>
-          {new Intl.NumberFormat().format(planet.gravity)} m/s<sup>2</sup>
+          {new Intl.NumberFormat().format(planet.gravity)} m/s<sup>2</sup> ({new Intl.NumberFormat().format(Math.floor(planet.gravity / 9.81 * 100))}% Earth gravity)
         </p>
         <p>
           <strong>Orbital Period:</strong>
