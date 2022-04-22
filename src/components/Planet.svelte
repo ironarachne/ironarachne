@@ -109,6 +109,7 @@
     let uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib['lights']]);
 
     uniforms.u_resolution = { value: { x: 600, y: 400 } };
+    uniforms.seed = { value: random.float(0, 200.0) };
 
     let planetSize = PlanetRenderer.translateDiameterToModelSize(planet.diameter);
 
@@ -123,6 +124,9 @@
     });
     materials.push(planetMaterial);
 
+    let light = new THREE.HemisphereLight(0xf6e86d, 0x404040, 0.5);
+    scene.add(light);
+
     let planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
     planetMesh.position.set(0, 10, 0);
     meshes.push(planetMesh);
@@ -133,6 +137,7 @@
       let cloudsShader = planet.cloudShader;
       let planetCloudGeometry = new THREE.SphereGeometry(planetSize + 0.1, 32, 32);
       geometries.push(planetCloudGeometry);
+      uniforms.numOctaves = { value: 16 };
       let cloudsMaterial = new THREE.ShaderMaterial({
         uniforms: uniforms,
         fragmentShader: cloudsShader,

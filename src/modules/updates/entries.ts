@@ -20,6 +20,7 @@ export function all(): ChangeLog[] {
       'Tweaked the SVG rendering of planets in the star system generator to properly size them.',
       'Added comparison to Earth for some planet statistics, for context.',
       'Reorganized the planet and star generation code a bit behind the scenes.',
+      'Made the graphics on the Planet Generator much more realistic.',
     ]),
     new ChangeLog('2022-04-01', [
       'Added anchor and barrel heraldic charges.',
