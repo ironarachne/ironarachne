@@ -5,6 +5,7 @@
   import Culture from "./Culture.svelte";
   import DCCCharacter from "./DCCCharacter.svelte";
   import Drug from "./Drug.svelte";
+  import Dungeon from "./Dungeon.svelte";
   import FantasyEquipment from "./FantasyEquipment.svelte";
   import FantasyFamily from "./FantasyFamily.svelte";
   import FantasyMerchant from "./FantasyMerchant.svelte";
@@ -34,6 +35,7 @@
     "/culture": Culture,
     "/drug": Drug,
     "/fantasy/dcc/character": DCCCharacter,
+    "/fantasy/dungeon": Dungeon,
     "/fantasy/equipment": FantasyEquipment,
     "/fantasy/family": FantasyFamily,
     "/fantasy/merchant": FantasyMerchant,
