@@ -1,9 +1,9 @@
-"use strict";
+'use strict';
 
-import type Biome from "../environment/biomes/biome";
-import BiomeGenerator from "../environment/biomes/generator";
-import BiomeGeneratorConfig from "../environment/biomes/generatorconfig";
-import * as Climates from "../environment/climates/climates";
+import type Biome from '../environment/biomes/biome';
+import BiomeGenerator from '../environment/biomes/generator';
+import BiomeGeneratorConfig from '../environment/biomes/generatorconfig';
+import * as Climates from '../environment/climates/climates';
 
 export default class DungeonGeneratorConfig {
   possibleBiomes: Biome[];
@@ -16,9 +16,9 @@ export default class DungeonGeneratorConfig {
 
   constructor() {
     this.width = 40;
-    this.height = 30;
-    this.maxRoomHeight = 5;
-    this.maxRoomWidth = 5;
+    this.height = 50;
+    this.maxRoomHeight = 8;
+    this.maxRoomWidth = 8;
     this.maxRooms = 30;
     this.minRooms = 10;
 

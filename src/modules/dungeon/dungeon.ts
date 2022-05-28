@@ -10,7 +10,7 @@ export default class Dungeon {
   biome: Biome;
   rooms: Room[];
   doors: Door[];
-  values: number[][];
+  tiles: number[][];
 
   constructor() {
     this.rooms = [];

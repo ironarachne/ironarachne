@@ -1,11 +1,12 @@
-"use strict";
+'use strict';
 
-import Edge from "../geometry/edge";
+import Vertex from '../geometry/vertex';
 
 export default class Door {
   room1: number;
   room2: number;
-  edge: Edge;
+  tile: number;
+  vertex: Vertex;
   isLocked: boolean;
   isSecret: boolean;
 

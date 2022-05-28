@@ -15,25 +15,25 @@
 }
 
 @font-face {
-  font-family: 'libre_baskerville';
-  src: url('./fonts/librebaskerville-bold-webfont.woff2') format('woff2'),
-    url('./fonts/librebaskerville-bold-webfont.woff') format('woff');
+  font-family: 'alegreya';
+  src: url('./fonts/alegreya-bold-webfont.woff2') format('woff2'),
+    url('./fonts/alegreya-bold-webfont.woff') format('woff');
   font-weight: bold;
   font-style: normal;
 }
 
 @font-face {
-  font-family: 'libre_baskerville';
-  src: url('./fonts/librebaskerville-italic-webfont.woff2') format('woff2'),
-    url('./fonts/librebaskerville-italic-webfont.woff') format('woff');
+  font-family: 'alegreya';
+  src: url('./fonts/alegreya-italic-webfont.woff2') format('woff2'),
+    url('./fonts/alegreya-italic-webfont.woff') format('woff');
   font-weight: normal;
   font-style: italic;
 }
 
 @font-face {
-  font-family: 'libre_baskerville';
-  src: url('./fonts/librebaskerville-regular-webfont.woff2') format('woff2'),
-    url('./fonts/librebaskerville-regular-webfont.woff') format('woff');
+  font-family: 'alegreya';
+  src: url('./fonts/alegreya-regular-webfont.woff2') format('woff2'),
+    url('./fonts/alegreya-regular-webfont.woff') format('woff');
   font-weight: normal;
   font-style: normal;
 }
@@ -87,7 +87,7 @@ html {
     rgba(247, 243, 228, 1) 85%,
     rgba(199, 196, 184, 1) 100%
   );
-  font-family: 'libre_baskerville', Georgia, serif;
+  font-family: 'alegreya', Georgia, serif;
   font-size: 20px;
   line-height: 1.5rem;
 }

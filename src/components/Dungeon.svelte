@@ -5,7 +5,7 @@
   import seedrandom from "seedrandom";
   import DungeonGeneratorConfig from "../modules/dungeon/dungeongeneratorconfig";
   import DungeonGenerator from "../modules/dungeon/dungeongenerator";
-  import DungeonRenderer from "../modules/dungeon/renderer";
+  import DungeonTileRenderer from "../modules/dungeon/tilerenderer";
   import { onMount } from "svelte";
 
   let seed = RND.randomString(13);
@@ -15,7 +15,7 @@
   let config = new DungeonGeneratorConfig();
   let generator = new DungeonGenerator(config);
   let dungeon = generator.generate();
-  let renderer = new DungeonRenderer(800, 600, config.height, config.width);
+  let renderer = new DungeonTileRenderer(800, 1000, config.height, config.width);
 
   function generate() {
     random.use(seedrandom(seed));
@@ -52,5 +52,12 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <canvas id="mapCanvas" width="800" height="600"></canvas>
+  <canvas id="mapCanvas" width="800" height="1000"></canvas>
+
+  {#each dungeon.rooms as room }
+  <div class="room">
+    <h3>Room {room.id + 1}</h3>
+    <p>{room.description}</p>
+  </div>
+  {/each}
 </section>
