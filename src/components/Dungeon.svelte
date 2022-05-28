@@ -58,6 +58,9 @@
   <div class="room">
     <h3>Room {room.id + 1}</h3>
     <p>{room.description}</p>
+    {#each room.features as feature}
+    <p>{feature}</p>
+    {/each}
   </div>
   {/each}
 </section>

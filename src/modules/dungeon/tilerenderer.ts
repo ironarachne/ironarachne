@@ -47,8 +47,14 @@ export default class DungeonTileRenderer {
     }
 
     for (let i = 0; i < dungeon.rooms.length; i++) {
-      let x = dungeon.rooms[i].center.x * this.tileSize;
-      let y = dungeon.rooms[i].center.y * this.tileSize;
+      let x =
+        dungeon.rooms[i].minX * this.tileSize +
+        ((dungeon.rooms[i].maxX - dungeon.rooms[i].minX) * this.tileSize) / 2 +
+        this.tileSize * 0.25;
+      let y =
+        dungeon.rooms[i].minY * this.tileSize +
+        ((dungeon.rooms[i].maxY - dungeon.rooms[i].minY) * this.tileSize) / 2 +
+        this.tileSize * 0.8;
 
       ctx.beginPath();
       ctx.strokeStyle = '#5698DA';

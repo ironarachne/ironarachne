@@ -1,6 +1,7 @@
 'use strict';
 
 import random from 'random';
+import * as Directions from '../geometry/directions';
 import * as RND from '../random';
 import * as Tiles from './tiles';
 import Dungeon from './dungeon';
@@ -8,8 +9,10 @@ import DungeonGeneratorConfig from './dungeongeneratorconfig';
 import Room from './room';
 import Vertex from '../geometry/vertex';
 import * as Geometry from '../geometry/geometry';
+import * as Words from '../words';
 import Door from './door';
 import Edge from '../geometry/edge';
+import TreasureSpawn from './treasurespawn';
 
 export default class DungeonGenerator {
   config: DungeonGeneratorConfig;
@@ -35,6 +38,7 @@ export default class DungeonGenerator {
       this.config.height,
     );
     firstRoom.id = 0;
+    firstRoom.features.push('The entrance to the dungeon is here.');
     let id = 0;
 
     dungeon.rooms.push(firstRoom);
@@ -44,6 +48,8 @@ export default class DungeonGenerator {
     let numRooms = random.int(this.config.minRooms, this.config.maxRooms);
     let failedIterations = 0;
     let failedMax = 5;
+
+    let treasureSpawns = [];
 
     while (roomGeneration) {
       if (dungeon.rooms.length >= numRooms) {
@@ -64,16 +70,60 @@ export default class DungeonGenerator {
           r2 = getNearestRoom(r, dungeon.rooms);
           dungeon.rooms.push(r);
           dungeon.tiles = addRoomToTiles(r, dungeon.tiles);
+
+          let door = addDoor(r, r2);
+
+          if (r2.id == 0) {
+            door.isSecret = false;
+            if (dungeon.rooms[0].doors.length < 2) {
+              door.isLocked = false;
+            }
+          }
+
+          if (door.isLocked) {
+            let key = new TreasureSpawn();
+            key.behavior = `Unlocks the door between room ${r2.id + 1} and room ${r.id + 1}`;
+            key.minRoom = 0;
+            key.maxRoom = r2.id;
+            key.objectType = 'key';
+            key.isCarried = RND.chance(100) > 90 ? true : false;
+            key.isHidden = !key.isCarried;
+            treasureSpawns.push(key);
+          }
+
+          dungeon.doors.push(door);
+          let di = dungeon.doors.length;
+          dungeon.rooms[r.id].doors.push(di);
+          dungeon.rooms[r.id].features.push(getDoorDescription(door, dungeon.rooms[r.id]));
+          dungeon.rooms[r2.id].doors.push(di);
+          dungeon.rooms[r2.id].features.push(getDoorDescription(door, dungeon.rooms[r2.id]));
+
+          dungeon.tiles = addDoorToTiles(door, dungeon.tiles);
         }
 
         if (failedIterations > failedMax) {
           roomGeneration = false;
         }
+      }
+    }
 
-        let door = addDoor(r, r2);
+    for (let i = 0; i < treasureSpawns.length; i++) {
+      let maxRoom = treasureSpawns[i].maxRoom;
+      if (maxRoom == -1) {
+        maxRoom = dungeon.rooms.length - 1;
+      }
+      let minRoom = treasureSpawns[i].minRoom;
+      let room = random.int(minRoom, maxRoom);
 
-        dungeon.doors.push(door);
-        dungeon.tiles = addDoorToTiles(door, dungeon.tiles);
+      let tdesc = '';
+
+      if (treasureSpawns[i].objectType == 'key') {
+        tdesc = 'a key: ' + treasureSpawns[i].behavior;
+      }
+
+      if (treasureSpawns[i].isHidden) {
+        tdesc = 'Hidden in the room, ' + tdesc;
+        dungeon.rooms[room].features.push(tdesc);
       }
     }
 
@@ -104,6 +154,12 @@ function addDoor(room1: Room, room2: Room): Door {
     door.tile = Tiles.H_DOOR;
   } else {
     door.tile = Tiles.V_DOOR;
+  }
+
+  if (RND.chance(100) > 90) {
+    door.isLocked = true;
+  } else if (RND.chance(100) > 90) {
+    door.isSecret = true;
   }
 
   return door;
@@ -168,6 +224,83 @@ function distanceToNearestOtherRoomTile(room: Room, rooms: Room[]): number {
   return distance;
 }
 
+function getDoorDescription(door: Door, room: Room): string {
+  let dir = '';
+
+  if (door.tile == Tiles.V_DOOR) {
+    if (door.vertex.y > room.center.y) {
+      if (door.vertex.x < room.center.x) {
+        dir = 'southwest';
+      } else if (door.vertex.x > room.center.x) {
+        dir = 'southeast';
+      } else {
+        dir = 'south';
+      }
+    } else {
+      if (door.vertex.x < room.center.x) {
+        dir = 'northwest';
+      } else if (door.vertex.x > room.center.x) {
+        dir = 'northeast';
+      } else {
+        dir = 'north';
+      }
+    }
+  } else {
+    if (door.vertex.x < room.center.x) {
+      if (door.vertex.y > room.center.y) {
+        dir = 'southwest';
+      } else if (door.vertex.y < room.center.y) {
+        dir = 'northwest';
+      } else {
+        dir = 'west';
+      }
+    } else {
+      if (door.vertex.y > room.center.y) {
+        dir = 'southeast';
+      } else if (door.vertex.y < room.center.y) {
+        dir = 'northeast';
+      } else {
+        dir = 'east';
+      }
+    }
+  }
+
+  let p = RND.item([
+    '',
+    RND.item([
+      RND.item([
+        'iron-bound',
+        'copper-trimmed',
+        'iron-trimmed',
+        RND.item(['gold-trimmed', 'silver-trimmed', 'electrum-trimmed']),
+      ]),
+      RND.item(['rusty', 'rusted', 'decaying']),
+    ]),
+  ]);
+
+  if (p != '') {
+    p = Words.article(p) + ' ' + p;
+  } else {
+    p = 'a';
+  }
+
+  if (RND.chance(100) > 50) {
+    p += ' ' + RND.item(['wooden', 'wood', RND.item(['stone', 'metal'])]);
+  }
+
+  let description = `There is ${p} door in the ${dir}`;
+
+  if (door.isLocked) {
+    description += '. It is locked.';
+  } else if (door.isSecret) {
+    description += ', but it is hidden.';
+  } else {
+    description += '.';
+  }
+
+  return description;
+}
+
 function getNearestRoom(room: Room, rooms: Room[]): Room {
   let distance = 10000000;
   let n = rooms[0];
@@ -220,6 +353,8 @@ function generateRoom(
   room.maxY = room.getMaxY();
   room.center = room.getCenter();
   room.calculateTiles(mapWidth, mapHeight);
+
+  room.description = `This room is ${(width + 1) * 5}' wide and ${(height + 1) * 5}' long.`;
 
   return room;
 }
