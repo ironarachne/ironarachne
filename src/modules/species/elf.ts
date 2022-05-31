@@ -15,9 +15,13 @@ export default class Elf implements Species {
   commonality: number;
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
+  abilities: string[];
+  tags: string[];
 
   constructor() {
     this.name = 'elf';
+    this.abilities = [];
+    this.tags = ['corruptible', 'elf', 'martial', 'magic', 'sentient'];
     this.nameGeneratorSet = new ElfSet();
     this.pluralName = 'elves';
     this.adjective = 'elven';

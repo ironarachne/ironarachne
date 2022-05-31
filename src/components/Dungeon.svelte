@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as RND from "../modules/random";
+  import * as Words from '../modules/words';
 
   import random from "random";
   import seedrandom from "seedrandom";
@@ -57,10 +58,24 @@
   {#each dungeon.rooms as room }
   <div class="room">
     <h3>Room {room.id + 1}</h3>
-    <p>{room.description}</p>
-    {#each room.features as feature}
-    <p>{feature}</p>
-    {/each}
+    <p>
+      {room.description}
+      {#each room.features as feature}
+      {feature.description + ' '}
+      {/each}
+    </p>
+    <div class="encounter">
+      {#each room.encounters as encounter}
+        {#each encounter.groups as group}
+        <p>There {#if group.mobs.length > 1}are {group.mobs.length}{:else}is a{/if} {group.name} here.</p>
+        <ul>
+          {#each group.mobs as mob}
+          <li>{mob.name}</li>
+          {/each}
+        </ul>
+        {/each}
+      {/each}
+    </div>
   </div>
   {/each}
 </section>

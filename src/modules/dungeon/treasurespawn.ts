@@ -1,9 +1,11 @@
 'use strict';
 
+import type { Item } from '../equipment/item';
+
 export default class TreasureSpawn {
   minRoom: number;
   maxRoom: number;
-  objectType: string;
+  objectType: Item;
   behavior: string;
   value: number; // in copper coins
   isCarried: boolean;

@@ -7,6 +7,7 @@ export default class Door {
   room2: number;
   tile: number;
   vertex: Vertex;
+  description: string;
   isLocked: boolean;
   isSecret: boolean;
 

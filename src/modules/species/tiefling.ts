@@ -15,9 +15,13 @@ export default class Tiefling implements Species {
   commonality: number;
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
+  abilities: string[];
+  tags: string[];
 
   constructor() {
     this.name = 'tiefling';
+    this.abilities = [];
+    this.tags = ['corruptible', 'tiefling', 'demonic', 'martial', 'magic', 'sentient'];
     this.nameGeneratorSet = new TieflingSet();
     this.pluralName = 'tieflings';
     this.adjective = 'tiefling';

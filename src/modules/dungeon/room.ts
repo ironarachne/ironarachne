@@ -1,8 +1,10 @@
 'use strict';
 
+import Encounter from '../encounters/encounter';
 import Edge from '../geometry/edge';
 import Polygon from '../geometry/polygon';
 import Vertex from '../geometry/vertex';
+import RoomFeature from './roomfeature';
 import * as Tiles from './tiles';
 
 export default class Room {
@@ -17,11 +19,13 @@ export default class Room {
   maxX: number;
   maxY: number;
   center: Vertex;
-  features: string[];
+  features: RoomFeature[];
+  encounters: Encounter[];
   doors: number[];
 
   constructor() {
     this.tileMesh = [];
+    this.encounters = [];
     this.features = [];
     this.doors = [];
     this.description = '';

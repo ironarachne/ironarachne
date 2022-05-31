@@ -13,6 +13,8 @@ export default class DungeonGeneratorConfig {
   maxRoomHeight: number; // cells
   maxRooms: number;
   minRooms: number;
+  minThreatLevel: number;
+  maxThreatLevel: number;
 
   constructor() {
     this.width = 40;
@@ -21,6 +23,8 @@ export default class DungeonGeneratorConfig {
     this.maxRoomWidth = 8;
     this.maxRooms = 30;
     this.minRooms = 20;
+    this.minThreatLevel = 0;
+    this.maxThreatLevel = 5;
 
     let climate = Climates.random();
     let biomeGenConfig = new BiomeGeneratorConfig(climate);

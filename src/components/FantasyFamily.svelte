@@ -10,7 +10,7 @@
   import type Species from "../modules/species/species";
 
   let seed = RND.randomString(13);
-  let availableSpecies = FantasySpecies.all();
+  let availableSpecies = FantasySpecies.pc();
   let selectedSpecies = "any";
   let species = FantasySpecies.randomWeighted();
   let iterations = 2;

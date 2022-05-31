@@ -15,9 +15,13 @@ export default class Halfling implements Species {
   commonality: number;
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
+  abilities: string[];
+  tags: string[];
 
   constructor() {
     this.name = 'halfling';
+    this.abilities = [];
+    this.tags = ['halfling', 'sentient'];
     this.nameGeneratorSet = new HalflingSet();
     this.pluralName = 'halflings';
     this.adjective = 'halfling';

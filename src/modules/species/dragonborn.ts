@@ -15,9 +15,13 @@ export default class Dragonborn implements Species {
   commonality: number;
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
+  abilities: string[];
+  tags: string[];
 
   constructor() {
     this.name = 'dragonborn';
+    this.abilities = [];
+    this.tags = ['corruptible', 'dragonborn', 'dragonkin', 'martial', 'sentient'];
     this.nameGeneratorSet = new DragonbornSet();
     this.pluralName = 'dragonborn';
     this.adjective = 'dragonborn';
