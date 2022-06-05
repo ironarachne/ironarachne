@@ -54,3 +54,21 @@ test('describing a simplified range of 13 should be 1d12', () => {
 
   expect(description).toBe('1d12');
 });
+
+test('rolling 1d6x100 should result in a number over 99', () => {
+  const roll = Dice.roll('1d6x100');
+
+  expect(roll).toBeGreaterThan(99);
+});
+
+test('rolling 1d6+100 should result in a number over 99', () => {
+  const roll = Dice.roll('1d6+100');
+
+  expect(roll).toBeGreaterThan(99);
+});
+
+test('rolling 1d6-10 should result in a number below 0', () => {
+  const roll = Dice.roll('1d6-10');
+
+  expect(roll).toBeLessThan(0);
+});

@@ -7,12 +7,16 @@ import type Species from '../species/species';
 import { Heraldry } from '../heraldry/heraldry';
 import PhysicalTrait from '../physicaltraits/physicaltrait';
 import PersonalityTrait from './personality/personalitytrait';
+import Archetype from '../archetypes/archetype';
+import type StatBlock from '../statblock';
 
 export default class Character {
   titles: Title[];
   heraldry: Heraldry | null;
+  archetype: Archetype;
   species: Species;
   description: string;
+  summary: string;
   gender: Gender;
   age: number;
   ageCategory: AgeCategory;
@@ -21,20 +25,28 @@ export default class Character {
   traits: string[];
   personalityTraits: PersonalityTrait[];
   physicalTraits: PhysicalTrait[];
+  name: string;
   firstName: string;
   lastName: string;
   status: string;
+  statBlock: StatBlock;
+  abilities: string[];
+  tags: string[];
 
   constructor(species: Species) {
     this.titles = [];
+    this.abilities = species.abilities;
+    this.tags = species.tags;
     this.heraldry = null;
     this.species = species;
     this.description = '';
+    this.summary = '';
     this.age = 0;
     this.height = 0;
     this.weight = 0;
     this.traits = [];
     this.physicalTraits = [];
+    this.name = '';
     this.firstName = '';
     this.lastName = '';
     this.status = 'alive';

@@ -15,9 +15,13 @@ export default class HalfOrc implements Species {
   commonality: number;
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
+  abilities: string[];
+  tags: string[];
 
   constructor() {
     this.name = 'half-orc';
+    this.abilities = [];
+    this.tags = ['corruptible', 'half-orc', 'orc', 'human', 'greenskin', 'martial', 'sentient'];
     this.nameGeneratorSet = new HalfOrcSet();
     this.pluralName = 'half-orcs';
     this.adjective = 'half-orc';

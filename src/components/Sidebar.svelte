@@ -27,6 +27,9 @@
         <a href="#/culture" class:active={$location === '/culture'}>Culture</a>
       </li>
       <li>
+        <a href="#/fantasy/dungeon" class:active={$location === '/fantasy/dungeon'}>Dungeon</a>
+      </li>
+      <li>
         <a href="#/fantasy/equipment" class:active={$location === '/fantasy/equipment'}>Equipment Lists</a>
       </li>
       <li>

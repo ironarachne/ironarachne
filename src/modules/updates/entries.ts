@@ -16,6 +16,12 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-06-05', [
+      'Added the initial version of a dungeon generator.',
+      'Added goblins, orcs, and trolls as sentient species.',
+      'Added a creature system, only used by the dungeon generator right now.',
+      'Added a treasure system, also only used for the dungeon generator so far.',
+    ]),
     new ChangeLog('2022-04-22', [
       'Tweaked the SVG rendering of planets in the star system generator to properly size them.',
       'Added comparison to Earth for some planet statistics, for context.',

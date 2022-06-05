@@ -92,6 +92,7 @@ export default class CharacterGenerator {
 
     character.firstName = RND.item(firstNames);
     character.lastName = RND.item(lastNames);
+    character.name = `${character.firstName} ${character.lastName}`;
 
     character.description = this.describe(character);
 

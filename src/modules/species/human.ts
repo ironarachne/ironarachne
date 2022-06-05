@@ -15,9 +15,13 @@ export default class Human implements Species {
   commonality: number;
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
+  abilities: string[];
+  tags: string[];
 
   constructor() {
     this.name = 'human';
+    this.abilities = [];
+    this.tags = ['corruptible', 'human', 'martial', 'magic', 'sentient'];
     this.nameGeneratorSet = new HumanSet();
     this.pluralName = 'humans';
     this.adjective = 'human';

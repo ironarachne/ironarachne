@@ -15,9 +15,13 @@ export default class HalfElf implements Species {
   commonality: number;
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
+  abilities: string[];
+  tags: string[];
 
   constructor() {
     this.name = 'half-elf';
+    this.abilities = [];
+    this.tags = ['corruptible', 'half-elf', 'elf', 'human', 'martial', 'magic', 'sentient'];
     this.nameGeneratorSet = new HalfElfSet();
     this.pluralName = 'half-elves';
     this.adjective = 'half-elven';

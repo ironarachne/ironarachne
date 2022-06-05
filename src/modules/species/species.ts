@@ -12,4 +12,6 @@ export default interface Species {
   commonality: number;
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
+  tags: string[];
+  abilities: string[];
 }
