@@ -7,7 +7,7 @@ export default class EncounterGroupTemplate {
   threatLevel: number;
   isSentient: boolean;
   archetypes: Archetype[];
-  tags: string[];
+  requiredTags: string[];
   excludeTags: string[];
   minNumber: number;
   maxNumber: number;
@@ -17,7 +17,7 @@ export default class EncounterGroupTemplate {
     threatLevel: number,
     isSentient: boolean,
     archetypes: Archetype[],
-    tags: string[],
+    requiredTags: string[],
     excludeTags: string[],
     minNumber: number,
     maxNumber: number,
@@ -26,7 +26,7 @@ export default class EncounterGroupTemplate {
     this.threatLevel = threatLevel;
     this.isSentient = isSentient;
     this.archetypes = archetypes;
-    this.tags = tags;
+    this.requiredTags = requiredTags;
     this.excludeTags = excludeTags;
     this.minNumber = minNumber;
     this.maxNumber = maxNumber;

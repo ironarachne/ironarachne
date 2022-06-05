@@ -20,6 +20,7 @@ export default class Room {
   maxY: number;
   center: Vertex;
   features: RoomFeature[];
+  treasureCaches: string[];
   encounters: Encounter[];
   doors: number[];
 
@@ -30,6 +31,7 @@ export default class Room {
     this.doors = [];
     this.description = '';
     this.tiles = [];
+    this.treasureCaches = [];
     this.vertices = [];
   }
 

@@ -16,6 +16,7 @@ export default class Character {
   archetype: Archetype;
   species: Species;
   description: string;
+  summary: string;
   gender: Gender;
   age: number;
   ageCategory: AgeCategory;
@@ -39,6 +40,7 @@ export default class Character {
     this.heraldry = null;
     this.species = species;
     this.description = '';
+    this.summary = '';
     this.age = 0;
     this.height = 0;
     this.weight = 0;

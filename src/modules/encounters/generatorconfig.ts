@@ -9,11 +9,13 @@ import EncounterTemplate from './template';
 export default class EncounterGeneratorConfig {
   isHostile: boolean;
   template: EncounterTemplate;
+  environment: string;
   sentientOptions: Species[];
   creatureOptions: Creature[];
 
   constructor() {
     this.isHostile = true;
+    this.environment = 'dungeon';
     this.sentientOptions = FantasySpecies.all();
     this.creatureOptions = FantasyCreatures.all();
   }

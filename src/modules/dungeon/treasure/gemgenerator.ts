@@ -5,8 +5,9 @@ import random from 'random';
 import * as RND from '../../random';
 import * as Currency from '../../currency/currency';
 import * as Words from '../../words';
+import type TreasureGenerator from './treasuregenerator';
 
-export default class GemGenerator {
+export default class GemGenerator implements TreasureGenerator {
   minValue: number;
   maxValue: number;
 

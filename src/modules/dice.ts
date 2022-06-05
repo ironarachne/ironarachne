@@ -126,23 +126,60 @@ export function rangeToDiceExpression(range: number) {
 }
 
 export function roll(expression: string) {
-  const parts = expression.split('+');
+  let phrases = [];
+  let expressionType = 'straight';
+  let parts = [];
+  let useModifier = true;
+  let modValue = 0;
+
+  if (expression.includes('+')) {
+    phrases = expression.split('+');
+    expressionType = 'added';
+  } else if (expression.includes('-')) {
+    phrases = expression.split('-');
+    expressionType = 'subtracted';
+  } else if (expression.includes('x')) {
+    phrases = expression.split('x');
+    expressionType = 'multiplied';
+  } else {
+    useModifier = false;
+  }
+
+  if (useModifier) {
+    for (let i = 1; i < phrases.length; i++) {
+      let modParts = phrases[i].split('d');
+
+      if (modParts.length > 1) {
+        let n = Number(modParts[0]);
+        let s = Number(modParts[1]);
+        modValue += rollSimple(n, s);
+      } else {
+        modValue += Number(phrases[i]);
+      }
+    }
+    parts = phrases[0].split('d');
+  } else {
+    parts = expression.split('d');
+  }
+
+  let roll = rollSimple(Number(parts[0]), Number(parts[1]));
+
+  if (expressionType == 'added') {
+    roll += modValue;
+  } else if (expressionType == 'subtracted') {
+    roll -= modValue;
+  } else if (expressionType == 'multiplied') {
+    roll *= modValue;
+  }
+
+  return roll;
+}
+
+function rollSimple(n: number, s: number): number {
   let result = 0;
 
-  for (let i = 0; i < parts.length; i++) {
-    const phrase = parts[i];
-
-    if (phrase.includes('d')) {
-      const splitPhrase = phrase.split('d');
-      const number = Number(splitPhrase[0]);
-      const sides = Number(splitPhrase[1]);
-
-      for (let j = 0; j < number; j++) {
-        result += random.int(1, sides);
-      }
-    } else {
-      result += Number(phrase);
-    }
+  for (let i = 0; i < n; i++) {
+    result += random.int(1, s);
   }
 
   return result;

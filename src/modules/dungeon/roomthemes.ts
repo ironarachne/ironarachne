@@ -6,7 +6,7 @@ import * as RND from '../random';
 
 export function all(): RoomTheme[] {
   return [
-    new RoomTheme('kitchen', [
+    new RoomTheme('kitchen', 'dungeon', [
       new RoomFeature(
         'oven',
         RND.item(['There is a large wood-fired oven here.', 'There are several large ovens here.']),
@@ -14,7 +14,7 @@ export function all(): RoomTheme[] {
       ),
       new RoomFeature('pantry cabinet', RND.item(['There is a pantry cabinet here.']), true),
     ]),
-    new RoomTheme('fountain chamber', [
+    new RoomTheme('fountain chamber', 'dungeon', [
       new RoomFeature(
         'fountain',
         RND.item([

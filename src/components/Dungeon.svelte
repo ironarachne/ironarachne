@@ -53,6 +53,8 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
+  <h2>{dungeon.name}</h2>
+
   <canvas id="mapCanvas" width="800" height="1000"></canvas>
 
   {#each dungeon.rooms as room }
@@ -67,15 +69,25 @@
     <div class="encounter">
       {#each room.encounters as encounter}
         {#each encounter.groups as group}
-        <p>There {#if group.mobs.length > 1}are {group.mobs.length}{:else}is a{/if} {group.name} here.</p>
+        <p>There {#if group.mobs.length > 1}are {group.mobs.length}{:else}is {Words.article(group.name)}{/if} {group.name} here.</p>
         <ul>
           {#each group.mobs as mob}
-          <li>{mob.name}</li>
+          <li>{mob.name}, {mob.summary}</li>
           {/each}
         </ul>
         {/each}
       {/each}
     </div>
+    {#if room.treasureCaches.length > 0}
+    <div class="treasure">
+      <h4>Treasure</h4>
+      <ul>
+        {#each room.treasureCaches as cache}
+        <li>{cache}</li>
+        {/each}
+      </ul>
+    </div>
+    {/if}
   </div>
   {/each}
 </section>

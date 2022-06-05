@@ -19,6 +19,16 @@ export default class EncounterGenerator {
     let mobGroups: MobGroup[] = [];
     let groupName = '';
 
+    let tempCreatures = [];
+
+    for (let i = 0; i < creatureOptions.length; i++) {
+      if (creatureOptions[i].environments.includes(this.config.environment)) {
+        tempCreatures.push(creatureOptions[i]);
+      }
+    }
+
+    creatureOptions = tempCreatures;
+
     for (let i = 0; i < this.config.template.groupTemplates.length; i++) {
       let mobs: Mob[] = [];
       let t = this.config.template.groupTemplates[i];
@@ -56,16 +66,17 @@ export default class EncounterGenerator {
         creatureOptions = tempCreature;
       }
 
-      if (t.tags.length > 0) {
+      // If we require certain tags for this template, exclude anything that doesn't include them
+      if (t.requiredTags.length > 0) {
         let tempSentient = [];
         let tempCreature = [];
         let listOfSentients = [];
         let listOfCreatures = [];
 
-        for (let i = 0; i < t.tags.length; i++) {
+        for (let i = 0; i < t.requiredTags.length; i++) {
           for (let j = 0; j < sentientOptions.length; j++) {
             if (
-              sentientOptions[j].tags.includes(t.tags[i]) &&
+              sentientOptions[j].tags.includes(t.requiredTags[i]) &&
               !listOfSentients.includes(sentientOptions[j].name)
             ) {
               tempSentient.push(sentientOptions[j]);
@@ -75,7 +86,7 @@ export default class EncounterGenerator {
 
           for (let j = 0; j < creatureOptions.length; j++) {
             if (
-              creatureOptions[j].tags.includes(t.tags[i]) &&
+              creatureOptions[j].tags.includes(t.requiredTags[i]) &&
               !listOfCreatures.includes(creatureOptions[j].name)
             ) {
               tempCreature.push(creatureOptions[j]);
@@ -90,9 +101,6 @@ export default class EncounterGenerator {
 
       if (t.isSentient) {
         let species = RND.item(sentientOptions);
-        if (sentientOptions.length < 2) {
-          console.debug(t);
-        }
         let characters = [];
         let charGenConfig = PremadeConfigs.getFantasy();
         charGenConfig.speciesOptions = [species];
@@ -103,16 +111,22 @@ export default class EncounterGenerator {
         for (let i = 0; i < amount; i++) {
           let c = charGen.generate();
           c.archetype = archetype;
+          c.summary = `${RND.item(c.personalityTraits).descriptor} ${c.species.adjective} ${
+            c.archetype.name
+          }`;
           characters.push(c);
         }
 
         groupName = t.name;
         mobs = characters;
       } else {
-        let creature = RND.item(creatureOptions);
+        let creatureType = RND.item(creatureOptions);
         let creatures = [];
 
         for (let i = 0; i < amount; i++) {
+          let creature = _.cloneDeep(creatureType);
+          let attitude = RND.item(creatureType.behaviors);
+          creature.summary = attitude;
           creatures.push(creature);
         }
 

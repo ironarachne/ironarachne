@@ -7,9 +7,37 @@ import EncounterTemplate from '../../template';
 export function all(): EncounterTemplate[] {
   return [
     new EncounterTemplate(
-      "will o' the wisp",
+      'enchanted object',
       2,
-      [new EncounterGroupTemplate("will o' the wisp", 2, false, [], ['magic'], [], 1, 1)],
+      [
+        new EncounterGroupTemplate(
+          'enchanted object',
+          2,
+          false,
+          [],
+          ['enchanted'],
+          ['undead'],
+          1,
+          1,
+        ),
+      ],
+      ['magic'],
+    ),
+    new EncounterTemplate(
+      'enchanted objects',
+      4,
+      [
+        new EncounterGroupTemplate(
+          'group of enchanted objects',
+          4,
+          false,
+          [],
+          ['enchanted'],
+          ['undead'],
+          2,
+          4,
+        ),
+      ],
       ['magic'],
     ),
     new EncounterTemplate(
@@ -22,7 +50,7 @@ export function all(): EncounterTemplate[] {
           true,
           [new Archetype('mage', [], ['magic'])],
           ['magic'],
-          [],
+          ['zombie', 'skeleton'],
           1,
           1,
         ),
