@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as CommonSpecies from '../modules/species/common';
   import * as FantasySpecies from "../modules/species/fantasy";
   import * as RND from "../modules/random";
 
@@ -12,7 +13,7 @@
   let seed = RND.randomString(13);
   let availableSpecies = FantasySpecies.pc();
   let selectedSpecies = "any";
-  let species = FantasySpecies.randomWeighted();
+  let species = CommonSpecies.randomWeighted(availableSpecies);
   let iterations = 2;
   let familyNameGen = species.nameGeneratorSet.family;
   let femaleNameGen = species.nameGeneratorSet.female;
@@ -43,7 +44,7 @@
 
   function getSpecies(name: string): Species {
     if (name == "any") {
-      return FantasySpecies.randomWeighted();
+      return CommonSpecies.randomWeighted(availableSpecies);
     }
 
     for (let i=0;i<availableSpecies.length;i++) {

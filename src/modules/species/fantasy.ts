@@ -50,39 +50,6 @@ export function undead(): Species[] {
   return result;
 }
 
-export function byAnyTag(tags: string[]): Species[] {
-  let result = [];
-
-  let options = all();
-  let unique = true;
-
-  for (let i = 0; i < options.length; i++) {
-    unique = true;
-    for (let j = 0; j < tags.length; j++) {
-      if (options[i].tags.includes(tags[j]) && unique) {
-        result.push(options[i]);
-        unique = false;
-      }
-    }
-  }
-
-  return result;
-}
-
-export function byTag(tag: string): Species[] {
-  let result = [];
-
-  let options = all();
-
-  for (let i = 0; i < options.length; i++) {
-    if (options[i].tags.includes(tag)) {
-      result.push(options[i]);
-    }
-  }
-
-  return result;
-}
-
 export function pc(): Species[] {
   return [
     new Dragonborn(),
@@ -95,10 +62,4 @@ export function pc(): Species[] {
     new Human(),
     new Tiefling(),
   ];
-}
-
-export function randomWeighted(): Species {
-  const options = all();
-
-  return RND.weighted(options);
 }
