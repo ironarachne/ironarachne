@@ -22,6 +22,7 @@
   import Sidebar from "./Sidebar.svelte";
   import SpeciesStatsTool from "./SpeciesStats.svelte";
   import SpookyShip from "./SpookyShip.svelte";
+  import StarNation from "./StarNation.svelte";
   import StarSystem from "./StarSystem.svelte";
   import SWNCharacter from "./SWNCharacter.svelte";
   import SWNStarship from "./SWNStarship.svelte";
@@ -47,6 +48,7 @@
     "/region": Region,
     "/species-stats": SpeciesStatsTool,
     "/spooky-ship": SpookyShip,
+    "/star-nation": StarNation,
     "/starsystem": StarSystem,
     "/swn/character": SWNCharacter,
     "/swn/starship": SWNStarship,

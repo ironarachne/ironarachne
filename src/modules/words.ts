@@ -63,7 +63,11 @@ export function title(phrase: string) {
   let result = '';
 
   for (let i = 0; i < elements.length; i++) {
-    result += capitalize(elements[i]) + ' ';
+    if (i != 0 && ['of', 'the', 'a'].includes(elements[i])) {
+      result += elements[i].toLowerCase() + ' ';
+    } else {
+      result += capitalize(elements[i]) + ' ';
+    }
   }
 
   result = result.trimEnd();

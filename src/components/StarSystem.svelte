@@ -1,17 +1,30 @@
 <script>
-  import * as StarSystem from "../modules/starsystem/starsystem";
+  import StarSystemGeneratorConfig from "../modules/starsystem/generatorconfig";
+  import StarSystemGenerator from "../modules/starsystem/generator";
+  import SVGPlanetRenderer from "../modules/renderers/planets/planet-svg";
+  import SVGStarRenderer from "../modules/renderers/stars/star-svg";
   import * as RND from "../modules/random";
 
   import random from "random";
   import seedrandom from "seedrandom";
 
+  const width = 128;
+  const height = 128;
+
+  let planetRenderer = new SVGPlanetRenderer(width, height);
+  let starRenderer = new SVGStarRenderer(width, height);
+
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
-  let system = StarSystem.generate();
+
+  let config = new StarSystemGeneratorConfig();
+  let generator = new StarSystemGenerator(config);
+
+  let system = generator.generate();
 
   function generate() {
     random.use(seedrandom(seed));
-    system = StarSystem.generate();
+    system = generator.generate();
   }
 
   function newSeed() {
@@ -41,7 +54,7 @@
 
   {#each system.stars as star}
     <article class="media-banner">
-      <div class="image-container">{@html star.svg}</div>
+      <div class="image-container">{@html starRenderer.render(star)}</div>
       <div>
         <h5>{star.name}</h5>
         <p>{star.description}</p>
@@ -71,12 +84,12 @@
 
   {#each system.planets as planet}
     <article class="media-banner">
-      <div class="image-container">{@html planet.svg}</div>
+      <div class="image-container">{@html planetRenderer.render(planet)}</div>
       <div>
         <h5>{planet.name}</h5>
         <p>{planet.description}</p>
         <p><strong>Planet Type:</strong> {planet.classification.name}</p>
-        <p><strong>Population:</strong> {planet.population}</p>
+        <p><strong>Population:</strong> {planet.populationFriendly}</p>
         <p><strong>Culture:</strong> {planet.culture}</p>
         <p><strong>Government:</strong> {planet.government}</p>
         <p>

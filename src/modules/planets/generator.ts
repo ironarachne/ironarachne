@@ -3,10 +3,10 @@
 import * as PlanetName from '../names/planets';
 import * as Culture from './culture';
 import * as Government from './government';
-import PlanetGeneratorConfig from "./generatorconfig";
-import * as Classifications from "./classifications";
-import * as RND from "../random";
-import random from "random";
+import PlanetGeneratorConfig from './generatorconfig';
+import * as Classifications from './classifications';
+import * as RND from '../random';
+import random from 'random';
 import Planet from './planet';
 
 export default class PlanetGenerator {
@@ -47,6 +47,7 @@ export default class PlanetGenerator {
 
     if (planet.is_inhabited) {
       planet.population = randomPopulation();
+      planet.populationFriendly = getFriendlyPopulation(planet.population);
       planet.culture = Culture.generate();
       planet.government = Government.generate();
 
@@ -61,7 +62,7 @@ export default class PlanetGenerator {
   }
 }
 
-function calculateGravity(diameter: number, mass: number) {
+function calculateGravity(diameter: number, mass: number): number {
   const G = (9.8 * Math.pow(6378000, 2)) / 5972190000000000000000000.0;
 
   const r = diameter / 2.0;
@@ -69,18 +70,31 @@ function calculateGravity(diameter: number, mass: number) {
   return (G * mass) / Math.pow(r, 2);
 }
 
-function randomPopulation() {
+function getFriendlyPopulation(pop: number): string {
   const formatter = new Intl.NumberFormat();
+
+  if (pop < 1000000.0) {
+    return formatter.format(Math.floor(pop / 1000.0)) + ' thousand';
+  }
+
+  if (pop < 1000000000.0) {
+    return formatter.format(pop / 1000000.0) + ' million';
+  }
+
+  return formatter.format(pop / 1000000000.0) + ' billion';
+}
+
+function randomPopulation(): number {
   const options = [
-    '' + random.int(10, 700) + ' thousand',
-    '' + formatter.format(random.float(10.0, 900.0)) + ' million',
-    '' + formatter.format(random.float(1.0, 10.0)) + ' billion',
+    random.float(10.0, 700.0) * 1000.0,
+    random.float(10.0, 900.0) * 1000000.0,
+    random.float(1.0, 10.0) * 1000000000.0,
   ];
 
   return RND.item(options);
 }
 
-function randomStarport() {
+function randomStarport(): string {
   const starportType = RND.item(['military', 'civilian']);
 
   const notable = {

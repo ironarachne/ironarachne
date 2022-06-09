@@ -16,6 +16,10 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-06-09', [
+      'Added a star nation generator.',
+      'Did a little behind-the-scenes cleanup of the star system generator.',
+    ]),
     new ChangeLog('2022-06-05', [
       'Added the initial version of a dungeon generator.',
       'Added goblins, orcs, and trolls as sentient species.',

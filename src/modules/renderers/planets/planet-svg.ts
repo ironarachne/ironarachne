@@ -1,112 +1,125 @@
 'use strict';
 
 import * as RND from '../../random';
-import * as StarfieldRenderer from '../starfields/starfield-svg';
+import SVGStarfieldRenderer from '../starfields/starfield-svg';
 import Planet from '../../planets/planet';
 
 import random from 'random';
 
-export function render(width: number, height: number, planet: Planet) {
-  const textureRenderer = getPlanetRenderer(planet.classification.name);
-  const texture = textureRenderer.renderSVG();
+export default class SVGPlanetRenderer {
+  width: number;
+  height: number;
 
-  let sizeClass = 'medium';
-
-  if (planet.diameter < 8000) {
-    sizeClass = 'small';
-  } else if (planet.diameter > 19000) {
-    sizeClass = 'large';
+  constructor(width: number, height: number) {
+    this.height = height;
+    this.width = width;
   }
 
-  const midX = Math.floor(width / 2);
-  const midY = Math.floor(height / 2);
+  render(planet: Planet): string {
+    const textureRenderer = getPlanetRenderer(planet.classification.name);
+    const texture = textureRenderer.renderSVG();
 
-  const planetId = random.int(0, 1000);
+    let sizeClass = 'medium';
 
-  const min = Math.min(width, height);
+    if (planet.diameter < 8000) {
+      sizeClass = 'small';
+    } else if (planet.diameter > 19000) {
+      sizeClass = 'large';
+    }
 
-  let radius = 0.0;
-  const planetDiameterModifier = (planet.diameter - planet.classification.diameter_min) / (planet.classification.diameter_max - planet.classification.diameter_min);
-  let rangeMin = 0.8;
-  let rangeMax = 0.9;
+    const midX = Math.floor(this.width / 2);
+    const midY = Math.floor(this.height / 2);
 
-  if (sizeClass === 'small') {
-    rangeMin = 0.2;
-    rangeMax = 0.4;
-  } else if (sizeClass === 'medium') {
-    rangeMin = 0.5;
-    rangeMax = 0.7;
-  }
+    const planetId = random.int(0, 1000);
 
-  let size = ((rangeMax - rangeMin) * planetDiameterModifier) + rangeMin;
-  radius = (Math.floor(min) * size) / 2;
+    const min = Math.min(this.width, this.height);
 
-  const atmosphereRadius = Math.floor(radius * 1.1);
+    let radius = 0.0;
+    const planetDiameterModifier =
+      (planet.diameter - planet.classification.diameter_min) /
+      (planet.classification.diameter_max - planet.classification.diameter_min);
+    let rangeMin = 0.8;
+    let rangeMax = 0.9;
 
-  const background = StarfieldRenderer.render(width, height);
+    if (sizeClass === 'small') {
+      rangeMin = 0.2;
+      rangeMax = 0.4;
+    } else if (sizeClass === 'medium') {
+      rangeMin = 0.5;
+      rangeMax = 0.7;
+    }
 
-  let svg =
-    '<svg width="' +
-    width +
-    '" height="' +
-    height +
-    '" viewBox="0 0 ' +
-    width +
-    ' ' +
-    height +
-    '">';
+    let size = (rangeMax - rangeMin) * planetDiameterModifier + rangeMin;
+    radius = (Math.floor(min) * size) / 2;
 
-  svg += '<defs>';
+    const atmosphereRadius = Math.floor(radius * 1.1);
 
-  svg +=
-    '<radialGradient id="atmosphere-' +
-    planetId +
-    '"><stop offset="95%" stop-color="' +
-    textureRenderer.atmosphereColor +
-    '" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient>';
+    let starfieldRenderer = new SVGStarfieldRenderer(this.width, this.height);
+    const background = starfieldRenderer.render();
 
-  svg +=
-    '<radialGradient id="planetShadow" cx="0.5" cy="0.5" r="0.75" fx="0.275" fy="0.275"><stop offset="0%" stop-color="rgb(0,0,0)" stop-opacity="0" /><stop offset="80%" stop-color="rgb(0,0,70)" stop-opacity="0.8" /><stop offset="90%" stop-color="rgb(0,0,0)" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(0,00,40)" stop-opacity="0.6" /></radialGradient>';
+    let svg =
+      '<svg width="' +
+      this.width +
+      '" height="' +
+      this.height +
+      '" viewBox="0 0 ' +
+      this.width +
+      ' ' +
+      this.height +
+      '">';
 
-  svg +=
-    '<pattern id="planetTexture-' +
-    planetId +
-    '" x="0" y="0" width="1" height="1">' +
-    texture +
-    '</pattern>';
+    svg += '<defs>';
 
-  svg += '</defs>';
+    svg +=
+      '<radialGradient id="atmosphere-' +
+      planetId +
+      '"><stop offset="95%" stop-color="' +
+      textureRenderer.atmosphereColor +
+      '" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient>';
 
-  svg += background;
+    svg +=
+      '<radialGradient id="planetShadow" cx="0.5" cy="0.5" r="0.75" fx="0.275" fy="0.275"><stop offset="0%" stop-color="rgb(0,0,0)" stop-opacity="0" /><stop offset="80%" stop-color="rgb(0,0,70)" stop-opacity="0.8" /><stop offset="90%" stop-color="rgb(0,0,0)" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(0,00,40)" stop-opacity="0.6" /></radialGradient>';
 
-  if (planet.has_atmosphere) {
+    svg +=
+      '<pattern id="planetTexture-' +
+      planetId +
+      '" x="0" y="0" width="1" height="1">' +
+      texture +
+      '</pattern>';
+
+    svg += '</defs>';
+
+    svg += background;
+
+    if (planet.has_atmosphere) {
+      svg +=
+        '<circle cx="' +
+        midX +
+        '" cy="' +
+        midY +
+        '" r="' +
+        atmosphereRadius +
+        '" fill="url(#atmosphere-' +
+        planetId +
+        ')" />';
+    }
+
     svg +=
       '<circle cx="' +
       midX +
       '" cy="' +
       midY +
       '" r="' +
-      atmosphereRadius +
-      '" fill="url(#atmosphere-' +
+      radius +
+      '" fill="url(#planetTexture-' +
       planetId +
       ')" />';
+
+    svg +=
+      '<circle cx="' + midX + '" cy="' + midY + '" r="' + radius + '" fill="url(#planetShadow)" />';
+
+    return svg;
   }
-
-  svg +=
-    '<circle cx="' +
-    midX +
-    '" cy="' +
-    midY +
-    '" r="' +
-    radius +
-    '" fill="url(#planetTexture-' +
-    planetId +
-    ')" />';
-
-  svg +=
-    '<circle cx="' + midX + '" cy="' + midY + '" r="' + radius + '" fill="url(#planetShadow)" />';
-
-  return svg;
 }
 
 function getPlanetRenderer(planetType: string) {

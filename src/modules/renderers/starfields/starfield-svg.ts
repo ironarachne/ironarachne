@@ -2,33 +2,49 @@
 
 import random from 'random';
 
-export function render(width: number, height: number) {
-  let svg =
-    '<svg width="' +
-    width +
-    '" height="' +
-    height +
-    '" viewBox="0 0 ' +
-    width +
-    ' ' +
-    height +
-    '">';
+export default class SVGStarfieldRenderer {
+  width: number;
+  height: number;
 
-  svg += '<rect width="' + width + '" height="' + height + '" fill="black" />';
-
-  const numberOfStars = Math.floor(width * height * 0.005);
-
-  for (let i = 0; i < numberOfStars; i++) {
-    const x = random.int(0, width);
-    const y = random.int(0, height);
-
-    svg +=
-      '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + randomStarColor() + '" />';
+  constructor(width: number, height: number) {
+    this.width = width;
+    this.height = height;
   }
 
-  svg += '</svg>';
+  render(): string {
+    let svg =
+      '<svg width="' +
+      this.width +
+      '" height="' +
+      this.height +
+      '" viewBox="0 0 ' +
+      this.width +
+      ' ' +
+      this.height +
+      '">';
 
-  return svg;
+    svg += '<rect width="' + this.width + '" height="' + this.height + '" fill="black" />';
+
+    const numberOfStars = Math.floor(this.width * this.height * 0.005);
+
+    for (let i = 0; i < numberOfStars; i++) {
+      const x = random.int(0, this.width);
+      const y = random.int(0, this.height);
+
+      svg +=
+        '<rect x="' +
+        x +
+        '" y="' +
+        y +
+        '" width="1" height="1" fill="' +
+        randomStarColor() +
+        '" />';
+    }
+
+    svg += '</svg>';
+
+    return svg;
+  }
 }
 
 function randomStarColor() {

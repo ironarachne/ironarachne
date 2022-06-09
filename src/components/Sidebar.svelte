@@ -77,6 +77,9 @@
         <a href="#/spooky-ship" class:active={$location === '/spooky-ship'}>Spooky Ship</a>
       </li>
       <li>
+        <a href="#/star-nation" class:active={$location === '/star-nation'}>Star Nation</a>
+      </li>
+      <li>
         <a href="#/starsystem" class:active={$location === '/starsystem'}>Star System</a>
       </li>
     </ul>

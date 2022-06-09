@@ -9,7 +9,6 @@ export default class Star {
   mass: number; // in 10^30 kg
   temperature: number; // in K
   luminosity: number; // in 10^26 W
-  svg: string;
 
   constructor() {
     this.name = '';
@@ -20,7 +19,6 @@ export default class Star {
     this.mass = 0;
     this.temperature = 0;
     this.luminosity = 0;
-    this.svg = '';
   }
 
   getColorFromTemperature() {
