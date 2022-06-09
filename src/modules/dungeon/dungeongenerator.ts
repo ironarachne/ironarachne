@@ -6,14 +6,13 @@ import * as Tiles from './tiles';
 import Dungeon from './dungeon';
 import DungeonGeneratorConfig from './dungeongeneratorconfig';
 import * as DungeonThemes from './dungeonthemes/all';
+import * as Doors from './doors';
 import Room from './room';
-import Vertex from '../geometry/vertex';
+import * as Rooms from './rooms';
 import * as RoomThemes from './roomthemes';
 import * as RoomFeatures from './roomfeatures';
-import * as Geometry from '../geometry/geometry';
 import * as Words from '../words';
-import Door from './door';
-import Edge from '../geometry/edge';
+
 import TreasureSpawn from './treasurespawn';
 import RoomFeature from './roomfeature';
 import EncounterSpawn from './encounterspawn';
@@ -46,7 +45,7 @@ export default class DungeonGenerator {
     let firstX = random.int(2, this.config.width - this.config.maxRoomWidth - 3);
     let firstY = random.int(2, this.config.height - this.config.maxRoomHeight - 3);
 
-    let firstRoom = generateRoom(
+    let firstRoom = Rooms.generateRoom(
       firstX,
       firstY,
       this.config.maxRoomWidth,
@@ -88,7 +87,7 @@ export default class DungeonGenerator {
         roomGeneration = false;
       } else {
         let r2 = new Room();
-        let r = getPlaceableRoom(
+        let r = Rooms.getPlaceableRoom(
           this.config.maxRoomWidth,
           this.config.maxRoomHeight,
           dungeon.tiles,
@@ -99,7 +98,7 @@ export default class DungeonGenerator {
         } else {
           id += 1;
           r.id = id;
-          r2 = getNearestRoom(r, dungeon.rooms);
+          r2 = Rooms.getNearestRoom(r, dungeon.rooms);
 
           if (RND.chance(100) > 80) {
             let roomTheme = RND.item(roomThemes);
@@ -109,70 +108,6 @@ export default class DungeonGenerator {
 
           dungeon.rooms.push(r);
           dungeon.tiles = addRoomToTiles(r, dungeon.tiles);
-
-          let door = addDoor(r, r2);
-
-          if (r2.id == 0) {
-            door.isSecret = false;
-            if (dungeon.rooms[0].doors.length < 2) {
-              door.isLocked = false;
-            }
-          }
-
-          if (door.isLocked) {
-            let keySpawn = new TreasureSpawn();
-            // TODO: make keys unlock Locks, and make some doors have a Lock
-            keySpawn.behavior = `It unlocks the door between room ${r2.id + 1} and room ${
-              r.id + 1
-            }.`;
-            keySpawn.minRoom = 0;
-            keySpawn.maxRoom = r2.id;
-            keySpawn.treasure = new Key();
-            keySpawn.treasure.name = 'a key';
-            let keyDescription = RND.item([
-              `a ${RND.item(['simple', 'plain', 'rough'])} key`,
-              `a ${RND.item(['small', 'ornate', 'shiny', 'tarnished'])} key`,
-            ]);
-            keySpawn.treasure.description = `${keyDescription} that unlocks the door between room ${
-              r2.id + 1
-            } and room ${r.id + 1}`;
-            keySpawn.treasure.value = 1;
-            keySpawn.isCarried = RND.chance(100) > 90 ? true : false;
-            if (!keySpawn.isCarried) {
-              keySpawn.isHidden = RND.chance(100) > 90 ? true : false;
-            }
-            treasureSpawns.push(keySpawn);
-          }
-
-          let doorQuality = RND.item([
-            RND.item(['rough', 'decaying', 'rotted']),
-            'simple',
-            'plain',
-            RND.item([
-              'iron-trimmed',
-              'copper-trimmed',
-              'silver-trimmed',
-              'gold-trimmed',
-              'painted',
-              'carved',
-              'ornate',
-            ]),
-          ]);
-
-          door.description = Words.article(doorQuality) + ' ' + doorQuality + ' door';
-
-          dungeon.doors.push(door);
-          let di = dungeon.doors.length;
-          dungeon.rooms[r.id].doors.push(di);
-          dungeon.rooms[r.id].features.push(
-            new RoomFeature('door', getDoorDescription(door, dungeon.rooms[r.id]), false),
-          );
-          dungeon.rooms[r2.id].doors.push(di);
-          dungeon.rooms[r2.id].features.push(
-            new RoomFeature('door', getDoorDescription(door, dungeon.rooms[r2.id]), false),
-          );
-
-          dungeon.tiles = addDoorToTiles(door, dungeon.tiles);
         }
 
         if (failedIterations > failedMax) {
@@ -181,9 +116,42 @@ export default class DungeonGenerator {
       }
     }
 
+    // Run through all rooms again and add additional doors
+
     for (let i = 0; i < dungeon.rooms.length; i++) {
       if (RND.chance(100) > 10) {
         dungeon.rooms[i].features.push(RoomFeatures.random());
+      }
+    }
+
+    for (let i = 0; i < 2; i++) {
+      dungeon = Doors.addDoorsToDungeon(dungeon);
+    }
+
+    for (let i = 0; i < dungeon.doors.length; i++) {
+      if (dungeon.doors[i].isLocked) {
+        let keySpawn = new TreasureSpawn();
+        // TODO: make keys unlock Locks, and make some doors have a Lock
+        keySpawn.behavior = `It unlocks the door between room ${
+          dungeon.doors[i].room1 + 1
+        } and room ${dungeon.doors[i].room2 + 1}.`;
+        keySpawn.minRoom = 0;
+        keySpawn.maxRoom = dungeon.doors[i].room1;
+        keySpawn.treasure = new Key();
+        keySpawn.treasure.name = 'a key';
+        let keyDescription = RND.item([
+          `a ${RND.item(['simple', 'plain', 'rough'])} key`,
+          `a ${RND.item(['small', 'ornate', 'shiny', 'tarnished'])} key`,
+        ]);
+        keySpawn.treasure.description = `${keyDescription} that unlocks the door between room ${
+          dungeon.doors[i].room1 + 1
+        } and room ${dungeon.doors[i].room2 + 1}`;
+        keySpawn.treasure.value = 1;
+        keySpawn.isCarried = RND.chance(100) > 90 ? true : false;
+        if (!keySpawn.isCarried) {
+          keySpawn.isHidden = RND.chance(100) > 90 ? true : false;
+        }
+        treasureSpawns.push(keySpawn);
       }
     }
 
@@ -317,256 +285,12 @@ export default class DungeonGenerator {
   }
 }
 
-function addDoor(room1: Room, room2: Room): Door {
-  let door = new Door();
-  let possibleEdges = [];
-
-  for (let i = 0; i < room1.vertices.length; i++) {
-    for (let j = 0; j < room2.vertices.length; j++) {
-      let nD = Geometry.distance(room1.vertices[i], room2.vertices[j]);
-      if (nD == 2) {
-        let e = new Edge();
-        e.a = room1.vertices[i];
-        e.b = room2.vertices[j];
-        possibleEdges.push(e);
-      }
-    }
-  }
-
-  let e: Edge = RND.item(possibleEdges);
-  door.vertex = e.getMidpoint();
-
-  if (e.getSlope() === 0) {
-    door.tile = Tiles.H_DOOR;
-  } else {
-    door.tile = Tiles.V_DOOR;
-  }
-
-  if (RND.chance(100) > 90) {
-    door.isLocked = true;
-  } else if (RND.chance(100) > 90) {
-    door.isSecret = true;
-  }
-
-  return door;
-}
-
-function addDoorToTiles(door: Door, tiles: number[][]): number[][] {
-  tiles[door.vertex.y][door.vertex.x] = door.tile;
-
-  return tiles;
-}
-
 function addRoomToTiles(room: Room, tiles: number[][]): number[][] {
   for (let i = 0; i < room.vertices.length; i++) {
     tiles[room.vertices[i].y][room.vertices[i].x] = Tiles.ROOM;
   }
 
   return tiles;
-}
-
-function doesRoomCollide(room: Room, rooms: Room[]): boolean {
-  for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].vertices.length; j++) {
-      for (let k = 0; k < room.vertices.length; k++) {
-        if (room.vertices[k].equals(rooms[i].vertices[j])) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-function doesRoomTouch(room: Room, rooms: Room[]): boolean {
-  for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].vertices.length; j++) {
-      for (let k = 0; k < room.vertices.length; k++) {
-        if (Geometry.distance(room.vertices[k], rooms[i].vertices[j]) == 1) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-function distanceToNearestOtherRoomTile(room: Room, rooms: Room[]): number {
-  let distance = 10000000;
-
-  for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].vertices.length; j++) {
-      for (let k = 0; k < room.vertices.length; k++) {
-        let d = Geometry.distance(rooms[i].vertices[j], room.vertices[k]);
-        if (d <= distance) {
-          distance = d;
-        }
-      }
-    }
-  }
-
-  return distance;
-}
-
-function getDoorDescription(door: Door, room: Room): string {
-  let dir = '';
-
-  if (door.tile == Tiles.V_DOOR) {
-    if (door.vertex.y > room.center.y) {
-      if (door.vertex.x < room.center.x) {
-        dir = 'southwest';
-      } else if (door.vertex.x > room.center.x) {
-        dir = 'southeast';
-      } else {
-        dir = 'south';
-      }
-    } else {
-      if (door.vertex.x < room.center.x) {
-        dir = 'northwest';
-      } else if (door.vertex.x > room.center.x) {
-        dir = 'northeast';
-      } else {
-        dir = 'north';
-      }
-    }
-  } else {
-    if (door.vertex.x < room.center.x) {
-      if (door.vertex.y > room.center.y) {
-        dir = 'southwest';
-      } else if (door.vertex.y < room.center.y) {
-        dir = 'northwest';
-      } else {
-        dir = 'west';
-      }
-    } else {
-      if (door.vertex.y > room.center.y) {
-        dir = 'southeast';
-      } else if (door.vertex.y < room.center.y) {
-        dir = 'northeast';
-      } else {
-        dir = 'east';
-      }
-    }
-  }
-
-  let description = `There is ${door.description} in the ${dir}`;
-
-  if (door.isLocked) {
-    description += '. It is locked.';
-  } else if (door.isSecret) {
-    description += ', but it is hidden.';
-  } else {
-    description += '.';
-  }
-
-  return description;
-}
-
-function getNearestRoom(room: Room, rooms: Room[]): Room {
-  let distance = 10000000;
-  let n = rooms[0];
-
-  for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].vertices.length; j++) {
-      for (let k = 0; k < room.vertices.length; k++) {
-        let d = Geometry.distance(rooms[i].vertices[j], room.vertices[k]);
-        if (d <= distance) {
-          distance = d;
-          n = rooms[i];
-        }
-      }
-    }
-  }
-
-  return n;
-}
-
-function isRoomInRange(range: number, room: Room, rooms: Room[]): boolean {
-  if (distanceToNearestOtherRoomTile(room, rooms) == range) {
-    return true;
-  }
-
-  return false;
-}
-
-function generateRoom(
-  x: number,
-  y: number,
-  maxWidth: number,
-  maxHeight: number,
-  mapWidth: number,
-  mapHeight: number,
-): Room {
-  let width = random.int(2, maxWidth);
-  let height = random.int(2, maxHeight);
-
-  let room = new Room();
-
-  for (let i = y; i < y + height + 1; i++) {
-    for (let j = x; j < x + width + 1; j++) {
-      room.vertices.push(new Vertex(j, i));
-    }
-  }
-
-  room.minX = x;
-  room.maxX = room.getMaxX();
-  room.minY = y;
-  room.maxY = room.getMaxY();
-  room.center = room.getCenter();
-  room.calculateTiles(mapWidth, mapHeight);
-
-  room.description = `This room is ${(width + 1) * 5}' wide and ${(height + 1) * 5}' long.`;
-
-  return room;
-}
-
-function getPlaceableRoom(
-  width: number,
-  height: number,
-  mapTiles: number[][],
-  rooms: Room[],
-): Room | null {
-  let generation = true;
-  let x = 2;
-  let y = 2;
-  let maxX = mapTiles[0].length - 3;
-  let maxY = mapTiles.length - 3;
-  let room = generateRoom(x, y, width, height, mapTiles[0].length, mapTiles.length);
-  let roomAttempts = 0;
-  let roomAttemptLimit = 5;
-
-  while (generation) {
-    if (
-      !doesRoomCollide(room, rooms) &&
-      !doesRoomTouch(room, rooms) &&
-      isRoomInRange(2, room, rooms)
-    ) {
-      generation = false;
-    } else if (roomAttempts <= roomAttemptLimit) {
-      let nx = room.minX + 1;
-      let ny = room.minY;
-
-      if (nx > maxX - room.getWidth()) {
-        nx = 2;
-        ny++;
-        if (ny > maxY - room.getHeight()) {
-          roomAttempts++;
-          continue;
-        }
-      }
-
-      room.moveTo(nx, ny, mapTiles[0].length, mapTiles.length);
-    } else if (roomAttempts > roomAttemptLimit) {
-      return null;
-    } else {
-      roomAttempts++;
-      room = generateRoom(x, y, width, height, mapTiles[0].length, mapTiles.length);
-    }
-  }
-
-  return room;
 }
 
 function initializeTiles(width: number, height: number): number[][] {
