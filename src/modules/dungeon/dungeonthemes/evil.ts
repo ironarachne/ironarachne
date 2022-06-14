@@ -1,14 +1,16 @@
 'use strict';
 
 import DungeonTheme from '../dungeontheme';
-import RoomFeature from '../roomfeature';
-import RoomTheme from '../roomtheme';
+import RoomFeature from '../rooms/features/feature';
+import RoomTheme from '../rooms/themes/theme';
+import * as RoomThemes from '../rooms/themes/themes';
 import * as RND from '../../random';
 import * as FantasyEncounters from '../../encounters/templates/fantasy/all';
 import GenericNameGenerator from '../../names/generators/generic';
 import EncounterTemplate from '../../encounters/template';
 import EncounterGroupTemplate from '../../encounters/grouptemplate';
 import Archetype from '../../archetypes/archetype';
+import RoomRequirement from '../rooms/roomrequirement';
 
 export function all(): DungeonTheme[] {
   let allEncounters = FantasyEncounters.all(false);
@@ -81,6 +83,16 @@ export function all(): DungeonTheme[] {
     }
   }
 
+  const allRoomThemes = RoomThemes.all();
+  let barracks = RoomThemes.byName('barracks', allRoomThemes);
+  let altar = RoomThemes.byName('altar room', allRoomThemes);
+
+  let cult = RoomThemes.byTag('cult', allRoomThemes);
+  let dungeon = RoomThemes.byTag('dungeon', allRoomThemes);
+  let military = RoomThemes.byTag('military', allRoomThemes);
+  let fortress = military.concat(dungeon);
+  cult = cult.concat(dungeon);
+
   return [
     new DungeonTheme(
       'fortress',
@@ -88,45 +100,17 @@ export function all(): DungeonTheme[] {
       fortressEncounters,
       fortressEncounters,
       fortressBossEncounters,
-      [
-        new RoomTheme('barracks', 'dungeon', [
-          new RoomFeature(
-            'beds',
-            RND.item([
-              'There are many beds here.',
-              'There are many bunk beds here.',
-              'There are many cots here.',
-            ]),
-            false,
-          ),
-          new RoomFeature('chests', 'There are chests at the end of each bed.', true),
-        ]),
-      ],
+      fortress,
+      [new RoomRequirement(barracks, 1, 2)],
     ),
-    new DungeonTheme('cult', cultNameGen, cultEncounters, cultEncounters, cultBossEncounters, [
-      new RoomTheme('altar room', 'dungeon', [
-        new RoomFeature(
-          'altar',
-          RND.item([
-            'There is an evil-looking altar here.',
-            'There is a blood-covered altar here.',
-            'On top of a stone dais is a long altar.',
-          ]),
-          false,
-        ),
-      ]),
-      new RoomTheme('barracks', 'dungeon', [
-        new RoomFeature(
-          'beds',
-          RND.item([
-            'There are many beds here.',
-            'There are many bunk beds here.',
-            'There are many cots here.',
-          ]),
-          false,
-        ),
-        new RoomFeature('chests', 'There are chests at the end of each bed.', true),
-      ]),
-    ]),
+    new DungeonTheme(
+      'cult',
+      cultNameGen,
+      cultEncounters,
+      cultEncounters,
+      cultBossEncounters,
+      cult,
+      [new RoomRequirement(altar, 1, 1), new RoomRequirement(barracks, 1, 1)],
+    ),
   ];
 }

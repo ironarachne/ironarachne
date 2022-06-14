@@ -7,14 +7,11 @@ import Dungeon from './dungeon';
 import DungeonGeneratorConfig from './dungeongeneratorconfig';
 import * as DungeonThemes from './dungeonthemes/all';
 import * as Doors from './doors';
-import Room from './room';
-import * as Rooms from './rooms';
-import * as RoomThemes from './roomthemes';
-import * as RoomFeatures from './roomfeatures';
-import * as Words from '../words';
+import Room from './rooms/room';
+import * as Rooms from './rooms/rooms';
+import * as RoomThemes from './rooms/themes/themes';
 
 import TreasureSpawn from './treasurespawn';
-import RoomFeature from './roomfeature';
 import EncounterSpawn from './encounterspawn';
 import EncounterGeneratorConfig from '../encounters/generatorconfig';
 import EncounterGenerator from '../encounters/generator';
@@ -25,6 +22,8 @@ import TreasureGeneratorConfig from './treasure/generatorconfig';
 import * as CommonTables from './treasure/tables/common';
 import * as UncommonTables from './treasure/tables/uncommon';
 import * as RareTables from './treasure/tables/rare';
+import RoomGeneratorConfig from './rooms/roomgeneratorconfig';
+import RoomGenerator from './rooms/roomgenerator';
 
 export default class DungeonGenerator {
   config: DungeonGeneratorConfig;
@@ -42,29 +41,17 @@ export default class DungeonGenerator {
     dungeon.theme = RND.item(themeOptions);
     dungeon.name = dungeon.theme.nameGenerator.generate(1)[0];
 
-    let firstX = random.int(2, this.config.width - this.config.maxRoomWidth - 3);
-    let firstY = random.int(2, this.config.height - this.config.maxRoomHeight - 3);
-
-    let firstRoom = Rooms.generateRoom(
-      firstX,
-      firstY,
-      this.config.maxRoomWidth,
-      this.config.maxRoomHeight,
+    let entranceTheme = RoomThemes.getEntrance();
+    let roomGenConfig = new RoomGeneratorConfig(
       this.config.width,
       this.config.height,
+      entranceTheme,
     );
+
+    let roomGen = new RoomGenerator(roomGenConfig);
+
+    let firstRoom = roomGen.generate();
     firstRoom.id = 0;
-    firstRoom.features.push(
-      new RoomFeature(
-        'entrance',
-        RND.item([
-          'The entrance to the dungeon is here.',
-          'The stairs out of the dungeon are here.',
-          'There is a set of stairs here leading out of the dungeon.',
-        ]),
-        false,
-      ),
-    );
     let id = 0;
 
     dungeon.rooms.push(firstRoom);
@@ -77,20 +64,41 @@ export default class DungeonGenerator {
 
     let treasureSpawns = [];
 
-    let roomThemes = dungeon.theme.roomThemes;
-    let otherRoomThemes = RoomThemes.all();
-    roomThemes = roomThemes.concat(otherRoomThemes);
+    // TODO: address light levels in individual rooms
+
+    for (let i = 0; i < dungeon.theme.requiredRooms.length; i++) {
+      let rr = dungeon.theme.requiredRooms[i];
+
+      let roomCount = random.int(rr.minCount, rr.maxCount);
+
+      for (let j = 0; j < roomCount; j++) {
+        let r = Rooms.getPlaceableRoom(
+          this.config.width,
+          this.config.height,
+          rr.theme,
+          dungeon.rooms,
+        );
+
+        if (r === null) {
+          console.debug(`Room broke`, rr, dungeon.theme.name);
+        } else {
+          id += 1;
+          r.id = id;
+
+          dungeon.rooms.push(r);
+          dungeon.tiles = addRoomToTiles(r, dungeon.tiles);
+        }
+      }
+    }
 
     while (roomGeneration) {
-      // TODO: address light levels
       if (dungeon.rooms.length >= numRooms) {
         roomGeneration = false;
       } else {
-        let r2 = new Room();
         let r = Rooms.getPlaceableRoom(
-          this.config.maxRoomWidth,
-          this.config.maxRoomHeight,
-          dungeon.tiles,
+          this.config.width,
+          this.config.height,
+          RND.item(dungeon.theme.roomThemes),
           dungeon.rooms,
         );
         if (r === null) {
@@ -98,13 +106,6 @@ export default class DungeonGenerator {
         } else {
           id += 1;
           r.id = id;
-          r2 = Rooms.getNearestRoom(r, dungeon.rooms);
-
-          if (RND.chance(100) > 80) {
-            let roomTheme = RND.item(roomThemes);
-
-            r.features = r.features.concat(roomTheme.features);
-          }
 
           dungeon.rooms.push(r);
           dungeon.tiles = addRoomToTiles(r, dungeon.tiles);
@@ -116,37 +117,29 @@ export default class DungeonGenerator {
       }
     }
 
-    // Run through all rooms again and add additional doors
-
-    for (let i = 0; i < dungeon.rooms.length; i++) {
-      if (RND.chance(100) > 10) {
-        dungeon.rooms[i].features.push(RoomFeatures.random());
-      }
-    }
-
     for (let i = 0; i < 2; i++) {
       dungeon = Doors.addDoorsToDungeon(dungeon);
     }
 
     for (let i = 0; i < dungeon.doors.length; i++) {
-      if (dungeon.doors[i].isLocked) {
+      if (dungeon.doors[i].lock != null) {
         let keySpawn = new TreasureSpawn();
-        // TODO: make keys unlock Locks, and make some doors have a Lock
-        keySpawn.behavior = `It unlocks the door between room ${
+        keySpawn.behavior = `This key unlocks the door between room ${
           dungeon.doors[i].room1 + 1
-        } and room ${dungeon.doors[i].room2 + 1}.`;
+        } and room ${dungeon.doors[i].room2 + 1} in ${dungeon.name}.`;
         keySpawn.minRoom = 0;
         keySpawn.maxRoom = dungeon.doors[i].room1;
-        keySpawn.treasure = new Key();
-        keySpawn.treasure.name = 'a key';
+        let key = new Key();
+        key.name = 'a key';
+        key.lockId = dungeon.doors[i].lock.id;
         let keyDescription = RND.item([
           `a ${RND.item(['simple', 'plain', 'rough'])} key`,
           `a ${RND.item(['small', 'ornate', 'shiny', 'tarnished'])} key`,
         ]);
-        keySpawn.treasure.description = `${keyDescription} that unlocks the door between room ${
+        key.description = `${keyDescription} that unlocks the door between room ${
           dungeon.doors[i].room1 + 1
         } and room ${dungeon.doors[i].room2 + 1}`;
-        keySpawn.treasure.value = 1;
+        keySpawn.treasure = key;
         keySpawn.isCarried = RND.chance(100) > 90 ? true : false;
         if (!keySpawn.isCarried) {
           keySpawn.isHidden = RND.chance(100) > 90 ? true : false;

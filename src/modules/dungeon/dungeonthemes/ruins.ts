@@ -1,8 +1,9 @@
 'use strict';
 
 import DungeonTheme from '../dungeontheme';
-import RoomFeature from '../roomfeature';
-import RoomTheme from '../roomtheme';
+import RoomFeature from '../rooms/features/feature';
+import RoomTheme from '../rooms/themes/theme';
+import * as RoomThemes from '../rooms/themes/themes';
 import * as RND from '../../random';
 import * as FantasyEncounters from '../../encounters/templates/fantasy/all';
 import * as GenericEncounters from '../../encounters/templates/fantasy/genericdungeon';
@@ -11,6 +12,7 @@ import EncounterTemplate from '../../encounters/template';
 import Archetype from '../../archetypes/archetype';
 import EncounterGroupTemplate from '../../encounters/grouptemplate';
 import GenericNameGenerator from '../../names/generators/generic';
+import RoomRequirement from '../rooms/roomrequirement';
 
 export function all(): DungeonTheme[] {
   let allEncounters = FantasyEncounters.all(false);
@@ -137,93 +139,46 @@ export function all(): DungeonTheme[] {
     }
   }
 
+  const allRoomThemes = RoomThemes.all();
+  const dungeonRoomThemes = RoomThemes.byTag('dungeon', allRoomThemes);
+  let barracks = RoomThemes.byName('barracks', allRoomThemes);
+  let altar = RoomThemes.byName('altar room', allRoomThemes);
+  let tombRoomThemes = RoomThemes.byTag('tomb', allRoomThemes);
+  tombRoomThemes = tombRoomThemes.concat(dungeonRoomThemes);
+
+  let cultRoomThemes = RoomThemes.byTag('cult', allRoomThemes);
+  cultRoomThemes = cultRoomThemes.concat(dungeonRoomThemes);
+
+  let mageRoomThemes = RoomThemes.byTag('mage', allRoomThemes);
+  mageRoomThemes = mageRoomThemes.concat(dungeonRoomThemes);
+
   return [
-    new DungeonTheme('tomb', tombNameGen, tombEncounters, tombEncounters, tombBossEncounters, [
-      new RoomTheme('burial chamber', 'dungeon', [
-        new RoomFeature(
-          'coffins',
-          RND.item([
-            'There is a large stone sarcophagus here.',
-            'There is an ornate sarcophagus here.',
-            'There are several sarcophagi here.',
-            'There is a large, ornate coffin here.',
-            'There are many coffins here.',
-          ]),
-          true,
-        ),
-      ]),
-    ]),
-    new DungeonTheme('cult', cultNameGen, cultEncounters, cultEncounters, cultBossEncounters, [
-      new RoomTheme('altar room', 'dungeon', [
-        new RoomFeature(
-          'altar',
-          RND.item([
-            'There is an evil-looking altar here.',
-            'There is a blood-covered altar here.',
-            'On top of a stone dais is a long altar.',
-          ]),
-          false,
-        ),
-      ]),
-      new RoomTheme('barracks', 'dungeon', [
-        new RoomFeature(
-          'beds',
-          RND.item([
-            'There are many beds here.',
-            'There are many bunk beds here.',
-            'There are many cots here.',
-          ]),
-          false,
-        ),
-        new RoomFeature('chests', 'There are chests at the end of each bed.', true),
-      ]),
-    ]),
+    new DungeonTheme(
+      'tomb',
+      tombNameGen,
+      tombEncounters,
+      tombEncounters,
+      tombBossEncounters,
+      tombRoomThemes,
+      [],
+    ),
+    new DungeonTheme(
+      'cult',
+      cultNameGen,
+      cultEncounters,
+      cultEncounters,
+      cultBossEncounters,
+      cultRoomThemes,
+      [new RoomRequirement(altar, 1, 1), new RoomRequirement(barracks, 1, 1)],
+    ),
     new DungeonTheme(
       'mage lair',
       magicNameGen,
       magicEncounters,
       magicEncounters,
       magicBossEncounters,
-      [
-        new RoomTheme('library', 'dungeon', [
-          new RoomFeature(
-            'bookcases',
-            RND.item([
-              'There are many bookcases here.',
-              'There are a number of well-preserved bookcases here.',
-              'The walls are lined with bookcases.',
-            ]),
-            true,
-          ),
-          new RoomFeature(
-            'table',
-            RND.item([
-              'There are several tables here.',
-              'There is a table here with a large book open lying on it.',
-            ]),
-            false,
-          ),
-        ]),
-        new RoomTheme('laboratory', 'dungeon', [
-          new RoomFeature(
-            'lab table',
-            RND.item([
-              'There is a large table here with a wide array of alchemical devices on it.',
-              'There are several tables here with various devices on them.',
-            ]),
-            false,
-          ),
-          new RoomFeature(
-            'specimen cabinet',
-            RND.item([
-              'There is a large cabinet here.',
-              'There is a simple cabinet here, and the door is ajar.',
-              'There is a cabinet here.',
-            ]),
-            true,
-          ),
-        ]),
-      ],
+      mageRoomThemes,
+      [],
     ),
   ];
 }

@@ -59,7 +59,7 @@
 
   {#each dungeon.rooms as room }
   <div class="room">
-    <h3>Room {room.id + 1}</h3>
+    <h3>Room {room.id + 1}: {room.name}</h3>
     <p>
       {room.description}
       {#each room.features as feature}

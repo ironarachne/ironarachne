@@ -3,7 +3,7 @@
 import type Biome from '../environment/biomes/biome';
 import Door from './door';
 import DungeonTheme from './dungeontheme';
-import Room from './room';
+import Room from './rooms/room';
 
 export default class Dungeon {
   name: string;

@@ -2,7 +2,8 @@
 
 import EncounterTemplate from '../encounters/template';
 import GenericNameGenerator from '../names/generators/generic';
-import RoomTheme from './roomtheme';
+import RoomRequirement from './rooms/roomrequirement';
+import RoomTheme from './rooms/themes/theme';
 
 export default class DungeonTheme {
   name: string;
@@ -11,6 +12,7 @@ export default class DungeonTheme {
   strongEncounterTemplates: EncounterTemplate[];
   bossEncounterTemplates: EncounterTemplate[];
   roomThemes: RoomTheme[];
+  requiredRooms: RoomRequirement[];
 
   constructor(
     name: string,
@@ -19,6 +21,7 @@ export default class DungeonTheme {
     strong: EncounterTemplate[],
     boss: EncounterTemplate[],
     roomThemes: RoomTheme[],
+    requiredRooms: RoomRequirement[],
   ) {
     this.name = name;
     this.nameGenerator = nameGenerator;
@@ -26,5 +29,6 @@ export default class DungeonTheme {
     this.strongEncounterTemplates = strong;
     this.bossEncounterTemplates = boss;
     this.roomThemes = roomThemes;
+    this.requiredRooms = requiredRooms;
   }
 }

@@ -56,6 +56,7 @@ export default class DungeonTileRenderer {
         ((dungeon.rooms[i].maxY - dungeon.rooms[i].minY) * this.tileSize) / 2 +
         this.tileSize * 0.8;
 
+      // TODO: calculate placement of label in the center of the biggest block of ROOM tiles for this room, not the actual room center
       ctx.beginPath();
       ctx.strokeStyle = '#5698DA';
       ctx.fillStyle = '#5698DA';

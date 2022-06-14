@@ -1,15 +1,16 @@
 'use strict';
 
 import Door from './door';
-import Room from './room';
+import Room from './rooms/room';
 import * as Geometry from '../geometry/geometry';
 import * as RND from '../random';
-import * as Rooms from './rooms';
+import * as Rooms from './rooms/rooms';
 import * as Tiles from './tiles';
 import * as Words from '../words';
 import Edge from '../geometry/edge';
 import Dungeon from './dungeon';
-import RoomFeature from './roomfeature';
+import RoomFeature from './rooms/features/feature';
+import Lock from './lock';
 
 export function addDoor(room1: Room, room2: Room): Door {
   let door = new Door();
@@ -37,7 +38,8 @@ export function addDoor(room1: Room, room2: Room): Door {
   }
 
   if (RND.chance(100) > 90) {
-    door.isLocked = true;
+    door.lock = new Lock();
+    door.lock.id = RND.randomString(24);
   } else if (RND.chance(100) > 90) {
     door.isSecret = true;
   }
@@ -96,7 +98,7 @@ export function addDoorsToDungeon(dungeon: Dungeon): Dungeon {
     if (r2.id == 0) {
       door.isSecret = false;
       if (dungeon.rooms[0].doors.length < 2) {
-        door.isLocked = false;
+        door.lock = null;
       }
     }
 
@@ -167,7 +169,7 @@ export function getDoorDescription(door: Door, room: Room): string {
 
   let description = `There is ${door.description} in the ${dir}`;
 
-  if (door.isLocked) {
+  if (door.lock != null) {
     description += '. It is locked.';
   } else if (door.isSecret) {
     description += ', but it is hidden.';

@@ -16,4 +16,14 @@ export default class Vertex {
 
     return false;
   }
+
+  in(v: Vertex[]): boolean {
+    for (let i = 0; i < v.length; i++) {
+      if (this.equals(v[i])) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
