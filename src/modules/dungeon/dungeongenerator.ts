@@ -99,7 +99,7 @@ export default class DungeonGenerator {
         let r = Rooms.getPlaceableRoom(
           this.config.width,
           this.config.height,
-          RND.item(dungeon.theme.roomThemes),
+          RND.weighted(dungeon.theme.roomThemes),
           dungeon.rooms,
         );
         if (r === null) {

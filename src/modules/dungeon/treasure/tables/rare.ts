@@ -13,10 +13,10 @@ export function horde(): TreasureTable[] {
       new TreasureTableEntry(30, new CoinGenerator('', '', '', '4d6x1000', '5d6x100')),
     ]),
     new TreasureTable([
-      new TreasureTableEntry(20, new ArtObjectGenerator(25000, 25000, Dice.roll('2d4'))),
+      new TreasureTableEntry(20, new ArtObjectGenerator(20000, 30000, Dice.roll('2d4'))),
       new TreasureTableEntry(30, new GemGenerator(45000, 50000, Dice.roll('3d6'))),
       new TreasureTableEntry(8, new GemGenerator(95000, 100000, Dice.roll('3d6'))),
-      new TreasureTableEntry(10, new ArtObjectGenerator(75000, 75000, Dice.roll('2d4'))),
+      new TreasureTableEntry(10, new ArtObjectGenerator(70000, 80000, Dice.roll('2d4'))),
     ]),
   ];
 }

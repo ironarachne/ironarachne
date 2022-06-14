@@ -31,6 +31,7 @@ export function all(): RoomTheme[] {
       ],
       ['rectangular'],
       ['cult'],
+      5,
     ),
     new RoomTheme(
       'barracks',
@@ -57,6 +58,7 @@ export function all(): RoomTheme[] {
       ],
       ['rectangular'],
       ['military'],
+      5,
     ),
     new RoomTheme(
       'burial chamber',
@@ -80,6 +82,7 @@ export function all(): RoomTheme[] {
       ],
       ['rectangular'],
       ['tomb'],
+      5,
     ),
     new RoomTheme(
       'chamber',
@@ -91,6 +94,7 @@ export function all(): RoomTheme[] {
       genericFeatures,
       ['rectangular', 'square'],
       ['dungeon'],
+      20,
     ),
     new RoomTheme(
       'fountain chamber',
@@ -113,6 +117,7 @@ export function all(): RoomTheme[] {
       ],
       ['rectangular', 'square'],
       ['dungeon', 'nobility'],
+      5,
     ),
     new RoomTheme(
       'kitchen',
@@ -131,14 +136,15 @@ export function all(): RoomTheme[] {
       ],
       ['rectangular'],
       ['military'],
+      5,
     ),
     new RoomTheme(
       'laboratory',
       'dungeon',
       4,
       4,
-      15,
-      15,
+      6,
+      6,
       [
         new RoomFeatureGenerator(
           'lab table',
@@ -160,6 +166,7 @@ export function all(): RoomTheme[] {
       ],
       ['rectangular'],
       ['alchemy', 'mage'],
+      5,
     ),
     new RoomTheme(
       'library',
@@ -189,6 +196,7 @@ export function all(): RoomTheme[] {
       ],
       ['rectangular', 'square'],
       ['mage', 'nobility'],
+      5,
     ),
   ];
 }

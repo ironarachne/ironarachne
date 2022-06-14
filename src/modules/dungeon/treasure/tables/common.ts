@@ -14,7 +14,7 @@ export function horde(): TreasureTable[] {
     ]),
     new TreasureTable([
       new TreasureTableEntry(8, new GemGenerator(900, 1000, Dice.roll('2d6'))),
-      new TreasureTableEntry(10, new ArtObjectGenerator(2500, 2500, Dice.roll('2d4'))),
+      new TreasureTableEntry(12, new ArtObjectGenerator(1500, 3500, Dice.roll('2d4'))),
       new TreasureTableEntry(8, new GemGenerator(4500, 5000, Dice.roll('2d6'))),
     ]),
   ];

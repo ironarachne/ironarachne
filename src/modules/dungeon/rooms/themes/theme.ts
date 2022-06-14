@@ -12,6 +12,7 @@ export default class RoomTheme {
   featureGenerators: RoomFeatureGenerator[];
   shapes: string[];
   tags: string[];
+  commonality: number;
 
   constructor(
     name: string,
@@ -23,6 +24,7 @@ export default class RoomTheme {
     featureGenerators: RoomFeatureGenerator[],
     shapes: string[],
     tags: string[],
+    commonality: number,
   ) {
     this.name = name;
     this.environment = environment;
@@ -33,5 +35,6 @@ export default class RoomTheme {
     this.featureGenerators = featureGenerators;
     this.shapes = shapes;
     this.tags = tags;
+    this.commonality = commonality;
   }
 }
