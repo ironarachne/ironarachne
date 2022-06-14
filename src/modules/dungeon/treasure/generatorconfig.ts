@@ -1,11 +1,11 @@
 'use strict';
 
-import TreasureTableEntry from './tableentry';
+import TreasureTable from './table';
 
 export default class TreasureGeneratorConfig {
-  table: TreasureTableEntry[];
+  tables: TreasureTable[];
 
   constructor() {
-    this.table = [];
+    this.tables = [];
   }
 }

@@ -11,13 +11,19 @@ export default class TreasureResultGenerator {
     this.config = config;
   }
 
-  generate(): Item {
-    let possibleItems = this.config.table;
+  generate(): Item[] {
+    let result = [];
 
-    let t = RND.weighted(possibleItems);
-    let gen = t.generator;
-    let item = gen.generate();
+    for (const table of this.config.tables) {
+      let possibleItems = table.entries;
 
-    return item;
+      let t = RND.weighted(possibleItems);
+      let gen = t.generator;
+      let items = gen.generate();
+
+      result = result.concat(items);
+    }
+
+    return result;
   }
 }

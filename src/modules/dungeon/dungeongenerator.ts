@@ -10,6 +10,7 @@ import * as Doors from './doors';
 import Room from './rooms/room';
 import * as Rooms from './rooms/rooms';
 import * as RoomThemes from './rooms/themes/themes';
+import * as Words from '../words';
 
 import TreasureSpawn from './treasurespawn';
 import EncounterSpawn from './encounterspawn';
@@ -139,7 +140,7 @@ export default class DungeonGenerator {
         key.description = `${keyDescription} that unlocks the door between room ${
           dungeon.doors[i].room1 + 1
         } and room ${dungeon.doors[i].room2 + 1}`;
-        keySpawn.treasure = key;
+        keySpawn.treasure.push(key);
         keySpawn.isCarried = RND.chance(100) > 90 ? true : false;
         if (!keySpawn.isCarried) {
           keySpawn.isHidden = RND.chance(100) > 90 ? true : false;
@@ -154,25 +155,25 @@ export default class DungeonGenerator {
 
     let encounterSpawns = [];
     let hordeChance = 100;
-    let commonHordeTable = CommonTables.horde();
-    let bossHordeTable = RareTables.horde();
+    let commonHordeTables = CommonTables.horde();
+    let bossHordeTables = RareTables.horde();
 
     for (let i = 1; i < dungeon.rooms.length; i++) {
       // 70% chance of an encounter in every room after the entry
       if (RND.chance(100) > 30 || i == dungeon.rooms.length - 1) {
         let config = new EncounterGeneratorConfig();
-        let treasureTable = CommonTables.individual();
+        let treasureTables = CommonTables.individual();
         // if it's the last room in the dungeon, make it a boss encounter
         if (i == dungeon.rooms.length - 1) {
           config.template = RND.item(dungeon.theme.bossEncounterTemplates);
-          treasureTable = RareTables.individual();
+          treasureTables = RareTables.individual();
         } else {
           // 30% chance of being a strong encounter
           if (RND.chance(100) > 30) {
             config.template = RND.item(dungeon.theme.weakEncounterTemplates);
           } else {
             config.template = RND.item(dungeon.theme.strongEncounterTemplates);
-            treasureTable = UncommonTables.individual();
+            treasureTables = UncommonTables.individual();
           }
         }
 
@@ -182,11 +183,11 @@ export default class DungeonGenerator {
         spawn.encounterConfig = config;
 
         let treasureConfig = new TreasureGeneratorConfig();
-        treasureConfig.table = treasureTable;
+        treasureConfig.tables = treasureTables;
         let treasureGen = new TreasureResultGenerator(treasureConfig);
         let treasure = treasureGen.generate();
         let ts = new TreasureSpawn();
-        ts.treasure = treasure;
+        ts.treasure = ts.treasure.concat(treasure);
         spawn.treasureSpawns.push(ts);
 
         encounterSpawns.push(spawn);
@@ -196,14 +197,14 @@ export default class DungeonGenerator {
       if (RND.chance(100) > hordeChance) {
         // TODO: figure out how to add more than one item to a horde, since the coins are guaranteed, but there might be other stuff
         let hordeConfig = new TreasureGeneratorConfig();
-        hordeConfig.table = commonHordeTable;
+        hordeConfig.tables = commonHordeTables;
         if (i < dungeon.rooms.length - 1) {
-          hordeConfig.table = bossHordeTable;
+          hordeConfig.tables = bossHordeTables;
         }
         let treasureGen = new TreasureResultGenerator(hordeConfig);
         let treasure = treasureGen.generate();
         let horde = new TreasureSpawn();
-        horde.treasure = treasure;
+        horde.treasure = horde.treasure.concat(treasure);
 
         treasureSpawns.push(horde);
         hordeChance = 100;
@@ -250,7 +251,13 @@ export default class DungeonGenerator {
       }
       let roomId = random.int(minRoom, maxRoom);
 
-      let treasureDescription = treasureSpawns[i].treasure.description;
+      let descriptions = [];
+
+      for (const t of treasureSpawns[i].treasure) {
+        descriptions.push(t.description);
+      }
+
+      let treasureDescription = Words.arrayToPhrase(descriptions);
 
       if (treasureSpawns[i].isHidden) {
         treasureDescription += `, hidden somewhere in the room`;

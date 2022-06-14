@@ -21,7 +21,7 @@ export default class CoinGenerator implements TreasureGenerator {
     this.pp = pp;
   }
 
-  generate(): BagOfCoins {
+  generate(): BagOfCoins[] {
     let bag = new BagOfCoins();
     let cp = 0;
     let sp = 0;
@@ -95,6 +95,6 @@ export default class CoinGenerator implements TreasureGenerator {
 
     bag.description += Words.arrayToPhrase(moneys);
 
-    return bag;
+    return [bag];
   }
 }
