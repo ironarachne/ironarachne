@@ -11,10 +11,10 @@ export function modify(species: Species): Species {
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
   result.adjective = `${modifierName} ${result.adjective}`;
-  result.abilities.push('mindless');
   result.abilities.push('unharmed by piercing damage');
   result.tags.push('skeleton');
   result.tags.push('undead');
+  result.threatLevel += 1;
 
   return result;
 }

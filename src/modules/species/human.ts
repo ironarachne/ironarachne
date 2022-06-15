@@ -17,6 +17,7 @@ export default class Human implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'human';
@@ -26,6 +27,7 @@ export default class Human implements Species {
     this.pluralName = 'humans';
     this.adjective = 'human';
     this.commonality = 200;
+    this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

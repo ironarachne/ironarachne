@@ -1,6 +1,6 @@
 'use strict';
 
-import type { Item } from '../../equipment/item';
+import type Item from '../../equipment/item';
 import TreasureGeneratorConfig from './generatorconfig';
 import * as RND from '../../random';
 

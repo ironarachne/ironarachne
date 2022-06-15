@@ -1,75 +1,43 @@
 'use strict';
 
 import DungeonTheme from '../dungeontheme';
-import RoomFeature from '../rooms/features/feature';
-import RoomTheme from '../rooms/themes/theme';
 import * as RoomThemes from '../rooms/themes/themes';
-import * as RND from '../../random';
+import * as Encounters from '../../encounters/templates/templates';
 import * as FantasyEncounters from '../../encounters/templates/fantasy/all';
 import GenericNameGenerator from '../../names/generators/generic';
-import EncounterTemplate from '../../encounters/template';
-import EncounterGroupTemplate from '../../encounters/grouptemplate';
-import Archetype from '../../archetypes/archetype';
 import RoomRequirement from '../rooms/roomrequirement';
 
 export function all(): DungeonTheme[] {
   let allEncounters = FantasyEncounters.all(false);
 
-  let fortressEncounters = FantasyEncounters.withTag('martial', allEncounters);
+  let fortressEncounters = Encounters.withTag('martial', allEncounters);
 
-  let fortressBossEncounters = [
-    new EncounterTemplate(
-      'general',
-      5,
-      [
-        new EncounterGroupTemplate(
-          'general',
-          5,
-          true,
-          [new Archetype('general', [], ['general', 'martial'])],
-          [],
-          ['undead'],
-          1,
-          1,
-        ),
-      ],
-      ['martial'],
-    ),
-  ];
+  for (let i = 0; i < fortressEncounters.length; i++) {
+    if (fortressEncounters[i].tags.includes('soldiers')) {
+      fortressEncounters[i].commonality += 20;
+    }
+  }
+
+  let fortressWeakEncounters = Encounters.belowThreatLevel(3, fortressEncounters);
+  let fortressStrongEncounters = Encounters.inThreatLevelRange(3, 4, fortressEncounters);
+  let fortressBossEncounters = Encounters.withThreatLevel(5, fortressEncounters);
 
   let fortressNameGen = new GenericNameGenerator();
-  let p1 = ['DARK', 'DREAD', 'DIRE', 'IRON'];
-  let p2 = ['FORTRESS', 'STRONGHOLD', 'DOMAIN'];
+  let p1 = ['FORTRESS', 'STRONGHOLD', 'DOMAIN', 'DOMINION', 'LAIR'];
+  let p2 = ['DARK', 'DREAD', 'DIRE', 'IRON', 'BLOODY', 'CURSED'];
   let p3 = ['LEGION', 'ARMY'];
   for (let i = 0; i < p1.length; i++) {
     for (let j = 0; j < p2.length; j++) {
       for (let k = 0; k < p3.length; k++) {
-        fortressNameGen.patterns.push(`THE ${p2[j]} OF THE ${p1[i]} ${p3[k]}`);
+        fortressNameGen.patterns.push(`THE ${p1[i]} OF THE ${p2[j]} ${p3[k]}`);
       }
     }
   }
 
-  let cultEncounters = FantasyEncounters.withTag('cult', allEncounters);
-
-  let cultBossEncounters = [
-    new EncounterTemplate(
-      'cult high priest',
-      5,
-      [
-        new EncounterGroupTemplate(
-          'cult high priest',
-          5,
-          true,
-          [new Archetype('cult high priest', [], ['priest', 'cult'])],
-          [],
-          ['undead'],
-          1,
-          1,
-        ),
-      ],
-      ['cult'],
-    ),
-  ];
+  let cultEncounters = Encounters.withTag('cult', allEncounters);
+  let cultWeakEncounters = Encounters.belowThreatLevel(3, cultEncounters);
+  let cultStrongEncounters = Encounters.inThreatLevelRange(3, 4, cultEncounters);
+  let cultBossEncounters = Encounters.withThreatLevel(5, cultEncounters);
 
   let cultNameGen = new GenericNameGenerator();
   let c1 = ['DEN', 'DOMAIN', 'LAIR'];
@@ -97,8 +65,8 @@ export function all(): DungeonTheme[] {
     new DungeonTheme(
       'fortress',
       fortressNameGen,
-      fortressEncounters,
-      fortressEncounters,
+      fortressWeakEncounters,
+      fortressStrongEncounters,
       fortressBossEncounters,
       fortress,
       [new RoomRequirement(barracks, 1, 2)],
@@ -106,8 +74,8 @@ export function all(): DungeonTheme[] {
     new DungeonTheme(
       'cult',
       cultNameGen,
-      cultEncounters,
-      cultEncounters,
+      cultWeakEncounters,
+      cultStrongEncounters,
       cultBossEncounters,
       cult,
       [new RoomRequirement(altar, 1, 1), new RoomRequirement(barracks, 1, 1)],

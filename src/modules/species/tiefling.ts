@@ -17,6 +17,7 @@ export default class Tiefling implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'tiefling';
@@ -26,6 +27,7 @@ export default class Tiefling implements Species {
     this.pluralName = 'tieflings';
     this.adjective = 'tiefling';
     this.commonality = 5;
+    this.threatLevel = 1;
     const hornLengths = ['short', 'long'];
     const hornTypes = ['curved', 'straight', 'curled', 'spiraled'];
     let hornAppearances = [];

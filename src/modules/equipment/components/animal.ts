@@ -1,10 +1,10 @@
 'use strict';
 
-import * as Components from './components';
+import Component from './component';
 
-export function all(): Components.Component[] {
+export function all(): Component[] {
   return [
-    new Components.Component(
+    new Component(
       'cow leather',
       'a circle of cow leather',
       'cow leather',
@@ -12,7 +12,7 @@ export function all(): Components.Component[] {
       'hard leather',
       1,
     ),
-    new Components.Component(
+    new Component(
       'bull leather',
       'a circle of bull leather',
       'bull leather',
@@ -20,39 +20,18 @@ export function all(): Components.Component[] {
       'hard leather',
       2,
     ),
-    new Components.Component(
+    new Component(
       'steer leather',
       'a circle of steer leather',
       'steer leather',
       'leather',
       'hard leather',
-      3,
+      20,
     ),
-    new Components.Component(
-      'pig hide',
-      'a circle of pig hide',
-      'pig hide',
-      'leather',
-      'hard leather',
-      1,
-    ),
-    new Components.Component(
-      'deer hide',
-      'a circle of deer hide',
-      'deer hide',
-      'leather',
-      'soft leather',
-      1,
-    ),
-    new Components.Component(
-      'goat hide',
-      'a circle of goat hide',
-      'goat hide',
-      'leather',
-      'soft leather',
-      1,
-    ),
-    new Components.Component(
+    new Component('pig hide', 'a circle of pig hide', 'pig hide', 'leather', 'hard leather', 1),
+    new Component('deer hide', 'a circle of deer hide', 'deer hide', 'leather', 'soft leather', 1),
+    new Component('goat hide', 'a circle of goat hide', 'goat hide', 'leather', 'soft leather', 1),
+    new Component(
       'sheep hide',
       'a circle of sheep hide',
       'sheep hide',
@@ -60,23 +39,23 @@ export function all(): Components.Component[] {
       'soft leather',
       1,
     ),
-    new Components.Component(
+    new Component(
       'shark skin',
       'a circle of shark skin',
       'shark skin',
       'leather',
       'soft leather',
-      10,
+      30,
     ),
-    new Components.Component(
+    new Component(
       'dragon hide',
       'a circle of dragon hide',
       'dragon hide',
       'leather',
       'hard leather',
-      100,
+      500,
     ),
-    new Components.Component(
+    new Component(
       'wyvern hide',
       'a circle of wyvern hide',
       'wyvern hide',
@@ -84,6 +63,6 @@ export function all(): Components.Component[] {
       'hard leather',
       100,
     ),
-    new Components.Component('bone', 'a length of bone', 'bone', 'bone', 'animal bone', 1),
+    new Component('bone', 'a length of bone', 'bone', 'bone', 'animal bone', 1),
   ];
 }

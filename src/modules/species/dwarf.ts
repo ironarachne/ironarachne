@@ -17,6 +17,7 @@ export default class Dwarf implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'dwarf';
@@ -26,6 +27,7 @@ export default class Dwarf implements Species {
     this.pluralName = 'dwarves';
     this.adjective = 'dwarven';
     this.commonality = 20;
+    this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

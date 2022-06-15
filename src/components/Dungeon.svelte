@@ -1,4 +1,5 @@
 <script lang="ts">
+  import * as Currency from "../modules/currency/currency";
   import * as RND from "../modules/random";
   import * as Words from '../modules/words';
 
@@ -36,6 +37,29 @@
   });
 </script>
 
+<style>
+  div.mobs {
+    display: block;
+    padding: 0;
+    margin: 0;
+  }
+
+  div.mob {
+    border: 1px solid black;
+    padding: 0.5rem;
+    margin: 0.5rem;
+  }
+
+  div.mob > h4 {
+    display: block;
+    font-size: 1rem;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    border-bottom: 1px solid black;
+  }
+</style>
+
 <svelte:head>
   <title>Dungeon Generator | Iron Arachne</title>
 </svelte:head>
@@ -70,11 +94,29 @@
       {#each room.encounters as encounter}
         {#each encounter.groups as group}
         <p>There {#if group.mobs.length > 1}are {group.mobs.length}{:else}is {Words.article(group.name)}{/if} {group.name} here.</p>
-        <ul>
+        <div class="mobs">
           {#each group.mobs as mob}
-          <li>{mob.name}, {mob.summary}</li>
+          <div class="mob">
+            <h4>{mob.name}, {mob.summary} (TL {mob.threatLevel})</h4>
+            {#if mob.abilities.length > 0}
+            <p>Abilities:</p>
+            <ul>
+              {#each mob.abilities as ability}
+              <li>{ability}</li>
+              {/each}
+            </ul>
+            {/if}
+            {#if mob.carried.length > 0}
+            <p>Carrying the following:</p>
+            <ul>
+              {#each mob.carried as item}
+              <li>{item.description}, worth {Currency.valueToCoins(item.value, false, false, false)}</li>
+              {/each}
+            </ul>
+            {/if}
+          </div>
           {/each}
-        </ul>
+        </div>
         {/each}
       {/each}
     </div>

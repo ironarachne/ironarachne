@@ -14,4 +14,5 @@ export default interface Species {
   genders: Gender[];
   tags: string[];
   abilities: string[];
+  threatLevel: number;
 }

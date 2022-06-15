@@ -165,14 +165,14 @@ export default class DungeonGenerator {
         let treasureTables = CommonTables.individual();
         // if it's the last room in the dungeon, make it a boss encounter
         if (i == dungeon.rooms.length - 1) {
-          config.template = RND.item(dungeon.theme.bossEncounterTemplates);
+          config.template = RND.weighted(dungeon.theme.bossEncounterTemplates);
           treasureTables = RareTables.individual();
         } else {
           // 30% chance of being a strong encounter
           if (RND.chance(100) > 30) {
-            config.template = RND.item(dungeon.theme.weakEncounterTemplates);
+            config.template = RND.weighted(dungeon.theme.weakEncounterTemplates);
           } else {
-            config.template = RND.item(dungeon.theme.strongEncounterTemplates);
+            config.template = RND.weighted(dungeon.theme.strongEncounterTemplates);
             treasureTables = UncommonTables.individual();
           }
         }

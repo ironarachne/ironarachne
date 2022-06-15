@@ -17,6 +17,7 @@ export default class Halfling implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'halfling';
@@ -26,6 +27,7 @@ export default class Halfling implements Species {
     this.pluralName = 'halflings';
     this.adjective = 'halfling';
     this.commonality = 20;
+    this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

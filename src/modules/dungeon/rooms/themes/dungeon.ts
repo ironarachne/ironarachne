@@ -94,7 +94,7 @@ export function all(): RoomTheme[] {
       genericFeatures,
       ['rectangular', 'square'],
       ['dungeon'],
-      20,
+      40,
     ),
     new RoomTheme(
       'fountain chamber',

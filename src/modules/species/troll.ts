@@ -17,15 +17,17 @@ export default class Troll implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'troll';
-    this.abilities = [];
+    this.abilities = ['regenerate slowly unless burned'];
     this.tags = ['corruptible', 'troll', 'greenskin', 'martial', 'sentient'];
     this.nameGeneratorSet = new TrollSet();
     this.pluralName = 'trolls';
     this.adjective = 'troll';
     this.commonality = 10;
+    this.threatLevel = 2;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

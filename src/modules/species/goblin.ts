@@ -17,6 +17,7 @@ export default class Goblin implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'goblin';
@@ -26,6 +27,7 @@ export default class Goblin implements Species {
     this.pluralName = 'goblins';
     this.adjective = 'goblin';
     this.commonality = 20;
+    this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

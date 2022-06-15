@@ -15,7 +15,7 @@ export function bellFloat(min: number, max: number): number {
 
   let result = min;
 
-  for (let i=0;i<3;i++) {
+  for (let i = 0; i < 3; i++) {
     result += random.float(0, divisor);
   }
 
@@ -72,5 +72,7 @@ export function weighted(items: any[]) {
     }
   }
 
-  return "shouldn't get here";
+  console.error(
+    `Tried to get weighted result from array with length ${items.length}, failed to get anything back`,
+  );
 }

@@ -17,6 +17,7 @@ export default class Elf implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'elf';
@@ -26,6 +27,7 @@ export default class Elf implements Species {
     this.pluralName = 'elves';
     this.adjective = 'elven';
     this.commonality = 30;
+    this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

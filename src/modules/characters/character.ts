@@ -9,6 +9,7 @@ import PhysicalTrait from '../physicaltraits/physicaltrait';
 import PersonalityTrait from './personality/personalitytrait';
 import Archetype from '../archetypes/archetype';
 import type StatBlock from '../statblock';
+import type Item from '../equipment/item';
 
 export default class Character {
   titles: Title[];
@@ -31,6 +32,8 @@ export default class Character {
   status: string;
   statBlock: StatBlock;
   abilities: string[];
+  carried: Item[];
+  threatLevel: number;
   tags: string[];
 
   constructor(species: Species) {
@@ -50,6 +53,8 @@ export default class Character {
     this.firstName = '';
     this.lastName = '';
     this.status = 'alive';
+    this.carried = [];
+    this.threatLevel = species.threatLevel;
   }
 
   getPrimaryTitle() {

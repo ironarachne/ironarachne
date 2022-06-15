@@ -17,6 +17,7 @@ export default class Orc implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'orc';
@@ -26,6 +27,7 @@ export default class Orc implements Species {
     this.pluralName = 'orcs';
     this.adjective = 'orc';
     this.commonality = 10;
+    this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

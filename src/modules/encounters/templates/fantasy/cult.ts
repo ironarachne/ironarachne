@@ -1,10 +1,12 @@
 'use strict';
 
-import Archetype from '../../../archetypes/archetype';
 import EncounterGroupTemplate from '../../grouptemplate';
 import EncounterTemplate from '../../template';
+import * as Archetypes from '../../../archetypes/archetypes';
+import * as FantasyArchetypes from '../../../archetypes/fantasy/all';
 
 export function all(): EncounterTemplate[] {
+  let allArchetypes = FantasyArchetypes.all();
   return [
     new EncounterTemplate(
       'group of cult acolytes',
@@ -14,7 +16,7 @@ export function all(): EncounterTemplate[] {
           'cult acolytes',
           1,
           true,
-          [new Archetype('cult acolyte', [], ['cult', 'acolyte'])],
+          [Archetypes.byName('cult acolyte', allArchetypes)],
           ['cult', 'corruptible'],
           ['undead'],
           2,
@@ -22,12 +24,14 @@ export function all(): EncounterTemplate[] {
         ),
       ],
       ['cult'],
+      50,
     ),
     new EncounterTemplate(
       'group of lesser demons',
-      2,
+      4,
       [new EncounterGroupTemplate('lesser demons', 2, false, [], ['demon'], [], 2, 4)],
       ['cult', 'demonic'],
+      1,
     ),
     new EncounterTemplate(
       'cult priest',
@@ -37,7 +41,7 @@ export function all(): EncounterTemplate[] {
           'cult priest',
           2,
           true,
-          [new Archetype('cult priest', [], ['priest', 'cult'])],
+          [Archetypes.byName('cult priest', allArchetypes)],
           ['cult', 'corruptible'],
           ['undead'],
           1,
@@ -45,6 +49,25 @@ export function all(): EncounterTemplate[] {
         ),
       ],
       ['cult'],
+      20,
+    ),
+    new EncounterTemplate(
+      'cult high priest',
+      5,
+      [
+        new EncounterGroupTemplate(
+          'cult high priest',
+          5,
+          true,
+          [Archetypes.byName('cult high priest', allArchetypes)],
+          ['cult', 'corruptible'],
+          ['undead'],
+          1,
+          1,
+        ),
+      ],
+      ['cult'],
+      15,
     ),
   ];
 }

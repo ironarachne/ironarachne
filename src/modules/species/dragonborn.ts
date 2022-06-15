@@ -17,6 +17,7 @@ export default class Dragonborn implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'dragonborn';

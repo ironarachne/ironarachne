@@ -1,17 +1,9 @@
 'use strict';
 
-import * as Components from '../components/components';
-import * as Item from '../item';
 import * as ArmorPattern from './armor';
 import * as ClothingPattern from './clothing';
+import type Pattern from './pattern';
 import * as WeaponPattern from './weapons';
-
-export interface Pattern {
-  name: string;
-  tags: string[];
-  baseValue: number;
-  complete(componentOptions: Components.Component[], valueThreshold: number): Item.Item;
-}
 
 export function all(): Pattern[] {
   let result = [];
@@ -21,6 +13,18 @@ export function all(): Pattern[] {
   result.push(...WeaponPattern.all());
 
   return result;
+}
+
+export function byName(name: string): Pattern {
+  let options = all();
+
+  for (const option of options) {
+    if (option.name == name) {
+      return option;
+    }
+  }
+
+  console.error(`Couldn't find pattern with name ${name}`);
 }
 
 export function forCategory(category: string): Pattern[] {

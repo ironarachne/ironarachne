@@ -1,5 +1,6 @@
 'use strict';
 
+import type Item from '../equipment/item';
 import type StatBlock from '../statblock';
 
 export default class Creature {
@@ -11,8 +12,9 @@ export default class Creature {
   statBlock: StatBlock;
   environments: string[];
   behaviors: string[];
+  carried: Item[];
   tags: string[];
-  // TODO: Add threat level
+  threatLevel: number;
 
   constructor(
     name: string,
@@ -22,6 +24,7 @@ export default class Creature {
     environments: string[],
     behaviors: string[],
     tags: string[],
+    threatLevel: number,
   ) {
     this.name = name;
     this.pluralName = pluralName;
@@ -30,6 +33,8 @@ export default class Creature {
     this.abilities = abilities;
     this.environments = environments;
     this.behaviors = behaviors;
+    this.carried = [];
     this.tags = tags;
+    this.threatLevel = threatLevel;
   }
 }

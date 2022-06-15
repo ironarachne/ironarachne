@@ -17,6 +17,7 @@ export default class Gnome implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'gnome';
@@ -26,6 +27,7 @@ export default class Gnome implements Species {
     this.pluralName = 'gnomes';
     this.adjective = 'gnomish';
     this.commonality = 20;
+    this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

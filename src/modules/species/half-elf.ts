@@ -17,6 +17,7 @@ export default class HalfElf implements Species {
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'half-elf';
@@ -26,6 +27,7 @@ export default class HalfElf implements Species {
     this.pluralName = 'half-elves';
     this.adjective = 'half-elven';
     this.commonality = 15;
+    this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

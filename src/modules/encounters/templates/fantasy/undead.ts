@@ -1,11 +1,33 @@
 'use strict';
 
-import Archetype from '../../../archetypes/archetype';
 import EncounterGroupTemplate from '../../grouptemplate';
 import EncounterTemplate from '../../template';
+import * as ItemGenerators from '../../../equipment/generators';
+import * as Archetypes from '../../../archetypes/archetypes';
+import * as FantasyArchetypes from '../../../archetypes/fantasy/all';
 
 export function all(): EncounterTemplate[] {
+  let allArchetypes = FantasyArchetypes.all();
+
   return [
+    new EncounterTemplate(
+      'lich',
+      5,
+      [
+        new EncounterGroupTemplate(
+          'lich',
+          5,
+          true,
+          [Archetypes.byName('lich', allArchetypes)],
+          [],
+          ['undead'],
+          1,
+          1,
+        ),
+      ],
+      ['undead'],
+      5,
+    ),
     new EncounterTemplate(
       'pack of skeletons',
       2,
@@ -15,9 +37,9 @@ export function all(): EncounterTemplate[] {
           2,
           true,
           [
-            new Archetype('warrior', [], ['martial']),
-            new Archetype('archer', [], ['martial']),
-            new Archetype('mage', [], ['magic']),
+            Archetypes.byName('warrior', allArchetypes),
+            Archetypes.byName('soldier', allArchetypes),
+            Archetypes.byName('guard', allArchetypes),
           ],
           ['skeleton'],
           [],
@@ -26,6 +48,7 @@ export function all(): EncounterTemplate[] {
         ),
       ],
       ['skeleton', 'undead'],
+      10,
     ),
     new EncounterTemplate(
       'pack of zombies',
@@ -35,7 +58,10 @@ export function all(): EncounterTemplate[] {
           'zombies',
           3,
           true,
-          [new Archetype('shambler', [], ['zombie']), new Archetype('sprinter', [], ['zombie'])],
+          [
+            Archetypes.byName('shambler', allArchetypes),
+            Archetypes.byName('sprinter', allArchetypes),
+          ],
           ['zombie'],
           [],
           3,
@@ -43,6 +69,7 @@ export function all(): EncounterTemplate[] {
         ),
       ],
       ['zombie', 'undead'],
+      10,
     ),
     new EncounterTemplate(
       'vampire',
@@ -52,7 +79,7 @@ export function all(): EncounterTemplate[] {
           'vampire',
           5,
           true,
-          [new Archetype('warrior', [], ['martial']), new Archetype('mage', [], ['magic'])],
+          [Archetypes.byName('warrior', allArchetypes)],
           ['vampire'],
           [],
           1,
@@ -60,6 +87,7 @@ export function all(): EncounterTemplate[] {
         ),
       ],
       ['vampire', 'undead'],
+      2,
     ),
   ];
 }

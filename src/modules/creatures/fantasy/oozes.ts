@@ -3,16 +3,79 @@
 import Creature from '../creature';
 
 export function all(): Creature[] {
-  let behaviors = ['waiting', 'hunting', 'wandering'];
+  let behaviors = ['waiting', 'hunting', 'wandering', 'clinging to the ceiling'];
 
   let creatures = [
-    new Creature('black pudding', 'black puddings', '', [], ['dungeon', 'cave'], behaviors, []),
-    new Creature('blue jelly', 'blue jellies', '', [], ['dungeon', 'cave'], behaviors, []),
-    new Creature('blue slime', 'blue slimes', '', [], ['dungeon', 'cave'], behaviors, []),
-    new Creature('brown pudding', 'brown puddings', '', [], ['dungeon', 'cave'], behaviors, []),
-    new Creature('gelatinous cube', 'gelatinous cubes', '', [], ['dungeon'], behaviors, []),
-    new Creature('green slime', 'green slimes', '', [], ['dungeon', 'cave'], behaviors, []),
-    new Creature('ochre jelly', 'ochre jellies', '', [], ['dungeon', 'cave'], behaviors, []),
+    new Creature(
+      'black pudding',
+      'black puddings',
+      '',
+      ['dissolve nonmagical metal things', 'amorphous', 'climb walls and ceilings'],
+      ['dungeon', 'cave'],
+      behaviors,
+      [],
+      2,
+    ),
+    new Creature(
+      'blue jelly',
+      'blue jellies',
+      '',
+      ['amorphous', 'climb walls and ceilings'],
+      ['dungeon', 'cave'],
+      behaviors,
+      [],
+      1,
+    ),
+    new Creature(
+      'blue slime',
+      'blue slimes',
+      '',
+      ['amorphous', 'climb walls and ceilings'],
+      ['dungeon', 'cave'],
+      behaviors,
+      [],
+      1,
+    ),
+    new Creature(
+      'brown pudding',
+      'brown puddings',
+      '',
+      ['amorphous', 'climb walls and ceilings'],
+      ['dungeon', 'cave'],
+      behaviors,
+      [],
+      1,
+    ),
+    new Creature(
+      'gelatinous cube',
+      'gelatinous cubes',
+      '',
+      ['dissolve nonmetal things'],
+      ['dungeon'],
+      ['waiting', 'wandering'],
+      [],
+      3,
+    ),
+    new Creature(
+      'green slime',
+      'green slimes',
+      '',
+      ['amorphous', 'climb walls and ceilings'],
+      ['dungeon', 'cave'],
+      behaviors,
+      [],
+      1,
+    ),
+    new Creature(
+      'ochre jelly',
+      'ochre jellies',
+      '',
+      ['amorphous', 'climb walls and ceilings', 'split in half when hit with lightning'],
+      ['dungeon', 'cave'],
+      behaviors,
+      [],
+      2,
+    ),
   ];
 
   for (let i = 0; i < creatures.length; i++) {

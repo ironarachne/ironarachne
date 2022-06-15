@@ -22,12 +22,29 @@ export default class EncounterGenerator {
     let tempCreatures = [];
 
     for (let i = 0; i < creatureOptions.length; i++) {
-      if (creatureOptions[i].environments.includes(this.config.environment)) {
+      if (
+        creatureOptions[i].environments.includes(this.config.environment) &&
+        creatureOptions[i].threatLevel >= this.config.minThreatLevel &&
+        creatureOptions[i].threatLevel <= this.config.maxThreatLevel
+      ) {
         tempCreatures.push(creatureOptions[i]);
       }
     }
 
     creatureOptions = tempCreatures;
+
+    let tempSentients = [];
+
+    for (let i = 0; i < sentientOptions.length; i++) {
+      if (
+        sentientOptions[i].threatLevel >= this.config.minThreatLevel &&
+        sentientOptions[i].threatLevel <= this.config.maxThreatLevel
+      ) {
+        tempSentients.push(sentientOptions[i]);
+      }
+    }
+
+    sentientOptions = tempSentients;
 
     for (let i = 0; i < this.config.template.groupTemplates.length; i++) {
       let mobs: Mob[] = [];
@@ -106,14 +123,16 @@ export default class EncounterGenerator {
         charGenConfig.speciesOptions = [species];
         let charGen = new CharacterGenerator(charGenConfig);
 
-        let archetype = RND.item(t.archetypes);
-
         for (let i = 0; i < amount; i++) {
+          let archetype = RND.item(t.archetypes);
           let c = charGen.generate();
           c.archetype = archetype;
-          c.summary = `${RND.item(c.personalityTraits).descriptor} ${c.species.adjective} ${
-            c.archetype.name
-          }`;
+          c.abilities = c.abilities.concat(archetype.abilities);
+          c.threatLevel += archetype.threatLevel;
+          c.summary = `${c.gender.name} ${c.species.adjective} ${c.archetype.name}`;
+          for (let m = 0; m < c.archetype.itemGenerators.length; m++) {
+            c.carried.push(c.archetype.itemGenerators[m].generate());
+          }
           characters.push(c);
         }
 
