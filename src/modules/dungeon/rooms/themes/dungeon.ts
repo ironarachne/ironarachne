@@ -5,19 +5,45 @@ import RoomTheme from './theme';
 
 export function all(): RoomTheme[] {
   let genericFeatures = [
-    new RoomFeatureGenerator('debris', ['There is a pile of random debris here.'], false),
-    new RoomFeatureGenerator('rags', ['There is a pile of rags here.'], false),
-    new RoomFeatureGenerator('cobwebs', ['There are a lot of cobwebs here.'], false),
+    new RoomFeatureGenerator(
+      'debris',
+      [
+        'There is a pile of random debris here.',
+        'Much of the floor is covered in debris.',
+        'Debris of unknown origin is scattered about.',
+      ],
+      false,
+    ),
+    new RoomFeatureGenerator(
+      'rags',
+      [
+        'There is a pile of rags here.',
+        'One of the corners has a large pile of filthy rags.',
+        'Small piles of rags are scattered across the floor.',
+      ],
+      false,
+    ),
+    new RoomFeatureGenerator(
+      'cobwebs',
+      [
+        'There are a lot of cobwebs here.',
+        'The ceiling is partly covered in cobwebs.',
+        'Dense cobwebs hang down from the ceiling.',
+      ],
+      false,
+    ),
   ];
 
   return [
     new RoomTheme(
       'altar room',
-      'dungeon',
+      [],
       3,
       3,
       10,
       10,
+      ['marble', 'stone tile'],
+      genericFeatures,
       [
         new RoomFeatureGenerator(
           'altar',
@@ -35,11 +61,13 @@ export function all(): RoomTheme[] {
     ),
     new RoomTheme(
       'barracks',
-      'dungeon',
+      [],
       8,
       8,
       15,
       15,
+      ['stone tile'],
+      genericFeatures,
       [
         new RoomFeatureGenerator(
           'beds',
@@ -62,11 +90,13 @@ export function all(): RoomTheme[] {
     ),
     new RoomTheme(
       'burial chamber',
-      'dungeon',
+      [],
       5,
       5,
       10,
       10,
+      ['stone tile'],
+      genericFeatures,
       [
         new RoomFeatureGenerator(
           'coffins',
@@ -76,6 +106,8 @@ export function all(): RoomTheme[] {
             'There are several sarcophagi here.',
             'There is a large, ornate coffin here.',
             'There are many coffins here.',
+            'Coffins line the walls.',
+            'Along the walls are several long alcoves. Each one has a stone coffin.',
           ],
           true,
         ),
@@ -86,23 +118,27 @@ export function all(): RoomTheme[] {
     ),
     new RoomTheme(
       'chamber',
-      'dungeon',
+      [],
       2,
       2,
       6,
       6,
+      ['marble', 'stone tile'],
       genericFeatures,
+      [],
       ['rectangular', 'square'],
       ['dungeon'],
       40,
     ),
     new RoomTheme(
       'fountain chamber',
-      'dungeon',
+      [],
       2,
       2,
       5,
       5,
+      ['stone tile'],
+      genericFeatures,
       [
         new RoomFeatureGenerator(
           'fountain',
@@ -111,6 +147,9 @@ export function all(): RoomTheme[] {
             'There is an ornate fountain here.',
             'There is a disused fountain here with brackish water.',
             'There is an elegant fountain here.',
+            'Two fountains lie on either side of the room.',
+            'Small fountains sit in each corner of the room.',
+            'An old and disused fountain sits in the corner.',
           ],
           true,
         ),
@@ -121,15 +160,22 @@ export function all(): RoomTheme[] {
     ),
     new RoomTheme(
       'kitchen',
-      'dungeon',
+      [],
       2,
       2,
       5,
       5,
+      ['stone tile'],
+      genericFeatures,
       [
         new RoomFeatureGenerator(
           'oven',
-          ['There is a large wood-fired oven here.', 'There are several large ovens here.'],
+          [
+            'There is a large wood-fired oven here.',
+            'There are several large ovens here.',
+            'Ovens line one of the walls.',
+            'A long-dormant oven sits against the back wall.',
+          ],
           false,
         ),
         new RoomFeatureGenerator('pantry cabinet', ['There is a pantry cabinet here.'], true),
@@ -140,17 +186,20 @@ export function all(): RoomTheme[] {
     ),
     new RoomTheme(
       'laboratory',
-      'dungeon',
+      [],
       4,
       4,
       6,
       6,
+      ['stone tile'],
+      genericFeatures,
       [
         new RoomFeatureGenerator(
           'lab table',
           [
             'There is a large table here with a wide array of alchemical devices on it.',
             'There are several tables here with various devices on them.',
+            'Tables with alchemical devices, books, and other items are arranged around the room.',
           ],
           false,
         ),
@@ -170,11 +219,13 @@ export function all(): RoomTheme[] {
     ),
     new RoomTheme(
       'library',
-      'dungeon',
+      [],
       5,
       5,
       15,
       15,
+      ['stone tile'],
+      genericFeatures,
       [
         new RoomFeatureGenerator(
           'bookcases',
@@ -197,6 +248,31 @@ export function all(): RoomTheme[] {
       ['rectangular', 'square'],
       ['mage', 'nobility'],
       5,
+    ),
+    new RoomTheme(
+      'storeroom',
+      [],
+      2,
+      2,
+      6,
+      6,
+      ['stone tile'],
+      genericFeatures,
+      [
+        new RoomFeatureGenerator(
+          'stacked boxes',
+          [
+            'Many boxes are stacked here.',
+            'Boxes are stacked in corners here.',
+            'Crates and large boxes line the walls.',
+            'A few broken crates and boxes are strewn about.',
+          ],
+          true,
+        ),
+      ],
+      ['rectangular', 'square'],
+      ['dungeon'],
+      20,
     ),
   ];
 }

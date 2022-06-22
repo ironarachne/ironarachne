@@ -1,6 +1,6 @@
 'use strict';
 
-import MobGroup from './mobgroup';
+import MobGroup from '../mobs/group';
 
 export default class Encounter {
   groups: MobGroup[];

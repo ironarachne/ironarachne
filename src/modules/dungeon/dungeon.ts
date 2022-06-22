@@ -9,7 +9,9 @@ export default class Dungeon {
   name: string;
   description: string;
   theme: DungeonTheme;
-  biome: Biome;
+  environment: string;
+  totalThreatLevel: number;
+  averageThreatLevel: number;
   rooms: Room[];
   doors: Door[];
   tiles: number[][];

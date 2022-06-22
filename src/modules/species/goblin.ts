@@ -6,13 +6,21 @@ import type Species from './species';
 import PhysicalTraitGenerator from '../physicaltraits/generator';
 import GeneratorSet from '../names/generatorset';
 import GoblinSet from '../names/races/goblin';
+import type Item from '../equipment/item';
+import type StatBlock from '../statblock';
 
 export default class Goblin implements Species {
   name: string;
   nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
+  description: string;
+  summary: string;
   commonality: number;
+  carried: Item[];
+  statBlock: StatBlock;
+  environments: string[];
+  creatureTypes: string[];
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
   abilities: string[];
@@ -27,6 +35,18 @@ export default class Goblin implements Species {
     this.pluralName = 'goblins';
     this.adjective = 'goblin';
     this.commonality = 20;
+    this.environments = [
+      'arctic',
+      'coastal',
+      'desert',
+      'forest',
+      'grassland',
+      'hill',
+      'mountain',
+      'urban',
+      'underdark',
+    ];
+    this.creatureTypes = ['goblinoid', 'humanoid'];
     this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(

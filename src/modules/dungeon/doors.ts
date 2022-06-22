@@ -167,7 +167,12 @@ export function getDoorDescription(door: Door, room: Room): string {
     }
   }
 
-  let description = `There is ${door.description} in the ${dir}`;
+  let description = RND.item([
+    `There's ${door.description} in the ${dir}`,
+    `There is ${door.description} in the ${dir}`,
+    Words.capitalize(door.description) + ` lies in the ${dir}`,
+    Words.capitalize(door.description) + ` is in the ${dir}`,
+  ]);
 
   if (door.lock != null) {
     description += '. It is locked.';

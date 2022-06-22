@@ -13,6 +13,7 @@ export default class Creature {
   environments: string[];
   behaviors: string[];
   carried: Item[];
+  creatureTypes: string[];
   tags: string[];
   threatLevel: number;
 
@@ -23,6 +24,7 @@ export default class Creature {
     abilities: string[],
     environments: string[],
     behaviors: string[],
+    creatureTypes: string[],
     tags: string[],
     threatLevel: number,
   ) {
@@ -33,6 +35,7 @@ export default class Creature {
     this.abilities = abilities;
     this.environments = environments;
     this.behaviors = behaviors;
+    this.creatureTypes = creatureTypes;
     this.carried = [];
     this.tags = tags;
     this.threatLevel = threatLevel;

@@ -17,7 +17,7 @@ export default class EncounterGeneratorConfig {
 
   constructor() {
     this.isHostile = true;
-    this.environment = 'dungeon';
+    this.environment = 'forest';
     this.template = null;
     this.sentientOptions = FantasySpecies.all();
     this.creatureOptions = FantasyCreatures.all();

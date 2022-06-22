@@ -37,11 +37,13 @@ export function byTag(tag: string, themes: RoomTheme[]): RoomTheme[] {
 export function getEntrance(): RoomTheme {
   return new RoomTheme(
     'entrance',
-    'dungeon',
+    [],
     2,
     2,
     4,
     4,
+    ['stone tile'],
+    [],
     [
       new RoomFeatureGenerator(
         'entrance',

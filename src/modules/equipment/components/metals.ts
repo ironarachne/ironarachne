@@ -17,7 +17,7 @@ export function all(): Component[] {
       5000,
     ),
     new Component('brass bar', 'a bar of brass', 'brass', 'metal', 'soft metal', 10),
-    new Component('bronze bar', 'a bar of bronze', 'bronze', 'metal', 'soft metal', 8),
+    new Component('bronze bar', 'a bar of bronze', 'bronze', 'metal', 'soft metal', 2),
     new Component('iron bar', 'a bar of iron', 'iron', 'metal', 'hard metal', 10),
     new Component('steel bar', 'a bar of steel', 'steel', 'metal', 'hard metal', 20),
     new Component(

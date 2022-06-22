@@ -1,18 +1,26 @@
 'use strict';
 
 import * as AgeCategories from '../age/agecategories';
+import type Item from '../equipment/item';
 import Gender from '../gender';
 import GeneratorSet from '../names/generatorset';
 import DwarfSet from '../names/races/dwarf';
 import PhysicalTraitGenerator from '../physicaltraits/generator';
+import type StatBlock from '../statblock';
 import type Species from './species';
 
 export default class Dwarf implements Species {
   name: string;
   nameGeneratorSet: GeneratorSet;
   pluralName: string;
+  description: string;
+  summary: string;
   adjective: string;
   commonality: number;
+  environments: string[];
+  carried: Item[];
+  statBlock: StatBlock;
+  creatureTypes: string[];
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
   abilities: string[];
@@ -24,9 +32,23 @@ export default class Dwarf implements Species {
     this.abilities = [];
     this.tags = ['corruptible', 'dwarf', 'martial', 'sentient'];
     this.nameGeneratorSet = new DwarfSet();
+    this.carried = [];
+    this.statBlock = null;
     this.pluralName = 'dwarves';
     this.adjective = 'dwarven';
     this.commonality = 20;
+    this.environments = [
+      'arctic',
+      'coastal',
+      'desert',
+      'forest',
+      'grassland',
+      'hill',
+      'mountain',
+      'urban',
+      'underdark',
+    ];
+    this.creatureTypes = ['humanoid'];
     this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(

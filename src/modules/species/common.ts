@@ -21,6 +21,18 @@ export function byAnyTag(tags: string[], options: Species[]): Species[] {
   return result;
 }
 
+export function byEnvironment(environment: string, options: Species[]): Species[] {
+  let result = [];
+
+  for (let i = 0; i < options.length; i++) {
+    if (options[i].environments.includes(environment) || options[i].environments.length == 0) {
+      result.push(options[i]);
+    }
+  }
+
+  return result;
+}
+
 export function byTag(tag: string, options: Species[]): Species[] {
   let result = [];
 

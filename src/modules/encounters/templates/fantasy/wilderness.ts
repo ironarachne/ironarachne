@@ -2,9 +2,9 @@
 
 import EncounterGroupTemplate from '../../grouptemplate';
 import EncounterTemplate from '../../template';
-import * as ItemGenerators from '../../../equipment/generators';
 import * as Archetypes from '../../../archetypes/archetypes';
 import * as FantasyArchetypes from '../../../archetypes/fantasy/all';
+import MobFilter from '../../../mobs/filter';
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
@@ -19,8 +19,7 @@ export function all(): EncounterTemplate[] {
           3,
           true,
           [Archetypes.byName('hunter', allArchetypes)],
-          ['martial'],
-          ['undead'],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           3,
           6,
         ),
@@ -37,8 +36,7 @@ export function all(): EncounterTemplate[] {
           1,
           true,
           [Archetypes.byName('hunter', allArchetypes)],
-          ['martial'],
-          ['undead'],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           1,
           1,
         ),
@@ -49,21 +47,51 @@ export function all(): EncounterTemplate[] {
     new EncounterTemplate(
       'swarming insects',
       3,
-      [new EncounterGroupTemplate('swarming insects', 3, false, [], ['swarm'], [], 3, 8)],
+      [
+        new EncounterGroupTemplate(
+          'swarming insects',
+          3,
+          false,
+          [],
+          new MobFilter(['swarm'], [], '', '', []),
+          3,
+          8,
+        ),
+      ],
       ['insect swarm'],
       5,
     ),
     new EncounterTemplate(
       'wandering creature',
       3,
-      [new EncounterGroupTemplate('wandering creature', 3, false, [], [], [], 1, 1)],
+      [
+        new EncounterGroupTemplate(
+          'wandering creature',
+          3,
+          false,
+          [],
+          new MobFilter([], [], '', '', []),
+          1,
+          1,
+        ),
+      ],
       ['wandering creature'],
       10,
     ),
     new EncounterTemplate(
       'group of wandering creatures',
       5,
-      [new EncounterGroupTemplate('wandering creatures', 3, false, [], [], [], 2, 4)],
+      [
+        new EncounterGroupTemplate(
+          'wandering creatures',
+          3,
+          false,
+          [],
+          new MobFilter([], [], '', '', []),
+          2,
+          4,
+        ),
+      ],
       ['wandering creature'],
       10,
     ),

@@ -35,7 +35,17 @@ export default class DungeonGenerator {
 
   generate(): Dungeon {
     let dungeon = new Dungeon();
-    dungeon.biome = RND.item(this.config.possibleBiomes);
+    dungeon.environment = RND.item([
+      'arctic',
+      'coastal',
+      'desert',
+      'forest',
+      'grassland',
+      'hill',
+      'mountain',
+      'urban',
+      'underdark',
+    ]);
     dungeon.tiles = initializeTiles(this.config.width, this.config.height);
 
     let themeOptions = DungeonThemes.all();
@@ -43,6 +53,7 @@ export default class DungeonGenerator {
     dungeon.name = dungeon.theme.nameGenerator.generate(1)[0];
 
     let entranceTheme = RoomThemes.getEntrance();
+    entranceTheme.flooringOptions = dungeon.theme.flooringOptions;
     let roomGenConfig = new RoomGeneratorConfig(
       this.config.width,
       this.config.height,
@@ -96,10 +107,14 @@ export default class DungeonGenerator {
       if (dungeon.rooms.length >= numRooms) {
         roomGeneration = false;
       } else {
+        let roomTheme = RND.weighted(dungeon.theme.roomThemes);
+        if (roomTheme.environment == dungeon.theme.mainEnvironment) {
+          roomTheme.flooringOptions = dungeon.theme.flooringOptions;
+        }
         let r = Rooms.getPlaceableRoom(
           this.config.width,
           this.config.height,
-          RND.weighted(dungeon.theme.roomThemes),
+          roomTheme,
           dungeon.rooms,
         );
         if (r === null) {
@@ -122,6 +137,8 @@ export default class DungeonGenerator {
       dungeon = Doors.addDoorsToDungeon(dungeon);
     }
 
+    let keySpawns = [];
+
     for (let i = 0; i < dungeon.doors.length; i++) {
       if (dungeon.doors[i].lock != null) {
         let keySpawn = new TreasureSpawn();
@@ -140,12 +157,9 @@ export default class DungeonGenerator {
         key.description = `${keyDescription} that unlocks the door between room ${
           dungeon.doors[i].room1 + 1
         } and room ${dungeon.doors[i].room2 + 1}`;
+        key.value = random.int(1, 10);
         keySpawn.treasure.push(key);
-        keySpawn.isCarried = RND.chance(100) > 90 ? true : false;
-        if (!keySpawn.isCarried) {
-          keySpawn.isHidden = RND.chance(100) > 90 ? true : false;
-        }
-        treasureSpawns.push(keySpawn);
+        keySpawns.push(keySpawn);
       }
     }
 
@@ -157,15 +171,20 @@ export default class DungeonGenerator {
     let hordeChance = 100;
     let commonHordeTables = CommonTables.horde();
     let bossHordeTables = RareTables.horde();
+    let totalThreatLevel = 0;
+    let numberOfEncounters = 0;
 
     for (let i = 1; i < dungeon.rooms.length; i++) {
       // 70% chance of an encounter in every room after the entry
       if (RND.chance(100) > 30 || i == dungeon.rooms.length - 1) {
         let config = new EncounterGeneratorConfig();
+        config.environment = dungeon.environment;
         let treasureTables = CommonTables.individual();
         // if it's the last room in the dungeon, make it a boss encounter
         if (i == dungeon.rooms.length - 1) {
           config.template = RND.weighted(dungeon.theme.bossEncounterTemplates);
+          config.minThreatLevel = 3;
+          config.maxThreatLevel = 10;
           treasureTables = RareTables.individual();
         } else {
           // 30% chance of being a strong encounter
@@ -182,15 +201,30 @@ export default class DungeonGenerator {
         spawn.maxRoom = i;
         spawn.encounterConfig = config;
 
+        let addTreasureToEncounter = false;
+
+        for (let j = 0; j < spawn.encounterConfig.template.groupTemplates.length; j++) {
+          if (spawn.encounterConfig.template.groupTemplates[j].isSentient) {
+            addTreasureToEncounter = true;
+          }
+        }
+
         let treasureConfig = new TreasureGeneratorConfig();
         treasureConfig.tables = treasureTables;
         let treasureGen = new TreasureResultGenerator(treasureConfig);
         let treasure = treasureGen.generate();
         let ts = new TreasureSpawn();
         ts.treasure = ts.treasure.concat(treasure);
-        spawn.treasureSpawns.push(ts);
+        if (addTreasureToEncounter) {
+          spawn.treasureSpawns.push(ts);
+        } else {
+          ts.minRoom = i;
+          ts.maxRoom = i;
+          treasureSpawns.push(ts);
+        }
 
         encounterSpawns.push(spawn);
+        numberOfEncounters++;
       }
 
       // Chance of a treasure horde - increases the higher the room number, but decreases after each horde
@@ -213,8 +247,6 @@ export default class DungeonGenerator {
       }
     }
 
-    // TODO: add individual treasure spawns to individual sentient characters as carried items, not to random places in the room
-
     for (let i = 0; i < encounterSpawns.length; i++) {
       let maxRoom = encounterSpawns[i].maxRoom;
       if (maxRoom == -1) {
@@ -229,14 +261,30 @@ export default class DungeonGenerator {
       let encounter = eGen.generate();
 
       dungeon.rooms[roomId].encounters.push(encounter);
+      totalThreatLevel += encounter.totalThreatLevel;
 
       if (encounterSpawns[i].treasureSpawns.length > 0) {
         for (let j = 0; j < encounterSpawns[i].treasureSpawns.length; j++) {
           let ts = encounterSpawns[i].treasureSpawns[j];
-          ts.minRoom = roomId;
-          ts.maxRoom = roomId;
-          treasureSpawns.push(ts);
+          for (let k = 0; k < encounter.groups.length; k++) {
+            for (let l = 0; l < encounter.groups[k].mobs.length; l++) {
+              if (RND.chance(100) > 50) {
+                encounter.groups[k].mobs[l].carried.push(RND.item(ts.treasure));
+              }
+            }
+          }
         }
+      }
+    }
+
+    for (let i = 0; i < keySpawns.length; i++) {
+      let roomId = random.int(keySpawns[i].minRoom, keySpawns[i].maxRoom);
+      if (dungeon.rooms[roomId].encounters.length > 0) {
+        let e = RND.item(dungeon.rooms[roomId].encounters);
+        let m = RND.item(e.groups[0].mobs);
+        m.carried.push(keySpawns[i].treasure[0]);
+      } else {
+        dungeon.rooms[roomId].treasureCaches.push(keySpawns[i].treasure[0].description);
       }
     }
 
@@ -262,6 +310,10 @@ export default class DungeonGenerator {
       if (treasureSpawns[i].isHidden) {
         treasureDescription += `, hidden somewhere in the room`;
         dungeon.rooms[roomId].treasureCaches.push(treasureDescription);
+      } else if (treasureSpawns[i].isCarried) {
+        let te = RND.item(dungeon.rooms[roomId].encounters);
+        let mob = RND.item(te.groups[0].mobs);
+        mob.carried.push(treasureDescription);
       } else {
         let containers = [];
         for (let i = 0; i < dungeon.rooms[roomId].features.length; i++) {
@@ -280,6 +332,9 @@ export default class DungeonGenerator {
         }
       }
     }
+
+    dungeon.totalThreatLevel = totalThreatLevel;
+    dungeon.averageThreatLevel = Math.floor(totalThreatLevel / numberOfEncounters);
 
     return dungeon;
   }

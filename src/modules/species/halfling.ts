@@ -6,13 +6,21 @@ import type Species from './species';
 import PhysicalTraitGenerator from '../physicaltraits/generator';
 import GeneratorSet from '../names/generatorset';
 import HalflingSet from '../names/races/halfling';
+import type Item from '../equipment/item';
+import type StatBlock from '../statblock';
 
 export default class Halfling implements Species {
   name: string;
   nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
+  description: string;
+  summary: string;
   commonality: number;
+  carried: Item[];
+  statBlock: StatBlock;
+  environments: string[];
+  creatureTypes: string[];
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
   abilities: string[];
@@ -24,9 +32,23 @@ export default class Halfling implements Species {
     this.abilities = [];
     this.tags = ['halfling', 'sentient'];
     this.nameGeneratorSet = new HalflingSet();
+    this.carried = [];
+    this.statBlock = null;
     this.pluralName = 'halflings';
     this.adjective = 'halfling';
     this.commonality = 20;
+    this.environments = [
+      'arctic',
+      'coastal',
+      'desert',
+      'forest',
+      'grassland',
+      'hill',
+      'mountain',
+      'urban',
+      'underdark',
+    ];
+    this.creatureTypes = ['humanoid'];
     this.threatLevel = 1;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(

@@ -5,6 +5,7 @@ import RoomGeneratorConfig from './roomgeneratorconfig';
 import random from 'random';
 import Vertex from '../../geometry/vertex';
 import * as RND from '../../random';
+import * as Words from '../../words';
 
 export default class RoomGenerator {
   config: RoomGeneratorConfig;
@@ -20,24 +21,49 @@ export default class RoomGenerator {
     let y = random.int(2, this.config.mapHeight - height - 3);
 
     let room = new Room();
+    room.name = this.config.theme.name; // TODO: maybe make this a name generator
+    room.theme = this.config.theme;
 
     let shape = RND.item(this.config.theme.shapes);
 
     if (shape == 'rectangular') {
-      room = getRectangularRoom(x, y, width, height);
+      room = getRectangularRoom(x, y, width, height, room);
+      room.description = RND.item([
+        `This rectangular room is ${width * 5}' wide and ${height * 5}' long.`,
+        `This ${room.name} is ${width * 5}' wide and ${height * 5}' long.`,
+      ]);
     } else if (shape == 'square') {
-      room = getSquareRoom(x, y, width);
+      room = getSquareRoom(x, y, width, room);
+      room.description = RND.item([
+        `This square room is ${width * 5}' wide and ${height * 5}' long.`,
+        `This room is a square ${width * 5}' wide and ${height * 5}' long.`,
+        `This ${room.name} is ${width * 5}' wide and ${height * 5}' long.`,
+      ]);
     } else if (shape == 'cavern') {
-      room = getCavernRoom(x, y, width, height);
+      room = getCavernRoom(x, y, width, height, room);
+      room.description = RND.item([`This is a cavern.`]);
     } else if (shape == 'corridor') {
-      room = getCorridor(x, y, width, height);
+      room = getCorridor(x, y, width, height, room);
+      room.description = RND.item([`This is a corridor.`]);
     }
 
-    room.name = this.config.theme.name; // TODO: maybe make this a name generator
-    room.theme = this.config.theme;
+    if (RND.chance(100) > 70) {
+      let flooring = RND.item(room.theme.flooringOptions);
+      room.description += RND.item([
+        ` The floor is ${flooring}.`,
+        ` ${Words.capitalize(flooring)} flooring is cracked in places.`,
+        ` The ${flooring} flooring is cracked in places.`,
+        ` The ${flooring} flooring is broken in places.`,
+      ]);
+    }
 
     for (let i = 0; i < this.config.theme.featureGenerators.length; i++) {
       room.features.push(this.config.theme.featureGenerators[i].generate());
+    }
+
+    if (this.config.theme.dressingGenerators.length > 0 && RND.chance(100) > 70) {
+      let dGen = RND.item(this.config.theme.dressingGenerators);
+      room.features.push(dGen.generate());
     }
 
     room.minX = x;
@@ -52,10 +78,8 @@ export default class RoomGenerator {
 }
 
 // TODO: Use a different algorithm for generating caverns
-function getCavernRoom(ox: number, oy: number, width: number, height: number): Room {
+function getCavernRoom(ox: number, oy: number, width: number, height: number, room: Room): Room {
   // in this instance, we're using x,y as the top left corner of a bounding box
-  let room = new Room();
-
   let start = new Vertex(Math.floor((ox + width) / 2), Math.floor((oy + height) / 2));
   let steps = 20;
 
@@ -106,16 +130,11 @@ function getCavernRoom(ox: number, oy: number, width: number, height: number): R
     v.y = y;
   }
 
-  // TODO: More interesting descriptions
-  room.description = 'This is a cavern.';
-
   return room;
 }
 
 // TODO: Get rid of most dead ends, or try connecting directly to two other rooms
-function getCorridor(x: number, y: number, width: number, height: number): Room {
-  let room = new Room();
-
+function getCorridor(x: number, y: number, width: number, height: number, room: Room): Room {
   let length = random.int(Math.max(3, Math.floor((width + height - 2) / 2)), width + height - 2);
 
   let nx = random.int(x, x + width - 1);
@@ -167,11 +186,9 @@ function getCorridor(x: number, y: number, width: number, height: number): Room 
   return room;
 }
 
-function getRectangularRoom(x: number, y: number, width: number, height: number): Room {
-  let room = new Room();
-
-  for (let i = y; i < y + height + 1; i++) {
-    for (let j = x; j < x + width + 1; j++) {
+function getRectangularRoom(x: number, y: number, width: number, height: number, room: Room): Room {
+  for (let i = y; i < y + height; i++) {
+    for (let j = x; j < x + width; j++) {
       room.vertices.push(new Vertex(j, i));
     }
   }
@@ -181,11 +198,9 @@ function getRectangularRoom(x: number, y: number, width: number, height: number)
   return room;
 }
 
-function getSquareRoom(x: number, y: number, size: number): Room {
-  let room = new Room();
-
-  for (let i = y; i < y + size + 1; i++) {
-    for (let j = x; j < x + size + 1; j++) {
+function getSquareRoom(x: number, y: number, size: number, room: Room): Room {
+  for (let i = y; i < y + size; i++) {
+    for (let j = x; j < x + size; j++) {
       room.vertices.push(new Vertex(j, i));
     }
   }

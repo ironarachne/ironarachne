@@ -4,13 +4,18 @@ import DungeonTheme from '../dungeontheme';
 import * as RoomThemes from '../rooms/themes/themes';
 import * as Encounters from '../../encounters/templates/templates';
 import * as FantasyEncounters from '../../encounters/templates/fantasy/all';
+import * as FantasySpecies from '../../species/fantasy';
+import * as CommonSpecies from '../../species/common';
 import GenericNameGenerator from '../../names/generators/generic';
 import RoomRequirement from '../rooms/roomrequirement';
 
 export function all(): DungeonTheme[] {
   let allEncounters = FantasyEncounters.all(false);
+  let allSentientOptions = FantasySpecies.all();
 
   let fortressEncounters = Encounters.withTag('martial', allEncounters);
+
+  let fortressSentientOptions = CommonSpecies.byTag('martial', allSentientOptions);
 
   for (let i = 0; i < fortressEncounters.length; i++) {
     if (fortressEncounters[i].tags.includes('soldiers')) {
@@ -51,33 +56,41 @@ export function all(): DungeonTheme[] {
     }
   }
 
+  let cultSentientOptions = CommonSpecies.byTag('corruptible', allSentientOptions);
+
   const allRoomThemes = RoomThemes.all();
   let barracks = RoomThemes.byName('barracks', allRoomThemes);
   let altar = RoomThemes.byName('altar room', allRoomThemes);
 
-  let cult = RoomThemes.byTag('cult', allRoomThemes);
-  let dungeon = RoomThemes.byTag('dungeon', allRoomThemes);
-  let military = RoomThemes.byTag('military', allRoomThemes);
-  let fortress = military.concat(dungeon);
-  cult = cult.concat(dungeon);
+  let cultRoomThemes = RoomThemes.byTag('cult', allRoomThemes);
+  let dungeonRoomThemes = RoomThemes.byTag('dungeon', allRoomThemes);
+  let militaryRoomThemes = RoomThemes.byTag('military', allRoomThemes);
+  let fortressRoomThemes = militaryRoomThemes.concat(dungeonRoomThemes);
+  cultRoomThemes = cultRoomThemes.concat(dungeonRoomThemes);
 
   return [
     new DungeonTheme(
       'fortress',
+      'hill',
       fortressNameGen,
       fortressWeakEncounters,
       fortressStrongEncounters,
       fortressBossEncounters,
-      fortress,
+      fortressSentientOptions,
+      ['stone tile'],
+      fortressRoomThemes,
       [new RoomRequirement(barracks, 1, 2)],
     ),
     new DungeonTheme(
       'cult',
+      'forest',
       cultNameGen,
       cultWeakEncounters,
       cultStrongEncounters,
       cultBossEncounters,
-      cult,
+      cultSentientOptions,
+      ['stone tile'],
+      cultRoomThemes,
       [new RoomRequirement(altar, 1, 1), new RoomRequirement(barracks, 1, 1)],
     ),
   ];

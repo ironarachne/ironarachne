@@ -19,12 +19,7 @@ export default class ShieldPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], minValue: number, maxValue: number): Armor {
-    let body = Components.getComponentForCategory(
-      'hard metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+    let body = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
 
     let handle = Components.getComponentForCategory('wood', componentOptions, minValue, maxValue);
 

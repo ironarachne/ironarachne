@@ -20,12 +20,7 @@ export default class BreastplatePattern implements Pattern {
   }
 
   complete(componentOptions: Component[], minValue: number, maxValue: number): Armor {
-    let body = Components.getComponentForCategory(
-      'hard metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+    let body = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
     let trim = Components.getComponentForCategory(
       'soft metal',
       componentOptions,

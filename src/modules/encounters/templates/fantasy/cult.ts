@@ -4,6 +4,7 @@ import EncounterGroupTemplate from '../../grouptemplate';
 import EncounterTemplate from '../../template';
 import * as Archetypes from '../../../archetypes/archetypes';
 import * as FantasyArchetypes from '../../../archetypes/fantasy/all';
+import MobFilter from '../../../mobs/filter';
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
@@ -17,8 +18,7 @@ export function all(): EncounterTemplate[] {
           1,
           true,
           [Archetypes.byName('cult acolyte', allArchetypes)],
-          ['cult', 'corruptible'],
-          ['undead'],
+          new MobFilter([], ['cult', 'corruptible'], 'humanoid', '', ['undead']),
           2,
           4,
         ),
@@ -29,7 +29,17 @@ export function all(): EncounterTemplate[] {
     new EncounterTemplate(
       'group of lesser demons',
       4,
-      [new EncounterGroupTemplate('lesser demons', 2, false, [], ['demon'], [], 2, 4)],
+      [
+        new EncounterGroupTemplate(
+          'lesser demons',
+          2,
+          false,
+          [],
+          new MobFilter(['demon'], [], '', '', []),
+          2,
+          4,
+        ),
+      ],
       ['cult', 'demonic'],
       1,
     ),
@@ -42,8 +52,7 @@ export function all(): EncounterTemplate[] {
           2,
           true,
           [Archetypes.byName('cult priest', allArchetypes)],
-          ['cult', 'corruptible'],
-          ['undead'],
+          new MobFilter([], ['cult', 'corruptible'], 'humanoid', '', ['undead']),
           1,
           1,
         ),
@@ -60,8 +69,7 @@ export function all(): EncounterTemplate[] {
           5,
           true,
           [Archetypes.byName('cult high priest', allArchetypes)],
-          ['cult', 'corruptible'],
-          ['undead'],
+          new MobFilter([], ['cult', 'corruptible'], 'humanoid', '', ['undead']),
           1,
           1,
         ),

@@ -24,18 +24,8 @@ export default class SwordPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], minValue: number, maxValue: number): MeleeWeapon {
-    let blade = Components.getComponentForCategory(
-      'hard metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
-    let hilt = Components.getComponentForCategory(
-      'hard metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+    let blade = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
+    let hilt = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
     let handle = Components.getComponentForCategory('wood', componentOptions, minValue, maxValue);
 
     let value = this.baseValue + blade.value * 2 + hilt.value + handle.value;

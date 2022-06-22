@@ -6,10 +6,15 @@ import * as Encounters from '../../encounters/templates/templates';
 import * as FantasyEncounters from '../../encounters/templates/fantasy/all';
 import * as GenericEncounters from '../../encounters/templates/fantasy/genericdungeon';
 import * as UndeadEncounters from '../../encounters/templates/fantasy/undead';
+import * as FantasySpecies from '../../species/fantasy';
+import * as CommonSpecies from '../../species/common';
 import GenericNameGenerator from '../../names/generators/generic';
 
 export function all(): DungeonTheme[] {
   let allEncounters = FantasyEncounters.all(false);
+  let allSentientOptions = FantasySpecies.all();
+
+  let tombSentientOptions = CommonSpecies.byTag('martial', allSentientOptions);
 
   let tombEncounters = GenericEncounters.all();
   tombEncounters = tombEncounters.concat(UndeadEncounters.all());
@@ -33,6 +38,8 @@ export function all(): DungeonTheme[] {
       tombNameGen.patterns.push(`THE ${t1[i]} OF ${t2[j]}`);
     }
   }
+
+  let magicSentientOptions = CommonSpecies.byTag('magic', allSentientOptions);
 
   let magicEncounters = Encounters.withTag('magic', allEncounters);
   magicEncounters = magicEncounters.concat(GenericEncounters.all());
@@ -65,19 +72,25 @@ export function all(): DungeonTheme[] {
   return [
     new DungeonTheme(
       'tomb',
+      'hill',
       tombNameGen,
       tombWeakEncounters,
       tombStrongEncounters,
       tombBossEncounters,
+      tombSentientOptions,
+      ['stone tile'],
       tombRoomThemes,
       [],
     ),
     new DungeonTheme(
       'mage lair',
+      'forest',
       magicNameGen,
       magicWeakEncounters,
       magicStrongEncounters,
       magicBossEncounters,
+      magicSentientOptions,
+      ['stone tile', 'marble'],
       mageRoomThemes,
       [],
     ),

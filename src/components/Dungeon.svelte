@@ -79,11 +79,15 @@
 
   <h2>{dungeon.name}</h2>
 
+  <p><strong>Environment:</strong> {dungeon.environment}</p>
+  <p><strong>Total Threat Level:</strong> {dungeon.totalThreatLevel}</p>
+  <p><strong>Average Threat Level:</strong> {dungeon.averageThreatLevel}</p>
+
   <canvas id="mapCanvas" width="800" height="1000"></canvas>
 
   {#each dungeon.rooms as room }
   <div class="room">
-    <h3>Room {room.id + 1}: {room.name}</h3>
+    <h3>{room.id + 1}. {Words.title(room.name)}</h3>
     <p>
       {room.description}
       {#each room.features as feature}

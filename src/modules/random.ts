@@ -58,6 +58,10 @@ export function shuffle(items: any[]) {
 export function weighted(items: any[]) {
   let ceiling = 0;
 
+  if (items.length == 1) {
+    return items[0];
+  }
+
   items.forEach(function (item: any) {
     ceiling += item.commonality;
   });

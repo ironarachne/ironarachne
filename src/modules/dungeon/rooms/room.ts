@@ -74,6 +74,12 @@ export default class Room {
     }
 
     for (let i = 0; i < this.vertices.length; i++) {
+      if (this.vertices[i].y > newTiles.length - 1) {
+        console.debug(
+          `Vertices outside the bounds of the map: ${newTiles.length} newTiles.length, ${this.vertices[i].y} this.vertices[i].y`,
+          this.vertices,
+        );
+      }
       newTiles[this.vertices[i].y][this.vertices[i].x] = Tiles.ROOM;
     }
 

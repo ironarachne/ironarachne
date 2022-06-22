@@ -2,9 +2,9 @@
 
 import EncounterGroupTemplate from '../../grouptemplate';
 import EncounterTemplate from '../../template';
-import * as ItemGenerators from '../../../equipment/generators';
 import * as Archetypes from '../../../archetypes/archetypes';
 import * as FantasyArchetypes from '../../../archetypes/fantasy/all';
+import MobFilter from '../../../mobs/filter';
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
@@ -18,8 +18,7 @@ export function all(): EncounterTemplate[] {
           2,
           true,
           [Archetypes.byName('raider captain', allArchetypes)],
-          ['martial'],
-          ['undead'],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           1,
           1,
         ),
@@ -28,8 +27,7 @@ export function all(): EncounterTemplate[] {
           3,
           true,
           [Archetypes.byName('raider', allArchetypes)],
-          ['martial'],
-          ['undead'],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           3,
           6,
         ),
@@ -46,8 +44,7 @@ export function all(): EncounterTemplate[] {
           3,
           true,
           [Archetypes.byName('thug', allArchetypes)],
-          ['martial'],
-          ['undead'],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           3,
           6,
         ),
@@ -64,8 +61,7 @@ export function all(): EncounterTemplate[] {
           2,
           true,
           [Archetypes.byName('thug', allArchetypes)],
-          ['martial'],
-          ['undead'],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           2,
           4,
         ),
