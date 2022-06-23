@@ -36,6 +36,10 @@ export default class DungeonTileRenderer {
           renderVDoor(ctx, x, y, this.tileSize);
         } else if (tile == Tiles.ROOM) {
           renderRoom(ctx, x, y, this.tileSize);
+        } else if (tile == Tiles.H_S_DOOR) {
+          renderHSecretDoor(ctx, x, y, this.tileSize);
+        } else if (tile == Tiles.V_S_DOOR) {
+          renderVSecretDoor(ctx, x, y, this.tileSize);
         } else {
           renderStone(ctx, x, y, this.tileSize);
         }
@@ -56,6 +60,7 @@ export default class DungeonTileRenderer {
         ((dungeon.rooms[i].maxY - dungeon.rooms[i].minY) * this.tileSize) / 2 +
         this.tileSize * 0.8;
 
+      // TODO: calculate placement of label in the center of the biggest block of ROOM tiles for this room, not the actual room center
       ctx.beginPath();
       ctx.strokeStyle = '#5698DA';
       ctx.fillStyle = '#5698DA';
@@ -118,6 +123,27 @@ function renderHDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
   );
 }
 
+function renderHSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+  ctx.fillStyle = 'white';
+  ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+
+  renderGrid(ctx, x, y, tileSize);
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#85BBF1';
+
+  let t = new Vertex(x * tileSize + tileSize / 2, y * tileSize);
+  let b = new Vertex(x * tileSize + tileSize / 2, y * tileSize + tileSize);
+
+  ctx.moveTo(t.x, t.y);
+  ctx.lineTo(b.x, b.y);
+  ctx.stroke();
+
+  ctx.fillStyle = '#85BBF1';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('S', x * tileSize + tileSize / 3.5, y * tileSize + tileSize / 1.3);
+}
+
 function renderStone(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
   ctx.fillStyle = '#A4CFF9';
 
@@ -167,4 +193,29 @@ function renderVDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
     tileSize * 0.6,
     tileSize * 0.3,
   );
+}
+
+function renderVSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+  ctx.fillStyle = 'white';
+  ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
+
+  renderGrid(ctx, x, y, tileSize);
+
+  ctx.beginPath();
+  ctx.strokeStyle = '#85BBF1';
+
+  let l = new Vertex(x * tileSize, y * tileSize + tileSize / 2);
+  let r = new Vertex(x * tileSize + tileSize, y * tileSize + tileSize / 2);
+
+  ctx.moveTo(l.x, l.y);
+  ctx.lineTo(r.x, r.y);
+  ctx.stroke();
+
+  ctx.save();
+  ctx.translate(x * tileSize + tileSize / 2, y * tileSize + tileSize / 2);
+  ctx.rotate((90 * Math.PI) / 180);
+  ctx.fillStyle = '#85BBF1';
+  ctx.font = '12px sans-serif';
+  ctx.fillText('S', -ctx.measureText('S').width / 2, 4);
+  ctx.restore();
 }

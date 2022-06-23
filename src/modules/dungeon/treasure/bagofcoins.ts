@@ -1,6 +1,6 @@
 'use strict';
 
-import type { Item } from '../../equipment/item';
+import type Item from '../../equipment/item';
 
 export default class BagOfCoins implements Item {
   name: string;

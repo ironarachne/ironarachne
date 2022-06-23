@@ -1,6 +1,7 @@
 'use strict';
 
 import Vertex from '../geometry/vertex';
+import Lock from './lock';
 
 export default class Door {
   room1: number;
@@ -8,11 +9,11 @@ export default class Door {
   tile: number;
   vertex: Vertex;
   description: string;
-  isLocked: boolean;
+  lock: Lock | null;
   isSecret: boolean;
 
   constructor() {
-    this.isLocked = false;
+    this.lock = null;
     this.isSecret = false;
   }
 }

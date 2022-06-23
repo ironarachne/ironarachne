@@ -1,10 +1,14 @@
 'use strict';
 
-import Archetype from '../../../archetypes/archetype';
 import EncounterGroupTemplate from '../../grouptemplate';
 import EncounterTemplate from '../../template';
+import * as Archetypes from '../../../archetypes/archetypes';
+import * as FantasyArchetypes from '../../../archetypes/fantasy/all';
+import MobFilter from '../../../mobs/filter';
 
 export function all(): EncounterTemplate[] {
+  let allArchetypes = FantasyArchetypes.all();
+
   return [
     new EncounterTemplate(
       'squad of soldiers',
@@ -14,14 +18,14 @@ export function all(): EncounterTemplate[] {
           'soldiers',
           1,
           true,
-          [new Archetype('soldier', [], ['soldier', 'martial'])],
-          ['martial'],
-          ['undead'],
+          [Archetypes.byName('soldier', allArchetypes)],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           2,
           4,
         ),
       ],
-      ['martial'],
+      ['martial', 'soldiers'],
+      10,
     ),
     new EncounterTemplate(
       'squad of veterans',
@@ -31,31 +35,66 @@ export function all(): EncounterTemplate[] {
           'veteran soldiers',
           2,
           true,
-          [new Archetype('veteran soldier', [], ['soldier', 'martial'])],
-          ['martial'],
-          ['undead'],
+          [Archetypes.byName('veteran soldier', allArchetypes)],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           2,
           4,
         ),
       ],
-      ['martial'],
+      ['martial', 'soldiers'],
+      5,
     ),
     new EncounterTemplate(
       'captain',
-      2,
+      4,
       [
         new EncounterGroupTemplate(
           'captain',
           2,
           true,
-          [new Archetype('captain', [], ['soldier', 'martial'])],
-          ['martial'],
-          ['undead'],
+          [Archetypes.byName('captain', allArchetypes)],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
           1,
           1,
         ),
+        new EncounterGroupTemplate(
+          'veteran soldiers',
+          2,
+          true,
+          [Archetypes.byName('veteran soldier', allArchetypes)],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
+          2,
+          4,
+        ),
       ],
-      ['martial'],
+      ['martial', 'soldiers'],
+      3,
+    ),
+    new EncounterTemplate(
+      'general',
+      5,
+      [
+        new EncounterGroupTemplate(
+          'general',
+          3,
+          true,
+          [Archetypes.byName('general', allArchetypes)],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
+          1,
+          1,
+        ),
+        new EncounterGroupTemplate(
+          'captain',
+          2,
+          true,
+          [Archetypes.byName('captain', allArchetypes)],
+          new MobFilter(['martial'], [], 'humanoid', '', ['undead']),
+          1,
+          2,
+        ),
+      ],
+      ['martial', 'soldiers'],
+      2,
     ),
   ];
 }

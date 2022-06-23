@@ -6,16 +6,13 @@ import * as Tiles from './tiles';
 import Dungeon from './dungeon';
 import DungeonGeneratorConfig from './dungeongeneratorconfig';
 import * as DungeonThemes from './dungeonthemes/all';
-import Room from './room';
-import Vertex from '../geometry/vertex';
-import * as RoomThemes from './roomthemes';
-import * as RoomFeatures from './roomfeatures';
-import * as Geometry from '../geometry/geometry';
+import * as Doors from './doors';
+import Room from './rooms/room';
+import * as Rooms from './rooms/rooms';
+import * as RoomThemes from './rooms/themes/themes';
 import * as Words from '../words';
-import Door from './door';
-import Edge from '../geometry/edge';
+
 import TreasureSpawn from './treasurespawn';
-import RoomFeature from './roomfeature';
 import EncounterSpawn from './encounterspawn';
 import EncounterGeneratorConfig from '../encounters/generatorconfig';
 import EncounterGenerator from '../encounters/generator';
@@ -26,6 +23,8 @@ import TreasureGeneratorConfig from './treasure/generatorconfig';
 import * as CommonTables from './treasure/tables/common';
 import * as UncommonTables from './treasure/tables/uncommon';
 import * as RareTables from './treasure/tables/rare';
+import RoomGeneratorConfig from './rooms/roomgeneratorconfig';
+import RoomGenerator from './rooms/roomgenerator';
 
 export default class DungeonGenerator {
   config: DungeonGeneratorConfig;
@@ -36,36 +35,35 @@ export default class DungeonGenerator {
 
   generate(): Dungeon {
     let dungeon = new Dungeon();
-    dungeon.biome = RND.item(this.config.possibleBiomes);
+    dungeon.environment = RND.item([
+      'arctic',
+      'coastal',
+      'desert',
+      'forest',
+      'grassland',
+      'hill',
+      'mountain',
+      'urban',
+      'underdark',
+    ]);
     dungeon.tiles = initializeTiles(this.config.width, this.config.height);
 
     let themeOptions = DungeonThemes.all();
     dungeon.theme = RND.item(themeOptions);
     dungeon.name = dungeon.theme.nameGenerator.generate(1)[0];
 
-    let firstX = random.int(2, this.config.width - this.config.maxRoomWidth - 3);
-    let firstY = random.int(2, this.config.height - this.config.maxRoomHeight - 3);
-
-    let firstRoom = generateRoom(
-      firstX,
-      firstY,
-      this.config.maxRoomWidth,
-      this.config.maxRoomHeight,
+    let entranceTheme = RoomThemes.getEntrance();
+    entranceTheme.flooringOptions = dungeon.theme.flooringOptions;
+    let roomGenConfig = new RoomGeneratorConfig(
       this.config.width,
       this.config.height,
+      entranceTheme,
     );
+
+    let roomGen = new RoomGenerator(roomGenConfig);
+
+    let firstRoom = roomGen.generate();
     firstRoom.id = 0;
-    firstRoom.features.push(
-      new RoomFeature(
-        'entrance',
-        RND.item([
-          'The entrance to the dungeon is here.',
-          'The stairs out of the dungeon are here.',
-          'There is a set of stairs here leading out of the dungeon.',
-        ]),
-        false,
-      ),
-    );
     let id = 0;
 
     dungeon.rooms.push(firstRoom);
@@ -78,20 +76,45 @@ export default class DungeonGenerator {
 
     let treasureSpawns = [];
 
-    let roomThemes = dungeon.theme.roomThemes;
-    let otherRoomThemes = RoomThemes.all();
-    roomThemes = roomThemes.concat(otherRoomThemes);
+    // TODO: address light levels in individual rooms
+
+    for (let i = 0; i < dungeon.theme.requiredRooms.length; i++) {
+      let rr = dungeon.theme.requiredRooms[i];
+
+      let roomCount = random.int(rr.minCount, rr.maxCount);
+
+      for (let j = 0; j < roomCount; j++) {
+        let r = Rooms.getPlaceableRoom(
+          this.config.width,
+          this.config.height,
+          rr.theme,
+          dungeon.rooms,
+        );
+
+        if (r === null) {
+          console.debug(`Room broke`, rr, dungeon.theme.name);
+        } else {
+          id += 1;
+          r.id = id;
+
+          dungeon.rooms.push(r);
+          dungeon.tiles = addRoomToTiles(r, dungeon.tiles);
+        }
+      }
+    }
 
     while (roomGeneration) {
-      // TODO: address light levels
       if (dungeon.rooms.length >= numRooms) {
         roomGeneration = false;
       } else {
-        let r2 = new Room();
-        let r = getPlaceableRoom(
-          this.config.maxRoomWidth,
-          this.config.maxRoomHeight,
-          dungeon.tiles,
+        let roomTheme = RND.weighted(dungeon.theme.roomThemes);
+        if (roomTheme.environment == dungeon.theme.mainEnvironment) {
+          roomTheme.flooringOptions = dungeon.theme.flooringOptions;
+        }
+        let r = Rooms.getPlaceableRoom(
+          this.config.width,
+          this.config.height,
+          roomTheme,
           dungeon.rooms,
         );
         if (r === null) {
@@ -99,80 +122,9 @@ export default class DungeonGenerator {
         } else {
           id += 1;
           r.id = id;
-          r2 = getNearestRoom(r, dungeon.rooms);
-
-          if (RND.chance(100) > 80) {
-            let roomTheme = RND.item(roomThemes);
-
-            r.features = r.features.concat(roomTheme.features);
-          }
 
           dungeon.rooms.push(r);
           dungeon.tiles = addRoomToTiles(r, dungeon.tiles);
-
-          let door = addDoor(r, r2);
-
-          if (r2.id == 0) {
-            door.isSecret = false;
-            if (dungeon.rooms[0].doors.length < 2) {
-              door.isLocked = false;
-            }
-          }
-
-          if (door.isLocked) {
-            let keySpawn = new TreasureSpawn();
-            // TODO: make keys unlock Locks, and make some doors have a Lock
-            keySpawn.behavior = `It unlocks the door between room ${r2.id + 1} and room ${
-              r.id + 1
-            }.`;
-            keySpawn.minRoom = 0;
-            keySpawn.maxRoom = r2.id;
-            keySpawn.treasure = new Key();
-            keySpawn.treasure.name = 'a key';
-            let keyDescription = RND.item([
-              `a ${RND.item(['simple', 'plain', 'rough'])} key`,
-              `a ${RND.item(['small', 'ornate', 'shiny', 'tarnished'])} key`,
-            ]);
-            keySpawn.treasure.description = `${keyDescription} that unlocks the door between room ${
-              r2.id + 1
-            } and room ${r.id + 1}`;
-            keySpawn.treasure.value = 1;
-            keySpawn.isCarried = RND.chance(100) > 90 ? true : false;
-            if (!keySpawn.isCarried) {
-              keySpawn.isHidden = RND.chance(100) > 90 ? true : false;
-            }
-            treasureSpawns.push(keySpawn);
-          }
-
-          let doorQuality = RND.item([
-            RND.item(['rough', 'decaying', 'rotted']),
-            'simple',
-            'plain',
-            RND.item([
-              'iron-trimmed',
-              'copper-trimmed',
-              'silver-trimmed',
-              'gold-trimmed',
-              'painted',
-              'carved',
-              'ornate',
-            ]),
-          ]);
-
-          door.description = Words.article(doorQuality) + ' ' + doorQuality + ' door';
-
-          dungeon.doors.push(door);
-          let di = dungeon.doors.length;
-          dungeon.rooms[r.id].doors.push(di);
-          dungeon.rooms[r.id].features.push(
-            new RoomFeature('door', getDoorDescription(door, dungeon.rooms[r.id]), false),
-          );
-          dungeon.rooms[r2.id].doors.push(di);
-          dungeon.rooms[r2.id].features.push(
-            new RoomFeature('door', getDoorDescription(door, dungeon.rooms[r2.id]), false),
-          );
-
-          dungeon.tiles = addDoorToTiles(door, dungeon.tiles);
         }
 
         if (failedIterations > failedMax) {
@@ -181,9 +133,33 @@ export default class DungeonGenerator {
       }
     }
 
-    for (let i = 0; i < dungeon.rooms.length; i++) {
-      if (RND.chance(100) > 10) {
-        dungeon.rooms[i].features.push(RoomFeatures.random());
+    for (let i = 0; i < 2; i++) {
+      dungeon = Doors.addDoorsToDungeon(dungeon);
+    }
+
+    let keySpawns = [];
+
+    for (let i = 0; i < dungeon.doors.length; i++) {
+      if (dungeon.doors[i].lock != null) {
+        let keySpawn = new TreasureSpawn();
+        keySpawn.behavior = `This key unlocks the door between room ${
+          dungeon.doors[i].room1 + 1
+        } and room ${dungeon.doors[i].room2 + 1} in ${dungeon.name}.`;
+        keySpawn.minRoom = 0;
+        keySpawn.maxRoom = dungeon.doors[i].room1;
+        let key = new Key();
+        key.name = 'a key';
+        key.lockId = dungeon.doors[i].lock.id;
+        let keyDescription = RND.item([
+          `a ${RND.item(['simple', 'plain', 'rough'])} key`,
+          `a ${RND.item(['small', 'ornate', 'shiny', 'tarnished'])} key`,
+        ]);
+        key.description = `${keyDescription} that unlocks the door between room ${
+          dungeon.doors[i].room1 + 1
+        } and room ${dungeon.doors[i].room2 + 1}`;
+        key.value = random.int(1, 10);
+        keySpawn.treasure.push(key);
+        keySpawns.push(keySpawn);
       }
     }
 
@@ -193,25 +169,30 @@ export default class DungeonGenerator {
 
     let encounterSpawns = [];
     let hordeChance = 100;
-    let commonHordeTable = CommonTables.horde();
-    let bossHordeTable = RareTables.horde();
+    let commonHordeTables = CommonTables.horde();
+    let bossHordeTables = RareTables.horde();
+    let totalThreatLevel = 0;
+    let numberOfEncounters = 0;
 
     for (let i = 1; i < dungeon.rooms.length; i++) {
       // 70% chance of an encounter in every room after the entry
       if (RND.chance(100) > 30 || i == dungeon.rooms.length - 1) {
         let config = new EncounterGeneratorConfig();
-        let treasureTable = CommonTables.individual();
+        config.environment = dungeon.environment;
+        let treasureTables = CommonTables.individual();
         // if it's the last room in the dungeon, make it a boss encounter
         if (i == dungeon.rooms.length - 1) {
-          config.template = RND.item(dungeon.theme.bossEncounterTemplates);
-          treasureTable = RareTables.individual();
+          config.template = RND.weighted(dungeon.theme.bossEncounterTemplates);
+          config.minThreatLevel = 3;
+          config.maxThreatLevel = 10;
+          treasureTables = RareTables.individual();
         } else {
           // 30% chance of being a strong encounter
           if (RND.chance(100) > 30) {
-            config.template = RND.item(dungeon.theme.weakEncounterTemplates);
+            config.template = RND.weighted(dungeon.theme.weakEncounterTemplates);
           } else {
-            config.template = RND.item(dungeon.theme.strongEncounterTemplates);
-            treasureTable = UncommonTables.individual();
+            config.template = RND.weighted(dungeon.theme.strongEncounterTemplates);
+            treasureTables = UncommonTables.individual();
           }
         }
 
@@ -220,29 +201,43 @@ export default class DungeonGenerator {
         spawn.maxRoom = i;
         spawn.encounterConfig = config;
 
+        let addTreasureToEncounter = false;
+
+        for (let j = 0; j < spawn.encounterConfig.template.groupTemplates.length; j++) {
+          if (spawn.encounterConfig.template.groupTemplates[j].isSentient) {
+            addTreasureToEncounter = true;
+          }
+        }
+
         let treasureConfig = new TreasureGeneratorConfig();
-        treasureConfig.table = treasureTable;
+        treasureConfig.tables = treasureTables;
         let treasureGen = new TreasureResultGenerator(treasureConfig);
         let treasure = treasureGen.generate();
         let ts = new TreasureSpawn();
-        ts.treasure = treasure;
-        spawn.treasureSpawns.push(ts);
+        ts.treasure = ts.treasure.concat(treasure);
+        if (addTreasureToEncounter) {
+          spawn.treasureSpawns.push(ts);
+        } else {
+          ts.minRoom = i;
+          ts.maxRoom = i;
+          treasureSpawns.push(ts);
+        }
 
         encounterSpawns.push(spawn);
+        numberOfEncounters++;
       }
 
       // Chance of a treasure horde - increases the higher the room number, but decreases after each horde
       if (RND.chance(100) > hordeChance) {
-        // TODO: figure out how to add more than one item to a horde, since the coins are guaranteed, but there might be other stuff
         let hordeConfig = new TreasureGeneratorConfig();
-        hordeConfig.table = commonHordeTable;
+        hordeConfig.tables = commonHordeTables;
         if (i < dungeon.rooms.length - 1) {
-          hordeConfig.table = bossHordeTable;
+          hordeConfig.tables = bossHordeTables;
         }
         let treasureGen = new TreasureResultGenerator(hordeConfig);
         let treasure = treasureGen.generate();
         let horde = new TreasureSpawn();
-        horde.treasure = treasure;
+        horde.treasure = horde.treasure.concat(treasure);
 
         treasureSpawns.push(horde);
         hordeChance = 100;
@@ -250,8 +245,6 @@ export default class DungeonGenerator {
         hordeChance -= 2;
       }
     }
-
-    // TODO: add individual treasure spawns to individual sentient characters as carried items, not to random places in the room
 
     for (let i = 0; i < encounterSpawns.length; i++) {
       let maxRoom = encounterSpawns[i].maxRoom;
@@ -267,14 +260,30 @@ export default class DungeonGenerator {
       let encounter = eGen.generate();
 
       dungeon.rooms[roomId].encounters.push(encounter);
+      totalThreatLevel += encounter.totalThreatLevel;
 
       if (encounterSpawns[i].treasureSpawns.length > 0) {
         for (let j = 0; j < encounterSpawns[i].treasureSpawns.length; j++) {
           let ts = encounterSpawns[i].treasureSpawns[j];
-          ts.minRoom = roomId;
-          ts.maxRoom = roomId;
-          treasureSpawns.push(ts);
+          for (let k = 0; k < encounter.groups.length; k++) {
+            for (let l = 0; l < encounter.groups[k].mobs.length; l++) {
+              if (RND.chance(100) > 50) {
+                encounter.groups[k].mobs[l].carried.push(RND.item(ts.treasure));
+              }
+            }
+          }
         }
+      }
+    }
+
+    for (let i = 0; i < keySpawns.length; i++) {
+      let roomId = random.int(keySpawns[i].minRoom, keySpawns[i].maxRoom);
+      if (dungeon.rooms[roomId].encounters.length > 0) {
+        let e = RND.item(dungeon.rooms[roomId].encounters);
+        let m = RND.item(e.groups[0].mobs);
+        m.carried.push(keySpawns[i].treasure[0]);
+      } else {
+        dungeon.rooms[roomId].treasureCaches.push(keySpawns[i].treasure[0].description);
       }
     }
 
@@ -289,11 +298,21 @@ export default class DungeonGenerator {
       }
       let roomId = random.int(minRoom, maxRoom);
 
-      let treasureDescription = treasureSpawns[i].treasure.description;
+      let descriptions = [];
+
+      for (const t of treasureSpawns[i].treasure) {
+        descriptions.push(t.description);
+      }
+
+      let treasureDescription = Words.arrayToPhrase(descriptions);
 
       if (treasureSpawns[i].isHidden) {
         treasureDescription += `, hidden somewhere in the room`;
         dungeon.rooms[roomId].treasureCaches.push(treasureDescription);
+      } else if (treasureSpawns[i].isCarried) {
+        let te = RND.item(dungeon.rooms[roomId].encounters);
+        let mob = RND.item(te.groups[0].mobs);
+        mob.carried.push(treasureDescription);
       } else {
         let containers = [];
         for (let i = 0; i < dungeon.rooms[roomId].features.length; i++) {
@@ -313,48 +332,11 @@ export default class DungeonGenerator {
       }
     }
 
+    dungeon.totalThreatLevel = totalThreatLevel;
+    dungeon.averageThreatLevel = Math.floor(totalThreatLevel / numberOfEncounters);
+
     return dungeon;
   }
-}
-
-function addDoor(room1: Room, room2: Room): Door {
-  let door = new Door();
-  let possibleEdges = [];
-
-  for (let i = 0; i < room1.vertices.length; i++) {
-    for (let j = 0; j < room2.vertices.length; j++) {
-      let nD = Geometry.distance(room1.vertices[i], room2.vertices[j]);
-      if (nD == 2) {
-        let e = new Edge();
-        e.a = room1.vertices[i];
-        e.b = room2.vertices[j];
-        possibleEdges.push(e);
-      }
-    }
-  }
-
-  let e: Edge = RND.item(possibleEdges);
-  door.vertex = e.getMidpoint();
-
-  if (e.getSlope() === 0) {
-    door.tile = Tiles.H_DOOR;
-  } else {
-    door.tile = Tiles.V_DOOR;
-  }
-
-  if (RND.chance(100) > 90) {
-    door.isLocked = true;
-  } else if (RND.chance(100) > 90) {
-    door.isSecret = true;
-  }
-
-  return door;
-}
-
-function addDoorToTiles(door: Door, tiles: number[][]): number[][] {
-  tiles[door.vertex.y][door.vertex.x] = door.tile;
-
-  return tiles;
 }
 
 function addRoomToTiles(room: Room, tiles: number[][]): number[][] {
@@ -363,210 +345,6 @@ function addRoomToTiles(room: Room, tiles: number[][]): number[][] {
   }
 
   return tiles;
-}
-
-function doesRoomCollide(room: Room, rooms: Room[]): boolean {
-  for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].vertices.length; j++) {
-      for (let k = 0; k < room.vertices.length; k++) {
-        if (room.vertices[k].equals(rooms[i].vertices[j])) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-function doesRoomTouch(room: Room, rooms: Room[]): boolean {
-  for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].vertices.length; j++) {
-      for (let k = 0; k < room.vertices.length; k++) {
-        if (Geometry.distance(room.vertices[k], rooms[i].vertices[j]) == 1) {
-          return true;
-        }
-      }
-    }
-  }
-
-  return false;
-}
-
-function distanceToNearestOtherRoomTile(room: Room, rooms: Room[]): number {
-  let distance = 10000000;
-
-  for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].vertices.length; j++) {
-      for (let k = 0; k < room.vertices.length; k++) {
-        let d = Geometry.distance(rooms[i].vertices[j], room.vertices[k]);
-        if (d <= distance) {
-          distance = d;
-        }
-      }
-    }
-  }
-
-  return distance;
-}
-
-function getDoorDescription(door: Door, room: Room): string {
-  let dir = '';
-
-  if (door.tile == Tiles.V_DOOR) {
-    if (door.vertex.y > room.center.y) {
-      if (door.vertex.x < room.center.x) {
-        dir = 'southwest';
-      } else if (door.vertex.x > room.center.x) {
-        dir = 'southeast';
-      } else {
-        dir = 'south';
-      }
-    } else {
-      if (door.vertex.x < room.center.x) {
-        dir = 'northwest';
-      } else if (door.vertex.x > room.center.x) {
-        dir = 'northeast';
-      } else {
-        dir = 'north';
-      }
-    }
-  } else {
-    if (door.vertex.x < room.center.x) {
-      if (door.vertex.y > room.center.y) {
-        dir = 'southwest';
-      } else if (door.vertex.y < room.center.y) {
-        dir = 'northwest';
-      } else {
-        dir = 'west';
-      }
-    } else {
-      if (door.vertex.y > room.center.y) {
-        dir = 'southeast';
-      } else if (door.vertex.y < room.center.y) {
-        dir = 'northeast';
-      } else {
-        dir = 'east';
-      }
-    }
-  }
-
-  let description = `There is ${door.description} in the ${dir}`;
-
-  if (door.isLocked) {
-    description += '. It is locked.';
-  } else if (door.isSecret) {
-    description += ', but it is hidden.';
-  } else {
-    description += '.';
-  }
-
-  return description;
-}
-
-function getNearestRoom(room: Room, rooms: Room[]): Room {
-  let distance = 10000000;
-  let n = rooms[0];
-
-  for (let i = 0; i < rooms.length; i++) {
-    for (let j = 0; j < rooms[i].vertices.length; j++) {
-      for (let k = 0; k < room.vertices.length; k++) {
-        let d = Geometry.distance(rooms[i].vertices[j], room.vertices[k]);
-        if (d <= distance) {
-          distance = d;
-          n = rooms[i];
-        }
-      }
-    }
-  }
-
-  return n;
-}
-
-function isRoomInRange(range: number, room: Room, rooms: Room[]): boolean {
-  if (distanceToNearestOtherRoomTile(room, rooms) == range) {
-    return true;
-  }
-
-  return false;
-}
-
-function generateRoom(
-  x: number,
-  y: number,
-  maxWidth: number,
-  maxHeight: number,
-  mapWidth: number,
-  mapHeight: number,
-): Room {
-  let width = random.int(2, maxWidth);
-  let height = random.int(2, maxHeight);
-
-  let room = new Room();
-
-  for (let i = y; i < y + height + 1; i++) {
-    for (let j = x; j < x + width + 1; j++) {
-      room.vertices.push(new Vertex(j, i));
-    }
-  }
-
-  room.minX = x;
-  room.maxX = room.getMaxX();
-  room.minY = y;
-  room.maxY = room.getMaxY();
-  room.center = room.getCenter();
-  room.calculateTiles(mapWidth, mapHeight);
-
-  room.description = `This room is ${(width + 1) * 5}' wide and ${(height + 1) * 5}' long.`;
-
-  return room;
-}
-
-function getPlaceableRoom(
-  width: number,
-  height: number,
-  mapTiles: number[][],
-  rooms: Room[],
-): Room | null {
-  let generation = true;
-  let x = 2;
-  let y = 2;
-  let maxX = mapTiles[0].length - 3;
-  let maxY = mapTiles.length - 3;
-  let room = generateRoom(x, y, width, height, mapTiles[0].length, mapTiles.length);
-  let roomAttempts = 0;
-  let roomAttemptLimit = 5;
-
-  while (generation) {
-    if (
-      !doesRoomCollide(room, rooms) &&
-      !doesRoomTouch(room, rooms) &&
-      isRoomInRange(2, room, rooms)
-    ) {
-      generation = false;
-    } else if (roomAttempts <= roomAttemptLimit) {
-      let nx = room.minX + 1;
-      let ny = room.minY;
-
-      if (nx > maxX - room.getWidth()) {
-        nx = 2;
-        ny++;
-        if (ny > maxY - room.getHeight()) {
-          roomAttempts++;
-          continue;
-        }
-      }
-
-      room.moveTo(nx, ny, mapTiles[0].length, mapTiles.length);
-    } else if (roomAttempts > roomAttemptLimit) {
-      return null;
-    } else {
-      roomAttempts++;
-      room = generateRoom(x, y, width, height, mapTiles[0].length, mapTiles.length);
-    }
-  }
-
-  return room;
 }
 
 function initializeTiles(width: number, height: number): number[][] {

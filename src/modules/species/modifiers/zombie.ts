@@ -26,6 +26,7 @@ export function modify(species: Species): Species {
   result.abilities.push('can bite others to transform them into zombies');
   result.tags.push('zombie');
   result.tags.push('undead');
+  result.threatLevel += 1;
 
   return result;
 }

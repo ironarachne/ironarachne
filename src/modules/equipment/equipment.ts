@@ -1,16 +1,16 @@
 'use strict';
 
 import * as RND from '../random';
-import * as Components from './components/components';
 import * as Patterns from './patterns/patterns';
-import * as Item from './item';
+import type Item from './item';
+import Component from './components/component';
 
 export function generate(
   category: string,
-  components: Components.Component[],
+  components: Component[],
   amount: number,
   valueThreshold: number,
-): Item.Item[] {
+): Item[] {
   let result = [];
   let patterns = [];
 

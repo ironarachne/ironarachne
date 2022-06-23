@@ -1,14 +1,14 @@
 'use strict';
 
 import Archetype from '../archetypes/archetype';
+import MobFilter from '../mobs/filter';
 
 export default class EncounterGroupTemplate {
   name: string;
   threatLevel: number;
   isSentient: boolean;
   archetypes: Archetype[];
-  requiredTags: string[];
-  excludeTags: string[];
+  filter: MobFilter;
   minNumber: number;
   maxNumber: number;
 
@@ -17,8 +17,7 @@ export default class EncounterGroupTemplate {
     threatLevel: number,
     isSentient: boolean,
     archetypes: Archetype[],
-    requiredTags: string[],
-    excludeTags: string[],
+    filter: MobFilter,
     minNumber: number,
     maxNumber: number,
   ) {
@@ -26,8 +25,7 @@ export default class EncounterGroupTemplate {
     this.threatLevel = threatLevel;
     this.isSentient = isSentient;
     this.archetypes = archetypes;
-    this.requiredTags = requiredTags;
-    this.excludeTags = excludeTags;
+    this.filter = filter;
     this.minNumber = minNumber;
     this.maxNumber = maxNumber;
   }

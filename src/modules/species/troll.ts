@@ -6,26 +6,50 @@ import type Species from './species';
 import PhysicalTraitGenerator from '../physicaltraits/generator';
 import GeneratorSet from '../names/generatorset';
 import TrollSet from '../names/races/troll';
+import type Item from '../equipment/item';
+import type StatBlock from '../statblock';
 
 export default class Troll implements Species {
   name: string;
   nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
+  description: string;
+  summary: string;
   commonality: number;
+  carried: Item[];
+  statBlock: StatBlock;
+  environments: string[];
+  creatureTypes: string[];
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'troll';
-    this.abilities = [];
+    this.abilities = ['regenerate slowly unless burned'];
     this.tags = ['corruptible', 'troll', 'greenskin', 'martial', 'sentient'];
     this.nameGeneratorSet = new TrollSet();
+    this.carried = [];
+    this.statBlock = null;
     this.pluralName = 'trolls';
     this.adjective = 'troll';
     this.commonality = 10;
+    this.environments = [
+      'arctic',
+      'coastal',
+      'desert',
+      'forest',
+      'grassland',
+      'hill',
+      'mountain',
+      'urban',
+      'underdark',
+    ];
+    this.creatureTypes = ['humanoid'];
+    this.threatLevel = 2;
     this.physicalTraitGenerators = [
       new PhysicalTraitGenerator(
         'hair',

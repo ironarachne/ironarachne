@@ -10,36 +10,44 @@ import type TreasureGenerator from './treasuregenerator';
 export default class GemGenerator implements TreasureGenerator {
   minValue: number;
   maxValue: number;
+  gemCount: number;
 
-  constructor(min: number, max: number) {
+  constructor(min: number, max: number, gemCount: number) {
     this.minValue = min;
     this.maxValue = max;
+    this.gemCount = gemCount;
   }
 
-  generate(): Gem {
-    let gem = new Gem();
+  generate(): Gem[] {
+    let gems = [];
 
-    gem.value = random.int(this.minValue, this.maxValue);
+    for (let i = 0; i < this.gemCount; i++) {
+      let gem = new Gem();
 
-    if (gem.value < 1100) {
-      gem.name = RND.item(getOrnamental());
-    } else if (gem.value < 8100) {
-      gem.name = RND.item(getSemiprecious());
-    } else if (gem.value < 15100) {
-      gem.name = RND.item(getFancy());
-    } else if (gem.value < 50100) {
-      gem.name = RND.item(getPrecious());
-    } else if (gem.value < 100100) {
-      gem.name = RND.item(getGemstones());
-    } else {
-      gem.name = RND.item(getJewels());
+      gem.value = random.int(this.minValue, this.maxValue);
+
+      if (gem.value < 1100) {
+        gem.name = RND.item(getOrnamental());
+      } else if (gem.value < 8100) {
+        gem.name = RND.item(getSemiprecious());
+      } else if (gem.value < 15100) {
+        gem.name = RND.item(getFancy());
+      } else if (gem.value < 50100) {
+        gem.name = RND.item(getPrecious());
+      } else if (gem.value < 100100) {
+        gem.name = RND.item(getGemstones());
+      } else {
+        gem.name = RND.item(getJewels());
+      }
+
+      let worth = Currency.valueToCoins(gem.value, false, false, false);
+
+      gem.description = `${Words.article(gem.name)} ${gem.name} worth ${worth}`;
+
+      gems.push(gem);
     }
 
-    let worth = Currency.valueToCoins(gem.value, false, false, false);
-
-    gem.description = `${Words.article(gem.name)} ${gem.name} worth ${worth}`;
-
-    return gem;
+    return gems;
   }
 }
 

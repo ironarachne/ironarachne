@@ -12,11 +12,16 @@ export default class EncounterGeneratorConfig {
   environment: string;
   sentientOptions: Species[];
   creatureOptions: Creature[];
+  minThreatLevel: number;
+  maxThreatLevel: number;
 
   constructor() {
     this.isHostile = true;
-    this.environment = 'dungeon';
+    this.environment = 'forest';
+    this.template = null;
     this.sentientOptions = FantasySpecies.all();
     this.creatureOptions = FantasyCreatures.all();
+    this.minThreatLevel = 1;
+    this.maxThreatLevel = 4;
   }
 }

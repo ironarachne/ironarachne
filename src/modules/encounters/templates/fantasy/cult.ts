@@ -1,10 +1,13 @@
 'use strict';
 
-import Archetype from '../../../archetypes/archetype';
 import EncounterGroupTemplate from '../../grouptemplate';
 import EncounterTemplate from '../../template';
+import * as Archetypes from '../../../archetypes/archetypes';
+import * as FantasyArchetypes from '../../../archetypes/fantasy/all';
+import MobFilter from '../../../mobs/filter';
 
 export function all(): EncounterTemplate[] {
+  let allArchetypes = FantasyArchetypes.all();
   return [
     new EncounterTemplate(
       'group of cult acolytes',
@@ -14,20 +17,31 @@ export function all(): EncounterTemplate[] {
           'cult acolytes',
           1,
           true,
-          [new Archetype('cult acolyte', [], ['cult', 'acolyte'])],
-          ['cult', 'corruptible'],
-          ['undead'],
+          [Archetypes.byName('cult acolyte', allArchetypes)],
+          new MobFilter([], ['cult', 'corruptible'], 'humanoid', '', ['undead']),
           2,
           4,
         ),
       ],
       ['cult'],
+      50,
     ),
     new EncounterTemplate(
       'group of lesser demons',
-      2,
-      [new EncounterGroupTemplate('lesser demons', 2, false, [], ['demon'], [], 2, 4)],
+      4,
+      [
+        new EncounterGroupTemplate(
+          'lesser demons',
+          2,
+          false,
+          [],
+          new MobFilter(['demon'], [], '', '', []),
+          2,
+          4,
+        ),
+      ],
       ['cult', 'demonic'],
+      1,
     ),
     new EncounterTemplate(
       'cult priest',
@@ -37,14 +51,31 @@ export function all(): EncounterTemplate[] {
           'cult priest',
           2,
           true,
-          [new Archetype('cult priest', [], ['priest', 'cult'])],
-          ['cult', 'corruptible'],
-          ['undead'],
+          [Archetypes.byName('cult priest', allArchetypes)],
+          new MobFilter([], ['cult', 'corruptible'], 'humanoid', '', ['undead']),
           1,
           1,
         ),
       ],
       ['cult'],
+      20,
+    ),
+    new EncounterTemplate(
+      'cult high priest',
+      5,
+      [
+        new EncounterGroupTemplate(
+          'cult high priest',
+          5,
+          true,
+          [Archetypes.byName('cult high priest', allArchetypes)],
+          new MobFilter([], ['cult', 'corruptible'], 'humanoid', '', ['undead']),
+          1,
+          1,
+        ),
+      ],
+      ['cult'],
+      15,
     ),
   ];
 }

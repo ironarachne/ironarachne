@@ -6,26 +6,50 @@ import type Species from './species';
 import PhysicalTraitGenerator from '../physicaltraits/generator';
 import GeneratorSet from '../names/generatorset';
 import TieflingSet from '../names/races/tiefling';
+import type Item from '../equipment/item';
+import type StatBlock from '../statblock';
 
 export default class Tiefling implements Species {
   name: string;
   nameGeneratorSet: GeneratorSet;
   pluralName: string;
   adjective: string;
+  description: string;
+  summary: string;
   commonality: number;
+  carried: Item[];
+  statBlock: StatBlock;
+  environments: string[];
+  creatureTypes: string[];
   physicalTraitGenerators: PhysicalTraitGenerator[];
   genders: Gender[];
   abilities: string[];
   tags: string[];
+  threatLevel: number;
 
   constructor() {
     this.name = 'tiefling';
     this.abilities = [];
     this.tags = ['corruptible', 'tiefling', 'demonic', 'martial', 'magic', 'sentient'];
     this.nameGeneratorSet = new TieflingSet();
+    this.carried = [];
+    this.statBlock = null;
     this.pluralName = 'tieflings';
     this.adjective = 'tiefling';
     this.commonality = 5;
+    this.environments = [
+      'arctic',
+      'coastal',
+      'desert',
+      'forest',
+      'grassland',
+      'hill',
+      'mountain',
+      'urban',
+      'underdark',
+    ];
+    this.creatureTypes = ['humanoid'];
+    this.threatLevel = 1;
     const hornLengths = ['short', 'long'];
     const hornTypes = ['curved', 'straight', 'curled', 'spiraled'];
     let hornAppearances = [];

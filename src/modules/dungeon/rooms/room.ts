@@ -1,15 +1,18 @@
 'use strict';
 
-import Encounter from '../encounters/encounter';
-import Edge from '../geometry/edge';
-import Polygon from '../geometry/polygon';
-import Vertex from '../geometry/vertex';
-import RoomFeature from './roomfeature';
-import * as Tiles from './tiles';
+import Encounter from '../../encounters/encounter';
+import Edge from '../../geometry/edge';
+import Polygon from '../../geometry/polygon';
+import Vertex from '../../geometry/vertex';
+import RoomFeature from './features/feature';
+import * as Tiles from '../tiles';
+import RoomTheme from './themes/theme';
 
 export default class Room {
   id: number;
+  name: string;
   description: string;
+  secrets: string;
   shape: Polygon;
   tileMesh: Polygon[];
   tiles: number[][];
@@ -22,6 +25,7 @@ export default class Room {
   features: RoomFeature[];
   treasureCaches: string[];
   encounters: Encounter[];
+  theme: RoomTheme;
   doors: number[];
 
   constructor() {
@@ -30,6 +34,7 @@ export default class Room {
     this.features = [];
     this.doors = [];
     this.description = '';
+    this.secrets = '';
     this.tiles = [];
     this.treasureCaches = [];
     this.vertices = [];
@@ -71,6 +76,12 @@ export default class Room {
     }
 
     for (let i = 0; i < this.vertices.length; i++) {
+      if (this.vertices[i].y > newTiles.length - 1) {
+        console.debug(
+          `Vertices outside the bounds of the map: ${newTiles.length} newTiles.length, ${this.vertices[i].y} this.vertices[i].y`,
+          this.vertices,
+        );
+      }
       newTiles[this.vertices[i].y][this.vertices[i].x] = Tiles.ROOM;
     }
 
