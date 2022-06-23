@@ -229,7 +229,6 @@ export default class DungeonGenerator {
 
       // Chance of a treasure horde - increases the higher the room number, but decreases after each horde
       if (RND.chance(100) > hordeChance) {
-        // TODO: figure out how to add more than one item to a horde, since the coins are guaranteed, but there might be other stuff
         let hordeConfig = new TreasureGeneratorConfig();
         hordeConfig.tables = commonHordeTables;
         if (i < dungeon.rooms.length - 1) {

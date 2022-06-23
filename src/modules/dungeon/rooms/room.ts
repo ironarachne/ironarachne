@@ -12,6 +12,7 @@ export default class Room {
   id: number;
   name: string;
   description: string;
+  secrets: string;
   shape: Polygon;
   tileMesh: Polygon[];
   tiles: number[][];
@@ -33,6 +34,7 @@ export default class Room {
     this.features = [];
     this.doors = [];
     this.description = '';
+    this.secrets = '';
     this.tiles = [];
     this.treasureCaches = [];
     this.vertices = [];

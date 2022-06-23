@@ -58,6 +58,16 @@
     width: 100%;
     border-bottom: 1px solid black;
   }
+
+  div.room-description {
+    border: 3px solid black;
+    padding: 0.5rem;
+    margin: 0.5rem;
+  }
+
+  div.room-secrets {
+    padding: 0.5rem;
+  }
 </style>
 
 <svelte:head>
@@ -88,12 +98,17 @@
   {#each dungeon.rooms as room }
   <div class="room">
     <h3>{room.id + 1}. {Words.title(room.name)}</h3>
-    <p>
+    <div class="room-description">
       {room.description}
       {#each room.features as feature}
       {feature.description + ' '}
       {/each}
-    </p>
+    </div>
+    {#if room.secrets != ''}
+    <div class="room-secrets">
+      {room.secrets}
+    </div>
+    {/if}
     <div class="encounter">
       {#each room.encounters as encounter}
         {#each encounter.groups as group}

@@ -58,7 +58,11 @@ export default class RoomGenerator {
     }
 
     for (let i = 0; i < this.config.theme.featureGenerators.length; i++) {
-      room.features.push(this.config.theme.featureGenerators[i].generate());
+      let feature = this.config.theme.featureGenerators[i].generate();
+      room.features.push(feature);
+      if (feature.secret != '') {
+        room.secrets += feature.secret + ' ';
+      }
     }
 
     if (this.config.theme.dressingGenerators.length > 0 && RND.chance(100) > 70) {

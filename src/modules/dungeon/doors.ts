@@ -42,6 +42,11 @@ export function addDoor(room1: Room, room2: Room): Door {
     door.lock.id = RND.randomString(24);
   } else if (RND.chance(100) > 90) {
     door.isSecret = true;
+    if (door.tile == Tiles.H_DOOR) {
+      door.tile = Tiles.H_S_DOOR;
+    } else {
+      door.tile = Tiles.V_S_DOOR;
+    }
   }
 
   door.room1 = room1.id;
@@ -106,13 +111,37 @@ export function addDoorsToDungeon(dungeon: Dungeon): Dungeon {
     let di = dungeon.doors.length - 1;
     dungeon.rooms[i].doors.push(di);
 
-    dungeon.rooms[i].features.push(
-      new RoomFeature('door', getDoorDescription(door, dungeon.rooms[i]), false),
-    );
+    let description1 = getDoorDescription(door, dungeon.rooms[i]);
+    let description2 = getDoorDescription(door, dungeon.rooms[r2.id]);
+
+    let secret1 = '';
+    let secret2 = '';
+
+    if (door.isSecret) {
+      let hiddenText = RND.item([
+        `${RND.item(['It is', "It's"])} hidden behind a tapestry.`,
+        `${RND.item([
+          'It is',
+          "It's",
+        ])} practically undetectable except for a thin seam visible only on close inspection.`,
+        `A tapestry obscures it.`,
+        `It cannot be opened from this side.`,
+        `A pile of ${RND.item(['refuse', 'debris', 'trash'])} obscures it.`,
+      ]);
+      if (RND.chance(100) > 50) {
+        secret2 = `${description2} ${hiddenText}`;
+        description2 = '';
+      } else {
+        secret1 = `${description1} ${hiddenText}`;
+        description1 = '';
+      }
+      dungeon.rooms[i].secrets += secret1;
+      dungeon.rooms[r2.id].secrets += secret2;
+    }
+
+    dungeon.rooms[i].features.push(new RoomFeature('door', description1, secret1, false));
     dungeon.rooms[r2.id].doors.push(di);
-    dungeon.rooms[r2.id].features.push(
-      new RoomFeature('door', getDoorDescription(door, dungeon.rooms[r2.id]), false),
-    );
+    dungeon.rooms[r2.id].features.push(new RoomFeature('door', description2, secret2, false));
 
     dungeon.tiles = addDoorToTiles(door, dungeon.tiles);
   }
@@ -176,8 +205,6 @@ export function getDoorDescription(door: Door, room: Room): string {
 
   if (door.lock != null) {
     description += '. It is locked.';
-  } else if (door.isSecret) {
-    description += ', but it is hidden.';
   } else {
     description += '.';
   }
