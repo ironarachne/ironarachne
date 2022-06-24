@@ -179,6 +179,7 @@ export default class DungeonGenerator {
       if (RND.chance(100) > 30 || i == dungeon.rooms.length - 1) {
         let config = new EncounterGeneratorConfig();
         config.environment = dungeon.environment;
+        config.sentientOptions = dungeon.theme.sentientOptions;
         let treasureTables = CommonTables.individual();
         // if it's the last room in the dungeon, make it a boss encounter
         if (i == dungeon.rooms.length - 1) {

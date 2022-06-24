@@ -2,14 +2,18 @@
 
 import DungeonTheme from '../dungeontheme';
 
-import * as Evil from './evil';
-import * as Ruins from './ruins';
+import * as Fortress from './fortress';
+import * as Cult from './cult';
+import * as Tomb from './tomb';
+import * as MageLair from './magelair';
 
 export function all(): DungeonTheme[] {
   let result = [];
 
-  result = result.concat(Evil.all());
-  result = result.concat(Ruins.all());
+  result.push(Cult.getTheme());
+  result.push(Fortress.getTheme());
+  result.push(MageLair.getTheme());
+  result.push(Tomb.getTheme());
 
   return result;
 }

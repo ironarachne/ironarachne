@@ -11,25 +11,49 @@ import HalfOrc from './half-orc';
 import Human from './human';
 import Orc from './orc';
 import type Species from './species';
-import * as RND from '../random';
 import * as Skeleton from './modifiers/skeleton';
 import * as Vampire from './modifiers/vampire';
 import * as Zombie from './modifiers/zombie';
 import Tiefling from './tiefling';
 import Troll from './troll';
+import Hobgoblin from './hobgoblin';
+import Bugbear from './bugbear';
+import Aarakocra from './aarakocra';
+import Aasimar from './aasimar';
+import Centaur from './centaur';
+import DarkElf from './darkelf';
+import DeepGnome from './deepgnome';
+import Duergar from './duergar';
+import Firbolg from './firbolg';
+import HighElf from './highelf';
 
 export function all(): Species[] {
   let result = [];
 
-  result = result.concat(greenskins());
+  result = result.concat(goblinoids());
+  result = result.concat(fantastical());
   result = result.concat(pc());
-  result = result.concat(undead());
 
   return result;
 }
 
-export function greenskins(): Species[] {
-  let result = [new Goblin(), new Orc(), new Troll()];
+export function goblinoids(): Species[] {
+  let result = [new Bugbear(), new Goblin(), new Hobgoblin(), new Orc(), new Troll()];
+
+  return result;
+}
+
+export function fantastical(): Species[] {
+  let result = [
+    new Aarakocra(),
+    new Aasimar(),
+    new Centaur(),
+    new DarkElf(),
+    new DeepGnome(),
+    new Duergar(),
+    new Firbolg(),
+    new HighElf(),
+  ];
 
   return result;
 }

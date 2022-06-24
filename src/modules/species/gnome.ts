@@ -46,7 +46,6 @@ export default class Gnome implements Species {
       'hill',
       'mountain',
       'urban',
-      'underdark',
     ];
     this.creatureTypes = ['humanoid'];
     this.threatLevel = 1;
