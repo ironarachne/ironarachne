@@ -19,5 +19,6 @@ export default class Dungeon {
   constructor() {
     this.doors = [];
     this.rooms = [];
+    this.totalThreatLevel = 0;
   }
 }

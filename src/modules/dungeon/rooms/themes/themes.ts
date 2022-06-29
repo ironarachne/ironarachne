@@ -57,6 +57,7 @@ export function getEntrance(): RoomTheme {
         false,
       ),
     ],
+    [],
     ['rectangular', 'square'],
     ['dungeon', 'entrance'],
     10,

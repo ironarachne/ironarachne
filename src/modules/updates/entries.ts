@@ -16,6 +16,10 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-06-29', [
+      'Added light sources to the dungeon generator.',
+      'Reorganized dungeon generation code to be easier to read, and fixed a few bugs in the process.',
+    ]),
     new ChangeLog('2022-06-24', [
       'Added aarakocra, aasimar, centaur, dark elf, deep gnome, duergar, firbolg, high elf, and hobgoblin to sentient species.',
       'Fixed several bugs in the selection of sentient species during encounter creation.',

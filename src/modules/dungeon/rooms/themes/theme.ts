@@ -1,6 +1,7 @@
 'use strict';
 
 import RoomFeatureGenerator from '../features/featuregenerator';
+import Mutator from '../mutators/mutator';
 
 export default class RoomTheme {
   name: string;
@@ -12,6 +13,7 @@ export default class RoomTheme {
   flooringOptions: string[];
   dressingGenerators: RoomFeatureGenerator[];
   featureGenerators: RoomFeatureGenerator[];
+  mutators: Mutator[];
   shapes: string[];
   tags: string[];
   commonality: number;
@@ -26,6 +28,7 @@ export default class RoomTheme {
     flooringOptions: string[],
     dressingGenerators: RoomFeatureGenerator[],
     featureGenerators: RoomFeatureGenerator[],
+    mutators: Mutator[],
     shapes: string[],
     tags: string[],
     commonality: number,
@@ -39,6 +42,7 @@ export default class RoomTheme {
     this.flooringOptions = flooringOptions;
     this.dressingGenerators = dressingGenerators;
     this.featureGenerators = featureGenerators;
+    this.mutators = mutators;
     this.shapes = shapes;
     this.tags = tags;
     this.commonality = commonality;

@@ -98,6 +98,7 @@
   {#each dungeon.rooms as room }
   <div class="room">
     <h3>{room.id + 1}. {Words.title(room.name)}</h3>
+    {#if room.lightLevel == 0}<p>This room is dark.</p>{/if}
     <div class="room-description">
       {room.description}
       {#each room.features as feature}

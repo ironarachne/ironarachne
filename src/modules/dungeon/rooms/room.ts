@@ -22,6 +22,7 @@ export default class Room {
   maxX: number;
   maxY: number;
   center: Vertex;
+  lightLevel: number;
   features: RoomFeature[];
   treasureCaches: string[];
   encounters: Encounter[];
@@ -38,6 +39,7 @@ export default class Room {
     this.tiles = [];
     this.treasureCaches = [];
     this.vertices = [];
+    this.lightLevel = 0;
   }
 
   calculateTileMesh() {
