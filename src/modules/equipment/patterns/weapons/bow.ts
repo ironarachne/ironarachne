@@ -23,19 +23,9 @@ export default class BowPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): MeleeWeapon {
-    let body = Components.getComponentForCategory(
-      'soft wood',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
-    let handle = Components.getComponentForCategory(
-      'leather',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): MeleeWeapon {
+    let body = RND.item(Components.withCategory('soft wood', componentOptions));
+    let handle = RND.item(Components.withCategory('leather', componentOptions));
 
     let cosmeticBody = RND.item(['carved', 'heavy', 'light', 'simple']);
 
@@ -53,10 +43,27 @@ export default class BowPattern implements Pattern {
       ` and ${Words.article(cosmeticHandle)} ${cosmeticHandle} ${handle.descriptor} wrapped grip`,
     ]);
 
+    if (quality > 1) {
+      description += RND.item([' and gilt highlights']);
+    }
+
     let name = `${body.descriptor} ${this.name}`;
 
     let value = this.baseValue + body.value + handle.value;
 
-    return new RangedWeapon(name, description, this.damage, 80, 320, 'arrow', this.hands, value);
+    let tags = [name, this.name, 'bow', 'ranged', 'martial weapon', 'weapon'];
+
+    return new RangedWeapon(
+      name,
+      description,
+      this.damage,
+      80,
+      320,
+      'arrow',
+      this.hands,
+      value,
+      quality,
+      tags,
+    );
   }
 }

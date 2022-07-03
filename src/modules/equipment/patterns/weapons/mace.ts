@@ -22,15 +22,10 @@ export default class MacePattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): MeleeWeapon {
-    let head = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
-    let haft = Components.getComponentForCategory('wood', componentOptions, minValue, maxValue);
-    let handle = Components.getComponentForCategory(
-      'leather',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): MeleeWeapon {
+    let head = RND.item(Components.withCategory('metal', componentOptions));
+    let haft = RND.item(Components.withCategory('wood', componentOptions));
+    let handle = RND.item(Components.withCategory('leather', componentOptions));
 
     let value = this.baseValue + head.value + haft.value + handle.value;
 
@@ -59,6 +54,8 @@ export default class MacePattern implements Pattern {
 
     let name = `${head.descriptor} ${this.name}`;
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value);
+    let tags = [name, this.name, 'mace', 'melee', 'simple weapon', 'weapon'];
+
+    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }
 }

@@ -2,7 +2,7 @@
 
 import Room from '../room';
 
-export default class Mutator {
+export default class RoomMutator {
   name: string;
   mutate: (room: Room) => Room;
   tags: string[];

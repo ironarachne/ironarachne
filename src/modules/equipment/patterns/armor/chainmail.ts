@@ -18,8 +18,8 @@ export default class ChainmailPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Armor {
-    let body = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
+  complete(componentOptions: Component[], quality: number): Armor {
+    let body = RND.item(Components.withCategory('metal', componentOptions));
 
     let value = this.baseValue + body.value * 500;
 
@@ -37,8 +37,13 @@ export default class ChainmailPattern implements Pattern {
 
     let name = `${body.descriptor} ${this.name}`;
 
-    let armorClass = 16;
+    if (quality > 1) {
+      description += RND.item([' and decorative belting']);
+    }
 
-    return new Armor(name, description, 'torso', armorClass, value);
+    let armorClass = 16;
+    let tags = [name, this.name, 'chainmail', 'armor'];
+
+    return new Armor(name, description, 'torso', armorClass, value, quality, tags);
   }
 }

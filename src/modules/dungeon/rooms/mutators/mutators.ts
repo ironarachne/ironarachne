@@ -2,11 +2,11 @@
 
 import RoomFeatureGenerator from '../features/featuregenerator';
 import Room from '../room';
-import Mutator from './mutator';
+import RoomMutator from './mutator';
 
-export function all(): Mutator[] {
+export function all(): RoomMutator[] {
   return [
-    new Mutator(
+    new RoomMutator(
       'brazier',
       (room: Room) => {
         let featureGenerator = new RoomFeatureGenerator(
@@ -25,7 +25,7 @@ export function all(): Mutator[] {
       },
       ['light'],
     ),
-    new Mutator(
+    new RoomMutator(
       'torches',
       (room: Room) => {
         let featureGenerator = new RoomFeatureGenerator(
@@ -44,7 +44,7 @@ export function all(): Mutator[] {
   ];
 }
 
-export function withName(name: string, mutators: Mutator[]): Mutator {
+export function withName(name: string, mutators: RoomMutator[]): RoomMutator {
   for (let i = 0; i < mutators.length; i++) {
     if (mutators[i].name == name) {
       return mutators[i];
@@ -54,7 +54,7 @@ export function withName(name: string, mutators: Mutator[]): Mutator {
   console.error(`Failed to find mutator with name ${name}.`);
 }
 
-export function withTag(tag: string, mutators: Mutator[]): Mutator[] {
+export function withTag(tag: string, mutators: RoomMutator[]): RoomMutator[] {
   let result = [];
 
   for (let i = 0; i < mutators.length; i++) {

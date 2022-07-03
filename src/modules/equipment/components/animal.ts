@@ -11,6 +11,8 @@ export function all(): Component[] {
       'leather',
       'hard leather',
       1,
+      0,
+      ['leather'],
     ),
     new Component(
       'bull leather',
@@ -19,6 +21,8 @@ export function all(): Component[] {
       'leather',
       'hard leather',
       2,
+      1,
+      ['leather'],
     ),
     new Component(
       'steer leather',
@@ -27,10 +31,32 @@ export function all(): Component[] {
       'leather',
       'hard leather',
       20,
+      1,
+      ['leather'],
     ),
-    new Component('pig hide', 'a circle of pig hide', 'pig hide', 'leather', 'hard leather', 1),
-    new Component('deer hide', 'a circle of deer hide', 'deer hide', 'leather', 'soft leather', 1),
-    new Component('goat hide', 'a circle of goat hide', 'goat hide', 'leather', 'soft leather', 1),
+    new Component('pig hide', 'a circle of pig hide', 'pig hide', 'leather', 'hard leather', 1, 0, [
+      'leather',
+    ]),
+    new Component(
+      'deer hide',
+      'a circle of deer hide',
+      'deer hide',
+      'leather',
+      'soft leather',
+      1,
+      0,
+      ['leather'],
+    ),
+    new Component(
+      'goat hide',
+      'a circle of goat hide',
+      'goat hide',
+      'leather',
+      'soft leather',
+      1,
+      0,
+      ['leather'],
+    ),
     new Component(
       'sheep hide',
       'a circle of sheep hide',
@@ -38,6 +64,8 @@ export function all(): Component[] {
       'leather',
       'soft leather',
       1,
+      0,
+      ['leather'],
     ),
     new Component(
       'shark skin',
@@ -46,6 +74,8 @@ export function all(): Component[] {
       'leather',
       'soft leather',
       30,
+      2,
+      ['leather'],
     ),
     new Component(
       'dragon hide',
@@ -54,6 +84,8 @@ export function all(): Component[] {
       'leather',
       'hard leather',
       500,
+      4,
+      ['leather'],
     ),
     new Component(
       'wyvern hide',
@@ -62,7 +94,9 @@ export function all(): Component[] {
       'leather',
       'hard leather',
       100,
+      4,
+      ['leather'],
     ),
-    new Component('bone', 'a length of bone', 'bone', 'bone', 'animal bone', 1),
+    new Component('bone', 'a length of bone', 'bone', 'bone', 'animal bone', 1, 0, ['bone']),
   ];
 }

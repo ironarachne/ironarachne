@@ -23,9 +23,9 @@ export default class SpearPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): MeleeWeapon {
-    let blade = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
-    let body = Components.getComponentForCategory('wood', componentOptions, minValue, maxValue);
+  complete(componentOptions: Component[], quality: number): MeleeWeapon {
+    let blade = RND.item(Components.withCategory('metal', componentOptions));
+    let body = RND.item(Components.withCategory('wood', componentOptions));
 
     let value = this.baseValue + blade.value + body.value;
 
@@ -59,7 +59,7 @@ export default class SpearPattern implements Pattern {
       ` and ${cosmeticBody} ${body.descriptor} body`,
     ]);
 
-    if (value > 3000 && random.int(1, 100) > 70) {
+    if (quality > 1 && random.int(1, 100) > 70) {
       description += RND.item([
         `, with a ` +
           RND.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
@@ -72,6 +72,8 @@ export default class SpearPattern implements Pattern {
 
     let name = `${blade.descriptor} ${this.name}`;
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value);
+    let tags = [name, this.name, 'spear', 'melee', 'simple weapon', 'bladed weapon', 'weapon'];
+
+    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }
 }

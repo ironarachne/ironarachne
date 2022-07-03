@@ -6,6 +6,7 @@ import GemGenerator from '../gemgenerator';
 import TreasureTable from '../table';
 import TreasureTableEntry from '../tableentry';
 import * as Dice from '../../../dice';
+import MagicItemGenerator from '../magicitemgenerator';
 
 export function horde(): TreasureTable[] {
   return [
@@ -17,6 +18,9 @@ export function horde(): TreasureTable[] {
       new TreasureTableEntry(30, new GemGenerator(95000, 100000, Dice.roll('3d6'))),
       new TreasureTableEntry(8, new GemGenerator(495000, 500000, Dice.roll('1d8'))),
       new TreasureTableEntry(10, new ArtObjectGenerator(740000, 760000, Dice.roll('1d4'))),
+    ]),
+    new TreasureTable([
+      new TreasureTableEntry(5, new MagicItemGenerator(100000, 300000, Dice.roll('1d6'))),
     ]),
   ];
 }

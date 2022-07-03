@@ -6,6 +6,7 @@ import GemGenerator from '../gemgenerator';
 import TreasureTable from '../table';
 import TreasureTableEntry from '../tableentry';
 import * as Dice from '../../../dice';
+import MagicItemGenerator from '../magicitemgenerator';
 
 export function horde(): TreasureTable[] {
   return [

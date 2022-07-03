@@ -7,5 +7,5 @@ export default interface Pattern {
   name: string;
   tags: string[];
   baseValue: number;
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Item;
+  complete(componentOptions: Component[], quality: number): Item;
 }

@@ -9,6 +9,8 @@ export default class Component implements Item {
   category: string;
   subType: string;
   value: number;
+  quality: number;
+  tags: string[];
 
   constructor(
     name: string,
@@ -17,6 +19,8 @@ export default class Component implements Item {
     category: string,
     subType: string,
     value: number,
+    quality: number,
+    tags: string[],
   ) {
     this.name = name;
     this.description = description;
@@ -24,5 +28,7 @@ export default class Component implements Item {
     this.category = category;
     this.subType = subType;
     this.value = value;
+    this.quality = quality;
+    this.tags = tags;
   }
 }

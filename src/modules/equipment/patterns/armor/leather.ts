@@ -19,19 +19,9 @@ export default class LeatherArmorPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Armor {
-    let body = Components.getComponentForCategory(
-      'hard leather',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
-    let trim = Components.getComponentForCategory(
-      'soft metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): Armor {
+    let body = RND.item(Components.withCategory('hard leather', componentOptions));
+    let trim = RND.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value * 1000 + trim.value;
 
@@ -51,7 +41,7 @@ export default class LeatherArmorPattern implements Pattern {
       ` fastened with ${trim.descriptor} ${RND.item(['buckles', 'clasps'])}`,
     ]);
 
-    if (value > 3000 && random.int(1, 100) >= 70) {
+    if (quality > 1 && random.int(1, 100) >= 70) {
       description += RND.item([
         `, with integrated sleeves`,
         `, with ${RND.item(['embossed patterns', 'a lacquered finish'])}`,
@@ -59,9 +49,10 @@ export default class LeatherArmorPattern implements Pattern {
     }
 
     let name = `${body.descriptor} ${this.name}`;
+    let tags = [name, this.name, 'body armor', 'armor'];
 
     let armorClass = 11 + random.int(0, 1);
 
-    return new Armor(name, description, 'torso', armorClass, value);
+    return new Armor(name, description, 'torso', armorClass, value, quality, tags);
   }
 }

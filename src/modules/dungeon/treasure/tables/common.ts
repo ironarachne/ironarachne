@@ -6,6 +6,7 @@ import TreasureTable from '../table';
 import TreasureTableEntry from '../tableentry';
 import * as Dice from '../../../dice';
 import ArtObjectGenerator from '../artobjectgenerator';
+import MagicItemGenerator from '../magicitemgenerator';
 
 export function horde(): TreasureTable[] {
   return [

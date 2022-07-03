@@ -18,14 +18,9 @@ export default class PantsPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Clothing {
-    let body = Components.getComponentForCategory('fabric', componentOptions, minValue, maxValue);
-    let hardware = Components.getComponentForCategory(
-      'soft metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): Clothing {
+    let body = RND.item(Components.withCategory('fabric', componentOptions));
+    let hardware = RND.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value + hardware.value;
 
@@ -41,7 +36,7 @@ export default class PantsPattern implements Pattern {
 
     description += RND.item([lacing, closures]);
 
-    if (value > 1000 && random.int(1, 100) >= 70) {
+    if (quality > 1 && random.int(1, 100) >= 70) {
       description += RND.item([
         ` that is embroidered with ${RND.item(['simple', 'complex', 'ornate'])} patterns`,
         ` that has decorative stitching down the sides`,
@@ -50,6 +45,8 @@ export default class PantsPattern implements Pattern {
 
     let name = `${body.descriptor} ${this.name}`;
 
-    return new Clothing(name, description, 'legs', value);
+    let tags = [name, this.name, 'bottom', 'pants', 'clothing'];
+
+    return new Clothing(name, description, 'legs', value, quality, tags);
   }
 }

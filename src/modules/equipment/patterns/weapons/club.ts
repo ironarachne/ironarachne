@@ -22,14 +22,9 @@ export default class ClubPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): MeleeWeapon {
-    let body = Components.getComponentForCategory('wood', componentOptions, minValue, maxValue);
-    let handle = Components.getComponentForCategory(
-      'leather',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): MeleeWeapon {
+    let body = RND.item(Components.withCategory('wood', componentOptions));
+    let handle = RND.item(Components.withCategory('leather', componentOptions));
 
     let cosmeticBody = RND.item(['carved', 'spiked', 'heavy', 'bulbous', 'square']);
 
@@ -51,6 +46,8 @@ export default class ClubPattern implements Pattern {
 
     let value = this.baseValue + body.value + handle.value;
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value);
+    let tags = [name, this.name, 'club', 'melee', 'simple weapon', 'weapon'];
+
+    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }
 }

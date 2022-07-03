@@ -44,3 +44,63 @@ export function getComponentForCategory(
 
   return RND.item(possible);
 }
+
+export function withCategory(category: string, components: Component[]): Component[] {
+  let result = [];
+
+  for (let i = 0; i < components.length; i++) {
+    if (components[i].category == category || components[i].subType == category) {
+      result.push(components[i]);
+    }
+  }
+
+  return result;
+}
+
+export function withMinValue(value: number, components: Component[]): Component[] {
+  let result = [];
+
+  for (let i = 0; i < components.length; i++) {
+    if (components[i].value >= value) {
+      result.push(components[i]);
+    }
+  }
+
+  return result;
+}
+
+export function withMaxValue(value: number, components: Component[]): Component[] {
+  let result = [];
+
+  for (let i = 0; i < components.length; i++) {
+    if (components[i].value <= value) {
+      result.push(components[i]);
+    }
+  }
+
+  return result;
+}
+
+export function withMinQuality(quality: number, components: Component[]): Component[] {
+  let result = [];
+
+  for (let i = 0; i < components.length; i++) {
+    if (components[i].quality >= quality) {
+      result.push(components[i]);
+    }
+  }
+
+  return result;
+}
+
+export function withMaxQuality(quality: number, components: Component[]): Component[] {
+  let result = [];
+
+  for (let i = 0; i < components.length; i++) {
+    if (components[i].quality <= quality) {
+      result.push(components[i]);
+    }
+  }
+
+  return result;
+}

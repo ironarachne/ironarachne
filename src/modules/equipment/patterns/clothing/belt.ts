@@ -19,14 +19,9 @@ export default class BeltPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Clothing {
-    let body = Components.getComponentForCategory('leather', componentOptions, minValue, maxValue);
-    let hardware = Components.getComponentForCategory(
-      'metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): Clothing {
+    let body = RND.item(Components.withCategory('leather', componentOptions));
+    let hardware = RND.item(Components.withCategory('metal', componentOptions));
 
     let value = this.baseValue + body.value + hardware.value;
 
@@ -42,7 +37,7 @@ export default class BeltPattern implements Pattern {
       'closure',
     ])}`;
 
-    if (value > 1500 && random.int(1, 100) >= 70) {
+    if (quality > 1 && random.int(1, 100) >= 70) {
       description += RND.item([
         ` that is embossed with ${RND.item(['simple', 'complex', 'ornate'])} patterns`,
         ` that has decorative stitching down the sides`,
@@ -51,6 +46,8 @@ export default class BeltPattern implements Pattern {
 
     let name = `${body.descriptor} ${this.name}`;
 
-    return new Clothing(name, description, 'waist', value);
+    let tags = [name, this.name, 'belt', 'clothing'];
+
+    return new Clothing(name, description, 'waist', value, quality, tags);
   }
 }

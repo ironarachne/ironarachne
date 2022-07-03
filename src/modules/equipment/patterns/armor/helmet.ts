@@ -18,14 +18,9 @@ export default class HelmetPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Armor {
-    let body = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
-    let trim = Components.getComponentForCategory(
-      'soft metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): Armor {
+    let body = RND.item(Components.withCategory('metal', componentOptions));
+    let trim = RND.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value * 10 + trim.value;
 
@@ -39,10 +34,15 @@ export default class HelmetPattern implements Pattern {
       ` trimmed with ${trim.descriptor}`,
     ]);
 
+    if (quality > 1) {
+      description += RND.item([' and set with jewels']);
+    }
+
     let name = `${body.descriptor} ${this.name}`;
 
     let armorClass = 1;
+    let tags = [name, this.name, 'helmet', 'armor'];
 
-    return new Armor(name, description, 'head', armorClass, value);
+    return new Armor(name, description, 'head', armorClass, value, quality, tags);
   }
 }

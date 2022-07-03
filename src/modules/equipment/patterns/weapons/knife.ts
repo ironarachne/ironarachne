@@ -23,20 +23,10 @@ export default class KnifePattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): MeleeWeapon {
-    let blade = Components.getComponentForCategory(
-      'hard metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
-    let hilt = Components.getComponentForCategory(
-      'hard metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
-    let handle = Components.getComponentForCategory('wood', componentOptions, minValue, maxValue);
+  complete(componentOptions: Component[], quality: number): MeleeWeapon {
+    let blade = RND.item(Components.withCategory('hard metal', componentOptions));
+    let hilt = RND.item(Components.withCategory('hard metal', componentOptions));
+    let handle = RND.item(Components.withCategory('wood', componentOptions));
 
     let value = this.baseValue + blade.value + hilt.value + handle.value;
 
@@ -79,7 +69,7 @@ export default class KnifePattern implements Pattern {
       ` and ${cosmeticHandle} ${handle.descriptor} handle`,
     ]);
 
-    if (value > 3000 && random.int(1, 100) > 70) {
+    if (quality > 1 && random.int(1, 100) > 70) {
       description += RND.item([
         `, with a ` +
           RND.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
@@ -96,6 +86,8 @@ export default class KnifePattern implements Pattern {
 
     let name = `${blade.descriptor} ${this.name}`;
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value);
+    let tags = [name, this.name, 'knife', 'melee', 'simple weapon', 'bladed weapon', 'weapon'];
+
+    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }
 }

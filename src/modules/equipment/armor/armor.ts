@@ -8,6 +8,8 @@ export default class Armor implements WornItem {
   areaOfBody: string;
   armorClass: number;
   value: number;
+  quality: number;
+  tags: string[];
 
   constructor(
     name: string,
@@ -15,11 +17,15 @@ export default class Armor implements WornItem {
     areaOfBody: string,
     armorClass: number,
     value: number,
+    quality: number,
+    tags: string[],
   ) {
     this.name = name;
     this.description = description;
     this.areaOfBody = areaOfBody;
     this.armorClass = armorClass;
     this.value = value;
+    this.quality = quality;
+    this.tags = tags;
   }
 }

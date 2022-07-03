@@ -19,14 +19,9 @@ export default class BreastplatePattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Armor {
-    let body = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
-    let trim = Components.getComponentForCategory(
-      'soft metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): Armor {
+    let body = RND.item(Components.withCategory('metal', componentOptions));
+    let trim = RND.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value * 1000 + trim.value;
 
@@ -41,7 +36,7 @@ export default class BreastplatePattern implements Pattern {
       ` decorated with ${trim.descriptor} edging`,
     ]);
 
-    if (value > 10000 && random.int(1, 100) >= 70) {
+    if (quality > 1 && random.int(1, 100) >= 70) {
       description += RND.item([
         ` with overlapping plates`,
         ` with rolled edges`,
@@ -52,7 +47,8 @@ export default class BreastplatePattern implements Pattern {
     let name = `${body.descriptor} ${this.name}`;
 
     let armorClass = 14;
+    let tags = [name, this.name, 'breastplate', 'armor'];
 
-    return new Armor(name, description, 'torso', armorClass, value);
+    return new Armor(name, description, 'torso', armorClass, value, quality, tags);
   }
 }

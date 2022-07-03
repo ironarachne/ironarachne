@@ -23,8 +23,8 @@ export default class StaffPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): MeleeWeapon {
-    let body = Components.getComponentForCategory('wood', componentOptions, minValue, maxValue);
+  complete(componentOptions: Component[], quality: number): MeleeWeapon {
+    let body = RND.item(Components.withCategory('wood', componentOptions));
 
     let cosmeticBody = RND.item(['carved', 'engraved', 'stained', 'painted']);
 
@@ -37,7 +37,7 @@ export default class StaffPattern implements Pattern {
       `${Words.article(cosmeticBody)} ${cosmeticBody} ${body.descriptor} body`,
     ]);
 
-    if (value > 3000 && random.int(1, 100) > 70) {
+    if (quality > 1 && random.int(1, 100) > 70) {
       description += RND.item([
         ` topped with a ${RND.item([
           'crystal globe',
@@ -59,6 +59,8 @@ export default class StaffPattern implements Pattern {
 
     let name = `${body.descriptor} ${this.name}`;
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value);
+    let tags = [name, this.name, 'staff', 'melee', 'simple weapon', 'weapon'];
+
+    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }
 }

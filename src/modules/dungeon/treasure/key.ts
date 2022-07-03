@@ -7,4 +7,5 @@ export default class Key implements Item {
   description: string;
   value: number;
   lockId: string;
+  tags: string[];
 }

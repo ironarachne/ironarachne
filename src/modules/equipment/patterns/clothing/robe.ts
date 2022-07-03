@@ -19,14 +19,9 @@ export default class RobePattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Clothing {
-    let body = Components.getComponentForCategory('fabric', componentOptions, minValue, maxValue);
-    let hardware = Components.getComponentForCategory(
-      'soft metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+  complete(componentOptions: Component[], quality: number): Clothing {
+    let body = RND.item(Components.withCategory('fabric', componentOptions));
+    let hardware = RND.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value + hardware.value;
 
@@ -45,7 +40,7 @@ export default class RobePattern implements Pattern {
 
     description += RND.item([sleeves, collar, lacing, closures]);
 
-    if (value > 1000 && random.int(1, 100) >= 70) {
+    if (quality > 1 && random.int(1, 100) >= 70) {
       description += RND.item([
         ' that is artfully embroidered',
         ` that is embroidered with ${RND.item(['simple', 'complex', 'ornate'])} patterns`,
@@ -55,6 +50,8 @@ export default class RobePattern implements Pattern {
 
     let name = `${body.descriptor} ${this.name}`;
 
-    return new Clothing(name, description, 'torso', value);
+    let tags = [name, this.name, 'outer', 'clothing'];
+
+    return new Clothing(name, description, 'torso', value, quality, tags);
   }
 }

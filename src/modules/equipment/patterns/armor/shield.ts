@@ -18,17 +18,12 @@ export default class ShieldPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], minValue: number, maxValue: number): Armor {
-    let body = Components.getComponentForCategory('metal', componentOptions, minValue, maxValue);
+  complete(componentOptions: Component[], quality: number): Armor {
+    let body = RND.item(Components.withCategory('metal', componentOptions));
 
-    let handle = Components.getComponentForCategory('wood', componentOptions, minValue, maxValue);
+    let handle = RND.item(Components.withCategory('wood', componentOptions));
 
-    let trim = Components.getComponentForCategory(
-      'soft metal',
-      componentOptions,
-      minValue,
-      maxValue,
-    );
+    let trim = RND.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value * 5 + trim.value;
 
@@ -44,10 +39,15 @@ export default class ShieldPattern implements Pattern {
 
     description += RND.item([` and a ${handle.descriptor} handle`, '']);
 
+    if (quality > 1) {
+      description += RND.item([' and decorated with spikes']);
+    }
+
     let name = `${body.descriptor} ${this.name}`;
 
     let armorClass = 1;
+    let tags = [name, this.name, 'shield', 'armor'];
 
-    return new Armor(name, description, 'arm', armorClass, value);
+    return new Armor(name, description, 'arm', armorClass, value, quality, tags);
   }
 }

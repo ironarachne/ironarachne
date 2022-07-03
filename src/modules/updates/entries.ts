@@ -16,6 +16,10 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-07-03', [
+      'Added a handful of magic weapons to dungeon generation.',
+      'Added a system for generating magic items to the dungeon generator.',
+    ]),
     new ChangeLog('2022-06-29', [
       'Added light sources to the dungeon generator.',
       'Reorganized dungeon generation code to be easier to read, and fixed a few bugs in the process.',

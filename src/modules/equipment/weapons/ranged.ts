@@ -11,6 +11,8 @@ export default class RangedWeapon implements Weapon {
   ammunitionType: string;
   hands: number;
   value: number;
+  quality: number;
+  tags: string[];
 
   constructor(
     name: string,
@@ -21,6 +23,8 @@ export default class RangedWeapon implements Weapon {
     ammunitionType: string,
     hands: number,
     value: number,
+    quality: number,
+    tags: string[],
   ) {
     this.name = name;
     this.description = description;
@@ -30,5 +34,7 @@ export default class RangedWeapon implements Weapon {
     this.ammunitionType = ammunitionType;
     this.hands = hands;
     this.value = value;
+    this.quality = quality;
+    this.tags = tags;
   }
 }
