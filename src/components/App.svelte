@@ -27,6 +27,7 @@
   import SWNCharacter from "./SWNCharacter.svelte";
   import SWNStarship from "./SWNStarship.svelte";
   import UWCharacter from "./UWCharacter.svelte";
+  import WordGeneratorCheatSheet from "./WordGeneratorCheatSheet.svelte";
 
   const routes = {
     "/": Home,
@@ -53,6 +54,7 @@
     "/swn/character": SWNCharacter,
     "/swn/starship": SWNStarship,
     "/unchartedworlds/character": UWCharacter,
+    "/word-generator-cheat-sheet": WordGeneratorCheatSheet,
   };
 </script>
 

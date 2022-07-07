@@ -1,15 +1,15 @@
-import svelte from 'rollup-plugin-svelte';
-import commonjs from '@rollup/plugin-commonjs';
-import resolve from '@rollup/plugin-node-resolve';
-import esbuild from 'rollup-plugin-esbuild';
-import livereload from 'rollup-plugin-livereload';
-import svg from 'rollup-plugin-svg-import';
-import preprocess from 'svelte-preprocess';
-import scss from 'rollup-plugin-scss';
-import replace from '@rollup/plugin-replace';
+import commonjs from "@rollup/plugin-commonjs";
+import resolve from "@rollup/plugin-node-resolve";
+import replace from "@rollup/plugin-replace";
+import esbuild from "rollup-plugin-esbuild";
+import livereload from "rollup-plugin-livereload";
+import scss from "rollup-plugin-scss";
+import svelte from "rollup-plugin-svelte";
+import svg from "rollup-plugin-svg-import";
+import preprocess from "svelte-preprocess";
 
 const production = !process.env.ROLLUP_WATCH;
-const environmentLabel = production ? 'production' : 'development';
+const environmentLabel = production ? "production" : "development";
 
 function serve() {
   let server;
@@ -21,31 +21,31 @@ function serve() {
   return {
     writeBundle() {
       if (server) return;
-      server = require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-        stdio: ['ignore', 'inherit', 'inherit'],
+      server = require("child_process").spawn("npm", ["run", "start", "--", "--dev"], {
+        stdio: ["ignore", "inherit", "inherit"],
         shell: true,
       });
 
-      process.on('SIGTERM', toExit);
-      process.on('exit', toExit);
+      process.on("SIGTERM", toExit);
+      process.on("exit", toExit);
     },
   };
 }
 
 export default {
-  input: 'src/main.ts',
+  input: "src/main.ts",
   output: {
     sourcemap: true,
-    format: 'iife',
-    name: 'app',
-    file: 'public/js/bundle.js',
+    format: "iife",
+    name: "app",
+    file: "public/js/bundle.js",
     globals: {
-      crypto: 'crypto',
+      crypto: "crypto",
     },
   },
   plugins: [
     replace({
-      'process.env.NODE_ENV': JSON.stringify(environmentLabel),
+      "process.env.NODE_ENV": JSON.stringify(environmentLabel),
       preventAssignment: true,
     }),
     esbuild({
@@ -53,23 +53,23 @@ export default {
       include: /\.[jt]sx?$/, // default, inferred from `loaders` option
       exclude: /node_modules/, // default
       sourceMap: false, // default
-      minify: process.env.NODE_ENV === 'production',
-      target: 'es2017', // default, or 'es20XX', 'esnext'
-      jsx: 'transform', // default, or 'preserve'
-      jsxFactory: 'React.createElement',
-      jsxFragment: 'React.Fragment',
+      minify: process.env.NODE_ENV === "production",
+      target: "es2021", // default, or 'es20XX', 'esnext'
+      jsx: "transform", // default, or 'preserve'
+      jsxFactory: "React.createElement",
+      jsxFragment: "React.Fragment",
       // Like @rollup/plugin-replace
       define: {
-        __VERSION__: '"x.y.z"',
+        __VERSION__: "\"x.y.z\"",
       },
-      tsconfig: 'tsconfig.json', // default
+      tsconfig: "tsconfig.json", // default
       // Add extra loaders
       loaders: {
         // Add .json files support
         // require @rollup/plugin-commonjs
-        '.json': 'json',
+        ".json": "json",
         // Enable JSX in .js files too
-        '.js': 'jsx',
+        ".js": "jsx",
       },
     }),
     svelte({
@@ -80,8 +80,8 @@ export default {
       preprocess: preprocess(),
     }),
     scss({
-      include: ['/**/*.css', '/**/*.scss', '/**/*.sass'],
-      output: 'public/css/style.css',
+      include: ["/**/*.css", "/**/*.scss", "/**/*.sass"],
+      output: "public/css/style.css",
       failOnError: true,
       insert: true,
     }),
@@ -92,7 +92,7 @@ export default {
     // https://github.com/rollup/plugins/tree/master/packages/commonjs
     resolve({
       browser: true,
-      dedupe: ['svelte'],
+      dedupe: ["svelte"],
     }),
     commonjs(),
     svg({
@@ -105,7 +105,7 @@ export default {
 
     // Watch the `public` directory and refresh the
     // browser on changes when not in production
-    !production && livereload('public'),
+    !production && livereload("public"),
   ],
   watch: {
     clearScreen: false,

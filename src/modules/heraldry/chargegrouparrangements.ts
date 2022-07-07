@@ -4,6 +4,7 @@ import ChargeGroupArrangement from './chargegrouparrangement';
 import { create } from 'xmlbuilder2';
 import cloneDeep from 'lodash/cloneDeep';
 import * as RND from '../random';
+import ChargeGroup from './chargegroup';
 
 export function all(): ChargeGroupArrangement[] {
   return [
@@ -213,4 +214,18 @@ export function randomByNumber(numberOfCharges: number): ChargeGroupArrangement 
   }
 
   return RND.item(options);
+}
+
+export function withCount(count: number): ChargeGroupArrangement[] {
+  const options = all();
+
+  let result = [];
+
+  for (let i = 0; i < options.length; i++) {
+    if (options[i].numberOfCharges == count) {
+      result.push(options[i]);
+    }
+  }
+
+  return result;
 }

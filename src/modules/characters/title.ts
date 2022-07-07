@@ -27,25 +27,25 @@ export default class Title {
     this.precedence = precedence;
   }
 
-  getTitle(gender: string) {
+  getTitle(gender: string): string {
     if (gender === 'female') {
       return this.femaleTitle;
     }
     return this.maleTitle;
   }
 
-  getHonorific(gender: string) {
+  getHonorific(gender: string): string {
     if (gender === 'female') {
       return this.femaleHonorific;
     }
     return this.maleHonorific;
   }
 
-  hasHigherPrecedenceThan(otherPrecedence: number) {
+  hasHigherPrecedenceThan(otherPrecedence: number): boolean {
     return this.precedence > otherPrecedence;
   }
 
-  hasLowerPrecedenceThan(otherPrecedence: number) {
+  hasLowerPrecedenceThan(otherPrecedence: number): boolean {
     return this.precedence < otherPrecedence;
   }
 }

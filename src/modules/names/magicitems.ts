@@ -5,7 +5,7 @@ import * as Invented from './invented';
 export function generate() {
   const patterns = [
     'cvpv',
-    'vccvc',
+    'vc+vc',
     'gvcvc',
     'cvDAR',
     'cvcDRING',

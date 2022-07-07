@@ -22,7 +22,7 @@ function family(): NameGenerator {
     'vSHlvnp',
     'SnvTH',
     'pvvLOR',
-    'puPER',
+    'pv+PER',
     'sLvTCHER',
     'svRRIER',
     'pvnDElSON',
@@ -59,7 +59,7 @@ function male(): NameGenerator {
     'cvlvpul',
     'vppvl',
     'pvspvn',
-    'pulvn',
+    'pv+lvn',
     'pvlsvp',
     'pvDRvC',
   ];

@@ -1,6 +1,5 @@
 'use strict';
 
-import * as RND from '../random';
 import Variation from './variation';
 
 export function all() {
@@ -10,6 +9,7 @@ export function all() {
       1,
       'tincture1',
       `<pattern id="variation" x="0" y="0" width="600" height="660" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="600" height="660" fill="tincture1"/></pattern>`,
+      true,
       100,
     ),
     new Variation(
@@ -17,6 +17,7 @@ export function all() {
       2,
       'barry tincture1 and tincture2',
       `<pattern id="variation" x="0" y="0" width="600" height="660" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="600" height="110" fill="tincture1"/><rect x="0" y="110" width="600" height="110" fill="tincture2"/><rect x="0" y="220" width="600" height="110" fill="tincture1"/><rect x="0" y="330" width="600" height="110" fill="tincture2"/><rect x="0" y="440" width="600" height="110" fill="tincture1"/><rect x="0" y="550" width="600" height="110" fill="tincture2"/><rect x="0" y="660" width="600" height="110" fill="tincture1"/></pattern>`,
+      false,
       5,
     ),
     new Variation(
@@ -24,6 +25,7 @@ export function all() {
       2,
       'bendy tincture1 and tincture2',
       `<pattern id="variation" x="0" y="0" width="600" height="660" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="600" height="660" fill="tincture2"/><polygon points="0,0 600,660 700,660 100,0" fill="tincture1"/><polygon points="200,0 800,660 900,660 300,0" fill="tincture1"/><polygon points="400,0 1000,660 1100,660 500,0" fill="tincture1"/><polygon points="-200,0 400,660 500,660 -100,0" fill="tincture1"/><polygon points="-400,0 200,660 300,660 -300,0" fill="tincture1"/></pattern>`,
+      false,
       5,
     ),
     new Variation(
@@ -31,6 +33,7 @@ export function all() {
       2,
       'bendy sinister tincture1 and tincture2',
       `<pattern id="variation" x="0" y="0" width="600" height="660" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="600" height="660" fill="tincture2"/><polygon points="700,0 800,0 300,660 200,660" fill="tincture1"/><polygon points="500,0 600,0 100,660 0,660" fill="tincture1"/><polygon points="300,0 400,0 -100,660 -200,660" fill="tincture1"/><polygon points="100,0 200,0 -300,660 -400,660" fill="tincture1"/></pattern>`,
+      false,
       5,
     ),
     new Variation(
@@ -38,6 +41,7 @@ export function all() {
       2,
       'paly tincture1 and tincture2',
       `<pattern id="variation" x="0" y="0" width="600" height="660" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="100" height="660" fill="tincture1"/><rect x="100" y="0" width="100" height="660" fill="tincture2"/><rect x="200" y="0" width="100" height="660" fill="tincture1"/><rect x="300" y="0" width="100" height="660" fill="tincture2"/><rect x="400" y="0" width="100" height="660" fill="tincture1"/><rect x="500" y="0" width="100" height="660" fill="tincture2"/></pattern>`,
+      false,
       5,
     ),
     new Variation(
@@ -45,6 +49,7 @@ export function all() {
       2,
       'chequy tincture1 and tincture2',
       `<pattern id="variation" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="40" height="40" fill="tincture1"/><rect x="40" y="0" width="40" height="40" fill="tincture2"/><rect x="0" y="40" width="40" height="40" fill="tincture2"/><rect x="40" y="40" width="40" height="40" fill="tincture1"/></pattern>`,
+      false,
       5,
     ),
   ];
@@ -82,40 +87,4 @@ export function removeFromSet(variation: Variation, variations: Variation[]): Va
   }
 
   return result;
-}
-
-export function randomFrom(variations: Variation[]): Variation {
-  return RND.item(variations);
-}
-
-export function random(): Variation {
-  const options = all();
-  return randomFrom(options);
-}
-
-export function randomWeightedFrom(variations: Variation[]): Variation {
-  const weights = [];
-
-  for (let i = 0; i < variations.length; i++) {
-    weights.push({
-      item: variations[i].name,
-      commonality: variations[i].weight,
-    });
-  }
-
-  const resultName = RND.weighted(weights);
-
-  let result = variations[0];
-
-  for (let i = 0; i < variations.length; i++) {
-    if (variations[i].name == resultName.item) {
-      result = variations[i];
-    }
-  }
-
-  return result;
-}
-
-export function randomWeighted(): Variation {
-  return randomWeightedFrom(all());
 }

@@ -49,7 +49,7 @@ export function getNameGenerator(gender: string, patterns: string[]): GenericNam
 
 // Generates a set of similar patterns
 export function randomNameRoots(): string[] {
-  const prefixes = ['cvc', 'cvd', 'vcv', 'cvc'];
+  const prefixes = ['cvc', 'cvc+', 'vcv', 'cvc'];
   const suffixes = ['vc', 'vcv', 'vn', 'sv', 'vs'];
 
   const patterns = [];
@@ -62,5 +62,5 @@ export function randomNameRoots(): string[] {
 }
 
 function patterns(): string[] {
-  return ['cvdv', 'vccvc', 'pvcvc', 'cvMANI', 'cvcDARI', 'cAdERI', 'cvcAcI'];
+  return ['cvc+v', 'vccvc', 'pvcvc', 'cvMANI', 'cvcDARI', 'cAc+ERI', 'cvcAcI'];
 }

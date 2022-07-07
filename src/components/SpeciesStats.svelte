@@ -13,8 +13,8 @@
   function calculate() {
     let ageScale = maximumAge / 100;
 
-    femaleCategories = AgeCategories.getHumanVariant(ageScale, femaleWeightModifier / 100, femaleHeightModifier / 100);
-    maleCategories = AgeCategories.getHumanVariant(ageScale, maleWeightModifier / 100, maleHeightModifier / 100);
+    femaleCategories = AgeCategories.getHumanVariant(ageScale, femaleWeightModifier / 100, femaleHeightModifier / 100, 'female');
+    maleCategories = AgeCategories.getHumanVariant(ageScale, maleWeightModifier / 100, maleHeightModifier / 100, 'male');
 
     getIngenium();
   }

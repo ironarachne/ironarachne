@@ -54,7 +54,7 @@ function family(): NameGenerator {
 function female(): NameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = ['tvMvt', 'cul', 'cvlv', 'ovRRv', 'lAIvNN'];
+  gen.patterns = ['tvMvt', 'cv+l', 'cvlv', 'ovRRv', 'lAIvNN'];
 
   return gen;
 }
@@ -62,7 +62,7 @@ function female(): NameGenerator {
 function male(): NameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = ['vlKvSIA', 'cvLvSAR', 'cvlvt', 'ovnuR'];
+  gen.patterns = ['vlKvSIA', 'cvLvSAR', 'cvlvt', 'ovnv+R'];
 
   return gen;
 }

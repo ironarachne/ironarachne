@@ -1,10 +1,11 @@
 <script lang="ts">
-  import * as Heraldry from "../modules/heraldry/heraldry";
   import * as Organization from "../modules/organizations/fantasy";
   import * as RND from "../modules/random";
 
   import random from "random";
   import seedrandom from "seedrandom";
+  import HeraldryGenerator from "../modules/heraldry/generator";
+  import HeraldrySVGRenderer from "../modules/heraldry/renderers/svg";
 
   let seed: string = RND.randomString(13);
   let org = Organization.generate();
@@ -15,7 +16,10 @@
   let heraldryConfig = org.organizationType.heraldryConfig;
   heraldryConfig.width = 200;
   heraldryConfig.height = 200;
-  let heraldry = Heraldry.generate(heraldryConfig);
+  let hGen = new HeraldryGenerator();
+  hGen.config = heraldryConfig;
+  let heraldry = hGen.generate();
+  let svgRenderer = new HeraldrySVGRenderer();
 
   function generateFantasyOrganization() {
     random.use(seedrandom(seed));
@@ -26,8 +30,9 @@
     notableMembers = org.notableMembers;
     heraldryConfig = org.organizationType.heraldryConfig;
     heraldryConfig.width = 200;
-    heraldryConfig.height = 200;
-    heraldry = Heraldry.generate(heraldryConfig);
+    heraldryConfig.height = 220;
+    hGen.config = heraldryConfig;
+    heraldry = hGen.generate();
   }
 
   function newSeed() {
@@ -54,7 +59,7 @@
 
   <h3>{name}</h3>
 
-  <div class="org-arms">{@html heraldry.svg}</div>
+  <div class="org-arms">{@html svgRenderer.render(heraldry.device, 200, 220)}</div>
 
   <p>{description}</p>
 
@@ -65,7 +70,7 @@
   {#each notableMembers as member}
     <p>
       <strong
-        >{member.getPrimaryTitle()}
+        >{member.getHonorific()}
         {member.firstName}
         {member.lastName}:</strong
       >

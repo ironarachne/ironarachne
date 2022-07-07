@@ -124,6 +124,9 @@
       <li>
         <a href="#/species-stats" class:active={$location === '/species-stats'}>Species Height/Weight Calculator</a>
       </li>
+      <li>
+        <a href="#/word-generator-cheat-sheet" class:active={$location === '/word-generator-cheat-sheet'}>Word Generator Cheat Sheet</a>
+      </li>
     </ul>
   </div>
 </section>

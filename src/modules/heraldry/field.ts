@@ -7,13 +7,21 @@ export default class Field {
   blazon: string;
   variationCount: number;
   pattern: string;
+  commonality: number;
   variations: Variation[];
 
-  constructor(name: string, blazon: string, variationCount: number, pattern: string) {
+  constructor(
+    name: string,
+    blazon: string,
+    variationCount: number,
+    pattern: string,
+    commonality: number,
+  ) {
     this.name = name;
     this.blazon = blazon;
     this.variationCount = variationCount;
     this.pattern = pattern;
+    this.commonality = commonality;
     this.variations = [];
   }
 

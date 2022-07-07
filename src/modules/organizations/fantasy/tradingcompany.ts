@@ -4,15 +4,15 @@ import * as Charges from '../../heraldry/charges';
 import * as CommonNames from '../../names/common';
 import CharacterGenerator from '../../characters/generator';
 import * as PremadeConfigs from '../../characters/premadeconfigs';
-import * as Heraldry from '../../heraldry/heraldry';
 import Rank from '../rank';
 import Title from '../../characters/title';
 import OrganizationType from '../type';
 import * as RND from '../../random';
 import Character from '../../characters/character';
+import HeraldryGeneratorConfig from '../../heraldry/generatorconfig';
 
 export function generateType(): OrganizationType {
-  let config = Heraldry.getDefaultConfig();
+  let config = new HeraldryGeneratorConfig();
   config.chargeCount = RND.item([0, 1]);
   config.chargeOptions = Charges.matchingAnyTags(['coin', 'money', 'trade'], Charges.all());
 

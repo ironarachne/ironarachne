@@ -16,6 +16,11 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-07-07', [
+      'Changed how invented words are generated and added new tools to that system. This affects all generated names.',
+      'Reworked the region generator to change how neighbors are constructed.',
+      'Added a tool for testing invented word patterns.',
+    ]),
     new ChangeLog('2022-07-03', [
       'Added a handful of magic weapons to dungeon generation.',
       'Added a system for generating magic items to the dungeon generator.',

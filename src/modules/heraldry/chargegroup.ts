@@ -32,20 +32,29 @@ export default class ChargeGroup {
 
     let chargeSVGString = this.charge.SVG;
 
-    chargeSVGString = setChargeColor(this.charge.tincture.hexColor, chargeSVGString);
+    chargeSVGString = setChargeColor(
+      this.charge.tincture.hexColor,
+      this.charge.tincture.name,
+      chargeSVGString,
+    );
     chargeGroup = this.arrangement.renderSVG(chargeSVGString, contextWidth, contextHeight);
 
     return chargeGroup;
   }
 }
 
-function setChargeColor(hexColor: string, chargeSVG: string): string {
+function setChargeColor(hexColor: string, tinctureName: string, chargeSVG: string): string {
   if (hexColor === '#000000') {
     chargeSVG = chargeSVG.replaceAll('#010101', '#ffffff');
     chargeSVG = chargeSVG.replaceAll('#000000', '#ffffff');
   }
 
   chargeSVG = chargeSVG.replaceAll('#FFFFFF', hexColor);
+
+  chargeSVG = chargeSVG.replaceAll(`st0`, `st0-${tinctureName}`);
+  chargeSVG = chargeSVG.replaceAll(`st1`, `st1-${tinctureName}`);
+
+  // TODO: Fix a bug where the border is colored if the charge color is sable
 
   return chargeSVG;
 }

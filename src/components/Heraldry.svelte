@@ -1,5 +1,4 @@
 <script lang="ts">
-  import * as Heraldry from "../modules/heraldry/heraldry";
   import * as Charges from "../modules/heraldry/charges";
   import * as Fields from "../modules/heraldry/fields";
   import * as RND from "../modules/random";
@@ -10,8 +9,9 @@
 
   import random from "random";
   import seedrandom from "seedrandom";
-import GeneratorConfig from "../modules/heraldry/generatorconfig";
-
+  import HeraldryGenerator from "../modules/heraldry/generator";
+  import HeraldrySVGRenderer from "../modules/heraldry/renderers/svg";
+  import HeraldryGeneratorConfig from "../modules/heraldry/generatorconfig";
 
   let blazon = "";
   let image = "";
@@ -75,7 +75,7 @@ import GeneratorConfig from "../modules/heraldry/generatorconfig";
 
   function generate() {
     random.use(seedrandom(seed));
-    let numberOfCharges = Heraldry.randomNumberOfCharges();
+    let numberOfCharges = randomNumberOfCharges();
     if (numberOfChargesOption == 'one') {
       numberOfCharges = 1;
     } else if (numberOfChargesOption == 'two') {
@@ -87,7 +87,7 @@ import GeneratorConfig from "../modules/heraldry/generatorconfig";
     }
     setChargeTincture();
 
-    let config = new GeneratorConfig();
+    let config = new HeraldryGeneratorConfig();
 
     config.chargeCount = numberOfCharges;
     config.chargeOptions = charges;
@@ -99,15 +99,33 @@ import GeneratorConfig from "../modules/heraldry/generatorconfig";
     config.width = heraldryWidth;
     config.height = heraldryHeight;
 
-    let heraldry = Heraldry.generate(config);
+    let heraldryGen = new HeraldryGenerator();
+    heraldryGen.config = config;
+    let heraldry = heraldryGen.generate();
     blazon = heraldry.blazon;
-    image = heraldry.svg;
+
+    let renderer = new HeraldrySVGRenderer();
+
+    image = renderer.render(heraldry.device, config.width, config.height);
   }
 
   function newSeed() {
     seed = RND.randomString(13);
     generate();
   }
+
+  function randomNumberOfCharges(): number {
+  const weights = [
+    { item: 0, commonality: 20 },
+    { item: 1, commonality: 50 },
+    { item: 2, commonality: 5 },
+    { item: 3, commonality: 3 },
+  ];
+
+  const result = RND.weighted(weights);
+
+  return result.item;
+}
 
   function save() {
     const blob = new Blob([image], { type: "image/svg+xml" });

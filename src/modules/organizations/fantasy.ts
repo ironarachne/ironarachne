@@ -32,7 +32,7 @@ export function generate() {
 
   org.leadership.description =
     'They are led by ' +
-    org.leadership.getPrimaryTitle() +
+    org.leadership.getHonorific() +
     ' ' +
     org.leadership.firstName +
     ' ' +

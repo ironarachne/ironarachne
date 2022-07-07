@@ -1,9 +1,9 @@
 'use strict';
 
+import Character from '../characters/character';
 import Environment from '../environment/environment';
-import Nation from '../nations/nation';
-import Subdivision from '../nations/subdivision';
 import Organization from '../organizations/organization';
+import Realm from '../realms/realm';
 import Settlement from '../settlements/settlement';
 
 export default class Region {
@@ -11,25 +11,19 @@ export default class Region {
   environment: Environment;
   description: string;
   settlements: Settlement[];
-  claimants: Nation[];
-  sovereign: Subdivision;
+  mainRealm: number;
+  realms: Realm[];
+  authority: Character;
   organizations: Organization[];
+  settlementTiles: number[][];
+  terrainTiles: number[][];
 
-  constructor(
-    name: string,
-    environment: Environment,
-    description: string,
-    settlements: Settlement[],
-    claimants: Nation[],
-    sovereign: Subdivision,
-    organizations: Organization[],
-  ) {
-    this.name = name;
-    this.environment = environment;
-    this.description = description;
-    this.settlements = settlements;
-    this.claimants = claimants;
-    this.sovereign = sovereign;
-    this.organizations = organizations;
+  constructor() {
+    this.name = '';
+    this.description = '';
+    this.mainRealm = -1;
+    this.realms = [];
+    this.settlements = [];
+    this.organizations = [];
   }
 }

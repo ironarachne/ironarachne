@@ -78,7 +78,7 @@ function male(): GenericNameGenerator {
     'fvlvpml',
     'vppvl',
     'pmspvn',
-    'pulvn',
+    'pv+lvn',
     'pvlsvp',
     'pvDRvC',
   ];

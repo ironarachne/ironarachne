@@ -26,7 +26,7 @@ function culture(): GenericNameGenerator {
 function country(): GenericNameGenerator {
   let gen = new GenericNameGenerator();
 
-  gen.patterns = ['pmkLAND', 'lyMvNIEN', 'evtLAND', 'pvtmNIEN'];
+  gen.patterns = ['pmkLAND', 'lyMvNIEN', 'evtLAND', 'pvtmNIEN', 'eynMARK'];
 
   return gen;
 }

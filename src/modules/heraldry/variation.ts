@@ -7,7 +7,8 @@ export default class Variation {
   tinctureCount: number;
   blazon: string;
   pattern: string;
-  weight: number;
+  supportsFurs: boolean;
+  commonality: number;
   tinctures: Tincture[];
 
   constructor(
@@ -15,13 +16,15 @@ export default class Variation {
     tinctureCount: number,
     blazon: string,
     pattern: string,
-    weight: number,
+    supportsFurs: boolean,
+    commonality: number,
   ) {
     this.name = name;
     this.tinctureCount = tinctureCount;
     this.blazon = blazon;
     this.pattern = pattern;
-    this.weight = weight;
+    this.supportsFurs = supportsFurs;
+    this.commonality = commonality;
     this.tinctures = [];
   }
 

@@ -22,7 +22,7 @@ function family(): NameGenerator {
     'vSHlvnp',
     'SnvTH',
     'pvvLOR',
-    'puPER',
+    'pv+PER',
     'sLvTCHER',
     'svRRIER',
     'pvnDElSON',
@@ -69,7 +69,7 @@ function female(): NameGenerator {
   gen.patterns = [
     'vnvlA',
     'vnv',
-    'vdvlvN',
+    'vc+vlvN',
     'vlvnA',
     'vcnvA',
     'cvlvNIA',
@@ -93,7 +93,7 @@ function male(): NameGenerator {
     'cvlvpul',
     'vppvl',
     'pvspvn',
-    'pulvn',
+    'pv+lvn',
     'pvlsvp',
     'pvDRvC',
     'pvp',
@@ -104,7 +104,7 @@ function male(): NameGenerator {
     'svRM',
     'svRN',
     'svRNpvK',
-    'pupvK',
+    'pv+pvK',
   ];
 
   return gen;

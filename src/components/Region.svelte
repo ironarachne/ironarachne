@@ -1,21 +1,25 @@
 <script lang="ts">
-  import * as Heraldry from "../modules/heraldry/heraldry";
-  import * as RND from "../modules/random";
-  import * as RegionGenerator from "../modules/region/generator";
+    import * as RND from "../modules/random";
+  import RegionGeneratorConfig from "../modules/region/generatorconfig";
+  import RegionGenerator from "../modules/region/generator";
   import * as Words from "../modules/words";
 
   import random from "random";
   import seedrandom from "seedrandom";
+  import HeraldrySVGRenderer from "../modules/heraldry/renderers/svg";
 
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
-  let region = RegionGenerator.generate();
-  let ruler = region.sovereign.authority;
+  let config = new RegionGeneratorConfig();
+  let generator = new RegionGenerator(config);
+  let heraldryRenderer = new HeraldrySVGRenderer();
+  let region = generator.generate();
+  let ruler = region.authority;
 
   function generate() {
     random.use(seedrandom(seed));
-    region = RegionGenerator.generate();
-    ruler = region.sovereign.authority;
+    region = generator.generate();
+    ruler = region.authority;
   }
 
   function newSeed() {
@@ -44,22 +48,30 @@
 
   <p>{region.description}</p>
 
-  <h4>Claimants</h4>
+  {#if region.realms[region.mainRealm].parent != -1}
+  <p>{Words.title(region.name)} is part of {region.realms[region.realms[region.mainRealm].parent].name}.</p>
+  {/if}
 
-  {#each region.claimants as claimant}
-  <div class="claimant">
-    <div class="claimant-arms">{@html Heraldry.renderSVG(claimant.heraldry.device, 64, 64)}</div>
-    <div><strong>{Words.capitalize(claimant.name)}</strong></div>
-    <div>{claimant.description}.</div>
-  </div>
-  {/each}
-
-  <h4>Ruler: {ruler.getPrimaryTitle()} {ruler.firstName} {ruler.lastName}</h4>
+  <h4>Ruler: {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}</h4>
 
   <div class="ruler">
-    <div class="ruler-arms">{@html Heraldry.renderSVG(ruler.heraldry.device, 200, 220)}</div>
-    <div><p>{Words.capitalize(region.name)} is ruled by {ruler.getPrimaryTitle()} {ruler.firstName} {ruler.lastName}. {ruler.description}</p></div>
+    <div class="ruler-arms">{@html heraldryRenderer.render(ruler.heraldry.device, 200, 220)}</div>
+    <div><p>{Words.capitalize(region.name)} is ruled by {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}. {ruler.description}</p></div>
   </div>
+
+  <h4>Nearby Realms</h4>
+
+  {#each region.realms as neighbor, index}
+    {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent}
+    <div class="neighbor">
+      <div class="neighbor-arms">{@html heraldryRenderer.render(neighbor.heraldry.device, 80, 88)}</div>
+      <div>
+        <p><strong>{Words.title(neighbor.name)}</strong>{#if neighbor.parent != -1}, part of {region.realms[neighbor.parent].name}{/if}.</p>
+        <p>Ruled by {neighbor.authority.getHonorific()} {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)} {neighbor.authority.species.adjective} {neighbor.authority.ageCategory.noun}.</p>
+      </div>
+    </div>
+    {/if}
+  {/each}
 
   <h4>Notable Settlements</h4>
   {#each region.settlements as settlement}
@@ -78,15 +90,6 @@
 </section>
 
 <style>
-  div.claimant {
-    display: grid;
-    grid-template-columns: 70px 200px auto;
-  }
-
-  div.claimant > div {
-    align-self: start;
-  }
-
   div.ruler {
     display: grid;
     column-gap: 1rem;
@@ -98,6 +101,28 @@
     align-self: start;
     width: 200px;
     height: 220px;
+    margin: 0 auto;
+  }
+
+  div.neighbor {
+    display: grid;
+    column-gap: 1rem;
+    margin-bottom: 0.5rem;
+    grid-template-columns: 80px auto;
+  }
+
+  div.neighbor > div {
+    align-self: start;
+  }
+
+  div.neighbor > div > p {
+    margin: 0;
+  }
+
+  div.neighbor-arms {
+    justify-self: center;
+    width: 80px;
+    height: 88px;
     margin: 0 auto;
   }
 </style>

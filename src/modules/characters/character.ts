@@ -4,16 +4,17 @@ import AgeCategory from '../age/agecategory';
 import Gender from '../gender';
 import Title from './title';
 import type Species from '../species/species';
-import { Heraldry } from '../heraldry/heraldry';
 import PhysicalTrait from '../physicaltraits/physicaltrait';
 import PersonalityTrait from './personality/personalitytrait';
 import Archetype from '../archetypes/archetype';
 import type StatBlock from '../statblock';
 import type Item from '../equipment/item';
+import * as RND from '../random';
+import Arms from '../heraldry/arms';
 
 export default class Character {
   titles: Title[];
-  heraldry: Heraldry | null;
+  heraldry: Arms | null;
   archetype: Archetype;
   species: Species;
   description: string;
@@ -57,7 +58,17 @@ export default class Character {
     this.threatLevel = species.threatLevel;
   }
 
-  getPrimaryTitle() {
+  getHonorific(): string {
+    let primaryTitle = this.getPrimaryTitle();
+
+    if (primaryTitle) {
+      return primaryTitle.getHonorific(this.gender.name);
+    }
+
+    return '';
+  }
+
+  getPrimaryTitle(): Title | null {
     let highestPrecedence = 100;
     let primaryTitle = null;
 
@@ -69,10 +80,20 @@ export default class Character {
       }
     }
 
-    if (primaryTitle == null) {
-      return '';
+    return primaryTitle;
+  }
+
+  getRandomTrait(): string {
+    return RND.item(this.traits);
+  }
+
+  getTitle(): string {
+    let primaryTitle = this.getPrimaryTitle();
+
+    if (primaryTitle) {
+      return primaryTitle.getTitle(this.gender.name);
     }
 
-    return primaryTitle.getTitle(this.gender.name);
+    return '';
   }
 }

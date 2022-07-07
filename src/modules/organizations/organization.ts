@@ -2,8 +2,8 @@
 
 import Rank from './rank';
 import Character from '../characters/character';
-import * as Heraldry from '../heraldry/heraldry';
 import OrganizationType from './type';
+import Arms from '../heraldry/arms';
 
 export default class Organization {
   name: string;
@@ -13,7 +13,7 @@ export default class Organization {
   leadership: Character;
   notableMembers: Character[];
   ranks: Rank;
-  heraldry: Heraldry.Heraldry;
+  heraldry: Arms;
 
   constructor(
     name: string,
