@@ -16,6 +16,15 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-07-24', [
+      'Added support for random sets in the word generator.',
+      'Added Japanese-like names to the region generator.',
+      'Added Elvish-like names to the region generator.',
+      'Made regions use their name set for their ruling figures.',
+      'Made region name set configurable.',
+      'Displayed region sovereignties seperately from vassal realms.',
+      'Added very basic language generator, to be expanded and integrated into other generators later.',
+    ]),
     new ChangeLog('2022-07-07', [
       'Changed how invented words are generated and added new tools to that system. This affects all generated names.',
       'Reworked the region generator to change how neighbors are constructed.',

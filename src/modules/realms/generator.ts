@@ -9,6 +9,7 @@ import Character from '../characters/character';
 import CharacterGenerator from '../characters/generator';
 import RealmType from './realmtype';
 import HeraldryGenerator from '../heraldry/generator';
+import GeneratorSet from '../names/generatorset';
 
 export default class RealmGenerator {
   config: RealmGeneratorConfig;
@@ -25,15 +26,19 @@ export default class RealmGenerator {
     realm.name = `the ${Words.title(realm.realmType.name)} of ${name}`;
     let herGen = new HeraldryGenerator();
     realm.heraldry = herGen.generate();
-    realm.authority = randomAuthority(realm.realmType);
+    realm.authority = randomAuthority(realm.realmType, this.config.nameGeneratorSet);
 
     return realm;
   }
 }
 
-function randomAuthority(realmType: RealmType): Character {
+function randomAuthority(realmType: RealmType, nameGeneratorSet: GeneratorSet): Character {
   let charGenConfig = PremadeConfigs.getFantasy();
   charGenConfig.ageCategories = ['adult'];
+  charGenConfig.familyNameGenerator = nameGeneratorSet.family;
+  charGenConfig.femaleNameGenerator = nameGeneratorSet.female;
+  charGenConfig.maleNameGenerator = nameGeneratorSet.male;
+  charGenConfig.useAdaptiveNames = false;
 
   const charGen = new CharacterGenerator(charGenConfig);
 

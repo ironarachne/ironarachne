@@ -6,6 +6,7 @@ import GeneratorSet from '../generatorset';
 export default class GermanicSet extends GeneratorSet {
   constructor() {
     super();
+    this.name = 'germanic';
     this.country = country();
     this.culture = culture();
     this.family = family();

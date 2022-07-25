@@ -3,14 +3,19 @@
   import RegionGeneratorConfig from "../modules/region/generatorconfig";
   import RegionGenerator from "../modules/region/generator";
   import * as Words from "../modules/words";
+  import * as CultureNameSets from '../modules/names/cultures';
 
   import random from "random";
   import seedrandom from "seedrandom";
   import HeraldrySVGRenderer from "../modules/heraldry/renderers/svg";
 
   let seed = RND.randomString(13);
+  let nameSetName = 'any';
+  let nameSet = CultureNameSets.randomGenSet();
+  let nameSets = CultureNameSets.allGenSets();
   random.use(seedrandom(seed));
   let config = new RegionGeneratorConfig();
+  config.nameGeneratorSet = nameSet;
   let generator = new RegionGenerator(config);
   let heraldryRenderer = new HeraldrySVGRenderer();
   let region = generator.generate();
@@ -18,6 +23,12 @@
 
   function generate() {
     random.use(seedrandom(seed));
+    if (nameSetName == 'any') {
+      nameSet = CultureNameSets.randomGenSet();
+    } else {
+      nameSet = CultureNameSets.getSetByName(nameSetName);
+    }
+    generator.config.nameGeneratorSet = nameSet;
     region = generator.generate();
     ruler = region.authority;
   }
@@ -41,6 +52,17 @@
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
   </div>
+
+  <div class="input-group">
+    <label for="names">Name Set</label>
+    <select name="names" bind:value={nameSetName} id="nameSet">
+      <option>any</option>
+      {#each nameSets as nameSet}
+        <option>{nameSet.name}</option>
+      {/each}
+    </select>
+  </div>
+
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
@@ -49,7 +71,9 @@
   <p>{region.description}</p>
 
   {#if region.realms[region.mainRealm].parent != -1}
-  <p>{Words.title(region.name)} is part of {region.realms[region.realms[region.mainRealm].parent].name}.</p>
+  <div class="parent-realm">
+    <p>{Words.title(region.name)} is part of {region.realms[region.realms[region.mainRealm].parent].name} {@html heraldryRenderer.render(region.realms[region.realms[region.mainRealm].parent].heraldry.device, 20, 22)}.</p>
+  </div>
   {/if}
 
   <h4>Ruler: {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}</h4>
@@ -59,21 +83,38 @@
     <div><p>{Words.capitalize(region.name)} is ruled by {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}. {ruler.description}</p></div>
   </div>
 
-  <h4>Nearby Realms</h4>
+  <h4>Nearby Sovereignties</h4>
 
   {#each region.realms as neighbor, index}
-    {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent}
+    {#if index != region.mainRealm && neighbor.parent == -1}
     <div class="neighbor">
       <div class="neighbor-arms">{@html heraldryRenderer.render(neighbor.heraldry.device, 80, 88)}</div>
       <div>
-        <p><strong>{Words.title(neighbor.name)}</strong>{#if neighbor.parent != -1}, part of {region.realms[neighbor.parent].name}{/if}.</p>
+        <p><strong>{Words.title(neighbor.name)}</strong></p>
+        <p>Ruled by {neighbor.authority.getHonorific()} {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)} {neighbor.authority.species.adjective} {neighbor.authority.ageCategory.noun}.</p>
+        {#if region.realms[region.mainRealm].parent == index}
+          <p>{Words.title(region.realms[region.mainRealm].name)} is part of this.</p>
+        {/if}
+      </div>
+    </div>
+    {/if}
+  {/each}
+
+  <h4>Nearby Realms</h4>
+
+  {#each region.realms as neighbor, index}
+    {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent && neighbor.parent != -1}
+    <div class="neighbor">
+      <div class="neighbor-arms">{@html heraldryRenderer.render(neighbor.heraldry.device, 80, 88)}</div>
+      <div>
+        <p><strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[neighbor.parent].name} {@html heraldryRenderer.render(region.realms[neighbor.parent].heraldry.device, 20, 22)}.</p>
         <p>Ruled by {neighbor.authority.getHonorific()} {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)} {neighbor.authority.species.adjective} {neighbor.authority.ageCategory.noun}.</p>
       </div>
     </div>
     {/if}
   {/each}
 
-  <h4>Notable Settlements</h4>
+  <h4>Notable Settlements in {region.name}</h4>
   {#each region.settlements as settlement}
     <article>
       <h5>{settlement.name}</h5>

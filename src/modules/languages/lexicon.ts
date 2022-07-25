@@ -1,4 +1,8 @@
-export class Lexicon {
+'use strict';
+
+import Word from './word';
+
+export default class Lexicon {
   words: Word[];
 
   constructor() {
@@ -7,96 +11,72 @@ export class Lexicon {
     const adj: string[] = adjectives();
 
     for (let i = 0; i < adj.length; i++) {
-      const word = new Word('', 'adjective', adj[i], []);
+      const word = new Word('', 'adjective', adj[i]);
       this.words.push(word);
     }
 
     const adv: string[] = adverbs();
 
     for (let i = 0; i < adv.length; i++) {
-      const word = new Word('', 'adverb', adv[i], []);
+      const word = new Word('', 'adverb', adv[i]);
       this.words.push(word);
     }
 
     const art: string[] = articles();
 
     for (let i = 0; i < art.length; i++) {
-      const word = new Word('', 'article', art[i], []);
+      const word = new Word('', 'article', art[i]);
       this.words.push(word);
     }
 
     const inter: string[] = interjections();
 
     for (let i = 0; i < inter.length; i++) {
-      const word = new Word('', 'interjection', inter[i], []);
+      const word = new Word('', 'interjection', inter[i]);
       this.words.push(word);
     }
 
     const prep: string[] = prepositions();
 
     for (let i = 0; i < prep.length; i++) {
-      const word = new Word('', 'preposition', prep[i], []);
+      const word = new Word('', 'preposition', prep[i]);
       this.words.push(word);
     }
 
     const que: string[] = questions();
 
     for (let i = 0; i < que.length; i++) {
-      const word = new Word('', 'question', que[i], []);
+      const word = new Word('', 'question', que[i]);
       this.words.push(word);
     }
 
     const ver: string[] = verbs();
 
     for (let i = 0; i < ver.length; i++) {
-      const word = new Word('', 'verb', ver[i], []);
+      const word = new Word('', 'verb', ver[i]);
       this.words.push(word);
     }
 
     const nou: string[] = nouns();
 
     for (let i = 0; i < nou.length; i++) {
-      const word = new Word('', 'noun', nou[i], []);
+      const word = new Word('', 'noun', nou[i]);
       this.words.push(word);
     }
 
     const nm: string[] = numbers();
 
     for (let i = 0; i < nm.length; i++) {
-      const word = new Word('', 'number', nm[i], []);
+      const word = new Word('', 'number', nm[i]);
       this.words.push(word);
     }
 
     const pro: string[] = pronouns();
 
     for (let i = 0; i < pro.length; i++) {
-      const word = new Word('', 'pronoun', pro[i], []);
+      const word = new Word('', 'pronoun', pro[i]);
       this.words.push(word);
     }
-  }
-}
-
-export class Word {
-  root: string;
-  speechPart: string;
-  meaning: string;
-  conjugations: Conjugation[];
-
-  constructor(root: string, speechPart: string, meaning: string, conjugations: Conjugation[]) {
-    this.root = root;
-    this.speechPart = speechPart;
-    this.meaning = meaning;
-    this.conjugations = conjugations;
-  }
-}
-
-export class Conjugation {
-  form: string;
-  word: string;
-
-  constructor(form: string, word: string) {
-    this.form = form;
-    this.word = word;
   }
 }
 
@@ -254,6 +234,7 @@ function nouns() {
     'alligator',
     'arm',
     'ash',
+    'aunt',
     'axe',
     'bark',
     'bay',
@@ -265,6 +246,7 @@ function nouns() {
     'bone',
     'breakfast',
     'breast',
+    'brother',
     'castle',
     'cat',
     'cat',
@@ -282,9 +264,12 @@ function nouns() {
     'ear',
     'earth',
     'egg',
+    'elder',
     'enemy',
     'evening',
     'eye',
+    'family',
+    'father',
     'feather',
     'fight',
     'finger',
@@ -297,12 +282,14 @@ function nouns() {
     'friend',
     'goose',
     'grease',
+    'group',
     'gulf',
     'hair',
     'hand',
     'hat',
     'hate',
     'head',
+    'hill',
     'horn',
     'horse',
     'house',
@@ -324,6 +311,7 @@ function nouns() {
     'monster',
     'moon',
     'morning',
+    'mother',
     'mountain',
     'mouth',
     'name',
@@ -332,6 +320,7 @@ function nouns() {
     'noodle',
     'nose',
     'ocean',
+    'parent',
     'path',
     'peace',
     'pepper',
@@ -348,6 +337,8 @@ function nouns() {
     'salt',
     'sand',
     'seed',
+    'sibling',
+    'sister',
     'skin',
     'sky',
     'smoke',
@@ -367,6 +358,7 @@ function nouns() {
     'tooth',
     'tree',
     'truth',
+    'uncle',
     'valley',
     'war',
     'water',
@@ -382,5 +374,5 @@ function numbers() {
 }
 
 function pronouns() {
-  return ['he', 'she', 'they', 'you', 'we'];
+  return ['he', 'she', 'they', 'you', 'we', 'I'];
 }

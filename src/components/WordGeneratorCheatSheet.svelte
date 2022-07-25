@@ -42,6 +42,8 @@
   <h2>Word Generator Cheat Sheet</h2>
 
   <p>This is meant only for development reference.</p>
+  <p>Enclosing several comma-separated patterns in parentheses will make the parser choose one of those to add to the word.</p>
+  <p>Outside of the above, adding a + will duplicate the previous character after its processing.</p>
 
   <div class="input-group">
     <label for="pattern">Pattern</label>

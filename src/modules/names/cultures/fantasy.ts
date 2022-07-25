@@ -6,6 +6,7 @@ import GeneratorSet from '../generatorset';
 export default class FantasySet extends GeneratorSet {
   constructor() {
     super();
+    this.name = 'fantasy';
     this.country = country();
     this.culture = culture();
     this.family = family();
@@ -42,8 +43,8 @@ function family(): GenericNameGenerator {
     'pvvLOR',
     'kyPER',
     'sLvTCHER',
-    'svRRIER',
-    'pvnDElSON',
+    'sv(RR,R)IER',
+    'pvn(D,T)ElS(E,O)N',
     'pvnDElS',
     'ypSBURG',
     'ypSBERG',
