@@ -22,7 +22,7 @@
 </script>
 
 <svelte:head>
-  <title>Chop Shop Generator | Iron Arachne</title>
+  <title>Language Generator | Iron Arachne</title>
 </svelte:head>
 
 <section class="main default">
@@ -33,7 +33,54 @@
   <h2>{language.name}</h2>
 
   <h3>{language.name} Dictionary</h3>
-  {#each language.lexicon.words as word}
-    <p>{word.root} ({word.speechPart}): "{word.meaning}"</p>
+
+  <h4>Pronouns</h4>
+  {#each language.lexicon.getWordsBySpeechPart('pronoun') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Articles</h4>
+  {#each language.lexicon.getWordsBySpeechPart('article') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Prepositions</h4>
+  {#each language.lexicon.getWordsBySpeechPart('preposition') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Numbers</h4>
+  {#each language.lexicon.getWordsBySpeechPart('number') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Questions</h4>
+  {#each language.lexicon.getWordsBySpeechPart('question') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Interjections</h4>
+  {#each language.lexicon.getWordsBySpeechPart('interjection') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Adverbs</h4>
+  {#each language.lexicon.getWordsBySpeechPart('adverb') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Adjectives</h4>
+  {#each language.lexicon.getWordsBySpeechPart('adjective') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Verbs</h4>
+  {#each language.lexicon.getWordsBySpeechPart('verb') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+  {/each}
+
+  <h4>Nouns</h4>
+  {#each language.lexicon.getWordsBySpeechPart('noun') as word}
+    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
   {/each}
 </section>

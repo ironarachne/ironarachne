@@ -11,72 +11,76 @@ export default class Lexicon {
     const adj: string[] = adjectives();
 
     for (let i = 0; i < adj.length; i++) {
-      const word = new Word('', 'adjective', adj[i]);
+      const word = new Word('adjective', adj[i]);
       this.words.push(word);
     }
 
     const adv: string[] = adverbs();
 
     for (let i = 0; i < adv.length; i++) {
-      const word = new Word('', 'adverb', adv[i]);
+      const word = new Word('adverb', adv[i]);
       this.words.push(word);
     }
 
     const art: string[] = articles();
 
     for (let i = 0; i < art.length; i++) {
-      const word = new Word('', 'article', art[i]);
+      const word = new Word('article', art[i]);
       this.words.push(word);
     }
 
     const inter: string[] = interjections();
 
     for (let i = 0; i < inter.length; i++) {
-      const word = new Word('', 'interjection', inter[i]);
+      const word = new Word('interjection', inter[i]);
       this.words.push(word);
     }
 
     const prep: string[] = prepositions();
 
     for (let i = 0; i < prep.length; i++) {
-      const word = new Word('', 'preposition', prep[i]);
+      const word = new Word('preposition', prep[i]);
       this.words.push(word);
     }
 
     const que: string[] = questions();
 
     for (let i = 0; i < que.length; i++) {
-      const word = new Word('', 'question', que[i]);
+      const word = new Word('question', que[i]);
       this.words.push(word);
     }
 
     const ver: string[] = verbs();
 
     for (let i = 0; i < ver.length; i++) {
-      const word = new Word('', 'verb', ver[i]);
+      const word = new Word('verb', ver[i]);
       this.words.push(word);
     }
 
     const nou: string[] = nouns();
 
     for (let i = 0; i < nou.length; i++) {
-      const word = new Word('', 'noun', nou[i]);
+      const word = new Word('noun', nou[i]);
       this.words.push(word);
     }
 
     const nm: string[] = numbers();
 
     for (let i = 0; i < nm.length; i++) {
-      const word = new Word('', 'number', nm[i]);
+      const word = new Word('number', nm[i]);
       this.words.push(word);
     }
 
     const pro: string[] = pronouns();
 
     for (let i = 0; i < pro.length; i++) {
-      const word = new Word('', 'pronoun', pro[i]);
+      const word = new Word('pronoun', pro[i]);
       this.words.push(word);
     }
+  }
+
+  getWordsBySpeechPart(speechPart: string): Word[] {
+    return this.words.filter((word) => word.speechPart == speechPart);
   }
 }
 

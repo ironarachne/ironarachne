@@ -16,6 +16,11 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-07-26', [
+      'Improved display of language generator.',
+      'Added more IPA phonemes to the language generator.',
+      'Changed weighting of phonemes for the English-like phoneme set to reflect actual frequency of English phonemes.',
+    ]),
     new ChangeLog('2022-07-24', [
       'Added support for random sets in the word generator.',
       'Added Japanese-like names to the region generator.',
