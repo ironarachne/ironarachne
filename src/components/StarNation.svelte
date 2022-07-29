@@ -1,5 +1,4 @@
 <script lang="ts">
-  import * as Drug from "../modules/drug";
   import * as RND from "../modules/random";
 
   import random from "random";

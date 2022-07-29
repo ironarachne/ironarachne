@@ -161,7 +161,7 @@ function adverbs() {
 }
 
 function articles() {
-  return ['a', 'an', 'the'];
+  return ['a', 'the'];
 }
 
 function interjections() {

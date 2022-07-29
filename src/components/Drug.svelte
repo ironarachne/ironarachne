@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Drug from "../modules/drug";
+  import DrugGenerator from "../modules/drug/generator";
   import * as RND from "../modules/random";
 
   import random from "random";
@@ -7,15 +7,17 @@
 
   let description = "";
   let seed = RND.randomString(13);
+  let generator = new DrugGenerator();
 
-  function generateDrug() {
+  function generate() {
     random.use(seedrandom(seed));
-    description = Drug.generate();
+    let drug = generator.generate();
+    description = drug.describe();
   }
 
   function newSeed() {
     seed = RND.randomString(13);
-    generateDrug();
+    generate();
   }
 
   newSeed();
@@ -35,7 +37,7 @@
     <input type="text" name="seed" bind:value={seed} id="seed"/>
   </div>
 
-  <button on:click={generateDrug}>Generate From Seed</button>
+  <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
   <p>{ description }</p>
