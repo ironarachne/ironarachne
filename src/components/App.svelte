@@ -16,6 +16,7 @@
   import Home from "./Home.svelte";
   import Language from "./Language.svelte";
   import MagicWeapon from "./MagicWeapon.svelte";
+  import OSECharacter from './OSECharacter.svelte';
   import Planet from "./Planet.svelte";
   import Region from "./Region.svelte";
   import Religion from "./Religion.svelte";
@@ -43,6 +44,7 @@
     "/fantasy/family": FantasyFamily,
     "/fantasy/merchant": FantasyMerchant,
     "/fantasy/organization": FantasyOrganization,
+    "/fantasy/ose/character": OSECharacter,
     "/fantasy/religion": Religion,
     "/fantasy/weapon": MagicWeapon,
     "/heraldry": Heraldry,

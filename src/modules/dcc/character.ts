@@ -2,7 +2,7 @@
 
 import CoinPurse from '../currency/coinpurse';
 import DCCAttribute from './attribute';
-import DCCItem from './equipment/item';
+import type DCCItem from './equipment/item';
 import DCCWeapon from './equipment/weapon';
 import DCCLuckyRoll from './luckyroll';
 import DCCOccupation from './occupation';

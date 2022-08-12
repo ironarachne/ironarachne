@@ -59,6 +59,14 @@
         <a href="#/fantasy/dcc/character" class:active={$location === '/fantasy/dcc/character'}>DCC Character</a>
       </li>
     </ul>
+
+    <h4>Old School Essentials</h4>
+
+    <ul>
+      <li>
+        <a href="#/fantasy/ose/character" class:active={$location === '/fantasy/ose/character'}>OSE Character</a>
+      </li>
+    </ul>
   </div>
 
   <div class="scifi button-group">
