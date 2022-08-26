@@ -195,7 +195,7 @@
   <p>{planet.description}</p>
 
   <p><strong>Planet Type:</strong> {planet.classification.name}</p>
-  <p><strong>Population:</strong> {planet.population}</p>
+  <p><strong>Population:</strong> {planet.populationFriendly}</p>
   <p><strong>Government:</strong> {planet.government}</p>
   <p><strong>Culture:</strong> {planet.culture}</p>
   <p>
