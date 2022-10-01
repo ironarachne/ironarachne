@@ -16,6 +16,10 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-10-01', [
+      'Fixed a bug in culture generation with Elvish culture names.',
+      'Updated the build process to use Node.js 18.',
+    ]),
     new ChangeLog('2022-07-29', ['Added more variety to the cyberpunk drug generator.']),
     new ChangeLog('2022-07-26', [
       'Improved display of language generator.',
