@@ -8,12 +8,32 @@ export default class ElvishSet extends GeneratorSet {
   constructor() {
     super();
     this.name = 'elvish';
+    this.culture = culture();
     this.country = country();
     this.family = family();
     this.female = female();
     this.male = male();
     this.town = town();
   }
+}
+
+function culture(): NameGenerator {
+  let gen = new GenericNameGenerator();
+
+  gen.patterns = [
+    '(A,O)l(B,G,K)(I,U)l(O,A,E)n',
+    '(A,E)(M,N)I(M,N)(I,U)(M,N)pv',
+    '(B,G,K)(A,E)Rv(TH,l)ION',
+    'vl(M,N)IEL',
+    'vl(M,N)v(L,R)ION',
+    'vR(I,A)noUR',
+    'vNxlION',
+    'vNDxRIL',
+    'vNDxNE',
+    '(A,I,O)RvNxRE',
+  ];
+
+  return gen;
 }
 
 function country(): NameGenerator {
