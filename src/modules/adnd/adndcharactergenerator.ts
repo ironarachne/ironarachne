@@ -91,6 +91,9 @@ export default class ADNDCharacterGenerator {
         ? character.warriorHitPointAdjustment
         : character.hitPointAdjustment;
     character.hp = Dice.roll(character.class.hitDice) + hitPointAdjustment;
+    if (character.hp < 1) {
+      character.hp = 1;
+    }
 
     character = getSavingThrows(character);
 
