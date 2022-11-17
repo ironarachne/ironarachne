@@ -52,6 +52,14 @@
       </li>
     </ul>
 
+    <h4>Advanced Dungeons &amp; Dragons</h4>
+
+    <ul>
+      <li>
+        <a href="#/fantasy/adnd/character" class:active={$location === '/fantasy/adnd/character'}>AD&amp;D 2e Character</a>
+      </li>
+    </ul>
+
     <h4>Dungeon Crawl Classics</h4>
 
     <ul>

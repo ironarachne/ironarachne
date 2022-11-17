@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ADNDCharacter from "./ADNDCharacter.svelte";
   import ArmsManufacturer from "./ArmsManufacturer.svelte";
   import ChangeLog from "./ChangeLog.svelte";
   import ChopShop from "./ChopShop.svelte";
@@ -37,6 +38,7 @@
     "/chopshop": ChopShop,
     "/culture": Culture,
     "/drug": Drug,
+    "/fantasy/adnd/character": ADNDCharacter,
     "/fantasy/dcc/character": DCCCharacter,
     "/fantasy/dungeon": Dungeon,
     "/fantasy/equipment": FantasyEquipment,

@@ -12,7 +12,7 @@ export function article(word: string, appendWord: boolean = false) {
 
   const vowels = ['a', 'e', 'i', 'o', 'u'];
 
-  if (vowels.includes(word.substr(0, 1))) {
+  if (vowels.includes(word.substring(0, 1))) {
     if (appendWord) {
       return `an ${word}`;
     }
