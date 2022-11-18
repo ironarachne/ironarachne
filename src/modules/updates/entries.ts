@@ -16,6 +16,9 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-11-18', [
+      'Made min rooms and max rooms for dungeon generator configurable.',
+    ]),
     new ChangeLog('2022-11-17', ['Added first version of AD&D 2e character generator.']),
     new ChangeLog('2022-10-01', [
       'Fixed a bug in culture generation with Elvish culture names.',

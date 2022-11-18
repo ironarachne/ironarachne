@@ -13,14 +13,21 @@
   let seed = RND.randomString(13);
 
   let canvas = null;
+  let minRooms = 20;
+  let maxRooms = 30;
 
   let config = new DungeonGeneratorConfig();
   let generator = new DungeonGenerator(config);
+  config.minRooms = minRooms;
+  config.maxRooms = maxRooms;
   let dungeon = generator.generate();
   let renderer = new DungeonTileRenderer(800, 1000, config.height, config.width);
 
   function generate() {
     random.use(seedrandom(seed));
+
+    config.minRooms = minRooms;
+    config.maxRooms = maxRooms;
 
     dungeon = generator.generate();
     renderer.render(dungeon, canvas);
@@ -82,6 +89,16 @@
   <div class="input-group">
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+  </div>
+
+  <div class="input-group">
+    <label for="minRooms">Min. Rooms</label>
+    <input type="number" name="minRooms" bind:value={minRooms} id="minRooms"/>
+  </div>
+
+  <div class="input-group">
+    <label for="maxRooms">Max. Rooms</label>
+    <input type="number" name="maxRooms" bind:value={maxRooms} id="maxRooms"/>
   </div>
 
   <button on:click={generate}>Generate From Seed</button>
