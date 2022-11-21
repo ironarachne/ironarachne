@@ -17,11 +17,11 @@
   import Home from "./Home.svelte";
   import Language from "./Language.svelte";
   import MagicWeapon from "./MagicWeapon.svelte";
+  import Navigation from "./Navigation.svelte";
   import Planet from "./Planet.svelte";
   import Region from "./Region.svelte";
   import Religion from "./Religion.svelte";
   import Router from "svelte-spa-router";
-  import Sidebar from "./Sidebar.svelte";
   import SpeciesStatsTool from "./SpeciesStats.svelte";
   import SpookyShip from "./SpookyShip.svelte";
   import StarNation from "./StarNation.svelte";
@@ -49,6 +49,7 @@
     "/fantasy/weapon": MagicWeapon,
     "/heraldry": Heraldry,
     "/language": Language,
+    "/navigation": Navigation,
     "/planet": Planet,
     "/region": Region,
     "/species-stats": SpeciesStatsTool,
@@ -62,11 +63,8 @@
   };
 </script>
 
-<div id="app">
-  <Header />
-  <div class="primary">
-    <Sidebar />
-    <Router {routes} />
-  </div>
-  <Footer />
+<Header />
+<div class="primary">
+  <Router {routes} />
 </div>
+<Footer />

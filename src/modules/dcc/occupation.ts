@@ -1,6 +1,6 @@
 'use strict';
 
-import DCCItem from './equipment/item';
+import type DCCItem from './equipment/item';
 import DCCWeapon from './equipment/weapon';
 
 export default class DCCOccupation {

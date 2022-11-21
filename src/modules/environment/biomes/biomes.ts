@@ -1,4 +1,4 @@
-import Biome from './biome';
+import type Biome from './biome';
 import * as RND from '../../random';
 import Desert from './desert';
 import DeciduousForest from './deciduousforest';

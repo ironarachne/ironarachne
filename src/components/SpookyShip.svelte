@@ -26,7 +26,7 @@
 </svelte:head>
 
 <section class="scifi main">
-  <h2>Spooky Ship Generator</h2>
+  <h1>Spooky Ship Generator</h1>
 
   <p>This was done for the October 2021 Generator Challenge, from r/rpg_generators.</p>
 

@@ -35,7 +35,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Fantasy Merchant Generator</h2>
+  <h1>Fantasy Merchant Generator</h1>
 
   <p>This generates a fantasy merchant and a list of their wares.</p>
 
@@ -67,7 +67,7 @@
 
   <p>{ merchant.description } { Words.capitalize(merchant.character.gender.possessivePronoun) } wares include:</p>
 
-  <h3>Stock List</h3>
+  <h2>Stock List</h2>
 
   {#each merchant.wares as item}
     <h4>{Words.capitalize(item.name)}</h4>

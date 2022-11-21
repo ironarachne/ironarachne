@@ -1,7 +1,7 @@
 'use strict';
 
-import Biome from './biomes/biome';
-import Climate from './climates/climate';
+import type Biome from './biomes/biome';
+import type Climate from './climates/climate';
 
 export default class Environment {
   biome: Biome;

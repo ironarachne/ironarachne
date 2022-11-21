@@ -38,7 +38,7 @@
 </svelte:head>
 
 <section class="main scifi">
-  <h2>Star System Generator</h2>
+  <h1>Star System Generator</h1>
   <div class="input-group">
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
@@ -46,11 +46,11 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>The {system.name} System</h3>
+  <h2>The {system.name} System</h2>
 
   <p>{system.description}</p>
 
-  <h4>Stars</h4>
+  <h3>Stars</h3>
 
   {#each system.stars as star}
     <article class="media-banner">
@@ -80,7 +80,7 @@
     </article>
   {/each}
 
-  <h4>Planets</h4>
+  <h3>Planets</h3>
 
   {#each system.planets as planet}
     <article class="media-banner">

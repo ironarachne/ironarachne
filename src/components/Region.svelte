@@ -44,7 +44,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Region Generator</h2>
+  <h1>Region Generator</h1>
 
   <p>Generate fantasy regions.</p>
 
@@ -66,7 +66,7 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>{Words.capitalize(region.name)}</h3>
+  <h2>{Words.capitalize(region.name)}</h2>
 
   <p>{region.description}</p>
 
@@ -76,14 +76,14 @@
   </div>
   {/if}
 
-  <h4>Ruler: {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}</h4>
+  <h3>Ruler: {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}</h3>
 
   <div class="ruler">
     <div class="ruler-arms">{@html heraldryRenderer.render(ruler.heraldry.device, 200, 220)}</div>
     <div><p>{Words.capitalize(region.name)} is ruled by {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}. {ruler.description}</p></div>
   </div>
 
-  <h4>Nearby Sovereignties</h4>
+  <h3>Nearby Sovereignties</h3>
 
   {#each region.realms as neighbor, index}
     {#if index != region.mainRealm && neighbor.parent == -1}
@@ -100,7 +100,7 @@
     {/if}
   {/each}
 
-  <h4>Nearby Realms</h4>
+  <h3>Nearby Realms</h3>
 
   {#each region.realms as neighbor, index}
     {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent && neighbor.parent != -1}
@@ -114,14 +114,14 @@
     {/if}
   {/each}
 
-  <h4>Notable Settlements in {region.name}</h4>
+  <h3>Notable Settlements in {region.name}</h3>
   {#each region.settlements as settlement}
     <article>
       <h5>{settlement.name}</h5>
       <p>{settlement.description}</p>
     </article>
   {/each}
-  <h4>Notable Organizations</h4>
+  <h3>Notable Organizations</h3>
   {#each region.organizations as organization}
     <article>
       <h5>{organization.name}</h5>

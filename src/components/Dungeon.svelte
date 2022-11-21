@@ -82,7 +82,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Dungeon Generator</h2>
+  <h1>Dungeon Generator</h1>
 
   <p>A dungeon generator.</p>
 

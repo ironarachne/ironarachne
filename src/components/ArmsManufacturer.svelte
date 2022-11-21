@@ -20,7 +20,7 @@
 </svelte:head>
 
 <section class="scifi main">
-  <h2>Arms Manufacturer Generator</h2>
+  <h1>Arms Manufacturer Generator</h1>
   <p>This generator produces sci-fi arms manufacturing companies.</p>
   <button on:click={generate}>Generate</button>
   <p>{ manufacturer.description }</p>

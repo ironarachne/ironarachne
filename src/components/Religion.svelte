@@ -28,7 +28,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Fantasy Religion Generator</h2>
+  <h1>Fantasy Religion Generator</h1>
 
   <p>Generate a fictional fantasy religion.</p>
 

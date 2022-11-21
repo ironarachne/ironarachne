@@ -114,18 +114,18 @@
     generate();
   }
 
-  function randomNumberOfCharges(): number {
-  const weights = [
-    { item: 0, commonality: 20 },
-    { item: 1, commonality: 50 },
-    { item: 2, commonality: 5 },
-    { item: 3, commonality: 3 },
-  ];
+  function randomNumberOfCharges() {
+    const weights = [
+      { item: 0, commonality: 20 },
+      { item: 1, commonality: 55 },
+      { item: 2, commonality: 5 },
+      { item: 3, commonality: 3 },
+    ];
 
-  const result = RND.weighted(weights);
+    const result = RND.weighted(weights);
 
-  return result.item;
-}
+    return result.item;
+  }
 
   function save() {
     const blob = new Blob([image], { type: "image/svg+xml" });
@@ -140,7 +140,7 @@
 </script>
 
 <section class="fantasy main">
-  <h2>Heraldry Generator</h2>
+  <h1>Heraldry Generator</h1>
   <p>
     Generate fantasy coats-of-arms. Note: if you change the seed, the page URL
     won't change, but your new seed will be used the next time you hit Generate.

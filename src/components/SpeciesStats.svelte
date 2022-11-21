@@ -54,20 +54,20 @@
 </svelte:head>
 
 <section class="main default">
-  <h2>Species Stats Tool</h2>
+  <h1>Species Stats Tool</h1>
   <p>This tool helps in the construction of non-human species. I built it to help me input standard
     fantasy species. To use it, just enter the percentage of human size you want to use for height and weight.</p>
 
   <p>All numbers use modern human female as a base.</p>
 
-  <h3>Settings</h3>
+  <h2>Settings</h2>
 
   <div class="input-group">
     <label for="maxAge">Maximum Age (Years)</label>
     <input type="number" name="maxAge" on:change={calculate} bind:value={maximumAge} id="maxAge">
   </div>
 
-  <h4>Female</h4>
+  <h3>Female</h3>
 
   <div class="input-group">
     <label for="female-height">% of Base Height</label>
@@ -79,7 +79,7 @@
     <input type="number" name="female-weight" on:change={calculate} bind:value={femaleWeightModifier} id="weight">
   </div>
 
-  <h4>Male</h4>
+  <h3>Male</h3>
 
   <div class="input-group">
     <label for="male-height">% of Base Height</label>
@@ -91,11 +91,11 @@
     <input type="number" name="male-weight" on:change={calculate} bind:value={maleWeightModifier} id="weight">
   </div>
 
-  <h3>Calculated Stats</h3>
+  <h2>Calculated Stats</h2>
 
   <div style="display:flex">
     <div class="half-column">
-      <h4>Female</h4>
+      <h3>Female</h3>
       {#each femaleCategories as category}
       <div>
         <h5>{ category.name }</h5>
@@ -106,7 +106,7 @@
       {/each}
     </div>
     <div class="half-column">
-      <h4>Male</h4>
+      <h3>Male</h3>
       {#each maleCategories as category}
       <div>
         <h5>{ category.name }</h5>
@@ -118,7 +118,7 @@
     </div>
   </div>
 
-  <h3>For Ingenium Second Edition</h3>
+  <h2>For Ingenium Second Edition</h2>
 
   <p>This is specifically for the manuscript for Ingenium Second Edition bloodline stats.</p>
 

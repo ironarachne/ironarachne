@@ -1,10 +1,16 @@
 <header>
-  <img src="images/logo-glyphonly-green.svg" alt="Iron Arachne logo"/>
-  <div>
-    <h1>Iron Arachne</h1>
-    <p>
-      Tools for procedural generation of content for tabletop role-playing
-      games
-    </p>
-  </div>
+  <img alt="Iron Arachne logo" src="images/logo.png" />
+  <p>
+    Tools for procedural generation of content for tabletop role-playing
+    games
+  </p>
 </header>
+
+<nav>
+  <ul>
+    <li><a href="#/">Home</a></li>
+    <li><a href="#/navigation">Navigation</a></li>
+    <li><a href="#/changelog">Change Log</a></li>
+    <li><a href="https://www.reddit.com/r/ironarachne/">Reddit</a></li>
+  </ul>
+</nav>

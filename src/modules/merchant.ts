@@ -3,7 +3,7 @@
 import Character from './characters/character';
 import CharacterGenerator from './characters/generator';
 import * as PremadeConfigs from './characters/premadeconfigs';
-import { Item } from './equipment/item';
+import type Item from './equipment/item';
 import * as StockList from './equipment/stocklist';
 import random from 'random';
 import * as Words from './words';

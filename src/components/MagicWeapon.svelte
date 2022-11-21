@@ -32,7 +32,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Magic Weapon Generator</h2>
+  <h1>Magic Weapon Generator</h1>
 
   <p>This generates a unique magical weapon.</p>
 
@@ -63,7 +63,7 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>{weapon.name}</h3>
+  <h2>{weapon.name}</h2>
 
   <p>{weapon.description}. It {weapon.effect}.</p>
 </section>

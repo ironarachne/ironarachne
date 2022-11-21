@@ -26,7 +26,7 @@
 </svelte:head>
 
 <section class="main default">
-  <h2>Language Generator</h2>
+  <h1>Language Generator</h1>
   <p>This generates fictional languages. This is mostly useful for debugging.</p>
   <button on:click={generate}>Generate</button>
 

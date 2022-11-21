@@ -46,7 +46,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Organization Generator</h2>
+  <h1>Organization Generator</h1>
 
   <p>This generates fantasy organizations.</p>
 
@@ -57,7 +57,7 @@
   <button on:click={generateFantasyOrganization}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>{name}</h3>
+  <h2>{name}</h2>
 
   <div class="org-arms">{@html svgRenderer.render(heraldry.device, 200, 220)}</div>
 
@@ -65,7 +65,7 @@
 
   <p>{leadership}</p>
 
-  <h4>Notable Members</h4>
+  <h3>Notable Members</h3>
 
   {#each notableMembers as member}
     <p>

@@ -36,7 +36,7 @@
 </svelte:head>
 
 <section class="main scifi">
-  <h2>Uncharted Worlds Character Generator</h2>
+  <h1>Uncharted Worlds Character Generator</h1>
 
   <p>Generate starting characters for Uncharted Worlds.</p>
 
@@ -48,7 +48,7 @@
   <button on:click={newSeed}>Random Seed (and Generate)</button>
   <button on:click={save}>Save</button>
 
-  <h3>Statistics</h3>
+  <h2>Statistics</h2>
 
   <p><strong>Physique:</strong> {character.stats.physique}</p>
   <p><strong>Mettle:</strong> {character.stats.mettle}</p>
@@ -56,21 +56,21 @@
   <p><strong>Influence:</strong> {character.stats.influence}</p>
   <p><strong>Interface:</strong> {character.stats.interface}</p>
 
-  <h3>Careers</h3>
+  <h2>Careers</h2>
 
   {#each character.careers as career}
     <div>{career.name}</div>
   {/each}
 
-  <h3>Origin</h3>
+  <h2>Origin</h2>
 
   <p>{character.origin.name}</p>
 
-  <h3>Descriptors</h3>
+  <h2>Descriptors</h2>
 
   <p>{character.descriptors}</p>
 
-  <h3>Skills</h3>
+  <h2>Skills</h2>
 
   <ul>
     {#each character.skills as skill}
@@ -81,11 +81,11 @@
     {/each}
   </ul>
 
-  <h3>Advancement</h3>
+  <h2>Advancement</h2>
 
   <p>{character.advancement}</p>
 
-  <h3>Assets</h3>
+  <h2>Assets</h2>
 
   <div class="asset">
     <h4>Workspace: {character.workspace.name}</h4>
@@ -97,7 +97,7 @@
       <h4>{asset.name}</h4>
       <p>{asset.description}</p>
       {#if asset.upgrades.length > 0}
-        <ul v-if="asset.upgrades.length > 0">
+        <ul>
           {#each asset.upgrades as upgrade}
             <li>
               <strong>{upgrade.name}:</strong>

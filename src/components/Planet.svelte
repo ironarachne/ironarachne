@@ -166,7 +166,7 @@
 </svelte:head>
 
 <section class="main scifi">
-  <h2>Planet Generator</h2>
+  <h1>Planet Generator</h1>
 
   <p>This lets you generate a planet. It uses WebGL and your graphics card.</p>
 
@@ -188,7 +188,7 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>{planet.name}</h3>
+  <h2>{planet.name}</h2>
 
   <canvas id="render" />
 

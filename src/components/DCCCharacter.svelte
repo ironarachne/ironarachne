@@ -76,7 +76,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Dungeon Crawl Classics Character Generator</h2>
+  <h1>Dungeon Crawl Classics Character Generator</h1>
 
   <p>This is a DCC 0-level character generator.</p>
 
@@ -108,7 +108,7 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>{ character.firstName } { character.lastName }</h3>
+  <h2>{ character.firstName } { character.lastName }</h2>
 
   <p>A level { character.level } { character.occupation.name }</p>
 
@@ -120,7 +120,7 @@
   <p><strong>Gender:</strong> { character.gender }</p>
   <p><strong>Speed:</strong> { character.speed }'</p>
 
-  <h4>Attributes</h4>
+  <h3>Attributes</h3>
 
   <p><strong>Strength:</strong> { character.strength.value } ({ dMod(character.strength.modifier) })</p>
   <p><strong>Agility:</strong> { character.agility.value } ({ dMod(character.agility.modifier) })</p>
@@ -129,23 +129,23 @@
   <p><strong>Intelligence:</strong> { character.intelligence.value } ({ dMod(character.intelligence.modifier) })</p>
   <p><strong>Luck:</strong> { character.luck.value } ({ dMod(character.luck.modifier) })</p>
 
-  <h4>Other Stats</h4>
+  <h3>Other Stats</h3>
 
   <p><strong>Lucky Roll:</strong> { character.luckyRoll.name }: { character.luckyRoll.description }: { dMod(character.luckyRoll.modifier) }</p>
 
-  <h4>Saving Throws</h4>
+  <h3>Saving Throws</h3>
 
   <p><strong>Fortitude:</strong> { dMod(character.fortitudeSave) }</p>
   <p><strong>Reflex:</strong> { dMod(character.reflexSave) }</p>
   <p><strong>Willpower:</strong> { dMod(character.willpowerSave) }</p>
 
-  <h4>Spellcasting</h4>
+  <h3>Spellcasting</h3>
 
   <p><strong>Spells Known:</strong> { spellsKnown }</p>
   <p><strong>Wizard Max Spell Level:</strong> { character.wizardMaxSpellLevel }</p>
   <p><strong>Cleric Max Spell Level:</strong> { character.clericMaxSpellLevel }</p>
 
-  <h4>Weapons</h4>
+  <h3>Weapons</h3>
 
   <ul>
     {#each character.weapons as weapon}
@@ -153,7 +153,7 @@
     {/each}
   </ul>
 
-  <h4>Languages</h4>
+  <h3>Languages</h3>
 
   <ul>
     {#each character.languages as language }
@@ -161,7 +161,7 @@
     {/each}
   </ul>
 
-  <h4>Equipment</h4>
+  <h3>Equipment</h3>
 
   <ul>
     {#each character.equipment as item }
@@ -169,7 +169,7 @@
     {/each}
   </ul>
 
-  <h4>Special Rules</h4>
+  <h3>Special Rules</h3>
 
   <ul>
   {#each character.specialRules as rule}

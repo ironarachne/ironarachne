@@ -3,58 +3,58 @@
 import * as RND from '../random';
 import Charge from './charge';
 
-import anchor from './charge-images/anchor.svg';
-import antelopepassant from './charge-images/antelope-passant.svg';
-import anteloperampant from './charge-images/antelope-rampant.svg';
-import barrel from './charge-images/barrel.svg';
-import batvolant from './charge-images/bat-volant.svg';
-import battleaxe from './charge-images/battleaxe.svg';
-import bearheadcouped from './charge-images/bear-head-couped.svg';
-import bearrampant from './charge-images/bear-rampant.svg';
-import bearstatant from './charge-images/bear-statant.svg';
-import beevolant from './charge-images/bee-volant.svg';
-import bell from './charge-images/bell.svg';
-import boarheaderased from './charge-images/boar-head-erased.svg';
-import boarpassant from './charge-images/boar-passant.svg';
-import boarrampant from './charge-images/boar-rampant.svg';
-import castle from './charge-images/castle.svg';
-import cock from './charge-images/cock.svg';
-import cockatrice from './charge-images/cockatrice.svg';
-import dolphinhauriant from './charge-images/dolphin-hauriant.svg';
-import doubleheadedeagledisplayed from './charge-images/double-headed-eagle-displayed.svg';
-import dragonrampant from './charge-images/dragon-rampant.svg';
-import eaglesheaderased from './charge-images/eagles-head-erased.svg';
-import foxsejant from './charge-images/fox-sejant.svg';
-import gryphonsegreant from './charge-images/gryphon-segreant.svg';
-import haresalient from './charge-images/hare-salient.svg';
-import hare from './charge-images/hare.svg';
-import heron from './charge-images/heron.svg';
-import horsepassant from './charge-images/horse-passant.svg';
-import horserampant from './charge-images/horse-rampant.svg';
-import leopardpassant from './charge-images/leopard-passant.svg';
-import lionpassant from './charge-images/lion-passant.svg';
-import lionrampant from './charge-images/lion-rampant.svg';
-import lionsheaderased from './charge-images/lions-head-erased.svg';
-import owl from './charge-images/owl.svg';
-import pegasuspassant from './charge-images/pegasus-passant.svg';
-import pegasusrampant from './charge-images/pegasus-rampant.svg';
-import ramrampant from './charge-images/ram-rampant.svg';
-import ramstatant from './charge-images/ram-statant.svg';
-import rose from './charge-images/rose.svg';
-import seahorse from './charge-images/sea-horse.svg';
-import squirrel from './charge-images/squirrel.svg';
-import staglodged from './charge-images/stag-lodged.svg';
-import stagstatant from './charge-images/stag-statant.svg';
-import suninsplendor from './charge-images/sun-in-splendor.svg';
-import tigerpassant from './charge-images/tiger-passant.svg';
-import tigerrampant from './charge-images/tiger-rampant.svg';
-import tower from './charge-images/tower.svg';
-import twoaxesinsaltire from './charge-images/two-axes-in-saltire.svg';
-import twobonesinsaltire from './charge-images/two-bones-in-saltire.svg';
-import unicornstatant from './charge-images/unicorn-statant.svg';
-import wolfpassant from './charge-images/wolf-passant.svg';
-import wolframpant from './charge-images/wolf-rampant.svg';
-import wyvern from './charge-images/wyvern.svg';
+import anchor from './charge-images/anchor.svg?raw';
+import antelopepassant from './charge-images/antelope-passant.svg?raw';
+import anteloperampant from './charge-images/antelope-rampant.svg?raw';
+import barrel from './charge-images/barrel.svg?raw';
+import batvolant from './charge-images/bat-volant.svg?raw';
+import battleaxe from './charge-images/battleaxe.svg?raw';
+import bearheadcouped from './charge-images/bear-head-couped.svg?raw';
+import bearrampant from './charge-images/bear-rampant.svg?raw';
+import bearstatant from './charge-images/bear-statant.svg?raw';
+import beevolant from './charge-images/bee-volant.svg?raw';
+import bell from './charge-images/bell.svg?raw';
+import boarheaderased from './charge-images/boar-head-erased.svg?raw';
+import boarpassant from './charge-images/boar-passant.svg?raw';
+import boarrampant from './charge-images/boar-rampant.svg?raw';
+import castle from './charge-images/castle.svg?raw';
+import cock from './charge-images/cock.svg?raw';
+import cockatrice from './charge-images/cockatrice.svg?raw';
+import dolphinhauriant from './charge-images/dolphin-hauriant.svg?raw';
+import doubleheadedeagledisplayed from './charge-images/double-headed-eagle-displayed.svg?raw';
+import dragonrampant from './charge-images/dragon-rampant.svg?raw';
+import eaglesheaderased from './charge-images/eagles-head-erased.svg?raw';
+import foxsejant from './charge-images/fox-sejant.svg?raw';
+import gryphonsegreant from './charge-images/gryphon-segreant.svg?raw';
+import haresalient from './charge-images/hare-salient.svg?raw';
+import hare from './charge-images/hare.svg?raw';
+import heron from './charge-images/heron.svg?raw';
+import horsepassant from './charge-images/horse-passant.svg?raw';
+import horserampant from './charge-images/horse-rampant.svg?raw';
+import leopardpassant from './charge-images/leopard-passant.svg?raw';
+import lionpassant from './charge-images/lion-passant.svg?raw';
+import lionrampant from './charge-images/lion-rampant.svg?raw';
+import lionsheaderased from './charge-images/lions-head-erased.svg?raw';
+import owl from './charge-images/owl.svg?raw';
+import pegasuspassant from './charge-images/pegasus-passant.svg?raw';
+import pegasusrampant from './charge-images/pegasus-rampant.svg?raw';
+import ramrampant from './charge-images/ram-rampant.svg?raw';
+import ramstatant from './charge-images/ram-statant.svg?raw';
+import rose from './charge-images/rose.svg?raw';
+import seahorse from './charge-images/sea-horse.svg?raw';
+import squirrel from './charge-images/squirrel.svg?raw';
+import staglodged from './charge-images/stag-lodged.svg?raw';
+import stagstatant from './charge-images/stag-statant.svg?raw';
+import suninsplendor from './charge-images/sun-in-splendor.svg?raw';
+import tigerpassant from './charge-images/tiger-passant.svg?raw';
+import tigerrampant from './charge-images/tiger-rampant.svg?raw';
+import tower from './charge-images/tower.svg?raw';
+import twoaxesinsaltire from './charge-images/two-axes-in-saltire.svg?raw';
+import twobonesinsaltire from './charge-images/two-bones-in-saltire.svg?raw';
+import unicornstatant from './charge-images/unicorn-statant.svg?raw';
+import wolfpassant from './charge-images/wolf-passant.svg?raw';
+import wolframpant from './charge-images/wolf-rampant.svg?raw';
+import wyvern from './charge-images/wyvern.svg?raw';
 
 export function all() {
   return [
@@ -78,11 +78,7 @@ export function all() {
       'antelope',
       'hunting',
     ]),
-    new Charge('barrel', 'barrels', barrel, 'regular', [
-      'barrel',
-      'trade',
-      'wine',
-    ]),
+    new Charge('barrel', 'barrels', barrel, 'regular', ['barrel', 'trade', 'wine']),
     new Charge('bat volant', 'bats volant', batvolant, 'regular', [
       'animal',
       'bat',

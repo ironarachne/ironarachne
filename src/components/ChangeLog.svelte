@@ -9,10 +9,10 @@
 </svelte:head>
 
 <section class="changelog main">
-  <h2>Change Log</h2>
+  <h1>Change Log</h1>
   {#each updates as update}
     <div>
-      <h3>{@html update.niceDate()}</h3>
+      <h2>{@html update.niceDate()}</h2>
       <ul>
         {#each update.updates as text}
           <li>{text}</li>

@@ -19,7 +19,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Fantasy Equipment Lists</h2>
+  <h1>Fantasy Equipment Lists</h1>
   <p>
     This page is meant to be a comprehensive list of equipment for fantasy
     games. It will be updated over time, so keep checking back for new
@@ -62,7 +62,7 @@
 
   {#each equipmentLists as eList}
   <div class="equipment-list">
-    <h3>{ eList.title }</h3>
+    <h2>{ eList.title }</h2>
     <table>
       <thead>
       <tr>

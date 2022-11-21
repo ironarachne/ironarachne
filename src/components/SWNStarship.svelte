@@ -36,7 +36,7 @@
 </svelte:head>
 
 <section class="main scifi">
-  <h2>Stars Without Number Starship Generator</h2>
+  <h1>Stars Without Number Starship Generator</h1>
 
   <div class="input-group">
     <label for="seed">Random Seed</label>
@@ -46,7 +46,7 @@
   <button on:click={newSeed}>Random Seed (and Generate)</button>
   <button on:click={save}>Save</button>
 
-  <h3>{starship.name}</h3>
+  <h2>{starship.name}</h2>
 
   <p><strong>Owner Type:</strong> {starship.ownerType.name}</p>
   <p><strong>Manufacturer:</strong> {starship.manufacturer}</p>

@@ -21,7 +21,7 @@
 </svelte:head>
 
 <section class="cyberpunk main">
-  <h2>Chop Shop Generator</h2>
+  <h1>Chop Shop Generator</h1>
   <p>This is a cyberpunk chop shop generator.</p>
   <button on:click={generateChopShop}>Generate</button>
   <p>{ description }</p>

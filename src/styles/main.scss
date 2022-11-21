@@ -14,95 +14,25 @@
   font-style: normal;
 }
 
-@font-face {
-  font-family: 'alegreya';
-  src: url('./fonts/alegreya-bold-webfont.woff2') format('woff2'),
-    url('./fonts/alegreya-bold-webfont.woff') format('woff');
-  font-weight: bold;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'alegreya';
-  src: url('./fonts/alegreya-italic-webfont.woff2') format('woff2'),
-    url('./fonts/alegreya-italic-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: italic;
-}
-
-@font-face {
-  font-family: 'alegreya';
-  src: url('./fonts/alegreya-regular-webfont.woff2') format('woff2'),
-    url('./fonts/alegreya-regular-webfont.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'eczar';
-  src: url('./fonts/Eczar-Bold-webfont.woff') format('woff');
-  font-weight: 700;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'eczar';
-  src: url('./fonts/Eczar-ExtraBold-webfont.woff') format('woff');
-  font-weight: 800;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'eczar';
-  src: url('./fonts/Eczar-Medium-webfont.woff') format('woff');
-  font-weight: 500;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'eczar';
-  src: url('./fonts/Eczar-Regular-webfont.woff') format('woff');
-  font-weight: 400;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'eczar';
-  src: url('./fonts/Eczar-SemiBold-webfont.woff') format('woff');
-  font-weight: 600;
-  font-style: normal;
-}
-
 $ironArachneGreen: #76e841;
 $tan: #5c5031;
 $gold: #fad037;
 
-body,
 html {
-  background: rgb(199, 196, 184);
-  background: linear-gradient(
-    90deg,
-    rgba(199, 196, 184, 1) 0%,
-    rgba(247, 243, 228, 1) 15%,
-    rgba(247, 243, 228, 1) 85%,
-    rgba(199, 196, 184, 1) 100%
-  );
-  font-family: 'alegreya', Georgia, serif;
-  font-size: 20px;
-  line-height: 1.5rem;
+  background: rgb(247, 244, 224);
+  font-family: Georgia, serif;
+  font-size: unquote('clamp(1em, 0.909em + 0.45vmin, 1.25em)');
+  max-width: 70ch;
+  padding: 0;
+  margin-inline: auto;
 }
 
-@media only screen and (min-width: 1000px) {
-  div.primary,
-  footer {
-    width: 968px;
-    margin: 0 auto;
-  }
+body {
+  background: none;
+}
 
-  div.primary {
-    display: grid;
-    grid-template-columns: 280px auto;
-  }
+body :not(:is(h1, h2, h3, h4, h5, h6)) {
+  line-height: 1.75;
 }
 
 h1,
@@ -111,7 +41,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: 'eczar', Helvetica, sans-serif;
+  font-family: system-ui, Helvetica, sans-serif;
   margin: 0.5rem 0;
 }
 
@@ -126,6 +56,40 @@ sup {
 
 h3 > sup {
   font-size: 1.1rem;
+}
+
+nav {
+  background: rgb(16, 17, 25);
+  border-top: 1px solid $gold;
+  border-bottom: 1px solid $tan;
+  padding: 0;
+  ul {
+    margin: 0;
+    padding: 0;
+    li {
+      display: inline-block;
+      padding: 0;
+      margin: 0;
+      a {
+        display: inline-block;
+        background: rgb(36, 14, 0);
+        background: linear-gradient(
+          0deg,
+          rgba(36, 14, 0, 1) 0%,
+          rgba(48, 48, 48, 1) 35%,
+          rgba(106, 103, 92, 1) 100%
+        );
+        border: 1px solid $tan;
+        color: $ironArachneGreen;
+        padding: 0 0.25rem;
+        margin: 0.25rem 0 0.25rem 0.25rem;
+        text-decoration: none;
+      }
+      a:hover {
+        color: white;
+      }
+    }
+  }
 }
 
 div.half-column {
@@ -175,23 +139,12 @@ div.half-column {
 }
 
 .fantasy {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    font-family: 'eczar', sans-serif;
-  }
-
   button {
     background: rgb(92, 86, 73);
     background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
     border: 3px solid $tan;
     border-radius: 3px;
     color: #fff;
-    font-family: 'eczar', sans-serif;
-    font-size: 1.15rem;
     line-height: 1rem;
     margin: 0.1rem;
     padding: 0.5rem 1rem;
@@ -257,6 +210,14 @@ div.half-column {
     color: #777;
     border-color: #999;
   }
+}
+
+h1 {
+  color: #000;
+  font-weight: 700;
+  font-size: 2.5rem;
+  line-height: 2.5rem;
+  padding: 3px;
 }
 
 h2 {
@@ -385,32 +346,16 @@ header {
   background: rgb(0, 0, 0);
   background: linear-gradient(180deg, rgba(0, 0, 0, 1) 0%, rgba(89, 89, 89, 1) 100%);
   border-bottom: 1px solid black;
-  font-size: 1.75rem;
-  line-height: 1.75rem;
   padding: 0.5rem 0;
-  display: grid;
-  grid-template-columns: 64px auto;
-  column-gap: 1rem;
   img {
-    width: 64px;
-    align-self: center;
-    justify-self: center;
+    width: 100%;
+    max-width: 512px;
   }
   p {
+    display: inline-block;
     color: white;
     font-size: 0.8rem;
-    margin: 0;
-  }
-  h1 {
-    color: $ironArachneGreen;
-    font-weight: 700;
-    text-shadow: 2px 2px 1px #000;
-    -webkit-text-stroke-width: 2px;
-    -webkit-text-stroke-color: #220;
-    font-size: 2.5rem;
-    line-height: 2.5rem;
-    margin: 0;
-    align-self: center;
+    margin: 0 0.5rem;
   }
 }
 
@@ -419,15 +364,12 @@ footer {
   margin-top: 1rem;
 }
 
-section.sidebar {
-  background: rgb(235, 232, 217);
-  background: linear-gradient(90deg, rgba(235, 232, 217, 1) 0%, rgba(204, 201, 183, 1) 100%);
+section.navigation {
+  background: none;
   color: black;
 
   a {
     display: inline-block;
-    font-size: 0.6rem;
-    line-height: 0.9rem;
     margin-bottom: 0.5rem;
     width: 100%;
     text-decoration: none;
@@ -442,7 +384,7 @@ section.sidebar {
   }
 
   .cyberpunk {
-    border-top-left-radius: 12px;
+    border-radius: 12px;
     text-shadow: 0 0 2px #86ff00;
 
     a {
@@ -451,7 +393,6 @@ section.sidebar {
       border: 1px solid $ironArachneGreen;
       box-shadow: none;
       color: #d8f6b0;
-      font-size: 1rem;
       font-family: 'azonix', sans-serif;
     }
 
@@ -464,11 +405,13 @@ section.sidebar {
   }
 
   .fantasy {
+    border-radius: 12px;
     background: url('./images/stone-texture.png');
-    color: $gold;
 
-    h3 {
-      font-size: 1.5rem;
+    h2,
+    h3,
+    h4 {
+      color: $gold;
       text-shadow: 3px 0 0 black, 0 3px 0 black, -3px 0 0 black, 0 -3px 0 black;
     }
 
@@ -481,8 +424,6 @@ section.sidebar {
       box-shadow: 1px 1px 1px black;
       text-shadow: -1px -1px 0 black, 1px 1px 0 #aaa;
       color: $gold;
-      font-family: 'eczar', fantasy;
-      font-size: 0.9rem;
     }
 
     a.active {
@@ -512,8 +453,6 @@ section.sidebar {
       border-radius: 3px;
       color: white;
       display: inline-block;
-      font-size: 0.6rem;
-      line-height: 0.9rem;
       margin-bottom: 0.5rem;
       width: 100%;
       text-decoration: none;
@@ -548,15 +487,7 @@ section.sidebar {
   }
 
   .scifi {
-    border-top-left-radius: 12px;
-
-    h3 {
-      font-size: 1.5rem;
-    }
-
-    h4 {
-      font-size: 0.9rem;
-    }
+    border-radius: 12px;
 
     a {
       background: rgb(51, 57, 136);
@@ -569,7 +500,6 @@ section.sidebar {
       box-shadow: 0 0 3px rgba(0, 180, 255, 1);
       color: white;
       font-family: 'alienleague', sans-serif;
-      font-size: 1rem;
     }
 
     a.active {
@@ -587,18 +517,7 @@ section.sidebar {
     border-right: 1px solid #111;
   }
 
-  h2 {
-    font-size: 1.2rem;
-    line-height: 1.2rem;
-  }
-
   h3 {
-    font-size: 1rem;
-    text-align: center;
-  }
-
-  h4 {
-    font-size: 0.75rem;
     border-bottom: 1px solid #000;
   }
 

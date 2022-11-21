@@ -41,7 +41,7 @@
 </style>
 
 <section class="fantasy main">
-  <h2>Culture Generator</h2>
+  <h1>Culture Generator</h1>
   <p>This generator lets you create fantasy cultures.</p>
   <div class="input-group">
     <label for="seed">Random Seed</label>
@@ -50,9 +50,9 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>The { culture.name } Culture</h3>
+  <h2>The { culture.name } Culture</h2>
 
-  <h4>Common Names</h4>
+  <h3>Common Names</h3>
 
   <div class="namelist">
     <div>
@@ -104,33 +104,33 @@
 
 
 
-  <h4>Organization</h4>
+  <h3>Organization</h3>
 
   <p>{ culture.organization.description }</p>
 
-  <h4>Religion</h4>
+  <h3>Religion</h3>
 
   <p>{ culture.religion.description }</p>
 
-  <h4>Taboos</h4>
+  <h3>Taboos</h3>
 
   {#each culture.taboos as taboo}
   <p>{taboo}</p>
   {/each}
 
-  <h4>Greetings</h4>
+  <h3>Greetings</h3>
 
   <p>{ culture.greeting }</p>
 
-  <h4>Meals</h4>
+  <h3>Meals</h3>
 
   <p>{ culture.eatingTrait }</p>
 
-  <h4>Design</h4>
+  <h3>Design</h3>
 
   <p>{ culture.designTrait }</p>
 
-  <h4>Music</h4>
+  <h3>Music</h3>
 
   <p>{ culture.musicStyle.description }</p>
 </section>

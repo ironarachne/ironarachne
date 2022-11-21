@@ -36,7 +36,7 @@
 </svelte:head>
 
 <section class="main scifi">
-  <h2>Stars Without Number Character Generator</h2>
+  <h1>Stars Without Number Character Generator</h1>
 
   <div class="input-group">
     <label for="seed">Random Seed</label>
@@ -46,7 +46,7 @@
   <button on:click={newSeed}>Random Seed (and Generate)</button>
   <button on:click={save}>Save</button>
 
-  <h3>Character</h3>
+  <h2>Character</h2>
 
   <p><strong>Background:</strong> {character.background.name}</p>
   <p><strong>Class:</strong> {character.characterClass.name}</p>
@@ -58,13 +58,13 @@
   <p><strong>Armor Class:</strong> {character.armorClassEquipped}</p>
   <p><strong>Credits:</strong> {character.credits}</p>
 
-  <h4>Saving Throws</h4>
+  <h3>Saving Throws</h3>
 
   <p><strong>Evasion:</strong> {character.savingThrowEvasion}</p>
   <p><strong>Mental:</strong> {character.savingThrowMental}</p>
   <p><strong>Physical:</strong> {character.savingThrowPhysical}</p>
 
-  <h4>Focuses</h4>
+  <h3>Focuses</h3>
 
   {#each character.focuses as focus}
     <div>
@@ -72,7 +72,7 @@
     </div>
   {/each}
 
-  <h4>Stats</h4>
+  <h3>Stats</h3>
 
   <div class="stats">
     {#each character.stats as stat}
@@ -83,7 +83,7 @@
     {/each}
   </div>
 
-  <h4>Skills</h4>
+  <h3>Skills</h3>
 
   <div class="skills">
     {#each character.skills as skill}
@@ -93,7 +93,7 @@
     {/each}
   </div>
 
-  <h4>Abilities</h4>
+  <h3>Abilities</h3>
 
   <div class="abilities">
     {#each character.abilities as ability}
@@ -103,7 +103,7 @@
     {/each}
   </div>
 
-  <h4>Weapons</h4>
+  <h3>Weapons</h3>
 
   {#each character.rangedWeapons as weapon}
     <div>
@@ -123,7 +123,7 @@
     </div>
   {/each}
 
-  <h4>Armor</h4>
+  <h3>Armor</h3>
 
   {#each character.armor as item}
     <div>
@@ -131,7 +131,7 @@
     </div>
   {/each}
 
-  <h4>Equipment</h4>
+  <h3>Equipment</h3>
 
   {#each character.equipment as item}
     <div>

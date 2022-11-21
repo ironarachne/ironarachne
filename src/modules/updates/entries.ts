@@ -16,6 +16,13 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2022-11-21', [
+      'Moved navigation from a sidebar to its own page.',
+      'Removed two custom fonts.',
+      'Redesigned the logo.',
+      'Made other design tweaks.',
+      'Switched to Vite for build and development.',
+    ]),
     new ChangeLog('2022-11-18', [
       'Made min rooms and max rooms for dungeon generator configurable.',
     ]),

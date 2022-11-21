@@ -1,8 +1,8 @@
 'use strict';
 
 import * as Biomes from './biomes';
-import Biome from './biome';
-import Climate from '../climates/climate';
+import type Biome from './biome';
+import type Climate from '../climates/climate';
 
 export default class BiomeGeneratorConfig {
   availableBiomes: Biome[];

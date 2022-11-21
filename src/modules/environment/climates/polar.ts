@@ -1,6 +1,6 @@
 'use strict';
 
-import Climate from './climate';
+import type Climate from './climate';
 
 import * as PrecipitationTypes from '../precipitationtypes';
 import Season from '../seasons/season';

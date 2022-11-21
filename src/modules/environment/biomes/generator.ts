@@ -2,7 +2,7 @@
 
 import BiomeGeneratorConfig from './generatorconfig';
 import * as RND from '../../random';
-import Biome from './biome';
+import type Biome from './biome';
 
 export default class BiomeGenerator {
   config: BiomeGeneratorConfig;

@@ -40,7 +40,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>AD&amp;D 2e Character Generator</h2>
+  <h1>AD&amp;D 2e Character Generator</h1>
 
   <p>This is an AD&amp;D 2e character generator.</p>
 
@@ -52,7 +52,7 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>{ character.firstName } { character.lastName }</h3>
+  <h2>{ character.firstName } { character.lastName }</h2>
 
   <p>A level { character.level } { character.race.name } { character.class.name }</p>
 
@@ -63,7 +63,7 @@
   <p><strong>Alignment:</strong> { character.alignment }</p>
   <p><strong>Currency:</strong> { Currency.valueToCoins(character.currency, false, false) }</p>
 
-  <h4>Attributes</h4>
+  <h3>Attributes</h3>
 
   <p><strong>Strength:</strong> { character.strength }{#if character.exceptionalStrength != -1 }/{ getEStrength(character.exceptionalStrength) }{/if}</p>
   <p><strong>Dexterity:</strong> { character.dexterity }</p>
@@ -72,7 +72,7 @@
   <p><strong>Intelligence:</strong> { character.intelligence }</p>
   <p><strong>Wisdom:</strong> { character.wisdom }</p>
 
-  <h4>Saving Throws</h4>
+  <h3>Saving Throws</h3>
 
   <p><strong>Paralyzation, Poison, or Death Magic:</strong> { character.poisonSavingThrow }</p>
   <p><strong>Rod, Staff, or Wand:</strong> { character.rodSavingThrow }</p>
@@ -80,7 +80,7 @@
   <p><strong>Breath Weapon:</strong> { character.breathSavingThrow }</p>
   <p><strong>Spell:</strong> { character.spellSavingThrow }</p>
 
-  <h4>Derived Stats</h4>
+  <h3>Derived Stats</h3>
 
   <p><strong>Hit Probability:</strong> { character.hitProbability }</p>
   <p><strong>Damage Adjustment:</strong> { character.damageAdjustment }</p>
@@ -109,7 +109,7 @@
   <p><strong>Loyalty Base:</strong> { character.loyaltyBase > 0 ? `+${character.loyaltyBase}` : character.loyaltyBase }</p>
   <p><strong>Reaction Adjustment (NPCs):</strong> { character.npcReactionAdjustment > 0 ? `+${character.npcReactionAdjustment}` : character.npcReactionAdjustment }</p>
 
-  <h4>Weapons</h4>
+  <h3>Weapons</h3>
 
   <table>
     <thead>
@@ -132,20 +132,20 @@
     </tbody>
   </table>
 
-  <h4>Armor</h4>
+  <h3>Armor</h3>
 
   {#each character.armor as armor}
     <p>{ armor.name }</p>
   {/each}
 
-  <h4>Abilities</h4>
+  <h3>Abilities</h3>
 
   {#each character.abilities as ability}
     <p>{ ability }</p>
   {/each}
 
   {#if character.spells.length > 0}
-  <h4>Spells</h4>
+  <h3>Spells</h3>
 
   {#each character.spells as spell}
     <p>{ spell.name }</p>

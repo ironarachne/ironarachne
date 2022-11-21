@@ -39,7 +39,7 @@
 </svelte:head>
 
 <section class="main default">
-  <h2>Word Generator Cheat Sheet</h2>
+  <h1>Word Generator Cheat Sheet</h1>
 
   <p>This is meant only for development reference.</p>
   <p>Enclosing several comma-separated patterns in parentheses will make the parser choose one of those to add to the word.</p>
@@ -63,7 +63,7 @@
     {/each}
   </ul>
 
-  <h3>Element Reference</h3>
+  <h2>Element Reference</h2>
 
   {@html html}
 </section>

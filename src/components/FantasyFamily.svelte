@@ -65,7 +65,7 @@
 </svelte:head>
 
 <section class="fantasy main">
-  <h2>Fantasy Family Generator</h2>
+  <h1>Fantasy Family Generator</h1>
 
   <p>This generator creates a family. Note that more than 10 iterations can be quite slow. More than 30 may or may not crash your browser.</p>
 
@@ -100,17 +100,17 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h3>The {family.name} Family</h3>
+  <h2>The {family.name} Family</h2>
 
   {#each family.members as member}
-    <h4>{member.character.firstName} {member.character.lastName}</h4>
+    <h3>{member.character.firstName} {member.character.lastName}</h3>
     <p>{member.character.age}-year-old {member.character.species.name} {member.character.ageCategory.noun} {#if member.character.status == "dead"}(dead){/if}</p>
     <p>{member.character.description}</p>
     {#if member.mate != -1}
       <p><strong>Mate:</strong> {family.getMate(member).character.firstName} {family.getMate(member).character.lastName}</p>
     {/if}
     {#if member.children.length > 0}
-      <h5>Children</h5>
+      <h4>Children</h4>
       <ul>
         {#each family.getChildren(member) as child}
           <li>{child.character.firstName} {child.character.lastName}</li>
@@ -118,7 +118,7 @@
       </ul>
     {/if}
     {#if member.parents.length > 0}
-      <h5>Parents</h5>
+      <h4>Parents</h4>
       <ul>
         {#each family.getParents(member) as parent}
           <li>{parent.character.firstName} {parent.character.lastName}</li>

@@ -40,7 +40,7 @@
 </svelte:head>
 
 <section class="scifi main">
-  <h2>Star Nation Generator</h2>
+  <h1>Star Nation Generator</h1>
 
   <p>Generate a star nation.</p>
 
