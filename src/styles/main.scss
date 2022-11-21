@@ -2,14 +2,14 @@
 
 @font-face {
   font-family: 'alienleague';
-  src: url('./fonts/alienleagueregular-9d3z-webfont.woff2') format('woff2');
+  src: url('/fonts/alienleagueregular-9d3z-webfont.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
 
 @font-face {
   font-family: 'azonix';
-  src: url('./fonts/azonix-webfont.woff2') format('woff2');
+  src: url('/fonts/azonix-webfont.woff2') format('woff2');
   font-weight: normal;
   font-style: normal;
 }
@@ -406,7 +406,7 @@ section.navigation {
 
   .fantasy {
     border-radius: 12px;
-    background: url('./images/stone-texture.png');
+    background: url('/images/stone-texture.png');
 
     h2,
     h3,
@@ -417,7 +417,7 @@ section.navigation {
 
     a {
       background-color: rgb(155, 90, 55);
-      background-image: url('./images/stone-texture.png');
+      background-image: url('/images/stone-texture.png');
       background-blend-mode: screen;
       border-radius: 0;
       border: 1px solid rgb(67, 66, 66);
