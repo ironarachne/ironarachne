@@ -8,7 +8,13 @@
   let maleWeightModifier = 120;
   let femaleCategories = [];
   let maleCategories = [];
-  let ingeniumDescription = '';
+  let ingenium = {
+    adultAge: '',
+    femaleHeight: '',
+    maleHeight: '',
+    femaleWeight: '',
+    maleWeight: ''
+  };
 
   function calculate() {
     let ageScale = maximumAge / 100;
@@ -20,30 +26,20 @@
   }
 
   function getIngenium() {
-    let description = '';
-    let adultAge = '';
-
     for (let i=0;i<femaleCategories.length;i++) {
       if (femaleCategories[i].name == "adult") {
-        description += '\\textbf{Female Height:} ' + femaleCategories[i].getHeightRange() + '\n\n';
-        description += '\\textbf{Female Weight:} ' + femaleCategories[i].getWeightRange() + '\n\n';
-
-        adultAge = '\\textbf{Adulthood Age:} ' + femaleCategories[i].minAge + '\n\n';
+        ingenium.femaleHeight = femaleCategories[i].getHeightRange();
+        ingenium.femaleWeight = femaleCategories[i].getWeightRange();
+        ingenium.adultAge = femaleCategories[i].minAge;
       }
     }
 
     for (let i=0;i<maleCategories.length;i++) {
       if (maleCategories[i].name == "adult") {
-        description += '\\textbf{Male Height:} ' + maleCategories[i].getHeightRange() + '\n\n';
-        description += '\\textbf{Male Weight:} ' + maleCategories[i].getWeightRange() + '\n\n';
+        ingenium.maleHeight = maleCategories[i].getHeightRange();
+        ingenium.maleWeight = maleCategories[i].getWeightRange();
       }
     }
-
-    description += adultAge;
-
-    description += '\\textbf{Average Maximum Lifespan:} ' + maximumAge;
-
-    ingeniumDescription = description;
   }
 
   calculate();
@@ -120,7 +116,12 @@
 
   <h2>For Ingenium Second Edition</h2>
 
-  <p>This is specifically for the manuscript for Ingenium Second Edition bloodline stats.</p>
+  <p>This is for Ingenium Second Edition heritages.</p>
 
-  <pre>{ ingeniumDescription }</pre>
+  <p><strong>Female Height:</strong> { ingenium.femaleHeight }</p>
+  <p><strong>Male Height:</strong> { ingenium.maleHeight }</p>
+  <p><strong>Female Weight:</strong> { ingenium.femaleWeight }</p>
+  <p><strong>Male Weight:</strong> { ingenium.maleWeight }</p>
+  <p><strong>Adult Age:</strong> { ingenium.adultAge }</p>
+  <p><strong>Maximum Lifespan:</strong> { maximumAge }</p>
 </section>

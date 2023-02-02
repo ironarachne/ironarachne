@@ -16,6 +16,9 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2023-02-02', [
+      'Changed format of Ingenium Second Edition heritage stats',
+    ]),
     new ChangeLog('2022-11-21', [
       'Moved navigation from a sidebar to its own page.',
       'Removed two custom fonts.',
