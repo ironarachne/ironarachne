@@ -4,8 +4,8 @@
   let maximumAge = 100;
   let femaleHeightModifier = 100;
   let femaleWeightModifier = 100;
-  let maleHeightModifier = 110;
-  let maleWeightModifier = 120;
+  let maleHeightModifier = 100;
+  let maleWeightModifier = 100;
   let femaleCategories = [];
   let maleCategories = [];
   let ingenium = {
@@ -54,7 +54,7 @@
   <p>This tool helps in the construction of non-human species. I built it to help me input standard
     fantasy species. To use it, just enter the percentage of human size you want to use for height and weight.</p>
 
-  <p>All numbers use modern human female as a base.</p>
+  <p>All numbers use modern human as a base.</p>
 
   <h2>Settings</h2>
 

@@ -16,8 +16,12 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2023-02-18', [
+      'Fixed a bug with male height in species stats calculator.',
+      'Added more descriptions to the biome generator.',
+    ]),
     new ChangeLog('2023-02-02', [
-      'Changed format of Ingenium Second Edition heritage stats',
+      'Changed the format of Ingenium Second Edition heritage stats.',
     ]),
     new ChangeLog('2022-11-21', [
       'Moved navigation from a sidebar to its own page.',
