@@ -16,13 +16,17 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2023-04-14', [
+      'Expanded the results for the religion generator.',
+      'Expanded the results for the culture generator.',
+      'Expanded the possibilities for settlements in the region generator.',
+      'Expanded the diversity of results for the chop shop generator.',
+    ]),
     new ChangeLog('2023-02-18', [
       'Fixed a bug with male height in species stats calculator.',
       'Added more descriptions to the biome generator.',
     ]),
-    new ChangeLog('2023-02-02', [
-      'Changed the format of Ingenium Second Edition heritage stats.',
-    ]),
+    new ChangeLog('2023-02-02', ['Changed the format of Ingenium Second Edition heritage stats.']),
     new ChangeLog('2022-11-21', [
       'Moved navigation from a sidebar to its own page.',
       'Removed two custom fonts.',

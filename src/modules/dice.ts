@@ -11,6 +11,7 @@ export class DicePool {
   d20: number;
   d100: number;
   modifier: number;
+  modifierType: string;
 
   constructor() {
     this.d4 = 0;
@@ -21,7 +22,110 @@ export class DicePool {
     this.d20 = 0;
     this.d100 = 0;
     this.modifier = 0;
+    this.modifierType = '+';
   }
+
+  getAverageResult(): number {
+    let result = this.getMinResult() + this.getMaxResult();
+
+    result = Math.floor(result / 2);
+
+    return result;
+  }
+
+  getMaxResult(): number {
+    let result = 0;
+    result += this.d4 * 4;
+    result += this.d6 * 6;
+    result += this.d8 * 8;
+    result += this.d10 * 10;
+    result += this.d12 * 12;
+    result += this.d20 * 20;
+    result += this.d100 * 100;
+
+    if (this.modifierType == '*') {
+      result *= this.modifier;
+    } else if (this.modifierType == '+') {
+      result += this.modifier;
+    } else {
+      result -= this.modifier;
+    }
+
+    return result;
+  }
+
+  getMinResult(): number {
+    let result = 0;
+    result += this.d4;
+    result += this.d6;
+    result += this.d8;
+    result += this.d10;
+    result += this.d12;
+    result += this.d20;
+    result += this.d100;
+
+    if (this.modifierType == '*') {
+      result *= this.modifier;
+    } else if (this.modifierType == '+') {
+      result += this.modifier;
+    } else {
+      result -= this.modifier;
+    }
+
+    return result;
+  }
+}
+
+export function toDicePool(expression: string): DicePool {
+  let numDice = 0;
+  let numSides = 0;
+  let modifier = 0;
+  let modifierType = '+';
+  let parts = [];
+  let modParts = [];
+
+  let dicePool = new DicePool();
+
+  if (expression.includes('-')) {
+    modifierType = '-';
+    modParts = expression.split('-');
+    modifier = Number(modParts[1]);
+  } else if (expression.includes('x')) {
+    modifierType = '*';
+    modParts = expression.split('x');
+    modifier = Number(modParts[1]);
+  } else if (expression.includes('+')) {
+    modParts = expression.split('+');
+    modifier = Number(modParts[1]);
+  } else {
+    modParts = expression.split('+'); // no modifier
+  }
+
+  dicePool.modifier = modifier;
+  dicePool.modifierType = modifierType;
+
+  parts = modParts[0].split('d');
+
+  numDice = Number(parts[0]);
+  numSides = Number(parts[1]);
+
+  if (numSides == 4) {
+    dicePool.d4 = numDice;
+  } else if (numSides == 6) {
+    dicePool.d6 = numDice;
+  } else if (numSides == 8) {
+    dicePool.d8 = numDice;
+  } else if (numSides == 10) {
+    dicePool.d10 = numDice;
+  } else if (numSides == 12) {
+    dicePool.d12 = numDice;
+  } else if (numSides == 20) {
+    dicePool.d20 = numDice;
+  } else if (numSides == 100) {
+    dicePool.d100 = numDice;
+  }
+
+  return dicePool;
 }
 
 export function describeDice(dice: DicePool) {
@@ -125,7 +229,7 @@ export function rangeToDiceExpression(range: number) {
   return dice;
 }
 
-export function roll(expression: string) {
+export function roll(expression: string): number {
   let phrases = [];
   let expressionType = 'straight';
   let parts = [];

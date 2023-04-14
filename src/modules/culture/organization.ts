@@ -49,41 +49,54 @@ export function generate() {
   return organization;
 }
 
-function generatePowerStructure() {
-  // is there a dominant gender? if so, which is it?
-  // is power concentrated in a large group, a small group, or individuals?
-  // what is the source of status? wealth, religion, land, strength?
-  // who is in charge of towns?
-  // are there different types of authority? e.g., town council made of men, but women's council that can overrule them
-  // who is in charge of groups of towns?
-  // what is the source of authority, if it's different from status?
-}
-
 function randomDominantGender() {
   return RND.item(['women are dominant', 'men are dominant', 'neither gender is dominant']);
 }
 
 function randomPowerConcentration() {
   return RND.item([
-    'everyone has a say in how things are run',
-    'a single group has control of society',
-    'one individual has control of society',
+    'power is shared among multiple groups',
+    'power is divided between two opposing groups',
+    'power is distributed evenly among all individuals',
+    'power is determined by a merit-based system',
+    'power is determined by birthright',
+    'power is determined by religious affiliation',
+    'power is determined by wealth',
+    'power is determined by military might',
+    'power is determined by magical ability',
+    'power is determined by age',
+    'power is determined by educational attainment',
+    'power is determined by popularity or public opinion',
   ]);
 }
 
 function randomSocialMobility() {
   return RND.item([
-    'no one leaves the status they are born into',
-    'some gain higher status by marrying someone above them',
-    'everyone has the freedom to gain or lose status based on their own efforts',
-    'it\'s possible to marry outside your social class, but frowned upon',
-    'marrying outside of your social class is an acceptable way to change your status',
-    'there is a rigid caste system and marrying outside of your caste is forbidden',
-    'there is a rigid caste system but marrying outside of your caste is allowed in some situations',
-    'there is a caste system, but it is starting to fall away as the younger generations pay less attention to it',
+    'social mobility is completely stagnant',
+    'social mobility is only possible through military service',
+    'social mobility is only possible through marriage',
+    'social mobility is only possible through education',
+    'social mobility is only possible through wealth accumulation',
+    'social mobility is only possible through religious conversion',
+    'social mobility is only possible through a special talent or skill',
+    'social mobility is only possible through political connections',
+    'social mobility is only possible through joining a particular profession or guild',
+    'social mobility is possible through hard work and determination alone',
+    'social mobility is possible for anyone who is willing to take risks and seize opportunities',
+    'social mobility is only possible for those born into a certain social class',
+    'social mobility is only possible for those who are part of a certain racial or ethnic group',
+    'social mobility is only possible for those who are members of a certain secret society',
   ]);
 }
 
 function randomDominantProfession() {
-  return RND.item(['landowners', 'merchants', 'religious leaders', 'intellectuals']);
+  return RND.item([
+    'landowners',
+    'merchants',
+    'religious leaders',
+    'intellectuals',
+    'craftsmen',
+    'farmers',
+    'warriors',
+  ]);
 }
