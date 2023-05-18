@@ -1,11 +1,21 @@
 'use strict';
 
-import * as Dice from './dice';
+import * as Dice from '../src/modules/dice';
 
 test('range to expression of 1d4 should have one d4 and nothing else', () => {
   const dicePool = Dice.rangeToDiceExpression(4);
 
-  expect(dicePool).toEqual({ d4: 1, d6: 0, d8: 0, d10: 0, d12: 0, d20: 0, d100: 0, modifier: 0 });
+  expect(dicePool).toEqual({
+    d4: 1,
+    d6: 0,
+    d8: 0,
+    d10: 0,
+    d12: 0,
+    d20: 0,
+    d100: 0,
+    modifier: 0,
+    modifierType: '+',
+  });
 });
 
 test('describing dice pool with 1d4 and 1d20 and 3 modifier should result in 1d20+1d4+3', () => {
@@ -36,6 +46,7 @@ test('simplifying dice pool with 1d4 and 1d20 and 3 modifier should result in 1d
     d20: 1,
     d100: 0,
     modifier: 0,
+    modifierType: '+',
   });
 });
 

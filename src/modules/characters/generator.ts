@@ -31,9 +31,10 @@ export default class CharacterGenerator {
     const height =
       character.height +
       ' cm (' +
-      Measurements.inchesToFeet(Measurements.cmToInches(character.height)) +
+      Measurements.inchesToFeetExpression(Measurements.cmToInches(character.height)) +
       ')';
-    const weight = character.weight + ' kg (' + Measurements.kgToPounds(character.weight) + ' lb.)';
+    const weight =
+      character.weight + ' kg (' + Math.round(Measurements.kgToPounds(character.weight)) + ' lb.)';
     const spPhrase = character.species.adjective + ' ' + genderNoun;
     const traits = Words.arrayToPhrase(describeTraits(character));
 
@@ -52,7 +53,15 @@ export default class CharacterGenerator {
   generate(): Character {
     const species = RND.weighted(this.config.speciesOptions);
     const ageCategoryName = RND.item(this.config.ageCategories);
-    const gender = RND.item(this.config.genderOptions);
+    const genderName = RND.item(this.config.genderNameOptions);
+
+    let gender;
+
+    for (let i = 0; i < species.genders.length; i++) {
+      if (species.genders[i].name === genderName) {
+        gender = species.genders[i];
+      }
+    }
 
     let familyNameGenerator = this.config.familyNameGenerator;
     let femaleNameGenerator = this.config.femaleNameGenerator;

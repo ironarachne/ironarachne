@@ -1,9 +1,11 @@
 <script lang="ts">
-    import * as RND from "../modules/random";
+  import * as RND from "../modules/random";
   import RegionGeneratorConfig from "../modules/region/generatorconfig";
   import RegionGenerator from "../modules/region/generator";
   import * as Words from "../modules/words";
   import * as CultureNameSets from '../modules/names/cultures';
+  import { savedCulture } from "../modules/stores";
+  import { get } from 'svelte/store';
 
   import random from "random";
   import seedrandom from "seedrandom";
@@ -20,15 +22,28 @@
   let heraldryRenderer = new HeraldrySVGRenderer();
   let region = generator.generate();
   let ruler = region.authority;
+  let useSavedCulture = false;
+  let loadedCulture = null;
+
+  savedCulture.subscribe(value => {
+    loadedCulture = value;
+  });
 
   function generate() {
     random.use(seedrandom(seed));
-    if (nameSetName == 'any') {
-      nameSet = CultureNameSets.randomGenSet();
+    if (useSavedCulture == true) {
+      let culture = get(savedCulture);
+      generator.config.dominantCulture = culture;
     } else {
-      nameSet = CultureNameSets.getSetByName(nameSetName);
+      generator.config.dominantCulture = null;
+      if (nameSetName == 'any') {
+        nameSet = CultureNameSets.randomGenSet();
+      } else {
+        nameSet = CultureNameSets.getSetByName(nameSetName);
+      }
+      generator.config.nameGeneratorSet = nameSet;
     }
-    generator.config.nameGeneratorSet = nameSet;
+
     region = generator.generate();
     ruler = region.authority;
   }
@@ -63,12 +78,23 @@
     </select>
   </div>
 
+  <div class="input-group">
+    <label for="useSavedCulture">Use Saved Culture</label>
+    <input type="checkbox" name="useSavedCulture" id="useSavedCulture" bind:checked={useSavedCulture} disabled={loadedCulture == null} />
+  </div>
+
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
   <h2>{Words.capitalize(region.name)}</h2>
 
   <p>{region.description}</p>
+
+  {#if region.dominantCulture != null}
+
+  <p>The dominant culture here is the {region.dominantCulture.name}.</p>
+
+  {/if}
 
   {#if region.realms[region.mainRealm].parent != -1}
   <div class="parent-realm">

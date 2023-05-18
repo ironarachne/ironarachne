@@ -1,6 +1,7 @@
 'use strict';
 
 import Character from '../characters/character';
+import Culture from '../culture/culture';
 import Environment from '../environment/environment';
 import Organization from '../organizations/organization';
 import Realm from '../realms/realm';
@@ -10,6 +11,7 @@ export default class Region {
   name: string;
   environment: Environment;
   description: string;
+  dominantCulture: Culture;
   settlements: Settlement[];
   mainRealm: number;
   realms: Realm[];

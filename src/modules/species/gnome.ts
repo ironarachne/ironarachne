@@ -84,7 +84,7 @@ export default class Gnome implements Species {
         'him',
         'his',
         500,
-        AgeCategories.getHumanVariant(5, 0.5, 0.5, 'male'),
+        AgeCategories.getHumanVariant(5, 0.5, 0.4, 'male'),
       ),
     ];
   }

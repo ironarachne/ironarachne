@@ -27,9 +27,13 @@ export default class AgeCategory {
     this.minAge = minAge;
     this.maxAge = maxAge;
     this.minHeight = minHeight;
-    this.maxHeight = Math.floor(minHeight * 1.2);
+    this.maxHeight = Math.floor(minHeight * 1.05);
     this.minWeight = minWeight;
-    this.maxWeight = Math.floor(minWeight * 1.2);
+    this.maxWeight = Math.floor(minWeight * 1.05);
+  }
+
+  getDescription(): string {
+    return `Name: ${this.name}, Noun: ${this.noun}, Age: ${this.minAge} - ${this.maxAge}, Height: ${this.minHeight} - ${this.maxHeight}, Weight: ${this.minWeight} - ${this.maxWeight}`;
   }
 
   getHeightRange(): string {
@@ -44,7 +48,7 @@ export default class AgeCategory {
       4,
     );
     const imperial =
-      Measurements.inchesToFeet(Measurements.cmToInches(this.minHeight)) +
+      Measurements.inchesToFeetExpression(Measurements.cmToInches(this.minHeight)) +
       ' + ' +
       Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialHeightModifier))) +
       ' in.';
@@ -60,7 +64,7 @@ export default class AgeCategory {
       Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricWeightModifier))) +
       ' kg';
     const imperialWeightModifier = Math.max(
-      Measurements.kgToPounds(this.maxWeight - this.minWeight),
+      Math.round(Measurements.kgToPounds(this.maxWeight - this.minWeight)),
       4,
     );
     const imperial =

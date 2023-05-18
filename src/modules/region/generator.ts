@@ -29,7 +29,14 @@ export default class RegionGenerator {
 
     const envGen = new EnvironmentGenerator();
 
-    let nameGenSet = this.config.nameGeneratorSet;
+    let nameGenSet;
+
+    if (this.config.dominantCulture != null) {
+      region.dominantCulture = this.config.dominantCulture;
+      nameGenSet = region.dominantCulture.generatorSet;
+    } else {
+      nameGenSet = this.config.nameGeneratorSet;
+    }
 
     region.environment = envGen.generate();
     region.settlements = randomSettlements(region.environment, nameGenSet);

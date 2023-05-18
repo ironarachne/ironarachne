@@ -31,7 +31,12 @@ export default class FamilyGenerator {
     charGenConfig.familyNameGenerator = family.familyNameGenerator;
     charGenConfig.femaleNameGenerator = family.femaleNameGenerator;
     charGenConfig.maleNameGenerator = family.maleNameGenerator;
-    charGenConfig.genderOptions = [this.config.species.genders[0]];
+
+    let genderNames = [];
+    for (let i = 0; i < this.config.species.genders.length; i++) {
+      genderNames.push(this.config.species.genders[i].name);
+    }
+    charGenConfig.genderNameOptions = genderNames;
 
     let charGen = new CharacterGenerator(charGenConfig);
 
@@ -41,7 +46,7 @@ export default class FamilyGenerator {
     parent1.character.description = charGen.describe(parent1.character);
 
     let mateGender = getMateGender(parent1.character.gender, this.config.species.genders);
-    charGen.config.genderOptions = [mateGender];
+    charGen.config.genderNameOptions = [mateGender.name];
     let parent2 = new FamilyMember(1);
     parent2.character = charGen.generate();
     parent2.character.age += 5;
@@ -172,7 +177,11 @@ function getNewChild(parent1Index: number, parent2Index: number, family: Family)
   charConfig.familyNameGenerator = family.familyNameGenerator;
   charConfig.femaleNameGenerator = family.femaleNameGenerator;
   charConfig.maleNameGenerator = family.maleNameGenerator;
-  charConfig.genderOptions = parent1.species.genders;
+  let genderNames = [];
+  for (let i = 0; i < parent1.species.genders.length; i++) {
+    genderNames.push(parent1.species.genders[i].name);
+  }
+  charConfig.genderNameOptions = genderNames;
   charConfig.physicalTraitOverrides = traitOverrides;
 
   let charGen = new CharacterGenerator(charConfig);
@@ -191,7 +200,7 @@ function getNewMate(member: FamilyMember, family: Family): Character {
   charConfig.familyNameGenerator = family.familyNameGenerator;
   charConfig.femaleNameGenerator = family.femaleNameGenerator;
   charConfig.maleNameGenerator = family.maleNameGenerator;
-  charConfig.genderOptions = [getMateGender(gender, member.character.species.genders)];
+  charConfig.genderNameOptions = [getMateGender(gender, member.character.species.genders).name];
 
   let charGen = new CharacterGenerator(charConfig);
 

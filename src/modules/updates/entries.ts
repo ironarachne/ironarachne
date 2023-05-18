@@ -16,6 +16,11 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2023-05-18', [
+      'Made it possible to save a culture from the culture generator for use in the region generator.',
+      'Tweaked the heights of some of the fantasy species.',
+      'Fixed a bug in the measurements converter for feet and inches.',
+    ]),
     new ChangeLog('2023-04-14', [
       'Expanded the results for the religion generator.',
       'Expanded the results for the culture generator.',

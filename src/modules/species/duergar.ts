@@ -62,9 +62,16 @@ export default class Duergar implements Species {
         'her',
         'her',
         300,
-        AgeCategories.getHumanVariant(3, 0.9, 0.7, 'female'),
+        AgeCategories.getHumanVariant(3, 0.9, 0.75, 'female'),
       ),
-      new Gender('male', 'he', 'him', 'his', 300, AgeCategories.getHumanVariant(3, 1, 0.8, 'male')),
+      new Gender(
+        'male',
+        'he',
+        'him',
+        'his',
+        300,
+        AgeCategories.getHumanVariant(3, 1, 0.75, 'male'),
+      ),
     ];
   }
 }

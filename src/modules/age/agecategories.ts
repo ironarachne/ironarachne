@@ -74,9 +74,9 @@ export function humanStandardFemale(): AgeCategory[] {
     new AgeCategory('toddler', 'toddler', 2, 3, 80, 14),
     new AgeCategory('young child', 'young girl', 4, 6, 115, 19),
     new AgeCategory('child', 'girl', 7, 12, 149, 20),
-    new AgeCategory('young adult', 'young woman', 13, 19, 163, 57),
-    new AgeCategory('adult', 'woman', 20, 60, 168, 64),
-    new AgeCategory('elderly', 'woman', 61, 100, 165, 60),
+    new AgeCategory('young adult', 'young woman', 13, 19, 158, 57),
+    new AgeCategory('adult', 'woman', 20, 60, 160, 64),
+    new AgeCategory('elderly', 'woman', 61, 100, 155, 60),
   ];
 }
 
@@ -86,8 +86,8 @@ export function humanStandardMale(): AgeCategory[] {
     new AgeCategory('toddler', 'toddler', 2, 3, 85, 14),
     new AgeCategory('young child', 'young boy', 4, 6, 115, 20),
     new AgeCategory('child', 'boy', 7, 12, 145, 36),
-    new AgeCategory('young adult', 'young man', 13, 19, 176, 68),
-    new AgeCategory('adult', 'man', 20, 60, 180, 70),
-    new AgeCategory('elderly', 'man', 61, 100, 175, 65),
+    new AgeCategory('young adult', 'young man', 13, 19, 170, 68),
+    new AgeCategory('adult', 'man', 20, 60, 175, 70),
+    new AgeCategory('elderly', 'man', 61, 100, 170, 65),
   ];
 }

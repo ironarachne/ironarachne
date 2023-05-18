@@ -16,7 +16,7 @@ export default class CharacterGeneratorConfig {
   speciesOptions: Species[];
   physicalTraitOverrides: PhysicalTrait[];
   useAdaptiveNames: boolean;
-  genderOptions: Gender[];
+  genderNameOptions: string[];
 
   constructor() {
     this.ageCategories = AgeCategories.getCategoryList();
@@ -26,9 +26,7 @@ export default class CharacterGeneratorConfig {
     this.maleNameGenerator = genSet.male;
     this.speciesOptions = [];
 
-    let human = new Human();
-
-    this.genderOptions = human.genders;
+    this.genderNameOptions = ['male', 'female'];
     this.useAdaptiveNames = false;
     this.physicalTraitOverrides = [];
   }

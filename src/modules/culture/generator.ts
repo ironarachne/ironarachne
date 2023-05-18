@@ -202,7 +202,6 @@ function randomTaboos() {
     'Giving a gift with one hand',
     'Whistling indoors',
     'Laughing loudly in public',
-    'Wearing sunglasses indoors',
     'Not addressing someone by their proper title',
     'Wearing shoes on a bed or table',
     'Refusing to take part in a feast or celebration',
@@ -218,7 +217,6 @@ function randomTaboos() {
     'Not making eye contact during a conversation',
     'Not saying "please" or "thank you" when appropriate',
     "Sitting with one's legs apart in public",
-    'Talking loudly on a cell phone in public',
     "Taking food from someone else's plate",
     'Not offering a seat to someone in need',
   ];

@@ -1,6 +1,8 @@
 <script lang="ts">
   import * as RND from "../modules/random";
   import * as CultureNames from "../modules/names/cultures";
+  import { savedCulture } from "../modules/stores";
+  import { get } from 'svelte/store';
 
   import random from "random";
   import seedrandom from "seedrandom";
@@ -24,6 +26,14 @@
   function newSeed() {
     seed = RND.randomString(13);
     generate();
+  }
+
+  function loadSavedCulture() {
+    culture = get(savedCulture);
+  }
+
+  function saveCulture() {
+    savedCulture.set(culture);
   }
 </script>
 
@@ -49,6 +59,8 @@
   </div>
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={saveCulture}>Save Culture</button>
+  <button on:click={loadSavedCulture}>Load Culture</button>
 
   <h2>The { culture.name } Culture</h2>
 

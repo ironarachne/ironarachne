@@ -2,9 +2,11 @@
 
 import GeneratorSet from '../names/generatorset';
 import FantasySet from '../names/cultures/fantasy';
+import Culture from '../culture/culture';
 
 export default class RegionGeneratorConfig {
   nameGeneratorSet: GeneratorSet;
+  dominantCulture: Culture | null;
   mapWidth: number;
   mapHeight: number;
   minRealms: number;
@@ -12,6 +14,7 @@ export default class RegionGeneratorConfig {
 
   constructor() {
     this.nameGeneratorSet = new FantasySet();
+    this.dominantCulture = null;
     this.mapWidth = 40;
     this.mapHeight = 30;
     this.minRealms = 2;
