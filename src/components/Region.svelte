@@ -5,7 +5,6 @@
   import * as Words from "../modules/words";
   import * as CultureNameSets from '../modules/names/cultures';
   import { savedCulture } from "../modules/stores";
-  import { get } from 'svelte/store';
 
   import random from "random";
   import seedrandom from "seedrandom";
@@ -32,8 +31,7 @@
   function generate() {
     random.use(seedrandom(seed));
     if (useSavedCulture == true) {
-      let culture = get(savedCulture);
-      generator.config.dominantCulture = culture;
+      generator.config.dominantCulture = loadedCulture;
     } else {
       generator.config.dominantCulture = null;
       if (nameSetName == 'any') {

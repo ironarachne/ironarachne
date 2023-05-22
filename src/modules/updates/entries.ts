@@ -16,6 +16,9 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2023-05-22', [
+      'Added support for the saved culture feature to the religion generator.',
+    ]),
     new ChangeLog('2023-05-18', [
       'Made it possible to save a culture from the culture generator for use in the region generator.',
       'Tweaked the heights of some of the fantasy species.',
