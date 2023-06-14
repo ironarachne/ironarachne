@@ -11,6 +11,5 @@
     <li><a href="#/">Home</a></li>
     <li><a href="#/navigation">Navigation</a></li>
     <li><a href="#/changelog">Change Log</a></li>
-    <li><a href="https://www.reddit.com/r/ironarachne/">Reddit</a></li>
   </ul>
 </nav>

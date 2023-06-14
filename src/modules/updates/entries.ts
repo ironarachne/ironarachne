@@ -16,6 +16,7 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog('2023-06-14', ['Removed Reddit link.']),
     new ChangeLog('2023-05-22', [
       'Added support for the saved culture feature to the religion generator.',
     ]),
