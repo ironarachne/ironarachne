@@ -19,6 +19,8 @@
     "not dead"
   ],
   "dependencies": {
+    "@sveltejs/adapter-vercel": "^3.0.3",
+    "@sveltejs/kit": "^1.22.3",
     "@ironarachne/made-up-names": "^1.0.1",
     "@ironarachne/rng": "^1.0.1",
     "@ironarachne/word-generator": "^1.1.2",
@@ -34,9 +36,6 @@
     "xmlbuilder2": "^3.0.2"
   },
   "devDependencies": {
-    "@sveltejs/adapter-auto": "^2.0.0",
-    "@sveltejs/adapter-vercel": "^3.0.3",
-    "@sveltejs/kit": "^1.22.3",
     "@sveltejs/vite-plugin-svelte": "^2.4.3",
     "@tsconfig/svelte": "^4.0.0",
     "@types/core-js": "^2.5.5",
