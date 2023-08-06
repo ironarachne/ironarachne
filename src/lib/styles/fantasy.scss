@@ -1,0 +1,25 @@
+.fantasy {
+  button {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
+    border: 3px solid $tan;
+    border-radius: 3px;
+    color: #fff;
+    line-height: 1rem;
+    margin: 0.1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  button:active {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
+    color: $ironArachneGreen;
+    transform: translateY(2px);
+  }
+
+  button:disabled {
+    background: #666;
+    color: #777;
+    border-color: #999;
+  }
+}

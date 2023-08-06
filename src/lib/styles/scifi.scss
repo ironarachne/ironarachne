@@ -1,0 +1,47 @@
+.scifi {
+  background: rgb(16, 17, 25);
+  background: linear-gradient(
+    90deg,
+    rgba(16, 17, 25, 1) 0%,
+    rgba(38, 58, 96, 1) 49%,
+    rgba(16, 17, 25, 1) 100%
+  );
+  color: white;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #a2d4ff;
+    text-shadow: 0 0 6px #0086ff;
+    font-family: 'alienleague', sans-serif;
+  }
+
+  button {
+    background: rgb(2, 37, 95);
+    background: linear-gradient(165deg, rgb(2, 37, 95) 0%, rgba(10, 10, 10, 1) 100%);
+    border: 3px solid rgb(108, 146, 255);
+    border-radius: 3px;
+    color: #fff;
+    font-family: 'alienleague', sans-serif;
+    font-size: 1.15rem;
+    line-height: 1rem;
+    margin: 0.1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  button:active {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
+    color: rgb(108, 146, 255);
+    transform: translateY(2px);
+  }
+
+  button:disabled {
+    background: #666;
+    color: #777;
+    border-color: #999;
+  }
+}

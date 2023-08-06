@@ -1,0 +1,40 @@
+.cyberpunk {
+  background: black;
+  color: white;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    color: #d8f6b0;
+    font-family: 'azonix', sans-serif;
+    text-shadow: 0 0 6px #86ff00;
+  }
+
+  button {
+    background: rgb(0, 0, 0);
+    border: 3px solid $ironArachneGreen;
+    border-radius: 3px;
+    color: $ironArachneGreen;
+    font-family: 'azonix', sans-serif;
+    font-size: 1rem;
+    line-height: 1rem;
+    margin: 0.1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  button:active {
+    background: rgb(92, 86, 73);
+    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
+    color: $ironArachneGreen;
+    transform: translateY(2px);
+  }
+
+  button:disabled {
+    background: #666;
+    color: #777;
+    border-color: #999;
+  }
+}

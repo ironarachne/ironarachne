@@ -1,0 +1,71 @@
+"use strict";
+
+import * as Words from "@ironarachne/words";
+import random from "random";
+import PlanetGenerator from "../planets/generator.js";
+import PlanetGeneratorConfig from "../planets/generatorconfig.js";
+import StarGenerator from "../stars/generator.js";
+import StarGeneratorConfig from "../stars/generatorconfig.js";
+import StarSystemGeneratorConfig from "./generatorconfig.js";
+import StarSystem from "./starsystem.js";
+
+export default class StarSystemGenerator {
+  config: StarSystemGeneratorConfig;
+
+  constructor(config: StarSystemGeneratorConfig) {
+    this.config = config;
+  }
+
+  generate() {
+    let starsystem = new StarSystem();
+
+    let starGenConfig = new StarGeneratorConfig();
+    let starGen = new StarGenerator(starGenConfig);
+
+    const star = starGen.generate();
+
+    starsystem.name = star.name;
+
+    starsystem.stars.push(star);
+
+    // TODO: binary and trinary systems
+
+    const numberOfPlanets = random.int(this.config.minPlanets, this.config.maxPlanets);
+
+    let planetGenConfig = new PlanetGeneratorConfig();
+    let planetGenerator = new PlanetGenerator(planetGenConfig);
+
+    for (let i = 0; i < numberOfPlanets; i++) {
+      const planet = planetGenerator.generate();
+      starsystem.planets.push(planet);
+    }
+
+    starsystem.planets.sort(function(x, y) {
+      if (x.distance_from_sun < y.distance_from_sun) {
+        return -1;
+      }
+      if (x.distance_from_sun > y.distance_from_sun) {
+        return 1;
+      }
+      return 0;
+    });
+
+    for (let i = 0; i < starsystem.planets.length; i++) {
+      if (!starsystem.planets[i].is_inhabited) {
+        starsystem.planets[i].name = starsystem.name + " " + Words.romanize(i + 1);
+      }
+    }
+
+    starsystem.description = `The ${starsystem.name} system has ${numberOfPlanets} planets`;
+
+    const asteroidBeltChance = random.int(1, 100);
+
+    if (asteroidBeltChance > 70) {
+      starsystem.description += " and an asteroid belt.";
+    } else {
+      starsystem.description += ".";
+    }
+
+    return starsystem;
+  }
+}

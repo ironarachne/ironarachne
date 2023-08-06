@@ -1,5 +1,5 @@
 # Iron Arachne
 
-This is a static site containing a number of content generators for tabletop role-playing games.
+This website produces procedurally-generated content for tabletop role-playing games, among other things.
 
-It's written mostly in TypeScript and uses Svelte as a compiler.
+It's built using SvelteKit.

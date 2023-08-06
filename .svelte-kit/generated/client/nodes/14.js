@@ -1,0 +1,1 @@
+export { default as component } from "../../../../src/routes/fantasy/organization/+page.svelte";

@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<link rel="icon" href="%sveltekit.assets%/favicon.ico" />
+		<meta name="viewport" content="width=device-width" />
+		%sveltekit.head%
+
+        <style lang="scss" global>
+            @import "styles/reset.scss";
+            @import "styles/main.scss";
+        </style>
+	</head>
+	<body data-sveltekit-preload-data="hover">
+		<div style="display: contents">
+            <h1>Error %sveltekit.status%</h1>
+            <p>%sveltekit.error.message%</p>
+        </div>
+	</body>
+</html>
