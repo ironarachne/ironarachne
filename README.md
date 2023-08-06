@@ -1,5 +1,5 @@
 # Iron Arachne
 
-This website produces procedurally-generated content for tabletop role-playing games, among other things.
+This website lets users produce procedurally-generated content for tabletop role-playing games.
 
 It's built using SvelteKit.
