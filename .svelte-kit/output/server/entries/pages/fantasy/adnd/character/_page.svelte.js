@@ -4,6 +4,7 @@ import { v as valueToCoins } from "../../../../../chunks/currency.js";
 import random from "random";
 import seedrandom from "seedrandom";
 import { r as roll } from "../../../../../chunks/dice.js";
+import "../../../../../chunks/sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 class ADNDArmor {
   name;
@@ -3237,3 +3238,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 export {
   Page as default
 };
+//# sourceMappingURL=_page.svelte.js.map

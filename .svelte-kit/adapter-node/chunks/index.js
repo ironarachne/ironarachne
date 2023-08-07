@@ -50,3 +50,4 @@ export {
   readable as r,
   writable as w
 };
+//# sourceMappingURL=index.js.map

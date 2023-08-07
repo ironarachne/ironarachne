@@ -1,6 +1,7 @@
 import { c as create_ssr_component, g as getContext, a as add_attribute, f as each, e as escape } from "../../../chunks/ssr.js";
 import * as RND from "@ironarachne/rng";
 import * as MUN from "@ironarachne/made-up-names";
+import "../../../chunks/sentry-release-injection-file.js";
 import random$1 from "random";
 import { r as random, d as describe, B as BiomeGenerator, a as BiomeGeneratorConfig } from "../../../chunks/climates.js";
 import { T as Title, g as generate } from "../../../chunks/fantasy2.js";
@@ -691,3 +692,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 export {
   Page as default
 };
+//# sourceMappingURL=_page.svelte.js.map

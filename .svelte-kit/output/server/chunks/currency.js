@@ -1,3 +1,4 @@
+import "./sentry-release-injection-file.js";
 function valueToCoins(amount, useElectrum, usePlatinum, enableExact = true) {
   let copper = 0;
   let silver = 0;
@@ -58,3 +59,4 @@ function valueToCoins(amount, useElectrum, usePlatinum, enableExact = true) {
 export {
   valueToCoins as v
 };
+//# sourceMappingURL=currency.js.map

@@ -4,6 +4,7 @@ import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import "seedrandom";
 import { r as random$1, B as BiomeGenerator, a as BiomeGeneratorConfig } from "../../../../chunks/climates.js";
+import "../../../../chunks/sentry-release-injection-file.js";
 import * as _ from "lodash";
 import random from "random";
 import { a as all$t, C as CharacterGenerator } from "../../../../chunks/fantasy.js";
@@ -4760,3 +4761,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 export {
   Page as default
 };
+//# sourceMappingURL=_page.svelte.js.map

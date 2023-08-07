@@ -1,4 +1,5 @@
 import { g, o, d, e, s, c } from "./chunks/internal.js";
+import "./chunks/sentry-release-injection-file.js";
 export {
   g as get_hooks,
   o as options,
@@ -7,3 +8,4 @@ export {
   s as set_private_env,
   c as set_public_env
 };
+//# sourceMappingURL=internal.js.map

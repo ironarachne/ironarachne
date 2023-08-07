@@ -1,4 +1,5 @@
 import random from "random";
+import "./sentry-release-injection-file.js";
 class DicePool {
   d4;
   d6;
@@ -240,3 +241,4 @@ export {
   roll as r,
   simplify as s
 };
+//# sourceMappingURL=dice.js.map

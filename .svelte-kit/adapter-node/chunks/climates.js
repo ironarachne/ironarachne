@@ -1,4 +1,5 @@
 import * as RND from "@ironarachne/rng";
+import "./sentry-release-injection-file.js";
 class ConiferousForest {
   name;
   temperature;
@@ -519,3 +520,4 @@ export {
   describe as d,
   random as r
 };
+//# sourceMappingURL=climates.js.map

@@ -3,6 +3,7 @@ import { c as convertCopper } from "../../../../chunks/currency2.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
+import "../../../../chunks/sentry-release-injection-file.js";
 import { C as CharacterGenerator } from "../../../../chunks/fantasy.js";
 import { g as getFantasy } from "../../../../chunks/premadeconfigs.js";
 import { d as all, f as forCategory, b as all$1 } from "../../../../chunks/patterns.js";
@@ -80,3 +81,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 export {
   Page as default
 };
+//# sourceMappingURL=_page.svelte.js.map

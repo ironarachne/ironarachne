@@ -1,4 +1,5 @@
 import * as MUN from "@ironarachne/made-up-names";
+import "./sentry-release-injection-file.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
@@ -858,3 +859,4 @@ export {
   ReligionGeneratorConfig as R,
   ReligionGenerator as a
 };
+//# sourceMappingURL=generator.js.map

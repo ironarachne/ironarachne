@@ -1,5 +1,6 @@
 import random from "random";
 import { d as describeDice, s as simplify, a as rangeToDiceExpression } from "./dice.js";
+import "./sentry-release-injection-file.js";
 function cmToInches(cm) {
   return cm * 0.3937;
 }
@@ -153,3 +154,4 @@ export {
   inchesToFeetExpression as i,
   kgToPounds as k
 };
+//# sourceMappingURL=agecategories.js.map

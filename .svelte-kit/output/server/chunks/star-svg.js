@@ -1,3 +1,4 @@
+import "./sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 import random from "random";
 import { P as PlanetGenerator, a as PlanetGeneratorConfig } from "./generator2.js";
@@ -684,3 +685,4 @@ export {
   SVGStarRenderer as b,
   SVGPlanetRenderer as c
 };
+//# sourceMappingURL=star-svg.js.map

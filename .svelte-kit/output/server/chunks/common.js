@@ -1,5 +1,6 @@
 import * as RND from "@ironarachne/rng";
 import * as _ from "lodash";
+import "./sentry-release-injection-file.js";
 function modify$2(species) {
   let result = _.cloneDeep(species);
   let modifierName = "skeletal";
@@ -118,3 +119,4 @@ export {
   randomUniqueSet as r,
   withCreatureType as w
 };
+//# sourceMappingURL=common.js.map

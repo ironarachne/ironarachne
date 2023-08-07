@@ -1,3 +1,4 @@
+import "./sentry-release-injection-file.js";
 class Domain {
   name;
   holyItems;
@@ -478,3 +479,4 @@ export {
   getSpecificDomain as b,
   getAllDomainNames as g
 };
+//# sourceMappingURL=domains.js.map

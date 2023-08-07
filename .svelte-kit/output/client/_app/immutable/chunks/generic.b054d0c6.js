@@ -1,1 +1,0 @@
-import{t as s}from"./index.e0b9de06.js";import{g as n}from"./invented.fe3e7ecd.js";class p{constructor(){this.name="generic",this.patterns=[]}generate(a){let t=[];for(let r=0;r<a;r++){let e=n(this.patterns);e=s(e),t.push(e)}return t}}export{p as G};

@@ -1,5 +1,6 @@
 import { c as create_ssr_component, f as each, e as escape } from "../../../../chunks/ssr.js";
 import { c as convertCopper } from "../../../../chunks/currency2.js";
+import "../../../../chunks/sentry-release-injection-file.js";
 class EquipmentList {
   title;
   items;
@@ -171,3 +172,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 export {
   Page as default
 };
+//# sourceMappingURL=_page.svelte.js.map

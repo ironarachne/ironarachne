@@ -1,6 +1,7 @@
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
+import "./sentry-release-injection-file.js";
 class Component {
   name;
   description;
@@ -1201,3 +1202,4 @@ export {
   forCategory as f,
   withMaxQuality as w
 };
+//# sourceMappingURL=patterns.js.map

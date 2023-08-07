@@ -1,4 +1,5 @@
 import * as Words from "@ironarachne/words";
+import "./sentry-release-injection-file.js";
 function getMonthAbbr(month) {
   const months = [
     "Jan.",
@@ -273,3 +274,4 @@ export {
   all as a,
   mostRecent as m
 };
+//# sourceMappingURL=entries.js.map

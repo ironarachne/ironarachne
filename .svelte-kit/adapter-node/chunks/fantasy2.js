@@ -2,6 +2,7 @@ import * as RND from "@ironarachne/rng";
 import random from "random";
 import { C as CharacterGenerator } from "./fantasy.js";
 import { g as getFantasy } from "./premadeconfigs.js";
+import "./sentry-release-injection-file.js";
 import { c as HeraldryGeneratorConfig, m as matchingAnyTags, d as all } from "./svg.js";
 import * as MUN from "@ironarachne/made-up-names";
 class Title {
@@ -456,3 +457,4 @@ export {
   Title as T,
   generate as g
 };
+//# sourceMappingURL=fantasy2.js.map

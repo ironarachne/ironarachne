@@ -1,3 +1,4 @@
+import "./sentry-release-injection-file.js";
 function convertCopper(amount, useElectrum, usePlatinum, enableExact = true) {
   let copper = 0;
   let silver = 0;
@@ -57,3 +58,4 @@ function convertCopper(amount, useElectrum, usePlatinum, enableExact = true) {
 export {
   convertCopper as c
 };
+//# sourceMappingURL=currency2.js.map

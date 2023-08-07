@@ -1,5 +1,6 @@
 import * as RND from "@ironarachne/rng";
 import * as _ from "lodash";
+import "./sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 import { create } from "xmlbuilder2";
 class Arms {
@@ -1020,3 +1021,4 @@ export {
   ofTypes as o,
   randomChargeTincture as r
 };
+//# sourceMappingURL=svg.js.map

@@ -1,5 +1,6 @@
 import * as MUN from "@ironarachne/made-up-names";
 import { b as getCategoryList, i as inchesToFeetExpression, c as cmToInches, k as kgToPounds, d as getCategoryFromName, e as getHumanVariant, h as humanStandardFemale, f as humanStandardMale } from "./agecategories.js";
+import "./sentry-release-injection-file.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
@@ -2101,3 +2102,4 @@ export {
   CharacterGeneratorConfig as b,
   pc as p
 };
+//# sourceMappingURL=fantasy.js.map

@@ -1,6 +1,7 @@
 import { c as create_ssr_component, a as add_attribute, f as each, e as escape } from "../../../chunks/ssr.js";
 import { r as randomChargeTincture, b as allChargeTags, c as HeraldryGeneratorConfig, H as HeraldryGenerator, d as all, e as all$1, f as all$2, g as all$3, o as ofTypes, a as HeraldrySVGRenderer } from "../../../chunks/svg.js";
 import * as RND from "@ironarachne/rng";
+import "../../../chunks/sentry-release-injection-file.js";
 import random from "random";
 import seedrandom from "seedrandom";
 const _page_svelte_svelte_type_style_lang = "";
@@ -94,3 +95,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 export {
   Page as default
 };
+//# sourceMappingURL=_page.svelte.js.map

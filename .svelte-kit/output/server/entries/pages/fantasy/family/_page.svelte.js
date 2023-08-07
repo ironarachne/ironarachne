@@ -4,6 +4,7 @@ import { b as CharacterGeneratorConfig, C as CharacterGenerator, p as pc } from 
 import * as RND from "@ironarachne/rng";
 import "seedrandom";
 import "@ironarachne/made-up-names";
+import "../../../../chunks/sentry-release-injection-file.js";
 import random from "random";
 import { g as getMaxAge, a as getCategoryFromAge } from "../../../../chunks/agecategories.js";
 class FamilyGeneratorConfig {
@@ -284,3 +285,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 export {
   Page as default
 };
+//# sourceMappingURL=_page.svelte.js.map

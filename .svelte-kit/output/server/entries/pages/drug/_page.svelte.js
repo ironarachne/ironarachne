@@ -2,6 +2,7 @@ import { c as create_ssr_component, a as add_attribute, e as escape } from "../.
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
+import "../../../chunks/sentry-release-injection-file.js";
 import seedrandom from "seedrandom";
 class DrugType {
   name;
@@ -426,3 +427,4 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
 export {
   Page as default
 };
+//# sourceMappingURL=_page.svelte.js.map

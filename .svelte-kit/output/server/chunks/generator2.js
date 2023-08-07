@@ -1,3 +1,4 @@
+import "./sentry-release-injection-file.js";
 import * as MUN from "@ironarachne/made-up-names";
 import * as RND from "@ironarachne/rng";
 import random from "random";
@@ -408,3 +409,4 @@ export {
   PlanetGeneratorConfig as a,
   getClassificationNames as g
 };
+//# sourceMappingURL=generator2.js.map
