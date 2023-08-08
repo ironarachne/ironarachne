@@ -1,5 +1,4 @@
 import * as RND from "@ironarachne/rng";
-import * as _ from "lodash";
 import "./sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 import { create } from "xmlbuilder2";
@@ -759,7 +758,7 @@ function all() {
         scaleAmount = contextHeight / chargeHeight;
       }
       scaleAmount *= 0.4;
-      const chargeObject2 = _.cloneDeep(chargeObject);
+      const chargeObject2 = JSON.parse(JSON.stringify(chargeObject));
       const newWidth = Math.floor(chargeWidth * scaleAmount);
       const newHeight = Math.floor(chargeHeight * scaleAmount);
       const xMove = (contextWidth - newWidth) / 2;
@@ -789,8 +788,8 @@ function all() {
           scaleAmount = contextHeight / chargeHeight;
         }
         scaleAmount *= 0.3;
-        const chargeObject2 = _.cloneDeep(chargeObject);
-        const chargeObject3 = _.cloneDeep(chargeObject);
+        const chargeObject2 = JSON.parse(JSON.stringify(chargeObject));
+        const chargeObject3 = JSON.parse(JSON.stringify(chargeObject));
         const newWidth = Math.floor(chargeWidth * scaleAmount);
         const newHeight = Math.floor(chargeHeight * scaleAmount);
         const xMove = (contextWidth - newWidth) / 2;
@@ -820,8 +819,8 @@ function all() {
         scaleAmount = contextHeight / chargeHeight;
       }
       scaleAmount *= 0.3;
-      const chargeObject2 = _.cloneDeep(chargeObject);
-      const chargeObject3 = _.cloneDeep(chargeObject);
+      const chargeObject2 = JSON.parse(JSON.stringify(chargeObject));
+      const chargeObject3 = JSON.parse(JSON.stringify(chargeObject));
       const newWidth = Math.floor(chargeWidth * scaleAmount);
       const newHeight = Math.floor(chargeHeight * scaleAmount);
       const xMove = (contextWidth - newWidth) / 2;
@@ -877,8 +876,8 @@ class HeraldryGenerator {
   }
   generate() {
     let chargeGroups = [];
-    let fieldTinctures1 = _.cloneDeep(this.config.fieldTinctures1);
-    let fieldTinctures2 = _.cloneDeep(this.config.fieldTinctures2);
+    let fieldTinctures1 = JSON.parse(JSON.stringify(this.config.fieldTinctures1));
+    let fieldTinctures2 = JSON.parse(JSON.stringify(this.config.fieldTinctures2));
     if (this.config.chargeCount > 0) {
       let charge = RND.item(this.config.chargeOptions);
       charge.tincture = RND.weighted(this.config.chargeTinctures);
@@ -943,8 +942,8 @@ function generateVariations(count, tinctures1, tinctures2, options) {
   let result = [];
   let furCount = 0;
   for (let i = 0; i < count; i++) {
-    let tinctureSet1 = _.cloneDeep(tinctures1);
-    let tinctureSet2 = _.cloneDeep(tinctures2);
+    let tinctureSet1 = JSON.parse(JSON.stringify(tinctures1));
+    let tinctureSet2 = JSON.parse(JSON.stringify(tinctures2));
     let variation = RND.weighted(options);
     if (!variation.supportsFurs) {
       tinctureSet1 = withoutFurs(tinctureSet1);

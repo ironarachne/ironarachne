@@ -741,7 +741,7 @@ function randomStarshipOwnerType() {
           "Hulk",
         ];
 
-        const modelNumber = MUN.modelNumber;
+        const modelNumber = MUN.modelNumber();
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
@@ -833,7 +833,7 @@ function randomStarshipOwnerType() {
           "Badge",
         ];
 
-        const modelNumber = MUN.modelNumber;
+        const modelNumber = MUN.modelNumber();
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
@@ -1075,7 +1075,7 @@ function randomStarshipOwnerType() {
           "Shannon",
         ];
 
-        const modelNumber = MUN.modelNumber;
+        const modelNumber = MUN.modelNumber();
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
@@ -1162,7 +1162,7 @@ function randomStarshipOwnerType() {
           "Shannon",
         ];
 
-        const modelNumber = MUN.modelNumber;
+        const modelNumber = MUN.modelNumber();
 
         return modelNumber + " " + RND.item(shipClassNames);
       },

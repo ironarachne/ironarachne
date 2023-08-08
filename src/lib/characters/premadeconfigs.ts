@@ -1,6 +1,6 @@
 "use strict";
 
-import * as FantasySpecies from "../species/fantasy.js";
+import * as FantasySpecies from "$lib/species/fantasy.js";
 import CharacterGeneratorConfig from "./generatorconfig.js";
 
 export function getFantasy(): CharacterGeneratorConfig {

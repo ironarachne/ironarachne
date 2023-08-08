@@ -1,17 +1,18 @@
 "use strict";
 
+import type AgeCategory from "$lib/age/agecategory.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
 import * as AgeCategories from "../age/agecategories.js";
 import * as Measurements from "../measurements.js";
-import PhysicalTrait from "../physicaltraits/physicaltrait.js";
+import type PhysicalTrait from "../physicaltraits/physicaltrait.js";
 import type Species from "../species/species.js";
 import Character from "./character.js";
-import CharacterGeneratorConfig from "./generatorconfig.js";
+import type CharacterGeneratorConfig from "./generatorconfig.js";
 import PersonalityGenerator from "./personality/generator.js";
 import PersonalityGeneratorConfig from "./personality/generatorconfig.js";
-import PersonalityTrait from "./personality/personalitytrait.js";
+import type PersonalityTrait from "./personality/personalitytrait.js";
 
 export default class CharacterGenerator {
   config: CharacterGeneratorConfig;
@@ -49,7 +50,6 @@ export default class CharacterGenerator {
 
   generate(): Character {
     const species = RND.weighted(this.config.speciesOptions);
-    const ageCategoryName = RND.item(this.config.ageCategories);
     const genderName = RND.item(this.config.genderNameOptions);
 
     let gender;
@@ -59,6 +59,16 @@ export default class CharacterGenerator {
         gender = species.genders[i];
       }
     }
+
+    let possibleAgeCategories: AgeCategory[] = [];
+
+    for (let i = 0; i < gender.ageCategories.length; i++) {
+      if (this.config.ageCategories.includes(gender.ageCategories[i].name)) {
+        possibleAgeCategories.push(gender.ageCategories[i]);
+      }
+    }
+
+    const ageCategory: AgeCategory = RND.weighted(possibleAgeCategories);
 
     let familyNameGenerator = this.config.familyNameGenerator;
     let femaleNameGenerator = this.config.femaleNameGenerator;
@@ -80,8 +90,6 @@ export default class CharacterGenerator {
     }
 
     const character = new Character(species);
-
-    const ageCategory = AgeCategories.getCategoryFromName(ageCategoryName, gender.ageCategories);
 
     character.age = ageCategory.randomAge();
     character.ageCategory = ageCategory;

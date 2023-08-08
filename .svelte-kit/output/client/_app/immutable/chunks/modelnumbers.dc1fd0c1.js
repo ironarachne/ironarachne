@@ -1,2 +1,0 @@
-import{i as e}from"./index.c74e36a8.js";import{r as o}from"./random.5c9619ef.js";function f(){return e([{generate:function(){const r=e(["Y","M","R","X","T","S","J","G","H"]),n=o.int(1,9)*10;return`${r}-${n}`}},{generate:function(){const r=e(["A","E","I","O","U"]),n=e(["Y","M","R","X","T","S","J","G","H"]),t=o.int(1,9)*10;return`${r}${n}-${t}`}},{generate:function(){const r=e(["B","R","X","S","N"]),n=e(["Y","M","I","K","T","Q","J","G","H"]),t=o.int(1,99)*100;return`${r}${n}-${t}`}}]).generate()}export{f as g};
-//# sourceMappingURL=modelnumbers.dc1fd0c1.js.map

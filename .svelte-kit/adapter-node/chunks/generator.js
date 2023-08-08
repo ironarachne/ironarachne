@@ -1,862 +1,412 @@
-import * as MUN from "@ironarachne/made-up-names";
 import "./sentry-release-injection-file.js";
+import * as MUN from "@ironarachne/made-up-names";
 import * as RND from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
 import random from "random";
-import "lodash";
-import { C as CharacterGenerator } from "./fantasy.js";
-import { g as getFantasy } from "./premadeconfigs.js";
-import { a as all$3 } from "./domains.js";
-class ReligionCategory {
+import * as Words from "@ironarachne/words";
+class PlanetClassification {
   name;
-  description;
-  hasDeities;
-  hasLeader;
-  minDeities;
-  maxDeities;
-  constructor() {
-    this.name = "";
-    this.description = "";
-    this.hasDeities = false;
-    this.hasLeader = false;
-    this.minDeities = 0;
-    this.maxDeities = 0;
-  }
-}
-class Monotheism extends ReligionCategory {
-  constructor() {
-    super();
-    this.name = "monotheism";
-    this.description = "This religion " + RND.item(["has a single all-powerful god", "is monotheistic"]) + ".";
-    this.hasDeities = true;
-    this.minDeities = 1;
-    this.maxDeities = 1;
-  }
-}
-class Polytheism extends ReligionCategory {
-  constructor() {
-    super();
-    this.name = "polytheism";
-    this.description = "This religion " + RND.item(["has several gods", "is polytheistic"]) + ".";
-    this.hasDeities = true;
-    this.hasLeader = true;
-    this.minDeities = 2;
-    this.maxDeities = 16;
-  }
-}
-class Shamanism extends ReligionCategory {
-  constructor() {
-    super();
-    this.name = "shamanism";
-    this.description = "This religion is shamanistic.";
-  }
-}
-function all$2() {
-  return [new Monotheism(), new Polytheism(), new Shamanism()];
-}
-class ReligionGeneratorConfig {
-  categories;
-  nameGenerator;
-  femaleNameGenerator;
-  maleNameGenerator;
-  constructor() {
-    this.categories = all$2();
-    let genSet = new MUN.HumanSet();
-    if (genSet.family === null) {
-      throw new Error("No family name generator found.");
-    } else if (genSet.female === null) {
-      throw new Error("No female name generator found");
-    } else if (genSet.male === null) {
-      throw new Error("No male name generator found");
-    }
-    this.nameGenerator = genSet.family;
-    this.femaleNameGenerator = genSet.female;
-    this.maleNameGenerator = genSet.male;
-  }
-}
-class Relationship {
-  noun;
-  target;
-  verb;
-  strength;
-  constructor(noun, verb, target, strength) {
-    this.noun = noun;
-    this.verb = verb;
-    this.target = target;
-    this.strength = strength;
-  }
-}
-class RelationshipGenerator {
-  strength;
-  constructor(strength) {
-    this.strength = strength;
-  }
-  generate() {
-    let verb = "";
-    let noun = "";
-    if (this.strength == -1) {
-      verb = RND.item(["dislikes", "distrusts", "mistrusts", "is annoyed by"]);
-      noun = "enemy";
-    } else if (this.strength == -2) {
-      verb = RND.item(["fears", "hates", "loathes", "can't stand"]);
-      noun = "enemy";
-    } else if (this.strength == 0) {
-      verb = RND.item([
-        "is intrigued by",
-        "is ambivalent towards",
-        "is neutral towards",
-        "is suspicious of"
-      ]);
-      noun = "acquaintance";
-    } else if (this.strength == 1) {
-      verb = RND.item(["likes", "is amused by", "enjoys the company of", "enjoys", "trusts"]);
-      noun = "friend";
-    } else {
-      verb = RND.item(["loves", "deeply trusts", "adores"]);
-      noun = "friend";
-    }
-    return new Relationship(noun, verb, 0, this.strength);
-  }
-}
-class DomainSet {
-  primary;
-  secondaries;
-  constructor() {
-    this.secondaries = [];
-  }
-}
-class Realm {
-  name;
-  description;
-  personalityTraits;
-  appearanceTraits;
-  constructor(name, description, personalityTraits, appearanceTraits) {
+  diameter_min;
+  // in km
+  diameter_max;
+  // in km
+  mass_min;
+  // in 10^24 kg
+  mass_max;
+  // in 10^24 kg
+  orbital_period_min;
+  // in Earth days
+  orbital_period_max;
+  // in Earth days
+  distance_from_sun_min;
+  // in AU
+  distance_from_sun_max;
+  // in AU
+  is_inhabitable;
+  has_clouds;
+  has_atmosphere;
+  constructor(name, diameter_min, diameter_max, mass_min, mass_max, orbital_period_min, orbital_period_max, distance_from_sun_min, distance_from_sun_max, is_inhabitable, has_clouds, has_atmosphere) {
     this.name = name;
-    this.description = description;
-    this.personalityTraits = personalityTraits;
-    this.appearanceTraits = appearanceTraits;
+    this.diameter_min = diameter_min;
+    this.diameter_max = diameter_max;
+    this.mass_min = mass_min;
+    this.mass_max = mass_max;
+    this.orbital_period_min = orbital_period_min;
+    this.orbital_period_max = orbital_period_max;
+    this.distance_from_sun_min = distance_from_sun_min;
+    this.distance_from_sun_max = distance_from_sun_max;
+    this.is_inhabitable = is_inhabitable;
+    this.has_clouds = has_clouds;
+    this.has_atmosphere = has_atmosphere;
   }
 }
-class Deity {
-  name;
-  species;
-  gender;
-  ageCategory;
-  domains;
-  titles;
-  realm;
-  description;
-  personalityTraits;
-  personality;
-  appearance;
-  holyItem;
-  holySymbol;
-  isAlive;
-  constructor(name, species, gender, ageCategory, realm, domains) {
-    this.name = name;
-    this.species = species;
-    this.gender = gender;
-    this.ageCategory = ageCategory;
-    this.domains = domains;
-    this.titles = [];
-    this.realm = realm;
-    this.description = "";
-    this.personality = "";
-    this.appearance = "";
-    this.holyItem = "";
-    this.holySymbol = "";
-    this.isAlive = true;
-  }
-  describe() {
-    const speciesAdj = this.species.adjective;
-    const subjectivePronoun = this.gender.subjectivePronoun;
-    let noun = "god";
-    const domainNames = [];
-    domainNames.push(this.domains.primary.name);
-    for (let i = 0; i < this.domains.secondaries.length; i++) {
-      domainNames.push(this.domains.secondaries[i].name);
-    }
-    if (this.gender.name === "female") {
-      noun = "goddess";
-    }
-    let description = `${this.name} appears as ${Words.article(speciesAdj)} ${speciesAdj} ${this.ageCategory.noun}.`;
-    description += ` ${Words.capitalize(subjectivePronoun)} has ${this.appearance}. ${this.personality}.`;
-    description += ` ${this.name} is the ${noun} of ${Words.arrayToPhrase(domainNames)}.`;
-    description += ` ${Words.capitalize(subjectivePronoun)} resides in ${Words.uncapitalize(
-      this.realm.name
-    )}.`;
-    return description;
-  }
-}
-class DeityGeneratorConfig {
-  domainSet;
-  realms;
-  characterGenerator;
-  femaleNameGenerator;
-  maleNameGenerator;
-  constructor() {
-    let charGenConfig = getFantasy();
-    this.realms = [];
-    this.characterGenerator = new CharacterGenerator(charGenConfig);
-    let genSet = new MUN.HumanSet();
-    this.femaleNameGenerator = genSet.female;
-    this.maleNameGenerator = genSet.male;
-  }
-}
-class DeityGenerator {
-  config;
-  constructor(config) {
-    this.config = config;
-  }
-  generate() {
-    let possibleHolyItems = [];
-    let possibleHolySymbols = [];
-    const characterDetails = this.config.characterGenerator.generate();
-    if (this.config.maleNameGenerator === null) {
-      throw new Error("male name generator not set");
-    } else if (this.config.femaleNameGenerator === null) {
-      throw new Error("female name generator not set");
-    }
-    let deityName = this.config.femaleNameGenerator.generate(1)[0];
-    if (characterDetails.gender.name == "male") {
-      deityName = this.config.maleNameGenerator.generate(1)[0];
-    }
-    let deity = new Deity(
-      deityName,
-      characterDetails.species,
-      characterDetails.gender,
-      characterDetails.ageCategory,
-      RND.item(this.config.realms),
-      this.config.domainSet
-    );
-    possibleHolyItems = this.config.domainSet.primary.holyItems;
-    possibleHolySymbols = this.config.domainSet.primary.holySymbols;
-    deity.holyItem = RND.item(possibleHolyItems);
-    deity.holySymbol = RND.item(possibleHolySymbols);
-    const chanceOfRealmTrait = random.int(1, 100);
-    const physicalTraits = characterDetails.physicalTraits;
-    let appearanceTraits = [];
-    for (let i = 0; i < physicalTraits.length; i++) {
-      appearanceTraits.push(physicalTraits[i].description);
-    }
-    if (chanceOfRealmTrait > 80) {
-      appearanceTraits.push(RND.item(deity.realm.appearanceTraits).phrase);
-    }
-    deity.personalityTraits = characterDetails.personalityTraits;
-    deity.personality = describePersonality(deity);
-    deity.appearance = Words.arrayToPhrase(appearanceTraits);
-    deity.description = deity.describe();
-    return deity;
-  }
-}
-function describePersonality(deity) {
-  let traits = [];
-  for (let i = 0; i < deity.personalityTraits.length; i++) {
-    traits.push(deity.personalityTraits[i].descriptor);
-  }
-  return Words.capitalize(deity.gender.subjectivePronoun) + " is " + Words.arrayToPhrase(traits);
-}
-class DomainGeneratorConfig {
-  numberOfDomains;
-  domains;
-  constructor() {
-    this.numberOfDomains = 1;
-    this.domains = all$3();
-  }
-}
-class DomainGenerator {
-  config;
-  constructor(config) {
-    this.config = config;
-  }
-  generate() {
-    let domainSet = new DomainSet();
-    this.config.domains = RND.shuffle(this.config.domains);
-    let primary = this.config.domains.pop();
-    if (primary !== void 0) {
-      domainSet.primary = primary;
-    } else {
-      throw new Error("No primary domain found.");
-    }
-    for (let i = 0; i < this.config.numberOfDomains; i++) {
-      const d = this.config.domains.pop();
-      if (d === void 0) {
-        throw new Error("No secondary domain found.");
-      }
-      domainSet.secondaries.push(d);
-    }
-    return domainSet;
-  }
-}
-class PantheonGeneratorConfig {
-  domains;
-  realms;
-  minDeities;
-  maxDeities;
-  femaleNameGenerator;
-  maleNameGenerator;
-  constructor() {
-    this.domains = all$3();
-    this.realms = [];
-    this.minDeities = 1;
-    this.maxDeities = 16;
-    let genSet = new MUN.HumanSet();
-    if (genSet.female == null) {
-      throw new Error("no female name generator in set");
-    } else if (genSet.male == null) {
-      throw new Error("no male name generator in set");
-    }
-    this.femaleNameGenerator = genSet.female;
-    this.maleNameGenerator = genSet.male;
-  }
-}
-class PantheonMember {
-  deity;
-  relationships;
-  constructor() {
-    this.relationships = [];
-  }
-}
-class Pantheon {
-  name;
-  description;
-  members;
-  leader;
-  constructor() {
-    this.name = "";
-    this.description = "";
-    this.members = [];
-    this.leader = -1;
-  }
-}
-class PantheonGenerator {
-  config;
-  constructor(config) {
-    this.config = config;
-  }
-  generate() {
-    let pantheon = new Pantheon();
-    let deityGenConfig = new DeityGeneratorConfig();
-    deityGenConfig.realms = this.config.realms;
-    deityGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
-    deityGenConfig.maleNameGenerator = this.config.maleNameGenerator;
-    const numberOfDeities = random.int(this.config.minDeities, this.config.maxDeities);
-    const domainSets = randomDomainSets(numberOfDeities);
-    for (let i = 0; i < domainSets.length; i++) {
-      let member = new PantheonMember();
-      deityGenConfig.domainSet = domainSets[i];
-      let deityGen = new DeityGenerator(deityGenConfig);
-      let deity = deityGen.generate();
-      member.deity = deity;
-      pantheon.members.push(member);
-    }
-    let relationshipGenerator = new RelationshipGenerator(0);
-    let numberOfRelationships = random.int(1, 3);
-    for (let j = 0; j < numberOfRelationships; j++) {
-      for (let i = 0; i < pantheon.members.length; i++) {
-        relationshipGenerator.strength = random.int(-2, 2);
-        const target = random.int(0, pantheon.members.length - 1);
-        if (target != i) {
-          let alreadyExists = false;
-          for (let k = 0; k < pantheon.members[i].relationships.length; k++) {
-            if (pantheon.members[i].relationships[k].target == target) {
-              alreadyExists = true;
-            }
-          }
-          if (!alreadyExists) {
-            let outward = relationshipGenerator.generate();
-            outward.target = target;
-            pantheon.members[i].relationships.push(outward);
-            let inward = relationshipGenerator.generate();
-            inward.target = i;
-            pantheon.members[target].relationships.push(inward);
-          }
-        }
-      }
-    }
-    if (pantheon.members.length > 1) {
-      for (let i = 0; i < pantheon.members.length; i++) {
-        let relationships = [];
-        for (let x = 0; x < pantheon.members[i].relationships.length; x++) {
-          relationships.push(
-            getRelationshipPhrase(
-              pantheon.members[i].relationships[x],
-              pantheon.members[pantheon.members[i].relationships[x].target].deity.name
-            )
-          );
-        }
-        const relationshipDescription = " " + pantheon.members[i].deity.name + " " + Words.arrayToPhrase(relationships) + ".";
-        pantheon.members[i].deity.description += relationshipDescription;
-      }
-    }
-    return pantheon;
-  }
-}
-function getRelationshipPhrase(relationship, targetName) {
-  return RND.item([`${relationship.verb} ${targetName}`]);
-}
-function randomDomainSets(numberOfSets) {
-  let domainGenConfig = new DomainGeneratorConfig();
-  let domainGen = new DomainGenerator(domainGenConfig);
-  let sets = [];
-  let allDomains = RND.shuffle(domainGenConfig.domains);
-  for (let i = 0; i < numberOfSets; i++) {
-    let domains = [];
-    for (let j = 0; j < domainGen.config.numberOfDomains + 1; j++) {
-      domains.push(allDomains.pop());
-    }
-    domainGen.config.domains = domains;
-    let domainSet = domainGen.generate();
-    sets.push(domainSet);
-  }
-  return sets;
-}
-class AppearanceTrait {
-  phrase;
-  bodyPart;
-  tags;
-  constructor(phrase, bodyPart, tags) {
-    this.phrase = phrase;
-    this.bodyPart = bodyPart;
-    this.tags = tags;
-  }
-}
-function getAllTraitsWithTag(traits, tag) {
-  const results = [];
-  for (let i = 0; i < traits.length; i++) {
-    if (traits[i].tags.includes(tag)) {
-      results.push(traits[i]);
-    }
+function getClassificationNames() {
+  const classifications = all();
+  let results = [];
+  for (let i = 0; i < classifications.length; i++) {
+    results.push(classifications[i].name);
   }
   return results;
 }
-class RealmConcept {
-  name;
-  nameOptions;
-  appearanceTags;
-  personalityTags;
-  descriptionOptions;
-  constructor(name, nameOptions, appearanceTags, personalityTags, descriptionOptions) {
-    this.name = name;
-    this.nameOptions = nameOptions;
-    this.appearanceTags = appearanceTags;
-    this.personalityTags = personalityTags;
-    this.descriptionOptions = descriptionOptions;
-  }
-}
-function all$1() {
-  return [
-    new AppearanceTrait("six feathered wings", "wings", ["sky"]),
-    new AppearanceTrait("four feathered wings", "wings", ["sky"]),
-    new AppearanceTrait("two large feathered wings", "wings", ["sky"]),
-    new AppearanceTrait("large leathery wings", "wings", ["sky", "death"]),
-    new AppearanceTrait("a lion's tail'", "tail", ["earth", "forest"]),
-    new AppearanceTrait("a whip-like tail", "tail", ["earth", "death"]),
-    new AppearanceTrait("two tails", "tail", ["alien"]),
-    new AppearanceTrait("the horns of a goat", "horns", ["earth", "forest"]),
-    new AppearanceTrait("the horns of a ram", "horns", ["earth", "forest"]),
-    new AppearanceTrait("the antlers of a stag", "horns", ["forest"]),
-    new AppearanceTrait("the antlers of a deer", "horns", ["forest"]),
-    new AppearanceTrait("short, pointed horns", "horns", ["earth", "death"]),
-    new AppearanceTrait("tall, straight horns", "horns", ["earth", "death"]),
-    new AppearanceTrait("glowing blue eyes", "eyes", ["water"]),
-    new AppearanceTrait("glowing yellow eyes", "eyes", ["sky", "water"]),
-    new AppearanceTrait("glowing red eyes", "eyes", ["earth", "death", "alien"]),
-    new AppearanceTrait("glowing orange eyes", "eyes", ["earth", "sky"]),
-    new AppearanceTrait("eyes that burn with an inner fire", "eyes", ["sky"]),
-    new AppearanceTrait("four eyes", "eyes", ["alien"]),
-    new AppearanceTrait("six eyes", "eyes", ["alien"]),
-    new AppearanceTrait("eight eyes", "eyes", ["alien"]),
-    new AppearanceTrait("no eyes", "eyes", ["death", "alien"]),
-    new AppearanceTrait("reptilian eyes", "eyes", ["forest", "earth"]),
-    new AppearanceTrait("scales instead of skin", "skin", ["earth", "forest"]),
-    new AppearanceTrait("skin that glows faintly", "skin", ["sky"]),
-    new AppearanceTrait("skin made of living rock", "skin", ["earth"]),
-    new AppearanceTrait("blue skin", "skin", ["water"]),
-    new AppearanceTrait("green skin", "skin", ["water"]),
-    new AppearanceTrait("crystalline skin", "skin", ["earth"]),
-    new AppearanceTrait("translucent grey skin", "skin", ["death"]),
-    new AppearanceTrait("dull grey skin", "skin", ["death"]),
-    new AppearanceTrait("skin covered in leaves", "skin", ["forest"]),
-    new AppearanceTrait("skin made of star-lit blackness", "skin", ["alien"]),
-    new AppearanceTrait("eight tentacles", "tentacles", ["alien"]),
-    new AppearanceTrait("six tentacles", "tentacles", ["alien"]),
-    new AppearanceTrait("four tentacles", "tentacles", ["alien"]),
-    new AppearanceTrait("the head of a lion", "head", ["forest"]),
-    new AppearanceTrait("the head of a bear", "head", ["forest"]),
-    new AppearanceTrait("the head of a dragon", "head", ["earth", "forest"]),
-    new AppearanceTrait("the head of a swan", "head", ["sky", "water"]),
-    new AppearanceTrait("the head of a deer", "head", ["forest"]),
-    new AppearanceTrait("the head of a cat", "head", ["earth", "desert"]),
-    new AppearanceTrait("the head of a wolf", "head", ["earth", "forest"])
-  ];
-}
-function getAllAppearanceTraitsForRealmConcept(concept) {
-  const traits = all$1();
-  let result = [];
-  for (let i = 0; i < concept.appearanceTags.length; i++) {
-    const discovered = getAllTraitsWithTag(traits, concept.appearanceTags[i]);
-    result = [...result, ...discovered];
-  }
-  return result;
-}
-class RealmGeneratorConfig {
-  numberOfRealms;
-  requireDualistic;
-  constructor() {
-    this.numberOfRealms = 2;
-    this.requireDualistic = false;
-  }
+function getHazardsForClassification(classification) {
+  const hazards = {
+    arid: [
+      "The atmosphere is very thin and breathing apparatus is required outside.",
+      "Vast sandstorms occasionally sweep across the surface of the planet.",
+      "High winds sometimes create dangerous dust storms that can destroy unprotected buildings and ships.",
+      "Dune seas across the planet are home to a dangerous species of predator.",
+      "Sandstorms of horrific velocity arise without warning."
+    ],
+    barren: [
+      "There is no atmosphere. A vaccsuit is required.",
+      "Meteor strikes are frequent.",
+      "The landscape is peppered with debris from meteor strikes, making travel difficult.",
+      "Unprotected by an atmosphere, this world is constantly bombarded by powerful radiation.",
+      "The surface is covered in radioactive remains of crashed starships."
+    ],
+    garden: [
+      "Life is prolific here, and there are many dangerous native predators.",
+      "A local virus is highly dangerous to non-natives.",
+      "There are many dangerous plants and animals on this world.",
+      "Rainstorms on this planet cause frequent floods in the lower-lying areas.",
+      "Several species of local insects are highly venomous.",
+      "A primitive local sapient species is extremely aggressive."
+    ],
+    "gas giant": [
+      "Vast storms the size of small planets rage across the surface.",
+      "An aggressive species of floating leviathan is widespread across this planet.",
+      "Navigating the upper atmosphere is possible but dangerous due to the many chaotic weather systems.",
+      "The gasses making up the planet's atmosphere are highly corrosive and dangerous to spacecraft.",
+      "The highly-combustible gasses of the upper atmosphere are easily ignited."
+    ],
+    ice: [
+      "Fierce winds whip the surface, chilling the air well below the normal temperatures.",
+      "The ice is thinner in places and cannot hold heavy vehicles or starships.",
+      "Occasional meteor storms cause explosions of sharp shattered ice that shower for miles.",
+      "Pockets of superheated gas beneath the ice sometimes cause the surface to burst and unleash a geyser of hot gas, boiling water, and shards of ice.",
+      "Ice storms are common all over the planet."
+    ],
+    jungle: [
+      "There are numerous species of deadly predator living in the jungle.",
+      "The heat and humidity of this world make it a constant struggle to keep plantlife from claiming settlements.",
+      "It is unbearably hot for non-natives most of the time, requiring a suit for outdoor activity.",
+      "Hidden throughout the greenery of the jungle are spots of quicksand that will devour unwary travellers.",
+      "Local life is massive and even the herbivores are extremely dangerous."
+    ],
+    ocean: [
+      "The still waters hide monstrous leviathans that can devour entire cities.",
+      "Ferocious swarms of fish plague the surface.",
+      "Vast blooms of algae can corrode even the most advanced armor.",
+      "The water contains acidic substances that erode metal but leave plastics untouched.",
+      "A local species of fish emits an unbearable sonic blast when threatened."
+    ],
+    swamp: [
+      "It's very difficult to tell where solid land is. Landing on what appears to be a muddy plain might result in sinking forever into the muck.",
+      "A species of parasitic insect local to the planet carries a nasty disease that is highly contagious.",
+      "The complicated ecosystem is easy to upset, and outside interference can cause widespread destruction.",
+      "The atmosphere is very thick, requiring breathing apparatus for outside activity.",
+      "A species of aerial predator makes being exposed highly dangerous."
+    ],
+    toxic: [
+      "The air is corrosive and will erode unprotected equipment.",
+      "The planet's surface is covered in many acid lakes.",
+      "Toxins in the air are so virulent that they will eat through even heavy protection eventually.",
+      "Corrosive elements in the water make the seas and rain deadly to manmade structures.",
+      "Acid rainstorms are frequent."
+    ],
+    volcanic: [
+      "Deadly eruptions are frequent.",
+      "Lava flows in several areas are unpredictable and quick to change direction.",
+      "The air is filled with poisonous gases released by eruptions.",
+      "Acid rains frequently plague this world.",
+      "Ashes from eruptions cause havoc with unfiltered systems."
+    ]
+  };
+  return Reflect.get(hazards, classification.name);
 }
 function all() {
   return [
-    new RealmConcept(
-      "sky",
-      [
-        "The Eternal Heavens",
-        "The Heavens Above",
-        "Heaven",
-        "The Sky",
-        "The Heavens",
-        "The Celestial Realm",
-        "The Empyrean",
-        "The Firmament"
-      ],
-      ["sky", "clouds", "sun", "moon", "stars", "rainbows", "light"],
-      ["mercurial", "caring", "wise", "flexible", "majestic", "powerful", "graceful", "serene"],
-      [
-        "Far above the mortal world, {name} is a realm of light and splendor.",
-        "{name} is a realm of light and beauty, where celestial beings roam.",
-        "The skies of {name} are awash with vibrant colors and shimmering stars."
-      ]
+    new PlanetClassification("arid", 9500, 19e3, 1, 8, 237, 500, 0.4, 2.4, true, true, true),
+    new PlanetClassification(
+      "barren",
+      4800,
+      19e3,
+      0.3,
+      0.65,
+      80,
+      1500,
+      0.3,
+      6,
+      false,
+      false,
+      false
     ),
-    new RealmConcept(
-      "earth",
-      [
-        "The Earth",
-        "The Mortal Realm",
-        "The Material Plane",
-        "The Mundane World",
-        "The Physical Plane",
-        "The Human World"
-      ],
-      ["earth", "mountains", "rivers", "forests", "deserts", "oceans", "caves", "valleys"],
-      ["stable", "stubborn", "physical", "grounded", "tenacious", "reliable", "practical"],
-      [
-        "{name} is where mortals reside, going about their daily lives.",
-        "{name} is the home of all mortal beings, full of bustling cities and quiet countryside."
-      ]
+    new PlanetClassification(
+      "garden",
+      1e4,
+      14e3,
+      3,
+      7,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true
     ),
-    new RealmConcept(
-      "forest",
-      [
-        "The Forest",
-        "The Eternal Forest",
-        "The Divine Forest",
-        "The Sylvan Realm",
-        "The Verdant Wilds",
-        "The Green Domain"
-      ],
-      ["forest", "trees", "plants", "animals", "rivers", "mountains"],
-      ["caring", "stable", "peaceful", "graceful", "majestic", "wise", "mystical"],
-      [
-        "Hidden far from the mortal world, {name} is deep and mysterious, full of secrets and ancient magic.",
-        "{name} is an infinite forest of beauty and mystery, where the spirits of the wild roam free.",
-        "The forests of {name} are alive with the sound of birdsong and rustling leaves."
-      ]
+    new PlanetClassification(
+      "gas giant",
+      45e3,
+      15e4,
+      85,
+      1900,
+      4e3,
+      7e4,
+      5,
+      40,
+      false,
+      false,
+      true
     ),
-    new RealmConcept(
-      "underworld",
-      [
-        "The Underworld",
-        "The Afterlife",
-        "The Kingdom of Death",
-        "The Great Beyond",
-        "The Netherworld",
-        "The Land of the Dead"
-      ],
-      ["death", "shadow", "bones", "ghosts", "souls", "void"],
-      ["angry", "brooding", "peaceful", "wise", "merciful", "judgmental", "powerful"],
-      [
-        "{name} is where souls go to rest after death, guided by the spirits of the departed.",
-        "{name} is a realm of perpetual darkness where the dead rest forever, watched over by the reapers of the underworld.",
-        "The halls of {name} are filled with the whispers of the dead, their spirits forever lingering in the shadows."
-      ]
+    new PlanetClassification(
+      "ice",
+      4800,
+      19e3,
+      0.3,
+      0.65,
+      4e3,
+      8e4,
+      5,
+      60,
+      true,
+      true,
+      true
     ),
-    new RealmConcept(
+    new PlanetClassification(
+      "jungle",
+      9500,
+      19e3,
+      3.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true
+    ),
+    new PlanetClassification(
       "ocean",
-      [
-        "The Vast Sea",
-        "The Sea",
-        "The Endless Ocean",
-        "The Divine Sea",
-        "The Ever-Changing Tides",
-        "The Fathomless Depths",
-        "The Coral Kingdom",
-        "The Ocean of Storms"
-      ],
-      ["water", "salt", "waves", "foam", "currents", "whirlpools", "tides", "depths"],
-      ["mercurial", "aloof", "cruel", "flexible", "violent", "majestic", "mysterious"],
-      [
-        "{name} is a realm apart from mortal seas, full of life and infinitely deep.",
-        "The deep and restless waters of {name} hide many secrets.",
-        "Beneath the surface of {name} lies a kingdom of wonder and terror."
-      ]
+      9500,
+      19e3,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true
     ),
-    new RealmConcept(
-      "mountain",
-      [
-        "The Great Mountain",
-        "The Mountain",
-        "The Divine Mountain",
-        "The Endless Peak",
-        "The Celestial Summit",
-        "The Sky-Splitting Colossus",
-        "The Stone Sentinel",
-        "The Cradle of the Gods"
-      ],
-      ["earth", "rock", "stone", "ice", "snow", "summit", "peak", "valley"],
-      ["aloof", "wise", "physical", "stable", "majestic", "immovable", "mysterious"],
-      [
-        "{name} is far larger than any mountain of the mortal world.",
-        "{name} is covered in lush forests and cascading waterfalls, a towering paradise.",
-        "Beneath the peaks and valleys of {name} lies a realm of fire and darkness."
-      ]
+    new PlanetClassification(
+      "swamp",
+      9500,
+      19e3,
+      3.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true
     ),
-    new RealmConcept(
-      "void",
-      [
-        "The Nameless Void",
-        "The Endless Void",
-        "The Void",
-        "The Dark Beyond",
-        "The Endless Dark",
-        "The Abyss",
-        "The Great Emptiness",
-        "The Eternal Nothingness"
-      ],
-      ["alien", "darkness", "emptiness", "silence", "cold", "nothingness", "absence"],
-      ["alien", "clever", "unknowable", "silent", "watchful", "impenetrable"],
-      [
-        "{name} is home to things unknowable and alien.",
-        "There are mysteries in {name} that no mortal can hope to perceive, let alone understand.",
-        "{name} is a realm of eternal darkness and emptiness, where the very fabric of reality is twisted and distorted."
-      ]
+    new PlanetClassification(
+      "toxic",
+      9500,
+      19e3,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true
     ),
-    new RealmConcept(
-      "dream",
-      [
-        "The Realm of Dreams",
-        "The Dreamlands",
-        "The Land of Nod",
-        "The Ethereal Plane",
-        "The Realm of Imagination",
-        "The World of Sleep"
-      ],
-      ["ethereal", "fantastical", "dreamlike", "otherworldly", "surreal", "shimmering"],
-      ["mysterious", "whimsical", "fickle", "curious", "enigmatic", "playful"],
-      [
-        "{name} is a place where the impossible becomes reality and where the line between dreams and waking life is blurred.",
-        "The ethereal beauty of {name} is home to creatures born of pure imagination and fantasy.",
-        "In {name}, the landscape constantly shifts and changes, shaped by the whims of the dreamers who call it home.",
-        "The dreamscape of {name} is a realm of infinite possibilities, where anything can happen and nothing is truly impossible.",
-        "{name} is a place where the innermost thoughts and desires of mortals manifest into reality, for better or for worse.",
-        "Those who journey into {name} often find themselves caught in a never-ending cycle of dreams and nightmares."
-      ]
+    new PlanetClassification(
+      "volcanic",
+      9500,
+      19e3,
+      1.791,
+      11.94,
+      237,
+      500,
+      0.95,
+      2.4,
+      true,
+      true,
+      true
     )
   ];
 }
-class RealmGenerator {
-  config;
-  constructor(config) {
-    this.config = config;
-  }
-  generate() {
-    const realms = [];
-    const numberOfRealms = this.config.numberOfRealms;
-    let allConcepts = all();
-    allConcepts = RND.shuffle(allConcepts);
-    for (let i = 0; i < numberOfRealms; i++) {
-      const concept = allConcepts.pop();
-      if (typeof concept == "object") {
-        const realmName = RND.item(concept.nameOptions);
-        const appearanceTraits = getAllAppearanceTraitsForRealmConcept(concept);
-        let description = RND.item(concept.descriptionOptions).replace(
-          "{name}",
-          Words.uncapitalize(realmName)
-        );
-        description = Words.capitalize(description);
-        const realm = new Realm(realmName, description, [], appearanceTraits);
-        realms.push(realm);
-      }
-    }
-    return realms;
+class PlanetGeneratorConfig {
+  possibleClassifications;
+  constructor() {
+    this.possibleClassifications = all();
   }
 }
-class Religion {
+function generate$1() {
+  let possibleTraits = RND.shuffle([
+    ["warlike", "violent", "peaceful", "pacifist"],
+    ["matriarchal", "patriarchal", "matrilineal", "patrilineal"],
+    ["spiritual", "secular"],
+    ["chaotic", "orderly", "caste-based"],
+    ["conservative", "progressive", "traditional"],
+    ["xenophobic", "xenophilic", "welcoming"],
+    ["forgiving", "unforgiving"]
+  ]);
+  let characteristics = [];
+  const numberOfTraits = random.int(1, 3);
+  for (let i = 0; i < numberOfTraits; i++) {
+    let trait = possibleTraits.pop();
+    characteristics.push(RND.item(trait));
+  }
+  return Words.arrayToPhrase(characteristics);
+}
+function generate() {
+  const governmentTypes = [
+    ["feudal theocracy", "autocratic theocracy", "totalitarian theocracy"],
+    ["representative democracy", "direct democracy", "republic", "parliamentary republic"],
+    ["corporatocracy", "feudal technocracy", "technocratic republic"],
+    ["absolute monarchy", "monarchy", "constitutional monarchy", "feudal monarchy"]
+  ];
+  return RND.item(RND.item(governmentTypes));
+}
+class Planet {
   name;
   description;
-  realms;
-  pantheon;
-  constructor(name) {
-    this.name = name;
+  culture;
+  government;
+  population;
+  populationFriendly;
+  is_inhabited;
+  classification;
+  mass;
+  // in 10^24 kg
+  gravity;
+  // in m/s^2
+  diameter;
+  // in km
+  orbital_period;
+  // in Earth days
+  distance_from_sun;
+  // in AU
+  has_clouds;
+  has_atmosphere;
+  constructor() {
+    this.name = "";
     this.description = "";
-    this.realms = [];
-    this.pantheon = null;
+    this.classification = new PlanetClassification("", 0, 0, 0, 0, 0, 0, 0, 0, false, false, false);
+    this.culture = "N/A";
+    this.government = "N/A";
+    this.population = 0;
+    this.populationFriendly = "Uninhabited";
+    this.is_inhabited = false;
+    this.mass = 0;
+    this.gravity = 0;
+    this.diameter = 0;
+    this.orbital_period = 0;
+    this.distance_from_sun = 0;
+    this.has_clouds = false;
+    this.has_atmosphere = false;
   }
 }
-class ReligionGenerator {
+class PlanetGenerator {
   config;
   constructor(config) {
     this.config = config;
   }
   generate() {
-    let realmGenConfig = new RealmGeneratorConfig();
-    let realmGen = new RealmGenerator(realmGenConfig);
-    const realms = realmGen.generate();
-    const category = RND.item(this.config.categories);
-    let pantheonGenConfig = new PantheonGeneratorConfig();
-    pantheonGenConfig.realms = realms;
-    pantheonGenConfig.minDeities = category.minDeities;
-    pantheonGenConfig.maxDeities = category.maxDeities;
-    pantheonGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
-    pantheonGenConfig.maleNameGenerator = this.config.maleNameGenerator;
-    let pantheonGen = new PantheonGenerator(pantheonGenConfig);
-    let pantheon = pantheonGen.generate();
-    pantheon.description = category.description;
-    const religion = new Religion(this.config.nameGenerator.generate(1)[0]);
-    religion.realms = realms;
-    religion.pantheon = pantheon;
-    if (category.hasLeader) {
-      religion.pantheon.leader = random.int(0, religion.pantheon.members.length - 1);
-      let leaderTitle = "Queen of the Gods";
-      if (religion.pantheon.members[religion.pantheon.leader].deity.gender.name === "male") {
-        leaderTitle = "King of the Gods";
+    const classification = RND.item(this.config.possibleClassifications);
+    let planet = new Planet();
+    planet.name = MUN.planet();
+    planet.classification = classification;
+    planet.mass = RND.bellFloat(classification.mass_min, classification.mass_max);
+    planet.diameter = RND.bellFloat(classification.diameter_min, classification.diameter_max);
+    planet.orbital_period = RND.bellFloat(
+      classification.orbital_period_min,
+      classification.orbital_period_max
+    );
+    planet.distance_from_sun = RND.bellFloat(
+      classification.distance_from_sun_min,
+      classification.distance_from_sun_max
+    );
+    planet.gravity = calculateGravity(planet.diameter * 1e3, planet.mass * Math.pow(10, 24));
+    planet.has_clouds = classification.has_clouds;
+    planet.has_atmosphere = classification.has_atmosphere;
+    if (classification.is_inhabitable) {
+      const chance = random.int(1, 100);
+      if (chance > 60) {
+        planet.is_inhabited = true;
       }
-      religion.pantheon.members[religion.pantheon.leader].deity.titles.push(leaderTitle);
-      religion.pantheon.description += ` ${religion.pantheon.members[religion.pantheon.leader].deity.name} is the ${leaderTitle}.`;
     }
-    religion.description = pantheon.description + " " + randomGatheringTimes() + " " + Words.capitalize(randomGatheringPlace()) + ".";
-    return religion;
+    planet.description += RND.item(getHazardsForClassification(classification));
+    if (planet.is_inhabited) {
+      planet.population = randomPopulation();
+      planet.populationFriendly = getFriendlyPopulation(planet.population);
+      planet.culture = generate$1();
+      planet.government = generate();
+      const chanceOfStarport = random.int(1, 100);
+      if (chanceOfStarport > 85) {
+        planet.description += " " + randomStarport();
+      }
+    }
+    return planet;
   }
 }
-function randomGatheringPlace() {
-  let description = RND.item([
-    "{follower} gather in {place} for {service}",
-    "{follower} congregate in {place} to be led in {service} by {leader}",
-    "{follower} meet in {place} to engage in {service} and hear from {leader}",
-    "At {place}, {follower} come together for {service} led by {leader}",
-    "Join {follower} at {place} for {service} and fellowship with {leader}",
-    "{follower} assemble in {place} to participate in {service} and share with {leader}",
-    "{follower} unite at {place} for {service} and to learn from {leader}",
-    "At {place}, {follower} come together to seek guidance and wisdom from {leader} through {service}"
-  ]);
-  const follower = RND.item([
-    "adherents",
-    "believers",
-    "disciples",
-    "devotees",
-    "faithful",
-    "followers",
-    "pilgrims",
-    "worshippers",
-    "zealots"
-  ]);
-  const place = RND.item([
-    "temples",
-    "churches",
-    "mosques",
-    "synagogues",
-    "chapels",
-    "shrines",
-    "sanctuaries",
-    "meeting halls",
-    "community centers",
-    "outdoor arenas"
-  ]);
-  const service = RND.item([
-    "silent meditation",
-    "guided meditation",
-    "chanting",
-    "prayer",
-    "sacrament",
-    "communion",
-    "worship",
-    "ritual dance",
-    "ritual music",
-    "structured recitation",
-    "spontaneous sharing",
-    "teachings and discussions",
-    "ritual sacrifice"
-  ]);
-  const leader = RND.item([
-    "priest",
-    "priestess",
-    "minister",
-    "shaman",
-    "spiritual guide",
-    "community leader",
-    "wise elder",
-    "prophet",
-    "guru",
-    "ascended master",
-    "enlightened one",
-    "mystic",
-    "oracle"
-  ]);
-  description = description.replace("{follower}", follower).replace("{place}", place).replace("{service}", service).replace("{leader}", Words.article(leader) + " " + leader);
-  return description;
+function calculateGravity(diameter, mass) {
+  const G = 9.8 * Math.pow(6378e3, 2) / 597219e19;
+  const r = diameter / 2;
+  return G * mass / Math.pow(r, 2);
 }
-function randomGatheringTimes() {
-  let description = RND.item([
-    "Regular gatherings happen once a week.",
-    "Regular gatherings happen daily.",
-    "Regular gatherings happen once a month.",
-    "Weekly gatherings take place every {weekday}.",
-    "They come together every {weekday} for a time of {service}.",
-    "Their community meets {frequency} for {service} at {time}.",
-    "Their gatherings occur {frequency}, bringing {follower} together for {service}.",
-    "They gather {frequency} at {place} for {service} and {activity}.",
-    "Every {weekday} they gather for {service}, followed by {activity}.",
-    "Their gatherings happen {frequency} at {place} and feature {service}, {activity}, and {food/drink}.",
-    "People are invited to the {occasion} gathering, where they partake in {service} and {activity}."
-  ]);
-  description = description.replace(
-    "{weekday}",
-    RND.item(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"])
-  ).replace("{frequency}", RND.item(["weekly", "bi-weekly", "monthly", "quarterly", "annually"])).replace(
-    "{follower}",
-    RND.item(["worshipers", "devotees", "believers", "faithful", "followers", "pilgrims"])
-  ).replace(
-    "{service}",
-    RND.item(["prayer", "worship", "meditation", "reflection", "ritual", "sermon", "teaching"])
-  ).replace("{time}", RND.item(["sunrise", "midday", "sunset", "evening", "night"])).replace(
-    "{place}",
-    RND.item([
-      "the temple",
-      "the church",
-      "the mosque",
-      "the synagogue",
-      "the chapel",
-      "the shrine",
-      "the sanctuary",
-      "the meeting hall"
-    ])
-  ).replace(
-    "{activity}",
-    RND.item([
-      "fellowship",
-      "conversation",
-      "sharing",
-      "food and drink",
-      "community service",
-      "study"
-    ])
-  ).replace("{occasion}", RND.item(["special", "holiday", "festive", "solemn"]));
-  return description;
+function getFriendlyPopulation(pop) {
+  const formatter = new Intl.NumberFormat();
+  if (pop < 1e6) {
+    return formatter.format(Math.floor(pop / 1e3)) + " thousand";
+  }
+  if (pop < 1e9) {
+    return formatter.format(pop / 1e6) + " million";
+  }
+  return formatter.format(pop / 1e9) + " billion";
+}
+function randomPopulation() {
+  const options = [
+    random.float(10, 700) * 1e3,
+    random.float(10, 900) * 1e6,
+    random.float(1, 10) * 1e9
+  ];
+  return RND.item(options);
+}
+function randomStarport() {
+  const starportType = RND.item(["military", "civilian"]);
+  let features;
+  if (starportType == "military") {
+    features = ["strategic position", "regular starfighter drills", "oppressive presence"];
+  } else {
+    features = ["important trade route position", "usage by smugglers and pirates", "beautiful architecture"];
+  }
+  const feature = RND.item(features);
+  const descriptor = RND.item(["major", "minor", "curious", "sprawling", "towering"]);
+  return `There is a ${descriptor} ${starportType} starport here, notable for its ${feature}.`;
 }
 export {
-  ReligionGeneratorConfig as R,
-  ReligionGenerator as a
+  PlanetGenerator as P,
+  PlanetGeneratorConfig as a,
+  getClassificationNames as g
 };
 //# sourceMappingURL=generator.js.map

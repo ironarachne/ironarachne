@@ -1,20 +1,17 @@
 "use strict";
 
+import type AppearanceTrait from "$lib/appearance/trait";
+
 export default class Realm {
   name: string;
   description: string;
   personalityTraits: string[];
-  appearanceTraits: string[];
+  appearanceTraits: AppearanceTrait[];
 
-  constructor(
-    name: string,
-    description: string,
-    personalityTraits: string[],
-    appearanceTraits: any[],
-  ) {
-    this.name = name;
-    this.description = description;
-    this.personalityTraits = personalityTraits;
-    this.appearanceTraits = appearanceTraits;
+  constructor() {
+    this.name = "";
+    this.description = "";
+    this.personalityTraits = [];
+    this.appearanceTraits = [];
   }
 }

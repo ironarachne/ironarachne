@@ -1,8 +1,7 @@
 import * as RND from "@ironarachne/rng";
-import * as _ from "lodash";
 import "./sentry-release-injection-file.js";
 function modify$2(species) {
-  let result = _.cloneDeep(species);
+  let result = JSON.parse(JSON.stringify(species));
   let modifierName = "skeletal";
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
@@ -14,7 +13,7 @@ function modify$2(species) {
   return result;
 }
 function modify$1(species) {
-  let result = _.cloneDeep(species);
+  let result = JSON.parse(JSON.stringify(species));
   let modifierName = "vampire";
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
@@ -31,7 +30,7 @@ function modify$1(species) {
   return result;
 }
 function modify(species) {
-  let result = _.cloneDeep(species);
+  let result = JSON.parse(JSON.stringify(species));
   let modifierName = "zombie";
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;

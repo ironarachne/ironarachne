@@ -16,6 +16,14 @@ export function mostRecent(numberOfEntries: number): ChangeLog[] {
 
 export function all(): ChangeLog[] {
   return [
+    new ChangeLog("2023-08-08", [
+      "Fixed an obscure bug in the religion generator with domains.",
+      "Added the ability specify species mix for the religion generator.",
+      "Added the ability to specify the category of religion in the religion generator.",
+      "Changed the default species and category for the religion generator.",
+      "Added more species options for the fantasy family generator.",
+      "Fixed a bug in the Stars Without Number starship generator's model numbers.",
+    ]),
     new ChangeLog("2023-08-06", [
       "Added support for saving multiple cultures for later use.",
       "Rewrote the entire site to use SvelteKit instead of Svelte.",

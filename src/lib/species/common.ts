@@ -36,6 +36,16 @@ export function byEnvironment(environment: string, options: Species[]): Species[
   return result;
 }
 
+export function byName(name: string, options: Species[]): Species {
+  for (let i = 0; i < options.length; i++) {
+    if (options[i].name == name) {
+      return options[i];
+    }
+  }
+
+  throw new Error(`No species found with name ${name}.`);
+}
+
 export function byTag(tag: string, options: Species[]): Species[] {
   let result = [];
 

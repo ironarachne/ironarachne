@@ -420,7 +420,7 @@ function getAllDescriptors(): Descriptor.Descriptor[] {
     },
   ];
 
-  const allDomains = Domains.all();
+  const allDomains = Domains.allDomains;
 
   for (let i = 0; i < allDomains.length; i++) {
     for (let j = 0; j < pairings.length; j++) {

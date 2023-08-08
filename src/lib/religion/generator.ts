@@ -3,7 +3,7 @@
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
-import ReligionGeneratorConfig from "./generatorconfig.js";
+import type ReligionGeneratorConfig from "./generatorconfig.js";
 import PantheonGenerator from "./pantheons/generator.js";
 import PantheonGeneratorConfig from "./pantheons/generatorconfig.js";
 import RealmGenerator from "./realms/generator.js";
@@ -24,40 +24,50 @@ export default class ReligionGenerator {
 
     const category = RND.item(this.config.categories);
 
-    let pantheonGenConfig = new PantheonGeneratorConfig();
-    pantheonGenConfig.realms = realms;
-    pantheonGenConfig.minDeities = category.minDeities;
-    pantheonGenConfig.maxDeities = category.maxDeities;
-    pantheonGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
-    pantheonGenConfig.maleNameGenerator = this.config.maleNameGenerator;
-    let pantheonGen = new PantheonGenerator(pantheonGenConfig);
-    let pantheon = pantheonGen.generate();
-    pantheon.description = category.description;
-
     const religion = new Religion(this.config.nameGenerator.generate(1)[0]);
     religion.realms = realms;
-    religion.pantheon = pantheon;
 
-    if (category.hasLeader) {
-      religion.pantheon.leader = random.int(0, religion.pantheon.members.length - 1);
+    if (category.hasDeities) {
+      let pantheonGenConfig = new PantheonGeneratorConfig();
+      pantheonGenConfig.realms = realms;
+      pantheonGenConfig.speciesOptions = this.config.deitySpeciesOptions;
+      pantheonGenConfig.minDeities = category.minDeities;
+      pantheonGenConfig.maxDeities = category.maxDeities;
+      pantheonGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
+      pantheonGenConfig.maleNameGenerator = this.config.maleNameGenerator;
+      let pantheonGen = new PantheonGenerator(pantheonGenConfig);
+      let pantheon = pantheonGen.generate();
+      pantheon.description = category.description;
+      religion.pantheon = pantheon;
 
-      let leaderTitle = "Queen of the Gods";
-      if (religion.pantheon.members[religion.pantheon.leader].deity.gender.name === "male") {
-        leaderTitle = "King of the Gods";
+      if (category.hasLeader) {
+        religion.pantheon.leader = random.int(0, religion.pantheon.members.length - 1);
+
+        let leaderTitle = "Queen of the Gods";
+        if (religion.pantheon.members[religion.pantheon.leader].deity.gender.name === "male") {
+          leaderTitle = "King of the Gods";
+        }
+
+        religion.pantheon.members[religion.pantheon.leader].deity.titles.push(leaderTitle);
+        religion.pantheon.description += ` ${
+          religion.pantheon.members[religion.pantheon.leader].deity.name
+        } is the ${leaderTitle}.`;
       }
-
-      religion.pantheon.members[religion.pantheon.leader].deity.titles.push(leaderTitle);
-      religion.pantheon.description += ` ${
-        religion.pantheon.members[religion.pantheon.leader].deity.name
-      } is the ${leaderTitle}.`;
     }
 
-    religion.description = pantheon.description
-      + " "
-      + randomGatheringTimes()
-      + " "
-      + Words.capitalize(randomGatheringPlace())
-      + ".";
+    if (religion.pantheon !== null) {
+      religion.description = religion.pantheon.description
+        + " "
+        + randomGatheringTimes()
+        + " "
+        + Words.capitalize(randomGatheringPlace())
+        + ".";
+    } else {
+      religion.description = category.description + " " + randomGatheringTimes()
+        + " "
+        + Words.capitalize(randomGatheringPlace())
+        + ".";
+    }
 
     return religion;
   }
@@ -152,7 +162,7 @@ function randomGatheringTimes(): string {
     "Their gatherings occur {frequency}, bringing {follower} together for {service}.",
     "They gather {frequency} at {place} for {service} and {activity}.",
     "Every {weekday} they gather for {service}, followed by {activity}.",
-    "Their gatherings happen {frequency} at {place} and feature {service}, {activity}, and {food/drink}.",
+    "Their gatherings happen {frequency} at {place} and feature {service}, {activity}, and food/drink.",
     "People are invited to the {occasion} gathering, where they partake in {service} and {activity}.",
   ]);
 

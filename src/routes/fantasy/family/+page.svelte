@@ -11,7 +11,7 @@
   import type NameGenerator from '@ironarachne/made-up-names/dist/generator';
 
   let seed = RND.randomString(13);
-  let availableSpecies = FantasySpecies.pc();
+  let availableSpecies = FantasySpecies.all();
   let selectedSpecies = "any";
   let species = CommonSpecies.randomWeighted(availableSpecies);
   let iterations = 2;

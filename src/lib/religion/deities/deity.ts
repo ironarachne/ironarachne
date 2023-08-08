@@ -1,10 +1,11 @@
 "use strict";
 
+import AgeCategory from "$lib/age/agecategory.js";
+import type PersonalityTrait from "$lib/characters/personality/personalitytrait.js";
+import Gender from "$lib/gender/gender.js";
+import Human from "$lib/species/human.js";
+import type Species from "$lib/species/species.js";
 import * as Words from "@ironarachne/words";
-import AgeCategory from "../../age/agecategory.js";
-import PersonalityTrait from "../../characters/personality/personalitytrait.js";
-import Gender from "../../gender.js";
-import type Species from "../../species/species.js";
 import DomainSet from "../domains/domainset.js";
 import Realm from "../realms/realm.js";
 
@@ -24,23 +25,17 @@ export default class Deity {
   holySymbol: string;
   isAlive: boolean;
 
-  constructor(
-    name: string,
-    species: Species,
-    gender: Gender,
-    ageCategory: AgeCategory,
-    realm: Realm,
-    domains: DomainSet,
-  ) {
-    this.name = name;
-    this.species = species;
-    this.gender = gender;
-    this.ageCategory = ageCategory;
-    this.domains = domains;
+  constructor() {
+    this.name = "";
+    this.species = new Human();
+    this.gender = new Gender();
+    this.ageCategory = new AgeCategory();
+    this.domains = new DomainSet();
     this.titles = [];
-    this.realm = realm;
+    this.realm = new Realm();
     this.description = "";
     this.personality = "";
+    this.personalityTraits = [];
     this.appearance = "";
     this.holyItem = "";
     this.holySymbol = "";

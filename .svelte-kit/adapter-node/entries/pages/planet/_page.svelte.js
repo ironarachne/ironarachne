@@ -1,6 +1,6 @@
 import { c as create_ssr_component, a as add_attribute, f as each, e as escape } from "../../../chunks/ssr.js";
 import * as RND from "@ironarachne/rng";
-import { g as getClassificationNames, P as PlanetGenerator, a as PlanetGeneratorConfig } from "../../../chunks/generator2.js";
+import { g as getClassificationNames, P as PlanetGenerator, a as PlanetGeneratorConfig } from "../../../chunks/generator.js";
 import "../../../chunks/sentry-release-injection-file.js";
 import random from "random";
 import * as THREE from "three";

@@ -2,7 +2,7 @@
 
 import * as RND from "@ironarachne/rng";
 import DomainSet from "./domainset.js";
-import DomainGeneratorConfig from "./generatorconfig.js";
+import type DomainGeneratorConfig from "./generatorconfig.js";
 
 export default class DomainGenerator {
   config: DomainGeneratorConfig;
@@ -15,6 +15,10 @@ export default class DomainGenerator {
     let domainSet = new DomainSet();
 
     this.config.domains = RND.shuffle(this.config.domains);
+
+    if (this.config.domains.length < this.config.numberOfDomains) {
+      throw new Error("Not enough domains in domain generator config for the requested number of domains.");
+    }
 
     let primary = this.config.domains.pop();
     if (primary !== undefined) {

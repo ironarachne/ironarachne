@@ -3,9 +3,11 @@
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as AppearanceTraits from "../appearancetraits.js";
-import RealmGeneratorConfig from "./generatorconfig.js";
-import Realm from "./realm.js";
+import type RealmGeneratorConfig from "./generatorconfig.js";
+import type Realm from "./realm.js";
+import type RealmConcept from "./realmconcept.js";
 import * as RealmConcepts from "./realmconcepts.js";
+import * as Realms from "./realms.js";
 
 export default class RealmGenerator {
   config: RealmGeneratorConfig;
@@ -19,7 +21,7 @@ export default class RealmGenerator {
 
     const numberOfRealms = this.config.numberOfRealms;
 
-    let allConcepts = RealmConcepts.all();
+    let allConcepts: RealmConcept[] = JSON.parse(JSON.stringify(RealmConcepts.realmConcepts));
     allConcepts = RND.shuffle(allConcepts);
 
     for (let i = 0; i < numberOfRealms; i++) {
@@ -28,7 +30,11 @@ export default class RealmGenerator {
       if (typeof concept == "object") {
         const realmName = RND.item(concept.nameOptions);
 
-        const appearanceTraits = AppearanceTraits.getAllAppearanceTraitsForRealmConcept(concept);
+        const appearanceTraits = AppearanceTraits.byRealmConcept(concept);
+
+        if (appearanceTraits.length < 1) {
+          throw new Error(`No appearance traits found for realm concept ${concept.name}.`);
+        }
 
         let description = RND.item(concept.descriptionOptions).replace(
           "{name}",
@@ -36,7 +42,7 @@ export default class RealmGenerator {
         );
         description = Words.capitalize(description);
 
-        const realm = new Realm(realmName, description, [], appearanceTraits);
+        const realm = Realms.newRealm(realmName, description, [], appearanceTraits);
 
         realms.push(realm);
       }

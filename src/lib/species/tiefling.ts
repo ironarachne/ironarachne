@@ -31,6 +31,8 @@ export default class Tiefling implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "tiefling", "demonic", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.TieflingSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "tieflings";

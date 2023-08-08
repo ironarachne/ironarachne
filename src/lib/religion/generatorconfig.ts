@@ -1,17 +1,21 @@
 "use strict";
 
+import Human from "$lib/species/human.js";
+import type Species from "$lib/species/species.js";
 import * as MUN from "@ironarachne/made-up-names";
 import * as Categories from "./categories/categories.js";
-import ReligionCategory from "./categories/category.js";
+import type ReligionCategory from "./categories/category.js";
 
 export default class ReligionGeneratorConfig {
   categories: ReligionCategory[];
+  deitySpeciesOptions: Species[];
   nameGenerator: MUN.Generator;
   femaleNameGenerator: MUN.Generator;
   maleNameGenerator: MUN.Generator;
 
   constructor() {
     this.categories = Categories.all();
+    this.deitySpeciesOptions = [new Human()];
 
     let genSet = new MUN.HumanSet();
 

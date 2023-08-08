@@ -7,6 +7,7 @@ export default class DomainSet {
   secondaries: Domain[];
 
   constructor() {
+    this.primary = new Domain();
     this.secondaries = [];
   }
 }

@@ -74,24 +74,48 @@ export function getMaxAge(categories: AgeCategory[]): number {
 
 export function humanStandardFemale(): AgeCategory[] {
   return [
-    new AgeCategory("infant", "baby girl", 0, 1, 49, 2),
-    new AgeCategory("toddler", "toddler", 2, 3, 80, 14),
-    new AgeCategory("young child", "young girl", 4, 6, 115, 19),
-    new AgeCategory("child", "girl", 7, 12, 149, 20),
-    new AgeCategory("young adult", "young woman", 13, 19, 158, 57),
-    new AgeCategory("adult", "woman", 20, 60, 160, 64),
-    new AgeCategory("elderly", "woman", 61, 100, 155, 60),
+    newCategory("infant", "baby girl", 0, 1, 49, 2, 1),
+    newCategory("toddler", "toddler", 2, 3, 80, 14, 1),
+    newCategory("young child", "young girl", 4, 6, 115, 19, 2),
+    newCategory("child", "girl", 7, 12, 149, 20, 2),
+    newCategory("young adult", "young woman", 13, 19, 158, 57, 8),
+    newCategory("adult", "woman", 20, 60, 160, 64, 20),
+    newCategory("elderly", "woman", 61, 100, 155, 60, 3),
   ];
 }
 
 export function humanStandardMale(): AgeCategory[] {
   return [
-    new AgeCategory("infant", "baby boy", 0, 1, 50, 2),
-    new AgeCategory("toddler", "toddler", 2, 3, 85, 14),
-    new AgeCategory("young child", "young boy", 4, 6, 115, 20),
-    new AgeCategory("child", "boy", 7, 12, 145, 36),
-    new AgeCategory("young adult", "young man", 13, 19, 170, 68),
-    new AgeCategory("adult", "man", 20, 60, 175, 70),
-    new AgeCategory("elderly", "man", 61, 100, 170, 65),
+    newCategory("infant", "baby boy", 0, 1, 50, 2, 1),
+    newCategory("toddler", "toddler", 2, 3, 85, 14, 1),
+    newCategory("young child", "young boy", 4, 6, 115, 20, 2),
+    newCategory("child", "boy", 7, 12, 145, 36, 2),
+    newCategory("young adult", "young man", 13, 19, 170, 68, 8),
+    newCategory("adult", "man", 20, 60, 175, 70, 20),
+    newCategory("elderly", "man", 61, 100, 170, 65, 3),
   ];
+}
+
+export function newCategory(
+  name: string,
+  noun: string,
+  minAge: number,
+  maxAge: number,
+  minHeight: number,
+  minWeight: number,
+  commonality: number,
+): AgeCategory {
+  let category = new AgeCategory();
+
+  category.name = name;
+  category.noun = noun;
+  category.minAge = minAge;
+  category.maxAge = maxAge;
+  category.minHeight = minHeight;
+  category.maxHeight = Math.floor(minHeight * 1.05);
+  category.minWeight = minWeight;
+  category.maxWeight = Math.floor(minWeight * 1.05);
+  category.commonality = commonality;
+
+  return category;
 }

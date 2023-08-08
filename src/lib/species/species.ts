@@ -1,9 +1,9 @@
 "use strict";
 
-import * as MUN from "@ironarachne/made-up-names";
+import type Gender from "$lib/gender/gender.js";
+import type * as MUN from "@ironarachne/made-up-names";
 import type Item from "../equipment/item.js";
-import Gender from "../gender.js";
-import PhysicalTraitGenerator from "../physicaltraits/generator.js";
+import type PhysicalTraitGenerator from "../physicaltraits/generator.js";
 import type StatBlock from "../statblock.js";
 
 export default interface Species {

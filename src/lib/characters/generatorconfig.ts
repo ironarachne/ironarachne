@@ -1,8 +1,8 @@
 "use strict";
 
+import * as AgeCategories from "$lib/age/agecategories.js";
+import type PhysicalTrait from "$lib/physicaltraits/physicaltrait.js";
 import * as MUN from "@ironarachne/made-up-names";
-import * as AgeCategories from "../age/agecategories.js";
-import PhysicalTrait from "../physicaltraits/physicaltrait.js";
 import type Species from "../species/species.js";
 
 export default class CharacterGeneratorConfig {

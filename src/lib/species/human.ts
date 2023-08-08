@@ -31,6 +31,8 @@ export default class Human implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "human", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.HumanSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "humans";

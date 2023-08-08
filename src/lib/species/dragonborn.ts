@@ -31,6 +31,8 @@ export default class Dragonborn implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "dragonborn", "dragonkin", "martial", "sentient", "magic"];
     this.nameGeneratorSet = new MUN.DragonbornSet();
+    this.description = "";
+    this.summary = "";
     this.pluralName = "dragonborn";
     this.adjective = "dragonborn";
     this.carried = [];

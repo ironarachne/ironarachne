@@ -1,7 +1,7 @@
 "use strict";
 
-import Pantheon from "./pantheons/pantheon.js";
-import Realm from "./realms/realm.js";
+import type Pantheon from "./pantheons/pantheon.js";
+import type Realm from "./realms/realm.js";
 
 export default class Religion {
   name: string;

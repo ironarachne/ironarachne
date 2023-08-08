@@ -31,6 +31,8 @@ export default class Aasimar implements Species {
     this.abilities = ["healing touch", "summon light"];
     this.tags = ["aasimar", "celestial", "human", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.FantasySet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "aasimar";

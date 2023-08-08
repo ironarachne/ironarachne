@@ -31,6 +31,8 @@ export default class Duergar implements Species {
     this.abilities = ["can see in the dark"];
     this.tags = ["corruptible", "duergar", "dwarf", "martial", "sentient"];
     this.nameGeneratorSet = new MUN.DwarfSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "duergar";

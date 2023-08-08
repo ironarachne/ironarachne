@@ -31,6 +31,8 @@ export default class DarkElf implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "dark elf", "elf", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.ElfSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "dark elves";

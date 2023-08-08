@@ -1,7 +1,7 @@
-import * as AgeCategories from '../src/modules/age/agecategories';
+import * as AgeCategories from "$lib/age/agecategories";
 
-test('get human variants should calculate correct age, height, and weight for human males', () => {
-  let variants = AgeCategories.getHumanVariant(1, 1, 1, 'male');
+test("get human variants should calculate correct age, height, and weight for human males", () => {
+  let variants = AgeCategories.getHumanVariant(1, 1, 1, "male");
 
   let standard = AgeCategories.humanStandardMale();
 
@@ -15,8 +15,8 @@ test('get human variants should calculate correct age, height, and weight for hu
   }
 });
 
-test('get human variants should calculate correct age, height, and weight for dwarf males', () => {
-  let variants = AgeCategories.getHumanVariant(3, 1, 0.5, 'male');
+test("get human variants should calculate correct age, height, and weight for dwarf males", () => {
+  let variants = AgeCategories.getHumanVariant(3, 1, 0.5, "male");
 
   let standard = AgeCategories.humanStandardMale();
 

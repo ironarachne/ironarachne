@@ -31,6 +31,10 @@ export default class Goblin implements Species {
     this.abilities = [];
     this.tags = ["goblin", "sentient"];
     this.nameGeneratorSet = new MUN.GoblinSet();
+    this.description = "";
+    this.summary = "";
+    this.carried = [];
+    this.statBlock = null;
     this.pluralName = "goblins";
     this.adjective = "goblin";
     this.commonality = 20;

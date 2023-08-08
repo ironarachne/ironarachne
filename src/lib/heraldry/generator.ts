@@ -1,7 +1,6 @@
 "use strict";
 
 import * as RND from "@ironarachne/rng";
-import * as _ from "lodash";
 import Arms from "./arms.js";
 import ChargeGroup from "./chargegroup.js";
 import * as Arrangements from "./chargegrouparrangements.js";
@@ -9,9 +8,9 @@ import * as Charges from "./charges.js";
 import Device from "./device.js";
 import * as Fields from "./fields.js";
 import HeraldryGeneratorConfig from "./generatorconfig.js";
-import Tincture from "./tincture.js";
+import type Tincture from "./tincture.js";
 import * as Tinctures from "./tinctures.js";
-import Variation from "./variation.js";
+import type Variation from "./variation.js";
 import * as Variations from "./variations.js";
 
 export default class HeraldryGenerator {
@@ -24,8 +23,8 @@ export default class HeraldryGenerator {
   generate(): Arms {
     let chargeGroups: ChargeGroup[] = [];
 
-    let fieldTinctures1 = _.cloneDeep(this.config.fieldTinctures1);
-    let fieldTinctures2 = _.cloneDeep(this.config.fieldTinctures2);
+    let fieldTinctures1: Tincture[] = JSON.parse(JSON.stringify(this.config.fieldTinctures1));
+    let fieldTinctures2: Tincture[] = JSON.parse(JSON.stringify(this.config.fieldTinctures2));
 
     if (this.config.chargeCount > 0) {
       let charge = RND.item(this.config.chargeOptions);
@@ -113,8 +112,8 @@ function generateVariations(
   let furCount = 0; // This function has an inherent limit of a single fur in a set of variations.
 
   for (let i = 0; i < count; i++) {
-    let tinctureSet1 = _.cloneDeep(tinctures1);
-    let tinctureSet2 = _.cloneDeep(tinctures2);
+    let tinctureSet1 = JSON.parse(JSON.stringify(tinctures1));
+    let tinctureSet2 = JSON.parse(JSON.stringify(tinctures2));
 
     let variation = RND.weighted(options);
 

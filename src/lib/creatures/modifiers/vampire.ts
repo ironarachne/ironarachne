@@ -1,10 +1,9 @@
 "use strict";
 
-import * as _ from "lodash";
 import type Creature from "../creature.js";
 
 export function modify(creature: Creature): Creature {
-  let result = _.cloneDeep(creature);
+  let result: Creature = JSON.parse(JSON.stringify(creature));
 
   let modifierName = "vampire";
 

@@ -1,6 +1,6 @@
 "use strict";
 
-import AgeCategory from "./age/agecategory.js";
+import type AgeCategory from "./age/agecategory.js";
 
 export default class Gender {
   name: string;

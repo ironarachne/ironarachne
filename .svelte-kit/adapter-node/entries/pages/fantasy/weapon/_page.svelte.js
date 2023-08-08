@@ -1,5 +1,5 @@
 import { c as create_ssr_component, f as each, a as add_attribute, e as escape } from "../../../../chunks/ssr.js";
-import { g as getAllDomainNames, b as getSpecificDomain, a as all } from "../../../../chunks/domains.js";
+import { g as getAllDomainNames, b as getSpecificDomain, a as allDomains } from "../../../../chunks/domains.js";
 import * as MUN from "@ironarachne/made-up-names";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
@@ -108,21 +108,21 @@ function getAllMaterials() {
   ];
 }
 function getMaterialSetsForCategory(category) {
-  const all2 = getAllMaterialSets();
+  const all = getAllMaterialSets();
   const result = [];
-  for (let i = 0; i < all2.length; i++) {
-    if (all2[i].categories.includes(category)) {
-      result.push(all2[i]);
+  for (let i = 0; i < all.length; i++) {
+    if (all[i].categories.includes(category)) {
+      result.push(all[i]);
     }
   }
   return result;
 }
 function getMaterialsForCategory(category) {
-  const all2 = getAllMaterials();
+  const all = getAllMaterials();
   const result = [];
-  for (let i = 0; i < all2.length; i++) {
-    if (all2[i].category == category) {
-      result.push(all2[i]);
+  for (let i = 0; i < all.length; i++) {
+    if (all[i].category == category) {
+      result.push(all[i]);
     }
   }
   return result;
@@ -166,14 +166,14 @@ function generate(category, theme) {
     const categories = getAllWeaponCategories();
     category = RND.item(categories);
   }
-  const all2 = getAllDescriptors();
+  const all = getAllDescriptors();
   const types = getWeaponTypesOfCategory(category);
   const weaponType = RND.item(types);
   const materialSet = getRandomMaterialSetForCategory(category);
   const bodyMaterial = getRandomMaterialForCategory(materialSet.body);
   const headMaterial = getRandomMaterialForCategory(materialSet.head);
   const ornamentationMaterial = getRandomMaterialForCategory(materialSet.ornamentation);
-  let descriptors = getDescriptorsMatchingType(all2, category);
+  let descriptors = getDescriptorsMatchingType(all, category);
   descriptors = getDescriptorsMatchingTag(descriptors, theme);
   const effects = getAllEffectsForTheme(theme);
   const effect = RND.item(effects);
@@ -476,14 +476,14 @@ function getAllDescriptors() {
       objects: ["flail"]
     }
   ];
-  const allDomains = all();
-  for (let i = 0; i < allDomains.length; i++) {
+  const allDomains$1 = allDomains;
+  for (let i = 0; i < allDomains$1.length; i++) {
     for (let j = 0; j < pairings.length; j++) {
-      for (let k = 0; k < allDomains[i].holySymbols.length; k++) {
+      for (let k = 0; k < allDomains$1[i].holySymbols.length; k++) {
         const descriptor = new Descriptor(
-          pairings[j].method + " " + Words.article(allDomains[i].holySymbols[k]) + " " + allDomains[i].holySymbols[k],
+          pairings[j].method + " " + Words.article(allDomains$1[i].holySymbols[k]) + " " + allDomains$1[i].holySymbols[k],
           pairings[j].objects,
-          [allDomains[i].name]
+          [allDomains$1[i].name]
         );
         descriptors.push(descriptor);
       }
@@ -551,11 +551,11 @@ function getAllWeaponTypes() {
   ];
 }
 function getWeaponTypesOfCategory(category) {
-  const all2 = getAllWeaponTypes();
+  const all = getAllWeaponTypes();
   const result = [];
-  for (let i = 0; i < all2.length; i++) {
-    if (all2[i].category == category) {
-      result.push(all2[i]);
+  for (let i = 0; i < all.length; i++) {
+    if (all[i].category == category) {
+      result.push(all[i]);
     }
   }
   return result;

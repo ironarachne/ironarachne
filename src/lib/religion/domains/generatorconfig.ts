@@ -1,6 +1,6 @@
 "use strict";
 
-import Domain from "./domain.js";
+import type Domain from "./domain.js";
 import * as Domains from "./domains.js";
 
 export default class DomainGeneratorConfig {
@@ -9,6 +9,6 @@ export default class DomainGeneratorConfig {
 
   constructor() {
     this.numberOfDomains = 1;
-    this.domains = Domains.all();
+    this.domains = JSON.parse(JSON.stringify(Domains.allDomains));
   }
 }

@@ -29,6 +29,8 @@ export default class Aarakocra implements Species {
   constructor() {
     this.name = "aarakocra";
     this.abilities = ["flight"];
+    this.description = "";
+    this.summary = "";
     this.tags = ["corruptible", "aarakocra", "flying", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.FantasySet();
     this.carried = [];

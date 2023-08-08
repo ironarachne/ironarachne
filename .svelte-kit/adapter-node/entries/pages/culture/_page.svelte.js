@@ -6,7 +6,7 @@ import "seedrandom";
 import "../../../chunks/sentry-release-injection-file.js";
 import random from "random";
 import * as Words from "@ironarachne/words";
-import { R as ReligionGeneratorConfig, a as ReligionGenerator } from "../../../chunks/generator.js";
+import { R as ReligionGeneratorConfig, a as ReligionGenerator } from "../../../chunks/generatorconfig.js";
 class CultureGeneratorConfig {
   generatorSet;
   constructor() {

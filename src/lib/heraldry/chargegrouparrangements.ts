@@ -1,9 +1,7 @@
 "use strict";
 
 import * as RND from "@ironarachne/rng";
-import * as _ from "lodash";
 import { create } from "xmlbuilder2";
-import ChargeGroup from "./chargegroup.js";
 import ChargeGroupArrangement from "./chargegrouparrangement.js";
 
 export function all(): ChargeGroupArrangement[] {
@@ -69,7 +67,7 @@ export function all(): ChargeGroupArrangement[] {
 
       scaleAmount *= 0.4;
 
-      const chargeObject2 = _.cloneDeep(chargeObject);
+      const chargeObject2 = JSON.parse(JSON.stringify(chargeObject));
 
       const newWidth = Math.floor(chargeWidth * scaleAmount);
       const newHeight = Math.floor(chargeHeight * scaleAmount);
@@ -111,8 +109,8 @@ export function all(): ChargeGroupArrangement[] {
 
         scaleAmount *= 0.3;
 
-        const chargeObject2 = _.cloneDeep(chargeObject);
-        const chargeObject3 = _.cloneDeep(chargeObject);
+        const chargeObject2 = JSON.parse(JSON.stringify(chargeObject));
+        const chargeObject3 = JSON.parse(JSON.stringify(chargeObject));
 
         const newWidth = Math.floor(chargeWidth * scaleAmount);
         const newHeight = Math.floor(chargeHeight * scaleAmount);
@@ -159,8 +157,8 @@ export function all(): ChargeGroupArrangement[] {
 
       scaleAmount *= 0.3;
 
-      const chargeObject2 = _.cloneDeep(chargeObject);
-      const chargeObject3 = _.cloneDeep(chargeObject);
+      const chargeObject2 = JSON.parse(JSON.stringify(chargeObject));
+      const chargeObject3 = JSON.parse(JSON.stringify(chargeObject));
 
       const newWidth = Math.floor(chargeWidth * scaleAmount);
       const newHeight = Math.floor(chargeHeight * scaleAmount);

@@ -31,6 +31,8 @@ export default class Orc implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "orc", "greenskin", "martial", "sentient"];
     this.nameGeneratorSet = new MUN.OrcSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "orcs";

@@ -4,7 +4,7 @@ import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
 import "../../../../chunks/sentry-release-injection-file.js";
-import { C as CharacterGenerator } from "../../../../chunks/fantasy.js";
+import { C as CharacterGenerator } from "../../../../chunks/generatorconfig2.js";
 import { g as getFantasy } from "../../../../chunks/premadeconfigs.js";
 import { d as all, f as forCategory, b as all$1 } from "../../../../chunks/patterns.js";
 import "seedrandom";

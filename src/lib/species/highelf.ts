@@ -31,6 +31,8 @@ export default class HighElf implements Species {
     this.abilities = [];
     this.tags = ["high elf", "elf", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.ElfSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "high elves";

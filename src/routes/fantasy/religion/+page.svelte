@@ -2,6 +2,10 @@
   import { getContext } from 'svelte';
   import * as MUN from "@ironarachne/made-up-names";
   import * as RND from "@ironarachne/rng";
+  import * as FantasySpecies from "$lib/species/fantasy.js";
+  import * as CommonSpecies from "$lib/species/common.js";
+  import * as ReligionCategories from "$lib/religion/categories/categories.js";
+  import type Species from "$lib/species/species";
   import random from "random";
   import ReligionGenerator from "$lib/religion/generator";
   import ReligionGeneratorConfig from "$lib/religion/generatorconfig";
@@ -20,6 +24,21 @@
   let genConfig = new ReligionGeneratorConfig();
   let generator = new ReligionGenerator(genConfig);
   let religion = generator.generate();
+  let allSpeciesNames: string[] = [];
+  const allSpecies = FantasySpecies.all();
+  const allReligionCategories = ReligionCategories.all();
+  let allReligionCategoriesNames: string[] = [];
+
+  for (let i = 0; i < allSpecies.length; i++) {
+    allSpeciesNames.push(allSpecies[i].name);
+  }
+
+  for (let i = 0; i < allReligionCategories.length; i++) {
+    allReligionCategoriesNames.push(allReligionCategories[i].name);
+  }
+
+  let selectedSpecies: string[] = ["human"];
+  let selectedCategories: string[] = ["polytheism"];
 
   function generate() {
     random.use(seedrandom(seed));
@@ -32,6 +51,18 @@
     if (humanNameGenSet.male === null) {
       throw new Error("Name set does not have a male name generator.")
     }
+    let speciesOptions: Species[] = [];
+    for (let i=0;i<selectedSpecies.length;i++) {
+      speciesOptions.push(CommonSpecies.byName(selectedSpecies[i], allSpecies));
+    }
+
+    let categoryOptions = [];
+    for (let i=0;i<selectedCategories.length;i++) {
+      categoryOptions.push(ReligionCategories.byName(selectedCategories[i], allReligionCategories));
+    }
+
+    generator.config.deitySpeciesOptions = speciesOptions;
+    generator.config.categories = categoryOptions;
     generator.config.nameGenerator = humanNameGenSet.family;
     generator.config.femaleNameGenerator = humanNameGenSet.female;
     generator.config.maleNameGenerator = humanNameGenSet.male;
@@ -76,6 +107,12 @@
   @import "$lib/styles/main.scss";
   @import '$lib/styles/global.scss';
   @import '$lib/styles/fantasy.scss';
+
+  .input-group {
+    ul > li {
+      list-style: none;
+    }
+  }
 </style>
 
 <svelte:head>
@@ -90,6 +127,24 @@
   <div class="input-group">
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
+  </div>
+
+  <div class="input-group">
+    <label for="selected-categories">Allow these religion categories</label>
+    {#each allReligionCategoriesNames as categoryName}
+    <ul>
+      <li><input type="checkbox" name="selected-categories" bind:group={selectedCategories} id="selected-categories" value={categoryName} /> {categoryName}</li>
+    </ul>
+    {/each}
+  </div>
+
+  <div class="input-group">
+    <label for="selected-species">Allow deities of these species</label>
+    {#each allSpeciesNames as speciesName}
+    <ul>
+      <li><input type="checkbox" name="selected-species" bind:group={selectedSpecies} id="selected-species" value={speciesName} /> {speciesName}</li>
+    </ul>
+    {/each}
   </div>
 
   {#if user.savedCultures !== undefined && user.savedCultures.length > 0}
@@ -124,9 +179,9 @@
     </div>
   {/each}
 
+  {#if religion.pantheon !== null}
   <h3>Deities</h3>
 
-  {#if religion.pantheon}
   <p>{religion.pantheon.description}</p>
 
   {#each religion.pantheon.members as member}

@@ -1,10 +1,10 @@
 "use strict";
 
-import Creature from "../creatures/creature.js";
+import type Creature from "../creatures/creature.js";
 import * as FantasyCreatures from "../creatures/fantasy/all.js";
 import * as FantasySpecies from "../species/fantasy.js";
 import type Species from "../species/species.js";
-import EncounterTemplate from "./template.js";
+import type EncounterTemplate from "./template.js";
 
 export default class EncounterGeneratorConfig {
   isHostile: boolean;

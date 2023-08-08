@@ -31,6 +31,8 @@ export default class Dwarf implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "dwarf", "martial", "sentient"];
     this.nameGeneratorSet = new MUN.DwarfSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "dwarves";

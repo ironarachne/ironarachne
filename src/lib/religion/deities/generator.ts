@@ -2,9 +2,9 @@
 
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
-import Deity from "./deity.js";
-import DeityGeneratorConfig from "./generatorconfig.js";
+import * as Deities from "./deities.js";
+import type Deity from "./deity.js";
+import type DeityGeneratorConfig from "./generatorconfig.js";
 
 export default class DeityGenerator {
   config: DeityGeneratorConfig;
@@ -29,12 +29,17 @@ export default class DeityGenerator {
       deityName = this.config.maleNameGenerator.generate(1)[0];
     }
 
-    let deity = new Deity(
+    let realm = RND.item(this.config.realms);
+    if (realm === undefined) {
+      throw new Error("realm is undefined");
+    }
+
+    let deity = Deities.newDeity(
       deityName,
       characterDetails.species,
       characterDetails.gender,
       characterDetails.ageCategory,
-      RND.item(this.config.realms),
+      realm,
       this.config.domainSet,
     );
 
@@ -44,7 +49,7 @@ export default class DeityGenerator {
     deity.holyItem = RND.item(possibleHolyItems);
     deity.holySymbol = RND.item(possibleHolySymbols);
 
-    const chanceOfRealmTrait = random.int(1, 100);
+    const chanceOfRealmTrait = RND.simple(100);
 
     const physicalTraits = characterDetails.physicalTraits;
     let appearanceTraits = [];
@@ -54,7 +59,12 @@ export default class DeityGenerator {
     }
 
     if (chanceOfRealmTrait > 80) {
-      appearanceTraits.push(RND.item(deity.realm.appearanceTraits).phrase);
+      let realmTrait = RND.item(deity.realm.appearanceTraits);
+      if (realmTrait === undefined) {
+        console.log(JSON.stringify(deity.realm));
+        throw new Error("realm appearance trait is undefined");
+      }
+      appearanceTraits.push(realmTrait.phrase);
     }
 
     deity.personalityTraits = characterDetails.personalityTraits;

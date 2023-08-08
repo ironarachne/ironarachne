@@ -5,9 +5,8 @@ import * as Words from "@ironarachne/words";
 import "seedrandom";
 import { r as random$1, B as BiomeGenerator, a as BiomeGeneratorConfig } from "../../../../chunks/climates.js";
 import "../../../../chunks/sentry-release-injection-file.js";
-import * as _ from "lodash";
 import random from "random";
-import { a as all$t, C as CharacterGenerator } from "../../../../chunks/fantasy.js";
+import { a as all$t, C as CharacterGenerator } from "../../../../chunks/generatorconfig2.js";
 import { g as getFantasy } from "../../../../chunks/premadeconfigs.js";
 import { g as getSkeletonVariants, a as getVampireVariants, b as getZombieVariants, w as withCreatureType, c as byTag$1, r as randomUniqueSet } from "../../../../chunks/common.js";
 import * as MUN from "@ironarachne/made-up-names";
@@ -219,7 +218,7 @@ class Creature {
   }
 }
 function modify$2(creature) {
-  let result = _.cloneDeep(creature);
+  let result = JSON.parse(JSON.stringify(creature));
   let modifierName = "skeletal";
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
@@ -230,7 +229,7 @@ function modify$2(creature) {
   return result;
 }
 function modify$1(creature) {
-  let result = _.cloneDeep(creature);
+  let result = JSON.parse(JSON.stringify(creature));
   let modifierName = "vampire";
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
@@ -246,7 +245,7 @@ function modify$1(creature) {
   return result;
 }
 function modify(creature) {
-  let result = _.cloneDeep(creature);
+  let result = JSON.parse(JSON.stringify(creature));
   let modifierName = "zombie";
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
@@ -1144,6 +1143,197 @@ function all$i() {
   result = result.concat(all$j());
   return result;
 }
+class EncounterGeneratorConfig {
+  isHostile;
+  template;
+  environment;
+  sentientOptions;
+  creatureOptions;
+  minThreatLevel;
+  maxThreatLevel;
+  constructor() {
+    this.isHostile = true;
+    this.environment = "forest";
+    this.template = null;
+    this.sentientOptions = all$t();
+    this.creatureOptions = all$i();
+    this.minThreatLevel = 1;
+    this.maxThreatLevel = 4;
+  }
+}
+class EncounterGenerator {
+  config;
+  constructor() {
+    this.config = new EncounterGeneratorConfig();
+  }
+  generate() {
+    let mobGroups = [];
+    if (this.config.template === null) {
+      throw new Error("EncounterGenerator requires a template.");
+    }
+    for (let i = 0; i < this.config.template.groupTemplates.length; i++) {
+      let mobs = [];
+      let t = this.config.template.groupTemplates[i];
+      let amount = random.int(t.minNumber, t.maxNumber);
+      let options = [];
+      let unfilteredOptions = [];
+      if (t.isSentient) {
+        unfilteredOptions = JSON.parse(JSON.stringify(this.config.sentientOptions));
+      } else {
+        unfilteredOptions = JSON.parse(JSON.stringify(this.config.creatureOptions));
+      }
+      let tags = t.filter.withAllTags.concat(t.filter.withAnyTag);
+      if (tags.includes("undead")) {
+        let skeletonOptions = unfilteredOptions.concat(
+          getSkeletonVariants(unfilteredOptions)
+        );
+        let vampireOptions = unfilteredOptions.concat(
+          getVampireVariants(unfilteredOptions)
+        );
+        let zombieOptions = unfilteredOptions.concat(
+          getZombieVariants(unfilteredOptions)
+        );
+        unfilteredOptions = unfilteredOptions.concat(skeletonOptions);
+        unfilteredOptions = unfilteredOptions.concat(vampireOptions);
+        unfilteredOptions = unfilteredOptions.concat(zombieOptions);
+      } else if (tags.includes("skeleton")) {
+        let skeletonOptions = unfilteredOptions.concat(
+          getSkeletonVariants(unfilteredOptions)
+        );
+        unfilteredOptions = unfilteredOptions.concat(skeletonOptions);
+      } else if (tags.includes("vampire")) {
+        let vampireOptions = unfilteredOptions.concat(
+          getVampireVariants(unfilteredOptions)
+        );
+        unfilteredOptions = unfilteredOptions.concat(vampireOptions);
+      } else if (tags.includes("zombie")) {
+        let zombieOptions = unfilteredOptions.concat(
+          getZombieVariants(unfilteredOptions)
+        );
+        unfilteredOptions = unfilteredOptions.concat(zombieOptions);
+      }
+      options = t.filter.apply(unfilteredOptions);
+      if (options.length === 0) {
+        console.error(`No options for filter`, t.filter);
+        console.debug(`Used options`, unfilteredOptions);
+      }
+      if (t.isSentient) {
+        mobs = generateSentientMobs(options, t.archetypes, amount);
+      } else {
+        mobs = generateCreatureMobs(options, amount);
+      }
+      mobGroups.push(new MobGroup(t.name, mobs));
+    }
+    return new Encounter(mobGroups);
+  }
+}
+function generateCreatureMobs(creatureOptions, amount) {
+  let creatureType = RND.item(creatureOptions);
+  let creatures = [];
+  for (let i = 0; i < amount; i++) {
+    let creature = JSON.parse(JSON.stringify(creatureType));
+    let attitude = RND.item(creatureType.behaviors);
+    creature.summary = attitude;
+    creatures.push(creature);
+  }
+  return creatures;
+}
+function generateSentientMobs(speciesOptions, archetypes, amount) {
+  let species = RND.item(speciesOptions);
+  let characters = [];
+  let charGenConfig = getFantasy();
+  charGenConfig.speciesOptions = [species];
+  let charGen = new CharacterGenerator(charGenConfig);
+  for (let i = 0; i < amount; i++) {
+    let archetype = RND.item(archetypes);
+    let c = charGen.generate();
+    c.archetype = archetype;
+    c.abilities = c.abilities.concat(archetype.abilities);
+    c.threatLevel += archetype.threatLevel;
+    c.summary = `${c.gender.name} ${c.species.adjective} ${c.archetype.name}`;
+    for (let m = 0; m < c.archetype.itemGenerators.length; m++) {
+      c.carried.push(c.archetype.itemGenerators[m].generate());
+    }
+    characters.push(c);
+  }
+  return characters;
+}
+class Vertex {
+  x;
+  y;
+  constructor(x, y) {
+    this.x = x;
+    this.y = y;
+  }
+  equals(b) {
+    if (this.x == b.x && this.y == b.y) {
+      return true;
+    }
+    return false;
+  }
+  in(v) {
+    for (let i = 0; i < v.length; i++) {
+      if (this.equals(v[i])) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+class Edge {
+  a;
+  b;
+  equals(edge) {
+    if (this.a.x == edge.a.x && this.a.y == edge.a.y && this.b.x == edge.b.x && this.b.y == edge.b.y) {
+      return true;
+    } else if (this.a.x == edge.b.x && this.a.y == edge.b.y && this.b.x == edge.a.x && this.b.y == edge.a.y) {
+      return true;
+    }
+    return false;
+  }
+  getMidpoint() {
+    let x = (this.a.x + this.b.x) / 2;
+    let y = (this.a.y + this.b.y) / 2;
+    return new Vertex(x, y);
+  }
+  getSlope() {
+    return (this.b.y - this.a.y) / (this.b.x - this.a.x);
+  }
+}
+function distance(a, b) {
+  let d = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+  return d;
+}
+class Lock {
+  id;
+  name;
+  description;
+  objectId;
+  // numeric id of the thing that this locks
+  strength;
+  isLocked;
+  constructor() {
+    this.id = "";
+    this.name = "a lock";
+    this.description = "a lock";
+    this.objectId = -1;
+    this.strength = 1;
+    this.isLocked = true;
+  }
+}
+class Door {
+  room1;
+  room2;
+  tile;
+  vertex;
+  description;
+  lock;
+  isSecret;
+  constructor() {
+    this.lock = null;
+    this.isSecret = false;
+  }
+}
 function hasAllTagsIn(tags, mobs) {
   let result = [];
   for (let i = 0; i < mobs.length; i++) {
@@ -1273,194 +1463,6 @@ class EncounterTemplate {
     this.groupTemplates = groupTemplates;
     this.tags = tags;
     this.commonality = commonality;
-  }
-}
-class EncounterGeneratorConfig {
-  isHostile;
-  template;
-  environment;
-  sentientOptions;
-  creatureOptions;
-  minThreatLevel;
-  maxThreatLevel;
-  constructor() {
-    this.isHostile = true;
-    this.environment = "forest";
-    this.template = null;
-    this.sentientOptions = all$t();
-    this.creatureOptions = all$i();
-    this.minThreatLevel = 1;
-    this.maxThreatLevel = 4;
-  }
-}
-class EncounterGenerator {
-  config;
-  generate() {
-    let mobGroups = [];
-    if (this.config.template === null) {
-      throw new Error("EncounterGenerator requires a template.");
-    }
-    for (let i = 0; i < this.config.template.groupTemplates.length; i++) {
-      let mobs = [];
-      let t = this.config.template.groupTemplates[i];
-      let amount = random.int(t.minNumber, t.maxNumber);
-      let options = [];
-      let unfilteredOptions = [];
-      if (t.isSentient) {
-        unfilteredOptions = _.cloneDeep(this.config.sentientOptions);
-      } else {
-        unfilteredOptions = _.cloneDeep(this.config.creatureOptions);
-      }
-      let tags = t.filter.withAllTags.concat(t.filter.withAnyTag);
-      if (tags.includes("undead")) {
-        let skeletonOptions = unfilteredOptions.concat(
-          getSkeletonVariants(unfilteredOptions)
-        );
-        let vampireOptions = unfilteredOptions.concat(
-          getVampireVariants(unfilteredOptions)
-        );
-        let zombieOptions = unfilteredOptions.concat(
-          getZombieVariants(unfilteredOptions)
-        );
-        unfilteredOptions = unfilteredOptions.concat(skeletonOptions);
-        unfilteredOptions = unfilteredOptions.concat(vampireOptions);
-        unfilteredOptions = unfilteredOptions.concat(zombieOptions);
-      } else if (tags.includes("skeleton")) {
-        let skeletonOptions = unfilteredOptions.concat(
-          getSkeletonVariants(unfilteredOptions)
-        );
-        unfilteredOptions = unfilteredOptions.concat(skeletonOptions);
-      } else if (tags.includes("vampire")) {
-        let vampireOptions = unfilteredOptions.concat(
-          getVampireVariants(unfilteredOptions)
-        );
-        unfilteredOptions = unfilteredOptions.concat(vampireOptions);
-      } else if (tags.includes("zombie")) {
-        let zombieOptions = unfilteredOptions.concat(
-          getZombieVariants(unfilteredOptions)
-        );
-        unfilteredOptions = unfilteredOptions.concat(zombieOptions);
-      }
-      options = t.filter.apply(unfilteredOptions);
-      if (options.length === 0) {
-        console.error(`No options for filter`, t.filter);
-        console.debug(`Used options`, unfilteredOptions);
-      }
-      if (t.isSentient) {
-        mobs = generateSentientMobs(options, t.archetypes, amount);
-      } else {
-        mobs = generateCreatureMobs(options, amount);
-      }
-      mobGroups.push(new MobGroup(t.name, mobs));
-    }
-    return new Encounter(mobGroups);
-  }
-}
-function generateCreatureMobs(creatureOptions, amount) {
-  let creatureType = RND.item(creatureOptions);
-  let creatures = [];
-  for (let i = 0; i < amount; i++) {
-    let creature = _.cloneDeep(creatureType);
-    let attitude = RND.item(creatureType.behaviors);
-    creature.summary = attitude;
-    creatures.push(creature);
-  }
-  return creatures;
-}
-function generateSentientMobs(speciesOptions, archetypes, amount) {
-  let species = RND.item(speciesOptions);
-  let characters = [];
-  let charGenConfig = getFantasy();
-  charGenConfig.speciesOptions = [species];
-  let charGen = new CharacterGenerator(charGenConfig);
-  for (let i = 0; i < amount; i++) {
-    let archetype = RND.item(archetypes);
-    let c = charGen.generate();
-    c.archetype = archetype;
-    c.abilities = c.abilities.concat(archetype.abilities);
-    c.threatLevel += archetype.threatLevel;
-    c.summary = `${c.gender.name} ${c.species.adjective} ${c.archetype.name}`;
-    for (let m = 0; m < c.archetype.itemGenerators.length; m++) {
-      c.carried.push(c.archetype.itemGenerators[m].generate());
-    }
-    characters.push(c);
-  }
-  return characters;
-}
-class Vertex {
-  x;
-  y;
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-  }
-  equals(b) {
-    if (this.x == b.x && this.y == b.y) {
-      return true;
-    }
-    return false;
-  }
-  in(v) {
-    for (let i = 0; i < v.length; i++) {
-      if (this.equals(v[i])) {
-        return true;
-      }
-    }
-    return false;
-  }
-}
-class Edge {
-  a;
-  b;
-  equals(edge) {
-    if (this.a.x == edge.a.x && this.a.y == edge.a.y && this.b.x == edge.b.x && this.b.y == edge.b.y) {
-      return true;
-    } else if (this.a.x == edge.b.x && this.a.y == edge.b.y && this.b.x == edge.a.x && this.b.y == edge.a.y) {
-      return true;
-    }
-    return false;
-  }
-  getMidpoint() {
-    let x = (this.a.x + this.b.x) / 2;
-    let y = (this.a.y + this.b.y) / 2;
-    return new Vertex(x, y);
-  }
-  getSlope() {
-    return (this.b.y - this.a.y) / (this.b.x - this.a.x);
-  }
-}
-function distance(a, b) {
-  let d = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
-  return d;
-}
-class Lock {
-  id;
-  name;
-  description;
-  objectId;
-  // numeric id of the thing that this locks
-  strength;
-  isLocked;
-  constructor() {
-    this.id = "";
-    this.name = "a lock";
-    this.description = "a lock";
-    this.objectId = -1;
-    this.strength = 1;
-    this.isLocked = true;
-  }
-}
-class Door {
-  room1;
-  room2;
-  tile;
-  vertex;
-  description;
-  lock;
-  isSecret;
-  constructor() {
-    this.lock = null;
-    this.isSecret = false;
   }
 }
 class RoomFeature {

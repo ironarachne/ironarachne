@@ -13,23 +13,18 @@ export default class AgeCategory {
   maxHeight: number; // in cm
   minWeight: number; // in kg
   maxWeight: number; // in kg
+  commonality: number;
 
-  constructor(
-    name: string,
-    noun: string,
-    minAge: number,
-    maxAge: number,
-    minHeight: number,
-    minWeight: number,
-  ) {
-    this.name = name;
-    this.noun = noun;
-    this.minAge = minAge;
-    this.maxAge = maxAge;
-    this.minHeight = minHeight;
-    this.maxHeight = Math.floor(minHeight * 1.05);
-    this.minWeight = minWeight;
-    this.maxWeight = Math.floor(minWeight * 1.05);
+  constructor() {
+    this.name = "";
+    this.noun = "";
+    this.minAge = -1;
+    this.maxAge = -1;
+    this.minHeight = -1;
+    this.maxHeight = -1;
+    this.minWeight = -1;
+    this.maxWeight = -1;
+    this.commonality = 1;
   }
 
   getDescription(): string {

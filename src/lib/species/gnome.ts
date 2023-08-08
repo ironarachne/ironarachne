@@ -31,6 +31,8 @@ export default class Gnome implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "gnome", "sentient", "magic"];
     this.nameGeneratorSet = new MUN.GnomeSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "gnomes";

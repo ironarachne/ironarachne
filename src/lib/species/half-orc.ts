@@ -31,6 +31,8 @@ export default class HalfOrc implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "half-orc", "orc", "human", "greenskin", "martial", "sentient"];
     this.nameGeneratorSet = new MUN.HalfOrcSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "half-orcs";

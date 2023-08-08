@@ -31,6 +31,8 @@ export default class Bugbear implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "bugbear", "greenskin", "martial", "sentient"];
     this.nameGeneratorSet = new MUN.OrcSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "bugbears";

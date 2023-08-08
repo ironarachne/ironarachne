@@ -31,6 +31,8 @@ export default class Troll implements Species {
     this.abilities = ["regenerate slowly unless burned"];
     this.tags = ["corruptible", "troll", "greenskin", "martial", "sentient"];
     this.nameGeneratorSet = new MUN.TrollSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "trolls";

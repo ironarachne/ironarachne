@@ -1,6 +1,6 @@
 "use strict";
 
-import Relationship from "../../relationships/relationship.js";
+import type Relationship from "../../relationships/relationship.js";
 import Deity from "../deities/deity.js";
 
 export default class PantheonMember {
@@ -8,6 +8,7 @@ export default class PantheonMember {
   relationships: Relationship[];
 
   constructor() {
+    this.deity = new Deity();
     this.relationships = [];
   }
 }

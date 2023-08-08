@@ -31,6 +31,8 @@ export default class DeepGnome implements Species {
     this.abilities = ["can see in the dark"];
     this.tags = ["corruptible", "deep gnome", "gnome", "sentient", "magic"];
     this.nameGeneratorSet = new MUN.GnomeSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "deep gnomes";

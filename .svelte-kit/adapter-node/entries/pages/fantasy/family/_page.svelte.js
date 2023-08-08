@@ -1,6 +1,6 @@
 import { c as create_ssr_component, a as add_attribute, f as each, e as escape } from "../../../../chunks/ssr.js";
 import { d as randomWeighted } from "../../../../chunks/common.js";
-import { b as CharacterGeneratorConfig, C as CharacterGenerator, p as pc } from "../../../../chunks/fantasy.js";
+import { b as CharacterGeneratorConfig, C as CharacterGenerator, a as all } from "../../../../chunks/generatorconfig2.js";
 import * as RND from "@ironarachne/rng";
 import "seedrandom";
 import "@ironarachne/made-up-names";
@@ -244,7 +244,7 @@ const css = {
 };
 const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   let seed = RND.randomString(13);
-  let availableSpecies = pc();
+  let availableSpecies = all();
   let species = randomWeighted(availableSpecies);
   let iterations = 2;
   if (species.nameGeneratorSet.family === null) {

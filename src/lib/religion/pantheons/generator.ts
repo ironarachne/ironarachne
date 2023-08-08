@@ -4,13 +4,13 @@ import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
 import RelationshipGenerator from "../../relationships/generator.js";
-import Relationship from "../../relationships/relationship.js";
+import type Relationship from "../../relationships/relationship.js";
 import DeityGenerator from "../deities/generator.js";
 import DeityGeneratorConfig from "../deities/generatorconfig.js";
-import DomainSet from "../domains/domainset.js";
+import type DomainSet from "../domains/domainset.js";
 import DomainGenerator from "../domains/generator.js";
 import DomainGeneratorConfig from "../domains/generatorconfig.js";
-import PantheonGeneratorConfig from "./generatorconfig.js";
+import type PantheonGeneratorConfig from "./generatorconfig.js";
 import Pantheon from "./pantheon.js";
 import PantheonMember from "./pantheonmember.js";
 
@@ -25,6 +25,7 @@ export default class PantheonGenerator {
     let pantheon = new Pantheon();
 
     let deityGenConfig = new DeityGeneratorConfig();
+    deityGenConfig.characterGenerator.config.speciesOptions = this.config.speciesOptions;
     deityGenConfig.realms = this.config.realms;
     deityGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
     deityGenConfig.maleNameGenerator = this.config.maleNameGenerator;
@@ -104,7 +105,7 @@ function randomDomainSets(numberOfSets: number): DomainSet[] {
   let domainGen = new DomainGenerator(domainGenConfig);
 
   let sets = [];
-  let allDomains = RND.shuffle(domainGenConfig.domains);
+  let allDomains = RND.shuffle(JSON.parse(JSON.stringify(domainGenConfig.domains)));
 
   for (let i = 0; i < numberOfSets; i++) {
     let domains = [];

@@ -1,6 +1,6 @@
 "use strict";
 
-import PantheonMember from "./pantheonmember.js";
+import type PantheonMember from "./pantheonmember.js";
 
 export default class Pantheon {
   name: string;

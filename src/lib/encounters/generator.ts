@@ -1,9 +1,8 @@
 "use strict";
 
 import * as RND from "@ironarachne/rng";
-import * as _ from "lodash";
 import random from "random";
-import Archetype from "../archetypes/archetype.js";
+import type Archetype from "../archetypes/archetype.js";
 import CharacterGenerator from "../characters/generator.js";
 import * as PremadeConfigs from "../characters/premadeconfigs.js";
 import MobGroup from "../mobs/group.js";
@@ -14,6 +13,10 @@ import EncounterGeneratorConfig from "./generatorconfig.js";
 
 export default class EncounterGenerator {
   config: EncounterGeneratorConfig;
+
+  constructor() {
+    this.config = new EncounterGeneratorConfig();
+  }
 
   generate(): Encounter {
     let mobGroups: MobGroup[] = [];
@@ -31,9 +34,9 @@ export default class EncounterGenerator {
       let unfilteredOptions = [];
 
       if (t.isSentient) {
-        unfilteredOptions = _.cloneDeep(this.config.sentientOptions);
+        unfilteredOptions = JSON.parse(JSON.stringify(this.config.sentientOptions));
       } else {
-        unfilteredOptions = _.cloneDeep(this.config.creatureOptions);
+        unfilteredOptions = JSON.parse(JSON.stringify(this.config.creatureOptions));
       }
 
       let tags = t.filter.withAllTags.concat(t.filter.withAnyTag);
@@ -91,7 +94,7 @@ function generateCreatureMobs(creatureOptions: Mob[], amount: number): Mob[] {
   let creatures = [];
 
   for (let i = 0; i < amount; i++) {
-    let creature = _.cloneDeep(creatureType);
+    let creature = JSON.parse(JSON.stringify(creatureType));
     let attitude = RND.item(creatureType.behaviors);
     creature.summary = attitude;
     creatures.push(creature);

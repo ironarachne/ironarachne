@@ -31,6 +31,8 @@ export default class Elf implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "elf", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.ElfSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "elves";

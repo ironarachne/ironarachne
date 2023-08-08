@@ -31,6 +31,8 @@ export default class Centaur implements Species {
     this.abilities = [];
     this.tags = ["centaur", "human", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.FantasySet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "centaurs";

@@ -31,6 +31,8 @@ export default class Halfling implements Species {
     this.abilities = [];
     this.tags = ["halfling", "sentient"];
     this.nameGeneratorSet = new MUN.HalflingSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "halflings";

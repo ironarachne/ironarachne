@@ -31,6 +31,8 @@ export default class HalfElf implements Species {
     this.abilities = [];
     this.tags = ["corruptible", "half-elf", "elf", "human", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.HalfElfSet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "half-elves";

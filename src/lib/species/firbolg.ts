@@ -31,6 +31,8 @@ export default class Firbolg implements Species {
     this.abilities = ["can turn invisible when not attacking"];
     this.tags = ["firbolg", "giant", "human", "martial", "magic", "sentient"];
     this.nameGeneratorSet = new MUN.FantasySet();
+    this.description = "";
+    this.summary = "";
     this.carried = [];
     this.statBlock = null;
     this.pluralName = "firbolgs";

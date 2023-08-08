@@ -2,17 +2,16 @@
 
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import * as _ from "lodash";
 import random from "random";
 import EncounterGenerator from "../encounters/generator.js";
 import EncounterGeneratorConfig from "../encounters/generatorconfig.js";
 import * as Doors from "./doors.js";
 import Dungeon from "./dungeon.js";
-import DungeonGeneratorConfig from "./dungeongeneratorconfig.js";
+import type DungeonGeneratorConfig from "./dungeongeneratorconfig.js";
 import * as DungeonThemes from "./dungeonthemes/all.js";
 import EncounterSpawn from "./encounterspawn.js";
 import * as Mutators from "./rooms/mutators/mutators.js";
-import Room from "./rooms/room.js";
+import type Room from "./rooms/room.js";
 import RoomGenerator from "./rooms/roomgenerator.js";
 import RoomGeneratorConfig from "./rooms/roomgeneratorconfig.js";
 import * as Rooms from "./rooms/rooms.js";

@@ -1,5 +1,5 @@
 import { c as create_ssr_component, a as add_attribute, e as escape, f as each } from "../../../../chunks/ssr.js";
-import { g as generate } from "../../../../chunks/fantasy2.js";
+import { g as generate } from "../../../../chunks/fantasy.js";
 import * as RND from "@ironarachne/rng";
 import "seedrandom";
 import { H as HeraldryGenerator, a as HeraldrySVGRenderer } from "../../../../chunks/svg.js";
