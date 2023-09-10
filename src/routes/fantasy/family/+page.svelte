@@ -1,55 +1,65 @@
 <script lang="ts">
   import * as CommonSpecies from '$lib/species/common';
-  import * as FantasySpecies from "$lib/species/fantasy";
   import * as RND from "@ironarachne/rng";
   import random from "random";
   import seedrandom from "seedrandom";
-  import FamilyGeneratorConfig from "$lib/characters/family/generatorconfig";
-  import FamilyGenerator from "$lib/characters/family/generator";
-  import type Gender from "$lib/gender";
+  import * as Families from "$lib/characters/family/families.js";
+  import * as MUN from "@ironarachne/made-up-names";
+  import type Gender from "$lib/gender/gender";
   import type Species from "$lib/species/species";
   import type NameGenerator from '@ironarachne/made-up-names/dist/generator';
 
   let seed = RND.randomString(13);
-  let availableSpecies = FantasySpecies.all();
+  let availableSpecies = CommonSpecies.sentient();
   let selectedSpecies = "any";
   let species = CommonSpecies.randomWeighted(availableSpecies);
   let iterations = 2;
-  if (species.nameGeneratorSet.family === null) {
-    throw new Error("Species does not have a family name generator.")
+  const generatorSets = MUN.allSets();
+  let nameGeneratorSet;
+
+  try {
+    nameGeneratorSet = MUN.getSetByName(species.name, generatorSets);
+  } catch (e) {
+    console.debug(e);
+    nameGeneratorSet = MUN.getSetByName("fantasy", generatorSets);
   }
-  if (species.nameGeneratorSet.female === null) {
-    throw new Error("Species does not have a female name generator.")
-  }
-  if (species.nameGeneratorSet.male === null) {
-    throw new Error("Species does not have a male name generator.")
-  }
-  let familyNameGen: NameGenerator = species.nameGeneratorSet.family;
-  let femaleNameGen: NameGenerator = species.nameGeneratorSet.female;
-  let maleNameGen: NameGenerator = species.nameGeneratorSet.male;
+
+  let familyNameGen: NameGenerator = nameGeneratorSet.family;
+  let femaleNameGen: NameGenerator = nameGeneratorSet.female;
+  let maleNameGen: NameGenerator = nameGeneratorSet.male;
   let lastNameTradition = "male";
-  let config = new FamilyGeneratorConfig(species, iterations, familyNameGen, femaleNameGen, maleNameGen, getDominantGender());
-  let generator = new FamilyGenerator(config);
-  let family = generator.generate();
+  let config = Families.getDefaultConfig();
+  config.species = species;
+  config.iterations = iterations;
+  config.rootFamilyNameGenerator = familyNameGen;
+  config.rootFemaleNameGenerator = femaleNameGen;
+  config.rootMaleNameGenerator = maleNameGen;
+  config.dominantFamilyNameGender = getDominantGender();
+
+  let family = Families.generate(config);
 
   function generate() {
     random.use(seedrandom(seed));
     species = getSpecies(selectedSpecies);
-    if (species.nameGeneratorSet.family === null) {
-      throw new Error("Species does not have a family name generator.")
+
+    try {
+      nameGeneratorSet = MUN.getSetByName(species.name, generatorSets);
+    } catch (e) {
+      console.debug(e);
+      nameGeneratorSet = MUN.getSetByName("fantasy", generatorSets);
     }
-    if (species.nameGeneratorSet.female === null) {
-      throw new Error("Species does not have a female name generator.")
-    }
-    if (species.nameGeneratorSet.male === null) {
-      throw new Error("Species does not have a male name generator.")
-    }
-    familyNameGen = species.nameGeneratorSet.family;
-    femaleNameGen = species.nameGeneratorSet.female;
-    maleNameGen = species.nameGeneratorSet.male;
-    config = new FamilyGeneratorConfig(species, iterations, familyNameGen, femaleNameGen, maleNameGen, getDominantGender());
-    generator.config = config;
-    family = generator.generate();
+
+    familyNameGen = nameGeneratorSet.family;
+    femaleNameGen = nameGeneratorSet.female;
+    maleNameGen = nameGeneratorSet.male;
+    config.species = species;
+    config.iterations = iterations;
+    config.rootFamilyNameGenerator = familyNameGen;
+    config.rootFemaleNameGenerator = femaleNameGen;
+    config.rootMaleNameGenerator = maleNameGen;
+    config.dominantFamilyNameGender = getDominantGender();
+
+    family = Families.generate(config);
   }
 
   function getDominantGender(): Gender {
@@ -136,12 +146,12 @@
     <p>{member.character.age}-year-old {member.character.species.name} {member.character.ageCategory.noun} {#if member.character.status == "dead"}(dead){/if}</p>
     <p>{member.character.description}</p>
     {#if member.mate != -1}
-      <p><strong>Mate:</strong> {family.getMate(member).character.firstName} {family.getMate(member).character.lastName}</p>
+      <p><strong>Mate:</strong> {Families.getMate(family, member).character.firstName} {Families.getMate(family, member).character.lastName}</p>
     {/if}
     {#if member.children.length > 0}
       <h4>Children</h4>
       <ul>
-        {#each family.getChildren(member) as child}
+        {#each Families.getChildren(family, member) as child}
           <li>{child.character.firstName} {child.character.lastName}</li>
         {/each}
       </ul>
@@ -149,7 +159,7 @@
     {#if member.parents.length > 0}
       <h4>Parents</h4>
       <ul>
-        {#each family.getParents(member) as parent}
+        {#each Families.getParents(family, member) as parent}
           <li>{parent.character.firstName} {parent.character.lastName}</li>
         {/each}
       </ul>

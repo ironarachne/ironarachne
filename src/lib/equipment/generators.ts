@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import ItemGenerator from "./itemgenerator.js";
 import ItemGeneratorConfig from "./itemgeneratorconfig.js";

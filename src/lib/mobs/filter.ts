@@ -1,5 +1,3 @@
-"use strict";
-
 import type Mob from "./mob.js";
 import * as Mobs from "./mobs.js";
 

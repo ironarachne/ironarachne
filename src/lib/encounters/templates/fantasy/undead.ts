@@ -1,153 +1,150 @@
-"use strict";
-
-import * as Archetypes from "../../../archetypes/archetypes.js";
-import * as FantasyArchetypes from "../../../archetypes/fantasy/all.js";
-import MobFilter from "../../../mobs/filter.js";
-import EncounterGroupTemplate from "../../grouptemplate.js";
-import EncounterTemplate from "../../template.js";
+import * as Archetypes from "$lib/archetypes/archetypes.js";
+import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
+import MobFilter from "$lib/mobs/filter.js";
+import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
 
   return [
-    new EncounterTemplate(
-      "lich",
-      5,
-      [
-        new EncounterGroupTemplate(
-          "lich",
-          5,
-          true,
-          [Archetypes.byName("lich", allArchetypes)],
-          new MobFilter([], [], "humanoid", "", ["undead"]),
-          1,
-          1,
-        ),
+    {
+      name: "lich",
+      threatLevel: 5,
+      groupTemplates: [
+        {
+          name: "lich",
+          threatLevel: 5,
+          isSentient: true,
+          archetypes: [Archetypes.byName("lich", allArchetypes)],
+          filter: new MobFilter([], [], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 1,
+        },
       ],
-      ["undead"],
-      5,
-    ),
-    new EncounterTemplate(
-      "necromancer",
-      7,
-      [
-        new EncounterGroupTemplate(
-          "necromancer",
-          5,
-          true,
-          [Archetypes.byName("necromancer", allArchetypes)],
-          new MobFilter([], [], "humanoid", "", ["undead"]),
-          1,
-          1,
-        ),
-        new EncounterGroupTemplate(
-          "skeletons",
-          2,
-          true,
-          [
+      tags: ["undead"],
+      commonality: 5,
+    },
+    {
+      name: "necromancer",
+      threatLevel: 7,
+      groupTemplates: [
+        {
+          name: "necromancer",
+          threatLevel: 5,
+          isSentient: true,
+          archetypes: [Archetypes.byName("necromancer", allArchetypes)],
+          filter: new MobFilter([], [], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 1,
+        },
+        {
+          name: "skeletons",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [
             Archetypes.byName("warrior", allArchetypes),
             Archetypes.byName("soldier", allArchetypes),
             Archetypes.byName("guard", allArchetypes),
           ],
-          new MobFilter(["skeleton"], [], "", "", []),
-          3,
-          6,
-        ),
+          filter: new MobFilter(["skeleton"], [], "", "", []),
+          minNumber: 3,
+          maxNumber: 6,
+        },
       ],
-      ["mage", "undead"],
-      5,
-    ),
-    new EncounterTemplate(
-      "pack of ghouls",
-      5,
-      [
-        new EncounterGroupTemplate(
-          "ghouls",
-          3,
-          false,
-          [],
-          new MobFilter(["ghoul"], [], "", "", []),
-          2,
-          4,
-        ),
+      tags: ["mage", "undead"],
+      commonality: 5,
+    },
+    {
+      name: "pack of ghouls",
+      threatLevel: 5,
+      groupTemplates: [
+        {
+          name: "ghouls",
+          threatLevel: 3,
+          isSentient: false,
+          archetypes: [],
+          filter: new MobFilter(["ghoul"], [], "", "", []),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["undead"],
-      5,
-    ),
-    new EncounterTemplate(
-      "pack of undead",
-      5,
-      [
-        new EncounterGroupTemplate(
-          "undead",
-          3,
-          false,
-          [],
-          new MobFilter(["undead"], [], "", "", ["vampire"]),
-          2,
-          4,
-        ),
+      tags: ["undead"],
+      commonality: 5,
+    },
+    {
+      name: "pack of undead",
+      threatLevel: 5,
+      groupTemplates: [
+        {
+          name: "undead",
+          threatLevel: 3,
+          isSentient: false,
+          archetypes: [],
+          filter: new MobFilter(["undead"], [], "", "", ["vampire"]),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["undead"],
-      5,
-    ),
-    new EncounterTemplate(
-      "pack of skeletons",
-      2,
-      [
-        new EncounterGroupTemplate(
-          "skeletons",
-          2,
-          true,
-          [
+      tags: ["undead"],
+      commonality: 5,
+    },
+    {
+      name: "pack of skeletons",
+      threatLevel: 2,
+      groupTemplates: [
+        {
+          name: "skeletons",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [
             Archetypes.byName("warrior", allArchetypes),
             Archetypes.byName("soldier", allArchetypes),
             Archetypes.byName("guard", allArchetypes),
           ],
-          new MobFilter(["skeleton"], [], "", "", []),
-          3,
-          6,
-        ),
+          filter: new MobFilter(["skeleton"], [], "", "", []),
+          minNumber: 3,
+          maxNumber: 6,
+        },
       ],
-      ["skeleton", "undead"],
-      10,
-    ),
-    new EncounterTemplate(
-      "pack of zombies",
-      3,
-      [
-        new EncounterGroupTemplate(
-          "zombies",
-          3,
-          true,
-          [
+      tags: ["skeleton", "undead"],
+      commonality: 10,
+    },
+    {
+      name: "pack of zombies",
+      threatLevel: 3,
+      groupTemplates: [
+        {
+          name: "zombies",
+          threatLevel: 3,
+          isSentient: true,
+          archetypes: [
             Archetypes.byName("shambler", allArchetypes),
             Archetypes.byName("sprinter", allArchetypes),
           ],
-          new MobFilter(["zombie"], [], "", "", []),
-          3,
-          6,
-        ),
+          filter: new MobFilter(["zombie"], [], "", "", []),
+          minNumber: 3,
+          maxNumber: 6,
+        },
       ],
-      ["zombie", "undead"],
-      10,
-    ),
-    new EncounterTemplate(
-      "vampire",
-      5,
-      [
-        new EncounterGroupTemplate(
-          "vampire",
-          5,
-          true,
-          [Archetypes.byName("warrior", allArchetypes)],
-          new MobFilter(["vampire"], [], "", "", []),
-          1,
-          1,
-        ),
+      tags: ["zombie", "undead"],
+      commonality: 10,
+    },
+    {
+      name: "vampire",
+      threatLevel: 5,
+      groupTemplates: [
+        {
+          name: "vampire",
+          threatLevel: 5,
+          isSentient: true,
+          archetypes: [Archetypes.byName("warrior", allArchetypes)],
+          filter: new MobFilter(["vampire"], [], "", "", []),
+          minNumber: 1,
+          maxNumber: 1,
+        },
       ],
-      ["vampire", "undead"],
-      2,
-    ),
+      tags: ["vampire", "undead"],
+      commonality: 2,
+    },
   ];
 }

@@ -1,5 +1,3 @@
-"use strict";
-
 import * as MUN from "@ironarachne/made-up-names";
 
 export default class DCCCharacterGeneratorConfig {

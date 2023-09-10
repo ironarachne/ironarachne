@@ -1,5 +1,3 @@
-"use strict";
-
 import Vertex from "./vertex.js";
 
 // getAngleOfLine gets the angle of the line compared to the x-axis in degrees

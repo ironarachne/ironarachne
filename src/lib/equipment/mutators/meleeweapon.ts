@@ -1,5 +1,3 @@
-"use strict";
-
 import type Item from "../item.js";
 import type ItemMutator from "./itemmutator.js";
 

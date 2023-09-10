@@ -1,5 +1,3 @@
-"use strict";
-
 import RealmConcept from "./realmconcept.js";
 
 export const realmConcepts = [

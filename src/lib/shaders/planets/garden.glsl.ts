@@ -1,5 +1,3 @@
-"use strict";
-
 import SimplexNoise from "../simplex-noise.glsl.js";
 
 export default `#ifdef GL_ES

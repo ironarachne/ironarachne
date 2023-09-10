@@ -1,13 +1,11 @@
-"use strict";
+import type Character from "$lib/characters/character.js";
+import type Title from "$lib/characters/titles/title.js";
+import type Vertex from "$lib/geometry/vertex.js";
+import type Arms from "$lib/heraldry/arms.js";
+import type Claim from "./claim.js";
+import type RealmType from "./realm_type.js";
 
-import Character from "../characters/character.js";
-import Title from "../characters/title.js";
-import Vertex from "../geometry/vertex.js";
-import Arms from "../heraldry/arms.js";
-import Claim from "./claim.js";
-import RealmType from "./realmtype.js";
-
-export default class Realm {
+export default interface Realm {
   name: string;
   adjective: string;
   description: string;
@@ -18,13 +16,4 @@ export default class Realm {
   claims: Claim[];
   parent: number; // array index of the parent realm
   realmType: RealmType;
-
-  constructor() {
-    this.name = "";
-    this.adjective = "";
-    this.description = "";
-    this.tiles = [];
-    this.claims = [];
-    this.parent = -1;
-  }
 }

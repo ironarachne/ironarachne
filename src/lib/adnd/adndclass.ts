@@ -1,5 +1,3 @@
-"use strict";
-
 import SpellFilter from "./spellfilter.js";
 
 export default class ADNDClass {

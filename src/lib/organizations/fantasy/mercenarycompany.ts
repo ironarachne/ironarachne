@@ -1,12 +1,9 @@
-"use strict";
-
+import type Character from "$lib/characters/character.js";
+import * as Characters from "$lib/characters/characters.js";
+import * as PremadeConfigs from "$lib/characters/premade_configs.js";
+import * as Charges from "$lib/heraldry/charges.js";
+import HeraldryGeneratorConfig from "$lib/heraldry/generatorconfig.js";
 import * as RND from "@ironarachne/rng";
-import Character from "../../characters/character.js";
-import CharacterGenerator from "../../characters/generator.js";
-import * as PremadeConfigs from "../../characters/premadeconfigs.js";
-import Title from "../../characters/title.js";
-import * as Charges from "../../heraldry/charges.js";
-import HeraldryGeneratorConfig from "../../heraldry/generatorconfig.js";
 import Rank from "../rank.js";
 import OrganizationType from "../type.js";
 
@@ -62,10 +59,9 @@ export function generateType(): OrganizationType {
     },
     function(this: OrganizationType): Character {
       let charGenConfig = PremadeConfigs.getFantasy();
-      charGenConfig.ageCategories = ["adult"];
+      charGenConfig.ageCategoryNames = ["adult"];
 
-      const charGen = new CharacterGenerator(charGenConfig);
-      const leader = charGen.generate();
+      const leader = Characters.generate(charGenConfig);
       const ranks = this.getRanks();
       leader.titles.push(ranks.title);
 
@@ -73,24 +69,56 @@ export function generateType(): OrganizationType {
     },
     function(): Rank {
       const captain = new Rank(
-        new Title("Captain", "Captain", "Captain", "Captain", false, "", 0),
+        {
+          femaleTitle: "Captain",
+          maleTitle: "Captain",
+          femaleHonorific: "Captain",
+          maleHonorific: "Captain",
+          hasLands: false,
+          landName: "",
+          precedence: 0,
+        },
         "military",
-        "adult",
+        ["adult"],
       );
       const lieutenant = new Rank(
-        new Title("Lieutenant", "Lieutenant", "Lieutenant", "Lieutenant", false, "", 1),
+        {
+          femaleTitle: "Lieutenant",
+          maleTitle: "Lieutenant",
+          femaleHonorific: "Lieutenant",
+          maleHonorific: "Lieutenant",
+          hasLands: false,
+          landName: "",
+          precedence: 1,
+        },
         "military",
-        "adult",
+        ["adult"],
       );
       const sergeant = new Rank(
-        new Title("Sergeant", "Sergeant", "Sergeant", "Sergeant", false, "", 2),
+        {
+          femaleTitle: "Sergeant",
+          maleTitle: "Sergeant",
+          femaleHonorific: "Sergeant",
+          maleHonorific: "Sergeant",
+          hasLands: false,
+          landName: "",
+          precedence: 2,
+        },
         "military",
-        "adult",
+        ["adult"],
       );
       const member = new Rank(
-        new Title("Mercenary", "Mercenary", "", "", false, "", 3),
+        {
+          femaleTitle: "Mercenary",
+          maleTitle: "Mercenary",
+          femaleHonorific: "",
+          maleHonorific: "",
+          hasLands: false,
+          landName: "",
+          precedence: 3,
+        },
         "military",
-        "adult",
+        ["adult"],
       );
 
       sergeant.addInferior(member);

@@ -1,4 +1,4 @@
-import AppearanceTrait from "./trait";
+import type AppearanceTrait from "./trait";
 
 export function byBodyPart(traits: AppearanceTrait[], bodyPart: string): AppearanceTrait[] {
   const results: AppearanceTrait[] = [];
@@ -36,14 +36,4 @@ export function byTag(traits: AppearanceTrait[], tag: string): AppearanceTrait[]
   }
 
   return results;
-}
-
-export function newTrait(phrase: string, bodyPart: string, tags: string[]): AppearanceTrait {
-  let trait = new AppearanceTrait();
-
-  trait.phrase = phrase;
-  trait.bodyPart = bodyPart;
-  trait.tags = tags;
-
-  return trait;
 }

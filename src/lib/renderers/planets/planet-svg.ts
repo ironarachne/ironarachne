@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import Planet from "../../planets/planet.js";
 import SVGStarfieldRenderer from "../starfields/starfield-svg.js";

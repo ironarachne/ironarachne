@@ -1,5 +1,3 @@
-"use strict";
-
 import Phoneme from "./phoneme.js";
 import * as Phonemes from "./phonemes.js";
 

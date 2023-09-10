@@ -1,6 +1,4 @@
-"use strict";
-
-import Season from "../seasons/season.js";
+import type Season from "../seasons/season.js";
 
 export default interface Climate {
   name: string;

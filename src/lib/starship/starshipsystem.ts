@@ -1,5 +1,3 @@
-"use strict";
-
 export default class StarshipSystem {
   name: string;
   description: string;

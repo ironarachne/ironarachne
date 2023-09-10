@@ -1,5 +1,3 @@
-"use strict";
-
 export class AppearanceTrait {
   phrase: string;
   bodyPart: string;

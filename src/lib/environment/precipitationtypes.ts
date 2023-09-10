@@ -1,5 +1,3 @@
-"use strict";
-
 import PrecipitationType from "./precipitationtype.js";
 
 export function all(): PrecipitationType[] {

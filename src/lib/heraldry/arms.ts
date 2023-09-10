@@ -1,5 +1,3 @@
-"use strict";
-
 import type Device from "./device.js";
 
 export default class Arms {

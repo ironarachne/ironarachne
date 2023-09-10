@@ -1,5 +1,3 @@
-"use strict";
-
 import type Species from "../species.js";
 
 export function modify(species: Species): Species {
@@ -10,15 +8,48 @@ export function modify(species: Species): Species {
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
   result.adjective = `${modifierName} ${result.adjective}`;
-  result.abilities.push("drain blood to gain life");
-  result.abilities.push("transform into a bat");
-  result.abilities.push("transform into a wolf");
-  result.abilities.push("transform into mist");
-  result.abilities.push("see in the dark");
-  result.abilities.push("can only be killed by a stake through the heart or by direct sunlight");
+
+  let vampiricAbilities = [
+    {
+      name: "vampiric bite",
+      description: "can bite others to drain their life force and heal itself",
+      category: "attack",
+      threatLevel: 2,
+    },
+    {
+      name: "vampiric charm",
+      description: "can charm others to do its bidding",
+      category: "attack",
+      threatLevel: 3,
+    },
+    {
+      name: "shapeshift into animal",
+      description: "can shapeshift into an animal",
+      category: "shapeshift",
+      threatLevel: 2,
+    },
+    {
+      name: "darkvision",
+      description: "can see in darkness",
+      category: "senses",
+      threatLevel: 1,
+    },
+    {
+      name: "resistance: magic",
+      description: "is resistant to magic",
+      category: "resistance",
+      threatLevel: 2,
+    },
+    {
+      name: "shapeshift into mist",
+      description: "can shapeshift into mist",
+      category: "shapeshift",
+      threatLevel: 2,
+    },
+  ];
+  result.abilities = result.abilities.concat(vampiricAbilities);
   result.tags.push("vampire");
   result.tags.push("undead");
-  result.threatLevel += 5;
 
   return result;
 }

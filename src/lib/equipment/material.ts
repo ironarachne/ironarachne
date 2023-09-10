@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 
 export class MaterialSet {

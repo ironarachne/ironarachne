@@ -1,5 +1,3 @@
-"use strict";
-
 export default class FoodComponent {
   name: string;
   flavors: string[];

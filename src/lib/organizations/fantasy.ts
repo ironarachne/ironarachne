@@ -1,14 +1,12 @@
-"use strict";
-
+import * as Characters from "$lib/characters/characters.js";
+import * as PremadeConfigs from "$lib/characters/premade_configs.js";
 import * as RND from "@ironarachne/rng";
 import random from "random";
-import CharacterGenerator from "../characters/generator.js";
-import * as PremadeConfigs from "../characters/premadeconfigs.js";
 import * as MercCompany from "./fantasy/mercenarycompany.js";
 import * as TradingCompany from "./fantasy/tradingcompany.js";
 import * as WizardSchool from "./fantasy/wizardschool.js";
 import Organization from "./organization.js";
-import OrganizationType from "./type.js";
+import type OrganizationType from "./type.js";
 
 export function generate() {
   const orgType = randomType();
@@ -30,7 +28,7 @@ export function generate() {
   org.notableMembers = randomNotableMembers(org);
 
   org.leadership.description = "They are led by "
-    + org.leadership.getHonorific()
+    + Characters.getHonorific(org.leadership)
     + " "
     + org.leadership.firstName
     + " "
@@ -74,10 +72,9 @@ function randomNotableMembers(org: Organization) {
         let memberRank = RND.item(possibleRanks);
 
         let charGenConfig = PremadeConfigs.getFantasy();
-        charGenConfig.ageCategories = [memberRank.ageGroupName];
-        let charGen = new CharacterGenerator(charGenConfig);
+        charGenConfig.ageCategoryNames = memberRank.ageGroupNames;
 
-        let member = charGen.generate();
+        let member = Characters.generate(charGenConfig);
         member.titles.push(memberRank.title);
         notableMembers.push(member);
       }

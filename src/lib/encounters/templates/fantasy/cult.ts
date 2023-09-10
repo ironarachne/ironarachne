@@ -1,81 +1,78 @@
-"use strict";
-
-import * as Archetypes from "../../../archetypes/archetypes.js";
-import * as FantasyArchetypes from "../../../archetypes/fantasy/all.js";
-import MobFilter from "../../../mobs/filter.js";
-import EncounterGroupTemplate from "../../grouptemplate.js";
-import EncounterTemplate from "../../template.js";
+import * as Archetypes from "$lib/archetypes/archetypes.js";
+import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
+import MobFilter from "$lib/mobs/filter.js";
+import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
   return [
-    new EncounterTemplate(
-      "group of cult acolytes",
-      1,
-      [
-        new EncounterGroupTemplate(
-          "cult acolytes",
-          1,
-          true,
-          [Archetypes.byName("cult acolyte", allArchetypes)],
-          new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
-          2,
-          4,
-        ),
+    {
+      name: "group of cult acolytes",
+      threatLevel: 1,
+      groupTemplates: [
+        {
+          name: "cult acolytes",
+          threatLevel: 1,
+          isSentient: true,
+          archetypes: [Archetypes.byName("cult acolyte", allArchetypes)],
+          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["cult"],
-      50,
-    ),
-    new EncounterTemplate(
-      "group of lesser demons",
-      4,
-      [
-        new EncounterGroupTemplate(
-          "lesser demons",
-          2,
-          false,
-          [],
-          new MobFilter(["demon"], [], "", "", []),
-          2,
-          4,
-        ),
+      tags: ["cult"],
+      commonality: 50,
+    },
+    {
+      name: "group of lesser demons",
+      threatLevel: 4,
+      groupTemplates: [
+        {
+          name: "lesser demons",
+          threatLevel: 2,
+          isSentient: false,
+          archetypes: [],
+          filter: new MobFilter(["demon"], [], "", "", []),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["cult", "demonic"],
-      1,
-    ),
-    new EncounterTemplate(
-      "cult priest",
-      2,
-      [
-        new EncounterGroupTemplate(
-          "cult priest",
-          2,
-          true,
-          [Archetypes.byName("cult priest", allArchetypes)],
-          new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
-          1,
-          1,
-        ),
+      tags: ["cult", "demonic"],
+      commonality: 1,
+    },
+    {
+      name: "cult priest",
+      threatLevel: 2,
+      groupTemplates: [
+        {
+          name: "cult priest",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [Archetypes.byName("cult priest", allArchetypes)],
+          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 1,
+        },
       ],
-      ["cult"],
-      20,
-    ),
-    new EncounterTemplate(
-      "cult high priest",
-      5,
-      [
-        new EncounterGroupTemplate(
-          "cult high priest",
-          5,
-          true,
-          [Archetypes.byName("cult high priest", allArchetypes)],
-          new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
-          1,
-          1,
-        ),
+      tags: ["cult"],
+      commonality: 20,
+    },
+    {
+      name: "cult high priest",
+      threatLevel: 5,
+      groupTemplates: [
+        {
+          name: "cult high priest",
+          threatLevel: 5,
+          isSentient: true,
+          archetypes: [Archetypes.byName("cult high priest", allArchetypes)],
+          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 1,
+        },
       ],
-      ["cult"],
-      15,
-    ),
+      tags: ["cult"],
+      commonality: 15,
+    },
   ];
 }

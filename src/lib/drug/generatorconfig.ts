@@ -1,5 +1,3 @@
-"use strict";
-
 import DrugType from "./drugtype.js";
 import * as DrugTypes from "./drugtypes.js";
 import EffectType from "./effecttype.js";

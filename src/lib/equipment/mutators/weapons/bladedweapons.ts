@@ -1,5 +1,3 @@
-"use strict";
-
 import MeleeWeapon from "../../weapons/melee.js";
 import type ItemMutator from "../itemmutator.js";
 import MeleeWeaponMutator from "../meleeweapon.js";

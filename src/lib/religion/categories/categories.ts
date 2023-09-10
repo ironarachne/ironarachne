@@ -1,5 +1,3 @@
-"use strict";
-
 import type ReligionCategory from "./category.js";
 import Monotheism from "./monotheism.js";
 import Polytheism from "./polytheism.js";

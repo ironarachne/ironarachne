@@ -1,5 +1,3 @@
-"use strict";
-
 import * as Words from "@ironarachne/words";
 import ChargeGroup from "./chargegroup.js";
 import Field from "./field.js";

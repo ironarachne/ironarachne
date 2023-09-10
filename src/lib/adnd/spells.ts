@@ -1,5 +1,3 @@
-"use strict";
-
 import ADNDSpell from "./adndspell.js";
 import SpellFilter from "./spellfilter.js";
 

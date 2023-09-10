@@ -1,5 +1,3 @@
-"use strict";
-
 import random from "random";
 
 export function distributePoints(skillList, extraPoints: number) {

@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as Dice from "../../dice.js";

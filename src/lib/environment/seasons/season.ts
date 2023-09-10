@@ -1,15 +1,7 @@
-"use strict";
+import type PrecipitationType from "../precipitationtype.js";
 
-import PrecipitationType from "../precipitationtype.js";
-
-export default class Season {
+export default interface Season {
   name: string;
   precipitationType: PrecipitationType;
   precipitationAmount: number;
-
-  constructor(name: string, precipitationType: PrecipitationType, precipitationAmount: number) {
-    this.name = name;
-    this.precipitationType = precipitationType;
-    this.precipitationAmount = precipitationAmount;
-  }
 }

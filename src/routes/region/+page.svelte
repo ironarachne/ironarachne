@@ -1,9 +1,9 @@
 <script lang="ts">
   import { getContext } from 'svelte';
   import * as RND from "@ironarachne/rng";
-  import RegionGeneratorConfig from "$lib/region/generatorconfig";
-  import RegionGenerator from "$lib/region/generator";
+  import * as Regions from "$lib/regions/regions.js";
   import * as Words from "@ironarachne/words";
+  import * as Characters from "$lib/characters/characters.js";
   import * as MUN from "@ironarachne/made-up-names";
   import random from "random";
   import seedrandom from "seedrandom";
@@ -20,20 +20,20 @@
   let nameSet = RND.item(MUN.cultureSets());
   let nameSets = MUN.cultureSets();
   random.use(seedrandom(seed));
-  let config = new RegionGeneratorConfig();
+  let config = Regions.getDefaultConfig();
   config.nameGeneratorSet = nameSet;
-  let generator = new RegionGenerator(config);
+
   let heraldryRenderer = new HeraldrySVGRenderer();
-  let region = generator.generate();
+  let region = Regions.generate(config);
   let ruler = region.authority;
 
   function generate() {
     random.use(seedrandom(seed));
 
-    generator.config.dominantCulture = null;
+    config.dominantCulture = null;
     if (useSavedCulture) {
       loadSavedCulture();
-      generator.config.dominantCulture = culture;
+      config.dominantCulture = culture;
       nameSet = culture.generatorSet;
     } else {
       if (nameSetName == 'any') {
@@ -47,9 +47,9 @@
       }
     }
 
-    generator.config.nameGeneratorSet = nameSet;
+    config.nameGeneratorSet = nameSet;
 
-    region = generator.generate();
+    region = Regions.generate(config);
     ruler = region.authority;
   }
 
@@ -114,7 +114,7 @@
 
   <p>{region.description}</p>
 
-  {#if region.dominantCulture != null}
+  {#if region.dominantCulture.name !== undefined}
 
   <p>The dominant culture here is the {region.dominantCulture.name}.</p>
 
@@ -126,13 +126,13 @@
   </div>
   {/if}
 
-  <h3>Ruler: {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}</h3>
+  <h3>Ruler: {Characters.getHonorific(ruler)} {ruler.firstName} {ruler.lastName}</h3>
 
   <div class="ruler">
     {#if ruler.heraldry !== null}
     <div class="ruler-arms">{@html heraldryRenderer.render(ruler.heraldry.device, 200, 220)}</div>
     {/if}
-    <div><p>{Words.capitalize(region.name)} is ruled by {ruler.getHonorific()} {ruler.firstName} {ruler.lastName}. {ruler.description}</p></div>
+    <div><p>{Words.capitalize(region.name)} is ruled by {Characters.getHonorific(ruler)} {ruler.firstName} {ruler.lastName}. {ruler.description}</p></div>
   </div>
 
   <h3>Nearby Sovereignties</h3>
@@ -143,7 +143,7 @@
       <div class="neighbor-arms">{@html heraldryRenderer.render(neighbor.heraldry.device, 80, 88)}</div>
       <div>
         <p><strong>{Words.title(neighbor.name)}</strong></p>
-        <p>Ruled by {neighbor.authority.getHonorific()} {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)} {neighbor.authority.species.adjective} {neighbor.authority.ageCategory.noun}.</p>
+        <p>Ruled by {Characters.getHonorific(neighbor.authority)} {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)} {neighbor.authority.species.adjective} {neighbor.authority.ageCategory.noun}.</p>
         {#if region.realms[region.mainRealm].parent == index}
           <p>{Words.title(region.realms[region.mainRealm].name)} is part of this.</p>
         {/if}
@@ -160,7 +160,7 @@
       <div class="neighbor-arms">{@html heraldryRenderer.render(neighbor.heraldry.device, 80, 88)}</div>
       <div>
         <p><strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[neighbor.parent].name} {@html heraldryRenderer.render(region.realms[neighbor.parent].heraldry.device, 20, 22)}.</p>
-        <p>Ruled by {neighbor.authority.getHonorific()} {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)} {neighbor.authority.species.adjective} {neighbor.authority.ageCategory.noun}.</p>
+        <p>Ruled by {Characters.getHonorific(neighbor.authority)} {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)} {neighbor.authority.species.adjective} {neighbor.authority.ageCategory.noun}.</p>
       </div>
     </div>
     {/if}

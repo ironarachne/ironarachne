@@ -1,37 +1,42 @@
-"use strict";
-
+import type Edge from "$lib/geometry/edge.js";
+import * as Geometry from "$lib/geometry/geometry.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import Edge from "../geometry/edge.js";
-import * as Geometry from "../geometry/geometry.js";
-import Door from "./door.js";
-import Dungeon from "./dungeon.js";
+import type Door from "./door.js";
+import type Dungeon from "./dungeon.js";
 import Lock from "./lock.js";
-import RoomFeature from "./rooms/features/feature.js";
-import Room from "./rooms/room.js";
+import type RoomFeature from "./rooms/features/feature.js";
+import type Room from "./rooms/room.js";
 import * as Rooms from "./rooms/rooms.js";
 import * as Tiles from "./tiles.js";
 
 export function addDoor(room1: Room, room2: Room): Door {
-  let door = new Door();
+  let door: Door = {
+    room1: -1,
+    room2: -1,
+    vertex: { x: 0, y: 0 },
+    tile: 0,
+    lock: null,
+    isSecret: false,
+    description: "",
+  };
   let possibleEdges = [];
 
   for (let i = 0; i < room1.vertices.length; i++) {
     for (let j = 0; j < room2.vertices.length; j++) {
       let nD = Geometry.distance(room1.vertices[i], room2.vertices[j]);
       if (nD == 2) {
-        let e = new Edge();
-        e.a = room1.vertices[i];
-        e.b = room2.vertices[j];
-        possibleEdges.push(e);
+        let a = room1.vertices[i];
+        let b = room2.vertices[j];
+        possibleEdges.push({ a, b });
       }
     }
   }
 
   let e: Edge = RND.item(possibleEdges);
-  door.vertex = e.getMidpoint();
+  door.vertex = Geometry.getMidpoint(e);
 
-  if (e.getSlope() === 0) {
+  if (Geometry.getSlope(e) === 0) {
     door.tile = Tiles.H_DOOR;
   } else {
     door.tile = Tiles.V_DOOR;
@@ -141,9 +146,12 @@ export function addDoorsToDungeon(dungeon: Dungeon): Dungeon {
       dungeon.rooms[r2.id].secrets += secret2;
     }
 
-    dungeon.rooms[i].features.push(new RoomFeature("door", description1, secret1, false));
+    let door1feature: RoomFeature = { name: "door", description: description1, secret: secret1, isContainer: false };
+    let door2feature: RoomFeature = { name: "door", description: description2, secret: secret2, isContainer: false };
+
+    dungeon.rooms[i].features.push(door1feature);
     dungeon.rooms[r2.id].doors.push(di);
-    dungeon.rooms[r2.id].features.push(new RoomFeature("door", description2, secret2, false));
+    dungeon.rooms[r2.id].features.push(door2feature);
 
     dungeon.tiles = addDoorToTiles(door, dungeon.tiles);
   }

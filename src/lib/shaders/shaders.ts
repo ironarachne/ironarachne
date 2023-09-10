@@ -1,5 +1,3 @@
-"use strict";
-
 import AridPlanet from "./planets/arid.glsl.js";
 import BarrenPlanet from "./planets/barren.glsl.js";
 import GardenPlanet from "./planets/garden.glsl.js";

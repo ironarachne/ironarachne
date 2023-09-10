@@ -1,5 +1,3 @@
-"use strict";
-
 export default class StarshipReactor {
   name: string;
   grade: number;

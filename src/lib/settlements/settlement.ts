@@ -1,7 +1,5 @@
-"use strict";
-
-import Environment from "../environment/environment.js";
-import SettlementCategory from "./categories/category.js";
+import type Environment from "../environment/environment.js";
+import type SettlementCategory from "./settlement_category.js";
 
 export default class Settlement {
   name: string;

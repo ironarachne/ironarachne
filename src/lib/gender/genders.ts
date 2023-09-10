@@ -1,21 +1,8 @@
-import type AgeCategory from "$lib/age/agecategory";
-import Gender from "./gender";
+import type Gender from "./gender";
 
-export function newGender(
-  name: string,
-  subj: string,
-  obj: string,
-  pos: string,
-  maxAge: number,
-  ageCategories: AgeCategory[],
-): Gender {
-  let gender = new Gender();
-  gender.name = name;
-  gender.subjectivePronoun = subj;
-  gender.objectivePronoun = obj;
-  gender.possessivePronoun = pos;
-  gender.maxAge = maxAge;
-  gender.ageCategories = ageCategories;
-
-  return gender;
+export function traditional(): Gender[] {
+  return [
+    { name: "female", pronouns: { subjective: "she", objective: "her", possessive: "her", reflexive: "herself" } },
+    { name: "male", pronouns: { subjective: "he", objective: "him", possessive: "his", reflexive: "himself" } },
+  ];
 }

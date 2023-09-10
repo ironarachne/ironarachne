@@ -1,5 +1,3 @@
-"use strict";
-
 import type DCCItem from "./equipment/item.js";
 import DCCWeapon from "./equipment/weapon.js";
 

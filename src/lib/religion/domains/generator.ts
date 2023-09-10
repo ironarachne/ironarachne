@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import DomainSet from "./domainset.js";
 import type DomainGeneratorConfig from "./generatorconfig.js";

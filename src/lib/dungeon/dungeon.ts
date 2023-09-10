@@ -1,10 +1,8 @@
-"use strict";
+import type Door from "./door.js";
+import type DungeonTheme from "./dungeon_theme.js";
+import type Room from "./rooms/room.js";
 
-import Door from "./door.js";
-import DungeonTheme from "./dungeontheme.js";
-import Room from "./rooms/room.js";
-
-export default class Dungeon {
+export default interface Dungeon {
   name: string;
   description: string;
   theme: DungeonTheme;
@@ -14,10 +12,4 @@ export default class Dungeon {
   rooms: Room[];
   doors: Door[];
   tiles: number[][];
-
-  constructor() {
-    this.doors = [];
-    this.rooms = [];
-    this.totalThreatLevel = 0;
-  }
 }

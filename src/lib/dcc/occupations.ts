@@ -1,5 +1,3 @@
-"use strict";
-
 import DCCOccupation from "./occupation.js";
 import * as Dwarf from "./occupations/dwarf.js";
 import * as Elf from "./occupations/elf.js";

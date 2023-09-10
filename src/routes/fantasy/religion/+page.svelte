@@ -2,7 +2,6 @@
   import { getContext } from 'svelte';
   import * as MUN from "@ironarachne/made-up-names";
   import * as RND from "@ironarachne/rng";
-  import * as FantasySpecies from "$lib/species/fantasy.js";
   import * as CommonSpecies from "$lib/species/common.js";
   import * as ReligionCategories from "$lib/religion/categories/categories.js";
   import type Species from "$lib/species/species";
@@ -25,7 +24,7 @@
   let generator = new ReligionGenerator(genConfig);
   let religion = generator.generate();
   let allSpeciesNames: string[] = [];
-  const allSpecies = FantasySpecies.all();
+  const allSpecies = CommonSpecies.sentient();
   const allReligionCategories = ReligionCategories.all();
   let allReligionCategoriesNames: string[] = [];
 

@@ -1,5 +1,3 @@
-"use strict";
-
 import Domain from "./domain.js";
 
 export const allDomains = [

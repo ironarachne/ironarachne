@@ -1,12 +1,9 @@
-"use strict";
-
+import type Character from "$lib/characters/character.js";
+import * as Characters from "$lib/characters/characters.js";
+import * as PremadeConfigs from "$lib/characters/premade_configs.js";
+import * as Charges from "$lib/heraldry/charges.js";
+import HeraldryGeneratorConfig from "$lib/heraldry/generatorconfig.js";
 import * as RND from "@ironarachne/rng";
-import Character from "../../characters/character.js";
-import CharacterGenerator from "../../characters/generator.js";
-import * as PremadeConfigs from "../../characters/premadeconfigs.js";
-import Title from "../../characters/title.js";
-import * as Charges from "../../heraldry/charges.js";
-import HeraldryGeneratorConfig from "../../heraldry/generatorconfig.js";
 import Rank from "../rank.js";
 import OrganizationType from "../type.js";
 
@@ -54,10 +51,9 @@ export function generateType(): OrganizationType {
     },
     function(this: OrganizationType): Character {
       let charGenConfig = PremadeConfigs.getFantasy();
-      charGenConfig.ageCategories = ["elderly"];
+      charGenConfig.ageCategoryNames = ["elderly"];
 
-      const charGen = new CharacterGenerator(charGenConfig);
-      const leader = charGen.generate();
+      const leader = Characters.generate(charGenConfig);
       const ranks = this.getRanks();
       leader.titles.push(ranks.title);
 
@@ -65,19 +61,43 @@ export function generateType(): OrganizationType {
     },
     function() {
       const headmaster = new Rank(
-        new Title("Headmaster", "Headmaster", "Headmaster", "Headmaster", false, "", 0),
+        {
+          femaleTitle: "Headmaster",
+          maleTitle: "Headmaster",
+          femaleHonorific: "Headmaster",
+          maleHonorific: "Headmaster",
+          hasLands: false,
+          landName: "",
+          precedence: 0,
+        },
         "arcane",
-        "elderly",
+        ["elderly"],
       );
       const professor = new Rank(
-        new Title("Professor", "Professor", "Professor", "Professor", false, "", 1),
+        {
+          femaleTitle: "Professor",
+          maleTitle: "Professor",
+          femaleHonorific: "Professor",
+          maleHonorific: "Professor",
+          hasLands: false,
+          landName: "",
+          precedence: 1,
+        },
         "arcane",
-        "adult",
+        ["adult", "elderly"],
       );
       const student = new Rank(
-        new Title("Student", "Student", "", "", false, "", 2),
+        {
+          femaleTitle: "Student",
+          maleTitle: "Student",
+          femaleHonorific: "",
+          maleHonorific: "",
+          hasLands: false,
+          landName: "",
+          precedence: 2,
+        },
         "arcane",
-        "young adult",
+        ["teenager", "young adult"],
       );
 
       professor.addInferior(student);

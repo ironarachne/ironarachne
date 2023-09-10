@@ -1,5 +1,3 @@
-"use strict";
-
 export function list(items: string[]): string {
   let result = "\\begin{itemize}\n";
 

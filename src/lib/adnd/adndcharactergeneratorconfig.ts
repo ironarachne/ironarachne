@@ -1,5 +1,3 @@
-"use strict";
-
 import ADNDClass from "./adndclass.js";
 import ADNDRace from "./adndrace.js";
 import * as classes from "./classes/classes.js";

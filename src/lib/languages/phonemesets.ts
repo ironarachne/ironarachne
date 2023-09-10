@@ -1,5 +1,3 @@
-"use strict";
-
 import PhonemeSet from "./phonemeset.js";
 
 export function all(): PhonemeSet[] {

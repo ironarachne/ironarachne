@@ -1,5 +1,3 @@
-"use strict";
-
 import FoodComponent from "./component.js";
 
 export function all(): FoodComponent[] {

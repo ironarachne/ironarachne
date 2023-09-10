@@ -1,5 +1,3 @@
-"use strict";
-
 export default function(href: string, name: string) {
   let link = document.createElement("a");
   link.download = name;

@@ -1,20 +1,18 @@
-"use strict";
-
-import Title from "../characters/title.js";
+import type Title from "$lib/characters/titles/title.js";
 
 export default class Rank {
   title: Title;
   inferiors: Rank[];
   superior: Rank | null;
   classification: string;
-  ageGroupName: string;
+  ageGroupNames: string[];
 
-  constructor(title: Title, classification: string, ageGroupName: string) {
+  constructor(title: Title, classification: string, ageGroupNames: string[]) {
     this.title = title;
     this.inferiors = [];
     this.superior = null;
     this.classification = classification;
-    this.ageGroupName = ageGroupName;
+    this.ageGroupNames = ageGroupNames;
   }
 
   addInferior(rank: Rank) {

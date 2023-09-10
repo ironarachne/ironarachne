@@ -1,5 +1,3 @@
-"use strict";
-
 import * as Components from "./components/components.js";
 import * as Equipment from "./equipment.js";
 import type Item from "./item.js";

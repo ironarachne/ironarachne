@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import * as Dice from "../dice.js";
 import * as Text from "../format/text.js";

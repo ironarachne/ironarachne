@@ -1,5 +1,4 @@
-"use strict";
-
+import * as Characters from "$lib/characters/characters.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as Deities from "./deities.js";
@@ -17,7 +16,7 @@ export default class DeityGenerator {
     let possibleHolyItems: string[] = [];
     let possibleHolySymbols: string[] = [];
 
-    const characterDetails = this.config.characterGenerator.generate();
+    const characterDetails = Characters.generate(this.config.characterGeneratorConfig);
 
     if (this.config.maleNameGenerator === null) {
       throw new Error("male name generator not set");
@@ -83,5 +82,5 @@ function describePersonality(deity: Deity): string {
     traits.push(deity.personalityTraits[i].descriptor);
   }
 
-  return Words.capitalize(deity.gender.subjectivePronoun) + " is " + Words.arrayToPhrase(traits);
+  return Words.capitalize(deity.gender.pronouns.subjective) + " is " + Words.arrayToPhrase(traits);
 }

@@ -1,99 +1,96 @@
-"use strict";
-
-import * as Archetypes from "../../../archetypes/archetypes.js";
-import * as FantasyArchetypes from "../../../archetypes/fantasy/all.js";
-import MobFilter from "../../../mobs/filter.js";
-import EncounterGroupTemplate from "../../grouptemplate.js";
-import EncounterTemplate from "../../template.js";
+import * as Archetypes from "$lib/archetypes/archetypes.js";
+import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
+import MobFilter from "$lib/mobs/filter.js";
+import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
 
   return [
-    new EncounterTemplate(
-      "group of hunters",
-      3,
-      [
-        new EncounterGroupTemplate(
-          "hunters",
-          3,
-          true,
-          [Archetypes.byName("hunter", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          3,
-          6,
-        ),
+    {
+      name: "group of hunters",
+      threatLevel: 3,
+      groupTemplates: [
+        {
+          name: "hunters",
+          threatLevel: 3,
+          isSentient: true,
+          archetypes: [Archetypes.byName("hunter", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 3,
+          maxNumber: 6,
+        },
       ],
-      ["hunters"],
-      5,
-    ),
-    new EncounterTemplate(
-      "lone hunter",
-      1,
-      [
-        new EncounterGroupTemplate(
-          "hunter",
-          1,
-          true,
-          [Archetypes.byName("hunter", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          1,
-          1,
-        ),
+      tags: ["hunters"],
+      commonality: 5,
+    },
+    {
+      name: "lone hunter",
+      threatLevel: 1,
+      groupTemplates: [
+        {
+          name: "hunter",
+          threatLevel: 1,
+          isSentient: true,
+          archetypes: [Archetypes.byName("hunter", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 1,
+        },
       ],
-      ["hunters"],
-      1,
-    ),
-    new EncounterTemplate(
-      "swarming insects",
-      3,
-      [
-        new EncounterGroupTemplate(
-          "swarming insects",
-          3,
-          false,
-          [],
-          new MobFilter(["swarm"], [], "", "", []),
-          3,
-          8,
-        ),
+      tags: ["hunters"],
+      commonality: 1,
+    },
+    {
+      name: "swarming insects",
+      threatLevel: 3,
+      groupTemplates: [
+        {
+          name: "swarming insects",
+          threatLevel: 3,
+          isSentient: false,
+          archetypes: [],
+          filter: new MobFilter(["swarm"], [], "", "", []),
+          minNumber: 3,
+          maxNumber: 8,
+        },
       ],
-      ["insect swarm"],
-      5,
-    ),
-    new EncounterTemplate(
-      "wandering creature",
-      3,
-      [
-        new EncounterGroupTemplate(
-          "wandering creature",
-          3,
-          false,
-          [],
-          new MobFilter([], [], "", "", []),
-          1,
-          1,
-        ),
+      tags: ["insect swarm"],
+      commonality: 5,
+    },
+    {
+      name: "wandering creature",
+      threatLevel: 3,
+      groupTemplates: [
+        {
+          name: "wandering creature",
+          threatLevel: 3,
+          isSentient: false,
+          archetypes: [],
+          filter: new MobFilter([], [], "", "", []),
+          minNumber: 1,
+          maxNumber: 1,
+        },
       ],
-      ["wandering creature"],
-      10,
-    ),
-    new EncounterTemplate(
-      "group of wandering creatures",
-      5,
-      [
-        new EncounterGroupTemplate(
-          "wandering creatures",
-          3,
-          false,
-          [],
-          new MobFilter([], [], "", "", []),
-          2,
-          4,
-        ),
+      tags: ["wandering creature"],
+      commonality: 10,
+    },
+    {
+      name: "group of wandering creatures",
+      threatLevel: 5,
+      groupTemplates: [
+        {
+          name: "wandering creatures",
+          threatLevel: 3,
+          isSentient: false,
+          archetypes: [],
+          filter: new MobFilter([], [], "", "", []),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["wandering creature"],
-      10,
-    ),
+      tags: ["wandering creature"],
+      commonality: 10,
+    },
   ];
 }

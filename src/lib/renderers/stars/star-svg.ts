@@ -1,5 +1,3 @@
-"use strict";
-
 import random from "random";
 import Star from "../../stars/star.js";
 import SVGStarfieldRenderer from "../starfields/starfield-svg.js";

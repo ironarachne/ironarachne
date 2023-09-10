@@ -1,5 +1,3 @@
-"use strict";
-
 import * as ArmorPattern from "./armor.js";
 import * as ClothingPattern from "./clothing.js";
 import type Pattern from "./pattern.js";

@@ -1,5 +1,3 @@
-"use strict";
-
 import type Species from "../species.js";
 
 export function modify(species: Species): Species {
@@ -10,10 +8,16 @@ export function modify(species: Species): Species {
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
   result.adjective = `${modifierName} ${result.adjective}`;
-  result.abilities.push("unharmed by piercing damage");
+  result.abilities.push(
+    {
+      name: "immunity: piercing",
+      description: "immune to piercing damage",
+      category: "immunity",
+      threatLevel: 1,
+    },
+  );
   result.tags.push("skeleton");
   result.tags.push("undead");
-  result.threatLevel += 1;
 
   return result;
 }

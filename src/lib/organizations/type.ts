@@ -1,4 +1,4 @@
-import GeneratorConfig from "../heraldry/generatorconfig.js";
+import type GeneratorConfig from "$lib/heraldry/generatorconfig.js";
 
 export default class OrganizationType {
   name: string;

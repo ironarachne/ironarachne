@@ -1,9 +1,7 @@
-"use strict";
-
-import Character from "../characters/character.js";
-import Arms from "../heraldry/arms.js";
-import Rank from "./rank.js";
-import OrganizationType from "./type.js";
+import type Character from "$lib/characters/character.js";
+import type Arms from "$lib/heraldry/arms.js";
+import type Rank from "./rank.js";
+import type OrganizationType from "./type.js";
 
 export default class Organization {
   name: string;

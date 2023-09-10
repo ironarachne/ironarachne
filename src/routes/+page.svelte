@@ -1,9 +1,11 @@
 <script lang="ts">
-  import * as Entries from "$lib/updates/entries";
+  import entries from "$lib/change_log/entries";
+  import * as ChangeLogs from "$lib/change_log/change_logs";
+  import * as Dates from "$lib/dates";
 
   let numberOfEntries: number = 5;
 
-  let updates = Entries.mostRecent(numberOfEntries);
+  let updates = ChangeLogs.mostRecent(numberOfEntries, entries);
 </script>
 
 <svelte:head>
@@ -37,7 +39,10 @@
   <p>Showing the {numberOfEntries} most recent change log entries.</p>
   {#each updates as update}
     <div>
-      <h3>{@html update.niceDate()}</h3>
+      <h3>{@html Dates.getNiceDate(update.date)}</h3>
+      {#if update.summary != ""}
+        <p>{update.summary}</p>
+      {/if}
       <ul>
         {#each update.updates as text}
           <li>{text}</li>

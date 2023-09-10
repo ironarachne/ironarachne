@@ -1,5 +1,3 @@
-"use strict";
-
 export function cmToInches(cm: number): number {
   return cm * 0.3937;
 }

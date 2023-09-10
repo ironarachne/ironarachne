@@ -1,5 +1,3 @@
-"use strict";
-
 import type Domain from "./domain.js";
 import * as Domains from "./domains.js";
 

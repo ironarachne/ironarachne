@@ -1,12 +1,10 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import random from "random";
 import * as Music from "../music/generator.js";
 import ReligionGenerator from "../religion/generator.js";
 import ReligionGeneratorConfig from "../religion/generatorconfig.js";
 import Culture from "./culture.js";
-import CultureGeneratorConfig from "./generatorconfig.js";
+import type CultureGeneratorConfig from "./generatorconfig.js";
 import * as Organization from "./organization.js";
 
 export default class CultureGenerator {

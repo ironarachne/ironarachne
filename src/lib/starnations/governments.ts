@@ -1,5 +1,3 @@
-"use strict";
-
 import { GenericNameGenerator } from "@ironarachne/made-up-names";
 import StarNationGovernment from "./government.js";
 

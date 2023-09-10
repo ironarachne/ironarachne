@@ -1,5 +1,3 @@
-"use strict";
-
 export default class RealmGeneratorConfig {
   numberOfRealms: number;
   requireDualistic: boolean;

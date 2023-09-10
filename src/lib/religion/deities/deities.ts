@@ -1,5 +1,5 @@
-import type AgeCategory from "$lib/age/agecategory";
-import type Gender from "$lib/gender";
+import type AgeCategory from "$lib/age/age_category";
+import type Gender from "$lib/gender/gender";
 import type Species from "$lib/species/species";
 import type DomainSet from "../domains/domainset";
 import type Realm from "../realms/realm";

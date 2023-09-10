@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import type Item from "../../equipment/item.js";
 import TreasureGeneratorConfig from "./generatorconfig.js";

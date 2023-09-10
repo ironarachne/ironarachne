@@ -1,5 +1,3 @@
-"use strict";
-
 import type Item from "../equipment/item.js";
 
 export default class TreasureSpawn {

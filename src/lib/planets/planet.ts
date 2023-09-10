@@ -1,5 +1,3 @@
-"use strict";
-
 import PlanetClassification from "./classification.js";
 
 export default class Planet {

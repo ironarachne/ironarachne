@@ -1,5 +1,3 @@
-"use strict";
-
 import CoinPurse from "../currency/coinpurse.js";
 import DCCAttribute from "./attribute.js";
 import type DCCItem from "./equipment/item.js";

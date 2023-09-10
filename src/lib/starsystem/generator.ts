@@ -1,5 +1,3 @@
-"use strict";
-
 import * as Words from "@ironarachne/words";
 import random from "random";
 import PlanetGenerator from "../planets/generator.js";

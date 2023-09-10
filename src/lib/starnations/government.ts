@@ -1,5 +1,3 @@
-"use strict";
-
 import type { Generator as NameGenerator } from "@ironarachne/made-up-names";
 
 export default class StarNationGovernment {

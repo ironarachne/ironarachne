@@ -1,5 +1,3 @@
-"use strict";
-
 import * as Dice from "../../../dice.js";
 import ArtObjectGenerator from "../artobjectgenerator.js";
 import CoinGenerator from "../coingenerator.js";

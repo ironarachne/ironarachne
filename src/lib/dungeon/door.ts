@@ -1,9 +1,7 @@
-"use strict";
+import type Vertex from "$lib/geometry/vertex.js";
+import type Lock from "./lock.js";
 
-import Vertex from "../geometry/vertex.js";
-import Lock from "./lock.js";
-
-export default class Door {
+export default interface Door {
   room1: number;
   room2: number;
   tile: number;
@@ -11,9 +9,4 @@ export default class Door {
   description: string;
   lock: Lock | null;
   isSecret: boolean;
-
-  constructor() {
-    this.lock = null;
-    this.isSecret = false;
-  }
 }

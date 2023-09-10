@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import ADNDCharacter from "../adndcharacter.js";
 import ADNDClass from "../adndclass.js";

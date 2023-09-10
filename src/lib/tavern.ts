@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import * as Drink from "./cuisine/drink.js";
 import * as Food from "./cuisine/food.js";

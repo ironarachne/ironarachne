@@ -1,5 +1,3 @@
-"use strict";
-
 export default class ADNDRace {
   name: string;
   adjective: string;

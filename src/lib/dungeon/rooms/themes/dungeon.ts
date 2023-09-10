@@ -1,5 +1,3 @@
-"use strict";
-
 import RoomFeatureGenerator from "../features/featuregenerator.js";
 import RoomTheme from "./theme.js";
 

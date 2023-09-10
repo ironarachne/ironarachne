@@ -1,5 +1,3 @@
-"use strict";
-
 import Planet from "../planets/planet.js";
 import Star from "../stars/star.js";
 

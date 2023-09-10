@@ -1,5 +1,3 @@
-"use strict";
-
 import type Pattern from "./pattern.js";
 import AxePattern from "./weapons/axe.js";
 import BowPattern from "./weapons/bow.js";

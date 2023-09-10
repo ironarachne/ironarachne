@@ -1,5 +1,3 @@
-"use strict";
-
 import ADNDArmor from "./adndarmor.js";
 import ADNDClass from "./adndclass.js";
 import ADNDRace from "./adndrace.js";

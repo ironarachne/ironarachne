@@ -1,11 +1,10 @@
-"use strict";
-
+import * as Geometry from "$lib/geometry/geometry.js";
+import type Vertex from "$lib/geometry/vertex.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
-import Vertex from "../../geometry/vertex.js";
 import Room from "./room.js";
-import RoomGeneratorConfig from "./roomgeneratorconfig.js";
+import type RoomGeneratorConfig from "./roomgeneratorconfig.js";
 
 export default class RoomGenerator {
   config: RoomGeneratorConfig;
@@ -84,7 +83,7 @@ export default class RoomGenerator {
 // TODO: Use a different algorithm for generating caverns
 function getCavernRoom(ox: number, oy: number, width: number, height: number, room: Room): Room {
   // in this instance, we're using x,y as the top left corner of a bounding box
-  let start = new Vertex(Math.floor((ox + width) / 2), Math.floor((oy + height) / 2));
+  let start: Vertex = { x: Math.floor((ox + width) / 2), y: Math.floor((oy + height) / 2) };
   let steps = 20;
 
   const maxX = ox + width;
@@ -92,7 +91,7 @@ function getCavernRoom(ox: number, oy: number, width: number, height: number, ro
 
   room.vertices.push(start);
 
-  let v = new Vertex(start.x, start.y);
+  let v: Vertex = { x: start.x, y: start.y };
 
   for (let i = 0; i < steps; i++) {
     let x = v.x;
@@ -118,10 +117,10 @@ function getCavernRoom(ox: number, oy: number, width: number, height: number, ro
       }
     }
 
-    let nv = new Vertex(x, y);
+    let nv: Vertex = { x, y };
     let alreadyThere = false;
     for (let j = 0; j < room.vertices.length; j++) {
-      if (room.vertices[j].equals(nv)) {
+      if (Geometry.vertexEquals(room.vertices[j], nv)) {
         alreadyThere = true;
         break;
       }
@@ -144,13 +143,13 @@ function getCorridor(x: number, y: number, width: number, height: number, room: 
   let nx = random.int(x, x + width - 1);
   let ny = random.int(y, y + height - 1);
 
-  room.vertices.push(new Vertex(nx, ny));
+  room.vertices.push({ x: nx, y: ny });
 
   let direction = RND.item([
-    new Vertex(-1, 0),
-    new Vertex(1, 0),
-    new Vertex(0, -1),
-    new Vertex(0, 1),
+    { x: -1, y: 0 },
+    { x: 1, y: 0 },
+    { x: 0, y: -1 },
+    { x: 0, y: 1 },
   ]);
 
   for (let i = 0; i < length; i++) {
@@ -167,9 +166,9 @@ function getCorridor(x: number, y: number, width: number, height: number, room: 
       nx = mx;
       ny = my;
 
-      let nv = new Vertex(nx, ny);
+      let nv: Vertex = { x: nx, y: ny };
 
-      if (nv.in(room.vertices)) {
+      if (Geometry.vertexIn(nv, room.vertices)) {
         continue;
       }
 
@@ -193,7 +192,7 @@ function getCorridor(x: number, y: number, width: number, height: number, room: 
 function getRectangularRoom(x: number, y: number, width: number, height: number, room: Room): Room {
   for (let i = y; i < y + height; i++) {
     for (let j = x; j < x + width; j++) {
-      room.vertices.push(new Vertex(j, i));
+      room.vertices.push({ x: j, y: i });
     }
   }
 
@@ -205,7 +204,7 @@ function getRectangularRoom(x: number, y: number, width: number, height: number,
 function getSquareRoom(x: number, y: number, size: number, room: Room): Room {
   for (let i = y; i < y + size; i++) {
     for (let j = x; j < x + size; j++) {
-      room.vertices.push(new Vertex(j, i));
+      room.vertices.push({ x: j, y: i });
     }
   }
 

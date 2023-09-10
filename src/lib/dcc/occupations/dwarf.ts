@@ -1,5 +1,3 @@
-"use strict";
-
 import DCCCharacter from "../character.js";
 import DCCGear from "../equipment/gear.js";
 import DCCWeapon from "../equipment/weapon.js";

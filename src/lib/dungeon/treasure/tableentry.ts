@@ -1,5 +1,3 @@
-"use strict";
-
 import type TreasureGenerator from "./treasuregenerator.js";
 
 export default class TreasureTableEntry {

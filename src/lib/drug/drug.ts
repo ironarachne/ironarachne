@@ -1,5 +1,3 @@
-"use strict";
-
 import * as Words from "@ironarachne/words";
 import DrugType from "./drugtype.js";
 import EffectType from "./effecttype.js";

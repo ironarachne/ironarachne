@@ -1,5 +1,3 @@
-"use strict";
-
 export default class StarshipCategory {
   name: string;
   minTonnage: number;

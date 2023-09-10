@@ -1,5 +1,3 @@
-"use strict";
-
 import DCCLanguage from "./language.js";
 
 export function getDwarf(): DCCLanguage[] {

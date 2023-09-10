@@ -2,10 +2,9 @@ import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
 import "./sentry-release-injection-file.js";
-import { A as AgeCategory } from "./agecategories.js";
-import { H as Human, C as CharacterGenerator } from "./generatorconfig2.js";
+import { l as human, c as generate } from "./characters.js";
 import { D as Domain, a as allDomains } from "./domains.js";
-import { g as getFantasy } from "./premadeconfigs.js";
+import { g as getFantasy } from "./premade_configs.js";
 import * as MUN from "@ironarachne/made-up-names";
 class Relationship {
   noun;
@@ -51,22 +50,6 @@ class RelationshipGenerator {
     return new Relationship(noun, verb, 0, this.strength);
   }
 }
-class Gender {
-  name;
-  subjectivePronoun;
-  objectivePronoun;
-  possessivePronoun;
-  maxAge;
-  ageCategories;
-  constructor() {
-    this.name = "";
-    this.subjectivePronoun = "";
-    this.objectivePronoun = "";
-    this.possessivePronoun = "";
-    this.maxAge = -1;
-    this.ageCategories = [];
-  }
-}
 class DomainSet {
   primary;
   secondaries;
@@ -104,9 +87,9 @@ class Deity {
   isAlive;
   constructor() {
     this.name = "";
-    this.species = new Human();
-    this.gender = new Gender();
-    this.ageCategory = new AgeCategory();
+    this.species = human;
+    this.gender = human.genders[0];
+    this.ageCategory = human.ageCategories[0];
     this.domains = new DomainSet();
     this.titles = [];
     this.realm = new Realm();
@@ -120,7 +103,7 @@ class Deity {
   }
   describe() {
     const speciesAdj = this.species.adjective;
-    const subjectivePronoun = this.gender.subjectivePronoun;
+    const subjectivePronoun = this.gender.pronouns.subjective;
     let noun = "god";
     const domainNames = [];
     domainNames.push(this.domains.primary.name);
@@ -157,7 +140,7 @@ class DeityGenerator {
   generate() {
     let possibleHolyItems = [];
     let possibleHolySymbols = [];
-    const characterDetails = this.config.characterGenerator.generate();
+    const characterDetails = generate(this.config.characterGeneratorConfig);
     if (this.config.maleNameGenerator === null) {
       throw new Error("male name generator not set");
     } else if (this.config.femaleNameGenerator === null) {
@@ -209,19 +192,19 @@ function describePersonality(deity) {
   for (let i = 0; i < deity.personalityTraits.length; i++) {
     traits.push(deity.personalityTraits[i].descriptor);
   }
-  return Words.capitalize(deity.gender.subjectivePronoun) + " is " + Words.arrayToPhrase(traits);
+  return Words.capitalize(deity.gender.pronouns.subjective) + " is " + Words.arrayToPhrase(traits);
 }
 class DeityGeneratorConfig {
   domainSet;
   realms;
-  characterGenerator;
+  characterGeneratorConfig;
   femaleNameGenerator;
   maleNameGenerator;
   constructor() {
     let charGenConfig = getFantasy();
     this.realms = [];
     this.domainSet = new DomainSet();
-    this.characterGenerator = new CharacterGenerator(charGenConfig);
+    this.characterGeneratorConfig = charGenConfig;
     let genSet = new MUN.HumanSet();
     this.femaleNameGenerator = genSet.female;
     this.maleNameGenerator = genSet.male;
@@ -290,7 +273,7 @@ class PantheonGenerator {
   generate() {
     let pantheon = new Pantheon();
     let deityGenConfig = new DeityGeneratorConfig();
-    deityGenConfig.characterGenerator.config.speciesOptions = this.config.speciesOptions;
+    deityGenConfig.characterGeneratorConfig.speciesOptions = this.config.speciesOptions;
     deityGenConfig.realms = this.config.realms;
     deityGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
     deityGenConfig.maleNameGenerator = this.config.maleNameGenerator;
@@ -376,7 +359,7 @@ class PantheonGeneratorConfig {
   constructor() {
     this.domains = JSON.parse(JSON.stringify(allDomains));
     this.realms = [];
-    this.speciesOptions = [new Human()];
+    this.speciesOptions = [human];
     this.minDeities = 1;
     this.maxDeities = 16;
     let genSet = new MUN.HumanSet();
@@ -387,16 +370,6 @@ class PantheonGeneratorConfig {
     }
     this.femaleNameGenerator = genSet.female;
     this.maleNameGenerator = genSet.male;
-  }
-}
-class AppearanceTrait {
-  phrase;
-  bodyPart;
-  tags;
-  constructor() {
-    this.phrase = "";
-    this.bodyPart = "";
-    this.tags = [];
   }
 }
 function byAnyTag(traits, tags) {
@@ -410,123 +383,116 @@ function byAnyTag(traits, tags) {
   }
   return results;
 }
-function newTrait(phrase, bodyPart, tags) {
-  let trait = new AppearanceTrait();
-  trait.phrase = phrase;
-  trait.bodyPart = bodyPart;
-  trait.tags = tags;
-  return trait;
-}
 const allTraits = [
-  newTrait("six feathered wings", "wings", ["sky"]),
-  newTrait("four feathered wings", "wings", ["sky"]),
-  newTrait("two large feathered wings", "wings", ["sky", "dreamlike"]),
-  newTrait("large leathery wings", "wings", ["sky", "death"]),
-  newTrait("a lion's tail'", "tail", ["earth", "forest"]),
-  newTrait("a whip-like tail", "tail", ["earth", "death"]),
-  newTrait("two tails", "tail", ["alien"]),
-  newTrait("the horns of a goat", "horns", ["earth", "forest"]),
-  newTrait("the horns of a ram", "horns", ["earth", "forest"]),
-  newTrait("the antlers of a stag", "horns", ["forest"]),
-  newTrait("the antlers of a deer", "horns", ["forest", "surreal"]),
-  newTrait("short, pointed horns", "horns", ["earth", "death"]),
-  newTrait("tall, straight horns", "horns", ["earth", "death"]),
-  newTrait("glowing blue eyes", "eyes", ["water"]),
-  newTrait("glowing yellow eyes", "eyes", ["sky", "water"]),
-  newTrait("glowing red eyes", "eyes", ["earth", "death", "alien"]),
-  newTrait("glowing orange eyes", "eyes", ["earth", "sky"]),
-  newTrait("glowing green eyes", "eyes", ["earth", "forest"]),
-  newTrait("glowing purple eyes", "eyes", ["death", "alien"]),
-  newTrait("eyes that burn with an inner fire", "eyes", ["sky"]),
-  newTrait("four eyes", "eyes", ["alien"]),
-  newTrait("six eyes", "eyes", ["alien"]),
-  newTrait("eight eyes", "eyes", ["alien"]),
-  newTrait("no eyes", "eyes", ["death", "alien"]),
-  newTrait("reptilian eyes", "eyes", ["forest", "earth"]),
-  newTrait("scales instead of skin", "skin", ["earth", "forest"]),
-  newTrait("skin that glows faintly", "skin", ["sky"]),
-  newTrait("skin made of living rock", "skin", ["earth"]),
-  newTrait("blue skin", "skin", ["water"]),
-  newTrait("green skin", "skin", ["water"]),
-  newTrait("crystalline skin", "skin", ["earth"]),
-  newTrait("translucent grey skin", "skin", ["death"]),
-  newTrait("dull grey skin", "skin", ["death"]),
-  newTrait("skin covered in leaves", "skin", ["forest"]),
-  newTrait("skin made of star-lit blackness", "skin", ["alien"]),
-  newTrait("iridescent skin", "skin", ["alien", "surreal"]),
-  newTrait("eight tentacles", "tentacles", ["alien"]),
-  newTrait("six tentacles", "tentacles", ["alien"]),
-  newTrait("four tentacles", "tentacles", ["alien"]),
-  newTrait("the head of a lion", "head", ["forest"]),
-  newTrait("the head of a bear", "head", ["forest"]),
-  newTrait("the head of a dragon", "head", ["earth", "forest"]),
-  newTrait("the head of a swan", "head", ["sky", "water"]),
-  newTrait("the head of a deer", "head", ["forest"]),
-  newTrait("the head of a cat", "head", ["earth", "desert"]),
-  newTrait("the head of a wolf", "head", ["earth", "forest"]),
-  newTrait("twelve feathered wings", "wings", ["sky", "dreamlike"]),
-  newTrait("bat-like wings", "wings", ["night", "moon"]),
-  newTrait("insect-like wings", "wings", ["earth", "forest"]),
-  newTrait("crystal-clear wings", "wings", ["sky", "surreal"]),
-  newTrait("feathered wings that shimmer", "wings", ["sky", "water"]),
-  newTrait("a serpent's tail", "tail", ["earth", "water"]),
-  newTrait("a tail with a bioluminescent tip", "tail", ["water", "surreal"]),
-  newTrait("three tails", "tail", ["surreal"]),
-  newTrait("twisted horns with glowing runes", "horns", ["magic", "surreal"]),
-  newTrait("curved horns with gemstone inlays", "horns", ["earth", "wealth"]),
-  newTrait("feathery antlers with ethereal wisps", "horns", ["forest", "dreamlike"]),
-  newTrait("horns that emit a haunting melody", "horns", ["earth", "music"]),
-  newTrait("pearlescent eyes that change colors", "eyes", ["sky", "water"]),
-  newTrait("eyes with galaxies swirling within", "eyes", ["sky", "cosmic"]),
-  newTrait("eyes that see into other dimensions", "eyes", ["surreal", "alien"]),
-  newTrait("eyes with a mesmerizing hypnotic gaze", "eyes", ["magic", "surreal"]),
-  newTrait("eyes that mirror the emotions of others", "eyes", ["empathy", "surreal"]),
-  newTrait("eyes that emit sparks of lightning", "eyes", ["storm", "electricity"]),
-  newTrait("eyes on flexible stalks", "eyes", ["alien", "surreal"]),
-  newTrait("molten lava-like skin", "skin", ["volcano", "fire"]),
-  newTrait("shimmering opalescent skin", "skin", ["sky", "water"]),
-  newTrait("butterfly wings with shifting patterns", "wings", ["dream", "surreal"]),
-  newTrait("floating ethereal wings of light", "wings", ["dream", "surreal"]),
-  newTrait("wings made of iridescent mist", "wings", ["dream", "surreal"]),
-  newTrait("feathers that change color with emotions", "wings", ["dream", "empathy"]),
-  newTrait("a tail of shimmering stardust", "tail", ["dream", "cosmic"]),
-  newTrait("tail that trails rainbows as you move", "tail", ["dream", "surreal"]),
-  newTrait("a tail with glowing constellations", "tail", ["dream", "cosmic"]),
-  newTrait("horns that emit soft, soothing melodies", "horns", ["dream", "music"]),
-  newTrait("horns adorned with floating gemstones", "horns", ["dream", "surreal"]),
-  newTrait("horns that sparkle like starlight", "horns", ["dream", "cosmic"]),
-  newTrait("eyes that reflect the landscapes of dreams", "eyes", ["dream", "surreal"]),
-  newTrait("eyes with ever-changing patterns of light", "eyes", ["dream", "surreal"]),
-  newTrait("eyes that shimmer like enchanted pools", "eyes", ["dream", "water"]),
-  newTrait("skin that shifts like flowing watercolors", "skin", ["dream", "surreal"]),
-  newTrait("skin that glows softly with inner thoughts", "skin", ["dream", "empathy"]),
-  newTrait("skin covered in delicate, luminescent vines", "skin", ["dream", "forest"]),
-  newTrait("skin that shimmers like a mirage", "skin", ["dream", "desert"]),
-  newTrait("skin that resembles the surface of a nebula", "skin", ["dream", "cosmic"]),
-  newTrait("skin that changes texture with emotions", "skin", ["dream", "empathy"]),
-  newTrait("a head crowned with floating ethereal flames", "head", ["dream", "fire"]),
-  newTrait("a head with a halo of radiant energy", "head", ["dream", "surreal"]),
-  newTrait("fiery wings with ember-like feathers", "wings", ["fire", "heat"]),
-  newTrait("wings that resemble molten lava flows", "wings", ["fire", "earth"]),
-  newTrait("smoldering wings that leave trails of sparks", "wings", ["fire", "surreal"]),
-  newTrait("earthen wings with intricate rock formations", "wings", ["earth", "mountain"]),
-  newTrait("wings made of intertwined vines and roots", "wings", ["earth", "forest"]),
-  newTrait("crystalline wings that shimmer like gemstones", "wings", ["earth", "jewel"]),
-  newTrait("a tail with a fiery, flickering tip", "tail", ["fire", "surreal"]),
-  newTrait("tail adorned with rugged, earthy textures", "tail", ["earth", "mountain"]),
-  newTrait("tail with geode-like patterns and colors", "tail", ["earth", "jewel"]),
-  newTrait("horns that resemble twisting flames", "horns", ["fire", "heat"]),
-  newTrait("horns made of sturdy, petrified wood", "horns", ["earth", "forest"]),
-  newTrait("horns with patterns reminiscent of ancient runes", "horns", ["earth", "magic"]),
-  newTrait("eyes that flicker like burning embers", "eyes", ["fire", "heat"]),
-  newTrait("eyes with deep, earthy hues like rich soil", "eyes", ["earth", "nature"]),
-  newTrait("eyes that reflect the molten core of the earth", "eyes", ["earth", "cosmic"]),
-  newTrait("skin that glows with inner fire", "skin", ["fire", "surreal"]),
-  newTrait("skin with a texture resembling cracked earth", "skin", ["earth", "desert"]),
-  newTrait("skin covered in intricate, glowing tribal patterns", "skin", ["earth", "magic"]),
-  newTrait("a head crowned with blazing, fiery tendrils", "head", ["fire", "surreal"]),
-  newTrait("a head with rugged, stone-like features", "head", ["earth", "mountain"]),
-  newTrait("a head adorned with gemstone-encrusted horns", "head", ["earth", "jewel"])
+  { phrase: "six feathered wings", bodyPart: "wings", tags: ["sky"] },
+  { phrase: "four feathered wings", bodyPart: "wings", tags: ["sky"] },
+  { phrase: "two large feathered wings", bodyPart: "wings", tags: ["sky", "dreamlike"] },
+  { phrase: "large leathery wings", bodyPart: "wings", tags: ["sky", "death"] },
+  { phrase: "a lion's tail'", bodyPart: "tail", tags: ["earth", "forest"] },
+  { phrase: "a whip-like tail", bodyPart: "tail", tags: ["earth", "death"] },
+  { phrase: "two tails", bodyPart: "tail", tags: ["alien"] },
+  { phrase: "the horns of a goat", bodyPart: "horns", tags: ["earth", "forest"] },
+  { phrase: "the horns of a ram", bodyPart: "horns", tags: ["earth", "forest"] },
+  { phrase: "the antlers of a stag", bodyPart: "horns", tags: ["forest"] },
+  { phrase: "the antlers of a deer", bodyPart: "horns", tags: ["forest", "surreal"] },
+  { phrase: "short, pointed horns", bodyPart: "horns", tags: ["earth", "death"] },
+  { phrase: "tall, straight horns", bodyPart: "horns", tags: ["earth", "death"] },
+  { phrase: "glowing blue eyes", bodyPart: "eyes", tags: ["water"] },
+  { phrase: "glowing yellow eyes", bodyPart: "eyes", tags: ["sky", "water"] },
+  { phrase: "glowing red eyes", bodyPart: "eyes", tags: ["earth", "death", "alien"] },
+  { phrase: "glowing orange eyes", bodyPart: "eyes", tags: ["earth", "sky"] },
+  { phrase: "glowing green eyes", bodyPart: "eyes", tags: ["earth", "forest"] },
+  { phrase: "glowing purple eyes", bodyPart: "eyes", tags: ["death", "alien"] },
+  { phrase: "eyes that burn with an inner fire", bodyPart: "eyes", tags: ["sky"] },
+  { phrase: "four eyes", bodyPart: "eyes", tags: ["alien"] },
+  { phrase: "six eyes", bodyPart: "eyes", tags: ["alien"] },
+  { phrase: "eight eyes", bodyPart: "eyes", tags: ["alien"] },
+  { phrase: "no eyes", bodyPart: "eyes", tags: ["death", "alien"] },
+  { phrase: "reptilian eyes", bodyPart: "eyes", tags: ["forest", "earth"] },
+  { phrase: "scales instead of skin", bodyPart: "skin", tags: ["earth", "forest"] },
+  { phrase: "skin that glows faintly", bodyPart: "skin", tags: ["sky"] },
+  { phrase: "skin made of living rock", bodyPart: "skin", tags: ["earth"] },
+  { phrase: "blue skin", bodyPart: "skin", tags: ["water"] },
+  { phrase: "green skin", bodyPart: "skin", tags: ["water"] },
+  { phrase: "crystalline skin", bodyPart: "skin", tags: ["earth"] },
+  { phrase: "translucent grey skin", bodyPart: "skin", tags: ["death"] },
+  { phrase: "dull grey skin", bodyPart: "skin", tags: ["death"] },
+  { phrase: "skin covered in leaves", bodyPart: "skin", tags: ["forest"] },
+  { phrase: "skin made of star-lit blackness", bodyPart: "skin", tags: ["alien"] },
+  { phrase: "iridescent skin", bodyPart: "skin", tags: ["alien", "surreal"] },
+  { phrase: "eight tentacles", bodyPart: "tentacles", tags: ["alien"] },
+  { phrase: "six tentacles", bodyPart: "tentacles", tags: ["alien"] },
+  { phrase: "four tentacles", bodyPart: "tentacles", tags: ["alien"] },
+  { phrase: "the head of a lion", bodyPart: "head", tags: ["forest"] },
+  { phrase: "the head of a bear", bodyPart: "head", tags: ["forest"] },
+  { phrase: "the head of a dragon", bodyPart: "head", tags: ["earth", "forest"] },
+  { phrase: "the head of a swan", bodyPart: "head", tags: ["sky", "water"] },
+  { phrase: "the head of a deer", bodyPart: "head", tags: ["forest"] },
+  { phrase: "the head of a cat", bodyPart: "head", tags: ["earth", "desert"] },
+  { phrase: "the head of a wolf", bodyPart: "head", tags: ["earth", "forest"] },
+  { phrase: "twelve feathered wings", bodyPart: "wings", tags: ["sky", "dreamlike"] },
+  { phrase: "bat-like wings", bodyPart: "wings", tags: ["night", "moon"] },
+  { phrase: "insect-like wings", bodyPart: "wings", tags: ["earth", "forest"] },
+  { phrase: "crystal-clear wings", bodyPart: "wings", tags: ["sky", "surreal"] },
+  { phrase: "feathered wings that shimmer", bodyPart: "wings", tags: ["sky", "water"] },
+  { phrase: "a serpent's tail", bodyPart: "tail", tags: ["earth", "water"] },
+  { phrase: "a tail with a bioluminescent tip", bodyPart: "tail", tags: ["water", "surreal"] },
+  { phrase: "three tails", bodyPart: "tail", tags: ["surreal"] },
+  { phrase: "twisted horns with glowing runes", bodyPart: "horns", tags: ["magic", "surreal"] },
+  { phrase: "curved horns with gemstone inlays", bodyPart: "horns", tags: ["earth", "wealth"] },
+  { phrase: "feathery antlers with ethereal wisps", bodyPart: "horns", tags: ["forest", "dreamlike"] },
+  { phrase: "horns that emit a haunting melody", bodyPart: "horns", tags: ["earth", "music"] },
+  { phrase: "pearlescent eyes that change colors", bodyPart: "eyes", tags: ["sky", "water"] },
+  { phrase: "eyes with galaxies swirling within", bodyPart: "eyes", tags: ["sky", "cosmic"] },
+  { phrase: "eyes that see into other dimensions", bodyPart: "eyes", tags: ["surreal", "alien"] },
+  { phrase: "eyes with a mesmerizing hypnotic gaze", bodyPart: "eyes", tags: ["magic", "surreal"] },
+  { phrase: "eyes that mirror the emotions of others", bodyPart: "eyes", tags: ["empathy", "surreal"] },
+  { phrase: "eyes that emit sparks of lightning", bodyPart: "eyes", tags: ["storm", "electricity"] },
+  { phrase: "eyes on flexible stalks", bodyPart: "eyes", tags: ["alien", "surreal"] },
+  { phrase: "molten lava-like skin", bodyPart: "skin", tags: ["volcano", "fire"] },
+  { phrase: "shimmering opalescent skin", bodyPart: "skin", tags: ["sky", "water"] },
+  { phrase: "butterfly wings with shifting patterns", bodyPart: "wings", tags: ["dream", "surreal"] },
+  { phrase: "floating ethereal wings of light", bodyPart: "wings", tags: ["dream", "surreal"] },
+  { phrase: "wings made of iridescent mist", bodyPart: "wings", tags: ["dream", "surreal"] },
+  { phrase: "feathers that change color with emotions", bodyPart: "wings", tags: ["dream", "empathy"] },
+  { phrase: "a tail of shimmering stardust", bodyPart: "tail", tags: ["dream", "cosmic"] },
+  { phrase: "tail that trails rainbows as you move", bodyPart: "tail", tags: ["dream", "surreal"] },
+  { phrase: "a tail with glowing constellations", bodyPart: "tail", tags: ["dream", "cosmic"] },
+  { phrase: "horns that emit soft, soothing melodies", bodyPart: "horns", tags: ["dream", "music"] },
+  { phrase: "horns adorned with floating gemstones", bodyPart: "horns", tags: ["dream", "surreal"] },
+  { phrase: "horns that sparkle like starlight", bodyPart: "horns", tags: ["dream", "cosmic"] },
+  { phrase: "eyes that reflect the landscapes of dreams", bodyPart: "eyes", tags: ["dream", "surreal"] },
+  { phrase: "eyes with ever-changing patterns of light", bodyPart: "eyes", tags: ["dream", "surreal"] },
+  { phrase: "eyes that shimmer like enchanted pools", bodyPart: "eyes", tags: ["dream", "water"] },
+  { phrase: "skin that shifts like flowing watercolors", bodyPart: "skin", tags: ["dream", "surreal"] },
+  { phrase: "skin that glows softly with inner thoughts", bodyPart: "skin", tags: ["dream", "empathy"] },
+  { phrase: "skin covered in delicate, luminescent vines", bodyPart: "skin", tags: ["dream", "forest"] },
+  { phrase: "skin that shimmers like a mirage", bodyPart: "skin", tags: ["dream", "desert"] },
+  { phrase: "skin that resembles the surface of a nebula", bodyPart: "skin", tags: ["dream", "cosmic"] },
+  { phrase: "skin that changes texture with emotions", bodyPart: "skin", tags: ["dream", "empathy"] },
+  { phrase: "a head crowned with floating ethereal flames", bodyPart: "head", tags: ["dream", "fire"] },
+  { phrase: "a head with a halo of radiant energy", bodyPart: "head", tags: ["dream", "surreal"] },
+  { phrase: "fiery wings with ember-like feathers", bodyPart: "wings", tags: ["fire", "heat"] },
+  { phrase: "wings that resemble molten lava flows", bodyPart: "wings", tags: ["fire", "earth"] },
+  { phrase: "smoldering wings that leave trails of sparks", bodyPart: "wings", tags: ["fire", "surreal"] },
+  { phrase: "earthen wings with intricate rock formations", bodyPart: "wings", tags: ["earth", "mountain"] },
+  { phrase: "wings made of intertwined vines and roots", bodyPart: "wings", tags: ["earth", "forest"] },
+  { phrase: "crystalline wings that shimmer like gemstones", bodyPart: "wings", tags: ["earth", "jewel"] },
+  { phrase: "a tail with a fiery, flickering tip", bodyPart: "tail", tags: ["fire", "surreal"] },
+  { phrase: "tail adorned with rugged, earthy textures", bodyPart: "tail", tags: ["earth", "mountain"] },
+  { phrase: "tail with geode-like patterns and colors", bodyPart: "tail", tags: ["earth", "jewel"] },
+  { phrase: "horns that resemble twisting flames", bodyPart: "horns", tags: ["fire", "heat"] },
+  { phrase: "horns made of sturdy, petrified wood", bodyPart: "horns", tags: ["earth", "forest"] },
+  { phrase: "horns with patterns reminiscent of ancient runes", bodyPart: "horns", tags: ["earth", "magic"] },
+  { phrase: "eyes that flicker like burning embers", bodyPart: "eyes", tags: ["fire", "heat"] },
+  { phrase: "eyes with deep, earthy hues like rich soil", bodyPart: "eyes", tags: ["earth", "nature"] },
+  { phrase: "eyes that reflect the molten core of the earth", bodyPart: "eyes", tags: ["earth", "cosmic"] },
+  { phrase: "skin that glows with inner fire", bodyPart: "skin", tags: ["fire", "surreal"] },
+  { phrase: "skin with a texture resembling cracked earth", bodyPart: "skin", tags: ["earth", "desert"] },
+  { phrase: "skin covered in intricate, glowing tribal patterns", bodyPart: "skin", tags: ["earth", "magic"] },
+  { phrase: "a head crowned with blazing, fiery tendrils", bodyPart: "head", tags: ["fire", "surreal"] },
+  { phrase: "a head with rugged, stone-like features", bodyPart: "head", tags: ["earth", "mountain"] },
+  { phrase: "a head adorned with gemstone-encrusted horns", bodyPart: "head", tags: ["earth", "jewel"] }
 ];
 function byRealmConcept(concept) {
   return byAnyTag(allTraits, concept.appearanceTags);
@@ -971,7 +937,7 @@ class ReligionGeneratorConfig {
   maleNameGenerator;
   constructor() {
     this.categories = all();
-    this.deitySpeciesOptions = [new Human()];
+    this.deitySpeciesOptions = [human];
     let genSet = new MUN.HumanSet();
     if (genSet.family === null) {
       throw new Error("No family name generator found.");

@@ -1,5 +1,3 @@
-"use strict";
-
 export default class StarshipWeaponMount {
   name: string;
   grade: number;

@@ -1,10 +1,8 @@
-"use strict";
-
+import RelationshipGenerator from "$lib/relationships/generator.js";
+import type Relationship from "$lib/relationships/relationship.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
-import RelationshipGenerator from "../../relationships/generator.js";
-import type Relationship from "../../relationships/relationship.js";
 import DeityGenerator from "../deities/generator.js";
 import DeityGeneratorConfig from "../deities/generatorconfig.js";
 import type DomainSet from "../domains/domainset.js";
@@ -25,7 +23,7 @@ export default class PantheonGenerator {
     let pantheon = new Pantheon();
 
     let deityGenConfig = new DeityGeneratorConfig();
-    deityGenConfig.characterGenerator.config.speciesOptions = this.config.speciesOptions;
+    deityGenConfig.characterGeneratorConfig.speciesOptions = this.config.speciesOptions;
     deityGenConfig.realms = this.config.realms;
     deityGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
     deityGenConfig.maleNameGenerator = this.config.maleNameGenerator;

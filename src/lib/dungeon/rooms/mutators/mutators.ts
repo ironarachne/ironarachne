@@ -1,7 +1,5 @@
-"use strict";
-
 import RoomFeatureGenerator from "../features/featuregenerator.js";
-import Room from "../room.js";
+import type Room from "../room.js";
 import RoomMutator from "./mutator.js";
 
 export function all(): RoomMutator[] {

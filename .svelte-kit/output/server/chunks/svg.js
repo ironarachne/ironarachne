@@ -2,14 +2,6 @@ import * as RND from "@ironarachne/rng";
 import "./sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 import { create } from "xmlbuilder2";
-class Arms {
-  device;
-  blazon;
-  constructor(device, blazon) {
-    this.device = device;
-    this.blazon = blazon;
-  }
-}
 class Tincture {
   name;
   hexColor;
@@ -671,6 +663,14 @@ class HeraldryGeneratorConfig {
     this.variationOptions = all$1();
     this.width = 600;
     this.height = 660;
+  }
+}
+class Arms {
+  device;
+  blazon;
+  constructor(device, blazon) {
+    this.device = device;
+    this.blazon = blazon;
   }
 }
 class ChargeGroupArrangement {

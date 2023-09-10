@@ -1,5 +1,3 @@
-"use strict";
-
 export default class ADNDArmor {
   name: string;
   ac: number;

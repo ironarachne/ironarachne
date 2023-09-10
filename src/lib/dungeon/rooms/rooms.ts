@@ -1,10 +1,8 @@
-"use strict";
-
-import * as Geometry from "../../geometry/geometry.js";
-import Room from "./room.js";
+import * as Geometry from "$lib/geometry/geometry.js";
+import type Room from "./room.js";
 import RoomGenerator from "./roomgenerator.js";
 import RoomGeneratorConfig from "./roomgeneratorconfig.js";
-import RoomTheme from "./themes/theme.js";
+import type RoomTheme from "./themes/theme.js";
 
 export function distanceToNearestOtherRoomTile(room: Room, rooms: Room[]): number {
   let distance = 10000000;
@@ -28,7 +26,7 @@ export function doesRoomCollide(room: Room, rooms: Room[]): boolean {
   for (let i = 0; i < rooms.length; i++) {
     for (let j = 0; j < rooms[i].vertices.length; j++) {
       for (let k = 0; k < room.vertices.length; k++) {
-        if (room.vertices[k].equals(rooms[i].vertices[j])) {
+        if (Geometry.vertexEquals(room.vertices[k], rooms[i].vertices[j])) {
           return true;
         }
       }

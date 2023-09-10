@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import Arms from "./arms.js";
 import ChargeGroup from "./chargegroup.js";

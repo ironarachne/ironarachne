@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import { create } from "xmlbuilder2";
 import ChargeGroupArrangement from "./chargegrouparrangement.js";

@@ -1,9 +1,7 @@
-"use strict";
-
-import AgeCategory from "$lib/age/agecategory.js";
-import type PersonalityTrait from "$lib/characters/personality/personalitytrait.js";
-import Gender from "$lib/gender/gender.js";
-import Human from "$lib/species/human.js";
+import type AgeCategory from "$lib/age/age_category.js";
+import type PersonalityTrait from "$lib/characters/personality/personality_trait.js";
+import type Gender from "$lib/gender/gender.js";
+import Human from "$lib/species/sentient/human.js";
 import type Species from "$lib/species/species.js";
 import * as Words from "@ironarachne/words";
 import DomainSet from "../domains/domainset.js";
@@ -27,9 +25,9 @@ export default class Deity {
 
   constructor() {
     this.name = "";
-    this.species = new Human();
-    this.gender = new Gender();
-    this.ageCategory = new AgeCategory();
+    this.species = Human;
+    this.gender = Human.genders[0];
+    this.ageCategory = Human.ageCategories[0];
     this.domains = new DomainSet();
     this.titles = [];
     this.realm = new Realm();
@@ -44,7 +42,7 @@ export default class Deity {
 
   describe(): string {
     const speciesAdj = this.species.adjective;
-    const subjectivePronoun = this.gender.subjectivePronoun;
+    const subjectivePronoun = this.gender.pronouns.subjective;
     let noun = "god";
     const domainNames = [];
 

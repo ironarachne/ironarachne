@@ -1,11 +1,5 @@
-export default class AppearanceTrait {
+export default interface AppearanceTrait {
   phrase: string;
   bodyPart: string;
   tags: string[];
-
-  constructor() {
-    this.phrase = "";
-    this.bodyPart = "";
-    this.tags = [];
-  }
 }

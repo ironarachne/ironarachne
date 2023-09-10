@@ -1,5 +1,3 @@
-"use strict";
-
 import Word from "./word.js";
 
 export default class Conjugation {

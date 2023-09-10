@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ArmsManufacturerGenerator from "$lib/arms-manufacturer/generator.js";
+  import ArmsManufacturerGenerator from "$lib/arms_manufacturer/generator.js";
   import * as RND from "@ironarachne/rng";
   import random from "random";
   import seedrandom from "seedrandom";

@@ -1,5 +1,3 @@
-"use strict";
-
 import ReligionCategory from "./category.js";
 
 export default class Shamanism extends ReligionCategory {

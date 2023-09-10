@@ -1,5 +1,3 @@
-"use strict";
-
 import DCCCharacter from "./character.js";
 import DCCLuckyRoll from "./luckyroll.js";
 

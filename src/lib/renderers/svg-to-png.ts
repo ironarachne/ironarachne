@@ -1,5 +1,3 @@
-"use strict";
-
 import Download from "../download.js";
 
 export default function(svg: string, width: number, height: number, fileName: string) {

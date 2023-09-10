@@ -1,5 +1,3 @@
-"use strict";
-
 import BasicVertexShader from "../../shaders/basic-vertex.glsl.js";
 import CloudShader from "../../shaders/clouds.glsl.js";
 import GoldNoise from "../../shaders/gold-noise.glsl.js";

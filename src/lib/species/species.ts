@@ -1,26 +1,22 @@
-"use strict";
-
+import type Ability from "$lib/abilities/ability";
+import type AgeCategory from "$lib/age/age_category.js";
 import type Gender from "$lib/gender/gender.js";
-import type * as MUN from "@ironarachne/made-up-names";
-import type Item from "../equipment/item.js";
-import type PhysicalTraitGenerator from "../physicaltraits/generator.js";
-import type StatBlock from "../statblock.js";
+import type PhysicalTraitGeneratorConfig from "$lib/physical_traits/physical_trait_generator_config.js";
+import type { SizeMatrix } from "$lib/size/size_matrix";
 
 export default interface Species {
   name: string;
-  description: string;
-  summary: string;
-  nameGeneratorSet: MUN.GeneratorSet;
   pluralName: string;
   adjective: string;
-  commonality: number;
-  carried: Item[];
-  statBlock: StatBlock | null;
+  breedType: string;
   environments: string[];
   creatureTypes: string[];
-  physicalTraitGenerators: PhysicalTraitGenerator[];
+  physicalTraitGeneratorConfigs: PhysicalTraitGeneratorConfig[];
+  ageCategories: AgeCategory[];
+  sizeGeneratorConfigMatrix: SizeMatrix;
+  abilities: Ability[];
+  baseThreatLevel: number;
   genders: Gender[];
+  commonality: number;
   tags: string[];
-  abilities: string[];
-  threatLevel: number;
 }

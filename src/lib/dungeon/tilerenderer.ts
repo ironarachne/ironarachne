@@ -1,7 +1,5 @@
-"use strict";
-
-import Vertex from "../geometry/vertex.js";
-import Dungeon from "./dungeon.js";
+import type Vertex from "$lib/geometry/vertex.js";
+import type Dungeon from "./dungeon.js";
 import * as Tiles from "./tiles.js";
 
 export default class DungeonTileRenderer {
@@ -104,8 +102,8 @@ function renderHDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
   ctx.beginPath();
   ctx.strokeStyle = "#85BBF1";
 
-  let t = new Vertex(x * tileSize + tileSize / 2, y * tileSize);
-  let b = new Vertex(x * tileSize + tileSize / 2, y * tileSize + tileSize);
+  let t: Vertex = { x: x * tileSize + tileSize / 2, y: y * tileSize };
+  let b: Vertex = { x: x * tileSize + tileSize / 2, y: y * tileSize + tileSize };
 
   ctx.moveTo(t.x, t.y);
   ctx.lineTo(b.x, b.y);
@@ -135,8 +133,8 @@ function renderHSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, 
   ctx.beginPath();
   ctx.strokeStyle = "#85BBF1";
 
-  let t = new Vertex(x * tileSize + tileSize / 2, y * tileSize);
-  let b = new Vertex(x * tileSize + tileSize / 2, y * tileSize + tileSize);
+  let t: Vertex = { x: x * tileSize + tileSize / 2, y: y * tileSize };
+  let b: Vertex = { x: x * tileSize + tileSize / 2, y: y * tileSize + tileSize };
 
   ctx.moveTo(t.x, t.y);
   ctx.lineTo(b.x, b.y);
@@ -176,8 +174,8 @@ function renderVDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
   ctx.beginPath();
   ctx.strokeStyle = "#85BBF1";
 
-  let l = new Vertex(x * tileSize, y * tileSize + tileSize / 2);
-  let r = new Vertex(x * tileSize + tileSize, y * tileSize + tileSize / 2);
+  let l: Vertex = { x: x * tileSize, y: y * tileSize + tileSize / 2 };
+  let r: Vertex = { x: x * tileSize + tileSize, y: y * tileSize + tileSize / 2 };
 
   ctx.moveTo(l.x, l.y);
   ctx.lineTo(r.x, r.y);
@@ -207,8 +205,8 @@ function renderVSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, 
   ctx.beginPath();
   ctx.strokeStyle = "#85BBF1";
 
-  let l = new Vertex(x * tileSize, y * tileSize + tileSize / 2);
-  let r = new Vertex(x * tileSize + tileSize, y * tileSize + tileSize / 2);
+  let l: Vertex = { x: x * tileSize, y: y * tileSize + tileSize / 2 };
+  let r: Vertex = { x: x * tileSize + tileSize, y: y * tileSize + tileSize / 2 };
 
   ctx.moveTo(l.x, l.y);
   ctx.lineTo(r.x, r.y);

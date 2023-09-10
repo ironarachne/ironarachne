@@ -1,6 +1,7 @@
 import { c as create_ssr_component, a as add_attribute, e as escape, f as each } from "../../../../chunks/ssr.js";
 import { g as generate } from "../../../../chunks/fantasy.js";
 import * as RND from "@ironarachne/rng";
+import { o as getHonorific } from "../../../../chunks/characters.js";
 import "seedrandom";
 import { H as HeraldryGenerator, a as HeraldrySVGRenderer } from "../../../../chunks/svg.js";
 const _page_svelte_svelte_type_style_lang = "";
@@ -24,7 +25,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   let svgRenderer = new HeraldrySVGRenderer();
   $$result.css.add(css);
   return `${$$result.head += `<!-- HEAD_svelte-1sctd6v_START -->${$$result.title = `<title>Fantasy Organization Generator | Iron Arachne</title>`, ""}<!-- HEAD_svelte-1sctd6v_END -->`, ""} <section class="fantasy main svelte-o5hv1b"><h1 class="svelte-o5hv1b" data-svelte-h="svelte-1fsv82e">Organization Generator</h1> <p class="svelte-o5hv1b" data-svelte-h="svelte-1u0l4eg">This generates fantasy organizations.</p> <div class="input-group svelte-o5hv1b"><label for="seed" class="svelte-o5hv1b" data-svelte-h="svelte-1akft3f">Random Seed</label> <input type="text" name="seed" id="seed" class="svelte-o5hv1b"${add_attribute("value", seed, 0)}></div> <button class="svelte-o5hv1b" data-svelte-h="svelte-mdbmj4">Generate From Seed</button> <button class="svelte-o5hv1b" data-svelte-h="svelte-192mxrq">Random Seed (and Generate)</button> <h2 class="svelte-o5hv1b">${escape(name)}</h2> <div class="org-arms svelte-o5hv1b"><!-- HTML_TAG_START -->${svgRenderer.render(heraldry.device, 200, 220)}<!-- HTML_TAG_END --></div> <p class="svelte-o5hv1b">${escape(description)}</p> <p class="svelte-o5hv1b">${escape(leadership)}</p> <h3 class="svelte-o5hv1b" data-svelte-h="svelte-1v0ad64">Notable Members</h3> ${each(notableMembers, (member) => {
-    return `<p class="svelte-o5hv1b"><strong class="svelte-o5hv1b">${escape(member.getHonorific())} ${escape(member.firstName)} ${escape(member.lastName)}:</strong> ${escape(member.description)} </p>`;
+    return `<p class="svelte-o5hv1b"><strong class="svelte-o5hv1b">${escape(getHonorific(member))} ${escape(member.firstName)} ${escape(member.lastName)}:</strong> ${escape(member.description)} </p>`;
   })}</section>`;
 });
 export {

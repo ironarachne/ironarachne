@@ -1,58 +1,22 @@
+import { c as generate$1, o as getHonorific } from "./characters.js";
+import { g as getFantasy } from "./premade_configs.js";
 import * as RND from "@ironarachne/rng";
 import random from "random";
-import { C as CharacterGenerator } from "./generatorconfig2.js";
-import { g as getFantasy } from "./premadeconfigs.js";
-import "./sentry-release-injection-file.js";
 import { c as HeraldryGeneratorConfig, m as matchingAnyTags, d as all } from "./svg.js";
+import "./sentry-release-injection-file.js";
 import * as MUN from "@ironarachne/made-up-names";
-class Title {
-  femaleTitle;
-  maleTitle;
-  femaleHonorific;
-  maleHonorific;
-  hasLands;
-  landName;
-  precedence;
-  constructor(femaleTitle, maleTitle, femaleHonorific, maleHonorific, hasLands, landName, precedence) {
-    this.femaleTitle = femaleTitle;
-    this.maleTitle = maleTitle;
-    this.femaleHonorific = femaleHonorific;
-    this.maleHonorific = maleHonorific;
-    this.hasLands = hasLands;
-    this.landName = landName;
-    this.precedence = precedence;
-  }
-  getTitle(gender) {
-    if (gender === "female") {
-      return this.femaleTitle;
-    }
-    return this.maleTitle;
-  }
-  getHonorific(gender) {
-    if (gender === "female") {
-      return this.femaleHonorific;
-    }
-    return this.maleHonorific;
-  }
-  hasHigherPrecedenceThan(otherPrecedence) {
-    return this.precedence > otherPrecedence;
-  }
-  hasLowerPrecedenceThan(otherPrecedence) {
-    return this.precedence < otherPrecedence;
-  }
-}
 class Rank {
   title;
   inferiors;
   superior;
   classification;
-  ageGroupName;
-  constructor(title, classification, ageGroupName) {
+  ageGroupNames;
+  constructor(title, classification, ageGroupNames) {
     this.title = title;
     this.inferiors = [];
     this.superior = null;
     this.classification = classification;
-    this.ageGroupName = ageGroupName;
+    this.ageGroupNames = ageGroupNames;
   }
   addInferior(rank) {
     this.inferiors.push(rank);
@@ -130,33 +94,64 @@ function generateType$2() {
     },
     function() {
       let charGenConfig = getFantasy();
-      charGenConfig.ageCategories = ["adult"];
-      const charGen = new CharacterGenerator(charGenConfig);
-      const leader = charGen.generate();
+      charGenConfig.ageCategoryNames = ["adult"];
+      const leader = generate$1(charGenConfig);
       const ranks = this.getRanks();
       leader.titles.push(ranks.title);
       return leader;
     },
     function() {
       const captain = new Rank(
-        new Title("Captain", "Captain", "Captain", "Captain", false, "", 0),
+        {
+          femaleTitle: "Captain",
+          maleTitle: "Captain",
+          femaleHonorific: "Captain",
+          maleHonorific: "Captain",
+          hasLands: false,
+          landName: "",
+          precedence: 0
+        },
         "military",
-        "adult"
+        ["adult"]
       );
       const lieutenant = new Rank(
-        new Title("Lieutenant", "Lieutenant", "Lieutenant", "Lieutenant", false, "", 1),
+        {
+          femaleTitle: "Lieutenant",
+          maleTitle: "Lieutenant",
+          femaleHonorific: "Lieutenant",
+          maleHonorific: "Lieutenant",
+          hasLands: false,
+          landName: "",
+          precedence: 1
+        },
         "military",
-        "adult"
+        ["adult"]
       );
       const sergeant = new Rank(
-        new Title("Sergeant", "Sergeant", "Sergeant", "Sergeant", false, "", 2),
+        {
+          femaleTitle: "Sergeant",
+          maleTitle: "Sergeant",
+          femaleHonorific: "Sergeant",
+          maleHonorific: "Sergeant",
+          hasLands: false,
+          landName: "",
+          precedence: 2
+        },
         "military",
-        "adult"
+        ["adult"]
       );
       const member = new Rank(
-        new Title("Mercenary", "Mercenary", "", "", false, "", 3),
+        {
+          femaleTitle: "Mercenary",
+          maleTitle: "Mercenary",
+          femaleHonorific: "",
+          maleHonorific: "",
+          hasLands: false,
+          landName: "",
+          precedence: 3
+        },
         "military",
-        "adult"
+        ["adult"]
       );
       sergeant.addInferior(member);
       lieutenant.addInferior(sergeant);
@@ -243,28 +238,51 @@ function generateType$1() {
     },
     function() {
       let charGenConfig = getFantasy();
-      charGenConfig.ageCategories = ["adult"];
-      const charGen = new CharacterGenerator(charGenConfig);
-      const leader = charGen.generate();
+      charGenConfig.ageCategoryNames = ["adult"];
+      const leader = generate$1(charGenConfig);
       const ranks = this.getRanks();
       leader.titles.push(ranks.title);
       return leader;
     },
     function() {
       const owner = new Rank(
-        new Title("Proprietor", "Proprietor", "", "", false, "", 0),
+        {
+          femaleTitle: "Proprietor",
+          maleTitle: "Proprietor",
+          femaleHonorific: "",
+          maleHonorific: "",
+          hasLands: false,
+          landName: "",
+          precedence: 0
+        },
         "commercial",
-        "adult"
+        ["adult"]
       );
       const manager = new Rank(
-        new Title("Manager", "Manager", "", "", false, "", 1),
+        {
+          femaleTitle: "Manager",
+          maleTitle: "Manager",
+          femaleHonorific: "",
+          maleHonorific: "",
+          hasLands: false,
+          landName: "",
+          precedence: 1
+        },
         "commercial",
-        "adult"
+        ["adult"]
       );
       const employee = new Rank(
-        new Title("Employee", "Employee", "", "", false, "", 2),
+        {
+          femaleTitle: "Employee",
+          maleTitle: "Employee",
+          femaleHonorific: "",
+          maleHonorific: "",
+          hasLands: false,
+          landName: "",
+          precedence: 2
+        },
         "commercial",
-        "adult"
+        ["adult"]
       );
       manager.addInferior(employee);
       owner.addInferior(manager);
@@ -312,28 +330,51 @@ function generateType() {
     },
     function() {
       let charGenConfig = getFantasy();
-      charGenConfig.ageCategories = ["elderly"];
-      const charGen = new CharacterGenerator(charGenConfig);
-      const leader = charGen.generate();
+      charGenConfig.ageCategoryNames = ["elderly"];
+      const leader = generate$1(charGenConfig);
       const ranks = this.getRanks();
       leader.titles.push(ranks.title);
       return leader;
     },
     function() {
       const headmaster = new Rank(
-        new Title("Headmaster", "Headmaster", "Headmaster", "Headmaster", false, "", 0),
+        {
+          femaleTitle: "Headmaster",
+          maleTitle: "Headmaster",
+          femaleHonorific: "Headmaster",
+          maleHonorific: "Headmaster",
+          hasLands: false,
+          landName: "",
+          precedence: 0
+        },
         "arcane",
-        "elderly"
+        ["elderly"]
       );
       const professor = new Rank(
-        new Title("Professor", "Professor", "Professor", "Professor", false, "", 1),
+        {
+          femaleTitle: "Professor",
+          maleTitle: "Professor",
+          femaleHonorific: "Professor",
+          maleHonorific: "Professor",
+          hasLands: false,
+          landName: "",
+          precedence: 1
+        },
         "arcane",
-        "adult"
+        ["adult", "elderly"]
       );
       const student = new Rank(
-        new Title("Student", "Student", "", "", false, "", 2),
+        {
+          femaleTitle: "Student",
+          maleTitle: "Student",
+          femaleHonorific: "",
+          maleHonorific: "",
+          hasLands: false,
+          landName: "",
+          precedence: 2
+        },
         "arcane",
-        "young adult"
+        ["teenager", "young adult"]
       );
       professor.addInferior(student);
       headmaster.addInferior(professor);
@@ -396,7 +437,7 @@ function generate() {
   org.description += " It has " + org.memberCount + " members. ";
   org.description += randomPopularity();
   org.notableMembers = randomNotableMembers(org);
-  org.leadership.description = "They are led by " + org.leadership.getHonorific() + " " + org.leadership.firstName + " " + org.leadership.lastName + ". " + org.leadership.description;
+  org.leadership.description = "They are led by " + getHonorific(org.leadership) + " " + org.leadership.firstName + " " + org.leadership.lastName + ". " + org.leadership.description;
   return org;
 }
 function randomNotableMembers(org) {
@@ -424,9 +465,8 @@ function randomNotableMembers(org) {
       for (let k = 0; k < numberOfMembers; k++) {
         let memberRank = RND.item(possibleRanks);
         let charGenConfig = getFantasy();
-        charGenConfig.ageCategories = [memberRank.ageGroupName];
-        let charGen = new CharacterGenerator(charGenConfig);
-        let member = charGen.generate();
+        charGenConfig.ageCategoryNames = memberRank.ageGroupNames;
+        let member = generate$1(charGenConfig);
         member.titles.push(memberRank.title);
         notableMembers.push(member);
       }
@@ -454,7 +494,6 @@ function randomType() {
   return RND.item(allTypes());
 }
 export {
-  Title as T,
   generate as g
 };
 //# sourceMappingURL=fantasy.js.map

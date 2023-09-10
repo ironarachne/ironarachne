@@ -1,5 +1,3 @@
-"use strict";
-
 import Cuisine from "./cuisine.js";
 import CuisineGeneratorConfig from "./generatorconfig.js";
 

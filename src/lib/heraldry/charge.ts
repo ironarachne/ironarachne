@@ -1,5 +1,3 @@
-"use strict";
-
 import Tincture from "./tincture.js";
 
 export default class Charge {

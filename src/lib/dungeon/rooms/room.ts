@@ -1,11 +1,10 @@
-"use strict";
-
-import Encounter from "../../encounters/encounter.js";
-import Edge from "../../geometry/edge.js";
-import Polygon from "../../geometry/polygon.js";
-import Vertex from "../../geometry/vertex.js";
+import type Encounter from "$lib/encounters/encounter.js";
+import type Edge from "$lib/geometry/edge.js";
+import * as Geometry from "$lib/geometry/geometry.js";
+import type Polygon from "$lib/geometry/polygon.js";
+import type Vertex from "$lib/geometry/vertex.js";
 import * as Tiles from "../tiles.js";
-import RoomFeature from "./features/feature.js";
+import type RoomFeature from "./features/feature.js";
 import RoomTheme from "./themes/theme.js";
 
 export default class Room {
@@ -30,11 +29,20 @@ export default class Room {
   doors: number[];
 
   constructor() {
+    this.id = -1;
+    this.name = "";
     this.tileMesh = [];
     this.encounters = [];
     this.features = [];
     this.doors = [];
     this.description = "";
+    this.minX = 0;
+    this.minY = 0;
+    this.maxX = 0;
+    this.maxY = 0;
+    this.center = { x: 0, y: 0 };
+    this.shape = { vertices: [], edges: [] };
+    this.theme = new RoomTheme("", [], 0, 0, 0, 0, [], [], [], [], [], [], 0);
     this.secrets = "";
     this.tiles = [];
     this.treasureCaches = [];
@@ -53,14 +61,14 @@ export default class Room {
 
     for (let y = minY; y < maxY; y++) {
       for (let x = minX; x < maxX; x++) {
-        let n = new Polygon();
+        let n: Polygon = { vertices: [], edges: [] };
         n.vertices = [
-          new Vertex(x - 0.5, y - 0.5),
-          new Vertex(x + 0.5, y - 0.5),
-          new Vertex(x + 0.5, y + 0.5),
-          new Vertex(x - 0.5, y + 0.5),
+          { x: x - 0.5, y: y - 0.5 },
+          { x: x + 0.5, y: y - 0.5 },
+          { x: x + 0.5, y: y + 0.5 },
+          { x: x - 0.5, y: y + 0.5 },
         ];
-        n.edges = n.edgesFromVertices();
+        n.edges = Geometry.edgesFromVertices(n.vertices);
         tiles.push(n);
       }
     }
@@ -99,7 +107,7 @@ export default class Room {
     for (let y = 0; y < this.tiles.length; y++) {
       for (let x = 0; x < this.tiles[y].length; x++) {
         if (this.tiles[y][x] != Tiles.STONE) {
-          v.push(new Vertex(x, y));
+          v.push({ x, y });
         }
       }
     }
@@ -124,7 +132,7 @@ export default class Room {
     let x = this.minX + (this.maxX - this.minX) / 2;
     let y = this.minY + (this.maxY - this.minY) / 2;
 
-    return new Vertex(x, y);
+    return { x, y };
   }
 
   getMinX(): number {

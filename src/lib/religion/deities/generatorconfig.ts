@@ -1,7 +1,5 @@
-"use strict";
-
-import CharacterGenerator from "$lib/characters/generator.js";
-import * as PremadeConfigs from "$lib/characters/premadeconfigs.js";
+import type CharacterGeneratorConfig from "$lib/characters/character_generator_config.js";
+import * as PremadeConfigs from "$lib/characters/premade_configs.js";
 import * as MUN from "@ironarachne/made-up-names";
 import DomainSet from "../domains/domainset.js";
 import type Realm from "../realms/realm.js";
@@ -9,7 +7,7 @@ import type Realm from "../realms/realm.js";
 export default class DeityGeneratorConfig {
   domainSet: DomainSet;
   realms: Realm[];
-  characterGenerator: CharacterGenerator;
+  characterGeneratorConfig: CharacterGeneratorConfig;
   femaleNameGenerator: MUN.Generator | null;
   maleNameGenerator: MUN.Generator | null;
 
@@ -18,7 +16,7 @@ export default class DeityGeneratorConfig {
 
     this.realms = [];
     this.domainSet = new DomainSet();
-    this.characterGenerator = new CharacterGenerator(charGenConfig);
+    this.characterGeneratorConfig = charGenConfig;
 
     let genSet = new MUN.HumanSet();
 

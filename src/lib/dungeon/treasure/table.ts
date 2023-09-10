@@ -1,5 +1,3 @@
-"use strict";
-
 import TreasureTableEntry from "./tableentry.js";
 
 export default class TreasureTable {

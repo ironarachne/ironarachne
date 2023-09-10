@@ -1,43 +1,28 @@
-"use strict";
+import type Ability from "$lib/abilities/ability";
+import type AgeCategory from "$lib/age/age_category.js";
+import type Item from "$lib/equipment/item.js";
+import type Gender from "$lib/gender.js";
+import type PhysicalTrait from "$lib/physical_traits/physical_trait.js";
+import type Species from "$lib/species/species.js";
+import type StatBlock from "$lib/statblock";
 
-import type Item from "../equipment/item.js";
-import type StatBlock from "../statblock.js";
-
-export default class Creature {
+export default interface Creature {
   name: string;
-  pluralName: string;
   description: string;
   summary: string;
-  abilities: string[];
   statBlock: StatBlock | null;
-  environments: string[];
+  species: Species;
+  abilities: Ability[];
   behaviors: string[];
-  carried: Item[];
-  creatureTypes: string[];
-  tags: string[];
   threatLevel: number;
-
-  constructor(
-    name: string,
-    pluralName: string,
-    description: string,
-    abilities: string[],
-    environments: string[],
-    behaviors: string[],
-    creatureTypes: string[],
-    tags: string[],
-    threatLevel: number,
-  ) {
-    this.name = name;
-    this.pluralName = pluralName;
-    this.description = description;
-    this.summary = "";
-    this.abilities = abilities;
-    this.environments = environments;
-    this.behaviors = behaviors;
-    this.creatureTypes = creatureTypes;
-    this.carried = [];
-    this.tags = tags;
-    this.threatLevel = threatLevel;
-  }
+  physicalTraits: PhysicalTrait[];
+  gender: Gender;
+  height: number;
+  weight: number;
+  length: number;
+  age: number;
+  ageCategory: AgeCategory;
+  carried: Item[];
+  tags: string[];
+  creatureTypes: string[];
 }

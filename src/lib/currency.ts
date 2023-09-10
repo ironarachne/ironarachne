@@ -1,5 +1,3 @@
-"use strict";
-
 export function convertCopper(
   amount: number,
   useElectrum: boolean,

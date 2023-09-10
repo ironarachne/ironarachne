@@ -1,5 +1,3 @@
-"use strict";
-
 export default class ChargeGroupArrangement {
   name: string;
   numberOfCharges: number;

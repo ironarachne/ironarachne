@@ -1,5 +1,3 @@
-"use strict";
-
 export function valueToCoins(
   amount: number,
   useElectrum: boolean,

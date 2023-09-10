@@ -1,5 +1,3 @@
-"use strict";
-
 export default class StarClassification {
   name: string;
   radius_min: number; // relative to the sun

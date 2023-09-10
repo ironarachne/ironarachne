@@ -1,5 +1,3 @@
-"use strict";
-
 import Phoneme from "./phoneme.js";
 
 export default class Morpheme {

@@ -1,5 +1,3 @@
-"use strict";
-
 import type AppearanceTrait from "$lib/appearance/trait";
 
 export default class Realm {

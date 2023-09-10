@@ -1,5 +1,3 @@
-"use strict";
-
 import TreasureTable from "./table.js";
 
 export default class TreasureGeneratorConfig {

@@ -1,5 +1,3 @@
-"use strict";
-
 import type ItemMutator from "./itemmutator.js";
 import * as BladedWeapons from "./weapons/bladedweapons.js";
 

@@ -1,5 +1,3 @@
-"use strict";
-
 export class Descriptor {
   description: string;
   objectTypes: string[];

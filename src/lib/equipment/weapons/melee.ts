@@ -1,5 +1,3 @@
-"use strict";
-
 import type Weapon from "./weapon.js";
 
 export default class MeleeWeapon implements Weapon {

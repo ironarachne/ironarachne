@@ -1,5 +1,3 @@
-"use strict";
-
 import EffectType from "./effecttype.js";
 
 export function all(): EffectType[] {

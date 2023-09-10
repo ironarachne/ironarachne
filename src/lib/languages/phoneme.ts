@@ -1,5 +1,3 @@
-"use strict";
-
 export default class Phoneme {
   sound: string;
   transcriptions: string[];

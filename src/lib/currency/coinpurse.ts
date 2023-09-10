@@ -1,5 +1,3 @@
-"use strict";
-
 export default class CoinPurse {
   cp: number;
   sp: number;

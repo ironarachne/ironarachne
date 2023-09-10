@@ -1,5 +1,3 @@
-"use strict";
-
 import Conjugation from "./conjugation.js";
 import Lexicon from "./lexicon.js";
 import PhonemeSet from "./phonemeset.js";

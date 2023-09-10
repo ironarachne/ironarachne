@@ -1,5 +1,3 @@
-"use strict";
-
 export default class StarshipArmor {
   name: string;
   grade: number;

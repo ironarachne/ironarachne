@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import random from "random";
 import * as Components from "./components/components.js";

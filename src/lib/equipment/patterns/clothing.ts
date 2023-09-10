@@ -1,5 +1,3 @@
-"use strict";
-
 import BeltPattern from "./clothing/belt.js";
 import DressPattern from "./clothing/dress.js";
 import PantsPattern from "./clothing/pants.js";

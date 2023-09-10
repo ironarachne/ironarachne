@@ -1,5 +1,3 @@
-"use strict";
-
 import BreastplatePattern from "./armor/breastplate.js";
 import ChainmailPattern from "./armor/chainmail.js";
 import HelmetPattern from "./armor/helmet.js";

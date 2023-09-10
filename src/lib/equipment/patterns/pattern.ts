@@ -1,5 +1,3 @@
-"use strict";
-
 import Component from "../components/component.js";
 import type Item from "../item.js";
 

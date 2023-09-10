@@ -1,5 +1,3 @@
-"use strict";
-
 import * as MUN from "@ironarachne/made-up-names";
 import type StarNationGovernment from "./government.js";
 import * as Governments from "./governments.js";

@@ -1,5 +1,3 @@
-"use strict";
-
 import type DCCItem from "./item.js";
 
 export default class DCCGear implements DCCItem {

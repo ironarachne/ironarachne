@@ -1,5 +1,3 @@
-"use strict";
-
 import { GeneratorSet } from "@ironarachne/made-up-names";
 import type MusicStyle from "../music/style.js";
 import type Religion from "../religion/religion.js";

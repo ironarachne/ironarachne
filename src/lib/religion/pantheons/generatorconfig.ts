@@ -1,6 +1,4 @@
-"use strict";
-
-import Human from "$lib/species/human.js";
+import Human from "$lib/species/sentient/human.js";
 import type Species from "$lib/species/species.js";
 import * as MUN from "@ironarachne/made-up-names";
 import type Domain from "../domains/domain.js";
@@ -19,7 +17,7 @@ export default class PantheonGeneratorConfig {
   constructor() {
     this.domains = JSON.parse(JSON.stringify(Domains.allDomains));
     this.realms = [];
-    this.speciesOptions = [new Human()];
+    this.speciesOptions = [Human];
     this.minDeities = 1;
     this.maxDeities = 16;
 

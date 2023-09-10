@@ -1,100 +1,97 @@
-"use strict";
-
-import * as Archetypes from "../../../archetypes/archetypes.js";
-import * as FantasyArchetypes from "../../../archetypes/fantasy/all.js";
-import MobFilter from "../../../mobs/filter.js";
-import EncounterGroupTemplate from "../../grouptemplate.js";
-import EncounterTemplate from "../../template.js";
+import * as Archetypes from "$lib/archetypes/archetypes.js";
+import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
+import MobFilter from "$lib/mobs/filter.js";
+import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
 
   return [
-    new EncounterTemplate(
-      "squad of soldiers",
-      1,
-      [
-        new EncounterGroupTemplate(
-          "soldiers",
-          1,
-          true,
-          [Archetypes.byName("soldier", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          2,
-          4,
-        ),
+    {
+      name: "squad of soldiers",
+      threatLevel: 1,
+      groupTemplates: [
+        {
+          name: "soldiers",
+          threatLevel: 1,
+          isSentient: true,
+          archetypes: [Archetypes.byName("soldier", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["martial", "soldiers"],
-      10,
-    ),
-    new EncounterTemplate(
-      "squad of veterans",
-      2,
-      [
-        new EncounterGroupTemplate(
-          "veteran soldiers",
-          2,
-          true,
-          [Archetypes.byName("veteran soldier", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          2,
-          4,
-        ),
+      tags: ["martial", "soldiers"],
+      commonality: 10,
+    },
+    {
+      name: "squad of veterans",
+      threatLevel: 2,
+      groupTemplates: [
+        {
+          name: "veteran soldiers",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [Archetypes.byName("veteran soldier", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["martial", "soldiers"],
-      5,
-    ),
-    new EncounterTemplate(
-      "captain",
-      4,
-      [
-        new EncounterGroupTemplate(
-          "captain",
-          2,
-          true,
-          [Archetypes.byName("captain", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          1,
-          1,
-        ),
-        new EncounterGroupTemplate(
-          "veteran soldiers",
-          2,
-          true,
-          [Archetypes.byName("veteran soldier", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          2,
-          4,
-        ),
+      tags: ["martial", "soldiers"],
+      commonality: 5,
+    },
+    {
+      name: "captain",
+      threatLevel: 4,
+      groupTemplates: [
+        {
+          name: "captain",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [Archetypes.byName("captain", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 1,
+        },
+        {
+          name: "veteran soldiers",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [Archetypes.byName("veteran soldier", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["martial", "soldiers"],
-      3,
-    ),
-    new EncounterTemplate(
-      "general",
-      5,
-      [
-        new EncounterGroupTemplate(
-          "general",
-          3,
-          true,
-          [Archetypes.byName("general", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          1,
-          1,
-        ),
-        new EncounterGroupTemplate(
-          "captain",
-          2,
-          true,
-          [Archetypes.byName("captain", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          1,
-          2,
-        ),
+      tags: ["martial", "soldiers"],
+      commonality: 3,
+    },
+    {
+      name: "general",
+      threatLevel: 5,
+      groupTemplates: [
+        {
+          name: "general",
+          threatLevel: 3,
+          isSentient: true,
+          archetypes: [Archetypes.byName("general", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 1,
+        },
+        {
+          name: "captain",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [Archetypes.byName("captain", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 2,
+        },
       ],
-      ["martial", "soldiers"],
-      2,
-    ),
+      tags: ["martial", "soldiers"],
+      commonality: 2,
+    },
   ];
 }

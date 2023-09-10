@@ -1,5 +1,3 @@
-"use strict";
-
 import StarSystem from "../starsystem/starsystem.js";
 import StarNationGovernment from "./government.js";
 

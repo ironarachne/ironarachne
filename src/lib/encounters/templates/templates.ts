@@ -1,6 +1,4 @@
-"use strict";
-
-import EncounterTemplate from "../template.js";
+import type EncounterTemplate from "../encounter_template.js";
 
 export function belowThreatLevel(
   level: number,

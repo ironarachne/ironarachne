@@ -1,5 +1,3 @@
-"use strict";
-
 export default class PlanetClassification {
   name: string;
   diameter_min: number; // in km

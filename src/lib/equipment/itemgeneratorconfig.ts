@@ -1,5 +1,3 @@
-"use strict";
-
 import Component from "./components/component.js";
 import * as Components from "./components/components.js";
 import type ItemMutator from "./mutators/itemmutator.js";

@@ -1,5 +1,3 @@
-"use strict";
-
 import type Species from "../species.js";
 
 export function modify(species: Species): Species {
@@ -10,7 +8,14 @@ export function modify(species: Species): Species {
   result.name = `${modifierName} ${result.name}`;
   result.pluralName = `${modifierName} ${result.pluralName}`;
   result.adjective = `${modifierName} ${result.adjective}`;
-  result.abilities.push("can only be killed by removing the head");
+  result.abilities.push(
+    {
+      name: "self-resurrection",
+      description: "can resurrect itself unless the head is destroyed or removed",
+      category: "self-resurrection",
+      threatLevel: 3,
+    },
+  );
 
   let newTags = [];
 
@@ -22,10 +27,16 @@ export function modify(species: Species): Species {
 
   result.tags = newTags;
 
-  result.abilities.push("can bite others to transform them into zombies");
+  result.abilities.push(
+    {
+      name: "zombification bite",
+      description: "can bite others to transform them into zombies",
+      category: "attack",
+      threatLevel: 2,
+    },
+  );
   result.tags.push("zombie");
   result.tags.push("undead");
-  result.threatLevel += 1;
 
   return result;
 }

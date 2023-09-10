@@ -1,9 +1,8 @@
 import { c as create_ssr_component, g as getContext, a as add_attribute, f as each, e as escape } from "../../../../chunks/ssr.js";
 import * as MUN from "@ironarachne/made-up-names";
 import * as RND from "@ironarachne/rng";
-import { a as all } from "../../../../chunks/generatorconfig2.js";
-import "../../../../chunks/sentry-release-injection-file.js";
-import { R as ReligionGeneratorConfig, b as all$1, a as ReligionGenerator } from "../../../../chunks/generatorconfig.js";
+import { s as sentient } from "../../../../chunks/characters.js";
+import { R as ReligionGeneratorConfig, b as all, a as ReligionGenerator } from "../../../../chunks/generatorconfig.js";
 import random from "random";
 import seedrandom from "seedrandom";
 const _page_svelte_svelte_type_style_lang = "";
@@ -21,8 +20,8 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   let generator = new ReligionGenerator(genConfig);
   let religion = generator.generate();
   let allSpeciesNames = [];
-  const allSpecies = all();
-  const allReligionCategories = all$1();
+  const allSpecies = sentient();
+  const allReligionCategories = all();
   let allReligionCategoriesNames = [];
   for (let i = 0; i < allSpecies.length; i++) {
     allSpeciesNames.push(allSpecies[i].name);

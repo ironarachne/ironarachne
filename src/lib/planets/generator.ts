@@ -1,5 +1,3 @@
-"use strict";
-
 import * as MUN from "@ironarachne/made-up-names";
 import * as RND from "@ironarachne/rng";
 import random from "random";

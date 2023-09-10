@@ -1,5 +1,3 @@
-"use strict";
-
 import ADNDRace from "../adndrace.js";
 import dwarf from "./dwarf.js";
 import elf from "./elf.js";

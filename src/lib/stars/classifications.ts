@@ -1,5 +1,3 @@
-"use strict";
-
 import StarClassification from "./classification.js";
 
 export function all() {

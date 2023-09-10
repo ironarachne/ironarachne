@@ -1,5 +1,3 @@
-"use strict";
-
 export default class Cuisine {
   commonDishes: string[];
   commonSeasonings: string[];

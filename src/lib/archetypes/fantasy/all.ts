@@ -1,6 +1,4 @@
-"use strict";
-
-import Archetype from "../archetype.js";
+import type Archetype from "../archetype.js";
 import * as Cleric from "./cleric.js";
 import * as Cult from "./cult.js";
 import * as Mage from "./mage.js";

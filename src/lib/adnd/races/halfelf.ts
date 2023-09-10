@@ -1,5 +1,3 @@
-"use strict";
-
 import ADNDCharacter from "../adndcharacter.js";
 import ADNDRace from "../adndrace.js";
 

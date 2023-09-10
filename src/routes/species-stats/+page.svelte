@@ -1,14 +1,23 @@
 <script lang="ts">
-  import * as AgeCategories from "$lib/age/agecategories";
-  import type AgeCategory from "$lib/age/agecategory";
+  import * as AgeCategories from "$lib/age/age_categories";
+  import type AgeCategory from "$lib/age/age_category";
+  import * as Sizes from "$lib/size/sizes";
+  import type { SizeMatrix, SizeAgeSummary } from "$lib/size/size_matrix";
+  import { convertMatrixToSummary } from "$lib/size/size_matrix";
 
   let maximumAge = 100;
   let femaleHeightModifier = 100;
   let femaleWeightModifier = 100;
   let maleHeightModifier = 100;
   let maleWeightModifier = 100;
-  let femaleCategories: AgeCategory[] = [];
-  let maleCategories: AgeCategory[] = [];
+  let femaleAgeCategories: AgeCategory[] = [];
+  let maleAgeCategories: AgeCategory[] = [];
+  let femaleSizeMatrix: SizeMatrix;
+  let maleSizeMatrix: SizeMatrix;
+
+  let femaleData: SizeAgeSummary[] = [];
+  let maleData: SizeAgeSummary[] = [];
+
   let ingenium = {
     adultAge: 0,
     femaleHeight: '',
@@ -18,27 +27,34 @@
   };
 
   function calculate() {
+    console.debug("we calculate");
     let ageScale = maximumAge / 100;
 
-    femaleCategories = AgeCategories.getHumanVariant(ageScale, femaleWeightModifier / 100, femaleHeightModifier / 100, 'female');
-    maleCategories = AgeCategories.getHumanVariant(ageScale, maleWeightModifier / 100, maleHeightModifier / 100, 'male');
+    femaleAgeCategories = AgeCategories.getHumanVariant(ageScale);
+    maleAgeCategories = AgeCategories.getHumanVariant(ageScale);
+
+    femaleSizeMatrix = Sizes.getHumanVariant(femaleWeightModifier / 100, femaleHeightModifier / 100);
+    maleSizeMatrix = Sizes.getHumanVariant(maleWeightModifier / 100, maleHeightModifier / 100);
+
+    femaleData = convertMatrixToSummary(femaleSizeMatrix, femaleAgeCategories, "female");
+    maleData = convertMatrixToSummary(maleSizeMatrix, maleAgeCategories, "male");
 
     getIngenium();
   }
 
   function getIngenium() {
-    for (let i=0;i<femaleCategories.length;i++) {
-      if (femaleCategories[i].name == "adult") {
-        ingenium.femaleHeight = femaleCategories[i].getHeightRange();
-        ingenium.femaleWeight = femaleCategories[i].getWeightRange();
-        ingenium.adultAge = femaleCategories[i].minAge;
+    for (let i=0;i<femaleData.length;i++) {
+      if (femaleData[i].ageCategoryName == "adult") {
+        ingenium.femaleHeight = femaleData[i].heightRange;
+        ingenium.femaleWeight = femaleData[i].weightRange;
+        ingenium.adultAge = femaleData[i].minAge;
       }
     }
 
-    for (let i=0;i<maleCategories.length;i++) {
-      if (maleCategories[i].name == "adult") {
-        ingenium.maleHeight = maleCategories[i].getHeightRange();
-        ingenium.maleWeight = maleCategories[i].getWeightRange();
+    for (let i=0;i<maleData.length;i++) {
+      if (maleData[i].ageCategoryName == "adult") {
+        ingenium.maleHeight = maleData[i].heightRange;
+        ingenium.maleWeight = maleData[i].weightRange;
       }
     }
   }
@@ -99,24 +115,24 @@
   <div style="display:flex">
     <div class="half-column">
       <h3>Female</h3>
-      {#each femaleCategories as category}
-      <div>
-        <h5>{ category.name }</h5>
-        <p><strong>Age Range:</strong> { category.minAge } to { category.maxAge } years</p>
-        <p><strong>Female Height:</strong> { category.getHeightRange() }</p>
-        <p><strong>Female Weight:</strong> { category.getWeightRange() }</p>
-      </div>
+      {#each femaleData as entry}
+        <div>
+          <h5>{ entry.ageCategoryName }</h5>
+          <p><strong>Age Range:</strong> { entry.minAge } to { entry.maxAge } years</p>
+          <p><strong>Female Height:</strong> { entry.heightRange }</p>
+          <p><strong>Female Weight:</strong> { entry.weightRange }</p>
+        </div>
       {/each}
     </div>
     <div class="half-column">
       <h3>Male</h3>
-      {#each maleCategories as category}
-      <div>
-        <h5>{ category.name }</h5>
-        <p><strong>Age Range:</strong> { category.minAge } to { category.maxAge } years</p>
-        <p><strong>Male Height:</strong> { category.getHeightRange() }</p>
-        <p><strong>Male Weight:</strong> { category.getWeightRange() }</p>
-      </div>
+      {#each maleData as entry}
+        <div>
+          <h5>{ entry.ageCategoryName }</h5>
+          <p><strong>Age Range:</strong> { entry.minAge } to { entry.maxAge } years</p>
+          <p><strong>Female Height:</strong> { entry.heightRange }</p>
+          <p><strong>Female Weight:</strong> { entry.weightRange }</p>
+        </div>
       {/each}
     </div>
   </div>

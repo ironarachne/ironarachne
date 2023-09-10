@@ -4,8 +4,7 @@
   import * as Words from '@ironarachne/words';
   import random from "random";
   import seedrandom from "seedrandom";
-  import DungeonGeneratorConfig from "$lib/dungeon/dungeongeneratorconfig";
-  import DungeonGenerator from "$lib/dungeon/dungeongenerator";
+  import * as Dungeons from "$lib/dungeon/dungeons";
   import DungeonTileRenderer from "$lib/dungeon/tilerenderer";
   import { onMount } from "svelte";
 
@@ -15,11 +14,10 @@
   let minRooms = 20;
   let maxRooms = 30;
 
-  let config = new DungeonGeneratorConfig();
-  let generator = new DungeonGenerator(config);
+  let config = Dungeons.getDefaultConfig();
   config.minRooms = minRooms;
   config.maxRooms = maxRooms;
-  let dungeon = generator.generate();
+  let dungeon = Dungeons.generate(config);
   let renderer = new DungeonTileRenderer(800, 1000, config.height, config.width);
 
   function generate() {
@@ -28,7 +26,7 @@
     config.minRooms = minRooms;
     config.maxRooms = maxRooms;
 
-    dungeon = generator.generate();
+    dungeon = Dungeons.generate(config);
     renderer.render(dungeon, canvas);
   }
 
@@ -143,7 +141,7 @@
             <p>Abilities:</p>
             <ul>
               {#each mob.abilities as ability}
-              <li>{ability}</li>
+              <li><strong>{ability.name}:</strong> {ability.description}</li>
               {/each}
             </ul>
             {/if}

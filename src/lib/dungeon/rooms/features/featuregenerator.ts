@@ -1,7 +1,5 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
-import RoomFeature from "./feature.js";
+import type RoomFeature from "./feature.js";
 
 export default class RoomFeatureGenerator {
   name: string;
@@ -28,6 +26,11 @@ export default class RoomFeatureGenerator {
       secret = RND.item(this.secretOptions);
     }
 
-    return new RoomFeature(this.name, RND.item(this.descriptionOptions), secret, this.isContainer);
+    return {
+      name: this.name,
+      description: RND.item(this.descriptionOptions),
+      secret: secret,
+      isContainer: this.isContainer,
+    };
   }
 }

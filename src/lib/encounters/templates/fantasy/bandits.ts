@@ -1,73 +1,70 @@
-"use strict";
-
-import * as Archetypes from "../../../archetypes/archetypes.js";
-import * as FantasyArchetypes from "../../../archetypes/fantasy/all.js";
-import MobFilter from "../../../mobs/filter.js";
-import EncounterGroupTemplate from "../../grouptemplate.js";
-import EncounterTemplate from "../../template.js";
+import * as Archetypes from "$lib/archetypes/archetypes.js";
+import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
+import MobFilter from "$lib/mobs/filter.js";
+import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
   return [
-    new EncounterTemplate(
-      "group of raiders",
-      3,
-      [
-        new EncounterGroupTemplate(
-          "raider captain",
-          2,
-          true,
-          [Archetypes.byName("raider captain", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          1,
-          1,
-        ),
-        new EncounterGroupTemplate(
-          "raiders",
-          3,
-          true,
-          [Archetypes.byName("raider", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          3,
-          6,
-        ),
+    {
+      name: "group of raiders",
+      threatLevel: 3,
+      groupTemplates: [
+        {
+          name: "raider captain",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [Archetypes.byName("raider captain", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 1,
+          maxNumber: 1,
+        },
+        {
+          name: "raiders",
+          threatLevel: 3,
+          isSentient: true,
+          archetypes: [Archetypes.byName("raider", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 3,
+          maxNumber: 6,
+        },
       ],
-      ["bandits"],
-      5,
-    ),
-    new EncounterTemplate(
-      "group of looters",
-      3,
-      [
-        new EncounterGroupTemplate(
-          "looters",
-          3,
-          true,
-          [Archetypes.byName("thug", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          3,
-          6,
-        ),
+      tags: ["bandits"],
+      commonality: 5,
+    },
+    {
+      name: "group of looters",
+      threatLevel: 3,
+      groupTemplates: [
+        {
+          name: "looters",
+          threatLevel: 3,
+          isSentient: true,
+          archetypes: [Archetypes.byName("thug", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 3,
+          maxNumber: 6,
+        },
       ],
-      ["bandits"],
-      5,
-    ),
-    new EncounterTemplate(
-      "group of thugs",
-      2,
-      [
-        new EncounterGroupTemplate(
-          "thugs",
-          2,
-          true,
-          [Archetypes.byName("thug", allArchetypes)],
-          new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
-          2,
-          4,
-        ),
+      tags: ["bandits"],
+      commonality: 5,
+    },
+    {
+      name: "group of thugs",
+      threatLevel: 2,
+      groupTemplates: [
+        {
+          name: "thugs",
+          threatLevel: 2,
+          isSentient: true,
+          archetypes: [Archetypes.byName("thug", allArchetypes)],
+          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          minNumber: 2,
+          maxNumber: 4,
+        },
       ],
-      ["bandits"],
-      5,
-    ),
+      tags: ["bandits"],
+      commonality: 5,
+    },
   ];
 }

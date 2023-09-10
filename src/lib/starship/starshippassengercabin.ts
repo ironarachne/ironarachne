@@ -1,5 +1,3 @@
-"use strict";
-
 export default class StarshipPassengerCabin {
   name: string;
   grade: number;

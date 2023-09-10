@@ -1,5 +1,3 @@
-"use strict";
-
 import Variation from "./variation.js";
 
 export function all() {

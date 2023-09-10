@@ -1,5 +1,3 @@
-"use strict";
-
 import type Relationship from "../../relationships/relationship.js";
 import Deity from "../deities/deity.js";
 

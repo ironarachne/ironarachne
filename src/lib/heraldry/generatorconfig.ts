@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import Charge from "./charge.js";
 import * as Charges from "./charges.js";

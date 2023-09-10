@@ -1,7 +1,6 @@
 <script lang="ts">
-  import * as Entries from "$lib/updates/entries";
-
-  let updates = Entries.all();
+  import entries from "$lib/change_log/entries";
+  import * as Dates from "$lib/dates";
 </script>
 
 <svelte:head>
@@ -10,11 +9,14 @@
 
 <section class="changelog main">
   <h1>Change Log</h1>
-  {#each updates as update}
+  {#each entries as entry}
     <div>
-      <h2>{@html update.niceDate()}</h2>
+      <h2>{@html Dates.getNiceDate(entry.date)}</h2>
+      {#if entry.summary != ""}
+        <p>{entry.summary}</p>
+      {/if}
       <ul>
-        {#each update.updates as text}
+        {#each entry.updates as text}
           <li>{text}</li>
         {/each}
       </ul>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as Organization from "$lib/organizations/fantasy";
   import * as RND from "@ironarachne/rng";
+  import * as Characters from "$lib/characters/characters";
   import random from "random";
   import seedrandom from "seedrandom";
   import HeraldryGenerator from "$lib/heraldry/generator";
@@ -82,7 +83,7 @@
   {#each notableMembers as member}
     <p>
       <strong
-        >{member.getHonorific()}
+        >{Characters.getHonorific(member)}
         {member.firstName}
         {member.lastName}:</strong
       >

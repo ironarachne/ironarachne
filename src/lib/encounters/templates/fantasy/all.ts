@@ -1,9 +1,7 @@
-"use strict";
-
-import EncounterTemplate from "../../template.js";
+import type EncounterTemplate from "../../encounter_template.js";
 import * as Bandits from "./bandits.js";
 import * as Cult from "./cult.js";
-import * as GenericDungeon from "./genericdungeon.js";
+import * as GenericDungeon from "./generic_dungeon.js";
 import * as Magic from "./magic.js";
 import * as Martial from "./martial.js";
 import * as Undead from "./undead.js";

@@ -1,5 +1,3 @@
-"use strict";
-
 import * as RND from "@ironarachne/rng";
 import * as Animal from "./animal.js";
 import Component from "./component.js";

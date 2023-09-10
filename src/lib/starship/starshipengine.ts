@@ -1,5 +1,3 @@
-"use strict";
-
 export default class StarshipEngine {
   name: string;
   engineType: string; // e.g., 'sublight', 'hyperdrive', etc.

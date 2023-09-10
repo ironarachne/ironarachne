@@ -1,5 +1,3 @@
-"use strict";
-
 export const STONE = 0;
 export const ROOM = 1;
 export const V_DOOR = 2;

@@ -1,5 +1,3 @@
-"use strict";
-
 export default class EffectType {
   name: string;
   effects: string[];

@@ -3,10 +3,9 @@ import { c as convertCopper } from "../../../../chunks/currency2.js";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
-import "../../../../chunks/sentry-release-injection-file.js";
-import { C as CharacterGenerator } from "../../../../chunks/generatorconfig2.js";
-import { g as getFantasy } from "../../../../chunks/premadeconfigs.js";
+import { m as getDefaultCharacterGeneratorConfig, c as generate$2 } from "../../../../chunks/characters.js";
 import { d as all, f as forCategory, b as all$1 } from "../../../../chunks/patterns.js";
+import "../../../../chunks/sentry-release-injection-file.js";
 import "seedrandom";
 function generate$1(category, components, amount, valueThreshold) {
   let result = [];
@@ -41,10 +40,9 @@ class Merchant {
   }
 }
 function generate(itemCategory, valueThreshold) {
-  let charGenConfig = getFantasy();
-  charGenConfig.ageCategories = ["adult"];
-  const charGen = new CharacterGenerator(charGenConfig);
-  let character = charGen.generate();
+  let charGenConfig = getDefaultCharacterGeneratorConfig();
+  charGenConfig.ageCategoryNames = ["adult"];
+  let character = generate$2(charGenConfig);
   let description = RND.item([
     `${character.firstName} ${character.lastName} is ${Words.article(
       itemCategory
@@ -54,9 +52,9 @@ function generate(itemCategory, valueThreshold) {
   let wares = getList(itemCategory, 10, valueThreshold);
   let priceVariance = random.float(0.8, 1.2);
   if (priceVariance > 1) {
-    description += " " + Words.capitalize(character.gender.subjectivePronoun) + " charges more than others.";
+    description += " " + Words.capitalize(character.gender.pronouns.subjective) + " charges more than others.";
   } else if (priceVariance < 1) {
-    description += " " + Words.capitalize(character.gender.subjectivePronoun) + " charges less than others.";
+    description += " " + Words.capitalize(character.gender.pronouns.subjective) + " charges less than others.";
   }
   return new Merchant(character, description, wares, priceVariance);
 }

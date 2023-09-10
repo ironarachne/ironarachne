@@ -1,5 +1,3 @@
-"use strict";
-
 import type Pantheon from "./pantheons/pantheon.js";
 import type Realm from "./realms/realm.js";
 
