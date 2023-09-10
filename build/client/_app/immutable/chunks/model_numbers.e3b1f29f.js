@@ -1,2 +1,0 @@
-import{i as e,r as o}from"./index.618f0eea.js";function i(){return e([{generate:function(){const n=e(["Y","M","R","X","T","S","J","G","H"]),r=o.int(1,9)*10;return`${n}-${r}`}},{generate:function(){const n=e(["A","E","I","O","U"]),r=e(["Y","M","R","X","T","S","J","G","H"]),t=o.int(1,9)*10;return`${n}${r}-${t}`}},{generate:function(){const n=e(["B","R","X","S","N"]),r=e(["Y","M","I","K","T","Q","J","G","H"]),t=o.int(1,99)*100;return`${n}${r}-${t}`}}]).generate()}export{i as g};
-//# sourceMappingURL=model_numbers.e3b1f29f.js.map
