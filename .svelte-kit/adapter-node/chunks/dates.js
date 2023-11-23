@@ -7,7 +7,8 @@ const entries = [
     updates: [
       "Restructured how heraldry is built.",
       "Render heraldry in most places as PNG instead of SVG.",
-      "Updated to a new version of the made-up-names package."
+      "Updated to a new version of the made-up-names package.",
+      "Fixed a massive performance problem with the planet generator."
     ]
   },
   {

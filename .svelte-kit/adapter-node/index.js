@@ -104,6 +104,7 @@ class ActionFailure {
 function exec(match, params, matchers) {
   const result = {};
   const values = match.slice(1);
+  const values_needing_match = values.filter((value) => value !== void 0);
   let buffered = 0;
   for (let i = 0; i < params.length; i += 1) {
     const param = params[i];
@@ -122,6 +123,9 @@ function exec(match, params, matchers) {
       const next_param = params[i + 1];
       const next_value = values[i + 1];
       if (next_param && !next_param.rest && next_param.optional && next_value && param.chained) {
+        buffered = 0;
+      }
+      if (!next_param && !next_value && Object.keys(result).length === values_needing_match.length) {
         buffered = 0;
       }
       continue;
@@ -270,8 +274,8 @@ async function render_endpoint(event, mod, state) {
     /** @type {import('types').HttpMethod} */
     event.request.method
   );
-  let handler = mod[method];
-  if (!handler && method === "HEAD") {
+  let handler = mod[method] || mod.fallback;
+  if (method === "HEAD" && mod.GET && !mod.HEAD) {
     handler = mod.GET;
   }
   if (!handler) {
@@ -384,6 +388,7 @@ function make_trackable(url, callback) {
   return tracked;
 }
 function disable_hash(url) {
+  allow_nodejs_console_log(url);
   Object.defineProperty(url, "hash", {
     get() {
       throw new Error(
@@ -393,12 +398,20 @@ function disable_hash(url) {
   });
 }
 function disable_search(url) {
+  allow_nodejs_console_log(url);
   for (const property of ["search", "searchParams"]) {
     Object.defineProperty(url, property, {
       get() {
         throw new Error(`Cannot access url.${property} on a page with prerendering enabled`);
       }
     });
+  }
+}
+function allow_nodejs_console_log(url) {
+  {
+    url[Symbol.for("nodejs.util.inspect.custom")] = (depth, opts, inspect) => {
+      return inspect(new URL(url), opts);
+    };
   }
 }
 const DATA_SUFFIX = "/__data.json";
@@ -620,6 +633,7 @@ async function unwrap_promises(object) {
   return object;
 }
 const INVALIDATED_PARAM = "x-sveltekit-invalidated";
+const TRAILING_SLASH_PARAM = "x-sveltekit-trailing-slash";
 async function load_server_data({
   event,
   state,
@@ -1192,8 +1206,8 @@ class Csp {
   /** @type {CspReportOnlyProvider} */
   report_only_provider;
   /**
-   * @param {import('./types').CspConfig} config
-   * @param {import('./types').CspOpts} opts
+   * @param {import('./types.js').CspConfig} config
+   * @param {import('./types.js').CspOpts} opts
    */
   constructor({ mode, directives, reportOnly }, { prerender }) {
     const use_hashes = mode === "hash" || mode === "auto" && prerender;
@@ -1649,6 +1663,14 @@ async function respond_with_error({
   error: error2,
   resolve_opts
 }) {
+  if (event.request.headers.get("x-sveltekit-error")) {
+    return static_error_page(
+      options2,
+      status,
+      /** @type {Error} */
+      error2.message
+    );
+  }
   const fetched = [];
   try {
     const branch = [];
@@ -1978,7 +2000,7 @@ async function render_page(event, page, options2, manifest, state, resolve_opts)
     }
     state.prerender_default = should_prerender;
     const fetched = [];
-    if (get_option(nodes, "ssr") === false) {
+    if (get_option(nodes, "ssr") === false && !state.prerendering) {
       return await render_response({
         branch: [],
         fetched,
@@ -2145,7 +2167,7 @@ async function render_page(event, page, options2, manifest, state, resolve_opts)
       resolve_opts,
       page_config: {
         csr: get_option(nodes, "csr") ?? true,
-        ssr: true
+        ssr: get_option(nodes, "ssr") ?? true
       },
       status,
       error: null,
@@ -2441,6 +2463,7 @@ const valid_server_exports = /* @__PURE__ */ new Set([
   "DELETE",
   "OPTIONS",
   "HEAD",
+  "fallback",
   "prerender",
   "trailingSlash",
   "config",
@@ -2486,7 +2509,8 @@ async function respond(request, options2, manifest, state) {
   let invalidated_data_nodes;
   if (is_data_request) {
     decoded = strip_data_suffix(decoded) || "/";
-    url.pathname = strip_data_suffix(url.pathname) || "/";
+    url.pathname = strip_data_suffix(url.pathname) + (url.searchParams.get(TRAILING_SLASH_PARAM) === "1" ? "/" : "") || "/";
+    url.searchParams.delete(TRAILING_SLASH_PARAM);
     invalidated_data_nodes = url.searchParams.get(INVALIDATED_PARAM)?.split("").map((node) => node === "1");
     url.searchParams.delete(INVALIDATED_PARAM);
   }
@@ -2757,6 +2781,13 @@ async function respond(request, options2, manifest, state) {
           }
         }
         return response;
+      }
+      if (state.error && event2.isSubRequest) {
+        return await fetch(request, {
+          headers: {
+            "x-sveltekit-error": "true"
+          }
+        });
       }
       if (state.error) {
         return text("Internal Server Error", {

@@ -2,8 +2,6 @@
   import * as RND from '@ironarachne/rng';
   import * as Classifications from '$lib/planets/classifications';
   import * as PlanetRenderer from '$lib/renderers/planets/planet-webgl';
-  import * as THREE from 'three';
-  import * as StarfieldShader from '$lib/renderers/starfields/starfield-webgl';
   import random from 'random';
   import seedrandom from 'seedrandom';
 
@@ -11,13 +9,7 @@
   import PlanetGeneratorConfig from '$lib/planets/generatorconfig';
   import PlanetGenerator from '$lib/planets/generator';
 
-  let materials: THREE.Material[] = [];
-  let meshes: THREE.Mesh[] = [];
-  let geometries: (THREE.PlaneGeometry|THREE.SphereGeometry)[] = [];
   let planetTypes = Classifications.getClassificationNames();
-  let planetVertexShader = "";
-  let planetFragmentShader = "";
-  let planetCloudShader = "";
 
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
@@ -25,32 +17,9 @@
   let planetGenConfig = new PlanetGeneratorConfig();
   let planetGen = new PlanetGenerator(planetGenConfig);
   let planet = planetGen.generate();
-  let initialized = false;
-  let scene = new THREE.Scene();
-  let camera: THREE.PerspectiveCamera;
-  let canvas;
-  let renderer: THREE.WebGLRenderer;
-
-  function clean() {
-    for (let i = 0; i < materials.length; i++) {
-      materials[i].dispose();
-    }
-    for (let i = 0; i < geometries.length; i++) {
-      geometries[i].dispose();
-    }
-    materials = [];
-    meshes = [];
-    geometries = [];
-    renderer.dispose();
-    initialized = false;
-  }
+  let planetImage: HTMLImageElement | null;
 
   function generate() {
-    if (initialized) {
-      // If we already have a scene, destroy it and free up its resources
-      clean();
-    }
-
     random.use(seedrandom(seed));
 
     if (planetType == 'random') {
@@ -66,17 +35,9 @@
 
     planet = planetGen.generate();
 
-    let shaderData = PlanetRenderer.getShaderData(planet.classification.name);
-    planetFragmentShader = shaderData.generateFragmentShader();
-    planetVertexShader = shaderData.generateVertexShader();
-    planetCloudShader = shaderData.generateCloudShader();
-
-    render();
-  }
-
-  function animate() {
-    requestAnimationFrame(animate);
-    renderer.render(scene, camera);
+    if (planetImage !== null) {
+      planetImage.src = PlanetRenderer.render(planet, 600, 400);
+    }
   }
 
   function newSeed() {
@@ -84,84 +45,8 @@
     generate();
   }
 
-  function render() {
-    if (planetType == '') {
-      planetType = 'random';
-    }
-    canvas = document.getElementById('render');
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(65, 600 / 400, 0.1, 100);
-    camera.position.set(0, 10, 20);
-    if (canvas === null) {
-      throw new Error("Canvas not found");
-    }
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true });
-    renderer.setSize(600, 400);
-
-    let starfieldGeometry = new THREE.PlaneGeometry(50, 50, 50);
-    geometries.push(starfieldGeometry);
-    let starfieldMaterial = new THREE.ShaderMaterial({
-      fragmentShader: StarfieldShader.generate(),
-    });
-    materials.push(starfieldMaterial);
-    let plane = new THREE.Mesh(starfieldGeometry, starfieldMaterial);
-    meshes.push(plane);
-    scene.add(plane);
-
-    let fragmentShader = planetFragmentShader;
-    let vertexShader = planetVertexShader;
-
-    let uniforms = THREE.UniformsUtils.merge([THREE.UniformsLib['lights']]);
-
-    uniforms.u_resolution = { value: { x: 600, y: 400 } };
-    uniforms.seed = { value: random.float(0, 200.0) };
-
-    let planetSize = PlanetRenderer.translateDiameterToModelSize(planet.diameter);
-
-    let planetGeometry = new THREE.SphereGeometry(planetSize, 32, 32);
-    geometries.push(planetGeometry);
-
-    let planetMaterial = new THREE.ShaderMaterial({
-      uniforms: uniforms,
-      fragmentShader: fragmentShader,
-      vertexShader: vertexShader,
-      lights: true,
-    });
-    materials.push(planetMaterial);
-
-    let light = new THREE.HemisphereLight(0xf6e86d, 0x404040, 0.5);
-    scene.add(light);
-
-    let planetMesh = new THREE.Mesh(planetGeometry, planetMaterial);
-    planetMesh.position.set(0, 10, 0);
-    meshes.push(planetMesh);
-
-    scene.add(planetMesh);
-
-    if (planet.has_clouds) {
-      let cloudsShader = planetCloudShader;
-      let planetCloudGeometry = new THREE.SphereGeometry(planetSize + 0.1, 32, 32);
-      geometries.push(planetCloudGeometry);
-      uniforms.numOctaves = { value: 16 };
-      let cloudsMaterial = new THREE.ShaderMaterial({
-        uniforms: uniforms,
-        fragmentShader: cloudsShader,
-        vertexShader: vertexShader,
-        transparent: true,
-      });
-      materials.push(cloudsMaterial);
-      let clouds = new THREE.Mesh(planetCloudGeometry, cloudsMaterial);
-      clouds.position.set(0, 10, 0);
-      meshes.push(clouds);
-
-      scene.add(clouds);
-    }
-
-    initialized = true;
-    animate();
-  }
-
   onMount(() => {
+    planetImage = document.getElementById('planet-render') as HTMLImageElement;
     newSeed();
   });
 </script>
@@ -195,7 +80,7 @@
 
   <h2>{planet.name}</h2>
 
-  <canvas id="render" />
+  <img alt="Planet" id="planet-render" />
 
   <p>{planet.description}</p>
 
@@ -237,6 +122,13 @@
   @import '$lib/styles/scifi.scss';
 
   canvas {
+    display: block;
+    width: 600px;
+    height: 400px;
+    margin: 1rem auto;
+  }
+
+  #planet-render {
     display: block;
     width: 600px;
     height: 400px;
