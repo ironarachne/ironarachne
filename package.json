@@ -1,6 +1,6 @@
 {
   "name": "ironarachne",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -19,7 +19,7 @@
     "not dead"
   ],
   "dependencies": {
-    "@ironarachne/made-up-names": "^1.1.0",
+    "@ironarachne/made-up-names": "^2.0.3",
     "@ironarachne/rng": "^1.0.1",
     "@ironarachne/word-generator": "^1.1.2",
     "@ironarachne/words": "^1.0.0",

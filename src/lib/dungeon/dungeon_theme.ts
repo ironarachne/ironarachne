@@ -1,4 +1,4 @@
-import type EncounterTemplate from "$lib/encounters/template.js";
+import type EncounterTemplate from "$lib/encounters/encounter_template.js";
 import type Species from "$lib/species/species.js";
 import type * as MUN from "@ironarachne/made-up-names";
 import type RoomRequirement from "./rooms/roomrequirement.js";

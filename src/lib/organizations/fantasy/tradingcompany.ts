@@ -58,11 +58,11 @@ export function generateType(): OrganizationType {
         {
           name: "family",
           randomName: function() {
-            const nameGenerator = new MUN.FantasySet();
-            if (nameGenerator.family === null) {
+            const nameGeneratorSet = MUN.getSetByName("fantasy", MUN.allSets());
+            if (nameGeneratorSet.family === null) {
               throw new Error("Family name generator not found.");
             }
-            const familyNames = nameGenerator.family.generate(100);
+            const familyNames = nameGeneratorSet.family.generate(100);
 
             const familyName = RND.item(familyNames);
 

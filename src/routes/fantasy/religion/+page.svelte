@@ -13,7 +13,7 @@
 
   const user = getContext('user');
 
-  let humanNameGenSet = new MUN.HumanSet();
+  let humanNameGenSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
   let savedCulture: string;
   let useSavedCulture: boolean = false;
   let culture: Culture;

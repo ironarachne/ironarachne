@@ -1,6 +1,6 @@
 import * as Words from "@ironarachne/words";
-import ChargeGroup from "./chargegroup.js";
-import Field from "./field.js";
+import type ChargeGroup from "./charge_group.js";
+import type Field from "./field.js";
 
 export default class Device {
   field: Field;

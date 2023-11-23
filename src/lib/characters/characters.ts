@@ -67,6 +67,10 @@ export function describeTraits(character: Character): string[] {
 }
 
 export function generate(config: CharacterGeneratorConfig): Character {
+  if (config.speciesOptions.length === 0) {
+    throw new Error("No species options provided.");
+  }
+
   const species = RND.weighted(config.speciesOptions);
   const genderName = RND.item(config.genderNameOptions);
 
@@ -83,7 +87,7 @@ export function generate(config: CharacterGeneratorConfig): Character {
     try {
       speciesNameGenerator = MUN.getSetByName(species.name, MUN.allSets());
     } catch (e) {
-      speciesNameGenerator = new MUN.FantasySet();
+      speciesNameGenerator = MUN.getSetByName("fantasy", MUN.allSets());
     }
 
     familyNameGenerator = speciesNameGenerator.family;
@@ -159,7 +163,7 @@ export function generate(config: CharacterGeneratorConfig): Character {
 }
 
 export function getDefaultCharacterGeneratorConfig(): CharacterGeneratorConfig {
-  const nameSet = new MUN.FantasySet();
+  const nameSet = MUN.getSetByName("fantasy", MUN.allSets());
 
   return {
     speciesOptions: [],

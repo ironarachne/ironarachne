@@ -1,7 +1,7 @@
 import "./sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 import random from "random";
-import { P as PlanetGenerator, a as PlanetGeneratorConfig } from "./generator.js";
+import { P as PlanetGenerator, a as PlanetGeneratorConfig } from "./generator2.js";
 import * as MUN from "@ironarachne/made-up-names";
 import * as RND from "@ironarachne/rng";
 class Star {

@@ -1,4 +1,4 @@
-import Variation from "./variation.js";
+import type Variation from "./variation.js";
 
 export default class Field {
   name: string;

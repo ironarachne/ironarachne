@@ -142,28 +142,6 @@ class DCCGear {
     this.value = value;
   }
 }
-class DCCCharacterGeneratorConfig {
-  nameGeneratorMale;
-  nameGeneratorFemale;
-  nameGeneratorFamily;
-  allowedOccupations;
-  constructor() {
-    let genSet = new MUN.HumanSet();
-    if (genSet.family === null) {
-      throw new Error("No family name generator found for humans.");
-    }
-    if (genSet.female === null) {
-      throw new Error("No female name generator found for humans.");
-    }
-    if (genSet.male === null) {
-      throw new Error("No male name generator found for humans.");
-    }
-    this.nameGeneratorFamily = genSet.family;
-    this.nameGeneratorFemale = genSet.female;
-    this.nameGeneratorMale = genSet.male;
-    this.allowedOccupations = ["dwarf", "elf", "halfling", "human"];
-  }
-}
 class DCCLanguage {
   name;
   commonality;
@@ -1633,41 +1611,22 @@ class DCCCharacterGenerator {
     character = character.occupation.apply(character);
     character = character.luckyRoll.apply(character);
     if (character.occupation.name.includes("elven")) {
-      let genSet = new MUN.ElfSet();
-      if (genSet.family === null) {
-        throw new Error("No family name generator found for elves.");
-      }
+      let genSet = MUN.getSetByName("elf", MUN.allSets());
       character.lastName = genSet.family.generate(1)[0];
-      if (genSet.female === null) {
-        throw new Error("No female name generator found for elves.");
-      }
-      if (genSet.male === null) {
-        throw new Error("No male name generator found for elves.");
-      }
       if (character.gender == "male") {
         character.firstName = genSet.male.generate(1)[0];
       } else {
         character.firstName = genSet.female.generate(1)[0];
       }
     } else if (character.occupation.name.includes("dwarven")) {
-      let genSet = new MUN.DwarfSet();
-      if (genSet.family === null) {
-        throw new Error("No family name generator found for dwarves.");
-      }
-      character.lastName = genSet.family.generate(1)[0];
-      if (genSet.female === null) {
-        throw new Error("No female name generator found for dwarves.");
-      }
-      if (genSet.male === null) {
-        throw new Error("No male name generator found for dwarves.");
-      }
+      let genSet = MUN.getSetByName("dwarf", MUN.allSets());
       if (character.gender == "male") {
         character.firstName = genSet.male.generate(1)[0];
       } else {
         character.firstName = genSet.female.generate(1)[0];
       }
     } else if (character.occupation.name.includes("halfling")) {
-      let genSet = new MUN.HalflingSet();
+      let genSet = MUN.getSetByName("halfling", MUN.allSets());
       if (genSet.family === null) {
         throw new Error("No family name generator found for halflings.");
       }
@@ -1762,6 +1721,19 @@ function randomOccupation(allowedOccupations) {
   const occupations = get(allowedOccupations);
   let occupation = RND.weighted(occupations);
   return occupation;
+}
+class DCCCharacterGeneratorConfig {
+  nameGeneratorMale;
+  nameGeneratorFemale;
+  nameGeneratorFamily;
+  allowedOccupations;
+  constructor() {
+    let genSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
+    this.nameGeneratorFamily = genSet.family;
+    this.nameGeneratorFemale = genSet.female;
+    this.nameGeneratorMale = genSet.male;
+    this.allowedOccupations = ["dwarf", "elf", "halfling", "human"];
+  }
 }
 const _page_svelte_svelte_type_style_lang = "";
 const css = {

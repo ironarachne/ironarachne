@@ -15,15 +15,7 @@ export default class ReligionGeneratorConfig {
     this.categories = Categories.all();
     this.deitySpeciesOptions = [Human];
 
-    let genSet = new MUN.HumanSet();
-
-    if (genSet.family === null) {
-      throw new Error("No family name generator found.");
-    } else if (genSet.female === null) {
-      throw new Error("No female name generator found");
-    } else if (genSet.male === null) {
-      throw new Error("No male name generator found");
-    }
+    let genSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
 
     this.nameGenerator = genSet.family;
     this.femaleNameGenerator = genSet.female;

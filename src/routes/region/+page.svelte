@@ -5,6 +5,7 @@
   import * as Words from "@ironarachne/words";
   import * as Characters from "$lib/characters/characters.js";
   import * as MUN from "@ironarachne/made-up-names";
+  import { renderSVGAsPNG } from "$lib/images/svg";
   import random from "random";
   import seedrandom from "seedrandom";
   import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
@@ -51,6 +52,9 @@
 
     region = Regions.generate(config);
     ruler = region.authority;
+
+    let rulerSVG = heraldryRenderer.render(ruler.heraldry.device, 200, 220);
+    renderSVGAsPNG(rulerSVG, 200, 220, "ruler-arms");
   }
 
   function loadSavedCulture() {
@@ -130,7 +134,7 @@
 
   <div class="ruler">
     {#if ruler.heraldry !== null}
-    <div class="ruler-arms">{@html heraldryRenderer.render(ruler.heraldry.device, 200, 220)}</div>
+    <div class="ruler-arms"><img alt="Ruler heraldry" id="ruler-arms" /></div>
     {/if}
     <div><p>{Words.capitalize(region.name)} is ruled by {Characters.getHonorific(ruler)} {ruler.firstName} {ruler.lastName}. {ruler.description}</p></div>
   </div>

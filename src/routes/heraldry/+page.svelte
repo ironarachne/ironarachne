@@ -6,6 +6,7 @@
   import * as Variations from "$lib/heraldry/variations";
   import Download from "$lib/download";
   import SaveSVGToPNG from "$lib/renderers/svg-to-png";
+  import { renderSVGAsPNG } from "$lib/images/svg";
   import random from "random";
   import seedrandom from "seedrandom";
   import HeraldryGenerator from "$lib/heraldry/generator";
@@ -109,6 +110,7 @@
     let renderer = new HeraldrySVGRenderer();
 
     image = renderer.render(heraldry.device, config.width, config.height);
+    renderSVGAsPNG(image, config.width, config.height, 'output');
   }
 
   function newSeed() {
@@ -209,7 +211,7 @@
   <button on:click={saveAsPNG} disabled={image === ""}>Save as PNG</button>
 
   <p class="blazon">{blazon}</p>
-  <div class="coat-of-arms">{@html image}</div>
+  <div class="coat-of-arms"><img alt="" id="output"/></div>
 </section>
 
 <svelte:head>

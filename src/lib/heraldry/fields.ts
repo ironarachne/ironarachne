@@ -1,7 +1,7 @@
 import * as RND from "@ironarachne/rng";
 import Field from "./field.js";
 
-export function all() {
+export function all(): Field[] {
   return [
     new Field(
       "plain",

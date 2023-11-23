@@ -205,7 +205,7 @@ class DeityGeneratorConfig {
     this.realms = [];
     this.domainSet = new DomainSet();
     this.characterGeneratorConfig = charGenConfig;
-    let genSet = new MUN.HumanSet();
+    let genSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
     this.femaleNameGenerator = genSet.female;
     this.maleNameGenerator = genSet.male;
   }
@@ -362,12 +362,7 @@ class PantheonGeneratorConfig {
     this.speciesOptions = [human];
     this.minDeities = 1;
     this.maxDeities = 16;
-    let genSet = new MUN.HumanSet();
-    if (genSet.female == null) {
-      throw new Error("no female name generator in set");
-    } else if (genSet.male == null) {
-      throw new Error("no male name generator in set");
-    }
+    let genSet = MUN.getSetByName("fantasy", MUN.cultureSets());
     this.femaleNameGenerator = genSet.female;
     this.maleNameGenerator = genSet.male;
   }
@@ -938,14 +933,7 @@ class ReligionGeneratorConfig {
   constructor() {
     this.categories = all();
     this.deitySpeciesOptions = [human];
-    let genSet = new MUN.HumanSet();
-    if (genSet.family === null) {
-      throw new Error("No family name generator found.");
-    } else if (genSet.female === null) {
-      throw new Error("No female name generator found");
-    } else if (genSet.male === null) {
-      throw new Error("No male name generator found");
-    }
+    let genSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
     this.nameGenerator = genSet.family;
     this.femaleNameGenerator = genSet.female;
     this.maleNameGenerator = genSet.male;

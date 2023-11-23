@@ -5062,6 +5062,9 @@ function describeTraits(character) {
   return traits;
 }
 function generate(config) {
+  if (config.speciesOptions.length === 0) {
+    throw new Error("No species options provided.");
+  }
   const species = RND.weighted(config.speciesOptions);
   const genderName = RND.item(config.genderNameOptions);
   let gender = species.genders.find((g) => g.name === genderName);
@@ -5074,7 +5077,7 @@ function generate(config) {
     try {
       speciesNameGenerator = MUN.getSetByName(species.name, MUN.allSets());
     } catch (e) {
-      speciesNameGenerator = new MUN.FantasySet();
+      speciesNameGenerator = MUN.getSetByName("fantasy", MUN.allSets());
     }
     familyNameGenerator = speciesNameGenerator.family;
     femaleNameGenerator = speciesNameGenerator.female;
@@ -5138,7 +5141,7 @@ function generate(config) {
   return character;
 }
 function getDefaultCharacterGeneratorConfig() {
-  const nameSet = new MUN.FantasySet();
+  const nameSet = MUN.getSetByName("fantasy", MUN.allSets());
   return {
     speciesOptions: [],
     ageCategoryNames: ["adult"],

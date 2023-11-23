@@ -1,11 +1,11 @@
 import * as RND from "@ironarachne/rng";
-import Charge from "./charge.js";
+import type Charge from "./charge.js";
 import * as Charges from "./charges.js";
-import Field from "./field.js";
+import type Field from "./field.js";
 import * as Fields from "./fields.js";
-import Tincture from "./tincture.js";
+import type Tincture from "./tincture.js";
 import * as Tinctures from "./tinctures.js";
-import Variation from "./variation.js";
+import type Variation from "./variation.js";
 import * as Variations from "./variations.js";
 
 export default class HeraldryGeneratorConfig {

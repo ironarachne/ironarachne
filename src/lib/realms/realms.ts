@@ -40,7 +40,7 @@ export function generate(config: RealmGeneratorConfig): Realm {
 
 export function getDefaultConfig(): RealmGeneratorConfig {
   return {
-    nameGeneratorSet: new MUN.FantasySet(),
+    nameGeneratorSet: MUN.getSetByName("human", MUN.fantasyRaceSets()),
     realmTypes: RealmTypes.all(),
     mapWidth: 40,
     mapHeight: 30,

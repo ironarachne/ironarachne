@@ -1,5 +1,5 @@
 import * as RND from "@ironarachne/rng";
-import Device from "../device.js";
+import type Device from "../device.js";
 
 export default class HeraldrySVGRenderer {
   render(device: Device, width: number, height: number): string {

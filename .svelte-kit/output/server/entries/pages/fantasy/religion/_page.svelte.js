@@ -12,7 +12,7 @@ const css = {
 };
 const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   const user = getContext("user");
-  new MUN.HumanSet();
+  MUN.getSetByName("human", MUN.fantasyRaceSets());
   let useSavedCulture = false;
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));

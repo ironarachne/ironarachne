@@ -1,5 +1,14 @@
 export default [
   {
+    date: "2023-11-23",
+    summary: "",
+    updates: [
+      "Restructured how heraldry is built.",
+      "Render heraldry in most places as PNG instead of SVG.",
+      "Updated to a new version of the made-up-names package.",
+    ],
+  },
+  {
     date: "2023-09-10",
     summary: "Huge rework to species, environment, and encounter generation.",
     updates: [

@@ -1,4 +1,4 @@
-import Tincture from "./tincture.js";
+import type Tincture from "./tincture.js";
 
 export default class Variation {
   name: string;
@@ -26,7 +26,7 @@ export default class Variation {
     this.tinctures = [];
   }
 
-  renderBlazon() {
+  renderBlazon(): string {
     let blazon = this.blazon;
 
     blazon = blazon.replace("tincture1", this.tinctures[0].name);
@@ -38,7 +38,7 @@ export default class Variation {
     return blazon;
   }
 
-  renderSVGPattern() {
+  renderSVGPattern(): string {
     let svg = this.pattern;
 
     svg = svg.replaceAll("tincture1", "url(#" + this.tinctures[0].name + ")");

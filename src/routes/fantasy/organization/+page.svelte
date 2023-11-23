@@ -2,6 +2,7 @@
   import * as Organization from "$lib/organizations/fantasy";
   import * as RND from "@ironarachne/rng";
   import * as Characters from "$lib/characters/characters";
+  import { renderSVGAsPNG } from "$lib/images/svg";
   import random from "random";
   import seedrandom from "seedrandom";
   import HeraldryGenerator from "$lib/heraldry/generator";
@@ -21,7 +22,7 @@
   let heraldry = hGen.generate();
   let svgRenderer = new HeraldrySVGRenderer();
 
-  function generateFantasyOrganization() {
+  function generate() {
     random.use(seedrandom(seed));
     let org = Organization.generate();
     name = org.name;
@@ -33,11 +34,14 @@
     heraldryConfig.height = 220;
     hGen.config = heraldryConfig;
     heraldry = hGen.generate();
+
+    let svg = svgRenderer.render(heraldry.device, 200, 220);
+    renderSVGAsPNG(svg, 200, 220, "org-arms");
   }
 
   function newSeed() {
     seed = RND.randomString(13);
-    generateFantasyOrganization();
+    generate();
   }
 </script>
 
@@ -67,12 +71,12 @@
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
   </div>
-  <button on:click={generateFantasyOrganization}>Generate From Seed</button>
+  <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
   <h2>{name}</h2>
 
-  <div class="org-arms">{@html svgRenderer.render(heraldry.device, 200, 220)}</div>
+  <div class="org-arms"><img alt="" id="org-arms"/></div>
 
   <p>{description}</p>
 

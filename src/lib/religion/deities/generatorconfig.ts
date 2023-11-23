@@ -18,7 +18,7 @@ export default class DeityGeneratorConfig {
     this.domainSet = new DomainSet();
     this.characterGeneratorConfig = charGenConfig;
 
-    let genSet = new MUN.HumanSet();
+    let genSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
 
     this.femaleNameGenerator = genSet.female;
     this.maleNameGenerator = genSet.male;

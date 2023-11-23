@@ -1,7 +1,6 @@
 import { c as create_ssr_component, g as getContext, a as add_attribute, f as each, e as escape } from "../../../chunks/ssr.js";
 import * as RND from "@ironarachne/rng";
 import * as MUN from "@ironarachne/made-up-names";
-import { GeneratorSet } from "@ironarachne/made-up-names";
 import "seedrandom";
 import "../../../chunks/sentry-release-injection-file.js";
 import random from "random";
@@ -243,7 +242,7 @@ class Culture {
   constructor(name, organization, religion, taboos, greeting, eatingTrait, designTrait, musicStyle) {
     this.name = name;
     this.organization = organization;
-    this.generatorSet = new GeneratorSet();
+    this.generatorSet = MUN.getSetByName("fantasy", MUN.cultureSets());
     this.countryNames = [];
     this.maleNames = [];
     this.femaleNames = [];

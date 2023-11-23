@@ -7,16 +7,7 @@ export default class DCCCharacterGeneratorConfig {
   allowedOccupations: string[];
 
   constructor() {
-    let genSet = new MUN.HumanSet();
-    if (genSet.family === null) {
-      throw new Error("No family name generator found for humans.");
-    }
-    if (genSet.female === null) {
-      throw new Error("No female name generator found for humans.");
-    }
-    if (genSet.male === null) {
-      throw new Error("No male name generator found for humans.");
-    }
+    let genSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
     this.nameGeneratorFamily = genSet.family;
     this.nameGeneratorFemale = genSet.female;
     this.nameGeneratorMale = genSet.male;

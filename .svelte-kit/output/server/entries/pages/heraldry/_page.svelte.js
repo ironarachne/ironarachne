@@ -1,12 +1,35 @@
 import { c as create_ssr_component, a as add_attribute, f as each, e as escape } from "../../../chunks/ssr.js";
-import { r as randomChargeTincture, b as allChargeTags, c as HeraldryGeneratorConfig, H as HeraldryGenerator, d as all, e as all$1, f as all$2, g as all$3, o as ofTypes, a as HeraldrySVGRenderer } from "../../../chunks/svg.js";
+import { a as all, r as randomChargeTincture, b as all$1, c as allChargeTags, d as HeraldryGeneratorConfig, H as HeraldryGenerator, e as all$2, f as all$3, o as ofTypes } from "../../../chunks/generator.js";
 import * as RND from "@ironarachne/rng";
 import "../../../chunks/sentry-release-injection-file.js";
 import random from "random";
 import seedrandom from "seedrandom";
+import { H as HeraldrySVGRenderer } from "../../../chunks/svg.js";
+function renderSVGAsPNG(svg, width, height, outputId) {
+  let output = document.getElementById(outputId);
+  if (output === null) {
+    setTimeout(() => {
+      renderSVGAsPNG(svg, width, height, outputId);
+    }, 50);
+    return;
+  }
+  let blob = new Blob([svg], { type: "image/svg+xml" });
+  let blobURL = window.URL.createObjectURL(blob);
+  let canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+  let ctx = canvas.getContext("2d");
+  let outputImage = new Image();
+  outputImage.onload = function() {
+    ctx.drawImage(outputImage, 0, 0);
+    let pngDataUrl = canvas.toDataURL("image/png");
+    output.src = pngDataUrl;
+  };
+  outputImage.src = blobURL;
+}
 const _page_svelte_svelte_type_style_lang = "";
 const css = {
-  code: 'div.svelte-1flz3eh.svelte-1flz3eh,h1.svelte-1flz3eh.svelte-1flz3eh,p.svelte-1flz3eh.svelte-1flz3eh,label.svelte-1flz3eh.svelte-1flz3eh,section.svelte-1flz3eh.svelte-1flz3eh{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline}section.svelte-1flz3eh.svelte-1flz3eh{display:block}@font-face{font-family:"alienleague";src:url("$lib/assets/fonts/alienleagueregular-9d3z-webfont.woff2") format("woff2");font-weight:normal;font-style:normal}@font-face{font-family:"azonix";src:url("$lib/assets/fonts/azonix-webfont.woff2") format("woff2");font-weight:normal;font-style:normal}h1.svelte-1flz3eh.svelte-1flz3eh{font-family:system-ui, Helvetica, sans-serif;margin:0.5rem 0}h1.svelte-1flz3eh.svelte-1flz3eh{color:#000;font-weight:700;font-size:2.5rem;line-height:2.5rem;padding:3px}p.svelte-1flz3eh.svelte-1flz3eh{margin:1rem 0}label.svelte-1flz3eh.svelte-1flz3eh{font-weight:700;margin-right:1rem}input.svelte-1flz3eh.svelte-1flz3eh,select.svelte-1flz3eh.svelte-1flz3eh{font-size:1rem;line-height:1rem;padding:0.25rem}div.input-group.svelte-1flz3eh.svelte-1flz3eh{margin-bottom:1rem}section.main.svelte-1flz3eh.svelte-1flz3eh{padding:0.5rem}#seed.svelte-1flz3eh.svelte-1flz3eh{font-family:monospace}.fantasy.svelte-1flz3eh button.svelte-1flz3eh{background:rgb(92, 86, 73);background:linear-gradient(165deg, rgb(92, 86, 73) 0%, rgb(10, 10, 10) 100%);border:3px solid #5c5031;border-radius:3px;color:#fff;line-height:1rem;margin:0.1rem;padding:0.5rem 1rem}.fantasy.svelte-1flz3eh button.svelte-1flz3eh:active{background:rgb(92, 86, 73);background:linear-gradient(339deg, rgb(92, 86, 73) 0%, rgb(10, 10, 10) 100%);color:#76e841;transform:translateY(2px)}.fantasy.svelte-1flz3eh button.svelte-1flz3eh:disabled{background:#666;color:#777;border-color:#999}div.coat-of-arms.svelte-1flz3eh.svelte-1flz3eh{width:600px;height:660px;margin:0 auto}p.blazon.svelte-1flz3eh.svelte-1flz3eh{text-align:center}',
+  code: 'div.svelte-1flz3eh.svelte-1flz3eh,h1.svelte-1flz3eh.svelte-1flz3eh,p.svelte-1flz3eh.svelte-1flz3eh,img.svelte-1flz3eh.svelte-1flz3eh,label.svelte-1flz3eh.svelte-1flz3eh,section.svelte-1flz3eh.svelte-1flz3eh{margin:0;padding:0;border:0;font-size:100%;font:inherit;vertical-align:baseline}section.svelte-1flz3eh.svelte-1flz3eh{display:block}@font-face{font-family:"alienleague";src:url("$lib/assets/fonts/alienleagueregular-9d3z-webfont.woff2") format("woff2");font-weight:normal;font-style:normal}@font-face{font-family:"azonix";src:url("$lib/assets/fonts/azonix-webfont.woff2") format("woff2");font-weight:normal;font-style:normal}h1.svelte-1flz3eh.svelte-1flz3eh{font-family:system-ui, Helvetica, sans-serif;margin:0.5rem 0}h1.svelte-1flz3eh.svelte-1flz3eh{color:#000;font-weight:700;font-size:2.5rem;line-height:2.5rem;padding:3px}p.svelte-1flz3eh.svelte-1flz3eh{margin:1rem 0}label.svelte-1flz3eh.svelte-1flz3eh{font-weight:700;margin-right:1rem}input.svelte-1flz3eh.svelte-1flz3eh,select.svelte-1flz3eh.svelte-1flz3eh{font-size:1rem;line-height:1rem;padding:0.25rem}div.input-group.svelte-1flz3eh.svelte-1flz3eh{margin-bottom:1rem}section.main.svelte-1flz3eh.svelte-1flz3eh{padding:0.5rem}#seed.svelte-1flz3eh.svelte-1flz3eh{font-family:monospace}.fantasy.svelte-1flz3eh button.svelte-1flz3eh{background:rgb(92, 86, 73);background:linear-gradient(165deg, rgb(92, 86, 73) 0%, rgb(10, 10, 10) 100%);border:3px solid #5c5031;border-radius:3px;color:#fff;line-height:1rem;margin:0.1rem;padding:0.5rem 1rem}.fantasy.svelte-1flz3eh button.svelte-1flz3eh:active{background:rgb(92, 86, 73);background:linear-gradient(339deg, rgb(92, 86, 73) 0%, rgb(10, 10, 10) 100%);color:#76e841;transform:translateY(2px)}.fantasy.svelte-1flz3eh button.svelte-1flz3eh:disabled{background:#666;color:#777;border-color:#999}div.coat-of-arms.svelte-1flz3eh.svelte-1flz3eh{width:600px;height:660px;margin:0 auto}p.blazon.svelte-1flz3eh.svelte-1flz3eh{text-align:center}',
   map: null
 };
 const heraldryWidth = 600;
@@ -16,6 +39,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   let image = "";
   let seed = RND.randomString(13);
   let charges = all();
+  all();
   let chargeTincture = randomChargeTincture();
   let fieldTinctures1 = all$1();
   let fieldTinctures2 = all$1();
@@ -70,6 +94,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
     blazon = heraldry.blazon;
     let renderer = new HeraldrySVGRenderer();
     image = renderer.render(heraldry.device, config.width, config.height);
+    renderSVGAsPNG(image, config.width, config.height, "output");
   }
   function newSeed() {
     seed = RND.randomString(13);
@@ -90,7 +115,7 @@ const Page = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   return `<section class="fantasy main svelte-1flz3eh"><h1 class="svelte-1flz3eh" data-svelte-h="svelte-97q6xu">Heraldry Generator</h1> <p class="svelte-1flz3eh" data-svelte-h="svelte-8poblq">Generate fantasy coats-of-arms. Note: if you change the seed, the page URL
     won&#39;t change, but your new seed will be used the next time you hit Generate.</p> <div class="input-group svelte-1flz3eh"><label for="seed" class="svelte-1flz3eh" data-svelte-h="svelte-1akft3f">Random Seed</label> <input type="text" name="seed" id="seed" class="svelte-1flz3eh"${add_attribute("value", seed, 0)}></div> <div class="input-group svelte-1flz3eh"><label for="tag" class="svelte-1flz3eh" data-svelte-h="svelte-8cme56">Charge Tag</label> <select name="tag" class="svelte-1flz3eh"><option value="any" data-svelte-h="svelte-1j2tppc">any</option>${each(availableTags, (tag) => {
     return `<option${add_attribute("value", tag, 0)}>${escape(tag)}</option>`;
-  })}</select></div> <div class="input-group svelte-1flz3eh"><label for="num-charges" class="svelte-1flz3eh" data-svelte-h="svelte-cxjxxh">Number of Charges</label> <select name="num-charges" class="svelte-1flz3eh"><option value="any" data-svelte-h="svelte-1j2tppc">any</option><option value="none" data-svelte-h="svelte-1wr4gle">none</option><option value="one" data-svelte-h="svelte-2bbcs2">one</option><option value="two" data-svelte-h="svelte-71pkr4">two</option><option value="three" data-svelte-h="svelte-1c1t7ry">three</option></select></div> <div class="input-group svelte-1flz3eh"><label for="charge-tincture" class="svelte-1flz3eh" data-svelte-h="svelte-1n51gdb">Charge Tincture</label> <select name="charge-tincture" class="svelte-1flz3eh"><option value="any" data-svelte-h="svelte-1j2tppc">any</option><option value="gules" data-svelte-h="svelte-1ln4tsg">gules (red)</option><option value="argent" data-svelte-h="svelte-1eumzkm">argent (white)</option><option value="vert" data-svelte-h="svelte-1ebhcjg">vert (green)</option><option value="purpure" data-svelte-h="svelte-1ce377v">purpure (purple)</option><option value="sable" data-svelte-h="svelte-jz8toi">sable (black)</option><option value="Or" data-svelte-h="svelte-uep6jt">Or (gold)</option><option value="azure" data-svelte-h="svelte-1f0cli9">azure (blue)</option><option value="murrey" data-svelte-h="svelte-3iq1h9">murrey (mulberry)</option><option value="sanguine" data-svelte-h="svelte-1v3kxbs">sanguine (blood red)</option><option value="tenné" data-svelte-h="svelte-1dflx6b">tenné (brown)</option></select></div> <button class="svelte-1flz3eh" data-svelte-h="svelte-1u7zbd5">Generate From Seed</button> <button class="svelte-1flz3eh" data-svelte-h="svelte-192mxrq">Random Seed (and Generate)</button> <button ${image === "" ? "disabled" : ""} class="svelte-1flz3eh">Save</button> <button ${image === "" ? "disabled" : ""} class="svelte-1flz3eh">Save as PNG</button> <p class="blazon svelte-1flz3eh">${escape(blazon)}</p> <div class="coat-of-arms svelte-1flz3eh"><!-- HTML_TAG_START -->${image}<!-- HTML_TAG_END --></div></section> ${$$result.head += `<!-- HEAD_svelte-1uc9z7x_START -->${$$result.title = `<title>Heraldry Generator | Iron Arachne</title>`, ""}<!-- HEAD_svelte-1uc9z7x_END -->`, ""}`;
+  })}</select></div> <div class="input-group svelte-1flz3eh"><label for="num-charges" class="svelte-1flz3eh" data-svelte-h="svelte-cxjxxh">Number of Charges</label> <select name="num-charges" class="svelte-1flz3eh"><option value="any" data-svelte-h="svelte-1j2tppc">any</option><option value="none" data-svelte-h="svelte-1wr4gle">none</option><option value="one" data-svelte-h="svelte-2bbcs2">one</option><option value="two" data-svelte-h="svelte-71pkr4">two</option><option value="three" data-svelte-h="svelte-1c1t7ry">three</option></select></div> <div class="input-group svelte-1flz3eh"><label for="charge-tincture" class="svelte-1flz3eh" data-svelte-h="svelte-1n51gdb">Charge Tincture</label> <select name="charge-tincture" class="svelte-1flz3eh"><option value="any" data-svelte-h="svelte-1j2tppc">any</option><option value="gules" data-svelte-h="svelte-1ln4tsg">gules (red)</option><option value="argent" data-svelte-h="svelte-1eumzkm">argent (white)</option><option value="vert" data-svelte-h="svelte-1ebhcjg">vert (green)</option><option value="purpure" data-svelte-h="svelte-1ce377v">purpure (purple)</option><option value="sable" data-svelte-h="svelte-jz8toi">sable (black)</option><option value="Or" data-svelte-h="svelte-uep6jt">Or (gold)</option><option value="azure" data-svelte-h="svelte-1f0cli9">azure (blue)</option><option value="murrey" data-svelte-h="svelte-3iq1h9">murrey (mulberry)</option><option value="sanguine" data-svelte-h="svelte-1v3kxbs">sanguine (blood red)</option><option value="tenné" data-svelte-h="svelte-1dflx6b">tenné (brown)</option></select></div> <button class="svelte-1flz3eh" data-svelte-h="svelte-1u7zbd5">Generate From Seed</button> <button class="svelte-1flz3eh" data-svelte-h="svelte-192mxrq">Random Seed (and Generate)</button> <button ${image === "" ? "disabled" : ""} class="svelte-1flz3eh">Save</button> <button ${image === "" ? "disabled" : ""} class="svelte-1flz3eh">Save as PNG</button> <p class="blazon svelte-1flz3eh">${escape(blazon)}</p> <div class="coat-of-arms svelte-1flz3eh" data-svelte-h="svelte-18yedqv"><img alt="" id="output" class="svelte-1flz3eh"></div></section> ${$$result.head += `<!-- HEAD_svelte-1uc9z7x_START -->${$$result.title = `<title>Heraldry Generator | Iron Arachne</title>`, ""}<!-- HEAD_svelte-1uc9z7x_END -->`, ""}`;
 });
 export {
   Page as default

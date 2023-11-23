@@ -5,12 +5,12 @@ import * as Dice from "../dice.js";
 import DCCAttribute from "./attribute.js";
 import DCCCharacter from "./character.js";
 import DCCGear from "./equipment/gear.js";
-import DCCCharacterGeneratorConfig from "./generatorconfig.js";
+import type DCCCharacterGeneratorConfig from "./generatorconfig.js";
 import DCCLanguage from "./languages/language.js";
 import * as Languages from "./languages/languages.js";
-import DCCLuckyRoll from "./luckyroll.js";
+import type DCCLuckyRoll from "./luckyroll.js";
 import * as LuckyRolls from "./luckyrolls.js";
-import DCCOccupation from "./occupation.js";
+import type DCCOccupation from "./occupation.js";
 import * as Occupations from "./occupations.js";
 
 export default class DCCCharacterGenerator {
@@ -68,41 +68,22 @@ export default class DCCCharacterGenerator {
     character = character.luckyRoll.apply(character);
 
     if (character.occupation.name.includes("elven")) {
-      let genSet = new MUN.ElfSet();
-      if (genSet.family === null) {
-        throw new Error("No family name generator found for elves.");
-      }
+      let genSet = MUN.getSetByName("elf", MUN.allSets());
       character.lastName = genSet.family.generate(1)[0];
-      if (genSet.female === null) {
-        throw new Error("No female name generator found for elves.");
-      }
-      if (genSet.male === null) {
-        throw new Error("No male name generator found for elves.");
-      }
       if (character.gender == "male") {
         character.firstName = genSet.male.generate(1)[0];
       } else {
         character.firstName = genSet.female.generate(1)[0];
       }
     } else if (character.occupation.name.includes("dwarven")) {
-      let genSet = new MUN.DwarfSet();
-      if (genSet.family === null) {
-        throw new Error("No family name generator found for dwarves.");
-      }
-      character.lastName = genSet.family.generate(1)[0];
-      if (genSet.female === null) {
-        throw new Error("No female name generator found for dwarves.");
-      }
-      if (genSet.male === null) {
-        throw new Error("No male name generator found for dwarves.");
-      }
+      let genSet = MUN.getSetByName("dwarf", MUN.allSets());
       if (character.gender == "male") {
         character.firstName = genSet.male.generate(1)[0];
       } else {
         character.firstName = genSet.female.generate(1)[0];
       }
     } else if (character.occupation.name.includes("halfling")) {
-      let genSet = new MUN.HalflingSet();
+      let genSet = MUN.getSetByName("halfling", MUN.allSets());
       if (genSet.family === null) {
         throw new Error("No family name generator found for halflings.");
       }

@@ -66,7 +66,7 @@ export function generate(config: RegionGeneratorConfig): Region {
 
   let numberOfNeighbors = random.int(config.minRealms, config.maxRealms);
   for (let i = 0; i < numberOfNeighbors; i++) {
-    realmGenConfig.nameGeneratorSet = new MUN.FantasySet();
+    realmGenConfig.nameGeneratorSet = MUN.getSetByName("fantasy", MUN.allSets());
     if (RND.simple(100) > 70) {
       let neighborNameGenSet = RND.item(MUN.cultureSets());
       realmGenConfig.nameGeneratorSet = neighborNameGenSet;
@@ -99,7 +99,7 @@ export function generate(config: RegionGeneratorConfig): Region {
 
 export function getDefaultConfig(): RegionGeneratorConfig {
   return {
-    nameGeneratorSet: new MUN.FantasySet(),
+    nameGeneratorSet: MUN.getSetByName("fantasy", MUN.cultureSets()),
     dominantCulture: null,
     mapWidth: 40,
     mapHeight: 30,

@@ -1,7 +1,7 @@
 import * as RND from "@ironarachne/rng";
-import Arms from "./arms.js";
-import ChargeGroup from "./chargegroup.js";
-import * as Arrangements from "./chargegrouparrangements.js";
+import type Arms from "./arms.js";
+import ChargeGroup from "./charge_group.js";
+import * as Arrangements from "./charge_group_arrangements.js";
 import * as Charges from "./charges.js";
 import Device from "./device.js";
 import * as Fields from "./fields.js";
@@ -49,7 +49,7 @@ export default class HeraldryGenerator {
 
     let blazon = device.renderBlazon();
 
-    return new Arms(device, blazon);
+    return { device, blazon };
   }
 
   generateConfig(): HeraldryGeneratorConfig {

@@ -1,4 +1,4 @@
-import { GeneratorSet } from "@ironarachne/made-up-names";
+import * as MUN from "@ironarachne/made-up-names";
 import type MusicStyle from "../music/style.js";
 import type Religion from "../religion/religion.js";
 import type { Organization } from "./organization.js";
@@ -7,7 +7,7 @@ import type { Organization } from "./organization.js";
 export default class Culture {
   name: string;
   organization: Organization;
-  generatorSet: GeneratorSet;
+  generatorSet: MUN.GeneratorSet;
   countryNames: string[];
   familyNames: string[];
   femaleNames: string[];
@@ -32,7 +32,7 @@ export default class Culture {
   ) {
     this.name = name;
     this.organization = organization;
-    this.generatorSet = new GeneratorSet();
+    this.generatorSet = MUN.getSetByName("fantasy", MUN.cultureSets());
     this.countryNames = [];
     this.maleNames = [];
     this.femaleNames = [];

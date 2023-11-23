@@ -2,7 +2,7 @@ import { c as generate$1, o as getHonorific } from "./characters.js";
 import { g as getFantasy } from "./premade_configs.js";
 import * as RND from "@ironarachne/rng";
 import random from "random";
-import { c as HeraldryGeneratorConfig, m as matchingAnyTags, d as all } from "./svg.js";
+import { d as HeraldryGeneratorConfig, m as matchingAnyTags, a as all } from "./generator.js";
 import "./sentry-release-injection-file.js";
 import * as MUN from "@ironarachne/made-up-names";
 class Rank {
@@ -206,11 +206,11 @@ function generateType$1() {
         {
           name: "family",
           randomName: function() {
-            const nameGenerator = new MUN.FantasySet();
-            if (nameGenerator.family === null) {
+            const nameGeneratorSet = MUN.getSetByName("fantasy", MUN.allSets());
+            if (nameGeneratorSet.family === null) {
               throw new Error("Family name generator not found.");
             }
-            const familyNames = nameGenerator.family.generate(100);
+            const familyNames = nameGeneratorSet.family.generate(100);
             const familyName = RND.item(familyNames);
             const moniker = RND.item([" Brothers", " & Sons", " & Son", " Family", ""]);
             const suffix = RND.item([
