@@ -1,6 +1,10 @@
+import type RGBColor from "$lib/graphics/rgb_color";
+
 export default class Star {
   name: string;
   color: string;
+  primaryColor: RGBColor;
+  secondaryColor: RGBColor;
   description: string;
   classification: string;
   radius: number; // in km
@@ -11,29 +15,13 @@ export default class Star {
   constructor() {
     this.name = "";
     this.color = "";
+    this.primaryColor = { r: 0, g: 0, b: 0 };
+    this.secondaryColor = { r: 0, g: 0, b: 0 };
     this.description = "";
     this.classification = "";
     this.radius = 0;
     this.mass = 0;
     this.temperature = 0;
     this.luminosity = 0;
-  }
-
-  getColorFromTemperature() {
-    if (this.temperature < 3700) {
-      return "red";
-    } else if (this.temperature < 5200) {
-      return "orange";
-    } else if (this.temperature < 6000) {
-      return "yellow";
-    } else if (this.temperature < 7500) {
-      return "yellow-white";
-    } else if (this.temperature < 10000) {
-      return "white";
-    } else if (this.temperature < 30000) {
-      return "blue-white";
-    }
-
-    return "blue";
   }
 }

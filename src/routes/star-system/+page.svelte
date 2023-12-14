@@ -1,25 +1,24 @@
-<script>
+<script lang="ts">
   import * as RND from "@ironarachne/rng";
+  import * as PlanetWebGLRenderer from "$lib/renderers/planets/planet-webgl";
+  import * as WebGLStarRenderer from "$lib/renderers/stars/webgl_star_renderer";
   import random from "random";
   import seedrandom from "seedrandom";
   import StarSystemGenerator from "$lib/starsystem/generator";
   import StarSystemGeneratorConfig from "$lib/starsystem/generatorconfig";
-  import SVGPlanetRenderer from "$lib/renderers/planets/planet-svg";
-  import SVGStarRenderer from "$lib/renderers/stars/star-svg";
+  import type StarSystem from "$lib/starsystem/starsystem";
+  import { onMount } from 'svelte';
 
   const width = 128;
   const height = 128;
 
-  let planetRenderer = new SVGPlanetRenderer(width, height);
-  let starRenderer = new SVGStarRenderer(width, height);
-
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
 
-  let config = new StarSystemGeneratorConfig();
-  let generator = new StarSystemGenerator(config);
+  let config: StarSystemGeneratorConfig;
+  let generator: StarSystemGenerator;
 
-  let system = generator.generate();
+  let system: StarSystem;
 
   function generate() {
     random.use(seedrandom(seed));
@@ -30,6 +29,12 @@
     seed = RND.randomString(13);
     generate();
   }
+
+  onMount(() => {
+    config = new StarSystemGeneratorConfig();
+    generator = new StarSystemGenerator(config);
+		system = generator.generate();
+	});
 </script>
 
 <style lang="scss">
@@ -58,6 +63,7 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
+  {#if system}
   <h2>The {system.name} System</h2>
 
   <p>{system.description}</p>
@@ -66,7 +72,9 @@
 
   {#each system.stars as star}
     <article class="media-banner">
-      <div class="image-container">{@html starRenderer.render(star)}</div>
+      <div class="image-container">
+        <img alt="{ star.name } image" src="{ WebGLStarRenderer.render(star, width, height) }" />
+      </div>
       <div>
         <h5>{star.name}</h5>
         <p>{star.description}</p>
@@ -96,7 +104,9 @@
 
   {#each system.planets as planet}
     <article class="media-banner">
-      <div class="image-container">{@html planetRenderer.render(planet)}</div>
+      <div class="image-container">
+        <img alt="{ planet.name } image" src="{ PlanetWebGLRenderer.render(planet, width, height) }" />
+      </div>
       <div>
         <h5>{planet.name}</h5>
         <p>{planet.description}</p>
@@ -127,4 +137,5 @@
       </div>
     </article>
   {/each}
+  {/if}
 </section>

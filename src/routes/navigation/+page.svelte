@@ -250,7 +250,7 @@ section.navigation {
         <a href="/star-nation">Star Nation</a>
       </li>
       <li>
-        <a href="/starsystem">Star System</a>
+        <a href="/star-system">Star System</a>
       </li>
     </ul>
 

@@ -1,6 +1,6 @@
 import type Planet from "$lib/planets/planet";
-import * as StarfieldShader from "$lib/renderers/starfields/starfield-webgl";
 import * as PlanetShaders from "$lib/shaders/planets/planets";
+import StarfieldShader from "$lib/shaders/starfield.frag";
 import random from "random";
 import * as THREE from "three";
 
@@ -25,7 +25,8 @@ export function render(planet: Planet, width: number, height: number): string {
   let starfieldGeometry = new THREE.PlaneGeometry(50, 50, 50);
   geometries.push(starfieldGeometry);
   let starfieldMaterial = new THREE.ShaderMaterial({
-    fragmentShader: StarfieldShader.generate(),
+    uniforms: { seed: { value: random.float(0, 100.0) } },
+    fragmentShader: StarfieldShader,
   });
   materials.push(starfieldMaterial);
   let plane = new THREE.Mesh(starfieldGeometry, starfieldMaterial);
@@ -41,6 +42,11 @@ export function render(planet: Planet, width: number, height: number): string {
 
   uniforms.u_resolution = { value: { x: width, y: height } };
   uniforms.seed = { value: random.float(0, 200.0) };
+
+  if (planet.classification.name === "gas giant") {
+    uniforms.bandColor = { value: new THREE.Vector3(random.float(0, 1), random.float(0, 1), random.float(0, 1)) };
+    uniforms.baseColor = { value: new THREE.Vector3(random.float(0, 1), random.float(0, 1), random.float(0, 1)) };
+  }
 
   let planetSize = translateDiameterToModelSize(planet.diameter);
 

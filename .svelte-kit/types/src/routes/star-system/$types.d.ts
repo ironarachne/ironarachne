@@ -4,7 +4,7 @@ type Expand<T> = T extends infer O ? { [K in keyof O]: O[K] } : never;
 // @ts-ignore
 type MatcherParam<M> = M extends (param : string) => param is infer U ? U extends string ? U : string : string;
 type RouteParams = {  };
-type RouteId = '/starsystem';
+type RouteId = '/star-system';
 type MaybeWithVoid<T> = {} extends T ? T | void : T;
 export type RequiredKeys<T> = { [K in keyof T]-?: {} extends { [P in K]: T[K] } ? never : K; }[keyof T];
 type OutputDataShape<T> = MaybeWithVoid<Omit<App.PageData, RequiredKeys<T>> & Partial<Pick<App.PageData, keyof T & keyof App.PageData>> & Record<string, any>>

@@ -1,21 +1,22 @@
 <script lang="ts">
   import * as RND from "@ironarachne/rng";
   import * as Words from "@ironarachne/words";
+  import * as PlanetWebGLRenderer from "$lib/renderers/planets/planet-webgl";
   import random from "random";
   import seedrandom from "seedrandom";
   import StarNation from "$lib/starnations/starnation";
   import StarNationGenerator from "$lib/starnations/generator";
   import StarNationGeneratorConfig from "$lib/starnations/generatorconfig";
-  import SVGPlanetRenderer from "$lib/renderers/planets/planet-svg";
   import SVGStarRenderer from "$lib/renderers/stars/star-svg";
 
   let config = new StarNationGeneratorConfig();
   let gen = new StarNationGenerator(config);
   let nation = new StarNation();
   let seed = RND.randomString(13);
+  let imageWidth = 64;
+  let imageHeight = 64;
 
-  let planetRenderer = new SVGPlanetRenderer(64, 64);
-  let starRenderer = new SVGStarRenderer(64, 64);
+  let starRenderer = new SVGStarRenderer(imageWidth, imageHeight);
 
   function generate() {
     random.use(seedrandom(seed));
@@ -36,7 +37,7 @@
   @import '$lib/styles/global.scss';
   @import '$lib/styles/scifi.scss';
 
-  .star-system { display: flex; max-width: 600px; }
+  .star-system { display: flex; width: 100%; flex-wrap: wrap; }
 </style>
 
 <svelte:head>
@@ -74,7 +75,7 @@
   <div class="star-system">
   {@html starRenderer.render(nation.systems[nation.capitalSystem].stars[0])}
   {#each nation.systems[nation.capitalSystem].planets as planet}
-  {@html planetRenderer.render(planet)}
+  <img alt="{planet.name} image" src="{PlanetWebGLRenderer.render(planet, imageWidth, imageHeight)}" />
   {/each}
   </div>
 </section>

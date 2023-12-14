@@ -76,7 +76,6 @@ declare module '$env/static/private' {
 	export const npm_package_name: string;
 	export const LANG: string;
 	export const ITERM_PROFILE: string;
-	export const npm_config_npm_version: string;
 	export const XPC_FLAGS: string;
 	export const npm_config_node_gyp: string;
 	export const npm_package_version: string;
@@ -185,7 +184,6 @@ declare module '$env/dynamic/private' {
 		npm_package_name: string;
 		LANG: string;
 		ITERM_PROFILE: string;
-		npm_config_npm_version: string;
 		XPC_FLAGS: string;
 		npm_config_node_gyp: string;
 		npm_package_version: string;
