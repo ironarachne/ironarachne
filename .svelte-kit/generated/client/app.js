@@ -61,7 +61,7 @@ export const dictionary = {
 		"/species-stats": [22],
 		"/spooky-ship": [23],
 		"/star-nation": [24],
-		"/starsystem": [25],
+		"/star-system": [25],
 		"/swn/character": [26],
 		"/swn/starship": [27],
 		"/unchartedworlds/character": [28],

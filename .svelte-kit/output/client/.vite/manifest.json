@@ -32,11 +32,11 @@
       ".svelte-kit/generated/client-optimized/nodes/28.js",
       ".svelte-kit/generated/client-optimized/nodes/29.js"
     ],
-    "file": "_app/immutable/entry/app.0b5eddb3.js",
+    "file": "_app/immutable/entry/app.df39a58b.js",
     "imports": [
-      "_stores.2289849d.js",
-      "_index.ffc0792f.js",
-      "_scheduler.db8c6f43.js"
+      "_stores.202c0320.js",
+      "_index.2fc1e45c.js",
+      "_scheduler.4deff733.js"
     ],
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/app.js"
@@ -54,22 +54,22 @@
     "css": [
       "_app/immutable/assets/0.1c4b135e.css"
     ],
-    "file": "_app/immutable/nodes/0.834e4b34.js",
+    "file": "_app/immutable/nodes/0.15f8eebd.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
-      "_index.f70cc130.js"
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
+      "_index.784fc232.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/nodes/0.js"
   },
   ".svelte-kit/generated/client-optimized/nodes/1.js": {
-    "file": "_app/immutable/nodes/1.9f3c29f5.js",
+    "file": "_app/immutable/nodes/1.7d885706.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
-      "_stores.2289849d.js"
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
+      "_stores.202c0320.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -87,22 +87,22 @@
     "css": [
       "_app/immutable/assets/10.e1d31e86.css"
     ],
-    "file": "_app/immutable/nodes/10.8c344f68.js",
+    "file": "_app/immutable/nodes/10.f5993cc4.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_globals.7f7f1b26.js",
       "_each.e59479a4.js",
-      "_currency.9897789a.js",
-      "_index.7337e42a.js",
-      "_index.f6302111.js",
-      "_characters.e04f67db.js",
-      "_premade_configs.b56c6db5.js",
-      "_size_matrix.ddf3cada.js",
-      "_climates.a0f49ec2.js",
-      "_patterns.5fe010d5.js",
-      "_lodash.b6127185.js",
-      "_dice.e85247e2.js"
+      "_currency.3194128e.js",
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js",
+      "_characters.ad95bb70.js",
+      "_premade_configs.58c46439.js",
+      "_size_matrix.a3389459.js",
+      "_climates.f40958a8.js",
+      "_patterns.725d6c17.js",
+      "_lodash.469a5080.js",
+      "_dice.c8d9a43a.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -120,12 +120,12 @@
     "css": [
       "_app/immutable/assets/11.1f2249e2.css"
     ],
-    "file": "_app/immutable/nodes/11.c8becd67.js",
+    "file": "_app/immutable/nodes/11.1610ed41.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_currency.befc327c.js"
+      "_currency.26fe46da.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -143,17 +143,17 @@
     "css": [
       "_app/immutable/assets/12.96690025.css"
     ],
-    "file": "_app/immutable/nodes/12.c0ab0e41.js",
+    "file": "_app/immutable/nodes/12.7607cfcf.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_characters.e04f67db.js",
-      "_index.7337e42a.js",
-      "_size_matrix.ddf3cada.js",
-      "_lodash.b6127185.js",
-      "_generator_sets.c36bd51c.js",
-      "_index.f6302111.js"
+      "_characters.ad95bb70.js",
+      "_index.a1591b4f.js",
+      "_size_matrix.a3389459.js",
+      "_lodash.469a5080.js",
+      "_generator_sets.859de02c.js",
+      "_index.bd2dd152.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -171,16 +171,16 @@
     "css": [
       "_app/immutable/assets/13.c60c69a5.css"
     ],
-    "file": "_app/immutable/nodes/13.3ec80a9c.js",
+    "file": "_app/immutable/nodes/13.cf457f10.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_currency.befc327c.js",
-      "_index.7337e42a.js",
-      "_index.f6302111.js",
-      "_characters.e04f67db.js",
-      "_patterns.5fe010d5.js"
+      "_currency.26fe46da.js",
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js",
+      "_characters.ad95bb70.js",
+      "_patterns.725d6c17.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -198,15 +198,15 @@
     "css": [
       "_app/immutable/assets/14.2a34ad96.css"
     ],
-    "file": "_app/immutable/nodes/14.1b15258a.js",
+    "file": "_app/immutable/nodes/14.ea2a8baf.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_fantasy.b7424bc0.js",
-      "_index.7337e42a.js",
-      "_characters.e04f67db.js",
-      "_svg.68cc4455.js"
+      "_fantasy.d6b1a283.js",
+      "_index.a1591b4f.js",
+      "_characters.ad95bb70.js",
+      "_svg.d14ec9a6.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -224,17 +224,17 @@
     "css": [
       "_app/immutable/assets/15.ce88f76e.css"
     ],
-    "file": "_app/immutable/nodes/15.165a8b50.js",
+    "file": "_app/immutable/nodes/15.311530a3.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_lodash.b6127185.js",
-      "_generator_sets.c36bd51c.js",
-      "_index.f6302111.js",
-      "_index.7337e42a.js",
-      "_characters.e04f67db.js",
-      "_generatorconfig.da2a1fa4.js"
+      "_lodash.469a5080.js",
+      "_generator_sets.859de02c.js",
+      "_index.bd2dd152.js",
+      "_index.a1591b4f.js",
+      "_characters.ad95bb70.js",
+      "_generatorconfig.1ca53d2b.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -252,15 +252,15 @@
     "css": [
       "_app/immutable/assets/16.3d92dbff.css"
     ],
-    "file": "_app/immutable/nodes/16.1eadcd77.js",
+    "file": "_app/immutable/nodes/16.22c0dc3d.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_domains.e35701ca.js",
-      "_lodash.b6127185.js",
-      "_index.f6302111.js",
-      "_index.7337e42a.js"
+      "_domains.9725c883.js",
+      "_lodash.469a5080.js",
+      "_index.bd2dd152.js",
+      "_index.a1591b4f.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -278,13 +278,13 @@
     "css": [
       "_app/immutable/assets/17.2cc6ab87.css"
     ],
-    "file": "_app/immutable/nodes/17.129caab6.js",
+    "file": "_app/immutable/nodes/17.2c4def4f.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_svg.68cc4455.js",
-      "_index.7337e42a.js"
+      "_svg.d14ec9a6.js",
+      "_index.a1591b4f.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -302,13 +302,13 @@
     "css": [
       "_app/immutable/assets/18.6d4fca0f.css"
     ],
-    "file": "_app/immutable/nodes/18.402c637b.js",
+    "file": "_app/immutable/nodes/18.83561b1f.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_index.f6302111.js"
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -327,29 +327,29 @@
     "css": [
       "_app/immutable/assets/19.26671a1c.css"
     ],
-    "file": "_app/immutable/nodes/19.7f54a1f3.js",
+    "file": "_app/immutable/nodes/19.61b06f8a.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js"
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/nodes/19.js"
   },
   ".svelte-kit/generated/client-optimized/nodes/2.js": {
-    "file": "_app/immutable/nodes/2.eac56511.js",
+    "file": "_app/immutable/nodes/2.6ad1c363.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_dates.b3b07795.js"
+      "_dates.252ac4e7.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/nodes/2.js"
   },
   ".svelte-kit/generated/client-optimized/nodes/20.css": {
-    "file": "_app/immutable/assets/20.2efd8f8c.css",
+    "file": "_app/immutable/assets/20.13941caa.css",
     "src": ".svelte-kit/generated/client-optimized/nodes/20.css"
   },
   ".svelte-kit/generated/client-optimized/nodes/20.js": {
@@ -358,16 +358,15 @@
       "_app/immutable/assets/azonix-webfont.9240b274.woff2"
     ],
     "css": [
-      "_app/immutable/assets/20.2efd8f8c.css"
+      "_app/immutable/assets/20.13941caa.css"
     ],
-    "file": "_app/immutable/nodes/20.8202f209.js",
+    "file": "_app/immutable/nodes/20.9107ab06.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
-      "_globals.7f7f1b26.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_generator.8036774f.js"
+      "_index.a1591b4f.js",
+      "_generator.bc8d0f99.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -385,21 +384,21 @@
     "css": [
       "_app/immutable/assets/21.9df5f87f.css"
     ],
-    "file": "_app/immutable/nodes/21.9d16b11b.js",
+    "file": "_app/immutable/nodes/21.955952f9.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_climates.a0f49ec2.js",
-      "_fantasy.b7424bc0.js",
-      "_characters.e04f67db.js",
-      "_premade_configs.b56c6db5.js",
-      "_svg.68cc4455.js",
-      "_lodash.b6127185.js",
-      "_generator_sets.c36bd51c.js",
-      "_index.f6302111.js",
-      "_dice.e85247e2.js"
+      "_index.a1591b4f.js",
+      "_climates.f40958a8.js",
+      "_fantasy.d6b1a283.js",
+      "_characters.ad95bb70.js",
+      "_premade_configs.58c46439.js",
+      "_svg.d14ec9a6.js",
+      "_lodash.469a5080.js",
+      "_generator_sets.859de02c.js",
+      "_index.bd2dd152.js",
+      "_dice.c8d9a43a.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -417,12 +416,12 @@
     "css": [
       "_app/immutable/assets/22.319e0d95.css"
     ],
-    "file": "_app/immutable/nodes/22.a710b849.js",
+    "file": "_app/immutable/nodes/22.c8f6e172.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_size_matrix.ddf3cada.js"
+      "_size_matrix.a3389459.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -440,19 +439,19 @@
     "css": [
       "_app/immutable/assets/23.4db56798.css"
     ],
-    "file": "_app/immutable/nodes/23.1f3d1d1b.js",
+    "file": "_app/immutable/nodes/23.0b9e88d2.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
-      "_index.7337e42a.js",
-      "_index.f6302111.js"
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/nodes/23.js"
   },
   ".svelte-kit/generated/client-optimized/nodes/24.css": {
-    "file": "_app/immutable/assets/24.32830356.css",
+    "file": "_app/immutable/assets/24.70da4336.css",
     "src": ".svelte-kit/generated/client-optimized/nodes/24.css"
   },
   ".svelte-kit/generated/client-optimized/nodes/24.js": {
@@ -461,24 +460,25 @@
       "_app/immutable/assets/azonix-webfont.9240b274.woff2"
     ],
     "css": [
-      "_app/immutable/assets/24.32830356.css"
+      "_app/immutable/assets/24.70da4336.css"
     ],
-    "file": "_app/immutable/nodes/24.614790e5.js",
+    "file": "_app/immutable/nodes/24.9b3864d1.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_index.f6302111.js",
-      "_star-svg.45890603.js",
-      "_lodash.b6127185.js"
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js",
+      "_generator.3bfe35f1.js",
+      "_generator.bc8d0f99.js",
+      "_lodash.469a5080.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/nodes/24.js"
   },
   ".svelte-kit/generated/client-optimized/nodes/25.css": {
-    "file": "_app/immutable/assets/25.7fc11290.css",
+    "file": "_app/immutable/assets/25.18408270.css",
     "src": ".svelte-kit/generated/client-optimized/nodes/25.css"
   },
   ".svelte-kit/generated/client-optimized/nodes/25.js": {
@@ -487,15 +487,16 @@
       "_app/immutable/assets/azonix-webfont.9240b274.woff2"
     ],
     "css": [
-      "_app/immutable/assets/25.7fc11290.css"
+      "_app/immutable/assets/25.18408270.css"
     ],
-    "file": "_app/immutable/nodes/25.22cb079d.js",
+    "file": "_app/immutable/nodes/25.14c8b1b5.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_star-svg.45890603.js"
+      "_index.a1591b4f.js",
+      "_generator.3bfe35f1.js",
+      "_generator.bc8d0f99.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -513,15 +514,15 @@
     "css": [
       "_app/immutable/assets/26.d79166e2.css"
     ],
-    "file": "_app/immutable/nodes/26.c24a5ac1.js",
+    "file": "_app/immutable/nodes/26.fe7cac7d.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_globals.7f7f1b26.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_dice.e85247e2.js",
-      "_text.22dbc606.js"
+      "_index.a1591b4f.js",
+      "_dice.c8d9a43a.js",
+      "_text.190acd67.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -539,17 +540,17 @@
     "css": [
       "_app/immutable/assets/27.9a6dd51c.css"
     ],
-    "file": "_app/immutable/nodes/27.196f5974.js",
+    "file": "_app/immutable/nodes/27.84a9690c.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_globals.7f7f1b26.js",
       "_each.e59479a4.js",
-      "_lodash.b6127185.js",
-      "_index.f6302111.js",
-      "_index.7337e42a.js",
-      "_model_numbers.78354bae.js",
-      "_text.22dbc606.js"
+      "_lodash.469a5080.js",
+      "_index.bd2dd152.js",
+      "_index.a1591b4f.js",
+      "_model_numbers.ff789fbe.js",
+      "_text.190acd67.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -567,15 +568,15 @@
     "css": [
       "_app/immutable/assets/28.54727c98.css"
     ],
-    "file": "_app/immutable/nodes/28.df98885d.js",
+    "file": "_app/immutable/nodes/28.45f22c39.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_globals.7f7f1b26.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_index.f6302111.js",
-      "_text.22dbc606.js"
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js",
+      "_text.190acd67.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -593,12 +594,12 @@
     "css": [
       "_app/immutable/assets/29.a5cd19fb.css"
     ],
-    "file": "_app/immutable/nodes/29.1e997137.js",
+    "file": "_app/immutable/nodes/29.aa65c790.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_generator.58ac19cb.js"
+      "_generator.93fe7449.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -612,27 +613,27 @@
     "css": [
       "_app/immutable/assets/3.89450aeb.css"
     ],
-    "file": "_app/immutable/nodes/3.ecf66ccb.js",
+    "file": "_app/immutable/nodes/3.908974f8.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_lodash.b6127185.js",
-      "_index.f6302111.js",
-      "_index.7337e42a.js",
-      "_model_numbers.78354bae.js"
+      "_lodash.469a5080.js",
+      "_index.bd2dd152.js",
+      "_index.a1591b4f.js",
+      "_model_numbers.ff789fbe.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/nodes/3.js"
   },
   ".svelte-kit/generated/client-optimized/nodes/4.js": {
-    "file": "_app/immutable/nodes/4.28cae764.js",
+    "file": "_app/immutable/nodes/4.f9f8d853.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_dates.b3b07795.js"
+      "_dates.252ac4e7.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -650,11 +651,11 @@
     "css": [
       "_app/immutable/assets/5.93a6f30a.css"
     ],
-    "file": "_app/immutable/nodes/5.49e78c57.js",
+    "file": "_app/immutable/nodes/5.e99b01a4.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
-      "_index.7337e42a.js"
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
+      "_index.a1591b4f.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -672,16 +673,16 @@
     "css": [
       "_app/immutable/assets/6.af0d6ef8.css"
     ],
-    "file": "_app/immutable/nodes/6.90c103e3.js",
+    "file": "_app/immutable/nodes/6.ccbef4ff.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_generator_sets.c36bd51c.js",
-      "_lodash.b6127185.js",
-      "_index.f6302111.js",
-      "_generatorconfig.da2a1fa4.js"
+      "_index.a1591b4f.js",
+      "_generator_sets.859de02c.js",
+      "_lodash.469a5080.js",
+      "_index.bd2dd152.js",
+      "_generatorconfig.1ca53d2b.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -699,12 +700,12 @@
     "css": [
       "_app/immutable/assets/7.e27c03e6.css"
     ],
-    "file": "_app/immutable/nodes/7.13eca1ad.js",
+    "file": "_app/immutable/nodes/7.be080b33.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
-      "_index.7337e42a.js",
-      "_index.f6302111.js"
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -722,15 +723,15 @@
     "css": [
       "_app/immutable/assets/8.08e663da.css"
     ],
-    "file": "_app/immutable/nodes/8.859554b9.js",
+    "file": "_app/immutable/nodes/8.cd0e94dc.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_currency.9897789a.js",
-      "_dice.e85247e2.js",
-      "_index.f6302111.js"
+      "_index.a1591b4f.js",
+      "_currency.3194128e.js",
+      "_dice.c8d9a43a.js",
+      "_index.bd2dd152.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
@@ -748,229 +749,229 @@
     "css": [
       "_app/immutable/assets/9.9f87961a.css"
     ],
-    "file": "_app/immutable/nodes/9.7899040a.js",
+    "file": "_app/immutable/nodes/9.be4cdafd.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_index.ffc0792f.js",
+      "_scheduler.4deff733.js",
+      "_index.2fc1e45c.js",
       "_each.e59479a4.js",
-      "_index.7337e42a.js",
-      "_lodash.b6127185.js",
-      "_generator_sets.c36bd51c.js",
-      "_index.f6302111.js",
-      "_dice.e85247e2.js"
+      "_index.a1591b4f.js",
+      "_lodash.469a5080.js",
+      "_generator_sets.859de02c.js",
+      "_index.bd2dd152.js",
+      "_dice.c8d9a43a.js"
     ],
     "isDynamicEntry": true,
     "isEntry": true,
     "src": ".svelte-kit/generated/client-optimized/nodes/9.js"
   },
-  "_characters.e04f67db.js": {
-    "file": "_app/immutable/chunks/characters.e04f67db.js",
+  "_characters.ad95bb70.js": {
+    "file": "_app/immutable/chunks/characters.ad95bb70.js",
     "imports": [
-      "_size_matrix.ddf3cada.js",
-      "_index.ffc0792f.js",
-      "_index.7337e42a.js",
-      "_lodash.b6127185.js",
-      "_generator_sets.c36bd51c.js",
-      "_index.f6302111.js"
+      "_size_matrix.a3389459.js",
+      "_index.2fc1e45c.js",
+      "_index.a1591b4f.js",
+      "_lodash.469a5080.js",
+      "_generator_sets.859de02c.js",
+      "_index.bd2dd152.js"
     ]
   },
-  "_climates.a0f49ec2.js": {
-    "file": "_app/immutable/chunks/climates.a0f49ec2.js",
+  "_climates.f40958a8.js": {
+    "file": "_app/immutable/chunks/climates.f40958a8.js",
     "imports": [
-      "_index.7337e42a.js",
-      "_index.ffc0792f.js"
+      "_index.a1591b4f.js",
+      "_index.2fc1e45c.js"
     ]
   },
-  "_currency.9897789a.js": {
-    "file": "_app/immutable/chunks/currency.9897789a.js",
+  "_currency.26fe46da.js": {
+    "file": "_app/immutable/chunks/currency.26fe46da.js",
     "imports": [
-      "_index.ffc0792f.js"
+      "_index.2fc1e45c.js"
     ]
   },
-  "_currency.befc327c.js": {
-    "file": "_app/immutable/chunks/currency.befc327c.js",
+  "_currency.3194128e.js": {
+    "file": "_app/immutable/chunks/currency.3194128e.js",
     "imports": [
-      "_index.ffc0792f.js"
+      "_index.2fc1e45c.js"
     ]
   },
-  "_dates.b3b07795.js": {
-    "file": "_app/immutable/chunks/dates.b3b07795.js",
+  "_dates.252ac4e7.js": {
+    "file": "_app/immutable/chunks/dates.252ac4e7.js",
     "imports": [
-      "_index.ffc0792f.js",
-      "_index.f6302111.js"
+      "_index.2fc1e45c.js",
+      "_index.bd2dd152.js"
     ]
   },
-  "_dice.e85247e2.js": {
-    "file": "_app/immutable/chunks/dice.e85247e2.js",
+  "_dice.c8d9a43a.js": {
+    "file": "_app/immutable/chunks/dice.c8d9a43a.js",
     "imports": [
-      "_index.7337e42a.js",
-      "_index.ffc0792f.js"
+      "_index.a1591b4f.js",
+      "_index.2fc1e45c.js"
     ]
   },
-  "_domains.e35701ca.js": {
-    "file": "_app/immutable/chunks/domains.e35701ca.js",
+  "_domains.9725c883.js": {
+    "file": "_app/immutable/chunks/domains.9725c883.js",
     "imports": [
-      "_index.ffc0792f.js"
+      "_index.2fc1e45c.js"
     ]
   },
   "_each.e59479a4.js": {
     "file": "_app/immutable/chunks/each.e59479a4.js"
   },
-  "_fantasy.b7424bc0.js": {
-    "file": "_app/immutable/chunks/fantasy.b7424bc0.js",
+  "_fantasy.d6b1a283.js": {
+    "file": "_app/immutable/chunks/fantasy.d6b1a283.js",
     "imports": [
-      "_characters.e04f67db.js",
-      "_premade_configs.b56c6db5.js",
-      "_index.7337e42a.js",
-      "_svg.68cc4455.js",
-      "_index.ffc0792f.js",
-      "_lodash.b6127185.js",
-      "_generator_sets.c36bd51c.js",
-      "_index.f6302111.js"
+      "_characters.ad95bb70.js",
+      "_premade_configs.58c46439.js",
+      "_index.a1591b4f.js",
+      "_svg.d14ec9a6.js",
+      "_index.2fc1e45c.js",
+      "_lodash.469a5080.js",
+      "_generator_sets.859de02c.js",
+      "_index.bd2dd152.js"
     ]
   },
-  "_generator.58ac19cb.js": {
-    "file": "_app/immutable/chunks/generator.58ac19cb.js",
+  "_generator.3bfe35f1.js": {
+    "file": "_app/immutable/chunks/generator.3bfe35f1.js",
     "imports": [
-      "_index.7337e42a.js"
+      "_index.a1591b4f.js",
+      "_generator.bc8d0f99.js",
+      "_index.2fc1e45c.js",
+      "_index.bd2dd152.js",
+      "_lodash.469a5080.js"
     ]
   },
-  "_generator.8036774f.js": {
-    "file": "_app/immutable/chunks/generator.8036774f.js",
+  "_generator.93fe7449.js": {
+    "file": "_app/immutable/chunks/generator.93fe7449.js",
     "imports": [
-      "_index.ffc0792f.js",
-      "_lodash.b6127185.js",
-      "_index.f6302111.js",
-      "_index.7337e42a.js"
+      "_index.a1591b4f.js"
     ]
   },
-  "_generator_sets.c36bd51c.js": {
-    "file": "_app/immutable/chunks/generator_sets.c36bd51c.js",
+  "_generator.bc8d0f99.js": {
+    "file": "_app/immutable/chunks/generator.bc8d0f99.js",
     "imports": [
-      "_lodash.b6127185.js"
+      "_index.a1591b4f.js",
+      "_index.2fc1e45c.js",
+      "_lodash.469a5080.js",
+      "_index.bd2dd152.js"
     ]
   },
-  "_generatorconfig.da2a1fa4.js": {
-    "file": "_app/immutable/chunks/generatorconfig.da2a1fa4.js",
+  "_generator_sets.859de02c.js": {
+    "file": "_app/immutable/chunks/generator_sets.859de02c.js",
     "imports": [
-      "_index.7337e42a.js",
-      "_index.f6302111.js",
-      "_index.ffc0792f.js",
-      "_characters.e04f67db.js",
-      "_domains.e35701ca.js",
-      "_premade_configs.b56c6db5.js",
-      "_lodash.b6127185.js",
-      "_generator_sets.c36bd51c.js"
+      "_lodash.469a5080.js"
+    ]
+  },
+  "_generatorconfig.1ca53d2b.js": {
+    "file": "_app/immutable/chunks/generatorconfig.1ca53d2b.js",
+    "imports": [
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js",
+      "_index.2fc1e45c.js",
+      "_characters.ad95bb70.js",
+      "_domains.9725c883.js",
+      "_premade_configs.58c46439.js",
+      "_lodash.469a5080.js",
+      "_generator_sets.859de02c.js"
     ]
   },
   "_globals.7f7f1b26.js": {
     "file": "_app/immutable/chunks/globals.7f7f1b26.js"
   },
-  "_index.7337e42a.js": {
-    "file": "_app/immutable/chunks/index.7337e42a.js",
+  "_index.2fc1e45c.js": {
+    "file": "_app/immutable/chunks/index.2fc1e45c.js",
     "imports": [
-      "_index.ffc0792f.js"
+      "_scheduler.4deff733.js"
     ]
   },
-  "_index.f6302111.js": {
-    "file": "_app/immutable/chunks/index.f6302111.js",
+  "_index.784fc232.js": {
+    "file": "_app/immutable/chunks/index.784fc232.js",
     "imports": [
-      "_index.ffc0792f.js"
+      "_scheduler.4deff733.js"
     ]
   },
-  "_index.f70cc130.js": {
-    "file": "_app/immutable/chunks/index.f70cc130.js",
+  "_index.a1591b4f.js": {
+    "file": "_app/immutable/chunks/index.a1591b4f.js",
     "imports": [
-      "_scheduler.db8c6f43.js"
+      "_index.2fc1e45c.js"
     ]
   },
-  "_index.ffc0792f.js": {
-    "file": "_app/immutable/chunks/index.ffc0792f.js",
+  "_index.bd2dd152.js": {
+    "file": "_app/immutable/chunks/index.bd2dd152.js",
     "imports": [
-      "_scheduler.db8c6f43.js"
+      "_index.2fc1e45c.js"
     ]
   },
-  "_lodash.b6127185.js": {
-    "file": "_app/immutable/chunks/lodash.b6127185.js",
+  "_lodash.469a5080.js": {
+    "file": "_app/immutable/chunks/lodash.469a5080.js",
     "imports": [
-      "_index.f6302111.js",
-      "_generator.58ac19cb.js",
-      "_index.7337e42a.js"
+      "_index.bd2dd152.js",
+      "_generator.93fe7449.js",
+      "_index.a1591b4f.js"
     ]
   },
-  "_model_numbers.78354bae.js": {
-    "file": "_app/immutable/chunks/model_numbers.78354bae.js",
+  "_model_numbers.ff789fbe.js": {
+    "file": "_app/immutable/chunks/model_numbers.ff789fbe.js",
     "imports": [
-      "_index.7337e42a.js"
+      "_index.a1591b4f.js"
     ]
   },
-  "_patterns.5fe010d5.js": {
-    "file": "_app/immutable/chunks/patterns.5fe010d5.js",
+  "_patterns.725d6c17.js": {
+    "file": "_app/immutable/chunks/patterns.725d6c17.js",
     "imports": [
-      "_index.7337e42a.js",
-      "_index.f6302111.js",
-      "_index.ffc0792f.js"
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js",
+      "_index.2fc1e45c.js"
     ]
   },
-  "_premade_configs.b56c6db5.js": {
-    "file": "_app/immutable/chunks/premade_configs.b56c6db5.js",
+  "_premade_configs.58c46439.js": {
+    "file": "_app/immutable/chunks/premade_configs.58c46439.js",
     "imports": [
-      "_characters.e04f67db.js",
-      "_index.ffc0792f.js"
+      "_characters.ad95bb70.js",
+      "_index.2fc1e45c.js"
     ]
   },
-  "_scheduler.db8c6f43.js": {
-    "file": "_app/immutable/chunks/scheduler.db8c6f43.js"
+  "_scheduler.4deff733.js": {
+    "file": "_app/immutable/chunks/scheduler.4deff733.js"
   },
-  "_singletons.db7d8b08.js": {
-    "file": "_app/immutable/chunks/singletons.db7d8b08.js",
+  "_singletons.4e9132d9.js": {
+    "file": "_app/immutable/chunks/singletons.4e9132d9.js",
     "imports": [
-      "_index.f70cc130.js"
+      "_index.784fc232.js"
     ]
   },
-  "_size_matrix.ddf3cada.js": {
-    "file": "_app/immutable/chunks/size_matrix.ddf3cada.js",
+  "_size_matrix.a3389459.js": {
+    "file": "_app/immutable/chunks/size_matrix.a3389459.js",
     "imports": [
-      "_index.7337e42a.js",
-      "_index.ffc0792f.js",
-      "_dice.e85247e2.js"
+      "_index.a1591b4f.js",
+      "_index.2fc1e45c.js",
+      "_dice.c8d9a43a.js"
     ]
   },
-  "_star-svg.45890603.js": {
-    "file": "_app/immutable/chunks/star-svg.45890603.js",
+  "_stores.202c0320.js": {
+    "file": "_app/immutable/chunks/stores.202c0320.js",
     "imports": [
-      "_index.ffc0792f.js",
-      "_index.f6302111.js",
-      "_index.7337e42a.js",
-      "_generator.8036774f.js",
-      "_lodash.b6127185.js"
+      "_singletons.4e9132d9.js"
     ]
   },
-  "_stores.2289849d.js": {
-    "file": "_app/immutable/chunks/stores.2289849d.js",
+  "_svg.d14ec9a6.js": {
+    "file": "_app/immutable/chunks/svg.d14ec9a6.js",
     "imports": [
-      "_singletons.db7d8b08.js"
+      "_index.2fc1e45c.js",
+      "_index.a1591b4f.js",
+      "_index.bd2dd152.js"
     ]
   },
-  "_svg.68cc4455.js": {
-    "file": "_app/immutable/chunks/svg.68cc4455.js",
+  "_text.190acd67.js": {
+    "file": "_app/immutable/chunks/text.190acd67.js",
     "imports": [
-      "_index.ffc0792f.js",
-      "_index.7337e42a.js",
-      "_index.f6302111.js"
-    ]
-  },
-  "_text.22dbc606.js": {
-    "file": "_app/immutable/chunks/text.22dbc606.js",
-    "imports": [
-      "_index.ffc0792f.js"
+      "_index.2fc1e45c.js"
     ]
   },
   "node_modules/@sveltejs/kit/src/runtime/client/start.js": {
-    "file": "_app/immutable/entry/start.63af06b2.js",
+    "file": "_app/immutable/entry/start.95849a80.js",
     "imports": [
-      "_scheduler.db8c6f43.js",
-      "_singletons.db7d8b08.js"
+      "_scheduler.4deff733.js",
+      "_singletons.4e9132d9.js"
     ],
     "isEntry": true,
     "src": "node_modules/@sveltejs/kit/src/runtime/client/start.js"

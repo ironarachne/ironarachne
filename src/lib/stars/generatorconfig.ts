@@ -1,4 +1,4 @@
-import StarClassification from "./classification.js";
+import type StarClassification from "./classification.js";
 import * as Classifications from "./classifications.js";
 
 export default class StarGeneratorConfig {
