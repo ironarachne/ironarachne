@@ -2,13 +2,19 @@ import "./sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 const entries = [
   {
+    date: "2023-12-21",
+    summary: "",
+    updates: ["Revamped all the planet shaders.", "Added star shaders."]
+  },
+  {
     date: "2023-11-23",
     summary: "",
     updates: [
       "Restructured how heraldry is built.",
       "Render heraldry in most places as PNG instead of SVG.",
       "Updated to a new version of the made-up-names package.",
-      "Fixed a massive performance problem with the planet generator."
+      "Fixed a massive performance problem with the planet generator.",
+      "Swapped out the SVG generator for the new WebGL generator for planet images on the star system and star nation generators."
     ]
   },
   {
@@ -368,7 +374,10 @@ const entries = [
   {
     date: "2021-5-2",
     summary: "",
-    updates: ["Expanded culture generator with music style.", "Added social organization to the culture generator."]
+    updates: [
+      "Expanded culture generator with music style.",
+      "Added social organization to the culture generator."
+    ]
   },
   {
     date: "2021-4-21",
@@ -388,7 +397,10 @@ const entries = [
   {
     date: "2021-4-8",
     summary: "",
-    updates: ["Added personality traits to character descriptions.", "Added notable members to organizations."]
+    updates: [
+      "Added personality traits to character descriptions.",
+      "Added notable members to organizations."
+    ]
   },
   {
     date: "2021-3-2",
@@ -442,7 +454,10 @@ const entries = [
   {
     date: "2021-2-5",
     summary: "",
-    updates: ["Fixed the download of heraldry images", "Added ability to download SWN characters"]
+    updates: [
+      "Fixed the download of heraldry images",
+      "Added ability to download SWN characters"
+    ]
   },
   {
     date: "2021-2-4",

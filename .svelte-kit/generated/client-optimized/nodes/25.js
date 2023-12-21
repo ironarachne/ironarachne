@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/starsystem/+page.svelte";
+export { default as component } from "../../../../src/routes/star-system/+page.svelte";

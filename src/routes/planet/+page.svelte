@@ -1,23 +1,27 @@
 <script lang="ts">
   import * as RND from '@ironarachne/rng';
   import * as Classifications from '$lib/planets/classifications';
-  import * as PlanetRenderer from '$lib/renderers/planets/planet-webgl';
+  import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
   import random from 'random';
   import seedrandom from 'seedrandom';
-
-  import { onMount } from 'svelte';
   import PlanetGeneratorConfig from '$lib/planets/generatorconfig';
   import PlanetGenerator from '$lib/planets/generator';
+  import type Planet from '$lib/planets/planet';
+
+  import { onMount } from 'svelte';
 
   let planetTypes = Classifications.getClassificationNames();
 
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
+
   let planetType = 'random';
-  let planetGenConfig = new PlanetGeneratorConfig();
-  let planetGen = new PlanetGenerator(planetGenConfig);
-  let planet = planetGen.generate();
-  let planetImage: HTMLImageElement | null;
+  let planetGenConfig: PlanetGeneratorConfig;
+  let planetGen: PlanetGenerator;
+  let planet: Planet;
+
+  const width = 400;
+  const height = 400;
 
   function generate() {
     random.use(seedrandom(seed));
@@ -34,10 +38,6 @@
     }
 
     planet = planetGen.generate();
-
-    if (planetImage !== null) {
-      planetImage.src = PlanetRenderer.render(planet, 600, 400);
-    }
   }
 
   function newSeed() {
@@ -46,9 +46,10 @@
   }
 
   onMount(() => {
-    planetImage = document.getElementById('planet-render') as HTMLImageElement;
-    newSeed();
-  });
+    planetGenConfig = new PlanetGeneratorConfig();
+    planetGen = new PlanetGenerator(planetGenConfig);
+		planet = planetGen.generate();
+	});
 </script>
 
 <svelte:head>
@@ -78,41 +79,43 @@
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
-  <h2>{planet.name}</h2>
+  {#if planet}
+    <h2>{planet.name}</h2>
 
-  <img alt="Planet" id="planet-render" />
+    <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(planet, width, height) }" />
 
-  <p>{planet.description}</p>
+    <p>{planet.description}</p>
 
-  <p><strong>Planet Type:</strong> {planet.classification.name}</p>
-  <p><strong>Population:</strong> {planet.populationFriendly}</p>
-  <p><strong>Government:</strong> {planet.government}</p>
-  <p><strong>Culture:</strong> {planet.culture}</p>
-  <p>
-    <strong>Distance from Star:</strong>
-    {new Intl.NumberFormat().format(planet.distance_from_sun)} AU
-  </p>
-  <p>
-    <strong>Mass:</strong>
-    {new Intl.NumberFormat().format(planet.mass)} &times; 10<sup>24</sup> kg ({new Intl.NumberFormat().format(
-      Math.floor((planet.mass / 5.9722) * 100),
-    )}% Earth's mass)
-  </p>
-  <p>
-    <strong>Diameter:</strong>
-    {new Intl.NumberFormat().format(Math.floor(planet.diameter))} km ({new Intl.NumberFormat().format(
-      Math.floor((planet.diameter / 12756) * 100),
-    )}% Earth's diameter)
-  </p>
-  <p>
-    <strong>Gravity:</strong>
-    {new Intl.NumberFormat().format(planet.gravity)} m/s<sup>2</sup>
-    ({new Intl.NumberFormat().format(Math.floor((planet.gravity / 9.81) * 100))}% Earth's gravity)
-  </p>
-  <p>
-    <strong>Orbital Period:</strong>
-    {new Intl.NumberFormat().format(Math.floor(planet.orbital_period))} days
-  </p>
+    <p><strong>Planet Type:</strong> {planet.classification.name}</p>
+    <p><strong>Population:</strong> {planet.populationFriendly}</p>
+    <p><strong>Government:</strong> {planet.government}</p>
+    <p><strong>Culture:</strong> {planet.culture}</p>
+    <p>
+      <strong>Distance from Star:</strong>
+      {new Intl.NumberFormat().format(planet.distance_from_sun)} AU
+    </p>
+    <p>
+      <strong>Mass:</strong>
+      {new Intl.NumberFormat().format(planet.mass)} &times; 10<sup>24</sup> kg ({new Intl.NumberFormat().format(
+        Math.floor((planet.mass / 5.9722) * 100),
+      )}% Earth's mass)
+    </p>
+    <p>
+      <strong>Diameter:</strong>
+      {new Intl.NumberFormat().format(Math.floor(planet.diameter))} km ({new Intl.NumberFormat().format(
+        Math.floor((planet.diameter / 12756) * 100),
+      )}% Earth's diameter)
+    </p>
+    <p>
+      <strong>Gravity:</strong>
+      {new Intl.NumberFormat().format(planet.gravity)} m/s<sup>2</sup>
+      ({new Intl.NumberFormat().format(Math.floor((planet.gravity / 9.81) * 100))}% Earth's gravity)
+    </p>
+    <p>
+      <strong>Orbital Period:</strong>
+      {new Intl.NumberFormat().format(Math.floor(planet.orbital_period))} days
+    </p>
+  {/if}
 </section>
 
 <style lang="scss">

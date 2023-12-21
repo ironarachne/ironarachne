@@ -10,7 +10,7 @@ return {
 	assets: new Set(["android-icon-144x144.png","android-icon-192x192.png","android-icon-36x36.png","android-icon-48x48.png","android-icon-72x72.png","android-icon-96x96.png","apple-icon-114x114.png","apple-icon-120x120.png","apple-icon-144x144.png","apple-icon-152x152.png","apple-icon-180x180.png","apple-icon-57x57.png","apple-icon-60x60.png","apple-icon-72x72.png","apple-icon-76x76.png","apple-icon-precomposed.png","apple-icon.png","browserconfig.xml","favicon-16x16.png","favicon-32x32.png","favicon-96x96.png","favicon.ico","manifest.json","ms-icon-144x144.png","ms-icon-150x150.png","ms-icon-310x310.png","ms-icon-70x70.png"]),
 	mimeTypes: {".png":"image/png",".xml":"application/xml",".json":"application/json"},
 	_: {
-		client: {"start":"_app/immutable/entry/start.63af06b2.js","app":"_app/immutable/entry/app.0b5eddb3.js","imports":["_app/immutable/entry/start.63af06b2.js","_app/immutable/chunks/scheduler.db8c6f43.js","_app/immutable/chunks/singletons.db7d8b08.js","_app/immutable/chunks/index.f70cc130.js","_app/immutable/entry/app.0b5eddb3.js","_app/immutable/chunks/stores.2289849d.js","_app/immutable/chunks/singletons.db7d8b08.js","_app/immutable/chunks/index.f70cc130.js","_app/immutable/chunks/scheduler.db8c6f43.js","_app/immutable/chunks/index.ffc0792f.js"],"stylesheets":[],"fonts":[]},
+		client: {"start":"_app/immutable/entry/start.95849a80.js","app":"_app/immutable/entry/app.df39a58b.js","imports":["_app/immutable/entry/start.95849a80.js","_app/immutable/chunks/scheduler.4deff733.js","_app/immutable/chunks/singletons.4e9132d9.js","_app/immutable/chunks/index.784fc232.js","_app/immutable/entry/app.df39a58b.js","_app/immutable/chunks/stores.202c0320.js","_app/immutable/chunks/singletons.4e9132d9.js","_app/immutable/chunks/index.784fc232.js","_app/immutable/chunks/scheduler.4deff733.js","_app/immutable/chunks/index.2fc1e45c.js"],"stylesheets":[],"fonts":[]},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),
@@ -206,8 +206,8 @@ return {
 				endpoint: null
 			},
 			{
-				id: "/starsystem",
-				pattern: /^\/starsystem\/?$/,
+				id: "/star-system",
+				pattern: /^\/star-system\/?$/,
 				params: [],
 				page: { layouts: [0,], errors: [1,], leaf: 25 },
 				endpoint: null

@@ -27,11 +27,16 @@ export function render(star: Star, width: number, height: number): string {
       seed: { value: random.float(0, 100.0) },
       resolution: { value: new THREE.Vector2(width, height) },
       corona_width: {
-        value: calculateCoronaSize(translateRadiusToImageSize(star.radius)),
+        value: calculateCoronaSize(
+          translateRadiusToImageSize(star.radius, Math.min(height, width)),
+        ),
       },
+      glow_color: { value: translateColorToVec3(star.glowColor) },
       corona_color: { value: translateColorToVec3(star.secondaryColor) },
       star_color: { value: translateColorToVec3(star.primaryColor) },
-      star_radius: { value: translateRadiusToImageSize(star.radius) },
+      star_radius: {
+        value: translateRadiusToImageSize(star.radius, Math.min(height, width)),
+      },
     },
     fragmentShader: StarShader,
     vertexShader: SimpleVertexShader,
@@ -46,20 +51,31 @@ export function render(star: Star, width: number, height: number): string {
   material.dispose();
   geometry.dispose();
   renderer.dispose();
+  canvas.remove();
 
   return data;
 }
 
 function calculateCoronaSize(radius: number): number {
-  return radius * 0.2;
+  return Math.max(radius * 0.2, 4.0);
 }
 
 function translateColorToVec3(color: RGBColor): THREE.Vector3 {
   return new THREE.Vector3(color.r, color.g, color.b);
 }
 
-function translateRadiusToImageSize(radius: number): number {
+function translateRadiusToImageSize(radius: number, imageSize: number): number {
   const radiusRelativeToSun = radius / 695508;
-  const sizeInPixels = radiusRelativeToSun * 32.0; // a star the size of the sun is 32px
-  return Math.min(50.0, sizeInPixels); // a star can be at most 50px
+  const sunSizeInPixels = imageSize / 2.0;
+  const maxSizeInPixels = imageSize / 2.5;
+  const minSizeInPixels = imageSize / 8.0;
+
+  const sizeInPixels = radiusRelativeToSun * sunSizeInPixels;
+
+  const size = Math.max(
+    minSizeInPixels,
+    Math.min(maxSizeInPixels, sizeInPixels),
+  );
+
+  return size;
 }

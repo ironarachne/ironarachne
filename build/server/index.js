@@ -1,5 +1,5 @@
 import { c as create_ssr_component, s as setContext, v as validate_component, m as missing_component } from './chunks/ssr-93f4de0f.js';
-import './chunks/sentry-release-injection-file-d0339e6f.js';
+import './chunks/sentry-release-injection-file-e93f6426.js';
 import { w as writable, r as readable } from './chunks/index-2bc32216.js';
 
 let base = "";
@@ -107,10 +107,10 @@ const options = {
     app: ({ head, body, assets: assets2, nonce, env }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="' + assets2 + '/favicon.ico" />\n		<meta name="viewport" content="width=device-width" />\n		' + head + '\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">' + body + "</div>\n	</body>\n</html>\n",
     error: ({ status, message }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="%sveltekit.assets%/favicon.ico" />\n		<meta name="viewport" content="width=device-width" />\n		%sveltekit.head%\n\n        <style lang="scss" global>\n            @import "styles/reset.scss";\n            @import "styles/main.scss";\n        </style>\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">\n            <h1>Error Code: ' + status + "</h1>\n            <p>Oops, something broke.</p>\n            <p>" + message + "</p>\n        </div>\n	</body>\n</html>\n"
   },
-  version_hash: "olx3zm"
+  version_hash: "1sab781"
 };
 function get_hooks() {
-  return import('./chunks/hooks.server-fb63deb0.js');
+  return import('./chunks/hooks.server-34fdf5ac.js');
 }
 
 /** @type {Record<string, string>} */

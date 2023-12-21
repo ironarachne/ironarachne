@@ -5,6 +5,7 @@ export default class Star {
   color: string;
   primaryColor: RGBColor;
   secondaryColor: RGBColor;
+  glowColor: RGBColor;
   description: string;
   classification: string;
   radius: number; // in km
@@ -17,6 +18,7 @@ export default class Star {
     this.color = "";
     this.primaryColor = { r: 0, g: 0, b: 0 };
     this.secondaryColor = { r: 0, g: 0, b: 0 };
+    this.glowColor = { r: 0, g: 0, b: 0 };
     this.description = "";
     this.classification = "";
     this.radius = 0;

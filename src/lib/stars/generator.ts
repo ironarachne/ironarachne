@@ -34,11 +34,13 @@ export default class StarGenerator {
         classification.luminosity_min,
         classification.luminosity_max,
       ) * 3.828;
+
+    const colorSet = this.getColorSetFromTemperature(star.temperature);
+
     star.color = this.getColorFromTemperature(star.temperature);
-    star.primaryColor = this.getPrimaryColorFromTemperature(star.temperature);
-    star.secondaryColor = this.getSecondaryColorFromTemperature(
-      star.temperature,
-    );
+    star.primaryColor = colorSet[0];
+    star.secondaryColor = colorSet[1];
+    star.glowColor = colorSet[2];
 
     const article = Words.article(star.color);
     star.description = `This is ${article} ${star.color} ${star.classification} star.`;
@@ -75,59 +77,59 @@ export default class StarGenerator {
     return "blue";
   }
 
-  getPrimaryColorFromTemperature(temperature: number): RGBColor {
+  getColorSetFromTemperature(temperature: number): RGBColor[] {
     if (temperature < 3700) {
-      return { r: 1.0, g: 0.0, b: 0.0 };
+      return [
+        { r: 1.0, g: 0.0, b: 0.0 },
+        { r: 0.5, g: 0.0, b: 0.0 },
+        { r: 1.0, g: 0.0, b: 0.0 },
+      ];
     }
 
     if (temperature < 5200) {
-      return { r: 1.0, g: 0.39, b: 0.0 };
+      return [
+        { r: 1.0, g: 0.39, b: 0.0 },
+        { r: 0.7, g: 0.13, b: 0.0 },
+        { r: 1.0, g: 1.0, b: 0.0 },
+      ];
     }
 
     if (temperature < 6000) {
-      return { r: 1.0, g: 1.0, b: 0.0 };
+      return [
+        { r: 1.0, g: 1.0, b: 0.0 },
+        { r: 0.55, g: 0.35, b: 0.0 },
+        { r: 1.0, g: 1.0, b: 0.5 },
+      ];
     }
 
     if (temperature < 7500) {
-      return { r: 1.0, g: 1.0, b: 0.9 };
+      return [
+        { r: 1.0, g: 1.0, b: 0.9 },
+        { r: 0.95, g: 0.95, b: 0.7 },
+        { r: 1.0, g: 1.0, b: 1.0 },
+      ];
     }
 
     if (temperature < 10000) {
-      return { r: 1.0, g: 1.0, b: 1.0 };
+      return [
+        { r: 1.0, g: 1.0, b: 1.0 },
+        { r: 0.95, g: 0.95, b: 0.95 },
+        { r: 1.0, g: 1.0, b: 1.0 },
+      ];
     }
 
     if (temperature < 30000) {
-      return { r: 0.85, g: 0.9, b: 1.0 };
+      return [
+        { r: 0.85, g: 0.9, b: 1.0 },
+        { r: 0.7, g: 0.75, b: 0.95 },
+        { r: 1.0, g: 1.0, b: 1.0 },
+      ];
     }
 
-    return { r: 0.0, g: 0.0, b: 1.0 };
-  }
-
-  getSecondaryColorFromTemperature(temperature: number): RGBColor {
-    if (temperature < 3700) {
-      return { r: 0.5, g: 0.0, b: 0.0 };
-    }
-
-    if (temperature < 5200) {
-      return { r: 0.7, g: 0.13, b: 0.0 };
-    }
-
-    if (temperature < 6000) {
-      return { r: 0.55, g: 0.35, b: 0.0 };
-    }
-
-    if (temperature < 7500) {
-      return { r: 0.95, g: 0.95, b: 0.7 };
-    }
-
-    if (temperature < 10000) {
-      return { r: 0.95, g: 0.95, b: 0.95 };
-    }
-
-    if (temperature < 30000) {
-      return { r: 0.7, g: 0.75, b: 0.95 };
-    }
-
-    return { r: 0.0, g: 0.0, b: 0.75 };
+    return [
+      { r: 0.0, g: 0.0, b: 1.0 },
+      { r: 0.0, g: 0.0, b: 0.75 },
+      { r: 0.0, g: 0.2, b: 1.0 },
+    ];
   }
 }

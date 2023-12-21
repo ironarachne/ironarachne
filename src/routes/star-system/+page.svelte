@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as RND from "@ironarachne/rng";
-  import * as PlanetWebGLRenderer from "$lib/renderers/planets/planet-webgl";
   import * as WebGLStarRenderer from "$lib/renderers/stars/webgl_star_renderer";
+  import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
   import random from "random";
   import seedrandom from "seedrandom";
   import StarSystemGenerator from "$lib/starsystem/generator";
@@ -105,7 +105,7 @@
   {#each system.planets as planet}
     <article class="media-banner">
       <div class="image-container">
-        <img alt="{ planet.name } image" src="{ PlanetWebGLRenderer.render(planet, width, height) }" />
+        <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(planet, width, height) }" />
       </div>
       <div>
         <h5>{planet.name}</h5>

@@ -66,12 +66,6 @@
       "_sentry-release-injection-file.js"
     ]
   },
-  "_generator2.js": {
-    "file": "chunks/generator2.js",
-    "imports": [
-      "_sentry-release-injection-file.js"
-    ]
-  },
   "_generatorconfig.js": {
     "file": "chunks/generatorconfig.js",
     "imports": [
@@ -122,13 +116,6 @@
   },
   "_ssr.js": {
     "file": "chunks/ssr.js"
-  },
-  "_star-svg.js": {
-    "file": "chunks/star-svg.js",
-    "imports": [
-      "_sentry-release-injection-file.js",
-      "_generator2.js"
-    ]
   },
   "_svg.js": {
     "file": "chunks/svg.js",
@@ -558,7 +545,7 @@
     "src": "src/routes/navigation/+page.svelte"
   },
   "src/routes/planet/+page.css": {
-    "file": "_app/immutable/assets/_page.2e3222cf.css",
+    "file": "_app/immutable/assets/_page.d6205c77.css",
     "src": "src/routes/planet/+page.css"
   },
   "src/routes/planet/+page.svelte": {
@@ -567,12 +554,11 @@
       "_app/immutable/assets/azonix-webfont.9240b274.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.2e3222cf.css"
+      "_app/immutable/assets/_page.d6205c77.css"
     ],
     "file": "entries/pages/planet/_page.svelte.js",
     "imports": [
       "_ssr.js",
-      "_generator2.js",
       "_sentry-release-injection-file.js"
     ],
     "isEntry": true,
@@ -646,7 +632,7 @@
     "src": "src/routes/spooky-ship/+page.svelte"
   },
   "src/routes/star-nation/+page.css": {
-    "file": "_app/immutable/assets/_page.eba10489.css",
+    "file": "_app/immutable/assets/_page.a519e29b.css",
     "src": "src/routes/star-nation/+page.css"
   },
   "src/routes/star-nation/+page.svelte": {
@@ -655,36 +641,35 @@
       "_app/immutable/assets/azonix-webfont.9240b274.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.eba10489.css"
+      "_app/immutable/assets/_page.a519e29b.css"
     ],
     "file": "entries/pages/star-nation/_page.svelte.js",
     "imports": [
       "_ssr.js",
-      "_sentry-release-injection-file.js",
-      "_star-svg.js"
+      "_sentry-release-injection-file.js"
     ],
     "isEntry": true,
     "src": "src/routes/star-nation/+page.svelte"
   },
-  "src/routes/starsystem/+page.css": {
-    "file": "_app/immutable/assets/_page.2d7485ad.css",
-    "src": "src/routes/starsystem/+page.css"
+  "src/routes/star-system/+page.css": {
+    "file": "_app/immutable/assets/_page.98462212.css",
+    "src": "src/routes/star-system/+page.css"
   },
-  "src/routes/starsystem/+page.svelte": {
+  "src/routes/star-system/+page.svelte": {
     "assets": [
       "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
       "_app/immutable/assets/azonix-webfont.9240b274.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.2d7485ad.css"
+      "_app/immutable/assets/_page.98462212.css"
     ],
-    "file": "entries/pages/starsystem/_page.svelte.js",
+    "file": "entries/pages/star-system/_page.svelte.js",
     "imports": [
       "_ssr.js",
-      "_star-svg.js"
+      "_sentry-release-injection-file.js"
     ],
     "isEntry": true,
-    "src": "src/routes/starsystem/+page.svelte"
+    "src": "src/routes/star-system/+page.svelte"
   },
   "src/routes/swn/character/+page.css": {
     "file": "_app/immutable/assets/_page.8d15af8c.css",

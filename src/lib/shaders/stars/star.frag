@@ -8,6 +8,7 @@ uniform float star_radius;
 uniform vec2 resolution;
 uniform vec3 star_color;
 uniform vec3 corona_color;
+uniform vec3 glow_color;
 
 varying vec2 vUvs;
 
@@ -22,103 +23,6 @@ float remap(float v, float inMin, float inMax, float outMin, float outMax) {
 
 float saturate(float x) {
   return clamp(x, 0.0, 1.0);
-}
-
-// Copyright (C) 2011 by Ashima Arts (Simplex noise)
-// Copyright (C) 2011-2016 by Stefan Gustavson (Classic noise and others)
-// Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions: The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software. THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-// https://github.com/ashima/webgl-noise/tree/master/src
-vec3 mod289(vec3 x)
-{
-    return x - floor(x / 289.0) * 289.0;
-}
-
-vec4 mod289(vec4 x)
-{
-    return x - floor(x / 289.0) * 289.0;
-}
-
-vec4 permute(vec4 x)
-{
-    return mod289((x * 34.0 + 1.0) * x);
-}
-
-vec4 taylorInvSqrt(vec4 r)
-{
-    return 1.79284291400159 - r * 0.85373472095314;
-}
-
-vec4 snoise(vec3 v)
-{
-    const vec2 C = vec2(1.0 / 6.0, 1.0 / 3.0);
-
-    // First corner
-    vec3 i  = floor(v + dot(v, vec3(C.y)));
-    vec3 x0 = v   - i + dot(i, vec3(C.x));
-
-    // Other corners
-    vec3 g = step(x0.yzx, x0.xyz);
-    vec3 l = 1.0 - g;
-    vec3 i1 = min(g.xyz, l.zxy);
-    vec3 i2 = max(g.xyz, l.zxy);
-
-    vec3 x1 = x0 - i1 + C.x;
-    vec3 x2 = x0 - i2 + C.y;
-    vec3 x3 = x0 - 0.5;
-
-    // Permutations
-    i = mod289(i); // Avoid truncation effects in permutation
-    vec4 p =
-      permute(permute(permute(i.z + vec4(0.0, i1.z, i2.z, seed))
-                            + i.y + vec4(0.0, i1.y, i2.y, seed))
-                            + i.x + vec4(0.0, i1.x, i2.x, seed));
-
-    // Gradients: 7x7 points over a square, mapped onto an octahedron.
-    // The ring size 17*17 = 289 is close to a multiple of 49 (49*6 = 294)
-    vec4 j = p - 49.0 * floor(p / 49.0);  // mod(p,7*7)
-
-    vec4 x_ = floor(j / 7.0);
-    vec4 y_ = floor(j - 7.0 * x_);
-
-    vec4 x = (x_ * 2.0 + 0.5) / 7.0 - 1.0;
-    vec4 y = (y_ * 2.0 + 0.5) / 7.0 - 1.0;
-
-    vec4 h = 1.0 - abs(x) - abs(y);
-
-    vec4 b0 = vec4(x.xy, y.xy);
-    vec4 b1 = vec4(x.zw, y.zw);
-
-    vec4 s0 = floor(b0) * 2.0 + 1.0;
-    vec4 s1 = floor(b1) * 2.0 + 1.0;
-    vec4 sh = -step(h, vec4(0.0));
-
-    vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
-    vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
-
-    vec3 g0 = vec3(a0.xy, h.x);
-    vec3 g1 = vec3(a0.zw, h.y);
-    vec3 g2 = vec3(a1.xy, h.z);
-    vec3 g3 = vec3(a1.zw, h.w);
-
-    // Normalize gradients
-    vec4 norm = taylorInvSqrt(vec4(dot(g0, g0), dot(g1, g1), dot(g2, g2), dot(g3, g3)));
-    g0 *= norm.x;
-    g1 *= norm.y;
-    g2 *= norm.z;
-    g3 *= norm.w;
-
-    // Compute noise and gradient at P
-    vec4 m = max(0.6 - vec4(dot(x0, x0), dot(x1, x1), dot(x2, x2), dot(x3, x3)), 0.0);
-    vec4 m2 = m * m;
-    vec4 m3 = m2 * m;
-    vec4 m4 = m2 * m2;
-    vec3 grad =
-      -6.0 * m3.x * x0 * dot(x0, g0) + m4.x * g0 +
-      -6.0 * m3.y * x1 * dot(x1, g1) + m4.y * g1 +
-      -6.0 * m3.z * x2 * dot(x2, g2) + m4.z * g2 +
-      -6.0 * m3.w * x3 * dot(x3, g3) + m4.w * g3;
-    vec4 px = vec4(dot(x0, g0), dot(x1, g1), dot(x2, g2), dot(x3, g3));
-    return 42.0 * vec4(grad, dot(m4, px));
 }
 
 // The MIT License
@@ -137,22 +41,106 @@ vec3 hash3( vec3 p ) // replace this by something better
 	return -1.0 + 2.0*fract(sin(p)*43758.5453123);
 }
 
-float noise( in vec3 p )
-{
-  vec3 i = floor( p );
-  vec3 f = fract( p );
+/**
+ * OpenSimplex functions by KdotJPG
+ * https://github.com/KdotJPG/OpenSimplex2
+ */
 
-	vec3 u = f*f*(3.0-2.0*f);
-
-  return mix( mix( mix( dot( hash3( i + vec3(0.0,0.0,0.0) ), f - vec3(0.0,0.0,0.0) ),
-                        dot( hash3( i + vec3(1.0,0.0,0.0) ), f - vec3(1.0,0.0,0.0) ), u.x),
-                   mix( dot( hash3( i + vec3(0.0,1.0,0.0) ), f - vec3(0.0,1.0,0.0) ),
-                        dot( hash3( i + vec3(1.0,1.0,0.0) ), f - vec3(1.0,1.0,0.0) ), u.x), u.y),
-              mix( mix( dot( hash3( i + vec3(0.0,0.0,1.0) ), f - vec3(0.0,0.0,1.0) ),
-                        dot( hash3( i + vec3(1.0,0.0,1.0) ), f - vec3(1.0,0.0,1.0) ), u.x),
-                   mix( dot( hash3( i + vec3(0.0,1.0,1.0) ), f - vec3(0.0,1.0,1.0) ),
-                        dot( hash3( i + vec3(1.0,1.0,1.0) ), f - vec3(1.0,1.0,1.0) ), u.x), u.y), u.z );
+// Inspired by Stefan Gustavson's noise
+vec4 permute(vec4 t) {
+    return t * (t * 34.0 + 133.0);
 }
+
+// Gradient set is a normalized expanded rhombic dodecahedron
+vec3 grad(float hash) {
+
+    // Random vertex of a cube, +/- 1 each
+    vec3 cube = mod(floor(hash / vec3(1.0, 2.0, 4.0)), 2.0) * 2.0 - 1.0;
+
+    // Random edge of the three edges connected to that vertex
+    // Also a cuboctahedral vertex
+    // And corresponds to the face of its dual, the rhombic dodecahedron
+    vec3 cuboct = cube;
+    cuboct[int(hash / 16.0)] = 0.0;
+
+    // In a funky way, pick one of the four points on the rhombic face
+    float type = mod(floor(hash / 8.0), 2.0);
+    vec3 rhomb = (1.0 - type) * cube + type * (cuboct + cross(cube, cuboct));
+
+    // Expand it so that the new edges are the same length
+    // as the existing ones
+    vec3 grad = cuboct * 1.22474487139 + rhomb;
+
+    // To make all gradients the same length, we only need to shorten the
+    // second type of vector. We also put in the whole noise scale constant.
+    // The compiler should reduce it into the existing floats. I think.
+    grad *= (1.0 - 0.042942436724648037 * type) * 32.80201376986577;
+
+    return grad;
+}
+
+// BCC lattice split up into 2 cube lattices
+vec4 openSimplex2Base(vec3 X) {
+
+    // First half-lattice, closest edge
+    vec3 v1 = round(X);
+    vec3 d1 = X - v1;
+    vec3 score1 = abs(d1);
+    vec3 dir1 = step(max(score1.yzx, score1.zxy), score1);
+    vec3 v2 = v1 + dir1 * sign(d1);
+    vec3 d2 = X - v2;
+
+    // Second half-lattice, closest edge
+    vec3 X2 = X + 144.5;
+    vec3 v3 = round(X2);
+    vec3 d3 = X2 - v3;
+    vec3 score2 = abs(d3);
+    vec3 dir2 = step(max(score2.yzx, score2.zxy), score2);
+    vec3 v4 = v3 + dir2 * sign(d3);
+    vec3 d4 = X2 - v4;
+
+    // Gradient hashes for the four points, two from each half-lattice
+    vec4 hashes = permute(mod(vec4(v1.x, v2.x, v3.x, v4.x), 289.0));
+    hashes = permute(mod(hashes + vec4(v1.y, v2.y, v3.y, v4.y), 289.0));
+    hashes = mod(permute(mod(hashes + vec4(v1.z, v2.z, v3.z, v4.z), 289.0)), 48.0);
+
+    // Gradient extrapolations & kernel function
+    vec4 a = max(0.5 - vec4(dot(d1, d1), dot(d2, d2), dot(d3, d3), dot(d4, d4)), 0.0);
+    vec4 aa = a * a; vec4 aaaa = aa * aa;
+    vec3 g1 = grad(hashes.x); vec3 g2 = grad(hashes.y);
+    vec3 g3 = grad(hashes.z); vec3 g4 = grad(hashes.w);
+    vec4 extrapolations = vec4(dot(d1, g1), dot(d2, g2), dot(d3, g3), dot(d4, g4));
+
+    // Derivatives of the noise
+    vec3 derivative = -8.0 * mat4x3(d1, d2, d3, d4) * (aa * a * extrapolations)
+        + mat4x3(g1, g2, g3, g4) * aaaa;
+
+    // Return it all as a vec4
+    return vec4(derivative, dot(aaaa, extrapolations));
+}
+
+// Use this if you don't want Z to look different from X and Y
+vec4 openSimplex2_Conventional(vec3 X) {
+
+    // Rotate around the main diagonal. Not a skew transform.
+    vec4 result = openSimplex2Base(dot(X, vec3(2.0/3.0)) - X);
+    return vec4(dot(result.xyz, vec3(2.0/3.0)) - result.xyz, result.w);
+}
+
+// Use this if you want to show X and Y in a plane, then use Z for time, vertical, etc.
+vec4 openSimplex2_ImproveXY(vec3 X) {
+
+    // Rotate so Z points down the main diagonal. Not a skew transform.
+    mat3 orthonormalMap = mat3(
+        0.788675134594813, -0.211324865405187, -0.577350269189626,
+        -0.211324865405187, 0.788675134594813, -0.577350269189626,
+        0.577350269189626, 0.577350269189626, 0.577350269189626);
+
+    vec4 result = openSimplex2Base(orthonormalMap * X);
+    return vec4(result.xyz * orthonormalMap, result.w);
+}
+
+// End OpenSimplex functions
 
 float fbm(vec3 p, int octaves, float persistence, float lacunarity, float exponentiation) {
   float amplitude = 0.5;
@@ -161,7 +149,7 @@ float fbm(vec3 p, int octaves, float persistence, float lacunarity, float expone
   float normalization = 0.0;
 
   for (int i = 0; i < octaves; ++i) {
-    float noiseValue = snoise(p * frequency).w;
+    float noiseValue = openSimplex2_Conventional(p * frequency).w;
     total += noiseValue * amplitude;
     normalization += amplitude;
     amplitude *= persistence;
@@ -183,10 +171,10 @@ float map(vec3 pos) {
   return fbm(pos, 6, 0.5, 2.0, 4.0);
 }
 
-vec3 calcNormal(vec3 pos, vec3 n) {
-  vec2 e = vec2(0.0001, 0.0);
+vec3 calcNormal(vec3 pos) {
+  vec2 e = vec2(0.00015, 0.0);
   return normalize(
-      n + -500.0 * vec3(
+      vec3(
           map(pos + e.xyy) - map(pos - e.xyy),
           map(pos + e.yxy) - map(pos - e.yxy),
           map(pos + e.yyx) - map(pos - e.yyx)
@@ -194,7 +182,7 @@ vec3 calcNormal(vec3 pos, vec3 n) {
   );
 }
 
-vec3 DrawStar(vec2 pixelCoords, vec3 primaryColor, vec3 secondaryColor, vec3 color, float starRadius, float coronaWidth) {
+vec3 DrawStar(vec2 pixelCoords, vec3 primaryColor, vec3 secondaryColor, vec3 glowColor, vec3 color, float starRadius, float coronaWidth) {
   float d = sdfCircle(pixelCoords, starRadius);
 
   vec3 starColor = vec3(1.0);
@@ -213,12 +201,12 @@ vec3 DrawStar(vec2 pixelCoords, vec3 primaryColor, vec3 secondaryColor, vec3 col
     float noiseSample = fbm(noiseCoord, 6, 0.5, 2.0, 4.0);
 
     starColor = mix(primaryColor, secondaryColor, smoothstep(0.05, 0.01, noiseSample));
+
+    float fresnel = pow(1.0 - dot(wsNormal, wsViewDir), 2.0);
+    starColor = mix(starColor, glowColor, fresnel);
   }
 
   color = mix(starColor, color, smoothstep(-1.0, 1.0, d));
-
-  vec3 glowColor = primaryColor + 0.5;
-  color = mix(glowColor, color, smoothstep(-1.0, coronaWidth, abs(d*2.5)));
 
   if (d > 0.0) {
     color = mix(glowColor, color, smoothstep(-20.0, coronaWidth * 2.0, d));
@@ -229,19 +217,21 @@ vec3 DrawStar(vec2 pixelCoords, vec3 primaryColor, vec3 secondaryColor, vec3 col
 
 vec3 GenerateGridStars(
     vec2 pixelCoords, float starRadius, float cellWidth,
-    float seed, bool twinkle) {
-  vec2 cellCoords = (fract(pixelCoords / cellWidth) - 0.5) * cellWidth;
-  vec2 cellID = floor(pixelCoords / cellWidth) + seed / 100.0;
+    float variant, bool twinkle) {
+
+  float seedVariant = clamp((seed + variant) / 100.0, 0.0, 1.0);
+  vec2 cellCoords = (fract(pixelCoords / cellWidth) - 0.5 + seedVariant) * cellWidth;
+  vec2 cellID = floor(pixelCoords / cellWidth);
   vec3 cellHashValue = hash3(vec3(cellID, 0.0));
 
   float starBrightness = saturate(cellHashValue.z);
-  vec2 starPosition = vec2(0.0);
-  starPosition += cellHashValue.xy * (cellWidth * 0.5 - starRadius * 4.0);
+  vec2 starPosition = vec2(seedVariant);
+  starPosition += cellHashValue.xy * (cellWidth * 0.5 - starRadius * 4.0 + seedVariant);
   float distToStar = length(cellCoords - starPosition);
   float glow = exp(-2.0 * distToStar / starRadius);
 
   if (twinkle) {
-    float noiseSample = noise(vec3(cellID, 0.0));
+    float noiseSample = openSimplex2_Conventional(vec3(cellID, seedVariant)).w;
     float twinkleSize = (
         remap(noiseSample, -1.0, 1.0, 1.0, 0.1) * starRadius * 6.0);
     vec2 absDist = abs(cellCoords - starPosition);
@@ -279,7 +269,7 @@ void main(void) {
   vec2 pixelCoords = (vUvs - 0.5) * resolution;
 
   vec3 color = GenerateStars(pixelCoords);
-  color = DrawStar(pixelCoords, star_color, corona_color, color, star_radius, corona_width);
+  color = DrawStar(pixelCoords, star_color, corona_color, glow_color, color, star_radius, corona_width);
 
   gl_FragColor = vec4(pow(color, vec3(1.0 / 2.2)), 1.0);
 }
