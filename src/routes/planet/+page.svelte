@@ -2,10 +2,10 @@
   import * as RND from '@ironarachne/rng';
   import * as Classifications from '$lib/planets/classifications';
   import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
+  import * as Planets from '$lib/planets/planets';
   import random from 'random';
   import seedrandom from 'seedrandom';
-  import PlanetGeneratorConfig from '$lib/planets/generatorconfig';
-  import PlanetGenerator from '$lib/planets/generator';
+  import PlanetGeneratorConfig from '$lib/planets/planet_generator_config';
   import type Planet from '$lib/planets/planet';
 
   import { onMount } from 'svelte';
@@ -17,7 +17,6 @@
 
   let planetType = 'random';
   let planetGenConfig: PlanetGeneratorConfig;
-  let planetGen: PlanetGenerator;
   let planet: Planet;
 
   const width = 400;
@@ -27,17 +26,17 @@
     random.use(seedrandom(seed));
 
     if (planetType == 'random') {
-      planetGen.config.possibleClassifications = Classifications.all();
+      planetGenConfig.possibleClassifications = Classifications.all();
     } else {
       let classification = Classifications.getClassificationByName(planetType);
       if (classification !== undefined) {
-        planetGen.config.possibleClassifications = [
+        planetGenConfig.possibleClassifications = [
         classification,
       ];
       }
     }
 
-    planet = planetGen.generate();
+    planet = Planets.generate(planetGenConfig);
   }
 
   function newSeed() {
@@ -47,8 +46,7 @@
 
   onMount(() => {
     planetGenConfig = new PlanetGeneratorConfig();
-    planetGen = new PlanetGenerator(planetGenConfig);
-		planet = planetGen.generate();
+		planet = Planets.generate(planetGenConfig);
 	});
 </script>
 
@@ -86,7 +84,7 @@
 
     <p>{planet.description}</p>
 
-    <p><strong>Planet Type:</strong> {planet.classification.name}</p>
+    <p><strong>Planet Type:</strong> {planet.classification}</p>
     <p><strong>Population:</strong> {planet.populationFriendly}</p>
     <p><strong>Government:</strong> {planet.government}</p>
     <p><strong>Culture:</strong> {planet.culture}</p>
@@ -114,6 +112,10 @@
     <p>
       <strong>Orbital Period:</strong>
       {new Intl.NumberFormat().format(Math.floor(planet.orbital_period))} days
+    </p>
+    <p>
+      <strong>Rotation Period (Length of Day):</strong>
+      {new Intl.NumberFormat().format(Math.floor(planet.rotation_period))} hours
     </p>
   {/if}
 </section>

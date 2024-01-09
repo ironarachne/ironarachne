@@ -4,7 +4,7 @@ import random from "random";
 import StarSystemGenerator from "../starsystem/generator.js";
 import StarSystemGeneratorConfig from "../starsystem/generatorconfig.js";
 import type StarNationGeneratorConfig from "./generatorconfig.js";
-import StarNation from "./starnation.js";
+import type StarNation from "./star_nation";
 
 export default class StarNationGenerator {
   config: StarNationGeneratorConfig;
@@ -14,33 +14,53 @@ export default class StarNationGenerator {
   }
 
   generate(): StarNation {
-    let nation = new StarNation();
+    const government = RND.item(this.config.governmentOptions);
+    const nation: StarNation = {
+      name: "",
+      adjective: "",
+      description: "",
+      government: government,
+      systems: [],
+      capitalSystem: 0,
+      capitalPlanet: 0,
+      primaryGoal: "",
+      technology: "",
+      military: "",
+      culture: "",
+      economy: "",
+    };
 
-    nation.government = RND.item(this.config.governmentOptions);
-
-    let name = this.config.nameGenerator.generate(1)[0];
+    const name = this.config.nameGenerator.generate(1)[0];
 
     nation.adjective = name + RND.item(["n", "i", "ish"]);
-    nation.name = `the ${nation.government.nameGenerator.generate(1)[0]} ${name}`;
+    nation.name = `the ${
+      nation.government.nameGenerator.generate(1)[0]
+    } ${name}`;
 
-    nation.description = `${Words.title(nation.name)} is ${
-      Words.article(nation.government.name)
-    } ${nation.government.name}.`;
+    nation.description = `${Words.title(nation.name)} is ${Words.article(
+      nation.government.name,
+    )} ${nation.government.name}.`;
 
-    let minSystems = Math.max(this.config.minSystems, nation.government.minSystems);
-    let maxSystems = Math.max(this.config.maxSystems, nation.government.maxSystems);
+    const minSystems = Math.max(
+      this.config.minSystems,
+      nation.government.minSystems,
+    );
+    const maxSystems = Math.max(
+      this.config.maxSystems,
+      nation.government.maxSystems,
+    );
 
-    let numberOfSystems = random.int(minSystems, maxSystems);
+    const numberOfSystems = random.int(minSystems, maxSystems);
 
-    let systemGenConfig = new StarSystemGeneratorConfig();
-    let systemGen = new StarSystemGenerator(systemGenConfig);
+    const systemGenConfig = new StarSystemGeneratorConfig();
+    const systemGen = new StarSystemGenerator(systemGenConfig);
 
     let population = 0;
     let inhabitedPlanets = 0;
-    let possibleCapitals = [];
+    const possibleCapitals = [];
 
     for (let i = 0; i < numberOfSystems; i++) {
-      let system = systemGen.generate();
+      const system = systemGen.generate();
       for (let j = 0; j < system.planets.length - 1; j++) {
         if (system.planets[j].is_inhabited) {
           population += system.planets[j].population;
@@ -51,7 +71,7 @@ export default class StarNationGenerator {
       nation.systems.push(system);
     }
 
-    let capital = RND.item(possibleCapitals);
+    const capital = RND.item(possibleCapitals);
 
     nation.capitalSystem = capital[0];
     nation.capitalPlanet = capital[1];
@@ -108,13 +128,11 @@ export default class StarNationGenerator {
 
     nation.description += ` Its capital is ${
       nation.systems[nation.capitalSystem].planets[nation.capitalPlanet].name
-    } in the ${
-      nation.systems[nation.capitalSystem].name
-    } system. There are ${nation.systems.length} systems under its sway, with ${inhabitedPlanets} inhabited worlds and a total population of ${
-      getFriendlyPopulation(
-        population,
-      )
-    }.`;
+    } in the ${nation.systems[nation.capitalSystem].name} system. There are ${
+      nation.systems.length
+    } systems under its sway, with ${inhabitedPlanets} inhabited worlds and a total population of ${getFriendlyPopulation(
+      population,
+    )}.`;
 
     return nation;
   }
@@ -124,16 +142,16 @@ function getFriendlyPopulation(pop: number): string {
   const formatter = new Intl.NumberFormat();
 
   if (pop < 1000000.0) {
-    return formatter.format(Math.floor(pop / 1000.0)) + " thousand";
+    return `${formatter.format(Math.floor(pop / 1000.0))} thousand`;
   }
 
   if (pop < 1000000000.0) {
-    return formatter.format(pop / 1000000.0) + " million";
+    return `${formatter.format(pop / 1000000.0)} million`;
   }
 
   if (pop < 1000000000000.0) {
-    return formatter.format(pop / 1000000000.0) + " billion";
+    return `${formatter.format(pop / 1000000000.0)} billion`;
   }
 
-  return formatter.format(pop / 1000000000000.0) + " trillion";
+  return `${formatter.format(pop / 1000000000000.0)} trillion`;
 }

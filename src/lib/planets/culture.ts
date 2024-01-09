@@ -3,7 +3,7 @@ import * as Words from "@ironarachne/words";
 import random from "random";
 
 export function generate(): string {
-  let possibleTraits = RND.shuffle([
+  const possibleTraits = RND.shuffle([
     ["warlike", "violent", "peaceful", "pacifist"],
     ["matriarchal", "patriarchal", "matrilineal", "patrilineal"],
     ["spiritual", "secular"],
@@ -13,12 +13,12 @@ export function generate(): string {
     ["forgiving", "unforgiving"],
   ]);
 
-  let characteristics = [];
+  const characteristics = [];
 
   const numberOfTraits = random.int(1, 3);
 
   for (let i = 0; i < numberOfTraits; i++) {
-    let trait = possibleTraits.pop();
+    const trait = possibleTraits.pop();
     characteristics.push(RND.item(trait));
   }
 

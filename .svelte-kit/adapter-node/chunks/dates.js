@@ -2,6 +2,14 @@ import "./sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 const entries = [
   {
+    date: "2024-01-09",
+    summary: "",
+    updates: [
+      "Added more detail to planet descriptions.",
+      "Added day length to planets."
+    ]
+  },
+  {
     date: "2023-12-21",
     summary: "",
     updates: ["Revamped all the planet shaders.", "Added star shaders."]

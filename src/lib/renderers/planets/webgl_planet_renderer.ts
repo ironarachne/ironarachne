@@ -21,7 +21,7 @@ export function render(planet: Planet, width: number, height: number): string {
   }
 
   const planetShader = PlanetShaders.getFragmentShaderByName(
-    planet.classification.name,
+    planet.classification,
   );
 
   const colors = getRandomGasGiantColorSet();

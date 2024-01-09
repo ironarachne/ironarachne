@@ -1,11 +1,12 @@
+import * as Planets from "$lib/planets/planets";
 import * as Words from "@ironarachne/words";
+import * as RND from "@ironarachne/rng";
 import random from "random";
-import PlanetGenerator from "../planets/generator.js";
-import PlanetGeneratorConfig from "../planets/generatorconfig.js";
-import StarGenerator from "../stars/generator.js";
-import StarGeneratorConfig from "../stars/generatorconfig.js";
-import StarSystemGeneratorConfig from "./generatorconfig.js";
-import StarSystem from "./starsystem.js";
+import PlanetGeneratorConfig from "$lib/planets/planet_generator_config";
+import StarGenerator from "$lib/stars/generator";
+import StarGeneratorConfig from "$lib/stars/generatorconfig";
+import type StarSystemGeneratorConfig from "./generatorconfig";
+import type StarSystem from "./star_system";
 
 export default class StarSystemGenerator {
   config: StarSystemGeneratorConfig;
@@ -15,10 +16,15 @@ export default class StarSystemGenerator {
   }
 
   generate() {
-    let starsystem = new StarSystem();
+    const starsystem: StarSystem = {
+      name: "",
+      description: "",
+      stars: [],
+      planets: [],
+    };
 
-    let starGenConfig = new StarGeneratorConfig();
-    let starGen = new StarGenerator(starGenConfig);
+    const starGenConfig = new StarGeneratorConfig();
+    const starGen = new StarGenerator(starGenConfig);
 
     const star = starGen.generate();
 
@@ -28,17 +34,19 @@ export default class StarSystemGenerator {
 
     // TODO: binary and trinary systems
 
-    const numberOfPlanets = random.int(this.config.minPlanets, this.config.maxPlanets);
+    const numberOfPlanets = random.int(
+      this.config.minPlanets,
+      this.config.maxPlanets,
+    );
 
-    let planetGenConfig = new PlanetGeneratorConfig();
-    let planetGenerator = new PlanetGenerator(planetGenConfig);
+    const planetGenConfig = new PlanetGeneratorConfig();
 
     for (let i = 0; i < numberOfPlanets; i++) {
-      const planet = planetGenerator.generate();
+      const planet = Planets.generate(planetGenConfig);
       starsystem.planets.push(planet);
     }
 
-    starsystem.planets.sort(function(x, y) {
+    starsystem.planets.sort((x, y) => {
       if (x.distance_from_sun < y.distance_from_sun) {
         return -1;
       }
@@ -50,13 +58,15 @@ export default class StarSystemGenerator {
 
     for (let i = 0; i < starsystem.planets.length; i++) {
       if (!starsystem.planets[i].is_inhabited) {
-        starsystem.planets[i].name = starsystem.name + " " + Words.romanize(i + 1);
+        starsystem.planets[i].name = `${starsystem.name} ${Words.romanize(
+          i + 1,
+        )}`;
       }
     }
 
     starsystem.description = `The ${starsystem.name} system has ${numberOfPlanets} planets`;
 
-    const asteroidBeltChance = random.int(1, 100);
+    const asteroidBeltChance = RND.simple(100);
 
     if (asteroidBeltChance > 70) {
       starsystem.description += " and an asteroid belt.";

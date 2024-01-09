@@ -5,7 +5,7 @@
   import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
   import random from "random";
   import seedrandom from "seedrandom";
-  import type StarNation from "$lib/starnations/starnation";
+  import type StarNation from "$lib/starnations/star_nation";
   import StarNationGenerator from "$lib/starnations/generator";
   import StarNationGeneratorConfig from "$lib/starnations/generatorconfig";
   import { onMount } from "svelte";

@@ -6,7 +6,7 @@
   import seedrandom from "seedrandom";
   import StarSystemGenerator from "$lib/starsystem/generator";
   import StarSystemGeneratorConfig from "$lib/starsystem/generatorconfig";
-  import type StarSystem from "$lib/starsystem/starsystem";
+  import type StarSystem from "$lib/starsystem/star_system";
   import { onMount } from 'svelte';
 
   const width = 128;
