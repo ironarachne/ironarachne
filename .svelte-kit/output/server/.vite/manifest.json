@@ -51,6 +51,9 @@
       "_sentry-release-injection-file.js"
     ]
   },
+  "_exports.js": {
+    "file": "chunks/exports.js"
+  },
   "_fantasy.js": {
     "file": "chunks/fantasy.js",
     "imports": [
@@ -127,6 +130,7 @@
     "file": "index.js",
     "imports": [
       "_internal.js",
+      "_exports.js",
       "_index.js"
     ],
     "isEntry": true,
@@ -141,41 +145,38 @@
     "src": "src/hooks.server.ts"
   },
   "src/lib/assets/fonts/alienleagueregular-9d3z-webfont.woff2": {
-    "file": "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
+    "file": "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
     "src": "src/lib/assets/fonts/alienleagueregular-9d3z-webfont.woff2"
   },
   "src/lib/assets/fonts/azonix-webfont.woff2": {
-    "file": "_app/immutable/assets/azonix-webfont.9240b274.woff2",
+    "file": "_app/immutable/assets/azonix-webfont.snBqetzM.woff2",
     "src": "src/lib/assets/fonts/azonix-webfont.woff2"
   },
   "src/lib/assets/images/logo.png": {
-    "file": "_app/immutable/assets/logo.d4fc0042.png",
+    "file": "_app/immutable/assets/logo.9pnvqdow.png",
     "src": "src/lib/assets/images/logo.png"
   },
   "src/lib/assets/images/stone-texture.png": {
-    "file": "_app/immutable/assets/stone-texture.6a0a459b.png",
+    "file": "_app/immutable/assets/stone-texture.Ac2lW7TA.png",
     "src": "src/lib/assets/images/stone-texture.png"
   },
   "src/routes/+error.svelte": {
     "file": "entries/pages/_error.svelte.js",
     "imports": [
-      "_ssr.js"
+      "_ssr.js",
+      "_exports.js"
     ],
     "isEntry": true,
     "src": "src/routes/+error.svelte"
   },
-  "src/routes/+layout.css": {
-    "file": "_app/immutable/assets/_layout.72b4acb7.css",
-    "src": "src/routes/+layout.css"
-  },
   "src/routes/+layout.svelte": {
     "assets": [
-      "_app/immutable/assets/logo.d4fc0042.png",
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/logo.9pnvqdow.png",
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_layout.72b4acb7.css"
+      "_app/immutable/assets/_layout.natBJDE3.css"
     ],
     "file": "entries/pages/_layout.svelte.js",
     "imports": [
@@ -195,13 +196,9 @@
     "isEntry": true,
     "src": "src/routes/+page.svelte"
   },
-  "src/routes/arms-manufacturer/+page.css": {
-    "file": "_app/immutable/assets/_page.89450aeb.css",
-    "src": "src/routes/arms-manufacturer/+page.css"
-  },
   "src/routes/arms-manufacturer/+page.svelte": {
     "css": [
-      "_app/immutable/assets/_page.89450aeb.css"
+      "_app/immutable/assets/_page.PSZegt0e.css"
     ],
     "file": "entries/pages/arms-manufacturer/_page.svelte.js",
     "imports": [
@@ -220,17 +217,13 @@
     "isEntry": true,
     "src": "src/routes/changelog/+page.svelte"
   },
-  "src/routes/chopshop/+page.css": {
-    "file": "_app/immutable/assets/_page.02be2b4b.css",
-    "src": "src/routes/chopshop/+page.css"
-  },
   "src/routes/chopshop/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.02be2b4b.css"
+      "_app/immutable/assets/_page.VjGIrT-h.css"
     ],
     "file": "entries/pages/chopshop/_page.svelte.js",
     "imports": [
@@ -240,17 +233,13 @@
     "isEntry": true,
     "src": "src/routes/chopshop/+page.svelte"
   },
-  "src/routes/culture/+page.css": {
-    "file": "_app/immutable/assets/_page.053b33e8.css",
-    "src": "src/routes/culture/+page.css"
-  },
   "src/routes/culture/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.053b33e8.css"
+      "_app/immutable/assets/_page.R550z3A1.css"
     ],
     "file": "entries/pages/culture/_page.svelte.js",
     "imports": [
@@ -261,17 +250,13 @@
     "isEntry": true,
     "src": "src/routes/culture/+page.svelte"
   },
-  "src/routes/drug/+page.css": {
-    "file": "_app/immutable/assets/_page.c919e390.css",
-    "src": "src/routes/drug/+page.css"
-  },
   "src/routes/drug/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.c919e390.css"
+      "_app/immutable/assets/_page.Mz4OqNZM.css"
     ],
     "file": "entries/pages/drug/_page.svelte.js",
     "imports": [
@@ -281,17 +266,13 @@
     "isEntry": true,
     "src": "src/routes/drug/+page.svelte"
   },
-  "src/routes/fantasy/adnd/character/+page.css": {
-    "file": "_app/immutable/assets/_page.b5b9d920.css",
-    "src": "src/routes/fantasy/adnd/character/+page.css"
-  },
   "src/routes/fantasy/adnd/character/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.b5b9d920.css"
+      "_app/immutable/assets/_page.759LC6eX.css"
     ],
     "file": "entries/pages/fantasy/adnd/character/_page.svelte.js",
     "imports": [
@@ -303,17 +284,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/adnd/character/+page.svelte"
   },
-  "src/routes/fantasy/dcc/character/+page.css": {
-    "file": "_app/immutable/assets/_page.3bd8e8ad.css",
-    "src": "src/routes/fantasy/dcc/character/+page.css"
-  },
   "src/routes/fantasy/dcc/character/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.3bd8e8ad.css"
+      "_app/immutable/assets/_page.FW9sjNvu.css"
     ],
     "file": "entries/pages/fantasy/dcc/character/_page.svelte.js",
     "imports": [
@@ -324,17 +301,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/dcc/character/+page.svelte"
   },
-  "src/routes/fantasy/dungeon/+page.css": {
-    "file": "_app/immutable/assets/_page.8a41af8e.css",
-    "src": "src/routes/fantasy/dungeon/+page.css"
-  },
   "src/routes/fantasy/dungeon/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.8a41af8e.css"
+      "_app/immutable/assets/_page.zqLs38ov.css"
     ],
     "file": "entries/pages/fantasy/dungeon/_page.svelte.js",
     "imports": [
@@ -351,17 +324,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/dungeon/+page.svelte"
   },
-  "src/routes/fantasy/equipment/+page.css": {
-    "file": "_app/immutable/assets/_page.3b8b1d73.css",
-    "src": "src/routes/fantasy/equipment/+page.css"
-  },
   "src/routes/fantasy/equipment/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.3b8b1d73.css"
+      "_app/immutable/assets/_page.ZVzqIWtR.css"
     ],
     "file": "entries/pages/fantasy/equipment/_page.svelte.js",
     "imports": [
@@ -372,17 +341,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/equipment/+page.svelte"
   },
-  "src/routes/fantasy/family/+page.css": {
-    "file": "_app/immutable/assets/_page.07aad50d.css",
-    "src": "src/routes/fantasy/family/+page.css"
-  },
   "src/routes/fantasy/family/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.07aad50d.css"
+      "_app/immutable/assets/_page.KQnegajO.css"
     ],
     "file": "entries/pages/fantasy/family/_page.svelte.js",
     "imports": [
@@ -394,17 +359,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/family/+page.svelte"
   },
-  "src/routes/fantasy/merchant/+page.css": {
-    "file": "_app/immutable/assets/_page.2ab722a6.css",
-    "src": "src/routes/fantasy/merchant/+page.css"
-  },
   "src/routes/fantasy/merchant/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.2ab722a6.css"
+      "_app/immutable/assets/_page.gR9RZwzQ.css"
     ],
     "file": "entries/pages/fantasy/merchant/_page.svelte.js",
     "imports": [
@@ -417,17 +378,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/merchant/+page.svelte"
   },
-  "src/routes/fantasy/organization/+page.css": {
-    "file": "_app/immutable/assets/_page.7e848bb7.css",
-    "src": "src/routes/fantasy/organization/+page.css"
-  },
   "src/routes/fantasy/organization/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.7e848bb7.css"
+      "_app/immutable/assets/_page.Ort0-mww.css"
     ],
     "file": "entries/pages/fantasy/organization/_page.svelte.js",
     "imports": [
@@ -440,17 +397,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/organization/+page.svelte"
   },
-  "src/routes/fantasy/religion/+page.css": {
-    "file": "_app/immutable/assets/_page.684a6a32.css",
-    "src": "src/routes/fantasy/religion/+page.css"
-  },
   "src/routes/fantasy/religion/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.684a6a32.css"
+      "_app/immutable/assets/_page.TjbJQH7-.css"
     ],
     "file": "entries/pages/fantasy/religion/_page.svelte.js",
     "imports": [
@@ -461,17 +414,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/religion/+page.svelte"
   },
-  "src/routes/fantasy/weapon/+page.css": {
-    "file": "_app/immutable/assets/_page.4ef6e44c.css",
-    "src": "src/routes/fantasy/weapon/+page.css"
-  },
   "src/routes/fantasy/weapon/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.4ef6e44c.css"
+      "_app/immutable/assets/_page.BuJlwvXo.css"
     ],
     "file": "entries/pages/fantasy/weapon/_page.svelte.js",
     "imports": [
@@ -482,17 +431,13 @@
     "isEntry": true,
     "src": "src/routes/fantasy/weapon/+page.svelte"
   },
-  "src/routes/heraldry/+page.css": {
-    "file": "_app/immutable/assets/_page.042e0701.css",
-    "src": "src/routes/heraldry/+page.css"
-  },
   "src/routes/heraldry/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.042e0701.css"
+      "_app/immutable/assets/_page.EuyZHuhM.css"
     ],
     "file": "entries/pages/heraldry/_page.svelte.js",
     "imports": [
@@ -504,17 +449,13 @@
     "isEntry": true,
     "src": "src/routes/heraldry/+page.svelte"
   },
-  "src/routes/language/+page.css": {
-    "file": "_app/immutable/assets/_page.2817b286.css",
-    "src": "src/routes/language/+page.css"
-  },
   "src/routes/language/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.2817b286.css"
+      "_app/immutable/assets/_page.0iodDGhf.css"
     ],
     "file": "entries/pages/language/_page.svelte.js",
     "imports": [
@@ -524,18 +465,14 @@
     "isEntry": true,
     "src": "src/routes/language/+page.svelte"
   },
-  "src/routes/navigation/+page.css": {
-    "file": "_app/immutable/assets/_page.b0169006.css",
-    "src": "src/routes/navigation/+page.css"
-  },
   "src/routes/navigation/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2",
-      "_app/immutable/assets/stone-texture.6a0a459b.png"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2",
+      "_app/immutable/assets/stone-texture.Ac2lW7TA.png"
     ],
     "css": [
-      "_app/immutable/assets/_page.b0169006.css"
+      "_app/immutable/assets/_page.WGMTG3a8.css"
     ],
     "file": "entries/pages/navigation/_page.svelte.js",
     "imports": [
@@ -544,17 +481,13 @@
     "isEntry": true,
     "src": "src/routes/navigation/+page.svelte"
   },
-  "src/routes/planet/+page.css": {
-    "file": "_app/immutable/assets/_page.d6205c77.css",
-    "src": "src/routes/planet/+page.css"
-  },
   "src/routes/planet/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.d6205c77.css"
+      "_app/immutable/assets/_page.O_gwddFo.css"
     ],
     "file": "entries/pages/planet/_page.svelte.js",
     "imports": [
@@ -564,17 +497,13 @@
     "isEntry": true,
     "src": "src/routes/planet/+page.svelte"
   },
-  "src/routes/region/+page.css": {
-    "file": "_app/immutable/assets/_page.f23db29d.css",
-    "src": "src/routes/region/+page.css"
-  },
   "src/routes/region/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.f23db29d.css"
+      "_app/immutable/assets/_page.6BVVkKHv.css"
     ],
     "file": "entries/pages/region/_page.svelte.js",
     "imports": [
@@ -591,17 +520,13 @@
     "isEntry": true,
     "src": "src/routes/region/+page.svelte"
   },
-  "src/routes/species-stats/+page.css": {
-    "file": "_app/immutable/assets/_page.4dfa52a5.css",
-    "src": "src/routes/species-stats/+page.css"
-  },
   "src/routes/species-stats/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.4dfa52a5.css"
+      "_app/immutable/assets/_page.TvDSt5dD.css"
     ],
     "file": "entries/pages/species-stats/_page.svelte.js",
     "imports": [
@@ -611,17 +536,13 @@
     "isEntry": true,
     "src": "src/routes/species-stats/+page.svelte"
   },
-  "src/routes/spooky-ship/+page.css": {
-    "file": "_app/immutable/assets/_page.b8ddab98.css",
-    "src": "src/routes/spooky-ship/+page.css"
-  },
   "src/routes/spooky-ship/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.b8ddab98.css"
+      "_app/immutable/assets/_page.fY-4OYTx.css"
     ],
     "file": "entries/pages/spooky-ship/_page.svelte.js",
     "imports": [
@@ -631,17 +552,13 @@
     "isEntry": true,
     "src": "src/routes/spooky-ship/+page.svelte"
   },
-  "src/routes/star-nation/+page.css": {
-    "file": "_app/immutable/assets/_page.a519e29b.css",
-    "src": "src/routes/star-nation/+page.css"
-  },
   "src/routes/star-nation/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.a519e29b.css"
+      "_app/immutable/assets/_page.XEwj68oV.css"
     ],
     "file": "entries/pages/star-nation/_page.svelte.js",
     "imports": [
@@ -651,17 +568,13 @@
     "isEntry": true,
     "src": "src/routes/star-nation/+page.svelte"
   },
-  "src/routes/star-system/+page.css": {
-    "file": "_app/immutable/assets/_page.98462212.css",
-    "src": "src/routes/star-system/+page.css"
-  },
   "src/routes/star-system/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.98462212.css"
+      "_app/immutable/assets/_page.m40qUBis.css"
     ],
     "file": "entries/pages/star-system/_page.svelte.js",
     "imports": [
@@ -671,17 +584,13 @@
     "isEntry": true,
     "src": "src/routes/star-system/+page.svelte"
   },
-  "src/routes/swn/character/+page.css": {
-    "file": "_app/immutable/assets/_page.8d15af8c.css",
-    "src": "src/routes/swn/character/+page.css"
-  },
   "src/routes/swn/character/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.8d15af8c.css"
+      "_app/immutable/assets/_page.IUMZJnQh.css"
     ],
     "file": "entries/pages/swn/character/_page.svelte.js",
     "imports": [
@@ -692,17 +601,13 @@
     "isEntry": true,
     "src": "src/routes/swn/character/+page.svelte"
   },
-  "src/routes/swn/starship/+page.css": {
-    "file": "_app/immutable/assets/_page.b41b1a57.css",
-    "src": "src/routes/swn/starship/+page.css"
-  },
   "src/routes/swn/starship/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.b41b1a57.css"
+      "_app/immutable/assets/_page.Jbocn1ip.css"
     ],
     "file": "entries/pages/swn/starship/_page.svelte.js",
     "imports": [
@@ -712,17 +617,13 @@
     "isEntry": true,
     "src": "src/routes/swn/starship/+page.svelte"
   },
-  "src/routes/unchartedworlds/character/+page.css": {
-    "file": "_app/immutable/assets/_page.d9d0c4c7.css",
-    "src": "src/routes/unchartedworlds/character/+page.css"
-  },
   "src/routes/unchartedworlds/character/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.d9d0c4c7.css"
+      "_app/immutable/assets/_page.o_Maz_SK.css"
     ],
     "file": "entries/pages/unchartedworlds/character/_page.svelte.js",
     "imports": [
@@ -732,17 +633,13 @@
     "isEntry": true,
     "src": "src/routes/unchartedworlds/character/+page.svelte"
   },
-  "src/routes/word-generator-cheat-sheet/+page.css": {
-    "file": "_app/immutable/assets/_page.040e8cce.css",
-    "src": "src/routes/word-generator-cheat-sheet/+page.css"
-  },
   "src/routes/word-generator-cheat-sheet/+page.svelte": {
     "assets": [
-      "_app/immutable/assets/alienleagueregular-9d3z-webfont.688e2c07.woff2",
-      "_app/immutable/assets/azonix-webfont.9240b274.woff2"
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
     ],
     "css": [
-      "_app/immutable/assets/_page.040e8cce.css"
+      "_app/immutable/assets/_page.rX-Cu3LM.css"
     ],
     "file": "entries/pages/word-generator-cheat-sheet/_page.svelte.js",
     "imports": [

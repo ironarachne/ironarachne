@@ -3,16 +3,20 @@ import { env } from './env.js';
 import http from 'http';
 import * as qs from 'querystring';
 
-function parse$1 (str, loose) {
-	if (str instanceof RegExp) return { keys:false, pattern:str };
-	var c, o, tmp, ext, keys=[], pattern='', arr = str.split('/');
+/**
+ * @param {string|RegExp} input The route pattern
+ * @param {boolean} [loose] Allow open-ended matching. Ignored with `RegExp` input.
+ */
+function parse$1(input, loose) {
+	if (input instanceof RegExp) return { keys:false, pattern:input };
+	var c, o, tmp, ext, keys=[], pattern='', arr = input.split('/');
 	arr[0] || arr.shift();
 
 	while (tmp = arr.shift()) {
 		c = tmp[0];
 		if (c === '*') {
-			keys.push('wild');
-			pattern += '/(.*)';
+			keys.push(c);
+			pattern += tmp[1] === '?' ? '(?:/(.*))?' : '/(.*)';
 		} else if (c === ':') {
 			o = tmp.indexOf('?', 1);
 			ext = tmp.indexOf('.', 1);
@@ -29,6 +33,19 @@ function parse$1 (str, loose) {
 		pattern: new RegExp('^' + pattern + (loose ? '(?=$|\/)' : '\/?$'), 'i')
 	};
 }
+
+const MAP = {
+	"": 0,
+	GET: 1,
+	HEAD: 2,
+	PATCH: 3,
+	OPTIONS: 4,
+	CONNECT: 5,
+	DELETE: 6,
+	TRACE: 7,
+	POST: 8,
+	PUT: 9,
+};
 
 class Trouter {
 	constructor() {
@@ -49,24 +66,25 @@ class Trouter {
 	use(route, ...fns) {
 		let handlers = [].concat.apply([], fns);
 		let { keys, pattern } = parse$1(route, true);
-		this.routes.push({ keys, pattern, method:'', handlers });
+		this.routes.push({ keys, pattern, method: '', handlers, midx: MAP[''] });
 		return this;
 	}
 
 	add(method, route, ...fns) {
 		let { keys, pattern } = parse$1(route);
 		let handlers = [].concat.apply([], fns);
-		this.routes.push({ keys, pattern, method, handlers });
+		this.routes.push({ keys, pattern, method, handlers, midx: MAP[method] });
 		return this;
 	}
 
 	find(method, url) {
-		let isHEAD=(method === 'HEAD');
+		let midx = MAP[method];
+		let isHEAD = (midx === 2);
 		let i=0, j=0, k, tmp, arr=this.routes;
 		let matches=[], params={}, handlers=[];
 		for (; i < arr.length; i++) {
 			tmp = arr[i];
-			if (tmp.method.length === 0 || tmp.method === method || isHEAD && tmp.method === 'GET') {
+			if (tmp.midx === midx  || tmp.midx === 0 || (isHEAD && tmp.midx===1) ) {
 				if (tmp.keys === false) {
 					matches = tmp.pattern.exec(url);
 					if (matches === null) continue;

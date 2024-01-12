@@ -1,4 +1,6 @@
 <script lang="ts">
+  import "$lib/styles/reset.scss";
+  import "$lib/styles/main.scss";
   import Footer from "$lib/components/Footer.svelte";
   import Header from "$lib/components/Header.svelte";
   import { setContext } from 'svelte';
@@ -15,11 +17,6 @@
 
   setContext('user', user);
 </script>
-
-<style type="scss">
-  @import "$lib/styles/reset.scss";
-  @import "$lib/styles/main.scss";
-</style>
 
 <Header />
 <slot />

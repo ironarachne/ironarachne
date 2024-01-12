@@ -63,17 +63,40 @@ function parse$1(req) {
 }
 
 const mimes = {
-  "ez": "application/andrew-inset",
-  "aw": "application/applixware",
+  "3g2": "video/3gpp2",
+  "3gp": "video/3gpp",
+  "3gpp": "video/3gpp",
+  "3mf": "model/3mf",
+  "aac": "audio/aac",
+  "ac": "application/pkix-attr-cert",
+  "adp": "audio/adpcm",
+  "adts": "audio/aac",
+  "ai": "application/postscript",
+  "aml": "application/automationml-aml+xml",
+  "amlx": "application/automationml-amlx+zip",
+  "amr": "audio/amr",
+  "apng": "image/apng",
+  "appcache": "text/cache-manifest",
+  "appinstaller": "application/appinstaller",
+  "appx": "application/appx",
+  "appxbundle": "application/appxbundle",
+  "asc": "application/pgp-keys",
   "atom": "application/atom+xml",
   "atomcat": "application/atomcat+xml",
   "atomdeleted": "application/atomdeleted+xml",
   "atomsvc": "application/atomsvc+xml",
-  "dwd": "application/atsc-dwd+xml",
-  "held": "application/atsc-held+xml",
-  "rsat": "application/atsc-rsat+xml",
+  "au": "audio/basic",
+  "avci": "image/avci",
+  "avcs": "image/avcs",
+  "avif": "image/avif",
+  "aw": "application/applixware",
   "bdoc": "application/bdoc",
-  "xcs": "application/calendar+xml",
+  "bin": "application/octet-stream",
+  "bmp": "image/bmp",
+  "bpk": "application/octet-stream",
+  "btf": "image/prs.btif",
+  "btif": "image/prs.btif",
+  "buffer": "application/octet-stream",
   "ccxml": "application/ccxml+xml",
   "cdfx": "application/cdfx+xml",
   "cdmia": "application/cdmi-capability",
@@ -81,270 +104,120 @@ const mimes = {
   "cdmid": "application/cdmi-domain",
   "cdmio": "application/cdmi-object",
   "cdmiq": "application/cdmi-queue",
+  "cer": "application/pkix-cert",
+  "cgm": "image/cgm",
+  "cjs": "application/node",
+  "class": "application/java-vm",
+  "coffee": "text/coffeescript",
+  "conf": "text/plain",
+  "cpl": "application/cpl+xml",
+  "cpt": "application/mac-compactpro",
+  "crl": "application/pkix-crl",
+  "css": "text/css",
+  "csv": "text/csv",
   "cu": "application/cu-seeme",
-  "mpd": "application/dash+xml",
+  "cwl": "application/cwl",
+  "cww": "application/prs.cww",
   "davmount": "application/davmount+xml",
   "dbk": "application/docbook+xml",
-  "dssc": "application/dssc+der",
-  "xdssc": "application/dssc+xml",
-  "es": "application/ecmascript",
-  "ecma": "application/ecmascript",
-  "emma": "application/emma+xml",
-  "emotionml": "application/emotionml+xml",
-  "epub": "application/epub+zip",
-  "exi": "application/exi",
-  "fdt": "application/fdt+xml",
-  "pfr": "application/font-tdpfr",
-  "geojson": "application/geo+json",
-  "gml": "application/gml+xml",
-  "gpx": "application/gpx+xml",
-  "gxf": "application/gxf",
-  "gz": "application/gzip",
-  "hjson": "application/hjson",
-  "stk": "application/hyperstudio",
-  "ink": "application/inkml+xml",
-  "inkml": "application/inkml+xml",
-  "ipfix": "application/ipfix",
-  "its": "application/its+xml",
-  "jar": "application/java-archive",
-  "war": "application/java-archive",
-  "ear": "application/java-archive",
-  "ser": "application/java-serialized-object",
-  "class": "application/java-vm",
-  "js": "application/javascript",
-  "mjs": "application/javascript",
-  "json": "application/json",
-  "map": "application/json",
-  "json5": "application/json5",
-  "jsonml": "application/jsonml+json",
-  "jsonld": "application/ld+json",
-  "lgr": "application/lgr+xml",
-  "lostxml": "application/lost+xml",
-  "hqx": "application/mac-binhex40",
-  "cpt": "application/mac-compactpro",
-  "mads": "application/mads+xml",
-  "webmanifest": "application/manifest+json",
-  "mrc": "application/marc",
-  "mrcx": "application/marcxml+xml",
-  "ma": "application/mathematica",
-  "nb": "application/mathematica",
-  "mb": "application/mathematica",
-  "mathml": "application/mathml+xml",
-  "mbox": "application/mbox",
-  "mscml": "application/mediaservercontrol+xml",
-  "metalink": "application/metalink+xml",
-  "meta4": "application/metalink4+xml",
-  "mets": "application/mets+xml",
-  "maei": "application/mmt-aei+xml",
-  "musd": "application/mmt-usd+xml",
-  "mods": "application/mods+xml",
-  "m21": "application/mp21",
-  "mp21": "application/mp21",
-  "mp4s": "application/mp4",
-  "m4p": "application/mp4",
-  "doc": "application/msword",
-  "dot": "application/msword",
-  "mxf": "application/mxf",
-  "nq": "application/n-quads",
-  "nt": "application/n-triples",
-  "cjs": "application/node",
-  "bin": "application/octet-stream",
-  "dms": "application/octet-stream",
-  "lrf": "application/octet-stream",
-  "mar": "application/octet-stream",
-  "so": "application/octet-stream",
+  "deb": "application/octet-stream",
+  "def": "text/plain",
+  "deploy": "application/octet-stream",
+  "dib": "image/bmp",
+  "disposition-notification": "message/disposition-notification",
   "dist": "application/octet-stream",
   "distz": "application/octet-stream",
-  "pkg": "application/octet-stream",
-  "bpk": "application/octet-stream",
-  "dump": "application/octet-stream",
-  "elc": "application/octet-stream",
-  "deploy": "application/octet-stream",
-  "exe": "application/octet-stream",
   "dll": "application/octet-stream",
-  "deb": "application/octet-stream",
   "dmg": "application/octet-stream",
-  "iso": "application/octet-stream",
-  "img": "application/octet-stream",
-  "msi": "application/octet-stream",
-  "msp": "application/octet-stream",
-  "msm": "application/octet-stream",
-  "buffer": "application/octet-stream",
-  "oda": "application/oda",
-  "opf": "application/oebps-package+xml",
-  "ogx": "application/ogg",
-  "omdoc": "application/omdoc+xml",
-  "onetoc": "application/onenote",
-  "onetoc2": "application/onenote",
-  "onetmp": "application/onenote",
-  "onepkg": "application/onenote",
-  "oxps": "application/oxps",
-  "relo": "application/p2p-overlay+xml",
-  "xer": "application/patch-ops-error+xml",
-  "pdf": "application/pdf",
-  "pgp": "application/pgp-encrypted",
-  "asc": "application/pgp-signature",
-  "sig": "application/pgp-signature",
-  "prf": "application/pics-rules",
-  "p10": "application/pkcs10",
-  "p7m": "application/pkcs7-mime",
-  "p7c": "application/pkcs7-mime",
-  "p7s": "application/pkcs7-signature",
-  "p8": "application/pkcs8",
-  "ac": "application/pkix-attr-cert",
-  "cer": "application/pkix-cert",
-  "crl": "application/pkix-crl",
-  "pkipath": "application/pkix-pkipath",
-  "pki": "application/pkixcmp",
-  "pls": "application/pls+xml",
-  "ai": "application/postscript",
-  "eps": "application/postscript",
-  "ps": "application/postscript",
-  "provx": "application/provenance+xml",
-  "cww": "application/prs.cww",
-  "pskcxml": "application/pskc+xml",
-  "raml": "application/raml+yaml",
-  "rdf": "application/rdf+xml",
-  "owl": "application/rdf+xml",
-  "rif": "application/reginfo+xml",
-  "rnc": "application/relax-ng-compact-syntax",
-  "rl": "application/resource-lists+xml",
-  "rld": "application/resource-lists-diff+xml",
-  "rs": "application/rls-services+xml",
-  "rapd": "application/route-apd+xml",
-  "sls": "application/route-s-tsid+xml",
-  "rusd": "application/route-usd+xml",
-  "gbr": "application/rpki-ghostbusters",
-  "mft": "application/rpki-manifest",
-  "roa": "application/rpki-roa",
-  "rsd": "application/rsd+xml",
-  "rss": "application/rss+xml",
-  "rtf": "application/rtf",
-  "sbml": "application/sbml+xml",
-  "scq": "application/scvp-cv-request",
-  "scs": "application/scvp-cv-response",
-  "spq": "application/scvp-vp-request",
-  "spp": "application/scvp-vp-response",
-  "sdp": "application/sdp",
-  "senmlx": "application/senml+xml",
-  "sensmlx": "application/sensml+xml",
-  "setpay": "application/set-payment-initiation",
-  "setreg": "application/set-registration-initiation",
-  "shf": "application/shf+xml",
-  "siv": "application/sieve",
-  "sieve": "application/sieve",
-  "smi": "application/smil+xml",
-  "smil": "application/smil+xml",
-  "rq": "application/sparql-query",
-  "srx": "application/sparql-results+xml",
-  "gram": "application/srgs",
-  "grxml": "application/srgs+xml",
-  "sru": "application/sru+xml",
-  "ssdl": "application/ssdl+xml",
-  "ssml": "application/ssml+xml",
-  "swidtag": "application/swid+xml",
-  "tei": "application/tei+xml",
-  "teicorpus": "application/tei+xml",
-  "tfi": "application/thraud+xml",
-  "tsd": "application/timestamped-data",
-  "toml": "application/toml",
-  "trig": "application/trig",
-  "ttml": "application/ttml+xml",
-  "ubj": "application/ubjson",
-  "rsheet": "application/urc-ressheet+xml",
-  "td": "application/urc-targetdesc+xml",
-  "vxml": "application/voicexml+xml",
-  "wasm": "application/wasm",
-  "wgt": "application/widget",
-  "hlp": "application/winhlp",
-  "wsdl": "application/wsdl+xml",
-  "wspolicy": "application/wspolicy+xml",
-  "xaml": "application/xaml+xml",
-  "xav": "application/xcap-att+xml",
-  "xca": "application/xcap-caps+xml",
-  "xdf": "application/xcap-diff+xml",
-  "xel": "application/xcap-el+xml",
-  "xns": "application/xcap-ns+xml",
-  "xenc": "application/xenc+xml",
-  "xhtml": "application/xhtml+xml",
-  "xht": "application/xhtml+xml",
-  "xlf": "application/xliff+xml",
-  "xml": "application/xml",
-  "xsl": "application/xml",
-  "xsd": "application/xml",
-  "rng": "application/xml",
-  "dtd": "application/xml-dtd",
-  "xop": "application/xop+xml",
-  "xpl": "application/xproc+xml",
-  "xslt": "application/xml",
-  "xspf": "application/xspf+xml",
-  "mxml": "application/xv+xml",
-  "xhvml": "application/xv+xml",
-  "xvml": "application/xv+xml",
-  "xvm": "application/xv+xml",
-  "yang": "application/yang",
-  "yin": "application/yin+xml",
-  "zip": "application/zip",
-  "3gpp": "video/3gpp",
-  "adp": "audio/adpcm",
-  "amr": "audio/amr",
-  "au": "audio/basic",
-  "snd": "audio/basic",
-  "mid": "audio/midi",
-  "midi": "audio/midi",
-  "kar": "audio/midi",
-  "rmi": "audio/midi",
-  "mxmf": "audio/mobile-xmf",
-  "mp3": "audio/mpeg",
-  "m4a": "audio/mp4",
-  "mp4a": "audio/mp4",
-  "mpga": "audio/mpeg",
-  "mp2": "audio/mpeg",
-  "mp2a": "audio/mpeg",
-  "m2a": "audio/mpeg",
-  "m3a": "audio/mpeg",
-  "oga": "audio/ogg",
-  "ogg": "audio/ogg",
-  "spx": "audio/ogg",
-  "opus": "audio/ogg",
-  "s3m": "audio/s3m",
-  "sil": "audio/silk",
-  "wav": "audio/wav",
-  "weba": "audio/webm",
-  "xm": "audio/xm",
-  "ttc": "font/collection",
-  "otf": "font/otf",
-  "ttf": "font/ttf",
-  "woff": "font/woff",
-  "woff2": "font/woff2",
-  "exr": "image/aces",
-  "apng": "image/apng",
-  "avif": "image/avif",
-  "bmp": "image/bmp",
-  "cgm": "image/cgm",
+  "dms": "application/octet-stream",
+  "doc": "application/msword",
+  "dot": "application/msword",
+  "dpx": "image/dpx",
   "drle": "image/dicom-rle",
+  "dsc": "text/prs.lines.tag",
+  "dssc": "application/dssc+der",
+  "dtd": "application/xml-dtd",
+  "dump": "application/octet-stream",
+  "dwd": "application/atsc-dwd+xml",
+  "ear": "application/java-archive",
+  "ecma": "application/ecmascript",
+  "elc": "application/octet-stream",
   "emf": "image/emf",
+  "eml": "message/rfc822",
+  "emma": "application/emma+xml",
+  "emotionml": "application/emotionml+xml",
+  "eps": "application/postscript",
+  "epub": "application/epub+zip",
+  "exe": "application/octet-stream",
+  "exi": "application/exi",
+  "exp": "application/express",
+  "exr": "image/aces",
+  "ez": "application/andrew-inset",
+  "fdf": "application/fdf",
+  "fdt": "application/fdt+xml",
   "fits": "image/fits",
   "g3": "image/g3fax",
+  "gbr": "application/rpki-ghostbusters",
+  "geojson": "application/geo+json",
   "gif": "image/gif",
+  "glb": "model/gltf-binary",
+  "gltf": "model/gltf+json",
+  "gml": "application/gml+xml",
+  "gpx": "application/gpx+xml",
+  "gram": "application/srgs",
+  "grxml": "application/srgs+xml",
+  "gxf": "application/gxf",
+  "gz": "application/gzip",
+  "h261": "video/h261",
+  "h263": "video/h263",
+  "h264": "video/h264",
   "heic": "image/heic",
   "heics": "image/heic-sequence",
   "heif": "image/heif",
   "heifs": "image/heif-sequence",
   "hej2": "image/hej2k",
+  "held": "application/atsc-held+xml",
+  "hjson": "application/hjson",
+  "hlp": "application/winhlp",
+  "hqx": "application/mac-binhex40",
   "hsj2": "image/hsj2",
+  "htm": "text/html",
+  "html": "text/html",
+  "ics": "text/calendar",
   "ief": "image/ief",
+  "ifb": "text/calendar",
+  "iges": "model/iges",
+  "igs": "model/iges",
+  "img": "application/octet-stream",
+  "in": "text/plain",
+  "ini": "text/plain",
+  "ink": "application/inkml+xml",
+  "inkml": "application/inkml+xml",
+  "ipfix": "application/ipfix",
+  "iso": "application/octet-stream",
+  "its": "application/its+xml",
+  "jade": "text/jade",
+  "jar": "application/java-archive",
+  "jhc": "image/jphc",
   "jls": "image/jls",
   "jp2": "image/jp2",
-  "jpg2": "image/jp2",
-  "jpeg": "image/jpeg",
-  "jpg": "image/jpeg",
   "jpe": "image/jpeg",
+  "jpeg": "image/jpeg",
+  "jpf": "image/jpx",
+  "jpg": "image/jpeg",
+  "jpg2": "image/jp2",
+  "jpgm": "image/jpm",
+  "jpgv": "video/jpeg",
   "jph": "image/jph",
-  "jhc": "image/jphc",
   "jpm": "image/jpm",
   "jpx": "image/jpx",
-  "jpf": "image/jpx",
+  "js": "text/javascript",
+  "json": "application/json",
+  "json5": "application/json5",
+  "jsonld": "application/ld+json",
+  "jsonml": "application/jsonml+json",
+  "jsx": "text/jsx",
+  "jt": "model/jt",
   "jxr": "image/jxr",
   "jxra": "image/jxra",
   "jxrs": "image/jxrs",
@@ -352,123 +225,278 @@ const mimes = {
   "jxsc": "image/jxsc",
   "jxsi": "image/jxsi",
   "jxss": "image/jxss",
+  "kar": "audio/midi",
   "ktx": "image/ktx",
   "ktx2": "image/ktx2",
-  "png": "image/png",
-  "btif": "image/prs.btif",
-  "pti": "image/prs.pti",
-  "sgi": "image/sgi",
-  "svg": "image/svg+xml",
-  "svgz": "image/svg+xml",
-  "t38": "image/t38",
-  "tif": "image/tiff",
-  "tiff": "image/tiff",
-  "tfx": "image/tiff-fx",
-  "webp": "image/webp",
-  "wmf": "image/wmf",
-  "disposition-notification": "message/disposition-notification",
-  "u8msg": "message/global",
-  "u8dsn": "message/global-delivery-status",
-  "u8mdn": "message/global-disposition-notification",
-  "u8hdr": "message/global-headers",
-  "eml": "message/rfc822",
-  "mime": "message/rfc822",
-  "3mf": "model/3mf",
-  "gltf": "model/gltf+json",
-  "glb": "model/gltf-binary",
-  "igs": "model/iges",
-  "iges": "model/iges",
-  "msh": "model/mesh",
-  "mesh": "model/mesh",
-  "silo": "model/mesh",
-  "mtl": "model/mtl",
-  "obj": "model/obj",
-  "stpz": "model/step+zip",
-  "stpxz": "model/step-xml+zip",
-  "stl": "model/stl",
-  "wrl": "model/vrml",
-  "vrml": "model/vrml",
-  "x3db": "model/x3d+fastinfoset",
-  "x3dbz": "model/x3d+binary",
-  "x3dv": "model/x3d-vrml",
-  "x3dvz": "model/x3d+vrml",
-  "x3d": "model/x3d+xml",
-  "x3dz": "model/x3d+xml",
-  "appcache": "text/cache-manifest",
-  "manifest": "text/cache-manifest",
-  "ics": "text/calendar",
-  "ifb": "text/calendar",
-  "coffee": "text/coffeescript",
-  "litcoffee": "text/coffeescript",
-  "css": "text/css",
-  "csv": "text/csv",
-  "html": "text/html",
-  "htm": "text/html",
-  "shtml": "text/html",
-  "jade": "text/jade",
-  "jsx": "text/jsx",
   "less": "text/less",
-  "markdown": "text/markdown",
-  "md": "text/markdown",
-  "mml": "text/mathml",
-  "mdx": "text/mdx",
-  "n3": "text/n3",
-  "txt": "text/plain",
-  "text": "text/plain",
-  "conf": "text/plain",
-  "def": "text/plain",
+  "lgr": "application/lgr+xml",
   "list": "text/plain",
+  "litcoffee": "text/coffeescript",
   "log": "text/plain",
-  "in": "text/plain",
-  "ini": "text/plain",
-  "dsc": "text/prs.lines.tag",
+  "lostxml": "application/lost+xml",
+  "lrf": "application/octet-stream",
+  "m1v": "video/mpeg",
+  "m21": "application/mp21",
+  "m2a": "audio/mpeg",
+  "m2v": "video/mpeg",
+  "m3a": "audio/mpeg",
+  "m4a": "audio/mp4",
+  "m4p": "application/mp4",
+  "m4s": "video/iso.segment",
+  "ma": "application/mathematica",
+  "mads": "application/mads+xml",
+  "maei": "application/mmt-aei+xml",
+  "man": "text/troff",
+  "manifest": "text/cache-manifest",
+  "map": "application/json",
+  "mar": "application/octet-stream",
+  "markdown": "text/markdown",
+  "mathml": "application/mathml+xml",
+  "mb": "application/mathematica",
+  "mbox": "application/mbox",
+  "md": "text/markdown",
+  "mdx": "text/mdx",
+  "me": "text/troff",
+  "mesh": "model/mesh",
+  "meta4": "application/metalink4+xml",
+  "metalink": "application/metalink+xml",
+  "mets": "application/mets+xml",
+  "mft": "application/rpki-manifest",
+  "mid": "audio/midi",
+  "midi": "audio/midi",
+  "mime": "message/rfc822",
+  "mj2": "video/mj2",
+  "mjp2": "video/mj2",
+  "mjs": "text/javascript",
+  "mml": "text/mathml",
+  "mods": "application/mods+xml",
+  "mov": "video/quicktime",
+  "mp2": "audio/mpeg",
+  "mp21": "application/mp21",
+  "mp2a": "audio/mpeg",
+  "mp3": "audio/mpeg",
+  "mp4": "video/mp4",
+  "mp4a": "audio/mp4",
+  "mp4s": "application/mp4",
+  "mp4v": "video/mp4",
+  "mpd": "application/dash+xml",
+  "mpe": "video/mpeg",
+  "mpeg": "video/mpeg",
+  "mpf": "application/media-policy-dataset+xml",
+  "mpg": "video/mpeg",
+  "mpg4": "video/mp4",
+  "mpga": "audio/mpeg",
+  "mpp": "application/dash-patch+xml",
+  "mrc": "application/marc",
+  "mrcx": "application/marcxml+xml",
+  "ms": "text/troff",
+  "mscml": "application/mediaservercontrol+xml",
+  "msh": "model/mesh",
+  "msi": "application/octet-stream",
+  "msix": "application/msix",
+  "msixbundle": "application/msixbundle",
+  "msm": "application/octet-stream",
+  "msp": "application/octet-stream",
+  "mtl": "model/mtl",
+  "musd": "application/mmt-usd+xml",
+  "mxf": "application/mxf",
+  "mxmf": "audio/mobile-xmf",
+  "mxml": "application/xv+xml",
+  "n3": "text/n3",
+  "nb": "application/mathematica",
+  "nq": "application/n-quads",
+  "nt": "application/n-triples",
+  "obj": "model/obj",
+  "oda": "application/oda",
+  "oga": "audio/ogg",
+  "ogg": "audio/ogg",
+  "ogv": "video/ogg",
+  "ogx": "application/ogg",
+  "omdoc": "application/omdoc+xml",
+  "onepkg": "application/onenote",
+  "onetmp": "application/onenote",
+  "onetoc": "application/onenote",
+  "onetoc2": "application/onenote",
+  "opf": "application/oebps-package+xml",
+  "opus": "audio/ogg",
+  "otf": "font/otf",
+  "owl": "application/rdf+xml",
+  "oxps": "application/oxps",
+  "p10": "application/pkcs10",
+  "p7c": "application/pkcs7-mime",
+  "p7m": "application/pkcs7-mime",
+  "p7s": "application/pkcs7-signature",
+  "p8": "application/pkcs8",
+  "pdf": "application/pdf",
+  "pfr": "application/font-tdpfr",
+  "pgp": "application/pgp-encrypted",
+  "pkg": "application/octet-stream",
+  "pki": "application/pkixcmp",
+  "pkipath": "application/pkix-pkipath",
+  "pls": "application/pls+xml",
+  "png": "image/png",
+  "prc": "model/prc",
+  "prf": "application/pics-rules",
+  "provx": "application/provenance+xml",
+  "ps": "application/postscript",
+  "pskcxml": "application/pskc+xml",
+  "pti": "image/prs.pti",
+  "qt": "video/quicktime",
+  "raml": "application/raml+yaml",
+  "rapd": "application/route-apd+xml",
+  "rdf": "application/rdf+xml",
+  "relo": "application/p2p-overlay+xml",
+  "rif": "application/reginfo+xml",
+  "rl": "application/resource-lists+xml",
+  "rld": "application/resource-lists-diff+xml",
+  "rmi": "audio/midi",
+  "rnc": "application/relax-ng-compact-syntax",
+  "rng": "application/xml",
+  "roa": "application/rpki-roa",
+  "roff": "text/troff",
+  "rq": "application/sparql-query",
+  "rs": "application/rls-services+xml",
+  "rsat": "application/atsc-rsat+xml",
+  "rsd": "application/rsd+xml",
+  "rsheet": "application/urc-ressheet+xml",
+  "rss": "application/rss+xml",
+  "rtf": "text/rtf",
   "rtx": "text/richtext",
-  "sgml": "text/sgml",
+  "rusd": "application/route-usd+xml",
+  "s3m": "audio/s3m",
+  "sbml": "application/sbml+xml",
+  "scq": "application/scvp-cv-request",
+  "scs": "application/scvp-cv-response",
+  "sdp": "application/sdp",
+  "senmlx": "application/senml+xml",
+  "sensmlx": "application/sensml+xml",
+  "ser": "application/java-serialized-object",
+  "setpay": "application/set-payment-initiation",
+  "setreg": "application/set-registration-initiation",
+  "sgi": "image/sgi",
   "sgm": "text/sgml",
+  "sgml": "text/sgml",
   "shex": "text/shex",
+  "shf": "application/shf+xml",
+  "shtml": "text/html",
+  "sieve": "application/sieve",
+  "sig": "application/pgp-signature",
+  "sil": "audio/silk",
+  "silo": "model/mesh",
+  "siv": "application/sieve",
   "slim": "text/slim",
   "slm": "text/slim",
+  "sls": "application/route-s-tsid+xml",
+  "smi": "application/smil+xml",
+  "smil": "application/smil+xml",
+  "snd": "audio/basic",
+  "so": "application/octet-stream",
   "spdx": "text/spdx",
-  "stylus": "text/stylus",
+  "spp": "application/scvp-vp-response",
+  "spq": "application/scvp-vp-request",
+  "spx": "audio/ogg",
+  "sql": "application/sql",
+  "sru": "application/sru+xml",
+  "srx": "application/sparql-results+xml",
+  "ssdl": "application/ssdl+xml",
+  "ssml": "application/ssml+xml",
+  "stk": "application/hyperstudio",
+  "stl": "model/stl",
+  "stpx": "model/step+xml",
+  "stpxz": "model/step-xml+zip",
+  "stpz": "model/step+zip",
   "styl": "text/stylus",
-  "tsv": "text/tab-separated-values",
+  "stylus": "text/stylus",
+  "svg": "image/svg+xml",
+  "svgz": "image/svg+xml",
+  "swidtag": "application/swid+xml",
   "t": "text/troff",
+  "t38": "image/t38",
+  "td": "application/urc-targetdesc+xml",
+  "tei": "application/tei+xml",
+  "teicorpus": "application/tei+xml",
+  "text": "text/plain",
+  "tfi": "application/thraud+xml",
+  "tfx": "image/tiff-fx",
+  "tif": "image/tiff",
+  "tiff": "image/tiff",
+  "toml": "application/toml",
   "tr": "text/troff",
-  "roff": "text/troff",
-  "man": "text/troff",
-  "me": "text/troff",
-  "ms": "text/troff",
+  "trig": "application/trig",
+  "ts": "video/mp2t",
+  "tsd": "application/timestamped-data",
+  "tsv": "text/tab-separated-values",
+  "ttc": "font/collection",
+  "ttf": "font/ttf",
   "ttl": "text/turtle",
+  "ttml": "application/ttml+xml",
+  "txt": "text/plain",
+  "u3d": "model/u3d",
+  "u8dsn": "message/global-delivery-status",
+  "u8hdr": "message/global-headers",
+  "u8mdn": "message/global-disposition-notification",
+  "u8msg": "message/global",
+  "ubj": "application/ubjson",
   "uri": "text/uri-list",
   "uris": "text/uri-list",
   "urls": "text/uri-list",
   "vcard": "text/vcard",
+  "vrml": "model/vrml",
   "vtt": "text/vtt",
+  "vxml": "application/voicexml+xml",
+  "war": "application/java-archive",
+  "wasm": "application/wasm",
+  "wav": "audio/wav",
+  "weba": "audio/webm",
+  "webm": "video/webm",
+  "webmanifest": "application/manifest+json",
+  "webp": "image/webp",
+  "wgsl": "text/wgsl",
+  "wgt": "application/widget",
+  "wif": "application/watcherinfo+xml",
+  "wmf": "image/wmf",
+  "woff": "font/woff",
+  "woff2": "font/woff2",
+  "wrl": "model/vrml",
+  "wsdl": "application/wsdl+xml",
+  "wspolicy": "application/wspolicy+xml",
+  "x3d": "model/x3d+xml",
+  "x3db": "model/x3d+fastinfoset",
+  "x3dbz": "model/x3d+binary",
+  "x3dv": "model/x3d-vrml",
+  "x3dvz": "model/x3d+vrml",
+  "x3dz": "model/x3d+xml",
+  "xaml": "application/xaml+xml",
+  "xav": "application/xcap-att+xml",
+  "xca": "application/xcap-caps+xml",
+  "xcs": "application/calendar+xml",
+  "xdf": "application/xcap-diff+xml",
+  "xdssc": "application/dssc+xml",
+  "xel": "application/xcap-el+xml",
+  "xenc": "application/xenc+xml",
+  "xer": "application/patch-ops-error+xml",
+  "xfdf": "application/xfdf",
+  "xht": "application/xhtml+xml",
+  "xhtml": "application/xhtml+xml",
+  "xhvml": "application/xv+xml",
+  "xlf": "application/xliff+xml",
+  "xm": "audio/xm",
+  "xml": "text/xml",
+  "xns": "application/xcap-ns+xml",
+  "xop": "application/xop+xml",
+  "xpl": "application/xproc+xml",
+  "xsd": "application/xml",
+  "xsf": "application/prs.xsf+xml",
+  "xsl": "application/xml",
+  "xslt": "application/xml",
+  "xspf": "application/xspf+xml",
+  "xvm": "application/xv+xml",
+  "xvml": "application/xv+xml",
   "yaml": "text/yaml",
+  "yang": "application/yang",
+  "yin": "application/yin+xml",
   "yml": "text/yaml",
-  "3gp": "video/3gpp",
-  "3g2": "video/3gpp2",
-  "h261": "video/h261",
-  "h263": "video/h263",
-  "h264": "video/h264",
-  "m4s": "video/iso.segment",
-  "jpgv": "video/jpeg",
-  "jpgm": "image/jpm",
-  "mj2": "video/mj2",
-  "mjp2": "video/mj2",
-  "ts": "video/mp2t",
-  "mp4": "video/mp4",
-  "mp4v": "video/mp4",
-  "mpg4": "video/mp4",
-  "mpeg": "video/mpeg",
-  "mpg": "video/mpeg",
-  "mpe": "video/mpeg",
-  "m1v": "video/mpeg",
-  "m2v": "video/mpeg",
-  "ogv": "video/ogg",
-  "qt": "video/quicktime",
-  "mov": "video/quicktime",
-  "webm": "video/webm"
+  "zip": "application/zip"
 };
 
 function lookup(extn) {
@@ -893,58 +921,23 @@ setCookie.exports.parse = parse;
 setCookie.exports.parseString = parseString;
 var splitCookiesString_1 = setCookie.exports.splitCookiesString = splitCookiesString;
 
-class HttpError {
+/**
+ * An error that was thrown from within the SvelteKit runtime that is not fatal and doesn't result in a 500, such as a 404.
+ * `SvelteKitError` goes through `handleError`.
+ * @extends Error
+ */
+class SvelteKitError extends Error {
 	/**
 	 * @param {number} status
-	 * @param {{message: string} extends App.Error ? (App.Error | string | undefined) : App.Error} body
+	 * @param {string} text
+	 * @param {string} message
 	 */
-	constructor(status, body) {
+	constructor(status, text, message) {
+		super(message);
 		this.status = status;
-		if (typeof body === 'string') {
-			this.body = { message: body };
-		} else if (body) {
-			this.body = body;
-		} else {
-			this.body = { message: `Error: ${status}` };
-		}
-	}
-
-	toString() {
-		return JSON.stringify(this.body);
+		this.text = text;
 	}
 }
-
-/**
- * @overload
- * @param {number} status
- * @param {App.Error} body
- * @return {HttpError}
- */
-
-/**
- * @overload
- * @param {number} status
- * @param {{ message: string } extends App.Error ? App.Error | string | undefined : never} [body]
- * @return {HttpError}
- */
-
-/**
- * Creates an `HttpError` object with an HTTP status code and an optional message.
- * This object, if thrown during request handling, will cause SvelteKit to
- * return an error response without invoking `handleError`.
- * Make sure you're not catching the thrown error, which would prevent SvelteKit from handling it.
- * @param {number} status The [HTTP status code](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status#client_error_responses). Must be in the range 400-599.
- * @param {{ message: string } extends App.Error ? App.Error | string | undefined : never} body An object that conforms to the App.Error type. If a string is passed, it will be used as the message property.
- */
-function error(status, body) {
-	if ((isNaN(status) || status < 400 || status > 599)) {
-		throw new Error(`HTTP error status codes must be between 400 and 599 — ${status} is invalid`);
-	}
-
-	return new HttpError(status, body);
-}
-
-new TextEncoder();
 
 /**
  * @param {import('http').IncomingMessage} req
@@ -967,19 +960,6 @@ function get_raw_body(req, body_size_limit) {
 		return null;
 	}
 
-	let length = content_length;
-
-	if (body_size_limit) {
-		if (!length) {
-			length = body_size_limit;
-		} else if (length > body_size_limit) {
-			throw error(
-				413,
-				`Received content-length of ${length}, but only accept up to ${body_size_limit} bytes.`
-			);
-		}
-	}
-
 	if (req.destroyed) {
 		const readable = new ReadableStream();
 		readable.cancel();
@@ -991,6 +971,17 @@ function get_raw_body(req, body_size_limit) {
 
 	return new ReadableStream({
 		start(controller) {
+			if (body_size_limit !== undefined && content_length > body_size_limit) {
+				const error = new SvelteKitError(
+					413,
+					'Payload Too Large',
+					`Content-length of ${content_length} exceeds limit of ${body_size_limit} bytes.`
+				);
+
+				controller.error(error);
+				return;
+			}
+
 			req.on('error', (error) => {
 				cancelled = true;
 				controller.error(error);
@@ -1005,16 +996,15 @@ function get_raw_body(req, body_size_limit) {
 				if (cancelled) return;
 
 				size += chunk.length;
-				if (size > length) {
+				if (size > content_length) {
 					cancelled = true;
-					controller.error(
-						error(
-							413,
-							`request body size exceeded ${
-								content_length ? "'content-length'" : 'BODY_SIZE_LIMIT'
-							} of ${length}`
-						)
-					);
+
+					const constraint = content_length ? 'content-length' : 'BODY_SIZE_LIMIT';
+					const message = `request body size exceeded ${constraint} of ${content_length}`;
+
+					const error = new SvelteKitError(413, 'Payload Too Large', message);
+					controller.error(error);
+
 					return;
 				}
 
@@ -1069,7 +1059,7 @@ async function setResponse(res, response) {
 					? splitCookiesString_1(
 							// This is absurd but necessary, TODO: investigate why
 							/** @type {string}*/ (response.headers.get(key))
-					  )
+						)
 					: value
 			);
 		} catch (error) {
@@ -1143,7 +1133,8 @@ const xff_depth = parseInt(env('XFF_DEPTH', '1'));
 const address_header = env('ADDRESS_HEADER', '').toLowerCase();
 const protocol_header = env('PROTOCOL_HEADER', '').toLowerCase();
 const host_header = env('HOST_HEADER', 'host').toLowerCase();
-const body_size_limit = parseInt(env('BODY_SIZE_LIMIT', '524288'));
+const port_header = env('PORT_HEADER', '').toLowerCase();
+const body_size_limit = parseInt(env('BODY_SIZE_LIMIT', '524288')) || undefined;
 
 const dir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -1201,20 +1192,11 @@ function serve_prerendered() {
 
 /** @type {import('polka').Middleware} */
 const ssr = async (req, res) => {
-	/** @type {Request | undefined} */
-	let request;
-
-	try {
-		request = await getRequest({
-			base: origin || get_origin(req.headers),
-			request: req,
-			bodySizeLimit: body_size_limit
-		});
-	} catch (err) {
-		res.statusCode = err.status || 400;
-		res.end('Invalid request body');
-		return;
-	}
+	const request = await getRequest({
+		base: origin || get_origin(req.headers),
+		request: req,
+		bodySizeLimit: body_size_limit
+	});
 
 	setResponse(
 		res,
@@ -1292,7 +1274,12 @@ function sequence(handlers) {
 function get_origin(headers) {
 	const protocol = (protocol_header && headers[protocol_header]) || 'https';
 	const host = headers[host_header];
-	return `${protocol}://${host}`;
+	const port = port_header && headers[port_header];
+	if (port) {
+		return `${protocol}://${host}:${port}`;
+	} else {
+		return `${protocol}://${host}`;
+	}
 }
 
 const handler = sequence(

@@ -1,5 +1,10 @@
 export default [
   {
+    date: "2024-01-12",
+    summary: "",
+    updates: ["Upgraded SvelteKit to v2"],
+  },
+  {
     date: "2024-01-09",
     summary: "",
     updates: [
