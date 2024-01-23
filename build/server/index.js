@@ -1,5 +1,5 @@
 import { c as create_ssr_component, s as setContext, v as validate_component, m as missing_component } from './chunks/ssr-kRdx30EW.js';
-import './chunks/sentry-release-injection-file-nUrLnAlE.js';
+import './chunks/sentry-release-injection-file-o9u5woV9.js';
 import { d as decode_pathname, h as has_data_suffix, s as strip_data_suffix, a as decode_params, n as normalize_path, b as disable_search, c as add_data_suffix, m as make_trackable, r as resolve } from './chunks/exports-mq_1S73-.js';
 import { w as writable, r as readable } from './chunks/index-dyXILqSf.js';
 
@@ -114,11 +114,11 @@ const options = {
     app: ({ head, body, assets: assets2, nonce, env }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="' + assets2 + '/favicon.ico" />\n		<meta name="viewport" content="width=device-width" />\n		' + head + '\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">' + body + "</div>\n	</body>\n</html>\n",
     error: ({ status, message }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="%sveltekit.assets%/favicon.ico" />\n		<meta name="viewport" content="width=device-width" />\n		%sveltekit.head%\n\n        <style lang="scss" global>\n            @import "styles/reset.scss";\n            @import "styles/main.scss";\n        </style>\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">\n            <h1>Error Code: ' + status + "</h1>\n            <p>Oops, something broke.</p>\n            <p>" + message + "</p>\n        </div>\n	</body>\n</html>\n"
   },
-  version_hash: "1gos54r"
+  version_hash: "4c78s1"
 };
 async function get_hooks() {
   return {
-    ...await import('./chunks/hooks.server-YvlxgPbZ.js')
+    ...await import('./chunks/hooks.server-7QhLQoy5.js')
   };
 }
 

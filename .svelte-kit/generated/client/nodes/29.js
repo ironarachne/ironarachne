@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/word-generator-cheat-sheet/+page.svelte";
+export { default as component } from "../../../../src/routes/velgarth-gifts/+page.svelte";

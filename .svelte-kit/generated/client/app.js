@@ -33,7 +33,8 @@ export const nodes = [
 	() => import('./nodes/26'),
 	() => import('./nodes/27'),
 	() => import('./nodes/28'),
-	() => import('./nodes/29')
+	() => import('./nodes/29'),
+	() => import('./nodes/30')
 ];
 
 export const server_loads = [];
@@ -66,7 +67,8 @@ export const dictionary = {
 		"/swn/character": [26],
 		"/swn/starship": [27],
 		"/unchartedworlds/character": [28],
-		"/word-generator-cheat-sheet": [29]
+		"/velgarth-gifts": [29],
+		"/word-generator-cheat-sheet": [30]
 	};
 
 export const hooks = {

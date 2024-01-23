@@ -633,6 +633,22 @@
     "isEntry": true,
     "src": "src/routes/unchartedworlds/character/+page.svelte"
   },
+  "src/routes/velgarth-gifts/+page.svelte": {
+    "assets": [
+      "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",
+      "_app/immutable/assets/azonix-webfont.snBqetzM.woff2"
+    ],
+    "css": [
+      "_app/immutable/assets/_page.W11EYnZT.css"
+    ],
+    "file": "entries/pages/velgarth-gifts/_page.svelte.js",
+    "imports": [
+      "_ssr.js",
+      "_sentry-release-injection-file.js"
+    ],
+    "isEntry": true,
+    "src": "src/routes/velgarth-gifts/+page.svelte"
+  },
   "src/routes/word-generator-cheat-sheet/+page.svelte": {
     "assets": [
       "_app/immutable/assets/alienleagueregular-9d3z-webfont.UkEzIPvB.woff2",

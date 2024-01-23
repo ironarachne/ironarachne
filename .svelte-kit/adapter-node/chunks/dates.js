@@ -2,6 +2,11 @@ import "./sentry-release-injection-file.js";
 import * as Words from "@ironarachne/words";
 const entries = [
   {
+    date: "2024-01-23",
+    summary: "",
+    updates: ["Added Velgarth Gifts generator."]
+  },
+  {
     date: "2024-01-12",
     summary: "",
     updates: ["Upgraded SvelteKit to v2"]

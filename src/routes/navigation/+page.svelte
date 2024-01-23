@@ -229,6 +229,14 @@ section.navigation {
         <a href="/fantasy/dcc/character">DCC Character</a>
       </li>
     </ul>
+
+    <h3>Velgarth</h3>
+
+    <ul>
+      <li>
+        <a href="/velgarth-gifts">Velgarth Gifts</a>
+      </li>
+    </ul>
   </div>
 
   <div class="scifi button-group">
