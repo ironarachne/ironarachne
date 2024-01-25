@@ -105,6 +105,10 @@ const Root = create_ssr_component(($$result, $$props, $$bindings, slots) => {
   } while (!$$settled);
   return $$rendered;
 });
+function set_read_implementation(fn) {
+}
+function set_manifest(_) {
+}
 const options = {
   app_dir: "_app",
   app_template_contains_nonce: false,
@@ -122,7 +126,7 @@ const options = {
     app: ({ head, body, assets: assets2, nonce, env }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="' + assets2 + '/favicon.ico" />\n		<meta name="viewport" content="width=device-width" />\n		' + head + '\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">' + body + "</div>\n	</body>\n</html>\n",
     error: ({ status, message }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="%sveltekit.assets%/favicon.ico" />\n		<meta name="viewport" content="width=device-width" />\n		%sveltekit.head%\n\n        <style lang="scss" global>\n            @import "styles/reset.scss";\n            @import "styles/main.scss";\n        </style>\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">\n            <h1>Error Code: ' + status + "</h1>\n            <p>Oops, something broke.</p>\n            <p>" + message + "</p>\n        </div>\n	</body>\n</html>\n"
   },
-  version_hash: "4c78s1"
+  version_hash: "15jgttq"
 };
 async function get_hooks() {
   return {
@@ -140,7 +144,9 @@ export {
   set_safe_public_env as h,
   set_assets as i,
   set_building as j,
-  set_prerendering as k,
+  set_manifest as k,
+  set_prerendering as l,
+  set_read_implementation as m,
   override as o,
   public_env as p,
   reset as r,

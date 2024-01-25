@@ -515,6 +515,17 @@ function try_deserialize(data, fn, route_id) {
 }
 const INVALIDATED_PARAM = "x-sveltekit-invalidated";
 const TRAILING_SLASH_PARAM = "x-sveltekit-trailing-slash";
+function b64_encode(buffer) {
+  if (globalThis.Buffer) {
+    return Buffer.from(buffer).toString("base64");
+  }
+  const little_endian = new Uint8Array(new Uint16Array([1]).buffer)[0] > 0;
+  return btoa(
+    new TextDecoder(little_endian ? "utf-16le" : "utf-16be").decode(
+      new Uint16Array(new Uint8Array(buffer))
+    )
+  );
+}
 async function load_server_data({ event, state, node, parent }) {
   if (!node?.server)
     return null;
@@ -628,17 +639,6 @@ async function load_data({
     untrack: (fn) => fn()
   });
   return result ?? null;
-}
-function b64_encode(buffer) {
-  if (globalThis.Buffer) {
-    return Buffer.from(buffer).toString("base64");
-  }
-  const little_endian = new Uint8Array(new Uint16Array([1]).buffer)[0] > 0;
-  return btoa(
-    new TextDecoder(little_endian ? "utf-16le" : "utf-16be").decode(
-      new Uint16Array(new Uint8Array(buffer))
-    )
-  );
 }
 function create_universal_fetch(event, state, fetched, csr, resolve_opts) {
   const universal_fetch = async (input, init2) => {
@@ -1955,6 +1955,13 @@ function get_data_json(event, options2, nodes) {
     ));
   }
 }
+function load_page_nodes(page, manifest) {
+  return Promise.all([
+    // we use == here rather than === because [undefined] serializes as "[null]"
+    ...page.layouts.map((n) => n == void 0 ? n : manifest._.nodes[n]()),
+    manifest._.nodes[page.leaf]()
+  ]);
+}
 const MAX_DEPTH = 10;
 async function render_page(event, page, options2, manifest, state, resolve_opts) {
   if (state.depth > MAX_DEPTH) {
@@ -1968,11 +1975,7 @@ async function render_page(event, page, options2, manifest, state, resolve_opts)
     return handle_action_json_request(event, options2, node?.server);
   }
   try {
-    const nodes = await Promise.all([
-      // we use == here rather than === because [undefined] serializes as "[null]"
-      ...page.layouts.map((n) => n == void 0 ? n : manifest._.nodes[n]()),
-      manifest._.nodes[page.leaf]()
-    ]);
+    const nodes = await load_page_nodes(page, manifest);
     const leaf_node = (
       /** @type {import('types').SSRNode} */
       nodes.at(-1)
@@ -2480,6 +2483,19 @@ function get_public_env(request) {
   }
   return new Response(body, { headers });
 }
+function get_page_config(nodes) {
+  let current = {};
+  for (const node of nodes) {
+    if (!node?.universal?.config && !node?.server?.config)
+      continue;
+    current = {
+      ...current,
+      ...node?.universal?.config,
+      ...node?.server?.config
+    };
+  }
+  return Object.keys(current).length ? current : void 0;
+}
 const default_transform = ({ html }) => html;
 const default_filter = () => false;
 const default_preload = ({ type }) => type === "js" || type === "css";
@@ -2602,11 +2618,7 @@ async function respond(request, options2, manifest, state) {
       if (url.pathname === base || url.pathname === base + "/") {
         trailing_slash = "always";
       } else if (route.page) {
-        const nodes = await Promise.all([
-          // we use == here rather than === because [undefined] serializes as "[null]"
-          ...route.page.layouts.map((n) => n == void 0 ? n : manifest._.nodes[n]()),
-          manifest._.nodes[route.page.leaf]()
-        ]);
+        const nodes = await load_page_nodes(route.page, manifest);
         if (DEV)
           ;
         trailing_slash = get_option(nodes, "trailingSlash");
@@ -2631,6 +2643,8 @@ async function respond(request, options2, manifest, state) {
           });
         }
       }
+      if (DEV && state.before_handle)
+        ;
     }
     const { cookies, new_cookies, get_cookie_header, set_internal } = get_cookies(
       request,
@@ -2872,10 +2886,11 @@ class Server {
   }
   /**
    * @param {{
-   *   env: Record<string, string>
+   *   env: Record<string, string>;
+   *   read?: (file: string) => ReadableStream;
    * }} opts
    */
-  async init({ env }) {
+  async init({ env, read }) {
     const prefixes = {
       public_prefix: this.#options.env_public_prefix,
       private_prefix: this.#options.env_private_prefix

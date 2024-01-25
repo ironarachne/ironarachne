@@ -1,0 +1,2 @@
+import{i as e,r as m}from"./index.Zx8RnaKC.js";function i(){return e([{generate:()=>{const r=e(["Y","M","R","X","T","S","J","G","H"]),n=m.int(1,9)*10;return`${r}-${n}`}},{generate:()=>{const r=e(["A","E","I","O","U"]),n=e(["Y","M","R","X","T","S","J","G","H"]),t=m.int(1,9)*10;return`${r}${n}-${t}`}},{generate:()=>{const r=e(["B","R","X","S","N"]),n=e(["Y","M","I","K","T","Q","J","G","H"]),t=m.int(1,99)*100;return`${r}${n}-${t}`}}]).generate()}export{i as g};
+//# sourceMappingURL=model_numbers.ZjoAGyd-.js.map

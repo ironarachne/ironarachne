@@ -1,5 +1,5 @@
 import { c as create_ssr_component, s as setContext, v as validate_component, m as missing_component } from './chunks/ssr-kRdx30EW.js';
-import './chunks/sentry-release-injection-file-o9u5woV9.js';
+import './chunks/sentry-release-injection-file-ZosiLFNS.js';
 import { d as decode_pathname, h as has_data_suffix, s as strip_data_suffix, a as decode_params, n as normalize_path, b as disable_search, c as add_data_suffix, m as make_trackable, r as resolve } from './chunks/exports-mq_1S73-.js';
 import { w as writable, r as readable } from './chunks/index-dyXILqSf.js';
 
@@ -114,11 +114,11 @@ const options = {
     app: ({ head, body, assets: assets2, nonce, env }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="' + assets2 + '/favicon.ico" />\n		<meta name="viewport" content="width=device-width" />\n		' + head + '\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">' + body + "</div>\n	</body>\n</html>\n",
     error: ({ status, message }) => '<!DOCTYPE html>\n<html lang="en">\n	<head>\n		<meta charset="utf-8" />\n		<link rel="icon" href="%sveltekit.assets%/favicon.ico" />\n		<meta name="viewport" content="width=device-width" />\n		%sveltekit.head%\n\n        <style lang="scss" global>\n            @import "styles/reset.scss";\n            @import "styles/main.scss";\n        </style>\n	</head>\n	<body data-sveltekit-preload-data="hover">\n		<div style="display: contents">\n            <h1>Error Code: ' + status + "</h1>\n            <p>Oops, something broke.</p>\n            <p>" + message + "</p>\n        </div>\n	</body>\n</html>\n"
   },
-  version_hash: "4c78s1"
+  version_hash: "15jgttq"
 };
 async function get_hooks() {
   return {
-    ...await import('./chunks/hooks.server-7QhLQoy5.js')
+    ...await import('./chunks/hooks.server-fXBXlOF6.js')
   };
 }
 
@@ -1741,6 +1741,17 @@ function try_deserialize(data, fn, route_id) {
 }
 const INVALIDATED_PARAM = "x-sveltekit-invalidated";
 const TRAILING_SLASH_PARAM = "x-sveltekit-trailing-slash";
+function b64_encode(buffer) {
+  if (globalThis.Buffer) {
+    return Buffer.from(buffer).toString("base64");
+  }
+  const little_endian = new Uint8Array(new Uint16Array([1]).buffer)[0] > 0;
+  return btoa(
+    new TextDecoder(little_endian ? "utf-16le" : "utf-16be").decode(
+      new Uint16Array(new Uint8Array(buffer))
+    )
+  );
+}
 async function load_server_data({ event, state, node, parent }) {
   if (!node?.server)
     return null;
@@ -1854,17 +1865,6 @@ async function load_data({
     untrack: (fn) => fn()
   });
   return result ?? null;
-}
-function b64_encode(buffer) {
-  if (globalThis.Buffer) {
-    return Buffer.from(buffer).toString("base64");
-  }
-  const little_endian = new Uint8Array(new Uint16Array([1]).buffer)[0] > 0;
-  return btoa(
-    new TextDecoder(little_endian ? "utf-16le" : "utf-16be").decode(
-      new Uint16Array(new Uint8Array(buffer))
-    )
-  );
 }
 function create_universal_fetch(event, state, fetched, csr, resolve_opts) {
   const universal_fetch = async (input, init2) => {
@@ -3181,6 +3181,13 @@ function get_data_json(event, options2, nodes) {
     ));
   }
 }
+function load_page_nodes(page, manifest) {
+  return Promise.all([
+    // we use == here rather than === because [undefined] serializes as "[null]"
+    ...page.layouts.map((n) => n == void 0 ? n : manifest._.nodes[n]()),
+    manifest._.nodes[page.leaf]()
+  ]);
+}
 const MAX_DEPTH = 10;
 async function render_page(event, page, options2, manifest, state, resolve_opts) {
   if (state.depth > MAX_DEPTH) {
@@ -3194,11 +3201,7 @@ async function render_page(event, page, options2, manifest, state, resolve_opts)
     return handle_action_json_request(event, options2, node?.server);
   }
   try {
-    const nodes = await Promise.all([
-      // we use == here rather than === because [undefined] serializes as "[null]"
-      ...page.layouts.map((n) => n == void 0 ? n : manifest._.nodes[n]()),
-      manifest._.nodes[page.leaf]()
-    ]);
+    const nodes = await load_page_nodes(page, manifest);
     const leaf_node = (
       /** @type {import('types').SSRNode} */
       nodes.at(-1)
@@ -3828,11 +3831,7 @@ async function respond(request, options2, manifest, state) {
       if (url.pathname === base || url.pathname === base + "/") {
         trailing_slash = "always";
       } else if (route.page) {
-        const nodes = await Promise.all([
-          // we use == here rather than === because [undefined] serializes as "[null]"
-          ...route.page.layouts.map((n) => n == void 0 ? n : manifest._.nodes[n]()),
-          manifest._.nodes[route.page.leaf]()
-        ]);
+        const nodes = await load_page_nodes(route.page, manifest);
         if (DEV)
           ;
         trailing_slash = get_option(nodes, "trailingSlash");
@@ -3857,6 +3856,8 @@ async function respond(request, options2, manifest, state) {
           });
         }
       }
+      if (DEV && state.before_handle)
+        ;
     }
     const { cookies, new_cookies, get_cookie_header, set_internal } = get_cookies(
       request,
@@ -4091,10 +4092,11 @@ class Server {
   }
   /**
    * @param {{
-   *   env: Record<string, string>
+   *   env: Record<string, string>;
+   *   read?: (file: string) => ReadableStream;
    * }} opts
    */
-  async init({ env }) {
+  async init({ env, read }) {
     const prefixes = {
       public_prefix: this.#options.env_public_prefix,
       private_prefix: this.#options.env_private_prefix

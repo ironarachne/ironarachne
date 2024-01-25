@@ -10,7 +10,7 @@ return {
 	assets: new Set(["android-icon-144x144.png","android-icon-192x192.png","android-icon-36x36.png","android-icon-48x48.png","android-icon-72x72.png","android-icon-96x96.png","apple-icon-114x114.png","apple-icon-120x120.png","apple-icon-144x144.png","apple-icon-152x152.png","apple-icon-180x180.png","apple-icon-57x57.png","apple-icon-60x60.png","apple-icon-72x72.png","apple-icon-76x76.png","apple-icon-precomposed.png","apple-icon.png","browserconfig.xml","favicon-16x16.png","favicon-32x32.png","favicon-96x96.png","favicon.ico","manifest.json","ms-icon-144x144.png","ms-icon-150x150.png","ms-icon-310x310.png","ms-icon-70x70.png"]),
 	mimeTypes: {".png":"image/png",".xml":"text/xml",".json":"application/json"},
 	_: {
-		client: {"start":"_app/immutable/entry/start.vuMJYiUx.js","app":"_app/immutable/entry/app.IwpSPoXM.js","imports":["_app/immutable/entry/start.vuMJYiUx.js","_app/immutable/chunks/entry.u7wFr4NI.js","_app/immutable/chunks/scheduler.5o8iMP-j.js","_app/immutable/chunks/index.BUy5jdpj.js","_app/immutable/entry/app.IwpSPoXM.js","_app/immutable/chunks/index.5Vy_trRi.js","_app/immutable/chunks/scheduler.5o8iMP-j.js","_app/immutable/chunks/stores.1qOcrjbR.js","_app/immutable/chunks/entry.u7wFr4NI.js","_app/immutable/chunks/index.BUy5jdpj.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
+		client: {"start":"_app/immutable/entry/start.zujeRPJF.js","app":"_app/immutable/entry/app.Vg8nAlSe.js","imports":["_app/immutable/entry/start.zujeRPJF.js","_app/immutable/chunks/entry.gpFgknYX.js","_app/immutable/chunks/scheduler.5o8iMP-j.js","_app/immutable/chunks/index.BUy5jdpj.js","_app/immutable/entry/app.Vg8nAlSe.js","_app/immutable/chunks/index.roUWO4sU.js","_app/immutable/chunks/scheduler.5o8iMP-j.js","_app/immutable/chunks/stores.gBAFUjH8.js","_app/immutable/chunks/entry.gpFgknYX.js","_app/immutable/chunks/index.BUy5jdpj.js"],"stylesheets":[],"fonts":[],"uses_env_dynamic_public":false},
 		nodes: [
 			__memo(() => import('./nodes/0.js')),
 			__memo(() => import('./nodes/1.js')),
@@ -252,7 +252,8 @@ return {
 		matchers: async () => {
 			
 			return {  };
-		}
+		},
+		server_assets: {}
 	}
 }
 })();
