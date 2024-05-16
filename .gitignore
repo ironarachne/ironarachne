@@ -31,3 +31,14 @@ pnpm-debug.log*
 
 # Sentry Auth Token
 .sentryclirc
+
+# Ignore other things
+.env
+.vercel_build_output
+.svelte-kit
+.cloudflare
+.pnpm-debug.log
+.netlify
+.turbo
+.vercel
+.test-tmp
