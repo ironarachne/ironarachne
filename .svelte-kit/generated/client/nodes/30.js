@@ -1,1 +1,0 @@
-export { default as component } from "../../../../src/routes/word-generator-cheat-sheet/+page.svelte";

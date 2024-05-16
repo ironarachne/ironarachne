@@ -1,1 +1,0 @@
-export { default as component } from "../../../../src/routes/unchartedworlds/character/+page.svelte";
