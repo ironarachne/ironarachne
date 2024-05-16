@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/heraldry/+page.svelte";
+export { default as component } from "../../../../src/routes/glyph/+page.svelte";

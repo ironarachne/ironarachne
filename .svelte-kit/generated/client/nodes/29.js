@@ -1,1 +1,1 @@
-export { default as component } from "../../../../src/routes/velgarth-gifts/+page.svelte";
+export { default as component } from "../../../../src/routes/unchartedworlds/character/+page.svelte";

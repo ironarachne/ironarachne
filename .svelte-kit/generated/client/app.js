@@ -34,7 +34,8 @@ export const nodes = [
 	() => import('./nodes/27'),
 	() => import('./nodes/28'),
 	() => import('./nodes/29'),
-	() => import('./nodes/30')
+	() => import('./nodes/30'),
+	() => import('./nodes/31')
 ];
 
 export const server_loads = [];
@@ -55,20 +56,21 @@ export const dictionary = {
 		"/fantasy/organization": [14],
 		"/fantasy/religion": [15],
 		"/fantasy/weapon": [16],
-		"/heraldry": [17],
-		"/language": [18],
-		"/navigation": [19],
-		"/planet": [20],
-		"/region": [21],
-		"/species-stats": [22],
-		"/spooky-ship": [23],
-		"/star-nation": [24],
-		"/star-system": [25],
-		"/swn/character": [26],
-		"/swn/starship": [27],
-		"/unchartedworlds/character": [28],
-		"/velgarth-gifts": [29],
-		"/word-generator-cheat-sheet": [30]
+		"/glyph": [17],
+		"/heraldry": [18],
+		"/language": [19],
+		"/navigation": [20],
+		"/planet": [21],
+		"/region": [22],
+		"/species-stats": [23],
+		"/spooky-ship": [24],
+		"/star-nation": [25],
+		"/star-system": [26],
+		"/swn/character": [27],
+		"/swn/starship": [28],
+		"/unchartedworlds/character": [29],
+		"/velgarth-gifts": [30],
+		"/word-generator-cheat-sheet": [31]
 	};
 
 export const hooks = {

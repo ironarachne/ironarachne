@@ -300,6 +300,9 @@ section.navigation {
 
     <ul>
       <li>
+        <a href="/glyph">Glyphs</a>
+      </li>
+      <li>
         <a href="/language">Language</a>
       </li>
       <li>
