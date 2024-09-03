@@ -24,12 +24,11 @@ export function describe(character: Character): string {
   const ucSbj = Words.capitalize(sbj);
   const genderNoun = character.ageCategory.noun;
 
-  const height = character.height
-    + " cm ("
-    + Measurements.inchesToFeetExpression(Measurements.cmToInches(character.height))
-    + ")";
-  const weight = character.weight + " kg (" + Math.round(Measurements.kgToPounds(character.weight)) + " lb.)";
-  const spPhrase = character.species.adjective + " " + genderNoun;
+  const height = `${character.height} cm (${
+    Measurements.inchesToFeetExpression(Measurements.cmToInches(character.height))
+  })`;
+  const weight = `${character.weight} kg (${Math.round(Measurements.kgToPounds(character.weight))} lb.)`;
+  const spPhrase = `${character.species.adjective} ${genderNoun}`;
   const traits = Words.arrayToPhrase(describeTraits(character));
 
   description = RND.item([
@@ -39,25 +38,25 @@ export function describe(character: Character): string {
     } ${spPhrase} of ${character.age} years. ${ucSbj} is ${height} tall and weighs ${weight}. ${ucSbj} has ${traits}. `,
   ]);
 
-  description += describePersonality(character) + ".";
+  description += `${describePersonality(character)}.`;
 
   return description;
 }
 
 export function describePersonality(character: Character): string {
-  let traits = [];
+  const traits = [];
 
   for (let i = 0; i < character.personalityTraits.length; i++) {
     traits.push(character.personalityTraits[i].descriptor);
   }
 
-  let description = Words.capitalize(character.gender.pronouns.subjective) + " is " + Words.arrayToPhrase(traits);
+  const description = `${Words.capitalize(character.gender.pronouns.subjective)} is ${Words.arrayToPhrase(traits)}`;
 
   return description;
 }
 
 export function describeTraits(character: Character): string[] {
-  let traits = [];
+  const traits = [];
 
   for (let i = 0; i < character.physicalTraits.length; i++) {
     traits.push(character.physicalTraits[i].description);
@@ -74,7 +73,7 @@ export function generate(config: CharacterGeneratorConfig): Character {
   const species = RND.weighted(config.speciesOptions);
   const genderName = RND.item(config.genderNameOptions);
 
-  let gender = species.genders.find((g: Gender) => g.name === genderName);
+  const gender = species.genders.find((g: Gender) => g.name === genderName);
 
   const ageCategory = AgeCategories.randomWeighted(config.ageCategoryNames, species.ageCategories);
 
@@ -125,14 +124,14 @@ export function generate(config: CharacterGeneratorConfig): Character {
   const lastName = RND.item(lastNames);
   const name = `${firstName} ${lastName}`;
   const titles: Title[] = [];
-  let abilities = species.abilities;
+  const abilities = species.abilities;
 
   let threatLevel = species.baseThreatLevel;
   for (let i = 0; i < abilities.length; i++) {
     threatLevel += abilities[i].threatLevel;
   }
 
-  let character: Character = {
+  const character: Character = {
     name,
     firstName,
     lastName,
@@ -178,7 +177,7 @@ export function getDefaultCharacterGeneratorConfig(): CharacterGeneratorConfig {
 }
 
 export function getHonorific(character: Character): string {
-  let primaryTitle = getPrimaryTitle(character);
+  const primaryTitle = getPrimaryTitle(character);
 
   if (primaryTitle) {
     return Titles.getHonorific(character.gender.name, primaryTitle);
@@ -220,7 +219,7 @@ export function getRandomTrait(character: Character): string {
 }
 
 export function getTitle(character: Character): string {
-  let primaryTitle = getPrimaryTitle(character);
+  const primaryTitle = getPrimaryTitle(character);
 
   if (primaryTitle) {
     return Titles.getTitleForGender(character.gender.name, primaryTitle);

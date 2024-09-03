@@ -1,7 +1,10 @@
 <script lang="ts">
-  import * as Organization from "$lib/organizations/fantasy";
+  import * as FantasyOrganizations from "$lib/organizations/fantasy";
+  import * as Organizations from "$lib/organizations/organizations";
   import * as RND from "@ironarachne/rng";
   import * as Characters from "$lib/characters/characters";
+  import * as MUN from "@ironarachne/made-up-names";
+  import { onMount } from 'svelte';
   import { renderSVGAsPNG } from "$lib/images/svg";
   import random from "random";
   import seedrandom from "seedrandom";
@@ -9,7 +12,15 @@
   import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
 
   let seed: string = RND.randomString(13);
-  let org = Organization.generate();
+  let organizationTypeName = "any";
+  let nameSetName = 'any';
+  let nameSet: MUN.GeneratorSet = RND.item(MUN.cultureSets());
+  let nameSets = MUN.cultureSets();
+  let genConfig = FantasyOrganizations.getDefaultConfig();
+  genConfig.characterConfig.familyNameGenerator = nameSet.family;
+  genConfig.characterConfig.femaleNameGenerator = nameSet.female;
+  genConfig.characterConfig.maleNameGenerator = nameSet.male;
+  let org = Organizations.generate(genConfig);
   let name = org.name;
   let description = org.description;
   let leadership = org.leadership.description;
@@ -24,7 +35,27 @@
 
   function generate() {
     random.use(seedrandom(seed));
-    let org = Organization.generate();
+    if (organizationTypeName !== "any") {
+      genConfig.organizationTypes = [Organizations.getTypeByName(organizationTypeName, FantasyOrganizations.getTypes())];
+    } else {
+      genConfig.organizationTypes = FantasyOrganizations.getTypes();
+    }
+    if (nameSetName == 'any') {
+      nameSet = RND.item(MUN.cultureSets());
+      genConfig.characterConfig.useAdaptiveNames = true;
+    } else {
+      MUN.cultureSets().forEach(element => {
+        if (element.name == nameSetName) {
+          nameSet = element;
+        }
+      });
+      genConfig.characterConfig.useAdaptiveNames = false;
+    }
+    genConfig.characterConfig.familyNameGenerator = nameSet.family;
+    genConfig.characterConfig.femaleNameGenerator = nameSet.female;
+    genConfig.characterConfig.maleNameGenerator = nameSet.male;
+
+    let org = Organizations.generate(genConfig);
     name = org.name;
     description = org.description;
     leadership = org.leadership.description;
@@ -43,6 +74,10 @@
     seed = RND.randomString(13);
     generate();
   }
+
+  onMount(() => {
+    generate();
+  });
 </script>
 
 <style lang="scss">
@@ -66,11 +101,33 @@
   <h1>Organization Generator</h1>
 
   <p>This generates fantasy organizations.</p>
+  <p>If you choose the Name Set "any," it will generate names according to the race of each character. Otherwise, the names will adhere to whichever name set you choose.</p>
 
   <div class="input-group">
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
   </div>
+
+  <div class="input-group">
+    <label for="type">Organization Type</label>
+    <select name="type" bind:value={organizationTypeName} id="type">
+      <option>any</option>
+      {#each genConfig.organizationTypes as type}
+        <option>{type.name}</option>
+      {/each}
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label for="names">Name Set</label>
+    <select name="names" bind:value={nameSetName} id="nameSet">
+      <option>any</option>
+      {#each nameSets as nameSet}
+        <option>{nameSet.name}</option>
+      {/each}
+    </select>
+  </div>
+
   <button on:click={generate}>Generate From Seed</button>
   <button on:click={newSeed}>Random Seed (and Generate)</button>
 
@@ -86,11 +143,11 @@
 
   {#each notableMembers as member}
     <p>
-      <strong
-        >{Characters.getHonorific(member)}
+      <strong>
+        {Characters.getHonorific(member)}
         {member.firstName}
-        {member.lastName}:</strong
-      >
+        {member.lastName}{#if Characters.getHonorific(member) == ""} ({Characters.getTitle(member)}){/if}:
+      </strong>
       {member.description}
     </p>
   {/each}

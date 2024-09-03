@@ -25,16 +25,6 @@
     <a href="https://benovermyer.com">benovermyer.com</a>. Sometimes I'll write
     about what I'm working on for Iron Arachne over there.
   </p>
-  <p>If you find this site useful, please consider buying me a coffee.</p>
-  <div class="center">
-    <a href="https://www.buymeacoffee.com/benovermyer" target="_blank" rel="noreferrer"
-      ><img
-        src="https://cdn.buymeacoffee.com/buttons/v2/default-green.png"
-        alt="Buy Me A Coffee"
-        style="height: 60px !important; width: 217px !important"
-      /></a
-    >
-  </div>
   <h2>Recent Changes</h2>
   <p>Showing the {numberOfEntries} most recent change log entries.</p>
   {#each updates as update}

@@ -1,5 +1,10 @@
 export default [
   {
+    date: "2024-09-03",
+    summary: "",
+    updates: ["Fixed several bugs in the organization generator.", "Added more organization customization options."],
+  },
+  {
     date: "2024-01-23",
     summary: "",
     updates: ["Added Velgarth Gifts generator."],
