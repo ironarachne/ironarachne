@@ -1,5 +1,10 @@
 export default [
   {
+    date: "2024-09-22",
+    summary: "",
+    updates: ["Fixed a bug in the region generator related to organizations."],
+  },
+  {
     date: "2024-09-03",
     summary: "",
     updates: ["Fixed several bugs in the organization generator.", "Added more organization customization options."],

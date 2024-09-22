@@ -2,8 +2,9 @@ import type Character from "$lib/characters/character.js";
 import type Culture from "$lib/culture/culture.js";
 import type Environment from "$lib/environment/environment.js";
 import * as Environments from "$lib/environment/environments.js";
-import * as Organizations from "$lib/organizations/fantasy.js";
+import * as FantasyOrgs from "$lib/organizations/fantasy";
 import type Organization from "$lib/organizations/organization.js";
+import * as Organizations from "$lib/organizations/organizations.js";
 import type Realm from "$lib/realms/realm.js";
 import * as Realms from "$lib/realms/realms.js";
 import type Settlement from "$lib/settlements/settlement.js";
@@ -109,11 +110,12 @@ export function getDefaultConfig(): RegionGeneratorConfig {
 }
 
 function randomOrganizations(): Organization[] {
+  const config = FantasyOrgs.getDefaultConfig();
   const orgs: Organization[] = [];
   const numberOfOrganizations = random.int(1, 3);
 
   for (let i = 0; i < numberOfOrganizations; i++) {
-    orgs.push(Organizations.generate());
+    orgs.push(Organizations.generate(config));
   }
 
   return orgs;
