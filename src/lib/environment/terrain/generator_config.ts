@@ -4,4 +4,6 @@ export default interface TerrainGeneratorConfig {
   reliefEnergyMin: number;
   reliefEnergyMax: number;
   normalVector: number[];
+  erosionIterations: number;
+  erosionStrength: number;
 }

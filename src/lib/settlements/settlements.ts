@@ -26,7 +26,8 @@ export function generate(config: SettlementGeneratorConfig): Settlement {
 }
 
 export function getDefaultConfig(): SettlementGeneratorConfig {
-  let environment = Environments.generate();
+  const environmentConfig = Environments.getDefaultConfig();
+  let environment = Environments.generate(environmentConfig);
 
   let genSet = MUN.getSetByName("fantasy", MUN.cultureSets());
 

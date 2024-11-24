@@ -1,7 +1,8 @@
-import type Climate from "../climates/climate.js";
-import type Biome from "./biome.js";
-
 export default interface BiomeGeneratorConfig {
-  availableBiomes: Biome[];
-  climate: Climate;
+  altitude: number;
+  temperatureMin: number;
+  temperatureMax: number;
+  humidityMin: number;
+  humidityMax: number;
+  isAquatic: boolean;
 }
