@@ -50,7 +50,6 @@ export function generate(config: RegionGeneratorConfig): Region {
     value: 65,
     commonality: 5
   }]).value;
-  console.debug("Latitude: " + environmentConfig.latitude);
   region.environment = Environments.generate(environmentConfig);
   region.settlements = randomSettlements(region.environment, nameGenSet);
   region.organizations = randomOrganizations();

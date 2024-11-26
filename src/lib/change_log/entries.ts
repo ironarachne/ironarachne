@@ -1,5 +1,12 @@
 export default [
   {
+    date: "2024-11-26",
+    summary: "",
+    updates: [
+      "Wrote a new system for environment generation, including biomes, climates, and ecosystems.",
+    ]
+  },
+  {
     date: "2024-09-22",
     summary: "",
     updates: ["Fixed a bug in the region generator related to organizations."],

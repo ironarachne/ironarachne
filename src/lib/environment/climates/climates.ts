@@ -6,6 +6,7 @@ import type ClimateType from "./climate_type.js";
 import type Season from "./season.js";
 
 export function describe(climate: Climate): string {
+  // TODO: make climate descriptions more interesting, with more variety
   const description = `The climate here is ${climate.name}, with ${climate.seasons.length} seasons.`;
 
   return description;
@@ -55,8 +56,6 @@ export function generateClimateName(climate: Climate, latitude: number): string 
   // The category with the highest score is the one we choose
   const climateTypes = getClimateTypes();
   let scores = new Map<string, number>();
-
-  console.debug(`Precipitation: ${climate.precipitationAmount}, Temperature: ${climate.temperature}, Night Temp.: ${climate.temperatureMin}, Daytime Temp.: ${climate.temperatureMax}`);
 
   for (let type of climateTypes) {
     let score = 0;
@@ -116,7 +115,6 @@ export function generateClimateName(climate: Climate, latitude: number): string 
   let highestScoreName = "";
 
   for (let [key, value] of scores) {
-    console.debug(`Climate type: ${key}, score: ${value}`);
     if (value > highestScore) {
       highestScore = value;
       highestScoreName = key;

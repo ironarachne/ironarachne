@@ -109,22 +109,22 @@ export function generateBiomeFeatures(biomeType: BiomeType): string[] {
   if (biomeType.vegetationDensity > 0) {
     const vegetation = RND.item(biomeType.vegetationTypes);
     if (biomeType.vegetationDensity > 0.5) {
-      features.push(`The area is filled with ${vegetation}.`);
+      features.push(`The area is filled with ${vegetation}s.`);
     } else if (biomeType.vegetationDensity > 0.3) {
-      features.push(`There are patches of ${vegetation}.`);
+      features.push(`There are patches of ${vegetation}s.`);
     } else {
-      features.push(`There are a few ${vegetation}.`);
+      features.push(`There are a few ${vegetation}s.`);
     }
   }
 
   if (biomeType.faunaDensity > 0) {
     const fauna = RND.item(biomeType.faunaTypes);
     if (biomeType.faunaDensity > 0.5) {
-      features.push(`The area is teeming with ${fauna}.`);
+      features.push(`The area is teeming with ${fauna}s.`);
     } else if (biomeType.faunaDensity > 0.3) {
-      features.push(`There are many ${fauna}.`);
+      features.push(`There are many ${fauna}s.`);
     } else {
-      features.push(`There are a few ${fauna}.`);
+      features.push(`There are a few ${fauna}s.`);
     }
   }
 
@@ -156,8 +156,6 @@ export function getDefaultConfig(): BiomeGeneratorConfig {
 function getBiomeTypeForConfig(config: BiomeGeneratorConfig): BiomeType {
   const biomeTypes = BiomeTypes.getAll();
 
-  console.debug(`Biome config: ${JSON.stringify(config)}`);
-
   // Using a generational algorithm, select the biome type that most closely matches the config
   let scores = new Map<string, number>();
 
@@ -187,7 +185,6 @@ function getBiomeTypeForConfig(config: BiomeGeneratorConfig): BiomeType {
   let highestScoreName = "";
 
   for (let [key, value] of scores) {
-    console.debug(`Biome type: ${key}, score: ${value}`);
     if (value > highestScore) {
       highestScore = value;
       highestScoreName = key;
