@@ -16,6 +16,7 @@
   let blazon = "";
   let image = "";
   let seed = RND.randomString(13);
+  let lockSeed = false;
   let charges = Charges.all();
   let allCharges = Charges.all();
   let heraldryTag = 'any';
@@ -77,6 +78,9 @@
   }
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     let numberOfCharges = randomNumberOfCharges();
     if (numberOfChargesOption == 'one') {
@@ -113,11 +117,6 @@
     renderSVGAsPNG(image, config.width, config.height, 'output');
   }
 
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
-  }
-
   function randomNumberOfCharges() {
     const weights = [
       { item: 0, commonality: 20 },
@@ -140,7 +139,7 @@
     SaveSVGToPNG(image, heraldryWidth, heraldryHeight, `heraldry-${seed}.png`);
   }
 
-  newSeed();
+  generate();
 </script>
 
 <style lang="scss">
@@ -166,10 +165,13 @@
     Generate fantasy coats-of-arms. Note: if you change the seed, the page URL
     won't change, but your new seed will be used the next time you hit Generate.
   </p>
+
   <div class="input-group">
-    <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <label for="seed">Seed</label>
+    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
+  
   <div class="input-group">
     <label for="tag">Charge Tag</label>
     <select name="tag" bind:value={heraldryTag} on:change={changeCharges}>
@@ -205,8 +207,7 @@
       <option value="tenné">tenné (brown)</option>
     </select>
   </div>
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={generate}>Generate</button>
   <button on:click={save} disabled={image === ""}>Save</button>
   <button on:click={saveAsPNG} disabled={image === ""}>Save as PNG</button>
 

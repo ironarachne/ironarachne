@@ -13,6 +13,7 @@
   const height = 128;
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
   random.use(seedrandom(seed));
 
   let config: StarSystemGeneratorConfig;
@@ -21,13 +22,11 @@
   let system: StarSystem;
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     system = generator.generate();
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 
   onMount(() => {
@@ -56,12 +55,14 @@
 
 <section class="main scifi">
   <h1>Star System Generator</h1>
+  
   <div class="input-group">
-    <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <label for="seed">Seed</label>
+    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  
+  <button on:click={generate}>Generate</button>
 
   {#if system}
   <h2>The {system.name} System</h2>

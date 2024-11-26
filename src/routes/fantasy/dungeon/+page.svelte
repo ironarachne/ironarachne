@@ -9,6 +9,7 @@
   import { onMount } from "svelte";
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
 
   let canvas: HTMLCanvasElement;
   let minRooms = 20;
@@ -21,6 +22,9 @@
   let renderer = new DungeonTileRenderer(800, 1000, config.height, config.width);
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
 
     config.minRooms = minRooms;
@@ -30,14 +34,9 @@
     renderer.render(dungeon, canvas);
   }
 
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
-  }
-
   onMount(() => {
     canvas = <HTMLCanvasElement> document.getElementById('mapCanvas');
-    newSeed();
+    generate();
   });
 </script>
 
@@ -89,8 +88,9 @@
   <p>A dungeon generator.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
+    <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
 
   <div class="input-group">
@@ -103,8 +103,7 @@
     <input type="number" name="maxRooms" bind:value={maxRooms} id="maxRooms"/>
   </div>
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={generate}>Generate</button>
 
   <h2>{dungeon.name}</h2>
 

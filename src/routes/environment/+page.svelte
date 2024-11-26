@@ -13,6 +13,7 @@
     let canvas: HTMLCanvasElement;
     let config = Environments.getDefaultConfig();
     let seed = RND.randomString(13);
+    let lockSeed = false;
 
     function elevationToFeet(elevation: number): number {
         const max = 30000;
@@ -24,6 +25,9 @@
     }
     
     function generate() {
+        if (!lockSeed) {
+            seed = RND.randomString(13);
+        }
         random.use(seedrandom(seed));
         environment = Environments.generate(config);
         if (canvas !== null && typeof canvas === "object") {
@@ -37,13 +41,6 @@
         }
 
         return `sloping ${Directions.getWordForVector(vector)}`;
-    }
-
-    function newSeed() {
-        seed = RND.randomString(13);
-        random.use(seedrandom(seed));
-        
-        generate();
     }
 
     function randomizeParameters() {
@@ -173,12 +170,12 @@
     </div>
 
     <div class="input-group">
-        <label for="seed">Random Seed</label>
+        <label for="seed">Seed</label>
         <input type="text" name="seed" bind:value={seed} id="seed"/>
+        <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
     </div>
-
-    <button on:click={generate}>Generate From Seed</button>
-    <button on:click={newSeed}>Random Seed (and Generate)</button>
+    
+    <button on:click={generate}>Generate</button>
     <button on:click={randomizeParameters}>Randomize Parameters</button>
 
     <h2>Terrain</h2>

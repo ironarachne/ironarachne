@@ -13,6 +13,7 @@
   let planetTypes = Classifications.getClassificationNames();
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
   random.use(seedrandom(seed));
 
   let planetType = 'random';
@@ -23,6 +24,9 @@
   const height = 400;
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
 
     if (planetType == 'random') {
@@ -37,11 +41,6 @@
     }
 
     planet = Planets.generate(planetGenConfig);
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 
   onMount(() => {
@@ -60,8 +59,9 @@
   <p>This lets you generate a planet. It uses WebGL and your graphics card.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <label for="seed">Seed</label>
+    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
 
   <div class="input-group">
@@ -74,8 +74,7 @@
     </select>
   </div>
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={generate}>Generate</button>
 
   {#if planet}
     <h2>{planet.name}</h2>

@@ -12,6 +12,7 @@
   import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
 
   let seed: string = RND.randomString(13);
+  let lockSeed = false;
   let organizationTypeName = "any";
   let nameSetName = 'any';
   let nameSet: MUN.GeneratorSet = RND.item(MUN.cultureSets());
@@ -34,6 +35,9 @@
   let svgRenderer = new HeraldrySVGRenderer();
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     if (organizationTypeName !== "any") {
       genConfig.organizationTypes = [Organizations.getTypeByName(organizationTypeName, FantasyOrganizations.getTypes())];
@@ -45,7 +49,7 @@
       genConfig.characterConfig.useAdaptiveNames = true;
     } else {
       MUN.cultureSets().forEach(element => {
-        if (element.name == nameSetName) {
+        if (element.name === nameSetName) {
           nameSet = element;
         }
       });
@@ -68,11 +72,6 @@
 
     let svg = svgRenderer.render(heraldry.device, 200, 220);
     renderSVGAsPNG(svg, 200, 220, "org-arms");
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 
   onMount(() => {
@@ -104,8 +103,9 @@
   <p>If you choose the Name Set "any," it will generate names according to the race of each character. Otherwise, the names will adhere to whichever name set you choose.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <label for="seed">Seed</label>
+    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
 
   <div class="input-group">
@@ -128,8 +128,7 @@
     </select>
   </div>
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={generate}>Generate</button>
 
   <h2>{name}</h2>
 

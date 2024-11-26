@@ -17,6 +17,7 @@
   let culture: Culture;
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
   let nameSetName = 'any';
   let nameSet = RND.item(MUN.cultureSets());
   let nameSets = MUN.cultureSets();
@@ -29,6 +30,9 @@
   let ruler = region.authority;
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
 
     config.dominantCulture = null;
@@ -64,11 +68,6 @@
       }
     }
   }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
-  }
 </script>
 
 <svelte:head>
@@ -81,8 +80,9 @@
   <p>Generate fantasy regions.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <label for="seed">Seed</label>
+    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
 
   <div class="input-group">
@@ -111,8 +111,7 @@
   </div>
   {/if}
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={generate}>Generate</button>
 
   <h2>{Words.capitalize(region.name)}</h2>
 

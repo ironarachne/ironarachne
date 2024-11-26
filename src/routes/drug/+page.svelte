@@ -6,11 +6,11 @@
 
   let description = "";
   let seed = RND.randomString(13);
-  let generator = new DrugGenerator();
+  const generator = new DrugGenerator();
 
   function generate() {
     random.use(seedrandom(seed));
-    let drug = generator.generate();
+    const drug = generator.generate();
     description = drug.describe();
   }
 

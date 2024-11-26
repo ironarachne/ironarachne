@@ -15,24 +15,23 @@
   let nation: StarNation;
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
 
   const imageWidth = 64;
   const imageHeight = 64;
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     nation = gen.generate();
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 
   onMount(() => {
     config = new StarNationGeneratorConfig();
     gen = new StarNationGenerator(config);
-    newSeed();
+    generate();
   });
 </script>
 
@@ -55,12 +54,12 @@
   <p>Generate a star nation.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
+    <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  
+  <button on:click={generate}>Generate</button>
 
   {#if nation }
   <h2>{ nation.name }</h2>

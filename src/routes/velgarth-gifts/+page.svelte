@@ -8,9 +8,13 @@
   import type Gift from "$lib/velgarth_gifts/gift";
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
   let gifts: Gift[] = [];
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     const config: GiftGeneratorConfig = {
       possibilities: VelgarthGiftPossibilities.all(),
@@ -20,12 +24,7 @@
     gifts = VelgarthGifts.generate(config);
   }
 
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
-  }
-
-  newSeed();
+  generate();
 </script>
 
 <style lang="scss">
@@ -45,12 +44,12 @@
   <p>This gives you a set of Gifts for a character from Mercedes Lackey's Velgarth setting.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
+    <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  
+  <button on:click={generate}>Generate</button>
 
   {#each gifts as gift}
     <div class="gift">

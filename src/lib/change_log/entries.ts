@@ -4,6 +4,7 @@ export default [
     summary: "",
     updates: [
       "Wrote a new system for environment generation, including biomes, climates, and ecosystems.",
+      "Added 'Lock Seed' checkbox instead of a button.",
     ]
   },
   {

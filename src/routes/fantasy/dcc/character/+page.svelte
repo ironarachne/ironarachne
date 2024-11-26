@@ -10,6 +10,7 @@
   let allowHalflings = true;
   let allowHumans = true;
   let seed = RND.randomString(13);
+  let lockSeed = false;
   let genConfig = new DCCCharacterGeneratorConfig();
   let charGen = new DCCCharacterGenerator(genConfig);
   let character = charGen.generate();
@@ -24,6 +25,9 @@
   }
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
 
     let allowedOccupations = [];
@@ -67,7 +71,7 @@
     generate();
   }
 
-  newSeed();
+  generate();
 </script>
 
 <style lang="scss">
@@ -87,8 +91,9 @@
   <p>This is a DCC 0-level character generator.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
+    <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
 
   <div class="input-group">
@@ -111,8 +116,7 @@
     <input type="checkbox" name="allowHumans" bind:checked={allowHumans} id="allowHumans"/>
   </div>
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={generate}>Generate</button>
 
   <h2>{ character.firstName } { character.lastName }</h2>
 

@@ -6,7 +6,7 @@
 
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
-  let generator = new ArmsManufacturerGenerator();
+  const generator = new ArmsManufacturerGenerator();
   let manufacturer = generator.generate();
 
   function generate() {

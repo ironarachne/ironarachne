@@ -7,18 +7,17 @@
 
   let description = "";
   let seed = RND.randomString(13);
+  let lockSeed = false;
 
-  function generateSpookyShip() {
+  function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     description = SpookyShip.generate();
   }
 
-  function newSeed() {
-    seed = RND.randomString(13);
-    generateSpookyShip();
-  }
-
-  newSeed();
+  generate();
 </script>
 
 <style lang="scss">
@@ -38,12 +37,12 @@
   <p>This was done for the October 2021 Generator Challenge, from r/rpg_generators.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
+    <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-
-  <button on:click={generateSpookyShip}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  
+  <button on:click={generate}>Generate</button>
 
   <p>{ description }</p>
 </section>

@@ -19,6 +19,7 @@
   let culture: Culture;
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
   random.use(seedrandom(seed));
   let genConfig = new ReligionGeneratorConfig();
   let generator = new ReligionGenerator(genConfig);
@@ -40,6 +41,9 @@
   let selectedCategories: string[] = ["polytheism"];
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     if (humanNameGenSet.family === null) {
       throw new Error("Name set does not have a family name generator.")
@@ -94,11 +98,6 @@
       }
     }
   }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
-  }
 </script>
 
 <style lang="scss">
@@ -124,8 +123,9 @@
   <p>Generate a fictional fantasy religion.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <label for="seed">Seed</label>
+    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
 
   <div class="input-group">
@@ -162,8 +162,7 @@
   </div>
   {/if}
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={generate}>Generate</button>
 
   <h2>{religion.name}</h2>
 

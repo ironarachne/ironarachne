@@ -5,17 +5,16 @@
   import seedrandom from "seedrandom";
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
   random.use(seedrandom(seed));
   let character = CharGen.generate();
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     character = CharGen.generate();
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 
   function save() {
@@ -28,6 +27,8 @@
     link.click();
     URL.revokeObjectURL(link.href);
   }
+
+  generate();
 </script>
 
 <style lang="scss">
@@ -51,11 +52,12 @@
   <h1>Stars Without Number Character Generator</h1>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <label for="seed">Seed</label>
+    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  
+  <button on:click={generate}>Generate</button>
   <button on:click={save}>Save</button>
 
   <h2>Character</h2>

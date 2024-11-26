@@ -10,11 +10,15 @@
   import type ADNDCharacter from "$lib/adnd/adndcharacter";
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
   let genConfig;
   let charGen;
   let character: ADNDCharacter;
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
 
     genConfig = new ADNDCharacterGeneratorConfig();
@@ -24,16 +28,11 @@
   }
 
   function getEStrength(exStr: number) {
-    let estr = String(exStr).padStart(2, '0');
+    const estr = String(exStr).padStart(2, '0');
     return estr.substring(estr.length - 2);
   }
 
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
-  }
-
-  newSeed();
+  generate();
 </script>
 
 <svelte:head>
@@ -53,12 +52,12 @@
   <p>This is an AD&amp;D 2e character generator.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
+    <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  
+  <button on:click={generate}>Generate</button>
 
   <h2>{ character.firstName } { character.lastName }</h2>
 

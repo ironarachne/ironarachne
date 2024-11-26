@@ -10,6 +10,7 @@
   import type NameGenerator from '@ironarachne/made-up-names/dist/generator';
 
   let seed = RND.randomString(13);
+  let lockSeed = false;
   let availableSpecies = CommonSpecies.sentient();
   let selectedSpecies = "any";
   let species = CommonSpecies.randomWeighted(availableSpecies);
@@ -39,6 +40,9 @@
   let family = Families.generate(config);
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     species = getSpecies(selectedSpecies);
 
@@ -73,22 +77,17 @@
   }
 
   function getSpecies(name: string): Species {
-    if (name == "any") {
+    if (name === "any") {
       return CommonSpecies.randomWeighted(availableSpecies);
     }
 
     for (let i=0;i<availableSpecies.length;i++) {
-      if (availableSpecies[i].name == name) {
+      if (availableSpecies[i].name === name) {
         return availableSpecies[i];
       }
     }
 
     throw new Error("Species not found");
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 </script>
 
@@ -109,8 +108,9 @@
   <p>This generator creates a family. Note that more than 10 iterations can be quite slow. More than 30 may or may not crash your browser.</p>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
+    <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
 
   <div class="input-group">
@@ -136,8 +136,7 @@
     </select>
   </div>
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button on:click={generate}>Generate</button>
 
   <h2>The {family.name} Family</h2>
 

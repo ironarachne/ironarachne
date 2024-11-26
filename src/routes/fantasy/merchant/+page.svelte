@@ -16,16 +16,15 @@
   ];
   let merchant = Merchant.generate(category, valueThreshold);
   let seed = RND.randomString(13);
+  let lockSeed = false;
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
 
     merchant = Merchant.generate(category, valueThreshold);
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 </script>
 

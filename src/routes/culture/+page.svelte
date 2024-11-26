@@ -16,13 +16,17 @@
   let savedCulture: string;
 
   let seed = RND.randomString(13);
-  let genConfig = new CultureGeneratorConfig();
+  let lockSeed = false;
+  const genConfig = new CultureGeneratorConfig();
   let genSet: MUN.GeneratorSet = RND.item(MUN.cultureSets());
   genConfig.generatorSet = genSet;
-  let generator = new CultureGenerator(genConfig);
+  const generator = new CultureGenerator(genConfig);
   let culture = generator.generate();
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     genSet = RND.item(MUN.cultureSets());
     generator.config.generatorSet = genSet;
@@ -35,11 +39,6 @@
         culture = user.savedCultures[i];
       }
     }
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 
   function saveCulture() {
@@ -68,12 +67,14 @@
 <section class="fantasy main">
   <h1>Culture Generator</h1>
   <p>This generator lets you create fantasy cultures.</p>
+  
   <div class="input-group">
-    <label for="seed">Random Seed</label>
+    <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  
+  <button on:click={generate}>Generate</button>
   <button on:click={saveCulture}>Save Current Culture</button>
 
   <h2>Saved Cultures</h2>
