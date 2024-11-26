@@ -1,4 +1,4 @@
 export default interface StatBlock {
-  getHTML: Function;
-  getText: Function;
+  getHTML: () => string;
+  getText: () => string;
 }

@@ -44,8 +44,8 @@ export function getNiceDate(date: string): string {
   const month = Number(components[1]) - 1;
   const day = Number(components[2]);
   const fullDate = new Date(year, month, day);
-  let ordinal = Words.getOrdinal(fullDate.getDate());
-  let monthAbbr = getMonthAbbr(fullDate.getMonth());
+  const ordinal = Words.getOrdinal(fullDate.getDate());
+  const monthAbbr = getMonthAbbr(fullDate.getMonth());
 
   return `${monthAbbr} ${fullDate.getDate()}<sup>${ordinal}</sup>, ${fullDate.getFullYear()}`;
 }

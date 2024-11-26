@@ -3,7 +3,6 @@ import * as Drink from "./cuisine/drink.js";
 import * as Food from "./cuisine/food.js";
 import * as Currency from "./currency.js";
 import * as Dice from "./dice.js";
-import * as TavernName from "./names/taverns.js";
 
 import random from "random";
 
@@ -22,15 +21,41 @@ export class Tavern {
 }
 
 export function generate() {
-  const tavern = new Tavern(TavernName.generate(), randomFood(), randomDrinks());
+  const tavern = new Tavern(randomName(), randomFood(), randomDrinks());
 
   tavern.description = randomDescription(tavern);
 
   return tavern;
 }
 
+function randomName(): string {
+  const name = RND.item([
+    "The Rusty Anchor",
+    "The Drunken Dragon",
+    "The Laughing Fox",
+    "The Golden Goose",
+    "The Dancing Bear",
+    "The Merry Mermaid",
+    "The Lucky Leprechaun",
+    "The Jolly Jester",
+    "The Silly Satyr",
+    "The Singing Siren",
+    "The Prancing Pony",
+    "The Tipsy Turtle",
+    "The Weeping Willow",
+    "The Wandering Wizard",
+    "The Wicked Wench",
+  ]);
+
+  return name;
+}
+
 function randomDescription(tavern: Tavern) {
-  let description = RND.item([tavern.name, "This tavern", "This establishment"]);
+  let description = RND.item([
+    tavern.name,
+    "This tavern",
+    "This establishment",
+  ]);
 
   const quality = RND.item([
     "has seen better days",
@@ -39,7 +64,7 @@ function randomDescription(tavern: Tavern) {
     "has an air of wealth about it",
   ]);
 
-  description += " " + quality + ". ";
+  description += ` ${quality}. `;
 
   const patrons = RND.item([
     "It caters to a diverse crowd.",
@@ -65,7 +90,7 @@ function randomDrinks() {
 
     const cost = Currency.convertCopper(drink.cost, false, false);
 
-    const drinkDescription = drink.description + " (cost: " + cost + ")";
+    const drinkDescription = `${drink.description} (cost: ${cost})`;
 
     drinks.push(drinkDescription);
   }
@@ -84,7 +109,7 @@ function randomFood() {
     const dish = Food.generateDish();
     const cost = Currency.convertCopper(quality, false, false);
 
-    const foodDescription = dish + " (cost: " + cost + ")";
+    const foodDescription = `${dish} (cost: ${cost})`;
 
     food.push(foodDescription);
   }

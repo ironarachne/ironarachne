@@ -18,7 +18,7 @@ test("range to expression of 1d4 should have one d4 and nothing else", () => {
 });
 
 test("describing dice pool with 1d4 and 1d20 and 3 modifier should result in 1d20+1d4+3", () => {
-  let dicePool = new Dice.DicePool();
+  const dicePool = new Dice.DicePool();
   dicePool.d4 = 1;
   dicePool.d20 = 1;
   dicePool.modifier = 3;
@@ -29,7 +29,7 @@ test("describing dice pool with 1d4 and 1d20 and 3 modifier should result in 1d2
 });
 
 test("simplifying dice pool with 1d4 and 1d20 and 3 modifier should result in 1d20", () => {
-  let dicePool = new Dice.DicePool();
+  const dicePool = new Dice.DicePool();
   dicePool.d4 = 1;
   dicePool.d20 = 1;
   dicePool.modifier = 3;

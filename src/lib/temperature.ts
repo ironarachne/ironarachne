@@ -1,5 +1,5 @@
 export function celsiusToFahrenheit(celsius: number): number {
-  return celsius * 9 / 5 + 32;
+  return (celsius * 9) / 5 + 32;
 }
 
 export function celsiusToKelvin(celsius: number): number {
@@ -7,30 +7,45 @@ export function celsiusToKelvin(celsius: number): number {
 }
 
 export function fahrenheitToCelsius(fahrenheit: number): number {
-  return (fahrenheit - 32) * 5 / 9;
+  return ((fahrenheit - 32) * 5) / 9;
 }
 
-export function getDescription(temperature: number, temperatureType: string): string {
+export function getDescription(
+  temperature: number,
+  temperatureType: string,
+): string {
+  let result = temperature;
   if (temperatureType === "celsius") {
-    temperature = celsiusToFahrenheit(temperature);
+    result = celsiusToFahrenheit(temperature);
   }
 
-  if (temperature < 0) {
+  if (result < 0) {
     return "freezing";
-  } else if (temperature < 40) {
-    return "cold";
-  } else if (temperature < 60) {
-    return "cool";
-  } else if (temperature < 80) {
-    return "warm";
-  } else if (temperature < 100) {
-    return "hot";
-  } else {
-    return "scorching";
   }
+
+  if (result < 40) {
+    return "cold";
+  }
+
+  if (result < 60) {
+    return "cool";
+  }
+
+  if (result < 80) {
+    return "warm";
+  }
+
+  if (result < 100) {
+    return "hot";
+  }
+
+  return "scorching";
 }
 
-export function getComparativeString(temperature: number, temperatureType: string): string {
+export function getComparativeString(
+  temperature: number,
+  temperatureType: string,
+): string {
   let celsius = temperature;
   let fahrenheit = temperature;
 

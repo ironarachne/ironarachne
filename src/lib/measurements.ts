@@ -25,7 +25,7 @@ export function inchesToFeetExpression(inches: number): string {
 
   const remainder = Math.floor(inches % 12);
 
-  expression += feet + "'" + remainder + "\"";
+  expression += `${feet}'${remainder}"`;
 
   return expression;
 }

@@ -2,7 +2,7 @@ import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 
 export function generate() {
-  let description = `${Words.capitalize(randomIntro())} ${randomOrigin()} ${randomTwist()}`;
+  const description = `${Words.capitalize(randomIntro())} ${randomOrigin()} ${randomTwist()}`;
 
   return description;
 }
@@ -24,18 +24,16 @@ function randomShip() {
 }
 
 function randomIntro() {
-  let size = randomSize();
-  let part1 = RND.item([
-    `${Words.article(size)} ${size} ${randomShip()} ${
-      RND.item([
-        "drifts",
-        "floats",
-      ])
-    } in space ${RND.item(["in front of you", "here"])}, `,
+  const size = randomSize();
+  const part1 = RND.item([
+    `${Words.article(size)} ${size} ${randomShip()} ${RND.item([
+      "drifts",
+      "floats",
+    ])} in space ${RND.item(["in front of you", "here"])}, `,
     `a ${randomShip()} of ${size} proportions is adrift here, `,
   ]);
 
-  let part2 = RND.item([
+  const part2 = RND.item([
     "its outer hull breached in several places.",
     "surrounded by strange, dancing lights.",
     "partially obscured by a thick, dark nebula.",

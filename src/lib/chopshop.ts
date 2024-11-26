@@ -1,17 +1,7 @@
 import * as RND from "@ironarachne/rng";
 
 export function generate() {
-  return (
-    getCSFront()
-    + " "
-    + getCSEntry()
-    + " "
-    + getCSProductDisplays()
-    + " "
-    + getCSCustomers()
-    + " "
-    + getCSBack()
-  );
+  return `${getCSFront()} ${getCSEntry()} ${getCSProductDisplays()} ${getCSCustomers()} ${getCSBack()}`;
 }
 
 function getCSFront() {
@@ -62,7 +52,7 @@ function getCSProductDisplays() {
   const modelCybernetics = [
     "A handful of model cybernetics lay strewn haphazardly on shelves in the front room. Beside the shelves are a couple old displays, their screens flickering and dull.",
     "An assortment of cybernetic enhancements are displayed on a series of shelves that line the walls of the room. Some of the enhancements are missing pieces, others are covered in dust.",
-    "A small table in the center of the room holds several model cybernetic enhancements. A sign beside the table reads: \"Ask us how we can turn these models into reality.\"",
+    'A small table in the center of the room holds several model cybernetic enhancements. A sign beside the table reads: "Ask us how we can turn these models into reality."',
     "The front room is cluttered with various cybernetic upgrades, ranging from simple limb replacements to advanced neural implants. The upgrades are displayed on shelves, on pedestals, and even on the floor.",
     "Several mannequins stand in the center of the room, each wearing a different cybernetic enhancement. The mannequins are surrounded by spotlights, giving them an almost lifelike appearance.",
   ];

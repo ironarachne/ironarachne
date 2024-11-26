@@ -41,9 +41,9 @@ export class DicePool {
     result += this.d20 * 20;
     result += this.d100 * 100;
 
-    if (this.modifierType == "*") {
+    if (this.modifierType === "*") {
       result *= this.modifier;
-    } else if (this.modifierType == "+") {
+    } else if (this.modifierType === "+") {
       result += this.modifier;
     } else {
       result -= this.modifier;
@@ -62,9 +62,9 @@ export class DicePool {
     result += this.d20;
     result += this.d100;
 
-    if (this.modifierType == "*") {
+    if (this.modifierType === "*") {
       result *= this.modifier;
-    } else if (this.modifierType == "+") {
+    } else if (this.modifierType === "+") {
       result += this.modifier;
     } else {
       result -= this.modifier;
@@ -82,7 +82,7 @@ export function toDicePool(expression: string): DicePool {
   let parts = [];
   let modParts = [];
 
-  let dicePool = new DicePool();
+  const dicePool = new DicePool();
 
   if (expression.includes("-")) {
     modifierType = "-";
@@ -107,19 +107,19 @@ export function toDicePool(expression: string): DicePool {
   numDice = Number(parts[0]);
   numSides = Number(parts[1]);
 
-  if (numSides == 4) {
+  if (numSides === 4) {
     dicePool.d4 = numDice;
-  } else if (numSides == 6) {
+  } else if (numSides === 6) {
     dicePool.d6 = numDice;
-  } else if (numSides == 8) {
+  } else if (numSides === 8) {
     dicePool.d8 = numDice;
-  } else if (numSides == 10) {
+  } else if (numSides === 10) {
     dicePool.d10 = numDice;
-  } else if (numSides == 12) {
+  } else if (numSides === 12) {
     dicePool.d12 = numDice;
-  } else if (numSides == 20) {
+  } else if (numSides === 20) {
     dicePool.d20 = numDice;
-  } else if (numSides == 100) {
+  } else if (numSides === 100) {
     dicePool.d100 = numDice;
   }
 
@@ -133,49 +133,49 @@ export function describeDice(dice: DicePool) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d100 + "d100";
+    diceExpression += `${dice.d100}d100`;
   }
 
   if (dice.d20 > 0) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d20 + "d20";
+    diceExpression += `${dice.d20}d20`;
   }
 
   if (dice.d12 > 0) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d12 + "d12";
+    diceExpression += `${dice.d12}d12`;
   }
 
   if (dice.d10 > 0) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d10 + "d10";
+    diceExpression += `${dice.d10}d10`;
   }
 
   if (dice.d8 > 0) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d8 + "d8";
+    diceExpression += `${dice.d8}d8`;
   }
 
   if (dice.d6 > 0) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d6 + "d6";
+    diceExpression += `${dice.d6}d6`;
   }
 
   if (dice.d4 > 0) {
     if (diceExpression !== "") {
       diceExpression += "+";
     }
-    diceExpression += dice.d4 + "d4";
+    diceExpression += `${dice.d4}d4`;
   }
 
   if (dice.modifier > 0) {
@@ -249,11 +249,11 @@ export function roll(expression: string): number {
 
   if (useModifier) {
     for (let i = 1; i < phrases.length; i++) {
-      let modParts = phrases[i].split("d");
+      const modParts = phrases[i].split("d");
 
       if (modParts.length > 1) {
-        let n = Number(modParts[0]);
-        let s = Number(modParts[1]);
+        const n = Number(modParts[0]);
+        const s = Number(modParts[1]);
         modValue += rollSimple(n, s);
       } else {
         modValue += Number(phrases[i]);
@@ -266,11 +266,11 @@ export function roll(expression: string): number {
 
   let roll = rollSimple(Number(parts[0]), Number(parts[1]));
 
-  if (expressionType == "added") {
+  if (expressionType === "added") {
     roll += modValue;
-  } else if (expressionType == "subtracted") {
+  } else if (expressionType === "subtracted") {
     roll -= modValue;
-  } else if (expressionType == "multiplied") {
+  } else if (expressionType === "multiplied") {
     roll *= modValue;
   }
 

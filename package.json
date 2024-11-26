@@ -11,7 +11,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest",
     "lint": "biome ci src/**/*.ts",
-    "format": "biome format src/**/*.ts"
+    "format": "biome format --write src/**/*.ts"
   },
   "browserslist": [
     "> 1%",
@@ -36,7 +36,7 @@
     "xmlbuilder2": "^3.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "1.4.0",
+    "@biomejs/biome": "^1.9.4",
     "@flydotio/dockerfile": "^0.5.8",
     "@sveltejs/vite-plugin-svelte": "^3.0.0",
     "@tsconfig/svelte": "^5.0.2",
