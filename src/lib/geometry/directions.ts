@@ -1,4 +1,4 @@
-import Vertex from "./vertex.js";
+import type Vertex from "./vertex";
 
 // getAngleOfLine gets the angle of the line compared to the x-axis in degrees
 export function getAngleOfLine(a: Vertex, b: Vertex): number {
@@ -34,4 +34,29 @@ export function getDirectionFromOrigin(a: Vertex, b: Vertex): string {
   }
 
   return "south";
+}
+
+export function getWordForVector(vector: number[]): string {
+  let x = vector[0];
+  let y = vector[1];
+
+  if (x > 0.0 && y > 0.0) {
+    return "northwest";
+  } else if (x > 0.0 && y < 0.0) {
+    return "northeast";
+  } else if (x < 0.0 && y > 0.0) {
+    return "southwest";
+  } else if (x < 0.0 && y < 0.0) {
+    return "southeast";
+  } else if (x > 0.0 && y === 0.0) {
+    return "east";
+  } else if (x < 0.0 && y === 0.0) {
+    return "west";
+  } else if (x === 0.0 && y > 0.0) {
+    return "north";
+  } else if (x === 0.0 && y < 0.0) {
+    return "south";
+  }
+
+  return "static"; // Not moving
 }

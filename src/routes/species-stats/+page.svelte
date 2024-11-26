@@ -27,7 +27,6 @@
   };
 
   function calculate() {
-    console.debug("we calculate");
     let ageScale = maximumAge / 100;
 
     femaleAgeCategories = AgeCategories.getHumanVariant(ageScale);

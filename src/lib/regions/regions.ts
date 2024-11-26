@@ -39,7 +39,18 @@ export function generate(config: RegionGeneratorConfig): Region {
     nameGenSet = config.nameGeneratorSet;
   }
 
-  region.environment = Environments.generate();
+  const environmentConfig = Environments.getDefaultConfig();
+  environmentConfig.latitude = RND.weighted([{
+    value: 40,
+    commonality: 10,
+  }, {
+    value: 15,
+    commonality: 5,
+  }, {
+    value: 65,
+    commonality: 5
+  }]).value;
+  region.environment = Environments.generate(environmentConfig);
   region.settlements = randomSettlements(region.environment, nameGenSet);
   region.organizations = randomOrganizations();
   region.description = region.environment.description;
