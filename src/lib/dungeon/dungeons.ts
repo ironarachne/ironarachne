@@ -1,8 +1,7 @@
 import type Encounter from "$lib/encounters/encounter";
 import * as Encounters from "$lib/encounters/encounters";
 import type Biome from "$lib/environment/biomes/biome";
-import * as Biomes from "$lib/environment/biomes/biomes";
-import * as Climates from "$lib/environment/climates/climates";
+import * as Environments from "$lib/environment/environments";
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
@@ -106,14 +105,12 @@ export function generate(config: DungeonGeneratorConfig): Dungeon {
 }
 
 export function getDefaultConfig(): DungeonGeneratorConfig {
-  let climate = RND.item(Climates.all());
-  let biomeGenConfig = Biomes.getDefaultConfig();
-  biomeGenConfig.climate = climate;
+  const envConfig = Environments.getDefaultConfig();
 
-  let biomes: Biome[] = [];
+  const biomes: Biome[] = [];
   for (let i = 0; i < 5; i++) {
-    biomeGenConfig.climate = RND.item(Climates.all());
-    biomes.push(Biomes.generate(biomeGenConfig));
+    const environment = Environments.generate(envConfig);
+    biomes.push(environment.biome);
   }
 
   return {
@@ -152,7 +149,7 @@ function addRoomToTiles(room: Room, tiles: number[][]): number[][] {
 function generateEncounters(dungeon: Dungeon, encounterSpawns: EncounterSpawn[]): Dungeon {
   for (let i = 0; i < encounterSpawns.length; i++) {
     let maxRoom = encounterSpawns[i].maxRoom;
-    if (maxRoom == -1) {
+    if (maxRoom === -1) {
       maxRoom = dungeon.rooms.length - 1;
     }
     let minRoom = encounterSpawns[i].minRoom;
@@ -192,12 +189,12 @@ function generateEncounterSpawn(
   config.sentientOptions = dungeon.theme.sentientOptions;
   let treasureTables = CommonTables.individual();
 
-  if (encounterType == "boss") {
+  if (encounterType === "boss") {
     config.template = RND.weighted(dungeon.theme.bossEncounterTemplates);
     config.minThreatLevel = 3;
     config.maxThreatLevel = 10;
     treasureTables = RareTables.individual();
-  } else if (encounterType == "strong") {
+  } else if (encounterType === "strong") {
     config.template = RND.weighted(dungeon.theme.strongEncounterTemplates);
     treasureTables = UncommonTables.individual();
   } else {
