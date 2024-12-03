@@ -35,7 +35,10 @@
   }
 
   onMount(() => {
-    canvas = <HTMLCanvasElement> document.getElementById('mapCanvas');
+    const htmlElement = document.getElementById('mapCanvas');
+    if (htmlElement instanceof HTMLCanvasElement) {
+      canvas = htmlElement;
+    }
     generate();
   });
 </script>

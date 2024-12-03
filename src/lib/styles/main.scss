@@ -1,4 +1,5 @@
 @charset "utf-8";
+@use "sass:string";
 
 @font-face {
   font-family: 'alienleague';
@@ -21,7 +22,7 @@ $gold: #fad037;
 html {
   background: rgb(247, 244, 224);
   font-family: Georgia, serif;
-  font-size: unquote('clamp(1em, 0.909em + 0.45vmin, 1.25em)');
+  font-size: string.unquote('clamp(1em, 0.909em + 0.45vmin, 1.25em)');
   max-width: 70ch;
   padding: 0;
   margin-inline: auto;

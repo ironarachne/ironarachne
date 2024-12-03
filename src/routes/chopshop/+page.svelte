@@ -4,7 +4,7 @@
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let description = "";
+  let description = $state("");
   let seed = RND.randomString(13);
 
   function generateChopShop() {
@@ -30,6 +30,6 @@
 <section class="cyberpunk main">
   <h1>Chop Shop Generator</h1>
   <p>This is a cyberpunk chop shop generator.</p>
-  <button on:click={generateChopShop}>Generate</button>
+  <button onclick={generateChopShop}>Generate</button>
   <p>{ description }</p>
 </section>

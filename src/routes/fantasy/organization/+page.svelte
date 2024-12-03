@@ -11,21 +11,21 @@
   import HeraldryGenerator from "$lib/heraldry/generator";
   import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
 
-  let seed: string = RND.randomString(13);
-  let lockSeed = false;
-  let organizationTypeName = "any";
-  let nameSetName = 'any';
+  let seed: string = $state(RND.randomString(13));
+  let lockSeed = $state(false);
+  let organizationTypeName = $state("any");
+  let nameSetName = $state('any');
   let nameSet: MUN.GeneratorSet = RND.item(MUN.cultureSets());
   let nameSets = MUN.cultureSets();
-  let genConfig = FantasyOrganizations.getDefaultConfig();
+  let genConfig = $state(FantasyOrganizations.getDefaultConfig());
   genConfig.characterConfig.familyNameGenerator = nameSet.family;
   genConfig.characterConfig.femaleNameGenerator = nameSet.female;
   genConfig.characterConfig.maleNameGenerator = nameSet.male;
   let org = Organizations.generate(genConfig);
-  let name = org.name;
-  let description = org.description;
-  let leadership = org.leadership.description;
-  let notableMembers = org.notableMembers;
+  let name = $state(org.name);
+  let description = $state(org.description);
+  let leadership = $state(org.leadership.description);
+  let notableMembers = $state(org.notableMembers);
   let heraldryConfig = org.organizationType.heraldryConfig;
   heraldryConfig.width = 200;
   heraldryConfig.height = 200;
@@ -128,7 +128,7 @@
     </select>
   </div>
 
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <h2>{name}</h2>
 

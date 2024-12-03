@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { run } from 'svelte/legacy';
+
   import "$lib/styles/reset.scss";
   import "$lib/styles/main.scss";
   import Footer from "$lib/components/Footer.svelte";
@@ -8,10 +10,17 @@
 
   import type { LayoutData } from './$types';
 
-  export let data: LayoutData;
+  interface Props {
+    data: LayoutData;
+    children?: import('svelte').Snippet;
+  }
+
+  let { data, children }: Props = $props();
 
   const user = writable();
-  $: user.set(data.user);
+  run(() => {
+    user.set(data.user);
+  });
 
   // TODO: try implementing a workspace for cultures within the user object
 
@@ -19,5 +28,5 @@
 </script>
 
 <Header />
-<slot />
+{@render children?.()}
 <Footer />

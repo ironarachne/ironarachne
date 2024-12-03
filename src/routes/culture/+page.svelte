@@ -4,24 +4,25 @@
   import { getContext } from 'svelte';
   import random from "random";
   import seedrandom from "seedrandom";
+  import type UserData from "$lib/user_data";
   import CultureGeneratorConfig from "$lib/culture/generatorconfig";
   import CultureGenerator from "$lib/culture/generator";
 
-  const user = getContext('user');
+  const user: UserData = $state(getContext('user'));
 
   if (user.savedCultures === undefined) {
     user.savedCultures = [];
   }
 
-  let savedCulture: string;
+  let savedCulture: string | undefined = $state();
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   const genConfig = new CultureGeneratorConfig();
   let genSet: MUN.GeneratorSet = RND.item(MUN.cultureSets());
   genConfig.generatorSet = genSet;
   const generator = new CultureGenerator(genConfig);
-  let culture = generator.generate();
+  let culture = $state(generator.generate());
 
   function generate() {
     if (!lockSeed) {
@@ -74,8 +75,8 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
   
-  <button on:click={generate}>Generate</button>
-  <button on:click={saveCulture}>Save Current Culture</button>
+  <button onclick={generate}>Generate</button>
+  <button onclick={saveCulture}>Save Current Culture</button>
 
   <h2>Saved Cultures</h2>
 
@@ -89,7 +90,7 @@
   </div>
 
   <div class="input-group">
-    <button on:click={loadSavedCulture}>Load Selected Culture</button>
+    <button onclick={loadSavedCulture}>Load Selected Culture</button>
   </div>
 
   <h2>The { culture.name } Culture</h2>

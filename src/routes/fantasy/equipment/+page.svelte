@@ -2,7 +2,7 @@
   import * as Currency from "$lib/currency";
   import * as FantasyEquipmentList from "$lib/equipment/fantasylist";
 
-  let currency = "D&D currency";
+  let currency = $state("D&D currency");
   let equipmentLists = FantasyEquipmentList.all();
 
   function convertDNDCost(cost: number) {

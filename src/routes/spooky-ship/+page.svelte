@@ -5,9 +5,9 @@
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let description = "";
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let description = $state("");
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
 
   function generate() {
     if (!lockSeed) {
@@ -42,7 +42,7 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
   
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <p>{ description }</p>
 </section>

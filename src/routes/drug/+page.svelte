@@ -1,25 +1,24 @@
 <script lang="ts">
-  import DrugGenerator from "$lib/drug/generator";
+  import type Drug from "$lib/drug/drug";
+  import * as Drugs from "$lib/drug/drugs";
   import * as RND from "@ironarachne/rng";
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let description = "";
-  let seed = RND.randomString(13);
-  const generator = new DrugGenerator();
+  let seed = $state(RND.randomString(13));
+  const config = Drugs.getDefaultConfig();
+  let drug: Drug = $state(Drugs.generate(config));
+  let lockSeed = $state(false);
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
-    const drug = generator.generate();
-    description = drug.describe();
+    drug = Drugs.generate(config);
   }
 
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
-  }
-
-  newSeed();
+  generate();
 </script>
 
 <style lang="scss">
@@ -41,10 +40,10 @@
   <div class="input-group">
     <label for="seed">Random Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button onclick={generate}>Generate</button>
 
-  <p>{ description }</p>
+  <p>{ drug.description }</p>
 </section>

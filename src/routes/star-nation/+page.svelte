@@ -12,10 +12,10 @@
 
   let config: StarNationGeneratorConfig;
   let gen: StarNationGenerator;
-  let nation: StarNation;
+  let nation: StarNation = $state();
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
 
   const imageWidth = 64;
   const imageHeight = 64;
@@ -59,9 +59,9 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
   
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
-  {#if nation }
+  {#if nation}
   <h2>{ nation.name }</h2>
 
   <p>{ nation.description }</p>

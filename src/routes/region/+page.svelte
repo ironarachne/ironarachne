@@ -10,24 +10,25 @@
   import seedrandom from "seedrandom";
   import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
   import type Culture from '$lib/culture/culture';
+  import type UserData from '$lib/user_data';
 
-  const user = getContext('user');
-  let savedCulture: string;
-  let useSavedCulture: boolean = false;
+  const user: UserData = getContext('user');
+  let savedCulture: string = $state();
+  let useSavedCulture: boolean = $state(false);
   let culture: Culture;
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
-  let nameSetName = 'any';
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
+  let nameSetName = $state('any');
   let nameSet = RND.item(MUN.cultureSets());
   let nameSets = MUN.cultureSets();
   random.use(seedrandom(seed));
   let config = Regions.getDefaultConfig();
   config.nameGeneratorSet = nameSet;
 
-  let heraldryRenderer = new HeraldrySVGRenderer();
-  let region = Regions.generate(config);
-  let ruler = region.authority;
+  const heraldryRenderer = new HeraldrySVGRenderer();
+  let region = $state(Regions.generate(config));
+  let ruler = $state(region.authority);
 
   function generate() {
     if (!lockSeed) {
@@ -41,14 +42,14 @@
       config.dominantCulture = culture;
       nameSet = culture.generatorSet;
     } else {
-      if (nameSetName == 'any') {
+      if (nameSetName === 'any') {
         nameSet = RND.item(MUN.cultureSets());
       } else {
-        MUN.cultureSets().forEach(element => {
-          if (element.name == nameSetName) {
+        for (const element of MUN.cultureSets()) {
+          if (element.name === nameSetName) {
             nameSet = element;
           }
-        });
+        }
       }
     }
 
@@ -57,8 +58,10 @@
     region = Regions.generate(config);
     ruler = region.authority;
 
-    let rulerSVG = heraldryRenderer.render(ruler.heraldry.device, 200, 220);
-    renderSVGAsPNG(rulerSVG, 200, 220, "ruler-arms");
+    if (ruler.heraldry !== null) {
+      const rulerSVG = heraldryRenderer.render(ruler.heraldry.device, 200, 220);
+      renderSVGAsPNG(rulerSVG, 200, 220, "ruler-arms");
+    }
   }
 
   function loadSavedCulture() {
@@ -111,7 +114,7 @@
   </div>
   {/if}
 
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <h2>{Words.capitalize(region.name)}</h2>
 

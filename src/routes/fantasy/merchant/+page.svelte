@@ -6,16 +6,16 @@
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let category = 'general';
-  let valueThreshold = 50;
+  let category = $state('general');
+  let valueThreshold = $state(50);
   let categories = [
     'armor',
     'clothing',
     'general',
     'weapon',
   ];
-  let merchant = Merchant.generate(category, valueThreshold);
-  let seed = RND.randomString(13);
+  let merchant = $state(Merchant.generate(category, valueThreshold));
+  let seed = $state(RND.randomString(13));
   let lockSeed = false;
 
   function generate() {
@@ -67,8 +67,8 @@
     </select>
   </div>
 
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+  <button onclick={generate}>Generate From Seed</button>
+  <button onclick={newSeed}>Random Seed (and Generate)</button>
 
   <p>{ merchant.description } { Words.capitalize(merchant.character.gender.possessivePronoun) } wares include:</p>
 

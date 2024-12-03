@@ -1,16 +1,16 @@
 import * as Words from "@ironarachne/words";
-import DrugType from "./drugtype.js";
+import type DrugType from "./drug_type";
 
 export function all() {
   return [gas(), liquid(), ointment(), powder(), paste(), pill()];
 }
 
 function gas(): DrugType {
-  let verbs = ["inhaled", "breathed in", "sniffed"];
+  const verbs = ["inhaled", "breathed in", "sniffed"];
 
-  let options = ["breather", "aerosol", "small spray can", "long tube", "palm-sized tank"];
+  const options = ["breather", "aerosol", "small spray can", "long tube", "palm-sized tank"];
 
-  let descriptions = [];
+  const descriptions = [];
 
   for (let x = 0; x < verbs.length; x++) {
     for (let y = 0; y < options.length; y++) {
@@ -18,13 +18,16 @@ function gas(): DrugType {
     }
   }
 
-  return new DrugType("gas", descriptions);
+  return {
+    name: "gas", 
+    methods: descriptions
+  };
 }
 
 function liquid(): DrugType {
-  let options = ["arm", "leg", "heart", "neck"];
+  const options = ["arm", "leg", "heart", "neck"];
 
-  let descriptions = [
+  const descriptions = [
     "drank straight",
     "put into cocktails and drank",
     "diluted with water and drank",
@@ -37,15 +40,18 @@ function liquid(): DrugType {
     descriptions.push(`injected in the ${options[y]}`);
   }
 
-  return new DrugType("liquid", descriptions);
+  return {
+    name: "liquid",
+    methods: descriptions
+  }
 }
 
 function ointment(): DrugType {
-  let verbs = ["spread", "dabbed", "brushed", "rubbed"];
+  const verbs = ["spread", "dabbed", "brushed", "rubbed"];
 
-  let options = ["face", "hands", "skin", "forehead", "lips"];
+  const options = ["face", "hands", "skin", "forehead", "lips"];
 
-  let descriptions = [];
+  const descriptions = [];
 
   for (let x = 0; x < verbs.length; x++) {
     for (let y = 0; y < options.length; y++) {
@@ -53,15 +59,18 @@ function ointment(): DrugType {
     }
   }
 
-  return new DrugType("ointment", descriptions);
+  return {
+    name: "ointment",
+    methods: descriptions
+  }
 }
 
 function paste(): DrugType {
-  let verbs = ["spread", "smeared", "rubbed"];
+  const verbs = ["spread", "smeared", "rubbed"];
 
-  let options = ["face", "hands", "skin", "forehead", "lips", "throat"];
+  const options = ["face", "hands", "skin", "forehead", "lips", "throat"];
 
-  let descriptions = [];
+  const descriptions = [];
 
   for (let x = 0; x < verbs.length; x++) {
     for (let y = 0; y < options.length; y++) {
@@ -69,11 +78,14 @@ function paste(): DrugType {
     }
   }
 
-  return new DrugType("paste", descriptions);
+  return {
+    name: "paste",
+    methods: descriptions
+  }
 }
 
 function pill(): DrugType {
-  let descriptions = [
+  const descriptions = [
     "crushed into food and eaten",
     "swallowed whole",
     "swallowed with a beverage",
@@ -81,11 +93,14 @@ function pill(): DrugType {
     "chewed",
   ];
 
-  return new DrugType("pill", descriptions);
+  return {
+    name: "pill",
+    methods: descriptions
+  }
 }
 
 function powder(): DrugType {
-  let descriptions = [
+  const descriptions = [
     "inhaled",
     "breathed in",
     "snorted",
@@ -93,5 +108,8 @@ function powder(): DrugType {
     "added to oil and rubbed on the skin",
   ];
 
-  return new DrugType("powder", descriptions);
+  return {
+    name: "powder",
+    methods: descriptions
+  }
 }

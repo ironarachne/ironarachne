@@ -1,9 +1,9 @@
-import * as Words from "@ironarachne/words";
-import DrugType from "./drugtype.js";
-import EffectType from "./effecttype.js";
+import type DrugType from "./drug_type";
+import type EffectType from "./effect_type";
 
-export default class Drug {
+export default interface Drug {
   name: string;
+  description: string;
   drugType: DrugType;
   method: string;
   effectType: EffectType;
@@ -13,36 +13,4 @@ export default class Drug {
   duration: string;
   sideEffect: string;
   commonality: string;
-
-  constructor(drugType: DrugType, effectType: EffectType) {
-    this.drugType = drugType;
-    this.name = "";
-    this.method = "";
-    this.effectType = effectType;
-    this.effectDescription = "";
-    this.strength = "";
-    this.color = "";
-    this.duration = "";
-    this.sideEffect = "";
-    this.commonality = "";
-  }
-
-  describe() {
-    let description = this.name + " is a " + this.strength + " " + this.effectType.name + ". ";
-    description += "It's "
-      + Words.article(this.color)
-      + " "
-      + this.color
-      + " "
-      + this.drugType.name
-      + " that is "
-      + this.method
-      + ". ";
-    description += this.effectDescription;
-    description += " " + this.duration;
-    description += " Side effects can include " + this.sideEffect + ". ";
-    description += this.commonality;
-
-    return description;
-  }
 }

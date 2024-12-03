@@ -5,7 +5,7 @@
   import random from "random";
   import seedrandom from "seedrandom";
   import type Language from "$lib/languages/language";
-  let language: Language;
+  let language: Language = $state();
   let gen;
   let config;
   let seed = RND.randomString(13);
@@ -35,7 +35,7 @@
 <section class="main default">
   <h1>Language Generator</h1>
   <p>This generates fictional languages. This is mostly useful for debugging.</p>
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <h2>{language.name}</h2>
 

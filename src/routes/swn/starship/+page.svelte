@@ -4,10 +4,10 @@
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   random.use(seedrandom(seed));
-  let starship = Gen.generate();
+  let starship = $state(Gen.generate());
 
   function generate() {
     if (!lockSeed) {
@@ -51,8 +51,8 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
   
-  <button on:click={generate}>Generate</button>
-  <button on:click={save}>Save</button>
+  <button onclick={generate}>Generate</button>
+  <button onclick={save}>Save</button>
 
   <h2>{starship.name}</h2>
 

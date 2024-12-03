@@ -5,25 +5,24 @@
   import random from "random";
   import seedrandom from "seedrandom";
 
-  let themes = Domains.getAllDomainNames().sort();
-  let categories = Weapon.getAllWeaponCategories().sort();
-  let category = "any";
-  let theme = "any";
-  let seed = RND.randomString(13);
-  let weapon = Weapon.generate(category, theme);
+  const themes = Domains.getAllDomainNames().sort();
+  const categories = Weapon.getAllWeaponCategories().sort();
+  let category = $state("any");
+  let theme = $state("any");
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
+  let weapon = $state(Weapon.generate(category, theme));
 
   function generate() {
+    if (!lockSeed) {
+      seed = RND.randomString(13);
+    }
     random.use(seedrandom(seed));
     weapon = Weapon.generate(category, theme);
-    weapon.description = weapon.name + " is " + weapon.description;
+    weapon.description = `${weapon.name} is ${weapon.description}`;
   }
 
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
-  }
-
-  newSeed();
+  generate();
 </script>
 
 <style lang="scss">
@@ -63,11 +62,12 @@
   </div>
 
   <div class="input-group">
-    <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <label for="seed">Seed</label>
+    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  <button on:click={generate}>Generate From Seed</button>
-  <button on:click={newSeed}>Random Seed (and Generate)</button>
+
+  <button onclick={generate}>Generate</button>
 
   <h2>{weapon.name}</h2>
 

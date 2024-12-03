@@ -1,7 +1,16 @@
 export default [
   {
+    date: "2024-12-02",
+    summary: "Behind-the-scenes fixes and updates.",
+    updates: [
+      "Reworked the cyberpunk drug generator's structure.",
+      "Updated to Svelte 5.",
+      "Fixed the magic weapon generator not using the new lock seed pattern.",
+    ]
+  },
+  {
     date: "2024-11-26",
-    summary: "",
+    summary: "Big foundational change that will affect regions, dungeons, and others later on.",
     updates: [
       "Wrote a new system for environment generation, including biomes, climates, and ecosystems.",
       "Added 'Lock Seed' checkbox instead of a button.",

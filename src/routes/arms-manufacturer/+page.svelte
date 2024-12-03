@@ -7,7 +7,7 @@
   let seed = RND.randomString(13);
   random.use(seedrandom(seed));
   const generator = new ArmsManufacturerGenerator();
-  let manufacturer = generator.generate();
+  let manufacturer = $state(generator.generate());
 
   function generate() {
     seed = RND.randomString(13);
@@ -29,7 +29,7 @@
 <section class="scifi main">
   <h1>Arms Manufacturer Generator</h1>
   <p>This generator produces sci-fi arms manufacturing companies.</p>
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
   <p>{ manufacturer.description }</p>
   <h2>Models</h2>
   {#each manufacturer.models as model}

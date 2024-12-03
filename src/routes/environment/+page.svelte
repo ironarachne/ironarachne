@@ -9,11 +9,11 @@
     import type Environment from "$lib/environment/environment";
     import { onMount } from 'svelte';
 
-    let environment: Environment;
+    let environment: Environment = $state();
     let canvas: HTMLCanvasElement;
-    let config = Environments.getDefaultConfig();
-    let seed = RND.randomString(13);
-    let lockSeed = false;
+    let config = $state(Environments.getDefaultConfig());
+    let seed = $state(RND.randomString(13));
+    let lockSeed = $state(false);
 
     function elevationToFeet(elevation: number): number {
         const max = 30000;
@@ -175,8 +175,8 @@
         <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
     </div>
     
-    <button on:click={generate}>Generate</button>
-    <button on:click={randomizeParameters}>Randomize Parameters</button>
+    <button onclick={generate}>Generate</button>
+    <button onclick={randomizeParameters}>Randomize Parameters</button>
 
     <h2>Terrain</h2>
 

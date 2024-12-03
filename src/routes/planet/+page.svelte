@@ -12,13 +12,13 @@
 
   let planetTypes = Classifications.getClassificationNames();
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   random.use(seedrandom(seed));
 
-  let planetType = 'random';
+  let planetType = $state('random');
   let planetGenConfig: PlanetGeneratorConfig;
-  let planet: Planet;
+  let planet: Planet = $state();
 
   const width = 400;
   const height = 400;
@@ -74,7 +74,7 @@
     </select>
   </div>
 
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   {#if planet}
     <h2>{planet.name}</h2>

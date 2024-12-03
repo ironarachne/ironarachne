@@ -5,26 +5,26 @@
   import type { SizeMatrix, SizeAgeSummary } from "$lib/size/size_matrix";
   import { convertMatrixToSummary } from "$lib/size/size_matrix";
 
-  let maximumAge = 100;
-  let femaleHeightModifier = 100;
-  let femaleWeightModifier = 100;
-  let maleHeightModifier = 100;
-  let maleWeightModifier = 100;
+  let maximumAge = $state(100);
+  let femaleHeightModifier = $state(100);
+  let femaleWeightModifier = $state(100);
+  let maleHeightModifier = $state(100);
+  let maleWeightModifier = $state(100);
   let femaleAgeCategories: AgeCategory[] = [];
   let maleAgeCategories: AgeCategory[] = [];
   let femaleSizeMatrix: SizeMatrix;
   let maleSizeMatrix: SizeMatrix;
 
-  let femaleData: SizeAgeSummary[] = [];
-  let maleData: SizeAgeSummary[] = [];
+  let femaleData: SizeAgeSummary[] = $state([]);
+  let maleData: SizeAgeSummary[] = $state([]);
 
-  let ingenium = {
+  let ingenium = $state({
     adultAge: 0,
     femaleHeight: '',
     maleHeight: '',
     femaleWeight: '',
     maleWeight: ''
-  };
+  });
 
   function calculate() {
     let ageScale = maximumAge / 100;
@@ -82,31 +82,31 @@
 
   <div class="input-group">
     <label for="maxAge">Maximum Age (Years)</label>
-    <input type="number" name="maxAge" on:change={calculate} bind:value={maximumAge} id="maxAge">
+    <input type="number" name="maxAge" onchange={calculate} bind:value={maximumAge} id="maxAge">
   </div>
 
   <h3>Female</h3>
 
   <div class="input-group">
     <label for="female-height">% of Base Height</label>
-    <input type="number" name="female-height" on:change={calculate} bind:value={femaleHeightModifier} id="height">
+    <input type="number" name="female-height" onchange={calculate} bind:value={femaleHeightModifier} id="height">
   </div>
 
   <div class="input-group">
     <label for="female-weight">% of Base Weight</label>
-    <input type="number" name="female-weight" on:change={calculate} bind:value={femaleWeightModifier} id="weight">
+    <input type="number" name="female-weight" onchange={calculate} bind:value={femaleWeightModifier} id="weight">
   </div>
 
   <h3>Male</h3>
 
   <div class="input-group">
     <label for="male-height">% of Base Height</label>
-    <input type="number" name="male-height" on:change={calculate} bind:value={maleHeightModifier} id="height">
+    <input type="number" name="male-height" onchange={calculate} bind:value={maleHeightModifier} id="height">
   </div>
 
   <div class="input-group">
     <label for="male-weight">% of Base Weight</label>
-    <input type="number" name="male-weight" on:change={calculate} bind:value={maleWeightModifier} id="weight">
+    <input type="number" name="male-weight" onchange={calculate} bind:value={maleWeightModifier} id="weight">
   </div>
 
   <h2>Calculated Stats</h2>

@@ -14,16 +14,16 @@
   const user = getContext('user');
 
   let humanNameGenSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
-  let savedCulture: string;
-  let useSavedCulture: boolean = false;
+  let savedCulture: string = $state();
+  let useSavedCulture: boolean = $state(false);
   let culture: Culture;
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   random.use(seedrandom(seed));
   let genConfig = new ReligionGeneratorConfig();
   let generator = new ReligionGenerator(genConfig);
-  let religion = generator.generate();
+  let religion = $state(generator.generate());
   let allSpeciesNames: string[] = [];
   const allSpecies = CommonSpecies.sentient();
   const allReligionCategories = ReligionCategories.all();
@@ -37,8 +37,8 @@
     allReligionCategoriesNames.push(allReligionCategories[i].name);
   }
 
-  let selectedSpecies: string[] = ["human"];
-  let selectedCategories: string[] = ["polytheism"];
+  let selectedSpecies: string[] = $state(["human"]);
+  let selectedCategories: string[] = $state(["polytheism"]);
 
   function generate() {
     if (!lockSeed) {
@@ -162,7 +162,7 @@
   </div>
   {/if}
 
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <h2>{religion.name}</h2>
 

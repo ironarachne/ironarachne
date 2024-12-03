@@ -12,14 +12,14 @@
   const width = 128;
   const height = 128;
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   random.use(seedrandom(seed));
 
   let config: StarSystemGeneratorConfig;
   let generator: StarSystemGenerator;
 
-  let system: StarSystem;
+  let system: StarSystem = $state();
 
   function generate() {
     if (!lockSeed) {
@@ -62,7 +62,7 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
   
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   {#if system}
   <h2>The {system.name} System</h2>

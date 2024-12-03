@@ -4,7 +4,7 @@
   let elements = allElements;
 
   let html =
-    '<table><thead><tr><th>Name</th><th>Symbol</th><th>Elements</th></tr></thead><tbody>';
+    $state('<table><thead><tr><th>Name</th><th>Symbol</th><th>Elements</th></tr></thead><tbody>');
 
   for (let i = 0; i < elements.length; i++) {
     html +=
@@ -19,9 +19,9 @@
 
   html += '</tbody></table>';
 
-  let pattern = '';
-  let numberOfWords = 10;
-  let words: string[] = [];
+  let pattern = $state('');
+  let numberOfWords = $state(10);
+  let words: string[] = $state([]);
 
   function generate() {
     words = [];
@@ -60,7 +60,7 @@
     <input type="number" name="number-of-words" bind:value={numberOfWords} id="number-of-words" />
   </div>
 
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <ul>
     {#each words as word}

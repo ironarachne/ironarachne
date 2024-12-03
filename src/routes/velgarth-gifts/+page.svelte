@@ -7,9 +7,9 @@
   import seedrandom from "seedrandom";
   import type Gift from "$lib/velgarth_gifts/gift";
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
-  let gifts: Gift[] = [];
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
+  let gifts: Gift[] = $state([]);
 
   function generate() {
     if (!lockSeed) {
@@ -49,7 +49,7 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
   
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   {#each gifts as gift}
     <div class="gift">

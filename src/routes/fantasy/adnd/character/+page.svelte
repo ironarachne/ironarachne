@@ -9,11 +9,11 @@
   import * as Words from '@ironarachne/words';
   import type ADNDCharacter from "$lib/adnd/adndcharacter";
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   let genConfig;
   let charGen;
-  let character: ADNDCharacter;
+  let character: ADNDCharacter = $state();
 
   function generate() {
     if (!lockSeed) {
@@ -57,7 +57,7 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
   
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <h2>{ character.firstName } { character.lastName }</h2>
 
@@ -72,7 +72,7 @@
 
   <h3>Attributes</h3>
 
-  <p><strong>Strength:</strong> { character.strength }{#if character.exceptionalStrength != -1 }/{ getEStrength(character.exceptionalStrength) }{/if}</p>
+  <p><strong>Strength:</strong> { character.strength }{#if character.exceptionalStrength != -1}/{ getEStrength(character.exceptionalStrength) }{/if}</p>
   <p><strong>Dexterity:</strong> { character.dexterity }</p>
   <p><strong>Constitution:</strong> { character.constitution }</p>
   <p><strong>Charisma:</strong> { character.charisma }</p>

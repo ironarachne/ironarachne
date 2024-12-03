@@ -5,16 +5,16 @@
   import DCCCharacterGenerator from "$lib/dcc/generator";
   import DCCCharacterGeneratorConfig from "$lib/dcc/generatorconfig";
 
-  let allowDwarves = true;
-  let allowElves = true;
-  let allowHalflings = true;
-  let allowHumans = true;
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let allowDwarves = $state(true);
+  let allowElves = $state(true);
+  let allowHalflings = $state(true);
+  let allowHumans = $state(true);
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   let genConfig = new DCCCharacterGeneratorConfig();
   let charGen = new DCCCharacterGenerator(genConfig);
-  let character = charGen.generate();
-  let spellsKnown = getSpellsKnown();
+  let character = $state(charGen.generate());
+  let spellsKnown = $state(getSpellsKnown());
 
   function dMod(modifier: number): string {
     if (modifier > -1) {
@@ -55,7 +55,7 @@
   }
 
   function getSpellsKnown(): string {
-    if (character.spellsKnown == -9) {
+    if (character.spellsKnown === -9) {
       return "No spellcasting possible";
     }
 
@@ -64,11 +64,6 @@
     }
 
     return `${character.spellsKnown}`;
-  }
-
-  function newSeed() {
-    seed = RND.randomString(13);
-    generate();
   }
 
   generate();
@@ -116,7 +111,7 @@
     <input type="checkbox" name="allowHumans" bind:checked={allowHumans} id="allowHumans"/>
   </div>
 
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <h2>{ character.firstName } { character.lastName }</h2>
 

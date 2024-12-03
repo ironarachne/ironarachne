@@ -9,12 +9,12 @@
   import type Species from "$lib/species/species";
   import type NameGenerator from '@ironarachne/made-up-names/dist/generator';
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   let availableSpecies = CommonSpecies.sentient();
-  let selectedSpecies = "any";
+  let selectedSpecies = $state("any");
   let species = CommonSpecies.randomWeighted(availableSpecies);
-  let iterations = 2;
+  let iterations = $state(2);
   const generatorSets = MUN.allSets();
   let nameGeneratorSet;
 
@@ -28,7 +28,7 @@
   let familyNameGen: NameGenerator = nameGeneratorSet.family;
   let femaleNameGen: NameGenerator = nameGeneratorSet.female;
   let maleNameGen: NameGenerator = nameGeneratorSet.male;
-  let lastNameTradition = "male";
+  let lastNameTradition = $state("male");
   let config = Families.getDefaultConfig();
   config.species = species;
   config.iterations = iterations;
@@ -37,7 +37,7 @@
   config.rootMaleNameGenerator = maleNameGen;
   config.dominantFamilyNameGender = getDominantGender();
 
-  let family = Families.generate(config);
+  let family = $state(Families.generate(config));
 
   function generate() {
     if (!lockSeed) {
@@ -136,7 +136,7 @@
     </select>
   </div>
 
-  <button on:click={generate}>Generate</button>
+  <button onclick={generate}>Generate</button>
 
   <h2>The {family.name} Family</h2>
 

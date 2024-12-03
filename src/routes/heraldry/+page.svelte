@@ -13,16 +13,16 @@
   import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
   import HeraldryGeneratorConfig from "$lib/heraldry/generatorconfig";
 
-  let blazon = "";
-  let image = "";
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+  let blazon = $state("");
+  let image = $state("");
+  let seed = $state(RND.randomString(13));
+  let lockSeed = $state(false);
   let charges = Charges.all();
   let allCharges = Charges.all();
-  let heraldryTag = 'any';
-  let chargeTinctureName = 'any';
+  let heraldryTag = $state('any');
+  let chargeTinctureName = $state('any');
   let chargeTincture = Tinctures.randomChargeTincture();
-  let numberOfChargesOption = 'any';
+  let numberOfChargesOption = $state('any');
   let fieldTinctures1 = Tinctures.all();
   let fieldTinctures2 = Tinctures.all();
   let fields = Fields.all();
@@ -174,7 +174,7 @@
   
   <div class="input-group">
     <label for="tag">Charge Tag</label>
-    <select name="tag" bind:value={heraldryTag} on:change={changeCharges}>
+    <select name="tag" bind:value={heraldryTag} onchange={changeCharges}>
       <option>any</option>
       {#each availableTags as tag}
       <option>{tag}</option>
@@ -193,7 +193,7 @@
   </div>
   <div class="input-group">
     <label for="charge-tincture">Charge Tincture</label>
-    <select name="charge-tincture" bind:value={chargeTinctureName} on:change={setChargeTincture}>
+    <select name="charge-tincture" bind:value={chargeTinctureName} onchange={setChargeTincture}>
       <option>any</option>
       <option value="gules">gules (red)</option>
       <option value="argent">argent (white)</option>
@@ -207,9 +207,9 @@
       <option value="tenné">tenné (brown)</option>
     </select>
   </div>
-  <button on:click={generate}>Generate</button>
-  <button on:click={save} disabled={image === ""}>Save</button>
-  <button on:click={saveAsPNG} disabled={image === ""}>Save as PNG</button>
+  <button onclick={generate}>Generate</button>
+  <button onclick={save} disabled={image === ""}>Save</button>
+  <button onclick={saveAsPNG} disabled={image === ""}>Save as PNG</button>
 
   <p class="blazon">{blazon}</p>
   <div class="coat-of-arms"><img alt="" id="output"/></div>
