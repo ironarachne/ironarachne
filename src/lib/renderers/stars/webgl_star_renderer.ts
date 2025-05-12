@@ -1,11 +1,11 @@
 import StarShader from "$lib/shaders/stars/star.frag";
-import type Star from "$lib/stars/star";
 import random from "random";
 import * as THREE from "three";
 import SimpleVertexShader from "$lib/shaders/simple.vert";
 import type RGBColor from "$lib/graphics/rgb_color";
+import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
 
-export function render(star: Star, width: number, height: number): string {
+export function render(star: AstronomicalBody, width: number, height: number): string {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -21,6 +21,8 @@ export function render(star: Star, width: number, height: number): string {
     throw new Error("Canvas not found");
   }
 
+  const color_set = getColorSetFromTemperature(star.surface_temperature);
+
   const geometry = new THREE.PlaneGeometry(1, 1);
   const material = new THREE.ShaderMaterial({
     uniforms: {
@@ -31,9 +33,9 @@ export function render(star: Star, width: number, height: number): string {
           translateRadiusToImageSize(star.radius, Math.min(height, width)),
         ),
       },
-      glow_color: { value: translateColorToVec3(star.glowColor) },
-      corona_color: { value: translateColorToVec3(star.secondaryColor) },
-      star_color: { value: translateColorToVec3(star.primaryColor) },
+      glow_color: { value: translateColorToVec3(color_set[2]) },
+      corona_color: { value: translateColorToVec3(color_set[1]) },
+      star_color: { value: translateColorToVec3(color_set[0]) },
       star_radius: {
         value: translateRadiusToImageSize(star.radius, Math.min(height, width)),
       },
@@ -56,6 +58,62 @@ export function render(star: Star, width: number, height: number): string {
   return data;
 }
 
+function getColorSetFromTemperature(temperature: number): RGBColor[] {
+  if (temperature < 3700) {
+    return [
+      { r: 1.0, g: 0.0, b: 0.0 },
+      { r: 0.5, g: 0.0, b: 0.0 },
+      { r: 1.0, g: 0.0, b: 0.0 },
+    ];
+  }
+
+  if (temperature < 5200) {
+    return [
+      { r: 1.0, g: 0.39, b: 0.0 },
+      { r: 0.7, g: 0.13, b: 0.0 },
+      { r: 1.0, g: 1.0, b: 0.0 },
+    ];
+  }
+
+  if (temperature < 6000) {
+    return [
+      { r: 1.0, g: 1.0, b: 0.0 },
+      { r: 0.55, g: 0.35, b: 0.0 },
+      { r: 1.0, g: 1.0, b: 0.5 },
+    ];
+  }
+
+  if (temperature < 7500) {
+    return [
+      { r: 1.0, g: 1.0, b: 0.9 },
+      { r: 0.95, g: 0.95, b: 0.7 },
+      { r: 1.0, g: 1.0, b: 1.0 },
+    ];
+  }
+
+  if (temperature < 10000) {
+    return [
+      { r: 1.0, g: 1.0, b: 1.0 },
+      { r: 0.95, g: 0.95, b: 0.95 },
+      { r: 1.0, g: 1.0, b: 1.0 },
+    ];
+  }
+
+  if (temperature < 30000) {
+    return [
+      { r: 0.85, g: 0.9, b: 1.0 },
+      { r: 0.7, g: 0.75, b: 0.95 },
+      { r: 1.0, g: 1.0, b: 1.0 },
+    ];
+  }
+
+  return [
+    { r: 0.0, g: 0.0, b: 1.0 },
+    { r: 0.0, g: 0.0, b: 0.75 },
+    { r: 0.0, g: 0.2, b: 1.0 },
+  ];
+}
+
 function calculateCoronaSize(radius: number): number {
   return Math.max(radius * 0.2, 4.0);
 }
@@ -65,8 +123,8 @@ function translateColorToVec3(color: RGBColor): THREE.Vector3 {
 }
 
 function translateRadiusToImageSize(radius: number, imageSize: number): number {
-  const radiusRelativeToSun = radius / 695508;
-  const sunSizeInPixels = imageSize / 2.0;
+  const radiusRelativeToSun = radius / 695700;
+  const sunSizeInPixels = imageSize / 6.0;
   const maxSizeInPixels = imageSize / 2.5;
   const minSizeInPixels = imageSize / 8.0;
 

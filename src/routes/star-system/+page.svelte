@@ -4,11 +4,9 @@
   import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
   import random from "random";
   import seedrandom from "seedrandom";
-  import StarSystemGenerator from "$lib/starsystem/generator";
-  import StarSystemGeneratorConfig from "$lib/starsystem/generatorconfig";
-  import type StarSystem from "$lib/starsystem/star_system";
   import { onMount } from 'svelte';
-
+  import { generateStarSystem, getDefaultStarSystemGeneratorConfig, type StarSystem } from "$lib/astronomical_bodies/star_systems";
+  
   const width = 128;
   const height = 128;
 
@@ -16,23 +14,20 @@
   let lockSeed = $state(false);
   random.use(seedrandom(seed));
 
-  let config: StarSystemGeneratorConfig;
-  let generator: StarSystemGenerator;
-
-  let system: StarSystem = $state();
+  let config = getDefaultStarSystemGeneratorConfig();
+  let system: StarSystem | undefined = $state();
 
   function generate() {
     if (!lockSeed) {
       seed = RND.randomString(13);
     }
     random.use(seedrandom(seed));
-    system = generator.generate();
+    system = generateStarSystem(config);
   }
 
   onMount(() => {
-    config = new StarSystemGeneratorConfig();
-    generator = new StarSystemGenerator(config);
-		system = generator.generate();
+    config = getDefaultStarSystemGeneratorConfig();
+		system = generateStarSystem(config);
 	});
 </script>
 
@@ -80,6 +75,10 @@
         <h5>{star.name}</h5>
         <p>{star.description}</p>
         <p>
+          <strong>Star Type:</strong>
+          {star.classification}
+        </p>
+        <p>
           <strong>Radius:</strong>
           {new Intl.NumberFormat().format(star.radius)} km
         </p>
@@ -95,7 +94,7 @@
         </p>
         <p>
           <strong>Temperature:</strong>
-          {new Intl.NumberFormat().format(star.temperature)}K
+          {new Intl.NumberFormat().format(star.surface_temperature)}K
         </p>
       </div>
     </article>
@@ -111,29 +110,38 @@
       <div>
         <h5>{planet.name}</h5>
         <p>{planet.description}</p>
-        <p><strong>Planet Type:</strong> {planet.classification.name}</p>
-        <p><strong>Population:</strong> {planet.populationFriendly}</p>
-        <p><strong>Culture:</strong> {planet.culture}</p>
-        <p><strong>Government:</strong> {planet.government}</p>
+        <p><strong>Planet Type:</strong> {planet.classification}</p>
         <p>
           <strong>Distance from Star:</strong>
-          {new Intl.NumberFormat().format(planet.distance_from_sun)} AU
+          {new Intl.NumberFormat().format(planet.orbital_distance)} AU
         </p>
         <p>
           <strong>Mass:</strong>
           {new Intl.NumberFormat().format(planet.mass)} &times; 10<sup>24</sup> kg
         </p>
         <p>
-          <strong>Diameter:</strong>
-          {new Intl.NumberFormat().format(Math.floor(planet.diameter))} km
+          <strong>Radius:</strong>
+          {new Intl.NumberFormat().format(Math.floor(planet.radius))} km
         </p>
         <p>
           <strong>Gravity:</strong>
-          {new Intl.NumberFormat().format(planet.gravity)} m/s<sup>2</sup> ({new Intl.NumberFormat().format(Math.floor(planet.gravity / 9.81 * 100))}% Earth gravity)
+          {new Intl.NumberFormat().format(planet.gravity)} m/s<sup>2</sup>
         </p>
         <p>
           <strong>Orbital Period:</strong>
           {new Intl.NumberFormat().format(Math.floor(planet.orbital_period))} days
+        </p>
+        <p>
+          <strong>Rotation Period (Length of Day):</strong>
+          {new Intl.NumberFormat().format(Math.floor(planet.rotation_period))} hours
+        </p>
+        <p>
+          <strong>Surface Pressure:</strong>
+          {new Intl.NumberFormat().format(planet.surface_pressure)} atm
+        </p>
+        <p>
+          <strong>Average Temperature:</strong>
+          {new Intl.NumberFormat().format(planet.surface_temperature)}K
         </p>
       </div>
     </article>

@@ -1,10 +1,10 @@
 import * as RND from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import random from "random";
-import StarSystemGenerator from "../starsystem/generator.js";
-import StarSystemGeneratorConfig from "../starsystem/generatorconfig.js";
 import type StarNationGeneratorConfig from "./generatorconfig.js";
 import type StarNation from "./star_nation";
+import { generateStarSystem, getDefaultStarSystemGeneratorConfig } from "$lib/astronomical_bodies/star_systems.js";
+import { getDefaultCivilizationGenerationConfig } from "$lib/civilizations/civilizations.js";
 
 export default class StarNationGenerator {
   config: StarNationGeneratorConfig;
@@ -52,15 +52,19 @@ export default class StarNationGenerator {
 
     const numberOfSystems = random.int(minSystems, maxSystems);
 
-    const systemGenConfig = new StarSystemGeneratorConfig();
-    const systemGen = new StarSystemGenerator(systemGenConfig);
+    const systemGenConfig = getDefaultStarSystemGeneratorConfig();
 
     let population = 0;
     let inhabitedPlanets = 0;
     const possibleCapitals = [];
 
+    const civilizationConfig = getDefaultCivilizationGenerationConfig();
+    civilizationConfig.population_range = [1e8, 1e12];
+
+    // TODO: Add civilization generation to replace the old government generation
+
     for (let i = 0; i < numberOfSystems; i++) {
-      const system = systemGen.generate();
+      const system = generateStarSystem(systemGenConfig);
       for (let j = 0; j < system.planets.length - 1; j++) {
         if (system.planets[j].is_inhabited) {
           population += system.planets[j].population;

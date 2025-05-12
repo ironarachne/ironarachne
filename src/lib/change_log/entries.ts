@@ -1,5 +1,15 @@
 export default [
   {
+    date: "2025-05-12",
+    summary: "Completely reworked how astronomical bodies are generated.",
+    updates: [
+      "Added a new system for generating astronomical bodies.",
+      "Made the planet, star system, and star nation generators use the new system.",
+      "Added a new system for generating civilizations.",
+      "Made the planet and star nation generators use the new civilization system.",
+    ]
+  },
+  {
     date: "2024-12-02",
     summary: "Behind-the-scenes fixes and updates.",
     updates: [

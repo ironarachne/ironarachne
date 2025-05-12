@@ -1,24 +1,32 @@
 <script lang="ts">
   import * as RND from '@ironarachne/rng';
-  import * as Classifications from '$lib/planets/classifications';
+  import { getPlanetClassifications, searchPlanetClassificationByName } from '$lib/astronomical_bodies/planet/planet_classifications';
   import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
-  import * as Planets from '$lib/planets/planets';
   import random from 'random';
   import seedrandom from 'seedrandom';
-  import PlanetGeneratorConfig from '$lib/planets/planet_generator_config';
-  import type Planet from '$lib/planets/planet';
+  import { convertKMToAU, type AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
+  import * as Measurements from '$lib/measurements';
 
   import { onMount } from 'svelte';
+  import { generatePlanet, getDefaultPlanetGenerationConfig, type PlanetGenerationConfig } from '$lib/astronomical_bodies/planet/planets';
+  import { generateCivilization, getDefaultCivilizationGenerationConfig, getFriendlyPopulation } from '$lib/civilizations/civilizations';
+  import { getTechnologyLevelByLevel } from '$lib/technology_levels/technology_levels';
 
-  let planetTypes = Classifications.getClassificationNames();
+  const planetTypes = getPlanetClassifications();
 
   let seed = $state(RND.randomString(13));
   let lockSeed = $state(false);
   random.use(seedrandom(seed));
 
   let planetType = $state('random');
-  let planetGenConfig: PlanetGeneratorConfig;
-  let planet: Planet = $state();
+  let planetGenConfig = getDefaultPlanetGenerationConfig();
+  let planet: AstronomicalBody | undefined = $state();
+
+  let is_inhabited = $state(false);
+
+  let civilization_config = getDefaultCivilizationGenerationConfig();
+  civilization_config.population_range = [100000, 1000000000];
+  let civilization = $state(generateCivilization(civilization_config));
 
   const width = 400;
   const height = 400;
@@ -29,23 +37,31 @@
     }
     random.use(seedrandom(seed));
 
-    if (planetType == 'random') {
-      planetGenConfig.possibleClassifications = Classifications.all();
+    if (planetType === 'random') {
+      planetGenConfig.possible_classifications = planetTypes;
     } else {
-      let classification = Classifications.getClassificationByName(planetType);
+      const classification = searchPlanetClassificationByName(planetType, planetTypes);
       if (classification !== undefined) {
-        planetGenConfig.possibleClassifications = [
+        planetGenConfig.possible_classifications = [
         classification,
       ];
       }
     }
 
-    planet = Planets.generate(planetGenConfig);
+    planet = generatePlanet(planetGenConfig);
+
+    is_inhabited = RND.simple(100) < 30;
+
+    if (is_inhabited) {
+      civilization_config = getDefaultCivilizationGenerationConfig();
+      civilization_config.population_range = [100000, 1000000000];
+      civilization = generateCivilization(civilization_config);
+    }
   }
 
   onMount(() => {
-    planetGenConfig = new PlanetGeneratorConfig();
-		planet = Planets.generate(planetGenConfig);
+    planetGenConfig = getDefaultPlanetGenerationConfig();
+		planet = generatePlanet(planetGenConfig);
 	});
 </script>
 
@@ -84,12 +100,21 @@
     <p>{planet.description}</p>
 
     <p><strong>Planet Type:</strong> {planet.classification}</p>
-    <p><strong>Population:</strong> {planet.populationFriendly}</p>
-    <p><strong>Government:</strong> {planet.government}</p>
-    <p><strong>Culture:</strong> {planet.culture}</p>
+
+    {#if is_inhabited}
+      <h3>Civilization</h3>
+      <p><strong>Name:</strong> {civilization.name}</p>
+      <p><strong>Population:</strong> {getFriendlyPopulation(civilization.population)}</p>
+      <p><strong>Government:</strong> {civilization.government_type.name}</p>
+      <p><strong>Economy:</strong> {civilization.economy_type.name}</p>
+      <p><strong>Technology Level:</strong> <span class="tooltip" title="{getTechnologyLevelByLevel(civilization.technology_level).description}">{getTechnologyLevelByLevel(civilization.technology_level).name}</span></p>
+    {/if}
+
+    <h3>Statistics</h3>
+    
     <p>
       <strong>Distance from Star:</strong>
-      {new Intl.NumberFormat().format(planet.distance_from_sun)} AU
+      {new Intl.NumberFormat().format(planet.orbital_distance)} AU
     </p>
     <p>
       <strong>Mass:</strong>
@@ -98,10 +123,10 @@
       )}% Earth's mass)
     </p>
     <p>
-      <strong>Diameter:</strong>
-      {new Intl.NumberFormat().format(Math.floor(planet.diameter))} km ({new Intl.NumberFormat().format(
-        Math.floor((planet.diameter / 12756) * 100),
-      )}% Earth's diameter)
+      <strong>Radius:</strong>
+      {new Intl.NumberFormat().format(Math.floor(planet.radius))} km ({new Intl.NumberFormat().format(
+        Math.floor((planet.radius / 6378) * 100),
+      )}% Earth's radius)
     </p>
     <p>
       <strong>Gravity:</strong>
@@ -115,6 +140,14 @@
     <p>
       <strong>Rotation Period (Length of Day):</strong>
       {new Intl.NumberFormat().format(Math.floor(planet.rotation_period))} hours
+    </p>
+    <p>
+      <strong>Surface Pressure:</strong>
+      {new Intl.NumberFormat().format(planet.surface_pressure)} atm
+    </p>
+    <p>
+      <strong>Average Temperature:</strong>
+      {new Intl.NumberFormat().format(planet.surface_temperature)} K ({Math.round(Measurements.kToC(planet.surface_temperature))} °C, {Math.round(Measurements.kToF(planet.surface_temperature))} °F)
     </p>
   {/if}
 </section>

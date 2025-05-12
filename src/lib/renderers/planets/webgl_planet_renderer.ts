@@ -2,9 +2,9 @@ import random from "random";
 import * as THREE from "three";
 import * as PlanetShaders from "$lib/shaders/planets/planets";
 import SimpleVertexShader from "$lib/shaders/simple.vert";
-import type Planet from "$lib/planets/planet";
+import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
 
-export function render(planet: Planet, width: number, height: number): string {
+export function render(planet: AstronomicalBody, width: number, height: number): string {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -32,7 +32,7 @@ export function render(planet: Planet, width: number, height: number): string {
     },
     planet_radius: {
       value: translateRadiusToImageSize(
-        planet.diameter / 2.0,
+        planet.radius,
         Math.min(height, width),
       ),
     },

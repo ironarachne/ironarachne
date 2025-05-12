@@ -10,34 +10,34 @@ import ToxicPlanetShader from "./toxic_planet.frag";
 import VolcanicPlanetShader from "./volcanic_planet.frag";
 
 export function getFragmentShaderByName(name: string): string {
-  if (name === "arid") {
+  if (name === "arid planet") {
     return AridPlanetShader;
   }
-  if (name === "barren") {
+  if (name === "barren planet") {
     return BarrenPlanetShader;
   }
-  if (name === "garden") {
+  if (name === "garden planet") {
     return GardenPlanetShader;
   }
-  if (name === "gas giant") {
+  if (name === "gas giant planet") {
     return GasGiantPlanetShader;
   }
-  if (name === "ice") {
+  if (name === "ice planet") {
     return IcePlanetShader;
   }
-  if (name === "jungle") {
+  if (name === "jungle planet") {
     return JunglePlanetShader;
   }
-  if (name === "ocean") {
+  if (name === "ocean planet") {
     return OceanPlanetShader;
   }
-  if (name === "swamp") {
+  if (name === "swamp planet") {
     return SwampPlanetShader;
   }
-  if (name === "toxic") {
+  if (name === "toxic planet") {
     return ToxicPlanetShader;
   }
-  if (name === "volcanic") {
+  if (name === "volcanic planet") {
     return VolcanicPlanetShader;
   }
   return "";

@@ -1,4 +1,4 @@
-import type StarSystem from "$lib/starsystem/star_system";
+import type { StarSystem } from "$lib/astronomical_bodies/star_systems";
 import type StarNationGovernment from "./government";
 
 export default interface StarNation {
