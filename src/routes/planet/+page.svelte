@@ -85,7 +85,7 @@
     <select bind:value={planetType} id="planetType">
       <option>random</option>
       {#each planetTypes as pType}
-        <option>{pType}</option>
+        <option>{pType.name}</option>
       {/each}
     </select>
   </div>
