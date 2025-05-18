@@ -1,6 +1,6 @@
 <script lang="ts">
-let date = new Date();
-let year = date.getFullYear();
+const date = new Date();
+const year = date.getFullYear();
 </script>
 
 <style lang="scss">
@@ -12,6 +12,6 @@ footer {
 
 <footer>
   <p>Copyright &copy; {year} Ben Overmyer. All rights reserved.</p>
-  <p>The source code for this site is available on <a href="https://github.com/ironarachne/ironarachne">GitHub</a>.</p>
-  <p>Follow me on <a rel="me" href="https://fosstodon.org/@dungeonHack">Mastodon</a>.</p>
+  <p>The source code for this site is available on <a href="https://codeberg.org/ironarachne/ironarachne">Codeberg</a>.</p>
+  <p>Follow me on <a rel="me" href="https://floss.social/@skysong">Mastodon</a>.</p>
 </footer>
