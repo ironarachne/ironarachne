@@ -1,5 +1,12 @@
 export default [
   {
+    date: "2025-05-28",
+    summary: "Added a new generator for generating moons.",
+    updates: [
+      "Added a system for generating moons orbiting planets.",
+    ]
+  },
+  {
     date: "2025-05-12",
     summary: "Completely reworked how astronomical bodies are generated.",
     updates: [
