@@ -28,7 +28,10 @@ export function newWeaponEffect(name: string, options: string[]): WeaponEffect {
   return effect;
 }
 
-export function newWeaponComponent(name: string, options: string[]): WeaponComponent {
+export function newWeaponComponent(
+  name: string,
+  options: string[],
+): WeaponComponent {
   let component = new WeaponComponent();
   component.name = name;
   component.options = options;

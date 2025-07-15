@@ -28,7 +28,10 @@ export class Drink {
 export function generateDrink() {
   const drink = new Drink();
   drink.appearance = RND.item(drink.drinkType.appearances);
-  drink.strength = random.int(drink.drinkType.strengthMin, drink.drinkType.strengthMax);
+  drink.strength = random.int(
+    drink.drinkType.strengthMin,
+    drink.drinkType.strengthMax,
+  );
   drink.quality = random.int(0, 6);
   drink.cost = randomCost(drink);
   drink.name = drink.drinkType.name;

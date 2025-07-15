@@ -11,8 +11,16 @@ export const all = [
       "This carbine",
     ],
     [
-      Weapons.newWeaponComponent("barrel", ["an extended barrel", "a short barrel", "a grooved barrel"]),
-      Weapons.newWeaponComponent("scope", ["advanced sighting", "a long scope", "a short scope"]),
+      Weapons.newWeaponComponent("barrel", [
+        "an extended barrel",
+        "a short barrel",
+        "a grooved barrel",
+      ]),
+      Weapons.newWeaponComponent("scope", [
+        "advanced sighting",
+        "a long scope",
+        "a short scope",
+      ]),
       Weapons.newWeaponComponent("stock", [
         "a short stock",
         "a clever stock",
@@ -38,7 +46,11 @@ export const all = [
         "has a high-pitched whine",
         "emits a rumbling sound",
       ]),
-      Weapons.newWeaponEffect("recoil", ["kicks hard", "has no recoil", "has a slight recoil"]),
+      Weapons.newWeaponEffect("recoil", [
+        "kicks hard",
+        "has no recoil",
+        "has a slight recoil",
+      ]),
       Weapons.newWeaponEffect("accuracy", [
         "has poor accuracy",
         "has excellent accuracy",
@@ -54,7 +66,11 @@ export const all = [
     "energy pistol",
     ["This pistol", "This energy pistol", "This blaster pistol"],
     [
-      Weapons.newWeaponComponent("barrel", ["an extended barrel", "a short barrel", "a grooved barrel"]),
+      Weapons.newWeaponComponent("barrel", [
+        "an extended barrel",
+        "a short barrel",
+        "a grooved barrel",
+      ]),
       Weapons.newWeaponComponent("trigger", [
         "a hair trigger",
         "a double trigger",
@@ -79,7 +95,11 @@ export const all = [
         "has a high-pitched firing sound",
         "emits a low sound when it fires",
       ]),
-      Weapons.newWeaponEffect("recoil", ["kicks hard", "has no recoil", "has a slight recoil"]),
+      Weapons.newWeaponEffect("recoil", [
+        "kicks hard",
+        "has no recoil",
+        "has a slight recoil",
+      ]),
       Weapons.newWeaponEffect("accuracy", [
         "has poor accuracy",
         "has excellent accuracy",
@@ -94,7 +114,11 @@ export const all = [
     "pistol",
     ["This pistol", "This revolver", "This sidearm"],
     [
-      Weapons.newWeaponComponent("barrel", ["an extended barrel", "a short barrel", "a grooved barrel"]),
+      Weapons.newWeaponComponent("barrel", [
+        "an extended barrel",
+        "a short barrel",
+        "a grooved barrel",
+      ]),
       Weapons.newWeaponComponent("trigger", [
         "a hair trigger",
         "a comfortable trigger",
@@ -118,7 +142,11 @@ export const all = [
         "has a reverberating firing sound",
         "is loud when it fires",
       ]),
-      Weapons.newWeaponEffect("recoil", ["kicks hard", "has no recoil", "has a slight recoil"]),
+      Weapons.newWeaponEffect("recoil", [
+        "kicks hard",
+        "has no recoil",
+        "has a slight recoil",
+      ]),
       Weapons.newWeaponEffect("accuracy", [
         "has poor accuracy",
         "has excellent accuracy",
@@ -139,7 +167,11 @@ export const all = [
       "This carbine",
     ],
     [
-      Weapons.newWeaponComponent("barrel", ["an extended barrel", "a short barrel", "a grooved barrel"]),
+      Weapons.newWeaponComponent("barrel", [
+        "an extended barrel",
+        "a short barrel",
+        "a grooved barrel",
+      ]),
       Weapons.newWeaponComponent("scope", [
         "advanced sighting",
         "a long scope",
@@ -173,7 +205,11 @@ export const all = [
         "has a high-pitched firing sound",
         "echoes when it fires",
       ]),
-      Weapons.newWeaponEffect("recoil", ["kicks hard", "has no recoil", "has a slight recoil"]),
+      Weapons.newWeaponEffect("recoil", [
+        "kicks hard",
+        "has no recoil",
+        "has a slight recoil",
+      ]),
       Weapons.newWeaponEffect("accuracy", [
         "has poor accuracy",
         "has excellent accuracy",

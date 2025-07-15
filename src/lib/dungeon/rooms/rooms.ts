@@ -4,7 +4,10 @@ import RoomGenerator from "./roomgenerator.js";
 import RoomGeneratorConfig from "./roomgeneratorconfig.js";
 import type RoomTheme from "./themes/theme.js";
 
-export function distanceToNearestOtherRoomTile(room: Room, rooms: Room[]): number {
+export function distanceToNearestOtherRoomTile(
+  room: Room,
+  rooms: Room[],
+): number {
   let distance = 10000000;
 
   for (let i = 0; i < rooms.length; i++) {
@@ -113,9 +116,9 @@ export function getPlaceableRoom(
 
   while (generation) {
     if (
-      !doesRoomCollide(room, rooms)
-      && !doesRoomTouch(room, rooms)
-      && isRoomInRange(2, room, rooms)
+      !doesRoomCollide(room, rooms) &&
+      !doesRoomTouch(room, rooms) &&
+      isRoomInRange(2, room, rooms)
     ) {
       generation = false;
     } else if (roomAttempts <= roomAttemptLimit) {
@@ -146,7 +149,11 @@ export function getPlaceableRoom(
   return room;
 }
 
-export function isRoomInRange(range: number, room: Room, rooms: Room[]): boolean {
+export function isRoomInRange(
+  range: number,
+  room: Room,
+  rooms: Room[],
+): boolean {
   if (distanceToNearestOtherRoomTile(room, rooms) == range) {
     return true;
   }

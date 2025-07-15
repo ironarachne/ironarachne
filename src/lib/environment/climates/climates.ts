@@ -13,19 +13,45 @@ export function describe(climate: Climate): string {
 }
 
 export function generate(config: ClimateGeneratorConfig): Climate {
-  const temperatureRange = getTemperatureRange(config.elevation, config.latitude, config.temperatureAtEquator);
+  const temperatureRange = getTemperatureRange(
+    config.elevation,
+    config.latitude,
+    config.temperatureAtEquator,
+  );
   const temperatureMin = temperatureRange[0];
   const temperatureMax = temperatureRange[1];
-  const wind = getWind(config.latitude, config.waterDirection, config.terrainNormalVector, config.current);
+  const wind = getWind(
+    config.latitude,
+    config.waterDirection,
+    config.terrainNormalVector,
+    config.current,
+  );
 
-  const precipitationAmount = getPrecipitation(temperatureMax, wind, config.terrainNormalVector, config.waterDirection);
-  const precipitationFrequency = MT.clamp(precipitationAmount * random.float(0.25, 1.25), 0, 1);
+  const precipitationAmount = getPrecipitation(
+    temperatureMax,
+    wind,
+    config.terrainNormalVector,
+    config.waterDirection,
+  );
+  const precipitationFrequency = MT.clamp(
+    precipitationAmount * random.float(0.25, 1.25),
+    0,
+    1,
+  );
 
   const humidity = getHumidity(precipitationAmount, temperatureMax);
 
-  const seasons = getSeasons(config.latitude, temperatureMax, precipitationAmount);
+  const seasons = getSeasons(
+    config.latitude,
+    temperatureMax,
+    precipitationAmount,
+  );
 
-  const cloudCover = getCloudCover(config.latitude, temperatureMin + ((temperatureMax - temperatureMin) / 2), wind);
+  const cloudCover = getCloudCover(
+    config.latitude,
+    temperatureMin + (temperatureMax - temperatureMin) / 2,
+    wind,
+  );
 
   let result: Climate = {
     name: "unknown",
@@ -46,7 +72,10 @@ export function generate(config: ClimateGeneratorConfig): Climate {
   return result;
 }
 
-export function generateClimateName(climate: Climate, latitude: number): string {
+export function generateClimateName(
+  climate: Climate,
+  latitude: number,
+): string {
   let name = "";
 
   // These are divided into five main categories: tropical, dry, temperate, continental, and polar
@@ -131,7 +160,9 @@ export function getClimateTypeByName(name: string): ClimateType {
   let result = types.find((type) => type.name === name);
 
   if (result === undefined) {
-    console.debug(`Climate type ${name} not found, defaulting to ${types[0].name}`);
+    console.debug(
+      `Climate type ${name} not found, defaulting to ${types[0].name}`,
+    );
     result = types[0];
   }
 
@@ -160,7 +191,7 @@ export function getClimateTypes(): ClimateType[] {
       humidityMax: 0.25,
       humidityMin: 0.0,
       latitudeMax: 40,
-      latitudeMin: 25
+      latitudeMin: 25,
     },
     {
       name: "temperate",
@@ -210,22 +241,26 @@ export function getDefaultConfig(): ClimateGeneratorConfig {
   };
 }
 
-function getCloudCover(latitude: number, temperature: number, wind: number[]): number {
+function getCloudCover(
+  latitude: number,
+  temperature: number,
+  wind: number[],
+): number {
   // Cloud cover is influenced by latitude, temperature, and wind
   // Generally, cloud cover should be close to 0.65, with up to a 0.3 variance
 
   let cloudCover = 0.65;
 
   // Cloud cover is higher away from the equator
-  cloudCover += (0.2 * (1 - (Math.abs(latitude) / 90))); // 90 degrees is the maximum latitude
+  cloudCover += 0.2 * (1 - Math.abs(latitude) / 90); // 90 degrees is the maximum latitude
 
   // Cloud cover is higher at lower temperatures
-  cloudCover = cloudCover + (0.1 * (1 - (temperature / 40))); // 40 degrees Celsius is the maximum temperature
+  cloudCover = cloudCover + 0.1 * (1 - temperature / 40); // 40 degrees Celsius is the maximum temperature
 
   // Cloud cover is lower with high wind speeds
   const windSpeed = Math.sqrt(Math.pow(wind[0], 2) + Math.pow(wind[1], 2));
 
-  cloudCover = cloudCover - (0.2 * windSpeed); // normalize wind speed influence
+  cloudCover = cloudCover - 0.2 * windSpeed; // normalize wind speed influence
 
   return MT.clamp(cloudCover, 0, 1);
 }
@@ -245,7 +280,12 @@ function getHumidity(precipitation: number, temperature: number): number {
   return MT.clamp(humidity, 0, 1);
 }
 
-function getPrecipitation(temperature: number, wind: number[], terrainTilt: number[], waterDirection: number[]): number {
+function getPrecipitation(
+  temperature: number,
+  wind: number[],
+  terrainTilt: number[],
+  waterDirection: number[],
+): number {
   // Precipitation is influenced by temperature, wind, and water distance
   // The amount of precipitation is higher at higher temperatures, higher wind speeds, and closer to water
   // Downslope motion of wind reduces precipitation, while upslope motion increases precipitation
@@ -263,17 +303,26 @@ function getPrecipitation(temperature: number, wind: number[], terrainTilt: numb
   const windSpeed = Math.sqrt(Math.pow(wind[0], 2) + Math.pow(wind[1], 2));
   precipitation += windSpeed / 10; // normalize wind speed influence
 
-  const waterDistance = MT.clamp(Math.sqrt(Math.pow(waterDirection[0], 2) + Math.pow(waterDirection[1], 2)) / 5, 0, 1);
+  const waterDistance = MT.clamp(
+    Math.sqrt(Math.pow(waterDirection[0], 2) + Math.pow(waterDirection[1], 2)) /
+      5,
+    0,
+    1,
+  );
 
   // Precipitation is higher closer to water
   precipitation += 1 - waterDistance;
-  
+
   // TODO: precipitation amount tends to be too high, need to figure out why
 
   return MT.clamp(precipitation, 0, 1);
 }
 
-function getSeasons(latitude: number, temperature: number, precipitation: number): Season[] {
+function getSeasons(
+  latitude: number,
+  temperature: number,
+  precipitation: number,
+): Season[] {
   // Seasons are influenced by latitude, temperature, and precipitation
   // The number of seasons is determined by the temperature and precipitation
   // The length of each season is determined by the temperature and precipitation
@@ -337,12 +386,16 @@ function getSeasons(latitude: number, temperature: number, precipitation: number
   return seasons;
 }
 
-function getTemperatureRange(elevation: number, latitude: number, temperatureAtEquator: number): [number, number] {
+function getTemperatureRange(
+  elevation: number,
+  latitude: number,
+  temperatureAtEquator: number,
+): [number, number] {
   // Temperature is influenced by latitude and elevation
   // The temperature at the equator is the base temperature
   // Range of temperature is shorter at the equator and poles, and longer at the mid-latitudes
 
-  const midTemperature = temperatureAtEquator - (10 * Math.abs(latitude) / 20);
+  const midTemperature = temperatureAtEquator - (10 * Math.abs(latitude)) / 20;
 
   // Temperature should be modified by elevation such that the temperature at the highest elevation is 0 degrees Celsius
   const elevationTemperature = midTemperature * (1 - elevation);
@@ -350,17 +403,24 @@ function getTemperatureRange(elevation: number, latitude: number, temperatureAtE
   // Temperature range variance is a bell curve, with the lowest variance at the equator and poles, and the highest variance at the mid-latitudes
   const inner = Math.abs(latitude) - 45;
   const power = Math.pow(inner, 2);
-  const fraction = 1/2025;
-  const temperatureRangeVariance = (-1 * fraction * power) + 1;
+  const fraction = 1 / 2025;
+  const temperatureRangeVariance = -1 * fraction * power + 1;
   const temperatureRangeStrength = 10; // the maximum variance is 10 degrees Celsius
-  
-  const temperatureMin = elevationTemperature - (temperatureRangeVariance * temperatureRangeStrength);
-  const temperatureMax = elevationTemperature + (temperatureRangeVariance * temperatureRangeStrength);
+
+  const temperatureMin =
+    elevationTemperature - temperatureRangeVariance * temperatureRangeStrength;
+  const temperatureMax =
+    elevationTemperature + temperatureRangeVariance * temperatureRangeStrength;
 
   return [temperatureMin, temperatureMax];
 }
 
-function getWind(latitude: number, water: number[], terrainTilt: number[], current: number[]): number[] {
+function getWind(
+  latitude: number,
+  water: number[],
+  terrainTilt: number[],
+  current: number[],
+): number[] {
   // Wind is a 3D vector representing the direction and strength of the wind
   // The wind direction is influenced by latitude, water distance, and terrain tilt
   // The wind strength is influenced by water distance, terrain tilt, and water current
@@ -375,7 +435,9 @@ function getWind(latitude: number, water: number[], terrainTilt: number[], curre
 
   // The water vector, unlike the terrain tilt, is a direction vector and is unbounded
   // We need to normalize the water vector to get a distance of 0-1 and a direction of -1 to 1
-  const waterDistance = Math.sqrt(Math.pow(water[0], 2) + Math.pow(water[1], 2));
+  const waterDistance = Math.sqrt(
+    Math.pow(water[0], 2) + Math.pow(water[1], 2),
+  );
   let waterDirection = [0, 0];
   if (waterDistance > 0) {
     waterDirection = [water[0] / waterDistance, water[1] / waterDistance];
@@ -385,14 +447,30 @@ function getWind(latitude: number, water: number[], terrainTilt: number[], curre
   const waterInfluenceStrength = 1 - MT.clamp(waterDistance / 5, 0, 1);
 
   // Wind moves away from water, so increase wind direction opposite to the water direction
-  wind[0] = MT.clamp(wind[0] + (waterDirection[0] * waterInfluenceStrength), -1.0, 1.0);
-  wind[1] = MT.clamp(wind[1] + (waterDirection[1] * waterInfluenceStrength), -1.0, 1.0);
+  wind[0] = MT.clamp(
+    wind[0] + waterDirection[0] * waterInfluenceStrength,
+    -1.0,
+    1.0,
+  );
+  wind[1] = MT.clamp(
+    wind[1] + waterDirection[1] * waterInfluenceStrength,
+    -1.0,
+    1.0,
+  );
 
   const terrainInfluenceStrength = 1.0;
 
   // Wind moves away from uphill, so increase wind direction opposite to the terrain tilt
-  wind[0] = MT.clamp(wind[0] - (terrainTilt[0] * terrainInfluenceStrength), -1.0, 1.0);
-  wind[1] = MT.clamp(wind[1] - (terrainTilt[1] * terrainInfluenceStrength), -1.0, 1.0);
+  wind[0] = MT.clamp(
+    wind[0] - terrainTilt[0] * terrainInfluenceStrength,
+    -1.0,
+    1.0,
+  );
+  wind[1] = MT.clamp(
+    wind[1] - terrainTilt[1] * terrainInfluenceStrength,
+    -1.0,
+    1.0,
+  );
 
   // Water current strengthens the wind in the same direction
   wind[0] = MT.clamp(wind[0] + current[0], -1.0, 1.0);

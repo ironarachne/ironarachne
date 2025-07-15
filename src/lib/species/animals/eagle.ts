@@ -1,7 +1,7 @@
 import * as Sizes from "$lib/size/sizes.js";
 import type Species from "../species.js";
 
-export default <Species> {
+export default (<Species>{
   name: "eagle",
   pluralName: "eagles",
   adjective: "eagle",
@@ -37,7 +37,14 @@ export default <Species> {
       genderedNoun: ["baby girl", "baby boy", "baby"],
       commonality: 1,
     },
-    { name: "adult", noun: "adult", minAge: 2, maxAge: 30, genderedNoun: ["woman", "man", "adult"], commonality: 20 },
+    {
+      name: "adult",
+      noun: "adult",
+      minAge: 2,
+      maxAge: 30,
+      genderedNoun: ["woman", "man", "adult"],
+      commonality: 20,
+    },
     {
       name: "elderly",
       noun: "elder",
@@ -51,9 +58,25 @@ export default <Species> {
   abilities: [],
   commonality: 5,
   genders: [
-    { name: "female", pronouns: { subjective: "she", objective: "her", possessive: "her", reflexive: "herself" } },
-    { name: "male", pronouns: { subjective: "he", objective: "him", possessive: "his", reflexive: "himself" } },
+    {
+      name: "female",
+      pronouns: {
+        subjective: "she",
+        objective: "her",
+        possessive: "her",
+        reflexive: "herself",
+      },
+    },
+    {
+      name: "male",
+      pronouns: {
+        subjective: "he",
+        objective: "him",
+        possessive: "his",
+        reflexive: "himself",
+      },
+    },
   ],
   sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
   tags: ["eagle"],
-};
+});

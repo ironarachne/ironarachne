@@ -106,7 +106,11 @@ function getClothingItems(): EquipmentItem[] {
     equipmentItems.push(
       new EquipmentItem(
         items[i].name + ", cheap",
-        getClothingCost(items[i].materialType, items[i].materialAmount, "cheap"),
+        getClothingCost(
+          items[i].materialType,
+          items[i].materialAmount,
+          "cheap",
+        ),
       ),
       new EquipmentItem(
         items[i].name + ", fine",
@@ -114,7 +118,11 @@ function getClothingItems(): EquipmentItem[] {
       ),
       new EquipmentItem(
         items[i].name + ", courtly",
-        getClothingCost(items[i].materialType, items[i].materialAmount, "courtly"),
+        getClothingCost(
+          items[i].materialType,
+          items[i].materialAmount,
+          "courtly",
+        ),
       ),
     );
   }
@@ -122,7 +130,11 @@ function getClothingItems(): EquipmentItem[] {
   return equipmentItems;
 }
 
-function getClothingCost(materialType: string, materialAmount: number, quality: string) {
+function getClothingCost(
+  materialType: string,
+  materialAmount: number,
+  quality: string,
+) {
   let result = materialAmount;
 
   if (materialType == "cloth") {

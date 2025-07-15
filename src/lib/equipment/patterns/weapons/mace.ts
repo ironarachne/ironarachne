@@ -27,7 +27,13 @@ export default class MacePattern implements Pattern {
 
     let value = this.baseValue + head.value + haft.value + handle.value;
 
-    let cosmeticHead = RND.item(["carved", "spiked", "heavy", "large", "dense"]);
+    let cosmeticHead = RND.item([
+      "carved",
+      "spiked",
+      "heavy",
+      "large",
+      "dense",
+    ]);
 
     let cosmeticHaft = RND.item(["straight", "short", "long"]);
 
@@ -54,6 +60,14 @@ export default class MacePattern implements Pattern {
 
     let tags = [name, this.name, "mace", "melee", "simple weapon", "weapon"];
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
+    return new MeleeWeapon(
+      name,
+      description,
+      this.damage,
+      this.hands,
+      value,
+      quality,
+      tags,
+    );
   }
 }

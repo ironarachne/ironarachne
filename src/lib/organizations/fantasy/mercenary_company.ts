@@ -10,7 +10,10 @@ import type OrganizationType from "../organization_type.js";
 export function generateType(): OrganizationType {
   const config = new HeraldryGeneratorConfig();
   config.chargeCount = RND.item([0, 1]);
-  config.chargeOptions = Charges.matchingAnyTags(["weapon", "armor", "aggressive"], Charges.all());
+  config.chargeOptions = Charges.matchingAnyTags(
+    ["weapon", "armor", "aggressive"],
+    Charges.all(),
+  );
 
   const nameGenerator = (): string => {
     const prefix = RND.item([
@@ -53,7 +56,9 @@ export function generateType(): OrganizationType {
       "{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.",
     ]);
 
-  const leadershipGenerator = (characterGenConfig: CharacterGeneratorConfig): Character => {
+  const leadershipGenerator = (
+    characterGenConfig: CharacterGeneratorConfig,
+  ): Character => {
     characterGenConfig.ageCategoryNames = ["adult"];
 
     const leader = Characters.generate(characterGenConfig);
@@ -89,63 +94,68 @@ export function generateType(): OrganizationType {
 }
 
 function getRanks(): OrganizationRank[] {
-  const ranks: OrganizationRank[] = [{
-    name: "captain",
-    title: {
-      femaleTitle: "Captain",
-      maleTitle: "Captain",
-      femaleHonorific: "Captain",
-      maleHonorific: "Captain",
-      hasLands: false,
-      landName: "",
-      precedence: 0,
+  const ranks: OrganizationRank[] = [
+    {
+      name: "captain",
+      title: {
+        femaleTitle: "Captain",
+        maleTitle: "Captain",
+        femaleHonorific: "Captain",
+        maleHonorific: "Captain",
+        hasLands: false,
+        landName: "",
+        precedence: 0,
+      },
+      tier: 0,
+      parent: null,
+      children: [],
     },
-    tier: 0,
-    parent: null,
-    children: [],
-  }, {
-    name: "lieutenant",
-    title: {
-      femaleTitle: "Lieutenant",
-      maleTitle: "Lieutenant",
-      femaleHonorific: "Lieutenant",
-      maleHonorific: "Lieutenant",
-      hasLands: false,
-      landName: "",
-      precedence: 1,
+    {
+      name: "lieutenant",
+      title: {
+        femaleTitle: "Lieutenant",
+        maleTitle: "Lieutenant",
+        femaleHonorific: "Lieutenant",
+        maleHonorific: "Lieutenant",
+        hasLands: false,
+        landName: "",
+        precedence: 1,
+      },
+      tier: 1,
+      parent: null,
+      children: [],
     },
-    tier: 1,
-    parent: null,
-    children: [],
-  }, {
-    name: "sergeant",
-    title: {
-      femaleTitle: "Sergeant",
-      maleTitle: "Sergeant",
-      femaleHonorific: "Sergeant",
-      maleHonorific: "Sergeant",
-      hasLands: false,
-      landName: "",
-      precedence: 2,
+    {
+      name: "sergeant",
+      title: {
+        femaleTitle: "Sergeant",
+        maleTitle: "Sergeant",
+        femaleHonorific: "Sergeant",
+        maleHonorific: "Sergeant",
+        hasLands: false,
+        landName: "",
+        precedence: 2,
+      },
+      tier: 2,
+      parent: null,
+      children: [],
     },
-    tier: 2,
-    parent: null,
-    children: [],
-  }, {
-    name: "member",
-    title: {
-      femaleTitle: "Mercenary",
-      maleTitle: "Mercenary",
-      femaleHonorific: "",
-      maleHonorific: "",
-      hasLands: false,
-      landName: "",
-      precedence: 3,
+    {
+      name: "member",
+      title: {
+        femaleTitle: "Mercenary",
+        maleTitle: "Mercenary",
+        femaleHonorific: "",
+        maleHonorific: "",
+        hasLands: false,
+        landName: "",
+        precedence: 3,
+      },
+      tier: 3,
+      parent: null,
+      children: [],
     },
-    tier: 3,
-    parent: null,
-    children: [],
-  }];
+  ];
 
   ranks[0].children.push(1);
   ranks[1].parent = 0;

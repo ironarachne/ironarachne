@@ -1,6 +1,6 @@
 import * as RND from "@ironarachne/rng";
 import random from "random";
-import * as Music from "../music/generator.js";
+import * as MusicStyles from "../music/music_styles";
 import ReligionGenerator from "../religion/generator.js";
 import ReligionGeneratorConfig from "../religion/generatorconfig.js";
 import Culture from "./culture.js";
@@ -16,22 +16,34 @@ export default class CultureGenerator {
 
   generate(): Culture {
     if (this.config.generatorSet.country === null) {
-      throw new Error("Culture generator config must have a country name generator set.");
+      throw new Error(
+        "Culture generator config must have a country name generator set.",
+      );
     }
     if (this.config.generatorSet.culture === null) {
-      throw new Error("Culture generator config must have a culture name generator set.");
+      throw new Error(
+        "Culture generator config must have a culture name generator set.",
+      );
     }
     if (this.config.generatorSet.family === null) {
-      throw new Error("Culture generator config must have a family name generator set.");
+      throw new Error(
+        "Culture generator config must have a family name generator set.",
+      );
     }
     if (this.config.generatorSet.female === null) {
-      throw new Error("Culture generator config must have a female name generator set.");
+      throw new Error(
+        "Culture generator config must have a female name generator set.",
+      );
     }
     if (this.config.generatorSet.male === null) {
-      throw new Error("Culture generator config must have a male name generator set.");
+      throw new Error(
+        "Culture generator config must have a male name generator set.",
+      );
     }
     if (this.config.generatorSet.town === null) {
-      throw new Error("Culture generator config must have a town name generator set.");
+      throw new Error(
+        "Culture generator config must have a town name generator set.",
+      );
     }
 
     const countryNames = this.config.generatorSet.country.generate(10);
@@ -48,8 +60,11 @@ export default class CultureGenerator {
 
     let cultureName = this.config.generatorSet.culture.generate(1)[0];
 
-    let musicStyle = Music.generate();
-    musicStyle.description = musicStyle.description.replace("This style of", cultureName);
+    const musicStyle = MusicStyles.generateMusicStyle();
+    musicStyle.description = musicStyle.description.replace(
+      "This style of",
+      cultureName,
+    );
 
     let culture = new Culture(
       cultureName,
@@ -231,7 +246,7 @@ function randomTaboos() {
     "Failing to ask for permission before taking a photo",
     "Failing to hold the door open for someone",
     "Not making eye contact during a conversation",
-    "Not saying \"please\" or \"thank you\" when appropriate",
+    'Not saying "please" or "thank you" when appropriate',
     "Sitting with one's legs apart in public",
     "Taking food from someone else's plate",
     "Not offering a seat to someone in need",

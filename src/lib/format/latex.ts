@@ -10,7 +10,9 @@ export function list(items: string[]): string {
   return result;
 }
 
-export function namedList(items: { header: string; content: string }[]): string {
+export function namedList(
+  items: { header: string; content: string }[],
+): string {
   let result = "\\begin{itemize}\n";
 
   for (let i = 0; i < items.length; i++) {

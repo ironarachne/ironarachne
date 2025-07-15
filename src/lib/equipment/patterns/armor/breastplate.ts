@@ -19,7 +19,9 @@ export default class BreastplatePattern implements Pattern {
 
   complete(componentOptions: Component[], quality: number): Armor {
     let body = RND.item(Components.withCategory("metal", componentOptions));
-    let trim = RND.item(Components.withCategory("soft metal", componentOptions));
+    let trim = RND.item(
+      Components.withCategory("soft metal", componentOptions),
+    );
 
     let value = this.baseValue + body.value * 1000 + trim.value;
 
@@ -47,6 +49,14 @@ export default class BreastplatePattern implements Pattern {
     let armorClass = 14;
     let tags = [name, this.name, "breastplate", "armor"];
 
-    return new Armor(name, description, "torso", armorClass, value, quality, tags);
+    return new Armor(
+      name,
+      description,
+      "torso",
+      armorClass,
+      value,
+      quality,
+      tags,
+    );
   }
 }

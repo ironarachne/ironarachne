@@ -10,7 +10,12 @@ export function distance(a: Vertex, b: Vertex): number {
 export function edgeEquals(A: Edge, B: Edge): boolean {
   if (A.a.x == B.a.x && A.a.y == B.a.y && A.b.x == B.b.x && A.b.y == B.b.y) {
     return true;
-  } else if (A.a.x == B.b.x && A.a.y == B.b.y && A.b.x == B.a.x && A.b.y == B.a.y) {
+  } else if (
+    A.a.x == B.b.x &&
+    A.a.y == B.b.y &&
+    A.b.x == B.a.x &&
+    A.b.y == B.a.y
+  ) {
     return true;
   }
 

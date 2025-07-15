@@ -21,7 +21,9 @@ export default class ShieldPattern implements Pattern {
 
     let handle = RND.item(Components.withCategory("wood", componentOptions));
 
-    let trim = RND.item(Components.withCategory("soft metal", componentOptions));
+    let trim = RND.item(
+      Components.withCategory("soft metal", componentOptions),
+    );
 
     let value = this.baseValue + body.value * 5 + trim.value;
 
@@ -46,6 +48,14 @@ export default class ShieldPattern implements Pattern {
     let armorClass = 1;
     let tags = [name, this.name, "shield", "armor"];
 
-    return new Armor(name, description, "arm", armorClass, value, quality, tags);
+    return new Armor(
+      name,
+      description,
+      "arm",
+      armorClass,
+      value,
+      quality,
+      tags,
+    );
   }
 }

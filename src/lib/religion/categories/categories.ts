@@ -7,7 +7,10 @@ export function all(): ReligionCategory[] {
   return [new Monotheism(), new Polytheism(), new Shamanism()];
 }
 
-export function byName(name: string, categories: ReligionCategory[]): ReligionCategory {
+export function byName(
+  name: string,
+  categories: ReligionCategory[],
+): ReligionCategory {
   for (let i = 0; i < categories.length; i++) {
     if (categories[i].name === name) {
       return categories[i];

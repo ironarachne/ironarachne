@@ -26,15 +26,15 @@ export function getComponentForCategory(
 
   for (let i = 0; i < components.length; i++) {
     if (
-      components[i].subType == category
-      && components[i].value <= maxValue
-      && components[i].value >= minValue
+      components[i].subType == category &&
+      components[i].value <= maxValue &&
+      components[i].value >= minValue
     ) {
       possible.push(components[i]);
     } else if (
-      components[i].category == category
-      && components[i].value <= maxValue
-      && components[i].value >= minValue
+      components[i].category == category &&
+      components[i].value <= maxValue &&
+      components[i].value >= minValue
     ) {
       possible.push(components[i]);
     }
@@ -43,11 +43,17 @@ export function getComponentForCategory(
   return RND.item(possible);
 }
 
-export function withCategory(category: string, components: Component[]): Component[] {
+export function withCategory(
+  category: string,
+  components: Component[],
+): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {
-    if (components[i].category == category || components[i].subType == category) {
+    if (
+      components[i].category == category ||
+      components[i].subType == category
+    ) {
       result.push(components[i]);
     }
   }
@@ -55,7 +61,10 @@ export function withCategory(category: string, components: Component[]): Compone
   return result;
 }
 
-export function withMinValue(value: number, components: Component[]): Component[] {
+export function withMinValue(
+  value: number,
+  components: Component[],
+): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {
@@ -67,7 +76,10 @@ export function withMinValue(value: number, components: Component[]): Component[
   return result;
 }
 
-export function withMaxValue(value: number, components: Component[]): Component[] {
+export function withMaxValue(
+  value: number,
+  components: Component[],
+): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {
@@ -79,7 +91,10 @@ export function withMaxValue(value: number, components: Component[]): Component[
   return result;
 }
 
-export function withMinQuality(quality: number, components: Component[]): Component[] {
+export function withMinQuality(
+  quality: number,
+  components: Component[],
+): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {
@@ -91,7 +106,10 @@ export function withMinQuality(quality: number, components: Component[]): Compon
   return result;
 }
 
-export function withMaxQuality(quality: number, components: Component[]): Component[] {
+export function withMaxQuality(
+  quality: number,
+  components: Component[],
+): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {

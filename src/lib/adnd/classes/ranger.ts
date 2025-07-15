@@ -28,7 +28,7 @@ export default new ADNDClass(
   4,
   3,
   -2,
-  function(this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
+  function (this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
     return character;
   },
 );

@@ -21,23 +21,34 @@ export function generate(config: SizeGeneratorConfig): Size {
 
 export function getHeightRange(config: SizeGeneratorConfig): string {
   const metricHeightModifier = Math.max(config.maxHeight - config.minHeight, 4);
-  const metric = config.minHeight
-    + " + "
-    + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricHeightModifier)))
-    + " cm";
+  const metric =
+    config.minHeight +
+    " + " +
+    Dice.describeDice(
+      Dice.simplify(Dice.rangeToDiceExpression(metricHeightModifier)),
+    ) +
+    " cm";
   const imperialHeightModifier = Math.max(
     Measurements.cmToInches(config.maxHeight - config.minHeight),
     4,
   );
-  const imperial = Measurements.inchesToFeetExpression(Measurements.cmToInches(config.minHeight))
-    + " + "
-    + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialHeightModifier)))
-    + " in.";
+  const imperial =
+    Measurements.inchesToFeetExpression(
+      Measurements.cmToInches(config.minHeight),
+    ) +
+    " + " +
+    Dice.describeDice(
+      Dice.simplify(Dice.rangeToDiceExpression(imperialHeightModifier)),
+    ) +
+    " in.";
 
   return `${metric} (${imperial})`;
 }
 
-export function getHumanVariant(weightModifier: number, heightModifier: number): SizeMatrix {
+export function getHumanVariant(
+  weightModifier: number,
+  heightModifier: number,
+): SizeMatrix {
   const standard: SizeMatrix = humanStandard();
   let variant: SizeMatrix = [];
 
@@ -46,10 +57,18 @@ export function getHumanVariant(weightModifier: number, heightModifier: number):
     for (let j = 0; j < standard[i].entries.length; j++) {
       let entry = standard[i].entries[j];
       let config: SizeGeneratorConfig = {
-        minHeight: Math.round(entry.sizeGeneratorConfig.minHeight * heightModifier),
-        maxHeight: Math.round(entry.sizeGeneratorConfig.maxHeight * heightModifier),
-        minWeight: Math.round(entry.sizeGeneratorConfig.minWeight * weightModifier),
-        maxWeight: Math.round(entry.sizeGeneratorConfig.maxWeight * weightModifier),
+        minHeight: Math.round(
+          entry.sizeGeneratorConfig.minHeight * heightModifier,
+        ),
+        maxHeight: Math.round(
+          entry.sizeGeneratorConfig.maxHeight * heightModifier,
+        ),
+        minWeight: Math.round(
+          entry.sizeGeneratorConfig.minWeight * weightModifier,
+        ),
+        maxWeight: Math.round(
+          entry.sizeGeneratorConfig.maxWeight * weightModifier,
+        ),
         minLength: entry.sizeGeneratorConfig.minLength,
         maxLength: entry.sizeGeneratorConfig.maxLength,
         minMass: entry.sizeGeneratorConfig.minMass,
@@ -69,18 +88,24 @@ export function getHumanVariant(weightModifier: number, heightModifier: number):
 
 export function getWeightRange(config: SizeGeneratorConfig): string {
   const metricWeightModifier = Math.max(config.maxWeight - config.minWeight, 4);
-  const metric = config.minWeight
-    + " + "
-    + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(metricWeightModifier)))
-    + " kg";
+  const metric =
+    config.minWeight +
+    " + " +
+    Dice.describeDice(
+      Dice.simplify(Dice.rangeToDiceExpression(metricWeightModifier)),
+    ) +
+    " kg";
   const imperialWeightModifier = Math.max(
     Math.round(Measurements.kgToPounds(config.maxWeight - config.minWeight)),
     4,
   );
-  const imperial = Math.round(Measurements.kgToPounds(config.minWeight))
-    + " + "
-    + Dice.describeDice(Dice.simplify(Dice.rangeToDiceExpression(imperialWeightModifier)))
-    + " lb.";
+  const imperial =
+    Math.round(Measurements.kgToPounds(config.minWeight)) +
+    " + " +
+    Dice.describeDice(
+      Dice.simplify(Dice.rangeToDiceExpression(imperialWeightModifier)),
+    ) +
+    " lb.";
 
   return `${metric} (${imperial})`;
 }

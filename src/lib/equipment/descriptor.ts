@@ -10,7 +10,10 @@ export class Descriptor {
   }
 }
 
-export function getDescriptorsMatchingType(descriptors: Descriptor[], objectType: string) {
+export function getDescriptorsMatchingType(
+  descriptors: Descriptor[],
+  objectType: string,
+) {
   const result = [];
 
   for (let i = 0; i < descriptors.length; i++) {
@@ -22,7 +25,10 @@ export function getDescriptorsMatchingType(descriptors: Descriptor[], objectType
   return result;
 }
 
-export function getDescriptorsMatchingTag(descriptors: Descriptor[], tag: string) {
+export function getDescriptorsMatchingTag(
+  descriptors: Descriptor[],
+  tag: string,
+) {
   const result = [];
 
   for (let i = 0; i < descriptors.length; i++) {

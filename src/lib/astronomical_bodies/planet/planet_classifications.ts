@@ -1,11 +1,11 @@
-import type { PlanetClassification } from '$lib/astronomical_bodies/planet/planets';
-import * as RND from '@ironarachne/rng';
-import random from 'random';
+import type { PlanetClassification } from "$lib/astronomical_bodies/planet/planets";
+import * as RND from "@ironarachne/rng";
+import random from "random";
 
 export type PlanetFeatureSet = {
   name: string;
   options: string[];
-}
+};
 
 export function getDescriptionFromFeatures(
   possibleFeatures: PlanetFeatureSet[],
@@ -26,7 +26,9 @@ export function getDescriptionFromFeatures(
   return description;
 }
 
-export function getPlanetClassificationByName(name: string): PlanetClassification {
+export function getPlanetClassificationByName(
+  name: string,
+): PlanetClassification {
   const classifications = getPlanetClassifications();
 
   for (let i = 0; i < classifications.length; i++) {
@@ -601,7 +603,7 @@ export function searchPlanetClassificationByName(
     if (midName === name) {
       return classifications[mid];
     }
-    
+
     if (midName < name) {
       low = mid + 1;
     } else {

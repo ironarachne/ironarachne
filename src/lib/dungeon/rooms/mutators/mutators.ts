@@ -28,7 +28,10 @@ export function all(): RoomMutator[] {
       (room: Room) => {
         let featureGenerator = new RoomFeatureGenerator(
           "torches",
-          ["Torches line the walls.", "A few torches sit in sconces on the walls."],
+          [
+            "Torches line the walls.",
+            "A few torches sit in sconces on the walls.",
+          ],
           [],
           false,
         );

@@ -12,7 +12,7 @@ for (let j = 0; j < wingTypes.length; j++) {
   wingAppearances.push(wingTypes[j]);
 }
 
-export default <Species> {
+export default (<Species>{
   name: "aarakocra",
   pluralName: "aarakocra",
   adjective: "aarakocra",
@@ -32,7 +32,16 @@ export default <Species> {
     {
       name: "feathers",
       category: "feathers",
-      options: ["white", "mottled", "brown", "russet", "black", "grey", "red", "orange"],
+      options: [
+        "white",
+        "mottled",
+        "brown",
+        "russet",
+        "black",
+        "grey",
+        "red",
+        "orange",
+      ],
       tags: ["feathers"],
     },
     {
@@ -60,9 +69,25 @@ export default <Species> {
   ],
   commonality: 5,
   genders: [
-    { name: "female", pronouns: { subjective: "she", objective: "her", possessive: "her", reflexive: "herself" } },
-    { name: "male", pronouns: { subjective: "he", objective: "him", possessive: "his", reflexive: "himself" } },
+    {
+      name: "female",
+      pronouns: {
+        subjective: "she",
+        objective: "her",
+        possessive: "her",
+        reflexive: "herself",
+      },
+    },
+    {
+      name: "male",
+      pronouns: {
+        subjective: "he",
+        objective: "him",
+        possessive: "his",
+        reflexive: "himself",
+      },
+    },
   ],
   sizeGeneratorConfigMatrix: Sizes.getHumanVariant(0.7, 0.95),
   tags: ["corruptible", "aarakocra", "flying", "martial", "magic", "sentient"],
-};
+});

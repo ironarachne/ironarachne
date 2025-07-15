@@ -5,7 +5,11 @@ import SimpleVertexShader from "$lib/shaders/simple.vert";
 import type RGBColor from "$lib/graphics/rgb_color";
 import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
 
-export function render(star: AstronomicalBody, width: number, height: number): string {
+export function render(
+  star: AstronomicalBody,
+  width: number,
+  height: number,
+): string {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;

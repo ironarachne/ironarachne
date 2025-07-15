@@ -14,8 +14,14 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
   config.terrainConfig.elevationMax = Math.min(config.elevation + 0.1, 1.0);
   config.terrainConfig.erosionIterations = config.erosionIterations;
   config.terrainConfig.erosionStrength = config.erosionStrength;
-  config.terrainConfig.reliefEnergyMin = Math.max(config.reliefEnergy - 0.01, 0.0);
-  config.terrainConfig.reliefEnergyMax = Math.min(config.reliefEnergy + 0.01, 1.0);
+  config.terrainConfig.reliefEnergyMin = Math.max(
+    config.reliefEnergy - 0.01,
+    0.0,
+  );
+  config.terrainConfig.reliefEnergyMax = Math.min(
+    config.reliefEnergy + 0.01,
+    1.0,
+  );
   config.terrainConfig.normalVector = config.terrainVector;
   let terrain = TerrainGeneration.generate(config.terrainConfig);
 
@@ -25,12 +31,15 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
 
   config.climateConfig.current = waterSystem.current;
   config.climateConfig.latitude = config.latitude;
-  config.climateConfig.elevation = random.float(terrain.elevationMin, terrain.elevationMax);
+  config.climateConfig.elevation = random.float(
+    terrain.elevationMin,
+    terrain.elevationMax,
+  );
   config.climateConfig.terrainNormalVector = config.terrainVector;
   config.climateConfig.waterDirection = config.waterDirection;
   let climate = Climates.generate(config.climateConfig);
   climate.description = Climates.describe(climate);
-  
+
   let biomeConfig = config.biomeConfig;
   biomeConfig.altitude = config.climateConfig.elevation;
   biomeConfig.temperatureMax = climate.temperatureMax;
@@ -41,7 +50,15 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
 
   let ecosystem = EcosystemGeneration.generate(config.ecosystemConfig);
 
-  let environment: Environment = { biome, climate, terrain, dominantEcosystem: ecosystem, ecosystems: [ecosystem], waterSystem, description: "" };
+  let environment: Environment = {
+    biome,
+    climate,
+    terrain,
+    dominantEcosystem: ecosystem,
+    ecosystems: [ecosystem],
+    waterSystem,
+    description: "",
+  };
 
   environment.description = `${RND.item(biome.descriptions)} ${RND.item(biome.features)}`;
   environment.description += " " + environment.climate.description;
@@ -53,7 +70,10 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
 export function generateForClimate(climateName: string): Environment {
   const config = getDefaultConfig();
   const climateType = Climates.getClimateTypeByName(climateName);
-  config.latitude = random.float(climateType.latitudeMin, climateType.latitudeMax);
+  config.latitude = random.float(
+    climateType.latitudeMin,
+    climateType.latitudeMax,
+  );
 
   return generate(config);
 }
@@ -132,7 +152,7 @@ export function getDirectionOfSlope(terrain: Terrain): string {
 
   const x = terrain.normalVector[0];
   const y = terrain.normalVector[1];
-  
+
   // We don't care about z because that would be rotation around the z-axis, which is irrelevant for our purposes
 
   if (x > 0.0 && y > 0.0) {
@@ -158,5 +178,10 @@ export function getDirectionOfSlope(terrain: Terrain): string {
 
 export function getStrengthOfSlope(terrain: Terrain): number {
   // The strength of the slope is the average of the x, y, and z values of the normal vector
-  return (terrain.normalVector[0] + terrain.normalVector[1] + terrain.normalVector[2]) / 3;
+  return (
+    (terrain.normalVector[0] +
+      terrain.normalVector[1] +
+      terrain.normalVector[2]) /
+    3
+  );
 }

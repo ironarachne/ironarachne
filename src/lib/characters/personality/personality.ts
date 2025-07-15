@@ -3,7 +3,9 @@ import random from "random";
 import type PersonalityGeneratorConfig from "./personality_generator_config";
 import type PersonalityTrait from "./personality_trait";
 
-export function generate(config: PersonalityGeneratorConfig): PersonalityTrait[] {
+export function generate(
+  config: PersonalityGeneratorConfig,
+): PersonalityTrait[] {
   let traits = [];
 
   RND.shuffle(config.traits);

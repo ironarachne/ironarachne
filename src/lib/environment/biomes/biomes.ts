@@ -55,7 +55,8 @@ export function generateBiomeDescriptions(biomeType: BiomeType): string[] {
   let descriptions = [];
 
   const averageHumidity = (biomeType.humidityMax + biomeType.humidityMin) / 2;
-  const averageTemperature = (biomeType.temperatureMax + biomeType.temperatureMin) / 2;
+  const averageTemperature =
+    (biomeType.temperatureMax + biomeType.temperatureMin) / 2;
   const averageAltitude = (biomeType.altitudeMax + biomeType.altitudeMin) / 2;
 
   let temperatureDescriptors = [];
@@ -135,7 +136,9 @@ export function generateBiomeFeatures(biomeType: BiomeType): string[] {
     } else if (biomeType.waterFeatureDensity > 0.3) {
       features.push(`There is a small ${waterFeature} here.`);
     } else {
-      features.push(`There is ${Words.article(waterFeature)} ${waterFeature} here.`);
+      features.push(
+        `There is ${Words.article(waterFeature)} ${waterFeature} here.`,
+      );
     }
   }
 
@@ -162,15 +165,24 @@ function getBiomeTypeForConfig(config: BiomeGeneratorConfig): BiomeType {
   for (let type of biomeTypes) {
     let score = 0;
 
-    if (config.altitude >= type.altitudeMin && config.altitude <= type.altitudeMax) {
+    if (
+      config.altitude >= type.altitudeMin &&
+      config.altitude <= type.altitudeMax
+    ) {
       score++;
     }
 
-    if (config.humidityMin >= type.humidityMin && config.humidityMax <= type.humidityMax) {
+    if (
+      config.humidityMin >= type.humidityMin &&
+      config.humidityMax <= type.humidityMax
+    ) {
       score++;
     }
 
-    if (config.temperatureMin >= type.temperatureMin && config.temperatureMax <= type.temperatureMax) {
+    if (
+      config.temperatureMin >= type.temperatureMin &&
+      config.temperatureMax <= type.temperatureMax
+    ) {
       score++;
     }
 

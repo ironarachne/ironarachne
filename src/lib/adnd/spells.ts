@@ -1,7 +1,10 @@
 import ADNDSpell from "./adndspell.js";
 import SpellFilter from "./spellfilter.js";
 
-export function getFilteredSpells(filter: SpellFilter, spells: ADNDSpell[]): ADNDSpell[] {
+export function getFilteredSpells(
+  filter: SpellFilter,
+  spells: ADNDSpell[],
+): ADNDSpell[] {
   let result = [];
 
   for (let i = 0; i < spells.length; i++) {
@@ -9,7 +12,10 @@ export function getFilteredSpells(filter: SpellFilter, spells: ADNDSpell[]): ADN
     let meetsClassCriterion = false;
     let meetsBannedTagsCriterion = false;
     let meetsRequiredTagsCriterion = false;
-    if ((filter.level != -1 && spells[i].level == filter.level) || filter.level == -1) {
+    if (
+      (filter.level != -1 && spells[i].level == filter.level) ||
+      filter.level == -1
+    ) {
       meetsLevelCriterion = true;
     }
     if (filter.casterClass == spells[i].casterClass) {
@@ -38,10 +44,10 @@ export function getFilteredSpells(filter: SpellFilter, spells: ADNDSpell[]): ADN
       meetsRequiredTagsCriterion = true;
     }
     if (
-      meetsLevelCriterion
-      && meetsClassCriterion
-      && meetsBannedTagsCriterion
-      && meetsRequiredTagsCriterion
+      meetsLevelCriterion &&
+      meetsClassCriterion &&
+      meetsBannedTagsCriterion &&
+      meetsRequiredTagsCriterion
     ) {
       result.push(spells[i]);
     }
@@ -52,26 +58,54 @@ export function getFilteredSpells(filter: SpellFilter, spells: ADNDSpell[]): ADN
 
 export function getAll(): ADNDSpell[] {
   return [
-    new ADNDSpell("Animal Friendship", "priest", 1, ["animal", "enchantment", "charm"]),
+    new ADNDSpell("Animal Friendship", "priest", 1, [
+      "animal",
+      "enchantment",
+      "charm",
+    ]),
     new ADNDSpell("Bless", "priest", 1, ["conjuration", "summoning", "all"]),
     new ADNDSpell("Combine", "priest", 1, ["evocation", "all"]),
     new ADNDSpell("Command", "priest", 1, ["enchantment", "charm"]),
-    new ADNDSpell("Create Water", "priest", 1, ["alteration", "elemental", "water"]),
+    new ADNDSpell("Create Water", "priest", 1, [
+      "alteration",
+      "elemental",
+      "water",
+    ]),
     new ADNDSpell("Cure Light Wounds", "priest", 1, ["necromancy", "healing"]),
     new ADNDSpell("Detect Evil", "priest", 1, ["divination", "all"]),
     new ADNDSpell("Detect Magic", "priest", 1, ["divination"]),
     new ADNDSpell("Detect Poison", "priest", 1, ["divination"]),
     new ADNDSpell("Detect Snares and Pits", "priest", 1, ["divination"]),
-    new ADNDSpell("Endure Cold/Endure Heat", "priest", 1, ["alteration", "protection"]),
+    new ADNDSpell("Endure Cold/Endure Heat", "priest", 1, [
+      "alteration",
+      "protection",
+    ]),
     new ADNDSpell("Entangle", "priest", 1, ["alteration", "plant"]),
     new ADNDSpell("Faerie Fire", "priest", 1, ["alteration", "weather"]),
-    new ADNDSpell("Invisibility to Animals", "priest", 1, ["alteration", "animal"]),
-    new ADNDSpell("Invisibility to Undead", "priest", 1, ["abjuration", "necromantic"]),
+    new ADNDSpell("Invisibility to Animals", "priest", 1, [
+      "alteration",
+      "animal",
+    ]),
+    new ADNDSpell("Invisibility to Undead", "priest", 1, [
+      "abjuration",
+      "necromantic",
+    ]),
     new ADNDSpell("Light", "priest", 1, ["alteration", "sun"]),
-    new ADNDSpell("Locate Animals or Plants", "priest", 1, ["divination", "animal", "plant"]),
+    new ADNDSpell("Locate Animals or Plants", "priest", 1, [
+      "divination",
+      "animal",
+      "plant",
+    ]),
     new ADNDSpell("Magical Stone", "priest", 1, ["enchantment", "combat"]),
-    new ADNDSpell("Pass without Trace", "priest", 1, ["enchantment", "charm", "plant"]),
-    new ADNDSpell("Protection from Evil", "priest", 1, ["abjuration", "protection"]),
+    new ADNDSpell("Pass without Trace", "priest", 1, [
+      "enchantment",
+      "charm",
+      "plant",
+    ]),
+    new ADNDSpell("Protection from Evil", "priest", 1, [
+      "abjuration",
+      "protection",
+    ]),
     new ADNDSpell("Purify Food and Drink", "priest", 1, ["alteration", "all"]),
     new ADNDSpell("Remove Fear", "priest", 1, ["abjuration", "charm"]),
     new ADNDSpell("Sanctuary", "priest", 1, ["abjuration", "protection"]),

@@ -9,7 +9,12 @@ export default class DungeonTileRenderer {
   imageWidth: number;
   imageHeight: number;
 
-  constructor(imageWidth: number, imageHeight: number, mapHeight: number, mapWidth: number) {
+  constructor(
+    imageWidth: number,
+    imageHeight: number,
+    mapHeight: number,
+    mapWidth: number,
+  ) {
     this.imageWidth = imageWidth;
     this.imageHeight = imageHeight;
     this.mapHeight = mapHeight;
@@ -54,12 +59,14 @@ export default class DungeonTileRenderer {
     }
 
     for (let i = 0; i < dungeon.rooms.length; i++) {
-      let x = dungeon.rooms[i].minX * this.tileSize
-        + ((dungeon.rooms[i].maxX - dungeon.rooms[i].minX) * this.tileSize) / 2
-        + this.tileSize * 0.25;
-      let y = dungeon.rooms[i].minY * this.tileSize
-        + ((dungeon.rooms[i].maxY - dungeon.rooms[i].minY) * this.tileSize) / 2
-        + this.tileSize * 0.8;
+      let x =
+        dungeon.rooms[i].minX * this.tileSize +
+        ((dungeon.rooms[i].maxX - dungeon.rooms[i].minX) * this.tileSize) / 2 +
+        this.tileSize * 0.25;
+      let y =
+        dungeon.rooms[i].minY * this.tileSize +
+        ((dungeon.rooms[i].maxY - dungeon.rooms[i].minY) * this.tileSize) / 2 +
+        this.tileSize * 0.8;
 
       // TODO: calculate placement of label in the center of the biggest block of ROOM tiles for this room, not the actual room center
       ctx.beginPath();
@@ -72,7 +79,12 @@ export default class DungeonTileRenderer {
   }
 }
 
-function renderCoords(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+function renderCoords(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tileSize: number,
+) {
   let mx = x * tileSize;
   let my = y * tileSize;
 
@@ -83,7 +95,12 @@ function renderCoords(ctx: CanvasRenderingContext2D, x: number, y: number, tileS
   ctx.fillText(`${x},${y}`, mx, my);
 }
 
-function renderGrid(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+function renderGrid(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tileSize: number,
+) {
   let mx = x * tileSize;
   let my = y * tileSize;
 
@@ -93,7 +110,12 @@ function renderGrid(ctx: CanvasRenderingContext2D, x: number, y: number, tileSiz
   ctx.strokeRect(mx, my, tileSize, tileSize);
 }
 
-function renderHDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+function renderHDoor(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tileSize: number,
+) {
   ctx.fillStyle = "white";
   ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
 
@@ -103,7 +125,10 @@ function renderHDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
   ctx.strokeStyle = "#85BBF1";
 
   let t: Vertex = { x: x * tileSize + tileSize / 2, y: y * tileSize };
-  let b: Vertex = { x: x * tileSize + tileSize / 2, y: y * tileSize + tileSize };
+  let b: Vertex = {
+    x: x * tileSize + tileSize / 2,
+    y: y * tileSize + tileSize,
+  };
 
   ctx.moveTo(t.x, t.y);
   ctx.lineTo(b.x, b.y);
@@ -124,7 +149,12 @@ function renderHDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
   );
 }
 
-function renderHSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+function renderHSecretDoor(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tileSize: number,
+) {
   ctx.fillStyle = "white";
   ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
 
@@ -134,7 +164,10 @@ function renderHSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, 
   ctx.strokeStyle = "#85BBF1";
 
   let t: Vertex = { x: x * tileSize + tileSize / 2, y: y * tileSize };
-  let b: Vertex = { x: x * tileSize + tileSize / 2, y: y * tileSize + tileSize };
+  let b: Vertex = {
+    x: x * tileSize + tileSize / 2,
+    y: y * tileSize + tileSize,
+  };
 
   ctx.moveTo(t.x, t.y);
   ctx.lineTo(b.x, b.y);
@@ -142,10 +175,19 @@ function renderHSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, 
 
   ctx.fillStyle = "#85BBF1";
   ctx.font = "12px sans-serif";
-  ctx.fillText("S", x * tileSize + tileSize / 3.5, y * tileSize + tileSize / 1.3);
+  ctx.fillText(
+    "S",
+    x * tileSize + tileSize / 3.5,
+    y * tileSize + tileSize / 1.3,
+  );
 }
 
-function renderStone(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+function renderStone(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tileSize: number,
+) {
   ctx.fillStyle = "#A4CFF9";
 
   let mx = x * tileSize;
@@ -154,7 +196,12 @@ function renderStone(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
   ctx.fillRect(mx, my, tileSize, tileSize);
 }
 
-function renderRoom(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+function renderRoom(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tileSize: number,
+) {
   ctx.fillStyle = "white";
 
   let mx = x * tileSize;
@@ -165,7 +212,12 @@ function renderRoom(ctx: CanvasRenderingContext2D, x: number, y: number, tileSiz
   renderGrid(ctx, x, y, tileSize);
 }
 
-function renderVDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+function renderVDoor(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tileSize: number,
+) {
   ctx.fillStyle = "white";
   ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
 
@@ -175,7 +227,10 @@ function renderVDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
   ctx.strokeStyle = "#85BBF1";
 
   let l: Vertex = { x: x * tileSize, y: y * tileSize + tileSize / 2 };
-  let r: Vertex = { x: x * tileSize + tileSize, y: y * tileSize + tileSize / 2 };
+  let r: Vertex = {
+    x: x * tileSize + tileSize,
+    y: y * tileSize + tileSize / 2,
+  };
 
   ctx.moveTo(l.x, l.y);
   ctx.lineTo(r.x, r.y);
@@ -196,7 +251,12 @@ function renderVDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSi
   );
 }
 
-function renderVSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, tileSize: number) {
+function renderVSecretDoor(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  tileSize: number,
+) {
   ctx.fillStyle = "white";
   ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
 
@@ -206,7 +266,10 @@ function renderVSecretDoor(ctx: CanvasRenderingContext2D, x: number, y: number, 
   ctx.strokeStyle = "#85BBF1";
 
   let l: Vertex = { x: x * tileSize, y: y * tileSize + tileSize / 2 };
-  let r: Vertex = { x: x * tileSize + tileSize, y: y * tileSize + tileSize / 2 };
+  let r: Vertex = {
+    x: x * tileSize + tileSize,
+    y: y * tileSize + tileSize / 2,
+  };
 
   ctx.moveTo(l.x, l.y);
   ctx.lineTo(r.x, r.y);

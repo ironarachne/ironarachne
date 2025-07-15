@@ -2,7 +2,7 @@ import * as AgeCategories from "$lib/age/age_categories.js";
 import * as Sizes from "$lib/size/sizes.js";
 import type Species from "../species.js";
 
-export default <Species> {
+export default (<Species>{
   name: "hobgoblin",
   pluralName: "hobgoblins",
   adjective: "hobgoblin",
@@ -51,9 +51,25 @@ export default <Species> {
   ],
   commonality: 5,
   genders: [
-    { name: "female", pronouns: { subjective: "she", objective: "her", possessive: "her", reflexive: "herself" } },
-    { name: "male", pronouns: { subjective: "he", objective: "him", possessive: "his", reflexive: "himself" } },
+    {
+      name: "female",
+      pronouns: {
+        subjective: "she",
+        objective: "her",
+        possessive: "her",
+        reflexive: "herself",
+      },
+    },
+    {
+      name: "male",
+      pronouns: {
+        subjective: "he",
+        objective: "him",
+        possessive: "his",
+        reflexive: "himself",
+      },
+    },
   ],
   sizeGeneratorConfigMatrix: Sizes.getHumanVariant(1.1, 1.15),
   tags: ["hobgoblin", "greenskin", "martial", "sentient"],
-};
+});

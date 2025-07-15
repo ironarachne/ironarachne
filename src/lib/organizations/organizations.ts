@@ -29,14 +29,17 @@ export function generate(config: OrganizationGeneratorConfig): Organization {
 
   org.notableMembers = randomNotableMembers(org);
 
-  org.leadership.description = `They are led by ${
-    Characters.getHonorific(org.leadership)
-  } ${org.leadership.firstName} ${org.leadership.lastName}. ${org.leadership.description}`;
+  org.leadership.description = `They are led by ${Characters.getHonorific(
+    org.leadership,
+  )} ${org.leadership.firstName} ${org.leadership.lastName}. ${org.leadership.description}`;
 
   return org;
 }
 
-export function getTypeByName(name: string, types: OrganizationType[]): OrganizationType {
+export function getTypeByName(
+  name: string,
+  types: OrganizationType[],
+): OrganizationType {
   for (let i = 0; i < types.length; i++) {
     if (types[i].name === name) {
       return types[i];

@@ -1,6 +1,6 @@
 import type SettlementCategory from "../settlement_category.js";
 
-export default <SettlementCategory> {
+export default (<SettlementCategory>{
   name: "town",
   minSize: 500,
   maxSize: 9999,
@@ -17,4 +17,4 @@ export default <SettlementCategory> {
     "The town is dominated by a tall clock tower, which chimes the hour with a melodious tune.",
     "Despite its size, the town is peaceful and orderly, with a watchful eye kept on outsiders who might cause trouble.",
   ],
-};
+});

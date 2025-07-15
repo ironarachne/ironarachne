@@ -25,7 +25,9 @@ export default class LanguageGenerator {
 
     for (let i = 0; i < language.lexicon.words.length; i++) {
       let morphemeLength = random.int(2, 7);
-      if (["article", "pronoun"].includes(language.lexicon.words[i].speechPart)) {
+      if (
+        ["article", "pronoun"].includes(language.lexicon.words[i].speechPart)
+      ) {
         morphemeLength = random.int(2, 3);
       }
       let morpheme = randomMorpheme(morphemeLength, phonemeSet);

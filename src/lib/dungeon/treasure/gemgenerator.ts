@@ -100,7 +100,14 @@ function getFancy(): string[] {
 }
 
 function getPrecious(): string[] {
-  return ["alexandrite", "aquamarine", "black pearl", "blue spinel", "peridot", "topaz"];
+  return [
+    "alexandrite",
+    "aquamarine",
+    "black pearl",
+    "blue spinel",
+    "peridot",
+    "topaz",
+  ];
 }
 
 function getGemstones(): string[] {

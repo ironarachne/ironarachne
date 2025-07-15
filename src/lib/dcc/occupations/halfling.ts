@@ -10,7 +10,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("handaxe", "handaxe", "10/20/30", "1d6", 50),
       new DCCGear("chicken meat, 5 lbs.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -22,7 +22,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("fabric, 3 yds.", 1),
       2,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -34,7 +34,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("awl", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("gloves, 4 pairs", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -46,7 +46,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("sling", "sling", "40/80/160", "1d4", 50),
       new DCCGear("hex doll", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -58,7 +58,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("scissors", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("fine suits, 3 sets", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -70,7 +70,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("knife", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("sailcloth, 2 yds.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -82,7 +82,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("short sword", "short sword", "melee", "1d6", 50),
       new DCCGear("loan chest", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -97,7 +97,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("short sword", "short sword", "melee", "1d6", 50),
       new DCCGear("coin purse", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -110,7 +110,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("begging bowl", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");

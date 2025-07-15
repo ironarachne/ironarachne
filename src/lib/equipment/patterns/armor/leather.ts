@@ -18,8 +18,12 @@ export default class LeatherArmorPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number): Armor {
-    let body = RND.item(Components.withCategory("hard leather", componentOptions));
-    let trim = RND.item(Components.withCategory("soft metal", componentOptions));
+    let body = RND.item(
+      Components.withCategory("hard leather", componentOptions),
+    );
+    let trim = RND.item(
+      Components.withCategory("soft metal", componentOptions),
+    );
 
     let value = this.baseValue + body.value * 1000 + trim.value;
 
@@ -29,15 +33,13 @@ export default class LeatherArmorPattern implements Pattern {
     ]);
 
     description += RND.item([
-      ` with ${trim.descriptor} ${
-        RND.item([
-          "hardware",
-          "fasteners",
-          "banding",
-          "studs",
-          "rivets",
-        ])
-      }`,
+      ` with ${trim.descriptor} ${RND.item([
+        "hardware",
+        "fasteners",
+        "banding",
+        "studs",
+        "rivets",
+      ])}`,
       ` fastened with ${trim.descriptor} ${RND.item(["buckles", "clasps"])}`,
     ]);
 
@@ -53,6 +55,14 @@ export default class LeatherArmorPattern implements Pattern {
 
     let armorClass = 11 + random.int(0, 1);
 
-    return new Armor(name, description, "torso", armorClass, value, quality, tags);
+    return new Armor(
+      name,
+      description,
+      "torso",
+      armorClass,
+      value,
+      quality,
+      tags,
+    );
   }
 }

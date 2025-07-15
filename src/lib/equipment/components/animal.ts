@@ -32,9 +32,16 @@ export function all(): Component[] {
       1,
       ["leather"],
     ),
-    new Component("pig hide", "a circle of pig hide", "pig hide", "leather", "hard leather", 1, 0, [
+    new Component(
+      "pig hide",
+      "a circle of pig hide",
+      "pig hide",
       "leather",
-    ]),
+      "hard leather",
+      1,
+      0,
+      ["leather"],
+    ),
     new Component(
       "deer hide",
       "a circle of deer hide",
@@ -95,6 +102,15 @@ export function all(): Component[] {
       4,
       ["leather"],
     ),
-    new Component("bone", "a length of bone", "bone", "bone", "animal bone", 1, 0, ["bone"]),
+    new Component(
+      "bone",
+      "a length of bone",
+      "bone",
+      "bone",
+      "animal bone",
+      1,
+      0,
+      ["bone"],
+    ),
   ];
 }

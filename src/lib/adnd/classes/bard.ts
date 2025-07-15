@@ -14,8 +14,20 @@ export default new ADNDClass(
   -1,
   15,
   ["dexterity", "charisma"],
-  ["Climb walls", "Detect noise", "Pick pockets", "Read languages", "Influence reactions"],
-  ["lawful neutral", "neutral good", "true neutral", "neutral evil", "chaotic neutral"],
+  [
+    "Climb walls",
+    "Detect noise",
+    "Pick pockets",
+    "Read languages",
+    "Influence reactions",
+  ],
+  [
+    "lawful neutral",
+    "neutral good",
+    "true neutral",
+    "neutral evil",
+    "chaotic neutral",
+  ],
   false,
   [],
   [],
@@ -24,7 +36,7 @@ export default new ADNDClass(
   2,
   3,
   -3,
-  function(character: ADNDCharacter): ADNDCharacter {
+  function (character: ADNDCharacter): ADNDCharacter {
     let skills = [
       { name: "Pick Pockets", value: 10, points: 0 },
       { name: "Detect Noise", value: 20, points: 0 },

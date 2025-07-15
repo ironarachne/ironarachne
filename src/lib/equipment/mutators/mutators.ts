@@ -9,13 +9,19 @@ export function all(): ItemMutator[] {
   return results;
 }
 
-export function withAnyTag(tags: string[], mutators: ItemMutator[]): ItemMutator[] {
+export function withAnyTag(
+  tags: string[],
+  mutators: ItemMutator[],
+): ItemMutator[] {
   let result: ItemMutator[] = [];
   let names: string[] = [];
 
   for (let i = 0; i < mutators.length; i++) {
     for (let j = 0; j < tags.length; j++) {
-      if (mutators[i].tags.includes(tags[j]) && !names.includes(mutators[i].name)) {
+      if (
+        mutators[i].tags.includes(tags[j]) &&
+        !names.includes(mutators[i].name)
+      ) {
         result.push(mutators[i]);
         names.push(mutators[i].name);
         continue;

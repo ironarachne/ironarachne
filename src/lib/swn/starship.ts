@@ -48,7 +48,10 @@ export function generate() {
   starship.name = starship.ownerType.getRandomShipName();
   starship.className = starship.ownerType.getRandomClassName();
   starship.manufacturer = randomManufacturerName();
-  starship.currentCrew = random.int(starship.hullType.crewMinimum, starship.hullType.crewMaximum);
+  starship.currentCrew = random.int(
+    starship.hullType.crewMinimum,
+    starship.hullType.crewMaximum,
+  );
 
   let massBudget = starship.hullType.mass;
   let powerBudget = starship.hullType.power;
@@ -113,8 +116,8 @@ export function generate() {
         }
 
         if (
-          allDrives[i].minimumClass <= starship.hullType.hullClass
-          && allDrives[i].maximumClass >= starship.hullType.hullClass
+          allDrives[i].minimumClass <= starship.hullType.hullClass &&
+          allDrives[i].maximumClass >= starship.hullType.hullClass
         ) {
           if (drivePowerCost <= powerBudget && driveMassCost <= massBudget) {
             drives.push(allDrives[i]);
@@ -144,10 +147,10 @@ export function generate() {
       const weaponHardpoints = weaponList[i].hardPoints;
 
       if (
-        weaponMassCost <= massBudget
-        && weaponPowerCost <= powerBudget
-        && weaponHardpoints <= hardpointBudget
-        && weaponList[i].hullClass <= starship.hullType.hullClass
+        weaponMassCost <= massBudget &&
+        weaponPowerCost <= powerBudget &&
+        weaponHardpoints <= hardpointBudget &&
+        weaponList[i].hullClass <= starship.hullType.hullClass
       ) {
         possibleWeapons.push(weaponList[i]);
       }
@@ -175,10 +178,10 @@ export function generate() {
       }
 
       if (
-        weaponMassCost <= massBudget
-        && weaponPowerCost <= powerBudget
-        && weaponHardpoints <= hardpointBudget
-        && newWeapon.hullClass <= starship.hullType.hullClass
+        weaponMassCost <= massBudget &&
+        weaponPowerCost <= powerBudget &&
+        weaponHardpoints <= hardpointBudget &&
+        newWeapon.hullClass <= starship.hullType.hullClass
       ) {
         starship.weapons.push(newWeapon);
         massBudget -= weaponMassCost;
@@ -232,12 +235,19 @@ export function generate() {
     }
   }
 
-  const possibleFittings = getAllAppropriateFittings(starship.ownerType.allowedFittingTypes);
-  let fittingOptions = filterFittingsByHullClass(possibleFittings, starship.hullType.hullClass);
+  const possibleFittings = getAllAppropriateFittings(
+    starship.ownerType.allowedFittingTypes,
+  );
+  let fittingOptions = filterFittingsByHullClass(
+    possibleFittings,
+    starship.hullType.hullClass,
+  );
 
   // Begin addition of required fitting
 
-  let requiredFittingOptions = getFittingsByType(starship.ownerType.requiredFittingType);
+  let requiredFittingOptions = getFittingsByType(
+    starship.ownerType.requiredFittingType,
+  );
   requiredFittingOptions = filterFittingsByHullClass(
     requiredFittingOptions,
     starship.hullType.hullClass,
@@ -306,7 +316,15 @@ export function generate() {
   let tonsOfCargo = 0;
 
   if (starship.ownerType.fillWithCargo && massBudget > 0) {
-    const cargoFitting = new CargoFitting("Cargo space", 0, 0, 1, 0, 3, "Pressurized cargo space");
+    const cargoFitting = new CargoFitting(
+      "Cargo space",
+      0,
+      0,
+      1,
+      0,
+      3,
+      "Pressurized cargo space",
+    );
 
     let foundCargo = false;
 
@@ -356,7 +374,10 @@ function filterFittingsByHullClass(
   const result = [];
 
   for (let i = 0; i < fittings.length; i++) {
-    if (fittings[i].minimumClass <= hullClass && fittings[i].maximumClass >= hullClass) {
+    if (
+      fittings[i].minimumClass <= hullClass &&
+      fittings[i].maximumClass >= hullClass
+    ) {
       result.push(fittings[i]);
     }
   }
@@ -440,16 +461,142 @@ export class HullType {
 
 function allHullTypes() {
   return [
-    new HullType("strike fighter", 200000, 5, 5, 8, 1, 11, 16, 5, 2, 1, 0, "+2"),
+    new HullType(
+      "strike fighter",
+      200000,
+      5,
+      5,
+      8,
+      1,
+      11,
+      16,
+      5,
+      2,
+      1,
+      0,
+      "+2",
+    ),
     new HullType("shuttle", 200000, 3, 0, 15, 1, 10, 11, 3, 5, 1, 0, "+1"),
-    new HullType("free merchant", 500000, 3, 2, 20, 1, 6, 14, 10, 15, 2, 1, "+1"),
-    new HullType("patrol boat", 2500000, 4, 5, 25, 5, 20, 14, 15, 10, 4, 1, "+2"),
-    new HullType("corvette", 4000000, 2, 10, 40, 10, 40, 13, 15, 15, 6, 1, "+2"),
-    new HullType("heavy frigate", 7000000, 1, 10, 50, 30, 120, 15, 25, 20, 8, 1, "+2"),
-    new HullType("bulk freighter", 5000000, 0, 0, 40, 10, 40, 11, 15, 25, 2, 2, "+1"),
-    new HullType("fleet cruiser", 10000000, 1, 15, 60, 50, 200, 14, 50, 30, 10, 2, "+2"),
-    new HullType("battleship", 50000000, 0, 20, 100, 200, 1000, 16, 75, 50, 15, 3, "+3"),
-    new HullType("carrier", 60000000, 0, 10, 75, 300, 1500, 14, 50, 100, 4, 3, "+3"),
+    new HullType(
+      "free merchant",
+      500000,
+      3,
+      2,
+      20,
+      1,
+      6,
+      14,
+      10,
+      15,
+      2,
+      1,
+      "+1",
+    ),
+    new HullType(
+      "patrol boat",
+      2500000,
+      4,
+      5,
+      25,
+      5,
+      20,
+      14,
+      15,
+      10,
+      4,
+      1,
+      "+2",
+    ),
+    new HullType(
+      "corvette",
+      4000000,
+      2,
+      10,
+      40,
+      10,
+      40,
+      13,
+      15,
+      15,
+      6,
+      1,
+      "+2",
+    ),
+    new HullType(
+      "heavy frigate",
+      7000000,
+      1,
+      10,
+      50,
+      30,
+      120,
+      15,
+      25,
+      20,
+      8,
+      1,
+      "+2",
+    ),
+    new HullType(
+      "bulk freighter",
+      5000000,
+      0,
+      0,
+      40,
+      10,
+      40,
+      11,
+      15,
+      25,
+      2,
+      2,
+      "+1",
+    ),
+    new HullType(
+      "fleet cruiser",
+      10000000,
+      1,
+      15,
+      60,
+      50,
+      200,
+      14,
+      50,
+      30,
+      10,
+      2,
+      "+2",
+    ),
+    new HullType(
+      "battleship",
+      50000000,
+      0,
+      20,
+      100,
+      200,
+      1000,
+      16,
+      75,
+      50,
+      15,
+      3,
+      "+3",
+    ),
+    new HullType(
+      "carrier",
+      60000000,
+      0,
+      10,
+      75,
+      300,
+      1500,
+      14,
+      50,
+      100,
+      4,
+      3,
+      "+3",
+    ),
   ];
 }
 
@@ -510,7 +657,7 @@ function randomStarshipOwnerType() {
       false,
       false,
       ["shuttle", "free merchant"],
-      function() {
+      function () {
         const shipClassNames = [
           "Coventry",
           "Hermes",
@@ -545,7 +692,7 @@ function randomStarshipOwnerType() {
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
-      function() {
+      function () {
         const shipNames = [
           "Mistral",
           "Dictator",
@@ -615,7 +762,7 @@ function randomStarshipOwnerType() {
       false,
       false,
       ["shuttle", "free merchant", "bulk freighter"],
-      function() {
+      function () {
         const shipClassNames = [
           "Coventry",
           "Hermes",
@@ -650,7 +797,7 @@ function randomStarshipOwnerType() {
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
-      function() {
+      function () {
         const shipNames = [
           "Mistral",
           "Dictator",
@@ -721,7 +868,7 @@ function randomStarshipOwnerType() {
       false,
       false,
       ["shuttle", "free merchant", "bulk freighter"],
-      function() {
+      function () {
         const shipClassNames = [
           "Behemoth",
           "Leviathan",
@@ -743,7 +890,7 @@ function randomStarshipOwnerType() {
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
-      function() {
+      function () {
         const shipNames = [
           "Mistral",
           "Dictator",
@@ -814,7 +961,7 @@ function randomStarshipOwnerType() {
       true,
       true,
       ["patrol boat"],
-      function() {
+      function () {
         const shipClassNames = [
           "Shrike",
           "Shooting Star",
@@ -835,7 +982,7 @@ function randomStarshipOwnerType() {
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
-      function() {
+      function () {
         let shipName = "";
 
         shipName = RND.item([
@@ -883,7 +1030,7 @@ function randomStarshipOwnerType() {
       true,
       false,
       ["fleet cruiser", "battleship", "carrier"],
-      function() {
+      function () {
         const shipClassNames = [
           "Vindicator",
           "Imperator",
@@ -905,7 +1052,7 @@ function randomStarshipOwnerType() {
 
         return RND.item(shipClassNames) + "-class";
       },
-      function() {
+      function () {
         const shipNames = [
           "Righteousness",
           "Hammer of God",
@@ -965,7 +1112,7 @@ function randomStarshipOwnerType() {
       true,
       false,
       ["patrol boat", "corvette", "heavy frigate"],
-      function() {
+      function () {
         const shipClassNames = [
           "Vanguard",
           "Shrike",
@@ -986,7 +1133,7 @@ function randomStarshipOwnerType() {
 
         return RND.item(shipClassNames) + "-class";
       },
-      function() {
+      function () {
         const shipNames = [
           "Gibraltar",
           "Biddeford",
@@ -1042,7 +1189,7 @@ function randomStarshipOwnerType() {
       true,
       false,
       ["strike fighter", "patrol boat", "corvette", "heavy frigate"],
-      function() {
+      function () {
         const shipClassNames = [
           "Coventry",
           "Hermes",
@@ -1077,7 +1224,7 @@ function randomStarshipOwnerType() {
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
-      function() {
+      function () {
         const shipNames = [
           "Revenge",
           "Blood",
@@ -1129,7 +1276,7 @@ function randomStarshipOwnerType() {
       true,
       false,
       ["free merchant", "patrol boat"],
-      function() {
+      function () {
         const shipClassNames = [
           "Coventry",
           "Hermes",
@@ -1164,7 +1311,7 @@ function randomStarshipOwnerType() {
 
         return modelNumber + " " + RND.item(shipClassNames);
       },
-      function() {
+      function () {
         const shipNames = [
           "Mistral",
           "Dictator",
@@ -1269,14 +1416,46 @@ export class DriveFitting {
 }
 
 function getStarterDrive() {
-  return new DriveFitting("Spike Drive-1", 0, 1, 1, 0, 3, "A class-1 spike drive");
+  return new DriveFitting(
+    "Spike Drive-1",
+    0,
+    1,
+    1,
+    0,
+    3,
+    "A class-1 spike drive",
+  );
 }
 
 function allDriveFittings() {
   return [
-    new DriveFitting("Spike Drive-2", 10000, 1, 1, 0, 3, "Upgrade a spike drive to drive-2 rating"),
-    new DriveFitting("Spike Drive-3", 20000, 2, 2, 0, 3, "Upgrade a spike drive to drive-3 rating"),
-    new DriveFitting("Spike Drive-4", 40000, 2, 3, 1, 3, "Upgrade a spike drive to drive-4 rating"),
+    new DriveFitting(
+      "Spike Drive-2",
+      10000,
+      1,
+      1,
+      0,
+      3,
+      "Upgrade a spike drive to drive-2 rating",
+    ),
+    new DriveFitting(
+      "Spike Drive-3",
+      20000,
+      2,
+      2,
+      0,
+      3,
+      "Upgrade a spike drive to drive-3 rating",
+    ),
+    new DriveFitting(
+      "Spike Drive-4",
+      40000,
+      2,
+      3,
+      1,
+      3,
+      "Upgrade a spike drive to drive-4 rating",
+    ),
     new DriveFitting(
       "Spike Drive-5",
       100000,
@@ -1917,8 +2096,22 @@ function allDefenses() {
       1,
       "Makes enemy boarding more difficult",
     ),
-    new DefenseFitting("Burst ECM Generator", 25000, 2, 1, 1, "Negate one successful hit"),
-    new DefenseFitting("Foxer Drones", 10000, 2, 1, 3, "+2 AC for one round when fired, Ammo 5"),
+    new DefenseFitting(
+      "Burst ECM Generator",
+      25000,
+      2,
+      1,
+      1,
+      "Negate one successful hit",
+    ),
+    new DefenseFitting(
+      "Foxer Drones",
+      10000,
+      2,
+      1,
+      3,
+      "+2 AC for one round when fired, Ammo 5",
+    ),
     new DefenseFitting(
       "Grav Eddy Displacer",
       50000,
@@ -2006,22 +2199,57 @@ function allWeapons() {
   return [
     new Weapon("Multifocal Laser", 100000, "1d4", 5, 1, 1, 0, 4, ["AP 20"]),
     new Weapon("Reaper Battery", 100000, "3d4", 4, 1, 1, 0, 4, ["Clumsy"]),
-    new Weapon("Fractal Impact Charge", 200000, "2d6", 5, 1, 1, 0, 4, ["AP 15", "Ammo 4"]),
-    new Weapon("Polyspectral MES Beam", 2000000, "2d4", 5, 1, 1, 0, 5, ["AP 25"]),
+    new Weapon("Fractal Impact Charge", 200000, "2d6", 5, 1, 1, 0, 4, [
+      "AP 15",
+      "Ammo 4",
+    ]),
+    new Weapon("Polyspectral MES Beam", 2000000, "2d4", 5, 1, 1, 0, 5, [
+      "AP 25",
+    ]),
     new Weapon("Sandthrower", 50000, "2d4", 3, 1, 1, 0, 4, ["Flak"]),
-    new Weapon("Flak Emitter Battery", 500000, "2d6", 5, 3, 1, 1, 4, ["AP 10", "Flak"]),
-    new Weapon("Torpedo Launcher", 500000, "3d8", 10, 3, 1, 1, 4, ["AP 20", "Ammo 4"]),
-    new Weapon("Charged Particle Caster", 800000, "3d6", 10, 1, 2, 1, 4, ["AP 15", "Clumsy"]),
+    new Weapon("Flak Emitter Battery", 500000, "2d6", 5, 3, 1, 1, 4, [
+      "AP 10",
+      "Flak",
+    ]),
+    new Weapon("Torpedo Launcher", 500000, "3d8", 10, 3, 1, 1, 4, [
+      "AP 20",
+      "Ammo 4",
+    ]),
+    new Weapon("Charged Particle Caster", 800000, "3d6", 10, 1, 2, 1, 4, [
+      "AP 15",
+      "Clumsy",
+    ]),
     new Weapon("Plasma Beam", 700000, "3d6", 5, 2, 2, 1, 4, ["AP 10"]),
-    new Weapon("Mag Spike Array", 1000000, "2d6+2", 5, 2, 2, 0, 4, ["AP 10", "Flak", "Ammo 5"]),
+    new Weapon("Mag Spike Array", 1000000, "2d6+2", 5, 2, 2, 0, 4, [
+      "AP 10",
+      "Flak",
+      "Ammo 5",
+    ]),
     new Weapon("Nuclear Missiles", 50000, "Special", 5, 1, 2, 0, 4, ["Ammo 5"]),
-    new Weapon("Spinal Beam Cannon", 1500000, "3d10", 10, 5, 3, 2, 4, ["AP 15", "Clumsy"]),
-    new Weapon("Smart Cloud", 2000000, "3d10", 10, 5, 2, 2, 4, ["Cloud", "Clumsy"]),
+    new Weapon("Spinal Beam Cannon", 1500000, "3d10", 10, 5, 3, 2, 4, [
+      "AP 15",
+      "Clumsy",
+    ]),
+    new Weapon("Smart Cloud", 2000000, "3d10", 10, 5, 2, 2, 4, [
+      "Cloud",
+      "Clumsy",
+    ]),
     new Weapon("Gravcannon", 2000000, "4d6", 15, 4, 3, 2, 4, ["AP 20"]),
-    new Weapon("Spike Inversion Projector", 2500000, "3d8", 10, 3, 3, 2, 4, ["AP 15"]),
-    new Weapon("Vortex Tunnel Inductor", 5000000, "3d20", 20, 10, 4, 3, 4, ["AP 20", "Clumsy"]),
-    new Weapon("Mass Cannon", 5000000, "2d20", 10, 5, 4, 3, 4, ["AP 20", "Ammo 4"]),
-    new Weapon("Lightning Charge Mantle", 4000000, "1d20", 15, 5, 2, 3, 4, ["AP 5", "Cloud"]),
+    new Weapon("Spike Inversion Projector", 2500000, "3d8", 10, 3, 3, 2, 4, [
+      "AP 15",
+    ]),
+    new Weapon("Vortex Tunnel Inductor", 5000000, "3d20", 20, 10, 4, 3, 4, [
+      "AP 20",
+      "Clumsy",
+    ]),
+    new Weapon("Mass Cannon", 5000000, "2d20", 10, 5, 4, 3, 4, [
+      "AP 20",
+      "Ammo 4",
+    ]),
+    new Weapon("Lightning Charge Mantle", 4000000, "1d20", 15, 5, 2, 3, 4, [
+      "AP 5",
+      "Cloud",
+    ]),
     new Weapon("Singularity Gun", 20000000, "5d20", 25, 10, 5, 3, 5, ["AP 25"]),
   ];
 }
@@ -2029,7 +2257,7 @@ function allWeapons() {
 function randomManufacturerName() {
   const nameTypes = [
     {
-      generate: function() {
+      generate: function () {
         const prefix = RND.item([
           "Aether",
           "Kurich",
@@ -2047,13 +2275,18 @@ function randomManufacturerName() {
           "Interstellar",
         ]);
 
-        const suffix = RND.item(["Corporation", "Limited", "Technologies", "Fleet Systems"]);
+        const suffix = RND.item([
+          "Corporation",
+          "Limited",
+          "Technologies",
+          "Fleet Systems",
+        ]);
 
         return prefix + " " + suffix;
       },
     },
     {
-      generate: function() {
+      generate: function () {
         const pre1 = RND.item([
           "Xa",
           "Ka",
@@ -2171,17 +2404,22 @@ export function formatAsText(starship: SWNStarship) {
   description += "Minimum Crew: " + starship.hullType.crewMinimum + "\n";
   description += "Maximum Crew: " + starship.hullType.crewMaximum + "\n";
   description += "Current Crew: " + starship.currentCrew + "\n";
-  description += "Total Ship Value: " + new Intl.NumberFormat("en-US").format(starship.totalCost) + " credits\n";
-  description += "Total Crew Cost: "
-    + new Intl.NumberFormat("en-US").format(starship.currentCrew * 43800)
-    + " credits per year\n";
+  description +=
+    "Total Ship Value: " +
+    new Intl.NumberFormat("en-US").format(starship.totalCost) +
+    " credits\n";
+  description +=
+    "Total Crew Cost: " +
+    new Intl.NumberFormat("en-US").format(starship.currentCrew * 43800) +
+    " credits per year\n";
   description += "Crew Skill: " + starship.hullType.crewSkill + "\n";
   description += "Cargo Space: " + starship.tonsOfCargo + " tons\n";
 
   const fittings = [];
 
   for (let i = 0; i < starship.fittings.length; i++) {
-    const fitting = starship.fittings[i].name + ": " + starship.fittings[i].effect;
+    const fitting =
+      starship.fittings[i].name + ": " + starship.fittings[i].effect;
     fittings.push(fitting);
   }
 
@@ -2192,11 +2430,12 @@ export function formatAsText(starship: SWNStarship) {
   const weapons = [];
 
   for (let i = 0; i < starship.weapons.length; i++) {
-    const weapon = starship.weapons[i].name
-      + ": "
-      + starship.weapons[i].damage
-      + " damage, "
-      + starship.weapons[i].qualities.join(", ");
+    const weapon =
+      starship.weapons[i].name +
+      ": " +
+      starship.weapons[i].damage +
+      " damage, " +
+      starship.weapons[i].qualities.join(", ");
     weapons.push(weapon);
   }
 
@@ -2207,7 +2446,8 @@ export function formatAsText(starship: SWNStarship) {
   const defenses = [];
 
   for (let i = 0; i < starship.defenses.length; i++) {
-    const defense = starship.defenses[i].name + ": " + starship.defenses[i].effect;
+    const defense =
+      starship.defenses[i].name + ": " + starship.defenses[i].effect;
     defenses.push(defense);
   }
 

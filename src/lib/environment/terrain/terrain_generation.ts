@@ -7,7 +7,10 @@ export function generate(config: TerrainGeneratorConfig): Terrain {
   // this will be used on its own for regions, but can also be used when generating a world or a map
   // sometimes it will be used as the basis for generating neighboring terrains
 
-  const reliefEnergy = random.float(config.reliefEnergyMin, config.reliefEnergyMax);
+  const reliefEnergy = random.float(
+    config.reliefEnergyMin,
+    config.reliefEnergyMax,
+  );
   const baseElevation = random.float(config.elevationMin, config.elevationMax);
   const elevationMin = Math.max(baseElevation - reliefEnergy, -1.0);
   const elevationMax = Math.min(baseElevation + reliefEnergy, 1.0);
@@ -51,7 +54,7 @@ export function erode(terrain: Terrain, strength: number): Terrain {
     reliefEnergy: terrain.reliefEnergy / strength,
     normalVector: terrain.normalVector,
     landforms: terrain.landforms,
-  }
+  };
 
   return result;
 }

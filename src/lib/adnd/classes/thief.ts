@@ -57,7 +57,7 @@ export default new ADNDClass(
   2,
   3,
   -3,
-  function(this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
+  function (this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
     let skills = [
       { name: "Pick Pockets", value: 15, points: 0 },
       { name: "Open Locks", value: 10, points: 0 },

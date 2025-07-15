@@ -44,10 +44,13 @@ export default new ADNDClass(
   1,
   4,
   -5,
-  function(character: ADNDCharacter): ADNDCharacter {
+  function (character: ADNDCharacter): ADNDCharacter {
     let allSpells = Spells.getAll();
     for (let i = 0; i < this.spellList.length; i++) {
-      let filteredSpells = Spells.getFilteredSpells(this.spellList[i].filter, allSpells);
+      let filteredSpells = Spells.getFilteredSpells(
+        this.spellList[i].filter,
+        allSpells,
+      );
       filteredSpells = RND.shuffle(filteredSpells);
       for (let j = 0; j < this.spellList[i].count; j++) {
         character.spells.push(filteredSpells.pop());

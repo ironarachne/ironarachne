@@ -23,15 +23,13 @@ export default class ChainmailPattern implements Pattern {
 
     let description = RND.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
-      `${Words.article(this.name)} ${this.name} made of ${
-        RND.item([
-          "loose ",
-          "tight ",
-          "dense ",
-          "heavy ",
-          "",
-        ])
-      }${body.descriptor} rings`,
+      `${Words.article(this.name)} ${this.name} made of ${RND.item([
+        "loose ",
+        "tight ",
+        "dense ",
+        "heavy ",
+        "",
+      ])}${body.descriptor} rings`,
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name}`,
     ]);
 
@@ -44,6 +42,14 @@ export default class ChainmailPattern implements Pattern {
     let armorClass = 16;
     let tags = [name, this.name, "chainmail", "armor"];
 
-    return new Armor(name, description, "torso", armorClass, value, quality, tags);
+    return new Armor(
+      name,
+      description,
+      "torso",
+      armorClass,
+      value,
+      quality,
+      tags,
+    );
   }
 }

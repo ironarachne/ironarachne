@@ -10,7 +10,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("cudgel", "staff", "melee", "1d4", 50),
       new DCCGear("steel vial", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Dwarf");
@@ -22,7 +22,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("hammer", "club", "melee", "1d4", 50),
       new DCCGear("mithril, 1 oz.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Dwarf");
@@ -34,7 +34,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("chisel", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("wood, 10 lbs.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Dwarf");
@@ -46,7 +46,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("sow", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Dwarf");
@@ -58,7 +58,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("pick", "club", "melee", "1d4", 50),
       new DCCGear("lantern", 1),
       2,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Dwarf");
@@ -70,7 +70,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("shovel", "staff", "melee", "1d4", 50),
       new DCCGear("sack", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Dwarf");
@@ -82,7 +82,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("net", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Dwarf");
@@ -94,7 +94,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("hammer", "club", "melee", "1d4", 50),
       new DCCGear("fine stone, 10 lbs.", 1),
       2,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Dwarf");

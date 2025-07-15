@@ -4,7 +4,7 @@ import * as Words from "@ironarachne/words";
 import random from "random";
 
 export function generateDish() {
-  let dish = randomCookingMethod() + " ";
+  let dish = `${randomCookingMethod()} `;
 
   dish += randomMainComponent();
 
@@ -12,20 +12,31 @@ export function generateDish() {
 
   if (vegetableChance > 50) {
     const combiningWord = RND.item(["and", "on", "with"]);
-    dish += " " + combiningWord + " " + randomVegetable();
+    dish += ` ${combiningWord} ${randomVegetable()}`;
   }
 
   const seasoning = randomSeasoning();
 
-  const seasoningPhrase = RND.item(["seasoned with", "flavored with", "spiced with"]);
+  const seasoningPhrase = RND.item([
+    "seasoned with",
+    "flavored with",
+    "spiced with",
+  ]);
 
-  dish += ", " + seasoningPhrase + " " + seasoning;
+  dish += `, ${seasoningPhrase} ${seasoning}`;
 
   return dish;
 }
 
 function randomCookingMethod() {
-  const items = ["roasted", "fried", "baked", "broiled", "seared", "charbroiled"];
+  const items = [
+    "roasted",
+    "fried",
+    "baked",
+    "broiled",
+    "seared",
+    "charbroiled",
+  ];
 
   return RND.item(items);
 }
@@ -65,7 +76,16 @@ function randomFocus() {
     },
     {
       name: "poultry",
-      options: ["chicken", "quail", "turkey", "duck", "pheasant", "goose", "squab", "guineafowl"],
+      options: [
+        "chicken",
+        "quail",
+        "turkey",
+        "duck",
+        "pheasant",
+        "goose",
+        "squab",
+        "guineafowl",
+      ],
     },
     {
       name: "livestock",
@@ -96,7 +116,7 @@ function randomMainComponent() {
 
   const modifierChance = random.int(1, 100);
   if (modifierChance > 80) {
-    mainComponent += " " + RND.item(["sausage", "stew"]);
+    mainComponent += ` ${RND.item(["sausage", "stew"])}`;
   }
 
   return mainComponent;

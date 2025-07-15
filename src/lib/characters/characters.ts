@@ -24,18 +24,18 @@ export function describe(character: Character): string {
   const ucSbj = Words.capitalize(sbj);
   const genderNoun = character.ageCategory.noun;
 
-  const height = `${character.height} cm (${
-    Measurements.inchesToFeetExpression(Measurements.cmToInches(character.height))
-  })`;
+  const height = `${character.height} cm (${Measurements.inchesToFeetExpression(
+    Measurements.cmToInches(character.height),
+  )})`;
   const weight = `${character.weight} kg (${Math.round(Measurements.kgToPounds(character.weight))} lb.)`;
   const spPhrase = `${character.species.adjective} ${genderNoun}`;
   const traits = Words.arrayToPhrase(describeTraits(character));
 
   description = RND.item([
     `${character.firstName} ${character.lastName} is a ${height} tall ${spPhrase}. ${ucSbj} is ${character.age} years old. ${character.firstName} has ${traits}. `,
-    `${character.firstName} is ${
-      Words.article(spPhrase)
-    } ${spPhrase} of ${character.age} years. ${ucSbj} is ${height} tall and weighs ${weight}. ${ucSbj} has ${traits}. `,
+    `${character.firstName} is ${Words.article(
+      spPhrase,
+    )} ${spPhrase} of ${character.age} years. ${ucSbj} is ${height} tall and weighs ${weight}. ${ucSbj} has ${traits}. `,
   ]);
 
   description += `${describePersonality(character)}.`;
@@ -75,7 +75,10 @@ export function generate(config: CharacterGeneratorConfig): Character {
 
   const gender = species.genders.find((g: Gender) => g.name === genderName);
 
-  const ageCategory = AgeCategories.randomWeighted(config.ageCategoryNames, species.ageCategories);
+  const ageCategory = AgeCategories.randomWeighted(
+    config.ageCategoryNames,
+    species.ageCategories,
+  );
 
   let familyNameGenerator = config.familyNameGenerator;
   let femaleNameGenerator = config.femaleNameGenerator;
@@ -110,8 +113,14 @@ export function generate(config: CharacterGeneratorConfig): Character {
     ageCategory.name,
     species.sizeGeneratorConfigMatrix,
   );
-  const height = random.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
-  const weight = random.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
+  const height = random.int(
+    sizeGeneratorConfig.minHeight,
+    sizeGeneratorConfig.maxHeight,
+  );
+  const weight = random.int(
+    sizeGeneratorConfig.minWeight,
+    sizeGeneratorConfig.maxWeight,
+  );
 
   const personalityTraits = getRandomPersonality();
   let physicalTraits = CommonSpecies.randomTraits(species);

@@ -10,7 +10,10 @@ import * as RoomThemes from "../rooms/themes/themes.js";
 export function getTheme(): DungeonTheme {
   let allEncounters = FantasyEncounters.all(false);
   let allSentientOptions = CommonSpecies.sentient();
-  allSentientOptions = CommonSpecies.withCreatureType("humanoid", allSentientOptions);
+  allSentientOptions = CommonSpecies.withCreatureType(
+    "humanoid",
+    allSentientOptions,
+  );
   let numberOfSentientOptions = random.int(1, 2);
 
   let magicSentientOptions = allSentientOptions;
@@ -22,7 +25,11 @@ export function getTheme(): DungeonTheme {
   let magicEncounters = Encounters.withTag("magic", allEncounters);
   magicEncounters = magicEncounters.concat(GenericEncounters.all());
   let magicWeakEncounters = Encounters.belowThreatLevel(3, magicEncounters);
-  let magicStrongEncounters = Encounters.inThreatLevelRange(3, 4, magicEncounters);
+  let magicStrongEncounters = Encounters.inThreatLevelRange(
+    3,
+    4,
+    magicEncounters,
+  );
   let magicBossEncounters = Encounters.withThreatLevel(5, magicEncounters);
 
   let magicNameGen = new MUN.GenericNameGenerator();

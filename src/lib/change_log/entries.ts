@@ -1,10 +1,16 @@
 export default [
   {
+    date: "2025-07-15",
+    summary: "Small updates and fixes.",
+    updates: [
+      "Added more detail to music styles.",
+      "Added more unit tests to ensure accuracy.",
+    ],
+  },
+  {
     date: "2025-05-28",
     summary: "Added a new generator for generating moons.",
-    updates: [
-      "Added a system for generating moons orbiting planets.",
-    ]
+    updates: ["Added a system for generating moons orbiting planets."],
   },
   {
     date: "2025-05-12",
@@ -14,7 +20,7 @@ export default [
       "Made the planet, star system, and star nation generators use the new system.",
       "Added a new system for generating civilizations.",
       "Made the planet and star nation generators use the new civilization system.",
-    ]
+    ],
   },
   {
     date: "2024-12-02",
@@ -23,15 +29,16 @@ export default [
       "Reworked the cyberpunk drug generator's structure.",
       "Updated to Svelte 5.",
       "Fixed the magic weapon generator not using the new lock seed pattern.",
-    ]
+    ],
   },
   {
     date: "2024-11-26",
-    summary: "Big foundational change that will affect regions, dungeons, and others later on.",
+    summary:
+      "Big foundational change that will affect regions, dungeons, and others later on.",
     updates: [
       "Wrote a new system for environment generation, including biomes, climates, and ecosystems.",
       "Added 'Lock Seed' checkbox instead of a button.",
-    ]
+    ],
   },
   {
     date: "2024-09-22",
@@ -41,7 +48,10 @@ export default [
   {
     date: "2024-09-03",
     summary: "",
-    updates: ["Fixed several bugs in the organization generator.", "Added more organization customization options."],
+    updates: [
+      "Fixed several bugs in the organization generator.",
+      "Added more organization customization options.",
+    ],
   },
   {
     date: "2024-01-23",

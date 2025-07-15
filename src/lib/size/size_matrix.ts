@@ -53,10 +53,14 @@ export function convertMatrixToSummary(
           maxAge: maxAge || 0,
           minHeight: matrix[i].entries[j].sizeGeneratorConfig.minHeight,
           maxHeight: matrix[i].entries[j].sizeGeneratorConfig.maxHeight,
-          heightRange: Sizes.getHeightRange(matrix[i].entries[j].sizeGeneratorConfig),
+          heightRange: Sizes.getHeightRange(
+            matrix[i].entries[j].sizeGeneratorConfig,
+          ),
           minWeight: matrix[i].entries[j].sizeGeneratorConfig.minWeight,
           maxWeight: matrix[i].entries[j].sizeGeneratorConfig.maxWeight,
-          weightRange: Sizes.getWeightRange(matrix[i].entries[j].sizeGeneratorConfig),
+          weightRange: Sizes.getWeightRange(
+            matrix[i].entries[j].sizeGeneratorConfig,
+          ),
         });
       }
     }
@@ -65,7 +69,11 @@ export function convertMatrixToSummary(
   return result;
 }
 
-export function getSizeConfig(gender: string, ageCategory: string, sizeMatrix: SizeMatrix): SizeGeneratorConfig {
+export function getSizeConfig(
+  gender: string,
+  ageCategory: string,
+  sizeMatrix: SizeMatrix,
+): SizeGeneratorConfig {
   for (let i = 0; i < sizeMatrix.length; i++) {
     if (sizeMatrix[i].gender == gender) {
       for (let j = 0; j < sizeMatrix[i].entries.length; j++) {
@@ -76,5 +84,7 @@ export function getSizeConfig(gender: string, ageCategory: string, sizeMatrix: S
     }
   }
 
-  throw new Error(`Failed to find size config for ${gender} and ${ageCategory}`);
+  throw new Error(
+    `Failed to find size config for ${gender} and ${ageCategory}`,
+  );
 }

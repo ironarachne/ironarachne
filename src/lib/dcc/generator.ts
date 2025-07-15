@@ -30,19 +30,25 @@ export default class DCCCharacterGenerator {
     character.intelligence = new DCCAttribute(Dice.roll("3d6"));
     character.luck = new DCCAttribute(Dice.roll("3d6"));
 
-    character.numberOfLanguages = character.intelligence.modifier > 0 ? character.intelligence.modifier : 0;
+    character.numberOfLanguages =
+      character.intelligence.modifier > 0 ? character.intelligence.modifier : 0;
 
     character.luckyRoll = randomLuckyRoll(character.luck.modifier);
 
     character.hp = Dice.roll("1d4") + character.stamina.modifier;
 
     character.spellsKnown = getSpellsKnown(character.intelligence.value);
-    character.wizardMaxSpellLevel = getMaxSpellLevel(character.intelligence.value);
-    character.clericMaxSpellLevel = getMaxSpellLevel(character.personality.value);
+    character.wizardMaxSpellLevel = getMaxSpellLevel(
+      character.intelligence.value,
+    );
+    character.clericMaxSpellLevel = getMaxSpellLevel(
+      character.personality.value,
+    );
 
     character.baseSave = 0;
     character.fortitudeSave = character.baseSave + character.stamina.modifier;
-    character.willpowerSave = character.baseSave + character.personality.modifier;
+    character.willpowerSave =
+      character.baseSave + character.personality.modifier;
     character.reflexSave = character.baseSave + character.agility.modifier;
 
     character.gender = RND.item(["male", "female"]);
@@ -148,7 +154,26 @@ function getMaxSpellLevel(score: number): number {
 }
 
 function getSpellsKnown(intScore: number): number {
-  const known = [-9, -9, -9, -9, -2, -2 - 1, -1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2];
+  const known = [
+    -9,
+    -9,
+    -9,
+    -9,
+    -2,
+    -2 - 1,
+    -1,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    1,
+    1,
+    1,
+    2,
+    2,
+  ];
 
   return known[intScore];
 }

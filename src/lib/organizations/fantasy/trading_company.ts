@@ -11,7 +11,10 @@ import type OrganizationType from "../organization_type.js";
 export function generateType(): OrganizationType {
   const config = new HeraldryGeneratorConfig();
   config.chargeCount = RND.item([0, 1]);
-  config.chargeOptions = Charges.matchingAnyTags(["coin", "money", "trade"], Charges.all());
+  config.chargeOptions = Charges.matchingAnyTags(
+    ["coin", "money", "trade"],
+    Charges.all(),
+  );
 
   const nameGenerator = (): string => {
     const nameTypes = [
@@ -61,7 +64,13 @@ export function generateType(): OrganizationType {
 
           const familyName = RND.item(familyNames);
 
-          const moniker = RND.item([" Brothers", " & Sons", " & Son", " Family", ""]);
+          const moniker = RND.item([
+            " Brothers",
+            " & Sons",
+            " & Son",
+            " Family",
+            "",
+          ]);
 
           const suffix = RND.item([
             "Trading Company",
@@ -91,7 +100,9 @@ export function generateType(): OrganizationType {
     ]);
   };
 
-  const leadershipGenerator = (characterGenConfig: CharacterGeneratorConfig): Character => {
+  const leadershipGenerator = (
+    characterGenConfig: CharacterGeneratorConfig,
+  ): Character => {
     characterGenConfig.ageCategoryNames = ["adult"];
 
     const leader = Characters.generate(characterGenConfig);
@@ -127,49 +138,53 @@ export function generateType(): OrganizationType {
 }
 
 function getRanks(): OrganizationRank[] {
-  const ranks: OrganizationRank[] = [{
-    name: "proprietor",
-    title: {
-      femaleTitle: "Proprietor",
-      maleTitle: "Proprietor",
-      femaleHonorific: "Mistress",
-      maleHonorific: "Master",
-      hasLands: false,
-      landName: "",
-      precedence: 0,
+  const ranks: OrganizationRank[] = [
+    {
+      name: "proprietor",
+      title: {
+        femaleTitle: "Proprietor",
+        maleTitle: "Proprietor",
+        femaleHonorific: "Mistress",
+        maleHonorific: "Master",
+        hasLands: false,
+        landName: "",
+        precedence: 0,
+      },
+      tier: 0,
+      parent: null,
+      children: [],
     },
-    tier: 0,
-    parent: null,
-    children: [],
-  }, {
-    name: "manager",
-    title: {
-      femaleTitle: "Manager",
-      maleTitle: "Manager",
-      femaleHonorific: "",
-      maleHonorific: "",
-      hasLands: false,
-      landName: "",
-      precedence: 1,
+    {
+      name: "manager",
+      title: {
+        femaleTitle: "Manager",
+        maleTitle: "Manager",
+        femaleHonorific: "",
+        maleHonorific: "",
+        hasLands: false,
+        landName: "",
+        precedence: 1,
+      },
+      tier: 1,
+      parent: null,
+      children: [],
     },
-    tier: 1,
-    parent: null,
-    children: [],
-  }, {
-    name: "employee",
-    title: {
-      femaleTitle: "Employee",
-      maleTitle: "Employee",
-      femaleHonorific: "",
-      maleHonorific: "",
-      hasLands: false,
-      landName: "",
-      precedence: 2,
+    {
+      name: "employee",
+      title: {
+        femaleTitle: "Employee",
+        maleTitle: "Employee",
+        femaleHonorific: "",
+        maleHonorific: "",
+        hasLands: false,
+        landName: "",
+        precedence: 2,
+      },
+      tier: 2,
+      parent: null,
+      children: [],
     },
-    tier: 2,
-    parent: null,
-    children: [],
-  }];
+  ];
 
   ranks[0].children.push(1);
   ranks[1].parent = 0;

@@ -1,6 +1,6 @@
 import type SettlementCategory from "../settlement_category.js";
 
-export default <SettlementCategory> {
+export default (<SettlementCategory>{
   name: "hamlet",
   minSize: 10,
   maxSize: 49,
@@ -15,4 +15,4 @@ export default <SettlementCategory> {
     "The hamlet consists of a small cluster of houses and barns, with a narrow dirt road leading off into the distance.",
     "There is a small stream running through the hamlet, providing water for the villagers and their crops.",
   ],
-};
+});

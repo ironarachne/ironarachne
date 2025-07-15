@@ -2,7 +2,14 @@ import FoodComponent from "./component.js";
 
 export function all(): FoodComponent[] {
   let result: FoodComponent[] = [];
-  return result.concat(spices(), herbs(), vegetables(), meats(), seafood(), fruits());
+  return result.concat(
+    spices(),
+    herbs(),
+    vegetables(),
+    meats(),
+    seafood(),
+    fruits(),
+  );
 }
 
 export function spices(): FoodComponent[] {
@@ -26,12 +33,30 @@ export function spices(): FoodComponent[] {
 
 export function fruits(): FoodComponent[] {
   return [
-    new FoodComponent("apple", ["sweet"], ["crunchy"], ["red", "green", "yellow"], "fruit"),
+    new FoodComponent(
+      "apple",
+      ["sweet"],
+      ["crunchy"],
+      ["red", "green", "yellow"],
+      "fruit",
+    ),
     new FoodComponent("banana", ["sweet"], ["soft"], ["yellow"], "fruit"),
     new FoodComponent("blackberry", ["sweet"], ["soft"], ["black"], "fruit"),
     new FoodComponent("blueberry", ["sweet"], ["soft"], ["blue"], "fruit"),
-    new FoodComponent("dragonfruit", ["mild"], ["crunchy"], ["pink", "yellow"], "fruit"),
-    new FoodComponent("grape", ["sweet"], ["soft"], ["purple", "green", "red"], "fruit"),
+    new FoodComponent(
+      "dragonfruit",
+      ["mild"],
+      ["crunchy"],
+      ["pink", "yellow"],
+      "fruit",
+    ),
+    new FoodComponent(
+      "grape",
+      ["sweet"],
+      ["soft"],
+      ["purple", "green", "red"],
+      "fruit",
+    ),
     new FoodComponent("grapefruit", ["tart"], ["crunchy"], ["pink"], "fruit"),
     new FoodComponent("guava", ["tart"], ["crunchy"], ["green"], "fruit"),
     new FoodComponent("kiwi", ["tart"], ["soft"], ["brown"], "fruit"),
@@ -41,17 +66,35 @@ export function fruits(): FoodComponent[] {
     new FoodComponent("mango", ["sweet"], ["soft"], ["orange"], "fruit"),
     new FoodComponent("orange", ["tart"], ["crunchy"], ["orange"], "fruit"),
     new FoodComponent("papaya", ["sweet"], ["soft"], ["orange"], "fruit"),
-    new FoodComponent("pineapple", ["sweet"], ["crunchy"], ["brown", "yellow"], "fruit"),
+    new FoodComponent(
+      "pineapple",
+      ["sweet"],
+      ["crunchy"],
+      ["brown", "yellow"],
+      "fruit",
+    ),
     new FoodComponent("raspberry", ["sweet"], ["soft"], ["red"], "fruit"),
     new FoodComponent("strawberry", ["sweet"], ["soft"], ["red"], "fruit"),
-    new FoodComponent("watermelon", ["sweet"], ["crunchy"], ["green", "red"], "fruit"),
+    new FoodComponent(
+      "watermelon",
+      ["sweet"],
+      ["crunchy"],
+      ["green", "red"],
+      "fruit",
+    ),
   ];
 }
 
 export function herbs(): FoodComponent[] {
   return [
     new FoodComponent("basil", ["sweet"], ["aromatic"], ["green"], "herb"),
-    new FoodComponent("bay leaves", ["bitter"], ["aromatic"], ["green"], "herb"),
+    new FoodComponent(
+      "bay leaves",
+      ["bitter"],
+      ["aromatic"],
+      ["green"],
+      "herb",
+    ),
     new FoodComponent("chives", ["sweet"], ["aromatic"], ["green"], "herb"),
     new FoodComponent("cilantro", ["bitter"], ["aromatic"], ["green"], "herb"),
     new FoodComponent("coriander", ["bitter"], ["aromatic"], ["green"], "herb"),
@@ -75,24 +118,78 @@ export function herbs(): FoodComponent[] {
 export function vegetables(): FoodComponent[] {
   return [
     new FoodComponent("artichoke", ["nutty"], ["soft"], ["green"], "vegetable"),
-    new FoodComponent("asparagus", ["nutty"], ["crunchy"], ["green"], "vegetable"),
-    new FoodComponent("beetroot", ["earthy"], ["crunchy"], ["red"], "vegetable"),
-    new FoodComponent("bell pepper", ["sweet"], ["crunchy"], ["green"], "vegetable"),
-    new FoodComponent("broccoli", ["sour"], ["crunchy"], ["green"], "vegetable"),
+    new FoodComponent(
+      "asparagus",
+      ["nutty"],
+      ["crunchy"],
+      ["green"],
+      "vegetable",
+    ),
+    new FoodComponent(
+      "beetroot",
+      ["earthy"],
+      ["crunchy"],
+      ["red"],
+      "vegetable",
+    ),
+    new FoodComponent(
+      "bell pepper",
+      ["sweet"],
+      ["crunchy"],
+      ["green"],
+      "vegetable",
+    ),
+    new FoodComponent(
+      "broccoli",
+      ["sour"],
+      ["crunchy"],
+      ["green"],
+      "vegetable",
+    ),
     new FoodComponent("cabbage", ["sour"], ["crunchy"], ["green"], "vegetable"),
-    new FoodComponent("carrot", ["sweet"], ["crunchy"], ["orange"], "vegetable"),
-    new FoodComponent("cauliflower", ["mild"], ["crunchy"], ["white"], "vegetable"),
+    new FoodComponent(
+      "carrot",
+      ["sweet"],
+      ["crunchy"],
+      ["orange"],
+      "vegetable",
+    ),
+    new FoodComponent(
+      "cauliflower",
+      ["mild"],
+      ["crunchy"],
+      ["white"],
+      "vegetable",
+    ),
     new FoodComponent("celery", ["mild"], ["crunchy"], ["green"], "vegetable"),
-    new FoodComponent("cucumber", ["sour"], ["crunchy"], ["green"], "vegetable"),
+    new FoodComponent(
+      "cucumber",
+      ["sour"],
+      ["crunchy"],
+      ["green"],
+      "vegetable",
+    ),
     new FoodComponent("eggplant", ["mild"], ["soft"], ["purple"], "vegetable"),
     new FoodComponent("kale", ["bitter"], ["leafy"], ["green"], "vegetable"),
     new FoodComponent("onion", ["sour"], ["crunchy"], ["white"], "vegetable"),
     new FoodComponent("potato", ["sweet"], ["crunchy"], ["brown"], "vegetable"),
     new FoodComponent("radish", ["spicy"], ["crunchy"], ["red"], "vegetable"),
     new FoodComponent("spinach", ["bitter"], ["leafy"], ["green"], "vegetable"),
-    new FoodComponent("sweet potato", ["sweet"], ["soft"], ["orange"], "vegetable"),
+    new FoodComponent(
+      "sweet potato",
+      ["sweet"],
+      ["soft"],
+      ["orange"],
+      "vegetable",
+    ),
     new FoodComponent("tomato", ["sour"], ["crunchy"], ["red"], "vegetable"),
-    new FoodComponent("zucchini", ["mild"], ["crunchy"], ["green"], "vegetable"),
+    new FoodComponent(
+      "zucchini",
+      ["mild"],
+      ["crunchy"],
+      ["green"],
+      "vegetable",
+    ),
   ];
 }
 
@@ -127,10 +224,28 @@ export function seafood(): FoodComponent[] {
     new FoodComponent("octopus", ["mild"], ["chewy"], ["white"], "seafood"),
     new FoodComponent("oysters", ["briny"], ["chewy"], ["gray"], "seafood"),
     new FoodComponent("perch", ["mild"], ["firm"], ["pink"], "seafood"),
-    new FoodComponent("salmon", ["mild"], ["soft", "flaky"], ["pink"], "seafood"),
+    new FoodComponent(
+      "salmon",
+      ["mild"],
+      ["soft", "flaky"],
+      ["pink"],
+      "seafood",
+    ),
     new FoodComponent("sardines", ["salty"], ["soft"], ["silver"], "seafood"),
-    new FoodComponent("scallops", ["mild"], ["soft", "chewy"], ["white"], "seafood"),
-    new FoodComponent("shrimp", ["mild"], ["soft", "crunchy"], ["pink"], "seafood"),
+    new FoodComponent(
+      "scallops",
+      ["mild"],
+      ["soft", "chewy"],
+      ["white"],
+      "seafood",
+    ),
+    new FoodComponent(
+      "shrimp",
+      ["mild"],
+      ["soft", "crunchy"],
+      ["pink"],
+      "seafood",
+    ),
     new FoodComponent("squid", ["mild"], ["chewy"], ["white"], "seafood"),
     new FoodComponent("tuna", ["mild"], ["firm"], ["red"], "seafood"),
   ];

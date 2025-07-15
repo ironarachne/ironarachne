@@ -12,7 +12,7 @@ for (let j = 0; j < hornTypes.length; j++) {
   hornAppearances.push(hornTypes[j]);
 }
 
-export default <Species> {
+export default (<Species>{
   name: "tiefling",
   pluralName: "tieflings",
   adjective: "tiefling",
@@ -84,9 +84,25 @@ export default <Species> {
   abilities: [],
   commonality: 10,
   genders: [
-    { name: "female", pronouns: { subjective: "she", objective: "her", possessive: "her", reflexive: "herself" } },
-    { name: "male", pronouns: { subjective: "he", objective: "him", possessive: "his", reflexive: "himself" } },
+    {
+      name: "female",
+      pronouns: {
+        subjective: "she",
+        objective: "her",
+        possessive: "her",
+        reflexive: "herself",
+      },
+    },
+    {
+      name: "male",
+      pronouns: {
+        subjective: "he",
+        objective: "him",
+        possessive: "his",
+        reflexive: "himself",
+      },
+    },
   ],
   sizeGeneratorConfigMatrix: Sizes.getHumanVariant(1.2, 1.0),
   tags: ["corruptible", "tiefling", "demonic", "martial", "magic", "sentient"],
-};
+});

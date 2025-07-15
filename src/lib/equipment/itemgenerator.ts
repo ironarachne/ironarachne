@@ -14,7 +14,10 @@ export default class ItemGenerator {
 
   generate(): Item {
     let quality = random.int(this.config.minQuality, this.config.maxQuality);
-    let components = Components.withMaxQuality(this.config.maxQuality, this.config.components);
+    let components = Components.withMaxQuality(
+      this.config.maxQuality,
+      this.config.components,
+    );
     components = Components.withMinQuality(this.config.minQuality, components);
     let item = this.config.pattern.complete(this.config.components, quality);
 

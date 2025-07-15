@@ -34,7 +34,11 @@ export class Material {
 
 function getAllMaterialSets(): MaterialSet[] {
   return [
-    new MaterialSet("wooden", "wood", "wood", "soft metal", ["staff", "bow", "crossbow"]),
+    new MaterialSet("wooden", "wood", "wood", "soft metal", [
+      "staff",
+      "bow",
+      "crossbow",
+    ]),
     new MaterialSet("wood and metal", "wood", "hard metal", "soft metal", [
       "staff",
       "club",
@@ -53,9 +57,20 @@ function getAllMaterialSets(): MaterialSet[] {
       "flail",
       "armor",
     ]),
-    new MaterialSet("leather", "leather", "leather", "leather", ["whip", "armor"]),
-    new MaterialSet("leather and metal", "leather", "hard metal", "soft metal", ["whip", "armor"]),
-    new MaterialSet("wood and stone", "wood", "stone", "soft metal", ["hammer"]),
+    new MaterialSet("leather", "leather", "leather", "leather", [
+      "whip",
+      "armor",
+    ]),
+    new MaterialSet(
+      "leather and metal",
+      "leather",
+      "hard metal",
+      "soft metal",
+      ["whip", "armor"],
+    ),
+    new MaterialSet("wood and stone", "wood", "stone", "soft metal", [
+      "hammer",
+    ]),
   ];
 }
 

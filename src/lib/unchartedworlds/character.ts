@@ -12,7 +12,12 @@ export class UWCharacter {
   advancement: string;
   assets: Asset[];
 
-  constructor(stats: StatBlock, careers: Career[], origin: Origin, workspace: Workspace) {
+  constructor(
+    stats: StatBlock,
+    careers: Career[],
+    origin: Origin,
+    workspace: Workspace,
+  ) {
     this.stats = stats;
     this.careers = careers;
     this.origin = origin;
@@ -42,7 +47,9 @@ export function generate() {
   character.descriptors = Words.arrayToPhrase(descriptors);
 
   const skills = [];
-  let careerSkills = character.careers[0].skills.concat(character.careers[1].skills);
+  let careerSkills = character.careers[0].skills.concat(
+    character.careers[1].skills,
+  );
 
   careerSkills = RND.shuffle(careerSkills);
 
@@ -57,7 +64,9 @@ export function generate() {
 
   character.skills = skills;
 
-  const advancements = character.careers[0].advancements.concat(character.careers[1].advancements);
+  const advancements = character.careers[0].advancements.concat(
+    character.careers[1].advancements,
+  );
 
   character.advancement = RND.item(advancements);
 
@@ -128,7 +137,12 @@ export class AssetTemplate {
   commonTraits: Upgrade[];
   upgrades: Upgrade[];
 
-  constructor(name: string, types: AssetType[], commonTraits: Upgrade[], upgrades: Upgrade[]) {
+  constructor(
+    name: string,
+    types: AssetType[],
+    commonTraits: Upgrade[],
+    upgrades: Upgrade[],
+  ) {
     this.name = name;
     this.types = types;
     this.commonTraits = commonTraits;
@@ -165,7 +179,10 @@ function allAssets() {
       [
         new AssetType("Rugged", "Crude, patched, aged and worn."),
         new AssetType("Simple", "Utilitarian, favors function over looks."),
-        new AssetType("Cultural", "Incorporates popular styles/elements of a culture."),
+        new AssetType(
+          "Cultural",
+          "Incorporates popular styles/elements of a culture.",
+        ),
         new AssetType("Formal", "Well cut and stylish."),
         new AssetType(
           "Uniform",
@@ -197,7 +214,10 @@ function allAssets() {
           "Rig",
           "Choose a Kit: That Kit is integrated in the suit. Can still carry a second Kit.",
         ),
-        new Upgrade("Tough", "Protects from elements, hard to damage, easy to repair."),
+        new Upgrade(
+          "Tough",
+          "Protects from elements, hard to damage, easy to repair.",
+        ),
         new Upgrade("Sealed", "Airtight suit with helmet and oxygen tank."),
         new Upgrade(
           "Sensor",
@@ -211,7 +231,10 @@ function allAssets() {
           "Stealthy",
           "Muffled, blends in to environments, difficult to pick up on scanners.",
         ),
-        new Upgrade("Visor", "Choose a type of information. The visor detects that subject."),
+        new Upgrade(
+          "Visor",
+          "Choose a type of information. The visor detects that subject.",
+        ),
       ],
     ),
     new AssetTemplate(
@@ -240,7 +263,10 @@ function allAssets() {
           "Armed",
           "Choose a Class 1 Firearm. The crew is equipped with it and trained in its use.",
         ),
-        new Upgrade("Artillery", "Able to bombard with artillery, turrets or starship weaponry."),
+        new Upgrade(
+          "Artillery",
+          "Able to bombard with artillery, turrets or starship weaponry.",
+        ),
         new Upgrade(
           "Athletic",
           "Graceful, swift, strong and flexible. Much better than average, physically.",
@@ -265,7 +291,10 @@ function allAssets() {
           "Fearless",
           "Never afraid or intimidated, will follow insane orders but often go too far.",
         ),
-        new Upgrade("Imposing", "Imposing in some way. Able to frighten, threaten, dissuade, etc."),
+        new Upgrade(
+          "Imposing",
+          "Imposing in some way. Able to frighten, threaten, dissuade, etc.",
+        ),
         new Upgrade(
           "Informants",
           "Able to collect information and report back, or pass on information.",
@@ -286,8 +315,14 @@ function allAssets() {
           "Numerous",
           "There are a large number of them, you have trouble keeping track of them all.",
         ),
-        new Upgrade("Rugged", "Can work in harsh climates for extended periods of time."),
-        new Upgrade("Stealthy", "Able to sneak into (or out of) places, and pass unnoticed."),
+        new Upgrade(
+          "Rugged",
+          "Can work in harsh climates for extended periods of time.",
+        ),
+        new Upgrade(
+          "Stealthy",
+          "Able to sneak into (or out of) places, and pass unnoticed.",
+        ),
         new Upgrade(
           "Teamsters",
           "Able to quickly load, unload, assemble and pack away heavy objects and cargo.",
@@ -298,12 +333,21 @@ function allAssets() {
     new AssetTemplate(
       "Explosive",
       [
-        new AssetType("Grenade", "One-handed thrown explosive. Optimal Range: Close"),
-        new AssetType("Charge", "Two-handed placed explosive. Optimal Range: Melee"),
+        new AssetType(
+          "Grenade",
+          "One-handed thrown explosive. Optimal Range: Close",
+        ),
+        new AssetType(
+          "Charge",
+          "Two-handed placed explosive. Optimal Range: Melee",
+        ),
       ],
       [],
       [
-        new Upgrade("Breaching", "Breaches reinforced buildings and starships. Charge only."),
+        new Upgrade(
+          "Breaching",
+          "Breaches reinforced buildings and starships. Charge only.",
+        ),
         new Upgrade(
           "Chemical",
           "Creates lasting chemical reaction. Ex: fire, corrosion, frost, smoke, etc.",
@@ -312,7 +356,10 @@ function allAssets() {
           "Cluster",
           "Scatters secondary explosives in the area of effect, which then detonate.",
         ),
-        new Upgrade("Concealed", "Inconspicuous, easily hidden, doesn't show on scanners."),
+        new Upgrade(
+          "Concealed",
+          "Inconspicuous, easily hidden, doesn't show on scanners.",
+        ),
         new Upgrade(
           "Concussive",
           "Exceptionally loud and bright. Deafens, blinds and knocks away.",
@@ -321,23 +368,59 @@ function allAssets() {
           "Destructive",
           "Causes property damage, damages machinery and vehicles. Grenade only.",
         ),
-        new Upgrade("Focused", "Directed high explosive force, little collateral damage."),
-        new Upgrade("Haywire", "Disrupts electronic systems, scanners and advanced weaponry."),
-        new Upgrade("High Yield", "Massive area of effect, city block or more. Charge only."),
-        new Upgrade("Kinetic", "Heavy kinetic force that breaks bones and knocks people over."),
-        new Upgrade("Plasma", "Creates a nova of incandescent energy that vaporizes matter."),
-        new Upgrade("Shock", "Electrocutes, causes malfunctions in electronics and robots."),
-        new Upgrade("Shrapnel", "Causes amputation, bleeding and disfigurement in a wide radius."),
-        new Upgrade("Sticky", "Attaches itself to any surface, difficult to remove."),
-        new Upgrade("Stun", "Non-lethal. Stuns, snares or renders unconscious."),
-        new Upgrade("Stylish", "The explosion looks impressive, distinctive and unique."),
+        new Upgrade(
+          "Focused",
+          "Directed high explosive force, little collateral damage.",
+        ),
+        new Upgrade(
+          "Haywire",
+          "Disrupts electronic systems, scanners and advanced weaponry.",
+        ),
+        new Upgrade(
+          "High Yield",
+          "Massive area of effect, city block or more. Charge only.",
+        ),
+        new Upgrade(
+          "Kinetic",
+          "Heavy kinetic force that breaks bones and knocks people over.",
+        ),
+        new Upgrade(
+          "Plasma",
+          "Creates a nova of incandescent energy that vaporizes matter.",
+        ),
+        new Upgrade(
+          "Shock",
+          "Electrocutes, causes malfunctions in electronics and robots.",
+        ),
+        new Upgrade(
+          "Shrapnel",
+          "Causes amputation, bleeding and disfigurement in a wide radius.",
+        ),
+        new Upgrade(
+          "Sticky",
+          "Attaches itself to any surface, difficult to remove.",
+        ),
+        new Upgrade(
+          "Stun",
+          "Non-lethal. Stuns, snares or renders unconscious.",
+        ),
+        new Upgrade(
+          "Stylish",
+          "The explosion looks impressive, distinctive and unique.",
+        ),
       ],
     ),
     new AssetTemplate(
       "Firearm",
       [
-        new AssetType("Pistol", "One handed ranged weapon, Optimal Ranges: Adjacent, Close."),
-        new AssetType("Rifle", "Two handed ranged weapon, Optimal Ranges: Close, Far."),
+        new AssetType(
+          "Pistol",
+          "One handed ranged weapon, Optimal Ranges: Adjacent, Close.",
+        ),
+        new AssetType(
+          "Rifle",
+          "Two handed ranged weapon, Optimal Ranges: Close, Far.",
+        ),
       ],
       [],
       [
@@ -345,31 +428,76 @@ function allAssets() {
           "Attachment",
           "Attach Class 0 Small weapon with Sharp, Ripper, Energy or Shock.",
         ),
-        new Upgrade("Burst", "Instead of a single shot, sprays shots in a wide cone."),
-        new Upgrade("Concealed", "Inconspicuous, easily hidden, doesn't show on scanners."),
+        new Upgrade(
+          "Burst",
+          "Instead of a single shot, sprays shots in a wide cone.",
+        ),
+        new Upgrade(
+          "Concealed",
+          "Inconspicuous, easily hidden, doesn't show on scanners.",
+        ),
         new Upgrade(
           "Chemical",
           "Creates lasting chemical reaction. Ex: fire, corrosion, frost, smoke, etc.",
         ),
-        new Upgrade("Destructive", "Causes property damage, damages machinery and vehicles."),
+        new Upgrade(
+          "Destructive",
+          "Causes property damage, damages machinery and vehicles.",
+        ),
         new Upgrade(
           "Explosive",
           "Loud. Causes messy wounds, property damage near the point of impact.",
         ),
-        new Upgrade("Impact", "Heavy kinetic force that breaks bones and knocks people over."),
+        new Upgrade(
+          "Impact",
+          "Heavy kinetic force that breaks bones and knocks people over.",
+        ),
         new Upgrade("Keyed", "Can only be fired by you unless you unlock it."),
-        new Upgrade("Laser", "Projects focused beams of energy that can cut or melt materials."),
-        new Upgrade("Launcher", "Lobbed, arcing projectile with a modest area of effect."),
-        new Upgrade("Mounted", "Mounted to a forearm or shoulder rig, keeps hands free."),
+        new Upgrade(
+          "Laser",
+          "Projects focused beams of energy that can cut or melt materials.",
+        ),
+        new Upgrade(
+          "Launcher",
+          "Lobbed, arcing projectile with a modest area of effect.",
+        ),
+        new Upgrade(
+          "Mounted",
+          "Mounted to a forearm or shoulder rig, keeps hands free.",
+        ),
         new Upgrade("Penetrating", "Ignores Armor."),
-        new Upgrade("Plasma", "Fires bright bolts of supercharged, burning energy."),
-        new Upgrade("Rapid Fire", "Unleashes suppressing fire at multiple targets."),
-        new Upgrade("Scope", "Can fire at distant objects. Optimal Ranges: Far, Distant."),
-        new Upgrade("Shock", "Electrocutes, causes malfunctions in electronics and robots."),
-        new Upgrade("Shrapnel", "Causes amputation, bleeding and disfigurement in a small radius."),
-        new Upgrade("Silenced", "Suppressed muzzle flash and practically silent shot."),
-        new Upgrade("Stabilized", "No recoil, can be used in micro-gravity environments."),
-        new Upgrade("Stun", "Non-lethal. Stuns, snares or renders unconscious."),
+        new Upgrade(
+          "Plasma",
+          "Fires bright bolts of supercharged, burning energy.",
+        ),
+        new Upgrade(
+          "Rapid Fire",
+          "Unleashes suppressing fire at multiple targets.",
+        ),
+        new Upgrade(
+          "Scope",
+          "Can fire at distant objects. Optimal Ranges: Far, Distant.",
+        ),
+        new Upgrade(
+          "Shock",
+          "Electrocutes, causes malfunctions in electronics and robots.",
+        ),
+        new Upgrade(
+          "Shrapnel",
+          "Causes amputation, bleeding and disfigurement in a small radius.",
+        ),
+        new Upgrade(
+          "Silenced",
+          "Suppressed muzzle flash and practically silent shot.",
+        ),
+        new Upgrade(
+          "Stabilized",
+          "No recoil, can be used in micro-gravity environments.",
+        ),
+        new Upgrade(
+          "Stun",
+          "Non-lethal. Stuns, snares or renders unconscious.",
+        ),
         new Upgrade("Stylish", "Looks impressive, distinctive and unique."),
       ],
     ),
@@ -393,7 +521,10 @@ function allAssets() {
           "Armed",
           "A heavy weapon (purchased separately) attached to the vehicle, fired by the pilot.",
         ),
-        new Upgrade("Controlled", "Can be remotely activated and given directions with Interface."),
+        new Upgrade(
+          "Controlled",
+          "Can be remotely activated and given directions with Interface.",
+        ),
         new Upgrade(
           "Luxury",
           "Impressive, high quality and very comfortable. Various quality-of-life features.",
@@ -406,7 +537,10 @@ function allAssets() {
           "Sealed",
           "Fully enclosed frame with oxygen source. Can function in space, under water, etc.",
         ),
-        new Upgrade("Sensors", "The vehicle gathers various types of information."),
+        new Upgrade(
+          "Sensors",
+          "The vehicle gathers various types of information.",
+        ),
         new Upgrade(
           "Shielded",
           "+1 Armor provided by extended grav field. Blocks remote Access and hacking.",
@@ -419,24 +553,42 @@ function allAssets() {
           "Tool",
           "Choose a melee weapon upgrade to represent a tool attached to this vehicle.",
         ),
-        new Upgrade("Transport", "Can carry a dozen people or a cargo container. Shuttle only."),
+        new Upgrade(
+          "Transport",
+          "Can carry a dozen people or a cargo container. Shuttle only.",
+        ),
         new Upgrade(
           "Turret",
           "A heavy weapon (purchased separately) on a swivel mount, fired by a passenger.",
         ),
-        new Upgrade("Workspace", "Choose a Kit to be integrated into the vehicle."),
+        new Upgrade(
+          "Workspace",
+          "Choose a Kit to be integrated into the vehicle.",
+        ),
       ],
     ),
     new AssetTemplate(
       "Heavy Weapon",
       [],
       [
-        new Upgrade("Heavy Weapon", "Two-handed ranged weapon. Optimal Ranges: Far, Distant."),
-        new Upgrade("Destructive", "Causes property damage, damages machinery and vehicles."),
-        new Upgrade("Clumsy", "Heavy and awkward, forces Face Adversity on physical activity."),
+        new Upgrade(
+          "Heavy Weapon",
+          "Two-handed ranged weapon. Optimal Ranges: Far, Distant.",
+        ),
+        new Upgrade(
+          "Destructive",
+          "Causes property damage, damages machinery and vehicles.",
+        ),
+        new Upgrade(
+          "Clumsy",
+          "Heavy and awkward, forces Face Adversity on physical activity.",
+        ),
       ],
       [
-        new Upgrade("Breaching", "Damages starships and reinforced structures."),
+        new Upgrade(
+          "Breaching",
+          "Damages starships and reinforced structures.",
+        ),
         new Upgrade(
           "Chemical",
           "Creates lasting chemical reaction. Ex: fire, corrosion, frost, smoke, etc.",
@@ -446,21 +598,42 @@ function allAssets() {
           "Exceptionally loud and bright. Deafens, blinds and knocks away.",
         ),
         new Upgrade("Detonation", "Explodes in a large blast radius."),
-        new Upgrade("Impact", "Heavy kinetic force that breaks bones and knocks people over."),
+        new Upgrade(
+          "Impact",
+          "Heavy kinetic force that breaks bones and knocks people over.",
+        ),
         new Upgrade("Keyed", "Can only be fired by you unless you unlock it."),
-        new Upgrade("Laser", "Projects focused beams of energy that can cut or melt materials."),
+        new Upgrade(
+          "Laser",
+          "Projects focused beams of energy that can cut or melt materials.",
+        ),
         new Upgrade("Penetrating", "Ignores Armor."),
-        new Upgrade("Plasma", "Fires bright bolts of supercharged, burning energy."),
+        new Upgrade(
+          "Plasma",
+          "Fires bright bolts of supercharged, burning energy.",
+        ),
         new Upgrade("Seeking", "Projectile arcs towards a moving target."),
-        new Upgrade("Shock", "Electrocutes, causes malfunctions in electronics and robots."),
-        new Upgrade("Shrapnel", "Causes amputation, bleeding and disfigurement in a wide radius."),
+        new Upgrade(
+          "Shock",
+          "Electrocutes, causes malfunctions in electronics and robots.",
+        ),
+        new Upgrade(
+          "Shrapnel",
+          "Causes amputation, bleeding and disfigurement in a wide radius.",
+        ),
         new Upgrade(
           "Spray",
           "Reduce distance, coverage increased to wide cone. Optimal Range: Close.",
         ),
-        new Upgrade("Stun", "Non-lethal. Stuns, snares or renders unconscious."),
+        new Upgrade(
+          "Stun",
+          "Non-lethal. Stuns, snares or renders unconscious.",
+        ),
         new Upgrade("Stylish", "Looks impressive, distinctive and unique."),
-        new Upgrade("Sustained", "Unleashes a constant suppressing fire at multiple targets."),
+        new Upgrade(
+          "Sustained",
+          "Unleashes a constant suppressing fire at multiple targets.",
+        ),
       ],
     ),
     new AssetTemplate(
@@ -490,8 +663,14 @@ function allAssets() {
           "Armed",
           "A heavy weapon (purchased separately) attached to the vehicle, fired by the pilot.",
         ),
-        new Upgrade("Boosters", "Greatly increases overland speed. Allows short jumps."),
-        new Upgrade("Controlled", "Can be remotely activated and given directions."),
+        new Upgrade(
+          "Boosters",
+          "Greatly increases overland speed. Allows short jumps.",
+        ),
+        new Upgrade(
+          "Controlled",
+          "Can be remotely activated and given directions.",
+        ),
         new Upgrade(
           "Luxury",
           "Impressive, high quality and very comfortable. Various quality-of-life features.",
@@ -509,7 +688,10 @@ function allAssets() {
           "Sealed",
           "Fully enclosed frame with oxygen source. Can function in space, under water, etc.",
         ),
-        new Upgrade("Sensors", "The vehicle gathers various types of information."),
+        new Upgrade(
+          "Sensors",
+          "The vehicle gathers various types of information.",
+        ),
         new Upgrade(
           "Stealthy",
           "Silent, difficult to pick up on sensors, occupants invisible to sensors.",
@@ -526,7 +708,10 @@ function allAssets() {
           "Turret",
           "A heavy weapon (purchased separately) on a swivel mount, fired by a passenger.",
         ),
-        new Upgrade("Workspace", "Choose a Kit to be integrated into the vehicle."),
+        new Upgrade(
+          "Workspace",
+          "Choose a Kit to be integrated into the vehicle.",
+        ),
       ],
     ),
     new AssetTemplate(
@@ -541,27 +726,60 @@ function allAssets() {
         ),
       ],
       [
-        new Upgrade("Concealed", "Inconspicuous, easily hidden, doesn't show on scanners."),
+        new Upgrade(
+          "Concealed",
+          "Inconspicuous, easily hidden, doesn't show on scanners.",
+        ),
         new Upgrade("Defensive", "Can parry, deflect and disarm."),
-        new Upgrade("Destructive", "Causes property damage, damages machinery and vehicles."),
-        new Upgrade("Energy", "Glows with incandescent energy, melts, burns, cauterizes."),
+        new Upgrade(
+          "Destructive",
+          "Causes property damage, damages machinery and vehicles.",
+        ),
+        new Upgrade(
+          "Energy",
+          "Glows with incandescent energy, melts, burns, cauterizes.",
+        ),
         new Upgrade(
           "Flexible",
           "Whip length capable of binding and lashing. Optimal Range: Adjacent",
         ),
-        new Upgrade("Glove", "A heavy, weaponized glove. Can still manipulate objects."),
-        new Upgrade("Hafted", "Two handed. Long reach. Sweeping attacks. Range: Melee, Adjacent"),
-        new Upgrade("Heavy", "Two handed. Massive, resilient. Devastating attacks, hard to block."),
-        new Upgrade("Impact", "Heavy kinetic force that breaks bones and knocks people over."),
+        new Upgrade(
+          "Glove",
+          "A heavy, weaponized glove. Can still manipulate objects.",
+        ),
+        new Upgrade(
+          "Hafted",
+          "Two handed. Long reach. Sweeping attacks. Range: Melee, Adjacent",
+        ),
+        new Upgrade(
+          "Heavy",
+          "Two handed. Massive, resilient. Devastating attacks, hard to block.",
+        ),
+        new Upgrade(
+          "Impact",
+          "Heavy kinetic force that breaks bones and knocks people over.",
+        ),
         new Upgrade(
           "Impaling",
           "Can pin targets, pierce thin materials, and stab with great accuracy.",
         ),
         new Upgrade("Penetrating", "Ignores Armor."),
-        new Upgrade("Ripper", "Loud mechanical motion rips, tears, grinds or shreds."),
-        new Upgrade("Severing", "Chops, cuts, causes bleeding and can sever limbs."),
-        new Upgrade("Shock", "Electrocutes, causes malfunctions in electronics and robots."),
-        new Upgrade("Stun", "Non-lethal. Stuns, snares or renders unconscious."),
+        new Upgrade(
+          "Ripper",
+          "Loud mechanical motion rips, tears, grinds or shreds.",
+        ),
+        new Upgrade(
+          "Severing",
+          "Chops, cuts, causes bleeding and can sever limbs.",
+        ),
+        new Upgrade(
+          "Shock",
+          "Electrocutes, causes malfunctions in electronics and robots.",
+        ),
+        new Upgrade(
+          "Stun",
+          "Non-lethal. Stuns, snares or renders unconscious.",
+        ),
         new Upgrade("Stylish", "Looks impressive, distinctive and unique."),
         new Upgrade(
           "Thrown",
@@ -707,7 +925,10 @@ function randomAssetOfType(assetTypeName: string, assetClass: number) {
   }
 
   let assetName = "Class " + assetClass + " " + assetTemplate.name;
-  let chosenAssetType = new AssetType(assetTemplate.name, assetTemplate.description);
+  let chosenAssetType = new AssetType(
+    assetTemplate.name,
+    assetTemplate.description,
+  );
 
   if (assetTemplate.types.length > 0) {
     chosenAssetType = RND.item(assetTemplate.types);
@@ -715,7 +936,13 @@ function randomAssetOfType(assetTypeName: string, assetClass: number) {
     description = chosenAssetType.description;
   }
 
-  return new Asset(assetName, description, assetClass, chosenAssetType, upgrades);
+  return new Asset(
+    assetName,
+    description,
+    assetClass,
+    chosenAssetType,
+    upgrades,
+  );
 }
 
 export class Career {
@@ -819,7 +1046,7 @@ function allCareers() {
         ),
       ],
       [
-        "An intentional \"accident\" happens.",
+        'An intentional "accident" happens.',
         "A victim experiences true fear.",
         "A conspiracy is uncovered.",
         "An act is performed covertly.",
@@ -949,7 +1176,7 @@ function allCareers() {
       ],
       [
         "A piece of junk proves pivotal.",
-        "A piece of technology is \"improved.\"",
+        'A piece of technology is "improved."',
         "A breakage occurs.",
         "An explosion alters the situation.",
         "A structural weakness is exposed.",
@@ -1002,7 +1229,10 @@ function allCareers() {
           "Tactics",
           "When you Open Fire or Launch Assault, you choose one or more consequences on a partial success (7-9), not the GM.",
         ),
-        new Skill("Toughness", "You can suffer two injuries of each severity, rather than one."),
+        new Skill(
+          "Toughness",
+          "You can suffer two injuries of each severity, rather than one.",
+        ),
         new Skill(
           "Heavy Lifting",
           "Ignore the Clumsy trait inflicted by heavy weapons, heavy armor, encumbrance and high gravity.",
@@ -1261,7 +1491,10 @@ function randomOrigin() {
           "Assassination",
           "Any successful (10+) Move that results in someone's death also leaves no evidence that you committed the act.",
         ),
-        new Skill("Toughness", "You can suffer two injuries of each severity, rather than one."),
+        new Skill(
+          "Toughness",
+          "You can suffer two injuries of each severity, rather than one.",
+        ),
         new Skill(
           "Sneak Attack",
           "When you get the drop on someone, Roll+Mettle.\n On a 10+, choose 1.\n On a 7-9, the GM will give you 2 of the following options, choose 1 of them.\n • Kill them\n • Injure them\n • Rob/disarm them\n • Capture/disable them",
@@ -1483,7 +1716,7 @@ function randomStats() {
 function skillsInclude(skillName: string, skills: Skill[]) {
   let includes = false;
 
-  skills.forEach(function(element) {
+  skills.forEach(function (element) {
     if (element.name == skillName) {
       includes = true;
     }
@@ -1542,10 +1775,11 @@ export function formatAsText(character: UWCharacter) {
     description += character.assets[i].description + "\n";
 
     for (let j = 0; j < character.assets[i].upgrades.length; j++) {
-      description += character.assets[i].upgrades[j].name
-        + ": "
-        + character.assets[i].upgrades[j].description
-        + "\n";
+      description +=
+        character.assets[i].upgrades[j].name +
+        ": " +
+        character.assets[i].upgrades[j].description +
+        "\n";
     }
   }
 

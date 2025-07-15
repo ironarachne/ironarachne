@@ -66,7 +66,12 @@ export default class CoinGenerator implements TreasureGenerator {
 
     bag.name = `a ${container} of coins`;
 
-    bag.description = "a " + container + " of coins " + RND.item(["containing", "holding", "with"]) + " ";
+    bag.description =
+      "a " +
+      container +
+      " of coins " +
+      RND.item(["containing", "holding", "with"]) +
+      " ";
 
     let moneys = [];
 

@@ -65,7 +65,10 @@ export function byName(name: string): Variation {
   throw new Error(`no variation with name ${name}`);
 }
 
-export function isIncludedIn(needle: Variation, haystack: Variation[]): Boolean {
+export function isIncludedIn(
+  needle: Variation,
+  haystack: Variation[],
+): Boolean {
   for (let i = 0; i < haystack.length; i++) {
     if (haystack[i].name == needle.name) {
       return true;
@@ -75,7 +78,10 @@ export function isIncludedIn(needle: Variation, haystack: Variation[]): Boolean 
   return false;
 }
 
-export function removeFromSet(variation: Variation, variations: Variation[]): Variation[] {
+export function removeFromSet(
+  variation: Variation,
+  variations: Variation[],
+): Variation[] {
   let result = [];
 
   for (let i = 0; i < variations.length; i++) {

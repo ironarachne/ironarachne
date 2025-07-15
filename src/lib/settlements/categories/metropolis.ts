@@ -1,6 +1,6 @@
 import type SettlementCategory from "../settlement_category.js";
 
-export default <SettlementCategory> {
+export default (<SettlementCategory>{
   name: "metropolis",
   minSize: 50000,
   maxSize: 3000000,
@@ -17,4 +17,4 @@ export default <SettlementCategory> {
     "The dark alleys and hidden courtyards of this metropolis are home to thieves, assassins, and other unsavory characters.",
     "Despite the challenges it faces, this metropolis is a beacon of hope and civilization in a world full of danger and chaos.",
   ],
-};
+});

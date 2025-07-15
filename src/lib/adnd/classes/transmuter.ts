@@ -15,7 +15,10 @@ export default new ADNDClass(
   -1,
   -1,
   ["intelligence"],
-  ["Create magical items", "Cast wizard spells (other than abjuration or necromancy)"],
+  [
+    "Create magical items",
+    "Cast wizard spells (other than abjuration or necromancy)",
+  ],
   [
     "lawful good",
     "lawful neutral",
@@ -35,7 +38,13 @@ export default new ADNDClass(
       count: 1,
     },
     {
-      filter: new SpellFilter("", 1, "wizard", [], ["abjuration", "necromancy"]),
+      filter: new SpellFilter(
+        "",
+        1,
+        "wizard",
+        [],
+        ["abjuration", "necromancy"],
+      ),
       count: 1,
     },
   ],
@@ -44,10 +53,13 @@ export default new ADNDClass(
   1,
   4,
   -5,
-  function(this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
+  function (this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
     let allSpells = Spells.getAll();
     for (let i = 0; i < this.spellList.length; i++) {
-      let filteredSpells = Spells.getFilteredSpells(this.spellList[i].filter, allSpells);
+      let filteredSpells = Spells.getFilteredSpells(
+        this.spellList[i].filter,
+        allSpells,
+      );
       filteredSpells = RND.shuffle(filteredSpells);
       for (let j = 0; j < this.spellList[i].count; j++) {
         let filteredSpell = filteredSpells.pop();

@@ -1,28 +1,49 @@
-import * as AgeCategories from "$lib/age/age_categories.js";
-import type Gender from "$lib/gender/gender.js";
-import * as SizeMatrix from "$lib/size/size_matrix.js";
-import * as CommonSpecies from "$lib/species/common.js";
+import * as AgeCategories from "$lib/age/age_categories";
+import * as CommonSpecies from "$lib/species/common";
+import * as SizeMatrix from "$lib/size/size_matrix";
 import * as RND from "@ironarachne/rng";
 import random from "random";
-import type Creature from "./creature.js";
-import type CreatureGeneratorConfig from "./creature_generator_config.js";
+import type Creature from "./creature";
+import type CreatureGeneratorConfig from "./creature_generator_config";
+import type Gender from "$lib/gender/gender";
 
 export function generate(config: CreatureGeneratorConfig): Creature {
   let creatureSpecies = RND.weighted(config.speciesOptions);
-  let creatureAgeCategory = AgeCategories.randomWeighted(config.ageCategoryNames, creatureSpecies.ageCategories);
+  let creatureAgeCategory = AgeCategories.randomWeighted(
+    config.ageCategoryNames,
+    creatureSpecies.ageCategories,
+  );
   let age = random.int(creatureAgeCategory.minAge, creatureAgeCategory.maxAge);
   const genderName = RND.item(config.genderNames);
-  let gender = creatureSpecies.genders.find((g: Gender) => g.name === genderName);
+  let gender = creatureSpecies.genders.find(
+    (g: Gender) => g.name === genderName,
+  );
   const sizeGeneratorConfig = SizeMatrix.getSizeConfig(
     gender.name,
     creatureAgeCategory.name,
     creatureSpecies.sizeGeneratorConfigMatrix,
   );
-  const height = random.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
-  const weight = random.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
-  const length = random.int(sizeGeneratorConfig.minLength, sizeGeneratorConfig.maxLength);
+  const height = random.int(
+    sizeGeneratorConfig.minHeight,
+    sizeGeneratorConfig.maxHeight,
+  );
+  const weight = random.int(
+    sizeGeneratorConfig.minWeight,
+    sizeGeneratorConfig.maxWeight,
+  );
+  const length = random.int(
+    sizeGeneratorConfig.minLength,
+    sizeGeneratorConfig.maxLength,
+  );
   let physicalTraits = CommonSpecies.randomTraits(creatureSpecies);
-  let behaviors = ["cautious", "hunting", "lethargic", "resting", "sleeping", "stalking"];
+  let behaviors = [
+    "cautious",
+    "hunting",
+    "lethargic",
+    "resting",
+    "sleeping",
+    "stalking",
+  ];
   let summary = RND.item(behaviors);
   let abilities = creatureSpecies.abilities;
 
@@ -64,7 +85,10 @@ export function getTotalThreatLevel(creature: Creature): number {
   return totalThreatLevel;
 }
 
-export function hasAllTagsIn(tags: string[], creatures: Creature[]): Creature[] {
+export function hasAllTagsIn(
+  tags: string[],
+  creatures: Creature[],
+): Creature[] {
   let result = [];
 
   for (let i = 0; i < creatures.length; i++) {

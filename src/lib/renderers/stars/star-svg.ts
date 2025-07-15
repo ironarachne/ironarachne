@@ -49,43 +49,55 @@ export default class SVGStarRenderer {
     let starfieldRenderer = new SVGStarfieldRenderer(this.width, this.height);
     const background = starfieldRenderer.render();
 
-    let svg = "<svg width=\""
-      + this.width
-      + "\" height=\""
-      + this.height
-      + "\" viewBox=\"0 0 "
-      + this.width
-      + " "
-      + this.height
-      + "\">";
+    let svg =
+      '<svg width="' +
+      this.width +
+      '" height="' +
+      this.height +
+      '" viewBox="0 0 ' +
+      this.width +
+      " " +
+      this.height +
+      '">';
 
-    svg += "<defs><radialGradient id=\"starglow\"><stop offset=\"60%\" stop-color=\""
-      + starColor
-      + "\" stop-opacity=\"0.8\" /><stop offset=\"100%\" stop-color=\"rgb(255,255,255)\" stop-opacity=\"0\" /></radialGradient></defs>";
+    svg +=
+      '<defs><radialGradient id="starglow"><stop offset="60%" stop-color="' +
+      starColor +
+      '" stop-opacity="0.8" /><stop offset="100%" stop-color="rgb(255,255,255)" stop-opacity="0" /></radialGradient></defs>';
 
-    svg += "<filter id=\"starSurface\">";
-    svg += "<feFlood x=\"0%\" y=\"0%\" width=\"100%\" height=\"100%\" flood-color=\""
-      + starColor
-      + "\" result=\"base\" />";
-    svg += "<feTurbulence type=\"fractalNoise\" baseFrequency=\"0.05\" numOctaves=\"2\" result=\"noise\" />";
-    svg += "<feBlend in2=\"base\" in=\"noise\" mode=\"multiply\" />";
+    svg += '<filter id="starSurface">';
+    svg +=
+      '<feFlood x="0%" y="0%" width="100%" height="100%" flood-color="' +
+      starColor +
+      '" result="base" />';
+    svg +=
+      '<feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" result="noise" />';
+    svg += '<feBlend in2="base" in="noise" mode="multiply" />';
     svg += "</filter>";
 
     svg += `<mask id="starMask"><circle cx="${midX}" cy="${midY}" r="${radius}" fill="white" /></mask>`;
 
     svg += background;
 
-    svg += "<circle cx=\"" + midX + "\" cy=\"" + midY + "\" r=\"" + glowRadius + "\" fill=\"url(#starglow)\" />";
+    svg +=
+      '<circle cx="' +
+      midX +
+      '" cy="' +
+      midY +
+      '" r="' +
+      glowRadius +
+      '" fill="url(#starglow)" />';
 
-    svg += "<circle cx=\""
-      + midX
-      + "\" cy=\""
-      + midY
-      + "\" r=\""
-      + radius
-      + "\" fill=\""
-      + starColor
-      + "\" filter=\"url(#starSurface)\" mask=\"url(#starMask)\" />";
+    svg +=
+      '<circle cx="' +
+      midX +
+      '" cy="' +
+      midY +
+      '" r="' +
+      radius +
+      '" fill="' +
+      starColor +
+      '" filter="url(#starSurface)" mask="url(#starMask)" />';
 
     svg += "</svg>";
 

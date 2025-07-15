@@ -16,7 +16,19 @@ export function all(): Archetype[] {
       threatLevel: 5,
       itemGenerators: [],
     },
-    { name: "shambler", abilities: [], tags: ["undead"], threatLevel: 1, itemGenerators: [] },
-    { name: "sprinter", abilities: [], tags: ["undead"], threatLevel: 2, itemGenerators: [] },
+    {
+      name: "shambler",
+      abilities: [],
+      tags: ["undead"],
+      threatLevel: 1,
+      itemGenerators: [],
+    },
+    {
+      name: "sprinter",
+      abilities: [],
+      tags: ["undead"],
+      threatLevel: 2,
+      itemGenerators: [],
+    },
   ];
 }

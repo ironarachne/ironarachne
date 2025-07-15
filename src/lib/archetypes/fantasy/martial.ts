@@ -42,9 +42,27 @@ export function all(): Archetype[] {
         ItemGenerators.getItemGeneratorByTag("body armor", 1),
       ],
     },
-    { name: "hunter", abilities: [], tags: ["martial", "wilderness"], threatLevel: 1, itemGenerators: [] },
-    { name: "martial artist", abilities: [], tags: ["martial"], threatLevel: 1, itemGenerators: [] },
-    { name: "martial arts master", abilities: [], tags: ["martial"], threatLevel: 2, itemGenerators: [] },
+    {
+      name: "hunter",
+      abilities: [],
+      tags: ["martial", "wilderness"],
+      threatLevel: 1,
+      itemGenerators: [],
+    },
+    {
+      name: "martial artist",
+      abilities: [],
+      tags: ["martial"],
+      threatLevel: 1,
+      itemGenerators: [],
+    },
+    {
+      name: "martial arts master",
+      abilities: [],
+      tags: ["martial"],
+      threatLevel: 2,
+      itemGenerators: [],
+    },
     {
       name: "raider captain",
       abilities: [],
@@ -65,7 +83,13 @@ export function all(): Archetype[] {
         ItemGenerators.getItemGeneratorByTag("body armor", 1),
       ],
     },
-    { name: "ranger", abilities: [], tags: ["martial", "wilderness"], threatLevel: 3, itemGenerators: [] },
+    {
+      name: "ranger",
+      abilities: [],
+      tags: ["martial", "wilderness"],
+      threatLevel: 3,
+      itemGenerators: [],
+    },
     {
       name: "soldier",
       abilities: [],
@@ -105,7 +129,9 @@ export function all(): Archetype[] {
       abilities: [],
       tags: ["martial", "wilderness"],
       threatLevel: 1,
-      itemGenerators: [ItemGenerators.getItemGeneratorByTag("simple weapon", 1)],
+      itemGenerators: [
+        ItemGenerators.getItemGeneratorByTag("simple weapon", 1),
+      ],
     },
   ];
 }

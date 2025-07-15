@@ -87,8 +87,9 @@ export function addDoorsToDungeon(dungeon: Dungeon): Dungeon {
       for (let k = 0; k < dungeon.rooms[i].doors.length; k++) {
         let door = dungeon.doors[dungeon.rooms[i].doors[k]];
         if (
-          (door.room1 == dungeon.rooms[i].id && door.room2 == neighbors[j].id)
-          || (door.room2 == dungeon.rooms[i].id && door.room1 == neighbors[j].id)
+          (door.room1 == dungeon.rooms[i].id &&
+            door.room2 == neighbors[j].id) ||
+          (door.room2 == dungeon.rooms[i].id && door.room1 == neighbors[j].id)
         ) {
           existingDoor = true;
         }
@@ -125,12 +126,10 @@ export function addDoorsToDungeon(dungeon: Dungeon): Dungeon {
     if (door.isSecret) {
       let hiddenText = RND.item([
         `${RND.item(["It is", "It's"])} hidden behind a tapestry.`,
-        `${
-          RND.item([
-            "It is",
-            "It's",
-          ])
-        } practically undetectable except for a thin seam visible only on close inspection.`,
+        `${RND.item([
+          "It is",
+          "It's",
+        ])} practically undetectable except for a thin seam visible only on close inspection.`,
         `A tapestry obscures it.`,
         `It cannot be opened from this side.`,
         `A pile of ${RND.item(["refuse", "debris", "trash"])} obscures it.`,
@@ -146,8 +145,18 @@ export function addDoorsToDungeon(dungeon: Dungeon): Dungeon {
       dungeon.rooms[r2.id].secrets += secret2;
     }
 
-    let door1feature: RoomFeature = { name: "door", description: description1, secret: secret1, isContainer: false };
-    let door2feature: RoomFeature = { name: "door", description: description2, secret: secret2, isContainer: false };
+    let door1feature: RoomFeature = {
+      name: "door",
+      description: description1,
+      secret: secret1,
+      isContainer: false,
+    };
+    let door2feature: RoomFeature = {
+      name: "door",
+      description: description2,
+      secret: secret2,
+      isContainer: false,
+    };
 
     dungeon.rooms[i].features.push(door1feature);
     dungeon.rooms[r2.id].doors.push(di);

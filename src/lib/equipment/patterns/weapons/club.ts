@@ -24,7 +24,13 @@ export default class ClubPattern implements Pattern {
     let body = RND.item(Components.withCategory("wood", componentOptions));
     let handle = RND.item(Components.withCategory("leather", componentOptions));
 
-    let cosmeticBody = RND.item(["carved", "spiked", "heavy", "bulbous", "square"]);
+    let cosmeticBody = RND.item([
+      "carved",
+      "spiked",
+      "heavy",
+      "bulbous",
+      "square",
+    ]);
 
     let cosmeticHandle = RND.item(["short", "long", "comfortable", "broad"]);
 
@@ -46,6 +52,14 @@ export default class ClubPattern implements Pattern {
 
     let tags = [name, this.name, "club", "melee", "simple weapon", "weapon"];
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
+    return new MeleeWeapon(
+      name,
+      description,
+      this.damage,
+      this.hands,
+      value,
+      quality,
+      tags,
+    );
   }
 }

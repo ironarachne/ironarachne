@@ -80,7 +80,12 @@ function generateMap(width: number, height: number) {
 
   const center = new Vertex(Math.floor(width / 2), Math.floor(height / 2));
 
-  const mainRoom = new Room(center, random.int(12, 15), random.int(12, 15), "main");
+  const mainRoom = new Room(
+    center,
+    random.int(12, 15),
+    random.int(12, 15),
+    "main",
+  );
 
   const halfWidth = mainRoom.width / 2;
   const halfHeight = mainRoom.height / 2;
@@ -222,37 +227,41 @@ function renderMap(map: TavernMap) {
 
   const gridSize = imageHeight / map.height;
 
-  let svg = "<svg width=\""
-    + imageWidth
-    + "\" height=\""
-    + imageHeight
-    + "\" viewBox=\"0 0 "
-    + imageWidth
-    + " "
-    + imageHeight
-    + "\" xmlns=\"http://www.w3.org/2000/svg\" version=\"1.1\">";
+  let svg =
+    '<svg width="' +
+    imageWidth +
+    '" height="' +
+    imageHeight +
+    '" viewBox="0 0 ' +
+    imageWidth +
+    " " +
+    imageHeight +
+    '" xmlns="http://www.w3.org/2000/svg" version="1.1">';
 
   svg += "<defs>";
 
-  svg += "<pattern id=\"grid\" width=\""
-    + gridSize
-    + "\" height=\""
-    + gridSize
-    + "\" patternUnits=\"userSpaceOnUse\">";
-  svg += "<rect width=\""
-    + gridSize
-    + "\" height=\""
-    + gridSize
-    + "\" fill=\"none\" stroke=\"gray\" stroke-width=\"1\"/>";
+  svg +=
+    '<pattern id="grid" width="' +
+    gridSize +
+    '" height="' +
+    gridSize +
+    '" patternUnits="userSpaceOnUse">';
+  svg +=
+    '<rect width="' +
+    gridSize +
+    '" height="' +
+    gridSize +
+    '" fill="none" stroke="gray" stroke-width="1"/>';
   svg += "</pattern>";
 
   svg += "</defs>";
 
-  svg += "<rect x=\"0\" y=\"0\" width=\""
-    + imageWidth
-    + "\" height=\""
-    + imageHeight
-    + "\" fill=\"url(#grid)\" stroke=\"black\" stroke-width=\"3\" />";
+  svg +=
+    '<rect x="0" y="0" width="' +
+    imageWidth +
+    '" height="' +
+    imageHeight +
+    '" fill="url(#grid)" stroke="black" stroke-width="3" />';
 
   const doors = [];
 
@@ -262,17 +271,18 @@ function renderMap(map: TavernMap) {
     const roomWidth = map.rooms[i].width * gridSize;
     const roomHeight = map.rooms[i].height * gridSize;
 
-    let roomSVG = "<rect x=\""
-      + topX * gridSize
-      + "\" y=\""
-      + topY * gridSize
-      + "\" width=\""
-      + roomWidth
-      + "\" height=\""
-      + roomHeight
-      + "\"";
+    let roomSVG =
+      '<rect x="' +
+      topX * gridSize +
+      '" y="' +
+      topY * gridSize +
+      '" width="' +
+      roomWidth +
+      '" height="' +
+      roomHeight +
+      '"';
 
-    roomSVG += " stroke=\"black\" fill=\"none\" stroke-width=\"2\" />";
+    roomSVG += ' stroke="black" fill="none" stroke-width="2" />';
 
     for (let j = 0; j < map.rooms[i].doors.length; j++) {
       doors.push(map.rooms[i].doors[j]);
@@ -302,15 +312,16 @@ function renderMap(map: TavernMap) {
       doorHeight = doorThickness;
     }
 
-    const doorSVG = "<rect x=\""
-      + doorTopLeftX
-      + "\" y=\""
-      + doorTopLeftY
-      + "\" width=\""
-      + doorWidth
-      + "\" height=\""
-      + doorHeight
-      + "\" stroke=\"black\" fill=\"white\" />";
+    const doorSVG =
+      '<rect x="' +
+      doorTopLeftX +
+      '" y="' +
+      doorTopLeftY +
+      '" width="' +
+      doorWidth +
+      '" height="' +
+      doorHeight +
+      '" stroke="black" fill="white" />';
 
     svg += doorSVG;
   }

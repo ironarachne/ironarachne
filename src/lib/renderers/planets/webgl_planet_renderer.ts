@@ -4,7 +4,11 @@ import * as PlanetShaders from "$lib/shaders/planets/planets";
 import SimpleVertexShader from "$lib/shaders/simple.vert";
 import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
 
-export function render(planet: AstronomicalBody, width: number, height: number): string {
+export function render(
+  planet: AstronomicalBody,
+  width: number,
+  height: number,
+): string {
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -31,10 +35,7 @@ export function render(planet: AstronomicalBody, width: number, height: number):
       value: new THREE.Vector3(random.float(0.3, 0.6), 1.0, 0.5),
     },
     planet_radius: {
-      value: translateRadiusToImageSize(
-        planet.radius,
-        Math.min(height, width),
-      ),
+      value: translateRadiusToImageSize(planet.radius, Math.min(height, width)),
     },
     main_color: { value: colors[0] },
     band_color_1: { value: colors[1] },

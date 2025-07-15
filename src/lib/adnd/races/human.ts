@@ -4,7 +4,7 @@ import ADNDRace from "../adndrace.js";
 export default new ADNDRace(
   "human",
   "human",
-  function(character: ADNDCharacter): ADNDCharacter {
+  function (character: ADNDCharacter): ADNDCharacter {
     return character;
   },
   1,

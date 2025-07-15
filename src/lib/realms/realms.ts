@@ -48,7 +48,10 @@ export function getDefaultConfig(): RealmGeneratorConfig {
   };
 }
 
-function randomAuthority(realmType: RealmType, nameGeneratorSet: GeneratorSet): Character {
+function randomAuthority(
+  realmType: RealmType,
+  nameGeneratorSet: GeneratorSet,
+): Character {
   let charGenConfig = PremadeConfigs.getFantasy();
   charGenConfig.ageCategoryNames = ["adult"];
 

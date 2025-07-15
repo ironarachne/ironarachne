@@ -62,7 +62,13 @@ export const allDomains = [
       "causes all nearby light sources to temporarily go out",
     ],
   ),
-  newDomain("dawn", ["torch"], ["radiant sun rising"], [], ["glows bright yellow on command"]),
+  newDomain(
+    "dawn",
+    ["torch"],
+    ["radiant sun rising"],
+    [],
+    ["glows bright yellow on command"],
+  ),
   newDomain(
     "death",
     ["funerary mask", "sickle", "scythe", "skull"],
@@ -84,7 +90,9 @@ export const allDomains = [
     "destruction",
     ["sword", "axe"],
     ["skull", "spiked gauntlet"],
-    ["causes everything around the target to be damaged on a strike except the wielder"],
+    [
+      "causes everything around the target to be damaged on a strike except the wielder",
+    ],
     [],
   ),
   newDomain(
@@ -109,7 +117,10 @@ export const allDomains = [
     ["spiral dagger"],
     ["evil eye", "spider"],
     ["causes unbearable pain in anything struck by it"],
-    ["glows bright red on command", "slowly turns its bearer into a murderous psychopath"],
+    [
+      "glows bright red on command",
+      "slowly turns its bearer into a murderous psychopath",
+    ],
   ),
   newDomain(
     "fear",
@@ -156,14 +167,29 @@ export const allDomains = [
     ["traps the soul of anything it kills"],
     ["allows its bearer to transform anything into food"],
   ),
-  newDomain("healing", ["wand"], ["wreath of flowers", "open hand"], [], ["can heal any wound"]),
-  newDomain("hope", ["hoop"], ["open hand", "circle"], [], ["glows with a soft, warm light"]),
+  newDomain(
+    "healing",
+    ["wand"],
+    ["wreath of flowers", "open hand"],
+    [],
+    ["can heal any wound"],
+  ),
+  newDomain(
+    "hope",
+    ["hoop"],
+    ["open hand", "circle"],
+    [],
+    ["glows with a soft, warm light"],
+  ),
   newDomain(
     "horses",
     ["horse skull", "horse tooth"],
     ["horse's face", "horse"],
     ["neighs when it strikes"],
-    ["can summon a magical steed on command", "allows its bearer to transform into a horse"],
+    [
+      "can summon a magical steed on command",
+      "allows its bearer to transform into a horse",
+    ],
   ),
   newDomain(
     "hunting",
@@ -193,8 +219,12 @@ export const allDomains = [
     "languages",
     ["book", "scroll"],
     ["speaking face", "scroll", "book"],
-    ["temporarily prevents its victims from understanding or speaking any language"],
-    ["embues its bearer with the ability to understand and speak all languages"],
+    [
+      "temporarily prevents its victims from understanding or speaking any language",
+    ],
+    [
+      "embues its bearer with the ability to understand and speak all languages",
+    ],
   ),
   newDomain(
     "law",
@@ -214,7 +244,10 @@ export const allDomains = [
     ["egg", "seed"],
     ["ouroboros", "circle entwined in vines", "egg"],
     [],
-    ["causes flowers to spring up in its bearer's footsteps", "can restore the dead to life"],
+    [
+      "causes flowers to spring up in its bearer's footsteps",
+      "can restore the dead to life",
+    ],
   ),
   newDomain(
     "light",
@@ -234,7 +267,9 @@ export const allDomains = [
     "love",
     ["red string"],
     ["heart"],
-    ["causes anyone struck by it to fall in love with the first compatible person they see"],
+    [
+      "causes anyone struck by it to fall in love with the first compatible person they see",
+    ],
     ["encourages the seed of love to blossom in everyone in its presence"],
   ),
   newDomain(
@@ -283,7 +318,10 @@ export const allDomains = [
     ["shell"],
     ["wave", "series of waves", "seashell", "mermaid"],
     [],
-    ["allows its bearer to breathe underwater", "can summon seawater from the ground"],
+    [
+      "allows its bearer to breathe underwater",
+      "can summon seawater from the ground",
+    ],
   ),
   newDomain(
     "persistence",
@@ -315,9 +353,17 @@ export const allDomains = [
     ["broken dagger"],
     ["evil eye", "broken circle"],
     [],
-    ["causes anyone who strikes its bearer to take the same damage and effects in return"],
+    [
+      "causes anyone who strikes its bearer to take the same damage and effects in return",
+    ],
   ),
-  newDomain("sky", ["flute", "kite"], ["cloud"], [], ["allows its bearer to fly"]),
+  newDomain(
+    "sky",
+    ["flute", "kite"],
+    ["cloud"],
+    [],
+    ["allows its bearer to fly"],
+  ),
   newDomain(
     "spring",
     ["staff"],
@@ -381,7 +427,9 @@ export const allDomains = [
     ["sundial", "hourglass"],
     ["hourglass", "ouroboros"],
     ["drains its wielder's victims of remaining years of life"],
-    ["lets its bearer pause time for the rest of creation for a few seconds at a time"],
+    [
+      "lets its bearer pause time for the rest of creation for a few seconds at a time",
+    ],
   ),
   newDomain(
     "trade",
@@ -401,7 +449,9 @@ export const allDomains = [
     "trickery",
     ["two-faced mask"],
     ["face bearing an evil half and a good half"],
-    ["allows its wielder to create the illusion of attacking from two places at once"],
+    [
+      "allows its wielder to create the illusion of attacking from two places at once",
+    ],
     ["is sentient and fights its bearer whenever it can"],
   ),
   newDomain(

@@ -69,16 +69,23 @@ export default class SwordPattern implements Pattern {
 
     if (quality > 1 && random.int(1, 100) > 70) {
       description += RND.item([
-        `, with a `
-        + RND.item(["yellow", "blue", "red", "purple", "green", "grey", "white", "black"])
-        + ` ribbon `
-        + RND.item(["wrapped around it", "trailing from it", "tied to it"]),
-        `, with a ${
+        `, with a ` +
           RND.item([
-            "leather thong",
-            RND.item(["gold", "brass", "silver", "iron"]) + " chain",
-          ])
-        } attached to the pommel`,
+            "yellow",
+            "blue",
+            "red",
+            "purple",
+            "green",
+            "grey",
+            "white",
+            "black",
+          ]) +
+          ` ribbon ` +
+          RND.item(["wrapped around it", "trailing from it", "tied to it"]),
+        `, with a ${RND.item([
+          "leather thong",
+          RND.item(["gold", "brass", "silver", "iron"]) + " chain",
+        ])} attached to the pommel`,
         `, exquisitely crafted`,
         ` inlaid with ${RND.item(["gold", "silver", "copper", "brass"])}`,
       ]);
@@ -86,8 +93,24 @@ export default class SwordPattern implements Pattern {
 
     let name = `${blade.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, "sword", "melee", "martial weapon", "bladed weapon", "weapon"];
+    let tags = [
+      name,
+      this.name,
+      "sword",
+      "melee",
+      "martial weapon",
+      "bladed weapon",
+      "weapon",
+    ];
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
+    return new MeleeWeapon(
+      name,
+      description,
+      this.damage,
+      this.hands,
+      value,
+      quality,
+      tags,
+    );
   }
 }

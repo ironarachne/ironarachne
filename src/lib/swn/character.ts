@@ -96,7 +96,9 @@ export function generate() {
 
   character.skills = randomStartingSkills(character.background);
 
-  const equipmentPackage = getEquipmentPackage(character.background.equipmentPackage);
+  const equipmentPackage = getEquipmentPackage(
+    character.background.equipmentPackage,
+  );
 
   for (let i = 0; i < equipmentPackage.items.length; i++) {
     equipmentPackage.items[i].addTo(character);
@@ -131,9 +133,13 @@ export function generate() {
 
   for (let i = 0; i < character.skills.length; i++) {
     if (character.skills[i].name === "Stab") {
-      character.meleeAttackBonus = character.skills[i].level + character.attackBonus + Math.max(dexterity, strength);
+      character.meleeAttackBonus =
+        character.skills[i].level +
+        character.attackBonus +
+        Math.max(dexterity, strength);
     } else if (character.skills[i].name === "Shoot") {
-      character.rangedAttackBonus = character.skills[i].level + character.attackBonus + dexterity;
+      character.rangedAttackBonus =
+        character.skills[i].level + character.attackBonus + dexterity;
     }
 
     if (character.skills[i].name === "Biopsionics") {
@@ -151,7 +157,9 @@ export function generate() {
         );
 
         const ability = randomPsionicAbilityOfDiscipline("Biopsionics");
-        character.abilities.push(new SpecialAbility(ability.name + ": " + ability.description));
+        character.abilities.push(
+          new SpecialAbility(ability.name + ": " + ability.description),
+        );
       }
     } else if (character.skills[i].name === "Metapsionics") {
       if (character.skills[i].level === 0) {
@@ -169,7 +177,9 @@ export function generate() {
         character.effort++;
 
         const ability = randomPsionicAbilityOfDiscipline("Metapsionics");
-        character.abilities.push(new SpecialAbility(ability.name + ": " + ability.description));
+        character.abilities.push(
+          new SpecialAbility(ability.name + ": " + ability.description),
+        );
       }
     } else if (character.skills[i].name === "Precognition") {
       if (character.skills[i].level === 0) {
@@ -186,7 +196,9 @@ export function generate() {
         );
 
         const ability = randomPsionicAbilityOfDiscipline("Precognition");
-        character.abilities.push(new SpecialAbility(ability.name + ": " + ability.description));
+        character.abilities.push(
+          new SpecialAbility(ability.name + ": " + ability.description),
+        );
       }
     } else if (character.skills[i].name === "Telekinesis") {
       if (character.skills[i].level === 0) {
@@ -203,7 +215,9 @@ export function generate() {
         );
 
         const ability = randomPsionicAbilityOfDiscipline("Telekinesis");
-        character.abilities.push(new SpecialAbility(ability.name + ": " + ability.description));
+        character.abilities.push(
+          new SpecialAbility(ability.name + ": " + ability.description),
+        );
       }
     } else if (character.skills[i].name === "Telepathy") {
       if (character.skills[i].level === 0) {
@@ -220,20 +234,28 @@ export function generate() {
         );
 
         const ability = randomPsionicAbilityOfDiscipline("Telepathy");
-        character.abilities.push(new SpecialAbility(ability.name + ": " + ability.description));
+        character.abilities.push(
+          new SpecialAbility(ability.name + ": " + ability.description),
+        );
       }
     } else if (character.skills[i].name === "Teleportation") {
       if (character.skills[i].level === 0) {
         character.abilities.push(
-          new SpecialAbility("Personal Apportation-0: The psychic can teleport up to 10 meters."),
+          new SpecialAbility(
+            "Personal Apportation-0: The psychic can teleport up to 10 meters.",
+          ),
         );
       } else if (character.skills[i].level === 1) {
         character.abilities.push(
-          new SpecialAbility("Personal Apportation-1: The psychic can teleport up to 100 meters."),
+          new SpecialAbility(
+            "Personal Apportation-1: The psychic can teleport up to 100 meters.",
+          ),
         );
 
         const ability = randomPsionicAbilityOfDiscipline("Teleportation");
-        character.abilities.push(new SpecialAbility(ability.name + ": " + ability.description));
+        character.abilities.push(
+          new SpecialAbility(ability.name + ": " + ability.description),
+        );
       }
     }
   }
@@ -353,14 +375,24 @@ export class Focus {
   focusType: string;
   currentLevel: number;
   levelOneDescription: string;
-  levelOneEffect: BonusSkill | BonusSkillFromList | BonusSkillOfType | BonusHP | InnateAC;
+  levelOneEffect:
+    | BonusSkill
+    | BonusSkillFromList
+    | BonusSkillOfType
+    | BonusHP
+    | InnateAC;
   levelTwoDescription: string;
 
   constructor(
     name: string,
     focusType: string,
     levelOneDescription: string,
-    levelOneEffect: BonusSkill | BonusSkillFromList | BonusSkillOfType | BonusHP | InnateAC,
+    levelOneEffect:
+      | BonusSkill
+      | BonusSkillFromList
+      | BonusSkillOfType
+      | BonusHP
+      | InnateAC,
     levelTwoDescription: string,
   ) {
     this.name = name;
@@ -569,7 +601,12 @@ export class CharacterClass {
     name: string,
     attackBonus: number,
     hitPointRoll: string,
-    abilities: (BonusFocus | BonusSkillOfType | SpecialAbility | EffortAbility)[],
+    abilities: (
+      | BonusFocus
+      | BonusSkillOfType
+      | SpecialAbility
+      | EffortAbility
+    )[],
   ) {
     this.name = name;
     this.attackBonus = attackBonus;
@@ -622,7 +659,10 @@ export class EffortAbility {
     character.effort = 1;
     let maxStat = -2;
     for (let i = 0; i < character.stats.length; i++) {
-      if (character.stats[i].abbreviation === "CON" || character.stats[i].abbreviation === "WIS") {
+      if (
+        character.stats[i].abbreviation === "CON" ||
+        character.stats[i].abbreviation === "WIS"
+      ) {
         if (character.stats[i].modifier > maxStat) {
           maxStat = character.stats[i].modifier;
         }
@@ -653,7 +693,9 @@ function allClasses() {
       new SpecialAbility(
         "Warriors are lucky in combat. Once per scene, as an Instant ability, you can either choose to negate a successful attack roll against you or turn a missed attack roll you made into a successful hit. You can use this ability after the dice are rolled, but it cannot be used against environmental damage, effects without an attack roll, or hits on a vehicle you’re occupying.",
       ),
-      new SpecialAbility("You gain two extra maximum hit points at each character level."),
+      new SpecialAbility(
+        "You gain two extra maximum hit points at each character level.",
+      ),
     ]),
     new CharacterClass("Adventurer (Expert/Psychic)", 0, "1d6", [
       new BonusFocus(["non-combat"]),
@@ -665,13 +707,17 @@ function allClasses() {
     ]),
     new CharacterClass("Adventurer (Warrior/Psychic)", 1, "1d6+2", [
       new BonusFocus(["combat"]),
-      new SpecialAbility("You gain two extra maximum hit points at each character level."),
+      new SpecialAbility(
+        "You gain two extra maximum hit points at each character level.",
+      ),
       new BonusSkillOfType(["psychic"]),
       new EffortAbility(),
     ]),
     new CharacterClass("Adventurer (Warrior/Expert)", 1, "1d6+2", [
       new BonusFocus(["combat"]),
-      new SpecialAbility("You gain two extra maximum hit points at each character level."),
+      new SpecialAbility(
+        "You gain two extra maximum hit points at each character level.",
+      ),
       new BonusFocus(["non-combat"]),
       new SpecialAbility(
         "Gain an extra skill point every time you gain a character level which can be spent on any non-psychic, non-combat skill.",
@@ -725,7 +771,10 @@ function randomStartingSkills(background: Background) {
     if (startingSkills[i] === "Any Combat") {
       skill = randomCombatSkill();
     } else if (startingSkills[i] === "Shoot or Trade") {
-      skill = RND.item([new Skill("Shoot", "combat"), new Skill("Trade", "non-combat")]);
+      skill = RND.item([
+        new Skill("Shoot", "combat"),
+        new Skill("Trade", "non-combat"),
+      ]);
     } else {
       skill.name = startingSkills[i];
     }
@@ -742,7 +791,12 @@ export class Stat {
   score: number;
   modifier: number;
 
-  constructor(name: string, abbreviation: string, score: number, modifier: number) {
+  constructor(
+    name: string,
+    abbreviation: string,
+    score: number,
+    modifier: number,
+  ) {
     this.name = name;
     this.abbreviation = abbreviation;
     this.score = score;
@@ -826,77 +880,176 @@ function allBackgrounds() {
       "Barbarian",
       "Survive",
       ["Survive", "Notice", "Any Combat"],
-      ["Any Combat", "Connect", "Exert", "Lead", "Notice", "Punch", "Sneak", "Survive"],
+      [
+        "Any Combat",
+        "Connect",
+        "Exert",
+        "Lead",
+        "Notice",
+        "Punch",
+        "Sneak",
+        "Survive",
+      ],
     ),
     new Background(
       "Clergy",
       "Civilian",
       "Talk",
       ["Talk", "Perform", "Know"],
-      ["Administer", "Connect", "Know", "Lead", "Notice", "Perform", "Talk", "Talk"],
+      [
+        "Administer",
+        "Connect",
+        "Know",
+        "Lead",
+        "Notice",
+        "Perform",
+        "Talk",
+        "Talk",
+      ],
     ),
     new Background(
       "Courtesan",
       "Civilian",
       "Perform",
       ["Perform", "Notice", "Connect"],
-      ["Any Combat", "Connect", "Exert", "Notice", "Perform", "Survive", "Talk", "Trade"],
+      [
+        "Any Combat",
+        "Connect",
+        "Exert",
+        "Notice",
+        "Perform",
+        "Survive",
+        "Talk",
+        "Trade",
+      ],
     ),
     new Background(
       "Criminal",
       "Thief",
       "Sneak",
       ["Sneak", "Connect", "Talk"],
-      ["Administer", "Any Combat", "Connect", "Notice", "Program", "Sneak", "Talk", "Trade"],
+      [
+        "Administer",
+        "Any Combat",
+        "Connect",
+        "Notice",
+        "Program",
+        "Sneak",
+        "Talk",
+        "Trade",
+      ],
     ),
     new Background(
       "Dilettante",
       "Civilian",
       "Connect",
       ["Connect", "Know", "Talk"],
-      ["Any Skill", "Any Skill", "Connect", "Know", "Perform", "Pilot", "Talk", "Trade"],
+      [
+        "Any Skill",
+        "Any Skill",
+        "Connect",
+        "Know",
+        "Perform",
+        "Pilot",
+        "Talk",
+        "Trade",
+      ],
     ),
     new Background(
       "Entertainer",
       "Civilian",
       "Perform",
       ["Perform", "Talk", "Connect"],
-      ["Any Combat", "Connect", "Exert", "Notice", "Perform", "Perform", "Sneak", "Talk"],
+      [
+        "Any Combat",
+        "Connect",
+        "Exert",
+        "Notice",
+        "Perform",
+        "Perform",
+        "Sneak",
+        "Talk",
+      ],
     ),
     new Background(
       "Merchant",
       "Civilian",
       "Trade",
       ["Trade", "Talk", "Connect"],
-      ["Administer", "Any Combat", "Connect", "Fix", "Know", "Notice", "Trade", "Talk"],
+      [
+        "Administer",
+        "Any Combat",
+        "Connect",
+        "Fix",
+        "Know",
+        "Notice",
+        "Trade",
+        "Talk",
+      ],
     ),
     new Background(
       "Noble",
       "Civilian",
       "Lead",
       ["Lead", "Connect", "Administer"],
-      ["Administer", "Any Combat", "Connect", "Know", "Lead", "Notice", "Pilot", "Talk"],
+      [
+        "Administer",
+        "Any Combat",
+        "Connect",
+        "Know",
+        "Lead",
+        "Notice",
+        "Pilot",
+        "Talk",
+      ],
     ),
     new Background(
       "Official",
       "Civilian",
       "Administer",
       ["Administer", "Talk", "Connect"],
-      ["Administer", "Any Skill", "Connect", "Know", "Lead", "Notice", "Talk", "Trade"],
+      [
+        "Administer",
+        "Any Skill",
+        "Connect",
+        "Know",
+        "Lead",
+        "Notice",
+        "Talk",
+        "Trade",
+      ],
     ),
     new Background(
       "Peasant",
       "Civilian",
       "Exert",
       ["Exert", "Sneak", "Survive"],
-      ["Connect", "Exert", "Fix", "Notice", "Sneak", "Survive", "Trade", "Work"],
+      [
+        "Connect",
+        "Exert",
+        "Fix",
+        "Notice",
+        "Sneak",
+        "Survive",
+        "Trade",
+        "Work",
+      ],
     ),
     new Background(
       "Physician",
       "Medic",
       "Heal",
       ["Heal", "Know", "Notice"],
-      ["Administer", "Connect", "Fix", "Heal", "Know", "Notice", "Talk", "Trade"],
+      [
+        "Administer",
+        "Connect",
+        "Fix",
+        "Heal",
+        "Know",
+        "Notice",
+        "Talk",
+        "Trade",
+      ],
     ),
     new Background(
       "Pilot",
@@ -910,56 +1063,128 @@ function allBackgrounds() {
       "Civilian",
       "Talk",
       ["Talk", "Lead", "Connect"],
-      ["Administer", "Connect", "Connect", "Lead", "Notice", "Perform", "Talk", "Talk"],
+      [
+        "Administer",
+        "Connect",
+        "Connect",
+        "Lead",
+        "Notice",
+        "Perform",
+        "Talk",
+        "Talk",
+      ],
     ),
     new Background(
       "Scholar",
       "Technician",
       "Know",
       ["Know", "Connect", "Administer"],
-      ["Administer", "Connect", "Fix", "Know", "Notice", "Perform", "Program", "Talk"],
+      [
+        "Administer",
+        "Connect",
+        "Fix",
+        "Know",
+        "Notice",
+        "Perform",
+        "Program",
+        "Talk",
+      ],
     ),
     new Background(
       "Soldier",
       "Soldier",
       "Any Combat",
       ["Any Combat", "Exert", "Survive"],
-      ["Administer", "Any Combat", "Exert", "Fix", "Lead", "Notice", "Sneak", "Survive"],
+      [
+        "Administer",
+        "Any Combat",
+        "Exert",
+        "Fix",
+        "Lead",
+        "Notice",
+        "Sneak",
+        "Survive",
+      ],
     ),
     new Background(
       "Spacer",
       "Gunslinger",
       "Fix",
       ["Fix", "Pilot", "Program"],
-      ["Administer", "Connect", "Exert", "Fix", "Know", "Pilot", "Program", "Talk"],
+      [
+        "Administer",
+        "Connect",
+        "Exert",
+        "Fix",
+        "Know",
+        "Pilot",
+        "Program",
+        "Talk",
+      ],
     ),
     new Background(
       "Technician",
       "Technician",
       "Fix",
       ["Fix", "Exert", "Notice"],
-      ["Administer", "Connect", "Exert", "Fix", "Fix", "Know", "Notice", "Pilot"],
+      [
+        "Administer",
+        "Connect",
+        "Exert",
+        "Fix",
+        "Fix",
+        "Know",
+        "Notice",
+        "Pilot",
+      ],
     ),
     new Background(
       "Thug",
       "Blade",
       "Any Combat",
       ["Any Combat", "Talk", "Connect"],
-      ["Any Combat", "Connect", "Exert", "Notice", "Sneak", "Stab or Shoot", "Survive", "Talk"],
+      [
+        "Any Combat",
+        "Connect",
+        "Exert",
+        "Notice",
+        "Sneak",
+        "Stab or Shoot",
+        "Survive",
+        "Talk",
+      ],
     ),
     new Background(
       "Vagabond",
       "Civilian",
       "Survive",
       ["Survive", "Sneak", "Notice"],
-      ["Any Combat", "Connect", "Notice", "Perform", "Pilot", "Sneak", "Survive", "Work"],
+      [
+        "Any Combat",
+        "Connect",
+        "Notice",
+        "Perform",
+        "Pilot",
+        "Sneak",
+        "Survive",
+        "Work",
+      ],
     ),
     new Background(
       "Worker",
       "Technician",
       "Work",
       ["Work", "Connect", "Exert"],
-      ["Administer", "Any Skill", "Connect", "Exert", "Fix", "Pilot", "Program", "Work"],
+      [
+        "Administer",
+        "Any Skill",
+        "Connect",
+        "Exert",
+        "Fix",
+        "Pilot",
+        "Program",
+        "Work",
+      ],
     ),
   ];
 }
@@ -1000,7 +1225,12 @@ export class PsionicAbility {
   level: number;
   discipline: string;
 
-  constructor(name: string, description: string, level: number, discipline: string) {
+  constructor(
+    name: string,
+    description: string,
+    level: number,
+    discipline: string,
+  ) {
     this.name = name;
     this.description = description;
     this.level = level;
@@ -1125,7 +1355,10 @@ export class EquipmentPackage {
   name: string;
   items: (MiscItem | Weapon | Armor | Container | CreditChip)[];
 
-  constructor(name: string, items: (MiscItem | Weapon | Armor | Container | CreditChip)[]) {
+  constructor(
+    name: string,
+    items: (MiscItem | Weapon | Armor | Container | CreditChip)[],
+  ) {
     this.name = name;
     this.items = items;
   }
@@ -1398,7 +1631,11 @@ export function formatAsText(character: SWNCharacter) {
   const focuses = [];
 
   for (let i = 0; i < character.focuses.length; i++) {
-    focuses.push(character.focuses[i].name + ", Level " + character.focuses[i].currentLevel);
+    focuses.push(
+      character.focuses[i].name +
+        ", Level " +
+        character.focuses[i].currentLevel,
+    );
   }
 
   description += Text.list(focuses);
@@ -1406,12 +1643,13 @@ export function formatAsText(character: SWNCharacter) {
   description += Text.header("Stats");
 
   for (let i = 0; i < character.stats.length; i++) {
-    description += character.stats[i].abbreviation
-      + " "
-      + character.stats[i].score
-      + " ("
-      + character.stats[i].modifier
-      + ")\n";
+    description +=
+      character.stats[i].abbreviation +
+      " " +
+      character.stats[i].score +
+      " (" +
+      character.stats[i].modifier +
+      ")\n";
   }
 
   description += Text.header("Skills");
@@ -1436,23 +1674,23 @@ export function formatAsText(character: SWNCharacter) {
 
   for (let i = 0; i < character.rangedWeapons.length; i++) {
     weapons.push(
-      character.rangedWeapons[i].name
-        + ": "
-        + character.rangedWeapons[i].damage
-        + " damage, "
-        + character.rangedAttackBonus
-        + " attack bonus",
+      character.rangedWeapons[i].name +
+        ": " +
+        character.rangedWeapons[i].damage +
+        " damage, " +
+        character.rangedAttackBonus +
+        " attack bonus",
     );
   }
 
   for (let i = 0; i < character.meleeWeapons.length; i++) {
     weapons.push(
-      character.meleeWeapons[i].name
-        + ": "
-        + character.meleeWeapons[i].damage
-        + " damage, "
-        + character.meleeAttackBonus
-        + " attack bonus",
+      character.meleeWeapons[i].name +
+        ": " +
+        character.meleeWeapons[i].damage +
+        " damage, " +
+        character.meleeAttackBonus +
+        " attack bonus",
     );
   }
 

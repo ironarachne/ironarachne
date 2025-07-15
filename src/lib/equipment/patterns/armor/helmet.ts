@@ -18,7 +18,9 @@ export default class HelmetPattern implements Pattern {
 
   complete(componentOptions: Component[], quality: number): Armor {
     let body = RND.item(Components.withCategory("metal", componentOptions));
-    let trim = RND.item(Components.withCategory("soft metal", componentOptions));
+    let trim = RND.item(
+      Components.withCategory("soft metal", componentOptions),
+    );
 
     let value = this.baseValue + body.value * 10 + trim.value;
 
@@ -41,6 +43,14 @@ export default class HelmetPattern implements Pattern {
     let armorClass = 1;
     let tags = [name, this.name, "helmet", "armor"];
 
-    return new Armor(name, description, "head", armorClass, value, quality, tags);
+    return new Armor(
+      name,
+      description,
+      "head",
+      armorClass,
+      value,
+      quality,
+      tags,
+    );
   }
 }

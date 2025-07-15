@@ -15,7 +15,10 @@ export function inThreatLevelRange(
   let result = [];
 
   for (let i = 0; i < templates.length; i++) {
-    if (templates[i].threatLevel >= minLevel && templates[i].threatLevel <= maxLevel) {
+    if (
+      templates[i].threatLevel >= minLevel &&
+      templates[i].threatLevel <= maxLevel
+    ) {
       result.push(templates[i]);
     }
   }
@@ -30,7 +33,10 @@ export function withThreatLevel(
   return inThreatLevelRange(level, level, templates);
 }
 
-export function withTag(tag: string, templates: EncounterTemplate[]): EncounterTemplate[] {
+export function withTag(
+  tag: string,
+  templates: EncounterTemplate[],
+): EncounterTemplate[] {
   let result = [];
 
   for (let i = 0; i < templates.length; i++) {
@@ -42,7 +48,10 @@ export function withTag(tag: string, templates: EncounterTemplate[]): EncounterT
   return result;
 }
 
-export function withoutTag(tag: string, templates: EncounterTemplate[]): EncounterTemplate[] {
+export function withoutTag(
+  tag: string,
+  templates: EncounterTemplate[],
+): EncounterTemplate[] {
   let result = [];
 
   for (let i = 0; i < templates.length; i++) {

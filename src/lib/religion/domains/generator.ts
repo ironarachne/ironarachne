@@ -15,7 +15,9 @@ export default class DomainGenerator {
     this.config.domains = RND.shuffle(this.config.domains);
 
     if (this.config.domains.length < this.config.numberOfDomains) {
-      throw new Error("Not enough domains in domain generator config for the requested number of domains.");
+      throw new Error(
+        "Not enough domains in domain generator config for the requested number of domains.",
+      );
     }
 
     let primary = this.config.domains.pop();

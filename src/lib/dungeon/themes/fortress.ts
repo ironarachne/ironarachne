@@ -10,12 +10,18 @@ import * as RoomThemes from "../rooms/themes/themes.js";
 export function getTheme(): DungeonTheme {
   let allEncounters = FantasyEncounters.all(false);
   let allSentientOptions = CommonSpecies.sentient();
-  allSentientOptions = CommonSpecies.withCreatureType("humanoid", allSentientOptions);
+  allSentientOptions = CommonSpecies.withCreatureType(
+    "humanoid",
+    allSentientOptions,
+  );
   let numberOfSentientOptions = random.int(1, 3);
 
   let fortressEncounters = Encounters.withTag("martial", allEncounters);
 
-  let fortressSentientOptions = CommonSpecies.byTag("martial", allSentientOptions);
+  let fortressSentientOptions = CommonSpecies.byTag(
+    "martial",
+    allSentientOptions,
+  );
   fortressSentientOptions = CommonSpecies.randomUniqueSet(
     fortressSentientOptions,
     numberOfSentientOptions,
@@ -27,9 +33,19 @@ export function getTheme(): DungeonTheme {
     }
   }
 
-  let fortressWeakEncounters = Encounters.belowThreatLevel(3, fortressEncounters);
-  let fortressStrongEncounters = Encounters.inThreatLevelRange(3, 4, fortressEncounters);
-  let fortressBossEncounters = Encounters.withThreatLevel(5, fortressEncounters);
+  let fortressWeakEncounters = Encounters.belowThreatLevel(
+    3,
+    fortressEncounters,
+  );
+  let fortressStrongEncounters = Encounters.inThreatLevelRange(
+    3,
+    4,
+    fortressEncounters,
+  );
+  let fortressBossEncounters = Encounters.withThreatLevel(
+    5,
+    fortressEncounters,
+  );
 
   let fortressNameGen = new MUN.GenericNameGenerator();
   let p1 = ["FORTRESS", "STRONGHOLD", "DOMAIN", "DOMINION", "LAIR"];

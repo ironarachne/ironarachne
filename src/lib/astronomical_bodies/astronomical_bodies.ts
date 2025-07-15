@@ -17,7 +17,7 @@ export type AstronomicalBody = {
   rotation_period: number; // in Earth hours
   surface_pressure: number; // in atm
   surface_temperature: number; // in Kelvin
-}
+};
 
 export const stefanBoltzmannConstant = 5.670374419e-8;
 
@@ -65,25 +65,37 @@ export function getAlbedoFromTemperature(temperature: number): number {
   return 0.26 + 0.74 * temperature ** -1.5;
 }
 
-export function getGravityFromMassAndRadius(mass: number, radius: number): number {
+export function getGravityFromMassAndRadius(
+  mass: number,
+  radius: number,
+): number {
   // Note: mass is in kg x 10^24, radius is in km
-  
+
   // The formula for gravity is g = G * M / r^2
   // where G is the gravitational constant (6.67408e-11 m^3 kg^-1 s^-2), M is the mass, and r is the radius
   const G = 6.67408e-11; // m^3 kg^-1 s^-2
   const radius_m = radius * 1000; // convert km to m
   const mass_kg = mass * 1e24; // convert kg x 10^24 to kg
 
-  const gravity = (G * mass_kg) / (radius_m ** 2); // in m/s^2
+  const gravity = (G * mass_kg) / radius_m ** 2; // in m/s^2
   return gravity; // in m/s^2
 }
 
-export function getSolarTemperature(luminosity: number, radius: number): number {
+export function getSolarTemperature(
+  luminosity: number,
+  radius: number,
+): number {
   // This is based on the Stefan-Boltzmann law
-  return (luminosity * 4 * Math.PI * radius ** 2) ** 0.25 / stefanBoltzmannConstant;
+  return (
+    (luminosity * 4 * Math.PI * radius ** 2) ** 0.25 / stefanBoltzmannConstant
+  );
 }
 
-export function getPlanetTemperature(atmosphere_density: number, orbital_distance: number, star_temperature: number): number {
+export function getPlanetTemperature(
+  atmosphere_density: number,
+  orbital_distance: number,
+  star_temperature: number,
+): number {
   // We approximate average planet temperature based on atmosphere density in atmospheres, distance from the star(s) in AU, and star temperature in Kelvin
   // The average temperature of the Earth is 288.15 Kelvin, so Earth numbers should get to a number close to that
 
@@ -109,8 +121,12 @@ export function getPlanetTemperature(atmosphere_density: number, orbital_distanc
   const c = 3;
   const d = 0;
 
-  let planet_temperature = base_temperature + base_temperature * temperature_factor * 1.95;
-  planet_temperature = planet_temperature * Math.log(a * atmosphere_density + b) - c * orbital_distance + d;
+  let planet_temperature =
+    base_temperature + base_temperature * temperature_factor * 1.95;
+  planet_temperature =
+    planet_temperature * Math.log(a * atmosphere_density + b) -
+    c * orbital_distance +
+    d;
 
   return planet_temperature;
 }

@@ -1,6 +1,6 @@
 import type SettlementCategory from "../settlement_category.js";
 
-export default <SettlementCategory> {
+export default (<SettlementCategory>{
   name: "village",
   minSize: 50,
   maxSize: 499,
@@ -14,4 +14,4 @@ export default <SettlementCategory> {
     "The village is known for its skilled weavers, and the sound of looms can be heard from many of the houses. The weavers work with colorful threads, creating intricate patterns in their textiles.",
     "Despite its small size, the village has a strong sense of community, with neighbors looking out for one another and coming together for festivals and celebrations throughout the year.",
   ],
-};
+});

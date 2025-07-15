@@ -122,7 +122,10 @@ export function all(): RoomTheme[] {
         ),
         new RoomFeatureGenerator(
           "chests",
-          ["There are chests at the end of each bed.", "Each bed has a chest at the foot."],
+          [
+            "There are chests at the end of each bed.",
+            "Each bed has a chest at the foot.",
+          ],
           [],
           true,
         ),
@@ -230,7 +233,10 @@ export function all(): RoomTheme[] {
         ),
         new RoomFeatureGenerator(
           "pantry cabinet",
-          ["There is a pantry cabinet here.", "A pantry cabinet sits against one wall."],
+          [
+            "There is a pantry cabinet here.",
+            "A pantry cabinet sits against one wall.",
+          ],
           [],
           true,
         ),

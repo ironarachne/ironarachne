@@ -39,14 +39,22 @@ export default class ReligionGenerator {
       religion.pantheon = pantheon;
 
       if (category.hasLeader) {
-        religion.pantheon.leader = random.int(0, religion.pantheon.members.length - 1);
+        religion.pantheon.leader = random.int(
+          0,
+          religion.pantheon.members.length - 1,
+        );
 
         let leaderTitle = "Queen of the Gods";
-        if (religion.pantheon.members[religion.pantheon.leader].deity.gender.name === "male") {
+        if (
+          religion.pantheon.members[religion.pantheon.leader].deity.gender
+            .name === "male"
+        ) {
           leaderTitle = "King of the Gods";
         }
 
-        religion.pantheon.members[religion.pantheon.leader].deity.titles.push(leaderTitle);
+        religion.pantheon.members[religion.pantheon.leader].deity.titles.push(
+          leaderTitle,
+        );
         religion.pantheon.description += ` ${
           religion.pantheon.members[religion.pantheon.leader].deity.name
         } is the ${leaderTitle}.`;
@@ -54,17 +62,21 @@ export default class ReligionGenerator {
     }
 
     if (religion.pantheon !== null) {
-      religion.description = religion.pantheon.description
-        + " "
-        + randomGatheringTimes()
-        + " "
-        + Words.capitalize(randomGatheringPlace())
-        + ".";
+      religion.description =
+        religion.pantheon.description +
+        " " +
+        randomGatheringTimes() +
+        " " +
+        Words.capitalize(randomGatheringPlace()) +
+        ".";
     } else {
-      religion.description = category.description + " " + randomGatheringTimes()
-        + " "
-        + Words.capitalize(randomGatheringPlace())
-        + ".";
+      religion.description =
+        category.description +
+        " " +
+        randomGatheringTimes() +
+        " " +
+        Words.capitalize(randomGatheringPlace()) +
+        ".";
     }
 
     return religion;
@@ -167,18 +179,47 @@ function randomGatheringTimes(): string {
   description = description
     .replace(
       "{weekday}",
-      RND.item(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]),
+      RND.item([
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+        "Sunday",
+      ]),
     )
-    .replace("{frequency}", RND.item(["weekly", "bi-weekly", "monthly", "quarterly", "annually"]))
+    .replace(
+      "{frequency}",
+      RND.item(["weekly", "bi-weekly", "monthly", "quarterly", "annually"]),
+    )
     .replace(
       "{follower}",
-      RND.item(["worshipers", "devotees", "believers", "faithful", "followers", "pilgrims"]),
+      RND.item([
+        "worshipers",
+        "devotees",
+        "believers",
+        "faithful",
+        "followers",
+        "pilgrims",
+      ]),
     )
     .replace(
       "{service}",
-      RND.item(["prayer", "worship", "meditation", "reflection", "ritual", "sermon", "teaching"]),
+      RND.item([
+        "prayer",
+        "worship",
+        "meditation",
+        "reflection",
+        "ritual",
+        "sermon",
+        "teaching",
+      ]),
     )
-    .replace("{time}", RND.item(["sunrise", "midday", "sunset", "evening", "night"]))
+    .replace(
+      "{time}",
+      RND.item(["sunrise", "midday", "sunset", "evening", "night"]),
+    )
     .replace(
       "{place}",
       RND.item([
@@ -203,7 +244,10 @@ function randomGatheringTimes(): string {
         "study",
       ]),
     )
-    .replace("{occasion}", RND.item(["special", "holiday", "festive", "solemn"]));
+    .replace(
+      "{occasion}",
+      RND.item(["special", "holiday", "festive", "solemn"]),
+    );
 
   return description;
 }

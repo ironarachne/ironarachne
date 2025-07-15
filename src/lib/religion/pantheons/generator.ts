@@ -23,12 +23,16 @@ export default class PantheonGenerator {
     let pantheon = new Pantheon();
 
     let deityGenConfig = new DeityGeneratorConfig();
-    deityGenConfig.characterGeneratorConfig.speciesOptions = this.config.speciesOptions;
+    deityGenConfig.characterGeneratorConfig.speciesOptions =
+      this.config.speciesOptions;
     deityGenConfig.realms = this.config.realms;
     deityGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
     deityGenConfig.maleNameGenerator = this.config.maleNameGenerator;
 
-    const numberOfDeities = random.int(this.config.minDeities, this.config.maxDeities);
+    const numberOfDeities = random.int(
+      this.config.minDeities,
+      this.config.maxDeities,
+    );
 
     const domainSets = randomDomainSets(numberOfDeities);
 
@@ -78,13 +82,18 @@ export default class PantheonGenerator {
           relationships.push(
             getRelationshipPhrase(
               pantheon.members[i].relationships[x],
-              pantheon.members[pantheon.members[i].relationships[x].target].deity.name,
+              pantheon.members[pantheon.members[i].relationships[x].target]
+                .deity.name,
             ),
           );
         }
 
-        const relationshipDescription = " " + pantheon.members[i].deity.name + " " + Words.arrayToPhrase(relationships)
-          + ".";
+        const relationshipDescription =
+          " " +
+          pantheon.members[i].deity.name +
+          " " +
+          Words.arrayToPhrase(relationships) +
+          ".";
 
         pantheon.members[i].deity.description += relationshipDescription;
       }
@@ -94,7 +103,10 @@ export default class PantheonGenerator {
   }
 }
 
-function getRelationshipPhrase(relationship: Relationship, targetName: string): string {
+function getRelationshipPhrase(
+  relationship: Relationship,
+  targetName: string,
+): string {
   return RND.item([`${relationship.verb} ${targetName}`]);
 }
 
@@ -103,7 +115,9 @@ function randomDomainSets(numberOfSets: number): DomainSet[] {
   let domainGen = new DomainGenerator(domainGenConfig);
 
   let sets = [];
-  let allDomains = RND.shuffle(JSON.parse(JSON.stringify(domainGenConfig.domains)));
+  let allDomains = RND.shuffle(
+    JSON.parse(JSON.stringify(domainGenConfig.domains)),
+  );
 
   for (let i = 0; i < numberOfSets; i++) {
     let domains = [];

@@ -14,8 +14,14 @@ export default class RoomGenerator {
   }
 
   generate(): Room {
-    let width = random.int(this.config.theme.minWidth, this.config.theme.maxWidth);
-    let height = random.int(this.config.theme.minHeight, this.config.theme.maxHeight);
+    let width = random.int(
+      this.config.theme.minWidth,
+      this.config.theme.maxWidth,
+    );
+    let height = random.int(
+      this.config.theme.minHeight,
+      this.config.theme.maxHeight,
+    );
     let x = random.int(2, this.config.mapWidth - width - 3);
     let y = random.int(2, this.config.mapHeight - height - 3);
 
@@ -64,7 +70,10 @@ export default class RoomGenerator {
       }
     }
 
-    if (this.config.theme.dressingGenerators.length > 0 && RND.simple(100) > 70) {
+    if (
+      this.config.theme.dressingGenerators.length > 0 &&
+      RND.simple(100) > 70
+    ) {
       let dGen = RND.item(this.config.theme.dressingGenerators);
       room.features.push(dGen.generate());
     }
@@ -81,9 +90,18 @@ export default class RoomGenerator {
 }
 
 // TODO: Use a different algorithm for generating caverns
-function getCavernRoom(ox: number, oy: number, width: number, height: number, room: Room): Room {
+function getCavernRoom(
+  ox: number,
+  oy: number,
+  width: number,
+  height: number,
+  room: Room,
+): Room {
   // in this instance, we're using x,y as the top left corner of a bounding box
-  let start: Vertex = { x: Math.floor((ox + width) / 2), y: Math.floor((oy + height) / 2) };
+  let start: Vertex = {
+    x: Math.floor((ox + width) / 2),
+    y: Math.floor((oy + height) / 2),
+  };
   let steps = 20;
 
   const maxX = ox + width;
@@ -137,8 +155,17 @@ function getCavernRoom(ox: number, oy: number, width: number, height: number, ro
 }
 
 // TODO: Get rid of most dead ends, or try connecting directly to two other rooms
-function getCorridor(x: number, y: number, width: number, height: number, room: Room): Room {
-  let length = random.int(Math.max(3, Math.floor((width + height - 2) / 2)), width + height - 2);
+function getCorridor(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  room: Room,
+): Room {
+  let length = random.int(
+    Math.max(3, Math.floor((width + height - 2) / 2)),
+    width + height - 2,
+  );
 
   let nx = random.int(x, x + width - 1);
   let ny = random.int(y, y + height - 1);
@@ -189,7 +216,13 @@ function getCorridor(x: number, y: number, width: number, height: number, room: 
   return room;
 }
 
-function getRectangularRoom(x: number, y: number, width: number, height: number, room: Room): Room {
+function getRectangularRoom(
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  room: Room,
+): Room {
   for (let i = y; i < y + height; i++) {
     for (let j = x; j < x + width; j++) {
       room.vertices.push({ x: j, y: i });

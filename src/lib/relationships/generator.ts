@@ -27,7 +27,13 @@ export default class RelationshipGenerator {
       ]);
       noun = "acquaintance";
     } else if (this.strength == 1) {
-      verb = RND.item(["likes", "is amused by", "enjoys the company of", "enjoys", "trusts"]);
+      verb = RND.item([
+        "likes",
+        "is amused by",
+        "enjoys the company of",
+        "enjoys",
+        "trusts",
+      ]);
       noun = "friend";
     } else {
       verb = RND.item(["loves", "deeply trusts", "adores"]);

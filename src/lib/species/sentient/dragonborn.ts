@@ -10,7 +10,7 @@ for (let i = 0; i < ageCategories.length; i++) {
   }
 }
 
-export default <Species> {
+export default (<Species>{
   name: "dragonborn",
   pluralName: "dragonborn",
   adjective: "dragonborn",
@@ -59,7 +59,17 @@ export default <Species> {
     {
       name: "eyes",
       category: "eyes",
-      options: ["amber", "blue", "dark", "green", "orange", "red", "turquoise", "white", "yellow"],
+      options: [
+        "amber",
+        "blue",
+        "dark",
+        "green",
+        "orange",
+        "red",
+        "turquoise",
+        "white",
+        "yellow",
+      ],
       tags: ["eyes"],
     },
   ],
@@ -68,16 +78,40 @@ export default <Species> {
   abilities: [
     {
       name: "breath weapon",
-      description: "can breathe an element (acid, cold, fire, lightning, poison) appropriate to the dragonborn's type",
+      description:
+        "can breathe an element (acid, cold, fire, lightning, poison) appropriate to the dragonborn's type",
       category: "attack",
       threatLevel: 1,
     },
   ],
   commonality: 10,
   genders: [
-    { name: "female", pronouns: { subjective: "she", objective: "her", possessive: "her", reflexive: "herself" } },
-    { name: "male", pronouns: { subjective: "he", objective: "him", possessive: "his", reflexive: "himself" } },
+    {
+      name: "female",
+      pronouns: {
+        subjective: "she",
+        objective: "her",
+        possessive: "her",
+        reflexive: "herself",
+      },
+    },
+    {
+      name: "male",
+      pronouns: {
+        subjective: "he",
+        objective: "him",
+        possessive: "his",
+        reflexive: "himself",
+      },
+    },
   ],
   sizeGeneratorConfigMatrix: Sizes.getHumanVariant(1.7, 1.1),
-  tags: ["corruptible", "dragonborn", "dragonkin", "martial", "sentient", "magic"],
-};
+  tags: [
+    "corruptible",
+    "dragonborn",
+    "dragonkin",
+    "martial",
+    "sentient",
+    "magic",
+  ],
+});

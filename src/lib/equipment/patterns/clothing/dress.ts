@@ -36,12 +36,32 @@ export default class DressPattern implements Pattern {
 
     description += " with ";
 
-    let sleeves = RND.item(["short", "long", "wide", "narrow", "bunched", "volumnous", "no"]) + " sleeves";
-    let lacing = RND.item(["tight ", "", "double ", "wide "])
-      + "lacing "
-      + RND.item(["down the middle", "at the top", "halfway down", "down the back"]);
+    let sleeves =
+      RND.item([
+        "short",
+        "long",
+        "wide",
+        "narrow",
+        "bunched",
+        "volumnous",
+        "no",
+      ]) + " sleeves";
+    let lacing =
+      RND.item(["tight ", "", "double ", "wide "]) +
+      "lacing " +
+      RND.item([
+        "down the middle",
+        "at the top",
+        "halfway down",
+        "down the back",
+      ]);
     let neck = RND.item(["a wide neck", "a v-neck", "a deep neck"]);
-    let waist = RND.item(["a tight waist", "a narrow waist", "a cinched waist", "a belted waist"]);
+    let waist = RND.item([
+      "a tight waist",
+      "a narrow waist",
+      "a cinched waist",
+      "a belted waist",
+    ]);
 
     description += RND.item([sleeves, lacing, neck, waist]);
 

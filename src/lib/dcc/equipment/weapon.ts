@@ -7,7 +7,13 @@ export default class DCCWeapon implements DCCItem {
   range: string;
   value: number;
 
-  constructor(name: string, classification: string, range: string, damage: string, value: number) {
+  constructor(
+    name: string,
+    classification: string,
+    range: string,
+    damage: string,
+    value: number,
+  ) {
     this.name = name;
     this.classification = classification;
     this.range = range;

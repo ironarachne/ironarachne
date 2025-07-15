@@ -5,7 +5,7 @@ import ADNDRace from "../adndrace.js";
 export default new ADNDRace(
   "halfling",
   "halfling",
-  function(character: ADNDCharacter): ADNDCharacter {
+  function (character: ADNDCharacter): ADNDCharacter {
     character.dexterity += 1;
     character.strength -= 1;
     character.exceptionalStrength = -1;
@@ -16,14 +16,18 @@ export default new ADNDRace(
       if (RND.simple(100) <= 15) {
         character.abilities.push("Normal Infravision (60')");
       }
-      character.abilities.push("Know if a passage has up or down grade on 1,2,3 on 1d4");
+      character.abilities.push(
+        "Know if a passage has up or down grade on 1,2,3 on 1d4",
+      );
       character.abilities.push("Determine direction on 1,2,3 on 1d6");
     } else {
       if (RND.simple(100) <= 25) {
         character.abilities.push("Limited Infravision (30')");
       }
     }
-    character.abilities.push("+1 to attack rolls with thrown weapons and slings");
+    character.abilities.push(
+      "+1 to attack rolls with thrown weapons and slings",
+    );
     character.abilities.push(
       "When not wearing metal armor, and either alone or with other halflings/elves not in metal armor, gain a bonus to surprise opponents. Those opponents have a -4 penalty to their surprise die rolls, or a -2 penalty if the halfling has to open a door or screen to attack.",
     );

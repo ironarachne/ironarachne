@@ -9,7 +9,11 @@ export default class Settlement {
   prosperity: number;
   environment: Environment;
 
-  constructor(name: string, category: SettlementCategory, environment: Environment) {
+  constructor(
+    name: string,
+    category: SettlementCategory,
+    environment: Environment,
+  ) {
     this.name = name;
     this.category = category;
     this.description = "";

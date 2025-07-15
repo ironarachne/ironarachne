@@ -19,7 +19,9 @@ export default class RealmGenerator {
 
     const numberOfRealms = this.config.numberOfRealms;
 
-    let allConcepts: RealmConcept[] = JSON.parse(JSON.stringify(RealmConcepts.realmConcepts));
+    let allConcepts: RealmConcept[] = JSON.parse(
+      JSON.stringify(RealmConcepts.realmConcepts),
+    );
     allConcepts = RND.shuffle(allConcepts);
 
     for (let i = 0; i < numberOfRealms; i++) {
@@ -31,7 +33,9 @@ export default class RealmGenerator {
         const appearanceTraits = AppearanceTraits.byRealmConcept(concept);
 
         if (appearanceTraits.length < 1) {
-          throw new Error(`No appearance traits found for realm concept ${concept.name}.`);
+          throw new Error(
+            `No appearance traits found for realm concept ${concept.name}.`,
+          );
         }
 
         let description = RND.item(concept.descriptionOptions).replace(
@@ -40,7 +44,12 @@ export default class RealmGenerator {
         );
         description = Words.capitalize(description);
 
-        const realm = Realms.newRealm(realmName, description, [], appearanceTraits);
+        const realm = Realms.newRealm(
+          realmName,
+          description,
+          [],
+          appearanceTraits,
+        );
 
         realms.push(realm);
       }

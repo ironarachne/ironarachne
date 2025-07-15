@@ -25,7 +25,9 @@ export class Organization {
 export function describe(organization: Organization) {
   let description = `In this culture, ${organization.powerConcentration}. `;
 
-  description += Words.capitalize(organization.dominantProfession) + " are most highly regarded. ";
+  description +=
+    Words.capitalize(organization.dominantProfession) +
+    " are most highly regarded. ";
 
   description += Words.capitalize(organization.dominantGender) + ". ";
 
@@ -48,7 +50,11 @@ export function generate() {
 }
 
 function randomDominantGender() {
-  return RND.item(["women are dominant", "men are dominant", "neither gender is dominant"]);
+  return RND.item([
+    "women are dominant",
+    "men are dominant",
+    "neither gender is dominant",
+  ]);
 }
 
 function randomPowerConcentration() {

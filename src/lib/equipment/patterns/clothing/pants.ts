@@ -18,7 +18,9 @@ export default class PantsPattern implements Pattern {
 
   complete(componentOptions: Component[], quality: number): Clothing {
     let body = RND.item(Components.withCategory("fabric", componentOptions));
-    let hardware = RND.item(Components.withCategory("soft metal", componentOptions));
+    let hardware = RND.item(
+      Components.withCategory("soft metal", componentOptions),
+    );
 
     let value = this.baseValue + body.value + hardware.value;
 
@@ -27,9 +29,10 @@ export default class PantsPattern implements Pattern {
     description += RND.item([`made of ${body.descriptor} with `, "with "]);
 
     let lacing = ` ${RND.item(["tight", "loose", ""])} lacing`;
-    let closures = RND.item(["dull", "embossed", "rough", "shiny", "round", "square"])
-      + ` ${hardware.descriptor} `
-      + RND.item(["buttons", "clasps"]);
+    let closures =
+      RND.item(["dull", "embossed", "rough", "shiny", "round", "square"]) +
+      ` ${hardware.descriptor} ` +
+      RND.item(["buttons", "clasps"]);
 
     description += RND.item([lacing, closures]);
 

@@ -14,7 +14,7 @@ export function all(): ChargeGroupArrangement[] {
       name: "single charge center",
       numberOfCharges: 1,
       blazonPattern: "{article} {name}",
-      renderSVG: function(
+      renderSVG: function (
         chargeSVGString: string,
         contextWidth: number,
         contextHeight: number,
@@ -61,7 +61,7 @@ export function all(): ChargeGroupArrangement[] {
       name: "two charges horizontal center",
       numberOfCharges: 2,
       blazonPattern: "two {namePlural}",
-      renderSVG: function(
+      renderSVG: function (
         chargeSVGString: string,
         contextWidth: number,
         contextHeight: number,
@@ -108,7 +108,11 @@ export function all(): ChargeGroupArrangement[] {
       name: "three charges horizontal center",
       numberOfCharges: 3,
       blazonPattern: "three {namePlural}",
-      renderSVG: function(chargeSVGString: string, contextWidth: number, contextHeight: number): string {
+      renderSVG: function (
+        chargeSVGString: string,
+        contextWidth: number,
+        contextHeight: number,
+      ): string {
         const chargeObject = xmlToChargeObject(chargeSVGString);
         const chargeWidth = chargeObject["svg"]["@width"];
         const chargeHeight = chargeObject["svg"]["@height"];
@@ -156,7 +160,7 @@ export function all(): ChargeGroupArrangement[] {
       name: "three charges vertical center",
       numberOfCharges: 3,
       blazonPattern: "three {namePlural}",
-      renderSVG: function(
+      renderSVG: function (
         chargeSVGString: string,
         contextWidth: number,
         contextHeight: number,
@@ -216,10 +220,14 @@ export function byName(name: string): ChargeGroupArrangement {
     }
   }
 
-  throw new Error(`failed to find a charge group arrangement with name "${name}"`);
+  throw new Error(
+    `failed to find a charge group arrangement with name "${name}"`,
+  );
 }
 
-export function randomByNumber(numberOfCharges: number): ChargeGroupArrangement {
+export function randomByNumber(
+  numberOfCharges: number,
+): ChargeGroupArrangement {
   const allArrangements = all();
 
   let options = [];
@@ -231,7 +239,9 @@ export function randomByNumber(numberOfCharges: number): ChargeGroupArrangement 
   }
 
   if (options.length === 0) {
-    throw new Error(`failed to find a charge group arrangement with ${numberOfCharges} charges`);
+    throw new Error(
+      `failed to find a charge group arrangement with ${numberOfCharges} charges`,
+    );
   }
 
   return RND.item(options);

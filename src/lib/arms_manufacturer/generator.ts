@@ -18,7 +18,9 @@ function generate(): ArmsManufacturer {
   let description = `${name} `;
 
   const specialty = RND.item(SciFiWeaponTypes.all);
-  let secondaryOptions = SciFiWeaponTypes.all.filter((wType) => wType.name !== specialty.name);
+  let secondaryOptions = SciFiWeaponTypes.all.filter(
+    (wType) => wType.name !== specialty.name,
+  );
 
   const secondary = RND.item(secondaryOptions);
 

@@ -14,7 +14,12 @@ function all(): RoomFeatureGenerator[] {
       [],
       true,
     ),
-    new RoomFeatureGenerator("bookcase", ["There is a bookcase here."], [], true),
+    new RoomFeatureGenerator(
+      "bookcase",
+      ["There is a bookcase here."],
+      [],
+      true,
+    ),
     new RoomFeatureGenerator("table", ["There is a table here."], [], false),
     new RoomFeatureGenerator(
       "chair",
@@ -29,9 +34,15 @@ function all(): RoomFeatureGenerator[] {
     new RoomFeatureGenerator(
       "chest",
       [
-        "There is "
-        + RND.item(["an ornate", "a simple", "a large", "an iron-bound", "a small"])
-        + " chest here.",
+        "There is " +
+          RND.item([
+            "an ornate",
+            "a simple",
+            "a large",
+            "an iron-bound",
+            "a small",
+          ]) +
+          " chest here.",
       ],
       [],
       true,

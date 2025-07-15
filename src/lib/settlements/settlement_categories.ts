@@ -37,7 +37,9 @@ export function large(): SettlementCategory[] {
   return bySizeClass("large");
 }
 
-export function randomCategory(categories: SettlementCategory[]): SettlementCategory {
+export function randomCategory(
+  categories: SettlementCategory[],
+): SettlementCategory {
   return RND.item(categories);
 }
 

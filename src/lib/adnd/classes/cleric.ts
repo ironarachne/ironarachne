@@ -31,7 +31,13 @@ export default new ADNDClass(
   ["priest"],
   [
     {
-      filter: new SpellFilter("", 1, "priest", [], ["plant", "animal", "weather", "elemental"]),
+      filter: new SpellFilter(
+        "",
+        1,
+        "priest",
+        [],
+        ["plant", "animal", "weather", "elemental"],
+      ),
       count: 1,
     },
   ],
@@ -40,10 +46,13 @@ export default new ADNDClass(
   2,
   4,
   -3,
-  function(this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
+  function (this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
     let allSpells = Spells.getAll();
     for (let i = 0; i < this.spellList.length; i++) {
-      let filteredSpells = Spells.getFilteredSpells(this.spellList[i].filter, allSpells);
+      let filteredSpells = Spells.getFilteredSpells(
+        this.spellList[i].filter,
+        allSpells,
+      );
       filteredSpells = RND.shuffle(filteredSpells);
       for (let j = 0; j < this.spellList[i].count; j++) {
         let filteredSpell = filteredSpells.pop();

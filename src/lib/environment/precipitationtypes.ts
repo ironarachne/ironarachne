@@ -23,7 +23,10 @@ export function all(): PrecipitationType[] {
     ),
     new PrecipitationType(
       "snow",
-      ["The occasional dusting of snow happens.", "Snow is light but not uncommon."],
+      [
+        "The occasional dusting of snow happens.",
+        "Snow is light but not uncommon.",
+      ],
       [
         "Heavy snows are not unheard of.",
         "Snow is common here.",

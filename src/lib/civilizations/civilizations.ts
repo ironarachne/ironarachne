@@ -25,7 +25,7 @@ export type EconomyType = {
   adjective: string;
   description: string;
   commonality: number;
-}
+};
 
 export type GovernmentType = {
   name: string;
@@ -33,14 +33,14 @@ export type GovernmentType = {
   description: string;
   name_options: string[];
   commonality: number;
-}
+};
 
 export type Military = {
   quality: number; // 1-10, 1 being a militia, 10 being a highly trained and equipped army (Spartans! What is your profession?)
   size: number; // 0-1, a percentage of the population
   equipment_level: number; // 1-10, 1 being basic weapons, 10 being advanced specialized gear for the tech level
   training_level: number; // 1-10, 1 being minimal training, 10 being highly trained
-}
+};
 
 export function describeMilitary(military: Military): string {
   const quality_descriptions = [
@@ -53,7 +53,7 @@ export function describeMilitary(military: Military): string {
     "powerful",
     "elite",
     "terrifying",
-    "unstoppable"
+    "unstoppable",
   ];
   const military_quality = quality_descriptions[military.quality - 1];
   const military_size = new Intl.NumberFormat("en-US", {
@@ -77,8 +77,7 @@ export function generateCivilization(
   );
   const military = generateMilitary(
     [0.001, 0.01],
-    [config.military_strength_range[0],
-    config.military_strength_range[1]],
+    [config.military_strength_range[0], config.military_strength_range[1]],
   );
   const government_types = getGovernmentTypes();
   const government_type = RND.weighted(government_types);
@@ -101,7 +100,10 @@ export function generateCivilization(
   return civilization;
 }
 
-export function generateMilitary(size_range: [number, number], quality_range: [number, number]): Military {
+export function generateMilitary(
+  size_range: [number, number],
+  quality_range: [number, number],
+): Military {
   const size = random.float(size_range[0], size_range[1]);
   const quality = random.int(quality_range[0], quality_range[1]);
   // Quality is the average of equipment and training level, but neither equipment nor training can be lower than 1 or higher than 10
@@ -124,7 +126,9 @@ export function getDefaultCivilizationGenerationConfig(): CivilizationGeneration
   };
 }
 
-export function generateCivilizationName(government_type: GovernmentType): string {
+export function generateCivilizationName(
+  government_type: GovernmentType,
+): string {
   const generator = new MUN.StarNationNameGenerator();
   const name = generator.generate(1)[0];
 
@@ -162,57 +166,66 @@ function getEconomyTypes(): EconomyType[] {
     {
       name: "Capitalist",
       adjective: "capitalist",
-      description: "An economic system based on private ownership and the free market.",
+      description:
+        "An economic system based on private ownership and the free market.",
       commonality: 10,
     },
     {
       name: "Socialist",
       adjective: "socialist",
-      description: "An economic system where the means of production are owned and regulated by the community as a whole.",
+      description:
+        "An economic system where the means of production are owned and regulated by the community as a whole.",
       commonality: 3,
     },
     {
       name: "Feudal",
       adjective: "feudal",
-      description: "An economic system based on the exchange of land for military service and labor.",
+      description:
+        "An economic system based on the exchange of land for military service and labor.",
       commonality: 2,
     },
     {
       name: "Barter",
       adjective: "barter",
-      description: "An economic system where goods and services are exchanged directly for other goods and services without using money.",
+      description:
+        "An economic system where goods and services are exchanged directly for other goods and services without using money.",
       commonality: 1,
     },
     {
       name: "Mixed",
       adjective: "mixed",
-      description: "An economic system that combines elements of capitalism and socialism.",
+      description:
+        "An economic system that combines elements of capitalism and socialism.",
       commonality: 5,
     },
     {
       name: "Command",
       adjective: "command",
-      description: "An economic system where the government makes all economic decisions and controls the means of production.",
+      description:
+        "An economic system where the government makes all economic decisions and controls the means of production.",
       commonality: 2,
     },
     {
       name: "Gift",
       adjective: "gift",
-      description: "An economic system where goods and services are given without any expectation of return.",
+      description:
+        "An economic system where goods and services are given without any expectation of return.",
       commonality: 1,
     },
     {
       name: "Resource-based",
       adjective: "resource-based",
-      description: "An economic system where resources are allocated based on availability and need.",
+      description:
+        "An economic system where resources are allocated based on availability and need.",
       commonality: 1,
     },
     {
       name: "Subsistence",
       adjective: "subsistence",
-      description: "An economic system where people produce just enough to meet their own needs.",
+      description:
+        "An economic system where people produce just enough to meet their own needs.",
       commonality: 1,
-    }
+    },
   ];
 }
 
@@ -221,8 +234,13 @@ function getGovernmentTypes(): GovernmentType[] {
     {
       name: "Democracy",
       adjective: "democratic",
-      description: "A system of government in which the citizens exercise power directly or elect representatives from among themselves to form a governing body.",
-      name_options: ["Democratic Republic of {name}", "Republic of {name}", "{name} Republic"],
+      description:
+        "A system of government in which the citizens exercise power directly or elect representatives from among themselves to form a governing body.",
+      name_options: [
+        "Democratic Republic of {name}",
+        "Republic of {name}",
+        "{name} Republic",
+      ],
       commonality: 5,
     },
     {
@@ -235,22 +253,39 @@ function getGovernmentTypes(): GovernmentType[] {
     {
       name: "Oligarchy",
       adjective: "oligarchic",
-      description: "A form of power structure in which power resides in the hands of a small number of people.",
-      name_options: ["{name} Confederation", "Confederation of {name}", "{name} Technocracy"],
+      description:
+        "A form of power structure in which power resides in the hands of a small number of people.",
+      name_options: [
+        "{name} Confederation",
+        "Confederation of {name}",
+        "{name} Technocracy",
+      ],
       commonality: 1,
     },
     {
       name: "Theocracy",
       adjective: "theocratic",
-      description: "A system of government in which priests rule in the name of God or a god.",
-      name_options: ["Holy Empire of {name}", "Kingdom of {name}", "{name} Kingdom", "Holy Kingdom of {name}"],
+      description:
+        "A system of government in which priests rule in the name of God or a god.",
+      name_options: [
+        "Holy Empire of {name}",
+        "Kingdom of {name}",
+        "{name} Kingdom",
+        "Holy Kingdom of {name}",
+      ],
       commonality: 2,
     },
     {
       name: "Dictatorship",
       adjective: "dictatorial",
-      description: "A form of government in which a single person or party has absolute power.",
-      name_options: ["{name} Empire", "Empire of {name}", "{name} Dominion", "Dominion of {name}"],
+      description:
+        "A form of government in which a single person or party has absolute power.",
+      name_options: [
+        "{name} Empire",
+        "Empire of {name}",
+        "{name} Dominion",
+        "Dominion of {name}",
+      ],
       commonality: 4,
     },
   ];

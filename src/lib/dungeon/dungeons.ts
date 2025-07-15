@@ -99,7 +99,9 @@ export function generate(config: DungeonGeneratorConfig): Dungeon {
   dungeon = generateKeys(dungeon, keySpawns);
   dungeon = generateTreasure(dungeon, treasureSpawns);
 
-  dungeon.averageThreatLevel = Math.floor(dungeon.totalThreatLevel / numberOfEncounters);
+  dungeon.averageThreatLevel = Math.floor(
+    dungeon.totalThreatLevel / numberOfEncounters,
+  );
 
   return dungeon;
 }
@@ -146,7 +148,10 @@ function addRoomToTiles(room: Room, tiles: number[][]): number[][] {
   return tiles;
 }
 
-function generateEncounters(dungeon: Dungeon, encounterSpawns: EncounterSpawn[]): Dungeon {
+function generateEncounters(
+  dungeon: Dungeon,
+  encounterSpawns: EncounterSpawn[],
+): Dungeon {
   for (let i = 0; i < encounterSpawns.length; i++) {
     let maxRoom = encounterSpawns[i].maxRoom;
     if (maxRoom === -1) {
@@ -201,7 +206,12 @@ function generateEncounterSpawn(
     config.template = RND.weighted(dungeon.theme.weakEncounterTemplates);
   }
 
-  let spawn: EncounterSpawn = { minRoom: roomId, maxRoom: roomId, encounterConfig: config, treasureSpawns: [] };
+  let spawn: EncounterSpawn = {
+    minRoom: roomId,
+    maxRoom: roomId,
+    encounterConfig: config,
+    treasureSpawns: [],
+  };
 
   let addTreasureToEncounter = false;
 
@@ -209,7 +219,11 @@ function generateEncounterSpawn(
     throw new Error("Encounter template is null");
   }
 
-  for (let j = 0; j < spawn.encounterConfig.template.groupTemplates.length; j++) {
+  for (
+    let j = 0;
+    j < spawn.encounterConfig.template.groupTemplates.length;
+    j++
+  ) {
     if (spawn.encounterConfig.template.groupTemplates[j].isSentient) {
       addTreasureToEncounter = true;
     }
@@ -228,10 +242,18 @@ function generateEncounterSpawn(
   return spawn;
 }
 
-function generateEntrance(dungeon: Dungeon, mapWidth: number, mapHeight: number): Dungeon {
+function generateEntrance(
+  dungeon: Dungeon,
+  mapWidth: number,
+  mapHeight: number,
+): Dungeon {
   let entranceTheme = RoomThemes.getEntrance();
   entranceTheme.flooringOptions = dungeon.theme.flooringOptions;
-  let roomGenConfig = new RoomGeneratorConfig(mapWidth, mapHeight, entranceTheme);
+  let roomGenConfig = new RoomGeneratorConfig(
+    mapWidth,
+    mapHeight,
+    entranceTheme,
+  );
 
   let roomGen = new RoomGenerator(roomGenConfig);
 
@@ -287,7 +309,9 @@ function generateKeys(dungeon: Dungeon, keySpawns: TreasureSpawn[]): Dungeon {
       let m = RND.item(e.groups[0].mobs);
       m.carried.push(keySpawns[i].treasure[0]);
     } else {
-      dungeon.rooms[roomId].treasureCaches.push(keySpawns[i].treasure[0].description);
+      dungeon.rooms[roomId].treasureCaches.push(
+        keySpawns[i].treasure[0].description,
+      );
     }
   }
 
@@ -311,7 +335,12 @@ function generateRooms(
     let roomCount = random.int(rr.minCount, rr.maxCount);
 
     for (let j = 0; j < roomCount; j++) {
-      let r = Rooms.getPlaceableRoom(mapWidth, mapHeight, rr.theme, dungeon.rooms);
+      let r = Rooms.getPlaceableRoom(
+        mapWidth,
+        mapHeight,
+        rr.theme,
+        dungeon.rooms,
+      );
 
       if (r === null) {
         console.debug(`Room broke`, rr, dungeon.theme.name);
@@ -333,7 +362,12 @@ function generateRooms(
       if (roomTheme.environment == dungeon.theme.mainEnvironment) {
         roomTheme.flooringOptions = dungeon.theme.flooringOptions;
       }
-      let r = Rooms.getPlaceableRoom(mapWidth, mapHeight, roomTheme, dungeon.rooms);
+      let r = Rooms.getPlaceableRoom(
+        mapWidth,
+        mapHeight,
+        roomTheme,
+        dungeon.rooms,
+      );
       if (r === null) {
         failedIterations++;
       } else {
@@ -353,7 +387,10 @@ function generateRooms(
   return dungeon;
 }
 
-function generateTreasure(dungeon: Dungeon, treasureSpawns: TreasureSpawn[]): Dungeon {
+function generateTreasure(
+  dungeon: Dungeon,
+  treasureSpawns: TreasureSpawn[],
+): Dungeon {
   for (let i = 0; i < treasureSpawns.length; i++) {
     let maxRoom = treasureSpawns[i].maxRoom;
     if (maxRoom == -1) {
@@ -389,7 +426,9 @@ function generateTreasure(dungeon: Dungeon, treasureSpawns: TreasureSpawn[]): Du
       }
       if (containers.length > 0) {
         if (RND.simple(100) > 10) {
-          treasureDescription += ", inside " + dungeon.rooms[roomId].features[RND.item(containers)].name;
+          treasureDescription +=
+            ", inside " +
+            dungeon.rooms[roomId].features[RND.item(containers)].name;
         }
         dungeon.rooms[roomId].treasureCaches.push(treasureDescription);
       } else {

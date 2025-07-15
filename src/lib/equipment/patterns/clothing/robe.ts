@@ -19,7 +19,9 @@ export default class RobePattern implements Pattern {
 
   complete(componentOptions: Component[], quality: number): Clothing {
     let body = RND.item(Components.withCategory("fabric", componentOptions));
-    let hardware = RND.item(Components.withCategory("soft metal", componentOptions));
+    let hardware = RND.item(
+      Components.withCategory("soft metal", componentOptions),
+    );
 
     let value = this.baseValue + body.value + hardware.value;
 
@@ -27,12 +29,16 @@ export default class RobePattern implements Pattern {
 
     description += RND.item([`made of ${body.descriptor} with `, "with "]);
 
-    let sleeves = RND.item(["short", "long", "wide", "narrow", "bunched", "volumnous"]) + " sleeves";
-    let lacing = "lacing " + RND.item(["down the middle", "at the top", "halfway down"]);
+    let sleeves =
+      RND.item(["short", "long", "wide", "narrow", "bunched", "volumnous"]) +
+      " sleeves";
+    let lacing =
+      "lacing " + RND.item(["down the middle", "at the top", "halfway down"]);
     let collar = `a ${RND.item(["wide", "tight", "open"])} collar`;
-    let closures = RND.item(["dull", "embossed", "rough", "shiny", "round", "square"])
-      + ` ${hardware.descriptor} `
-      + RND.item(["buttons", "clasps"]);
+    let closures =
+      RND.item(["dull", "embossed", "rough", "shiny", "round", "square"]) +
+      ` ${hardware.descriptor} ` +
+      RND.item(["buttons", "clasps"]);
 
     description += RND.item([sleeves, collar, lacing, closures]);
 

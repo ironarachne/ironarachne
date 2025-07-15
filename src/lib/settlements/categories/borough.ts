@@ -1,6 +1,6 @@
 import type SettlementCategory from "../settlement_category.js";
 
-export default <SettlementCategory> {
+export default (<SettlementCategory>{
   name: "borough",
   minSize: 10000,
   maxSize: 19999,
@@ -16,4 +16,4 @@ export default <SettlementCategory> {
     "The buildings here are a mix of old and new, with modern high-rises standing next to ancient, crumbling ruins.",
     "This borough is known for its grand architecture, with many magnificent cathedrals and government buildings.",
   ],
-};
+});

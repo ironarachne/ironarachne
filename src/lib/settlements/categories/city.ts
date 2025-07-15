@@ -1,6 +1,6 @@
 import type SettlementCategory from "../settlement_category.js";
 
-export default <SettlementCategory> {
+export default (<SettlementCategory>{
   name: "city",
   minSize: 20000,
   maxSize: 49999,
@@ -16,4 +16,4 @@ export default <SettlementCategory> {
     "The winding alleys of this city are lit by lanterns at night, creating a mysterious and romantic atmosphere.",
     "This city is a patchwork of different architectural styles, with each district showcasing its own unique character and flair.",
   ],
-};
+});

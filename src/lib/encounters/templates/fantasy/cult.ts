@@ -15,7 +15,9 @@ export function all(): EncounterTemplate[] {
           threatLevel: 1,
           isSentient: true,
           archetypes: [Archetypes.byName("cult acolyte", allArchetypes)],
-          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
+          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", [
+            "undead",
+          ]),
           minNumber: 2,
           maxNumber: 4,
         },
@@ -49,7 +51,9 @@ export function all(): EncounterTemplate[] {
           threatLevel: 2,
           isSentient: true,
           archetypes: [Archetypes.byName("cult priest", allArchetypes)],
-          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
+          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", [
+            "undead",
+          ]),
           minNumber: 1,
           maxNumber: 1,
         },
@@ -66,7 +70,9 @@ export function all(): EncounterTemplate[] {
           threatLevel: 5,
           isSentient: true,
           archetypes: [Archetypes.byName("cult high priest", allArchetypes)],
-          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", ["undead"]),
+          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", [
+            "undead",
+          ]),
           minNumber: 1,
           maxNumber: 1,
         },

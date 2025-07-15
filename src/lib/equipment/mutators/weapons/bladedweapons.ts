@@ -19,7 +19,8 @@ export function all(): ItemMutator[] {
     {
       element: "lightning",
       damage: "+1d6 electricity",
-      description: "The blade is surrounded by crackling lightning when wielded.",
+      description:
+        "The blade is surrounded by crackling lightning when wielded.",
     },
     {
       element: "poison",
@@ -47,7 +48,8 @@ export function all(): ItemMutator[] {
     {
       element: "earth",
       damage: "+1d6 earth",
-      description: "The blade appears to be made of stone. Anything struck with it is turned to stone.",
+      description:
+        "The blade appears to be made of stone. Anything struck with it is turned to stone.",
     },
   ];
 

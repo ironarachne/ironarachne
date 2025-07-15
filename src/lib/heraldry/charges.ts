@@ -82,11 +82,7 @@ export function all(): Charge[] {
       SVG: antelopepassant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "antelope",
-        "hunting",
-      ],
+      tags: ["animal", "antelope", "hunting"],
     },
     {
       name: "antelope rampant",
@@ -94,11 +90,7 @@ export function all(): Charge[] {
       SVG: anteloperampant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "antelope",
-        "hunting",
-      ],
+      tags: ["animal", "antelope", "hunting"],
     },
     {
       name: "barrel",
@@ -114,12 +106,7 @@ export function all(): Charge[] {
       SVG: batvolant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "bat",
-        "evil",
-        "night",
-      ],
+      tags: ["animal", "bat", "evil", "night"],
     },
     {
       name: "battleaxe",
@@ -135,11 +122,7 @@ export function all(): Charge[] {
       SVG: bearheadcouped,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "bear",
-        "strength",
-      ],
+      tags: ["animal", "bear", "strength"],
     },
     {
       name: "bear rampant",
@@ -147,11 +130,7 @@ export function all(): Charge[] {
       SVG: bearrampant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "bear",
-        "strength",
-      ],
+      tags: ["animal", "bear", "strength"],
     },
     {
       name: "bear statant",
@@ -159,11 +138,7 @@ export function all(): Charge[] {
       SVG: bearstatant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "bear",
-        "strength",
-      ],
+      tags: ["animal", "bear", "strength"],
     },
     {
       name: "bee volant",
@@ -187,11 +162,7 @@ export function all(): Charge[] {
       SVG: boarheaderased,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "boar",
-        "hunting",
-      ],
+      tags: ["animal", "boar", "hunting"],
     },
     {
       name: "boar passant",
@@ -199,11 +170,7 @@ export function all(): Charge[] {
       SVG: boarpassant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "boar",
-        "hunting",
-      ],
+      tags: ["animal", "boar", "hunting"],
     },
     {
       name: "boar rampant",
@@ -211,11 +178,7 @@ export function all(): Charge[] {
       SVG: boarrampant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "boar",
-        "hunting",
-      ],
+      tags: ["animal", "boar", "hunting"],
     },
     {
       name: "castle",
@@ -247,11 +210,7 @@ export function all(): Charge[] {
       SVG: dolphinhauriant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "dolphin",
-        "fish",
-        "ocean",
-      ],
+      tags: ["dolphin", "fish", "ocean"],
     },
     {
       name: "doubleheaded eagle displayed",
@@ -267,10 +226,7 @@ export function all(): Charge[] {
       SVG: dragonrampant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "monster",
-        "dragon",
-      ],
+      tags: ["monster", "dragon"],
     },
     {
       name: "eagle's head erased",
@@ -278,11 +234,7 @@ export function all(): Charge[] {
       SVG: eaglesheaderased,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "bird",
-        "eagle",
-      ],
+      tags: ["animal", "bird", "eagle"],
     },
     {
       name: "fox sejant",
@@ -298,12 +250,7 @@ export function all(): Charge[] {
       SVG: gryphonsegreant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "monster",
-        "griffin",
-        "gryphon",
-        "griffon",
-      ],
+      tags: ["monster", "griffin", "gryphon", "griffon"],
     },
     {
       name: "hare salient",
@@ -311,11 +258,7 @@ export function all(): Charge[] {
       SVG: haresalient,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "hare",
-        "rabbit",
-      ],
+      tags: ["animal", "hare", "rabbit"],
     },
     {
       name: "hare",
@@ -355,11 +298,7 @@ export function all(): Charge[] {
       SVG: leopardpassant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "cat",
-        "leopard",
-      ],
+      tags: ["animal", "cat", "leopard"],
     },
     {
       name: "lion passant",
@@ -383,11 +322,7 @@ export function all(): Charge[] {
       SVG: lionsheaderased,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "cat",
-        "lion",
-      ],
+      tags: ["animal", "cat", "lion"],
     },
     {
       name: "owl",
@@ -403,10 +338,7 @@ export function all(): Charge[] {
       SVG: pegasuspassant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "monster",
-        "pegasus",
-      ],
+      tags: ["monster", "pegasus"],
     },
     {
       name: "pegasus rampant",
@@ -414,10 +346,7 @@ export function all(): Charge[] {
       SVG: pegasusrampant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "monster",
-        "pegasus",
-      ],
+      tags: ["monster", "pegasus"],
     },
     {
       name: "ram rampant",
@@ -473,11 +402,7 @@ export function all(): Charge[] {
       SVG: stagstatant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "stag",
-        "hunting",
-      ],
+      tags: ["animal", "stag", "hunting"],
     },
     {
       name: "sun in splendor",
@@ -493,11 +418,7 @@ export function all(): Charge[] {
       SVG: tigerpassant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "cat",
-        "tiger",
-      ],
+      tags: ["animal", "cat", "tiger"],
     },
     {
       name: "tiger rampant",
@@ -505,11 +426,7 @@ export function all(): Charge[] {
       SVG: tigerrampant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "animal",
-        "cat",
-        "tiger",
-      ],
+      tags: ["animal", "cat", "tiger"],
     },
     {
       name: "tower",
@@ -525,11 +442,7 @@ export function all(): Charge[] {
       SVG: twoaxesinsaltire,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "axe",
-        "warrior",
-        "weapon",
-      ],
+      tags: ["axe", "warrior", "weapon"],
     },
     {
       name: "two bones in saltire",
@@ -537,11 +450,7 @@ export function all(): Charge[] {
       SVG: twobonesinsaltire,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "bone",
-        "evil",
-        "pirate",
-      ],
+      tags: ["bone", "evil", "pirate"],
     },
     {
       name: "unicorn statant",
@@ -549,10 +458,7 @@ export function all(): Charge[] {
       SVG: unicornstatant,
       chargeType: "regular",
       tincture: sable,
-      tags: [
-        "monster",
-        "unicorn",
-      ],
+      tags: ["monster", "unicorn"],
     },
     {
       name: "wolf passant",

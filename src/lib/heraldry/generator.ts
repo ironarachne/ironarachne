@@ -21,19 +21,33 @@ export default class HeraldryGenerator {
   generate(): Arms {
     let chargeGroups: ChargeGroup[] = [];
 
-    let fieldTinctures1: Tincture[] = JSON.parse(JSON.stringify(this.config.fieldTinctures1));
-    let fieldTinctures2: Tincture[] = JSON.parse(JSON.stringify(this.config.fieldTinctures2));
+    let fieldTinctures1: Tincture[] = JSON.parse(
+      JSON.stringify(this.config.fieldTinctures1),
+    );
+    let fieldTinctures2: Tincture[] = JSON.parse(
+      JSON.stringify(this.config.fieldTinctures2),
+    );
 
     if (this.config.chargeCount > 0) {
       let charge = RND.item(this.config.chargeOptions);
       charge.tincture = RND.weighted(this.config.chargeTinctures);
       let arrangementOptions = Arrangements.withCount(this.config.chargeCount);
       let chargeArrangement = RND.item(arrangementOptions);
-      let chargeGroup = new ChargeGroup(charge, this.config.chargeCount, chargeArrangement);
+      let chargeGroup = new ChargeGroup(
+        charge,
+        this.config.chargeCount,
+        chargeArrangement,
+      );
       chargeGroups = [chargeGroup];
 
-      fieldTinctures1 = Tinctures.getContrasting(charge.tincture, fieldTinctures1);
-      fieldTinctures2 = Tinctures.getContrasting(charge.tincture, fieldTinctures2);
+      fieldTinctures1 = Tinctures.getContrasting(
+        charge.tincture,
+        fieldTinctures1,
+      );
+      fieldTinctures2 = Tinctures.getContrasting(
+        charge.tincture,
+        fieldTinctures2,
+      );
     }
 
     let field = RND.weighted(this.config.fieldOptions);

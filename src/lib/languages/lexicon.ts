@@ -155,7 +155,16 @@ function adjectives() {
 }
 
 function adverbs() {
-  return ["again", "now", "soon", "often", "sometimes", "always", "never", "seldom"];
+  return [
+    "again",
+    "now",
+    "soon",
+    "often",
+    "sometimes",
+    "always",
+    "never",
+    "seldom",
+  ];
 }
 
 function articles() {
@@ -372,7 +381,19 @@ function nouns() {
 }
 
 function numbers() {
-  return ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+  return [
+    "zero",
+    "one",
+    "two",
+    "three",
+    "four",
+    "five",
+    "six",
+    "seven",
+    "eight",
+    "nine",
+    "ten",
+  ];
 }
 
 function pronouns() {

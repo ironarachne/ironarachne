@@ -10,7 +10,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("oil, 1 flask", 5),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -19,7 +19,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("pony", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -28,7 +28,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("hammer", "club", "melee", "1d4", 50),
       new DCCGear("iron helmet", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -37,7 +37,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("spyglass", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -46,7 +46,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("rolling pin", "club", "melee", "1d4", 50),
       new DCCGear("flour, 1 lb.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -55,7 +55,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("razor", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("scissors", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -64,7 +64,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("holy symbol", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -73,7 +73,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("jar of honey", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -82,7 +82,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("hammer", "club", "melee", "1d4", 50),
       new DCCGear("steel tongs", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -91,7 +91,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("shortbow", "shortbow", "50/100/150", "1d6", 50),
       new DCCGear("sinew, 10'", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -100,7 +100,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("cleaver", "handaxe", "10/20/30", "1d6", 50),
       new DCCGear("side of beef", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -109,7 +109,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("vat spoon", "staff", "melee", "1d4", 50),
       new DCCGear("barrel of ale", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -118,7 +118,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("short sword", "short sword", "melee", "1d6", 50),
       new DCCGear("linen, 1 yard", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -127,7 +127,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("handaxe", "handaxe", "10/20/30", "1d6", 50),
       new DCCGear("pole, 10'", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -136,7 +136,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("cudgel", "staff", "melee", "1d4", 50),
       new DCCGear("stinky cheese", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -145,7 +145,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("awl", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("shoehorn", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -154,7 +154,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("quality cloak", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -163,7 +163,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("spices, 1 lb.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -172,7 +172,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("crowbar", "club", "melee", "1d4", 50),
       new DCCGear("barrel", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -181,7 +181,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("knife", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("fruit", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -190,7 +190,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("small chest", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -199,7 +199,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("shovel", "staff", "melee", "1d4", 50),
       new DCCGear("fine dirt, 1 lb.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -208,7 +208,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("pole", "staff", "melee", "1d4", 50),
       new DCCGear("1 late RPG book", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -217,7 +217,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("pitchfork", "spear", "melee", "1d8", 50),
       new DCCGear("hen", 1),
       20,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -226,7 +226,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("knife", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("fishing pole", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -235,7 +235,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("tarot deck", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -244,7 +244,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("hammer", "club", "melee", "1d4", 50),
       new DCCGear("steel tongs", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -253,7 +253,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("knife", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("deer pelt", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -262,7 +262,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("dice", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -271,7 +271,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("crook", "staff", "melee", "1d4", 50),
       new DCCGear("goat", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -280,7 +280,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("trowel", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("sack of night soil", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -289,7 +289,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("shovel", "staff", "melee", "1d4", 50),
       new DCCGear("trowel", 1),
       2,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -298,7 +298,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("sling", "sling", "40/80/160", "1d4", 50),
       new DCCGear("crutches", 1),
       2,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -307,7 +307,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("scissors", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("hat", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -316,7 +316,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("holy water", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -325,7 +325,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("herbs, 1 lb.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -334,7 +334,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("herding dog", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -343,7 +343,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("shortbow", "shortbow", "50/100/150", "1d6", 50),
       new DCCGear("deer pelt", 1),
       2,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -352,7 +352,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("locket", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -361,7 +361,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("cudgel", "club", "melee", "1d4", 50),
       new DCCGear("coin purse", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.currency.cp += 100;
         return character;
       },
@@ -371,7 +371,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dart", "dart", "20/40/60", "1d4", 50),
       new DCCGear("silk clothes", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -380,7 +380,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("gem worth 20 gp", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -389,7 +389,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("fine tools", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -398,7 +398,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("cheese dip", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -407,7 +407,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("longsword", "longsword", "melee", "1d8", 50),
       new DCCGear("hide armor", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.armorClass += 3;
         return character;
       },
@@ -417,7 +417,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("coin purse", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.currency.cp += 27;
         character.currency.sp += 14;
         character.currency.gp += 4;
@@ -429,7 +429,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("flour, 1 lb.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -438,7 +438,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("ukelele", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -447,7 +447,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("longsword", "longsword", "melee", "1d8", 50),
       new DCCGear("gold ring worth 10 gp", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -456,7 +456,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("rag doll", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -465,7 +465,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("bridle", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -474,7 +474,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("short sword", "short sword", "melee", "1d6", 50),
       new DCCGear("leather armor", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.armorClass += 2;
         return character;
       },
@@ -484,7 +484,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("awl", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("potting clay, 5 lb.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -493,7 +493,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("pickaxe", "short sword", "melee", "1d6", 50),
       new DCCGear("bag of stone chips", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -502,7 +502,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("knife", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("rope, 100'", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -511,7 +511,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("scissors", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("small rug", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -520,7 +520,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("knife", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("rope, 50'", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -529,7 +529,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dart", "dart", "20/40/60", "1d4", 50),
       new DCCGear("parchment, 100 sheets", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -538,7 +538,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("mace", "mace", "melee", "1d6", 50),
       new DCCGear("herbs, 1 lb.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -547,7 +547,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("crook", "staff", "melee", "1d4", 50),
       new DCCGear("sheep", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -556,7 +556,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("strange-looking rock", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -565,7 +565,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("sling", "sling", "40/80/160", "1d4", 50),
       new DCCGear("waterproof sack", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -574,7 +574,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("spear", "spear", "melee", "1d8", 50),
       new DCCGear("shield", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.armorClass += 1;
         return character;
       },
@@ -584,7 +584,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("longsword", "longsword", "melee", "1d8", 50),
       new DCCGear("steel helmet", 1),
       2,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -593,7 +593,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("pitchfork", "spear", "melee", "1d8", 50),
       new DCCGear("horse", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -602,7 +602,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("staff", "staff", "melee", "1d4", 50),
       new DCCGear("sow", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -611,7 +611,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("scissors", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("linen, 6 yds.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -620,7 +620,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("knife", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("sheet of leather", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -629,7 +629,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("longsword", "longsword", "melee", "1d8", 50),
       new DCCGear("coin purse", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         character.currency.cp += 100;
         return character;
       },
@@ -639,7 +639,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("hammer", "club", "melee", "1d4", 50),
       new DCCGear("thatching, 1 bundle", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -648,7 +648,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("sling", "sling", "40/60/180", "1d4", 50),
       new DCCGear("badger pelt", 1),
       2,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -657,7 +657,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("stick", "club", "melee", "1d4", 50),
       new DCCGear("begging bowl", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -666,7 +666,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("pushcart", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -675,7 +675,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("club", "club", "melee", "1d4", 50),
       new DCCGear("pocket watch", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -684,7 +684,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("fine suit of clothes", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -693,7 +693,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("sickle", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("grapes, 1 lb.", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -702,7 +702,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("dagger", "dagger", "10/20/30", "1d4/1d10", 50),
       new DCCGear("black grimoire", 1),
       1,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),
@@ -711,7 +711,7 @@ export function all(): DCCOccupation[] {
       new DCCWeapon("handaxe", "handaxe", "10/20/30", "1d6", 50),
       new DCCGear("bundle of wood", 1),
       3,
-      function(character: DCCCharacter): DCCCharacter {
+      function (character: DCCCharacter): DCCCharacter {
         return character;
       },
     ),

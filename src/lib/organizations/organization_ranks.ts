@@ -1,11 +1,17 @@
 import type OrganizationRank from "./organization_rank";
 
-export function getRanksOfTier(tier: number, ranks: OrganizationRank[]): OrganizationRank[] {
-  const ranksOfTier = ranks.filter(rank => rank.tier === tier);
+export function getRanksOfTier(
+  tier: number,
+  ranks: OrganizationRank[],
+): OrganizationRank[] {
+  const ranksOfTier = ranks.filter((rank) => rank.tier === tier);
   return ranksOfTier;
 }
 
-export function getLowerRanks(rank: OrganizationRank, ranks: OrganizationRank[]): OrganizationRank[] {
+export function getLowerRanks(
+  rank: OrganizationRank,
+  ranks: OrganizationRank[],
+): OrganizationRank[] {
   const lowerRanks = [];
 
   for (let i = 0; i < rank.children.length; i++) {
@@ -18,7 +24,10 @@ export function getLowerRanks(rank: OrganizationRank, ranks: OrganizationRank[])
   return lowerRanks;
 }
 
-export function getHigherRank(rank: OrganizationRank, ranks: OrganizationRank[]): OrganizationRank | null {
+export function getHigherRank(
+  rank: OrganizationRank,
+  ranks: OrganizationRank[],
+): OrganizationRank | null {
   if (rank.parent === null) {
     return null;
   }
@@ -27,7 +36,7 @@ export function getHigherRank(rank: OrganizationRank, ranks: OrganizationRank[])
 }
 
 export function getDistinctTiers(ranks: OrganizationRank[]): number[] {
-  const tiers = ranks.map(rank => rank.tier);
+  const tiers = ranks.map((rank) => rank.tier);
   const distinctTiers = [...new Set(tiers)];
   return distinctTiers;
 }

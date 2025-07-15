@@ -8,11 +8,9 @@ export default class HeraldrySVGRenderer {
 
     const uid = RND.randomString(4);
 
-    const shieldSVG =
-      `<path fill="url(#Division${uid})" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>`;
+    const shieldSVG = `<path fill="url(#Division${uid})" stroke="#000000" stroke-width="3" d="M3,3 V260.637C3,369.135,46.339,452.459,99.763,514 C186.238,614.13,300,657,300,657 C300,657,413.762,614.13,500.237,514 C553.661,452.459,597,369.135,597,260.637V3Z"/>`;
 
-    const svgHeader =
-      `<svg width="${width}" height="${height}" viewBox="0 0 ${shieldWidth} ${shieldHeight}" xmlns="http://www.w3.org/2000/svg" version="1.1">`;
+    const svgHeader = `<svg width="${width}" height="${height}" viewBox="0 0 ${shieldWidth} ${shieldHeight}" xmlns="http://www.w3.org/2000/svg" version="1.1">`;
     let defsSVG = "";
 
     defsSVG += device.field.pattern
@@ -31,7 +29,10 @@ export default class HeraldrySVGRenderer {
     let chargeGroupsSVG = "";
 
     for (let i = 0; i < device.chargeGroups.length; i++) {
-      chargeGroupsSVG += device.chargeGroups[i].renderSVG(shieldWidth, shieldHeight); // TODO: handle different centerPosition and arrangement
+      chargeGroupsSVG += device.chargeGroups[i].renderSVG(
+        shieldWidth,
+        shieldHeight,
+      ); // TODO: handle different centerPosition and arrangement
     }
 
     let svg = svgHeader;

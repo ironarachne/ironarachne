@@ -29,13 +29,9 @@ export default class BeltPattern implements Pattern {
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name} `,
     ]);
 
-    description += `with ${Words.article(hardware.descriptor)} ${hardware.descriptor} ${
-      RND.item([
-        "clasp",
-        "buckle",
-        "closure",
-      ])
-    }`;
+    description += `with ${Words.article(hardware.descriptor)} ${hardware.descriptor} ${RND.item(
+      ["clasp", "buckle", "closure"],
+    )}`;
 
     if (quality > 1 && random.int(1, 100) >= 70) {
       description += RND.item([

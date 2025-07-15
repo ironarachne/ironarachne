@@ -7,7 +7,11 @@ export default class ChargeGroup {
   numberOfCharges: number;
   arrangement: ChargeGroupArrangement;
 
-  constructor(charge: Charge, numberOfCharges: number, arrangement: ChargeGroupArrangement) {
+  constructor(
+    charge: Charge,
+    numberOfCharges: number,
+    arrangement: ChargeGroupArrangement,
+  ) {
     this.charge = charge;
     this.numberOfCharges = numberOfCharges;
     this.arrangement = arrangement;
@@ -35,13 +39,21 @@ export default class ChargeGroup {
       this.charge.tincture.name,
       chargeSVGString,
     );
-    chargeGroup = this.arrangement.renderSVG(chargeSVGString, contextWidth, contextHeight);
+    chargeGroup = this.arrangement.renderSVG(
+      chargeSVGString,
+      contextWidth,
+      contextHeight,
+    );
 
     return chargeGroup;
   }
 }
 
-function setChargeColor(hexColor: string, tinctureName: string, chargeSVG: string): string {
+function setChargeColor(
+  hexColor: string,
+  tinctureName: string,
+  chargeSVG: string,
+): string {
   if (hexColor === "#000000") {
     chargeSVG = chargeSVG.replaceAll("#010101", "#ffffff");
     chargeSVG = chargeSVG.replaceAll("#000000", "#ffffff");

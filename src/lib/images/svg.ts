@@ -1,4 +1,9 @@
-export function renderSVGAsPNG(svg: string, width: number, height: number, outputId: string) {
+export function renderSVGAsPNG(
+  svg: string,
+  width: number,
+  height: number,
+  outputId: string,
+) {
   let output = document.getElementById(outputId);
 
   // This is a hack to get around the fact that the first time this runs, the output element is null
@@ -19,7 +24,7 @@ export function renderSVGAsPNG(svg: string, width: number, height: number, outpu
 
   let outputImage = new Image();
 
-  outputImage.onload = function() {
+  outputImage.onload = function () {
     ctx.drawImage(outputImage, 0, 0);
     let pngDataUrl = canvas.toDataURL("image/png");
     output.src = pngDataUrl;

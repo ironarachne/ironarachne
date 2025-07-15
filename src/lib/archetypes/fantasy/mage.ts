@@ -15,7 +15,10 @@ export function all(): Archetype[] {
       ],
       tags: ["magic user"],
       threatLevel: 1,
-      itemGenerators: [ItemGenerators.getItemGenerator("staff", 1), ItemGenerators.getItemGenerator("robe", 0)],
+      itemGenerators: [
+        ItemGenerators.getItemGenerator("staff", 1),
+        ItemGenerators.getItemGenerator("robe", 0),
+      ],
     },
     {
       name: "archmage",
@@ -29,7 +32,10 @@ export function all(): Archetype[] {
       ],
       tags: ["magic user"],
       threatLevel: 4,
-      itemGenerators: [ItemGenerators.getItemGenerator("staff", 3), ItemGenerators.getItemGenerator("robe", 3)],
+      itemGenerators: [
+        ItemGenerators.getItemGenerator("staff", 3),
+        ItemGenerators.getItemGenerator("robe", 3),
+      ],
     },
     {
       name: "druid",
@@ -43,7 +49,10 @@ export function all(): Archetype[] {
       ],
       tags: ["magic user"],
       threatLevel: 2,
-      itemGenerators: [ItemGenerators.getItemGenerator("staff", 1), ItemGenerators.getItemGenerator("robe", 0)],
+      itemGenerators: [
+        ItemGenerators.getItemGenerator("staff", 1),
+        ItemGenerators.getItemGenerator("robe", 0),
+      ],
     },
     {
       name: "mage",
@@ -57,7 +66,10 @@ export function all(): Archetype[] {
       ],
       tags: ["magic user"],
       threatLevel: 2,
-      itemGenerators: [ItemGenerators.getItemGenerator("staff", 1), ItemGenerators.getItemGenerator("robe", 0)],
+      itemGenerators: [
+        ItemGenerators.getItemGenerator("staff", 1),
+        ItemGenerators.getItemGenerator("robe", 0),
+      ],
     },
     {
       name: "necromancer",
@@ -71,7 +83,10 @@ export function all(): Archetype[] {
       ],
       tags: ["magic user"],
       threatLevel: 4,
-      itemGenerators: [ItemGenerators.getItemGenerator("staff", 3), ItemGenerators.getItemGenerator("robe", 3)],
+      itemGenerators: [
+        ItemGenerators.getItemGenerator("staff", 3),
+        ItemGenerators.getItemGenerator("robe", 3),
+      ],
     },
     {
       name: "sorcerer",
@@ -127,7 +142,10 @@ export function all(): Archetype[] {
       ],
       tags: ["magic user"],
       threatLevel: 2,
-      itemGenerators: [ItemGenerators.getItemGenerator("staff", 1), ItemGenerators.getItemGenerator("robe", 1)],
+      itemGenerators: [
+        ItemGenerators.getItemGenerator("staff", 1),
+        ItemGenerators.getItemGenerator("robe", 1),
+      ],
     },
   ];
 }

@@ -40,16 +40,20 @@ export function generate(config: RegionGeneratorConfig): Region {
   }
 
   const environmentConfig = Environments.getDefaultConfig();
-  environmentConfig.latitude = RND.weighted([{
-    value: 40,
-    commonality: 10,
-  }, {
-    value: 15,
-    commonality: 5,
-  }, {
-    value: 65,
-    commonality: 5
-  }]).value;
+  environmentConfig.latitude = RND.weighted([
+    {
+      value: 40,
+      commonality: 10,
+    },
+    {
+      value: 15,
+      commonality: 5,
+    },
+    {
+      value: 65,
+      commonality: 5,
+    },
+  ]).value;
   region.environment = Environments.generate(environmentConfig);
   region.settlements = randomSettlements(region.environment, nameGenSet);
   region.organizations = randomOrganizations();
@@ -78,7 +82,10 @@ export function generate(config: RegionGeneratorConfig): Region {
 
   let numberOfNeighbors = random.int(config.minRealms, config.maxRealms);
   for (let i = 0; i < numberOfNeighbors; i++) {
-    realmGenConfig.nameGeneratorSet = MUN.getSetByName("fantasy", MUN.allSets());
+    realmGenConfig.nameGeneratorSet = MUN.getSetByName(
+      "fantasy",
+      MUN.allSets(),
+    );
     if (RND.simple(100) > 70) {
       let neighborNameGenSet = RND.item(MUN.cultureSets());
       realmGenConfig.nameGeneratorSet = neighborNameGenSet;
@@ -132,7 +139,10 @@ function randomOrganizations(): Organization[] {
   return orgs;
 }
 
-function randomSettlements(environment: Environment, nameGeneratorSet: MUN.GeneratorSet): Settlement[] {
+function randomSettlements(
+  environment: Environment,
+  nameGeneratorSet: MUN.GeneratorSet,
+): Settlement[] {
   let settlementGenConfig = Settlements.getDefaultConfig();
   settlementGenConfig.nameGenerator = nameGeneratorSet.town;
   settlementGenConfig.size = "large";

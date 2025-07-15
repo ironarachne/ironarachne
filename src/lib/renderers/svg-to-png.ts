@@ -1,6 +1,11 @@
 import Download from "../download.js";
 
-export default function(svg: string, width: number, height: number, fileName: string) {
+export default function (
+  svg: string,
+  width: number,
+  height: number,
+  fileName: string,
+) {
   const blob = new Blob([svg], { type: "image/svg+xml" });
   let blobURL = window.URL.createObjectURL(blob);
   let image = new Image();

@@ -13,7 +13,10 @@ export function getCategoryList(): string[] {
   return results;
 }
 
-export function getCategoryFromAge(age: number, categories: AgeCategory[]): AgeCategory {
+export function getCategoryFromAge(
+  age: number,
+  categories: AgeCategory[],
+): AgeCategory {
   for (let i = 0; i < categories.length; i++) {
     if (categories[i].minAge <= age && categories[i].maxAge >= age) {
       return categories[i];
@@ -23,7 +26,10 @@ export function getCategoryFromAge(age: number, categories: AgeCategory[]): AgeC
   throw new Error(`Failed to find age category for age ${age}`);
 }
 
-export function getCategoryFromName(name: string, ageGroups: AgeCategory[]): AgeCategory {
+export function getCategoryFromName(
+  name: string,
+  ageGroups: AgeCategory[],
+): AgeCategory {
   for (let i = 0; i < ageGroups.length; i++) {
     if (ageGroups[i].name == name) {
       return ageGroups[i];
@@ -37,9 +43,7 @@ export function getDescription(ageCategory: AgeCategory): string {
   return `Name: ${ageCategory.name}, Noun: ${ageCategory.noun}, Age: ${ageCategory.minAge} - ${ageCategory.maxAge}`;
 }
 
-export function getHumanVariant(
-  ageModifier: number,
-): AgeCategory[] {
+export function getHumanVariant(ageModifier: number): AgeCategory[] {
   let categories = humanStandard();
 
   return getVariant(ageModifier, categories);
@@ -104,7 +108,14 @@ export function humanStandard(): AgeCategory[] {
       genderedNoun: ["young girl", "young boy", "young child"],
       commonality: 2,
     },
-    { name: "child", noun: "child", minAge: 7, maxAge: 12, genderedNoun: ["girl", "boy", "child"], commonality: 2 },
+    {
+      name: "child",
+      noun: "child",
+      minAge: 7,
+      maxAge: 12,
+      genderedNoun: ["girl", "boy", "child"],
+      commonality: 2,
+    },
     {
       name: "teenager",
       noun: "teenager",
@@ -113,7 +124,14 @@ export function humanStandard(): AgeCategory[] {
       genderedNoun: ["teen girl", "teen boy", "teenager"],
       commonality: 8,
     },
-    { name: "adult", noun: "adult", minAge: 20, maxAge: 60, genderedNoun: ["woman", "man", "adult"], commonality: 20 },
+    {
+      name: "adult",
+      noun: "adult",
+      minAge: 20,
+      maxAge: 60,
+      genderedNoun: ["woman", "man", "adult"],
+      commonality: 20,
+    },
     {
       name: "elderly",
       noun: "elder",
@@ -125,7 +143,10 @@ export function humanStandard(): AgeCategory[] {
   ];
 }
 
-export function randomWeighted(names: string[], options: AgeCategory[]): AgeCategory {
+export function randomWeighted(
+  names: string[],
+  options: AgeCategory[],
+): AgeCategory {
   let possibleAgeCategories: AgeCategory[] = [];
 
   for (let i = 0; i < options.length; i++) {

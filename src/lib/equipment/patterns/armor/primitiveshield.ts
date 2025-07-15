@@ -46,6 +46,14 @@ export default class PrimitiveShieldPattern implements Pattern {
     let armorClass = 1;
     let tags = [name, this.name, "shield", "armor"];
 
-    return new Armor(name, description, "arm", armorClass, value, quality, tags);
+    return new Armor(
+      name,
+      description,
+      "arm",
+      armorClass,
+      value,
+      quality,
+      tags,
+    );
   }
 }

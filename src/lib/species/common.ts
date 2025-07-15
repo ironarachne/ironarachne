@@ -13,7 +13,9 @@ import type Species from "./species.js";
 
 export function breed(species1: Species, species2: Species): Species {
   if (!breedable(species1, species2)) {
-    throw new Error(`Species ${species1.name} and ${species2.name} are not breedable.`);
+    throw new Error(
+      `Species ${species1.name} and ${species2.name} are not breedable.`,
+    );
   }
 
   let result: Species = species1;
@@ -28,7 +30,10 @@ export function breed(species1: Species, species2: Species): Species {
   return result;
 }
 
-export function averageAgeCategories(species1: Species, species2: Species): AgeCategory[] {
+export function averageAgeCategories(
+  species1: Species,
+  species2: Species,
+): AgeCategory[] {
   // Since there might be more age categories in one species than the other, we need to find the
   // species with the highest maximum age.
   let maxAge: number = Math.max(
@@ -40,10 +45,11 @@ export function averageAgeCategories(species1: Species, species2: Species): AgeC
     species2.ageCategories[species2.ageCategories.length - 1].maxAge,
   );
 
-  let maxSpecies: Species = species1.ageCategories[species1.ageCategories.length - 1].maxAge
-      > species2.ageCategories[species2.ageCategories.length - 1].maxAge
-    ? species1
-    : species2;
+  let maxSpecies: Species =
+    species1.ageCategories[species1.ageCategories.length - 1].maxAge >
+    species2.ageCategories[species2.ageCategories.length - 1].maxAge
+      ? species1
+      : species2;
 
   // Now average them
   let average: number = (maxAge + minAge) / 2;
@@ -53,7 +59,10 @@ export function averageAgeCategories(species1: Species, species2: Species): AgeC
 
   // Now generate a new set of age categories based on maxSpecies's age categories, but modified by the ratio
   // of the max age to the min age.
-  let result: AgeCategory[] = AgeCategories.getVariant(ratio, maxSpecies.ageCategories);
+  let result: AgeCategory[] = AgeCategories.getVariant(
+    ratio,
+    maxSpecies.ageCategories,
+  );
 
   return result;
 }
@@ -62,19 +71,35 @@ export function averageSizes(species1: Species, species2: Species): SizeMatrix {
   let result: SizeMatrix = species1.sizeGeneratorConfigMatrix;
 
   for (let i = 0; i < species1.sizeGeneratorConfigMatrix.length; i++) {
-    for (let j = 0; j < species1.sizeGeneratorConfigMatrix[i].entries.length; j++) {
+    for (
+      let j = 0;
+      j < species1.sizeGeneratorConfigMatrix[i].entries.length;
+      j++
+    ) {
       result[i].entries[j].sizeGeneratorConfig.minHeight =
-        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.minHeight
-          + species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.minHeight) / 2;
+        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
+          .minHeight +
+          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
+            .minHeight) /
+        2;
       result[i].entries[j].sizeGeneratorConfig.maxHeight =
-        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.maxHeight
-          + species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.maxHeight) / 2;
+        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
+          .maxHeight +
+          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
+            .maxHeight) /
+        2;
       result[i].entries[j].sizeGeneratorConfig.minWeight =
-        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.minWeight
-          + species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.minWeight) / 2;
+        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
+          .minWeight +
+          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
+            .minWeight) /
+        2;
       result[i].entries[j].sizeGeneratorConfig.maxWeight =
-        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.maxWeight
-          + species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.maxWeight) / 2;
+        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
+          .maxWeight +
+          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
+            .maxWeight) /
+        2;
     }
   }
 
@@ -107,7 +132,10 @@ export function byAnyTag(tags: string[], options: Species[]): Species[] {
   return result;
 }
 
-export function byCreatureType(creatureType: string, options: Species[]): Species[] {
+export function byCreatureType(
+  creatureType: string,
+  options: Species[],
+): Species[] {
   let result = [];
 
   for (let i = 0; i < options.length; i++) {
@@ -119,11 +147,17 @@ export function byCreatureType(creatureType: string, options: Species[]): Specie
   return result;
 }
 
-export function byEnvironment(environment: string, options: Species[]): Species[] {
+export function byEnvironment(
+  environment: string,
+  options: Species[],
+): Species[] {
   let result = [];
 
   for (let i = 0; i < options.length; i++) {
-    if (options[i].environments.includes(environment) || options[i].environments.length == 0) {
+    if (
+      options[i].environments.includes(environment) ||
+      options[i].environments.length == 0
+    ) {
       result.push(options[i]);
     }
   }
@@ -153,14 +187,20 @@ export function byTag(tag: string, options: Species[]): Species[] {
   return result;
 }
 
-export function generateCompositeName(species1: Species, species2: Species): string {
+export function generateCompositeName(
+  species1: Species,
+  species2: Species,
+): string {
   let firstName = species1.name > species2.name ? species1.name : species2.name;
   let lastName = species1.name > species2.name ? species2.name : species1.name;
 
   return `${firstName}-${lastName}`;
 }
 
-export function getCommonEnvironments(species1: Species, species2: Species): string[] {
+export function getCommonEnvironments(
+  species1: Species,
+  species2: Species,
+): string[] {
   let result = [];
 
   for (let i = 0; i < species1.environments.length; i++) {
@@ -227,8 +267,12 @@ export function mergeTags(tags1: string[], tags2: string[]): string[] {
   return result;
 }
 
-export function mergeTraits(species1: Species, species2: Species): PhysicalTraitGeneratorConfig[] {
-  let result: PhysicalTraitGeneratorConfig[] = species1.physicalTraitGeneratorConfigs;
+export function mergeTraits(
+  species1: Species,
+  species2: Species,
+): PhysicalTraitGeneratorConfig[] {
+  let result: PhysicalTraitGeneratorConfig[] =
+    species1.physicalTraitGeneratorConfigs;
 
   for (let i = 0; i < species2.physicalTraitGeneratorConfigs.length; i++) {
     let config = species2.physicalTraitGeneratorConfigs[i];
@@ -259,7 +303,9 @@ export function randomTraits(species: Species): PhysicalTrait[] {
   let traits: PhysicalTrait[] = [];
 
   for (let i = 0; i < species.physicalTraitGeneratorConfigs.length; i++) {
-    const newTrait = PhysicalTraits.generate(species.physicalTraitGeneratorConfigs[i]);
+    const newTrait = PhysicalTraits.generate(
+      species.physicalTraitGeneratorConfigs[i],
+    );
     traits.push(newTrait);
   }
 
@@ -293,7 +339,10 @@ export function sentient(): Species[] {
   return byTag("sentient", all);
 }
 
-export function withCreatureType(creatureType: string, options: Species[]): Species[] {
+export function withCreatureType(
+  creatureType: string,
+  options: Species[],
+): Species[] {
   let result = [];
 
   for (let i = 0; i < options.length; i++) {

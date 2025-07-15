@@ -2,7 +2,7 @@ import type {
   LuminosityClass,
   SpectralClass,
   StarClassification,
-} from '$lib/astronomical_bodies/star/stars'
+} from "$lib/astronomical_bodies/star/stars";
 
 export function getStarClassificationByName(name: string): StarClassification {
   const classifications = getStarClassifications();
@@ -16,7 +16,10 @@ export function getStarClassificationByName(name: string): StarClassification {
   throw new Error(`Failed to find star classification with name ${name}`);
 }
 
-export function searchStarClassificationsByName(name: string, classifications: StarClassification[]): StarClassification[] {
+export function searchStarClassificationsByName(
+  name: string,
+  classifications: StarClassification[],
+): StarClassification[] {
   let left = 0;
   let right = classifications.length - 1;
 
@@ -26,8 +29,8 @@ export function searchStarClassificationsByName(name: string, classifications: S
 
     if (comparison === 0) {
       return [classifications[mid]];
-    } 
-    
+    }
+
     if (comparison < 0) {
       left = mid + 1;
     } else {
@@ -38,17 +41,33 @@ export function searchStarClassificationsByName(name: string, classifications: S
   throw new Error(`Failed to find star classification with name ${name}`);
 }
 
-export function getStarClassificationBySpec(temperature: number, luminosity: number, mass: number, radius: number): StarClassification {
+export function getStarClassificationBySpec(
+  temperature: number,
+  luminosity: number,
+  mass: number,
+  radius: number,
+): StarClassification {
   // TODO: Implement a faster search algorithm by specifications
   const classifications = getStarClassifications();
 
   for (let i = 0; i < classifications.length; i++) {
-    if (classifications[i].min_temperature <= temperature && classifications[i].max_temperature >= temperature && classifications[i].min_luminosity <= luminosity && classifications[i].max_luminosity >= luminosity && classifications[i].min_mass <= mass && classifications[i].max_mass >= mass && classifications[i].min_radius <= radius && classifications[i].max_radius >= radius) {
+    if (
+      classifications[i].min_temperature <= temperature &&
+      classifications[i].max_temperature >= temperature &&
+      classifications[i].min_luminosity <= luminosity &&
+      classifications[i].max_luminosity >= luminosity &&
+      classifications[i].min_mass <= mass &&
+      classifications[i].max_mass >= mass &&
+      classifications[i].min_radius <= radius &&
+      classifications[i].max_radius >= radius
+    ) {
       return classifications[i];
     }
   }
 
-  throw new Error(`Failed to find star classification with temperature ${temperature}, luminosity ${luminosity}, mass ${mass}, and radius ${radius}`);
+  throw new Error(
+    `Failed to find star classification with temperature ${temperature}, luminosity ${luminosity}, mass ${mass}, and radius ${radius}`,
+  );
 }
 
 export function getStarClassifications(): StarClassification[] {
@@ -59,10 +78,14 @@ export function getStarClassifications(): StarClassification[] {
 
   for (const luminosityClass of luminosityClasses) {
     for (const spectralClass of spectralClasses) {
-      const temperatureStep = (spectralClass.max_temperature - spectralClass.min_temperature) / 10;
-      const massStep = (luminosityClass.max_mass - luminosityClass.min_mass) / 10;
-      const radiusStep = (luminosityClass.max_radius - luminosityClass.min_radius) / 10;
-      const luminosityStep = (luminosityClass.max_luminosity - luminosityClass.min_luminosity) / 10;
+      const temperatureStep =
+        (spectralClass.max_temperature - spectralClass.min_temperature) / 10;
+      const massStep =
+        (luminosityClass.max_mass - luminosityClass.min_mass) / 10;
+      const radiusStep =
+        (luminosityClass.max_radius - luminosityClass.min_radius) / 10;
+      const luminosityStep =
+        (luminosityClass.max_luminosity - luminosityClass.min_luminosity) / 10;
 
       for (let i = 0; i < 10; i++) {
         classifications.push({
@@ -71,13 +94,15 @@ export function getStarClassifications(): StarClassification[] {
           luminosity_class: luminosityClass.name,
           spectral_class: `${spectralClass.name}${i}`,
           min_temperature: spectralClass.min_temperature + i * temperatureStep,
-          max_temperature: spectralClass.max_temperature + (i + 1) * temperatureStep,
+          max_temperature:
+            spectralClass.max_temperature + (i + 1) * temperatureStep,
           min_mass: luminosityClass.min_mass + i * massStep,
           max_mass: luminosityClass.max_mass + (i + 1) * massStep,
           min_radius: luminosityClass.min_radius + i * radiusStep,
           max_radius: luminosityClass.max_radius + (i + 1) * radiusStep,
           min_luminosity: luminosityClass.min_luminosity + i * luminosityStep,
-          max_luminosity: luminosityClass.max_luminosity + (i + 1) * luminosityStep,
+          max_luminosity:
+            luminosityClass.max_luminosity + (i + 1) * luminosityStep,
           commonality: luminosityClass.commonality + spectralClass.commonality,
         });
       }
@@ -98,7 +123,7 @@ export function getLuminosityClasses(): LuminosityClass[] {
       max_radius: 1340,
       min_luminosity: 160000,
       max_luminosity: 1660000,
-      commonality: 1 // these are the rarest
+      commonality: 1, // these are the rarest
     },
     {
       name: "I",
@@ -109,7 +134,7 @@ export function getLuminosityClasses(): LuminosityClass[] {
       max_radius: 1000,
       min_luminosity: 50000,
       max_luminosity: 500000,
-      commonality: 3
+      commonality: 3,
     },
     {
       name: "II",
@@ -120,7 +145,7 @@ export function getLuminosityClasses(): LuminosityClass[] {
       max_radius: 75,
       min_luminosity: 750,
       max_luminosity: 1200,
-      commonality: 5
+      commonality: 5,
     },
     {
       name: "III",
@@ -131,7 +156,7 @@ export function getLuminosityClasses(): LuminosityClass[] {
       max_radius: 480,
       min_luminosity: 78,
       max_luminosity: 9360,
-      commonality: 20
+      commonality: 20,
     },
     {
       name: "IV",
@@ -142,7 +167,7 @@ export function getLuminosityClasses(): LuminosityClass[] {
       max_radius: 9.6,
       min_luminosity: 5000,
       max_luminosity: 38000,
-      commonality: 5
+      commonality: 5,
     },
     {
       name: "V",
@@ -153,7 +178,7 @@ export function getLuminosityClasses(): LuminosityClass[] {
       max_radius: 3.8,
       min_luminosity: 0.00017,
       max_luminosity: 20,
-      commonality: 75
+      commonality: 75,
     },
     {
       name: "VI",
@@ -164,7 +189,7 @@ export function getLuminosityClasses(): LuminosityClass[] {
       max_radius: 0.789,
       min_luminosity: 0.012,
       max_luminosity: 0.445,
-      commonality: 3
+      commonality: 3,
     },
     {
       name: "VII",
@@ -175,8 +200,8 @@ export function getLuminosityClasses(): LuminosityClass[] {
       max_radius: 0.02,
       min_luminosity: 0.00086,
       max_luminosity: 0.0295,
-      commonality: 2
-    }
+      commonality: 2,
+    },
   ];
 }
 
@@ -187,53 +212,55 @@ export function getSpectralClasses(): SpectralClass[] {
       spectral_class: "O",
       min_temperature: 33000,
       max_temperature: 50000,
-      commonality: 1
+      commonality: 1,
     },
     {
       name: "deep bluish white",
       spectral_class: "B",
       min_temperature: 10000,
       max_temperature: 33000,
-      commonality: 2
+      commonality: 2,
     },
     {
       name: "bluish white",
       spectral_class: "A",
       min_temperature: 7300,
       max_temperature: 10000,
-      commonality: 3
+      commonality: 3,
     },
     {
       name: "white",
       spectral_class: "F",
       min_temperature: 6000,
       max_temperature: 7300,
-      commonality: 5
+      commonality: 5,
     },
     {
       name: "yellowish white",
       spectral_class: "G",
       min_temperature: 5300,
       max_temperature: 6000,
-      commonality: 6
+      commonality: 6,
     },
     {
       name: "pale yellowish orange",
       spectral_class: "K",
       min_temperature: 3900,
       max_temperature: 5300,
-      commonality: 30
+      commonality: 30,
     },
     {
       name: "orangish red",
       spectral_class: "M",
       min_temperature: 2300,
       max_temperature: 3900,
-      commonality: 50
-    }
+      commonality: 50,
+    },
   ];
 }
 
-export function sortStarClassificationsByName(classifications: StarClassification[]): StarClassification[] {
+export function sortStarClassificationsByName(
+  classifications: StarClassification[],
+): StarClassification[] {
   return classifications.sort((a, b) => a.name.localeCompare(b.name));
 }

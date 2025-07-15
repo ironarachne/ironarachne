@@ -37,25 +37,21 @@ export default class StaffPattern implements Pattern {
 
     if (quality > 1 && random.int(1, 100) > 70) {
       description += RND.item([
-        ` topped with a ${
-          RND.item([
-            "crystal globe",
-            "raw crystal",
-            "rough crystal",
-            "polished crystal",
-          ])
-        }`,
-        ` capped on top and bottom with ${
-          RND.item([
-            "steel",
-            "gold",
-            "silver",
-            "bronze",
-            "brass",
-            "iron",
-            "tin",
-          ])
-        }`,
+        ` topped with a ${RND.item([
+          "crystal globe",
+          "raw crystal",
+          "rough crystal",
+          "polished crystal",
+        ])}`,
+        ` capped on top and bottom with ${RND.item([
+          "steel",
+          "gold",
+          "silver",
+          "bronze",
+          "brass",
+          "iron",
+          "tin",
+        ])}`,
       ]);
     }
 
@@ -63,6 +59,14 @@ export default class StaffPattern implements Pattern {
 
     let tags = [name, this.name, "staff", "melee", "simple weapon", "weapon"];
 
-    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
+    return new MeleeWeapon(
+      name,
+      description,
+      this.damage,
+      this.hands,
+      value,
+      quality,
+      tags,
+    );
   }
 }

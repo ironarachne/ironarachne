@@ -2,12 +2,22 @@ import * as AgeCategories from "$lib/age/age_categories.js";
 import * as Sizes from "$lib/size/sizes.js";
 import type Species from "../species.js";
 
-export default <Species> {
+export default (<Species>{
   name: "human",
   pluralName: "humans",
   adjective: "human",
   breedType: "human",
-  environments: ["arctic", "coastal", "desert", "forest", "grassland", "hill", "mountain", "urban", "underdark"],
+  environments: [
+    "arctic",
+    "coastal",
+    "desert",
+    "forest",
+    "grassland",
+    "hill",
+    "mountain",
+    "urban",
+    "underdark",
+  ],
   creatureTypes: ["humanoid"],
   physicalTraitGeneratorConfigs: [
     {
@@ -34,9 +44,25 @@ export default <Species> {
   abilities: [],
   commonality: 200,
   genders: [
-    { name: "female", pronouns: { subjective: "she", objective: "her", possessive: "her", reflexive: "herself" } },
-    { name: "male", pronouns: { subjective: "he", objective: "him", possessive: "his", reflexive: "himself" } },
+    {
+      name: "female",
+      pronouns: {
+        subjective: "she",
+        objective: "her",
+        possessive: "her",
+        reflexive: "herself",
+      },
+    },
+    {
+      name: "male",
+      pronouns: {
+        subjective: "he",
+        objective: "him",
+        possessive: "his",
+        reflexive: "himself",
+      },
+    },
   ],
   sizeGeneratorConfigMatrix: Sizes.humanStandard(),
   tags: ["corruptible", "human", "martial", "magic", "sentient"],
-};
+});

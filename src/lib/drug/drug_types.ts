@@ -8,19 +8,27 @@ export function all() {
 function gas(): DrugType {
   const verbs = ["inhaled", "breathed in", "sniffed"];
 
-  const options = ["breather", "aerosol", "small spray can", "long tube", "palm-sized tank"];
+  const options = [
+    "breather",
+    "aerosol",
+    "small spray can",
+    "long tube",
+    "palm-sized tank",
+  ];
 
   const descriptions = [];
 
   for (let x = 0; x < verbs.length; x++) {
     for (let y = 0; y < options.length; y++) {
-      descriptions.push(`${verbs[x]} from ${Words.article(options[y])} ${options[y]}`);
+      descriptions.push(
+        `${verbs[x]} from ${Words.article(options[y])} ${options[y]}`,
+      );
     }
   }
 
   return {
-    name: "gas", 
-    methods: descriptions
+    name: "gas",
+    methods: descriptions,
   };
 }
 
@@ -42,8 +50,8 @@ function liquid(): DrugType {
 
   return {
     name: "liquid",
-    methods: descriptions
-  }
+    methods: descriptions,
+  };
 }
 
 function ointment(): DrugType {
@@ -61,8 +69,8 @@ function ointment(): DrugType {
 
   return {
     name: "ointment",
-    methods: descriptions
-  }
+    methods: descriptions,
+  };
 }
 
 function paste(): DrugType {
@@ -80,8 +88,8 @@ function paste(): DrugType {
 
   return {
     name: "paste",
-    methods: descriptions
-  }
+    methods: descriptions,
+  };
 }
 
 function pill(): DrugType {
@@ -95,8 +103,8 @@ function pill(): DrugType {
 
   return {
     name: "pill",
-    methods: descriptions
-  }
+    methods: descriptions,
+  };
 }
 
 function powder(): DrugType {
@@ -110,6 +118,6 @@ function powder(): DrugType {
 
   return {
     name: "powder",
-    methods: descriptions
-  }
+    methods: descriptions,
+  };
 }

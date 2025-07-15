@@ -10,12 +10,19 @@ import * as RoomThemes from "../rooms/themes/themes.js";
 export function getTheme(): DungeonTheme {
   let allEncounters = FantasyEncounters.all(false);
   let allSentientOptions = CommonSpecies.sentient();
-  allSentientOptions = CommonSpecies.withCreatureType("humanoid", allSentientOptions);
+  allSentientOptions = CommonSpecies.withCreatureType(
+    "humanoid",
+    allSentientOptions,
+  );
   let numberOfSentientOptions = random.int(1, 3);
 
   let cultEncounters = Encounters.withTag("cult", allEncounters);
   let cultWeakEncounters = Encounters.belowThreatLevel(3, cultEncounters);
-  let cultStrongEncounters = Encounters.inThreatLevelRange(3, 4, cultEncounters);
+  let cultStrongEncounters = Encounters.inThreatLevelRange(
+    3,
+    4,
+    cultEncounters,
+  );
   let cultBossEncounters = Encounters.withThreatLevel(5, cultEncounters);
 
   let cultNameGen = new MUN.GenericNameGenerator();
@@ -30,8 +37,14 @@ export function getTheme(): DungeonTheme {
     }
   }
 
-  let cultSentientOptions = CommonSpecies.byTag("corruptible", allSentientOptions);
-  cultSentientOptions = CommonSpecies.randomUniqueSet(cultSentientOptions, numberOfSentientOptions);
+  let cultSentientOptions = CommonSpecies.byTag(
+    "corruptible",
+    allSentientOptions,
+  );
+  cultSentientOptions = CommonSpecies.randomUniqueSet(
+    cultSentientOptions,
+    numberOfSentientOptions,
+  );
 
   const allRoomThemes = RoomThemes.all();
   let barracks = RoomThemes.byName("barracks", allRoomThemes);

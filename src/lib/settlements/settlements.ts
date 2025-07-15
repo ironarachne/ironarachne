@@ -7,9 +7,10 @@ import * as Categories from "./settlement_categories.js";
 import type SettlementGeneratorConfig from "./settlement_generator_config.js";
 
 export function generate(config: SettlementGeneratorConfig): Settlement {
-  const settlementName = (config.nameGenerator !== null)
-    ? config.nameGenerator.generate(1)[0]
-    : "Settlement";
+  const settlementName =
+    config.nameGenerator !== null
+      ? config.nameGenerator.generate(1)[0]
+      : "Settlement";
   const settlementCategory = RND.item(Categories.bySizeClass(config.size));
   const settlement: Settlement = {
     name: settlementName,
@@ -86,7 +87,11 @@ function randomProsperity(prosperity: number): string {
       "have their needs met",
     ];
   } else {
-    suffixes = ["have more wealth than most", "are prosperous", "have more than they need"];
+    suffixes = [
+      "have more wealth than most",
+      "are prosperous",
+      "have more than they need",
+    ];
   }
 
   let options = [];

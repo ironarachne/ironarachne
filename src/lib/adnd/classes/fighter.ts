@@ -32,7 +32,7 @@ export default new ADNDClass(
   4,
   3,
   -2,
-  function(character: ADNDCharacter): ADNDCharacter {
+  function (character: ADNDCharacter): ADNDCharacter {
     return character;
   },
 );

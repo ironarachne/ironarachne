@@ -41,7 +41,8 @@ export function byThreatRange(
     let totalThreatLevel = getTotalThreatLevel(archetypes[i]);
 
     if (
-      totalThreatLevel >= minThreatLevel && totalThreatLevel <= maxThreatLevel
+      totalThreatLevel >= minThreatLevel &&
+      totalThreatLevel <= maxThreatLevel
     ) {
       result.push(archetypes[i]);
     }

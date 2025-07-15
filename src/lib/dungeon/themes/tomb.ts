@@ -9,17 +9,27 @@ import * as RoomThemes from "../rooms/themes/themes.js";
 
 export function getTheme(): DungeonTheme {
   let allSentientOptions = CommonSpecies.sentient();
-  allSentientOptions = CommonSpecies.withCreatureType("humanoid", allSentientOptions);
+  allSentientOptions = CommonSpecies.withCreatureType(
+    "humanoid",
+    allSentientOptions,
+  );
   let numberOfSentientOptions = random.int(1, 2);
 
   let tombSentientOptions = CommonSpecies.byTag("martial", allSentientOptions);
-  tombSentientOptions = CommonSpecies.randomUniqueSet(tombSentientOptions, numberOfSentientOptions);
+  tombSentientOptions = CommonSpecies.randomUniqueSet(
+    tombSentientOptions,
+    numberOfSentientOptions,
+  );
 
   let tombEncounters = GenericEncounters.all();
   tombEncounters = tombEncounters.concat(UndeadEncounters.all());
 
   let tombWeakEncounters = Encounters.belowThreatLevel(2, tombEncounters);
-  let tombStrongEncounters = Encounters.inThreatLevelRange(3, 4, tombEncounters);
+  let tombStrongEncounters = Encounters.inThreatLevelRange(
+    3,
+    4,
+    tombEncounters,
+  );
   let tombBossEncounters = Encounters.withThreatLevel(5, tombEncounters);
 
   let tombNameGen = new MUN.GenericNameGenerator();

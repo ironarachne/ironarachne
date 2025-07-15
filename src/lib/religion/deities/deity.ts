@@ -59,11 +59,9 @@ export default class Deity {
     let description = `${this.name} appears as ${Words.article(speciesAdj)} ${speciesAdj} ${this.ageCategory.noun}.`;
     description += ` ${Words.capitalize(subjectivePronoun)} has ${this.appearance}. ${this.personality}.`;
     description += ` ${this.name} is the ${noun} of ${Words.arrayToPhrase(domainNames)}.`;
-    description += ` ${Words.capitalize(subjectivePronoun)} resides in ${
-      Words.uncapitalize(
-        this.realm.name,
-      )
-    }.`;
+    description += ` ${Words.capitalize(subjectivePronoun)} resides in ${Words.uncapitalize(
+      this.realm.name,
+    )}.`;
 
     return description;
   }

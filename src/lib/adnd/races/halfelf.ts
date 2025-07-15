@@ -4,12 +4,20 @@ import ADNDRace from "../adndrace.js";
 export default new ADNDRace(
   "half-elf",
   "half-elven",
-  function(character: ADNDCharacter): ADNDCharacter {
-    character.abilities.push("30% resistance to sleep spell and all charm-related spells");
+  function (character: ADNDCharacter): ADNDCharacter {
+    character.abilities.push(
+      "30% resistance to sleep spell and all charm-related spells",
+    );
     character.abilities.push("Infravision (60')");
-    character.abilities.push("Notice secret door with 1 on 1d6 when passing within 10 feet");
-    character.abilities.push("Find secret door when actively searching with 1-2 on 1d6");
-    character.abilities.push("Find concealed portal when actively searching with 1-3 on 1d6");
+    character.abilities.push(
+      "Notice secret door with 1 on 1d6 when passing within 10 feet",
+    );
+    character.abilities.push(
+      "Find secret door when actively searching with 1-2 on 1d6",
+    );
+    character.abilities.push(
+      "Find concealed portal when actively searching with 1-3 on 1d6",
+    );
     return character;
   },
   3,
@@ -34,5 +42,14 @@ export default new ADNDRace(
   12,
   "1d6",
   ["common", "elf", "gnome", "halfling", "goblin", "hobgoblin", "gnoll", "orc"],
-  ["bard", "cleric", "druid", "fighter", "mage", "ranger", "specialist wizard", "thief"],
+  [
+    "bard",
+    "cleric",
+    "druid",
+    "fighter",
+    "mage",
+    "ranger",
+    "specialist wizard",
+    "thief",
+  ],
 );
