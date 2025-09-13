@@ -41,8 +41,8 @@
 
 <style lang="scss">
   @import "$lib/styles/reset.scss";
-  @import "$lib/styles/main.scss";
   @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
   @import '$lib/styles/fantasy.scss';
 </style>
 
@@ -56,7 +56,7 @@
     <input type="text" name="seed" bind:value={seed} id="seed"/>
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  
+
   <button onclick={generate}>Generate</button>
 
   <h2>{ character.firstName } { character.lastName }</h2>

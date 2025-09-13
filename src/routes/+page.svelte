@@ -25,6 +25,12 @@
     <a href="https://benovermyer.com">benovermyer.com</a>. Sometimes I'll write
     about what I'm working on for Iron Arachne over there.
   </p>
+  <h2>Featured Generators</h2>
+  <p>The following are generators that I'm particularly proud of or are unique to this site.</p>
+  <ul>
+    <li><a href="/culture">Culture Generator</a></li>
+    <li><a href="/planet">Planet Generator</a></li>
+  </ul>
   <h2>Recent Changes</h2>
   <p>Showing the {numberOfEntries} most recent change log entries.</p>
   {#each updates as update}

@@ -23,6 +23,7 @@
 <style lang="scss">
   @import "$lib/styles/reset.scss";
   @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
   @import '$lib/styles/scifi.scss';
 </style>
 
@@ -32,6 +33,7 @@
   <button onclick={generate}>Generate</button>
   <p>{ manufacturer.description }</p>
   <h2>Models</h2>
+  <p>The following are the manufacturer's most popular models.</p>
   {#each manufacturer.models as model}
   <div>
     <h3>{model.name}</h3>

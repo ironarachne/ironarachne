@@ -53,8 +53,8 @@
 
 <style lang="scss">
   @import "$lib/styles/reset.scss";
-  @import "$lib/styles/main.scss";
   @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
   @import '$lib/styles/fantasy.scss';
 
   .namelist {
@@ -68,13 +68,13 @@
 <section class="fantasy main">
   <h1>Culture Generator</h1>
   <p>This generator lets you create fantasy cultures.</p>
-  
+
   <div class="input-group">
     <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  
+
   <button onclick={generate}>Generate</button>
   <button onclick={saveCulture}>Save Current Culture</button>
 
@@ -99,7 +99,7 @@
 
   <div class="namelist">
     <div>
-      <h5>Male Names</h5>
+      <h4>Male Names</h4>
       <ul>
       {#each culture.maleNames as name}
         <li>{ name }</li>
@@ -107,7 +107,7 @@
       </ul>
     </div>
     <div>
-      <h5>Female Names</h5>
+      <h4>Female Names</h4>
       <ul>
         {#each culture.femaleNames as name}
       <li>{ name }</li>
@@ -115,7 +115,7 @@
       </ul>
     </div>
     <div>
-      <h5>Family Names</h5>
+      <h4>Family Names</h4>
       <ul>
         {#each culture.familyNames as name}
         <li>{ name }</li>
@@ -126,7 +126,7 @@
 
   <div class="namelist">
     <div>
-      <h5>Country Names</h5>
+      <h4>Country Names</h4>
 
       <ul>
         {#each culture.countryNames as name}
@@ -135,7 +135,7 @@
       </ul>
     </div>
     <div>
-      <h5>Town Names</h5>
+      <h4>Town Names</h4>
 
       <ul>
         {#each culture.townNames as name}

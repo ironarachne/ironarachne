@@ -1,13 +1,4 @@
 .scifi {
-  background: rgb(16, 17, 25);
-  background: linear-gradient(
-    90deg,
-    rgba(16, 17, 25, 1) 0%,
-    rgba(38, 58, 96, 1) 49%,
-    rgba(16, 17, 25, 1) 100%
-  );
-  color: white;
-
   h1,
   h2,
   h3,
@@ -15,8 +6,7 @@
   h5,
   h6 {
     color: #a2d4ff;
-    text-shadow: 0 0 6px #0086ff;
-    font-family: 'alienleague', sans-serif;
+    text-shadow: 0 0 6px $cyan;
   }
 
   button {
@@ -25,7 +15,6 @@
     border: 3px solid rgb(108, 146, 255);
     border-radius: 3px;
     color: #fff;
-    font-family: 'alienleague', sans-serif;
     font-size: 1.15rem;
     line-height: 1rem;
     margin: 0.1rem;

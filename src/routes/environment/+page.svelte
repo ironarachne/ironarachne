@@ -23,7 +23,7 @@
 
         return Math.floor(result);
     }
-    
+
     function generate() {
         if (!lockSeed) {
             seed = RND.randomString(13);
@@ -58,7 +58,7 @@
         generate();
     });
 
-    function drawWindArrow(canvas: HTMLCanvasElement, wind: number[]) {      
+    function drawWindArrow(canvas: HTMLCanvasElement, wind: number[]) {
         const ctx = canvas.getContext("2d");
 
         if (ctx === null) {
@@ -94,16 +94,16 @@
         ctx.lineTo(arrowLength, 0);
         ctx.lineTo(arrowLength - wedgeLength, wedgeLength);
         ctx.stroke();
-        
+
         ctx.restore();
     }
 </script>
 
 <style lang="scss">
-    @import "$lib/styles/reset.scss";
-    @import "$lib/styles/main.scss";
-    @import '$lib/styles/global.scss';
-    @import '$lib/styles/fantasy.scss';
+  @import "$lib/styles/reset.scss";
+  @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
+  @import '$lib/styles/fantasy.scss';
 </style>
 
 <svelte:head>
@@ -174,7 +174,7 @@
         <input type="text" name="seed" bind:value={seed} id="seed"/>
         <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
     </div>
-    
+
     <button onclick={generate}>Generate</button>
     <button onclick={randomizeParameters}>Randomize Parameters</button>
 
@@ -217,7 +217,7 @@
     {/each}
 
     <h2>Biome</h2>
-    
+
     <p><strong>Biome Name:</strong> {environment.biome.name}</p>
     <p><strong>Temperature:</strong> {environment.biome.temperature}</p>
     <p><strong>Altitude:</strong> {environment.biome.altitude}  ({elevationToFeet(environment.biome.altitude)} ft.)</p>

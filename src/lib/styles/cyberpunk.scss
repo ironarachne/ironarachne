@@ -1,7 +1,4 @@
 .cyberpunk {
-  background: black;
-  color: white;
-
   h1,
   h2,
   h3,
@@ -9,8 +6,7 @@
   h5,
   h6 {
     color: #d8f6b0;
-    font-family: 'azonix', sans-serif;
-    text-shadow: 0 0 6px #86ff00;
+    text-shadow: 0 0 6px $acidGreen;
   }
 
   button {
@@ -18,7 +14,6 @@
     border: 3px solid $ironArachneGreen;
     border-radius: 3px;
     color: $ironArachneGreen;
-    font-family: 'azonix', sans-serif;
     font-size: 1rem;
     line-height: 1rem;
     margin: 0.1rem;

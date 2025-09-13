@@ -1,26 +1,10 @@
 @charset "utf-8";
 @use "sass:string";
-
-@font-face {
-  font-family: 'alienleague';
-  src: url('$lib/assets/fonts/alienleagueregular-9d3z-webfont.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'azonix';
-  src: url('$lib/assets/fonts/azonix-webfont.woff2') format('woff2');
-  font-weight: normal;
-  font-style: normal;
-}
-
-$ironArachneGreen: #76e841;
-$tan: #5c5031;
-$gold: #fad037;
+@import "$lib/styles/global.scss";
 
 html {
-  background: rgb(247, 244, 224);
+  background: $charcoal;
+  color: color-mix(in srgb, $charcoal 5%, white 95%);
   font-family: Georgia, serif;
   font-size: string.unquote('clamp(1em, 0.909em + 0.45vmin, 1.25em)');
   max-width: 70ch;
@@ -36,14 +20,30 @@ body :not(:is(h1, h2, h3, h4, h5, h6)) {
   line-height: 1.75;
 }
 
+a {
+  color: $ironArachneGreen;
+}
+
+a:hover {
+  color: $gold;
+}
+
+a:visited {
+  color: color-mix(in srgb, $ironArachneGreen 10%, $gold 90%);
+}
+
+button {
+  font-family: "cinzel", system-ui, Helvetica, sans-serif;
+}
+
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: system-ui, Helvetica, sans-serif;
-  margin: 0.5rem 0;
+  font-family: "cinzel", system-ui, Helvetica, sans-serif;
+  margin: 1.5rem 0;
 }
 
 pre {
@@ -65,7 +65,6 @@ div.half-column {
 }
 
 h1 {
-  color: #000;
   font-weight: 700;
   font-size: 2.5rem;
   line-height: 2.5rem;
@@ -73,7 +72,6 @@ h1 {
 }
 
 h2 {
-  color: #000;
   font-weight: 500;
   font-size: 2.25rem;
   line-height: 2.25rem;
@@ -82,7 +80,15 @@ h2 {
 
 h3 {
   font-size: 2rem;
-  line-height: 2rem;
+  line-height: 1rem;
+}
+
+h3::after {
+  content: "";
+  background: $granite;
+  height: 1px;
+  width: 100%;
+  display: inline-block;
 }
 
 h4 {
@@ -92,7 +98,7 @@ h4 {
 
 h5 {
   font-size: 1.25rem;
-  border-bottom: 1px solid #333;
+  border-bottom: 1px solid $granite;
 }
 
 p {
@@ -163,31 +169,33 @@ pre {
   font-size: 0.85rem;
 }
 
-section.default {
-  button {
-    background: rgb(92, 86, 73);
-    background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-    border: 3px solid $tan;
-    border-radius: 3px;
-    color: #fff;
-    font-size: 1rem;
-    line-height: 1rem;
-    margin: 0.1rem;
-    padding: 0.5rem 1rem;
-  }
+button {
+  background: rgb(92, 86, 73);
+  background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
+  border: 3px solid $tan;
+  border-radius: 3px;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1rem;
+  margin: 0.1rem;
+  padding: 0.5rem 1rem;
+}
 
-  button:active {
-    background: rgb(92, 86, 73);
-    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-    color: $ironArachneGreen;
-    transform: translateY(2px);
-  }
+button:active {
+  background: rgb(92, 86, 73);
+  background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
+  color: $ironArachneGreen;
+  transform: translateY(2px);
+}
 
-  button:disabled {
-    background: #666;
-    color: #777;
-    border-color: #999;
-  }
+button:disabled {
+  background: #666;
+  color: #777;
+  border-color: #999;
+}
+
+button:hover {
+  border: 3px solid white;
 }
 
 section.main {
