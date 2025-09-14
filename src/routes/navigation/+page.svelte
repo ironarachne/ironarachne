@@ -1,7 +1,7 @@
 <style lang="scss">
   @import "$lib/styles/reset.scss";
-  @import "$lib/styles/main.scss";
-@import '$lib/styles/global.scss';
+  @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
 @import '$lib/styles/cyberpunk.scss';
 @import '$lib/styles/fantasy.scss';
 @import '$lib/styles/scifi.scss';
@@ -12,8 +12,8 @@ section.navigation {
 
   a {
     display: inline-block;
-    margin-bottom: 0.5rem;
-    width: 100%;
+    margin: 0 auto 0.3rem;
+    width: 95%;
     text-decoration: none;
     padding: 0.4rem 0;
     text-align: center;
@@ -23,6 +23,11 @@ section.navigation {
   .button-group {
     padding: 0.25rem;
     margin-top: 0.5rem;
+
+    nav {
+      display: flex;
+      flex-direction: column;
+    }
   }
 
   .cyberpunk {
@@ -38,6 +43,11 @@ section.navigation {
       font-family: 'azonix', sans-serif;
     }
 
+    a:hover {
+      background: $ironArachneGreen;
+      color: black;
+    }
+
     a.active {
       background: $ironArachneGreen;
       color: black;
@@ -48,24 +58,32 @@ section.navigation {
 
   .fantasy {
     border-radius: 12px;
-    background: url('$lib/assets/images/stone-texture.png');
+    background: linear-gradient(145deg, #2a2f38, #1b1e24);
 
     h2,
     h3,
     h4 {
       color: $gold;
+    }
+
+    h2 {
       text-shadow: 3px 0 0 black, 0 3px 0 black, -3px 0 0 black, 0 -3px 0 black;
     }
 
     a {
-      background-color: rgb(155, 90, 55);
-      background-image: url('$lib/assets/images/stone-texture.png');
+      background: linear-gradient(145deg, rgb(155, 90, 55), #1b1e24);
       background-blend-mode: screen;
       border-radius: 0;
-      border: 1px solid rgb(67, 66, 66);
+      border: 1px solid transparent;
+      border-image: linear-gradient(90deg, #49382b, #69520c) 1;
       box-shadow: 1px 1px 1px black;
       text-shadow: -1px -1px 0 black, 1px 1px 0 #aaa;
       color: $gold;
+    }
+
+    a:hover {
+      background: $gold;
+      color: black;
     }
 
     a.active {
@@ -106,6 +124,8 @@ section.navigation {
 
     a:hover {
       box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.29), inset 0 0 2px rgba(0, 0, 0, 0.5);
+      background: white;
+      color: rgb(182, 151, 88);
     }
 
     a:active {
@@ -144,6 +164,11 @@ section.navigation {
       font-family: 'alienleague', sans-serif;
     }
 
+    a:hover {
+      background: white;
+      color: rgb(51, 57, 136);
+    }
+
     a.active {
       background: rgb(255, 209, 0);
       background: linear-gradient(
@@ -157,17 +182,6 @@ section.navigation {
     }
 
     border-right: 1px solid #111;
-  }
-
-  h3 {
-    border-bottom: 1px solid #000;
-  }
-
-  ul {
-    li {
-      list-style: none;
-      margin-left: 0;
-    }
   }
 }
 </style>
@@ -184,59 +198,35 @@ section.navigation {
 
     <h3>Generic</h3>
 
-    <ul>
-      <li>
-        <a href="/culture">Culture</a>
-      </li>
-      <li>
-        <a href="/fantasy/dungeon">Dungeon</a>
-      </li>
-      <li>
-        <a href="/fantasy/equipment">Equipment Lists</a>
-      </li>
-      <li>
-        <a href="/fantasy/family">Family</a>
-      </li>
-      <li>
-        <a href="/heraldry">Heraldry</a>
-      </li>
-      <li>
-        <a href="/fantasy/weapon">Magic Weapon</a>
-      </li>
-      <li>
-        <a href="/fantasy/organization">Organization</a>
-      </li>
-      <li>
-        <a href="/region">Region</a>
-      </li>
-      <li>
-        <a href="/fantasy/religion">Religion</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/culture">Culture</a>
+      <a href="/fantasy/dungeon">Dungeon</a>
+      <a href="/fantasy/equipment">Equipment Lists</a>
+      <a href="/fantasy/family">Family</a>
+      <a href="/heraldry">Heraldry</a>
+      <a href="/fantasy/weapon">Magic Weapon</a>
+      <a href="/fantasy/organization">Organization</a>
+      <a href="/region">Region</a>
+      <a href="/fantasy/religion">Religion</a>
+    </nav>
 
     <h3>Advanced Dungeons &amp; Dragons</h3>
 
-    <ul>
-      <li>
-        <a href="/fantasy/adnd/character">AD&amp;D 2e Character</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/fantasy/adnd/character">AD&amp;D 2E Character</a>
+    </nav>
 
     <h3>Dungeon Crawl Classics</h3>
 
-    <ul>
-      <li>
-        <a href="/fantasy/dcc/character">DCC Character</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/fantasy/dcc/character">DCC Character</a>
+    </nav>
 
     <h3>Velgarth</h3>
 
-    <ul>
-      <li>
-        <a href="/velgarth-gifts">Velgarth Gifts</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/velgarth-gifts">Velgarth Gifts</a>
+    </nav>
   </div>
 
   <div class="scifi button-group">
@@ -244,73 +234,45 @@ section.navigation {
 
     <h3>Generic</h3>
 
-    <ul>
-      <li>
-        <a href="/arms-manufacturer">Arms Manufacturer</a>
-      </li>
-      <li>
-        <a href="/planet">Planet</a>
-      </li>
-      <li>
-        <a href="/spooky-ship">Spooky Ship</a>
-      </li>
-      <li>
-        <a href="/star-nation">Star Nation</a>
-      </li>
-      <li>
-        <a href="/star-system">Star System</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/arms-manufacturer">Arms Manufacturer</a>
+      <a href="/planet">Planet</a>
+      <a href="/spooky-ship">Spooky Ship</a>
+      <a href="/star-nation">Star Nation</a>
+      <a href="/star-system">Star System</a>
+    </nav>
 
     <h3>Stars Without Number</h3>
 
-    <ul>
-      <li>
-        <a href="/swn/character">SWN Character</a>
-      </li>
-      <li>
-        <a href="/swn/starship">SWN Starship</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/swn/character">SWN Character</a>
+      <a href="/swn/starship">SWN Starship</a>
+    </nav>
 
     <h3>Uncharted Worlds</h3>
 
-    <ul>
-      <li>
-        <a href="/unchartedworlds/character">UW Character</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/unchartedworlds/character">UW Character</a>
+    </nav>
   </div>
 
   <div class="cyberpunk button-group">
     <h2>Cyberpunk</h2>
 
-    <ul>
-      <li>
-        <a href="/chopshop">Chop Shop</a>
-      </li>
-      <li>
-        <a href="/drug">Drug</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/chopshop">Chop Shop</a>
+      <a href="/drug">Drug</a>
+    </nav>
   </div>
 
   <div class="normal button-group">
     <h2>General Tools</h2>
 
-    <ul>
-      <li>
-        <a href="/environment">Environment</a>
-      </li>
-      <li>
-        <a href="/language">Language</a>
-      </li>
-      <li>
-        <a href="/species-stats">Species Height/Weight Calculator</a>
-      </li>
-      <li>
-        <a href="/word-generator-cheat-sheet">Word Generator Cheat Sheet</a>
-      </li>
-    </ul>
+    <nav>
+      <a href="/environment">Environment</a>
+      <a href="/language">Language</a>
+      <a href="/species-stats">Species Height/Weight Calculator</a>
+      <a href="/word-generator-cheat-sheet">Word Generator Cheat Sheet</a>
+  </nav>
   </div>
 </section>

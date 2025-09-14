@@ -33,8 +33,8 @@
 
 <style lang="scss">
   @import "$lib/styles/reset.scss";
-  @import "$lib/styles/main.scss";
   @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
   @import '$lib/styles/scifi.scss';
 
   div.abilities > div {
@@ -56,7 +56,7 @@
     <input type="text" name="seed" bind:value={seed} id="seed"/>
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  
+
   <button onclick={generate}>Generate</button>
   <button onclick={save}>Save</button>
 

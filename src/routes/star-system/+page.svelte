@@ -6,7 +6,7 @@
   import seedrandom from "seedrandom";
   import { onMount } from 'svelte';
   import { generateStarSystem, getDefaultStarSystemGeneratorConfig, type StarSystem } from "$lib/astronomical_bodies/star_systems";
-  
+
   const width = 128;
   const height = 128;
 
@@ -33,8 +33,8 @@
 
 <style lang="scss">
   @import "$lib/styles/reset.scss";
-  @import "$lib/styles/main.scss";
   @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
   @import '$lib/styles/scifi.scss';
 
   article.media-banner {
@@ -50,13 +50,13 @@
 
 <section class="main scifi">
   <h1>Star System Generator</h1>
-  
+
   <div class="input-group">
     <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed"/>
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  
+
   <button onclick={generate}>Generate</button>
 
   {#if system}

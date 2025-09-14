@@ -1,0 +1,39 @@
+.navigation {
+  margin-top: 0.5rem;
+  padding: 0.25rem;
+
+  a {
+    background-blend-mode: screen;
+    background: linear-gradient(145deg, $emerald, $slate);
+    border-image: linear-gradient(90deg, #49382b, #69520c) 1;
+    border-radius: 2px;
+    border: 1px solid transparent;
+    box-shadow: 1px 1px 1px black;
+    color: white;
+    display: inline-block;
+    margin: 0 auto 0.3rem;
+    padding: 0.4rem 0;
+    text-align: center;
+    text-decoration: none;
+    text-shadow: -2px -2px 0 black, 2px 2px 0 $granite;
+    transition: all 0.2s ease;
+    width: 95%;
+  }
+
+  a:hover {
+    background: $ironArachneGreen;
+    color: black;
+    text-shadow: none;
+  }
+
+  a:active {
+    background: $gold;
+    text-shadow: none;
+    color: black;
+  }
+
+  nav {
+    display: flex;
+    flex-direction: column;
+  }
+}

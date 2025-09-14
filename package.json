@@ -1,6 +1,6 @@
 {
   "name": "ironarachne",
-  "version": "1.9.1",
+  "version": "1.11.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -31,11 +31,11 @@
     "priorityqueuejs": "^2.0.0",
     "random": "^5.4.0",
     "seedrandom": "^3.0.5",
-    "three": "^0.177.0",
+    "three": "^0.179.1",
     "xmlbuilder2": "^3.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.1.1",
+    "@biomejs/biome": "2.1.4",
     "@sveltejs/vite-plugin-svelte": "^5.0.1",
     "@tsconfig/svelte": "^5.0.2",
     "@types/core-js": "^2.5.8",
@@ -44,7 +44,7 @@
     "@types/node": "^24.0.13",
     "@types/priorityqueuejs": "^1.0.4",
     "@types/seedrandom": "^3.0.8",
-    "@types/three": "^0.176.0",
+    "@types/three": "^0.179.0",
     "postcss": "^8.4.33",
     "sass": "^1.69.7",
     "svelte": "^5.0.0",

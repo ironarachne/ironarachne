@@ -130,7 +130,7 @@
     {/if}
 
     <h3>Statistics</h3>
-    
+
     <p>
       <strong>Distance from Star:</strong>
       {formatNumber(planet.orbital_distance)} AU
@@ -195,8 +195,8 @@
 
 <style lang="scss">
   @import "$lib/styles/reset.scss";
-  @import "$lib/styles/main.scss";
   @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
   @import '$lib/styles/scifi.scss';
 
   canvas {

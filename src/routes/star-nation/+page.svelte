@@ -44,7 +44,7 @@
     }
     random.use(seedrandom(seed));
     extraDescription = "";
-    
+
     nation = generateCivilization(config);
     homeSystem = generateStarSystem(systemConfig);
     homePlanet = random.int(0, homeSystem.planets.length - 1);
@@ -81,8 +81,8 @@
 
 <style lang="scss">
   @import "$lib/styles/reset.scss";
-  @import "$lib/styles/main.scss";
   @import '$lib/styles/global.scss';
+  @import '$lib/styles/main.scss';
   @import '$lib/styles/scifi.scss';
 
   .star-system { display: flex; width: 100%; flex-wrap: wrap; }
@@ -102,7 +102,7 @@
     <input type="text" name="seed" bind:value={seed} id="seed"/>
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
   </div>
-  
+
   <button onclick={generate}>Generate</button>
 
   {#if nation}
