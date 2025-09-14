@@ -1,5 +1,15 @@
 export default [
   {
+    date: "2025-09-14",
+    summary: "Revamped the visual design of the site.",
+    updates: [
+      "Swapped out the old logo for a new one.",
+      "Made all headers use the new logo font.",
+      "Updated the color scheme to be more in line with the new logo.",
+      "Reorganized the navigation so be more intuitive.",
+    ],
+  },
+  {
     date: "2025-07-15",
     summary: "Small updates and fixes.",
     updates: [

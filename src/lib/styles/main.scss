@@ -24,6 +24,10 @@ a {
   color: $ironArachneGreen;
 }
 
+a:active {
+  color: white;
+}
+
 a:hover {
   color: $gold;
 }

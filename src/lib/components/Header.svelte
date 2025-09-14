@@ -1,5 +1,5 @@
 <script lang="ts">
-  import logo from "$lib/assets/images/logo-glyphonly-green.svg";
+import glyph from "$lib/assets/images/logo-glyphonly-green.svg";
 </script>
 
 <style lang="scss">
@@ -7,48 +7,69 @@
 
 header {
   padding: 0.5rem 0;
+  display: flex;
+  align-items: center;
   img {
     width: 100%;
-    max-width: 64px;
+    max-width: 128px;
   }
   p {
+    text-align: center;
     display: inline-block;
-    color: white;
+    color: rgb(150, 150, 150);
     font-size: 0.8rem;
     margin: 0 0.5rem;
+    font-style: italic;
   }
 }
 
-.logo {
-  display: flex;
-  align-items: center;
-  span {
-    background-image: linear-gradient(
-      180deg,
-      $ironArachneGreen 0%,
-      $ironArachneGreen 30%,
-      $tan 100%
-    );
-    background-clip: text;
-    font-family: "cinzel", system-ui, Helvetica, sans-serif;
-    font-size: 3.5rem;
-    font-weight: 700;
-    padding-left: 0.5rem;
-    -webkit-text-fill-color: transparent;
+@media (max-width: 600px) {
+  header {
+    img {
+      max-width: 80px;
+    }
   }
-  span::before {
-    background-image: linear-gradient(
-      $gold 46%,
-      rgb(125, 142, 167) 49%,
-      black 80%
-    );
-    color: black;
-    content: attr(data-text);
-    position: absolute;
-    padding-left: 0rem;
-    background-clip: text;
-    -webkit-text-stroke: 3px transparent;
-    z-index: -1;
+  .logo-text {
+    align-items: center;
+    color: $ironArachneGreen;
+    display: flex;
+    font-size: 2.2rem;
+    font-family: "cinzel", system-ui, Helvetica, sans-serif;
+    line-height: 2.2rem;
+  }
+}
+
+@media (min-width: 601px) {
+  .logo-text {
+    span {
+      background-image: linear-gradient(
+        180deg,
+        $ironArachneGreen 0%,
+        $ironArachneGreen 30%,
+        $tan 100%
+      );
+      background-clip: text;
+      font-family: "cinzel", system-ui, Helvetica, sans-serif;
+      font-size: 3.5rem;
+      font-weight: 700;
+      line-height: 3.5rem;
+      padding-left: 0.5rem;
+      -webkit-text-fill-color: transparent;
+    }
+    span::before {
+      background-image: linear-gradient(
+        $gold 46%,
+        rgb(125, 142, 167) 49%,
+        black 80%
+      );
+      color: black;
+      content: attr(data-text);
+      position: absolute;
+      padding-left: 0rem;
+      background-clip: text;
+      -webkit-text-stroke: 3px transparent;
+      z-index: -1;
+    }
   }
 }
 
@@ -83,20 +104,27 @@ nav {
     &::first-letter {
       color: white;
     }
+
+    &:active {
+      background: black;
+      color: $tan;
+      transform: translateY(2px) translateX(1px);
+    }
   }
 }
 </style>
 
 <header>
-  <div class="logo">
-    <img alt="Iron Arachne logo glyph" src="{logo}" />
-    <span data-text="Iron Arachne">Iron Arachne</span>
+  <img alt="Iron Arachne logo glyph" src="{glyph}" />
+  <div class="text">
+    <div class="logo-text">
+      <span data-text="Iron Arachne">Iron Arachne</span>
+    </div>
+    <p>
+      Tools for procedural generation of content for tabletop role-playing
+      games
+    </p>
   </div>
-
-  <p>
-    Tools for procedural generation of content for tabletop role-playing
-    games
-  </p>
 </header>
 
 <nav>
