@@ -1,5 +1,8 @@
 import * as RND from "@ironarachne/rng";
-import type Device from "../device.js";
+import type { Device } from "../device.js";
+
+import { renderSVGPattern } from "../variation.js";
+import { renderChargeGroupSVG } from "../charge_group.js";
 
 export default class HeraldrySVGRenderer {
   render(device: Device, width: number, height: number): string {
@@ -21,15 +24,15 @@ export default class HeraldrySVGRenderer {
       for (let j = 0; j < device.field.variations[i].tinctures.length; j++) {
         defsSVG += device.field.variations[i].tinctures[j].pattern;
       }
-      let pattern = device.field.variations[i].renderSVGPattern();
-      pattern = pattern.replaceAll("variation", `variation${uid}` + (i + 1));
+      let pattern = renderSVGPattern(device.field.variations[i]);
+      pattern = pattern.replaceAll("variation", `variation${uid}${i + 1}`);
       defsSVG += pattern;
     }
 
     let chargeGroupsSVG = "";
-
     for (let i = 0; i < device.chargeGroups.length; i++) {
-      chargeGroupsSVG += device.chargeGroups[i].renderSVG(
+      chargeGroupsSVG += renderChargeGroupSVG(
+        device.chargeGroups[i],
         shieldWidth,
         shieldHeight,
       ); // TODO: handle different centerPosition and arrangement

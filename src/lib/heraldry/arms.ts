@@ -1,6 +1,6 @@
-import type Device from "./device.js";
+import type { Device } from "./device.js";
 
-export default interface Arms {
+export type Arms = {
   device: Device;
   blazon: string;
-}
+};

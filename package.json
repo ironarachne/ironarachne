@@ -1,6 +1,6 @@
 {
   "name": "ironarachne",
-  "version": "1.11.0",
+  "version": "1.12.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,9 +9,7 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-    "test": "vitest",
-    "lint": "biome ci src/**/*.ts",
-    "format": "biome format --write src/**/*.ts"
+    "test": "vitest"
   },
   "browserslist": [
     "> 1%",
@@ -35,7 +33,6 @@
     "xmlbuilder2": "^3.1.1"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.1.4",
     "@sveltejs/vite-plugin-svelte": "^5.0.1",
     "@tsconfig/svelte": "^5.0.2",
     "@types/core-js": "^2.5.8",

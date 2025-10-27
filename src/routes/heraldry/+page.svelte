@@ -9,9 +9,9 @@
   import { renderSVGAsPNG } from "$lib/images/svg";
   import random from "random";
   import seedrandom from "seedrandom";
-  import HeraldryGenerator from "$lib/heraldry/generator";
+  import { generateHeraldry } from "$lib/heraldry/generator";
   import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
-  import HeraldryGeneratorConfig from "$lib/heraldry/generatorconfig";
+  import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig";
 
   let blazon = $state("");
   let image = $state("");
@@ -33,7 +33,7 @@
   const heraldryHeight = 660;
 
   function changeCharges() {
-    if (heraldryTag == 'any') {
+    if (heraldryTag === 'any') {
       charges = allCharges;
     } else {
       charges = Charges.matchingTag(heraldryTag, allCharges);
@@ -41,7 +41,7 @@
   }
 
   function setChargeTincture() { // TODO: if the field tinctures are 'any', automatically contrast them with the charge tincture here
-    if (chargeTinctureName == 'any') {
+    if (chargeTinctureName === 'any') {
       chargeTincture = Tinctures.randomChargeTincture();
     } else {
       let tincture = Tinctures.byName(chargeTinctureName);
@@ -56,7 +56,7 @@
     let types1 = [];
     let types2 = [];
     // TODO: when choosing field tinctures is an option, this will need redoing
-    if (chargeTincture.type == 'color' || chargeTincture.type == 'stain') {
+    if (chargeTincture.type === 'color' || chargeTincture.type === 'stain') {
       types1 = ['metal'];
       types2 = ['metal'];
     } else {
@@ -83,35 +83,33 @@
     }
     random.use(seedrandom(seed));
     let numberOfCharges = randomNumberOfCharges();
-    if (numberOfChargesOption == 'one') {
+    if (numberOfChargesOption === 'one') {
       numberOfCharges = 1;
-    } else if (numberOfChargesOption == 'two') {
+    } else if (numberOfChargesOption === 'two') {
       numberOfCharges = 2;
-    } else if (numberOfChargesOption == 'three') {
+    } else if (numberOfChargesOption === 'three') {
       numberOfCharges = 3;
-    } else if (numberOfChargesOption == 'none') {
+    } else if (numberOfChargesOption === 'none') {
       numberOfCharges = 0;
     }
     setChargeTincture();
 
-    let config = new HeraldryGeneratorConfig();
+    const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
+      chargeCount: numberOfCharges,
+      chargeOptions: charges,
+      chargeTinctures: [chargeTincture],
+      fieldOptions: fields,
+      variationOptions: variations,
+      fieldTinctures1,
+      fieldTinctures2,
+      width: heraldryWidth,
+      height: heraldryHeight,
+    });
 
-    config.chargeCount = numberOfCharges;
-    config.chargeOptions = charges;
-    config.chargeTinctures = [chargeTincture];
-    config.fieldOptions = fields;
-    config.variationOptions = variations;
-    config.fieldTinctures1 = fieldTinctures1;
-    config.fieldTinctures2 = fieldTinctures2;
-    config.width = heraldryWidth;
-    config.height = heraldryHeight;
-
-    let heraldryGen = new HeraldryGenerator();
-    heraldryGen.config = config;
-    let heraldry = heraldryGen.generate();
+  const heraldry = generateHeraldry(config);
     blazon = heraldry.blazon;
 
-    let renderer = new HeraldrySVGRenderer();
+    const renderer = new HeraldrySVGRenderer();
 
     image = renderer.render(heraldry.device, config.width, config.height);
     renderSVGAsPNG(image, config.width, config.height, 'output');

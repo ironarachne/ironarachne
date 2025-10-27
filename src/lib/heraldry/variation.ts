@@ -1,6 +1,6 @@
-import type Tincture from "./tincture.js";
+import { type Tincture } from "./tinctures";
 
-export default class Variation {
+export type Variation = {
   name: string;
   tinctureCount: number;
   blazon: string;
@@ -8,45 +8,26 @@ export default class Variation {
   supportsFurs: boolean;
   commonality: number;
   tinctures: Tincture[];
+};
 
-  constructor(
-    name: string,
-    tinctureCount: number,
-    blazon: string,
-    pattern: string,
-    supportsFurs: boolean,
-    commonality: number,
-  ) {
-    this.name = name;
-    this.tinctureCount = tinctureCount;
-    this.blazon = blazon;
-    this.pattern = pattern;
-    this.supportsFurs = supportsFurs;
-    this.commonality = commonality;
-    this.tinctures = [];
+export function renderBlazon(variation: Variation): string {
+  let blazon = variation.blazon;
+  if (variation.tinctures[0]) {
+    blazon = blazon.replace("tincture1", variation.tinctures[0].name);
   }
-
-  renderBlazon(): string {
-    let blazon = this.blazon;
-
-    blazon = blazon.replace("tincture1", this.tinctures[0].name);
-
-    if (this.tinctures.length > 1) {
-      blazon = blazon.replace("tincture2", this.tinctures[1].name);
-    }
-
-    return blazon;
+  if (variation.tinctures.length > 1 && variation.tinctures[1]) {
+    blazon = blazon.replace("tincture2", variation.tinctures[1].name);
   }
+  return blazon;
+}
 
-  renderSVGPattern(): string {
-    let svg = this.pattern;
-
-    svg = svg.replaceAll("tincture1", "url(#" + this.tinctures[0].name + ")");
-
-    if (this.tinctureCount > 1) {
-      svg = svg.replaceAll("tincture2", "url(#" + this.tinctures[1].name + ")");
-    }
-
-    return svg;
+export function renderSVGPattern(variation: Variation): string {
+  let svg = variation.pattern;
+  if (variation.tinctures[0]) {
+    svg = svg.replaceAll("tincture1", `url(#${variation.tinctures[0].name})`);
   }
+  if (variation.tinctureCount > 1 && variation.tinctures[1]) {
+    svg = svg.replaceAll("tincture2", `url(#${variation.tinctures[1].name})`);
+  }
+  return svg;
 }

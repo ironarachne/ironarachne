@@ -1,7 +1,7 @@
 import type Character from "$lib/characters/character.js";
 import * as Characters from "$lib/characters/characters.js";
 import * as PremadeConfigs from "$lib/characters/premade_configs.js";
-import HeraldryGenerator from "$lib/heraldry/generator.js";
+import { generateHeraldry } from "$lib/heraldry/generator.js";
 import type { GeneratorSet } from "@ironarachne/made-up-names";
 import * as MUN from "@ironarachne/made-up-names";
 import * as RND from "@ironarachne/rng";
@@ -20,8 +20,7 @@ export function generate(config: RealmGeneratorConfig): Realm {
 
   let name = config.nameGeneratorSet.country.generate(1)[0];
   name = `the ${Words.title(realmType.name)} of ${name}`;
-  let herGen = new HeraldryGenerator();
-  let heraldry = herGen.generate();
+  const heraldry = generateHeraldry();
   let authority = randomAuthority(realmType, config.nameGeneratorSet);
 
   return {
@@ -62,8 +61,7 @@ function randomAuthority(
 
   let authority = Characters.generate(charGenConfig);
   authority.titles.push(realmType.grantedTitle);
-  let herGen = new HeraldryGenerator();
-  authority.heraldry = herGen.generate();
+  authority.heraldry = generateHeraldry();
 
   return authority;
 }

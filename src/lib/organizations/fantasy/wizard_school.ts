@@ -1,19 +1,20 @@
 import type Character from "$lib/characters/character.js";
 import type CharacterGeneratorConfig from "$lib/characters/character_generator_config.js";
 import * as Characters from "$lib/characters/characters.js";
-import * as Charges from "$lib/heraldry/charges.js";
-import HeraldryGeneratorConfig from "$lib/heraldry/generatorconfig.js";
+import * as Charges from "$lib/heraldry/charges/index.js";
+import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig.js";
 import * as RND from "@ironarachne/rng";
 import type OrganizationRank from "../organization_rank.js";
 import type OrganizationType from "../organization_type.js";
 
 export function generateType(): OrganizationType {
-  const config = new HeraldryGeneratorConfig();
-  config.chargeCount = RND.item([0, 1]);
-  config.chargeOptions = Charges.matchingAnyTags(
-    ["book", "magic", "monster"],
-    Charges.all(),
-  );
+  const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
+    chargeCount: RND.item([0, 1]),
+    chargeOptions: Charges.matchingAnyTags(
+      ["book", "magic", "monster"],
+      Charges.all(),
+    ),
+  });
 
   const nameGenerator = (): string => {
     const schoolType = RND.item(["School", "Academy", "College", "Institute"]);

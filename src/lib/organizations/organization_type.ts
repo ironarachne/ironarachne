@@ -1,6 +1,6 @@
 import type Character from "$lib/characters/character";
 import type CharacterGeneratorConfig from "$lib/characters/character_generator_config";
-import type GeneratorConfig from "$lib/heraldry/generatorconfig.js";
+import type { HeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig.js";
 import type OrganizationRank from "./organization_rank";
 
 export default interface OrganizationType {
@@ -16,5 +16,5 @@ export default interface OrganizationType {
     characterGenConfig: CharacterGeneratorConfig,
   ) => Character;
   ranks: OrganizationRank[];
-  heraldryConfig: GeneratorConfig;
+  heraldryConfig: HeraldryGeneratorConfig;
 }

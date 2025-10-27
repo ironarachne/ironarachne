@@ -1,52 +1,34 @@
 import * as Words from "@ironarachne/words";
-import type Charge from "./charge.js";
-import type ChargeGroupArrangement from "./charge_group_arrangement.js";
+import type { Charge } from "./charges/index";
+import type { ChargeGroupArrangement } from "./charge_group_arrangements/index.js";
 
-export default class ChargeGroup {
+export type ChargeGroup = {
   charge: Charge;
   numberOfCharges: number;
   arrangement: ChargeGroupArrangement;
+};
 
-  constructor(
-    charge: Charge,
-    numberOfCharges: number,
-    arrangement: ChargeGroupArrangement,
-  ) {
-    this.charge = charge;
-    this.numberOfCharges = numberOfCharges;
-    this.arrangement = arrangement;
-  }
+export function renderChargeGroupBlazon(group: ChargeGroup): string {
+  let blazon = group.arrangement.blazonPattern;
+  blazon = blazon.replaceAll("{article}", Words.article(group.charge.name));
+  blazon = blazon.replaceAll("{name}", group.charge.name);
+  blazon = blazon.replaceAll("{namePlural}", group.charge.pluralName);
+  blazon += ` ${group.charge.tincture.name}`;
+  return blazon;
+}
 
-  renderBlazon(): string {
-    let blazon = this.arrangement.blazonPattern;
-
-    blazon = blazon.replaceAll("{article}", Words.article(this.charge.name));
-    blazon = blazon.replaceAll("{name}", this.charge.name);
-    blazon = blazon.replaceAll("{namePlural}", this.charge.pluralName);
-
-    blazon += ` ${this.charge.tincture.name}`;
-
-    return blazon;
-  }
-
-  renderSVG(contextWidth: number, contextHeight: number): string {
-    let chargeGroup = "";
-
-    let chargeSVGString = this.charge.SVG;
-
-    chargeSVGString = setChargeColor(
-      this.charge.tincture.hexColor,
-      this.charge.tincture.name,
-      chargeSVGString,
-    );
-    chargeGroup = this.arrangement.renderSVG(
-      chargeSVGString,
-      contextWidth,
-      contextHeight,
-    );
-
-    return chargeGroup;
-  }
+export function renderChargeGroupSVG(group: ChargeGroup, contextWidth: number, contextHeight: number): string {
+  let chargeSVGString = group.charge.SVG;
+  chargeSVGString = setChargeColor(
+    group.charge.tincture.hexColor,
+    group.charge.tincture.name,
+    chargeSVGString,
+  );
+  return group.arrangement.renderSVG(
+    chargeSVGString,
+    contextWidth,
+    contextHeight,
+  );
 }
 
 function setChargeColor(
@@ -54,17 +36,19 @@ function setChargeColor(
   tinctureName: string,
   chargeSVG: string,
 ): string {
+  let svgResult = chargeSVG;
+
   if (hexColor === "#000000") {
-    chargeSVG = chargeSVG.replaceAll("#010101", "#ffffff");
-    chargeSVG = chargeSVG.replaceAll("#000000", "#ffffff");
+    svgResult = svgResult.replaceAll("#010101", "#ffffff");
+    svgResult = svgResult.replaceAll("#000000", "#ffffff");
   }
 
-  chargeSVG = chargeSVG.replaceAll("#FFFFFF", hexColor);
+  svgResult = svgResult.replaceAll("#FFFFFF", hexColor);
 
-  chargeSVG = chargeSVG.replaceAll(`st0`, `st0-${tinctureName}`);
-  chargeSVG = chargeSVG.replaceAll(`st1`, `st1-${tinctureName}`);
+  svgResult = svgResult.replaceAll('st0', `st0-${tinctureName}`);
+  svgResult = svgResult.replaceAll('st1', `st1-${tinctureName}`);
 
   // TODO: Fix a bug where the border is colored if the charge color is sable
 
-  return chargeSVG;
+  return svgResult;
 }

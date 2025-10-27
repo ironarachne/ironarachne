@@ -8,7 +8,7 @@
   import { renderSVGAsPNG } from "$lib/images/svg";
   import random from "random";
   import seedrandom from "seedrandom";
-  import HeraldryGenerator from "$lib/heraldry/generator";
+  import { generateHeraldry } from "$lib/heraldry/generator";
   import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
 
   let seed: string = $state(RND.randomString(13));
@@ -29,9 +29,7 @@
   let heraldryConfig = org.organizationType.heraldryConfig;
   heraldryConfig.width = 200;
   heraldryConfig.height = 200;
-  let hGen = new HeraldryGenerator();
-  hGen.config = heraldryConfig;
-  let heraldry = hGen.generate();
+  let heraldry = generateHeraldry(heraldryConfig);
   let svgRenderer = new HeraldrySVGRenderer();
 
   function generate() {
@@ -44,7 +42,7 @@
     } else {
       genConfig.organizationTypes = FantasyOrganizations.getTypes();
     }
-    if (nameSetName == 'any') {
+    if (nameSetName === 'any') {
       nameSet = RND.item(MUN.cultureSets());
       genConfig.characterConfig.useAdaptiveNames = true;
     } else {
@@ -67,8 +65,7 @@
     heraldryConfig = org.organizationType.heraldryConfig;
     heraldryConfig.width = 200;
     heraldryConfig.height = 220;
-    hGen.config = heraldryConfig;
-    heraldry = hGen.generate();
+    heraldry = generateHeraldry(heraldryConfig);
 
     let svg = svgRenderer.render(heraldry.device, 200, 220);
     renderSVGAsPNG(svg, 200, 220, "org-arms");

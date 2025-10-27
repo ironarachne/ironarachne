@@ -1,5 +1,14 @@
 export default [
   {
+    date: "2025-10-27",
+    summary: "Refactored the heraldry generator code.",
+    updates: [
+      "Tweaked the visual design of some headers to fix overlapping text.",
+      "Reorganized the heraldry generator code for better maintainability.",
+      "Added a ton of unit tests for the heraldry generator.",
+    ]
+  },
+  {
     date: "2025-09-14",
     summary: "Revamped the visual design of the site.",
     updates: [
