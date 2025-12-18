@@ -3,7 +3,6 @@ import * as FantasyOrganizations from "$lib/organizations/fantasy";
 import * as Organizations from "$lib/organizations/organizations";
 import * as RNG from "@ironarachne/rng";
 import * as Characters from "$lib/characters/characters";
-import * as MUN from "@ironarachne/made-up-names";
 import * as Names from "$lib/names";
 import { onMount } from "svelte";
 import { renderSVGAsPNG } from "$lib/images/svg";
@@ -14,6 +13,7 @@ import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
 let rng = new RNG.RNG(Date.now().toString());
 let seed: string = $state(rng.randomString(13));
 let lockSeed = $state(false);
+rng.setSeed(seed);
 
 let organizationTypeName = $state("any");
 let nameSetName = $state("any");
@@ -36,9 +36,9 @@ let svgRenderer = new HeraldrySVGRenderer();
 
 function generate() {
   if (!lockSeed) {
-    seed = RNG.randomString(13);
+    seed = rng.randomString(13);
   }
-  RNG.setSeed(seed);
+  rng.setSeed(seed);
   if (organizationTypeName !== "any") {
     genConfig.organizationTypes = [
       Organizations.getTypeByName(
@@ -84,10 +84,8 @@ onMount(() => {
 </script>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/fantasy.scss';
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
 
   div.org-arms {
     width: 200px;

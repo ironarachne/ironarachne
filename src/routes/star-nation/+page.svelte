@@ -4,7 +4,6 @@ import * as Words from "@ironarachne/words";
 import * as WebGLStarRenderer from "$lib/renderers/stars/webgl_star_renderer";
 import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
 import { browser } from '$app/environment';
-
 import { onMount } from "svelte";
 import {
   generateCivilization,
@@ -109,10 +108,8 @@ onMount(() => {
 </script>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/scifi.scss';
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/scifi.scss';
 
   .star-system { display: flex; width: 100%; flex-wrap: wrap; }
 </style>

@@ -1,6 +1,5 @@
 <script lang="ts">
 import { getContext } from "svelte";
-import * as MUN from "@ironarachne/made-up-names";
 import * as Names from "$lib/names";
 import * as RNG from "@ironarachne/rng";
 import * as CommonSpecies from "$lib/species/common.js";
@@ -105,10 +104,8 @@ function loadSavedCulture() {
 </script>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/fantasy.scss';
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
 
   .input-group {
     ul > li {

@@ -7,8 +7,8 @@ import CultureGenerator from "$lib/culture/generator";
 import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from "$lib/names";
 
 const user: UserData = $state(getContext("user"));
-const allNameSets = getAllFantasyNameGeneratorSets();
 const rng = new RNG.RNG(Date.now());
+const allNameSets = getAllFantasyNameGeneratorSets(rng);
 
 if (user.savedCultures === undefined) {
   user.savedCultures = [];
@@ -53,10 +53,8 @@ function saveCulture() {
 </svelte:head>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/fantasy.scss';
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
 
   .namelist {
     display: grid;

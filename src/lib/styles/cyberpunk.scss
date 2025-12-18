@@ -1,3 +1,5 @@
+@use "$lib/styles/global.scss";
+
 .cyberpunk {
   h1,
   h2,
@@ -6,14 +8,14 @@
   h5,
   h6 {
     color: #d8f6b0;
-    text-shadow: 0 0 6px $acidGreen;
+    text-shadow: 0 0 6px global.$acidGreen;
   }
 
   button {
     background: rgb(0, 0, 0);
-    border: 3px solid $ironArachneGreen;
+    border: 3px solid global.$ironArachneGreen;
     border-radius: 3px;
-    color: $ironArachneGreen;
+    color: global.$ironArachneGreen;
     font-size: 1rem;
     line-height: 1rem;
     margin: 0.1rem;
@@ -23,7 +25,7 @@
   button:active {
     background: rgb(92, 86, 73);
     background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-    color: $ironArachneGreen;
+    color: global.$ironArachneGreen;
     transform: translateY(2px);
   }
 

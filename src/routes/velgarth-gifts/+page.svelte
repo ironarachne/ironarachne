@@ -1,10 +1,9 @@
 <script lang="ts">
-import type GiftGeneratorConfig from "$lib/velgarth_gifts/generator_config";
+import * as RNG from "@ironarachne/rng";
 import * as VelgarthGifts from "$lib/velgarth_gifts/gifts";
 import * as VelgarthGiftPossibilities from "$lib/velgarth_gifts/gift_possibilities";
-import * as RNG from "@ironarachne/rng";
-
 import type Gift from "$lib/velgarth_gifts/gift";
+import type GiftGeneratorConfig from "$lib/velgarth_gifts/generator_config";
 
 let seed = $state(RNG.randomString(13));
 let lockSeed = $state(false);
@@ -27,10 +26,8 @@ generate();
 </script>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/fantasy.scss';
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
 </style>
 
 <svelte:head>

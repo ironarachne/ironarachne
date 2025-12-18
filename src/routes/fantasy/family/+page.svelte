@@ -1,11 +1,11 @@
 <script lang="ts">
 import * as CommonSpecies from "$lib/species/common";
-import * as RNG from "@ironarachne/rng";
 import * as Families from "$lib/characters/family/families.js";
 import * as Names from "$lib/names";
+import * as RNG from "@ironarachne/rng";
 import type Gender from "$lib/gender/gender";
-import type Species from "$lib/species/species";
 import type { NameGenerator } from "@ironarachne/made-up-names";
+import type Species from "$lib/species/species";
 
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
@@ -90,10 +90,8 @@ function getSpecies(name: string): Species {
 </script>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/fantasy.scss';
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
 </style>
 
 <svelte:head>

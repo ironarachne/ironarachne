@@ -1,6 +1,6 @@
 <script lang="ts">
-import * as Gen from "$lib/swn/starship";
 import * as RNG from "@ironarachne/rng";
+import * as Gen from "$lib/swn/starship";
 
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
@@ -31,10 +31,8 @@ generate();
 </script>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/scifi.scss';
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/scifi.scss';
 </style>
 
 <svelte:head>

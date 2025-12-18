@@ -35,10 +35,8 @@ onMount(() => {
 </script>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/scifi.scss';
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/scifi.scss';
 
   article.media-banner {
     display: grid;

@@ -53,7 +53,7 @@ function calculate() {
 
 function getIngenium() {
   for (let i = 0; i < femaleData.length; i++) {
-    if (femaleData[i].ageCategoryName == "adult") {
+    if (femaleData[i].ageCategoryName === "adult") {
       ingenium.femaleHeight = femaleData[i].heightRange;
       ingenium.femaleWeight = femaleData[i].weightRange;
       ingenium.adultAge = femaleData[i].minAge;
@@ -61,7 +61,7 @@ function getIngenium() {
   }
 
   for (let i = 0; i < maleData.length; i++) {
-    if (maleData[i].ageCategoryName == "adult") {
+    if (maleData[i].ageCategoryName === "adult") {
       ingenium.maleHeight = maleData[i].heightRange;
       ingenium.maleWeight = maleData[i].weightRange;
     }
@@ -72,9 +72,7 @@ calculate();
 </script>
 
 <style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
+  @use '$lib/styles/main.scss';
 </style>
 
 <svelte:head>
