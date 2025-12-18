@@ -1,3 +1,4 @@
+import type * as RNG from "@ironarachne/rng";
 import all from "$lib/species/all.js";
 import * as CommonSpecies from "$lib/species/common.js";
 import type Species from "$lib/species/species.js";
@@ -11,8 +12,9 @@ export default class EncounterGeneratorConfig {
   creatureOptions: Species[];
   minThreatLevel: number;
   maxThreatLevel: number;
+  rng: RNG.RNG;
 
-  constructor() {
+  constructor(rng: RNG.RNG) {
     this.isHostile = true;
     this.environment = "forest";
     this.template = null;
@@ -20,5 +22,6 @@ export default class EncounterGeneratorConfig {
     this.creatureOptions = CommonSpecies.withoutTag("sentient", all);
     this.minThreatLevel = 1;
     this.maxThreatLevel = 4;
+    this.rng = rng;
   }
 }

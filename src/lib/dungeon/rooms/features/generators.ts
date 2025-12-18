@@ -1,7 +1,7 @@
 import * as RNG from "@ironarachne/rng";
 import RoomFeatureGenerator from "./featuregenerator.js";
 
-function all(): RoomFeatureGenerator[] {
+function all(rng: RNG.RNG): RoomFeatureGenerator[] {
   return [
     new RoomFeatureGenerator(
       "boxes",
@@ -13,29 +13,32 @@ function all(): RoomFeatureGenerator[] {
       ],
       [],
       true,
+      rng
     ),
     new RoomFeatureGenerator(
       "bookcase",
       ["There is a bookcase here."],
       [],
       true,
+      rng
     ),
-    new RoomFeatureGenerator("table", ["There is a table here."], [], false),
+    new RoomFeatureGenerator("table", ["There is a table here."], [], false, rng),
     new RoomFeatureGenerator(
       "chair",
       [
-        `There is a ${RNG.item(["broken", "busted", "simple", "turned-over"])} chair here.`,
-        `There is ${RNG.item(["an ornate", "a decorated", "a carved"])} chair here.`,
+        `There is a ${rng.item(["broken", "busted", "simple", "turned-over"])} chair here.`,
+        `There is ${rng.item(["an ornate", "a decorated", "a carved"])} chair here.`,
       ],
       [],
       false,
+      rng
     ),
-    new RoomFeatureGenerator("bench", ["There is a bench here."], [], false),
+    new RoomFeatureGenerator("bench", ["There is a bench here."], [], false, rng),
     new RoomFeatureGenerator(
       "chest",
       [
         "There is " +
-          RNG.item([
+          rng.item([
             "an ornate",
             "a simple",
             "a large",
@@ -46,12 +49,7 @@ function all(): RoomFeatureGenerator[] {
       ],
       [],
       true,
+      rng
     ),
   ];
-}
-
-export function random(): RoomFeatureGenerator {
-  let generators = all();
-
-  return RNG.item(generators);
 }

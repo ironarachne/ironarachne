@@ -1,6 +1,6 @@
 import * as Archetypes from "$lib/archetypes/archetypes.js";
 import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
-import MobFilter from "$lib/mobs/filter.js";
+import { SpeciesFilter } from "$lib/species/filter.js";
 import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
@@ -15,7 +15,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 1,
           isSentient: true,
           archetypes: [Archetypes.byName("cult acolyte", allArchetypes)],
-          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", [
+          filter: new SpeciesFilter([], ["cult", "corruptible"], "humanoid", "", [
             "undead",
           ]),
           minNumber: 2,
@@ -34,7 +34,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 2,
           isSentient: false,
           archetypes: [],
-          filter: new MobFilter(["demon"], [], "", "", []),
+          filter: new SpeciesFilter(["demon"], [], "", "", []),
           minNumber: 2,
           maxNumber: 4,
         },
@@ -51,7 +51,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 2,
           isSentient: true,
           archetypes: [Archetypes.byName("cult priest", allArchetypes)],
-          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", [
+          filter: new SpeciesFilter([], ["cult", "corruptible"], "humanoid", "", [
             "undead",
           ]),
           minNumber: 1,
@@ -70,7 +70,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 5,
           isSentient: true,
           archetypes: [Archetypes.byName("cult high priest", allArchetypes)],
-          filter: new MobFilter([], ["cult", "corruptible"], "humanoid", "", [
+          filter: new SpeciesFilter([], ["cult", "corruptible"], "humanoid", "", [
             "undead",
           ]),
           minNumber: 1,

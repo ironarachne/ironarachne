@@ -1,4 +1,4 @@
-import TreasureTableEntry from "./tableentry.js";
+import type TreasureTableEntry from "./tableentry.js";
 
 export default class TreasureTable {
   entries: TreasureTableEntry[];

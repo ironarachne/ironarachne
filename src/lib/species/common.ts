@@ -1,10 +1,10 @@
+import type * as RNG from "@ironarachne/rng";
 import * as AgeCategories from "$lib/age/age_categories.js";
 import type AgeCategory from "$lib/age/age_category.js";
 import type PhysicalTrait from "$lib/physical_traits/physical_trait.js";
 import type PhysicalTraitGeneratorConfig from "$lib/physical_traits/physical_trait_generator_config.js";
 import * as PhysicalTraits from "$lib/physical_traits/physical_traits.js";
 import type { SizeMatrix } from "$lib/size/size_matrix.js";
-import * as RNG from "@ironarachne/rng";
 import all from "./all.js";
 import * as Skeleton from "./modifiers/skeleton.js";
 import * as Vampire from "./modifiers/vampire.js";
@@ -107,11 +107,37 @@ export function averageSizes(species1: Species, species2: Species): SizeMatrix {
 }
 
 export function breedable(species1: Species, species2: Species): boolean {
-  if (species1.breedType == species2.breedType) {
+  if (species1.breedType === species2.breedType) {
     return true;
   }
 
   return false;
+}
+
+/**
+ * byAllTags filters species by requiring all specified tags.
+ *
+ * @param tags Required tags
+ * @param options Species to filter
+ * @returns filtered species
+ */
+export function byAllTags(tags: string[], options: Species[]): Species[] {
+  const result = [];
+
+  for (let i = 0; i < options.length; i++) {
+    let valid = true;
+    for (let t = 0; t < tags.length; t++) {
+      if (!options[i].tags.includes(tags[t])) {
+        valid = false;
+        break;
+      }
+    }
+    if (valid === true) {
+      result.push(options[i]);
+    }
+  }
+
+  return result;
 }
 
 export function byAnyTag(tags: string[], options: Species[]): Species[] {
@@ -156,7 +182,7 @@ export function byEnvironment(
   for (let i = 0; i < options.length; i++) {
     if (
       options[i].environments.includes(environment) ||
-      options[i].environments.length == 0
+      options[i].environments.length === 0
     ) {
       result.push(options[i]);
     }
@@ -167,7 +193,7 @@ export function byEnvironment(
 
 export function byName(name: string, options: Species[]): Species {
   for (let i = 0; i < options.length; i++) {
-    if (options[i].name == name) {
+    if (options[i].name === name) {
       return options[i];
     }
   }
@@ -280,7 +306,7 @@ export function mergeTraits(
     let configNames: string[] = result.map((c) => c.name);
 
     for (let j = 0; j < result.length; j++) {
-      if (result[j].name == config.name) {
+      if (result[j].name === config.name) {
         // if the config already exists, add any new options to it
         for (let k = 0; k < config.options.length; k++) {
           if (!result[j].options.includes(config.options[k])) {
@@ -299,12 +325,13 @@ export function mergeTraits(
   return result;
 }
 
-export function randomTraits(species: Species): PhysicalTrait[] {
+export function randomTraits(species: Species, rng: RNG.RNG): PhysicalTrait[] {
   let traits: PhysicalTrait[] = [];
 
   for (let i = 0; i < species.physicalTraitGeneratorConfigs.length; i++) {
     const newTrait = PhysicalTraits.generate(
       species.physicalTraitGeneratorConfigs[i],
+      rng,
     );
     traits.push(newTrait);
   }
@@ -312,14 +339,14 @@ export function randomTraits(species: Species): PhysicalTrait[] {
   return traits;
 }
 
-export function randomUniqueSet(options: Species[], count: number): Species[] {
+export function randomUniqueSet(options: Species[], count: number, rng: RNG.RNG): Species[] {
   let result: Species[] = [];
 
-  options = RNG.shuffle(options);
+  let shuffledOptions = rng.shuffle(options);
 
-  if (options.length >= count) {
+  if (shuffledOptions.length >= count) {
     for (let i = 0; i < count; i++) {
-      let item: Species | undefined = options.pop();
+      let item: Species | undefined = shuffledOptions.pop();
       if (item !== undefined) {
         result.push(item);
       }
@@ -329,10 +356,6 @@ export function randomUniqueSet(options: Species[], count: number): Species[] {
   }
 
   return result;
-}
-
-export function randomWeighted(options: Species[]): Species {
-  return RNG.weighted(options);
 }
 
 export function sentient(): Species[] {

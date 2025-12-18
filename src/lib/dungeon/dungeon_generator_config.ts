@@ -1,3 +1,4 @@
+import type { RNG } from "@ironarachne/rng";
 import type Biome from "../environment/biomes/biome.js";
 
 export default interface DungeonGeneratorConfig {
@@ -8,4 +9,5 @@ export default interface DungeonGeneratorConfig {
   minRooms: number;
   minThreatLevel: number;
   maxThreatLevel: number;
+  rng: RNG;
 }

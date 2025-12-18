@@ -1,4 +1,4 @@
-import MobFilter from "$lib/mobs/filter.js";
+import { SpeciesFilter } from "$lib/species/filter.js";
 import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
@@ -12,7 +12,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 3,
           isSentient: false,
           archetypes: [],
-          filter: new MobFilter(["swarm"], [], "", "", []),
+          filter: new SpeciesFilter(["swarm"], [], "", "", []),
           minNumber: 3,
           maxNumber: 8,
         },
@@ -29,7 +29,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 3,
           isSentient: false,
           archetypes: [],
-          filter: new MobFilter([], [], "", "", []),
+          filter: new SpeciesFilter([], [], "", "", []),
           minNumber: 1,
           maxNumber: 1,
         },
@@ -46,7 +46,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 3,
           isSentient: false,
           archetypes: [],
-          filter: new MobFilter([], [], "", "", []),
+          filter: new SpeciesFilter([], [], "", "", []),
           minNumber: 2,
           maxNumber: 4,
         },

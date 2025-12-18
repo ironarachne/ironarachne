@@ -1,6 +1,6 @@
 import * as Archetypes from "$lib/archetypes/archetypes.js";
 import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
-import MobFilter from "$lib/mobs/filter.js";
+import { SpeciesFilter } from "$lib/species/filter.js";
 import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
@@ -16,7 +16,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 1,
           isSentient: true,
           archetypes: [Archetypes.byName("soldier", allArchetypes)],
-          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
           minNumber: 2,
           maxNumber: 4,
         },
@@ -33,7 +33,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 2,
           isSentient: true,
           archetypes: [Archetypes.byName("veteran soldier", allArchetypes)],
-          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
           minNumber: 2,
           maxNumber: 4,
         },
@@ -50,7 +50,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 2,
           isSentient: true,
           archetypes: [Archetypes.byName("captain", allArchetypes)],
-          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
           minNumber: 1,
           maxNumber: 1,
         },
@@ -59,7 +59,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 2,
           isSentient: true,
           archetypes: [Archetypes.byName("veteran soldier", allArchetypes)],
-          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
           minNumber: 2,
           maxNumber: 4,
         },
@@ -76,7 +76,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 3,
           isSentient: true,
           archetypes: [Archetypes.byName("general", allArchetypes)],
-          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
           minNumber: 1,
           maxNumber: 1,
         },
@@ -85,7 +85,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 2,
           isSentient: true,
           archetypes: [Archetypes.byName("captain", allArchetypes)],
-          filter: new MobFilter(["martial"], [], "humanoid", "", ["undead"]),
+          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
           minNumber: 1,
           maxNumber: 2,
         },

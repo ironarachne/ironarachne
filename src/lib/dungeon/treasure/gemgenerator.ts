@@ -1,6 +1,5 @@
-import * as RNG from "@ironarachne/rng";
+import type * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-
 import * as Currency from "../../currency/currency.js";
 import Gem from "./gem.js";
 import type TreasureGenerator from "./treasuregenerator.js";
@@ -9,11 +8,13 @@ export default class GemGenerator implements TreasureGenerator {
   minValue: number;
   maxValue: number;
   gemCount: number;
+  rng: RNG.RNG;
 
-  constructor(min: number, max: number, gemCount: number) {
+  constructor(min: number, max: number, gemCount: number, rng: RNG.RNG) {
     this.minValue = min;
     this.maxValue = max;
     this.gemCount = gemCount;
+    this.rng = rng;
   }
 
   generate(): Gem[] {
@@ -22,20 +23,20 @@ export default class GemGenerator implements TreasureGenerator {
     for (let i = 0; i < this.gemCount; i++) {
       let gem = new Gem();
 
-      gem.value = RNG.int(this.minValue, this.maxValue);
+      gem.value = this.rng.int(this.minValue, this.maxValue);
 
       if (gem.value < 1100) {
-        gem.name = RNG.item(getOrnamental());
+        gem.name = this.rng.item(getOrnamental());
       } else if (gem.value < 8100) {
-        gem.name = RNG.item(getSemiprecious());
+        gem.name = this.rng.item(getSemiprecious());
       } else if (gem.value < 15100) {
-        gem.name = RNG.item(getFancy());
+        gem.name = this.rng.item(getFancy());
       } else if (gem.value < 50100) {
-        gem.name = RNG.item(getPrecious());
+        gem.name = this.rng.item(getPrecious());
       } else if (gem.value < 100100) {
-        gem.name = RNG.item(getGemstones());
+        gem.name = this.rng.item(getGemstones());
       } else {
-        gem.name = RNG.item(getJewels());
+        gem.name = this.rng.item(getJewels());
       }
 
       let worth = Currency.valueToCoins(gem.value, false, false, false);

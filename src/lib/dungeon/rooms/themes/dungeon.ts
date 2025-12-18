@@ -1,7 +1,8 @@
+import type * as RNG from "@ironarachne/rng";
 import RoomFeatureGenerator from "../features/featuregenerator.js";
 import RoomTheme from "./theme.js";
 
-export function all(): RoomTheme[] {
+export function all(rng: RNG.RNG): RoomTheme[] {
   let genericFeatures = [
     new RoomFeatureGenerator(
       "debris",
@@ -12,6 +13,7 @@ export function all(): RoomTheme[] {
       ],
       [],
       false,
+      rng
     ),
     new RoomFeatureGenerator(
       "rags",
@@ -22,6 +24,7 @@ export function all(): RoomTheme[] {
       ],
       [],
       false,
+      rng
     ),
     new RoomFeatureGenerator(
       "cobwebs",
@@ -32,6 +35,7 @@ export function all(): RoomTheme[] {
       ],
       [],
       false,
+      rng
     ),
   ];
 
@@ -55,6 +59,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           false,
+          rng
         ),
       ],
       [],
@@ -81,6 +86,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           false,
+          rng
         ),
         new RoomFeatureGenerator(
           "armor displays",
@@ -91,6 +97,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           false,
+          rng
         ),
       ],
       [],
@@ -119,6 +126,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           false,
+          rng
         ),
         new RoomFeatureGenerator(
           "chests",
@@ -128,6 +136,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           true,
+          rng
         ),
       ],
       [],
@@ -158,6 +167,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           true,
+          rng
         ),
       ],
       [],
@@ -203,6 +213,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           true,
+          rng
         ),
       ],
       [],
@@ -230,6 +241,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           false,
+          rng
         ),
         new RoomFeatureGenerator(
           "pantry cabinet",
@@ -239,6 +251,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           true,
+          rng
         ),
         new RoomFeatureGenerator(
           "table",
@@ -249,6 +262,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           false,
+          rng
         ),
       ],
       [],
@@ -275,6 +289,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           false,
+          rng
         ),
         new RoomFeatureGenerator(
           "specimen cabinet",
@@ -285,6 +300,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           true,
+          rng
         ),
       ],
       [],
@@ -311,6 +327,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           true,
+          rng
         ),
         new RoomFeatureGenerator(
           "table",
@@ -320,6 +337,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           false,
+          rng
         ),
       ],
       [],
@@ -347,6 +365,7 @@ export function all(): RoomTheme[] {
           ],
           [],
           true,
+          rng
         ),
       ],
       [],

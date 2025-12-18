@@ -1,6 +1,6 @@
 import * as Archetypes from "$lib/archetypes/archetypes.js";
 import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
-import MobFilter from "$lib/mobs/filter.js";
+import { SpeciesFilter } from "$lib/species/filter.js";
 import type EncounterTemplate from "../../encounter_template.js";
 
 export function all(): EncounterTemplate[] {
@@ -16,7 +16,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 5,
           isSentient: true,
           archetypes: [Archetypes.byName("lich", allArchetypes)],
-          filter: new MobFilter([], [], "humanoid", "", ["undead"]),
+          filter: new SpeciesFilter([], [], "humanoid", "", ["undead"]),
           minNumber: 1,
           maxNumber: 1,
         },
@@ -33,7 +33,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 5,
           isSentient: true,
           archetypes: [Archetypes.byName("necromancer", allArchetypes)],
-          filter: new MobFilter([], [], "humanoid", "", ["undead"]),
+          filter: new SpeciesFilter([], [], "humanoid", "", ["undead"]),
           minNumber: 1,
           maxNumber: 1,
         },
@@ -46,7 +46,7 @@ export function all(): EncounterTemplate[] {
             Archetypes.byName("soldier", allArchetypes),
             Archetypes.byName("guard", allArchetypes),
           ],
-          filter: new MobFilter(["skeleton"], [], "", "", []),
+          filter: new SpeciesFilter(["skeleton"], [], "", "", []),
           minNumber: 3,
           maxNumber: 6,
         },
@@ -63,7 +63,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 3,
           isSentient: false,
           archetypes: [],
-          filter: new MobFilter(["ghoul"], [], "", "", []),
+          filter: new SpeciesFilter(["ghoul"], [], "", "", []),
           minNumber: 2,
           maxNumber: 4,
         },
@@ -80,7 +80,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 3,
           isSentient: false,
           archetypes: [],
-          filter: new MobFilter(["undead"], [], "", "", ["vampire"]),
+          filter: new SpeciesFilter(["undead"], [], "", "", ["vampire"]),
           minNumber: 2,
           maxNumber: 4,
         },
@@ -101,7 +101,7 @@ export function all(): EncounterTemplate[] {
             Archetypes.byName("soldier", allArchetypes),
             Archetypes.byName("guard", allArchetypes),
           ],
-          filter: new MobFilter(["skeleton"], [], "", "", []),
+          filter: new SpeciesFilter(["skeleton"], [], "", "", []),
           minNumber: 3,
           maxNumber: 6,
         },
@@ -121,7 +121,7 @@ export function all(): EncounterTemplate[] {
             Archetypes.byName("shambler", allArchetypes),
             Archetypes.byName("sprinter", allArchetypes),
           ],
-          filter: new MobFilter(["zombie"], [], "", "", []),
+          filter: new SpeciesFilter(["zombie"], [], "", "", []),
           minNumber: 3,
           maxNumber: 6,
         },
@@ -138,7 +138,7 @@ export function all(): EncounterTemplate[] {
           threatLevel: 5,
           isSentient: true,
           archetypes: [Archetypes.byName("warrior", allArchetypes)],
-          filter: new MobFilter(["vampire"], [], "", "", []),
+          filter: new SpeciesFilter(["vampire"], [], "", "", []),
           minNumber: 1,
           maxNumber: 1,
         },

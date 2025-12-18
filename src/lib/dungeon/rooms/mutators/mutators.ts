@@ -1,8 +1,9 @@
+import type * as RNG from "@ironarachne/rng";
 import RoomFeatureGenerator from "../features/featuregenerator.js";
 import type Room from "../room.js";
 import RoomMutator from "./mutator.js";
 
-export function all(): RoomMutator[] {
+export function all(rng: RNG.RNG): RoomMutator[] {
   return [
     new RoomMutator(
       "brazier",
@@ -15,6 +16,7 @@ export function all(): RoomMutator[] {
           ],
           [],
           false,
+          rng
         );
         room.features.push(featureGenerator.generate());
         room.lightLevel += 2;
@@ -34,6 +36,7 @@ export function all(): RoomMutator[] {
           ],
           [],
           false,
+          rng
         );
         room.features.push(featureGenerator.generate());
         room.lightLevel += 1;
@@ -47,7 +50,7 @@ export function all(): RoomMutator[] {
 
 export function withName(name: string, mutators: RoomMutator[]): RoomMutator {
   for (let i = 0; i < mutators.length; i++) {
-    if (mutators[i].name == name) {
+    if (mutators[i].name === name) {
       return mutators[i];
     }
   }

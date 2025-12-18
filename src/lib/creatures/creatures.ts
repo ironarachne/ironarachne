@@ -1,41 +1,43 @@
+import * as RNG from "@ironarachne/rng";
 import * as AgeCategories from "$lib/age/age_categories";
 import * as CommonSpecies from "$lib/species/common";
 import * as SizeMatrix from "$lib/size/size_matrix";
-import * as RNG from "@ironarachne/rng";
-
 import type Creature from "./creature";
 import type CreatureGeneratorConfig from "./creature_generator_config";
 import type Gender from "$lib/gender/gender";
 
 export function generate(config: CreatureGeneratorConfig): Creature {
-  let creatureSpecies = RNG.weighted(config.speciesOptions);
+  let creatureSpecies = config.rng.weighted(config.speciesOptions);
   let creatureAgeCategory = AgeCategories.randomWeighted(
     config.ageCategoryNames,
     creatureSpecies.ageCategories,
   );
-  let age = RNG.int(creatureAgeCategory.minAge, creatureAgeCategory.maxAge);
-  const genderName = RNG.item(config.genderNames);
+  let age = config.rng.int(creatureAgeCategory.minAge, creatureAgeCategory.maxAge);
+  const genderName = config.rng.item(config.genderNames);
   let gender = creatureSpecies.genders.find(
     (g: Gender) => g.name === genderName,
   );
+  if (!gender) {
+    throw new Error(`Gender ${genderName} not found for species ${creatureSpecies.name}`);
+  }
   const sizeGeneratorConfig = SizeMatrix.getSizeConfig(
     gender.name,
     creatureAgeCategory.name,
     creatureSpecies.sizeGeneratorConfigMatrix,
   );
-  const height = RNG.int(
+  const height = config.rng.int(
     sizeGeneratorConfig.minHeight,
     sizeGeneratorConfig.maxHeight,
   );
-  const weight = RNG.int(
+  const weight = config.rng.int(
     sizeGeneratorConfig.minWeight,
     sizeGeneratorConfig.maxWeight,
   );
-  const length = RNG.int(
+  const length = config.rng.int(
     sizeGeneratorConfig.minLength,
     sizeGeneratorConfig.maxLength,
   );
-  let physicalTraits = CommonSpecies.randomTraits(creatureSpecies);
+  let physicalTraits = CommonSpecies.randomTraits(creatureSpecies, config.rng);
   let behaviors = [
     "cautious",
     "hunting",
@@ -44,7 +46,7 @@ export function generate(config: CreatureGeneratorConfig): Creature {
     "sleeping",
     "stalking",
   ];
-  let summary = RNG.item(behaviors);
+  let summary = config.rng.item(behaviors);
   let abilities = creatureSpecies.abilities;
 
   let threatLevel = creatureSpecies.baseThreatLevel;
@@ -54,7 +56,7 @@ export function generate(config: CreatureGeneratorConfig): Creature {
 
   let creature: Creature = {
     name: creatureSpecies.name,
-    description: creatureSpecies.description,
+    description: "",
     summary: summary,
     statBlock: null,
     species: creatureSpecies,
@@ -145,10 +147,11 @@ export function hasNoTagIn(tags: string[], creatures: Creature[]): Creature[] {
   return result;
 }
 
-export function newCreatureGeneratorConfig(): CreatureGeneratorConfig {
+export function newCreatureGeneratorConfig(rng: RNG.RNG): CreatureGeneratorConfig {
   return {
     ageCategoryNames: ["adult"],
     genderNames: ["female", "male"],
     speciesOptions: [],
+    rng: rng,
   };
 }

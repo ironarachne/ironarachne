@@ -1,6 +1,5 @@
-import * as RNG from "@ironarachne/rng";
+import type * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-
 import * as Currency from "../../currency/currency.js";
 import ArtObject from "./artobject.js";
 import type TreasureGenerator from "./treasuregenerator.js";
@@ -9,11 +8,13 @@ export default class ArtObjectGenerator implements TreasureGenerator {
   minValue: number;
   maxValue: number;
   count: number;
+  rng: RNG.RNG;
 
-  constructor(min: number, max: number, count: number) {
+  constructor(min: number, max: number, count: number, rng: RNG.RNG) {
     this.minValue = min;
     this.maxValue = max;
     this.count = count;
+    this.rng = rng;
   }
 
   generate(): ArtObject[] {
@@ -22,8 +23,8 @@ export default class ArtObjectGenerator implements TreasureGenerator {
     for (let i = 0; i < this.count; i++) {
       let object = new ArtObject();
 
-      object.value = RNG.int(this.minValue, this.maxValue);
-      object.name = getArtObjectForValue(this.minValue, this.maxValue);
+      object.value = this.rng.int(this.minValue, this.maxValue);
+      object.name = getArtObjectForValue(this.minValue, this.maxValue, this.rng);
 
       let worth = Currency.valueToCoins(object.value, false, false, false);
 
@@ -36,7 +37,7 @@ export default class ArtObjectGenerator implements TreasureGenerator {
   }
 }
 
-function getArtObjectForValue(minValue: number, maxValue: number): string {
+function getArtObjectForValue(minValue: number, maxValue: number, rng: RNG.RNG): string {
   const allOptions = getArtObjects();
 
   let options = [];
@@ -47,7 +48,7 @@ function getArtObjectForValue(minValue: number, maxValue: number): string {
     }
   }
 
-  return RNG.item(options);
+  return rng.item(options);
 }
 
 function getArtObjects(): { name: string; value: number }[] {

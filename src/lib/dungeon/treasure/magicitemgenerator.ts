@@ -11,11 +11,13 @@ export default class MagicItemGenerator implements TreasureGenerator {
   minValue: number;
   maxValue: number;
   count: number;
+  rng: RNG.RNG;
 
-  constructor(min: number, max: number, count: number) {
+  constructor(min: number, max: number, count: number, rng: RNG.RNG) {
     this.minValue = min;
     this.maxValue = max;
     this.count = count;
+    this.rng = rng;
   }
 
   generate(): Item[] {
@@ -24,7 +26,7 @@ export default class MagicItemGenerator implements TreasureGenerator {
 
     for (let i = 0; i < this.count; i++) {
       let itemGenConfig = new ItemGeneratorConfig();
-      itemGenConfig.pattern = RNG.item(possibleItems);
+      itemGenConfig.pattern = this.rng.item(possibleItems);
       itemGenConfig.useMutator = true;
       itemGenConfig.minQuality = 2;
       itemGenConfig.maxQuality = 5;

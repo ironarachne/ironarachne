@@ -1,3 +1,4 @@
+import type * as RNG from "@ironarachne/rng";
 import * as Geometry from "$lib/geometry/geometry.js";
 import type Room from "./room.js";
 import RoomGenerator from "./roomgenerator.js";
@@ -43,7 +44,7 @@ export function doesRoomTouch(room: Room, rooms: Room[]): boolean {
   for (let i = 0; i < rooms.length; i++) {
     for (let j = 0; j < rooms[i].vertices.length; j++) {
       for (let k = 0; k < room.vertices.length; k++) {
-        if (Geometry.distance(room.vertices[k], rooms[i].vertices[j]) == 1) {
+        if (Geometry.distance(room.vertices[k], rooms[i].vertices[j]) === 1) {
           return true;
         }
       }
@@ -85,7 +86,7 @@ export function getNeighboringRooms(room: Room, rooms: Room[]): Room[] {
         // and check the distance from it to each tile in the other room
         let d = Geometry.distance(rooms[i].vertices[k], room.vertices[j]);
         // if it's 2 tiles away, add the room to the result if it's not the compared room and it's not already in the results
-        if (d <= 2 && !ids.includes(rooms[i].id) && rooms[i].id != room.id) {
+        if (d <= 2 && !ids.includes(rooms[i].id) && rooms[i].id !== room.id) {
           ids.push(rooms[i].id);
           result.push(rooms[i]);
           break;
@@ -102,11 +103,12 @@ export function getPlaceableRoom(
   mapHeight: number,
   theme: RoomTheme,
   rooms: Room[],
+  rng: RNG.RNG
 ): Room | null {
   let generation = true;
   let maxX = mapWidth - 3;
   let maxY = mapHeight - 3;
-  let roomGenConfig = new RoomGeneratorConfig(mapWidth, mapHeight, theme);
+  let roomGenConfig = new RoomGeneratorConfig(mapWidth, mapHeight, theme, rng);
   let roomGen = new RoomGenerator(roomGenConfig);
   let room = roomGen.generate();
   let roomAttempts = 0;
@@ -154,7 +156,7 @@ export function isRoomInRange(
   room: Room,
   rooms: Room[],
 ): boolean {
-  if (distanceToNearestOtherRoomTile(room, rooms) == range) {
+  if (distanceToNearestOtherRoomTile(room, rooms) === range) {
     return true;
   }
 

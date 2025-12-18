@@ -42,7 +42,7 @@ export function hasCreatureType(creatureType: string, mobs: Mob[]): Mob[] {
   let result = [];
 
   for (let i = 0; i < mobs.length; i++) {
-    if (mobs[i].creatureTypes.includes(creatureType)) {
+    if (mobs[i].species.creatureTypes.includes(creatureType)) {
       result.push(mobs[i]);
     }
   }
@@ -54,7 +54,7 @@ export function hasEnvironment(environment: string, mobs: Mob[]): Mob[] {
   let result = [];
 
   for (let i = 0; i < mobs.length; i++) {
-    if (mobs[i].environments.includes(environment)) {
+    if (mobs[i].species.environments.includes(environment)) {
       result.push(mobs[i]);
     }
   }

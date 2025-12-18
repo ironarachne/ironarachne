@@ -1,6 +1,5 @@
 import * as AgeCategories from "$lib/age/age_categories";
 import * as Archetypes from "$lib/archetypes/archetypes";
-import type Gender from "$lib/gender/gender.js";
 import * as Measurements from "$lib/measurements";
 import * as SizeMatrix from "$lib/size/size_matrix.js";
 import * as CommonSpecies from "$lib/species/common";
@@ -122,7 +121,7 @@ export function generate(config: CharacterGeneratorConfig): Character {
   );
 
   const personalityTraits = getRandomPersonality(config.rng);
-  let physicalTraits = CommonSpecies.randomTraits(species);
+  let physicalTraits = CommonSpecies.randomTraits(species, config.rng);
 
   if (config.physicalTraitOverrides.length > 0) {
     physicalTraits = config.physicalTraitOverrides;

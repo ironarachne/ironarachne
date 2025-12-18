@@ -15,7 +15,7 @@ export default class TreasureResultGenerator {
     for (const table of this.config.tables) {
       let possibleItems = table.entries;
 
-      let t = RNG.weighted(possibleItems);
+      let t = this.config.rng.weighted(possibleItems);
       let gen = t.generator;
       let items = gen.generate();
 

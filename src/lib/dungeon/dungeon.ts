@@ -1,5 +1,5 @@
 import type Door from "./door.js";
-import type DungeonTheme from "./dungeon_theme.js";
+import type { DungeonTheme } from "./themes/index.js";
 import type Room from "./rooms/room.js";
 
 export default interface Dungeon {

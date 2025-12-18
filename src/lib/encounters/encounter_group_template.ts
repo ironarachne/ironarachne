@@ -1,12 +1,12 @@
+import type { SpeciesFilter } from "$lib/species/filter.js";
 import type Archetype from "../archetypes/archetype.js";
-import type MobFilter from "../mobs/filter.js";
 
 export default interface EncounterGroupTemplate {
   name: string;
   threatLevel: number;
   isSentient: boolean;
   archetypes: Archetype[];
-  filter: MobFilter;
+  filter: SpeciesFilter;
   minNumber: number;
   maxNumber: number;
 }

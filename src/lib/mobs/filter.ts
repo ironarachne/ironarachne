@@ -33,11 +33,11 @@ export default class MobFilter {
       result = Mobs.hasAnyTagIn(this.withAnyTag, result);
     }
 
-    if (this.withCreatureType != "") {
+    if (this.withCreatureType !== "") {
       result = Mobs.hasCreatureType(this.withCreatureType, result);
     }
 
-    if (this.withEnvironment != "") {
+    if (this.withEnvironment !== "") {
       result = Mobs.hasEnvironment(this.withEnvironment, result);
     }
 

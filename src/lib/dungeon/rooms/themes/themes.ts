@@ -1,18 +1,19 @@
+import type * as RNG from "@ironarachne/rng";
 import RoomFeatureGenerator from "../features/featuregenerator.js";
 import * as Dungeon from "./dungeon.js";
 import RoomTheme from "./theme.js";
 
-export function all(): RoomTheme[] {
+export function all(rng: RNG.RNG): RoomTheme[] {
   let result: RoomTheme[] = [];
 
-  result = result.concat(Dungeon.all());
+  result = result.concat(Dungeon.all(rng));
 
   return result;
 }
 
 export function byName(name: string, themes: RoomTheme[]): RoomTheme {
   for (let i = 0; i < themes.length; i++) {
-    if (themes[i].name == name) {
+    if (themes[i].name === name) {
       return themes[i];
     }
   }
@@ -32,7 +33,7 @@ export function byTag(tag: string, themes: RoomTheme[]): RoomTheme[] {
   return result;
 }
 
-export function getEntrance(): RoomTheme {
+export function getEntrance(rng: RNG.RNG): RoomTheme {
   return new RoomTheme(
     "entrance",
     [],
@@ -53,6 +54,7 @@ export function getEntrance(): RoomTheme {
         ],
         [],
         false,
+        rng
       ),
     ],
     [],

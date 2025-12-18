@@ -1,20 +1,20 @@
+import * as MUN from "@ironarachne/made-up-names";
+import type * as RNG from "@ironarachne/rng";
 import * as FantasyEncounters from "$lib/encounters/templates/fantasy/all.js";
 import * as Encounters from "$lib/encounters/templates/templates.js";
 import * as CommonSpecies from "$lib/species/common.js";
-import * as MUN from "@ironarachne/made-up-names";
-
-import DungeonTheme from "../dungeon_theme.js";
+import type { DungeonTheme } from "./index.js";
 import RoomRequirement from "../rooms/roomrequirement.js";
 import * as RoomThemes from "../rooms/themes/themes.js";
 
-export function getTheme(): DungeonTheme {
+export function getTheme(rng: RNG.RNG): DungeonTheme {
   let allEncounters = FantasyEncounters.all(false);
   let allSentientOptions = CommonSpecies.sentient();
   allSentientOptions = CommonSpecies.withCreatureType(
     "humanoid",
     allSentientOptions,
   );
-  let numberOfSentientOptions = RNG.int(1, 3);
+  let numberOfSentientOptions = rng.int(1, 3);
 
   let fortressEncounters = Encounters.withTag("martial", allEncounters);
 
@@ -25,6 +25,7 @@ export function getTheme(): DungeonTheme {
   fortressSentientOptions = CommonSpecies.randomUniqueSet(
     fortressSentientOptions,
     numberOfSentientOptions,
+    rng
   );
 
   for (let i = 0; i < fortressEncounters.length; i++) {
@@ -47,35 +48,35 @@ export function getTheme(): DungeonTheme {
     fortressEncounters,
   );
 
-  let fortressNameGen = new MUN.GenericNameGenerator();
+  let namePatterns = [];
   let p1 = ["FORTRESS", "STRONGHOLD", "DOMAIN", "DOMINION", "LAIR"];
   let p2 = ["DARK", "DREAD", "DIRE", "IRON", "BLOODY", "CURSED"];
   let p3 = ["LEGION", "ARMY"];
   for (let i = 0; i < p1.length; i++) {
     for (let j = 0; j < p2.length; j++) {
       for (let k = 0; k < p3.length; k++) {
-        fortressNameGen.patterns.push(`THE ${p1[i]} OF THE ${p2[j]} ${p3[k]}`);
+        namePatterns.push(`THE ${p1[i]} OF THE ${p2[j]} ${p3[k]}`);
       }
     }
   }
 
-  const allRoomThemes = RoomThemes.all();
+  const allRoomThemes = RoomThemes.all(rng);
   let barracks = RoomThemes.byName("barracks", allRoomThemes);
 
   let dungeonRoomThemes = RoomThemes.byTag("dungeon", allRoomThemes);
   let militaryRoomThemes = RoomThemes.byTag("military", allRoomThemes);
   let fortressRoomThemes = militaryRoomThemes.concat(dungeonRoomThemes);
 
-  return new DungeonTheme(
-    "fortress",
-    "hill",
-    fortressNameGen,
-    fortressWeakEncounters,
-    fortressStrongEncounters,
-    fortressBossEncounters,
-    fortressSentientOptions,
-    ["stone tile"],
-    fortressRoomThemes,
-    [new RoomRequirement(barracks, 1, 2)],
-  );
+  return {
+    name: "fortress",
+    mainEnvironment: "hill",
+    nameGeneratorPatterns: namePatterns,
+    weakEncounterTemplates: fortressWeakEncounters,
+    strongEncounterTemplates: fortressStrongEncounters,
+    bossEncounterTemplates: fortressBossEncounters,
+    sentientOptions: fortressSentientOptions,
+    flooringOptions: ["stone tile"],
+    roomThemes: fortressRoomThemes,
+    requiredRooms: [new RoomRequirement(barracks, 1, 2)],
+  };
 }

@@ -1,20 +1,22 @@
 <script lang="ts">
-import * as Currency from "$lib/currency/currency";
 import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-
+import { onMount } from "svelte";
+import * as Currency from "$lib/currency/currency";
 import * as Dungeons from "$lib/dungeon/dungeons";
 import DungeonTileRenderer from "$lib/dungeon/tilerenderer";
-import { onMount } from "svelte";
 
-let seed = RNG.randomString(13);
+let rng = new RNG.RNG(Date.now().toString());
+let seed = rng.randomString(13);
 let lockSeed = false;
+rng.setSeed(seed);
 
 let canvas: HTMLCanvasElement;
 let minRooms = 20;
 let maxRooms = 30;
 
 let config = Dungeons.getDefaultConfig();
+config.rng = rng;
 config.minRooms = minRooms;
 config.maxRooms = maxRooms;
 let dungeon = Dungeons.generate(config);
@@ -22,12 +24,13 @@ let renderer = new DungeonTileRenderer(800, 1000, config.height, config.width);
 
 function generate() {
   if (!lockSeed) {
-    seed = RNG.randomString(13);
+    seed = rng.randomString(13);
   }
-  RNG.setSeed(seed);
+  rng.setSeed(seed);
 
   config.minRooms = minRooms;
   config.maxRooms = maxRooms;
+  config.rng = rng;
 
   dungeon = Dungeons.generate(config);
   renderer.render(dungeon, canvas);

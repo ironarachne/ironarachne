@@ -1,13 +1,13 @@
+import * as RNG from "@ironarachne/rng";
 import type Archetype from "$lib/archetypes/archetype.js";
 import * as Characters from "$lib/characters/characters.js";
 import * as PremadeConfigs from "$lib/characters/premade_configs.js";
 import * as Creatures from "$lib/creatures/creatures.js";
+import type Species from "$lib/species/species.js";
 import type MobGroup from "$lib/mobs/group.js";
 import type Mob from "$lib/mobs/mob.js";
 import all from "$lib/species/all.js";
 import * as CommonSpecies from "$lib/species/common.js";
-import * as RNG from "@ironarachne/rng";
-
 import type Encounter from "./encounter.js";
 import type EncounterGeneratorConfig from "./encounter_generator_config";
 
@@ -21,10 +21,10 @@ export function generate(config: EncounterGeneratorConfig): Encounter {
   for (let i = 0; i < config.template.groupTemplates.length; i++) {
     let mobs: Mob[] = [];
     let t = config.template.groupTemplates[i];
-    let amount = RNG.int(t.minNumber, t.maxNumber);
+    let amount = config.rng.int(t.minNumber, t.maxNumber);
 
-    let options = [];
-    let unfilteredOptions = [];
+    let options: Species[] = [];
+    let unfilteredOptions: Species[] = [];
 
     if (t.isSentient) {
       unfilteredOptions = JSON.parse(JSON.stringify(config.sentientOptions));
@@ -65,14 +65,14 @@ export function generate(config: EncounterGeneratorConfig): Encounter {
     options = t.filter.apply(unfilteredOptions);
 
     if (options.length === 0) {
-      console.error(`No options for filter`, t.filter);
-      console.debug(`Used options`, unfilteredOptions);
+      console.error("No options for filter", t.filter);
+      console.debug("Used options", unfilteredOptions);
     }
 
     if (t.isSentient) {
-      mobs = generateSentientMobs(options, t.archetypes, amount);
+      mobs = generateSentientMobs(options, t.archetypes, amount, config.rng);
     } else {
-      mobs = generateCreatureMobs(options, amount);
+      mobs = generateCreatureMobs(options, amount, config.rng);
     }
 
     mobGroups.push({ name: t.name, mobs });
@@ -91,10 +91,10 @@ export function generate(config: EncounterGeneratorConfig): Encounter {
   return { groups: mobGroups, totalThreatLevel: threatLevel };
 }
 
-function generateCreatureMobs(creatureOptions: Mob[], amount: number): Mob[] {
-  let creatureType = RNG.item(creatureOptions);
+function generateCreatureMobs(creatureOptions: Species[], amount: number, rng: RNG.RNG): Mob[] {
+  let creatureType = rng.item(creatureOptions);
   let creatures: Mob[] = [];
-  let config = Creatures.newCreatureGeneratorConfig();
+  let config = Creatures.newCreatureGeneratorConfig(rng);
 
   for (let i = 0; i < amount; i++) {
     config.speciesOptions = [creatureType];
@@ -105,18 +105,20 @@ function generateCreatureMobs(creatureOptions: Mob[], amount: number): Mob[] {
 }
 
 function generateSentientMobs(
-  speciesOptions: Mob[],
+  speciesOptions: Species[],
   archetypes: Archetype[],
   amount: number,
+  rng: RNG.RNG,
 ): Mob[] {
-  let species = RNG.item(speciesOptions);
+  let species = rng.item(speciesOptions);
   let characters = [];
   let charGenConfig = PremadeConfigs.getFantasy();
+  charGenConfig.rng = rng;
   charGenConfig.speciesOptions = [species];
 
   for (let i = 0; i < amount; i++) {
     let c = Characters.generate(charGenConfig);
-    c.archetype = RNG.item(archetypes);
+    c.archetype = rng.item(archetypes);
     c.abilities = c.abilities.concat(c.archetype.abilities);
     c.threatLevel = Characters.getTotalThreatLevel(c);
     c.summary = `${c.gender.name} ${c.species.adjective} ${c.archetype.name}`;
@@ -138,5 +140,6 @@ export function getDefaultConfig(): EncounterGeneratorConfig {
     creatureOptions: CommonSpecies.withoutTag("sentient", all),
     minThreatLevel: 1,
     maxThreatLevel: 4,
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }

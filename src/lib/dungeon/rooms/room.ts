@@ -106,7 +106,7 @@ export default class Room {
 
     for (let y = 0; y < this.tiles.length; y++) {
       for (let x = 0; x < this.tiles[y].length; x++) {
-        if (this.tiles[y][x] != Tiles.STONE) {
+        if (this.tiles[y][x] !== Tiles.STONE) {
           v.push({ x, y });
         }
       }
