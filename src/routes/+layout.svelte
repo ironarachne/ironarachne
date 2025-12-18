@@ -1,8 +1,4 @@
 <script lang="ts">
-import { run } from "svelte/legacy";
-
-import "$lib/styles/reset.scss";
-import "$lib/styles/global.scss";
 import "$lib/styles/main.scss";
 import Footer from "$lib/components/Footer.svelte";
 import Header from "$lib/components/Header.svelte";
@@ -19,7 +15,7 @@ interface Props {
 let { data, children }: Props = $props();
 
 const user = writable();
-run(() => {
+$effect(() => {
   user.set(data.user);
 });
 
