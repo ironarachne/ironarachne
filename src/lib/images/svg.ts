@@ -21,9 +21,7 @@ export function renderSVGAsPNG(
   }
 
   if (!(output instanceof HTMLImageElement)) {
-    throw new Error(
-      `element with id "${outputId}" is not an HTMLImageElement`,
-    );
+    throw new Error(`element with id "${outputId}" is not an HTMLImageElement`);
   }
 
   let blob = new Blob([svg], { type: "image/svg+xml" });

@@ -1,103 +1,107 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import * as MUN from "@ironarachne/made-up-names";
-  import * as RND from "@ironarachne/rng";
-  import * as CommonSpecies from "$lib/species/common.js";
-  import * as ReligionCategories from "$lib/religion/categories/categories.js";
-  import type Species from "$lib/species/species";
-  import random from "random";
-  import ReligionGenerator from "$lib/religion/generator";
-  import ReligionGeneratorConfig from "$lib/religion/generatorconfig";
-  import seedrandom from "seedrandom";
-  import type Culture from '$lib/culture/culture';
+import { getContext } from "svelte";
+import * as MUN from "@ironarachne/made-up-names";
+import * as Names from "$lib/names";
+import * as RNG from "@ironarachne/rng";
+import * as CommonSpecies from "$lib/species/common.js";
+import * as ReligionCategories from "$lib/religion/categories";
+import type Species from "$lib/species/species";
 
-  const user = getContext('user');
+import ReligionGenerator from "$lib/religion/generator";
+import ReligionGeneratorConfig from "$lib/religion/generatorconfig";
 
-  let humanNameGenSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
-  let savedCulture: string = $state();
-  let useSavedCulture: boolean = $state(false);
-  let culture: Culture;
+import type Culture from "$lib/culture/culture";
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  random.use(seedrandom(seed));
-  let genConfig = new ReligionGeneratorConfig();
-  let generator = new ReligionGenerator(genConfig);
-  let religion = $state(generator.generate());
-  let allSpeciesNames: string[] = [];
-  const allSpecies = CommonSpecies.sentient();
-  const allReligionCategories = ReligionCategories.all();
-  let allReligionCategoriesNames: string[] = [];
+const user = getContext("user");
 
-  for (let i = 0; i < allSpecies.length; i++) {
-    allSpeciesNames.push(allSpecies[i].name);
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
+rng.setSeed(seed);
+
+let humanNameGenSet = Names.getFantasyNameGeneratorSet("human", rng);
+let savedCulture: string = $state();
+let useSavedCulture: boolean = $state(false);
+let culture: Culture;
+let genConfig = new ReligionGeneratorConfig();
+let generator = new ReligionGenerator(genConfig);
+let religion = $state(generator.generate());
+let allSpeciesNames: string[] = [];
+const allSpecies = CommonSpecies.sentient();
+const allReligionCategories = ReligionCategories.all();
+let allReligionCategoriesNames: string[] = [];
+
+for (let i = 0; i < allSpecies.length; i++) {
+  allSpeciesNames.push(allSpecies[i].name);
+}
+
+for (let i = 0; i < allReligionCategories.length; i++) {
+  allReligionCategoriesNames.push(allReligionCategories[i].name);
+}
+
+let selectedSpecies: string[] = $state(["human"]);
+let selectedCategories: string[] = $state(["polytheism"]);
+
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
+  }
+  rng.setSeed(seed);
+  if (humanNameGenSet.family === null) {
+    throw new Error("Name set does not have a family name generator.");
+  }
+  if (humanNameGenSet.female === null) {
+    throw new Error("Name set does not have a female name generator.");
+  }
+  if (humanNameGenSet.male === null) {
+    throw new Error("Name set does not have a male name generator.");
+  }
+  let speciesOptions: Species[] = [];
+  for (let i = 0; i < selectedSpecies.length; i++) {
+    speciesOptions.push(CommonSpecies.byName(selectedSpecies[i], allSpecies));
   }
 
-  for (let i = 0; i < allReligionCategories.length; i++) {
-    allReligionCategoriesNames.push(allReligionCategories[i].name);
+  let categoryOptions = [];
+  for (let i = 0; i < selectedCategories.length; i++) {
+    categoryOptions.push(
+      ReligionCategories.byName(selectedCategories[i], allReligionCategories),
+    );
   }
 
-  let selectedSpecies: string[] = $state(["human"]);
-  let selectedCategories: string[] = $state(["polytheism"]);
+  generator.config.deitySpeciesOptions = speciesOptions;
+  generator.config.categories = categoryOptions;
+  generator.config.nameGenerator = humanNameGenSet.family;
+  generator.config.femaleNameGenerator = humanNameGenSet.female;
+  generator.config.maleNameGenerator = humanNameGenSet.male;
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    if (humanNameGenSet.family === null) {
-      throw new Error("Name set does not have a family name generator.")
-    }
-    if (humanNameGenSet.female === null) {
-      throw new Error("Name set does not have a female name generator.")
-    }
-    if (humanNameGenSet.male === null) {
-      throw new Error("Name set does not have a male name generator.")
-    }
-    let speciesOptions: Species[] = [];
-    for (let i=0;i<selectedSpecies.length;i++) {
-      speciesOptions.push(CommonSpecies.byName(selectedSpecies[i], allSpecies));
-    }
+  if (useSavedCulture) {
+    loadSavedCulture();
 
-    let categoryOptions = [];
-    for (let i=0;i<selectedCategories.length;i++) {
-      categoryOptions.push(ReligionCategories.byName(selectedCategories[i], allReligionCategories));
+    if (culture.nameGenerators.family !== null) {
+      generator.config.nameGenerator = culture.nameGenerators.family;
     }
-
-    generator.config.deitySpeciesOptions = speciesOptions;
-    generator.config.categories = categoryOptions;
+    if (culture.nameGenerators.female !== null) {
+      generator.config.femaleNameGenerator = culture.nameGenerators.female;
+    }
+    if (culture.nameGenerators.male !== null) {
+      generator.config.maleNameGenerator = culture.nameGenerators.male;
+    }
+  } else {
     generator.config.nameGenerator = humanNameGenSet.family;
     generator.config.femaleNameGenerator = humanNameGenSet.female;
     generator.config.maleNameGenerator = humanNameGenSet.male;
-
-    if (useSavedCulture) {
-      loadSavedCulture();
-
-      if (culture.generatorSet.family !== null) {
-        generator.config.nameGenerator = culture.generatorSet.family;
-      }
-      if (culture.generatorSet.female !== null) {
-        generator.config.femaleNameGenerator = culture.generatorSet.female;
-      }
-      if (culture.generatorSet.male !== null) {
-        generator.config.maleNameGenerator = culture.generatorSet.male;
-      }
-    } else {
-      generator.config.nameGenerator = humanNameGenSet.family;
-      generator.config.femaleNameGenerator = humanNameGenSet.female;
-      generator.config.maleNameGenerator = humanNameGenSet.male;
-    }
-
-    religion = generator.generate();
   }
 
-  function loadSavedCulture() {
-    for (let i = 0; i < user.savedCultures.length; i++) {
-      if (user.savedCultures[i].name === savedCulture) {
-        culture = user.savedCultures[i];
-      }
+  religion = generator.generate();
+}
+
+function loadSavedCulture() {
+  for (let i = 0; i < user.savedCultures.length; i++) {
+    if (user.savedCultures[i].name === savedCulture) {
+      culture = user.savedCultures[i];
     }
   }
+}
 </script>
 
 <style lang="scss">

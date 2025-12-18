@@ -1,72 +1,77 @@
 <script lang="ts">
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import DCCCharacterGenerator from "$lib/dcc/generator";
-  import DCCCharacterGeneratorConfig from "$lib/dcc/generatorconfig";
+import * as RNG from "@ironarachne/rng";
 
-  let allowDwarves = $state(true);
-  let allowElves = $state(true);
-  let allowHalflings = $state(true);
-  let allowHumans = $state(true);
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  let genConfig = new DCCCharacterGeneratorConfig();
-  let charGen = new DCCCharacterGenerator(genConfig);
-  let character = $state(charGen.generate());
-  let spellsKnown = $state(getSpellsKnown());
+import DCCCharacterGenerator from "$lib/dcc/generator";
+import DCCCharacterGeneratorConfig from "$lib/dcc/generatorconfig";
 
-  function dMod(modifier: number): string {
-    if (modifier > -1) {
-      return `+${modifier}`;
-    }
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+rng.setSeed(seed);
+let lockSeed = $state(false);
 
-    return `${modifier}`;
+let allowDwarves = $state(true);
+let allowElves = $state(true);
+let allowHalflings = $state(true);
+let allowHumans = $state(true);
+
+let genConfig = new DCCCharacterGeneratorConfig();
+let charGen = new DCCCharacterGenerator(genConfig);
+charGen.config.rng = rng;
+let character = $state(charGen.generate());
+let spellsKnown = $state(getSpellsKnown());
+
+function dMod(modifier: number): string {
+  if (modifier > -1) {
+    return `+${modifier}`;
   }
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
+  return `${modifier}`;
+}
 
-    let allowedOccupations = [];
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
+  }
+  rng.setSeed(seed);
 
-    if (allowDwarves) {
-      allowedOccupations.push('dwarf');
-    }
+  let allowedOccupations = [];
 
-    if (allowElves) {
-      allowedOccupations.push('elf');
-    }
-
-    if (allowHalflings) {
-      allowedOccupations.push('halfling');
-    }
-
-    if (allowHumans) {
-      allowedOccupations.push('human');
-    }
-
-    charGen.config.allowedOccupations = allowedOccupations;
-
-    character = charGen.generate();
-    spellsKnown = getSpellsKnown();
+  if (allowDwarves) {
+    allowedOccupations.push("dwarf");
   }
 
-  function getSpellsKnown(): string {
-    if (character.spellsKnown === -9) {
-      return "No spellcasting possible";
-    }
-
-    if (character.spellsKnown > -1) {
-      return `+${character.spellsKnown}`;
-    }
-
-    return `${character.spellsKnown}`;
+  if (allowElves) {
+    allowedOccupations.push("elf");
   }
 
-  generate();
+  if (allowHalflings) {
+    allowedOccupations.push("halfling");
+  }
+
+  if (allowHumans) {
+    allowedOccupations.push("human");
+  }
+
+  charGen.config.allowedOccupations = allowedOccupations;
+  charGen.config.rng = rng;
+
+  character = charGen.generate();
+  spellsKnown = getSpellsKnown();
+}
+
+function getSpellsKnown(): string {
+  if (character.spellsKnown === -9) {
+    return "No spellcasting possible";
+  }
+
+  if (character.spellsKnown > -1) {
+    return `+${character.spellsKnown}`;
+  }
+
+  return `${character.spellsKnown}`;
+}
+
+generate();
 </script>
 
 <style lang="scss">

@@ -1,6 +1,6 @@
 import type Edge from "$lib/geometry/edge.js";
 import * as Geometry from "$lib/geometry/geometry.js";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import type Door from "./door.js";
 import type Dungeon from "./dungeon.js";
@@ -33,7 +33,7 @@ export function addDoor(room1: Room, room2: Room): Door {
     }
   }
 
-  let e: Edge = RND.item(possibleEdges);
+  let e: Edge = RNG.item(possibleEdges);
   door.vertex = Geometry.getMidpoint(e);
 
   if (Geometry.getSlope(e) === 0) {
@@ -42,10 +42,10 @@ export function addDoor(room1: Room, room2: Room): Door {
     door.tile = Tiles.V_DOOR;
   }
 
-  if (RND.simple(100) > 90) {
+  if (RNG.simple(100) > 90) {
     door.lock = new Lock();
-    door.lock.id = RND.randomString(24);
-  } else if (RND.simple(100) > 90) {
+    door.lock.id = RNG.randomString(24);
+  } else if (RNG.simple(100) > 90) {
     door.isSecret = true;
     if (door.tile == Tiles.H_DOOR) {
       door.tile = Tiles.H_S_DOOR;
@@ -57,11 +57,11 @@ export function addDoor(room1: Room, room2: Room): Door {
   door.room1 = room1.id;
   door.room2 = room2.id;
 
-  let doorQuality = RND.item([
-    RND.item(["rough", "decaying", "rotted"]),
+  let doorQuality = RNG.item([
+    RNG.item(["rough", "decaying", "rotted"]),
     "simple",
     "plain",
-    RND.item([
+    RNG.item([
       "iron-trimmed",
       "copper-trimmed",
       "silver-trimmed",
@@ -103,7 +103,7 @@ export function addDoorsToDungeon(dungeon: Dungeon): Dungeon {
       continue;
     }
 
-    let r2 = RND.item(viable);
+    let r2 = RNG.item(viable);
     let door = addDoor(dungeon.rooms[i], r2);
 
     if (r2.id == 0) {
@@ -124,17 +124,17 @@ export function addDoorsToDungeon(dungeon: Dungeon): Dungeon {
     let secret2 = "";
 
     if (door.isSecret) {
-      let hiddenText = RND.item([
-        `${RND.item(["It is", "It's"])} hidden behind a tapestry.`,
-        `${RND.item([
+      let hiddenText = RNG.item([
+        `${RNG.item(["It is", "It's"])} hidden behind a tapestry.`,
+        `${RNG.item([
           "It is",
           "It's",
         ])} practically undetectable except for a thin seam visible only on close inspection.`,
         `A tapestry obscures it.`,
         `It cannot be opened from this side.`,
-        `A pile of ${RND.item(["refuse", "debris", "trash"])} obscures it.`,
+        `A pile of ${RNG.item(["refuse", "debris", "trash"])} obscures it.`,
       ]);
-      if (RND.simple(100) > 50) {
+      if (RNG.simple(100) > 50) {
         secret2 = `${description2} ${hiddenText}`;
         description2 = "";
       } else {
@@ -215,7 +215,7 @@ export function getDoorDescription(door: Door, room: Room): string {
     }
   }
 
-  let description = RND.item([
+  let description = RNG.item([
     `There's ${door.description} in the ${dir}`,
     `There is ${door.description} in the ${dir}`,
     Words.capitalize(door.description) + ` lies in the ${dir}`,

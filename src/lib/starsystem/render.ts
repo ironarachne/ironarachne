@@ -1,5 +1,3 @@
-import random from "random";
-
 export function renderPlanet(
   width: number,
   height: number,
@@ -11,16 +9,16 @@ export function renderPlanet(
   const midX = Math.floor(width / 2);
   const midY = Math.floor(height / 2);
 
-  const planetId = random.int(0, 1000);
+  const planetId = RNG.int(0, 1000);
 
   const min = Math.min(width, height);
 
-  let radius = (Math.floor(min) * random.float(0.8, 0.9)) / 2;
+  let radius = (Math.floor(min) * RNG.float(0.8, 0.9)) / 2;
 
   if (sizeClass === "small") {
-    radius = (Math.floor(min) * random.float(0.2, 0.4)) / 2;
+    radius = (Math.floor(min) * RNG.float(0.2, 0.4)) / 2;
   } else if (sizeClass === "medium") {
-    radius = (Math.floor(min) * random.float(0.5, 0.7)) / 2;
+    radius = (Math.floor(min) * RNG.float(0.5, 0.7)) / 2;
   }
 
   const atmosphereRadius = Math.floor(radius * 1.1);
@@ -125,14 +123,14 @@ export function renderStar(
   const midY = Math.floor(height / 2);
 
   const min = Math.min(width, height);
-  let radius = (Math.floor(min) * random.float(0.2, 0.4)) / 2;
+  let radius = (Math.floor(min) * RNG.float(0.2, 0.4)) / 2;
 
   if (classification == "main sequence") {
-    radius = (Math.floor(min) * random.float(0.6, 0.7)) / 2;
+    radius = (Math.floor(min) * RNG.float(0.6, 0.7)) / 2;
   } else if (classification == "giant") {
-    radius = (Math.floor(min) * random.float(0.8, 0.9)) / 2;
+    radius = (Math.floor(min) * RNG.float(0.8, 0.9)) / 2;
   } else if (classification == "supergiant") {
-    radius = (Math.floor(min) * random.float(0.9, 1.1)) / 2;
+    radius = (Math.floor(min) * RNG.float(0.9, 1.1)) / 2;
   }
 
   const glowRadius = Math.floor(radius * 1.4);
@@ -211,8 +209,8 @@ export function renderStarfield(width: number, height: number) {
   const numberOfStars = Math.floor(width * height * 0.005);
 
   for (let i = 0; i < numberOfStars; i++) {
-    const x = random.int(0, width);
-    const y = random.int(0, height);
+    const x = RNG.int(0, width);
+    const y = RNG.int(0, height);
 
     svg +=
       '<rect x="' +
@@ -230,7 +228,7 @@ export function renderStarfield(width: number, height: number) {
 }
 
 function randomStarColor() {
-  const colorBase = random.int(80, 180);
+  const colorBase = RNG.int(80, 180);
 
   let r = colorBase;
   let g = colorBase;
@@ -238,21 +236,21 @@ function randomStarColor() {
 
   let tweaked = false;
 
-  const tweakBlueChance = random.int(1, 100);
+  const tweakBlueChance = RNG.int(1, 100);
   if (tweakBlueChance > 70 && !tweaked) {
-    b += random.int(10, 20);
+    b += RNG.int(10, 20);
     tweaked = true;
   }
 
-  const tweakRedChance = random.int(1, 100);
+  const tweakRedChance = RNG.int(1, 100);
   if (tweakRedChance > 70 && !tweaked) {
-    r += random.int(10, 20);
+    r += RNG.int(10, 20);
     tweaked = true;
   }
 
-  const tweakGreenChance = random.int(1, 100);
+  const tweakGreenChance = RNG.int(1, 100);
   if (tweakGreenChance > 70 && !tweaked) {
-    g += random.int(10, 20);
+    g += RNG.int(10, 20);
   }
 
   return "rgb(" + r + "," + g + "," + b + ")";

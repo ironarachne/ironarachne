@@ -1,35 +1,59 @@
 <script lang="ts">
-  import * as CommonSpecies from '$lib/species/common';
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import * as Families from "$lib/characters/family/families.js";
-  import * as MUN from "@ironarachne/made-up-names";
-  import type Gender from "$lib/gender/gender";
-  import type Species from "$lib/species/species";
-  import type NameGenerator from '@ironarachne/made-up-names/dist/generator';
+import * as CommonSpecies from "$lib/species/common";
+import * as RNG from "@ironarachne/rng";
+import * as Families from "$lib/characters/family/families.js";
+import * as Names from "$lib/names";
+import type Gender from "$lib/gender/gender";
+import type Species from "$lib/species/species";
+import type { NameGenerator } from "@ironarachne/made-up-names";
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  let availableSpecies = CommonSpecies.sentient();
-  let selectedSpecies = $state("any");
-  let species = CommonSpecies.randomWeighted(availableSpecies);
-  let iterations = $state(2);
-  const generatorSets = MUN.allSets();
-  let nameGeneratorSet;
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
+let availableSpecies = CommonSpecies.sentient();
+let selectedSpecies = $state("any");
+let species = CommonSpecies.randomWeighted(availableSpecies);
+let iterations: number = $state(2);
+let nameGeneratorSet;
+
+try {
+  nameGeneratorSet = Names.getFantasyNameGeneratorSet(species.name, rng);
+} catch (e) {
+  console.debug(e);
+  nameGeneratorSet = Names.getFantasyNameGeneratorSet("human", rng);
+}
+
+let familyNameGen: NameGenerator = nameGeneratorSet.family;
+let femaleNameGen: NameGenerator = nameGeneratorSet.female;
+let maleNameGen: NameGenerator = nameGeneratorSet.male;
+let lastNameTradition = $state("male");
+let config = Families.getDefaultConfig();
+config.species = species;
+config.iterations = iterations;
+config.rootFamilyNameGenerator = familyNameGen;
+config.rootFemaleNameGenerator = femaleNameGen;
+config.rootMaleNameGenerator = maleNameGen;
+config.dominantFamilyNameGender = getDominantGender();
+
+let family = $state(Families.generate(config));
+
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
+  }
+  rng.setSeed(seed);
+  species = getSpecies(selectedSpecies);
 
   try {
-    nameGeneratorSet = MUN.getSetByName(species.name, generatorSets);
+    nameGeneratorSet = Names.getFantasyNameGeneratorSet(species.name, rng);
   } catch (e) {
     console.debug(e);
-    nameGeneratorSet = MUN.getSetByName("fantasy", generatorSets);
+    nameGeneratorSet = Names.getFantasyNameGeneratorSet("human", rng);
   }
 
-  let familyNameGen: NameGenerator = nameGeneratorSet.family;
-  let femaleNameGen: NameGenerator = nameGeneratorSet.female;
-  let maleNameGen: NameGenerator = nameGeneratorSet.male;
-  let lastNameTradition = $state("male");
-  let config = Families.getDefaultConfig();
+  familyNameGen = nameGeneratorSet.family;
+  femaleNameGen = nameGeneratorSet.female;
+  maleNameGen = nameGeneratorSet.male;
   config.species = species;
   config.iterations = iterations;
   config.rootFamilyNameGenerator = familyNameGen;
@@ -37,58 +61,32 @@
   config.rootMaleNameGenerator = maleNameGen;
   config.dominantFamilyNameGender = getDominantGender();
 
-  let family = $state(Families.generate(config));
+  family = Families.generate(config);
+}
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
+function getDominantGender(): Gender {
+  for (let i = 0; i < species.genders.length; i++) {
+    if (species.genders[i].name === lastNameTradition) {
+      return species.genders[i];
     }
-    random.use(seedrandom(seed));
-    species = getSpecies(selectedSpecies);
-
-    try {
-      nameGeneratorSet = MUN.getSetByName(species.name, generatorSets);
-    } catch (e) {
-      console.debug(e);
-      nameGeneratorSet = MUN.getSetByName("fantasy", generatorSets);
-    }
-
-    familyNameGen = nameGeneratorSet.family;
-    femaleNameGen = nameGeneratorSet.female;
-    maleNameGen = nameGeneratorSet.male;
-    config.species = species;
-    config.iterations = iterations;
-    config.rootFamilyNameGenerator = familyNameGen;
-    config.rootFemaleNameGenerator = femaleNameGen;
-    config.rootMaleNameGenerator = maleNameGen;
-    config.dominantFamilyNameGender = getDominantGender();
-
-    family = Families.generate(config);
   }
 
-  function getDominantGender(): Gender {
-    for (let i=0;i<species.genders.length;i++) {
-      if (species.genders[i].name == lastNameTradition) {
-        return species.genders[i];
-      }
-    }
+  throw new Error("Dominant gender not set");
+}
 
-    throw new Error("Dominant gender not set");
+function getSpecies(name: string): Species {
+  if (name === "any") {
+    return CommonSpecies.randomWeighted(availableSpecies);
   }
 
-  function getSpecies(name: string): Species {
-    if (name === "any") {
-      return CommonSpecies.randomWeighted(availableSpecies);
+  for (let i = 0; i < availableSpecies.length; i++) {
+    if (availableSpecies[i].name === name) {
+      return availableSpecies[i];
     }
-
-    for (let i=0;i<availableSpecies.length;i++) {
-      if (availableSpecies[i].name === name) {
-        return availableSpecies[i];
-      }
-    }
-
-    throw new Error("Species not found");
   }
+
+  throw new Error("Species not found");
+}
 </script>
 
 <style lang="scss">

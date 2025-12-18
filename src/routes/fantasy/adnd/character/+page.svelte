@@ -1,38 +1,37 @@
 <script lang="ts">
-  import * as RND from "@ironarachne/rng";
-  import * as Currency from '$lib/currency/currency';
+import * as RNG from "@ironarachne/rng";
+import * as Currency from "$lib/currency/currency";
+import ADNDCharacterGenerator from "$lib/adnd/adndcharactergenerator";
+import ADNDCharacterGeneratorConfig from "$lib/adnd/adndcharactergeneratorconfig";
+import * as Words from "@ironarachne/words";
+import type ADNDCharacter from "$lib/adnd/adndcharacter";
 
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import ADNDCharacterGenerator from "$lib/adnd/adndcharactergenerator";
-  import ADNDCharacterGeneratorConfig from "$lib/adnd/adndcharactergeneratorconfig";
-  import * as Words from '@ironarachne/words';
-  import type ADNDCharacter from "$lib/adnd/adndcharacter";
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
+rng.setSeed(seed);
+let genConfig;
+let charGen;
+let character: ADNDCharacter = $state();
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  let genConfig;
-  let charGen;
-  let character: ADNDCharacter = $state();
-
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-
-    genConfig = new ADNDCharacterGeneratorConfig();
-    charGen = new ADNDCharacterGenerator();
-    charGen.config = genConfig;
-    character = charGen.generateCharacter();
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
   }
+  rng.setSeed(seed);
 
-  function getEStrength(exStr: number) {
-    const estr = String(exStr).padStart(2, '0');
-    return estr.substring(estr.length - 2);
-  }
+  genConfig = new ADNDCharacterGeneratorConfig();
+  genConfig.rng = rng;
+  charGen = new ADNDCharacterGenerator(genConfig);
+  character = charGen.generateCharacter();
+}
 
-  generate();
+function getEStrength(exStr: number) {
+  const estr = String(exStr).padStart(2, "0");
+  return estr.substring(estr.length - 2);
+}
+
+generate();
 </script>
 
 <svelte:head>

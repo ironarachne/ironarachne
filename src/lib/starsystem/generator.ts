@@ -1,7 +1,7 @@
 import * as Planets from "$lib/planets/planets";
 import * as Words from "@ironarachne/words";
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
+
 import PlanetGeneratorConfig from "$lib/planets/planet_generator_config";
 import StarGenerator from "$lib/stars/generator";
 import StarGeneratorConfig from "$lib/stars/generatorconfig";
@@ -34,7 +34,7 @@ export default class StarSystemGenerator {
 
     // TODO: binary and trinary systems
 
-    const numberOfPlanets = random.int(
+    const numberOfPlanets = RNG.int(
       this.config.minPlanets,
       this.config.maxPlanets,
     );
@@ -66,7 +66,7 @@ export default class StarSystemGenerator {
 
     starsystem.description = `The ${starsystem.name} system has ${numberOfPlanets} planets`;
 
-    const asteroidBeltChance = RND.simple(100);
+    const asteroidBeltChance = RNG.simple(100);
 
     if (asteroidBeltChance > 70) {
       starsystem.description += " and an asteroid belt.";

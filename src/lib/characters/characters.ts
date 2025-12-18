@@ -4,10 +4,8 @@ import type Gender from "$lib/gender/gender.js";
 import * as Measurements from "$lib/measurements";
 import * as SizeMatrix from "$lib/size/size_matrix.js";
 import * as CommonSpecies from "$lib/species/common";
-import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
 import type Character from "./character";
 import type CharacterGeneratorConfig from "./character_generator_config";
 import * as PersonalityTraits from "./personality/all_traits";
@@ -16,6 +14,8 @@ import type PersonalityGeneratorConfig from "./personality/personality_generator
 import type PersonalityTrait from "./personality/personality_trait";
 import type Title from "./titles/title";
 import * as Titles from "./titles/titles";
+import { getFantasyNameGeneratorSet, type NameGeneratorSet } from "$lib/names";
+import { getGenderFromSet } from "$lib/gender/genders";
 
 export function describe(character: Character): string {
   let description = "";
@@ -31,7 +31,7 @@ export function describe(character: Character): string {
   const spPhrase = `${character.species.adjective} ${genderNoun}`;
   const traits = Words.arrayToPhrase(describeTraits(character));
 
-  description = RND.item([
+  description = RNG.item([
     `${character.firstName} ${character.lastName} is a ${height} tall ${spPhrase}. ${ucSbj} is ${character.age} years old. ${character.firstName} has ${traits}. `,
     `${character.firstName} is ${Words.article(
       spPhrase,
@@ -70,10 +70,9 @@ export function generate(config: CharacterGeneratorConfig): Character {
     throw new Error("No species options provided.");
   }
 
-  const species = RND.weighted(config.speciesOptions);
-  const genderName = RND.item(config.genderNameOptions);
-
-  const gender = species.genders.find((g: Gender) => g.name === genderName);
+  const species = config.rng.weighted(config.speciesOptions);
+  const genderName = config.rng.item(config.genderNameOptions);
+  const gender = getGenderFromSet(genderName, species.genders);
 
   const ageCategory = AgeCategories.randomWeighted(
     config.ageCategoryNames,
@@ -85,16 +84,16 @@ export function generate(config: CharacterGeneratorConfig): Character {
   let maleNameGenerator = config.maleNameGenerator;
 
   if (config.useAdaptiveNames) {
-    let speciesNameGenerator;
+    let speciesNameGeneratorSet: NameGeneratorSet;
     try {
-      speciesNameGenerator = MUN.getSetByName(species.name, MUN.allSets());
+      speciesNameGeneratorSet = getFantasyNameGeneratorSet(species.name, config.rng);
     } catch (e) {
-      speciesNameGenerator = MUN.getSetByName("fantasy", MUN.allSets());
+      speciesNameGeneratorSet = getFantasyNameGeneratorSet("human", config.rng);
     }
 
-    familyNameGenerator = speciesNameGenerator.family;
-    femaleNameGenerator = speciesNameGenerator.female;
-    maleNameGenerator = speciesNameGenerator.male;
+    familyNameGenerator = speciesNameGeneratorSet.family;
+    femaleNameGenerator = speciesNameGeneratorSet.female;
+    maleNameGenerator = speciesNameGeneratorSet.male;
   }
 
   let firstNames = [];
@@ -106,31 +105,31 @@ export function generate(config: CharacterGeneratorConfig): Character {
     firstNames = maleNameGenerator.generate(30);
   }
 
-  const age = random.int(ageCategory.minAge, ageCategory.maxAge);
+  const age = config.rng.int(ageCategory.minAge, ageCategory.maxAge);
 
   const sizeGeneratorConfig = SizeMatrix.getSizeConfig(
     gender.name,
     ageCategory.name,
     species.sizeGeneratorConfigMatrix,
   );
-  const height = random.int(
+  const height = config.rng.int(
     sizeGeneratorConfig.minHeight,
     sizeGeneratorConfig.maxHeight,
   );
-  const weight = random.int(
+  const weight = config.rng.int(
     sizeGeneratorConfig.minWeight,
     sizeGeneratorConfig.maxWeight,
   );
 
-  const personalityTraits = getRandomPersonality();
+  const personalityTraits = getRandomPersonality(config.rng);
   let physicalTraits = CommonSpecies.randomTraits(species);
 
   if (config.physicalTraitOverrides.length > 0) {
     physicalTraits = config.physicalTraitOverrides;
   }
 
-  const firstName = RND.item(firstNames);
-  const lastName = RND.item(lastNames);
+  const firstName = config.rng.item(firstNames);
+  const lastName = config.rng.item(lastNames);
   const name = `${firstName} ${lastName}`;
   const titles: Title[] = [];
   const abilities = species.abilities;
@@ -171,7 +170,8 @@ export function generate(config: CharacterGeneratorConfig): Character {
 }
 
 export function getDefaultCharacterGeneratorConfig(): CharacterGeneratorConfig {
-  const nameSet = MUN.getSetByName("fantasy", MUN.allSets());
+  const rng = new RNG.RNG(Date.now());
+  const nameSet = getFantasyNameGeneratorSet("human", rng);
 
   return {
     speciesOptions: [],
@@ -182,6 +182,7 @@ export function getDefaultCharacterGeneratorConfig(): CharacterGeneratorConfig {
     genderNameOptions: ["female", "male"],
     useAdaptiveNames: false,
     physicalTraitOverrides: [],
+    rng: rng,
   };
 }
 
@@ -210,9 +211,9 @@ export function getPrimaryTitle(character: Character): Title | null {
   return primaryTitle;
 }
 
-export function getRandomPersonality(): PersonalityTrait[] {
-  const numberOfPositiveTraits = random.int(1, 2);
-  const numberOfNegativeTraits = random.int(0, 1);
+export function getRandomPersonality(rng: RNG.RNG): PersonalityTrait[] {
+  const numberOfPositiveTraits = rng.int(1, 2);
+  const numberOfNegativeTraits = rng.int(0, 1);
 
   const genConfig: PersonalityGeneratorConfig = {
     numberOfNegativeTraits,
@@ -223,8 +224,8 @@ export function getRandomPersonality(): PersonalityTrait[] {
   return Personality.generate(genConfig);
 }
 
-export function getRandomTrait(character: Character): string {
-  return RND.item(character.traits);
+export function getRandomTrait(character: Character, rng: RNG.RNG): string {
+  return rng.item(character.traits);
 }
 
 export function getTitle(character: Character): string {

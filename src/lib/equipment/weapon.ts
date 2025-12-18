@@ -1,5 +1,5 @@
 import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
+import type * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as Domains from "../religion/domains/domains.js";
 import * as Descriptor from "./descriptor.js";
@@ -46,38 +46,41 @@ export class WeaponEffect {
   }
 }
 
-export function generate(category: string, theme: string): Weapon {
-  if (theme == "any") {
+export function generate(category: string, theme: string, rng: RNG.RNG): Weapon {
+  let weaponTheme = theme;
+  let weaponCategory = category;
+
+  if (theme === "any") {
     const domains = Domains.getAllDomainNames();
-    theme = RND.item(domains);
+    weaponTheme = rng.item(domains);
   }
 
-  if (category == "any") {
+  if (category === "any") {
     const categories = getAllWeaponCategories();
-    category = RND.item(categories);
+    weaponCategory = rng.item(categories);
   }
 
   const all = getAllDescriptors();
 
-  const types: WeaponType[] = getWeaponTypesOfCategory(category);
+  const types: WeaponType[] = getWeaponTypesOfCategory(weaponCategory);
 
-  const weaponType: WeaponType = RND.item(types);
+  const weaponType: WeaponType = rng.item(types);
 
-  const materialSet = Material.getRandomMaterialSetForCategory(category);
-  const bodyMaterial = Material.getRandomMaterialForCategory(materialSet.body);
-  const headMaterial = Material.getRandomMaterialForCategory(materialSet.head);
-  const ornamentationMaterial = Material.getRandomMaterialForCategory(
-    materialSet.ornamentation,
+  const materialSet = rng.item(Material.getMaterialSetsForCategory(weaponCategory));
+  const bodyMaterial = rng.item(Material.getMaterialsForCategory(materialSet.body));
+  const headMaterial = rng.item(Material.getMaterialsForCategory(materialSet.head));
+  const ornamentationMaterial = rng.item(
+    Material.getMaterialsForCategory(materialSet.ornamentation),
   );
 
-  let descriptors = Descriptor.getDescriptorsMatchingType(all, category);
+  let descriptors = Descriptor.getDescriptorsMatchingType(all, weaponCategory);
 
-  descriptors = Descriptor.getDescriptorsMatchingTag(descriptors, theme);
+  descriptors = Descriptor.getDescriptorsMatchingTag(descriptors, weaponTheme);
 
-  const effects = getAllEffectsForTheme(theme);
-  const effect = RND.item(effects);
+  const effects = getAllEffectsForTheme(weaponTheme);
+  const effect = rng.item(effects);
 
-  const descriptor = RND.item(descriptors);
+  const descriptor = rng.item(descriptors);
   let descriptorDescription = descriptor.description.replace(
     "{head}",
     headMaterial.name,
@@ -87,7 +90,7 @@ export function generate(category: string, theme: string): Weapon {
     ornamentationMaterial.name,
   );
 
-  const name = MUN.magicItem();
+  const name = MUN.getMagicItemNameGenerator(rng).generate(1)[0];
 
   let description =
     Words.article(bodyMaterial.name) +
@@ -109,14 +112,14 @@ export function checkForMissingMatches(): string {
 
   for (let i = 0; i < allDomains.length; i++) {
     const countEffects = getAllEffectsForTheme(allDomains[i]);
-    if (countEffects.length == 0) {
+    if (countEffects.length === 0) {
       domainsMissingEffects.push(allDomains[i]);
     }
     const countDescriptors = Descriptor.getDescriptorsMatchingTag(
       descriptors,
       allDomains[i],
     );
-    if (countDescriptors.length == 0) {
+    if (countDescriptors.length === 0) {
       domainsMissingDescriptors.push(allDomains[i]);
     }
     for (let j = 0; j < allWeaponCategories.length; j++) {
@@ -128,7 +131,7 @@ export function checkForMissingMatches(): string {
         weaponDescriptors,
         allDomains[i],
       );
-      if (domainWeaponDescriptors.length == 0) {
+      if (domainWeaponDescriptors.length === 0) {
         domainsMissingWeaponDescriptors.push(
           allDomains[i] + " for " + allWeaponCategories[j],
         );
@@ -137,7 +140,7 @@ export function checkForMissingMatches(): string {
   }
 
   let theList =
-    "Domains missing effects: " + Words.arrayToPhrase(domainsMissingEffects);
+    `Domains missing effects: ${Words.arrayToPhrase(domainsMissingEffects)}`;
   theList +=
     "; and domains missing descriptors: " +
     Words.arrayToPhrase(domainsMissingDescriptors);
@@ -627,7 +630,7 @@ function getWeaponTypesOfCategory(category: string): WeaponType[] {
   const result = [];
 
   for (let i = 0; i < all.length; i++) {
-    if (all[i].category == category) {
+    if (all[i].category === category) {
       result.push(all[i]);
     }
   }

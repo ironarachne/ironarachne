@@ -1,28 +1,30 @@
 <script lang="ts">
-  import * as Domains from "$lib/religion/domains/domains";
-  import * as Weapon from "$lib/equipment/weapon";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+import * as Domains from "$lib/religion/domains/domains";
+import * as Weapon from "$lib/equipment/weapon";
+import * as RNG from "@ironarachne/rng";
 
-  const themes = Domains.getAllDomainNames().sort();
-  const categories = Weapon.getAllWeaponCategories().sort();
-  let category = $state("any");
-  let theme = $state("any");
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  let weapon = $state(Weapon.generate(category, theme));
+const themes = Domains.getAllDomainNames().sort();
+const categories = Weapon.getAllWeaponCategories().sort();
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    weapon = Weapon.generate(category, theme);
-    weapon.description = `${weapon.name} is ${weapon.description}`;
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+rng.setSeed(seed);
+let lockSeed = $state(false);
+
+let category = $state("any");
+let theme = $state("any");
+let weapon = $state(Weapon.generate(category, theme, rng));
+
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
   }
+  rng.setSeed(seed);
+  weapon = Weapon.generate(category, theme, rng);
+  weapon.description = `${weapon.name} is ${weapon.description}`;
+}
 
-  generate();
+generate();
 </script>
 
 <style lang="scss">

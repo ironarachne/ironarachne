@@ -1,23 +1,20 @@
 <script lang="ts">
-  import * as SpookyShip from "$lib/spookyship";
-  import * as RND from "@ironarachne/rng";
+import * as SpookyShip from "$lib/spookyship";
+import * as RNG from "@ironarachne/rng";
 
-  import random from "random";
-  import seedrandom from "seedrandom";
+let description = $state("");
+let seed = $state(RNG.randomString(13));
+let lockSeed = $state(false);
 
-  let description = $state("");
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    description = SpookyShip.generate();
+function generate() {
+  if (!lockSeed) {
+    seed = RNG.randomString(13);
   }
+  RNG.setSeed(seed);
+  description = SpookyShip.generate();
+}
 
-  generate();
+generate();
 </script>
 
 <style lang="scss">

@@ -1,87 +1,111 @@
 <script lang="ts">
-  import * as RND from '@ironarachne/rng';
-  import { getPlanetClassifications, searchPlanetClassificationByName } from '$lib/astronomical_bodies/planet/planet_classifications';
-  import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
-  import random from 'random';
-  import seedrandom from 'seedrandom';
-  import { convertAUToKM, type AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-  import * as Measurements from '$lib/measurements';
-  import { formatNumber } from '$lib/formatting';
+import * as RNG from "@ironarachne/rng";
+import {
+  getPlanetClassifications,
+  searchPlanetClassificationByName,
+} from "$lib/astronomical_bodies/planet/planet_classifications";
+import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
+import {
+  convertAUToKM,
+  type AstronomicalBody,
+} from "$lib/astronomical_bodies/astronomical_bodies";
+import * as Measurements from "$lib/measurements";
+import { formatNumber } from "$lib/formatting";
 
-  import { onMount } from 'svelte';
-  import { generatePlanet, getDefaultPlanetGenerationConfig } from '$lib/astronomical_bodies/planet/planets';
-  import { generateCivilization, getDefaultCivilizationGenerationConfig, getFriendlyPopulation } from '$lib/civilizations/civilizations';
-  import { getTechnologyLevelByLevel } from '$lib/technology_levels/technology_levels';
-  import { generateMoon, getDefaultMoonGenerationConfig, getNumberOfMoonsForParent } from '$lib/astronomical_bodies/moon/moons';
+import { onMount } from "svelte";
+import {
+  generatePlanet,
+  getDefaultPlanetGenerationConfig,
+} from "$lib/astronomical_bodies/planet/planets";
+import {
+  generateCivilization,
+  getDefaultCivilizationGenerationConfig,
+  getFriendlyPopulation,
+} from "$lib/civilizations/civilizations";
+import { getTechnologyLevelByLevel } from "$lib/technology_levels/technology_levels";
+import {
+  generateMoon,
+  getDefaultMoonGenerationConfig,
+  getNumberOfMoonsForParent,
+} from "$lib/astronomical_bodies/moon/moons";
+import { browser } from '$app/environment';
 
-  const planetTypes = getPlanetClassifications();
+const planetTypes = getPlanetClassifications();
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  random.use(seedrandom(seed));
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
+rng.setSeed(seed);
 
-  let planetType = $state('random');
-  let planetGenConfig = getDefaultPlanetGenerationConfig();
-  let planet: AstronomicalBody | undefined = $state();
+let planetType = $state("random");
+let planetGenConfig = getDefaultPlanetGenerationConfig();
+planetGenConfig.rng = rng;
+let planet: AstronomicalBody | undefined = $state();
 
-  let moonGenConfig = getDefaultMoonGenerationConfig();
-  let moons: AstronomicalBody[] = $state([]);
+let moonGenConfig = getDefaultMoonGenerationConfig();
+moonGenConfig.rng = rng;
+let moons: AstronomicalBody[] = $state([]);
 
-  let is_inhabited = $state(false);
+let is_inhabited = $state(false);
 
-  let civilization_config = getDefaultCivilizationGenerationConfig();
-  civilization_config.population_range = [100000, 1000000000];
-  let civilization = $state(generateCivilization(civilization_config));
+let civilization_config = getDefaultCivilizationGenerationConfig();
+civilization_config.rng = rng;
+civilization_config.population_range = [100000, 1000000000];
+let civilization = $state(generateCivilization(civilization_config));
 
-  const width = 400;
-  const height = 400;
+const width = 400;
+const height = 400;
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
+  }
+  rng.setSeed(seed);
 
-    if (planetType === 'random') {
-      planetGenConfig.possible_classifications = planetTypes;
-    } else {
-      const classification = searchPlanetClassificationByName(planetType, planetTypes);
-      if (classification !== undefined) {
-        planetGenConfig.possible_classifications = [
-        classification,
-      ];
-      }
-    }
-
-    planet = generatePlanet(planetGenConfig);
-
-    is_inhabited = RND.simple(100) < 30;
-
-    if (is_inhabited) {
-      civilization_config = getDefaultCivilizationGenerationConfig();
-      civilization_config.population_range = [100000, 1000000000];
-      civilization = generateCivilization(civilization_config);
-    }
-
-    moons = [];
-    const moonChance = RND.simple(100);
-    const moonCount = moonChance > 50 ? getNumberOfMoonsForParent(planet) : 0;
-
-    for (let i = 0; i < moonCount; i++) {
-      moonGenConfig = getDefaultMoonGenerationConfig();
-      moonGenConfig.parent_mass = planet.mass;
-      moonGenConfig.parent_radius = planet.radius;
-      moonGenConfig.parent_orbital_distance = planet.orbital_distance;
-
-      const moon = generateMoon(moonGenConfig);
-      moons.push(moon);
+  if (planetType === "random") {
+    planetGenConfig.possible_classifications = planetTypes;
+  } else {
+    const classification = searchPlanetClassificationByName(
+      planetType,
+      planetTypes,
+    );
+    if (classification !== undefined) {
+      planetGenConfig.possible_classifications = [classification];
     }
   }
 
-  onMount(() => {
-    planetGenConfig = getDefaultPlanetGenerationConfig();
-		planet = generatePlanet(planetGenConfig);
-	});
+  planet = generatePlanet(planetGenConfig);
+
+  is_inhabited = rng.int(1, 100) < 30;
+
+  if (is_inhabited) {
+    civilization_config = getDefaultCivilizationGenerationConfig();
+    civilization_config.rng = rng;
+    civilization_config.population_range = [100000, 1000000000];
+    civilization = generateCivilization(civilization_config);
+  }
+
+  moons = [];
+  const moonChance = rng.int(1, 100);
+  const moonCount = moonChance > 50 ? getNumberOfMoonsForParent(planet, rng) : 0;
+
+  for (let i = 0; i < moonCount; i++) {
+    moonGenConfig = getDefaultMoonGenerationConfig();
+    moonGenConfig.rng = rng;
+    moonGenConfig.parent_mass = planet.mass;
+    moonGenConfig.parent_radius = planet.radius;
+    moonGenConfig.parent_orbital_distance = planet.orbital_distance;
+
+    const moon = generateMoon(moonGenConfig);
+    moons.push(moon);
+  }
+}
+
+onMount(() => {
+  planetGenConfig = getDefaultPlanetGenerationConfig();
+  planetGenConfig.rng = rng;
+  planet = generatePlanet(planetGenConfig);
+});
 </script>
 
 <svelte:head>
@@ -114,7 +138,9 @@
   {#if planet}
     <h2>{planet.name}</h2>
 
-    <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(planet, width, height) }" />
+    {#if browser}
+    <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(document, planet, width, height, rng) }" />
+    {/if}
 
     <p>{planet.description}</p>
 

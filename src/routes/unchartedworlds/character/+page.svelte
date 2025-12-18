@@ -1,34 +1,33 @@
 <script lang="ts">
-  import * as CharGen from "$lib/unchartedworlds/character";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+import * as CharGen from "$lib/unchartedworlds/character";
+import * as RNG from "@ironarachne/rng";
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  random.use(seedrandom(seed));
-  let character = $state(CharGen.generate());
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
+rng.setSeed(seed);
+let character = $state(CharGen.generate(rng));
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    character = CharGen.generate();
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
   }
+  rng.setSeed(seed);
+  character = CharGen.generate(rng);
+}
 
-  function save() {
-    let description = CharGen.formatAsText(character);
+function save() {
+  let description = CharGen.formatAsText(character);
 
-    const blob = new Blob([description], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "uw-character.txt";
-    link.click();
-    URL.revokeObjectURL(link.href);
-  }
+  const blob = new Blob([description], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = window.URL.createObjectURL(blob);
+  link.download = "uw-character.txt";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
 
-  generate();
+generate();
 </script>
 
 <style lang="scss">

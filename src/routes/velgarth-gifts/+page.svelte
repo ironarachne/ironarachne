@@ -1,30 +1,29 @@
 <script lang="ts">
-  import type GiftGeneratorConfig from "$lib/velgarth_gifts/generator_config";
-  import * as VelgarthGifts from "$lib/velgarth_gifts/gifts";
-  import * as VelgarthGiftPossibilities from "$lib/velgarth_gifts/gift_possibilities";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import type Gift from "$lib/velgarth_gifts/gift";
+import type GiftGeneratorConfig from "$lib/velgarth_gifts/generator_config";
+import * as VelgarthGifts from "$lib/velgarth_gifts/gifts";
+import * as VelgarthGiftPossibilities from "$lib/velgarth_gifts/gift_possibilities";
+import * as RNG from "@ironarachne/rng";
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  let gifts: Gift[] = $state([]);
+import type Gift from "$lib/velgarth_gifts/gift";
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    const config: GiftGeneratorConfig = {
-      possibilities: VelgarthGiftPossibilities.all(),
-      max_gifts: 3,
-      min_gifts: 1
-    };
-    gifts = VelgarthGifts.generate(config);
+let seed = $state(RNG.randomString(13));
+let lockSeed = $state(false);
+let gifts: Gift[] = $state([]);
+
+function generate() {
+  if (!lockSeed) {
+    seed = RNG.randomString(13);
   }
+  RNG.setSeed(seed);
+  const config: GiftGeneratorConfig = {
+    possibilities: VelgarthGiftPossibilities.all(),
+    max_gifts: 3,
+    min_gifts: 1,
+  };
+  gifts = VelgarthGifts.generate(config);
+}
 
-  generate();
+generate();
 </script>
 
 <style lang="scss">

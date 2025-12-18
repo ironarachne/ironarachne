@@ -1,6 +1,6 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import Armor from "../../armor/armor.js";
 import Component from "../../components/component.js";
 import * as Components from "../../components/components.js";
@@ -18,42 +18,42 @@ export default class LeatherArmorPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number): Armor {
-    let body = RND.item(
+    let body = RNG.item(
       Components.withCategory("hard leather", componentOptions),
     );
-    let trim = RND.item(
+    let trim = RNG.item(
       Components.withCategory("soft metal", componentOptions),
     );
 
     let value = this.baseValue + body.value * 1000 + trim.value;
 
-    let description = RND.item([
+    let description = RNG.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name} `,
     ]);
 
-    description += RND.item([
-      ` with ${trim.descriptor} ${RND.item([
+    description += RNG.item([
+      ` with ${trim.descriptor} ${RNG.item([
         "hardware",
         "fasteners",
         "banding",
         "studs",
         "rivets",
       ])}`,
-      ` fastened with ${trim.descriptor} ${RND.item(["buckles", "clasps"])}`,
+      ` fastened with ${trim.descriptor} ${RNG.item(["buckles", "clasps"])}`,
     ]);
 
-    if (quality > 1 && random.int(1, 100) >= 70) {
-      description += RND.item([
+    if (quality > 1 && RNG.int(1, 100) >= 70) {
+      description += RNG.item([
         `, with integrated sleeves`,
-        `, with ${RND.item(["embossed patterns", "a lacquered finish"])}`,
+        `, with ${RNG.item(["embossed patterns", "a lacquered finish"])}`,
       ]);
     }
 
     let name = `${body.descriptor} ${this.name}`;
     let tags = [name, this.name, "body armor", "armor"];
 
-    let armorClass = 11 + random.int(0, 1);
+    let armorClass = 11 + RNG.int(0, 1);
 
     return new Armor(
       name,

@@ -1,50 +1,51 @@
 <script lang="ts">
-  import * as RND from "@ironarachne/rng";
-  import * as MUN from "@ironarachne/made-up-names";
-  import { getContext } from 'svelte';
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import type UserData from "$lib/user_data";
-  import CultureGeneratorConfig from "$lib/culture/generatorconfig";
-  import CultureGenerator from "$lib/culture/generator";
+import * as RNG from "@ironarachne/rng";
+import { getContext } from "svelte";
+import type UserData from "$lib/user_data";
+import CultureGeneratorConfig from "$lib/culture/generatorconfig";
+import CultureGenerator from "$lib/culture/generator";
+import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from "$lib/names";
 
-  const user: UserData = $state(getContext('user'));
+const user: UserData = $state(getContext("user"));
+const allNameSets = getAllFantasyNameGeneratorSets();
+const rng = new RNG.RNG(Date.now());
 
-  if (user.savedCultures === undefined) {
-    user.savedCultures = [];
+if (user.savedCultures === undefined) {
+  user.savedCultures = [];
+}
+
+let savedCulture: string | undefined = $state();
+
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
+rng.setSeed(seed);
+const genConfig = new CultureGeneratorConfig();
+let genSet: NameGeneratorSet = rng.item(allNameSets);
+genConfig.nameGeneratorSet = genSet;
+const generator = new CultureGenerator(genConfig);
+let culture = $state(generator.generate());
+
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
   }
+  rng.setSeed(seed);
+  genSet = rng.item(allNameSets);
+  genConfig.nameGeneratorSet = genSet;
+  culture = generator.generate();
+}
 
-  let savedCulture: string | undefined = $state();
-
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  const genConfig = new CultureGeneratorConfig();
-  let genSet: MUN.GeneratorSet = RND.item(MUN.cultureSets());
-  genConfig.generatorSet = genSet;
-  const generator = new CultureGenerator(genConfig);
-  let culture = $state(generator.generate());
-
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
+function loadSavedCulture() {
+  for (let i = 0; i < user.savedCultures.length; i++) {
+    if (user.savedCultures[i].name === savedCulture) {
+      culture = user.savedCultures[i];
     }
-    random.use(seedrandom(seed));
-    genSet = RND.item(MUN.cultureSets());
-    generator.config.generatorSet = genSet;
-    culture = generator.generate();
   }
+}
 
-  function loadSavedCulture() {
-    for (let i = 0; i < user.savedCultures.length; i++) {
-      if (user.savedCultures[i].name === savedCulture) {
-        culture = user.savedCultures[i];
-      }
-    }
-  }
-
-  function saveCulture() {
-    user.savedCultures.push(culture);
-  }
+function saveCulture() {
+  user.savedCultures.push(culture);
+}
 </script>
 
 <svelte:head>

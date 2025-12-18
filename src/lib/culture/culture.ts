@@ -1,13 +1,15 @@
 import * as MUN from "@ironarachne/made-up-names";
-import type MusicStyle from "../music/style.js";
+import type { MusicStyle } from "../music/music_styles";
 import type Religion from "../religion/religion.js";
 import type { Organization } from "./organization.js";
+import { getFantasyNameGeneratorSet, type NameGeneratorSet } from "$lib/names";
+import * as RNG from "@ironarachne/rng";
 
 // Culture is understood as the patterns, rules, and meanings of social interaction; these are the foundation of all social order.
 export default class Culture {
   name: string;
   organization: Organization;
-  generatorSet: MUN.GeneratorSet;
+  nameGenerators: NameGeneratorSet;
   countryNames: string[];
   familyNames: string[];
   femaleNames: string[];
@@ -32,7 +34,7 @@ export default class Culture {
   ) {
     this.name = name;
     this.organization = organization;
-    this.generatorSet = MUN.getSetByName("fantasy", MUN.cultureSets());
+    this.nameGenerators = getFantasyNameGeneratorSet("human", new RNG.RNG(Date.now()));
     this.countryNames = [];
     this.maleNames = [];
     this.femaleNames = [];

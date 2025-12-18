@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import ItemGenerator from "./itemgenerator.js";
 import ItemGeneratorConfig from "./itemgeneratorconfig.js";
 import * as Patterns from "./patterns/patterns.js";
@@ -47,5 +47,5 @@ export function getItemGeneratorByTag(
 ): ItemGenerator {
   let patternOptions = Patterns.forCategory(tag);
 
-  return getItemGenerator(RND.item(patternOptions).name, quality);
+  return getItemGenerator(RNG.item(patternOptions).name, quality);
 }

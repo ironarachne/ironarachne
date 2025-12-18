@@ -2,31 +2,34 @@ import type Character from "$lib/characters/character.js";
 import type CharacterGeneratorConfig from "$lib/characters/character_generator_config.js";
 import * as Characters from "$lib/characters/characters.js";
 import * as Charges from "$lib/heraldry/charges/index.js";
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig.js";
-import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from "$lib/heraldry/generatorconfig.js";
+import * as Names from "$lib/names";
+import type * as RNG from "@ironarachne/rng";
 import type OrganizationRank from "../organization_rank.js";
 import type OrganizationType from "../organization_type.js";
 
-export function generateType(): OrganizationType {
+export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
-    chargeCount: RND.item([0, 1]),
+    chargeCount: rng.item([0, 1]),
     chargeOptions: Charges.matchingAnyTags(
       ["coin", "money", "trade"],
       Charges.all(),
     ),
   });
 
-  const nameGenerator = (): string => {
+  const nameGenerator = (rng: RNG.RNG): string => {
     const nameTypes = [
       {
         name: "generic",
         randomName: () => {
           const prefixes = ["Dynasty", "Gilded", "Luxury"];
 
-          const prefix = RND.item(prefixes);
+          const prefix = rng.item(prefixes);
 
-          const suffix = RND.item([
+          const suffix = rng.item([
             "Trading Company",
             "Traders",
             "Navigation Company",
@@ -39,11 +42,11 @@ export function generateType(): OrganizationType {
       },
       {
         name: "geographic",
-        randomName: () => {
-          const direction = RND.item(["North", "West", "South", "East"]);
-          const feature = RND.item(["Wind", "Sea", "Mountain", "Ocean"]);
+        randomName: (rng: RNG.RNG) => {
+          const direction = rng.item(["North", "West", "South", "East"]);
+          const feature = rng.item(["Wind", "Sea", "Mountain", "Ocean"]);
 
-          const suffix = RND.item([
+          const suffix = rng.item([
             "Trading Company",
             "Traders",
             "Navigation Company",
@@ -56,16 +59,16 @@ export function generateType(): OrganizationType {
       },
       {
         name: "family",
-        randomName: () => {
-          const nameGeneratorSet = MUN.getSetByName("fantasy", MUN.allSets());
+        randomName: (rng: RNG.RNG) => {
+          const nameGeneratorSet = Names.getFantasyNameGeneratorSet("human", rng);
           if (nameGeneratorSet.family === null) {
             throw new Error("Family name generator not found.");
           }
           const familyNames = nameGeneratorSet.family.generate(100);
 
-          const familyName = RND.item(familyNames);
+          const familyName = rng.item(familyNames);
 
-          const moniker = RND.item([
+          const moniker = rng.item([
             " Brothers",
             " & Sons",
             " & Son",
@@ -73,7 +76,7 @@ export function generateType(): OrganizationType {
             "",
           ]);
 
-          const suffix = RND.item([
+          const suffix = rng.item([
             "Trading Company",
             "Traders",
             "Navigation Company",
@@ -86,13 +89,13 @@ export function generateType(): OrganizationType {
       },
     ];
 
-    const namer = RND.item(nameTypes);
+    const namer = rng.item(nameTypes);
 
-    return namer.randomName();
+    return namer.randomName(rng);
   };
 
-  const descriptionGenerator = (): string => {
-    return RND.item([
+  const descriptionGenerator = (rng: RNG.RNG): string => {
+    return rng.item([
       "The {name} is noted for the quality of their goods.",
       "The {name} has a reputation for always delivering goods to their intended destination.",
       "The {name} appears to be reputable on the surface, but are rumored to be involved in many underhanded dealings.",

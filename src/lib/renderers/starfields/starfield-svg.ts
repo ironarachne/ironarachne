@@ -1,5 +1,3 @@
-import random from "random";
-
 export default class SVGStarfieldRenderer {
   width: number;
   height: number;
@@ -31,8 +29,8 @@ export default class SVGStarfieldRenderer {
     const numberOfStars = Math.floor(this.width * this.height * 0.005);
 
     for (let i = 0; i < numberOfStars; i++) {
-      const x = random.int(0, this.width);
-      const y = random.int(0, this.height);
+      const x = RNG.int(0, this.width);
+      const y = RNG.int(0, this.height);
 
       svg +=
         '<rect x="' +
@@ -51,7 +49,7 @@ export default class SVGStarfieldRenderer {
 }
 
 function randomStarColor() {
-  const colorBase = random.int(80, 180);
+  const colorBase = RNG.int(80, 180);
 
   let r = colorBase;
   let g = colorBase;
@@ -59,21 +57,21 @@ function randomStarColor() {
 
   let tweaked = false;
 
-  const tweakBlueChance = random.int(1, 100);
+  const tweakBlueChance = RNG.int(1, 100);
   if (tweakBlueChance > 70 && tweaked === false) {
-    b += random.int(10, 20);
+    b += RNG.int(10, 20);
     tweaked = true;
   }
 
-  const tweakRedChance = random.int(1, 100);
+  const tweakRedChance = RNG.int(1, 100);
   if (tweakRedChance > 70 && tweaked == false) {
-    r += random.int(10, 20);
+    r += RNG.int(10, 20);
     tweaked = true;
   }
 
-  const tweakGreenChance = random.int(1, 100);
+  const tweakGreenChance = RNG.int(1, 100);
   if (tweakGreenChance > 70 && tweaked == false) {
-    g += random.int(10, 20);
+    g += RNG.int(10, 20);
     tweaked = true;
   }
 

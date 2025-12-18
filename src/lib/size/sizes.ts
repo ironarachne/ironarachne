@@ -1,15 +1,15 @@
 import * as Dice from "$lib/dice";
 import * as Measurements from "$lib/measurements";
-import random from "random";
+
 import type Size from "./size";
 import type SizeGeneratorConfig from "./size_generator_config";
 import type { SizeMatrix, SizeMatrixRow } from "./size_matrix";
 
 export function generate(config: SizeGeneratorConfig): Size {
-  const height = random.int(config.minHeight, config.maxHeight);
-  const weight = random.int(config.minWeight, config.maxWeight);
-  const length = random.int(config.minLength, config.maxLength);
-  const mass = random.int(config.minMass, config.maxMass);
+  const height = RNG.int(config.minHeight, config.maxHeight);
+  const weight = RNG.int(config.minWeight, config.maxWeight);
+  const length = RNG.int(config.minLength, config.maxLength);
+  const mass = RNG.int(config.minMass, config.maxMass);
 
   return {
     height,

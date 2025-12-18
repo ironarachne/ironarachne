@@ -1,24 +1,23 @@
 <script lang="ts">
-  import * as RND from "@ironarachne/rng";
-  import LanguageGeneratorConfig from "$lib/languages/generatorconfig";
-  import LanguageGenerator from "$lib/languages/generator";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import type Language from "$lib/languages/language";
-  let language: Language = $state();
-  let gen;
-  let config;
-  let seed = RND.randomString(13);
+import * as RNG from "@ironarachne/rng";
+import LanguageGeneratorConfig from "$lib/languages/generatorconfig";
+import LanguageGenerator from "$lib/languages/generator";
 
-  function generate() {
-    seed = RND.randomString(13);
-    random.use(seedrandom(seed));
-    config = new LanguageGeneratorConfig();
-    gen = new LanguageGenerator(config);
-    language = gen.generate();
-  }
+import type Language from "$lib/languages/language";
+let language: Language = $state();
+let gen;
+let config;
+let seed = RNG.randomString(13);
 
-  generate();
+function generate() {
+  seed = RNG.randomString(13);
+  RNG.setSeed(seed);
+  config = new LanguageGeneratorConfig();
+  gen = new LanguageGenerator(config);
+  language = gen.generate();
+}
+
+generate();
 </script>
 
 <style lang="scss">

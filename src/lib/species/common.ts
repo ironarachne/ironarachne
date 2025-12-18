@@ -4,7 +4,7 @@ import type PhysicalTrait from "$lib/physical_traits/physical_trait.js";
 import type PhysicalTraitGeneratorConfig from "$lib/physical_traits/physical_trait_generator_config.js";
 import * as PhysicalTraits from "$lib/physical_traits/physical_traits.js";
 import type { SizeMatrix } from "$lib/size/size_matrix.js";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import all from "./all.js";
 import * as Skeleton from "./modifiers/skeleton.js";
 import * as Vampire from "./modifiers/vampire.js";
@@ -315,7 +315,7 @@ export function randomTraits(species: Species): PhysicalTrait[] {
 export function randomUniqueSet(options: Species[], count: number): Species[] {
   let result: Species[] = [];
 
-  options = RND.shuffle(options);
+  options = RNG.shuffle(options);
 
   if (options.length >= count) {
     for (let i = 0; i < count; i++) {
@@ -332,7 +332,7 @@ export function randomUniqueSet(options: Species[], count: number): Species[] {
 }
 
 export function randomWeighted(options: Species[]): Species {
-  return RND.weighted(options);
+  return RNG.weighted(options);
 }
 
 export function sentient(): Species[] {

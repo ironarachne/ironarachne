@@ -1,4 +1,4 @@
-import ADNDCharacter from "../adndcharacter.js";
+import type ADNDCharacter from "../adndcharacter.js";
 import ADNDClass from "../adndclass.js";
 
 export default new ADNDClass(
@@ -32,7 +32,5 @@ export default new ADNDClass(
   4,
   3,
   -2,
-  function (character: ADNDCharacter): ADNDCharacter {
-    return character;
-  },
+  (character: ADNDCharacter): ADNDCharacter => character,
 );

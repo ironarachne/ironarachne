@@ -1,7 +1,6 @@
 import type WaterSystem from "./water_system";
 import type WaterSystemConfig from "./water_system_config";
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
 
 export function generate(config: WaterSystemConfig): WaterSystem {
   // Generate a temperature based on latitude
@@ -14,9 +13,9 @@ export function generate(config: WaterSystemConfig): WaterSystem {
 
   return {
     current: config.current,
-    surfaceLevel: random.float(config.surfaceLevelMin, config.surfaceLevelMax),
+    surfaceLevel: config.rng.float(config.surfaceLevelMin, config.surfaceLevelMax),
     temperature,
-    waterType: RND.item(config.waterTypes),
+    waterType: config.rng.item(config.waterTypes),
   };
 }
 
@@ -29,5 +28,6 @@ export function getDefaultConfig(): WaterSystemConfig {
     surfaceLevelMin: 0, // default to sea level
     surfaceLevelMax: 0, // default to sea level
     waterTypes: ["fresh", "salt"],
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }

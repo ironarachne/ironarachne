@@ -1,5 +1,5 @@
-import * as RND from "@ironarachne/rng";
-import ADNDCharacter from "../adndcharacter.js";
+import * as RNG from "@ironarachne/rng";
+import type ADNDCharacter from "../adndcharacter.js";
 import ADNDClass from "../adndclass.js";
 import * as ThiefSkills from "../adndthiefskills.js";
 
@@ -36,14 +36,14 @@ export default new ADNDClass(
   2,
   3,
   -3,
-  function (character: ADNDCharacter): ADNDCharacter {
+  (character: ADNDCharacter, rng: RNG.RNG): ADNDCharacter => {
     let skills = [
       { name: "Pick Pockets", value: 10, points: 0 },
       { name: "Detect Noise", value: 20, points: 0 },
       { name: "Climb Walls", value: 50, points: 0 },
       { name: "Read Languages", value: 5, points: 0 },
     ];
-    skills = RND.shuffle(skills);
+    skills = rng.shuffle(skills);
 
     skills = ThiefSkills.modifyForDexterity(skills, character.dexterity);
     let raceName = character.race.name;

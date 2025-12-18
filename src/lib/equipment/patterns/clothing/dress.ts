@@ -1,6 +1,6 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import Clothing from "../../clothing/clothing.js";
 import Component from "../../components/component.js";
 import * as Components from "../../components/components.js";
@@ -18,18 +18,18 @@ export default class DressPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number): Clothing {
-    let body = RND.item(Components.withCategory("fabric", componentOptions));
+    let body = RNG.item(Components.withCategory("fabric", componentOptions));
 
     let value = this.baseValue + body.value * 2;
 
     let description = `${Words.article(this.name)} ${this.name} `;
 
-    description += RND.item([`made of ${body.descriptor} `, ""]);
+    description += RNG.item([`made of ${body.descriptor} `, ""]);
 
-    if (quality > 1 && random.int(1, 100) >= 70) {
-      description += RND.item([
+    if (quality > 1 && RNG.int(1, 100) >= 70) {
+      description += RNG.item([
         " that is artfully embroidered",
-        ` that is embroidered with ${RND.item(["simple", "complex", "ornate"])} patterns`,
+        ` that is embroidered with ${RNG.item(["simple", "complex", "ornate"])} patterns`,
         " that is gusseted",
       ]);
     }
@@ -37,7 +37,7 @@ export default class DressPattern implements Pattern {
     description += " with ";
 
     let sleeves =
-      RND.item([
+      RNG.item([
         "short",
         "long",
         "wide",
@@ -47,23 +47,23 @@ export default class DressPattern implements Pattern {
         "no",
       ]) + " sleeves";
     let lacing =
-      RND.item(["tight ", "", "double ", "wide "]) +
+      RNG.item(["tight ", "", "double ", "wide "]) +
       "lacing " +
-      RND.item([
+      RNG.item([
         "down the middle",
         "at the top",
         "halfway down",
         "down the back",
       ]);
-    let neck = RND.item(["a wide neck", "a v-neck", "a deep neck"]);
-    let waist = RND.item([
+    let neck = RNG.item(["a wide neck", "a v-neck", "a deep neck"]);
+    let waist = RNG.item([
       "a tight waist",
       "a narrow waist",
       "a cinched waist",
       "a belted waist",
     ]);
 
-    description += RND.item([sleeves, lacing, neck, waist]);
+    description += RNG.item([sleeves, lacing, neck, waist]);
 
     let name = `${body.descriptor} ${this.name}`;
 

@@ -1,19 +1,17 @@
 <script lang="ts">
-  import * as ChopShop from "$lib/chopshop";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+import * as ChopShop from "$lib/chopshop";
+import * as RNG from "@ironarachne/rng";
 
-  let description = $state("");
-  let seed = RND.randomString(13);
+let description = $state("");
+let seed = RNG.randomString(13);
 
-  function generateChopShop() {
-    seed = RND.randomString(13);
-    random.use(seedrandom(seed));
-    description = ChopShop.generate();
-  }
+function generateChopShop() {
+  seed = RNG.randomString(13);
+  RNG.setSeed(seed);
+  description = ChopShop.generate();
+}
 
-  generateChopShop();
+generateChopShop();
 </script>
 
 <style lang="scss">

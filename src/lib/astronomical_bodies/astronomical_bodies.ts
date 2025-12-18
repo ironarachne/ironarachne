@@ -1,4 +1,4 @@
-import { clamp, linearMap } from "$lib/math_translation";
+import { clamp } from "$lib/math_translation";
 
 export type AstronomicalBody = {
   name: string;

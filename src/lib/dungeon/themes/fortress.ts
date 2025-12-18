@@ -2,7 +2,7 @@ import * as FantasyEncounters from "$lib/encounters/templates/fantasy/all.js";
 import * as Encounters from "$lib/encounters/templates/templates.js";
 import * as CommonSpecies from "$lib/species/common.js";
 import * as MUN from "@ironarachne/made-up-names";
-import random from "random";
+
 import DungeonTheme from "../dungeon_theme.js";
 import RoomRequirement from "../rooms/roomrequirement.js";
 import * as RoomThemes from "../rooms/themes/themes.js";
@@ -14,7 +14,7 @@ export function getTheme(): DungeonTheme {
     "humanoid",
     allSentientOptions,
   );
-  let numberOfSentientOptions = random.int(1, 3);
+  let numberOfSentientOptions = RNG.int(1, 3);
 
   let fortressEncounters = Encounters.withTag("martial", allEncounters);
 

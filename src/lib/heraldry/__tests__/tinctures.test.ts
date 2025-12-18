@@ -1,113 +1,113 @@
-import { describe, it, expect } from 'vitest';
-import * as tinctures from '../tinctures';
+import { describe, it, expect } from "vitest";
+import * as tinctures from "../tinctures";
 
 // Basic type test
-describe('Tincture type', () => {
-  it('all tinctures should have required properties', () => {
+describe("Tincture type", () => {
+  it("all tinctures should have required properties", () => {
     for (const t of tinctures.all()) {
-      expect(t).toHaveProperty('name');
-      expect(t).toHaveProperty('type');
-      expect(t).toHaveProperty('hexColor');
+      expect(t).toHaveProperty("name");
+      expect(t).toHaveProperty("type");
+      expect(t).toHaveProperty("hexColor");
     }
   });
 });
 
-describe('tinctures.all', () => {
-  it('returns an array of tinctures', () => {
+describe("tinctures.all", () => {
+  it("returns an array of tinctures", () => {
     const all = tinctures.all();
     expect(Array.isArray(all)).toBe(true);
     expect(all.length).toBeGreaterThan(0);
   });
 });
 
-describe('tinctures.byName', () => {
-  it('returns the correct tincture by name', () => {
-    const azure = tinctures.byName('azure');
-    expect(azure.name).toBe('azure');
+describe("tinctures.byName", () => {
+  it("returns the correct tincture by name", () => {
+    const azure = tinctures.byName("azure");
+    expect(azure.name).toBe("azure");
   });
 });
 
-describe('tinctures.byType', () => {
-  it('returns only tinctures of the given type', () => {
-    const metals = tinctures.byType('metal', tinctures.all());
-    expect(metals.every(t => t.type === 'metal')).toBe(true);
+describe("tinctures.byType", () => {
+  it("returns only tinctures of the given type", () => {
+    const metals = tinctures.byType("metal", tinctures.all());
+    expect(metals.every((t) => t.type === "metal")).toBe(true);
   });
 });
 
-describe('tinctures.colors', () => {
-  it('returns only tinctures of type color', () => {
+describe("tinctures.colors", () => {
+  it("returns only tinctures of type color", () => {
     const colors = tinctures.colors();
-    expect(colors.every(t => t.type === 'color')).toBe(true);
+    expect(colors.every((t) => t.type === "color")).toBe(true);
   });
 });
 
-describe('tinctures.furs', () => {
-  it('returns only tinctures of type fur', () => {
+describe("tinctures.furs", () => {
+  it("returns only tinctures of type fur", () => {
     const furs = tinctures.furs();
-    expect(furs.every(t => t.type === 'fur')).toBe(true);
+    expect(furs.every((t) => t.type === "fur")).toBe(true);
   });
 });
 
-describe('tinctures.metals', () => {
-  it('returns only tinctures of type metal', () => {
+describe("tinctures.metals", () => {
+  it("returns only tinctures of type metal", () => {
     const metals = tinctures.metals();
-    expect(metals.every(t => t.type === 'metal')).toBe(true);
+    expect(metals.every((t) => t.type === "metal")).toBe(true);
   });
 });
 
-describe('tinctures.stains', () => {
-  it('returns only tinctures of type stain', () => {
+describe("tinctures.stains", () => {
+  it("returns only tinctures of type stain", () => {
     const stains = tinctures.stains();
-    expect(stains.every(t => t.type === 'stain')).toBe(true);
+    expect(stains.every((t) => t.type === "stain")).toBe(true);
   });
 });
 
-describe('tinctures.contrasts', () => {
-  it('returns true for contrasting tinctures', () => {
+describe("tinctures.contrasts", () => {
+  it("returns true for contrasting tinctures", () => {
     const [metal] = tinctures.metals();
     const [color] = tinctures.colors();
     expect(tinctures.contrasts(metal, color)).toBe(true);
   });
-  it('returns false for non-contrasting tinctures', () => {
+  it("returns false for non-contrasting tinctures", () => {
     const [metal] = tinctures.metals();
     expect(tinctures.contrasts(metal, metal)).toBe(false);
   });
 });
 
-describe('tinctures.exclude', () => {
-  it('removes a tincture from a set', () => {
+describe("tinctures.exclude", () => {
+  it("removes a tincture from a set", () => {
     const all = tinctures.all();
     const removed = tinctures.exclude(all[0], all);
     expect(removed).not.toContainEqual(all[0]);
   });
 });
 
-describe('tinctures.getContrasting', () => {
-  it('returns tinctures that contrast with the input', () => {
+describe("tinctures.getContrasting", () => {
+  it("returns tinctures that contrast with the input", () => {
     const [metal] = tinctures.metals();
     const allTinctures = tinctures.all();
     const contrasting = tinctures.getContrasting(metal, allTinctures);
     expect(Array.isArray(contrasting)).toBe(true);
     expect(contrasting.length).toBeGreaterThan(0);
     // All returned tinctures should contrast with the input
-    expect(contrasting.every(t => tinctures.contrasts(metal, t))).toBe(true);
+    expect(contrasting.every((t) => tinctures.contrasts(metal, t))).toBe(true);
   });
 });
 
-describe('tinctures.isIncludedIn', () => {
-  it('returns true if tincture is in set', () => {
+describe("tinctures.isIncludedIn", () => {
+  it("returns true if tincture is in set", () => {
     const all = tinctures.all();
     expect(tinctures.isIncludedIn(all[0], all)).toBe(true);
   });
-  it('returns false if tincture is not in set', () => {
+  it("returns false if tincture is not in set", () => {
     const all = tinctures.all();
-    const fake = { name: 'fake', type: 'fake', hex: '#000' };
+    const fake = { name: "fake", type: "fake", hex: "#000" };
     expect(tinctures.isIncludedIn(fake as any, all)).toBe(false);
   });
 });
 
-describe('tinctures.getSetExcluding', () => {
-  it('returns a set without the given tincture(s)', () => {
+describe("tinctures.getSetExcluding", () => {
+  it("returns a set without the given tincture(s)", () => {
     const all = tinctures.all();
     const toRemove = [all[0]];
     const result = tinctures.getSetExcluding(toRemove, all);
@@ -115,60 +115,62 @@ describe('tinctures.getSetExcluding', () => {
   });
 });
 
-describe('tinctures.ofTypes', () => {
-  it('returns tinctures of the given types', () => {
-    const result = tinctures.ofTypes(['metal', 'color']);
-    expect(result.every(t => t.type === 'metal' || t.type === 'color')).toBe(true);
+describe("tinctures.ofTypes", () => {
+  it("returns tinctures of the given types", () => {
+    const result = tinctures.ofTypes(["metal", "color"]);
+    expect(result.every((t) => t.type === "metal" || t.type === "color")).toBe(
+      true,
+    );
   });
 });
 
-describe('tinctures.random', () => {
-  it('returns a tincture', () => {
+describe("tinctures.random", () => {
+  it("returns a tincture", () => {
     const t = tinctures.random();
-    expect(t).toHaveProperty('name');
+    expect(t).toHaveProperty("name");
   });
 });
 
-describe('tinctures.randomChargeTincture', () => {
-  it('returns a tincture', () => {
+describe("tinctures.randomChargeTincture", () => {
+  it("returns a tincture", () => {
     const t = tinctures.randomChargeTincture();
-    expect(t).toHaveProperty('name');
+    expect(t).toHaveProperty("name");
   });
 });
 
-describe('tinctures.randomContrasting', () => {
-  it('returns a tincture that contrasts with the input', () => {
+describe("tinctures.randomContrasting", () => {
+  it("returns a tincture that contrasts with the input", () => {
     const [metal] = tinctures.metals();
     const t = tinctures.randomContrasting(metal);
     expect(tinctures.contrasts(metal, t)).toBe(true);
   });
 });
 
-describe('tinctures.randomExcluding', () => {
-  it('returns a tincture not equal to the input', () => {
+describe("tinctures.randomExcluding", () => {
+  it("returns a tincture not equal to the input", () => {
     const [metal] = tinctures.metals();
     const t = tinctures.randomExcluding(metal);
     expect(t).not.toEqual(metal);
   });
 });
 
-describe('tinctures.randomFrom', () => {
-  it('returns a tincture from the given set', () => {
+describe("tinctures.randomFrom", () => {
+  it("returns a tincture from the given set", () => {
     const metals = tinctures.metals();
     const t = tinctures.randomFrom(metals);
     expect(metals).toContainEqual(t);
   });
 });
 
-describe('tinctures.randomWeighted', () => {
-  it('returns a tincture', () => {
+describe("tinctures.randomWeighted", () => {
+  it("returns a tincture", () => {
     const t = tinctures.randomWeighted();
-    expect(t).toHaveProperty('name');
+    expect(t).toHaveProperty("name");
   });
 });
 
-describe('tinctures.randomWeightedExcluding', () => {
-  it('returns a tincture not equal to the input', () => {
+describe("tinctures.randomWeightedExcluding", () => {
+  it("returns a tincture not equal to the input", () => {
     const [metal] = tinctures.metals();
     const t = tinctures.randomWeightedExcluding(metal);
     expect(t).not.toEqual(metal);

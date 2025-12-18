@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Animal from "./animal.js";
 import Component from "./component.js";
 import * as Fabrics from "./fabrics.js";
@@ -40,7 +40,7 @@ export function getComponentForCategory(
     }
   }
 
-  return RND.item(possible);
+  return RNG.item(possible);
 }
 
 export function withCategory(

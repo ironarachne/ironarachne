@@ -1,11 +1,10 @@
-import random from "random";
 import type Gift from "./gift";
 import type GiftGeneratorConfig from "./generator_config";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import type GiftPossibility from "./gift_possibility";
 
 export function generate(config: GiftGeneratorConfig): Gift[] {
-  const numberOfGifts = random.int(config.min_gifts, config.max_gifts);
+  const numberOfGifts = RNG.int(config.min_gifts, config.max_gifts);
 
   const gifts: Gift[] = [];
 
@@ -21,8 +20,8 @@ export function generate(config: GiftGeneratorConfig): Gift[] {
 }
 
 function generateGift(possibilities: GiftPossibility[]): Gift {
-  const possibility = RND.weighted(possibilities);
-  const strength = RND.weighted(possibility.strength_levels);
+  const possibility = RNG.weighted(possibilities);
+  const strength = RNG.weighted(possibility.strength_levels);
 
   return {
     name: possibility.name,

@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 
 export class Organization {
@@ -50,7 +50,7 @@ export function generate() {
 }
 
 function randomDominantGender() {
-  return RND.item([
+  return RNG.item([
     "women are dominant",
     "men are dominant",
     "neither gender is dominant",
@@ -58,7 +58,7 @@ function randomDominantGender() {
 }
 
 function randomPowerConcentration() {
-  return RND.item([
+  return RNG.item([
     "power is shared among multiple groups",
     "power is divided between two opposing groups",
     "power is distributed evenly among all individuals",
@@ -75,7 +75,7 @@ function randomPowerConcentration() {
 }
 
 function randomSocialMobility() {
-  return RND.item([
+  return RNG.item([
     "social mobility is completely stagnant",
     "social mobility is only possible through military service",
     "social mobility is only possible through marriage",
@@ -94,7 +94,7 @@ function randomSocialMobility() {
 }
 
 function randomDominantProfession() {
-  return RND.item([
+  return RNG.item([
     "landowners",
     "merchants",
     "religious leaders",

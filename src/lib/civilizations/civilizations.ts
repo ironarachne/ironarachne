@@ -1,6 +1,5 @@
-import random from "random";
 import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import { clamp } from "$lib/math_translation";
 
@@ -18,6 +17,7 @@ export type CivilizationGenerationConfig = {
   population_range: [number, number];
   technology_level_range: [number, number];
   military_strength_range: [number, number];
+  rng: RNG.RNG;
 };
 
 export type EconomyType = {
@@ -67,26 +67,27 @@ export function describeMilitary(military: Military): string {
 export function generateCivilization(
   config: CivilizationGenerationConfig,
 ): Civilization {
-  const population = random.int(
+  const population = config.rng.int(
     config.population_range[0],
     config.population_range[1],
   );
-  const technology_level = random.int(
+  const technology_level = config.rng.int(
     config.technology_level_range[0],
     config.technology_level_range[1],
   );
   const military = generateMilitary(
     [0.001, 0.01],
     [config.military_strength_range[0], config.military_strength_range[1]],
+    config.rng,
   );
   const government_types = getGovernmentTypes();
-  const government_type = RND.weighted(government_types);
+  const government_type = config.rng.weighted(government_types);
 
   const economy_types = getEconomyTypes();
-  const economy_type = RND.weighted(economy_types);
+  const economy_type = config.rng.weighted(economy_types);
 
   const civilization = {
-    name: generateCivilizationName(government_type),
+    name: generateCivilizationName(government_type, config.rng),
     description: "",
     population: population,
     technology_level: technology_level,
@@ -103,11 +104,12 @@ export function generateCivilization(
 export function generateMilitary(
   size_range: [number, number],
   quality_range: [number, number],
+  rng: RNG.RNG,
 ): Military {
-  const size = random.float(size_range[0], size_range[1]);
-  const quality = random.int(quality_range[0], quality_range[1]);
+  const size = rng.float(size_range[0], size_range[1]);
+  const quality = rng.int(quality_range[0], quality_range[1]);
   // Quality is the average of equipment and training level, but neither equipment nor training can be lower than 1 or higher than 10
-  const equipment_level = clamp(random.int(1, quality), 1, 10);
+  const equipment_level = clamp(rng.int(1, quality), 1, 10);
   const training_level = clamp(quality * 2 - equipment_level, 1, 10);
 
   return {
@@ -123,16 +125,18 @@ export function getDefaultCivilizationGenerationConfig(): CivilizationGeneration
     population_range: [1000, 1000000000],
     technology_level_range: [1, 10],
     military_strength_range: [1, 10],
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }
 
 export function generateCivilizationName(
   government_type: GovernmentType,
+  rng: RNG.RNG
 ): string {
-  const generator = new MUN.StarNationNameGenerator();
+  const generator = MUN.getStarNationNameGenerator(rng);
   const name = generator.generate(1)[0];
 
-  const name_template = RND.item(government_type.name_options);
+  const name_template = rng.item(government_type.name_options);
 
   return name_template.replace("{name}", name);
 }

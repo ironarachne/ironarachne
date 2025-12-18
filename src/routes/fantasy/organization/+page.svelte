@@ -1,79 +1,86 @@
 <script lang="ts">
-  import * as FantasyOrganizations from "$lib/organizations/fantasy";
-  import * as Organizations from "$lib/organizations/organizations";
-  import * as RND from "@ironarachne/rng";
-  import * as Characters from "$lib/characters/characters";
-  import * as MUN from "@ironarachne/made-up-names";
-  import { onMount } from 'svelte';
-  import { renderSVGAsPNG } from "$lib/images/svg";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import { generateHeraldry } from "$lib/heraldry/generator";
-  import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
+import * as FantasyOrganizations from "$lib/organizations/fantasy";
+import * as Organizations from "$lib/organizations/organizations";
+import * as RNG from "@ironarachne/rng";
+import * as Characters from "$lib/characters/characters";
+import * as MUN from "@ironarachne/made-up-names";
+import * as Names from "$lib/names";
+import { onMount } from "svelte";
+import { renderSVGAsPNG } from "$lib/images/svg";
 
-  let seed: string = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  let organizationTypeName = $state("any");
-  let nameSetName = $state('any');
-  let nameSet: MUN.GeneratorSet = RND.item(MUN.cultureSets());
-  let nameSets = MUN.cultureSets();
-  let genConfig = $state(FantasyOrganizations.getDefaultConfig());
+import { generateHeraldry } from "$lib/heraldry/generator";
+import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
+
+let rng = new RNG.RNG(Date.now().toString());
+let seed: string = $state(rng.randomString(13));
+let lockSeed = $state(false);
+
+let organizationTypeName = $state("any");
+let nameSetName = $state("any");
+let nameSets = Names.getAllFantasyNameGeneratorSets(rng);
+let nameSet: Names.NameGeneratorSet = rng.item(nameSets);
+let genConfig = $state(FantasyOrganizations.getDefaultConfig(rng));
+genConfig.characterConfig.familyNameGenerator = nameSet.family;
+genConfig.characterConfig.femaleNameGenerator = nameSet.female;
+genConfig.characterConfig.maleNameGenerator = nameSet.male;
+let org = Organizations.generate(genConfig);
+let name = $state(org.name);
+let description = $state(org.description);
+let leadership = $state(org.leadership.description);
+let notableMembers = $state(org.notableMembers);
+let heraldryConfig = org.organizationType.heraldryConfig;
+heraldryConfig.width = 200;
+heraldryConfig.height = 200;
+let heraldry = generateHeraldry(heraldryConfig);
+let svgRenderer = new HeraldrySVGRenderer();
+
+function generate() {
+  if (!lockSeed) {
+    seed = RNG.randomString(13);
+  }
+  RNG.setSeed(seed);
+  if (organizationTypeName !== "any") {
+    genConfig.organizationTypes = [
+      Organizations.getTypeByName(
+        organizationTypeName,
+        FantasyOrganizations.getTypes(rng),
+      ),
+    ];
+  } else {
+    genConfig.organizationTypes = FantasyOrganizations.getTypes(rng);
+  }
+  if (nameSetName === "any") {
+    nameSet = rng.item(nameSets);
+    genConfig.characterConfig.useAdaptiveNames = true;
+  } else {
+    nameSets.forEach((element) => {
+      if (element.name === nameSetName) {
+        nameSet = element;
+      }
+    });
+    genConfig.characterConfig.useAdaptiveNames = false;
+  }
   genConfig.characterConfig.familyNameGenerator = nameSet.family;
   genConfig.characterConfig.femaleNameGenerator = nameSet.female;
   genConfig.characterConfig.maleNameGenerator = nameSet.male;
+
   let org = Organizations.generate(genConfig);
-  let name = $state(org.name);
-  let description = $state(org.description);
-  let leadership = $state(org.leadership.description);
-  let notableMembers = $state(org.notableMembers);
-  let heraldryConfig = org.organizationType.heraldryConfig;
+  name = org.name;
+  description = org.description;
+  leadership = org.leadership.description;
+  notableMembers = org.notableMembers;
+  heraldryConfig = org.organizationType.heraldryConfig;
   heraldryConfig.width = 200;
-  heraldryConfig.height = 200;
-  let heraldry = generateHeraldry(heraldryConfig);
-  let svgRenderer = new HeraldrySVGRenderer();
+  heraldryConfig.height = 220;
+  heraldry = generateHeraldry(heraldryConfig);
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    if (organizationTypeName !== "any") {
-      genConfig.organizationTypes = [Organizations.getTypeByName(organizationTypeName, FantasyOrganizations.getTypes())];
-    } else {
-      genConfig.organizationTypes = FantasyOrganizations.getTypes();
-    }
-    if (nameSetName === 'any') {
-      nameSet = RND.item(MUN.cultureSets());
-      genConfig.characterConfig.useAdaptiveNames = true;
-    } else {
-      MUN.cultureSets().forEach(element => {
-        if (element.name === nameSetName) {
-          nameSet = element;
-        }
-      });
-      genConfig.characterConfig.useAdaptiveNames = false;
-    }
-    genConfig.characterConfig.familyNameGenerator = nameSet.family;
-    genConfig.characterConfig.femaleNameGenerator = nameSet.female;
-    genConfig.characterConfig.maleNameGenerator = nameSet.male;
+  let svg = svgRenderer.render(heraldry.device, 200, 220);
+  renderSVGAsPNG(svg, 200, 220, "org-arms");
+}
 
-    let org = Organizations.generate(genConfig);
-    name = org.name;
-    description = org.description;
-    leadership = org.leadership.description;
-    notableMembers = org.notableMembers;
-    heraldryConfig = org.organizationType.heraldryConfig;
-    heraldryConfig.width = 200;
-    heraldryConfig.height = 220;
-    heraldry = generateHeraldry(heraldryConfig);
-
-    let svg = svgRenderer.render(heraldry.device, 200, 220);
-    renderSVGAsPNG(svg, 200, 220, "org-arms");
-  }
-
-  onMount(() => {
-    generate();
-  });
+onMount(() => {
+  generate();
+});
 </script>
 
 <style lang="scss">

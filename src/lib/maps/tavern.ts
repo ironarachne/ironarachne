@@ -1,5 +1,4 @@
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
 
 export class Vertex {
   x: number;
@@ -80,12 +79,7 @@ function generateMap(width: number, height: number) {
 
   const center = new Vertex(Math.floor(width / 2), Math.floor(height / 2));
 
-  const mainRoom = new Room(
-    center,
-    random.int(12, 15),
-    random.int(12, 15),
-    "main",
-  );
+  const mainRoom = new Room(center, RNG.int(12, 15), RNG.int(12, 15), "main");
 
   const halfWidth = mainRoom.width / 2;
   const halfHeight = mainRoom.height / 2;
@@ -110,7 +104,7 @@ function generateMap(width: number, height: number) {
   mainRoom.edges.push(new Edge(mainRoom.vertices[2], mainRoom.vertices[3]));
   mainRoom.edges.push(new Edge(mainRoom.vertices[3], mainRoom.vertices[0]));
 
-  const doorEdge = RND.item(mainRoom.edges);
+  const doorEdge = RNG.item(mainRoom.edges);
 
   let doorX = 0;
   let doorY = 0;
@@ -122,7 +116,7 @@ function generateMap(width: number, height: number) {
     const min = Math.min(doorEdge.A.x, doorEdge.B.x) + 1;
     const max = Math.max(doorEdge.A.x, doorEdge.B.x) - 2;
 
-    doorX = random.int(min, max) + 0.5;
+    doorX = RNG.int(min, max) + 0.5;
     doorOrientation = "horizontal";
   }
 
@@ -132,7 +126,7 @@ function generateMap(width: number, height: number) {
     const min = Math.min(doorEdge.A.y, doorEdge.B.y) + 1;
     const max = Math.max(doorEdge.A.y, doorEdge.B.y) - 2;
 
-    doorY = random.int(min, max) + 0.5;
+    doorY = RNG.int(min, max) + 0.5;
   }
 
   mainRoom.doors.push({
@@ -158,7 +152,7 @@ function generateMap(width: number, height: number) {
 }
 
 function addRoom(rooms: Room[]) {
-  const roomType = RND.item(getPossibleRoomTypes(rooms));
+  const roomType = RNG.item(getPossibleRoomTypes(rooms));
 
   const newRooms = [];
 
@@ -167,9 +161,9 @@ function addRoom(rooms: Room[]) {
   }
 
   const newRoom = new Room(
-    random.int(roomType.widthMin, roomType.widthMax),
-    random.int(roomType.heightMin, roomType.heightMax),
-    random.int(roomType.floorMin, roomType.floorMax),
+    RNG.int(roomType.widthMin, roomType.widthMax),
+    RNG.int(roomType.heightMin, roomType.heightMax),
+    RNG.int(roomType.floorMin, roomType.floorMax),
     roomType.name,
   );
 

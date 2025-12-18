@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 
 export type Tincture = {
   name: string;
@@ -176,7 +176,7 @@ export function stains(): Tincture[] {
   return byType("stain", all());
 }
 
-export function contrasts(a: Tincture, b: Tincture): Boolean {
+export function contrasts(a: Tincture, b: Tincture): boolean {
   if (a.category === "neutral" || b.category === "neutral") {
     return true;
   }
@@ -250,64 +250,64 @@ export function ofTypes(types: string[]): Tincture[] {
   return matching;
 }
 
-export function random(): Tincture {
-  return RND.item(all());
+export function random(rng: RNG.RNG): Tincture {
+  return rng.item(all());
 }
 
-export function randomChargeTincture(): Tincture {
+export function randomChargeTincture(rng: RNG.RNG): Tincture {
   let options = ofTypes(["metal"]);
 
-  const colorChance = RND.simple(100);
+  const colorChance = rng.int(1, 100);
 
   if (colorChance > 70) {
     options = ofTypes(["metal", "color", "stain"]);
   }
 
-  return RND.weighted(options);
+  return rng.weighted(options);
 }
 
-export function randomContrasting(tincture: Tincture): Tincture {
-  let result = randomColor();
+export function randomContrasting(tincture: Tincture, rng: RNG.RNG): Tincture {
+  let result = randomColor(rng);
 
   if (tincture.type === "color") {
-    result = randomMetal();
+    result = randomMetal(rng);
   }
 
   return result;
 }
 
-export function randomExcluding(tincture: Tincture): Tincture {
+export function randomExcluding(tincture: Tincture, rng: RNG.RNG): Tincture {
   const allTinctures = all();
 
   const possible = exclude(tincture, allTinctures);
 
-  return RND.item(possible);
+  return rng.item(possible);
 }
 
-export function randomFrom(tinctures: Tincture[]): Tincture {
-  return RND.item(tinctures);
+export function randomFrom(tinctures: Tincture[], rng: RNG.RNG): Tincture {
+  return rng.item(tinctures);
 }
 
-export function randomWeighted(): Tincture {
-  const tinctureType = randomWeightedType();
+export function randomWeighted(rng: RNG.RNG): Tincture {
+  const tinctureType = randomWeightedType(rng);
 
   if (tinctureType === "fur") {
-    return randomFur();
+    return randomFur(rng);
   }
 
   if (tinctureType === "color") {
-    return randomColor();
+    return randomColor(rng);
   }
 
   if (tinctureType === "stain") {
-    return randomStain();
+    return randomStain(rng);
   }
 
-  return randomMetal();
+  return randomMetal(rng);
 }
 
-export function randomWeightedExcluding(tincture: Tincture): Tincture {
-  const tinctureType = randomWeightedType();
+export function randomWeightedExcluding(tincture: Tincture, rng: RNG.RNG): Tincture {
+  const tinctureType = randomWeightedType(rng);
 
   let possible = [];
 
@@ -321,10 +321,10 @@ export function randomWeightedExcluding(tincture: Tincture): Tincture {
     possible = exclude(tincture, metals());
   }
 
-  return RND.item(possible);
+  return rng.item(possible);
 }
 
-export function randomWeightedType(): string {
+export function randomWeightedType(rng: RNG.RNG): string {
   const weights = [
     { item: "fur", commonality: 5 },
     { item: "color", commonality: 25 },
@@ -332,25 +332,25 @@ export function randomWeightedType(): string {
     { item: "stain", commonality: 6 },
   ];
 
-  const tinctureType = RND.weighted(weights);
+  const tinctureType = rng.weighted(weights);
 
   return tinctureType.item;
 }
 
-export function randomMetal(): Tincture {
-  return RND.item(metals());
+export function randomMetal(rng: RNG.RNG): Tincture {
+  return rng.item(metals());
 }
 
-export function randomColor(): Tincture {
-  return RND.item(colors());
+export function randomColor(rng: RNG.RNG): Tincture {
+  return rng.item(colors());
 }
 
-export function randomFur(): Tincture {
-  return RND.item(furs());
+export function randomFur(rng: RNG.RNG): Tincture {
+  return rng.item(furs());
 }
 
-export function randomStain(): Tincture {
-  return RND.item(stains());
+export function randomStain(rng: RNG.RNG): Tincture {
+  return rng.item(stains());
 }
 
 export function withoutFurs(tinctures: Tincture[]): Tincture[] {

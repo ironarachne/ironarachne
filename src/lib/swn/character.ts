@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Dice from "../dice.js";
 import * as Text from "../format/text.js";
 
@@ -27,12 +27,12 @@ export class SWNCharacter {
   savingThrowEvasion: number;
   savingThrowPhysical: number;
 
-  constructor() {
-    this.stats = randomStats();
-    this.background = randomBackground();
+  constructor(rng: RNG.RNG) {
+    this.stats = randomStats(rng);
+    this.background = randomBackground(rng);
     this.skills = [];
     this.focuses = [];
-    this.characterClass = randomClass();
+    this.characterClass = randomClass(rng);
     this.currentLevel = 1;
     this.attackBonus = 0;
     this.rangedAttackBonus = -2;
@@ -64,8 +64,8 @@ export class SWNCharacter {
   }
 }
 
-export function generate() {
-  const character = new SWNCharacter();
+export function generate(rng: RNG.RNG): SWNCharacter {
+  const character = new SWNCharacter(rng);
 
   let dexterity = 0;
   let strength = 0;
@@ -94,7 +94,7 @@ export function generate() {
   character.savingThrowEvasion = 15 - Math.max(intelligence, dexterity);
   character.savingThrowPhysical = 15 - Math.max(strength, constitution);
 
-  character.skills = randomStartingSkills(character.background);
+  character.skills = randomStartingSkills(character.background, rng);
 
   const equipmentPackage = getEquipmentPackage(
     character.background.equipmentPackage,
@@ -108,7 +108,7 @@ export function generate() {
   character.armorClassEquipped = character.armorClassEquipped + dexterity;
 
   character.attackBonus = character.characterClass.attackBonus;
-  character.hitPoints = Dice.roll(character.characterClass.hitPointRoll);
+  character.hitPoints = Dice.roll(character.characterClass.hitPointRoll, rng);
 
   for (let i = 0; i < character.stats.length; i++) {
     if (character.stats[i].abbreviation === "CON") {
@@ -116,20 +116,20 @@ export function generate() {
     }
   }
 
-  const firstFocus = randomNonPsychicFocus();
+  const firstFocus = randomNonPsychicFocus(rng);
 
   character.focuses.push(firstFocus);
 
   for (let i = 0; i < character.characterClass.abilities.length; i++) {
-    character.characterClass.abilities[i].addTo(character);
+    character.characterClass.abilities[i].addTo(character, rng);
   }
 
   for (let i = 0; i < character.focuses.length; i++) {
-    character.focuses[i].addTo(character);
+    character.focuses[i].addTo(character, rng);
   }
 
   const hobbySkill = new BonusSkillOfType(["non-combat", "combat"]);
-  hobbySkill.addTo(character);
+  hobbySkill.addTo(character, rng);
 
   for (let i = 0; i < character.skills.length; i++) {
     if (character.skills[i].name === "Stab") {
@@ -156,9 +156,9 @@ export function generate() {
           ),
         );
 
-        const ability = randomPsionicAbilityOfDiscipline("Biopsionics");
+        const ability = randomPsionicAbilityOfDiscipline("Biopsionics", rng);
         character.abilities.push(
-          new SpecialAbility(ability.name + ": " + ability.description),
+          new SpecialAbility(`${ability.name}: ${ability.description}`),
         );
       }
     } else if (character.skills[i].name === "Metapsionics") {
@@ -176,9 +176,9 @@ export function generate() {
         );
         character.effort++;
 
-        const ability = randomPsionicAbilityOfDiscipline("Metapsionics");
+        const ability = randomPsionicAbilityOfDiscipline("Metapsionics", rng);
         character.abilities.push(
-          new SpecialAbility(ability.name + ": " + ability.description),
+          new SpecialAbility(`${ability.name}: ${ability.description}`),
         );
       }
     } else if (character.skills[i].name === "Precognition") {
@@ -195,9 +195,9 @@ export function generate() {
           ),
         );
 
-        const ability = randomPsionicAbilityOfDiscipline("Precognition");
+        const ability = randomPsionicAbilityOfDiscipline("Precognition", rng);
         character.abilities.push(
-          new SpecialAbility(ability.name + ": " + ability.description),
+          new SpecialAbility(`${ability.name}: ${ability.description}`),
         );
       }
     } else if (character.skills[i].name === "Telekinesis") {
@@ -214,9 +214,9 @@ export function generate() {
           ),
         );
 
-        const ability = randomPsionicAbilityOfDiscipline("Telekinesis");
+        const ability = randomPsionicAbilityOfDiscipline("Telekinesis", rng);
         character.abilities.push(
-          new SpecialAbility(ability.name + ": " + ability.description),
+          new SpecialAbility(`${ability.name}: ${ability.description}`),
         );
       }
     } else if (character.skills[i].name === "Telepathy") {
@@ -233,7 +233,7 @@ export function generate() {
           ),
         );
 
-        const ability = randomPsionicAbilityOfDiscipline("Telepathy");
+        const ability = randomPsionicAbilityOfDiscipline("Telepathy", rng);
         character.abilities.push(
           new SpecialAbility(ability.name + ": " + ability.description),
         );
@@ -252,7 +252,7 @@ export function generate() {
           ),
         );
 
-        const ability = randomPsionicAbilityOfDiscipline("Teleportation");
+        const ability = randomPsionicAbilityOfDiscipline("Teleportation", rng);
         character.abilities.push(
           new SpecialAbility(ability.name + ": " + ability.description),
         );
@@ -269,7 +269,7 @@ export class BonusSkill {
 
   constructor(skillName: string) {
     this.skillName = skillName;
-    this.description = "Bonus skill: " + skillName;
+    this.description = `Bonus skill: ${skillName}`;
   }
 
   addTo(character: SWNCharacter) {
@@ -293,12 +293,12 @@ export class BonusSkillFromList {
 
   constructor(skills: string[]) {
     this.skills = skills;
-    this.description = "a bonus skill from the list: " + skills.join(",");
+    this.description = `a bonus skill from the list: ${skills.join(",")}`;
   }
 
-  addTo(character: SWNCharacter) {
+  addTo(character: SWNCharacter, rng: RNG.RNG) {
     let skillAddressed = false;
-    const newSkillName = RND.item(this.skills);
+    const newSkillName = rng.item(this.skills);
 
     for (let j = 0; j < character.skills.length; j++) {
       if (character.skills[j].name === newSkillName) {
@@ -319,13 +319,13 @@ export class BonusSkillOfType {
 
   constructor(skillTypes: string[]) {
     this.skillTypes = skillTypes;
-    this.description = "Bonus skill of types: " + skillTypes.join(",");
+    this.description = `Bonus skill of types: ${skillTypes.join(",")}`;
   }
 
-  addTo(character: SWNCharacter) {
+  addTo(character: SWNCharacter, rng: RNG.RNG) {
     let skillAddressed = false;
-    const skillType = RND.item(this.skillTypes);
-    const newSkill = randomSkillOfType(skillType);
+    const skillType = rng.item(this.skillTypes);
+    const newSkill = randomSkillOfType(skillType, rng);
 
     for (let j = 0; j < character.skills.length; j++) {
       if (character.skills[j].name === newSkill.name) {
@@ -403,12 +403,12 @@ export class Focus {
     this.levelTwoDescription = levelTwoDescription;
   }
 
-  addTo(character: SWNCharacter) {
+  addTo(character: SWNCharacter, rng: RNG.RNG) {
     const levelOneAbility = new SpecialAbility(
       `From Focus ${this.name}: ${this.levelOneEffect.description}`,
     );
     character.abilities.push(levelOneAbility);
-    this.levelOneEffect.addTo(character);
+    this.levelOneEffect.addTo(character, rng);
   }
 }
 
@@ -585,10 +585,10 @@ function allFocuses() {
   ];
 }
 
-function randomBackground() {
+function randomBackground(rng: RNG.RNG) {
   const backgrounds = allBackgrounds();
 
-  return RND.item(backgrounds);
+  return rng.item(backgrounds);
 }
 
 export class CharacterClass {
@@ -621,12 +621,12 @@ export class BonusFocus {
 
   constructor(focusTypes: string[]) {
     this.focusTypes = focusTypes;
-    this.description = "a bonus focus of the type(s): " + focusTypes.join(",");
+    this.description = `a bonus focus of the type(s): ${focusTypes.join(",")}`;
   }
 
-  addTo(character: SWNCharacter) {
-    const newFocusType = RND.item(this.focusTypes);
-    const newFocus = randomFocusOfType(newFocusType);
+  addTo(character: SWNCharacter, rng: RNG.RNG) {
+    const newFocusType = rng.item(this.focusTypes);
+    const newFocus = randomFocusOfType(newFocusType, rng);
     if (character.focuses[0].name === newFocus.name) {
       character.focuses[0].currentLevel = 2;
     } else {
@@ -672,7 +672,7 @@ export class EffortAbility {
   }
 }
 
-function allClasses() {
+function allClasses(): CharacterClass[] {
   return [
     new CharacterClass("Expert", 0, "1d6", [
       new BonusFocus(["non-combat"]),
@@ -726,13 +726,13 @@ function allClasses() {
   ];
 }
 
-function randomClass() {
+function randomClass(rng: RNG.RNG) {
   const classes = allClasses();
 
-  return RND.item(classes);
+  return rng.item(classes);
 }
 
-function randomFocusOfType(focusType: string) {
+function randomFocusOfType(focusType: string, rng: RNG.RNG) {
   const all = allFocuses();
 
   const focuses = [];
@@ -743,24 +743,24 @@ function randomFocusOfType(focusType: string) {
     }
   }
 
-  return RND.item(focuses);
+  return rng.item(focuses);
 }
 
-function randomNonPsychicFocus() {
+function randomNonPsychicFocus(rng: RNG.RNG) {
   const all = allFocuses();
 
   const focuses = [];
 
   for (let i = 0; i < all.length; i++) {
-    if (all[i].focusType != "psychic") {
+    if (all[i].focusType !== "psychic") {
       focuses.push(all[i]);
     }
   }
 
-  return RND.item(focuses);
+  return rng.item(focuses);
 }
 
-function randomStartingSkills(background: Background) {
+function randomStartingSkills(background: Background, rng: RNG.RNG) {
   const skills = [];
 
   const startingSkills = background.quickSkills;
@@ -769,9 +769,9 @@ function randomStartingSkills(background: Background) {
     let skill = new Skill("", "non-combat");
 
     if (startingSkills[i] === "Any Combat") {
-      skill = randomCombatSkill();
+      skill = randomCombatSkill(rng);
     } else if (startingSkills[i] === "Shoot or Trade") {
-      skill = RND.item([
+      skill = rng.item([
         new Skill("Shoot", "combat"),
         new Skill("Trade", "non-combat"),
       ]);
@@ -804,7 +804,7 @@ export class Stat {
   }
 }
 
-function randomStats() {
+function randomStats(rng: RNG.RNG) {
   const stats = [
     new Stat("strength", "STR", 0, 0),
     new Stat("dexterity", "DEX", 0, 0),
@@ -815,7 +815,7 @@ function randomStats() {
   ];
 
   for (let i = 0; i < stats.length; i++) {
-    stats[i].score = Dice.roll("3d6");
+    stats[i].score = Dice.roll("3d6", rng);
   }
 
   let lowest = 100;
@@ -1189,7 +1189,7 @@ function allBackgrounds() {
   ];
 }
 
-function randomSkillOfType(skillType: string) {
+function randomSkillOfType(skillType: string, rng: RNG.RNG) {
   const all = allSkills();
 
   const skills = [];
@@ -1200,12 +1200,12 @@ function randomSkillOfType(skillType: string) {
     }
   }
 
-  const newSkill = RND.item(skills);
+  const newSkill = rng.item(skills);
 
   return newSkill;
 }
 
-function randomPsionicAbilityOfDiscipline(discipline: string) {
+function randomPsionicAbilityOfDiscipline(discipline: string, rng: RNG.RNG) {
   const all = allPsionicAbilities();
 
   const abilities = [];
@@ -1216,7 +1216,7 @@ function randomPsionicAbilityOfDiscipline(discipline: string) {
     }
   }
 
-  return RND.item(abilities);
+  return rng.item(abilities);
 }
 
 export class PsionicAbility {
@@ -1238,7 +1238,7 @@ export class PsionicAbility {
   }
 }
 
-function allPsionicAbilities() {
+function allPsionicAbilities(): PsionicAbility[] {
   return [
     new PsionicAbility(
       "Mastered Succor",
@@ -1599,32 +1599,32 @@ function getSkillByName(skillName: string) {
   return all[0];
 }
 
-function randomCombatSkill() {
+function randomCombatSkill(rng: RNG.RNG) {
   const skills = ["Punch", "Shoot", "Stab"];
 
-  return new Skill(RND.item(skills), "combat");
+  return new Skill(rng.item(skills), "combat");
 }
 
 export function formatAsText(character: SWNCharacter) {
   let description = Text.header("Stars Without Number Character");
 
-  description += "Background: " + character.background.name + "\n";
-  description += "Class: " + character.characterClass.name + "\n";
-  description += "Hit Points: " + character.hitPoints + "\n";
+  description += `Background: ${character.background.name}\n`;
+  description += `Class: ${character.characterClass.name}\n`;
+  description += `Hit Points: ${character.hitPoints}\n`;
 
-  if (character.effort != 0) {
-    description += "Effort: " + character.effort + "\n";
+  if (character.effort !== 0) {
+    description += `Effort: ${character.effort}\n`;
   }
 
-  description += "Base Attack Bonus: " + character.attackBonus + "\n";
-  description += "Armor Class: " + character.armorClassEquipped + "\n";
-  description += "Credits: " + character.credits + "\n";
+  description += `Base Attack Bonus: ${character.attackBonus}\n`;
+  description += `Armor Class: ${character.armorClassEquipped}\n`;
+  description += `Credits: ${character.credits}\n`;
 
   description += Text.header("Saving Throws");
 
-  description += "Evasion: " + character.savingThrowEvasion + "\n";
-  description += "Mental: " + character.savingThrowMental + "\n";
-  description += "Physical: " + character.savingThrowPhysical + "\n";
+  description += `Evasion: ${character.savingThrowEvasion}\n`;
+  description += `Mental: ${character.savingThrowMental}\n`;
+  description += `Physical: ${character.savingThrowPhysical}\n`;
 
   description += Text.header("Focuses");
 
@@ -1657,7 +1657,7 @@ export function formatAsText(character: SWNCharacter) {
   const skills = [];
 
   for (let i = 0; i < character.skills.length; i++) {
-    skills.push(character.skills[i].name + "-" + character.skills[i].level);
+    skills.push(`${character.skills[i].name}-${character.skills[i].level}`);
   }
 
   description += Text.list(skills);
@@ -1665,7 +1665,7 @@ export function formatAsText(character: SWNCharacter) {
   description += Text.header("Abilities");
 
   for (let i = 0; i < character.abilities.length; i++) {
-    description += character.abilities[i].description + "\n\n";
+    description += `${character.abilities[i].description}\n\n`;
   }
 
   description += Text.header("Weapons");
@@ -1701,7 +1701,7 @@ export function formatAsText(character: SWNCharacter) {
   const armor = [];
 
   for (let i = 0; i < character.armor.length; i++) {
-    armor.push(character.armor[i].name + ": " + character.armor[i].ac + " AC");
+    armor.push(`${character.armor[i].name}: ${character.armor[i].ac} AC`);
   }
 
   description += Text.list(armor);

@@ -1,14 +1,16 @@
 import StarShader from "$lib/shaders/stars/star.frag";
-import random from "random";
 import * as THREE from "three";
+import * as RNG from "@ironarachne/rng";
 import SimpleVertexShader from "$lib/shaders/simple.vert";
 import type RGBColor from "$lib/graphics/rgb_color";
 import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
 
 export function render(
+  document: Document,
   star: AstronomicalBody,
   width: number,
   height: number,
+  rng: RNG.RNG,
 ): string {
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -30,7 +32,7 @@ export function render(
   const geometry = new THREE.PlaneGeometry(1, 1);
   const material = new THREE.ShaderMaterial({
     uniforms: {
-      seed: { value: random.float(0, 100.0) },
+      seed: { value: rng.float(0, 100.0) },
       resolution: { value: new THREE.Vector2(width, height) },
       corona_width: {
         value: calculateCoronaSize(

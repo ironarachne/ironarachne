@@ -1,82 +1,111 @@
 <script lang="ts">
-  import * as RND from "@ironarachne/rng";
-  import * as Words from "@ironarachne/words";
-  import * as WebGLStarRenderer from "$lib/renderers/stars/webgl_star_renderer";
-  import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import { onMount } from "svelte";
-  import { generateCivilization, getCivilizationDescription, getDefaultCivilizationGenerationConfig, getFriendlyPopulation, type Civilization, type CivilizationGenerationConfig } from "$lib/civilizations/civilizations";
-  import { generateStarSystem, getDefaultStarSystemGeneratorConfig, type StarSystem, type StarSystemGenerationConfig } from "$lib/astronomical_bodies/star_systems";
-  import { generateRegionOfControl, getDefaultRegionOfControlGenerationConfig, getRegionTypeByName, type RegionOfControl, type RegionOfControlGenerationConfig } from "$lib/civilizations/regions_of_control";
-  import { getTechnologyLevelByLevel } from "$lib/technology_levels/technology_levels";
+import * as RNG from "@ironarachne/rng";
+import * as Words from "@ironarachne/words";
+import * as WebGLStarRenderer from "$lib/renderers/stars/webgl_star_renderer";
+import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
+import { browser } from '$app/environment';
 
-  const config = getDefaultCivilizationGenerationConfig();
-  config.technology_level_range = [7, 9];
-  const systemConfig: StarSystemGenerationConfig = $state(getDefaultStarSystemGeneratorConfig())
-  const systemRegionConfig: RegionOfControlGenerationConfig = getDefaultRegionOfControlGenerationConfig();
-  systemRegionConfig.region_types = [getRegionTypeByName("Star System")];
-  systemRegionConfig.population_density_range = [0.05, 0.3];
-  systemRegionConfig.technology_level = 7;
-  const homePlanetRegionConfig: RegionOfControlGenerationConfig = getDefaultRegionOfControlGenerationConfig();
-  homePlanetRegionConfig.region_types = [getRegionTypeByName("Planet")];
-  homePlanetRegionConfig.technology_level = 7;
+import { onMount } from "svelte";
+import {
+  generateCivilization,
+  getCivilizationDescription,
+  getDefaultCivilizationGenerationConfig,
+  getFriendlyPopulation,
+  type Civilization,
+} from "$lib/civilizations/civilizations";
+import {
+  generateStarSystem,
+  getDefaultStarSystemGeneratorConfig,
+  type StarSystem,
+  type StarSystemGenerationConfig,
+} from "$lib/astronomical_bodies/star_systems";
+import {
+  generateRegionOfControl,
+  getDefaultRegionOfControlGenerationConfig,
+  getRegionTypeByName,
+  type RegionOfControl,
+  type RegionOfControlGenerationConfig,
+} from "$lib/civilizations/regions_of_control";
+import { getTechnologyLevelByLevel } from "$lib/technology_levels/technology_levels";
 
-  let nation: Civilization = $state(generateCivilization(config));
-  let homeSystem: StarSystem = $state(generateStarSystem(systemConfig));
-  let homeSystemRegion: RegionOfControl = $state(generateRegionOfControl(systemRegionConfig));
-  let populatedPlanets = $state(1);
-  let homeSystemPopulatedPlanets = $state(1);
-  let extraDescription = $state("");
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
 
-  let homePlanet: number = $state(0);
-  let homePlanetRegion: RegionOfControl = $state(generateRegionOfControl(homePlanetRegionConfig));
+const config = getDefaultCivilizationGenerationConfig();
+config.rng = rng;
+config.technology_level_range = [7, 9];
+const systemConfig: StarSystemGenerationConfig = $state(
+  getDefaultStarSystemGeneratorConfig(),
+);
+const systemRegionConfig: RegionOfControlGenerationConfig =
+  getDefaultRegionOfControlGenerationConfig();
+systemRegionConfig.region_types = [getRegionTypeByName("Star System")];
+systemRegionConfig.population_density_range = [0.05, 0.3];
+systemRegionConfig.technology_level = 7;
+systemRegionConfig.rng = rng;
+const homePlanetRegionConfig: RegionOfControlGenerationConfig =
+  getDefaultRegionOfControlGenerationConfig();
+homePlanetRegionConfig.region_types = [getRegionTypeByName("Planet")];
+homePlanetRegionConfig.technology_level = 7;
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
+let nation: Civilization = $state(generateCivilization(config));
+let homeSystem: StarSystem = $state(generateStarSystem(systemConfig));
+let homeSystemRegion: RegionOfControl = $state(
+  generateRegionOfControl(systemRegionConfig),
+);
+let populatedPlanets = $state(1);
+let homeSystemPopulatedPlanets = $state(1);
+let extraDescription = $state("");
 
-  const imageWidth = 64;
-  const imageHeight = 64;
+let homePlanet: number = $state(0);
+let homePlanetRegion: RegionOfControl = $state(
+  generateRegionOfControl(homePlanetRegionConfig),
+);
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
+const imageWidth = 64;
+const imageHeight = 64;
+
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
+  }
+  rng.setSeed(seed);
+  extraDescription = "";
+
+  nation = generateCivilization(config);
+  homeSystem = generateStarSystem(systemConfig);
+  homePlanet = rng.int(0, homeSystem.planets.length - 1);
+  homeSystemRegion = generateRegionOfControl(systemRegionConfig);
+  homeSystemRegion.name = homeSystem.name;
+  homePlanetRegion = generateRegionOfControl(homePlanetRegionConfig);
+  homePlanetRegion.name = homeSystem.planets[homePlanet].name;
+  const populated = rng.int(1, homeSystem.planets.length - 1);
+  populatedPlanets = populated;
+  homeSystemPopulatedPlanets = populated;
+  nation.population = homeSystemRegion.population;
+
+  if (nation.technology_level > 7) {
+    const total_systems_controlled = rng.int(1, 20);
+    const systems = [];
+    let total_population = homeSystemRegion.population;
+    for (let i = 0; i < total_systems_controlled; i++) {
+      systems.push(generateStarSystem(systemConfig));
+      populatedPlanets += rng.int(1, systems[i].planets.length - 1);
+      total_population +=
+        rng.int(1, systems[i].planets.length - 1) * rng.int(100000, 10000000);
     }
-    random.use(seedrandom(seed));
-    extraDescription = "";
-
-    nation = generateCivilization(config);
-    homeSystem = generateStarSystem(systemConfig);
-    homePlanet = random.int(0, homeSystem.planets.length - 1);
-    homeSystemRegion = generateRegionOfControl(systemRegionConfig);
-    homeSystemRegion.name = homeSystem.name;
-    homePlanetRegion = generateRegionOfControl(homePlanetRegionConfig);
-    homePlanetRegion.name = homeSystem.planets[homePlanet].name;
-    const populated = random.int(1, homeSystem.planets.length - 1);
-    populatedPlanets = populated;
-    homeSystemPopulatedPlanets = populated;
-    nation.population = homeSystemRegion.population;
-
-    if (nation.technology_level > 7) {
-      const total_systems_controlled = random.int(1, 20);
-      const systems = [];
-      let total_population = homeSystemRegion.population;
-      for (let i = 0; i < total_systems_controlled; i++) {
-        systems.push(generateStarSystem(systemConfig));
-        populatedPlanets += random.int(1, systems[i].planets.length - 1);
-        total_population += random.int(1, systems[i].planets.length - 1) * random.int(100000, 10000000);
-      }
-      nation.population = total_population;
-      extraDescription = `The nation controls ${total_systems_controlled + 1} star systems, with a total of ${populatedPlanets} planets.`;
-    }
-
-    nation.description = getCivilizationDescription(nation);
-    homePlanetRegion.population = nation.population / populatedPlanets;
+    nation.population = total_population;
+    extraDescription = `The nation controls ${total_systems_controlled + 1} star systems, with a total of ${populatedPlanets} planets.`;
   }
 
-  onMount(() => {
-    generate();
-  });
+  nation.description = getCivilizationDescription(nation);
+  homePlanetRegion.population = nation.population / populatedPlanets;
+}
+
+onMount(() => {
+  generate();
+});
 </script>
 
 <style lang="scss">
@@ -124,14 +153,16 @@
   <p>There are { homeSystemPopulatedPlanets} populated planets in this system. { homePlanetRegion.name } is the { homePlanet + 1}{ Words.getOrdinal(homePlanet + 1) } planet. It has a population of { getFriendlyPopulation(homePlanetRegion.population) }.</p>
 
   <div class="star-system">
+    {#if browser}
     <div class="image-container">
-      <img alt="{ homeSystem.stars[0].name } image" src="{ WebGLStarRenderer.render(homeSystem.stars[0], imageWidth, imageHeight) }" />
+      <img alt="{ homeSystem.stars[0].name } image" src="{ WebGLStarRenderer.render(document, homeSystem.stars[0], imageWidth, imageHeight, rng) }" />
     </div>
     {#each homeSystem.planets as planet}
     <div class="image-container">
-      <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(planet, imageWidth, imageHeight) }" />
+      <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(document, planet, imageWidth, imageHeight, rng) }" />
     </div>
     {/each}
+    {/if}
   </div>
   {/if}
 </section>

@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import Armor from "../../armor/armor.js";
 import Component from "../../components/component.js";
@@ -17,13 +17,13 @@ export default class ChainmailPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number): Armor {
-    let body = RND.item(Components.withCategory("metal", componentOptions));
+    let body = RNG.item(Components.withCategory("metal", componentOptions));
 
     let value = this.baseValue + body.value * 500;
 
-    let description = RND.item([
+    let description = RNG.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
-      `${Words.article(this.name)} ${this.name} made of ${RND.item([
+      `${Words.article(this.name)} ${this.name} made of ${RNG.item([
         "loose ",
         "tight ",
         "dense ",
@@ -36,7 +36,7 @@ export default class ChainmailPattern implements Pattern {
     let name = `${body.descriptor} ${this.name}`;
 
     if (quality > 1) {
-      description += RND.item([" and decorative belting"]);
+      description += RNG.item([" and decorative belting"]);
     }
 
     let armorClass = 16;

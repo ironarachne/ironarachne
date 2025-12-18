@@ -1,16 +1,21 @@
 import * as MUN from "@ironarachne/made-up-names";
+import { RNG } from "@ironarachne/rng";
 
 export default class DCCCharacterGeneratorConfig {
-  nameGeneratorMale: MUN.Generator;
-  nameGeneratorFemale: MUN.Generator;
-  nameGeneratorFamily: MUN.Generator;
+  nameGeneratorMale: MUN.NameGenerator;
+  nameGeneratorFemale: MUN.NameGenerator;
+  nameGeneratorFamily: MUN.NameGenerator;
   allowedOccupations: string[];
+  rng: RNG;
 
-  constructor() {
-    let genSet = MUN.getSetByName("human", MUN.fantasyRaceSets());
-    this.nameGeneratorFamily = genSet.family;
-    this.nameGeneratorFemale = genSet.female;
-    this.nameGeneratorMale = genSet.male;
+  constructor(rng: RNG = new RNG(Date.now().toString())) {
+    const familyPatterns = MUN.getCultureNamePatternSet("fantasy").family;
+    const femalePatterns = MUN.getCultureNamePatternSet("fantasy").female;
+    const malePatterns = MUN.getCultureNamePatternSet("fantasy").male;
+    this.nameGeneratorFamily = MUN.getNameGeneratorForPatternSet("family", familyPatterns, rng);
+    this.nameGeneratorFemale = MUN.getNameGeneratorForPatternSet("female", femalePatterns, rng);
+    this.nameGeneratorMale = MUN.getNameGeneratorForPatternSet("male", malePatterns, rng);
     this.allowedOccupations = ["dwarf", "elf", "halfling", "human"];
+    this.rng = rng;
   }
 }

@@ -1,6 +1,5 @@
 import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import type * as RNG from "@ironarachne/rng";
 import * as Dice from "../dice.js";
 import DCCAttribute from "./attribute.js";
 import DCCCharacter from "./character.js";
@@ -23,19 +22,19 @@ export default class DCCCharacterGenerator {
   generate(): DCCCharacter {
     let character = new DCCCharacter();
 
-    character.strength = new DCCAttribute(Dice.roll("3d6"));
-    character.agility = new DCCAttribute(Dice.roll("3d6"));
-    character.stamina = new DCCAttribute(Dice.roll("3d6"));
-    character.personality = new DCCAttribute(Dice.roll("3d6"));
-    character.intelligence = new DCCAttribute(Dice.roll("3d6"));
-    character.luck = new DCCAttribute(Dice.roll("3d6"));
+    character.strength = new DCCAttribute(Dice.roll("3d6", this.config.rng));
+    character.agility = new DCCAttribute(Dice.roll("3d6", this.config.rng));
+    character.stamina = new DCCAttribute(Dice.roll("3d6", this.config.rng));
+    character.personality = new DCCAttribute(Dice.roll("3d6", this.config.rng));
+    character.intelligence = new DCCAttribute(Dice.roll("3d6", this.config.rng));
+    character.luck = new DCCAttribute(Dice.roll("3d6", this.config.rng));
 
     character.numberOfLanguages =
       character.intelligence.modifier > 0 ? character.intelligence.modifier : 0;
 
-    character.luckyRoll = randomLuckyRoll(character.luck.modifier);
+    character.luckyRoll = randomLuckyRoll(character.luck.modifier, this.config.rng);
 
-    character.hp = Dice.roll("1d4") + character.stamina.modifier;
+    character.hp = Dice.roll("1d4", this.config.rng) + character.stamina.modifier;
 
     character.spellsKnown = getSpellsKnown(character.intelligence.value);
     character.wizardMaxSpellLevel = getMaxSpellLevel(
@@ -51,22 +50,23 @@ export default class DCCCharacterGenerator {
       character.baseSave + character.personality.modifier;
     character.reflexSave = character.baseSave + character.agility.modifier;
 
-    character.gender = RND.item(["male", "female"]);
+    character.gender = this.config.rng.item(["male", "female"]);
     character.lastName = this.config.nameGeneratorFamily.generate(1)[0];
     character.firstName = this.config.nameGeneratorFemale.generate(1)[0];
-    if (character.gender == "male") {
+    if (character.gender === "male") {
       character.firstName = this.config.nameGeneratorMale.generate(1)[0];
     }
-    character.age = random.int(16, 22);
+    character.age = this.config.rng.int(16, 22);
     character.xp = 0;
     character.level = 0;
-    character.alignment = RND.item(["Law", "Chaos", "Neutrality"]);
-    character.occupation = randomOccupation(this.config.allowedOccupations);
+    character.alignment = this.config.rng.item(["Law", "Chaos", "Neutrality"]);
+    character.occupation = randomOccupation(this.config.allowedOccupations, this.config.rng);
     character.equipment.push(character.occupation.trainedWeapon);
     character.equipment.push(character.occupation.tradeGoods);
     character.weapons.push(character.occupation.trainedWeapon);
-    character.equipment.push(randomEquipment());
-    character.currency.cp = Dice.roll("5d12");
+    const randomEquipment = this.config.rng.item(getEquipmentOptions())
+    character.equipment.push(randomEquipment);
+    character.currency.cp = Dice.roll("5d12", this.config.rng);
 
     character.languages.push("Common");
 
@@ -74,36 +74,48 @@ export default class DCCCharacterGenerator {
     character = character.luckyRoll.apply(character);
 
     if (character.occupation.name.includes("elven")) {
-      let genSet = MUN.getSetByName("elf", MUN.allSets());
-      character.lastName = genSet.family.generate(1)[0];
-      if (character.gender == "male") {
-        character.firstName = genSet.male.generate(1)[0];
+      const patterns = MUN.getClassicRaceNamePatternSet("elf");
+      let nameGenerator = MUN.getNameGeneratorForPatternSet("elf", patterns.family, this.config.rng);
+      character.lastName = nameGenerator.generate(1)[0];
+      if (character.gender === "male") {
+        nameGenerator = MUN.getNameGeneratorForPatternSet("elf", patterns.male, this.config.rng);
+        character.firstName = nameGenerator.generate(1)[0];
       } else {
-        character.firstName = genSet.female.generate(1)[0];
+        nameGenerator = MUN.getNameGeneratorForPatternSet("elf", patterns.female, this.config.rng);
+        character.firstName = nameGenerator.generate(1)[0];
       }
     } else if (character.occupation.name.includes("dwarven")) {
-      let genSet = MUN.getSetByName("dwarf", MUN.allSets());
-      if (character.gender == "male") {
-        character.firstName = genSet.male.generate(1)[0];
+      const patterns = MUN.getClassicRaceNamePatternSet("dwarf");
+      let nameGenerator = MUN.getNameGeneratorForPatternSet("dwarf", patterns.family, this.config.rng);
+      character.lastName = nameGenerator.generate(1)[0];
+      if (character.gender === "male") {
+        nameGenerator = MUN.getNameGeneratorForPatternSet("dwarf", patterns.male, this.config.rng);
+        character.firstName = nameGenerator.generate(1)[0];
       } else {
-        character.firstName = genSet.female.generate(1)[0];
+        nameGenerator = MUN.getNameGeneratorForPatternSet("dwarf", patterns.female, this.config.rng);
+        character.firstName = nameGenerator.generate(1)[0];
       }
     } else if (character.occupation.name.includes("halfling")) {
-      let genSet = MUN.getSetByName("halfling", MUN.allSets());
-      if (genSet.family === null) {
-        throw new Error("No family name generator found for halflings.");
-      }
-      character.lastName = genSet.family.generate(1)[0];
-      if (genSet.female === null) {
-        throw new Error("No female name generator found for halflings.");
-      }
-      if (genSet.male === null) {
-        throw new Error("No male name generator found for halflings.");
-      }
-      if (character.gender == "male") {
-        character.firstName = genSet.male.generate(1)[0];
+      const patterns = MUN.getClassicRaceNamePatternSet("halfling");
+      let nameGenerator = MUN.getNameGeneratorForPatternSet("halfling", patterns.family, this.config.rng);
+      character.lastName = nameGenerator.generate(1)[0];
+      if (character.gender === "male") {
+        nameGenerator = MUN.getNameGeneratorForPatternSet("halfling", patterns.male, this.config.rng);
+        character.firstName = nameGenerator.generate(1)[0];
       } else {
-        character.firstName = genSet.female.generate(1)[0];
+        nameGenerator = MUN.getNameGeneratorForPatternSet("halfling", patterns.female, this.config.rng);
+        character.firstName = nameGenerator.generate(1)[0];
+      }
+    } else {
+      const patterns = MUN.getClassicRaceNamePatternSet("human");
+      let nameGenerator = MUN.getNameGeneratorForPatternSet("human", patterns.family, this.config.rng);
+      character.lastName = nameGenerator.generate(1)[0];
+      if (character.gender === "male") {
+        nameGenerator = MUN.getNameGeneratorForPatternSet("human", patterns.male, this.config.rng);
+        character.firstName = nameGenerator.generate(1)[0];
+      } else {
+        nameGenerator = MUN.getNameGeneratorForPatternSet("human", patterns.female, this.config.rng);
+        character.firstName = nameGenerator.generate(1)[0];
       }
     }
 
@@ -111,13 +123,13 @@ export default class DCCCharacterGenerator {
       character.hp = 1;
     }
 
-    character.languages = getLanguages(character);
+    character.languages = getLanguages(character, this.config.rng);
 
     return character;
   }
 }
 
-function getLanguages(character: DCCCharacter): string[] {
+function getLanguages(character: DCCCharacter, rng: RNG.RNG): string[] {
   let languages = character.languages;
   let possibleLanguages = Languages.getHuman();
 
@@ -135,7 +147,7 @@ function getLanguages(character: DCCCharacter): string[] {
   }
 
   for (let i = 0; i < character.numberOfLanguages; i++) {
-    let language = RND.weighted(possibleLanguages);
+    let language = rng.weighted(possibleLanguages);
 
     if (!languages.includes(language.name)) {
       languages.push(language.name);
@@ -178,8 +190,8 @@ function getSpellsKnown(intScore: number): number {
   return known[intScore];
 }
 
-function randomEquipment(): DCCGear {
-  return RND.item([
+function getEquipmentOptions(): DCCGear[] {
+  return [
     new DCCGear("backpack", 1),
     new DCCGear("candle", 1),
     new DCCGear("chain, 10'", 1),
@@ -204,22 +216,22 @@ function randomEquipment(): DCCGear {
     new DCCGear("thieves' tools", 1),
     new DCCGear("torch", 1),
     new DCCGear("waterskin", 1),
-  ]);
+  ];
 }
 
-function randomLuckyRoll(modifier: number): DCCLuckyRoll {
+function randomLuckyRoll(modifier: number, rng: RNG.RNG): DCCLuckyRoll {
   const rolls = LuckyRolls.all();
 
-  let roll = rolls[Dice.roll("1d30")];
+  const roll = rolls[Dice.roll("1d30", rng)];
   roll.modifier = modifier;
 
   return roll;
 }
 
-function randomOccupation(allowedOccupations: string[]): DCCOccupation {
+function randomOccupation(allowedOccupations: string[], rng: RNG.RNG): DCCOccupation {
   const occupations = Occupations.get(allowedOccupations);
 
-  let occupation = RND.weighted(occupations);
+  const occupation = rng.weighted(occupations);
 
   return occupation;
 }

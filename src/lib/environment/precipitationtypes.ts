@@ -45,7 +45,7 @@ export function byName(name: string): PrecipitationType {
   const options = all();
 
   for (let i = 0; i < options.length; i++) {
-    if (options[i].name == name) {
+    if (options[i].name === name) {
       return options[i];
     }
   }

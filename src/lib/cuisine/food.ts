@@ -1,23 +1,21 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-
-import random from "random";
 
 export function generateDish() {
   let dish = `${randomCookingMethod()} `;
 
   dish += randomMainComponent();
 
-  const vegetableChance = random.int(1, 100);
+  const vegetableChance = RNG.int(1, 100);
 
   if (vegetableChance > 50) {
-    const combiningWord = RND.item(["and", "on", "with"]);
+    const combiningWord = RNG.item(["and", "on", "with"]);
     dish += ` ${combiningWord} ${randomVegetable()}`;
   }
 
   const seasoning = randomSeasoning();
 
-  const seasoningPhrase = RND.item([
+  const seasoningPhrase = RNG.item([
     "seasoned with",
     "flavored with",
     "spiced with",
@@ -38,7 +36,7 @@ function randomCookingMethod() {
     "charbroiled",
   ];
 
-  return RND.item(items);
+  return RNG.item(items);
 }
 
 function randomFocus() {
@@ -106,17 +104,17 @@ function randomFocus() {
     },
   ];
 
-  const focus = RND.item(items);
+  const focus = RNG.item(items);
 
-  return RND.item(focus.options);
+  return RNG.item(focus.options);
 }
 
 function randomMainComponent() {
   let mainComponent = randomFocus();
 
-  const modifierChance = random.int(1, 100);
+  const modifierChance = RNG.int(1, 100);
   if (modifierChance > 80) {
-    mainComponent += ` ${RND.item(["sausage", "stew"])}`;
+    mainComponent += ` ${RNG.item(["sausage", "stew"])}`;
   }
 
   return mainComponent;
@@ -130,7 +128,7 @@ function randomSeasoning() {
   options = options.concat(herbs());
 
   for (let i = 0; i < seasoningCount; i++) {
-    const component = RND.item(options);
+    const component = RNG.item(options);
     if (!components.includes(component)) {
       components.push(component);
     } else {
@@ -157,7 +155,7 @@ function randomSeasoningCount() {
     },
   ];
 
-  const result = RND.weighted(weights);
+  const result = RNG.weighted(weights);
 
   return result.item;
 }
@@ -180,7 +178,7 @@ function randomVegetable() {
     "mushrooms",
   ];
 
-  return RND.item(items);
+  return RNG.item(items);
 }
 
 function spices() {

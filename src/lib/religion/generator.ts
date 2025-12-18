@@ -1,6 +1,6 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import type ReligionGeneratorConfig from "./generatorconfig.js";
 import PantheonGenerator from "./pantheons/generator.js";
 import PantheonGeneratorConfig from "./pantheons/generatorconfig.js";
@@ -10,9 +10,11 @@ import Religion from "./religion.js";
 
 export default class ReligionGenerator {
   config: ReligionGeneratorConfig;
+  rng: RNG.RNG;
 
-  constructor(config: ReligionGeneratorConfig) {
+  constructor(config: ReligionGeneratorConfig, rng: RNG.RNG = new RNG.RNG(Date.now())) {
     this.config = config;
+    this.rng = rng;
   }
 
   generate(): Religion {
@@ -20,7 +22,7 @@ export default class ReligionGenerator {
     let realmGen = new RealmGenerator(realmGenConfig);
     const realms = realmGen.generate();
 
-    const category = RND.item(this.config.categories);
+    const category = this.rng.item(this.config.categories);
 
     const religion = new Religion(this.config.nameGenerator.generate(1)[0]);
     religion.realms = realms;
@@ -39,7 +41,7 @@ export default class ReligionGenerator {
       religion.pantheon = pantheon;
 
       if (category.hasLeader) {
-        religion.pantheon.leader = random.int(
+        religion.pantheon.leader = this.rng.int(
           0,
           religion.pantheon.members.length - 1,
         );
@@ -65,17 +67,17 @@ export default class ReligionGenerator {
       religion.description =
         religion.pantheon.description +
         " " +
-        randomGatheringTimes() +
+        randomGatheringTimes(this.rng) +
         " " +
-        Words.capitalize(randomGatheringPlace()) +
+        Words.capitalize(randomGatheringPlace(this.rng)) +
         ".";
     } else {
       religion.description =
         category.description +
         " " +
-        randomGatheringTimes() +
+        randomGatheringTimes(this.rng) +
         " " +
-        Words.capitalize(randomGatheringPlace()) +
+        Words.capitalize(randomGatheringPlace(this.rng)) +
         ".";
     }
 
@@ -83,8 +85,8 @@ export default class ReligionGenerator {
   }
 }
 
-function randomGatheringPlace(): string {
-  let description = RND.item([
+function randomGatheringPlace(rng: RNG.RNG): string {
+  let description = rng.item([
     "{follower} gather in {place} for {service}",
     "{follower} congregate in {place} to be led in {service} by {leader}",
     "{follower} meet in {place} to engage in {service} and hear from {leader}",
@@ -95,7 +97,7 @@ function randomGatheringPlace(): string {
     "At {place}, {follower} come together to seek guidance and wisdom from {leader} through {service}",
   ]);
 
-  const follower = RND.item([
+  const follower = rng.item([
     "adherents",
     "believers",
     "disciples",
@@ -107,7 +109,7 @@ function randomGatheringPlace(): string {
     "zealots",
   ]);
 
-  const place = RND.item([
+  const place = rng.item([
     "temples",
     "churches",
     "mosques",
@@ -120,7 +122,7 @@ function randomGatheringPlace(): string {
     "outdoor arenas",
   ]);
 
-  const service = RND.item([
+  const service = rng.item([
     "silent meditation",
     "guided meditation",
     "chanting",
@@ -136,7 +138,7 @@ function randomGatheringPlace(): string {
     "ritual sacrifice",
   ]);
 
-  const leader = RND.item([
+  const leader = rng.item([
     "priest",
     "priestess",
     "minister",
@@ -161,8 +163,8 @@ function randomGatheringPlace(): string {
   return description;
 }
 
-function randomGatheringTimes(): string {
-  let description = RND.item([
+function randomGatheringTimes(rng: RNG.RNG): string {
+  let description = rng.item([
     "Regular gatherings happen once a week.",
     "Regular gatherings happen daily.",
     "Regular gatherings happen once a month.",
@@ -179,7 +181,7 @@ function randomGatheringTimes(): string {
   description = description
     .replace(
       "{weekday}",
-      RND.item([
+      rng.item([
         "Monday",
         "Tuesday",
         "Wednesday",
@@ -191,11 +193,11 @@ function randomGatheringTimes(): string {
     )
     .replace(
       "{frequency}",
-      RND.item(["weekly", "bi-weekly", "monthly", "quarterly", "annually"]),
+      rng.item(["weekly", "bi-weekly", "monthly", "quarterly", "annually"]),
     )
     .replace(
       "{follower}",
-      RND.item([
+      rng.item([
         "worshipers",
         "devotees",
         "believers",
@@ -206,7 +208,7 @@ function randomGatheringTimes(): string {
     )
     .replace(
       "{service}",
-      RND.item([
+      rng.item([
         "prayer",
         "worship",
         "meditation",
@@ -218,11 +220,11 @@ function randomGatheringTimes(): string {
     )
     .replace(
       "{time}",
-      RND.item(["sunrise", "midday", "sunset", "evening", "night"]),
+      rng.item(["sunrise", "midday", "sunset", "evening", "night"]),
     )
     .replace(
       "{place}",
-      RND.item([
+      rng.item([
         "the temple",
         "the church",
         "the mosque",
@@ -235,7 +237,7 @@ function randomGatheringTimes(): string {
     )
     .replace(
       "{activity}",
-      RND.item([
+      rng.item([
         "fellowship",
         "conversation",
         "sharing",
@@ -246,7 +248,7 @@ function randomGatheringTimes(): string {
     )
     .replace(
       "{occasion}",
-      RND.item(["special", "holiday", "festive", "solemn"]),
+      rng.item(["special", "holiday", "festive", "solemn"]),
     );
 
   return description;

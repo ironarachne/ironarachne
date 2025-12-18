@@ -1,36 +1,37 @@
 <script lang="ts">
-  import { WordGenerator, allElements } from '@ironarachne/word-generator';
+import { WordGenerator, allElements } from "@ironarachne/word-generator";
 
-  let elements = allElements;
+let elements = allElements;
 
-  let html =
-    $state('<table><thead><tr><th>Name</th><th>Symbol</th><th>Elements</th></tr></thead><tbody>');
+let html = $state(
+  "<table><thead><tr><th>Name</th><th>Symbol</th><th>Elements</th></tr></thead><tbody>",
+);
 
-  for (let i = 0; i < elements.length; i++) {
-    html +=
-      '<tr><td>' +
-      elements[i].name +
-      '</td><td>' +
-      elements[i].symbol +
-      '</td><td>' +
-      elements[i].elements.join(', ') +
-      '</td></tr>';
+for (let i = 0; i < elements.length; i++) {
+  html +=
+    "<tr><td>" +
+    elements[i].name +
+    "</td><td>" +
+    elements[i].symbol +
+    "</td><td>" +
+    elements[i].elements.join(", ") +
+    "</td></tr>";
+}
+
+html += "</tbody></table>";
+
+let pattern = $state("");
+let numberOfWords = $state(10);
+let words: string[] = $state([]);
+
+function generate() {
+  words = [];
+  let wordGen = new WordGenerator();
+  wordGen.patterns = [pattern];
+  for (let i = 0; i < numberOfWords; i++) {
+    words.push(wordGen.generate());
   }
-
-  html += '</tbody></table>';
-
-  let pattern = $state('');
-  let numberOfWords = $state(10);
-  let words: string[] = $state([]);
-
-  function generate() {
-    words = [];
-    let wordGen = new WordGenerator();
-    wordGen.patterns = [pattern];
-    for (let i =0;i<numberOfWords;i++) {
-      words.push(wordGen.generate());
-    }
-  }
+}
 </script>
 
 <style lang="scss">

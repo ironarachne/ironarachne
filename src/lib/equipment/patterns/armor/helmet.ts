@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import Armor from "../../armor/armor.js";
 import Component from "../../components/component.js";
@@ -17,25 +17,25 @@ export default class HelmetPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number): Armor {
-    let body = RND.item(Components.withCategory("metal", componentOptions));
-    let trim = RND.item(
+    let body = RNG.item(Components.withCategory("metal", componentOptions));
+    let trim = RNG.item(
       Components.withCategory("soft metal", componentOptions),
     );
 
     let value = this.baseValue + body.value * 10 + trim.value;
 
-    let description = RND.item([
+    let description = RNG.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name} `,
     ]);
 
-    description += RND.item([
-      ` with ${trim.descriptor} ${RND.item(["trim", "edging"])}`,
+    description += RNG.item([
+      ` with ${trim.descriptor} ${RNG.item(["trim", "edging"])}`,
       ` trimmed with ${trim.descriptor}`,
     ]);
 
     if (quality > 1) {
-      description += RND.item([" and set with jewels"]);
+      description += RNG.item([" and set with jewels"]);
     }
 
     let name = `${body.descriptor} ${this.name}`;

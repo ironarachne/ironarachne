@@ -1,4 +1,4 @@
-import ADNDClass from "../adndclass.js";
+import type ADNDClass from "../adndclass.js";
 import abjurer from "./abjurer.js";
 import bard from "./bard.js";
 import cleric from "./cleric.js";

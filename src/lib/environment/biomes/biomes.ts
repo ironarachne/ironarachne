@@ -1,23 +1,23 @@
 import type Biome from "./biome";
 import type BiomeGeneratorConfig from "./generator_config";
 import * as BiomeTypes from "./biome_types";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import type BiomeType from "./biome_type.js";
 
 export function generate(config: BiomeGeneratorConfig): Biome {
   const biomeType = getBiomeTypeForConfig(config);
 
-  const features = generateBiomeFeatures(biomeType);
-  const descriptions = generateBiomeDescriptions(biomeType);
+  const features = generateBiomeFeatures(biomeType, config.rng);
+  const descriptions = generateBiomeDescriptions(biomeType, config.rng);
 
   let biome: Biome = {
     name: biomeType.name,
     altitude: config.altitude,
-    humidity: random.float(config.humidityMin, config.humidityMax),
+    humidity: config.rng.float(config.humidityMin, config.humidityMax),
     isAquatic: config.isAquatic,
-    temperature: random.float(config.temperatureMin, config.temperatureMax),
+    temperature: config.rng.float(config.temperatureMin, config.temperatureMax),
     descriptions,
     features,
   };
@@ -51,7 +51,7 @@ export function generateBiomeName(biome: Biome): string {
   return name;
 }
 
-export function generateBiomeDescriptions(biomeType: BiomeType): string[] {
+export function generateBiomeDescriptions(biomeType: BiomeType, rng: RNG.RNG): string[] {
   let descriptions = [];
 
   const averageHumidity = (biomeType.humidityMax + biomeType.humidityMin) / 2;
@@ -96,19 +96,19 @@ export function generateBiomeDescriptions(biomeType: BiomeType): string[] {
   }
 
   descriptions = [
-    `The area is ${RND.item(temperatureDescriptors)} and ${RND.item(humidityDescriptors)}. It's ${Words.article(biomeType.name)} ${biomeType.name}.`,
-    `This ${biomeType.name} is ${RND.item(temperatureDescriptors)} and ${RND.item(humidityDescriptors)}.`,
-    `The area is a ${RND.item(altitudeDescriptors)} ${biomeType.name}.`,
+    `The area is ${rng.item(temperatureDescriptors)} and ${rng.item(humidityDescriptors)}. It's ${Words.article(biomeType.name)} ${biomeType.name}.`,
+    `This ${biomeType.name} is ${rng.item(temperatureDescriptors)} and ${rng.item(humidityDescriptors)}.`,
+    `The area is a ${rng.item(altitudeDescriptors)} ${biomeType.name}.`,
   ];
 
   return descriptions;
 }
 
-export function generateBiomeFeatures(biomeType: BiomeType): string[] {
+export function generateBiomeFeatures(biomeType: BiomeType, rng: RNG.RNG): string[] {
   let features = [];
 
   if (biomeType.vegetationDensity > 0) {
-    const vegetation = RND.item(biomeType.vegetationTypes);
+    const vegetation = rng.item(biomeType.vegetationTypes);
     if (biomeType.vegetationDensity > 0.5) {
       features.push(`The area is filled with ${vegetation}s.`);
     } else if (biomeType.vegetationDensity > 0.3) {
@@ -119,7 +119,7 @@ export function generateBiomeFeatures(biomeType: BiomeType): string[] {
   }
 
   if (biomeType.faunaDensity > 0) {
-    const fauna = RND.item(biomeType.faunaTypes);
+    const fauna = rng.item(biomeType.faunaTypes);
     if (biomeType.faunaDensity > 0.5) {
       features.push(`The area is teeming with ${fauna}s.`);
     } else if (biomeType.faunaDensity > 0.3) {
@@ -130,7 +130,7 @@ export function generateBiomeFeatures(biomeType: BiomeType): string[] {
   }
 
   if (biomeType.waterFeatureDensity > 0) {
-    const waterFeature = RND.item(biomeType.waterFeatures);
+    const waterFeature = rng.item(biomeType.waterFeatures);
     if (biomeType.waterFeatureDensity > 0.5) {
       features.push(`There is a large ${waterFeature} here.`);
     } else if (biomeType.waterFeatureDensity > 0.3) {
@@ -153,6 +153,7 @@ export function getDefaultConfig(): BiomeGeneratorConfig {
     isAquatic: false,
     temperatureMin: 0,
     temperatureMax: 30,
+    rng: new RNG.RNG(Date.now().toString())
   };
 }
 

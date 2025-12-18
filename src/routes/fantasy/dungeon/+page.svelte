@@ -1,46 +1,45 @@
 <script lang="ts">
-  import * as Currency from "$lib/currency/currency";
-  import * as RND from "@ironarachne/rng";
-  import * as Words from '@ironarachne/words';
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import * as Dungeons from "$lib/dungeon/dungeons";
-  import DungeonTileRenderer from "$lib/dungeon/tilerenderer";
-  import { onMount } from "svelte";
+import * as Currency from "$lib/currency/currency";
+import * as RNG from "@ironarachne/rng";
+import * as Words from "@ironarachne/words";
 
-  let seed = RND.randomString(13);
-  let lockSeed = false;
+import * as Dungeons from "$lib/dungeon/dungeons";
+import DungeonTileRenderer from "$lib/dungeon/tilerenderer";
+import { onMount } from "svelte";
 
-  let canvas: HTMLCanvasElement;
-  let minRooms = 20;
-  let maxRooms = 30;
+let seed = RNG.randomString(13);
+let lockSeed = false;
 
-  let config = Dungeons.getDefaultConfig();
+let canvas: HTMLCanvasElement;
+let minRooms = 20;
+let maxRooms = 30;
+
+let config = Dungeons.getDefaultConfig();
+config.minRooms = minRooms;
+config.maxRooms = maxRooms;
+let dungeon = Dungeons.generate(config);
+let renderer = new DungeonTileRenderer(800, 1000, config.height, config.width);
+
+function generate() {
+  if (!lockSeed) {
+    seed = RNG.randomString(13);
+  }
+  RNG.setSeed(seed);
+
   config.minRooms = minRooms;
   config.maxRooms = maxRooms;
-  let dungeon = Dungeons.generate(config);
-  let renderer = new DungeonTileRenderer(800, 1000, config.height, config.width);
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
+  dungeon = Dungeons.generate(config);
+  renderer.render(dungeon, canvas);
+}
 
-    config.minRooms = minRooms;
-    config.maxRooms = maxRooms;
-
-    dungeon = Dungeons.generate(config);
-    renderer.render(dungeon, canvas);
+onMount(() => {
+  const htmlElement = document.getElementById("mapCanvas");
+  if (htmlElement instanceof HTMLCanvasElement) {
+    canvas = htmlElement;
   }
-
-  onMount(() => {
-    const htmlElement = document.getElementById('mapCanvas');
-    if (htmlElement instanceof HTMLCanvasElement) {
-      canvas = htmlElement;
-    }
-    generate();
-  });
+  generate();
+});
 </script>
 
 <style lang="scss">

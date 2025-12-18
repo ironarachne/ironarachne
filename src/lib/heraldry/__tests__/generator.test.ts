@@ -1,6 +1,12 @@
 import { describe, expect, test } from "vitest";
-import { generateHeraldry, generateHeraldryConfig } from "$lib/heraldry/generator.js";
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig.js";
+import {
+  generateHeraldry,
+  generateHeraldryConfig,
+} from "$lib/heraldry/generator.js";
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from "$lib/heraldry/generatorconfig.js";
 
 // Helper: config with zero charges
 function zeroChargeConfig(): HeraldryGeneratorConfig {

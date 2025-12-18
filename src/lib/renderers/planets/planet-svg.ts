@@ -1,9 +1,7 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Classifications from "$lib/planets/classifications";
 import type Planet from "$lib/planets/planet";
 import SVGStarfieldRenderer from "../starfields/starfield-svg.js";
-
-import random from "random";
 
 export default class SVGPlanetRenderer {
   width: number;
@@ -29,7 +27,7 @@ export default class SVGPlanetRenderer {
     const midX = Math.floor(this.width / 2);
     const midY = Math.floor(this.height / 2);
 
-    const planetId = random.int(0, 1000);
+    const planetId = RNG.int(0, 1000);
 
     const min = Math.min(this.width, this.height);
 
@@ -137,7 +135,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: false,
       atmosphereColor: "blue",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -156,13 +154,13 @@ function getPlanetRenderer(planetType: string) {
         svg +=
           '<rect x="0" y="0" width="256" height="256" fill="rgb(150,150,150)" />';
 
-        const numberOfSplotches = random.int(6, 14);
+        const numberOfSplotches = RNG.int(6, 14);
 
         for (let i = 0; i < numberOfSplotches; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(10, 20);
-          const amount = random.int(110, 170);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(10, 20);
+          const amount = RNG.int(110, 170);
 
           svg +=
             '<circle cx="' +
@@ -182,12 +180,12 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfCraters = random.int(55, 80);
+        const numberOfCraters = RNG.int(55, 80);
 
         for (let i = 0; i < numberOfCraters; i++) {
-          const x = random.int(20, 200);
-          const y = random.int(20, 200);
-          const r = random.int(3, 8);
+          const x = RNG.int(20, 200);
+          const y = RNG.int(20, 200);
+          const r = RNG.int(3, 8);
           const crater =
             '<circle cx="' +
             x +
@@ -211,7 +209,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: true,
       atmosphereColor: "rgb(170,224,211)",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -230,13 +228,13 @@ function getPlanetRenderer(planetType: string) {
         svg +=
           '<rect x="0" y="0" width="256" height="256" fill="rgb(227,210,141)" />';
 
-        const numberOfSplotches = random.int(6, 14);
+        const numberOfSplotches = RNG.int(6, 14);
 
         for (let i = 0; i < numberOfSplotches; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(10, 20);
-          const amount = random.int(-10, 20);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(10, 20);
+          const amount = RNG.int(-10, 20);
 
           svg +=
             '<circle cx="' +
@@ -256,12 +254,12 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfCraters = random.int(25, 30);
+        const numberOfCraters = RNG.int(25, 30);
 
         for (let i = 0; i < numberOfCraters; i++) {
-          const x = random.int(20, 200);
-          const y = random.int(20, 200);
-          const r = random.int(3, 8);
+          const x = RNG.int(20, 200);
+          const y = RNG.int(20, 200);
+          const r = RNG.int(3, 8);
           const crater =
             '<circle cx="' +
             x +
@@ -285,7 +283,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: true,
       atmosphereColor: "blue",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -310,12 +308,12 @@ function getPlanetRenderer(planetType: string) {
         svg +=
           '<rect x="0" y="0" width="256" height="256" fill="rgb(36,27,161)" />';
 
-        const numberOfContinents = random.int(7, 18);
+        const numberOfContinents = RNG.int(7, 18);
 
         for (let i = 0; i < numberOfContinents; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(5, 30);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(5, 30);
 
           svg +=
             '<circle cx="' +
@@ -331,13 +329,13 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfClouds = random.int(20, 30);
+        const numberOfClouds = RNG.int(20, 30);
 
         for (let i = 0; i < numberOfClouds; i++) {
-          const x = random.int(15, 100);
-          const y = random.int(15, 100);
-          const rx = random.int(5, 13);
-          const ry = random.int(5, 9);
+          const x = RNG.int(15, 100);
+          const y = RNG.int(15, 100);
+          const rx = RNG.int(5, 13);
+          const ry = RNG.int(5, 9);
 
           svg +=
             '<ellipse cx="' +
@@ -363,7 +361,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: true,
       atmosphereColor: "blue",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -388,13 +386,13 @@ function getPlanetRenderer(planetType: string) {
         svg +=
           '<rect x="0" y="0" width="256" height="256" fill="rgb(8,94,40)" />';
 
-        const numberOfSplotches = random.int(6, 14);
+        const numberOfSplotches = RNG.int(6, 14);
 
         for (let i = 0; i < numberOfSplotches; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(10, 20);
-          const amount = random.int(-10, 20);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(10, 20);
+          const amount = RNG.int(-10, 20);
 
           svg +=
             '<circle cx="' +
@@ -414,12 +412,12 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfOceans = random.int(4, 7);
+        const numberOfOceans = RNG.int(4, 7);
 
         for (let i = 0; i < numberOfOceans; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(5, 10);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(5, 10);
 
           svg +=
             '<circle cx="' +
@@ -435,13 +433,13 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfClouds = random.int(40, 60);
+        const numberOfClouds = RNG.int(40, 60);
 
         for (let i = 0; i < numberOfClouds; i++) {
-          const x = random.int(15, 100);
-          const y = random.int(15, 100);
-          const rx = random.int(5, 9);
-          const ry = random.int(5, 9);
+          const x = RNG.int(15, 100);
+          const y = RNG.int(15, 100);
+          const rx = RNG.int(5, 9);
+          const ry = RNG.int(5, 9);
 
           svg +=
             '<ellipse cx="' +
@@ -467,7 +465,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: true,
       atmosphereColor: "blue",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -492,13 +490,13 @@ function getPlanetRenderer(planetType: string) {
         svg +=
           '<rect x="0" y="0" width="256" height="256" fill="rgb(8,94,40)" />';
 
-        const numberOfSplotches = random.int(6, 14);
+        const numberOfSplotches = RNG.int(6, 14);
 
         for (let i = 0; i < numberOfSplotches; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(10, 20);
-          const amount = random.int(-10, 20);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(10, 20);
+          const amount = RNG.int(-10, 20);
 
           svg +=
             '<circle cx="' +
@@ -518,12 +516,12 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfOceans = random.int(4, 7);
+        const numberOfOceans = RNG.int(4, 7);
 
         for (let i = 0; i < numberOfOceans; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(5, 10);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(5, 10);
 
           svg +=
             '<circle cx="' +
@@ -539,13 +537,13 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfClouds = random.int(40, 60);
+        const numberOfClouds = RNG.int(40, 60);
 
         for (let i = 0; i < numberOfClouds; i++) {
-          const x = random.int(15, 100);
-          const y = random.int(15, 100);
-          const rx = random.int(5, 9);
-          const ry = random.int(5, 9);
+          const x = RNG.int(15, 100);
+          const y = RNG.int(15, 100);
+          const rx = RNG.int(5, 9);
+          const ry = RNG.int(5, 9);
 
           svg +=
             '<ellipse cx="' +
@@ -571,7 +569,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: true,
       atmosphereColor: "rgb(224,153,47)",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -590,13 +588,13 @@ function getPlanetRenderer(planetType: string) {
         svg +=
           '<rect x="0" y="0" width="256" height="256" fill="rgb(57,40,35)" />';
 
-        const numberOfSplotches = random.int(6, 14);
+        const numberOfSplotches = RNG.int(6, 14);
 
         for (let i = 0; i < numberOfSplotches; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(10, 20);
-          const amount = random.int(-10, 20);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(10, 20);
+          const amount = RNG.int(-10, 20);
 
           svg +=
             '<circle cx="' +
@@ -616,13 +614,13 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfLavaLakes = random.int(26, 30);
+        const numberOfLavaLakes = RNG.int(26, 30);
 
         for (let i = 0; i < numberOfLavaLakes; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(1, 4);
-          const amount = random.int(-10, 20);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(1, 4);
+          const amount = RNG.int(-10, 20);
 
           svg +=
             '<circle cx="' +
@@ -652,7 +650,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: false,
       atmosphereColor: "blue",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -665,27 +663,27 @@ function getPlanetRenderer(planetType: string) {
 
         svg += "</defs>";
 
-        const numberOfBands = random.int(10, 16);
+        const numberOfBands = RNG.int(10, 16);
 
         let remainingHeight = 256;
 
-        const baseR = random.int(60, 255);
-        const baseG = random.int(60, 255);
-        const baseB = random.int(60, 255);
+        const baseR = RNG.int(60, 255);
+        const baseG = RNG.int(60, 255);
+        const baseB = RNG.int(60, 255);
 
         const baseColor = "rgb(" + baseR + "," + baseG + "," + baseB + ")";
 
         let bandsSVG = "";
 
         for (let i = 0; i < numberOfBands; i++) {
-          const bandOffset = random.int(0, 5);
-          const bandHeight = random.int(3, 15);
+          const bandOffset = RNG.int(0, 5);
+          const bandHeight = RNG.int(3, 15);
 
           const y = 256 - remainingHeight + bandHeight + bandOffset;
 
-          const r = baseR + random.int(-30, 30);
-          const g = baseG + random.int(-30, 30);
-          const b = baseB + random.int(-30, 30);
+          const r = baseR + RNG.int(-30, 30);
+          const g = baseG + RNG.int(-30, 30);
+          const b = baseB + RNG.int(-30, 30);
 
           const bandSVG =
             '<rect x="0" y="' +
@@ -724,7 +722,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: true,
       atmosphereColor: "rgb(171,224,45)",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -744,13 +742,13 @@ function getPlanetRenderer(planetType: string) {
         svg +=
           '<rect x="0" y="0" width="256" height="256" fill="rgb(168,155,39)" />';
 
-        const numberOfSplotches = random.int(6, 14);
+        const numberOfSplotches = RNG.int(6, 14);
 
         for (let i = 0; i < numberOfSplotches; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(10, 20);
-          const amount = random.int(-10, 20);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(10, 20);
+          const amount = RNG.int(-10, 20);
 
           svg +=
             '<circle cx="' +
@@ -770,12 +768,12 @@ function getPlanetRenderer(planetType: string) {
             ')" />';
         }
 
-        const numberOfToxicOceans = random.int(4, 7);
+        const numberOfToxicOceans = RNG.int(4, 7);
 
         for (let i = 0; i < numberOfToxicOceans; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(10, 20);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(10, 20);
 
           svg +=
             '<circle cx="' +
@@ -801,7 +799,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: true,
       atmosphereColor: "rgb(125,229,255)",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -820,13 +818,13 @@ function getPlanetRenderer(planetType: string) {
         svg +=
           '<rect x="0" y="0" width="256" height="256" fill="rgb(224,250,255)" />';
 
-        const numberOfSplotches = random.int(6, 14);
+        const numberOfSplotches = RNG.int(6, 14);
 
         for (let i = 0; i < numberOfSplotches; i++) {
-          const x = random.int(1, 90);
-          const y = random.int(1, 90);
-          const r = random.int(10, 20);
-          const amount = random.int(0, 20);
+          const x = RNG.int(1, 90);
+          const y = RNG.int(1, 90);
+          const r = RNG.int(10, 20);
+          const amount = RNG.int(0, 20);
 
           svg +=
             '<circle cx="' +
@@ -856,7 +854,7 @@ function getPlanetRenderer(planetType: string) {
       hasAtmosphere: true,
       atmosphereColor: "blue",
       renderSVG: function () {
-        const hash = RND.randomString(4);
+        const hash = RNG.randomString(4);
         let svg =
           '<svg x="0" y="0" width="256" height="256" viewBox="0 0 256 256">';
 
@@ -881,13 +879,13 @@ function getPlanetRenderer(planetType: string) {
 
         svg += "</svg>";
 
-        const numberOfClouds = random.int(20, 30);
+        const numberOfClouds = RNG.int(20, 30);
 
         for (let i = 0; i < numberOfClouds; i++) {
-          const x = random.int(15, 100);
-          const y = random.int(15, 100);
-          const rx = random.int(5, 9);
-          const ry = random.int(5, 9);
+          const x = RNG.int(15, 100);
+          const y = RNG.int(15, 100);
+          const rx = RNG.int(5, 9);
+          const ry = RNG.int(5, 9);
 
           svg +=
             '<ellipse cx="' +

@@ -54,4 +54,4 @@ export const threeChargesVerticalCenterArrangement: ChargeGroupArrangement = {
 
     return `<g transform='${transform}'>${chargeSVG1.end()}${chargeSVG2.end()}${chargeSVG3.end()}</g>`;
   },
-}
+};

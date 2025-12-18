@@ -1,5 +1,5 @@
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
+
 import type { Resource } from "./resources";
 import { WordGenerator } from "@ironarachne/word-generator";
 
@@ -662,7 +662,7 @@ export function generateFictionalMetalOre(): Resource {
     "tvlvlIUM",
   ];
   const oreName = nameGenerator.generate();
-  const oreType = RND.item(["ferrous", "non-ferrous"]);
+  const oreType = RNG.item(["ferrous", "non-ferrous"]);
 
   const ore = {
     name: oreName,
@@ -674,25 +674,25 @@ export function generateFictionalMetalOre(): Resource {
       {
         name: "conductivity",
         description: "The ability of the metal to conduct electricity.",
-        value: random.float(0, 10),
+        value: RNG.float(0, 10),
       },
       {
         name: "melting_point",
         description: "The temperature at which the metal melts.",
-        value: random.int(1000, 3000),
+        value: RNG.int(1000, 3000),
       },
       {
         name: "density",
         description: "The mass per unit volume of the metal.",
-        value: random.int(5000, 15000),
+        value: RNG.int(5000, 15000),
       },
       {
         name: "hardness",
         description: "The hardness of the metal on the Mohs scale.",
-        value: random.float(1, 10),
+        value: RNG.float(1, 10),
       },
     ],
-    commonality: random.int(1, 10),
+    commonality: RNG.int(1, 10),
   };
 
   return ore;

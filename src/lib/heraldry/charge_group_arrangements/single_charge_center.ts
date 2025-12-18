@@ -49,4 +49,4 @@ export const singleChargeCenterArrangement: ChargeGroupArrangement = {
 
     return `<g transform="${transform}">${chargeSVG.end()}</g>`;
   },
-}
+};

@@ -1,13 +1,15 @@
-import random from "random";
 import * as THREE from "three";
 import * as PlanetShaders from "$lib/shaders/planets/planets";
+import type * as RNG from "@ironarachne/rng";
 import SimpleVertexShader from "$lib/shaders/simple.vert";
 import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
 
 export function render(
+  document: Document,
   planet: AstronomicalBody,
   width: number,
   height: number,
+  rng: RNG.RNG
 ): string {
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -28,11 +30,11 @@ export function render(
     planet.classification,
   );
 
-  const colors = getRandomGasGiantColorSet();
+  const colors = getRandomGasGiantColorSet(rng);
 
   const uniforms = {
     light_direction: {
-      value: new THREE.Vector3(random.float(0.3, 0.6), 1.0, 0.5),
+      value: new THREE.Vector3(rng.float(0.3, 0.6), 1.0, 0.5),
     },
     planet_radius: {
       value: translateRadiusToImageSize(planet.radius, Math.min(height, width)),
@@ -41,7 +43,7 @@ export function render(
     band_color_1: { value: colors[1] },
     band_color_2: { value: colors[2] },
     resolution: { value: new THREE.Vector2(width, height) },
-    seed: { value: random.float(0.0, 100.0) },
+    seed: { value: rng.float(0.0, 100.0) },
   };
 
   const geometry = new THREE.PlaneGeometry(1, 1);
@@ -65,25 +67,25 @@ export function render(
   return data;
 }
 
-function getRandomGasGiantColorSet(): [
+function getRandomGasGiantColorSet(rng: RNG.RNG): [
   THREE.Vector3,
   THREE.Vector3,
   THREE.Vector3,
 ] {
   const color1 = new THREE.Vector3(
-    random.float(0.1, 0.8),
-    random.float(0.1, 0.8),
-    random.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
   );
   const color2 = new THREE.Vector3(
-    random.float(0.1, 0.8),
-    random.float(0.1, 0.8),
-    random.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
   );
   const color3 = new THREE.Vector3(
-    random.float(0.1, 0.8),
-    random.float(0.1, 0.8),
-    random.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
+    rng.float(0.1, 0.8),
   );
 
   return [color1, color2, color3];

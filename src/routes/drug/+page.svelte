@@ -1,24 +1,22 @@
 <script lang="ts">
-  import type Drug from "$lib/drug/drug";
-  import * as Drugs from "$lib/drug/drugs";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+import type Drug from "$lib/drug/drug";
+import * as Drugs from "$lib/drug/drugs";
+import * as RNG from "@ironarachne/rng";
 
-  let seed = $state(RND.randomString(13));
-  const config = Drugs.getDefaultConfig();
-  let drug: Drug = $state(Drugs.generate(config));
-  let lockSeed = $state(false);
+let seed = $state(RNG.randomString(13));
+const config = Drugs.getDefaultConfig();
+let drug: Drug = $state(Drugs.generate(config));
+let lockSeed = $state(false);
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    drug = Drugs.generate(config);
+function generate() {
+  if (!lockSeed) {
+    seed = RNG.randomString(13);
   }
+  RNG.setSeed(seed);
+  drug = Drugs.generate(config);
+}
 
-  generate();
+generate();
 </script>
 
 <style lang="scss">

@@ -1,9 +1,12 @@
-import type WeaponType from "./type";
+import type { RNG } from "@ironarachne/rng";
+import type { WeaponType } from "./weapons";
 
 export default class WeaponGeneratorConfig {
   weaponTypes: WeaponType[];
+  rng: RNG;
 
-  constructor() {
+  constructor(rng: RNG) {
     this.weaponTypes = [];
+    this.rng = rng;
   }
 }

@@ -1,6 +1,6 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import Clothing from "../../clothing/clothing.js";
 import Component from "../../components/component.js";
 import * as Components from "../../components/components.js";
@@ -18,24 +18,24 @@ export default class BeltPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number): Clothing {
-    let body = RND.item(Components.withCategory("leather", componentOptions));
-    let hardware = RND.item(Components.withCategory("metal", componentOptions));
+    let body = RNG.item(Components.withCategory("leather", componentOptions));
+    let hardware = RNG.item(Components.withCategory("metal", componentOptions));
 
     let value = this.baseValue + body.value + hardware.value;
 
-    let description = RND.item([
+    let description = RNG.item([
       `${Words.article(this.name)} ${this.name} `,
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor} `,
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name} `,
     ]);
 
-    description += `with ${Words.article(hardware.descriptor)} ${hardware.descriptor} ${RND.item(
+    description += `with ${Words.article(hardware.descriptor)} ${hardware.descriptor} ${RNG.item(
       ["clasp", "buckle", "closure"],
     )}`;
 
-    if (quality > 1 && random.int(1, 100) >= 70) {
-      description += RND.item([
-        ` that is embossed with ${RND.item(["simple", "complex", "ornate"])} patterns`,
+    if (quality > 1 && RNG.int(1, 100) >= 70) {
+      description += RNG.item([
+        ` that is embossed with ${RNG.item(["simple", "complex", "ornate"])} patterns`,
         ` that has decorative stitching down the sides`,
       ]);
     }

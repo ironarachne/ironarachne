@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import type RoomFeature from "./feature.js";
 
 export default class RoomFeatureGenerator {
@@ -22,13 +22,13 @@ export default class RoomFeatureGenerator {
   generate(): RoomFeature {
     let secret = "";
 
-    if (RND.simple(100) > 70 && this.secretOptions.length > 0) {
-      secret = RND.item(this.secretOptions);
+    if (RNG.simple(100) > 70 && this.secretOptions.length > 0) {
+      secret = RNG.item(this.secretOptions);
     }
 
     return {
       name: this.name,
-      description: RND.item(this.descriptionOptions),
+      description: RNG.item(this.descriptionOptions),
       secret: secret,
       isContainer: this.isContainer,
     };

@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import ADNDCharacter from "../adndcharacter.js";
 import ADNDRace from "../adndrace.js";
 
@@ -10,10 +10,10 @@ export default new ADNDRace(
     character.strength -= 1;
     character.exceptionalStrength = -1;
     // TODO: address saving throws
-    let halflingType = RND.item(["Hairfeet", "Tallfellow", "Stout"]);
+    let halflingType = RNG.item(["Hairfeet", "Tallfellow", "Stout"]);
     character.race.name = `${halflingType} halfling`;
     if (halflingType == "Stout") {
-      if (RND.simple(100) <= 15) {
+      if (RNG.simple(100) <= 15) {
         character.abilities.push("Normal Infravision (60')");
       }
       character.abilities.push(
@@ -21,7 +21,7 @@ export default new ADNDRace(
       );
       character.abilities.push("Determine direction on 1,2,3 on 1d6");
     } else {
-      if (RND.simple(100) <= 25) {
+      if (RNG.simple(100) <= 25) {
         character.abilities.push("Limited Infravision (30')");
       }
     }

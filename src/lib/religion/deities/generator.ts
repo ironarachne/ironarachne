@@ -1,5 +1,5 @@
 import * as Characters from "$lib/characters/characters.js";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as Deities from "./deities.js";
 import type Deity from "./deity.js";
@@ -30,7 +30,7 @@ export default class DeityGenerator {
       deityName = this.config.maleNameGenerator.generate(1)[0];
     }
 
-    let realm = RND.item(this.config.realms);
+    let realm = RNG.item(this.config.realms);
     if (realm === undefined) {
       throw new Error("realm is undefined");
     }
@@ -47,10 +47,10 @@ export default class DeityGenerator {
     possibleHolyItems = this.config.domainSet.primary.holyItems;
     possibleHolySymbols = this.config.domainSet.primary.holySymbols;
 
-    deity.holyItem = RND.item(possibleHolyItems);
-    deity.holySymbol = RND.item(possibleHolySymbols);
+    deity.holyItem = RNG.item(possibleHolyItems);
+    deity.holySymbol = RNG.item(possibleHolySymbols);
 
-    const chanceOfRealmTrait = RND.simple(100);
+    const chanceOfRealmTrait = RNG.simple(100);
 
     const physicalTraits = characterDetails.physicalTraits;
     let appearanceTraits = [];
@@ -60,7 +60,7 @@ export default class DeityGenerator {
     }
 
     if (chanceOfRealmTrait > 80) {
-      let realmTrait = RND.item(deity.realm.appearanceTraits);
+      let realmTrait = RNG.item(deity.realm.appearanceTraits);
       if (realmTrait === undefined) {
         console.log(JSON.stringify(deity.realm));
         throw new Error("realm appearance trait is undefined");

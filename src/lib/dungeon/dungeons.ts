@@ -2,9 +2,9 @@ import type Encounter from "$lib/encounters/encounter";
 import * as Encounters from "$lib/encounters/encounters";
 import type Biome from "$lib/environment/biomes/biome";
 import * as Environments from "$lib/environment/environments";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import * as Doors from "./doors";
 import type Dungeon from "./dungeon";
 import type DungeonGeneratorConfig from "./dungeon_generator_config";
@@ -27,7 +27,7 @@ import TreasureSpawn from "./treasurespawn";
 
 export function generate(config: DungeonGeneratorConfig): Dungeon {
   let themeOptions = DungeonThemes.all();
-  let theme = RND.item(themeOptions);
+  let theme = RNG.item(themeOptions);
 
   let dungeon: Dungeon = {
     environment: "",
@@ -40,7 +40,7 @@ export function generate(config: DungeonGeneratorConfig): Dungeon {
     totalThreatLevel: 0,
     averageThreatLevel: 0,
   };
-  dungeon.environment = RND.item([
+  dungeon.environment = RNG.item([
     "arctic",
     "coastal",
     "desert",
@@ -57,7 +57,7 @@ export function generate(config: DungeonGeneratorConfig): Dungeon {
 
   dungeon = generateEntrance(dungeon, config.width, config.height);
 
-  let numRooms = random.int(config.minRooms, config.maxRooms);
+  let numRooms = RNG.int(config.minRooms, config.maxRooms);
   dungeon = generateRooms(dungeon, numRooms, config.width, config.height);
 
   for (let i = 0; i < 2; i++) {
@@ -76,7 +76,7 @@ export function generate(config: DungeonGeneratorConfig): Dungeon {
   let numberOfEncounters = 0;
 
   for (let i = 1; i < dungeon.rooms.length; i++) {
-    let encounterChance = RND.simple(100);
+    let encounterChance = RNG.simple(100);
     let encounterType = "none";
     if (i == dungeon.rooms.length - 1) {
       encounterType = "boss";
@@ -131,8 +131,8 @@ function addLight(dungeon: Dungeon): Dungeon {
   let lights = Mutators.withTag("light", allMutators);
 
   for (let i = 0; i < dungeon.rooms.length; i++) {
-    if (RND.simple(100) > 60) {
-      let lightMutator = RND.item(lights);
+    if (RNG.simple(100) > 60) {
+      let lightMutator = RNG.item(lights);
       dungeon.rooms[i] = lightMutator.mutate(dungeon.rooms[i]);
     }
   }
@@ -158,7 +158,7 @@ function generateEncounters(
       maxRoom = dungeon.rooms.length - 1;
     }
     let minRoom = encounterSpawns[i].minRoom;
-    let roomId = random.int(minRoom, maxRoom);
+    let roomId = RNG.int(minRoom, maxRoom);
 
     let eGenConfig = encounterSpawns[i].encounterConfig;
 
@@ -172,8 +172,8 @@ function generateEncounters(
         let ts = encounterSpawns[i].treasureSpawns[j];
         for (let k = 0; k < encounter.groups.length; k++) {
           for (let l = 0; l < encounter.groups[k].mobs.length; l++) {
-            if (RND.simple(100) > 50) {
-              encounter.groups[k].mobs[l].carried.push(RND.item(ts.treasure));
+            if (RNG.simple(100) > 50) {
+              encounter.groups[k].mobs[l].carried.push(RNG.item(ts.treasure));
             }
           }
         }
@@ -195,15 +195,15 @@ function generateEncounterSpawn(
   let treasureTables = CommonTables.individual();
 
   if (encounterType === "boss") {
-    config.template = RND.weighted(dungeon.theme.bossEncounterTemplates);
+    config.template = RNG.weighted(dungeon.theme.bossEncounterTemplates);
     config.minThreatLevel = 3;
     config.maxThreatLevel = 10;
     treasureTables = RareTables.individual();
   } else if (encounterType === "strong") {
-    config.template = RND.weighted(dungeon.theme.strongEncounterTemplates);
+    config.template = RNG.weighted(dungeon.theme.strongEncounterTemplates);
     treasureTables = UncommonTables.individual();
   } else {
-    config.template = RND.weighted(dungeon.theme.weakEncounterTemplates);
+    config.template = RNG.weighted(dungeon.theme.weakEncounterTemplates);
   }
 
   let spawn: EncounterSpawn = {
@@ -285,14 +285,14 @@ function generateKeySpawns(dungeon: Dungeon): TreasureSpawn[] {
       }
       key.lockId = lock.id;
 
-      let keyDescription = RND.item([
-        `a ${RND.item(["simple", "plain", "rough"])} key`,
-        `a ${RND.item(["small", "ornate", "shiny", "tarnished"])} key`,
+      let keyDescription = RNG.item([
+        `a ${RNG.item(["simple", "plain", "rough"])} key`,
+        `a ${RNG.item(["small", "ornate", "shiny", "tarnished"])} key`,
       ]);
       key.description = `${keyDescription} that unlocks the door between room ${dungeon.doors[i].room1 + 1} and room ${
         dungeon.doors[i].room2 + 1
       }`;
-      key.value = random.int(1, 10);
+      key.value = RNG.int(1, 10);
       keySpawn.treasure.push(key);
       keySpawns.push(keySpawn);
     }
@@ -303,10 +303,10 @@ function generateKeySpawns(dungeon: Dungeon): TreasureSpawn[] {
 
 function generateKeys(dungeon: Dungeon, keySpawns: TreasureSpawn[]): Dungeon {
   for (let i = 0; i < keySpawns.length; i++) {
-    let roomId = random.int(keySpawns[i].minRoom, keySpawns[i].maxRoom);
+    let roomId = RNG.int(keySpawns[i].minRoom, keySpawns[i].maxRoom);
     if (dungeon.rooms[roomId].encounters.length > 0) {
-      let e = RND.item(dungeon.rooms[roomId].encounters);
-      let m = RND.item(e.groups[0].mobs);
+      let e = RNG.item(dungeon.rooms[roomId].encounters);
+      let m = RNG.item(e.groups[0].mobs);
       m.carried.push(keySpawns[i].treasure[0]);
     } else {
       dungeon.rooms[roomId].treasureCaches.push(
@@ -332,7 +332,7 @@ function generateRooms(
   for (let i = 0; i < dungeon.theme.requiredRooms.length; i++) {
     let rr = dungeon.theme.requiredRooms[i];
 
-    let roomCount = random.int(rr.minCount, rr.maxCount);
+    let roomCount = RNG.int(rr.minCount, rr.maxCount);
 
     for (let j = 0; j < roomCount; j++) {
       let r = Rooms.getPlaceableRoom(
@@ -358,7 +358,7 @@ function generateRooms(
     if (dungeon.rooms.length >= numRooms) {
       roomGeneration = false;
     } else {
-      let roomTheme = RND.weighted(dungeon.theme.roomThemes);
+      let roomTheme = RNG.weighted(dungeon.theme.roomThemes);
       if (roomTheme.environment == dungeon.theme.mainEnvironment) {
         roomTheme.flooringOptions = dungeon.theme.flooringOptions;
       }
@@ -400,7 +400,7 @@ function generateTreasure(
     if (minRoom == -1) {
       minRoom = 1;
     }
-    let roomId = random.int(minRoom, maxRoom);
+    let roomId = RNG.int(minRoom, maxRoom);
 
     let descriptions = [];
 
@@ -414,8 +414,8 @@ function generateTreasure(
       treasureDescription += `, hidden somewhere in the room`;
       dungeon.rooms[roomId].treasureCaches.push(treasureDescription);
     } else if (treasureSpawns[i].isCarried) {
-      let te = RND.item(dungeon.rooms[roomId].encounters);
-      let mob = RND.item(te.groups[0].mobs);
+      let te = RNG.item(dungeon.rooms[roomId].encounters);
+      let mob = RNG.item(te.groups[0].mobs);
       mob.carried.push(treasureDescription);
     } else {
       let containers = [];
@@ -425,10 +425,10 @@ function generateTreasure(
         }
       }
       if (containers.length > 0) {
-        if (RND.simple(100) > 10) {
+        if (RNG.simple(100) > 10) {
           treasureDescription +=
             ", inside " +
-            dungeon.rooms[roomId].features[RND.item(containers)].name;
+            dungeon.rooms[roomId].features[RNG.item(containers)].name;
         }
         dungeon.rooms[roomId].treasureCaches.push(treasureDescription);
       } else {
@@ -448,7 +448,7 @@ function generateTreasureHordes(dungeon: Dungeon): TreasureSpawn[] {
 
   for (let i = 1; i < dungeon.rooms.length; i++) {
     // Chance of a treasure horde - increases the higher the room number, but decreases after each horde
-    if (RND.simple(100) > hordeChance) {
+    if (RNG.simple(100) > hordeChance) {
       let hordeConfig = new TreasureGeneratorConfig();
       hordeConfig.tables = commonHordeTables;
       if (i == dungeon.rooms.length - 1) {

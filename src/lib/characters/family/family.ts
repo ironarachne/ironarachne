@@ -4,7 +4,7 @@ import type FamilyMember from "./family_member.js";
 export default interface Family {
   name: string;
   members: FamilyMember[];
-  familyNameGenerator: MUN.Generator;
-  femaleNameGenerator: MUN.Generator;
-  maleNameGenerator: MUN.Generator;
+  familyNameGenerator: MUN.NameGenerator;
+  femaleNameGenerator: MUN.NameGenerator;
+  maleNameGenerator: MUN.NameGenerator;
 }

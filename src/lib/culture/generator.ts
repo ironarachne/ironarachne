@@ -1,5 +1,5 @@
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
+
 import * as MusicStyles from "../music/music_styles";
 import ReligionGenerator from "../religion/generator.js";
 import ReligionGeneratorConfig from "../religion/generatorconfig.js";
@@ -9,56 +9,58 @@ import * as Organization from "./organization.js";
 
 export default class CultureGenerator {
   config: CultureGeneratorConfig;
+  rng: RNG.RNG;
 
-  constructor(config: CultureGeneratorConfig) {
+  constructor(config: CultureGeneratorConfig, rng: RNG.RNG = new RNG.RNG(Date.now())) {
     this.config = config;
+    this.rng = rng;
   }
 
   generate(): Culture {
-    if (this.config.generatorSet.country === null) {
+    if (this.config.nameGeneratorSet.country === null) {
       throw new Error(
         "Culture generator config must have a country name generator set.",
       );
     }
-    if (this.config.generatorSet.culture === null) {
+    if (this.config.nameGeneratorSet.culture === null) {
       throw new Error(
         "Culture generator config must have a culture name generator set.",
       );
     }
-    if (this.config.generatorSet.family === null) {
+    if (this.config.nameGeneratorSet.family === null) {
       throw new Error(
         "Culture generator config must have a family name generator set.",
       );
     }
-    if (this.config.generatorSet.female === null) {
+    if (this.config.nameGeneratorSet.female === null) {
       throw new Error(
         "Culture generator config must have a female name generator set.",
       );
     }
-    if (this.config.generatorSet.male === null) {
+    if (this.config.nameGeneratorSet.male === null) {
       throw new Error(
         "Culture generator config must have a male name generator set.",
       );
     }
-    if (this.config.generatorSet.town === null) {
+    if (this.config.nameGeneratorSet.town === null) {
       throw new Error(
         "Culture generator config must have a town name generator set.",
       );
     }
 
-    const countryNames = this.config.generatorSet.country.generate(10);
-    const maleNames = this.config.generatorSet.male.generate(10);
-    const femaleNames = this.config.generatorSet.female.generate(10);
-    const familyNames = this.config.generatorSet.family.generate(10);
-    const townNames = this.config.generatorSet.town.generate(10);
+    const countryNames = this.config.nameGeneratorSet.country.generate(10);
+    const maleNames = this.config.nameGeneratorSet.male.generate(10);
+    const femaleNames = this.config.nameGeneratorSet.female.generate(10);
+    const familyNames = this.config.nameGeneratorSet.family.generate(10);
+    const townNames = this.config.nameGeneratorSet.town.generate(10);
 
     let relGenConfig = new ReligionGeneratorConfig();
-    relGenConfig.nameGenerator = this.config.generatorSet.family;
-    relGenConfig.femaleNameGenerator = this.config.generatorSet.female;
-    relGenConfig.maleNameGenerator = this.config.generatorSet.male;
+    relGenConfig.nameGenerator = this.config.nameGeneratorSet.family;
+    relGenConfig.femaleNameGenerator = this.config.nameGeneratorSet.female;
+    relGenConfig.maleNameGenerator = this.config.nameGeneratorSet.male;
     let relGen = new ReligionGenerator(relGenConfig);
 
-    let cultureName = this.config.generatorSet.culture.generate(1)[0];
+    let cultureName = this.config.nameGeneratorSet.culture.generate(1)[0];
 
     const musicStyle = MusicStyles.generateMusicStyle();
     musicStyle.description = musicStyle.description.replace(
@@ -70,10 +72,10 @@ export default class CultureGenerator {
       cultureName,
       Organization.generate(),
       relGen.generate(),
-      randomTaboos(),
-      randomGreeting(),
-      randomEatingTrait(),
-      randomDesignTrait(),
+      randomTaboos(this.rng),
+      randomGreeting(this.rng),
+      randomEatingTrait(this.rng),
+      randomDesignTrait(this.rng),
       musicStyle,
     );
     culture.countryNames = countryNames;
@@ -82,14 +84,14 @@ export default class CultureGenerator {
     culture.maleNames = maleNames;
     culture.townNames = townNames;
 
-    culture.generatorSet = this.config.generatorSet;
+    culture.nameGenerators = this.config.nameGeneratorSet;
 
     return culture;
   }
 }
 
-function randomDesignTrait() {
-  let firstPart = RND.item([
+function randomDesignTrait(rng: RNG.RNG) {
+  let firstPart = rng.item([
     "Bright, vibrant colors",
     "Round shapes like circles, loops, and spirals",
     "Triangles",
@@ -118,7 +120,7 @@ function randomDesignTrait() {
     "Industrial design elements",
   ]);
 
-  let secondPart = RND.item([
+  let secondPart = rng.item([
     "are incorporated into everyday objects.",
     "are a hallmark of the local design aesthetic.",
     "are used in ceremonial and festive contexts.",
@@ -137,8 +139,8 @@ function randomDesignTrait() {
   return `${firstPart} ${secondPart}`;
 }
 
-function randomEatingTrait() {
-  return RND.item([
+function randomEatingTrait(rng: RNG.RNG) {
+  return rng.item([
     "Eating in large, multi-family or neighborhood groups is common. Strangers are welcome at these communal meals.",
     "Meals are served in large common vessels and each person is expected to serve themselves.",
     "Most meals are accompanied by a wide variety of small side dishes.",
@@ -163,8 +165,8 @@ function randomEatingTrait() {
   ]);
 }
 
-function randomGreeting() {
-  return RND.item([
+function randomGreeting(rng: RNG.RNG) {
+  return rng.item([
     "Bowing is customary. The person of lower status bows lower, though both bow.",
     "Friends or family clasp hands in greeting. In formal situations, shaking hands is expected.",
     "Formal situations require the lesser person to kneel. If the status difference is slight, it is only kneeling on one knee. If the status difference is great, the lesser person must prostrate themselves. In informal situations, simple nodding the head is acceptable.",
@@ -180,7 +182,7 @@ function randomGreeting() {
   ]);
 }
 
-function randomTaboos() {
+function randomTaboos(rng: RNG.RNG) {
   let items = [
     "Baring skin other than the face in public",
     "Eating animals",
@@ -287,16 +289,29 @@ function randomTaboos() {
   let possible = [];
 
   for (let i = 0; i < items.length; i++) {
-    possible.push(items[i] + " " + RND.item(contexts));
+    possible.push(`${items[i]} ${rng.item(contexts)}`);
   }
 
   let taboos: string[] = [];
-  possible = RND.shuffle(possible);
+  possible = rng.shuffle(possible);
 
-  const numberOfTaboos = random.int(2, 5);
+  if (possible.length === 0) {
+    throw new Error("No possible taboos to select from.");
+  }
+
+  const numberOfTaboos = rng.int(2, 5);
+
+  if (numberOfTaboos > possible.length) {
+    throw new Error(
+      `Not enough possible taboos (${possible.length}) to select ${numberOfTaboos} unique taboos.`,
+    );
+  }
 
   for (let i = 0; i < numberOfTaboos; i++) {
-    taboos.push(possible.pop());
+    const taboo = possible.pop();
+    if (taboo !== undefined) {
+      taboos.push(taboo);
+    }
   }
 
   return taboos;

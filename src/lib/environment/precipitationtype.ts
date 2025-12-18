@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 
 export default class PrecipitationType {
   name: string;
@@ -20,11 +20,11 @@ export default class PrecipitationType {
 
   getRandomWeatherEvents(strength: number): string {
     if (strength < 3) {
-      return RND.item(this.mildEvents);
+      return RNG.item(this.mildEvents);
     } else if (strength < 7) {
-      return RND.item(this.moderateEvents);
+      return RNG.item(this.moderateEvents);
     }
 
-    return RND.item(this.strongEvents);
+    return RNG.item(this.strongEvents);
   }
 }

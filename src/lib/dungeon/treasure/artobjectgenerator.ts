@@ -1,6 +1,6 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import * as Currency from "../../currency/currency.js";
 import ArtObject from "./artobject.js";
 import type TreasureGenerator from "./treasuregenerator.js";
@@ -22,7 +22,7 @@ export default class ArtObjectGenerator implements TreasureGenerator {
     for (let i = 0; i < this.count; i++) {
       let object = new ArtObject();
 
-      object.value = random.int(this.minValue, this.maxValue);
+      object.value = RNG.int(this.minValue, this.maxValue);
       object.name = getArtObjectForValue(this.minValue, this.maxValue);
 
       let worth = Currency.valueToCoins(object.value, false, false, false);
@@ -47,7 +47,7 @@ function getArtObjectForValue(minValue: number, maxValue: number): string {
     }
   }
 
-  return RND.item(options);
+  return RNG.item(options);
 }
 
 function getArtObjects(): { name: string; value: number }[] {

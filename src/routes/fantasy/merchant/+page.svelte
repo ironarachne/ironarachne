@@ -1,31 +1,24 @@
 <script lang="ts">
-  import * as Currency from "$lib/currency";
-  import * as Merchant from "$lib/merchant";
-  import * as RND from "@ironarachne/rng";
-  import * as Words from "@ironarachne/words";
-  import random from "random";
-  import seedrandom from "seedrandom";
+import * as Currency from "$lib/currency";
+import * as Merchant from "$lib/merchant";
+import * as RNG from "@ironarachne/rng";
+import * as Words from "@ironarachne/words";
 
-  let category = $state('general');
-  let valueThreshold = $state(50);
-  let categories = [
-    'armor',
-    'clothing',
-    'general',
-    'weapon',
-  ];
-  let merchant = $state(Merchant.generate(category, valueThreshold));
-  let seed = $state(RND.randomString(13));
-  let lockSeed = false;
+let category = $state("general");
+let valueThreshold = $state(50);
+let categories = ["armor", "clothing", "general", "weapon"];
+let merchant = $state(Merchant.generate(category, valueThreshold));
+let seed = $state(RNG.randomString(13));
+let lockSeed = false;
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-
-    merchant = Merchant.generate(category, valueThreshold);
+function generate() {
+  if (!lockSeed) {
+    seed = RNG.randomString(13);
   }
+  RNG.setSeed(seed);
+
+  merchant = Merchant.generate(category, valueThreshold);
+}
 </script>
 
 <style lang="scss">

@@ -1,11 +1,11 @@
 <script lang="ts">
-  import entries from "$lib/change_log/entries";
-  import * as ChangeLogs from "$lib/change_log/change_logs";
-  import * as Dates from "$lib/dates";
+import entries from "$lib/change_log/entries";
+import * as ChangeLogs from "$lib/change_log/change_logs";
+import * as Dates from "$lib/dates";
 
-  let numberOfEntries: number = 5;
+let numberOfEntries: number = 5;
 
-  let updates = ChangeLogs.mostRecent(numberOfEntries, entries);
+let updates = ChangeLogs.mostRecent(numberOfEntries, entries);
 </script>
 
 <svelte:head>

@@ -1,4 +1,4 @@
-import { type Tincture } from "./tinctures";
+import type { Tincture } from "./tinctures";
 
 export type Variation = {
   name: string;

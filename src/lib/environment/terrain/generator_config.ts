@@ -1,3 +1,5 @@
+import type { RNG } from "@ironarachne/rng";
+
 export default interface TerrainGeneratorConfig {
   elevationMin: number;
   elevationMax: number;
@@ -6,4 +8,5 @@ export default interface TerrainGeneratorConfig {
   normalVector: number[];
   erosionIterations: number;
   erosionStrength: number;
+  rng: RNG;
 }

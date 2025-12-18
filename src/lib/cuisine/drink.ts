@@ -1,9 +1,7 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import DrinkType from "./drinktype.js";
 import * as DrinkTypes from "./drinktypes.js";
-
-import random from "random";
 
 export class Drink {
   name: string;
@@ -27,12 +25,12 @@ export class Drink {
 
 export function generateDrink() {
   const drink = new Drink();
-  drink.appearance = RND.item(drink.drinkType.appearances);
-  drink.strength = random.int(
+  drink.appearance = RNG.item(drink.drinkType.appearances);
+  drink.strength = RNG.int(
     drink.drinkType.strengthMin,
     drink.drinkType.strengthMax,
   );
-  drink.quality = random.int(0, 6);
+  drink.quality = RNG.int(0, 6);
   drink.cost = randomCost(drink);
   drink.name = drink.drinkType.name;
 
@@ -44,17 +42,17 @@ export function generateDrink() {
 function describe(drink: Drink) {
   const adjectives = [];
 
-  const adjectiveChance = random.int(1, 100);
+  const adjectiveChance = RNG.int(1, 100);
   if (adjectiveChance > 30) {
     adjectives.push(drink.appearance);
   }
 
-  const strengthChance = random.int(1, 100);
+  const strengthChance = RNG.int(1, 100);
   if (strengthChance > 70) {
     adjectives.push(describeStrength(drink.strength));
   }
 
-  const qualityChance = random.int(1, 100);
+  const qualityChance = RNG.int(1, 100);
   if (qualityChance > 70) {
     adjectives.push(describeQuality(drink.quality));
   }
@@ -97,7 +95,7 @@ function describeQuality(quality: number) {
 }
 
 function randomCost(drink: Drink) {
-  let cost = random.int(drink.drinkType.costMin, drink.drinkType.costMax);
+  let cost = RNG.int(drink.drinkType.costMin, drink.drinkType.costMax);
 
   cost += drink.quality;
   cost += Math.floor(drink.strength / 2);
@@ -106,5 +104,5 @@ function randomCost(drink: Drink) {
 }
 
 function randomType() {
-  return RND.item(DrinkTypes.all());
+  return RNG.item(DrinkTypes.all());
 }

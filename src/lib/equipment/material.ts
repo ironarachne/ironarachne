@@ -1,5 +1,3 @@
-import * as RND from "@ironarachne/rng";
-
 export class MaterialSet {
   name: string;
   body: string;
@@ -120,22 +118,10 @@ export function getMaterialsForCategory(category: string) {
   const result = [];
 
   for (let i = 0; i < all.length; i++) {
-    if (all[i].category == category) {
+    if (all[i].category === category) {
       result.push(all[i]);
     }
   }
 
   return result;
-}
-
-export function getRandomMaterialSetForCategory(category: string) {
-  const options = getMaterialSetsForCategory(category);
-
-  return RND.item(options);
-}
-
-export function getRandomMaterialForCategory(category: string) {
-  const options = getMaterialsForCategory(category);
-
-  return RND.item(options);
 }

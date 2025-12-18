@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import DomainSet from "./domainset.js";
 import type DomainGeneratorConfig from "./generatorconfig.js";
 
@@ -12,7 +12,7 @@ export default class DomainGenerator {
   generate(): DomainSet {
     let domainSet = new DomainSet();
 
-    this.config.domains = RND.shuffle(this.config.domains);
+    this.config.domains = this.config.rng.shuffle(this.config.domains);
 
     if (this.config.domains.length < this.config.numberOfDomains) {
       throw new Error(

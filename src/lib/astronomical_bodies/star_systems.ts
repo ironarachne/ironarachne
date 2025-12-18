@@ -28,14 +28,18 @@ export type StarSystemGenerationConfig = {
   planet_count: number;
   star_classifications: Array<StarClassification>;
   planet_classifications: Array<PlanetClassification>;
+  rng: RNG.RNG;
 };
 
 export function getDefaultStarSystemGeneratorConfig(): StarSystemGenerationConfig {
+  const rng = new RNG.RNG(Date.now().toString());
+
   return {
     star_count: 1,
-    planet_count: Math.round(RNG.bellFloat(1, 12)),
+    planet_count: Math.round(rng.bellFloat(1, 12)),
     star_classifications: getStarClassifications(),
     planet_classifications: getPlanetClassifications(),
+    rng: rng,
   };
 }
 
@@ -45,6 +49,7 @@ export function generateStarSystem(
   const stars = [];
   const star_config = getDefaultStarGeneratorConfig();
   star_config.star_classifications = config.star_classifications;
+  star_config.rng = config.rng;
 
   for (let i = 0; i < config.star_count; i++) {
     const star = generateStar(star_config);
@@ -58,6 +63,7 @@ export function generateStarSystem(
 
   const planets = [];
   const planet_config = getDefaultPlanetGenerationConfig();
+  planet_config.rng = config.rng;
   planet_config.possible_classifications = config.planet_classifications;
 
   for (let i = 0; i < config.planet_count; i++) {

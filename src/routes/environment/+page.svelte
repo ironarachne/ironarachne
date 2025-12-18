@@ -1,102 +1,105 @@
 <script lang="ts">
-    import * as RND from "@ironarachne/rng";
-    import * as Directions from "$lib/geometry/directions";
-    import * as Environments from "$lib/environment/environments";
-    import * as Temperature from "$lib/temperature";
-    import * as MathTranslation from "$lib/math_translation";
-    import random from "random";
-    import seedrandom from "seedrandom";
-    import type Environment from "$lib/environment/environment";
-    import { onMount } from 'svelte';
+import * as RNG from "@ironarachne/rng";
+import * as Directions from "$lib/geometry/directions";
+import * as Environments from "$lib/environment/environments";
+import * as Temperature from "$lib/temperature";
+import * as MathTranslation from "$lib/math_translation";
+import type Environment from "$lib/environment/environment";
+import { onMount } from "svelte";
 
-    let environment: Environment = $state();
-    let canvas: HTMLCanvasElement;
-    let config = $state(Environments.getDefaultConfig());
-    let seed = $state(RND.randomString(13));
-    let lockSeed = $state(false);
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+rng.setSeed(seed);
+let lockSeed = $state(false);
 
-    function elevationToFeet(elevation: number): number {
-        const max = 30000;
-        const min = -30000;
+let environment: Environment = $state();
+let canvas: HTMLCanvasElement;
+let config = $state(Environments.getDefaultConfig());
+config.rng = rng;
 
-        const result = MathTranslation.linearMap(elevation, -1, 1, min, max);
 
-        return Math.floor(result);
-    }
+function elevationToFeet(elevation: number): number {
+  const max = 30000;
+  const min = -30000;
 
-    function generate() {
-        if (!lockSeed) {
-            seed = RND.randomString(13);
-        }
-        random.use(seedrandom(seed));
-        environment = Environments.generate(config);
-        if (canvas !== null && typeof canvas === "object") {
-            drawWindArrow(canvas, environment.climate.wind);
-        }
-    }
+  const result = MathTranslation.linearMap(elevation, -1, 1, min, max);
 
-    function describeSlope(vector: number[]): string {
-        if (vector[0] === 0 && vector[1] === 0) {
-            return "flat";
-        }
+  return Math.floor(result);
+}
 
-        return `sloping ${Directions.getWordForVector(vector)}`;
-    }
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
+  }
+  rng.setSeed(seed);
+  environment = Environments.generate(config);
+  if (canvas !== null && typeof canvas === "object") {
+    drawWindArrow(canvas, environment.climate.wind);
+  }
+}
 
-    function randomizeParameters() {
-        config.latitude = random.float(-70, 70);
-        config.elevation = random.float(0.1, 0.8);
-        config.waterDirection = [random.float(-20, 20), random.float(-20, 20), 0];
-        config.current = [random.float(-1, 1), random.float(-1, 1), 0];
-        config.terrainVector = [random.float(-0.5, 0.5), random.float(-0.5, 0.5), 0];
-    }
+function describeSlope(vector: number[]): string {
+  if (vector[0] === 0 && vector[1] === 0) {
+    return "flat";
+  }
 
-    generate();
+  return `sloping ${Directions.getWordForVector(vector)}`;
+}
 
-    onMount(() => {
-        canvas = document.getElementById("windArrow") as HTMLCanvasElement;
-        generate();
-    });
+function randomizeParameters(rng: RNG.RNG) {
+  config.latitude = rng.float(-70, 70);
+  config.elevation = rng.float(0.1, 0.8);
+  config.waterDirection = [rng.float(-20, 20), rng.float(-20, 20), 0];
+  config.current = [rng.float(-1, 1), rng.float(-1, 1), 0];
+  config.terrainVector = [rng.float(-0.5, 0.5), rng.float(-0.5, 0.5), 0];
+}
 
-    function drawWindArrow(canvas: HTMLCanvasElement, wind: number[]) {
-        const ctx = canvas.getContext("2d");
+generate();
 
-        if (ctx === null) {
-            console.debug("no context");
-            return;
-        }
+onMount(() => {
+  canvas = document.getElementById("windArrow") as HTMLCanvasElement;
+  generate();
+});
 
-        ctx.reset();
+function drawWindArrow(canvas: HTMLCanvasElement, wind: number[]) {
+  const ctx = canvas.getContext("2d");
 
-        const width = 100;
-        const height = 100;
-        const centerX = width / 2;
-        const centerY = height / 2;
-        const wedgeLength = 3;
-        const arrowLength = (width/2) * (wind[0] + wind[1]) / 2;
-        const windDirection = wind;
-        const r = Math.atan2(windDirection[1], windDirection[0]); // angle of the wind vector in radians
+  if (ctx === null) {
+    console.debug("no context");
+    return;
+  }
 
-        ctx.clearRect(0, 0, width, height);
+  ctx.reset();
 
-        ctx.save();
+  const width = 100;
+  const height = 100;
+  const centerX = width / 2;
+  const centerY = height / 2;
+  const wedgeLength = 3;
+  const arrowLength = ((width / 2) * (wind[0] + wind[1])) / 2;
+  const windDirection = wind;
+  const r = Math.atan2(windDirection[1], windDirection[0]); // angle of the wind vector in radians
 
-        ctx.translate(centerX, centerY);
-        ctx.rotate(r);
+  ctx.clearRect(0, 0, width, height);
 
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.lineTo(arrowLength, 0);
-        ctx.stroke();
+  ctx.save();
 
-        ctx.beginPath();
-        ctx.moveTo(arrowLength - wedgeLength, - wedgeLength);
-        ctx.lineTo(arrowLength, 0);
-        ctx.lineTo(arrowLength - wedgeLength, wedgeLength);
-        ctx.stroke();
+  ctx.translate(centerX, centerY);
+  ctx.rotate(r);
 
-        ctx.restore();
-    }
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(arrowLength, 0);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(arrowLength - wedgeLength, -wedgeLength);
+  ctx.lineTo(arrowLength, 0);
+  ctx.lineTo(arrowLength - wedgeLength, wedgeLength);
+  ctx.stroke();
+
+  ctx.restore();
+}
 </script>
 
 <style lang="scss">
@@ -176,7 +179,7 @@
     </div>
 
     <button onclick={generate}>Generate</button>
-    <button onclick={randomizeParameters}>Randomize Parameters</button>
+    <button onclick={() => { randomizeParameters(rng) }}>Randomize Parameters</button>
 
     <h2>Terrain</h2>
 

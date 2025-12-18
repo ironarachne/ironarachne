@@ -10,7 +10,9 @@ export type Device = {
 };
 
 export function renderDeviceBlazon(device: Device): string {
-  const chargeGroupBlazons = device.chargeGroups.map((cg) => renderChargeGroupBlazon(cg));
+  const chargeGroupBlazons = device.chargeGroups.map((cg) =>
+    renderChargeGroupBlazon(cg),
+  );
   let blazon = renderFieldBlazon(device.field);
   if (device.chargeGroups.length > 0) {
     blazon += `, ${Words.arrayToPhrase(chargeGroupBlazons)}`;

@@ -1,10 +1,8 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Drink from "./cuisine/drink.js";
 import * as Food from "./cuisine/food.js";
 import * as Currency from "./currency.js";
 import * as Dice from "./dice.js";
-
-import random from "random";
 
 export class Tavern {
   name: string;
@@ -29,7 +27,7 @@ export function generate() {
 }
 
 function randomName(): string {
-  const name = RND.item([
+  const name = RNG.item([
     "The Rusty Anchor",
     "The Drunken Dragon",
     "The Laughing Fox",
@@ -51,13 +49,13 @@ function randomName(): string {
 }
 
 function randomDescription(tavern: Tavern) {
-  let description = RND.item([
+  let description = RNG.item([
     tavern.name,
     "This tavern",
     "This establishment",
   ]);
 
-  const quality = RND.item([
+  const quality = RNG.item([
     "has seen better days",
     "looks newly painted",
     "is well kept",
@@ -66,7 +64,7 @@ function randomDescription(tavern: Tavern) {
 
   description += ` ${quality}. `;
 
-  const patrons = RND.item([
+  const patrons = RNG.item([
     "It caters to a diverse crowd.",
     "Some of its patrons are less savory types.",
     "It has a welcoming atmosphere.",
@@ -83,7 +81,7 @@ function randomDescription(tavern: Tavern) {
 function randomDrinks() {
   const drinks = [];
 
-  const numberOfItems = random.int(2, 4);
+  const numberOfItems = RNG.int(2, 4);
 
   for (let i = 0; i < numberOfItems; i++) {
     const drink = Drink.generateDrink();
@@ -101,7 +99,7 @@ function randomDrinks() {
 function randomFood() {
   const food = [];
 
-  const numberOfItems = random.int(2, 4);
+  const numberOfItems = RNG.int(2, 4);
 
   for (let i = 0; i < numberOfItems; i++) {
     const quality = Dice.roll("2d6");

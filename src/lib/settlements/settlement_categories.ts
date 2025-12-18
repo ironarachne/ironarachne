@@ -1,5 +1,5 @@
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
+
 import Borough from "./categories/borough.js";
 import City from "./categories/city.js";
 import Hamlet from "./categories/hamlet.js";
@@ -17,7 +17,7 @@ export function bySizeClass(sizeClass: string): SettlementCategory[] {
   let result: SettlementCategory[] = [];
 
   for (let i = 0; i < options.length; i++) {
-    if (options[i].sizeClass == sizeClass) {
+    if (options[i].sizeClass === sizeClass) {
       result.push(options[i]);
     }
   }
@@ -39,15 +39,16 @@ export function large(): SettlementCategory[] {
 
 export function randomCategory(
   categories: SettlementCategory[],
+  rng: RNG.RNG
 ): SettlementCategory {
-  return RND.item(categories);
+  return rng.item(categories);
 }
 
-export function randomDescription(category: SettlementCategory): string {
-  let description = RND.item(category.possibleDescriptions);
+export function randomDescription(category: SettlementCategory, rng: RNG.RNG): string {
+  let description = rng.item(category.possibleDescriptions);
   return description;
 }
 
-export function randomPopulation(category: SettlementCategory): number {
-  return random.int(category.minSize, category.maxSize);
+export function randomPopulation(category: SettlementCategory, rng: RNG.RNG): number {
+  return rng.int(category.minSize, category.maxSize);
 }

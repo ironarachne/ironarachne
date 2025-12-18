@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import { convert } from "xmlbuilder2";
 import { singleChargeCenterArrangement } from "./single_charge_center";
 import { threeChargesHorizontalCenterArrangement } from "./three_charges_horizontal_center";
@@ -58,7 +58,7 @@ export function randomByNumber(
     );
   }
 
-  return RND.item(options);
+  return RNG.item(options);
 }
 
 export function withCount(count: number): ChargeGroupArrangement[] {

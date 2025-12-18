@@ -1,6 +1,6 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import LanguageGeneratorConfig from "./generatorconfig.js";
 import Language from "./language.js";
 import Morpheme from "./morpheme.js";
@@ -15,20 +15,20 @@ export default class LanguageGenerator {
   }
 
   generate(): Language {
-    let phonemeSet = RND.item(this.config.phonemeSets);
+    let phonemeSet = RNG.item(this.config.phonemeSets);
 
     let language = new Language("", phonemeSet);
     language.wordOrder = randomWordOrder();
     language.name = Words.capitalize(
-      randomMorpheme(random.int(4, 7), phonemeSet).getTranscription(),
+      randomMorpheme(RNG.int(4, 7), phonemeSet).getTranscription(),
     );
 
     for (let i = 0; i < language.lexicon.words.length; i++) {
-      let morphemeLength = random.int(2, 7);
+      let morphemeLength = RNG.int(2, 7);
       if (
         ["article", "pronoun"].includes(language.lexicon.words[i].speechPart)
       ) {
-        morphemeLength = random.int(2, 3);
+        morphemeLength = RNG.int(2, 3);
       }
       let morpheme = randomMorpheme(morphemeLength, phonemeSet);
       language.lexicon.words[i].root = morpheme.getTranscription();
@@ -53,7 +53,7 @@ function randomWordOrder(): string {
     },
   ];
 
-  let order = RND.weighted(options);
+  let order = RNG.weighted(options);
 
   return order.value;
 }
@@ -67,7 +67,7 @@ function randomMorpheme(length: number, phonemeSet: PhonemeSet): Morpheme {
     if (i == 0 && length == 1) {
       pattern = "v";
     } else {
-      let newPart = RND.item(["v", "c"]);
+      let newPart = RNG.item(["v", "c"]);
       if (i > 0) {
         let last = pattern[i - 1];
         if (last == "v") {
@@ -84,9 +84,9 @@ function randomMorpheme(length: number, phonemeSet: PhonemeSet): Morpheme {
 
   for (let i = 0; i < pattern.length; i++) {
     if (pattern[i] == "v") {
-      morpheme.phonemes.push(RND.weighted(vowels)); // TODO: make spellings weighted
+      morpheme.phonemes.push(RNG.weighted(vowels)); // TODO: make spellings weighted
     } else {
-      morpheme.phonemes.push(RND.weighted(consonants)); // TODO: make spellings weighted
+      morpheme.phonemes.push(RNG.weighted(consonants)); // TODO: make spellings weighted
     }
   }
 

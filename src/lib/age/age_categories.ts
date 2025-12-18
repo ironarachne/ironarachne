@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import type AgeCategory from "./age_category";
 
 export function getCategoryList(): string[] {
@@ -155,7 +155,7 @@ export function randomWeighted(
     }
   }
 
-  const ageCategory: AgeCategory = RND.weighted(possibleAgeCategories);
+  const ageCategory: AgeCategory = RNG.weighted(possibleAgeCategories);
 
   return ageCategory;
 }

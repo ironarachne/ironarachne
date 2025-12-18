@@ -1,5 +1,4 @@
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
 
 export type RegionOfControl = {
   name: string;
@@ -23,6 +22,7 @@ export type RegionOfControlGenerationConfig = {
   population_density_range: [number, number]; // The population density of the region of control, 0-1
   controlling_civilization: string; // The name of the civilization controlling the region
   technology_level: number; // The technology level of the civilization controlling the region
+  rng: RNG.RNG;
 };
 
 export function generateRegionOfControl(
@@ -32,12 +32,12 @@ export function generateRegionOfControl(
     config.technology_level,
     config.region_types,
   );
-  const region_type = RND.weighted(region_types);
+  const region_type = config.rng.weighted(region_types);
   const population_min =
     region_type.population_capacity * config.population_density_range[0];
   const population_max =
     region_type.population_capacity * config.population_density_range[1];
-  const population = random.int(population_min, population_max);
+  const population = config.rng.int(population_min, population_max);
 
   const region_of_control = {
     name: "",
@@ -56,6 +56,7 @@ export function getDefaultRegionOfControlGenerationConfig(): RegionOfControlGene
     population_density_range: [0.5, 0.6],
     controlling_civilization: "",
     technology_level: 0,
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }
 

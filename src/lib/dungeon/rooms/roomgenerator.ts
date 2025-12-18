@@ -1,8 +1,8 @@
 import * as Geometry from "$lib/geometry/geometry.js";
 import type Vertex from "$lib/geometry/vertex.js";
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import Room from "./room.js";
 import type RoomGeneratorConfig from "./roomgeneratorconfig.js";
 
@@ -14,47 +14,44 @@ export default class RoomGenerator {
   }
 
   generate(): Room {
-    let width = random.int(
-      this.config.theme.minWidth,
-      this.config.theme.maxWidth,
-    );
-    let height = random.int(
+    let width = RNG.int(this.config.theme.minWidth, this.config.theme.maxWidth);
+    let height = RNG.int(
       this.config.theme.minHeight,
       this.config.theme.maxHeight,
     );
-    let x = random.int(2, this.config.mapWidth - width - 3);
-    let y = random.int(2, this.config.mapHeight - height - 3);
+    let x = RNG.int(2, this.config.mapWidth - width - 3);
+    let y = RNG.int(2, this.config.mapHeight - height - 3);
 
     let room = new Room();
     room.name = this.config.theme.name; // TODO: maybe make this a name generator
     room.theme = this.config.theme;
 
-    let shape = RND.item(this.config.theme.shapes);
+    let shape = RNG.item(this.config.theme.shapes);
 
     if (shape == "rectangular") {
       room = getRectangularRoom(x, y, width, height, room);
-      room.description = RND.item([
+      room.description = RNG.item([
         `This rectangular room is ${width * 5}' wide and ${height * 5}' long.`,
         `This ${room.name} is ${width * 5}' wide and ${height * 5}' long.`,
       ]);
     } else if (shape == "square") {
       room = getSquareRoom(x, y, width, room);
-      room.description = RND.item([
+      room.description = RNG.item([
         `This square room is ${width * 5}' wide and ${height * 5}' long.`,
         `This room is a square ${width * 5}' wide and ${height * 5}' long.`,
         `This ${room.name} is ${width * 5}' wide and ${height * 5}' long.`,
       ]);
     } else if (shape == "cavern") {
       room = getCavernRoom(x, y, width, height, room);
-      room.description = RND.item([`This is a cavern.`]);
+      room.description = RNG.item([`This is a cavern.`]);
     } else if (shape == "corridor") {
       room = getCorridor(x, y, width, height, room);
-      room.description = RND.item([`This is a corridor.`]);
+      room.description = RNG.item([`This is a corridor.`]);
     }
 
-    if (RND.simple(100) > 70) {
-      let flooring = RND.item(room.theme.flooringOptions);
-      room.description += RND.item([
+    if (RNG.simple(100) > 70) {
+      let flooring = RNG.item(room.theme.flooringOptions);
+      room.description += RNG.item([
         ` The floor is ${flooring}.`,
         ` ${Words.capitalize(flooring)} flooring is cracked in places.`,
         ` The ${flooring} flooring is cracked in places.`,
@@ -72,9 +69,9 @@ export default class RoomGenerator {
 
     if (
       this.config.theme.dressingGenerators.length > 0 &&
-      RND.simple(100) > 70
+      RNG.simple(100) > 70
     ) {
-      let dGen = RND.item(this.config.theme.dressingGenerators);
+      let dGen = RNG.item(this.config.theme.dressingGenerators);
       room.features.push(dGen.generate());
     }
 
@@ -115,8 +112,8 @@ function getCavernRoom(
     let x = v.x;
     let y = v.y;
 
-    if (RND.simple(100) > 50) {
-      let mx = random.int(-1, 1);
+    if (RNG.simple(100) > 50) {
+      let mx = RNG.int(-1, 1);
       x += mx;
 
       if (x > maxX) {
@@ -125,7 +122,7 @@ function getCavernRoom(
         x = ox;
       }
     } else {
-      let my = random.int(-1, 1);
+      let my = RNG.int(-1, 1);
       y += my;
 
       if (y > maxY) {
@@ -162,17 +159,17 @@ function getCorridor(
   height: number,
   room: Room,
 ): Room {
-  let length = random.int(
+  let length = RNG.int(
     Math.max(3, Math.floor((width + height - 2) / 2)),
     width + height - 2,
   );
 
-  let nx = random.int(x, x + width - 1);
-  let ny = random.int(y, y + height - 1);
+  let nx = RNG.int(x, x + width - 1);
+  let ny = RNG.int(y, y + height - 1);
 
   room.vertices.push({ x: nx, y: ny });
 
-  let direction = RND.item([
+  let direction = RNG.item([
     { x: -1, y: 0 },
     { x: 1, y: 0 },
     { x: 0, y: -1 },
@@ -185,10 +182,10 @@ function getCorridor(
 
     if (mx >= width + x || mx <= x) {
       direction.x = 0;
-      direction.y = RND.item([-1, 1]);
+      direction.y = RNG.item([-1, 1]);
     } else if (my >= height + y || my <= y) {
       direction.y = 0;
-      direction.x = RND.item([-1, 1]);
+      direction.x = RNG.item([-1, 1]);
     } else {
       nx = mx;
       ny = my;
@@ -201,7 +198,7 @@ function getCorridor(
 
       room.vertices.push(nv);
 
-      if (RND.simple(100) > 90) {
+      if (RNG.simple(100) > 90) {
         if (direction.y != 0) {
           direction.x = direction.y;
           direction.y = 0;

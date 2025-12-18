@@ -3,23 +3,23 @@ export type CalendarEvent = {
   description: string;
   startDay: number;
   endDay: number;
-}
+};
 
 export type CalendarMonth = {
   name: string;
   startDay: number;
   length: number;
-}
+};
 
 export type CalendarYear = {
   months: CalendarMonth[];
   lengthInDays: number;
-}
+};
 
 export type CalendarDay = {
   name: string;
   dayOfWeek: number;
-}
+};
 
 export type CalendarDate = {
   year: number;
@@ -27,7 +27,7 @@ export type CalendarDate = {
   dayOfMonth: number;
   dayOfYear: number;
   dayOfWeek: CalendarDay;
-}
+};
 
 export type Calendar = {
   gregorianBaseDate: Date | null; // The starting date of the calendar system in the Gregorian calendar
@@ -38,7 +38,7 @@ export type Calendar = {
   monthsInYear: number;
   months: CalendarMonth[];
   events: CalendarEvent[];
-}
+};
 
 export function getGregorianCalendar(): Calendar {
   return {
@@ -74,18 +74,29 @@ export function getGregorianCalendar(): Calendar {
   };
 }
 
-export function getDayOfWeek(calendar: Calendar, dayOfYear: number): CalendarDay {
+export function getDayOfWeek(
+  calendar: Calendar,
+  dayOfYear: number,
+): CalendarDay {
   const dayIndex = (dayOfYear - 1) % calendar.daysOfWeek.length;
   return calendar.daysOfWeek[dayIndex];
 }
 
-export function getMonthForDay(calendar: Calendar, dayOfYear: number): CalendarMonth {
+export function getMonthForDay(
+  calendar: Calendar,
+  dayOfYear: number,
+): CalendarMonth {
   if (dayOfYear < 1 || dayOfYear > calendar.yearLengthInDays) {
-    throw new Error(`Day of year ${dayOfYear} is out of range for calendar year length ${calendar.yearLengthInDays}`);
+    throw new Error(
+      `Day of year ${dayOfYear} is out of range for calendar year length ${calendar.yearLengthInDays}`,
+    );
   }
 
   for (const month of calendar.months) {
-    if (dayOfYear >= month.startDay && dayOfYear < month.startDay + month.length) {
+    if (
+      dayOfYear >= month.startDay &&
+      dayOfYear < month.startDay + month.length
+    ) {
       return month;
     }
   }
@@ -93,16 +104,25 @@ export function getMonthForDay(calendar: Calendar, dayOfYear: number): CalendarM
   throw new Error("Month not found");
 }
 
-export function getEventsForDay(calendar: Calendar, dayOfYear: number): CalendarEvent[] {
-  return calendar.events.filter(event => dayOfYear >= event.startDay && dayOfYear <= event.endDay);
+export function getEventsForDay(
+  calendar: Calendar,
+  dayOfYear: number,
+): CalendarEvent[] {
+  return calendar.events.filter(
+    (event) => dayOfYear >= event.startDay && dayOfYear <= event.endDay,
+  );
 }
 
-export function convertGregorianDateToCalendarDate(gregorianDate: Date, calendar: Calendar): CalendarDate {
+export function convertGregorianDateToCalendarDate(
+  gregorianDate: Date,
+  calendar: Calendar,
+): CalendarDate {
   if (calendar.gregorianBaseDate === null) {
     throw new Error("Calendar does not have a Gregorian base date set.");
   }
 
-  const timeDiff = gregorianDate.getTime() - calendar.gregorianBaseDate.getTime();
+  const timeDiff =
+    gregorianDate.getTime() - calendar.gregorianBaseDate.getTime();
   const daysSinceBase = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
   const dayOfYear = (daysSinceBase % calendar.yearLengthInDays) + 1;
 

@@ -2,32 +2,35 @@ import type Character from "$lib/characters/character.js";
 import type CharacterGeneratorConfig from "$lib/characters/character_generator_config.js";
 import * as Characters from "$lib/characters/characters.js";
 import * as Charges from "$lib/heraldry/charges/index.js";
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig.js";
-import * as RND from "@ironarachne/rng";
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from "$lib/heraldry/generatorconfig.js";
+import * as RNG from "@ironarachne/rng";
 import type OrganizationRank from "../organization_rank.js";
 import type OrganizationType from "../organization_type.js";
 
-export function generateType(): OrganizationType {
+export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
-    chargeCount: RND.item([0, 1]),
+    chargeCount: rng.item([0, 1]),
     chargeOptions: Charges.matchingAnyTags(
       ["book", "magic", "monster"],
       Charges.all(),
     ),
   });
 
-  const nameGenerator = (): string => {
-    const schoolType = RND.item(["School", "Academy", "College", "Institute"]);
+  const nameGenerator = (rng: RNG.RNG): string => {
+    const schoolType = rng.item(["School", "Academy", "College", "Institute"]);
 
     const suffixTypes = [
       {
-        generate: (): string =>
-          RND.item(["Witchcraft", "Wizardry", "Sorcery", "Mysticism"]),
+        generate: (rng: RNG.RNG): string =>
+          rng.item(["Witchcraft", "Wizardry", "Sorcery", "Mysticism"]),
       },
       {
-        generate: (): string => {
+        generate: (rng: RNG.RNG): string => {
           // example names: The School of Hidden Mysteries, The Academy of Unknown Arts
-          const modifier = RND.item([
+          const modifier = rng.item([
             "Arcane",
             "Cherished",
             "Eldritch",
@@ -40,7 +43,7 @@ export function generateType(): OrganizationType {
             "Occult",
             "Unknown",
           ]);
-          const focus = RND.item([
+          const focus = rng.item([
             "Mysteries",
             "Arts",
             "Sciences",
@@ -65,23 +68,23 @@ export function generateType(): OrganizationType {
         },
       },
       {
-        generate: (): string => {
+        generate: (rng: RNG.RNG): string => {
           const first = ["Arcane", "Mystical", "Eldritch", "Occult"];
 
           const second = ["Arts", "Sciences", "Paths", "Ways", "Secrets"];
 
-          return `${RND.item(first)} ${RND.item(second)}`;
+          return `${rng.item(first)} ${rng.item(second)}`;
         },
       },
     ];
 
-    const suffixType = RND.item(suffixTypes);
+    const suffixType = rng.item(suffixTypes);
 
-    return `The ${schoolType} of ${suffixType.generate()}`;
+    return `The ${schoolType} of ${suffixType.generate(rng)}`;
   };
 
-  const descriptionGenerator = (): string => {
-    return RND.item([
+  const descriptionGenerator = (rng: RNG.RNG): string => {
+    return rng.item([
       "{name} is a hidden wizard school that avoids contact with the outside world.",
       "{name} is a proud institution whose students primarily come from the nobility.",
       "{name} has a reputation for experimentation, and there are rumors that sometimes they experiment on their own students.",

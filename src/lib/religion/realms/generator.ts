@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as AppearanceTraits from "../appearancetraits.js";
 import type RealmGeneratorConfig from "./generatorconfig.js";
@@ -22,13 +22,13 @@ export default class RealmGenerator {
     let allConcepts: RealmConcept[] = JSON.parse(
       JSON.stringify(RealmConcepts.realmConcepts),
     );
-    allConcepts = RND.shuffle(allConcepts);
+    allConcepts = RNG.shuffle(allConcepts);
 
     for (let i = 0; i < numberOfRealms; i++) {
       const concept = allConcepts.pop();
 
       if (typeof concept == "object") {
-        const realmName = RND.item(concept.nameOptions);
+        const realmName = RNG.item(concept.nameOptions);
 
         const appearanceTraits = AppearanceTraits.byRealmConcept(concept);
 
@@ -38,7 +38,7 @@ export default class RealmGenerator {
           );
         }
 
-        let description = RND.item(concept.descriptionOptions).replace(
+        let description = RNG.item(concept.descriptionOptions).replace(
           "{name}",
           Words.uncapitalize(realmName),
         );

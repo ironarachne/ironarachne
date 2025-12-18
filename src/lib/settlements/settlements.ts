@@ -1,6 +1,7 @@
 import * as Environments from "$lib/environment/environments.js";
 import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
+import * as Names from "$lib/names";
+import * as RNG from "@ironarachne/rng";
 import * as Dice from "../dice.js";
 import type Settlement from "./settlement.js";
 import * as Categories from "./settlement_categories.js";
@@ -11,26 +12,28 @@ export function generate(config: SettlementGeneratorConfig): Settlement {
     config.nameGenerator !== null
       ? config.nameGenerator.generate(1)[0]
       : "Settlement";
-  const settlementCategory = RND.item(Categories.bySizeClass(config.size));
+  const settlementCategory = config.rng.item(Categories.bySizeClass(config.size));
   const settlement: Settlement = {
     name: settlementName,
     category: settlementCategory,
     environment: config.environment,
     description: "",
-    population: Categories.randomPopulation(settlementCategory),
-    prosperity: Dice.roll("2d6"),
+    population: Categories.randomPopulation(settlementCategory, config.rng),
+    prosperity: Dice.roll("2d6", config.rng),
   };
 
-  settlement.description = randomDescription(settlement);
+  settlement.description = randomDescription(settlement, config.rng);
 
   return settlement;
 }
 
-export function getDefaultConfig(): SettlementGeneratorConfig {
+export function getDefaultConfig(rng: RNG.RNG = new RNG.RNG(Date.now().toString())): SettlementGeneratorConfig {
   const environmentConfig = Environments.getDefaultConfig();
+  environmentConfig.rng = rng;
+
   let environment = Environments.generate(environmentConfig);
 
-  let genSet = MUN.getSetByName("fantasy", MUN.cultureSets());
+  let genSet = Names.getFantasyNameGeneratorSet("tiefling", rng);
 
   let nameGenerator = genSet.town;
   let size = "any";
@@ -39,11 +42,12 @@ export function getDefaultConfig(): SettlementGeneratorConfig {
     environment,
     nameGenerator,
     size,
+    rng,
   };
 }
 
-function randomDescription(settlement: Settlement): string {
-  let description = RND.item([
+function randomDescription(settlement: Settlement, rng: RNG.RNG): string {
+  let description = rng.item([
     "{name} is a {category} of {population} people.",
     "The {category} of {name} has {population} people.",
   ]);
@@ -54,15 +58,15 @@ function randomDescription(settlement: Settlement): string {
     new Intl.NumberFormat().format(settlement.population),
   );
   description = description.replace("{name}", settlement.name);
-  description += " " + Categories.randomDescription(settlement.category);
-  description += " " + randomProsperity(settlement.prosperity);
-  description += " " + randomReputation();
-  description += " " + RND.item(settlement.environment.biome.features);
+  description += ` ${Categories.randomDescription(settlement.category, rng)}`;
+  description += ` ${randomProsperity(settlement.prosperity, rng)}`;
+  description += ` ${randomReputation(rng)}`;
+  description += ` ${rng.item(settlement.environment.biome.features)}`;
 
   return description;
 }
 
-function randomProsperity(prosperity: number): string {
+function randomProsperity(prosperity: number, rng: RNG.RNG): string {
   let prefixes = [
     "The people here",
     "Most people here",
@@ -102,10 +106,10 @@ function randomProsperity(prosperity: number): string {
     }
   }
 
-  return RND.item(options);
+  return rng.item(options);
 }
 
-function randomReputation(): string {
+function randomReputation(rng: RNG.RNG): string {
   let prefixes = [
     "The people are known for",
     "The people are regarded as",
@@ -156,5 +160,5 @@ function randomReputation(): string {
     }
   }
 
-  return RND.item(reputations);
+  return rng.item(reputations);
 }

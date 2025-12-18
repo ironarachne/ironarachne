@@ -4,7 +4,7 @@ import ADNDWeapon from "./adndweapon.js";
 export function getAmmoTypes(weapon: ADNDWeapon): ADNDWeapon[] {
   let result: ADNDWeapon[] = [];
 
-  if (weapon.name == "blowgun") {
+  if (weapon.name === "blowgun") {
     result = [
       new ADNDWeapon(
         "blowgun barbed dart",
@@ -29,7 +29,7 @@ export function getAmmoTypes(weapon: ADNDWeapon): ADNDWeapon[] {
         "blowgun dart",
       ),
     ];
-  } else if (weapon.category == "bow") {
+  } else if (weapon.category === "bow") {
     result = [
       new ADNDWeapon(
         "flight arrow (12)",
@@ -54,7 +54,7 @@ export function getAmmoTypes(weapon: ADNDWeapon): ADNDWeapon[] {
         "arrow",
       ),
     ];
-  } else if (weapon.name == "Crossbow, hand") {
+  } else if (weapon.name === "Crossbow, hand") {
     result = [
       new ADNDWeapon(
         "hand quarrel",
@@ -68,7 +68,7 @@ export function getAmmoTypes(weapon: ADNDWeapon): ADNDWeapon[] {
         "crossbow quarrel",
       ),
     ];
-  } else if (weapon.name == "Crossbow, light") {
+  } else if (weapon.name === "Crossbow, light") {
     result = [
       new ADNDWeapon(
         "light quarrel",
@@ -82,7 +82,7 @@ export function getAmmoTypes(weapon: ADNDWeapon): ADNDWeapon[] {
         "crossbow quarrel",
       ),
     ];
-  } else if (weapon.name == "crossbow, heavy") {
+  } else if (weapon.name === "crossbow, heavy") {
     result = [
       new ADNDWeapon(
         "heavy quarrel",
@@ -96,7 +96,7 @@ export function getAmmoTypes(weapon: ADNDWeapon): ADNDWeapon[] {
         "crossbow quarrel",
       ),
     ];
-  } else if (weapon.category == "sling") {
+  } else if (weapon.category === "sling") {
     result = [
       new ADNDWeapon(
         "sling bullet",

@@ -1,17 +1,17 @@
 <script lang="ts">
-  import * as Currency from "$lib/currency";
-  import * as FantasyEquipmentList from "$lib/equipment/fantasylist";
+import * as Currency from "$lib/currency";
+import * as FantasyEquipmentList from "$lib/equipment/fantasylist";
 
-  let currency = $state("D&D currency");
-  let equipmentLists = FantasyEquipmentList.all();
+let currency = $state("D&D currency");
+let equipmentLists = FantasyEquipmentList.all();
 
-  function convertDNDCost(cost: number) {
-    return Currency.convertCopper(cost, false, false);
-  }
+function convertDNDCost(cost: number) {
+  return Currency.convertCopper(cost, false, false);
+}
 
-  function convertEnglishCost(cost: number) {
-    return Currency.convertFarthings(cost);
-  }
+function convertEnglishCost(cost: number) {
+  return Currency.convertFarthings(cost);
+}
 </script>
 
 <style lang="scss">

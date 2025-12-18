@@ -1,10 +1,10 @@
-import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
+import { getFantasyNameGeneratorSet, type NameGeneratorSet } from "$lib/names";
+import * as RNG from "@ironarachne/rng";
 
 export default class CultureGeneratorConfig {
-  generatorSet: MUN.GeneratorSet;
+  nameGeneratorSet: NameGeneratorSet;
 
   constructor() {
-    this.generatorSet = RND.item(MUN.cultureSets());
+    this.nameGeneratorSet = getFantasyNameGeneratorSet("human", new RNG.RNG(Date.now()));
   }
 }

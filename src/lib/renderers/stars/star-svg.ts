@@ -1,4 +1,3 @@
-import random from "random";
 import Star from "../../stars/star.js";
 import SVGStarfieldRenderer from "../starfields/starfield-svg.js";
 
@@ -34,14 +33,14 @@ export default class SVGStarRenderer {
     const midY = Math.floor(this.height / 2);
 
     const min = Math.min(this.width, this.height);
-    let radius = (Math.floor(min) * random.float(0.2, 0.4)) / 2;
+    let radius = (Math.floor(min) * RNG.float(0.2, 0.4)) / 2;
 
     if (star.classification == "main sequence") {
-      radius = (Math.floor(min) * random.float(0.6, 0.7)) / 2;
+      radius = (Math.floor(min) * RNG.float(0.6, 0.7)) / 2;
     } else if (star.classification == "giant") {
-      radius = (Math.floor(min) * random.float(0.8, 0.9)) / 2;
+      radius = (Math.floor(min) * RNG.float(0.8, 0.9)) / 2;
     } else if (star.classification == "supergiant") {
-      radius = (Math.floor(min) * random.float(0.9, 1.1)) / 2;
+      radius = (Math.floor(min) * RNG.float(0.9, 1.1)) / 2;
     }
 
     const glowRadius = Math.floor(radius * 1.4);

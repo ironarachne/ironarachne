@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Biomes from "./biomes/biomes";
 import * as Climates from "./climates/climates";
 import * as EcosystemGeneration from "./ecosystems/ecosystem_generation";
@@ -7,13 +7,13 @@ import * as WaterSystems from "./water_systems/water_systems";
 import type Environment from "./environment";
 import type Terrain from "./terrain/terrain";
 import type EnvironmentGeneratorConfig from "./environment_generator_config";
-import random from "random";
 
 export function generate(config: EnvironmentGeneratorConfig): Environment {
   config.terrainConfig.elevationMin = Math.max(config.elevation - 0.1, -1.0);
   config.terrainConfig.elevationMax = Math.min(config.elevation + 0.1, 1.0);
   config.terrainConfig.erosionIterations = config.erosionIterations;
   config.terrainConfig.erosionStrength = config.erosionStrength;
+  config.terrainConfig.rng = config.rng;
   config.terrainConfig.reliefEnergyMin = Math.max(
     config.reliefEnergy - 0.01,
     0.0,
@@ -27,11 +27,13 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
 
   config.waterSystemConfig.current = config.current;
   config.waterSystemConfig.latitude = config.latitude;
+  config.waterSystemConfig.rng = config.rng;
   let waterSystem = WaterSystems.generate(config.waterSystemConfig);
 
   config.climateConfig.current = waterSystem.current;
   config.climateConfig.latitude = config.latitude;
-  config.climateConfig.elevation = random.float(
+  config.climateConfig.rng = config.rng;
+  config.climateConfig.elevation = config.rng.float(
     terrain.elevationMin,
     terrain.elevationMax,
   );
@@ -41,6 +43,7 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
   climate.description = Climates.describe(climate);
 
   let biomeConfig = config.biomeConfig;
+  biomeConfig.rng = config.rng;
   biomeConfig.altitude = config.climateConfig.elevation;
   biomeConfig.temperatureMax = climate.temperatureMax;
   biomeConfig.temperatureMin = climate.temperatureMin;
@@ -60,25 +63,23 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
     description: "",
   };
 
-  environment.description = `${RND.item(biome.descriptions)} ${RND.item(biome.features)}`;
-  environment.description += " " + environment.climate.description;
-  environment.description += " " + describeTerrain(terrain);
+  environment.description = `${config.rng.item(biome.descriptions)} ${config.rng.item(biome.features)}`;
+  environment.description += ` ${environment.climate.description}`;
+  environment.description += ` ${describeTerrain(terrain, config.rng)}`;
 
   return environment;
 }
 
-export function generateForClimate(climateName: string): Environment {
+export function generateForClimate(climateName: string, rng: RNG.RNG): Environment {
   const config = getDefaultConfig();
   const climateType = Climates.getClimateTypeByName(climateName);
-  config.latitude = random.float(
-    climateType.latitudeMin,
-    climateType.latitudeMax,
-  );
+  config.latitude = rng.float(climateType.latitudeMin, climateType.latitudeMax);
+  config.rng = rng;
 
   return generate(config);
 }
 
-export function describeTerrain(terrain: Terrain): string {
+export function describeTerrain(terrain: Terrain, rng: RNG.RNG): string {
   let relief = "flat";
 
   if (terrain.reliefEnergy > 0.5) {
@@ -101,21 +102,21 @@ export function describeTerrain(terrain: Terrain): string {
 
   let slope = getDirectionOfSlope(terrain);
 
-  if (slope != "") {
+  if (slope !== "") {
     const slopeStrength = getStrengthOfSlope(terrain);
 
     if (slopeStrength > 0.5) {
-      description += RND.item([
+      description += rng.item([
         ` with a steep slope up to the ${slope}`,
         `. It has a steep slope up to the ${slope}`,
       ]);
     } else if (slopeStrength > 0.3) {
-      description += RND.item([
+      description += rng.item([
         ` with a moderate slope up to the ${slope}`,
         `. It has a moderate slope up to the ${slope}`,
       ]);
     } else {
-      description += RND.item([
+      description += rng.item([
         ` with a gentle slope up to the ${slope}`,
         `. It has a gentle slope up to the ${slope}`,
       ]);
@@ -142,6 +143,7 @@ export function getDefaultConfig(): EnvironmentGeneratorConfig {
     terrainConfig: TerrainGeneration.getDefaultConfig(),
     waterDirection: [0, 0, 0], // water is present
     waterSystemConfig: WaterSystems.getDefaultConfig(),
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }
 

@@ -1,5 +1,5 @@
-import * as RND from "@ironarachne/rng";
-import ADNDCharacter from "../adndcharacter.js";
+import type * as RNG from "@ironarachne/rng";
+import type ADNDCharacter from "../adndcharacter.js";
 import ADNDClass from "../adndclass.js";
 import SpellFilter from "../spellfilter.js";
 import * as Spells from "../spells.js";
@@ -44,16 +44,20 @@ export default new ADNDClass(
   1,
   4,
   -5,
-  function (character: ADNDCharacter): ADNDCharacter {
-    let allSpells = Spells.getAll();
+  function (this: ADNDClass, character: ADNDCharacter, rng: RNG.RNG): ADNDCharacter {
+    const allSpells = Spells.getAll();
     for (let i = 0; i < this.spellList.length; i++) {
       let filteredSpells = Spells.getFilteredSpells(
         this.spellList[i].filter,
         allSpells,
       );
-      filteredSpells = RND.shuffle(filteredSpells);
+      filteredSpells = rng.shuffle(filteredSpells);
       for (let j = 0; j < this.spellList[i].count; j++) {
-        character.spells.push(filteredSpells.pop());
+        const filteredSpell = filteredSpells.pop();
+        if (filteredSpell === undefined) {
+          throw new Error("Spell is undefined.");
+        }
+        character.spells.push(filteredSpell);
       }
     }
     return character;

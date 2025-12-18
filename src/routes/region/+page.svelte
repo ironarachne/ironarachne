@@ -1,76 +1,80 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
-  import * as RND from "@ironarachne/rng";
-  import * as Regions from "$lib/regions/regions.js";
-  import * as Words from "@ironarachne/words";
-  import * as Characters from "$lib/characters/characters.js";
-  import * as MUN from "@ironarachne/made-up-names";
-  import { renderSVGAsPNG } from "$lib/images/svg";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
-  import type Culture from '$lib/culture/culture';
-  import type UserData from '$lib/user_data';
+import { getContext } from "svelte";
+import * as RNG from "@ironarachne/rng";
+import * as Regions from "$lib/regions/regions.js";
+import * as Words from "@ironarachne/words";
+import * as Characters from "$lib/characters/characters.js";
+import * as MUN from "@ironarachne/made-up-names";
+import * as Names from "$lib/names";
+import { renderSVGAsPNG } from "$lib/images/svg";
 
-  const user: UserData = getContext('user');
-  let savedCulture: string = $state();
-  let useSavedCulture: boolean = $state(false);
-  let culture: Culture;
+import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
+import type Culture from "$lib/culture/culture";
+import type UserData from "$lib/user_data";
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  let nameSetName = $state('any');
-  let nameSet = RND.item(MUN.cultureSets());
-  let nameSets = MUN.cultureSets();
-  random.use(seedrandom(seed));
-  let config = Regions.getDefaultConfig();
-  config.nameGeneratorSet = nameSet;
+const user: UserData = getContext("user");
+let savedCulture: string = $state();
+let useSavedCulture: boolean = $state(false);
+let culture: Culture;
 
-  const heraldryRenderer = new HeraldrySVGRenderer();
-  let region = $state(Regions.generate(config));
-  let ruler = $state(region.authority);
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
+rng.setSeed(seed);
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
+let nameSetName = $state("any");
+let nameSets = Names.getAllFantasyNameGeneratorSets(rng);
+let nameSet = rng.item(nameSets);
 
-    config.dominantCulture = null;
-    if (useSavedCulture) {
-      loadSavedCulture();
-      config.dominantCulture = culture;
-      nameSet = culture.generatorSet;
+let config = Regions.getDefaultConfig();
+config.rng = rng;
+config.nameGeneratorSet = nameSet;
+
+const heraldryRenderer = new HeraldrySVGRenderer();
+let region = $state(Regions.generate(config));
+let ruler = $state(region.authority);
+
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
+  }
+  rng.setSeed(seed);
+
+  config.dominantCulture = null;
+  if (useSavedCulture) {
+    loadSavedCulture();
+    config.dominantCulture = culture;
+    nameSet = culture.nameGenerators;
+  } else {
+    if (nameSetName === "any") {
+      nameSet = rng.item(nameSets);
     } else {
-      if (nameSetName === 'any') {
-        nameSet = RND.item(MUN.cultureSets());
-      } else {
-        for (const element of MUN.cultureSets()) {
-          if (element.name === nameSetName) {
-            nameSet = element;
-          }
+      for (const element of nameSets) {
+        if (element.name === nameSetName) {
+          nameSet = element;
         }
       }
     }
-
-    config.nameGeneratorSet = nameSet;
-
-    region = Regions.generate(config);
-    ruler = region.authority;
-
-    if (ruler.heraldry !== null) {
-      const rulerSVG = heraldryRenderer.render(ruler.heraldry.device, 200, 220);
-      renderSVGAsPNG(rulerSVG, 200, 220, "ruler-arms");
-    }
   }
 
-  function loadSavedCulture() {
-    for (let i = 0; i < user.savedCultures.length; i++) {
-      if (user.savedCultures[i].name === savedCulture) {
-        culture = user.savedCultures[i];
-      }
+  config.nameGeneratorSet = nameSet;
+
+  region = Regions.generate(config);
+  ruler = region.authority;
+
+  if (ruler.heraldry !== null) {
+    const rulerSVG = heraldryRenderer.render(ruler.heraldry.device, 200, 220);
+    renderSVGAsPNG(rulerSVG, 200, 220, "ruler-arms");
+  }
+}
+
+function loadSavedCulture() {
+  for (let i = 0; i < user.savedCultures.length; i++) {
+    if (user.savedCultures[i].name === savedCulture) {
+      culture = user.savedCultures[i];
     }
   }
+}
 </script>
 
 <svelte:head>

@@ -1,6 +1,6 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
-import random from "random";
+
 import type Character from "./characters/character.js";
 import * as Characters from "./characters/characters.js";
 import type Item from "./equipment/item.js";
@@ -33,7 +33,7 @@ export function generate(
   charGenConfig.ageCategoryNames = ["adult"];
 
   const character = Characters.generate(charGenConfig);
-  let description = RND.item([
+  let description = RNG.item([
     `${character.firstName} ${character.lastName} is ${Words.article(
       itemCategory,
     )} ${itemCategory} merchant.`,
@@ -44,7 +44,7 @@ export function generate(
     )} ${itemCategory} merchant.`,
   ]);
   const wares = StockList.getList(itemCategory, 10, valueThreshold);
-  const priceVariance = random.float(0.8, 1.2);
+  const priceVariance = RNG.float(0.8, 1.2);
   if (priceVariance > 1.0) {
     description += ` ${Words.capitalize(character.gender.pronouns.subjective)} charges more than others.`;
   } else if (priceVariance < 1.0) {

@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 
 export function generate() {
@@ -8,11 +8,11 @@ export function generate() {
 }
 
 function randomSize() {
-  return RND.item(["gigantic", "immense", "large", "huge", "colossal", "vast"]);
+  return RNG.item(["gigantic", "immense", "large", "huge", "colossal", "vast"]);
 }
 
 function randomShip() {
-  return RND.item([
+  return RNG.item([
     "derelict",
     "freighter",
     "hulk",
@@ -25,15 +25,15 @@ function randomShip() {
 
 function randomIntro() {
   const size = randomSize();
-  const part1 = RND.item([
-    `${Words.article(size)} ${size} ${randomShip()} ${RND.item([
+  const part1 = RNG.item([
+    `${Words.article(size)} ${size} ${randomShip()} ${RNG.item([
       "drifts",
       "floats",
-    ])} in space ${RND.item(["in front of you", "here"])}, `,
+    ])} in space ${RNG.item(["in front of you", "here"])}, `,
     `a ${randomShip()} of ${size} proportions is adrift here, `,
   ]);
 
-  const part2 = RND.item([
+  const part2 = RNG.item([
     "its outer hull breached in several places.",
     "surrounded by strange, dancing lights.",
     "partially obscured by a thick, dark nebula.",
@@ -47,7 +47,7 @@ function randomIntro() {
 }
 
 function randomOrigin() {
-  return RND.item([
+  return RNG.item([
     "It matches no known ship design you've ever seen.",
     "It appears to be of an ancient design.",
     "There is something distinctly alien about its features.",
@@ -58,7 +58,7 @@ function randomOrigin() {
 }
 
 function randomTwist() {
-  return RND.item([
+  return RNG.item([
     "Strangely, you are getting life readings from deep within it...",
     "There appears to be an active power source somewhere on the ship.",
     "A distress beacon from the ship beeps weakly.",

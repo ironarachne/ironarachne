@@ -1,11 +1,11 @@
 import ADNDSpell from "./adndspell.js";
-import SpellFilter from "./spellfilter.js";
+import type SpellFilter from "./spellfilter.js";
 
 export function getFilteredSpells(
   filter: SpellFilter,
   spells: ADNDSpell[],
 ): ADNDSpell[] {
-  let result = [];
+  const result: ADNDSpell[] = [];
 
   for (let i = 0; i < spells.length; i++) {
     let meetsLevelCriterion = false;
@@ -13,22 +13,22 @@ export function getFilteredSpells(
     let meetsBannedTagsCriterion = false;
     let meetsRequiredTagsCriterion = false;
     if (
-      (filter.level != -1 && spells[i].level == filter.level) ||
-      filter.level == -1
+      (filter.level !== -1 && spells[i].level === filter.level) ||
+      filter.level === -1
     ) {
       meetsLevelCriterion = true;
     }
-    if (filter.casterClass == spells[i].casterClass) {
+    if (filter.casterClass === spells[i].casterClass) {
       meetsClassCriterion = true;
     }
     if (filter.bannedTags.length > 0) {
       let countOfBannedTags = 0;
       for (let j = 0; j < filter.bannedTags.length; j++) {
-        if (spells[i].tags.indexOf(filter.bannedTags[j]) != -1) {
+        if (spells[i].tags.indexOf(filter.bannedTags[j]) !== -1) {
           countOfBannedTags++;
         }
       }
-      if (countOfBannedTags == 0) {
+      if (countOfBannedTags === 0) {
         meetsBannedTagsCriterion = true;
       }
     } else {
@@ -36,7 +36,7 @@ export function getFilteredSpells(
     }
     if (filter.requiredTags.length > 0) {
       for (let j = 0; j < filter.requiredTags.length; j++) {
-        if (spells[i].tags.indexOf(filter.requiredTags[j]) != -1) {
+        if (spells[i].tags.indexOf(filter.requiredTags[j]) !== -1) {
           meetsRequiredTagsCriterion = true;
         }
       }

@@ -3,7 +3,7 @@ import * as UndeadEncounters from "$lib/encounters/templates/fantasy/undead.js";
 import * as Encounters from "$lib/encounters/templates/templates.js";
 import * as CommonSpecies from "$lib/species/common.js";
 import * as MUN from "@ironarachne/made-up-names";
-import random from "random";
+
 import DungeonTheme from "../dungeon_theme.js";
 import * as RoomThemes from "../rooms/themes/themes.js";
 
@@ -13,7 +13,7 @@ export function getTheme(): DungeonTheme {
     "humanoid",
     allSentientOptions,
   );
-  let numberOfSentientOptions = random.int(1, 2);
+  let numberOfSentientOptions = RNG.int(1, 2);
 
   let tombSentientOptions = CommonSpecies.byTag("martial", allSentientOptions);
   tombSentientOptions = CommonSpecies.randomUniqueSet(

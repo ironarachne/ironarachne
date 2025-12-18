@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import Component from "../../components/component.js";
 import * as Components from "../../components/components.js";
@@ -21,10 +21,10 @@ export default class ClubPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number): MeleeWeapon {
-    let body = RND.item(Components.withCategory("wood", componentOptions));
-    let handle = RND.item(Components.withCategory("leather", componentOptions));
+    let body = RNG.item(Components.withCategory("wood", componentOptions));
+    let handle = RNG.item(Components.withCategory("leather", componentOptions));
 
-    let cosmeticBody = RND.item([
+    let cosmeticBody = RNG.item([
       "carved",
       "spiked",
       "heavy",
@@ -32,16 +32,16 @@ export default class ClubPattern implements Pattern {
       "square",
     ]);
 
-    let cosmeticHandle = RND.item(["short", "long", "comfortable", "broad"]);
+    let cosmeticHandle = RNG.item(["short", "long", "comfortable", "broad"]);
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
-    description += RND.item([
+    description += RNG.item([
       `${Words.article(body.descriptor)} ${body.descriptor} body`,
       `${Words.article(cosmeticBody)} ${cosmeticBody} ${body.descriptor} body`,
     ]);
 
-    description += RND.item([
+    description += RNG.item([
       ` and ${Words.article(handle.descriptor)} ${handle.descriptor} wrapped handle`,
       ` and ${Words.article(cosmeticHandle)} ${cosmeticHandle} ${handle.descriptor} wrapped handle`,
     ]);

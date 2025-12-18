@@ -17,7 +17,11 @@ export function renderChargeGroupBlazon(group: ChargeGroup): string {
   return blazon;
 }
 
-export function renderChargeGroupSVG(group: ChargeGroup, contextWidth: number, contextHeight: number): string {
+export function renderChargeGroupSVG(
+  group: ChargeGroup,
+  contextWidth: number,
+  contextHeight: number,
+): string {
   let chargeSVGString = group.charge.SVG;
   chargeSVGString = setChargeColor(
     group.charge.tincture.hexColor,
@@ -45,8 +49,8 @@ function setChargeColor(
 
   svgResult = svgResult.replaceAll("#FFFFFF", hexColor);
 
-  svgResult = svgResult.replaceAll('st0', `st0-${tinctureName}`);
-  svgResult = svgResult.replaceAll('st1', `st1-${tinctureName}`);
+  svgResult = svgResult.replaceAll("st0", `st0-${tinctureName}`);
+  svgResult = svgResult.replaceAll("st1", `st1-${tinctureName}`);
 
   // TODO: Fix a bug where the border is colored if the charge color is sable
 

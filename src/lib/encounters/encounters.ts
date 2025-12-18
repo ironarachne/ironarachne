@@ -6,8 +6,8 @@ import type MobGroup from "$lib/mobs/group.js";
 import type Mob from "$lib/mobs/mob.js";
 import all from "$lib/species/all.js";
 import * as CommonSpecies from "$lib/species/common.js";
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
+
 import type Encounter from "./encounter.js";
 import type EncounterGeneratorConfig from "./encounter_generator_config";
 
@@ -21,7 +21,7 @@ export function generate(config: EncounterGeneratorConfig): Encounter {
   for (let i = 0; i < config.template.groupTemplates.length; i++) {
     let mobs: Mob[] = [];
     let t = config.template.groupTemplates[i];
-    let amount = random.int(t.minNumber, t.maxNumber);
+    let amount = RNG.int(t.minNumber, t.maxNumber);
 
     let options = [];
     let unfilteredOptions = [];
@@ -92,7 +92,7 @@ export function generate(config: EncounterGeneratorConfig): Encounter {
 }
 
 function generateCreatureMobs(creatureOptions: Mob[], amount: number): Mob[] {
-  let creatureType = RND.item(creatureOptions);
+  let creatureType = RNG.item(creatureOptions);
   let creatures: Mob[] = [];
   let config = Creatures.newCreatureGeneratorConfig();
 
@@ -109,14 +109,14 @@ function generateSentientMobs(
   archetypes: Archetype[],
   amount: number,
 ): Mob[] {
-  let species = RND.item(speciesOptions);
+  let species = RNG.item(speciesOptions);
   let characters = [];
   let charGenConfig = PremadeConfigs.getFantasy();
   charGenConfig.speciesOptions = [species];
 
   for (let i = 0; i < amount; i++) {
     let c = Characters.generate(charGenConfig);
-    c.archetype = RND.item(archetypes);
+    c.archetype = RNG.item(archetypes);
     c.abilities = c.abilities.concat(c.archetype.abilities);
     c.threatLevel = Characters.getTotalThreatLevel(c);
     c.summary = `${c.gender.name} ${c.species.adjective} ${c.archetype.name}`;

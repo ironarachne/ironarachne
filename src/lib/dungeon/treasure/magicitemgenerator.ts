@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as Currency from "../../currency/currency.js";
 import type Item from "../../equipment/item.js";
@@ -24,7 +24,7 @@ export default class MagicItemGenerator implements TreasureGenerator {
 
     for (let i = 0; i < this.count; i++) {
       let itemGenConfig = new ItemGeneratorConfig();
-      itemGenConfig.pattern = RND.item(possibleItems);
+      itemGenConfig.pattern = RNG.item(possibleItems);
       itemGenConfig.useMutator = true;
       itemGenConfig.minQuality = 2;
       itemGenConfig.maxQuality = 5;

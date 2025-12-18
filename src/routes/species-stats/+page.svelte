@@ -1,64 +1,74 @@
 <script lang="ts">
-  import * as AgeCategories from "$lib/age/age_categories";
-  import type AgeCategory from "$lib/age/age_category";
-  import * as Sizes from "$lib/size/sizes";
-  import type { SizeMatrix, SizeAgeSummary } from "$lib/size/size_matrix";
-  import { convertMatrixToSummary } from "$lib/size/size_matrix";
+import * as AgeCategories from "$lib/age/age_categories";
+import type AgeCategory from "$lib/age/age_category";
+import * as Sizes from "$lib/size/sizes";
+import type { SizeMatrix, SizeAgeSummary } from "$lib/size/size_matrix";
+import { convertMatrixToSummary } from "$lib/size/size_matrix";
 
-  let maximumAge = $state(100);
-  let femaleHeightModifier = $state(100);
-  let femaleWeightModifier = $state(100);
-  let maleHeightModifier = $state(100);
-  let maleWeightModifier = $state(100);
-  let femaleAgeCategories: AgeCategory[] = [];
-  let maleAgeCategories: AgeCategory[] = [];
-  let femaleSizeMatrix: SizeMatrix;
-  let maleSizeMatrix: SizeMatrix;
+let maximumAge = $state(100);
+let femaleHeightModifier = $state(100);
+let femaleWeightModifier = $state(100);
+let maleHeightModifier = $state(100);
+let maleWeightModifier = $state(100);
+let femaleAgeCategories: AgeCategory[] = [];
+let maleAgeCategories: AgeCategory[] = [];
+let femaleSizeMatrix: SizeMatrix;
+let maleSizeMatrix: SizeMatrix;
 
-  let femaleData: SizeAgeSummary[] = $state([]);
-  let maleData: SizeAgeSummary[] = $state([]);
+let femaleData: SizeAgeSummary[] = $state([]);
+let maleData: SizeAgeSummary[] = $state([]);
 
-  let ingenium = $state({
-    adultAge: 0,
-    femaleHeight: '',
-    maleHeight: '',
-    femaleWeight: '',
-    maleWeight: ''
-  });
+let ingenium = $state({
+  adultAge: 0,
+  femaleHeight: "",
+  maleHeight: "",
+  femaleWeight: "",
+  maleWeight: "",
+});
 
-  function calculate() {
-    let ageScale = maximumAge / 100;
+function calculate() {
+  let ageScale = maximumAge / 100;
 
-    femaleAgeCategories = AgeCategories.getHumanVariant(ageScale);
-    maleAgeCategories = AgeCategories.getHumanVariant(ageScale);
+  femaleAgeCategories = AgeCategories.getHumanVariant(ageScale);
+  maleAgeCategories = AgeCategories.getHumanVariant(ageScale);
 
-    femaleSizeMatrix = Sizes.getHumanVariant(femaleWeightModifier / 100, femaleHeightModifier / 100);
-    maleSizeMatrix = Sizes.getHumanVariant(maleWeightModifier / 100, maleHeightModifier / 100);
+  femaleSizeMatrix = Sizes.getHumanVariant(
+    femaleWeightModifier / 100,
+    femaleHeightModifier / 100,
+  );
+  maleSizeMatrix = Sizes.getHumanVariant(
+    maleWeightModifier / 100,
+    maleHeightModifier / 100,
+  );
 
-    femaleData = convertMatrixToSummary(femaleSizeMatrix, femaleAgeCategories, "female");
-    maleData = convertMatrixToSummary(maleSizeMatrix, maleAgeCategories, "male");
+  femaleData = convertMatrixToSummary(
+    femaleSizeMatrix,
+    femaleAgeCategories,
+    "female",
+  );
+  maleData = convertMatrixToSummary(maleSizeMatrix, maleAgeCategories, "male");
 
-    getIngenium();
+  getIngenium();
+}
+
+function getIngenium() {
+  for (let i = 0; i < femaleData.length; i++) {
+    if (femaleData[i].ageCategoryName == "adult") {
+      ingenium.femaleHeight = femaleData[i].heightRange;
+      ingenium.femaleWeight = femaleData[i].weightRange;
+      ingenium.adultAge = femaleData[i].minAge;
+    }
   }
 
-  function getIngenium() {
-    for (let i=0;i<femaleData.length;i++) {
-      if (femaleData[i].ageCategoryName == "adult") {
-        ingenium.femaleHeight = femaleData[i].heightRange;
-        ingenium.femaleWeight = femaleData[i].weightRange;
-        ingenium.adultAge = femaleData[i].minAge;
-      }
-    }
-
-    for (let i=0;i<maleData.length;i++) {
-      if (maleData[i].ageCategoryName == "adult") {
-        ingenium.maleHeight = maleData[i].heightRange;
-        ingenium.maleWeight = maleData[i].weightRange;
-      }
+  for (let i = 0; i < maleData.length; i++) {
+    if (maleData[i].ageCategoryName == "adult") {
+      ingenium.maleHeight = maleData[i].heightRange;
+      ingenium.maleWeight = maleData[i].weightRange;
     }
   }
+}
 
-  calculate();
+calculate();
 </script>
 
 <style lang="scss">

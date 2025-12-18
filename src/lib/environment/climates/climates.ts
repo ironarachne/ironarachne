@@ -1,9 +1,9 @@
 import * as MT from "$lib/math_translation";
-import random from "random";
 import type Climate from "./climate.js";
 import type ClimateGeneratorConfig from "./generator_config";
 import type ClimateType from "./climate_type.js";
 import type Season from "./season.js";
+import * as RNG from "@ironarachne/rng";
 
 export function describe(climate: Climate): string {
   // TODO: make climate descriptions more interesting, with more variety
@@ -34,7 +34,7 @@ export function generate(config: ClimateGeneratorConfig): Climate {
     config.waterDirection,
   );
   const precipitationFrequency = MT.clamp(
-    precipitationAmount * random.float(0.25, 1.25),
+    precipitationAmount * config.rng.float(0.25, 1.25),
     0,
     1,
   );
@@ -238,6 +238,7 @@ export function getDefaultConfig(): ClimateGeneratorConfig {
     current: [0, 0, 0], // current is not present
     temperatureAtEquator: 35,
     terrainNormalVector: [0, 0, 0], // flat terrain
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }
 

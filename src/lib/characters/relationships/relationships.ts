@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 
 export function getRandomVerbForStrength(strength: number) {
   const verbs = [
@@ -8,5 +8,5 @@ export function getRandomVerbForStrength(strength: number) {
     ["loves", "adores", "is enamored of"],
   ];
 
-  return RND.item(verbs[strength]);
+  return RNG.item(verbs[strength]);
 }

@@ -3,9 +3,8 @@ import * as Characters from "$lib/characters/characters.js";
 import type Gender from "$lib/gender/gender.js";
 import * as SizeMatrix from "$lib/size/size_matrix.js";
 import human from "$lib/species/sentient/human.js";
-import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
+import * as Names from "$lib/names";
 import type Character from "../character";
 import type Family from "./family";
 import type FamilyGeneratorConfig from "./family_generator_config";
@@ -34,6 +33,7 @@ export function generate(config: FamilyGeneratorConfig): Family {
     genderNameOptions: genderNames,
     useAdaptiveNames: false,
     physicalTraitOverrides: [],
+    rng: config.rng,
   };
 
   let parent1: FamilyMember = {
@@ -61,7 +61,7 @@ export function generate(config: FamilyGeneratorConfig): Family {
   parent2.character.age += 5;
   parent2.character.description = Characters.describe(parent2.character);
 
-  if (parent1.character.gender.name == config.dominantFamilyNameGender.name) {
+  if (parent1.character.gender.name === config.dominantFamilyNameGender.name) {
     parent2.character.lastName = parent1.character.lastName;
     family.name = parent1.character.lastName;
   } else {
@@ -95,15 +95,16 @@ export function getChildren(
 }
 
 export function getDefaultConfig(): FamilyGeneratorConfig {
-  let generatorSets = MUN.allSets();
-  let generatorSet = MUN.getSetByName("human", generatorSets);
-  let config = {
+  const rng = new RNG.RNG(Date.now().toString())
+  const generatorSet = Names.getFantasyNameGeneratorSet("human", rng);
+  const config = {
     species: human,
     iterations: 10,
     rootFamilyNameGenerator: generatorSet.family,
     rootFemaleNameGenerator: generatorSet.female,
     rootMaleNameGenerator: generatorSet.male,
     dominantFamilyNameGender: human.genders[1],
+    rng: rng,
   };
 
   return config;
@@ -117,7 +118,7 @@ export function getParents(
   family: Family,
   person: FamilyMember,
 ): FamilyMember[] {
-  let parents = [];
+  const parents = [];
   for (let i = 0; i < person.parents.length; i++) {
     parents.push(family.members[person.parents[i]]);
   }
@@ -129,7 +130,7 @@ export function iterate(family: Family, config: FamilyGeneratorConfig): Family {
   const ageStep = 5;
 
   for (let i = 0; i < family.members.length; i++) {
-    if (family.members[i].character.status == "alive") {
+    if (family.members[i].character.status === "alive") {
       family.members[i].character.age += ageStep;
     }
 
@@ -146,7 +147,7 @@ export function iterate(family: Family, config: FamilyGeneratorConfig): Family {
         family.members[i].character.species.ageCategories,
       );
 
-      if (newAgeCategory.name != family.members[i].character.ageCategory.name) {
+      if (newAgeCategory.name !== family.members[i].character.ageCategory.name) {
         // This person aged into a new age category and needs a new height and weight
         let sizeGeneratorConfig = SizeMatrix.getSizeConfig(
           family.members[i].character.gender.name,
@@ -154,11 +155,11 @@ export function iterate(family: Family, config: FamilyGeneratorConfig): Family {
           family.members[i].character.species.sizeGeneratorConfigMatrix,
         );
 
-        family.members[i].character.height = random.int(
+        family.members[i].character.height = RNG.int(
           sizeGeneratorConfig.minHeight,
           sizeGeneratorConfig.maxHeight,
         );
-        family.members[i].character.weight = random.int(
+        family.members[i].character.weight = RNG.int(
           sizeGeneratorConfig.minWeight,
           sizeGeneratorConfig.maxWeight,
         );
@@ -170,20 +171,20 @@ export function iterate(family: Family, config: FamilyGeneratorConfig): Family {
       family.members[i].character,
     );
 
-    if (family.members[i].character.status == "dead") {
+    if (family.members[i].character.status === "dead") {
       continue;
     }
 
-    if (RND.simple(100) > 98) {
+    if (config.rng.int(1, 100) > 98) {
       // There's a 2% chance something horrible kills this person
       family.members[i].character.status = "dead";
       continue;
     }
 
-    if (needsChildren(family.members[i]) && RND.simple(100) > 30) {
-      let numberOfChildren = random.int(1, 4);
+    if (needsChildren(family.members[i]) && config.rng.int(1, 100) > 30) {
+      let numberOfChildren = config.rng.int(1, 4);
       for (let j = 0; j < numberOfChildren; j++) {
-        let child = getNewChild(i, family.members[i].mate, family);
+        let child = getNewChild(i, family.members[i].mate, family, config.rng);
         let newMember: FamilyMember = {
           id: family.members.length,
           character: child,
@@ -195,7 +196,7 @@ export function iterate(family: Family, config: FamilyGeneratorConfig): Family {
         family.members[family.members[i].mate].children.push(newMember.id);
 
         if (
-          family.members[i].character.gender.name ==
+          family.members[i].character.gender.name ===
           config.dominantFamilyNameGender.name
         ) {
           newMember.character.lastName = family.members[i].character.lastName;
@@ -208,7 +209,7 @@ export function iterate(family: Family, config: FamilyGeneratorConfig): Family {
       }
     }
 
-    if (needsMate(family.members[i]) && RND.simple(100) > 50) {
+    if (needsMate(family.members[i]) && config.rng.int(1, 100) > 50) {
       let mate = getNewMate(family.members[i], family);
       let newMember: FamilyMember = {
         id: family.members.length,
@@ -220,7 +221,7 @@ export function iterate(family: Family, config: FamilyGeneratorConfig): Family {
       family.members[i].mate = newMember.id;
 
       if (
-        family.members[i].character.gender.name ==
+        family.members[i].character.gender.name ===
         config.dominantFamilyNameGender.name
       ) {
         newMember.character.lastName = family.members[i].character.lastName;
@@ -239,6 +240,7 @@ function getNewChild(
   parent1Index: number,
   parent2Index: number,
   family: Family,
+  rng: RNG.RNG,
 ): Character {
   let parent1 = family.members[parent1Index].character;
   let parent2 = family.members[parent2Index].character;
@@ -246,7 +248,7 @@ function getNewChild(
   let physicalTraits = parent1.physicalTraits.concat(parent2.physicalTraits);
   let uniqueNames: string[] = [];
   let traitOverrides = [];
-  physicalTraits = RND.shuffle(physicalTraits);
+  physicalTraits = rng.shuffle(physicalTraits);
   for (let i = 0; i < physicalTraits.length; i++) {
     if (!uniqueNames.includes(physicalTraits[i].name)) {
       traitOverrides.push(physicalTraits[i]);
@@ -292,7 +294,7 @@ function getNewMate(member: FamilyMember, family: Family): Character {
 
 function getMateGender(gender1: Gender, genders: Gender[]): Gender {
   for (let i = 0; i < genders.length; i++) {
-    if (genders[i].name != gender1.name) {
+    if (genders[i].name !== gender1.name) {
       return genders[i];
     }
   }
@@ -302,9 +304,9 @@ function getMateGender(gender1: Gender, genders: Gender[]): Gender {
 
 function needsChildren(member: FamilyMember): boolean {
   if (
-    member.mate != -1 &&
-    member.children.length == 0 &&
-    member.character.ageCategory.name == "adult"
+    member.mate !== -1 &&
+    member.children.length === 0 &&
+    member.character.ageCategory.name === "adult"
   ) {
     return true;
   }
@@ -313,7 +315,7 @@ function needsChildren(member: FamilyMember): boolean {
 }
 
 function needsMate(member: FamilyMember): boolean {
-  if (member.character.ageCategory.name == "adult" && member.mate == -1) {
+  if (member.character.ageCategory.name === "adult" && member.mate === -1) {
     return true;
   }
 

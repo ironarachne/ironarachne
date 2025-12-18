@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as Dice from "../../dice.js";
 import BagOfCoins from "./bagofcoins.js";
@@ -50,18 +50,18 @@ export default class CoinGenerator implements TreasureGenerator {
     bag.value = cp + sp * 10 + ep * 50 + gp * 100 + pp * 1000;
 
     let coinCount = cp + sp + ep + gp + pp;
-    let container = RND.item(["bag", "pouch", "purse"]);
+    let container = RNG.item(["bag", "pouch", "purse"]);
 
     // TODO: pull the container out into its own class, and have a library that generates an appropriate description
     // maybe also figure out how to have multiple types of things in a container... perhaps treasure has a property
     // like "needsContainer" and "containerSize" or something
 
     if (coinCount > 1000) {
-      container = RND.item(["chest", "large chest"]);
+      container = RNG.item(["chest", "large chest"]);
     } else if (coinCount > 250) {
-      container = RND.item(["chest", "satchel"]);
+      container = RNG.item(["chest", "satchel"]);
     } else if (coinCount > 100) {
-      container = RND.item(["sack", "box"]);
+      container = RNG.item(["sack", "box"]);
     }
 
     bag.name = `a ${container} of coins`;
@@ -70,7 +70,7 @@ export default class CoinGenerator implements TreasureGenerator {
       "a " +
       container +
       " of coins " +
-      RND.item(["containing", "holding", "with"]) +
+      RNG.item(["containing", "holding", "with"]) +
       " ";
 
     let moneys = [];

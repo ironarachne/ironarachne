@@ -1,19 +1,19 @@
 <script lang="ts">
-  import ArmsManufacturerGenerator from "$lib/arms_manufacturer/generator.js";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+import * as RNG from "@ironarachne/rng";
+import ArmsManufacturerGenerator from "$lib/arms_manufacturer/generator.js";
 
-  let seed = RND.randomString(13);
-  random.use(seedrandom(seed));
-  const generator = new ArmsManufacturerGenerator();
-  let manufacturer = $state(generator.generate());
+const rng = new RNG.RNG(Date.now());
 
-  function generate() {
-    seed = RND.randomString(13);
-    random.use(seedrandom(seed));
-    manufacturer = generator.generate();
-  }
+let seed = RNG.randomString(13);
+rng.setSeed(seed);
+const generator = new ArmsManufacturerGenerator(rng);
+let manufacturer = $state(generator.generate());
+
+function generate() {
+  seed = RNG.randomString(13);
+  rng.setSeed(seed);
+  manufacturer = generator.generate();
+}
 </script>
 
 <svelte:head>

@@ -1,34 +1,37 @@
 <script lang="ts">
-  import * as RND from "@ironarachne/rng";
-  import * as WebGLStarRenderer from "$lib/renderers/stars/webgl_star_renderer";
-  import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import { onMount } from 'svelte';
-  import { generateStarSystem, getDefaultStarSystemGeneratorConfig, type StarSystem } from "$lib/astronomical_bodies/star_systems";
+import * as RNG from "@ironarachne/rng";
+import * as WebGLStarRenderer from "$lib/renderers/stars/webgl_star_renderer";
+import * as WebGLPlanetRenderer from "$lib/renderers/planets/webgl_planet_renderer";
 
-  const width = 128;
-  const height = 128;
+import { onMount } from "svelte";
+import {
+  generateStarSystem,
+  getDefaultStarSystemGeneratorConfig,
+  type StarSystem,
+} from "$lib/astronomical_bodies/star_systems";
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  random.use(seedrandom(seed));
+const width = 128;
+const height = 128;
 
-  let config = getDefaultStarSystemGeneratorConfig();
-  let system: StarSystem | undefined = $state();
+let seed = $state(RNG.randomString(13));
+let lockSeed = $state(false);
+RNG.setSeed(seed);
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    system = generateStarSystem(config);
+let config = getDefaultStarSystemGeneratorConfig();
+let system: StarSystem | undefined = $state();
+
+function generate() {
+  if (!lockSeed) {
+    seed = RNG.randomString(13);
   }
+  RNG.setSeed(seed);
+  system = generateStarSystem(config);
+}
 
-  onMount(() => {
-    config = getDefaultStarSystemGeneratorConfig();
-		system = generateStarSystem(config);
-	});
+onMount(() => {
+  config = getDefaultStarSystemGeneratorConfig();
+  system = generateStarSystem(config);
+});
 </script>
 
 <style lang="scss">

@@ -1,4 +1,4 @@
-import random from "random";
+import * as RNG from "@ironarachne/rng";
 
 export class DicePool {
   d4: number;
@@ -227,7 +227,7 @@ export function rangeToDiceExpression(range: number) {
   return dice;
 }
 
-export function roll(expression: string): number {
+export function roll(expression: string, rng: RNG.RNG = new RNG.RNG(Date.now().toString())): number {
   let phrases: string[] = [];
   let expressionType = "straight";
   let parts = [];
@@ -254,7 +254,7 @@ export function roll(expression: string): number {
       if (modParts.length > 1) {
         const n = Number(modParts[0]);
         const s = Number(modParts[1]);
-        modValue += rollSimple(n, s);
+        modValue += rollSimple(n, s, rng);
       } else {
         modValue += Number(phrases[i]);
       }
@@ -264,7 +264,7 @@ export function roll(expression: string): number {
     parts = expression.split("d");
   }
 
-  let roll = rollSimple(Number(parts[0]), Number(parts[1]));
+  let roll = rollSimple(Number(parts[0]), Number(parts[1]), rng);
 
   if (expressionType === "added") {
     roll += modValue;
@@ -277,11 +277,11 @@ export function roll(expression: string): number {
   return roll;
 }
 
-function rollSimple(n: number, s: number): number {
+function rollSimple(n: number, s: number, rng: RNG.RNG): number {
   let result = 0;
 
   for (let i = 0; i < n; i++) {
-    result += random.int(1, s);
+    result += rng.int(1, s);
   }
 
   return result;

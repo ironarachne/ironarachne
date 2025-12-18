@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import Relationship from "./relationship.js";
 
 export default class RelationshipGenerator {
@@ -13,13 +13,13 @@ export default class RelationshipGenerator {
     let noun = "";
 
     if (this.strength == -1) {
-      verb = RND.item(["dislikes", "distrusts", "mistrusts", "is annoyed by"]);
+      verb = RNG.item(["dislikes", "distrusts", "mistrusts", "is annoyed by"]);
       noun = "enemy";
     } else if (this.strength == -2) {
-      verb = RND.item(["fears", "hates", "loathes", "can't stand"]);
+      verb = RNG.item(["fears", "hates", "loathes", "can't stand"]);
       noun = "enemy";
     } else if (this.strength == 0) {
-      verb = RND.item([
+      verb = RNG.item([
         "is intrigued by",
         "is ambivalent towards",
         "is neutral towards",
@@ -27,7 +27,7 @@ export default class RelationshipGenerator {
       ]);
       noun = "acquaintance";
     } else if (this.strength == 1) {
-      verb = RND.item([
+      verb = RNG.item([
         "likes",
         "is amused by",
         "enjoys the company of",
@@ -36,7 +36,7 @@ export default class RelationshipGenerator {
       ]);
       noun = "friend";
     } else {
-      verb = RND.item(["loves", "deeply trusts", "adores"]);
+      verb = RNG.item(["loves", "deeply trusts", "adores"]);
       noun = "friend";
     }
 

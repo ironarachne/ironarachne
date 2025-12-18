@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 
 export function generate() {
   return `${getCSFront()} ${getCSEntry()} ${getCSProductDisplays()} ${getCSCustomers()} ${getCSBack()}`;
@@ -17,7 +17,7 @@ function getCSFront() {
     "A colorful graffiti mural covers the entire front of the building, depicting a variety of cyborgs and tech-enhanced creatures engaged in battle.",
   ];
 
-  return RND.item(choices);
+  return RNG.item(choices);
 }
 
 function getCSEntry() {
@@ -34,7 +34,7 @@ function getCSEntry() {
     "The entrance is hidden behind a false wall, which slides open to reveal the shop's interior.",
   ];
 
-  return RND.item(choices);
+  return RNG.item(choices);
 }
 
 function getCSProductDisplays() {
@@ -67,7 +67,7 @@ function getCSProductDisplays() {
 
   const choices = [...displayScreens, ...modelCybernetics, ...attendants];
 
-  return RND.item(choices);
+  return RNG.item(choices);
 }
 
 function getCSCustomers() {
@@ -84,7 +84,7 @@ function getCSCustomers() {
     "A group of customers sit around a table in the corner, sharing stories about their cybernetic upgrades and comparing notes on their experiences.",
   ];
 
-  return RND.item(choices);
+  return RNG.item(choices);
 }
 
 function getCSBack() {
@@ -94,7 +94,7 @@ function getCSBack() {
     "research and development area",
     "operation facility",
   ];
-  const roomChoice = RND.item(rooms);
+  const roomChoice = RNG.item(rooms);
 
   const tools = [
     "microscalpels",
@@ -102,7 +102,7 @@ function getCSBack() {
     "laser scalpels",
     "cybernetic grafting tools",
   ];
-  const toolChoice = RND.item(tools);
+  const toolChoice = RNG.item(tools);
 
   const technicians = [
     "Two technicians in immaculate uniforms",
@@ -110,7 +110,7 @@ function getCSBack() {
     "A group of cyberpunk techies",
     "An experienced team of surgeons",
   ];
-  const technicianChoice = RND.item(technicians);
+  const technicianChoice = RNG.item(technicians);
 
   const roomDescription = `The ${roomChoice} is dimly lit and filled with the hum of electronic equipment. `;
   const toolDescription = `Rows of ${toolChoice} line the walls, ready to be used at a moment's notice. `;

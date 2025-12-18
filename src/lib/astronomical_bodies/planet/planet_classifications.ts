@@ -1,6 +1,5 @@
 import type { PlanetClassification } from "$lib/astronomical_bodies/planet/planets";
-import * as RND from "@ironarachne/rng";
-import random from "random";
+import * as RNG from "@ironarachne/rng";
 
 export type PlanetFeatureSet = {
   name: string;
@@ -10,15 +9,16 @@ export type PlanetFeatureSet = {
 export function getDescriptionFromFeatures(
   possibleFeatures: PlanetFeatureSet[],
   featureCount: number,
+  rng: RNG.RNG
 ): string {
-  const features = RND.shuffle(possibleFeatures);
+  const features = rng.shuffle(possibleFeatures);
   const selectedFeatures = features.slice(0, featureCount);
 
   let description = "";
 
   for (let i = 0; i < selectedFeatures.length; i++) {
     const feature = selectedFeatures[i];
-    const option = RND.item(feature.options);
+    const option = rng.item(feature.options);
 
     description += `${option} `;
   }
@@ -56,7 +56,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 0.0001,
       surface_pressure_max: 0.1,
       has_atmosphere: true,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "sandstorms",
@@ -88,7 +88,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
             options: [
               "Dune seas across the planet are home to a dangerous species of predator.",
               "Dune seas cover much of the planet's surface.",
-              `The dune seas of this planet are home to ${RND.item([
+              `The dune seas of this planet are home to ${rng.item([
                 "a dangerous species of predator",
                 "myriad forms of moisture-conserving life",
                 "a strange type of dry plant",
@@ -105,9 +105,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 3);
+        const featureCount = rng.int(1, 3);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -124,7 +124,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 0.0001,
       surface_pressure_max: 0.5,
       has_atmosphere: false,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "craters",
@@ -168,9 +168,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 2);
+        const featureCount = rng.int(1, 2);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -187,7 +187,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 0.9,
       surface_pressure_max: 1.1,
       has_atmosphere: true,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "lush forests",
@@ -225,12 +225,12 @@ export function getPlanetClassifications(): PlanetClassification[] {
             name: "unique life forms",
             options: [
               "A large and dangerous species of predator is native to this planet.",
-              `A species of large herbivore popular in the ${RND.item([
+              `A species of large herbivore popular in the ${rng.item([
                 "galactic meat market",
                 "interstellar dairy market",
                 "interstellar trade network",
               ])} is native to this planet.`,
-              `Several species of local ${RND.item([
+              `Several species of local ${rng.item([
                 "insect",
                 "reptile",
                 "predator",
@@ -239,9 +239,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 3);
+        const featureCount = rng.int(1, 3);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -258,7 +258,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 0.0001,
       surface_pressure_max: 5,
       has_atmosphere: true,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "storms",
@@ -283,9 +283,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 2);
+        const featureCount = rng.int(1, 2);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -302,7 +302,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 0.0001,
       surface_pressure_max: 0.9,
       has_atmosphere: true,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "ice storms",
@@ -331,9 +331,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 2);
+        const featureCount = rng.int(1, 2);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -350,7 +350,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 1,
       surface_pressure_max: 10,
       has_atmosphere: true,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "high temperatures",
@@ -377,9 +377,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 2);
+        const featureCount = rng.int(1, 2);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -396,7 +396,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 0.8,
       surface_pressure_max: 1.2,
       has_atmosphere: true,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "corrosive substances",
@@ -423,9 +423,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 2);
+        const featureCount = rng.int(1, 2);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -442,15 +442,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 0.9,
       surface_pressure_max: 1.5,
       has_atmosphere: true,
-      getRandomDescription(): string {
-        const descriptions = [
-          "It's very difficult to tell where solid land is. Landing on what appears to be a muddy plain might result in sinking forever into the muck.",
-          "A species of parasitic insect local to the planet carries a nasty disease that is highly contagious.",
-          "The complicated ecosystem is easy to upset, and outside interference can cause widespread destruction.",
-          "The atmosphere is very thick, requiring breathing apparatus for outside activity.",
-          "A species of aerial predator makes being exposed highly dangerous.",
-        ];
-
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "uncertain terrain",
@@ -478,9 +470,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 2);
+        const featureCount = rng.int(1, 2);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -497,7 +489,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 1,
       surface_pressure_max: 100,
       has_atmosphere: true,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "atmosphere",
@@ -524,9 +516,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 2);
+        const featureCount = rng.int(1, 2);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
     {
@@ -543,7 +535,7 @@ export function getPlanetClassifications(): PlanetClassification[] {
       surface_pressure_min: 1,
       surface_pressure_max: 50,
       has_atmosphere: true,
-      getRandomDescription(): string {
+      getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
             name: "volcanic activity",
@@ -573,9 +565,9 @@ export function getPlanetClassifications(): PlanetClassification[] {
           },
         ];
 
-        const featureCount = random.int(1, 2);
+        const featureCount = rng.int(1, 2);
 
-        return getDescriptionFromFeatures(possibleFeatures, featureCount);
+        return getDescriptionFromFeatures(possibleFeatures, featureCount, rng);
       },
     },
   ];

@@ -1,4 +1,4 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as Words from "@ironarachne/words";
 import * as Text from "../format/text.js";
 
@@ -29,38 +29,43 @@ export class UWCharacter {
   }
 }
 
-export function generate() {
-  const stats = randomStats();
-  const careers = randomCareers();
-  const origin = randomOrigin();
+export function generate(rng: RNG.RNG): UWCharacter {
+  const stats = randomStats(rng);
+  const careers = randomCareers(rng);
+  const origin = randomOrigin(rng);
   const workspaceOptions = careers[0].workspaces.concat(careers[1].workspaces);
 
-  const workspace = RND.item(workspaceOptions);
+  const workspace = rng.item(workspaceOptions);
 
   const character = new UWCharacter(stats, careers, origin, workspace);
 
   const descriptors = [];
-  descriptors.push(RND.item(character.careers[0].descriptors));
-  descriptors.push(RND.item(character.careers[1].descriptors));
-  descriptors.push(RND.item(character.origin.descriptors));
+  descriptors.push(rng.item(character.careers[0].descriptors));
+  descriptors.push(rng.item(character.careers[1].descriptors));
+  descriptors.push(rng.item(character.origin.descriptors));
 
   character.descriptors = Words.arrayToPhrase(descriptors);
 
-  const skills = [];
+  const skills: Skill[] = [];
   let careerSkills = character.careers[0].skills.concat(
     character.careers[1].skills,
   );
 
-  careerSkills = RND.shuffle(careerSkills);
+  careerSkills = rng.shuffle(careerSkills);
 
   for (let i = 0; i < 3; i++) {
     const newSkill = careerSkills.pop();
+    if (!newSkill) {
+      continue;
+    }
     skills.push(newSkill);
   }
 
-  const originSkills = RND.shuffle(character.origin.skills);
-
-  skills.push(originSkills.pop());
+  const originSkills = rng.shuffle(character.origin.skills);
+  const originSkill = originSkills.pop();
+  if (originSkill) {
+    skills.push(originSkill);
+  }
 
   character.skills = skills;
 
@@ -68,29 +73,29 @@ export function generate() {
     character.careers[1].advancements,
   );
 
-  character.advancement = RND.item(advancements);
+  character.advancement = rng.item(advancements);
 
-  character.assets = randomAssets();
+  character.assets = randomAssets(rng);
 
   if (skillsInclude("Custom Flyer", character.skills)) {
-    const customFlyer = randomAssetOfType("Flyer", 3);
+    const customFlyer = randomAssetOfType("Flyer", 3, rng);
     character.assets.push(customFlyer);
   }
 
   if (skillsInclude("Custom Vehicle", character.skills)) {
-    const customVehicle = randomAssetOfType("Land Vehicle", 3);
+    const customVehicle = randomAssetOfType("Land Vehicle", 3, rng);
     character.assets.push(customVehicle);
   }
 
   if (skillsInclude("Leadership", character.skills)) {
-    const crew = randomAssetOfType("Crew", 3);
+    const crew = randomAssetOfType("Crew", 3, rng);
     character.assets.push(crew);
   }
 
   if (skillsInclude("Unique Weapon", character.skills)) {
-    const weaponType = RND.item(["Firearm", "Heavy Weapon"]);
+    const weaponType = rng.item(["Firearm", "Heavy Weapon"]);
 
-    const uniqueWeapon = randomAssetOfType(weaponType, 3);
+    const uniqueWeapon = randomAssetOfType(weaponType, 3, rng);
     character.assets.push(uniqueWeapon);
   }
 
@@ -829,13 +834,13 @@ function allAssets() {
   ];
 }
 
-function randomAssets() {
+function randomAssets(rng: RNG.RNG) {
   const assets = [];
 
-  const attireAsset = randomAssetOfType("Attire", 0);
-  const asset1 = randomAsset(1);
-  const asset2 = randomAsset(1);
-  const asset3 = randomAsset(2);
+  const attireAsset = randomAssetOfType("Attire", 0, rng);
+  const asset1 = randomAsset(1, rng);
+  const asset2 = randomAsset(1, rng);
+  const asset3 = randomAsset(2, rng);
 
   assets.push(attireAsset);
   assets.push(asset1);
@@ -845,18 +850,18 @@ function randomAssets() {
   return assets;
 }
 
-function randomAsset(assetClass: number) {
+function randomAsset(assetClass: number, rng: RNG.RNG) {
   const all = allAssets();
 
-  const assetTemplate = RND.item(all);
+  const assetTemplate = rng.item(all);
   const upgrades = [];
 
-  let possibleUpgrades = [];
+  let possibleUpgrades: Upgrade[] = [];
   let description = "";
   let extraUpgrades = 0;
 
   if (assetTemplate.upgrades.length > 0) {
-    possibleUpgrades = RND.shuffle(assetTemplate.upgrades);
+    possibleUpgrades = rng.shuffle(assetTemplate.upgrades);
   }
 
   if (assetTemplate.commonTraits.length > 0) {
@@ -875,23 +880,23 @@ function randomAsset(assetClass: number) {
     }
   }
 
-  let assetName = "Class " + assetClass + " " + assetTemplate.name;
-  let assetType = new AssetType(assetTemplate.name, assetTemplate.description);
+  let assetName = `Class ${assetClass} ${assetTemplate.name}`;
+  let assetType = new AssetType(assetTemplate.name, "");
 
   if (assetTemplate.name.includes("Kit")) {
     assetName = assetTemplate.name;
   }
 
   if (assetTemplate.types.length > 0) {
-    assetType = RND.item(assetTemplate.types);
-    assetName += " (" + assetType.name + ")";
+    assetType = rng.item(assetTemplate.types);
+    assetName += ` (${assetType.name})`;
     description = assetType.description;
   }
 
-  return new Asset(assetName, description, assetClass, assetType, upgrades);
+  return new Asset(assetName, description, assetClass, assetType, upgrades as Upgrade[]);
 }
 
-function randomAssetOfType(assetTypeName: string, assetClass: number) {
+function randomAssetOfType(assetTypeName: string, assetClass: number, rng: RNG.RNG) {
   const all = allAssets();
 
   const options = [];
@@ -902,7 +907,7 @@ function randomAssetOfType(assetTypeName: string, assetClass: number) {
     }
   }
 
-  const assetTemplate = RND.item(options);
+  const assetTemplate = rng.item(options);
   const upgrades = [];
 
   let description = "";
@@ -917,22 +922,22 @@ function randomAssetOfType(assetTypeName: string, assetClass: number) {
     }
   }
 
-  const possibleUpgrades = RND.shuffle(assetTemplate.upgrades);
+  const possibleUpgrades = rng.shuffle(assetTemplate.upgrades);
 
   for (let i = 0; i < assetClass + extraUpgrades; i++) {
     const upgrade = possibleUpgrades.pop();
     upgrades.push(upgrade);
   }
 
-  let assetName = "Class " + assetClass + " " + assetTemplate.name;
+  let assetName = `Class ${assetClass} ${assetTemplate.name}`;
   let chosenAssetType = new AssetType(
     assetTemplate.name,
-    assetTemplate.description,
+    "",
   );
 
   if (assetTemplate.types.length > 0) {
-    chosenAssetType = RND.item(assetTemplate.types);
-    assetName += " (" + chosenAssetType.name + ")";
+    chosenAssetType = rng.item(assetTemplate.types);
+    assetName += ` (${chosenAssetType.name})`;
     description = chosenAssetType.description;
   }
 
@@ -941,7 +946,7 @@ function randomAssetOfType(assetTypeName: string, assetClass: number) {
     description,
     assetClass,
     chosenAssetType,
-    upgrades,
+    upgrades as Upgrade[],
   );
 }
 
@@ -1422,10 +1427,10 @@ function allCareers() {
   ];
 }
 
-function randomCareers() {
+function randomCareers(rng: RNG.RNG) {
   let careers = allCareers();
 
-  careers = RND.shuffle(careers);
+  careers = rng.shuffle(careers);
 
   const careerOne = careers.pop();
   const careerTwo = careers.pop();
@@ -1455,7 +1460,7 @@ export class Origin {
   }
 }
 
-function randomOrigin() {
+function randomOrigin(rng: RNG.RNG) {
   const origins = [
     new Origin(
       "Advanced",
@@ -1678,7 +1683,7 @@ function randomOrigin() {
       ],
     ),
   ];
-  return RND.item(origins);
+  return rng.item(origins);
 }
 
 export class StatBlock {
@@ -1697,12 +1702,12 @@ export class StatBlock {
   }
 }
 
-function randomStats() {
+function randomStats(rng: RNG.RNG) {
   let stats = [2, 1, 1, 0, -1];
 
   const statBlock = new StatBlock();
 
-  stats = RND.shuffle(stats);
+  stats = rng.shuffle(stats);
 
   statBlock.physique = stats[0];
   statBlock.mettle = stats[1];
@@ -1716,8 +1721,8 @@ function randomStats() {
 function skillsInclude(skillName: string, skills: Skill[]) {
   let includes = false;
 
-  skills.forEach(function (element) {
-    if (element.name == skillName) {
+  skills.forEach((element) => {
+    if (element.name === skillName) {
       includes = true;
     }
   });
@@ -1738,11 +1743,11 @@ export function formatAsText(character: UWCharacter) {
 
   description += Text.header("Statistics");
 
-  description += "Physique: " + formatStat(character.stats.physique) + "\n";
-  description += "Mettle: " + formatStat(character.stats.mettle) + "\n";
-  description += "Expertise: " + formatStat(character.stats.expertise) + "\n";
-  description += "Influence: " + formatStat(character.stats.influence) + "\n";
-  description += "Interface: " + formatStat(character.stats.interface) + "\n";
+  description += `Physique: ${formatStat(character.stats.physique)}\n`;
+  description += `Mettle: ${formatStat(character.stats.mettle)}\n`;
+  description += `Expertise: ${formatStat(character.stats.expertise)}\n`;
+  description += `Influence: ${formatStat(character.stats.influence)}\n`;
+  description += `Interface: ${formatStat(character.stats.interface)}\n`;
 
   description += Text.header("Careers");
 
@@ -1754,25 +1759,25 @@ export function formatAsText(character: UWCharacter) {
 
   description += Text.list(careers);
 
-  description += "Origin: " + character.origin.name + "\n";
+  description += `Origin: ${character.origin.name}\n`;
 
-  description += "Descriptors: " + character.descriptors + "\n";
+  description += `Descriptors: ${character.descriptors}\n`;
 
   description += Text.header("Skills");
 
   for (let i = 0; i < character.skills.length; i++) {
     description += Text.header(character.skills[i].name);
-    description += character.skills[i].description + "\n";
+    description += `${character.skills[i].description}\n`;
   }
 
-  description += "\nAdvancement: " + character.advancement + "\n";
+  description += `\nAdvancement: ${character.advancement}\n`;
 
   description += Text.header("Assets");
 
   for (let i = 0; i < character.assets.length; i++) {
     description += Text.header(character.assets[i].name);
 
-    description += character.assets[i].description + "\n";
+    description += `${character.assets[i].description}\n`;
 
     for (let j = 0; j < character.assets[i].upgrades.length; j++) {
       description +=

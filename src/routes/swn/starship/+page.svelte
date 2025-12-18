@@ -1,34 +1,33 @@
 <script lang="ts">
-  import * as Gen from "$lib/swn/starship";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+import * as Gen from "$lib/swn/starship";
+import * as RNG from "@ironarachne/rng";
 
-  let seed = $state(RND.randomString(13));
-  let lockSeed = $state(false);
-  random.use(seedrandom(seed));
-  let starship = $state(Gen.generate());
+let rng = new RNG.RNG(Date.now().toString());
+let seed = $state(rng.randomString(13));
+let lockSeed = $state(false);
+rng.setSeed(seed);
+let starship = $state(Gen.generate(rng));
 
-  function generate() {
-    if (!lockSeed) {
-      seed = RND.randomString(13);
-    }
-    random.use(seedrandom(seed));
-    starship = Gen.generate();
+function generate() {
+  if (!lockSeed) {
+    seed = rng.randomString(13);
   }
+  rng.setSeed(seed);
+  starship = Gen.generate(rng);
+}
 
-  function save() {
-    let starshipDescription = Gen.formatAsText(starship);
+function save() {
+  let starshipDescription = Gen.formatAsText(starship);
 
-    const blob = new Blob([starshipDescription], { type: "text/plain" });
-    const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
-    link.download = "swn-starship.txt";
-    link.click();
-    URL.revokeObjectURL(link.href);
-  }
+  const blob = new Blob([starshipDescription], { type: "text/plain" });
+  const link = document.createElement("a");
+  link.href = window.URL.createObjectURL(blob);
+  link.download = "swn-starship.txt";
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
 
-  generate();
+generate();
 </script>
 
 <style lang="scss">

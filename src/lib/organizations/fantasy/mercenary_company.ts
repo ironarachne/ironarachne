@@ -2,22 +2,25 @@ import type Character from "$lib/characters/character.js";
 import type CharacterGeneratorConfig from "$lib/characters/character_generator_config.js";
 import * as Characters from "$lib/characters/characters.js";
 import * as Charges from "$lib/heraldry/charges/index.js";
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig.js";
-import * as RND from "@ironarachne/rng";
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from "$lib/heraldry/generatorconfig.js";
+import type * as RNG from "@ironarachne/rng";
 import type OrganizationRank from "../organization_rank.js";
 import type OrganizationType from "../organization_type.js";
 
-export function generateType(): OrganizationType {
+export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
-    chargeCount: RND.item([0, 1]),
+    chargeCount: rng.item([0, 1]),
     chargeOptions: Charges.matchingAnyTags(
       ["weapon", "armor", "aggressive"],
       Charges.all(),
     ),
   });
 
-  const nameGenerator = (): string => {
-    const prefix = RND.item([
+  const nameGenerator = (rng: RNG.RNG): string => {
+    const prefix = rng.item([
       "Black",
       "Blood",
       "Burning",
@@ -30,7 +33,7 @@ export function generateType(): OrganizationType {
       "Silver",
       "White",
     ]);
-    const suffix = RND.item([
+    const suffix = rng.item([
       "Axes",
       "Army",
       "Bears",
@@ -50,8 +53,8 @@ export function generateType(): OrganizationType {
     return `The ${prefix} ${suffix}`;
   };
 
-  const descriptionGenerator = (): string =>
-    RND.item([
+  const descriptionGenerator = (rng: RNG.RNG): string =>
+    rng.item([
       "{name} is a vicious mercenary company with a reputation for excessive violence.",
       "{name} is a merc company that prides itself on its professionalism and integrity.",
       "{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.",

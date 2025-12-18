@@ -1,5 +1,6 @@
-import ADNDCharacter from "../adndcharacter.js";
+import type ADNDCharacter from "../adndcharacter.js";
 import ADNDClass from "../adndclass.js";
+import type * as RNG from "@ironarachne/rng";
 
 export default new ADNDClass(
   "ranger",
@@ -28,7 +29,7 @@ export default new ADNDClass(
   4,
   3,
   -2,
-  function (this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
+  function (this: ADNDClass, character: ADNDCharacter, rng: RNG.RNG): ADNDCharacter {
     return character;
   },
 );
