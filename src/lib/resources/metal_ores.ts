@@ -1,7 +1,6 @@
-import * as RNG from "@ironarachne/rng";
-
-import type { Resource } from "./resources";
+import type * as RNG from "@ironarachne/rng";
 import { WordGenerator } from "@ironarachne/word-generator";
+import type { Resource } from "./resources";
 
 export function getAllMetalOres(): Resource[] {
   return [
@@ -649,8 +648,8 @@ export function getAllMetalOres(): Resource[] {
   ];
 }
 
-export function generateFictionalMetalOre(): Resource {
-  const nameGenerator = new WordGenerator();
+export function generateFictionalMetalOre(rng: RNG.RNG): Resource {
+  const nameGenerator = new WordGenerator(rng);
   nameGenerator.patterns = [
     "pvnveIUM",
     "pvnIUM",
@@ -662,7 +661,7 @@ export function generateFictionalMetalOre(): Resource {
     "tvlvlIUM",
   ];
   const oreName = nameGenerator.generate();
-  const oreType = RNG.item(["ferrous", "non-ferrous"]);
+  const oreType = rng.item(["ferrous", "non-ferrous"]);
 
   const ore = {
     name: oreName,
@@ -674,25 +673,25 @@ export function generateFictionalMetalOre(): Resource {
       {
         name: "conductivity",
         description: "The ability of the metal to conduct electricity.",
-        value: RNG.float(0, 10),
+        value: rng.float(0, 10),
       },
       {
         name: "melting_point",
         description: "The temperature at which the metal melts.",
-        value: RNG.int(1000, 3000),
+        value: rng.int(1000, 3000),
       },
       {
         name: "density",
         description: "The mass per unit volume of the metal.",
-        value: RNG.int(5000, 15000),
+        value: rng.int(5000, 15000),
       },
       {
         name: "hardness",
         description: "The hardness of the metal on the Mohs scale.",
-        value: RNG.float(1, 10),
+        value: rng.float(1, 10),
       },
     ],
-    commonality: RNG.int(1, 10),
+    commonality: rng.int(1, 10),
   };
 
   return ore;

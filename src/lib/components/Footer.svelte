@@ -1,5 +1,5 @@
 <style lang="scss">
-  @import "$lib/styles/global.scss";
+  @use "$lib/styles/global.scss";
 
   footer {
     font-size: 0.75rem;
@@ -9,7 +9,7 @@
   footer::before {
     content: "";
     display: inline-block;
-    background: $crimson;
+    background: global.$crimson;
     width: 100%;
     height: 2px;
   }
