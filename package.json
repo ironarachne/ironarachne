@@ -20,7 +20,7 @@
   ],
   "dependencies": {
     "@ironarachne/made-up-names": "^2.3.6",
-    "@ironarachne/rng": "^2.2.0",
+    "@ironarachne/rng": "^2.3.0",
     "@ironarachne/word-generator": "^2.1.1",
     "@ironarachne/words": "^1.1.0",
     "@sveltejs/adapter-node": "^5.2.9",

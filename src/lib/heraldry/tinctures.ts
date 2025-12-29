@@ -263,7 +263,11 @@ export function randomChargeTincture(rng: RNG.RNG): Tincture {
     options = ofTypes(["metal", "color", "stain"]);
   }
 
-  return rng.weighted(options);
+  return rng.weighted(
+    options.map((t) => {
+      return { commonality: t.commonality, value: t };
+    }),
+  );
 }
 
 export function randomContrasting(tincture: Tincture, rng: RNG.RNG): Tincture {
@@ -326,15 +330,15 @@ export function randomWeightedExcluding(tincture: Tincture, rng: RNG.RNG): Tinct
 
 export function randomWeightedType(rng: RNG.RNG): string {
   const weights = [
-    { item: "fur", commonality: 5 },
-    { item: "color", commonality: 25 },
-    { item: "metal", commonality: 20 },
-    { item: "stain", commonality: 6 },
+    { value: "fur", commonality: 5 },
+    { value: "color", commonality: 25 },
+    { value: "metal", commonality: 20 },
+    { value: "stain", commonality: 6 },
   ];
 
   const tinctureType = rng.weighted(weights);
 
-  return tinctureType.item;
+  return tinctureType;
 }
 
 export function randomMetal(rng: RNG.RNG): Tincture {

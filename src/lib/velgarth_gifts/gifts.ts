@@ -20,8 +20,16 @@ export function generate(config: GiftGeneratorConfig): Gift[] {
 }
 
 function generateGift(possibilities: GiftPossibility[]): Gift {
-  const possibility = RNG.weighted(possibilities);
-  const strength = RNG.weighted(possibility.strength_levels);
+  const possibility = RNG.weighted(
+    possibilities.map((p) => {
+      return { commonality: p.commonality, value: p };
+    }),
+  );
+  const strength = RNG.weighted(
+    possibility.strength_levels.map((s) => {
+      return { commonality: s.commonality, value: s };
+    }),
+  );
 
   return {
     name: possibility.name,

@@ -12,7 +12,11 @@ import * as RealmTypes from "./realm_types.js";
 import { getDefaultHeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig.js";
 
 export function generate(config: RealmGeneratorConfig): Realm {
-  let realmType = config.rng.weighted(config.realmTypes);
+  let realmType = config.rng.weighted(
+    config.realmTypes.map((t) => {
+      return { commonality: t.commonality, value: t };
+    }),
+  );
 
   if (config.nameGeneratorSet.country === null) {
     throw new Error("RealmGenerator requires a country name generator set.");

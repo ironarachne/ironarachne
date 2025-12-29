@@ -81,10 +81,18 @@ export function generateCivilization(
     config.rng,
   );
   const government_types = getGovernmentTypes();
-  const government_type = config.rng.weighted(government_types);
+  const government_type = config.rng.weighted(
+    government_types.map((t) => {
+      return { commonality: t.commonality, value: t };
+    }),
+  );
 
   const economy_types = getEconomyTypes();
-  const economy_type = config.rng.weighted(economy_types);
+  const economy_type = config.rng.weighted(
+    economy_types.map((t) => {
+      return { commonality: t.commonality, value: t };
+    }),
+  );
 
   const civilization = {
     name: generateCivilizationName(government_type, config.rng),

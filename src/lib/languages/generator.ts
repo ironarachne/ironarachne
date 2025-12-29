@@ -55,7 +55,7 @@ function randomWordOrder(): string {
 
   let order = RNG.weighted(options);
 
-  return order.value;
+  return order;
 }
 
 function randomMorpheme(length: number, phonemeSet: PhonemeSet): Morpheme {
@@ -84,9 +84,21 @@ function randomMorpheme(length: number, phonemeSet: PhonemeSet): Morpheme {
 
   for (let i = 0; i < pattern.length; i++) {
     if (pattern[i] == "v") {
-      morpheme.phonemes.push(RNG.weighted(vowels)); // TODO: make spellings weighted
+      morpheme.phonemes.push(
+        RNG.weighted(
+          vowels.map((p) => {
+            return { commonality: p.commonality, value: p };
+          }),
+        ),
+      ); // TODO: make spellings weighted
     } else {
-      morpheme.phonemes.push(RNG.weighted(consonants)); // TODO: make spellings weighted
+      morpheme.phonemes.push(
+        RNG.weighted(
+          consonants.map((p) => {
+            return { commonality: p.commonality, value: p };
+          }),
+        ),
+      ); // TODO: make spellings weighted
     }
   }
 

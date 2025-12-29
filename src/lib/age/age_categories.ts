@@ -155,7 +155,11 @@ export function randomWeighted(
     }
   }
 
-  const ageCategory: AgeCategory = RNG.weighted(possibleAgeCategories);
+  const ageCategory: AgeCategory = RNG.weighted(
+    possibleAgeCategories.map((c) => {
+      return { commonality: c.commonality, value: c };
+    }),
+  );
 
   return ageCategory;
 }

@@ -142,22 +142,22 @@ function randomSeasoning() {
 function randomSeasoningCount() {
   const weights = [
     {
-      item: 1,
+      value: 1,
       commonality: 50,
     },
     {
-      item: 2,
+      value: 2,
       commonality: 20,
     },
     {
-      item: 3,
+      value: 3,
       commonality: 5,
     },
   ];
 
   const result = RNG.weighted(weights);
 
-  return result.item;
+  return result;
 }
 
 function randomVegetable() {

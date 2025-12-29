@@ -126,15 +126,15 @@ function generate() {
 
 function randomNumberOfCharges(rng: RNG.RNG) {
   const weights = [
-    { item: 0, commonality: 20 },
-    { item: 1, commonality: 55 },
-    { item: 2, commonality: 5 },
-    { item: 3, commonality: 3 },
+    { value: 0, commonality: 20 },
+    { value: 1, commonality: 55 },
+    { value: 2, commonality: 5 },
+    { value: 3, commonality: 3 },
   ];
 
   const result = rng.weighted(weights);
 
-  return result.item;
+  return result;
 }
 
 function save() {

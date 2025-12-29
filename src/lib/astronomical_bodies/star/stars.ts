@@ -57,7 +57,11 @@ export function getDefaultStarGeneratorConfig(): StarGenerationConfig {
 }
 
 export function generateStar(config: StarGenerationConfig): AstronomicalBody {
-  const star_classification = config.rng.weighted(config.star_classifications);
+  const star_classification = config.rng.weighted(
+    config.star_classifications.map((c) => {
+      return { commonality: c.commonality, value: c };
+    }),
+  );
   const mass: number = config.rng.float(
     star_classification.min_mass,
     star_classification.max_mass,

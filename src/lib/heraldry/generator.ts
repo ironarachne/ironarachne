@@ -30,7 +30,11 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
 
   if (cfg.chargeCount > 0) {
     let charge = cfg.rng.item(Array.from(cfg.chargeOptions));
-    charge.tincture = cfg.rng.weighted(Array.from(cfg.chargeTinctures));
+    charge.tincture = cfg.rng.weighted(
+      Array.from(cfg.chargeTinctures).map((t) => {
+        return { commonality: t.commonality, value: t };
+      }),
+    );
     let arrangementOptions = Arrangements.withCount(cfg.chargeCount);
     let chargeArrangement = cfg.rng.item(arrangementOptions);
     let chargeGroup: ChargeGroup = {
@@ -50,7 +54,11 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
     );
   }
 
-  let field = cfg.rng.weighted(Array.from(cfg.fieldOptions));
+  let field = cfg.rng.weighted(
+    Array.from(cfg.fieldOptions).map((f) => {
+      return { commonality: f.commonality, value: f };
+    }),
+  );
 
   field.variations = generateVariations(
     field.variationCount,
@@ -126,7 +134,11 @@ function generateVariations(
     let tinctureSet1 = JSON.parse(JSON.stringify(tinctures1));
     let tinctureSet2 = JSON.parse(JSON.stringify(tinctures2));
 
-    let variation = rng.weighted(variationOptions);
+    let variation = rng.weighted(
+      variationOptions.map((v) => {
+        return { commonality: v.commonality, value: v };
+      }),
+    );
 
     if (!variation.supportsFurs) {
       tinctureSet1 = Tinctures.withoutFurs(tinctureSet1);
@@ -158,13 +170,13 @@ function generateVariations(
 
 function randomNumberOfCharges(rng: RNG.RNG): number {
   const weights = [
-    { item: 0, commonality: 20 },
-    { item: 1, commonality: 50 },
-    { item: 2, commonality: 5 },
-    { item: 3, commonality: 3 },
+    { value: 0, commonality: 20 },
+    { value: 1, commonality: 50 },
+    { value: 2, commonality: 5 },
+    { value: 3, commonality: 3 },
   ];
 
   const result = rng.weighted(weights);
 
-  return result.item;
+  return result;
 }

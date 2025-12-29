@@ -200,15 +200,27 @@ function generateEncounterSpawn(
   let treasureTables = CommonTables.individual(rng);
 
   if (encounterType === "boss") {
-    config.template = rng.weighted(dungeon.theme.bossEncounterTemplates);
+    config.template = rng.weighted(
+      dungeon.theme.bossEncounterTemplates.map((t) => {
+        return { commonality: t.commonality, value: t };
+      }),
+    );
     config.minThreatLevel = 3;
     config.maxThreatLevel = 10;
     treasureTables = RareTables.individual(rng);
   } else if (encounterType === "strong") {
-    config.template = rng.weighted(dungeon.theme.strongEncounterTemplates);
+    config.template = rng.weighted(
+      dungeon.theme.strongEncounterTemplates.map((t) => {
+        return { commonality: t.commonality, value: t };
+      }),
+    );
     treasureTables = UncommonTables.individual(rng);
   } else {
-    config.template = rng.weighted(dungeon.theme.weakEncounterTemplates);
+    config.template = rng.weighted(
+      dungeon.theme.weakEncounterTemplates.map((t) => {
+        return { commonality: t.commonality, value: t };
+      }),
+    );
   }
 
   let spawn: EncounterSpawn = {
@@ -367,8 +379,14 @@ function generateRooms(
     if (dungeon.rooms.length >= numRooms) {
       roomGeneration = false;
     } else {
-      let roomTheme = rng.weighted(dungeon.theme.roomThemes);
-      if (roomTheme.allowedEnvironments.includes(dungeon.theme.mainEnvironment)) {
+      let roomTheme = rng.weighted(
+        dungeon.theme.roomThemes.map((t) => {
+          return { commonality: t.commonality, value: t };
+        }),
+      );
+      if (
+        roomTheme.allowedEnvironments.includes(dungeon.theme.mainEnvironment)
+      ) {
         roomTheme.flooringOptions = dungeon.theme.flooringOptions;
       }
       let r = Rooms.getPlaceableRoom(

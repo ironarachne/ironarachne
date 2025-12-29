@@ -15,7 +15,11 @@ export default class TreasureResultGenerator {
     for (const table of this.config.tables) {
       let possibleItems = table.entries;
 
-      let t = this.config.rng.weighted(possibleItems);
+      let t = this.config.rng.weighted(
+        possibleItems.map((i) => {
+          return { commonality: i.commonality, value: i };
+        }),
+      );
       let gen = t.generator;
       let items = gen.generate();
 

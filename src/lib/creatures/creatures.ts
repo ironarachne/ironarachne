@@ -7,7 +7,11 @@ import type CreatureGeneratorConfig from "./creature_generator_config";
 import type Gender from "$lib/gender/gender";
 
 export function generate(config: CreatureGeneratorConfig): Creature {
-  let creatureSpecies = config.rng.weighted(config.speciesOptions);
+  let creatureSpecies = config.rng.weighted(
+    config.speciesOptions.map((s) => {
+      return { commonality: s.commonality, value: s };
+    }),
+  );
   let creatureAgeCategory = AgeCategories.randomWeighted(
     config.ageCategoryNames,
     creatureSpecies.ageCategories,

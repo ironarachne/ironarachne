@@ -54,7 +54,7 @@ export function generate(config: RegionGeneratorConfig): Region {
       value: 65,
       commonality: 5,
     },
-  ]).value;
+  ]);
   region.environment = Environments.generate(environmentConfig);
   region.settlements = randomSettlements(region.environment, nameGenSet, config.rng);
   region.organizations = randomOrganizations(config.rng);

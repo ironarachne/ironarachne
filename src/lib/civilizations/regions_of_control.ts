@@ -32,7 +32,11 @@ export function generateRegionOfControl(
     config.technology_level,
     config.region_types,
   );
-  const region_type = config.rng.weighted(region_types);
+  const region_type = config.rng.weighted(
+    region_types.map((t) => {
+      return { commonality: t.commonality, value: t };
+    }),
+  );
   const population_min =
     region_type.population_capacity * config.population_density_range[0];
   const population_max =

@@ -69,7 +69,11 @@ export function generate(config: CharacterGeneratorConfig): Character {
     throw new Error("No species options provided.");
   }
 
-  const species = config.rng.weighted(config.speciesOptions);
+  const species = config.rng.weighted(
+    config.speciesOptions.map((s) => {
+      return { commonality: s.commonality, value: s };
+    }),
+  );
   const genderName = config.rng.item(config.genderNameOptions);
   const gender = getGenderFromSet(genderName, species.genders);
 

@@ -126,8 +126,11 @@ function generateRandomCoinPiles(seed: string, totalValue: number, config: CoinG
       break; // No more coins can be afforded
     }
 
-    const weightedOptions = possibleDenominations.map(d => ({ item: d, commonality: d.rarity || 1 }));
-    const denomination = rng.weighted(weightedOptions).item;
+    const weightedOptions = possibleDenominations.map((d) => ({
+      value: d,
+      commonality: d.rarity || 1,
+    }));
+    const denomination = rng.weighted(weightedOptions);
 
     const pileConfig: CoinGenerationConfig = {
       ...config,

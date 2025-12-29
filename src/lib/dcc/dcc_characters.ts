@@ -197,7 +197,11 @@ function getLanguages(character: DCCCharacter, rng: RNG): string[] {
   for (let i = 0; i < character.numberOfLanguages; i++) {
     if (possibleLanguages.length === 0) break;
 
-    let language = rng.weighted(possibleLanguages);
+    let language = rng.weighted(
+      possibleLanguages.map((l) => {
+        return { commonality: l.commonality, value: l };
+      }),
+    );
 
     if (!languages.includes(language.name)) {
       languages.push(language.name);
@@ -303,7 +307,11 @@ function randomOccupation(allowedOccupations: string[], rng: RNG): DCCOccupation
     occupations = occupations.concat(HumanOccupations.all());
   }
 
-  const occupation = rng.weighted(occupations);
+  const occupation = rng.weighted(
+    occupations.map((o) => {
+      return { commonality: o.commonality, value: o };
+    }),
+  );
 
   return occupation;
 }

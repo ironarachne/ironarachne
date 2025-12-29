@@ -84,7 +84,7 @@ export function randomBeat(): string {
   ];
 
   const result = RNG.weighted(options);
-  return result.value;
+  return result;
 }
 
 export function randomDynamic(): string {
@@ -108,7 +108,7 @@ export function randomDynamic(): string {
   ];
 
   const result = RNG.weighted(options);
-  return result.value;
+  return result;
 }
 
 export function randomHarmony() {
@@ -128,7 +128,7 @@ export function randomHarmony() {
   ];
 
   const result = RNG.weighted(options);
-  return result.value;
+  return result;
 }
 
 export function randomKey(): string {
@@ -147,7 +147,7 @@ export function randomKey(): string {
     { value: "chromatic", commonality: 1 },
   ];
   const root = RNG.item(roots);
-  const mode = RNG.weighted(modes).value;
+  const mode = RNG.weighted(modes);
   return `${root} ${mode}`;
 }
 
@@ -176,7 +176,7 @@ export function randomMelody(): string {
   ];
 
   const result = RNG.weighted(options);
-  return result.value;
+  return result;
 }
 
 export function randomPitch(): string {
@@ -196,7 +196,7 @@ export function randomPitch(): string {
   ];
 
   const result = RNG.weighted(options);
-  return result.value;
+  return result;
 }
 
 export function randomRhythm(): string {
@@ -216,7 +216,7 @@ export function randomRhythm(): string {
   ];
 
   const result = RNG.weighted(options);
-  return result.value;
+  return result;
 }
 
 export function randomTimbre(): string {
