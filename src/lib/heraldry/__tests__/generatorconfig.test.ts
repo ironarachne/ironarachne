@@ -9,8 +9,12 @@ import {
 } from "$lib/heraldry/generatorconfig.js";
 
 // Simple deterministic RNGs for testing
-const rngFirst = () => 0; // always picks index 0
-const rngLast = () => 0.99; // will floor to last index for small arrays
+const rngFirst = {
+  int: (min: number, max: number) => min,
+} as any;
+const rngLast = {
+  int: (min: number, max: number) => max,
+} as any;
 
 describe("heraldry/generatorconfig", () => {
   test("getDefaultHeraldryGeneratorConfig returns defaults and non-empty option sets", () => {
@@ -32,13 +36,13 @@ describe("heraldry/generatorconfig", () => {
 
   test("getDefaultHeraldryGeneratorConfig respects injected RNG for chargeCount (first)", () => {
     const cfg = getDefaultHeraldryGeneratorConfig(rngFirst);
-    // with rngFirst -> index 0 of [0,1,2,3] => 0
-    expect(cfg.chargeCount).toBe(0);
+    // with rngFirst -> min of (1, 3) => 1
+    expect(cfg.chargeCount).toBe(1);
   });
 
   test("getDefaultHeraldryGeneratorConfig respects injected RNG for chargeCount (last)", () => {
     const cfg = getDefaultHeraldryGeneratorConfig(rngLast);
-    // with rngLast -> floor(0.99 * 4) => 3
+    // with rngLast -> max of (1, 3) => 3
     expect(cfg.chargeCount).toBe(3);
   });
 

@@ -1,5 +1,8 @@
 import { describe, it, expect } from "vitest";
 import * as tinctures from "../tinctures";
+import * as RNG from "@ironarachne/rng";
+
+const rng = new RNG.RNG("test-seed");
 
 // Basic type test
 describe("Tincture type", () => {
@@ -126,14 +129,14 @@ describe("tinctures.ofTypes", () => {
 
 describe("tinctures.random", () => {
   it("returns a tincture", () => {
-    const t = tinctures.random();
+    const t = tinctures.random(rng);
     expect(t).toHaveProperty("name");
   });
 });
 
 describe("tinctures.randomChargeTincture", () => {
   it("returns a tincture", () => {
-    const t = tinctures.randomChargeTincture();
+    const t = tinctures.randomChargeTincture(rng);
     expect(t).toHaveProperty("name");
   });
 });
@@ -141,7 +144,7 @@ describe("tinctures.randomChargeTincture", () => {
 describe("tinctures.randomContrasting", () => {
   it("returns a tincture that contrasts with the input", () => {
     const [metal] = tinctures.metals();
-    const t = tinctures.randomContrasting(metal);
+    const t = tinctures.randomContrasting(metal, rng);
     expect(tinctures.contrasts(metal, t)).toBe(true);
   });
 });
@@ -149,7 +152,7 @@ describe("tinctures.randomContrasting", () => {
 describe("tinctures.randomExcluding", () => {
   it("returns a tincture not equal to the input", () => {
     const [metal] = tinctures.metals();
-    const t = tinctures.randomExcluding(metal);
+    const t = tinctures.randomExcluding(metal, rng);
     expect(t).not.toEqual(metal);
   });
 });
@@ -157,14 +160,14 @@ describe("tinctures.randomExcluding", () => {
 describe("tinctures.randomFrom", () => {
   it("returns a tincture from the given set", () => {
     const metals = tinctures.metals();
-    const t = tinctures.randomFrom(metals);
+    const t = tinctures.randomFrom(metals, rng);
     expect(metals).toContainEqual(t);
   });
 });
 
 describe("tinctures.randomWeighted", () => {
   it("returns a tincture", () => {
-    const t = tinctures.randomWeighted();
+    const t = tinctures.randomWeighted(rng);
     expect(t).toHaveProperty("name");
   });
 });
@@ -172,7 +175,7 @@ describe("tinctures.randomWeighted", () => {
 describe("tinctures.randomWeightedExcluding", () => {
   it("returns a tincture not equal to the input", () => {
     const [metal] = tinctures.metals();
-    const t = tinctures.randomWeightedExcluding(metal);
+    const t = tinctures.randomWeightedExcluding(metal, rng);
     expect(t).not.toEqual(metal);
   });
 });

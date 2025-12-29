@@ -1,4 +1,5 @@
 import { describe, expect, test } from "vitest";
+import * as RNG from "@ironarachne/rng";
 import {
   generateHeraldry,
   generateHeraldryConfig,
@@ -7,6 +8,8 @@ import {
   mergeHeraldryGeneratorConfig,
   type HeraldryGeneratorConfig,
 } from "$lib/heraldry/generatorconfig.js";
+
+const rng = new RNG.RNG("test-seed");
 
 // Helper: config with zero charges
 function zeroChargeConfig(): HeraldryGeneratorConfig {
@@ -33,7 +36,7 @@ describe("heraldry/generator", () => {
   });
 
   test("generateHeraldryConfig returns a valid config", () => {
-    const cfg = generateHeraldryConfig();
+    const cfg = generateHeraldryConfig(rng);
     expect(cfg.chargeCount).toBeGreaterThanOrEqual(0);
     expect(cfg.chargeOptions.length).toBeGreaterThan(0);
     expect(cfg.fieldOptions.length).toBeGreaterThan(0);

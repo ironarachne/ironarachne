@@ -26,8 +26,12 @@ export const DEFAULT_HEIGHT = 660;
 
 // Build a default config. When an RNG is provided, it will be used for chargeCount
 // selection to ensure determinism in tests; otherwise falls back to RNG.item.
-export function getDefaultHeraldryGeneratorConfig(): HeraldryGeneratorConfig {
-  const rng = new RNG.RNG(Date.now().toString())
+export function getDefaultHeraldryGeneratorConfig(
+  rng?: RNG.RNG,
+): HeraldryGeneratorConfig {
+  if (!rng) {
+    rng = new RNG.RNG(Date.now().toString());
+  }
 
   return {
     chargeCount: rng.int(1, 3),
