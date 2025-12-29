@@ -16,7 +16,9 @@ const height = 128;
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 
 let config = getDefaultStarSystemGeneratorConfig();
 let system: StarSystem | undefined = $state();
@@ -71,7 +73,7 @@ onMount(() => {
   {#each system.stars as star}
     <article class="media-banner">
       <div class="image-container">
-        <img alt="{ star.name } image" src="{ WebGLStarRenderer.render(document, star, width, height, rng) }" />
+        <img alt="{ star.name } image" src="{ WebGLStarRenderer.render(document, star, width, height, rng.randomString(13)) }" />
       </div>
       <div>
         <h5>{star.name}</h5>
@@ -107,7 +109,7 @@ onMount(() => {
   {#each system.planets as planet}
     <article class="media-banner">
       <div class="image-container">
-        <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(document, planet, width, height, rng) }" />
+        <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(document, planet, width, height, rng.randomString(13)) }" />
       </div>
       <div>
         <h5>{planet.name}</h5>

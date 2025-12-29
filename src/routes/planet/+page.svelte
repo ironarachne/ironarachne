@@ -35,7 +35,9 @@ const planetTypes = getPlanetClassifications();
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 
 let planetType = $state("random");
 let planetGenConfig = getDefaultPlanetGenerationConfig();
@@ -139,7 +141,7 @@ onMount(() => {
     <h2>{planet.name}</h2>
 
     {#if browser}
-    <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(document, planet, width, height, rng) }" />
+    <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(document, planet, width, height, rng.randomString(13)) }" />
     {/if}
 
     <p>{planet.description}</p>

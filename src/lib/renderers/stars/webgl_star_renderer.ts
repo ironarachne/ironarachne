@@ -1,6 +1,6 @@
 import StarShader from "$lib/shaders/stars/star.frag";
 import * as THREE from "three";
-import * as RNG from "@ironarachne/rng";
+import { RNG } from "@ironarachne/rng";
 import SimpleVertexShader from "$lib/shaders/simple.vert";
 import type RGBColor from "$lib/graphics/rgb_color";
 import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
@@ -10,8 +10,9 @@ export function render(
   star: AstronomicalBody,
   width: number,
   height: number,
-  rng: RNG.RNG,
+  seed: string,
 ): string {
+  const rng = new RNG(seed);
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;

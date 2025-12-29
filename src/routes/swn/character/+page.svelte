@@ -5,7 +5,9 @@ import * as CharGen from "$lib/swn/character";
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 let character = $state(CharGen.generate(rng));
 
 function generate() {

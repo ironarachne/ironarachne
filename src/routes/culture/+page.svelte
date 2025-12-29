@@ -18,7 +18,9 @@ let savedCulture: string | undefined = $state();
 
 let seed = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 const genConfig = new CultureGeneratorConfig();
 let genSet: NameGeneratorSet = rng.item(allNameSets);
 genConfig.nameGeneratorSet = genSet;

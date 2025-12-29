@@ -8,12 +8,14 @@ const categories = Weapon.getAllWeaponCategories().sort();
 
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 let lockSeed = $state(false);
 
 let category = $state("any");
 let theme = $state("any");
-let weapon = $state(Weapon.generate(category, theme, rng));
+let weapon = $state(Weapon.generate("any", "any", rng));
 
 function generate() {
   if (!lockSeed) {

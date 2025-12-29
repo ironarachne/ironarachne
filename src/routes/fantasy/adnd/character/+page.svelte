@@ -9,10 +9,12 @@ import type ADNDCharacter from "$lib/adnd/adndcharacter";
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 let genConfig;
 let charGen;
-let character: ADNDCharacter = $state();
+let character: ADNDCharacter | undefined = $state();
 
 function generate() {
   if (!lockSeed) {
@@ -56,6 +58,7 @@ generate();
 
   <button onclick={generate}>Generate</button>
 
+  {#if character}
   <h2>{ character.firstName } { character.lastName }</h2>
 
   <p>A level { character.level } { character.race.name } { character.class.name }</p>
@@ -154,6 +157,7 @@ generate();
   {#each character.spells as spell}
     <p>{ spell.name }</p>
   {/each}
+  {/if}
   {/if}
 
 </section>

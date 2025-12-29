@@ -13,7 +13,9 @@ import HeraldrySVGRenderer from "$lib/heraldry/renderers/svg";
 let rng = new RNG.RNG(Date.now().toString());
 let seed: string = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 
 let organizationTypeName = $state("any");
 let nameSetName = $state("any");

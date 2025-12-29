@@ -13,14 +13,16 @@ import type Culture from "$lib/culture/culture";
 import type UserData from "$lib/user_data";
 
 const user: UserData = getContext("user");
-let savedCulture: string = $state();
+let savedCulture: string | undefined = $state();
 let useSavedCulture: boolean = $state(false);
 let culture: Culture;
 
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 
 let nameSetName = $state("any");
 let nameSets = Names.getAllFantasyNameGeneratorSets(rng);
@@ -32,7 +34,7 @@ config.nameGeneratorSet = nameSet;
 
 const heraldryRenderer = new HeraldrySVGRenderer();
 let region = $state(Regions.generate(config));
-let ruler = $state(region.authority);
+let ruler = $derived(region.authority);
 
 function generate() {
   if (!lockSeed) {

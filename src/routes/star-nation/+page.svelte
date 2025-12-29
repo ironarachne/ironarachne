@@ -152,11 +152,11 @@ onMount(() => {
   <div class="star-system">
     {#if browser}
     <div class="image-container">
-      <img alt="{ homeSystem.stars[0].name } image" src="{ WebGLStarRenderer.render(document, homeSystem.stars[0], imageWidth, imageHeight, rng) }" />
+      <img alt="{ homeSystem.stars[0].name } image" src="{ WebGLStarRenderer.render(document, homeSystem.stars[0], imageWidth, imageHeight, rng.randomString(13)) }" />
     </div>
     {#each homeSystem.planets as planet}
     <div class="image-container">
-      <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(document, planet, imageWidth, imageHeight, rng) }" />
+      <img alt="{ planet.name } image" src="{ WebGLPlanetRenderer.render(document, planet, imageWidth, imageHeight, rng.randomString(13)) }" />
     </div>
     {/each}
     {/if}

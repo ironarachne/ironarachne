@@ -7,7 +7,7 @@ import * as Words from "@ironarachne/words";
 let category = $state("general");
 let valueThreshold = $state(50);
 let categories = ["armor", "clothing", "general", "weapon"];
-let merchant = $state(Merchant.generate(category, valueThreshold));
+let merchant = $state(Merchant.generate("general", 50));
 let seed = $state(RNG.randomString(13));
 let lockSeed = false;
 
@@ -59,9 +59,9 @@ function generate() {
   </div>
 
   <button onclick={generate}>Generate From Seed</button>
-  <button onclick={newSeed}>Random Seed (and Generate)</button>
+  <button onclick={() => { seed = RNG.randomString(13); }}>Random Seed (and Generate)</button>
 
-  <p>{ merchant.description } { Words.capitalize(merchant.character.gender.possessivePronoun) } wares include:</p>
+  <p>{ merchant.description } { Words.capitalize(merchant.character.gender.pronouns.possessive) } wares include:</p>
 
   <h2>Stock List</h2>
 

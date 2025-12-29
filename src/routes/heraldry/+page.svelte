@@ -17,7 +17,9 @@ import {
 
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 let lockSeed = $state(false);
 
 let blazon = $state("");

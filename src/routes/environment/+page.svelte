@@ -9,10 +9,12 @@ import { onMount } from "svelte";
 
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 let lockSeed = $state(false);
 
-let environment: Environment = $state();
+let environment: Environment | undefined = $state();
 let canvas: HTMLCanvasElement;
 let config = $state(Environments.getDefaultConfig());
 config.rng = rng;
@@ -179,6 +181,7 @@ function drawWindArrow(canvas: HTMLCanvasElement, wind: number[]) {
     <button onclick={generate}>Generate</button>
     <button onclick={() => { randomizeParameters(rng) }}>Randomize Parameters</button>
 
+    {#if environment}
     <h2>Terrain</h2>
 
     <p><strong>Elevation Min:</strong> {environment.terrain.elevationMin} ({elevationToFeet(environment.terrain.elevationMin)} ft.)</p>
@@ -236,4 +239,5 @@ function drawWindArrow(canvas: HTMLCanvasElement, wind: number[]) {
     {#each environment.biome.features as feature}
         <p>{feature}</p>
     {/each}
+    {/if}
 </section>

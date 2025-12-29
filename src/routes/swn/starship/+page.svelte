@@ -5,7 +5,9 @@ import * as Gen from "$lib/swn/starship";
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 let starship = $state(Gen.generate(rng));
 
 function generate() {

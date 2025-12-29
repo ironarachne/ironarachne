@@ -11,15 +11,20 @@ import ReligionGeneratorConfig from "$lib/religion/generatorconfig";
 
 import type Culture from "$lib/culture/culture";
 
-const user = getContext("user");
+import type { Writable } from "svelte/store";
+import type UserData from "$lib/user_data";
+
+const userStore = getContext<Writable<UserData>>("user");
 
 let rng = new RNG.RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
 let lockSeed = $state(false);
-rng.setSeed(seed);
+$effect(() => {
+  rng.setSeed(seed);
+});
 
 let humanNameGenSet = Names.getFantasyNameGeneratorSet("human", rng);
-let savedCulture: string = $state();
+let savedCulture: string | undefined = $state();
 let useSavedCulture: boolean = $state(false);
 let culture: Culture;
 let genConfig = new ReligionGeneratorConfig();
@@ -95,9 +100,9 @@ function generate() {
 }
 
 function loadSavedCulture() {
-  for (let i = 0; i < user.savedCultures.length; i++) {
-    if (user.savedCultures[i].name === savedCulture) {
-      culture = user.savedCultures[i];
+  for (let i = 0; i < $userStore.savedCultures.length; i++) {
+    if ($userStore.savedCultures[i].name === savedCulture) {
+      culture = $userStore.savedCultures[i];
     }
   }
 }
@@ -147,7 +152,7 @@ function loadSavedCulture() {
     {/each}
   </div>
 
-  {#if user.savedCultures !== undefined && user.savedCultures.length > 0}
+  {#if $userStore && $userStore.savedCultures !== undefined && $userStore.savedCultures.length > 0}
   <div class="input-group">
     <label for="useSavedCulture">Use a saved culture for naming?</label>
     <input type="checkbox" name="useSavedCulture" bind:checked={useSavedCulture} id="useSavedCulture" />
@@ -156,7 +161,7 @@ function loadSavedCulture() {
   <div class="input-group">
     <label for="savedCulture">Select a saved culture to load</label>
     <select bind:value={savedCulture}>
-      {#each user.savedCultures as saved}
+      {#each $userStore.savedCultures as saved}
       <option value={saved.name}>{ saved.name }</option>
       {/each}
     </select>

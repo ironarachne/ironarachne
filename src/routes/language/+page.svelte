@@ -4,7 +4,7 @@ import LanguageGeneratorConfig from "$lib/languages/generatorconfig";
 import LanguageGenerator from "$lib/languages/generator";
 
 import type Language from "$lib/languages/language";
-let language: Language = $state();
+let language: Language | undefined = $state();
 let gen;
 let config;
 let seed = RNG.randomString(13);
@@ -34,6 +34,7 @@ generate();
   <p>This generates fictional languages. This is mostly useful for debugging.</p>
   <button onclick={generate}>Generate</button>
 
+  {#if language}
   <h2>{language.name}</h2>
 
   <h3>{language.name} Dictionary</h3>
@@ -87,4 +88,5 @@ generate();
   {#each language.lexicon.getWordsBySpeechPart('noun') as word}
     <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
   {/each}
+  {/if}
 </section>

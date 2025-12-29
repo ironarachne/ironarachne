@@ -10,7 +10,9 @@
 
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
-  rng.setSeed(seed);
+  $effect(() => {
+    rng.setSeed(seed);
+  });
   let lockSeed = $state(false);
   let treasureValue = $state(200);
   let coinsProportion = $state(80);

@@ -1,4 +1,4 @@
-import type * as RNG from "@ironarachne/rng";
+import * as RNG from "@ironarachne/rng";
 import * as AgeCategories from "$lib/age/age_categories.js";
 import type AgeCategory from "$lib/age/age_category.js";
 import type PhysicalTrait from "$lib/physical_traits/physical_trait.js";
@@ -10,6 +10,18 @@ import * as Skeleton from "./modifiers/skeleton.js";
 import * as Vampire from "./modifiers/vampire.js";
 import * as Zombie from "./modifiers/zombie.js";
 import type Species from "./species.js";
+
+export function randomWeighted(speciesList: Species[]): Species {
+  const totalWeight = speciesList.reduce((acc, s) => acc + s.commonality, 0);
+  let random = RNG.int(0, totalWeight);
+  for (const species of speciesList) {
+    random -= species.commonality;
+    if (random <= 0) {
+      return species;
+    }
+  }
+  return speciesList[0];
+}
 
 export function breed(species1: Species, species2: Species): Species {
   if (!breedable(species1, species2)) {

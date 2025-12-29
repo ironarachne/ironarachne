@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import * as PlanetShaders from "$lib/shaders/planets/planets";
-import type * as RNG from "@ironarachne/rng";
+import { RNG } from "@ironarachne/rng";
 import SimpleVertexShader from "$lib/shaders/simple.vert";
 import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
 
@@ -9,8 +9,9 @@ export function render(
   planet: AstronomicalBody,
   width: number,
   height: number,
-  rng: RNG.RNG
+  seed: string
 ): string {
+  const rng = new RNG(seed);
   const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
@@ -30,7 +31,7 @@ export function render(
     planet.classification,
   );
 
-  const colors = getRandomGasGiantColorSet(rng);
+  const colors = getRandomGasGiantColorSet(rng.randomString(13));
 
   const uniforms = {
     light_direction: {
@@ -67,11 +68,12 @@ export function render(
   return data;
 }
 
-function getRandomGasGiantColorSet(rng: RNG.RNG): [
+function getRandomGasGiantColorSet(seed: string): [
   THREE.Vector3,
   THREE.Vector3,
   THREE.Vector3,
 ] {
+  const rng = new RNG(seed);
   const color1 = new THREE.Vector3(
     rng.float(0.1, 0.8),
     rng.float(0.1, 0.8),
