@@ -1,3 +1,4 @@
+import type { RNG } from "@ironarachne/rng";
 import type { DCCCharacter, DCCOccupation } from "./dcc_types";
 
 export function all(): DCCOccupation[] {
@@ -7,7 +8,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "oil, 1 flask", value: 5 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -16,7 +17,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "pony", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -25,7 +26,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "hammer", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "iron helmet", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -34,7 +35,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "spyglass", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -43,7 +44,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "rolling pin", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "flour, 1 lb.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -52,7 +53,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "razor", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "scissors", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -61,7 +62,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "holy symbol", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -70,7 +71,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "jar of honey", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -79,7 +80,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "hammer", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "steel tongs", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -88,7 +89,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "shortbow", classification: "shortbow", range: "50/100/150", damage: "1d6", value: 50 },
       tradeGoods: { name: "sinew, 10'", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -97,7 +98,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "cleaver", classification: "handaxe", range: "10/20/30", damage: "1d6", value: 50 },
       tradeGoods: { name: "side of beef", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -106,7 +107,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "vat spoon", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "barrel of ale", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -115,7 +116,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "short sword", classification: "short sword", range: "melee", damage: "1d6", value: 50 },
       tradeGoods: { name: "linen, 1 yard", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -124,7 +125,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "handaxe", classification: "handaxe", range: "10/20/30", damage: "1d6", value: 50 },
       tradeGoods: { name: "pole, 10'", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -133,7 +134,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "cudgel", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "stinky cheese", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -142,7 +143,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "awl", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "shoehorn", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -151,7 +152,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "quality cloak", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -160,7 +161,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "spices, 1 lb.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -169,7 +170,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "crowbar", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "barrel", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -178,7 +179,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "knife", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "fruit", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -187,7 +188,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "small chest", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -196,7 +197,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "shovel", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "fine dirt, 1 lb.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -205,7 +206,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "pole", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "1 late RPG book", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -214,7 +215,10 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "pitchfork", classification: "spear", range: "melee", damage: "1d8", value: 50 },
       tradeGoods: { name: "hen", value: 1 },
       commonality: 20,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+        const crops = ["potato", "wheat", "turnip", "corn", "rice", "parsnip", "radish", "rutabaga"];
+        const crop = rng.item(crops);
+        character.occupation.name = `${crop} farmer`;
         return character;
       },
     },
@@ -223,7 +227,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "knife", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "fishing pole", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -232,7 +236,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "tarot deck", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -241,7 +245,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "hammer", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "steel tongs", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -250,7 +254,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "knife", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "deer pelt", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -259,7 +263,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "dice", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -268,7 +272,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "crook", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "goat", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -277,7 +281,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "trowel", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "sack of night soil", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -286,7 +290,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "shovel", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "trowel", value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -295,7 +299,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "sling", classification: "sling", range: "40/80/160", damage: "1d4", value: 50 },
       tradeGoods: { name: "crutches", value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -304,7 +308,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "scissors", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "hat", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -313,7 +317,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "holy water", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -322,7 +326,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "herbs, 1 lb.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -331,7 +335,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "herding dog", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -340,7 +344,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "shortbow", classification: "shortbow", range: "50/100/150", damage: "1d6", value: 50 },
       tradeGoods: { name: "deer pelt", value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -349,7 +353,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "locket", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -358,7 +362,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "cudgel", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "coin purse", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.currency.cp += 100;
         return character;
       },
@@ -368,7 +372,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dart", classification: "dart", range: "20/40/60", damage: "1d4", value: 50 },
       tradeGoods: { name: "silk clothes", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -377,7 +381,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "gem worth 20 gp", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -386,7 +390,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "fine tools", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -395,7 +399,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "cheese dip", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -404,7 +408,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "longsword", classification: "longsword", range: "melee", damage: "1d8", value: 50 },
       tradeGoods: { name: "hide armor", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.armorClass += 3;
         return character;
       },
@@ -414,7 +418,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "coin purse", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.currency.cp += 27;
         character.currency.sp += 14;
         character.currency.gp += 4;
@@ -426,7 +430,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "flour, 1 lb.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -435,7 +439,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "ukelele", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -444,7 +448,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "longsword", classification: "longsword", range: "melee", damage: "1d8", value: 50 },
       tradeGoods: { name: "gold ring worth 10 gp", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -453,7 +457,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "rag doll", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -462,7 +466,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "bridle", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -471,7 +475,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "short sword", classification: "short sword", range: "melee", damage: "1d6", value: 50 },
       tradeGoods: { name: "leather armor", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.armorClass += 2;
         return character;
       },
@@ -481,7 +485,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "awl", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "potting clay, 5 lb.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -490,7 +494,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "pickaxe", classification: "short sword", range: "melee", damage: "1d6", value: 50 },
       tradeGoods: { name: "bag of stone chips", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -499,7 +503,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "knife", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "rope, 100'", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -508,7 +512,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "scissors", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "small rug", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -517,7 +521,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "knife", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "rope, 50'", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -526,7 +530,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dart", classification: "dart", range: "20/40/60", damage: "1d4", value: 50 },
       tradeGoods: { name: "parchment, 100 sheets", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -535,7 +539,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "mace", classification: "mace", range: "melee", damage: "1d6", value: 50 },
       tradeGoods: { name: "herbs, 1 lb.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -544,7 +548,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "crook", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "sheep", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -553,7 +557,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "strange-looking rock", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -562,7 +566,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "sling", classification: "sling", range: "40/80/160", damage: "1d4", value: 50 },
       tradeGoods: { name: "waterproof sack", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -571,7 +575,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "spear", classification: "spear", range: "melee", damage: "1d8", value: 50 },
       tradeGoods: { name: "shield", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.armorClass += 1;
         return character;
       },
@@ -581,7 +585,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "longsword", classification: "longsword", range: "melee", damage: "1d8", value: 50 },
       tradeGoods: { name: "steel helmet", value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -590,7 +594,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "pitchfork", classification: "spear", range: "melee", damage: "1d8", value: 50 },
       tradeGoods: { name: "horse", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -599,7 +603,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "sow", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -608,7 +612,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "scissors", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "linen, 6 yds.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -617,7 +621,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "knife", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "sheet of leather", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -626,7 +630,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "longsword", classification: "longsword", range: "melee", damage: "1d8", value: 50 },
       tradeGoods: { name: "coin purse", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.currency.cp += 100;
         return character;
       },
@@ -636,7 +640,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "hammer", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "thatching, 1 bundle", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -645,7 +649,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "sling", classification: "sling", range: "40/60/180", damage: "1d4", value: 50 },
       tradeGoods: { name: "badger pelt", value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -654,7 +658,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "stick", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "begging bowl", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -663,7 +667,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "pushcart", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -672,7 +676,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "pocket watch", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -681,7 +685,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "fine suit of clothes", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -690,7 +694,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "sickle", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "grapes, 1 lb.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -699,7 +703,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "dagger", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "black grimoire", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -708,7 +712,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "handaxe", classification: "handaxe", range: "10/20/30", damage: "1d6", value: 50 },
       tradeGoods: { name: "bundle of wood", value: 1 },
       commonality: 3,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         return character;
       },
     },

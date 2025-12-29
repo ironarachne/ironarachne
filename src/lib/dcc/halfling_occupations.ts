@@ -1,3 +1,4 @@
+import type { RNG } from "@ironarachne/rng";
 import type { DCCCharacter, DCCOccupation } from "./dcc_types";
 
 export function all(): DCCOccupation[] {
@@ -7,7 +8,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "handaxe", classification: "handaxe", range: "10/20/30", damage: "1d6", value: 50 },
       tradeGoods: { name: "chicken meat, 5 lbs.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -19,7 +20,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "staff", classification: "staff", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "fabric, 3 yds.", value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -31,7 +32,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "awl", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "gloves, 4 pairs", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -43,7 +44,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "sling", classification: "sling", range: "40/80/160", damage: "1d4", value: 50 },
       tradeGoods: { name: "hex doll", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -55,7 +56,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "scissors", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "fine suits, 3 sets", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -67,7 +68,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "knife", classification: "dagger", range: "10/20/30", damage: "1d4/1d10", value: 50 },
       tradeGoods: { name: "sailcloth, 2 yds.", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -79,7 +80,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "short sword", classification: "short sword", range: "melee", damage: "1d6", value: 50 },
       tradeGoods: { name: "loan chest", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -94,7 +95,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "short sword", classification: "short sword", range: "melee", damage: "1d6", value: 50 },
       tradeGoods: { name: "coin purse", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");
@@ -107,7 +108,7 @@ export function all(): DCCOccupation[] {
       trainedWeapon: { name: "club", classification: "club", range: "melee", damage: "1d4", value: 50 },
       tradeGoods: { name: "begging bowl", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter): DCCCharacter => {
+      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
         character.specialRules.push("Infravision");
         character.speed = 20;
         character.languages.push("Halfling");

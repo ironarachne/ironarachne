@@ -40,7 +40,7 @@ export function generateRandomDCCCharacter(seed: string, config: DCCCharacterGen
     hp: 0,
     speed: 30,
     alignment: "",
-    occupation: { name: "", trainedWeapon: null, tradeGoods: null, commonality: 0, apply: (c) => c },
+    occupation: { name: "", trainedWeapon: null, tradeGoods: null, commonality: 0, apply: (c, rng) => c },
     strength: { value: 0, modifier: 0 },
     agility: { value: 0, modifier: 0 },
     stamina: { value: 0, modifier: 0 },
@@ -123,7 +123,7 @@ export function generateRandomDCCCharacter(seed: string, config: DCCCharacterGen
 
   character.languages.push("Common");
 
-  character = character.occupation.apply(character);
+  character = character.occupation.apply(character, rng);
   character = character.luckyRoll.apply(character);
 
   // Name generation based on race/occupation

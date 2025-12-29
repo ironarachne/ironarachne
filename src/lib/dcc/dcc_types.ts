@@ -1,4 +1,5 @@
 import type { NameGenerator } from "@ironarachne/made-up-names";
+import type { RNG } from "@ironarachne/rng";
 
 export type DCCAttribute = {
   value: number;
@@ -69,7 +70,7 @@ export type DCCOccupation = {
   trainedWeapon: DCCWeapon | null;
   tradeGoods: DCCItem | null;
   commonality: number;
-  apply: (character: DCCCharacter) => DCCCharacter;
+  apply: (character: DCCCharacter, rng: RNG) => DCCCharacter;
 }
 
 export type DCCWeapon = DCCItem & {
