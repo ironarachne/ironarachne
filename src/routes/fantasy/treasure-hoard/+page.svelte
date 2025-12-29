@@ -27,6 +27,10 @@
     return 'cut' in item;
   }
 
+  function isArtObject(item: Item): boolean {
+    return item.itemMinorType === 'art object';
+  }
+
   function pluralize(word: string): string {
     if (word.endsWith('y')) {
       return word.slice(0, -1) + 'ies';
@@ -39,7 +43,8 @@
 
   function getDisplayItems(items: Item[]) {
     const gems = items.filter(isGem);
-    const others = items.filter(i => !isGem(i));
+    const artObjects = items.filter(isArtObject);
+    const others = items.filter(i => !isGem(i) && !isArtObject(i));
 
     let displayGems: { name: string, value: number }[] = [];
 
@@ -70,9 +75,10 @@
       });
     }
 
+    const displayArtObjects = artObjects.map(i => ({ name: i.description || i.name, value: i.value }));
     const displayOthers = others.map(i => ({ name: i.name, value: i.value }));
 
-    return [...displayOthers, ...displayGems];
+    return [...displayOthers, ...displayArtObjects, ...displayGems];
   }
 
   function generate() {
@@ -114,14 +120,17 @@
 
     const allLooseItems = Equipment.getLooseItems(containers, Equipment.filterOutContainers(hoard));
     const looseGems = allLooseItems.filter(isGem);
-    const looseOthers = allLooseItems.filter(i => !isGem(i));
+    const looseArtObjects = allLooseItems.filter(isArtObject);
+    const looseOthers = allLooseItems.filter(i => !isGem(i) && !isArtObject(i));
 
     const displayLooseGems = getDisplayItems(looseGems);
     const looseGemStrings = displayLooseGems.map(d => `${d.name} (Value: ${d.value / 100} gp)`);
 
+    const looseArtObjectStrings = looseArtObjects.map(i => `${i.description || i.name} (Value: ${i.value / 100} gp)`);
+
     const looseOtherStrings = Equipment.createCombinedDescriptions(looseOthers, true);
 
-    looseItems = [...looseOtherStrings, ...looseGemStrings];
+    looseItems = [...looseOtherStrings, ...looseArtObjectStrings, ...looseGemStrings];
   }
 
   onMount(() => {

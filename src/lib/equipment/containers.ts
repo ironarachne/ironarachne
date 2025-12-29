@@ -131,8 +131,8 @@ export const baseContainerTypes: ContainerType[] = [
 export function addItemToContainer(container: Container, item: Item): void {
   if (!container.contents.includes(item.id)) {
     container.contents.push(item.id);
-    container.currentWeight += item.weight;
-    container.currentVolume += getVolume(item);
+    container.currentWeight = parseFloat((container.currentWeight + item.weight).toFixed(6));
+    container.currentVolume = parseFloat((container.currentVolume + getVolume(item)).toFixed(6));
   }
 
   item.containerId = container.id;
@@ -186,6 +186,8 @@ export function generateContainer(id: string, type: ContainerType, name?: string
     currentVolume: 0,
     value: value || 1,
     rarity: rarity || 'common',
+    itemMajorType: 'container',
+    itemMinorType: type.name,
     isOpen: false,
     contents: [],
     properties: [],
@@ -197,6 +199,8 @@ export function generateContainer(id: string, type: ContainerType, name?: string
       description: `A lock for the ${type.name}.`,
       value: 5,
       rarity: 'uncommon',
+      itemMajorType: 'lock',
+      itemMinorType: 'mechanical',
       lockType: 'mechanical',
       difficulty: lockDifficulty || 2,
       isLocked: true,
@@ -272,6 +276,8 @@ export function generateRandomContainer(seed: string, config: ContainerGenerator
     currentVolume: 0,
     value: containerType.value,
     rarity: 'common',
+    itemMajorType: 'container',
+    itemMinorType: containerType.name,
     isOpen: false,
     contents: [],
     properties: [],
@@ -335,8 +341,8 @@ export function removeItemFromContainer(container: Container, item: Item): void 
   const index = container.contents.indexOf(item.id);
   if (index !== -1) {
     container.contents.splice(index, 1);
-    container.currentWeight -= item.weight;
-    container.currentVolume -= getVolume(item);
+    container.currentWeight = parseFloat((container.currentWeight - item.weight).toFixed(6));
+    container.currentVolume = parseFloat((container.currentVolume - getVolume(item)).toFixed(6));
   }
 
   delete item.containerId;

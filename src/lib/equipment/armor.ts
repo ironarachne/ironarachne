@@ -82,8 +82,12 @@ export function generateArmor(id: string, type: ArmorType, name?: string): Armor
     description: type.description,
     value: getValueOfArmorType(type),
     rarity: 'common',
+    itemMajorType: 'armor',
+    itemMinorType: type.armorType,
     properties: [],
     defense: type.defense,
+    densityCategory: 'dense',
+    weight: type.armorType === 'light' ? 10 : type.armorType === 'medium' ? 20 : 40,
     armorType: type.armorType,
   }
 }

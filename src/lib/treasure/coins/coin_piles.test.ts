@@ -8,8 +8,10 @@ import {
   increaseValueOfPileOfCoins,
   splitPileOfCoins,
   combinePilesOfCoins,
+  distributeCoins,
 } from './coin_piles';
 import { getDefaultCoinSystem, getMaxCoinTypeForValue } from './coins';
+import { generateContainer, baseContainerTypes } from '$lib/equipment';
 
 const coinSystem = getDefaultCoinSystem();
 
@@ -175,6 +177,49 @@ describe('coin_piles', () => {
     it('should return empty array for empty input', () => {
       const combined = combinePilesOfCoins([], coinSystem);
       expect(combined).toHaveLength(0);
+    });
+  });
+
+  describe('distributeCoins', () => {
+    it('should not overfill a container', () => {
+      const containerType = baseContainerTypes.find(c => c.name === 'cloth pouch'); // Small container
+      if (!containerType) throw new Error('Container type not found');
+
+      const container = generateContainer('test-container', containerType);
+      // Cloth pouch: maxWeight 1, maxVolume 0.2
+
+      // Create a pile of coins that is definitely too big
+      // 2000 coins * 0.001kg = 2kg. Max weight is 1kg.
+      const pile = generatePileOfCoins('test-pile', 'gold', 2000, 2000);
+
+      const result = distributeCoins(pile, [container], coinSystem);
+
+      expect(container.currentWeight).toBeLessThanOrEqual(container.maxWeight);
+      expect(container.currentVolume).toBeLessThanOrEqual(container.maxVolume);
+
+      // Check that we have loose items
+      expect(result.looseItems.length).toBeGreaterThan(0);
+      expect(result.looseItems[0].quantity).toBeGreaterThan(0);
+    });
+
+    it('should fill multiple containers without overfilling', () => {
+      const containerType = baseContainerTypes.find(c => c.name === 'cloth pouch');
+      if (!containerType) throw new Error('Container type not found');
+
+      const container1 = generateContainer('c1', containerType);
+      const container2 = generateContainer('c2', containerType);
+
+      // 3000 coins = 3kg. Capacity = 1kg + 1kg = 2kg.
+      const pile = generatePileOfCoins('test-pile', 'gold', 3000, 3000);
+
+      const result = distributeCoins(pile, [container1, container2], coinSystem);
+
+      expect(container1.currentWeight).toBeLessThanOrEqual(container1.maxWeight);
+      expect(container1.currentVolume).toBeLessThanOrEqual(container1.maxVolume);
+      expect(container2.currentWeight).toBeLessThanOrEqual(container2.maxWeight);
+      expect(container2.currentVolume).toBeLessThanOrEqual(container2.maxVolume);
+
+      expect(result.looseItems.length).toBeGreaterThan(0);
     });
   });
 });

@@ -125,12 +125,16 @@ export function generateWeapon(id: string, type: WeaponType, name?: string): Wea
     description: type.description,
     value: getValueOfWeaponType(type),
     rarity: 'common',
+    itemMajorType: 'weapon',
+    itemMinorType: type.weaponType,
     properties: [],
     damage: type.damage,
     damageType: type.damageType,
     weaponType: type.weaponType,
     range: type.range,
     hands: type.hands,
+    densityCategory: 'dense',
+    weight: type.hands === 2 ? 5 : 3,
   }
 }
 

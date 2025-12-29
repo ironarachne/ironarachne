@@ -22,7 +22,7 @@ Handles the creation and manipulation of currency.
     -   `splitPileOfCoins`: Break large piles into smaller ones.
     -   `getMaxDenominationForValue`: Determine the most appropriate high-value coin for a given amount.
 
-### Art Objects (`art_objects.ts`)
+### Art Objects (`art_objects/art_objects.ts`)
 
 Manages valuable artistic items often found in hoards.
 

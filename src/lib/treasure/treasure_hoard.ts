@@ -6,6 +6,7 @@ import type { TreasureHoardGeneratorConfig } from "./treasure_types";
 import type { CoinGenerationConfig, CoinSystem, PileOfCoins } from "./coins";
 import type { Gem } from "./gems";
 import { RNG } from "@ironarachne/rng";
+import { getRandomArtObjectsForValue } from "./art_objects";
 
 export function generateRandomTreasureHoard(seed: string, config: TreasureHoardGeneratorConfig): Item[] {
   const rng = new RNG(seed);
@@ -25,25 +26,26 @@ export function generateRandomTreasureHoard(seed: string, config: TreasureHoardG
   const coinGeneratorConfig = getDefaultCoinGenerationConfig();
   coinGeneratorConfig.maxValue = coinsValue;
   const pilesOfCoins = generateRandomCoinPiles(rng.randomString(13), coinsValue, coinGeneratorConfig);
-  const artObjects = getArtObjectsForValue(artObjectsValue);
+  const artObjects = getRandomArtObjectsForValue(rng.randomString(13), artObjectsValue);
   const gems = getRandomGemsForValue(rng.randomString(13), gemsValue);
 
   const roomVolume = roomDimensions ? roomDimensions.width * roomDimensions.height * roomDimensions.length * 1000 : undefined;
   const artVolume = artObjects.reduce((sum, item) => sum + getVolume(item), 0);
   const availableVolumeForContainers = roomVolume ? Math.max(0, roomVolume - artVolume) : undefined;
 
-  const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems, rng);
+  const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems, artObjects, rng);
   const containerGeneratorConfig = getDefaultContainerGeneratorConfig();
   containerGeneratorConfig.allowedContainerTypes = containerTypes;
   const containers = generateRandomContainersForCapacity(
     rng.randomString(13),
-    containerCapacityNeeded,
-    containerCapacityNeeded,
+    containerCapacityNeeded.volume,
+    containerCapacityNeeded.weight,
     containerGeneratorConfig,
     availableVolumeForContainers
   );
 
   packGems(gems, containers, rng);
+  packArtObjects(artObjects, containers, rng);
   const { filledContainers, containedCoins, looseCoins } = packCoins(pilesOfCoins, containers, coinGeneratorConfig.coinSystem, rng);
 
   return [
@@ -83,10 +85,11 @@ export function getTreasureHoardForValue(
   const artVolume = artObjects.reduce((sum, item) => sum + getVolume(item), 0);
   const availableVolumeForContainers = roomVolume ? Math.max(0, roomVolume - artVolume) : undefined;
 
-  const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems);
+  const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems, artObjects);
   const containers = selectContainersForCapacity(containerCapacityNeeded, containerTypes, availableVolumeForContainers);
 
   packGems(gems, containers);
+  packArtObjects(artObjects, containers);
   const { filledContainers, containedCoins, looseCoins } = packCoins(pilesOfCoins, containers, coinSystem);
 
   return [
@@ -145,12 +148,21 @@ function generateRandomCoinPiles(seed: string, totalValue: number, config: CoinG
   return piles;
 }
 
-function calculateCapacityNeeded(coins: PileOfCoins[], gems: Gem[], rng?: RNG): number {
+function calculateCapacityNeeded(coins: PileOfCoins[], gems: Gem[], artObjects: Item[], rng?: RNG): { weight: number, volume: number } {
   const coinsWeight = coins.reduce((sum, pile) => sum + pile.weight, 0);
   const gemsWeight = gems.reduce((sum, gem) => sum + gem.weight, 0);
+  const artWeight = artObjects.reduce((sum, art) => sum + art.weight, 0);
+
+  const coinsVolume = coins.reduce((sum, pile) => sum + getVolume(pile), 0);
+  const gemsVolume = gems.reduce((sum, gem) => sum + getVolume(gem), 0);
+  const artVolume = artObjects.reduce((sum, art) => sum + getVolume(art), 0);
+
   // Target random capacity utilization between 10% and 50%
   const utilization = rng ? rng.float(0.1, 0.5) : 0.25;
-  return (coinsWeight + gemsWeight) / utilization;
+  return {
+    weight: (coinsWeight + gemsWeight + artWeight) / utilization,
+    volume: (coinsVolume + gemsVolume + artVolume) / utilization
+  };
 }
 
 function generateRandomContainersForCapacity(seed: string, volumeNeeded: number, weightNeeded: number, config: ContainerGeneratorConfig, maxTotalVolume?: number): Container[] {
@@ -171,14 +183,14 @@ function generateRandomContainersForCapacity(seed: string, volumeNeeded: number,
   const targetContainerCount = rng.int(2, 6);
   let containersGenerated = 0;
 
-  while (remainingVolume > 0 && remainingWeight > 0) {
+  while (remainingVolume > 0 || remainingWeight > 0) {
     let found = false;
 
     // If we haven't reached our target count, try to pick smaller containers
     // so we don't use up all the required volume in one go.
     let maxContainerVolume = Infinity;
     const remainingTargets = targetContainerCount - containersGenerated;
-    if (remainingTargets > 0) {
+    if (remainingTargets > 0 && remainingVolume > 0) {
       // Allow a bit more than the average share, but cap it
       maxContainerVolume = (remainingVolume / remainingTargets) * 1.5;
     }
@@ -228,38 +240,30 @@ function generateRandomContainersForCapacity(seed: string, volumeNeeded: number,
   return containers;
 }
 
-function selectContainersForCapacity(capacityNeeded: number, containerTypes: ContainerType[], maxTotalVolume?: number): Container[] {
+function selectContainersForCapacity(capacityNeeded: { weight: number, volume: number }, containerTypes: ContainerType[], maxTotalVolume?: number): Container[] {
   const containers: Container[] = [];
-  let remainingCapacity = capacityNeeded;
+  let remainingWeightCapacity = capacityNeeded.weight;
+  let remainingVolumeCapacity = capacityNeeded.volume;
   let currentTotalVolume = 0;
-  const sortedTypes = [...containerTypes].sort((a, b) => b.defaultWeight - a.defaultWeight);
+  const sortedTypes = [...containerTypes].sort((a, b) => b.defaultVolume - a.defaultVolume);
 
-  while (remainingCapacity > 0) {
+  while (remainingWeightCapacity > 0 || remainingVolumeCapacity > 0) {
     let found = false;
     for (const type of sortedTypes) {
-      if (type.defaultWeight <= remainingCapacity) {
-        if (maxTotalVolume !== undefined && currentTotalVolume + type.defaultVolume > maxTotalVolume) {
-          continue;
-        }
-
-        containers.push(generateContainer(`container-${containers.length + 1}-${Date.now()}`, type));
-        remainingCapacity -= type.defaultWeight;
-        currentTotalVolume += type.defaultVolume;
-        found = true;
-        break;
+      if (maxTotalVolume !== undefined && currentTotalVolume + type.defaultVolume > maxTotalVolume) {
+        continue;
       }
+
+      containers.push(generateContainer(`container-${containers.length + 1}-${Date.now()}`, type));
+      remainingWeightCapacity -= type.defaultWeight;
+      remainingVolumeCapacity -= type.defaultVolume;
+      currentTotalVolume += type.defaultVolume;
+      found = true;
+      break;
     }
 
     if (!found) {
-      // If no container fits within remaining capacity, take the smallest one
-      const smallest = sortedTypes[sortedTypes.length - 1];
-      if (smallest) {
-        if (maxTotalVolume === undefined || currentTotalVolume + smallest.defaultVolume <= maxTotalVolume) {
-          containers.push(generateContainer(`container-${containers.length + 1}-${Date.now()}`, smallest));
-          currentTotalVolume += smallest.defaultVolume;
-        }
-      }
-      remainingCapacity = 0;
+      break;
     }
   }
 
@@ -295,6 +299,24 @@ function packGems(gems: Gem[], containers: Container[], rng?: RNG) {
     for (const container of sortedContainers) {
       if (canFit(container, gem)) {
         addItemToContainer(container, gem);
+        break;
+      }
+    }
+  }
+}
+
+function packArtObjects(artObjects: Item[], containers: Container[], rng?: RNG) {
+  // Sort containers by available volume descending
+  let sortedContainers = [...containers].sort((a, b) => (b.maxVolume - b.currentVolume) - (a.maxVolume - a.currentVolume));
+
+  if (rng) {
+    sortedContainers = rng.shuffle(sortedContainers);
+  }
+
+  for (const art of artObjects) {
+    for (const container of sortedContainers) {
+      if (canFit(container, art)) {
+        addItemToContainer(container, art);
         break;
       }
     }

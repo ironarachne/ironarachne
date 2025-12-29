@@ -23,6 +23,8 @@ export function generatePileOfCoins(id: string, denomination: string, quantity: 
     quantity,
     value,
     rarity: 'common',
+    itemMajorType: 'treasure',
+    itemMinorType: 'coins',
     properties: [],
     weight: 0.001 * quantity, // Assume each coin weighs 0.001 kg
     densityCategory: 'dense',
@@ -70,6 +72,8 @@ export function generateRandomPileOfCoins(seed: string, config: CoinGenerationCo
     quantity,
     value,
     rarity: 'common',
+    itemMajorType: 'treasure',
+    itemMinorType: 'coins',
     properties: [],
     weight: 0.001 * quantity,
     densityCategory: 'dense',

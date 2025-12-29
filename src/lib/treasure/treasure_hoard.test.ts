@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { getTreasureHoardForValue, generateRandomTreasureHoard } from './treasure_hoard';
-import { baseContainerTypes, type Container } from '$lib/equipment';
+import { baseContainerTypes, type Container, getVolume } from '$lib/equipment';
 
 describe('treasure_hoard', () => {
   describe('generateRandomTreasureHoard', () => {
@@ -122,6 +122,26 @@ describe('treasure_hoard', () => {
       }
     });
 
+    it('should pack art objects into containers', () => {
+      const config = {
+        targetValue: 10000,
+        artObjectProportion: 1, // Mostly art
+        gemProportion: 0,
+        coinProportions: {},
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed-packing-art', config);
+
+      const art = hoard.filter((i: any) => i.artist !== undefined);
+      const containers = hoard.filter((i: any) => i.contents !== undefined) as Container[];
+
+      if (containers.length > 0 && art.length > 0) {
+        const artInContainers = art.filter((a: any) => a.containerId !== undefined);
+        expect(artInContainers.length).toBeGreaterThan(0);
+      }
+    });
+
     it('should generate multiple containers for large hoards', () => {
       const config = {
         targetValue: 50000, // Large value to ensure volume
@@ -136,6 +156,30 @@ describe('treasure_hoard', () => {
 
       // We expect more than 1 container usually
       expect(containers.length).toBeGreaterThan(1);
+    });
+
+    it('should not pack large art objects into small containers', () => {
+      const smallContainerTypes = baseContainerTypes.filter(ct => ct.defaultVolume < 1); // Very small containers
+      const config = {
+        targetValue: 5000,
+        artObjectProportion: 1,
+        gemProportion: 0,
+        coinProportions: {},
+        allowedContainerTypes: smallContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed', config);
+      const art = hoard.filter((i: any) => i.artist !== undefined);
+
+      // Check that art objects that are too big are NOT in containers
+      const maxContainerVolume = Math.max(...smallContainerTypes.map(c => c.defaultVolume));
+
+      for (const item of art) {
+         const itemVolume = getVolume(item);
+         if (itemVolume > maxContainerVolume) {
+             expect(item.containerId).toBeUndefined(`Item ${item.name} with volume ${itemVolume} should not be in a container (max vol ${maxContainerVolume})`);
+         }
+      }
     });
   });
 

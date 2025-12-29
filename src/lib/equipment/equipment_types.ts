@@ -79,6 +79,8 @@ export const DENSITY_MAP: Record<DensityCategory, number> = {
 export type Item = {
   id: string;
   name: string;
+  itemMajorType: string;
+  itemMinorType?: string;
   description: string;
   value: ItemValue;
   rarity: Rarity;

@@ -26,6 +26,8 @@ export function generateRandomLock(seed: string, config: LockGeneratorConfig): L
     description: `A ${lockType} lock with difficulty level ${difficulty}.`,
     value: 10 + (difficulty * 5),
     rarity: difficulty <= 3 ? 'common' : difficulty <= 6 ? 'uncommon' : difficulty <= 8 ? 'rare' : 'epic',
+    itemMajorType: 'lock',
+    itemMinorType: lockType,
     lockType,
     difficulty,
     isLocked,
