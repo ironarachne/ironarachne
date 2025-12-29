@@ -1,11 +1,11 @@
 import type { ArtObject, ArtObjectType } from "./treasure_types";
 
 export const artObjectTypes: ArtObjectType[] = [
-  { name: "painting", baseValue: 200 },
-  { name: "sculpture", baseValue: 300 },
-  { name: "tapestry", baseValue: 150 },
-  { name: "statue", baseValue: 400 },
-  { name: "mosaic", baseValue: 250 },
+  { name: "painting", baseValue: 2000, baseWeight: 5, densityCategory: 'bulky' },
+  { name: "sculpture", baseValue: 3000, baseWeight: 20, densityCategory: 'standard' },
+  { name: "tapestry", baseValue: 1500, baseWeight: 10, densityCategory: 'airy' },
+  { name: "statue", baseValue: 4000, baseWeight: 150, densityCategory: 'dense' },
+  { name: "mosaic", baseValue: 2500, baseWeight: 30, densityCategory: 'standard' },
 ];
 
 /**
@@ -26,6 +26,8 @@ export function generateArtObject(id: string, type: ArtObjectType, artist?: stri
     value: type.baseValue,
     rarity: 'uncommon',
     properties: [],
+    densityCategory: type.densityCategory,
+    weight: type.baseWeight,
   }
 }
 

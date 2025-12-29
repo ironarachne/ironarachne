@@ -30,6 +30,10 @@ export function kgToPounds(kg: number): number {
   return kg * 2.2046;
 }
 
+export function feetToMeters(feet: number): number {
+  return feet * 0.3048;
+}
+
 export function metersToFeet(meters: number): number {
   return meters * 3.2808;
 }

@@ -1,4 +1,4 @@
-import type { Item } from '../equipment/equipment_types';
+import type { ContainerType, DensityCategory, Item } from '$lib/equipment/equipment_types';
 
 export type ArtObject = Item & {
   artist: string;
@@ -7,20 +7,15 @@ export type ArtObject = Item & {
 export type ArtObjectType = {
   name: string;
   baseValue: number;
+  baseWeight: number;
+  densityCategory: DensityCategory;
 }
 
-export type CoinDenomination = 'copper' | 'silver' | 'electrum' | 'gold' | 'platinum';
-
-export type Gem = Item & {
-  isCut: boolean;
-}
-
-export type GemType = {
-  name: string;
-  baseValue: number;
-}
-
-export type PileOfCoins = Item & {
-  denomination: CoinDenomination;
-  quantity: number;
+export type TreasureHoardGeneratorConfig = {
+  allowedContainerTypes?: ContainerType[];
+  artObjectProportion: number;
+  coinProportions: { [denomination: string]: number };
+  gemProportion: number;
+  roomDimensions?: { width: number; length: number; height: number; };
+  targetValue: number;
 }
