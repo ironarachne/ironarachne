@@ -1,6 +1,6 @@
 import type * as RNG from "@ironarachne/rng";
 import { WordGenerator } from "@ironarachne/word-generator";
-import type { Resource } from "./resources";
+import type { Resource } from "./resource_types";
 
 export function getAllMetalOres(): Resource[] {
   return [
