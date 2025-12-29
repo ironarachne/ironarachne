@@ -175,10 +175,10 @@ describe('treasure_hoard', () => {
       const maxContainerVolume = Math.max(...smallContainerTypes.map(c => c.defaultVolume));
 
       for (const item of art) {
-         const itemVolume = getVolume(item);
-         if (itemVolume > maxContainerVolume) {
-             expect(item.containerId).toBeUndefined(`Item ${item.name} with volume ${itemVolume} should not be in a container (max vol ${maxContainerVolume})`);
-         }
+        const itemVolume = getVolume(item);
+        if (itemVolume > maxContainerVolume) {
+          expect(item.containerId).toBeUndefined();
+        }
       }
     });
   });
@@ -224,6 +224,34 @@ describe('treasure_hoard', () => {
 
       expect(hasArt).toBe(false);
       expect(hasGems).toBe(false);
+    });
+
+    it('should respect room volume constraints', () => {
+      const value = 10000;
+      const proportions = { coins: 1, artObjects: 0, gems: 0 };
+      const roomDimensions = { width: 1, height: 1, length: 1 }; // 1 cubic meter = 1000 liters
+      // 10000 gp = 10000 coins. 10000 * 0.001kg = 10kg.
+      // Gold density ~19.3. Volume ~0.5L.
+      // This fits easily.
+      const standardHoard = getTreasureHoardForValue(value, proportions, baseContainerTypes, roomDimensions);
+      const standardContainers = standardHoard.filter((i: any) => i.contents !== undefined) as Container[];
+      const totalStandardContainerVolume = standardContainers.reduce((sum, c) => sum + c.maxVolume, 0);
+
+      expect(totalStandardContainerVolume).toBeLessThanOrEqual(1000); // 1000L
+
+      // Let's try a very small room. 0.001 cubic meters = 1 liter.
+      const tinyRoom = { width: 0.1, height: 0.1, length: 0.1 };
+
+      // We want to ensure that we don't generate containers that exceed the room volume.
+      // The items themselves might exceed it (we don't check that yet), but containers shouldn't.
+
+      const hoard = getTreasureHoardForValue(value, proportions, baseContainerTypes, tinyRoom);
+
+      const containers = hoard.filter((i: any) => i.contents !== undefined) as Container[];
+      const totalContainerVolume = containers.reduce((sum, c) => sum + c.maxVolume, 0);
+
+      // Room volume is 1 liter.
+      expect(totalContainerVolume).toBeLessThanOrEqual(1);
     });
   });
 });

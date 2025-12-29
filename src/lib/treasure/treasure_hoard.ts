@@ -1,12 +1,11 @@
-import { addItemToContainer, canFit, filterContainerTypes, generateContainer, generateRandomContainer, getDefaultContainerGeneratorConfig, getVolume, type Container, type ContainerGeneratorConfig, type ContainerType, type Item } from "$lib/equipment";
-import { getArtObjectsForValue } from "./art_objects";
-import { combinePilesOfCoins, distributeCoins, generateRandomPileOfCoins, getAppropriateCoinTypes, getCoinTypesBelowValue, getDefaultCoinGenerationConfig, getDefaultCoinSystem, getDenominationProportionsUpToDenomination, getIndexOfCoinType, getMaxCoinTypeForValue, getSetOfCoinsForValue } from "./coins";
+import { addItemToContainer, canFit, filterContainerTypes, generateContainer, getDefaultContainerGeneratorConfig, getVolume, type Container, type ContainerGeneratorConfig, type ContainerType, type Item } from "$lib/equipment";
+import { getArtObjectsForValue, getRandomArtObjectsForValue } from "./art_objects";
+import { combinePilesOfCoins, distributeCoins, generateRandomPileOfCoins, getAppropriateCoinTypes, getDefaultCoinGenerationConfig, getDefaultCoinSystem, getDenominationProportionsUpToDenomination, getIndexOfCoinType, getMaxCoinTypeForValue, getSetOfCoinsForValue } from "./coins";
 import { getGemsForValue, getRandomGemsForValue } from "./gems";
 import type { TreasureHoardGeneratorConfig } from "./treasure_types";
 import type { CoinGenerationConfig, CoinSystem, PileOfCoins } from "./coins";
 import type { Gem } from "./gems";
 import { RNG } from "@ironarachne/rng";
-import { getRandomArtObjectsForValue } from "./art_objects";
 
 export function generateRandomTreasureHoard(seed: string, config: TreasureHoardGeneratorConfig): Item[] {
   const rng = new RNG(seed);
@@ -30,8 +29,7 @@ export function generateRandomTreasureHoard(seed: string, config: TreasureHoardG
   const gems = getRandomGemsForValue(rng.randomString(13), gemsValue);
 
   const roomVolume = roomDimensions ? roomDimensions.width * roomDimensions.height * roomDimensions.length * 1000 : undefined;
-  const artVolume = artObjects.reduce((sum, item) => sum + getVolume(item), 0);
-  const availableVolumeForContainers = roomVolume ? Math.max(0, roomVolume - artVolume) : undefined;
+  const availableVolumeForContainers = roomVolume;
 
   const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems, artObjects, rng);
   const containerGeneratorConfig = getDefaultContainerGeneratorConfig();
@@ -82,8 +80,7 @@ export function getTreasureHoardForValue(
   const gems = getGemsForValue(gemsValue);
 
   const roomVolume = roomDimensions ? roomDimensions.width * roomDimensions.height * roomDimensions.length * 1000 : undefined;
-  const artVolume = artObjects.reduce((sum, item) => sum + getVolume(item), 0);
-  const availableVolumeForContainers = roomVolume ? Math.max(0, roomVolume - artVolume) : undefined;
+  const availableVolumeForContainers = roomVolume;
 
   const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems, artObjects);
   const containers = selectContainersForCapacity(containerCapacityNeeded, containerTypes, availableVolumeForContainers);
