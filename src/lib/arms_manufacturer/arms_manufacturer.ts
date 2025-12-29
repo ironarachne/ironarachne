@@ -1,4 +1,4 @@
-import type Weapon from "$lib/weapons/weapon.js";
+import type { Weapon } from "$lib/weapons/weapons";
 
 export default class ArmsManufacturer {
   name: string;

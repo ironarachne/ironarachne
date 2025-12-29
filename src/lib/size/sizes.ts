@@ -1,15 +1,16 @@
 import * as Dice from "$lib/dice";
 import * as Measurements from "$lib/measurements";
-
+import { RNG } from "@ironarachne/rng";
 import type Size from "./size";
 import type SizeGeneratorConfig from "./size_generator_config";
 import type { SizeMatrix, SizeMatrixRow } from "./size_matrix";
 
-export function generate(config: SizeGeneratorConfig): Size {
-  const height = RNG.int(config.minHeight, config.maxHeight);
-  const weight = RNG.int(config.minWeight, config.maxWeight);
-  const length = RNG.int(config.minLength, config.maxLength);
-  const mass = RNG.int(config.minMass, config.maxMass);
+export function generate(seed: string, config: SizeGeneratorConfig): Size {
+  const rng = new RNG(seed);
+  const height = rng.int(config.minHeight, config.maxHeight);
+  const weight = rng.int(config.minWeight, config.maxWeight);
+  const length = rng.int(config.minLength, config.maxLength);
+  const mass = rng.int(config.minMass, config.maxMass);
 
   return {
     height,
