@@ -1,10 +1,8 @@
 <script lang="ts">
-import * as RNG from "@ironarachne/rng";
+import { RNG } from "@ironarachne/rng";
+import * as DCC from "$lib/dcc";
 
-import DCCCharacterGenerator from "$lib/dcc/generator";
-import DCCCharacterGeneratorConfig from "$lib/dcc/generatorconfig";
-
-let rng = new RNG.RNG(Date.now().toString());
+let rng = new RNG(Date.now().toString());
 let seed = $state(rng.randomString(13));
 $effect(() => {
   rng.setSeed(seed);
@@ -16,10 +14,8 @@ let allowElves = $state(true);
 let allowHalflings = $state(true);
 let allowHumans = $state(true);
 
-let genConfig = new DCCCharacterGeneratorConfig();
-let charGen = new DCCCharacterGenerator(genConfig);
-charGen.config.rng = rng;
-let character = $state(charGen.generate());
+let genConfig = DCC.getDefaultDCCCharacterGeneratorConfig(rng.randomString(13));
+let character = $state(DCC.generateRandomDCCCharacter(rng.randomString(13), genConfig));
 let spellsKnown = $state(getSpellsKnown());
 
 function dMod(modifier: number): string {
@@ -54,10 +50,9 @@ function generate() {
     allowedOccupations.push("human");
   }
 
-  charGen.config.allowedOccupations = allowedOccupations;
-  charGen.config.rng = rng;
+  genConfig.allowedOccupations = allowedOccupations;
 
-  character = charGen.generate();
+  character = DCC.generateRandomDCCCharacter(rng.randomString(13), genConfig);
   spellsKnown = getSpellsKnown();
 }
 
@@ -71,6 +66,16 @@ function getSpellsKnown(): string {
   }
 
   return `${character.spellsKnown}`;
+}
+
+function getCurrencyDescription(currency: Record<string, number>): string {
+  const parts = [];
+  for (const [key, value] of Object.entries(currency)) {
+    if (value > 0) {
+      parts.push(`${value} ${key}`);
+    }
+  }
+  return parts.join(", ");
 }
 
 generate();
@@ -125,7 +130,7 @@ generate();
   <p><strong>XP:</strong> { character.xp }</p>
   <p><strong>HP:</strong> { character.hp }</p>
   <p><strong>AC:</strong> { character.armorClass }</p>
-  <p><strong>Currency:</strong> { character.currency }</p>
+  <p><strong>Currency:</strong> { getCurrencyDescription(character.currency) }</p>
   <p><strong>Alignment:</strong> { character.alignment }</p>
   <p><strong>Gender:</strong> { character.gender }</p>
   <p><strong>Speed:</strong> { character.speed }'</p>
