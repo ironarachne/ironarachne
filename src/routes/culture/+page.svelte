@@ -6,7 +6,7 @@ import CultureGeneratorConfig from "$lib/culture/generatorconfig";
 import CultureGenerator from "$lib/culture/generator";
 import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from "$lib/names";
 
-const user: UserData = $state(getContext("user"));
+const user: UserData = getContext("user");
 const rng = new RNG.RNG(Date.now());
 const allNameSets = getAllFantasyNameGeneratorSets(rng);
 

@@ -3,7 +3,6 @@ import "$lib/styles/main.scss";
 import Footer from "$lib/components/Footer.svelte";
 import Header from "$lib/components/Header.svelte";
 import { setContext } from "svelte";
-import { writable } from "svelte/store";
 
 import type { LayoutData } from "./$types";
 
@@ -14,10 +13,7 @@ interface Props {
 
 let { data, children }: Props = $props();
 
-const user = writable();
-$effect(() => {
-  user.set(data.user);
-});
+const user = $state(data.user);
 
 // TODO: try implementing a workspace for cultures within the user object
 
