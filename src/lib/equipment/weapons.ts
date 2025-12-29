@@ -1,4 +1,6 @@
+import * as RNG from '@ironarachne/rng';
 import type { Weapon, WeaponType } from './equipment_types';
+import { applyMaterial, getRandomMaterialForItem } from './foundry';
 
 export const weaponTypes: WeaponType[] = [
   {
@@ -118,7 +120,7 @@ export const weaponTypes: WeaponType[] = [
   }
 ];
 
-export function generateWeapon(id: string, type: WeaponType, name?: string): Weapon {
+export function createWeapon(id: string, type: WeaponType, name?: string): Weapon {
   return {
     id,
     name: name || type.name,
@@ -136,6 +138,17 @@ export function generateWeapon(id: string, type: WeaponType, name?: string): Wea
     densityCategory: 'dense',
     weight: type.hands === 2 ? 5 : 3,
   }
+}
+
+export function generateWeapon(seed: string): Weapon {
+  const rng = new RNG.RNG(seed);
+  const type = rng.item(weaponTypes);
+  const baseWeapon = createWeapon(seed, type);
+
+  const material = getRandomMaterialForItem(baseWeapon, rng);
+  const foundryWeapon = applyMaterial(baseWeapon, material) as Weapon;
+
+  return foundryWeapon;
 }
 
 export function getValueOfWeaponType(type: WeaponType): number {

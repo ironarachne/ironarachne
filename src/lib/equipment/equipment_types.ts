@@ -116,6 +116,18 @@ export type LockKey = {
 
 export type LockType = 'mechanical' | 'magical';
 
+export type Material = {
+  readonly name: string;
+  readonly majorType: string;
+  readonly minorType?: string;
+  readonly densityCategory: DensityCategory;
+  readonly weightMultiplier: number;
+  readonly valueMultiplier: number;
+  readonly rarity: Rarity;
+  readonly statOffsets?: Record<string, number | string>;
+  readonly tagsAdded?: string[];
+}
+
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
 export type Weapon = Item & {

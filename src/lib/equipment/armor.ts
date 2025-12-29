@@ -1,4 +1,6 @@
+import * as RNG from '@ironarachne/rng';
 import type { Armor, ArmorType } from "./equipment_types";
+import { applyMaterial, getRandomMaterialForItem } from './foundry';
 
 export const armorTypes: ArmorType[] = [
   {
@@ -75,7 +77,7 @@ export const armorTypes: ArmorType[] = [
   }
 ];
 
-export function generateArmor(id: string, type: ArmorType, name?: string): Armor {
+export function createArmor(id: string, type: ArmorType, name?: string): Armor {
   return {
     id,
     name: name || type.name,
@@ -90,6 +92,17 @@ export function generateArmor(id: string, type: ArmorType, name?: string): Armor
     weight: type.armorType === 'light' ? 10 : type.armorType === 'medium' ? 20 : 40,
     armorType: type.armorType,
   }
+}
+
+export function generateArmor(seed: string): Armor {
+  const rng = new RNG.RNG(seed);
+  const type = rng.item(armorTypes);
+  const baseArmor = createArmor(seed, type);
+
+  const material = getRandomMaterialForItem(baseArmor, rng);
+  const foundryArmor = applyMaterial(baseArmor, material) as Armor;
+
+  return foundryArmor;
 }
 
 export function getValueOfArmorType(type: ArmorType): number {
