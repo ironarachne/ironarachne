@@ -73,7 +73,7 @@ function setChargeColor(
   svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
 
   if (hexColor === "#000000") {
-    svgResult = svgResult.replaceAll("TEMP_WHITE_PLACEHOLDER", "#ffffff");
+    svgResult = svgResult.replaceAll("TEMP_WHITE_PLACEHOLDER", "#333333");
   }
 
   svgResult = svgResult.replaceAll("st0", `st0-${tinctureName}`);
