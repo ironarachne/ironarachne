@@ -31,7 +31,7 @@ export const singleChargeCenterArrangement: ChargeGroupArrangement = {
       scaleAmount = contextHeight / chargeHeight;
     }
 
-    scaleAmount *= 0.6;
+    scaleAmount *= 0.75;
 
     const newWidth = Math.floor(chargeWidth * scaleAmount);
     const newHeight = Math.floor(chargeHeight * scaleAmount);

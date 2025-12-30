@@ -1,5 +1,8 @@
 import * as RNG from "@ironarachne/rng";
 import { convert } from "xmlbuilder2";
+import { fourChargesHorizontalCenterArrangement } from "./four_charges_horizontal_center";
+import { fourChargesTwoAndTwoArrangement } from "./four_charges_two_and_two";
+import { fourChargesVerticalCenterArrangement } from "./four_charges_vertical_center";
 import { singleChargeCenterArrangement } from "./single_charge_center";
 import { threeChargesHorizontalCenterArrangement } from "./three_charges_horizontal_center";
 import { threeChargesTwoAndOneArrangement } from "./three_charges_two_and_one";
@@ -19,6 +22,9 @@ export type ChargeGroupArrangement = {
 
 export function getAllChargeArrangements(): ChargeGroupArrangement[] {
   return [
+    fourChargesHorizontalCenterArrangement,
+    fourChargesTwoAndTwoArrangement,
+    fourChargesVerticalCenterArrangement,
     singleChargeCenterArrangement,
     threeChargesHorizontalCenterArrangement,
     threeChargesTwoAndOneArrangement,

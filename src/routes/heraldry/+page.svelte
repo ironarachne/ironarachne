@@ -97,6 +97,8 @@ function generate() {
     numberOfCharges = 2;
   } else if (numberOfChargesOption === "three") {
     numberOfCharges = 3;
+  } else if (numberOfChargesOption === "four") {
+    numberOfCharges = 4;
   } else if (numberOfChargesOption === "none") {
     numberOfCharges = 0;
   }
@@ -130,6 +132,7 @@ function randomNumberOfCharges(rng: RNG.RNG) {
     { value: 1, commonality: 55 },
     { value: 2, commonality: 5 },
     { value: 3, commonality: 3 },
+    { value: 4, commonality: 2 },
   ];
 
   const result = rng.weighted(weights);
@@ -194,6 +197,7 @@ generate();
       <option>one</option>
       <option>two</option>
       <option>three</option>
+      <option>four</option>
     </select>
   </div>
   <div class="input-group">
