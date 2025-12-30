@@ -30,6 +30,7 @@ let heraldryTag = $state("any");
 let chargeTinctureName = $state("any");
 let chargeTincture = Tinctures.randomChargeTincture(rng);
 let numberOfChargesOption = $state("any");
+let chargePosition = $state("normal");
 let fieldTinctures1 = Tinctures.all();
 let fieldTinctures2 = Tinctures.all();
 let fields = Fields.all();
@@ -108,6 +109,7 @@ function generate() {
     chargeCount: numberOfCharges,
     chargeOptions: charges,
     chargeTinctures: [chargeTincture],
+    chargePosition: chargePosition === "normal" ? undefined : chargePosition,
     fieldOptions: fields,
     variationOptions: variations,
     fieldTinctures1,
@@ -198,6 +200,13 @@ generate();
       <option>two</option>
       <option>three</option>
       <option>four</option>
+    </select>
+  </div>
+  <div class="input-group">
+    <label for="charge-position">Charge Position</label>
+    <select name="charge-position" bind:value={chargePosition}>
+      <option value="normal">normal</option>
+      <option value="in chief">in chief</option>
     </select>
   </div>
   <div class="input-group">

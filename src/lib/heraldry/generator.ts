@@ -36,11 +36,19 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
       }),
     );
     let arrangementOptions = Arrangements.withCount(cfg.chargeCount);
+
+    if (cfg.chargePosition === "in chief") {
+      arrangementOptions = arrangementOptions.filter(
+        (a) => a.name.includes("horizontal") || a.name === "single charge center",
+      );
+    }
+
     let chargeArrangement = cfg.rng.item(arrangementOptions);
     let chargeGroup: ChargeGroup = {
       charge,
       numberOfCharges: cfg.chargeCount,
       arrangement: chargeArrangement,
+      position: cfg.chargePosition,
     };
     chargeGroups = [chargeGroup];
 

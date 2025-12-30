@@ -16,6 +16,7 @@ export type HeraldryGeneratorConfig = {
   fieldTinctures1: Array<Tincture>;
   fieldTinctures2: Array<Tincture>;
   variationOptions: Array<Variation>;
+  chargePosition?: string;
   width: number;
   height: number;
   rng: RNG.RNG;

@@ -15,15 +15,12 @@ export const threeChargesVerticalCenterArrangement: ChargeGroupArrangement = {
     const svgObj = (chargeObject as any)["svg"];
     const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
-    let scaleAmount = 1;
+    let scaleAmount = Math.min(
+      contextWidth / chargeWidth,
+      contextHeight / (chargeHeight * 3),
+    );
 
-    if (chargeWidth > chargeHeight) {
-      scaleAmount = contextWidth / chargeWidth;
-    } else {
-      scaleAmount = contextHeight / chargeHeight;
-    }
-
-    scaleAmount *= 0.3;
+    scaleAmount *= 0.9;
 
     const chargeObject2 = JSON.parse(JSON.stringify(chargeObject));
     const chargeObject3 = JSON.parse(JSON.stringify(chargeObject));

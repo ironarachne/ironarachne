@@ -17,19 +17,10 @@ export const singleChargeCenterArrangement: ChargeGroupArrangement = {
     const svgObj = (chargeObject as any)["svg"];
     const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
-    // if charge height is bigger than width, set the new height equal to the bounding box height
-    // if charge width is bigger than height, set the new width equal to the bounding box width, and the height equal to bounding box height times aspect ratio
-
-    // if height is bigger, set scale amount to bb height / charge height
-    // if width is bigger, set scale amount to bb width / charge width
-
-    let scaleAmount = 1;
-
-    if (chargeWidth > chargeHeight) {
-      scaleAmount = contextWidth / chargeWidth;
-    } else {
-      scaleAmount = contextHeight / chargeHeight;
-    }
+    let scaleAmount = Math.min(
+      contextWidth / chargeWidth,
+      contextHeight / chargeHeight,
+    );
 
     scaleAmount *= 0.75;
 

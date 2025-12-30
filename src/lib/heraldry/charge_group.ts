@@ -6,6 +6,7 @@ export type ChargeGroup = {
   charge: Charge;
   numberOfCharges: number;
   arrangement: ChargeGroupArrangement;
+  position?: string;
 };
 
 export function renderChargeGroupBlazon(group: ChargeGroup): string {
@@ -14,6 +15,9 @@ export function renderChargeGroupBlazon(group: ChargeGroup): string {
   blazon = blazon.replaceAll("{name}", group.charge.name);
   blazon = blazon.replaceAll("{namePlural}", group.charge.pluralName);
   blazon += ` ${group.charge.tincture.name}`;
+  if (group.position) {
+    blazon += ` ${group.position}`;
+  }
   return blazon;
 }
 
@@ -28,10 +32,26 @@ export function renderChargeGroupSVG(
     group.charge.tincture.name,
     chargeSVGString,
   );
+
+  let renderHeight = contextHeight;
+
+  if (group.position === "in chief") {
+    const chiefHeight = contextHeight / 3;
+    renderHeight = contextHeight / 2;
+    const result = group.arrangement.renderSVG(
+      chargeSVGString,
+      contextWidth,
+      renderHeight,
+    );
+
+    const dy = chiefHeight / 2 - renderHeight / 2;
+    return `<g transform="translate(0, ${dy})">${result}</g>`;
+  }
+
   return group.arrangement.renderSVG(
     chargeSVGString,
     contextWidth,
-    contextHeight,
+    renderHeight,
   );
 }
 
