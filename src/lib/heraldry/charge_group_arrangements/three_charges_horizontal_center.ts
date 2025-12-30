@@ -1,6 +1,6 @@
 import type { ChargeGroupArrangement } from ".";
 import { create } from "xmlbuilder2";
-import { convertXmlToSVGObject } from "$lib/images/svg";
+import { convertXmlToSVGObject, getSVGDimensions } from "$lib/images/svg";
 
 export const threeChargesHorizontalCenterArrangement: ChargeGroupArrangement = {
   name: "three charges horizontal center",
@@ -13,8 +13,7 @@ export const threeChargesHorizontalCenterArrangement: ChargeGroupArrangement = {
   ): string {
     const chargeObject = convertXmlToSVGObject(chargeSVGString);
     const svgObj = (chargeObject as any)["svg"];
-    const chargeWidth = Number(svgObj?.["@width"] ?? 0);
-    const chargeHeight = Number(svgObj?.["@height"] ?? 0);
+    const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
     let scaleAmount = 1;
 
@@ -52,6 +51,6 @@ export const threeChargesHorizontalCenterArrangement: ChargeGroupArrangement = {
 
     const transform = `scale(${scaleAmount})`;
 
-    return `<g transform='${transform}'>${chargeSVG1.end()}${chargeSVG2.end()}${chargeSVG3.end()}</g>`;
+    return `<g transform='${transform}'>${chargeSVG1.end({ headless: true })}${chargeSVG2.end({ headless: true })}${chargeSVG3.end({ headless: true })}</g>`;
   },
 };

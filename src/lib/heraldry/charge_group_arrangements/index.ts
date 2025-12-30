@@ -2,6 +2,7 @@ import * as RNG from "@ironarachne/rng";
 import { convert } from "xmlbuilder2";
 import { singleChargeCenterArrangement } from "./single_charge_center";
 import { threeChargesHorizontalCenterArrangement } from "./three_charges_horizontal_center";
+import { threeChargesTwoAndOneArrangement } from "./three_charges_two_and_one";
 import { threeChargesVerticalCenterArrangement } from "./three_charges_vertical_center";
 import { twoChargesHorizontalCenterArrangement } from "./two_charges_horizontal_center";
 
@@ -20,6 +21,7 @@ export function getAllChargeArrangements(): ChargeGroupArrangement[] {
   return [
     singleChargeCenterArrangement,
     threeChargesHorizontalCenterArrangement,
+    threeChargesTwoAndOneArrangement,
     threeChargesVerticalCenterArrangement,
     twoChargesHorizontalCenterArrangement,
   ];

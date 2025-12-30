@@ -8,5 +8,5 @@ export const unicornStatant: Charge = {
   SVG: unicornStatantSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["monster", "unicorn", "mythical"],
+  tags: ["monsters", "unicorn", "statant"],
 };

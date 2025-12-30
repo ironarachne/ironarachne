@@ -43,11 +43,18 @@ function setChargeColor(
   let svgResult = chargeSVG;
 
   if (hexColor === "#000000") {
-    svgResult = svgResult.replaceAll("#010101", "#ffffff");
-    svgResult = svgResult.replaceAll("#000000", "#ffffff");
+    svgResult = svgResult.replaceAll("#010101", "TEMP_WHITE_PLACEHOLDER");
+    svgResult = svgResult.replaceAll("#000000", "TEMP_WHITE_PLACEHOLDER");
+    svgResult = svgResult.replaceAll('fill="black"', 'fill="TEMP_WHITE_PLACEHOLDER"');
   }
 
   svgResult = svgResult.replaceAll("#FFFFFF", hexColor);
+  svgResult = svgResult.replaceAll("#ffffff", hexColor);
+  svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
+
+  if (hexColor === "#000000") {
+    svgResult = svgResult.replaceAll("TEMP_WHITE_PLACEHOLDER", "#ffffff");
+  }
 
   svgResult = svgResult.replaceAll("st0", `st0-${tinctureName}`);
   svgResult = svgResult.replaceAll("st1", `st1-${tinctureName}`);
@@ -55,4 +62,5 @@ function setChargeColor(
   // TODO: Fix a bug where the border is colored if the charge color is sable
 
   return svgResult;
+
 }

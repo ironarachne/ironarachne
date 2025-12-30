@@ -8,5 +8,5 @@ export const ramStatant: Charge = {
   SVG: ramStatantSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["animal", "ram", "watchfulness"],
+  tags: ["ram", "statant", "animals"],
 };

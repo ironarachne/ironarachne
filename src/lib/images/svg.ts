@@ -56,3 +56,18 @@ export function convertXmlToSVGObject(xml: string): SVGElement {
 
   return xmlObject;
 }
+
+export function getSVGDimensions(svgObj: any): { width: number; height: number } {
+  let width = Number(svgObj["@width"] ?? 0);
+  let height = Number(svgObj["@height"] ?? 0);
+
+  if ((width === 0 || height === 0 || isNaN(width) || isNaN(height)) && svgObj["@viewBox"]) {
+    const viewBox = svgObj["@viewBox"].split(/[\s,]+/);
+    if (viewBox.length === 4) {
+      width = Number(viewBox[2]);
+      height = Number(viewBox[3]);
+    }
+  }
+
+  return { width, height };
+}

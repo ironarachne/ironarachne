@@ -8,5 +8,5 @@ export const sunInSplendor: Charge = {
   SVG: sunInSplendorSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["symbol", "sun", "glory"],
+  tags: ["splendor", "in", "sun", "symbols"],
 };

@@ -4,9 +4,9 @@ import * as Tinctures from "../../../tinctures.js";
 
 export const seaHorse: Charge = {
   name: "sea horse",
-  pluralName: "sea horses",
+  pluralName: "seas horse",
   SVG: seaHorseSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["animal", "sea horse", "mythical"],
+  tags: ["sea", "horse", "animals"],
 };

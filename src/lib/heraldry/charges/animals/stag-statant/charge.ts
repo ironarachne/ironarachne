@@ -8,5 +8,5 @@ export const stagStatant: Charge = {
   SVG: stagStatantSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["animal", "stag", "watchfulness"],
+  tags: ["stag", "statant", "animals"],
 };

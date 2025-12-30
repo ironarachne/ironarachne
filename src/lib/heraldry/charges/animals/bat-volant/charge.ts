@@ -8,5 +8,5 @@ export const batVolant: Charge = {
   SVG: batVolantSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["animal", "bat", "night"],
+  tags: ["volant", "bat", "animals"],
 };

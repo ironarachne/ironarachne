@@ -8,5 +8,5 @@ export const barrel: Charge = {
   SVG: barrelSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["object", "barrel", "storage"],
+  tags: ["barrel", "objects"],
 };

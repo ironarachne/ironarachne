@@ -8,5 +8,5 @@ export const boarPassant: Charge = {
   SVG: boarPassantSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["animal", "boar", "strength"],
+  tags: ["boar", "passant", "animals"],
 };

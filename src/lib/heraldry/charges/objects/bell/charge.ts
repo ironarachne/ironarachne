@@ -8,5 +8,5 @@ export const bell: Charge = {
   SVG: bellSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["object", "bell", "alert"],
+  tags: ["bell", "objects"],
 };

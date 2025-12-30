@@ -8,5 +8,5 @@ export const dragonRampant: Charge = {
   SVG: dragonRampantSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["monster", "dragon", "strength"],
+  tags: ["monsters", "rampant", "dragon"],
 };

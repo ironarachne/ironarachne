@@ -8,5 +8,5 @@ export const anchor: Charge = {
   SVG: anchorSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["anchor", "ocean", "sea", "navy", "ship", "sailor", "coast", "trade"],
+  tags: ["anchor", "objects"],
 };

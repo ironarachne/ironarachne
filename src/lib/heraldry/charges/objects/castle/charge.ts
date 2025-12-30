@@ -8,5 +8,5 @@ export const castle: Charge = {
   SVG: castleSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["building", "castle", "strength"],
+  tags: ["castle", "objects"],
 };

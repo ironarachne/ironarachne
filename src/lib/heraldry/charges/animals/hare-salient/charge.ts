@@ -8,5 +8,5 @@ export const hareSalient: Charge = {
   SVG: hareSalientSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["animal", "hare", "agility"],
+  tags: ["hare", "salient", "animals"],
 };

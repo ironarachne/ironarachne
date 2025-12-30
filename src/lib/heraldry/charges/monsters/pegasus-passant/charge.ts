@@ -4,9 +4,9 @@ import * as Tinctures from "../../../tinctures.js";
 
 export const pegasusPassant: Charge = {
   name: "pegasus passant",
-  pluralName: "pegasi passant",
+  pluralName: "pegasuses passant",
   SVG: pegasusPassantSVG,
   chargeType: "regular",
   tincture: Tinctures.byName("sable"),
-  tags: ["monster", "pegasus", "mythical"],
+  tags: ["monsters", "passant", "pegasus"],
 };
