@@ -44,6 +44,10 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
           } else {
             weapon.damage = `${weapon.damage}+${bonus}`;
           }
+
+          if (newItem.combatProfile) {
+            newItem.combatProfile.power += bonus * 10;
+          }
         }
       }
     } else if (newItem.itemMajorType === 'armor') {
@@ -52,8 +56,46 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
         const defenseBonus = Number(enchantment.statOffsets.defense);
         if (!isNaN(defenseBonus)) {
           armor.defense += defenseBonus;
+          if (newItem.combatProfile) {
+            newItem.combatProfile.defense += defenseBonus * 3;
+          }
         }
       }
+    }
+  }
+
+  // Apply additional damage
+  if (newItem.itemMajorType === 'weapon' && enchantment.additionalDamage && enchantment.additionalDamageType) {
+    const weapon = newItem as Weapon;
+    if (!weapon.additionalDamage) {
+      weapon.additionalDamage = [];
+    }
+    weapon.additionalDamage.push({
+      damage: enchantment.additionalDamage,
+      type: enchantment.additionalDamageType
+    });
+
+    // Update combat profile power
+    // Estimate power from dice: 1d6 (3.5) ~= 17 power
+    // 1d4 (2.5) ~= 12
+    // 1d8 (4.5) ~= 22
+    // Let's use a rough estimator
+    if (newItem.combatProfile) {
+      let addedPower = 10;
+      if (enchantment.additionalDamage.includes('d4')) addedPower = 12;
+      if (enchantment.additionalDamage.includes('d6')) addedPower = 17;
+      if (enchantment.additionalDamage.includes('d8')) addedPower = 22;
+      if (enchantment.additionalDamage.includes('d10')) addedPower = 27;
+      if (enchantment.additionalDamage.includes('d12')) addedPower = 32;
+
+      // Handle multipliers like 2d6
+      const match = enchantment.additionalDamage.match(/^(\d+)d/);
+      if (match && match[1]) {
+          const count = parseInt(match[1], 10);
+          if (count > 1) addedPower *= count;
+      }
+
+      newItem.combatProfile.power += addedPower;
     }
   }
 

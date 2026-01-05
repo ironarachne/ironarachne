@@ -40,6 +40,10 @@ export function applyMaterial(item: Item, material: Material): Item {
           } else {
             weapon.damage = `${weapon.damage}+${bonus}`;
           }
+
+          if (newItem.combatProfile) {
+            newItem.combatProfile.power += bonus * 10;
+          }
         }
       }
     } else if (newItem.itemMajorType === 'armor') {
@@ -48,6 +52,9 @@ export function applyMaterial(item: Item, material: Material): Item {
         const acBonus = Number(material.statOffsets.ac);
         if (!isNaN(acBonus)) {
           armor.defense += acBonus;
+          if (newItem.combatProfile) {
+            newItem.combatProfile.defense += acBonus * 3;
+          }
         }
       }
     }

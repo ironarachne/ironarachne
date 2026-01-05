@@ -1,4 +1,5 @@
 import type { Element, MagicSphere, MagicIntent } from '../magic';
+import type { CombatProfile } from '$lib/combat_system/types';
 
 export type Armor = Item & {
   defense: number; // e.g., AC bonus
@@ -104,6 +105,7 @@ export type Item = {
   weight: number; // Weight in kg
   properties: string[];
   containerId?: string; // The ID of the container holding this item
+  combatProfile?: CombatProfile;
 };
 
 export type ItemValue = number; // Monetary value in copper coins
@@ -148,6 +150,7 @@ export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 export type Weapon = Item & {
   damage: string; // e.g., "1d8"
   damageType: DamageType;
+  additionalDamage?: { damage: string; type: DamageType }[];
   weaponType: 'melee' | 'ranged';
   range?: number; // Only for ranged weapons
   hands: number; // Number of hands required to wield
@@ -184,6 +187,8 @@ export type Enchantment = {
   valueMultiplier?: number;
   valueAdder?: number;
   statOffsets?: Record<string, number | string>;
+  additionalDamage?: string;
+  additionalDamageType?: DamageType;
   tagsAdded?: string[];
   tagsRequired?: string[];
   tagsExcluded?: string[];

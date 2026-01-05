@@ -16,6 +16,8 @@
   import { kgToPounds } from '$lib/measurements';
   import { valueToString } from '$lib/currency';
   import { STANDARD_FANTASY } from '$lib/currency/systems';
+  import { convertToDnD5e } from '$lib/combat_system/converter';
+  import type { CombatProfile } from '$lib/combat_system/types';
 
   const EQUIPMENT_CURRENCY = {
     ...STANDARD_FANTASY,
@@ -34,10 +36,21 @@
   let useRefine = $state(true);
   let useEnchant = $state(true);
   let useDecorate = $state(true);
+  let displaySystem = $state('dnd5e');
 
   let generatedItems: Item[] = $state([]);
 
   function createBaseWeapon(type: WeaponType, rng: RNG.RNG): Weapon {
+    // Rough mapping of damage to power
+    // Power / 5 = Average Damage
+    let power = 10;
+    if (type.damage.includes('d4')) power = 12; // Avg 2.5
+    if (type.damage.includes('d6')) power = 17; // Avg 3.5
+    if (type.damage.includes('d8')) power = 22; // Avg 4.5
+    if (type.damage.includes('d10')) power = 27; // Avg 5.5
+    if (type.damage.includes('d12')) power = 32; // Avg 6.5
+    if (type.damage.includes('2d6')) power = 35; // Avg 7
+
     return {
       id: rng.randomString(16),
       name: type.name,
@@ -53,11 +66,25 @@
       damageType: type.damageType,
       weaponType: type.weaponType,
       range: type.range,
-      hands: type.hands
+      hands: type.hands,
+      combatProfile: {
+        attack: 0,
+        defense: 0,
+        power,
+        resilience: 0,
+        speed: 0,
+        health: 0
+      }
     };
   }
 
   function createBaseArmor(type: ArmorType, rng: RNG.RNG): Armor {
+    // Rough mapping of armor type to defense
+    // 10 + Defense / 5 = AC
+    let defense = 5; // Light (AC 11)
+    if (type.armorType === 'medium') defense = 15; // Medium (AC 13)
+    if (type.armorType === 'heavy') defense = 40; // Heavy (AC 18)
+
     return {
       id: rng.randomString(16),
       name: type.name,
@@ -70,7 +97,15 @@
       weight: 1, // Base weight
       properties: ['armor', type.armorType],
       defense: type.defense,
-      armorType: type.armorType
+      armorType: type.armorType,
+      combatProfile: {
+        attack: 0,
+        defense,
+        power: 0,
+        resilience: 0,
+        speed: 0,
+        health: 0
+      }
     };
   }
 
@@ -177,6 +212,14 @@
     </div>
 
     <div class="input-group">
+      <label for="displaySystem">System</label>
+      <select name="displaySystem" bind:value={displaySystem} id="displaySystem">
+        <option value="dnd5e">D&D 5e</option>
+        <option value="ironarachne">Iron Arachne</option>
+      </select>
+    </div>
+
+    <div class="input-group">
       <label for="itemCount">Count</label>
       <input type="number" name="itemCount" bind:value={itemCount} id="itemCount" min="1" max="50" />
     </div>
@@ -213,11 +256,28 @@
           <span class="tag type">{item.itemMajorType}</span>
           {#if item.itemMajorType === 'weapon'}
              {@const weapon = item as Weapon}
-             <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
+             {#if displaySystem === 'dnd5e'}
+               <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
+               {#if weapon.additionalDamage}
+                 {#each weapon.additionalDamage as extra}
+                   <span class="tag damage extra">+ {extra.damage} ({extra.type})</span>
+                 {/each}
+               {/if}
+             {:else if displaySystem === 'ironarachne' && item.combatProfile}
+               <span class="tag damage">Power: {item.combatProfile.power}</span>
+             {:else}
+               <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
+             {/if}
           {/if}
           {#if item.itemMajorType === 'armor'}
              {@const armor = item as Armor}
-             <span class="tag defense">Defense: {armor.defense}</span>
+             {#if displaySystem === 'dnd5e'}
+               <span class="tag defense">AC: {10 + armor.defense}</span>
+             {:else if displaySystem === 'ironarachne' && item.combatProfile}
+               <span class="tag defense">Defense: {item.combatProfile.defense}</span>
+             {:else}
+               <span class="tag defense">Defense: {armor.defense}</span>
+             {/if}
           {/if}
           <span class="tag value">Value: {valueToString(item.value, EQUIPMENT_CURRENCY)}</span>
           <span class="tag weight">Weight: {item.weight.toFixed(1)} kg ({kgToPounds(item.weight).toFixed(1)} lbs)</span>

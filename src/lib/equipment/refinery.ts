@@ -46,6 +46,10 @@ export function applyRefinement(item: Item, refinement: Refinement): Item {
           } else {
             weapon.damage = `${weapon.damage}+${bonus}`;
           }
+
+          if (newItem.combatProfile) {
+            newItem.combatProfile.power += bonus * 10;
+          }
         }
       }
     } else if (newItem.itemMajorType === 'armor') {
@@ -54,6 +58,9 @@ export function applyRefinement(item: Item, refinement: Refinement): Item {
         const defenseBonus = Number(refinement.statOffsets.defense);
         if (!isNaN(defenseBonus)) {
           armor.defense += defenseBonus;
+          if (newItem.combatProfile) {
+            newItem.combatProfile.defense += defenseBonus * 3;
+          }
         }
       }
     }
