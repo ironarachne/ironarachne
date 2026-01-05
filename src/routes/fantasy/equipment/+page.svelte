@@ -1,16 +1,22 @@
 <script lang="ts">
-  import * as Currency from '$lib/currency';
+  import { valueToString } from '$lib/currency';
+  import { STANDARD_FANTASY, HISTORICAL_BRITISH } from '$lib/currency/systems';
   import * as FantasyEquipmentList from '$lib/equipment/fantasylist';
 
   let currency = $state('D&D currency');
   let equipmentLists = FantasyEquipmentList.all();
 
+  const DND_CURRENCY = {
+    ...STANDARD_FANTASY,
+    denominations: STANDARD_FANTASY.denominations.filter((d) => d.name !== 'electrum' && d.name !== 'platinum'),
+  };
+
   function convertDNDCost(cost: number) {
-    return Currency.convertCopper(cost, false, false);
+    return valueToString(cost, DND_CURRENCY);
   }
 
   function convertEnglishCost(cost: number) {
-    return Currency.convertFarthings(cost);
+    return valueToString(cost * 0.25, HISTORICAL_BRITISH);
   }
 </script>
 

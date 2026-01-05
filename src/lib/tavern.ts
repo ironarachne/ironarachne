@@ -1,8 +1,14 @@
 import * as RNG from '@ironarachne/rng';
 import * as Drink from './cuisine/drink.js';
 import * as Food from './cuisine/food.js';
-import * as Currency from './currency.js';
+import { valueToString } from '$lib/currency';
+import { STANDARD_FANTASY } from '$lib/currency/systems';
 import * as Dice from './dice.js';
+
+const TAVERN_CURRENCY = {
+  ...STANDARD_FANTASY,
+  denominations: STANDARD_FANTASY.denominations.filter((d) => d.name !== 'electrum' && d.name !== 'platinum'),
+};
 
 export class Tavern {
   name: string;
@@ -82,7 +88,7 @@ function randomDrinks() {
   for (let i = 0; i < numberOfItems; i++) {
     const drink = Drink.generateDrink();
 
-    const cost = Currency.convertCopper(drink.cost, false, false);
+    const cost = valueToString(drink.cost, TAVERN_CURRENCY);
 
     const drinkDescription = `${drink.description} (cost: ${cost})`;
 
@@ -101,7 +107,7 @@ function randomFood() {
     const quality = Dice.roll('2d6');
 
     const dish = Food.generateDish();
-    const cost = Currency.convertCopper(quality, false, false);
+    const cost = valueToString(quality, TAVERN_CURRENCY);
 
     const foodDescription = `${dish} (cost: ${cost})`;
 

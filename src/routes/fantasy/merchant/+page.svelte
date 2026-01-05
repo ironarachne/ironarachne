@@ -1,5 +1,6 @@
 <script lang="ts">
-  import * as Currency from '$lib/currency';
+  import { valueToString } from '$lib/currency';
+  import { STANDARD_FANTASY } from '$lib/currency/systems';
   import * as Merchant from '$lib/merchant';
   import * as RNG from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
@@ -8,6 +9,11 @@
   let valueThreshold = $state(50);
   let categories = ['armor', 'clothing', 'general', 'weapon'];
   let merchant = $state(Merchant.generate('general', 50));
+
+  const MERCHANT_CURRENCY = {
+    ...STANDARD_FANTASY,
+    denominations: STANDARD_FANTASY.denominations.filter((d) => d.name !== 'electrum' && d.name !== 'platinum'),
+  };
   let seed = $state(RNG.randomString(13));
   let lockSeed = false;
 
@@ -72,7 +78,7 @@
     <p>{Words.capitalize(item.description)}.</p>
     <p>
       <strong>Cost:</strong>
-      {Currency.convertCopper(Math.floor(item.value * merchant.priceVariance), false, false, false)}
+      {valueToString(Math.floor(item.value * merchant.priceVariance), MERCHANT_CURRENCY, false)}
     </p>
   {/each}
 </section>

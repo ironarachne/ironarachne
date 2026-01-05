@@ -1,3 +1,5 @@
+import type { Element, MagicSphere, MagicIntent } from '../magic';
+
 export type Armor = Item & {
   defense: number; // e.g., AC bonus
   armorType: ArmorCategory;
@@ -159,4 +161,39 @@ export type WeaponType = {
   range?: number;
   hands: number;
   description: string;
+};
+
+export type Refinement = {
+  name: string;
+  description: string;
+  weightMultiplier?: number;
+  valueMultiplier?: number;
+  statOffsets?: Record<string, number | string>;
+  tagsAdded?: string[];
+  tagsRequired?: string[];
+  tagsExcluded?: string[];
+};
+
+export type Enchantment = {
+  name: string;
+  description: string;
+  elements: Element[];
+  spheres: MagicSphere[];
+  intent: MagicIntent;
+  magnitude: number;
+  valueMultiplier?: number;
+  valueAdder?: number;
+  statOffsets?: Record<string, number | string>;
+  tagsAdded?: string[];
+  tagsRequired?: string[];
+  tagsExcluded?: string[];
+};
+
+export type Decoration = {
+  name: string;
+  description: string;
+  valueMultiplier?: number;
+  tagsAdded?: string[];
+  tagsRequired?: string[];
+  tagsExcluded?: string[];
 };

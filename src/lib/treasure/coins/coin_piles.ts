@@ -1,5 +1,6 @@
 import { addItemToContainer, getVolume, type Container } from '$lib/equipment';
-import type { CoinGenerationConfig, CoinSystem, PileOfCoins } from './coin_types';
+import type { CoinGenerationConfig, PileOfCoins } from './coin_types';
+import type { CurrencySystem } from '$lib/currency';
 import { RNG } from '@ironarachne/rng';
 import { getDefaultCoinSystem } from './coins';
 

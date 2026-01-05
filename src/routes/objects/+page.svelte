@@ -8,6 +8,7 @@
   <nav>
     <a href="/drug">Cyberpunk Drug</a>
     <a href="/fantasy/equipment">Fantasy Equipment Lists</a>
+    <a href="/fantasy/equipment-generator">Fantasy Equipment</a>
     <a href="/fantasy/weapon">Fantasy Weapon</a>
     <a href="/fantasy/treasure-hoard">Fantasy Treasure Hoard</a>
     <a href="/spooky-ship">Spooky Starship</a>
