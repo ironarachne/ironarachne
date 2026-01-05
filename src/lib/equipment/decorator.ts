@@ -15,6 +15,7 @@ export function applyDecoration(item: Item, decoration: Decoration): Item {
   // Update name - decorations usually go before the name, but after refinements/materials?
   // Let's just prepend for now. "Jeweled Iron Sword"
   newItem.name = `${decoration.name} ${newItem.name}`;
+  newItem.decoration = decoration;
 
   // Update value
   if (decoration.valueMultiplier) {

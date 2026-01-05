@@ -106,6 +106,10 @@ export type Item = {
   properties: string[];
   containerId?: string; // The ID of the container holding this item
   combatProfile?: CombatProfile;
+  material?: Material;
+  refinement?: Refinement;
+  enchantment?: Enchantment;
+  decoration?: Decoration;
 };
 
 export type ItemValue = number; // Monetary value in copper coins

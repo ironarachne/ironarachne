@@ -13,6 +13,7 @@
   import { applyRefinement, getRandomRefinement } from '$lib/equipment/refinery';
   import { applyEnchantment, getRandomEnchantment } from '$lib/equipment/enchanter';
   import { applyDecoration, getRandomDecoration } from '$lib/equipment/decorator';
+  import { generateDescription } from '$lib/equipment/descriptor';
   import { kgToPounds } from '$lib/measurements';
   import { valueToString } from '$lib/currency';
   import { STANDARD_FANTASY } from '$lib/currency/systems';
@@ -163,6 +164,7 @@
     }
 
     item.value = roundValue(item.value);
+    item.description = generateDescription(item);
 
     return item;
   }
@@ -280,7 +282,7 @@
              {/if}
           {/if}
           <span class="tag value">Value: {valueToString(item.value, EQUIPMENT_CURRENCY)}</span>
-          <span class="tag weight">Weight: {item.weight.toFixed(1)} kg ({kgToPounds(item.weight).toFixed(1)} lbs)</span>
+          <span class="tag weight">Weight: {kgToPounds(item.weight).toFixed(1)} lbs</span>
         </div>
         {#if item.properties && item.properties.length > 0}
           <div class="tags">

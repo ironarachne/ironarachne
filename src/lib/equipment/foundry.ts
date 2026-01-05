@@ -13,6 +13,7 @@ export function applyMaterial(item: Item, material: Material): Item {
   const newItem = structuredClone(item);
 
   newItem.name = `${material.name} ${item.name}`;
+  newItem.material = material;
   newItem.weight = item.weight * material.weightMultiplier;
   newItem.value = Math.floor(item.value * material.valueMultiplier);
   newItem.densityCategory = material.densityCategory;

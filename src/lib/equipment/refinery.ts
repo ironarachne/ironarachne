@@ -14,6 +14,7 @@ export function applyRefinement(item: Item, refinement: Refinement): Item {
 
   // Update name
   newItem.name = `${refinement.name} ${newItem.name}`;
+  newItem.refinement = refinement;
 
   // Update weight
   if (refinement.weightMultiplier) {

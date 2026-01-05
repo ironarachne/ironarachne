@@ -14,6 +14,7 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
 
   // Update name
   newItem.name = `${enchantment.name} ${newItem.name}`;
+  newItem.enchantment = enchantment;
 
   // Update value
   if (enchantment.valueMultiplier) {

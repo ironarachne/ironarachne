@@ -1,35 +1,38 @@
-export class Descriptor {
-  description: string;
-  objectTypes: string[];
-  tags: string[];
+import type { Item } from './equipment_types';
 
-  constructor(description: string, objectTypes: string[], tags: any[]) {
-    this.description = description;
-    this.objectTypes = objectTypes;
-    this.tags = tags;
-  }
-}
+/**
+ * Generates a composite description for an item based on its components.
+ *
+ * @param item The item to generate a description for
+ * @returns A string containing the full description
+ */
+export function generateDescription(item: Item): string {
+  const parts: string[] = [];
 
-export function getDescriptorsMatchingType(descriptors: Descriptor[], objectType: string) {
-  const result = [];
+  // Start with the base description
+  // "A [name]. [Description]"
+  // But item.name is already "Flaming Sharp Iron Longsword"
+  // And item.description is "A long blade..."
 
-  for (let i = 0; i < descriptors.length; i++) {
-    if (descriptors[i].objectTypes.includes(objectType)) {
-      result.push(descriptors[i]);
-    }
-  }
-
-  return result;
-}
-
-export function getDescriptorsMatchingTag(descriptors: Descriptor[], tag: string) {
-  const result = [];
-
-  for (let i = 0; i < descriptors.length; i++) {
-    if (descriptors[i].tags.includes(tag)) {
-      result.push(descriptors[i]);
-    }
+  // Let's try to make it flow.
+  // "This is a [name]. [Base Description]"
+  parts.push(`This is a ${item.name.toLowerCase()}.`);
+  if (item.description) {
+    parts.push(item.description);
   }
 
-  return result;
+  if (item.refinement && item.refinement.description) {
+    parts.push(item.refinement.description);
+  }
+
+  if (item.decoration && item.decoration.description) {
+    parts.push(item.decoration.description);
+  }
+
+  if (item.enchantment && item.enchantment.description) {
+    parts.push(item.enchantment.description);
+  }
+
+  return parts.join(' ');
 }
+
