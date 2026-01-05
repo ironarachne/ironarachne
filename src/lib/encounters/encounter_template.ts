@@ -1,4 +1,4 @@
-import type EncounterGroupTemplate from "./encounter_group_template.js";
+import type EncounterGroupTemplate from './encounter_group_template.js';
 
 export default interface EncounterTemplate {
   name: string;

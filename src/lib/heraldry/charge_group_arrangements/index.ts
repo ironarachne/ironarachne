@@ -1,23 +1,19 @@
-import * as RNG from "@ironarachne/rng";
-import { convert } from "xmlbuilder2";
-import { fourChargesHorizontalCenterArrangement } from "./four_charges_horizontal_center";
-import { fourChargesTwoAndTwoArrangement } from "./four_charges_two_and_two";
-import { fourChargesVerticalCenterArrangement } from "./four_charges_vertical_center";
-import { singleChargeCenterArrangement } from "./single_charge_center";
-import { threeChargesHorizontalCenterArrangement } from "./three_charges_horizontal_center";
-import { threeChargesTwoAndOneArrangement } from "./three_charges_two_and_one";
-import { threeChargesVerticalCenterArrangement } from "./three_charges_vertical_center";
-import { twoChargesHorizontalCenterArrangement } from "./two_charges_horizontal_center";
+import * as RNG from '@ironarachne/rng';
+import { convert } from 'xmlbuilder2';
+import { fourChargesHorizontalCenterArrangement } from './four_charges_horizontal_center';
+import { fourChargesTwoAndTwoArrangement } from './four_charges_two_and_two';
+import { fourChargesVerticalCenterArrangement } from './four_charges_vertical_center';
+import { singleChargeCenterArrangement } from './single_charge_center';
+import { threeChargesHorizontalCenterArrangement } from './three_charges_horizontal_center';
+import { threeChargesTwoAndOneArrangement } from './three_charges_two_and_one';
+import { threeChargesVerticalCenterArrangement } from './three_charges_vertical_center';
+import { twoChargesHorizontalCenterArrangement } from './two_charges_horizontal_center';
 
 export type ChargeGroupArrangement = {
   name: string;
   numberOfCharges: number;
   blazonPattern: string;
-  renderSVG: (
-    chargeSVGString: string,
-    contextWidth: number,
-    contextHeight: number,
-  ) => string;
+  renderSVG: (chargeSVGString: string, contextWidth: number, contextHeight: number) => string;
 };
 
 export function getAllChargeArrangements(): ChargeGroupArrangement[] {
@@ -42,14 +38,10 @@ export function byName(name: string): ChargeGroupArrangement {
     }
   }
 
-  throw new Error(
-    `failed to find a charge group arrangement with name "${name}"`,
-  );
+  throw new Error(`failed to find a charge group arrangement with name "${name}"`);
 }
 
-export function randomByNumber(
-  numberOfCharges: number,
-): ChargeGroupArrangement {
+export function randomByNumber(numberOfCharges: number): ChargeGroupArrangement {
   const allArrangements = getAllChargeArrangements();
 
   let options = [];
@@ -61,9 +53,7 @@ export function randomByNumber(
   }
 
   if (options.length === 0) {
-    throw new Error(
-      `failed to find a charge group arrangement with ${numberOfCharges} charges`,
-    );
+    throw new Error(`failed to find a charge group arrangement with ${numberOfCharges} charges`);
   }
 
   return RNG.item(options);

@@ -1,14 +1,11 @@
-import type * as RNG from "@ironarachne/rng";
-import * as Geometry from "$lib/geometry/geometry.js";
-import type Room from "./room.js";
-import RoomGenerator from "./roomgenerator.js";
-import RoomGeneratorConfig from "./roomgeneratorconfig.js";
-import type RoomTheme from "./themes/theme.js";
+import type * as RNG from '@ironarachne/rng';
+import * as Geometry from '$lib/geometry/geometry.js';
+import type Room from './room.js';
+import RoomGenerator from './roomgenerator.js';
+import RoomGeneratorConfig from './roomgeneratorconfig.js';
+import type RoomTheme from './themes/theme.js';
 
-export function distanceToNearestOtherRoomTile(
-  room: Room,
-  rooms: Room[],
-): number {
+export function distanceToNearestOtherRoomTile(room: Room, rooms: Room[]): number {
   let distance = 10000000;
 
   for (let i = 0; i < rooms.length; i++) {
@@ -103,7 +100,7 @@ export function getPlaceableRoom(
   mapHeight: number,
   theme: RoomTheme,
   rooms: Room[],
-  rng: RNG.RNG
+  rng: RNG.RNG,
 ): Room | null {
   let generation = true;
   let maxX = mapWidth - 3;
@@ -151,11 +148,7 @@ export function getPlaceableRoom(
   return room;
 }
 
-export function isRoomInRange(
-  range: number,
-  room: Room,
-  rooms: Room[],
-): boolean {
+export function isRoomInRange(range: number, room: Room, rooms: Room[]): boolean {
   if (distanceToNearestOtherRoomTile(room, rooms) === range) {
     return true;
   }

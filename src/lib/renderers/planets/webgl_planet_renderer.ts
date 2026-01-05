@@ -1,18 +1,18 @@
-import * as THREE from "three";
-import * as PlanetShaders from "$lib/shaders/planets/planets";
-import { RNG } from "@ironarachne/rng";
-import SimpleVertexShader from "$lib/shaders/simple.vert";
-import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
+import * as THREE from 'three';
+import * as PlanetShaders from '$lib/shaders/planets/planets';
+import { RNG } from '@ironarachne/rng';
+import SimpleVertexShader from '$lib/shaders/simple.vert';
+import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
 
 export function render(
   document: Document,
   planet: AstronomicalBody,
   width: number,
   height: number,
-  seed: string
+  seed: string,
 ): string {
   const rng = new RNG(seed);
-  const canvas = document.createElement("canvas");
+  const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
 
@@ -24,12 +24,10 @@ export function render(
   camera.position.set(0, 0, 1);
 
   if (canvas === null) {
-    throw new Error("Canvas not found");
+    throw new Error('Canvas not found');
   }
 
-  const planetShader = PlanetShaders.getFragmentShaderByName(
-    planet.classification,
-  );
+  const planetShader = PlanetShaders.getFragmentShaderByName(planet.classification);
 
   const colors = getRandomGasGiantColorSet(rng.randomString(13));
 
@@ -58,7 +56,7 @@ export function render(
   scene.add(plane);
 
   renderer.render(scene, camera);
-  const data = renderer.domElement.toDataURL("image/png");
+  const data = renderer.domElement.toDataURL('image/png');
 
   material.dispose();
   geometry.dispose();
@@ -68,27 +66,11 @@ export function render(
   return data;
 }
 
-function getRandomGasGiantColorSet(seed: string): [
-  THREE.Vector3,
-  THREE.Vector3,
-  THREE.Vector3,
-] {
+function getRandomGasGiantColorSet(seed: string): [THREE.Vector3, THREE.Vector3, THREE.Vector3] {
   const rng = new RNG(seed);
-  const color1 = new THREE.Vector3(
-    rng.float(0.1, 0.8),
-    rng.float(0.1, 0.8),
-    rng.float(0.1, 0.8),
-  );
-  const color2 = new THREE.Vector3(
-    rng.float(0.1, 0.8),
-    rng.float(0.1, 0.8),
-    rng.float(0.1, 0.8),
-  );
-  const color3 = new THREE.Vector3(
-    rng.float(0.1, 0.8),
-    rng.float(0.1, 0.8),
-    rng.float(0.1, 0.8),
-  );
+  const color1 = new THREE.Vector3(rng.float(0.1, 0.8), rng.float(0.1, 0.8), rng.float(0.1, 0.8));
+  const color2 = new THREE.Vector3(rng.float(0.1, 0.8), rng.float(0.1, 0.8), rng.float(0.1, 0.8));
+  const color3 = new THREE.Vector3(rng.float(0.1, 0.8), rng.float(0.1, 0.8), rng.float(0.1, 0.8));
 
   return [color1, color2, color3];
 }

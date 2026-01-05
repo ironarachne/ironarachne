@@ -1,16 +1,16 @@
-import type { DCCCharacter, DCCLuckyRoll } from "./dcc_types";
+import type { DCCCharacter, DCCLuckyRoll } from './dcc_types';
 
 export function all(): DCCLuckyRoll[] {
   return [
     {
-      name: "",
-      description: "",
+      name: '',
+      description: '',
       modifier: 0,
       apply: (character: DCCCharacter): DCCCharacter => character,
     },
     {
-      name: "Harsh winter",
-      description: "All attack rolls",
+      name: 'Harsh winter',
+      description: 'All attack rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         character.attackModifier += this.modifier;
@@ -18,13 +18,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "The bull",
-      description: "Melee attack rolls",
+      name: 'The bull',
+      description: 'Melee attack rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -32,13 +32,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Fortunate date",
-      description: "Missile fire attack rolls",
+      name: 'Fortunate date',
+      description: 'Missile fire attack rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -46,13 +46,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Raised by wolves",
-      description: "Unarmed attack rolls",
+      name: 'Raised by wolves',
+      description: 'Unarmed attack rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -60,13 +60,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Conceived on horseback",
-      description: "Mounted attack rolls",
+      name: 'Conceived on horseback',
+      description: 'Mounted attack rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -74,13 +74,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Born on the battlefield",
-      description: "Damage rolls",
+      name: 'Born on the battlefield',
+      description: 'Damage rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -88,13 +88,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Path of the bear",
-      description: "Melee damage rolls",
+      name: 'Path of the bear',
+      description: 'Melee damage rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -102,13 +102,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Hawkeye",
-      description: "Missile fire damage rolls",
+      name: 'Hawkeye',
+      description: 'Missile fire damage rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -116,13 +116,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Pack hunter",
-      description: "Attack and damage rolls for 0-level starting weapons",
+      name: 'Pack hunter',
+      description: 'Attack and damage rolls for 0-level starting weapons',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -130,13 +130,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Born under the loom",
-      description: "Skill checks (including thief skills)",
+      name: 'Born under the loom',
+      description: 'Skill checks (including thief skills)',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -145,12 +145,12 @@ export function all(): DCCLuckyRoll[] {
     },
     {
       name: "Fox's cunning",
-      description: "Find/disable traps",
+      description: 'Find/disable traps',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -158,13 +158,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Four-leafed clover",
-      description: "Find secret doors",
+      name: 'Four-leafed clover',
+      description: 'Find secret doors',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -172,13 +172,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Seventh son",
-      description: "Spell checks",
+      name: 'Seventh son',
+      description: 'Spell checks',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -186,13 +186,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "The raging storm",
-      description: "Spell damage",
+      name: 'The raging storm',
+      description: 'Spell damage',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -200,13 +200,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Righteous heart",
-      description: "Turn unholy checks",
+      name: 'Righteous heart',
+      description: 'Turn unholy checks',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -214,13 +214,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Survived the plague",
-      description: "Magical healing",
+      name: 'Survived the plague',
+      description: 'Magical healing',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -228,13 +228,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Lucky sign",
-      description: "Saving throws",
+      name: 'Lucky sign',
+      description: 'Saving throws',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier} (taken into account)`;
         character.specialRules.push(rule);
@@ -246,13 +246,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Guardian angel",
-      description: "Saving throws to escape traps",
+      name: 'Guardian angel',
+      description: 'Saving throws to escape traps',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -260,13 +260,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Survived a spider bite",
-      description: "Saving throws against poison",
+      name: 'Survived a spider bite',
+      description: 'Saving throws against poison',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -274,13 +274,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Struck by lightning",
-      description: "Reflex saving throws",
+      name: 'Struck by lightning',
+      description: 'Reflex saving throws',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier} (taken into account)`;
         character.specialRules.push(rule);
@@ -289,13 +289,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Lived through famine",
-      description: "Fortitude saving throws",
+      name: 'Lived through famine',
+      description: 'Fortitude saving throws',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier} (taken into account)`;
         character.specialRules.push(rule);
@@ -304,13 +304,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Resisted temptation",
-      description: "Willpower saving throws",
+      name: 'Resisted temptation',
+      description: 'Willpower saving throws',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier} (taken into account)`;
         character.specialRules.push(rule);
@@ -319,13 +319,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Charmed house",
-      description: "Armor Class",
+      name: 'Charmed house',
+      description: 'Armor Class',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier} (taken into account)`;
         character.specialRules.push(rule);
@@ -334,13 +334,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Speed of the cobra",
-      description: "Initiative",
+      name: 'Speed of the cobra',
+      description: 'Initiative',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -348,13 +348,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Bountiful harvest",
-      description: "Hit points (applies at each level)",
+      name: 'Bountiful harvest',
+      description: 'Hit points (applies at each level)',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier} (taken into account)`;
         character.specialRules.push(rule);
@@ -364,12 +364,12 @@ export function all(): DCCLuckyRoll[] {
     },
     {
       name: "Warrior's arm",
-      description: "Critical hit tables",
+      description: 'Critical hit tables',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -377,13 +377,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Unholy house",
-      description: "Corruption rolls",
+      name: 'Unholy house',
+      description: 'Corruption rolls',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -391,13 +391,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "The Broken Star",
-      description: "Fumbles",
+      name: 'The Broken Star',
+      description: 'Fumbles',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier}`;
         character.specialRules.push(rule);
@@ -405,13 +405,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Birdsong",
-      description: "Number of languages",
+      name: 'Birdsong',
+      description: 'Number of languages',
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier} (taken into account)`;
         character.specialRules.push(rule);
@@ -423,13 +423,13 @@ export function all(): DCCLuckyRoll[] {
       },
     },
     {
-      name: "Wild child",
+      name: 'Wild child',
       description: "Speed (each +1/-1 = +5'/-5' speed)",
       modifier: 0,
       apply: function (this: DCCLuckyRoll, character: DCCCharacter): DCCCharacter {
         let rule = `${this.description}: `;
         if (this.modifier > -1) {
-          rule += "+";
+          rule += '+';
         }
         rule += `${this.modifier} (taken into account)`;
         character.specialRules.push(rule);

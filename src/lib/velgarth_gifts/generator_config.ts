@@ -1,4 +1,4 @@
-import type GiftPossibility from "./gift_possibility";
+import type GiftPossibility from './gift_possibility';
 
 export default interface GiftGeneratorConfig {
   possibilities: GiftPossibility[];

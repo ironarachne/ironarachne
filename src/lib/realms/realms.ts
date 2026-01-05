@@ -1,15 +1,15 @@
-import type Character from "$lib/characters/character.js";
-import * as Characters from "$lib/characters/characters.js";
-import * as PremadeConfigs from "$lib/characters/premade_configs.js";
-import { generateHeraldry } from "$lib/heraldry/generator.js";
-import * as Names from "$lib/names/index.js";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import type Realm from "./realm.js";
-import type RealmGeneratorConfig from "./realm_generator_config.js";
-import type RealmType from "./realm_type.js";
-import * as RealmTypes from "./realm_types.js";
-import { getDefaultHeraldryGeneratorConfig } from "$lib/heraldry/generatorconfig.js";
+import type Character from '$lib/characters/character.js';
+import * as Characters from '$lib/characters/characters.js';
+import * as PremadeConfigs from '$lib/characters/premade_configs.js';
+import { generateHeraldry } from '$lib/heraldry/generator.js';
+import * as Names from '$lib/names/index.js';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import type Realm from './realm.js';
+import type RealmGeneratorConfig from './realm_generator_config.js';
+import type RealmType from './realm_type.js';
+import * as RealmTypes from './realm_types.js';
+import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 
 export function generate(config: RealmGeneratorConfig): Realm {
   let realmType = config.rng.weighted(
@@ -19,7 +19,7 @@ export function generate(config: RealmGeneratorConfig): Realm {
   );
 
   if (config.nameGeneratorSet.country === null) {
-    throw new Error("RealmGenerator requires a country name generator set.");
+    throw new Error('RealmGenerator requires a country name generator set.');
   }
 
   let name = config.nameGeneratorSet.country.generate(1)[0];
@@ -30,7 +30,7 @@ export function generate(config: RealmGeneratorConfig): Realm {
   return {
     name: name,
     adjective: name,
-    description: "",
+    description: '',
     heraldry: heraldry,
     authority: authority,
     grantedTitle: realmType.grantedTitle,
@@ -44,7 +44,7 @@ export function generate(config: RealmGeneratorConfig): Realm {
 export function getDefaultConfig(): RealmGeneratorConfig {
   const rng = new RNG.RNG(Date.now().toString());
   return {
-    nameGeneratorSet: Names.getFantasyNameGeneratorSet("human", rng),
+    nameGeneratorSet: Names.getFantasyNameGeneratorSet('human', rng),
     realmTypes: RealmTypes.all(),
     mapWidth: 40,
     mapHeight: 30,
@@ -56,11 +56,11 @@ export function getDefaultConfig(): RealmGeneratorConfig {
 function randomAuthority(
   realmType: RealmType,
   nameGeneratorSet: Names.NameGeneratorSet,
-  rng: RNG.RNG
+  rng: RNG.RNG,
 ): Character {
   let charGenConfig = PremadeConfigs.getFantasy();
   charGenConfig.rng = rng;
-  charGenConfig.ageCategoryNames = ["adult"];
+  charGenConfig.ageCategoryNames = ['adult'];
 
   charGenConfig.familyNameGenerator = nameGeneratorSet.family;
   charGenConfig.femaleNameGenerator = nameGeneratorSet.female;

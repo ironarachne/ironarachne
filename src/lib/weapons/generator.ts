@@ -1,8 +1,8 @@
-import * as MUN from "@ironarachne/made-up-names";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import WeaponGeneratorConfig from "./config";
-import type { WeaponType, WeaponComponent, Weapon } from "./weapons";
+import * as MUN from '@ironarachne/made-up-names';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import WeaponGeneratorConfig from './config';
+import type { WeaponType, WeaponComponent, Weapon } from './weapons';
 
 export default class WeaponGenerator {
   config: WeaponGeneratorConfig;
@@ -27,11 +27,11 @@ export default class WeaponGenerator {
     const nameGenerator = MUN.getModelNumberNameGenerator(this.rng);
     const weapon: Weapon = {
       name: `${nameGenerator.generate(1)[0]} ${weaponType.name}`,
-      maker: "",
+      maker: '',
       damage: weaponType.damageType,
       cosmetics: this.randomCosmetics(weaponType),
       effects: this.randomEffects(weaponType),
-      description: "",
+      description: '',
     };
 
     weapon.description = this.describe(weapon, weaponType);

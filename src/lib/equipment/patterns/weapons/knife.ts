@@ -1,10 +1,10 @@
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
-import Component from "../../components/component.js";
-import * as Components from "../../components/components.js";
-import MeleeWeapon from "../../weapons/melee.js";
-import type Pattern from "../pattern.js";
+import Component from '../../components/component.js';
+import * as Components from '../../components/components.js';
+import MeleeWeapon from '../../weapons/melee.js';
+import type Pattern from '../pattern.js';
 
 export default class KnifePattern implements Pattern {
   name: string;
@@ -15,43 +15,39 @@ export default class KnifePattern implements Pattern {
 
   constructor(name: string, hands: number, damage: string, value: number) {
     this.name = name;
-    this.tags = [name, "knife", "melee", "simple weapon", "weapon"];
+    this.tags = [name, 'knife', 'melee', 'simple weapon', 'weapon'];
     this.hands = hands;
     this.damage = damage;
     this.baseValue = value;
   }
 
   complete(componentOptions: Component[], quality: number): MeleeWeapon {
-    let blade = RNG.item(
-      Components.withCategory("hard metal", componentOptions),
-    );
-    let hilt = RNG.item(
-      Components.withCategory("hard metal", componentOptions),
-    );
-    let handle = RNG.item(Components.withCategory("wood", componentOptions));
+    let blade = RNG.item(Components.withCategory('hard metal', componentOptions));
+    let hilt = RNG.item(Components.withCategory('hard metal', componentOptions));
+    let handle = RNG.item(Components.withCategory('wood', componentOptions));
 
     let value = this.baseValue + blade.value + hilt.value + handle.value;
 
     let cosmeticBlade = RNG.item([
-      "serrated",
-      "recently sharpened",
-      "curved",
-      "straight",
-      "single-edged",
-      "wide",
-      "grooved",
+      'serrated',
+      'recently sharpened',
+      'curved',
+      'straight',
+      'single-edged',
+      'wide',
+      'grooved',
     ]);
 
-    let cosmeticHandle = RNG.item(["carved", "padded", "embossed"]);
+    let cosmeticHandle = RNG.item(['carved', 'padded', 'embossed']);
 
-    let cosmeticHilt = RNG.item(["gem-studded", "spiked", "curved", "inlaid"]);
+    let cosmeticHilt = RNG.item(['gem-studded', 'spiked', 'curved', 'inlaid']);
 
     if (value < 2000) {
-      cosmeticBlade = RNG.item(["simple", "straight", "worn"]);
+      cosmeticBlade = RNG.item(['simple', 'straight', 'worn']);
 
-      cosmeticHandle = RNG.item(["rough", "worn"]);
+      cosmeticHandle = RNG.item(['rough', 'worn']);
 
-      cosmeticHilt = RNG.item(["simple", "unadorned", "straight"]);
+      cosmeticHilt = RNG.item(['simple', 'unadorned', 'straight']);
     }
 
     let description = `${Words.article(this.name)} ${this.name} with `;
@@ -74,47 +70,22 @@ export default class KnifePattern implements Pattern {
     if (quality > 1 && RNG.int(1, 100) > 70) {
       description += RNG.item([
         `, with a ` +
-          RNG.item([
-            "yellow",
-            "blue",
-            "red",
-            "purple",
-            "green",
-            "grey",
-            "white",
-            "black",
-          ]) +
+          RNG.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
           ` ribbon ` +
-          RNG.item(["wrapped around it", "trailing from it", "tied to it"]),
+          RNG.item(['wrapped around it', 'trailing from it', 'tied to it']),
         `, with a ${RNG.item([
-          "leather thong",
-          RNG.item(["gold", "brass", "silver", "iron"]) + " chain",
+          'leather thong',
+          RNG.item(['gold', 'brass', 'silver', 'iron']) + ' chain',
         ])} attached to the pommel`,
         `, exquisitely crafted`,
-        ` inlaid with ${RNG.item(["gold", "silver", "copper", "brass"])}`,
+        ` inlaid with ${RNG.item(['gold', 'silver', 'copper', 'brass'])}`,
       ]);
     }
 
     let name = `${blade.descriptor} ${this.name}`;
 
-    let tags = [
-      name,
-      this.name,
-      "knife",
-      "melee",
-      "simple weapon",
-      "bladed weapon",
-      "weapon",
-    ];
+    let tags = [name, this.name, 'knife', 'melee', 'simple weapon', 'bladed weapon', 'weapon'];
 
-    return new MeleeWeapon(
-      name,
-      description,
-      this.damage,
-      this.hands,
-      value,
-      quality,
-      tags,
-    );
+    return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }
 }

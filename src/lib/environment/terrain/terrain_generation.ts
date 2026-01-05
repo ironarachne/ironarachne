@@ -1,16 +1,13 @@
-import type TerrainGeneratorConfig from "./generator_config";
-import type Terrain from "./terrain";
-import * as RNG from "@ironarachne/rng";
+import type TerrainGeneratorConfig from './generator_config';
+import type Terrain from './terrain';
+import * as RNG from '@ironarachne/rng';
 
 export function generate(config: TerrainGeneratorConfig): Terrain {
   // a terrain is meant as a section of the world, with a certain elevation range, relief energy, and landforms
   // this will be used on its own for regions, but can also be used when generating a world or a map
   // sometimes it will be used as the basis for generating neighboring terrains
 
-  const reliefEnergy = config.rng.float(
-    config.reliefEnergyMin,
-    config.reliefEnergyMax,
-  );
+  const reliefEnergy = config.rng.float(config.reliefEnergyMin, config.reliefEnergyMax);
   const baseElevation = config.rng.float(config.elevationMin, config.elevationMax);
   const elevationMin = Math.max(baseElevation - reliefEnergy, -1.0);
   const elevationMax = Math.min(baseElevation + reliefEnergy, 1.0);

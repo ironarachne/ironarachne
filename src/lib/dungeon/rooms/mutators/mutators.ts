@@ -1,49 +1,46 @@
-import type * as RNG from "@ironarachne/rng";
-import RoomFeatureGenerator from "../features/featuregenerator.js";
-import type Room from "../room.js";
-import RoomMutator from "./mutator.js";
+import type * as RNG from '@ironarachne/rng';
+import RoomFeatureGenerator from '../features/featuregenerator.js';
+import type Room from '../room.js';
+import RoomMutator from './mutator.js';
 
 export function all(rng: RNG.RNG): RoomMutator[] {
   return [
     new RoomMutator(
-      "brazier",
+      'brazier',
       (room: Room) => {
         let featureGenerator = new RoomFeatureGenerator(
-          "brazier",
+          'brazier',
           [
-            "There is a large lit brazier in the middle of the room.",
-            "There are lit braziers around the room here.",
+            'There is a large lit brazier in the middle of the room.',
+            'There are lit braziers around the room here.',
           ],
           [],
           false,
-          rng
+          rng,
         );
         room.features.push(featureGenerator.generate());
         room.lightLevel += 2;
 
         return room;
       },
-      ["light"],
+      ['light'],
     ),
     new RoomMutator(
-      "torches",
+      'torches',
       (room: Room) => {
         let featureGenerator = new RoomFeatureGenerator(
-          "torches",
-          [
-            "Torches line the walls.",
-            "A few torches sit in sconces on the walls.",
-          ],
+          'torches',
+          ['Torches line the walls.', 'A few torches sit in sconces on the walls.'],
           [],
           false,
-          rng
+          rng,
         );
         room.features.push(featureGenerator.generate());
         room.lightLevel += 1;
 
         return room;
       },
-      ["light"],
+      ['light'],
     ),
   ];
 }

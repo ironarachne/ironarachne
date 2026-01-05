@@ -3,10 +3,10 @@ import {
   getGravityFromMassAndRadius,
   getPlanetTemperature,
   type AstronomicalBody,
-} from "../astronomical_bodies";
-import * as MUN from "@ironarachne/made-up-names";
-import * as RNG from "@ironarachne/rng";
-import { getStandardMoonClassifications } from "./moon_classifications";
+} from '../astronomical_bodies';
+import * as MUN from '@ironarachne/made-up-names';
+import * as RNG from '@ironarachne/rng';
+import { getStandardMoonClassifications } from './moon_classifications';
 
 export type MoonClassification = {
   name: string;
@@ -43,17 +43,12 @@ export function generateMoon(config: MoonGenerationConfig): AstronomicalBody {
   const radius_max = (classification.radius_max * config.parent_radius) / 6371; // Scale radius based on Earth's radius
   const mass_min = (classification.mass_min * config.parent_mass) / 5.972; // Scale mass based on Earth's mass
   const mass_max = (classification.mass_max * config.parent_mass) / 5.972; // Scale mass based on Earth's mass
-  const orbital_distance_min =
-    classification.orbital_distance_min * config.parent_orbital_distance; // Scale orbital distance based on parent's distance
-  const orbital_distance_max =
-    classification.orbital_distance_max * config.parent_orbital_distance; // Scale orbital distance based on parent's distance
+  const orbital_distance_min = classification.orbital_distance_min * config.parent_orbital_distance; // Scale orbital distance based on parent's distance
+  const orbital_distance_max = classification.orbital_distance_max * config.parent_orbital_distance; // Scale orbital distance based on parent's distance
 
   const radius = config.rng.float(radius_min, radius_max);
   const mass = config.rng.float(mass_min, mass_max);
-  const orbital_distance = config.rng.float(
-    orbital_distance_min,
-    orbital_distance_max,
-  );
+  const orbital_distance = config.rng.float(orbital_distance_min, orbital_distance_max);
   const orbital_period = config.rng.int(
     classification.orbital_period_min,
     classification.orbital_period_max,
@@ -104,7 +99,7 @@ export function getDefaultMoonGenerationConfig(): MoonGenerationConfig {
 export function getNumberOfMoonsForParent(parent: AstronomicalBody, rng: RNG.RNG): number {
   // This function can be customized based on the parent body's characteristics
   // For simplicity, we return a random number of moons between 1 and 5
-  if (parent.classification.includes("gas giant")) {
+  if (parent.classification.includes('gas giant')) {
     // Gas giants tend to have more moons
     return rng.int(5, 20);
   }

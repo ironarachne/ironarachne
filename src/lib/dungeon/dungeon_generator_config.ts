@@ -1,5 +1,5 @@
-import type { RNG } from "@ironarachne/rng";
-import type Biome from "../environment/biomes/biome.js";
+import type { RNG } from '@ironarachne/rng';
+import type Biome from '../environment/biomes/biome.js';
 
 export default interface DungeonGeneratorConfig {
   possibleBiomes: Biome[];

@@ -1,23 +1,23 @@
-import * as AgeCategories from "$lib/age/age_categories";
-import * as Archetypes from "$lib/archetypes/archetypes";
-import * as Measurements from "$lib/measurements";
-import * as SizeMatrix from "$lib/size/size_matrix.js";
-import * as CommonSpecies from "$lib/species/common";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import type Character from "./character";
-import type CharacterGeneratorConfig from "./character_generator_config";
-import * as PersonalityTraits from "./personality/all_traits";
-import * as Personality from "./personality/personality";
-import type PersonalityGeneratorConfig from "./personality/personality_generator_config";
-import type PersonalityTrait from "./personality/personality_trait";
-import type Title from "./titles/title";
-import * as Titles from "./titles/titles";
-import { getFantasyNameGeneratorSet, type NameGeneratorSet } from "$lib/names";
-import { getGenderFromSet } from "$lib/gender/genders";
+import * as AgeCategories from '$lib/age/age_categories';
+import * as Archetypes from '$lib/archetypes/archetypes';
+import * as Measurements from '$lib/measurements';
+import * as SizeMatrix from '$lib/size/size_matrix.js';
+import * as CommonSpecies from '$lib/species/common';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import type Character from './character';
+import type CharacterGeneratorConfig from './character_generator_config';
+import * as PersonalityTraits from './personality/all_traits';
+import * as Personality from './personality/personality';
+import type PersonalityGeneratorConfig from './personality/personality_generator_config';
+import type PersonalityTrait from './personality/personality_trait';
+import type Title from './titles/title';
+import * as Titles from './titles/titles';
+import { getFantasyNameGeneratorSet, type NameGeneratorSet } from '$lib/names';
+import { getGenderFromSet } from '$lib/gender/genders';
 
 export function describe(character: Character): string {
-  let description = "";
+  let description = '';
 
   const sbj = character.gender.pronouns.subjective;
   const ucSbj = Words.capitalize(sbj);
@@ -66,7 +66,7 @@ export function describeTraits(character: Character): string[] {
 
 export function generate(config: CharacterGeneratorConfig): Character {
   if (config.speciesOptions.length === 0) {
-    throw new Error("No species options provided.");
+    throw new Error('No species options provided.');
   }
 
   const species = config.rng.weighted(
@@ -77,10 +77,7 @@ export function generate(config: CharacterGeneratorConfig): Character {
   const genderName = config.rng.item(config.genderNameOptions);
   const gender = getGenderFromSet(genderName, species.genders);
 
-  const ageCategory = AgeCategories.randomWeighted(
-    config.ageCategoryNames,
-    species.ageCategories,
-  );
+  const ageCategory = AgeCategories.randomWeighted(config.ageCategoryNames, species.ageCategories);
 
   let familyNameGenerator = config.familyNameGenerator;
   let femaleNameGenerator = config.femaleNameGenerator;
@@ -91,7 +88,7 @@ export function generate(config: CharacterGeneratorConfig): Character {
     try {
       speciesNameGeneratorSet = getFantasyNameGeneratorSet(species.name, config.rng);
     } catch (e) {
-      speciesNameGeneratorSet = getFantasyNameGeneratorSet("human", config.rng);
+      speciesNameGeneratorSet = getFantasyNameGeneratorSet('human', config.rng);
     }
 
     familyNameGenerator = speciesNameGeneratorSet.family;
@@ -102,7 +99,7 @@ export function generate(config: CharacterGeneratorConfig): Character {
   let firstNames = [];
   const lastNames = familyNameGenerator.generate(30);
 
-  if (gender.name === "female") {
+  if (gender.name === 'female') {
     firstNames = femaleNameGenerator.generate(30);
   } else {
     firstNames = maleNameGenerator.generate(30);
@@ -115,14 +112,8 @@ export function generate(config: CharacterGeneratorConfig): Character {
     ageCategory.name,
     species.sizeGeneratorConfigMatrix,
   );
-  const height = config.rng.int(
-    sizeGeneratorConfig.minHeight,
-    sizeGeneratorConfig.maxHeight,
-  );
-  const weight = config.rng.int(
-    sizeGeneratorConfig.minWeight,
-    sizeGeneratorConfig.maxWeight,
-  );
+  const height = config.rng.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
+  const weight = config.rng.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
 
   const personalityTraits = getRandomPersonality(config.rng);
   let physicalTraits = CommonSpecies.randomTraits(species, config.rng);
@@ -158,13 +149,13 @@ export function generate(config: CharacterGeneratorConfig): Character {
     weight,
     personalityTraits,
     physicalTraits,
-    description: "",
-    summary: "",
+    description: '',
+    summary: '',
     gender,
     archetype: Archetypes.blank,
     statBlock: null,
     ageCategory,
-    status: "alive",
+    status: 'alive',
     tags: [],
   };
   character.description = describe(character);
@@ -174,15 +165,15 @@ export function generate(config: CharacterGeneratorConfig): Character {
 
 export function getDefaultCharacterGeneratorConfig(): CharacterGeneratorConfig {
   const rng = new RNG.RNG(Date.now());
-  const nameSet = getFantasyNameGeneratorSet("human", rng);
+  const nameSet = getFantasyNameGeneratorSet('human', rng);
 
   return {
     speciesOptions: [],
-    ageCategoryNames: ["adult"],
+    ageCategoryNames: ['adult'],
     familyNameGenerator: nameSet.family,
     femaleNameGenerator: nameSet.female,
     maleNameGenerator: nameSet.male,
-    genderNameOptions: ["female", "male"],
+    genderNameOptions: ['female', 'male'],
     useAdaptiveNames: false,
     physicalTraitOverrides: [],
     rng: rng,
@@ -196,7 +187,7 @@ export function getHonorific(character: Character): string {
     return Titles.getHonorific(character.gender.name, primaryTitle);
   }
 
-  return "";
+  return '';
 }
 
 export function getPrimaryTitle(character: Character): Title | null {
@@ -238,7 +229,7 @@ export function getTitle(character: Character): string {
     return Titles.getTitleForGender(character.gender.name, primaryTitle);
   }
 
-  return "";
+  return '';
 }
 
 export function getTotalThreatLevel(character: Character): number {

@@ -91,12 +91,12 @@ describe('coin_piles', () => {
         silver: 0,
         electrum: 0,
         gold: 1,
-        platinum: 0
+        platinum: 0,
       };
       const result = getSetOfCoinsForValue(1000, proportions, coinSystem);
 
       // 1000 value in gold (100 each) -> 10 gold coins
-      const goldPile = result.find(p => p.denomination === 'gold');
+      const goldPile = result.find((p) => p.denomination === 'gold');
       expect(goldPile).toBeDefined();
       expect(goldPile?.quantity).toBe(10);
     });
@@ -165,8 +165,8 @@ describe('coin_piles', () => {
       const combined = combinePilesOfCoins([pile1, pile2, pile3], coinSystem);
 
       expect(combined).toHaveLength(2);
-      const goldPile = combined.find(p => p.denomination === 'gold');
-      const silverPile = combined.find(p => p.denomination === 'silver');
+      const goldPile = combined.find((p) => p.denomination === 'gold');
+      const silverPile = combined.find((p) => p.denomination === 'silver');
 
       expect(goldPile).toBeDefined();
       expect(goldPile?.quantity).toBe(15);
@@ -182,7 +182,7 @@ describe('coin_piles', () => {
 
   describe('distributeCoins', () => {
     it('should not overfill a container', () => {
-      const containerType = baseContainerTypes.find(c => c.name === 'cloth pouch'); // Small container
+      const containerType = baseContainerTypes.find((c) => c.name === 'cloth pouch'); // Small container
       if (!containerType) throw new Error('Container type not found');
 
       const container = generateContainer('test-container', containerType);
@@ -203,7 +203,7 @@ describe('coin_piles', () => {
     });
 
     it('should fill multiple containers without overfilling', () => {
-      const containerType = baseContainerTypes.find(c => c.name === 'cloth pouch');
+      const containerType = baseContainerTypes.find((c) => c.name === 'cloth pouch');
       if (!containerType) throw new Error('Container type not found');
 
       const container1 = generateContainer('c1', containerType);

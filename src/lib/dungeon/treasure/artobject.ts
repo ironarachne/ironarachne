@@ -1,4 +1,4 @@
-import type Item from "../../equipment/item.js";
+import type Item from '../../equipment/item.js';
 
 export default class ArtObject implements Item {
   name: string;
@@ -8,10 +8,10 @@ export default class ArtObject implements Item {
   tags: string[];
 
   constructor() {
-    this.name = "an art object";
-    this.description = "an art object";
+    this.name = 'an art object';
+    this.description = 'an art object';
     this.value = 10;
     this.quality = 2;
-    this.tags = ["art object"];
+    this.tags = ['art object'];
   }
 }

@@ -1,12 +1,12 @@
-import * as RNG from "@ironarachne/rng";
-import type { Charge } from "./charges/index.js";
-import * as Charges from "./charges/index.js";
-import type { Field } from "./field.js";
-import * as Fields from "./fields.js";
-import type { Tincture } from "./tinctures.js";
-import * as Tinctures from "./tinctures.js";
-import type { Variation } from "./variation.js";
-import * as Variations from "./variations.js";
+import * as RNG from '@ironarachne/rng';
+import type { Charge } from './charges/index.js';
+import * as Charges from './charges/index.js';
+import type { Field } from './field.js';
+import * as Fields from './fields.js';
+import type { Tincture } from './tinctures.js';
+import * as Tinctures from './tinctures.js';
+import type { Variation } from './variation.js';
+import * as Variations from './variations.js';
 
 export type HeraldryGeneratorConfig = {
   chargeCount: number;
@@ -27,9 +27,7 @@ export const DEFAULT_HEIGHT = 660;
 
 // Build a default config. When an RNG is provided, it will be used for chargeCount
 // selection to ensure determinism in tests; otherwise falls back to RNG.item.
-export function getDefaultHeraldryGeneratorConfig(
-  rng?: RNG.RNG,
-): HeraldryGeneratorConfig {
+export function getDefaultHeraldryGeneratorConfig(rng?: RNG.RNG): HeraldryGeneratorConfig {
   if (!rng) {
     rng = new RNG.RNG(Date.now().toString());
   }
@@ -37,7 +35,7 @@ export function getDefaultHeraldryGeneratorConfig(
   return {
     chargeCount: rng.int(1, 3),
     chargeOptions: Charges.all(),
-    chargeTinctures: Tinctures.ofTypes(["metal", "color", "stain"]),
+    chargeTinctures: Tinctures.ofTypes(['metal', 'color', 'stain']),
     fieldOptions: Fields.all(),
     fieldTinctures1: Tinctures.all(),
     fieldTinctures2: Tinctures.all(),

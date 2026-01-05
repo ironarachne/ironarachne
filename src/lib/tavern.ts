@@ -1,8 +1,8 @@
-import * as RNG from "@ironarachne/rng";
-import * as Drink from "./cuisine/drink.js";
-import * as Food from "./cuisine/food.js";
-import * as Currency from "./currency.js";
-import * as Dice from "./dice.js";
+import * as RNG from '@ironarachne/rng';
+import * as Drink from './cuisine/drink.js';
+import * as Food from './cuisine/food.js';
+import * as Currency from './currency.js';
+import * as Dice from './dice.js';
 
 export class Tavern {
   name: string;
@@ -14,7 +14,7 @@ export class Tavern {
     this.name = name;
     this.food = food;
     this.drinks = drinks;
-    this.description = "";
+    this.description = '';
   }
 }
 
@@ -28,48 +28,44 @@ export function generate() {
 
 function randomName(): string {
   const name = RNG.item([
-    "The Rusty Anchor",
-    "The Drunken Dragon",
-    "The Laughing Fox",
-    "The Golden Goose",
-    "The Dancing Bear",
-    "The Merry Mermaid",
-    "The Lucky Leprechaun",
-    "The Jolly Jester",
-    "The Silly Satyr",
-    "The Singing Siren",
-    "The Prancing Pony",
-    "The Tipsy Turtle",
-    "The Weeping Willow",
-    "The Wandering Wizard",
-    "The Wicked Wench",
+    'The Rusty Anchor',
+    'The Drunken Dragon',
+    'The Laughing Fox',
+    'The Golden Goose',
+    'The Dancing Bear',
+    'The Merry Mermaid',
+    'The Lucky Leprechaun',
+    'The Jolly Jester',
+    'The Silly Satyr',
+    'The Singing Siren',
+    'The Prancing Pony',
+    'The Tipsy Turtle',
+    'The Weeping Willow',
+    'The Wandering Wizard',
+    'The Wicked Wench',
   ]);
 
   return name;
 }
 
 function randomDescription(tavern: Tavern) {
-  let description = RNG.item([
-    tavern.name,
-    "This tavern",
-    "This establishment",
-  ]);
+  let description = RNG.item([tavern.name, 'This tavern', 'This establishment']);
 
   const quality = RNG.item([
-    "has seen better days",
-    "looks newly painted",
-    "is well kept",
-    "has an air of wealth about it",
+    'has seen better days',
+    'looks newly painted',
+    'is well kept',
+    'has an air of wealth about it',
   ]);
 
   description += ` ${quality}. `;
 
   const patrons = RNG.item([
-    "It caters to a diverse crowd.",
-    "Some of its patrons are less savory types.",
-    "It has a welcoming atmosphere.",
-    "The crowd is friendly and boisterous.",
-    "The patrons all keep to themselves and talk quietly.",
+    'It caters to a diverse crowd.',
+    'Some of its patrons are less savory types.',
+    'It has a welcoming atmosphere.',
+    'The crowd is friendly and boisterous.',
+    'The patrons all keep to themselves and talk quietly.',
     "There's a rough crowd here.",
   ]);
 
@@ -102,7 +98,7 @@ function randomFood() {
   const numberOfItems = RNG.int(2, 4);
 
   for (let i = 0; i < numberOfItems; i++) {
-    const quality = Dice.roll("2d6");
+    const quality = Dice.roll('2d6');
 
     const dish = Food.generateDish();
     const cost = Currency.convertCopper(quality, false, false);

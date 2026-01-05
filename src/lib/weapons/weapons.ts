@@ -5,17 +5,17 @@ export type Weapon = {
   cosmetics: string[];
   effects: string[];
   description: string;
-}
+};
 
 export type WeaponEffect = {
   name: string;
   options: string[];
-}
+};
 
 export type WeaponComponent = {
   name: string;
   options: string[];
-}
+};
 
 export type WeaponType = {
   name: string;
@@ -25,4 +25,4 @@ export type WeaponType = {
   range: string;
   hands: number;
   damageType: string;
-}
+};

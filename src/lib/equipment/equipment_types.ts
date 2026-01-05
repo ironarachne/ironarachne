@@ -1,7 +1,7 @@
 export type Armor = Item & {
   defense: number; // e.g., AC bonus
   armorType: ArmorCategory;
-}
+};
 
 export type ArmorCategory = 'light' | 'medium' | 'heavy';
 
@@ -10,7 +10,7 @@ export type ArmorType = {
   defense: number;
   armorType: ArmorCategory;
   description: string;
-}
+};
 
 export type Container = Item & {
   maxWeight: number;
@@ -20,7 +20,7 @@ export type Container = Item & {
   isOpen: boolean;
   contents: string[]; // Array of item IDs
   lock?: Lock;
-}
+};
 
 export type ContainerFilter = {
   minWeight?: number;
@@ -30,7 +30,7 @@ export type ContainerFilter = {
   canBeLocked?: boolean;
   canHoldItems?: boolean;
   canHoldLiquid?: boolean;
-}
+};
 
 export type ContainerGeneratorConfig = {
   allowedContainerTypes?: ContainerType[];
@@ -42,7 +42,7 @@ export type ContainerGeneratorConfig = {
   maxVolumeCapacity?: number;
   onlyItemContainers?: boolean;
   onlyLiquidContainers?: boolean;
-}
+};
 
 export type ContainerType = {
   canBeLocked: boolean;
@@ -54,7 +54,7 @@ export type ContainerType = {
   name: string;
   value: number;
   weight: number;
-}
+};
 
 export type ContainerVariation = {
   descriptionSuffix?: string;
@@ -63,9 +63,22 @@ export type ContainerVariation = {
   volumeCapacityModifier?: number; // Multiplier
   weightCapacityModifier?: number; // Multiplier
   weightModifier?: number; // Multiplier
-}
+};
 
-export type DamageType = 'slashing' | 'piercing' | 'bludgeoning' | 'fire' | 'cold' | 'electricity' | 'poison' | 'acid' | 'darkness' | 'light' | 'earth' | 'water' | 'wind';
+export type DamageType =
+  | 'slashing'
+  | 'piercing'
+  | 'bludgeoning'
+  | 'fire'
+  | 'cold'
+  | 'electricity'
+  | 'poison'
+  | 'acid'
+  | 'darkness'
+  | 'light'
+  | 'earth'
+  | 'water'
+  | 'wind';
 
 export type DensityCategory = 'dense' | 'standard' | 'bulky' | 'airy';
 
@@ -89,7 +102,7 @@ export type Item = {
   weight: number; // Weight in kg
   properties: string[];
   containerId?: string; // The ID of the container holding this item
-}
+};
 
 export type ItemValue = number; // Monetary value in copper coins
 
@@ -97,14 +110,14 @@ export type Lock = Item & {
   lockType: LockType;
   difficulty: number; // Difficulty level from 1 to 10
   isLocked: boolean;
-}
+};
 
 export type LockGeneratorConfig = {
   allowedLockTypes?: LockType[];
   minDifficulty?: number;
   maxDifficulty?: number;
   chanceOfBeingLocked?: number; // 0 to 1
-}
+};
 
 export type LockKey = {
   id: string;
@@ -112,7 +125,7 @@ export type LockKey = {
   description: string;
   keyType: 'mechanical' | 'magical';
   locks: string[]; // Array of lock IDs this key can open
-}
+};
 
 export type LockType = 'mechanical' | 'magical';
 
@@ -126,7 +139,7 @@ export type Material = {
   readonly rarity: Rarity;
   readonly statOffsets?: Record<string, number | string>;
   readonly tagsAdded?: string[];
-}
+};
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
@@ -136,7 +149,7 @@ export type Weapon = Item & {
   weaponType: 'melee' | 'ranged';
   range?: number; // Only for ranged weapons
   hands: number; // Number of hands required to wield
-}
+};
 
 export type WeaponType = {
   name: string;
@@ -146,4 +159,4 @@ export type WeaponType = {
   range?: number;
   hands: number;
   description: string;
-}
+};

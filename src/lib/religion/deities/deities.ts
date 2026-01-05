@@ -1,9 +1,9 @@
-import type AgeCategory from "$lib/age/age_category";
-import type Gender from "$lib/gender/gender";
-import type Species from "$lib/species/species";
-import type DomainSet from "../domains/domainset";
-import type Realm from "../realms/realm";
-import Deity from "./deity";
+import type AgeCategory from '$lib/age/age_category';
+import type Gender from '$lib/gender/gender';
+import type Species from '$lib/species/species';
+import type DomainSet from '../domains/domainset';
+import type Realm from '../realms/realm';
+import Deity from './deity';
 
 export function newDeity(
   name: string,

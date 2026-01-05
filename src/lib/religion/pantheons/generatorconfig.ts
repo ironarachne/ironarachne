@@ -1,11 +1,11 @@
-import Human from "$lib/species/sentient/human.js";
-import type Species from "$lib/species/species.js";
-import * as Names from "$lib/names";
-import * as RNG from "@ironarachne/rng";
-import * as MUN from "@ironarachne/made-up-names";
-import type Domain from "../domains/domain.js";
-import * as Domains from "../domains/domains.js";
-import type Realm from "../realms/realm.js";
+import Human from '$lib/species/sentient/human.js';
+import type Species from '$lib/species/species.js';
+import * as Names from '$lib/names';
+import * as RNG from '@ironarachne/rng';
+import * as MUN from '@ironarachne/made-up-names';
+import type Domain from '../domains/domain.js';
+import * as Domains from '../domains/domains.js';
+import type Realm from '../realms/realm.js';
 
 export default class PantheonGeneratorConfig {
   domains: Domain[];
@@ -25,7 +25,7 @@ export default class PantheonGeneratorConfig {
     this.maxDeities = 16;
     this.rng = new RNG.RNG(Date.now().toString());
 
-    let genSet = Names.getFantasyNameGeneratorSet("human", this.rng);
+    let genSet = Names.getFantasyNameGeneratorSet('human', this.rng);
 
     this.femaleNameGenerator = genSet.female;
     this.maleNameGenerator = genSet.male;

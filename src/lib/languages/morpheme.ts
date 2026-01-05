@@ -1,4 +1,4 @@
-import Phoneme from "./phoneme.js";
+import Phoneme from './phoneme.js';
 
 export default class Morpheme {
   phonemes: Phoneme[];
@@ -8,10 +8,10 @@ export default class Morpheme {
   }
 
   getPronunciation(): string {
-    return this.phonemes.map((p) => p.sound).join("");
+    return this.phonemes.map((p) => p.sound).join('');
   }
 
   getTranscription(): string {
-    return this.phonemes.map((p) => p.transcriptions[0]).join("");
+    return this.phonemes.map((p) => p.transcriptions[0]).join('');
   }
 }

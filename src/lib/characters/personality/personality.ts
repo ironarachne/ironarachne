@@ -1,11 +1,9 @@
-import * as RNG from "@ironarachne/rng";
+import * as RNG from '@ironarachne/rng';
 
-import type PersonalityGeneratorConfig from "./personality_generator_config";
-import type PersonalityTrait from "./personality_trait";
+import type PersonalityGeneratorConfig from './personality_generator_config';
+import type PersonalityTrait from './personality_trait';
 
-export function generate(
-  config: PersonalityGeneratorConfig,
-): PersonalityTrait[] {
+export function generate(config: PersonalityGeneratorConfig): PersonalityTrait[] {
   let traits = [];
 
   RNG.shuffle(config.traits);
@@ -13,7 +11,7 @@ export function generate(
   for (let i = 0; i < config.numberOfPositiveTraits; i++) {
     let trait = config.traits.pop();
     if (trait === undefined) {
-      throw new Error("Personality trait is undefined.");
+      throw new Error('Personality trait is undefined.');
     }
     trait.score = RNG.int(1, 50);
     trait.descriptor = trait.positiveDescriptor;
@@ -23,7 +21,7 @@ export function generate(
   for (let i = 0; i < config.numberOfNegativeTraits; i++) {
     let trait = config.traits.pop();
     if (trait === undefined) {
-      throw new Error("Personality trait is undefined.");
+      throw new Error('Personality trait is undefined.');
     }
     trait.score = RNG.int(-50, -1);
     trait.descriptor = trait.negativeDescriptor;

@@ -1,4 +1,4 @@
-import FoodComponent from "./component.js";
+import FoodComponent from './component.js';
 
 export default class CuisineGeneratorConfig {
   possibleSeasonings: FoodComponent[];

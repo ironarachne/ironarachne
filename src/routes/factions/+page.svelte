@@ -1,8 +1,3 @@
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/navigation.scss';
-</style>
-
 <svelte:head>
   <title>Factions &amp; Groups | Iron Arachne</title>
 </svelte:head>
@@ -18,5 +13,9 @@
     <a href="/fantasy/religion">Fantasy Religion</a>
     <a href="/star-nation">Star Nation</a>
   </nav>
-
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/navigation.scss';
+</style>

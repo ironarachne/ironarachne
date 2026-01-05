@@ -1,6 +1,6 @@
-import Conjugation from "./conjugation.js";
-import Lexicon from "./lexicon.js";
-import PhonemeSet from "./phonemeset.js";
+import Conjugation from './conjugation.js';
+import Lexicon from './lexicon.js';
+import PhonemeSet from './phonemeset.js';
 
 export default class Language {
   name: string;
@@ -14,6 +14,6 @@ export default class Language {
     this.phonemeSet = phonemeSet;
     this.conjugations = [];
     this.lexicon = new Lexicon();
-    this.wordOrder = "";
+    this.wordOrder = '';
   }
 }

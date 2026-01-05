@@ -6,9 +6,9 @@ export default class SpellFilter {
   bannedTags: string[];
 
   constructor(
-    name: string = "",
+    name: string = '',
     level: number = -1,
-    casterClass: string = "",
+    casterClass: string = '',
     requiredTags: string[] = [],
     bannedTags: string[] = [],
   ) {

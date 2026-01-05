@@ -5,7 +5,7 @@ import {
   getCoinTypesBelowValue,
   getIndexOfCoinType,
   getMaxCoinTypeForValue,
-  getAppropriateCoinTypes
+  getAppropriateCoinTypes,
 } from './coins';
 
 describe('coins', () => {
@@ -25,10 +25,10 @@ describe('coins', () => {
       const types = getCoinTypesAboveValue(10, coinSystem);
       // Should include electrum (50), gold (100), platinum (1000)
       expect(types).toHaveLength(3);
-      expect(types.map(t => t.name)).toContain('electrum');
-      expect(types.map(t => t.name)).toContain('gold');
-      expect(types.map(t => t.name)).toContain('platinum');
-      expect(types.map(t => t.name)).not.toContain('silver'); // silver is 10, not > 10
+      expect(types.map((t) => t.name)).toContain('electrum');
+      expect(types.map((t) => t.name)).toContain('gold');
+      expect(types.map((t) => t.name)).toContain('platinum');
+      expect(types.map((t) => t.name)).not.toContain('silver'); // silver is 10, not > 10
     });
 
     it('should return empty array if no coin types are above value', () => {

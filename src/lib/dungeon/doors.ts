@@ -1,14 +1,14 @@
-import type Edge from "$lib/geometry/edge.js";
-import * as Geometry from "$lib/geometry/geometry.js";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import type Door from "./door.js";
-import type Dungeon from "./dungeon.js";
-import Lock from "./lock.js";
-import type RoomFeature from "./rooms/features/feature.js";
-import type Room from "./rooms/room.js";
-import * as Rooms from "./rooms/rooms.js";
-import * as Tiles from "./tiles.js";
+import type Edge from '$lib/geometry/edge.js';
+import * as Geometry from '$lib/geometry/geometry.js';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import type Door from './door.js';
+import type Dungeon from './dungeon.js';
+import Lock from './lock.js';
+import type RoomFeature from './rooms/features/feature.js';
+import type Room from './rooms/room.js';
+import * as Rooms from './rooms/rooms.js';
+import * as Tiles from './tiles.js';
 
 export function addDoor(room1: Room, room2: Room, rng: RNG.RNG): Door {
   let door: Door = {
@@ -18,7 +18,7 @@ export function addDoor(room1: Room, room2: Room, rng: RNG.RNG): Door {
     tile: 0,
     lock: null,
     isSecret: false,
-    description: "",
+    description: '',
   };
   let possibleEdges = [];
 
@@ -61,17 +61,17 @@ export function addDoor(room1: Room, room2: Room, rng: RNG.RNG): Door {
   door.room2 = room2.id;
 
   let doorQuality = rng.item([
-    rng.item(["rough", "decaying", "rotted"]),
-    "simple",
-    "plain",
+    rng.item(['rough', 'decaying', 'rotted']),
+    'simple',
+    'plain',
     rng.item([
-      "iron-trimmed",
-      "copper-trimmed",
-      "silver-trimmed",
-      "gold-trimmed",
-      "painted",
-      "carved",
-      "ornate",
+      'iron-trimmed',
+      'copper-trimmed',
+      'silver-trimmed',
+      'gold-trimmed',
+      'painted',
+      'carved',
+      'ornate',
     ]),
   ]);
 
@@ -90,8 +90,7 @@ export function addDoorsToDungeon(dungeon: Dungeon, rng: RNG.RNG): Dungeon {
       for (let k = 0; k < dungeon.rooms[i].doors.length; k++) {
         let door = dungeon.doors[dungeon.rooms[i].doors[k]];
         if (
-          (door.room1 === dungeon.rooms[i].id &&
-            door.room2 === neighbors[j].id) ||
+          (door.room1 === dungeon.rooms[i].id && door.room2 === neighbors[j].id) ||
           (door.room2 === dungeon.rooms[i].id && door.room1 === neighbors[j].id)
         ) {
           existingDoor = true;
@@ -123,39 +122,39 @@ export function addDoorsToDungeon(dungeon: Dungeon, rng: RNG.RNG): Dungeon {
     let description1 = getDoorDescription(door, dungeon.rooms[i]);
     let description2 = getDoorDescription(door, dungeon.rooms[r2.id]);
 
-    let secret1 = "";
-    let secret2 = "";
+    let secret1 = '';
+    let secret2 = '';
 
     if (door.isSecret) {
       let hiddenText = rng.item([
-        `${rng.item(["It is", "It's"])} hidden behind a tapestry.`,
+        `${rng.item(['It is', "It's"])} hidden behind a tapestry.`,
         `${rng.item([
-          "It is",
+          'It is',
           "It's",
         ])} practically undetectable except for a thin seam visible only on close inspection.`,
-        "A tapestry obscures it.",
-        "It cannot be opened from this side.",
-        `A pile of ${rng.item(["refuse", "debris", "trash"])} obscures it.`,
+        'A tapestry obscures it.',
+        'It cannot be opened from this side.',
+        `A pile of ${rng.item(['refuse', 'debris', 'trash'])} obscures it.`,
       ]);
       if (rng.int(1, 100) > 50) {
         secret2 = `${description2} ${hiddenText}`;
-        description2 = "";
+        description2 = '';
       } else {
         secret1 = `${description1} ${hiddenText}`;
-        description1 = "";
+        description1 = '';
       }
       dungeon.rooms[i].secrets += secret1;
       dungeon.rooms[r2.id].secrets += secret2;
     }
 
     let door1feature: RoomFeature = {
-      name: "door",
+      name: 'door',
       description: description1,
       secret: secret1,
       isContainer: false,
     };
     let door2feature: RoomFeature = {
-      name: "door",
+      name: 'door',
       description: description2,
       secret: secret2,
       isContainer: false,
@@ -178,42 +177,42 @@ export function addDoorToTiles(door: Door, tiles: number[][]): number[][] {
 }
 
 export function getDoorDescription(door: Door, room: Room): string {
-  let dir = "";
+  let dir = '';
 
   if (door.tile === Tiles.V_DOOR) {
     if (door.vertex.y > room.center.y) {
       if (door.vertex.x < room.center.x) {
-        dir = "southwest";
+        dir = 'southwest';
       } else if (door.vertex.x > room.center.x) {
-        dir = "southeast";
+        dir = 'southeast';
       } else {
-        dir = "south";
+        dir = 'south';
       }
     } else {
       if (door.vertex.x < room.center.x) {
-        dir = "northwest";
+        dir = 'northwest';
       } else if (door.vertex.x > room.center.x) {
-        dir = "northeast";
+        dir = 'northeast';
       } else {
-        dir = "north";
+        dir = 'north';
       }
     }
   } else {
     if (door.vertex.x < room.center.x) {
       if (door.vertex.y > room.center.y) {
-        dir = "southwest";
+        dir = 'southwest';
       } else if (door.vertex.y < room.center.y) {
-        dir = "northwest";
+        dir = 'northwest';
       } else {
-        dir = "west";
+        dir = 'west';
       }
     } else {
       if (door.vertex.y > room.center.y) {
-        dir = "southeast";
+        dir = 'southeast';
       } else if (door.vertex.y < room.center.y) {
-        dir = "northeast";
+        dir = 'northeast';
       } else {
-        dir = "east";
+        dir = 'east';
       }
     }
   }
@@ -226,9 +225,9 @@ export function getDoorDescription(door: Door, room: Room): string {
   ]);
 
   if (door.lock != null) {
-    description += ". It is locked.";
+    description += '. It is locked.';
   } else {
-    description += ".";
+    description += '.';
   }
 
   return description;

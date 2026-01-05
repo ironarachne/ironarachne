@@ -1,8 +1,8 @@
-import type * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import * as Currency from "../../currency/currency.js";
-import Gem from "./gem.js";
-import type TreasureGenerator from "./treasuregenerator.js";
+import type * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import * as Currency from '../../currency/currency.js';
+import Gem from './gem.js';
+import type TreasureGenerator from './treasuregenerator.js';
 
 export default class GemGenerator implements TreasureGenerator {
   minValue: number;
@@ -52,78 +52,71 @@ export default class GemGenerator implements TreasureGenerator {
 
 function getOrnamental(): string[] {
   return [
-    "banded agate",
-    "eye agate",
-    "moss agate",
-    "azurite",
-    "blue quartz",
-    "hematite",
-    "lapis lazuli",
-    "malachite",
-    "obsidian",
-    "rhodochrosite",
-    "tiger eye",
-    "turquoise",
-    "irregular freshwater pearl",
+    'banded agate',
+    'eye agate',
+    'moss agate',
+    'azurite',
+    'blue quartz',
+    'hematite',
+    'lapis lazuli',
+    'malachite',
+    'obsidian',
+    'rhodochrosite',
+    'tiger eye',
+    'turquoise',
+    'irregular freshwater pearl',
   ];
 }
 
 function getSemiprecious(): string[] {
   return [
-    "bloodstone",
-    "carnelian",
-    "chalcedony",
-    "chrysoprase",
-    "citrine",
-    "jasper",
-    "moonstone",
-    "onyx",
-    "quartz",
-    "sardonyx",
-    "star rose quartz",
-    "zircon",
+    'bloodstone',
+    'carnelian',
+    'chalcedony',
+    'chrysoprase',
+    'citrine',
+    'jasper',
+    'moonstone',
+    'onyx',
+    'quartz',
+    'sardonyx',
+    'star rose quartz',
+    'zircon',
   ];
 }
 
 function getFancy(): string[] {
   return [
-    "amber",
-    "amethyst",
-    "chrysoberyl",
-    "coral",
-    "garnet",
-    "jade",
-    "jet",
-    "pearl",
-    "spinel",
-    "tourmaline",
+    'amber',
+    'amethyst',
+    'chrysoberyl',
+    'coral',
+    'garnet',
+    'jade',
+    'jet',
+    'pearl',
+    'spinel',
+    'tourmaline',
   ];
 }
 
 function getPrecious(): string[] {
-  return [
-    "alexandrite",
-    "aquamarine",
-    "black pearl",
-    "blue spinel",
-    "peridot",
-    "topaz",
-  ];
+  return ['alexandrite', 'aquamarine', 'black pearl', 'blue spinel', 'peridot', 'topaz'];
 }
 
 function getGemstones(): string[] {
   return [
-    "black opal",
-    "blue sapphire",
-    "emerald",
-    "fire opal",
-    "opal",
-    "star ruby",
-    "star sapphire",
-    "yellow sapphire",
+    'black opal',
+    'blue sapphire',
+    'emerald',
+    'fire opal',
+    'opal',
+    'star ruby',
+    'star sapphire',
+    'yellow sapphire',
   ];
 }
 
 function getJewels(): string[] {
-  return ["black sapphire", "diamond", "jacinth", "ruby"];
+  return ['black sapphire', 'diamond', 'jacinth', 'ruby'];
 }

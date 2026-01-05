@@ -1,98 +1,93 @@
 <script lang="ts">
-import * as CommonSpecies from "$lib/species/common";
-import * as Families from "$lib/characters/family/families.js";
-import * as Names from "$lib/names";
-import * as RNG from "@ironarachne/rng";
-import type Gender from "$lib/gender/gender";
-import type { NameGenerator } from "@ironarachne/made-up-names";
-import type Species from "$lib/species/species";
+  import * as CommonSpecies from '$lib/species/common';
+  import * as Families from '$lib/characters/family/families.js';
+  import * as Names from '$lib/names';
+  import * as RNG from '@ironarachne/rng';
+  import type Gender from '$lib/gender/gender';
+  import type { NameGenerator } from '@ironarachne/made-up-names';
+  import type Species from '$lib/species/species';
 
-let rng = new RNG.RNG(Date.now().toString());
-let seed = $state(rng.randomString(13));
-let lockSeed = $state(false);
-let availableSpecies = CommonSpecies.sentient();
-let selectedSpecies = $state("any");
-let species = CommonSpecies.randomWeighted(availableSpecies);
-let iterations: number = $state(2);
-let nameGeneratorSet;
-
-try {
-  nameGeneratorSet = Names.getFantasyNameGeneratorSet(species.name, rng);
-} catch (e) {
-  console.debug(e);
-  nameGeneratorSet = Names.getFantasyNameGeneratorSet("human", rng);
-}
-
-let familyNameGen: NameGenerator = nameGeneratorSet.family;
-let femaleNameGen: NameGenerator = nameGeneratorSet.female;
-let maleNameGen: NameGenerator = nameGeneratorSet.male;
-let lastNameTradition = $state("male");
-let config = Families.getDefaultConfig();
-config.species = species;
-config.iterations = 2;
-config.rootFamilyNameGenerator = familyNameGen;
-config.rootFemaleNameGenerator = femaleNameGen;
-config.rootMaleNameGenerator = maleNameGen;
-config.dominantFamilyNameGender = getDominantGender();
-
-let family = $state(Families.generate(config));
-
-function generate() {
-  if (!lockSeed) {
-    seed = rng.randomString(13);
-  }
-  rng.setSeed(seed);
-  species = getSpecies(selectedSpecies);
+  let rng = new RNG.RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
+  let lockSeed = $state(false);
+  let availableSpecies = CommonSpecies.sentient();
+  let selectedSpecies = $state('any');
+  let species = CommonSpecies.randomWeighted(availableSpecies);
+  let iterations: number = $state(2);
+  let nameGeneratorSet;
 
   try {
     nameGeneratorSet = Names.getFantasyNameGeneratorSet(species.name, rng);
   } catch (e) {
     console.debug(e);
-    nameGeneratorSet = Names.getFantasyNameGeneratorSet("human", rng);
+    nameGeneratorSet = Names.getFantasyNameGeneratorSet('human', rng);
   }
 
-  familyNameGen = nameGeneratorSet.family;
-  femaleNameGen = nameGeneratorSet.female;
-  maleNameGen = nameGeneratorSet.male;
+  let familyNameGen: NameGenerator = nameGeneratorSet.family;
+  let femaleNameGen: NameGenerator = nameGeneratorSet.female;
+  let maleNameGen: NameGenerator = nameGeneratorSet.male;
+  let lastNameTradition = $state('male');
+  let config = Families.getDefaultConfig();
   config.species = species;
-  config.iterations = iterations;
+  config.iterations = 2;
   config.rootFamilyNameGenerator = familyNameGen;
   config.rootFemaleNameGenerator = femaleNameGen;
   config.rootMaleNameGenerator = maleNameGen;
   config.dominantFamilyNameGender = getDominantGender();
 
-  family = Families.generate(config);
-}
+  let family = $state(Families.generate(config));
 
-function getDominantGender(): Gender {
-  for (let i = 0; i < species.genders.length; i++) {
-    if (species.genders[i].name === lastNameTradition) {
-      return species.genders[i];
+  function generate() {
+    if (!lockSeed) {
+      seed = rng.randomString(13);
     }
-  }
+    rng.setSeed(seed);
+    species = getSpecies(selectedSpecies);
 
-  throw new Error("Dominant gender not set");
-}
-
-function getSpecies(name: string): Species {
-  if (name === "any") {
-    return CommonSpecies.randomWeighted(availableSpecies);
-  }
-
-  for (let i = 0; i < availableSpecies.length; i++) {
-    if (availableSpecies[i].name === name) {
-      return availableSpecies[i];
+    try {
+      nameGeneratorSet = Names.getFantasyNameGeneratorSet(species.name, rng);
+    } catch (e) {
+      console.debug(e);
+      nameGeneratorSet = Names.getFantasyNameGeneratorSet('human', rng);
     }
+
+    familyNameGen = nameGeneratorSet.family;
+    femaleNameGen = nameGeneratorSet.female;
+    maleNameGen = nameGeneratorSet.male;
+    config.species = species;
+    config.iterations = iterations;
+    config.rootFamilyNameGenerator = familyNameGen;
+    config.rootFemaleNameGenerator = femaleNameGen;
+    config.rootMaleNameGenerator = maleNameGen;
+    config.dominantFamilyNameGender = getDominantGender();
+
+    family = Families.generate(config);
   }
 
-  throw new Error("Species not found");
-}
+  function getDominantGender(): Gender {
+    for (let i = 0; i < species.genders.length; i++) {
+      if (species.genders[i].name === lastNameTradition) {
+        return species.genders[i];
+      }
+    }
+
+    throw new Error('Dominant gender not set');
+  }
+
+  function getSpecies(name: string): Species {
+    if (name === 'any') {
+      return CommonSpecies.randomWeighted(availableSpecies);
+    }
+
+    for (let i = 0; i < availableSpecies.length; i++) {
+      if (availableSpecies[i].name === name) {
+        return availableSpecies[i];
+      }
+    }
+
+    throw new Error('Species not found');
+  }
 </script>
-
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-</style>
 
 <svelte:head>
   <title>Fantasy Family Generator | Iron Arachne</title>
@@ -101,17 +96,27 @@ function getSpecies(name: string): Species {
 <section class="fantasy main">
   <h1>Fantasy Family Generator</h1>
 
-  <p>This generator creates a family. Note that more than 10 iterations can be quite slow. More than 30 may or may not crash your browser.</p>
+  <p>
+    This generator creates a family. Note that more than 10 iterations can be quite slow. More than
+    30 may or may not crash your browser.
+  </p>
 
   <div class="input-group">
     <label for="seed">Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed"/>
-    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
+    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
   <div class="input-group">
     <label for="iterations">Iterations</label>
-    <input type="number" name="iterations" bind:value={iterations} id="iterations" min="1" max="10" />
+    <input
+      type="number"
+      name="iterations"
+      bind:value={iterations}
+      id="iterations"
+      min="1"
+      max="10"
+    />
   </div>
 
   <div class="input-group">
@@ -119,7 +124,7 @@ function getSpecies(name: string): Species {
     <select id="species" bind:value={selectedSpecies}>
       <option>any</option>
       {#each availableSpecies as option}
-      <option>{option.name}</option>
+        <option>{option.name}</option>
       {/each}
     </select>
   </div>
@@ -138,10 +143,18 @@ function getSpecies(name: string): Species {
 
   {#each family.members as member}
     <h3>{member.character.firstName} {member.character.lastName}</h3>
-    <p>{member.character.age}-year-old {member.character.species.name} {member.character.ageCategory.noun} {#if member.character.status == "dead"}(dead){/if}</p>
+    <p>
+      {member.character.age}-year-old {member.character.species.name}
+      {member.character.ageCategory.noun}
+      {#if member.character.status == 'dead'}(dead){/if}
+    </p>
     <p>{member.character.description}</p>
     {#if member.mate != -1}
-      <p><strong>Mate:</strong> {Families.getMate(family, member).character.firstName} {Families.getMate(family, member).character.lastName}</p>
+      <p>
+        <strong>Mate:</strong>
+        {Families.getMate(family, member).character.firstName}
+        {Families.getMate(family, member).character.lastName}
+      </p>
     {/if}
     {#if member.children.length > 0}
       <h4>Children</h4>
@@ -161,3 +174,8 @@ function getSpecies(name: string): Species {
     {/if}
   {/each}
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
+</style>

@@ -1,9 +1,9 @@
-import StarShader from "$lib/shaders/stars/star.frag";
-import * as THREE from "three";
-import { RNG } from "@ironarachne/rng";
-import SimpleVertexShader from "$lib/shaders/simple.vert";
-import type RGBColor from "$lib/graphics/rgb_color";
-import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
+import StarShader from '$lib/shaders/stars/star.frag';
+import * as THREE from 'three';
+import { RNG } from '@ironarachne/rng';
+import SimpleVertexShader from '$lib/shaders/simple.vert';
+import type RGBColor from '$lib/graphics/rgb_color';
+import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
 
 export function render(
   document: Document,
@@ -13,7 +13,7 @@ export function render(
   seed: string,
 ): string {
   const rng = new RNG(seed);
-  const canvas = document.createElement("canvas");
+  const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
 
@@ -25,7 +25,7 @@ export function render(
   camera.position.set(0, 0, 1);
 
   if (canvas === null) {
-    throw new Error("Canvas not found");
+    throw new Error('Canvas not found');
   }
 
   const color_set = getColorSetFromTemperature(star.surface_temperature);
@@ -55,7 +55,7 @@ export function render(
   scene.add(plane);
 
   renderer.render(scene, camera);
-  const data = renderer.domElement.toDataURL("image/png");
+  const data = renderer.domElement.toDataURL('image/png');
 
   material.dispose();
   geometry.dispose();
@@ -137,10 +137,7 @@ function translateRadiusToImageSize(radius: number, imageSize: number): number {
 
   const sizeInPixels = radiusRelativeToSun * sunSizeInPixels;
 
-  const size = Math.max(
-    minSizeInPixels,
-    Math.min(maxSizeInPixels, sizeInPixels),
-  );
+  const size = Math.max(minSizeInPixels, Math.min(maxSizeInPixels, sizeInPixels));
 
   return size;
 }

@@ -1,4 +1,4 @@
-import type AppearanceTrait from "$lib/appearance/trait";
+import type AppearanceTrait from '$lib/appearance/trait';
 
 export default class Realm {
   name: string;
@@ -7,8 +7,8 @@ export default class Realm {
   appearanceTraits: AppearanceTrait[];
 
   constructor() {
-    this.name = "";
-    this.description = "";
+    this.name = '';
+    this.description = '';
     this.personalityTraits = [];
     this.appearanceTraits = [];
   }

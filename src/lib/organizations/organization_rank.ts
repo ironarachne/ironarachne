@@ -1,4 +1,4 @@
-import type Title from "$lib/characters/titles/title";
+import type Title from '$lib/characters/titles/title';
 
 export default interface OrganizationRank {
   name: string;

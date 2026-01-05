@@ -1,6 +1,6 @@
-import * as RNG from "@ironarachne/rng";
-import DomainSet from "./domainset.js";
-import type DomainGeneratorConfig from "./generatorconfig.js";
+import * as RNG from '@ironarachne/rng';
+import DomainSet from './domainset.js';
+import type DomainGeneratorConfig from './generatorconfig.js';
 
 export default class DomainGenerator {
   config: DomainGeneratorConfig;
@@ -16,7 +16,7 @@ export default class DomainGenerator {
 
     if (this.config.domains.length < this.config.numberOfDomains) {
       throw new Error(
-        "Not enough domains in domain generator config for the requested number of domains.",
+        'Not enough domains in domain generator config for the requested number of domains.',
       );
     }
 
@@ -24,13 +24,13 @@ export default class DomainGenerator {
     if (primary !== undefined) {
       domainSet.primary = primary;
     } else {
-      throw new Error("No primary domain found.");
+      throw new Error('No primary domain found.');
     }
 
     for (let i = 0; i < this.config.numberOfDomains; i++) {
       const d = this.config.domains.pop();
       if (d === undefined) {
-        throw new Error("No secondary domain found.");
+        throw new Error('No secondary domain found.');
       }
 
       domainSet.secondaries.push(d);

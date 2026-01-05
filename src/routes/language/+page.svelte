@@ -1,29 +1,24 @@
 <script lang="ts">
-import * as RNG from "@ironarachne/rng";
-import LanguageGeneratorConfig from "$lib/languages/generatorconfig";
-import LanguageGenerator from "$lib/languages/generator";
+  import * as RNG from '@ironarachne/rng';
+  import LanguageGeneratorConfig from '$lib/languages/generatorconfig';
+  import LanguageGenerator from '$lib/languages/generator';
 
-import type Language from "$lib/languages/language";
-let language: Language | undefined = $state();
-let gen;
-let config;
-let seed = RNG.randomString(13);
+  import type Language from '$lib/languages/language';
+  let language: Language | undefined = $state();
+  let gen;
+  let config;
+  let seed = RNG.randomString(13);
 
-function generate() {
-  seed = RNG.randomString(13);
-  RNG.setSeed(seed);
-  config = new LanguageGeneratorConfig();
-  gen = new LanguageGenerator(config);
-  language = gen.generate();
-}
+  function generate() {
+    seed = RNG.randomString(13);
+    RNG.setSeed(seed);
+    config = new LanguageGeneratorConfig();
+    gen = new LanguageGenerator(config);
+    language = gen.generate();
+  }
 
-generate();
+  generate();
 </script>
-
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-</style>
 
 <svelte:head>
   <title>Language Generator | Iron Arachne</title>
@@ -35,58 +30,63 @@ generate();
   <button onclick={generate}>Generate</button>
 
   {#if language}
-  <h2>{language.name}</h2>
+    <h2>{language.name}</h2>
 
-  <h3>{language.name} Dictionary</h3>
+    <h3>{language.name} Dictionary</h3>
 
-  <h4>Pronouns</h4>
-  {#each language.lexicon.getWordsBySpeechPart('pronoun') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Pronouns</h4>
+    {#each language.lexicon.getWordsBySpeechPart('pronoun') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Articles</h4>
-  {#each language.lexicon.getWordsBySpeechPart('article') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Articles</h4>
+    {#each language.lexicon.getWordsBySpeechPart('article') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Prepositions</h4>
-  {#each language.lexicon.getWordsBySpeechPart('preposition') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Prepositions</h4>
+    {#each language.lexicon.getWordsBySpeechPart('preposition') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Numbers</h4>
-  {#each language.lexicon.getWordsBySpeechPart('number') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Numbers</h4>
+    {#each language.lexicon.getWordsBySpeechPart('number') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Questions</h4>
-  {#each language.lexicon.getWordsBySpeechPart('question') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Questions</h4>
+    {#each language.lexicon.getWordsBySpeechPart('question') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Interjections</h4>
-  {#each language.lexicon.getWordsBySpeechPart('interjection') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Interjections</h4>
+    {#each language.lexicon.getWordsBySpeechPart('interjection') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Adverbs</h4>
-  {#each language.lexicon.getWordsBySpeechPart('adverb') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Adverbs</h4>
+    {#each language.lexicon.getWordsBySpeechPart('adverb') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Adjectives</h4>
-  {#each language.lexicon.getWordsBySpeechPart('adjective') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Adjectives</h4>
+    {#each language.lexicon.getWordsBySpeechPart('adjective') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Verbs</h4>
-  {#each language.lexicon.getWordsBySpeechPart('verb') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Verbs</h4>
+    {#each language.lexicon.getWordsBySpeechPart('verb') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
 
-  <h4>Nouns</h4>
-  {#each language.lexicon.getWordsBySpeechPart('noun') as word}
-    <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
-  {/each}
+    <h4>Nouns</h4>
+    {#each language.lexicon.getWordsBySpeechPart('noun') as word}
+      <p>{word.root} ({word.speechPart}, /{word.pronunciation}/): "{word.meaning}"</p>
+    {/each}
   {/if}
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
+</style>

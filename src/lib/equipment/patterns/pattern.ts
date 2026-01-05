@@ -1,5 +1,5 @@
-import Component from "../components/component.js";
-import type Item from "../item.js";
+import Component from '../components/component.js';
+import type Item from '../item.js';
 
 export default interface Pattern {
   name: string;

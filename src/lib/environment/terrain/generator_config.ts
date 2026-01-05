@@ -1,4 +1,4 @@
-import type { RNG } from "@ironarachne/rng";
+import type { RNG } from '@ironarachne/rng';
 
 export default interface TerrainGeneratorConfig {
   elevationMin: number;

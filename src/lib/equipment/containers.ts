@@ -1,6 +1,15 @@
-import type { Container, ContainerFilter, ContainerGeneratorConfig, ContainerType, ContainerVariation, Item, ItemValue, Rarity } from './equipment_types';
+import type {
+  Container,
+  ContainerFilter,
+  ContainerGeneratorConfig,
+  ContainerType,
+  ContainerVariation,
+  Item,
+  ItemValue,
+  Rarity,
+} from './equipment_types';
 import { getVolume } from './items';
-import * as Words from "@ironarachne/words";
+import * as Words from '@ironarachne/words';
 import { generateRandomLock, getDefaultLockGeneratorConfig } from './locks';
 import { RNG } from '@ironarachne/rng';
 
@@ -125,7 +134,7 @@ export const baseContainerTypes: ContainerType[] = [
     canBeLocked: false,
     weight: 0.75,
     value: 15,
-  }
+  },
 ];
 
 export function addItemToContainer(container: Container, item: Item): void {
@@ -144,8 +153,11 @@ export function canFit(container: Container, item: Item): boolean {
   return newWeight <= container.maxWeight && newVolume <= container.maxVolume;
 }
 
-export function filterContainerTypes(filter: ContainerFilter, containerTypes: ContainerType[]): ContainerType[] {
-  return containerTypes.filter(ct => {
+export function filterContainerTypes(
+  filter: ContainerFilter,
+  containerTypes: ContainerType[],
+): ContainerType[] {
+  return containerTypes.filter((ct) => {
     if (filter.minWeight !== undefined && ct.defaultWeight < filter.minWeight) {
       return false;
     }
@@ -172,10 +184,18 @@ export function filterContainerTypes(filter: ContainerFilter, containerTypes: Co
 }
 
 export function filterOutContainers(items: Item[]): Item[] {
-  return items.filter(item => !item.hasOwnProperty('contents'));
+  return items.filter((item) => !item.hasOwnProperty('contents'));
 }
 
-export function generateContainer(id: string, type: ContainerType, name?: string, value?: ItemValue, rarity?: Rarity, shouldLock?: boolean, lockDifficulty?: number): Container {
+export function generateContainer(
+  id: string,
+  type: ContainerType,
+  name?: string,
+  value?: ItemValue,
+  rarity?: Rarity,
+  shouldLock?: boolean,
+  lockDifficulty?: number,
+): Container {
   return {
     id,
     name: name || type.name,
@@ -193,22 +213,25 @@ export function generateContainer(id: string, type: ContainerType, name?: string
     properties: [],
     densityCategory: 'standard',
     weight: type.weight,
-    lock: type.canBeLocked && shouldLock ? {
-      id: `${id}-lock`,
-      name: `${type.name} lock`,
-      description: `A lock for the ${type.name}.`,
-      value: 5,
-      rarity: 'uncommon',
-      itemMajorType: 'lock',
-      itemMinorType: 'mechanical',
-      lockType: 'mechanical',
-      difficulty: lockDifficulty || 2,
-      isLocked: true,
-      densityCategory: 'dense',
-      weight: 0.25,
-      properties: []
-    } : undefined,
-  }
+    lock:
+      type.canBeLocked && shouldLock
+        ? {
+            id: `${id}-lock`,
+            name: `${type.name} lock`,
+            description: `A lock for the ${type.name}.`,
+            value: 5,
+            rarity: 'uncommon',
+            itemMajorType: 'lock',
+            itemMinorType: 'mechanical',
+            lockType: 'mechanical',
+            difficulty: lockDifficulty || 2,
+            isLocked: true,
+            densityCategory: 'dense',
+            weight: 0.25,
+            properties: [],
+          }
+        : undefined,
+  };
 }
 
 export function generateContainerTypes(): ContainerType[] {
@@ -221,11 +244,20 @@ export function generateContainerTypes(): ContainerType[] {
         name: variation.namePrefix + baseType.name + (variation.nameSuffix || ''),
         canHoldItems: baseType.canHoldItems,
         canHoldLiquid: baseType.canHoldLiquid,
-        defaultVolume: Math.max(5, Math.floor(baseType.defaultVolume * (variation.volumeCapacityModifier || 1))),
-        defaultWeight: Math.max(1, Math.floor(baseType.defaultWeight * (variation.weightCapacityModifier || 1))),
+        defaultVolume: Math.max(
+          5,
+          Math.floor(baseType.defaultVolume * (variation.volumeCapacityModifier || 1)),
+        ),
+        defaultWeight: Math.max(
+          1,
+          Math.floor(baseType.defaultWeight * (variation.weightCapacityModifier || 1)),
+        ),
         description: `${Words.article(variation.namePrefix || baseType.name)} ${variation.namePrefix || ''}${baseType.name}${variation.descriptionSuffix || ''}`,
         canBeLocked: baseType.canBeLocked,
-        weight: Math.max(0.1, parseFloat((baseType.weight * (variation.weightModifier || 1)).toFixed(2))),
+        weight: Math.max(
+          0.1,
+          parseFloat((baseType.weight * (variation.weightModifier || 1)).toFixed(2)),
+        ),
         value: baseType.value,
       });
     }
@@ -239,18 +271,31 @@ export function generateRandomContainer(seed: string, config: ContainerGenerator
   const rng = new RNG(seed);
   const availableContainerTypes = config.allowedContainerTypes || generateContainerTypes();
 
-  const filteredContainerTypes = filterContainerTypes({
-    minWeight: config.minWeightCapacity,
-    maxWeight: config.maxWeightCapacity,
-    minVolume: config.minVolumeCapacity,
-    maxVolume: config.maxVolumeCapacity,
-    canBeLocked: config.allowLockedContainers && !config.allowUnlockedContainers ? true :
-                 !config.allowLockedContainers && config.allowUnlockedContainers ? false : undefined,
-    canHoldItems: config.onlyItemContainers ? true :
-                  config.onlyLiquidContainers ? false : undefined,
-    canHoldLiquid: config.onlyLiquidContainers ? true :
-                   config.onlyItemContainers ? false : undefined,
-  }, availableContainerTypes);
+  const filteredContainerTypes = filterContainerTypes(
+    {
+      minWeight: config.minWeightCapacity,
+      maxWeight: config.maxWeightCapacity,
+      minVolume: config.minVolumeCapacity,
+      maxVolume: config.maxVolumeCapacity,
+      canBeLocked:
+        config.allowLockedContainers && !config.allowUnlockedContainers
+          ? true
+          : !config.allowLockedContainers && config.allowUnlockedContainers
+            ? false
+            : undefined,
+      canHoldItems: config.onlyItemContainers
+        ? true
+        : config.onlyLiquidContainers
+          ? false
+          : undefined,
+      canHoldLiquid: config.onlyLiquidContainers
+        ? true
+        : config.onlyItemContainers
+          ? false
+          : undefined,
+    },
+    availableContainerTypes,
+  );
 
   if (filteredContainerTypes.length === 0) {
     throw new Error('No container types available matching the specified configuration.');
@@ -258,13 +303,17 @@ export function generateRandomContainer(seed: string, config: ContainerGenerator
 
   const containerType = rng.item(filteredContainerTypes);
 
-  const shouldLock = containerType.canBeLocked ? (
-    config.allowLockedContainers && config.allowUnlockedContainers ? rng.item([true, false]) :
-    config.allowLockedContainers ? true :
-    false
-  ) : false;
+  const shouldLock = containerType.canBeLocked
+    ? config.allowLockedContainers && config.allowUnlockedContainers
+      ? rng.item([true, false])
+      : config.allowLockedContainers
+        ? true
+        : false
+    : false;
 
-  const lock = shouldLock ? generateRandomLock(rng.randomString(13), getDefaultLockGeneratorConfig()) : undefined;
+  const lock = shouldLock
+    ? generateRandomLock(rng.randomString(13), getDefaultLockGeneratorConfig())
+    : undefined;
 
   return {
     id: `container-${rng.randomString(13)}`,
@@ -284,28 +333,55 @@ export function generateRandomContainer(seed: string, config: ContainerGenerator
     densityCategory: 'standard',
     weight: containerType.weight,
     lock,
-  }
+  };
 }
 
 export function getContainerContents(container: Container, allItems: Item[]): Item[] {
-  return allItems.filter(item => container.contents.includes(item.id));
+  return allItems.filter((item) => container.contents.includes(item.id));
 }
 
-export function getContainerTypeForCapacity(requiredVolume: number, requiredWeight: number): ContainerType | null {
-  const suitableContainers = generateContainerTypes().filter(ct => ct.defaultVolume >= requiredVolume && ct.defaultWeight >= requiredWeight);
+export function getContainerTypeForCapacity(
+  requiredVolume: number,
+  requiredWeight: number,
+): ContainerType | null {
+  const suitableContainers = generateContainerTypes().filter(
+    (ct) => ct.defaultVolume >= requiredVolume && ct.defaultWeight >= requiredWeight,
+  );
   if (suitableContainers.length === 0) {
     return null;
   }
-  suitableContainers.sort((a, b) => a.defaultVolume - b.defaultVolume || a.defaultWeight - b.defaultWeight);
+  suitableContainers.sort(
+    (a, b) => a.defaultVolume - b.defaultVolume || a.defaultWeight - b.defaultWeight,
+  );
   return suitableContainers[0];
 }
 
 export function getContainerVariations(): ContainerVariation[] {
   return [
-    { namePrefix: 'small ', volumeCapacityModifier: 0.75, weightCapacityModifier: 0.75, weightModifier: 0.75 },
-    { namePrefix: '', volumeCapacityModifier: 1.0, weightCapacityModifier: 1.0, weightModifier: 1.0 },
-    { namePrefix: 'large ', volumeCapacityModifier: 1.25, weightCapacityModifier: 1.25, weightModifier: 1.25 },
-    { namePrefix: 'reinforced ', volumeCapacityModifier: 1.0, weightCapacityModifier: 1.25, weightModifier: 1.5 },
+    {
+      namePrefix: 'small ',
+      volumeCapacityModifier: 0.75,
+      weightCapacityModifier: 0.75,
+      weightModifier: 0.75,
+    },
+    {
+      namePrefix: '',
+      volumeCapacityModifier: 1.0,
+      weightCapacityModifier: 1.0,
+      weightModifier: 1.0,
+    },
+    {
+      namePrefix: 'large ',
+      volumeCapacityModifier: 1.25,
+      weightCapacityModifier: 1.25,
+      weightModifier: 1.25,
+    },
+    {
+      namePrefix: 'reinforced ',
+      volumeCapacityModifier: 1.0,
+      weightCapacityModifier: 1.25,
+      weightModifier: 1.5,
+    },
   ];
 }
 
@@ -326,7 +402,7 @@ export function getLooseItems(containers: Container[], allItems: Item[]): Item[]
     }
   }
 
-  return allItems.filter(item => !containerItemIds.has(item.id));
+  return allItems.filter((item) => !containerItemIds.has(item.id));
 }
 
 export function getTotalRequiredWeightCapacity(items: Item[]): number {
@@ -348,7 +424,10 @@ export function removeItemFromContainer(container: Container, item: Item): void 
   delete item.containerId;
 }
 
-export function separateContainersFromItems(items: Item[]): { containers: Container[]; looseItems: Item[] } {
+export function separateContainersFromItems(items: Item[]): {
+  containers: Container[];
+  looseItems: Item[];
+} {
   const containers: Container[] = [];
   const looseItems: Item[] = [];
 

@@ -1,6 +1,6 @@
-import type { RNG } from "@ironarachne/rng";
-import type PhysicalTrait from "./physical_trait";
-import type PhysicalTraitGeneratorConfig from "./physical_trait_generator_config";
+import type { RNG } from '@ironarachne/rng';
+import type PhysicalTrait from './physical_trait';
+import type PhysicalTraitGeneratorConfig from './physical_trait_generator_config';
 
 export function generate(config: PhysicalTraitGeneratorConfig, rng: RNG): PhysicalTrait {
   let name = config.name;

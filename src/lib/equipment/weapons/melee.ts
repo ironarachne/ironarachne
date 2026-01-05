@@ -1,4 +1,4 @@
-import type Weapon from "./weapon.js";
+import type Weapon from './weapon.js';
 
 export default class MeleeWeapon implements Weapon {
   name: string;

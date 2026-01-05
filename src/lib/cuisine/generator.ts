@@ -1,5 +1,5 @@
-import Cuisine from "./cuisine.js";
-import CuisineGeneratorConfig from "./generatorconfig.js";
+import Cuisine from './cuisine.js';
+import CuisineGeneratorConfig from './generatorconfig.js';
 
 export default class CuisineGenerator {
   config: CuisineGeneratorConfig;

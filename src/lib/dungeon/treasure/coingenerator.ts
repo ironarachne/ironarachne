@@ -1,8 +1,8 @@
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import * as Dice from "../../dice.js";
-import BagOfCoins from "./bagofcoins.js";
-import type TreasureGenerator from "./treasuregenerator.js";
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import * as Dice from '../../dice.js';
+import BagOfCoins from './bagofcoins.js';
+import type TreasureGenerator from './treasuregenerator.js';
 
 export default class CoinGenerator implements TreasureGenerator {
   cp: string;
@@ -29,51 +29,47 @@ export default class CoinGenerator implements TreasureGenerator {
     let gp = 0;
     let pp = 0;
 
-    if (this.cp !== "") {
+    if (this.cp !== '') {
       cp = Dice.roll(this.cp, this.rng);
     }
 
-    if (this.sp !== "") {
+    if (this.sp !== '') {
       sp = Dice.roll(this.sp, this.rng);
     }
 
-    if (this.ep !== "") {
+    if (this.ep !== '') {
       ep = Dice.roll(this.ep, this.rng);
     }
 
-    if (this.gp !== "") {
+    if (this.gp !== '') {
       gp = Dice.roll(this.gp, this.rng);
     }
 
-    if (this.pp !== "") {
+    if (this.pp !== '') {
       pp = Dice.roll(this.pp, this.rng);
     }
 
     bag.value = cp + sp * 10 + ep * 50 + gp * 100 + pp * 1000;
 
     let coinCount = cp + sp + ep + gp + pp;
-    let container = this.rng.item(["bag", "pouch", "purse"]);
+    let container = this.rng.item(['bag', 'pouch', 'purse']);
 
     // TODO: pull the container out into its own class, and have a library that generates an appropriate description
     // maybe also figure out how to have multiple types of things in a container... perhaps treasure has a property
     // like "needsContainer" and "containerSize" or something
 
     if (coinCount > 1000) {
-      container = this.rng.item(["chest", "large chest"]);
+      container = this.rng.item(['chest', 'large chest']);
     } else if (coinCount > 250) {
-      container = this.rng.item(["chest", "satchel"]);
+      container = this.rng.item(['chest', 'satchel']);
     } else if (coinCount > 100) {
-      container = this.rng.item(["sack", "box"]);
+      container = this.rng.item(['sack', 'box']);
     }
 
     bag.name = `a ${container} of coins`;
 
     bag.description =
-      "a " +
-      container +
-      " of coins " +
-      RNG.item(["containing", "holding", "with"]) +
-      " ";
+      'a ' + container + ' of coins ' + RNG.item(['containing', 'holding', 'with']) + ' ';
 
     let moneys = [];
 

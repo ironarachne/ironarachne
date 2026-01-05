@@ -1,4 +1,4 @@
-import * as RNG from "@ironarachne/rng";
+import * as RNG from '@ironarachne/rng';
 
 export default class PrecipitationType {
   name: string;

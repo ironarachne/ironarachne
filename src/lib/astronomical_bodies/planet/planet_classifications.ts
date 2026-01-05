@@ -1,5 +1,5 @@
-import type { PlanetClassification } from "$lib/astronomical_bodies/planet/planets";
-import * as RNG from "@ironarachne/rng";
+import type { PlanetClassification } from '$lib/astronomical_bodies/planet/planets';
+import * as RNG from '@ironarachne/rng';
 
 export type PlanetFeatureSet = {
   name: string;
@@ -9,12 +9,12 @@ export type PlanetFeatureSet = {
 export function getDescriptionFromFeatures(
   possibleFeatures: PlanetFeatureSet[],
   featureCount: number,
-  rng: RNG.RNG
+  rng: RNG.RNG,
 ): string {
   const features = rng.shuffle(possibleFeatures);
   const selectedFeatures = features.slice(0, featureCount);
 
-  let description = "";
+  let description = '';
 
   for (let i = 0; i < selectedFeatures.length; i++) {
     const feature = selectedFeatures[i];
@@ -26,9 +26,7 @@ export function getDescriptionFromFeatures(
   return description;
 }
 
-export function getPlanetClassificationByName(
-  name: string,
-): PlanetClassification {
+export function getPlanetClassificationByName(name: string): PlanetClassification {
   const classifications = getPlanetClassifications();
 
   for (let i = 0; i < classifications.length; i++) {
@@ -43,8 +41,8 @@ export function getPlanetClassificationByName(
 export function getPlanetClassifications(): PlanetClassification[] {
   const classifications = [
     {
-      name: "arid",
-      description: "An arid world",
+      name: 'arid',
+      description: 'An arid world',
       radius_min: 4750,
       radius_max: 9500,
       mass_min: 5.9722,
@@ -59,48 +57,48 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "sandstorms",
+            name: 'sandstorms',
             options: [
-              "Sandstorms on this planet are frequent and dangerous.",
-              "This planet is plagued by sandstorms.",
-              "Sandstorms are frequent and dangerous.",
-              "Large but infrequent sandstorms sometimes sweep across the planet.",
+              'Sandstorms on this planet are frequent and dangerous.',
+              'This planet is plagued by sandstorms.',
+              'Sandstorms are frequent and dangerous.',
+              'Large but infrequent sandstorms sometimes sweep across the planet.',
             ],
           },
           {
-            name: "thin atmosphere",
+            name: 'thin atmosphere',
             options: [
-              "The atmosphere is very thin and breathing apparatus is required outside.",
-              "Though the air is thin, breathing apparatus is not required outside.",
-              "Because of its thin atmosphere, this planet can suffocate non-native life.",
+              'The atmosphere is very thin and breathing apparatus is required outside.',
+              'Though the air is thin, breathing apparatus is not required outside.',
+              'Because of its thin atmosphere, this planet can suffocate non-native life.',
             ],
           },
           {
-            name: "high winds",
+            name: 'high winds',
             options: [
-              "This planet is infamous for its high winds.",
-              "High winds sometimes create dangerous dust storms that can destroy unprotected buildings and ships.",
-              "The winds on this planet are extremely strong.",
+              'This planet is infamous for its high winds.',
+              'High winds sometimes create dangerous dust storms that can destroy unprotected buildings and ships.',
+              'The winds on this planet are extremely strong.',
             ],
           },
           {
-            name: "dune seas",
+            name: 'dune seas',
             options: [
-              "Dune seas across the planet are home to a dangerous species of predator.",
+              'Dune seas across the planet are home to a dangerous species of predator.',
               "Dune seas cover much of the planet's surface.",
               `The dune seas of this planet are home to ${rng.item([
-                "a dangerous species of predator",
-                "myriad forms of moisture-conserving life",
-                "a strange type of dry plant",
+                'a dangerous species of predator',
+                'myriad forms of moisture-conserving life',
+                'a strange type of dry plant',
               ])}.`,
             ],
           },
           {
-            name: "rocky deserts",
+            name: 'rocky deserts',
             options: [
               "Rocky deserts cover much of the planet's surface.",
-              "Rocky deserts are common on this planet.",
-              "There are several rocky deserts on this planet.",
+              'Rocky deserts are common on this planet.',
+              'There are several rocky deserts on this planet.',
             ],
           },
         ];
@@ -111,8 +109,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "barren",
-      description: "A barren world",
+      name: 'barren',
+      description: 'A barren world',
       radius_min: 2400,
       radius_max: 9500,
       mass_min: 1.9722,
@@ -127,43 +125,43 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "craters",
+            name: 'craters',
             options: [
-              "The surface is covered in craters.",
-              "Craters from meteor strikes are common.",
+              'The surface is covered in craters.',
+              'Craters from meteor strikes are common.',
             ],
           },
           {
-            name: "meteor strikes",
+            name: 'meteor strikes',
             options: [
-              "Meteor strikes are frequent.",
-              "Meteor strikes are common.",
-              "Meteor strikes are frequent and dangerous.",
+              'Meteor strikes are frequent.',
+              'Meteor strikes are common.',
+              'Meteor strikes are frequent and dangerous.',
             ],
           },
           {
-            name: "unique remnants",
+            name: 'unique remnants',
             options: [
-              "The surface is dotted with the wreckage of ships both ancient and new.",
-              "The surface is covered in the remains of ancient starships.",
-              "Old ruins dot the surface of this planet.",
-              "In some places, hints of ancient civilizations can be found.",
+              'The surface is dotted with the wreckage of ships both ancient and new.',
+              'The surface is covered in the remains of ancient starships.',
+              'Old ruins dot the surface of this planet.',
+              'In some places, hints of ancient civilizations can be found.',
             ],
           },
           {
-            name: "mining stations",
+            name: 'mining stations',
             options: [
-              "Mining stations are common on this planet.",
+              'Mining stations are common on this planet.',
               "Mining stations are scattered across the planet's surface.",
-              "This planet has a handful of large mining operations.",
+              'This planet has a handful of large mining operations.',
             ],
           },
           {
-            name: "unique terrain",
+            name: 'unique terrain',
             options: [
-              "The surface is covered in strange rock formations.",
-              "Mountains and valleys cover the surface.",
-              "Vast canyons and deep ravines cover the surface.",
+              'The surface is covered in strange rock formations.',
+              'Mountains and valleys cover the surface.',
+              'Vast canyons and deep ravines cover the surface.',
             ],
           },
         ];
@@ -174,8 +172,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "garden",
-      description: "An Earth-like world",
+      name: 'garden',
+      description: 'An Earth-like world',
       radius_min: 5000,
       radius_max: 7000,
       mass_min: 4.9722,
@@ -190,50 +188,50 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "lush forests",
+            name: 'lush forests',
             options: [
               "Lush forests cover much of the planet's surface.",
-              "Lush forests are common on this planet.",
-              "There are several lush forests on this planet.",
+              'Lush forests are common on this planet.',
+              'There are several lush forests on this planet.',
             ],
           },
           {
-            name: "rolling hills",
+            name: 'rolling hills',
             options: [
               "Rolling hills cover much of the planet's surface.",
-              "Rolling hills are common on this planet.",
-              "There are several rolling hills on this planet.",
+              'Rolling hills are common on this planet.',
+              'There are several rolling hills on this planet.',
             ],
           },
           {
-            name: "vast plains",
+            name: 'vast plains',
             options: [
               "Vast plains cover much of the planet's surface.",
-              "Vast plains are common on this planet.",
-              "There are several vast plains on this planet.",
+              'Vast plains are common on this planet.',
+              'There are several vast plains on this planet.',
             ],
           },
           {
-            name: "unique terrain",
+            name: 'unique terrain',
             options: [
-              "The surface is covered in strange rock formations.",
-              "Mountains and valleys cover the surface.",
-              "Vast canyons and deep ravines cover the surface.",
+              'The surface is covered in strange rock formations.',
+              'Mountains and valleys cover the surface.',
+              'Vast canyons and deep ravines cover the surface.',
             ],
           },
           {
-            name: "unique life forms",
+            name: 'unique life forms',
             options: [
-              "A large and dangerous species of predator is native to this planet.",
+              'A large and dangerous species of predator is native to this planet.',
               `A species of large herbivore popular in the ${rng.item([
-                "galactic meat market",
-                "interstellar dairy market",
-                "interstellar trade network",
+                'galactic meat market',
+                'interstellar dairy market',
+                'interstellar trade network',
               ])} is native to this planet.`,
               `Several species of local ${rng.item([
-                "insect",
-                "reptile",
-                "predator",
+                'insect',
+                'reptile',
+                'predator',
               ])} are highly venomous.`,
             ],
           },
@@ -245,8 +243,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "gas giant",
-      description: "A gas giant world",
+      name: 'gas giant',
+      description: 'A gas giant world',
       radius_min: 22500,
       radius_max: 75000,
       mass_min: 568.32,
@@ -261,24 +259,24 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "storms",
+            name: 'storms',
             options: [
-              "Vast storms the size of small planets rage across the surface.",
-              "Navigating the upper atmosphere is possible but dangerous due to the many chaotic weather systems.",
+              'Vast storms the size of small planets rage across the surface.',
+              'Navigating the upper atmosphere is possible but dangerous due to the many chaotic weather systems.',
             ],
           },
           {
-            name: "leviathans",
+            name: 'leviathans',
             options: [
-              "An aggressive species of floating leviathan is widespread across this planet.",
-              "A species of floating leviathan is native to this planet.",
+              'An aggressive species of floating leviathan is widespread across this planet.',
+              'A species of floating leviathan is native to this planet.',
             ],
           },
           {
-            name: "corrosive gasses",
+            name: 'corrosive gasses',
             options: [
               "The gasses making up the planet's atmosphere are highly corrosive and dangerous to spacecraft.",
-              "The highly-combustible gasses of the upper atmosphere are easily ignited.",
+              'The highly-combustible gasses of the upper atmosphere are easily ignited.',
             ],
           },
         ];
@@ -289,8 +287,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "ice",
-      description: "An ice world",
+      name: 'ice',
+      description: 'An ice world',
       radius_min: 2400,
       radius_max: 9500,
       mass_min: 1.9722,
@@ -305,28 +303,28 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "ice storms",
+            name: 'ice storms',
             options: [
-              "Ice storms are common all over the planet.",
-              "Ice storms are frequent and dangerous.",
-              "Ice storms are frequent.",
+              'Ice storms are common all over the planet.',
+              'Ice storms are frequent and dangerous.',
+              'Ice storms are frequent.',
             ],
           },
           {
-            name: "ice characteristics",
+            name: 'ice characteristics',
             options: [
-              "The ice is thinner in places and cannot hold heavy vehicles or starships.",
-              "There are patches of ice that are so cold they cause damage to metal on contact.",
+              'The ice is thinner in places and cannot hold heavy vehicles or starships.',
+              'There are patches of ice that are so cold they cause damage to metal on contact.',
               "Thick ice covers the planet's surface.",
               "Spire-like ice formations dot the planet's surface.",
             ],
           },
           {
-            name: "subsurface oceans",
+            name: 'subsurface oceans',
             options: [
-              "There are vast oceans beneath the ice.",
-              "Subsurface oceans cover much of the planet.",
-              "The warm core of the planet provides subsurface oceans with liquid water.",
+              'There are vast oceans beneath the ice.',
+              'Subsurface oceans cover much of the planet.',
+              'The warm core of the planet provides subsurface oceans with liquid water.',
             ],
           },
         ];
@@ -337,8 +335,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "jungle",
-      description: "A world completely covered by plant life",
+      name: 'jungle',
+      description: 'A world completely covered by plant life',
       radius_min: 4750,
       radius_max: 9500,
       mass_min: 4.9722,
@@ -353,26 +351,26 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "high temperatures",
+            name: 'high temperatures',
             options: [
-              "The sweltering heat is oppressive.",
-              "It is unbearably hot for non-natives most of the time, requiring a suit for outdoor activity.",
+              'The sweltering heat is oppressive.',
+              'It is unbearably hot for non-natives most of the time, requiring a suit for outdoor activity.',
             ],
           },
           {
-            name: "dangerous predators",
+            name: 'dangerous predators',
             options: [
-              "There are numerous species of deadly predator living in the jungle.",
-              "Local life is massive and even the herbivores are extremely dangerous.",
-              "The local predators are extremely aggressive and will attack anything that moves.",
-              "A powerful apex predator is native to this planet.",
+              'There are numerous species of deadly predator living in the jungle.',
+              'Local life is massive and even the herbivores are extremely dangerous.',
+              'The local predators are extremely aggressive and will attack anything that moves.',
+              'A powerful apex predator is native to this planet.',
             ],
           },
           {
-            name: "plantlife",
+            name: 'plantlife',
             options: [
-              "The plantlife of this planet is extremely aggressive and will quickly overtake settlements.",
-              "The heat and humidity of this world make it a constant struggle to keep plantlife from claiming settlements.",
+              'The plantlife of this planet is extremely aggressive and will quickly overtake settlements.',
+              'The heat and humidity of this world make it a constant struggle to keep plantlife from claiming settlements.',
             ],
           },
         ];
@@ -383,8 +381,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "ocean",
-      description: "An ocean world",
+      name: 'ocean',
+      description: 'An ocean world',
       radius_min: 4750,
       radius_max: 9500,
       mass_min: 4.9722,
@@ -399,26 +397,26 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "corrosive substances",
+            name: 'corrosive substances',
             options: [
-              "The water contains acidic substances that erode metal but leave plastics untouched.",
-              "The water contains corrosive substances that can eat through metal.",
+              'The water contains acidic substances that erode metal but leave plastics untouched.',
+              'The water contains corrosive substances that can eat through metal.',
             ],
           },
           {
-            name: "wildlife",
+            name: 'wildlife',
             options: [
-              "The still waters hide monstrous leviathans that can devour entire cities.",
-              "Ferocious swarms of fish plague the surface.",
-              "Vast blooms of algae can corrode even the most advanced armor.",
-              "A local species of fish emits an unbearable sonic blast when threatened.",
+              'The still waters hide monstrous leviathans that can devour entire cities.',
+              'Ferocious swarms of fish plague the surface.',
+              'Vast blooms of algae can corrode even the most advanced armor.',
+              'A local species of fish emits an unbearable sonic blast when threatened.',
             ],
           },
           {
-            name: "storms",
+            name: 'storms',
             options: [
-              "Large storms are common on this planet.",
-              "Large storms are frequent and dangerous.",
+              'Large storms are common on this planet.',
+              'Large storms are frequent and dangerous.',
             ],
           },
         ];
@@ -429,8 +427,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "swamp",
-      description: "A swamp world",
+      name: 'swamp',
+      description: 'A swamp world',
       radius_min: 4750,
       radius_max: 9500,
       mass_min: 4.9722,
@@ -445,27 +443,27 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "uncertain terrain",
+            name: 'uncertain terrain',
             options: [
               "It's very difficult to tell where solid land is. Landing on what appears to be a muddy plain might result in sinking forever into the muck.",
-              "The ground is very soft and landing is difficult.",
-              "The surface is a mix of bogs and muck.",
+              'The ground is very soft and landing is difficult.',
+              'The surface is a mix of bogs and muck.',
             ],
           },
           {
-            name: "disease",
+            name: 'disease',
             options: [
-              "A species of parasitic insect local to the planet carries a nasty disease that is highly contagious.",
-              "A disease carried by local insects is highly contagious and can be deadly.",
-              "A disease carried by local insects is highly contagious.",
+              'A species of parasitic insect local to the planet carries a nasty disease that is highly contagious.',
+              'A disease carried by local insects is highly contagious and can be deadly.',
+              'A disease carried by local insects is highly contagious.',
             ],
           },
           {
-            name: "ecosystem",
+            name: 'ecosystem',
             options: [
-              "The complicated ecosystem is easy to upset, and outside interference can cause widespread destruction.",
-              "The ecosystem is very complex and non-native species can upset the balance easily.",
-              "Wildlife is extremely varied and prolific.",
+              'The complicated ecosystem is easy to upset, and outside interference can cause widespread destruction.',
+              'The ecosystem is very complex and non-native species can upset the balance easily.',
+              'Wildlife is extremely varied and prolific.',
             ],
           },
         ];
@@ -476,8 +474,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "toxic",
-      description: "A world filled with toxins",
+      name: 'toxic',
+      description: 'A world filled with toxins',
       radius_min: 4750,
       radius_max: 9500,
       mass_min: 4.9722,
@@ -492,26 +490,26 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "atmosphere",
+            name: 'atmosphere',
             options: [
-              "The air is corrosive and will erode unprotected equipment.",
-              "The air is highly toxic and requires breathing apparatus.",
-              "The air is highly toxic and will eat through even heavy protection eventually.",
+              'The air is corrosive and will erode unprotected equipment.',
+              'The air is highly toxic and requires breathing apparatus.',
+              'The air is highly toxic and will eat through even heavy protection eventually.',
             ],
           },
           {
-            name: "bodies of water",
+            name: 'bodies of water',
             options: [
               "The planet's surface is covered in many acid lakes.",
-              "Acid lakes are common on this planet.",
-              "The lakes and oceans of this world are highly acidic.",
+              'Acid lakes are common on this planet.',
+              'The lakes and oceans of this world are highly acidic.',
             ],
           },
           {
-            name: "storms",
+            name: 'storms',
             options: [
               "Rainstorms are common on this planet, and they're highly corrosive.",
-              "Acid rainstorms are frequent.",
+              'Acid rainstorms are frequent.',
             ],
           },
         ];
@@ -522,8 +520,8 @@ export function getPlanetClassifications(): PlanetClassification[] {
       },
     },
     {
-      name: "volcanic",
-      description: "A volcanic world",
+      name: 'volcanic',
+      description: 'A volcanic world',
       radius_min: 4750,
       radius_max: 9500,
       mass_min: 4.9722,
@@ -538,29 +536,29 @@ export function getPlanetClassifications(): PlanetClassification[] {
       getRandomDescription(rng: RNG.RNG): string {
         const possibleFeatures = [
           {
-            name: "volcanic activity",
+            name: 'volcanic activity',
             options: [
-              "Deadly eruptions are frequent.",
-              "Lava flows in several areas are unpredictable and quick to change direction.",
-              "The air is filled with poisonous gases released by eruptions.",
+              'Deadly eruptions are frequent.',
+              'Lava flows in several areas are unpredictable and quick to change direction.',
+              'The air is filled with poisonous gases released by eruptions.',
             ],
           },
           {
-            name: "atmosphere",
+            name: 'atmosphere',
             options: [
-              "Acid rains frequently plague this world.",
-              "Ashes from eruptions cause havoc with unfiltered systems.",
-              "The air is highly sulfurous.",
-              "The air here is toxic to most species.",
+              'Acid rains frequently plague this world.',
+              'Ashes from eruptions cause havoc with unfiltered systems.',
+              'The air is highly sulfurous.',
+              'The air here is toxic to most species.',
             ],
           },
           {
-            name: "unique terrain",
+            name: 'unique terrain',
             options: [
-              "The surface is covered in strange rock formations.",
-              "Huge spires of obsidian crisscross the surface.",
-              "Obsidian formations cover the surface.",
-              "Occasional lava falls provide spectacular views.",
+              'The surface is covered in strange rock formations.',
+              'Huge spires of obsidian crisscross the surface.',
+              'Obsidian formations cover the surface.',
+              'Occasional lava falls provide spectacular views.',
             ],
           },
         ];

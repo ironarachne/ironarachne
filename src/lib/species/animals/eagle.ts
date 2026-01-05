@@ -1,56 +1,56 @@
-import * as Sizes from "$lib/size/sizes.js";
-import type Species from "../species.js";
+import * as Sizes from '$lib/size/sizes.js';
+import type Species from '../species.js';
 
-export default (<Species>{
-  name: "eagle",
-  pluralName: "eagles",
-  adjective: "eagle",
-  breedType: "eagle",
-  environments: ["desert", "forest", "grassland", "mountain"],
-  creatureTypes: ["beast"],
+export default <Species>{
+  name: 'eagle',
+  pluralName: 'eagles',
+  adjective: 'eagle',
+  breedType: 'eagle',
+  environments: ['desert', 'forest', 'grassland', 'mountain'],
+  creatureTypes: ['beast'],
   physicalTraitGeneratorConfigs: [
     {
-      name: "feathers",
-      category: "feathers",
-      options: ["black", "brown", "tan"],
-      tags: ["feathers"],
+      name: 'feathers',
+      category: 'feathers',
+      options: ['black', 'brown', 'tan'],
+      tags: ['feathers'],
     },
     {
-      name: "beak",
-      category: "beak",
-      options: ["brown", "yellow", "light", "black"],
-      tags: ["beak"],
+      name: 'beak',
+      category: 'beak',
+      options: ['brown', 'yellow', 'light', 'black'],
+      tags: ['beak'],
     },
     {
-      name: "eyes",
-      category: "eyes",
-      options: ["amber", "brown", "dark", "green"],
-      tags: ["eyes"],
+      name: 'eyes',
+      category: 'eyes',
+      options: ['amber', 'brown', 'dark', 'green'],
+      tags: ['eyes'],
     },
   ],
   ageCategories: [
     {
-      name: "hatchling",
-      noun: "baby",
+      name: 'hatchling',
+      noun: 'baby',
       minAge: 0,
       maxAge: 1,
-      genderedNoun: ["baby girl", "baby boy", "baby"],
+      genderedNoun: ['baby girl', 'baby boy', 'baby'],
       commonality: 1,
     },
     {
-      name: "adult",
-      noun: "adult",
+      name: 'adult',
+      noun: 'adult',
       minAge: 2,
       maxAge: 30,
-      genderedNoun: ["woman", "man", "adult"],
+      genderedNoun: ['woman', 'man', 'adult'],
       commonality: 20,
     },
     {
-      name: "elderly",
-      noun: "elder",
+      name: 'elderly',
+      noun: 'elder',
       minAge: 31,
       maxAge: 45,
-      genderedNoun: ["old woman", "old man", "elder"],
+      genderedNoun: ['old woman', 'old man', 'elder'],
       commonality: 3,
     },
   ],
@@ -59,24 +59,24 @@ export default (<Species>{
   commonality: 5,
   genders: [
     {
-      name: "female",
+      name: 'female',
       pronouns: {
-        subjective: "she",
-        objective: "her",
-        possessive: "her",
-        reflexive: "herself",
+        subjective: 'she',
+        objective: 'her',
+        possessive: 'her',
+        reflexive: 'herself',
       },
     },
     {
-      name: "male",
+      name: 'male',
       pronouns: {
-        subjective: "he",
-        objective: "him",
-        possessive: "his",
-        reflexive: "himself",
+        subjective: 'he',
+        objective: 'him',
+        possessive: 'his',
+        reflexive: 'himself',
       },
     },
   ],
   sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
-  tags: ["eagle"],
-});
+  tags: ['eagle'],
+};

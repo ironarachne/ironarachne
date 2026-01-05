@@ -1,4 +1,4 @@
-import type { RNG } from "@ironarachne/rng";
+import type { RNG } from '@ironarachne/rng';
 
 export default interface ClimateGeneratorConfig {
   elevation: number; // -1.0-1.0, 0 being sea level, -1 being the lowest possible elevation, 1 being the highest

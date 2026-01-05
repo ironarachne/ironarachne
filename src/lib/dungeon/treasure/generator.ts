@@ -1,6 +1,6 @@
-import * as RNG from "@ironarachne/rng";
-import type Item from "../../equipment/item.js";
-import TreasureGeneratorConfig from "./generatorconfig.js";
+import * as RNG from '@ironarachne/rng';
+import type Item from '../../equipment/item.js';
+import TreasureGeneratorConfig from './generatorconfig.js';
 
 export default class TreasureResultGenerator {
   config: TreasureGeneratorConfig;

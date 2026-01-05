@@ -1,5 +1,5 @@
-import type AppearanceTrait from "$lib/appearance/trait";
-import Realm from "./realm";
+import type AppearanceTrait from '$lib/appearance/trait';
+import Realm from './realm';
 
 export function newRealm(
   name: string,

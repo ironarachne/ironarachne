@@ -1,7 +1,7 @@
-import * as RNG from "@ironarachne/rng";
-import Component from "./components/component.js";
-import type Item from "./item.js";
-import * as Patterns from "./patterns/patterns.js";
+import * as RNG from '@ironarachne/rng';
+import Component from './components/component.js';
+import type Item from './item.js';
+import * as Patterns from './patterns/patterns.js';
 
 export function generate(
   category: string,
@@ -12,7 +12,7 @@ export function generate(
   let result = [];
   let patterns = [];
 
-  if (category == "general") {
+  if (category == 'general') {
     patterns = Patterns.all();
   } else {
     patterns = Patterns.forCategory(category);

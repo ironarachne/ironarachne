@@ -1,9 +1,9 @@
-import * as Characters from "$lib/characters/characters.js";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import * as Deities from "./deities.js";
-import type Deity from "./deity.js";
-import type DeityGeneratorConfig from "./generatorconfig.js";
+import * as Characters from '$lib/characters/characters.js';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import * as Deities from './deities.js';
+import type Deity from './deity.js';
+import type DeityGeneratorConfig from './generatorconfig.js';
 
 export default class DeityGenerator {
   config: DeityGeneratorConfig;
@@ -16,23 +16,21 @@ export default class DeityGenerator {
     let possibleHolyItems: string[] = [];
     let possibleHolySymbols: string[] = [];
 
-    const characterDetails = Characters.generate(
-      this.config.characterGeneratorConfig,
-    );
+    const characterDetails = Characters.generate(this.config.characterGeneratorConfig);
 
     if (this.config.maleNameGenerator === null) {
-      throw new Error("male name generator not set");
+      throw new Error('male name generator not set');
     } else if (this.config.femaleNameGenerator === null) {
-      throw new Error("female name generator not set");
+      throw new Error('female name generator not set');
     }
     let deityName = this.config.femaleNameGenerator.generate(1)[0];
-    if (characterDetails.gender.name == "male") {
+    if (characterDetails.gender.name == 'male') {
       deityName = this.config.maleNameGenerator.generate(1)[0];
     }
 
     let realm = RNG.item(this.config.realms);
     if (realm === undefined) {
-      throw new Error("realm is undefined");
+      throw new Error('realm is undefined');
     }
 
     let deity = Deities.newDeity(
@@ -63,7 +61,7 @@ export default class DeityGenerator {
       let realmTrait = RNG.item(deity.realm.appearanceTraits);
       if (realmTrait === undefined) {
         console.log(JSON.stringify(deity.realm));
-        throw new Error("realm appearance trait is undefined");
+        throw new Error('realm appearance trait is undefined');
       }
       appearanceTraits.push(realmTrait.phrase);
     }
@@ -84,9 +82,5 @@ function describePersonality(deity: Deity): string {
     traits.push(deity.personalityTraits[i].descriptor);
   }
 
-  return (
-    Words.capitalize(deity.gender.pronouns.subjective) +
-    " is " +
-    Words.arrayToPhrase(traits)
-  );
+  return Words.capitalize(deity.gender.pronouns.subjective) + ' is ' + Words.arrayToPhrase(traits);
 }

@@ -1,5 +1,5 @@
-import type { RNG } from "@ironarachne/rng";
-import type { WeaponType } from "./weapons";
+import type { RNG } from '@ironarachne/rng';
+import type { WeaponType } from './weapons';
 
 export default class WeaponGeneratorConfig {
   weaponTypes: WeaponType[];

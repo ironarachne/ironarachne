@@ -5,8 +5,8 @@ export default class Word {
   meaning: string;
 
   constructor(speechPart: string, meaning: string) {
-    this.root = "";
-    this.pronunciation = "";
+    this.root = '';
+    this.pronunciation = '';
     this.speechPart = speechPart;
     this.meaning = meaning;
   }

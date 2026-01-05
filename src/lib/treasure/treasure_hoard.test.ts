@@ -7,7 +7,7 @@ describe('treasure_hoard', () => {
     it('should generate a hoard with total value close to target value', () => {
       const targetValue = 10000;
       // Exclude expensive containers like iron safe (10000) to avoid skewing the total value
-      const cheapContainerTypes = baseContainerTypes.filter(ct => ct.value < 1000);
+      const cheapContainerTypes = baseContainerTypes.filter((ct) => ct.value < 1000);
 
       const config = {
         targetValue,
@@ -159,7 +159,7 @@ describe('treasure_hoard', () => {
     });
 
     it('should not pack large art objects into small containers', () => {
-      const smallContainerTypes = baseContainerTypes.filter(ct => ct.defaultVolume < 1); // Very small containers
+      const smallContainerTypes = baseContainerTypes.filter((ct) => ct.defaultVolume < 1); // Very small containers
       const config = {
         targetValue: 5000,
         artObjectProportion: 1,
@@ -172,7 +172,7 @@ describe('treasure_hoard', () => {
       const art = hoard.filter((i: any) => i.artist !== undefined);
 
       // Check that art objects that are too big are NOT in containers
-      const maxContainerVolume = Math.max(...smallContainerTypes.map(c => c.defaultVolume));
+      const maxContainerVolume = Math.max(...smallContainerTypes.map((c) => c.defaultVolume));
 
       for (const item of art) {
         const itemVolume = getVolume(item);
@@ -199,7 +199,11 @@ describe('treasure_hoard', () => {
     });
 
     it('should return empty array for zero value', () => {
-      const hoard = getTreasureHoardForValue(0, { coins: 1, artObjects: 1, gems: 1 }, baseContainerTypes);
+      const hoard = getTreasureHoardForValue(
+        0,
+        { coins: 1, artObjects: 1, gems: 1 },
+        baseContainerTypes,
+      );
       expect(hoard).toHaveLength(0);
     });
 
@@ -233,9 +237,19 @@ describe('treasure_hoard', () => {
       // 10000 gp = 10000 coins. 10000 * 0.001kg = 10kg.
       // Gold density ~19.3. Volume ~0.5L.
       // This fits easily.
-      const standardHoard = getTreasureHoardForValue(value, proportions, baseContainerTypes, roomDimensions);
-      const standardContainers = standardHoard.filter((i: any) => i.contents !== undefined) as Container[];
-      const totalStandardContainerVolume = standardContainers.reduce((sum, c) => sum + c.maxVolume, 0);
+      const standardHoard = getTreasureHoardForValue(
+        value,
+        proportions,
+        baseContainerTypes,
+        roomDimensions,
+      );
+      const standardContainers = standardHoard.filter(
+        (i: any) => i.contents !== undefined,
+      ) as Container[];
+      const totalStandardContainerVolume = standardContainers.reduce(
+        (sum, c) => sum + c.maxVolume,
+        0,
+      );
 
       expect(totalStandardContainerVolume).toBeLessThanOrEqual(1000); // 1000L
 

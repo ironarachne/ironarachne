@@ -1,18 +1,14 @@
-import type { AstronomicalBody } from "$lib/astronomical_bodies/astronomical_bodies";
-import { getPlanetClassifications } from "./planet/planet_classifications";
+import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
+import { getPlanetClassifications } from './planet/planet_classifications';
 import {
   generatePlanet,
   getDefaultPlanetGenerationConfig,
   type PlanetClassification,
-} from "./planet/planets";
-import { getStarClassifications } from "./star/star_classifications";
-import {
-  generateStar,
-  getDefaultStarGeneratorConfig,
-  type StarClassification,
-} from "./star/stars";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+} from './planet/planets';
+import { getStarClassifications } from './star/star_classifications';
+import { generateStar, getDefaultStarGeneratorConfig, type StarClassification } from './star/stars';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
 export type StarSystem = {
   name: string;
@@ -43,9 +39,7 @@ export function getDefaultStarSystemGeneratorConfig(): StarSystemGenerationConfi
   };
 }
 
-export function generateStarSystem(
-  config: StarSystemGenerationConfig,
-): StarSystem {
+export function generateStarSystem(config: StarSystemGenerationConfig): StarSystem {
   const stars = [];
   const star_config = getDefaultStarGeneratorConfig();
   star_config.star_classifications = config.star_classifications;

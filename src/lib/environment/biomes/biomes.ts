@@ -1,10 +1,10 @@
-import type Biome from "./biome";
-import type BiomeGeneratorConfig from "./generator_config";
-import * as BiomeTypes from "./biome_types";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+import type Biome from './biome';
+import type BiomeGeneratorConfig from './generator_config';
+import * as BiomeTypes from './biome_types';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
-import type BiomeType from "./biome_type.js";
+import type BiomeType from './biome_type.js';
 
 export function generate(config: BiomeGeneratorConfig): Biome {
   const biomeType = getBiomeTypeForConfig(config);
@@ -26,25 +26,25 @@ export function generate(config: BiomeGeneratorConfig): Biome {
 }
 
 export function generateBiomeName(biome: Biome): string {
-  let name = "plains";
+  let name = 'plains';
 
   if (biome.temperature > 25) {
     if (biome.humidity > 0.5) {
-      name = "rainforest";
+      name = 'rainforest';
     } else {
-      name = "desert";
+      name = 'desert';
     }
   } else if (biome.temperature > 15) {
     if (biome.humidity > 0.5) {
-      name = "forest";
+      name = 'forest';
     } else {
-      name = "grassland";
+      name = 'grassland';
     }
   } else if (biome.temperature > 5) {
     if (biome.humidity > 0.5) {
-      name = "temperate forest";
+      name = 'temperate forest';
     } else {
-      name = "tundra";
+      name = 'tundra';
     }
   }
 
@@ -55,44 +55,43 @@ export function generateBiomeDescriptions(biomeType: BiomeType, rng: RNG.RNG): s
   let descriptions = [];
 
   const averageHumidity = (biomeType.humidityMax + biomeType.humidityMin) / 2;
-  const averageTemperature =
-    (biomeType.temperatureMax + biomeType.temperatureMin) / 2;
+  const averageTemperature = (biomeType.temperatureMax + biomeType.temperatureMin) / 2;
   const averageAltitude = (biomeType.altitudeMax + biomeType.altitudeMin) / 2;
 
   let temperatureDescriptors = [];
 
   if (averageTemperature < 0) {
-    temperatureDescriptors = ["freezing"];
+    temperatureDescriptors = ['freezing'];
   } else if (averageTemperature < 10) {
-    temperatureDescriptors = ["cold"];
+    temperatureDescriptors = ['cold'];
   } else if (averageTemperature < 20) {
-    temperatureDescriptors = ["cool"];
+    temperatureDescriptors = ['cool'];
   } else if (averageTemperature < 30) {
-    temperatureDescriptors = ["warm"];
+    temperatureDescriptors = ['warm'];
   } else {
-    temperatureDescriptors = ["hot"];
+    temperatureDescriptors = ['hot'];
   }
 
   let humidityDescriptors = [];
 
   if (averageHumidity < 0.2) {
-    humidityDescriptors = ["arid"];
+    humidityDescriptors = ['arid'];
   } else if (averageHumidity < 0.4) {
-    humidityDescriptors = ["dry"];
+    humidityDescriptors = ['dry'];
   } else if (averageHumidity < 0.6) {
-    humidityDescriptors = ["damp"];
+    humidityDescriptors = ['damp'];
   } else {
-    humidityDescriptors = ["humid"];
+    humidityDescriptors = ['humid'];
   }
 
   let altitudeDescriptors = [];
 
   if (averageAltitude < 0.2) {
-    altitudeDescriptors = ["low-altitude"];
+    altitudeDescriptors = ['low-altitude'];
   } else if (averageAltitude < 0.6) {
-    altitudeDescriptors = ["mid-altitude"];
+    altitudeDescriptors = ['mid-altitude'];
   } else {
-    altitudeDescriptors = ["high-altitude"];
+    altitudeDescriptors = ['high-altitude'];
   }
 
   descriptions = [
@@ -136,9 +135,7 @@ export function generateBiomeFeatures(biomeType: BiomeType, rng: RNG.RNG): strin
     } else if (biomeType.waterFeatureDensity > 0.3) {
       features.push(`There is a small ${waterFeature} here.`);
     } else {
-      features.push(
-        `There is ${Words.article(waterFeature)} ${waterFeature} here.`,
-      );
+      features.push(`There is ${Words.article(waterFeature)} ${waterFeature} here.`);
     }
   }
 
@@ -153,7 +150,7 @@ export function getDefaultConfig(): BiomeGeneratorConfig {
     isAquatic: false,
     temperatureMin: 0,
     temperatureMax: 30,
-    rng: new RNG.RNG(Date.now().toString())
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }
 
@@ -166,17 +163,11 @@ function getBiomeTypeForConfig(config: BiomeGeneratorConfig): BiomeType {
   for (let type of biomeTypes) {
     let score = 0;
 
-    if (
-      config.altitude >= type.altitudeMin &&
-      config.altitude <= type.altitudeMax
-    ) {
+    if (config.altitude >= type.altitudeMin && config.altitude <= type.altitudeMax) {
       score++;
     }
 
-    if (
-      config.humidityMin >= type.humidityMin &&
-      config.humidityMax <= type.humidityMax
-    ) {
+    if (config.humidityMin >= type.humidityMin && config.humidityMax <= type.humidityMax) {
       score++;
     }
 
@@ -195,7 +186,7 @@ function getBiomeTypeForConfig(config: BiomeGeneratorConfig): BiomeType {
   }
 
   let highestScore = 0;
-  let highestScoreName = "";
+  let highestScoreName = '';
 
   for (let [key, value] of scores) {
     if (value > highestScore) {

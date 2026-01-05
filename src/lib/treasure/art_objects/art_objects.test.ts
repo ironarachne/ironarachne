@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { generateArtObject, getArtObjectOfMaxValue, getArtObjectsForValue, artObjectTypes, generateRandomArtObject, getDefaultArtObjectGeneratorConfig, getRandomArtObjectsForValue } from './art_objects';
+import {
+  generateArtObject,
+  getArtObjectOfMaxValue,
+  getArtObjectsForValue,
+  artObjectTypes,
+  generateRandomArtObject,
+  getDefaultArtObjectGeneratorConfig,
+  getRandomArtObjectsForValue,
+} from './art_objects';
 
 describe('art_objects', () => {
   describe('generateArtObject', () => {

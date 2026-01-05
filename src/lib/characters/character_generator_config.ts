@@ -1,7 +1,7 @@
-import type PhysicalTrait from "$lib/physical_traits/physical_trait";
-import type Species from "$lib/species/species";
-import type * as MUN from "@ironarachne/made-up-names";
-import type { RNG } from "@ironarachne/rng";
+import type PhysicalTrait from '$lib/physical_traits/physical_trait';
+import type Species from '$lib/species/species';
+import type * as MUN from '@ironarachne/made-up-names';
+import type { RNG } from '@ironarachne/rng';
 
 export default interface CharacterGeneratorConfig {
   ageCategoryNames: string[];

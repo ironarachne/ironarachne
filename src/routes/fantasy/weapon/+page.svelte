@@ -1,38 +1,33 @@
 <script lang="ts">
-import * as Domains from "$lib/religion/domains/domains";
-import * as Weapon from "$lib/equipment/weapon";
-import * as RNG from "@ironarachne/rng";
+  import * as Domains from '$lib/religion/domains/domains';
+  import * as Weapon from '$lib/equipment/weapon';
+  import * as RNG from '@ironarachne/rng';
 
-const themes = Domains.getAllDomainNames().sort();
-const categories = Weapon.getAllWeaponCategories().sort();
+  const themes = Domains.getAllDomainNames().sort();
+  const categories = Weapon.getAllWeaponCategories().sort();
 
-let rng = new RNG.RNG(Date.now().toString());
-let seed = $state(rng.randomString(13));
-$effect(() => {
-  rng.setSeed(seed);
-});
-let lockSeed = $state(false);
+  let rng = new RNG.RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
+  $effect(() => {
+    rng.setSeed(seed);
+  });
+  let lockSeed = $state(false);
 
-let category = $state("any");
-let theme = $state("any");
-let weapon = $state(Weapon.generate("any", "any", rng));
+  let category = $state('any');
+  let theme = $state('any');
+  let weapon = $state(Weapon.generate('any', 'any', rng));
 
-function generate() {
-  if (!lockSeed) {
-    seed = rng.randomString(13);
+  function generate() {
+    if (!lockSeed) {
+      seed = rng.randomString(13);
+    }
+    rng.setSeed(seed);
+    weapon = Weapon.generate(category, theme, rng);
+    weapon.description = `${weapon.name} is ${weapon.description}`;
   }
-  rng.setSeed(seed);
-  weapon = Weapon.generate(category, theme, rng);
-  weapon.description = `${weapon.name} is ${weapon.description}`;
-}
 
-generate();
+  generate();
 </script>
-
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-</style>
 
 <svelte:head>
   <title>Magic Weapon Generator | Iron Arachne</title>
@@ -65,8 +60,8 @@ generate();
 
   <div class="input-group">
     <label for="seed">Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed"/>
-    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
+    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
   <button onclick={generate}>Generate</button>
@@ -75,3 +70,8 @@ generate();
 
   <p>{weapon.description}. It {weapon.effect}.</p>
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
+</style>

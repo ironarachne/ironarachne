@@ -1,5 +1,5 @@
-import type * as RNG from "@ironarachne/rng";
-import type RoomTheme from "./themes/theme.js";
+import type * as RNG from '@ironarachne/rng';
+import type RoomTheme from './themes/theme.js';
 
 export default class RoomGeneratorConfig {
   mapHeight: number;

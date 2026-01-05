@@ -1,4 +1,4 @@
-import type Character from "../character.js";
+import type Character from '../character.js';
 
 export default interface FamilyMember {
   id: number;

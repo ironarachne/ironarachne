@@ -1,17 +1,17 @@
-import RelationshipGenerator from "$lib/relationships/generator.js";
-import type Relationship from "$lib/relationships/relationship.js";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+import RelationshipGenerator from '$lib/relationships/generator.js';
+import type Relationship from '$lib/relationships/relationship.js';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
-import DeityGenerator from "../deities/generator.js";
-import DeityGeneratorConfig from "../deities/generatorconfig.js";
-import type DomainSet from "../domains/domainset.js";
-import DomainGenerator from "../domains/generator.js";
-import DomainGeneratorConfig from "../domains/generatorconfig.js";
-import type PantheonGeneratorConfig from "./generatorconfig.js";
-import Pantheon from "./pantheon.js";
-import PantheonMember from "./pantheonmember.js";
-import type Domain from "../domains/domain.js";
+import DeityGenerator from '../deities/generator.js';
+import DeityGeneratorConfig from '../deities/generatorconfig.js';
+import type DomainSet from '../domains/domainset.js';
+import DomainGenerator from '../domains/generator.js';
+import DomainGeneratorConfig from '../domains/generatorconfig.js';
+import type PantheonGeneratorConfig from './generatorconfig.js';
+import Pantheon from './pantheon.js';
+import PantheonMember from './pantheonmember.js';
+import type Domain from '../domains/domain.js';
 
 export default class PantheonGenerator {
   config: PantheonGeneratorConfig;
@@ -24,16 +24,12 @@ export default class PantheonGenerator {
     let pantheon = new Pantheon();
 
     let deityGenConfig = new DeityGeneratorConfig();
-    deityGenConfig.characterGeneratorConfig.speciesOptions =
-      this.config.speciesOptions;
+    deityGenConfig.characterGeneratorConfig.speciesOptions = this.config.speciesOptions;
     deityGenConfig.realms = this.config.realms;
     deityGenConfig.femaleNameGenerator = this.config.femaleNameGenerator;
     deityGenConfig.maleNameGenerator = this.config.maleNameGenerator;
 
-    const numberOfDeities = this.config.rng.int(
-      this.config.minDeities,
-      this.config.maxDeities,
-    );
+    const numberOfDeities = this.config.rng.int(this.config.minDeities, this.config.maxDeities);
 
     const domainSets = randomDomainSets(numberOfDeities, this.config.rng);
 
@@ -83,19 +79,14 @@ export default class PantheonGenerator {
           relationships.push(
             getRelationshipPhrase(
               pantheon.members[i].relationships[x],
-              pantheon.members[pantheon.members[i].relationships[x].target]
-                .deity.name,
+              pantheon.members[pantheon.members[i].relationships[x].target].deity.name,
               this.config.rng,
             ),
           );
         }
 
         const relationshipDescription =
-          " " +
-          pantheon.members[i].deity.name +
-          " " +
-          Words.arrayToPhrase(relationships) +
-          ".";
+          ' ' + pantheon.members[i].deity.name + ' ' + Words.arrayToPhrase(relationships) + '.';
 
         pantheon.members[i].deity.description += relationshipDescription;
       }
@@ -118,9 +109,7 @@ function randomDomainSets(numberOfSets: number, rng: RNG.RNG): DomainSet[] {
   let domainGen = new DomainGenerator(domainGenConfig);
 
   let sets = [];
-  let allDomains = rng.shuffle(
-    JSON.parse(JSON.stringify(domainGenConfig.domains)),
-  );
+  let allDomains = rng.shuffle(JSON.parse(JSON.stringify(domainGenConfig.domains)));
 
   for (let i = 0; i < numberOfSets; i++) {
     let domains: Domain[] = [];

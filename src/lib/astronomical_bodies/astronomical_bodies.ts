@@ -1,4 +1,4 @@
-import { clamp } from "$lib/math_translation";
+import { clamp } from '$lib/math_translation';
 
 export type AstronomicalBody = {
   name: string;
@@ -65,10 +65,7 @@ export function getAlbedoFromTemperature(temperature: number): number {
   return 0.26 + 0.74 * temperature ** -1.5;
 }
 
-export function getGravityFromMassAndRadius(
-  mass: number,
-  radius: number,
-): number {
+export function getGravityFromMassAndRadius(mass: number, radius: number): number {
   // Note: mass is in kg x 10^24, radius is in km
 
   // The formula for gravity is g = G * M / r^2
@@ -81,14 +78,9 @@ export function getGravityFromMassAndRadius(
   return gravity; // in m/s^2
 }
 
-export function getSolarTemperature(
-  luminosity: number,
-  radius: number,
-): number {
+export function getSolarTemperature(luminosity: number, radius: number): number {
   // This is based on the Stefan-Boltzmann law
-  return (
-    (luminosity * 4 * Math.PI * radius ** 2) ** 0.25 / stefanBoltzmannConstant
-  );
+  return (luminosity * 4 * Math.PI * radius ** 2) ** 0.25 / stefanBoltzmannConstant;
 }
 
 export function getPlanetTemperature(
@@ -121,12 +113,9 @@ export function getPlanetTemperature(
   const c = 3;
   const d = 0;
 
-  let planet_temperature =
-    base_temperature + base_temperature * temperature_factor * 1.95;
+  let planet_temperature = base_temperature + base_temperature * temperature_factor * 1.95;
   planet_temperature =
-    planet_temperature * Math.log(a * atmosphere_density + b) -
-    c * orbital_distance +
-    d;
+    planet_temperature * Math.log(a * atmosphere_density + b) - c * orbital_distance + d;
 
   return planet_temperature;
 }

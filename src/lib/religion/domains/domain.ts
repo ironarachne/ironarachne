@@ -6,7 +6,7 @@ export default class Domain {
   otherEffects: string[];
 
   constructor() {
-    this.name = "";
+    this.name = '';
     this.holyItems = [];
     this.holySymbols = [];
     this.weaponEffects = [];

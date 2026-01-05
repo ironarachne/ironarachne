@@ -1,12 +1,12 @@
-import * as RNG from "@ironarachne/rng";
+import * as RNG from '@ironarachne/rng';
 
-import Borough from "./categories/borough.js";
-import City from "./categories/city.js";
-import Hamlet from "./categories/hamlet.js";
-import Metropolis from "./categories/metropolis.js";
-import Town from "./categories/town.js";
-import Village from "./categories/village.js";
-import type SettlementCategory from "./settlement_category.js";
+import Borough from './categories/borough.js';
+import City from './categories/city.js';
+import Hamlet from './categories/hamlet.js';
+import Metropolis from './categories/metropolis.js';
+import Town from './categories/town.js';
+import Village from './categories/village.js';
+import type SettlementCategory from './settlement_category.js';
 
 export function all(): SettlementCategory[] {
   return [Hamlet, Village, Town, Borough, City, Metropolis];
@@ -26,21 +26,18 @@ export function bySizeClass(sizeClass: string): SettlementCategory[] {
 }
 
 export function small(): SettlementCategory[] {
-  return bySizeClass("small");
+  return bySizeClass('small');
 }
 
 export function medium(): SettlementCategory[] {
-  return bySizeClass("medium");
+  return bySizeClass('medium');
 }
 
 export function large(): SettlementCategory[] {
-  return bySizeClass("large");
+  return bySizeClass('large');
 }
 
-export function randomCategory(
-  categories: SettlementCategory[],
-  rng: RNG.RNG
-): SettlementCategory {
+export function randomCategory(categories: SettlementCategory[], rng: RNG.RNG): SettlementCategory {
   return rng.item(categories);
 }
 

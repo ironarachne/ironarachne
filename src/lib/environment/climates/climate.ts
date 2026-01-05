@@ -1,4 +1,4 @@
-import type Season from "./season";
+import type Season from './season';
 
 export default interface Climate {
   name: string;

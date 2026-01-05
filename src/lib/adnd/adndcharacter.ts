@@ -1,8 +1,8 @@
-import ADNDArmor from "./adndarmor.js";
-import ADNDClass from "./adndclass.js";
-import ADNDRace from "./adndrace.js";
-import ADNDSpell from "./adndspell.js";
-import ADNDWeapon from "./adndweapon.js";
+import ADNDArmor from './adndarmor.js';
+import ADNDClass from './adndclass.js';
+import ADNDRace from './adndrace.js';
+import ADNDSpell from './adndspell.js';
+import ADNDWeapon from './adndweapon.js';
 
 export default class ADNDCharacter {
   firstName: string;
@@ -64,16 +64,16 @@ export default class ADNDCharacter {
   weapons: ADNDWeapon[];
 
   constructor() {
-    this.firstName = "";
-    this.lastName = "";
+    this.firstName = '';
+    this.lastName = '';
     this.level = 1;
     this.xp = 0;
     this.ac = 10;
     this.currency = 0;
     this.exceptionalStrength = -1;
-    this.hitProbability = "normal";
-    this.damageAdjustment = "none";
-    this.regeneration = "nil";
+    this.hitProbability = 'normal';
+    this.damageAdjustment = 'none';
+    this.regeneration = 'nil';
     this.chanceToLearnSpell = -1;
     this.bonusSpells = [];
     this.spellImmunity = [];

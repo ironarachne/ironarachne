@@ -1,5 +1,5 @@
-import type Vertex from "$lib/geometry/vertex.js";
-import type Lock from "./lock.js";
+import type Vertex from '$lib/geometry/vertex.js';
+import type Lock from './lock.js';
 
 export default interface Door {
   room1: number;

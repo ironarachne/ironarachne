@@ -1,11 +1,11 @@
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import * as Currency from "../../currency/currency.js";
-import type Item from "../../equipment/item.js";
-import ItemGenerator from "../../equipment/itemgenerator.js";
-import ItemGeneratorConfig from "../../equipment/itemgeneratorconfig.js";
-import * as Patterns from "../../equipment/patterns/patterns.js";
-import type TreasureGenerator from "./treasuregenerator.js";
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import * as Currency from '../../currency/currency.js';
+import type Item from '../../equipment/item.js';
+import ItemGenerator from '../../equipment/itemgenerator.js';
+import ItemGeneratorConfig from '../../equipment/itemgeneratorconfig.js';
+import * as Patterns from '../../equipment/patterns/patterns.js';
+import type TreasureGenerator from './treasuregenerator.js';
 
 export default class MagicItemGenerator implements TreasureGenerator {
   minValue: number;

@@ -1,6 +1,6 @@
-import type Domain from "./domain.js";
-import * as Domains from "./domains.js";
-import * as RNG from "@ironarachne/rng";
+import type Domain from './domain.js';
+import * as Domains from './domains.js';
+import * as RNG from '@ironarachne/rng';
 
 export default class DomainGeneratorConfig {
   numberOfDomains: number;

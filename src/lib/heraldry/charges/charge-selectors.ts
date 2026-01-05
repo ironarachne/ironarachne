@@ -1,6 +1,6 @@
-import * as RNG from "@ironarachne/rng";
-import type { Charge } from "./charge-types.js";
-import { getAllCharges } from "./charge-data.js";
+import * as RNG from '@ironarachne/rng';
+import type { Charge } from './charge-types.js';
+import { getAllCharges } from './charge-data.js';
 
 export function all(): Charge[] {
   return getAllCharges();

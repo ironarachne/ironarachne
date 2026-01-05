@@ -1,11 +1,11 @@
-import type Encounter from "$lib/encounters/encounter.js";
-import type Edge from "$lib/geometry/edge.js";
-import * as Geometry from "$lib/geometry/geometry.js";
-import type Polygon from "$lib/geometry/polygon.js";
-import type Vertex from "$lib/geometry/vertex.js";
-import * as Tiles from "../tiles.js";
-import type RoomFeature from "./features/feature.js";
-import RoomTheme from "./themes/theme.js";
+import type Encounter from '$lib/encounters/encounter.js';
+import type Edge from '$lib/geometry/edge.js';
+import * as Geometry from '$lib/geometry/geometry.js';
+import type Polygon from '$lib/geometry/polygon.js';
+import type Vertex from '$lib/geometry/vertex.js';
+import * as Tiles from '../tiles.js';
+import type RoomFeature from './features/feature.js';
+import RoomTheme from './themes/theme.js';
 
 export default class Room {
   id: number;
@@ -30,20 +30,20 @@ export default class Room {
 
   constructor() {
     this.id = -1;
-    this.name = "";
+    this.name = '';
     this.tileMesh = [];
     this.encounters = [];
     this.features = [];
     this.doors = [];
-    this.description = "";
+    this.description = '';
     this.minX = 0;
     this.minY = 0;
     this.maxX = 0;
     this.maxY = 0;
     this.center = { x: 0, y: 0 };
     this.shape = { vertices: [], edges: [] };
-    this.theme = new RoomTheme("", [], 0, 0, 0, 0, [], [], [], [], [], [], 0);
-    this.secrets = "";
+    this.theme = new RoomTheme('', [], 0, 0, 0, 0, [], [], [], [], [], [], 0);
+    this.secrets = '';
     this.tiles = [];
     this.treasureCaches = [];
     this.vertices = [];

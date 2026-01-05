@@ -1,7 +1,7 @@
-import { addItemToContainer, getVolume, type Container } from "$lib/equipment";
-import type { CoinGenerationConfig, CoinSystem, PileOfCoins } from "./coin_types";
-import { RNG } from "@ironarachne/rng";
-import { getDefaultCoinSystem } from "./coins";
+import { addItemToContainer, getVolume, type Container } from '$lib/equipment';
+import type { CoinGenerationConfig, CoinSystem, PileOfCoins } from './coin_types';
+import { RNG } from '@ironarachne/rng';
+import { getDefaultCoinSystem } from './coins';
 
 /**
  * Create a pile of coins.
@@ -14,7 +14,14 @@ import { getDefaultCoinSystem } from "./coins";
  * @param description the description of the pile of coins
  * @returns
  */
-export function generatePileOfCoins(id: string, denomination: string, quantity: number, value: number, name?: string, description?: string): PileOfCoins {
+export function generatePileOfCoins(
+  id: string,
+  denomination: string,
+  quantity: number,
+  value: number,
+  name?: string,
+  description?: string,
+): PileOfCoins {
   return {
     id,
     name: name || `pile of ${quantity} ${denomination} coins`,
@@ -28,7 +35,7 @@ export function generatePileOfCoins(id: string, denomination: string, quantity: 
     properties: [],
     weight: 0.001 * quantity, // Assume each coin weighs 0.001 kg
     densityCategory: 'dense',
-  }
+  };
 }
 
 /**
@@ -43,20 +50,22 @@ export function generateRandomPileOfCoins(seed: string, config: CoinGenerationCo
 
   const allowedDenominations = config.allowedDenominations || config.coinSystem.denominations;
   const minDenominationIndex = config.minDenomination ? config.minDenomination : 0;
-  const maxDenominationIndex = config.maxDenomination ? config.maxDenomination : config.coinSystem.denominations.length - 1;
+  const maxDenominationIndex = config.maxDenomination
+    ? config.maxDenomination
+    : config.coinSystem.denominations.length - 1;
 
   const filteredDenominations = allowedDenominations.filter((denom, index) => {
     return index >= minDenominationIndex && index <= maxDenominationIndex;
   });
 
   if (filteredDenominations.length === 0) {
-    throw new Error("No denominations available for the specified configuration.");
+    throw new Error('No denominations available for the specified configuration.');
   }
 
   const denomination = rng.item(filteredDenominations);
 
   const minValue = config.minValue || denomination.value;
-  const maxValue = config.maxValue || (denomination.value * 1000); // Arbitrary upper limit
+  const maxValue = config.maxValue || denomination.value * 1000; // Arbitrary upper limit
 
   const targetValue = rng.int(minValue, maxValue);
   const maxQuantity = Math.floor(targetValue / denomination.value);
@@ -77,7 +86,7 @@ export function generateRandomPileOfCoins(seed: string, config: CoinGenerationCo
     properties: [],
     weight: 0.001 * quantity,
     densityCategory: 'dense',
-  }
+  };
 }
 
 /**
@@ -103,9 +112,13 @@ export function getDefaultCoinGenerationConfig(): CoinGenerationConfig {
  * @param reductionValue the value to decrease the pile by
  * @returns
  */
-export function decreaseValueOfPileOfCoins(pile: PileOfCoins, reductionValue: number, coinSystem: CoinSystem): PileOfCoins {
+export function decreaseValueOfPileOfCoins(
+  pile: PileOfCoins,
+  reductionValue: number,
+  coinSystem: CoinSystem,
+): PileOfCoins {
   const totalValue = pile.value - reductionValue;
-  const coinValue = coinSystem.denominations.find(d => d.name === pile.denomination)?.value || 0;
+  const coinValue = coinSystem.denominations.find((d) => d.name === pile.denomination)?.value || 0;
   const newQuantity = Math.max(0, Math.floor(totalValue / coinValue));
   const newValue = newQuantity * coinValue;
   const newWeight = 0.01 * newQuantity;
@@ -124,7 +137,10 @@ export function decreaseValueOfPileOfCoins(pile: PileOfCoins, reductionValue: nu
  * @param denomination The highest denomination to include proportions for
  * @returns
  */
-export function getDenominationProportionsUpToDenomination(denomination: string, coinSystem: CoinSystem): Record<string, number> {
+export function getDenominationProportionsUpToDenomination(
+  denomination: string,
+  coinSystem: CoinSystem,
+): Record<string, number> {
   const proportions: Record<string, number> = {
     copper: 0,
     silver: 0,
@@ -133,7 +149,7 @@ export function getDenominationProportionsUpToDenomination(denomination: string,
     platinum: 0,
   };
 
-  const denominationIndex = coinSystem.denominations.findIndex(d => d.name === denomination);
+  const denominationIndex = coinSystem.denominations.findIndex((d) => d.name === denomination);
   const lowerDenominationCount = denominationIndex;
   const baseAmount = lowerDenominationCount > 0 ? Math.floor(10 / lowerDenominationCount) : 0;
   let remainder = lowerDenominationCount > 0 ? 10 % lowerDenominationCount : 0;
@@ -165,7 +181,11 @@ export function getDenominationProportionsUpToDenomination(denomination: string,
  * @param denominationProportions the denominations of coins and their proportions
  * @returns
  */
-export function getSetOfCoinsForValue(targetValue: number, denominationProportions: Record<string, number>, coinSystem: CoinSystem): PileOfCoins[] {
+export function getSetOfCoinsForValue(
+  targetValue: number,
+  denominationProportions: Record<string, number>,
+  coinSystem: CoinSystem,
+): PileOfCoins[] {
   const piles: PileOfCoins[] = [];
   let remainingValue = targetValue;
 
@@ -194,7 +214,7 @@ export function getSetOfCoinsForValue(targetValue: number, denominationProportio
         `coins-${denomination.name}-${piles.length + 1}`,
         denomination.name,
         quantity,
-        value
+        value,
       );
 
       piles.push(pile);
@@ -224,7 +244,7 @@ export function getPileOfCoinsForValue(targetValue: number, coinSystem: CoinSyst
         `coins-${denomination.name}-single`,
         denomination.name,
         quantity,
-        value
+        value,
       );
     }
   }
@@ -240,9 +260,13 @@ export function getPileOfCoinsForValue(targetValue: number, coinSystem: CoinSyst
  * @param additionalValue the amount to increase
  * @returns
  */
-export function increaseValueOfPileOfCoins(pile: PileOfCoins, additionalValue: number, coinSystem: CoinSystem): PileOfCoins {
+export function increaseValueOfPileOfCoins(
+  pile: PileOfCoins,
+  additionalValue: number,
+  coinSystem: CoinSystem,
+): PileOfCoins {
   const totalValue = pile.value + additionalValue;
-  const coinValue = coinSystem.denominations.find(d => d.name === pile.denomination)?.value || 0;
+  const coinValue = coinSystem.denominations.find((d) => d.name === pile.denomination)?.value || 0;
   const newQuantity = Math.floor(totalValue / coinValue);
   const newValue = newQuantity * coinValue;
   const newWeight = 0.01 * newQuantity;
@@ -262,7 +286,11 @@ export function increaseValueOfPileOfCoins(pile: PileOfCoins, additionalValue: n
  * @param splitQuantity the maximum quantity for each split pile
  * @returns
  */
-export function splitPileOfCoins(pile: PileOfCoins, splitQuantity: number, coinSystem: CoinSystem): PileOfCoins[] {
+export function splitPileOfCoins(
+  pile: PileOfCoins,
+  splitQuantity: number,
+  coinSystem: CoinSystem,
+): PileOfCoins[] {
   if (splitQuantity >= pile.quantity) {
     return [pile];
   }
@@ -272,13 +300,15 @@ export function splitPileOfCoins(pile: PileOfCoins, splitQuantity: number, coinS
   const numberOfPilesNeeded = Math.ceil(pile.quantity / splitQuantity);
 
   for (let i = 0; i < numberOfPilesNeeded; i++) {
-    const quantityForThisPile = (i === numberOfPilesNeeded - 1) ? (pile.quantity - (i * splitQuantity)) : splitQuantity;
+    const quantityForThisPile =
+      i === numberOfPilesNeeded - 1 ? pile.quantity - i * splitQuantity : splitQuantity;
 
     const newPile = generatePileOfCoins(
       `${pile.id}-part-${i + 1}`,
       pile.denomination,
       quantityForThisPile,
-      quantityForThisPile * (coinSystem.denominations.find(d => d.name === pile.denomination)?.value || 0)
+      quantityForThisPile *
+        (coinSystem.denominations.find((d) => d.name === pile.denomination)?.value || 0),
     );
 
     newPiles.push(newPile);
@@ -295,8 +325,15 @@ export function splitPileOfCoins(pile: PileOfCoins, splitQuantity: number, coinS
  * @param containers the containers to fill
  * @returns
  */
-export function distributeCoins(pile: PileOfCoins, containers: Container[], coinSystem: CoinSystem, rng?: RNG): { containers: Container[], containedItems: PileOfCoins[], looseItems: PileOfCoins[] } {
-  let sortedContainers = [...containers].sort((a, b) => (b.maxVolume - b.currentVolume) - (a.maxVolume - a.currentVolume));
+export function distributeCoins(
+  pile: PileOfCoins,
+  containers: Container[],
+  coinSystem: CoinSystem,
+  rng?: RNG,
+): { containers: Container[]; containedItems: PileOfCoins[]; looseItems: PileOfCoins[] } {
+  let sortedContainers = [...containers].sort(
+    (a, b) => b.maxVolume - b.currentVolume - (a.maxVolume - a.currentVolume),
+  );
 
   if (rng) {
     sortedContainers = rng.shuffle(sortedContainers);
@@ -305,22 +342,29 @@ export function distributeCoins(pile: PileOfCoins, containers: Container[], coin
   const containedItems: PileOfCoins[] = [];
   const looseItems: PileOfCoins[] = [];
   let remainingQuantity = pile.quantity;
-  const coinValue = coinSystem.denominations.find(d => d.name === pile.denomination)?.value || 0;
+  const coinValue = coinSystem.denominations.find((d) => d.name === pile.denomination)?.value || 0;
   const weightPerCoin = 0.001;
   const volumePerCoin = getVolume({ ...pile, weight: weightPerCoin });
 
   // If we have multiple containers, try to split the pile among them
   // Calculate a target amount per container to encourage spreading
   // But ensure we don't split into tiny piles if not necessary
-  const targetSplit = rng && sortedContainers.length > 0 ? Math.ceil(remainingQuantity / sortedContainers.length) : remainingQuantity;
+  const targetSplit =
+    rng && sortedContainers.length > 0
+      ? Math.ceil(remainingQuantity / sortedContainers.length)
+      : remainingQuantity;
 
   for (const container of sortedContainers) {
     if (remainingQuantity <= 0) {
       break;
     }
 
-    const maxQuantityByWeight = Math.floor((container.maxWeight - container.currentWeight) / weightPerCoin);
-    const maxQuantityByVolume = Math.floor((container.maxVolume - container.currentVolume) / volumePerCoin);
+    const maxQuantityByWeight = Math.floor(
+      (container.maxWeight - container.currentWeight) / weightPerCoin,
+    );
+    const maxQuantityByVolume = Math.floor(
+      (container.maxVolume - container.currentVolume) / volumePerCoin,
+    );
     const maxQuantity = Math.min(maxQuantityByWeight, maxQuantityByVolume);
 
     // If we are spreading, try to take the target split, but vary it a bit
@@ -337,7 +381,7 @@ export function distributeCoins(pile: PileOfCoins, containers: Container[], coin
         `${pile.id}-part-${container.id}`,
         pile.denomination,
         quantityToStore,
-        quantityToStore * coinValue
+        quantityToStore * coinValue,
       );
 
       addItemToContainer(container, newPile);
@@ -352,8 +396,12 @@ export function distributeCoins(pile: PileOfCoins, containers: Container[], coin
     for (const container of sortedContainers) {
       if (remainingQuantity <= 0) break;
 
-      const maxQuantityByWeight = Math.floor((container.maxWeight - container.currentWeight) / weightPerCoin);
-      const maxQuantityByVolume = Math.floor((container.maxVolume - container.currentVolume) / volumePerCoin);
+      const maxQuantityByWeight = Math.floor(
+        (container.maxWeight - container.currentWeight) / weightPerCoin,
+      );
+      const maxQuantityByVolume = Math.floor(
+        (container.maxVolume - container.currentVolume) / volumePerCoin,
+      );
       const maxQuantity = Math.min(maxQuantityByWeight, maxQuantityByVolume);
 
       const quantityToStore = Math.min(remainingQuantity, maxQuantity);
@@ -363,7 +411,7 @@ export function distributeCoins(pile: PileOfCoins, containers: Container[], coin
           `${pile.id}-part-${container.id}-overflow`,
           pile.denomination,
           quantityToStore,
-          quantityToStore * coinValue
+          quantityToStore * coinValue,
         );
 
         addItemToContainer(container, newPile);
@@ -378,7 +426,7 @@ export function distributeCoins(pile: PileOfCoins, containers: Container[], coin
       `${pile.id}-loose`,
       pile.denomination,
       remainingQuantity,
-      remainingQuantity * coinValue
+      remainingQuantity * coinValue,
     );
     looseItems.push(loosePile);
   }
@@ -414,7 +462,7 @@ export function combinePilesOfCoins(piles: PileOfCoins[], coinSystem: CoinSystem
     if (currentPiles.length === 0) continue;
 
     const totalQuantity = currentPiles.reduce((sum, p) => sum + p.quantity, 0);
-    const coinValue = coinSystem.denominations.find(d => d.name === denomination)?.value || 0;
+    const coinValue = coinSystem.denominations.find((d) => d.name === denomination)?.value || 0;
     const totalValue = totalQuantity * coinValue;
 
     // Use the ID of the first pile as a base, or generate a new one
@@ -425,5 +473,3 @@ export function combinePilesOfCoins(piles: PileOfCoins[], coinSystem: CoinSystem
 
   return consolidatedPiles;
 }
-
-

@@ -117,7 +117,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A heavy melee weapon that deals bludgeoning damage.',
-  }
+  },
 ];
 
 export function createWeapon(id: string, type: WeaponType, name?: string): Weapon {
@@ -137,7 +137,7 @@ export function createWeapon(id: string, type: WeaponType, name?: string): Weapo
     hands: type.hands,
     densityCategory: 'dense',
     weight: type.hands === 2 ? 5 : 3,
-  }
+  };
 }
 
 export function generateWeapon(seed: string): Weapon {
@@ -156,6 +156,8 @@ export function getValueOfWeaponType(type: WeaponType): number {
   const baseValue = 10;
   const damageParts = type.damage.split('d');
   const handsMultiplier = type.hands === 2 ? 1.5 : 1;
-  const averageDamage = Math.floor((Number.parseInt(damageParts[0], 10) * (Number.parseInt(damageParts[1], 10) + 1)) / 2);
+  const averageDamage = Math.floor(
+    (Number.parseInt(damageParts[0], 10) * (Number.parseInt(damageParts[1], 10) + 1)) / 2,
+  );
   return baseValue + averageDamage * 2 * handsMultiplier;
 }

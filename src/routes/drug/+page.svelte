@@ -1,28 +1,23 @@
 <script lang="ts">
-import type Drug from "$lib/drug/drug";
-import * as Drugs from "$lib/drug/drugs";
-import * as RNG from "@ironarachne/rng";
+  import type Drug from '$lib/drug/drug';
+  import * as Drugs from '$lib/drug/drugs';
+  import * as RNG from '@ironarachne/rng';
 
-let seed = $state(RNG.randomString(13));
-const config = Drugs.getDefaultConfig();
-let drug: Drug = $state(Drugs.generate(config));
-let lockSeed = $state(false);
+  let seed = $state(RNG.randomString(13));
+  const config = Drugs.getDefaultConfig();
+  let drug: Drug = $state(Drugs.generate(config));
+  let lockSeed = $state(false);
 
-function generate() {
-  if (!lockSeed) {
-    seed = RNG.randomString(13);
+  function generate() {
+    if (!lockSeed) {
+      seed = RNG.randomString(13);
+    }
+    RNG.setSeed(seed);
+    drug = Drugs.generate(config);
   }
-  RNG.setSeed(seed);
-  drug = Drugs.generate(config);
-}
 
-generate();
+  generate();
 </script>
-
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/cyberpunk.scss';
-</style>
 
 <svelte:head>
   <title>Cyberpunk Drug Generator | Iron Arachne</title>
@@ -35,11 +30,16 @@ generate();
 
   <div class="input-group">
     <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed"/>
-    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
+    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
   <button onclick={generate}>Generate</button>
 
-  <p>{ drug.description }</p>
+  <p>{drug.description}</p>
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/cyberpunk.scss';
+</style>

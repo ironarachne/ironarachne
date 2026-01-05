@@ -1,25 +1,25 @@
-import type Character from "$lib/characters/character.js";
-import type Culture from "$lib/culture/culture.js";
-import type Environment from "$lib/environment/environment.js";
-import * as Environments from "$lib/environment/environments.js";
-import * as FantasyOrgs from "$lib/organizations/fantasy";
-import type Organization from "$lib/organizations/organization.js";
-import * as Organizations from "$lib/organizations/organizations.js";
-import type Realm from "$lib/realms/realm.js";
-import * as Realms from "$lib/realms/realms.js";
-import type Settlement from "$lib/settlements/settlement.js";
-import * as Settlements from "$lib/settlements/settlements.js";
-import * as Names from "$lib/names";
-import * as RNG from "@ironarachne/rng";
+import type Character from '$lib/characters/character.js';
+import type Culture from '$lib/culture/culture.js';
+import type Environment from '$lib/environment/environment.js';
+import * as Environments from '$lib/environment/environments.js';
+import * as FantasyOrgs from '$lib/organizations/fantasy';
+import type Organization from '$lib/organizations/organization.js';
+import * as Organizations from '$lib/organizations/organizations.js';
+import type Realm from '$lib/realms/realm.js';
+import * as Realms from '$lib/realms/realms.js';
+import type Settlement from '$lib/settlements/settlement.js';
+import * as Settlements from '$lib/settlements/settlements.js';
+import * as Names from '$lib/names';
+import * as RNG from '@ironarachne/rng';
 
-import type Region from "./region.js";
-import type RegionGeneratorConfig from "./region_generator_config.js";
+import type Region from './region.js';
+import type RegionGeneratorConfig from './region_generator_config.js';
 
 export function generate(config: RegionGeneratorConfig): Region {
   let region: Region = {
-    name: "",
+    name: '',
     environment: {} as Environment,
-    description: "",
+    description: '',
     dominantCulture: {} as Culture,
     settlements: [] as Settlement[],
     mainRealm: 0,
@@ -73,7 +73,7 @@ export function generate(config: RegionGeneratorConfig): Region {
     parentRealmConfig.rng = config.rng;
     parentRealmConfig.nameGeneratorSet = realmGenConfig.nameGeneratorSet;
     if (mainRealm.realmType.parentType == null) {
-      throw new Error("Realm type has no parent type.");
+      throw new Error('Realm type has no parent type.');
     }
     parentRealmConfig.realmTypes = [mainRealm.realmType.parentType];
 
@@ -85,7 +85,7 @@ export function generate(config: RegionGeneratorConfig): Region {
 
   let numberOfNeighbors = config.rng.int(config.minRealms, config.maxRealms);
   for (let i = 0; i < numberOfNeighbors; i++) {
-    realmGenConfig.nameGeneratorSet = Names.getFantasyNameGeneratorSet("tiefling", config.rng);
+    realmGenConfig.nameGeneratorSet = Names.getFantasyNameGeneratorSet('tiefling', config.rng);
     if (config.rng.int(1, 100) > 70) {
       let neighborNameGenSet = config.rng.item(Names.getAllFantasyNameGeneratorSets(config.rng));
       realmGenConfig.nameGeneratorSet = neighborNameGenSet;
@@ -98,7 +98,7 @@ export function generate(config: RegionGeneratorConfig): Region {
         let parentRealmConfig = Realms.getDefaultConfig();
         parentRealmConfig.rng = config.rng;
         if (neighbor.realmType.parentType == null) {
-          throw new Error("Realm type has no parent type.");
+          throw new Error('Realm type has no parent type.');
         }
         parentRealmConfig.realmTypes = [neighbor.realmType.parentType];
         parentRealmConfig.nameGeneratorSet = realmGenConfig.nameGeneratorSet;
@@ -119,7 +119,10 @@ export function generate(config: RegionGeneratorConfig): Region {
 
 export function getDefaultConfig(): RegionGeneratorConfig {
   return {
-    nameGeneratorSet: Names.getFantasyNameGeneratorSet("tiefling", new RNG.RNG(Date.now().toString())),
+    nameGeneratorSet: Names.getFantasyNameGeneratorSet(
+      'tiefling',
+      new RNG.RNG(Date.now().toString()),
+    ),
     dominantCulture: null,
     mapWidth: 40,
     mapHeight: 30,
@@ -144,12 +147,12 @@ function randomOrganizations(rng: RNG.RNG): Organization[] {
 function randomSettlements(
   environment: Environment,
   nameGeneratorSet: Names.NameGeneratorSet,
-  rng: RNG.RNG
+  rng: RNG.RNG,
 ): Settlement[] {
   let settlementGenConfig = Settlements.getDefaultConfig();
   settlementGenConfig.rng = rng;
   settlementGenConfig.nameGenerator = nameGeneratorSet.town;
-  settlementGenConfig.size = "large";
+  settlementGenConfig.size = 'large';
   settlementGenConfig.environment = environment;
   const capital = Settlements.generate(settlementGenConfig);
 
@@ -157,17 +160,17 @@ function randomSettlements(
   const numberOfSmallTowns = rng.int(3, 5);
   const towns = [];
 
-  capital.description += " This is the capital of the region.";
+  capital.description += ' This is the capital of the region.';
   towns.push(capital);
 
   for (let i = 0; i < numberOfMediumTowns; i++) {
-    settlementGenConfig.size = "medium";
+    settlementGenConfig.size = 'medium';
     const town = Settlements.generate(settlementGenConfig);
     towns.push(town);
   }
 
   for (let i = 0; i < numberOfSmallTowns; i++) {
-    settlementGenConfig.size = "small";
+    settlementGenConfig.size = 'small';
     const town = Settlements.generate(settlementGenConfig);
     towns.push(town);
   }

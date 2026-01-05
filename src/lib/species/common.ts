@@ -1,15 +1,15 @@
-import * as RNG from "@ironarachne/rng";
-import * as AgeCategories from "$lib/age/age_categories.js";
-import type AgeCategory from "$lib/age/age_category.js";
-import type PhysicalTrait from "$lib/physical_traits/physical_trait.js";
-import type PhysicalTraitGeneratorConfig from "$lib/physical_traits/physical_trait_generator_config.js";
-import * as PhysicalTraits from "$lib/physical_traits/physical_traits.js";
-import type { SizeMatrix } from "$lib/size/size_matrix.js";
-import all from "./all.js";
-import * as Skeleton from "./modifiers/skeleton.js";
-import * as Vampire from "./modifiers/vampire.js";
-import * as Zombie from "./modifiers/zombie.js";
-import type Species from "./species.js";
+import * as RNG from '@ironarachne/rng';
+import * as AgeCategories from '$lib/age/age_categories.js';
+import type AgeCategory from '$lib/age/age_category.js';
+import type PhysicalTrait from '$lib/physical_traits/physical_trait.js';
+import type PhysicalTraitGeneratorConfig from '$lib/physical_traits/physical_trait_generator_config.js';
+import * as PhysicalTraits from '$lib/physical_traits/physical_traits.js';
+import type { SizeMatrix } from '$lib/size/size_matrix.js';
+import all from './all.js';
+import * as Skeleton from './modifiers/skeleton.js';
+import * as Vampire from './modifiers/vampire.js';
+import * as Zombie from './modifiers/zombie.js';
+import type Species from './species.js';
 
 export function randomWeighted(speciesList: Species[]): Species {
   const totalWeight = speciesList.reduce((acc, s) => acc + s.commonality, 0);
@@ -25,9 +25,7 @@ export function randomWeighted(speciesList: Species[]): Species {
 
 export function breed(species1: Species, species2: Species): Species {
   if (!breedable(species1, species2)) {
-    throw new Error(
-      `Species ${species1.name} and ${species2.name} are not breedable.`,
-    );
+    throw new Error(`Species ${species1.name} and ${species2.name} are not breedable.`);
   }
 
   let result: Species = species1;
@@ -42,10 +40,7 @@ export function breed(species1: Species, species2: Species): Species {
   return result;
 }
 
-export function averageAgeCategories(
-  species1: Species,
-  species2: Species,
-): AgeCategory[] {
+export function averageAgeCategories(species1: Species, species2: Species): AgeCategory[] {
   // Since there might be more age categories in one species than the other, we need to find the
   // species with the highest maximum age.
   let maxAge: number = Math.max(
@@ -71,10 +66,7 @@ export function averageAgeCategories(
 
   // Now generate a new set of age categories based on maxSpecies's age categories, but modified by the ratio
   // of the max age to the min age.
-  let result: AgeCategory[] = AgeCategories.getVariant(
-    ratio,
-    maxSpecies.ageCategories,
-  );
+  let result: AgeCategory[] = AgeCategories.getVariant(ratio, maxSpecies.ageCategories);
 
   return result;
 }
@@ -83,34 +75,22 @@ export function averageSizes(species1: Species, species2: Species): SizeMatrix {
   let result: SizeMatrix = species1.sizeGeneratorConfigMatrix;
 
   for (let i = 0; i < species1.sizeGeneratorConfigMatrix.length; i++) {
-    for (
-      let j = 0;
-      j < species1.sizeGeneratorConfigMatrix[i].entries.length;
-      j++
-    ) {
+    for (let j = 0; j < species1.sizeGeneratorConfigMatrix[i].entries.length; j++) {
       result[i].entries[j].sizeGeneratorConfig.minHeight =
-        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
-          .minHeight +
-          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
-            .minHeight) /
+        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.minHeight +
+          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.minHeight) /
         2;
       result[i].entries[j].sizeGeneratorConfig.maxHeight =
-        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
-          .maxHeight +
-          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
-            .maxHeight) /
+        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.maxHeight +
+          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.maxHeight) /
         2;
       result[i].entries[j].sizeGeneratorConfig.minWeight =
-        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
-          .minWeight +
-          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
-            .minWeight) /
+        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.minWeight +
+          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.minWeight) /
         2;
       result[i].entries[j].sizeGeneratorConfig.maxWeight =
-        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
-          .maxWeight +
-          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig
-            .maxWeight) /
+        (species1.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.maxWeight +
+          species2.sizeGeneratorConfigMatrix[i].entries[j].sizeGeneratorConfig.maxWeight) /
         2;
     }
   }
@@ -170,10 +150,7 @@ export function byAnyTag(tags: string[], options: Species[]): Species[] {
   return result;
 }
 
-export function byCreatureType(
-  creatureType: string,
-  options: Species[],
-): Species[] {
+export function byCreatureType(creatureType: string, options: Species[]): Species[] {
   let result = [];
 
   for (let i = 0; i < options.length; i++) {
@@ -185,17 +162,11 @@ export function byCreatureType(
   return result;
 }
 
-export function byEnvironment(
-  environment: string,
-  options: Species[],
-): Species[] {
+export function byEnvironment(environment: string, options: Species[]): Species[] {
   let result = [];
 
   for (let i = 0; i < options.length; i++) {
-    if (
-      options[i].environments.includes(environment) ||
-      options[i].environments.length === 0
-    ) {
+    if (options[i].environments.includes(environment) || options[i].environments.length === 0) {
       result.push(options[i]);
     }
   }
@@ -225,20 +196,14 @@ export function byTag(tag: string, options: Species[]): Species[] {
   return result;
 }
 
-export function generateCompositeName(
-  species1: Species,
-  species2: Species,
-): string {
+export function generateCompositeName(species1: Species, species2: Species): string {
   let firstName = species1.name > species2.name ? species1.name : species2.name;
   let lastName = species1.name > species2.name ? species2.name : species1.name;
 
   return `${firstName}-${lastName}`;
 }
 
-export function getCommonEnvironments(
-  species1: Species,
-  species2: Species,
-): string[] {
+export function getCommonEnvironments(species1: Species, species2: Species): string[] {
   let result = [];
 
   for (let i = 0; i < species1.environments.length; i++) {
@@ -305,12 +270,8 @@ export function mergeTags(tags1: string[], tags2: string[]): string[] {
   return result;
 }
 
-export function mergeTraits(
-  species1: Species,
-  species2: Species,
-): PhysicalTraitGeneratorConfig[] {
-  let result: PhysicalTraitGeneratorConfig[] =
-    species1.physicalTraitGeneratorConfigs;
+export function mergeTraits(species1: Species, species2: Species): PhysicalTraitGeneratorConfig[] {
+  let result: PhysicalTraitGeneratorConfig[] = species1.physicalTraitGeneratorConfigs;
 
   for (let i = 0; i < species2.physicalTraitGeneratorConfigs.length; i++) {
     let config = species2.physicalTraitGeneratorConfigs[i];
@@ -341,10 +302,7 @@ export function randomTraits(species: Species, rng: RNG.RNG): PhysicalTrait[] {
   let traits: PhysicalTrait[] = [];
 
   for (let i = 0; i < species.physicalTraitGeneratorConfigs.length; i++) {
-    const newTrait = PhysicalTraits.generate(
-      species.physicalTraitGeneratorConfigs[i],
-      rng,
-    );
+    const newTrait = PhysicalTraits.generate(species.physicalTraitGeneratorConfigs[i], rng);
     traits.push(newTrait);
   }
 
@@ -364,20 +322,17 @@ export function randomUniqueSet(options: Species[], count: number, rng: RNG.RNG)
       }
     }
   } else {
-    throw new Error("Not enough options to choose from.");
+    throw new Error('Not enough options to choose from.');
   }
 
   return result;
 }
 
 export function sentient(): Species[] {
-  return byTag("sentient", all);
+  return byTag('sentient', all);
 }
 
-export function withCreatureType(
-  creatureType: string,
-  options: Species[],
-): Species[] {
+export function withCreatureType(creatureType: string, options: Species[]): Species[] {
   let result = [];
 
   for (let i = 0; i < options.length; i++) {

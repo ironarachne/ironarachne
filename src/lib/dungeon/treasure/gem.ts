@@ -1,4 +1,4 @@
-import type Item from "../../equipment/item.js";
+import type Item from '../../equipment/item.js';
 
 export default class Gem implements Item {
   name: string;
@@ -8,10 +8,10 @@ export default class Gem implements Item {
   tags: string[];
 
   constructor() {
-    this.name = "a gem";
-    this.description = "a gem";
+    this.name = 'a gem';
+    this.description = 'a gem';
     this.value = 10;
     this.quality = 2;
-    this.tags = ["gem"];
+    this.tags = ['gem'];
   }
 }

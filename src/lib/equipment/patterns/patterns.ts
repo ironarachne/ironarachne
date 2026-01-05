@@ -1,7 +1,7 @@
-import * as ArmorPattern from "./armor.js";
-import * as ClothingPattern from "./clothing.js";
-import type Pattern from "./pattern.js";
-import * as WeaponPattern from "./weapons.js";
+import * as ArmorPattern from './armor.js';
+import * as ClothingPattern from './clothing.js';
+import type Pattern from './pattern.js';
+import * as WeaponPattern from './weapons.js';
 
 export function all(): Pattern[] {
   let result = [];

@@ -1,9 +1,9 @@
-import type * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import * as Geometry from "$lib/geometry/geometry.js";
-import type Vertex from "$lib/geometry/vertex.js";
-import Room from "./room.js";
-import type RoomGeneratorConfig from "./roomgeneratorconfig.js";
+import type * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import * as Geometry from '$lib/geometry/geometry.js';
+import type Vertex from '$lib/geometry/vertex.js';
+import Room from './room.js';
+import type RoomGeneratorConfig from './roomgeneratorconfig.js';
 
 export default class RoomGenerator {
   config: RoomGeneratorConfig;
@@ -14,10 +14,7 @@ export default class RoomGenerator {
 
   generate(): Room {
     let width = this.config.rng.int(this.config.theme.minWidth, this.config.theme.maxWidth);
-    let height = this.config.rng.int(
-      this.config.theme.minHeight,
-      this.config.theme.maxHeight,
-    );
+    let height = this.config.rng.int(this.config.theme.minHeight, this.config.theme.maxHeight);
     let x = this.config.rng.int(2, this.config.mapWidth - width - 3);
     let y = this.config.rng.int(2, this.config.mapHeight - height - 3);
 
@@ -27,25 +24,25 @@ export default class RoomGenerator {
 
     let shape = this.config.rng.item(this.config.theme.shapes);
 
-    if (shape === "rectangular") {
+    if (shape === 'rectangular') {
       room = getRectangularRoom(x, y, width, height, room);
       room.description = this.config.rng.item([
         `This rectangular room is ${width * 5}' wide and ${height * 5}' long.`,
         `This ${room.name} is ${width * 5}' wide and ${height * 5}' long.`,
       ]);
-    } else if (shape === "square") {
+    } else if (shape === 'square') {
       room = getSquareRoom(x, y, width, room);
       room.description = this.config.rng.item([
         `This square room is ${width * 5}' wide and ${height * 5}' long.`,
         `This room is a square ${width * 5}' wide and ${height * 5}' long.`,
         `This ${room.name} is ${width * 5}' wide and ${height * 5}' long.`,
       ]);
-    } else if (shape === "cavern") {
+    } else if (shape === 'cavern') {
       room = getCavernRoom(x, y, width, height, room, this.config.rng);
-      room.description = this.config.rng.item(["This is a cavern."]);
-    } else if (shape === "corridor") {
+      room.description = this.config.rng.item(['This is a cavern.']);
+    } else if (shape === 'corridor') {
       room = getCorridor(x, y, width, height, room, this.config.rng);
-      room.description = this.config.rng.item(["This is a corridor."]);
+      room.description = this.config.rng.item(['This is a corridor.']);
     }
 
     if (this.config.rng.int(1, 100) > 70) {
@@ -61,15 +58,12 @@ export default class RoomGenerator {
     for (let i = 0; i < this.config.theme.featureGenerators.length; i++) {
       let feature = this.config.theme.featureGenerators[i].generate();
       room.features.push(feature);
-      if (feature.secret !== "") {
+      if (feature.secret !== '') {
         room.secrets += `${feature.secret} `;
       }
     }
 
-    if (
-      this.config.theme.dressingGenerators.length > 0 &&
-      this.config.rng.int(1, 100) > 70
-    ) {
+    if (this.config.theme.dressingGenerators.length > 0 && this.config.rng.int(1, 100) > 70) {
       let dGen = this.config.rng.item(this.config.theme.dressingGenerators);
       room.features.push(dGen.generate());
     }
@@ -92,7 +86,7 @@ function getCavernRoom(
   width: number,
   height: number,
   room: Room,
-  rng: RNG.RNG
+  rng: RNG.RNG,
 ): Room {
   // in this instance, we're using x,y as the top left corner of a bounding box
   let start: Vertex = {
@@ -158,12 +152,9 @@ function getCorridor(
   width: number,
   height: number,
   room: Room,
-  rng: RNG.RNG
+  rng: RNG.RNG,
 ): Room {
-  let length = rng.int(
-    Math.max(3, Math.floor((width + height - 2) / 2)),
-    width + height - 2,
-  );
+  let length = rng.int(Math.max(3, Math.floor((width + height - 2) / 2)), width + height - 2);
 
   let nx = rng.int(x, x + width - 1);
   let ny = rng.int(y, y + height - 1);
@@ -214,13 +205,7 @@ function getCorridor(
   return room;
 }
 
-function getRectangularRoom(
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  room: Room,
-): Room {
+function getRectangularRoom(x: number, y: number, width: number, height: number, room: Room): Room {
   for (let i = y; i < y + height; i++) {
     for (let j = x; j < x + width; j++) {
       room.vertices.push({ x: j, y: i });

@@ -1,8 +1,8 @@
-import type { DensityCategory, Item } from "$lib/equipment";
+import type { DensityCategory, Item } from '$lib/equipment';
 
 export type ArtObject = Item & {
   artist: string;
-}
+};
 
 export type ArtObjectType = {
   name: string;
@@ -10,10 +10,10 @@ export type ArtObjectType = {
   baseWeight: number;
   densityCategory: DensityCategory;
   materialCategory?: string[];
-}
+};
 
 export type ArtObjectGeneratorConfig = {
   allowedTypes?: ArtObjectType[];
   minimumValue?: number;
   maximumValue?: number;
-}
+};

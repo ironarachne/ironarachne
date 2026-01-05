@@ -1,7 +1,7 @@
-import type Archetype from "./archetype.js";
+import type Archetype from './archetype.js';
 
 export const blank: Archetype = {
-  name: "",
+  name: '',
   abilities: [],
   tags: [],
   threatLevel: 0,
@@ -40,10 +40,7 @@ export function byThreatRange(
   for (let i = 0; i < archetypes.length; i++) {
     let totalThreatLevel = getTotalThreatLevel(archetypes[i]);
 
-    if (
-      totalThreatLevel >= minThreatLevel &&
-      totalThreatLevel <= maxThreatLevel
-    ) {
+    if (totalThreatLevel >= minThreatLevel && totalThreatLevel <= maxThreatLevel) {
       result.push(archetypes[i]);
     }
   }

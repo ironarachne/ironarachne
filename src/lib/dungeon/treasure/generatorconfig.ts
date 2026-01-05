@@ -1,5 +1,5 @@
-import type * as RNG from "@ironarachne/rng";
-import type TreasureTable from "./table.js";
+import type * as RNG from '@ironarachne/rng';
+import type TreasureTable from './table.js';
 
 export default class TreasureGeneratorConfig {
   tables: TreasureTable[];

@@ -1,12 +1,12 @@
-import * as RNG from "@ironarachne/rng";
-import * as Biomes from "./biomes/biomes";
-import * as Climates from "./climates/climates";
-import * as EcosystemGeneration from "./ecosystems/ecosystem_generation";
-import * as TerrainGeneration from "./terrain/terrain_generation";
-import * as WaterSystems from "./water_systems/water_systems";
-import type Environment from "./environment";
-import type Terrain from "./terrain/terrain";
-import type EnvironmentGeneratorConfig from "./environment_generator_config";
+import * as RNG from '@ironarachne/rng';
+import * as Biomes from './biomes/biomes';
+import * as Climates from './climates/climates';
+import * as EcosystemGeneration from './ecosystems/ecosystem_generation';
+import * as TerrainGeneration from './terrain/terrain_generation';
+import * as WaterSystems from './water_systems/water_systems';
+import type Environment from './environment';
+import type Terrain from './terrain/terrain';
+import type EnvironmentGeneratorConfig from './environment_generator_config';
 
 export function generate(config: EnvironmentGeneratorConfig): Environment {
   config.terrainConfig.elevationMin = Math.max(config.elevation - 0.1, -1.0);
@@ -14,14 +14,8 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
   config.terrainConfig.erosionIterations = config.erosionIterations;
   config.terrainConfig.erosionStrength = config.erosionStrength;
   config.terrainConfig.rng = config.rng;
-  config.terrainConfig.reliefEnergyMin = Math.max(
-    config.reliefEnergy - 0.01,
-    0.0,
-  );
-  config.terrainConfig.reliefEnergyMax = Math.min(
-    config.reliefEnergy + 0.01,
-    1.0,
-  );
+  config.terrainConfig.reliefEnergyMin = Math.max(config.reliefEnergy - 0.01, 0.0);
+  config.terrainConfig.reliefEnergyMax = Math.min(config.reliefEnergy + 0.01, 1.0);
   config.terrainConfig.normalVector = config.terrainVector;
   let terrain = TerrainGeneration.generate(config.terrainConfig);
 
@@ -33,10 +27,7 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
   config.climateConfig.current = waterSystem.current;
   config.climateConfig.latitude = config.latitude;
   config.climateConfig.rng = config.rng;
-  config.climateConfig.elevation = config.rng.float(
-    terrain.elevationMin,
-    terrain.elevationMax,
-  );
+  config.climateConfig.elevation = config.rng.float(terrain.elevationMin, terrain.elevationMax);
   config.climateConfig.terrainNormalVector = config.terrainVector;
   config.climateConfig.waterDirection = config.waterDirection;
   let climate = Climates.generate(config.climateConfig);
@@ -60,7 +51,7 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
     dominantEcosystem: ecosystem,
     ecosystems: [ecosystem],
     waterSystem,
-    description: "",
+    description: '',
   };
 
   environment.description = `${config.rng.item(biome.descriptions)} ${config.rng.item(biome.features)}`;
@@ -80,29 +71,29 @@ export function generateForClimate(climateName: string, rng: RNG.RNG): Environme
 }
 
 export function describeTerrain(terrain: Terrain, rng: RNG.RNG): string {
-  let relief = "flat";
+  let relief = 'flat';
 
   if (terrain.reliefEnergy > 0.5) {
-    relief = "mountainous";
+    relief = 'mountainous';
   } else if (terrain.reliefEnergy > 0.3) {
-    relief = "hilly";
+    relief = 'hilly';
   }
 
   const averageElevation = (terrain.elevationMin + terrain.elevationMax) / 2;
 
-  let elevation = "mid-altitude";
+  let elevation = 'mid-altitude';
 
   if (averageElevation > 0.8) {
-    elevation = "high-altitude";
+    elevation = 'high-altitude';
   } else if (averageElevation < 0.2) {
-    elevation = "low-altitude";
+    elevation = 'low-altitude';
   }
 
   let description = `The terrain is ${relief} and ${elevation}`;
 
   let slope = getDirectionOfSlope(terrain);
 
-  if (slope !== "") {
+  if (slope !== '') {
     const slopeStrength = getStrengthOfSlope(terrain);
 
     if (slopeStrength > 0.5) {
@@ -123,7 +114,7 @@ export function describeTerrain(terrain: Terrain, rng: RNG.RNG): string {
     }
   }
 
-  description += ".";
+  description += '.';
 
   return description;
 }
@@ -150,7 +141,7 @@ export function getDefaultConfig(): EnvironmentGeneratorConfig {
 export function getDirectionOfSlope(terrain: Terrain): string {
   // If the normal vector is not [0, 0, 0], then the terrain is sloped
   // We want to know the direction of "uphill" for the terrain
-  let slope = "";
+  let slope = '';
 
   const x = terrain.normalVector[0];
   const y = terrain.normalVector[1];
@@ -158,21 +149,21 @@ export function getDirectionOfSlope(terrain: Terrain): string {
   // We don't care about z because that would be rotation around the z-axis, which is irrelevant for our purposes
 
   if (x > 0.0 && y > 0.0) {
-    slope = "northwest";
+    slope = 'northwest';
   } else if (x > 0.0 && y < 0.0) {
-    slope = "northeast";
+    slope = 'northeast';
   } else if (x < 0.0 && y > 0.0) {
-    slope = "southwest";
+    slope = 'southwest';
   } else if (x < 0.0 && y < 0.0) {
-    slope = "southeast";
+    slope = 'southeast';
   } else if (x > 0.0 && y === 0.0) {
-    slope = "east";
+    slope = 'east';
   } else if (x < 0.0 && y === 0.0) {
-    slope = "west";
+    slope = 'west';
   } else if (x === 0.0 && y > 0.0) {
-    slope = "north";
+    slope = 'north';
   } else if (x === 0.0 && y < 0.0) {
-    slope = "south";
+    slope = 'south';
   }
 
   return slope;
@@ -180,10 +171,5 @@ export function getDirectionOfSlope(terrain: Terrain): string {
 
 export function getStrengthOfSlope(terrain: Terrain): number {
   // The strength of the slope is the average of the x, y, and z values of the normal vector
-  return (
-    (terrain.normalVector[0] +
-      terrain.normalVector[1] +
-      terrain.normalVector[2]) /
-    3
-  );
+  return (terrain.normalVector[0] + terrain.normalVector[1] + terrain.normalVector[2]) / 3;
 }

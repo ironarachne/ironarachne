@@ -1,41 +1,38 @@
-import PrecipitationType from "./precipitationtype.js";
+import PrecipitationType from './precipitationtype.js';
 
 export function all(): PrecipitationType[] {
   return [
     new PrecipitationType(
-      "rain",
+      'rain',
       [
-        "Rain here is light.",
-        "When it happens, rain is light.",
-        "Rainstorms are uncommon. Precipitation here is rare.",
-        "Light rainstorms are frequent here.",
+        'Rain here is light.',
+        'When it happens, rain is light.',
+        'Rainstorms are uncommon. Precipitation here is rare.',
+        'Light rainstorms are frequent here.',
       ],
       [
-        "Storms producing sheets of rain are common.",
-        "Rainstorms are common.",
-        "The rain here is particularly heavy.",
+        'Storms producing sheets of rain are common.',
+        'Rainstorms are common.',
+        'The rain here is particularly heavy.',
       ],
       [
-        "Torrential downpours are common.",
-        "Monsoons in this area are problematic.",
-        "Flooding caused by heavy rains is common.",
+        'Torrential downpours are common.',
+        'Monsoons in this area are problematic.',
+        'Flooding caused by heavy rains is common.',
       ],
     ),
     new PrecipitationType(
-      "snow",
+      'snow',
+      ['The occasional dusting of snow happens.', 'Snow is light but not uncommon.'],
       [
-        "The occasional dusting of snow happens.",
-        "Snow is light but not uncommon.",
+        'Heavy snows are not unheard of.',
+        'Snow is common here.',
+        'Though not usually heavy, snow is frequent here.',
       ],
       [
-        "Heavy snows are not unheard of.",
-        "Snow is common here.",
-        "Though not usually heavy, snow is frequent here.",
-      ],
-      [
-        "Blizzards are common in the colder months.",
-        "Heavy, wet snow falls in the winter.",
-        "White-out blizzards are not uncommon here.",
+        'Blizzards are common in the colder months.',
+        'Heavy, wet snow falls in the winter.',
+        'White-out blizzards are not uncommon here.',
       ],
     ),
   ];
@@ -50,5 +47,5 @@ export function byName(name: string): PrecipitationType {
     }
   }
 
-  throw new Error("Invalid precipitation type name.");
+  throw new Error('Invalid precipitation type name.');
 }

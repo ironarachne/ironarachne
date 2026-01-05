@@ -1,8 +1,3 @@
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/navigation.scss';
-</style>
-
 <svelte:head>
   <title>Objects &amp; Items | Iron Arachne</title>
 </svelte:head>
@@ -18,5 +13,9 @@
     <a href="/spooky-ship">Spooky Starship</a>
     <a href="/swn/starship">Stars Without Number Starship</a>
   </nav>
-
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/navigation.scss';
+</style>

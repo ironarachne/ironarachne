@@ -1,13 +1,38 @@
-import { addItemToContainer, canFit, filterContainerTypes, generateContainer, getDefaultContainerGeneratorConfig, getVolume, type Container, type ContainerGeneratorConfig, type ContainerType, type Item } from "$lib/equipment";
-import { getArtObjectsForValue, getRandomArtObjectsForValue } from "./art_objects";
-import { combinePilesOfCoins, distributeCoins, generateRandomPileOfCoins, getAppropriateCoinTypes, getDefaultCoinGenerationConfig, getDefaultCoinSystem, getDenominationProportionsUpToDenomination, getIndexOfCoinType, getMaxCoinTypeForValue, getSetOfCoinsForValue } from "./coins";
-import { getGemsForValue, getRandomGemsForValue } from "./gems";
-import type { TreasureHoardGeneratorConfig } from "./treasure_types";
-import type { CoinGenerationConfig, CoinSystem, PileOfCoins } from "./coins";
-import type { Gem } from "./gems";
-import { RNG } from "@ironarachne/rng";
+import {
+  addItemToContainer,
+  canFit,
+  filterContainerTypes,
+  generateContainer,
+  getDefaultContainerGeneratorConfig,
+  getVolume,
+  type Container,
+  type ContainerGeneratorConfig,
+  type ContainerType,
+  type Item,
+} from '$lib/equipment';
+import { getArtObjectsForValue, getRandomArtObjectsForValue } from './art_objects';
+import {
+  combinePilesOfCoins,
+  distributeCoins,
+  generateRandomPileOfCoins,
+  getAppropriateCoinTypes,
+  getDefaultCoinGenerationConfig,
+  getDefaultCoinSystem,
+  getDenominationProportionsUpToDenomination,
+  getIndexOfCoinType,
+  getMaxCoinTypeForValue,
+  getSetOfCoinsForValue,
+} from './coins';
+import { getGemsForValue, getRandomGemsForValue } from './gems';
+import type { TreasureHoardGeneratorConfig } from './treasure_types';
+import type { CoinGenerationConfig, CoinSystem, PileOfCoins } from './coins';
+import type { Gem } from './gems';
+import { RNG } from '@ironarachne/rng';
 
-export function generateRandomTreasureHoard(seed: string, config: TreasureHoardGeneratorConfig): Item[] {
+export function generateRandomTreasureHoard(
+  seed: string,
+  config: TreasureHoardGeneratorConfig,
+): Item[] {
   const rng = new RNG(seed);
 
   const containerTypes = config.allowedContainerTypes ?? [];
@@ -15,20 +40,28 @@ export function generateRandomTreasureHoard(seed: string, config: TreasureHoardG
   const targetValue = config.targetValue;
 
   const proportions = {
-    coins: config.coinProportions ? Object.values(config.coinProportions).reduce((sum, val) => sum + val, 0) : 1,
+    coins: config.coinProportions
+      ? Object.values(config.coinProportions).reduce((sum, val) => sum + val, 0)
+      : 1,
     artObjects: config.artObjectProportion,
-    gems: config.gemProportion
+    gems: config.gemProportion,
   };
 
   const { coinsValue, artObjectsValue, gemsValue } = calculateHoardValues(targetValue, proportions);
 
   const coinGeneratorConfig = getDefaultCoinGenerationConfig();
   coinGeneratorConfig.maxValue = coinsValue;
-  const pilesOfCoins = generateRandomCoinPiles(rng.randomString(13), coinsValue, coinGeneratorConfig);
+  const pilesOfCoins = generateRandomCoinPiles(
+    rng.randomString(13),
+    coinsValue,
+    coinGeneratorConfig,
+  );
   const artObjects = getRandomArtObjectsForValue(rng.randomString(13), artObjectsValue);
   const gems = getRandomGemsForValue(rng.randomString(13), gemsValue);
 
-  const roomVolume = roomDimensions ? roomDimensions.width * roomDimensions.height * roomDimensions.length * 1000 : undefined;
+  const roomVolume = roomDimensions
+    ? roomDimensions.width * roomDimensions.height * roomDimensions.length * 1000
+    : undefined;
   const availableVolumeForContainers = roomVolume;
 
   const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems, artObjects, rng);
@@ -39,20 +72,19 @@ export function generateRandomTreasureHoard(seed: string, config: TreasureHoardG
     containerCapacityNeeded.volume,
     containerCapacityNeeded.weight,
     containerGeneratorConfig,
-    availableVolumeForContainers
+    availableVolumeForContainers,
   );
 
   packGems(gems, containers, rng);
   packArtObjects(artObjects, containers, rng);
-  const { filledContainers, containedCoins, looseCoins } = packCoins(pilesOfCoins, containers, coinGeneratorConfig.coinSystem, rng);
+  const { filledContainers, containedCoins, looseCoins } = packCoins(
+    pilesOfCoins,
+    containers,
+    coinGeneratorConfig.coinSystem,
+    rng,
+  );
 
-  return [
-    ...filledContainers,
-    ...containedCoins,
-    ...looseCoins,
-    ...artObjects,
-    ...gems
-  ];
+  return [...filledContainers, ...containedCoins, ...looseCoins, ...artObjects, ...gems];
 }
 
 /**
@@ -66,7 +98,7 @@ export function getTreasureHoardForValue(
   value: number,
   proportions: { coins: number; artObjects: number; gems: number },
   containerTypes: ContainerType[],
-  roomDimensions?: { width: number; height: number; length: number }
+  roomDimensions?: { width: number; height: number; length: number },
 ): Item[] {
   if (value <= 0) {
     return [];
@@ -79,26 +111,33 @@ export function getTreasureHoardForValue(
   const artObjects = getArtObjectsForValue(artObjectsValue);
   const gems = getGemsForValue(gemsValue);
 
-  const roomVolume = roomDimensions ? roomDimensions.width * roomDimensions.height * roomDimensions.length * 1000 : undefined;
+  const roomVolume = roomDimensions
+    ? roomDimensions.width * roomDimensions.height * roomDimensions.length * 1000
+    : undefined;
   const availableVolumeForContainers = roomVolume;
 
   const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems, artObjects);
-  const containers = selectContainersForCapacity(containerCapacityNeeded, containerTypes, availableVolumeForContainers);
+  const containers = selectContainersForCapacity(
+    containerCapacityNeeded,
+    containerTypes,
+    availableVolumeForContainers,
+  );
 
   packGems(gems, containers);
   packArtObjects(artObjects, containers);
-  const { filledContainers, containedCoins, looseCoins } = packCoins(pilesOfCoins, containers, coinSystem);
+  const { filledContainers, containedCoins, looseCoins } = packCoins(
+    pilesOfCoins,
+    containers,
+    coinSystem,
+  );
 
-  return [
-    ...filledContainers,
-    ...containedCoins,
-    ...looseCoins,
-    ...artObjects,
-    ...gems
-  ];
+  return [...filledContainers, ...containedCoins, ...looseCoins, ...artObjects, ...gems];
 }
 
-function calculateHoardValues(value: number, proportions: { coins: number; artObjects: number; gems: number }) {
+function calculateHoardValues(
+  value: number,
+  proportions: { coins: number; artObjects: number; gems: number },
+) {
   const totalProportion = proportions.coins + proportions.artObjects + proportions.gems;
   const coinsValue = Math.floor((proportions.coins / totalProportion) * value);
   const artObjectsValue = Math.floor((proportions.artObjects / totalProportion) * value);
@@ -110,11 +149,18 @@ function calculateHoardValues(value: number, proportions: { coins: number; artOb
 function generateCoinPiles(value: number, coinSystem: CoinSystem): PileOfCoins[] {
   if (value <= 0) return [];
   const highestDenomination = getMaxCoinTypeForValue(value, coinSystem);
-  const denominationProportions = getDenominationProportionsUpToDenomination(highestDenomination.name, coinSystem);
+  const denominationProportions = getDenominationProportionsUpToDenomination(
+    highestDenomination.name,
+    coinSystem,
+  );
   return getSetOfCoinsForValue(value, denominationProportions, coinSystem);
 }
 
-function generateRandomCoinPiles(seed: string, totalValue: number, config: CoinGenerationConfig = getDefaultCoinGenerationConfig()): PileOfCoins[] {
+function generateRandomCoinPiles(
+  seed: string,
+  totalValue: number,
+  config: CoinGenerationConfig = getDefaultCoinGenerationConfig(),
+): PileOfCoins[] {
   const rng = new RNG(seed);
   const piles: PileOfCoins[] = [];
   let remainingValue = totalValue;
@@ -148,7 +194,12 @@ function generateRandomCoinPiles(seed: string, totalValue: number, config: CoinG
   return piles;
 }
 
-function calculateCapacityNeeded(coins: PileOfCoins[], gems: Gem[], artObjects: Item[], rng?: RNG): { weight: number, volume: number } {
+function calculateCapacityNeeded(
+  coins: PileOfCoins[],
+  gems: Gem[],
+  artObjects: Item[],
+  rng?: RNG,
+): { weight: number; volume: number } {
   const coinsWeight = coins.reduce((sum, pile) => sum + pile.weight, 0);
   const gemsWeight = gems.reduce((sum, gem) => sum + gem.weight, 0);
   const artWeight = artObjects.reduce((sum, art) => sum + art.weight, 0);
@@ -161,11 +212,17 @@ function calculateCapacityNeeded(coins: PileOfCoins[], gems: Gem[], artObjects: 
   const utilization = rng ? rng.float(0.1, 0.5) : 0.25;
   return {
     weight: (coinsWeight + gemsWeight + artWeight) / utilization,
-    volume: (coinsVolume + gemsVolume + artVolume) / utilization
+    volume: (coinsVolume + gemsVolume + artVolume) / utilization,
   };
 }
 
-function generateRandomContainersForCapacity(seed: string, volumeNeeded: number, weightNeeded: number, config: ContainerGeneratorConfig, maxTotalVolume?: number): Container[] {
+function generateRandomContainersForCapacity(
+  seed: string,
+  volumeNeeded: number,
+  weightNeeded: number,
+  config: ContainerGeneratorConfig,
+  maxTotalVolume?: number,
+): Container[] {
   const rng = new RNG(seed);
 
   let remainingVolume = volumeNeeded;
@@ -196,17 +253,26 @@ function generateRandomContainersForCapacity(seed: string, volumeNeeded: number,
     }
 
     // First try to find containers that fit our "spread" criteria
-    let filteredTypes = filterContainerTypes({
-      maxVolume: maxTotalVolume !== undefined ? Math.min(maxTotalVolume, maxContainerVolume) : maxContainerVolume,
-      canHoldItems: true,
-    }, config.allowedContainerTypes || []);
+    let filteredTypes = filterContainerTypes(
+      {
+        maxVolume:
+          maxTotalVolume !== undefined
+            ? Math.min(maxTotalVolume, maxContainerVolume)
+            : maxContainerVolume,
+        canHoldItems: true,
+      },
+      config.allowedContainerTypes || [],
+    );
 
     // If no small containers found, fall back to any container that fits the space
     if (filteredTypes.length === 0) {
-      filteredTypes = filterContainerTypes({
-        maxVolume: maxTotalVolume !== undefined ? maxTotalVolume : undefined,
-        canHoldItems: true,
-      }, config.allowedContainerTypes || []);
+      filteredTypes = filterContainerTypes(
+        {
+          maxVolume: maxTotalVolume !== undefined ? maxTotalVolume : undefined,
+          canHoldItems: true,
+        },
+        config.allowedContainerTypes || [],
+      );
     }
 
     if (filteredTypes.length === 0) {
@@ -215,13 +281,22 @@ function generateRandomContainersForCapacity(seed: string, volumeNeeded: number,
 
     const containerType = rng.item(filteredTypes);
 
-    const shouldLock = containerType.canBeLocked ? (
-      config.allowLockedContainers && config.allowUnlockedContainers ? rng.item([true, false]) :
-        config.allowLockedContainers ? true :
-          false
-    ) : false;
+    const shouldLock = containerType.canBeLocked
+      ? config.allowLockedContainers && config.allowUnlockedContainers
+        ? rng.item([true, false])
+        : config.allowLockedContainers
+          ? true
+          : false
+      : false;
 
-    const container = generateContainer(rng.randomString(13), containerType, undefined, undefined, undefined, shouldLock);
+    const container = generateContainer(
+      rng.randomString(13),
+      containerType,
+      undefined,
+      undefined,
+      undefined,
+      shouldLock,
+    );
 
     if (containerType.defaultVolume <= remainingSpace) {
       containers.push(container);
@@ -240,7 +315,11 @@ function generateRandomContainersForCapacity(seed: string, volumeNeeded: number,
   return containers;
 }
 
-function selectContainersForCapacity(capacityNeeded: { weight: number, volume: number }, containerTypes: ContainerType[], maxTotalVolume?: number): Container[] {
+function selectContainersForCapacity(
+  capacityNeeded: { weight: number; volume: number },
+  containerTypes: ContainerType[],
+  maxTotalVolume?: number,
+): Container[] {
   const containers: Container[] = [];
   let remainingWeightCapacity = capacityNeeded.weight;
   let remainingVolumeCapacity = capacityNeeded.volume;
@@ -250,7 +329,10 @@ function selectContainersForCapacity(capacityNeeded: { weight: number, volume: n
   while (remainingWeightCapacity > 0 || remainingVolumeCapacity > 0) {
     let found = false;
     for (const type of sortedTypes) {
-      if (maxTotalVolume !== undefined && currentTotalVolume + type.defaultVolume > maxTotalVolume) {
+      if (
+        maxTotalVolume !== undefined &&
+        currentTotalVolume + type.defaultVolume > maxTotalVolume
+      ) {
         continue;
       }
 
@@ -270,7 +352,12 @@ function selectContainersForCapacity(capacityNeeded: { weight: number, volume: n
   return containers;
 }
 
-function packCoins(piles: PileOfCoins[], containers: Container[], coinSystem: CoinSystem, rng?: RNG) {
+function packCoins(
+  piles: PileOfCoins[],
+  containers: Container[],
+  coinSystem: CoinSystem,
+  rng?: RNG,
+) {
   let currentContainers = containers;
   const containedCoins: PileOfCoins[] = [];
   const looseCoins: PileOfCoins[] = [];
@@ -289,7 +376,9 @@ function packCoins(piles: PileOfCoins[], containers: Container[], coinSystem: Co
 
 function packGems(gems: Gem[], containers: Container[], rng?: RNG) {
   // Sort containers by available volume descending
-  let sortedContainers = [...containers].sort((a, b) => (b.maxVolume - b.currentVolume) - (a.maxVolume - a.currentVolume));
+  let sortedContainers = [...containers].sort(
+    (a, b) => b.maxVolume - b.currentVolume - (a.maxVolume - a.currentVolume),
+  );
 
   if (rng) {
     sortedContainers = rng.shuffle(sortedContainers);
@@ -307,7 +396,9 @@ function packGems(gems: Gem[], containers: Container[], rng?: RNG) {
 
 function packArtObjects(artObjects: Item[], containers: Container[], rng?: RNG) {
   // Sort containers by available volume descending
-  let sortedContainers = [...containers].sort((a, b) => (b.maxVolume - b.currentVolume) - (a.maxVolume - a.currentVolume));
+  let sortedContainers = [...containers].sort(
+    (a, b) => b.maxVolume - b.currentVolume - (a.maxVolume - a.currentVolume),
+  );
 
   if (rng) {
     sortedContainers = rng.shuffle(sortedContainers);

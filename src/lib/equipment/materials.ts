@@ -663,4 +663,3 @@ export function getMaterialsByTag(tag: string): Material[] {
 export function getRandomMaterial(rng: RNG.RNG): Material {
   return rng.item(Object.values(MATERIALS));
 }
-

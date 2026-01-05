@@ -1,21 +1,21 @@
-import * as RNG from "@ironarachne/rng";
-import type Archetype from "$lib/archetypes/archetype.js";
-import * as Characters from "$lib/characters/characters.js";
-import * as PremadeConfigs from "$lib/characters/premade_configs.js";
-import * as Creatures from "$lib/creatures/creatures.js";
-import type Species from "$lib/species/species.js";
-import type MobGroup from "$lib/mobs/group.js";
-import type Mob from "$lib/mobs/mob.js";
-import all from "$lib/species/all.js";
-import * as CommonSpecies from "$lib/species/common.js";
-import type Encounter from "./encounter.js";
-import type EncounterGeneratorConfig from "./encounter_generator_config";
+import * as RNG from '@ironarachne/rng';
+import type Archetype from '$lib/archetypes/archetype.js';
+import * as Characters from '$lib/characters/characters.js';
+import * as PremadeConfigs from '$lib/characters/premade_configs.js';
+import * as Creatures from '$lib/creatures/creatures.js';
+import type Species from '$lib/species/species.js';
+import type MobGroup from '$lib/mobs/group.js';
+import type Mob from '$lib/mobs/mob.js';
+import all from '$lib/species/all.js';
+import * as CommonSpecies from '$lib/species/common.js';
+import type Encounter from './encounter.js';
+import type EncounterGeneratorConfig from './encounter_generator_config';
 
 export function generate(config: EncounterGeneratorConfig): Encounter {
   let mobGroups: MobGroup[] = [];
 
   if (config.template === null) {
-    throw new Error("EncounterGenerator requires a template.");
+    throw new Error('EncounterGenerator requires a template.');
   }
 
   for (let i = 0; i < config.template.groupTemplates.length; i++) {
@@ -33,7 +33,7 @@ export function generate(config: EncounterGeneratorConfig): Encounter {
     }
 
     let tags = t.filter.withAllTags.concat(t.filter.withAnyTag);
-    if (tags.includes("undead")) {
+    if (tags.includes('undead')) {
       let skeletonOptions = unfilteredOptions.concat(
         CommonSpecies.getSkeletonVariants(unfilteredOptions),
       );
@@ -46,17 +46,17 @@ export function generate(config: EncounterGeneratorConfig): Encounter {
       unfilteredOptions = unfilteredOptions.concat(skeletonOptions);
       unfilteredOptions = unfilteredOptions.concat(vampireOptions);
       unfilteredOptions = unfilteredOptions.concat(zombieOptions);
-    } else if (tags.includes("skeleton")) {
+    } else if (tags.includes('skeleton')) {
       let skeletonOptions = unfilteredOptions.concat(
         CommonSpecies.getSkeletonVariants(unfilteredOptions),
       );
       unfilteredOptions = unfilteredOptions.concat(skeletonOptions);
-    } else if (tags.includes("vampire")) {
+    } else if (tags.includes('vampire')) {
       let vampireOptions = unfilteredOptions.concat(
         CommonSpecies.getVampireVariants(unfilteredOptions),
       );
       unfilteredOptions = unfilteredOptions.concat(vampireOptions);
-    } else if (tags.includes("zombie")) {
+    } else if (tags.includes('zombie')) {
       let zombieOptions = unfilteredOptions.concat(
         CommonSpecies.getZombieVariants(unfilteredOptions),
       );
@@ -65,8 +65,8 @@ export function generate(config: EncounterGeneratorConfig): Encounter {
     options = t.filter.apply(unfilteredOptions);
 
     if (options.length === 0) {
-      console.error("No options for filter", t.filter);
-      console.debug("Used options", unfilteredOptions);
+      console.error('No options for filter', t.filter);
+      console.debug('Used options', unfilteredOptions);
     }
 
     if (t.isSentient) {
@@ -134,10 +134,10 @@ function generateSentientMobs(
 export function getDefaultConfig(): EncounterGeneratorConfig {
   return {
     isHostile: true,
-    environment: "forest",
+    environment: 'forest',
     template: null,
     sentientOptions: CommonSpecies.sentient(),
-    creatureOptions: CommonSpecies.withoutTag("sentient", all),
+    creatureOptions: CommonSpecies.withoutTag('sentient', all),
     minThreatLevel: 1,
     maxThreatLevel: 4,
     rng: new RNG.RNG(Date.now().toString()),

@@ -1,4 +1,4 @@
-import Word from "./word.js";
+import Word from './word.js';
 
 export default class Conjugation {
   form: string;

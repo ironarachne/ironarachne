@@ -1,5 +1,5 @@
-import type RoomFeatureGenerator from "../features/featuregenerator.js";
-import type Mutator from "../mutators/mutator.js";
+import type RoomFeatureGenerator from '../features/featuregenerator.js';
+import type Mutator from '../mutators/mutator.js';
 
 export default class RoomTheme {
   name: string;

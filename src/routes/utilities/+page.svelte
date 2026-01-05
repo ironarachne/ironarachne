@@ -1,8 +1,3 @@
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/navigation.scss';
-</style>
-
 <svelte:head>
   <title>Utilities &amp; Reference | Iron Arachne</title>
 </svelte:head>
@@ -15,5 +10,9 @@
     <a href="/species-stats">Species Height and Weight Calculator</a>
     <a href="/word-generator-cheat-sheet">Word Generator Cheat Sheet</a>
   </nav>
-
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/navigation.scss';
+</style>

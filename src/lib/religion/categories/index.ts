@@ -8,8 +8,8 @@ export type ReligionCategory = {
 };
 
 export const monotheism = {
-  name: "monotheism",
-  description: "This religion has a single all-powerful god.",
+  name: 'monotheism',
+  description: 'This religion has a single all-powerful god.',
   hasDeities: true,
   hasLeader: false,
   minDeities: 1,
@@ -17,8 +17,8 @@ export const monotheism = {
 };
 
 export const polytheism = {
-  name: "polytheism",
-  description: "This religion has multiple deities.",
+  name: 'polytheism',
+  description: 'This religion has multiple deities.',
   hasDeities: true,
   hasLeader: false,
   minDeities: 2,
@@ -26,9 +26,8 @@ export const polytheism = {
 };
 
 export const animism = {
-  name: "animism",
-  description:
-    "This religion believes that spirits inhabit natural objects and phenomena.",
+  name: 'animism',
+  description: 'This religion believes that spirits inhabit natural objects and phenomena.',
   hasDeities: false,
   hasLeader: false,
   minDeities: 0,
@@ -36,9 +35,8 @@ export const animism = {
 };
 
 export const totemism = {
-  name: "totemism",
-  description:
-    "This religion reveres a particular animal or natural object as a spiritual emblem.",
+  name: 'totemism',
+  description: 'This religion reveres a particular animal or natural object as a spiritual emblem.',
   hasDeities: false,
   hasLeader: false,
   minDeities: 0,
@@ -46,9 +44,8 @@ export const totemism = {
 };
 
 export const ancestorWorship = {
-  name: "ancestor worship",
-  description:
-    "This religion involves rituals and practices to honor deceased ancestors.",
+  name: 'ancestor worship',
+  description: 'This religion involves rituals and practices to honor deceased ancestors.',
   hasDeities: false,
   hasLeader: false,
   minDeities: 0,
@@ -56,9 +53,8 @@ export const ancestorWorship = {
 };
 
 export const shamanism = {
-  name: "shamanism",
-  description:
-    "This religion centers around shamans who interact with the spirit world.",
+  name: 'shamanism',
+  description: 'This religion centers around shamans who interact with the spirit world.',
   hasDeities: false,
   hasLeader: true,
   minDeities: 0,
@@ -66,20 +62,10 @@ export const shamanism = {
 };
 
 export function all(): ReligionCategory[] {
-  return [
-    monotheism,
-    polytheism,
-    animism,
-    totemism,
-    ancestorWorship,
-    shamanism,
-  ];
+  return [monotheism, polytheism, animism, totemism, ancestorWorship, shamanism];
 }
 
-export function byName(
-  name: string,
-  categories: ReligionCategory[],
-): ReligionCategory {
+export function byName(name: string, categories: ReligionCategory[]): ReligionCategory {
   for (let i = 0; i < categories.length; i++) {
     if (categories[i].name === name) {
       return categories[i];

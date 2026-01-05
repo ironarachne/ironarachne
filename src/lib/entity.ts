@@ -1,4 +1,4 @@
-import type Component from "./component.js";
+import type Component from './component.js';
 
 export default interface Entity {
   name: string;

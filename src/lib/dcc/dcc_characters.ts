@@ -1,23 +1,31 @@
-import { RNG } from "@ironarachne/rng";
-import * as MUN from "@ironarachne/made-up-names";
-import * as Dice from "../dice";
-import type { DCCAttribute, DCCCharacter, DCCCharacterGeneratorConfig, DCCItem, DCCLanguage, DCCLuckyRoll, DCCOccupation } from "./dcc_types";
-import * as DwarfOccupations from "./dwarf_occupations";
-import * as ElfOccupations from "./elf_occupations";
-import * as HalflingOccupations from "./halfling_occupations";
-import * as HumanOccupations from "./human_occupations";
-import * as Languages from "./languages";
-import * as LuckyRolls from "./lucky_rolls";
+import { RNG } from '@ironarachne/rng';
+import * as MUN from '@ironarachne/made-up-names';
+import * as Dice from '../dice';
+import type {
+  DCCAttribute,
+  DCCCharacter,
+  DCCCharacterGeneratorConfig,
+  DCCItem,
+  DCCLanguage,
+  DCCLuckyRoll,
+  DCCOccupation,
+} from './dcc_types';
+import * as DwarfOccupations from './dwarf_occupations';
+import * as ElfOccupations from './elf_occupations';
+import * as HalflingOccupations from './halfling_occupations';
+import * as HumanOccupations from './human_occupations';
+import * as Languages from './languages';
+import * as LuckyRolls from './lucky_rolls';
 
 export function getDefaultDCCCharacterGeneratorConfig(seed: string): DCCCharacterGeneratorConfig {
   const rng = new RNG(seed);
-  const familyPatterns = MUN.getCultureNamePatternSet("fantasy").family;
-  const femalePatterns = MUN.getCultureNamePatternSet("fantasy").female;
-  const malePatterns = MUN.getCultureNamePatternSet("fantasy").male;
-  const nameGeneratorFamily = MUN.getNameGeneratorForPatternSet("family", familyPatterns, rng);
-  const nameGeneratorFemale = MUN.getNameGeneratorForPatternSet("female", femalePatterns, rng);
-  const nameGeneratorMale = MUN.getNameGeneratorForPatternSet("male", malePatterns, rng);
-  const allowedOccupations = ["dwarf", "elf", "halfling", "human"];
+  const familyPatterns = MUN.getCultureNamePatternSet('fantasy').family;
+  const femalePatterns = MUN.getCultureNamePatternSet('fantasy').female;
+  const malePatterns = MUN.getCultureNamePatternSet('fantasy').male;
+  const nameGeneratorFamily = MUN.getNameGeneratorForPatternSet('family', familyPatterns, rng);
+  const nameGeneratorFemale = MUN.getNameGeneratorForPatternSet('female', femalePatterns, rng);
+  const nameGeneratorMale = MUN.getNameGeneratorForPatternSet('male', malePatterns, rng);
+  const allowedOccupations = ['dwarf', 'elf', 'halfling', 'human'];
 
   return {
     nameGeneratorMale: nameGeneratorMale,
@@ -27,20 +35,29 @@ export function getDefaultDCCCharacterGeneratorConfig(seed: string): DCCCharacte
   };
 }
 
-export function generateRandomDCCCharacter(seed: string, config: DCCCharacterGeneratorConfig): DCCCharacter {
+export function generateRandomDCCCharacter(
+  seed: string,
+  config: DCCCharacterGeneratorConfig,
+): DCCCharacter {
   const rng = new RNG(seed);
 
   let character: DCCCharacter = {
-    firstName: "",
-    lastName: "",
+    firstName: '',
+    lastName: '',
     age: 0,
-    gender: "",
+    gender: '',
     level: 0,
     xp: 0,
     hp: 0,
     speed: 30,
-    alignment: "",
-    occupation: { name: "", trainedWeapon: null, tradeGoods: null, commonality: 0, apply: (c, rng) => c },
+    alignment: '',
+    occupation: {
+      name: '',
+      trainedWeapon: null,
+      tradeGoods: null,
+      commonality: 0,
+      apply: (c, rng) => c,
+    },
     strength: { value: 0, modifier: 0 },
     agility: { value: 0, modifier: 0 },
     stamina: { value: 0, modifier: 0 },
@@ -51,7 +68,7 @@ export function generateRandomDCCCharacter(seed: string, config: DCCCharacterGen
     reflexSave: 0,
     willpowerSave: 0,
     baseSave: 0,
-    luckyRoll: { name: "", description: "", modifier: 0, apply: (c) => c },
+    luckyRoll: { name: '', description: '', modifier: 0, apply: (c) => c },
     spellsKnown: 0,
     wizardMaxSpellLevel: 0,
     clericMaxSpellLevel: 0,
@@ -65,17 +82,17 @@ export function generateRandomDCCCharacter(seed: string, config: DCCCharacterGen
     numberOfLanguages: 0,
   };
 
-  character.strength = { value: Dice.roll("3d6", rng), modifier: 0 };
+  character.strength = { value: Dice.roll('3d6', rng), modifier: 0 };
   character.strength.modifier = getAttributeModifier(character.strength.value);
-  character.agility = { value: Dice.roll("3d6", rng), modifier: 0 };
+  character.agility = { value: Dice.roll('3d6', rng), modifier: 0 };
   character.agility.modifier = getAttributeModifier(character.agility.value);
-  character.stamina = { value: Dice.roll("3d6", rng), modifier: 0 };
+  character.stamina = { value: Dice.roll('3d6', rng), modifier: 0 };
   character.stamina.modifier = getAttributeModifier(character.stamina.value);
-  character.personality = { value: Dice.roll("3d6", rng), modifier: 0 };
+  character.personality = { value: Dice.roll('3d6', rng), modifier: 0 };
   character.personality.modifier = getAttributeModifier(character.personality.value);
-  character.intelligence = { value: Dice.roll("3d6", rng), modifier: 0 };
+  character.intelligence = { value: Dice.roll('3d6', rng), modifier: 0 };
   character.intelligence.modifier = getAttributeModifier(character.intelligence.value);
-  character.luck = { value: Dice.roll("3d6", rng), modifier: 0 };
+  character.luck = { value: Dice.roll('3d6', rng), modifier: 0 };
   character.luck.modifier = getAttributeModifier(character.luck.value);
 
   character.numberOfLanguages =
@@ -83,7 +100,7 @@ export function generateRandomDCCCharacter(seed: string, config: DCCCharacterGen
 
   character.luckyRoll = randomLuckyRoll(character.luck.modifier, rng);
 
-  character.hp = Dice.roll("1d4", rng) + character.stamina.modifier;
+  character.hp = Dice.roll('1d4', rng) + character.stamina.modifier;
   if (character.hp < 1) {
     character.hp = 1;
   }
@@ -97,16 +114,16 @@ export function generateRandomDCCCharacter(seed: string, config: DCCCharacterGen
   character.willpowerSave = character.baseSave + character.personality.modifier;
   character.reflexSave = character.baseSave + character.agility.modifier;
 
-  character.gender = rng.item(["male", "female"]);
+  character.gender = rng.item(['male', 'female']);
   character.lastName = config.nameGeneratorFamily.generate(1)[0];
   character.firstName = config.nameGeneratorFemale.generate(1)[0];
-  if (character.gender === "male") {
+  if (character.gender === 'male') {
     character.firstName = config.nameGeneratorMale.generate(1)[0];
   }
   character.age = rng.int(16, 22);
   character.xp = 0;
   character.level = 0;
-  character.alignment = rng.item(["Law", "Chaos", "Neutrality"]);
+  character.alignment = rng.item(['Law', 'Chaos', 'Neutrality']);
 
   character.occupation = randomOccupation(config.allowedOccupations, rng);
   if (character.occupation.trainedWeapon) {
@@ -119,45 +136,45 @@ export function generateRandomDCCCharacter(seed: string, config: DCCCharacterGen
 
   const randomEquipment = rng.item(getEquipmentOptions());
   character.equipment.push(randomEquipment);
-  character.currency.cp = Dice.roll("5d12", rng);
+  character.currency.cp = Dice.roll('5d12', rng);
 
-  character.languages.push("Common");
+  character.languages.push('Common');
 
   character = character.occupation.apply(character, rng);
   character = character.luckyRoll.apply(character);
 
   // Name generation based on race/occupation
-  if (character.occupation.name.includes("elven")) {
-    const patterns = MUN.getClassicRaceNamePatternSet("elf");
-    let nameGenerator = MUN.getNameGeneratorForPatternSet("elf", patterns.family, rng);
+  if (character.occupation.name.includes('elven')) {
+    const patterns = MUN.getClassicRaceNamePatternSet('elf');
+    let nameGenerator = MUN.getNameGeneratorForPatternSet('elf', patterns.family, rng);
     character.lastName = nameGenerator.generate(1)[0];
-    if (character.gender === "male") {
-      nameGenerator = MUN.getNameGeneratorForPatternSet("elf", patterns.male, rng);
+    if (character.gender === 'male') {
+      nameGenerator = MUN.getNameGeneratorForPatternSet('elf', patterns.male, rng);
       character.firstName = nameGenerator.generate(1)[0];
     } else {
-      nameGenerator = MUN.getNameGeneratorForPatternSet("elf", patterns.female, rng);
+      nameGenerator = MUN.getNameGeneratorForPatternSet('elf', patterns.female, rng);
       character.firstName = nameGenerator.generate(1)[0];
     }
-  } else if (character.occupation.name.includes("dwarven")) {
-    const patterns = MUN.getClassicRaceNamePatternSet("dwarf");
-    let nameGenerator = MUN.getNameGeneratorForPatternSet("dwarf", patterns.family, rng);
+  } else if (character.occupation.name.includes('dwarven')) {
+    const patterns = MUN.getClassicRaceNamePatternSet('dwarf');
+    let nameGenerator = MUN.getNameGeneratorForPatternSet('dwarf', patterns.family, rng);
     character.lastName = nameGenerator.generate(1)[0];
-    if (character.gender === "male") {
-      nameGenerator = MUN.getNameGeneratorForPatternSet("dwarf", patterns.male, rng);
+    if (character.gender === 'male') {
+      nameGenerator = MUN.getNameGeneratorForPatternSet('dwarf', patterns.male, rng);
       character.firstName = nameGenerator.generate(1)[0];
     } else {
-      nameGenerator = MUN.getNameGeneratorForPatternSet("dwarf", patterns.female, rng);
+      nameGenerator = MUN.getNameGeneratorForPatternSet('dwarf', patterns.female, rng);
       character.firstName = nameGenerator.generate(1)[0];
     }
-  } else if (character.occupation.name.includes("halfling")) {
-    const patterns = MUN.getClassicRaceNamePatternSet("halfling");
-    let nameGenerator = MUN.getNameGeneratorForPatternSet("halfling", patterns.family, rng);
+  } else if (character.occupation.name.includes('halfling')) {
+    const patterns = MUN.getClassicRaceNamePatternSet('halfling');
+    let nameGenerator = MUN.getNameGeneratorForPatternSet('halfling', patterns.family, rng);
     character.lastName = nameGenerator.generate(1)[0];
-    if (character.gender === "male") {
-      nameGenerator = MUN.getNameGeneratorForPatternSet("halfling", patterns.male, rng);
+    if (character.gender === 'male') {
+      nameGenerator = MUN.getNameGeneratorForPatternSet('halfling', patterns.male, rng);
       character.firstName = nameGenerator.generate(1)[0];
     } else {
-      nameGenerator = MUN.getNameGeneratorForPatternSet("halfling", patterns.female, rng);
+      nameGenerator = MUN.getNameGeneratorForPatternSet('halfling', patterns.female, rng);
       character.firstName = nameGenerator.generate(1)[0];
     }
   } else {
@@ -178,13 +195,13 @@ function getLanguages(character: DCCCharacter, rng: RNG): string[] {
   let languages = character.languages;
   let possibleLanguages = Languages.getHuman();
 
-  if (character.occupation.name.includes("dwarven")) {
+  if (character.occupation.name.includes('dwarven')) {
     possibleLanguages = Languages.getDwarf();
     possibleLanguages.push({ name: character.alignment, commonality: 20 });
-  } else if (character.occupation.name.includes("elven")) {
+  } else if (character.occupation.name.includes('elven')) {
     possibleLanguages = Languages.getElf();
     possibleLanguages.push({ name: character.alignment, commonality: 20 });
-  } else if (character.occupation.name.includes("halfling")) {
+  } else if (character.occupation.name.includes('halfling')) {
     possibleLanguages = Languages.getHalfling();
     possibleLanguages.push({ name: character.alignment, commonality: 25 });
   } else {
@@ -192,7 +209,7 @@ function getLanguages(character: DCCCharacter, rng: RNG): string[] {
   }
 
   // Filter out languages already known
-  possibleLanguages = possibleLanguages.filter(l => !languages.includes(l.name));
+  possibleLanguages = possibleLanguages.filter((l) => !languages.includes(l.name));
 
   for (let i = 0; i < character.numberOfLanguages; i++) {
     if (possibleLanguages.length === 0) break;
@@ -206,7 +223,7 @@ function getLanguages(character: DCCCharacter, rng: RNG): string[] {
     if (!languages.includes(language.name)) {
       languages.push(language.name);
       // Remove selected language from possible list to avoid duplicates
-      possibleLanguages = possibleLanguages.filter(l => l.name !== language.name);
+      possibleLanguages = possibleLanguages.filter((l) => l.name !== language.name);
     } else {
       // Should not happen due to filter above, but just in case
       i--;
@@ -224,26 +241,7 @@ function getMaxSpellLevel(score: number): number {
 }
 
 function getSpellsKnown(intScore: number): number {
-  const known = [
-    -9,
-    -9,
-    -9,
-    -9,
-    -2,
-    -2 - 1,
-    -1,
-    0,
-    0,
-    0,
-    0,
-    0,
-    0,
-    1,
-    1,
-    1,
-    2,
-    2,
-  ];
+  const known = [-9, -9, -9, -9, -2, -2 - 1, -1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2];
   if (intScore >= known.length) return 2;
   if (intScore < 0) return -9;
   return known[intScore];
@@ -251,37 +249,37 @@ function getSpellsKnown(intScore: number): number {
 
 function getEquipmentOptions(): DCCItem[] {
   return [
-    { name: "backpack", value: 1 },
-    { name: "candle", value: 1 },
+    { name: 'backpack', value: 1 },
+    { name: 'candle', value: 1 },
     { name: "chain, 10'", value: 1 },
-    { name: "chalk, 1 piece", value: 1 },
-    { name: "chest, empty", value: 1 },
-    { name: "crowbar", value: 1 },
-    { name: "flask, empty", value: 1 },
-    { name: "flint and steel", value: 1 },
-    { name: "grappling hook", value: 1 },
-    { name: "hammer, small", value: 1 },
-    { name: "holy symbol", value: 1 },
-    { name: "holy water, 1 vial", value: 1 },
-    { name: "iron spike", value: 1 },
-    { name: "lantern", value: 1 },
-    { name: "mirror, hand-sized", value: 1 },
-    { name: "oil, 1 flask", value: 1 },
-    { name: "pole, 10-foot", value: 1 },
-    { name: "rations, 1 day", value: 1 },
+    { name: 'chalk, 1 piece', value: 1 },
+    { name: 'chest, empty', value: 1 },
+    { name: 'crowbar', value: 1 },
+    { name: 'flask, empty', value: 1 },
+    { name: 'flint and steel', value: 1 },
+    { name: 'grappling hook', value: 1 },
+    { name: 'hammer, small', value: 1 },
+    { name: 'holy symbol', value: 1 },
+    { name: 'holy water, 1 vial', value: 1 },
+    { name: 'iron spike', value: 1 },
+    { name: 'lantern', value: 1 },
+    { name: 'mirror, hand-sized', value: 1 },
+    { name: 'oil, 1 flask', value: 1 },
+    { name: 'pole, 10-foot', value: 1 },
+    { name: 'rations, 1 day', value: 1 },
     { name: "rope, 50'", value: 1 },
-    { name: "sack, large", value: 1 },
-    { name: "sack, small", value: 1 },
+    { name: 'sack, large', value: 1 },
+    { name: 'sack, small', value: 1 },
     { name: "thieves' tools", value: 1 },
-    { name: "torch", value: 1 },
-    { name: "waterskin", value: 1 },
+    { name: 'torch', value: 1 },
+    { name: 'waterskin', value: 1 },
   ];
 }
 
 function randomLuckyRoll(modifier: number, rng: RNG): DCCLuckyRoll {
   const rolls = LuckyRolls.all();
   // rolls[0] is empty placeholder, so we roll 1d30 to get index 1-30
-  const rollIndex = Dice.roll("1d30", rng);
+  const rollIndex = Dice.roll('1d30', rng);
   const roll = rolls[rollIndex];
   roll.modifier = modifier;
 
@@ -291,19 +289,19 @@ function randomLuckyRoll(modifier: number, rng: RNG): DCCLuckyRoll {
 function randomOccupation(allowedOccupations: string[], rng: RNG): DCCOccupation {
   let occupations: DCCOccupation[] = [];
 
-  if (allowedOccupations.includes("dwarf")) {
+  if (allowedOccupations.includes('dwarf')) {
     occupations = occupations.concat(DwarfOccupations.all());
   }
 
-  if (allowedOccupations.includes("elf")) {
+  if (allowedOccupations.includes('elf')) {
     occupations = occupations.concat(ElfOccupations.all());
   }
 
-  if (allowedOccupations.includes("halfling")) {
+  if (allowedOccupations.includes('halfling')) {
     occupations = occupations.concat(HalflingOccupations.all());
   }
 
-  if (allowedOccupations.includes("human")) {
+  if (allowedOccupations.includes('human')) {
     occupations = occupations.concat(HumanOccupations.all());
   }
 
@@ -315,4 +313,3 @@ function randomOccupation(allowedOccupations: string[], rng: RNG): DCCOccupation
 
   return occupation;
 }
-

@@ -1,9 +1,9 @@
-import ArmsManufacturer from "./arms_manufacturer.js";
-import WeaponGenerator from "$lib/weapons/generator.js";
-import WeaponGeneratorConfig from "$lib/weapons/config.js";
-import * as MUN from "@ironarachne/made-up-names";
-import * as RNG from "@ironarachne/rng";
-import * as SciFiWeaponTypes from "$lib/weapons/scifi.js";
+import ArmsManufacturer from './arms_manufacturer.js';
+import WeaponGenerator from '$lib/weapons/generator.js';
+import WeaponGeneratorConfig from '$lib/weapons/config.js';
+import * as MUN from '@ironarachne/made-up-names';
+import * as RNG from '@ironarachne/rng';
+import * as SciFiWeaponTypes from '$lib/weapons/scifi.js';
 
 export default class ArmsManufacturerGenerator {
   rng: RNG.RNG;
@@ -18,9 +18,7 @@ export default class ArmsManufacturerGenerator {
     let description = `${name} `;
 
     const specialty = this.rng.item(SciFiWeaponTypes.all);
-    const secondaryOptions = SciFiWeaponTypes.all.filter(
-      (wType) => wType.name !== specialty.name,
-    );
+    const secondaryOptions = SciFiWeaponTypes.all.filter((wType) => wType.name !== specialty.name);
 
     const secondary = this.rng.item(secondaryOptions);
 
@@ -61,37 +59,41 @@ export default class ArmsManufacturerGenerator {
 
   randomOutlook(): string {
     return this.rng.item([
-      " They focus exclusively on quality, and their products are very expensive.",
-      " They focus heavily on reliability.",
-      " They are devoted to profit above all else and their products are lower in quality.",
-      " They pride themselves on their workmanship.",
+      ' They focus exclusively on quality, and their products are very expensive.',
+      ' They focus heavily on reliability.',
+      ' They are devoted to profit above all else and their products are lower in quality.',
+      ' They pride themselves on their workmanship.',
     ]);
   }
 
   randomReputation(): string {
     return this.rng.item([
-      " Their products are widely regarded as the standard to beat.",
-      " Their products have a following among bounty hunters and mercenaries.",
-      " Their products are well-regarded by military powers.",
-      " They sometimes suffer derision because of their attitude.",
-      " Their market presence is almost nonexistent.",
-      " Some black markets focus exclusively on their products.",
+      ' Their products are widely regarded as the standard to beat.',
+      ' Their products have a following among bounty hunters and mercenaries.',
+      ' Their products are well-regarded by military powers.',
+      ' They sometimes suffer derision because of their attitude.',
+      ' Their market presence is almost nonexistent.',
+      ' Some black markets focus exclusively on their products.',
     ]);
   }
 
   randomName() {
-    const patterns = ["pvlul", "vpvfv"];
+    const patterns = ['pvlul', 'vpvfv'];
 
-    const nameGenerator = MUN.getNameGeneratorForPatternSet("arms_manufacturer", patterns, this.rng);
+    const nameGenerator = MUN.getNameGeneratorForPatternSet(
+      'arms_manufacturer',
+      patterns,
+      this.rng,
+    );
     const nameFragment = nameGenerator.generate(1)[0];
 
     const suffixes = [
-      "Heavy Industries",
-      "Arms, Limited",
-      "Incorporated",
-      "Consolidated",
-      "Corporation",
-      "Applied Sciences",
+      'Heavy Industries',
+      'Arms, Limited',
+      'Incorporated',
+      'Consolidated',
+      'Corporation',
+      'Applied Sciences',
     ];
 
     const suffix = this.rng.item(suffixes);

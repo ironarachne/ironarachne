@@ -1,4 +1,4 @@
-import type Ability from "./ability";
+import type Ability from './ability';
 
 export function getAbilityByName(name: string, abilities: Ability[]): Ability {
   let result = abilities.find((ability) => ability.name === name);

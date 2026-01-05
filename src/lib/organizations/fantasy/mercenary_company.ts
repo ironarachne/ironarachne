@@ -1,53 +1,50 @@
-import type Character from "$lib/characters/character.js";
-import type CharacterGeneratorConfig from "$lib/characters/character_generator_config.js";
-import * as Characters from "$lib/characters/characters.js";
-import * as Charges from "$lib/heraldry/charges/index.js";
+import type Character from '$lib/characters/character.js';
+import type CharacterGeneratorConfig from '$lib/characters/character_generator_config.js';
+import * as Characters from '$lib/characters/characters.js';
+import * as Charges from '$lib/heraldry/charges/index.js';
 import {
   mergeHeraldryGeneratorConfig,
   type HeraldryGeneratorConfig,
-} from "$lib/heraldry/generatorconfig.js";
-import type * as RNG from "@ironarachne/rng";
-import type OrganizationRank from "../organization_rank.js";
-import type OrganizationType from "../organization_type.js";
+} from '$lib/heraldry/generatorconfig.js';
+import type * as RNG from '@ironarachne/rng';
+import type OrganizationRank from '../organization_rank.js';
+import type OrganizationType from '../organization_type.js';
 
 export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: Charges.matchingAnyTags(
-      ["weapon", "armor", "aggressive"],
-      Charges.all(),
-    ),
+    chargeOptions: Charges.matchingAnyTags(['weapon', 'armor', 'aggressive'], Charges.all()),
   });
 
   const nameGenerator = (rng: RNG.RNG): string => {
     const prefix = rng.item([
-      "Black",
-      "Blood",
-      "Burning",
-      "Crimson",
-      "Free",
-      "Gilded",
-      "Golden",
-      "Iron",
-      "Red",
-      "Silver",
-      "White",
+      'Black',
+      'Blood',
+      'Burning',
+      'Crimson',
+      'Free',
+      'Gilded',
+      'Golden',
+      'Iron',
+      'Red',
+      'Silver',
+      'White',
     ]);
     const suffix = rng.item([
-      "Axes",
-      "Army",
-      "Bears",
-      "Blades",
-      "Coins",
-      "Company",
-      "Dragons",
-      "Giants",
-      "Lords",
-      "Pikes",
-      "Sentinels",
-      "Swords",
-      "Wolves",
-      "Wyverns",
+      'Axes',
+      'Army',
+      'Bears',
+      'Blades',
+      'Coins',
+      'Company',
+      'Dragons',
+      'Giants',
+      'Lords',
+      'Pikes',
+      'Sentinels',
+      'Swords',
+      'Wolves',
+      'Wyverns',
     ]);
 
     return `The ${prefix} ${suffix}`;
@@ -55,15 +52,13 @@ export function generateType(rng: RNG.RNG): OrganizationType {
 
   const descriptionGenerator = (rng: RNG.RNG): string =>
     rng.item([
-      "{name} is a vicious mercenary company with a reputation for excessive violence.",
-      "{name} is a merc company that prides itself on its professionalism and integrity.",
-      "{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.",
+      '{name} is a vicious mercenary company with a reputation for excessive violence.',
+      '{name} is a merc company that prides itself on its professionalism and integrity.',
+      '{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.',
     ]);
 
-  const leadershipGenerator = (
-    characterGenConfig: CharacterGeneratorConfig,
-  ): Character => {
-    characterGenConfig.ageCategoryNames = ["adult"];
+  const leadershipGenerator = (characterGenConfig: CharacterGeneratorConfig): Character => {
+    characterGenConfig.ageCategoryNames = ['adult'];
 
     const leader = Characters.generate(characterGenConfig);
     const ranks = getRanks();
@@ -76,7 +71,7 @@ export function generateType(rng: RNG.RNG): OrganizationType {
     rank: OrganizationRank,
     characterGenConfig: CharacterGeneratorConfig,
   ): Character => {
-    characterGenConfig.ageCategoryNames = ["adult"];
+    characterGenConfig.ageCategoryNames = ['adult'];
 
     const member = Characters.generate(characterGenConfig);
     member.titles.push(rank.title);
@@ -84,10 +79,10 @@ export function generateType(rng: RNG.RNG): OrganizationType {
   };
 
   return {
-    name: "mercenary company",
+    name: 'mercenary company',
     minSize: 20,
     maxSize: 80,
-    leaderTitle: "captain",
+    leaderTitle: 'captain',
     randomName: nameGenerator,
     randomDescription: descriptionGenerator,
     randomLeadership: leadershipGenerator,
@@ -100,14 +95,14 @@ export function generateType(rng: RNG.RNG): OrganizationType {
 function getRanks(): OrganizationRank[] {
   const ranks: OrganizationRank[] = [
     {
-      name: "captain",
+      name: 'captain',
       title: {
-        femaleTitle: "Captain",
-        maleTitle: "Captain",
-        femaleHonorific: "Captain",
-        maleHonorific: "Captain",
+        femaleTitle: 'Captain',
+        maleTitle: 'Captain',
+        femaleHonorific: 'Captain',
+        maleHonorific: 'Captain',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 0,
       },
       tier: 0,
@@ -115,14 +110,14 @@ function getRanks(): OrganizationRank[] {
       children: [],
     },
     {
-      name: "lieutenant",
+      name: 'lieutenant',
       title: {
-        femaleTitle: "Lieutenant",
-        maleTitle: "Lieutenant",
-        femaleHonorific: "Lieutenant",
-        maleHonorific: "Lieutenant",
+        femaleTitle: 'Lieutenant',
+        maleTitle: 'Lieutenant',
+        femaleHonorific: 'Lieutenant',
+        maleHonorific: 'Lieutenant',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 1,
       },
       tier: 1,
@@ -130,14 +125,14 @@ function getRanks(): OrganizationRank[] {
       children: [],
     },
     {
-      name: "sergeant",
+      name: 'sergeant',
       title: {
-        femaleTitle: "Sergeant",
-        maleTitle: "Sergeant",
-        femaleHonorific: "Sergeant",
-        maleHonorific: "Sergeant",
+        femaleTitle: 'Sergeant',
+        maleTitle: 'Sergeant',
+        femaleHonorific: 'Sergeant',
+        maleHonorific: 'Sergeant',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 2,
       },
       tier: 2,
@@ -145,14 +140,14 @@ function getRanks(): OrganizationRank[] {
       children: [],
     },
     {
-      name: "member",
+      name: 'member',
       title: {
-        femaleTitle: "Mercenary",
-        maleTitle: "Mercenary",
-        femaleHonorific: "",
-        maleHonorific: "",
+        femaleTitle: 'Mercenary',
+        maleTitle: 'Mercenary',
+        femaleHonorific: '',
+        maleHonorific: '',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 3,
       },
       tier: 3,

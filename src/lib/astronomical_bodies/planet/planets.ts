@@ -3,10 +3,10 @@ import {
   getAlbedoFromTemperature,
   getGravityFromMassAndRadius,
   getPlanetTemperature,
-} from "$lib/astronomical_bodies/astronomical_bodies";
-import { getPlanetClassifications } from "./planet_classifications";
-import * as MUN from "@ironarachne/made-up-names";
-import * as RNG from "@ironarachne/rng";
+} from '$lib/astronomical_bodies/astronomical_bodies';
+import { getPlanetClassifications } from './planet_classifications';
+import * as MUN from '@ironarachne/made-up-names';
+import * as RNG from '@ironarachne/rng';
 
 export type PlanetClassification = {
   name: string;
@@ -34,16 +34,11 @@ export type PlanetGenerationConfig = {
   rng: RNG.RNG;
 };
 
-export function generatePlanet(
-  config: PlanetGenerationConfig,
-): AstronomicalBody {
+export function generatePlanet(config: PlanetGenerationConfig): AstronomicalBody {
   const name = MUN.getPlanetNameGenerator(config.rng).generate(1)[0];
 
   const classification = config.rng.item(config.possible_classifications);
-  const radius = config.rng.float(
-    classification.radius_min,
-    classification.radius_max,
-  );
+  const radius = config.rng.float(classification.radius_min, classification.radius_max);
   const has_rings = config.rng.int(0, 100) < config.rings_chance;
   const mass = config.rng.float(classification.mass_min, classification.mass_max);
   const orbital_distance = config.rng.float(
@@ -56,10 +51,7 @@ export function generatePlanet(
   );
   const description = classification.getRandomDescription(config.rng);
   const surface_pressure = classification.has_atmosphere
-    ? config.rng.bellFloat(
-        classification.surface_pressure_min,
-        classification.surface_pressure_max,
-      )
+    ? config.rng.bellFloat(classification.surface_pressure_min, classification.surface_pressure_max)
     : 0;
   const temperature = getPlanetTemperature(
     surface_pressure,
@@ -94,6 +86,6 @@ export function getDefaultPlanetGenerationConfig(): PlanetGenerationConfig {
     starport_chance: 85,
     star_temperature: 5773, // default to the Sun's temperature
     habitable_chance: 60,
-    rng: new RNG.RNG(Date.now().toString())
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }

@@ -47,7 +47,7 @@ export function poundsToKG(pounds: number): number {
 }
 
 export function inchesToFeetExpression(inches: number): string {
-  let expression = "";
+  let expression = '';
 
   const feet = Math.floor(inches / 12);
 

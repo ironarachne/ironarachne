@@ -1,14 +1,22 @@
-import { RNG } from "@ironarachne/rng";
-import type { Gem, GemType, GemCut, GemSize, GemGeneratorConfig } from "./gem_types";
-import * as Words from "@ironarachne/words";
+import { RNG } from '@ironarachne/rng';
+import type { Gem, GemType, GemCut, GemSize, GemGeneratorConfig } from './gem_types';
+import * as Words from '@ironarachne/words';
 
 export const gemCuts: GemCut[] = [
-  'round', 'oval', 'cushion', 'princess', 'emerald', 'marquise', 'pear', 'radiant', 'heart', 'cabochon', 'rough'
+  'round',
+  'oval',
+  'cushion',
+  'princess',
+  'emerald',
+  'marquise',
+  'pear',
+  'radiant',
+  'heart',
+  'cabochon',
+  'rough',
 ];
 
-export const gemSizes: GemSize[] = [
-  'tiny', 'small', 'medium', 'large', 'huge'
-];
+export const gemSizes: GemSize[] = ['tiny', 'small', 'medium', 'large', 'huge'];
 
 export const gemTypes: GemType[] = [
   { name: 'agate', baseValue: 8000, baseWeight: 0.1, densityCategory: 'standard' },
@@ -42,7 +50,7 @@ export function getDefaultGemGeneratorConfig(): GemGeneratorConfig {
     allowedCuts: gemCuts,
     allowedSizes: gemSizes,
     allowedTypes: gemTypes,
-  }
+  };
 }
 
 /**
@@ -57,7 +65,15 @@ export function getDefaultGemGeneratorConfig(): GemGeneratorConfig {
  * @param description An optional description for the gem.
  * @returns The generated gem object.
  */
-export function generateGem(id: string, name: string, isCut: boolean, cut: GemCut, size: GemSize, gemType: GemType, description?: string): Gem {
+export function generateGem(
+  id: string,
+  name: string,
+  isCut: boolean,
+  cut: GemCut,
+  size: GemSize,
+  gemType: GemType,
+  description?: string,
+): Gem {
   return {
     id,
     name,
@@ -72,7 +88,7 @@ export function generateGem(id: string, name: string, isCut: boolean, cut: GemCu
     properties: [],
     densityCategory: gemType.densityCategory,
     weight: gemType.baseWeight * getGemWeightModifier(isCut, size),
-  }
+  };
 }
 
 /**
@@ -82,11 +98,14 @@ export function generateGem(id: string, name: string, isCut: boolean, cut: GemCu
  * @param config The configuration for gem generation.
  * @returns A randomly generated gem.
  */
-export function generateRandomGem(seed: string, config: GemGeneratorConfig = getDefaultGemGeneratorConfig()): Gem {
+export function generateRandomGem(
+  seed: string,
+  config: GemGeneratorConfig = getDefaultGemGeneratorConfig(),
+): Gem {
   const rng = new RNG(seed);
 
   if (config.minimumValue !== undefined || config.maximumValue !== undefined) {
-    const filteredGemTypes = gemTypes.filter(gemType => {
+    const filteredGemTypes = gemTypes.filter((gemType) => {
       if (config.minimumValue !== undefined && gemType.baseValue < config.minimumValue) {
         return false;
       }
@@ -108,7 +127,12 @@ export function generateRandomGem(seed: string, config: GemGeneratorConfig = get
 
   const availableGemTypes = config.allowedTypes || gemTypes;
   const gemType = rng.item(availableGemTypes);
-  const isCut = config.allowCutGems && config.allowUncutGems ? rng.item([true, false]) : config.allowCutGems ? true : false;
+  const isCut =
+    config.allowCutGems && config.allowUncutGems
+      ? rng.item([true, false])
+      : config.allowCutGems
+        ? true
+        : false;
   const cut = isCut && config.allowedCuts ? rng.item(config.allowedCuts) : 'rough';
   const size = config.allowedSizes ? rng.item(config.allowedSizes) : 'medium';
   const rarity = 'uncommon';
@@ -129,7 +153,7 @@ export function generateRandomGem(seed: string, config: GemGeneratorConfig = get
     properties: [],
     densityCategory: gemType.densityCategory,
     weight,
-  }
+  };
 }
 
 /**
@@ -139,7 +163,7 @@ export function generateRandomGem(seed: string, config: GemGeneratorConfig = get
  * @returns
  */
 export function getGemTypesUpToValue(maxValue: number): GemType[] {
-  return gemTypes.filter(gem => gem.baseValue <= maxValue);
+  return gemTypes.filter((gem) => gem.baseValue <= maxValue);
 }
 
 /**
@@ -203,18 +227,26 @@ export function getGemsForValue(totalValue: number): Gem[] {
  * @param config The configuration for gem generation.
  * @returns An array of randomly generated gems.
  */
-export function getRandomGemsForValue(seed: string, totalValue: number, config: GemGeneratorConfig = getDefaultGemGeneratorConfig()): Gem[] {
+export function getRandomGemsForValue(
+  seed: string,
+  totalValue: number,
+  config: GemGeneratorConfig = getDefaultGemGeneratorConfig(),
+): Gem[] {
   const rng = new RNG(seed);
   const selectedGems: Gem[] = [];
   let remainingValue = totalValue;
 
-  const affordableGemTypes = (config.allowedTypes || gemTypes).filter(gemType => gemType.baseValue <= remainingValue);
+  const affordableGemTypes = (config.allowedTypes || gemTypes).filter(
+    (gemType) => gemType.baseValue <= remainingValue,
+  );
   if (affordableGemTypes.length === 0) {
     return selectedGems; // No gems can be afforded
   }
 
   while (remainingValue > 0) {
-    const possibleGemTypes = affordableGemTypes.filter(gemType => gemType.baseValue <= remainingValue);
+    const possibleGemTypes = affordableGemTypes.filter(
+      (gemType) => gemType.baseValue <= remainingValue,
+    );
     if (possibleGemTypes.length === 0) {
       break; // No more gems can be afforded
     }

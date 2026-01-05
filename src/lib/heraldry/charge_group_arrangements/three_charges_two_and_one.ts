@@ -1,18 +1,18 @@
-import { create } from "xmlbuilder2";
-import type { ChargeGroupArrangement } from ".";
-import { convertXmlToSVGObject, getSVGDimensions } from "$lib/images/svg";
+import { create } from 'xmlbuilder2';
+import type { ChargeGroupArrangement } from '.';
+import { convertXmlToSVGObject, getSVGDimensions } from '$lib/images/svg';
 
 export const threeChargesTwoAndOneArrangement: ChargeGroupArrangement = {
-  name: "three charges two and one",
+  name: 'three charges two and one',
   numberOfCharges: 3,
-  blazonPattern: "three {namePlural} two and one",
+  blazonPattern: 'three {namePlural} two and one',
   renderSVG: function (
     chargeSVGString: string,
     contextWidth: number,
     contextHeight: number,
   ): string {
     const chargeObject = convertXmlToSVGObject(chargeSVGString);
-    const svgObj = (chargeObject as any)["svg"];
+    const svgObj = (chargeObject as any)['svg'];
     const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
     let scaleAmount = Math.min(
@@ -35,16 +35,16 @@ export const threeChargesTwoAndOneArrangement: ChargeGroupArrangement = {
     const halfHeight = newHeight / 2;
 
     // Top Left
-    svgObj["@x"] = (xMove - halfWidth) / scaleAmount;
-    svgObj["@y"] = (yMove - halfHeight) / scaleAmount;
+    svgObj['@x'] = (xMove - halfWidth) / scaleAmount;
+    svgObj['@y'] = (yMove - halfHeight) / scaleAmount;
 
     // Top Right
-    chargeObject2["svg"]["@x"] = (xMove + halfWidth) / scaleAmount;
-    chargeObject2["svg"]["@y"] = (yMove - halfHeight) / scaleAmount;
+    chargeObject2['svg']['@x'] = (xMove + halfWidth) / scaleAmount;
+    chargeObject2['svg']['@y'] = (yMove - halfHeight) / scaleAmount;
 
     // Bottom Center
-    chargeObject3["svg"]["@x"] = xMove / scaleAmount;
-    chargeObject3["svg"]["@y"] = (yMove + halfHeight) / scaleAmount;
+    chargeObject3['svg']['@x'] = xMove / scaleAmount;
+    chargeObject3['svg']['@y'] = (yMove + halfHeight) / scaleAmount;
 
     const chargeSVG1 = create(chargeObject);
     const chargeSVG2 = create(chargeObject2);

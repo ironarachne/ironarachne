@@ -1,69 +1,69 @@
-import * as Archetypes from "$lib/archetypes/archetypes.js";
-import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
-import { SpeciesFilter } from "$lib/species/filter.js";
-import type EncounterTemplate from "../../encounter_template.js";
+import * as Archetypes from '$lib/archetypes/archetypes.js';
+import * as FantasyArchetypes from '$lib/archetypes/fantasy/all.js';
+import { SpeciesFilter } from '$lib/species/filter.js';
+import type EncounterTemplate from '../../encounter_template.js';
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
   return [
     {
-      name: "group of raiders",
+      name: 'group of raiders',
       threatLevel: 3,
       groupTemplates: [
         {
-          name: "raider captain",
+          name: 'raider captain',
           threatLevel: 2,
           isSentient: true,
-          archetypes: [Archetypes.byName("raider captain", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('raider captain', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 1,
           maxNumber: 1,
         },
         {
-          name: "raiders",
+          name: 'raiders',
           threatLevel: 3,
           isSentient: true,
-          archetypes: [Archetypes.byName("raider", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('raider', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 3,
           maxNumber: 6,
         },
       ],
-      tags: ["bandits"],
+      tags: ['bandits'],
       commonality: 5,
     },
     {
-      name: "group of looters",
+      name: 'group of looters',
       threatLevel: 3,
       groupTemplates: [
         {
-          name: "looters",
+          name: 'looters',
           threatLevel: 3,
           isSentient: true,
-          archetypes: [Archetypes.byName("thug", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('thug', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 3,
           maxNumber: 6,
         },
       ],
-      tags: ["bandits"],
+      tags: ['bandits'],
       commonality: 5,
     },
     {
-      name: "group of thugs",
+      name: 'group of thugs',
       threatLevel: 2,
       groupTemplates: [
         {
-          name: "thugs",
+          name: 'thugs',
           threatLevel: 2,
           isSentient: true,
-          archetypes: [Archetypes.byName("thug", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('thug', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 2,
           maxNumber: 4,
         },
       ],
-      tags: ["bandits"],
+      tags: ['bandits'],
       commonality: 5,
     },
   ];

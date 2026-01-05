@@ -32,39 +32,39 @@ export function valueToCoins(
     }
   }
 
-  let result = "";
+  let result = '';
   let formatter = new Intl.NumberFormat();
 
   if (platinum > 0) {
-    result += formatter.format(platinum) + " pp ";
+    result += formatter.format(platinum) + ' pp ';
     if (!enableExact) {
       return result.trim();
     }
   }
 
   if (gold > 0) {
-    result += formatter.format(gold) + " gp ";
+    result += formatter.format(gold) + ' gp ';
     if (!enableExact) {
       return result.trim();
     }
   }
 
   if (electrum > 0) {
-    result += formatter.format(electrum) + " ep ";
+    result += formatter.format(electrum) + ' ep ';
     if (!enableExact) {
       return result.trim();
     }
   }
 
   if (silver > 0) {
-    result += formatter.format(silver) + " sp ";
+    result += formatter.format(silver) + ' sp ';
     if (!enableExact) {
       return result.trim();
     }
   }
 
   if (copper > 0) {
-    result += formatter.format(copper) + " cp ";
+    result += formatter.format(copper) + ' cp ';
   }
 
   return result.trim();

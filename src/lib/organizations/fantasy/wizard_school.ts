@@ -1,67 +1,64 @@
-import type Character from "$lib/characters/character.js";
-import type CharacterGeneratorConfig from "$lib/characters/character_generator_config.js";
-import * as Characters from "$lib/characters/characters.js";
-import * as Charges from "$lib/heraldry/charges/index.js";
+import type Character from '$lib/characters/character.js';
+import type CharacterGeneratorConfig from '$lib/characters/character_generator_config.js';
+import * as Characters from '$lib/characters/characters.js';
+import * as Charges from '$lib/heraldry/charges/index.js';
 import {
   mergeHeraldryGeneratorConfig,
   type HeraldryGeneratorConfig,
-} from "$lib/heraldry/generatorconfig.js";
-import * as RNG from "@ironarachne/rng";
-import type OrganizationRank from "../organization_rank.js";
-import type OrganizationType from "../organization_type.js";
+} from '$lib/heraldry/generatorconfig.js';
+import * as RNG from '@ironarachne/rng';
+import type OrganizationRank from '../organization_rank.js';
+import type OrganizationType from '../organization_type.js';
 
 export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: Charges.matchingAnyTags(
-      ["book", "magic", "monster"],
-      Charges.all(),
-    ),
+    chargeOptions: Charges.matchingAnyTags(['book', 'magic', 'monster'], Charges.all()),
   });
 
   const nameGenerator = (rng: RNG.RNG): string => {
-    const schoolType = rng.item(["School", "Academy", "College", "Institute"]);
+    const schoolType = rng.item(['School', 'Academy', 'College', 'Institute']);
 
     const suffixTypes = [
       {
         generate: (rng: RNG.RNG): string =>
-          rng.item(["Witchcraft", "Wizardry", "Sorcery", "Mysticism"]),
+          rng.item(['Witchcraft', 'Wizardry', 'Sorcery', 'Mysticism']),
       },
       {
         generate: (rng: RNG.RNG): string => {
           // example names: The School of Hidden Mysteries, The Academy of Unknown Arts
           const modifier = rng.item([
-            "Arcane",
-            "Cherished",
-            "Eldritch",
-            "Esoteric",
-            "Forbidden",
-            "Forgotten",
-            "Hidden",
-            "Lost",
-            "Mystical",
-            "Occult",
-            "Unknown",
+            'Arcane',
+            'Cherished',
+            'Eldritch',
+            'Esoteric',
+            'Forbidden',
+            'Forgotten',
+            'Hidden',
+            'Lost',
+            'Mystical',
+            'Occult',
+            'Unknown',
           ]);
           const focus = rng.item([
-            "Mysteries",
-            "Arts",
-            "Sciences",
-            "Paths",
-            "Ways",
-            "Secrets",
-            "Knowledge",
-            "Wisdom",
-            "Power",
-            "Magic",
-            "Enchantment",
-            "Illusion",
-            "Divination",
-            "Conjuration",
-            "Abjuration",
-            "Evocation",
-            "Necromancy",
-            "Transmutation",
+            'Mysteries',
+            'Arts',
+            'Sciences',
+            'Paths',
+            'Ways',
+            'Secrets',
+            'Knowledge',
+            'Wisdom',
+            'Power',
+            'Magic',
+            'Enchantment',
+            'Illusion',
+            'Divination',
+            'Conjuration',
+            'Abjuration',
+            'Evocation',
+            'Necromancy',
+            'Transmutation',
           ]);
 
           return `${modifier} ${focus}`;
@@ -69,9 +66,9 @@ export function generateType(rng: RNG.RNG): OrganizationType {
       },
       {
         generate: (rng: RNG.RNG): string => {
-          const first = ["Arcane", "Mystical", "Eldritch", "Occult"];
+          const first = ['Arcane', 'Mystical', 'Eldritch', 'Occult'];
 
-          const second = ["Arts", "Sciences", "Paths", "Ways", "Secrets"];
+          const second = ['Arts', 'Sciences', 'Paths', 'Ways', 'Secrets'];
 
           return `${rng.item(first)} ${rng.item(second)}`;
         },
@@ -85,17 +82,15 @@ export function generateType(rng: RNG.RNG): OrganizationType {
 
   const descriptionGenerator = (rng: RNG.RNG): string => {
     return rng.item([
-      "{name} is a hidden wizard school that avoids contact with the outside world.",
-      "{name} is a proud institution whose students primarily come from the nobility.",
-      "{name} has a reputation for experimentation, and there are rumors that sometimes they experiment on their own students.",
-      "{name} is an egalitarian wizard school that accepts new students from every walk of life.",
+      '{name} is a hidden wizard school that avoids contact with the outside world.',
+      '{name} is a proud institution whose students primarily come from the nobility.',
+      '{name} has a reputation for experimentation, and there are rumors that sometimes they experiment on their own students.',
+      '{name} is an egalitarian wizard school that accepts new students from every walk of life.',
     ]);
   };
 
-  const leadershipGenerator = (
-    characterGenConfig: CharacterGeneratorConfig,
-  ): Character => {
-    characterGenConfig.ageCategoryNames = ["adult", "elderly"];
+  const leadershipGenerator = (characterGenConfig: CharacterGeneratorConfig): Character => {
+    characterGenConfig.ageCategoryNames = ['adult', 'elderly'];
 
     const leader = Characters.generate(characterGenConfig);
     const ranks = getRanks();
@@ -108,12 +103,12 @@ export function generateType(rng: RNG.RNG): OrganizationType {
     rank: OrganizationRank,
     characterGenConfig: CharacterGeneratorConfig,
   ): Character => {
-    characterGenConfig.ageCategoryNames = ["adult"];
+    characterGenConfig.ageCategoryNames = ['adult'];
 
-    if (rank.name === "headmaster" || rank.name === "professor") {
-      characterGenConfig.ageCategoryNames = ["adult", "elderly"];
-    } else if (rank.name === "student") {
-      characterGenConfig.ageCategoryNames = ["child", "teen"];
+    if (rank.name === 'headmaster' || rank.name === 'professor') {
+      characterGenConfig.ageCategoryNames = ['adult', 'elderly'];
+    } else if (rank.name === 'student') {
+      characterGenConfig.ageCategoryNames = ['child', 'teen'];
     }
 
     const member = Characters.generate(characterGenConfig);
@@ -122,10 +117,10 @@ export function generateType(rng: RNG.RNG): OrganizationType {
   };
 
   return {
-    name: "wizard school",
+    name: 'wizard school',
     minSize: 50,
     maxSize: 600,
-    leaderTitle: "headmaster",
+    leaderTitle: 'headmaster',
     randomName: nameGenerator,
     randomDescription: descriptionGenerator,
     randomLeadership: leadershipGenerator,
@@ -138,14 +133,14 @@ export function generateType(rng: RNG.RNG): OrganizationType {
 function getRanks(): OrganizationRank[] {
   const ranks: OrganizationRank[] = [
     {
-      name: "headmaster",
+      name: 'headmaster',
       title: {
-        femaleTitle: "Headmaster",
-        maleTitle: "Headmaster",
-        femaleHonorific: "Headmaster",
-        maleHonorific: "Headmaster",
+        femaleTitle: 'Headmaster',
+        maleTitle: 'Headmaster',
+        femaleHonorific: 'Headmaster',
+        maleHonorific: 'Headmaster',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 0,
       },
       tier: 0,
@@ -153,14 +148,14 @@ function getRanks(): OrganizationRank[] {
       children: [],
     },
     {
-      name: "professor",
+      name: 'professor',
       title: {
-        femaleTitle: "Professor",
-        maleTitle: "Professor",
-        femaleHonorific: "Professor",
-        maleHonorific: "Professor",
+        femaleTitle: 'Professor',
+        maleTitle: 'Professor',
+        femaleHonorific: 'Professor',
+        maleHonorific: 'Professor',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 1,
       },
       tier: 1,
@@ -168,14 +163,14 @@ function getRanks(): OrganizationRank[] {
       children: [],
     },
     {
-      name: "student",
+      name: 'student',
       title: {
-        femaleTitle: "Student",
-        maleTitle: "Student",
-        femaleHonorific: "",
-        maleHonorific: "",
+        femaleTitle: 'Student',
+        maleTitle: 'Student',
+        femaleHonorific: '',
+        maleHonorific: '',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 2,
       },
       tier: 2,

@@ -1,8 +1,8 @@
-import type * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import * as Currency from "../../currency/currency.js";
-import ArtObject from "./artobject.js";
-import type TreasureGenerator from "./treasuregenerator.js";
+import type * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import * as Currency from '../../currency/currency.js';
+import ArtObject from './artobject.js';
+import type TreasureGenerator from './treasuregenerator.js';
 
 export default class ArtObjectGenerator implements TreasureGenerator {
   minValue: number;
@@ -54,179 +54,179 @@ function getArtObjectForValue(minValue: number, maxValue: number, rng: RNG.RNG):
 function getArtObjects(): { name: string; value: number }[] {
   return [
     {
-      name: "silver ewer",
+      name: 'silver ewer',
       value: 2500,
     },
     {
-      name: "carved bone statuette",
+      name: 'carved bone statuette',
       value: 2500,
     },
     {
-      name: "small gold bracelet",
+      name: 'small gold bracelet',
       value: 2500,
     },
     {
-      name: "cloth-of-gold vestments",
+      name: 'cloth-of-gold vestments',
       value: 2500,
     },
     {
-      name: "black velvet mask stitched with silver thread",
+      name: 'black velvet mask stitched with silver thread',
       value: 2500,
     },
     {
-      name: "copper chalice with silver filigree",
+      name: 'copper chalice with silver filigree',
       value: 2500,
     },
     {
-      name: "pair of engraved bone dice",
+      name: 'pair of engraved bone dice',
       value: 2500,
     },
     {
-      name: "small mirror set in a painted wood frame",
+      name: 'small mirror set in a painted wood frame',
       value: 2500,
     },
     {
-      name: "embroidered silk handkerchief",
+      name: 'embroidered silk handkerchief',
       value: 2500,
     },
     {
-      name: "gold locket with a painted portrait inside",
+      name: 'gold locket with a painted portrait inside',
       value: 2500,
     },
     {
-      name: "gold ring set with bloodstones",
+      name: 'gold ring set with bloodstones',
       value: 25000,
     },
     {
-      name: "carved ivory statuette",
+      name: 'carved ivory statuette',
       value: 25000,
     },
     {
-      name: "large gold bracelet",
+      name: 'large gold bracelet',
       value: 25000,
     },
     {
-      name: "silver necklace with a gemstone pendant",
+      name: 'silver necklace with a gemstone pendant',
       value: 25000,
     },
     {
-      name: "bronze crown",
+      name: 'bronze crown',
       value: 25000,
     },
     {
-      name: "silk robe with gold embroidery",
+      name: 'silk robe with gold embroidery',
       value: 25000,
     },
     {
-      name: "large well-made tapestry",
+      name: 'large well-made tapestry',
       value: 25000,
     },
     {
-      name: "brass mug with jade inlay",
+      name: 'brass mug with jade inlay',
       value: 25000,
     },
     {
-      name: "box of turquoise animal figurines",
+      name: 'box of turquoise animal figurines',
       value: 25000,
     },
     {
-      name: "gold bird cage with electrum filigree",
+      name: 'gold bird cage with electrum filigree',
       value: 25000,
     },
     {
-      name: "silver chalice set with moonstones",
+      name: 'silver chalice set with moonstones',
       value: 75000,
     },
     {
-      name: "silver-plated steel longsword with jet set in hilt",
+      name: 'silver-plated steel longsword with jet set in hilt',
       value: 75000,
     },
     {
-      name: "carved harp of exotic wood with ivory inlay and zircon gems",
+      name: 'carved harp of exotic wood with ivory inlay and zircon gems',
       value: 75000,
     },
     {
-      name: "small gold idol",
+      name: 'small gold idol',
       value: 75000,
     },
     {
-      name: "gold dragon comb set with red garnets as eyes",
+      name: 'gold dragon comb set with red garnets as eyes',
       value: 75000,
     },
     {
-      name: "bottle stopper cork embossed with gold leaf and set with amethysts",
+      name: 'bottle stopper cork embossed with gold leaf and set with amethysts',
       value: 75000,
     },
     {
-      name: "ceremonial electrum dagger with a black pearl in the pommel",
+      name: 'ceremonial electrum dagger with a black pearl in the pommel',
       value: 75000,
     },
     {
-      name: "silver and gold brooch",
+      name: 'silver and gold brooch',
       value: 75000,
     },
     {
-      name: "obsidian statuette with gold fittings and inlay",
+      name: 'obsidian statuette with gold fittings and inlay',
       value: 75000,
     },
     {
-      name: "painted gold war mask",
+      name: 'painted gold war mask',
       value: 75000,
     },
     {
-      name: "fine gold chain set with a fire opal",
+      name: 'fine gold chain set with a fire opal',
       value: 250000,
     },
     {
-      name: "old masterpiece painting",
+      name: 'old masterpiece painting',
       value: 250000,
     },
     {
-      name: "embroidered silk and velvet mantle set with numerous moonstones",
+      name: 'embroidered silk and velvet mantle set with numerous moonstones',
       value: 250000,
     },
     {
-      name: "platinum bracelet set with a sapphire",
+      name: 'platinum bracelet set with a sapphire',
       value: 250000,
     },
     {
-      name: "embroidered glove set with jewel chips",
+      name: 'embroidered glove set with jewel chips',
       value: 250000,
     },
     {
-      name: "jeweled anklet",
+      name: 'jeweled anklet',
       value: 250000,
     },
     {
-      name: "gold music box",
+      name: 'gold music box',
       value: 250000,
     },
     {
-      name: "gold circlet set with four aquamarines",
+      name: 'gold circlet set with four aquamarines',
       value: 250000,
     },
     {
-      name: "eye patch with a mock eye set in blue sapphire and moonstone",
+      name: 'eye patch with a mock eye set in blue sapphire and moonstone',
       value: 250000,
     },
     {
-      name: "necklace string of small pink pearls",
+      name: 'necklace string of small pink pearls',
       value: 250000,
     },
     {
-      name: "jeweled gold crown",
+      name: 'jeweled gold crown',
       value: 750000,
     },
     {
-      name: "jeweled platinum ring",
+      name: 'jeweled platinum ring',
       value: 750000,
     },
     {
-      name: "small gold stattuete set with rubies",
+      name: 'small gold stattuete set with rubies',
       value: 750000,
     },
     {
-      name: "gold cup set with emeralds",
+      name: 'gold cup set with emeralds',
       value: 750000,
     },
     {
@@ -234,11 +234,11 @@ function getArtObjects(): { name: string; value: number }[] {
       value: 750000,
     },
     {
-      name: "jade game board with solid gold playing pieces",
+      name: 'jade game board with solid gold playing pieces',
       value: 750000,
     },
     {
-      name: "bejeweled ivory drinking horn with gold filigree",
+      name: 'bejeweled ivory drinking horn with gold filigree',
       value: 750000,
     },
   ];

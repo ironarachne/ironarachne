@@ -32,7 +32,7 @@ export function convertCopper(
     }
   }
 
-  let result = "";
+  let result = '';
 
   if (platinum > 0) {
     result += `${platinum} pp `;
@@ -98,7 +98,7 @@ export function convertFarthings(amount: number) {
     }
   }
 
-  let result = "";
+  let result = '';
 
   if (pounds > 0) {
     result += `£${pounds} `;

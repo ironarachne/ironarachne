@@ -1,4 +1,4 @@
-import type RoomTheme from "./themes/theme.js";
+import type RoomTheme from './themes/theme.js';
 
 export default class RoomRequirement {
   theme: RoomTheme;

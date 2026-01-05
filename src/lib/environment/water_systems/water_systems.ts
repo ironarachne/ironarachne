@@ -1,6 +1,6 @@
-import type WaterSystem from "./water_system";
-import type WaterSystemConfig from "./water_system_config";
-import * as RNG from "@ironarachne/rng";
+import type WaterSystem from './water_system';
+import type WaterSystemConfig from './water_system_config';
+import * as RNG from '@ironarachne/rng';
 
 export function generate(config: WaterSystemConfig): WaterSystem {
   // Generate a temperature based on latitude
@@ -8,8 +8,7 @@ export function generate(config: WaterSystemConfig): WaterSystem {
   // At latitude -90 or 90, the temperature is always the min temperature
   const latitudeFactor = Math.abs(config.latitude) / 90;
   const temperature =
-    config.temperatureMin +
-    (config.temperatureMax - config.temperatureMin) * latitudeFactor;
+    config.temperatureMin + (config.temperatureMax - config.temperatureMin) * latitudeFactor;
 
   return {
     current: config.current,
@@ -27,7 +26,7 @@ export function getDefaultConfig(): WaterSystemConfig {
     temperatureMax: 30, // default to tropical
     surfaceLevelMin: 0, // default to sea level
     surfaceLevelMax: 0, // default to sea level
-    waterTypes: ["fresh", "salt"],
+    waterTypes: ['fresh', 'salt'],
     rng: new RNG.RNG(Date.now().toString()),
   };
 }

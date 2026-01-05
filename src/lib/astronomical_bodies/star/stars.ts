@@ -1,12 +1,12 @@
-import { getStarClassifications } from "$lib/astronomical_bodies/star/star_classifications";
+import { getStarClassifications } from '$lib/astronomical_bodies/star/star_classifications';
 import {
   type AstronomicalBody,
   getAlbedoFromTemperature,
-} from "$lib/astronomical_bodies/astronomical_bodies";
-import { getGravityFromMassAndRadius } from "$lib/astronomical_bodies/astronomical_bodies";
-import * as MUN from "@ironarachne/made-up-names";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+} from '$lib/astronomical_bodies/astronomical_bodies';
+import { getGravityFromMassAndRadius } from '$lib/astronomical_bodies/astronomical_bodies';
+import * as MUN from '@ironarachne/made-up-names';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
 export type StarClassification = {
   name: string;
@@ -62,13 +62,9 @@ export function generateStar(config: StarGenerationConfig): AstronomicalBody {
       return { commonality: c.commonality, value: c };
     }),
   );
-  const mass: number = config.rng.float(
-    star_classification.min_mass,
-    star_classification.max_mass,
-  );
+  const mass: number = config.rng.float(star_classification.min_mass, star_classification.max_mass);
   const radius: number =
-    config.rng.float(star_classification.min_radius, star_classification.max_radius) *
-    695700; // in km
+    config.rng.float(star_classification.min_radius, star_classification.max_radius) * 695700; // in km
   const gravity = getGravityFromMassAndRadius(mass, radius);
   const temperature = config.rng.float(
     star_classification.min_temperature,

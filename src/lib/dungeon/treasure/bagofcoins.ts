@@ -1,4 +1,4 @@
-import type Item from "../../equipment/item.js";
+import type Item from '../../equipment/item.js';
 
 export default class BagOfCoins implements Item {
   name: string;
@@ -8,10 +8,10 @@ export default class BagOfCoins implements Item {
   tags: string[];
 
   constructor() {
-    this.name = "a bag of coins";
-    this.description = "a bag of coins";
+    this.name = 'a bag of coins';
+    this.description = 'a bag of coins';
     this.value = 10;
     this.quality = 1;
-    this.tags = ["bag of coins"];
+    this.tags = ['bag of coins'];
   }
 }

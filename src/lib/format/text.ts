@@ -1,15 +1,15 @@
 export function list(items: string[]) {
-  let result = "";
+  let result = '';
 
   for (let i = 0; i < items.length; i++) {
-    result += "- " + items[i] + "\n";
+    result += '- ' + items[i] + '\n';
   }
 
-  result += "\n";
+  result += '\n';
 
   return result;
 }
 
 export function header(text: string) {
-  return "\n" + text + "\n\n";
+  return '\n' + text + '\n\n';
 }

@@ -1,10 +1,19 @@
 import { describe, it, expect } from 'vitest';
-import { generateGem, getGemTypesUpToValue, getGemsForValue, gemTypes, getDefaultGemGeneratorConfig, generateRandomGem, getGemWeightModifier, getRandomGemsForValue } from './gems';
+import {
+  generateGem,
+  getGemTypesUpToValue,
+  getGemsForValue,
+  gemTypes,
+  getDefaultGemGeneratorConfig,
+  generateRandomGem,
+  getGemWeightModifier,
+  getRandomGemsForValue,
+} from './gems';
 
 describe('gems', () => {
   describe('generateGem', () => {
     it('should create a gem', () => {
-      const gemType = gemTypes.find(g => g.name === 'ruby');
+      const gemType = gemTypes.find((g) => g.name === 'ruby');
       if (!gemType) throw new Error('Ruby not found');
       const gem = generateGem('test-id', 'ruby', true, 'round', 'medium', gemType);
       expect(gem.id).toBe('test-id');
@@ -22,8 +31,8 @@ describe('gems', () => {
       const gems = getGemTypesUpToValue(maxValue);
 
       // amber is 5000, quartz is 200, lapis lazuli is 400.
-      expect(gems.some(g => g.name === 'amber')).toBe(true);
-      expect(gems.some(g => g.name === 'diamond')).toBe(false); // diamond is 50000
+      expect(gems.some((g) => g.name === 'amber')).toBe(true);
+      expect(gems.some((g) => g.name === 'diamond')).toBe(false); // diamond is 50000
     });
   });
 

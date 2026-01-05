@@ -1,9 +1,9 @@
-import type * as RNG from "@ironarachne/rng";
-import type { DungeonTheme } from "./index.js";
-import * as Cult from "./cult.js";
-import * as Fortress from "./fortress.js";
-import * as MageLair from "./mage_lair.js";
-import * as Tomb from "./tomb.js";
+import type * as RNG from '@ironarachne/rng';
+import type { DungeonTheme } from './index.js';
+import * as Cult from './cult.js';
+import * as Fortress from './fortress.js';
+import * as MageLair from './mage_lair.js';
+import * as Tomb from './tomb.js';
 
 export function all(rng: RNG.RNG): DungeonTheme[] {
   let result = [];

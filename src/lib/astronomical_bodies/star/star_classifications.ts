@@ -2,7 +2,7 @@ import type {
   LuminosityClass,
   SpectralClass,
   StarClassification,
-} from "$lib/astronomical_bodies/star/stars";
+} from '$lib/astronomical_bodies/star/stars';
 
 export function getStarClassificationByName(name: string): StarClassification {
   const classifications = getStarClassifications();
@@ -78,14 +78,10 @@ export function getStarClassifications(): StarClassification[] {
 
   for (const luminosityClass of luminosityClasses) {
     for (const spectralClass of spectralClasses) {
-      const temperatureStep =
-        (spectralClass.max_temperature - spectralClass.min_temperature) / 10;
-      const massStep =
-        (luminosityClass.max_mass - luminosityClass.min_mass) / 10;
-      const radiusStep =
-        (luminosityClass.max_radius - luminosityClass.min_radius) / 10;
-      const luminosityStep =
-        (luminosityClass.max_luminosity - luminosityClass.min_luminosity) / 10;
+      const temperatureStep = (spectralClass.max_temperature - spectralClass.min_temperature) / 10;
+      const massStep = (luminosityClass.max_mass - luminosityClass.min_mass) / 10;
+      const radiusStep = (luminosityClass.max_radius - luminosityClass.min_radius) / 10;
+      const luminosityStep = (luminosityClass.max_luminosity - luminosityClass.min_luminosity) / 10;
 
       for (let i = 0; i < 10; i++) {
         classifications.push({
@@ -94,15 +90,13 @@ export function getStarClassifications(): StarClassification[] {
           luminosity_class: luminosityClass.name,
           spectral_class: `${spectralClass.name}${i}`,
           min_temperature: spectralClass.min_temperature + i * temperatureStep,
-          max_temperature:
-            spectralClass.max_temperature + (i + 1) * temperatureStep,
+          max_temperature: spectralClass.max_temperature + (i + 1) * temperatureStep,
           min_mass: luminosityClass.min_mass + i * massStep,
           max_mass: luminosityClass.max_mass + (i + 1) * massStep,
           min_radius: luminosityClass.min_radius + i * radiusStep,
           max_radius: luminosityClass.max_radius + (i + 1) * radiusStep,
           min_luminosity: luminosityClass.min_luminosity + i * luminosityStep,
-          max_luminosity:
-            luminosityClass.max_luminosity + (i + 1) * luminosityStep,
+          max_luminosity: luminosityClass.max_luminosity + (i + 1) * luminosityStep,
           commonality: luminosityClass.commonality + spectralClass.commonality,
         });
       }
@@ -115,8 +109,8 @@ export function getStarClassifications(): StarClassification[] {
 export function getLuminosityClasses(): LuminosityClass[] {
   return [
     {
-      name: "0",
-      description: "hypergiant",
+      name: '0',
+      description: 'hypergiant',
       min_mass: 14,
       max_mass: 58,
       min_radius: 131,
@@ -126,8 +120,8 @@ export function getLuminosityClasses(): LuminosityClass[] {
       commonality: 1, // these are the rarest
     },
     {
-      name: "I",
-      description: "supergiant",
+      name: 'I',
+      description: 'supergiant',
       min_mass: 8,
       max_mass: 14,
       min_radius: 30,
@@ -137,8 +131,8 @@ export function getLuminosityClasses(): LuminosityClass[] {
       commonality: 3,
     },
     {
-      name: "II",
-      description: "bright giant",
+      name: 'II',
+      description: 'bright giant',
       min_mass: 8,
       max_mass: 10,
       min_radius: 5,
@@ -148,8 +142,8 @@ export function getLuminosityClasses(): LuminosityClass[] {
       commonality: 5,
     },
     {
-      name: "III",
-      description: "giant",
+      name: 'III',
+      description: 'giant',
       min_mass: 0.7,
       max_mass: 2.5,
       min_radius: 9,
@@ -159,8 +153,8 @@ export function getLuminosityClasses(): LuminosityClass[] {
       commonality: 20,
     },
     {
-      name: "IV",
-      description: "subgiant",
+      name: 'IV',
+      description: 'subgiant',
       min_mass: 8.6,
       max_mass: 15,
       min_radius: 5,
@@ -170,8 +164,8 @@ export function getLuminosityClasses(): LuminosityClass[] {
       commonality: 5,
     },
     {
-      name: "V",
-      description: "main sequence",
+      name: 'V',
+      description: 'main sequence',
       min_mass: 0.07,
       max_mass: 10,
       min_radius: 0.09,
@@ -181,8 +175,8 @@ export function getLuminosityClasses(): LuminosityClass[] {
       commonality: 75,
     },
     {
-      name: "VI",
-      description: "subdwarf",
+      name: 'VI',
+      description: 'subdwarf',
       min_mass: 0.077,
       max_mass: 0.744,
       min_radius: 0.291,
@@ -192,8 +186,8 @@ export function getLuminosityClasses(): LuminosityClass[] {
       commonality: 3,
     },
     {
-      name: "VII",
-      description: "white dwarf",
+      name: 'VII',
+      description: 'white dwarf',
       min_mass: 0.5,
       max_mass: 0.7,
       min_radius: 0.008,
@@ -208,50 +202,50 @@ export function getLuminosityClasses(): LuminosityClass[] {
 export function getSpectralClasses(): SpectralClass[] {
   return [
     {
-      name: "blue",
-      spectral_class: "O",
+      name: 'blue',
+      spectral_class: 'O',
       min_temperature: 33000,
       max_temperature: 50000,
       commonality: 1,
     },
     {
-      name: "deep bluish white",
-      spectral_class: "B",
+      name: 'deep bluish white',
+      spectral_class: 'B',
       min_temperature: 10000,
       max_temperature: 33000,
       commonality: 2,
     },
     {
-      name: "bluish white",
-      spectral_class: "A",
+      name: 'bluish white',
+      spectral_class: 'A',
       min_temperature: 7300,
       max_temperature: 10000,
       commonality: 3,
     },
     {
-      name: "white",
-      spectral_class: "F",
+      name: 'white',
+      spectral_class: 'F',
       min_temperature: 6000,
       max_temperature: 7300,
       commonality: 5,
     },
     {
-      name: "yellowish white",
-      spectral_class: "G",
+      name: 'yellowish white',
+      spectral_class: 'G',
       min_temperature: 5300,
       max_temperature: 6000,
       commonality: 6,
     },
     {
-      name: "pale yellowish orange",
-      spectral_class: "K",
+      name: 'pale yellowish orange',
+      spectral_class: 'K',
       min_temperature: 3900,
       max_temperature: 5300,
       commonality: 30,
     },
     {
-      name: "orangish red",
-      spectral_class: "M",
+      name: 'orangish red',
+      spectral_class: 'M',
       min_temperature: 2300,
       max_temperature: 3900,
       commonality: 50,

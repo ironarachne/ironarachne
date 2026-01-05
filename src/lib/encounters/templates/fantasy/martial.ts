@@ -1,96 +1,96 @@
-import * as Archetypes from "$lib/archetypes/archetypes.js";
-import * as FantasyArchetypes from "$lib/archetypes/fantasy/all.js";
-import { SpeciesFilter } from "$lib/species/filter.js";
-import type EncounterTemplate from "../../encounter_template.js";
+import * as Archetypes from '$lib/archetypes/archetypes.js';
+import * as FantasyArchetypes from '$lib/archetypes/fantasy/all.js';
+import { SpeciesFilter } from '$lib/species/filter.js';
+import type EncounterTemplate from '../../encounter_template.js';
 
 export function all(): EncounterTemplate[] {
   let allArchetypes = FantasyArchetypes.all();
 
   return [
     {
-      name: "squad of soldiers",
+      name: 'squad of soldiers',
       threatLevel: 1,
       groupTemplates: [
         {
-          name: "soldiers",
+          name: 'soldiers',
           threatLevel: 1,
           isSentient: true,
-          archetypes: [Archetypes.byName("soldier", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('soldier', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 2,
           maxNumber: 4,
         },
       ],
-      tags: ["martial", "soldiers"],
+      tags: ['martial', 'soldiers'],
       commonality: 10,
     },
     {
-      name: "squad of veterans",
+      name: 'squad of veterans',
       threatLevel: 2,
       groupTemplates: [
         {
-          name: "veteran soldiers",
+          name: 'veteran soldiers',
           threatLevel: 2,
           isSentient: true,
-          archetypes: [Archetypes.byName("veteran soldier", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('veteran soldier', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 2,
           maxNumber: 4,
         },
       ],
-      tags: ["martial", "soldiers"],
+      tags: ['martial', 'soldiers'],
       commonality: 5,
     },
     {
-      name: "captain",
+      name: 'captain',
       threatLevel: 4,
       groupTemplates: [
         {
-          name: "captain",
+          name: 'captain',
           threatLevel: 2,
           isSentient: true,
-          archetypes: [Archetypes.byName("captain", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('captain', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 1,
           maxNumber: 1,
         },
         {
-          name: "veteran soldiers",
+          name: 'veteran soldiers',
           threatLevel: 2,
           isSentient: true,
-          archetypes: [Archetypes.byName("veteran soldier", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('veteran soldier', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 2,
           maxNumber: 4,
         },
       ],
-      tags: ["martial", "soldiers"],
+      tags: ['martial', 'soldiers'],
       commonality: 3,
     },
     {
-      name: "general",
+      name: 'general',
       threatLevel: 5,
       groupTemplates: [
         {
-          name: "general",
+          name: 'general',
           threatLevel: 3,
           isSentient: true,
-          archetypes: [Archetypes.byName("general", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('general', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 1,
           maxNumber: 1,
         },
         {
-          name: "captain",
+          name: 'captain',
           threatLevel: 2,
           isSentient: true,
-          archetypes: [Archetypes.byName("captain", allArchetypes)],
-          filter: new SpeciesFilter(["martial"], [], "humanoid", "", ["undead"]),
+          archetypes: [Archetypes.byName('captain', allArchetypes)],
+          filter: new SpeciesFilter(['martial'], [], 'humanoid', '', ['undead']),
           minNumber: 1,
           maxNumber: 2,
         },
       ],
-      tags: ["martial", "soldiers"],
+      tags: ['martial', 'soldiers'],
       commonality: 2,
     },
   ];

@@ -1,10 +1,10 @@
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
-import type Character from "./characters/character.js";
-import * as Characters from "./characters/characters.js";
-import type Item from "./equipment/item.js";
-import * as StockList from "./equipment/stocklist.js";
+import type Character from './characters/character.js';
+import * as Characters from './characters/characters.js';
+import type Item from './equipment/item.js';
+import * as StockList from './equipment/stocklist.js';
 
 export class Merchant {
   character: Character;
@@ -12,12 +12,7 @@ export class Merchant {
   wares: Item[];
   priceVariance: number;
 
-  constructor(
-    character: Character,
-    description: string,
-    wares: Item[],
-    priceVariance: number,
-  ) {
+  constructor(character: Character, description: string, wares: Item[], priceVariance: number) {
     this.character = character;
     this.description = description;
     this.wares = wares;
@@ -25,12 +20,9 @@ export class Merchant {
   }
 }
 
-export function generate(
-  itemCategory: string,
-  valueThreshold: number,
-): Merchant {
+export function generate(itemCategory: string, valueThreshold: number): Merchant {
   const charGenConfig = Characters.getDefaultCharacterGeneratorConfig();
-  charGenConfig.ageCategoryNames = ["adult"];
+  charGenConfig.ageCategoryNames = ['adult'];
 
   const character = Characters.generate(charGenConfig);
   let description = RNG.item([

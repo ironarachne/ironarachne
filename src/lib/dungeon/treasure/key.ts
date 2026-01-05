@@ -1,4 +1,4 @@
-import type Item from "../../equipment/item.js";
+import type Item from '../../equipment/item.js';
 
 export default class Key implements Item {
   name: string;

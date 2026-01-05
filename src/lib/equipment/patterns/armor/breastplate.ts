@@ -1,10 +1,10 @@
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
-import Armor from "../../armor/armor.js";
-import Component from "../../components/component.js";
-import * as Components from "../../components/components.js";
-import type Pattern from "../pattern.js";
+import Armor from '../../armor/armor.js';
+import Component from '../../components/component.js';
+import * as Components from '../../components/components.js';
+import type Pattern from '../pattern.js';
 
 export default class BreastplatePattern implements Pattern {
   name: string;
@@ -13,15 +13,13 @@ export default class BreastplatePattern implements Pattern {
 
   constructor(name: string, value: number) {
     this.name = name;
-    this.tags = [name, "body armor", "armor"];
+    this.tags = [name, 'body armor', 'armor'];
     this.baseValue = value;
   }
 
   complete(componentOptions: Component[], quality: number): Armor {
-    let body = RNG.item(Components.withCategory("metal", componentOptions));
-    let trim = RNG.item(
-      Components.withCategory("soft metal", componentOptions),
-    );
+    let body = RNG.item(Components.withCategory('metal', componentOptions));
+    let trim = RNG.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value * 1000 + trim.value;
 
@@ -31,7 +29,7 @@ export default class BreastplatePattern implements Pattern {
     ]);
 
     description += RNG.item([
-      ` with ${trim.descriptor} ${RNG.item(["trim", "edging"])}`,
+      ` with ${trim.descriptor} ${RNG.item(['trim', 'edging'])}`,
       ` trimmed with ${trim.descriptor}`,
       ` decorated with ${trim.descriptor} edging`,
     ]);
@@ -47,16 +45,8 @@ export default class BreastplatePattern implements Pattern {
     let name = `${body.descriptor} ${this.name}`;
 
     let armorClass = 14;
-    let tags = [name, this.name, "breastplate", "armor"];
+    let tags = [name, this.name, 'breastplate', 'armor'];
 
-    return new Armor(
-      name,
-      description,
-      "torso",
-      armorClass,
-      value,
-      quality,
-      tags,
-    );
+    return new Armor(name, description, 'torso', armorClass, value, quality, tags);
   }
 }

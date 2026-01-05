@@ -1,11 +1,11 @@
-import type { ChargeGroupArrangement } from ".";
-import { create } from "xmlbuilder2";
-import { convertXmlToSVGObject, getSVGDimensions } from "$lib/images/svg";
+import type { ChargeGroupArrangement } from '.';
+import { create } from 'xmlbuilder2';
+import { convertXmlToSVGObject, getSVGDimensions } from '$lib/images/svg';
 
 export const singleChargeCenterArrangement: ChargeGroupArrangement = {
-  name: "single charge center",
+  name: 'single charge center',
   numberOfCharges: 1,
-  blazonPattern: "{article} {name}",
+  blazonPattern: '{article} {name}',
   renderSVG: function (
     chargeSVGString: string,
     contextWidth: number,
@@ -14,13 +14,10 @@ export const singleChargeCenterArrangement: ChargeGroupArrangement = {
     // contextWidth is the width of the bounding box for the entire device
     // contextHeight is the height of the bounding box for the entire device
     const chargeObject = convertXmlToSVGObject(chargeSVGString);
-    const svgObj = (chargeObject as any)["svg"];
+    const svgObj = (chargeObject as any)['svg'];
     const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
-    let scaleAmount = Math.min(
-      contextWidth / chargeWidth,
-      contextHeight / chargeHeight,
-    );
+    let scaleAmount = Math.min(contextWidth / chargeWidth, contextHeight / chargeHeight);
 
     scaleAmount *= 0.75;
 
@@ -30,8 +27,8 @@ export const singleChargeCenterArrangement: ChargeGroupArrangement = {
     const xMove = (contextWidth - newWidth) / 2;
     const yMove = (contextHeight - newHeight) / 2;
 
-    svgObj["@x"] = xMove / scaleAmount;
-    svgObj["@y"] = yMove / scaleAmount;
+    svgObj['@x'] = xMove / scaleAmount;
+    svgObj['@y'] = yMove / scaleAmount;
 
     const chargeSVG = create(chargeObject);
 

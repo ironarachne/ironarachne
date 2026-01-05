@@ -1,4 +1,4 @@
-import type { CoinSystem, CoinType } from "./coin_types";
+import type { CoinSystem, CoinType } from './coin_types';
 
 /**
  * Get appropriate coin types for a given value.
@@ -9,7 +9,7 @@ import type { CoinSystem, CoinType } from "./coin_types";
  */
 export function getAppropriateCoinTypes(value: number, coinSystem: CoinSystem): CoinType[] {
   // Filter out coins that are too valuable for the target value
-  const possibleCoins = coinSystem.denominations.filter(d => d.value <= value);
+  const possibleCoins = coinSystem.denominations.filter((d) => d.value <= value);
 
   if (possibleCoins.length === 0) {
     return [];
@@ -24,7 +24,7 @@ export function getAppropriateCoinTypes(value: number, coinSystem: CoinSystem): 
   //    Let's say we don't want more than 5000 coins in a pile usually?
   //    So coin.value >= value / 5000.
 
-  const reasonableCoins = possibleCoins.filter(d => d.value >= value / 5000);
+  const reasonableCoins = possibleCoins.filter((d) => d.value >= value / 5000);
 
   // If we filtered everything out (e.g. value is huge but we only have small coins?), fallback to possibleCoins
   const candidates = reasonableCoins.length > 0 ? reasonableCoins : possibleCoins;
@@ -58,7 +58,7 @@ export function getDefaultCoinSystem(): CoinSystem {
  * @returns An array of coin types with value greater than the specified value
  */
 export function getCoinTypesAboveValue(value: number, coinSystem: CoinSystem): CoinType[] {
-  return coinSystem.denominations.filter(denomination => denomination.value > value);
+  return coinSystem.denominations.filter((denomination) => denomination.value > value);
 }
 
 /**
@@ -69,7 +69,7 @@ export function getCoinTypesAboveValue(value: number, coinSystem: CoinSystem): C
  * @returns An array of coin types with value less than the specified value
  */
 export function getCoinTypesBelowValue(value: number, coinSystem: CoinSystem): CoinType[] {
-  return coinSystem.denominations.filter(denomination => denomination.value < value);
+  return coinSystem.denominations.filter((denomination) => denomination.value < value);
 }
 
 /**
@@ -80,7 +80,9 @@ export function getCoinTypesBelowValue(value: number, coinSystem: CoinSystem): C
  * @returns The index of the coin type, or -1 if not found
  */
 export function getIndexOfCoinType(denominationName: string, coinSystem: CoinSystem): number {
-  return coinSystem.denominations.findIndex(denomination => denomination.name === denominationName);
+  return coinSystem.denominations.findIndex(
+    (denomination) => denomination.name === denominationName,
+  );
 }
 
 /**
@@ -99,5 +101,3 @@ export function getMaxCoinTypeForValue(value: number, coinSystem: CoinSystem): C
   }
   return sortedDenominations[sortedDenominations.length - 1];
 }
-
-

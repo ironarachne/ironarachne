@@ -1,87 +1,78 @@
-import type Character from "$lib/characters/character.js";
-import type CharacterGeneratorConfig from "$lib/characters/character_generator_config.js";
-import * as Characters from "$lib/characters/characters.js";
-import * as Charges from "$lib/heraldry/charges/index.js";
+import type Character from '$lib/characters/character.js';
+import type CharacterGeneratorConfig from '$lib/characters/character_generator_config.js';
+import * as Characters from '$lib/characters/characters.js';
+import * as Charges from '$lib/heraldry/charges/index.js';
 import {
   mergeHeraldryGeneratorConfig,
   type HeraldryGeneratorConfig,
-} from "$lib/heraldry/generatorconfig.js";
-import * as Names from "$lib/names";
-import type * as RNG from "@ironarachne/rng";
-import type OrganizationRank from "../organization_rank.js";
-import type OrganizationType from "../organization_type.js";
+} from '$lib/heraldry/generatorconfig.js';
+import * as Names from '$lib/names';
+import type * as RNG from '@ironarachne/rng';
+import type OrganizationRank from '../organization_rank.js';
+import type OrganizationType from '../organization_type.js';
 
 export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: Charges.matchingAnyTags(
-      ["coin", "money", "trade"],
-      Charges.all(),
-    ),
+    chargeOptions: Charges.matchingAnyTags(['coin', 'money', 'trade'], Charges.all()),
   });
 
   const nameGenerator = (rng: RNG.RNG): string => {
     const nameTypes = [
       {
-        name: "generic",
+        name: 'generic',
         randomName: () => {
-          const prefixes = ["Dynasty", "Gilded", "Luxury"];
+          const prefixes = ['Dynasty', 'Gilded', 'Luxury'];
 
           const prefix = rng.item(prefixes);
 
           const suffix = rng.item([
-            "Trading Company",
-            "Traders",
-            "Navigation Company",
-            "Trade Company",
-            "Trade and Navigation Company",
+            'Trading Company',
+            'Traders',
+            'Navigation Company',
+            'Trade Company',
+            'Trade and Navigation Company',
           ]);
 
           return `${prefix} ${suffix}`;
         },
       },
       {
-        name: "geographic",
+        name: 'geographic',
         randomName: (rng: RNG.RNG) => {
-          const direction = rng.item(["North", "West", "South", "East"]);
-          const feature = rng.item(["Wind", "Sea", "Mountain", "Ocean"]);
+          const direction = rng.item(['North', 'West', 'South', 'East']);
+          const feature = rng.item(['Wind', 'Sea', 'Mountain', 'Ocean']);
 
           const suffix = rng.item([
-            "Trading Company",
-            "Traders",
-            "Navigation Company",
-            "Trade Company",
-            "Trade and Navigation Company",
+            'Trading Company',
+            'Traders',
+            'Navigation Company',
+            'Trade Company',
+            'Trade and Navigation Company',
           ]);
 
           return `${direction} ${feature} ${suffix}`;
         },
       },
       {
-        name: "family",
+        name: 'family',
         randomName: (rng: RNG.RNG) => {
-          const nameGeneratorSet = Names.getFantasyNameGeneratorSet("human", rng);
+          const nameGeneratorSet = Names.getFantasyNameGeneratorSet('human', rng);
           if (nameGeneratorSet.family === null) {
-            throw new Error("Family name generator not found.");
+            throw new Error('Family name generator not found.');
           }
           const familyNames = nameGeneratorSet.family.generate(100);
 
           const familyName = rng.item(familyNames);
 
-          const moniker = rng.item([
-            " Brothers",
-            " & Sons",
-            " & Son",
-            " Family",
-            "",
-          ]);
+          const moniker = rng.item([' Brothers', ' & Sons', ' & Son', ' Family', '']);
 
           const suffix = rng.item([
-            "Trading Company",
-            "Traders",
-            "Navigation Company",
-            "Trade Company",
-            "Trade and Navigation Company",
+            'Trading Company',
+            'Traders',
+            'Navigation Company',
+            'Trade Company',
+            'Trade and Navigation Company',
           ]);
 
           return `${familyName} ${moniker} ${suffix}`;
@@ -96,18 +87,16 @@ export function generateType(rng: RNG.RNG): OrganizationType {
 
   const descriptionGenerator = (rng: RNG.RNG): string => {
     return rng.item([
-      "The {name} is noted for the quality of their goods.",
-      "The {name} has a reputation for always delivering goods to their intended destination.",
-      "The {name} appears to be reputable on the surface, but are rumored to be involved in many underhanded dealings.",
-      "The {name} often openly uses bullying and strong-arming in their dealings.",
-      "The {name} deals in a wide variety of goods.",
+      'The {name} is noted for the quality of their goods.',
+      'The {name} has a reputation for always delivering goods to their intended destination.',
+      'The {name} appears to be reputable on the surface, but are rumored to be involved in many underhanded dealings.',
+      'The {name} often openly uses bullying and strong-arming in their dealings.',
+      'The {name} deals in a wide variety of goods.',
     ]);
   };
 
-  const leadershipGenerator = (
-    characterGenConfig: CharacterGeneratorConfig,
-  ): Character => {
-    characterGenConfig.ageCategoryNames = ["adult"];
+  const leadershipGenerator = (characterGenConfig: CharacterGeneratorConfig): Character => {
+    characterGenConfig.ageCategoryNames = ['adult'];
 
     const leader = Characters.generate(characterGenConfig);
     const ranks = getRanks();
@@ -120,7 +109,7 @@ export function generateType(rng: RNG.RNG): OrganizationType {
     rank: OrganizationRank,
     characterGenConfig: CharacterGeneratorConfig,
   ): Character => {
-    characterGenConfig.ageCategoryNames = ["adult"];
+    characterGenConfig.ageCategoryNames = ['adult'];
 
     const member = Characters.generate(characterGenConfig);
     member.titles.push(rank.title);
@@ -128,10 +117,10 @@ export function generateType(rng: RNG.RNG): OrganizationType {
   };
 
   return {
-    name: "trading company",
+    name: 'trading company',
     minSize: 30,
     maxSize: 200,
-    leaderTitle: "proprietor",
+    leaderTitle: 'proprietor',
     randomName: nameGenerator,
     randomDescription: descriptionGenerator,
     randomLeadership: leadershipGenerator,
@@ -144,14 +133,14 @@ export function generateType(rng: RNG.RNG): OrganizationType {
 function getRanks(): OrganizationRank[] {
   const ranks: OrganizationRank[] = [
     {
-      name: "proprietor",
+      name: 'proprietor',
       title: {
-        femaleTitle: "Proprietor",
-        maleTitle: "Proprietor",
-        femaleHonorific: "Mistress",
-        maleHonorific: "Master",
+        femaleTitle: 'Proprietor',
+        maleTitle: 'Proprietor',
+        femaleHonorific: 'Mistress',
+        maleHonorific: 'Master',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 0,
       },
       tier: 0,
@@ -159,14 +148,14 @@ function getRanks(): OrganizationRank[] {
       children: [],
     },
     {
-      name: "manager",
+      name: 'manager',
       title: {
-        femaleTitle: "Manager",
-        maleTitle: "Manager",
-        femaleHonorific: "",
-        maleHonorific: "",
+        femaleTitle: 'Manager',
+        maleTitle: 'Manager',
+        femaleHonorific: '',
+        maleHonorific: '',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 1,
       },
       tier: 1,
@@ -174,14 +163,14 @@ function getRanks(): OrganizationRank[] {
       children: [],
     },
     {
-      name: "employee",
+      name: 'employee',
       title: {
-        femaleTitle: "Employee",
-        maleTitle: "Employee",
-        femaleHonorific: "",
-        maleHonorific: "",
+        femaleTitle: 'Employee',
+        maleTitle: 'Employee',
+        femaleHonorific: '',
+        maleHonorific: '',
         hasLands: false,
-        landName: "",
+        landName: '',
         precedence: 2,
       },
       tier: 2,

@@ -1,12 +1,12 @@
-import type { Charge } from "../../charge-types.js";
-import allocamelusStatantSVG from "./allocamelus-statant.svg?raw";
-import * as Tinctures from "../../../tinctures.js";
+import type { Charge } from '../../charge-types.js';
+import allocamelusStatantSVG from './allocamelus-statant.svg?raw';
+import * as Tinctures from '../../../tinctures.js';
 
 export const allocamelusStatant: Charge = {
-  name: "allocamelus statant",
-  pluralName: "allocameluses statant",
+  name: 'allocamelus statant',
+  pluralName: 'allocameluses statant',
   SVG: allocamelusStatantSVG,
-  chargeType: "regular",
-  tincture: Tinctures.byName("sable"),
-  tags: ["monsters", "allocamelus", "statant"],
+  chargeType: 'regular',
+  tincture: Tinctures.byName('sable'),
+  tags: ['monsters', 'allocamelus', 'statant'],
 };

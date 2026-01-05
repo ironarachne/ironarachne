@@ -1,51 +1,51 @@
-import * as ItemGenerators from "../../equipment/generators.js";
-import type Archetype from "../archetype.js";
+import * as ItemGenerators from '../../equipment/generators.js';
+import type Archetype from '../archetype.js';
 
 export function all(): Archetype[] {
   return [
     {
-      name: "cult acolyte",
+      name: 'cult acolyte',
       abilities: [],
-      tags: ["cult"],
+      tags: ['cult'],
       threatLevel: 1,
       itemGenerators: [
-        ItemGenerators.getItemGeneratorByTag("staff", 1),
-        ItemGenerators.getItemGenerator("robe", 0),
+        ItemGenerators.getItemGeneratorByTag('staff', 1),
+        ItemGenerators.getItemGenerator('robe', 0),
       ],
     },
     {
-      name: "cult priest",
+      name: 'cult priest',
       abilities: [
         {
-          name: "demonic spellcasting",
-          description: "casts demonic spells",
-          category: "demonic",
+          name: 'demonic spellcasting',
+          description: 'casts demonic spells',
+          category: 'demonic',
           threatLevel: 2,
         },
       ],
-      tags: ["cult"],
+      tags: ['cult'],
       threatLevel: 2,
       itemGenerators: [
-        ItemGenerators.getItemGeneratorByTag("staff", 1),
-        ItemGenerators.getItemGenerator("robe", 1),
+        ItemGenerators.getItemGeneratorByTag('staff', 1),
+        ItemGenerators.getItemGenerator('robe', 1),
       ],
     },
     {
-      name: "cult high priest",
+      name: 'cult high priest',
       abilities: [
         {
-          name: "demonic spellcasting",
-          description: "casts demonic spells",
-          category: "demonic",
+          name: 'demonic spellcasting',
+          description: 'casts demonic spells',
+          category: 'demonic',
           threatLevel: 3,
         },
       ],
-      tags: ["cult"],
+      tags: ['cult'],
       threatLevel: 3,
       itemGenerators: [
-        ItemGenerators.getItemGeneratorByTag("staff", 3),
-        ItemGenerators.getItemGeneratorByTag("knife", 2),
-        ItemGenerators.getItemGenerator("robe", 3),
+        ItemGenerators.getItemGeneratorByTag('staff', 3),
+        ItemGenerators.getItemGeneratorByTag('knife', 2),
+        ItemGenerators.getItemGenerator('robe', 3),
       ],
     },
   ];

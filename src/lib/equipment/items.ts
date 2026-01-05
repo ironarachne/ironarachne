@@ -1,4 +1,4 @@
-import { DENSITY_MAP, type Item } from "./equipment_types";
+import { DENSITY_MAP, type Item } from './equipment_types';
 
 /**
  * Given a list of items, return an array of descriptions combining identical items into groups.
@@ -20,7 +20,9 @@ export function createCombinedDescriptions(items: Item[], includeValue: boolean 
   for (const entry of Object.values(itemCountMap)) {
     if (entry.count > 1) {
       if (includeValue) {
-        descriptions.push(`${entry.count}x  ${entry.item.name} (Total Value: ${(entry.item.value / 100) * entry.count} gp)`);
+        descriptions.push(
+          `${entry.count}x  ${entry.item.name} (Total Value: ${(entry.item.value / 100) * entry.count} gp)`,
+        );
       } else {
         descriptions.push(`${entry.count}x ${entry.item.name}`);
       }

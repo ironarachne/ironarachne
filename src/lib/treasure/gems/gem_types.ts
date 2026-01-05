@@ -8,9 +8,20 @@ export type GemGeneratorConfig = {
   allowedTypes?: GemType[];
   minimumValue?: number;
   maximumValue?: number;
-}
+};
 
-export type GemCut = 'round' | 'oval' | 'cushion' | 'princess' | 'emerald' | 'marquise' | 'pear' | 'radiant' | 'heart' | 'cabochon' | 'rough';
+export type GemCut =
+  | 'round'
+  | 'oval'
+  | 'cushion'
+  | 'princess'
+  | 'emerald'
+  | 'marquise'
+  | 'pear'
+  | 'radiant'
+  | 'heart'
+  | 'cabochon'
+  | 'rough';
 
 export type GemSize = 'tiny' | 'small' | 'medium' | 'large' | 'huge';
 
@@ -18,11 +29,11 @@ export type Gem = Item & {
   cut: GemCut;
   isCut: boolean;
   size: GemSize;
-}
+};
 
 export type GemType = {
   name: string;
   baseValue: number;
   baseWeight: number;
   densityCategory: DensityCategory;
-}
+};

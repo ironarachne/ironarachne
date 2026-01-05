@@ -1,4 +1,4 @@
-import type Gender from "./gender";
+import type Gender from './gender';
 
 export function getGenderFromSet(name: string, genderSet: Gender[]) {
   const gender = genderSet.find((g) => g.name === name);
@@ -13,21 +13,21 @@ export function getGenderFromSet(name: string, genderSet: Gender[]) {
 export function traditional(): Gender[] {
   return [
     {
-      name: "female",
+      name: 'female',
       pronouns: {
-        subjective: "she",
-        objective: "her",
-        possessive: "her",
-        reflexive: "herself",
+        subjective: 'she',
+        objective: 'her',
+        possessive: 'her',
+        reflexive: 'herself',
       },
     },
     {
-      name: "male",
+      name: 'male',
       pronouns: {
-        subjective: "he",
-        objective: "him",
-        possessive: "his",
-        reflexive: "himself",
+        subjective: 'he',
+        objective: 'him',
+        possessive: 'his',
+        reflexive: 'himself',
       },
     },
   ];

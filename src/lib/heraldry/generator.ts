@@ -1,19 +1,19 @@
-import * as RNG from "@ironarachne/rng";
-import type { Arms } from "./arms.js";
-import type { ChargeGroup } from "./charge_group.js";
-import * as Arrangements from "./charge_group_arrangements/index.js";
-import * as Charges from "./charges/index.js";
-import { type Device, renderDeviceBlazon } from "./device.js";
-import * as Fields from "./fields.js";
+import * as RNG from '@ironarachne/rng';
+import type { Arms } from './arms.js';
+import type { ChargeGroup } from './charge_group.js';
+import * as Arrangements from './charge_group_arrangements/index.js';
+import * as Charges from './charges/index.js';
+import { type Device, renderDeviceBlazon } from './device.js';
+import * as Fields from './fields.js';
 import {
   getDefaultHeraldryGeneratorConfig,
   mergeHeraldryGeneratorConfig,
   type HeraldryGeneratorConfig,
-} from "./generatorconfig.js";
-import type { Tincture } from "./tinctures.js";
-import * as Tinctures from "./tinctures.js";
-import type { Variation } from "./variation.js";
-import * as Variations from "./variations.js";
+} from './generatorconfig.js';
+import type { Tincture } from './tinctures.js';
+import * as Tinctures from './tinctures.js';
+import type { Variation } from './variation.js';
+import * as Variations from './variations.js';
 
 // Generate a coat-of-arms from a config. If no config is provided, use defaults.
 export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
@@ -21,12 +21,8 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
 
   let chargeGroups: ChargeGroup[] = [];
 
-  let fieldTinctures1: Tincture[] = JSON.parse(
-    JSON.stringify(cfg.fieldTinctures1),
-  );
-  let fieldTinctures2: Tincture[] = JSON.parse(
-    JSON.stringify(cfg.fieldTinctures2),
-  );
+  let fieldTinctures1: Tincture[] = JSON.parse(JSON.stringify(cfg.fieldTinctures1));
+  let fieldTinctures2: Tincture[] = JSON.parse(JSON.stringify(cfg.fieldTinctures2));
 
   if (cfg.chargeCount > 0) {
     let charge = cfg.rng.item(Array.from(cfg.chargeOptions));
@@ -37,9 +33,9 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
     );
     let arrangementOptions = Arrangements.withCount(cfg.chargeCount);
 
-    if (cfg.chargePosition === "in chief") {
+    if (cfg.chargePosition === 'in chief') {
       arrangementOptions = arrangementOptions.filter(
-        (a) => a.name.includes("horizontal") || a.name === "single charge center",
+        (a) => a.name.includes('horizontal') || a.name === 'single charge center',
       );
     }
 
@@ -52,14 +48,8 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
     };
     chargeGroups = [chargeGroup];
 
-    fieldTinctures1 = Tinctures.getContrasting(
-      charge.tincture,
-      fieldTinctures1,
-    );
-    fieldTinctures2 = Tinctures.getContrasting(
-      charge.tincture,
-      fieldTinctures2,
-    );
+    fieldTinctures1 = Tinctures.getContrasting(charge.tincture, fieldTinctures1);
+    fieldTinctures2 = Tinctures.getContrasting(charge.tincture, fieldTinctures2);
   }
 
   let field = cfg.rng.weighted(
@@ -94,22 +84,22 @@ export function generateHeraldryConfig(rng: RNG.RNG): HeraldryGeneratorConfig {
   let types1: string[] = [];
   let types2: string[] = [];
 
-  if (chargeTincture.type === "color" || chargeTincture.type === "stain") {
-    types1 = ["metal"];
-    types2 = ["metal"];
+  if (chargeTincture.type === 'color' || chargeTincture.type === 'stain') {
+    types1 = ['metal'];
+    types2 = ['metal'];
   } else {
-    types1 = ["color"];
-    types2 = ["color"];
+    types1 = ['color'];
+    types2 = ['color'];
 
     if (rng.int(1, 100) > 70) {
-      types1.push("stain");
+      types1.push('stain');
     }
     if (rng.int(1, 100) > 80) {
-      types2.push("stain");
+      types2.push('stain');
     }
   }
   if (furCount === 0) {
-    types1.push("furs");
+    types1.push('furs');
   }
   fieldTinctures1 = Tinctures.ofTypes(types1);
   fieldTinctures2 = Tinctures.ofTypes(types2);
@@ -132,7 +122,7 @@ function generateVariations(
   tinctures1: Tincture[],
   tinctures2: Tincture[],
   options: Variation[],
-  rng: RNG.RNG
+  rng: RNG.RNG,
 ): Variation[] {
   let result = [];
   let furCount = 0; // This function has an inherent limit of a single fur in a set of variations.
@@ -158,13 +148,13 @@ function generateVariations(
     let firstTincture = Tinctures.randomFrom(tinctureSet1, rng);
     tinctureSet1 = Tinctures.exclude(firstTincture, tinctureSet1);
     tinctureSet2 = Tinctures.exclude(firstTincture, tinctureSet2);
-    if (firstTincture.type === "fur" && furCount === 0) {
+    if (firstTincture.type === 'fur' && furCount === 0) {
       furCount = 1;
       tinctureSet1 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet1);
     }
     let secondTincture = Tinctures.randomFrom(tinctureSet2, rng);
     tinctureSet2 = Tinctures.exclude(secondTincture, tinctureSet2);
-    if (secondTincture.type === "fur" && furCount === 0) {
+    if (secondTincture.type === 'fur' && furCount === 0) {
       furCount = 1;
       tinctureSet2 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet2);
     }

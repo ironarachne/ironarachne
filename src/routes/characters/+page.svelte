@@ -1,8 +1,3 @@
-<style lang="scss">
-  @use "$lib/styles/main.scss";
-  @use "$lib/styles/navigation.scss";
-</style>
-
 <svelte:head>
   <title>Characters &amp; People | Iron Arachne</title>
 </svelte:head>
@@ -26,3 +21,8 @@
     <a href="/velgarth-gifts">Velgarth Gifts</a>
   </nav>
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/navigation.scss';
+</style>

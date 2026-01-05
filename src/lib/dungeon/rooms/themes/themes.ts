@@ -1,7 +1,7 @@
-import type * as RNG from "@ironarachne/rng";
-import RoomFeatureGenerator from "../features/featuregenerator.js";
-import * as Dungeon from "./dungeon.js";
-import RoomTheme from "./theme.js";
+import type * as RNG from '@ironarachne/rng';
+import RoomFeatureGenerator from '../features/featuregenerator.js';
+import * as Dungeon from './dungeon.js';
+import RoomTheme from './theme.js';
 
 export function all(rng: RNG.RNG): RoomTheme[] {
   let result: RoomTheme[] = [];
@@ -35,31 +35,31 @@ export function byTag(tag: string, themes: RoomTheme[]): RoomTheme[] {
 
 export function getEntrance(rng: RNG.RNG): RoomTheme {
   return new RoomTheme(
-    "entrance",
+    'entrance',
     [],
     2,
     2,
     4,
     4,
-    ["stone tile"],
+    ['stone tile'],
     [],
     [
       new RoomFeatureGenerator(
-        "entrance",
+        'entrance',
         [
-          "The entrance to the dungeon is here.",
-          "The stairs out of the dungeon are here.",
-          "There is a set of stairs here leading out of the dungeon.",
-          "The stairs leading out of the dungeon are here.",
+          'The entrance to the dungeon is here.',
+          'The stairs out of the dungeon are here.',
+          'There is a set of stairs here leading out of the dungeon.',
+          'The stairs leading out of the dungeon are here.',
         ],
         [],
         false,
-        rng
+        rng,
       ),
     ],
     [],
-    ["rectangular", "square"],
-    ["dungeon", "entrance"],
+    ['rectangular', 'square'],
+    ['dungeon', 'entrance'],
     10,
   );
 }

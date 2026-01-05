@@ -1,4 +1,4 @@
-import type Item from "../item.js";
+import type Item from '../item.js';
 
 export default class Component implements Item {
   name: string;

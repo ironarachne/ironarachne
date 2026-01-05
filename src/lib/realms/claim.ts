@@ -4,8 +4,8 @@ export default class Claim {
   status: string;
 
   constructor() {
-    this.claimantName = "";
+    this.claimantName = '';
     this.claimantId = 0;
-    this.status = "unpressed";
+    this.status = 'unpressed';
   }
 }

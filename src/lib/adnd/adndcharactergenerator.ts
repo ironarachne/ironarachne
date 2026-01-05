@@ -1,11 +1,11 @@
-import * as Dice from "../dice.js";
-import type ADNDArmor from "./adndarmor.js";
-import ADNDCharacter from "./adndcharacter.js";
-import type ADNDCharacterGeneratorConfig from "./adndcharactergeneratorconfig.js";
-import type ADNDClass from "./adndclass.js";
-import type ADNDRace from "./adndrace.js";
-import type ADNDWeapon from "./adndweapon.js";
-import * as Equipment from "./equipment.js";
+import * as Dice from '../dice.js';
+import type ADNDArmor from './adndarmor.js';
+import ADNDCharacter from './adndcharacter.js';
+import type ADNDCharacterGeneratorConfig from './adndcharactergeneratorconfig.js';
+import type ADNDClass from './adndclass.js';
+import type ADNDRace from './adndrace.js';
+import type ADNDWeapon from './adndweapon.js';
+import * as Equipment from './equipment.js';
 
 export default class ADNDCharacterGenerator {
   config: ADNDCharacterGeneratorConfig;
@@ -17,12 +17,12 @@ export default class ADNDCharacterGenerator {
   generateCharacter(): ADNDCharacter {
     let character = new ADNDCharacter();
 
-    character.charisma = Dice.roll("3d6", this.config.rng);
-    character.constitution = Dice.roll("3d6", this.config.rng);
-    character.dexterity = Dice.roll("3d6", this.config.rng);
-    character.intelligence = Dice.roll("3d6", this.config.rng);
-    character.strength = Dice.roll("3d6", this.config.rng);
-    character.wisdom = Dice.roll("3d6", this.config.rng);
+    character.charisma = Dice.roll('3d6', this.config.rng);
+    character.constitution = Dice.roll('3d6', this.config.rng);
+    character.dexterity = Dice.roll('3d6', this.config.rng);
+    character.intelligence = Dice.roll('3d6', this.config.rng);
+    character.strength = Dice.roll('3d6', this.config.rng);
+    character.wisdom = Dice.roll('3d6', this.config.rng);
 
     if (character.strength === 18) {
       character.exceptionalStrength = this.config.rng.int(1, 100);
@@ -34,14 +34,14 @@ export default class ADNDCharacterGenerator {
     character.class = this.config.rng.item(getClassOptions(character, this.config.allowedClasses));
     character = character.class.apply(character, this.config.rng);
 
-    if (character.class.group === "warrior") {
-      character.currency = Dice.roll("5d4", this.config.rng) * 10 * 100;
-    } else if (character.class.group === "wizard") {
-      character.currency = Dice.roll("1d4+1", this.config.rng) * 10 * 100;
-    } else if (character.class.group === "rogue") {
-      character.currency = Dice.roll("2d6", this.config.rng) * 10 * 100;
+    if (character.class.group === 'warrior') {
+      character.currency = Dice.roll('5d4', this.config.rng) * 10 * 100;
+    } else if (character.class.group === 'wizard') {
+      character.currency = Dice.roll('1d4+1', this.config.rng) * 10 * 100;
+    } else if (character.class.group === 'rogue') {
+      character.currency = Dice.roll('2d6', this.config.rng) * 10 * 100;
     } else {
-      character.currency = Dice.roll("3d6", this.config.rng) * 10 * 100;
+      character.currency = Dice.roll('3d6', this.config.rng) * 10 * 100;
     }
 
     character.alignment = this.config.rng.item(character.class.allowedAlignments);
@@ -53,66 +53,41 @@ export default class ADNDCharacterGenerator {
     );
     character.bonusSpells = getBonusPriestSpells(character.wisdom);
     character.chanceOfSpellFailure = getChanceOfSpellFailure(character.wisdom);
-    character.chanceToLearnSpell = getChanceToLearnSpell(
-      character.intelligence,
-    );
+    character.chanceToLearnSpell = getChanceToLearnSpell(character.intelligence);
     character.damageAdjustment = getDamageAdjustment(
       character.strength,
       character.exceptionalStrength,
     );
     character.defensiveAdjustment = getDefensiveAdjustment(character.dexterity);
-    character.hitPointAdjustment = getHitPointAdjustment(
-      character.constitution,
-    );
-    character.hitProbability = getHitProbability(
-      character.strength,
-      character.exceptionalStrength,
-    );
+    character.hitPointAdjustment = getHitPointAdjustment(character.constitution);
+    character.hitProbability = getHitProbability(character.strength, character.exceptionalStrength);
     character.illusionImmunity = getIllusionImmunity(character.intelligence);
     character.loyaltyBase = getLoyaltyBase(character.charisma);
-    character.magicalDefenseAdjustment = getMagicalDefenseAdjustment(
-      character.wisdom,
-    );
-    character.maximumNumberOfHenchmen = getMaximumNumberOfHenchmen(
-      character.charisma,
-    );
+    character.magicalDefenseAdjustment = getMagicalDefenseAdjustment(character.wisdom);
+    character.maximumNumberOfHenchmen = getMaximumNumberOfHenchmen(character.charisma);
     character.maximumNumberOfSpellsPerLevel = getMaximumNumberOfSpellsPerLevel(
       character.intelligence,
     );
-    character.maxPress = getMaxPress(
-      character.strength,
-      character.exceptionalStrength,
-    );
-    character.missileAttackAdjustment = getMissileAttackAdjustment(
-      character.dexterity,
-    );
-    character.npcReactionAdjustment = getNPCReactionAdjustment(
-      character.charisma,
-    );
+    character.maxPress = getMaxPress(character.strength, character.exceptionalStrength);
+    character.missileAttackAdjustment = getMissileAttackAdjustment(character.dexterity);
+    character.npcReactionAdjustment = getNPCReactionAdjustment(character.charisma);
     character.numberOfLanguages = getNumberOfLanguages(character.intelligence);
-    character.openDoors = getOpenDoors(
-      character.strength,
-      character.exceptionalStrength,
-    );
+    character.openDoors = getOpenDoors(character.strength, character.exceptionalStrength);
     character.poisonSave = getPoisonSave(character.constitution);
     character.reactionAdjustment = getReactionAdjustment(character.dexterity);
     character.regeneration = getRegeneration(character.constitution);
-    character.resurrectionSurvival = getResurrectionSurvival(
-      character.constitution,
-    );
+    character.resurrectionSurvival = getResurrectionSurvival(character.constitution);
     character.spellImmunity = getSpellImmunity(character.wisdom);
     character.spellLevel = getSpellLevel(character.intelligence);
     character.systemShock = getSystemShock(character.constitution);
-    character.warriorHitPointAdjustment = getWarriorHitPointAdjustment(
-      character.constitution,
-    );
+    character.warriorHitPointAdjustment = getWarriorHitPointAdjustment(character.constitution);
     character.weightAllowance = getWeightAllowance(
       character.strength,
       character.exceptionalStrength,
     );
 
     const hitPointAdjustment =
-      character.class.group === "warrior"
+      character.class.group === 'warrior'
         ? character.warriorHitPointAdjustment
         : character.hitPointAdjustment;
     character.hp = Dice.roll(character.class.hitDice, this.config.rng) + hitPointAdjustment;
@@ -129,7 +104,7 @@ export default class ADNDCharacterGenerator {
       character.weapons.push(weapon);
       character.currency -= weapon.cost;
     } else {
-      console.debug("No weapons available for character");
+      console.debug('No weapons available for character');
     }
 
     const allArmor = Equipment.getArmor();
@@ -139,10 +114,10 @@ export default class ADNDCharacterGenerator {
       character.armor.push(armor);
       character.currency -= armor.cost;
     } else {
-      console.debug("No armor available for character");
+      console.debug('No armor available for character');
     }
 
-    if (character.class.group === "priest") {
+    if (character.class.group === 'priest') {
       if (character.currency > 300) {
         character.currency = this.config.rng.int(1, 3) * 100;
       }
@@ -156,10 +131,7 @@ export default class ADNDCharacterGenerator {
   }
 }
 
-function getBendBarsLiftGates(
-  strength: number,
-  exceptionalStrength: number,
-): number {
+function getBendBarsLiftGates(strength: number, exceptionalStrength: number): number {
   if (strength === 1) {
     return 0;
   }
@@ -346,44 +318,41 @@ function getClassOptions(character: ADNDCharacter, classes: ADNDClass[]): ADNDCl
   return options;
 }
 
-function getDamageAdjustment(
-  strength: number,
-  exceptionalStrength: number,
-): string {
+function getDamageAdjustment(strength: number, exceptionalStrength: number): string {
   if (strength === 1) {
-    return "-4";
+    return '-4';
   }
 
   if (strength === 2) {
-    return "-2";
+    return '-2';
   }
 
   if (strength <= 5) {
-    return "-1";
+    return '-1';
   }
 
   if (strength >= 16 && strength <= 17) {
-    return "+1";
+    return '+1';
   }
 
   if (strength === 18 && exceptionalStrength === -1) {
-    return "+2";
+    return '+2';
   }
 
   if (strength === 18 && exceptionalStrength <= 50) {
-    return "+3";
+    return '+3';
   }
   if (strength === 18 && exceptionalStrength <= 90) {
-    return "+4";
+    return '+4';
   }
   if (strength === 18 && exceptionalStrength <= 99) {
-    return "+5";
+    return '+5';
   }
   if (strength === 18 && exceptionalStrength === 100) {
-    return "+6";
+    return '+6';
   }
 
-  return "none";
+  return 'none';
 }
 
 function getDefensiveAdjustment(dexterity: number): number {
@@ -477,51 +446,48 @@ function getHitPointAdjustment(constitution: number): number {
   return table[constitution];
 }
 
-function getHitProbability(
-  strength: number,
-  exceptionalStrength: number,
-): string {
+function getHitProbability(strength: number, exceptionalStrength: number): string {
   if (strength === 1) {
-    return "-5";
+    return '-5';
   }
 
   if (strength === 2) {
-    return "-4";
+    return '-4';
   }
 
   if (strength === 3) {
-    return "-3";
+    return '-3';
   }
 
   if (strength <= 5) {
-    return "-2";
+    return '-2';
   }
 
   if (strength <= 7) {
-    return "-1";
+    return '-1';
   }
 
   if (strength === 17) {
-    return "+1";
+    return '+1';
   }
 
   if (strength === 18 && exceptionalStrength === -1) {
-    return "+2";
+    return '+2';
   }
 
   if (strength === 18 && exceptionalStrength <= 50) {
-    return "+3";
+    return '+3';
   }
 
   if (strength === 18 && exceptionalStrength <= 99) {
-    return "+4";
+    return '+4';
   }
 
   if (strength === 18 && exceptionalStrength === 100) {
-    return "+5";
+    return '+5';
   }
 
-  return "normal";
+  return 'normal';
 }
 
 function getIllusionImmunity(intelligence: number): number {
@@ -854,74 +820,74 @@ function getNumberOfLanguages(intelligence: number): number {
 
 function getOpenDoors(strength: number, exceptionalStrength: number): string {
   if (strength === 1) {
-    return "1";
+    return '1';
   }
 
   if (strength === 2) {
-    return "1";
+    return '1';
   }
 
   if (strength === 3) {
-    return "2";
+    return '2';
   }
 
   if (strength <= 5) {
-    return "3";
+    return '3';
   }
 
   if (strength <= 7) {
-    return "4";
+    return '4';
   }
 
   if (strength <= 9) {
-    return "5";
+    return '5';
   }
 
   if (strength <= 11) {
-    return "6";
+    return '6';
   }
 
   if (strength <= 13) {
-    return "7";
+    return '7';
   }
 
   if (strength <= 15) {
-    return "8";
+    return '8';
   }
 
   if (strength <= 16) {
-    return "9";
+    return '9';
   }
 
   if (strength <= 17) {
-    return "10";
+    return '10';
   }
 
   if (strength === 18 && exceptionalStrength === -1) {
-    return "11";
+    return '11';
   }
 
   if (strength === 18 && exceptionalStrength <= 50) {
-    return "12";
+    return '12';
   }
 
   if (strength === 18 && exceptionalStrength <= 75) {
-    return "13";
+    return '13';
   }
 
   if (strength === 18 && exceptionalStrength <= 90) {
-    return "14";
+    return '14';
   }
 
   if (strength === 18 && exceptionalStrength <= 99) {
-    return "15 (3)";
+    return '15 (3)';
   }
 
   if (strength === 18 && exceptionalStrength === 100) {
-    return "16 (6)";
+    return '16 (6)';
   }
 
-  return "16 (8)";
+  return '16 (8)';
 }
 
 function getPoisonSave(constitution: number): number {
@@ -956,14 +922,11 @@ function getPoisonSave(constitution: number): number {
   return table[constitution];
 }
 
-function getPossibleArmor(
-  character: ADNDCharacter,
-  armor: ADNDArmor[],
-): ADNDArmor[] {
+function getPossibleArmor(character: ADNDCharacter, armor: ADNDArmor[]): ADNDArmor[] {
   const possibleArmor = [];
   for (let i = 0; i < armor.length; i++) {
     if (
-      character.class.allowedArmor.includes("any") ||
+      character.class.allowedArmor.includes('any') ||
       character.class.allowedArmor.includes(armor[i].name)
     ) {
       if (character.currency >= armor[i].cost) {
@@ -975,18 +938,15 @@ function getPossibleArmor(
   return possibleArmor;
 }
 
-function getPossibleWeapons(
-  character: ADNDCharacter,
-  weapons: ADNDWeapon[],
-): ADNDWeapon[] {
+function getPossibleWeapons(character: ADNDCharacter, weapons: ADNDWeapon[]): ADNDWeapon[] {
   const possibleWeapons: ADNDWeapon[] = [];
 
   for (const weapon of weapons) {
     if (
-      character.class.allowedWeapons.includes("any") ||
+      character.class.allowedWeapons.includes('any') ||
       character.class.allowedWeapons.includes(weapon.name) ||
-      (character.class.allowedWeapons.includes("bludgeoning") &&
-        weapon.damageType.includes("bludgeoning"))
+      (character.class.allowedWeapons.includes('bludgeoning') &&
+        weapon.damageType.includes('bludgeoning'))
     ) {
       if (character.currency >= weapon.cost) {
         possibleWeapons.push(weapon);
@@ -1056,31 +1016,31 @@ function getReactionAdjustment(dexterity: number): number {
 
 function getRegeneration(constitution: number): string {
   const table: Record<number, string> = {
-    1: "nil",
-    2: "nil",
-    3: "nil",
-    4: "nil",
-    5: "nil",
-    6: "nil",
-    7: "nil",
-    8: "nil",
-    9: "nil",
-    10: "nil",
-    11: "nil",
-    12: "nil",
-    13: "nil",
-    14: "nil",
-    15: "nil",
-    16: "nil",
-    17: "nil",
-    18: "nil",
-    19: "nil",
-    20: "1/6 turns",
-    21: "1/5 turns",
-    22: "1/4 turns",
-    23: "1/3 turns",
-    24: "1/2 turns",
-    25: "1/1 turn",
+    1: 'nil',
+    2: 'nil',
+    3: 'nil',
+    4: 'nil',
+    5: 'nil',
+    6: 'nil',
+    7: 'nil',
+    8: 'nil',
+    9: 'nil',
+    10: 'nil',
+    11: 'nil',
+    12: 'nil',
+    13: 'nil',
+    14: 'nil',
+    15: 'nil',
+    16: 'nil',
+    17: 'nil',
+    18: 'nil',
+    19: 'nil',
+    20: '1/6 turns',
+    21: '1/5 turns',
+    22: '1/4 turns',
+    23: '1/3 turns',
+    24: '1/2 turns',
+    25: '1/1 turn',
   };
 
   return table[constitution];
@@ -1179,15 +1139,15 @@ function getSavingThrows(character: ADNDCharacter): ADNDCharacter {
   };
 
   if (
-    character.race.name === "dwarf" ||
-    character.race.name === "gnome" ||
-    character.race.name === "halfling"
+    character.race.name === 'dwarf' ||
+    character.race.name === 'gnome' ||
+    character.race.name === 'halfling'
   ) {
     const conMod = conMods[character.constitution];
     character.rodSavingThrow += conMod;
     character.spellSavingThrow += conMod;
 
-    if (character.race.name === "dwarf" || character.race.name === "halfling") {
+    if (character.race.name === 'dwarf' || character.race.name === 'halfling') {
       character.poisonSavingThrow += conMod;
     }
   }
@@ -1215,121 +1175,121 @@ function getSpellImmunity(wisdom: number): string[] {
     16: [],
     17: [],
     18: [],
-    19: ["cause fear", "charm person", "command", "friends", "hypnotism"],
+    19: ['cause fear', 'charm person', 'command', 'friends', 'hypnotism'],
     20: [
-      "cause fear",
-      "charm person",
-      "command",
-      "friends",
-      "hypnotism",
-      "forget",
-      "hold person",
-      "ray of enfeeblment",
-      "scare",
+      'cause fear',
+      'charm person',
+      'command',
+      'friends',
+      'hypnotism',
+      'forget',
+      'hold person',
+      'ray of enfeeblment',
+      'scare',
     ],
     21: [
-      "cause fear",
-      "charm person",
-      "command",
-      "friends",
-      "hypnotism",
-      "forget",
-      "hold person",
-      "ray of enfeeblment",
-      "scare",
-      "fear",
+      'cause fear',
+      'charm person',
+      'command',
+      'friends',
+      'hypnotism',
+      'forget',
+      'hold person',
+      'ray of enfeeblment',
+      'scare',
+      'fear',
     ],
     22: [
-      "cause fear",
-      "charm person",
-      "command",
-      "friends",
-      "hypnotism",
-      "forget",
-      "hold person",
-      "ray of enfeeblment",
-      "scare",
-      "fear",
-      "charm monster",
-      "confusion",
-      "emotion",
-      "fumble",
-      "suggestion",
+      'cause fear',
+      'charm person',
+      'command',
+      'friends',
+      'hypnotism',
+      'forget',
+      'hold person',
+      'ray of enfeeblment',
+      'scare',
+      'fear',
+      'charm monster',
+      'confusion',
+      'emotion',
+      'fumble',
+      'suggestion',
     ],
     23: [
-      "cause fear",
-      "charm person",
-      "command",
-      "friends",
-      "hypnotism",
-      "forget",
-      "hold person",
-      "ray of enfeeblment",
-      "scare",
-      "fear",
-      "charm monster",
-      "confusion",
-      "emotion",
-      "fumble",
-      "suggestion",
-      "chaos",
-      "feeblemind",
-      "hold monster",
-      "magic jar",
-      "quest",
+      'cause fear',
+      'charm person',
+      'command',
+      'friends',
+      'hypnotism',
+      'forget',
+      'hold person',
+      'ray of enfeeblment',
+      'scare',
+      'fear',
+      'charm monster',
+      'confusion',
+      'emotion',
+      'fumble',
+      'suggestion',
+      'chaos',
+      'feeblemind',
+      'hold monster',
+      'magic jar',
+      'quest',
     ],
     24: [
-      "cause fear",
-      "charm person",
-      "command",
-      "friends",
-      "hypnotism",
-      "forget",
-      "hold person",
-      "ray of enfeeblment",
-      "scare",
-      "fear",
-      "charm monster",
-      "confusion",
-      "emotion",
-      "fumble",
-      "suggestion",
-      "chaos",
-      "feeblemind",
-      "hold monster",
-      "magic jar",
-      "quest",
-      "geas",
-      "mass suggestion",
-      "rod of rulership",
+      'cause fear',
+      'charm person',
+      'command',
+      'friends',
+      'hypnotism',
+      'forget',
+      'hold person',
+      'ray of enfeeblment',
+      'scare',
+      'fear',
+      'charm monster',
+      'confusion',
+      'emotion',
+      'fumble',
+      'suggestion',
+      'chaos',
+      'feeblemind',
+      'hold monster',
+      'magic jar',
+      'quest',
+      'geas',
+      'mass suggestion',
+      'rod of rulership',
     ],
     25: [
-      "cause fear",
-      "charm person",
-      "command",
-      "friends",
-      "hypnotism",
-      "forget",
-      "hold person",
-      "ray of enfeeblment",
-      "scare",
-      "fear",
-      "charm monster",
-      "confusion",
-      "emotion",
-      "fumble",
-      "suggestion",
-      "chaos",
-      "feeblemind",
-      "hold monster",
-      "magic jar",
-      "quest",
-      "geas",
-      "mass suggestion",
-      "rod of rulership",
-      "antipathy/sympathy",
-      "death spell",
-      "mass charm",
+      'cause fear',
+      'charm person',
+      'command',
+      'friends',
+      'hypnotism',
+      'forget',
+      'hold person',
+      'ray of enfeeblment',
+      'scare',
+      'fear',
+      'charm monster',
+      'confusion',
+      'emotion',
+      'fumble',
+      'suggestion',
+      'chaos',
+      'feeblemind',
+      'hold monster',
+      'magic jar',
+      'quest',
+      'geas',
+      'mass suggestion',
+      'rod of rulership',
+      'antipathy/sympathy',
+      'death spell',
+      'mass charm',
     ],
   };
 
@@ -1427,10 +1387,7 @@ function getWarriorHitPointAdjustment(constitution: number): number {
   return table[constitution];
 }
 
-function getWeightAllowance(
-  strength: number,
-  exceptionalStrength: number,
-): number {
+function getWeightAllowance(strength: number, exceptionalStrength: number): number {
   if (strength === 1) {
     return 1;
   }

@@ -1,4 +1,4 @@
-import Domain from "./domain.js";
+import Domain from './domain.js';
 
 export default class DomainSet {
   primary: Domain;

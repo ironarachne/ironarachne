@@ -1,4 +1,4 @@
-import type TreasureGenerator from "./treasuregenerator.js";
+import type TreasureGenerator from './treasuregenerator.js';
 
 export default class TreasureTableEntry {
   commonality: number;

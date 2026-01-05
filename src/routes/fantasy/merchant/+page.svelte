@@ -1,30 +1,25 @@
 <script lang="ts">
-import * as Currency from "$lib/currency";
-import * as Merchant from "$lib/merchant";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+  import * as Currency from '$lib/currency';
+  import * as Merchant from '$lib/merchant';
+  import * as RNG from '@ironarachne/rng';
+  import * as Words from '@ironarachne/words';
 
-let category = $state("general");
-let valueThreshold = $state(50);
-let categories = ["armor", "clothing", "general", "weapon"];
-let merchant = $state(Merchant.generate("general", 50));
-let seed = $state(RNG.randomString(13));
-let lockSeed = false;
+  let category = $state('general');
+  let valueThreshold = $state(50);
+  let categories = ['armor', 'clothing', 'general', 'weapon'];
+  let merchant = $state(Merchant.generate('general', 50));
+  let seed = $state(RNG.randomString(13));
+  let lockSeed = false;
 
-function generate() {
-  if (!lockSeed) {
-    seed = RNG.randomString(13);
+  function generate() {
+    if (!lockSeed) {
+      seed = RNG.randomString(13);
+    }
+    RNG.setSeed(seed);
+
+    merchant = Merchant.generate(category, valueThreshold);
   }
-  RNG.setSeed(seed);
-
-  merchant = Merchant.generate(category, valueThreshold);
-}
 </script>
-
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-</style>
 
 <svelte:head>
   <title>Fantasy Merchant Generator | Iron Arachne</title>
@@ -37,7 +32,7 @@ function generate() {
 
   <div class="input-group">
     <label for="seed">Random Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed"/>
+    <input type="text" name="seed" bind:value={seed} id="seed" />
   </div>
 
   <div class="input-group">
@@ -53,21 +48,36 @@ function generate() {
     <label for="value">Type of Goods</label>
     <select name="value" bind:value={category}>
       {#each categories as cat}
-      <option>{cat}</option>
+        <option>{cat}</option>
       {/each}
     </select>
   </div>
 
   <button onclick={generate}>Generate From Seed</button>
-  <button onclick={() => { seed = RNG.randomString(13); }}>Random Seed (and Generate)</button>
+  <button
+    onclick={() => {
+      seed = RNG.randomString(13);
+    }}>Random Seed (and Generate)</button
+  >
 
-  <p>{ merchant.description } { Words.capitalize(merchant.character.gender.pronouns.possessive) } wares include:</p>
+  <p>
+    {merchant.description}
+    {Words.capitalize(merchant.character.gender.pronouns.possessive)} wares include:
+  </p>
 
   <h2>Stock List</h2>
 
   {#each merchant.wares as item}
     <h4>{Words.capitalize(item.name)}</h4>
     <p>{Words.capitalize(item.description)}.</p>
-    <p><strong>Cost:</strong> {Currency.convertCopper(Math.floor(item.value * merchant.priceVariance), false, false, false)}</p>
+    <p>
+      <strong>Cost:</strong>
+      {Currency.convertCopper(Math.floor(item.value * merchant.priceVariance), false, false, false)}
+    </p>
   {/each}
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
+</style>

@@ -1,4 +1,4 @@
-import type Room from "../room.js";
+import type Room from '../room.js';
 
 export default class RoomMutator {
   name: string;

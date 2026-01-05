@@ -1,4 +1,4 @@
-import type Mob from "./mob.js";
+import type Mob from './mob.js';
 
 export function hasAllTagsIn(tags: string[], mobs: Mob[]): Mob[] {
   let result = [];

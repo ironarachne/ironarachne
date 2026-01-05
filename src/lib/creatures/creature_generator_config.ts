@@ -1,5 +1,5 @@
-import type { RNG } from "@ironarachne/rng";
-import type Species from "$lib/species/species";
+import type { RNG } from '@ironarachne/rng';
+import type Species from '$lib/species/species';
 
 export default interface CreatureGeneratorConfig {
   ageCategoryNames: string[];

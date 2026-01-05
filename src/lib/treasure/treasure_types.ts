@@ -5,6 +5,6 @@ export type TreasureHoardGeneratorConfig = {
   artObjectProportion: number;
   coinProportions: { [denomination: string]: number };
   gemProportion: number;
-  roomDimensions?: { width: number; length: number; height: number; };
+  roomDimensions?: { width: number; length: number; height: number };
   targetValue: number;
-}
+};

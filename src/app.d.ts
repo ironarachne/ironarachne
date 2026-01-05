@@ -1,4 +1,4 @@
-import type UserData from "$lib/user_data";
+import type UserData from '$lib/user_data';
 
 // See https://kit.svelte.dev/docs/types#app
 // for information about these interfaces

@@ -1,7 +1,7 @@
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import DrinkType from "./drinktype.js";
-import * as DrinkTypes from "./drinktypes.js";
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import DrinkType from './drinktype.js';
+import * as DrinkTypes from './drinktypes.js';
 
 export class Drink {
   name: string;
@@ -13,9 +13,9 @@ export class Drink {
   drinkType: DrinkType;
 
   constructor() {
-    this.name = "";
-    this.description = "";
-    this.appearance = "";
+    this.name = '';
+    this.description = '';
+    this.appearance = '';
     this.quality = 0;
     this.strength = 0;
     this.cost = 0;
@@ -26,10 +26,7 @@ export class Drink {
 export function generateDrink() {
   const drink = new Drink();
   drink.appearance = RNG.item(drink.drinkType.appearances);
-  drink.strength = RNG.int(
-    drink.drinkType.strengthMin,
-    drink.drinkType.strengthMax,
-  );
+  drink.strength = RNG.int(drink.drinkType.strengthMin, drink.drinkType.strengthMax);
   drink.quality = RNG.int(0, 6);
   drink.cost = randomCost(drink);
   drink.name = drink.drinkType.name;
@@ -57,41 +54,41 @@ function describe(drink: Drink) {
     adjectives.push(describeQuality(drink.quality));
   }
 
-  return Words.arrayToPhrase(adjectives) + " " + drink.drinkType.name;
+  return Words.arrayToPhrase(adjectives) + ' ' + drink.drinkType.name;
 }
 
 function describeStrength(strength: number) {
   if (strength === 0) {
-    return "very weak";
+    return 'very weak';
   } else if (strength === 1) {
-    return "weak";
+    return 'weak';
   } else if (strength === 2) {
-    return "moderately strong";
+    return 'moderately strong';
   } else if (strength === 3) {
-    return "potent";
+    return 'potent';
   } else if (strength === 4) {
-    return "very strong";
+    return 'very strong';
   }
 
-  return "incredibly strong";
+  return 'incredibly strong';
 }
 
 function describeQuality(quality: number) {
   if (quality === 0) {
-    return "nasty";
+    return 'nasty';
   } else if (quality === 1) {
-    return "awful";
+    return 'awful';
   } else if (quality === 2) {
-    return "acceptable";
+    return 'acceptable';
   } else if (quality === 3) {
-    return "decent";
+    return 'decent';
   } else if (quality === 4) {
-    return "good";
+    return 'good';
   } else if (quality === 5) {
-    return "excellent";
+    return 'excellent';
   }
 
-  return "wonderful";
+  return 'wonderful';
 }
 
 function randomCost(drink: Drink) {

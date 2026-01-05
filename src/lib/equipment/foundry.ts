@@ -35,8 +35,8 @@ export function applyMaterial(item: Item, material: Material): Item {
             const currentBonus = parseInt(parts[1], 10);
             weapon.damage = `${parts[0]}+${currentBonus + bonus}`;
           } else if (weapon.damage.includes('-')) {
-             // Handle negative modifiers if necessary, but for now assume simple case
-             weapon.damage = `${weapon.damage}+${bonus}`;
+            // Handle negative modifiers if necessary, but for now assume simple case
+            weapon.damage = `${weapon.damage}+${bonus}`;
           } else {
             weapon.damage = `${weapon.damage}+${bonus}`;
           }
@@ -65,7 +65,7 @@ export function applyMaterial(item: Item, material: Material): Item {
  */
 export function getRandomMaterialForItem(item: Item, rng: RNG.RNG): Material {
   // Filter materials based on item type
-  const suitableMaterials = Object.values(MATERIALS).filter(material => {
+  const suitableMaterials = Object.values(MATERIALS).filter((material) => {
     if (item.itemMajorType === 'weapon') {
       // Weapons are typically metal or wood
       // Some weapons might be stone or bone, but let's stick to common ones for now
@@ -77,7 +77,11 @@ export function getRandomMaterialForItem(item: Item, rng: RNG.RNG): Material {
       if (armor.armorType === 'light') {
         return material.majorType === 'leather' || material.majorType === 'cloth';
       } else if (armor.armorType === 'medium') {
-        return material.majorType === 'metal' || material.majorType === 'leather' || material.majorType === 'hide';
+        return (
+          material.majorType === 'metal' ||
+          material.majorType === 'leather' ||
+          material.majorType === 'hide'
+        );
       } else if (armor.armorType === 'heavy') {
         return material.majorType === 'metal';
       }

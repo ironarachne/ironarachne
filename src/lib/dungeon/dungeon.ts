@@ -1,6 +1,6 @@
-import type Door from "./door.js";
-import type { DungeonTheme } from "./themes/index.js";
-import type Room from "./rooms/room.js";
+import type Door from './door.js';
+import type { DungeonTheme } from './themes/index.js';
+import type Room from './rooms/room.js';
 
 export default interface Dungeon {
   name: string;

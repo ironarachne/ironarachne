@@ -1,4 +1,4 @@
-@use "$lib/styles/global.scss";
+@use '$lib/styles/global.scss';
 
 .navigation {
   margin-top: 0.5rem;
@@ -17,7 +17,9 @@
     padding: 0.4rem 0;
     text-align: center;
     text-decoration: none;
-    text-shadow: -2px -2px 0 black, 2px 2px 0 global.$granite;
+    text-shadow:
+      -2px -2px 0 black,
+      2px 2px 0 global.$granite;
     transition: all 0.2s ease;
     width: 95%;
   }

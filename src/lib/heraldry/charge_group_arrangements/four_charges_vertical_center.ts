@@ -1,24 +1,21 @@
-import { create } from "xmlbuilder2";
-import type { ChargeGroupArrangement } from ".";
-import { convertXmlToSVGObject, getSVGDimensions } from "$lib/images/svg";
+import { create } from 'xmlbuilder2';
+import type { ChargeGroupArrangement } from '.';
+import { convertXmlToSVGObject, getSVGDimensions } from '$lib/images/svg';
 
 export const fourChargesVerticalCenterArrangement: ChargeGroupArrangement = {
-  name: "four charges vertical center",
+  name: 'four charges vertical center',
   numberOfCharges: 4,
-  blazonPattern: "four {namePlural} in pale",
+  blazonPattern: 'four {namePlural} in pale',
   renderSVG: function (
     chargeSVGString: string,
     contextWidth: number,
     contextHeight: number,
   ): string {
     const chargeObject = convertXmlToSVGObject(chargeSVGString);
-    const svgObj = (chargeObject as any)["svg"];
+    const svgObj = (chargeObject as any)['svg'];
     const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
-    let scaleAmount = Math.min(
-      contextWidth / chargeWidth,
-      contextHeight / (chargeHeight * 4),
-    );
+    let scaleAmount = Math.min(contextWidth / chargeWidth, contextHeight / (chargeHeight * 4));
 
     scaleAmount *= 0.9;
 
@@ -36,20 +33,20 @@ export const fourChargesVerticalCenterArrangement: ChargeGroupArrangement = {
     const halfHeight = newHeight * 0.5;
 
     // 1
-    svgObj["@x"] = xMove / scaleAmount;
-    svgObj["@y"] = (yMove - oneAndHalfHeight) / scaleAmount;
+    svgObj['@x'] = xMove / scaleAmount;
+    svgObj['@y'] = (yMove - oneAndHalfHeight) / scaleAmount;
 
     // 2
-    chargeObject2["svg"]["@x"] = xMove / scaleAmount;
-    chargeObject2["svg"]["@y"] = (yMove - halfHeight) / scaleAmount;
+    chargeObject2['svg']['@x'] = xMove / scaleAmount;
+    chargeObject2['svg']['@y'] = (yMove - halfHeight) / scaleAmount;
 
     // 3
-    chargeObject3["svg"]["@x"] = xMove / scaleAmount;
-    chargeObject3["svg"]["@y"] = (yMove + halfHeight) / scaleAmount;
+    chargeObject3['svg']['@x'] = xMove / scaleAmount;
+    chargeObject3['svg']['@y'] = (yMove + halfHeight) / scaleAmount;
 
     // 4
-    chargeObject4["svg"]["@x"] = xMove / scaleAmount;
-    chargeObject4["svg"]["@y"] = (yMove + oneAndHalfHeight) / scaleAmount;
+    chargeObject4['svg']['@x'] = xMove / scaleAmount;
+    chargeObject4['svg']['@y'] = (yMove + oneAndHalfHeight) / scaleAmount;
 
     const chargeSVG1 = create(chargeObject);
     const chargeSVG2 = create(chargeObject2);
