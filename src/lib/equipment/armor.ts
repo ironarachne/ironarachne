@@ -13,77 +13,77 @@ export const armorTypes: ArmorType[] = [
   {
     name: 'leather',
     armorType: 'light',
-    defense: 2,
+    defense: 1,
     description: 'Armor made from toughened leather.',
     allowedMaterialTypes: ['leather'],
   },
   {
     name: 'studded leather',
     armorType: 'light',
-    defense: 3,
+    defense: 2,
     description: 'Leather armor reinforced with metal studs.',
     allowedMaterialTypes: ['leather'],
   },
   {
     name: 'hide',
     armorType: 'medium',
-    defense: 4,
+    defense: 2,
     description: 'Armor made from the tanned hides of animals.',
     allowedMaterialTypes: ['hide'],
   },
   {
     name: 'chain shirt',
     armorType: 'medium',
-    defense: 5,
+    defense: 3,
     description: 'A shirt made of interlocking metal rings.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'scale mail',
     armorType: 'medium',
-    defense: 6,
+    defense: 4,
     description: 'Armor made of small metal plates (scales) riveted to a backing material.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'breastplate',
     armorType: 'medium',
-    defense: 7,
+    defense: 4,
     description: 'A solid piece of metal armor covering the torso.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'half plate',
     armorType: 'medium',
-    defense: 8,
+    defense: 5,
     description: 'Armor made of metal plates covering most of the body.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'ring mail',
     armorType: 'heavy',
-    defense: 9,
+    defense: 4,
     description: 'Armor made of small metal rings linked together.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'chain mail',
     armorType: 'heavy',
-    defense: 10,
+    defense: 6,
     description: 'A suit of interlocking metal rings providing good protection.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'splint',
     armorType: 'heavy',
-    defense: 11,
+    defense: 7,
     description: 'Armor made of vertical metal strips riveted to a backing material.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'plate',
     armorType: 'heavy',
-    defense: 12,
+    defense: 8,
     description: 'Full body armor made of large metal plates.',
     allowedMaterialTypes: ['metal'],
   },
@@ -119,7 +119,8 @@ export function generateArmor(seed: string): Armor {
 
 export function getValueOfArmorType(type: ArmorType): number {
   // Simple valuation based on armor type and defense
-  const baseValue = 20;
+  const baseValue = 500;
   const typeMultiplier = type.armorType === 'light' ? 1 : type.armorType === 'medium' ? 1.5 : 2;
-  return Math.floor(baseValue * type.defense * typeMultiplier);
+  const defenseModifier = type.defense;
+  return Math.floor((baseValue + defenseModifier) * typeMultiplier);
 }

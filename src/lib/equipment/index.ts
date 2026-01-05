@@ -1,4 +1,5 @@
 export * from './containers';
+export * from './beverages';
 export type * from './equipment_types';
 export * from './materials';
 export * from './items';
