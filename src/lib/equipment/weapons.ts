@@ -10,6 +10,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A hefty axe meant for chopping through armor and shields.',
+    allowedMaterialTypes: ['metal', 'stone'],
   },
   {
     name: 'club',
@@ -18,6 +19,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A simple wooden club, effective for close combat.',
+    allowedMaterialTypes: ['wood', 'stone', 'bone'],
   },
   {
     name: 'crossbow',
@@ -27,6 +29,7 @@ export const weaponTypes: WeaponType[] = [
     range: 100,
     hands: 2,
     description: 'A ranged weapon that fires bolts with great force.',
+    allowedMaterialTypes: ['wood', 'metal'],
   },
   {
     name: 'dagger',
@@ -35,6 +38,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A small, easily concealable blade.',
+    allowedMaterialTypes: ['metal', 'stone', 'bone'],
   },
   {
     name: 'greatsword',
@@ -43,6 +47,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 2,
     description: 'A massive sword that requires two hands to wield effectively.',
+    allowedMaterialTypes: ['metal'],
   },
   {
     name: 'halberd',
@@ -51,6 +56,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 2,
     description: 'A pole weapon with an axe blade topped with a spike.',
+    allowedMaterialTypes: ['metal'],
   },
   {
     name: 'longbow',
@@ -60,6 +66,7 @@ export const weaponTypes: WeaponType[] = [
     range: 150,
     hands: 2,
     description: 'A powerful ranged weapon favored by archers.',
+    allowedMaterialTypes: ['wood'],
   },
   {
     name: 'longsword',
@@ -68,6 +75,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A versatile melee weapon.',
+    allowedMaterialTypes: ['metal', 'stone', 'bone'],
   },
   {
     name: 'mace',
@@ -76,6 +84,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A blunt weapon designed to deliver powerful strikes.',
+    allowedMaterialTypes: ['metal', 'stone', 'wood', 'bone'],
   },
   {
     name: 'quarterstaff',
@@ -84,6 +93,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 2,
     description: 'A simple wooden staff used for defense and offense.',
+    allowedMaterialTypes: ['wood'],
   },
   {
     name: 'shortbow',
@@ -93,6 +103,7 @@ export const weaponTypes: WeaponType[] = [
     range: 80,
     hands: 2,
     description: 'A ranged weapon for attacking from a distance.',
+    allowedMaterialTypes: ['wood'],
   },
   {
     name: 'shortsword',
@@ -101,6 +112,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A light melee weapon, easy to handle.',
+    allowedMaterialTypes: ['metal', 'stone', 'bone'],
   },
   {
     name: 'spear',
@@ -109,6 +121,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A pole weapon that can be thrown or used in melee combat.',
+    allowedMaterialTypes: ['wood', 'metal', 'stone', 'bone'],
   },
   {
     name: 'warhammer',
@@ -117,6 +130,7 @@ export const weaponTypes: WeaponType[] = [
     weaponType: 'melee',
     hands: 1,
     description: 'A heavy melee weapon that deals bludgeoning damage.',
+    allowedMaterialTypes: ['metal', 'stone'],
   },
 ];
 

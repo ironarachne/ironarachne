@@ -13,6 +13,7 @@ export type ArmorType = {
   defense: number;
   armorType: ArmorCategory;
   description: string;
+  allowedMaterialTypes?: string[];
 };
 
 export type Container = Item & {
@@ -98,6 +99,7 @@ export type Item = {
   itemMajorType: string;
   itemMinorType?: string;
   description: string;
+  allowedMaterialTypes?: string[];
   value: ItemValue;
   rarity: Rarity;
   densityCategory: DensityCategory;
@@ -168,6 +170,7 @@ export type WeaponType = {
   range?: number;
   hands: number;
   description: string;
+  allowedMaterialTypes?: string[];
 };
 
 export type Refinement = {

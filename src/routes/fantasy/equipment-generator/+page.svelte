@@ -3,22 +3,12 @@
   import {
     type Item,
     type Weapon,
-    type Armor,
-    type WeaponType,
-    type ArmorType
+    type Armor
   } from '$lib/equipment/equipment_types';
-  import { weaponTypes } from '$lib/equipment/weapons';
-  import { armorTypes } from '$lib/equipment/armor';
-  import { applyMaterial, getRandomMaterialForItem } from '$lib/equipment/foundry';
-  import { applyRefinement, getRandomRefinement } from '$lib/equipment/refinery';
-  import { applyEnchantment, getRandomEnchantment } from '$lib/equipment/enchanter';
-  import { applyDecoration, getRandomDecoration } from '$lib/equipment/decorator';
-  import { generateDescription } from '$lib/equipment/descriptor';
+  import { generateItem, type EquipmentGenerationConfig } from '$lib/equipment/generation';
   import { kgToPounds } from '$lib/measurements';
   import { valueToString } from '$lib/currency';
   import { STANDARD_FANTASY } from '$lib/currency/systems';
-  import { convertToDnD5e } from '$lib/combat_system/converter';
-  import type { CombatProfile } from '$lib/combat_system/types';
 
   const EQUIPMENT_CURRENCY = {
     ...STANDARD_FANTASY,
@@ -41,151 +31,22 @@
 
   let generatedItems: Item[] = $state([]);
 
-  function createBaseWeapon(type: WeaponType, rng: RNG.RNG): Weapon {
-    // Rough mapping of damage to power
-    // Power / 5 = Average Damage
-    let power = 10;
-    if (type.damage.includes('d4')) power = 12; // Avg 2.5
-    if (type.damage.includes('d6')) power = 17; // Avg 3.5
-    if (type.damage.includes('d8')) power = 22; // Avg 4.5
-    if (type.damage.includes('d10')) power = 27; // Avg 5.5
-    if (type.damage.includes('d12')) power = 32; // Avg 6.5
-    if (type.damage.includes('2d6')) power = 35; // Avg 7
-
-    return {
-      id: rng.randomString(16),
-      name: type.name,
-      description: type.description,
-      itemMajorType: 'weapon',
-      itemMinorType: type.weaponType,
-      value: 100, // Base value, should probably be in the type definition
-      rarity: 'common',
-      densityCategory: 'standard',
-      weight: 1, // Base weight
-      properties: ['weapon', type.damageType, type.weaponType],
-      damage: type.damage,
-      damageType: type.damageType,
-      weaponType: type.weaponType,
-      range: type.range,
-      hands: type.hands,
-      combatProfile: {
-        attack: 0,
-        defense: 0,
-        power,
-        resilience: 0,
-        speed: 0,
-        health: 0
-      }
-    };
-  }
-
-  function createBaseArmor(type: ArmorType, rng: RNG.RNG): Armor {
-    // Rough mapping of armor type to defense
-    // 10 + Defense / 5 = AC
-    let defense = 5; // Light (AC 11)
-    if (type.armorType === 'medium') defense = 15; // Medium (AC 13)
-    if (type.armorType === 'heavy') defense = 40; // Heavy (AC 18)
-
-    return {
-      id: rng.randomString(16),
-      name: type.name,
-      description: type.description,
-      itemMajorType: 'armor',
-      itemMinorType: type.armorType,
-      value: 100, // Base value
-      rarity: 'common',
-      densityCategory: 'standard',
-      weight: 1, // Base weight
-      properties: ['armor', type.armorType],
-      defense: type.defense,
-      armorType: type.armorType,
-      combatProfile: {
-        attack: 0,
-        defense,
-        power: 0,
-        resilience: 0,
-        speed: 0,
-        health: 0
-      }
-    };
-  }
-
-  function generateItem(rng: RNG.RNG): Item {
-    let baseItem: Item;
-    let typeChoice = itemType;
-
-    if (typeChoice === 'any') {
-      typeChoice = rng.item(['weapon', 'armor']);
-    }
-
-    if (typeChoice === 'weapon') {
-      const type = rng.item(weaponTypes);
-      baseItem = createBaseWeapon(type, rng);
-    } else {
-      const type = rng.item(armorTypes);
-      baseItem = createBaseArmor(type, rng);
-    }
-
-    // Phase 1: Foundry (Always run)
-    const material = getRandomMaterialForItem(baseItem, rng);
-    let item = applyMaterial(baseItem, material);
-
-    // Phase 2: Refinery
-    if (useRefine) {
-      // Chance to refine? Or always refine if checked?
-      // Let's say 50% chance to have a refinement if checked, to add variety
-      if (rng.simple(100) > 50) {
-        const refinement = getRandomRefinement(item, rng);
-        if (refinement) {
-          item = applyRefinement(item, refinement);
-        }
-      }
-    }
-
-    // Phase 3: Enchanter
-    if (useEnchant) {
-      // Lower chance for enchantment
-      if (rng.simple(30)) {
-        const enchantment = getRandomEnchantment(item, rng);
-        if (enchantment) {
-          item = applyEnchantment(item, enchantment);
-        }
-      }
-    }
-
-    // Phase 4: Decorator
-    if (useDecorate) {
-      if (rng.simple(100) > 50) {
-        const decoration = getRandomDecoration(item, rng);
-        if (decoration) {
-          item = applyDecoration(item, decoration);
-        }
-      }
-    }
-
-    item.value = roundValue(item.value);
-    item.description = generateDescription(item);
-
-    return item;
-  }
-
-  function roundValue(value: number): number {
-    if (value < 1000) return value; // < 10 gp: Exact
-    if (value < 10000) return Math.round(value / 10) * 10; // 10-100 gp: Round to 1 sp
-    if (value < 100000) return Math.round(value / 100) * 100; // 100-1000 gp: Round to 1 gp
-    if (value < 1000000) return Math.round(value / 1000) * 1000; // 1000-10000 gp: Round to 10 gp
-    return Math.round(value / 10000) * 10000; // > 10000 gp: Round to 100 gp
-  }
-
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
 
+    const config: EquipmentGenerationConfig = {
+      itemType: itemType as 'any' | 'weapon' | 'armor',
+      useRefine,
+      useEnchant,
+      useDecorate
+    };
+
     const items: Item[] = [];
     for (let i = 0; i < itemCount; i++) {
-      items.push(generateItem(rng));
+      items.push(generateItem(config, rng));
     }
     generatedItems = items;
   }
@@ -201,7 +62,10 @@
 <section class="fantasy main">
   <h1>Equipment Generator</h1>
 
-  <p>Generate weapons and armor using the Foundry -> Refinery -> Enchanter -> Decorator pipeline.</p>
+  <p>Generate random weapons and armor.</p>
+  <p>"Refine" adds quality modifications to the items.</p>
+  <p>"Enchant" adds magical properties to the items.</p>
+  <p>"Decorate" adds aesthetic modifications to the items.</p>
 
   <div class="controls">
     <div class="input-group">

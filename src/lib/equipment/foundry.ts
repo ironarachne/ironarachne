@@ -74,11 +74,13 @@ export function applyMaterial(item: Item, material: Material): Item {
 export function getRandomMaterialForItem(item: Item, rng: RNG.RNG): Material {
   // Filter materials based on item type
   const suitableMaterials = Object.values(MATERIALS).filter((material) => {
+    if (item.allowedMaterialTypes && item.allowedMaterialTypes.length > 0) {
+      return item.allowedMaterialTypes.includes(material.majorType);
+    }
+
+    // Fallback logic if allowedMaterialTypes is not defined
     if (item.itemMajorType === 'weapon') {
       // Weapons are typically metal or wood
-      // Some weapons might be stone or bone, but let's stick to common ones for now
-      // Or maybe we should check the weapon definition for allowed materials?
-      // For now, let's assume weapons can be metal or wood.
       return material.majorType === 'metal' || material.majorType === 'wood';
     } else if (item.itemMajorType === 'armor') {
       const armor = item as Armor;
