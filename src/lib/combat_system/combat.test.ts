@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { convertToDnD5e, convertToDnDAbilityScore, convertToDnDArmorClass, convertPowerToDice } from './converter';
+import {
+  convertToDnD5e,
+  convertToDnDAbilityScore,
+  convertToDnDArmorClass,
+  convertPowerToDice,
+} from './converter';
 import type { CombatProfile } from './types';
 
 describe('Combat System', () => {

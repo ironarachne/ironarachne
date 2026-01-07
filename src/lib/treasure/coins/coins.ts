@@ -4,7 +4,7 @@ export {
   getCoinTypesAboveValue,
   getCoinTypesBelowValue,
   getIndexOfCoinType,
-  getMaxCoinTypeForValue
+  getMaxCoinTypeForValue,
 } from '$lib/currency/currency';
 
 /**

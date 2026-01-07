@@ -8,12 +8,12 @@ The system uses a normalized 0-100 scale for most statistics, where 50 represent
 
 ### Combat Profile
 
-*   **Attack**: Accuracy and skill in offensive actions.
-*   **Defense**: Ability to avoid being hit (dodge, parry, etc.).
-*   **Power**: Raw damage potential.
-*   **Resilience**: Ability to withstand damage (armor, toughness).
-*   **Speed**: Initiative and movement speed.
-*   **Health**: Overall durability and hit points.
+- **Attack**: Accuracy and skill in offensive actions.
+- **Defense**: Ability to avoid being hit (dodge, parry, etc.).
+- **Power**: Raw damage potential.
+- **Resilience**: Ability to withstand damage (armor, toughness).
+- **Speed**: Initiative and movement speed.
+- **Health**: Overall durability and hit points.
 
 ## Converters
 
@@ -21,6 +21,6 @@ The system includes converters to translate these abstract values into specific 
 
 ### Dungeons & Dragons 5e
 
-*   **Ability Scores**: 50 maps to 10, with every 5 points representing a +1 increase.
-*   **Armor Class**: Derived from Defense.
-*   **To Hit**: Derived from Attack.
+- **Ability Scores**: 50 maps to 10, with every 5 points representing a +1 increase.
+- **Armor Class**: Derived from Defense.
+- **To Hit**: Derived from Attack.

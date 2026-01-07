@@ -13,7 +13,7 @@ import { STANDARD_FANTASY } from './systems';
 export function valueToString(
   value: number,
   system: CurrencySystem = STANDARD_FANTASY,
-  exact: boolean = true
+  exact: boolean = true,
 ): string {
   const amounts = valueToAmounts(value, system);
   const formatter = new Intl.NumberFormat();
@@ -44,7 +44,7 @@ export function valueToString(
  */
 export function valueToAmounts(
   value: number,
-  system: CurrencySystem = STANDARD_FANTASY
+  system: CurrencySystem = STANDARD_FANTASY,
 ): CurrencyAmount[] {
   let remaining = value;
   const result: CurrencyAmount[] = [];
@@ -79,7 +79,7 @@ export function valueToAmounts(
  */
 export function amountsToValue(
   amounts: CurrencyAmount[],
-  system: CurrencySystem = STANDARD_FANTASY
+  system: CurrencySystem = STANDARD_FANTASY,
 ): number {
   let total = 0;
   for (const amount of amounts) {
@@ -104,7 +104,7 @@ export function convert(
   amount: number,
   fromDenom: string,
   toDenom: string,
-  system: CurrencySystem = STANDARD_FANTASY
+  system: CurrencySystem = STANDARD_FANTASY,
 ): number {
   const from = system.denominations.find((d) => d.name === fromDenom);
   const to = system.denominations.find((d) => d.name === toDenom);
@@ -124,7 +124,10 @@ export function convert(
  * @param coinSystem The coin system to use
  * @returns An array of coin types with value greater than the specified value
  */
-export function getCoinTypesAboveValue(value: number, coinSystem: CurrencySystem): CurrencyDenomination[] {
+export function getCoinTypesAboveValue(
+  value: number,
+  coinSystem: CurrencySystem,
+): CurrencyDenomination[] {
   return coinSystem.denominations.filter((denomination) => denomination.value > value);
 }
 
@@ -135,7 +138,10 @@ export function getCoinTypesAboveValue(value: number, coinSystem: CurrencySystem
  * @param coinSystem The coin system to use
  * @returns An array of coin types with value less than the specified value
  */
-export function getCoinTypesBelowValue(value: number, coinSystem: CurrencySystem): CurrencyDenomination[] {
+export function getCoinTypesBelowValue(
+  value: number,
+  coinSystem: CurrencySystem,
+): CurrencyDenomination[] {
   return coinSystem.denominations.filter((denomination) => denomination.value < value);
 }
 
@@ -159,7 +165,10 @@ export function getIndexOfCoinType(denominationName: string, coinSystem: Currenc
  * @param coinSystem The coin system to use
  * @returns The highest value coin type that fits within the value
  */
-export function getMaxCoinTypeForValue(value: number, coinSystem: CurrencySystem): CurrencyDenomination {
+export function getMaxCoinTypeForValue(
+  value: number,
+  coinSystem: CurrencySystem,
+): CurrencyDenomination {
   const sortedDenominations = coinSystem.denominations.slice().sort((a, b) => b.value - a.value);
   for (const denomination of sortedDenominations) {
     if (value >= denomination.value) {
@@ -176,7 +185,10 @@ export function getMaxCoinTypeForValue(value: number, coinSystem: CurrencySystem
  * @param coinSystem The coin system to use
  * @returns An array of appropriate coin types
  */
-export function getAppropriateCoinTypes(value: number, coinSystem: CurrencySystem): CurrencyDenomination[] {
+export function getAppropriateCoinTypes(
+  value: number,
+  coinSystem: CurrencySystem,
+): CurrencyDenomination[] {
   // Filter out coins that are too valuable for the target value
   const possibleCoins = coinSystem.denominations.filter((d) => d.value <= value);
 

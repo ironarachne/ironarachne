@@ -64,6 +64,21 @@ export function applyMaterial(item: Item, material: Material): Item {
   return newItem;
 }
 
+export function filterMaterialsByTags(tags: string[], materials?: Material[]): Material[] {
+  if (!materials) {
+    materials = Object.values(MATERIALS);
+  }
+
+  return materials.filter((material) => {
+    // Check required tags
+    if (material.tagsAdded) {
+      return tags.every((tag) => material.tagsAdded!.includes(tag));
+    }
+
+    return false;
+  });
+}
+
 /**
  * Selects a random material suitable for the given item type.
  *
@@ -71,9 +86,13 @@ export function applyMaterial(item: Item, material: Material): Item {
  * @param rng The RNG instance to use
  * @returns A random material
  */
-export function getRandomMaterialForItem(item: Item, rng: RNG.RNG): Material {
+export function getRandomMaterialForItem(item: Item, rng: RNG.RNG, materials?: Material[]): Material {
+  if (!materials) {
+    materials = Object.values(MATERIALS);
+  }
+
   // Filter materials based on item type
-  const suitableMaterials = Object.values(MATERIALS).filter((material) => {
+  const suitableMaterials = materials.filter((material) => {
     if (item.allowedMaterialTypes && item.allowedMaterialTypes.length > 0) {
       return item.allowedMaterialTypes.includes(material.majorType);
     }

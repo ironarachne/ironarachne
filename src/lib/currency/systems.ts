@@ -15,9 +15,7 @@ export const STANDARD_FANTASY: CurrencySystem = {
 export const IMPERIAL_CREDITS: CurrencySystem = {
   name: 'Imperial Credits',
   description: 'A sci-fi currency system.',
-  denominations: [
-    { name: 'credit', symbol: 'cr', value: 1, weight: 0 },
-  ],
+  denominations: [{ name: 'credit', symbol: 'cr', value: 1, weight: 0 }],
 };
 
 export const HISTORICAL_BRITISH: CurrencySystem = {

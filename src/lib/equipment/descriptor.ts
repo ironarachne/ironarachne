@@ -9,14 +9,11 @@ import type { Item } from './equipment_types';
 export function generateDescription(item: Item): string {
   const parts: string[] = [];
 
-  // Start with the base description
-  // "A [name]. [Description]"
-  // But item.name is already "Flaming Sharp Iron Longsword"
-  // And item.description is "A long blade..."
-
-  // Let's try to make it flow.
-  // "This is a [name]. [Base Description]"
-  parts.push(`This is a ${item.name.toLowerCase()}.`);
+  parts.push('This is');
+  if (item.uniqueName) {
+    parts.push(` ${item.uniqueName},`);
+  }
+  parts.push(` a ${item.name.toLowerCase()}.`);
   if (item.description) {
     parts.push(item.description);
   }
@@ -35,4 +32,3 @@ export function generateDescription(item: Item): string {
 
   return parts.join(' ');
 }
-

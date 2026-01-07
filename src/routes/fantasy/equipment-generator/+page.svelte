@@ -1,10 +1,6 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
-  import {
-    type Item,
-    type Weapon,
-    type Armor
-  } from '$lib/equipment/equipment_types';
+  import { type Item, type Weapon, type Armor } from '$lib/equipment/equipment_types';
   import { generateItem, type EquipmentGenerationConfig } from '$lib/equipment/generation';
   import { kgToPounds } from '$lib/measurements';
   import { valueToString } from '$lib/currency';
@@ -41,7 +37,7 @@
       itemType: itemType as 'any' | 'weapon' | 'armor',
       useRefine,
       useEnchant,
-      useDecorate
+      useDecorate,
     };
 
     const items: Item[] = [];
@@ -87,7 +83,14 @@
 
     <div class="input-group">
       <label for="itemCount">Count</label>
-      <input type="number" name="itemCount" bind:value={itemCount} id="itemCount" min="1" max="50" />
+      <input
+        type="number"
+        name="itemCount"
+        bind:value={itemCount}
+        id="itemCount"
+        min="1"
+        max="50"
+      />
     </div>
 
     <div class="checkbox-group">
@@ -121,29 +124,29 @@
         <div class="stats">
           <span class="tag type">{item.itemMajorType}</span>
           {#if item.itemMajorType === 'weapon'}
-             {@const weapon = item as Weapon}
-             {#if displaySystem === 'dnd5e'}
-               <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
-               {#if weapon.additionalDamage}
-                 {#each weapon.additionalDamage as extra}
-                   <span class="tag damage extra">+ {extra.damage} ({extra.type})</span>
-                 {/each}
-               {/if}
-             {:else if displaySystem === 'ironarachne' && item.combatProfile}
-               <span class="tag damage">Power: {item.combatProfile.power}</span>
-             {:else}
-               <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
-             {/if}
+            {@const weapon = item as Weapon}
+            {#if displaySystem === 'dnd5e'}
+              <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
+              {#if weapon.additionalDamage}
+                {#each weapon.additionalDamage as extra}
+                  <span class="tag damage extra">+ {extra.damage} ({extra.type})</span>
+                {/each}
+              {/if}
+            {:else if displaySystem === 'ironarachne' && item.combatProfile}
+              <span class="tag damage">Power: {item.combatProfile.power}</span>
+            {:else}
+              <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
+            {/if}
           {/if}
           {#if item.itemMajorType === 'armor'}
-             {@const armor = item as Armor}
-             {#if displaySystem === 'dnd5e'}
-               <span class="tag defense">AC: {10 + armor.defense}</span>
-             {:else if displaySystem === 'ironarachne' && item.combatProfile}
-               <span class="tag defense">Defense: {item.combatProfile.defense}</span>
-             {:else}
-               <span class="tag defense">Defense: {armor.defense}</span>
-             {/if}
+            {@const armor = item as Armor}
+            {#if displaySystem === 'dnd5e'}
+              <span class="tag defense">AC: {10 + armor.defense}</span>
+            {:else if displaySystem === 'ironarachne' && item.combatProfile}
+              <span class="tag defense">Defense: {item.combatProfile.defense}</span>
+            {:else}
+              <span class="tag defense">Defense: {armor.defense}</span>
+            {/if}
           {/if}
           <span class="tag value">Value: {valueToString(item.value, EQUIPMENT_CURRENCY)}</span>
           <span class="tag weight">Weight: {kgToPounds(item.weight).toFixed(1)} lbs</span>
@@ -216,9 +219,15 @@
       border-radius: 4px;
       font-size: 0.8rem;
 
-      &.damage { color: #ff9999; }
-      &.defense { color: #9999ff; }
-      &.value { color: #ffff99; }
+      &.damage {
+        color: #ff9999;
+      }
+      &.defense {
+        color: #9999ff;
+      }
+      &.value {
+        color: #ffff99;
+      }
     }
 
     .tags {
@@ -238,9 +247,9 @@
   }
 
   .inline-label {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-weight: normal;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: normal;
   }
 </style>

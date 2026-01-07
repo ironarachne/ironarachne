@@ -30,6 +30,20 @@ export function applyDecoration(item: Item, decoration: Decoration): Item {
   return newItem;
 }
 
+export function filterDecorationsByTags(tags: string[], decorations?: Record<string, Decoration>): Decoration[] {
+  if (!decorations) {
+    decorations = DECORATIONS;
+  }
+
+  return Object.values(decorations).filter((decoration) => {
+    if (decoration.tagsAdded) {
+      return tags.every((tag) => decoration.tagsAdded!.includes(tag));
+    }
+
+    return false;
+  });
+}
+
 /**
  * Selects a random decoration suitable for the given item.
  *
@@ -37,28 +51,32 @@ export function applyDecoration(item: Item, decoration: Decoration): Item {
  * @param rng The RNG instance to use
  * @returns A random decoration or null
  */
-export function getRandomDecoration(item: Item, rng: RNG.RNG): Decoration | null {
-  const suitableDecorations = Object.values(DECORATIONS).filter((decoration) => {
+export function getRandomDecoration(item: Item, rng: RNG.RNG, decorations?: Decoration[]): Decoration | null {
+  if (!decorations) {
+    decorations = Object.values(DECORATIONS);
+  }
+
+  const suitableDecorations = decorations.filter((decoration) => {
     // Check required tags
     if (decoration.tagsRequired) {
-      const hasAllRequired = decoration.tagsRequired.every(tag => {
-          if (item.properties && item.properties.includes(tag)) return true;
-          // Also check material tags if we had them accessible, but properties should cover it if applied correctly
-          // Check item type tags
-           if (tag === 'weapon') return item.itemMajorType === 'weapon';
-           if (tag === 'armor') return item.itemMajorType === 'armor';
-          return false;
+      const hasAllRequired = decoration.tagsRequired.every((tag) => {
+        if (item.properties && item.properties.includes(tag)) return true;
+        // Also check material tags if we had them accessible, but properties should cover it if applied correctly
+        // Check item type tags
+        if (tag === 'weapon') return item.itemMajorType === 'weapon';
+        if (tag === 'armor') return item.itemMajorType === 'armor';
+        return false;
       });
       if (!hasAllRequired) return false;
     }
 
     // Check excluded tags
     if (decoration.tagsExcluded) {
-       const hasExcluded = decoration.tagsExcluded.some(tag => {
-           if (item.properties && item.properties.includes(tag)) return true;
-           return false;
-       });
-       if (hasExcluded) return false;
+      const hasExcluded = decoration.tagsExcluded.some((tag) => {
+        if (item.properties && item.properties.includes(tag)) return true;
+        return false;
+      });
+      if (hasExcluded) return false;
     }
 
     return true;

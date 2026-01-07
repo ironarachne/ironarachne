@@ -36,12 +36,12 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
       if (enchantment.statOffsets.damage) {
         const bonus = enchantment.statOffsets.damage;
         if (typeof bonus === 'number' && bonus > 0) {
-           if (weapon.damage.includes('+')) {
+          if (weapon.damage.includes('+')) {
             const parts = weapon.damage.split('+');
             const currentBonus = parseInt(parts[1], 10);
             weapon.damage = `${parts[0]}+${currentBonus + bonus}`;
           } else if (weapon.damage.includes('-')) {
-             weapon.damage = `${weapon.damage}+${bonus}`;
+            weapon.damage = `${weapon.damage}+${bonus}`;
           } else {
             weapon.damage = `${weapon.damage}+${bonus}`;
           }
@@ -66,14 +66,18 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
   }
 
   // Apply additional damage
-  if (newItem.itemMajorType === 'weapon' && enchantment.additionalDamage && enchantment.additionalDamageType) {
+  if (
+    newItem.itemMajorType === 'weapon' &&
+    enchantment.additionalDamage &&
+    enchantment.additionalDamageType
+  ) {
     const weapon = newItem as Weapon;
     if (!weapon.additionalDamage) {
       weapon.additionalDamage = [];
     }
     weapon.additionalDamage.push({
       damage: enchantment.additionalDamage,
-      type: enchantment.additionalDamageType
+      type: enchantment.additionalDamageType,
     });
 
     // Update combat profile power
@@ -92,8 +96,8 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
       // Handle multipliers like 2d6
       const match = enchantment.additionalDamage.match(/^(\d+)d/);
       if (match && match[1]) {
-          const count = parseInt(match[1], 10);
-          if (count > 1) addedPower *= count;
+        const count = parseInt(match[1], 10);
+        if (count > 1) addedPower *= count;
       }
 
       newItem.combatProfile.power += addedPower;
@@ -103,6 +107,20 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
   return newItem;
 }
 
+export function filterEnchantmentsByTags(tags: string[], enchantments?: Record<string, Enchantment>): Enchantment[] {
+  if (!enchantments) {
+    enchantments = ENCHANTMENTS;
+  }
+
+  return Object.values(enchantments).filter((enchantment) => {
+    if (enchantment.tagsAdded) {
+      return tags.every((tag) => enchantment.tagsAdded!.includes(tag));
+    }
+
+    return false;
+  });
+}
+
 /**
  * Selects a random enchantment suitable for the given item.
  *
@@ -110,38 +128,42 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
  * @param rng The RNG instance to use
  * @returns A random enchantment or null
  */
-export function getRandomEnchantment(item: Item, rng: RNG.RNG): Enchantment | null {
-  const suitableEnchantments = Object.values(ENCHANTMENTS).filter((enchantment) => {
+export function getRandomEnchantment(item: Item, rng: RNG.RNG, enchantments?: Enchantment[]): Enchantment | null {
+  if (!enchantments) {
+    enchantments = Object.values(ENCHANTMENTS);
+  }
+
+  const suitableEnchantments = enchantments.filter((enchantment) => {
     // Check required tags
     if (enchantment.tagsRequired) {
-      const hasAllRequired = enchantment.tagsRequired.every(tag => {
-          if (tag === 'weapon') return item.itemMajorType === 'weapon';
-          if (tag === 'armor') return item.itemMajorType === 'armor';
+      const hasAllRequired = enchantment.tagsRequired.every((tag) => {
+        if (tag === 'weapon') return item.itemMajorType === 'weapon';
+        if (tag === 'armor') return item.itemMajorType === 'armor';
 
-          if (item.properties && item.properties.includes(tag)) return true;
+        if (item.properties && item.properties.includes(tag)) return true;
 
-          if (item.itemMajorType === 'weapon') {
-              const weapon = item as Weapon;
-              if (weapon.damageType === tag) return true;
-          }
+        if (item.itemMajorType === 'weapon') {
+          const weapon = item as Weapon;
+          if (weapon.damageType === tag) return true;
+        }
 
-          if (item.itemMajorType === 'armor') {
-              const armor = item as Armor;
-              if (armor.armorType === tag) return true;
-          }
+        if (item.itemMajorType === 'armor') {
+          const armor = item as Armor;
+          if (armor.armorType === tag) return true;
+        }
 
-          return false;
+        return false;
       });
       if (!hasAllRequired) return false;
     }
 
     // Check excluded tags
     if (enchantment.tagsExcluded) {
-       const hasExcluded = enchantment.tagsExcluded.some(tag => {
-           if (item.properties && item.properties.includes(tag)) return true;
-           return false;
-       });
-       if (hasExcluded) return false;
+      const hasExcluded = enchantment.tagsExcluded.some((tag) => {
+        if (item.properties && item.properties.includes(tag)) return true;
+        return false;
+      });
+      if (hasExcluded) return false;
     }
 
     return true;

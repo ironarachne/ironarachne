@@ -13,6 +13,7 @@ export type Element =
   | 'aether'
   | 'life'
   | 'death'
+  | 'decay'
   | 'spirit'
   | 'mind'
   | 'time'
@@ -51,6 +52,11 @@ export type MagicSphere =
   | 'spiritual' // Affects souls/spirits
   | 'temporal' // Affects time
   | 'spatial' // Affects space
+  | 'nature' // Affects natural world
+  | 'elemental' // Affects elements
+  | 'arcane' // Affects magical energies
+  | 'divine' // Affects divine powers
+  | 'celestial' // Affects heavenly bodies
   | 'planar' // Affects dimensions
   | 'conceptual'; // Affects abstract concepts
 
@@ -69,7 +75,15 @@ export type MagicIntent =
   | 'imbue'
   | 'drain';
 
-export type MagicCostType = 'mana' | 'stamina' | 'health' | 'sanity' | 'material' | 'soul' | 'time' | 'slot';
+export type MagicCostType =
+  | 'mana'
+  | 'stamina'
+  | 'health'
+  | 'sanity'
+  | 'material'
+  | 'soul'
+  | 'time'
+  | 'slot';
 
 export type MagicCost = {
   type: MagicCostType;
@@ -77,7 +91,14 @@ export type MagicCost = {
   description?: string;
 };
 
-export type MagicComponentType = 'gesture' | 'incantation' | 'focus' | 'consumable' | 'sacrifice' | 'environment' | 'thought';
+export type MagicComponentType =
+  | 'gesture'
+  | 'incantation'
+  | 'focus'
+  | 'consumable'
+  | 'sacrifice'
+  | 'environment'
+  | 'thought';
 
 export type MagicComponent = {
   type: MagicComponentType;

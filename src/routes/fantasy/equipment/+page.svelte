@@ -8,7 +8,9 @@
 
   const DND_CURRENCY = {
     ...STANDARD_FANTASY,
-    denominations: STANDARD_FANTASY.denominations.filter((d) => d.name !== 'electrum' && d.name !== 'platinum'),
+    denominations: STANDARD_FANTASY.denominations.filter(
+      (d) => d.name !== 'electrum' && d.name !== 'platinum',
+    ),
   };
 
   function convertDNDCost(cost: number) {

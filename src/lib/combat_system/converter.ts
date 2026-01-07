@@ -104,7 +104,12 @@ export function convertPowerToDice(power: number): string {
     }
   }
 
-  const modStr = bestFit.modifier === 0 ? '' : bestFit.modifier > 0 ? `+${bestFit.modifier}` : `${bestFit.modifier}`;
+  const modStr =
+    bestFit.modifier === 0
+      ? ''
+      : bestFit.modifier > 0
+        ? `+${bestFit.modifier}`
+        : `${bestFit.modifier}`;
   return `${bestFit.count}d${bestFit.sides}${modStr}`;
 }
 

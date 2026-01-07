@@ -12,3 +12,5 @@ export * from './enchanter';
 export * from './enchantments';
 export * from './decorator';
 export * from './decorations';
+export * from './descriptor';
+export * from './generation';
