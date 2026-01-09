@@ -1,6 +1,7 @@
 import * as RNG from '@ironarachne/rng';
 import type { Armor, Item, Enchantment, Weapon } from './equipment_types';
 import { ENCHANTMENTS } from './enchantments';
+import { applyStatOffsets } from './items';
 
 /**
  * Applies an enchantment to an item, modifying its properties.
@@ -10,7 +11,7 @@ import { ENCHANTMENTS } from './enchantments';
  * @returns The modified item
  */
 export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
-  const newItem = structuredClone(item);
+  let newItem = structuredClone(item);
 
   // Update name
   newItem.name = `${enchantment.name} ${newItem.name}`;
@@ -31,77 +32,22 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
 
   // Apply stat offsets
   if (enchantment.statOffsets) {
-    if (newItem.itemMajorType === 'weapon') {
-      const weapon = newItem as Weapon;
-      if (enchantment.statOffsets.damage) {
-        const bonus = enchantment.statOffsets.damage;
-        if (typeof bonus === 'number' && bonus > 0) {
-          if (weapon.damage.includes('+')) {
-            const parts = weapon.damage.split('+');
-            const currentBonus = parseInt(parts[1], 10);
-            weapon.damage = `${parts[0]}+${currentBonus + bonus}`;
-          } else if (weapon.damage.includes('-')) {
-            weapon.damage = `${weapon.damage}+${bonus}`;
-          } else {
-            weapon.damage = `${weapon.damage}+${bonus}`;
-          }
-
-          if (newItem.combatProfile) {
-            newItem.combatProfile.power += bonus * 10;
-          }
-        }
-      }
-    } else if (newItem.itemMajorType === 'armor') {
-      const armor = newItem as Armor;
-      if (enchantment.statOffsets.defense) {
-        const defenseBonus = Number(enchantment.statOffsets.defense);
-        if (!isNaN(defenseBonus)) {
-          armor.defense += defenseBonus;
-          if (newItem.combatProfile) {
-            newItem.combatProfile.defense += defenseBonus * 3;
-          }
-        }
-      }
-    }
+    newItem = applyStatOffsets(enchantment.statOffsets, newItem);
   }
 
   // Apply additional damage
   if (
     newItem.itemMajorType === 'weapon' &&
-    enchantment.additionalDamage &&
-    enchantment.additionalDamageType
+    enchantment.bonusDamage
   ) {
     const weapon = newItem as Weapon;
-    if (!weapon.additionalDamage) {
-      weapon.additionalDamage = [];
-    }
-    weapon.additionalDamage.push({
-      damage: enchantment.additionalDamage,
-      type: enchantment.additionalDamageType,
+    weapon.actions = weapon.actions.map((action) => {
+      const newAction = structuredClone(action);
+      newAction.bonusDamage?.push(...enchantment.bonusDamage!);
+      return newAction;
     });
 
-    // Update combat profile power
-    // Estimate power from dice: 1d6 (3.5) ~= 17 power
-    // 1d4 (2.5) ~= 12
-    // 1d8 (4.5) ~= 22
-    // Let's use a rough estimator
-    if (newItem.combatProfile) {
-      let addedPower = 10;
-      if (enchantment.additionalDamage.includes('d4')) addedPower = 12;
-      if (enchantment.additionalDamage.includes('d6')) addedPower = 17;
-      if (enchantment.additionalDamage.includes('d8')) addedPower = 22;
-      if (enchantment.additionalDamage.includes('d10')) addedPower = 27;
-      if (enchantment.additionalDamage.includes('d12')) addedPower = 32;
-
-      // Handle multipliers like 2d6
-      const match = enchantment.additionalDamage.match(/^(\d+)d/);
-      if (match && match[1]) {
-        const count = parseInt(match[1], 10);
-        if (count > 1) addedPower *= count;
-      }
-
-      newItem.combatProfile.power += addedPower;
-    }
+    weapon.combatProfile.power += enchantment.magnitude;
   }
 
   return newItem;
@@ -144,12 +90,12 @@ export function getRandomEnchantment(item: Item, rng: RNG.RNG, enchantments?: En
 
         if (item.itemMajorType === 'weapon') {
           const weapon = item as Weapon;
-          if (weapon.damageType === tag) return true;
+          if (weapon.actions[0].damageType === tag) return true;
         }
 
         if (item.itemMajorType === 'armor') {
           const armor = item as Armor;
-          if (armor.armorType === tag) return true;
+          if (armor.itemMinorType === tag) return true;
         }
 
         return false;

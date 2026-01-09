@@ -1,15 +1,11 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
   import { type Item, type Weapon, type Armor } from '$lib/equipment/equipment_types';
-  import { generateItem, type EquipmentGenerationConfig } from '$lib/equipment/generation';
+  import { generateItem, getDefaultGenerationConfig } from '$lib/equipment/generation';
   import { kgToPounds } from '$lib/measurements';
   import { valueToString } from '$lib/currency';
-  import { STANDARD_FANTASY } from '$lib/currency/systems';
-
-  const EQUIPMENT_CURRENCY = {
-    ...STANDARD_FANTASY,
-    denominations: STANDARD_FANTASY.denominations.filter((d) => d.name !== 'platinum'),
-  };
+  import { COMMON_FANTASY } from '$lib/currency/systems';
+  import { convertPowerToDice, convertToDnDArmorClass } from '$lib/combat_system';
 
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -33,16 +29,15 @@
     }
     rng.setSeed(seed);
 
-    const config: EquipmentGenerationConfig = {
-      itemType: itemType as 'any' | 'weapon' | 'armor',
-      useRefine,
-      useEnchant,
-      useDecorate,
-    };
+    const config = getDefaultGenerationConfig();
+    config.itemMajorType = itemType as 'any' | 'weapon' | 'armor';
+    config.useRefine = useRefine;
+    config.useEnchant = useEnchant;
+    config.useDecorate = useDecorate;
 
     const items: Item[] = [];
     for (let i = 0; i < itemCount; i++) {
-      items.push(generateItem(config, rng));
+      items.push(generateItem(`${seed}-item-${i}`, config));
     }
     generatedItems = items;
   }
@@ -125,30 +120,26 @@
           <span class="tag type">{item.itemMajorType}</span>
           {#if item.itemMajorType === 'weapon'}
             {@const weapon = item as Weapon}
-            {#if displaySystem === 'dnd5e'}
-              <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
-              {#if weapon.additionalDamage}
-                {#each weapon.additionalDamage as extra}
-                  <span class="tag damage extra">+ {extra.damage} ({extra.type})</span>
+            {#if displaySystem === 'dnd5e' && weapon.actions && weapon.actions.length > 0}
+              <span class="tag damage">Damage: {convertPowerToDice(weapon.actions[0].baseDamage || 0)} ({weapon.actions[0].damageType})</span>
+              {#if weapon.actions[0].bonusDamage && weapon.actions[0].bonusDamage.length > 0}
+                {#each weapon.actions[0].bonusDamage as bonus}
+                  <span class="tag damage extra">+ {convertPowerToDice(bonus.power)} ({bonus.type})</span>
                 {/each}
               {/if}
-            {:else if displaySystem === 'ironarachne' && item.combatProfile}
-              <span class="tag damage">Power: {item.combatProfile.power}</span>
             {:else}
-              <span class="tag damage">Damage: {weapon.damage} ({weapon.damageType})</span>
+              <span class="tag damage">Damage: {weapon.actions[0].baseDamage || 0} ({weapon.actions[0].damageType})</span>
             {/if}
           {/if}
           {#if item.itemMajorType === 'armor'}
             {@const armor = item as Armor}
             {#if displaySystem === 'dnd5e'}
-              <span class="tag defense">AC: {10 + armor.defense}</span>
-            {:else if displaySystem === 'ironarachne' && item.combatProfile}
-              <span class="tag defense">Defense: {item.combatProfile.defense}</span>
+              <span class="tag defense">AC: {convertToDnDArmorClass(armor.combatProfile.defense)}</span>
             {:else}
-              <span class="tag defense">Defense: {armor.defense}</span>
+              <span class="tag defense">Defense: {armor.combatProfile.defense}</span>
             {/if}
           {/if}
-          <span class="tag value">Value: {valueToString(item.value, EQUIPMENT_CURRENCY)}</span>
+          <span class="tag value">Value: {valueToString(item.value, COMMON_FANTASY)}</span>
           <span class="tag weight">Weight: {kgToPounds(item.weight).toFixed(1)} lbs</span>
         </div>
         {#if item.properties && item.properties.length > 0}

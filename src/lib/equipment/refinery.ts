@@ -1,6 +1,7 @@
 import * as RNG from '@ironarachne/rng';
 import type { Armor, Item, Refinement, Weapon } from './equipment_types';
 import { REFINEMENTS } from './refinements';
+import { applyStatOffsets } from './items';
 
 /**
  * Applies a refinement to an item, modifying its properties.
@@ -10,7 +11,7 @@ import { REFINEMENTS } from './refinements';
  * @returns The modified item
  */
 export function applyRefinement(item: Item, refinement: Refinement): Item {
-  const newItem = structuredClone(item);
+  let newItem = structuredClone(item);
 
   // Update name
   newItem.name = `${refinement.name} ${newItem.name}`;
@@ -33,38 +34,7 @@ export function applyRefinement(item: Item, refinement: Refinement): Item {
 
   // Apply stat offsets
   if (refinement.statOffsets) {
-    if (newItem.itemMajorType === 'weapon') {
-      const weapon = newItem as Weapon;
-      if (refinement.statOffsets.damage) {
-        const bonus = refinement.statOffsets.damage;
-        if (typeof bonus === 'number' && bonus > 0) {
-          if (weapon.damage.includes('+')) {
-            const parts = weapon.damage.split('+');
-            const currentBonus = parseInt(parts[1], 10);
-            weapon.damage = `${parts[0]}+${currentBonus + bonus}`;
-          } else if (weapon.damage.includes('-')) {
-            weapon.damage = `${weapon.damage}+${bonus}`;
-          } else {
-            weapon.damage = `${weapon.damage}+${bonus}`;
-          }
-
-          if (newItem.combatProfile) {
-            newItem.combatProfile.power += bonus * 10;
-          }
-        }
-      }
-    } else if (newItem.itemMajorType === 'armor') {
-      const armor = newItem as Armor;
-      if (refinement.statOffsets.defense) {
-        const defenseBonus = Number(refinement.statOffsets.defense);
-        if (!isNaN(defenseBonus)) {
-          armor.defense += defenseBonus;
-          if (newItem.combatProfile) {
-            newItem.combatProfile.defense += defenseBonus * 3;
-          }
-        }
-      }
-    }
+    newItem = applyStatOffsets(refinement.statOffsets, newItem);
   }
 
   return newItem;
@@ -107,7 +77,7 @@ export function getRandomRefinement(item: Item, rng: RNG.RNG, refinements?: Refi
 
         if (item.itemMajorType === 'weapon') {
           const weapon = item as Weapon;
-          if (weapon.damageType === tag) return true;
+          if (weapon.weaponType.baseActions[0].damageType === tag) return true;
         }
 
         return false;

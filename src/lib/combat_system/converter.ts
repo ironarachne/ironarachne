@@ -33,29 +33,9 @@ export function convertToDnDModifier(stat: number): number {
  * 50 -> 10 (Unarmored commoner)
  */
 export function convertToDnDArmorClass(defense: number): number {
-  // 0 -> 10 (Unarmored)
-  // 5 -> 11 (Padded/Leather)
-  // 15 -> 13 (Chain Shirt)
-  // 40 -> 18 (Plate)
-  // 100 -> 30 (Legendary)
+  const ac = 10 + defense;
 
-  const ac = 10 + Math.floor(defense / 5);
   return Math.max(1, ac);
-}
-
-/**
- * Converts abstract Power (0-100) to average damage.
- */
-export function convertToDnDAverageDamage(power: number): number {
-  // 50 -> 4 (1d8 / Dagger+Str)
-  // 100 -> 50?
-  // Power is exponential?
-  // Let's say linear for now.
-  // 0 -> 0
-  // 50 -> 5
-  // 100 -> 20
-
-  return Math.max(1, Math.round(power / 5));
 }
 
 /**
@@ -63,14 +43,11 @@ export function convertToDnDAverageDamage(power: number): number {
  * Prioritizes multiple dice for bell curves on higher values.
  */
 export function convertPowerToDice(power: number): string {
-  const avg = convertToDnDAverageDamage(power);
-
   // For very low values, stick to single die
-  if (avg <= 3) return '1d4';
-  if (avg <= 4) return '1d6';
-  if (avg <= 5) return '1d8';
-  if (avg <= 6) return '1d10';
-  if (avg <= 7) return '2d6'; // 7 is perfect 2d6
+  if (power <= 4) return '1d4';
+  if (power <= 6) return '1d6';
+  if (power <= 8) return '1d8';
+  if (power <= 10) return '1d10';
 
   // For higher values, try to fit multiple dice
   const diceOptions = [
@@ -89,13 +66,13 @@ export function convertPowerToDice(power: number): string {
   };
 
   for (const die of diceOptions) {
-    const count = Math.max(1, Math.round(avg / die.avg));
+    const count = Math.max(1, Math.round(power / die.avg));
 
     // Penalize excessive dice counts to avoid things like 5d4
     if (count > 4) continue;
 
     const baseTotal = count * die.avg;
-    const modifier = Math.round(avg - baseTotal);
+    const modifier = Math.round(power - baseTotal);
     const diff = Math.abs(modifier);
 
     // Prefer smaller diff. Tie-break with d6 preference (index 0)
@@ -110,14 +87,16 @@ export function convertPowerToDice(power: number): string {
       : bestFit.modifier > 0
         ? `+${bestFit.modifier}`
         : `${bestFit.modifier}`;
-  return `${bestFit.count}d${bestFit.sides}${modStr}`;
+
+  const result = `${bestFit.count}d${bestFit.sides}${modStr}`;
+
+  return result;
 }
 
 export function convertToDnD5e(profile: CombatProfile) {
   return {
     ac: convertToDnDArmorClass(profile.defense),
     toHit: convertToDnDModifier(profile.attack) + 2, // Assuming proficiency +2
-    averageDamage: convertToDnDAverageDamage(profile.power),
     damageDice: convertPowerToDice(profile.power),
     hp: Math.max(1, Math.round(profile.health / 2)), // 50 health -> 25 HP?
     initiative: convertToDnDModifier(profile.speed),

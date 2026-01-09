@@ -1,17 +1,18 @@
 import type { Element, MagicSphere, MagicIntent } from '../magic';
-import type { CombatProfile } from '$lib/combat_system/types';
+import type { CombatAction, CombatProfile, Damage } from '$lib/combat_system/types';
 
 export type Armor = Item & {
-  defense: number; // e.g., AC bonus
-  armorType: ArmorCategory;
+  armorType: ArmorType;
+  combatProfile: CombatProfile;
 };
 
 export type ArmorCategory = 'light' | 'medium' | 'heavy';
 
 export type ArmorType = {
   name: string;
+  baseValue: number;
   defense: number;
-  armorType: ArmorCategory;
+  armorCategory: ArmorCategory;
   description: string;
   allowedMaterialTypes?: string[];
 };
@@ -148,27 +149,23 @@ export type Material = {
   readonly weightMultiplier: number;
   readonly valueMultiplier: number;
   readonly rarity: Rarity;
-  readonly statOffsets?: Record<string, number | string>;
+  readonly statOffsets?: Record<string, number>;
   readonly tagsAdded?: string[];
 };
 
 export type Rarity = 'common' | 'uncommon' | 'rare' | 'epic' | 'legendary';
 
 export type Weapon = Item & {
-  damage: string; // e.g., "1d8"
-  damageType: DamageType;
-  additionalDamage?: { damage: string; type: DamageType }[];
-  weaponType: 'melee' | 'ranged';
-  range?: number; // Only for ranged weapons
-  hands: number; // Number of hands required to wield
+  weaponType: WeaponType;
+  combatProfile: CombatProfile;
+  actions: CombatAction[];
 };
 
 export type WeaponType = {
   name: string;
-  damage: string;
-  damageType: DamageType;
-  weaponType: 'melee' | 'ranged';
-  range?: number;
+  rangeCategory: 'melee' | 'ranged';
+  baseValue: number;
+  baseActions: CombatAction[];
   hands: number;
   description: string;
   allowedMaterialTypes?: string[];
@@ -179,7 +176,7 @@ export type Refinement = {
   description: string;
   weightMultiplier?: number;
   valueMultiplier?: number;
-  statOffsets?: Record<string, number | string>;
+  statOffsets?: Record<string, number>;
   tagsAdded?: string[];
   tagsRequired?: string[];
   tagsExcluded?: string[];
@@ -194,9 +191,8 @@ export type Enchantment = {
   magnitude: number;
   valueMultiplier?: number;
   valueAdder?: number;
-  statOffsets?: Record<string, number | string>;
-  additionalDamage?: string;
-  additionalDamageType?: DamageType;
+  statOffsets?: Record<string, number>;
+  bonusDamage?: Damage[];
   tagsAdded?: string[];
   tagsRequired?: string[];
   tagsExcluded?: string[];

@@ -4,6 +4,8 @@
   import * as Measurements from '$lib/measurements';
   import * as RNG from '@ironarachne/rng';
   import * as Treasure from '$lib/treasure';
+  import * as Words from '@ironarachne/words';
+  import * as Currency from '$lib/currency';
   import type { Container, Item } from '$lib/equipment/equipment_types';
   import type { Gem } from '$lib/treasure';
   import { onMount } from 'svelte';
@@ -18,6 +20,8 @@
   let coinsProportion = $state(80);
   let gemsProportion = $state(15);
   let artProportion = $state(5);
+  let mundaneItemProportion = $state(20);
+  let magicItemProportion = $state(5);
   let roomWidth = $state(10);
   let roomLength = $state(10);
   let roomHeight = $state(10);
@@ -31,22 +35,6 @@
 
   function isArtObject(item: Item): boolean {
     return item.itemMinorType === 'art object';
-  }
-
-  function pluralize(word: string): string {
-    if (word.endsWith('y')) {
-      return word.slice(0, -1) + 'ies';
-    }
-    if (
-      word.endsWith('s') ||
-      word.endsWith('x') ||
-      word.endsWith('z') ||
-      word.endsWith('ch') ||
-      word.endsWith('sh')
-    ) {
-      return word + 'es';
-    }
-    return word + 's';
   }
 
   function getDisplayItems(items: Item[]) {
@@ -71,7 +59,7 @@
 
       for (const [name, data] of groups) {
         displayGems.push({
-          name: `${data.count} ${data.count > 1 ? pluralize(name) : name}`,
+          name: `${data.count} ${data.count > 1 ? Words.pluralize(name) : name}`,
           value: data.value,
         });
       }
@@ -98,34 +86,26 @@
       rng.setSeed(seed);
     }
 
-    const proportions = {
-      coins: coinsProportion,
-      gems: gemsProportion,
-      artObjects: artProportion,
-    };
+    const hoardConfig = Treasure.getDefaultTreasureHoardGeneratorConfig();
+    hoardConfig.artObjectProportion = artProportion;
+    hoardConfig.coinProportions = coinsProportion;
+    hoardConfig.gemProportion = gemsProportion;
+    hoardConfig.mundaneItemProportion = mundaneItemProportion;
+    hoardConfig.magicItemProportion = magicItemProportion;
+    hoardConfig.targetValue = treasureValue * 100; // convert to cp
 
     const containerTypes = Equipment.generateContainerTypes();
     const containerFilter: Equipment.ContainerFilter = {};
     const filteredContainerTypes = Equipment.filterContainerTypes(containerFilter, containerTypes);
 
-    hoard = Treasure.generateRandomTreasureHoard(seed, {
-      allowedContainerTypes: filteredContainerTypes,
-      artObjectProportion: artProportion,
-      coinProportions: {
-        copper: coinsProportion,
-        silver: 0,
-        electrum: 0,
-        gold: 0,
-        platinum: 0,
-      },
-      gemProportion: gemsProportion,
-      roomDimensions: {
-        width: Measurements.feetToMeters(roomWidth),
-        length: Measurements.feetToMeters(roomLength),
-        height: Measurements.feetToMeters(roomHeight),
-      },
-      targetValue: treasureValue * 100,
-    });
+    hoardConfig.allowedContainerTypes = filteredContainerTypes;
+    hoardConfig.roomDimensions = {
+      width: Measurements.feetToMeters(roomWidth),
+      length: Measurements.feetToMeters(roomLength),
+      height: Measurements.feetToMeters(roomHeight),
+    };
+
+    hoard = Treasure.generateRandomTreasureHoard(seed, hoardConfig);
 
     containers = Equipment.separateContainersFromItems(hoard).containers;
 
@@ -135,10 +115,10 @@
     const looseOthers = allLooseItems.filter((i) => !isGem(i) && !isArtObject(i));
 
     const displayLooseGems = getDisplayItems(looseGems);
-    const looseGemStrings = displayLooseGems.map((d) => `${d.name} (Value: ${d.value / 100} gp)`);
+    const looseGemStrings = displayLooseGems.map((d) => `${d.name} (Value: ${Currency.valueToString(d.value)})`);
 
     const looseArtObjectStrings = looseArtObjects.map(
-      (i) => `${i.description || i.name} (Value: ${i.value / 100} gp)`,
+      (i) => `${i.description || i.name} (Value: ${Currency.valueToString(i.value)})`,
     );
 
     const looseOtherStrings = Equipment.createCombinedDescriptions(looseOthers, true);
@@ -211,7 +191,30 @@
   </div>
 
   <div class="input-group">
-    <label for="room-width">Room Width (ft)</label>
+    <label for="mundane">Proportion of Mundane Items</label>
+    <input
+      type="number"
+      id="mundane"
+      min="0"
+      max="100"
+      bind:value={mundaneItemProportion}
+      class="monospace"
+    />
+  </div>
+
+  <div class="input-group">
+    <label for="magic">Proportion of Magic Items</label>
+    <input
+      type="number"
+      id="magic"
+      min="0"
+      max="100"
+      bind:value={magicItemProportion}
+      class="monospace"
+    />
+  </div>
+
+  <div class="input-group">    <label for="room-width">Room Width (ft)</label>
     <input type="number" id="room-width" min="1" bind:value={roomWidth} class="monospace" />
   </div>
 
@@ -241,7 +244,7 @@
           )} lbs)
           <ul>
             {#each getDisplayItems(Equipment.getContainerContents(container, hoard)) as item}
-              <li>{item.name} (Value: {item.value / 100} gp)</li>
+              <li>{item.name} (Value: {Currency.valueToString(item.value)})</li>
             {/each}
           </ul>
         </li>

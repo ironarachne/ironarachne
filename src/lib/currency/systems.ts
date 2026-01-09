@@ -12,6 +12,16 @@ export const STANDARD_FANTASY: CurrencySystem = {
   ],
 };
 
+export const COMMON_FANTASY: CurrencySystem = {
+  name: 'Common Fantasy',
+  description: 'A simplified fantasy currency system.',
+  denominations: [
+    { name: 'copper', symbol: 'cp', value: 1, weight: 0.01, rarity: 20 },
+    { name: 'silver', symbol: 'sp', value: 10, weight: 0.01, rarity: 10 },
+    { name: 'gold', symbol: 'gp', value: 100, weight: 0.01, rarity: 15 },
+  ],
+}
+
 export const IMPERIAL_CREDITS: CurrencySystem = {
   name: 'Imperial Credits',
   description: 'A sci-fi currency system.',

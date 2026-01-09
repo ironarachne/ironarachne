@@ -9,8 +9,12 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     intent: 'destroy',
     magnitude: 30,
     valueAdder: 50000,
-    additionalDamage: '1d6',
-    additionalDamageType: 'fire',
+    bonusDamage: [
+      {
+        power: 6,
+        type: 'fire'
+      }
+    ],
     tagsRequired: ['weapon'],
     tagsAdded: ['flaming', 'magical', 'fire'],
   },
@@ -22,8 +26,12 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     intent: 'destroy',
     magnitude: 30,
     valueAdder: 50000,
-    additionalDamage: '1d6',
-    additionalDamageType: 'cold',
+    bonusDamage: [
+      {
+        power: 6,
+        type: 'cold'
+      }
+    ],
     tagsRequired: ['weapon'],
     tagsAdded: ['frost', 'magical', 'winter'],
   },
@@ -35,8 +43,12 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     intent: 'destroy',
     magnitude: 35,
     valueAdder: 200000,
-    additionalDamage: '1d6',
-    additionalDamageType: 'electricity',
+    bonusDamage: [
+      {
+        power: 6,
+        type: 'lightning'
+      }
+    ],
     tagsRequired: ['weapon', 'metal'],
     tagsAdded: ['shocking', 'magical', 'lightning'],
   },
@@ -317,8 +329,12 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     intent: 'destroy',
     magnitude: 30,
     valueAdder: 50000,
-    additionalDamage: '1d6',
-    additionalDamageType: 'fire',
+    bonusDamage: [
+      {
+        power: 6,
+        type: 'fire'
+      }
+    ],
     tagsRequired: ['weapon'],
     tagsAdded: ['flaming', 'magical', 'fire'],
   },
@@ -450,8 +466,12 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     intent: 'destroy',
     magnitude: 35,
     valueAdder: 200000,
-    additionalDamage: '1d6',
-    additionalDamageType: 'electricity',
+    bonusDamage: [
+      {
+        power: 6,
+        type: 'lightning'
+      }
+    ],
     tagsRequired: ['weapon', 'metal'],
     tagsAdded: ['shocking', 'magical', 'lightning'],
   },
@@ -724,8 +744,12 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     intent: 'destroy',
     magnitude: 30,
     valueAdder: 50000,
-    additionalDamage: '1d6',
-    additionalDamageType: 'cold',
+    bonusDamage: [
+      {
+        power: 6,
+        type: 'cold'
+      }
+    ],
     tagsRequired: ['weapon'],
     tagsAdded: ['frost', 'magical', 'winter'],
   },

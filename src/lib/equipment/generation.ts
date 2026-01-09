@@ -40,37 +40,29 @@ export type EquipmentGenerationConfig = {
 };
 
 export function createBaseWeapon(type: WeaponType, rng: RNG.RNG): Weapon {
-  // Rough mapping of damage to power
-  // Power / 5 = Average Damage
-  let power = 10;
-  if (type.damage.includes('d4')) power = 12; // Avg 2.5
-  if (type.damage.includes('d6')) power = 17; // Avg 3.5
-  if (type.damage.includes('d8')) power = 22; // Avg 4.5
-  if (type.damage.includes('d10')) power = 27; // Avg 5.5
-  if (type.damage.includes('d12')) power = 32; // Avg 6.5
-  if (type.damage.includes('2d6')) power = 35; // Avg 7
+  const properties = ['weapon', type.name];
+  if (type.baseActions.length > 0 && type.baseActions[0].damageType) {
+    properties.push(type.baseActions[0].damageType);
+  }
 
   return {
     id: rng.randomString(16),
     name: type.name,
     description: type.description,
     itemMajorType: 'weapon',
-    itemMinorType: type.weaponType,
-    value: 100, // Base value, should probably be in the type definition
+    itemMinorType: type.name,
+    weaponType: type,
+    value: type.baseValue,
     rarity: 'common',
     densityCategory: 'standard',
     weight: 1, // Base weight
-    properties: ['weapon', type.damageType, type.weaponType],
-    damage: type.damage,
-    damageType: type.damageType,
-    weaponType: type.weaponType,
-    range: type.range,
-    hands: type.hands,
+    properties: properties,
     allowedMaterialTypes: type.allowedMaterialTypes,
+    actions: [...type.baseActions],
     combatProfile: {
       attack: 0,
       defense: 0,
-      power,
+      power: type.baseActions[0]?.baseDamage || 0,
       resilience: 0,
       speed: 0,
       health: 0,
@@ -79,29 +71,22 @@ export function createBaseWeapon(type: WeaponType, rng: RNG.RNG): Weapon {
 }
 
 export function createBaseArmor(type: ArmorType, rng: RNG.RNG): Armor {
-  // Rough mapping of armor type to defense
-  // 10 + Defense / 5 = AC
-  let defense = 5; // Light (AC 11)
-  if (type.armorType === 'medium') defense = 15; // Medium (AC 13)
-  if (type.armorType === 'heavy') defense = 40; // Heavy (AC 18)
-
   return {
     id: rng.randomString(16),
     name: type.name,
     description: type.description,
     itemMajorType: 'armor',
-    itemMinorType: type.armorType,
-    value: 100, // Base value
+    itemMinorType: type.name,
+    armorType: type,
+    value: type.baseValue,
     rarity: 'common',
     densityCategory: 'standard',
-    weight: 1, // Base weight
-    properties: ['armor', type.armorType],
-    defense: type.defense,
-    armorType: type.armorType,
+    weight: 5, // Base weight
+    properties: ['armor', type.name],
     allowedMaterialTypes: type.allowedMaterialTypes,
     combatProfile: {
       attack: 0,
-      defense,
+      defense: type.defense,
       power: 0,
       resilience: 0,
       speed: 0,
@@ -130,7 +115,7 @@ export function generateItem(seed: string, config: EquipmentGenerationConfig): I
 
   if (typeChoice === 'weapon') {
     if (config.itemMinorType) {
-      const filteredTypes = weaponTypes.filter((t) => t.weaponType === config.itemMinorType);
+      const filteredTypes = weaponTypes.filter((t) => t.name === config.itemMinorType);
       const type = rng.item(filteredTypes);
       baseItem = createBaseWeapon(type, rng);
     } else {
@@ -139,7 +124,7 @@ export function generateItem(seed: string, config: EquipmentGenerationConfig): I
     }
   } else {
     if (config.itemMinorType) {
-      const filteredTypes = armorTypes.filter((t) => t.armorType === config.itemMinorType);
+      const filteredTypes = armorTypes.filter((t) => t.name === config.itemMinorType);
       const type = rng.item(filteredTypes);
       baseItem = createBaseArmor(type, rng);
     } else {

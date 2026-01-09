@@ -1,3 +1,4 @@
+import * as Words from "@ironarachne/words";
 import type { Item } from './equipment_types';
 
 /**
@@ -13,7 +14,7 @@ export function generateDescription(item: Item): string {
   if (item.uniqueName) {
     parts.push(` ${item.uniqueName},`);
   }
-  parts.push(` a ${item.name.toLowerCase()}.`);
+  parts.push(` ${Words.article(item.name)} ${item.name.toLowerCase()}.`);
   if (item.description) {
     parts.push(item.description);
   }

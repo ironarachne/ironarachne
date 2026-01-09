@@ -1,6 +1,7 @@
 import * as RNG from '@ironarachne/rng';
 import type { Armor, Item, Material, Weapon } from './equipment_types';
 import { MATERIALS } from './materials';
+import { applyStatOffsets } from './items';
 
 /**
  * Applies a material to an item, modifying its properties.
@@ -10,7 +11,7 @@ import { MATERIALS } from './materials';
  * @returns The modified item
  */
 export function applyMaterial(item: Item, material: Material): Item {
-  const newItem = structuredClone(item);
+  let newItem = structuredClone(item);
 
   newItem.name = `${material.name} ${item.name}`;
   newItem.material = material;
@@ -23,42 +24,7 @@ export function applyMaterial(item: Item, material: Material): Item {
   }
 
   if (material.statOffsets) {
-    if (newItem.itemMajorType === 'weapon') {
-      const weapon = newItem as Weapon;
-      if (material.statOffsets.damage) {
-        // Handle damage offset
-        // For now, we'll just append the bonus if it's a number and positive
-        // This is a simplification and might need a proper dice parser later
-        const bonus = material.statOffsets.damage;
-        if (typeof bonus === 'number' && bonus > 0) {
-          if (weapon.damage.includes('+')) {
-            const parts = weapon.damage.split('+');
-            const currentBonus = parseInt(parts[1], 10);
-            weapon.damage = `${parts[0]}+${currentBonus + bonus}`;
-          } else if (weapon.damage.includes('-')) {
-            // Handle negative modifiers if necessary, but for now assume simple case
-            weapon.damage = `${weapon.damage}+${bonus}`;
-          } else {
-            weapon.damage = `${weapon.damage}+${bonus}`;
-          }
-
-          if (newItem.combatProfile) {
-            newItem.combatProfile.power += bonus * 10;
-          }
-        }
-      }
-    } else if (newItem.itemMajorType === 'armor') {
-      const armor = newItem as Armor;
-      if (material.statOffsets.ac) {
-        const acBonus = Number(material.statOffsets.ac);
-        if (!isNaN(acBonus)) {
-          armor.defense += acBonus;
-          if (newItem.combatProfile) {
-            newItem.combatProfile.defense += acBonus * 3;
-          }
-        }
-      }
-    }
+    newItem = applyStatOffsets(material.statOffsets, newItem);
   }
 
   return newItem;
@@ -97,21 +63,26 @@ export function getRandomMaterialForItem(item: Item, rng: RNG.RNG, materials?: M
       return item.allowedMaterialTypes.includes(material.majorType);
     }
 
+    // If allowedMaterialTypes is not empty, check minorType as well
+    if (item.allowedMaterialTypes && item.allowedMaterialTypes.length > 0 && material.minorType) {
+      return item.allowedMaterialTypes.includes(material.minorType);
+    }
+
     // Fallback logic if allowedMaterialTypes is not defined
     if (item.itemMajorType === 'weapon') {
       // Weapons are typically metal or wood
       return material.majorType === 'metal' || material.majorType === 'wood';
     } else if (item.itemMajorType === 'armor') {
       const armor = item as Armor;
-      if (armor.armorType === 'light') {
+      if (armor.itemMinorType === 'light') {
         return material.majorType === 'leather' || material.majorType === 'cloth';
-      } else if (armor.armorType === 'medium') {
+      } else if (armor.itemMinorType === 'medium') {
         return (
           material.majorType === 'metal' ||
           material.majorType === 'leather' ||
           material.majorType === 'hide'
         );
-      } else if (armor.armorType === 'heavy') {
+      } else if (armor.itemMinorType === 'heavy') {
         return material.majorType === 'metal';
       }
     }

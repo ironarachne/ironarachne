@@ -5,150 +5,283 @@ import { applyMaterial, getRandomMaterialForItem } from './foundry';
 export const weaponTypes: WeaponType[] = [
   {
     name: 'battleaxe',
-    damage: '1d8',
-    damageType: 'slashing',
-    weaponType: 'melee',
+    baseValue: 100,
+    rangeCategory: 'melee',
     hands: 1,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'slashing',
+        baseDamage: 8
+      }
+    ],
     description: 'A hefty axe meant for chopping through armor and shields.',
     allowedMaterialTypes: ['metal', 'stone'],
   },
   {
     name: 'club',
-    damage: '1d4',
-    damageType: 'bludgeoning',
-    weaponType: 'melee',
+    baseValue: 10,
+    rangeCategory: 'melee',
     hands: 1,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'slashing',
+        baseDamage: 4
+      }
+    ],
     description: 'A simple wooden club, effective for close combat.',
     allowedMaterialTypes: ['wood', 'stone', 'bone'],
   },
   {
     name: 'crossbow',
-    damage: '1d10',
-    damageType: 'piercing',
-    weaponType: 'ranged',
-    range: 100,
+    baseValue: 2500,
+    rangeCategory: 'ranged',
     hands: 2,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'ranged',
+        damageType: 'piercing',
+        baseDamage: 10,
+        range: 100
+      }
+    ],
     description: 'A ranged weapon that fires bolts with great force.',
     allowedMaterialTypes: ['wood', 'metal'],
   },
   {
     name: 'dagger',
-    damage: '1d4',
-    damageType: 'piercing',
-    weaponType: 'melee',
+    baseValue: 200,
+    rangeCategory: 'melee',
     hands: 1,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'slashing',
+        baseDamage: 4
+      }
+    ],
     description: 'A small, easily concealable blade.',
     allowedMaterialTypes: ['metal', 'stone', 'bone'],
   },
   {
     name: 'greatsword',
-    damage: '2d6',
-    damageType: 'slashing',
-    weaponType: 'melee',
+    baseValue: 5000,
+    rangeCategory: 'melee',
     hands: 2,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'slashing',
+        baseDamage: 12
+      }
+    ],
     description: 'A massive sword that requires two hands to wield effectively.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'halberd',
-    damage: '1d10',
-    damageType: 'slashing',
-    weaponType: 'melee',
+    baseValue: 2000,
+    rangeCategory: 'melee',
     hands: 2,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'slashing',
+        baseDamage: 10
+      }
+    ],
     description: 'A pole weapon with an axe blade topped with a spike.',
     allowedMaterialTypes: ['metal'],
   },
   {
     name: 'longbow',
-    damage: '1d8',
-    damageType: 'piercing',
-    weaponType: 'ranged',
-    range: 150,
+    baseValue: 5000,
+    rangeCategory: 'ranged',
     hands: 2,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'ranged',
+        damageType: 'piercing',
+        baseDamage: 10,
+        range: 150
+      }
+    ],
     description: 'A powerful ranged weapon favored by archers.',
     allowedMaterialTypes: ['wood'],
   },
   {
     name: 'longsword',
-    damage: '1d8',
-    damageType: 'slashing',
-    weaponType: 'melee',
+    baseValue: 1500,
+    rangeCategory: 'melee',
     hands: 1,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'slashing',
+        baseDamage: 8
+      }
+    ],
     description: 'A versatile melee weapon.',
     allowedMaterialTypes: ['metal', 'stone', 'bone'],
   },
   {
     name: 'mace',
-    damage: '1d6',
-    damageType: 'bludgeoning',
-    weaponType: 'melee',
+    baseValue: 500,
+    rangeCategory: 'melee',
     hands: 1,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'bludgeoning',
+        baseDamage: 6
+      }
+    ],
     description: 'A blunt weapon designed to deliver powerful strikes.',
-    allowedMaterialTypes: ['metal', 'stone', 'wood', 'bone'],
+    allowedMaterialTypes: ['metal', 'stone', 'hardwood', 'bone'],
   },
   {
     name: 'quarterstaff',
-    damage: '1d6',
-    damageType: 'bludgeoning',
-    weaponType: 'melee',
+    baseValue: 20,
+    rangeCategory: 'melee',
     hands: 2,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'bludgeoning',
+        baseDamage: 6
+      }
+    ],
     description: 'A simple wooden staff used for defense and offense.',
     allowedMaterialTypes: ['wood'],
   },
   {
     name: 'shortbow',
-    damage: '1d6',
-    damageType: 'piercing',
-    weaponType: 'ranged',
-    range: 80,
+    baseValue: 2500,
+    rangeCategory: 'ranged',
     hands: 2,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'ranged',
+        damageType: 'piercing',
+        baseDamage: 6,
+        range: 80
+      }
+    ],
     description: 'A ranged weapon for attacking from a distance.',
     allowedMaterialTypes: ['wood'],
   },
   {
     name: 'shortsword',
-    damage: '1d6',
-    damageType: 'slashing',
-    weaponType: 'melee',
+    baseValue: 1000,
+    rangeCategory: 'melee',
     hands: 1,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'slashing',
+        baseDamage: 6
+      }
+    ],
     description: 'A light melee weapon, easy to handle.',
     allowedMaterialTypes: ['metal', 'stone', 'bone'],
   },
   {
     name: 'spear',
-    damage: '1d6',
-    damageType: 'piercing',
-    weaponType: 'melee',
+    baseValue: 100,
+    rangeCategory: 'melee',
     hands: 1,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'piercing',
+        baseDamage: 6
+      }
+    ],
     description: 'A pole weapon that can be thrown or used in melee combat.',
     allowedMaterialTypes: ['wood', 'metal', 'stone', 'bone'],
   },
   {
     name: 'warhammer',
-    damage: '1d8',
-    damageType: 'bludgeoning',
-    weaponType: 'melee',
+    baseValue: 1500,
+    rangeCategory: 'melee',
     hands: 1,
+    baseActions: [
+      {
+        name: 'basic attack',
+        description: 'a basic strike',
+        type: 'attack',
+        attackType: 'melee',
+        damageType: 'bludgeoning',
+        baseDamage: 8
+      }
+    ],
     description: 'A heavy melee weapon that deals bludgeoning damage.',
     allowedMaterialTypes: ['metal', 'stone'],
   },
 ];
 
 export function createWeapon(id: string, type: WeaponType, name?: string): Weapon {
+  const combatProfile = {
+    attack: 0,
+    defense: 0,
+    power: type.baseActions[0]?.baseDamage || 0,
+    resilience: 0,
+    speed: 0,
+    health: 0,
+  };
+
   return {
     id,
     name: name || type.name,
     description: type.description,
-    value: getValueOfWeaponType(type),
+    value: type.baseValue,
     rarity: 'common',
     itemMajorType: 'weapon',
-    itemMinorType: type.weaponType,
+    itemMinorType: type.rangeCategory,
     properties: [],
-    damage: type.damage,
-    damageType: type.damageType,
-    weaponType: type.weaponType,
-    range: type.range,
-    hands: type.hands,
+    combatProfile,
+    actions: type.baseActions,
+    weaponType: type,
     densityCategory: 'dense',
     weight: type.hands === 2 ? 5 : 3,
   };
@@ -163,15 +296,4 @@ export function generateWeapon(seed: string): Weapon {
   const foundryWeapon = applyMaterial(baseWeapon, material) as Weapon;
 
   return foundryWeapon;
-}
-
-export function getValueOfWeaponType(type: WeaponType): number {
-  // Simple valuation based on weapon type, hands, and damage
-  const baseValue = 10;
-  const damageParts = type.damage.split('d');
-  const handsMultiplier = type.hands === 2 ? 1.5 : 1;
-  const averageDamage = Math.floor(
-    (Number.parseInt(damageParts[0], 10) * (Number.parseInt(damageParts[1], 10) + 1)) / 2,
-  );
-  return baseValue + averageDamage * 2 * handsMultiplier;
 }

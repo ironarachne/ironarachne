@@ -13,7 +13,7 @@ describe('treasure_hoard', () => {
         targetValue,
         artObjectProportion: 1,
         gemProportion: 1,
-        coinProportions: { gold: 1 },
+        coinProportions: 1,
         allowedContainerTypes: cheapContainerTypes,
       };
 
@@ -40,7 +40,7 @@ describe('treasure_hoard', () => {
         targetValue: 1000,
         artObjectProportion: 0,
         gemProportion: 0,
-        coinProportions: { gold: 1 },
+        coinProportions: 1,
         allowedContainerTypes: baseContainerTypes,
       };
 
@@ -60,7 +60,7 @@ describe('treasure_hoard', () => {
         targetValue: 5000, // High enough to afford art
         artObjectProportion: 1,
         gemProportion: 0,
-        coinProportions: {}, // No coins
+        coinProportions: 0, // No coins
         allowedContainerTypes: baseContainerTypes,
       };
 
@@ -80,7 +80,7 @@ describe('treasure_hoard', () => {
         targetValue: 1000,
         artObjectProportion: 0,
         gemProportion: 1,
-        coinProportions: {}, // No coins
+        coinProportions: 0, // No coins
         allowedContainerTypes: baseContainerTypes,
       };
 
@@ -100,7 +100,7 @@ describe('treasure_hoard', () => {
         targetValue: 10000,
         artObjectProportion: 0,
         gemProportion: 1, // Mostly gems
-        coinProportions: {},
+        coinProportions: 0,
         allowedContainerTypes: baseContainerTypes,
       };
 
@@ -127,7 +127,7 @@ describe('treasure_hoard', () => {
         targetValue: 10000,
         artObjectProportion: 1, // Mostly art
         gemProportion: 0,
-        coinProportions: {},
+        coinProportions: 0,
         allowedContainerTypes: baseContainerTypes,
       };
 
@@ -144,10 +144,10 @@ describe('treasure_hoard', () => {
 
     it('should generate multiple containers for large hoards', () => {
       const config = {
-        targetValue: 50000, // Large value to ensure volume
+        targetValue: 5000000, // Large value to ensure volume
         artObjectProportion: 0,
         gemProportion: 0,
-        coinProportions: { copper: 1 }, // Copper is heavy/bulky
+        coinProportions: 1, // Copper is heavy/bulky
         allowedContainerTypes: baseContainerTypes,
       };
 
@@ -158,13 +158,51 @@ describe('treasure_hoard', () => {
       expect(containers.length).toBeGreaterThan(1);
     });
 
+    it('should generate mundane items when proportions dictate', () => {
+      const config = {
+        targetValue: 5000,
+        artObjectProportion: 0,
+        gemProportion: 0,
+        coinProportions: 0,
+        mundaneItemProportion: 1,
+        magicItemProportion: 0,
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed-items', config);
+
+      const items = hoard.filter((i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor');
+
+      expect(items.length).toBeGreaterThan(0);
+      expect(items.some((i: any) => i.enchantment)).toBe(false);
+    });
+
+    it('should generate magic items when proportions dictate', () => {
+      const config = {
+        targetValue: 50000,
+        artObjectProportion: 0,
+        gemProportion: 0,
+        coinProportions: 0,
+        mundaneItemProportion: 0,
+        magicItemProportion: 1,
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed-items-magic', config);
+
+      const items = hoard.filter((i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor');
+
+      expect(items.length).toBeGreaterThan(0);
+      expect(items.some((i: any) => i.enchantment)).toBe(true);
+    });
+
     it('should not pack large art objects into small containers', () => {
       const smallContainerTypes = baseContainerTypes.filter((ct) => ct.defaultVolume < 1); // Very small containers
       const config = {
         targetValue: 5000,
         artObjectProportion: 1,
         gemProportion: 0,
-        coinProportions: {},
+        coinProportions: 0,
         allowedContainerTypes: smallContainerTypes,
       };
 

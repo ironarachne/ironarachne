@@ -14,8 +14,24 @@ export function valueToString(
   value: number,
   system: CurrencySystem = STANDARD_FANTASY,
   exact: boolean = true,
+  excludedDenominations?: string[],
 ): string {
-  const amounts = valueToAmounts(value, system);
+  let amounts;
+
+  if (excludedDenominations && excludedDenominations.length > 0) {
+    // Create a filtered currency system
+    const filteredSystem: CurrencySystem = {
+      ...system,
+      denominations: system.denominations.filter(
+        (denom) => !excludedDenominations.includes(denom.name),
+      ),
+    };
+
+    amounts = valueToAmounts(value, filteredSystem);
+  } else {
+    amounts = valueToAmounts(value, system);
+  }
+
   const formatter = new Intl.NumberFormat();
 
   if (!exact && amounts.length > 0) {

@@ -9,6 +9,8 @@ import {
   type ContainerGeneratorConfig,
   type ContainerType,
   type Item,
+  getDefaultGenerationConfig,
+  generateItem,
 } from '$lib/equipment';
 import { getArtObjectsForValue, getRandomArtObjectsForValue } from './art_objects';
 import {
@@ -25,7 +27,8 @@ import {
 } from './coins';
 import { getGemsForValue, getRandomGemsForValue } from './gems';
 import type { TreasureHoardGeneratorConfig } from './treasure_types';
-import type { CoinGenerationConfig, CoinSystem, PileOfCoins } from './coins';
+import type { CoinGenerationConfig, PileOfCoins } from './coins';
+import type { CurrencySystem } from '../currency';
 import type { Gem } from './gems';
 import { RNG } from '@ironarachne/rng';
 
@@ -40,14 +43,15 @@ export function generateRandomTreasureHoard(
   const targetValue = config.targetValue;
 
   const proportions = {
-    coins: config.coinProportions
-      ? Object.values(config.coinProportions).reduce((sum, val) => sum + val, 0)
-      : 1,
+    coins: config.coinProportions,
     artObjects: config.artObjectProportion,
     gems: config.gemProportion,
+    mundaneItems: config.mundaneItemProportion,
+    magicItems: config.magicItemProportion,
   };
 
-  const { coinsValue, artObjectsValue, gemsValue } = calculateHoardValues(targetValue, proportions);
+  const { coinsValue, artObjectsValue, gemsValue, mundaneItemsValue, magicItemsValue } =
+    calculateHoardValues(targetValue, proportions);
 
   const coinGeneratorConfig = getDefaultCoinGenerationConfig();
   coinGeneratorConfig.maxValue = coinsValue;
@@ -59,12 +63,38 @@ export function generateRandomTreasureHoard(
   const artObjects = getRandomArtObjectsForValue(rng.randomString(13), artObjectsValue);
   const gems = getRandomGemsForValue(rng.randomString(13), gemsValue);
 
+  const mundaneItemGeneratorConfig = getDefaultGenerationConfig();
+  mundaneItemGeneratorConfig.enchantmentChance = 0;
+  mundaneItemGeneratorConfig.useEnchant = false;
+  const mundaneItems = getRandomItemsForValue(
+    rng.randomString(13),
+    mundaneItemsValue,
+    mundaneItemGeneratorConfig,
+  );
+
+  const magicItemGeneratorConfig = getDefaultGenerationConfig();
+  magicItemGeneratorConfig.enchantmentChance = 100;
+  magicItemGeneratorConfig.useUniqueNames = true;
+  const magicItems = getRandomItemsForValue(
+    rng.randomString(13),
+    magicItemsValue,
+    magicItemGeneratorConfig,
+  );
+
+  const items = [...mundaneItems, ...magicItems];
+
   const roomVolume = roomDimensions
     ? roomDimensions.width * roomDimensions.height * roomDimensions.length * 1000
     : undefined;
   const availableVolumeForContainers = roomVolume;
 
-  const containerCapacityNeeded = calculateCapacityNeeded(pilesOfCoins, gems, artObjects, rng);
+  const containerCapacityNeeded = calculateCapacityNeeded(
+    pilesOfCoins,
+    gems,
+    artObjects,
+    items,
+    rng,
+  );
   const containerGeneratorConfig = getDefaultContainerGeneratorConfig();
   containerGeneratorConfig.allowedContainerTypes = containerTypes;
   const containers = generateRandomContainersForCapacity(
@@ -84,7 +114,25 @@ export function generateRandomTreasureHoard(
     rng,
   );
 
-  return [...filledContainers, ...containedCoins, ...looseCoins, ...artObjects, ...gems];
+  return [
+    ...filledContainers,
+    ...containedCoins,
+    ...looseCoins,
+    ...artObjects,
+    ...gems,
+    ...items,
+  ];
+}
+
+export function getDefaultTreasureHoardGeneratorConfig(): TreasureHoardGeneratorConfig {
+  return {
+    artObjectProportion: 5,
+    coinProportions: 80,
+    gemProportion: 15,
+    mundaneItemProportion: 50,
+    magicItemProportion: 10,
+    targetValue: 200,
+  };
 }
 
 /**
@@ -136,17 +184,34 @@ export function getTreasureHoardForValue(
 
 function calculateHoardValues(
   value: number,
-  proportions: { coins: number; artObjects: number; gems: number },
+  proportions: {
+    coins: number;
+    artObjects: number;
+    gems: number;
+    mundaneItems?: number;
+    magicItems?: number;
+  },
 ) {
-  const totalProportion = proportions.coins + proportions.artObjects + proportions.gems;
+  const mundaneItemsProportion = proportions.mundaneItems ?? 0;
+  const magicItemsProportion = proportions.magicItems ?? 0;
+  const totalProportion =
+    proportions.coins +
+    proportions.artObjects +
+    proportions.gems +
+    mundaneItemsProportion +
+    magicItemsProportion;
+
   const coinsValue = Math.floor((proportions.coins / totalProportion) * value);
   const artObjectsValue = Math.floor((proportions.artObjects / totalProportion) * value);
-  const gemsValue = value - coinsValue - artObjectsValue;
+  const mundaneItemsValue = Math.floor((mundaneItemsProportion / totalProportion) * value);
+  const magicItemsValue = Math.floor((magicItemsProportion / totalProportion) * value);
+  const gemsValue =
+    value - coinsValue - artObjectsValue - mundaneItemsValue - magicItemsValue;
 
-  return { coinsValue, artObjectsValue, gemsValue };
+  return { coinsValue, artObjectsValue, gemsValue, mundaneItemsValue, magicItemsValue };
 }
 
-function generateCoinPiles(value: number, coinSystem: CoinSystem): PileOfCoins[] {
+function generateCoinPiles(value: number, coinSystem: CurrencySystem): PileOfCoins[] {
   if (value <= 0) return [];
   const highestDenomination = getMaxCoinTypeForValue(value, coinSystem);
   const denominationProportions = getDenominationProportionsUpToDenomination(
@@ -198,21 +263,24 @@ function calculateCapacityNeeded(
   coins: PileOfCoins[],
   gems: Gem[],
   artObjects: Item[],
+  items: Item[] = [],
   rng?: RNG,
 ): { weight: number; volume: number } {
   const coinsWeight = coins.reduce((sum, pile) => sum + pile.weight, 0);
   const gemsWeight = gems.reduce((sum, gem) => sum + gem.weight, 0);
   const artWeight = artObjects.reduce((sum, art) => sum + art.weight, 0);
+  const itemsWeight = items.reduce((sum, item) => sum + item.weight, 0);
 
   const coinsVolume = coins.reduce((sum, pile) => sum + getVolume(pile), 0);
   const gemsVolume = gems.reduce((sum, gem) => sum + getVolume(gem), 0);
   const artVolume = artObjects.reduce((sum, art) => sum + getVolume(art), 0);
+  const itemsVolume = items.reduce((sum, item) => sum + getVolume(item), 0);
 
   // Target random capacity utilization between 10% and 50%
   const utilization = rng ? rng.float(0.1, 0.5) : 0.25;
   return {
-    weight: (coinsWeight + gemsWeight + artWeight) / utilization,
-    volume: (coinsVolume + gemsVolume + artVolume) / utilization,
+    weight: (coinsWeight + gemsWeight + artWeight + itemsWeight) / utilization,
+    volume: (coinsVolume + gemsVolume + artVolume + itemsVolume) / utilization,
   };
 }
 
@@ -355,7 +423,7 @@ function selectContainersForCapacity(
 function packCoins(
   piles: PileOfCoins[],
   containers: Container[],
-  coinSystem: CoinSystem,
+  coinSystem: CurrencySystem,
   rng?: RNG,
 ) {
   let currentContainers = containers;
@@ -412,4 +480,27 @@ function packArtObjects(artObjects: Item[], containers: Container[], rng?: RNG) 
       }
     }
   }
+}
+
+function getRandomItemsForValue(
+  seed: string,
+  targetValue: number,
+  config = getDefaultGenerationConfig(),
+): Item[] {
+  const rng = new RNG(seed);
+  const items: Item[] = [];
+  let currentItemsValue = 0;
+  let attempts = 0;
+  const maxAttempts = 100;
+
+  while (currentItemsValue < targetValue && attempts < maxAttempts) {
+    const item = generateItem(rng.randomString(13), config);
+    if (currentItemsValue + item.value <= targetValue * 1.1) {
+      items.push(item);
+      currentItemsValue += item.value;
+    }
+    attempts++;
+  }
+
+  return items;
 }
