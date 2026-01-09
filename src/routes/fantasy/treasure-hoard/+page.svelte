@@ -115,10 +115,10 @@
     const looseOthers = allLooseItems.filter((i) => !isGem(i) && !isArtObject(i));
 
     const displayLooseGems = getDisplayItems(looseGems);
-    const looseGemStrings = displayLooseGems.map((d) => `${d.name} (Value: ${Currency.valueToString(d.value)})`);
+    const looseGemStrings = displayLooseGems.map((d) => `${d.name} (Value: ${Currency.valueToString(d.value, Currency.COMMON_FANTASY)})`);
 
     const looseArtObjectStrings = looseArtObjects.map(
-      (i) => `${i.description || i.name} (Value: ${Currency.valueToString(i.value)})`,
+      (i) => `${i.description || i.name} (Value: ${Currency.valueToString(i.value, Currency.COMMON_FANTASY)})`,
     );
 
     const looseOtherStrings = Equipment.createCombinedDescriptions(looseOthers, true);
