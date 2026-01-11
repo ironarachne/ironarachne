@@ -1,3 +1,5 @@
+import type { TaggedItem } from "$lib/tags/tag_types";
+
 export type Element =
   | 'fire'
   | 'water'
@@ -56,6 +58,8 @@ export type MagicSphere =
   | 'elemental' // Affects elements
   | 'arcane' // Affects magical energies
   | 'divine' // Affects divine powers
+  | 'psionic' // Affects psychic powers
+  | 'infernal' // Affects underworld/hellish forces
   | 'celestial' // Affects heavenly bodies
   | 'planar' // Affects dimensions
   | 'conceptual'; // Affects abstract concepts
@@ -142,7 +146,7 @@ export type AreaOfEffect = {
   description?: string;
 };
 
-export type Spell = {
+export type Spell = TaggedItem & {
   id: string;
   name: string;
   description: string;
@@ -157,5 +161,15 @@ export type Spell = {
   duration: Duration;
   range: Range;
   area?: AreaOfEffect;
-  tags: string[];
 };
+
+export type CasterProfile = {
+  allowedSpheres?: MagicSphere[]; // safe list of spheres the caster can use
+  allowedElements?: Element[]; // safe list of elements the caster can use
+  allowedIntents?: MagicIntent[]; // safe list of intents the caster can use
+  prohibitedSpheres?: MagicSphere[]; // ban list of spheres the caster cannot use
+  prohibitedElements?: Element[]; // ban list of elements the caster cannot use
+  prohibitedIntents?: MagicIntent[]; // ban list of intents the caster cannot use
+  maxMagnitude: number;
+  maxDifficulty: number;
+}

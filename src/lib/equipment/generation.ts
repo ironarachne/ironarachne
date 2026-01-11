@@ -201,3 +201,21 @@ export function getDefaultGenerationConfig(): EquipmentGenerationConfig {
     decorations,
   };
 }
+
+export function getArmorGenerationConfig(minorType?: string): EquipmentGenerationConfig {
+  const config = getDefaultGenerationConfig();
+  config.itemMajorType = 'armor';
+  if (minorType) {
+    config.itemMinorType = minorType;
+  }
+  return config;
+}
+
+export function getWeaponGenerationConfig(minorType?: string): EquipmentGenerationConfig {
+  const config = getDefaultGenerationConfig();
+  config.itemMajorType = 'weapon';
+  if (minorType) {
+    config.itemMinorType = minorType;
+  }
+  return config;
+}

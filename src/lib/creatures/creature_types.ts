@@ -1,20 +1,25 @@
-import type Ability from '$lib/abilities/ability';
+import type { Ability } from '$lib/abilities';
 import type AgeCategory from '$lib/age/age_category.js';
-import type Item from '$lib/equipment/item.js';
+import type { Item } from '$lib/equipment';
 import type Gender from '$lib/gender/gender';
+import type { Mob } from '$lib/mobs';
 import type PhysicalTrait from '$lib/physical_traits/physical_trait.js';
 import type Species from '$lib/species/species.js';
-import type StatBlock from '$lib/statblock';
+import type { TaggedItem } from '$lib/tags/tag_types';
 
-export default interface Creature {
+export type CreatureGenerationConfig = {
+  speciesOptions: Species[];
+  ageCategoryNames: string[];
+  genderNames: string[];
+}
+
+export type Creature = Mob & TaggedItem & {
   name: string;
   description: string;
-  summary: string;
-  statBlock: StatBlock | null;
+  shortDescription: string;
   species: Species;
   abilities: Ability[];
   behaviors: string[];
-  threatLevel: number;
   physicalTraits: PhysicalTrait[];
   gender: Gender;
   height: number;
@@ -23,6 +28,5 @@ export default interface Creature {
   age: number;
   ageCategory: AgeCategory;
   carried: Item[];
-  tags: string[];
   creatureTypes: string[];
 }
