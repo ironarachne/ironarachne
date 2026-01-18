@@ -28,6 +28,23 @@
   let femaleNameGen: NameGenerator = nameGeneratorSet.female;
   let maleNameGen: NameGenerator = nameGeneratorSet.male;
   let lastNameTradition = $state('male');
+
+  // Config State
+  let minMembersPerGeneration = $state(2);
+  let maxMembersPerGeneration = $state(5);
+  let allowAdoption = $state(false);
+  let adoptionChance = $state(0.0);
+  let allowIllegitimateChildren = $state(false);
+  let illegitimateChildChance = $state(0.0);
+  let allowMultipleMarriages = $state(false);
+  let multipleMarriageChance = $state(0.0);
+  let allowSameGenderMarriage = $state(false);
+  let sameGenderMarriageChance = $state(0.0);
+  let allowCrossSpeciesMarriages = $state(false);
+  let crossSpeciesMarriageChance = $state(0.0);
+  let infantMortalityChance = $state(0.01);
+  let fertilityChance = $state(0.8);
+
   let config = Families.getDefaultFamilyGenerationConfig(seed + "-family");
   config.speciesOptions = [species];
   config.generations = iterations;
@@ -35,6 +52,20 @@
   config.femaleNameGenerator = femaleNameGen;
   config.maleNameGenerator = maleNameGen;
   config.dominantGender = getDominantGender().name;
+  config.minMembersPerGeneration = minMembersPerGeneration;
+  config.maxMembersPerGeneration = maxMembersPerGeneration;
+  config.allowAdoption = allowAdoption;
+  config.adoptionChance = adoptionChance;
+  config.allowIllegitimateChildren = allowIllegitimateChildren;
+  config.illegitimateChildChance = illegitimateChildChance;
+  config.allowMultipleMarriages = allowMultipleMarriages;
+  config.multipleMarriageChance = multipleMarriageChance;
+  config.allowSameGenderMarriage = allowSameGenderMarriage;
+  config.sameGenderMarriageChance = sameGenderMarriageChance;
+  config.allowCrossSpeciesMarriages = allowCrossSpeciesMarriages;
+  config.crossSpeciesMarriageChance = crossSpeciesMarriageChance;
+  config.infantMortalityChance = infantMortalityChance;
+  config.fertilityChance = fertilityChance;
 
   let family = $state(Families.generateFamilyGeneration(seed, config, Families.generateNewFamily(seed, config)));
   let familyTreeSVG = $state(Families.getFamilyTreeSVG(family));
@@ -62,6 +93,20 @@
     config.femaleNameGenerator = femaleNameGen;
     config.maleNameGenerator = maleNameGen;
     config.dominantGender = getDominantGender().name;
+    config.minMembersPerGeneration = minMembersPerGeneration;
+    config.maxMembersPerGeneration = maxMembersPerGeneration;
+    config.allowAdoption = allowAdoption;
+    config.adoptionChance = adoptionChance;
+    config.allowIllegitimateChildren = allowIllegitimateChildren;
+    config.illegitimateChildChance = illegitimateChildChance;
+    config.allowMultipleMarriages = allowMultipleMarriages;
+    config.multipleMarriageChance = multipleMarriageChance;
+    config.allowSameGenderMarriage = allowSameGenderMarriage;
+    config.sameGenderMarriageChance = sameGenderMarriageChance;
+    config.allowCrossSpeciesMarriages = allowCrossSpeciesMarriages;
+    config.crossSpeciesMarriageChance = crossSpeciesMarriageChance;
+    config.infantMortalityChance = infantMortalityChance;
+    config.fertilityChance = fertilityChance;
 
     family = Families.generateFamilyGeneration(seed, config, Families.generateNewFamily(seed, config));
     familyTreeSVG = Families.getFamilyTreeSVG(family);
@@ -89,6 +134,12 @@
     }
 
     throw new Error('Species not found');
+  }
+
+  function getGenderSymbol(gender: string): string {
+    if (gender === 'male') return '♂';
+    if (gender === 'female') return '♀';
+    return '⚥';
   }
 
   function getMate(family: Families.Family, member: Character): Character | undefined {
@@ -165,6 +216,103 @@
     </select>
   </div>
 
+  <div class="input-group">
+    <label for="min-members">Min Children/Couple</label>
+    <input type="number" id="min-members" bind:value={minMembersPerGeneration} min="0" max="15" />
+    <label for="max-members">Max Children/Couple</label>
+    <input type="number" id="max-members" bind:value={maxMembersPerGeneration} min="0" max="15" />
+  </div>
+
+  <div class="input-group">
+    <label for="fertility-chance">Fertility Chance</label>
+    <input
+      type="number"
+      id="fertility-chance"
+      bind:value={fertilityChance}
+      min="0"
+      max="1"
+      step="0.01"
+    />
+    <label for="infant-mortality">Infant Mortality</label>
+    <input
+      type="number"
+      id="infant-mortality"
+      bind:value={infantMortalityChance}
+      min="0"
+      max="1"
+      step="0.01"
+    />
+  </div>
+
+  <div class="input-group">
+    <input type="checkbox" id="allow-adoption" bind:checked={allowAdoption} />
+    <label for="allow-adoption">Allow Adoption</label>
+    <input
+      type="number"
+      bind:value={adoptionChance}
+      min="0"
+      max="1"
+      step="0.01"
+      disabled={!allowAdoption}
+    />
+  </div>
+
+  <div class="input-group">
+    <input
+      type="checkbox"
+      id="allow-illegitimate"
+      bind:checked={allowIllegitimateChildren}
+    />
+    <label for="allow-illegitimate">Allow Illegitimate Children</label>
+    <input
+      type="number"
+      bind:value={illegitimateChildChance}
+      min="0"
+      max="1"
+      step="0.01"
+      disabled={!allowIllegitimateChildren}
+    />
+  </div>
+
+  <div class="input-group">
+    <input type="checkbox" id="allow-multiple-marriages" bind:checked={allowMultipleMarriages} />
+    <label for="allow-multiple-marriages">Allow Multiple Marriages</label>
+    <input
+      type="number"
+      bind:value={multipleMarriageChance}
+      min="0"
+      max="1"
+      step="0.01"
+      disabled={!allowMultipleMarriages}
+    />
+  </div>
+
+  <div class="input-group">
+    <input type="checkbox" id="allow-same-gender" bind:checked={allowSameGenderMarriage} />
+    <label for="allow-same-gender">Allow Same Gender Marriage</label>
+    <input
+      type="number"
+      bind:value={sameGenderMarriageChance}
+      min="0"
+      max="1"
+      step="0.01"
+      disabled={!allowSameGenderMarriage}
+    />
+  </div>
+
+  <div class="input-group">
+    <input type="checkbox" id="allow-cross-species" bind:checked={allowCrossSpeciesMarriages} />
+    <label for="allow-cross-species">Allow Cross Species Marriage</label>
+    <input
+      type="number"
+      bind:value={crossSpeciesMarriageChance}
+      min="0"
+      max="1"
+      step="0.01"
+      disabled={!allowCrossSpeciesMarriages}
+    />
+  </div>
+
   <button onclick={generate}>Generate</button>
 
   <h2>The {family.name} Family</h2>
@@ -175,7 +323,13 @@
   </div>
 
   {#each family.members as member}
-    <h3>{member.firstName} {member.lastName}</h3>
+    <h3>
+      {member.firstName}
+      {member.lastName}
+      <span class="gender-symbol" title={member.gender.name}>
+        {getGenderSymbol(member.gender.name)}
+      </span>
+    </h3>
     <p>
       {member.age}-year-old {member.species.name}
       {member.ageCategory.noun}
@@ -188,6 +342,9 @@
         <strong>Mate:</strong>
         {mate.firstName}
         {mate.lastName}
+        <span class="gender-symbol" title={mate.gender.name}>
+          {getGenderSymbol(mate.gender.name)}
+        </span>
       </p>
     {/if}
     {@const children = getChildren(family, member)}
@@ -195,7 +352,15 @@
       <h4>Children</h4>
       <ul>
         {#each children as child}
-          <li>{child.firstName} {child.lastName}</li>
+          <li>
+            {child.firstName}
+            {child.lastName}
+            <span class="gender-symbol" title={child.gender.name}>
+              {getGenderSymbol(child.gender.name)}
+            </span>
+            {#if child.tags.includes('adopted')}(Adopted){/if}
+            {#if child.tags.includes('illegitimate')}(Illegitimate){/if}
+          </li>
         {/each}
       </ul>
     {/if}
@@ -204,7 +369,13 @@
       <h4>Parents</h4>
       <ul>
         {#each parents as parent}
-          <li>{parent.firstName} {parent.lastName}</li>
+          <li>
+            {parent.firstName}
+            {parent.lastName}
+            <span class="gender-symbol" title={parent.gender.name}>
+              {getGenderSymbol(parent.gender.name)}
+            </span>
+          </li>
         {/each}
       </ul>
     {/if}
@@ -221,5 +392,11 @@
       padding: 1rem;
       margin-bottom: 2rem;
       background-color: white;
+  }
+
+  .gender-symbol {
+    font-size: 1.5em;
+    color: #666;
+    margin-left: 0.5rem;
   }
 </style>

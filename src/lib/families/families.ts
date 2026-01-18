@@ -32,6 +32,8 @@ export function generateFamilyGeneration(seed: string, config: FamilyGenerationC
 
         // Generate children
         generateChildren(family, config, genRng);
+        generateAdoptions(family, config, genRng);
+        generateIllegitimateChildren(family, config, genRng);
     }
 
     return family;
@@ -227,9 +229,92 @@ function generateChildren(family: Family, config: FamilyGenerationConfig, rng: R
             for (let j = 0; j < siblingIds.length; j++) {
                 for (let k = j + 1; k < siblingIds.length; k++) {
                     addRelationship(family, siblingIds[j], siblingIds[k], 'sibling', rng);
-                    addRelationship(family, siblingIds[k], siblingIds[j], 'sibling', rng);
                 }
             }
+        }
+    }
+}
+
+function generateAdoptions(family: Family, config: FamilyGenerationConfig, rng: RNG) {
+    if (!config.allowAdoption) return;
+
+    const couples = getCouples(family);
+    for (const couple of couples) {
+        const p1 = getMember(family, couple[0]);
+        const p2 = getMember(family, couple[1]);
+        if (!p1 || !p2) continue;
+        if (p1.tags.includes('dead') || p2.tags.includes('dead')) continue;
+
+        if (rng.float(0, 1) < (config.adoptionChance || 0)) {     
+             const childSpecies = rng.item(config.speciesOptions);
+             const charConfig: CharacterGenerationConfig = {
+                    species: childSpecies,
+                    maleFirstNameGenerator: config.maleNameGenerator,
+                    femaleFirstNameGenerator: config.femaleNameGenerator,
+                    familyNameGenerator: config.familyNameGenerator,
+                    allowedAgeCategoryNames: ['child'],
+             };
+             
+             const child = CharacterGenerator.generate(rng.randomString(16), charConfig);
+             child.familyId = family.id;
+             child.lastName = p1.lastName;
+             child.description = CharacterGenerator.describe(child, rng);
+             child.tags.push('adopted');
+             
+             addMember(family, child);
+             addRelationship(family, p1.id, child.id, 'parent', rng);
+             addRelationship(family, p2.id, child.id, 'parent', rng);
+             
+             linkSiblings(family, child.id, p1.id, rng);
+        }
+    }
+}
+
+function generateIllegitimateChildren(family: Family, config: FamilyGenerationConfig, rng: RNG) {
+    if (!config.allowIllegitimateChildren) return;
+    
+    const eligible = family.members.filter(m => 
+        !m.tags.includes('dead') && 
+        isFertile(m)
+    );
+
+    for (const member of eligible) {
+         if (rng.float(0, 1) < (config.illegitimateChildChance || 0)) {
+             const charConfig: CharacterGenerationConfig = {
+                    species: member.species,
+                    maleFirstNameGenerator: config.maleNameGenerator,
+                    femaleFirstNameGenerator: config.femaleNameGenerator,
+                    familyNameGenerator: config.familyNameGenerator,
+                    allowedAgeCategoryNames: ['child', 'infant'],
+             };
+             
+             const child = CharacterGenerator.generate(rng.randomString(16), charConfig);
+             child.familyId = family.id;
+             child.lastName = member.lastName;
+             child.description = CharacterGenerator.describe(child, rng);
+             child.tags.push('illegitimate');
+             
+             addMember(family, child);
+             addRelationship(family, member.id, child.id, 'parent', rng);
+             
+             linkSiblings(family, child.id, member.id, rng);
+         }
+    }
+}
+
+function linkSiblings(family: Family, childId: string, parentId: string, rng: RNG) {
+    const parentRels = family.relationships.filter(r => r.originatorId === parentId && r.type.name === 'parent' && r.recipientId !== childId);
+    for (const rel of parentRels) {
+        // avoid duplicate checks for now, rely on careful construction or allow dupes (inefficient but safe for logic unless UI duplicates)
+        // Check if sibling relationship already exists
+        const exists = family.relationships.some(r => 
+            r.type.name === 'sibling' && 
+            ((r.originatorId === childId && r.recipientId === rel.recipientId) || 
+             (r.originatorId === rel.recipientId && r.recipientId === childId))
+        );
+        
+        if (!exists) {
+            addRelationship(family, childId, rel.recipientId, 'sibling', rng);
         }
     }
 }

@@ -164,7 +164,8 @@ export function getFamilyGraph(family: Family): FamilyGraph {
     let maxLabelWidth = 0;
     for (const member of family.members) {
         const w1 = estimateTextWidth(member.firstName, 12);
-        const w2 = estimateTextWidth(member.lastName, 10); // 2nd line is slightly smaller usually in display? In SVG it says size 10 below for 2nd line?
+        const symbol = getGenderSymbol(member.gender.name);
+        const w2 = estimateTextWidth(member.lastName + " " + symbol, 10); 
         // Wait, looking at getFamilyTreeSVG:
         // Line 0 (firstName) is size 12
         // Line 1 (lastName) is size 10
@@ -208,7 +209,7 @@ export function getFamilyGraph(family: Family): FamilyGraph {
 
             nodes.push({
                 id: id,
-                label: member ? `${member.firstName}\n${member.lastName}` : 'Unknown',
+                label: member ? `${member.firstName}\n${member.lastName} ${getGenderSymbol(member.gender.name)}` : 'Unknown',
                 generation: genIndex,
                 x: runningX,
                 y: genIndex * (NODE_HEIGHT + Y_GAP) + jitter,
@@ -256,6 +257,12 @@ function getAvgParentIndex(parentIds: string[], prevLevel: string[]): number {
         }
     }
     return count === 0 ? 0 : sum / count;
+}
+
+function getGenderSymbol(gender: string): string {
+    if (gender === 'male') return '♂';
+    if (gender === 'female') return '♀';
+    return '⚥';
 }
 
 function estimateTextWidth(text: string, fontSize: number): number {
