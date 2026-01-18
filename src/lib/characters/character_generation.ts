@@ -5,6 +5,13 @@ import * as Measurements from "$lib/measurements";
 import * as RNG from "@ironarachne/rng";
 import * as SizeMatrix from "$lib/size/size_matrix";
 import * as Genders from "$lib/gender/genders";
+import * as PersonalityTraits from "$lib/characters/personality_traits";
+import { randomTraits } from '$lib/species/common';
+import { getDefaultCombatActions, getDefaultCombatProfile } from '$lib/combat_system';
+import type PhysicalTrait from '$lib/physical_traits/physical_trait';
+import { filterArchetypes, getAllFantasyArchetypes, type Archetype } from '$lib/archetypes';
+import human from "$lib/species/sentient/human";
+import { getFantasyNameGeneratorSet } from '$lib/names';
 
 export function describe(character: Character, rng: RNG.RNG): string {
   let description = '';
@@ -59,16 +66,104 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
 	const ageCategory = config.allowedAgeCategoryNames ? AgeCategories.getCategoryFromName(rng.item(config.allowedAgeCategoryNames), config.species.ageCategories) : rng.item(config.species.ageCategories);
 
 	const sizeGeneratorConfig = SizeMatrix.getSizeConfig(
-	    gender.name,
-	    ageCategory.name,
-	    config.species.sizeGeneratorConfigMatrix,
-	  );
-  	const height = rng.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
-  	const weight = rng.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
+    gender.name,
+    ageCategory.name,
+    config.species.sizeGeneratorConfigMatrix,
+  );
+  const height = rng.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
+  const weight = rng.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
+  const length = rng.int(sizeGeneratorConfig.minLength, sizeGeneratorConfig.maxLength);
+  
+  let personalityTraits: string[] = [];
+  if (ageCategory.name !== "infant") {
+    personalityTraits = PersonalityTraits.getRandomPersonalityTraits(seed + "-personality", rng.int(1, 3)).map(trait => trait.adjective);
+  }
+  
+  let physicalTraits: PhysicalTrait[] = [];
+  if (config.physicalTraitOverrides && config.physicalTraitOverrides.length > 0) {
+    physicalTraits = config.physicalTraitOverrides;
+  } else {
+    physicalTraits = randomTraits(seed + "-physical", config.species);
+  }
+  
+  const combatProfile = getDefaultCombatProfile();
+  const combatActions = getDefaultCombatActions();
 
-  	// personality traits
-  	// physical traits
-  	// combat profile
+  const tags: string[] = [];
 
-  	// return character
+  const behaviors = ['cautious', 'lethargic', 'resting', 'sleeping', 'watching'];
+
+  if (ageCategory.name === "child" || ageCategory.name === "infant") {
+    behaviors.push('playing');
+  }
+
+  if (ageCategory.name === "adult") {
+    behaviors.push('working');
+  }
+
+  tags.push(...config.species.tags);
+  tags.push(ageCategory.name);
+
+  const currentBehavior = rng.item(behaviors);
+  let archetype: undefined|Archetype;
+
+  if (ageCategory.name !== "infant" && ageCategory.name !== "child" && config.archetypeOptions && config.archetypeOptions.length > 0) {
+    // adults can have an archetype
+    const filteredArchetypes = filterArchetypes(config.archetypeOptions, config.allowedArchetypeTags || [], config.disallowedArchetypeTags || []);
+    if (filteredArchetypes.length > 0) {
+      archetype = rng.item(filteredArchetypes);
+      tags.push(...archetype.tags);
+    }
+  }
+
+  let shortDescription = currentBehavior;
+  if (archetype) {
+    shortDescription += ` ${config.species.adjective} ${archetype.name}`
+  } else {
+    shortDescription += ` ${config.species.adjective} ${ageCategory.noun}`;
+  }
+
+  const character: Character = {
+    id: rng.randomString(16),
+    name: `${firstName} ${lastName}`,
+    description: "",
+    shortDescription,
+    species: config.species,
+    gender,
+    ageCategory,
+    age: rng.int(ageCategory.minAge, ageCategory.maxAge),
+    height,
+    weight,
+    length,
+    physicalTraits,
+    personalityTraits,
+    abilities: { ...config.species.abilities },
+    behaviors,
+    creatureTypes: [...config.species.creatureTypes],
+    carried: [],
+    firstName,
+    lastName,
+    combatProfile,
+    actions: combatActions,
+    tags,
+  };
+
+  character.description = describe(character, rng);
+
+  return character;
+}
+
+export function getDefaultCharacterGenerationConfig(seed: string): CharacterGenerationConfig {
+  const defaultSpecies = human;
+  const rng = new RNG.RNG(seed + "-names");
+  const nameGenSet = getFantasyNameGeneratorSet("human", rng);
+  const archetypes = getAllFantasyArchetypes();
+
+  return {
+    archetypeOptions: archetypes,
+    species: defaultSpecies,
+    maleFirstNameGenerator: nameGenSet.male,
+    femaleFirstNameGenerator: nameGenSet.female,
+    familyNameGenerator: nameGenSet.family,
+  };
 }

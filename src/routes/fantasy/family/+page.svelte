@@ -1,11 +1,12 @@
 <script lang="ts">
   import * as CommonSpecies from '$lib/species/common';
-  import * as Families from '$lib/characters/family/families.js';
+  import * as Families from '$lib/families';
   import * as Names from '$lib/names';
   import * as RNG from '@ironarachne/rng';
   import type Gender from '$lib/gender/gender';
   import type { NameGenerator } from '@ironarachne/made-up-names';
   import type Species from '$lib/species/species';
+  import type { Character } from '$lib/characters/character_types';
 
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -13,7 +14,7 @@
   let availableSpecies = CommonSpecies.sentient();
   let selectedSpecies = $state('any');
   let species = CommonSpecies.randomWeighted(availableSpecies);
-  let iterations: number = $state(2);
+  let iterations: number = $state(3);
   let nameGeneratorSet;
 
   try {
@@ -27,15 +28,16 @@
   let femaleNameGen: NameGenerator = nameGeneratorSet.female;
   let maleNameGen: NameGenerator = nameGeneratorSet.male;
   let lastNameTradition = $state('male');
-  let config = Families.getDefaultConfig();
-  config.species = species;
-  config.iterations = 2;
-  config.rootFamilyNameGenerator = familyNameGen;
-  config.rootFemaleNameGenerator = femaleNameGen;
-  config.rootMaleNameGenerator = maleNameGen;
-  config.dominantFamilyNameGender = getDominantGender();
+  let config = Families.getDefaultFamilyGenerationConfig(seed + "-family");
+  config.speciesOptions = [species];
+  config.generations = iterations;
+  config.familyNameGenerator = familyNameGen;
+  config.femaleNameGenerator = femaleNameGen;
+  config.maleNameGenerator = maleNameGen;
+  config.dominantGender = getDominantGender().name;
 
-  let family = $state(Families.generate(config));
+  let family = $state(Families.generateFamilyGeneration(seed, config, Families.generateNewFamily(seed, config)));
+  let familyTreeSVG = $state(Families.getFamilyTreeSVG(family));
 
   function generate() {
     if (!lockSeed) {
@@ -54,14 +56,15 @@
     familyNameGen = nameGeneratorSet.family;
     femaleNameGen = nameGeneratorSet.female;
     maleNameGen = nameGeneratorSet.male;
-    config.species = species;
-    config.iterations = iterations;
-    config.rootFamilyNameGenerator = familyNameGen;
-    config.rootFemaleNameGenerator = femaleNameGen;
-    config.rootMaleNameGenerator = maleNameGen;
-    config.dominantFamilyNameGender = getDominantGender();
+    config.speciesOptions = [species];
+    config.generations = iterations;
+    config.familyNameGenerator = familyNameGen;
+    config.femaleNameGenerator = femaleNameGen;
+    config.maleNameGenerator = maleNameGen;
+    config.dominantGender = getDominantGender().name;
 
-    family = Families.generate(config);
+    family = Families.generateFamilyGeneration(seed, config, Families.generateNewFamily(seed, config));
+    familyTreeSVG = Families.getFamilyTreeSVG(family);
   }
 
   function getDominantGender(): Gender {
@@ -86,6 +89,31 @@
     }
 
     throw new Error('Species not found');
+  }
+
+  function getMate(family: Families.Family, member: Character): Character | undefined {
+    const relationship = family.relationships.find(
+      (r) => r.type.name === 'spouse' && (r.originatorId === member.id || r.recipientId === member.id)
+    );
+    if (!relationship) return undefined;
+    const mateId = relationship.originatorId === member.id ? relationship.recipientId : relationship.originatorId;
+    return family.members.find((m) => m.id === mateId);
+  }
+
+  function getChildren(family: Families.Family, member: Character): Character[] {
+    const relationships = family.relationships.filter(
+      (r) => r.type.name === 'parent' && r.originatorId === member.id
+    );
+    const childrenIds = relationships.map((r) => r.recipientId);
+    return family.members.filter((m) => childrenIds.includes(m.id));
+  }
+
+  function getParents(family: Families.Family, member: Character): Character[] {
+     const relationships = family.relationships.filter(
+      (r) => r.type.name === 'parent' && r.recipientId === member.id
+    );
+    const parentIds = relationships.map((r) => r.originatorId);
+    return family.members.filter((m) => parentIds.includes(m.id));
   }
 </script>
 
@@ -140,35 +168,43 @@
   <button onclick={generate}>Generate</button>
 
   <h2>The {family.name} Family</h2>
+  
+  <h3>Family Tree</h3>
+  <div class="family-tree">
+      {@html familyTreeSVG}
+  </div>
 
   {#each family.members as member}
-    <h3>{member.character.firstName} {member.character.lastName}</h3>
+    <h3>{member.firstName} {member.lastName}</h3>
     <p>
-      {member.character.age}-year-old {member.character.species.name}
-      {member.character.ageCategory.noun}
-      {#if member.character.status == 'dead'}(dead){/if}
+      {member.age}-year-old {member.species.name}
+      {member.ageCategory.noun}
+      {#if member.tags.includes('dead')}(dead){/if}
     </p>
-    <p>{member.character.description}</p>
-    {#if member.mate != -1}
+    <p>{member.description}</p>
+    {@const mate = getMate(family, member)}
+    {#if mate}
       <p>
         <strong>Mate:</strong>
-        {Families.getMate(family, member).character.firstName}
-        {Families.getMate(family, member).character.lastName}
+        {mate.firstName}
+        {mate.lastName}
       </p>
     {/if}
-    {#if member.children.length > 0}
+    {@const children = getChildren(family, member)}
+    {#if children.length > 0}
       <h4>Children</h4>
       <ul>
-        {#each Families.getChildren(family, member) as child}
-          <li>{child.character.firstName} {child.character.lastName}</li>
+        {#each children as child}
+          <li>{child.firstName} {child.lastName}</li>
         {/each}
       </ul>
     {/if}
-    {#if member.parents.length > 0}
+    {@const parents = getParents(family, member)}
+    {#if parents.length > 0}
       <h4>Parents</h4>
       <ul>
-        {#each Families.getParents(family, member) as parent}
-          <li>{parent.character.firstName} {parent.character.lastName}</li>
+        {#each parents as parent}
+          <li>{parent.firstName} {parent.lastName}</li>
         {/each}
       </ul>
     {/if}
@@ -178,4 +214,12 @@
 <style lang="scss">
   @use '$lib/styles/main.scss';
   @use '$lib/styles/fantasy.scss';
+
+  .family-tree {
+      overflow-x: auto;
+      border: 1px solid #ccc;
+      padding: 1rem;
+      margin-bottom: 2rem;
+      background-color: white;
+  }
 </style>

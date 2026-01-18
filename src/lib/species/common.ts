@@ -298,7 +298,8 @@ export function mergeTraits(species1: Species, species2: Species): PhysicalTrait
   return result;
 }
 
-export function randomTraits(species: Species, rng: RNG.RNG): PhysicalTrait[] {
+export function randomTraits(seed: string, species: Species): PhysicalTrait[] {
+  const rng = new RNG.RNG(seed);
   let traits: PhysicalTrait[] = [];
 
   for (let i = 0; i < species.physicalTraitGeneratorConfigs.length; i++) {

@@ -32,15 +32,10 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
   const height = rng.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
   const weight = rng.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
   const length = rng.int(sizeGeneratorConfig.minLength, sizeGeneratorConfig.maxLength);
-  let physicalTraits = CommonSpecies.randomTraits(creatureSpecies, rng);
+  let physicalTraits = CommonSpecies.randomTraits(seed + "-physical",creatureSpecies);
   let behaviors = ['cautious', 'hunting', 'lethargic', 'resting', 'sleeping', 'stalking'];
   let summary = rng.item(behaviors);
-  let abilities = creatureSpecies.abilities;
-
-  let threatLevel = creatureSpecies.baseThreatLevel;
-  for (let i = 0; i < abilities.length; i++) {
-    threatLevel += abilities[i].threatLevel;
-  }
+  let abilities = [...creatureSpecies.abilities];
 
   let creature: Creature = {
     id: rng.randomString(16),
