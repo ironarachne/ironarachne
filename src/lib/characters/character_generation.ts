@@ -1,4 +1,4 @@
-import type { CharacterGenerationConfig, Character } from './character_types';
+import type { CharacterGenerationConfig, Character, Title } from './character_types';
 import * as AgeCategories from "$lib/age/age_categories";
 import * as Words from "@ironarachne/words";
 import * as Measurements from "$lib/measurements";
@@ -12,6 +12,9 @@ import type PhysicalTrait from '$lib/physical_traits/physical_trait';
 import { filterArchetypes, getAllFantasyArchetypes, type Archetype } from '$lib/archetypes';
 import human from "$lib/species/sentient/human";
 import { getFantasyNameGeneratorSet } from '$lib/names';
+import { generateHeraldry } from '$lib/heraldry/generator';
+import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';
+import { getStandardNobleTitles } from './titles';
 
 export function describe(character: Character, rng: RNG.RNG): string {
   let description = '';
@@ -116,6 +119,19 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
     }
   }
 
+  let heraldry = undefined;
+  let titles: Title[] = [];
+  if (archetype?.name === 'noble') {
+    const heraldryConfig = getDefaultHeraldryGeneratorConfig();
+    heraldryConfig.rng = rng;
+    heraldry = generateHeraldry(heraldryConfig).device;
+
+    const possibleTitles = getStandardNobleTitles();
+    const title = rng.item(possibleTitles);
+    title.landName = getFantasyNameGeneratorSet(config.species.name.toLowerCase() || 'human', rng).country.generate(1)[0];
+    titles.push(title);
+  }
+
   let shortDescription = currentBehavior;
   if (archetype) {
     shortDescription += ` ${config.species.adjective} ${archetype.name}`
@@ -146,6 +162,9 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
     combatProfile,
     actions: combatActions,
     tags,
+    archetype,
+    heraldry,
+    titles,
   };
 
   character.description = describe(character, rng);
