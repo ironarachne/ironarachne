@@ -1,5 +1,5 @@
-import type Character from '$lib/characters/character';
-import type CharacterGeneratorConfig from '$lib/characters/character_generator_config';
+import type { Character } from '$lib/characters';
+import type { CharacterGenerationConfig } from '$lib/characters';
 import type { HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import type OrganizationRank from './organization_rank';
 import type { RNG } from '@ironarachne/rng';
@@ -11,10 +11,11 @@ export default interface OrganizationType {
   leaderTitle: string;
   randomName: (rng: RNG) => string;
   randomDescription: (rng: RNG) => string;
-  randomLeadership: (characterGenConfig: CharacterGeneratorConfig) => Character;
+  randomLeadership: (seed: string, characterGenConfig: CharacterGenerationConfig) => Character;
   randomMemberOfRank: (
+    seed: string,
     rank: OrganizationRank,
-    characterGenConfig: CharacterGeneratorConfig,
+    characterGenConfig: CharacterGenerationConfig,
   ) => Character;
   ranks: OrganizationRank[];
   heraldryConfig: HeraldryGeneratorConfig;

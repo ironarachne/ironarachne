@@ -3,8 +3,7 @@
   import * as RNG from '@ironarachne/rng';
   import * as Regions from '$lib/regions/regions.js';
   import * as Words from '@ironarachne/words';
-  import * as Characters from '$lib/characters/characters.js';
-  import * as MUN from '@ironarachne/made-up-names';
+  import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
   import { renderSVGAsPNG } from '$lib/images/svg';
 
@@ -149,7 +148,7 @@
     </div>
   {/if}
 
-  <h3>Ruler: {Characters.getHonorific(ruler)} {ruler.firstName} {ruler.lastName}</h3>
+  <h3>Ruler: {Characters.getHonorific(ruler.gender.name, ruler.titles[0])} {ruler.firstName} {ruler.lastName}</h3>
 
   <div class="ruler">
     {#if ruler.heraldry !== null}
@@ -157,7 +156,7 @@
     {/if}
     <div>
       <p>
-        {Words.capitalize(region.name)} is ruled by {Characters.getHonorific(ruler)}
+        {Words.capitalize(region.name)} is ruled by {Characters.getHonorific(ruler.gender.name, ruler.titles[0])}
         {ruler.firstName}
         {ruler.lastName}. {ruler.description}
       </p>
@@ -175,7 +174,7 @@
         <div>
           <p><strong>{Words.title(neighbor.name)}</strong></p>
           <p>
-            Ruled by {Characters.getHonorific(neighbor.authority)}
+            Ruled by {Characters.getHonorific(neighbor.authority.gender.name, neighbor.authority.titles[0])}
             {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
             {neighbor.authority.species.adjective}
             {neighbor.authority.ageCategory.noun}.
@@ -203,7 +202,7 @@
             {@html heraldryRenderer.render(region.realms[neighbor.parent].heraldry.device, 20, 22)}.
           </p>
           <p>
-            Ruled by {Characters.getHonorific(neighbor.authority)}
+            Ruled by {Characters.getHonorific(neighbor.authority.gender.name, neighbor.authority.titles[0])}
             {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
             {neighbor.authority.species.adjective}
             {neighbor.authority.ageCategory.noun}.

@@ -166,7 +166,11 @@ export function getTitleForGender(gender: string, title: Title): string {
   return title.maleTitle;
 }
 
-export function getHonorific(gender: string, title: Title): string {
+export function getHonorific(gender: string, title: Title | null): string {
+  if (!title) {
+    return '';
+  }
+
   if (gender === 'female') {
     return title.femaleHonorific;
   }

@@ -2,7 +2,7 @@
   import * as FantasyOrganizations from '$lib/organizations/fantasy';
   import * as Organizations from '$lib/organizations/organizations';
   import * as RNG from '@ironarachne/rng';
-  import * as Characters from '$lib/characters/characters';
+  import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
   import { onMount } from 'svelte';
   import { renderSVGAsPNG } from '$lib/images/svg';
@@ -136,9 +136,9 @@
   {#each notableMembers as member}
     <p>
       <strong>
-        {Characters.getHonorific(member)}
+        {Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member))}
         {member.firstName}
-        {member.lastName}{#if Characters.getHonorific(member) == ''}
+        {member.lastName}{#if Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member)) == ''}
           ({Characters.getTitle(member)}){/if}:
       </strong>
       {member.description}

@@ -1,6 +1,6 @@
-import type Character from '$lib/characters/character.js';
-import type CharacterGeneratorConfig from '$lib/characters/character_generator_config.js';
-import * as Characters from '$lib/characters/characters.js';
+import type { Character } from '$lib/characters';
+import type { CharacterGenerationConfig } from '$lib/characters';
+import * as Characters from '$lib/characters';
 import * as Charges from '$lib/heraldry/charges/index.js';
 import {
   mergeHeraldryGeneratorConfig,
@@ -89,30 +89,31 @@ export function generateType(rng: RNG.RNG): OrganizationType {
     ]);
   };
 
-  const leadershipGenerator = (characterGenConfig: CharacterGeneratorConfig): Character => {
-    characterGenConfig.ageCategoryNames = ['adult', 'elderly'];
+  const leadershipGenerator = (seed: string, characterGenConfig: CharacterGenerationConfig): Character => {
+    characterGenConfig.allowedAgeCategoryNames = ['adult', 'elderly'];
 
-    const leader = Characters.generate(characterGenConfig);
+    const leader = Characters.generate(seed, characterGenConfig);
     const ranks = getRanks();
-    leader.titles.push(ranks[0].title);
+    leader.titles?.push(ranks[0].title);
 
     return leader;
   };
 
   const randomMemberOfRank = (
+    seed: string,
     rank: OrganizationRank,
-    characterGenConfig: CharacterGeneratorConfig,
+    characterGenConfig: CharacterGenerationConfig,
   ): Character => {
-    characterGenConfig.ageCategoryNames = ['adult'];
+    characterGenConfig.allowedAgeCategoryNames = ['adult'];
 
     if (rank.name === 'headmaster' || rank.name === 'professor') {
-      characterGenConfig.ageCategoryNames = ['adult', 'elderly'];
+      characterGenConfig.allowedAgeCategoryNames = ['adult', 'elderly'];
     } else if (rank.name === 'student') {
-      characterGenConfig.ageCategoryNames = ['child', 'teen'];
+      characterGenConfig.allowedAgeCategoryNames = ['child', 'teenager'];
     }
 
-    const member = Characters.generate(characterGenConfig);
-    member.titles.push(rank.title);
+    const member = Characters.generate(seed, characterGenConfig);
+    member.titles?.push(rank.title);
     return member;
   };
 

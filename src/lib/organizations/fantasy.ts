@@ -1,4 +1,4 @@
-import * as PremadeConfigs from '$lib/characters/premade_configs';
+import * as Characters from '$lib/characters';
 import * as MercCompany from './fantasy/mercenary_company.js';
 import * as TradingCompany from './fantasy/trading_company.js';
 import * as WizardSchool from './fantasy/wizard_school.js';
@@ -13,7 +13,7 @@ export function getDefaultConfig(rng: RNG.RNG): OrganizationGeneratorConfig {
 
   return {
     organizationTypes: [mercCompany, tradingCompany, wizardSchool],
-    characterConfig: PremadeConfigs.getFantasy(),
+    characterConfig: Characters.getDefaultCharacterGenerationConfig(`character-${rng.randomString(13)}`),
     rng: rng,
   };
 }

@@ -1,5 +1,5 @@
-import type Character from '$lib/characters/character';
-import * as Characters from '$lib/characters/characters';
+import type { Character } from '$lib/characters';
+import * as Characters from '$lib/characters';
 import type * as RNG from '@ironarachne/rng';
 import type Organization from './organization';
 import type OrganizationGeneratorConfig from './organization_generator_config';
@@ -17,7 +17,7 @@ export function generate(config: OrganizationGeneratorConfig): Organization {
     description: orgType.randomDescription(config.rng),
     memberCount: memberCount,
     notableMembers: [],
-    leadership: orgType.randomLeadership(config.characterConfig),
+    leadership: orgType.randomLeadership(`leader-${config.rng.randomString(13)}`, config.characterConfig),
     ranks: orgType.ranks,
     heraldry: null,
   };
@@ -28,9 +28,13 @@ export function generate(config: OrganizationGeneratorConfig): Organization {
 
   org.notableMembers = randomNotableMembers(org, config.rng);
 
-  org.leadership.description = `They are led by ${Characters.getHonorific(
-    org.leadership,
-  )} ${org.leadership.firstName} ${org.leadership.lastName}. ${org.leadership.description}`;
+  const leaderTitle = Characters.getHighestPrecedenceTitle(org.leadership);
+  let leaderHonorific = '';
+  if (leaderTitle) {
+    leaderHonorific = Characters.getHonorific(org.leadership.gender.name, leaderTitle);
+  }
+
+  org.leadership.description = `They are led by ${leaderHonorific} ${org.leadership.firstName} ${org.leadership.lastName}. ${org.leadership.description}`;
 
   return org;
 }
@@ -68,7 +72,7 @@ function randomNotableMembers(org: Organization, rng: RNG.RNG): Character[] {
       for (let k = 0; k < numberOfMembers; k++) {
         const memberRank = rng.item(possibleRanks);
 
-        const member = org.organizationType.randomMemberOfRank(memberRank, org.characterGenConfig);
+        const member = org.organizationType.randomMemberOfRank(`member-${rng.randomString(13)}`, memberRank, org.characterGenConfig);
         notableMembers.push(member);
       }
     }

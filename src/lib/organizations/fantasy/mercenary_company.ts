@@ -1,6 +1,5 @@
-import type Character from '$lib/characters/character.js';
-import type CharacterGeneratorConfig from '$lib/characters/character_generator_config.js';
-import * as Characters from '$lib/characters/characters.js';
+import type { Character, CharacterGenerationConfig } from '$lib/characters';
+import * as Characters from '$lib/characters';
 import * as Charges from '$lib/heraldry/charges/index.js';
 import {
   mergeHeraldryGeneratorConfig,
@@ -57,24 +56,25 @@ export function generateType(rng: RNG.RNG): OrganizationType {
       '{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.',
     ]);
 
-  const leadershipGenerator = (characterGenConfig: CharacterGeneratorConfig): Character => {
-    characterGenConfig.ageCategoryNames = ['adult'];
+  const leadershipGenerator = (seed: string, characterGenConfig: CharacterGenerationConfig): Character => {
+    characterGenConfig.allowedAgeCategoryNames = ['adult'];
 
-    const leader = Characters.generate(characterGenConfig);
+    const leader = Characters.generate(seed, characterGenConfig);
     const ranks = getRanks();
-    leader.titles.push(ranks[0].title);
+    leader.titles?.push(ranks[0].title);
 
     return leader;
   };
 
   const randomMemberOfRank = (
+    seed: string,
     rank: OrganizationRank,
-    characterGenConfig: CharacterGeneratorConfig,
+    characterGenConfig: CharacterGenerationConfig,
   ): Character => {
-    characterGenConfig.ageCategoryNames = ['adult'];
+    characterGenConfig.allowedAgeCategoryNames = ['adult'];
 
-    const member = Characters.generate(characterGenConfig);
-    member.titles.push(rank.title);
+    const member = Characters.generate(seed, characterGenConfig);
+    member.titles?.push(rank.title);
     return member;
   };
 
