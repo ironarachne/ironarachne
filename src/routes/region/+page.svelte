@@ -62,11 +62,6 @@
 
     region = Regions.generate(config);
     ruler = region.authority;
-
-    if (ruler.heraldry !== null) {
-      const rulerSVG = heraldryRenderer.render(ruler.heraldry.device, 200, 220);
-      renderSVGAsPNG(rulerSVG, 200, 220, 'ruler-arms');
-    }
   }
 
   function loadSavedCulture() {
@@ -152,7 +147,9 @@
 
   <div class="ruler">
     {#if ruler.heraldry !== null}
-      <div class="ruler-arms"><img alt="Ruler heraldry" id="ruler-arms" /></div>
+      <div class="ruler-arms">
+        {@html heraldryRenderer.render(ruler.heraldry.device, 200, 220)}
+      </div>
     {/if}
     <div>
       <p>

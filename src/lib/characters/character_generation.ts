@@ -124,7 +124,7 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
   if (archetype?.name === 'noble') {
     const heraldryConfig = getDefaultHeraldryGeneratorConfig();
     heraldryConfig.rng = rng;
-    heraldry = generateHeraldry(heraldryConfig).device;
+    heraldry = generateHeraldry(heraldryConfig);
 
     const possibleTitles = getStandardNobleTitles();
     const title = rng.item(possibleTitles);

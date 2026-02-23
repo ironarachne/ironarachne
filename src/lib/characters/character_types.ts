@@ -1,6 +1,6 @@
 import type { Archetype } from "$lib/archetypes";
 import type { Creature } from "$lib/creatures";
-import type { Device } from "$lib/heraldry/device"
+import type { Arms } from "$lib/heraldry/arms";
 import type PhysicalTrait from "$lib/physical_traits/physical_trait";
 import type Species from "$lib/species/species";
 import type { TaggedItem } from "$lib/tags/tag_types";
@@ -24,7 +24,7 @@ export type CharacterGenerationConfig = {
 
 export type Character = Creature & {
   archetype?: Archetype;
-  heraldry?: Device;
+  heraldry?: Arms;
   personalityTraits: string[];
   firstName: string;
   lastName: string;

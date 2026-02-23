@@ -1,6 +1,5 @@
-import type Character from '$lib/characters/character.js';
-import * as Characters from '$lib/characters/characters.js';
-import * as PremadeConfigs from '$lib/characters/premade_configs.js';
+import type { Character } from '$lib/characters';
+import * as Characters from '$lib/characters';
 import { generateHeraldry } from '$lib/heraldry/generator.js';
 import * as Names from '$lib/names/index.js';
 import * as RNG from '@ironarachne/rng';
@@ -58,17 +57,16 @@ function randomAuthority(
   nameGeneratorSet: Names.NameGeneratorSet,
   rng: RNG.RNG,
 ): Character {
-  let charGenConfig = PremadeConfigs.getFantasy();
-  charGenConfig.rng = rng;
-  charGenConfig.ageCategoryNames = ['adult'];
+  let charGenConfig = Characters.getDefaultCharacterGenerationConfig(`character-${rng.randomString(13)}`);
+  
+  charGenConfig.allowedAgeCategoryNames = ['adult'];
 
   charGenConfig.familyNameGenerator = nameGeneratorSet.family;
-  charGenConfig.femaleNameGenerator = nameGeneratorSet.female;
-  charGenConfig.maleNameGenerator = nameGeneratorSet.male;
-  charGenConfig.useAdaptiveNames = false;
+  charGenConfig.femaleFirstNameGenerator = nameGeneratorSet.female;
+  charGenConfig.maleFirstNameGenerator = nameGeneratorSet.male;
 
-  let authority = Characters.generate(charGenConfig);
-  authority.titles.push(realmType.grantedTitle);
+  let authority = Characters.generate(`character-${rng.randomString(13)}`, charGenConfig);
+  authority.titles?.push(realmType.grantedTitle);
   let heraldryGenConfig = getDefaultHeraldryGeneratorConfig();
   heraldryGenConfig.rng = rng;
   authority.heraldry = generateHeraldry(heraldryGenConfig);
