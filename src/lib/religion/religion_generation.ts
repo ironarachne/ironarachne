@@ -88,7 +88,7 @@ export function generateReligion(seed: string, config: ReligionGenerationConfig)
 }
 
 export function getDefaultReligionGenerationConfig(): ReligionGenerationConfig {
-    const nameGeneratorSet = getFantasyNameGeneratorSet('human', new RNG(Date.now()));
+    const nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(Date.now()));
 
     return {
         categories: allCategories(),
