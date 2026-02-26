@@ -153,7 +153,7 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
     length,
     physicalTraits,
     personalityTraits,
-    abilities: { ...config.species.abilities },
+    abilities: [ ...config.species.abilities ],
     behaviors,
     creatureTypes: [...config.species.creatureTypes],
     carried: [],
@@ -165,6 +165,7 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
     archetype,
     heraldry,
     titles,
+    relationships: [],
   };
 
   character.description = describe(character, rng);

@@ -46,7 +46,6 @@ export default <Species>{
       name: 'flight',
       description: 'can fly',
       category: 'movement',
-      threatLevel: 1,
     },
   ],
   commonality: 5,

@@ -5,11 +5,16 @@ export function applyTagFilter<T extends TagTypes.TaggedItem>(
   filter: TagTypes.TagFilter,
 ): T[] {
   return items.filter((item) => {
-    if (filter.includeTags) {
-      for (let tag of filter.includeTags) {
-        if (!item.tags.includes(tag)) {
-          return false;
+    if (filter.includeSomeTags) {
+      let hasAtLeastOneTag = false;
+      for (let tag of filter.includeSomeTags) {
+        if (item.tags.includes(tag)) {
+          hasAtLeastOneTag = true;
+          break;
         }
+      }
+      if (!hasAtLeastOneTag) {
+        return false;
       }
     }
     if (filter.includeAllTags) {

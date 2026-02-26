@@ -71,7 +71,6 @@ export default <Species>{
       description:
         "can breathe an element (acid, cold, fire, lightning, poison) appropriate to the dragonborn's type",
       category: 'attack',
-      threatLevel: 1,
     },
   ],
   commonality: 10,

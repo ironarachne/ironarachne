@@ -5,16 +5,15 @@
   import * as CommonSpecies from '$lib/species/common.js';
   import * as ReligionCategories from '$lib/religion/categories';
   import type Species from '$lib/species/species';
-
-  import ReligionGenerator from '$lib/religion/generator';
-  import ReligionGeneratorConfig from '$lib/religion/generatorconfig';
-
   import type Culture from '$lib/culture/culture';
-
-  import type { Writable } from 'svelte/store';
   import type UserData from '$lib/user_data';
+  import { generateReligion, getDefaultReligionGenerationConfig } from '$lib/religion';
+  import { listDomains } from '$lib/religion/domains';
 
-  const userStore = getContext<Writable<UserData>>('user');
+  const user: UserData = getContext('user');
+  let savedCulture: string | undefined = $state();
+  let useSavedCulture: boolean = $state(false);
+  let culture: Culture;
 
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -24,12 +23,8 @@
   });
 
   let humanNameGenSet = Names.getFantasyNameGeneratorSet('human', rng);
-  let savedCulture: string | undefined = $state();
-  let useSavedCulture: boolean = $state(false);
-  let culture: Culture;
-  let genConfig = new ReligionGeneratorConfig();
-  let generator = new ReligionGenerator(genConfig);
-  let religion = $state(generator.generate());
+  let genConfig = getDefaultReligionGenerationConfig();
+  
   let allSpeciesNames: string[] = [];
   const allSpecies = CommonSpecies.sentient();
   const allReligionCategories = ReligionCategories.all();
@@ -45,6 +40,10 @@
 
   let selectedSpecies: string[] = $state(['human']);
   let selectedCategories: string[] = $state(['polytheism']);
+  genConfig.categories = [ReligionCategories.byName('polytheism', allReligionCategories)];
+
+  let religion = $state(generateReligion(`${seed}-religion`, genConfig));
+  
 
   function generate() {
     if (!lockSeed) {
@@ -70,37 +69,37 @@
       categoryOptions.push(ReligionCategories.byName(selectedCategories[i], allReligionCategories));
     }
 
-    generator.config.deitySpeciesOptions = speciesOptions;
-    generator.config.categories = categoryOptions;
-    generator.config.nameGenerator = humanNameGenSet.family;
-    generator.config.femaleNameGenerator = humanNameGenSet.female;
-    generator.config.maleNameGenerator = humanNameGenSet.male;
+    genConfig.deitySpeciesOptions = speciesOptions;
+    genConfig.categories = categoryOptions;
+    genConfig.nameGenerator = humanNameGenSet.family;
+    genConfig.femaleNameGenerator = humanNameGenSet.female;
+    genConfig.maleNameGenerator = humanNameGenSet.male;
 
     if (useSavedCulture) {
       loadSavedCulture();
 
       if (culture.nameGenerators.family !== null) {
-        generator.config.nameGenerator = culture.nameGenerators.family;
+        genConfig.nameGenerator = culture.nameGenerators.family;
       }
       if (culture.nameGenerators.female !== null) {
-        generator.config.femaleNameGenerator = culture.nameGenerators.female;
+        genConfig.femaleNameGenerator = culture.nameGenerators.female;
       }
       if (culture.nameGenerators.male !== null) {
-        generator.config.maleNameGenerator = culture.nameGenerators.male;
+        genConfig.maleNameGenerator = culture.nameGenerators.male;
       }
     } else {
-      generator.config.nameGenerator = humanNameGenSet.family;
-      generator.config.femaleNameGenerator = humanNameGenSet.female;
-      generator.config.maleNameGenerator = humanNameGenSet.male;
+      genConfig.nameGenerator = humanNameGenSet.family;
+      genConfig.femaleNameGenerator = humanNameGenSet.female;
+      genConfig.maleNameGenerator = humanNameGenSet.male;
     }
 
-    religion = generator.generate();
+    religion = generateReligion(seed, genConfig);
   }
 
   function loadSavedCulture() {
-    for (let i = 0; i < $userStore.savedCultures.length; i++) {
-      if ($userStore.savedCultures[i].name === savedCulture) {
-        culture = $userStore.savedCultures[i];
+    for (let i = 0; i < user.savedCultures.length; i++) {
+      if (user.savedCultures[i].name === savedCulture) {
+        culture = user.savedCultures[i];
       }
     }
   }
@@ -157,7 +156,7 @@
     {/each}
   </div>
 
-  {#if $userStore && $userStore.savedCultures !== undefined && $userStore.savedCultures.length > 0}
+  {#if user && user.savedCultures !== undefined && user.savedCultures.length > 0}
     <div class="input-group">
       <label for="useSavedCulture">Use a saved culture for naming?</label>
       <input
@@ -171,7 +170,7 @@
     <div class="input-group">
       <label for="savedCulture">Select a saved culture to load</label>
       <select bind:value={savedCulture}>
-        {#each $userStore.savedCultures as saved}
+        {#each user.savedCultures as saved}
           <option value={saved.name}>{saved.name}</option>
         {/each}
       </select>
@@ -200,14 +199,16 @@
 
     {#each religion.pantheon.members as member}
       <div>
-        <h4>{member.deity.name}</h4>
+        <h4>{member.name}</h4>
 
-        <p>{member.deity.titles.join(',')}</p>
+        <p>{member.titles?.join(',')}</p>
 
-        <p><strong>Holy Item:</strong> {member.deity.holyItem}</p>
-        <p><strong>Holy Symbol:</strong> {member.deity.holySymbol}</p>
+        <p><strong>Domains:</strong> {listDomains(member.domains)}</p>
 
-        <p>{member.deity.description}</p>
+        <p><strong>Holy Item:</strong> {member.holyItem}</p>
+        <p><strong>Holy Symbol:</strong> {member.holySymbol}</p>
+
+        <p>{member.description}</p>
       </div>
     {/each}
   {/if}

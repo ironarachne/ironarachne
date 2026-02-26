@@ -1,11 +1,4 @@
-export type ReligionCategory = {
-  name: string;
-  description: string;
-  hasDeities: boolean;
-  hasLeader: boolean;
-  minDeities: number;
-  maxDeities: number;
-};
+import type { ReligionCategory } from "../religion_types";
 
 export const monotheism = {
   name: 'monotheism',

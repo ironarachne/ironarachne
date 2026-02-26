@@ -1,5 +1,6 @@
-import type { RNG } from "@ironarachne/rng";
-import type { RelationshipType } from "./relationship_types";
+import type { Character } from '$lib/characters';
+import { RNG } from "@ironarachne/rng";
+import type { Relationship, RelationshipType } from "./relationship_types";
 
 export const relationshipTypes: RelationshipType[] = [
     {
@@ -154,6 +155,71 @@ export function filterRelationshipTypes(allowedTags: string[], disallowedTags: s
         const hasDisallowedTags = disallowedTags.some(tag => type.tags.includes(tag));
         return hasAllowedTags && !hasDisallowedTags;
     });
+}
+
+export function generateRelationships(seed: string, characters: Character[]): Relationship[] {
+    if (characters.length < 2) {
+        return [];
+    }
+
+    const rng = new RNG(seed);
+    const relationships: Relationship[] = [];
+
+    // For each character, generate m relationships other characters, where m is a random number between 1 and the length of the characters array minus 1
+    for (let i = 0; i < characters.length; i++) {
+        const originator = characters[i];
+        const numberOfRelationships = rng.int(1, characters.length - 1);
+        const potentialRecipients = characters.filter((_, index) => index !== i);
+        const recipients = rng.randomSet(numberOfRelationships, potentialRecipients);
+        for (const recipient of recipients) {
+            const type = rng.item(relationshipTypes);
+            const relationship = {
+                id: rng.randomString(16),
+                originatorId: originator.id,
+                recipientId: recipient.id,
+                type,
+                description: ''
+            };
+            relationship.description = generateRelationshipDescription(rng, originator.name, recipient.name, type);
+            relationships.push(relationship);
+        }
+    }
+
+    // Now generate reciprocal relationships for any non-one-sided relationship types
+    const additionalRelationships: Relationship[] = [];
+    for (const relationship of relationships) {
+        if (!relationship.type.isOneSided) {
+            const inverseType = getInverseRelationshipType(relationship.type);
+            if (inverseType) {
+                const reciprocalRelationship = {
+                    id: rng.randomString(16),
+                    originatorId: relationship.recipientId,
+                    recipientId: relationship.originatorId,
+                    type: inverseType,
+                    description: generateRelationshipDescription(rng, characters.find(c => c.id === relationship.recipientId)?.name || "Unknown", characters.find(c => c.id === relationship.originatorId)?.name || "Unknown", inverseType)
+                };
+                additionalRelationships.push(reciprocalRelationship);
+            }
+        }
+    }
+
+    relationships.push(...additionalRelationships);
+
+    // Now filter out any relationships that violate incompatibilities
+    const validRelationships: Relationship[] = [];
+    for (const relationship of relationships) {
+        const originatorRelationships = validRelationships.filter(r => r.originatorId === relationship.originatorId);
+        const recipientRelationships = validRelationships.filter(r => r.originatorId === relationship.recipientId);
+
+        const originatorIncompatible = originatorRelationships.some(r => relationship.type.incompatibleWithTypes.includes(r.type.name));
+        const recipientIncompatible = recipientRelationships.some(r => relationship.type.incompatibleWithTypes.includes(r.type.name));
+
+        if (!originatorIncompatible && !recipientIncompatible) {
+            validRelationships.push(relationship);
+        }
+    }
+
+    return validRelationships;
 }
 
 export function generateRelationshipDescription(rng: RNG, originatorName: string, recipientName: string, type: RelationshipType): string {

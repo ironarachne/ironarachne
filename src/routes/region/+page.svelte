@@ -5,8 +5,6 @@
   import * as Words from '@ironarachne/words';
   import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
-  import { renderSVGAsPNG } from '$lib/images/svg';
-
   import HeraldrySVGRenderer from '$lib/heraldry/renderers/svg';
   import type Culture from '$lib/culture/culture';
   import type UserData from '$lib/user_data';

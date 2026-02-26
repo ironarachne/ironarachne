@@ -54,8 +54,7 @@ export default <Species>{
     {
       name: 'regeneration',
       description: 'regenerate unless burned',
-      category: 'misc',
-      threatLevel: 2,
+      category: 'misc'
     },
   ],
   commonality: 8,

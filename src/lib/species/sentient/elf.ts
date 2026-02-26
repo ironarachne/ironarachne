@@ -45,20 +45,17 @@ export default <Species>{
     {
       name: 'darkvision',
       description: 'can see in the dark',
-      category: 'senses',
-      threatLevel: 1,
+      category: 'senses'
     },
     {
       name: 'trance',
       description: 'can meditate instead of sleeping',
-      category: 'senses',
-      threatLevel: 1,
+      category: 'senses'
     },
     {
       name: 'immunity: sleep',
       description: 'cannot be put to sleep by magic',
-      category: 'immunity',
-      threatLevel: 1,
+      category: 'immunity'
     },
   ],
   commonality: 30,

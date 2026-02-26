@@ -1,5 +1,5 @@
 export interface TagFilter {
-  includeTags?: string[];
+  includeSomeTags?: string[];
   excludeTags?: string[];
   includeAllTags?: string[];
 }

@@ -4,6 +4,7 @@ import type { Item } from '$lib/equipment';
 import type Gender from '$lib/gender/gender';
 import type { Mob } from '$lib/mobs';
 import type PhysicalTrait from '$lib/physical_traits/physical_trait.js';
+import type { Relationship } from '$lib/relationships';
 import type Species from '$lib/species/species.js';
 import type { TaggedItem } from '$lib/tags/tag_types';
 
@@ -29,4 +30,5 @@ export type Creature = Mob & TaggedItem & {
   ageCategory: AgeCategory;
   carried: Item[];
   creatureTypes: string[];
+  relationships: Relationship[];
 }

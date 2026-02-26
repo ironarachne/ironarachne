@@ -46,13 +46,11 @@ export default <Species>{
       name: 'healing touch',
       description: 'can heal with a touch',
       category: 'spell',
-      threatLevel: 1,
     },
     {
       name: 'summon light',
       description: 'can summon light',
       category: 'spell',
-      threatLevel: 1,
     },
   ],
   commonality: 5,

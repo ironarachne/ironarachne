@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
-import { filterRelationshipTypes, generateRelationshipDescription, getInverseRelationshipType, relationshipTypes } from './relationships';
+import { filterRelationshipTypes, generateRelationshipDescription, generateRelationships, getInverseRelationshipType, relationshipTypes } from './relationships';
 import type { RNG } from "@ironarachne/rng";
+import type { Character } from '$lib/characters';
 
 describe('Relationships Library', () => {
 
@@ -108,6 +109,104 @@ describe('Relationships Library', () => {
              // Logic: relationships.find(t => t.name === type.reciprocalName)
              // reciprocalName is "" for desire. likely no type with name "".
              expect(inverse).toBeNull();
+        });
+    });
+
+    describe('generateRelationships', () => {
+        it('should return an empty array if less than 2 characters are provided', () => {
+            const result0 = generateRelationships('seed', []);
+            expect(result0).toEqual([]);
+
+            const result1 = generateRelationships('seed', [{ id: '1', name: 'Alice' } as Character]);
+            expect(result1).toEqual([]);
+        });
+
+        it('should generate relationships for a group of characters', () => {
+            const characters = [
+                { id: '1', name: 'Alice' } as Character,
+                { id: '2', name: 'Bob' } as Character,
+                { id: '3', name: 'Charlie' } as Character,
+                { id: '4', name: 'Diana' } as Character
+            ];
+
+            const relationships = generateRelationships('test-seed', characters);
+            
+            expect(relationships.length).toBeGreaterThan(0);
+            
+            // Check that relationships have valid properties
+            relationships.forEach(rel => {
+                expect(rel.id).toBeDefined();
+                expect(rel.originatorId).toBeDefined();
+                expect(rel.recipientId).toBeDefined();
+                expect(rel.type).toBeDefined();
+                expect(rel.description).toBeDefined();
+                
+                // Originator and recipient should not be the same
+                expect(rel.originatorId).not.toBe(rel.recipientId);
+            });
+        });
+
+        it('should generate reciprocal relationships for non-one-sided types', () => {
+            const characters = [
+                { id: '1', name: 'Alice' } as Character,
+                { id: '2', name: 'Bob' } as Character
+            ];
+
+            const relationships = generateRelationships('reciprocal-seed', characters);
+            
+            relationships.forEach(rel => {
+                if (!rel.type.isOneSided) {
+                    const reciprocal = relationships.find(r => 
+                        r.originatorId === rel.recipientId && 
+                        r.recipientId === rel.originatorId &&
+                        r.type.name === rel.type.reciprocalName
+                    );
+                    expect(reciprocal).toBeDefined();
+                }
+            });
+        });
+
+        it('should not generate incompatible relationships', () => {
+            const characters = [
+                { id: '1', name: 'Alice' } as Character,
+                { id: '2', name: 'Bob' } as Character,
+                { id: '3', name: 'Charlie' } as Character
+            ];
+
+            const relationships = generateRelationships('incompatible-seed', characters);
+            
+            // Group relationships by originator
+            const byOriginator = new Map<string, typeof relationships>();
+            relationships.forEach(rel => {
+                if (!byOriginator.has(rel.originatorId)) {
+                    byOriginator.set(rel.originatorId, []);
+                }
+                byOriginator.get(rel.originatorId)!.push(rel);
+            });
+
+            // Check for incompatibilities
+            byOriginator.forEach(rels => {
+                rels.forEach(rel => {
+                    const incompatibleTypes = rel.type.incompatibleWithTypes;
+                    const hasIncompatible = rels.some(r => incompatibleTypes.includes(r.type.name));
+                    expect(hasIncompatible).toBe(false);
+                });
+            });
+        });
+
+        it('should generate deterministic results for the same seed', () => {
+            const characters = [
+                { id: '1', name: 'Alice' } as Character,
+                { id: '2', name: 'Bob' } as Character,
+                { id: '3', name: 'Charlie' } as Character
+            ];
+
+            const relationships1 = generateRelationships('deterministic-seed', characters);
+            const relationships2 = generateRelationships('deterministic-seed', characters);
+
+            // We can't use toEqual directly because the IDs are randomly generated using the RNG,
+            // but since the RNG is seeded, the IDs should also be identical.
+            expect(relationships1).toEqual(relationships2);
         });
     });
 });
