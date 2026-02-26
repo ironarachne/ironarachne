@@ -36,7 +36,11 @@ export function generate(seed: string, config: PantheonGenerationConfig): Panthe
 	}
 
 	// Generate relationships between deities
-	const relationships = generateRelationships(seed + '-relationships', deities);
+	const relationships = generateRelationships(seed + '-relationships', deities, { tagFilter: { includeSomeTags: ["emotional", "social"] } });
+
+	for (const deity of deities) {
+		deity.relationships = relationships.filter(r => r.originatorId === deity.id);
+	}
 
 	// Pick a leader randomly
 	const leader = deities.length > 0 ? rng.int(0, deities.length - 1) : -1;

@@ -55,6 +55,7 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
     age,
     ageCategory: creatureAgeCategory,
     carried: [],
+    relationships: [],
     tags: creatureSpecies.tags,
     creatureTypes: creatureSpecies.creatureTypes,
   };

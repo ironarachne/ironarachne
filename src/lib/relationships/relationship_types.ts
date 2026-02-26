@@ -1,4 +1,4 @@
-import type { TaggedItem } from "$lib/tags/tag_types";
+import type { TagFilter, TaggedItem } from "$lib/tags/tag_types";
 
 export type Relationship = {
     id: string;
@@ -6,6 +6,10 @@ export type Relationship = {
     recipientId: string;
     type: RelationshipType;
     description: string;
+}
+
+export type RelationshipGenerationConfig = {
+    tagFilter?: TagFilter;
 }
 
 export type RelationshipType = TaggedItem &{

@@ -209,6 +209,17 @@
         <p><strong>Holy Symbol:</strong> {member.holySymbol}</p>
 
         <p>{member.description}</p>
+
+        {#if member.relationships.length > 0}
+          <div>
+            <strong>Relationships:</strong>
+            <ul>
+              {#each member.relationships as relationship}
+                <li>{relationship.description}</li>
+              {/each}
+            </ul>
+          </div>
+        {/if}
       </div>
     {/each}
   {/if}

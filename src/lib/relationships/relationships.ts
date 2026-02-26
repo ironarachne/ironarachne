@@ -1,6 +1,7 @@
 import type { Character } from '$lib/characters';
 import { RNG } from "@ironarachne/rng";
-import type { Relationship, RelationshipType } from "./relationship_types";
+import type { Relationship, RelationshipGenerationConfig, RelationshipType } from "./relationship_types";
+import { applyTagFilter } from '$lib/tags';
 
 export const relationshipTypes: RelationshipType[] = [
     {
@@ -46,7 +47,7 @@ export const relationshipTypes: RelationshipType[] = [
     {
         name: "spouse",
         reciprocalName: "spouse",
-        descriptionPhraseTemplates: ["{originator} is married to {recipient}"],
+        descriptionPhraseTemplates: ["{originator} is mated to {recipient}"],
         incompatibleWithTypes: [],
         isOneSided: false,
         tags: ["positive", "familial"]
@@ -149,15 +150,7 @@ export const relationshipTypes: RelationshipType[] = [
     }
 ];
 
-export function filterRelationshipTypes(allowedTags: string[], disallowedTags: string[]): RelationshipType[] {
-    return relationshipTypes.filter(type => {
-        const hasAllowedTags = allowedTags.length === 0 || allowedTags.every(tag => type.tags.includes(tag));
-        const hasDisallowedTags = disallowedTags.some(tag => type.tags.includes(tag));
-        return hasAllowedTags && !hasDisallowedTags;
-    });
-}
-
-export function generateRelationships(seed: string, characters: Character[]): Relationship[] {
+export function generateRelationships(seed: string, characters: Character[], config: RelationshipGenerationConfig): Relationship[] {
     if (characters.length < 2) {
         return [];
     }
@@ -165,14 +158,20 @@ export function generateRelationships(seed: string, characters: Character[]): Re
     const rng = new RNG(seed);
     const relationships: Relationship[] = [];
 
-    // For each character, generate m relationships other characters, where m is a random number between 1 and the length of the characters array minus 1
+    let relationshipTypesToUse = relationshipTypes;
+
+    if (config.tagFilter) {
+        relationshipTypesToUse = applyTagFilter(relationshipTypes, config.tagFilter);
+    }
+
+    // Let's generate at most 3 relationships per character
     for (let i = 0; i < characters.length; i++) {
         const originator = characters[i];
-        const numberOfRelationships = rng.int(1, characters.length - 1);
+        const numberOfRelationships = rng.int(1, Math.min(3, characters.length - 1));
         const potentialRecipients = characters.filter((_, index) => index !== i);
         const recipients = rng.randomSet(numberOfRelationships, potentialRecipients);
         for (const recipient of recipients) {
-            const type = rng.item(relationshipTypes);
+            const type = rng.item(relationshipTypesToUse);
             const relationship = {
                 id: rng.randomString(16),
                 originatorId: originator.id,
