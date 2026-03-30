@@ -1,4 +1,4 @@
-import type Gender from './gender';
+import type { Gender } from './gender_types';
 
 export function getGenderFromSet(name: string, genderSet: Gender[]) {
   const gender = genderSet.find((g) => g.name === name);

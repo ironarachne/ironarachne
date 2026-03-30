@@ -38,16 +38,8 @@ describe('getMonthName', () => {
 
 describe('getNiceDate', () => {
   test('returns formatted date string with ordinal and month abbreviation', () => {
-    // Mock Words.getOrdinal
-    vi.spyOn(Words, 'getOrdinal').mockImplementation((n) => `${n}th`);
-    expect(getNiceDate('2025-07-15')).toBe('Jul. 15<sup>15th</sup>, 2025');
-    expect(getNiceDate('2025-01-01')).toBe('Jan. 1<sup>1th</sup>, 2025');
-    expect(getNiceDate('2025-12-31')).toBe('Dec. 31<sup>31th</sup>, 2025');
-  });
-
-  test('calls Words.getOrdinal with correct day', () => {
-    const spy = vi.spyOn(Words, 'getOrdinal');
-    getNiceDate('2025-07-15');
-    expect(spy).toHaveBeenCalledWith(15);
+    expect(getNiceDate('2025-07-15')).toBe('Jul. 15<sup>th</sup>, 2025');
+    expect(getNiceDate('2025-01-01')).toBe('Jan. 1<sup>st</sup>, 2025');
+    expect(getNiceDate('2025-12-31')).toBe('Dec. 31<sup>st</sup>, 2025');
   });
 });

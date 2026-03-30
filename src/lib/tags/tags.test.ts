@@ -1,3 +1,4 @@
+import { test, expect, describe, it } from 'vitest';
 import { applyTagFilter } from './tags';
 import type { TagFilter, TaggedItem } from './tag_types';
 

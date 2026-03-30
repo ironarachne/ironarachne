@@ -1,6 +1,6 @@
 import type { Ability } from '$lib/abilities';
 import type AgeCategory from '$lib/age/age_category.js';
-import type Gender from '$lib/gender/gender.js';
+import type { Gender } from '$lib/gender';
 import type PhysicalTraitGeneratorConfig from '$lib/physical_traits/physical_trait_generator_config.js';
 import type { SizeMatrix } from '$lib/size/size_matrix';
 

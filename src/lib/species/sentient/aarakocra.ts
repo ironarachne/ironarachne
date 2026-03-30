@@ -1,5 +1,6 @@
 import * as AgeCategories from '$lib/age/age_categories.js';
 import * as Sizes from '$lib/size/sizes.js';
+import { traditional } from '$lib/gender';
 import type Species from '../species.js';
 
 const wingLengths = ['short', 'long'];
@@ -49,26 +50,7 @@ export default <Species>{
     },
   ],
   commonality: 5,
-  genders: [
-    {
-      name: 'female',
-      pronouns: {
-        subjective: 'she',
-        objective: 'her',
-        possessive: 'her',
-        reflexive: 'herself',
-      },
-    },
-    {
-      name: 'male',
-      pronouns: {
-        subjective: 'he',
-        objective: 'him',
-        possessive: 'his',
-        reflexive: 'himself',
-      },
-    },
-  ],
+  genders: traditional(),
   sizeGeneratorConfigMatrix: Sizes.getHumanVariant(0.7, 0.95),
-  tags: ['corruptible', 'aarakocra', 'flying', 'martial', 'magic', 'sentient'],
+  tags: ['corruptible', 'aarakocra', 'flying', 'martial', 'magic', 'sentient', 'humanoid'],
 };

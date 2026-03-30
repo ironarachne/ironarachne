@@ -43,7 +43,7 @@ export function getFantasyCombatArchetypes(): Archetype[] {
         getArmorGenerationConfig('leather armor')
       ],
       addedTags: ['stealthy', 'agile'],
-      tags: ['stealth', 'martial', 'agile']
+      tags: ['assassin', 'stealth', 'martial', 'agile']
     },
     {
       name: "cleric",
@@ -83,7 +83,7 @@ export function getFantasyCombatArchetypes(): Archetype[] {
         getArmorGenerationConfig('chainmail')
       ],
       addedTags: ['holy'],
-      tags: ['divine']
+      tags: ['cleric', 'divine']
     },
     {
       name: "cultist",
@@ -108,7 +108,7 @@ export function getFantasyCombatArchetypes(): Archetype[] {
         getArmorGenerationConfig('robe')
       ],
       addedTags: ['unholy'],
-      tags: ['demonic']
+      tags: ['cultist', 'demonic']
     },
     {
       name: 'druid',
@@ -139,7 +139,7 @@ export function getFantasyCombatArchetypes(): Archetype[] {
         getArmorGenerationConfig('leather armor')
       ],
       addedTags: ['nature lover'],
-      tags: ['nature', 'magic']
+      tags: ['druid', 'nature', 'magic']
     },
     {
       name: 'fighter',
@@ -161,7 +161,7 @@ export function getFantasyCombatArchetypes(): Archetype[] {
         getArmorGenerationConfig(),
       ],
       addedTags: ['martial', 'tough'],
-      tags: ['martial', 'tough']
+      tags: ['martial', 'tough', 'fighter']
     },
     {
       name: 'mage',
@@ -186,7 +186,7 @@ export function getFantasyCombatArchetypes(): Archetype[] {
         getArmorGenerationConfig('robe')
       ],
       addedTags: ['arcane'],
-      tags: ['arcane', 'magic']
+      tags: ['mage', 'arcane', 'magic']
     },
     {
       name: 'rogue',
@@ -221,7 +221,7 @@ export function getFantasyCombatArchetypes(): Archetype[] {
         getArmorGenerationConfig('leather armor')
       ],
       addedTags: ['stealthy', 'dexterous'],
-      tags: ['stealth', 'agile']
+      tags: ['rogue', 'stealth', 'agile']
     }
   ];
 }
@@ -243,7 +243,7 @@ export function getFantasyNonCombatArchetypes(): Archetype[] {
       actions: [],
       equipmentGenerationConfigs: [],
       addedTags: ['commoner'],
-      tags: ['commoner']
+      tags: ['peasant', 'commoner']
     },
     {
       name: 'merchant',
@@ -260,7 +260,7 @@ export function getFantasyNonCombatArchetypes(): Archetype[] {
       actions: [],
       equipmentGenerationConfigs: [],
       addedTags: ['trader'],
-      tags: ['commerce']
+      tags: ['merchant', 'commerce']
     },
     {
       name: 'noble',
@@ -277,7 +277,7 @@ export function getFantasyNonCombatArchetypes(): Archetype[] {
       actions: [],
       equipmentGenerationConfigs: [],
       addedTags: ['aristocrat'],
-      tags: ['influential']
+      tags: ['noble', 'influential']
     }
   ];
 }

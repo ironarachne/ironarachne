@@ -1,4 +1,5 @@
 import * as AgeCategories from '$lib/age/age_categories.js';
+import { traditional } from '$lib/gender/index.js';
 import * as Sizes from '$lib/size/sizes.js';
 import type Species from '../species.js';
 
@@ -43,26 +44,7 @@ export default <Species>{
   baseThreatLevel: 1,
   abilities: [],
   commonality: 200,
-  genders: [
-    {
-      name: 'female',
-      pronouns: {
-        subjective: 'she',
-        objective: 'her',
-        possessive: 'her',
-        reflexive: 'herself',
-      },
-    },
-    {
-      name: 'male',
-      pronouns: {
-        subjective: 'he',
-        objective: 'him',
-        possessive: 'his',
-        reflexive: 'himself',
-      },
-    },
-  ],
+  genders: traditional(),
   sizeGeneratorConfigMatrix: Sizes.humanStandard(),
-  tags: ['corruptible', 'human', 'martial', 'magic', 'sentient'],
+  tags: ['corruptible', 'human', 'martial', 'magic', 'sentient', 'humanoid'],
 };

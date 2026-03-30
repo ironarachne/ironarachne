@@ -19,10 +19,10 @@
     "not dead"
   ],
   "dependencies": {
-    "@ironarachne/made-up-names": "^2.3.6",
-    "@ironarachne/rng": "^2.3.0",
-    "@ironarachne/word-generator": "^2.1.1",
-    "@ironarachne/words": "^1.1.0",
+    "@ironarachne/made-up-names": "^2.3.7",
+    "@ironarachne/rng": "^2.3.1",
+    "@ironarachne/word-generator": "^2.3.1",
+    "@ironarachne/words": "^2.0.0",
     "@sveltejs/adapter-node": "^5.2.9",
     "@sveltejs/kit": "^2.5.27",
     "core-js": "^3.33.3",

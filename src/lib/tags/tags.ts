@@ -4,6 +4,10 @@ export function applyTagFilter<T extends TagTypes.TaggedItem>(
   items: T[],
   filter: TagTypes.TagFilter,
 ): T[] {
+  if (!filter || (Object.keys(filter).length === 0)) {
+    return items;
+  }
+
   return items.filter((item) => {
     if (filter.includeSomeTags) {
       let hasAtLeastOneTag = false;

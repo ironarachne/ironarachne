@@ -6,7 +6,7 @@
   import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
   import HeraldrySVGRenderer from '$lib/heraldry/renderers/svg';
-  import type Culture from '$lib/culture/culture';
+  import { type Culture } from '$lib/culture';
   import type UserData from '$lib/user_data';
 
   const user: UserData = getContext('user');

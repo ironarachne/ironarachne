@@ -9,11 +9,3 @@ export function getArchetypeByName(name: string, archetypes: Archetype[]): Arche
 
   return archetype;
 }
-
-export function filterArchetypes(archetypes: Archetype[], allowedTags: string[], disallowedTags: string[]): Archetype[] {
-  return archetypes.filter(archetype => {
-    const hasAllowedTags = allowedTags.length === 0 || allowedTags.every(tag => archetype.tags.includes(tag));
-    const hasDisallowedTags = disallowedTags.some(tag => archetype.tags.includes(tag));
-    return hasAllowedTags && !hasDisallowedTags;
-  });
-}

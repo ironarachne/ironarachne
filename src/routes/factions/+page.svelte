@@ -8,6 +8,7 @@
   <nav>
     <a href="/arms-manufacturer">Arms Manufacturer</a>
     <a href="/culture">Culture</a>
+    <a href="/fantasy/encounter">Fantasy Encounter</a>
     <a href="/fantasy/family">Fantasy Family</a>
     <a href="/fantasy/organization">Fantasy Organization</a>
     <a href="/fantasy/religion">Fantasy Religion</a>

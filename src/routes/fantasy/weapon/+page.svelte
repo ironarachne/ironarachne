@@ -1,10 +1,10 @@
 <script lang="ts">
-  import * as Domains from '$lib/religion/domains/domains';
+  import { domains } from '$lib/religion/domains';
   import * as Equipment from '$lib/equipment/index';
   import * as RNG from '@ironarachne/rng';
   import { getDefaultGenerationConfig } from '$lib/equipment/generation';
 
-  const themes = Domains.getAllDomainNames().sort();
+  const themes = domains.map(domain => domain.name).sort();
   const categories = ['any', 'melee', 'ranged'];
 
   let rng = new RNG.RNG(Date.now().toString());
@@ -21,7 +21,7 @@
   function generateWeapon(cat: string, thm: string, genRng: RNG.RNG) {
     let domainName = thm;
     if (thm === 'any') {
-      domainName = genRng.item(Domains.allDomains).name;
+      domainName = genRng.item(domains).name;
     }
 
     const config = getDefaultGenerationConfig();

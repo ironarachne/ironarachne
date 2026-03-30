@@ -6,10 +6,9 @@ import type PhysicalTraitGeneratorConfig from '$lib/physical_traits/physical_tra
 import * as PhysicalTraits from '$lib/physical_traits/physical_traits.js';
 import type { SizeMatrix } from '$lib/size/size_matrix.js';
 import all from './all.js';
-import * as Skeleton from './modifiers/skeleton.js';
-import * as Vampire from './modifiers/vampire.js';
-import * as Zombie from './modifiers/zombie.js';
+import { allMutators } from './mutators.js';
 import type Species from './species.js';
+import { applyTagFilter } from '$lib/tags/index.js';
 
 export function randomWeighted(speciesList: Species[]): Species {
   const totalWeight = speciesList.reduce((acc, s) => acc + s.commonality, 0);
@@ -106,50 +105,6 @@ export function breedable(species1: Species, species2: Species): boolean {
   return false;
 }
 
-/**
- * byAllTags filters species by requiring all specified tags.
- *
- * @param tags Required tags
- * @param options Species to filter
- * @returns filtered species
- */
-export function byAllTags(tags: string[], options: Species[]): Species[] {
-  const result = [];
-
-  for (let i = 0; i < options.length; i++) {
-    let valid = true;
-    for (let t = 0; t < tags.length; t++) {
-      if (!options[i].tags.includes(tags[t])) {
-        valid = false;
-        break;
-      }
-    }
-    if (valid === true) {
-      result.push(options[i]);
-    }
-  }
-
-  return result;
-}
-
-export function byAnyTag(tags: string[], options: Species[]): Species[] {
-  let result = [];
-
-  let unique = true;
-
-  for (let i = 0; i < options.length; i++) {
-    unique = true;
-    for (let j = 0; j < tags.length; j++) {
-      if (options[i].tags.includes(tags[j]) && unique) {
-        result.push(options[i]);
-        unique = false;
-      }
-    }
-  }
-
-  return result;
-}
-
 export function byCreatureType(creatureType: string, options: Species[]): Species[] {
   let result = [];
 
@@ -184,18 +139,6 @@ export function byName(name: string, options: Species[]): Species {
   throw new Error(`No species found with name ${name}.`);
 }
 
-export function byTag(tag: string, options: Species[]): Species[] {
-  let result: Species[] = [];
-
-  for (let i = 0; i < options.length; i++) {
-    if (options[i].tags.includes(tag)) {
-      result.push(options[i]);
-    }
-  }
-
-  return result;
-}
-
 export function generateCompositeName(species1: Species, species2: Species): string {
   let firstName = species1.name > species2.name ? species1.name : species2.name;
   let lastName = species1.name > species2.name ? species2.name : species1.name;
@@ -228,8 +171,14 @@ export function getModifiedVariants(options: Species[]): Species[] {
 export function getSkeletonVariants(options: Species[]): Species[] {
   let result = [];
 
+  const mutators = allMutators();
+  const Skeleton = mutators.find(m => m.name === 'skeleton');
+  if (!Skeleton) {
+    throw new Error('Skeleton mutator not found.');
+  }
+
   for (let i = 0; i < options.length; i++) {
-    let skeleton = Skeleton.modify(options[i]);
+    let skeleton = Skeleton.mutate('', options[i]);
     result.push(skeleton);
   }
 
@@ -239,8 +188,14 @@ export function getSkeletonVariants(options: Species[]): Species[] {
 export function getVampireVariants(options: Species[]): Species[] {
   let result = [];
 
+  const mutators = allMutators();
+  const Vampire = mutators.find(m => m.name === 'vampire');
+  if (!Vampire) {
+    throw new Error('Vampire mutator not found.');
+  }
+
   for (let i = 0; i < options.length; i++) {
-    let vampire = Vampire.modify(options[i]);
+    let vampire = Vampire.mutate('', options[i]);
     result.push(vampire);
   }
 
@@ -250,8 +205,14 @@ export function getVampireVariants(options: Species[]): Species[] {
 export function getZombieVariants(options: Species[]): Species[] {
   let result = [];
 
+  const mutators = allMutators();
+  const Zombie = mutators.find(m => m.name === 'zombie');
+  if (!Zombie) {
+    throw new Error('Zombie mutator not found.');
+  }
+
   for (let i = 0; i < options.length; i++) {
-    let zombie = Zombie.modify(options[i]);
+    let zombie = Zombie.mutate('', options[i]);
     result.push(zombie);
   }
 
@@ -330,7 +291,13 @@ export function randomUniqueSet(options: Species[], count: number, rng: RNG.RNG)
 }
 
 export function sentient(): Species[] {
-  return byTag('sentient', all);
+  const tagFilter = { includeAllTags: ['sentient'] };
+  return applyTagFilter(all, tagFilter);
+}
+
+export function nonSentient(): Species[] {
+  const tagFilter = { excludeTags: ['sentient'] };
+  return applyTagFilter(all, tagFilter);
 }
 
 export function withCreatureType(creatureType: string, options: Species[]): Species[] {
@@ -338,18 +305,6 @@ export function withCreatureType(creatureType: string, options: Species[]): Spec
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].creatureTypes.includes(creatureType)) {
-      result.push(options[i]);
-    }
-  }
-
-  return result;
-}
-
-export function withoutTag(tag: string, options: Species[]): Species[] {
-  let result = [];
-
-  for (let i = 0; i < options.length; i++) {
-    if (!options[i].tags.includes(tag)) {
       result.push(options[i]);
     }
   }

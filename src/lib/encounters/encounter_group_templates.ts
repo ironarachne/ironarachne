@@ -1,0 +1,246 @@
+import type { Character } from "$lib/characters/character_types";
+import type { Creature } from "$lib/creatures/creature_types";
+import { getMutatorByName } from "$lib/species";
+import type { EncounterGroupTemplate } from "./encounter_types";
+
+export function allTemplates(): EncounterGroupTemplate[] {
+  return [
+    {
+      name: "adventurer",
+      archetypeTagFilter: { includeSomeTags: ['fighter', 'mage', 'rogue'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 1,
+      maxCount: 1,
+    },
+    {
+      name: "adventurers",
+      archetypeTagFilter: { includeSomeTags: ['fighter', 'mage', 'rogue'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 2,
+      maxCount: 5,
+    },
+    {
+      name: "bandits",
+      archetypeTagFilter: { includeSomeTags: ['fighter'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 2,
+      maxCount: 5,
+    },
+    {
+      name: "bandit leader",
+      archetypeTagFilter: { includeSomeTags: ['fighter'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 1,
+      maxCount: 1,
+    },
+    {
+      name: "cultists",
+      archetypeTagFilter: { includeSomeTags: ['cultist'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 3,
+      maxCount: 6,
+    },
+    {
+      name: "cult priest",
+      archetypeTagFilter: { includeSomeTags: ['cultist'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 1,
+      maxCount: 2,
+    },
+    {
+      name: "mage",
+      archetypeTagFilter: { includeSomeTags: ['mage'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 1,
+      maxCount: 1,
+    },
+    {
+      name: "necromancer",
+      archetypeTagFilter: { includeSomeTags: ['mage'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [
+        {
+          name: "necromancy",
+          mutate: (seed: string, target: Character): Character => {
+            const necromancyAbility = {
+              name: "necromancy",
+              description: "Can raise the dead to fight for them.",
+              category: "magic",
+              tags: ['necromancy'],
+            }
+
+            return {
+              ...target,
+              abilities: [...(target.abilities || []), necromancyAbility],
+              tags: [...(target.tags || []), 'necromancer'],
+            }
+          },
+          tags: ['necromancer'],
+        }
+      ],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 1,
+      maxCount: 1,
+    },
+    {
+      name: "pack of ghouls",
+      archetypeTagFilter: {},
+      speciesTagFilter: { includeSomeTags: ['ghoul'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: true,
+      isSentient: false,
+      minCount: 2,
+      maxCount: 6,
+    },
+    {
+      name: "pack of zombies",
+      archetypeTagFilter: {},
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [
+        getMutatorByName("zombie"),
+      ],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 2,
+      maxCount: 6,
+    },
+    {
+      name: "raiders",
+      archetypeTagFilter: { includeSomeTags: ['fighter'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 3,
+      maxCount: 6,
+    },
+    {
+      name: "raider captain",
+      archetypeTagFilter: { includeSomeTags: ['fighter'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 1,
+      maxCount: 1,
+    },
+    {
+      name: "skeleton warriors",
+      archetypeTagFilter: { includeSomeTags: ['fighter'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [
+        getMutatorByName("skeleton"),
+      ],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 3,
+      maxCount: 6,
+    },
+    {
+      name: "squad of soldiers",
+      archetypeTagFilter: { includeSomeTags: ['fighter'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 2,
+      maxCount: 4,
+    },
+    {
+      name: "soldier captain",
+      archetypeTagFilter: { includeSomeTags: ['fighter'] },
+      speciesTagFilter: { includeSomeTags: ['humanoid'] },
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: true,
+      minCount: 1,
+      maxCount: 1,
+    },
+    {
+      name: "wandering creature",
+      archetypeTagFilter: {},
+      speciesTagFilter: {},
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: false,
+      isSentient: false,
+      minCount: 1,
+      maxCount: 1,
+    },
+    {
+      name: "group of wandering creatures",
+      archetypeTagFilter: {},
+      speciesTagFilter: {},
+      characterMutators: [],
+      creatureMutators: [],
+      speciesMutators: [],
+      hasUniformSpecies: true,
+      isSentient: false,
+      minCount: 2,
+      maxCount: 4,
+    }
+  ];
+}
+
+export function getGroupTemplateByName(name: string): EncounterGroupTemplate {
+  const template = allTemplates().find(template => template.name === name);
+
+  if (!template) {
+    throw new Error(`Encounter group template with name "${name}" not found.`);
+  }
+
+  return template;
+}
