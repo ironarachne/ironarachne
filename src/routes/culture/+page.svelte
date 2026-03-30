@@ -2,8 +2,7 @@
   import * as RNG from '@ironarachne/rng';
   import { getContext } from 'svelte';
   import type UserData from '$lib/user_data';
-  import CultureGeneratorConfig from '$lib/culture/generatorconfig';
-  import CultureGenerator from '$lib/culture/generator';
+  import { generateCulture, getDefaultCultureGenerationConfig, type Culture, type CultureGenerationConfig } from '$lib/culture';
   import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from '$lib/names';
 
   const user: UserData = getContext('user');
@@ -21,11 +20,10 @@
   $effect(() => {
     rng.setSeed(seed);
   });
-  const genConfig = new CultureGeneratorConfig();
+  const genConfig = getDefaultCultureGenerationConfig();
   let genSet: NameGeneratorSet = rng.item(allNameSets);
-  genConfig.nameGeneratorSet = genSet;
-  const generator = new CultureGenerator(genConfig);
-  let culture = $state(generator.generate());
+  genConfig.nameGenerators = genSet;
+  let culture = $state(generateCulture(seed, genConfig));
 
   function generate() {
     if (!lockSeed) {
@@ -33,8 +31,8 @@
     }
     rng.setSeed(seed);
     genSet = rng.item(allNameSets);
-    genConfig.nameGeneratorSet = genSet;
-    culture = generator.generate();
+    genConfig.nameGenerators = genSet;
+    culture = generateCulture(seed, genConfig);
   }
 
   function loadSavedCulture() {
@@ -90,7 +88,7 @@
     <div>
       <h4>Male Names</h4>
       <ul>
-        {#each culture.maleNames as name}
+        {#each culture.nameGenerators.male.generate(10) as name}
           <li>{name}</li>
         {/each}
       </ul>
@@ -98,7 +96,7 @@
     <div>
       <h4>Female Names</h4>
       <ul>
-        {#each culture.femaleNames as name}
+        {#each culture.nameGenerators.female.generate(10) as name}
           <li>{name}</li>
         {/each}
       </ul>
@@ -106,7 +104,7 @@
     <div>
       <h4>Family Names</h4>
       <ul>
-        {#each culture.familyNames as name}
+        {#each culture.nameGenerators.family.generate(10) as name}
           <li>{name}</li>
         {/each}
       </ul>
@@ -118,7 +116,7 @@
       <h4>Country Names</h4>
 
       <ul>
-        {#each culture.countryNames as name}
+        {#each culture.nameGenerators.country.generate(10) as name}
           <li>{name}</li>
         {/each}
       </ul>
@@ -127,7 +125,7 @@
       <h4>Town Names</h4>
 
       <ul>
-        {#each culture.townNames as name}
+        {#each culture.nameGenerators.town.generate(10) as name}
           <li>{name}</li>
         {/each}
       </ul>
@@ -162,7 +160,7 @@
 
   <h3>Music</h3>
 
-  <p>{culture.musicStyle.description}</p>
+  <p>{culture.musicStyle}</p>
 </section>
 
 <style lang="scss">

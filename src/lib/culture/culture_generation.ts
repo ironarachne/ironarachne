@@ -1,81 +1,149 @@
-import * as RNG from '@ironarachne/rng';
+import { RNG } from '@ironarachne/rng';
+import type { Culture, CultureGenerationConfig, CulturalOrganization } from './culture_types';
+import * as Words from '@ironarachne/words';
+import * as MusicStyles from '$lib/music/music_styles';
+import { getFantasyNameGeneratorSet } from '$lib/names';
+import { generateReligion, getDefaultReligionGenerationConfig } from '$lib/religion';
 
-import * as MusicStyles from '../music/music_styles';
-import ReligionGenerator from '../religion/generator.js';
-import ReligionGeneratorConfig from '../religion/generatorconfig.js';
-import Culture from './culture.js';
-import type CultureGeneratorConfig from './generatorconfig.js';
-import * as Organization from './organization.js';
+export function describeOrganization(organization: CulturalOrganization): string {
+  let description = `In this culture, ${organization.powerConcentration}. `;
 
-export default class CultureGenerator {
-  config: CultureGeneratorConfig;
-  rng: RNG.RNG;
+  description += Words.capitalize(organization.dominantProfession) + ' are most highly regarded. ';
 
-  constructor(config: CultureGeneratorConfig, rng: RNG.RNG = new RNG.RNG(Date.now())) {
-    this.config = config;
-    this.rng = rng;
+  if (organization.dominantGender) {
+    description += Words.capitalize(organization.dominantGender) + '. ';
   }
 
-  generate(): Culture {
-    if (this.config.nameGeneratorSet.country === null) {
-      throw new Error('Culture generator config must have a country name generator set.');
-    }
-    if (this.config.nameGeneratorSet.culture === null) {
-      throw new Error('Culture generator config must have a culture name generator set.');
-    }
-    if (this.config.nameGeneratorSet.family === null) {
-      throw new Error('Culture generator config must have a family name generator set.');
-    }
-    if (this.config.nameGeneratorSet.female === null) {
-      throw new Error('Culture generator config must have a female name generator set.');
-    }
-    if (this.config.nameGeneratorSet.male === null) {
-      throw new Error('Culture generator config must have a male name generator set.');
-    }
-    if (this.config.nameGeneratorSet.town === null) {
-      throw new Error('Culture generator config must have a town name generator set.');
-    }
+  description += Words.capitalize(organization.socialMobility) + '. ';
 
-    const countryNames = this.config.nameGeneratorSet.country.generate(10);
-    const maleNames = this.config.nameGeneratorSet.male.generate(10);
-    const femaleNames = this.config.nameGeneratorSet.female.generate(10);
-    const familyNames = this.config.nameGeneratorSet.family.generate(10);
-    const townNames = this.config.nameGeneratorSet.town.generate(10);
-
-    let relGenConfig = new ReligionGeneratorConfig();
-    relGenConfig.nameGenerator = this.config.nameGeneratorSet.family;
-    relGenConfig.femaleNameGenerator = this.config.nameGeneratorSet.female;
-    relGenConfig.maleNameGenerator = this.config.nameGeneratorSet.male;
-    let relGen = new ReligionGenerator(relGenConfig);
-
-    let cultureName = this.config.nameGeneratorSet.culture.generate(1)[0];
-
-    const musicStyle = MusicStyles.generateMusicStyle();
-    musicStyle.description = musicStyle.description.replace('This style of', cultureName);
-
-    let culture = new Culture(
-      cultureName,
-      Organization.generate(),
-      relGen.generate(),
-      randomTaboos(this.rng),
-      randomGreeting(this.rng),
-      randomEatingTrait(this.rng),
-      randomDesignTrait(this.rng),
-      musicStyle,
-    );
-    culture.countryNames = countryNames;
-    culture.familyNames = familyNames;
-    culture.femaleNames = femaleNames;
-    culture.maleNames = maleNames;
-    culture.townNames = townNames;
-
-    culture.nameGenerators = this.config.nameGeneratorSet;
-
-    return culture;
-  }
+  return description;
 }
 
-function randomDesignTrait(rng: RNG.RNG) {
+export function generateCulture(seed: string, config: CultureGenerationConfig): Culture {
+  if (config.nameGenerators.country === null) {
+    throw new Error('Culture generator config must have a country name generator set.');
+  }
+  if (config.nameGenerators.culture === null) {
+    throw new Error('Culture generator config must have a culture name generator set.');
+  }
+  if (config.nameGenerators.family === null) {
+    throw new Error('Culture generator config must have a family name generator set.');
+  }
+  if (config.nameGenerators.female === null) {
+    throw new Error('Culture generator config must have a female name generator set.');
+  }
+  if (config.nameGenerators.male === null) {
+    throw new Error('Culture generator config must have a male name generator set.');
+  }
+  if (config.nameGenerators.town === null) {
+    throw new Error('Culture generator config must have a town name generator set.');
+  }
+
+  const rng = new RNG(seed);
+
+  let relGenConfig = getDefaultReligionGenerationConfig();
+  relGenConfig.nameGenerator = config.nameGenerators.family;
+  relGenConfig.femaleNameGenerator = config.nameGenerators.female;
+  relGenConfig.maleNameGenerator = config.nameGenerators.male;
+
+  let cultureName = config.nameGenerators.culture.generate(1)[0];
+
+  let musicStyle = MusicStyles.generateMusicStyle().description;
+  musicStyle = musicStyle.replace('This style of', cultureName);
+
+  const culture = {
+    name: cultureName,
+    nameGenerators: config.nameGenerators,
+    organization: generateCulturalOrganization(rng.randomString(16)),
+    religion: generateReligion(rng.randomString(16), relGenConfig),
+    taboos: randomTaboos(rng.randomString(16)),
+    greeting: randomGreeting(rng.randomString(16)),
+    eatingTrait: randomEatingTrait(rng.randomString(16)),
+    designTrait: randomDesignTrait(rng.randomString(16)),
+    musicStyle,
+  };
+
+  return culture;
+}
+
+export function generateCulturalOrganization(seed: string): CulturalOrganization {
+  const organization = {
+    dominantGender: randomDominantGender(seed),
+    powerConcentration: randomPowerConcentration(seed),
+    socialMobility: randomSocialMobility(seed),
+    dominantProfession: randomDominantProfession(seed),
+    description: ''
+  };
+
+  organization.description = describeOrganization(organization);
+
+  return organization;
+}
+
+export function getDefaultCultureGenerationConfig(): CultureGenerationConfig {
+  return {
+    nameGenerators: getFantasyNameGeneratorSet('human', new RNG(Date.now())),
+  };
+}
+
+function randomDominantGender(seed: string) {
+  const rng = new RNG(seed);
+  return rng.item(['women are dominant', 'men are dominant', 'neither gender is dominant']);
+}
+
+function randomPowerConcentration(seed: string) {
+  const rng = new RNG(seed);
+  return rng.item([
+    'power is shared among multiple groups',
+    'power is divided between two opposing groups',
+    'power is distributed evenly among all individuals',
+    'power is determined by a merit-based system',
+    'power is determined by birthright',
+    'power is determined by religious affiliation',
+    'power is determined by wealth',
+    'power is determined by military might',
+    'power is determined by magical ability',
+    'power is determined by age',
+    'power is determined by educational attainment',
+    'power is determined by popularity or public opinion',
+  ]);
+}
+
+function randomSocialMobility(seed: string) {
+  const rng = new RNG(seed);
+  return rng.item([
+    'social mobility is completely stagnant',
+    'social mobility is only possible through military service',
+    'social mobility is only possible through marriage',
+    'social mobility is only possible through education',
+    'social mobility is only possible through wealth accumulation',
+    'social mobility is only possible through religious conversion',
+    'social mobility is only possible through a special talent or skill',
+    'social mobility is only possible through political connections',
+    'social mobility is only possible through joining a particular profession or guild',
+    'social mobility is possible through hard work and determination alone',
+    'social mobility is possible for anyone who is willing to take risks and seize opportunities',
+    'social mobility is only possible for those born into a certain social class',
+    'social mobility is only possible for those who are part of a certain racial or ethnic group',
+    'social mobility is only possible for those who are members of a certain secret society',
+  ]);
+}
+
+function randomDominantProfession(seed: string) {
+  const rng = new RNG(seed);
+  return rng.item([
+    'landowners',
+    'merchants',
+    'religious leaders',
+    'intellectuals',
+    'craftsmen',
+    'farmers',
+    'warriors',
+  ]);
+}
+
+function randomDesignTrait(seed: string): string {
+  const rng = new RNG(seed);
   let firstPart = rng.item([
     'Bright, vibrant colors',
     'Round shapes like circles, loops, and spirals',
@@ -124,7 +192,8 @@ function randomDesignTrait(rng: RNG.RNG) {
   return `${firstPart} ${secondPart}`;
 }
 
-function randomEatingTrait(rng: RNG.RNG) {
+function randomEatingTrait(seed: string): string {
+  const rng = new RNG(seed);
   return rng.item([
     'Eating in large, multi-family or neighborhood groups is common. Strangers are welcome at these communal meals.',
     'Meals are served in large common vessels and each person is expected to serve themselves.',
@@ -150,7 +219,8 @@ function randomEatingTrait(rng: RNG.RNG) {
   ]);
 }
 
-function randomGreeting(rng: RNG.RNG) {
+function randomGreeting(seed: string): string {
+  const rng = new RNG(seed);
   return rng.item([
     'Bowing is customary. The person of lower status bows lower, though both bow.',
     'Friends or family clasp hands in greeting. In formal situations, shaking hands is expected.',
@@ -167,7 +237,9 @@ function randomGreeting(rng: RNG.RNG) {
   ]);
 }
 
-function randomTaboos(rng: RNG.RNG) {
+function randomTaboos(seed: string): string[] {
+  const rng = new RNG(seed);
+
   let items = [
     'Baring skin other than the face in public',
     'Eating animals',
