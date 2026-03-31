@@ -4,6 +4,7 @@ import { parseArgs } from 'node:util';
 import { RNG } from '@ironarachne/rng';
 import { BLUEPRINTS } from '../src/lib/dungeon/theme/theme';
 import type { Mob } from '../src/lib/mobs/mob_types';
+import { getRandomMaterial } from '../src/lib/equipment/materials';
 
 function renderDungeonTerminal() {
   const { values } = parseArgs({
@@ -130,12 +131,67 @@ function renderDungeonTerminal() {
       console.log(`\nEncounter: None`);
     }
 
-    if (room.treasure && room.treasure.length > 0) {
+
+    // Find keys in this room
+    const keysHere = dungeon.keys.filter(k => {
+      // Key is in this room if its (x, y) is within the room bounds
+      return (
+        k.x >= room.x &&
+        k.x < room.x + room.primitive.width &&
+        k.y >= room.y &&
+        k.y < room.y + room.primitive.height
+      );
+    });
+
+    if ((room.treasure && room.treasure.length > 0) || keysHere.length > 0) {
       console.log(`\nTreasure:`);
-      const totalValue = room.treasure.reduce((sum, item) => sum + item.value, 0);
-      console.log(`  - Total Value: ${totalValue} cp`);
-      room.treasure.forEach(item => {
-        console.log(`  * ${item.name} (${item.value} cp)`);
+      if (room.treasure && room.treasure.length > 0) {
+        const totalValue = room.treasure.reduce((sum, item) => sum + item.value, 0);
+        console.log(`  - Total Value: ${totalValue} cp`);
+        room.treasure.forEach(item => {
+          console.log(`  * ${item.name} (${item.value} cp)`);
+        });
+      }
+      // Add key descriptions
+      keysHere.forEach(key => {
+        // Find the door this key unlocks
+        const door = dungeon.doors.find(d => d.id === key.doorId);
+        // Pick a random material and condition
+        const rng = new RNG(`${config.seed}-keydesc-${key.id}`);
+        const material = getRandomMaterial(rng);
+        const conditions = [
+          'tarnished', 'shiny', 'ancient', 'corroded', 'ornate', 'heavy', 'delicate', 'engraved', 'bent', 'gleaming', 'rusty', 'well-oiled', 'mysterious', 'jagged', 'twisted', 'filigreed', 'sturdy', 'weathered', 'gilded', 'blackened'
+        ];
+        const appearances = [
+          'with a bow shaped like a serpent',
+          'with a handle wrapped in faded leather',
+          'with intricate runes along the shaft',
+          'with a head shaped like a lion',
+          'with a gemstone set in the grip',
+          'with a spiral pattern',
+          'with a square-cut bit',
+          'with a ring for a chain',
+          'with a twisted stem',
+          'with a sunburst motif',
+          'with a tiny bell attached',
+          'with a feather charm',
+          'with a dragon motif',
+          'with a chipped edge',
+          'with a faint magical glow',
+          'with a leaf-shaped bow',
+          'with a wolf’s head pommel',
+          'with a mosaic of colored enamel',
+          'with a spiral of silver wire',
+          'with a cracked handle'
+        ];
+        const condition = rng.item(conditions);
+        const appearance = rng.item(appearances);
+        let unlocks = 'an unknown door';
+        if (door) {
+          unlocks = `the ${door.type === 'secret' ? 'secret' : 'locked'} door at (${door.x},${door.y})`;
+        }
+        const desc = `A ${condition} ${material.name} key ${appearance}, which unlocks ${unlocks}.`;
+        console.log(`  * ${desc}`);
       });
     } else {
       console.log(`\nTreasure: None`);
