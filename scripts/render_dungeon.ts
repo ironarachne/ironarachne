@@ -1,22 +1,51 @@
 import { generateDungeon, type DungeonGeneratorConfig } from "../src/lib/dungeon/generator/generator";
 import { generate as generateEnvironment, getDefaultConfig as getDefaultEnvironmentConfig } from "../src/lib/environment/environments";
-import { type Mob } from "../src/lib/mobs";
+import { parseArgs } from 'node:util';
+import { RNG } from '@ironarachne/rng';
+import { BLUEPRINTS } from '../src/lib/dungeon/theme/theme';
+import type { Mob } from '../src/lib/mobs/mob_types';
 
 function renderDungeonTerminal() {
+  const { values } = parseArgs({
+    options: {
+      seed: { type: 'string', short: 's' },
+      width: { type: 'string', short: 'w' },
+      height: { type: 'string', short: 'h' },
+      blueprint: { type: 'string', short: 'b' },
+      encounterChance: { type: 'string', short: 'e' },
+      treasureChance: { type: 'string', short: 't' },
+    },
+    strict: false,
+  });
+
+  const passedSeed = typeof values.seed === 'string' ? values.seed : `dungeon-test-${Date.now()}`;
+  const seedRng = new RNG(passedSeed);
+
   const environmentConfig = getDefaultEnvironmentConfig();
   const environment = generateEnvironment(environmentConfig);
 
+  const availableBlueprints = BLUEPRINTS.map(b => b.name);
+  let resolvedBlueprint = typeof values.blueprint === 'string' ? values.blueprint : undefined;
+
+  if (!resolvedBlueprint || !availableBlueprints.includes(resolvedBlueprint)) {
+    resolvedBlueprint = seedRng.item(availableBlueprints);
+  }
+
   const config: DungeonGeneratorConfig = {
-    seed: `dungeon-test-${Date.now()}`,
-    width: 60,
-    height: 40,
+    seed: passedSeed,
+    width: typeof values.width === 'string' ? parseInt(values.width, 10) : 60,
+    height: typeof values.height === 'string' ? parseInt(values.height, 10) : 40,
     environment: environment,
-    blueprintName: 'Tomb',
-    encounterChancePerRoom: 0.8,
-    treasureChancePerRoom: 0.5
+    blueprintName: resolvedBlueprint as string,
+    encounterChancePerRoom: typeof values.encounterChance === 'string' ? parseFloat(values.encounterChance) : 0.8,
+    treasureChancePerRoom: typeof values.treasureChance === 'string' ? parseFloat(values.treasureChance) : 0.5
   };
 
-  console.log(`Generating Dungeon... Seed: ${config.seed}`);
+  console.log(`Generating Dungeon...`);
+  console.log(`Seed: ${config.seed}`);
+  console.log(`Blueprint: ${config.blueprintName}`);
+  console.log(`Dimensions: ${config.width}x${config.height}`);
+  console.log(`Encounters: ${config.encounterChancePerRoom} | Treasure: ${config.treasureChancePerRoom}`);
   const dungeon = generateDungeon(config);
 
   console.log(`\n=== MAP ===\n`);

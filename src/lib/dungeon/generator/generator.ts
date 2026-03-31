@@ -1,4 +1,5 @@
 import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 import type Environment from '../../environment/environment.js';
 import { buildTheme } from '../theme/theme';
 import { generateLayout } from '../layout/architect';
@@ -25,12 +26,26 @@ export type DungeonGeneratorConfig = {
 
 function generateRoomDescription(
   rng: RNG.RNG,
+  width: number,
+  height: number,
   style: string,
   blueprintName: string,
   purpose: string,
   biomeFeatures: string[]
 ): string {
-  const sizeAdjectives = ['small', 'large', 'cramped', 'spacious', 'cavernous', 'narrow'];
+  const area = width * height;
+  let sizeAdjectives: string[] = [];
+
+  if (area <= 25) {
+    sizeAdjectives = ['small', 'cramped', 'tight', 'narrow', 'claustrophobic'];
+  } else if (area <= 64) {
+    sizeAdjectives = ['modest', 'average-sized', 'standard', 'fair-sized'];
+  } else if (area <= 144) {
+    sizeAdjectives = ['large', 'spacious', 'roomy', 'broad'];
+  } else {
+    sizeAdjectives = ['cavernous', 'vast', 'enormous', 'massive', 'colossal'];
+  }
+
   const size = rng.item(sizeAdjectives);
 
   const roomTypes: Record<string, string> = {
@@ -41,7 +56,14 @@ function generateRoomDescription(
   };
 
   const roomType = roomTypes[style] || 'room';
-  let description = `A ${size} ${roomType}, originally designed as a ${purpose.toLowerCase()}.`;
+  const article = Words.article(size);
+  const capitalizedArticle = article.charAt(0).toUpperCase() + article.slice(1);
+  let description = '';
+  if (blueprintName.toLowerCase() === 'natural caverns') {
+    description = `${capitalizedArticle} ${size} ${roomType} known as the ${purpose.toLowerCase()}.`;
+  } else {
+    description = `${capitalizedArticle} ${size} ${roomType}, originally designed as a ${purpose.toLowerCase()}.`;
+  }
 
   const flavors: Record<string, string[]> = {
     'tomb': [
@@ -167,6 +189,8 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
 
     const description = generateRoomDescription(
       roomRng,
+      room.primitive.width,
+      room.primitive.height,
       room.primitive.style,
       theme.blueprint.name,
       purpose,
