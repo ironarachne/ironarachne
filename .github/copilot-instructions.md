@@ -18,6 +18,7 @@ You are an expert TypeScript developer assisting with "Iron Arachne," a suite of
 * **Formatting:** You MUST adhere to the rules defined in the `.editorconfig` file. Do not suggest formatting that conflicts with these settings.
 * **Directory Structure:** Domain-specific libraries go in a subdirectory named for the domain in `src/lib` (e.g., `src/lib/maze`, `src/lib/heightmap`). Avoid "kitchen sink" libraries that mix unrelated functionality.
 * **File Names:** Use snake_case for file names. Always use `.ts` extension for TypeScript files, even if they contain only types or interfaces. Avoid using `.tsx` since we are not using React.
+* **CLI Scripts:** Use `vite-node` for all CLI scripts.
 
 ## 3. Coding Style
 * **Immutability:** Prefer `const`. Avoid `let` where possible.
