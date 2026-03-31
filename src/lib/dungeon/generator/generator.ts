@@ -10,7 +10,7 @@ import { getAllFantasyEncounterTemplates } from '../../encounters/encounter_temp
 import { generateEncounter } from '../../encounters/encounter_generation';
 import { generateRandomTreasureHoard } from '../../treasure/treasure_hoard';
 import { applyTagFilter } from '../../tags/tags';
-import type { EngineeredDungeon, PopulatedRoom } from './types';
+import type { EngineeredDungeon, PopulatedRoom, DungeonEntrance } from './types';
 
 export type DungeonGeneratorConfig = {
   seed: string;
@@ -110,6 +110,18 @@ function generateRoomDescription(
 }
 
 export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDungeon {
+
+    // Helper: Find a room on the edge of the map
+    function findEdgeRoom(): { room: PopulatedRoom; edge: string } | null {
+      for (const room of populatedRooms) {
+        const { x, y, primitive } = room;
+        if (x === 1) return { room, edge: 'west' };
+        if (y === 1) return { room, edge: 'north' };
+        if (x + primitive.width === config.width - 1) return { room, edge: 'east' };
+        if (y + primitive.height === config.height - 1) return { room, edge: 'south' };
+      }
+      return null;
+    }
   const rng = new RNG.RNG(config.seed);
   const encounterChance = config.encounterChancePerRoom ?? 0.4;
   const treasureChance = config.treasureChancePerRoom ?? 0.3;
@@ -214,6 +226,36 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
 
   const finalName = `The ${rng.randomString(5).toUpperCase()} ${theme.name}`;
 
+  // 7. Entrance Placement
+  let entrances: DungeonEntrance[] = [];
+  const edgeResult = findEdgeRoom();
+  if (edgeResult) {
+    // Place entrance at the center of the edge of the room
+    const { room, edge } = edgeResult;
+    let ex = room.x;
+    let ey = room.y;
+    if (edge === 'west') {
+      ex = room.x;
+      ey = room.y + Math.floor(room.primitive.height / 2);
+    } else if (edge === 'north') {
+      ex = room.x + Math.floor(room.primitive.width / 2);
+      ey = room.y;
+    } else if (edge === 'east') {
+      ex = room.x + room.primitive.width - 1;
+      ey = room.y + Math.floor(room.primitive.height / 2);
+    } else if (edge === 'south') {
+      ex = room.x + Math.floor(room.primitive.width / 2);
+      ey = room.y + room.primitive.height - 1;
+    }
+    entrances.push({ x: ex, y: ey, type: 'stairs', roomId: room.id });
+  } else if (populatedRooms.length > 0) {
+    // Fallback: pick the first room, center
+    const room = populatedRooms[0];
+    const ex = room.x + Math.floor(room.primitive.width / 2);
+    const ey = room.y + Math.floor(room.primitive.height / 2);
+    entrances.push({ x: ex, y: ey, type: 'stairs', roomId: room.id });
+  }
+
   return {
     name: finalName,
     theme,
@@ -221,5 +263,6 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
     rooms: populatedRooms,
     doors,
     keys,
+    entrances,
   };
 }

@@ -52,20 +52,24 @@ function renderDungeonTerminal() {
 
   // Build a map of room locations so we can print their IDs (numbers)
   const roomPositions = new Map<string, string>(); // coordinate string -> roomId
-
   dungeon.rooms.forEach(room => {
-    // Find the center of the room to place the ID digit
     const cx = Math.floor(room.x + room.primitive.width / 2);
     const cy = Math.floor(room.y + room.primitive.height / 2);
     roomPositions.set(`${cx},${cy}`, room.id);
   });
+
+  // Mark entrances for map rendering
+  const entranceCoords = new Set<string>();
+  dungeon.entrances?.forEach(e => entranceCoords.add(`${e.x},${e.y}`));
 
   let mapOutput = "";
   for (let y = 0; y < config.height; y++) {
     let row = "";
     for (let x = 0; x < config.width; x++) {
       const coordKey = `${x},${y}`;
-      if (roomPositions.has(coordKey)) {
+      if (entranceCoords.has(coordKey)) {
+        row += "EN";
+      } else if (roomPositions.has(coordKey)) {
         // Limit ID to a single character if possible for alignment, or use last digit
         const rId = roomPositions.get(coordKey)!;
         const char = rId.length > 1 ? rId.slice(-1) : rId;
@@ -89,6 +93,12 @@ function renderDungeonTerminal() {
         } else {
           row += "██"; // wall
         }
+      }
+      if (dungeon.entrances && dungeon.entrances.length > 0) {
+        console.log(`\n=== ENTRANCE(S) ===\n`);
+        dungeon.entrances.forEach(e => {
+          console.log(`Entrance at (${e.x},${e.y}) in room [${e.roomId}] - type: ${e.type}`);
+        });
       }
     }
     mapOutput += row + "\n";

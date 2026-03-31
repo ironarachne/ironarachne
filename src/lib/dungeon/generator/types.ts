@@ -1,3 +1,9 @@
+export type DungeonEntrance = {
+  x: number;
+  y: number;
+  type: 'stairs' | 'door';
+  roomId: string;
+};
 import type { DungeonTheme } from '../theme/types';
 import type { DungeonLayout, PlacedRoom } from '../layout/types';
 import type { Door, Key } from '../interactive/types';
@@ -24,4 +30,7 @@ export type EngineeredDungeon = {
   // Interactive layers
   doors: Door[];
   keys: Key[];
+
+  // Entrances (stairs down or exterior door)
+  entrances: DungeonEntrance[];
 };
