@@ -1,0 +1,23 @@
+---
+description: Run TypeScript npm scripts with vite-node when using Vite asset imports
+alwaysApply: true
+---
+
+# npm scripts: prefer `vite-node`
+
+This app imports **non-JavaScript** modules in TypeScript (e.g. **SVG**, **JSON**, **GLSL**, and other Vite-processed assets). Those imports are resolved through **Vite** (`vite.config.js` and plugins), not plain Node.
+
+## What to use
+
+- For npm scripts that execute **TypeScript entrypoints** (typically under `scripts/`), **usually run them with `vite-node`**, not `tsx` or plain `node`, so the same transform/import graph applies as in the app.
+- **Example:** `"render:dungeon": "vite-node scripts/render_dungeon.ts"`
+
+```json
+// ❌ Likely to break or mismatch once the script imports ?raw SVG, JSON, etc.
+"my:script": "tsx scripts/my_script.ts"
+
+// ✅ Aligns with Vite handling of asset imports
+"my:script": "vite-node scripts/my_script.ts"
+```
+
+A script that only uses Node builtins and `.ts`/`.js` might run under `tsx`, but **default to `vite-node`** for consistency and so future asset imports work without changing the runner.

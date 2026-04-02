@@ -1,0 +1,28 @@
+---
+description: Formatting must match .editorconfig
+alwaysApply: true
+---
+
+# EditorConfig (strict)
+
+**Follow the repo root `.editorconfig` exactly** when editing or generating text in this repo. Do not invent different indentation, line endings, or whitespace rules.
+
+## Defaults (`[*]`)
+
+| Setting | Value |
+|--------|--------|
+| `charset` | utf-8 |
+| `end_of_line` | lf |
+| `insert_final_newline` | true |
+| `indent_style` | space |
+| `indent_size` | 2 |
+| `trim_trailing_whitespace` | true |
+
+## Overrides
+
+- **`*.md`**: `trim_trailing_whitespace = false` (do not strip trailing spaces in Markdown).
+- **`*.html`**: `indent_size = 4` (still spaces).
+
+If a path matches multiple sections, **EditorConfig’s usual precedence applies**—when in doubt, open `.editorconfig` and match the most specific section for that file type.
+
+When suggesting edits, match these rules in the diff (including final newline and LF line endings).

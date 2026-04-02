@@ -1,0 +1,30 @@
+---
+description: Descriptive function names; qualify when context is unclear
+alwaysApply: true
+---
+
+# Function names: descriptive and unambiguous
+
+- Prefer **clear, specific names** that state intent (what it returns, what it does, or the domain object involved).
+- **Avoid** vague verbs alone (`run`, `handle`, `process`, `do`, `get`) when a narrower name fits.
+- When a short name would collide with “generate / build / parse” style helpers in the same module or would be unclear out of context, **add a domain qualifier** (file topic, entity, or output shape).
+
+```typescript
+// ❌ BAD: too generic inside maze.ts
+export function generate(seed: string): Maze { ... }
+
+// ✅ GOOD: qualifier ties name to domain
+export function generateMaze(seed: string): Maze { ... }
+```
+
+```typescript
+// ❌ BAD
+export function parse(data: string): Layout { ... }
+
+// ✅ GOOD
+export function parseDungeonLayout(data: string): Layout { ... }
+```
+
+**Imports:** callers should read well without jumping to the file—if the module is `tax_calculation.ts`, `calculateIncomeTax` is clearer than `calculate` at call sites.
+
+Match **existing naming tone** in the same directory when adding new exports.
