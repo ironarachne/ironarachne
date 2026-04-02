@@ -89,8 +89,19 @@ export function generateDoors(
 
   const numDoorsToSpawn = Math.floor(shuffledSpots.length * options.doorDensity);
 
-  for (let i = 0; i < numDoorsToSpawn; i++) {
-    const spot = shuffledSpots[i];
+  for (const spot of shuffledSpots) {
+    if (doors.length >= numDoorsToSpawn) {
+      break;
+    }
+
+    // Check if there is already a door in an adjacent square
+    const hasAdjacentDoor = doors.some(
+      (d) => Math.abs(d.x - spot.x) <= 1 && Math.abs(d.y - spot.y) <= 1,
+    );
+
+    if (hasAdjacentDoor) {
+      continue;
+    }
 
     // Determine properties
     const isSecret = rng.int(1, 100) <= options.secretPercentage * 100;
@@ -108,7 +119,7 @@ export function generateDoors(
     }
 
     doors.push({
-      id: `door-${i}`,
+      id: `door-${doors.length}`,
       x: spot.x,
       y: spot.y,
       type,
