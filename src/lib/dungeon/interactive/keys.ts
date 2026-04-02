@@ -15,7 +15,7 @@ function getRoomCenter(room: PlacedRoom): [number, number] {
  * is always mathematically obtainable *before* needing to pass through that locked door.
  * Relies on a BFS iterative expansion zone strategy from a root designated entrance.
  */
-export function distributeKeys(seed: string, layout: DungeonLayout, doors: Door[]): Key[] {
+export function distributeKeys(seed: string, layout: DungeonLayout, doors: Door[], startX?: number, startY?: number): Key[] {
   const rng = new RNG.RNG(seed);
   const keys: Key[] = [];
 
@@ -34,9 +34,18 @@ export function distributeKeys(seed: string, layout: DungeonLayout, doors: Door[
   const unlockedLogically = new Set<string>();
   const queue: [number, number][] = [];
 
-  // Arbitrarily designate Room 0 as the starting origin / entry zone.
-  const startRoom = layout.rooms[0];
-  const [sx, sy] = getRoomCenter(startRoom);
+  // Either use the provided start coordinates or arbitrarily designate Room 0.
+  let sx: number;
+  let sy: number;
+  if (startX !== undefined && startY !== undefined) {
+    sx = startX;
+    sy = startY;
+  } else {
+    const startRoom = layout.rooms[0];
+    const center = getRoomCenter(startRoom);
+    sx = center[0];
+    sy = center[1];
+  }
   queue.push([sx, sy]);
   visited.add(`${sx},${sy}`);
 

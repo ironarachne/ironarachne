@@ -113,13 +113,14 @@ function generateRoomDescription(
 export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDungeon {
 
     // Helper: Find a room on the edge of the map
-    function findEdgeRoom(): { room: PopulatedRoom; edge: string } | null {
-      for (const room of populatedRooms) {
+    function findEdgeRoom(): { room: any; edge: string; ix: number } | null {
+      for (let ix = 0; ix < layout.rooms.length; ix++) {
+        const room = layout.rooms[ix];
         const { x, y, primitive } = room;
-        if (x === 1) return { room, edge: 'west' };
-        if (y === 1) return { room, edge: 'north' };
-        if (x + primitive.width === config.width - 1) return { room, edge: 'east' };
-        if (y + primitive.height === config.height - 1) return { room, edge: 'south' };
+        if (x === 1) return { room, edge: 'west', ix };
+        if (y === 1) return { room, edge: 'north', ix };
+        if (x + primitive.width === config.width - 1) return { room, edge: 'east', ix };
+        if (y + primitive.height === config.height - 1) return { room, edge: 'south', ix };
       }
       return null;
     }
@@ -142,9 +143,44 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
   // 3. Corridor Connectivity Graph
   connectRooms(`${config.seed}-corridors`, layout);
 
-  // 4. Interactive Chokepoints (Locks & Keys)
+  // 4. Interactive Chokepoints (Locks & Keys, and Entrances)
   const doors = generateDoors(`${config.seed}-doors`, layout, theme.blueprint.doorOptions);
-  const keys = distributeKeys(`${config.seed}-keys`, layout, doors);
+
+  let entrances: DungeonEntrance[] = [];
+  const edgeResult = findEdgeRoom();
+  let startX: number | undefined;
+  let startY: number | undefined;
+
+  if (edgeResult) {
+    const { room, edge, ix } = edgeResult;
+    let ex = room.x;
+    let ey = room.y;
+    if (edge === 'west') {
+      ex = room.x;
+      ey = room.y + Math.floor(room.primitive.height / 2);
+    } else if (edge === 'north') {
+      ex = room.x + Math.floor(room.primitive.width / 2);
+      ey = room.y;
+    } else if (edge === 'east') {
+      ex = room.x + room.primitive.width - 1;
+      ey = room.y + Math.floor(room.primitive.height / 2);
+    } else if (edge === 'south') {
+      ex = room.x + Math.floor(room.primitive.width / 2);
+      ey = room.y + room.primitive.height - 1;
+    }
+    entrances.push({ x: ex, y: ey, type: 'stairs', roomId: `${ix}` });
+    startX = ex;
+    startY = ey;
+  } else if (layout.rooms.length > 0) {
+    const room = layout.rooms[0];
+    const ex = room.x + Math.floor(room.primitive.width / 2);
+    const ey = room.y + Math.floor(room.primitive.height / 2);
+    entrances.push({ x: ex, y: ey, type: 'stairs', roomId: '0' });
+    startX = ex;
+    startY = ey;
+  }
+
+  const keys = distributeKeys(`${config.seed}-keys`, layout, doors, startX, startY);
 
   // 5. Encounters Preparation (Pre-fetch & Filter by tags!)
   const allTemplates = getAllFantasyEncounterTemplates();
@@ -200,7 +236,7 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
       name = `Abandoned ${name}`;
     }
 
-    const description = generateRoomDescription(
+    let description = generateRoomDescription(
       roomRng,
       room.primitive.width,
       room.primitive.height,
@@ -209,6 +245,10 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
       purpose,
       theme.environment.biome.features
     );
+
+    if (entrances.some((e) => e.roomId === roomId && e.type === 'stairs')) {
+      description += ' A set of stairs leads up to the surface.';
+    }
 
     return {
       ...room, // includes x, y, primitive
@@ -229,36 +269,6 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
   const fantasyNames = getFantasyNameGeneratorSet('human', nameRng);
   const titleWord = Words.title(fantasyNames.town.generate(1)[0]);
   const finalName = `The ${titleWord} ${theme.name}`;
-
-  // 7. Entrance Placement
-  let entrances: DungeonEntrance[] = [];
-  const edgeResult = findEdgeRoom();
-  if (edgeResult) {
-    // Place entrance at the center of the edge of the room
-    const { room, edge } = edgeResult;
-    let ex = room.x;
-    let ey = room.y;
-    if (edge === 'west') {
-      ex = room.x;
-      ey = room.y + Math.floor(room.primitive.height / 2);
-    } else if (edge === 'north') {
-      ex = room.x + Math.floor(room.primitive.width / 2);
-      ey = room.y;
-    } else if (edge === 'east') {
-      ex = room.x + room.primitive.width - 1;
-      ey = room.y + Math.floor(room.primitive.height / 2);
-    } else if (edge === 'south') {
-      ex = room.x + Math.floor(room.primitive.width / 2);
-      ey = room.y + room.primitive.height - 1;
-    }
-    entrances.push({ x: ex, y: ey, type: 'stairs', roomId: room.id });
-  } else if (populatedRooms.length > 0) {
-    // Fallback: pick the first room, center
-    const room = populatedRooms[0];
-    const ex = room.x + Math.floor(room.primitive.width / 2);
-    const ey = room.y + Math.floor(room.primitive.height / 2);
-    entrances.push({ x: ex, y: ey, type: 'stairs', roomId: room.id });
-  }
 
   return {
     name: finalName,

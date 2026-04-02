@@ -15,8 +15,8 @@
 
   let seed = '';
   let lockSeed = false;
-  let mapWidth = 60;
-  let mapHeight = 40;
+  let mapWidth = 40;
+  let mapHeight = 60;
   let blueprintName: string = blueprintOptions[0] ?? 'Tomb';
   let encounterChancePerRoom = 0.4;
   let treasureChancePerRoom = 0.3;
