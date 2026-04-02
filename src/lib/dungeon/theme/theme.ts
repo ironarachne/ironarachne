@@ -13,7 +13,7 @@ export const BLUEPRINTS: DungeonBlueprint[] = [
       'An ancient burial site, sealed against intruders and haunted by the restless dead.',
     tags: ['undead', 'tomb', 'ancient', 'trap', 'crypt'],
     allowedRoomStyles: ['rectangle', 'circle'], // Deliberate and structured architecture
-    doorOptions: { doorDensity: 1.0, secretPercentage: 0.15, lockedPercentage: 0.8 }, // Highly secured
+    doorOptions: { doorDensity: 1.0, secretPercentage: 0.15, lockedPercentage: 0.25 }, // Highly secured
     targetDensity: 0.25,
     roomPurposes: ['Antechamber', 'Crypt', 'Burial Chamber', 'Embalming Room', 'Ritual Chamber', 'Offering Room', 'Ossuary', 'False Tomb', 'Vestibule'],
   },
@@ -22,7 +22,7 @@ export const BLUEPRINTS: DungeonBlueprint[] = [
     description: 'A fortified military complex, patrolled by organized defenders.',
     tags: ['humanoid', 'stronghold', 'military', 'guard', 'fortress'],
     allowedRoomStyles: ['rectangle', 'l-shape'], // Functional, strict
-    doorOptions: { doorDensity: 0.9, secretPercentage: 0.05, lockedPercentage: 0.4 },
+    doorOptions: { doorDensity: 0.9, secretPercentage: 0.05, lockedPercentage: 0.15 },
     targetDensity: 0.4, // Tightly packed rooms
     roomPurposes: ['Barracks', 'Armory', 'Mess Hall', 'Kitchen', 'Guard Post', 'Prison', 'Training Room', 'Storeroom', 'Latrine', 'Commander Quarters', 'War Room'],
   },
@@ -31,7 +31,7 @@ export const BLUEPRINTS: DungeonBlueprint[] = [
     description: 'A repository of lost knowledge and rogue magic experiments.',
     tags: ['magic', 'construct', 'library', 'arcane', 'knowledge'],
     allowedRoomStyles: ['rectangle', 'circle', 'blob'], // Strange spatial warping
-    doorOptions: { doorDensity: 0.7, secretPercentage: 0.25, lockedPercentage: 0.6 },
+    doorOptions: { doorDensity: 0.7, secretPercentage: 0.25, lockedPercentage: 0.2 },
     targetDensity: 0.3,
     roomPurposes: ['Reading Room', 'Scroll Storage', 'Alchemy Lab', 'Summoning Room', 'Scriptorium', 'Librarian Quarters', 'Reliquary', 'Observatory', 'Component Pantry'],
   },

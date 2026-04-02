@@ -1,4 +1,5 @@
 import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 import { getTile, getNeighbors } from '../grid/grid';
 import type { DungeonLayout, PlacedRoom } from '../layout/types';
 import type { Door, DoorType, DoorState } from './types';
@@ -118,12 +119,23 @@ export function generateDoors(
       state = 'open';
     }
 
+    const doorMaterials = ['wooden', 'iron-bound', 'heavy oak', 'stone', 'bronze', 'rotting wood'];
+    const doorMaterial = doorMaterials[rng.int(0, doorMaterials.length - 1)];
+    const doorConditions = ['sturdy', 'battered', 'ancient', 'pristine', 'solid'];
+    const doorCondition = doorConditions[rng.int(0, doorConditions.length - 1)];
+
+    let description = `${Words.article(doorCondition)} ${doorCondition} ${doorMaterial} door`;
+    if (type === 'secret') {
+      description += `, cleverly disguised to blend in with the wall`;
+    }
+
     doors.push({
       id: `door-${doors.length}`,
       x: spot.x,
       y: spot.y,
       type,
       state,
+      description,
     });
   }
 

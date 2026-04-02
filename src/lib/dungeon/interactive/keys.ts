@@ -107,11 +107,17 @@ export function distributeKeys(seed: string, layout: DungeonLayout, doors: Door[
         const selectedSpot = validKeySpots[rng.int(0, validKeySpots.length - 1)];
         const keyId = `key-${targetDoor.id}`;
 
+        const keyMaterials = ['iron', 'brass', 'copper', 'steel', 'silver', 'bone'];
+        const keyMaterial = keyMaterials[rng.int(0, keyMaterials.length - 1)];
+        const keyAdjectives = ['tarnished', 'heavy', 'intricate', 'simple', 'rusted'];
+        const keyAdjective = keyAdjectives[rng.int(0, keyAdjectives.length - 1)];
+
         keys.push({
           id: keyId,
           doorId: targetDoor.id,
           x: selectedSpot.x,
           y: selectedSpot.y,
+          description: `A ${keyAdjective} ${keyMaterial} key.`,
         });
 
         // Mutate the original door to reference it

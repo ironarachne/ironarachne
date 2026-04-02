@@ -28,7 +28,7 @@
   function getKeyDescription(keyId: string, doorId: string, d: EngineeredDungeon): string {
     const door = d.doors.find((doObj) => doObj.id === doorId);
     if (!door) {
-      return 'An old key that unlocks a door elsewhere in the dungeon.';
+      return 'It unlocks a door elsewhere in the dungeon.';
     }
     const connectedRooms = d.rooms.filter(
       (r) =>
@@ -38,12 +38,12 @@
         door.y <= r.y + r.primitive.height,
     );
     if (connectedRooms.length >= 2) {
-      return `An old key that unlocks the door between rooms ${connectedRooms[0].id} and ${connectedRooms[1].id}.`;
+      return `It unlocks the door between rooms ${connectedRooms[0].id} and ${connectedRooms[1].id}.`;
     }
     if (connectedRooms.length === 1) {
-      return `An old key that unlocks the door to room ${connectedRooms[0].id}.`;
+      return `It unlocks the door to room ${connectedRooms[0].id}.`;
     }
-    return `An old key that unlocks a door elsewhere in the dungeon.`;
+    return `It unlocks a door elsewhere in the dungeon.`;
   }
 
   function sanitizeForFilenamePart(s: string): string {
@@ -276,7 +276,7 @@
             <ul>
               {#each dungeon.keys.filter(k => k.x >= room.x && k.x < room.x + room.primitive.width && k.y >= room.y && k.y < room.y + room.primitive.height) as key (key.id)}
                 <li>
-                  <strong>Key:</strong> {getKeyDescription(key.id, key.doorId, dungeon)}
+                  <strong>Key:</strong> {key.description} {getKeyDescription(key.id, key.doorId, dungeon)}
                 </li>
               {/each}
             </ul>

@@ -251,51 +251,38 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
       description += ' A set of stairs leads up to the surface.';
     }
 
+    const inRoom = (x: number, y: number) => {
+      const rx = x - room.x;
+      const ry = y - room.y;
+      if (rx >= 0 && rx < room.primitive.width && ry >= 0 && ry < room.primitive.height) {
+        return getTile(room.primitive.shape, rx, ry);
+      }
+      return false;
+    };
+
     const roomDoors: { door: any; wall: string }[] = [];
     for (const door of doors) {
-      let isAdjacent = false;
       let wall = '';
-      for (let ry = 0; ry < room.primitive.height; ry++) {
-        for (let rx = 0; rx < room.primitive.width; rx++) {
-          if (getTile(room.primitive.shape, rx, ry)) {
-            const gx = room.x + rx;
-            const gy = room.y + ry;
-
-            if (door.x === gx && door.y === gy - 1) {
-              wall = 'north';
-              isAdjacent = true;
-              break;
-            } else if (door.x === gx && door.y === gy + 1) {
-              wall = 'south';
-              isAdjacent = true;
-              break;
-            } else if (door.x === gx - 1 && door.y === gy) {
-              wall = 'west';
-              isAdjacent = true;
-              break;
-            } else if (door.x === gx + 1 && door.y === gy) {
-              wall = 'east';
-              isAdjacent = true;
-              break;
-            }
-          }
-        }
-        if (isAdjacent) break;
+      if (inRoom(door.x, door.y + 1) && !inRoom(door.x, door.y - 1)) {
+        wall = 'north';
+      } else if (inRoom(door.x, door.y - 1) && !inRoom(door.x, door.y + 1)) {
+        wall = 'south';
+      } else if (inRoom(door.x + 1, door.y) && !inRoom(door.x - 1, door.y)) {
+        wall = 'west';
+      } else if (inRoom(door.x - 1, door.y) && !inRoom(door.x + 1, door.y)) {
+        wall = 'east';
       }
-      if (isAdjacent && wall) {
+
+      if (wall) {
         roomDoors.push({ door, wall });
       }
     }
 
     const doorDescs = roomDoors.map(({ door, wall }) => {
-      let stateDesc = 'closed';
-      if (door.state === 'locked') stateDesc = 'locked';
-      else if (door.state === 'open') stateDesc = 'open';
-
       let typeDesc = 'door';
       if (door.type === 'secret') typeDesc = 'secret door';
 
-      return `There is a ${stateDesc} ${typeDesc} on the ${wall} wall.`;
+      return `There is ${door.description} on the ${wall} wall. It is ${door.state}.`;
     });
 
     if (doorDescs.length > 0) {
