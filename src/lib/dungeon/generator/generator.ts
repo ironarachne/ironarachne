@@ -1,5 +1,6 @@
 import * as RNG from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
+import { getFantasyNameGeneratorSet } from '../../names';
 import type Environment from '../../environment/environment.js';
 import { buildTheme } from '../theme/theme';
 import { generateLayout } from '../layout/architect';
@@ -224,7 +225,10 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
   // Usually, you'd merge the Key objects right into the actual container or mob drops here,
   // but leaving them strictly attached to the top-level entity keeps the geometry math clean for now.
 
-  const finalName = `The ${rng.randomString(5).toUpperCase()} ${theme.name}`;
+  const nameRng = new RNG.RNG(`${config.seed}-dungeon-title`);
+  const fantasyNames = getFantasyNameGeneratorSet('human', nameRng);
+  const titleWord = Words.title(fantasyNames.town.generate(1)[0]);
+  const finalName = `The ${titleWord} ${theme.name}`;
 
   // 7. Entrance Placement
   let entrances: DungeonEntrance[] = [];
