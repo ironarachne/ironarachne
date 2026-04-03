@@ -284,8 +284,6 @@
     <p><strong>Blueprint:</strong> {dungeon.theme.blueprint.description}</p>
 
     <p class="map-legend">
-      Blue-map style: white dungeon cut-out on darker blue “rock”; lighter blue grid lines show
-      between floor squares inside rooms and halls. Room numbers and symbols are blue on white.
       Doors are blue bars (open doors show a gap; secret doors have an <strong>S</strong> overlaid); locked
       doors add a small lock frame. Stairs are tapered blue treads.
     </p>
