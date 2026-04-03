@@ -65,83 +65,35 @@ export function generate(config: ClimateGeneratorConfig): Climate {
 }
 
 export function generateClimateName(climate: Climate, latitude: number): string {
-  let name = '';
-
-  // These are divided into five main categories: tropical, dry, temperate, continental, and polar
-  // We determine the category based on the temperature and precipitation of the climate
-
-  // Use a generational approach to determine the climate name, scoring each category based on the climate's temperature and precipitation
-  // The category with the highest score is the one we choose
   const climateTypes = getClimateTypes();
-  let scores = new Map<string, number>();
 
-  for (let type of climateTypes) {
-    let score = 0;
+  let minDistance = Infinity;
+  let bestMatch = climateTypes[0];
 
-    if (climate.temperature >= type.temperatureMin) {
-      score += 1;
-    } else if (climate.temperature <= type.temperatureMin) {
-      score -= 1;
-    }
+  for (const type of climateTypes) {
+    const typeMidTemp = (type.temperatureMax + type.temperatureMin) / 2;
+    // Temperature typical range -40 to 45 (approx 85)
+    // We normalize to avoid temperature overwhelming the distance metric completely
+    const tempDistance = Math.abs(climate.temperature - typeMidTemp) / 85;
 
-    if (climate.temperature <= type.temperatureMax) {
-      score += 1;
-    } else if (climate.temperature >= type.temperatureMax) {
-      score -= 1;
-    }
+    const typeMidPrecipitation = (type.precipitationMax + type.precipitationMin) / 2;
+    const precipitationDistance = Math.abs(climate.precipitationAmount - typeMidPrecipitation);
 
-    if (climate.precipitationAmount >= type.precipitationMin) {
-      score += 1;
-    } else if (climate.precipitationAmount <= type.precipitationMax) {
-      score -= 1;
-    }
+    const typeMidHumidity = (type.humidityMax + type.humidityMin) / 2;
+    const humidityDistance = Math.abs(climate.humidity - typeMidHumidity);
 
-    if (climate.precipitationAmount <= type.precipitationMax) {
-      score += 1;
-    } else if (climate.precipitationAmount >= type.precipitationMin) {
-      score -= 1;
-    }
+    const typeMidLatitude = (type.latitudeMax + type.latitudeMin) / 2;
+    const latitudeDistance = Math.abs(Math.abs(latitude) - typeMidLatitude) / 90;
 
-    if (climate.humidity >= type.humidityMin) {
-      score += 1;
-    } else if (climate.humidity < type.humidityMin) {
-      score -= 1;
-    }
+    const distance = tempDistance + precipitationDistance + humidityDistance + latitudeDistance;
 
-    if (climate.humidity <= type.humidityMax) {
-      score += 1;
-    } else if (climate.humidity > type.humidityMax) {
-      score -= 1;
-    }
-
-    if (latitude <= type.latitudeMax) {
-      score += 1;
-    } else if (latitude > type.latitudeMax) {
-      score -= 1;
-    }
-
-    if (latitude >= type.latitudeMin) {
-      score += 1;
-    } else if (latitude < type.latitudeMin) {
-      score -= 1;
-    }
-
-    scores.set(type.name, score);
-  }
-
-  let highestScore = 0;
-  let highestScoreName = '';
-
-  for (let [key, value] of scores) {
-    if (value > highestScore) {
-      highestScore = value;
-      highestScoreName = key;
+    if (distance < minDistance) {
+      minDistance = distance;
+      bestMatch = type;
     }
   }
 
-  name = highestScoreName;
-
-  return name;
+  return bestMatch.name;
 }
 
 export function getClimateTypeByName(name: string): ClimateType {

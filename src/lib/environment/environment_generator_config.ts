@@ -1,4 +1,4 @@
-import type BiomeGeneratorConfig from './biomes/generator_config';
+import type { BiomeGeneratorConfig } from './biomes/biome_types';
 import type ClimateGeneratorConfig from './climates/generator_config';
 import type EcosystemConfig from './ecosystems/ecosystem_config';
 import type TerrainGeneratorConfig from './terrain/generator_config';

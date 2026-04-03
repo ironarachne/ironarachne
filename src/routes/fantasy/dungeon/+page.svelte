@@ -9,15 +9,20 @@
   import {
     generate as generateEnvironment,
     getDefaultConfig as getDefaultEnvironmentConfig,
+    describeTerrain,
   } from '$lib/environment/environments';
+  import * as BiomeClassifications from '$lib/environment/biomes/biome_classifications';
+  import * as Biomes from '$lib/environment/biomes/biomes';
 
   const blueprintOptions = BLUEPRINTS.map((b) => b.name);
+  const environmentOptions = BiomeClassifications.getAll().map((b) => b.name);
 
   let seed = '';
   let lockSeed = false;
   let mapWidth = 40;
   let mapHeight = 60;
-  let blueprintName: string = blueprintOptions[0] ?? 'Tomb';
+  let blueprintName: string = 'Random';
+  let environmentName: string = 'Random';
   let encounterChancePerRoom = 0.4;
   let treasureChancePerRoom = 0.3;
   let fullSize = false;
@@ -47,7 +52,12 @@
   }
 
   function sanitizeForFilenamePart(s: string): string {
-    return s.replace(/[^a-zA-Z0-9._-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 64) || 'dungeon';
+    return (
+      s
+        .replace(/[^a-zA-Z0-9._-]+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 64) || 'dungeon'
+    );
   }
 
   function downloadMap(format: 'image/png' | 'image/jpeg') {
@@ -58,7 +68,9 @@
     const base = sanitizeForFilenamePart(`${dungeon.name}-${seed}`);
     const filename = `${base}.${ext}`;
     const url =
-      format === 'image/jpeg' ? mapCanvas.toDataURL('image/jpeg', 0.92) : mapCanvas.toDataURL('image/png');
+      format === 'image/jpeg'
+        ? mapCanvas.toDataURL('image/jpeg', 0.92)
+        : mapCanvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
@@ -77,17 +89,66 @@
     if (!lockSeed || seed === '') {
       seed = rng.randomString(13);
     }
+    const dungeonRng = new RNG.RNG(seed);
+
+    let actualBlueprintName = blueprintName;
+    if (actualBlueprintName === 'Random') {
+      actualBlueprintName = dungeonRng.item(blueprintOptions);
+    }
+
+    let actualEnvironmentName = environmentName;
+    if (actualEnvironmentName === 'Random') {
+      actualEnvironmentName = dungeonRng.item(environmentOptions);
+    }
 
     const environmentConfig = getDefaultEnvironmentConfig();
     environmentConfig.rng = new RNG.RNG(`${seed}-env`);
-    const environment = generateEnvironment(environmentConfig);
+    environmentConfig.latitude = environmentConfig.rng.float(-70, 70);
+    environmentConfig.elevation = environmentConfig.rng.float(0.1, 0.8);
+    environmentConfig.waterDirection = [
+      environmentConfig.rng.float(-20, 20),
+      environmentConfig.rng.float(-20, 20),
+      0,
+    ];
+    environmentConfig.current = [
+      environmentConfig.rng.float(-1, 1),
+      environmentConfig.rng.float(-1, 1),
+      0,
+    ];
+    environmentConfig.terrainVector = [
+      environmentConfig.rng.float(-0.5, 0.5),
+      environmentConfig.rng.float(-0.5, 0.5),
+      0,
+    ];
+
+    let environment = generateEnvironment(environmentConfig);
+
+    if (environment.biome.name !== actualEnvironmentName) {
+      const biomeClassification = BiomeClassifications.getByName(actualEnvironmentName);
+      const forcedBiome = {
+        ...environment.biome,
+        name: biomeClassification.name,
+        features: Biomes.generateBiomeFeatures(biomeClassification, environmentConfig.rng),
+        descriptions: Biomes.generateBiomeDescriptions(biomeClassification, environmentConfig.rng),
+      };
+
+      const biomeDesc = environmentConfig.rng.item(forcedBiome.descriptions);
+      const biomeFeat = environmentConfig.rng.item(forcedBiome.features);
+      const terrainDesc = describeTerrain(environment.terrain, environmentConfig.rng);
+
+      environment = {
+        ...environment,
+        biome: forcedBiome,
+        description: `${biomeDesc} ${biomeFeat} ${environment.climate.description} ${terrainDesc}`,
+      };
+    }
 
     dungeon = generateDungeon({
       seed,
       width: mapWidth,
       height: mapHeight,
       environment,
-      blueprintName,
+      blueprintName: actualBlueprintName,
       encounterChancePerRoom,
       treasureChancePerRoom,
     });
@@ -127,13 +188,31 @@
 
   <div class="input-group">
     <label for="mapHeight">Map height</label>
-    <input type="number" name="mapHeight" bind:value={mapHeight} id="mapHeight" min="15" max="120" />
+    <input
+      type="number"
+      name="mapHeight"
+      bind:value={mapHeight}
+      id="mapHeight"
+      min="15"
+      max="120"
+    />
   </div>
 
   <div class="input-group">
     <label for="blueprint">Blueprint</label>
     <select name="blueprint" bind:value={blueprintName} id="blueprint">
+      <option value="Random">Random</option>
       {#each blueprintOptions as name (name)}
+        <option value={name}>{name}</option>
+      {/each}
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label for="environment">Environment (Biome)</label>
+    <select name="environment" bind:value={environmentName} id="environment">
+      <option value="Random">Random</option>
+      {#each environmentOptions as name (name)}
         <option value={name}>{name}</option>
       {/each}
     </select>
@@ -167,10 +246,18 @@
 
   <div class="actions">
     <button type="button" onclick={() => void generate()}>Generate</button>
-    <button type="button" onclick={() => downloadMap('image/png')} disabled={!mapCanvas || !dungeon}>
+    <button
+      type="button"
+      onclick={() => downloadMap('image/png')}
+      disabled={!mapCanvas || !dungeon}
+    >
       Download PNG
     </button>
-    <button type="button" onclick={() => downloadMap('image/jpeg')} disabled={!mapCanvas || !dungeon}>
+    <button
+      type="button"
+      onclick={() => downloadMap('image/jpeg')}
+      disabled={!mapCanvas || !dungeon}
+    >
       Download JPEG
     </button>
   </div>
@@ -195,9 +282,10 @@
     <p><strong>Blueprint:</strong> {dungeon.theme.blueprint.description}</p>
 
     <p class="map-legend">
-      Blue-map style: white dungeon cut-out on darker blue “rock”; lighter blue grid lines show between
-      floor squares inside rooms and halls. Room numbers and symbols are blue on white. Doors are blue bars (open doors show a gap;
-      secret doors have an <strong>S</strong> overlaid); locked doors add a small lock frame. Stairs are tapered blue treads.
+      Blue-map style: white dungeon cut-out on darker blue “rock”; lighter blue grid lines show
+      between floor squares inside rooms and halls. Room numbers and symbols are blue on white.
+      Doors are blue bars (open doors show a gap; secret doors have an <strong>S</strong> overlaid); locked
+      doors add a small lock frame. Stairs are tapered blue treads.
     </p>
   {/if}
 
@@ -270,13 +358,15 @@
             </ul>
           </div>
         {/if}
-        {#if dungeon.keys.some(k => k.x >= room.x && k.x < room.x + room.primitive.width && k.y >= room.y && k.y < room.y + room.primitive.height)}
+        {#if dungeon.keys.some((k) => k.x >= room.x && k.x < room.x + room.primitive.width && k.y >= room.y && k.y < room.y + room.primitive.height)}
           <div class="keys">
             <h4>Keys</h4>
             <ul>
-              {#each dungeon.keys.filter(k => k.x >= room.x && k.x < room.x + room.primitive.width && k.y >= room.y && k.y < room.y + room.primitive.height) as key (key.id)}
+              {#each dungeon.keys.filter((k) => k.x >= room.x && k.x < room.x + room.primitive.width && k.y >= room.y && k.y < room.y + room.primitive.height) as key (key.id)}
                 <li>
-                  <strong>Key:</strong> {key.description} {getKeyDescription(key.id, key.doorId, dungeon)}
+                  <strong>Key:</strong>
+                  {key.description}
+                  {getKeyDescription(key.id, key.doorId, dungeon)}
                 </li>
               {/each}
             </ul>
