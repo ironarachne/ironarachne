@@ -2,10 +2,10 @@ import * as RNG from '@ironarachne/rng';
 import * as Biomes from './biomes/biomes';
 import * as Climates from './climates/climates';
 import * as EcosystemGeneration from './ecosystems/ecosystem_generation';
-import * as TerrainGeneration from './terrain/terrain_generation';
+import * as TerrainGeneration from './terrain/index';
 import * as WaterSystems from './water_systems/water_systems';
 import type Environment from './environment';
-import type Terrain from './terrain/terrain';
+import type { Terrain } from './terrain/index';
 import type EnvironmentGeneratorConfig from './environment_generator_config';
 
 export function generate(config: EnvironmentGeneratorConfig): Environment {
