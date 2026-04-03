@@ -1,6 +1,13 @@
 import type { RNG } from '@ironarachne/rng';
 
-export default interface WaterSystemConfig {
+export type WaterSystem = {
+  current: number[];
+  surfaceLevel: number;
+  temperature: number;
+  waterType: string;
+};
+
+export type WaterSystemGeneratorConfig = {
   current: number[]; // vector of current direction and speed
   latitude: number; // latitude in degrees, -90 to 90
   temperatureMin: number; // degrees Celsius
@@ -9,4 +16,4 @@ export default interface WaterSystemConfig {
   surfaceLevelMax: number; // -1 to 1, with 0 being normal sea level
   waterTypes: string[]; // list of water types (e.g., "fresh", "salt")
   rng: RNG;
-}
+};

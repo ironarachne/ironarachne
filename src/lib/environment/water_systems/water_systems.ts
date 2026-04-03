@@ -1,12 +1,11 @@
-import type WaterSystem from './water_system';
-import type WaterSystemConfig from './water_system_config';
+import type { WaterSystem, WaterSystemGeneratorConfig } from './water_system_types';
 import * as RNG from '@ironarachne/rng';
 
-export function generate(config: WaterSystemConfig): WaterSystem {
+export function generate(config: WaterSystemGeneratorConfig): WaterSystem {
   // Generate a temperature based on latitude
   // At latitude 0, the temperature is always the max temperature
   // At latitude -90 or 90, the temperature is always the min temperature
-  const latitudeFactor = Math.abs(config.latitude) / 90;
+  const latitudeFactor = 1 - (Math.abs(config.latitude) / 90);
   const temperature =
     config.temperatureMin + (config.temperatureMax - config.temperatureMin) * latitudeFactor;
 
@@ -18,7 +17,7 @@ export function generate(config: WaterSystemConfig): WaterSystem {
   };
 }
 
-export function getDefaultConfig(): WaterSystemConfig {
+export function getDefaultConfig(): WaterSystemGeneratorConfig {
   return {
     current: [0, 0, 0],
     latitude: 0,
