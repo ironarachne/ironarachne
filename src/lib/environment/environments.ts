@@ -31,7 +31,7 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
   config.climateConfig.terrainNormalVector = config.terrainVector;
   config.climateConfig.waterDirection = config.waterDirection;
   let climate = Climates.generate(config.climateConfig);
-  climate.description = Climates.describe(climate);
+  climate.description = Climates.describe(climate, config.rng.randomString(16));
 
   let biomeConfig = config.biomeConfig;
   biomeConfig.rng = config.rng;

@@ -1,5 +1,5 @@
 import type { Biome } from './biomes/biome_types.js';
-import type Climate from './climates/climate.js';
+import type { Climate } from './climates/index.js';
 import type Ecosystem from './ecosystems/ecosystem.js';
 import type { Terrain } from './terrain/index.js';
 import type WaterSystem from './water_systems/water_system.js';

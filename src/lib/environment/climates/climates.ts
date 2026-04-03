@@ -1,13 +1,36 @@
 import * as MT from '$lib/math_translation';
-import type Climate from './climate.js';
-import type ClimateGeneratorConfig from './generator_config';
-import type ClimateType from './climate_type.js';
-import type Season from './season.js';
+import type { Climate, ClimateGeneratorConfig, ClimateType, Season } from './climate_types';
 import * as RNG from '@ironarachne/rng';
 
-export function describe(climate: Climate): string {
-  // TODO: make climate descriptions more interesting, with more variety
-  const description = `The climate here is ${climate.name}, with ${climate.seasons.length} seasons.`;
+export function describe(climate: Climate, seed: string): string {
+  const rng = new RNG.RNG(seed);
+
+  const adjectives = [
+    'notable for its',
+    'characterized by',
+    'known for',
+    'defined by',
+  ];
+
+  const seasonPhrases = [
+    `It experiences ${climate.seasons.length} distinct seasons.`,
+    `There are ${climate.seasons.length} seasons throughout the year.`,
+    `The year is divided into ${climate.seasons.length} seasons.`,
+  ];
+
+  let tempPhrase = 'moderate temperatures';
+  if (climate.temperatureMax > 30) tempPhrase = 'scorching heat';
+  else if (climate.temperatureMax > 20) tempPhrase = 'warm temperatures';
+  else if (climate.temperatureMax < 0) tempPhrase = 'freezing cold';
+  else if (climate.temperatureMax < 10) tempPhrase = 'chilly weather';
+
+  let precipPhrase = 'average precipitation';
+  if (climate.precipitationAmount > 0.8) precipPhrase = 'heavy rainfall';
+  else if (climate.precipitationAmount > 0.5) precipPhrase = 'frequent rain';
+  else if (climate.precipitationAmount < 0.2) precipPhrase = 'very little precipitation';
+  else if (climate.precipitationAmount < 0.4) precipPhrase = 'sparse rain';
+
+  const description = `The climate here is ${climate.name}, ${rng.item(adjectives)} ${tempPhrase} and ${precipPhrase}. ${rng.item(seasonPhrases)}`;
 
   return description;
 }
@@ -45,7 +68,7 @@ export function generate(config: ClimateGeneratorConfig): Climate {
     wind,
   );
 
-  let result: Climate = {
+  const partialClimate: Climate = {
     name: 'unknown',
     description: '',
     cloudCover,
@@ -59,9 +82,9 @@ export function generate(config: ClimateGeneratorConfig): Climate {
     humidity,
   };
 
-  result.name = generateClimateName(result, config.latitude);
+  const name = generateClimateName(partialClimate, config.latitude);
 
-  return result;
+  return { ...partialClimate, name };
 }
 
 export function generateClimateName(climate: Climate, latitude: number): string {
@@ -98,11 +121,11 @@ export function generateClimateName(climate: Climate, latitude: number): string 
 
 export function getClimateTypeByName(name: string): ClimateType {
   const types = getClimateTypes();
-  let result = types.find((type) => type.name === name);
+  const result = types.find((type) => type.name === name);
 
   if (result === undefined) {
     console.debug(`Climate type ${name} not found, defaulting to ${types[0].name}`);
-    result = types[0];
+    return types[0];
   }
 
   return result;
@@ -228,27 +251,29 @@ function getPrecipitation(
 
   let precipitation = 0;
 
-  // Precipitation is higher at higher temperatures
-  precipitation += temperature / 40; // 40 degrees Celsius is the maximum temperature
+  // Normalize all factors to a 0-1 range first
+  const tempInfluence = MT.clamp(temperature / 40, 0, 1); // 40 degrees Celsius maximum expected
 
-  // Precipitation is higher if terrain tilt matches wind direction
   const dotProduct = wind[0] * terrainTilt[0] + wind[1] * terrainTilt[1];
-  precipitation += dotProduct > 0 ? dotProduct : -dotProduct * 0.5; // reduce precipitation if wind is not aligned with terrain tilt
+  const terrainInfluence = MT.clamp(dotProduct > 0 ? dotProduct : -dotProduct * 0.5, 0, 1);
 
-  // Precipitation is higher at higher wind speeds
   const windSpeed = Math.sqrt(Math.pow(wind[0], 2) + Math.pow(wind[1], 2));
-  precipitation += windSpeed / 10; // normalize wind speed influence
+  const windInfluence = MT.clamp(windSpeed / 10, 0, 1); // normalize wind speed influence
 
   const waterDistance = MT.clamp(
     Math.sqrt(Math.pow(waterDirection[0], 2) + Math.pow(waterDirection[1], 2)) / 5,
     0,
     1,
   );
+  const waterInfluence = 1 - waterDistance; // Precipitation is higher closer to water
 
-  // Precipitation is higher closer to water
-  precipitation += 1 - waterDistance;
-
-  // TODO: precipitation amount tends to be too high, need to figure out why
+  // Calculate weighted average to prevent precipitation from consistently capping out
+  // Water: 40%, Temperature: 30%, Terrain: 20%, Wind Speed: 10%
+  precipitation =
+    (waterInfluence * 0.4) +
+    (tempInfluence * 0.3) +
+    (terrainInfluence * 0.2) +
+    (windInfluence * 0.1);
 
   return MT.clamp(precipitation, 0, 1);
 }
