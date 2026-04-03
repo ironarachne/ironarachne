@@ -15,7 +15,9 @@
   import * as Biomes from '$lib/environment/biomes/biomes';
 
   const blueprintOptions = BLUEPRINTS.map((b) => b.name);
-  const environmentOptions = BiomeClassifications.getAll().map((b) => b.name);
+  const environmentOptions = BiomeClassifications.getAll()
+    .filter((b) => !b.isAquatic)
+    .map((b) => b.name);
 
   let seed = '';
   let lockSeed = false;

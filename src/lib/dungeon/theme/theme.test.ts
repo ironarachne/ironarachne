@@ -50,6 +50,21 @@ describe('Theme Configuration Subsystem', () => {
     }).toThrowError(/Unknown Dungeon Blueprint/);
   });
 
+  it('should throw an error if the environment biome is aquatic', () => {
+    const aquaticEnvironment = {
+      ...mockDesertEnvironment,
+      biome: {
+        ...mockDesertEnvironment.biome,
+        name: 'Coral Reef',
+        isAquatic: true,
+      }
+    };
+
+    expect(() => {
+      buildTheme(aquaticEnvironment as Environment, 'Natural Caverns');
+    }).toThrowError(/Cannot build a dungeon in an aquatic biome/);
+  });
+
   it('should expose appropriate layout hints depending on the blueprint type', () => {
     const caverns = buildTheme(mockDesertEnvironment, 'Natural Caverns');
 

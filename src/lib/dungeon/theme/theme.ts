@@ -57,6 +57,10 @@ export function buildTheme(environment: Environment, blueprintName: string): Dun
     throw new Error(`Unknown Dungeon Blueprint: ${blueprintName}`);
   }
 
+  if (environment.biome.isAquatic) {
+    throw new Error(`Cannot build a dungeon in an aquatic biome (${environment.biome.name})`);
+  }
+
   // Capitalize environment biome string (e.g. desert -> Desert)
   const biomeName = environment.biome.name;
   const formattedBiomeName = biomeName.charAt(0).toUpperCase() + biomeName.slice(1);
