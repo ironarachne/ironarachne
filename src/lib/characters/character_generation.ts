@@ -182,7 +182,7 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
 export function getDefaultCharacterGenerationConfig(seed: string): CharacterGenerationConfig {
   const defaultSpecies = human;
   const rng = new RNG.RNG(seed + "-names");
-  const nameGenSet = getFantasyNameGeneratorSet("human", rng);
+  const nameGenSet = getFantasyNameGeneratorSet("tiefling", rng);
   const archetypes = getAllFantasyArchetypes();
 
   return {
