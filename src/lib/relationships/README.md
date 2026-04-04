@@ -14,11 +14,11 @@ This library provides tools for managing and generating relationships between en
 ### Importing
 
 ```typescript
-import { 
-    relationshipTypes, 
-    filterRelationshipTypes, 
-    generateRelationshipDescription, 
-    getInverseRelationshipType 
+import {
+  relationshipTypes,
+  filterRelationshipTypes,
+  generateRelationshipDescription,
+  getInverseRelationshipType,
 } from '$lib/relationships/relationships';
 ```
 
@@ -42,9 +42,9 @@ To generate a text description, you need a random number generator (RNG) instanc
 import { IronRng } from '@ironarachne/rng';
 
 const rng = new IronRng();
-const friendType = relationshipTypes.find(t => t.name === 'friend');
+const friendType = relationshipTypes.find((t) => t.name === 'friend');
 
-const description = generateRelationshipDescription(rng, "Alice", "Bob", friendType);
+const description = generateRelationshipDescription(rng, 'Alice', 'Bob', friendType);
 // Output Example: "Alice is friends with Bob"
 ```
 
@@ -53,7 +53,7 @@ const description = generateRelationshipDescription(rng, "Alice", "Bob", friendT
 You can find the reciprocal nature of a relationship type.
 
 ```typescript
-const commanderType = relationshipTypes.find(t => t.name === 'commander');
+const commanderType = relationshipTypes.find((t) => t.name === 'commander');
 const inverse = getInverseRelationshipType(commanderType);
 
 console.log(inverse.name); // "subordinate"
@@ -68,4 +68,3 @@ Relationship types are defined with the following structure:
 - `tags`: Categories this relationship belongs to (e.g., "positive", "familial").
 - `incompatibleWithTypes`: List of relationship types that cannot coexist with this one.
 - `isOneSided`: Whether the relationship is felt only by the originator (e.g., "desire", "envy").
-

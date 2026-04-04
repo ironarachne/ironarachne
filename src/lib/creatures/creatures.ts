@@ -32,7 +32,7 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
   const height = rng.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
   const weight = rng.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
   const length = rng.int(sizeGeneratorConfig.minLength, sizeGeneratorConfig.maxLength);
-  let physicalTraits = CommonSpecies.randomTraits(seed + "-physical",creatureSpecies);
+  let physicalTraits = CommonSpecies.randomTraits(seed + '-physical', creatureSpecies);
   let behaviors = ['cautious', 'hunting', 'lethargic', 'resting', 'sleeping', 'stalking'];
   let summary = rng.item(behaviors);
   let abilities = [...creatureSpecies.abilities];

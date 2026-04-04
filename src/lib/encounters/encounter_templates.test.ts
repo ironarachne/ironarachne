@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
-import { generateEncounter } from "./encounter_generation";
-import { getAllFantasyEncounterTemplates } from "./encounter_templates";
+import { describe, expect, it } from 'vitest';
+import { generateEncounter } from './encounter_generation';
+import { getAllFantasyEncounterTemplates } from './encounter_templates';
 
-describe("getAllFantasyEncounterTemplates", () => {
-  it("returns a non-empty list without throwing", () => {
+describe('getAllFantasyEncounterTemplates', () => {
+  it('returns a non-empty list without throwing', () => {
     const templates = getAllFantasyEncounterTemplates();
     expect(templates.length).toBeGreaterThan(0);
     for (const t of templates) {
@@ -14,8 +14,8 @@ describe("getAllFantasyEncounterTemplates", () => {
   });
 });
 
-describe("generateEncounter", () => {
-  it("generates each fantasy encounter template without throwing", () => {
+describe('generateEncounter', () => {
+  it('generates each fantasy encounter template without throwing', () => {
     const templates = getAllFantasyEncounterTemplates();
     for (let i = 0; i < templates.length; i++) {
       const template = templates[i];

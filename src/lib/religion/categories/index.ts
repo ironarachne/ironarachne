@@ -1,4 +1,4 @@
-import type { ReligionCategory } from "../religion_types";
+import type { ReligionCategory } from '../religion_types';
 
 export const monotheism = {
   name: 'monotheism',

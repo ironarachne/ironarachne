@@ -19,13 +19,13 @@ describe('Master Dungeon Generator', () => {
       temperature: 60,
       humidity: 50,
       descriptions: ['Mild seasons.'],
-      adjective: 'mild'
+      adjective: 'mild',
     },
     terrain: { name: 'hills', isWater: false },
     waterSystem: { name: 'river' },
     dominantEcosystem: { name: 'woodland' },
     ecosystems: [],
-    description: 'A temperate forest environment.'
+    description: 'A temperate forest environment.',
   } as unknown as Environment;
 
   it('should run end-to-end generating a complete functional dungeon blueprint', () => {

@@ -57,8 +57,10 @@ function randomAuthority(
   nameGeneratorSet: Names.NameGeneratorSet,
   rng: RNG.RNG,
 ): Character {
-  let charGenConfig = Characters.getDefaultCharacterGenerationConfig(`character-${rng.randomString(13)}`);
-  
+  let charGenConfig = Characters.getDefaultCharacterGenerationConfig(
+    `character-${rng.randomString(13)}`,
+  );
+
   charGenConfig.allowedAgeCategoryNames = ['adult'];
 
   charGenConfig.familyNameGenerator = nameGeneratorSet.family;

@@ -171,7 +171,9 @@ describe('treasure_hoard', () => {
 
       const hoard = generateRandomTreasureHoard('test-seed-items', config);
 
-      const items = hoard.filter((i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor');
+      const items = hoard.filter(
+        (i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor',
+      );
 
       expect(items.length).toBeGreaterThan(0);
       expect(items.some((i: any) => i.enchantment)).toBe(false);
@@ -190,7 +192,9 @@ describe('treasure_hoard', () => {
 
       const hoard = generateRandomTreasureHoard('test-seed-items-magic', config);
 
-      const items = hoard.filter((i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor');
+      const items = hoard.filter(
+        (i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor',
+      );
 
       expect(items.length).toBeGreaterThan(0);
       expect(items.some((i: any) => i.enchantment)).toBe(true);

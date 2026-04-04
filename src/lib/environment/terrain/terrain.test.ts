@@ -7,14 +7,14 @@ describe('Terrain Generator', () => {
   it('should generate a terrain deterministically given a seed', () => {
     const config1: TerrainGeneratorConfig = {
       ...getDefaultConfig(),
-      rng: new RNG('test-seed-1')
+      rng: new RNG('test-seed-1'),
     };
 
     const terrain1 = generate(config1);
 
     const config2: TerrainGeneratorConfig = {
       ...getDefaultConfig(),
-      rng: new RNG('test-seed-1')
+      rng: new RNG('test-seed-1'),
     };
 
     const terrain2 = generate(config2);
@@ -25,7 +25,7 @@ describe('Terrain Generator', () => {
   it('should assign valid geology materials to a generated terrain', () => {
     const config: TerrainGeneratorConfig = {
       ...getDefaultConfig(),
-      rng: new RNG('geology-seed')
+      rng: new RNG('geology-seed'),
     };
 
     const terrain = generate(config);

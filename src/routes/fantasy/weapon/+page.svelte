@@ -4,7 +4,7 @@
   import * as RNG from '@ironarachne/rng';
   import { getDefaultGenerationConfig } from '$lib/equipment/generation';
 
-  const themes = domains.map(domain => domain.name).sort();
+  const themes = domains.map((domain) => domain.name).sort();
   const categories = ['any', 'melee', 'ranged'];
 
   let rng = new RNG.RNG(Date.now().toString());

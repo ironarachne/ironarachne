@@ -52,7 +52,11 @@ export function filterMaterialsByTags(tags: string[], materials?: Material[]): M
  * @param rng The RNG instance to use
  * @returns A random material
  */
-export function getRandomMaterialForItem(item: Item, rng: RNG.RNG, materials?: Material[]): Material {
+export function getRandomMaterialForItem(
+  item: Item,
+  rng: RNG.RNG,
+  materials?: Material[],
+): Material {
   if (!materials) {
     materials = Object.values(MATERIALS);
   }

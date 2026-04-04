@@ -1,14 +1,14 @@
-import type Species from "$lib/species/species";
-import type { NameGenerator } from "@ironarachne/made-up-names";
-import type { Pantheon } from "./pantheons/pantheon_types";
-import type { DivineRealm } from "./realms/realm_types";
+import type Species from '$lib/species/species';
+import type { NameGenerator } from '@ironarachne/made-up-names';
+import type { Pantheon } from './pantheons/pantheon_types';
+import type { DivineRealm } from './realms/realm_types';
 
 export type Religion = {
-    name: string;
-    description: string;
-    realms: DivineRealm[];
-    pantheon: Pantheon | null;
-}
+  name: string;
+  description: string;
+  realms: DivineRealm[];
+  pantheon: Pantheon | null;
+};
 
 export type ReligionCategory = {
   name: string;
@@ -20,9 +20,9 @@ export type ReligionCategory = {
 };
 
 export type ReligionGenerationConfig = {
-    categories: ReligionCategory[];
-    deitySpeciesOptions: Species[];
-    nameGenerator: NameGenerator;
-    femaleNameGenerator: NameGenerator;
-    maleNameGenerator: NameGenerator;
-}
+  categories: ReligionCategory[];
+  deitySpeciesOptions: Species[];
+  nameGenerator: NameGenerator;
+  femaleNameGenerator: NameGenerator;
+  maleNameGenerator: NameGenerator;
+};

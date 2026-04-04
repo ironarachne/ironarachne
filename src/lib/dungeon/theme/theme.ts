@@ -15,7 +15,17 @@ export const BLUEPRINTS: DungeonBlueprint[] = [
     allowedRoomStyles: ['rectangle', 'circle'], // Deliberate and structured architecture
     doorOptions: { doorDensity: 1.0, secretPercentage: 0.15, lockedPercentage: 0.25 }, // Highly secured
     targetDensity: 0.25,
-    roomPurposes: ['Antechamber', 'Crypt', 'Burial Chamber', 'Embalming Room', 'Ritual Chamber', 'Offering Room', 'Ossuary', 'False Tomb', 'Vestibule'],
+    roomPurposes: [
+      'Antechamber',
+      'Crypt',
+      'Burial Chamber',
+      'Embalming Room',
+      'Ritual Chamber',
+      'Offering Room',
+      'Ossuary',
+      'False Tomb',
+      'Vestibule',
+    ],
   },
   {
     name: 'Stronghold',
@@ -24,7 +34,19 @@ export const BLUEPRINTS: DungeonBlueprint[] = [
     allowedRoomStyles: ['rectangle', 'l-shape'], // Functional, strict
     doorOptions: { doorDensity: 0.9, secretPercentage: 0.05, lockedPercentage: 0.15 },
     targetDensity: 0.4, // Tightly packed rooms
-    roomPurposes: ['Barracks', 'Armory', 'Mess Hall', 'Kitchen', 'Guard Post', 'Prison', 'Training Room', 'Storeroom', 'Latrine', 'Commander Quarters', 'War Room'],
+    roomPurposes: [
+      'Barracks',
+      'Armory',
+      'Mess Hall',
+      'Kitchen',
+      'Guard Post',
+      'Prison',
+      'Training Room',
+      'Storeroom',
+      'Latrine',
+      'Commander Quarters',
+      'War Room',
+    ],
   },
   {
     name: 'Arcane Library',
@@ -33,7 +55,17 @@ export const BLUEPRINTS: DungeonBlueprint[] = [
     allowedRoomStyles: ['rectangle', 'circle', 'blob'], // Strange spatial warping
     doorOptions: { doorDensity: 0.7, secretPercentage: 0.25, lockedPercentage: 0.2 },
     targetDensity: 0.3,
-    roomPurposes: ['Reading Room', 'Scroll Storage', 'Alchemy Lab', 'Summoning Room', 'Scriptorium', 'Librarian Quarters', 'Reliquary', 'Observatory', 'Component Pantry'],
+    roomPurposes: [
+      'Reading Room',
+      'Scroll Storage',
+      'Alchemy Lab',
+      'Summoning Room',
+      'Scriptorium',
+      'Librarian Quarters',
+      'Reliquary',
+      'Observatory',
+      'Component Pantry',
+    ],
   },
   {
     name: 'Natural Caverns',
@@ -42,7 +74,17 @@ export const BLUEPRINTS: DungeonBlueprint[] = [
     allowedRoomStyles: ['blob'], // Organic and unstructured
     doorOptions: { doorDensity: 0.1, secretPercentage: 0.0, lockedPercentage: 0.0 }, // Very few actual doors
     targetDensity: 0.2,
-    roomPurposes: ['Mushroom Grotto', 'Underground Spring', 'Bat Roost', 'Chasm Edge', 'Stalagmite Forest', 'Bear Lair', 'Glowing Cave', 'Guano Pit', 'Blind Fish Pool'],
+    roomPurposes: [
+      'Mushroom Grotto',
+      'Underground Spring',
+      'Bat Roost',
+      'Chasm Edge',
+      'Stalagmite Forest',
+      'Bear Lair',
+      'Glowing Cave',
+      'Guano Pit',
+      'Blind Fish Pool',
+    ],
   },
 ];
 

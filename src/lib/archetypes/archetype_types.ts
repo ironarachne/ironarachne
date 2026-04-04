@@ -1,8 +1,8 @@
-import type { Ability } from "$lib/abilities";
-import type { CombatAction } from "$lib/combat_system";
-import type { EquipmentGenerationConfig } from "$lib/equipment";
-import type { CasterProfile } from "$lib/magic";
-import type { TaggedItem } from "$lib/tags/tag_types";
+import type { Ability } from '$lib/abilities';
+import type { CombatAction } from '$lib/combat_system';
+import type { EquipmentGenerationConfig } from '$lib/equipment';
+import type { CasterProfile } from '$lib/magic';
+import type { TaggedItem } from '$lib/tags/tag_types';
 
 export type Archetype = TaggedItem & {
   name: string;
@@ -14,4 +14,4 @@ export type Archetype = TaggedItem & {
   equipmentGenerationConfigs: EquipmentGenerationConfig[];
   addedTags?: string[];
   removedTags?: string[];
-}
+};

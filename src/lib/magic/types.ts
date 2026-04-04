@@ -1,4 +1,4 @@
-import type { TaggedItem } from "$lib/tags/tag_types";
+import type { TaggedItem } from '$lib/tags/tag_types';
 
 export type Element =
   | 'fire'
@@ -172,4 +172,4 @@ export type CasterProfile = {
   prohibitedIntents?: MagicIntent[]; // ban list of intents the caster cannot use
   maxMagnitude: number;
   maxDifficulty: number;
-}
+};

@@ -139,7 +139,8 @@ export function generateArmor(seed: string): Armor {
 export function getValueOfArmorType(type: ArmorType): number {
   // Simple valuation based on armor type and defense
   const baseValue = 500;
-  const typeMultiplier = type.armorCategory === 'light' ? 1 : type.armorCategory === 'medium' ? 1.5 : 2;
+  const typeMultiplier =
+    type.armorCategory === 'light' ? 1 : type.armorCategory === 'medium' ? 1.5 : 2;
   const defenseModifier = type.defense;
   return Math.floor((baseValue + defenseModifier) * typeMultiplier);
 }

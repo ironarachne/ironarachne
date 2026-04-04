@@ -1,470 +1,512 @@
-import { applyTagFilter } from "$lib/tags";
-import type { Domain } from "./domain_types";
-import { deityMutators } from "../deities/deity_data";
+import { applyTagFilter } from '$lib/tags';
+import type { Domain } from './domain_types';
+import { deityMutators } from '../deities/deity_data';
 
 export const domains: Domain[] = [
-    {
-        name: "air",
-        holyItems: ["feather"],
-        holySymbols: ["cloud", "circle with three squiggly lines in parallel"],
-        enchantmentNames: ["gusting", "dancing"],
-        tags: ["air", "wind", "movement"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["air", "wind", "movement"]})
-    },
-    {
-        name: "animals",
-        holyItems: ["talon", "fang"],
-        holySymbols: ["dog's face", "beast"],
-        enchantmentNames: ["bestial"],
-        tags: ["animals", "beasts", "nature"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["animals", "beasts", "nature"]})
-    },
-    {
-        name: "art",
-        holyItems: ["brush", "quill pen"],
-        holySymbols: ["paint palette", "multi-colored spiral"],
-        enchantmentNames: ["artistic"],
-        tags: ["art", "creativity", "beauty"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["art", "creativity", "beauty"]})
-    },
-    {
-        name: "autumn",
-        holyItems: ["leaf"],
-        holySymbols: ["leaf", "sun setting on the horizon"],
-        enchantmentNames: ["autumnal"],
-        tags: ["autumn", "seasons", "decay"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["autumn", "seasons", "decay"]})
-    },
-    {
-        name: "balance",
-        holyItems: ["scale"],
-        holySymbols: ["circle divided in half"],
-        enchantmentNames: ["balanced"],
-        tags: ["balance", "equilibrium", "justice"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["balance", "equilibrium", "justice"]})
-    },
-    {
-        name: "chaos",
-        holyItems: ["eight-pointed star"],
-        holySymbols: ["eight-pointed star"],
-        enchantmentNames: ["chaotic"],
-        tags: ["chaos", "change", "unpredictability"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["chaos", "change", "unpredictability"]})
-    },
-    {
-        name: "darkness",
-        holyItems: ["cloak"],
-        holySymbols: ["black circle", "eclipse"],
-        enchantmentNames: ["dark", "shadow"],
-        tags: ["darkness", "shadow", "night"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["darkness", "shadow", "night"]})
-    },
-    {
-        name: "dawn",
-        holyItems: ["torch"],
-        holySymbols: ["radiant sun rising"],
-        enchantmentNames: ["dawning"],
-        tags: ["dawn", "light", "beginnings"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["dawn", "light", "beginnings"]})
-    },
-    {
-        name: "death",
-        holyItems: ["funerary mask", "sickle", "scythe", "skull"],
-        holySymbols: ["skull", "scythe", "death's head", "funerary mask"],
-        enchantmentNames: ["vampiric", "unholy"],
-        tags: ["death", "endings", "afterlife"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["death", "endings", "afterlife"]})
-    },
-    {
-        name: "demons",
-        holyItems: ["three-legged bowl", "cauldron"],
-        holySymbols: ["upside-down pentagram", "evil eye"],
-        enchantmentNames: ["demonic", "unholy"],
-        tags: ["demons", "evil", "underworld"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["demons", "evil", "underworld"]})
-    },
-    {
-        name: "destruction",
-        holyItems: ["sword", "axe"],
-        holySymbols: ["skull", "spiked gauntlet"],
-        enchantmentNames: ["destructive"],
-        tags: ["destruction", "ruin", "violence"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["destruction", "ruin", "violence"]})
-    },
-    {
-        name: "dusk",
-        holyItems: ["mask"],
-        holySymbols: ["sun setting on the horizon", "half-circle"],
-        enchantmentNames: ["dimming"],
-        tags: ["dusk", "twilight", "transition"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["dusk", "twilight", "transition"]})
-    },
-    {
-        name: "earth",
-        holyItems: ["pick", "mallet"],
-        holySymbols: ["mountain"],
-        enchantmentNames: ["earthen", "fortified"],
-        tags: ["earth", "stone", "endurance"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["earth", "stone", "endurance"]})
-    },
-    {
-        name: "evil",
-        holyItems: ["spiral dagger"],
-        holySymbols: ["evil eye", "spider"],
-        enchantmentNames: ["vile", "unholy"],
-        tags: ["evil", "corruption", "malice"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["evil", "corruption", "malice"]})
-    },
-    {
-        name: "fear",
-        holyItems: ["mask"],
-        holySymbols: ["screaming face"],
-        enchantmentNames: ["terrifying"],
-        tags: ["fear", "terror", "emotion"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["fear", "terror", "emotion"]})
-    },
-    {
-        name: "fertility",
-        holyItems: ["egg"],
-        holySymbols: ["pregnant woman", "egg", "penis", "vagina"],
-        enchantmentNames: ["fertile"],
-        tags: ["fertility", "growth", "life"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["fertility", "growth", "life"]})
-    },
-    {
-        name: "fire",
-        holyItems: ["torch", "brazier"],
-        holySymbols: ["fire", "flame"],
-        enchantmentNames: ["flaming"],
-        tags: ["fire", "flame", "heat"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["fire", "flame", "heat"]})
-    },
-    {
-        name: "foxes",
-        holyItems: ["fox tail", "fox paw"],
-        holySymbols: ["fox's face", "fox running"],
-        enchantmentNames: ["vulpine"],
-        tags: ["foxes", "cunning", "animals"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["foxes", "cunning", "animals"]})
-    },
-    {
-        name: "good",
-        holyItems: ["shield"],
-        holySymbols: ["radiant sun", "smiling face"],
-        enchantmentNames: ["righteous", "holy"],
-        tags: ["good", "virtue", "light"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["good", "virtue", "light"]})
-    },
-    {
-        name: "harvests",
-        holyItems: ["scythe", "sickle"],
-        holySymbols: ["sickle", "scythe"],
-        enchantmentNames: ["reaping"],
-        tags: ["harvests", "reaping", "agriculture"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["harvests", "reaping", "agriculture"]})
-    },
-    {
-        name: "healing",
-        holyItems: ["wand"],
-        holySymbols: ["wreath of flowers", "open hand"],
-        enchantmentNames: ["healing"],
-        tags: ["healing", "restoration", "health"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["healing", "restoration", "health"]})
-    },
-    {
-        name: "hope",
-        holyItems: ["hoop"],
-        holySymbols: ["open hand", "circle"],
-        enchantmentNames: ["hopeful"],
-        tags: ["hope", "inspiration", "emotion"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["hope", "inspiration", "emotion"]})
-    },
-    {
-        name: "horses",
-        holyItems: ["horse skull", "horse tooth"],
-        holySymbols: ["horse's face", "horse"],
-        enchantmentNames: ["equine"],
-        tags: ["horses", "speed", "animals"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["horses", "speed", "animals"]})
-    },
-    {
-        name: "hunting",
-        holyItems: ["bow", "arrow", "spear"],
-        holySymbols: ["bow and arrow", "beast"],
-        enchantmentNames: ["hunting"],
-        tags: ["hunting", "tracking", "nature"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["hunting", "tracking", "nature"]})
-    },
-    {
-        name: "justice",
-        holyItems: ["scale", "sword"],
-        holySymbols: ["blind man", "blind woman", "scale", "sword"],
-        enchantmentNames: ["just"],
-        tags: ["justice", "law", "retribution"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["justice", "law", "retribution"]})
-    },
-    {
-        name: "knowledge",
-        holyItems: ["book"],
-        holySymbols: ["book", "open eye", "pyramid"],
-        enchantmentNames: ["erudite"],
-        tags: ["knowledge", "learning", "wisdom"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["knowledge", "learning", "wisdom"]})
-    },
-    {
-        name: "languages",
-        holyItems: ["book", "scroll"],
-        holySymbols: ["speaking face", "scroll", "book"],
-        enchantmentNames: ["polyglot"],
-        tags: ["languages", "communication", "understanding"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["languages", "communication", "understanding"]})
-    },
-    {
-        name: "law",
-        holyItems: ["book", "sword", "hammer"],
-        holySymbols: ["hammer", "hammer overlapping a book", "crossed sword and hammer", "sword", "sword overlapping a book"],
-        enchantmentNames: ["lawful"],
-        tags: ["law", "order", "structure"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["law", "order", "structure"]})
-    },
-    {
-        name: "life",
-        holyItems: ["egg", "seed"],
-        holySymbols: ["ouroboros", "circle entwined in vines", "egg"],
-        enchantmentNames: ["living"],
-        tags: ["life", "vitality", "creation"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["life", "vitality", "creation"]})
-    },
-    {
-        name: "light",
-        holyItems: ["torch"],
-        holySymbols: ["beams of light coming from the sky", "radiant sun"],
-        enchantmentNames: ["luminous", "holy"],
-        tags: ["light", "illumination", "purity"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["light", "illumination", "purity"]})
-    },
-    {
-        name: "lightning",
-        holyItems: ["rod"],
-        holySymbols: ["lightning bolt", "crossed pair of lightning bolts"],
-        enchantmentNames: ["shocking"],
-        tags: ["lightning", "storm", "energy"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["lightning", "storm", "energy"]})
-    },
-    {
-        name: "love",
-        holyItems: ["red string"],
-        holySymbols: ["heart"],
-        enchantmentNames: ["amorous"],
-        tags: ["love", "emotion", "affection"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["love", "emotion", "affection"]})
-    },
-    {
-        name: "luck",
-        holyItems: ["rabbit's foot", "dice", "playing cards"],
-        holySymbols: ["grinning face", "face split into a grinning side and a frowning side"],
-        enchantmentNames: ["lucky"],
-        tags: ["luck", "fortune", "chance"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["luck", "fortune", "chance"]})
-    },
-    {
-        name: "mercy",
-        holyItems: ["blunt sword"],
-        holySymbols: ["open hand", "wreath of vines"],
-        enchantmentNames: ["merciful"],
-        tags: ["mercy", "compassion", "forgiveness"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["mercy", "compassion", "forgiveness"]})
-    },
-    {
-        name: "music",
-        holyItems: ["harp", "lute", "lyre", "drum"],
-        holySymbols: ["encircled heart", "harp", "lute", "lyre"],
-        enchantmentNames: ["melodic"],
-        tags: ["music", "sound", "art"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["music", "sound", "art"]})
-    },
-    {
-        name: "nature",
-        holyItems: ["staff"],
-        holySymbols: ["tree", "flower"],
-        enchantmentNames: ["natural"],
-        tags: ["nature", "plants", "animals"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["nature", "plants", "animals"]})
-    },
-    {
-        name: "nobility",
-        holyItems: ["crown"],
-        holySymbols: ["crown"],
-        enchantmentNames: ["noble"],
-        tags: ["nobility", "royalty", "leadership"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["nobility", "royalty", "leadership"]})
-    },
-    {
-        name: "oceans",
-        holyItems: ["shell"],
-        holySymbols: ["wave", "series of waves", "seashell", "mermaid"],
-        enchantmentNames: ["oceanic"],
-        tags: ["oceans", "sea", "water"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["oceans", "sea", "water"]})
-    },
-    {
-        name: "persistence",
-        holyItems: ["shield"],
-        holySymbols: ["man standing resolute", "fist"],
-        enchantmentNames: ["persisting"],
-        tags: ["persistence", "endurance", "willpower"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["persistence", "endurance", "willpower"]})
-    },
-    {
-        name: "plants",
-        holyItems: ["hoe"],
-        holySymbols: ["plant", "tree"],
-        enchantmentNames: ["verdant"],
-        tags: ["plants", "growth", "nature"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["plants", "growth", "nature"]})
-    },
-    {
-        name: "protection",
-        holyItems: ["shield"],
-        holySymbols: ["shield", "gauntlet"],
-        enchantmentNames: ["protecting", "deflecting", "fortified"],
-        tags: ["protection", "defense", "safety"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["protection", "defense", "safety"]})
-    },
-    {
-        name: "revenge",
-        holyItems: ["broken dagger"],
-        holySymbols: ["evil eye", "broken circle"],
-        enchantmentNames: ["vengeful"],
-        tags: ["revenge", "vengeance", "retribution"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["revenge", "vengeance", "retribution"]})
-    },
-    {
-        name: "sky",
-        holyItems: ["flute", "kite"],
-        holySymbols: ["cloud"],
-        enchantmentNames: ["aerial"],
-        tags: ["sky", "air", "height"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["sky", "air", "height"]})
-    },
-    {
-        name: "spring",
-        holyItems: ["staff"],
-        holySymbols: ["wreath of flowers", "flower"],
-        enchantmentNames: ["vernal"],
-        tags: ["spring", "renewal", "growth"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["spring", "renewal", "growth"]})
-    },
-    {
-        name: "strength",
-        holyItems: ["gauntlet"],
-        holySymbols: ["muscled arm", "fist", "tower"],
-        enchantmentNames: ["strong"],
-        tags: ["strength", "power", "might"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["strength", "power", "might"]})
-    },
-    {
-        name: "summer",
-        holyItems: ["wreath"],
-        holySymbols: ["radiant sun", "fire"],
-        enchantmentNames: ["summer"],
-        tags: ["summer", "heat", "growth"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["summer", "heat", "growth"]})
-    },
-    {
-        name: "thieves",
-        holyItems: ["dagger", "coin purse"],
-        holySymbols: ["dagger", "pierced circle"],
-        enchantmentNames: ["stealthy", "shadow"],
-        tags: ["thieves", "stealth", "crime"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["thieves", "stealth", "crime"]})
-    },
-    {
-        name: "the moon",
-        holyItems: ["plate"],
-        holySymbols: ["crescent moon"],
-        enchantmentNames: ["lunar"],
-        tags: ["the moon", "night", "celestial"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["the moon", "night", "celestial"]})
-    },
-    {
-        name: "the sun",
-        holyItems: ["plate"],
-        holySymbols: ["radiant sun"],
-        enchantmentNames: ["solar"],
-        tags: ["the sun", "day", "celestial"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["the sun", "day", "celestial"]})
-    },
-    {
-        name: "thunder",
-        holyItems: ["drum", "hammer"],
-        holySymbols: ["lightning bolt", "lightning bolt over a hammer", "hammer", "drum"],
-        enchantmentNames: ["thunderous"],
-        tags: ["thunder", "storm", "sound"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["thunder", "storm", "sound"]})
-    },
-    {
-        name: "time",
-        holyItems: ["sundial", "hourglass"],
-        holySymbols: ["hourglass", "ouroboros"],
-        enchantmentNames: ["timeless"],
-        tags: ["time", "eternity", "change"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["time", "eternity", "change"]})
-    },
-    {
-        name: "trade",
-        holyItems: ["scale", "coin"],
-        holySymbols: ["coin", "scale", "book and scale"],
-        enchantmentNames: ["mercantile"],
-        tags: ["trade", "commerce", "wealth"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["trade", "commerce", "wealth"]})
-    },
-    {
-        name: "travel",
-        holyItems: ["staff"],
-        holySymbols: ["man walking", "road disappearing into the horizon"],
-        enchantmentNames: ["traveling"],
-        tags: ["travel", "journey", "movement"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["travel", "journey", "movement"]})
-    },
-    {
-        name: "trickery",
-        holyItems: ["two-faced mask"],
-        holySymbols: ["face bearing an evil half and a good half"],
-        enchantmentNames: ["tricky"],
-        tags: ["trickery", "deceit", "illusion"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["trickery", "deceit", "illusion"]})
-    },
-    {
-        name: "war",
-        holyItems: ["sword", "spear"],
-        holySymbols: ["sword", "crossed pair of axes", "helmeted face"],
-        enchantmentNames: ["warlike", "vorpal"],
-        tags: ["war", "battle", "conflict"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["war", "battle", "conflict"]})
-    },
-    {
-        name: "water",
-        holyItems: ["flask"],
-        holySymbols: ["wave", "fountain"],
-        enchantmentNames: ["aquatic"],
-        tags: ["water", "river", "ocean"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["water", "river", "ocean"]})
-    },
-    {
-        name: "winter",
-        holyItems: ["cloak"],
-        holySymbols: ["snowflake", "icicle"],
-        enchantmentNames: ["frost"],
-        tags: ["winter", "cold", "frost"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["winter", "cold", "frost"]})
-    },
-    {
-        name: "wisdom",
-        holyItems: ["book"],
-        holySymbols: ["book", "scroll", "book and scroll"],
-        enchantmentNames: ["wise"],
-        tags: ["wisdom", "insight", "knowledge"],
-        mutators: applyTagFilter(deityMutators, { includeSomeTags: ["wisdom", "insight", "knowledge"]})
-    }
+  {
+    name: 'air',
+    holyItems: ['feather'],
+    holySymbols: ['cloud', 'circle with three squiggly lines in parallel'],
+    enchantmentNames: ['gusting', 'dancing'],
+    tags: ['air', 'wind', 'movement'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['air', 'wind', 'movement'] }),
+  },
+  {
+    name: 'animals',
+    holyItems: ['talon', 'fang'],
+    holySymbols: ["dog's face", 'beast'],
+    enchantmentNames: ['bestial'],
+    tags: ['animals', 'beasts', 'nature'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['animals', 'beasts', 'nature'] }),
+  },
+  {
+    name: 'art',
+    holyItems: ['brush', 'quill pen'],
+    holySymbols: ['paint palette', 'multi-colored spiral'],
+    enchantmentNames: ['artistic'],
+    tags: ['art', 'creativity', 'beauty'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['art', 'creativity', 'beauty'] }),
+  },
+  {
+    name: 'autumn',
+    holyItems: ['leaf'],
+    holySymbols: ['leaf', 'sun setting on the horizon'],
+    enchantmentNames: ['autumnal'],
+    tags: ['autumn', 'seasons', 'decay'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['autumn', 'seasons', 'decay'] }),
+  },
+  {
+    name: 'balance',
+    holyItems: ['scale'],
+    holySymbols: ['circle divided in half'],
+    enchantmentNames: ['balanced'],
+    tags: ['balance', 'equilibrium', 'justice'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['balance', 'equilibrium', 'justice'],
+    }),
+  },
+  {
+    name: 'chaos',
+    holyItems: ['eight-pointed star'],
+    holySymbols: ['eight-pointed star'],
+    enchantmentNames: ['chaotic'],
+    tags: ['chaos', 'change', 'unpredictability'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['chaos', 'change', 'unpredictability'],
+    }),
+  },
+  {
+    name: 'darkness',
+    holyItems: ['cloak'],
+    holySymbols: ['black circle', 'eclipse'],
+    enchantmentNames: ['dark', 'shadow'],
+    tags: ['darkness', 'shadow', 'night'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['darkness', 'shadow', 'night'] }),
+  },
+  {
+    name: 'dawn',
+    holyItems: ['torch'],
+    holySymbols: ['radiant sun rising'],
+    enchantmentNames: ['dawning'],
+    tags: ['dawn', 'light', 'beginnings'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['dawn', 'light', 'beginnings'] }),
+  },
+  {
+    name: 'death',
+    holyItems: ['funerary mask', 'sickle', 'scythe', 'skull'],
+    holySymbols: ['skull', 'scythe', "death's head", 'funerary mask'],
+    enchantmentNames: ['vampiric', 'unholy'],
+    tags: ['death', 'endings', 'afterlife'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['death', 'endings', 'afterlife'] }),
+  },
+  {
+    name: 'demons',
+    holyItems: ['three-legged bowl', 'cauldron'],
+    holySymbols: ['upside-down pentagram', 'evil eye'],
+    enchantmentNames: ['demonic', 'unholy'],
+    tags: ['demons', 'evil', 'underworld'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['demons', 'evil', 'underworld'] }),
+  },
+  {
+    name: 'destruction',
+    holyItems: ['sword', 'axe'],
+    holySymbols: ['skull', 'spiked gauntlet'],
+    enchantmentNames: ['destructive'],
+    tags: ['destruction', 'ruin', 'violence'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['destruction', 'ruin', 'violence'],
+    }),
+  },
+  {
+    name: 'dusk',
+    holyItems: ['mask'],
+    holySymbols: ['sun setting on the horizon', 'half-circle'],
+    enchantmentNames: ['dimming'],
+    tags: ['dusk', 'twilight', 'transition'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['dusk', 'twilight', 'transition'],
+    }),
+  },
+  {
+    name: 'earth',
+    holyItems: ['pick', 'mallet'],
+    holySymbols: ['mountain'],
+    enchantmentNames: ['earthen', 'fortified'],
+    tags: ['earth', 'stone', 'endurance'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['earth', 'stone', 'endurance'] }),
+  },
+  {
+    name: 'evil',
+    holyItems: ['spiral dagger'],
+    holySymbols: ['evil eye', 'spider'],
+    enchantmentNames: ['vile', 'unholy'],
+    tags: ['evil', 'corruption', 'malice'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['evil', 'corruption', 'malice'] }),
+  },
+  {
+    name: 'fear',
+    holyItems: ['mask'],
+    holySymbols: ['screaming face'],
+    enchantmentNames: ['terrifying'],
+    tags: ['fear', 'terror', 'emotion'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['fear', 'terror', 'emotion'] }),
+  },
+  {
+    name: 'fertility',
+    holyItems: ['egg'],
+    holySymbols: ['pregnant woman', 'egg', 'penis', 'vagina'],
+    enchantmentNames: ['fertile'],
+    tags: ['fertility', 'growth', 'life'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['fertility', 'growth', 'life'] }),
+  },
+  {
+    name: 'fire',
+    holyItems: ['torch', 'brazier'],
+    holySymbols: ['fire', 'flame'],
+    enchantmentNames: ['flaming'],
+    tags: ['fire', 'flame', 'heat'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['fire', 'flame', 'heat'] }),
+  },
+  {
+    name: 'foxes',
+    holyItems: ['fox tail', 'fox paw'],
+    holySymbols: ["fox's face", 'fox running'],
+    enchantmentNames: ['vulpine'],
+    tags: ['foxes', 'cunning', 'animals'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['foxes', 'cunning', 'animals'] }),
+  },
+  {
+    name: 'good',
+    holyItems: ['shield'],
+    holySymbols: ['radiant sun', 'smiling face'],
+    enchantmentNames: ['righteous', 'holy'],
+    tags: ['good', 'virtue', 'light'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['good', 'virtue', 'light'] }),
+  },
+  {
+    name: 'harvests',
+    holyItems: ['scythe', 'sickle'],
+    holySymbols: ['sickle', 'scythe'],
+    enchantmentNames: ['reaping'],
+    tags: ['harvests', 'reaping', 'agriculture'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['harvests', 'reaping', 'agriculture'],
+    }),
+  },
+  {
+    name: 'healing',
+    holyItems: ['wand'],
+    holySymbols: ['wreath of flowers', 'open hand'],
+    enchantmentNames: ['healing'],
+    tags: ['healing', 'restoration', 'health'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['healing', 'restoration', 'health'],
+    }),
+  },
+  {
+    name: 'hope',
+    holyItems: ['hoop'],
+    holySymbols: ['open hand', 'circle'],
+    enchantmentNames: ['hopeful'],
+    tags: ['hope', 'inspiration', 'emotion'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['hope', 'inspiration', 'emotion'],
+    }),
+  },
+  {
+    name: 'horses',
+    holyItems: ['horse skull', 'horse tooth'],
+    holySymbols: ["horse's face", 'horse'],
+    enchantmentNames: ['equine'],
+    tags: ['horses', 'speed', 'animals'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['horses', 'speed', 'animals'] }),
+  },
+  {
+    name: 'hunting',
+    holyItems: ['bow', 'arrow', 'spear'],
+    holySymbols: ['bow and arrow', 'beast'],
+    enchantmentNames: ['hunting'],
+    tags: ['hunting', 'tracking', 'nature'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['hunting', 'tracking', 'nature'] }),
+  },
+  {
+    name: 'justice',
+    holyItems: ['scale', 'sword'],
+    holySymbols: ['blind man', 'blind woman', 'scale', 'sword'],
+    enchantmentNames: ['just'],
+    tags: ['justice', 'law', 'retribution'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['justice', 'law', 'retribution'] }),
+  },
+  {
+    name: 'knowledge',
+    holyItems: ['book'],
+    holySymbols: ['book', 'open eye', 'pyramid'],
+    enchantmentNames: ['erudite'],
+    tags: ['knowledge', 'learning', 'wisdom'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['knowledge', 'learning', 'wisdom'],
+    }),
+  },
+  {
+    name: 'languages',
+    holyItems: ['book', 'scroll'],
+    holySymbols: ['speaking face', 'scroll', 'book'],
+    enchantmentNames: ['polyglot'],
+    tags: ['languages', 'communication', 'understanding'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['languages', 'communication', 'understanding'],
+    }),
+  },
+  {
+    name: 'law',
+    holyItems: ['book', 'sword', 'hammer'],
+    holySymbols: [
+      'hammer',
+      'hammer overlapping a book',
+      'crossed sword and hammer',
+      'sword',
+      'sword overlapping a book',
+    ],
+    enchantmentNames: ['lawful'],
+    tags: ['law', 'order', 'structure'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['law', 'order', 'structure'] }),
+  },
+  {
+    name: 'life',
+    holyItems: ['egg', 'seed'],
+    holySymbols: ['ouroboros', 'circle entwined in vines', 'egg'],
+    enchantmentNames: ['living'],
+    tags: ['life', 'vitality', 'creation'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['life', 'vitality', 'creation'] }),
+  },
+  {
+    name: 'light',
+    holyItems: ['torch'],
+    holySymbols: ['beams of light coming from the sky', 'radiant sun'],
+    enchantmentNames: ['luminous', 'holy'],
+    tags: ['light', 'illumination', 'purity'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['light', 'illumination', 'purity'],
+    }),
+  },
+  {
+    name: 'lightning',
+    holyItems: ['rod'],
+    holySymbols: ['lightning bolt', 'crossed pair of lightning bolts'],
+    enchantmentNames: ['shocking'],
+    tags: ['lightning', 'storm', 'energy'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['lightning', 'storm', 'energy'] }),
+  },
+  {
+    name: 'love',
+    holyItems: ['red string'],
+    holySymbols: ['heart'],
+    enchantmentNames: ['amorous'],
+    tags: ['love', 'emotion', 'affection'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['love', 'emotion', 'affection'] }),
+  },
+  {
+    name: 'luck',
+    holyItems: ["rabbit's foot", 'dice', 'playing cards'],
+    holySymbols: ['grinning face', 'face split into a grinning side and a frowning side'],
+    enchantmentNames: ['lucky'],
+    tags: ['luck', 'fortune', 'chance'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['luck', 'fortune', 'chance'] }),
+  },
+  {
+    name: 'mercy',
+    holyItems: ['blunt sword'],
+    holySymbols: ['open hand', 'wreath of vines'],
+    enchantmentNames: ['merciful'],
+    tags: ['mercy', 'compassion', 'forgiveness'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['mercy', 'compassion', 'forgiveness'],
+    }),
+  },
+  {
+    name: 'music',
+    holyItems: ['harp', 'lute', 'lyre', 'drum'],
+    holySymbols: ['encircled heart', 'harp', 'lute', 'lyre'],
+    enchantmentNames: ['melodic'],
+    tags: ['music', 'sound', 'art'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['music', 'sound', 'art'] }),
+  },
+  {
+    name: 'nature',
+    holyItems: ['staff'],
+    holySymbols: ['tree', 'flower'],
+    enchantmentNames: ['natural'],
+    tags: ['nature', 'plants', 'animals'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['nature', 'plants', 'animals'] }),
+  },
+  {
+    name: 'nobility',
+    holyItems: ['crown'],
+    holySymbols: ['crown'],
+    enchantmentNames: ['noble'],
+    tags: ['nobility', 'royalty', 'leadership'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['nobility', 'royalty', 'leadership'],
+    }),
+  },
+  {
+    name: 'oceans',
+    holyItems: ['shell'],
+    holySymbols: ['wave', 'series of waves', 'seashell', 'mermaid'],
+    enchantmentNames: ['oceanic'],
+    tags: ['oceans', 'sea', 'water'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['oceans', 'sea', 'water'] }),
+  },
+  {
+    name: 'persistence',
+    holyItems: ['shield'],
+    holySymbols: ['man standing resolute', 'fist'],
+    enchantmentNames: ['persisting'],
+    tags: ['persistence', 'endurance', 'willpower'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['persistence', 'endurance', 'willpower'],
+    }),
+  },
+  {
+    name: 'plants',
+    holyItems: ['hoe'],
+    holySymbols: ['plant', 'tree'],
+    enchantmentNames: ['verdant'],
+    tags: ['plants', 'growth', 'nature'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['plants', 'growth', 'nature'] }),
+  },
+  {
+    name: 'protection',
+    holyItems: ['shield'],
+    holySymbols: ['shield', 'gauntlet'],
+    enchantmentNames: ['protecting', 'deflecting', 'fortified'],
+    tags: ['protection', 'defense', 'safety'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['protection', 'defense', 'safety'],
+    }),
+  },
+  {
+    name: 'revenge',
+    holyItems: ['broken dagger'],
+    holySymbols: ['evil eye', 'broken circle'],
+    enchantmentNames: ['vengeful'],
+    tags: ['revenge', 'vengeance', 'retribution'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['revenge', 'vengeance', 'retribution'],
+    }),
+  },
+  {
+    name: 'sky',
+    holyItems: ['flute', 'kite'],
+    holySymbols: ['cloud'],
+    enchantmentNames: ['aerial'],
+    tags: ['sky', 'air', 'height'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['sky', 'air', 'height'] }),
+  },
+  {
+    name: 'spring',
+    holyItems: ['staff'],
+    holySymbols: ['wreath of flowers', 'flower'],
+    enchantmentNames: ['vernal'],
+    tags: ['spring', 'renewal', 'growth'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['spring', 'renewal', 'growth'] }),
+  },
+  {
+    name: 'strength',
+    holyItems: ['gauntlet'],
+    holySymbols: ['muscled arm', 'fist', 'tower'],
+    enchantmentNames: ['strong'],
+    tags: ['strength', 'power', 'might'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['strength', 'power', 'might'] }),
+  },
+  {
+    name: 'summer',
+    holyItems: ['wreath'],
+    holySymbols: ['radiant sun', 'fire'],
+    enchantmentNames: ['summer'],
+    tags: ['summer', 'heat', 'growth'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['summer', 'heat', 'growth'] }),
+  },
+  {
+    name: 'thieves',
+    holyItems: ['dagger', 'coin purse'],
+    holySymbols: ['dagger', 'pierced circle'],
+    enchantmentNames: ['stealthy', 'shadow'],
+    tags: ['thieves', 'stealth', 'crime'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['thieves', 'stealth', 'crime'] }),
+  },
+  {
+    name: 'the moon',
+    holyItems: ['plate'],
+    holySymbols: ['crescent moon'],
+    enchantmentNames: ['lunar'],
+    tags: ['the moon', 'night', 'celestial'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['the moon', 'night', 'celestial'],
+    }),
+  },
+  {
+    name: 'the sun',
+    holyItems: ['plate'],
+    holySymbols: ['radiant sun'],
+    enchantmentNames: ['solar'],
+    tags: ['the sun', 'day', 'celestial'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['the sun', 'day', 'celestial'] }),
+  },
+  {
+    name: 'thunder',
+    holyItems: ['drum', 'hammer'],
+    holySymbols: ['lightning bolt', 'lightning bolt over a hammer', 'hammer', 'drum'],
+    enchantmentNames: ['thunderous'],
+    tags: ['thunder', 'storm', 'sound'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['thunder', 'storm', 'sound'] }),
+  },
+  {
+    name: 'time',
+    holyItems: ['sundial', 'hourglass'],
+    holySymbols: ['hourglass', 'ouroboros'],
+    enchantmentNames: ['timeless'],
+    tags: ['time', 'eternity', 'change'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['time', 'eternity', 'change'] }),
+  },
+  {
+    name: 'trade',
+    holyItems: ['scale', 'coin'],
+    holySymbols: ['coin', 'scale', 'book and scale'],
+    enchantmentNames: ['mercantile'],
+    tags: ['trade', 'commerce', 'wealth'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['trade', 'commerce', 'wealth'] }),
+  },
+  {
+    name: 'travel',
+    holyItems: ['staff'],
+    holySymbols: ['man walking', 'road disappearing into the horizon'],
+    enchantmentNames: ['traveling'],
+    tags: ['travel', 'journey', 'movement'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['travel', 'journey', 'movement'] }),
+  },
+  {
+    name: 'trickery',
+    holyItems: ['two-faced mask'],
+    holySymbols: ['face bearing an evil half and a good half'],
+    enchantmentNames: ['tricky'],
+    tags: ['trickery', 'deceit', 'illusion'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['trickery', 'deceit', 'illusion'],
+    }),
+  },
+  {
+    name: 'war',
+    holyItems: ['sword', 'spear'],
+    holySymbols: ['sword', 'crossed pair of axes', 'helmeted face'],
+    enchantmentNames: ['warlike', 'vorpal'],
+    tags: ['war', 'battle', 'conflict'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['war', 'battle', 'conflict'] }),
+  },
+  {
+    name: 'water',
+    holyItems: ['flask'],
+    holySymbols: ['wave', 'fountain'],
+    enchantmentNames: ['aquatic'],
+    tags: ['water', 'river', 'ocean'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['water', 'river', 'ocean'] }),
+  },
+  {
+    name: 'winter',
+    holyItems: ['cloak'],
+    holySymbols: ['snowflake', 'icicle'],
+    enchantmentNames: ['frost'],
+    tags: ['winter', 'cold', 'frost'],
+    mutators: applyTagFilter(deityMutators, { includeSomeTags: ['winter', 'cold', 'frost'] }),
+  },
+  {
+    name: 'wisdom',
+    holyItems: ['book'],
+    holySymbols: ['book', 'scroll', 'book and scroll'],
+    enchantmentNames: ['wise'],
+    tags: ['wisdom', 'insight', 'knowledge'],
+    mutators: applyTagFilter(deityMutators, {
+      includeSomeTags: ['wisdom', 'insight', 'knowledge'],
+    }),
+  },
 ];

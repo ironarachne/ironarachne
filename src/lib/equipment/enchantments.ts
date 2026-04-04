@@ -12,8 +12,8 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     bonusDamage: [
       {
         power: 6,
-        type: 'fire'
-      }
+        type: 'fire',
+      },
     ],
     tagsRequired: ['weapon'],
     tagsAdded: ['flaming', 'magical', 'fire'],
@@ -29,8 +29,8 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     bonusDamage: [
       {
         power: 6,
-        type: 'cold'
-      }
+        type: 'cold',
+      },
     ],
     tagsRequired: ['weapon'],
     tagsAdded: ['frost', 'magical', 'winter'],
@@ -46,8 +46,8 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     bonusDamage: [
       {
         power: 6,
-        type: 'lightning'
-      }
+        type: 'lightning',
+      },
     ],
     tagsRequired: ['weapon', 'metal'],
     tagsAdded: ['shocking', 'magical', 'lightning'],
@@ -332,8 +332,8 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     bonusDamage: [
       {
         power: 6,
-        type: 'fire'
-      }
+        type: 'fire',
+      },
     ],
     tagsRequired: ['weapon'],
     tagsAdded: ['flaming', 'magical', 'fire'],
@@ -469,8 +469,8 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     bonusDamage: [
       {
         power: 6,
-        type: 'lightning'
-      }
+        type: 'lightning',
+      },
     ],
     tagsRequired: ['weapon', 'metal'],
     tagsAdded: ['shocking', 'magical', 'lightning'],
@@ -747,8 +747,8 @@ export const ENCHANTMENTS: Record<string, Enchantment> = {
     bonusDamage: [
       {
         power: 6,
-        type: 'cold'
-      }
+        type: 'cold',
+      },
     ],
     tagsRequired: ['weapon'],
     tagsAdded: ['frost', 'magical', 'winter'],

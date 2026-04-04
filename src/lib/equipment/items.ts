@@ -6,7 +6,11 @@ import * as Currency from '$lib/currency';
  *
  * @param items the items to describe as groups
  */
-export function createCombinedDescriptions(items: Item[], includeValue: boolean = false, currencySystem: Currency.CurrencySystem = Currency.COMMON_FANTASY): string[] {
+export function createCombinedDescriptions(
+  items: Item[],
+  includeValue: boolean = false,
+  currencySystem: Currency.CurrencySystem = Currency.COMMON_FANTASY,
+): string[] {
   const itemCountMap: Record<string, { item: Item; count: number }> = {};
 
   for (const item of items) {
@@ -29,7 +33,9 @@ export function createCombinedDescriptions(items: Item[], includeValue: boolean 
       }
     } else {
       if (includeValue) {
-        descriptions.push(`${entry.item.name} (Value: ${Currency.valueToString(entry.item.value, currencySystem)})`);
+        descriptions.push(
+          `${entry.item.name} (Value: ${Currency.valueToString(entry.item.value, currencySystem)})`,
+        );
       } else {
         descriptions.push(entry.item.name);
       }

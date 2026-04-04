@@ -19,13 +19,13 @@ describe('Theme Configuration Subsystem', () => {
       temperature: 80,
       humidity: 5,
       descriptions: ['Hot and dry.'],
-      adjective: 'arid'
+      adjective: 'arid',
     },
     terrain: { name: 'plains', isWater: false },
     waterSystem: { name: 'oasis' },
     dominantEcosystem: { name: 'desert' },
     ecosystems: [],
-    description: 'A harsh desert environment.'
+    description: 'A harsh desert environment.',
   } as unknown as Environment;
 
   it('should build a formatted theme name correctly fusing Biome and Blueprint', () => {
@@ -57,7 +57,7 @@ describe('Theme Configuration Subsystem', () => {
         ...mockDesertEnvironment.biome,
         name: 'Coral Reef',
         isAquatic: true,
-      }
+      },
     };
 
     expect(() => {

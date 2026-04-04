@@ -121,20 +121,29 @@
           {#if item.itemMajorType === 'weapon'}
             {@const weapon = item as Weapon}
             {#if displaySystem === 'dnd5e' && weapon.actions && weapon.actions.length > 0}
-              <span class="tag damage">Damage: {convertPowerToDice(weapon.actions[0].baseDamage || 0)} ({weapon.actions[0].damageType})</span>
+              <span class="tag damage"
+                >Damage: {convertPowerToDice(weapon.actions[0].baseDamage || 0)} ({weapon.actions[0]
+                  .damageType})</span
+              >
               {#if weapon.actions[0].bonusDamage && weapon.actions[0].bonusDamage.length > 0}
                 {#each weapon.actions[0].bonusDamage as bonus}
-                  <span class="tag damage extra">+ {convertPowerToDice(bonus.power)} ({bonus.type})</span>
+                  <span class="tag damage extra"
+                    >+ {convertPowerToDice(bonus.power)} ({bonus.type})</span
+                  >
                 {/each}
               {/if}
             {:else}
-              <span class="tag damage">Damage: {weapon.actions[0].baseDamage || 0} ({weapon.actions[0].damageType})</span>
+              <span class="tag damage"
+                >Damage: {weapon.actions[0].baseDamage || 0} ({weapon.actions[0].damageType})</span
+              >
             {/if}
           {/if}
           {#if item.itemMajorType === 'armor'}
             {@const armor = item as Armor}
             {#if displaySystem === 'dnd5e'}
-              <span class="tag defense">AC: {convertToDnDArmorClass(armor.combatProfile.defense)}</span>
+              <span class="tag defense"
+                >AC: {convertToDnDArmorClass(armor.combatProfile.defense)}</span
+              >
             {:else}
               <span class="tag defense">Defense: {armor.combatProfile.defense}</span>
             {/if}

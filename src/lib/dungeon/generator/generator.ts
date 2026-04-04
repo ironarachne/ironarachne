@@ -33,7 +33,7 @@ function generateRoomDescription(
   style: string,
   blueprintName: string,
   purpose: string,
-  biomeFeatures: string[]
+  biomeFeatures: string[],
 ): string {
   const area = width * height;
   let sizeAdjectives: string[] = [];
@@ -51,10 +51,10 @@ function generateRoomDescription(
   const size = rng.item(sizeAdjectives);
 
   const roomTypes: Record<string, string> = {
-    'rectangle': 'chamber',
-    'circle': 'circular room',
+    rectangle: 'chamber',
+    circle: 'circular room',
     'l-shape': 'angled hall',
-    'blob': 'cavern'
+    blob: 'cavern',
   };
 
   const roomType = roomTypes[style] || 'room';
@@ -68,30 +68,30 @@ function generateRoomDescription(
   }
 
   const flavors: Record<string, string[]> = {
-    'tomb': [
+    tomb: [
       'Dust covers the stone floor.',
       'The air is stale and silent.',
       'Faded carvings line the walls.',
-      'Cobwebs hang from the ceiling.'
+      'Cobwebs hang from the ceiling.',
     ],
-    'stronghold': [
+    stronghold: [
       'The stone walls are reinforced and sturdy.',
       'Signs of old patrols are visible.',
       'Weapon racks stand empty in the corners.',
-      'The acoustics carry echoes from afar.'
+      'The acoustics carry echoes from afar.',
     ],
     'arcane library': [
       'The faint smell of ozone lingers.',
       'Strange markings are burned into the floor.',
       'Broken glass from old vials crunches underfoot.',
-      'The air feels unnaturally cold.'
+      'The air feels unnaturally cold.',
     ],
     'natural caverns': [
       'Moisture drips from stalactites.',
       'The uneven floor is treacherous.',
       'Patches of strange fungi grow in the corners.',
-      'A low breeze whistles through cracks in the stone.'
-    ]
+      'A low breeze whistles through cracks in the stone.',
+    ],
   };
 
   const blueprintKey = blueprintName.toLowerCase();
@@ -104,7 +104,7 @@ function generateRoomDescription(
     let randomFeature = rng.item(biomeFeatures);
     // Adjust outward-facing biome text to make sense inside a room
     randomFeature = randomFeature.replace(/The area is/g, `The ${roomType} is`);
-    randomFeature = randomFeature.replace(/There are/g, "There are traces of");
+    randomFeature = randomFeature.replace(/There are/g, 'There are traces of');
     description += ` ${randomFeature}`;
   }
 
@@ -112,19 +112,18 @@ function generateRoomDescription(
 }
 
 export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDungeon {
-
-    // Helper: Find a room on the edge of the map
-    function findEdgeRoom(): { room: any; edge: string; ix: number } | null {
-      for (let ix = 0; ix < layout.rooms.length; ix++) {
-        const room = layout.rooms[ix];
-        const { x, y, primitive } = room;
-        if (x === 1) return { room, edge: 'west', ix };
-        if (y === 1) return { room, edge: 'north', ix };
-        if (x + primitive.width === config.width - 1) return { room, edge: 'east', ix };
-        if (y + primitive.height === config.height - 1) return { room, edge: 'south', ix };
-      }
-      return null;
+  // Helper: Find a room on the edge of the map
+  function findEdgeRoom(): { room: any; edge: string; ix: number } | null {
+    for (let ix = 0; ix < layout.rooms.length; ix++) {
+      const room = layout.rooms[ix];
+      const { x, y, primitive } = room;
+      if (x === 1) return { room, edge: 'west', ix };
+      if (y === 1) return { room, edge: 'north', ix };
+      if (x + primitive.width === config.width - 1) return { room, edge: 'east', ix };
+      if (y + primitive.height === config.height - 1) return { room, edge: 'south', ix };
     }
+    return null;
+  }
   const rng = new RNG.RNG(config.seed);
   const encounterChance = config.encounterChancePerRoom ?? 0.4;
   const treasureChance = config.treasureChancePerRoom ?? 0.3;
@@ -244,7 +243,7 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
       room.primitive.style,
       theme.blueprint.name,
       purpose,
-      theme.environment.biome.features
+      theme.environment.biome.features,
     );
 
     if (entrances.some((e) => e.roomId === roomId && e.type === 'stairs')) {

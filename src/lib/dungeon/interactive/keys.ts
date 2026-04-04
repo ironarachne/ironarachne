@@ -15,7 +15,13 @@ function getRoomCenter(room: PlacedRoom): [number, number] {
  * is always mathematically obtainable *before* needing to pass through that locked door.
  * Relies on a BFS iterative expansion zone strategy from a root designated entrance.
  */
-export function distributeKeys(seed: string, layout: DungeonLayout, doors: Door[], startX?: number, startY?: number): Key[] {
+export function distributeKeys(
+  seed: string,
+  layout: DungeonLayout,
+  doors: Door[],
+  startX?: number,
+  startY?: number,
+): Key[] {
   const rng = new RNG.RNG(seed);
   const keys: Key[] = [];
 

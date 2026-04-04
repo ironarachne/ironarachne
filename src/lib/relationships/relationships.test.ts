@@ -1,6 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { generateRelationshipDescription, generateRelationships, getInverseRelationshipType, relationshipTypes } from './relationships';
-import type { RNG } from "@ironarachne/rng";
+import {
+  generateRelationshipDescription,
+  generateRelationships,
+  getInverseRelationshipType,
+  relationshipTypes,
+} from './relationships';
+import type { RNG } from '@ironarachne/rng';
 import type { Character } from '$lib/characters';
 import type { RelationshipGenerationConfig } from './relationship_types';
 
@@ -10,11 +15,11 @@ describe('Relationships Library', () => {
   describe('generateRelationshipDescription', () => {
     it('should generate a description based on template', () => {
       const mockRng = {
-        item: (arr: any[]) => arr[0]
+        item: (arr: any[]) => arr[0],
       } as RNG;
 
-      const type = relationshipTypes.find(t => t.name === 'friend');
-      if (!type) throw new Error("Friend type not found");
+      const type = relationshipTypes.find((t) => t.name === 'friend');
+      if (!type) throw new Error('Friend type not found');
 
       const description = generateRelationshipDescription(mockRng, 'Alice', 'Bob', type);
       // Default friend template: "{originator} is friends with {recipient}"
@@ -24,8 +29,8 @@ describe('Relationships Library', () => {
 
   describe('getInverseRelationshipType', () => {
     it('should return the correct reciprocal type for friend', () => {
-      const friendType = relationshipTypes.find(t => t.name === 'friend');
-      if (!friendType) throw new Error("Friend type not found");
+      const friendType = relationshipTypes.find((t) => t.name === 'friend');
+      if (!friendType) throw new Error('Friend type not found');
 
       const inverse = getInverseRelationshipType(friendType);
       expect(inverse).not.toBeNull();
@@ -33,8 +38,8 @@ describe('Relationships Library', () => {
     });
 
     it('should return the correct reciprocal type for commander', () => {
-      const commanderType = relationshipTypes.find(t => t.name === 'commander');
-      if (!commanderType) throw new Error("Commander type not found");
+      const commanderType = relationshipTypes.find((t) => t.name === 'commander');
+      if (!commanderType) throw new Error('Commander type not found');
 
       const inverse = getInverseRelationshipType(commanderType);
       expect(inverse).not.toBeNull();
@@ -43,8 +48,8 @@ describe('Relationships Library', () => {
 
     it('should return null if reciprocal type does not exist', () => {
       // 'desire' has reciprocalName: "", so it might fail or return null depending on logic
-      const desireType = relationshipTypes.find(t => t.name === 'desire');
-      if (!desireType) throw new Error("Desire type not found");
+      const desireType = relationshipTypes.find((t) => t.name === 'desire');
+      if (!desireType) throw new Error('Desire type not found');
 
       const inverse = getInverseRelationshipType(desireType);
       // Logic: relationships.find(t => t.name === type.reciprocalName)
@@ -58,7 +63,11 @@ describe('Relationships Library', () => {
       const result0 = generateRelationships('seed', [], config);
       expect(result0).toEqual([]);
 
-      const result1 = generateRelationships('seed', [{ id: '1', name: 'Alice' } as Character], config);
+      const result1 = generateRelationships(
+        'seed',
+        [{ id: '1', name: 'Alice' } as Character],
+        config,
+      );
       expect(result1).toEqual([]);
     });
 
@@ -67,7 +76,7 @@ describe('Relationships Library', () => {
         { id: '1', name: 'Alice' } as Character,
         { id: '2', name: 'Bob' } as Character,
         { id: '3', name: 'Charlie' } as Character,
-        { id: '4', name: 'Diana' } as Character
+        { id: '4', name: 'Diana' } as Character,
       ];
 
       const relationships = generateRelationships('test-seed', characters, config);
@@ -75,7 +84,7 @@ describe('Relationships Library', () => {
       expect(relationships.length).toBeGreaterThan(0);
 
       // Check that relationships have valid properties
-      relationships.forEach(rel => {
+      relationships.forEach((rel) => {
         expect(rel.id).toBeDefined();
         expect(rel.originatorId).toBeDefined();
         expect(rel.recipientId).toBeDefined();
@@ -90,17 +99,18 @@ describe('Relationships Library', () => {
     it('should generate reciprocal relationships for non-one-sided types', () => {
       const characters = [
         { id: '1', name: 'Alice' } as Character,
-        { id: '2', name: 'Bob' } as Character
+        { id: '2', name: 'Bob' } as Character,
       ];
 
       const relationships = generateRelationships('reciprocal-seed', characters, config);
 
-      relationships.forEach(rel => {
+      relationships.forEach((rel) => {
         if (!rel.type.isOneSided) {
-          const reciprocal = relationships.find(r =>
-            r.originatorId === rel.recipientId &&
-            r.recipientId === rel.originatorId &&
-            r.type.name === rel.type.reciprocalName
+          const reciprocal = relationships.find(
+            (r) =>
+              r.originatorId === rel.recipientId &&
+              r.recipientId === rel.originatorId &&
+              r.type.name === rel.type.reciprocalName,
           );
           expect(reciprocal).toBeDefined();
         }
@@ -111,14 +121,14 @@ describe('Relationships Library', () => {
       const characters = [
         { id: '1', name: 'Alice' } as Character,
         { id: '2', name: 'Bob' } as Character,
-        { id: '3', name: 'Charlie' } as Character
+        { id: '3', name: 'Charlie' } as Character,
       ];
 
       const relationships = generateRelationships('incompatible-seed', characters, config);
 
       // Group relationships by originator
       const byOriginator = new Map<string, typeof relationships>();
-      relationships.forEach(rel => {
+      relationships.forEach((rel) => {
         if (!byOriginator.has(rel.originatorId)) {
           byOriginator.set(rel.originatorId, []);
         }
@@ -126,10 +136,10 @@ describe('Relationships Library', () => {
       });
 
       // Check for incompatibilities
-      byOriginator.forEach(rels => {
-        rels.forEach(rel => {
+      byOriginator.forEach((rels) => {
+        rels.forEach((rel) => {
           const incompatibleTypes = rel.type.incompatibleWithTypes;
-          const hasIncompatible = rels.some(r => incompatibleTypes.includes(r.type.name));
+          const hasIncompatible = rels.some((r) => incompatibleTypes.includes(r.type.name));
           expect(hasIncompatible).toBe(false);
         });
       });
@@ -139,7 +149,7 @@ describe('Relationships Library', () => {
       const characters = [
         { id: '1', name: 'Alice' } as Character,
         { id: '2', name: 'Bob' } as Character,
-        { id: '3', name: 'Charlie' } as Character
+        { id: '3', name: 'Charlie' } as Character,
       ];
 
       const relationships1 = generateRelationships('deterministic-seed', characters, config);

@@ -111,7 +111,9 @@ describe('Climates Generator', () => {
 
       // Will likely match tropical or temperate
       const climateType = Climates.getClimateTypeByName(climate.name);
-      expect(climate.precipitationAmount).toBeGreaterThanOrEqual(climateType.precipitationMin - 0.15);
+      expect(climate.precipitationAmount).toBeGreaterThanOrEqual(
+        climateType.precipitationMin - 0.15,
+      );
     });
   });
 });

@@ -5,7 +5,7 @@ export function generate(config: WaterSystemGeneratorConfig): WaterSystem {
   // Generate a temperature based on latitude
   // At latitude 0, the temperature is always the max temperature
   // At latitude -90 or 90, the temperature is always the min temperature
-  const latitudeFactor = 1 - (Math.abs(config.latitude) / 90);
+  const latitudeFactor = 1 - Math.abs(config.latitude) / 90;
   const temperature =
     config.temperatureMin + (config.temperatureMax - config.temperatureMin) * latitudeFactor;
 

@@ -36,10 +36,7 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
   }
 
   // Apply additional damage
-  if (
-    newItem.itemMajorType === 'weapon' &&
-    enchantment.bonusDamage
-  ) {
+  if (newItem.itemMajorType === 'weapon' && enchantment.bonusDamage) {
     const weapon = newItem as Weapon;
     weapon.actions = weapon.actions.map((action) => {
       const newAction = structuredClone(action);
@@ -53,7 +50,10 @@ export function applyEnchantment(item: Item, enchantment: Enchantment): Item {
   return newItem;
 }
 
-export function filterEnchantmentsByTags(tags: string[], enchantments?: Record<string, Enchantment>): Enchantment[] {
+export function filterEnchantmentsByTags(
+  tags: string[],
+  enchantments?: Record<string, Enchantment>,
+): Enchantment[] {
   if (!enchantments) {
     enchantments = ENCHANTMENTS;
   }
@@ -74,7 +74,11 @@ export function filterEnchantmentsByTags(tags: string[], enchantments?: Record<s
  * @param rng The RNG instance to use
  * @returns A random enchantment or null
  */
-export function getRandomEnchantment(item: Item, rng: RNG.RNG, enchantments?: Enchantment[]): Enchantment | null {
+export function getRandomEnchantment(
+  item: Item,
+  rng: RNG.RNG,
+  enchantments?: Enchantment[],
+): Enchantment | null {
   if (!enchantments) {
     enchantments = Object.values(ENCHANTMENTS);
   }

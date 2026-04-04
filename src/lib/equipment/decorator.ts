@@ -30,7 +30,10 @@ export function applyDecoration(item: Item, decoration: Decoration): Item {
   return newItem;
 }
 
-export function filterDecorationsByTags(tags: string[], decorations?: Record<string, Decoration>): Decoration[] {
+export function filterDecorationsByTags(
+  tags: string[],
+  decorations?: Record<string, Decoration>,
+): Decoration[] {
   if (!decorations) {
     decorations = DECORATIONS;
   }
@@ -51,7 +54,11 @@ export function filterDecorationsByTags(tags: string[], decorations?: Record<str
  * @param rng The RNG instance to use
  * @returns A random decoration or null
  */
-export function getRandomDecoration(item: Item, rng: RNG.RNG, decorations?: Decoration[]): Decoration | null {
+export function getRandomDecoration(
+  item: Item,
+  rng: RNG.RNG,
+  decorations?: Decoration[],
+): Decoration | null {
   if (!decorations) {
     decorations = Object.values(DECORATIONS);
   }

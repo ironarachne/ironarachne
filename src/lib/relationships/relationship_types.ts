@@ -1,21 +1,21 @@
-import type { TagFilter, TaggedItem } from "$lib/tags/tag_types";
+import type { TagFilter, TaggedItem } from '$lib/tags/tag_types';
 
 export type Relationship = {
-    id: string;
-    originatorId: string;
-    recipientId: string;
-    type: RelationshipType;
-    description: string;
-}
+  id: string;
+  originatorId: string;
+  recipientId: string;
+  type: RelationshipType;
+  description: string;
+};
 
 export type RelationshipGenerationConfig = {
-    tagFilter?: TagFilter;
-}
+  tagFilter?: TagFilter;
+};
 
-export type RelationshipType = TaggedItem &{
-    name: string;
-    reciprocalName: string;
-    descriptionPhraseTemplates: string[];
-    incompatibleWithTypes: string[]; // array of RelationshipType names
-    isOneSided: boolean;
-}
+export type RelationshipType = TaggedItem & {
+  name: string;
+  reciprocalName: string;
+  descriptionPhraseTemplates: string[];
+  incompatibleWithTypes: string[]; // array of RelationshipType names
+  isOneSided: boolean;
+};

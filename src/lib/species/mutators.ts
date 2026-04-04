@@ -1,5 +1,5 @@
-import type { Mutator } from "$lib/mutator";
-import type Species from "./species";
+import type { Mutator } from '$lib/mutator';
+import type Species from './species';
 
 export function allMutators(): Mutator<Species>[] {
   return [
@@ -26,7 +26,7 @@ export function allMutators(): Mutator<Species>[] {
         result.tags.push('undead');
 
         return result;
-      }
+      },
     },
     {
       name: 'zombie',
@@ -51,7 +51,7 @@ export function allMutators(): Mutator<Species>[] {
         result.tags.push('undead');
 
         return result;
-      }
+      },
     },
     {
       name: 'vampire',
@@ -76,14 +76,14 @@ export function allMutators(): Mutator<Species>[] {
         result.tags.push('undead');
 
         return result;
-      }
-    }
+      },
+    },
   ];
 }
 
 export function getMutatorByName(name: string): Mutator<Species> {
   const mutators = allMutators();
-  const mutator = mutators.find(m => m.name === name);
+  const mutator = mutators.find((m) => m.name === name);
   if (!mutator) {
     throw new Error(`Mutator with name "${name}" not found.`);
   }

@@ -2,10 +2,7 @@ import type { Archetype } from './archetype_types';
 import { getArmorGenerationConfig, getWeaponGenerationConfig } from '$lib/equipment';
 
 export function getAllFantasyArchetypes(): Archetype[] {
-  return [
-    ...getFantasyCombatArchetypes(),
-    ...getFantasyNonCombatArchetypes()
-  ];
+  return [...getFantasyCombatArchetypes(), ...getFantasyNonCombatArchetypes()];
 }
 
 export function getFantasyCombatArchetypes(): Archetype[] {
@@ -19,14 +16,14 @@ export function getFantasyCombatArchetypes(): Archetype[] {
           name: 'shadow step',
           description: 'Move unseen through the shadows.',
           category: 'movement',
-          tags: ['stealth', 'mobility']
+          tags: ['stealth', 'mobility'],
         },
         {
           name: 'disguise',
           description: 'Blend into crowds and avoid detection.',
           category: 'stealth',
-          tags: ['stealth', 'deception']
-        }
+          tags: ['stealth', 'deception'],
+        },
       ],
       actions: [
         {
@@ -35,80 +32,80 @@ export function getFantasyCombatArchetypes(): Archetype[] {
           type: 'attack',
           attackType: 'melee',
           damageType: 'piercing',
-          baseDamage: 8
-        }
+          baseDamage: 8,
+        },
       ],
       equipmentGenerationConfigs: [
         getWeaponGenerationConfig('dagger'),
-        getArmorGenerationConfig('leather armor')
+        getArmorGenerationConfig('leather armor'),
       ],
       addedTags: ['stealthy', 'agile'],
-      tags: ['assassin', 'stealth', 'martial', 'agile']
+      tags: ['assassin', 'stealth', 'martial', 'agile'],
     },
     {
-      name: "cleric",
-      description: "A holy warrior who channels divine power.",
+      name: 'cleric',
+      description: 'A holy warrior who channels divine power.',
       basePowerModifier: 12,
       abilities: [
         {
-          name: "turn undead",
-          description: "Repels undead creatures with divine energy.",
-          category: "divine",
-          tags: ["divine", "control"]
+          name: 'turn undead',
+          description: 'Repels undead creatures with divine energy.',
+          category: 'divine',
+          tags: ['divine', 'control'],
         },
         {
-          name: "divine spellcasting",
-          description: "Casts spells granted by a deity.",
-          category: "divine",
-          tags: ["divine", "magic"]
-        }
+          name: 'divine spellcasting',
+          description: 'Casts spells granted by a deity.',
+          category: 'divine',
+          tags: ['divine', 'magic'],
+        },
       ],
       actions: [
         {
-          name: "smite",
-          description: "A powerful melee attack imbued with divine energy.",
-          type: "attack",
-          attackType: "melee",
-          damageType: "radiant",
-          baseDamage: 10
-        }
+          name: 'smite',
+          description: 'A powerful melee attack imbued with divine energy.',
+          type: 'attack',
+          attackType: 'melee',
+          damageType: 'radiant',
+          baseDamage: 10,
+        },
       ],
       casterProfile: {
         allowedSpheres: ['divine'],
         maxMagnitude: 20,
-        maxDifficulty: 20
+        maxDifficulty: 20,
       },
       equipmentGenerationConfigs: [
         getWeaponGenerationConfig('mace'),
-        getArmorGenerationConfig('chainmail')
+        getArmorGenerationConfig('chainmail'),
       ],
       addedTags: ['holy'],
-      tags: ['cleric', 'divine']
+      tags: ['cleric', 'divine'],
     },
     {
-      name: "cultist",
-      description: "A devoted follower of a dark cult.",
+      name: 'cultist',
+      description: 'A devoted follower of a dark cult.',
       basePowerModifier: 8,
       abilities: [
         {
-          name: "demonic spellcasting",
-          description: "Casts dark and forbidden spells.",
-          category: "demonic",
-          tags: ["demonic", "magic"]
-        }
+          name: 'demonic spellcasting',
+          description: 'Casts dark and forbidden spells.',
+          category: 'demonic',
+          tags: ['demonic', 'magic'],
+        },
       ],
       actions: [],
       casterProfile: {
         allowedSpheres: ['infernal'],
         maxMagnitude: 15,
-        maxDifficulty: 15
+        maxDifficulty: 15,
       },
       equipmentGenerationConfigs: [
         getWeaponGenerationConfig('staff'),
-        getArmorGenerationConfig('robe')
+        getArmorGenerationConfig('robe'),
       ],
       addedTags: ['unholy'],
-      tags: ['cultist', 'demonic']
+      tags: ['cultist', 'demonic'],
     },
     {
       name: 'druid',
@@ -119,27 +116,27 @@ export function getFantasyCombatArchetypes(): Archetype[] {
           name: 'nature spellcasting',
           description: 'Casts spells that manipulate nature.',
           category: 'nature',
-          tags: ['nature', 'magic']
+          tags: ['nature', 'magic'],
         },
         {
           name: 'wild shape',
           description: 'Transform into animals to adapt to different situations.',
           category: 'transformation',
-          tags: ['nature', 'transformation']
-        }
+          tags: ['nature', 'transformation'],
+        },
       ],
       actions: [],
       casterProfile: {
         allowedSpheres: ['nature'],
         maxMagnitude: 18,
-        maxDifficulty: 18
+        maxDifficulty: 18,
       },
       equipmentGenerationConfigs: [
         getWeaponGenerationConfig('quarterstaff'),
-        getArmorGenerationConfig('leather armor')
+        getArmorGenerationConfig('leather armor'),
       ],
       addedTags: ['nature lover'],
-      tags: ['druid', 'nature', 'magic']
+      tags: ['druid', 'nature', 'magic'],
     },
     {
       name: 'fighter',
@@ -153,15 +150,12 @@ export function getFantasyCombatArchetypes(): Archetype[] {
           type: 'attack',
           attackType: 'melee',
           damageType: 'slashing',
-          baseDamage: 12
-        }
+          baseDamage: 12,
+        },
       ],
-      equipmentGenerationConfigs: [
-        getWeaponGenerationConfig(),
-        getArmorGenerationConfig(),
-      ],
+      equipmentGenerationConfigs: [getWeaponGenerationConfig(), getArmorGenerationConfig()],
       addedTags: ['martial', 'tough'],
-      tags: ['martial', 'tough', 'fighter']
+      tags: ['martial', 'tough', 'fighter'],
     },
     {
       name: 'mage',
@@ -172,21 +166,21 @@ export function getFantasyCombatArchetypes(): Archetype[] {
           name: 'arcane spellcasting',
           description: 'Casts powerful arcane spells.',
           category: 'arcane',
-          tags: ['arcane', 'magic']
-        }
+          tags: ['arcane', 'magic'],
+        },
       ],
       actions: [],
       casterProfile: {
         allowedSpheres: ['arcane'],
         maxMagnitude: 25,
-        maxDifficulty: 25
+        maxDifficulty: 25,
       },
       equipmentGenerationConfigs: [
         getWeaponGenerationConfig('staff'),
-        getArmorGenerationConfig('robe')
+        getArmorGenerationConfig('robe'),
       ],
       addedTags: ['arcane'],
-      tags: ['mage', 'arcane', 'magic']
+      tags: ['mage', 'arcane', 'magic'],
     },
     {
       name: 'rogue',
@@ -197,14 +191,14 @@ export function getFantasyCombatArchetypes(): Archetype[] {
           name: 'stealth',
           description: 'Move silently and avoid detection.',
           category: 'stealth',
-          tags: ['stealth', 'agility']
+          tags: ['stealth', 'agility'],
         },
         {
           name: 'lockpicking',
           description: 'Open locked doors and chests without keys.',
           category: 'thievery',
-          tags: ['thievery', 'dexterity']
-        }
+          tags: ['thievery', 'dexterity'],
+        },
       ],
       actions: [
         {
@@ -213,16 +207,16 @@ export function getFantasyCombatArchetypes(): Archetype[] {
           type: 'attack',
           attackType: 'melee',
           damageType: 'piercing',
-          baseDamage: 7
-        }
+          baseDamage: 7,
+        },
       ],
       equipmentGenerationConfigs: [
         getWeaponGenerationConfig('shortsword'),
-        getArmorGenerationConfig('leather armor')
+        getArmorGenerationConfig('leather armor'),
       ],
       addedTags: ['stealthy', 'dexterous'],
-      tags: ['rogue', 'stealth', 'agile']
-    }
+      tags: ['rogue', 'stealth', 'agile'],
+    },
   ];
 }
 
@@ -237,13 +231,13 @@ export function getFantasyNonCombatArchetypes(): Archetype[] {
           name: 'farming',
           description: 'Knowledge of agricultural practices.',
           category: 'labor',
-          tags: ['farming', 'labor']
-        }
+          tags: ['farming', 'labor'],
+        },
       ],
       actions: [],
       equipmentGenerationConfigs: [],
       addedTags: ['commoner'],
-      tags: ['peasant', 'commoner']
+      tags: ['peasant', 'commoner'],
     },
     {
       name: 'merchant',
@@ -254,13 +248,13 @@ export function getFantasyNonCombatArchetypes(): Archetype[] {
           name: 'bargaining',
           description: 'Negotiate better prices for goods.',
           category: 'commerce',
-          tags: ['commerce', 'negotiation']
-        }
+          tags: ['commerce', 'negotiation'],
+        },
       ],
       actions: [],
       equipmentGenerationConfigs: [],
       addedTags: ['trader'],
-      tags: ['merchant', 'commerce']
+      tags: ['merchant', 'commerce'],
     },
     {
       name: 'noble',
@@ -271,13 +265,13 @@ export function getFantasyNonCombatArchetypes(): Archetype[] {
           name: 'leadership',
           description: 'Inspire and lead others effectively.',
           category: 'social',
-          tags: ['social', 'influence']
-        }
+          tags: ['social', 'influence'],
+        },
       ],
       actions: [],
       equipmentGenerationConfigs: [],
       addedTags: ['aristocrat'],
-      tags: ['noble', 'influential']
-    }
+      tags: ['noble', 'influential'],
+    },
   ];
 }

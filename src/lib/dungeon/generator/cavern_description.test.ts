@@ -23,7 +23,7 @@ const mockCavernEnvironment: Environment = {
   waterSystem: { name: 'underground river' },
   dominantEcosystem: { name: 'cave' },
   ecosystems: [],
-  description: 'A vast network of natural caverns.'
+  description: 'A vast network of natural caverns.',
 } as unknown as Environment;
 
 describe('Cavern Room Description', () => {

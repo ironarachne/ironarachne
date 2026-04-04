@@ -13,7 +13,9 @@ export function getDefaultConfig(rng: RNG.RNG): OrganizationGeneratorConfig {
 
   return {
     organizationTypes: [mercCompany, tradingCompany, wizardSchool],
-    characterConfig: Characters.getDefaultCharacterGenerationConfig(`character-${rng.randomString(13)}`),
+    characterConfig: Characters.getDefaultCharacterGenerationConfig(
+      `character-${rng.randomString(13)}`,
+    ),
     rng: rng,
   };
 }

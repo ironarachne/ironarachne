@@ -15,7 +15,7 @@ export default [
       'Updated the heraldry generator to allow for charges "in chief"',
       'Rewrote the fantasy family generator',
       'Added a treasure hoard generator',
-    ]
+    ],
   },
   {
     date: '2025-10-27',

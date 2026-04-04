@@ -1,12 +1,12 @@
-import type { Character } from "$lib/characters/character_types";
-import type { Creature } from "$lib/creatures/creature_types";
-import { getMutatorByName } from "$lib/species";
-import type { EncounterGroupTemplate } from "./encounter_types";
+import type { Character } from '$lib/characters/character_types';
+import type { Creature } from '$lib/creatures/creature_types';
+import { getMutatorByName } from '$lib/species';
+import type { EncounterGroupTemplate } from './encounter_types';
 
 export function allTemplates(): EncounterGroupTemplate[] {
   return [
     {
-      name: "adventurer",
+      name: 'adventurer',
       archetypeTagFilter: { includeSomeTags: ['fighter', 'mage', 'rogue'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -18,7 +18,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "adventurers",
+      name: 'adventurers',
       archetypeTagFilter: { includeSomeTags: ['fighter', 'mage', 'rogue'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -30,7 +30,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 5,
     },
     {
-      name: "bandits",
+      name: 'bandits',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -42,7 +42,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 5,
     },
     {
-      name: "bandit leader",
+      name: 'bandit leader',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -54,7 +54,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "cultists",
+      name: 'cultists',
       archetypeTagFilter: { includeSomeTags: ['cultist'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -66,7 +66,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 6,
     },
     {
-      name: "cult priest",
+      name: 'cult priest',
       archetypeTagFilter: { includeSomeTags: ['cultist'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -78,7 +78,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 2,
     },
     {
-      name: "mage",
+      name: 'mage',
       archetypeTagFilter: { includeSomeTags: ['mage'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -90,28 +90,28 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "necromancer",
+      name: 'necromancer',
       archetypeTagFilter: { includeSomeTags: ['mage'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [
         {
-          name: "necromancy",
+          name: 'necromancy',
           mutate: (seed: string, target: Character): Character => {
             const necromancyAbility = {
-              name: "necromancy",
-              description: "Can raise the dead to fight for them.",
-              category: "magic",
+              name: 'necromancy',
+              description: 'Can raise the dead to fight for them.',
+              category: 'magic',
               tags: ['necromancy'],
-            }
+            };
 
             return {
               ...target,
               abilities: [...(target.abilities || []), necromancyAbility],
               tags: [...(target.tags || []), 'necromancer'],
-            }
+            };
           },
           tags: ['necromancer'],
-        }
+        },
       ],
       creatureMutators: [],
       speciesMutators: [],
@@ -121,7 +121,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "pack of ghouls",
+      name: 'pack of ghouls',
       archetypeTagFilter: {},
       speciesTagFilter: { includeSomeTags: ['ghoul'] },
       characterMutators: [],
@@ -133,21 +133,19 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 6,
     },
     {
-      name: "pack of zombies",
+      name: 'pack of zombies',
       archetypeTagFilter: {},
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
       creatureMutators: [],
-      speciesMutators: [
-        getMutatorByName("zombie"),
-      ],
+      speciesMutators: [getMutatorByName('zombie')],
       hasUniformSpecies: false,
       isSentient: true,
       minCount: 2,
       maxCount: 6,
     },
     {
-      name: "raiders",
+      name: 'raiders',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -159,7 +157,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 6,
     },
     {
-      name: "raider captain",
+      name: 'raider captain',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -171,21 +169,19 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "skeleton warriors",
+      name: 'skeleton warriors',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
       creatureMutators: [],
-      speciesMutators: [
-        getMutatorByName("skeleton"),
-      ],
+      speciesMutators: [getMutatorByName('skeleton')],
       hasUniformSpecies: false,
       isSentient: true,
       minCount: 3,
       maxCount: 6,
     },
     {
-      name: "squad of soldiers",
+      name: 'squad of soldiers',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -197,7 +193,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 4,
     },
     {
-      name: "soldier captain",
+      name: 'soldier captain',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -209,7 +205,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "temple acolytes",
+      name: 'temple acolytes',
       archetypeTagFilter: { includeSomeTags: ['cleric'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -221,7 +217,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 4,
     },
     {
-      name: "templar knight",
+      name: 'templar knight',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -233,7 +229,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 2,
     },
     {
-      name: "battle abbot",
+      name: 'battle abbot',
       archetypeTagFilter: { includeSomeTags: ['cleric'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -245,7 +241,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "assassin cadre",
+      name: 'assassin cadre',
       archetypeTagFilter: { includeSomeTags: ['assassin'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -257,7 +253,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 3,
     },
     {
-      name: "thieves guild",
+      name: 'thieves guild',
       archetypeTagFilter: { includeSomeTags: ['rogue'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -269,7 +265,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 6,
     },
     {
-      name: "circle of druids",
+      name: 'circle of druids',
       archetypeTagFilter: { includeSomeTags: ['druid'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -281,7 +277,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 4,
     },
     {
-      name: "archmage",
+      name: 'archmage',
       archetypeTagFilter: { includeSomeTags: ['mage'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -293,7 +289,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "novice arcanists",
+      name: 'novice arcanists',
       archetypeTagFilter: { includeSomeTags: ['mage'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
@@ -305,7 +301,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 4,
     },
     {
-      name: "pack of monstrosities",
+      name: 'pack of monstrosities',
       archetypeTagFilter: {},
       speciesTagFilter: { includeSomeTags: ['monstrosity'] },
       characterMutators: [],
@@ -317,7 +313,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 3,
     },
     {
-      name: "giant spider nest",
+      name: 'giant spider nest',
       archetypeTagFilter: {},
       speciesTagFilter: { includeSomeTags: ['spider'] },
       characterMutators: [],
@@ -329,7 +325,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 5,
     },
     {
-      name: "wolf pack",
+      name: 'wolf pack',
       archetypeTagFilter: {},
       speciesTagFilter: { includeSomeTags: ['wolf'] },
       characterMutators: [],
@@ -341,7 +337,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 5,
     },
     {
-      name: "rat swarm",
+      name: 'rat swarm',
       archetypeTagFilter: {},
       speciesTagFilter: { includeSomeTags: ['rat'] },
       characterMutators: [],
@@ -353,35 +349,31 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 8,
     },
     {
-      name: "vampire spawn",
+      name: 'vampire spawn',
       archetypeTagFilter: {},
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
       creatureMutators: [],
-      speciesMutators: [
-        getMutatorByName("vampire"),
-      ],
+      speciesMutators: [getMutatorByName('vampire')],
       hasUniformSpecies: false,
       isSentient: true,
       minCount: 2,
       maxCount: 5,
     },
     {
-      name: "skeleton skirmishers",
+      name: 'skeleton skirmishers',
       archetypeTagFilter: { includeSomeTags: ['fighter'] },
       speciesTagFilter: { includeSomeTags: ['humanoid'] },
       characterMutators: [],
       creatureMutators: [],
-      speciesMutators: [
-        getMutatorByName("skeleton"),
-      ],
+      speciesMutators: [getMutatorByName('skeleton')],
       hasUniformSpecies: false,
       isSentient: true,
       minCount: 1,
       maxCount: 3,
     },
     {
-      name: "wandering creature",
+      name: 'wandering creature',
       archetypeTagFilter: {},
       speciesTagFilter: {},
       characterMutators: [],
@@ -393,7 +385,7 @@ export function allTemplates(): EncounterGroupTemplate[] {
       maxCount: 1,
     },
     {
-      name: "group of wandering creatures",
+      name: 'group of wandering creatures',
       archetypeTagFilter: {},
       speciesTagFilter: {},
       characterMutators: [],
@@ -403,12 +395,12 @@ export function allTemplates(): EncounterGroupTemplate[] {
       isSentient: false,
       minCount: 2,
       maxCount: 4,
-    }
+    },
   ];
 }
 
 export function getGroupTemplateByName(name: string): EncounterGroupTemplate {
-  const template = allTemplates().find(template => template.name === name);
+  const template = allTemplates().find((template) => template.name === name);
 
   if (!template) {
     throw new Error(`Encounter group template with name "${name}" not found.`);

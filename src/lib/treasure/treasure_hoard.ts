@@ -114,14 +114,7 @@ export function generateRandomTreasureHoard(
     rng,
   );
 
-  return [
-    ...filledContainers,
-    ...containedCoins,
-    ...looseCoins,
-    ...artObjects,
-    ...gems,
-    ...items,
-  ];
+  return [...filledContainers, ...containedCoins, ...looseCoins, ...artObjects, ...gems, ...items];
 }
 
 export function getDefaultTreasureHoardGeneratorConfig(): TreasureHoardGeneratorConfig {
@@ -205,8 +198,7 @@ function calculateHoardValues(
   const artObjectsValue = Math.floor((proportions.artObjects / totalProportion) * value);
   const mundaneItemsValue = Math.floor((mundaneItemsProportion / totalProportion) * value);
   const magicItemsValue = Math.floor((magicItemsProportion / totalProportion) * value);
-  const gemsValue =
-    value - coinsValue - artObjectsValue - mundaneItemsValue - magicItemsValue;
+  const gemsValue = value - coinsValue - artObjectsValue - mundaneItemsValue - magicItemsValue;
 
   return { coinsValue, artObjectsValue, gemsValue, mundaneItemsValue, magicItemsValue };
 }

@@ -12,7 +12,10 @@ import type OrganizationType from '../organization_type.js';
 export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: Charges.matchingAnyTags(['weapon', 'helmet', 'sword', 'battle', 'axe'], Charges.all()),
+    chargeOptions: Charges.matchingAnyTags(
+      ['weapon', 'helmet', 'sword', 'battle', 'axe'],
+      Charges.all(),
+    ),
   });
 
   const nameGenerator = (rng: RNG.RNG): string => {
@@ -56,7 +59,10 @@ export function generateType(rng: RNG.RNG): OrganizationType {
       '{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.',
     ]);
 
-  const leadershipGenerator = (seed: string, characterGenConfig: CharacterGenerationConfig): Character => {
+  const leadershipGenerator = (
+    seed: string,
+    characterGenConfig: CharacterGenerationConfig,
+  ): Character => {
     characterGenConfig.allowedAgeCategoryNames = ['adult'];
 
     const leader = Characters.generate(seed, characterGenConfig);

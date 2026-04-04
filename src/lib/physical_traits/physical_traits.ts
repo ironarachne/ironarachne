@@ -4,7 +4,7 @@ import type PhysicalTraitGeneratorConfig from './physical_trait_generator_config
 
 export function add_trait(trait: PhysicalTrait, traits: PhysicalTrait[]): PhysicalTrait[] {
   // Add the new trait to the existing traits, replacing any trait in the same category
-  const filteredTraits = traits.filter(t => t.category !== trait.category);
+  const filteredTraits = traits.filter((t) => t.category !== trait.category);
   return [...filteredTraits, trait];
 }
 

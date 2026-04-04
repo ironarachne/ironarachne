@@ -37,7 +37,7 @@ import { toDicePool, roll, getPower } from '$lib/dice';
 You can create a dice pool from a standard dice notation string:
 
 ```typescript
-const pool = Dice.toDicePool("2d6+4");
+const pool = Dice.toDicePool('2d6+4');
 // result: { d6: 2, modifier: 4, modifierType: '+', ... }
 ```
 
@@ -52,7 +52,7 @@ const emptyPool = Dice.createDicePool();
 To simply roll a dice expression string and get a result:
 
 ```typescript
-const result = Dice.roll("1d20+5");
+const result = Dice.roll('1d20+5');
 ```
 
 ### Analyzing Dice
@@ -60,7 +60,7 @@ const result = Dice.roll("1d20+5");
 You can get statistical information about a dice pool:
 
 ```typescript
-const pool = Dice.toDicePool("2d6");
+const pool = Dice.toDicePool('2d6');
 
 const min = Dice.getMinResult(pool); // 2
 const max = Dice.getMaxResult(pool); // 12
@@ -72,7 +72,7 @@ const avg = Dice.getAverageResult(pool); // 7
 The `getPower` function calculates the "power" of a dice pool, defined as the most likely combined result. If there are multiple outcomes with the same highest probability, it returns the highest value among them.
 
 ```typescript
-const power = Dice.getPower(Dice.toDicePool("3d6")); // 11
+const power = Dice.getPower(Dice.toDicePool('3d6')); // 11
 ```
 
 ### formatting

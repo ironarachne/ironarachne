@@ -1,102 +1,104 @@
-import type { Religion, ReligionGenerationConfig } from "./religion_types";
-import { RNG } from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import { generate as generateDivineRealms } from "./realms/realm_generation";
-import { divineRealmTypes } from "./realms/realm_data";
-import { generate as generatePantheon } from "./pantheons/pantheon_generation";
-import { domains } from "./domains/domain_data";
-import { getTitleForGender, type Title } from "$lib/characters";
-import { all as allCategories } from "./categories";
+import type { Religion, ReligionGenerationConfig } from './religion_types';
+import { RNG } from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import { generate as generateDivineRealms } from './realms/realm_generation';
+import { divineRealmTypes } from './realms/realm_data';
+import { generate as generatePantheon } from './pantheons/pantheon_generation';
+import { domains } from './domains/domain_data';
+import { getTitleForGender, type Title } from '$lib/characters';
+import { all as allCategories } from './categories';
 import Human from '$lib/species/sentient/human.js';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 
 export const divineRulerTitle: Title = {
-    femaleTitle: 'Queen of the Gods',
-    maleTitle: 'King of the Gods',
-    femaleHonorific: '{pronoun} Divine Majesty',
-    maleHonorific: '{pronoun} Divine Majesty',
-    hasLands: false,
-    isHereditary: false,
-    isNoble: false,
-    isRoyal: true,
-    landName: '',
-    precedence: 0,
-    tags: ['divine ruler'],
-}
+  femaleTitle: 'Queen of the Gods',
+  maleTitle: 'King of the Gods',
+  femaleHonorific: '{pronoun} Divine Majesty',
+  maleHonorific: '{pronoun} Divine Majesty',
+  hasLands: false,
+  isHereditary: false,
+  isNoble: false,
+  isRoyal: true,
+  landName: '',
+  precedence: 0,
+  tags: ['divine ruler'],
+};
 
 export function generateReligion(seed: string, config: ReligionGenerationConfig): Religion {
-    const rng = new RNG(seed);
+  const rng = new RNG(seed);
 
-    const realmGenerationConfig = {
-        minNumberOfRealms: 1,
-        maxNumberOfRealms: 3,
-        possibleTypes: divineRealmTypes,
-        hasAfterlife: true,
-        hasDivineAbode: true,
-        hasElementalPlanes: false,
+  const realmGenerationConfig = {
+    minNumberOfRealms: 1,
+    maxNumberOfRealms: 3,
+    possibleTypes: divineRealmTypes,
+    hasAfterlife: true,
+    hasDivineAbode: true,
+    hasElementalPlanes: false,
+  };
+  const realms = generateDivineRealms(`${seed}-realms`, realmGenerationConfig);
+
+  const category = rng.item(config.categories);
+
+  const religionName = config.nameGenerator.generate(1)[0];
+
+  if (category.hasDeities) {
+    const pantheonConfig = {
+      realms,
+      domains,
+      speciesOptions: config.deitySpeciesOptions,
+      minDeities: category.minDeities,
+      maxDeities: category.maxDeities,
+      maleNameGenerator: config.maleNameGenerator,
+      femaleNameGenerator: config.femaleNameGenerator,
+    };
+    const pantheon = generatePantheon(`${seed}-pantheon`, pantheonConfig);
+    pantheon.description = category.description;
+
+    if (category.hasLeader && pantheon.members.length > 0) {
+      pantheon.leader = rng.int(0, pantheon.members.length - 1);
+      const leaderDeity = pantheon.members[pantheon.leader];
+      leaderDeity.titles?.push(divineRulerTitle);
+      pantheon.description += ` ${leaderDeity.name} is the ${getTitleForGender(leaderDeity.gender.name, divineRulerTitle)}.`;
     }
-    const realms = generateDivineRealms(`${seed}-realms`, realmGenerationConfig);
 
-    const category = rng.item(config.categories);
-
-    const religionName = config.nameGenerator.generate(1)[0];
-
-    if (category.hasDeities) {
-        const pantheonConfig = {
-            realms,
-            domains,
-            speciesOptions: config.deitySpeciesOptions,
-            minDeities: category.minDeities,
-            maxDeities: category.maxDeities,
-            maleNameGenerator: config.maleNameGenerator,
-            femaleNameGenerator: config.femaleNameGenerator,
-        }
-        const pantheon = generatePantheon(`${seed}-pantheon`, pantheonConfig);
-        pantheon.description = category.description;
-
-        if (category.hasLeader && pantheon.members.length > 0) {
-            pantheon.leader = rng.int(0, pantheon.members.length - 1);
-            const leaderDeity = pantheon.members[pantheon.leader];
-            leaderDeity.titles?.push(divineRulerTitle);
-            pantheon.description += ` ${leaderDeity.name} is the ${getTitleForGender(leaderDeity.gender.name, divineRulerTitle)}.`;
-        }
-
-        return {
-            name: religionName,
-            description: pantheon.description +
-                ' ' +
-                randomGatheringTimes(`${seed}-gathering-times`) +
-                ' ' +
-                Words.capitalize(randomGatheringPlace(`${seed}-gathering-place`)) +
-                '.',
-            realms,
-            pantheon,
-        }
-    } else {
-        return {
-            name: religionName,
-            description: category.description +
-                ' ' +
-                randomGatheringTimes(`${seed}-gathering-times`) +
-                ' ' +
-                Words.capitalize(randomGatheringPlace(`${seed}-gathering-place`)) +
-                '.',
-            realms,
-            pantheon: null,
-        }
-    }
+    return {
+      name: religionName,
+      description:
+        pantheon.description +
+        ' ' +
+        randomGatheringTimes(`${seed}-gathering-times`) +
+        ' ' +
+        Words.capitalize(randomGatheringPlace(`${seed}-gathering-place`)) +
+        '.',
+      realms,
+      pantheon,
+    };
+  } else {
+    return {
+      name: religionName,
+      description:
+        category.description +
+        ' ' +
+        randomGatheringTimes(`${seed}-gathering-times`) +
+        ' ' +
+        Words.capitalize(randomGatheringPlace(`${seed}-gathering-place`)) +
+        '.',
+      realms,
+      pantheon: null,
+    };
+  }
 }
 
 export function getDefaultReligionGenerationConfig(): ReligionGenerationConfig {
-    const nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(Date.now()));
+  const nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(Date.now()));
 
-    return {
-        categories: allCategories(),
-        deitySpeciesOptions: [Human],
-        nameGenerator: nameGeneratorSet.family,
-        femaleNameGenerator: nameGeneratorSet.female,
-        maleNameGenerator: nameGeneratorSet.male,
-    }
+  return {
+    categories: allCategories(),
+    deitySpeciesOptions: [Human],
+    nameGenerator: nameGeneratorSet.family,
+    femaleNameGenerator: nameGeneratorSet.female,
+    maleNameGenerator: nameGeneratorSet.male,
+  };
 }
 
 export function randomGatheringPlace(seed: string): string {

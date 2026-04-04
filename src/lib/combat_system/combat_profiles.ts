@@ -1,4 +1,4 @@
-import type { CombatProfile } from "./types";
+import type { CombatProfile } from './types';
 
 export function getDefaultCombatProfile(): CombatProfile {
   return {

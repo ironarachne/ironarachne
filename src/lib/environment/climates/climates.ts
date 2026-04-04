@@ -5,12 +5,7 @@ import * as RNG from '@ironarachne/rng';
 export function describe(climate: Climate, seed: string): string {
   const rng = new RNG.RNG(seed);
 
-  const adjectives = [
-    'notable for its',
-    'characterized by',
-    'known for',
-    'defined by',
-  ];
+  const adjectives = ['notable for its', 'characterized by', 'known for', 'defined by'];
 
   const seasonPhrases = [
     `It experiences ${climate.seasons.length} distinct seasons.`,
@@ -270,10 +265,7 @@ function getPrecipitation(
   // Calculate weighted average to prevent precipitation from consistently capping out
   // Water: 40%, Temperature: 30%, Terrain: 20%, Wind Speed: 10%
   precipitation =
-    (waterInfluence * 0.4) +
-    (tempInfluence * 0.3) +
-    (terrainInfluence * 0.2) +
-    (windInfluence * 0.1);
+    waterInfluence * 0.4 + tempInfluence * 0.3 + terrainInfluence * 0.2 + windInfluence * 0.1;
 
   return MT.clamp(precipitation, 0, 1);
 }

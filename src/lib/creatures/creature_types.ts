@@ -12,23 +12,24 @@ export type CreatureGenerationConfig = {
   speciesOptions: Species[];
   ageCategoryNames: string[];
   genderNames: string[];
-}
+};
 
-export type Creature = Mob & TaggedItem & {
-  name: string;
-  description: string;
-  shortDescription: string;
-  species: Species;
-  abilities: Ability[];
-  behaviors: string[];
-  physicalTraits: PhysicalTrait[];
-  gender: Gender;
-  height: number;
-  weight: number;
-  length: number;
-  age: number;
-  ageCategory: AgeCategory;
-  carried: Item[];
-  creatureTypes: string[];
-  relationships: Relationship[];
-}
+export type Creature = Mob &
+  TaggedItem & {
+    name: string;
+    description: string;
+    shortDescription: string;
+    species: Species;
+    abilities: Ability[];
+    behaviors: string[];
+    physicalTraits: PhysicalTrait[];
+    gender: Gender;
+    height: number;
+    weight: number;
+    length: number;
+    age: number;
+    ageCategory: AgeCategory;
+    carried: Item[];
+    creatureTypes: string[];
+    relationships: Relationship[];
+  };

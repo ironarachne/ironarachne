@@ -2,7 +2,12 @@
   import * as RNG from '@ironarachne/rng';
   import { getContext } from 'svelte';
   import type UserData from '$lib/user_data';
-  import { generateCulture, getDefaultCultureGenerationConfig, type Culture, type CultureGenerationConfig } from '$lib/culture';
+  import {
+    generateCulture,
+    getDefaultCultureGenerationConfig,
+    type Culture,
+    type CultureGenerationConfig,
+  } from '$lib/culture';
   import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from '$lib/names';
 
   const user: UserData = getContext('user');

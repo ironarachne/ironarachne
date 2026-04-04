@@ -1,4 +1,4 @@
-import * as Words from "@ironarachne/words";
+import * as Words from '@ironarachne/words';
 import type { Item } from './equipment_types';
 
 /**

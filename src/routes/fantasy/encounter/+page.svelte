@@ -1,7 +1,11 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
   import { onMount } from 'svelte';
-  import { generateEncounter, getAllFantasyEncounterTemplates, type Encounter } from '$lib/encounters';
+  import {
+    generateEncounter,
+    getAllFantasyEncounterTemplates,
+    type Encounter,
+  } from '$lib/encounters';
   import type { Character } from '$lib/characters/character_types';
   import type { Creature } from '$lib/creatures/creature_types';
 

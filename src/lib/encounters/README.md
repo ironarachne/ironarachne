@@ -6,12 +6,12 @@ Procedural **encounter** definitions: reusable **group templates** (how to roll 
 
 Re-exported from [`index.ts`](./index.ts):
 
-| Export | Role |
-|--------|------|
-| `getAllFantasyEncounterTemplates()` | All fantasy encounter templates for UI, dungeons, or custom configs |
-| `allTemplates()`, `getGroupTemplateByName(name)` | Registry of group templates |
-| `generateEncounter(seed, config)` | Builds an [`Encounter`](./encounter_types.ts) from a chosen template |
-| Types: `Encounter`, `EncounterTemplate`, `EncounterGroupTemplate`, `EncounterGenerationConfig` | Shape of data and config |
+| Export                                                                                         | Role                                                                 |
+| ---------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `getAllFantasyEncounterTemplates()`                                                            | All fantasy encounter templates for UI, dungeons, or custom configs  |
+| `allTemplates()`, `getGroupTemplateByName(name)`                                               | Registry of group templates                                          |
+| `generateEncounter(seed, config)`                                                              | Builds an [`Encounter`](./encounter_types.ts) from a chosen template |
+| Types: `Encounter`, `EncounterTemplate`, `EncounterGroupTemplate`, `EncounterGenerationConfig` | Shape of data and config                                             |
 
 ## Data model
 
@@ -54,10 +54,10 @@ Because of that, **do not mix sentient and non-sentient groups** in one encounte
 
 ## File map
 
-| File | Purpose |
-|------|---------|
-| [`encounter_types.ts`](./encounter_types.ts) | Type definitions |
-| [`encounter_group_templates.ts`](./encounter_group_templates.ts) | Group template registry |
-| [`encounter_templates.ts`](./encounter_templates.ts) | Fantasy encounter compositions |
-| [`encounter_generation.ts`](./encounter_generation.ts) | `generateEncounter` / `generateEncounterGroup` |
-| [`encounter_templates.test.ts`](./encounter_templates.test.ts) | Smoke tests for template graph and generation |
+| File                                                             | Purpose                                        |
+| ---------------------------------------------------------------- | ---------------------------------------------- |
+| [`encounter_types.ts`](./encounter_types.ts)                     | Type definitions                               |
+| [`encounter_group_templates.ts`](./encounter_group_templates.ts) | Group template registry                        |
+| [`encounter_templates.ts`](./encounter_templates.ts)             | Fantasy encounter compositions                 |
+| [`encounter_generation.ts`](./encounter_generation.ts)           | `generateEncounter` / `generateEncounterGroup` |
+| [`encounter_templates.test.ts`](./encounter_templates.test.ts)   | Smoke tests for template graph and generation  |

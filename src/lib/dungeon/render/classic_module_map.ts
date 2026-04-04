@@ -39,11 +39,7 @@ function isFloorCell(grid: Grid<boolean>, x: number, y: number): boolean {
   return getTile(grid, x, y) === true;
 }
 
-function doorCorridorOrientation(
-  grid: Grid<boolean>,
-  x: number,
-  y: number,
-): 'ns' | 'ew' | null {
+function doorCorridorOrientation(grid: Grid<boolean>, x: number, y: number): 'ns' | 'ew' | null {
   const n = isFloorCell(grid, x, y - 1);
   const s = isFloorCell(grid, x, y + 1);
   const e = isFloorCell(grid, x + 1, y);
@@ -170,9 +166,7 @@ export function renderClassicModuleMapToCanvas(
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
   const pad = 12;
-  const cellSize = Math.floor(
-    Math.min((cssW - 2 * pad) / gw, (cssH - 2 * pad) / gh),
-  );
+  const cellSize = Math.floor(Math.min((cssW - 2 * pad) / gw, (cssH - 2 * pad) / gh));
   const mapW = cellSize * gw;
   const mapH = cellSize * gh;
   const offsetX = (cssW - mapW) / 2;
@@ -181,10 +175,7 @@ export function renderClassicModuleMapToCanvas(
   ctx.fillStyle = rockBlue;
   ctx.fillRect(offsetX, offsetY, mapW, mapH);
 
-  const inset = Math.max(
-    style.floorInsetMin,
-    Math.floor(cellSize * style.floorInsetRatio),
-  );
+  const inset = Math.max(style.floorInsetMin, Math.floor(cellSize * style.floorInsetRatio));
 
   const floorNeighbor = (fx: number, fy: number): boolean => {
     if (fx < 0 || fx >= gw || fy < 0 || fy >= gh) {
@@ -256,10 +247,7 @@ export function renderClassicModuleMapToCanvas(
     entranceAt.set(cellKey(e.x, e.y), { type: e.type });
   }
 
-  const roomCenters = new Map<
-    string,
-    { label: string; treasure: boolean; encounter: boolean }
-  >();
+  const roomCenters = new Map<string, { label: string; treasure: boolean; encounter: boolean }>();
   for (const room of dungeon.rooms) {
     const cx = Math.floor(room.x + room.primitive.width / 2);
     const cy = Math.floor(room.y + room.primitive.height / 2);

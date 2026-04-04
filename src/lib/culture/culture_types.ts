@@ -1,5 +1,5 @@
-import type { NameGeneratorSet } from "$lib/names";
-import type { Religion } from "$lib/religion";
+import type { NameGeneratorSet } from '$lib/names';
+import type { Religion } from '$lib/religion';
 
 export type Culture = {
   name: string;
@@ -11,11 +11,11 @@ export type Culture = {
   eatingTrait: string;
   designTrait: string;
   musicStyle: string;
-}
+};
 
 export type CultureGenerationConfig = {
   nameGenerators: NameGeneratorSet;
-}
+};
 
 export type CulturalOrganization = {
   dominantGender?: string;
@@ -23,4 +23,4 @@ export type CulturalOrganization = {
   socialMobility: string;
   dominantProfession: string;
   description: string;
-}
+};

@@ -15,7 +15,7 @@ describe('biome_classifications', () => {
 
   it('getByName should throw an error for an invalid biome classification name', () => {
     expect(() => BiomeClassifications.getByName('nonexistent biome')).toThrowError(
-      'Biome classification nonexistent biome not found'
+      'Biome classification nonexistent biome not found',
     );
   });
 
@@ -25,7 +25,7 @@ describe('biome_classifications', () => {
       expect(biome.altitudeMax).toBeGreaterThanOrEqual(biome.altitudeMin);
       expect(biome.humidityMax).toBeGreaterThanOrEqual(biome.humidityMin);
       expect(biome.temperatureMax).toBeGreaterThanOrEqual(biome.temperatureMin);
-      
+
       // Densities should be between 0 and 1
       expect(biome.faunaDensity).toBeGreaterThanOrEqual(0);
       expect(biome.faunaDensity).toBeLessThanOrEqual(1);

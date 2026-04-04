@@ -172,7 +172,7 @@ export function getSkeletonVariants(options: Species[]): Species[] {
   let result = [];
 
   const mutators = allMutators();
-  const Skeleton = mutators.find(m => m.name === 'skeleton');
+  const Skeleton = mutators.find((m) => m.name === 'skeleton');
   if (!Skeleton) {
     throw new Error('Skeleton mutator not found.');
   }
@@ -189,7 +189,7 @@ export function getVampireVariants(options: Species[]): Species[] {
   let result = [];
 
   const mutators = allMutators();
-  const Vampire = mutators.find(m => m.name === 'vampire');
+  const Vampire = mutators.find((m) => m.name === 'vampire');
   if (!Vampire) {
     throw new Error('Vampire mutator not found.');
   }
@@ -206,7 +206,7 @@ export function getZombieVariants(options: Species[]): Species[] {
   let result = [];
 
   const mutators = allMutators();
-  const Zombie = mutators.find(m => m.name === 'zombie');
+  const Zombie = mutators.find((m) => m.name === 'zombie');
   if (!Zombie) {
     throw new Error('Zombie mutator not found.');
   }

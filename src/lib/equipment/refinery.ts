@@ -40,7 +40,10 @@ export function applyRefinement(item: Item, refinement: Refinement): Item {
   return newItem;
 }
 
-export function filterRefinementsByTags(tags: string[], refinements?: Record<string, Refinement>): Refinement[] {
+export function filterRefinementsByTags(
+  tags: string[],
+  refinements?: Record<string, Refinement>,
+): Refinement[] {
   if (!refinements) {
     refinements = REFINEMENTS;
   }
@@ -61,7 +64,11 @@ export function filterRefinementsByTags(tags: string[], refinements?: Record<str
  * @param rng The RNG instance to use
  * @returns A random refinement or null
  */
-export function getRandomRefinement(item: Item, rng: RNG.RNG, refinements?: Refinement[]): Refinement | null {
+export function getRandomRefinement(
+  item: Item,
+  rng: RNG.RNG,
+  refinements?: Refinement[],
+): Refinement | null {
   if (!refinements) {
     refinements = Object.values(REFINEMENTS);
   }

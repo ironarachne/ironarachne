@@ -24,7 +24,7 @@ export type DefenseType = 'armor' | 'dodge' | 'parry' | 'block' | 'shield' | 'ma
 export type Damage = {
   power: number;
   type: DamageType;
-}
+};
 
 /**
  * Represents a generic combat profile for an entity or item.

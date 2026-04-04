@@ -66,7 +66,7 @@ const classifications: BiomeClassification[] = [
     waterFeatureDensity: 0.05,
     isAquatic: false,
   },
-  
+
   // Terrestrial - Temperate
   {
     name: 'temperate rainforest',
@@ -433,7 +433,7 @@ const classificationsByName: Record<string, BiomeClassification> = classificatio
     acc[classification.name] = classification;
     return acc;
   },
-  {} as Record<string, BiomeClassification>
+  {} as Record<string, BiomeClassification>,
 );
 
 export function getAll(): BiomeClassification[] {

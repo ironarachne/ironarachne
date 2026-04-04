@@ -72,7 +72,7 @@ export function generateCulturalOrganization(seed: string): CulturalOrganization
     powerConcentration: randomPowerConcentration(seed),
     socialMobility: randomSocialMobility(seed),
     dominantProfession: randomDominantProfession(seed),
-    description: ''
+    description: '',
   };
 
   organization.description = describeOrganization(organization);

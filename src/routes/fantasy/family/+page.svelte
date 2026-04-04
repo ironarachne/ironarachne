@@ -45,7 +45,7 @@
   let infantMortalityChance = $state(0.01);
   let fertilityChance = $state(0.8);
 
-  let config = Families.getDefaultFamilyGenerationConfig(seed + "-family");
+  let config = Families.getDefaultFamilyGenerationConfig(seed + '-family');
   config.speciesOptions = [species];
   config.generations = iterations;
   config.familyNameGenerator = familyNameGen;
@@ -67,7 +67,9 @@
   config.infantMortalityChance = infantMortalityChance;
   config.fertilityChance = fertilityChance;
 
-  let family = $state(Families.generateFamilyGeneration(seed, config, Families.generateNewFamily(seed, config)));
+  let family = $state(
+    Families.generateFamilyGeneration(seed, config, Families.generateNewFamily(seed, config)),
+  );
   let familyTreeSVG = $state(Families.getFamilyTreeSVG(family));
 
   function generate() {
@@ -108,7 +110,11 @@
     config.infantMortalityChance = infantMortalityChance;
     config.fertilityChance = fertilityChance;
 
-    family = Families.generateFamilyGeneration(seed, config, Families.generateNewFamily(seed, config));
+    family = Families.generateFamilyGeneration(
+      seed,
+      config,
+      Families.generateNewFamily(seed, config),
+    );
     familyTreeSVG = Families.getFamilyTreeSVG(family);
   }
 
@@ -144,24 +150,28 @@
 
   function getMate(family: Families.Family, member: Character): Character | undefined {
     const relationship = family.relationships.find(
-      (r) => r.type.name === 'spouse' && (r.originatorId === member.id || r.recipientId === member.id)
+      (r) =>
+        r.type.name === 'spouse' && (r.originatorId === member.id || r.recipientId === member.id),
     );
     if (!relationship) return undefined;
-    const mateId = relationship.originatorId === member.id ? relationship.recipientId : relationship.originatorId;
+    const mateId =
+      relationship.originatorId === member.id
+        ? relationship.recipientId
+        : relationship.originatorId;
     return family.members.find((m) => m.id === mateId);
   }
 
   function getChildren(family: Families.Family, member: Character): Character[] {
     const relationships = family.relationships.filter(
-      (r) => r.type.name === 'parent' && r.originatorId === member.id
+      (r) => r.type.name === 'parent' && r.originatorId === member.id,
     );
     const childrenIds = relationships.map((r) => r.recipientId);
     return family.members.filter((m) => childrenIds.includes(m.id));
   }
 
   function getParents(family: Families.Family, member: Character): Character[] {
-     const relationships = family.relationships.filter(
-      (r) => r.type.name === 'parent' && r.recipientId === member.id
+    const relationships = family.relationships.filter(
+      (r) => r.type.name === 'parent' && r.recipientId === member.id,
     );
     const parentIds = relationships.map((r) => r.originatorId);
     return family.members.filter((m) => parentIds.includes(m.id));
@@ -258,11 +268,7 @@
   </div>
 
   <div class="input-group">
-    <input
-      type="checkbox"
-      id="allow-illegitimate"
-      bind:checked={allowIllegitimateChildren}
-    />
+    <input type="checkbox" id="allow-illegitimate" bind:checked={allowIllegitimateChildren} />
     <label for="allow-illegitimate">Allow Illegitimate Children</label>
     <input
       type="number"
@@ -316,10 +322,10 @@
   <button onclick={generate}>Generate</button>
 
   <h2>The {family.name} Family</h2>
-  
+
   <h3>Family Tree</h3>
   <div class="family-tree">
-      {@html familyTreeSVG}
+    {@html familyTreeSVG}
   </div>
 
   {#each family.members as member}
@@ -387,11 +393,11 @@
   @use '$lib/styles/fantasy.scss';
 
   .family-tree {
-      overflow-x: auto;
-      border: 1px solid #ccc;
-      padding: 1rem;
-      margin-bottom: 2rem;
-      background-color: white;
+    overflow-x: auto;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    margin-bottom: 2rem;
+    background-color: white;
   }
 
   .gender-symbol {

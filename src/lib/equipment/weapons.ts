@@ -15,8 +15,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'slashing',
-        baseDamage: 8
-      }
+        baseDamage: 8,
+      },
     ],
     description: 'A hefty axe meant for chopping through armor and shields.',
     allowedMaterialTypes: ['metal', 'stone'],
@@ -33,8 +33,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'slashing',
-        baseDamage: 4
-      }
+        baseDamage: 4,
+      },
     ],
     description: 'A simple wooden club, effective for close combat.',
     allowedMaterialTypes: ['wood', 'stone', 'bone'],
@@ -52,8 +52,8 @@ export const weaponTypes: WeaponType[] = [
         attackType: 'ranged',
         damageType: 'piercing',
         baseDamage: 10,
-        range: 100
-      }
+        range: 100,
+      },
     ],
     description: 'A ranged weapon that fires bolts with great force.',
     allowedMaterialTypes: ['wood', 'metal'],
@@ -70,8 +70,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'slashing',
-        baseDamage: 4
-      }
+        baseDamage: 4,
+      },
     ],
     description: 'A small, easily concealable blade.',
     allowedMaterialTypes: ['metal', 'stone', 'bone'],
@@ -88,8 +88,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'slashing',
-        baseDamage: 12
-      }
+        baseDamage: 12,
+      },
     ],
     description: 'A massive sword that requires two hands to wield effectively.',
     allowedMaterialTypes: ['metal'],
@@ -106,8 +106,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'slashing',
-        baseDamage: 10
-      }
+        baseDamage: 10,
+      },
     ],
     description: 'A pole weapon with an axe blade topped with a spike.',
     allowedMaterialTypes: ['metal'],
@@ -125,8 +125,8 @@ export const weaponTypes: WeaponType[] = [
         attackType: 'ranged',
         damageType: 'piercing',
         baseDamage: 10,
-        range: 150
-      }
+        range: 150,
+      },
     ],
     description: 'A powerful ranged weapon favored by archers.',
     allowedMaterialTypes: ['wood'],
@@ -143,8 +143,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'slashing',
-        baseDamage: 8
-      }
+        baseDamage: 8,
+      },
     ],
     description: 'A versatile melee weapon.',
     allowedMaterialTypes: ['metal', 'stone', 'bone'],
@@ -161,8 +161,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'bludgeoning',
-        baseDamage: 6
-      }
+        baseDamage: 6,
+      },
     ],
     description: 'A blunt weapon designed to deliver powerful strikes.',
     allowedMaterialTypes: ['metal', 'stone', 'hardwood', 'bone'],
@@ -179,8 +179,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'bludgeoning',
-        baseDamage: 6
-      }
+        baseDamage: 6,
+      },
     ],
     description: 'A simple wooden staff used for defense and offense.',
     allowedMaterialTypes: ['wood'],
@@ -198,8 +198,8 @@ export const weaponTypes: WeaponType[] = [
         attackType: 'ranged',
         damageType: 'piercing',
         baseDamage: 6,
-        range: 80
-      }
+        range: 80,
+      },
     ],
     description: 'A ranged weapon for attacking from a distance.',
     allowedMaterialTypes: ['wood'],
@@ -216,8 +216,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'slashing',
-        baseDamage: 6
-      }
+        baseDamage: 6,
+      },
     ],
     description: 'A light melee weapon, easy to handle.',
     allowedMaterialTypes: ['metal', 'stone', 'bone'],
@@ -234,8 +234,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'piercing',
-        baseDamage: 6
-      }
+        baseDamage: 6,
+      },
     ],
     description: 'A pole weapon that can be thrown or used in melee combat.',
     allowedMaterialTypes: ['wood', 'metal', 'stone', 'bone'],
@@ -252,8 +252,8 @@ export const weaponTypes: WeaponType[] = [
         type: 'attack',
         attackType: 'melee',
         damageType: 'bludgeoning',
-        baseDamage: 8
-      }
+        baseDamage: 8,
+      },
     ],
     description: 'A heavy melee weapon that deals bludgeoning damage.',
     allowedMaterialTypes: ['metal', 'stone'],

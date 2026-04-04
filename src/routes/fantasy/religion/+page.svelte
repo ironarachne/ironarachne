@@ -24,7 +24,7 @@
 
   let humanNameGenSet = Names.getFantasyNameGeneratorSet('human', rng);
   let genConfig = getDefaultReligionGenerationConfig();
-  
+
   let allSpeciesNames: string[] = [];
   const allSpecies = CommonSpecies.sentient();
   const allReligionCategories = ReligionCategories.all();
@@ -43,7 +43,6 @@
   genConfig.categories = [ReligionCategories.byName('polytheism', allReligionCategories)];
 
   let religion = $state(generateReligion(`${seed}-religion`, genConfig));
-  
 
   function generate() {
     if (!lockSeed) {

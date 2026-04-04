@@ -36,7 +36,7 @@ export default <Species>{
     {
       name: 'minor invisibility',
       description: 'can turn invisible when not attacking',
-      category: 'invisibility'
+      category: 'invisibility',
     },
   ],
   commonality: 5,

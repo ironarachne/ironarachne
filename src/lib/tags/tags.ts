@@ -4,7 +4,7 @@ export function applyTagFilter<T extends TagTypes.TaggedItem>(
   items: T[],
   filter: TagTypes.TagFilter,
 ): T[] {
-  if (!filter || (Object.keys(filter).length === 0)) {
+  if (!filter || Object.keys(filter).length === 0) {
     return items;
   }
 

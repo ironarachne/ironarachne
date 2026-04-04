@@ -46,7 +46,7 @@ export default <Species>{
     {
       name: 'darkvision',
       description: 'can see in the dark',
-      category: 'senses'
+      category: 'senses',
     },
   ],
   commonality: 20,

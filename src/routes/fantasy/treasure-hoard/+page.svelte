@@ -115,10 +115,13 @@
     const looseOthers = allLooseItems.filter((i) => !isGem(i) && !isArtObject(i));
 
     const displayLooseGems = getDisplayItems(looseGems);
-    const looseGemStrings = displayLooseGems.map((d) => `${d.name} (Value: ${Currency.valueToString(d.value, Currency.COMMON_FANTASY)})`);
+    const looseGemStrings = displayLooseGems.map(
+      (d) => `${d.name} (Value: ${Currency.valueToString(d.value, Currency.COMMON_FANTASY)})`,
+    );
 
     const looseArtObjectStrings = looseArtObjects.map(
-      (i) => `${i.description || i.name} (Value: ${Currency.valueToString(i.value, Currency.COMMON_FANTASY)})`,
+      (i) =>
+        `${i.description || i.name} (Value: ${Currency.valueToString(i.value, Currency.COMMON_FANTASY)})`,
     );
 
     const looseOtherStrings = Equipment.createCombinedDescriptions(looseOthers, true);
@@ -214,7 +217,8 @@
     />
   </div>
 
-  <div class="input-group">    <label for="room-width">Room Width (ft)</label>
+  <div class="input-group">
+    <label for="room-width">Room Width (ft)</label>
     <input type="number" id="room-width" min="1" bind:value={roomWidth} class="monospace" />
   </div>
 

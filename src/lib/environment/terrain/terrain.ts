@@ -2,7 +2,15 @@ import { RNG } from '@ironarachne/rng';
 import type { Terrain, TerrainGeneratorConfig } from './terrain_types';
 
 export const possibleSoils = ['loam', 'sand', 'clay', 'peat', 'gravel', 'silt'];
-export const possibleRocks = ['granite', 'basalt', 'limestone', 'sandstone', 'obsidian', 'slate', 'marble'];
+export const possibleRocks = [
+  'granite',
+  'basalt',
+  'limestone',
+  'sandstone',
+  'obsidian',
+  'slate',
+  'marble',
+];
 
 export function generate(config: TerrainGeneratorConfig): Terrain {
   // a terrain is meant as a section of the world, with a certain elevation range, relief energy, and landforms

@@ -17,7 +17,10 @@ export function generate(config: OrganizationGeneratorConfig): Organization {
     description: orgType.randomDescription(config.rng),
     memberCount: memberCount,
     notableMembers: [],
-    leadership: orgType.randomLeadership(`leader-${config.rng.randomString(13)}`, config.characterConfig),
+    leadership: orgType.randomLeadership(
+      `leader-${config.rng.randomString(13)}`,
+      config.characterConfig,
+    ),
     ranks: orgType.ranks,
     heraldry: null,
   };
@@ -72,7 +75,11 @@ function randomNotableMembers(org: Organization, rng: RNG.RNG): Character[] {
       for (let k = 0; k < numberOfMembers; k++) {
         const memberRank = rng.item(possibleRanks);
 
-        const member = org.organizationType.randomMemberOfRank(`member-${rng.randomString(13)}`, memberRank, org.characterGenConfig);
+        const member = org.organizationType.randomMemberOfRank(
+          `member-${rng.randomString(13)}`,
+          memberRank,
+          org.characterGenConfig,
+        );
         notableMembers.push(member);
       }
     }

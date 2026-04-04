@@ -13,7 +13,10 @@ import type OrganizationType from '../organization_type.js';
 export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: Charges.matchingAnyTags(['owl', 'wisdom', 'mythical', 'monster', 'monsters'], Charges.all()),
+    chargeOptions: Charges.matchingAnyTags(
+      ['owl', 'wisdom', 'mythical', 'monster', 'monsters'],
+      Charges.all(),
+    ),
   });
 
   const nameGenerator = (rng: RNG.RNG): string => {
@@ -89,7 +92,10 @@ export function generateType(rng: RNG.RNG): OrganizationType {
     ]);
   };
 
-  const leadershipGenerator = (seed: string, characterGenConfig: CharacterGenerationConfig): Character => {
+  const leadershipGenerator = (
+    seed: string,
+    characterGenConfig: CharacterGenerationConfig,
+  ): Character => {
     characterGenConfig.allowedAgeCategoryNames = ['adult', 'elderly'];
 
     const leader = Characters.generate(seed, characterGenConfig);

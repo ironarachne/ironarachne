@@ -20,7 +20,7 @@ export const COMMON_FANTASY: CurrencySystem = {
     { name: 'silver', symbol: 'sp', value: 10, weight: 0.01, rarity: 10 },
     { name: 'gold', symbol: 'gp', value: 100, weight: 0.01, rarity: 15 },
   ],
-}
+};
 
 export const IMPERIAL_CREDITS: CurrencySystem = {
   name: 'Imperial Credits',
