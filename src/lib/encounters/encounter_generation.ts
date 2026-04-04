@@ -68,6 +68,7 @@ export function generateEncounterGroup(seed: string, template: EncounterGroupTem
     for (let i = 0; i < count; i++) {
       const genConfig = getDefaultCharacterGenerationConfig(rng.randomString(16));
       genConfig.archetypeOptions = [archetype];
+      genConfig.allowedAgeCategoryNames = ['adult'];
 
       if (!template.hasUniformSpecies) {
         species = rng.item(possibleSpecies);
