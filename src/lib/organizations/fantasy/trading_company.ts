@@ -13,7 +13,7 @@ import type OrganizationType from '../organization_type.js';
 export function generateType(rng: RNG.RNG): OrganizationType {
   const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: Charges.matchingAnyTags(['coin', 'money', 'trade'], Charges.all()),
+    chargeOptions: Charges.matchingAnyTags(['barrel', 'galleon', 'water', 'objects'], Charges.all()),
   });
 
   const nameGenerator = (rng: RNG.RNG): string => {

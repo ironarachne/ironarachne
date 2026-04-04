@@ -63,7 +63,7 @@
     <p><strong>AC:</strong> {character.ac}</p>
     <p><strong>THAC0:</strong> {character.thaco}</p>
     <p><strong>Alignment:</strong> {character.alignment}</p>
-    <p><strong>Currency:</strong> {Currency.valueToCoins(character.currency, false, false)}</p>
+    <p><strong>Currency:</strong> {Currency.valueToString(character.currency)}</p>
 
     <h3>Attributes</h3>
 

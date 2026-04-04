@@ -24,7 +24,7 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
   let fieldTinctures1: Tincture[] = JSON.parse(JSON.stringify(cfg.fieldTinctures1));
   let fieldTinctures2: Tincture[] = JSON.parse(JSON.stringify(cfg.fieldTinctures2));
 
-  if (cfg.chargeCount > 0) {
+  if (cfg.chargeCount > 0 && cfg.chargeOptions.length > 0) {
     let charge = cfg.rng.item(Array.from(cfg.chargeOptions));
     charge.tincture = cfg.rng.weighted(
       Array.from(cfg.chargeTinctures).map((t) => {
