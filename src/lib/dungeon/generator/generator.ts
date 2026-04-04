@@ -305,7 +305,7 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
   // but leaving them strictly attached to the top-level entity keeps the geometry math clean for now.
 
   const nameRng = new RNG.RNG(`${config.seed}-dungeon-title`);
-  const fantasyNames = getFantasyNameGeneratorSet('human', nameRng);
+  const fantasyNames = getFantasyNameGeneratorSet('tiefling', nameRng);
   const titleWord = Words.title(fantasyNames.town.generate(1)[0]);
   const finalName = `The ${titleWord} ${theme.name}`;
 
