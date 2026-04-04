@@ -1,5 +1,23 @@
 export default [
   {
+    date: '2026-04-04',
+    summary: 'Massive refactor to many systems',
+    updates: [
+      'Switched everything to use a custom random number generation system',
+      'Rewrote the treasure system',
+      'Rewrote the dungeon generator',
+      'Rewrote the encounter generator',
+      'Rewrote the character generator',
+      'Added a new system for mutating generated content',
+      'Added a new system for applying tags to generated content and filtering by those tags',
+      'Rewrote the religion generator',
+      'Updated the heraldry generator with many more charges',
+      'Updated the heraldry generator to allow for charges "in chief"',
+      'Rewrote the fantasy family generator',
+      'Added a treasure hoard generator',
+    ]
+  },
+  {
     date: '2025-10-27',
     summary: 'Refactored the heraldry generator code.',
     updates: [
