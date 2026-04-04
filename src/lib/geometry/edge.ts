@@ -1,4 +1,4 @@
-import type Vertex from "./vertex.js";
+import type Vertex from './vertex.js';
 
 export default interface Edge {
   a: Vertex;

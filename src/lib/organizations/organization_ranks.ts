@@ -1,9 +1,6 @@
-import type OrganizationRank from "./organization_rank";
+import type OrganizationRank from './organization_rank';
 
-export function getRanksOfTier(
-  tier: number,
-  ranks: OrganizationRank[],
-): OrganizationRank[] {
+export function getRanksOfTier(tier: number, ranks: OrganizationRank[]): OrganizationRank[] {
   const ranksOfTier = ranks.filter((rank) => rank.tier === tier);
   return ranksOfTier;
 }

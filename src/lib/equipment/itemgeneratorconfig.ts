@@ -1,8 +1,8 @@
-import Component from "./components/component.js";
-import * as Components from "./components/components.js";
-import type ItemMutator from "./mutators/itemmutator.js";
-import * as Mutators from "./mutators/mutators.js";
-import type Pattern from "./patterns/pattern.js";
+import Component from './components/component.js';
+import * as Components from './components/components.js';
+import type ItemMutator from './mutators/itemmutator.js';
+import * as Mutators from './mutators/mutators.js';
+import type Pattern from './patterns/pattern.js';
 
 export default class ItemGeneratorConfig {
   pattern: Pattern;

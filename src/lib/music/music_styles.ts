@@ -1,5 +1,5 @@
-import * as RND from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
 export type MusicStyle = {
   beat: string;
@@ -14,25 +14,25 @@ export type MusicStyle = {
 };
 
 export function describeMusicStyle(style: MusicStyle): string {
-  let description = "This style of music has ";
+  let description = 'This style of music has ';
   description += `${style.rhythm} with `;
   description += `${Words.article(style.beat, true)} beat. It is `;
   description += `${style.dynamic}, with `;
-  description += `${style.harmony}. It ${RND.item(["often", "commonly", "usually", "frequently"])} has `;
+  description += `${style.harmony}. It ${RNG.item(['often', 'commonly', 'usually', 'frequently'])} has `;
 
-  if (style.rhythm === "a single rhythm") {
+  if (style.rhythm === 'a single rhythm') {
     description += `${Words.article(style.melody)} `;
   }
 
   description += `${style.melody} `;
 
-  if (style.rhythm === "a single rhythm") {
-    description += "melody";
+  if (style.rhythm === 'a single rhythm') {
+    description += 'melody';
   } else {
-    description += "melodies";
+    description += 'melodies';
   }
 
-  description += " with ";
+  description += ' with ';
 
   description += `${Words.article(style.pitch, true)} pitch in a `;
 
@@ -45,7 +45,7 @@ export function describeMusicStyle(style: MusicStyle): string {
 
 export function generateMusicStyle(): MusicStyle {
   const style: MusicStyle = {
-    description: "",
+    description: '',
     rhythm: randomRhythm(),
     beat: randomBeat(),
     dynamic: randomDynamic(),
@@ -62,199 +62,199 @@ export function generateMusicStyle(): MusicStyle {
 export function randomBeat(): string {
   const options = [
     {
-      value: "very fast",
+      value: 'very fast',
       commonality: 5,
     },
     {
-      value: "fast",
+      value: 'fast',
       commonality: 5,
     },
     {
-      value: "moderate",
+      value: 'moderate',
       commonality: 10,
     },
     {
-      value: "slow",
+      value: 'slow',
       commonality: 5,
     },
     {
-      value: "very slow",
+      value: 'very slow',
       commonality: 5,
     },
   ];
 
-  const result = RND.weighted(options);
-  return result.value;
+  const result = RNG.weighted(options);
+  return result;
 }
 
 export function randomDynamic(): string {
   const options = [
     {
-      value: "very quiet",
+      value: 'very quiet',
       commonality: 5,
     },
     {
-      value: "quiet",
+      value: 'quiet',
       commonality: 15,
     },
     {
-      value: "loud",
+      value: 'loud',
       commonality: 15,
     },
     {
-      value: "very loud",
+      value: 'very loud',
       commonality: 5,
     },
   ];
 
-  const result = RND.weighted(options);
-  return result.value;
+  const result = RNG.weighted(options);
+  return result;
 }
 
 export function randomHarmony() {
   const options = [
     {
-      value: "simple harmony",
+      value: 'simple harmony',
       commonality: 10,
     },
     {
-      value: "two harmonies",
+      value: 'two harmonies',
       commonality: 1,
     },
     {
-      value: "no harmony",
+      value: 'no harmony',
       commonality: 5,
     },
   ];
 
-  const result = RND.weighted(options);
-  return result.value;
+  const result = RNG.weighted(options);
+  return result;
 }
 
 export function randomKey(): string {
-  const roots = ["C", "D", "E", "F", "G", "A", "B"];
+  const roots = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   const modes = [
-    { value: "major", commonality: 10 },
-    { value: "minor", commonality: 5 },
-    { value: "Dorian", commonality: 2 },
-    { value: "Phrygian", commonality: 2 },
-    { value: "Lydian", commonality: 2 },
-    { value: "Mixolydian", commonality: 2 },
-    { value: "Aeolian", commonality: 1 },
-    { value: "Locrian", commonality: 1 },
-    { value: "pentatonic major", commonality: 2 },
-    { value: "pentatonic minor", commonality: 2 },
-    { value: "chromatic", commonality: 1 },
+    { value: 'major', commonality: 10 },
+    { value: 'minor', commonality: 5 },
+    { value: 'Dorian', commonality: 2 },
+    { value: 'Phrygian', commonality: 2 },
+    { value: 'Lydian', commonality: 2 },
+    { value: 'Mixolydian', commonality: 2 },
+    { value: 'Aeolian', commonality: 1 },
+    { value: 'Locrian', commonality: 1 },
+    { value: 'pentatonic major', commonality: 2 },
+    { value: 'pentatonic minor', commonality: 2 },
+    { value: 'chromatic', commonality: 1 },
   ];
-  const root = RND.item(roots);
-  const mode = RND.weighted(modes).value;
+  const root = RNG.item(roots);
+  const mode = RNG.weighted(modes);
   return `${root} ${mode}`;
 }
 
 export function randomMelody(): string {
   const options = [
     {
-      value: "simple",
+      value: 'simple',
       commonality: 10,
     },
     {
-      value: "complex",
+      value: 'complex',
       commonality: 2,
     },
     {
-      value: "focused",
+      value: 'focused',
       commonality: 5,
     },
     {
-      value: "wandering",
+      value: 'wandering',
       commonality: 2,
     },
     {
-      value: "chaotic",
+      value: 'chaotic',
       commonality: 1,
     },
   ];
 
-  const result = RND.weighted(options);
-  return result.value;
+  const result = RNG.weighted(options);
+  return result;
 }
 
 export function randomPitch(): string {
   const options = [
     {
-      value: "low",
+      value: 'low',
       commonality: 5,
     },
     {
-      value: "medium",
+      value: 'medium',
       commonality: 5,
     },
     {
-      value: "high",
+      value: 'high',
       commonality: 5,
     },
   ];
 
-  const result = RND.weighted(options);
-  return result.value;
+  const result = RNG.weighted(options);
+  return result;
 }
 
 export function randomRhythm(): string {
   const options = [
     {
-      value: "a single rhythm",
+      value: 'a single rhythm',
       commonality: 100,
     },
     {
-      value: "a cross-rhythm",
+      value: 'a cross-rhythm',
       commonality: 10,
     },
     {
-      value: "complex polyrhythm",
+      value: 'complex polyrhythm',
       commonality: 1,
     },
   ];
 
-  const result = RND.weighted(options);
-  return result.value;
+  const result = RNG.weighted(options);
+  return result;
 }
 
 export function randomTimbre(): string {
-  return RND.item([
-    "airy",
-    "booming",
-    "bright",
-    "brilliant",
-    "clear",
-    "crisp",
-    "dark",
-    "dull",
-    "emotional",
-    "full",
-    "gritty",
-    "harsh",
-    "hollow",
-    "mellow",
-    "metallic",
-    "nasal",
-    "piercing",
-    "reedy",
-    "resonant",
-    "rich",
-    "rough",
-    "sharp-edged",
-    "sharp",
-    "sibilant",
-    "silky",
-    "sizzling",
-    "smooth",
-    "soft",
-    "thin",
-    "tinkling",
-    "twangy",
-    "vibrant",
-    "warm",
-    "whispering",
-    "woody",
+  return RNG.item([
+    'airy',
+    'booming',
+    'bright',
+    'brilliant',
+    'clear',
+    'crisp',
+    'dark',
+    'dull',
+    'emotional',
+    'full',
+    'gritty',
+    'harsh',
+    'hollow',
+    'mellow',
+    'metallic',
+    'nasal',
+    'piercing',
+    'reedy',
+    'resonant',
+    'rich',
+    'rough',
+    'sharp-edged',
+    'sharp',
+    'sibilant',
+    'silky',
+    'sizzling',
+    'smooth',
+    'soft',
+    'thin',
+    'tinkling',
+    'twangy',
+    'vibrant',
+    'warm',
+    'whispering',
+    'woody',
   ]);
 }

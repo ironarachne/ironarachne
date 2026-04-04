@@ -1,9 +1,9 @@
-import * as RND from "@ironarachne/rng";
-import * as Animal from "./animal.js";
-import Component from "./component.js";
-import * as Fabrics from "./fabrics.js";
-import * as Metals from "./metals.js";
-import * as Wood from "./wood.js";
+import * as RNG from '@ironarachne/rng';
+import * as Animal from './animal.js';
+import Component from './component.js';
+import * as Fabrics from './fabrics.js';
+import * as Metals from './metals.js';
+import * as Wood from './wood.js';
 
 export function all(): Component[] {
   let result = [];
@@ -40,20 +40,14 @@ export function getComponentForCategory(
     }
   }
 
-  return RND.item(possible);
+  return RNG.item(possible);
 }
 
-export function withCategory(
-  category: string,
-  components: Component[],
-): Component[] {
+export function withCategory(category: string, components: Component[]): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {
-    if (
-      components[i].category == category ||
-      components[i].subType == category
-    ) {
+    if (components[i].category == category || components[i].subType == category) {
       result.push(components[i]);
     }
   }
@@ -61,10 +55,7 @@ export function withCategory(
   return result;
 }
 
-export function withMinValue(
-  value: number,
-  components: Component[],
-): Component[] {
+export function withMinValue(value: number, components: Component[]): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {
@@ -76,10 +67,7 @@ export function withMinValue(
   return result;
 }
 
-export function withMaxValue(
-  value: number,
-  components: Component[],
-): Component[] {
+export function withMaxValue(value: number, components: Component[]): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {
@@ -91,10 +79,7 @@ export function withMaxValue(
   return result;
 }
 
-export function withMinQuality(
-  quality: number,
-  components: Component[],
-): Component[] {
+export function withMinQuality(quality: number, components: Component[]): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {
@@ -106,10 +91,7 @@ export function withMinQuality(
   return result;
 }
 
-export function withMaxQuality(
-  quality: number,
-  components: Component[],
-): Component[] {
+export function withMaxQuality(quality: number, components: Component[]): Component[] {
   let result = [];
 
   for (let i = 0; i < components.length; i++) {

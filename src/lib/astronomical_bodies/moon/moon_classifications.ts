@@ -1,4 +1,4 @@
-import type { MoonClassification } from "./moons";
+import type { MoonClassification } from './moons';
 
 export function getMoonClassificationByName(name: string): MoonClassification {
   const classifications = getMoonClassifications();
@@ -13,8 +13,8 @@ export function getStandardMoonClassifications(): MoonClassification[] {
   // Returns classifications for the most common types of moons
   let moons = getMoonClassifications();
 
-  moons = moons.filter((moon) => moon.name !== "gaseous"); // Exclude gaseous moons as they are rare
-  moons = moons.filter((moon) => moon.name !== "volcanic"); // Exclude volcanic moons as they are less common
+  moons = moons.filter((moon) => moon.name !== 'gaseous'); // Exclude gaseous moons as they are rare
+  moons = moons.filter((moon) => moon.name !== 'volcanic'); // Exclude volcanic moons as they are less common
 
   return moons;
 }
@@ -22,8 +22,8 @@ export function getStandardMoonClassifications(): MoonClassification[] {
 export function getMoonClassifications(): MoonClassification[] {
   return [
     {
-      name: "rocky",
-      description: "A rocky moon with a rugged surface and minimal atmosphere.",
+      name: 'rocky',
+      description: 'A rocky moon with a rugged surface and minimal atmosphere.',
       has_atmosphere: false,
       orbital_distance_min: 0.001, // in AU; the Earth's moon is about 0.00257 AU from Earth
       orbital_distance_max: 0.01,
@@ -36,13 +36,12 @@ export function getMoonClassifications(): MoonClassification[] {
       mass_min: 0.001, // in 10^24 kg; Earth's moon is about 0.073 kg
       mass_max: 0.2,
       getRandomDescription() {
-        return "A rocky moon with craters and mountains.";
+        return 'A rocky moon with craters and mountains.';
       },
     },
     {
-      name: "icy",
-      description:
-        "An icy moon with a thick layer of ice covering its surface.",
+      name: 'icy',
+      description: 'An icy moon with a thick layer of ice covering its surface.',
       has_atmosphere: false,
       orbital_distance_min: 0.001,
       orbital_distance_max: 0.01,
@@ -55,13 +54,12 @@ export function getMoonClassifications(): MoonClassification[] {
       mass_min: 0.001,
       mass_max: 0.2,
       getRandomDescription() {
-        return "An icy moon with frozen lakes and geysers.";
+        return 'An icy moon with frozen lakes and geysers.';
       },
     },
     {
-      name: "gaseous",
-      description:
-        "A large moon with a thick atmosphere composed mainly of hydrogen and helium.",
+      name: 'gaseous',
+      description: 'A large moon with a thick atmosphere composed mainly of hydrogen and helium.',
       has_atmosphere: true,
       orbital_distance_min: 0.001,
       orbital_distance_max: 0.01,
@@ -74,13 +72,12 @@ export function getMoonClassifications(): MoonClassification[] {
       mass_min: 550,
       mass_max: 1900,
       getRandomDescription() {
-        return "A gaseous moon with swirling clouds and storms.";
+        return 'A gaseous moon with swirling clouds and storms.';
       },
     },
     {
-      name: "volcanic",
-      description:
-        "A volcanic moon with active volcanoes and a thin atmosphere.",
+      name: 'volcanic',
+      description: 'A volcanic moon with active volcanoes and a thin atmosphere.',
       has_atmosphere: true,
       orbital_distance_min: 0.001,
       orbital_distance_max: 0.01,
@@ -93,7 +90,7 @@ export function getMoonClassifications(): MoonClassification[] {
       mass_min: 0.01,
       mass_max: 0.5,
       getRandomDescription() {
-        return "A volcanic moon with lava flows and ash clouds.";
+        return 'A volcanic moon with lava flows and ash clouds.';
       },
     },
   ];

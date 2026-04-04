@@ -1,49 +1,68 @@
-import * as Words from "@ironarachne/words";
-import type { Charge } from "./charges/index";
-import type { ChargeGroupArrangement } from "./charge_group_arrangements/index.js";
+import * as Words from '@ironarachne/words';
+import type { Charge } from './charges/index';
+import type { ChargeGroupArrangement } from './charge_group_arrangements/index.js';
 
 export type ChargeGroup = {
   charge: Charge;
   numberOfCharges: number;
   arrangement: ChargeGroupArrangement;
+  position?: string;
 };
 
 export function renderChargeGroupBlazon(group: ChargeGroup): string {
   let blazon = group.arrangement.blazonPattern;
-  blazon = blazon.replaceAll("{article}", Words.article(group.charge.name));
-  blazon = blazon.replaceAll("{name}", group.charge.name);
-  blazon = blazon.replaceAll("{namePlural}", group.charge.pluralName);
+  blazon = blazon.replaceAll('{article}', Words.article(group.charge.name));
+  blazon = blazon.replaceAll('{name}', group.charge.name);
+  blazon = blazon.replaceAll('{namePlural}', group.charge.pluralName);
   blazon += ` ${group.charge.tincture.name}`;
+  if (group.position) {
+    blazon += ` ${group.position}`;
+  }
   return blazon;
 }
 
-export function renderChargeGroupSVG(group: ChargeGroup, contextWidth: number, contextHeight: number): string {
+export function renderChargeGroupSVG(
+  group: ChargeGroup,
+  contextWidth: number,
+  contextHeight: number,
+): string {
   let chargeSVGString = group.charge.SVG;
   chargeSVGString = setChargeColor(
     group.charge.tincture.hexColor,
     group.charge.tincture.name,
     chargeSVGString,
   );
-  return group.arrangement.renderSVG(
-    chargeSVGString,
-    contextWidth,
-    contextHeight,
-  );
-}
 
-function setChargeColor(
-  hexColor: string,
-  tinctureName: string,
-  chargeSVG: string,
-): string {
-  let svgResult = chargeSVG;
+  let renderHeight = contextHeight;
 
-  if (hexColor === "#000000") {
-    svgResult = svgResult.replaceAll("#010101", "#ffffff");
-    svgResult = svgResult.replaceAll("#000000", "#ffffff");
+  if (group.position === 'in chief') {
+    const chiefHeight = contextHeight / 3;
+    renderHeight = contextHeight / 2;
+    const result = group.arrangement.renderSVG(chargeSVGString, contextWidth, renderHeight);
+
+    const dy = chiefHeight / 2 - renderHeight / 2;
+    return `<g transform="translate(0, ${dy})">${result}</g>`;
   }
 
-  svgResult = svgResult.replaceAll("#FFFFFF", hexColor);
+  return group.arrangement.renderSVG(chargeSVGString, contextWidth, renderHeight);
+}
+
+function setChargeColor(hexColor: string, tinctureName: string, chargeSVG: string): string {
+  let svgResult = chargeSVG;
+
+  if (hexColor === '#000000') {
+    svgResult = svgResult.replaceAll('#010101', 'TEMP_WHITE_PLACEHOLDER');
+    svgResult = svgResult.replaceAll('#000000', 'TEMP_WHITE_PLACEHOLDER');
+    svgResult = svgResult.replaceAll('fill="black"', 'fill="TEMP_WHITE_PLACEHOLDER"');
+  }
+
+  svgResult = svgResult.replaceAll('#FFFFFF', hexColor);
+  svgResult = svgResult.replaceAll('#ffffff', hexColor);
+  svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
+
+  if (hexColor === '#000000') {
+    svgResult = svgResult.replaceAll('TEMP_WHITE_PLACEHOLDER', '#333333');
+  }
 
   svgResult = svgResult.replaceAll('st0', `st0-${tinctureName}`);
   svgResult = svgResult.replaceAll('st1', `st1-${tinctureName}`);

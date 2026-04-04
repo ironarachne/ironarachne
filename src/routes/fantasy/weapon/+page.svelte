@@ -1,36 +1,56 @@
 <script lang="ts">
-  import * as Domains from "$lib/religion/domains/domains";
-  import * as Weapon from "$lib/equipment/weapon";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+  import { domains } from '$lib/religion/domains';
+  import * as Equipment from '$lib/equipment/index';
+  import * as RNG from '@ironarachne/rng';
+  import { getDefaultGenerationConfig } from '$lib/equipment/generation';
 
-  const themes = Domains.getAllDomainNames().sort();
-  const categories = Weapon.getAllWeaponCategories().sort();
-  let category = $state("any");
-  let theme = $state("any");
-  let seed = $state(RND.randomString(13));
+  const themes = domains.map(domain => domain.name).sort();
+  const categories = ['any', 'melee', 'ranged'];
+
+  let rng = new RNG.RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
+  $effect(() => {
+    rng.setSeed(seed);
+  });
   let lockSeed = $state(false);
-  let weapon = $state(Weapon.generate(category, theme));
+
+  let category = $state('any');
+  let theme = $state('any');
+  let weapon = $state(generateWeapon('any', 'any', rng));
+
+  function generateWeapon(cat: string, thm: string, genRng: RNG.RNG) {
+    let domainName = thm;
+    if (thm === 'any') {
+      domainName = genRng.item(domains).name;
+    }
+
+    const config = getDefaultGenerationConfig();
+    config.itemMajorType = 'weapon';
+    config.enchantments = Equipment.filterEnchantmentsByTags([domainName], Equipment.ENCHANTMENTS);
+    config.decorations = Equipment.filterDecorationsByTags([domainName], Equipment.DECORATIONS);
+    config.enchantmentChance = 100;
+    config.decorationChance = 100;
+    config.useUniqueNames = true;
+
+    if (cat !== 'any') {
+      config.itemMinorType = cat;
+    }
+
+    const newWeapon = Equipment.generateItem(seed, config);
+
+    return newWeapon;
+  }
 
   function generate() {
     if (!lockSeed) {
-      seed = RND.randomString(13);
+      seed = rng.randomString(13);
     }
-    random.use(seedrandom(seed));
-    weapon = Weapon.generate(category, theme);
-    weapon.description = `${weapon.name} is ${weapon.description}`;
+    rng.setSeed(seed);
+    weapon = generateWeapon(category, theme, rng);
   }
 
   generate();
 </script>
-
-<style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/fantasy.scss';
-</style>
 
 <svelte:head>
   <title>Magic Weapon Generator | Iron Arachne</title>
@@ -54,7 +74,6 @@
   <div class="input-group">
     <label for="category">Category</label>
     <select name="category" bind:value={category} id="category">
-      <option>any</option>
       {#each categories as item}
         <option>{item}</option>
       {/each}
@@ -63,13 +82,18 @@
 
   <div class="input-group">
     <label for="seed">Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed"/>
-    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
+    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
   <button onclick={generate}>Generate</button>
 
-  <h2>{weapon.name}</h2>
+  <h2>{weapon.uniqueName}</h2>
 
-  <p>{weapon.description}. It {weapon.effect}.</p>
+  <p>{weapon.description}</p>
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
+</style>

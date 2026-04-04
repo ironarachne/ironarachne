@@ -1,4 +1,4 @@
-import random from "random";
+import * as RNG from '@ironarachne/rng';
 
 export class DicePool {
   d4: number;
@@ -20,7 +20,7 @@ export class DicePool {
     this.d20 = 0;
     this.d100 = 0;
     this.modifier = 0;
-    this.modifierType = "+";
+    this.modifierType = '+';
   }
 
   getAverageResult(): number {
@@ -41,9 +41,9 @@ export class DicePool {
     result += this.d20 * 20;
     result += this.d100 * 100;
 
-    if (this.modifierType === "*") {
+    if (this.modifierType === '*') {
       result *= this.modifier;
-    } else if (this.modifierType === "+") {
+    } else if (this.modifierType === '+') {
       result += this.modifier;
     } else {
       result -= this.modifier;
@@ -62,9 +62,9 @@ export class DicePool {
     result += this.d20;
     result += this.d100;
 
-    if (this.modifierType === "*") {
+    if (this.modifierType === '*') {
       result *= this.modifier;
-    } else if (this.modifierType === "+") {
+    } else if (this.modifierType === '+') {
       result += this.modifier;
     } else {
       result -= this.modifier;
@@ -78,31 +78,31 @@ export function toDicePool(expression: string): DicePool {
   let numDice = 0;
   let numSides = 0;
   let modifier = 0;
-  let modifierType = "+";
+  let modifierType = '+';
   let parts = [];
   let modParts = [];
 
   const dicePool = new DicePool();
 
-  if (expression.includes("-")) {
-    modifierType = "-";
-    modParts = expression.split("-");
+  if (expression.includes('-')) {
+    modifierType = '-';
+    modParts = expression.split('-');
     modifier = Number(modParts[1]);
-  } else if (expression.includes("x")) {
-    modifierType = "*";
-    modParts = expression.split("x");
+  } else if (expression.includes('x')) {
+    modifierType = '*';
+    modParts = expression.split('x');
     modifier = Number(modParts[1]);
-  } else if (expression.includes("+")) {
-    modParts = expression.split("+");
+  } else if (expression.includes('+')) {
+    modParts = expression.split('+');
     modifier = Number(modParts[1]);
   } else {
-    modParts = expression.split("+"); // no modifier
+    modParts = expression.split('+'); // no modifier
   }
 
   dicePool.modifier = modifier;
   dicePool.modifierType = modifierType;
 
-  parts = modParts[0].split("d");
+  parts = modParts[0].split('d');
 
   numDice = Number(parts[0]);
   numSides = Number(parts[1]);
@@ -127,60 +127,60 @@ export function toDicePool(expression: string): DicePool {
 }
 
 export function describeDice(dice: DicePool) {
-  let diceExpression = "";
+  let diceExpression = '';
 
   if (dice.d100 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += `${dice.d100}d100`;
   }
 
   if (dice.d20 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += `${dice.d20}d20`;
   }
 
   if (dice.d12 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += `${dice.d12}d12`;
   }
 
   if (dice.d10 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += `${dice.d10}d10`;
   }
 
   if (dice.d8 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += `${dice.d8}d8`;
   }
 
   if (dice.d6 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += `${dice.d6}d6`;
   }
 
   if (dice.d4 > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += `${dice.d4}d4`;
   }
 
   if (dice.modifier > 0) {
-    if (diceExpression !== "") {
-      diceExpression += "+";
+    if (diceExpression !== '') {
+      diceExpression += '+';
     }
     diceExpression += dice.modifier;
   }
@@ -227,61 +227,64 @@ export function rangeToDiceExpression(range: number) {
   return dice;
 }
 
-export function roll(expression: string): number {
+export function roll(
+  expression: string,
+  rng: RNG.RNG = new RNG.RNG(Date.now().toString()),
+): number {
   let phrases: string[] = [];
-  let expressionType = "straight";
+  let expressionType = 'straight';
   let parts = [];
   let useModifier = true;
   let modValue = 0;
 
-  if (expression.includes("+")) {
-    phrases = expression.split("+");
-    expressionType = "added";
-  } else if (expression.includes("-")) {
-    phrases = expression.split("-");
-    expressionType = "subtracted";
-  } else if (expression.includes("x")) {
-    phrases = expression.split("x");
-    expressionType = "multiplied";
+  if (expression.includes('+')) {
+    phrases = expression.split('+');
+    expressionType = 'added';
+  } else if (expression.includes('-')) {
+    phrases = expression.split('-');
+    expressionType = 'subtracted';
+  } else if (expression.includes('x')) {
+    phrases = expression.split('x');
+    expressionType = 'multiplied';
   } else {
     useModifier = false;
   }
 
   if (useModifier) {
     for (let i = 1; i < phrases.length; i++) {
-      const modParts = phrases[i].split("d");
+      const modParts = phrases[i].split('d');
 
       if (modParts.length > 1) {
         const n = Number(modParts[0]);
         const s = Number(modParts[1]);
-        modValue += rollSimple(n, s);
+        modValue += rollSimple(n, s, rng);
       } else {
         modValue += Number(phrases[i]);
       }
     }
-    parts = phrases[0].split("d");
+    parts = phrases[0].split('d');
   } else {
-    parts = expression.split("d");
+    parts = expression.split('d');
   }
 
-  let roll = rollSimple(Number(parts[0]), Number(parts[1]));
+  let roll = rollSimple(Number(parts[0]), Number(parts[1]), rng);
 
-  if (expressionType === "added") {
+  if (expressionType === 'added') {
     roll += modValue;
-  } else if (expressionType === "subtracted") {
+  } else if (expressionType === 'subtracted') {
     roll -= modValue;
-  } else if (expressionType === "multiplied") {
+  } else if (expressionType === 'multiplied') {
     roll *= modValue;
   }
 
   return roll;
 }
 
-function rollSimple(n: number, s: number): number {
+function rollSimple(n: number, s: number, rng: RNG.RNG): number {
   let result = 0;
 
   for (let i = 0; i < n; i++) {
-    result += random.int(1, s);
+    result += rng.int(1, s);
   }
 
   return result;

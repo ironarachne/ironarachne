@@ -1,12 +1,18 @@
-import * as RND from "@ironarachne/rng";
-import type PhysicalTrait from "./physical_trait";
-import type PhysicalTraitGeneratorConfig from "./physical_trait_generator_config";
+import type { RNG } from '@ironarachne/rng';
+import type PhysicalTrait from './physical_trait';
+import type PhysicalTraitGeneratorConfig from './physical_trait_generator_config';
 
-export function generate(config: PhysicalTraitGeneratorConfig): PhysicalTrait {
+export function add_trait(trait: PhysicalTrait, traits: PhysicalTrait[]): PhysicalTrait[] {
+  // Add the new trait to the existing traits, replacing any trait in the same category
+  const filteredTraits = traits.filter(t => t.category !== trait.category);
+  return [...filteredTraits, trait];
+}
+
+export function generate(config: PhysicalTraitGeneratorConfig, rng: RNG): PhysicalTrait {
   let name = config.name;
   let category = config.category;
   let tags = config.tags;
-  let description = RND.item(config.options) + " " + config.name;
+  let description = `${rng.item(config.options)} ${config.name}`;
 
   return {
     name,

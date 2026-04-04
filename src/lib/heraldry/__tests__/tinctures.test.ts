@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import * as tinctures from '../tinctures';
+import * as RNG from '@ironarachne/rng';
+
+const rng = new RNG.RNG('test-seed');
 
 // Basic type test
 describe('Tincture type', () => {
@@ -30,35 +33,35 @@ describe('tinctures.byName', () => {
 describe('tinctures.byType', () => {
   it('returns only tinctures of the given type', () => {
     const metals = tinctures.byType('metal', tinctures.all());
-    expect(metals.every(t => t.type === 'metal')).toBe(true);
+    expect(metals.every((t) => t.type === 'metal')).toBe(true);
   });
 });
 
 describe('tinctures.colors', () => {
   it('returns only tinctures of type color', () => {
     const colors = tinctures.colors();
-    expect(colors.every(t => t.type === 'color')).toBe(true);
+    expect(colors.every((t) => t.type === 'color')).toBe(true);
   });
 });
 
 describe('tinctures.furs', () => {
   it('returns only tinctures of type fur', () => {
     const furs = tinctures.furs();
-    expect(furs.every(t => t.type === 'fur')).toBe(true);
+    expect(furs.every((t) => t.type === 'fur')).toBe(true);
   });
 });
 
 describe('tinctures.metals', () => {
   it('returns only tinctures of type metal', () => {
     const metals = tinctures.metals();
-    expect(metals.every(t => t.type === 'metal')).toBe(true);
+    expect(metals.every((t) => t.type === 'metal')).toBe(true);
   });
 });
 
 describe('tinctures.stains', () => {
   it('returns only tinctures of type stain', () => {
     const stains = tinctures.stains();
-    expect(stains.every(t => t.type === 'stain')).toBe(true);
+    expect(stains.every((t) => t.type === 'stain')).toBe(true);
   });
 });
 
@@ -90,7 +93,7 @@ describe('tinctures.getContrasting', () => {
     expect(Array.isArray(contrasting)).toBe(true);
     expect(contrasting.length).toBeGreaterThan(0);
     // All returned tinctures should contrast with the input
-    expect(contrasting.every(t => tinctures.contrasts(metal, t))).toBe(true);
+    expect(contrasting.every((t) => tinctures.contrasts(metal, t))).toBe(true);
   });
 });
 
@@ -118,20 +121,20 @@ describe('tinctures.getSetExcluding', () => {
 describe('tinctures.ofTypes', () => {
   it('returns tinctures of the given types', () => {
     const result = tinctures.ofTypes(['metal', 'color']);
-    expect(result.every(t => t.type === 'metal' || t.type === 'color')).toBe(true);
+    expect(result.every((t) => t.type === 'metal' || t.type === 'color')).toBe(true);
   });
 });
 
 describe('tinctures.random', () => {
   it('returns a tincture', () => {
-    const t = tinctures.random();
+    const t = tinctures.random(rng);
     expect(t).toHaveProperty('name');
   });
 });
 
 describe('tinctures.randomChargeTincture', () => {
   it('returns a tincture', () => {
-    const t = tinctures.randomChargeTincture();
+    const t = tinctures.randomChargeTincture(rng);
     expect(t).toHaveProperty('name');
   });
 });
@@ -139,7 +142,7 @@ describe('tinctures.randomChargeTincture', () => {
 describe('tinctures.randomContrasting', () => {
   it('returns a tincture that contrasts with the input', () => {
     const [metal] = tinctures.metals();
-    const t = tinctures.randomContrasting(metal);
+    const t = tinctures.randomContrasting(metal, rng);
     expect(tinctures.contrasts(metal, t)).toBe(true);
   });
 });
@@ -147,7 +150,7 @@ describe('tinctures.randomContrasting', () => {
 describe('tinctures.randomExcluding', () => {
   it('returns a tincture not equal to the input', () => {
     const [metal] = tinctures.metals();
-    const t = tinctures.randomExcluding(metal);
+    const t = tinctures.randomExcluding(metal, rng);
     expect(t).not.toEqual(metal);
   });
 });
@@ -155,14 +158,14 @@ describe('tinctures.randomExcluding', () => {
 describe('tinctures.randomFrom', () => {
   it('returns a tincture from the given set', () => {
     const metals = tinctures.metals();
-    const t = tinctures.randomFrom(metals);
+    const t = tinctures.randomFrom(metals, rng);
     expect(metals).toContainEqual(t);
   });
 });
 
 describe('tinctures.randomWeighted', () => {
   it('returns a tincture', () => {
-    const t = tinctures.randomWeighted();
+    const t = tinctures.randomWeighted(rng);
     expect(t).toHaveProperty('name');
   });
 });
@@ -170,7 +173,7 @@ describe('tinctures.randomWeighted', () => {
 describe('tinctures.randomWeightedExcluding', () => {
   it('returns a tincture not equal to the input', () => {
     const [metal] = tinctures.metals();
-    const t = tinctures.randomWeightedExcluding(metal);
+    const t = tinctures.randomWeightedExcluding(metal, rng);
     expect(t).not.toEqual(metal);
   });
 });

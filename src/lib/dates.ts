@@ -1,19 +1,19 @@
-import * as Words from "@ironarachne/words";
+import * as Words from '@ironarachne/words';
 
 export function getMonthAbbr(month: number): string {
   const months = [
-    "Jan.",
-    "Feb.",
-    "Mar.",
-    "Apr.",
-    "May",
-    "Jun.",
-    "Jul.",
-    "Aug.",
-    "Sep.",
-    "Oct.",
-    "Nov.",
-    "Dec.",
+    'Jan.',
+    'Feb.',
+    'Mar.',
+    'Apr.',
+    'May',
+    'Jun.',
+    'Jul.',
+    'Aug.',
+    'Sep.',
+    'Oct.',
+    'Nov.',
+    'Dec.',
   ];
 
   return months[month];
@@ -21,25 +21,25 @@ export function getMonthAbbr(month: number): string {
 
 export function getMonthName(month: number): string {
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
-    "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
   ];
 
   return months[month];
 }
 
 export function getNiceDate(date: string): string {
-  const components = date.split("-");
+  const components = date.split('-');
   const year = Number(components[0]);
   const month = Number(components[1]) - 1;
   const day = Number(components[2]);

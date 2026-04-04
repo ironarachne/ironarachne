@@ -1,5 +1,5 @@
-import Phoneme from "./phoneme.js";
-import * as Phonemes from "./phonemes.js";
+import Phoneme from './phoneme.js';
+import * as Phonemes from './phonemes.js';
 
 export default class PhonemeSet {
   name: string;

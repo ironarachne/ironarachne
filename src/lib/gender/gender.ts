@@ -1,4 +1,4 @@
-import type PronounSet from "./pronounSet";
+import type PronounSet from './pronounSet';
 
 export default interface Gender {
   name: string;

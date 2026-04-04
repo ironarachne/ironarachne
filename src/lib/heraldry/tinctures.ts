@@ -1,11 +1,11 @@
-import * as RND from "@ironarachne/rng";
+import * as RNG from '@ironarachne/rng';
 
 export type Tincture = {
   name: string;
   hexColor: string;
   pattern: string;
-  type: "color" | "metal" | "fur" | "stain";
-  category: "light" | "dark" | "neutral";
+  type: 'color' | 'metal' | 'fur' | 'stain';
+  category: 'light' | 'dark' | 'neutral';
   commonality: number;
 };
 
@@ -14,123 +14,119 @@ export function all(): Tincture[] {
 
   return [
     {
-      name: "azure",
-      hexColor: "#0731BA",
+      name: 'azure',
+      hexColor: '#0731BA',
       pattern: `<pattern id="azure" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#0731BA"/></pattern>`,
-      type: "color",
-      category: "dark",
+      type: 'color',
+      category: 'dark',
       commonality: 20,
     },
     {
-      name: "gules",
-      hexColor: "#D40D02",
+      name: 'gules',
+      hexColor: '#D40D02',
       pattern: `<pattern id="gules" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#D40D02"/></pattern>`,
-      type: "color",
-      category: "dark",
+      type: 'color',
+      category: 'dark',
       commonality: 20,
     },
     {
-      name: "vert",
-      hexColor: "#0B731B",
+      name: 'vert',
+      hexColor: '#0B731B',
       pattern: `<pattern id="vert" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#0B731B"/></pattern>`,
-      type: "color",
-      category: "dark",
+      type: 'color',
+      category: 'dark',
       commonality: 20,
     },
     {
-      name: "sable",
-      hexColor: "#000000",
+      name: 'sable',
+      hexColor: '#000000',
       pattern: `<pattern id="sable" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#000000"/></pattern>`,
-      type: "color",
-      category: "dark",
+      type: 'color',
+      category: 'dark',
       commonality: 20,
     },
     {
-      name: "purpure",
-      hexColor: "#6131B5",
+      name: 'purpure',
+      hexColor: '#6131B5',
       pattern: `<pattern id="purpure" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#6131B5"/></pattern>`,
-      type: "color",
-      category: "dark",
+      type: 'color',
+      category: 'dark',
       commonality: 20,
     },
     {
-      name: "argent",
-      hexColor: "#ffffff",
+      name: 'argent',
+      hexColor: '#ffffff',
       pattern: `<pattern id="argent" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#ffffff"/></pattern>`,
-      type: "metal",
-      category: "light",
+      type: 'metal',
+      category: 'light',
       commonality: 10,
     },
     {
-      name: "Or",
-      hexColor: "#F0D41F",
+      name: 'Or',
+      hexColor: '#F0D41F',
       pattern: `<pattern id="Or" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#F0D41F"/></pattern>`,
-      type: "metal",
-      category: "light",
+      type: 'metal',
+      category: 'light',
       commonality: 10,
     },
     {
-      name: "ermine",
-      hexColor: "",
+      name: 'ermine',
+      hexColor: '',
       pattern: erminePattern,
-      type: "fur",
-      category: "light",
+      type: 'fur',
+      category: 'light',
       commonality: 2,
     },
     {
-      name: "ermines",
-      hexColor: "",
+      name: 'ermines',
+      hexColor: '',
       pattern: erminePattern
-        .replaceAll("#ffffff", "#333333")
-        .replaceAll("#000000", "#ffffff")
-        .replaceAll("#333333", "#000000")
-        .replaceAll("ermine", "ermines"),
-      type: "fur",
-      category: "light",
+        .replaceAll('#ffffff', '#333333')
+        .replaceAll('#000000', '#ffffff')
+        .replaceAll('#333333', '#000000')
+        .replaceAll('ermine', 'ermines'),
+      type: 'fur',
+      category: 'light',
       commonality: 2,
     },
     {
-      name: "erminois",
-      hexColor: "",
-      pattern: erminePattern
-        .replaceAll("#ffffff", "#F0D41F")
-        .replaceAll("ermine", "erminois"),
-      type: "fur",
-      category: "light",
+      name: 'erminois',
+      hexColor: '',
+      pattern: erminePattern.replaceAll('#ffffff', '#F0D41F').replaceAll('ermine', 'erminois'),
+      type: 'fur',
+      category: 'light',
       commonality: 2,
     },
     {
-      name: "pean",
-      hexColor: "",
-      pattern: erminePattern
-        .replaceAll("#ffffff", "#000000")
-        .replaceAll("ermine", "pean"),
-      type: "fur",
-      category: "light",
+      name: 'pean',
+      hexColor: '',
+      pattern: erminePattern.replaceAll('#ffffff', '#000000').replaceAll('ermine', 'pean'),
+      type: 'fur',
+      category: 'light',
       commonality: 2,
     },
     {
-      name: "murrey",
-      hexColor: "#8b004b",
+      name: 'murrey',
+      hexColor: '#8b004b',
       pattern: `<pattern id="murrey" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#8b004b"/></pattern>`,
-      type: "stain",
-      category: "dark",
+      type: 'stain',
+      category: 'dark',
       commonality: 2,
     },
     {
-      name: "tenné",
-      hexColor: "#e7731b",
+      name: 'tenné',
+      hexColor: '#e7731b',
       pattern: `<pattern id="tenné" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#e7731b"/></pattern>`,
-      type: "stain",
-      category: "dark",
+      type: 'stain',
+      category: 'dark',
       commonality: 2,
     },
     {
-      name: "sanguine",
-      hexColor: "#7c0000",
+      name: 'sanguine',
+      hexColor: '#7c0000',
       pattern: `<pattern id="sanguine" x="0" y="0" width="1" height="1" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="1" height="1" fill="#7c0000"/></pattern>`,
-      type: "stain",
-      category: "dark",
+      type: 'stain',
+      category: 'dark',
       commonality: 2,
     },
   ];
@@ -161,23 +157,23 @@ export function byType(type: string, tinctures: Tincture[]): Tincture[] {
 }
 
 export function colors(): Tincture[] {
-  return byType("color", all());
+  return byType('color', all());
 }
 
 export function furs(): Tincture[] {
-  return byType("fur", all());
+  return byType('fur', all());
 }
 
 export function metals(): Tincture[] {
-  return byType("metal", all());
+  return byType('metal', all());
 }
 
 export function stains(): Tincture[] {
-  return byType("stain", all());
+  return byType('stain', all());
 }
 
-export function contrasts(a: Tincture, b: Tincture): Boolean {
-  if (a.category === "neutral" || b.category === "neutral") {
+export function contrasts(a: Tincture, b: Tincture): boolean {
+  if (a.category === 'neutral' || b.category === 'neutral') {
     return true;
   }
 
@@ -196,10 +192,7 @@ export function exclude(tincture: Tincture, setOfTinctures: Tincture[]) {
   return result;
 }
 
-export function getContrasting(
-  tincture: Tincture,
-  tinctures: Tincture[],
-): Tincture[] {
+export function getContrasting(tincture: Tincture, tinctures: Tincture[]): Tincture[] {
   let result = [];
 
   for (let i = 0; i < tinctures.length; i++) {
@@ -250,107 +243,111 @@ export function ofTypes(types: string[]): Tincture[] {
   return matching;
 }
 
-export function random(): Tincture {
-  return RND.item(all());
+export function random(rng: RNG.RNG): Tincture {
+  return rng.item(all());
 }
 
-export function randomChargeTincture(): Tincture {
-  let options = ofTypes(["metal"]);
+export function randomChargeTincture(rng: RNG.RNG): Tincture {
+  let options = ofTypes(['metal']);
 
-  const colorChance = RND.simple(100);
+  const colorChance = rng.int(1, 100);
 
   if (colorChance > 70) {
-    options = ofTypes(["metal", "color", "stain"]);
+    options = ofTypes(['metal', 'color', 'stain']);
   }
 
-  return RND.weighted(options);
+  return rng.weighted(
+    options.map((t) => {
+      return { commonality: t.commonality, value: t };
+    }),
+  );
 }
 
-export function randomContrasting(tincture: Tincture): Tincture {
-  let result = randomColor();
+export function randomContrasting(tincture: Tincture, rng: RNG.RNG): Tincture {
+  let result = randomColor(rng);
 
-  if (tincture.type === "color") {
-    result = randomMetal();
+  if (tincture.type === 'color') {
+    result = randomMetal(rng);
   }
 
   return result;
 }
 
-export function randomExcluding(tincture: Tincture): Tincture {
+export function randomExcluding(tincture: Tincture, rng: RNG.RNG): Tincture {
   const allTinctures = all();
 
   const possible = exclude(tincture, allTinctures);
 
-  return RND.item(possible);
+  return rng.item(possible);
 }
 
-export function randomFrom(tinctures: Tincture[]): Tincture {
-  return RND.item(tinctures);
+export function randomFrom(tinctures: Tincture[], rng: RNG.RNG): Tincture {
+  return rng.item(tinctures);
 }
 
-export function randomWeighted(): Tincture {
-  const tinctureType = randomWeightedType();
+export function randomWeighted(rng: RNG.RNG): Tincture {
+  const tinctureType = randomWeightedType(rng);
 
-  if (tinctureType === "fur") {
-    return randomFur();
+  if (tinctureType === 'fur') {
+    return randomFur(rng);
   }
 
-  if (tinctureType === "color") {
-    return randomColor();
+  if (tinctureType === 'color') {
+    return randomColor(rng);
   }
 
-  if (tinctureType === "stain") {
-    return randomStain();
+  if (tinctureType === 'stain') {
+    return randomStain(rng);
   }
 
-  return randomMetal();
+  return randomMetal(rng);
 }
 
-export function randomWeightedExcluding(tincture: Tincture): Tincture {
-  const tinctureType = randomWeightedType();
+export function randomWeightedExcluding(tincture: Tincture, rng: RNG.RNG): Tincture {
+  const tinctureType = randomWeightedType(rng);
 
   let possible = [];
 
-  if (tinctureType === "fur") {
+  if (tinctureType === 'fur') {
     possible = exclude(tincture, furs());
-  } else if (tinctureType === "color") {
+  } else if (tinctureType === 'color') {
     possible = exclude(tincture, colors());
-  } else if (tinctureType === "stain") {
+  } else if (tinctureType === 'stain') {
     possible = exclude(tincture, stains());
   } else {
     possible = exclude(tincture, metals());
   }
 
-  return RND.item(possible);
+  return rng.item(possible);
 }
 
-export function randomWeightedType(): string {
+export function randomWeightedType(rng: RNG.RNG): string {
   const weights = [
-    { item: "fur", commonality: 5 },
-    { item: "color", commonality: 25 },
-    { item: "metal", commonality: 20 },
-    { item: "stain", commonality: 6 },
+    { value: 'fur', commonality: 5 },
+    { value: 'color', commonality: 25 },
+    { value: 'metal', commonality: 20 },
+    { value: 'stain', commonality: 6 },
   ];
 
-  const tinctureType = RND.weighted(weights);
+  const tinctureType = rng.weighted(weights);
 
-  return tinctureType.item;
+  return tinctureType;
 }
 
-export function randomMetal(): Tincture {
-  return RND.item(metals());
+export function randomMetal(rng: RNG.RNG): Tincture {
+  return rng.item(metals());
 }
 
-export function randomColor(): Tincture {
-  return RND.item(colors());
+export function randomColor(rng: RNG.RNG): Tincture {
+  return rng.item(colors());
 }
 
-export function randomFur(): Tincture {
-  return RND.item(furs());
+export function randomFur(rng: RNG.RNG): Tincture {
+  return rng.item(furs());
 }
 
-export function randomStain(): Tincture {
-  return RND.item(stains());
+export function randomStain(rng: RNG.RNG): Tincture {
+  return rng.item(stains());
 }
 
 export function withoutFurs(tinctures: Tincture[]): Tincture[] {

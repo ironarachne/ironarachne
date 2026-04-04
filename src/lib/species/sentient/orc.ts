@@ -1,77 +1,59 @@
-import * as AgeCategories from "$lib/age/age_categories.js";
-import * as Sizes from "$lib/size/sizes.js";
-import type Species from "../species.js";
+import * as AgeCategories from '$lib/age/age_categories.js';
+import { traditional } from '$lib/gender/index.js';
+import * as Sizes from '$lib/size/sizes.js';
+import type Species from '../species.js';
 
-export default (<Species>{
-  name: "orc",
-  pluralName: "orcs",
-  adjective: "orc",
-  breedType: "human",
+export default <Species>{
+  name: 'orc',
+  pluralName: 'orcs',
+  adjective: 'orc',
+  breedType: 'human',
   environments: [
-    "arctic",
-    "coastal",
-    "desert",
-    "forest",
-    "grassland",
-    "hill",
-    "mountain",
-    "urban",
-    "underdark",
+    'arctic',
+    'coastal',
+    'desert',
+    'forest',
+    'grassland',
+    'hill',
+    'mountain',
+    'urban',
+    'underdark',
   ],
-  creatureTypes: ["humanoid", "goblinoid"],
+  creatureTypes: ['humanoid', 'goblinoid'],
   physicalTraitGeneratorConfigs: [
     {
-      name: "hair",
-      category: "hair",
-      options: ["black", "brown", "dark", "red", "russet"],
-      tags: ["hair"],
+      name: 'hair',
+      category: 'hair',
+      options: ['black', 'brown', 'dark', 'red', 'russet'],
+      tags: ['hair'],
     },
     {
-      name: "skin",
-      category: "skin",
+      name: 'skin',
+      category: 'skin',
       options: [
-        "black",
-        "dark green",
-        "dark grey",
-        "grey",
-        "light green",
-        "green",
-        "grey",
-        "olive",
+        'black',
+        'dark green',
+        'dark grey',
+        'grey',
+        'light green',
+        'green',
+        'grey',
+        'olive',
       ],
-      tags: ["skin"],
+      tags: ['skin'],
     },
     {
-      name: "eyes",
-      category: "eyes",
-      options: ["amber", "red", "brown", "dark", "yellow", "orange", "grey"],
-      tags: ["eyes"],
+      name: 'eyes',
+      category: 'eyes',
+      options: ['amber', 'red', 'brown', 'dark', 'yellow', 'orange', 'grey'],
+      tags: ['eyes'],
     },
   ],
   ageCategories: AgeCategories.getHumanVariant(0.8),
   baseThreatLevel: 1,
   abilities: [],
   commonality: 10,
-  genders: [
-    {
-      name: "female",
-      pronouns: {
-        subjective: "she",
-        objective: "her",
-        possessive: "her",
-        reflexive: "herself",
-      },
-    },
-    {
-      name: "male",
-      pronouns: {
-        subjective: "he",
-        objective: "him",
-        possessive: "his",
-        reflexive: "himself",
-      },
-    },
-  ],
+  genders: traditional(),
   sizeGeneratorConfigMatrix: Sizes.getHumanVariant(1.1, 1.15),
-  tags: ["corruptible", "orc", "greenskin", "martial", "sentient"],
-});
+  tags: ['corruptible', 'orc', 'greenskin', 'martial', 'sentient', 'humanoid'],
+};

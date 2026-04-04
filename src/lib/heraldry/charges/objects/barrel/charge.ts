@@ -1,12 +1,12 @@
-import type { Charge } from "../../charge-types.js";
-import barrelSVG from "./barrel.svg?raw";
-import * as Tinctures from "../../../tinctures.js";
+import type { Charge } from '../../charge-types.js';
+import barrelSVG from './barrel.svg?raw';
+import * as Tinctures from '../../../tinctures.js';
 
 export const barrel: Charge = {
-  name: "barrel",
-  pluralName: "barrels",
+  name: 'barrel',
+  pluralName: 'barrels',
   SVG: barrelSVG,
-  chargeType: "regular",
-  tincture: Tinctures.byName("sable"),
-  tags: ["object", "barrel", "storage"],
+  chargeType: 'regular',
+  tincture: Tinctures.byName('sable'),
+  tags: ['barrel', 'objects'],
 };

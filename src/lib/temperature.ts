@@ -10,46 +10,40 @@ export function fahrenheitToCelsius(fahrenheit: number): number {
   return ((fahrenheit - 32) * 5) / 9;
 }
 
-export function getDescription(
-  temperature: number,
-  temperatureType: string,
-): string {
+export function getDescription(temperature: number, temperatureType: string): string {
   let result = temperature;
-  if (temperatureType === "celsius") {
+  if (temperatureType === 'celsius') {
     result = celsiusToFahrenheit(temperature);
   }
 
   if (result < 0) {
-    return "freezing";
+    return 'freezing';
   }
 
   if (result < 40) {
-    return "cold";
+    return 'cold';
   }
 
   if (result < 60) {
-    return "cool";
+    return 'cool';
   }
 
   if (result < 80) {
-    return "warm";
+    return 'warm';
   }
 
   if (result < 100) {
-    return "hot";
+    return 'hot';
   }
 
-  return "scorching";
+  return 'scorching';
 }
 
-export function getComparativeString(
-  temperature: number,
-  temperatureType: string,
-): string {
+export function getComparativeString(temperature: number, temperatureType: string): string {
   let celsius = temperature;
   let fahrenheit = temperature;
 
-  if (temperatureType === "celsius") {
+  if (temperatureType === 'celsius') {
     fahrenheit = celsiusToFahrenheit(temperature);
   } else {
     celsius = fahrenheitToCelsius(temperature);

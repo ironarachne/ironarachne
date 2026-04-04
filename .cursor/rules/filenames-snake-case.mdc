@@ -1,0 +1,29 @@
+---
+description: snake_case filenames; unit tests use .test.ts
+alwaysApply: true
+---
+
+# Filenames: snake_case and tests
+
+## snake_case
+
+- Use **snake_case** for new **source, test, and script** filenames: lowercase words separated by **`_`**.
+- **Examples:** `character_generation.ts`, `render_dungeon.ts`, `domain_generation.test.ts`
+- **Avoid:** `camelCase`, `PascalCase`, or kebab-case for these files.
+
+**Exceptions (do not rename to snake_case):**
+
+- **Tool- or framework-required names** at the repo root (e.g. `package.json`, `vite.config.js`, `.editorconfig`).
+- **SvelteKit route files:** `+page.svelte`, `+layout.svelte`, `+page.ts`, `+page.server.ts`, `+server.ts`, etc.
+- Common **barrel** name `index.ts` where the project already uses that pattern.
+
+## Unit tests
+
+- **Vitest unit tests** must use the **`.test.ts`** suffix only (e.g. `foo.test.ts` beside `foo.ts`, or under `__tests__/` as `something.test.ts`).
+- **Do not** use `.spec.ts` or other suffixes for unit tests in this repo.
+
+```text
+✅ dungeon/layout/corridors.test.ts
+❌ dungeon/layout/corridors.spec.ts
+❌ dungeon/layout/corridorsTests.ts
+```

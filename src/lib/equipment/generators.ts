@@ -1,12 +1,9 @@
-import * as RND from "@ironarachne/rng";
-import ItemGenerator from "./itemgenerator.js";
-import ItemGeneratorConfig from "./itemgeneratorconfig.js";
-import * as Patterns from "./patterns/patterns.js";
+import * as RNG from '@ironarachne/rng';
+import ItemGenerator from './itemgenerator.js';
+import ItemGeneratorConfig from './itemgeneratorconfig.js';
+import * as Patterns from './patterns/patterns.js';
 
-export function getItemGenerator(
-  itemName: string,
-  quality: number,
-): ItemGenerator {
+export function getItemGenerator(itemName: string, quality: number): ItemGenerator {
   let itemGenConfig = new ItemGeneratorConfig();
   itemGenConfig.pattern = Patterns.byName(itemName);
 
@@ -41,11 +38,8 @@ export function getItemGenerator(
   return itemGen;
 }
 
-export function getItemGeneratorByTag(
-  tag: string,
-  quality: number,
-): ItemGenerator {
+export function getItemGeneratorByTag(tag: string, quality: number): ItemGenerator {
   let patternOptions = Patterns.forCategory(tag);
 
-  return getItemGenerator(RND.item(patternOptions).name, quality);
+  return getItemGenerator(RNG.item(patternOptions).name, quality);
 }

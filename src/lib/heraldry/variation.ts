@@ -1,4 +1,4 @@
-import { type Tincture } from "./tinctures";
+import type { Tincture } from './tinctures';
 
 export type Variation = {
   name: string;
@@ -13,10 +13,10 @@ export type Variation = {
 export function renderBlazon(variation: Variation): string {
   let blazon = variation.blazon;
   if (variation.tinctures[0]) {
-    blazon = blazon.replace("tincture1", variation.tinctures[0].name);
+    blazon = blazon.replace('tincture1', variation.tinctures[0].name);
   }
   if (variation.tinctures.length > 1 && variation.tinctures[1]) {
-    blazon = blazon.replace("tincture2", variation.tinctures[1].name);
+    blazon = blazon.replace('tincture2', variation.tinctures[1].name);
   }
   return blazon;
 }
@@ -24,10 +24,10 @@ export function renderBlazon(variation: Variation): string {
 export function renderSVGPattern(variation: Variation): string {
   let svg = variation.pattern;
   if (variation.tinctures[0]) {
-    svg = svg.replaceAll("tincture1", `url(#${variation.tinctures[0].name})`);
+    svg = svg.replaceAll('tincture1', `url(#${variation.tinctures[0].name})`);
   }
   if (variation.tinctureCount > 1 && variation.tinctures[1]) {
-    svg = svg.replaceAll("tincture2", `url(#${variation.tinctures[1].name})`);
+    svg = svg.replaceAll('tincture2', `url(#${variation.tinctures[1].name})`);
   }
   return svg;
 }

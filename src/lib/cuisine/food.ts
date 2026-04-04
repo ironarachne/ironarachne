@@ -1,27 +1,21 @@
-import * as RND from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-
-import random from "random";
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
 export function generateDish() {
   let dish = `${randomCookingMethod()} `;
 
   dish += randomMainComponent();
 
-  const vegetableChance = random.int(1, 100);
+  const vegetableChance = RNG.int(1, 100);
 
   if (vegetableChance > 50) {
-    const combiningWord = RND.item(["and", "on", "with"]);
+    const combiningWord = RNG.item(['and', 'on', 'with']);
     dish += ` ${combiningWord} ${randomVegetable()}`;
   }
 
   const seasoning = randomSeasoning();
 
-  const seasoningPhrase = RND.item([
-    "seasoned with",
-    "flavored with",
-    "spiced with",
-  ]);
+  const seasoningPhrase = RNG.item(['seasoned with', 'flavored with', 'spiced with']);
 
   dish += `, ${seasoningPhrase} ${seasoning}`;
 
@@ -29,94 +23,78 @@ export function generateDish() {
 }
 
 function randomCookingMethod() {
-  const items = [
-    "roasted",
-    "fried",
-    "baked",
-    "broiled",
-    "seared",
-    "charbroiled",
-  ];
+  const items = ['roasted', 'fried', 'baked', 'broiled', 'seared', 'charbroiled'];
 
-  return RND.item(items);
+  return RNG.item(items);
 }
 
 function randomFocus() {
   const items = [
     {
-      name: "vegetable",
+      name: 'vegetable',
       options: [
-        "summer squash",
-        "butternut squash",
-        "eggplant",
-        "pumpkin",
-        "potatoes",
-        "sweet potato",
-        "turnips",
-        "beets",
-        "fennel",
-        "carrots",
-        "celeriac",
+        'summer squash',
+        'butternut squash',
+        'eggplant',
+        'pumpkin',
+        'potatoes',
+        'sweet potato',
+        'turnips',
+        'beets',
+        'fennel',
+        'carrots',
+        'celeriac',
       ],
     },
     {
-      name: "fish",
+      name: 'fish',
       options: [
-        "trout",
-        "bass",
-        "salmon",
-        "tuna",
-        "rainbow trout",
-        "cod",
-        "red snapper",
-        "halibut",
-        "catfish",
-        "tilapia",
+        'trout',
+        'bass',
+        'salmon',
+        'tuna',
+        'rainbow trout',
+        'cod',
+        'red snapper',
+        'halibut',
+        'catfish',
+        'tilapia',
       ],
     },
     {
-      name: "poultry",
-      options: [
-        "chicken",
-        "quail",
-        "turkey",
-        "duck",
-        "pheasant",
-        "goose",
-        "squab",
-        "guineafowl",
-      ],
+      name: 'poultry',
+      options: ['chicken', 'quail', 'turkey', 'duck', 'pheasant', 'goose', 'squab', 'guineafowl'],
     },
     {
-      name: "livestock",
-      options: ["beef", "pork", "lamb", "goat"],
+      name: 'livestock',
+      options: ['beef', 'pork', 'lamb', 'goat'],
     },
     {
-      name: "game",
+      name: 'game',
       options: [
-        "bison",
-        "caribou",
-        "elk",
-        "pronghorn",
-        "rabbit",
-        "squirrel",
-        "venison",
-        "wild boar",
+        'bison',
+        'caribou',
+        'elk',
+        'pronghorn',
+        'rabbit',
+        'squirrel',
+        'venison',
+        'wild boar',
       ],
     },
   ];
 
-  const focus = RND.item(items);
+  const focus = RNG.item(items);
 
-  return RND.item(focus.options);
+  return RNG.item(focus.options);
 }
 
 function randomMainComponent() {
   let mainComponent = randomFocus();
 
-  const modifierChance = random.int(1, 100);
+  const modifierChance = RNG.int(1, 100);
   if (modifierChance > 80) {
-    mainComponent += ` ${RND.item(["sausage", "stew"])}`;
+    mainComponent += ` ${RNG.item(['sausage', 'stew'])}`;
   }
 
   return mainComponent;
@@ -130,7 +108,7 @@ function randomSeasoning() {
   options = options.concat(herbs());
 
   for (let i = 0; i < seasoningCount; i++) {
-    const component = RND.item(options);
+    const component = RNG.item(options);
     if (!components.includes(component)) {
       components.push(component);
     } else {
@@ -144,77 +122,77 @@ function randomSeasoning() {
 function randomSeasoningCount() {
   const weights = [
     {
-      item: 1,
+      value: 1,
       commonality: 50,
     },
     {
-      item: 2,
+      value: 2,
       commonality: 20,
     },
     {
-      item: 3,
+      value: 3,
       commonality: 5,
     },
   ];
 
-  const result = RND.weighted(weights);
+  const result = RNG.weighted(weights);
 
-  return result.item;
+  return result;
 }
 
 function randomVegetable() {
   const items = [
-    "broccoli",
-    "spinach",
-    "lettuce",
-    "cabbage",
-    "carrots",
-    "black beans",
-    "green beans",
-    "peas",
-    "celery",
-    "white onions",
-    "yellow onions",
-    "kidney beans",
-    "kale",
-    "mushrooms",
+    'broccoli',
+    'spinach',
+    'lettuce',
+    'cabbage',
+    'carrots',
+    'black beans',
+    'green beans',
+    'peas',
+    'celery',
+    'white onions',
+    'yellow onions',
+    'kidney beans',
+    'kale',
+    'mushrooms',
   ];
 
-  return RND.item(items);
+  return RNG.item(items);
 }
 
 function spices() {
   return [
-    "ginger",
-    "saffron",
-    "salt",
-    "pepper",
-    "cinnamon",
-    "cumin",
-    "cardamom",
-    "anise",
-    "ground mustard",
-    "cayenne",
-    "chili powder",
-    "fenugreek",
-    "fennel",
-    "lemongrass",
-    "turmeric",
-    "allspice",
+    'ginger',
+    'saffron',
+    'salt',
+    'pepper',
+    'cinnamon',
+    'cumin',
+    'cardamom',
+    'anise',
+    'ground mustard',
+    'cayenne',
+    'chili powder',
+    'fenugreek',
+    'fennel',
+    'lemongrass',
+    'turmeric',
+    'allspice',
   ];
 }
 
 function herbs() {
   return [
-    "basil",
-    "parsley",
-    "cilantro",
-    "chives",
-    "dill",
-    "oregano",
-    "rosemary",
-    "sage",
-    "thyme",
-    "tarragon",
+    'basil',
+    'parsley',
+    'cilantro',
+    'chives',
+    'dill',
+    'oregano',
+    'rosemary',
+    'sage',
+    'thyme',
+    'tarragon',
   ];
 }

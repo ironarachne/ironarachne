@@ -1,13 +1,12 @@
-import { getStarClassifications } from "$lib/astronomical_bodies/star/star_classifications";
+import { getStarClassifications } from '$lib/astronomical_bodies/star/star_classifications';
 import {
   type AstronomicalBody,
   getAlbedoFromTemperature,
-} from "$lib/astronomical_bodies/astronomical_bodies";
-import { getGravityFromMassAndRadius } from "$lib/astronomical_bodies/astronomical_bodies";
-import * as MUN from "@ironarachne/made-up-names";
-import * as RNG from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import random from "random";
+} from '$lib/astronomical_bodies/astronomical_bodies';
+import { getGravityFromMassAndRadius } from '$lib/astronomical_bodies/astronomical_bodies';
+import * as MUN from '@ironarachne/made-up-names';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 
 export type StarClassification = {
   name: string;
@@ -47,41 +46,41 @@ export type SpectralClass = {
 
 export type StarGenerationConfig = {
   star_classifications: StarClassification[];
+  rng: RNG.RNG;
 };
 
 export function getDefaultStarGeneratorConfig(): StarGenerationConfig {
   return {
     star_classifications: getStarClassifications(),
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }
 
 export function generateStar(config: StarGenerationConfig): AstronomicalBody {
-  const star_classification = RNG.weighted(config.star_classifications);
-  const mass: number = random.float(
-    star_classification.min_mass,
-    star_classification.max_mass,
+  const star_classification = config.rng.weighted(
+    config.star_classifications.map((c) => {
+      return { commonality: c.commonality, value: c };
+    }),
   );
+  const mass: number = config.rng.float(star_classification.min_mass, star_classification.max_mass);
   const radius: number =
-    random.float(
-      star_classification.min_radius,
-      star_classification.max_radius,
-    ) * 695700; // in km
+    config.rng.float(star_classification.min_radius, star_classification.max_radius) * 695700; // in km
   const gravity = getGravityFromMassAndRadius(mass, radius);
-  const temperature = random.float(
+  const temperature = config.rng.float(
     star_classification.min_temperature,
     star_classification.max_temperature,
   );
 
   return {
-    name: MUN.star(),
+    name: MUN.getStarNameGenerator(config.rng).generate(1)[0],
     description: `This is ${Words.article(star_classification.description)} ${star_classification.description} star.`,
     albedo: getAlbedoFromTemperature(temperature),
-    axis_of_rotation: random.float(0, 360),
+    axis_of_rotation: config.rng.float(0, 360),
     classification: star_classification.name,
     gravity: gravity,
     has_atmosphere: true,
     has_ring_system: false,
-    luminosity: random.float(
+    luminosity: config.rng.float(
       star_classification.min_luminosity,
       star_classification.max_luminosity,
     ),
@@ -89,7 +88,7 @@ export function generateStar(config: StarGenerationConfig): AstronomicalBody {
     orbital_distance: 0, // the star is not orbiting anything that we measure
     orbital_period: 0, // as above
     radius: radius,
-    rotation_period: random.int(15, 60), // simulating true rotational period for stars is complicated, so we're cheating here
+    rotation_period: RNG.int(15, 60), // simulating true rotational period for stars is complicated, so we're cheating here
     surface_pressure: gravity ** 2,
     surface_temperature: temperature,
   };

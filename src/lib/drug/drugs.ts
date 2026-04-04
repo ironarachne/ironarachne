@@ -1,18 +1,18 @@
-import * as DrugTypes from "./drug_types";
-import * as EffectTypes from "./effect_types";
-import * as RND from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import random from "random";
-import type Drug from "./drug";
-import type DrugGeneratorConfig from "./drug_generator_config";
+import * as DrugTypes from './drug_types';
+import * as EffectTypes from './effect_types';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+
+import type Drug from './drug';
+import type DrugGeneratorConfig from './drug_generator_config';
 
 export function generate(config: DrugGeneratorConfig): Drug {
-  const drugType = RND.item(config.drugTypes);
-  const effectType = RND.item(config.effectTypes);
+  const drugType = RNG.item(config.drugTypes);
+  const effectType = RNG.item(config.effectTypes);
 
   const name = randomName();
-  const method = RND.item(drugType.methods);
-  const effectDescription = RND.item(effectType.effects);
+  const method = RNG.item(drugType.methods);
+  const effectDescription = RNG.item(effectType.effects);
   const strength = randomStrength();
   const color = randomColor();
   const duration = randomDuration();
@@ -21,7 +21,7 @@ export function generate(config: DrugGeneratorConfig): Drug {
 
   const drug = {
     name,
-    description: "",
+    description: '',
     drugType,
     method,
     effectType,
@@ -60,46 +60,46 @@ function describe(drug: Drug): string {
 }
 
 function randomColor(): string {
-  const color = RND.item([
-    "amber",
-    "azure",
-    "blue",
-    "brown",
-    "coppery",
-    "crimson",
-    "emerald",
-    "golden",
-    "green",
-    "magenta",
-    "orange",
-    "pink",
-    "purple",
-    "red",
-    "ruby",
-    "sapphire",
-    "turqoise",
-    "violet",
-    "yellow",
+  const color = RNG.item([
+    'amber',
+    'azure',
+    'blue',
+    'brown',
+    'coppery',
+    'crimson',
+    'emerald',
+    'golden',
+    'green',
+    'magenta',
+    'orange',
+    'pink',
+    'purple',
+    'red',
+    'ruby',
+    'sapphire',
+    'turqoise',
+    'violet',
+    'yellow',
   ]);
 
-  const modifier = RND.item([
-    "bright",
-    "dark",
-    "fluorescent",
-    "glittering",
-    "glowing",
-    "light",
-    "pearlescent",
-    "shining",
-    "sparkling",
+  const modifier = RNG.item([
+    'bright',
+    'dark',
+    'fluorescent',
+    'glittering',
+    'glowing',
+    'light',
+    'pearlescent',
+    'shining',
+    'sparkling',
   ]);
 
   return `${modifier} ${color}`;
 }
 
 function randomCommonality(): string {
-  return RND.item([
-    "You can find it just about everywhere.",
+  return RNG.item([
+    'You can find it just about everywhere.',
     "It's hard to find.",
     "It's easy to find.",
     "It's easy to find, if you know the right people.",
@@ -109,109 +109,109 @@ function randomCommonality(): string {
 }
 
 function randomDuration(): string {
-  return RND.item([
-    "One dose lasts for a few minutes.",
-    "One dose lasts for an hour or two.",
-    "One dose lasts for several hours.",
-    "One dose lasts for an entire day.",
-    "One dose lasts for half an hour or so.",
+  return RNG.item([
+    'One dose lasts for a few minutes.',
+    'One dose lasts for an hour or two.',
+    'One dose lasts for several hours.',
+    'One dose lasts for an entire day.',
+    'One dose lasts for half an hour or so.',
   ]);
 }
 
 function randomName(): string {
-  const nameType = RND.item([
+  const nameType = RNG.item([
     {
-      name: "single word",
+      name: 'single word',
       generate: () =>
-        RND.item([
-          "Angel",
-          "Arc",
-          "Bright",
-          "Burn",
-          "Burst",
-          "Dreg",
-          "Dust",
-          "Frost",
-          "Ice",
-          "Jazz",
-          "Shade",
-          "Shadow",
-          "Sky",
-          "Slice",
-          "Spice",
-          "Stardust",
-          "Synth",
-          "Toxin",
-          "Venom",
+        RNG.item([
+          'Angel',
+          'Arc',
+          'Bright',
+          'Burn',
+          'Burst',
+          'Dreg',
+          'Dust',
+          'Frost',
+          'Ice',
+          'Jazz',
+          'Shade',
+          'Shadow',
+          'Sky',
+          'Slice',
+          'Spice',
+          'Stardust',
+          'Synth',
+          'Toxin',
+          'Venom',
         ]),
     },
     {
-      name: "numbered word",
+      name: 'numbered word',
       generate: () => {
-        const word = RND.item([
-          "Angel",
-          "Arc",
-          "Bright",
-          "Burn",
-          "Burst",
-          "Dreg",
-          "Dust",
-          "Frost",
-          "Ice",
-          "Jazz",
-          "Shade",
-          "Shadow",
-          "Sky",
-          "Slice",
-          "Spice",
-          "Stardust",
-          "Synth",
-          "Toxin",
-          "Venom",
+        const word = RNG.item([
+          'Angel',
+          'Arc',
+          'Bright',
+          'Burn',
+          'Burst',
+          'Dreg',
+          'Dust',
+          'Frost',
+          'Ice',
+          'Jazz',
+          'Shade',
+          'Shadow',
+          'Sky',
+          'Slice',
+          'Spice',
+          'Stardust',
+          'Synth',
+          'Toxin',
+          'Venom',
         ]);
 
-        const number = random.int(2, 13);
+        const number = RNG.int(2, 13);
 
         return `${word}-${number}`;
       },
     },
     {
-      name: "phrase",
+      name: 'phrase',
       generate: () => {
-        const prefix = RND.item([
-          "Angel",
-          "Black",
-          "Blue",
-          "Bright",
-          "Demon",
-          "Devil",
-          "Easy",
-          "Fire",
-          "Gold",
-          "Green",
-          "Ice",
-          "Night",
-          "Slash",
-          "Star",
-          "Street",
-          "White",
+        const prefix = RNG.item([
+          'Angel',
+          'Black',
+          'Blue',
+          'Bright',
+          'Demon',
+          'Devil',
+          'Easy',
+          'Fire',
+          'Gold',
+          'Green',
+          'Ice',
+          'Night',
+          'Slash',
+          'Star',
+          'Street',
+          'White',
         ]);
 
-        const suffix = RND.item([
-          "Dream",
-          "Dust",
-          "Fantasy",
-          "Flower",
-          "Glow",
-          "Jack",
-          "Jolt",
-          "Lotus",
-          "Sand",
-          "Shade",
-          "Spice",
-          "Stutter",
-          "Trip",
-          "Wonder",
+        const suffix = RNG.item([
+          'Dream',
+          'Dust',
+          'Fantasy',
+          'Flower',
+          'Glow',
+          'Jack',
+          'Jolt',
+          'Lotus',
+          'Sand',
+          'Shade',
+          'Spice',
+          'Stutter',
+          'Trip',
+          'Wonder',
         ]);
 
         return `${prefix} ${suffix}`;
@@ -226,14 +226,14 @@ function randomSideEffect(): string {
   const result: string[] = [];
   let effects = sideEffects();
 
-  effects = RND.shuffle(effects);
+  effects = RNG.shuffle(effects);
 
-  const numberOfEffects = random.int(1, 3);
+  const numberOfEffects = RNG.int(1, 3);
 
   for (let i = 0; i < numberOfEffects; i++) {
     const effect = effects.pop();
     if (effect === undefined) {
-      throw new Error("No more effects available.");
+      throw new Error('No more effects available.');
     }
     result.push(effect);
   }
@@ -242,43 +242,36 @@ function randomSideEffect(): string {
 }
 
 function randomStrength(): string {
-  return RND.item([
-    "powerful",
-    "strong",
-    "really potent",
-    "potent",
-    "weak",
-    "very weak",
-  ]);
+  return RNG.item(['powerful', 'strong', 'really potent', 'potent', 'weak', 'very weak']);
 }
 
 function sideEffects(): string[] {
   return [
-    "a burning sensation over your entire body",
-    "horrific nightmares",
-    "dry mouth",
-    "trouble sleeping",
-    "increased aggression",
-    "brain damage",
-    "liver damage",
-    "difficulty breathing",
-    "bloodshot eyes",
-    "horrible breath",
-    "pallid skin",
-    "extreme fatigue",
-    "nervousness",
-    "paranoia",
-    "vomiting",
-    "uncontrollable flatulence",
-    "diarrhea",
-    "uncontrollable shaking",
-    "psychosis",
-    "schizophrenia",
-    "sensitivity to pain",
-    "sensitivity to light",
-    "weakness",
-    "temporary paralysis",
-    "reduced ability to think",
-    "reduced ability to feel pleasure when not high",
+    'a burning sensation over your entire body',
+    'horrific nightmares',
+    'dry mouth',
+    'trouble sleeping',
+    'increased aggression',
+    'brain damage',
+    'liver damage',
+    'difficulty breathing',
+    'bloodshot eyes',
+    'horrible breath',
+    'pallid skin',
+    'extreme fatigue',
+    'nervousness',
+    'paranoia',
+    'vomiting',
+    'uncontrollable flatulence',
+    'diarrhea',
+    'uncontrollable shaking',
+    'psychosis',
+    'schizophrenia',
+    'sensitivity to pain',
+    'sensitivity to light',
+    'weakness',
+    'temporary paralysis',
+    'reduced ability to think',
+    'reduced ability to feel pleasure when not high',
   ];
 }

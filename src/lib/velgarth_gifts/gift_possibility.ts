@@ -1,4 +1,4 @@
-import type GiftStrengthLevel from "./gift_strength_level";
+import type GiftStrengthLevel from './gift_strength_level';
 
 export default interface GiftPossibility {
   name: string;

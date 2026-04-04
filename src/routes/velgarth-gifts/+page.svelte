@@ -1,38 +1,29 @@
 <script lang="ts">
-  import type GiftGeneratorConfig from "$lib/velgarth_gifts/generator_config";
-  import * as VelgarthGifts from "$lib/velgarth_gifts/gifts";
-  import * as VelgarthGiftPossibilities from "$lib/velgarth_gifts/gift_possibilities";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
-  import type Gift from "$lib/velgarth_gifts/gift";
+  import * as RNG from '@ironarachne/rng';
+  import * as VelgarthGifts from '$lib/velgarth_gifts/gifts';
+  import * as VelgarthGiftPossibilities from '$lib/velgarth_gifts/gift_possibilities';
+  import type Gift from '$lib/velgarth_gifts/gift';
+  import type GiftGeneratorConfig from '$lib/velgarth_gifts/generator_config';
 
-  let seed = $state(RND.randomString(13));
+  let seed = $state(RNG.randomString(13));
   let lockSeed = $state(false);
   let gifts: Gift[] = $state([]);
 
   function generate() {
     if (!lockSeed) {
-      seed = RND.randomString(13);
+      seed = RNG.randomString(13);
     }
-    random.use(seedrandom(seed));
+    RNG.setSeed(seed);
     const config: GiftGeneratorConfig = {
       possibilities: VelgarthGiftPossibilities.all(),
       max_gifts: 3,
-      min_gifts: 1
+      min_gifts: 1,
     };
     gifts = VelgarthGifts.generate(config);
   }
 
   generate();
 </script>
-
-<style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/fantasy.scss';
-</style>
 
 <svelte:head>
   <title>Velgarth Gifts Generator | Iron Arachne</title>
@@ -45,8 +36,8 @@
 
   <div class="input-group">
     <label for="seed">Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed"/>
-    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
+    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
   <button onclick={generate}>Generate</button>
@@ -58,3 +49,8 @@
     </div>
   {/each}
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/fantasy.scss';
+</style>

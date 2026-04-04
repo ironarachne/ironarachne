@@ -1,4 +1,4 @@
-import type WornItem from "../wornitem.js";
+import type WornItem from '../wornitem.js';
 
 export default class Clothing implements WornItem {
   name: string;

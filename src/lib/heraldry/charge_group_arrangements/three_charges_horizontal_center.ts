@@ -1,30 +1,23 @@
-import type { ChargeGroupArrangement } from ".";
-import { create } from "xmlbuilder2";
-import { convertXmlToSVGObject } from "$lib/images/svg";
+import type { ChargeGroupArrangement } from '.';
+import { create } from 'xmlbuilder2';
+import { convertXmlToSVGObject, getSVGDimensions } from '$lib/images/svg';
 
 export const threeChargesHorizontalCenterArrangement: ChargeGroupArrangement = {
-  name: "three charges horizontal center",
+  name: 'three charges horizontal center',
   numberOfCharges: 3,
-  blazonPattern: "three {namePlural}",
+  blazonPattern: 'three {namePlural}',
   renderSVG: function (
     chargeSVGString: string,
     contextWidth: number,
     contextHeight: number,
   ): string {
     const chargeObject = convertXmlToSVGObject(chargeSVGString);
-    const svgObj = (chargeObject as any)["svg"];
-    const chargeWidth = Number(svgObj?.["@width"] ?? 0);
-    const chargeHeight = Number(svgObj?.["@height"] ?? 0);
+    const svgObj = (chargeObject as any)['svg'];
+    const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
-    let scaleAmount = 1;
+    let scaleAmount = Math.min(contextWidth / (chargeWidth * 3), contextHeight / chargeHeight);
 
-    if (chargeWidth > chargeHeight) {
-      scaleAmount = contextWidth / chargeWidth;
-    } else {
-      scaleAmount = contextHeight / chargeHeight;
-    }
-
-    scaleAmount *= 0.3;
+    scaleAmount *= 0.9;
 
     const chargeObject2 = JSON.parse(JSON.stringify(chargeObject));
     const chargeObject3 = JSON.parse(JSON.stringify(chargeObject));
@@ -37,14 +30,14 @@ export const threeChargesHorizontalCenterArrangement: ChargeGroupArrangement = {
 
     const instanceWidth = newWidth + 10;
 
-    svgObj["@x"] = (xMove - instanceWidth) / scaleAmount;
-    svgObj["@y"] = yMove / scaleAmount;
+    svgObj['@x'] = (xMove - instanceWidth) / scaleAmount;
+    svgObj['@y'] = yMove / scaleAmount;
 
-    chargeObject2["svg"]["@x"] = xMove / scaleAmount;
-    chargeObject2["svg"]["@y"] = yMove / scaleAmount;
+    chargeObject2['svg']['@x'] = xMove / scaleAmount;
+    chargeObject2['svg']['@y'] = yMove / scaleAmount;
 
-    chargeObject3["svg"]["@x"] = (xMove + instanceWidth) / scaleAmount;
-    chargeObject3["svg"]["@y"] = yMove / scaleAmount;
+    chargeObject3['svg']['@x'] = (xMove + instanceWidth) / scaleAmount;
+    chargeObject3['svg']['@y'] = yMove / scaleAmount;
 
     const chargeSVG1 = create(chargeObject);
     const chargeSVG2 = create(chargeObject2);
@@ -52,6 +45,6 @@ export const threeChargesHorizontalCenterArrangement: ChargeGroupArrangement = {
 
     const transform = `scale(${scaleAmount})`;
 
-    return `<g transform='${transform}'>${chargeSVG1.end()}${chargeSVG2.end()}${chargeSVG3.end()}</g>`;
+    return `<g transform='${transform}'>${chargeSVG1.end({ headless: true })}${chargeSVG2.end({ headless: true })}${chargeSVG3.end({ headless: true })}</g>`;
   },
 };

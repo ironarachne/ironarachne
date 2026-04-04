@@ -1,12 +1,12 @@
-import type { Charge } from "../../charge-types.js";
-import lionRampantSVG from "./lion-rampant.svg?raw";
-import * as Tinctures from "../../../tinctures.js";
+import type { Charge } from '../../charge-types.js';
+import lionRampantSVG from './lion-rampant.svg?raw';
+import * as Tinctures from '../../../tinctures.js';
 
 export const lionRampant: Charge = {
-  name: "lion rampant",
-  pluralName: "lions rampant",
+  name: 'lion rampant',
+  pluralName: 'lions rampant',
   SVG: lionRampantSVG,
-  chargeType: "regular",
-  tincture: Tinctures.byName("sable"),
-  tags: ["animal", "lion", "strength"],
+  chargeType: 'regular',
+  tincture: Tinctures.byName('sable'),
+  tags: ['lion', 'rampant', 'animals'],
 };

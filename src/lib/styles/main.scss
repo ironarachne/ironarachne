@@ -1,10 +1,10 @@
-@charset "utf-8";
-@use "sass:string";
-@import "$lib/styles/global.scss";
+@use 'sass:string';
+@use '$lib/styles/reset.scss';
+@use '$lib/styles/global.scss';
 
 html {
-  background: $charcoal;
-  color: color-mix(in srgb, $charcoal 5%, white 95%);
+  background: global.$charcoal;
+  color: color-mix(in srgb, global.$charcoal 5%, white 95%);
   font-family: Georgia, serif;
   font-size: string.unquote('clamp(1em, 0.909em + 0.45vmin, 1.25em)');
   max-width: 70ch;
@@ -21,7 +21,7 @@ body :not(:is(h1, h2, h3, h4, h5, h6)) {
 }
 
 a {
-  color: $ironArachneGreen;
+  color: global.$ironArachneGreen;
 }
 
 a:active {
@@ -29,15 +29,15 @@ a:active {
 }
 
 a:hover {
-  color: $gold;
+  color: global.$gold;
 }
 
 a:visited {
-  color: color-mix(in srgb, $ironArachneGreen 10%, $gold 90%);
+  color: color-mix(in srgb, global.$ironArachneGreen 10%, global.$gold 90%);
 }
 
 button {
-  font-family: "cinzel", system-ui, Helvetica, sans-serif;
+  font-family: 'cinzel', system-ui, Helvetica, sans-serif;
 }
 
 h1,
@@ -46,7 +46,7 @@ h3,
 h4,
 h5,
 h6 {
-  font-family: "cinzel", system-ui, Helvetica, sans-serif;
+  font-family: 'cinzel', system-ui, Helvetica, sans-serif;
   margin: 1.5rem 0;
 }
 
@@ -84,12 +84,12 @@ h2 {
 
 h3 {
   font-size: 2rem;
-  line-height: 2.0rem;
+  line-height: 2rem;
 }
 
 h3::after {
-  content: "";
-  background: $granite;
+  content: '';
+  background: global.$granite;
   height: 1px;
   width: 100%;
   display: inline-block;
@@ -102,7 +102,7 @@ h4 {
 
 h5 {
   font-size: 1.25rem;
-  border-bottom: 1px solid $granite;
+  border-bottom: 1px solid global.$granite;
 }
 
 p {
@@ -176,7 +176,7 @@ pre {
 button {
   background: rgb(92, 86, 73);
   background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-  border: 3px solid $tan;
+  border: 3px solid global.$tan;
   border-radius: 3px;
   color: #fff;
   font-size: 1rem;
@@ -188,7 +188,7 @@ button {
 button:active {
   background: rgb(92, 86, 73);
   background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-  color: $ironArachneGreen;
+  color: global.$ironArachneGreen;
   transform: translateY(2px);
 }
 

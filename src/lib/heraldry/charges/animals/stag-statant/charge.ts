@@ -1,12 +1,12 @@
-import type { Charge } from "../../charge-types.js";
-import stagStatantSVG from "./stag-statant.svg?raw";
-import * as Tinctures from "../../../tinctures.js";
+import type { Charge } from '../../charge-types.js';
+import stagStatantSVG from './stag-statant.svg?raw';
+import * as Tinctures from '../../../tinctures.js';
 
 export const stagStatant: Charge = {
-  name: "stag statant",
-  pluralName: "stags statant",
+  name: 'stag statant',
+  pluralName: 'stags statant',
   SVG: stagStatantSVG,
-  chargeType: "regular",
-  tincture: Tinctures.byName("sable"),
-  tags: ["animal", "stag", "watchfulness"],
+  chargeType: 'regular',
+  tincture: Tinctures.byName('sable'),
+  tags: ['stag', 'statant', 'animals'],
 };

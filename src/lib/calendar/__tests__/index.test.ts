@@ -1,5 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { getGregorianCalendar, getDayOfWeek, getMonthForDay, getEventsForDay, convertGregorianDateToCalendarDate } from '../index';
+import {
+  getGregorianCalendar,
+  getDayOfWeek,
+  getMonthForDay,
+  getEventsForDay,
+  convertGregorianDateToCalendarDate,
+} from '../index';
 import type { Calendar } from '../index';
 
 describe('Calendar utilities', () => {

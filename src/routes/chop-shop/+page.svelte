@@ -1,27 +1,18 @@
 <script lang="ts">
-  import * as ChopShop from "$lib/chopshop";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+  import * as ChopShop from '$lib/chopshop';
+  import * as RNG from '@ironarachne/rng';
 
-  let description = $state("");
-  let seed = RND.randomString(13);
+  let description = $state('');
+  let seed = RNG.randomString(13);
 
   function generateChopShop() {
-    seed = RND.randomString(13);
-    random.use(seedrandom(seed));
+    seed = RNG.randomString(13);
+    RNG.setSeed(seed);
     description = ChopShop.generate();
   }
 
   generateChopShop();
 </script>
-
-<style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/cyberpunk.scss';
-</style>
 
 <svelte:head>
   <title>Chop Shop Generator | Iron Arachne</title>
@@ -31,5 +22,10 @@
   <h1>Chop Shop Generator</h1>
   <p>This is a cyberpunk chop shop generator.</p>
   <button onclick={generateChopShop}>Generate</button>
-  <p>{ description }</p>
+  <p>{description}</p>
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/cyberpunk.scss';
+</style>

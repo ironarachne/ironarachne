@@ -1,13 +1,36 @@
-import * as MT from "$lib/math_translation";
-import random from "random";
-import type Climate from "./climate.js";
-import type ClimateGeneratorConfig from "./generator_config";
-import type ClimateType from "./climate_type.js";
-import type Season from "./season.js";
+import * as MT from '$lib/math_translation';
+import type { Climate, ClimateGeneratorConfig, ClimateType, Season } from './climate_types';
+import * as RNG from '@ironarachne/rng';
 
-export function describe(climate: Climate): string {
-  // TODO: make climate descriptions more interesting, with more variety
-  const description = `The climate here is ${climate.name}, with ${climate.seasons.length} seasons.`;
+export function describe(climate: Climate, seed: string): string {
+  const rng = new RNG.RNG(seed);
+
+  const adjectives = [
+    'notable for its',
+    'characterized by',
+    'known for',
+    'defined by',
+  ];
+
+  const seasonPhrases = [
+    `It experiences ${climate.seasons.length} distinct seasons.`,
+    `There are ${climate.seasons.length} seasons throughout the year.`,
+    `The year is divided into ${climate.seasons.length} seasons.`,
+  ];
+
+  let tempPhrase = 'moderate temperatures';
+  if (climate.temperatureMax > 30) tempPhrase = 'scorching heat';
+  else if (climate.temperatureMax > 20) tempPhrase = 'warm temperatures';
+  else if (climate.temperatureMax < 0) tempPhrase = 'freezing cold';
+  else if (climate.temperatureMax < 10) tempPhrase = 'chilly weather';
+
+  let precipPhrase = 'average precipitation';
+  if (climate.precipitationAmount > 0.8) precipPhrase = 'heavy rainfall';
+  else if (climate.precipitationAmount > 0.5) precipPhrase = 'frequent rain';
+  else if (climate.precipitationAmount < 0.2) precipPhrase = 'very little precipitation';
+  else if (climate.precipitationAmount < 0.4) precipPhrase = 'sparse rain';
+
+  const description = `The climate here is ${climate.name}, ${rng.item(adjectives)} ${tempPhrase} and ${precipPhrase}. ${rng.item(seasonPhrases)}`;
 
   return description;
 }
@@ -33,19 +56,11 @@ export function generate(config: ClimateGeneratorConfig): Climate {
     config.terrainNormalVector,
     config.waterDirection,
   );
-  const precipitationFrequency = MT.clamp(
-    precipitationAmount * random.float(0.25, 1.25),
-    0,
-    1,
-  );
+  const precipitationFrequency = MT.clamp(precipitationAmount * config.rng.float(0.25, 1.25), 0, 1);
 
   const humidity = getHumidity(precipitationAmount, temperatureMax);
 
-  const seasons = getSeasons(
-    config.latitude,
-    temperatureMax,
-    precipitationAmount,
-  );
+  const seasons = getSeasons(config.latitude, temperatureMax, precipitationAmount);
 
   const cloudCover = getCloudCover(
     config.latitude,
@@ -53,9 +68,9 @@ export function generate(config: ClimateGeneratorConfig): Climate {
     wind,
   );
 
-  let result: Climate = {
-    name: "unknown",
-    description: "",
+  const partialClimate: Climate = {
+    name: 'unknown',
+    description: '',
     cloudCover,
     wind,
     temperature: (temperatureMin + temperatureMax) / 2,
@@ -67,103 +82,50 @@ export function generate(config: ClimateGeneratorConfig): Climate {
     humidity,
   };
 
-  result.name = generateClimateName(result, config.latitude);
+  const name = generateClimateName(partialClimate, config.latitude);
 
-  return result;
+  return { ...partialClimate, name };
 }
 
-export function generateClimateName(
-  climate: Climate,
-  latitude: number,
-): string {
-  let name = "";
-
-  // These are divided into five main categories: tropical, dry, temperate, continental, and polar
-  // We determine the category based on the temperature and precipitation of the climate
-
-  // Use a generational approach to determine the climate name, scoring each category based on the climate's temperature and precipitation
-  // The category with the highest score is the one we choose
+export function generateClimateName(climate: Climate, latitude: number): string {
   const climateTypes = getClimateTypes();
-  let scores = new Map<string, number>();
 
-  for (let type of climateTypes) {
-    let score = 0;
+  let minDistance = Infinity;
+  let bestMatch = climateTypes[0];
 
-    if (climate.temperature >= type.temperatureMin) {
-      score += 1;
-    } else if (climate.temperature <= type.temperatureMin) {
-      score -= 1;
-    }
+  for (const type of climateTypes) {
+    const typeMidTemp = (type.temperatureMax + type.temperatureMin) / 2;
+    // Temperature typical range -40 to 45 (approx 85)
+    // We normalize to avoid temperature overwhelming the distance metric completely
+    const tempDistance = Math.abs(climate.temperature - typeMidTemp) / 85;
 
-    if (climate.temperature <= type.temperatureMax) {
-      score += 1;
-    } else if (climate.temperature >= type.temperatureMax) {
-      score -= 1;
-    }
+    const typeMidPrecipitation = (type.precipitationMax + type.precipitationMin) / 2;
+    const precipitationDistance = Math.abs(climate.precipitationAmount - typeMidPrecipitation);
 
-    if (climate.precipitationAmount >= type.precipitationMin) {
-      score += 1;
-    } else if (climate.precipitationAmount <= type.precipitationMax) {
-      score -= 1;
-    }
+    const typeMidHumidity = (type.humidityMax + type.humidityMin) / 2;
+    const humidityDistance = Math.abs(climate.humidity - typeMidHumidity);
 
-    if (climate.precipitationAmount <= type.precipitationMax) {
-      score += 1;
-    } else if (climate.precipitationAmount >= type.precipitationMin) {
-      score -= 1;
-    }
+    const typeMidLatitude = (type.latitudeMax + type.latitudeMin) / 2;
+    const latitudeDistance = Math.abs(Math.abs(latitude) - typeMidLatitude) / 90;
 
-    if (climate.humidity >= type.humidityMin) {
-      score += 1;
-    } else if (climate.humidity < type.humidityMin) {
-      score -= 1;
-    }
+    const distance = tempDistance + precipitationDistance + humidityDistance + latitudeDistance;
 
-    if (climate.humidity <= type.humidityMax) {
-      score += 1;
-    } else if (climate.humidity > type.humidityMax) {
-      score -= 1;
-    }
-
-    if (latitude <= type.latitudeMax) {
-      score += 1;
-    } else if (latitude > type.latitudeMax) {
-      score -= 1;
-    }
-
-    if (latitude >= type.latitudeMin) {
-      score += 1;
-    } else if (latitude < type.latitudeMin) {
-      score -= 1;
-    }
-
-    scores.set(type.name, score);
-  }
-
-  let highestScore = 0;
-  let highestScoreName = "";
-
-  for (let [key, value] of scores) {
-    if (value > highestScore) {
-      highestScore = value;
-      highestScoreName = key;
+    if (distance < minDistance) {
+      minDistance = distance;
+      bestMatch = type;
     }
   }
 
-  name = highestScoreName;
-
-  return name;
+  return bestMatch.name;
 }
 
 export function getClimateTypeByName(name: string): ClimateType {
   const types = getClimateTypes();
-  let result = types.find((type) => type.name === name);
+  const result = types.find((type) => type.name === name);
 
   if (result === undefined) {
-    console.debug(
-      `Climate type ${name} not found, defaulting to ${types[0].name}`,
-    );
-    result = types[0];
+    console.debug(`Climate type ${name} not found, defaulting to ${types[0].name}`);
+    return types[0];
   }
 
   return result;
@@ -172,7 +134,7 @@ export function getClimateTypeByName(name: string): ClimateType {
 export function getClimateTypes(): ClimateType[] {
   return [
     {
-      name: "tropical",
+      name: 'tropical',
       precipitationMax: 1,
       precipitationMin: 0.5,
       temperatureMax: 40,
@@ -183,7 +145,7 @@ export function getClimateTypes(): ClimateType[] {
       latitudeMin: 0,
     },
     {
-      name: "arid",
+      name: 'arid',
       precipitationMax: 0.25,
       precipitationMin: 0,
       temperatureMax: 40,
@@ -194,7 +156,7 @@ export function getClimateTypes(): ClimateType[] {
       latitudeMin: 25,
     },
     {
-      name: "temperate",
+      name: 'temperate',
       precipitationMax: 1.0,
       precipitationMin: 0.25,
       temperatureMax: 30,
@@ -205,7 +167,7 @@ export function getClimateTypes(): ClimateType[] {
       latitudeMin: 40,
     },
     {
-      name: "continental",
+      name: 'continental',
       precipitationMax: 0.5,
       precipitationMin: 0,
       temperatureMax: 18,
@@ -216,7 +178,7 @@ export function getClimateTypes(): ClimateType[] {
       latitudeMin: 50,
     },
     {
-      name: "polar",
+      name: 'polar',
       precipitationMax: 0.5,
       precipitationMin: 0,
       temperatureMax: 10,
@@ -238,14 +200,11 @@ export function getDefaultConfig(): ClimateGeneratorConfig {
     current: [0, 0, 0], // current is not present
     temperatureAtEquator: 35,
     terrainNormalVector: [0, 0, 0], // flat terrain
+    rng: new RNG.RNG(Date.now().toString()),
   };
 }
 
-function getCloudCover(
-  latitude: number,
-  temperature: number,
-  wind: number[],
-): number {
+function getCloudCover(latitude: number, temperature: number, wind: number[]): number {
   // Cloud cover is influenced by latitude, temperature, and wind
   // Generally, cloud cover should be close to 0.65, with up to a 0.3 variance
 
@@ -292,37 +251,34 @@ function getPrecipitation(
 
   let precipitation = 0;
 
-  // Precipitation is higher at higher temperatures
-  precipitation += temperature / 40; // 40 degrees Celsius is the maximum temperature
+  // Normalize all factors to a 0-1 range first
+  const tempInfluence = MT.clamp(temperature / 40, 0, 1); // 40 degrees Celsius maximum expected
 
-  // Precipitation is higher if terrain tilt matches wind direction
   const dotProduct = wind[0] * terrainTilt[0] + wind[1] * terrainTilt[1];
-  precipitation += dotProduct > 0 ? dotProduct : -dotProduct * 0.5; // reduce precipitation if wind is not aligned with terrain tilt
+  const terrainInfluence = MT.clamp(dotProduct > 0 ? dotProduct : -dotProduct * 0.5, 0, 1);
 
-  // Precipitation is higher at higher wind speeds
   const windSpeed = Math.sqrt(Math.pow(wind[0], 2) + Math.pow(wind[1], 2));
-  precipitation += windSpeed / 10; // normalize wind speed influence
+  const windInfluence = MT.clamp(windSpeed / 10, 0, 1); // normalize wind speed influence
 
   const waterDistance = MT.clamp(
-    Math.sqrt(Math.pow(waterDirection[0], 2) + Math.pow(waterDirection[1], 2)) /
-      5,
+    Math.sqrt(Math.pow(waterDirection[0], 2) + Math.pow(waterDirection[1], 2)) / 5,
     0,
     1,
   );
+  const waterInfluence = 1 - waterDistance; // Precipitation is higher closer to water
 
-  // Precipitation is higher closer to water
-  precipitation += 1 - waterDistance;
-
-  // TODO: precipitation amount tends to be too high, need to figure out why
+  // Calculate weighted average to prevent precipitation from consistently capping out
+  // Water: 40%, Temperature: 30%, Terrain: 20%, Wind Speed: 10%
+  precipitation =
+    (waterInfluence * 0.4) +
+    (tempInfluence * 0.3) +
+    (terrainInfluence * 0.2) +
+    (windInfluence * 0.1);
 
   return MT.clamp(precipitation, 0, 1);
 }
 
-function getSeasons(
-  latitude: number,
-  temperature: number,
-  precipitation: number,
-): Season[] {
+function getSeasons(latitude: number, temperature: number, precipitation: number): Season[] {
   // Seasons are influenced by latitude, temperature, and precipitation
   // The number of seasons is determined by the temperature and precipitation
   // The length of each season is determined by the temperature and precipitation
@@ -334,14 +290,14 @@ function getSeasons(
   if (latitude < 23.5 && latitude > -23.5) {
     seasons = [
       {
-        name: "dry",
+        name: 'dry',
         startDay: 200,
         endDay: 50,
         temperatureAdjustment: 0.1,
         humidityAdjustment: 0,
       },
       {
-        name: "wet",
+        name: 'wet',
         startDay: 51,
         endDay: 199,
         temperatureAdjustment: 0,
@@ -351,28 +307,28 @@ function getSeasons(
   } else {
     seasons = [
       {
-        name: "spring",
+        name: 'spring',
         startDay: 91,
         endDay: 181,
         temperatureAdjustment: 0,
         humidityAdjustment: 0.1,
       },
       {
-        name: "summer",
+        name: 'summer',
         startDay: 182,
         endDay: 272,
         temperatureAdjustment: 0.1,
         humidityAdjustment: 0.1,
       },
       {
-        name: "autumn",
+        name: 'autumn',
         startDay: 273,
         endDay: 363,
         temperatureAdjustment: 0,
         humidityAdjustment: 0,
       },
       {
-        name: "winter",
+        name: 'winter',
         startDay: 364,
         endDay: 90,
         temperatureAdjustment: -0.1,
@@ -407,10 +363,8 @@ function getTemperatureRange(
   const temperatureRangeVariance = -1 * fraction * power + 1;
   const temperatureRangeStrength = 10; // the maximum variance is 10 degrees Celsius
 
-  const temperatureMin =
-    elevationTemperature - temperatureRangeVariance * temperatureRangeStrength;
-  const temperatureMax =
-    elevationTemperature + temperatureRangeVariance * temperatureRangeStrength;
+  const temperatureMin = elevationTemperature - temperatureRangeVariance * temperatureRangeStrength;
+  const temperatureMax = elevationTemperature + temperatureRangeVariance * temperatureRangeStrength;
 
   return [temperatureMin, temperatureMax];
 }
@@ -435,9 +389,7 @@ function getWind(
 
   // The water vector, unlike the terrain tilt, is a direction vector and is unbounded
   // We need to normalize the water vector to get a distance of 0-1 and a direction of -1 to 1
-  const waterDistance = Math.sqrt(
-    Math.pow(water[0], 2) + Math.pow(water[1], 2),
-  );
+  const waterDistance = Math.sqrt(Math.pow(water[0], 2) + Math.pow(water[1], 2));
   let waterDirection = [0, 0];
   if (waterDistance > 0) {
     waterDirection = [water[0] / waterDistance, water[1] / waterDistance];
@@ -447,30 +399,14 @@ function getWind(
   const waterInfluenceStrength = 1 - MT.clamp(waterDistance / 5, 0, 1);
 
   // Wind moves away from water, so increase wind direction opposite to the water direction
-  wind[0] = MT.clamp(
-    wind[0] + waterDirection[0] * waterInfluenceStrength,
-    -1.0,
-    1.0,
-  );
-  wind[1] = MT.clamp(
-    wind[1] + waterDirection[1] * waterInfluenceStrength,
-    -1.0,
-    1.0,
-  );
+  wind[0] = MT.clamp(wind[0] + waterDirection[0] * waterInfluenceStrength, -1.0, 1.0);
+  wind[1] = MT.clamp(wind[1] + waterDirection[1] * waterInfluenceStrength, -1.0, 1.0);
 
   const terrainInfluenceStrength = 1.0;
 
   // Wind moves away from uphill, so increase wind direction opposite to the terrain tilt
-  wind[0] = MT.clamp(
-    wind[0] - terrainTilt[0] * terrainInfluenceStrength,
-    -1.0,
-    1.0,
-  );
-  wind[1] = MT.clamp(
-    wind[1] - terrainTilt[1] * terrainInfluenceStrength,
-    -1.0,
-    1.0,
-  );
+  wind[0] = MT.clamp(wind[0] - terrainTilt[0] * terrainInfluenceStrength, -1.0, 1.0);
+  wind[1] = MT.clamp(wind[1] - terrainTilt[1] * terrainInfluenceStrength, -1.0, 1.0);
 
   // Water current strengthens the wind in the same direction
   wind[0] = MT.clamp(wind[0] + current[0], -1.0, 1.0);

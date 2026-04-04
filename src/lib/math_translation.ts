@@ -11,8 +11,5 @@ export function linearMap(
   targetMin: number,
   targetMax: number,
 ): number {
-  return (
-    targetMin +
-    ((x - originalMin) * (targetMax - targetMin)) / (originalMax - originalMin)
-  );
+  return targetMin + ((x - originalMin) * (targetMax - targetMin)) / (originalMax - originalMin);
 }

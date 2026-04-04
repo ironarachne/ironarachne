@@ -1,10 +1,3 @@
-<style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/navigation.scss';
-</style>
-
 <svelte:head>
   <title>Locations &amp; Places | Iron Arachne</title>
 </svelte:head>
@@ -20,5 +13,9 @@
     <a href="/region">Region</a>
     <a href="/star-system">Star System</a>
   </nav>
-
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/navigation.scss';
+</style>

@@ -1,4 +1,4 @@
-import { type Tincture } from "../tinctures.js";
+import { type Tincture } from '../tinctures.js';
 
 export type Charge = {
   name: string;

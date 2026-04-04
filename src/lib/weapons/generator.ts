@@ -1,101 +1,104 @@
-import * as MUN from "@ironarachne/made-up-names";
-import * as RND from "@ironarachne/rng";
-import * as Words from "@ironarachne/words";
-import random from "random";
-import WeaponGeneratorConfig from "./config";
-import type WeaponType from "./type";
-import Weapon from "./weapon";
+import * as MUN from '@ironarachne/made-up-names';
+import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
+import WeaponGeneratorConfig from './config';
+import type { WeaponType, WeaponComponent, Weapon } from './weapons';
 
 export default class WeaponGenerator {
   config: WeaponGeneratorConfig;
+  rng: RNG.RNG;
 
-  constructor() {
-    this.config = new WeaponGeneratorConfig();
+  constructor(rng: RNG.RNG = new RNG.RNG(Date.now())) {
+    this.config = new WeaponGeneratorConfig(rng);
+    this.rng = rng;
+  }
+
+  describe(weapon: Weapon, weaponType: WeaponType): string {
+    let description = `${this.rng.item(weaponType.bases)} `;
+
+    description += `${Words.arrayToPhrase(weapon.effects)} and has `;
+    description += `${Words.arrayToPhrase(weapon.cosmetics)}.`;
+
+    return description;
   }
 
   generate(): Weapon {
-    let weapon = new Weapon();
-    let weaponType = RND.item(this.config.weaponTypes);
+    const weaponType = this.rng.item(this.config.weaponTypes);
+    const nameGenerator = MUN.getModelNumberNameGenerator(this.rng);
+    const weapon: Weapon = {
+      name: `${nameGenerator.generate(1)[0]} ${weaponType.name}`,
+      maker: '',
+      damage: weaponType.damageType,
+      cosmetics: this.randomCosmetics(weaponType),
+      effects: this.randomEffects(weaponType),
+      description: '',
+    };
 
-    weapon.damage = weaponType.damageType;
-    weapon.effects = randomEffects(weaponType);
-    weapon.cosmetics = randomCosmetics(weaponType);
-    weapon.name = MUN.modelNumber() + " " + weaponType.name;
-    weapon.description = describe(weapon, weaponType);
+    weapon.description = this.describe(weapon, weaponType);
 
     return weapon;
   }
-}
 
-function describe(weapon: Weapon, weaponType: WeaponType): string {
-  let description = RND.item(weaponType.bases) + " has ";
+  randomCosmetics(weaponType: WeaponType): string[] {
+    const cosmetics: string[] = [];
 
-  description += Words.arrayToPhrase(weapon.effects) + " and ";
-  description += Words.arrayToPhrase(weapon.cosmetics) + ". It ";
-  description += weapon.effects + ".";
+    const numberOfCosmetics = this.rng.int(1, 3);
 
-  return description;
-}
+    let cosmeticList: string[] = [];
 
-function randomCosmetics(weaponType: WeaponType): string[] {
-  let cosmetics: string[] = [];
+    for (const cosmetic of weaponType.cosmetics) {
+      cosmeticList.push(cosmetic.name);
+    }
 
-  const numberOfCosmetics = random.int(1, 3);
+    cosmeticList = this.rng.shuffle(cosmeticList);
 
-  let cosmeticList: string[] = [];
+    for (let i = 0; i < numberOfCosmetics; i++) {
+      const cosmetic = cosmeticList.pop();
+      let cosmeticComponent: WeaponComponent | undefined;
 
-  for (const cosmetic of weaponType.cosmetics) {
-    cosmeticList.push(cosmetic.name);
-  }
+      for (const c of weaponType.cosmetics) {
+        if (c.name === cosmetic) {
+          cosmeticComponent = c;
+        }
+      }
 
-  cosmeticList = RND.shuffle(cosmeticList);
-
-  for (let i = 0; i < numberOfCosmetics; i++) {
-    let cosmetic = cosmeticList.pop();
-    let cosmeticComponent;
-
-    for (const c of weaponType.cosmetics) {
-      if (c.name === cosmetic) {
-        cosmeticComponent = c;
+      if (cosmeticComponent !== undefined) {
+        cosmetics.push(this.rng.item(cosmeticComponent.options));
       }
     }
 
-    if (cosmeticComponent !== undefined) {
-      cosmetics.push(RND.item(cosmeticComponent.options));
+    return cosmetics;
+  }
+
+  randomEffects(weaponType: WeaponType): string[] {
+    const effects: string[] = [];
+
+    const numberOfEffects = this.rng.int(1, 3);
+
+    let effectList: string[] = [];
+
+    for (const effect of weaponType.effects) {
+      effectList.push(effect.name);
     }
-  }
 
-  return cosmetics;
-}
+    effectList = this.rng.shuffle(effectList);
 
-function randomEffects(weaponType: WeaponType): string[] {
-  let effects: string[] = [];
+    for (let i = 0; i < numberOfEffects; i++) {
+      const effect = effectList.pop();
 
-  const numberOfEffects = random.int(1, 3);
+      let effectComponent: WeaponComponent | undefined;
 
-  let effectList: string[] = [];
+      for (const e of weaponType.effects) {
+        if (e.name === effect) {
+          effectComponent = e;
+        }
+      }
 
-  for (const effect of weaponType.effects) {
-    effectList.push(effect.name);
-  }
-
-  effectList = RND.shuffle(effectList);
-
-  for (let i = 0; i < numberOfEffects; i++) {
-    let effect = effectList.pop();
-
-    let effectComponent;
-
-    for (const e of weaponType.effects) {
-      if (e.name === effect) {
-        effectComponent = e;
+      if (effectComponent !== undefined) {
+        effects.push(this.rng.item(effectComponent.options));
       }
     }
 
-    if (effectComponent !== undefined) {
-      effects.push(RND.item(effectComponent.options));
-    }
+    return effects;
   }
-
-  return effects;
 }

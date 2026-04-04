@@ -1,48 +1,36 @@
 <script>
-  import * as CharGen from "$lib/swn/character";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+  import * as RNG from '@ironarachne/rng';
+  import * as CharGen from '$lib/swn/character';
 
-  let seed = $state(RND.randomString(13));
+  let rng = new RNG.RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
-  random.use(seedrandom(seed));
-  let character = $state(CharGen.generate());
+  $effect(() => {
+    rng.setSeed(seed);
+  });
+  let character = $state(CharGen.generate(rng));
 
   function generate() {
     if (!lockSeed) {
-      seed = RND.randomString(13);
+      seed = rng.randomString(13);
     }
-    random.use(seedrandom(seed));
-    character = CharGen.generate();
+    rng.setSeed(seed);
+    character = CharGen.generate(rng);
   }
 
   function save() {
     let saveData = CharGen.formatAsText(character);
 
-    const blob = new Blob([saveData], { type: "text/plain" });
-    const link = document.createElement("a");
+    const blob = new Blob([saveData], { type: 'text/plain' });
+    const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = "swn-character.txt";
+    link.download = 'swn-character.txt';
     link.click();
     URL.revokeObjectURL(link.href);
   }
 
   generate();
 </script>
-
-<style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/scifi.scss';
-
-  div.abilities > div {
-    border-left: 1px solid #aaa;
-    margin-bottom: 1rem;
-    padding-left: 1rem;
-  }
-</style>
 
 <svelte:head>
   <title>Stars Without Number Character Generator | Iron Arachne</title>
@@ -53,8 +41,8 @@
 
   <div class="input-group">
     <label for="seed">Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed"/>
-    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
+    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
   <button onclick={generate}>Generate</button>
@@ -122,18 +110,14 @@
   {#each character.rangedWeapons as weapon}
     <div>
       <strong>{weapon.name}:</strong>
-      <span
-        >{weapon.damage} damage, {character.rangedAttackBonus} attack bonus</span
-      >
+      <span>{weapon.damage} damage, {character.rangedAttackBonus} attack bonus</span>
     </div>
   {/each}
 
   {#each character.meleeWeapons as weapon}
     <div>
       <strong>{weapon.name}:</strong>
-      <span
-        >{weapon.damage} damage, {character.meleeAttackBonus} attack bonus</span
-      >
+      <span>{weapon.damage} damage, {character.meleeAttackBonus} attack bonus</span>
     </div>
   {/each}
 
@@ -153,3 +137,14 @@
     </div>
   {/each}
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/scifi.scss';
+
+  div.abilities > div {
+    border-left: 1px solid #aaa;
+    margin-bottom: 1rem;
+    padding-left: 1rem;
+  }
+</style>

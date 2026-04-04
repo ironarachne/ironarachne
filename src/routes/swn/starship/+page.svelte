@@ -1,42 +1,36 @@
 <script lang="ts">
-  import * as Gen from "$lib/swn/starship";
-  import * as RND from "@ironarachne/rng";
-  import random from "random";
-  import seedrandom from "seedrandom";
+  import * as RNG from '@ironarachne/rng';
+  import * as Gen from '$lib/swn/starship';
 
-  let seed = $state(RND.randomString(13));
+  let rng = new RNG.RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
-  random.use(seedrandom(seed));
-  let starship = $state(Gen.generate());
+  $effect(() => {
+    rng.setSeed(seed);
+  });
+  let starship = $state(Gen.generate(rng));
 
   function generate() {
     if (!lockSeed) {
-      seed = RND.randomString(13);
+      seed = rng.randomString(13);
     }
-    random.use(seedrandom(seed));
-    starship = Gen.generate();
+    rng.setSeed(seed);
+    starship = Gen.generate(rng);
   }
 
   function save() {
     let starshipDescription = Gen.formatAsText(starship);
 
-    const blob = new Blob([starshipDescription], { type: "text/plain" });
-    const link = document.createElement("a");
+    const blob = new Blob([starshipDescription], { type: 'text/plain' });
+    const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.download = "swn-starship.txt";
+    link.download = 'swn-starship.txt';
     link.click();
     URL.revokeObjectURL(link.href);
   }
 
   generate();
 </script>
-
-<style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/scifi.scss';
-</style>
 
 <svelte:head>
   <title>Stars Without Number Starship Generator | Iron Arachne</title>
@@ -47,8 +41,8 @@
 
   <div class="input-group">
     <label for="seed">Seed</label>
-    <input type="text" name="seed" bind:value={seed} id="seed"/>
-    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed"/> Lock Seed
+    <input type="text" name="seed" bind:value={seed} id="seed" />
+    <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
   <button onclick={generate}>Generate</button>
@@ -86,11 +80,11 @@
   <p><strong>Current Crew:</strong> {starship.currentCrew}</p>
   <p>
     <strong>Total Ship Value:</strong>
-    {new Intl.NumberFormat("en-US").format(starship.totalCost)} credits
+    {new Intl.NumberFormat('en-US').format(starship.totalCost)} credits
   </p>
   <p>
     <strong>Total Crew Cost:</strong>
-    {new Intl.NumberFormat("en-US").format(starship.currentCrew * 43800)}
+    {new Intl.NumberFormat('en-US').format(starship.currentCrew * 43800)}
     credits per year
   </p>
   <p><strong>Crew Skill:</strong> {starship.hullType.crewSkill}</p>
@@ -108,7 +102,7 @@
 
   {#each starship.weapons as weapon}
     <div>
-      {weapon.name} ({weapon.damage}, {weapon.qualities.join(", ")})
+      {weapon.name} ({weapon.damage}, {weapon.qualities.join(', ')})
     </div>
   {/each}
 
@@ -120,3 +114,8 @@
     </div>
   {/each}
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/scifi.scss';
+</style>

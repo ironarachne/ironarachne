@@ -1,0 +1,50 @@
+---
+description: Functional style only; prefer type over interface
+alwaysApply: true
+---
+
+# Functional style and types
+
+## No OOP
+
+- **Do not** introduce `class`, inheritance (`extends`), or method-heavy object models for app or library logic.
+- Model data as **plain objects**, tuples, or discriminated unions; put behavior in **standalone functions** that take data as arguments.
+- **Composition** over inheritance (helpers, small modules, `type` intersections)—never class hierarchies.
+
+```typescript
+// ❌ BAD
+class Rectangle {
+  constructor(public w: number, public h: number) {}
+  area() {
+    return this.w * this.h;
+  }
+}
+
+// ✅ GOOD
+type Rectangle = { w: number; h: number };
+
+function area(r: Rectangle): number {
+  return r.w * r.h;
+}
+```
+
+Svelte `.svelte` files are fine as UI entry points; keep **domain and lib logic** in functions and plain data, not classes.
+
+## Prefer `type` over `interface`
+
+- Use **`type`** for object shapes, unions, intersections, and aliases.
+- **Avoid `interface`** unless you must declare-merge or extend a third-party `interface` (rare).
+
+```typescript
+// ❌ BAD
+interface User {
+  id: string;
+  name: string;
+}
+
+// ✅ GOOD
+type User = {
+  id: string;
+  name: string;
+};
+```

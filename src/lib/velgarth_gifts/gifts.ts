@@ -1,11 +1,10 @@
-import random from "random";
-import type Gift from "./gift";
-import type GiftGeneratorConfig from "./generator_config";
-import * as RND from "@ironarachne/rng";
-import type GiftPossibility from "./gift_possibility";
+import type Gift from './gift';
+import type GiftGeneratorConfig from './generator_config';
+import * as RNG from '@ironarachne/rng';
+import type GiftPossibility from './gift_possibility';
 
 export function generate(config: GiftGeneratorConfig): Gift[] {
-  const numberOfGifts = random.int(config.min_gifts, config.max_gifts);
+  const numberOfGifts = RNG.int(config.min_gifts, config.max_gifts);
 
   const gifts: Gift[] = [];
 
@@ -21,8 +20,16 @@ export function generate(config: GiftGeneratorConfig): Gift[] {
 }
 
 function generateGift(possibilities: GiftPossibility[]): Gift {
-  const possibility = RND.weighted(possibilities);
-  const strength = RND.weighted(possibility.strength_levels);
+  const possibility = RNG.weighted(
+    possibilities.map((p) => {
+      return { commonality: p.commonality, value: p };
+    }),
+  );
+  const strength = RNG.weighted(
+    possibility.strength_levels.map((s) => {
+      return { commonality: s.commonality, value: s };
+    }),
+  );
 
   return {
     name: possibility.name,
@@ -31,9 +38,6 @@ function generateGift(possibilities: GiftPossibility[]): Gift {
   };
 }
 
-function removePossibility(
-  possibilities: GiftPossibility[],
-  gift: Gift,
-): GiftPossibility[] {
+function removePossibility(possibilities: GiftPossibility[], gift: Gift): GiftPossibility[] {
   return possibilities.filter((p) => p.name !== gift.name);
 }

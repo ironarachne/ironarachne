@@ -30,6 +30,10 @@ export function kgToPounds(kg: number): number {
   return kg * 2.2046;
 }
 
+export function feetToMeters(feet: number): number {
+  return feet * 0.3048;
+}
+
 export function metersToFeet(meters: number): number {
   return meters * 3.2808;
 }
@@ -43,7 +47,7 @@ export function poundsToKG(pounds: number): number {
 }
 
 export function inchesToFeetExpression(inches: number): string {
-  let expression = "";
+  let expression = '';
 
   const feet = Math.floor(inches / 12);
 

@@ -53,7 +53,10 @@ describe('variations.removeFromSet', () => {
 
 describe('variation renderBlazon', () => {
   it('renders blazon with tinctures', () => {
-    const v = { ...byName('barry'), tinctures: [ { name: 'azure' }, { name: 'or' } ] };
+    const v = {
+      ...byName('barry'),
+      tinctures: [{ name: 'azure' }, { name: 'or' }],
+    };
     const blazon = renderBlazon(v as any);
     expect(blazon).toContain('azure');
     expect(blazon).toContain('or');
@@ -62,7 +65,10 @@ describe('variation renderBlazon', () => {
 
 describe('variation renderSVGPattern', () => {
   it('renders SVG pattern with tincture names', () => {
-    const v = { ...byName('barry'), tinctures: [ { name: 'azure' }, { name: 'or' } ] };
+    const v = {
+      ...byName('barry'),
+      tinctures: [{ name: 'azure' }, { name: 'or' }],
+    };
     const svg = renderSVGPattern(v as any);
     expect(svg).toContain('url(#azure)');
     expect(svg).toContain('url(#or)');

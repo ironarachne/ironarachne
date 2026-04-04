@@ -1,6 +1,6 @@
-import * as RND from "@ironarachne/rng";
-import type { Charge } from "./charge-types.js";
-import { getAllCharges } from "./charge-data.js";
+import * as RNG from '@ironarachne/rng';
+import type { Charge } from './charge-types.js';
+import { getAllCharges } from './charge-data.js';
 
 export function all(): Charge[] {
   return getAllCharges();
@@ -18,7 +18,7 @@ export function allChargeTags(): string[] {
 }
 
 export function random(charges: Charge[]): Charge {
-  return RND.item(charges);
+  return RNG.item(charges);
 }
 
 export function randomWithTag(tag: string, charges: Charge[]): Charge {

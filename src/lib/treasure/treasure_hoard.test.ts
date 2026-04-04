@@ -1,0 +1,309 @@
+import { describe, it, expect } from 'vitest';
+import { getTreasureHoardForValue, generateRandomTreasureHoard } from './treasure_hoard';
+import { baseContainerTypes, type Container, getVolume } from '$lib/equipment';
+
+describe('treasure_hoard', () => {
+  describe('generateRandomTreasureHoard', () => {
+    it('should generate a hoard with total value close to target value', () => {
+      const targetValue = 10000;
+      // Exclude expensive containers like iron safe (10000) to avoid skewing the total value
+      const cheapContainerTypes = baseContainerTypes.filter((ct) => ct.value < 1000);
+
+      const config = {
+        targetValue,
+        artObjectProportion: 1,
+        gemProportion: 1,
+        coinProportions: 1,
+        allowedContainerTypes: cheapContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed', config);
+      const totalValue = hoard.reduce((sum, item) => sum + item.value, 0);
+
+      // Allow for some variance due to random generation and container values
+      // Containers add value, so it should be at least targetValue (mostly)
+      // But random generation might undershoot slightly if it can't find exact change/items
+      expect(totalValue).toBeGreaterThan(targetValue * 0.9);
+      expect(totalValue).toBeLessThan(targetValue * 1.5); // Shouldn't be massively over
+
+      const art = hoard.filter((i: any) => i.artist !== undefined);
+      const gems = hoard.filter((i: any) => i.isCut !== undefined);
+      const coins = hoard.filter((i: any) => i.denomination !== undefined);
+
+      expect(art.length).toBeGreaterThan(0);
+      expect(gems.length).toBeGreaterThan(0);
+      expect(coins.length).toBeGreaterThan(0);
+    });
+
+    it('should generate only coins when proportions dictate', () => {
+      const config = {
+        targetValue: 1000,
+        artObjectProportion: 0,
+        gemProportion: 0,
+        coinProportions: 1,
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed', config);
+
+      const art = hoard.filter((i: any) => i.artist !== undefined);
+      const gems = hoard.filter((i: any) => i.isCut !== undefined);
+      const coins = hoard.filter((i: any) => i.denomination !== undefined);
+
+      expect(art).toHaveLength(0);
+      expect(gems).toHaveLength(0);
+      expect(coins.length).toBeGreaterThan(0);
+    });
+
+    it('should generate only art when proportions dictate', () => {
+      const config = {
+        targetValue: 5000, // High enough to afford art
+        artObjectProportion: 1,
+        gemProportion: 0,
+        coinProportions: 0, // No coins
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed', config);
+
+      const art = hoard.filter((i: any) => i.artist !== undefined);
+      const gems = hoard.filter((i: any) => i.isCut !== undefined);
+      const coins = hoard.filter((i: any) => i.denomination !== undefined);
+
+      expect(art.length).toBeGreaterThan(0);
+      expect(gems).toHaveLength(0);
+      expect(coins).toHaveLength(0);
+    });
+
+    it('should generate only gems when proportions dictate', () => {
+      const config = {
+        targetValue: 1000,
+        artObjectProportion: 0,
+        gemProportion: 1,
+        coinProportions: 0, // No coins
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed', config);
+
+      const art = hoard.filter((i: any) => i.artist !== undefined);
+      const gems = hoard.filter((i: any) => i.isCut !== undefined);
+      const coins = hoard.filter((i: any) => i.denomination !== undefined);
+
+      expect(art).toHaveLength(0);
+      expect(gems.length).toBeGreaterThan(0);
+      expect(coins).toHaveLength(0);
+    });
+
+    it('should pack gems into containers', () => {
+      const config = {
+        targetValue: 10000,
+        artObjectProportion: 0,
+        gemProportion: 1, // Mostly gems
+        coinProportions: 0,
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed-packing', config);
+
+      const gems = hoard.filter((i: any) => i.isCut !== undefined);
+      const containers = hoard.filter((i: any) => i.contents !== undefined) as Container[];
+
+      if (containers.length > 0 && gems.length > 0) {
+        const gemsInContainers = gems.filter((g: any) => g.containerId !== undefined);
+        expect(gemsInContainers.length).toBeGreaterThan(0);
+
+        const firstGemInContainer = gemsInContainers[0];
+        const container = containers.find((c) => c.id === firstGemInContainer.containerId);
+        expect(container).toBeDefined();
+        if (container) {
+          expect(container.contents).toContain(firstGemInContainer.id);
+        }
+      }
+    });
+
+    it('should pack art objects into containers', () => {
+      const config = {
+        targetValue: 10000,
+        artObjectProportion: 1, // Mostly art
+        gemProportion: 0,
+        coinProportions: 0,
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed-packing-art', config);
+
+      const art = hoard.filter((i: any) => i.artist !== undefined);
+      const containers = hoard.filter((i: any) => i.contents !== undefined) as Container[];
+
+      if (containers.length > 0 && art.length > 0) {
+        const artInContainers = art.filter((a: any) => a.containerId !== undefined);
+        expect(artInContainers.length).toBeGreaterThan(0);
+      }
+    });
+
+    it('should generate multiple containers for large hoards', () => {
+      const config = {
+        targetValue: 5000000, // Large value to ensure volume
+        artObjectProportion: 0,
+        gemProportion: 0,
+        coinProportions: 1, // Copper is heavy/bulky
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed-multiple', config);
+      const containers = hoard.filter((i: any) => i.contents !== undefined);
+
+      // We expect more than 1 container usually
+      expect(containers.length).toBeGreaterThan(1);
+    });
+
+    it('should generate mundane items when proportions dictate', () => {
+      const config = {
+        targetValue: 5000,
+        artObjectProportion: 0,
+        gemProportion: 0,
+        coinProportions: 0,
+        mundaneItemProportion: 1,
+        magicItemProportion: 0,
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed-items', config);
+
+      const items = hoard.filter((i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor');
+
+      expect(items.length).toBeGreaterThan(0);
+      expect(items.some((i: any) => i.enchantment)).toBe(false);
+    });
+
+    it('should generate magic items when proportions dictate', () => {
+      const config = {
+        targetValue: 50000,
+        artObjectProportion: 0,
+        gemProportion: 0,
+        coinProportions: 0,
+        mundaneItemProportion: 0,
+        magicItemProportion: 1,
+        allowedContainerTypes: baseContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed-items-magic', config);
+
+      const items = hoard.filter((i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor');
+
+      expect(items.length).toBeGreaterThan(0);
+      expect(items.some((i: any) => i.enchantment)).toBe(true);
+    });
+
+    it('should not pack large art objects into small containers', () => {
+      const smallContainerTypes = baseContainerTypes.filter((ct) => ct.defaultVolume < 1); // Very small containers
+      const config = {
+        targetValue: 5000,
+        artObjectProportion: 1,
+        gemProportion: 0,
+        coinProportions: 0,
+        allowedContainerTypes: smallContainerTypes,
+      };
+
+      const hoard = generateRandomTreasureHoard('test-seed', config);
+      const art = hoard.filter((i: any) => i.artist !== undefined);
+
+      // Check that art objects that are too big are NOT in containers
+      const maxContainerVolume = Math.max(...smallContainerTypes.map((c) => c.defaultVolume));
+
+      for (const item of art) {
+        const itemVolume = getVolume(item);
+        if (itemVolume > maxContainerVolume) {
+          expect(item.containerId).toBeUndefined();
+        }
+      }
+    });
+  });
+
+  describe('getTreasureHoardForValue', () => {
+    it('should generate a treasure hoard with coins, art, and gems', () => {
+      const value = 10000;
+      const proportions = { coins: 1, artObjects: 1, gems: 1 };
+      // 3333 coins, 3333 art, 3333 gems (approx)
+
+      const hoard = getTreasureHoardForValue(value, proportions, baseContainerTypes);
+
+      expect(hoard.length).toBeGreaterThan(0);
+
+      // Check if we have different types of items (containers/piles are items)
+      // Since we can't easily check types without importing everything and checking instance/properties,
+      // we'll just ensure we got some items back.
+    });
+
+    it('should return empty array for zero value', () => {
+      const hoard = getTreasureHoardForValue(
+        0,
+        { coins: 1, artObjects: 1, gems: 1 },
+        baseContainerTypes,
+      );
+      expect(hoard).toHaveLength(0);
+    });
+
+    it('should respect proportions', () => {
+      const value = 1000;
+      const proportions = { coins: 1, artObjects: 0, gems: 0 };
+
+      const hoard = getTreasureHoardForValue(value, proportions, baseContainerTypes);
+
+      // Should only contain coins (containers or piles)
+      // We can check if any item looks like an art object or gem.
+      // Art objects have 'artist' property, gems have 'isCut'.
+      // Coins are in containers or are piles.
+
+      // Actually, let's just check that we got something.
+      expect(hoard.length).toBeGreaterThan(0);
+
+      const hasCoins = hoard.some((item: any) => item.denomination !== undefined);
+      expect(hasCoins).toBe(true);
+      const hasArt = hoard.some((item: any) => item.artist !== undefined);
+      const hasGems = hoard.some((item: any) => item.isCut !== undefined);
+
+      expect(hasArt).toBe(false);
+      expect(hasGems).toBe(false);
+    });
+
+    it('should respect room volume constraints', () => {
+      const value = 10000;
+      const proportions = { coins: 1, artObjects: 0, gems: 0 };
+      const roomDimensions = { width: 1, height: 1, length: 1 }; // 1 cubic meter = 1000 liters
+      // 10000 gp = 10000 coins. 10000 * 0.001kg = 10kg.
+      // Gold density ~19.3. Volume ~0.5L.
+      // This fits easily.
+      const standardHoard = getTreasureHoardForValue(
+        value,
+        proportions,
+        baseContainerTypes,
+        roomDimensions,
+      );
+      const standardContainers = standardHoard.filter(
+        (i: any) => i.contents !== undefined,
+      ) as Container[];
+      const totalStandardContainerVolume = standardContainers.reduce(
+        (sum, c) => sum + c.maxVolume,
+        0,
+      );
+
+      expect(totalStandardContainerVolume).toBeLessThanOrEqual(1000); // 1000L
+
+      // Let's try a very small room. 0.001 cubic meters = 1 liter.
+      const tinyRoom = { width: 0.1, height: 0.1, length: 0.1 };
+
+      // We want to ensure that we don't generate containers that exceed the room volume.
+      // The items themselves might exceed it (we don't check that yet), but containers shouldn't.
+
+      const hoard = getTreasureHoardForValue(value, proportions, baseContainerTypes, tinyRoom);
+
+      const containers = hoard.filter((i: any) => i.contents !== undefined) as Container[];
+      const totalContainerVolume = containers.reduce((sum, c) => sum + c.maxVolume, 0);
+
+      // Room volume is 1 liter.
+      expect(totalContainerVolume).toBeLessThanOrEqual(1);
+    });
+  });
+});

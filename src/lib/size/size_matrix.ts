@@ -1,6 +1,6 @@
-import type AgeCategory from "$lib/age/age_category";
-import type SizeGeneratorConfig from "./size_generator_config";
-import * as Sizes from "./sizes";
+import type AgeCategory from '$lib/age/age_category';
+import type SizeGeneratorConfig from './size_generator_config';
+import * as Sizes from './sizes';
 
 export type SizeMatrix = SizeMatrixRow[];
 
@@ -53,14 +53,10 @@ export function convertMatrixToSummary(
           maxAge: maxAge || 0,
           minHeight: matrix[i].entries[j].sizeGeneratorConfig.minHeight,
           maxHeight: matrix[i].entries[j].sizeGeneratorConfig.maxHeight,
-          heightRange: Sizes.getHeightRange(
-            matrix[i].entries[j].sizeGeneratorConfig,
-          ),
+          heightRange: Sizes.getHeightRange(matrix[i].entries[j].sizeGeneratorConfig),
           minWeight: matrix[i].entries[j].sizeGeneratorConfig.minWeight,
           maxWeight: matrix[i].entries[j].sizeGeneratorConfig.maxWeight,
-          weightRange: Sizes.getWeightRange(
-            matrix[i].entries[j].sizeGeneratorConfig,
-          ),
+          weightRange: Sizes.getWeightRange(matrix[i].entries[j].sizeGeneratorConfig),
         });
       }
     }
@@ -84,7 +80,5 @@ export function getSizeConfig(
     }
   }
 
-  throw new Error(
-    `Failed to find size config for ${gender} and ${ageCategory}`,
-  );
+  throw new Error(`Failed to find size config for ${gender} and ${ageCategory}`);
 }

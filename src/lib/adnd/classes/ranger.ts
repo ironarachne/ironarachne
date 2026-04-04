@@ -1,34 +1,35 @@
-import ADNDCharacter from "../adndcharacter.js";
-import ADNDClass from "../adndclass.js";
+import type ADNDCharacter from '../adndcharacter.js';
+import ADNDClass from '../adndclass.js';
+import type * as RNG from '@ironarachne/rng';
 
 export default new ADNDClass(
-  "ranger",
-  "warrior",
-  "1d10",
+  'ranger',
+  'warrior',
+  '1d10',
   13,
   13,
   14,
   -1,
   14,
   -1,
-  ["strength", "dexterity", "wisdom"],
+  ['strength', 'dexterity', 'wisdom'],
   [
-    "When wearing studded leather or lighter armor, fight two-handed with no penalty",
-    "Tracking proficiency",
-    "When wearing studded leather or lighter armor, 10% chance to move silently",
-    "When wearing studded leather or lighter armor, 15% chance to hide in shadows",
-    "Adept with both trained and untamed creatures",
+    'When wearing studded leather or lighter armor, fight two-handed with no penalty',
+    'Tracking proficiency',
+    'When wearing studded leather or lighter armor, 10% chance to move silently',
+    'When wearing studded leather or lighter armor, 15% chance to hide in shadows',
+    'Adept with both trained and untamed creatures',
   ],
-  ["lawful good", "neutral good", "chaotic good"],
+  ['lawful good', 'neutral good', 'chaotic good'],
   false,
   [],
   [],
-  ["any"],
-  ["any"],
+  ['any'],
+  ['any'],
   4,
   3,
   -2,
-  function (this: ADNDClass, character: ADNDCharacter): ADNDCharacter {
+  function (this: ADNDClass, character: ADNDCharacter, rng: RNG.RNG): ADNDCharacter {
     return character;
   },
 );

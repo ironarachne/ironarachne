@@ -1,10 +1,3 @@
-<style lang="scss">
-  @import "$lib/styles/reset.scss";
-  @import '$lib/styles/global.scss';
-  @import '$lib/styles/main.scss';
-  @import '$lib/styles/navigation.scss';
-</style>
-
 <svelte:head>
   <title>Objects &amp; Items | Iron Arachne</title>
 </svelte:head>
@@ -15,9 +8,15 @@
   <nav>
     <a href="/drug">Cyberpunk Drug</a>
     <a href="/fantasy/equipment">Fantasy Equipment Lists</a>
+    <a href="/fantasy/equipment-generator">Fantasy Equipment</a>
     <a href="/fantasy/weapon">Fantasy Weapon</a>
+    <a href="/fantasy/treasure-hoard">Fantasy Treasure Hoard</a>
     <a href="/spooky-ship">Spooky Starship</a>
     <a href="/swn/starship">Stars Without Number Starship</a>
   </nav>
-
 </section>
+
+<style lang="scss">
+  @use '$lib/styles/main.scss';
+  @use '$lib/styles/navigation.scss';
+</style>

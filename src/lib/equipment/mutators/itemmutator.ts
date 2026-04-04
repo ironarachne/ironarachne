@@ -1,4 +1,4 @@
-import type Item from "../item.js";
+import type Item from '../item.js';
 
 export default interface ItemMutator {
   name: string;

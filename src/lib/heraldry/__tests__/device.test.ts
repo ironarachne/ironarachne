@@ -16,7 +16,14 @@ const mockChargeGroup = {
     name: 'lion',
     pluralName: 'lions',
     chargeType: 'regular',
-    tincture: { name: 'or', hexColor: '#fff', pattern: '', type: 'metal' as const, category: 'light' as const, commonality: 1 },
+    tincture: {
+      name: 'or',
+      hexColor: '#fff',
+      pattern: '',
+      type: 'metal' as const,
+      category: 'light' as const,
+      commonality: 1,
+    },
     SVG: '<svg></svg>',
     tags: [] as string[],
   },
@@ -25,8 +32,8 @@ const mockChargeGroup = {
     name: 'default',
     numberOfCharges: 1,
     blazonPattern: '{article} {name}',
-    renderSVG: (svg: string, w: number, h: number) => svg
-  }
+    renderSVG: (svg: string, w: number, h: number) => svg,
+  },
 };
 
 describe('Device', () => {
