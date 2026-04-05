@@ -1,5 +1,19 @@
 @use '$lib/styles/global.scss';
 
+@keyframes rapid-pulse-neon {
+  0%, 100% { filter: drop-shadow(0 0 5px global.$acidGreen) drop-shadow(0 0 10px global.$acidGreen); }
+  50% { filter: drop-shadow(0 0 2px global.$acidGreen) drop-shadow(0 0 4px global.$acidGreen); }
+}
+
+@keyframes defective-led {
+  0%, 10%, 12%, 40%, 42%, 44%, 80%, 100% {
+    background-position: 0% 0%;
+  }
+  11%, 41%, 43% {
+    background-position: 100% 0%;
+  }
+}
+
 .cyberpunk {
   h1,
   h2,
@@ -7,8 +21,26 @@
   h4,
   h5,
   h6 {
-    color: #d8f6b0;
-    text-shadow: 0 0 6px global.$acidGreen;
+    /* Base broken/dim state for dark letters */
+    color: transparent;
+
+    /* Active bright neon linear gradient map with "dead" spots */
+    background-image: linear-gradient(
+      90deg,
+      #d8f6b0 0%, #d8f6b0 15%,
+      rgba(216, 246, 176, 0.2) 15%, rgba(216, 246, 176, 0.2) 20%,
+      #d8f6b0 20%, #d8f6b0 45%,
+      rgba(216, 246, 176, 0.2) 45%, rgba(216, 246, 176, 0.2) 50%,
+      #d8f6b0 50%, #d8f6b0 75%,
+      rgba(216, 246, 176, 0.2) 75%, rgba(216, 246, 176, 0.2) 85%,
+      #d8f6b0 85%, #d8f6b0 100%
+    );
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    /* Rapid pulsing glow + shifting background for broken letters */
+    animation: rapid-pulse-neon 1.5s infinite ease-in-out, defective-led 4s infinite;
   }
 
   button {

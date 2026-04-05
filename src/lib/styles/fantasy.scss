@@ -1,5 +1,14 @@
 @use '$lib/styles/global.scss';
 
+@keyframes shimmering-gold {
+  0% {
+    background-position: -200% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
+}
+
 .fantasy {
   h1,
   h2,
@@ -7,8 +16,25 @@
   h4,
   h5,
   h6 {
-    color: global.$gold;
-    text-shadow: 0 2px 2px global.$crimson;
+    /* Create a metallic/shimmering gold foil effect instead of a flat color or glow */
+    background: linear-gradient(
+      120deg,
+      global.$gold 20%,
+      #ffe169 40%,
+      #fffae6 50%,
+      #ffe169 60%,
+      global.$gold 80%
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+
+    /* Keep the crimson shadow but use drop-shadow since the text color is transparent */
+    filter: drop-shadow(0 2px 2px global.$crimson);
+
+    /* Animate the metallic shine slowly over the surface */
+    animation: shimmering-gold 8s linear infinite;
   }
 
   button {

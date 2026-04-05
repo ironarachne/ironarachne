@@ -1,5 +1,17 @@
 @use '$lib/styles/global.scss';
 
+@keyframes pulse-glow {
+  0% {
+    text-shadow: 0 0 6px global.$cyan;
+  }
+  50% {
+    text-shadow: 0 0 14px global.$cyan;
+  }
+  100% {
+    text-shadow: 0 0 6px global.$cyan;
+  }
+}
+
 .scifi {
   h1,
   h2,
@@ -7,6 +19,7 @@
   h4,
   h5,
   h6 {
+    animation: pulse-glow 3s infinite ease-in-out;
     color: #a2d4ff;
     text-shadow: 0 0 6px global.$cyan;
   }
