@@ -255,25 +255,77 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     float moistureMap = fbm(
         seededNoiseCoord * 0.5 + vec3(20.0), 2, 0.5, 2.0, 1.0);
 
+    // Generate a palette/type index from the seed
+    float pType = fract(seed * 0.618033);
+
+    // Crack / Lineae Map (For Europa-like features)
+    vec3 crackWarp = vec3(
+        fbm(seededNoiseCoord * 1.5, 3, 0.5, 2.0, 1.0),
+        fbm(seededNoiseCoord * 1.5 + vec3(10.0), 3, 0.5, 2.0, 1.0),
+        fbm(seededNoiseCoord * 1.5 + vec3(20.0), 3, 0.5, 2.0, 1.0)
+    );
+    float crackNoise = fbm((seededNoiseCoord + crackWarp * 0.5) * 4.0, 5, 0.5, 2.0, 1.0);
+    // Sharp valleys for cracks:
+    float cracks = 1.0 - smoothstep(0.48, 0.52, abs(crackNoise - 0.5) * 2.0);
+    // Widen and rough up the cracks
+    cracks *= smoothstep(0.3, 0.7, fbm(seededNoiseCoord * 3.0, 4, 0.5, 2.0, 1.0));
+
+    // Palette 1: Hoth (Deep Snow & Glacial Mountains)
+    vec3 w1 = vec3(0.65, 0.75, 0.85); // Glacial ice
+    vec3 l1 = vec3(0.85, 0.90, 0.95); // Deep snow
+    vec3 m1 = vec3(0.60, 0.65, 0.70); // Bare icy rock
+    vec3 p1 = vec3(0.95, 0.98, 1.00); // Pure white peaks
+    vec3 c1 = vec3(0.70, 0.80, 0.90); // Cracks are just blue ice
+
+    // Palette 2: Europa (Smooth Ice Shell with Rusty Cracks)
+    vec3 w2 = vec3(0.80, 0.82, 0.80); // Pale, cloudy ice
+    vec3 l2 = vec3(0.85, 0.86, 0.82); // Smooth surface
+    vec3 m2 = vec3(0.80, 0.78, 0.75); // Subtle ridges
+    vec3 p2 = vec3(0.90, 0.88, 0.85); // High white frost
+    vec3 c2 = vec3(0.40, 0.15, 0.05); // Rusty brown-orange sea salts
+
+    // Palette 3: Triton (Pinkish Nitrogen Ice & Dark Tholin Deposits)
+    vec3 w3 = vec3(0.75, 0.65, 0.65); // Reddish ice
+    vec3 l3 = vec3(0.85, 0.75, 0.70); // Peach snow
+    vec3 m3 = vec3(0.20, 0.10, 0.10); // Dark reddish tholins (organics)
+    vec3 p3 = vec3(0.95, 0.85, 0.85); // Pinkish peaks
+    vec3 c3 = vec3(0.30, 0.15, 0.10); // Dark red cracks
+
+    // Palette 4: Frozen Ocean (Dark Navy Ice & Bright Fractured Floes)
+    vec3 w4 = vec3(0.05, 0.15, 0.30); // Deep dark water/ice
+    vec3 l4 = vec3(0.60, 0.80, 0.95); // Bright cyan floes
+    vec3 m4 = vec3(0.80, 0.90, 1.00); // Solid pack ice
+    vec3 p4 = vec3(1.00, 1.00, 1.00); // White caps
+    vec3 c4 = w4;                     // Cracks reveal dark ocean below
+
+    vec3 wBase = w1; vec3 lBase = l1; vec3 mBase = m1; vec3 pBase = p1; vec3 cBase = c1;
+
+    if (pType > 0.25) { wBase = mix(w1, w2, smoothstep(0.25, 0.35, pType)); lBase = mix(l1, l2, smoothstep(0.25, 0.35, pType)); mBase = mix(m1, m2, smoothstep(0.25, 0.35, pType)); pBase = mix(p1, p2, smoothstep(0.25, 0.35, pType)); cBase = mix(c1, c2, smoothstep(0.25, 0.35, pType)); }
+    if (pType > 0.50) { wBase = mix(w2, w3, smoothstep(0.50, 0.60, pType)); lBase = mix(l2, l3, smoothstep(0.50, 0.60, pType)); mBase = mix(m2, m3, smoothstep(0.50, 0.60, pType)); pBase = mix(p2, p3, smoothstep(0.50, 0.60, pType)); cBase = mix(c2, c3, smoothstep(0.50, 0.60, pType)); }
+    if (pType > 0.75) { wBase = mix(w3, w4, smoothstep(0.75, 0.85, pType)); lBase = mix(l3, l4, smoothstep(0.75, 0.85, pType)); mBase = mix(m3, m4, smoothstep(0.75, 0.85, pType)); pBase = mix(p3, p4, smoothstep(0.75, 0.85, pType)); cBase = mix(c3, c4, smoothstep(0.75, 0.85, pType)); }
+
     // Coloring
     vec3 waterColor = mix(
-        vec3(0.8, 0.95, 1.0),
-        vec3(0.09, 0.26, 0.57),
+        wBase,
+        wBase * 0.8,
         smoothstep(0.02, 0.9, noiseSample));
     vec3 landColor = mix(
-        vec3(0.6, 0.6, 0.8),
-        vec3(0.7, 0.8, 1.0),
+        lBase * 0.9,
+        lBase,
         smoothstep(0.1, 0.2, noiseSample));
     landColor = mix(
-        vec3(0.5, 0.5, 0.7),
+        mBase * 1.2,
         landColor,
-        smoothstep(0.2, 0.4, moistureMap)); // swamps
+        smoothstep(0.2, 0.4, moistureMap)); // rough ice
     landColor = mix(
-        landColor, vec3(0.6, 0.6, 0.9), smoothstep(0.2, 0.3, noiseSample)); // mountains
+        landColor, mBase, smoothstep(0.2, 0.3, noiseSample)); // mountains
     landColor = mix(
-        landColor, vec3(1.0), smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
+        landColor, pBase, smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
     landColor = mix(
-        landColor, vec3(1.0), smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
+        landColor, pBase, smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
+
+    // Apply cracks/lineae over the landmasses
+    landColor = mix(landColor, cBase, cracks * 0.8);
 
     planetColor = mix(
         waterColor, landColor, smoothstep(0.05, 0.06, noiseSample));
