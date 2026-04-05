@@ -215,12 +215,57 @@ vec3 GenerateStars(vec2 pixelCoords) {
   return stars;
 }
 
+
+vec3 hash3_01( vec3 p ) {
+	p = vec3( dot(p,vec3(127.1,311.7, 74.7)),
+            dot(p,vec3(269.5,183.3,246.1)),
+            dot(p,vec3(113.5,271.9,124.6)));
+	return fract(sin(p)*43758.5453123);
+}
+
+float getCraterShape(float d, float r) {
+    float x = d / r;
+    if (x > 1.0) return 0.0;
+    float cav = x * x - 1.0;
+    float rim = smoothstep(0.5, 0.8, x) * smoothstep(1.0, 0.8, x);
+    return mix(cav * 0.5, rim * 0.5, smoothstep(0.6, 0.8, x));
+}
+
+float craters(vec3 x) {
+    vec3 p = floor(x);
+    vec3 f = fract(x);
+    
+    float res = 0.0;
+    for (int i = 0; i < 27; i++) {
+        vec3 b = vec3(
+            mod(float(i), 3.0) - 1.0,
+            mod(floor(float(i) / 3.0), 3.0) - 1.0,
+            floor(float(i) / 9.0) - 1.0
+        );
+        vec3 r_vec = b - f + hash3_01(p + b);
+        float d = length(r_vec);
+        res += getCraterShape(d, 0.6);
+    }
+    return res;
+}
+
 float sdfCircle(vec2 p, float r) {
   return length(p) - r;
 }
 
 float map(vec3 pos) {
-  return fbm(pos, 6, 0.5, 2.0, 4.0);
+  float n = fbm(pos, 6, 0.5, 2.0, 4.0);
+  
+  float c = 0.0;
+  float w = 0.5;
+  float f = 2.0;
+  for (int i = 0; i < 3; i++) {
+      c += craters(pos * f) * w;
+      w *= 0.5;
+      f *= 2.0;
+  }
+  
+  return n + c * 0.3;
 }
 
 vec3 calcNormal(vec3 pos) {
