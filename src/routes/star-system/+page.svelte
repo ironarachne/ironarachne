@@ -24,17 +24,28 @@
 
   let config = getDefaultStarSystemGeneratorConfig();
   let system: StarSystem | undefined = $state();
+  let planetCountControl: string = $state('random');
 
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
+
+    if (planetCountControl !== 'random') {
+      config.planet_count = parseInt(planetCountControl, 10);
+    } else {
+      config.planet_count = Math.max(1, Math.round(rng.bellFloat(1, 12)));
+    }
+
     system = generateStarSystem(config);
   }
 
   onMount(() => {
     config = getDefaultStarSystemGeneratorConfig();
+    if (planetCountControl !== 'random') {
+      config.planet_count = parseInt(planetCountControl, 10);
+    }
     system = generateStarSystem(config);
   });
 </script>
@@ -50,6 +61,16 @@
     <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
+  </div>
+
+  <div class="input-group">
+    <label for="planetCountControl">Planet Count</label>
+    <select bind:value={planetCountControl} id="planetCountControl">
+      <option value="random">Random</option>
+      {#each Array.from({ length: 20 }, (_, i) => i + 1) as i}
+        <option value={i.toString()}>{i}</option>
+      {/each}
+    </select>
   </div>
 
   <button onclick={generate}>Generate</button>

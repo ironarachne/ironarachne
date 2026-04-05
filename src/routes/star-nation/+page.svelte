@@ -57,6 +57,8 @@
   let homePlanet: number = $state(0);
   let homePlanetRegion: RegionOfControl = $state(generateRegionOfControl(homePlanetRegionConfig));
 
+  let planetCountControl: string = $state('random');
+
   const imageWidth = 64;
   const imageHeight = 64;
 
@@ -66,6 +68,12 @@
     }
     rng.setSeed(seed);
     extraDescription = '';
+
+    if (planetCountControl !== 'random') {
+      systemConfig.planet_count = parseInt(planetCountControl, 10);
+    } else {
+      systemConfig.planet_count = Math.max(1, Math.round(rng.bellFloat(1, 12)));
+    }
 
     nation = generateCivilization(config);
     homeSystem = generateStarSystem(systemConfig);
@@ -116,6 +124,16 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
+  <div class="input-group">
+    <label for="planetCountControl">Planet Count</label>
+    <select bind:value={planetCountControl} id="planetCountControl">
+      <option value="random">Random</option>
+      {#each Array.from({ length: 20 }, (_, i) => i + 1) as i}
+        <option value={i.toString()}>{i}</option>
+      {/each}
+    </select>
+  </div>
+
   <button onclick={generate}>Generate</button>
 
   {#if nation}
@@ -153,7 +171,7 @@
         <div class="image-container-system" style="width: 100%;">
           <img
             alt="{homeSystem.name} system composite"
-            style="width: 100%; height: auto;"
+            style="max-width: 100%; height: auto; display: block;"
             src={WebGLStarSystemRenderer.render(
               document,
               homeSystem,
