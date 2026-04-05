@@ -255,25 +255,58 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     float moistureMap = fbm(
         seededNoiseCoord * 0.5 + vec3(20.0), 2, 0.5, 2.0, 1.0);
 
+    // Generate a palette index from the seed
+    float pType = fract(seed * 0.314159);
+
+    // Palette 1: Martian Red
+    vec3 w1 = vec3(0.55, 0.20, 0.10);
+    vec3 l1 = vec3(0.70, 0.35, 0.20);
+    vec3 m1 = vec3(0.30, 0.10, 0.05);
+    vec3 p1 = vec3(0.85, 0.75, 0.65);
+
+    // Palette 2: Arrakis Dune
+    vec3 w2 = vec3(0.80, 0.65, 0.40);
+    vec3 l2 = vec3(0.90, 0.80, 0.55);
+    vec3 m2 = vec3(0.55, 0.45, 0.35);
+    vec3 p2 = vec3(0.95, 0.90, 0.80);
+
+    // Palette 3: Scorched Volcanic/Obsidian Desert
+    vec3 w3 = vec3(0.20, 0.15, 0.12);
+    vec3 l3 = vec3(0.35, 0.28, 0.22);
+    vec3 m3 = vec3(0.10, 0.08, 0.05);
+    vec3 p3 = vec3(0.50, 0.45, 0.40);
+
+    // Palette 4: Salt Flat / Pale Desert
+    vec3 w4 = vec3(0.85, 0.88, 0.90);
+    vec3 l4 = vec3(0.75, 0.78, 0.80);
+    vec3 m4 = vec3(0.55, 0.55, 0.60);
+    vec3 p4 = vec3(0.95, 0.95, 0.98);
+
+    vec3 wBase = w1; vec3 lBase = l1; vec3 mBase = m1; vec3 pBase = p1;
+
+    if (pType > 0.25) { wBase = mix(w1, w2, smoothstep(0.25, 0.35, pType)); lBase = mix(l1, l2, smoothstep(0.25, 0.35, pType)); mBase = mix(m1, m2, smoothstep(0.25, 0.35, pType)); pBase = mix(p1, p2, smoothstep(0.25, 0.35, pType)); }
+    if (pType > 0.50) { wBase = mix(w2, w3, smoothstep(0.50, 0.60, pType)); lBase = mix(l2, l3, smoothstep(0.50, 0.60, pType)); mBase = mix(m2, m3, smoothstep(0.50, 0.60, pType)); pBase = mix(p2, p3, smoothstep(0.50, 0.60, pType)); }
+    if (pType > 0.75) { wBase = mix(w3, w4, smoothstep(0.75, 0.85, pType)); lBase = mix(l3, l4, smoothstep(0.75, 0.85, pType)); mBase = mix(m3, m4, smoothstep(0.75, 0.85, pType)); pBase = mix(p3, p4, smoothstep(0.75, 0.85, pType)); }
+
     // Coloring
     vec3 waterColor = mix(
-        vec3(0.95, 0.95, 0.7),
-        vec3(0.9, 0.6, 0.57),
+        wBase * 0.8,
+        wBase,
         smoothstep(0.02, 0.9, noiseSample));
     vec3 landColor = mix(
-        vec3(0.65, 0.6, 0.4),
-        vec3(0.8, 0.7, 0.6),
+        lBase * 0.9,
+        lBase,
         smoothstep(0.1, 0.2, noiseSample));
     landColor = mix(
-        vec3(0.7, 0.5, 0.5),
+        mBase * 1.5,
         landColor,
-        smoothstep(0.2, 0.4, moistureMap)); // swamps
+        smoothstep(0.2, 0.4, moistureMap)); // dry patched beds
     landColor = mix(
-        landColor, vec3(0.7, 0.7, 0.6), smoothstep(0.2, 0.3, noiseSample)); // mountains
+        landColor, mBase, smoothstep(0.2, 0.3, noiseSample)); // mountains
     landColor = mix(
-        landColor, vec3(1.0), smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
+        landColor, pBase, smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
     landColor = mix(
-        landColor, vec3(1.0), smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
+        landColor, pBase, smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
 
     planetColor = mix(
         waterColor, landColor, smoothstep(0.05, 0.09, noiseSample));
