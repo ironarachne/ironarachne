@@ -1,5 +1,22 @@
 export default [
   {
+    date: '2026-04-05',
+    summary: 'Visual overhauls for star systems, planetary generators, and genre styles',
+    updates: [
+      'Gave more character to the various genre styles (Sci-Fi, Cyberpunk, Fantasy)',
+      'Added star type configuration to star system generator',
+      'Made planet count configurable for star nation and star system generators',
+      'Added composite star system images',
+      'Improved star shader realism',
+      'Added rings to planets',
+      'Made swamp, jungle, and garden planets more realistic',
+      'Updated how clouds are rendered',
+      'Added more variety to gas giants and volcanic, barren, toxic, ocean, ice, and arid planets',
+      'Added more craters to barren planets',
+      'Fixed shader bug in out-of-bounds numbers',
+    ],
+  },
+  {
     date: '2026-04-04',
     summary: 'Massive refactor to many systems',
     updates: [

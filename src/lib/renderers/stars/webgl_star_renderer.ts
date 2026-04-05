@@ -34,7 +34,7 @@ export function render(
   const material = new THREE.ShaderMaterial({
     uniforms: {
       seed: { value: rng.float(0, 100.0) },
-    render_background: { value: 1.0 },
+      render_background: { value: 1.0 },
       resolution: { value: new THREE.Vector2(width, height) },
       corona_width: {
         value: calculateCoronaSize(

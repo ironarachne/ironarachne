@@ -49,7 +49,9 @@ export function render(
     has_rings: { value: planet.has_ring_system ? 1.0 : 0.0 },
     ring_angle: { value: rng.float(0, Math.PI) },
     ring_tilt: { value: rng.float(0.1, 0.4) },
-    ring_color: { value: new THREE.Vector3(rng.float(0.6, 0.9), rng.float(0.6, 0.9), rng.float(0.6, 0.9)) },
+    ring_color: {
+      value: new THREE.Vector3(rng.float(0.6, 0.9), rng.float(0.6, 0.9), rng.float(0.6, 0.9)),
+    },
   };
 
   const geometry = new THREE.PlaneGeometry(1, 1);

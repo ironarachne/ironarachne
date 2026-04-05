@@ -11,7 +11,10 @@
     getDefaultStarSystemGeneratorConfig,
     type StarSystem,
   } from '$lib/astronomical_bodies/star_systems';
-  import { getStarClassifications, searchStarClassificationsByName } from '$lib/astronomical_bodies/star/star_classifications';
+  import {
+    getStarClassifications,
+    searchStarClassificationsByName,
+  } from '$lib/astronomical_bodies/star/star_classifications';
 
   const width = 128;
   const height = 128;
