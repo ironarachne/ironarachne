@@ -234,7 +234,7 @@ float getCraterShape(float d, float r) {
 float craters(vec3 x) {
     vec3 p = floor(x);
     vec3 f = fract(x);
-    
+
     float res = 0.0;
     for (int i = 0; i < 27; i++) {
         vec3 b = vec3(
@@ -255,7 +255,7 @@ float sdfCircle(vec2 p, float r) {
 
 float map(vec3 pos) {
   float n = fbm(pos, 6, 0.5, 2.0, 4.0);
-  
+
   float c = 0.0;
   float w = 0.5;
   float f = 2.0;
@@ -264,7 +264,7 @@ float map(vec3 pos) {
       w *= 0.5;
       f *= 2.0;
   }
-  
+
   return n + c * 0.3;
 }
 
@@ -280,6 +280,38 @@ vec3 calcNormal(vec3 pos) {
 }
 
 vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
+  float pType = fract(seed * 0.12345);
+
+  // Palette 1: Pluto (Icy tans, dark tholins, bright nitrogen frost)
+  vec3 w1 = vec3(0.85, 0.80, 0.75); // Frost fields (was water)
+  vec3 l1 = vec3(0.60, 0.50, 0.45); // Tan regolith
+  vec3 m1 = vec3(0.30, 0.20, 0.15); // Dark tholins (craters/stains)
+  vec3 p1 = vec3(0.95, 0.90, 0.85); // Bright nitrogen peaks/poles
+
+  // Palette 2: Mercury/Moon (Basaltic greys, charcoal impacts)
+  vec3 w2 = vec3(0.35, 0.35, 0.35); // Lunar maria (was water)
+  vec3 l2 = vec3(0.55, 0.55, 0.55); // Ash grey highlands
+  vec3 m2 = vec3(0.20, 0.20, 0.20); // Deep charcoal impacts
+  vec3 p2 = vec3(0.70, 0.70, 0.70); // Ejecta rays/bright spots
+
+  // Palette 3: Charon/Rust (Reddish-brown dust, iron rich, dark maria)
+  vec3 w3 = vec3(0.30, 0.25, 0.20); // Dark ancient basins
+  vec3 l3 = vec3(0.55, 0.40, 0.30); // Rusty dusty crust
+  vec3 m3 = vec3(0.40, 0.25, 0.15); // Deep red-brown iron patches
+  vec3 p3 = vec3(0.70, 0.60, 0.50); // Lighter dusty ridges
+
+  // Palette 4: Ceres/Carbonaceous (Very dark charcoal, bright salt deposits)
+  vec3 w4 = vec3(0.15, 0.15, 0.15); // Dark carbon crust
+  vec3 l4 = vec3(0.25, 0.25, 0.25); // Slightly lighter grey dust
+  vec3 m4 = vec3(0.08, 0.08, 0.08); // Pitch black impact shadows
+  vec3 p4 = vec3(0.80, 0.85, 0.90); // Ultra-bright bluish salt streaks
+
+  vec3 wBase = w1; vec3 lBase = l1; vec3 mBase = m1; vec3 pBase = p1;
+
+  if (pType > 0.25) { wBase = mix(w1, w2, smoothstep(0.25, 0.35, pType)); lBase = mix(l1, l2, smoothstep(0.25, 0.35, pType)); mBase = mix(m1, m2, smoothstep(0.25, 0.35, pType)); pBase = mix(p1, p2, smoothstep(0.25, 0.35, pType)); }
+  if (pType > 0.50) { wBase = mix(w2, w3, smoothstep(0.50, 0.60, pType)); lBase = mix(l2, l3, smoothstep(0.50, 0.60, pType)); mBase = mix(m2, m3, smoothstep(0.50, 0.60, pType)); pBase = mix(p2, p3, smoothstep(0.50, 0.60, pType)); }
+  if (pType > 0.75) { wBase = mix(w3, w4, smoothstep(0.75, 0.85, pType)); lBase = mix(l3, l4, smoothstep(0.75, 0.85, pType)); mBase = mix(m3, m4, smoothstep(0.75, 0.85, pType)); pBase = mix(p3, p4, smoothstep(0.75, 0.85, pType)); }
+
   float d = sdfCircle(pixelCoords, planetRadius);
 
   vec3 planetColor = vec3(1.0);
@@ -297,58 +329,63 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     vec3 noiseCoord = wsPosition * 2.0;
     vec3 seededNoiseCoord = noiseCoord + seed / 100.0;
     float noiseSample = fbm(seededNoiseCoord, 6, 0.5, 2.0, 4.0);
-    float moistureMap = fbm(
-        seededNoiseCoord * 0.5 + vec3(20.0), 2, 0.5, 2.0, 1.0);
 
-    // Coloring
-    vec3 waterColor = mix(
-        vec3(0.95, 0.95, 0.95),
-        vec3(0.6, 0.6, 0.6),
+    // Large Impact basins / ancient maria (lower frequency, broader features)
+    float impactMap = fbm(seededNoiseCoord * 1.2 + vec3(12.0), 5, 0.5, 2.0, 1.0);
+
+    // Broader ejecta rays and bright zones
+    float ejectaMap = fbm(seededNoiseCoord * 1.8, 4, 0.5, 2.0, 1.0);
+
+    // Apply Coloring
+    vec3 frostColor = mix(
+        wBase * 0.9,
+        wBase,
         smoothstep(0.02, 0.9, noiseSample));
+
+    // Base land is smoothly varied
     vec3 landColor = mix(
-        vec3(0.65, 0.65, 0.6),
-        vec3(0.7, 0.7, 0.65),
-        smoothstep(0.1, 0.2, noiseSample));
+        lBase,
+        lBase * 1.1,
+        smoothstep(0.1, 0.6, noiseSample));
+
+    // Maria / Deep Crater stains (softer transition)
     landColor = mix(
-        vec3(0.5, 0.5, 0.5),
+        mBase,
         landColor,
-        smoothstep(0.2, 0.4, moistureMap)); // swamps
+        smoothstep(0.35, 0.65, impactMap));
+
+    // Highlands / Ridges
     landColor = mix(
-        landColor, vec3(0.7, 0.7, 0.7), smoothstep(0.2, 0.3, noiseSample)); // mountains
+        landColor,
+        mix(lBase, pBase, 0.4),
+        smoothstep(0.5, 0.8, noiseSample));
+
+    // Broad bright zones instead of tiny harsh spots
     landColor = mix(
-        landColor, vec3(1.0), smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
-    landColor = mix(
-        landColor, vec3(1.0), smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
+        landColor, pBase, smoothstep(0.6, 1.0, ejectaMap + noiseSample * 0.2));
+
+    // Polar caps (not on all, but strongly visible on Pluto-like)
+    float poleMask = smoothstep(0.65, 0.95, abs(viewNormal.y) + (fbm(seededNoiseCoord * 2.0, 3, 0.5, 2.0, 1.0) * 0.2));
+    landColor = mix(landColor, pBase, poleMask * (1.0 - pType)); // Weaker caps on Ceres/Mercury, stronger on Pluto/Charon
 
     planetColor = mix(
-        waterColor, landColor, smoothstep(0.05, 0.09, noiseSample));
+        frostColor, landColor, smoothstep(0.15, 0.35, noiseSample + (1.0 - impactMap) * 0.3));
 
-    // Clouds
-    float cloudAmount = 0.25;
-    float cloudMap = fbm(seededNoiseCoord * 0.25 + vec3(10.0), 6, 0.75, 2.0, 1.0);
-    float cloudDensity = smoothstep(0.4, 0.6, cloudMap);
-    float cloudValue = cloudDensity * cloudAmount * 1.5;
-    planetColor = mix(
-        planetColor, vec3(1.0), cloudValue);
-
-    // Lighting
+    // Lighting (Harsh and unscattered since no atmosphere)
     vec2 specParams = mix(
-        vec2(0.5, 32.0),
-        vec2(0.01, 2.0),
-        smoothstep(0.05, 0.06, noiseSample));
+        vec2(0.2, 4.0),
+        vec2(0.02, 1.0),
+        smoothstep(0.05, 0.1, noiseSample));
     vec3 wsLightDir = normalize(light_direction);
-    vec3 wsSurfaceNormal = normalize(calcNormal(noiseCoord) + 16.0 * wsNormal);
 
-    // Subsurface scattering
-    float wrap = 0.05;
-    float dp = max(
-        0.0, (dot(wsLightDir, wsSurfaceNormal) + wrap) / (1.0 + wrap));
+    // Normal mapping for craters
+    vec3 wsSurfaceNormal = normalize(calcNormal(noiseCoord) * (1.0 + impactMap) + 16.0 * wsNormal);
 
-    vec3 lightColor = mix(
-        vec3(0.25, 0.0, 0.0),
-        vec3(0.75),
-        smoothstep(0.05, 0.5, dp));
-    vec3 ambient = vec3(0.002);
+    // Pure harsh diffuse
+    float dp = max(0.0, dot(wsLightDir, wsSurfaceNormal));
+
+    vec3 lightColor = vec3(1.0); // Harsh white sunlight
+    vec3 ambient = vec3(0.01);   // Very dark shadowed areas
     vec3 diffuse = lightColor * dp;
 
     vec3 r = normalize(reflect(-wsLightDir, wsSurfaceNormal));
@@ -357,6 +394,7 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
 
     vec3 specular = vec3(phongValue) * specParams.x * diffuse;
 
+    // No fresnel scattering on horizon because there's no atmosphere!
     vec3 planetShading = planetColor * (diffuse + ambient) + specular;
     planetColor = planetShading;
   }
