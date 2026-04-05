@@ -1,5 +1,5 @@
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 uniform vec2 resolution;
@@ -45,7 +45,10 @@ vec3 grad(float hash) {
     // Also a cuboctahedral vertex
     // And corresponds to the face of its dual, the rhombic dodecahedron
     vec3 cuboct = cube;
-    cuboct[int(hash / 16.0)] = 0.0;
+    int index = int(hash / 16.0);
+    if (index == 0) cuboct.x = 0.0;
+    else if (index == 1) cuboct.y = 0.0;
+    else cuboct.z = 0.0;
 
     // In a funky way, pick one of the four points on the rhombic face
     float type = mod(floor(hash / 8.0), 2.0);
@@ -67,7 +70,7 @@ vec3 grad(float hash) {
 vec4 openSimplex2Base(vec3 X) {
 
     // First half-lattice, closest edge
-    vec3 v1 = round(X);
+    vec3 v1 = floor(X + 0.5);
     vec3 d1 = X - v1;
     vec3 score1 = abs(d1);
     vec3 dir1 = step(max(score1.yzx, score1.zxy), score1);
@@ -76,7 +79,7 @@ vec4 openSimplex2Base(vec3 X) {
 
     // Second half-lattice, closest edge
     vec3 X2 = X + 144.5;
-    vec3 v3 = round(X2);
+    vec3 v3 = floor(X2 + 0.5);
     vec3 d3 = X2 - v3;
     vec3 score2 = abs(d3);
     vec3 dir2 = step(max(score2.yzx, score2.zxy), score2);
@@ -96,8 +99,9 @@ vec4 openSimplex2Base(vec3 X) {
     vec4 extrapolations = vec4(dot(d1, g1), dot(d2, g2), dot(d3, g3), dot(d4, g4));
 
     // Derivatives of the noise
-    vec3 derivative = -8.0 * mat4x3(d1, d2, d3, d4) * (aa * a * extrapolations)
-        + mat4x3(g1, g2, g3, g4) * aaaa;
+    vec4 m = aa * a * extrapolations;
+    vec3 derivative = -8.0 * (d1 * m.x + d2 * m.y + d3 * m.z + d4 * m.w)
+        + (g1 * aaaa.x + g2 * aaaa.y + g3 * aaaa.z + g4 * aaaa.w);
 
     // Return it all as a vec4
     return vec4(derivative, dot(aaaa, extrapolations));
@@ -148,7 +152,8 @@ float fbm(vec3 p, int octaves, float persistence, float lacunarity, float expone
   float total = 0.0;
   float normalization = 0.0;
 
-  for (int i = 0; i < octaves; ++i) {
+  for (int i = 0; i < 16; ++i) {
+    if (i >= octaves) break;
     float noiseValue = openSimplex2_Conventional(p * frequency).w;
     total += noiseValue * amplitude;
     normalization += amplitude;
@@ -158,7 +163,7 @@ float fbm(vec3 p, int octaves, float persistence, float lacunarity, float expone
 
   total /= normalization;
   total = total * 0.5 + 0.5;
-  total = pow(total, exponentiation);
+  total = pow(max(0.0, total), exponentiation);
 
   return total;
 }
@@ -198,14 +203,14 @@ vec3 GenerateStars(vec2 pixelCoords) {
 
   float size = 4.0;
   float cellWidth = 700.0;
-  for (float i = 0.0; i <= 2.0; i++) {
-    stars += GenerateGridStars(pixelCoords, size, cellWidth, i, true);
+  for (int i = 0; i < 3; i++) {
+    stars += GenerateGridStars(pixelCoords, size, cellWidth, float(i), true);
     size *= 0.5;
     cellWidth *= 0.35;
   }
 
-  for (float i = 3.0; i < 5.0; i++) {
-    stars += GenerateGridStars(pixelCoords, size, cellWidth, i, false);
+  for (int i = 3; i < 5; i++) {
+    stars += GenerateGridStars(pixelCoords, size, cellWidth, float(i), false);
     size *= 0.5;
     cellWidth *= 0.35;
   }
@@ -248,7 +253,7 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
   if (d <= 0.0) {
     float x = rotatedCoords.x / planetRadius;
     float y = rotatedCoords.y / planetRadius;
-    float z = sqrt(1.0 - x * x - y * y);
+    float z = sqrt(max(0.0, 1.0 - x * x - y * y));
 
     vec3 viewNormal = vec3(x, y, z);
     vec3 wsPosition = viewNormal;
@@ -300,12 +305,12 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     planetColor = planetShading;
 
     // Fresnel
-    float fresnel = smoothstep(1.0, 0.1, viewNormal.z);
-    fresnel = pow(fresnel, 8.0) * dp;
+    float fresnel = 1.0 - smoothstep(0.1, 1.0, viewNormal.z);
+    fresnel = pow(max(0.0, fresnel), 8.0) * dp;
     planetColor = mix(planetColor, mainColor, fresnel);
   }
 
-  color = mix(color, planetColor, smoothstep(0.0, -1.0, d));
+  color = mix(color, planetColor, 1.0 - smoothstep(-1.0, 0.0, d));
 
   // Atmosphere glow
   float atmosphereAmount = planetRadius * 0.05;
@@ -314,7 +319,7 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
   if (d < atmosphereAmount + 24.0 && d >= -1.0) {
     float x = rotatedCoords.x / atmosphereRadius;
     float y = rotatedCoords.y / atmosphereRadius;
-    float z = sqrt(1.0 - x * x - y * y);
+    float z = sqrt(max(0.0, 1.0 - x * x - y * y));
     vec3 normal = vec3(x, y, z);
 
     float lighting = dot(normal, normalize(light_direction));
@@ -339,5 +344,5 @@ void main() {
   color = GenerateStars(pixelCoords);
   color = DrawPlanet(pixelCoords, color, planet_radius);
 
-  gl_FragColor = vec4(pow(color, vec3(1.0 / 2.2)), 1.0);
+  gl_FragColor = vec4(pow(max(vec3(0.0), color), vec3(1.0 / 2.2)), 1.0);
 }
