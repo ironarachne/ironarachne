@@ -243,10 +243,69 @@ mat2 rotate2d(float _angle){
 }
 
 vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
+  // Use the seed to divide gas giants into structural types
+  float pType = fract(seed * 0.98765);
+
+  // We rely on the uniformly passed colors from JS to maintain limitless palette variety!
+  vec3 wBase = main_color;
+  vec3 lBase = band_color_1;
+  vec3 mBase = band_color_2;
+  vec3 cBase = wBase; // Storm / Wisp color
+
+  float baseFreq = 8.0;
+  float turbulence = 0.18;
+  float wispStrength = 0.1;
+  float hasSpots = 1.0;
+  float bandSmoothness = 0.01;
+
+  if (pType < 0.25) {
+    // JUPITER TYPE (Dynamic bands, highest turbulence, prominent distinct spots)
+    baseFreq = 12.0 + fract(seed) * 8.0;
+    turbulence = 0.25 + fract(seed * 1.5) * 0.1;
+    wispStrength = 0.0;
+    bandSmoothness = 0.02;
+    // Storms get a contrasting mix of the band colors so they stand out like the Red Spot
+    cBase = mix(mBase, vec3(1.0, 0.8, 0.6), 0.3);
+  } else if (pType < 0.50) {
+    // SATURN TYPE (Muted colors smoothly blending, low turbulence, almost no spots)
+    baseFreq = 16.0 + fract(seed) * 10.0;
+    turbulence = 0.05;
+    wispStrength = 0.05;
+    hasSpots = 0.0;
+    bandSmoothness = 0.15; // wide smooth blends
+    // Mute the bands heavily toward the main color to create pastel gradients
+    lBase = mix(wBase, band_color_1, 0.4);
+    mBase = mix(wBase, band_color_2, 0.4);
+    cBase = mix(wBase, vec3(1.0), 0.1);
+  } else if (pType < 0.75) {
+    // URANUS TYPE (Almost completely featureless, very faint bands, zero spots)
+    baseFreq = 4.0;
+    turbulence = 0.02;
+    wispStrength = 0.12;
+    hasSpots = 0.0;
+    bandSmoothness = 0.3;
+    // Extremely subtle banding
+    lBase = mix(wBase, band_color_1, 0.1);
+    mBase = mix(wBase, band_color_2, 0.1);
+    // Subtle lighter wisps, softly blending into the base
+    cBase = mix(wBase, vec3(1.0), 0.15);
+  } else {
+    // NEPTUNE TYPE (Deep contrast, storms, horizontal wispy clouds)
+    baseFreq = 6.0 + fract(seed) * 4.0;
+    turbulence = 0.12;
+    wispStrength = 0.35; // reduced from the harsh 0.8 white
+    hasSpots = 0.8;
+    bandSmoothness = 0.08;
+    // Darken the base colors slightly to make it feel deep
+    lBase = mix(wBase, vec3(0.0), 0.2);
+    mBase = mix(band_color_2, vec3(0.0), 0.2);
+    // Wisps are a slightly lighter version of the main color, NOT stark white
+    cBase = mix(wBase, vec3(1.0), 0.35);
+  }
+
   float d = sdfCircle(pixelCoords, planetRadius);
 
   vec3 planetColor = vec3(1.0);
-  vec3 mainColor = main_color;
 
   vec2 rotatedCoords = rotate2d(seed * 0.1) * pixelCoords;
 
@@ -265,15 +324,43 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     float noiseSample1 = fbm(seededNoiseCoord, 6, 0.5, 2.0, 4.0);
     float noiseSample2 = fbm(seededNoiseCoord, 6, 0.5, 4.0, 4.0);
 
-    // Coloring
-    vec3 bandColor = band_color_1;
-    vec3 bandColor2 = band_color_2;
+    // Generate storms (Great spots)
+    vec2 spotCoords1 = rotatedCoords / planetRadius - vec2(0.2, -0.2); // static pos relative to rotation
+    spotCoords1.y *= 1.8; // Squish into ellipse
+    float spotDist1 = length(spotCoords1);
+    float spotMask1 = 1.0 - smoothstep(0.1, 0.25, spotDist1 + fbm(seededNoiseCoord * 3.0, 4, 0.5, 2.0, 1.0) * 0.1);
 
-    float amplitude = 0.18 + noiseSample1 * 0.01;
-    float frequency = 8.0 + noiseSample2;
-    planetColor = mix(mainColor, bandColor, smoothstep(0.15, 0.2, abs(amplitude * sin(y * frequency) + pow(noiseSample1, 1.5))));
-    planetColor = mix(planetColor, bandColor2, smoothstep(0.15, 0.2, abs(amplitude * sin(y * frequency * 1.35) + pow(noiseSample1, 1.5))));
-    planetColor = mix(planetColor, bandColor, smoothstep(0.1, 0.25, abs(amplitude * sin(y * frequency * 1.75) + pow(noiseSample1, 1.5))));
+    vec2 spotCoords2 = rotatedCoords / planetRadius - vec2(-0.4, 0.4);
+    spotCoords2.y *= 2.2;
+    float spotDist2 = length(spotCoords2);
+    float spotMask2 = 1.0 - smoothstep(0.05, 0.15, spotDist2 + fbm(seededNoiseCoord * 4.0 + 10.0, 4, 0.5, 2.0, 1.0) * 0.1);
+
+    float stormMask = max(spotMask1, spotMask2) * hasSpots;
+
+    float amplitude = turbulence + noiseSample1 * (turbulence * 0.5);
+    float frequency = baseFreq + noiseSample2;
+
+    // Bands bend around storms slightly
+    float warpedY = y + stormMask * 0.1 * sign(y);
+
+    // Create variable transition rates so bands blend smoothly and organically
+    float dynamicSmoothness = bandSmoothness + (noiseSample2 * 0.1);
+
+    float bandValue1 = smoothstep(0.15 - dynamicSmoothness, 0.15 + dynamicSmoothness, abs(amplitude * sin(warpedY * frequency) + pow(noiseSample1, 1.5)));
+    float bandValue2 = smoothstep(0.15 - dynamicSmoothness, 0.15 + dynamicSmoothness, abs(amplitude * sin(warpedY * frequency * 1.35) + pow(noiseSample1, 1.5)));
+    float bandValue3 = smoothstep(0.10 - dynamicSmoothness, 0.10 + dynamicSmoothness, abs(amplitude * sin(warpedY * frequency * 1.75) + pow(noiseSample1, 1.5)));
+
+    planetColor = mix(wBase, lBase, bandValue1);
+    planetColor = mix(planetColor, mBase, bandValue2);
+    planetColor = mix(planetColor, lBase, bandValue3);
+
+    // Add storms
+    planetColor = mix(planetColor, cBase, stormMask * 0.9);
+
+    // Add wispy clouds (high frequency longitudinal strips)
+    float wispMap = fbm(seededNoiseCoord * vec3(1.5, 8.0, 1.5), 5, 0.5, 2.0, 1.0);
+    float wispMask = smoothstep(0.5 - bandSmoothness, 0.7 + bandSmoothness, wispMap);
+    planetColor = mix(planetColor, cBase, wispMask * wispStrength);
 
     // Lighting
     vec2 specParams = mix(
@@ -307,7 +394,7 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     // Fresnel
     float fresnel = 1.0 - smoothstep(0.1, 1.0, viewNormal.z);
     fresnel = pow(max(0.0, fresnel), 8.0) * dp;
-    planetColor = mix(planetColor, mainColor, fresnel);
+    planetColor = mix(planetColor, wBase * 1.5, fresnel);
   }
 
   color = mix(color, planetColor, 1.0 - smoothstep(-1.0, 0.0, d));
@@ -329,7 +416,7 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     // modify the degree based on the size of the image, where -0.2 is appropriate for 512x512
     glowDegree *= 512.0 / resolution.x;
 
-    vec3 glowColor = mainColor *
+    vec3 glowColor = main_color *
         exp(glowDegree * d * d) * lighting * 0.75;
     color += glowColor;
   }
