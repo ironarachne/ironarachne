@@ -258,23 +258,23 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
 
     // Coloring
     vec3 waterColor = mix(
-        vec3(0.01, 0.09, 0.55),
-        vec3(0.09, 0.26, 0.57),
+        vec3(0.02, 0.05, 0.15), // Deep ocean
+        vec3(0.05, 0.15, 0.35), // Shallows
         smoothstep(0.02, 0.06, noiseSample));
     vec3 landColor = mix(
-        vec3(0.5, 1.0, 0.3),
-        vec3(0.0, 0.7, 0.0),
+        vec3(0.25, 0.35, 0.15), // Lowlands (plains/grass)
+        vec3(0.1, 0.25, 0.1),   // Highlands (darker forests)
         smoothstep(0.05, 0.1, noiseSample));
     landColor = mix(
-        vec3(1.0, 1.0, 0.5),
+        vec3(0.7, 0.6, 0.4), // Deserts (natural tan/sand)
         landColor,
-        smoothstep(0.4, 0.5, moistureMap)); // deserts
+        smoothstep(0.35, 0.5, moistureMap)); // deserts
     landColor = mix(
-        landColor, vec3(0.5), smoothstep(0.1, 0.2, noiseSample)); // mountains
+        landColor, vec3(0.35, 0.3, 0.25), smoothstep(0.12, 0.18, noiseSample)); // bare rock mountains
     landColor = mix(
-        landColor, vec3(1.0), smoothstep(0.2, 0.3, noiseSample)); // mountain peaks
+        landColor, vec3(0.9, 0.9, 0.95), smoothstep(0.18, 0.25, noiseSample)); // snowy mountain peaks
     landColor = mix(
-        landColor, vec3(0.9), smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
+        landColor, vec3(0.9, 0.9, 0.95), smoothstep(0.6, 0.85, abs(viewNormal.y))); // polar caps
 
     planetColor = mix(
         waterColor, landColor, smoothstep(0.05, 0.06, noiseSample));
