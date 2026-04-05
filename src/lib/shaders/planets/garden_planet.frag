@@ -5,6 +5,8 @@ precision highp float;
 uniform vec2 resolution;
 uniform float seed;
 uniform float planet_radius;
+uniform float cloud_coverage;
+uniform float storm_activity;
 
 varying vec2 vUvs;
 
@@ -277,13 +279,54 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     planetColor = mix(
         waterColor, landColor, smoothstep(0.05, 0.06, noiseSample));
 
-    // Clouds
-    float cloudAmount = 0.5;
-    float cloudMap = fbm(seededNoiseCoord * 0.25 + vec3(10.0), 6, 0.5, 4.0, 1.0);
-    float cloudDensity = smoothstep(0.5, 0.6, cloudMap);
-    float cloudValue = cloudDensity * cloudAmount * 1.5;
+    // --- CLOUDS & STORMS ---
+    // 1. Uneven Scattering Mask (creates large clear areas and clumped cloud zones)
+    // Low frequency to map out continents vs oceans of cloud formations.
+    float scatterMap = fbm(seededNoiseCoord * 0.35 + vec3(10.0), 3, 0.5, 2.0, 1.0);
+    float scatterMask = smoothstep(0.3, 0.7, scatterMap);
+
+    // 2. Swirling domain distortion for cyclonic weather patterns
+    vec3 wVec = seededNoiseCoord * 0.7;
+    vec3 cloudWarp = vec3(
+        fbm(wVec, 4, 0.5, 2.0, 1.0),
+        fbm(wVec + vec3(12.3), 4, 0.5, 2.0, 1.0),
+        fbm(wVec + vec3(45.6), 4, 0.5, 2.0, 1.0)
+    ) * 0.8;
+
+    // 3. Base clouds on warped coordinates
+    // We strictly use exponentiation 1.0 to avoid producing tiny disconnected speckles (Gaussian noise)
+    float cloudBase = fbm(seededNoiseCoord * 0.8 + cloudWarp, 5, 0.5, 2.0, 1.0);
+
+    // Combine base clouds with the scattering mask, ensuring some base clouds survive even outside clamps
+    float cloudMap = mix(cloudBase * 0.5, cloudBase, scatterMask);
+
+    // Smooth transitions
+    float cThresh = mix(0.7, -0.1, cloud_coverage);
+    float cloudDensity = smoothstep(cThresh, cThresh + 0.3, cloudMap);
+    float cloudAmount = clamp(cloud_coverage * 1.5, 0.0, 1.0);
+    float cloudValue = cloudDensity * cloudAmount;
+    vec3 cloudColor = mix(vec3(0.9), vec3(1.0), cloudDensity);
+
+    // 4. Storms layer (focused by scattering and additional cyclonic warping)
+    float stormThresh = mix(0.8, 0.3, storm_activity);
+    vec3 sVec = seededNoiseCoord * 1.0;
+    vec3 stormWarp = vec3(
+        fbm(sVec, 4, 0.5, 2.0, 1.0),
+        fbm(sVec + vec3(1.0), 4, 0.5, 2.0, 1.0),
+        fbm(sVec + vec3(2.0), 4, 0.5, 2.0, 1.0)
+    ) * 0.5;
+
+    float stormMap = fbm(seededNoiseCoord * 1.5 + stormWarp + vec3(15.0), 5, 0.5, 2.0, 1.0);
+
+    // Storms heavily depend on the scatter mask to look like distinct central systems
+    float stormDensity = smoothstep(stormThresh, stormThresh + 0.3, stormMap) * scatterMask * cloudDensity;
+
+    // Darken clouds heavily in storm centers
+    cloudColor = mix(cloudColor, vec3(0.4, 0.4, 0.45), stormDensity * 0.9);
+    cloudValue = mix(cloudValue, 1.0, stormDensity * 0.8);
+
     planetColor = mix(
-        planetColor, vec3(1.0), cloudValue);
+        planetColor, cloudColor, cloudValue);
 
     // Lighting
     vec2 specParams = mix(

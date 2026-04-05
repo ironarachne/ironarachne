@@ -41,6 +41,8 @@ export function render(
     main_color: { value: colors[0] },
     band_color_1: { value: colors[1] },
     band_color_2: { value: colors[2] },
+    cloud_coverage: { value: rng.float(0.5, 0.75) },
+    storm_activity: { value: rng.float(0.2, 0.6) },
     resolution: { value: new THREE.Vector2(width, height) },
     seed: { value: rng.float(0.0, 100.0) },
   };
