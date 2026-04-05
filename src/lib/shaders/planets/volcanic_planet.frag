@@ -235,6 +235,48 @@ vec3 calcNormal(vec3 pos) {
 }
 
 vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
+  float pType = fract(seed * 0.77341);
+
+  // Palette 1: Basaltic (Mustafar-like: Black crust, bright orange/yellow lava)
+  vec3 v1_1 = vec3(1.00, 1.00, 0.00); // Hot yellow lava core
+  vec3 v1_2 = vec3(1.00, 0.30, 0.00); // Orange lava edge
+  vec3 l1_1 = vec3(0.15, 0.12, 0.10); // Dark grey basalt
+  vec3 l1_2 = vec3(0.05, 0.04, 0.03); // Jet black obsidian
+  vec3 c1   = vec3(0.20, 0.15, 0.15); // Dark ash clouds
+  vec3 f1   = vec3(0.80, 0.40, 0.10); // Ember orange atmosphere
+
+  // Palette 2: Sulfuric (Io-like: Yellow/green crust, angry red/orange lakes)
+  vec3 v2_1 = vec3(1.00, 0.60, 0.00); // Orange-yellow sulfur lava
+  vec3 v2_2 = vec3(0.80, 0.10, 0.00); // Deep red magma
+  vec3 l2_1 = vec3(0.70, 0.60, 0.20); // Yellow/green sulfur crust
+  vec3 l2_2 = vec3(0.40, 0.30, 0.10); // Brownish stained rock
+  vec3 c2   = vec3(0.60, 0.60, 0.40); // Yellowish sulfur dioxide clouds
+  vec3 f2   = vec3(0.90, 0.70, 0.20); // Yellow-gold atmosphere
+
+  // Palette 3: Cooling/Dying (Thick pitch black crust, dim deep red cracks)
+  vec3 v3_1 = vec3(0.60, 0.10, 0.00); // Cherry red lava
+  vec3 v3_2 = vec3(0.30, 0.02, 0.00); // Very dark cooling edge
+  vec3 l3_1 = vec3(0.10, 0.08, 0.10); // Cool grey rock
+  vec3 l3_2 = vec3(0.02, 0.02, 0.02); // Pitch black
+  vec3 c3   = vec3(0.10, 0.10, 0.10); // Very thin dark grey clouds
+  vec3 f3   = vec3(0.40, 0.05, 0.05); // Deep blood red atmosphere
+
+  // Palette 4: Cracking Lava (Dark brown/grey crust, angry red lava rivers)
+  vec3 v4_1 = vec3(1.00, 0.20, 0.00); // Bright red-orange core
+  vec3 v4_2 = vec3(0.60, 0.05, 0.00); // Deep angry red edge
+  vec3 l4_1 = vec3(0.25, 0.20, 0.18); // Dark brown crust
+  vec3 l4_2 = vec3(0.15, 0.12, 0.10); // Very dark brownish grey
+  vec3 c4   = vec3(0.20, 0.15, 0.15); // Dark ash
+  vec3 f4   = vec3(0.60, 0.10, 0.05); // Red atmospheric glow
+
+  vec3 vBase1 = v1_1; vec3 vBase2 = v1_2;
+  vec3 lBase1 = l1_1; vec3 lBase2 = l1_2;
+  vec3 cBase = c1; vec3 fBase = f1;
+
+  if (pType > 0.25) { vBase1 = mix(v1_1, v2_1, smoothstep(0.25, 0.35, pType)); vBase2 = mix(v1_2, v2_2, smoothstep(0.25, 0.35, pType)); lBase1 = mix(l1_1, l2_1, smoothstep(0.25, 0.35, pType)); lBase2 = mix(l1_2, l2_2, smoothstep(0.25, 0.35, pType)); cBase = mix(c1, c2, smoothstep(0.25, 0.35, pType)); fBase = mix(f1, f2, smoothstep(0.25, 0.35, pType)); }
+  if (pType > 0.50) { vBase1 = mix(v2_1, v3_1, smoothstep(0.50, 0.60, pType)); vBase2 = mix(v2_2, v3_2, smoothstep(0.50, 0.60, pType)); lBase1 = mix(l2_1, l3_1, smoothstep(0.50, 0.60, pType)); lBase2 = mix(l2_2, l3_2, smoothstep(0.50, 0.60, pType)); cBase = mix(c2, c3, smoothstep(0.50, 0.60, pType)); fBase = mix(f2, f3, smoothstep(0.50, 0.60, pType)); }
+  if (pType > 0.75) { vBase1 = mix(v3_1, v4_1, smoothstep(0.75, 0.85, pType)); vBase2 = mix(v3_2, v4_2, smoothstep(0.75, 0.85, pType)); lBase1 = mix(l3_1, l4_1, smoothstep(0.75, 0.85, pType)); lBase2 = mix(l3_2, l4_2, smoothstep(0.75, 0.85, pType)); cBase = mix(c3, c4, smoothstep(0.75, 0.85, pType)); fBase = mix(f3, f4, smoothstep(0.75, 0.85, pType)); }
+
   float d = sdfCircle(pixelCoords, planetRadius);
 
   vec3 planetColor = vec3(1.0);
@@ -252,41 +294,46 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     vec3 noiseCoord = wsPosition * 2.0;
     vec3 seededNoiseCoord = noiseCoord + seed / 100.0;
     float noiseSample = fbm(seededNoiseCoord, 6, 0.5, 2.0, 4.0);
-    float moistureMap = fbm(
-        seededNoiseCoord * 0.5 + vec3(20.0), 2, 0.5, 2.0, 1.0);
+
+    // Vary the lava lake size based on type
+    float lavaLakeSize = 0.02;
+    if (pType < 0.25) lavaLakeSize = 0.025; // Basaltic lakes
+    else if (pType < 0.50) lavaLakeSize = 0.035; // Sulfuric pools
+    else if (pType < 0.75) lavaLakeSize = 0.008; // Cooling tight cracks
+    else {
+      // Palette 4: Lava rivers. We create a "ridge" or "vein" pattern by taking the absolute value of noise.
+      float riverMap = abs(fbm(seededNoiseCoord * 1.5, 4, 0.5, 2.0, 1.0) - 0.5) * 2.0;
+      // We want lava where the river function is very low (the valley of the noise)
+      noiseSample = riverMap * 0.15; // remap it so smaller values trigger the lava
+      lavaLakeSize = 0.015;
+    }
 
     // Coloring
     vec3 lavaColor = mix(
-        vec3(1.0, 1.0, 0.0),
-        vec3(1.0, 0.4, 0.0),
-        smoothstep(0.0025, 0.015, noiseSample));
+        vBase1,
+        vBase2,
+        smoothstep(0.001, lavaLakeSize, noiseSample));
+
     vec3 landColor = mix(
-        vec3(0.3, 0.3, 0.3),
-        vec3(0.0, 0.0, 0.0),
-        smoothstep(0.1, 0.2, noiseSample));
-    landColor = mix(
-        vec3(0.3, 0.3, 0.1),
-        landColor,
-        smoothstep(0.2, 0.4, moistureMap)); // swamps
-    landColor = mix(
-        landColor, vec3(0.3, 0.3, 0.3), smoothstep(0.2, 0.3, noiseSample)); // mountains
-    landColor = mix(
-        landColor, vec3(0.4, 0.4, 0.4), smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
-    landColor = mix(
-        landColor, vec3(0.9), smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
+        lBase1,
+        lBase2,
+        smoothstep(0.1, 0.3, noiseSample));
 
+    // Swathes of dark soot/ash across the landscape
+    float ashMap = fbm(seededNoiseCoord * 3.0 + vec3(15.0), 3, 0.5, 2.0, 1.0);
+    landColor = mix(landColor, lBase2 * 0.5, smoothstep(0.6, 0.9, ashMap));
+
+    // Highlands
+    landColor = mix(landColor, lBase1 * 1.5, smoothstep(0.5, 0.7, noiseSample));
+
+    // Rough jagged crust around the lava lakes
+    landColor = mix(landColor, lBase2 * 0.3, smoothstep(lavaLakeSize, lavaLakeSize + 0.05, noiseSample));
+
+    // Base color of the planet
     planetColor = mix(
-        lavaColor, landColor, smoothstep(0.02, 0.03, noiseSample));
+        lavaColor, landColor, smoothstep(lavaLakeSize - 0.01, lavaLakeSize, noiseSample));
 
-    // Clouds
-    float cloudAmount = 0.9;
-    float cloudMap = fbm(seededNoiseCoord * 0.25 + vec3(10.0), 6, 0.75, 2.0, 1.0);
-    float cloudDensity = smoothstep(0.4, 0.6, cloudMap);
-    float cloudValue = cloudDensity * cloudAmount * 1.5;
-    planetColor = mix(
-        planetColor, vec3(0.7), cloudValue);
-
-    // Lighting
+    // Lighting Math
     vec2 specParams = mix(
         vec2(0.5, 32.0),
         vec2(0.01, 2.0),
@@ -294,16 +341,15 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     vec3 wsLightDir = normalize(light_direction);
     vec3 wsSurfaceNormal = normalize(calcNormal(noiseCoord) + 16.0 * wsNormal);
 
-    // Subsurface scattering
+    // Subsurface scattering & Light Intensity
     float wrap = 0.05;
-    float dp = max(
-        0.0, (dot(wsLightDir, wsSurfaceNormal) + wrap) / (1.0 + wrap));
+    float dp = max(0.0, (dot(wsLightDir, wsSurfaceNormal) + wrap) / (1.0 + wrap));
 
     vec3 lightColor = mix(
         vec3(0.25, 0.0, 0.0),
         vec3(0.75),
         smoothstep(0.05, 0.5, dp));
-    vec3 ambient = vec3(0.002);
+    vec3 ambient = vec3(0.005);
     vec3 diffuse = lightColor * dp;
 
     vec3 r = normalize(reflect(-wsLightDir, wsSurfaceNormal));
@@ -312,21 +358,48 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
 
     vec3 specular = vec3(phongValue) * specParams.x * diffuse;
 
-    vec3 planetShading = planetColor * (diffuse + ambient) + specular;
-    planetColor = planetShading;
+    // Apply lighting only to land
+    vec3 planetShading = landColor * (diffuse + ambient) + specular;
+
+    // Smooth the lava glow on the dark side to make it realistic
+    // Instead of ignoring lighting entirely, lava dims when facing away from the sun but doesn't go black.
+    // Minimum lava brightness is around 30% of its daylight brightness to keep it glowing but realistic
+    float lavaGlowStrength = mix(0.3, 1.0, smoothstep(0.0, 0.5, dp));
+
+    // Add extra glow back into the crust from the lava itself near the edges
+    float crustGlow = smoothstep(lavaLakeSize + 0.1, lavaLakeSize - 0.02, noiseSample) * 0.5;
+    planetShading += crustGlow * lavaColor * lavaGlowStrength;
+
+    // Re-mix the lava back over the shaded planet using the masked strength
+    planetColor = mix(
+        lavaColor * lavaGlowStrength,
+        planetShading,
+        smoothstep(lavaLakeSize - 0.01, lavaLakeSize, noiseSample));
+
+    // Clouds (Ash/Smoke)
+    // Cloud density depends on the world type (Io has lots of sulfur clouds, cooling has very few)
+    float cloudAmount = mix(0.6, 0.9, ashMap);
+    float cloudMap = fbm(seededNoiseCoord * 0.35 + vec3(10.0), 6, 0.75, 2.0, 1.0);
+
+    // Volcanic clouds are patchy but dense
+    float cloudDensity = smoothstep(0.4, 0.7, cloudMap);
+
+    // Clouds catch underlying lava glow on the night side!
+    float cloudLavaGlow = smoothstep(lavaLakeSize + 0.15, lavaLakeSize - 0.05, noiseSample) * cloudDensity * 0.8;
+    vec3 illuminatedCloud = mix(cBase * (diffuse + ambient * 3.0), vBase2 * lavaGlowStrength, cloudLavaGlow);
 
     planetColor = mix(
-        lavaColor, planetShading, smoothstep(0.02, 0.03, noiseSample));
+        planetColor, illuminatedCloud, cloudDensity * cloudAmount);
 
-    // Fresnel
+    // Fresnel (wrapping the atmospheric color around the horizon)
     float fresnel = 1.0 - smoothstep(0.1, 1.0, viewNormal.z);
-    fresnel = pow(max(0.0, fresnel), 8.0) * dp;
-    planetColor = mix(planetColor, vec3(1.0, 0.5, 0.0), fresnel);
+    fresnel = pow(max(0.0, fresnel), 8.0) * dp; // Only light up the day-side edge
+    planetColor = mix(planetColor, fBase, fresnel);
   }
 
   color = mix(color, planetColor, 1.0 - smoothstep(-1.0, 0.0, d));
 
-  // Atmosphere glow
+  // Atmosphere glow (halo outside the planet)
   float atmosphereAmount = planetRadius * 0.05;
   float atmosphereRadius = planetRadius + atmosphereAmount;
 
@@ -339,12 +412,10 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     float lighting = dot(normal, normalize(light_direction));
     lighting = smoothstep(-0.15, 1.0, lighting);
 
-    float glowDegree = -0.1; // more negative = tighter glow
-    // modify the degree based on the size of the image, where -0.2 is appropriate for 512x512
+    float glowDegree = -0.1;
     glowDegree *= 512.0 / resolution.x;
 
-    vec3 glowColor = vec3(0.5, 0.3, 0.06) *
-        exp(glowDegree * d * d) * lighting * 0.75;
+    vec3 glowColor = fBase * exp(glowDegree * d * d) * lighting * 0.65;
     color += glowColor;
   }
 
