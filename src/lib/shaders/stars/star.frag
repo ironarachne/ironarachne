@@ -197,24 +197,76 @@ vec3 DrawStar(vec2 pixelCoords, vec3 primaryColor, vec3 secondaryColor, vec3 glo
     float y = pixelCoords.y / starRadius;
     float z = sqrt(max(0.0, 1.0 - x * x - y * y));
 
-    vec3 viewNormal = vec3(x, y, z);
-    vec3 wsPosition = viewNormal;
+    vec3 wsPosition = vec3(x, y, z);
     vec3 wsNormal = normalize(wsPosition);
     vec3 wsViewDir = vec3(0.0, 0.0, 1.0);
 
-    vec3 noiseCoord = wsPosition * 2.0;
-    float noiseSample = fbm(noiseCoord, 6, 0.5, 2.0, 4.0);
+    // Introduce massive domain warping to simulate furious plasma convection
+    vec3 q = wsPosition * 3.0;
+    vec3 warp = vec3(
+       fbm(q + seed * 0.1, 4, 0.5, 2.0, 1.0),
+       fbm(q + vec3(5.2, 1.3, 2.9) + seed * 0.15, 4, 0.5, 2.0, 1.0),
+       fbm(q + vec3(1.7, 8.4, 4.4) - seed * 0.05, 4, 0.5, 2.0, 1.0)
+    );
+    
+    vec3 noiseCoord = wsPosition * 4.0 + warp * 2.0;
+    
+    // Generate complex granular surface detailing
+    float noiseSample = fbm(noiseCoord, 6, 0.5, 2.2, 1.2);
+    float fineDetail = fbm(wsPosition * 15.0 - warp, 4, 0.5, 2.0, 1.0);
 
-    starColor = mix(primaryColor, secondaryColor, smoothstep(0.05, 0.01, noiseSample));
+    // Dynamic solar surface layering mapped between primary and secondary colors
+    starColor = mix(primaryColor, secondaryColor, smoothstep(0.2, 0.8, noiseSample));
+    
+    // Add sunspot-like darker valleys
+    float spots = smoothstep(0.6, 0.9, fbm(noiseCoord * 1.5 - seed, 5, 0.5, 2.0, 2.0));
+    starColor = mix(starColor, secondaryColor * 0.3, spots * 0.8);
+    
+    // Searing hot plasma ridges
+    starColor = mix(starColor, glowColor, smoothstep(0.3, 0.8, fineDetail) * 0.6);
 
-    float fresnel = pow(1.0 - dot(wsNormal, wsViewDir), 2.0);
-    starColor = mix(starColor, glowColor, fresnel);
+    // Realistic Solar Limb Darkening:
+    // Stars appear darker near their edges because you're looking through shallower upper cooler layers.
+    float limbDarkening = pow(max(dot(wsNormal, wsViewDir), 0.0), 0.35);
+    starColor *= mix(0.5, 1.0, limbDarkening);
+
+    // Add bright edge-glow fresnel to compensate for limb darkening at the absolute rim
+    float fresnel = pow(1.0 - max(dot(wsNormal, wsViewDir), 0.0), 4.0);
+    starColor += glowColor * fresnel * 0.8;
   }
 
-  color = mix(starColor, color, smoothstep(-1.0, 1.0, d));
+  color = mix(starColor, color, smoothstep(-0.5, 0.5, d));
 
+  // Volumetric Corona rendering
   if (d > 0.0) {
-    color = mix(glowColor, color, smoothstep(-20.0, coronaWidth * 2.0, d));
+    float distRatio = d / (coronaWidth * 2.5);
+    
+    if (distRatio < 1.0) {
+        float angle = atan(pixelCoords.y, pixelCoords.x);
+        
+        // Pseudo-3D seamless coordinate mapping around the perimeter
+        vec3 radCoord = vec3(cos(angle) * 3.0, sin(angle) * 3.0, seed * 0.2 + distRatio * 2.0);
+        
+        // Solar flare tendrils and erratic plasma streams
+        float flareNoise = fbm(radCoord, 5, 0.5, 2.0, 1.5);
+        float rays = fbm(vec3(angle * 10.0, seed * 0.1, distRatio), 4, 0.5, 2.0, 2.0);
+        
+        // Base diminishing halo profile
+        float coronaShape = smoothstep(1.0, 0.0, distRatio);
+        
+        // Modulate halo with chaotic flare activity
+        float intensity = coronaShape * (0.4 + 0.6 * flareNoise);
+        intensity += rays * coronaShape * 0.3;
+        
+        // Hotter emission at surface boundary, dimming out to deep red/blue/black
+        vec3 flareColor = mix(secondaryColor, glowColor, smoothstep(0.5, 0.0, distRatio));
+        
+        // Exponential falloff for soft bloom overlapping the flares
+        vec3 finalCorona = flareColor * intensity + glowColor * exp(-d / (coronaWidth * 0.4)) * 0.6;
+        
+        // Additive blending onto the space background
+        color += finalCorona * smoothstep(1.0, 0.0, distRatio);
+    }
   }
 
   return color;
