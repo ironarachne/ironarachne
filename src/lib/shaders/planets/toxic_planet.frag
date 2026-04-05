@@ -6,6 +6,8 @@ uniform vec2 resolution;
 uniform float seed;
 uniform float planet_radius;
 uniform vec3 light_direction;
+uniform float cloud_coverage;
+uniform float storm_activity;
 
 varying vec2 vUvs;
 
@@ -235,6 +237,47 @@ vec3 calcNormal(vec3 pos) {
 }
 
 vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
+  // Generate palette based on seed
+  float pType = fract(seed * 0.81234);
+
+  // Palette 1: Venus Scorched (Magma pools, scorched sulfur)
+  vec3 w1 = vec3(0.35, 0.40, 0.15); // Sickly olive green pools
+  vec3 l1 = vec3(0.50, 0.45, 0.20); // Yellow-brown barren soils
+  vec3 m1 = vec3(0.35, 0.25, 0.10); // Dark crusty brown
+  vec3 p1 = vec3(0.70, 0.65, 0.35); // Pale sulfurous peaks
+  vec3 c1 = vec3(0.85, 0.85, 0.50); // Thick yellow acidic clouds
+  vec3 f1 = vec3(0.75, 0.70, 0.30); // Yellow-green atmospheric glow
+
+  // Palette 2: Neon Acid Bath
+  vec3 w2 = vec3(0.40, 0.60, 0.10); // Glowing toxic yellow-green
+  vec3 l2 = vec3(0.35, 0.30, 0.15); // Decayed brown rock
+  vec3 m2 = vec3(0.20, 0.15, 0.05); // Rotting dark crust
+  vec3 p2 = vec3(0.45, 0.55, 0.25); // Crusty sickly peaks
+  vec3 c2 = vec3(0.60, 0.75, 0.30); // Sickly green smog
+  vec3 f2 = vec3(0.55, 0.80, 0.15); // Intense yellow-green chemical glow
+
+  // Palette 3: Plutonium Purple Spill
+  vec3 w3 = vec3(0.55, 0.50, 0.10); // Putrid yellow sludge
+  vec3 l3 = vec3(0.40, 0.35, 0.20); // Pale brown toxic sands
+  vec3 m3 = vec3(0.25, 0.20, 0.10); // Dark brown mounds
+  vec3 p3 = vec3(0.60, 0.55, 0.30); // Yellow-tinged ridges
+  vec3 c3 = vec3(0.75, 0.70, 0.40); // Dusky yellow-green fog
+  vec3 f3 = vec3(0.65, 0.65, 0.25); // Toxic yellow glow
+
+  // Palette 4: Ammonia/Hydrocarbon Sludge
+  vec3 w4 = vec3(0.25, 0.35, 0.10); // Murky green-brown fluid
+  vec3 l4 = vec3(0.30, 0.25, 0.15); // Muddy brown crust
+  vec3 m4 = vec3(0.15, 0.10, 0.05); // Deep brown stains
+  vec3 p4 = vec3(0.50, 0.45, 0.25); // Ghostly sickly yellow rims
+  vec3 c4 = vec3(0.65, 0.70, 0.35); // Heavy green-yellow haze
+  vec3 f4 = vec3(0.55, 0.60, 0.20); // Grimy green atmospheric glow
+
+  vec3 wBase = w1; vec3 lBase = l1; vec3 mBase = m1; vec3 pBase = p1; vec3 cBase = c1; vec3 fBase = f1;
+
+  if (pType > 0.25) { wBase = mix(w1, w2, smoothstep(0.25, 0.35, pType)); lBase = mix(l1, l2, smoothstep(0.25, 0.35, pType)); mBase = mix(m1, m2, smoothstep(0.25, 0.35, pType)); pBase = mix(p1, p2, smoothstep(0.25, 0.35, pType)); cBase = mix(c1, c2, smoothstep(0.25, 0.35, pType)); fBase = mix(f1, f2, smoothstep(0.25, 0.35, pType)); }
+  if (pType > 0.50) { wBase = mix(w2, w3, smoothstep(0.50, 0.60, pType)); lBase = mix(l2, l3, smoothstep(0.50, 0.60, pType)); mBase = mix(m2, m3, smoothstep(0.50, 0.60, pType)); pBase = mix(p2, p3, smoothstep(0.50, 0.60, pType)); cBase = mix(c2, c3, smoothstep(0.50, 0.60, pType)); fBase = mix(f2, f3, smoothstep(0.50, 0.60, pType)); }
+  if (pType > 0.75) { wBase = mix(w3, w4, smoothstep(0.75, 0.85, pType)); lBase = mix(l3, l4, smoothstep(0.75, 0.85, pType)); mBase = mix(m3, m4, smoothstep(0.75, 0.85, pType)); pBase = mix(p3, p4, smoothstep(0.75, 0.85, pType)); cBase = mix(c3, c4, smoothstep(0.75, 0.85, pType)); fBase = mix(f3, f4, smoothstep(0.75, 0.85, pType)); }
+
   float d = sdfCircle(pixelCoords, planetRadius);
 
   vec3 planetColor = vec3(1.0);
@@ -255,36 +298,71 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     float moistureMap = fbm(
         seededNoiseCoord * 0.5 + vec3(20.0), 2, 0.5, 2.0, 1.0);
 
-    // Coloring
+    // Apply Coloring
     vec3 waterColor = mix(
-        vec3(0.45, 0.99, 0.55),
-        vec3(0.09, 0.26, 0.57),
+        wBase * 0.8,
+        wBase,
         smoothstep(0.02, 0.9, noiseSample));
     vec3 landColor = mix(
-        vec3(0.2, 0.6, 0.3),
-        vec3(0.0, 0.7, 0.0),
+        lBase,
+        lBase * 1.1,
         smoothstep(0.1, 0.2, noiseSample));
     landColor = mix(
-        vec3(0.4, 0.6, 0.1),
+        mBase * 1.2,
         landColor,
-        smoothstep(0.2, 0.4, moistureMap)); // swamps
-    landColor = mix(
-        landColor, vec3(0.35, 0.3, 0.15), smoothstep(0.2, 0.3, noiseSample)); // mountains
-    landColor = mix(
-        landColor, vec3(0.4, 0.4, 0.4), smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
-    landColor = mix(
-        landColor, vec3(0.9), smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
+        smoothstep(0.2, 0.4, moistureMap)); // chemical stains/swamps
+    landColor = mix(landColor, mBase, smoothstep(0.2, 0.3, noiseSample)); // mountains
+    landColor = mix(landColor, pBase, smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
+    landColor = mix(landColor, pBase, smoothstep(0.6, 0.9, abs(viewNormal.y))); // toxic crust caps
 
     planetColor = mix(
-        waterColor, landColor, smoothstep(0.05, 0.06, noiseSample));
+        waterColor, landColor, smoothstep(0.03, 0.05, noiseSample));
 
-    // Clouds
-    float cloudAmount = 0.9;
-    float cloudMap = fbm(seededNoiseCoord * 0.25 + vec3(10.0), 6, 0.75, 2.0, 1.0);
-    float cloudDensity = smoothstep(0.4, 0.6, cloudMap);
-    float cloudValue = cloudDensity * cloudAmount * 1.5;
+    // --- CLOUDS & STORMS ---
+    // 1. Uneven Scattering Mask (creates large clear areas and clumped cloud zones)
+    float scatterMap = fbm(seededNoiseCoord * 0.35 + vec3(10.0), 3, 0.5, 2.0, 1.0);
+    float scatterMask = smoothstep(0.3, 0.7, scatterMap);
+
+    // 2. Swirling domain distortion for cyclonic weather patterns
+    vec3 wVec = seededNoiseCoord * 0.7;
+    vec3 cloudWarp = vec3(
+        fbm(wVec, 4, 0.5, 2.0, 1.0),
+        fbm(wVec + vec3(12.3), 4, 0.5, 2.0, 1.0),
+        fbm(wVec + vec3(45.6), 4, 0.5, 2.0, 1.0)
+    ) * 0.8;
+
+    // 3. Base clouds on warped coordinates
+    float cloudBase = fbm(seededNoiseCoord * 0.8 + cloudWarp, 5, 0.5, 2.0, 1.0);
+    float cloudMap = mix(cloudBase * 0.5, cloudBase, scatterMask);
+
+    // Smooth transitions based on cloud coverage
+    // Toxic clouds are generally thicker and grosser.
+    float cThresh = mix(0.6, -0.2, cloud_coverage);
+    float cloudDensity = smoothstep(cThresh, cThresh + 0.3, cloudMap);
+    float cloudAmount = clamp(cloud_coverage * 1.8, 0.0, 1.0); // Boosted amount for toxic vibes
+    float cloudValue = cloudDensity * cloudAmount;
+
+    // Cloud color tinted by the base poison
+    vec3 cloudColor = mix(cBase * 0.7, cBase, cloudDensity);
+
+    // 4. Storms layer
+    float stormThresh = mix(0.8, 0.3, storm_activity);
+    vec3 sVec = seededNoiseCoord * 1.0;
+    vec3 stormWarp = vec3(
+        fbm(sVec, 4, 0.5, 2.0, 1.0),
+        fbm(sVec + vec3(1.0), 4, 0.5, 2.0, 1.0),
+        fbm(sVec + vec3(2.0), 4, 0.5, 2.0, 1.0)
+    ) * 0.5;
+
+    float stormMap = fbm(seededNoiseCoord * 1.5 + stormWarp + vec3(15.0), 5, 0.5, 2.0, 1.0);
+    float stormDensity = smoothstep(stormThresh, stormThresh + 0.3, stormMap) * scatterMask * cloudDensity;
+
+    // Darken highly polluted storm centers
+    cloudColor = mix(cloudColor, cBase * 0.3, stormDensity * 0.9);
+    cloudValue = mix(cloudValue, 1.0, stormDensity * 0.8);
+
     planetColor = mix(
-        planetColor, vec3(0.8, 1.0, 0.6), cloudValue);
+        planetColor, cloudColor, cloudValue);
 
     // Lighting
     vec2 specParams = mix(
@@ -318,7 +396,7 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     // Fresnel
     float fresnel = 1.0 - smoothstep(0.1, 1.0, viewNormal.z);
     fresnel = pow(max(0.0, fresnel), 8.0) * dp;
-    planetColor = mix(planetColor, vec3(0.0, 1.0, 0.5), fresnel);
+    planetColor = mix(planetColor, fBase, fresnel);
   }
 
   color = mix(color, planetColor, 1.0 - smoothstep(-1.0, 0.0, d));
@@ -340,7 +418,7 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     // modify the degree based on the size of the image, where -0.2 is appropriate for 512x512
     glowDegree *= 512.0 / resolution.x;
 
-    vec3 glowColor = vec3(0.25, 0.9, 0.3) *
+    vec3 glowColor = fBase *
         exp(glowDegree * d * d) * lighting * 0.95;
     color += glowColor;
   }
