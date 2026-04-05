@@ -4,6 +4,7 @@ precision highp float;
 
 uniform vec2 resolution;
 uniform float seed;
+uniform float render_background;
 uniform float planet_radius;
 uniform vec3 light_direction;
 uniform float cloud_coverage;

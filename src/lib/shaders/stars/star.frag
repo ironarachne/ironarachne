@@ -4,6 +4,7 @@ precision highp float;
 
 uniform float corona_width;
 uniform float seed;
+uniform float render_background;
 uniform float star_radius;
 uniform vec2 resolution;
 uniform vec3 star_color;
@@ -325,7 +326,7 @@ vec3 GenerateStars(vec2 pixelCoords) {
 void main(void) {
   vec2 pixelCoords = (vUvs - 0.5) * resolution;
 
-  vec3 color = GenerateStars(pixelCoords);
+  vec3 color = render_background > 0.5 ? GenerateStars(pixelCoords) : vec3(0.0);
   color = DrawStar(pixelCoords, star_color, corona_color, glow_color, color, star_radius, corona_width);
 
   gl_FragColor = vec4(pow(max(vec3(0.0), color), vec3(1.0 / 2.2)), 1.0);

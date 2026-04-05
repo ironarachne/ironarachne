@@ -3,6 +3,7 @@
   import * as Words from '@ironarachne/words';
   import * as WebGLStarRenderer from '$lib/renderers/stars/webgl_star_renderer';
   import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
+  import * as WebGLStarSystemRenderer from '$lib/renderers/star_systems/webgl_star_system_renderer';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import {
@@ -149,32 +150,19 @@
 
     <div class="star-system">
       {#if browser}
-        <div class="image-container">
+        <div class="image-container-system" style="width: 100%;">
           <img
-            alt="{homeSystem.stars[0].name} image"
-            src={WebGLStarRenderer.render(
+            alt="{homeSystem.name} system composite"
+            style="width: 100%; height: auto;"
+            src={WebGLStarSystemRenderer.render(
               document,
-              homeSystem.stars[0],
-              imageWidth,
+              homeSystem,
+              imageWidth * (homeSystem.stars.length + homeSystem.planets.length),
               imageHeight,
               rng.randomString(13),
             )}
           />
         </div>
-        {#each homeSystem.planets as planet}
-          <div class="image-container">
-            <img
-              alt="{planet.name} image"
-              src={WebGLPlanetRenderer.render(
-                document,
-                planet,
-                imageWidth,
-                imageHeight,
-                rng.randomString(13),
-              )}
-            />
-          </div>
-        {/each}
       {/if}
     </div>
   {/if}

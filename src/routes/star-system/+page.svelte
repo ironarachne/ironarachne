@@ -3,7 +3,9 @@
   import * as WebGLStarRenderer from '$lib/renderers/stars/webgl_star_renderer';
   import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
 
+  import * as WebGLStarSystemRenderer from '$lib/renderers/star_systems/webgl_star_system_renderer';
   import { onMount } from 'svelte';
+  import { browser } from '$app/environment';
   import {
     generateStarSystem,
     getDefaultStarSystemGeneratorConfig,
@@ -54,6 +56,22 @@
 
   {#if system}
     <h2>The {system.name} System</h2>
+
+    {#if browser}
+      <div style="width: 100%; margin-bottom: 2rem;">
+        <img
+          alt="{system.name} composite"
+          style="max-width: 100%; height: auto; display: block;"
+          src={WebGLStarSystemRenderer.render(
+            document,
+            system,
+            width * (system.stars.length + system.planets.length) * 0.5,
+            height,
+            rng.randomString(13),
+          )}
+        />
+      </div>
+    {/if}
 
     <p>{system.description}</p>
 

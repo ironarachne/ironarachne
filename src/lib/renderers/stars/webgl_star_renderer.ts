@@ -34,6 +34,7 @@ export function render(
   const material = new THREE.ShaderMaterial({
     uniforms: {
       seed: { value: rng.float(0, 100.0) },
+    render_background: { value: 1.0 },
       resolution: { value: new THREE.Vector2(width, height) },
       corona_width: {
         value: calculateCoronaSize(
@@ -132,7 +133,7 @@ function translateColorToVec3(color: RGBColor): THREE.Vector3 {
 function translateRadiusToImageSize(radius: number, imageSize: number): number {
   const radiusRelativeToSun = radius / 695700;
   const sunSizeInPixels = imageSize / 6.0;
-  const maxSizeInPixels = imageSize / 2.5;
+  const maxSizeInPixels = imageSize / 3.5;
   const minSizeInPixels = imageSize / 8.0;
 
   const sizeInPixels = radiusRelativeToSun * sunSizeInPixels;
