@@ -257,28 +257,64 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     float moistureMap = fbm(
         seededNoiseCoord * 0.5 + vec3(20.0), 2, 0.5, 2.0, 1.0);
 
+    // Get the palette based on seed
+    float pType = fract(seed * 0.77345);
+
+    // Palette 1: Tropical Earth-like (Vibrant Blue/Cyan trenches to bright shallows)
+    vec3 w1Deep = vec3(0.02, 0.08, 0.35);
+    vec3 w1Shallow = vec3(0.15, 0.65, 0.85);
+    vec3 l1 = vec3(0.25, 0.45, 0.2); // lush atoll greenery
+    vec3 b1 = vec3(0.8, 0.75, 0.6); // sandy beaches
+
+    // Palette 2: Alien Violet Seas
+    vec3 w2Deep = vec3(0.12, 0.02, 0.25);
+    vec3 w2Shallow = vec3(0.55, 0.25, 0.75);
+    vec3 l2 = vec3(0.3, 0.1, 0.25); // dark alien flora
+    vec3 b2 = vec3(0.4, 0.3, 0.5); // dark crystalline shores
+
+    // Palette 3: Bioluminescent / Algal Green
+    vec3 w3Deep = vec3(0.01, 0.15, 0.10);
+    vec3 w3Shallow = vec3(0.10, 0.85, 0.45);
+    vec3 l3 = vec3(0.15, 0.25, 0.10); // dense jungle islands
+    vec3 b3 = vec3(0.2, 0.4, 0.2); // mossy shores
+
+    // Palette 4: Dark Arctic Abyss
+    vec3 w4Deep = vec3(0.01, 0.02, 0.05);
+    vec3 w4Shallow = vec3(0.15, 0.30, 0.45);
+    vec3 l4 = vec3(0.70, 0.75, 0.80); // frosty ridges
+    vec3 b4 = vec3(0.40, 0.50, 0.60); // icy shores
+
+    vec3 wDeep = w1Deep; vec3 wShal = w1Shallow; vec3 lBase = l1; vec3 bBase = b1;
+
+    if (pType > 0.25) { wDeep = mix(w1Deep, w2Deep, smoothstep(0.25, 0.35, pType)); wShal = mix(w1Shallow, w2Shallow, smoothstep(0.25, 0.35, pType)); lBase = mix(l1, l2, smoothstep(0.25, 0.35, pType)); bBase = mix(b1, b2, smoothstep(0.25, 0.35, pType)); }
+    if (pType > 0.50) { wDeep = mix(w2Deep, w3Deep, smoothstep(0.50, 0.60, pType)); wShal = mix(w2Shallow, w3Shallow, smoothstep(0.50, 0.60, pType)); lBase = mix(l2, l3, smoothstep(0.50, 0.60, pType)); bBase = mix(b2, b3, smoothstep(0.50, 0.60, pType)); }
+    if (pType > 0.75) { wDeep = mix(w3Deep, w4Deep, smoothstep(0.75, 0.85, pType)); wShal = mix(w3Shallow, w4Shallow, smoothstep(0.75, 0.85, pType)); lBase = mix(l3, l4, smoothstep(0.75, 0.85, pType)); bBase = mix(b3, b4, smoothstep(0.75, 0.85, pType)); }
+
     // Coloring
+    // Water maps depth based on noise sample
     vec3 waterColor = mix(
-        vec3(0.05, 0.1, 0.9),
-        vec3(0.01, 0.2, 0.6),
-        smoothstep(0.02, 0.9, noiseSample));
+        wDeep,
+        wShal,
+        smoothstep(0.02, 0.28, noiseSample));
+
+    // Land rendering
     vec3 landColor = mix(
-        vec3(0.2, 0.6, 0.3),
-        vec3(0.0, 0.7, 0.0),
-        smoothstep(0.1, 0.2, noiseSample));
+        bBase, // shores
+        lBase,
+        smoothstep(0.28, 0.35, noiseSample)); // blend shores into island foliage/frost
     landColor = mix(
-        vec3(0.4, 0.6, 0.1),
-        landColor,
-        smoothstep(0.2, 0.4, moistureMap)); // swamps
-    landColor = mix(
-        landColor, vec3(0.35, 0.3, 0.15), smoothstep(0.2, 0.3, noiseSample)); // mountains
-    landColor = mix(
-        landColor, vec3(0.4, 0.4, 0.4), smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
+        landColor, vec3(0.4), smoothstep(0.35, 0.55, noiseSample)); // rocky peaks
     landColor = mix(
         landColor, vec3(0.9), smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
 
+    // High moisture makes things a bit darker/overgrown
+    landColor = mix(
+        landColor * 0.8,
+        landColor,
+        smoothstep(0.2, 0.4, moistureMap));
+
     planetColor = mix(
-        waterColor, landColor, smoothstep(0.2, 0.4, noiseSample));
+        waterColor, landColor, smoothstep(0.28, 0.32, noiseSample));
 
     // --- CLOUDS & STORMS ---
     // 1. Uneven Scattering Mask (creates large clear areas and clumped cloud zones)
