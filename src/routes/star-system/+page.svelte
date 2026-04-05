@@ -11,9 +11,12 @@
     getDefaultStarSystemGeneratorConfig,
     type StarSystem,
   } from '$lib/astronomical_bodies/star_systems';
+  import { getStarClassifications, searchStarClassificationsByName } from '$lib/astronomical_bodies/star/star_classifications';
 
   const width = 128;
   const height = 128;
+
+  const starTypes = getStarClassifications();
 
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -25,6 +28,7 @@
   let config = getDefaultStarSystemGeneratorConfig();
   let system: StarSystem | undefined = $state();
   let planetCountControl: string = $state('random');
+  let starType: string = $state('random');
 
   function generate() {
     if (!lockSeed) {
@@ -38,6 +42,12 @@
       config.planet_count = Math.max(1, Math.round(rng.bellFloat(1, 12)));
     }
 
+    if (starType !== 'random') {
+      config.star_classifications = searchStarClassificationsByName(starType, starTypes);
+    } else {
+      config.star_classifications = starTypes;
+    }
+
     system = generateStarSystem(config);
   }
 
@@ -45,6 +55,9 @@
     config = getDefaultStarSystemGeneratorConfig();
     if (planetCountControl !== 'random') {
       config.planet_count = parseInt(planetCountControl, 10);
+    }
+    if (starType !== 'random') {
+      config.star_classifications = searchStarClassificationsByName(starType, starTypes);
     }
     system = generateStarSystem(config);
   });
@@ -69,6 +82,16 @@
       <option value="random">Random</option>
       {#each Array.from({ length: 20 }, (_, i) => i + 1) as i}
         <option value={i.toString()}>{i}</option>
+      {/each}
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label for="starType">Star Type</label>
+    <select bind:value={starType} id="starType">
+      <option value="random">Random</option>
+      {#each starTypes as sType}
+        <option value={sType.name}>{sType.name}</option>
       {/each}
     </select>
   </div>
