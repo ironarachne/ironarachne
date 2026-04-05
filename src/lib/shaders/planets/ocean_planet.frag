@@ -9,6 +9,12 @@ uniform vec3 light_direction;
 uniform float cloud_coverage;
 uniform float storm_activity;
 
+
+uniform float has_rings;
+uniform float ring_angle;
+uniform float ring_tilt;
+uniform vec3 ring_color;
+
 varying vec2 vUvs;
 
 float inverseLerp(float v, float minValue, float maxValue) {
@@ -427,12 +433,111 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
   return color;
 }
 
+
+vec3 DrawRings(vec2 pixelCoords, vec3 color, float planetRadius, bool front) {
+  if (has_rings < 0.5) return color;
+
+  float sizeSeed = fract(seed * 0.123);
+  float innerR = planetRadius * (1.1 + sizeSeed * 0.8); 
+  float outerR = innerR + planetRadius * (0.2 + fract(seed * 0.765) * 1.5);
+
+  float s = sin(ring_angle);
+  float c = cos(ring_angle);
+  mat2 rot = mat2(c, -s, s, c);
+
+  vec2 rP = rot * pixelCoords;
+  if (front && rP.y < 0.0) return color;
+  if (!front && rP.y >= 0.0) return color;
+
+  vec2 dp = vec2(1.5 / resolution.x, 1.5 / resolution.y);
+  
+  float bandTotal = 0.0;
+  float alphaTotal = 0.0;
+  float validSamples = 0.0;
+  vec3 colorTotal = vec3(0.0);
+
+  for (float dx = -0.5; dx <= 0.5; dx += 1.0) {
+    for (float dy = -0.5; dy <= 0.5; dy += 1.0) {
+       vec2 jp = rot * (pixelCoords + vec2(dx, dy) * dp);
+       jp.y /= max(0.05, ring_tilt);
+       float jd = length(jp);
+       if (jd > innerR && jd < outerR) {
+           float jt = (jd - innerR) / (outerR - innerR);
+           
+           // Lower frequencies significantly to create massive, continuous bands
+           float f_big = 4.0 + sizeSeed * 6.0;
+           float noiseBig = sin(jt * f_big + seed * 10.0);
+           
+           float f_med = 15.0 + fract(sizeSeed * 2.0) * 10.0;
+           float noiseMed = sin(jt * f_med - seed * 5.0);
+           
+           float f_small = 40.0;
+           float noiseSmall = sin(jt * f_small + seed);
+           
+           // Extremely wide coverage. By using -0.8 to -0.2, the ring is solid 1.0 
+           // for over 80% of the sine wave, only dipping in the deep valleys.
+           float bigRing = smoothstep(-0.8, -0.2, noiseBig);
+           
+           // Medium bands don't go exactly to 0, leaving a translucent floor 
+           // instead of empty space.
+           float medRing = mix(0.4, 1.0, smoothstep(-0.2, 0.6, noiseMed));
+           
+           float jband = bigRing * medRing;
+           // Add small detail bands
+           jband += smoothstep(0.6, 1.0, abs(noiseSmall)) * 0.15 * bigRing;
+           
+           bandTotal += jband;
+           alphaTotal += clamp(jband, 0.0, 1.0) * 0.9;
+           validSamples += 1.0;
+           
+           vec3 baseCol = ring_color;
+           // Darken using the medium bands to create structural depth
+           baseCol *= mix(0.6, 1.0, smoothstep(0.0, 1.0, noiseMed));
+           
+           // Subtle hue shifts using the noise channels
+           vec3 hueShift = vec3(noiseBig * 0.05, noiseMed * 0.05, (noiseBig * noiseMed) * 0.08);
+           vec3 sampleColor = clamp(baseCol + hueShift, 0.0, 1.0);
+           colorTotal += sampleColor;
+       }
+    }
+  }
+
+  if (validSamples > 0.0) {
+    float band = bandTotal / validSamples;
+    float alpha = alphaTotal / validSamples;
+    vec3 finalRingColor = colorTotal / validSamples;
+    
+    vec2 p = rot * pixelCoords;
+    p.y /= max(0.05, ring_tilt);
+    float d = length(p);
+    
+    float edge = smoothstep(innerR, innerR + planetRadius * 0.01, d) * 
+                 (1.0 - smoothstep(outerR - planetRadius * 0.01, outerR, d));
+    
+    float shadow = 1.0;
+    vec2 ldXY = normalize(light_direction.xy);
+    float dotLight = dot(normalize(pixelCoords), ldXY);
+    if (dotLight < 0.0) {
+      float lineDist = abs(pixelCoords.x * ldXY.y - pixelCoords.y * ldXY.x);
+      if (lineDist < planetRadius) {
+         shadow = mix(1.0, 0.05, smoothstep(planetRadius, planetRadius * 0.8, lineDist) * smoothstep(0.0, -0.4, dotLight));
+      }
+    }
+    
+    float highlight = 1.0 + smoothstep(0.4, 1.0, band) * 0.25 * max(0.0, dotLight);
+    return mix(color, finalRingColor * shadow * highlight, alpha * edge);
+  }
+  return color;
+}
+
 void main() {
   vec2 pixelCoords = (vUvs - 0.5) * resolution;
 
   vec3 color = vec3(0.0);
   color = GenerateStars(pixelCoords);
+  color = DrawRings(pixelCoords, color, planet_radius, false);
   color = DrawPlanet(pixelCoords, color, planet_radius);
+  color = DrawRings(pixelCoords, color, planet_radius, true);
 
   gl_FragColor = vec4(pow(max(vec3(0.0), color), vec3(1.0 / 2.2)), 1.0);
 }

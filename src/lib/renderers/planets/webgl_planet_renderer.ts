@@ -45,6 +45,10 @@ export function render(
     storm_activity: { value: rng.float(0.2, 0.6) },
     resolution: { value: new THREE.Vector2(width, height) },
     seed: { value: rng.float(0.0, 100.0) },
+    has_rings: { value: planet.has_ring_system ? 1.0 : 0.0 },
+    ring_angle: { value: rng.float(0, Math.PI) },
+    ring_tilt: { value: rng.float(0.1, 0.4) },
+    ring_color: { value: new THREE.Vector3(rng.float(0.6, 0.9), rng.float(0.6, 0.9), rng.float(0.6, 0.9)) },
   };
 
   const geometry = new THREE.PlaneGeometry(1, 1);

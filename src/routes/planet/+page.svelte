@@ -40,6 +40,7 @@
   });
 
   let planetType = $state('random');
+  let forceRings = $state(false);
   let planetGenConfig = getDefaultPlanetGenerationConfig();
   planetGenConfig.rng = rng;
   let planet: AstronomicalBody | undefined = $state();
@@ -71,6 +72,12 @@
       if (classification !== undefined) {
         planetGenConfig.possible_classifications = [classification];
       }
+    }
+
+    if (forceRings) {
+      planetGenConfig.rings_chance = 100;
+    } else {
+      planetGenConfig.rings_chance = getDefaultPlanetGenerationConfig().rings_chance;
     }
 
     planet = generatePlanet(planetGenConfig);
@@ -130,6 +137,11 @@
         <option>{pType.name}</option>
       {/each}
     </select>
+  </div>
+
+  <div class="input-group">
+    <input type="checkbox" name="forceRings" bind:checked={forceRings} id="forceRings" />
+    <label for="forceRings">Force Rings</label>
   </div>
 
   <button onclick={generate}>Generate</button>
