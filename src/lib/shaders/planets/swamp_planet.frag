@@ -259,26 +259,26 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
 
     // Coloring
     vec3 waterColor = mix(
-        vec3(0.01, 0.29, 0.55),
-        vec3(0.09, 0.26, 0.57),
-        smoothstep(0.02, 0.9, noiseSample));
+        vec3(0.05, 0.08, 0.03), // Deep murky, algae-choked water
+        vec3(0.15, 0.18, 0.05), // Muddy, stagnant shallows
+        smoothstep(0.01, 0.1, noiseSample));
     vec3 landColor = mix(
-        vec3(0.0, 0.6, 0.3),
-        vec3(0.0, 0.7, 0.0),
-        smoothstep(0.1, 0.2, noiseSample));
+        vec3(0.20, 0.22, 0.10), // Sickly yellowish-green marsh weed
+        vec3(0.12, 0.18, 0.05), // Thick damp moss and dead foliage
+        smoothstep(0.04, 0.15, noiseSample));
     landColor = mix(
-        vec3(0.3, 0.5, 0.1),
+        vec3(0.15, 0.12, 0.08), // Dense, dark peat bogs and mud flats
         landColor,
-        smoothstep(0.2, 0.4, moistureMap)); // swamps
+        smoothstep(0.2, 0.5, moistureMap)); // thick bogs
     landColor = mix(
-        landColor, vec3(0.25, 0.3, 0.25), smoothstep(0.2, 0.3, noiseSample)); // mountains
+        landColor, vec3(0.18, 0.16, 0.12), smoothstep(0.15, 0.25, noiseSample)); // slick, muddy rocky outcrops
     landColor = mix(
-        landColor, vec3(0.3, 0.4, 0.4), smoothstep(0.5, 0.6, noiseSample)); // mountain peaks
+        landColor, vec3(0.22, 0.20, 0.16), smoothstep(0.4, 0.6, noiseSample)); // eroded, dirt-stained peaks
     landColor = mix(
-        landColor, vec3(0.9), smoothstep(0.6, 0.9, abs(viewNormal.y))); // polar caps
+        landColor, vec3(0.3, 0.32, 0.28), smoothstep(0.8, 0.95, abs(viewNormal.y))); // muddy pale frost
 
     planetColor = mix(
-        waterColor, landColor, smoothstep(0.05, 0.06, noiseSample));
+        waterColor, landColor, smoothstep(0.02, 0.04, noiseSample));
 
     // --- CLOUDS & STORMS ---
     // 1. Uneven Scattering Mask (creates large clear areas and clumped cloud zones)
