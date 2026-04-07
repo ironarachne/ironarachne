@@ -89,7 +89,9 @@ function renderMap() {
       }
 
       // If we are extremely close to a river edge, color it as river
-      if (nearestEdge && nearestEdge.river > 0 && edgeDist < 1.0) {
+      if (nearestEdge && nearestEdge.road && nearestEdge.road > 0 && edgeDist < 1.0) {
+        row.push('\x1b[33m#\x1b[0m'); // Brown/Yellow Road
+      } else if (nearestEdge && nearestEdge.river > 0 && edgeDist < 1.0) {
         row.push('\x1b[36m|\x1b[0m'); // River cyan |
       } else {
         row.push(getBiomeChar(nearestNode));
@@ -124,7 +126,7 @@ function renderMap() {
   console.log("\nLegend:");
   console.log("\x1b[34m~\x1b[0m = Ocean    \x1b[36m=\x1b[0m = Lake     \x1b[32mF\x1b[0m = Forest");
   console.log("\x1b[33mD\x1b[0m = Desert   \x1b[37mT\x1b[0m = Tundra   \x1b[37m^\x1b[0m = Peak (\x1b[90mm\x1b[0m = Hill)");
-  console.log("\x1b[32m.\x1b[0m = Plains   \x1b[31;1m*\x1b[0m = Capital  \x1b[31mo\x1b[0m = Town\n");
+  console.log("\x1b[32m.\x1b[0m = Plains   \x1b[31;1m*\x1b[0m = Capital  \x1b[31mo\x1b[0m = Town\n\x1b[33m#\x1b[0m = Road\n");
 
   // List Settlements
   console.log("Settlements in Region:");

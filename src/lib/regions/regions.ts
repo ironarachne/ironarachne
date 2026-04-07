@@ -20,6 +20,7 @@ import * as MapElevation from '$lib/map/elevation.js';
 import * as MapWater from '$lib/map/water.js';
 import * as MapClimate from '$lib/map/climate.js';
 import * as MapBiome from '$lib/map/biome.js';
+import * as MapRoad from '$lib/map/road.js';
 import * as Suitability from '$lib/map/suitability.js';
 
 export function generate(config: RegionGeneratorConfig): Region {
@@ -114,6 +115,8 @@ export function generate(config: RegionGeneratorConfig): Region {
   // For now we continue building via config as an overarching description
   region.environment = Environments.generate(environmentConfig);
   region.settlements = randomSettlements(region.environment, nameGenSet, config.rng, region.map);
+  const townIds = region.settlements.map(s => s.mapNodeId).filter(id => id !== undefined) as number[];
+  region.map = MapRoad.generateRoads(region.map, townIds);
   region.organizations = randomOrganizations(config.rng);
   region.description = region.environment.description;
 

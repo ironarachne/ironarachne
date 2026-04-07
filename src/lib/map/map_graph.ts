@@ -61,6 +61,7 @@ export interface MapEdge {
   // Edge features
   river: number; // River flow along this edge (0 if no river)
   midpoint: Vertex;
+  road?: number; // Road size traveling across this edge (d0 to d1)
 }
 
 /**
