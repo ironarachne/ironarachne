@@ -1,4 +1,4 @@
-import type Title from '$lib/characters/titles/title.js';
+import { type Title } from '$lib/characters/character_types.js';
 
 export default interface RealmType {
   name: string;

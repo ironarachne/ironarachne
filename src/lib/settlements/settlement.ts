@@ -1,5 +1,6 @@
 import type Environment from '../environment/environment.js';
 import type SettlementCategory from './settlement_category.js';
+import type Vertex from '../geometry/vertex.js';
 
 export default class Settlement {
   name: string;
@@ -8,6 +9,8 @@ export default class Settlement {
   population: number;
   prosperity: number;
   environment: Environment;
+  location?: Vertex; // added optional geographic coordinate
+  mapNodeId?: number; // Map Graph polygon ID
 
   constructor(name: string, category: SettlementCategory, environment: Environment) {
     this.name = name;

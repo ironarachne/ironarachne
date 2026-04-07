@@ -13,7 +13,7 @@ export default <SettlementCategory>{
     'The buildings here are mostly made of stone or brick, and are quite ornate and impressive.',
     'The streets of this borough are lined with small shops and stalls, selling all manner of goods.',
     'There are many parks and gardens scattered throughout this borough, offering a welcome respite from the hustle and bustle of city life.',
-    'The buildings here are a mix of old and new, with modern high-rises standing next to ancient, crumbling ruins.',
+    'The buildings here are a mix of old and new, with newer buildings standing next to ancient, crumbling ruins.',
     'This borough is known for its grand architecture, with many magnificent cathedrals and government buildings.',
   ],
 };

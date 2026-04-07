@@ -1,5 +1,5 @@
-import type Character from '$lib/characters/character.js';
-import type Culture from '$lib/culture/culture.js';
+import { type Character } from '$lib/characters/character_types.js';
+import { type Culture } from '$lib/culture/culture_types.js';
 import type Environment from '$lib/environment/environment.js';
 import * as Environments from '$lib/environment/environments.js';
 import * as FantasyOrgs from '$lib/organizations/fantasy';
@@ -14,6 +14,13 @@ import * as RNG from '@ironarachne/rng';
 
 import type Region from './region.js';
 import type RegionGeneratorConfig from './region_generator_config.js';
+import type { RegionMap } from '$lib/map/map_graph.js';
+import * as MapBuilder from '$lib/map/builder.js';
+import * as MapElevation from '$lib/map/elevation.js';
+import * as MapWater from '$lib/map/water.js';
+import * as MapClimate from '$lib/map/climate.js';
+import * as MapBiome from '$lib/map/biome.js';
+import * as Suitability from '$lib/map/suitability.js';
 
 export function generate(config: RegionGeneratorConfig): Region {
   let region: Region = {
@@ -26,8 +33,7 @@ export function generate(config: RegionGeneratorConfig): Region {
     realms: [] as Realm[],
     authority: {} as Character,
     organizations: [] as Organization[],
-    settlementTiles: [] as number[][],
-    terrainTiles: [] as number[][],
+    map: {} as RegionMap, // Will be populated
   };
 
   let nameGenSet: Names.NameGeneratorSet;
@@ -39,9 +45,25 @@ export function generate(config: RegionGeneratorConfig): Region {
     nameGenSet = config.nameGeneratorSet;
   }
 
-  const environmentConfig = Environments.getDefaultConfig();
-  environmentConfig.rng = config.rng;
-  environmentConfig.latitude = config.rng.weighted([
+  // 1. Generate the Map Graph
+  let map = MapBuilder.buildBaseMapGraph({
+    width: config.mapWidth,
+    height: config.mapHeight,
+    seed: config.rng.randomString(8),
+    pointSpacing: 2.0, // Space between points in the Voronoi mesh
+    rng: config.rng
+  });
+
+  const startShape = config.rng.item(['coast-north', 'coast-south', 'coast-east', 'coast-west', 'coast-nw', 'coast-sw', 'coast-ne', 'coast-se', 'none']);
+
+  map = MapElevation.assignElevation(map, {
+    seed: config.rng.randomString(8),
+    islandShape: startShape as any,
+    frequency: 0.95,
+    hasMountainRange: config.rng.int(1, 100) > 50 // 50% chance of distinct mountain range
+  });
+
+  const latitude = config.rng.weighted([
     {
       value: 40,
       commonality: 10,
@@ -55,8 +77,43 @@ export function generate(config: RegionGeneratorConfig): Region {
       commonality: 5,
     },
   ]);
+
+  map = MapWater.simulateWater(map, {
+    seaLevel: -0.1,
+    springCountPercentage: 0.1,
+    rng: config.rng
+  });
+
+  map = MapClimate.assignTemperature(map, {
+    seed: config.rng.randomString(8),
+    baseTemp: 30,
+    latitude: latitude,
+    elevationLapseRate: 6.5,
+    frequency: 2.5
+  });
+
+  const regionalMoisture = config.rng.int(10, 90) / 100;
+
+  map = MapClimate.assignMoisture(map, {
+    seed: config.rng.randomString(8),
+    baseMoisture: regionalMoisture,
+    frequency: 2.5
+  });
+
+  map = MapBiome.assignBiomes(map, {
+    rng: config.rng,
+    paletteSize: 5
+  });
+  region.map = map;
+
+  const environmentConfig = Environments.getDefaultConfig();
+  environmentConfig.rng = config.rng;
+  environmentConfig.latitude = latitude;
+
+  // Here we would typically derive climate/biome mathematically from map majority
+  // For now we continue building via config as an overarching description
   region.environment = Environments.generate(environmentConfig);
-  region.settlements = randomSettlements(region.environment, nameGenSet, config.rng);
+  region.settlements = randomSettlements(region.environment, nameGenSet, config.rng, region.map);
   region.organizations = randomOrganizations(config.rng);
   region.description = region.environment.description;
 
@@ -148,6 +205,7 @@ function randomSettlements(
   environment: Environment,
   nameGeneratorSet: Names.NameGeneratorSet,
   rng: RNG.RNG,
+  map: RegionMap
 ): Settlement[] {
   let settlementGenConfig = Settlements.getDefaultConfig();
   settlementGenConfig.rng = rng;
@@ -173,6 +231,54 @@ function randomSettlements(
     settlementGenConfig.size = 'small';
     const town = Settlements.generate(settlementGenConfig);
     towns.push(town);
+  }
+
+  // Position settlements using the map suitability engine
+  const totalSettlements = towns.length;
+  const suitabilityEngine: Suitability.SuitabilityEngine = {
+    rules: [
+      Suitability.standardRules.notOcean(),
+      Suitability.standardRules.nearFreshWater(),
+      Suitability.standardRules.flatTerrain(),
+      Suitability.standardRules.temperateClimate()
+    ],
+    strict: true
+  };
+
+  const scores = Suitability.evaluateSuitability(map, suitabilityEngine);
+  const minSpread = Math.max(2, (map.width + map.height) / (2 * totalSettlements));
+  let bestNodes = Suitability.findBestLocations(scores, totalSettlements, minSpread, map);
+
+  // Fallback 1: Reduce minSpread if not enough nodes found
+  if (bestNodes.length < totalSettlements) {
+    bestNodes = Suitability.findBestLocations(scores, totalSettlements, 0, map);
+  }
+
+  // Fallback 2: If still not enough (due to strict rules like temperate climate),
+  // do a second pass just checking for land
+  if (bestNodes.length < totalSettlements) {
+    const fallbackEngine: Suitability.SuitabilityEngine = {
+      rules: [Suitability.standardRules.notOcean()],
+      strict: true
+    };
+    const fallbackScores = Suitability.evaluateSuitability(map, fallbackEngine);
+    const fallbackNodes = Suitability.findBestLocations(fallbackScores, totalSettlements, 0, map);
+
+    // Add unique nodes from fallback to bestNodes
+    for (const id of fallbackNodes) {
+      if (!bestNodes.includes(id)) {
+        bestNodes.push(id);
+      }
+      if (bestNodes.length >= totalSettlements) break;
+    }
+  }
+
+  for (let i = 0; i < towns.length; i++) {
+    if (i < bestNodes.length) {
+      const node = map.nodes[bestNodes[i]];
+      towns[i].location = node.center;
+      towns[i].mapNodeId = node.id;
+    }
   }
 
   return towns;

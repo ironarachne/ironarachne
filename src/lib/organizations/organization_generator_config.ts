@@ -1,4 +1,4 @@
-import type CharacterGeneratorConfig from '$lib/characters/character_generator_config';
+import { type CharacterGeneratorConfig } from '$lib/characters/character_types';
 import type OrganizationType from './organization_type';
 import type { RNG } from '@ironarachne/rng';
 

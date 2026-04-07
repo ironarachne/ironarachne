@@ -4,7 +4,7 @@ import StarShader from '$lib/shaders/stars/star.frag';
 import SimpleVertexShader from '$lib/shaders/simple.vert';
 import { RNG } from '@ironarachne/rng';
 import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_system/star_systems';
+import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
 import type RGBColor from '$lib/graphics/rgb_color';
 
 export function render(
