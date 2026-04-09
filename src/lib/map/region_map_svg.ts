@@ -13,6 +13,7 @@ const DEFAULT_SVG_MAX_HEIGHT = 600;
 const PARCHMENT_FILL = '#ede4d3';
 
 let oceanCoastInnerClipSerial = 0;
+let riverTaperMaskSerial = 0;
 
 export type RegionMapSvgOptions = {
   title?: string;
@@ -129,6 +130,206 @@ function interiorPointsAlongBoundaryChord(
     out.push({ x: bx + nx * off, y: by + ny * off });
   }
   return out;
+}
+
+/** Open path: cubic Beziers through points (Catmull-Rom → Bézier, /6 tension). */
+function openCurvePathDThroughPoints(vertices: Vertex[]): string {
+  const n = vertices.length;
+  if (n === 0) return '';
+  if (n === 1) {
+    const p = vertices[0]!;
+    return `M ${p.x} ${p.y}`;
+  }
+  const first = vertices[0]!;
+  const bits = [`M ${first.x} ${first.y}`];
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = i === 0 ? first : vertices[i - 1]!;
+    const p1 = vertices[i]!;
+    const p2 = vertices[i + 1]!;
+    const p3 = i + 2 < n ? vertices[i + 2]! : p2;
+    const c1x = p1.x + (p2.x - p0.x) / 6;
+    const c1y = p1.y + (p2.y - p0.y) / 6;
+    const c2x = p2.x - (p3.x - p1.x) / 6;
+    const c2y = p2.y - (p3.y - p1.y) / 6;
+    bits.push(`C ${c1x} ${c1y} ${c2x} ${c2y} ${p2.x} ${p2.y}`);
+  }
+  return bits.join(' ');
+}
+
+/**
+ * One Voronoi river edge: halve twice → four segments (interior knots at ¼, ½, ¾).
+ * Only those interior points are nudged, perpendicular to the original chord; endpoints stay fixed.
+ */
+function subdivideRiverChordJittered(
+  x0: number,
+  y0: number,
+  x1: number,
+  y1: number,
+  salt: number,
+): Vertex[] {
+  const dx = x1 - x0;
+  const dy = y1 - y0;
+  const len = Math.hypot(dx, dy);
+  if (len < 1e-10) {
+    return [
+      { x: x0, y: y0 },
+      { x: x1, y: y1 },
+    ];
+  }
+  const nx = -dy / len;
+  const ny = dx / len;
+  const verts: Vertex[] = [{ x: x0, y: y0 }];
+  for (let k = 1; k <= 3; k++) {
+    const t = k / 4;
+    const bx = x0 + dx * t;
+    const by = y0 + dy * t;
+    const h = hash01(salt, k * 2.718281828, t * 3.14159265);
+    const ampScale = 0.022 + hash01(salt * 1.3, k, len) * 0.034;
+    const off = toBipolar(h) * len * ampScale;
+    verts.push({ x: bx + nx * off, y: by + ny * off });
+  }
+  verts.push({ x: x1, y: y1 });
+  return verts;
+}
+
+type RiverCornerIncidence = { edge: MapEdge; other: number };
+
+function buildRiverCornerAdjacency(map: RegionMap): Map<number, RiverCornerIncidence[]> {
+  const adj = new Map<number, RiverCornerIncidence[]>();
+  for (const e of map.edges) {
+    if (e.river <= 0) continue;
+    const add = (a: number, b: number) => {
+      if (!adj.has(a)) adj.set(a, []);
+      adj.get(a)!.push({ edge: e, other: b });
+    };
+    add(e.v0, e.v1);
+    add(e.v1, e.v0);
+  }
+  return adj;
+}
+
+function riverIncidentsSorted(
+  adj: Map<number, RiverCornerIncidence[]>,
+  corner: number,
+  pred: (it: RiverCornerIncidence) => boolean,
+): RiverCornerIncidence[] {
+  return (adj.get(corner) ?? []).filter(pred).sort((a, b) => a.edge.id - b.edge.id);
+}
+
+function extendRiverChainLeft(
+  adj: Map<number, RiverCornerIncidence[]>,
+  used: Set<number>,
+  startCorner: number,
+  excludeEdge: MapEdge,
+): MapEdge[] {
+  const out: MapEdge[] = [];
+  let c = startCorner;
+  let exclude: MapEdge | null = excludeEdge;
+  while (true) {
+    const opts = riverIncidentsSorted(
+      adj,
+      c,
+      (it) => !used.has(it.edge.id) && (exclude === null || it.edge.id !== exclude.id),
+    );
+    if (opts.length !== 1) break;
+    const { edge, other } = opts[0]!;
+    out.unshift(edge);
+    used.add(edge.id);
+    c = other;
+    exclude = null;
+  }
+  return out;
+}
+
+function extendRiverChainRight(
+  adj: Map<number, RiverCornerIncidence[]>,
+  used: Set<number>,
+  startCorner: number,
+): MapEdge[] {
+  const out: MapEdge[] = [];
+  let c = startCorner;
+  while (true) {
+    const opts = riverIncidentsSorted(adj, c, (it) => !used.has(it.edge.id));
+    if (opts.length !== 1) break;
+    const { edge, other } = opts[0]!;
+    out.push(edge);
+    used.add(edge.id);
+    c = other;
+  }
+  return out;
+}
+
+function extractOrderedRiverChain(
+  adj: Map<number, RiverCornerIncidence[]>,
+  used: Set<number>,
+  seed: MapEdge,
+): MapEdge[] {
+  const left = extendRiverChainLeft(adj, used, seed.v0, seed);
+  used.add(seed.id);
+  const right = extendRiverChainRight(adj, used, seed.v1);
+  return [...left, seed, ...right];
+}
+
+function listOrderedRiverChains(map: RegionMap): MapEdge[][] {
+  const adj = buildRiverCornerAdjacency(map);
+  const used = new Set<number>();
+  const chains: MapEdge[][] = [];
+  for (const e of map.edges) {
+    if (e.river <= 0 || used.has(e.id)) continue;
+    chains.push(extractOrderedRiverChain(adj, used, e));
+  }
+  return chains;
+}
+
+function sharedMapEdgeCorner(a: MapEdge, b: MapEdge): number | null {
+  if (a.v0 === b.v0 || a.v0 === b.v1) return a.v0;
+  if (a.v1 === b.v0 || a.v1 === b.v1) return a.v1;
+  return null;
+}
+
+/** Chain order is upstream-to-downstream along the extracted path; corners stay fixed between edges. */
+function riverChainToSubdividedVertices(map: RegionMap, chain: MapEdge[]): Vertex[] | null {
+  if (chain.length === 0) return null;
+  const all: Vertex[] = [];
+
+  for (let i = 0; i < chain.length; i++) {
+    const e = chain[i]!;
+    const c0 = map.corners[e.v0];
+    const c1 = map.corners[e.v1];
+    if (!c0 || !c1) return null;
+
+    let fromC: number;
+    let toC: number;
+    if (i === 0) {
+      if (chain.length === 1) {
+        fromC = e.v0;
+        toC = e.v1;
+      } else {
+        const sh = sharedMapEdgeCorner(chain[0]!, chain[1]!)!;
+        fromC = sh === e.v0 ? e.v1 : e.v0;
+        toC = sh;
+      }
+    } else {
+      const sh = sharedMapEdgeCorner(chain[i - 1]!, e)!;
+      fromC = sh;
+      toC = sh === e.v0 ? e.v1 : e.v0;
+    }
+
+    const pFrom = map.corners[fromC]!.point;
+    const pTo = map.corners[toC]!.point;
+    const vLo = Math.min(fromC, toC);
+    const vHi = Math.max(fromC, toC);
+    const salt = vLo * 49999 + vHi * 1103515245 + e.id * 1009;
+    const seg = subdivideRiverChordJittered(pFrom.x, pFrom.y, pTo.x, pTo.y, salt);
+
+    if (i === 0) {
+      all.push(...seg);
+    } else {
+      all.push(...seg.slice(1));
+    }
+  }
+
+  return all;
 }
 
 /** Ordered corner ids from Hierholzer (last may repeat first). */
@@ -485,6 +686,62 @@ function biomeSymbolForLandNode(node: MapNode): BiomeVisual {
   return { symbol: ',' };
 }
 
+function polylineLength(vertices: Vertex[]): number {
+  let s = 0;
+  for (let i = 1; i < vertices.length; i++) {
+    const a = vertices[i - 1]!;
+    const b = vertices[i]!;
+    s += Math.hypot(b.x - a.x, b.y - a.y);
+  }
+  return s;
+}
+
+function minDistanceToWaterCellCenter(x: number, y: number, map: RegionMap): number {
+  let best = Infinity;
+  for (const n of map.nodes) {
+    if (!isWaterNode(n)) continue;
+    const d = Math.hypot(n.center.x - x, n.center.y - y);
+    if (d < best) best = d;
+  }
+  return best;
+}
+
+/** Endpoint of the river chain farthest from water; used to taper stroke to nothing there. */
+function riverDryEndAndTaperRadius(vertices: Vertex[], map: RegionMap): { dry: Vertex; taperR: number } {
+  const first = vertices[0]!;
+  const last = vertices[vertices.length - 1]!;
+  const da = minDistanceToWaterCellCenter(first.x, first.y, map);
+  const db = minDistanceToWaterCellCenter(last.x, last.y, map);
+  const dry = da >= db ? first : last;
+  const len = polylineLength(vertices);
+  const taperR = Math.max(0.65, Math.min(5.5, len * 0.2));
+  return { dry, taperR };
+}
+
+function appendRiverDryEndTaperMaskDef(
+  map: RegionMap,
+  dry: Vertex,
+  taperR: number,
+  serial: number,
+  parts: string[],
+): string {
+  const gid = `rvTapG${serial}`;
+  const mid = `rvTapM${serial}`;
+  const w = map.width;
+  const h = map.height;
+  parts.push(
+    `<radialGradient id="${gid}" gradientUnits="userSpaceOnUse" cx="${dry.x}" cy="${dry.y}" r="${taperR}" fx="${dry.x}" fy="${dry.y}">
+    <stop offset="0" stop-color="rgb(0,0,0)"/>
+    <stop offset="0.42" stop-color="rgb(210,210,210)"/>
+    <stop offset="1" stop-color="rgb(255,255,255)"/>
+  </radialGradient>
+  <mask id="${mid}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
+    <rect x="0" y="0" width="${w}" height="${h}" fill="url(#${gid})"/>
+  </mask>`,
+  );
+  return mid;
+}
+
 function appendRiversAndRoads(
   map: RegionMap,
   parts: string[],
@@ -494,8 +751,21 @@ function appendRiversAndRoads(
   const h = map.height;
   const maskId = 'riverHideOverWater';
 
+  const riverTaperDefs: string[] = [];
   const riverLines: string[] = [];
+  for (const chain of listOrderedRiverChains(map)) {
+    const rv = riverChainToSubdividedVertices(map, chain);
+    if (!rv || rv.length < 2) continue;
+    const d = openCurvePathDThroughPoints(rv);
+    const pathEl = `<path d="${d}" fill="none" stroke="#5a7a6e" stroke-width="0.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.88" filter="url(#inkEdge)"/>`;
+    const { dry, taperR } = riverDryEndAndTaperRadius(rv, map);
+    const sid = riverTaperMaskSerial++;
+    const taperMaskId = appendRiverDryEndTaperMaskDef(map, dry, taperR, sid, riverTaperDefs);
+    riverLines.push(`<g mask="url(#${taperMaskId})">${pathEl}</g>`);
+  }
+
   for (const edge of map.edges) {
+    if (!edge.road || edge.road <= 0) continue;
     const c0 = map.corners[edge.v0];
     const c1 = map.corners[edge.v1];
     if (!c0 || !c1) continue;
@@ -503,31 +773,31 @@ function appendRiversAndRoads(
     const y0 = c0.point.y;
     const x1 = c1.point.x;
     const y1 = c1.point.y;
-    if (edge.river > 0) {
-      riverLines.push(
-        `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#5a7a6e" stroke-width="0.2" stroke-linecap="round" opacity="0.88" filter="url(#inkEdge)"/>`,
-      );
-    }
-    if (edge.road && edge.road > 0) {
-      parts.push(
-        `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#5c4a3a" stroke-width="0.14" stroke-dasharray="0.45 0.4" stroke-linecap="round" opacity="0.92" filter="url(#inkEdge)"/>`,
-      );
-    }
+    parts.push(
+      `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#5c4a3a" stroke-width="0.14" stroke-dasharray="0.45 0.4" stroke-linecap="round" opacity="0.92" filter="url(#inkEdge)"/>`,
+    );
   }
 
   if (riverLines.length === 0) return;
 
+  const defsInner: string[] = [...riverTaperDefs];
   if (waterPolygons.length > 0) {
     const cutouts = waterPolygons
       .map((wp) => `<path d="${wp.d}" fill="black"/>`)
       .join('\n    ');
-    parts.push(
-      `<defs><mask id="${maskId}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
+    defsInner.push(
+      `<mask id="${maskId}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
     <rect x="0" y="0" width="${w}" height="${h}" fill="white"/>
     ${cutouts}
-  </mask></defs>`,
-      `<g mask="url(#${maskId})">${riverLines.join('\n')}</g>`,
+  </mask>`,
     );
+  }
+  parts.push(`<defs>
+${defsInner.join('\n')}
+</defs>`);
+
+  if (waterPolygons.length > 0) {
+    parts.push(`<g mask="url(#${maskId})">${riverLines.join('\n')}</g>`);
   } else {
     parts.push(...riverLines);
   }
