@@ -2,6 +2,11 @@ import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import * as Regions from '../src/lib/regions/regions.js';
 import { buildRegionMapSvgString } from '../src/lib/map/region_map_svg.js';
+import {
+  buildRoadCentroidPolylines,
+  minDistanceSquaredToRoadPolylines,
+  minDistanceSquaredToRivers,
+} from '../src/lib/map/road_polylines.js';
 
 function getBiomeChar(node: any): string {
   if (node.isOcean) return '\x1b[34m~\x1b[0m'; // Blue wave
@@ -92,20 +97,19 @@ function renderMap() {
   const gridWidth = map.width * aspectOffset;
   const gridHeight = map.height;
 
-  // Render base land
+  const roadPolylines = buildRoadCentroidPolylines(map);
+
+  // Render base land (roads/rivers: distance to segment, not edge midpoint — avoids disjoint parallel hits)
   const grid: string[][] = [];
+  const lineHitSq = 1.0;
   for (let y = 0; y < gridHeight; y++) {
     const row: string[] = [];
     for (let x = 0; x < gridWidth; x++) {
       const px = x / aspectOffset;
       const py = y;
 
-
-
       let nearestNode = map.nodes[0];
       let nearestDist = Infinity;
-      let nearestEdge: any = undefined;
-      let edgeDist = Infinity;
 
       for (const node of map.nodes) {
         const dx = node.center.x - px;
@@ -118,20 +122,12 @@ function renderMap() {
         }
       }
 
-      for (const edge of map.edges) {
-        const dx = edge.midpoint.x - px;
-        const dy = edge.midpoint.y - py;
-        const distSq = dx * dx + dy * dy;
-        if (distSq < edgeDist) {
-           edgeDist = distSq;
-           nearestEdge = edge;
-        }
-      }
+      const roadDistSq = minDistanceSquaredToRoadPolylines(roadPolylines, px, py);
+      const riverDistSq = minDistanceSquaredToRivers(map, px, py);
 
-      // If we are extremely close to a river edge, color it as river
-      if (nearestEdge && nearestEdge.road && nearestEdge.road > 0 && edgeDist < 1.0) {
+      if (roadDistSq < lineHitSq) {
         row.push('\x1b[33m#\x1b[0m'); // Brown/Yellow Road
-      } else if (nearestEdge && nearestEdge.river > 0 && edgeDist < 1.0) {
+      } else if (riverDistSq < lineHitSq) {
         row.push('\x1b[36m|\x1b[0m'); // River cyan |
       } else {
         row.push(getBiomeChar(nearestNode));

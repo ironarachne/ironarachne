@@ -1,5 +1,6 @@
 import type { MapEdge, MapNode, RegionMap } from './map_graph.js';
 import type Vertex from '../geometry/vertex.js';
+import { buildRoadCentroidPolylines } from './road_polylines.js';
 
 export type RegionMapSvgSettlement = {
   mapNodeId?: number;
@@ -133,6 +134,17 @@ function interiorPointsAlongBoundaryChord(
 }
 
 /** Open path: cubic Beziers through points (Catmull-Rom → Bézier, /6 tension). */
+function openRoadPolylinePathD(vertices: Vertex[]): string {
+  if (vertices.length === 0) return '';
+  const first = vertices[0]!;
+  const bits = [`M ${first.x} ${first.y}`];
+  for (let i = 1; i < vertices.length; i++) {
+    const v = vertices[i]!;
+    bits.push(`L ${v.x} ${v.y}`);
+  }
+  return bits.join(' ');
+}
+
 function openCurvePathDThroughPoints(vertices: Vertex[]): string {
   const n = vertices.length;
   if (n === 0) return '';
@@ -764,17 +776,10 @@ function appendRiversAndRoads(
     riverLines.push(`<g mask="url(#${taperMaskId})">${pathEl}</g>`);
   }
 
-  for (const edge of map.edges) {
-    if (!edge.road || edge.road <= 0) continue;
-    const c0 = map.corners[edge.v0];
-    const c1 = map.corners[edge.v1];
-    if (!c0 || !c1) continue;
-    const x0 = c0.point.x;
-    const y0 = c0.point.y;
-    const x1 = c1.point.x;
-    const y1 = c1.point.y;
+  for (const poly of buildRoadCentroidPolylines(map)) {
+    const d = openRoadPolylinePathD(poly);
     parts.push(
-      `<line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="#5c4a3a" stroke-width="0.14" stroke-dasharray="0.45 0.4" stroke-linecap="round" opacity="0.92" filter="url(#inkEdge)"/>`,
+      `<path d="${d}" fill="none" stroke="#5c4a3a" stroke-width="0.14" stroke-dasharray="0.45 0.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.92" filter="url(#inkEdge)"/>`,
     );
   }
 
