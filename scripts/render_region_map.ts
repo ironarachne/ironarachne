@@ -1,4 +1,7 @@
+import { writeFileSync } from 'node:fs';
+import { parseArgs } from 'node:util';
 import * as Regions from '../src/lib/regions/regions.js';
+import { buildRegionMapSvgString } from '../src/lib/map/region_map_svg.js';
 
 function getBiomeChar(node: any): string {
   if (node.isOcean) return '\x1b[34m~\x1b[0m'; // Blue wave
@@ -22,7 +25,32 @@ function getBiomeChar(node: any): string {
   return `\x1b[32m,\x1b[0m`; // Green comma as fallback for unknown land
 }
 
+function printUsage(): void {
+  console.log(`Usage: vite-node scripts/render_region_map.ts [--svg-out <path> | -o <path>]
+
+  --svg-out, -o   Write sepia SVG map to this file (ASCII still prints to stdout).
+
+Example:
+  npm run render:region -- --svg-out ./region_map.svg
+`);
+}
+
 function renderMap() {
+  const { values } = parseArgs({
+    options: {
+      'svg-out': { type: 'string', short: 'o' },
+      help: { type: 'boolean', short: 'h' },
+    },
+    strict: false,
+  });
+
+  if (values.help) {
+    printUsage();
+    process.exit(0);
+  }
+
+  const svgOutPath = typeof values['svg-out'] === 'string' ? values['svg-out'] : undefined;
+
   console.log("Generating Region Map...\n");
 
   const config = Regions.getDefaultConfig();
@@ -32,6 +60,18 @@ function renderMap() {
 
   const region = Regions.generate(config);
   const map = region.map;
+
+  if (svgOutPath !== undefined && svgOutPath.length > 0) {
+    const svg = buildRegionMapSvgString(map, {
+      title: region.name,
+      settlements: region.settlements.map((s, i) => ({
+        mapNodeId: s.mapNodeId,
+        isCapital: i === 0,
+      })),
+    });
+    writeFileSync(svgOutPath, svg, 'utf8');
+    console.log(`Wrote SVG to ${svgOutPath}\n`);
+  }
   const biomes = new Set(region.map.nodes.map(n => n.biomeId));
   const minElev = Math.min(...region.map.nodes.map((n) => n.elevation));
   const maxElev = Math.max(...region.map.nodes.map((n) => n.elevation));
