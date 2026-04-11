@@ -27,7 +27,7 @@
     "@ironarachne/rng": "^2.3.1",
     "@ironarachne/word-generator": "^2.3.1",
     "@ironarachne/words": "^2.0.0",
-    "@sveltejs/kit": "^2.5.27",
+    "@sveltejs/kit": "^2.55.0",
     "core-js": "^3.33.3",
     "d3": "^7.6.1",
     "d3-delaunay": "^6.0.2",
@@ -36,10 +36,10 @@
     "xmlbuilder2": "^3.1.1"
   },
   "devDependencies": {
-    "@sveltejs/adapter-static": "^3.0.8",
+    "@sveltejs/adapter-static": "^3.0.10",
     "@eslint/compat": "^1.4.0",
     "@eslint/js": "^9.39.1",
-    "@sveltejs/vite-plugin-svelte": "^5.0.1",
+    "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.2",
     "@types/core-js": "^2.5.8",
     "@types/d3": "^7.1.0",
@@ -55,14 +55,14 @@
     "prettier": "^3.7.4",
     "prettier-plugin-svelte": "^3.4.0",
     "sass": "^1.69.7",
-    "svelte": "^5.0.0",
-    "svelte-check": "^4.0.0",
+    "svelte": "^5.46.4",
+    "svelte-check": "^4.4.0",
     "tslib": "^2.6.2",
     "tsx": "^4.21.0",
     "typescript": "^5.5.0",
     "typescript-eslint": "^8.48.1",
-    "vite": "^6.3.5",
-    "vite-plugin-glsl": "^1.3.1",
-    "vitest": "^3.1.4"
+    "vite": "^8.0.0",
+    "vite-plugin-glsl": "^1.6.0",
+    "vitest": "^4.1.0"
   }
 }
