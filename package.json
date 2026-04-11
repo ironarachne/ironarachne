@@ -11,8 +11,8 @@
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
-    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --compiler-warnings \"css_unused_selector:ignore\"",
-    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch --compiler-warnings \"css_unused_selector:ignore\"",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+    "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "test": "vitest run",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint ."

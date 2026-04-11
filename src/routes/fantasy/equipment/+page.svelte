@@ -98,7 +98,3 @@
   {/each}
 </section>
 
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-</style>

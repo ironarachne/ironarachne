@@ -378,9 +378,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-
   .inline-label {
     margin-left: 0.75rem;
     font-weight: normal;

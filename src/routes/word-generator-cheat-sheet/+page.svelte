@@ -73,6 +73,3 @@
   {@html html}
 </section>
 
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-</style>

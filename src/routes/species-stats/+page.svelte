@@ -172,6 +172,3 @@
   <p><strong>Maximum Lifespan:</strong> {maximumAge}</p>
 </section>
 
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-</style>

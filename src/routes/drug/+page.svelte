@@ -39,7 +39,3 @@
   <p>{drug.description}</p>
 </section>
 
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/cyberpunk.scss';
-</style>

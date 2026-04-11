@@ -139,9 +139,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/scifi.scss';
-
   div.abilities > div {
     border-left: 1px solid #aaa;
     margin-bottom: 1rem;

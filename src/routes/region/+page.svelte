@@ -237,9 +237,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-
   div.ruler {
     display: grid;
     column-gap: 1rem;

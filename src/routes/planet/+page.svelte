@@ -284,22 +284,3 @@
     </ul>
   {/if}
 </section>
-
-<style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/scifi.scss';
-
-  canvas {
-    display: block;
-    width: 600px;
-    height: 400px;
-    margin: 1rem auto;
-  }
-
-  #planet-render {
-    display: block;
-    width: 600px;
-    height: 400px;
-    margin: 1rem auto;
-  }
-</style>

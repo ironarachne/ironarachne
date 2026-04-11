@@ -399,9 +399,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-
   .family-tree {
     overflow-x: auto;
     border: 1px solid #ccc;

@@ -226,9 +226,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-
   .input-group {
     ul > li {
       list-style: none;

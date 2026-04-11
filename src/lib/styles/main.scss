@@ -1,6 +1,10 @@
 @use 'sass:string';
 @use '$lib/styles/reset.scss';
 @use '$lib/styles/global.scss';
+@use '$lib/styles/fantasy.scss';
+@use '$lib/styles/scifi.scss';
+@use '$lib/styles/navigation.scss';
+@use '$lib/styles/cyberpunk.scss';
 
 html {
   background: global.$charcoal;

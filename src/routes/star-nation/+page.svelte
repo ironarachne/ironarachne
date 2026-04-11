@@ -193,9 +193,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/scifi.scss';
-
   .star-system {
     display: flex;
     width: 100%;

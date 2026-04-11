@@ -145,9 +145,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-
   div.org-arms {
     width: 200px;
     height: 220px;

@@ -223,9 +223,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/scifi.scss';
-
   article.media-banner {
     display: grid;
     grid-template-columns: 128px auto;

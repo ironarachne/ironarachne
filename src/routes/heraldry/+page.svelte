@@ -227,9 +227,6 @@
 </svelte:head>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-
   div.coat-of-arms {
     width: 600px;
     height: 660px;

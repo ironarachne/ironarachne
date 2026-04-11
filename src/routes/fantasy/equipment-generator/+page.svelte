@@ -164,9 +164,6 @@
 </section>
 
 <style lang="scss">
-  @use '$lib/styles/main.scss';
-  @use '$lib/styles/fantasy.scss';
-
   .controls {
     display: flex;
     flex-wrap: wrap;
