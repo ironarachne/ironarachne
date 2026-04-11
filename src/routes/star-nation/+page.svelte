@@ -192,7 +192,7 @@
   {/if}
 </section>
 
-<style lang="scss">
+<style>
   .star-system {
     display: flex;
     width: 100%;

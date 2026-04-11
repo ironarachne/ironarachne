@@ -398,7 +398,7 @@
   {/each}
 </section>
 
-<style lang="scss">
+<style>
   .family-tree {
     overflow-x: auto;
     border: 1px solid #ccc;

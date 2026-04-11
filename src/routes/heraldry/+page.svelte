@@ -226,7 +226,7 @@
   <title>Heraldry Generator | Iron Arachne</title>
 </svelte:head>
 
-<style lang="scss">
+<style>
   div.coat-of-arms {
     width: 600px;
     height: 660px;

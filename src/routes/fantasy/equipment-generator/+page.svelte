@@ -163,7 +163,7 @@
   </div>
 </section>
 
-<style lang="scss">
+<style>
   .controls {
     display: flex;
     flex-wrap: wrap;

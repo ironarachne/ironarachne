@@ -1,12 +1,10 @@
-@use '$lib/styles/global.scss';
-
 @keyframes rapid-pulse-neon {
   0%,
   100% {
-    filter: drop-shadow(0 0 5px global.$acidGreen) drop-shadow(0 0 10px global.$acidGreen);
+    filter: drop-shadow(0 0 5px var(--acid-green)) drop-shadow(0 0 10px var(--acid-green));
   }
   50% {
-    filter: drop-shadow(0 0 2px global.$acidGreen) drop-shadow(0 0 4px global.$acidGreen);
+    filter: drop-shadow(0 0 2px var(--acid-green)) drop-shadow(0 0 4px var(--acid-green));
   }
 }
 
@@ -29,12 +27,12 @@
 }
 
 .cyberpunk {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h5,
+  & h6 {
     /* Base broken/dim state for dark letters */
     color: transparent;
 
@@ -66,25 +64,25 @@
       defective-led 4s infinite;
   }
 
-  button {
+  & button {
     background: rgb(0, 0, 0);
-    border: 3px solid global.$ironArachneGreen;
+    border: 3px solid var(--iron-arachne-green);
     border-radius: 3px;
-    color: global.$ironArachneGreen;
+    color: var(--iron-arachne-green);
     font-size: 1rem;
     line-height: 1rem;
     margin: 0.1rem;
     padding: 0.5rem 1rem;
   }
 
-  button:active {
+  & button:active {
     background: rgb(92, 86, 73);
     background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-    color: global.$ironArachneGreen;
+    color: var(--iron-arachne-green);
     transform: translateY(2px);
   }
 
-  button:disabled {
+  & button:disabled {
     background: #666;
     color: #777;
     border-color: #999;

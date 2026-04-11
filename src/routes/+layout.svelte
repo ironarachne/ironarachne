@@ -1,5 +1,5 @@
 <script lang="ts">
-  import '$lib/styles/main.scss';
+  import '$lib/styles/main.css';
   import Footer from '$lib/components/Footer.svelte';
   import Header from '$lib/components/Header.svelte';
   import UserContextProvider from '$lib/components/user_context_provider.svelte';

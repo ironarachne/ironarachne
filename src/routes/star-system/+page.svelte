@@ -222,7 +222,7 @@
   {/if}
 </section>
 
-<style lang="scss">
+<style>
   article.media-banner {
     display: grid;
     grid-template-columns: 128px auto;

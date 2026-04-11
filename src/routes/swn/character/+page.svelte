@@ -138,7 +138,7 @@
   {/each}
 </section>
 
-<style lang="scss">
+<style>
   div.abilities > div {
     border-left: 1px solid #aaa;
     margin-bottom: 1rem;

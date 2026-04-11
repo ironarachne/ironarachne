@@ -19,7 +19,7 @@ Iron Arachne includes generators for a wide variety of settings and systems, inc
 - **Framework**: SvelteKit
 - **Language**: TypeScript
 - **Build Tool**: Vite
-- **Styling**: Sass
+- **Styling**: Modern CSS (custom properties, nesting, `color-mix`)
 
 ## Development Setup
 

@@ -1,16 +1,15 @@
-@use 'sass:string';
-@use '$lib/styles/reset.scss';
-@use '$lib/styles/global.scss';
-@use '$lib/styles/fantasy.scss';
-@use '$lib/styles/scifi.scss';
-@use '$lib/styles/navigation.scss';
-@use '$lib/styles/cyberpunk.scss';
+@import './reset.css';
+@import './tokens.css';
+@import './fantasy.css';
+@import './scifi.css';
+@import './navigation.css';
+@import './cyberpunk.css';
 
 html {
-  background: global.$charcoal;
-  color: color-mix(in srgb, global.$charcoal 5%, white 95%);
+  background: var(--charcoal);
+  color: color-mix(in srgb, var(--charcoal) 5%, white 95%);
   font-family: Georgia, serif;
-  font-size: string.unquote('clamp(1em, 0.909em + 0.45vmin, 1.25em)');
+  font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em);
   max-width: 70ch;
   padding: 0;
   margin-inline: auto;
@@ -25,7 +24,7 @@ body :not(:is(h1, h2, h3, h4, h5, h6)) {
 }
 
 a {
-  color: global.$ironArachneGreen;
+  color: var(--iron-arachne-green);
 }
 
 a:active {
@@ -33,11 +32,11 @@ a:active {
 }
 
 a:hover {
-  color: global.$gold;
+  color: var(--gold);
 }
 
 a:visited {
-  color: color-mix(in srgb, global.$ironArachneGreen 10%, global.$gold 90%);
+  color: color-mix(in srgb, var(--iron-arachne-green) 10%, var(--gold) 90%);
 }
 
 button {
@@ -93,7 +92,7 @@ h3 {
 
 h3::after {
   content: '';
-  background: global.$granite;
+  background: var(--granite);
   height: 1px;
   width: 100%;
   display: inline-block;
@@ -106,7 +105,7 @@ h4 {
 
 h5 {
   font-size: 1.25rem;
-  border-bottom: 1px solid global.$granite;
+  border-bottom: 1px solid var(--granite);
 }
 
 p {
@@ -134,7 +133,7 @@ div.input-group {
 }
 
 ul {
-  li {
+  & li {
     list-style-type: disc;
     margin-left: 2rem;
   }
@@ -147,19 +146,19 @@ strong {
 table {
   width: 100%;
 
-  thead {
-    tr {
+  & thead {
+    & tr {
       border-bottom: 3px solid black;
 
-      th {
+      & th {
         font-weight: 700;
         text-align: left;
       }
     }
   }
 
-  th,
-  td {
+  & th,
+  & td {
     border: 1px solid black;
     padding: 0.25rem;
   }
@@ -180,7 +179,7 @@ pre {
 button {
   background: rgb(92, 86, 73);
   background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-  border: 3px solid global.$tan;
+  border: 3px solid var(--tan);
   border-radius: 3px;
   color: #fff;
   font-size: 1rem;
@@ -192,7 +191,7 @@ button {
 button:active {
   background: rgb(92, 86, 73);
   background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-  color: global.$ironArachneGreen;
+  color: var(--iron-arachne-green);
   transform: translateY(2px);
 }
 

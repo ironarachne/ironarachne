@@ -1,0 +1,22 @@
+:root {
+  --acid-green: #9eff5b;
+  --amethyst: #6c2dbd;
+  --charcoal: #1b1e24;
+  --crimson: #8b3a3a;
+  --cyan: #39d0ff;
+  --emerald: #2f6b4f;
+  --gold: #c8a46e;
+  --granite: #3c4350;
+  --iron-arachne-green: #76e841;
+  --magenta: #ff4fd6;
+  --plasma-blue: #4286f4;
+  --slate: #2a2f38;
+  --tan: #5c5031;
+}
+
+@font-face {
+  font-family: 'cinzel';
+  src: url('$lib/assets/fonts/CinzelDecorative-Regular-webfont.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}

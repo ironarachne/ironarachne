@@ -1,12 +1,10 @@
-@use '$lib/styles/global.scss';
-
 .navigation {
   margin-top: 0.5rem;
   padding: 0.25rem;
 
-  a {
+  & a {
     background-blend-mode: screen;
-    background: linear-gradient(145deg, global.$emerald, global.$slate);
+    background: linear-gradient(145deg, var(--emerald), var(--slate));
     border-image: linear-gradient(90deg, #49382b, #69520c) 1;
     border-radius: 2px;
     border: 1px solid transparent;
@@ -19,24 +17,24 @@
     text-decoration: none;
     text-shadow:
       -2px -2px 0 black,
-      2px 2px 0 global.$granite;
+      2px 2px 0 var(--granite);
     transition: all 0.2s ease;
     width: 95%;
   }
 
-  a:hover {
-    background: global.$ironArachneGreen;
+  & a:hover {
+    background: var(--iron-arachne-green);
     color: black;
     text-shadow: none;
   }
 
-  a:active {
-    background: global.$gold;
+  & a:active {
+    background: var(--gold);
     text-shadow: none;
     color: black;
   }
 
-  nav {
+  & nav {
     display: flex;
     flex-direction: column;
   }

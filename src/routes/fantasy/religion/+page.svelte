@@ -225,7 +225,7 @@
   {/if}
 </section>
 
-<style lang="scss">
+<style>
   .input-group {
     ul > li {
       list-style: none;

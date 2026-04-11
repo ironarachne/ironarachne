@@ -1,5 +1,3 @@
-@use '$lib/styles/global.scss';
-
 @keyframes shimmering-gold {
   0% {
     background-position: -200% center;
@@ -10,20 +8,20 @@
 }
 
 .fantasy {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h5,
+  & h6 {
     /* Create a metallic/shimmering gold foil effect instead of a flat color or glow */
     background: linear-gradient(
       120deg,
-      global.$gold 20%,
+      var(--gold) 20%,
       #ffe169 40%,
       #fffae6 50%,
       #ffe169 60%,
-      global.$gold 80%
+      var(--gold) 80%
     );
     background-size: 200% auto;
     color: transparent;
@@ -31,16 +29,16 @@
     background-clip: text;
 
     /* Keep the crimson shadow but use drop-shadow since the text color is transparent */
-    filter: drop-shadow(0 2px 2px global.$crimson);
+    filter: drop-shadow(0 2px 2px var(--crimson));
 
     /* Animate the metallic shine slowly over the surface */
     animation: shimmering-gold 8s linear infinite;
   }
 
-  button {
+  & button {
     background: rgb(92, 86, 73);
     background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-    border: 3px solid global.$tan;
+    border: 3px solid var(--tan);
     border-radius: 3px;
     color: #fff;
     line-height: 1rem;
@@ -48,14 +46,14 @@
     padding: 0.5rem 1rem;
   }
 
-  button:active {
+  & button:active {
     background: rgb(92, 86, 73);
     background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-    color: global.$ironArachneGreen;
+    color: var(--iron-arachne-green);
     transform: translateY(2px);
   }
 
-  button:disabled {
+  & button:disabled {
     background: #666;
     color: #777;
     border-color: #999;

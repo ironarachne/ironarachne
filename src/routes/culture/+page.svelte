@@ -169,7 +169,7 @@
   <p>{culture.musicStyle}</p>
 </section>
 
-<style lang="scss">
+<style>
   .namelist {
     display: grid;
     grid-template-columns: auto auto auto;

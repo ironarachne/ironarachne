@@ -236,7 +236,7 @@
   {/each}
 </section>
 
-<style lang="scss">
+<style>
   div.ruler {
     display: grid;
     column-gap: 1rem;

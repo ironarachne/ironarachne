@@ -377,7 +377,7 @@
   {/if}
 </section>
 
-<style lang="scss">
+<style>
   .inline-label {
     margin-left: 0.75rem;
     font-weight: normal;

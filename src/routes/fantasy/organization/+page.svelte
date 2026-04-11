@@ -144,7 +144,7 @@
   {/each}
 </section>
 
-<style lang="scss">
+<style>
   div.org-arms {
     width: 200px;
     height: 220px;

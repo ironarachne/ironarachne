@@ -22,18 +22,18 @@
   <a href="/changelog">Change Log</a>
 </nav>
 
-<style lang="scss">
-  @use '$lib/styles/global.scss';
-
+<style>
   header {
     padding: 0.5rem 0;
     display: flex;
     align-items: center;
-    img {
+
+    & img {
       width: 100%;
       max-width: 128px;
     }
-    p {
+
+    & p {
       text-align: center;
       display: inline-block;
       color: rgb(150, 150, 150);
@@ -45,13 +45,14 @@
 
   @media (max-width: 600px) {
     header {
-      img {
+      & img {
         max-width: 80px;
       }
     }
+
     .logo-text {
       align-items: center;
-      color: global.$ironArachneGreen;
+      color: var(--iron-arachne-green);
       display: flex;
       font-size: 2.2rem;
       font-family: 'cinzel', system-ui, Helvetica, sans-serif;
@@ -61,12 +62,12 @@
 
   @media (min-width: 601px) {
     .logo-text {
-      span {
+      & span {
         background-image: linear-gradient(
           180deg,
-          global.$ironArachneGreen 0%,
-          global.$ironArachneGreen 30%,
-          global.$tan 100%
+          var(--iron-arachne-green) 0%,
+          var(--iron-arachne-green) 30%,
+          var(--tan) 100%
         );
         background-clip: text;
         font-family: 'cinzel', system-ui, Helvetica, sans-serif;
@@ -76,8 +77,9 @@
         padding-left: 0.5rem;
         -webkit-text-fill-color: transparent;
       }
-      span::before {
-        background-image: linear-gradient(global.$gold 46%, rgb(125, 142, 167) 49%, black 80%);
+
+      & span::before {
+        background-image: linear-gradient(var(--gold) 46%, rgb(125, 142, 167) 49%, black 80%);
         color: black;
         content: attr(data-text);
         position: absolute;
@@ -90,26 +92,26 @@
   }
 
   nav {
-    background: global.$slate;
+    background: var(--slate);
     border-radius: 12px;
     padding: 0.25rem;
     display: flex;
     flex-wrap: wrap;
 
-    a {
+    & a {
       display: inline-block;
       background: rgb(36, 14, 0);
-      background: linear-gradient(0deg, global.$granite 0%, global.$tan 100%);
-      border: 1px solid global.$tan;
+      background: linear-gradient(0deg, var(--granite) 0%, var(--tan) 100%);
+      border: 1px solid var(--tan);
       border-radius: 6px;
-      color: global.$ironArachneGreen;
+      color: var(--iron-arachne-green);
       font-family: 'cinzel', system-ui, Helvetica, sans-serif;
       padding: 0 0.25rem;
       margin: 0.25rem 0 0.25rem 0.25rem;
       text-decoration: none;
 
       &:hover {
-        background: global.$granite;
+        background: var(--granite);
         color: white;
       }
 
@@ -119,7 +121,7 @@
 
       &:active {
         background: black;
-        color: global.$tan;
+        color: var(--tan);
         transform: translateY(2px) translateX(1px);
       }
     }

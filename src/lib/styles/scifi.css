@@ -1,30 +1,28 @@
-@use '$lib/styles/global.scss';
-
 @keyframes pulse-glow {
   0% {
-    text-shadow: 0 0 6px global.$cyan;
+    text-shadow: 0 0 6px var(--cyan);
   }
   50% {
-    text-shadow: 0 0 14px global.$cyan;
+    text-shadow: 0 0 14px var(--cyan);
   }
   100% {
-    text-shadow: 0 0 6px global.$cyan;
+    text-shadow: 0 0 6px var(--cyan);
   }
 }
 
 .scifi {
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
+  & h1,
+  & h2,
+  & h3,
+  & h4,
+  & h5,
+  & h6 {
     animation: pulse-glow 3s infinite ease-in-out;
     color: #a2d4ff;
-    text-shadow: 0 0 6px global.$cyan;
+    text-shadow: 0 0 6px var(--cyan);
   }
 
-  button {
+  & button {
     background: rgb(2, 37, 95);
     background: linear-gradient(165deg, rgb(2, 37, 95) 0%, rgba(10, 10, 10, 1) 100%);
     border: 3px solid rgb(108, 146, 255);
@@ -36,14 +34,14 @@
     padding: 0.5rem 1rem;
   }
 
-  button:active {
+  & button:active {
     background: rgb(92, 86, 73);
     background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
     color: rgb(108, 146, 255);
     transform: translateY(2px);
   }
 
-  button:disabled {
+  & button:disabled {
     background: #666;
     color: #777;
     border-color: #999;
