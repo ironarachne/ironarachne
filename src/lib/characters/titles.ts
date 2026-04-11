@@ -214,3 +214,22 @@ export function getTitle(character: Character): string {
 
   return '';
 }
+
+type TitleCoreFields = Pick<
+  Title,
+  'femaleTitle' | 'maleTitle' | 'femaleHonorific' | 'maleHonorific' | 'hasLands' | 'landName' | 'precedence'
+>;
+
+/** Builds a {@link Title} with empty tags and default rank flags (all false unless overridden). */
+export function createTitleFromCore(
+  core: TitleCoreFields,
+  rankFlags?: Partial<Pick<Title, 'tags' | 'isHereditary' | 'isNoble' | 'isRoyal'>>,
+): Title {
+  return {
+    ...core,
+    tags: rankFlags?.tags ?? [],
+    isHereditary: rankFlags?.isHereditary ?? false,
+    isNoble: rankFlags?.isNoble ?? false,
+    isRoyal: rankFlags?.isRoyal ?? false,
+  };
+}

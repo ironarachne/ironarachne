@@ -31,7 +31,7 @@ export function generate(config: OrganizationGeneratorConfig): Organization {
 
   org.notableMembers = randomNotableMembers(org, config.rng);
 
-  const leaderTitle = Characters.getHighestPrecedenceTitle(org.leadership);
+  const leaderTitle = Characters.getHighestPrecedenceTitle(org.leadership.titles || []);
   let leaderHonorific = '';
   if (leaderTitle) {
     leaderHonorific = Characters.getHonorific(org.leadership.gender.name, leaderTitle);

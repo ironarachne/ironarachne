@@ -9,7 +9,7 @@
   import { type Culture } from '$lib/culture';
   import type UserData from '$lib/user_data';
 
-  const user: UserData = getContext('user');
+  const userSession = getContext<{ get value(): UserData }>('user');
   let savedCulture: string | undefined = $state();
   let useSavedCulture: boolean = $state(false);
   let culture: Culture;
@@ -63,9 +63,9 @@
   }
 
   function loadSavedCulture() {
-    for (let i = 0; i < user.savedCultures.length; i++) {
-      if (user.savedCultures[i].name === savedCulture) {
-        culture = user.savedCultures[i];
+    for (let i = 0; i < userSession.value.savedCultures.length; i++) {
+      if (userSession.value.savedCultures[i].name === savedCulture) {
+        culture = userSession.value.savedCultures[i];
       }
     }
   }
@@ -96,7 +96,7 @@
     </select>
   </div>
 
-  {#if user.savedCultures !== undefined && user.savedCultures.length > 0}
+  {#if userSession.value.savedCultures !== undefined && userSession.value.savedCultures.length > 0}
     <div class="input-group">
       <label for="useSavedCulture">Use a saved culture for naming?</label>
       <input
@@ -110,7 +110,7 @@
     <div class="input-group">
       <label for="savedCulture">Select a saved culture to load</label>
       <select bind:value={savedCulture}>
-        {#each user.savedCultures as saved}
+        {#each userSession.value.savedCultures as saved}
           <option value={saved.name}>{saved.name}</option>
         {/each}
       </select>
@@ -142,13 +142,13 @@
   {/if}
 
   <h3>
-    Ruler: {Characters.getHonorific(ruler.gender.name, ruler.titles[0])}
+    Ruler: {Characters.getHonorific(ruler.gender.name, ruler.titles?.[0] ?? null)}
     {ruler.firstName}
     {ruler.lastName}
   </h3>
 
   <div class="ruler">
-    {#if ruler.heraldry !== null}
+    {#if ruler.heraldry}
       <div class="ruler-arms">
         {@html heraldryRenderer.render(ruler.heraldry.device, 200, 220)}
       </div>
@@ -157,7 +157,7 @@
       <p>
         {Words.capitalize(region.name)} is ruled by {Characters.getHonorific(
           ruler.gender.name,
-          ruler.titles[0],
+          ruler.titles?.[0] ?? null,
         )}
         {ruler.firstName}
         {ruler.lastName}. {ruler.description}
@@ -178,7 +178,7 @@
           <p>
             Ruled by {Characters.getHonorific(
               neighbor.authority.gender.name,
-              neighbor.authority.titles[0],
+              neighbor.authority.titles?.[0] ?? null,
             )}
             {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
             {neighbor.authority.species.adjective}
@@ -209,7 +209,7 @@
           <p>
             Ruled by {Characters.getHonorific(
               neighbor.authority.gender.name,
-              neighbor.authority.titles[0],
+              neighbor.authority.titles?.[0] ?? null,
             )}
             {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
             {neighbor.authority.species.adjective}

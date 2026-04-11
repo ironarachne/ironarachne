@@ -8,13 +8,20 @@
   import type Species from '$lib/species/species';
   import type { Character } from '$lib/characters/character_types';
 
+  const INITIAL_ITERATIONS = 3;
+  const INITIAL_MIN_MEMBERS_PER_GENERATION = 2;
+  const INITIAL_MAX_MEMBERS_PER_GENERATION = 5;
+  const INITIAL_INFANT_MORTALITY_CHANCE = 0.01;
+  const INITIAL_FERTILITY_CHANCE = 0.8;
+
   let rng = new RNG.RNG(Date.now().toString());
-  let seed = $state(rng.randomString(13));
+  const initialSeed = rng.randomString(13);
+  let seed = $state(initialSeed);
   let lockSeed = $state(false);
   let availableSpecies = CommonSpecies.sentient();
   let selectedSpecies = $state('any');
   let species = CommonSpecies.randomWeighted(availableSpecies);
-  let iterations: number = $state(3);
+  let iterations: number = $state(INITIAL_ITERATIONS);
   let nameGeneratorSet;
 
   try {
@@ -30,8 +37,8 @@
   let lastNameTradition = $state('male');
 
   // Config State
-  let minMembersPerGeneration = $state(2);
-  let maxMembersPerGeneration = $state(5);
+  let minMembersPerGeneration = $state(INITIAL_MIN_MEMBERS_PER_GENERATION);
+  let maxMembersPerGeneration = $state(INITIAL_MAX_MEMBERS_PER_GENERATION);
   let allowAdoption = $state(false);
   let adoptionChance = $state(0.0);
   let allowIllegitimateChildren = $state(false);
@@ -42,35 +49,38 @@
   let sameGenderMarriageChance = $state(0.0);
   let allowCrossSpeciesMarriages = $state(false);
   let crossSpeciesMarriageChance = $state(0.0);
-  let infantMortalityChance = $state(0.01);
-  let fertilityChance = $state(0.8);
+  let infantMortalityChance = $state(INITIAL_INFANT_MORTALITY_CHANCE);
+  let fertilityChance = $state(INITIAL_FERTILITY_CHANCE);
 
-  let config = Families.getDefaultFamilyGenerationConfig(seed + '-family');
+  let config = Families.getDefaultFamilyGenerationConfig(initialSeed + '-family');
   config.speciesOptions = [species];
-  config.generations = iterations;
+  config.generations = INITIAL_ITERATIONS;
   config.familyNameGenerator = familyNameGen;
   config.femaleNameGenerator = femaleNameGen;
   config.maleNameGenerator = maleNameGen;
   config.dominantGender = getDominantGender().name;
-  config.minMembersPerGeneration = minMembersPerGeneration;
-  config.maxMembersPerGeneration = maxMembersPerGeneration;
-  config.allowAdoption = allowAdoption;
-  config.adoptionChance = adoptionChance;
-  config.allowIllegitimateChildren = allowIllegitimateChildren;
-  config.illegitimateChildChance = illegitimateChildChance;
-  config.allowMultipleMarriages = allowMultipleMarriages;
-  config.multipleMarriageChance = multipleMarriageChance;
-  config.allowSameGenderMarriage = allowSameGenderMarriage;
-  config.sameGenderMarriageChance = sameGenderMarriageChance;
-  config.allowCrossSpeciesMarriages = allowCrossSpeciesMarriages;
-  config.crossSpeciesMarriageChance = crossSpeciesMarriageChance;
-  config.infantMortalityChance = infantMortalityChance;
-  config.fertilityChance = fertilityChance;
+  config.minMembersPerGeneration = INITIAL_MIN_MEMBERS_PER_GENERATION;
+  config.maxMembersPerGeneration = INITIAL_MAX_MEMBERS_PER_GENERATION;
+  config.allowAdoption = false;
+  config.adoptionChance = 0.0;
+  config.allowIllegitimateChildren = false;
+  config.illegitimateChildChance = 0.0;
+  config.allowMultipleMarriages = false;
+  config.multipleMarriageChance = 0.0;
+  config.allowSameGenderMarriage = false;
+  config.sameGenderMarriageChance = 0.0;
+  config.allowCrossSpeciesMarriages = false;
+  config.crossSpeciesMarriageChance = 0.0;
+  config.infantMortalityChance = INITIAL_INFANT_MORTALITY_CHANCE;
+  config.fertilityChance = INITIAL_FERTILITY_CHANCE;
 
-  let family = $state(
-    Families.generateFamilyGeneration(seed, config, Families.generateNewFamily(seed, config)),
+  const initialFamily = Families.generateFamilyGeneration(
+    initialSeed,
+    config,
+    Families.generateNewFamily(initialSeed, config),
   );
-  let familyTreeSVG = $state(Families.getFamilyTreeSVG(family));
+  let family = $state(initialFamily);
+  let familyTreeSVG = $state(Families.getFamilyTreeSVG(initialFamily));
 
   function generate() {
     if (!lockSeed) {

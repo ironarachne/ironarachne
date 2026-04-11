@@ -5,7 +5,7 @@ import * as Mutators from './mutators/mutators.js';
 import type Pattern from './patterns/pattern.js';
 
 export default class ItemGeneratorConfig {
-  pattern: Pattern;
+  pattern!: Pattern;
   components: Component[];
   minValue: number;
   maxValue: number;

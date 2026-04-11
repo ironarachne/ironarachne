@@ -1,6 +1,12 @@
 import { distancePointToSegmentSquared } from '../geometry/distance_point_to_segment.js';
 import type Vertex from '../geometry/vertex.js';
-import type { RegionMap } from './map_graph.js';
+import type { MapEdge, RegionMap } from './map_graph.js';
+
+type InteriorRoadEdge = MapEdge & { d0: number; d1: number };
+
+function isInteriorRoadEdge(e: MapEdge): e is InteriorRoadEdge {
+  return e.road !== undefined && e.road > 0 && typeof e.d0 === 'number' && typeof e.d1 === 'number';
+}
 
 function undirectedPairKey(a: number, b: number): string {
   return a < b ? `${a}-${b}` : `${b}-${a}`;
@@ -12,7 +18,7 @@ function undirectedPairKey(a: number, b: number): string {
  * boundary corners only.
  */
 export function buildRoadCentroidPolylines(map: RegionMap): Vertex[][] {
-  const roadEdges = map.edges.filter((e) => e.road && e.road > 0 && e.d1 !== undefined);
+  const roadEdges = map.edges.filter(isInteriorRoadEdge);
   if (roadEdges.length === 0) return [];
 
   const adj = new Map<number, number[]>();

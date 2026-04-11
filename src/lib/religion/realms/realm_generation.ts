@@ -1,5 +1,5 @@
 import { RNG } from '@ironarachne/rng';
-import type { DivineRealm, DivineRealmGenerationConfig } from './realm_types';
+import type { DivineRealm, DivineRealmGenerationConfig, DivineRealmRole } from './realm_types';
 
 import { divineRealmTypes } from './realm_data';
 
@@ -40,10 +40,9 @@ export function generate(seed: string, config: DivineRealmGenerationConfig): Div
     const realm: DivineRealm = {
       name: type.nameGenerator(seed + i),
       description: type.descriptionGenerator(seed + i),
-      characterMutators: type.characterMutators,
-      creatureMutators: type.creatureMutators,
+      mutators: type.mutators,
       biome,
-      role: role as any,
+      role: role as DivineRealmRole,
     };
     realms.push(realm);
   }

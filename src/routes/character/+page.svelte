@@ -213,7 +213,7 @@
 
     {#if character.heraldry}
       <h3>Heraldry</h3>
-      <p>{renderDeviceBlazon(character.heraldry)}</p>
+      <p>{renderDeviceBlazon(character.heraldry.device)}</p>
     {/if}
 
     {#if character.abilities.length > 0}

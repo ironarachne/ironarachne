@@ -5,18 +5,19 @@
   import * as CommonSpecies from '$lib/species/common.js';
   import * as ReligionCategories from '$lib/religion/categories';
   import type Species from '$lib/species/species';
-  import type Culture from '$lib/culture/culture';
+  import type { Culture } from '$lib/culture/culture_types';
   import type UserData from '$lib/user_data';
   import { generateReligion, getDefaultReligionGenerationConfig } from '$lib/religion';
   import { listDomains } from '$lib/religion/domains';
 
-  const user: UserData = getContext('user');
+  const userSession = getContext<{ get value(): UserData }>('user');
   let savedCulture: string | undefined = $state();
   let useSavedCulture: boolean = $state(false);
   let culture: Culture;
 
   let rng = new RNG.RNG(Date.now().toString());
-  let seed = $state(rng.randomString(13));
+  const initialSeed = rng.randomString(13);
+  let seed = $state(initialSeed);
   let lockSeed = $state(false);
   $effect(() => {
     rng.setSeed(seed);
@@ -42,7 +43,7 @@
   let selectedCategories: string[] = $state(['polytheism']);
   genConfig.categories = [ReligionCategories.byName('polytheism', allReligionCategories)];
 
-  let religion = $state(generateReligion(`${seed}-religion`, genConfig));
+  let religion = $state(generateReligion(`${initialSeed}-religion`, genConfig));
 
   function generate() {
     if (!lockSeed) {
@@ -96,9 +97,9 @@
   }
 
   function loadSavedCulture() {
-    for (let i = 0; i < user.savedCultures.length; i++) {
-      if (user.savedCultures[i].name === savedCulture) {
-        culture = user.savedCultures[i];
+    for (let i = 0; i < userSession.value.savedCultures.length; i++) {
+      if (userSession.value.savedCultures[i].name === savedCulture) {
+        culture = userSession.value.savedCultures[i];
       }
     }
   }
@@ -155,7 +156,7 @@
     {/each}
   </div>
 
-  {#if user && user.savedCultures !== undefined && user.savedCultures.length > 0}
+  {#if userSession.value.savedCultures !== undefined && userSession.value.savedCultures.length > 0}
     <div class="input-group">
       <label for="useSavedCulture">Use a saved culture for naming?</label>
       <input
@@ -169,7 +170,7 @@
     <div class="input-group">
       <label for="savedCulture">Select a saved culture to load</label>
       <select bind:value={savedCulture}>
-        {#each user.savedCultures as saved}
+        {#each userSession.value.savedCultures as saved}
           <option value={saved.name}>{saved.name}</option>
         {/each}
       </select>

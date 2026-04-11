@@ -2,7 +2,7 @@
   import '$lib/styles/main.scss';
   import Footer from '$lib/components/Footer.svelte';
   import Header from '$lib/components/Header.svelte';
-  import { setContext } from 'svelte';
+  import UserContextProvider from '$lib/components/user_context_provider.svelte';
 
   import type { LayoutData } from './$types';
 
@@ -12,14 +12,10 @@
   }
 
   let { data, children }: Props = $props();
-
-  const user = $state(data.user);
-
-  // TODO: try implementing a workspace for cultures within the user object
-
-  setContext('user', user);
 </script>
 
-<Header />
-{@render children?.()}
-<Footer />
+<UserContextProvider user={data.user}>
+  <Header />
+  {@render children?.()}
+  <Footer />
+</UserContextProvider>

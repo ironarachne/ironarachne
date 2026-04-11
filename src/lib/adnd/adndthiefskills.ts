@@ -1,6 +1,12 @@
 import * as RNG from '@ironarachne/rng';
 
-export function distributePoints(skillList, extraPoints: number) {
+export type ThiefSkillRow = {
+  name: string;
+  points: number;
+  value: number;
+};
+
+export function distributePoints(skillList: ThiefSkillRow[], extraPoints: number) {
   while (extraPoints > 0) {
     let skillIndex = RNG.int(0, skillList.length - 1);
     let skill = skillList[skillIndex];
@@ -15,8 +21,8 @@ export function distributePoints(skillList, extraPoints: number) {
   return skillList;
 }
 
-export function modifyForDexterity(skillList, dexterity: number) {
-  let dexterityAdjustments = {
+export function modifyForDexterity(skillList: ThiefSkillRow[], dexterity: number) {
+  const dexterityAdjustments: Record<number, Record<string, number>> = {
     9: {
       'Pick Pockets': -15,
       'Open Locks': -10,
@@ -136,8 +142,8 @@ export function modifyForDexterity(skillList, dexterity: number) {
   return skillList;
 }
 
-export function modifyForRace(skillList, raceName: string) {
-  let racialAdjustments = {
+export function modifyForRace(skillList: ThiefSkillRow[], raceName: string) {
+  const racialAdjustments: Record<string, Record<string, number>> = {
     dwarf: {
       'Pick Pockets': 0,
       'Open Locks': 10,

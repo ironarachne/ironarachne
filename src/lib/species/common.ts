@@ -129,6 +129,14 @@ export function byEnvironment(environment: string, options: Species[]): Species[
   return result;
 }
 
+export function byAllTags(tags: string[], options: Species[]): Species[] {
+  return applyTagFilter(options, { includeAllTags: tags });
+}
+
+export function byAnyTag(tags: string[], options: Species[]): Species[] {
+  return applyTagFilter(options, { includeSomeTags: tags });
+}
+
 export function byName(name: string, options: Species[]): Species {
   for (let i = 0; i < options.length; i++) {
     if (options[i].name === name) {

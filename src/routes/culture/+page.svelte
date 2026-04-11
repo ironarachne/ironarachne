@@ -10,17 +10,18 @@
   } from '$lib/culture';
   import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from '$lib/names';
 
-  const user: UserData = getContext('user');
+  const userSession = getContext<{ get value(): UserData }>('user');
   const rng = new RNG.RNG(Date.now());
   const allNameSets = getAllFantasyNameGeneratorSets(rng);
 
-  if (user.savedCultures === undefined) {
-    user.savedCultures = [];
+  if (userSession.value.savedCultures === undefined) {
+    userSession.value.savedCultures = [];
   }
 
   let savedCulture: string | undefined = $state();
 
-  let seed = $state(rng.randomString(13));
+  const initialSeed = rng.randomString(13);
+  let seed = $state(initialSeed);
   let lockSeed = $state(false);
   $effect(() => {
     rng.setSeed(seed);
@@ -28,7 +29,7 @@
   const genConfig = getDefaultCultureGenerationConfig();
   let genSet: NameGeneratorSet = rng.item(allNameSets);
   genConfig.nameGenerators = genSet;
-  let culture = $state(generateCulture(seed, genConfig));
+  let culture = $state(generateCulture(initialSeed, genConfig));
 
   function generate() {
     if (!lockSeed) {
@@ -41,15 +42,15 @@
   }
 
   function loadSavedCulture() {
-    for (let i = 0; i < user.savedCultures.length; i++) {
-      if (user.savedCultures[i].name === savedCulture) {
-        culture = user.savedCultures[i];
+    for (let i = 0; i < userSession.value.savedCultures.length; i++) {
+      if (userSession.value.savedCultures[i].name === savedCulture) {
+        culture = userSession.value.savedCultures[i];
       }
     }
   }
 
   function saveCulture() {
-    user.savedCultures.push(culture);
+    userSession.value.savedCultures.push(culture);
   }
 </script>
 
@@ -75,7 +76,7 @@
   <div class="input-group">
     <label for="savedCulture">Select a saved culture to load</label>
     <select bind:value={savedCulture}>
-      {#each user.savedCultures as saved}
+      {#each userSession.value.savedCultures as saved}
         <option value={saved.name}>{saved.name}</option>
       {/each}
     </select>

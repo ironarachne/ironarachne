@@ -67,4 +67,39 @@ describe('Titles', () => {
       expect(Titles.getTitle(character)).toBe('');
     });
   });
+
+  describe('createTitleFromCore', () => {
+    it('fills tags and rank flags with defaults', () => {
+      const title = Titles.createTitleFromCore({
+        femaleTitle: 'Captain',
+        maleTitle: 'Captain',
+        femaleHonorific: 'Captain',
+        maleHonorific: 'Captain',
+        hasLands: false,
+        landName: '',
+        precedence: 0,
+      });
+      expect(title.tags).toEqual([]);
+      expect(title.isHereditary).toBe(false);
+      expect(title.isNoble).toBe(false);
+      expect(title.isRoyal).toBe(false);
+    });
+
+    it('applies optional rank flags', () => {
+      const title = Titles.createTitleFromCore(
+        {
+          femaleTitle: 'Queen',
+          maleTitle: 'King',
+          femaleHonorific: 'Majesty',
+          maleHonorific: 'Majesty',
+          hasLands: true,
+          landName: 'Kingdom of',
+          precedence: 1,
+        },
+        { isHereditary: true, isNoble: true, isRoyal: true },
+      );
+      expect(title.isRoyal).toBe(true);
+      expect(title.isNoble).toBe(true);
+    });
+  });
 });

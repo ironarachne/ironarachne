@@ -1,5 +1,6 @@
 import type { Character, CharacterGenerationConfig } from '$lib/characters';
 import * as Characters from '$lib/characters';
+import { createTitleFromCore } from '$lib/characters/titles.js';
 import * as Charges from '$lib/heraldry/charges/index.js';
 import {
   mergeHeraldryGeneratorConfig,
@@ -140,7 +141,7 @@ function getRanks(): OrganizationRank[] {
   const ranks: OrganizationRank[] = [
     {
       name: 'proprietor',
-      title: {
+      title: createTitleFromCore({
         femaleTitle: 'Proprietor',
         maleTitle: 'Proprietor',
         femaleHonorific: 'Mistress',
@@ -148,14 +149,14 @@ function getRanks(): OrganizationRank[] {
         hasLands: false,
         landName: '',
         precedence: 0,
-      },
+      }),
       tier: 0,
       parent: null,
       children: [],
     },
     {
       name: 'manager',
-      title: {
+      title: createTitleFromCore({
         femaleTitle: 'Manager',
         maleTitle: 'Manager',
         femaleHonorific: '',
@@ -163,14 +164,14 @@ function getRanks(): OrganizationRank[] {
         hasLands: false,
         landName: '',
         precedence: 1,
-      },
+      }),
       tier: 1,
       parent: null,
       children: [],
     },
     {
       name: 'employee',
-      title: {
+      title: createTitleFromCore({
         femaleTitle: 'Employee',
         maleTitle: 'Employee',
         femaleHonorific: '',
@@ -178,7 +179,7 @@ function getRanks(): OrganizationRank[] {
         hasLands: false,
         landName: '',
         precedence: 2,
-      },
+      }),
       tier: 2,
       parent: null,
       children: [],

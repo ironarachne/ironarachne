@@ -1,5 +1,6 @@
 import type { Character, CharacterGenerationConfig } from '$lib/characters';
 import * as Characters from '$lib/characters';
+import { createTitleFromCore } from '$lib/characters/titles.js';
 import * as Charges from '$lib/heraldry/charges/index.js';
 import {
   mergeHeraldryGeneratorConfig,
@@ -102,7 +103,7 @@ function getRanks(): OrganizationRank[] {
   const ranks: OrganizationRank[] = [
     {
       name: 'captain',
-      title: {
+      title: createTitleFromCore({
         femaleTitle: 'Captain',
         maleTitle: 'Captain',
         femaleHonorific: 'Captain',
@@ -110,14 +111,14 @@ function getRanks(): OrganizationRank[] {
         hasLands: false,
         landName: '',
         precedence: 0,
-      },
+      }),
       tier: 0,
       parent: null,
       children: [],
     },
     {
       name: 'lieutenant',
-      title: {
+      title: createTitleFromCore({
         femaleTitle: 'Lieutenant',
         maleTitle: 'Lieutenant',
         femaleHonorific: 'Lieutenant',
@@ -125,14 +126,14 @@ function getRanks(): OrganizationRank[] {
         hasLands: false,
         landName: '',
         precedence: 1,
-      },
+      }),
       tier: 1,
       parent: null,
       children: [],
     },
     {
       name: 'sergeant',
-      title: {
+      title: createTitleFromCore({
         femaleTitle: 'Sergeant',
         maleTitle: 'Sergeant',
         femaleHonorific: 'Sergeant',
@@ -140,14 +141,14 @@ function getRanks(): OrganizationRank[] {
         hasLands: false,
         landName: '',
         precedence: 2,
-      },
+      }),
       tier: 2,
       parent: null,
       children: [],
     },
     {
       name: 'member',
-      title: {
+      title: createTitleFromCore({
         femaleTitle: 'Mercenary',
         maleTitle: 'Mercenary',
         femaleHonorific: '',
@@ -155,7 +156,7 @@ function getRanks(): OrganizationRank[] {
         hasLands: false,
         landName: '',
         precedence: 3,
-      },
+      }),
       tier: 3,
       parent: null,
       children: [],

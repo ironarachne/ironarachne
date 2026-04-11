@@ -23,8 +23,8 @@
   let nameSet: Names.NameGeneratorSet = rng.item(nameSets);
   let genConfig = $state(FantasyOrganizations.getDefaultConfig(rng));
   genConfig.characterConfig.familyNameGenerator = nameSet.family;
-  genConfig.characterConfig.femaleNameGenerator = nameSet.female;
-  genConfig.characterConfig.maleNameGenerator = nameSet.male;
+  genConfig.characterConfig.femaleFirstNameGenerator = nameSet.female;
+  genConfig.characterConfig.maleFirstNameGenerator = nameSet.male;
   let org = Organizations.generate(genConfig);
   let name = $state(org.name);
   let description = $state(org.description);
@@ -50,18 +50,16 @@
     }
     if (nameSetName === 'any') {
       nameSet = rng.item(nameSets);
-      genConfig.characterConfig.useAdaptiveNames = true;
     } else {
       nameSets.forEach((element) => {
         if (element.name === nameSetName) {
           nameSet = element;
         }
       });
-      genConfig.characterConfig.useAdaptiveNames = false;
     }
     genConfig.characterConfig.familyNameGenerator = nameSet.family;
-    genConfig.characterConfig.femaleNameGenerator = nameSet.female;
-    genConfig.characterConfig.maleNameGenerator = nameSet.male;
+    genConfig.characterConfig.femaleFirstNameGenerator = nameSet.female;
+    genConfig.characterConfig.maleFirstNameGenerator = nameSet.male;
 
     let org = Organizations.generate(genConfig);
     name = org.name;
@@ -136,9 +134,9 @@
   {#each notableMembers as member}
     <p>
       <strong>
-        {Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member))}
+        {Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member.titles || []))}
         {member.firstName}
-        {member.lastName}{#if Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member)) == ''}
+        {member.lastName}{#if Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member.titles || [])) == ''}
           ({Characters.getTitle(member)}){/if}:
       </strong>
       {member.description}
