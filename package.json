@@ -27,7 +27,6 @@
     "@ironarachne/rng": "^2.3.1",
     "@ironarachne/word-generator": "^2.3.1",
     "@ironarachne/words": "^2.0.0",
-    "@sveltejs/adapter-node": "^5.2.9",
     "@sveltejs/kit": "^2.5.27",
     "core-js": "^3.33.3",
     "d3": "^7.6.1",
@@ -37,6 +36,7 @@
     "xmlbuilder2": "^3.1.1"
   },
   "devDependencies": {
+    "@sveltejs/adapter-static": "^3.0.8",
     "@eslint/compat": "^1.4.0",
     "@eslint/js": "^9.39.1",
     "@sveltejs/vite-plugin-svelte": "^5.0.1",
