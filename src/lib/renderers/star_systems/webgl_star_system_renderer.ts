@@ -14,6 +14,9 @@ export function render(
   height: number,
   seed: string,
 ): string {
+  const totalUnits = system.stars.length * 4 + system.planets.length;
+  if (totalUnits === 0) return '';
+
   const rng = new RNG(seed);
   const canvas = document.createElement('canvas');
   canvas.width = width;
@@ -37,10 +40,6 @@ export function render(
   if (canvas === null) {
     throw new Error('Canvas not found');
   }
-
-  const bodies = [...system.stars, ...system.planets];
-  const totalUnits = system.stars.length * 4 + system.planets.length;
-  if (totalUnits === 0) return '';
   const baseUnitWidth = width / totalUnits;
 
   let maxStarRadius = 0;

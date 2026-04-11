@@ -57,6 +57,8 @@
   let homePlanet: number = $state(0);
   let homePlanetRegion: RegionOfControl = $state(generateRegionOfControl(homePlanetRegionConfig));
 
+  let homeSystemCompositeSrc = $state('');
+
   let planetCountControl: string = $state('random');
 
   const imageWidth = 64;
@@ -102,6 +104,16 @@
 
     nation.description = getCivilizationDescription(nation);
     homePlanetRegion.population = nation.population / populatedPlanets;
+
+    if (browser) {
+      homeSystemCompositeSrc = WebGLStarSystemRenderer.render(
+        document,
+        homeSystem,
+        imageWidth * (homeSystem.stars.length + homeSystem.planets.length),
+        imageHeight,
+        rng.randomString(13),
+      );
+    }
   }
 
   onMount(() => {
@@ -167,18 +179,12 @@
     </p>
 
     <div class="star-system">
-      {#if browser}
+      {#if browser && homeSystemCompositeSrc}
         <div class="image-container-system" style="width: 100%;">
           <img
             alt="{homeSystem.name} system composite"
             style="max-width: 100%; height: auto; display: block;"
-            src={WebGLStarSystemRenderer.render(
-              document,
-              homeSystem,
-              imageWidth * (homeSystem.stars.length + homeSystem.planets.length),
-              imageHeight,
-              rng.randomString(13),
-            )}
+            src={homeSystemCompositeSrc}
           />
         </div>
       {/if}

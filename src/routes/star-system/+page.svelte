@@ -30,8 +30,29 @@
 
   let config = getDefaultStarSystemGeneratorConfig();
   let system: StarSystem | undefined = $state();
+  let systemCompositeSrc = $state('');
+  let starImageSrcs = $state<string[]>([]);
+  let planetImageSrcs = $state<string[]>([]);
   let planetCountControl: string = $state('random');
   let starType: string = $state('random');
+
+  function rebuildSystemPreviewImages() {
+    if (!browser || system === undefined) return;
+    const current = system;
+    systemCompositeSrc = WebGLStarSystemRenderer.render(
+      document,
+      current,
+      width * (current.stars.length + current.planets.length) * 0.5,
+      height,
+      rng.randomString(13),
+    );
+    starImageSrcs = current.stars.map((star) =>
+      WebGLStarRenderer.render(document, star, width, height, rng.randomString(13)),
+    );
+    planetImageSrcs = current.planets.map((planet) =>
+      WebGLPlanetRenderer.render(document, planet, width, height, rng.randomString(13)),
+    );
+  }
 
   function generate() {
     if (!lockSeed) {
@@ -52,6 +73,7 @@
     }
 
     system = generateStarSystem(config);
+    rebuildSystemPreviewImages();
   }
 
   onMount(() => {
@@ -63,6 +85,7 @@
       config.star_classifications = searchStarClassificationsByName(starType, starTypes);
     }
     system = generateStarSystem(config);
+    rebuildSystemPreviewImages();
   });
 </script>
 
@@ -104,18 +127,12 @@
   {#if system}
     <h2>The {system.name} System</h2>
 
-    {#if browser}
+    {#if browser && systemCompositeSrc}
       <div style="width: 100%; margin-bottom: 2rem;">
         <img
           alt="{system.name} composite"
           style="max-width: 100%; height: auto; display: block;"
-          src={WebGLStarSystemRenderer.render(
-            document,
-            system,
-            width * (system.stars.length + system.planets.length) * 0.5,
-            height,
-            rng.randomString(13),
-          )}
+          src={systemCompositeSrc}
         />
       </div>
     {/if}
@@ -124,13 +141,10 @@
 
     <h3>Stars</h3>
 
-    {#each system.stars as star}
+    {#each system.stars as star, starIndex (star.name)}
       <article class="media-banner">
         <div class="image-container">
-          <img
-            alt="{star.name} image"
-            src={WebGLStarRenderer.render(document, star, width, height, rng.randomString(13))}
-          />
+          <img alt="{star.name} image" src={starImageSrcs[starIndex] ?? ''} />
         </div>
         <div>
           <h5>{star.name}</h5>
@@ -161,13 +175,10 @@
 
     <h3>Planets</h3>
 
-    {#each system.planets as planet}
+    {#each system.planets as planet, planetIndex (planet.name)}
       <article class="media-banner">
         <div class="image-container">
-          <img
-            alt="{planet.name} image"
-            src={WebGLPlanetRenderer.render(document, planet, width, height, rng.randomString(13))}
-          />
+          <img alt="{planet.name} image" src={planetImageSrcs[planetIndex] ?? ''} />
         </div>
         <div>
           <h5>{planet.name}</h5>

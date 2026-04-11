@@ -44,6 +44,7 @@
   let planetGenConfig = getDefaultPlanetGenerationConfig();
   planetGenConfig.rng = rng;
   let planet: AstronomicalBody | undefined = $state();
+  let planetImageSrc = $state('');
 
   let moonGenConfig = getDefaultMoonGenerationConfig();
   moonGenConfig.rng = rng;
@@ -105,12 +106,31 @@
       const moon = generateMoon(moonGenConfig);
       moons.push(moon);
     }
+
+    if (browser) {
+      planetImageSrc = WebGLPlanetRenderer.render(
+        document,
+        planet,
+        width,
+        height,
+        rng.randomString(13),
+      );
+    }
   }
 
   onMount(() => {
     planetGenConfig = getDefaultPlanetGenerationConfig();
     planetGenConfig.rng = rng;
     planet = generatePlanet(planetGenConfig);
+    if (planet !== undefined) {
+      planetImageSrc = WebGLPlanetRenderer.render(
+        document,
+        planet,
+        width,
+        height,
+        rng.randomString(13),
+      );
+    }
   });
 </script>
 
@@ -149,11 +169,8 @@
   {#if planet}
     <h2>{planet.name}</h2>
 
-    {#if browser}
-      <img
-        alt="{planet.name} image"
-        src={WebGLPlanetRenderer.render(document, planet, width, height, rng.randomString(13))}
-      />
+    {#if browser && planetImageSrc}
+      <img alt="{planet.name} image" src={planetImageSrc} />
     {/if}
 
     <p>{planet.description}</p>
