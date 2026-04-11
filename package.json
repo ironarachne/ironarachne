@@ -28,8 +28,6 @@
     "@ironarachne/word-generator": "^2.3.1",
     "@ironarachne/words": "^2.0.0",
     "@sveltejs/kit": "^2.55.0",
-    "core-js": "^3.33.3",
-    "priorityqueuejs": "^2.0.0",
     "three": "^0.179.1",
     "xmlbuilder2": "^3.1.1"
   },
@@ -39,9 +37,7 @@
     "@eslint/js": "^9.39.1",
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.2",
-    "@types/core-js": "^2.5.8",
     "@types/node": "^24",
-    "@types/priorityqueuejs": "^1.0.4",
     "@types/three": "^0.179.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
