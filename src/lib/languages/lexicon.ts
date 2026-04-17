@@ -1,88 +1,134 @@
-import Word from './word.js';
+import type { Lexicon, Word } from './language_types.js';
+import { englishPluralNounSurfaceToSingularLemma } from './english_noun_irregular_plural.js';
+import {
+  englishVerbSurfaceToPresentLemma,
+  shouldOmitEnglishNounFrequencySurface,
+} from './english_verb_surface_to_lemma.js';
+import { dedupeMeaningsPreservingOrder } from './lexicon_dedupe.js';
+import {
+  POWERLANGUAGE_ADJECTIVES,
+  POWERLANGUAGE_ADVERBS,
+  POWERLANGUAGE_ALPHABETIC,
+  POWERLANGUAGE_ARTICLES,
+  POWERLANGUAGE_INTERJECTIONS,
+  POWERLANGUAGE_NOUNS,
+  POWERLANGUAGE_NUMBERS,
+  POWERLANGUAGE_PREPOSITIONS,
+  POWERLANGUAGE_PRONOUNS,
+  POWERLANGUAGE_QUESTIONS,
+  POWERLANGUAGE_VERBS,
+} from './lexicon_powerlanguage_bucket_lists.js';
+import { createWord } from './word.js';
 
-export default class Lexicon {
-  words: Word[];
+export function createLexicon(): Lexicon {
+  const words: Word[] = [];
 
-  constructor() {
-    this.words = [];
-
-    const adj: string[] = adjectives();
-
-    for (let i = 0; i < adj.length; i++) {
-      const word = new Word('adjective', adj[i]);
-      this.words.push(word);
-    }
-
-    const adv: string[] = adverbs();
-
-    for (let i = 0; i < adv.length; i++) {
-      const word = new Word('adverb', adv[i]);
-      this.words.push(word);
-    }
-
-    const art: string[] = articles();
-
-    for (let i = 0; i < art.length; i++) {
-      const word = new Word('article', art[i]);
-      this.words.push(word);
-    }
-
-    const inter: string[] = interjections();
-
-    for (let i = 0; i < inter.length; i++) {
-      const word = new Word('interjection', inter[i]);
-      this.words.push(word);
-    }
-
-    const prep: string[] = prepositions();
-
-    for (let i = 0; i < prep.length; i++) {
-      const word = new Word('preposition', prep[i]);
-      this.words.push(word);
-    }
-
-    const que: string[] = questions();
-
-    for (let i = 0; i < que.length; i++) {
-      const word = new Word('question', que[i]);
-      this.words.push(word);
-    }
-
-    const ver: string[] = verbs();
-
-    for (let i = 0; i < ver.length; i++) {
-      const word = new Word('verb', ver[i]);
-      this.words.push(word);
-    }
-
-    const nou: string[] = nouns();
-
-    for (let i = 0; i < nou.length; i++) {
-      const word = new Word('noun', nou[i]);
-      this.words.push(word);
-    }
-
-    const nm: string[] = numbers();
-
-    for (let i = 0; i < nm.length; i++) {
-      const word = new Word('number', nm[i]);
-      this.words.push(word);
-    }
-
-    const pro: string[] = pronouns();
-
-    for (let i = 0; i < pro.length; i++) {
-      const word = new Word('pronoun', pro[i]);
-      this.words.push(word);
-    }
+  for (const meaning of adjectives()) {
+    words.push(createWord('adjective', meaning));
+  }
+  for (const meaning of adverbs()) {
+    words.push(createWord('adverb', meaning));
+  }
+  for (const meaning of articles()) {
+    words.push(createWord('article', meaning));
+  }
+  for (const meaning of interjections()) {
+    words.push(createWord('interjection', meaning));
+  }
+  for (const meaning of prepositions()) {
+    words.push(createWord('preposition', meaning));
+  }
+  for (const meaning of questions()) {
+    words.push(createWord('question', meaning));
+  }
+  for (const meaning of verbs()) {
+    words.push(createWord('verb', meaning));
+  }
+  for (const meaning of nouns()) {
+    words.push(createWord('noun', meaning));
+  }
+  for (const meaning of numbers()) {
+    words.push(createWord('number', meaning));
+  }
+  for (const meaning of pronouns()) {
+    words.push(createWord('pronoun', meaning));
   }
 
-  getWordsBySpeechPart(speechPart: string): Word[] {
-    return this.words.filter((word) => word.speechPart == speechPart);
-  }
+  return { words };
 }
 
-function adjectives() {
+export function getLexiconWordsBySpeechPart(lexicon: Lexicon, speechPart: string): Word[] {
+  return lexicon.words.filter((word) => word.speechPart === speechPart);
+}
+
+function frequencyVerbLemmas(): string[] {
+  const lemmas = new Set<string>();
+  for (const w of POWERLANGUAGE_ALPHABETIC) {
+    const lem = englishVerbSurfaceToPresentLemma(w);
+    if (lem) {
+      lemmas.add(lem);
+    }
+  }
+  for (const w of POWERLANGUAGE_VERBS) {
+    lemmas.add(englishVerbSurfaceToPresentLemma(w) ?? w);
+  }
+  return dedupeMeaningsPreservingOrder([...lemmas]);
+}
+
+function frequencyNounLemmas(): string[] {
+  const cleaned = POWERLANGUAGE_NOUNS.filter((w) => !shouldOmitEnglishNounFrequencySurface(w)).map(
+    (w) => englishPluralNounSurfaceToSingularLemma(w),
+  );
+  return dedupeMeaningsPreservingOrder(cleaned);
+}
+
+function mergedNounMeanings(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedNouns(), ...frequencyNounLemmas()]);
+}
+
+function adjectives(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedAdjectives(), ...POWERLANGUAGE_ADJECTIVES]);
+}
+
+function adverbs(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedAdverbs(), ...POWERLANGUAGE_ADVERBS]);
+}
+
+function articles(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedArticles(), ...POWERLANGUAGE_ARTICLES]);
+}
+
+function interjections(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedInterjections(), ...POWERLANGUAGE_INTERJECTIONS]);
+}
+
+function prepositions(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedPrepositions(), ...POWERLANGUAGE_PREPOSITIONS]);
+}
+
+function questions(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedQuestions(), ...POWERLANGUAGE_QUESTIONS]);
+}
+
+function verbs(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedVerbs(), ...frequencyVerbLemmas()]);
+}
+
+function nouns(): string[] {
+  return mergedNounMeanings();
+}
+
+function numbers(): string[] {
+  return dedupeMeaningsPreservingOrder([...themedNumbers(), ...POWERLANGUAGE_NUMBERS]);
+}
+
+function pronouns(): string[] {
+  const nounKeys = new Set(mergedNounMeanings().map((n) => n.toLowerCase()));
+  const freq = POWERLANGUAGE_PRONOUNS.filter((p) => !nounKeys.has(p.toLowerCase()));
+  return dedupeMeaningsPreservingOrder([...themedPronouns(), ...freq]);
+}
+
+function themedAdjectives(): string[] {
   return [
     'aromatic',
     'basted',
@@ -154,27 +200,27 @@ function adjectives() {
   ];
 }
 
-function adverbs() {
+function themedAdverbs(): string[] {
   return ['again', 'now', 'soon', 'often', 'sometimes', 'always', 'never', 'seldom'];
 }
 
-function articles() {
+function themedArticles(): string[] {
   return ['a', 'the'];
 }
 
-function interjections() {
+function themedInterjections(): string[] {
   return ['hello', 'goodbye', 'hey', 'bye', 'ouch', 'wow', 'uh', 'er', 'um'];
 }
 
-function prepositions() {
+function themedPrepositions(): string[] {
   return ['and', 'as', 'from', 'in', 'of', 'or', 'to', 'will', 'with'];
 }
 
-function questions() {
+function themedQuestions(): string[] {
   return ['what', 'who', 'how', 'why', 'when'];
 }
 
-function verbs() {
+function themedVerbs(): string[] {
   return [
     'bake',
     'be',
@@ -228,7 +274,7 @@ function verbs() {
   ];
 }
 
-function nouns() {
+function themedNouns(): string[] {
   return [
     'afternoon',
     'ale',
@@ -263,6 +309,7 @@ function nouns() {
     'dog',
     'drink',
     'dungeon',
+    'eagle',
     'ear',
     'earth',
     'egg',
@@ -290,6 +337,7 @@ function nouns() {
     'hand',
     'hat',
     'hate',
+    'hawk',
     'head',
     'hill',
     'horn',
@@ -322,6 +370,7 @@ function nouns() {
     'noodle',
     'nose',
     'ocean',
+    'owl',
     'parent',
     'path',
     'peace',
@@ -366,15 +415,129 @@ function nouns() {
     'water',
     'way',
     'wine',
+    'wolf',
+    'ant',
+    'antelope',
+    'ape',
+    'badger',
+    'bat',
+    'bear',
+    'beaver',
+    'bee',
+    'beetle',
+    'bison',
+    'buffalo',
+    'butterfly',
+    'camel',
+    'chimpanzee',
+    'chipmunk',
+    'clam',
+    'cow',
+    'coyote',
+    'crab',
+    'crocodile',
+    'crow',
+    'deer',
+    'dolphin',
+    'donkey',
+    'dove',
+    'duck',
+    'eel',
+    'elephant',
+    'elk',
+    'falcon',
+    'ferret',
+    'flea',
+    'flamingo',
+    'fly',
+    'frog',
+    'giraffe',
+    'goat',
+    'gorilla',
+    'grasshopper',
+    'hamster',
+    'hare',
+    'hedgehog',
+    'hippo',
+    'hyena',
+    'jellyfish',
+    'kangaroo',
+    'ladybug',
+    'lamb',
+    'leopard',
+    'lion',
+    'lizard',
+    'llama',
+    'lobster',
+    'mole',
+    'moose',
+    'mosquito',
+    'moth',
+    'mouse',
+    'mule',
+    'newt',
+    'octopus',
+    'ostrich',
+    'otter',
+    'oyster',
+    'ox',
+    'panda',
+    'panther',
+    'parrot',
+    'peacock',
+    'pelican',
+    'penguin',
+    'pigeon',
+    'porcupine',
+    'puma',
+    'raccoon',
+    'reindeer',
+    'rhinoceros',
+    'robin',
+    'raven',
+    'salmon',
+    'scallop',
+    'scorpion',
+    'seagull',
+    'seal',
+    'shark',
+    'sheep',
+    'shrimp',
+    'skunk',
+    'sloth',
+    'slug',
+    'snail',
+    'sparrow',
+    'spider',
+    'squid',
+    'squirrel',
+    'starfish',
+    'stork',
+    'swan',
+    'tick',
+    'tiger',
+    'toad',
+    'tortoise',
+    'trout',
+    'turkey',
+    'turtle',
+    'vulture',
+    'walrus',
+    'wasp',
+    'weasel',
+    'whale',
+    'worm',
+    'yak',
+    'zebra',
     'woman',
     'word',
   ];
 }
 
-function numbers() {
+function themedNumbers(): string[] {
   return ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'];
 }
 
-function pronouns() {
+function themedPronouns(): string[] {
   return ['he', 'she', 'they', 'you', 'we', 'I'];
 }

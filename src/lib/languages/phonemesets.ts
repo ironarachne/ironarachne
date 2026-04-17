@@ -1,12 +1,13 @@
-import PhonemeSet from './phonemeset.js';
+import type { PhonemeSet } from './language_types.js';
 
-export function all(): PhonemeSet[] {
-  return [getEnglishSet()];
+import { createPhonemeSet } from './phonemeset.js';
+
+export function getAllPhonemeSets(): PhonemeSet[] {
+  return [getEnglishPhonemeSet()];
 }
 
-function getEnglishSet(): PhonemeSet {
-  let set = new PhonemeSet('English');
-  // TODO: remove phonemes that don't belong in English
+function getEnglishPhonemeSet(): PhonemeSet {
+  const set = createPhonemeSet('English');
   set.phonemes['ə'].commonality = 114;
   set.phonemes['n'].commonality = 71;
   set.phonemes['ɾ'].commonality = 69;

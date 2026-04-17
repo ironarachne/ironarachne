@@ -20,7 +20,8 @@ function getBiomeChar(node: any): string {
   if (b.includes('forest') || b.includes('woodland')) return '\x1b[32mF\x1b[0m'; // Green F
   if (b.includes('desert') || b.includes('arid') || b.includes('dry')) return '\x1b[33mD\x1b[0m'; // Yellow D
   if (b.includes('tundra') || b.includes('ice') || b.includes('polar')) return '\x1b[37mT\x1b[0m'; // White T
-  if (b.includes('grassland') || b.includes('plains') || b.includes('savanna')) return '\x1b[32m.\x1b[0m'; // Green dot
+  if (b.includes('grassland') || b.includes('plains') || b.includes('savanna'))
+    return '\x1b[32m.\x1b[0m'; // Green dot
   if (b.includes('tropical') || b.includes('jungle')) return '\x1b[32mY\x1b[0m'; // Green Y
 
   // Default land based on elevation
@@ -56,7 +57,7 @@ function renderMap() {
 
   const svgOutPath = typeof values['svg-out'] === 'string' ? values['svg-out'] : undefined;
 
-  console.log("Generating Region Map...\n");
+  console.log('Generating Region Map...\n');
 
   const config = Regions.getDefaultConfig();
   // Adjust config sizes to fit terminal better
@@ -77,16 +78,20 @@ function renderMap() {
     writeFileSync(svgOutPath, svg, 'utf8');
     console.log(`Wrote SVG to ${svgOutPath}\n`);
   }
-  const biomes = new Set(region.map.nodes.map(n => n.biomeId));
+  const biomes = new Set(region.map.nodes.map((n) => n.biomeId));
   const minElev = Math.min(...region.map.nodes.map((n) => n.elevation));
   const maxElev = Math.max(...region.map.nodes.map((n) => n.elevation));
   console.log(`Elevs: Min ${minElev.toFixed(2)}, Max ${maxElev.toFixed(2)}`);
-  console.log("Biomes generated: ", Array.from(biomes).join(", "));
-  const temps = region.map.nodes.map(n => n.temperature);
-  console.log(`Temps: Min ${Math.min(...temps).toFixed(1)}, Max ${Math.max(...temps).toFixed(1)}, Avg ${(temps.reduce((a,b)=>a+b, 0)/temps.length).toFixed(1)}`);
-  const moistures = region.map.nodes.map(n => n.moisture);
-  console.log(`Moist: Min ${Math.min(...moistures).toFixed(2)}, Max ${Math.max(...moistures).toFixed(2)}`);
-    console.log(`==========================================`);
+  console.log('Biomes generated: ', Array.from(biomes).join(', '));
+  const temps = region.map.nodes.map((n) => n.temperature);
+  console.log(
+    `Temps: Min ${Math.min(...temps).toFixed(1)}, Max ${Math.max(...temps).toFixed(1)}, Avg ${(temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(1)}`,
+  );
+  const moistures = region.map.nodes.map((n) => n.moisture);
+  console.log(
+    `Moist: Min ${Math.min(...moistures).toFixed(2)}, Max ${Math.max(...moistures).toFixed(2)}`,
+  );
+  console.log(`==========================================`);
   console.log(`Region: ${region.name}`);
   console.log(`Nodes:  ${map.nodes.length}`);
   console.log(`Towns:  ${region.settlements.length}`);
@@ -159,21 +164,27 @@ function renderMap() {
     console.log(grid[y].join(''));
   }
 
-  console.log("\nLegend:");
-  console.log("\x1b[34m~\x1b[0m = Ocean    \x1b[36m=\x1b[0m = Lake     \x1b[32mF\x1b[0m = Forest");
-  console.log("\x1b[33mD\x1b[0m = Desert   \x1b[37mT\x1b[0m = Tundra   \x1b[37m^\x1b[0m = Peak (\x1b[90mm\x1b[0m = Hill)");
-  console.log("\x1b[32m.\x1b[0m = Plains   \x1b[31;1m*\x1b[0m = Capital  \x1b[31mo\x1b[0m = Town\n\x1b[33m#\x1b[0m = Road\n");
+  console.log('\nLegend:');
+  console.log('\x1b[34m~\x1b[0m = Ocean    \x1b[36m=\x1b[0m = Lake     \x1b[32mF\x1b[0m = Forest');
+  console.log(
+    '\x1b[33mD\x1b[0m = Desert   \x1b[37mT\x1b[0m = Tundra   \x1b[37m^\x1b[0m = Peak (\x1b[90mm\x1b[0m = Hill)',
+  );
+  console.log(
+    '\x1b[32m.\x1b[0m = Plains   \x1b[31;1m*\x1b[0m = Capital  \x1b[31mo\x1b[0m = Town\n\x1b[33m#\x1b[0m = Road\n',
+  );
 
   // List Settlements
-  console.log("Settlements in Region:");
+  console.log('Settlements in Region:');
   for (let i = 0; i < region.settlements.length; i++) {
     const s = region.settlements[i];
     const isCapital = i === 0;
-    const typeLabel = isCapital ? "Capital" : s.category.name;
-    const padding = " ".repeat(Math.max(0, 20 - s.name.length));
-    console.log(` - ${s.name}${padding} | ${typeLabel.padEnd(8)} | Population: ${s.population.toString().padStart(6)} | Map Node: ${s.mapNodeId}`);
+    const typeLabel = isCapital ? 'Capital' : s.category.name;
+    const padding = ' '.repeat(Math.max(0, 20 - s.name.length));
+    console.log(
+      ` - ${s.name}${padding} | ${typeLabel.padEnd(8)} | Population: ${s.population.toString().padStart(6)} | Map Node: ${s.mapNodeId}`,
+    );
   }
-  console.log("\nDone!");
+  console.log('\nDone!');
 }
 
 renderMap();

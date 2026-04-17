@@ -13,6 +13,7 @@
     "preview": "vite preview",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+    "lexicon:freq": "node scripts/generate_lexicon_frequency_buckets.mjs",
     "test": "vitest run",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint ."
@@ -32,9 +33,9 @@
     "xmlbuilder2": "^3.1.1"
   },
   "devDependencies": {
-    "@sveltejs/adapter-static": "^3.0.10",
     "@eslint/compat": "^1.4.0",
     "@eslint/js": "^9.39.1",
+    "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.2",
     "@types/node": "^24",

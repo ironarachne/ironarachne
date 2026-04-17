@@ -1,13 +1,10 @@
-export default class Word {
-  root: string;
-  pronunciation: string;
-  speechPart: string;
-  meaning: string;
+import type { Word } from './language_types.js';
 
-  constructor(speechPart: string, meaning: string) {
-    this.root = '';
-    this.pronunciation = '';
-    this.speechPart = speechPart;
-    this.meaning = meaning;
-  }
+export function createWord(speechPart: string, meaning: string): Word {
+  return {
+    root: '',
+    pronunciation: '',
+    speechPart,
+    meaning,
+  };
 }

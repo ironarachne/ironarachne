@@ -1,32 +1,14 @@
-import Phoneme from './phoneme.js';
-import * as Phonemes from './phonemes.js';
+import type { Phoneme, PhonemeSet } from './language_types.js';
+import { getAllPhonemes } from './phonemes.js';
 
-export default class PhonemeSet {
-  name: string;
-  phonemes: Record<string, Phoneme>;
-
-  constructor(name: string) {
-    this.name = name;
-    this.phonemes = initializePhonemeSet();
+export function createPhonemeSet(name: string): PhonemeSet {
+  const phonemes: Record<string, Phoneme> = {};
+  for (const phoneme of getAllPhonemes()) {
+    phonemes[phoneme.sound] = { ...phoneme };
   }
-
-  getPhonemes(): Phoneme[] {
-    let phonemes = [];
-
-    for (const phoneme in this.phonemes) {
-      phonemes.push(this.phonemes[phoneme]);
-    }
-
-    return phonemes;
-  }
+  return { name, phonemes };
 }
 
-function initializePhonemeSet(): Record<string, Phoneme> {
-  let all = Phonemes.all();
-  let phonemes: Record<string, Phoneme> = {};
-  for (const phoneme of all) {
-    phonemes[phoneme.sound] = phoneme;
-  }
-
-  return phonemes;
+export function listPhonemesInSet(set: PhonemeSet): Phoneme[] {
+  return Object.values(set.phonemes);
 }

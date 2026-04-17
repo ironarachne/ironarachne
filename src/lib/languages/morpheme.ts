@@ -1,17 +1,30 @@
-import Phoneme from './phoneme.js';
+import type { RNG } from '@ironarachne/rng';
 
-export default class Morpheme {
-  phonemes: Phoneme[];
+import type { Morpheme, Phoneme } from './language_types.js';
 
-  constructor() {
-    this.phonemes = [];
+export function createEmptyMorpheme(): Morpheme {
+  return { phonemes: [] };
+}
+
+export function getMorphemePronunciation(morpheme: Morpheme): string {
+  return morpheme.phonemes.map((p) => p.sound).join('');
+}
+
+export function getMorphemeTranscription(morpheme: Morpheme, rng: RNG): string {
+  return morpheme.phonemes.map((p) => pickTranscriptionForPhoneme(p, rng)).join('');
+}
+
+function pickTranscriptionForPhoneme(phoneme: Phoneme, rng: RNG): string {
+  if (phoneme.transcriptions.length === 0) {
+    return '';
   }
-
-  getPronunciation(): string {
-    return this.phonemes.map((p) => p.sound).join('');
+  if (phoneme.transcriptions.length === 1) {
+    return phoneme.transcriptions[0];
   }
-
-  getTranscription(): string {
-    return this.phonemes.map((p) => p.transcriptions[0]).join('');
-  }
+  const weights = phoneme.transcriptions.map((_, index) => ({
+    commonality: Math.max(1, phoneme.commonality + phoneme.transcriptions.length - index),
+    value: index,
+  }));
+  const index = rng.weighted(weights);
+  return phoneme.transcriptions[index];
 }

@@ -1,10 +1,13 @@
-import PhonemeSet from './phonemeset.js';
-import * as PhonemeSets from './phonemesets.js';
+import type { RNG } from '@ironarachne/rng';
 
-export default class LanguageGeneratorConfig {
-  phonemeSets: PhonemeSet[];
+import type { LanguageGeneratorConfig } from './language_types.js';
+import { getAllPhonemeSets } from './phonemesets.js';
 
-  constructor() {
-    this.phonemeSets = PhonemeSets.all();
-  }
+export type { LanguageGeneratorConfig } from './language_types.js';
+
+export function getDefaultLanguageGeneratorConfig(rng: RNG): LanguageGeneratorConfig {
+  return {
+    phonemeSets: getAllPhonemeSets(),
+    rng,
+  };
 }
