@@ -204,7 +204,7 @@ export function getContrasting(tincture: Tincture, tinctures: Tincture[]): Tinct
   return result;
 }
 
-export function isIncludedIn(needle: Tincture, haystack: Tincture[]): Boolean {
+export function isIncludedIn(needle: Tincture, haystack: Tincture[]): boolean {
   for (let i = 0; i < haystack.length; i++) {
     if (needle.name === haystack[i].name) {
       return true;

@@ -51,23 +51,21 @@ function setChargeColor(hexColor: string, tinctureName: string, chargeSVG: strin
   let svgResult = chargeSVG;
 
   if (hexColor === '#000000') {
-    svgResult = svgResult.replaceAll('#010101', 'TEMP_WHITE_PLACEHOLDER');
-    svgResult = svgResult.replaceAll('#000000', 'TEMP_WHITE_PLACEHOLDER');
-    svgResult = svgResult.replaceAll('fill="black"', 'fill="TEMP_WHITE_PLACEHOLDER"');
-  }
-
-  svgResult = svgResult.replaceAll('#FFFFFF', hexColor);
-  svgResult = svgResult.replaceAll('#ffffff', hexColor);
-  svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
-
-  if (hexColor === '#000000') {
-    svgResult = svgResult.replaceAll('TEMP_WHITE_PLACEHOLDER', '#333333');
+    svgResult = svgResult.replaceAll('#FFFFFF', hexColor);
+    svgResult = svgResult.replaceAll('#ffffff', hexColor);
+    svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
+  } else {
+    svgResult = svgResult.replaceAll('#010101', 'TEMP_CHARGE_FILL_PLACEHOLDER');
+    svgResult = svgResult.replaceAll('#000000', 'TEMP_CHARGE_FILL_PLACEHOLDER');
+    svgResult = svgResult.replaceAll('fill="black"', 'fill="TEMP_CHARGE_FILL_PLACEHOLDER"');
+    svgResult = svgResult.replaceAll('#FFFFFF', hexColor);
+    svgResult = svgResult.replaceAll('#ffffff', hexColor);
+    svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
+    svgResult = svgResult.replaceAll('TEMP_CHARGE_FILL_PLACEHOLDER', hexColor);
   }
 
   svgResult = svgResult.replaceAll('st0', `st0-${tinctureName}`);
   svgResult = svgResult.replaceAll('st1', `st1-${tinctureName}`);
-
-  // TODO: Fix a bug where the border is colored if the charge color is sable
 
   return svgResult;
 }

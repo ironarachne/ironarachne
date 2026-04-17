@@ -9,7 +9,7 @@
   import { renderSVGAsPNG } from '$lib/images/svg';
 
   import { generateHeraldry } from '$lib/heraldry/generator';
-  import HeraldrySVGRenderer from '$lib/heraldry/renderers/svg';
+  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
   import {
     mergeHeraldryGeneratorConfig,
     type HeraldryGeneratorConfig,
@@ -122,9 +122,7 @@
     const heraldry = generateHeraldry(config);
     blazon = heraldry.blazon;
 
-    const renderer = new HeraldrySVGRenderer();
-
-    image = renderer.render(heraldry.device, config.width, config.height);
+    image = renderHeraldryDeviceSvg(heraldry.device, config.width, config.height);
     renderSVGAsPNG(image, config.width, config.height, 'output');
   }
 

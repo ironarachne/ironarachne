@@ -1,4 +1,5 @@
 import * as RNG from '@ironarachne/rng';
+import { MAX_CHARGES_PER_GROUP } from './charge_group_arrangements/index.js';
 import type { Charge } from './charges/index.js';
 import * as Charges from './charges/index.js';
 import type { Field } from './field.js';
@@ -57,6 +58,11 @@ export function validateHeraldryGeneratorConfig(
   }
   if (!Number.isInteger(cfg.chargeCount) || cfg.chargeCount < 0) {
     throw new Error(`Invalid chargeCount: ${cfg.chargeCount}`);
+  }
+  if (cfg.chargeCount > MAX_CHARGES_PER_GROUP) {
+    throw new Error(
+      `Invalid chargeCount: ${cfg.chargeCount} (supported: 0–${MAX_CHARGES_PER_GROUP})`,
+    );
   }
   return cfg;
 }

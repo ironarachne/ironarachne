@@ -1,4 +1,4 @@
-import type { Tincture } from './tinctures';
+import type { Tincture } from './tinctures.js';
 
 export type Variation = {
   name: string;
@@ -13,10 +13,10 @@ export type Variation = {
 export function renderBlazon(variation: Variation): string {
   let blazon = variation.blazon;
   if (variation.tinctures[0]) {
-    blazon = blazon.replace('tincture1', variation.tinctures[0].name);
+    blazon = blazon.replaceAll('tincture1', variation.tinctures[0].name);
   }
   if (variation.tinctures.length > 1 && variation.tinctures[1]) {
-    blazon = blazon.replace('tincture2', variation.tinctures[1].name);
+    blazon = blazon.replaceAll('tincture2', variation.tinctures[1].name);
   }
   return blazon;
 }

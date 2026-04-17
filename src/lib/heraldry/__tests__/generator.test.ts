@@ -46,4 +46,15 @@ describe('heraldry/generator', () => {
     const arms2 = generateHeraldry(cfg2);
     expect(arms1.blazon).not.toBe(arms2.blazon);
   });
+
+  test('mergeHeraldryGeneratorConfig rejects chargeCount above four', () => {
+    expect(() => mergeHeraldryGeneratorConfig({ chargeCount: 5 })).toThrowError();
+  });
+
+  test('generateHeraldry supports four charges', () => {
+    const cfg = mergeHeraldryGeneratorConfig({ chargeCount: 4 });
+    const arms = generateHeraldry(cfg);
+    expect(arms.device.chargeGroups.length).toBe(1);
+    expect(arms.device.chargeGroups[0].numberOfCharges).toBe(4);
+  });
 });

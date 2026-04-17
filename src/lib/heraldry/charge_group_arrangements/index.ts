@@ -9,6 +9,9 @@ import { threeChargesTwoAndOneArrangement } from './three_charges_two_and_one';
 import { threeChargesVerticalCenterArrangement } from './three_charges_vertical_center';
 import { twoChargesHorizontalCenterArrangement } from './two_charges_horizontal_center';
 
+/** Largest number of charges supported by `withCount` / `randomByNumber`. */
+export const MAX_CHARGES_PER_GROUP = 4;
+
 export type ChargeGroupArrangement = {
   name: string;
   numberOfCharges: number;

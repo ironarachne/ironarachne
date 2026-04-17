@@ -39,6 +39,13 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
       );
     }
 
+    if (arrangementOptions.length === 0) {
+      throw new Error(
+        `No charge arrangement for count ${cfg.chargeCount}` +
+          (cfg.chargePosition === 'in chief' ? ' in chief' : ''),
+      );
+    }
+
     let chargeArrangement = cfg.rng.item(arrangementOptions);
     let chargeGroup: ChargeGroup = {
       charge,
@@ -75,7 +82,6 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
 export function generateHeraldryConfig(rng: RNG.RNG): HeraldryGeneratorConfig {
   const charges = Charges.all();
   let chargeTincture = Tinctures.randomChargeTincture(rng);
-  let furCount = 0;
   let fieldTinctures1 = Tinctures.all();
   let fieldTinctures2 = Tinctures.all();
   let fields = Fields.all();
@@ -98,9 +104,7 @@ export function generateHeraldryConfig(rng: RNG.RNG): HeraldryGeneratorConfig {
       types2.push('stain');
     }
   }
-  if (furCount === 0) {
-    types1.push('furs');
-  }
+  types1.push('furs');
   fieldTinctures1 = Tinctures.ofTypes(types1);
   fieldTinctures2 = Tinctures.ofTypes(types2);
 
@@ -125,10 +129,18 @@ function generateVariations(
   rng: RNG.RNG,
 ): Variation[] {
   let result = [];
-  let furCount = 0; // This function has an inherent limit of a single fur in a set of variations.
   let variationOptions: Variation[] = JSON.parse(JSON.stringify(options));
 
   for (let i = 0; i < count; i++) {
+    /** At most one fur tincture in this division’s tincture pair (e.g. barry of X and Y). */
+    let furCount = 0;
+
+    if (variationOptions.length === 0) {
+      throw new Error(
+        'Ran out of distinct field variation types before assigning all field divisions.',
+      );
+    }
+
     let tinctureSet1 = JSON.parse(JSON.stringify(tinctures1));
     let tinctureSet2 = JSON.parse(JSON.stringify(tinctures2));
 
@@ -151,7 +163,15 @@ function generateVariations(
     if (firstTincture.type === 'fur' && furCount === 0) {
       furCount = 1;
       tinctureSet1 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet1);
+      tinctureSet2 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet2);
     }
+
+    if (variation.tinctureCount < 2) {
+      variation.tinctures = [firstTincture];
+      result.push(variation);
+      continue;
+    }
+
     let secondTincture = Tinctures.randomFrom(tinctureSet2, rng);
     tinctureSet2 = Tinctures.exclude(secondTincture, tinctureSet2);
     if (secondTincture.type === 'fur' && furCount === 0) {
@@ -172,6 +192,7 @@ function randomNumberOfCharges(rng: RNG.RNG): number {
     { value: 1, commonality: 50 },
     { value: 2, commonality: 5 },
     { value: 3, commonality: 3 },
+    { value: 4, commonality: 2 },
   ];
 
   const result = rng.weighted(weights);

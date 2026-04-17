@@ -72,5 +72,12 @@ describe('heraldry/generatorconfig', () => {
     expect(() => validateHeraldryGeneratorConfig({ ...base, height: 0 })).toThrowError();
 
     expect(() => validateHeraldryGeneratorConfig({ ...base, chargeCount: -1 })).toThrowError();
+
+    expect(() => validateHeraldryGeneratorConfig({ ...base, chargeCount: 5 })).toThrowError();
+  });
+
+  test('validateHeraldryGeneratorConfig accepts chargeCount up to four', () => {
+    const base = getDefaultHeraldryGeneratorConfig();
+    expect(() => validateHeraldryGeneratorConfig({ ...base, chargeCount: 4 })).not.toThrowError();
   });
 });

@@ -5,7 +5,7 @@
   import * as Words from '@ironarachne/words';
   import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
-  import HeraldrySVGRenderer from '$lib/heraldry/renderers/svg';
+  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
   import { type Culture } from '$lib/culture';
   import type UserData from '$lib/user_data';
 
@@ -29,7 +29,6 @@
   config.rng = rng;
   config.nameGeneratorSet = nameSet;
 
-  const heraldryRenderer = new HeraldrySVGRenderer();
   let region = $state(Regions.generate(config));
   let ruler = $derived(region.authority);
 
@@ -132,7 +131,7 @@
       <p>
         {Words.title(region.name)} is part of {region.realms[region.realms[region.mainRealm].parent]
           .name}
-        {@html heraldryRenderer.render(
+        {@html renderHeraldryDeviceSvg(
           region.realms[region.realms[region.mainRealm].parent].heraldry.device,
           20,
           22,
@@ -150,7 +149,7 @@
   <div class="ruler">
     {#if ruler.heraldry}
       <div class="ruler-arms">
-        {@html heraldryRenderer.render(ruler.heraldry.device, 200, 220)}
+        {@html renderHeraldryDeviceSvg(ruler.heraldry.device, 200, 220)}
       </div>
     {/if}
     <div>
@@ -171,7 +170,7 @@
     {#if index != region.mainRealm && neighbor.parent == -1}
       <div class="neighbor">
         <div class="neighbor-arms">
-          {@html heraldryRenderer.render(neighbor.heraldry.device, 80, 88)}
+          {@html renderHeraldryDeviceSvg(neighbor.heraldry.device, 80, 88)}
         </div>
         <div>
           <p><strong>{Words.title(neighbor.name)}</strong></p>
@@ -198,13 +197,13 @@
     {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent && neighbor.parent != -1}
       <div class="neighbor">
         <div class="neighbor-arms">
-          {@html heraldryRenderer.render(neighbor.heraldry.device, 80, 88)}
+          {@html renderHeraldryDeviceSvg(neighbor.heraldry.device, 80, 88)}
         </div>
         <div>
           <p>
             <strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[neighbor.parent]
               .name}
-            {@html heraldryRenderer.render(region.realms[neighbor.parent].heraldry.device, 20, 22)}.
+            {@html renderHeraldryDeviceSvg(region.realms[neighbor.parent].heraldry.device, 20, 22)}.
           </p>
           <p>
             Ruled by {Characters.getHonorific(

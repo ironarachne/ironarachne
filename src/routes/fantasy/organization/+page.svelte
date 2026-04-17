@@ -8,7 +8,7 @@
   import { renderSVGAsPNG } from '$lib/images/svg';
 
   import { generateHeraldry } from '$lib/heraldry/generator';
-  import HeraldrySVGRenderer from '$lib/heraldry/renderers/svg';
+  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
 
   let rng = new RNG.RNG(Date.now().toString());
   let seed: string = $state(rng.randomString(13));
@@ -34,7 +34,6 @@
   heraldryConfig.width = 200;
   heraldryConfig.height = 200;
   let heraldry = generateHeraldry(heraldryConfig);
-  let svgRenderer = new HeraldrySVGRenderer();
 
   function generate() {
     if (!lockSeed) {
@@ -71,7 +70,7 @@
     heraldryConfig.height = 220;
     heraldry = generateHeraldry(heraldryConfig);
 
-    let svg = svgRenderer.render(heraldry.device, 200, 220);
+    let svg = renderHeraldryDeviceSvg(heraldry.device, 200, 220);
     renderSVGAsPNG(svg, 200, 220, 'org-arms');
   }
 
