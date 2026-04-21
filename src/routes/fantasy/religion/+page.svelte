@@ -7,8 +7,25 @@
   import type Species from '$lib/species/species';
   import type { Culture } from '$lib/culture/culture_types';
   import type UserData from '$lib/user_data';
-  import { generateReligion, getDefaultReligionGenerationConfig } from '$lib/religion';
+  import {
+    ALL_RELIGION_DIMENSION_IDS,
+    type PolytheisticStandingMode,
+    type ReligionDimensionId,
+    type SpiritCosmologyDepthMode,
+    generateReligion,
+    getDefaultReligionGenerationConfig,
+  } from '$lib/religion';
   import { listDomains } from '$lib/religion/domains';
+
+  const dimensionSectionTitles: Record<ReligionDimensionId, string> = {
+    ritual: 'Ritual',
+    experiential: 'Experiential',
+    mythological: 'Mythological',
+    doctrinal: 'Doctrinal',
+    ethical: 'Ethical',
+    institutional: 'Institutional',
+    material: 'Material',
+  };
 
   const userSession = getContext<{ get value(): UserData }>('user');
   let savedCulture: string | undefined = $state();
@@ -43,6 +60,9 @@
   let selectedCategories: string[] = $state(['polytheism']);
   genConfig.categories = [ReligionCategories.byName('polytheism', allReligionCategories)];
 
+  let polytheisticStanding: PolytheisticStandingMode = $state('random');
+  let spiritCosmologyDepth: SpiritCosmologyDepthMode = $state('random');
+
   let religion = $state(generateReligion(`${initialSeed}-religion`, genConfig));
 
   function generate() {
@@ -71,6 +91,8 @@
 
     genConfig.deitySpeciesOptions = speciesOptions;
     genConfig.categories = categoryOptions;
+    genConfig.polytheisticStanding = polytheisticStanding;
+    genConfig.spiritCosmologyDepth = spiritCosmologyDepth;
     genConfig.nameGenerator = humanNameGenSet.family;
     genConfig.femaleNameGenerator = humanNameGenSet.female;
     genConfig.maleNameGenerator = humanNameGenSet.male;
@@ -138,6 +160,32 @@
     {/each}
   </div>
 
+  <div class="input-group complexity-controls">
+    <label for="poly-standing">Polytheistic deity standing (when the draw is polytheism)</label>
+    <select id="poly-standing" bind:value={polytheisticStanding}>
+      <option value="random">Random</option>
+      <option value="egalitarian">Egalitarian — coequal high gods</option>
+      <option value="hierarchical">Hierarchical — uneven cult and precedence</option>
+      <option value="balanced">Balanced — fluid, situational prominence</option>
+    </select>
+    <p class="field-hint">
+      Monotheism ignores this. Egalitarian polytheism avoids elevating one king of the gods.
+    </p>
+
+    <label for="spirit-depth">Spirit cosmology depth (when the religion has deities)</label>
+    <select id="spirit-depth" bind:value={spiritCosmologyDepth}>
+      <option value="random">Random</option>
+      <option value="none">None — only the high gods as named</option>
+      <option value="shallow">Shallow — one or two extra orders (messengers, ancestors, etc.)</option>
+      <option value="moderate">Moderate — several intermediate kinds</option>
+      <option value="deep">Deep — many ranks and overlapping jurisdictions</option>
+    </select>
+    <p class="field-hint">
+      Adds structured spirit echelons (messengers, rebels, nature spirits, saints, psychopomps, …) with
+      varying rank depth.
+    </p>
+  </div>
+
   <div class="input-group">
     <label for="selected-species">Allow deities of these species</label>
     {#each allSpeciesNames as speciesName}
@@ -182,6 +230,20 @@
   <h2>{religion.name}</h2>
 
   <p>{religion.description}</p>
+
+  {#if religion.cosmology}
+    <h3>Spirit cosmology</h3>
+    <p>{religion.cosmology.summary}</p>
+    <ul class="cosmology-echelons">
+      {#each religion.cosmology.echelons as ech}
+        <li>
+          <strong>{ech.label}</strong>
+          (rank depth {ech.rankDepth}):
+          {ech.summary}
+        </li>
+      {/each}
+    </ul>
+  {/if}
 
   <h3>Realms</h3>
 
@@ -230,5 +292,45 @@
     ul > li {
       list-style: none;
     }
+  }
+
+  .dimensions-intro {
+    font-size: 0.95rem;
+    opacity: 0.9;
+  }
+
+  .dimension-block {
+    margin-bottom: 1rem;
+  }
+
+  .complexity-controls label {
+    display: block;
+    margin-top: 0.75rem;
+  }
+
+  .complexity-controls select {
+    margin-top: 0.25rem;
+    max-width: 100%;
+  }
+
+  .field-hint {
+    font-size: 0.9rem;
+    opacity: 0.88;
+    margin: 0.25rem 0 0.5rem;
+  }
+
+  .cosmology-echelons li {
+    margin-bottom: 0.5rem;
+  }
+
+  .dimensions-json {
+    margin: 0.35rem 0 0;
+    padding: 0.75rem;
+    font-size: 0.85rem;
+    overflow-x: auto;
+    white-space: pre-wrap;
+    word-break: break-word;
+    background: color-mix(in srgb, Canvas 92%, CanvasText 8%);
+    border-radius: 4px;
   }
 </style>

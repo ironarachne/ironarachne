@@ -1,11 +1,15 @@
 import type { Religion, ReligionGenerationConfig } from './religion_types';
 import { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
+import { composePantheonDescriptionLine, composeReligionDescription } from './compose_religion_narrative';
+import { generateReligionDimensions } from './comparative_dimension_generation';
+import { generateReligionCosmology } from './religion_cosmology_generation';
+import { isPolytheisticCategory, resolvePolytheisticStanding } from './resolve_polytheistic_standing';
 import { generate as generateDivineRealms } from './realms/realm_generation';
 import { divineRealmTypes } from './realms/realm_data';
 import { generate as generatePantheon } from './pantheons/pantheon_generation';
 import { domains } from './domains/domain_data';
-import { getTitleForGender, type Title } from '$lib/characters';
+import type { Title } from '$lib/characters';
 import { all as allCategories } from './categories';
 import Human from '$lib/species/sentient/human.js';
 import { getFantasyNameGeneratorSet } from '$lib/names';
@@ -41,6 +45,11 @@ export function generateReligion(seed: string, config: ReligionGenerationConfig)
 
   const religionName = config.nameGenerator.generate(1)[0];
 
+  const dimensions = generateReligionDimensions(`${seed}-dimensions`, {
+    category,
+    dimensionGeneration: config.dimensionGeneration,
+  });
+
   if (category.hasDeities) {
     const pantheonConfig = {
       realms,
@@ -52,41 +61,67 @@ export function generateReligion(seed: string, config: ReligionGenerationConfig)
       femaleNameGenerator: config.femaleNameGenerator,
     };
     const pantheon = generatePantheon(`${seed}-pantheon`, pantheonConfig);
-    pantheon.description = category.description;
 
-    if (category.hasLeader && pantheon.members.length > 0) {
+    const polytheisticStanding = resolvePolytheisticStanding(
+      config.polytheisticStanding,
+      category,
+      rng,
+    );
+    const skipLeaderForEgalitarianPolytheism =
+      polytheisticStanding === 'egalitarian' && isPolytheisticCategory(category);
+
+    let leaderName: string | null = null;
+    if (
+      !skipLeaderForEgalitarianPolytheism &&
+      category.hasLeader &&
+      pantheon.members.length > 0
+    ) {
       pantheon.leader = rng.int(0, pantheon.members.length - 1);
       const leaderDeity = pantheon.members[pantheon.leader];
       leaderDeity.titles?.push(divineRulerTitle);
-      pantheon.description += ` ${leaderDeity.name} is the ${getTitleForGender(leaderDeity.gender.name, divineRulerTitle)}.`;
+      leaderName = leaderDeity.name;
+    } else {
+      pantheon.leader = -1;
     }
+
+    const soleDeityName =
+      pantheon.members.length === 1 ? (pantheon.members[0]?.name ?? null) : null;
+    const pantheonLine = composePantheonDescriptionLine(
+      category,
+      pantheon.members.length,
+      leaderName,
+      soleDeityName,
+      polytheisticStanding,
+    );
+    pantheon.description = pantheonLine;
+
+    const cosmology = generateReligionCosmology(`${seed}-cosmology`, config.spiritCosmologyDepth, rng);
+    const description = composeReligionDescription(
+      dimensions,
+      category.description,
+      pantheonLine,
+      cosmology?.summary ?? null,
+    );
 
     return {
       name: religionName,
-      description:
-        pantheon.description +
-        ' ' +
-        randomGatheringTimes(`${seed}-gathering-times`) +
-        ' ' +
-        Words.capitalize(randomGatheringPlace(`${seed}-gathering-place`)) +
-        '.',
+      description,
+      dimensions,
+      cosmology: cosmology ?? undefined,
       realms,
       pantheon,
     };
-  } else {
-    return {
-      name: religionName,
-      description:
-        category.description +
-        ' ' +
-        randomGatheringTimes(`${seed}-gathering-times`) +
-        ' ' +
-        Words.capitalize(randomGatheringPlace(`${seed}-gathering-place`)) +
-        '.',
-      realms,
-      pantheon: null,
-    };
   }
+
+  const description = composeReligionDescription(dimensions, category.description, null, null);
+
+  return {
+    name: religionName,
+    description,
+    dimensions,
+    realms,
+    pantheon: null,
+  };
 }
 
 export function getDefaultReligionGenerationConfig(): ReligionGenerationConfig {
