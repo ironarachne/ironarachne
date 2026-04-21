@@ -4,7 +4,12 @@
     getPlanetClassifications,
     searchPlanetClassificationByName,
   } from '$lib/astronomical_bodies/planet/planet_classifications';
-  import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
+  import { renderPlanetPreviewImage } from '$lib/renderers/astronomical_preview';
+  import {
+    readStoredAstronomicalRendererKind,
+    writeStoredAstronomicalRendererKind,
+  } from '$lib/renderers/astronomical_renderer_storage';
+  import type { AstronomicalRendererKind } from '$lib/renderers/astronomical_renderer_kind';
   import {
     convertAUToKM,
     type AstronomicalBody,
@@ -45,6 +50,8 @@
   planetGenConfig.rng = rng;
   let planet: AstronomicalBody | undefined = $state();
   let planetImageSrc = $state('');
+  let planetImageSeed = $state('');
+  let imageRenderer = $state<AstronomicalRendererKind>('webgl');
 
   let moonGenConfig = getDefaultMoonGenerationConfig();
   moonGenConfig.rng = rng;
@@ -59,6 +66,24 @@
 
   const width = 400;
   const height = 400;
+
+  function refreshPlanetImage() {
+    if (!browser || planet === undefined || planetImageSeed === '') return;
+    planetImageSrc = renderPlanetPreviewImage(
+      document,
+      planet,
+      width,
+      height,
+      planetImageSeed,
+      imageRenderer,
+    );
+  }
+
+  function setImageRenderer(next: AstronomicalRendererKind) {
+    imageRenderer = next;
+    writeStoredAstronomicalRendererKind(next);
+    refreshPlanetImage();
+  }
 
   function generate() {
     if (!lockSeed) {
@@ -108,28 +133,19 @@
     }
 
     if (browser) {
-      planetImageSrc = WebGLPlanetRenderer.render(
-        document,
-        planet,
-        width,
-        height,
-        rng.randomString(13),
-      );
+      planetImageSeed = rng.randomString(13);
+      refreshPlanetImage();
     }
   }
 
   onMount(() => {
+    imageRenderer = readStoredAstronomicalRendererKind();
     planetGenConfig = getDefaultPlanetGenerationConfig();
     planetGenConfig.rng = rng;
     planet = generatePlanet(planetGenConfig);
     if (planet !== undefined) {
-      planetImageSrc = WebGLPlanetRenderer.render(
-        document,
-        planet,
-        width,
-        height,
-        rng.randomString(13),
-      );
+      planetImageSeed = rng.randomString(13);
+      refreshPlanetImage();
     }
   });
 </script>
@@ -141,7 +157,23 @@
 <section class="main scifi">
   <h1>Planet Generator</h1>
 
-  <p>This lets you generate a planet. It uses WebGL and your graphics card.</p>
+  <p>
+    This lets you generate a planet. Choose <strong>WebGL</strong> for full shader quality (uses the
+    GPU) or <strong>Simple</strong> for a Canvas 2D preview that avoids WebGL—useful on low-end
+    machines. Your choice is remembered in this browser.
+  </p>
+
+  <div class="input-group">
+    <label for="imageRenderer">Planet image renderer</label>
+    <select
+      id="imageRenderer"
+      bind:value={imageRenderer}
+      onchange={() => setImageRenderer(imageRenderer)}
+    >
+      <option value="webgl">WebGL (full quality)</option>
+      <option value="canvas2d">Simple (Canvas 2D, no WebGL)</option>
+    </select>
+  </div>
 
   <div class="input-group">
     <label for="seed">Seed</label>

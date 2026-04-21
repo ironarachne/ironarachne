@@ -1,9 +1,15 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
-  import * as WebGLStarRenderer from '$lib/renderers/stars/webgl_star_renderer';
-  import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
-
-  import * as WebGLStarSystemRenderer from '$lib/renderers/star_systems/webgl_star_system_renderer';
+  import {
+    renderPlanetPreviewImage,
+    renderStarPreviewImage,
+    renderStarSystemPreviewImage,
+  } from '$lib/renderers/astronomical_preview';
+  import {
+    readStoredAstronomicalRendererKind,
+    writeStoredAstronomicalRendererKind,
+  } from '$lib/renderers/astronomical_renderer_storage';
+  import type { AstronomicalRendererKind } from '$lib/renderers/astronomical_renderer_kind';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import {
@@ -35,22 +41,31 @@
   let planetImageSrcs = $state<string[]>([]);
   let planetCountControl: string = $state('random');
   let starType: string = $state('random');
+  let imageRenderer = $state<AstronomicalRendererKind>('webgl');
+
+  function setImageRenderer(next: AstronomicalRendererKind) {
+    imageRenderer = next;
+    writeStoredAstronomicalRendererKind(next);
+    rebuildSystemPreviewImages();
+  }
 
   function rebuildSystemPreviewImages() {
     if (!browser || system === undefined) return;
     const current = system;
-    systemCompositeSrc = WebGLStarSystemRenderer.render(
+    const compositeW = width * (current.stars.length + current.planets.length) * 0.5;
+    systemCompositeSrc = renderStarSystemPreviewImage(
       document,
       current,
-      width * (current.stars.length + current.planets.length) * 0.5,
+      compositeW,
       height,
       rng.randomString(13),
+      imageRenderer,
     );
     starImageSrcs = current.stars.map((star) =>
-      WebGLStarRenderer.render(document, star, width, height, rng.randomString(13)),
+      renderStarPreviewImage(document, star, width, height, rng.randomString(13), imageRenderer),
     );
     planetImageSrcs = current.planets.map((planet) =>
-      WebGLPlanetRenderer.render(document, planet, width, height, rng.randomString(13)),
+      renderPlanetPreviewImage(document, planet, width, height, rng.randomString(13), imageRenderer),
     );
   }
 
@@ -77,6 +92,7 @@
   }
 
   onMount(() => {
+    imageRenderer = readStoredAstronomicalRendererKind();
     config = getDefaultStarSystemGeneratorConfig();
     if (planetCountControl !== 'random') {
       config.planet_count = parseInt(planetCountControl, 10);
@@ -95,6 +111,18 @@
 
 <section class="main scifi">
   <h1>Star System Generator</h1>
+
+  <div class="input-group">
+    <label for="imageRenderer">Image renderer</label>
+    <select
+      id="imageRenderer"
+      bind:value={imageRenderer}
+      onchange={() => setImageRenderer(imageRenderer)}
+    >
+      <option value="webgl">WebGL (full quality)</option>
+      <option value="canvas2d">Simple (Canvas 2D, no WebGL)</option>
+    </select>
+  </div>
 
   <div class="input-group">
     <label for="seed">Seed</label>

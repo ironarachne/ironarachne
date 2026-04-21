@@ -2,7 +2,10 @@ import * as THREE from 'three';
 import * as PlanetShaders from '$lib/shaders/planets/planets';
 import { RNG } from '@ironarachne/rng';
 import SimpleVertexShader from '$lib/shaders/simple.vert';
+import { getRandomGasGiantRgbTriplet } from '$lib/renderers/astronomical/gas_giant_palette';
+import { planetRadiusKmToPreviewPixels } from '$lib/renderers/astronomical/image_body_scale';
 import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
+import type RGBColor from '$lib/graphics/rgb_color';
 
 export function render(
   document: Document,
@@ -28,15 +31,14 @@ export function render(
   }
 
   const planetShader = PlanetShaders.getFragmentShaderByName(planet.classification);
-
-  const colors = getRandomGasGiantColorSet(rng.randomString(13));
+  const colors = vectorTripletFromRgbTriplet(getRandomGasGiantRgbTriplet(rng.randomString(13)));
 
   const uniforms = {
     light_direction: {
       value: new THREE.Vector3(rng.float(0.3, 0.6), 1.0, 0.5),
     },
     planet_radius: {
-      value: translateRadiusToImageSize(planet.radius, Math.min(height, width)),
+      value: planetRadiusKmToPreviewPixels(planet.radius, Math.min(height, width)),
     },
     main_color: { value: colors[0] },
     band_color_1: { value: colors[1] },
@@ -75,21 +77,12 @@ export function render(
   return data;
 }
 
-function getRandomGasGiantColorSet(seed: string): [THREE.Vector3, THREE.Vector3, THREE.Vector3] {
-  const rng = new RNG(seed);
-  const color1 = new THREE.Vector3(rng.float(0.1, 0.8), rng.float(0.1, 0.8), rng.float(0.1, 0.8));
-  const color2 = new THREE.Vector3(rng.float(0.1, 0.8), rng.float(0.1, 0.8), rng.float(0.1, 0.8));
-  const color3 = new THREE.Vector3(rng.float(0.1, 0.8), rng.float(0.1, 0.8), rng.float(0.1, 0.8));
-
-  return [color1, color2, color3];
-}
-
-function translateRadiusToImageSize(radius: number, imageSize: number): number {
-  const radiusRelativeToEarth = radius / 6371;
-
-  const earthSizeInPixels = imageSize / 4;
-  const maxPlanetSizeInPixels = imageSize / 2.5;
-  const sizeInPixels = radiusRelativeToEarth * earthSizeInPixels;
-
-  return Math.min(maxPlanetSizeInPixels, sizeInPixels);
+function vectorTripletFromRgbTriplet(
+  colors: [RGBColor, RGBColor, RGBColor],
+): [THREE.Vector3, THREE.Vector3, THREE.Vector3] {
+  return [
+    new THREE.Vector3(colors[0].r, colors[0].g, colors[0].b),
+    new THREE.Vector3(colors[1].r, colors[1].g, colors[1].b),
+    new THREE.Vector3(colors[2].r, colors[2].g, colors[2].b),
+  ];
 }

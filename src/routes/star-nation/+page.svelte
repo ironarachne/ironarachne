@@ -1,9 +1,12 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
-  import * as WebGLStarRenderer from '$lib/renderers/stars/webgl_star_renderer';
-  import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
-  import * as WebGLStarSystemRenderer from '$lib/renderers/star_systems/webgl_star_system_renderer';
+  import { renderStarSystemPreviewImage } from '$lib/renderers/astronomical_preview';
+  import {
+    readStoredAstronomicalRendererKind,
+    writeStoredAstronomicalRendererKind,
+  } from '$lib/renderers/astronomical_renderer_storage';
+  import type { AstronomicalRendererKind } from '$lib/renderers/astronomical_renderer_kind';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import {
@@ -58,11 +61,31 @@
   let homePlanetRegion: RegionOfControl = $state(generateRegionOfControl(homePlanetRegionConfig));
 
   let homeSystemCompositeSrc = $state('');
+  let homeSystemPreviewSeed = $state('');
+  let imageRenderer = $state<AstronomicalRendererKind>('webgl');
 
   let planetCountControl: string = $state('random');
 
   const imageWidth = 64;
   const imageHeight = 64;
+
+  function refreshHomeSystemComposite() {
+    if (!browser || homeSystemPreviewSeed === '') return;
+    homeSystemCompositeSrc = renderStarSystemPreviewImage(
+      document,
+      homeSystem,
+      imageWidth * (homeSystem.stars.length + homeSystem.planets.length),
+      imageHeight,
+      homeSystemPreviewSeed,
+      imageRenderer,
+    );
+  }
+
+  function setImageRenderer(next: AstronomicalRendererKind) {
+    imageRenderer = next;
+    writeStoredAstronomicalRendererKind(next);
+    refreshHomeSystemComposite();
+  }
 
   function generate() {
     if (!lockSeed) {
@@ -106,17 +129,13 @@
     homePlanetRegion.population = nation.population / populatedPlanets;
 
     if (browser) {
-      homeSystemCompositeSrc = WebGLStarSystemRenderer.render(
-        document,
-        homeSystem,
-        imageWidth * (homeSystem.stars.length + homeSystem.planets.length),
-        imageHeight,
-        rng.randomString(13),
-      );
+      homeSystemPreviewSeed = rng.randomString(13);
+      refreshHomeSystemComposite();
     }
   }
 
   onMount(() => {
+    imageRenderer = readStoredAstronomicalRendererKind();
     generate();
   });
 </script>
@@ -128,7 +147,22 @@
 <section class="scifi main">
   <h1>Star Nation Generator</h1>
 
-  <p>Generate a star nation.</p>
+  <p>
+    Choose <strong>WebGL</strong> for full GPU previews or <strong>Simple</strong> for Canvas 2D (no
+    WebGL). Your choice is remembered in this browser.
+  </p>
+
+  <div class="input-group">
+    <label for="imageRenderer">Image renderer</label>
+    <select
+      id="imageRenderer"
+      bind:value={imageRenderer}
+      onchange={() => setImageRenderer(imageRenderer)}
+    >
+      <option value="webgl">WebGL (full quality)</option>
+      <option value="canvas2d">Simple (Canvas 2D, no WebGL)</option>
+    </select>
+  </div>
 
   <div class="input-group">
     <label for="seed">Seed</label>
