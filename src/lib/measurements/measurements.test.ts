@@ -1,4 +1,4 @@
-import * as Measurements from '$lib/measurements';
+import * as Measurements from './index';
 import { expect, test } from 'vitest';
 
 test('converting 10 cm to inches should be 3.937 inches', () => {
@@ -24,4 +24,11 @@ test('converting 220 pounds to kg should be 99.792 kg', () => {
 test('converting 74 inches to feet expression should be 6\'2"', () => {
   const feetExpression = Measurements.inchesToFeetExpression(74);
   expect(feetExpression).toBe('6\'2"');
+});
+
+test('kilometers round-trip to miles', () => {
+  const km = 100;
+  const mi = Measurements.kilometersToMiles(km);
+  const back = Measurements.milesToKilometers(mi);
+  expect(back).toBeCloseTo(km, 5);
 });

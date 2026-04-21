@@ -1,13 +1,15 @@
+import { cToF, cToK, fToC } from '$lib/measurements';
+
 export function celsiusToFahrenheit(celsius: number): number {
-  return (celsius * 9) / 5 + 32;
+  return cToF(celsius);
 }
 
 export function celsiusToKelvin(celsius: number): number {
-  return celsius + 273.15;
+  return cToK(celsius);
 }
 
 export function fahrenheitToCelsius(fahrenheit: number): number {
-  return ((fahrenheit - 32) * 5) / 9;
+  return fToC(fahrenheit);
 }
 
 export function getDescription(temperature: number, temperatureType: string): string {
