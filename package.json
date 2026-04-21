@@ -8,6 +8,7 @@
     "render:layout": "tsx scripts/render_layout.ts",
     "render:dungeon": "vite-node scripts/render_dungeon.ts",
     "render:region": "vite-node scripts/render_region_map.ts",
+    "arch:style": "tsx scripts/generate_architectural_style_cli.ts",
     "dev": "vite dev",
     "build": "vite build",
     "preview": "vite preview",
