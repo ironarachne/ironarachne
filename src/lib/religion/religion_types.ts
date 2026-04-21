@@ -6,6 +6,7 @@ import type {
   ReligionDimensions,
 } from './comparative_dimension_types';
 import type { ReligionCosmology, PolytheisticStandingMode, SpiritCosmologyDepthMode } from './religion_complexity_types';
+import type { NonTheisticReligionDetail } from './non_theistic_religion_types';
 import type { Pantheon } from './pantheons/pantheon_types';
 import type { DivineRealm } from './realms/realm_types';
 
@@ -16,6 +17,8 @@ export type Religion = {
   dimensions?: ReligionDimensions;
   /** Intermediate beings and spirit orders around the high gods (when generated). */
   cosmology?: ReligionCosmology;
+  /** Category-specific spirit ecology, duties, and mediation (non-theistic traditions only). */
+  nonTheisticDetail?: NonTheisticReligionDetail;
   realms: DivineRealm[];
   pantheon: Pantheon | null;
 };

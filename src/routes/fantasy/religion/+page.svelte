@@ -14,6 +14,7 @@
     type SpiritCosmologyDepthMode,
     generateReligion,
     getDefaultReligionGenerationConfig,
+    summaryTextForReligionDimension,
   } from '$lib/religion';
   import { listDomains } from '$lib/religion/domains';
 
@@ -57,8 +58,7 @@
   }
 
   let selectedSpecies: string[] = $state(['human']);
-  let selectedCategories: string[] = $state(['polytheism']);
-  genConfig.categories = [ReligionCategories.byName('polytheism', allReligionCategories)];
+  let selectedCategories: string[] = $state(allReligionCategories.map((c) => c.name));
 
   let polytheisticStanding: PolytheisticStandingMode = $state('random');
   let spiritCosmologyDepth: SpiritCosmologyDepthMode = $state('random');
@@ -231,6 +231,28 @@
 
   <p>{religion.description}</p>
 
+  {#if religion.nonTheisticDetail}
+    <h3>Tradition detail (non-theistic)</h3>
+    <p>{religion.nonTheisticDetail.mediationSummary}</p>
+    <p><strong>Purity and pollution:</strong> {religion.nonTheisticDetail.pollutionOrPurityNotes}</p>
+  {/if}
+
+  {#if religion.dimensions}
+    <h3>Comparative dimensions</h3>
+    <p class="dimensions-intro">
+      Aspects after Ninian Smart (ritual, experiential, mythological, doctrinal, ethical, institutional,
+      material).
+    </p>
+    {#each ALL_RELIGION_DIMENSION_IDS as dimId}
+      {#if religion.dimensions[dimId]}
+        <div class="dimension-block">
+          <h4>{dimensionSectionTitles[dimId]}</h4>
+          <p>{summaryTextForReligionDimension(dimId, religion.dimensions[dimId])}</p>
+        </div>
+      {/if}
+    {/each}
+  {/if}
+
   {#if religion.cosmology}
     <h3>Spirit cosmology</h3>
     <p>{religion.cosmology.summary}</p>
@@ -321,16 +343,5 @@
 
   .cosmology-echelons li {
     margin-bottom: 0.5rem;
-  }
-
-  .dimensions-json {
-    margin: 0.35rem 0 0;
-    padding: 0.75rem;
-    font-size: 0.85rem;
-    overflow-x: auto;
-    white-space: pre-wrap;
-    word-break: break-word;
-    background: color-mix(in srgb, Canvas 92%, CanvasText 8%);
-    border-radius: 4px;
   }
 </style>

@@ -1,9 +1,13 @@
 import type { Religion, ReligionGenerationConfig } from './religion_types';
 import { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
-import { composePantheonDescriptionLine, composeReligionDescription } from './compose_religion_narrative';
+import {
+  composePantheonDescriptionLine,
+  composeReligionOverviewDescription,
+} from './compose_religion_narrative';
 import { generateReligionDimensions } from './comparative_dimension_generation';
 import { generateReligionCosmology } from './religion_cosmology_generation';
+import { generateNonTheisticReligionDetail } from './non_theistic_religion_generation';
 import { isPolytheisticCategory, resolvePolytheisticStanding } from './resolve_polytheistic_standing';
 import { generate as generateDivineRealms } from './realms/realm_generation';
 import { divineRealmTypes } from './realms/realm_data';
@@ -96,11 +100,13 @@ export function generateReligion(seed: string, config: ReligionGenerationConfig)
     pantheon.description = pantheonLine;
 
     const cosmology = generateReligionCosmology(`${seed}-cosmology`, config.spiritCosmologyDepth, rng);
-    const description = composeReligionDescription(
+    const description = composeReligionOverviewDescription(
+      `${seed}-desc`,
+      category,
       dimensions,
-      category.description,
-      pantheonLine,
       cosmology?.summary ?? null,
+      null,
+      polytheisticStanding,
     );
 
     return {
@@ -113,12 +119,21 @@ export function generateReligion(seed: string, config: ReligionGenerationConfig)
     };
   }
 
-  const description = composeReligionDescription(dimensions, category.description, null, null);
+  const nonTheisticDetail = generateNonTheisticReligionDetail(`${seed}-nontheist`, category);
+  const description = composeReligionOverviewDescription(
+    `${seed}-desc`,
+    category,
+    dimensions,
+    null,
+    nonTheisticDetail.narrativeSummary,
+    null,
+  );
 
   return {
     name: religionName,
     description,
     dimensions,
+    nonTheisticDetail,
     realms,
     pantheon: null,
   };
