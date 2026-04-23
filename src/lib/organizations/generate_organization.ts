@@ -13,9 +13,11 @@ import {
   withPatternLatticeEmblem,
 } from '$lib/visual_identity/visual_identity.js';
 import type { VisualIdentity } from '$lib/visual_identity/visual_identity_types.js';
+import type Environment from '$lib/environment/environment.js';
 import { getKindsForGenerator, getOrganizationKindByIdOrLabel } from './kind_registry.js';
-import type { Organization, RoleId } from './organization_types.js';
+import type { Organization, OrganizationWorldContext, RoleId } from './organization_types.js';
 import type { OrganizationKindDefinition } from './organization_kind.js';
+import { buildOrganizationProfile, composeOrganizationDescription } from './organization_profile.js';
 import {
   assertValidOrganizationHierarchy,
   describeLeaderForOrganization,
@@ -41,6 +43,13 @@ export type GenerateOrganizationOptions = {
   size?: OrganizationSizeInput;
   /** Prefix for character generation seeds. */
   seedPrefix?: string;
+  /**
+   * Optional world environment; used for narrative and `profile.environmentNarrative` when
+   * `worldContext` is not set. For precedence see `resolveEnvironmentNarrative` in `organization_profile.ts`.
+   */
+  environment?: Environment;
+  /** When set, overrides `environment` for the environment paragraph and discrete env facet. */
+  worldContext?: OrganizationWorldContext;
 };
 
 function effectiveMemberRange(
@@ -202,17 +211,6 @@ function planNotableRoleIds(
   return plan;
 }
 
-function randomPopularityLine(rng: RNG): string {
-  return rng.item([
-    'They enjoy a surprising amount of local popularity.',
-    'They are not terribly popular locally.',
-    "They're disliked by the local population.",
-    "They're fairly popular locally but relatively unknown in the wider region.",
-    'While locals are ambivalent about them, they are fairly popular in the wider region.',
-    'The locals actively hate them.',
-  ]);
-}
-
 /**
  * Produces a fully generated organization (name, hierarchy structure, materialized visual identity, leader, notables).
  */
@@ -225,9 +223,12 @@ export function generateOrganization(options: GenerateOrganizationOptions): Orga
   const memberCount = rng.int(range.min, range.max);
   assertValidOrganizationHierarchy(kind.hierarchy);
   const name = kind.generateName(rng, { characterConfig });
-  const descriptionCore = kind.generateDescription(rng, { name }).replace('{name}', name);
-  const description =
-    descriptionCore + ` It has ${memberCount} members. ` + randomPopularityLine(rng);
+  const profile = buildOrganizationProfile(rng, kind.id, name, {
+    genre: kind.genre,
+    worldContext: options.worldContext,
+    environment: options.environment,
+  });
+  const description = composeOrganizationDescription(memberCount, profile);
   const visualIdentity = buildVisualMaterialization(kind, rng);
   const leaderId = leaderRoleIdFromHierarchy(kind.hierarchy.childToParent, kind.hierarchy.idToOrder);
   if (leaderId === null) {
@@ -269,6 +270,7 @@ export function generateOrganization(options: GenerateOrganizationOptions): Orga
     name,
     description,
     memberCount,
+    profile,
     visualIdentity,
     hierarchy: kind.hierarchy,
     leader,

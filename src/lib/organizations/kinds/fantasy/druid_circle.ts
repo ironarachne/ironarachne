@@ -75,13 +75,6 @@ export function buildDruidCircleKind(rng: RNG): OrganizationKindDefinition {
       const k = r.item(['Verdant', 'Ashfall', 'Thornwinter', 'Mossglen', 'Starfall']);
       return `The ${k} ${t}`;
     },
-    generateDescription: (r) =>
-      r.item([
-        '{name} convenes at stone rings older than the oldest kingdoms.',
-        '{name} is trusted by rangers, feared by loggers, and loved by no merchant.',
-        '{name} speaks for rivers and roots with equal authority.',
-        '{name} keeps the old rites, even when the cities forget their names.',
-      ]),
     prepareCharacterConfigForRole: (roleId, base) => {
       const c = { ...base };
       if (roleId === 'aspirant') {

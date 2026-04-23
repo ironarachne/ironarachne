@@ -72,13 +72,6 @@ export function buildStarshipSquadronKind(rng: RNG): OrganizationKindDefinition 
     heraldryConfig: heraldryConfig(rng),
     generateName: (r) =>
       `No. ${r.int(1, 99)} ${r.item(['Spectral', 'Feral', 'Iron', 'Ash', 'Solar', 'Amber'])} ${r.item(['Wing', 'Squadron', 'Group', 'Element'])} - ${r.item(['1st', '2nd', '3rd', '4th', '7th', '9th', '12th'])}`,
-    generateDescription: (r) =>
-      r.item([
-        '{name} has simulators that smell like ozone and old coffee.',
-        "{name} paints kill marks where chaplains can't see from the pews.",
-        "{name} rotates hull time like farmers rotate fields.",
-        "{name} is understrength on paper, lethal in vacuum.",
-      ]),
     prepareCharacterConfigForRole: (_roleId, base) => ({
       ...base,
       allowedAgeCategoryNames: ['adult', 'elderly'],

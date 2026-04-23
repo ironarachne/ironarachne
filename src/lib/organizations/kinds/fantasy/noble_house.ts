@@ -79,13 +79,6 @@ export function buildNobleHouseKind(rng: RNG): OrganizationKindDefinition {
     mutators,
     heraldryConfig: heraldryConfig(rng),
     generateName: (r, ctx) => houseNameFromRng(r, ctx.characterConfig),
-    generateDescription: (r) =>
-      r.item([
-        "{name} answers only to the bloodline that feeds it.",
-        '{name} drills in the courtyard while poets compose ballads in their name.',
-        '{name} is a hedge against rivals who would prefer the line extinct.',
-        '{name} is expensive, proud, and unfailing in public.',
-      ]),
     prepareCharacterConfigForRole: (roleId, base) => {
       const c = { ...base };
       if (roleId === 'lord') {

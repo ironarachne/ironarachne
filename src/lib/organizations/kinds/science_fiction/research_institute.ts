@@ -72,13 +72,6 @@ export function buildResearchInstituteKind(rng: RNG): OrganizationKindDefinition
     heraldryConfig: heraldryConfig(rng),
     generateName: (r) =>
       `The ${r.item(['Lunar', 'Aster', 'Ceti', 'Eridani', 'Proxima', 'Belt'])} ${r.item(['Continuum', 'Tidal', 'Lattice', 'Neural', 'Plasma', 'Biosphere', 'Causal'])} ${r.item(['Institute', 'Consortium', 'Observatory', 'Array'])}`,
-    generateDescription: (r) =>
-      r.item([
-        "{name} publishes in journals most species can't decode.",
-        '{name} runs grant seasons like harvests—citation counts are the weather.',
-        '{name} is funded by a trust that predates the last three governments on this rock.',
-        '{name} is half university and half bunker; the tours stop at a painted door.',
-      ]),
     prepareCharacterConfigForRole: (role, base) => {
       const c = { ...base };
       c.allowedAgeCategoryNames = role === 'junior' ? ['adult', 'teenager'] : ['adult', 'elderly'];

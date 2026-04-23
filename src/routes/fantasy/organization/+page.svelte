@@ -4,6 +4,11 @@
     generateOrganization,
     type OrganizationSizeInput,
   } from '$lib/organizations/generate_organization';
+  import type {
+    Organization,
+    OrganizationProfile,
+    OrganizationWorldContextPreset,
+  } from '$lib/organizations/organization_types.js';
   import * as FantasyOrganizations from '$lib/organizations/fantasy';
   import * as RNG from '@ironarachne/rng';
   import * as Characters from '$lib/characters';
@@ -20,8 +25,6 @@
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
   import { renderMerchantMarkSvg } from '$lib/merchant_marks/render_merchant_mark_svg';
   import { renderPatternLatticeSvg } from '$lib/pattern_lattice/render_pattern_lattice_svg';
-  import type { Organization } from '$lib/organizations/organization_types.js';
-
   let rng = new RNG.RNG(Date.now().toString());
   let seed: string = $state(rng.randomString(13));
   let lockSeed = $state(false);
@@ -35,6 +38,19 @@
   let nameSets = Names.getAllFantasyNameGeneratorSets(rng);
   let nameSet: Names.NameGeneratorSet = rng.item(nameSets);
   let sizePreset = $state<'any' | 'small' | 'medium' | 'large'>('any');
+  let worldContextPreset = $state<'none' | OrganizationWorldContextPreset>('none');
+  const worldPresetChoices: { value: 'none' | OrganizationWorldContextPreset; label: string }[] = [
+    { value: 'none', label: 'No preset (no extra environment paragraph)' },
+    { value: 'desert_route', label: 'Desert / arid trade routes' },
+    { value: 'coastal', label: 'Coastal' },
+    { value: 'mountain_pass', label: 'Mountain pass' },
+    { value: 'river_trade', label: 'River trade' },
+    { value: 'tundra', label: 'Tundra / cold' },
+    { value: 'jungle_march', label: 'Jungle / seasonal mud' },
+    { value: 'void_ledger', label: 'SF: void / transfer points' },
+    { value: 'rim_wilderness', label: 'SF: rim habs' },
+    { value: 'dome_sprawl', label: 'SF: dome / sealed habitats' },
+  ];
 
   function matchKinds() {
     const all = getOrganizationKindsForRegistry(rng);
@@ -55,6 +71,10 @@
   function orgFromGenerate(): Organization {
     const sizeArg: OrganizationSizeInput | undefined =
       sizePreset === 'any' ? undefined : { kind: 'preset', value: sizePreset };
+    const worldContext =
+      worldContextPreset === 'none'
+        ? undefined
+        : { kind: 'preset' as const, preset: worldContextPreset };
     return generateOrganization({
       rng,
       characterConfig: buildCharacterConfig(),
@@ -62,12 +82,14 @@
       kindId: organizationKindId === 'any' ? 'any' : organizationKindId,
       size: sizeArg,
       seedPrefix: 'page',
+      worldContext,
     });
   }
 
   let org = $state(orgFromGenerate());
   let name = $state(org.name);
   let description = $state(org.description);
+  let profile = $state<OrganizationProfile>(org.profile);
   let leaderLine = $state(org.leader.description);
   let notableMembers = $state(org.notableMembers);
   let relationships = $state(org.relationships);
@@ -115,6 +137,7 @@
     org = orgFromGenerate();
     name = org.name;
     description = org.description;
+    profile = org.profile;
     leaderLine = org.leader.description;
     notableMembers = org.notableMembers;
     relationships = org.relationships;
@@ -190,6 +213,15 @@
     </select>
   </div>
 
+  <div class="input-group">
+    <label for="world">World context (optional)</label>
+    <select name="world" id="world" bind:value={worldContextPreset}>
+      {#each worldPresetChoices as c}
+        <option value={c.value}>{c.label}</option>
+      {/each}
+    </select>
+  </div>
+
   <button onclick={runGenerate}>Generate</button>
 
   <h2>{name}</h2>
@@ -201,6 +233,24 @@
   {/if}
 
   <p>{description}</p>
+
+  <h3>Profile</h3>
+  <ul class="org-profile">
+    <li>
+      <strong>Traits</strong>
+      {profile.personalityTraits.map((t) => t.label).join(' · ')}
+    </li>
+    <li><strong>Goal</strong> {profile.goal.label}</li>
+    <li><strong>Weakness</strong> {profile.weakness.label}</li>
+    <li><strong>Public standing</strong> {profile.publicStanding.label}</li>
+    {#if profile.environmentNarrative}
+      <li>
+        <strong>Environment</strong>
+        {profile.environmentNarrative.shortLabel}
+      </li>
+    {/if}
+  </ul>
+  <p class="org-hook"><strong>Hook</strong> {profile.hook}</p>
 
   <p>{leaderLine}</p>
 
@@ -237,5 +287,14 @@
   .motto {
     font-style: italic;
     text-align: center;
+  }
+  ul.org-profile {
+    max-width: 40rem;
+    margin: 0 auto 1rem;
+    text-align: left;
+  }
+  .org-hook {
+    max-width: 40rem;
+    margin: 0 auto 1rem;
   }
 </style>

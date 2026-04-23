@@ -99,12 +99,6 @@ export function buildMercenaryCompanyKind(rng: RNG): OrganizationKindDefinition 
       ]);
       return `The ${prefix} ${suffix}`;
     },
-    generateDescription: (r) =>
-      r.item([
-        '{name} is a vicious mercenary company with a reputation for excessive violence.',
-        '{name} is a merc company that prides itself on its professionalism and integrity.',
-        '{name}, as mercenaries go, are pretty reliable. They do have a tendency to celebrate too hard, though.',
-      ]),
     prepareCharacterConfigForRole: prepareConfig,
   };
 }

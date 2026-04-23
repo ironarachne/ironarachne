@@ -89,13 +89,6 @@ export function buildSignetCircleKind(rng: RNG): OrganizationKindDefinition {
         'The Compact of Sealed Rites',
       ]);
     },
-    generateDescription: (r) =>
-      r.item([
-        '{name} marks oaths and letters with a single, unmistakable round seal.',
-        '{name} keeps its sigil on brass dies—never in paint alone.',
-        '{name} meets under modest roofs but speaks with old authority in trade courts.',
-        '{name} teaches initiates the difference between a mark and a blazon.',
-      ]),
     prepareCharacterConfigForRole: prepareConfig,
   };
 }

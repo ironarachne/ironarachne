@@ -77,13 +77,6 @@ export function buildThievesGuildKind(rng: RNG): OrganizationKindDefinition {
       }
       return `The ${r.item(['Crimson', 'Jade', 'Winding'])} ${r.item(['Crew', 'Clique', 'Ring'])} of ${r.item(['Dust', 'Veils', 'Locks', 'Alleyways'])}`;
     },
-    generateDescription: (r) =>
-      r.item([
-        '{name} is said to have eyes in every back room of the city.',
-        '{name} only steals from the cruel and the corrupt—or so the stories go.',
-        '{name} runs protection rackets with one hand and charity with the other.',
-        '{name} is more rumor than person, and they prefer it that way.',
-      ]),
     prepareCharacterConfigForRole: (roleId, base) => {
       const c = { ...base };
       if (roleId === 'guildmaster') {

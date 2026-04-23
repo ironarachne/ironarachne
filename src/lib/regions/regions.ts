@@ -118,7 +118,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   region.settlements = randomSettlements(region.environment, nameGenSet, config.rng, region.map);
   const townIds = region.settlements.map(s => s.mapNodeId).filter(id => id !== undefined) as number[];
   region.map = MapRoad.generateRoads(region.map, townIds);
-  region.organizations = randomOrganizations(config.rng);
+  region.organizations = randomOrganizations(config.rng, region.environment);
   region.description = region.environment.description;
 
   let realmGenConfig = Realms.getDefaultConfig();
@@ -193,7 +193,7 @@ export function getDefaultConfig(): RegionGeneratorConfig {
   };
 }
 
-function randomOrganizations(rng: RNG.RNG): Organization[] {
+function randomOrganizations(rng: RNG.RNG, environment: Environment): Organization[] {
   const characterConfig = Characters.getDefaultCharacterGenerationConfig(
     `region-orgs-${rng.randomString(8)}`,
   );
@@ -208,6 +208,7 @@ function randomOrganizations(rng: RNG.RNG): Organization[] {
         genre: 'fantasy',
         kindId: 'any',
         seedPrefix: `region-${i}`,
+        environment,
       }),
     );
   }

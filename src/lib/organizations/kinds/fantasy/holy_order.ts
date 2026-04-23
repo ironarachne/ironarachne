@@ -93,13 +93,6 @@ export function buildHolyOrderKind(rng: RNG): OrganizationKindDefinition {
       const c = r.item(['Flame', 'Martyrs', 'Chalice', 'Lance', 'Veil', 'Throne', 'Cross']);
       return `${a} ${b} ${c}`;
     },
-    generateDescription: (r) =>
-      r.item([
-        '{name} marches in glittering processions, collecting tithes and distributing alms in equal measure.',
-        '{name} is whispered to hunt heretics in the night while publicly preaching mercy.',
-        '{name} keeps ancient relics in vaults the laity are forbidden to see.',
-        '{name} is beloved by the poor and feared by the powerful in equal measure.',
-      ]),
     prepareCharacterConfigForRole: prepareCharacterConfigForRole,
   };
 }

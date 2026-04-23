@@ -72,13 +72,6 @@ export function buildSfMercenaryOutfitKind(rng: RNG): OrganizationKindDefinition
     heraldryConfig: heraldryConfig(rng),
     generateName: (r) =>
       `The ${r.item(['Crimson', 'Void', 'Dust', 'Jade', 'Frost', 'Amber', 'Eclipse'])} ${r.item(['Lances', 'Wolves', 'Sparks', 'Vectors', 'Shields', 'Banshees', 'Bastards'])} ${r.item(['Outfit', 'Company', 'Cohort', 'Lancers'])}`,
-    generateDescription: (r) =>
-      r.item([
-        '{name} contracts in stellar credits and hard silence.',
-        "{name} has no flag but their IFF tags say enough.",
-        "{name} survived three regime changes; pay on time and they stay boring.",
-        '{name} is licensed on six worlds and wanted on a seventh.',
-      ]),
     prepareCharacterConfigForRole: (_id, base) => ({ ...base, allowedAgeCategoryNames: ['adult'] }),
   };
 }

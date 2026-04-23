@@ -72,13 +72,6 @@ export function buildSmugglerOutfitKind(rng: RNG): OrganizationKindDefinition {
     heraldryConfig: heraldryConfig(rng),
     generateName: (r) =>
       `The ${r.item(['Benthic', 'Dustmoth', 'Farside', 'Glim', 'Hollow', 'Jettison'])} ${r.item(['Runners', 'Haulers', 'Lines', 'Consortium', 'Syndicate', 'Crew', 'Kites'])}`,
-    generateDescription: (r) =>
-      r.item([
-        '{name} can land where customs is a polite suggestion.',
-        "{name} moves grain, genes, and guilt with the same hold manifest.",
-        '{name} is honest about nothing except the docking fee.',
-        '{name} is family until the bounty clears—then the family gets smaller.',
-      ]),
     prepareCharacterConfigForRole: (roleId, base) => {
       const c = { ...base };
       if (roleId === 'captain' || roleId === 'navigator') {

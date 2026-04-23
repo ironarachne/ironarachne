@@ -72,13 +72,6 @@ export function buildColonialSyndicateKind(rng: RNG): OrganizationKindDefinition
     heraldryConfig: heraldryConfig(rng),
     generateName: (r) =>
       `The ${r.item(['Amber', 'Dust', 'Frost', 'Gulf', 'Rift', 'Belt', 'Cinder'])} ${r.item(['Dome', 'Grid', 'Stack', 'Coast', 'Ring', 'Hearth'])} ${r.item(['Compact', 'Syndicate', 'League', 'Front', 'Society', 'Cooperative'])}`,
-    generateDescription: (r) =>
-      r.item([
-        '{name} writes policy on napkins and enforces it with contractors.',
-        '{name} is both homeowners association and the black market, depending who asks.',
-        '{name} securitizes every breath of air; late fees have teeth.',
-        '{name} is building a world one referendum and one bribe at a time.',
-      ]),
     prepareCharacterConfigForRole: (roleId, base) => {
       const c = { ...base };
       if (roleId === 'syndicate_head') {

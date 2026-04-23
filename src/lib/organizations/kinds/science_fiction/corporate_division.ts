@@ -78,13 +78,6 @@ export function buildCorporateDivisionKind(rng: RNG): OrganizationKindDefinition
       const con = r.item(['AstraDyne', 'HeliosMesa', 'VoidCartel', 'SynapseCore', 'TerraFirm', 'NyxaHoldings']);
       return `${con}—${greek} Division`;
     },
-    generateDescription: (r) =>
-      r.item([
-        '{name} negotiates in boardrooms and blockades with the same cold patience.',
-        '{name} is the polite face of a parent corp that will never forgive a missed quarter.',
-        '{name} is tasked with a vertical no rival has cracked yet; failures vanish from the org chart.',
-        '{name} outbid three planets for a lease on local labor law.',
-      ]),
     prepareCharacterConfigForRole: (_id, base) => ({ ...base, allowedAgeCategoryNames: ['adult', 'elderly'] }),
   };
 }

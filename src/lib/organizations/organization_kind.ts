@@ -51,7 +51,6 @@ export type OrganizationKindDefinition = {
    */
   buildVisualExtras?: (rng: RNG) => Partial<Pick<VisualIdentity, 'colors' | 'motto' | 'emblem'>> | undefined;
   generateName: (rng: RNG, ctx: { characterConfig: CharacterGenerationConfig }) => string;
-  generateDescription: (rng: RNG, ctx: { name: string }) => string;
   /**
    * Override base character config for a role before generation (age bands, archetype tags, etc.).
    */

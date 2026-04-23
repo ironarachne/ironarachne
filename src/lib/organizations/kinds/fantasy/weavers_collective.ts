@@ -88,13 +88,6 @@ export function buildWeaversCollectiveKind(rng: RNG): OrganizationKindDefinition
         'Dyers and Looms Company',
       ]);
     },
-    generateDescription: (r) =>
-      r.item([
-        '{name} is known for its patterned goods and long apprenticeships.',
-        '{name} sells to merchants who never ask where the dyes come from.',
-        '{name} runs communal looms; outsiders pay double for a bolt of the same thread.',
-        '{name} trains dyers to keep secret recipes off paper.',
-      ]),
     prepareCharacterConfigForRole: prepareConfig,
   };
 }

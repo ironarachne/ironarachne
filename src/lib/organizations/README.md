@@ -4,9 +4,9 @@ This library models **factions and institutions** in world-building: trading com
 
 ## What is in scope
 
-- **`Organization` instances** with `id`, `name`, `description`, `memberCount`, `visualIdentity`, `hierarchy`, `leader`, `notableMembers`, `relationships`, and metadata `genre` + `kindId`.
-- **`OrganizationKindDefinition`**: a registered kind (e.g. `mercenary_company`) with static hierarchy, mutators, heraldry config, name/description generators, and default size bounds.
-- **`generateOrganization(options)`** with control over `genre`, `kindId`, and `size` (preset or numeric range, intersected with the kind’s bounds).
+- **`Organization` instances** with `id`, `name`, `description`, `profile`, `memberCount`, `visualIdentity`, `hierarchy`, `leader`, `notableMembers`, `relationships`, and metadata `genre` + `kindId`. The structured **`profile`** holds personality traits, goal, weakness, public standing, hook line, and optional **`environmentNarrative`**, all aligned with the composed `description`.
+- **`OrganizationKindDefinition`**: a registered kind (e.g. `mercenary_company`) with static hierarchy, mutators, heraldry config, `generateName`, and default size bounds. Flavor and narrative come from `organization_profile.ts` (archetypes per `kindId`), not from the kind module.
+- **`generateOrganization(options)`** with control over `genre`, `kindId`, `size`, optional `environment` (from region/simulation), and optional **`worldContext`** (preset or freeform hint; overrides `environment` for environment narrative when both are set).
 - **Inter-organization links** via `OrganizationRelationship` (`addRandomRivalryBetweenPairs` for small batches, e.g. region generation).
 - **Fantasy** and **science fiction** kind modules under `kinds/fantasy/` and `kinds/science_fiction/`.
 
@@ -19,7 +19,7 @@ This library models **factions and institutions** in world-building: trading com
 
 - **`OrganizationHierarchy`**: `childToParent` + `idToOrder` (larger order = **higher** standing) + `roleById` for display names. Validated in generation.
 - **Mutators**: `ReadonlyMap<roleId, (ctx) => Character>` applied **after** `Characters.generate` (typically to push a role title from `createTitleFromCore`).
-- **Naming**: each kind’s `namingProfile` in `organization_naming.ts` documents the style; actual strings come from that kind’s `generateName` / `generateDescription`.
+- **Naming**: each kind’s `namingProfile` in `organization_naming.ts` documents the style; `generateName` provides the name. **Description** is built in `organization_profile.ts` from coherent archetype bundles so traits, goals, weaknesses, and public standing match the paragraph.
 
 ## Usage
 
@@ -65,7 +65,8 @@ import { addRandomRivalryBetweenPairs } from '$lib/organizations/organization_re
 3. Define `mutators` for **every** role id in the maps; the highest `idToOrder` is the **leader** role.
 4. Set `heraldryConfig` via `mergeHeraldryGeneratorConfig` and optional `buildVisualExtras` (e.g. motto).
 5. Register the builder in `kind_registry.ts` inside `getOrganizationKindsForRegistry`.
-6. Add a focused test if the hierarchy or mutator chain is non-trivial.
+6. Add **archetype entries** for the new `kindId` in `organization_profile.ts` (`ARCHETYPES` map) so generation has hooks, traits, goals, and weaknesses.
+7. Add a focused test if the hierarchy or mutator chain is non-trivial.
 
 ## Registered kinds (ids)
 
@@ -78,6 +79,8 @@ import { addRandomRivalryBetweenPairs } from '$lib/organizations/organization_re
 | `thieves_guild` | fantasy | |
 | `druid_circle` | fantasy | |
 | `noble_house` | fantasy | |
+| `weavers_collective` | fantasy | |
+| `signet_circle` | fantasy | |
 | `corporate_division` | science_fiction | |
 | `sf_mercenary_outfit` | science_fiction | |
 | `research_institute` | science_fiction | |

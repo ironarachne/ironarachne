@@ -101,13 +101,6 @@ export function buildWizardSchoolKind(rng: RNG): OrganizationKindDefinition {
     mutators,
     heraldryConfig: heraldryForSchool(rng),
     generateName: (r) => generateSchoolName(r),
-    generateDescription: (r) =>
-      r.item([
-        '{name} is a hidden wizard school that avoids contact with the outside world.',
-        '{name} is a proud institution whose students primarily come from the nobility.',
-        '{name} has a reputation for experimentation, and there are rumors that sometimes they experiment on their own students.',
-        '{name} is an egalitarian wizard school that accepts new students from every walk of life.',
-      ]),
     prepareCharacterConfigForRole: (roleId, base) => prepareConfig(roleId, base),
   };
 }

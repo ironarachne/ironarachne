@@ -91,4 +91,38 @@ describe('generateOrganization', () => {
     expect(org.leader.firstName.length).toBeGreaterThan(0);
     expect(org.hierarchy.childToParent.size).toBe(4);
   });
+
+  it('embeds organization profile labels in the composed description', () => {
+    const rng = new RNG('unit-test-profile-embed-001');
+    const org = generateOrganization({
+      rng,
+      characterConfig: Characters.getDefaultCharacterGenerationConfig('pf'),
+      kindId: 'trading_company',
+      genre: 'fantasy',
+    });
+    expect(org.profile.personalityTraits.length).toBeGreaterThanOrEqual(2);
+    expect(org.profile.personalityTraits.length).toBeLessThanOrEqual(3);
+    expect(org.profile.goal.label.length).toBeGreaterThan(0);
+    expect(org.profile.weakness.label.length).toBeGreaterThan(0);
+    for (const t of org.profile.personalityTraits) {
+      expect(org.description).toContain(t.label);
+    }
+    expect(org.description).toContain(org.profile.goal.label);
+    expect(org.description).toContain(org.profile.weakness.label);
+    expect(org.description).toContain(org.profile.publicStanding.label);
+  });
+
+  it('adds environment narrative from worldContext preset and matches the description', () => {
+    const rng = new RNG('unit-test-env-preset-001');
+    const org = generateOrganization({
+      rng,
+      characterConfig: Characters.getDefaultCharacterGenerationConfig('env'),
+      kindId: 'trading_company',
+      genre: 'fantasy',
+      worldContext: { kind: 'preset', preset: 'desert_route' },
+    });
+    expect(org.profile.environmentNarrative?.id).toBe('desert_route');
+    const label = org.profile.environmentNarrative!.shortLabel;
+    expect(org.description).toContain(label);
+  });
 });

@@ -121,14 +121,6 @@ export function buildTradingCompanyKind(rng: RNG): OrganizationKindDefinition {
     ),
     heraldryConfig: placeholderHeraldryConfig(rng),
     generateName: (r, ctx) => generateNameImpl(r, ctx.characterConfig),
-    generateDescription: (r) =>
-      r.item([
-        'The {name} is noted for the quality of their goods.',
-        'The {name} has a reputation for always delivering goods to their intended destination.',
-        'The {name} appears to be reputable on the surface, but are rumored to be involved in many underhanded dealings.',
-        'The {name} often openly uses bullying and strong-arming in their dealings.',
-        'The {name} deals in a wide variety of goods.',
-      ]),
     prepareCharacterConfigForRole: prepareConfig,
   };
 }
