@@ -1,5 +1,7 @@
 import * as Sizes from '$lib/size/sizes.js';
 import type Species from '../species.js';
+import { traditional } from '$lib/gender/index.js';
+import * as AgeCategories from '$lib/age/age_categories.js';
 
 export default <Species>{
   name: 'cat',
@@ -40,55 +42,12 @@ export default <Species>{
       tags: ['eyes'],
     },
   ],
-  ageCategories: [
-    {
-      name: 'kitten',
-      noun: 'kitten',
-      minAge: 0,
-      maxAge: 1,
-      genderedNoun: ['girl', 'boy', 'kitten'],
-      commonality: 2,
-    },
-    {
-      name: 'adult',
-      noun: 'adult',
-      minAge: 2,
-      maxAge: 10,
-      genderedNoun: ['woman', 'man', 'adult'],
-      commonality: 20,
-    },
-    {
-      name: 'elderly',
-      noun: 'elder',
-      minAge: 11,
-      maxAge: 30,
-      genderedNoun: ['old woman', 'old man', 'elder'],
-      commonality: 3,
-    },
-  ],
+  ageCategories: AgeCategories.beastLifespanCat(),
+
   baseThreatLevel: 0,
   abilities: [],
   commonality: 5,
-  genders: [
-    {
-      name: 'female',
-      pronouns: {
-        subjective: 'she',
-        objective: 'her',
-        possessive: 'her',
-        reflexive: 'herself',
-      },
-    },
-    {
-      name: 'male',
-      pronouns: {
-        subjective: 'he',
-        objective: 'him',
-        possessive: 'his',
-        reflexive: 'himself',
-      },
-    },
-  ],
+  genders: traditional(),
   sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
   tags: ['cat'],
 };
