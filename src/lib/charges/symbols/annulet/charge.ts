@@ -6,5 +6,5 @@ export const annulet: ChargeGlyph = {
   pluralName: 'annulets',
   SVG: annuletSVG,
   chargeType: 'regular',
-  tags: ['annulet', 'symbols'],
+  tags: ['annulet', 'symbols', 'geometric_emblem'],
 };

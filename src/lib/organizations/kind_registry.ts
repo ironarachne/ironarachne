@@ -11,7 +11,9 @@ import { buildHolyOrderKind } from './kinds/fantasy/holy_order.js';
 import { buildMercenaryCompanyKind } from './kinds/fantasy/mercenary_company.js';
 import { buildNobleHouseKind } from './kinds/fantasy/noble_house.js';
 import { buildThievesGuildKind } from './kinds/fantasy/thieves_guild.js';
+import { buildSignetCircleKind } from './kinds/fantasy/signet_circle.js';
 import { buildTradingCompanyKind } from './kinds/fantasy/trading_company.js';
+import { buildWeaversCollectiveKind } from './kinds/fantasy/weavers_collective.js';
 import { buildWizardSchoolKind } from './kinds/fantasy/wizard_school.js';
 
 /**
@@ -21,6 +23,8 @@ export function getOrganizationKindsForRegistry(rng: RNG): OrganizationKindDefin
   return [
     buildMercenaryCompanyKind(rng),
     buildTradingCompanyKind(rng),
+    buildWeaversCollectiveKind(rng),
+    buildSignetCircleKind(rng),
     buildWizardSchoolKind(rng),
     buildHolyOrderKind(rng),
     buildThievesGuildKind(rng),

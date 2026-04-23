@@ -4,10 +4,14 @@ import { generateHeraldry } from '$lib/heraldry/generator.js';
 import { mergeHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import {
   createEmptyVisualIdentity,
+  isDiscEmblem,
   isHeraldryEmblem,
   isMerchantMarkEmblem,
+  isPatternLatticeEmblem,
+  withDiscEmblem,
   withHeraldryEmblem,
   withMerchantMarkEmblem,
+  withPatternLatticeEmblem,
 } from '../visual_identity.js';
 
 const rng = new RNG.RNG('visual-identity-test');
@@ -56,5 +60,21 @@ describe('visual_identity', () => {
     expect(next.emblem).toEqual({ kind: 'merchant_mark', mark });
     expect(isMerchantMarkEmblem(next.emblem)).toBe(true);
     expect(isMerchantMarkEmblem({ kind: 'none' })).toBe(false);
+  });
+
+  it('withPatternLatticeEmblem and isPatternLatticeEmblem', () => {
+    const lattice = { rows: 2, cols: 2, cells: ['#111111', '#222222', '#333333', '#444444'] };
+    const next = withPatternLatticeEmblem(createEmptyVisualIdentity(), lattice);
+    expect(next.emblem).toEqual({ kind: 'pattern_lattice', lattice });
+    expect(isPatternLatticeEmblem(next.emblem)).toBe(true);
+    expect(isPatternLatticeEmblem({ kind: 'none' })).toBe(false);
+  });
+
+  it('withDiscEmblem and isDiscEmblem', () => {
+    const disc = { chargeName: 'annulet', groundHex: '#F5F5F5', chargeHex: '#111111' };
+    const next = withDiscEmblem(createEmptyVisualIdentity(), disc);
+    expect(next.emblem).toEqual({ kind: 'disc_emblem', disc });
+    expect(isDiscEmblem(next.emblem)).toBe(true);
+    expect(isDiscEmblem({ kind: 'none' })).toBe(false);
   });
 });

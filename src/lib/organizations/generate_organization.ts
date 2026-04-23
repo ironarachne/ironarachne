@@ -1,12 +1,16 @@
 import * as Characters from '$lib/characters';
+import type { RNG } from '@ironarachne/rng';
+import { generateDiscEmblem } from '$lib/disc_emblem/generate_disc_emblem.js';
 import { generateHeraldry } from '$lib/heraldry/generator.js';
 import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
-import type { RNG } from '@ironarachne/rng';
+import { generatePatternLattice } from '$lib/pattern_lattice/generate_pattern_lattice.js';
 import { generateMerchantMark } from '$lib/merchant_marks/generate_merchant_mark.js';
 import {
   createEmptyVisualIdentity,
+  withDiscEmblem,
   withHeraldryEmblem,
   withMerchantMarkEmblem,
+  withPatternLatticeEmblem,
 } from '$lib/visual_identity/visual_identity.js';
 import type { VisualIdentity } from '$lib/visual_identity/visual_identity_types.js';
 import { getKindsForGenerator, getOrganizationKindByIdOrLabel } from './kind_registry.js';
@@ -80,6 +84,28 @@ function pickKindDefinition(
   return rng.item(pool);
 }
 
+function applyBuildVisualExtras(
+  identity: VisualIdentity,
+  kind: OrganizationKindDefinition,
+  rng: RNG,
+): VisualIdentity {
+  const extras = kind.buildVisualExtras?.(rng);
+  if (!extras) {
+    return identity;
+  }
+  let out = identity;
+  if (extras.colors) {
+    out = { ...out, colors: extras.colors };
+  }
+  if (extras.motto !== undefined) {
+    out = { ...out, motto: extras.motto };
+  }
+  if (extras.emblem) {
+    out = { ...out, emblem: extras.emblem };
+  }
+  return out;
+}
+
 function buildVisualMaterialization(
   kind: OrganizationKindDefinition,
   rng: RNG,
@@ -94,18 +120,26 @@ function buildVisualMaterialization(
       );
     }
     const mark = generateMerchantMark(rng, { chargeOptions });
-    let identity = withMerchantMarkEmblem(createEmptyVisualIdentity(), mark);
-    const extras = kind.buildVisualExtras?.(rng);
-    if (extras?.colors) {
-      identity = { ...identity, colors: extras.colors };
+    const identity = withMerchantMarkEmblem(createEmptyVisualIdentity(), mark);
+    return applyBuildVisualExtras(identity, kind, rng);
+  }
+
+  if (emblemStyle === 'pattern_lattice') {
+    const lattice = generatePatternLattice(rng);
+    const identity = withPatternLatticeEmblem(createEmptyVisualIdentity(), lattice);
+    return applyBuildVisualExtras(identity, kind, rng);
+  }
+
+  if (emblemStyle === 'disc_emblem') {
+    const chargeOptions = kind.discEmblemChargeOptions ?? [];
+    if (chargeOptions.length === 0) {
+      throw new Error(
+        `Organization kind ${kind.id} uses disc_emblem but discEmblemChargeOptions is empty`,
+      );
     }
-    if (extras?.motto !== undefined) {
-      identity = { ...identity, motto: extras.motto };
-    }
-    if (extras?.emblem) {
-      identity = { ...identity, emblem: extras.emblem };
-    }
-    return identity;
+    const disc = generateDiscEmblem(rng, { chargeOptions });
+    const identity = withDiscEmblem(createEmptyVisualIdentity(), disc);
+    return applyBuildVisualExtras(identity, kind, rng);
   }
 
   const cfg = mergeHeraldryGeneratorConfig({
@@ -113,18 +147,8 @@ function buildVisualMaterialization(
     rng,
   });
   const arms = kind.fixedArms ?? generateHeraldry(cfg);
-  let identity = withHeraldryEmblem(createEmptyVisualIdentity(), arms);
-  const extras = kind.buildVisualExtras?.(rng);
-  if (extras?.colors) {
-    identity = { ...identity, colors: extras.colors };
-  }
-  if (extras?.motto !== undefined) {
-    identity = { ...identity, motto: extras.motto };
-  }
-  if (extras?.emblem) {
-    identity = { ...identity, emblem: extras.emblem };
-  }
-  return identity;
+  const identity = withHeraldryEmblem(createEmptyVisualIdentity(), arms);
+  return applyBuildVisualExtras(identity, kind, rng);
 }
 
 /**

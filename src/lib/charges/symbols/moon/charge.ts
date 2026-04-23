@@ -6,5 +6,5 @@ export const moon: ChargeGlyph = {
   pluralName: 'moons',
   SVG: moonSVG,
   chargeType: 'regular',
-  tags: ['moon', 'symbols'],
+  tags: ['moon', 'symbols', 'geometric_emblem'],
 };

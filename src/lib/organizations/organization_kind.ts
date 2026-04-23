@@ -30,12 +30,18 @@ export type OrganizationKindDefinition = {
    * How `generateOrganization` builds the emblem. Defaults to heraldry.
    * When `merchant_mark`, {@link merchantMarkChargeOptions} is required and
    * `heraldryConfig` / `fixedArms` are ignored.
+   * When `disc_emblem`, {@link discEmblemChargeOptions} is required.
+   * `pattern_lattice` uses no charge list.
    */
-  visualEmblemStyle?: 'heraldry' | 'merchant_mark';
+  visualEmblemStyle?: 'heraldry' | 'merchant_mark' | 'pattern_lattice' | 'disc_emblem';
   /**
    * Charge glyphs to pick from when `visualEmblemStyle` is `merchant_mark`.
    */
   merchantMarkChargeOptions?: ChargeGlyph[];
+  /**
+   * Simple geometric charges when `visualEmblemStyle` is `disc_emblem`.
+   */
+  discEmblemChargeOptions?: ChargeGlyph[];
   /**
    * Heraldry generation config for this kind; used when `visualEmblemStyle` is heraldry (default).
    */

@@ -10,9 +10,16 @@
   import * as Names from '$lib/names';
   import { onMount } from 'svelte';
   import { renderSVGAsPNG } from '$lib/images/svg';
-  import { isHeraldryEmblem, isMerchantMarkEmblem } from '$lib/visual_identity/visual_identity';
+  import {
+    isDiscEmblem,
+    isHeraldryEmblem,
+    isMerchantMarkEmblem,
+    isPatternLatticeEmblem,
+  } from '$lib/visual_identity/visual_identity';
+  import { renderDiscEmblemSvg } from '$lib/disc_emblem/render_disc_emblem_svg';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
   import { renderMerchantMarkSvg } from '$lib/merchant_marks/render_merchant_mark_svg';
+  import { renderPatternLatticeSvg } from '$lib/pattern_lattice/render_pattern_lattice_svg';
   import type { Organization } from '$lib/organizations/organization_types.js';
 
   let rng = new RNG.RNG(Date.now().toString());
@@ -78,6 +85,16 @@
       const w = 200;
       const h = 200;
       const svg = renderMerchantMarkSvg(emblem.mark, w, h);
+      renderSVGAsPNG(svg, w, h, 'org-arms');
+    } else if (isPatternLatticeEmblem(emblem)) {
+      const w = 200;
+      const h = 200;
+      const svg = renderPatternLatticeSvg(emblem.lattice, w, h);
+      renderSVGAsPNG(svg, w, h, 'org-arms');
+    } else if (isDiscEmblem(emblem)) {
+      const w = 200;
+      const h = 200;
+      const svg = renderDiscEmblemSvg(emblem.disc, w, h);
       renderSVGAsPNG(svg, w, h, 'org-arms');
     }
   }

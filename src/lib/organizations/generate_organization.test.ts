@@ -2,7 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import * as Characters from '$lib/characters';
 import { validateChildToParent, validateIdToOrder } from '$lib/hierarchy';
-import { isHeraldryEmblem, isMerchantMarkEmblem } from '$lib/visual_identity/visual_identity';
+import {
+  isHeraldryEmblem,
+  isMerchantMarkEmblem,
+  isPatternLatticeEmblem,
+  isDiscEmblem,
+} from '$lib/visual_identity/visual_identity';
 import { generateOrganization } from './generate_organization';
 import { lineChain } from './organization_hierarchy_builders';
 import { assertValidOrganizationHierarchy } from './member_mutations';
@@ -43,6 +48,30 @@ describe('generateOrganization', () => {
     });
     expect(org.kindId).toBe('trading_company');
     expect(isMerchantMarkEmblem(org.visualIdentity.emblem)).toBe(true);
+  });
+
+  it('produces weavers collective with a pattern lattice emblem', () => {
+    const rng = new RNG('unit-test-weavers-lattice');
+    const org = generateOrganization({
+      rng,
+      characterConfig: Characters.getDefaultCharacterGenerationConfig('char-wv'),
+      kindId: 'weavers_collective',
+      genre: 'fantasy',
+    });
+    expect(org.kindId).toBe('weavers_collective');
+    expect(isPatternLatticeEmblem(org.visualIdentity.emblem)).toBe(true);
+  });
+
+  it('produces signet circle with a disc emblem', () => {
+    const rng = new RNG('unit-test-signet-disc');
+    const org = generateOrganization({
+      rng,
+      characterConfig: Characters.getDefaultCharacterGenerationConfig('char-sg'),
+      kindId: 'signet_circle',
+      genre: 'fantasy',
+    });
+    expect(org.kindId).toBe('signet_circle');
+    expect(isDiscEmblem(org.visualIdentity.emblem)).toBe(true);
   });
 
   it('produces a mercenary org in range with heraldry and leader', () => {
