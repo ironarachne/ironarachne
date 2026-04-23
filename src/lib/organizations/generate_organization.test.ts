@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import * as Characters from '$lib/characters';
 import { validateChildToParent, validateIdToOrder } from '$lib/hierarchy';
-import { isHeraldryEmblem } from '$lib/visual_identity/visual_identity';
+import { isHeraldryEmblem, isMerchantMarkEmblem } from '$lib/visual_identity/visual_identity';
 import { generateOrganization } from './generate_organization';
 import { lineChain } from './organization_hierarchy_builders';
 import { assertValidOrganizationHierarchy } from './member_mutations';
@@ -31,6 +31,18 @@ describe('generateOrganization', () => {
       });
       expect(['adult', 'elderly']).toContain(org.leader.ageCategory.name);
     }
+  });
+
+  it('produces a trading company with a merchant mark emblem', () => {
+    const rng = new RNG('unit-test-trading-merchant-mark');
+    const org = generateOrganization({
+      rng,
+      characterConfig: Characters.getDefaultCharacterGenerationConfig('char-tc'),
+      kindId: 'trading_company',
+      genre: 'fantasy',
+    });
+    expect(org.kindId).toBe('trading_company');
+    expect(isMerchantMarkEmblem(org.visualIdentity.emblem)).toBe(true);
   });
 
   it('produces a mercenary org in range with heraldry and leader', () => {

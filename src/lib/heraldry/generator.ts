@@ -2,7 +2,7 @@ import * as RNG from '@ironarachne/rng';
 import type { Arms } from './arms.js';
 import type { ChargeGroup } from './charge_group.js';
 import * as Arrangements from './charge_group_arrangements/index.js';
-import * as Charges from './charges/index.js';
+import { getAllCharges } from './charge_data.js';
 import { type Device, renderDeviceBlazon } from './device.js';
 import * as Fields from './fields.js';
 import {
@@ -80,7 +80,7 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
 
 // Build a randomized but constrained config (was a class method previously)
 export function generateHeraldryConfig(rng: RNG.RNG): HeraldryGeneratorConfig {
-  const charges = Charges.all();
+  const charges = getAllCharges();
   let chargeTincture = Tinctures.randomChargeTincture(rng);
   let fieldTinctures1 = Tinctures.all();
   let fieldTinctures2 = Tinctures.all();

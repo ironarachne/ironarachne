@@ -1,5 +1,6 @@
 import * as Words from '@ironarachne/words';
-import type { Charge } from './charges/index';
+import { tintChargeSvg } from '$lib/charges/tint_charge_svg.js';
+import type { Charge } from './charge_heraldry.js';
 import type { ChargeGroupArrangement } from './charge_group_arrangements/index.js';
 
 export type ChargeGroup = {
@@ -27,7 +28,7 @@ export function renderChargeGroupSVG(
   contextHeight: number,
 ): string {
   let chargeSVGString = group.charge.SVG;
-  chargeSVGString = setChargeColor(
+  chargeSVGString = tintChargeSvg(
     group.charge.tincture.hexColor,
     group.charge.tincture.name,
     chargeSVGString,
@@ -45,30 +46,4 @@ export function renderChargeGroupSVG(
   }
 
   return group.arrangement.renderSVG(chargeSVGString, contextWidth, renderHeight);
-}
-
-function setChargeColor(hexColor: string, tinctureName: string, chargeSVG: string): string {
-  let svgResult = chargeSVG;
-
-  if (hexColor === '#000000') {
-    svgResult = svgResult.replaceAll('#FFFFFF', hexColor);
-    svgResult = svgResult.replaceAll('#ffffff', hexColor);
-    svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
-  } else {
-    // Source art uses white for the main charge and black for line/detail fills.
-    // Map white to the tincture, but keep black as the outline (do not recolor to the tincture).
-    const outlineHex = '#000000';
-    svgResult = svgResult.replaceAll('#010101', 'TEMP_CHARGE_OUTLINE_PLACEHOLDER');
-    svgResult = svgResult.replaceAll('#000000', 'TEMP_CHARGE_OUTLINE_PLACEHOLDER');
-    svgResult = svgResult.replaceAll('fill="black"', 'fill="TEMP_CHARGE_OUTLINE_PLACEHOLDER"');
-    svgResult = svgResult.replaceAll('#FFFFFF', hexColor);
-    svgResult = svgResult.replaceAll('#ffffff', hexColor);
-    svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
-    svgResult = svgResult.replaceAll('TEMP_CHARGE_OUTLINE_PLACEHOLDER', outlineHex);
-  }
-
-  svgResult = svgResult.replaceAll('st0', `st0-${tinctureName}`);
-  svgResult = svgResult.replaceAll('st1', `st1-${tinctureName}`);
-
-  return svgResult;
 }

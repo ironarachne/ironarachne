@@ -1,7 +1,7 @@
 import * as RNG from '@ironarachne/rng';
 import { MAX_CHARGES_PER_GROUP } from './charge_group_arrangements/index.js';
-import type { Charge } from './charges/index.js';
-import * as Charges from './charges/index.js';
+import type { Charge } from './charge_heraldry.js';
+import { getAllCharges } from './charge_data.js';
 import type { Field } from './field.js';
 import * as Fields from './fields.js';
 import type { Tincture } from './tinctures.js';
@@ -35,7 +35,7 @@ export function getDefaultHeraldryGeneratorConfig(rng?: RNG.RNG): HeraldryGenera
 
   return {
     chargeCount: rng.int(1, 3),
-    chargeOptions: Charges.all(),
+    chargeOptions: getAllCharges(),
     chargeTinctures: Tinctures.ofTypes(['metal', 'color', 'stain']),
     fieldOptions: Fields.all(),
     fieldTinctures1: Tinctures.all(),

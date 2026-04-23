@@ -1,4 +1,5 @@
 import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
+import type { ChargeGlyph } from '$lib/charges/charge-types.js';
 import type { Arms } from '$lib/heraldry/arms.js';
 import type { HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import type { RNG } from '@ironarachne/rng';
@@ -26,7 +27,17 @@ export type OrganizationKindDefinition = {
   /** Role id → mutator applied after `Characters.generate`. */
   mutators: ReadonlyMap<string, MemberMutator>;
   /**
-   * Heraldry generation config for this kind; used to materialize `VisualIdentity`.
+   * How `generateOrganization` builds the emblem. Defaults to heraldry.
+   * When `merchant_mark`, {@link merchantMarkChargeOptions} is required and
+   * `heraldryConfig` / `fixedArms` are ignored.
+   */
+  visualEmblemStyle?: 'heraldry' | 'merchant_mark';
+  /**
+   * Charge glyphs to pick from when `visualEmblemStyle` is `merchant_mark`.
+   */
+  merchantMarkChargeOptions?: ChargeGlyph[];
+  /**
+   * Heraldry generation config for this kind; used when `visualEmblemStyle` is heraldry (default).
    */
   heraldryConfig: HeraldryGeneratorConfig;
   /**
@@ -43,7 +54,7 @@ export type OrganizationKindDefinition = {
     base: CharacterGenerationConfig,
   ) => CharacterGenerationConfig;
   /**
-   * When set, overrides random heraldry with fixed arms (rare).
+   * When set, overrides random heraldry with fixed arms (rare). Heraldry style only.
    */
   fixedArms?: Arms;
 };

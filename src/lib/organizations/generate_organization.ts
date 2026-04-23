@@ -2,7 +2,12 @@ import * as Characters from '$lib/characters';
 import { generateHeraldry } from '$lib/heraldry/generator.js';
 import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
-import { createEmptyVisualIdentity, withHeraldryEmblem } from '$lib/visual_identity/visual_identity.js';
+import { generateMerchantMark } from '$lib/merchant_marks/generate_merchant_mark.js';
+import {
+  createEmptyVisualIdentity,
+  withHeraldryEmblem,
+  withMerchantMarkEmblem,
+} from '$lib/visual_identity/visual_identity.js';
 import type { VisualIdentity } from '$lib/visual_identity/visual_identity_types.js';
 import { getKindsForGenerator, getOrganizationKindByIdOrLabel } from './kind_registry.js';
 import type { Organization, RoleId } from './organization_types.js';
@@ -79,6 +84,30 @@ function buildVisualMaterialization(
   kind: OrganizationKindDefinition,
   rng: RNG,
 ): VisualIdentity {
+  const emblemStyle = kind.visualEmblemStyle ?? 'heraldry';
+
+  if (emblemStyle === 'merchant_mark') {
+    const chargeOptions = kind.merchantMarkChargeOptions ?? [];
+    if (chargeOptions.length === 0) {
+      throw new Error(
+        `Organization kind ${kind.id} uses merchant_mark but merchantMarkChargeOptions is empty`,
+      );
+    }
+    const mark = generateMerchantMark(rng, { chargeOptions });
+    let identity = withMerchantMarkEmblem(createEmptyVisualIdentity(), mark);
+    const extras = kind.buildVisualExtras?.(rng);
+    if (extras?.colors) {
+      identity = { ...identity, colors: extras.colors };
+    }
+    if (extras?.motto !== undefined) {
+      identity = { ...identity, motto: extras.motto };
+    }
+    if (extras?.emblem) {
+      identity = { ...identity, emblem: extras.emblem };
+    }
+    return identity;
+  }
+
   const cfg = mergeHeraldryGeneratorConfig({
     ...kind.heraldryConfig,
     rng,

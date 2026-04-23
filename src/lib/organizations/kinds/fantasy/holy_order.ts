@@ -1,4 +1,4 @@
-import * as Charges from '$lib/heraldry/charges/index.js';
+import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
 import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
@@ -73,10 +73,7 @@ function prepareCharacterConfigForRole(
 function heraldryConfig(rng: RNG): HeraldryGeneratorConfig {
   return mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1, 1]),
-    chargeOptions: Charges.matchingAnyTags(
-      ['cross', 'holy', 'sword', 'chalice', 'sun', 'crown'],
-      Charges.all(),
-    ),
+    chargeOptions: getChargesMatchingAnyTags(['cross', 'holy', 'sword', 'chalice', 'sun', 'crown']),
   });
 }
 

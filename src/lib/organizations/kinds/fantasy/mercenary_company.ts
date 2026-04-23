@@ -1,4 +1,4 @@
-import * as Charges from '$lib/heraldry/charges/index.js';
+import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
 import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
@@ -71,10 +71,7 @@ const mutators: ReadonlyMap<string, MemberMutator> = new Map([
 function heraldryForMercenary(rng: RNG): HeraldryGeneratorConfig {
   return mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: Charges.matchingAnyTags(
-      ['weapon', 'helmet', 'sword', 'battle', 'axe'],
-      Charges.all(),
-    ),
+    chargeOptions: getChargesMatchingAnyTags(['weapon', 'helmet', 'sword', 'battle', 'axe']),
   });
 }
 

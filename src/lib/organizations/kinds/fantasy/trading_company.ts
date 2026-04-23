@@ -1,4 +1,5 @@
-import * as Charges from '$lib/heraldry/charges/index.js';
+import { getAllChargeGlyphs } from '$lib/charges/charge-data.js';
+import { matchingAnyTags } from '$lib/charges/charge-selectors.js';
 import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import * as Names from '$lib/names';
@@ -56,14 +57,9 @@ const mutators: ReadonlyMap<string, MemberMutator> = new Map([
   ['employee', mutEmployee],
 ]);
 
-function heraldryForTrading(rng: RNG): HeraldryGeneratorConfig {
-  return mergeHeraldryGeneratorConfig({
-    chargeCount: rng.item([0, 1]),
-    chargeOptions: Charges.matchingAnyTags(
-      ['barrel', 'galleon', 'water', 'objects'],
-      Charges.all(),
-    ),
-  });
+/** Unused when `visualEmblemStyle` is merchant_mark; kept for type & future heraldry use. */
+function placeholderHeraldryConfig(rng: RNG): HeraldryGeneratorConfig {
+  return mergeHeraldryGeneratorConfig({ chargeCount: 0, rng });
 }
 
 function prepareConfig(roleId: string, base: CharacterGenerationConfig): CharacterGenerationConfig {
@@ -118,7 +114,12 @@ export function buildTradingCompanyKind(rng: RNG): OrganizationKindDefinition {
     defaultSizeRange: { min: 30, max: 200 },
     hierarchy,
     mutators,
-    heraldryConfig: heraldryForTrading(rng),
+    visualEmblemStyle: 'merchant_mark',
+    merchantMarkChargeOptions: matchingAnyTags(
+      ['barrel', 'galleon', 'water', 'objects'],
+      getAllChargeGlyphs(),
+    ),
+    heraldryConfig: placeholderHeraldryConfig(rng),
     generateName: (r, ctx) => generateNameImpl(r, ctx.characterConfig),
     generateDescription: (r) =>
       r.item([

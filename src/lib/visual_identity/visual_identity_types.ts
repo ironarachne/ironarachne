@@ -1,4 +1,5 @@
 import type { Arms } from '$lib/heraldry/arms.js';
+import type { MerchantMark } from '$lib/merchant_marks/merchant_mark_types.js';
 
 /**
  * Display colors for an entity (houses, guilds, schools). Values are typically
@@ -16,7 +17,8 @@ export type VisualColorPalette = {
  */
 export type VisualEmblem =
   | { kind: 'none' }
-  | { kind: 'heraldry'; arms: Arms };
+  | { kind: 'heraldry'; arms: Arms }
+  | { kind: 'merchant_mark'; mark: MerchantMark };
 
 /**
  * Visual identity for a noble house, company, wizard school, realm, etc.

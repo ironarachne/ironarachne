@@ -5,7 +5,9 @@ import { mergeHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import {
   createEmptyVisualIdentity,
   isHeraldryEmblem,
+  isMerchantMarkEmblem,
   withHeraldryEmblem,
+  withMerchantMarkEmblem,
 } from '../visual_identity.js';
 
 const rng = new RNG.RNG('visual-identity-test');
@@ -46,5 +48,13 @@ describe('visual_identity', () => {
     const arms = sampleArms();
     expect(isHeraldryEmblem({ kind: 'heraldry', arms })).toBe(true);
     expect(isHeraldryEmblem({ kind: 'none' })).toBe(false);
+  });
+
+  it('withMerchantMarkEmblem sets merchant mark and isMerchantMarkEmblem narrows', () => {
+    const mark = { chargeName: 'barrel', fillHex: '#8B2942' };
+    const next = withMerchantMarkEmblem(createEmptyVisualIdentity(), mark);
+    expect(next.emblem).toEqual({ kind: 'merchant_mark', mark });
+    expect(isMerchantMarkEmblem(next.emblem)).toBe(true);
+    expect(isMerchantMarkEmblem({ kind: 'none' })).toBe(false);
   });
 });

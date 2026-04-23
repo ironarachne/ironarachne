@@ -2,17 +2,17 @@
 
 This library models **how an entity presents itself visually** in world-building: emblem (or lack of one), optional **colors**, and an optional **motto**. It is meant for noble houses, companies, wizard schools, realms, guilds, and similar factions.
 
-The **[heraldry](../heraldry/)** library remains separate: it owns coats of arms (`Arms`), generation, and SVG rendering. **Visual identity** may **reference** heraldry when `VisualEmblem` is `{ kind: 'heraldry', arms }`. Other emblem styles (mon, flag, badge, …) can be added later as new `kind` variants without changing heraldry.
+The **[heraldry](../heraldry/)** library remains separate: it owns coats of arms (`Arms`), generation, and shield SVG rendering. **Visual identity** may **reference** heraldry when `VisualEmblem` is `{ kind: 'heraldry', arms }`. **Merchant marks** use shared charge glyphs from `$lib/charges` with a simple dye fill (`{ kind: 'merchant_mark', mark }`)—no field, not a coat of arms. Other emblem styles can be added as new `kind` variants.
 
 ## Features
 
 - **`VisualIdentity`** — `emblem` (required), optional `colors` (`VisualColorPalette`), optional `motto`.
-- **`VisualEmblem`** — discriminated union: `none` or `heraldry` (with `Arms`). Prefer switching on `kind` when handling emblems.
-- **Helpers** — `createEmptyVisualIdentity()`, `withHeraldryEmblem(identity, arms)`, `isHeraldryEmblem(emblem)` for narrowing.
+- **`VisualEmblem`** — discriminated union: `none`, `heraldry` (with `Arms`), or `merchant_mark` (with `MerchantMark`). Prefer switching on `kind` when handling emblems.
+- **Helpers** — `createEmptyVisualIdentity()`, `withHeraldryEmblem` / `withMerchantMarkEmblem`, `isHeraldryEmblem` / `isMerchantMarkEmblem` for narrowing.
 
 ## What is out of scope
 
-Rendering (SVG, PNG), typography, layout, and asset URLs are not handled here. The heraldry module continues to render shields when you have a `heraldry` emblem.
+Rendering (SVG, PNG), typography, layout, and asset URLs are not handled here. The heraldry module renders shields for a `heraldry` emblem; merchant marks are rendered via `$lib/merchant_marks`.
 
 ## Usage
 
@@ -50,5 +50,5 @@ Add new variants to `VisualEmblem` in `visual_identity_types.ts` (e.g. `{ kind: 
 ## Data shapes (types)
 
 - **`VisualColorPalette`** — `primary` plus optional `secondary`, `accent` (strings, typically hex).
-- **`VisualEmblem`** — `none` or `heraldry` with `Arms`.
+- **`VisualEmblem`** — `none`, `heraldry` with `Arms`, or `merchant_mark` with `MerchantMark`.
 - **`VisualIdentity`** — bundles emblem and optional colors/motto.

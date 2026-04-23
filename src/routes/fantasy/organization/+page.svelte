@@ -10,8 +10,9 @@
   import * as Names from '$lib/names';
   import { onMount } from 'svelte';
   import { renderSVGAsPNG } from '$lib/images/svg';
-  import { isHeraldryEmblem } from '$lib/visual_identity/visual_identity';
+  import { isHeraldryEmblem, isMerchantMarkEmblem } from '$lib/visual_identity/visual_identity';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+  import { renderMerchantMarkSvg } from '$lib/merchant_marks/render_merchant_mark_svg';
   import type { Organization } from '$lib/organizations/organization_types.js';
 
   let rng = new RNG.RNG(Date.now().toString());
@@ -66,11 +67,17 @@
   let motto = $state(org.visualIdentity.motto);
 
   function renderArmsForOrg(o: Organization) {
-    if (isHeraldryEmblem(o.visualIdentity.emblem)) {
+    const emblem = o.visualIdentity.emblem;
+    if (isHeraldryEmblem(emblem)) {
       const w = 200;
       const h = 220;
-      const arms = o.visualIdentity.emblem.arms;
+      const arms = emblem.arms;
       const svg = renderHeraldryDeviceSvg(arms.device, w, h);
+      renderSVGAsPNG(svg, w, h, 'org-arms');
+    } else if (isMerchantMarkEmblem(emblem)) {
+      const w = 200;
+      const h = 200;
+      const svg = renderMerchantMarkSvg(emblem.mark, w, h);
       renderSVGAsPNG(svg, w, h, 'org-arms');
     }
   }
@@ -207,7 +214,7 @@
 <style>
   div.org-arms {
     width: 200px;
-    height: 220px;
+    height: 200px;
     margin: 0 auto;
   }
   .motto {

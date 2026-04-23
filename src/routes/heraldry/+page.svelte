@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as Charges from '$lib/heraldry/charges';
+  import * as Charges from '$lib/charges';
   import * as Fields from '$lib/heraldry/fields';
   import * as RNG from '@ironarachne/rng';
   import * as Tinctures from '$lib/heraldry/tinctures';
