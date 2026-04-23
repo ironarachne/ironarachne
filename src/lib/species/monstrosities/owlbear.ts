@@ -37,5 +37,6 @@ export default <Species>{
   commonality: 5,
   genders: traditional(),
   sizeGeneratorConfigMatrix: Sizes.humanStandard(), // TODO: make real sizes
+  carcassBodyPlan: 'furred',
   tags: ['owlbear', 'monstrosity'],
 };

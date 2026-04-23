@@ -1,3 +1,4 @@
+export type * from './carcass_body_plan';
 export type * from './species';
 export type * from './filter';
 export * from './mutators';

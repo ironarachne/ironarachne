@@ -3,6 +3,7 @@ import type AgeCategory from '$lib/age/age_category.js';
 import type { Gender } from '$lib/gender';
 import type PhysicalTraitGeneratorConfig from '$lib/physical_traits/physical_trait_generator_config.js';
 import type { SizeMatrix } from '$lib/size/size_matrix';
+import type { CarcassBodyPlan } from './carcass_body_plan';
 
 export default interface Species {
   name: string;
@@ -19,4 +20,18 @@ export default interface Species {
   genders: Gender[];
   commonality: number;
   tags: string[];
+  /** When set, body-plan guess from physical traits is ignored (e.g. owlbear: feathers but mammal-style products). */
+  carcassBodyPlan?: CarcassBodyPlan;
+  /**
+   * Optional names for carcass-derived `Resource` entries. Merged with the central
+   * `SPECIES_PRODUCT_OVERRIDES` map; these values win.
+   */
+  resourceProductNames?: {
+    meat?: string;
+    hide?: string;
+    feathers?: string;
+    scale?: string;
+    chitin?: string;
+    horn?: string;
+  };
 }
