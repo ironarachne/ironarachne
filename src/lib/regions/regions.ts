@@ -205,7 +205,7 @@ function randomOrganizations(rng: RNG.RNG): Organization[] {
       generateOrganization({
         rng,
         characterConfig,
-        genre: 'any',
+        genre: 'fantasy',
         kindId: 'any',
         seedPrefix: `region-${i}`,
       }),
