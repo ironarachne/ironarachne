@@ -1,6 +1,6 @@
 import * as RNG from '@ironarachne/rng';
-import * as Dice from '../dice.js';
-import * as Text from '../format/text.js';
+import * as Dice from '$lib/dice';
+import * as Text from '$lib/format';
 
 export class SWNCharacter {
   stats: Stat[];

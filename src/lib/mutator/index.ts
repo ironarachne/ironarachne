@@ -1,6 +1,6 @@
 import { RNG } from '@ironarachne/rng';
 
-import type { TaggedItem } from './tags/tag_types';
+import type { TaggedItem } from '$lib/tags/tag_types';
 
 export type Mutator<T> = TaggedItem & {
   name: string;

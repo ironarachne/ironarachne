@@ -1,4 +1,4 @@
-import * as Dice from '../dice.js';
+import * as Dice from '$lib/dice';
 import type ADNDArmor from './adndarmor.js';
 import ADNDCharacter from './adndcharacter.js';
 import type ADNDCharacterGeneratorConfig from './adndcharactergeneratorconfig.js';

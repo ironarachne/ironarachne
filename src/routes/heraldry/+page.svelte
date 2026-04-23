@@ -10,6 +10,7 @@
 
   import { generateHeraldry } from '$lib/heraldry/generator';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+  import type { Charge } from '$lib/heraldry/charge_heraldry';
   import {
     mergeHeraldryGeneratorConfig,
     type HeraldryGeneratorConfig,
@@ -107,7 +108,7 @@
 
     const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
       chargeCount: numberOfCharges,
-      chargeOptions: charges,
+      chargeOptions: charges as Charge[],
       chargeTinctures: [chargeTincture],
       chargePosition: chargePosition === 'normal' ? undefined : chargePosition,
       fieldOptions: fields,

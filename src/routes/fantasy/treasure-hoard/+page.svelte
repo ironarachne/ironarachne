@@ -1,6 +1,6 @@
 <script lang="ts">
   import * as Equipment from '$lib/equipment';
-  import { formatNumber } from '$lib/formatting';
+  import { formatNumber } from '$lib/format';
   import * as Measurements from '$lib/measurements';
   import * as RNG from '@ironarachne/rng';
   import * as Treasure from '$lib/treasure';

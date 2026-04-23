@@ -117,4 +117,58 @@ describe('Dice', () => {
     pool = Dice.getDicePoolFromPower(20, 6);
     expect(Dice.describeDice(pool)).toBe('5d6+2');
   });
+
+  it('should describe 1d20+1d4+3 from a mixed pool', () => {
+    const dicePool = Dice.createDicePool();
+    dicePool.d4 = 1;
+    dicePool.d20 = 1;
+    dicePool.modifier = 3;
+    expect(Dice.describeDice(dicePool)).toBe('1d20+1d4+3');
+  });
+
+  it('should simplify a mixed d20 and d4 pool to the highest die only', () => {
+    const dicePool = Dice.createDicePool();
+    dicePool.d4 = 1;
+    dicePool.d20 = 1;
+    dicePool.modifier = 3;
+    const simplified = Dice.simplify(dicePool);
+    expect(simplified).toEqual({
+      d4: 0,
+      d6: 0,
+      d8: 0,
+      d10: 0,
+      d12: 0,
+      d20: 1,
+      d100: 0,
+      modifier: 0,
+      modifierType: '+',
+    });
+  });
+
+  it('should describe a simplified range of 4 as 1d4', () => {
+    const pool = Dice.rangeToDiceExpression(4);
+    const simplified = Dice.simplify(pool);
+    expect(Dice.describeDice(simplified)).toBe('1d4');
+  });
+
+  it('should describe a simplified range of 13 as 1d12', () => {
+    const pool = Dice.rangeToDiceExpression(13);
+    const simplified = Dice.simplify(pool);
+    expect(Dice.describeDice(simplified)).toBe('1d12');
+  });
+
+  it('should roll 1d6x100 to a value over 99', () => {
+    const roll = Dice.roll('1d6x100');
+    expect(roll).toBeGreaterThan(99);
+  });
+
+  it('should roll 1d6+100 to a value over 99', () => {
+    const roll = Dice.roll('1d6+100');
+    expect(roll).toBeGreaterThan(99);
+  });
+
+  it('should roll 1d6-10 to a value below 0', () => {
+    const roll = Dice.roll('1d6-10');
+    expect(roll).toBeLessThan(0);
+  });
 });

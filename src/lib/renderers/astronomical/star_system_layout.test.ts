@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { computeStarSystemLayout } from './star_system_layout';
+import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
 import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+import { computeStarSystemLayout } from './star_system_layout';
 
 function mockStarSystem(overrides: Partial<StarSystem>): StarSystem {
   return {
@@ -30,7 +31,7 @@ describe('computeStarSystemLayout', () => {
           luminosity: 1,
           surface_temperature: 5778,
           description: '',
-        },
+        } as AstronomicalBody,
       ],
       planets: [],
     });
@@ -54,7 +55,7 @@ describe('computeStarSystemLayout', () => {
           luminosity: 1,
           surface_temperature: 5778,
           description: '',
-        },
+        } as AstronomicalBody,
       ],
       planets: [
         {
@@ -70,7 +71,7 @@ describe('computeStarSystemLayout', () => {
           gravity: 10,
           description: '',
           has_ring_system: false,
-        },
+        } as AstronomicalBody,
       ],
     });
     const r = computeStarSystemLayout(system, 500, 128);

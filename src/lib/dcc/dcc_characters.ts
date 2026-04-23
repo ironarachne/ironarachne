@@ -1,6 +1,6 @@
 import { RNG } from '@ironarachne/rng';
 import * as MUN from '@ironarachne/made-up-names';
-import * as Dice from '../dice';
+import * as Dice from '$lib/dice';
 import type {
   DCCAttribute,
   DCCCharacter,

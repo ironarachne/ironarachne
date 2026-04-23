@@ -1,5 +1,6 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
+import type { BuildingPurpose } from './architectural_style_types';
 import { buildBuildingAdditions } from './building_additions_generation';
 
 describe('buildBuildingAdditions', () => {
@@ -41,7 +42,7 @@ describe('buildBuildingAdditions', () => {
 
   it('eventually selects flying buttresses for religious masonry across seeds', () => {
     const cfg = {
-      purposes: ['religious'] as const,
+      purposes: ['religious'] as BuildingPurpose[],
       populationBand: 'high' as const,
       structuralSystem: 'load_bearing_masonry' as const,
       massing: 'linear_spread' as const,
@@ -62,7 +63,7 @@ describe('buildBuildingAdditions', () => {
 
   it('is deterministic for the same config and RNG seed', () => {
     const cfg = {
-      purposes: ['commercial', 'civic'] as const,
+      purposes: ['commercial', 'civic'] as BuildingPurpose[],
       populationBand: 'high' as const,
       structuralSystem: 'hybrid_timber_and_masonry' as const,
       massing: 'courtyard_clusters' as const,

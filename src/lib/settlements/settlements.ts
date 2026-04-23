@@ -2,7 +2,7 @@ import * as Environments from '$lib/environment/environments.js';
 import * as MUN from '@ironarachne/made-up-names';
 import * as Names from '$lib/names';
 import * as RNG from '@ironarachne/rng';
-import * as Dice from '../dice.js';
+import * as Dice from '$lib/dice';
 import type Settlement from './settlement.js';
 import * as Categories from './settlement_categories.js';
 import type SettlementGeneratorConfig from './settlement_generator_config.js';

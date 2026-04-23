@@ -1,4 +1,4 @@
-import { test, expect, describe, vi } from 'vitest';
+import { test, expect, describe } from 'vitest';
 import { getMonthAbbr, getMonthName, getNiceDate } from './dates';
 import * as Words from '@ironarachne/words';
 

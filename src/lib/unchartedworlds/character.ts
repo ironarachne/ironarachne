@@ -1,6 +1,6 @@
 import * as RNG from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
-import * as Text from '../format/text.js';
+import * as Text from '$lib/format';
 
 export class UWCharacter {
   descriptors: string;

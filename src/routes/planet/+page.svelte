@@ -15,7 +15,7 @@
     type AstronomicalBody,
   } from '$lib/astronomical_bodies/astronomical_bodies';
   import * as Measurements from '$lib/measurements';
-  import { formatNumber } from '$lib/formatting';
+  import { formatNumber } from '$lib/format';
 
   import { onMount } from 'svelte';
   import {

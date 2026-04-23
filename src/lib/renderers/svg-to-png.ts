@@ -1,4 +1,4 @@
-import Download from '../download.js';
+import Download from '$lib/download';
 
 export default function (svg: string, width: number, height: number, fileName: string) {
   const blob = new Blob([svg], { type: 'image/svg+xml' });

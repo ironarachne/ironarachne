@@ -1,5 +1,6 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
+import type { BuildingPurpose } from './architectural_style_types';
 import { buildWindowingStyle } from './windowing_generation';
 
 describe('buildWindowingStyle', () => {
@@ -32,7 +33,7 @@ describe('buildWindowingStyle', () => {
   it('is deterministic for the same config and RNG seed', () => {
     const cfg = {
       openingStyle: 'generous' as const,
-      purposes: ['religious', 'civic'] as const,
+      purposes: ['religious', 'civic'] as BuildingPurpose[],
       populationBand: 'high' as const,
       massing: 'courtyard_clusters' as const,
       structuralSystem: 'hybrid_timber_and_masonry' as const,

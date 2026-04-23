@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as SpookyShip from '$lib/spookyship';
+  import * as SpookyShip from '$lib/spooky_ship';
   import * as RNG from '@ironarachne/rng';
 
   let description = $state('');
