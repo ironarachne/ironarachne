@@ -141,7 +141,7 @@
   {/if}
 
   <h3>
-    Ruler: {Characters.getHonorific(ruler.gender.name, ruler.titles?.[0] ?? null)}
+    Ruler: {Characters.getHonorific(ruler.gender.name, ruler.titles?.[0] ?? null, ruler.gender.pronouns)}
     {ruler.firstName}
     {ruler.lastName}
   </h3>
@@ -157,6 +157,7 @@
         {Words.capitalize(region.name)} is ruled by {Characters.getHonorific(
           ruler.gender.name,
           ruler.titles?.[0] ?? null,
+          ruler.gender.pronouns,
         )}
         {ruler.firstName}
         {ruler.lastName}. {ruler.description}
@@ -178,6 +179,7 @@
             Ruled by {Characters.getHonorific(
               neighbor.authority.gender.name,
               neighbor.authority.titles?.[0] ?? null,
+              neighbor.authority.gender.pronouns,
             )}
             {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
             {neighbor.authority.species.adjective}
@@ -209,6 +211,7 @@
             Ruled by {Characters.getHonorific(
               neighbor.authority.gender.name,
               neighbor.authority.titles?.[0] ?? null,
+              neighbor.authority.gender.pronouns,
             )}
             {neighbor.authority.name}, {Words.article(neighbor.authority.species.adjective)}
             {neighbor.authority.species.adjective}

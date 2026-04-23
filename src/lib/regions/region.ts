@@ -1,7 +1,7 @@
 import { type Character } from '$lib/characters/character_types.js';
 import { type Culture } from '$lib/culture/culture_types.js';
 import type Environment from '$lib/environment/environment.js';
-import type Organization from '$lib/organizations/organization.js';
+import type { Organization } from '$lib/organizations/organization_types.js';
 import type Realm from '$lib/realms/realm.js';
 import type Settlement from '$lib/settlements/settlement.js';
 import type { RegionMap } from '$lib/map/map_graph.js';

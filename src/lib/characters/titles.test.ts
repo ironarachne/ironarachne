@@ -29,6 +29,22 @@ describe('Titles', () => {
     it('should return male honorific for male gender', () => {
       expect(Titles.getHonorific('male', knightTitle)).toBe('Sir');
     });
+
+    it('replaces {pronoun} with possessive in royal honorifics', () => {
+      const kingTitle = Titles.getNobleTitleByName('king');
+      expect(Titles.getHonorific('male', kingTitle)).toBe('His Majesty');
+      expect(Titles.getHonorific('female', kingTitle)).toBe('Her Majesty');
+    });
+
+    it('uses explicit possessive when provided (non-default gender names)', () => {
+      const kingTitle = Titles.getNobleTitleByName('king');
+      expect(Titles.getHonorific('non-binary', kingTitle, { possessive: 'their' })).toBe('Their Majesty');
+    });
+
+    it('defaults non-binary honorific to their when no pronouns passed', () => {
+      const kingTitle = Titles.getNobleTitleByName('king');
+      expect(Titles.getHonorific('non-binary', kingTitle)).toBe('Their Majesty');
+    });
   });
 
   describe('Precedence', () => {

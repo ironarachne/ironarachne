@@ -170,15 +170,58 @@ export function getTitleForGender(gender: string, title: Title): string {
   return title.maleTitle;
 }
 
-export function getHonorific(gender: string, title: Title | null): string {
+const PRONOUN_PLACEHOLDER = '{pronoun}';
+
+/**
+ * Replaces `{pronoun}` in an honorific string with a possessive (e.g. "His Majesty"
+ * from `his` at the start of the string; lowercase `their` in the middle if duplicated).
+ */
+export function substituteHonorificPronounPlaceholders(
+  honorific: string,
+  possessive: string,
+): string {
+  if (!honorific.includes(PRONOUN_PLACEHOLDER)) {
+    return honorific;
+  }
+  const p = possessive.toLowerCase();
+  if (honorific.startsWith(PRONOUN_PLACEHOLDER)) {
+    const cap = p.charAt(0).toUpperCase() + p.slice(1);
+    return cap + honorific.slice(PRONOUN_PLACEHOLDER.length).replaceAll(PRONOUN_PLACEHOLDER, p);
+  }
+  return honorific.replaceAll(PRONOUN_PLACEHOLDER, p);
+}
+
+function defaultPossessiveForGenderName(gender: string): string {
+  if (gender === 'female') {
+    return 'her';
+  }
+  if (gender === 'male') {
+    return 'his';
+  }
+  return 'their';
+}
+
+/**
+ * @param pronouns - When the honorific contains `{pronoun}` (e.g. noble/royal forms),
+ *   `possessive` is used; otherwise it is ignored. Pass the character’s pronoun set when available.
+ */
+export function getHonorific(
+  gender: string,
+  title: Title | null,
+  pronouns?: { possessive: string },
+): string {
   if (!title) {
     return '';
   }
 
-  if (gender === 'female') {
-    return title.femaleHonorific;
+  const raw = gender === 'female' ? title.femaleHonorific : title.maleHonorific;
+
+  if (!raw.includes(PRONOUN_PLACEHOLDER)) {
+    return raw;
   }
-  return title.maleHonorific;
+
+  const possessive = pronouns?.possessive ?? defaultPossessiveForGenderName(gender);
+  return substituteHonorificPronounPlaceholders(raw, possessive);
 }
 
 export function hasHigherPrecedenceThan(title1: Title, title2: Title): boolean {

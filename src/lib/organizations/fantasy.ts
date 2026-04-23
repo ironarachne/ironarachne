@@ -1,29 +1,21 @@
 import * as Characters from '$lib/characters';
-import * as MercCompany from './fantasy/mercenary_company.js';
-import * as TradingCompany from './fantasy/trading_company.js';
-import * as WizardSchool from './fantasy/wizard_school.js';
-import type * as RNG from '@ironarachne/rng';
-import type OrganizationGeneratorConfig from './organization_generator_config.js';
-import type OrganizationType from './organization_type.js';
+import { getOrganizationKindsForRegistry } from './kind_registry.js';
+import type { OrganizationKindDefinition } from './organization_kind.js';
+import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
+import type { RNG } from '@ironarachne/rng';
 
-export function getDefaultConfig(rng: RNG.RNG): OrganizationGeneratorConfig {
-  const mercCompany = MercCompany.generateType(rng);
-  const tradingCompany = TradingCompany.generateType(rng);
-  const wizardSchool = WizardSchool.generateType(rng);
-
-  return {
-    organizationTypes: [mercCompany, tradingCompany, wizardSchool],
-    characterConfig: Characters.getDefaultCharacterGenerationConfig(
-      `character-${rng.randomString(13)}`,
-    ),
-    rng: rng,
-  };
+/**
+ * Default character config for organization-focused flows (e.g. fantasy org generator page).
+ */
+export function getDefaultOrganizationCharacterConfig(
+  seed: string,
+): CharacterGenerationConfig {
+  return Characters.getDefaultCharacterGenerationConfig(`character-${seed}`);
 }
 
-export function getTypes(rng: RNG.RNG): OrganizationType[] {
-  const mercCompany = MercCompany.generateType(rng);
-  const tradingCompany = TradingCompany.generateType(rng);
-  const wizardSchool = WizardSchool.generateType(rng);
-
-  return [mercCompany, tradingCompany, wizardSchool];
+/**
+ * All fantasy kinds in the current registry (heraldry templates vary per `rng` snapshot).
+ */
+export function listFantasyKindDefinitions(rng: RNG): OrganizationKindDefinition[] {
+  return getOrganizationKindsForRegistry(rng).filter((d) => d.genre === 'fantasy');
 }

@@ -2,9 +2,10 @@ import { type Character } from '$lib/characters/character_types.js';
 import { type Culture } from '$lib/culture/culture_types.js';
 import type Environment from '$lib/environment/environment.js';
 import * as Environments from '$lib/environment/environments.js';
-import * as FantasyOrgs from '$lib/organizations/fantasy';
-import type Organization from '$lib/organizations/organization.js';
-import * as Organizations from '$lib/organizations/organizations.js';
+import * as Characters from '$lib/characters';
+import { generateOrganization } from '$lib/organizations/generate_organization.js';
+import { addRandomRivalryBetweenPairs } from '$lib/organizations/organization_relationships.js';
+import type { Organization } from '$lib/organizations/organization_types.js';
 import type Realm from '$lib/realms/realm.js';
 import * as Realms from '$lib/realms/realms.js';
 import type Settlement from '$lib/settlements/settlement.js';
@@ -193,14 +194,24 @@ export function getDefaultConfig(): RegionGeneratorConfig {
 }
 
 function randomOrganizations(rng: RNG.RNG): Organization[] {
-  const config = FantasyOrgs.getDefaultConfig(rng);
+  const characterConfig = Characters.getDefaultCharacterGenerationConfig(
+    `region-orgs-${rng.randomString(8)}`,
+  );
   const orgs: Organization[] = [];
   const numberOfOrganizations = rng.int(1, 3);
 
   for (let i = 0; i < numberOfOrganizations; i++) {
-    orgs.push(Organizations.generate(config));
+    orgs.push(
+      generateOrganization({
+        rng,
+        characterConfig,
+        genre: 'any',
+        kindId: 'any',
+        seedPrefix: `region-${i}`,
+      }),
+    );
   }
-
+  addRandomRivalryBetweenPairs(orgs, rng);
   return orgs;
 }
 
