@@ -55,13 +55,16 @@ function setChargeColor(hexColor: string, tinctureName: string, chargeSVG: strin
     svgResult = svgResult.replaceAll('#ffffff', hexColor);
     svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
   } else {
-    svgResult = svgResult.replaceAll('#010101', 'TEMP_CHARGE_FILL_PLACEHOLDER');
-    svgResult = svgResult.replaceAll('#000000', 'TEMP_CHARGE_FILL_PLACEHOLDER');
-    svgResult = svgResult.replaceAll('fill="black"', 'fill="TEMP_CHARGE_FILL_PLACEHOLDER"');
+    // Source art uses white for the main charge and black for line/detail fills.
+    // Map white to the tincture, but keep black as the outline (do not recolor to the tincture).
+    const outlineHex = '#000000';
+    svgResult = svgResult.replaceAll('#010101', 'TEMP_CHARGE_OUTLINE_PLACEHOLDER');
+    svgResult = svgResult.replaceAll('#000000', 'TEMP_CHARGE_OUTLINE_PLACEHOLDER');
+    svgResult = svgResult.replaceAll('fill="black"', 'fill="TEMP_CHARGE_OUTLINE_PLACEHOLDER"');
     svgResult = svgResult.replaceAll('#FFFFFF', hexColor);
     svgResult = svgResult.replaceAll('#ffffff', hexColor);
     svgResult = svgResult.replaceAll('fill="white"', `fill="${hexColor}"`);
-    svgResult = svgResult.replaceAll('TEMP_CHARGE_FILL_PLACEHOLDER', hexColor);
+    svgResult = svgResult.replaceAll('TEMP_CHARGE_OUTLINE_PLACEHOLDER', outlineHex);
   }
 
   svgResult = svgResult.replaceAll('st0', `st0-${tinctureName}`);
