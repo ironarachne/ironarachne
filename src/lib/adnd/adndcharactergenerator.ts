@@ -29,7 +29,7 @@ export default class ADNDCharacterGenerator {
     }
 
     character.race = this.config.rng.item(getRaceOptions(character, this.config.allowedRaces));
-    character = character.race.apply(character);
+    character = character.race.apply(character, this.config.rng);
 
     character.class = this.config.rng.item(getClassOptions(character, this.config.allowedClasses));
     character = character.class.apply(character, this.config.rng);

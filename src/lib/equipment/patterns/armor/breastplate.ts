@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
 import Armor from '../../armor/armor.js';
@@ -17,25 +17,25 @@ export default class BreastplatePattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], quality: number): Armor {
-    let body = RNG.item(Components.withCategory('metal', componentOptions));
-    let trim = RNG.item(Components.withCategory('soft metal', componentOptions));
+  complete(componentOptions: Component[], quality: number, rng: RNG): Armor {
+    let body = rng.item(Components.withCategory('metal', componentOptions));
+    let trim = rng.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value * 1000 + trim.value;
 
-    let description = RNG.item([
+    let description = rng.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name} `,
     ]);
 
-    description += RNG.item([
-      ` with ${trim.descriptor} ${RNG.item(['trim', 'edging'])}`,
+    description += rng.item([
+      ` with ${trim.descriptor} ${rng.item(['trim', 'edging'])}`,
       ` trimmed with ${trim.descriptor}`,
       ` decorated with ${trim.descriptor} edging`,
     ]);
 
-    if (quality > 1 && RNG.int(1, 100) >= 70) {
-      description += RNG.item([
+    if (quality > 1 && rng.int(1, 100) >= 70) {
+      description += rng.item([
         ` with overlapping plates`,
         ` with rolled edges`,
         ` with ornate engravings`,

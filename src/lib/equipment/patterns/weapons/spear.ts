@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
 import Component from '../../components/component.js';
@@ -21,13 +21,13 @@ export default class SpearPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], quality: number): MeleeWeapon {
-    let blade = RNG.item(Components.withCategory('metal', componentOptions));
-    let body = RNG.item(Components.withCategory('wood', componentOptions));
+  complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
+    let blade = rng.item(Components.withCategory('metal', componentOptions));
+    let body = rng.item(Components.withCategory('wood', componentOptions));
 
     let value = this.baseValue + blade.value + body.value;
 
-    let cosmeticBlade = RNG.item([
+    let cosmeticBlade = rng.item([
       'serrated',
       'recently sharpened',
       'curved',
@@ -37,34 +37,34 @@ export default class SpearPattern implements Pattern {
       'grooved',
     ]);
 
-    let cosmeticBody = RNG.item(['carved', 'padded', 'embossed']);
+    let cosmeticBody = rng.item(['carved', 'padded', 'embossed']);
 
     if (value < 2000) {
-      cosmeticBlade = RNG.item(['simple', 'straight', 'worn']);
+      cosmeticBlade = rng.item(['simple', 'straight', 'worn']);
 
-      cosmeticBody = RNG.item(['rough', 'worn']);
+      cosmeticBody = rng.item(['rough', 'worn']);
     }
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
-    description += RNG.item([
+    description += rng.item([
       `${Words.article(blade.descriptor)} ${blade.descriptor} blade`,
       `${Words.article(cosmeticBlade)} ${cosmeticBlade} ${blade.descriptor} blade`,
     ]);
 
-    description += RNG.item([
+    description += rng.item([
       ` and ${body.descriptor} body`,
       ` and ${cosmeticBody} ${body.descriptor} body`,
     ]);
 
-    if (quality > 1 && RNG.int(1, 100) > 70) {
-      description += RNG.item([
+    if (quality > 1 && rng.int(1, 100) > 70) {
+      description += rng.item([
         `, with a ` +
-          RNG.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
+          rng.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
           ` ribbon ` +
-          RNG.item(['wrapped around it', 'trailing from it', 'tied to it']),
+          rng.item(['wrapped around it', 'trailing from it', 'tied to it']),
         `, exquisitely crafted`,
-        ` inlaid with ${RNG.item(['gold', 'silver', 'copper', 'brass'])}`,
+        ` inlaid with ${rng.item(['gold', 'silver', 'copper', 'brass'])}`,
       ]);
     }
 

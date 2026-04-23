@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
 export type MusicStyle = {
@@ -13,12 +13,12 @@ export type MusicStyle = {
   timbre: string;
 };
 
-export function describeMusicStyle(style: MusicStyle): string {
+export function describeMusicStyle(style: MusicStyle, rng: RNG): string {
   let description = 'This style of music has ';
   description += `${style.rhythm} with `;
   description += `${Words.article(style.beat, true)} beat. It is `;
   description += `${style.dynamic}, with `;
-  description += `${style.harmony}. It ${RNG.item(['often', 'commonly', 'usually', 'frequently'])} has `;
+  description += `${style.harmony}. It ${rng.item(['often', 'commonly', 'usually', 'frequently'])} has `;
 
   if (style.rhythm === 'a single rhythm') {
     description += `${Words.article(style.melody)} `;
@@ -43,23 +43,23 @@ export function describeMusicStyle(style: MusicStyle): string {
   return description;
 }
 
-export function generateMusicStyle(): MusicStyle {
+export function generateMusicStyle(rng: RNG): MusicStyle {
   const style: MusicStyle = {
     description: '',
-    rhythm: randomRhythm(),
-    beat: randomBeat(),
-    dynamic: randomDynamic(),
-    harmony: randomHarmony(),
-    key: randomKey(),
-    melody: randomMelody(),
-    pitch: randomPitch(),
-    timbre: randomTimbre(),
+    rhythm: randomRhythm(rng),
+    beat: randomBeat(rng),
+    dynamic: randomDynamic(rng),
+    harmony: randomHarmony(rng),
+    key: randomKey(rng),
+    melody: randomMelody(rng),
+    pitch: randomPitch(rng),
+    timbre: randomTimbre(rng),
   };
-  style.description = describeMusicStyle(style);
+  style.description = describeMusicStyle(style, rng);
   return style;
 }
 
-export function randomBeat(): string {
+export function randomBeat(rng: RNG): string {
   const options = [
     {
       value: 'very fast',
@@ -83,11 +83,11 @@ export function randomBeat(): string {
     },
   ];
 
-  const result = RNG.weighted(options);
+  const result = rng.weighted(options);
   return result;
 }
 
-export function randomDynamic(): string {
+export function randomDynamic(rng: RNG): string {
   const options = [
     {
       value: 'very quiet',
@@ -107,11 +107,11 @@ export function randomDynamic(): string {
     },
   ];
 
-  const result = RNG.weighted(options);
+  const result = rng.weighted(options);
   return result;
 }
 
-export function randomHarmony() {
+export function randomHarmony(rng: RNG) {
   const options = [
     {
       value: 'simple harmony',
@@ -127,11 +127,11 @@ export function randomHarmony() {
     },
   ];
 
-  const result = RNG.weighted(options);
+  const result = rng.weighted(options);
   return result;
 }
 
-export function randomKey(): string {
+export function randomKey(rng: RNG): string {
   const roots = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   const modes = [
     { value: 'major', commonality: 10 },
@@ -146,12 +146,12 @@ export function randomKey(): string {
     { value: 'pentatonic minor', commonality: 2 },
     { value: 'chromatic', commonality: 1 },
   ];
-  const root = RNG.item(roots);
-  const mode = RNG.weighted(modes);
+  const root = rng.item(roots);
+  const mode = rng.weighted(modes);
   return `${root} ${mode}`;
 }
 
-export function randomMelody(): string {
+export function randomMelody(rng: RNG): string {
   const options = [
     {
       value: 'simple',
@@ -175,11 +175,11 @@ export function randomMelody(): string {
     },
   ];
 
-  const result = RNG.weighted(options);
+  const result = rng.weighted(options);
   return result;
 }
 
-export function randomPitch(): string {
+export function randomPitch(rng: RNG): string {
   const options = [
     {
       value: 'low',
@@ -195,11 +195,11 @@ export function randomPitch(): string {
     },
   ];
 
-  const result = RNG.weighted(options);
+  const result = rng.weighted(options);
   return result;
 }
 
-export function randomRhythm(): string {
+export function randomRhythm(rng: RNG): string {
   const options = [
     {
       value: 'a single rhythm',
@@ -215,12 +215,12 @@ export function randomRhythm(): string {
     },
   ];
 
-  const result = RNG.weighted(options);
+  const result = rng.weighted(options);
   return result;
 }
 
-export function randomTimbre(): string {
-  return RNG.item([
+export function randomTimbre(rng: RNG): string {
+  return rng.item([
     'airy',
     'booming',
     'bright',

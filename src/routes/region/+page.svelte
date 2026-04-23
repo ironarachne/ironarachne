@@ -1,6 +1,6 @@
 <script lang="ts">
   import { getContext } from 'svelte';
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import * as Regions from '$lib/regions/regions.js';
   import * as Words from '@ironarachne/words';
   import * as Characters from '$lib/characters';
@@ -14,7 +14,7 @@
   let useSavedCulture: boolean = $state(false);
   let culture: Culture;
 
-  let rng = new RNG.RNG(Date.now().toString());
+  let rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
   $effect(() => {
@@ -135,6 +135,7 @@
           region.realms[region.realms[region.mainRealm].parent].heraldry.device,
           20,
           22,
+          rng,
         )}.
       </p>
     </div>
@@ -149,7 +150,7 @@
   <div class="ruler">
     {#if ruler.heraldry}
       <div class="ruler-arms">
-        {@html renderHeraldryDeviceSvg(ruler.heraldry.device, 200, 220)}
+        {@html renderHeraldryDeviceSvg(ruler.heraldry.device, 200, 220, rng)}
       </div>
     {/if}
     <div>
@@ -171,7 +172,7 @@
     {#if index != region.mainRealm && neighbor.parent == -1}
       <div class="neighbor">
         <div class="neighbor-arms">
-          {@html renderHeraldryDeviceSvg(neighbor.heraldry.device, 80, 88)}
+          {@html renderHeraldryDeviceSvg(neighbor.heraldry.device, 80, 88, rng)}
         </div>
         <div>
           <p><strong>{Words.title(neighbor.name)}</strong></p>
@@ -199,13 +200,13 @@
     {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent && neighbor.parent != -1}
       <div class="neighbor">
         <div class="neighbor-arms">
-          {@html renderHeraldryDeviceSvg(neighbor.heraldry.device, 80, 88)}
+          {@html renderHeraldryDeviceSvg(neighbor.heraldry.device, 80, 88, rng)}
         </div>
         <div>
           <p>
             <strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[neighbor.parent]
               .name}
-            {@html renderHeraldryDeviceSvg(region.realms[neighbor.parent].heraldry.device, 20, 22)}.
+            {@html renderHeraldryDeviceSvg(region.realms[neighbor.parent].heraldry.device, 20, 22, rng)}.
           </p>
           <p>
             Ruled by {Characters.getHonorific(

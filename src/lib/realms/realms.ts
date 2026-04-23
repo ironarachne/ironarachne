@@ -23,7 +23,7 @@ export function generate(config: RealmGeneratorConfig): Realm {
 
   let name = config.nameGeneratorSet.country.generate(1)[0];
   name = `the ${Words.title(realmType.name)} of ${name}`;
-  const heraldry = generateHeraldry();
+  const heraldry = generateHeraldry(getDefaultHeraldryGeneratorConfig(config.rng));
   let authority = randomAuthority(realmType, config.nameGeneratorSet, config.rng);
 
   return {
@@ -69,8 +69,7 @@ function randomAuthority(
 
   let authority = Characters.generate(`character-${rng.randomString(13)}`, charGenConfig);
   authority.titles?.push(realmType.grantedTitle);
-  let heraldryGenConfig = getDefaultHeraldryGeneratorConfig();
-  heraldryGenConfig.rng = rng;
+  const heraldryGenConfig = getDefaultHeraldryGeneratorConfig(rng);
   authority.heraldry = generateHeraldry(heraldryGenConfig);
 
   return authority;

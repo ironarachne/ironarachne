@@ -1,7 +1,8 @@
 <script lang="ts">
   import * as Charges from '$lib/charges';
   import * as Fields from '$lib/heraldry/fields';
-  import * as RNG from '@ironarachne/rng';
+  import type { RNG } from '@ironarachne/rng';
+  import { RNG as RngCtor } from '@ironarachne/rng';
   import * as Tinctures from '$lib/heraldry/tinctures';
   import * as Variations from '$lib/heraldry/variations';
   import Download from '$lib/download';
@@ -16,7 +17,7 @@
     type HeraldryGeneratorConfig,
   } from '$lib/heraldry/generatorconfig';
 
-  let rng = new RNG.RNG(Date.now().toString());
+  let rng = new RngCtor(Date.now().toString());
   let seed = $state(rng.randomString(13));
   $effect(() => {
     rng.setSeed(seed);
@@ -49,7 +50,7 @@
     }
   }
 
-  function setChargeTincture(rng: RNG.RNG) {
+  function setChargeTincture(rng: RNG) {
     // TODO: if the field tinctures are 'any', automatically contrast them with the charge tincture here
     if (chargeTinctureName === 'any') {
       chargeTincture = Tinctures.randomChargeTincture(rng);
@@ -62,7 +63,7 @@
     setFieldTinctures(rng);
   }
 
-  function setFieldTinctures(rng: RNG.RNG) {
+  function setFieldTinctures(rng: RNG) {
     let types1 = [];
     let types2 = [];
     // TODO: when choosing field tinctures is an option, this will need redoing
@@ -123,11 +124,11 @@
     const heraldry = generateHeraldry(config);
     blazon = heraldry.blazon;
 
-    image = renderHeraldryDeviceSvg(heraldry.device, config.width, config.height);
+    image = renderHeraldryDeviceSvg(heraldry.device, config.width, config.height, rng);
     renderSVGAsPNG(image, config.width, config.height, 'output');
   }
 
-  function randomNumberOfCharges(rng: RNG.RNG) {
+  function randomNumberOfCharges(rng: RNG) {
     const weights = [
       { value: 0, commonality: 20 },
       { value: 1, commonality: 55 },

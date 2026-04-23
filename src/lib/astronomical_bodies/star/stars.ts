@@ -88,7 +88,7 @@ export function generateStar(config: StarGenerationConfig): AstronomicalBody {
     orbital_distance: 0, // the star is not orbiting anything that we measure
     orbital_period: 0, // as above
     radius: radius,
-    rotation_period: RNG.int(15, 60), // simulating true rotational period for stars is complicated, so we're cheating here
+    rotation_period: config.rng.int(15, 60), // simulating true rotational period for stars is complicated, so we're cheating here
     surface_pressure: gravity ** 2,
     surface_temperature: temperature,
   };

@@ -1,25 +1,25 @@
 <script lang="ts">
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import * as VelgarthGifts from '$lib/velgarth_gifts/gifts';
   import * as VelgarthGiftPossibilities from '$lib/velgarth_gifts/gift_possibilities';
   import type Gift from '$lib/velgarth_gifts/gift';
   import type GiftGeneratorConfig from '$lib/velgarth_gifts/generator_config';
 
-  let seed = $state(RNG.randomString(13));
+  let seed = $state(new RNG(Date.now().toString()).randomString(13));
   let lockSeed = $state(false);
   let gifts: Gift[] = $state([]);
 
   function generate() {
     if (!lockSeed) {
-      seed = RNG.randomString(13);
+      seed = new RNG(Date.now().toString()).randomString(13);
     }
-    RNG.setSeed(seed);
+    const rng = new RNG(seed);
     const config: GiftGeneratorConfig = {
       possibilities: VelgarthGiftPossibilities.all(),
       max_gifts: 3,
       min_gifts: 1,
     };
-    gifts = VelgarthGifts.generate(config);
+    gifts = VelgarthGifts.generate(config, rng);
   }
 
   generate();

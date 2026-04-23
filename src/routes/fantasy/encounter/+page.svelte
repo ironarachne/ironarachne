@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import { onMount } from 'svelte';
   import {
     generateEncounter,
@@ -9,8 +9,8 @@
   import type { Character } from '$lib/characters/character_types';
   import type { Creature } from '$lib/creatures/creature_types';
 
-  let seed = RNG.randomString(13);
-  let rng = new RNG.RNG(seed);
+  let seed = new RNG(Date.now().toString()).randomString(13);
+  let rng = new RNG(seed);
   let encounter: null | Encounter = null;
 
   let encounterTemplates = getAllFantasyEncounterTemplates().sort((a, b) =>
@@ -27,7 +27,7 @@
 
   function generate() {
     if (!lockSeed) {
-      seed = RNG.randomString(13);
+      seed = new RNG(Date.now().toString()).randomString(13);
       rng.setSeed(seed);
     }
 

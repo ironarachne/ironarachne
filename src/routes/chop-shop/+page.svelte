@@ -1,14 +1,14 @@
 <script lang="ts">
   import * as ChopShop from '$lib/chopshop';
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
 
   let description = $state('');
-  let seed = RNG.randomString(13);
+  let seed = new RNG(Date.now().toString()).randomString(13);
 
   function generateChopShop() {
-    seed = RNG.randomString(13);
-    RNG.setSeed(seed);
-    description = ChopShop.generate();
+    seed = new RNG(Date.now().toString()).randomString(13);
+    const rng = new RNG(seed);
+    description = ChopShop.generate(rng);
   }
 
   generateChopShop();

@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
 import Armor from '../../armor/armor.js';
@@ -17,39 +17,39 @@ export default class LeatherArmorPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], quality: number): Armor {
-    let body = RNG.item(Components.withCategory('hard leather', componentOptions));
-    let trim = RNG.item(Components.withCategory('soft metal', componentOptions));
+  complete(componentOptions: Component[], quality: number, rng: RNG): Armor {
+    let body = rng.item(Components.withCategory('hard leather', componentOptions));
+    let trim = rng.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value * 1000 + trim.value;
 
-    let description = RNG.item([
+    let description = rng.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name} `,
     ]);
 
-    description += RNG.item([
-      ` with ${trim.descriptor} ${RNG.item([
+    description += rng.item([
+      ` with ${trim.descriptor} ${rng.item([
         'hardware',
         'fasteners',
         'banding',
         'studs',
         'rivets',
       ])}`,
-      ` fastened with ${trim.descriptor} ${RNG.item(['buckles', 'clasps'])}`,
+      ` fastened with ${trim.descriptor} ${rng.item(['buckles', 'clasps'])}`,
     ]);
 
-    if (quality > 1 && RNG.int(1, 100) >= 70) {
-      description += RNG.item([
+    if (quality > 1 && rng.int(1, 100) >= 70) {
+      description += rng.item([
         `, with integrated sleeves`,
-        `, with ${RNG.item(['embossed patterns', 'a lacquered finish'])}`,
+        `, with ${rng.item(['embossed patterns', 'a lacquered finish'])}`,
       ]);
     }
 
     let name = `${body.descriptor} ${this.name}`;
     let tags = [name, this.name, 'body armor', 'armor'];
 
-    let armorClass = 11 + RNG.int(0, 1);
+    let armorClass = 11 + rng.int(0, 1);
 
     return new Armor(name, description, 'torso', armorClass, value, quality, tags);
   }

@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
 import Component from '../../components/component.js';
@@ -21,14 +21,14 @@ export default class KnifePattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], quality: number): MeleeWeapon {
-    let blade = RNG.item(Components.withCategory('hard metal', componentOptions));
-    let hilt = RNG.item(Components.withCategory('hard metal', componentOptions));
-    let handle = RNG.item(Components.withCategory('wood', componentOptions));
+  complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
+    let blade = rng.item(Components.withCategory('hard metal', componentOptions));
+    let hilt = rng.item(Components.withCategory('hard metal', componentOptions));
+    let handle = rng.item(Components.withCategory('wood', componentOptions));
 
     let value = this.baseValue + blade.value + hilt.value + handle.value;
 
-    let cosmeticBlade = RNG.item([
+    let cosmeticBlade = rng.item([
       'serrated',
       'recently sharpened',
       'curved',
@@ -38,47 +38,47 @@ export default class KnifePattern implements Pattern {
       'grooved',
     ]);
 
-    let cosmeticHandle = RNG.item(['carved', 'padded', 'embossed']);
+    let cosmeticHandle = rng.item(['carved', 'padded', 'embossed']);
 
-    let cosmeticHilt = RNG.item(['gem-studded', 'spiked', 'curved', 'inlaid']);
+    let cosmeticHilt = rng.item(['gem-studded', 'spiked', 'curved', 'inlaid']);
 
     if (value < 2000) {
-      cosmeticBlade = RNG.item(['simple', 'straight', 'worn']);
+      cosmeticBlade = rng.item(['simple', 'straight', 'worn']);
 
-      cosmeticHandle = RNG.item(['rough', 'worn']);
+      cosmeticHandle = rng.item(['rough', 'worn']);
 
-      cosmeticHilt = RNG.item(['simple', 'unadorned', 'straight']);
+      cosmeticHilt = rng.item(['simple', 'unadorned', 'straight']);
     }
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
-    description += RNG.item([
+    description += rng.item([
       `${Words.article(blade.descriptor)} ${blade.descriptor} blade,`,
       `${Words.article(cosmeticBlade)} ${cosmeticBlade} ${blade.descriptor} blade,`,
     ]);
 
-    description += RNG.item([
+    description += rng.item([
       ` ${hilt.descriptor} hilt,`,
       ` ${cosmeticHilt} ${hilt.descriptor} hilt,`,
     ]);
 
-    description += RNG.item([
+    description += rng.item([
       ` and ${handle.descriptor} handle`,
       ` and ${cosmeticHandle} ${handle.descriptor} handle`,
     ]);
 
-    if (quality > 1 && RNG.int(1, 100) > 70) {
-      description += RNG.item([
+    if (quality > 1 && rng.int(1, 100) > 70) {
+      description += rng.item([
         `, with a ` +
-          RNG.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
+          rng.item(['yellow', 'blue', 'red', 'purple', 'green', 'grey', 'white', 'black']) +
           ` ribbon ` +
-          RNG.item(['wrapped around it', 'trailing from it', 'tied to it']),
-        `, with a ${RNG.item([
+          rng.item(['wrapped around it', 'trailing from it', 'tied to it']),
+        `, with a ${rng.item([
           'leather thong',
-          RNG.item(['gold', 'brass', 'silver', 'iron']) + ' chain',
+          rng.item(['gold', 'brass', 'silver', 'iron']) + ' chain',
         ])} attached to the pommel`,
         `, exquisitely crafted`,
-        ` inlaid with ${RNG.item(['gold', 'silver', 'copper', 'brass'])}`,
+        ` inlaid with ${rng.item(['gold', 'silver', 'copper', 'brass'])}`,
       ]);
     }
 

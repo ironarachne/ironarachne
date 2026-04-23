@@ -1,25 +1,25 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import ADNDCharacter from '../adndcharacter.js';
 import ADNDRace from '../adndrace.js';
 
 export default new ADNDRace(
   'halfling',
   'halfling',
-  function (character: ADNDCharacter): ADNDCharacter {
+  function (character: ADNDCharacter, rng: RNG): ADNDCharacter {
     character.dexterity += 1;
     character.strength -= 1;
     character.exceptionalStrength = -1;
     // TODO: address saving throws
-    let halflingType = RNG.item(['Hairfeet', 'Tallfellow', 'Stout']);
+    let halflingType = rng.item(['Hairfeet', 'Tallfellow', 'Stout']);
     character.race.name = `${halflingType} halfling`;
     if (halflingType == 'Stout') {
-      if (RNG.simple(100) <= 15) {
+      if (rng.simple(100) <= 15) {
         character.abilities.push("Normal Infravision (60')");
       }
       character.abilities.push('Know if a passage has up or down grade on 1,2,3 on 1d4');
       character.abilities.push('Determine direction on 1,2,3 on 1d6');
     } else {
-      if (RNG.simple(100) <= 25) {
+      if (rng.simple(100) <= 25) {
         character.abilities.push("Limited Infravision (30')");
       }
     }

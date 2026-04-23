@@ -78,7 +78,7 @@ export function generateStarSystem(config: StarSystemGenerationConfig): StarSyst
   const system_name = `${stars[0].name}`;
 
   for (let i = 0; i < planets.length; i++) {
-    const is_inhabited = RNG.simple(100) < 10;
+    const is_inhabited = config.rng.simple(100) < 10;
     if (!is_inhabited) {
       planets[i].name = `${system_name} ${Words.romanize(i + 1)}`;
     }

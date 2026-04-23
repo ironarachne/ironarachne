@@ -2,13 +2,14 @@ import ArmsManufacturer from './arms_manufacturer.js';
 import WeaponGenerator from '$lib/weapons/generator.js';
 import WeaponGeneratorConfig from '$lib/weapons/config.js';
 import * as MUN from '@ironarachne/made-up-names';
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
+import { RNG as RngCtor } from '@ironarachne/rng';
 import * as SciFiWeaponTypes from '$lib/weapons/scifi.js';
 
 export default class ArmsManufacturerGenerator {
-  rng: RNG.RNG;
+  rng: RNG;
 
-  constructor(rng: RNG.RNG = new RNG.RNG(Date.now())) {
+  constructor(rng: RNG = new RngCtor(Date.now())) {
     this.rng = rng;
   }
 
@@ -47,7 +48,7 @@ export default class ArmsManufacturerGenerator {
     config.weaponTypes = [secondary];
     generator.config = config;
 
-    const numberOfSecondary = RNG.int(0, 2);
+    const numberOfSecondary = this.rng.int(0, 2);
 
     for (let i = 0; i < numberOfSecondary; i++) {
       const model = generator.generate();

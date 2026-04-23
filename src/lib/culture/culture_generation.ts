@@ -48,7 +48,7 @@ export function generateCulture(seed: string, config: CultureGenerationConfig): 
 
   let cultureName = config.nameGenerators.culture.generate(1)[0];
 
-  let musicStyle = MusicStyles.generateMusicStyle().description;
+  let musicStyle = MusicStyles.generateMusicStyle(rng).description;
   musicStyle = musicStyle.replace('This style of', cultureName);
 
   const culture = {

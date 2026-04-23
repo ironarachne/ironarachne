@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 import Armor from '../../armor/armor.js';
 import Component from '../../components/component.js';
@@ -16,29 +16,29 @@ export default class ShieldPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], quality: number): Armor {
-    let body = RNG.item(Components.withCategory('metal', componentOptions));
+  complete(componentOptions: Component[], quality: number, rng: RNG): Armor {
+    let body = rng.item(Components.withCategory('metal', componentOptions));
 
-    let handle = RNG.item(Components.withCategory('wood', componentOptions));
+    let handle = rng.item(Components.withCategory('wood', componentOptions));
 
-    let trim = RNG.item(Components.withCategory('soft metal', componentOptions));
+    let trim = rng.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value * 5 + trim.value;
 
-    let description = RNG.item([
+    let description = rng.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name} `,
     ]);
 
-    description += RNG.item([
-      ` with ${trim.descriptor} ${RNG.item(['trim', 'edging'])}`,
+    description += rng.item([
+      ` with ${trim.descriptor} ${rng.item(['trim', 'edging'])}`,
       ` trimmed with ${trim.descriptor}`,
     ]);
 
-    description += RNG.item([` and a ${handle.descriptor} handle`, '']);
+    description += rng.item([` and a ${handle.descriptor} handle`, '']);
 
     if (quality > 1) {
-      description += RNG.item([' and decorated with spikes']);
+      description += rng.item([' and decorated with spikes']);
     }
 
     let name = `${body.descriptor} ${this.name}`;

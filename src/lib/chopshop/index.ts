@@ -1,10 +1,10 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 
-export function generate() {
-  return `${getCSFront()} ${getCSEntry()} ${getCSProductDisplays()} ${getCSCustomers()} ${getCSBack()}`;
+export function generate(rng: RNG) {
+  return `${getCSFront(rng)} ${getCSEntry(rng)} ${getCSProductDisplays(rng)} ${getCSCustomers(rng)} ${getCSBack(rng)}`;
 }
 
-function getCSFront() {
+function getCSFront(rng: RNG) {
   const choices = [
     'Outside, a large neon sign proclaims the name of the shop, the brightness of the writing diffused by thick smog.',
     'A vagrant slumps against the wall next to the door of the shop. He clutches a brown paper bag in his good hand, the other hand a wreckage of cybernetics that no longer appear functional.',
@@ -17,10 +17,10 @@ function getCSFront() {
     'A colorful graffiti mural covers the entire front of the building, depicting a variety of cyborgs and tech-enhanced creatures engaged in battle.',
   ];
 
-  return RNG.item(choices);
+  return rng.item(choices);
 }
 
-function getCSEntry() {
+function getCSEntry(rng: RNG) {
   const choices = [
     'As you go inside, you notice a handful of locals watch you with hard eyes, then turn away.',
     'You open the door to the shop, and a soft chime announces your entry.',
@@ -34,10 +34,10 @@ function getCSEntry() {
     "The entrance is hidden behind a false wall, which slides open to reveal the shop's interior.",
   ];
 
-  return RNG.item(choices);
+  return rng.item(choices);
 }
 
-function getCSProductDisplays() {
+function getCSProductDisplays(rng: RNG) {
   const displayScreens = [
     "Each of the shop's offerings is shown on a screen that takes up an entire wall. The screens are so bright and high definition that the cybernetic enhancements seem almost real.",
     "An enormous display dominates the center of the room. It rotates slowly, displaying different cybernetic upgrades from different angles. It's hard to tell whether they're real or just simulations.",
@@ -67,10 +67,10 @@ function getCSProductDisplays() {
 
   const choices = [...displayScreens, ...modelCybernetics, ...attendants];
 
-  return RNG.item(choices);
+  return rng.item(choices);
 }
 
-function getCSCustomers() {
+function getCSCustomers(rng: RNG) {
   const choices = [
     'A few customers silently shuffle through the displays or wait in the small lobby for patients.',
     'One or two people wait in the back for their turn under the knife.',
@@ -84,17 +84,17 @@ function getCSCustomers() {
     'A group of customers sit around a table in the corner, sharing stories about their cybernetic upgrades and comparing notes on their experiences.',
   ];
 
-  return RNG.item(choices);
+  return rng.item(choices);
 }
 
-function getCSBack() {
+function getCSBack(rng: RNG) {
   const rooms = [
     'operating room',
     'cyberlab',
     'research and development area',
     'operation facility',
   ];
-  const roomChoice = RNG.item(rooms);
+  const roomChoice = rng.item(rooms);
 
   const tools = [
     'microscalpels',
@@ -102,7 +102,7 @@ function getCSBack() {
     'laser scalpels',
     'cybernetic grafting tools',
   ];
-  const toolChoice = RNG.item(tools);
+  const toolChoice = rng.item(tools);
 
   const technicians = [
     'Two technicians in immaculate uniforms',
@@ -110,7 +110,7 @@ function getCSBack() {
     'A group of cyberpunk techies',
     'An experienced team of surgeons',
   ];
-  const technicianChoice = RNG.item(technicians);
+  const technicianChoice = rng.item(technicians);
 
   const roomDescription = `The ${roomChoice} is dimly lit and filled with the hum of electronic equipment. `;
   const toolDescription = `Rows of ${toolChoice} line the walls, ready to be used at a moment's notice. `;

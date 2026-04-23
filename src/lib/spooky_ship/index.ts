@@ -1,18 +1,18 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
-export function generate() {
-  const description = `${Words.capitalize(randomIntro())} ${randomOrigin()} ${randomTwist()}`;
+export function generate(rng: RNG) {
+  const description = `${Words.capitalize(randomIntro(rng))} ${randomOrigin(rng)} ${randomTwist(rng)}`;
 
   return description;
 }
 
-function randomSize() {
-  return RNG.item(['gigantic', 'immense', 'large', 'huge', 'colossal', 'vast']);
+function randomSize(rng: RNG) {
+  return rng.item(['gigantic', 'immense', 'large', 'huge', 'colossal', 'vast']);
 }
 
-function randomShip() {
-  return RNG.item([
+function randomShip(rng: RNG) {
+  return rng.item([
     'derelict',
     'freighter',
     'hulk',
@@ -23,17 +23,17 @@ function randomShip() {
   ]);
 }
 
-function randomIntro() {
-  const size = randomSize();
-  const part1 = RNG.item([
-    `${Words.article(size)} ${size} ${randomShip()} ${RNG.item([
+function randomIntro(rng: RNG) {
+  const size = randomSize(rng);
+  const part1 = rng.item([
+    `${Words.article(size)} ${size} ${randomShip(rng)} ${rng.item([
       'drifts',
       'floats',
-    ])} in space ${RNG.item(['in front of you', 'here'])}, `,
-    `a ${randomShip()} of ${size} proportions is adrift here, `,
+    ])} in space ${rng.item(['in front of you', 'here'])}, `,
+    `a ${randomShip(rng)} of ${size} proportions is adrift here, `,
   ]);
 
-  const part2 = RNG.item([
+  const part2 = rng.item([
     'its outer hull breached in several places.',
     'surrounded by strange, dancing lights.',
     'partially obscured by a thick, dark nebula.',
@@ -46,8 +46,8 @@ function randomIntro() {
   return part1 + part2;
 }
 
-function randomOrigin() {
-  return RNG.item([
+function randomOrigin(rng: RNG) {
+  return rng.item([
     "It matches no known ship design you've ever seen.",
     'It appears to be of an ancient design.',
     'There is something distinctly alien about its features.',
@@ -57,8 +57,8 @@ function randomOrigin() {
   ]);
 }
 
-function randomTwist() {
-  return RNG.item([
+function randomTwist(rng: RNG) {
+  return rng.item([
     'Strangely, you are getting life readings from deep within it...',
     'There appears to be an active power source somewhere on the ship.',
     'A distress beacon from the ship beeps weakly.',

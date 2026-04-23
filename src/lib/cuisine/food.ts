@@ -1,34 +1,34 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
-export function generateDish() {
-  let dish = `${randomCookingMethod()} `;
+export function generateDish(rng: RNG) {
+  let dish = `${randomCookingMethod(rng)} `;
 
-  dish += randomMainComponent();
+  dish += randomMainComponent(rng);
 
-  const vegetableChance = RNG.int(1, 100);
+  const vegetableChance = rng.int(1, 100);
 
   if (vegetableChance > 50) {
-    const combiningWord = RNG.item(['and', 'on', 'with']);
-    dish += ` ${combiningWord} ${randomVegetable()}`;
+    const combiningWord = rng.item(['and', 'on', 'with']);
+    dish += ` ${combiningWord} ${randomVegetable(rng)}`;
   }
 
-  const seasoning = randomSeasoning();
+  const seasoning = randomSeasoning(rng);
 
-  const seasoningPhrase = RNG.item(['seasoned with', 'flavored with', 'spiced with']);
+  const seasoningPhrase = rng.item(['seasoned with', 'flavored with', 'spiced with']);
 
   dish += `, ${seasoningPhrase} ${seasoning}`;
 
   return dish;
 }
 
-function randomCookingMethod() {
+function randomCookingMethod(rng: RNG) {
   const items = ['roasted', 'fried', 'baked', 'broiled', 'seared', 'charbroiled'];
 
-  return RNG.item(items);
+  return rng.item(items);
 }
 
-function randomFocus() {
+function randomFocus(rng: RNG) {
   const items = [
     {
       name: 'vegetable',
@@ -84,31 +84,31 @@ function randomFocus() {
     },
   ];
 
-  const focus = RNG.item(items);
+  const focus = rng.item(items);
 
-  return RNG.item(focus.options);
+  return rng.item(focus.options);
 }
 
-function randomMainComponent() {
-  let mainComponent = randomFocus();
+function randomMainComponent(rng: RNG) {
+  let mainComponent = randomFocus(rng);
 
-  const modifierChance = RNG.int(1, 100);
+  const modifierChance = rng.int(1, 100);
   if (modifierChance > 80) {
-    mainComponent += ` ${RNG.item(['sausage', 'stew'])}`;
+    mainComponent += ` ${rng.item(['sausage', 'stew'])}`;
   }
 
   return mainComponent;
 }
 
-function randomSeasoning() {
-  const seasoningCount = randomSeasoningCount();
+function randomSeasoning(rng: RNG) {
+  const seasoningCount = randomSeasoningCount(rng);
   const components: string[] = [];
 
   let options = spices();
   options = options.concat(herbs());
 
   for (let i = 0; i < seasoningCount; i++) {
-    const component = RNG.item(options);
+    const component = rng.item(options);
     if (!components.includes(component)) {
       components.push(component);
     } else {
@@ -119,7 +119,7 @@ function randomSeasoning() {
   return Words.arrayToPhrase(components);
 }
 
-function randomSeasoningCount() {
+function randomSeasoningCount(rng: RNG) {
   const weights = [
     {
       value: 1,
@@ -135,12 +135,12 @@ function randomSeasoningCount() {
     },
   ];
 
-  const result = RNG.weighted(weights);
+  const result = rng.weighted(weights);
 
   return result;
 }
 
-function randomVegetable() {
+function randomVegetable(rng: RNG) {
   const items = [
     'broccoli',
     'spinach',
@@ -158,7 +158,7 @@ function randomVegetable() {
     'mushrooms',
   ];
 
-  return RNG.item(items);
+  return rng.item(items);
 }
 
 function spices() {

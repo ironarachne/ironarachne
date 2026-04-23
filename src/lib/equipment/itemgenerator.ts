@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 
 import * as Components from './components/components.js';
 import type Item from './item.js';
@@ -7,21 +7,23 @@ import * as Mutators from './mutators/mutators.js';
 
 export default class ItemGenerator {
   config: ItemGeneratorConfig;
+  rng: RNG;
 
-  constructor(config: ItemGeneratorConfig) {
+  constructor(config: ItemGeneratorConfig, rng: RNG) {
     this.config = config;
+    this.rng = rng;
   }
 
   generate(): Item {
-    let quality = RNG.int(this.config.minQuality, this.config.maxQuality);
+    let quality = this.rng.int(this.config.minQuality, this.config.maxQuality);
     let components = Components.withMaxQuality(this.config.maxQuality, this.config.components);
     components = Components.withMinQuality(this.config.minQuality, components);
-    let item = this.config.pattern.complete(this.config.components, quality);
+    let item = this.config.pattern.complete(this.config.components, quality, this.rng);
 
     if (this.config.useMutator) {
       let mutators = Mutators.withAnyTag(item.tags, this.config.mutators);
       if (mutators.length > 0) {
-        let mutator = RNG.item(mutators);
+        let mutator = this.rng.item(mutators);
         item = mutator.mutate(item);
       }
     }

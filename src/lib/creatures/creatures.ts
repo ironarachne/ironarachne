@@ -17,6 +17,7 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
   let creatureAgeCategory = AgeCategories.randomWeighted(
     config.ageCategoryNames,
     creatureSpecies.ageCategories,
+    rng,
   );
   let age = rng.int(creatureAgeCategory.minAge, creatureAgeCategory.maxAge);
   let genderName = rng.item(config.genderNames);

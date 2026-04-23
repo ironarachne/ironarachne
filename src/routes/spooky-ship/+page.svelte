@@ -1,17 +1,17 @@
 <script lang="ts">
   import * as SpookyShip from '$lib/spooky_ship';
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
 
   let description = $state('');
-  let seed = $state(RNG.randomString(13));
+  let seed = $state(new RNG(Date.now().toString()).randomString(13));
   let lockSeed = $state(false);
 
   function generate() {
     if (!lockSeed) {
-      seed = RNG.randomString(13);
+      seed = new RNG(Date.now().toString()).randomString(13);
     }
-    RNG.setSeed(seed);
-    description = SpookyShip.generate();
+    const rng = new RNG(seed);
+    description = SpookyShip.generate(rng);
   }
 
   generate();

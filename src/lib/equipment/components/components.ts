@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Animal from './animal.js';
 import Component from './component.js';
 import * as Fabrics from './fabrics.js';
@@ -21,6 +21,7 @@ export function getComponentForCategory(
   components: Component[],
   minValue: number,
   maxValue: number,
+  rng: RNG,
 ): Component {
   let possible = [];
 
@@ -40,7 +41,7 @@ export function getComponentForCategory(
     }
   }
 
-  return RNG.item(possible);
+  return rng.item(possible);
 }
 
 export function withCategory(category: string, components: Component[]): Component[] {

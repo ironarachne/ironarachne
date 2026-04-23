@@ -40,7 +40,7 @@ export class SWNStarship {
 
 export function generate(rng: RNG.RNG) {
   const ownerType = randomStarshipOwnerType(rng);
-  const hullType = randomHullType(ownerType);
+  const hullType = randomHullType(ownerType, rng);
   const starship = new SWNStarship(ownerType, hullType);
 
   starship.name = starship.ownerType.getRandomShipName(rng);
@@ -463,8 +463,8 @@ function getHullType(hullTypeName: string) {
   return types[0];
 }
 
-function randomHullType(ownerType: OwnerType) {
-  return getHullType(RNG.item(ownerType.possibleHullTypes));
+function randomHullType(ownerType: OwnerType, rng: RNG.RNG) {
+  return getHullType(rng.item(ownerType.possibleHullTypes));
 }
 
 export class OwnerType {

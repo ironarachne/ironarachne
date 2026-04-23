@@ -1,16 +1,16 @@
 <script lang="ts">
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import ArmsManufacturerGenerator from '$lib/arms_manufacturer/generator.js';
 
-  const rng = new RNG.RNG(Date.now());
+  const rng = new RNG(Date.now());
 
-  let seed = RNG.randomString(13);
+  let seed = new RNG(Date.now().toString()).randomString(13);
   rng.setSeed(seed);
   const generator = new ArmsManufacturerGenerator(rng);
   let manufacturer = $state(generator.generate());
 
   function generate() {
-    seed = RNG.randomString(13);
+    seed = new RNG(Date.now().toString()).randomString(13);
     rng.setSeed(seed);
     manufacturer = generator.generate();
   }

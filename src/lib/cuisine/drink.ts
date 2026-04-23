@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 import DrinkType from './drinktype.js';
 import * as DrinkTypes from './drinktypes.js';
@@ -12,44 +12,44 @@ export class Drink {
   cost: number;
   drinkType: DrinkType;
 
-  constructor() {
+  constructor(rng: RNG) {
     this.name = '';
     this.description = '';
     this.appearance = '';
     this.quality = 0;
     this.strength = 0;
     this.cost = 0;
-    this.drinkType = randomType();
+    this.drinkType = randomType(rng);
   }
 }
 
-export function generateDrink() {
-  const drink = new Drink();
-  drink.appearance = RNG.item(drink.drinkType.appearances);
-  drink.strength = RNG.int(drink.drinkType.strengthMin, drink.drinkType.strengthMax);
-  drink.quality = RNG.int(0, 6);
-  drink.cost = randomCost(drink);
+export function generateDrink(rng: RNG) {
+  const drink = new Drink(rng);
+  drink.appearance = rng.item(drink.drinkType.appearances);
+  drink.strength = rng.int(drink.drinkType.strengthMin, drink.drinkType.strengthMax);
+  drink.quality = rng.int(0, 6);
+  drink.cost = randomCost(drink, rng);
   drink.name = drink.drinkType.name;
 
-  drink.description = describe(drink);
+  drink.description = describe(drink, rng);
 
   return drink;
 }
 
-function describe(drink: Drink) {
+function describe(drink: Drink, rng: RNG) {
   const adjectives = [];
 
-  const adjectiveChance = RNG.int(1, 100);
+  const adjectiveChance = rng.int(1, 100);
   if (adjectiveChance > 30) {
     adjectives.push(drink.appearance);
   }
 
-  const strengthChance = RNG.int(1, 100);
+  const strengthChance = rng.int(1, 100);
   if (strengthChance > 70) {
     adjectives.push(describeStrength(drink.strength));
   }
 
-  const qualityChance = RNG.int(1, 100);
+  const qualityChance = rng.int(1, 100);
   if (qualityChance > 70) {
     adjectives.push(describeQuality(drink.quality));
   }
@@ -91,8 +91,8 @@ function describeQuality(quality: number) {
   return 'wonderful';
 }
 
-function randomCost(drink: Drink) {
-  let cost = RNG.int(drink.drinkType.costMin, drink.drinkType.costMax);
+function randomCost(drink: Drink, rng: RNG) {
+  let cost = rng.int(drink.drinkType.costMin, drink.drinkType.costMax);
 
   cost += drink.quality;
   cost += Math.floor(drink.strength / 2);
@@ -100,6 +100,6 @@ function randomCost(drink: Drink) {
   return cost;
 }
 
-function randomType() {
-  return RNG.item(DrinkTypes.all());
+function randomType(rng: RNG) {
+  return rng.item(DrinkTypes.all());
 }

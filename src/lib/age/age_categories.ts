@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import type AgeCategory from './age_category';
 
 export function getCategoryList(): string[] {
@@ -134,7 +134,7 @@ export function humanStandard(): AgeCategory[] {
   ];
 }
 
-export function randomWeighted(names: string[], options: AgeCategory[]): AgeCategory {
+export function randomWeighted(names: string[], options: AgeCategory[], rng: RNG): AgeCategory {
   let possibleAgeCategories: AgeCategory[] = [];
 
   for (let i = 0; i < options.length; i++) {
@@ -143,7 +143,7 @@ export function randomWeighted(names: string[], options: AgeCategory[]): AgeCate
     }
   }
 
-  const ageCategory: AgeCategory = RNG.weighted(
+  const ageCategory: AgeCategory = rng.weighted(
     possibleAgeCategories.map((c) => {
       return { commonality: c.commonality, value: c };
     }),

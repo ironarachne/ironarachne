@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import type { Field } from './field.js';
 
 export function all(): Field[] {
@@ -70,11 +70,11 @@ export function all(): Field[] {
   ];
 }
 
-export function random(): Field {
+export function random(rng: RNG): Field {
   const options = all();
-  return RNG.item(options);
+  return rng.item(options);
 }
 
-export function randomFrom(fields: Field[]): Field {
-  return RNG.item(fields);
+export function randomFrom(fields: Field[], rng: RNG): Field {
+  return rng.item(fields);
 }

@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 
 export type ThiefSkillRow = {
   name: string;
@@ -6,13 +6,13 @@ export type ThiefSkillRow = {
   value: number;
 };
 
-export function distributePoints(skillList: ThiefSkillRow[], extraPoints: number) {
+export function distributePoints(skillList: ThiefSkillRow[], extraPoints: number, rng: RNG) {
   while (extraPoints > 0) {
-    let skillIndex = RNG.int(0, skillList.length - 1);
+    let skillIndex = rng.int(0, skillList.length - 1);
     let skill = skillList[skillIndex];
     if (skill.points < 30) {
       let cap = 30 - skill.points > 30 ? 30 : 30 - skill.points;
-      let points = RNG.int(1, cap);
+      let points = rng.int(1, cap);
       skill.points += points;
       extraPoints -= points;
     }

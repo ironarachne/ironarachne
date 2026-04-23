@@ -40,7 +40,7 @@ export default new ADNDClass(
     }
 
     skills = ThiefSkills.modifyForRace(skills, raceName);
-    skills = ThiefSkills.distributePoints(skills, 20);
+    skills = ThiefSkills.distributePoints(skills, 20, rng);
 
     for (let i = 0; i < skills.length; i++) {
       character.abilities.push(`${skills[i].name}: ${skills[i].value}%`);

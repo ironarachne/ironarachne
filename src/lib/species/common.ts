@@ -1,4 +1,5 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
+import { RNG as RngCtor } from '@ironarachne/rng';
 import * as AgeCategories from '$lib/age/age_categories.js';
 import type AgeCategory from '$lib/age/age_category.js';
 import type PhysicalTrait from '$lib/physical_traits/physical_trait.js';
@@ -10,9 +11,9 @@ import { allMutators } from './mutators.js';
 import type Species from './species.js';
 import { applyTagFilter } from '$lib/tags/index.js';
 
-export function randomWeighted(speciesList: Species[]): Species {
+export function randomWeighted(speciesList: Species[], rng: RNG): Species {
   const totalWeight = speciesList.reduce((acc, s) => acc + s.commonality, 0);
-  let random = RNG.int(0, totalWeight);
+  let random = rng.int(0, totalWeight);
   for (const species of speciesList) {
     random -= species.commonality;
     if (random <= 0) {
@@ -268,7 +269,7 @@ export function mergeTraits(species1: Species, species2: Species): PhysicalTrait
 }
 
 export function randomTraits(seed: string, species: Species): PhysicalTrait[] {
-  const rng = new RNG.RNG(seed);
+  const rng = new RngCtor(seed);
   let traits: PhysicalTrait[] = [];
 
   for (let i = 0; i < species.physicalTraitGeneratorConfigs.length; i++) {
@@ -279,7 +280,7 @@ export function randomTraits(seed: string, species: Species): PhysicalTrait[] {
   return traits;
 }
 
-export function randomUniqueSet(options: Species[], count: number, rng: RNG.RNG): Species[] {
+export function randomUniqueSet(options: Species[], count: number, rng: RNG): Species[] {
   let result: Species[] = [];
 
   let shuffledOptions = rng.shuffle(options);

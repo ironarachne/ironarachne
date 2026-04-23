@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import type { ChargeGlyph } from './charge-types.js';
 import { getAllChargeGlyphs } from './charge-data.js';
 
@@ -17,13 +17,13 @@ export function allChargeTags(): string[] {
   return Array.from(tagSet);
 }
 
-export function random(charges: ChargeGlyph[]): ChargeGlyph {
-  return RNG.item(charges);
+export function random(charges: ChargeGlyph[], rng: RNG): ChargeGlyph {
+  return rng.item(charges);
 }
 
-export function randomWithTag(tag: string, charges: ChargeGlyph[]): ChargeGlyph {
+export function randomWithTag(tag: string, charges: ChargeGlyph[], rng: RNG): ChargeGlyph {
   let matching = matchingTag(tag, charges);
-  return random(matching);
+  return random(matching, rng);
 }
 
 export function matchingTag(tag: string, charges: ChargeGlyph[]): ChargeGlyph[] {

@@ -10,7 +10,7 @@
     OrganizationWorldContextPreset,
   } from '$lib/organizations/organization_types.js';
   import * as FantasyOrganizations from '$lib/organizations/fantasy';
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
   import { onMount } from 'svelte';
@@ -25,7 +25,7 @@
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
   import { renderMerchantMarkSvg } from '$lib/merchant_marks/render_merchant_mark_svg';
   import { renderPatternLatticeSvg } from '$lib/pattern_lattice/render_pattern_lattice_svg';
-  let rng = new RNG.RNG(Date.now().toString());
+  let rng = new RNG(Date.now().toString());
   let seed: string = $state(rng.randomString(13));
   let lockSeed = $state(false);
   $effect(() => {
@@ -101,7 +101,7 @@
       const w = 200;
       const h = 220;
       const arms = emblem.arms;
-      const svg = renderHeraldryDeviceSvg(arms.device, w, h);
+      const svg = renderHeraldryDeviceSvg(arms.device, w, h, rng);
       renderSVGAsPNG(svg, w, h, 'org-arms');
     } else if (isMerchantMarkEmblem(emblem)) {
       const w = 200;

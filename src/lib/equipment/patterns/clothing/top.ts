@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
 import Clothing from '../../clothing/clothing.js';
@@ -17,31 +17,31 @@ export default class TopPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], quality: number): Clothing {
-    let body = RNG.item(Components.withCategory('fabric', componentOptions));
-    let hardware = RNG.item(Components.withCategory('soft metal', componentOptions));
+  complete(componentOptions: Component[], quality: number, rng: RNG): Clothing {
+    let body = rng.item(Components.withCategory('fabric', componentOptions));
+    let hardware = rng.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value + hardware.value;
 
     let description = `${Words.article(this.name)} ${this.name} `;
 
-    description += RNG.item([`made of ${body.descriptor} with `, 'with ']);
+    description += rng.item([`made of ${body.descriptor} with `, 'with ']);
 
     let sleeves =
-      RNG.item(['short', 'long', 'wide', 'narrow', 'bunched', 'volumnous']) + ' sleeves';
-    let lacing = 'lacing ' + RNG.item(['down the middle', 'at the top', 'halfway down']);
-    let collar = `a ${RNG.item(['wide', 'tight', 'open'])} collar`;
+      rng.item(['short', 'long', 'wide', 'narrow', 'bunched', 'volumnous']) + ' sleeves';
+    let lacing = 'lacing ' + rng.item(['down the middle', 'at the top', 'halfway down']);
+    let collar = `a ${rng.item(['wide', 'tight', 'open'])} collar`;
     let closures =
-      RNG.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) +
+      rng.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) +
       ` ${hardware.descriptor} ` +
-      RNG.item(['buttons', 'clasps']);
+      rng.item(['buttons', 'clasps']);
 
-    description += RNG.item([sleeves, collar, lacing, closures]);
+    description += rng.item([sleeves, collar, lacing, closures]);
 
-    if (quality > 1 && RNG.int(1, 100) >= 70) {
-      description += RNG.item([
+    if (quality > 1 && rng.int(1, 100) >= 70) {
+      description += rng.item([
         ' that is artfully embroidered',
-        ` that is embroidered with ${RNG.item(['simple', 'complex', 'ornate'])} patterns`,
+        ` that is embroidered with ${rng.item(['simple', 'complex', 'ornate'])} patterns`,
         ' that is gusseted',
       ]);
     }

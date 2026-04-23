@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
 import Component from '../../components/component.js';
@@ -21,29 +21,29 @@ export default class StaffPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], quality: number): MeleeWeapon {
-    let body = RNG.item(Components.withCategory('wood', componentOptions));
+  complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
+    let body = rng.item(Components.withCategory('wood', componentOptions));
 
-    let cosmeticBody = RNG.item(['carved', 'engraved', 'stained', 'painted']);
+    let cosmeticBody = rng.item(['carved', 'engraved', 'stained', 'painted']);
 
     let value = this.baseValue + body.value;
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
-    description += RNG.item([
+    description += rng.item([
       `${Words.article(body.descriptor)} ${body.descriptor} body`,
       `${Words.article(cosmeticBody)} ${cosmeticBody} ${body.descriptor} body`,
     ]);
 
-    if (quality > 1 && RNG.int(1, 100) > 70) {
-      description += RNG.item([
-        ` topped with a ${RNG.item([
+    if (quality > 1 && rng.int(1, 100) > 70) {
+      description += rng.item([
+        ` topped with a ${rng.item([
           'crystal globe',
           'raw crystal',
           'rough crystal',
           'polished crystal',
         ])}`,
-        ` capped on top and bottom with ${RNG.item([
+        ` capped on top and bottom with ${rng.item([
           'steel',
           'gold',
           'silver',

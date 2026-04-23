@@ -1,23 +1,23 @@
 import * as DrugTypes from './drug_types';
 import * as EffectTypes from './effect_types';
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 
 import type Drug from './drug';
 import type DrugGeneratorConfig from './drug_generator_config';
 
-export function generate(config: DrugGeneratorConfig): Drug {
-  const drugType = RNG.item(config.drugTypes);
-  const effectType = RNG.item(config.effectTypes);
+export function generate(config: DrugGeneratorConfig, rng: RNG): Drug {
+  const drugType = rng.item(config.drugTypes);
+  const effectType = rng.item(config.effectTypes);
 
-  const name = randomName();
-  const method = RNG.item(drugType.methods);
-  const effectDescription = RNG.item(effectType.effects);
-  const strength = randomStrength();
-  const color = randomColor();
-  const duration = randomDuration();
-  const sideEffect = randomSideEffect();
-  const commonality = randomCommonality();
+  const name = randomName(rng);
+  const method = rng.item(drugType.methods);
+  const effectDescription = rng.item(effectType.effects);
+  const strength = randomStrength(rng);
+  const color = randomColor(rng);
+  const duration = randomDuration(rng);
+  const sideEffect = randomSideEffect(rng);
+  const commonality = randomCommonality(rng);
 
   const drug = {
     name,
@@ -59,8 +59,8 @@ function describe(drug: Drug): string {
   return description;
 }
 
-function randomColor(): string {
-  const color = RNG.item([
+function randomColor(rng: RNG): string {
+  const color = rng.item([
     'amber',
     'azure',
     'blue',
@@ -82,7 +82,7 @@ function randomColor(): string {
     'yellow',
   ]);
 
-  const modifier = RNG.item([
+  const modifier = rng.item([
     'bright',
     'dark',
     'fluorescent',
@@ -97,8 +97,8 @@ function randomColor(): string {
   return `${modifier} ${color}`;
 }
 
-function randomCommonality(): string {
-  return RNG.item([
+function randomCommonality(rng: RNG): string {
+  return rng.item([
     'You can find it just about everywhere.',
     "It's hard to find.",
     "It's easy to find.",
@@ -108,8 +108,8 @@ function randomCommonality(): string {
   ]);
 }
 
-function randomDuration(): string {
-  return RNG.item([
+function randomDuration(rng: RNG): string {
+  return rng.item([
     'One dose lasts for a few minutes.',
     'One dose lasts for an hour or two.',
     'One dose lasts for several hours.',
@@ -118,12 +118,12 @@ function randomDuration(): string {
   ]);
 }
 
-function randomName(): string {
-  const nameType = RNG.item([
+function randomName(rng: RNG): string {
+  const nameType = rng.item([
     {
       name: 'single word',
       generate: () =>
-        RNG.item([
+        rng.item([
           'Angel',
           'Arc',
           'Bright',
@@ -148,7 +148,7 @@ function randomName(): string {
     {
       name: 'numbered word',
       generate: () => {
-        const word = RNG.item([
+        const word = rng.item([
           'Angel',
           'Arc',
           'Bright',
@@ -170,7 +170,7 @@ function randomName(): string {
           'Venom',
         ]);
 
-        const number = RNG.int(2, 13);
+        const number = rng.int(2, 13);
 
         return `${word}-${number}`;
       },
@@ -178,7 +178,7 @@ function randomName(): string {
     {
       name: 'phrase',
       generate: () => {
-        const prefix = RNG.item([
+        const prefix = rng.item([
           'Angel',
           'Black',
           'Blue',
@@ -197,7 +197,7 @@ function randomName(): string {
           'White',
         ]);
 
-        const suffix = RNG.item([
+        const suffix = rng.item([
           'Dream',
           'Dust',
           'Fantasy',
@@ -222,13 +222,13 @@ function randomName(): string {
   return nameType.generate();
 }
 
-function randomSideEffect(): string {
+function randomSideEffect(rng: RNG): string {
   const result: string[] = [];
   let effects = sideEffects();
 
-  effects = RNG.shuffle(effects);
+  effects = rng.shuffle(effects);
 
-  const numberOfEffects = RNG.int(1, 3);
+  const numberOfEffects = rng.int(1, 3);
 
   for (let i = 0; i < numberOfEffects; i++) {
     const effect = effects.pop();
@@ -241,8 +241,8 @@ function randomSideEffect(): string {
   return Words.arrayToPhrase(result);
 }
 
-function randomStrength(): string {
-  return RNG.item(['powerful', 'strong', 'really potent', 'potent', 'weak', 'very weak']);
+function randomStrength(rng: RNG): string {
+  return rng.item(['powerful', 'strong', 'really potent', 'potent', 'weak', 'very weak']);
 }
 
 function sideEffects(): string[] {

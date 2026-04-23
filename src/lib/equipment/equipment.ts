@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import Component from './components/component.js';
 import type Item from './item.js';
 import * as Patterns from './patterns/patterns.js';
@@ -8,6 +8,7 @@ export function generate(
   components: Component[],
   amount: number,
   valueThreshold: number,
+  rng: RNG,
 ): Item[] {
   let result = [];
   let patterns = [];
@@ -19,8 +20,8 @@ export function generate(
   }
 
   for (let i = 0; i < amount; i++) {
-    let pattern = RNG.item(patterns);
-    let item = pattern.complete(components, valueThreshold);
+    let pattern = rng.item(patterns);
+    let item = pattern.complete(components, valueThreshold, rng);
     result.push(item);
   }
 

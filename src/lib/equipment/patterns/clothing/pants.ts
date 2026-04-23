@@ -1,4 +1,4 @@
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 
 import Clothing from '../../clothing/clothing.js';
 import Component from '../../components/component.js';
@@ -16,27 +16,27 @@ export default class PantsPattern implements Pattern {
     this.baseValue = value;
   }
 
-  complete(componentOptions: Component[], quality: number): Clothing {
-    let body = RNG.item(Components.withCategory('fabric', componentOptions));
-    let hardware = RNG.item(Components.withCategory('soft metal', componentOptions));
+  complete(componentOptions: Component[], quality: number, rng: RNG): Clothing {
+    let body = rng.item(Components.withCategory('fabric', componentOptions));
+    let hardware = rng.item(Components.withCategory('soft metal', componentOptions));
 
     let value = this.baseValue + body.value + hardware.value;
 
     let description = `${this.name} `;
 
-    description += RNG.item([`made of ${body.descriptor} with `, 'with ']);
+    description += rng.item([`made of ${body.descriptor} with `, 'with ']);
 
-    let lacing = ` ${RNG.item(['tight', 'loose', ''])} lacing`;
+    let lacing = ` ${rng.item(['tight', 'loose', ''])} lacing`;
     let closures =
-      RNG.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) +
+      rng.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) +
       ` ${hardware.descriptor} ` +
-      RNG.item(['buttons', 'clasps']);
+      rng.item(['buttons', 'clasps']);
 
-    description += RNG.item([lacing, closures]);
+    description += rng.item([lacing, closures]);
 
-    if (quality > 1 && RNG.int(1, 100) >= 70) {
-      description += RNG.item([
-        ` that is embroidered with ${RNG.item(['simple', 'complex', 'ornate'])} patterns`,
+    if (quality > 1 && rng.int(1, 100) >= 70) {
+      description += rng.item([
+        ` that is embroidered with ${rng.item(['simple', 'complex', 'ornate'])} patterns`,
         ` that has decorative stitching down the sides`,
       ]);
     }

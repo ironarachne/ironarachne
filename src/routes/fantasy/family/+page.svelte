@@ -2,7 +2,7 @@
   import * as CommonSpecies from '$lib/species/common';
   import * as Families from '$lib/families';
   import * as Names from '$lib/names';
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import type Gender from '$lib/gender/gender';
   import type { NameGenerator } from '@ironarachne/made-up-names';
   import type Species from '$lib/species/species';
@@ -14,13 +14,13 @@
   const INITIAL_INFANT_MORTALITY_CHANCE = 0.01;
   const INITIAL_FERTILITY_CHANCE = 0.8;
 
-  let rng = new RNG.RNG(Date.now().toString());
+  let rng = new RNG(Date.now().toString());
   const initialSeed = rng.randomString(13);
   let seed = $state(initialSeed);
   let lockSeed = $state(false);
   let availableSpecies = CommonSpecies.sentient();
   let selectedSpecies = $state('any');
-  let species = CommonSpecies.randomWeighted(availableSpecies);
+  let species = CommonSpecies.randomWeighted(availableSpecies, rng);
   let iterations: number = $state(INITIAL_ITERATIONS);
   let nameGeneratorSet;
 
@@ -140,7 +140,7 @@
 
   function getSpecies(name: string): Species {
     if (name === 'any') {
-      return CommonSpecies.randomWeighted(availableSpecies);
+      return CommonSpecies.randomWeighted(availableSpecies, rng);
     }
 
     for (let i = 0; i < availableSpecies.length; i++) {

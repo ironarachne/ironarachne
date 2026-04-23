@@ -1,5 +1,5 @@
 <script lang="ts">
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import * as Measurements from '$lib/measurements';
   import {
     generate,
@@ -15,8 +15,8 @@
   import { getFantasyNameGeneratorSet } from '$lib/names';
   import * as MUN from '@ironarachne/made-up-names'; // Need to import this to check supported sets properly, or catch error
 
-  let seed = RNG.randomString(13);
-  let rng = new RNG.RNG(seed);
+  let seed = new RNG(Date.now().toString()).randomString(13);
+  let rng = new RNG(seed);
   let character: null | Character = null;
 
   let speciesList = sentientSpeciesList;
@@ -36,7 +36,7 @@
 
   function generateCharacter() {
     if (!lockSeed) {
-      seed = RNG.randomString(13);
+      seed = new RNG(Date.now().toString()).randomString(13);
       rng.setSeed(seed);
     }
 
