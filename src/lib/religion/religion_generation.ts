@@ -15,7 +15,7 @@ import { generate as generatePantheon } from './pantheons/pantheon_generation';
 import { domains } from './domains/domain_data';
 import type { Title } from '$lib/characters';
 import { all as allCategories } from './categories';
-import Human from '$lib/species/sentient/human.js';
+import Human from '$lib/species_sentients/human.js';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 
 export const divineRulerTitle: Title = {

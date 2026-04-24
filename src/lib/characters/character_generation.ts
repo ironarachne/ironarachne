@@ -10,7 +10,7 @@ import { randomTraits } from '$lib/species/common';
 import { getDefaultCombatActions, getDefaultCombatProfile } from '$lib/combat_system';
 import type PhysicalTrait from '$lib/physical_traits/physical_trait';
 import { getAllFantasyArchetypes, type Archetype } from '$lib/archetypes';
-import human from '$lib/species/sentient/human';
+import human from '$lib/species_sentients/human';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generateHeraldry } from '$lib/heraldry/generator';
 import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';

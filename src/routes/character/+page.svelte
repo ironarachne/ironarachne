@@ -9,7 +9,7 @@
   } from '$lib/characters';
   import { renderDeviceBlazon } from '$lib/heraldry/device';
   import { onMount } from 'svelte';
-  import { sentientSpeciesList } from '$lib/species/sentient';
+  import { sentientSpeciesList } from '$lib/species_sentients';
   import { getAllFantasyArchetypes } from '$lib/archetypes';
   import { getCategoryList } from '$lib/age/age_categories';
   import { getFantasyNameGeneratorSet } from '$lib/names';

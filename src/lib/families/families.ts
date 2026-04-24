@@ -1,5 +1,5 @@
 import type { Family, FamilyGenerationConfig } from './family_types';
-import human from '$lib/species/sentient/human';
+import human from '$lib/species_sentients/human';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { RNG } from '@ironarachne/rng';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types';
