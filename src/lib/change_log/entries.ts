@@ -1,5 +1,24 @@
 export default [
   {
+    date: '2026-04-24',
+    summary: 'New libraries, better organizations, better religions, way more species, and tooling',
+    updates: [
+      'Switched the site to static output instead of server-side rendering',
+      'Upgraded to Vite 8, replaced Sass with modern CSS, and removed unused dependencies (including d3)',
+      'Fixed a high-severity dependency vulnerability, many Svelte and CSS issues, and WebGL context leakage',
+      'Added optional Canvas2D renderers for stellar bodies',
+      'Added weather, measurements, and simulation time libraries, and updated the calendar library',
+      'Expanded the language generator to build a language with translation functions',
+      'Fixed bugs in the heraldry library and a heraldry border color issue',
+      'Added early versions of the architecture and hierarchy libraries',
+      'Added a visual identity library with disc emblem and pattern lattice systems, plus merchant marks; moved charges into their own library',
+      'Rewrote the organizations library with many more org types, and improved org descriptions and traits',
+      'Fixed a bug where regions could include science-fiction organizations inappropriately',
+      'Refined religion output with more variety and detail',
+      'Restructured base-level libraries into subdirectories, fixed RNG instantiation bugs, deduplicated and expanded species data with new resources, and updated the made-up-names dependency',
+    ],
+  },
+  {
     date: '2026-04-05',
     summary: 'Visual overhauls for star systems, planetary generators, and genre styles',
     updates: [
