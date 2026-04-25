@@ -1,17 +1,20 @@
 import * as Environments from '$lib/environment/environments.js';
-import * as MUN from '@ironarachne/made-up-names';
 import * as Names from '$lib/names';
 import * as RNG from '@ironarachne/rng';
+import * as Words from '@ironarachne/words';
 import * as Dice from '$lib/dice';
-import type Settlement from './settlement.js';
 import * as Categories from './settlement_categories.js';
-import type SettlementGeneratorConfig from './settlement_generator_config.js';
+import { applySettlementEnrichment, buildSettlementWithFacets } from './enrich_settlement.js';
+import { pickCategoryPlausibleLine, socialToneFromFacets } from './settlement_narrative.js';
+import type { Settlement, SettlementGeneratorConfig } from './settlement_types.js';
 
 export function generate(config: SettlementGeneratorConfig): Settlement {
-  const settlementName =
+  const rawName =
     config.nameGenerator !== null ? config.nameGenerator.generate(1)[0] : 'Settlement';
+  /** Town name generators often return all-lowercase; normalize to title case for display. */
+  const settlementName = Words.title((rawName || 'Settlement').trim());
   const settlementCategory = config.rng.item(Categories.bySizeClass(config.size));
-  const settlement: Settlement = {
+  const preFacets = {
     name: settlementName,
     category: settlementCategory,
     environment: config.environment,
@@ -19,9 +22,11 @@ export function generate(config: SettlementGeneratorConfig): Settlement {
     population: Categories.randomPopulation(settlementCategory, config.rng),
     prosperity: Dice.roll('2d6', config.rng),
   };
-
-  settlement.description = randomDescription(settlement, config.rng);
-
+  let settlement = buildSettlementWithFacets(preFacets);
+  settlement = { ...settlement, description: randomDescription(settlement, config.rng) };
+  if (config.enrichment) {
+    settlement = applySettlementEnrichment(settlement, config.enrichment, config.rng);
+  }
   return settlement;
 }
 
@@ -31,17 +36,12 @@ export function getDefaultConfig(
   const environmentConfig = Environments.getDefaultConfig();
   environmentConfig.rng = rng;
 
-  let environment = Environments.generate(environmentConfig);
-
-  let genSet = Names.getFantasyNameGeneratorSet('tiefling', rng);
-
-  let nameGenerator = genSet.town;
-  let size = 'any';
-
+  const environment = Environments.generate(environmentConfig);
+  const genSet = Names.getFantasyNameGeneratorSet('tiefling', rng);
   return {
     environment,
-    nameGenerator,
-    size,
+    nameGenerator: genSet.town,
+    size: 'any',
     rng,
   };
 }
@@ -58,16 +58,16 @@ function randomDescription(settlement: Settlement, rng: RNG.RNG): string {
     new Intl.NumberFormat().format(settlement.population),
   );
   description = description.replace('{name}', settlement.name);
-  description += ` ${Categories.randomDescription(settlement.category, rng)}`;
+  description += ` ${pickCategoryPlausibleLine(settlement.category, settlement.lawAndOrder, rng)}`;
   description += ` ${randomProsperity(settlement.prosperity, rng)}`;
-  description += ` ${randomReputation(rng)}`;
+  description += ` ${socialToneFromFacets(settlement, rng)}`;
   description += ` ${rng.item(settlement.environment.biome.features)}`;
 
   return description;
 }
 
 function randomProsperity(prosperity: number, rng: RNG.RNG): string {
-  let prefixes = [
+  const prefixes = [
     'The people here',
     'Most people here',
     'Folks here',
@@ -75,7 +75,7 @@ function randomProsperity(prosperity: number, rng: RNG.RNG): string {
     'People here',
   ];
 
-  let suffixes = [];
+  let suffixes: string[] = [];
 
   if (prosperity < 4) {
     suffixes = [
@@ -94,7 +94,7 @@ function randomProsperity(prosperity: number, rng: RNG.RNG): string {
     suffixes = ['have more wealth than most', 'are prosperous', 'have more than they need'];
   }
 
-  let options = [];
+  const options: string[] = [];
 
   for (let i = 0; i < prefixes.length; i++) {
     for (let j = 0; j < suffixes.length; j++) {
@@ -105,56 +105,3 @@ function randomProsperity(prosperity: number, rng: RNG.RNG): string {
   return rng.item(options);
 }
 
-function randomReputation(rng: RNG.RNG): string {
-  let prefixes = [
-    'The people are known for',
-    'The people are regarded as',
-    'Folk here have a reputation for',
-    'People here are regarded as',
-    'The folk here are known for',
-    'They are known for',
-    'They are well known for',
-    'They are sometimes known for',
-    'Some other places regard the people here as',
-    'Some places regard the people here as',
-    'Some places regard them as',
-    'Some regard them as',
-    'Some folks regard them as',
-  ];
-
-  let suffixes = [
-    'being aloof',
-    'being suspicious of others',
-    'being suspicious of outsiders',
-    'being friendly and open',
-    'being friendly but devious',
-    'being friendly',
-    'being greedy',
-    'being altruistic',
-    'being trusting',
-    'being mistrustful',
-    'being miserly',
-    'being obsessed with status',
-    'being hardworking',
-    'being devious',
-    'being unfriendly',
-    'being trustworthy',
-    'being lazy',
-    'spending too much time making merry',
-    'spending too much time slacking off',
-    'working hard',
-    'working too hard',
-    'being unruly',
-    'being belligerent',
-  ];
-
-  let reputations: string[] = [];
-
-  for (let i = 0; i < prefixes.length; i++) {
-    for (let j = 0; j < suffixes.length; j++) {
-      reputations.push(`${prefixes[i]} ${suffixes[j]}.`);
-    }
-  }
-
-  return rng.item(reputations);
-}

@@ -1,0 +1,11 @@
+---
+description: Do not use em dashes (U+2014); prefer commas, colons, parentheses, or spaced hyphens
+alwaysApply: true
+---
+
+# No em dashes
+
+- **Do not** use the em dash character `—` (Unicode U+2014) in prose, comments, UI copy, Markdown, or user-visible strings.
+- **Prefer instead:** a comma, colon, period + new sentence, parentheses, or a spaced ASCII hyphen (` - `) when a break is needed.
+- The only exception is **string/regex data** that must match an external text containing that character (rare; document why).
+- In **Svelte** templates, use colons, line breaks, or separate elements rather than a typographic em dash between clauses.

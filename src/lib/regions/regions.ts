@@ -8,8 +8,8 @@ import { addRandomRivalryBetweenPairs } from '$lib/organizations/organization_re
 import type { Organization } from '$lib/organizations/organization_types.js';
 import type Realm from '$lib/realms/realm.js';
 import * as Realms from '$lib/realms/realms.js';
-import type Settlement from '$lib/settlements/settlement.js';
-import * as Settlements from '$lib/settlements/settlements.js';
+import type { Settlement } from '$lib/settlements';
+import * as Settlements from '$lib/settlements';
 import * as Names from '$lib/names';
 import * as RNG from '@ironarachne/rng';
 

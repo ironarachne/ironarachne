@@ -6,6 +6,7 @@
   <h1>Utilities &amp; Reference</h1>
 
   <nav>
+    <a href="/fantasy/settlement">Settlement generator</a>
     <a href="/language">Language</a>
     <a href="/species-stats">Species Height and Weight Calculator</a>
     <a href="/word-generator-cheat-sheet">Word Generator Cheat Sheet</a>

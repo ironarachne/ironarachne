@@ -11,7 +11,7 @@ import { getDefaultCombatActions, getDefaultCombatProfile } from '$lib/combat_sy
 import type PhysicalTrait from '$lib/physical_traits/physical_trait';
 import { getAllFantasyArchetypes, type Archetype } from '$lib/archetypes';
 import human from '$lib/species_sentients/human';
-import { getFantasyNameGeneratorSet } from '$lib/names';
+import { getFantasyNameGeneratorSet, type NameGeneratorSet } from '$lib/names';
 import { generateHeraldry } from '$lib/heraldry/generator';
 import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';
 import { getStandardNobleTitles } from './titles';
@@ -200,17 +200,28 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
   return character;
 }
 
-export function getDefaultCharacterGenerationConfig(seed: string): CharacterGenerationConfig {
-  const defaultSpecies = human;
-  const rng = new RNG.RNG(seed + '-names');
-  const nameGenSet = getFantasyNameGeneratorSet('tiefling', rng);
-  const archetypes = getAllFantasyArchetypes();
-
+/**
+ * Default archetypes and human species with the given name set (e.g. culture or race town/family/individual names).
+ * Use this when settlement, organization, and notable generators should share one naming source.
+ */
+export function getCharacterGenerationConfigForNameSet(
+  seed: string,
+  nameSet: NameGeneratorSet,
+): CharacterGenerationConfig {
+  void seed;
   return {
-    archetypeOptions: archetypes,
-    species: defaultSpecies,
-    maleFirstNameGenerator: nameGenSet.male,
-    femaleFirstNameGenerator: nameGenSet.female,
-    familyNameGenerator: nameGenSet.family,
+    archetypeOptions: getAllFantasyArchetypes(),
+    species: human,
+    maleFirstNameGenerator: nameSet.male,
+    femaleFirstNameGenerator: nameSet.female,
+    familyNameGenerator: nameSet.family,
   };
+}
+
+export function getDefaultCharacterGenerationConfig(seed: string): CharacterGenerationConfig {
+  const rng = new RNG.RNG(seed + '-names');
+  return getCharacterGenerationConfigForNameSet(
+    seed,
+    getFantasyNameGeneratorSet('tiefling', rng),
+  );
 }
