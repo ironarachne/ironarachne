@@ -9,6 +9,10 @@
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
+  let includeProficiencies = $state(false);
+  let includeKits = $state(false);
+  let lastIncludeProficiencies = $state(false);
+  let lastIncludeKits = $state(false);
   $effect(() => {
     rng.setSeed(seed);
   });
@@ -24,6 +28,10 @@
 
     genConfig = new ADNDCharacterGeneratorConfig();
     genConfig.rng = rng;
+    genConfig.includeProficiencies = includeProficiencies;
+    genConfig.includeKits = includeKits;
+    lastIncludeProficiencies = includeProficiencies;
+    lastIncludeKits = includeKits;
     charGen = new ADNDCharacterGenerator(genConfig);
     character = charGen.generateCharacter();
   }
@@ -49,6 +57,21 @@
     <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
+  </div>
+
+  <div class="input-group">
+    <input
+      type="checkbox"
+      name="includeProficiencies"
+      bind:checked={includeProficiencies}
+      id="includeProficiencies"
+    />
+    <label for="includeProficiencies">Include proficiencies (weapon and nonweapon)</label>
+  </div>
+
+  <div class="input-group">
+    <input type="checkbox" name="includeKits" bind:checked={includeKits} id="includeKits" />
+    <label for="includeKits">Include character kit (optional sub-archetype)</label>
   </div>
 
   <button onclick={generate}>Generate</button>
@@ -176,6 +199,36 @@
         ? `+${character.npcReactionAdjustment}`
         : character.npcReactionAdjustment}
     </p>
+
+    {#if lastIncludeProficiencies}
+      <h3>Weapon proficiencies</h3>
+      <ul>
+        {#each character.weaponProficiencyGroups as g}
+          <li>{g}</li>
+        {/each}
+      </ul>
+
+      <h3>Nonweapon proficiencies</h3>
+      <ul>
+        {#each character.nonweaponProficiencies as p}
+          <li>{p}</li>
+        {/each}
+      </ul>
+    {/if}
+
+    {#if lastIncludeKits}
+      <h3>Kit</h3>
+      {#if character.kit}
+        <p><strong>{character.kit.name}</strong></p>
+        <ul>
+          {#each character.kit.features as f}
+            <li>{f}</li>
+          {/each}
+        </ul>
+      {:else}
+        <p>No kit matched this character (class and ability minimums).</p>
+      {/if}
+    {/if}
 
     <h3>Weapons</h3>
 

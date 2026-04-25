@@ -6,6 +6,12 @@ import type ADNDClass from './adndclass.js';
 import type ADNDRace from './adndrace.js';
 import type ADNDWeapon from './adndweapon.js';
 import * as Equipment from './equipment.js';
+import { selectRandomKit } from './adnd_kit_selection.js';
+import {
+  getEligibleWeaponGroups,
+  selectNonweaponProficiencies,
+  selectWeaponProficiencyGroups,
+} from './adnd_proficiency_selection.js';
 
 export default class ADNDCharacterGenerator {
   config: ADNDCharacterGeneratorConfig;
@@ -125,6 +131,27 @@ export default class ADNDCharacterGenerator {
 
     for (let i = 0; i < character.armor.length; i++) {
       character.ac += character.armor[i].ac;
+    }
+
+    if (this.config.includeProficiencies) {
+      const allWeaponsForGroups = Equipment.getWeapons();
+      const eligibleGroups = getEligibleWeaponGroups(character.class, allWeaponsForGroups);
+      const preferredCategory = character.weapons[0]?.category;
+      character.weaponProficiencyGroups = selectWeaponProficiencyGroups(
+        character.class.initialWP,
+        eligibleGroups,
+        preferredCategory,
+        this.config.rng,
+      );
+      character.nonweaponProficiencies = selectNonweaponProficiencies(
+        character.class.group,
+        character.class.initialNWP,
+        this.config.rng,
+      );
+    }
+
+    if (this.config.includeKits) {
+      character.kit = selectRandomKit(character, this.config.rng);
     }
 
     return character;

@@ -8,10 +8,14 @@ export default class ADNDCharacterGeneratorConfig {
   allowedRaces: ADNDRace[];
   allowedClasses: ADNDClass[];
   rng: RNG;
+  includeProficiencies: boolean;
+  includeKits: boolean;
 
   constructor(rng: RNG = new RNG(Date.now())) {
     this.allowedRaces = races.getAll();
     this.allowedClasses = classes.getAll();
     this.rng = rng;
+    this.includeProficiencies = false;
+    this.includeKits = false;
   }
 }
