@@ -29,12 +29,12 @@ export const ACUTE_LAW: readonly ProblemRow[] = [
     'The magistrate is asking for a neutral arbiter, but both sides are collecting witnesses in back rooms.',
   ),
   r(
-    'A string of muggings near the chandlery district has spooked the night market.',
+    'A string of muggings near a mercantile district has spooked the night market.',
     'Hawkers are closing early, and customers carry sticks who never used to carry anything.',
   ),
   r(
     'A witness in a smuggling case disappeared under suspicious circumstances between shifts.',
-    'Jurors are asking to be excused, and the bailiff is posting pairs at the courthouse door.',
+    'Jurors are asking to be excused, and the bailiff is posting guards at the courthouse door.',
   ),
   r(
     'A guild steward’s ledger walked out the window during a wage dispute.',
@@ -97,7 +97,7 @@ export const ACUTE_FOOD: readonly ProblemRow[] = [
   ),
   r(
     'A weevil bloom turned a proud bin into dust in a single week.',
-    'Housholders are sifting with candlelight, and some are quietly blending ash into flour out of fear.',
+    'Householders are sifting with candlelight, and some are quietly blending ash into flour out of fear.',
   ),
   r(
     'A sudden price spike in salt has people counting grains at the table they used to take for granted.',
@@ -132,7 +132,7 @@ export const ACUTE_COMMERCE_LOW: readonly ProblemRow[] = [
   ),
   r(
     'A bridge weight limit went up after a crack was found, and wide wagons are backing up in both directions.',
-    'Teamsters are shifting loads by hand, and the toll collector is feuding with a guild about hours.',
+    'Workers are shifting loads by hand, and the toll collector is feuding with a guild about hours.',
   ),
   r(
     'A key weigh-house beam cracked during the busiest week of the season.',
