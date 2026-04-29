@@ -7,7 +7,7 @@ import { SPECIES_PRODUCT_OVERRIDES, type SpeciesProductOverride } from './specie
 const RESOURCE_DERIVABLE_TAG = 'resource_derivable';
 
 const EXCLUDED_CREATURE_TYPES = new Set(['undead', 'ooze', 'elemental', 'fiend']);
-const ALLOWED_CREATURE_TYPES = new Set(['beast', 'monstrosity']);
+const ALLOWED_CREATURE_TYPES = new Set(['beast', 'dragon', 'monstrosity']);
 
 export type { CarcassBodyPlan } from '$lib/species/carcass_body_plan';
 
