@@ -16,6 +16,7 @@
     "check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
     "lexicon:freq": "node scripts/generate_lexicon_frequency_buckets.mjs",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint ."
   },
@@ -39,6 +40,7 @@
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.2",
+    "@vitest/coverage-v8": "^4.1.0",
     "@types/node": "^24",
     "@types/three": "^0.179.0",
     "eslint": "^9.39.1",

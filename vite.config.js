@@ -4,4 +4,10 @@ import glsl from 'vite-plugin-glsl';
 
 export default defineConfig({
   plugins: [sveltekit(), glsl()],
+  test: {
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'text-summary'],
+    },
+  },
 });
