@@ -1,24 +1,24 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
-  import { getContext } from 'svelte';
-  import type UserData from '$lib/user_data';
+  import { onMount } from 'svelte';
   import {
+    appendSavedCulture,
+    CULTURE_SAVE_SCOPE_ID,
+    loadSavedCultures,
     generateCulture,
     getDefaultCultureGenerationConfig,
     type Culture,
-    type CultureGenerationConfig,
   } from '$lib/culture';
+  import { applyImportedScopes, buildExportPayload } from '$lib/persistent_save/save_file_export';
   import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from '$lib/names';
 
-  const userSession = getContext<{ get value(): UserData }>('user');
   const rng = new RNG.RNG(Date.now());
   const allNameSets = getAllFantasyNameGeneratorSets(rng);
 
-  if (userSession.value.savedCultures === undefined) {
-    userSession.value.savedCultures = [];
-  }
-
+  let savedCultures = $state<Culture[]>([]);
   let savedCulture: string | undefined = $state();
+  let importExportMessage = $state('');
+  let importInput: HTMLInputElement | undefined = $state();
 
   const initialSeed = rng.randomString(13);
   let seed = $state(initialSeed);
@@ -31,7 +31,16 @@
   genConfig.nameGenerators = genSet;
   let culture = $state(generateCulture(initialSeed, genConfig));
 
+  onMount(() => {
+    refreshSavedCultures();
+  });
+
+  function refreshSavedCultures() {
+    savedCultures = loadSavedCultures();
+  }
+
   function generate() {
+    importExportMessage = '';
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
@@ -42,15 +51,62 @@
   }
 
   function loadSavedCulture() {
-    for (let i = 0; i < userSession.value.savedCultures.length; i++) {
-      if (userSession.value.savedCultures[i].name === savedCulture) {
-        culture = userSession.value.savedCultures[i];
+    importExportMessage = '';
+    for (let i = 0; i < savedCultures.length; i++) {
+      if (savedCultures[i].name === savedCulture) {
+        culture = savedCultures[i];
       }
     }
   }
 
   function saveCulture() {
-    userSession.value.savedCultures.push(culture);
+    importExportMessage = '';
+    appendSavedCulture(culture);
+    refreshSavedCultures();
+  }
+
+  function exportCulturesFile() {
+    importExportMessage = '';
+    const payload = buildExportPayload([CULTURE_SAVE_SCOPE_ID]);
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'ironarachne-cultures.json';
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function triggerImportPicker() {
+    importExportMessage = '';
+    importInput?.click();
+  }
+
+  async function onImportFile(ev: Event) {
+    const input = ev.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    importExportMessage = '';
+    if (!file) {
+      return;
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(await file.text()) as unknown;
+    } catch {
+      importExportMessage = 'Could not read that file as JSON.';
+      return;
+    }
+    const result = applyImportedScopes(parsed, 'merge');
+    if (!result.ok) {
+      importExportMessage = result.error;
+      return;
+    }
+    refreshSavedCultures();
+    importExportMessage =
+      result.appliedScopes.length > 0
+        ? `Imported scopes: ${result.appliedScopes.join(', ')}.`
+        : 'Import finished (no scopes in file).';
   }
 </script>
 
@@ -76,7 +132,7 @@
   <div class="input-group">
     <label for="savedCulture">Select a saved culture to load</label>
     <select bind:value={savedCulture}>
-      {#each userSession.value.savedCultures as saved}
+      {#each savedCultures as saved}
         <option value={saved.name}>{saved.name}</option>
       {/each}
     </select>
@@ -85,6 +141,22 @@
   <div class="input-group">
     <button onclick={loadSavedCulture}>Load Selected Culture</button>
   </div>
+
+  <div class="input-group culture-save-file-actions">
+    <button type="button" onclick={exportCulturesFile}>Export saved cultures (JSON)</button>
+    <button type="button" onclick={triggerImportPicker}>Import saves from file</button>
+    <input
+      bind:this={importInput}
+      type="file"
+      accept="application/json,.json"
+      style="display: none"
+      onchange={onImportFile}
+    />
+  </div>
+
+  {#if importExportMessage !== ''}
+    <p class="culture-save-file-message" role="status">{importExportMessage}</p>
+  {/if}
 
   <h2>The {culture.name} Culture</h2>
 
@@ -175,5 +247,16 @@
     grid-template-columns: auto auto auto;
     align-items: start;
     justify-items: center;
+  }
+
+  .culture-save-file-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .culture-save-file-message {
+    margin-top: 0.25rem;
   }
 </style>

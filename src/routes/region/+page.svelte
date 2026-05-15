@@ -1,18 +1,21 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { onMount } from 'svelte';
   import { RNG } from '@ironarachne/rng';
   import * as Regions from '$lib/regions/regions.js';
   import * as Words from '@ironarachne/words';
   import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
-  import { type Culture } from '$lib/culture';
-  import type UserData from '$lib/user_data';
+  import { type Culture, loadSavedCultures } from '$lib/culture';
+  let savedCultures = $state<Culture[]>([]);
 
-  const userSession = getContext<{ get value(): UserData }>('user');
+  onMount(() => {
+    savedCultures = loadSavedCultures();
+  });
+
   let savedCulture: string | undefined = $state();
   let useSavedCulture: boolean = $state(false);
-  let culture: Culture;
+  let culture: Culture | undefined = $state();
 
   let rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -41,8 +44,10 @@
     config.dominantCulture = null;
     if (useSavedCulture) {
       loadSavedCulture();
-      config.dominantCulture = culture;
-      nameSet = culture.nameGenerators;
+      if (culture !== undefined) {
+        config.dominantCulture = culture;
+        nameSet = culture.nameGenerators;
+      }
     } else {
       if (nameSetName === 'any') {
         nameSet = rng.item(nameSets);
@@ -62,9 +67,9 @@
   }
 
   function loadSavedCulture() {
-    for (let i = 0; i < userSession.value.savedCultures.length; i++) {
-      if (userSession.value.savedCultures[i].name === savedCulture) {
-        culture = userSession.value.savedCultures[i];
+    for (let i = 0; i < savedCultures.length; i++) {
+      if (savedCultures[i].name === savedCulture) {
+        culture = savedCultures[i];
       }
     }
   }
@@ -95,7 +100,7 @@
     </select>
   </div>
 
-  {#if userSession.value.savedCultures !== undefined && userSession.value.savedCultures.length > 0}
+  {#if savedCultures.length > 0}
     <div class="input-group">
       <label for="useSavedCulture">Use a saved culture for naming?</label>
       <input
@@ -109,7 +114,7 @@
     <div class="input-group">
       <label for="savedCulture">Select a saved culture to load</label>
       <select bind:value={savedCulture}>
-        {#each userSession.value.savedCultures as saved}
+        {#each savedCultures as saved}
           <option value={saved.name}>{saved.name}</option>
         {/each}
       </select>

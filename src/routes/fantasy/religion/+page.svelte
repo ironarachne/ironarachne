@@ -1,12 +1,12 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
+  import { onMount } from 'svelte';
   import * as Names from '$lib/names';
   import * as RNG from '@ironarachne/rng';
   import * as CommonSpecies from '$lib/species/common.js';
   import * as ReligionCategories from '$lib/religion/categories';
   import type Species from '$lib/species/species';
-  import type { Culture } from '$lib/culture/culture_types';
-  import type UserData from '$lib/user_data';
+  import type { Culture } from '$lib/culture';
+  import { loadSavedCultures } from '$lib/culture';
   import {
     ALL_RELIGION_DIMENSION_IDS,
     type PolytheisticStandingMode,
@@ -28,10 +28,15 @@
     material: 'Material',
   };
 
-  const userSession = getContext<{ get value(): UserData }>('user');
+  let savedCultures = $state<Culture[]>([]);
+
+  onMount(() => {
+    savedCultures = loadSavedCultures();
+  });
+
   let savedCulture: string | undefined = $state();
   let useSavedCulture: boolean = $state(false);
-  let culture: Culture;
+  let culture: Culture | undefined = $state();
 
   let rng = new RNG.RNG(Date.now().toString());
   const initialSeed = rng.randomString(13);
@@ -100,14 +105,16 @@
     if (useSavedCulture) {
       loadSavedCulture();
 
-      if (culture.nameGenerators.family !== null) {
-        genConfig.nameGenerator = culture.nameGenerators.family;
-      }
-      if (culture.nameGenerators.female !== null) {
-        genConfig.femaleNameGenerator = culture.nameGenerators.female;
-      }
-      if (culture.nameGenerators.male !== null) {
-        genConfig.maleNameGenerator = culture.nameGenerators.male;
+      if (culture !== undefined) {
+        if (culture.nameGenerators.family !== null) {
+          genConfig.nameGenerator = culture.nameGenerators.family;
+        }
+        if (culture.nameGenerators.female !== null) {
+          genConfig.femaleNameGenerator = culture.nameGenerators.female;
+        }
+        if (culture.nameGenerators.male !== null) {
+          genConfig.maleNameGenerator = culture.nameGenerators.male;
+        }
       }
     } else {
       genConfig.nameGenerator = humanNameGenSet.family;
@@ -119,9 +126,9 @@
   }
 
   function loadSavedCulture() {
-    for (let i = 0; i < userSession.value.savedCultures.length; i++) {
-      if (userSession.value.savedCultures[i].name === savedCulture) {
-        culture = userSession.value.savedCultures[i];
+    for (let i = 0; i < savedCultures.length; i++) {
+      if (savedCultures[i].name === savedCulture) {
+        culture = savedCultures[i];
       }
     }
   }
@@ -204,7 +211,7 @@
     {/each}
   </div>
 
-  {#if userSession.value.savedCultures !== undefined && userSession.value.savedCultures.length > 0}
+  {#if savedCultures.length > 0}
     <div class="input-group">
       <label for="useSavedCulture">Use a saved culture for naming?</label>
       <input
@@ -218,7 +225,7 @@
     <div class="input-group">
       <label for="savedCulture">Select a saved culture to load</label>
       <select bind:value={savedCulture}>
-        {#each userSession.value.savedCultures as saved}
+        {#each savedCultures as saved}
           <option value={saved.name}>{saved.name}</option>
         {/each}
       </select>
