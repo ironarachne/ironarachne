@@ -2,6 +2,18 @@ import type { CurrencySystem, CurrencyAmount, CurrencyDenomination } from './typ
 import { STANDARD_FANTASY } from './systems';
 
 /**
+ * Formats wealth using gold, silver, and copper only (no electrum/platinum),
+ * largest denominations first — typical for classic D&D / AD&D presentation.
+ */
+export function valueToGpSpCpString(
+  value: number,
+  system: CurrencySystem = STANDARD_FANTASY,
+  exact: boolean = true,
+): string {
+  return valueToString(value, system, exact, ['electrum', 'platinum']);
+}
+
+/**
  * Converts a total value (in the base unit) to a formatted string representation
  * using the largest possible denominations.
  *

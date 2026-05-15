@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { convert, valueToString, valueToAmounts } from './currency';
+import { convert, valueToString, valueToAmounts, valueToGpSpCpString } from './currency';
 import { STANDARD_FANTASY, HISTORICAL_BRITISH } from './systems';
 
 describe('Currency Library', () => {
@@ -28,6 +28,11 @@ describe('Currency Library', () => {
       // 123 copper = 1 gp, 2 sp, 3 cp
       // 100 + 20 + 3
       expect(valueToString(123, STANDARD_FANTASY)).toBe('1 gp 2 sp 3 cp');
+    });
+
+    it('valueToGpSpCpString uses gp, sp, cp only (no electrum)', () => {
+      // 260 cp would be 2 gp 1 ep 10 cp in full STANDARD_FANTASY breakdown
+      expect(valueToGpSpCpString(260, STANDARD_FANTASY)).toBe('2 gp 6 sp');
     });
 
     it('should format British currency correctly', () => {

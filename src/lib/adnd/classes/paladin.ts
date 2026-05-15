@@ -1,6 +1,7 @@
+import * as RNG from '@ironarachne/rng';
+import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
 import ADNDClass from '../adndclass.js';
-import * as RNG from '@ironarachne/rng';
 
 export default new ADNDClass(
   'paladin',
@@ -35,7 +36,12 @@ export default new ADNDClass(
   4,
   3,
   -2,
-  function (this: ADNDClass, character: ADNDCharacter, rng: RNG.RNG): ADNDCharacter {
+  function (
+    this: ADNDClass,
+    character: ADNDCharacter,
+    rng: RNG.RNG,
+    _options?: AdndClassApplyOptions,
+  ): ADNDCharacter {
     return character;
   },
 );

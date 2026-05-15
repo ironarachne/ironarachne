@@ -1,3 +1,5 @@
+import * as RNG from '@ironarachne/rng';
+import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
 import ADNDClass from '../adndclass.js';
 
@@ -32,5 +34,6 @@ export default new ADNDClass(
   4,
   3,
   -2,
-  (character: ADNDCharacter): ADNDCharacter => character,
+  (character: ADNDCharacter, _rng: RNG.RNG, _options?: AdndClassApplyOptions): ADNDCharacter =>
+    character,
 );
