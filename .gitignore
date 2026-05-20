@@ -43,3 +43,4 @@ pnpm-debug.log*
 .turbo
 .vercel
 .test-tmp
+region_map.svg
