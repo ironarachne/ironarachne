@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
@@ -82,9 +85,38 @@ function generateSchoolName(r: RNG): string {
   }
   if (variant === 1) {
     const modifier = r.item([
-      'Arcane', 'Cherished', 'Eldritch', 'Esoteric', 'Forbidden', 'Forgotten', 'Hidden', 'Lost', 'Mystical', 'Occult', 'Unknown',
+      'Arcane',
+      'Cherished',
+      'Eldritch',
+      'Esoteric',
+      'Forbidden',
+      'Forgotten',
+      'Hidden',
+      'Lost',
+      'Mystical',
+      'Occult',
+      'Unknown',
     ]);
-    const focus = r.item(['Mysteries', 'Arts', 'Sciences', 'Paths', 'Ways', 'Secrets', 'Knowledge', 'Wisdom', 'Power', 'Magic', 'Enchantment', 'Illusion', 'Divination', 'Conjuration', 'Abjuration', 'Evocation', 'Necromancy', 'Transmutation']);
+    const focus = r.item([
+      'Mysteries',
+      'Arts',
+      'Sciences',
+      'Paths',
+      'Ways',
+      'Secrets',
+      'Knowledge',
+      'Wisdom',
+      'Power',
+      'Magic',
+      'Enchantment',
+      'Illusion',
+      'Divination',
+      'Conjuration',
+      'Abjuration',
+      'Evocation',
+      'Necromancy',
+      'Transmutation',
+    ]);
     return `The ${schoolType} of ${modifier} ${focus}`;
   }
   return `The ${schoolType} of ${r.item(['Arcane', 'Mystical', 'Eldritch', 'Occult'])} ${r.item(['Arts', 'Sciences', 'Paths', 'Ways', 'Secrets'])}`;
@@ -95,7 +127,10 @@ export function buildWizardSchoolKind(rng: RNG): OrganizationKindDefinition {
     id: 'wizard_school',
     genre: 'fantasy',
     typeLabel: 'Wizard school',
-    namingProfile: { style: 'compound_institutional', description: 'The <Academy|School> of <Mystical Focus>' },
+    namingProfile: {
+      style: 'compound_institutional',
+      description: 'The <Academy|School> of <Mystical Focus>',
+    },
     defaultSizeRange: { min: 50, max: 600 },
     hierarchy,
     mutators,

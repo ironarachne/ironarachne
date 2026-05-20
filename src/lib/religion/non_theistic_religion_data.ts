@@ -4,7 +4,10 @@ export type NonTheisticTagged = { id: string; phrase: string };
 
 export const animismDomainPool: NonTheisticTagged[] = [
   { id: 'springs_and_rivermouths', phrase: 'springs and river mouths' },
-  { id: 'storm_cells_and_lightning_struck_trees', phrase: 'storm cells and lightning-struck trees' },
+  {
+    id: 'storm_cells_and_lightning_struck_trees',
+    phrase: 'storm cells and lightning-struck trees',
+  },
   { id: 'boundary_stones_and_path_forks', phrase: 'boundary stones and path-forks' },
   { id: 'forest_edges_and_migration_corridors', phrase: 'forest edges and migration corridors' },
   { id: 'hearths_smithies_and_ovens', phrase: 'hearths, smithies, and ovens' },
@@ -14,8 +17,14 @@ export const animismDomainPool: NonTheisticTagged[] = [
 ];
 
 export const animismObligationPool: NonTheisticTagged[] = [
-  { id: 'first_fruits_before_long_journey', phrase: 'setting aside first fruits before a long journey' },
-  { id: 'quiet_gifts_before_entering_old_wood', phrase: 'quiet gifts before entering old-growth wood' },
+  {
+    id: 'first_fruits_before_long_journey',
+    phrase: 'setting aside first fruits before a long journey',
+  },
+  {
+    id: 'quiet_gifts_before_entering_old_wood',
+    phrase: 'quiet gifts before entering old-growth wood',
+  },
   { id: 'cool_water_poured_at_crossroads', phrase: 'pouring cool water at crossroads' },
   { id: 'repair_of_broken_boundary_marks', phrase: 'repairing broken boundary marks' },
   { id: 'naming_storms_when_they_pass', phrase: 'naming storms aloud when they pass' },
@@ -38,8 +47,14 @@ export const totemEmblemPool: NonTheisticTagged[] = [
 
 export const totemObligationPool: NonTheisticTagged[] = [
   { id: 'initiation_into_emblem_knowledge', phrase: 'initiation into emblem knowledge' },
-  { id: 'marriage_negotiation_across_emblem_lines', phrase: 'marriage negotiation across emblem lines' },
-  { id: 'fast_from_emblem_flesh_except_feast_days', phrase: 'fasting from emblem flesh except on feast days' },
+  {
+    id: 'marriage_negotiation_across_emblem_lines',
+    phrase: 'marriage negotiation across emblem lines',
+  },
+  {
+    id: 'fast_from_emblem_flesh_except_feast_days',
+    phrase: 'fasting from emblem flesh except on feast days',
+  },
   {
     id: 'masking_and_dance_when_emblem_returns_in_story',
     phrase: 'masking and dance when the emblem returns in story',
@@ -58,23 +73,35 @@ export const ancestorShrinePool: NonTheisticTagged[] = [
 export const ancestorObligationPool: NonTheisticTagged[] = [
   { id: 'regular_meal_portions_set_aside', phrase: 'regular meal portions set aside for the dead' },
   { id: 'newborn_presentation_at_shrine', phrase: 'presenting a newborn at the shrine' },
-  { id: 'dispute_arbitration_invoking_eldest_names', phrase: 'arbitrating disputes by invoking eldest names' },
+  {
+    id: 'dispute_arbitration_invoking_eldest_names',
+    phrase: 'arbitrating disputes by invoking eldest names',
+  },
   { id: 'grave_tending_before_planting', phrase: 'tending graves before planting season' },
-  { id: 'burning_titles_and_deeds_with_the_dead', phrase: 'burning titles and deeds with the dead' },
+  {
+    id: 'burning_titles_and_deeds_with_the_dead',
+    phrase: 'burning titles and deeds with the dead',
+  },
 ];
 
 export const shamanRolePool: NonTheisticTagged[] = [
   { id: 'itinerant_mediator', phrase: 'itinerant mediators' },
   { id: 'village_called_specialist', phrase: 'village-called specialists' },
   { id: 'apprentice_line_with_memory_staves', phrase: 'apprentice lines who carry memory staves' },
-  { id: 'part_time_healer_who_dreams_on_command', phrase: 'part-time healers who dream on command' },
+  {
+    id: 'part_time_healer_who_dreams_on_command',
+    phrase: 'part-time healers who dream on command',
+  },
   { id: 'kin_group_mediator', phrase: 'kin-group mediators' },
 ];
 
 export const shamanJourneyPool: NonTheisticTagged[] = [
   { id: 'trance_ascent_on_drum_and_ember', phrase: 'trance ascent on drum and ember' },
   { id: 'underworld_descent_to_ransom_souls', phrase: 'underworld descent to ransom souls' },
-  { id: 'negotiation_at_the_river_of_forgetting', phrase: 'negotiation at the river of forgetting' },
+  {
+    id: 'negotiation_at_the_river_of_forgetting',
+    phrase: 'negotiation at the river of forgetting',
+  },
   { id: 'retrieval_of_wandered_soul_shards', phrase: 'retrieval of wandered soul-shards' },
   {
     id: 'bargaining_with_spirit_cohorts_who_guard_organs',

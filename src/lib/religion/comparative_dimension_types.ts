@@ -37,12 +37,7 @@ export type ReligionRitualDimension = {
   summary: string;
 };
 
-export type ExperientialEmphasis =
-  | 'mystical'
-  | 'conversion'
-  | 'vision'
-  | 'mixed'
-  | 'restrained';
+export type ExperientialEmphasis = 'mystical' | 'conversion' | 'vision' | 'mixed' | 'restrained';
 
 export type ReligionExperientialDimension = {
   emphasis: ExperientialEmphasis;

@@ -162,9 +162,5 @@ function rgbColorToVector3(color: RGBColor): THREE.Vector3 {
 function rgbTripletToVectorTriplet(
   colors: [RGBColor, RGBColor, RGBColor],
 ): [THREE.Vector3, THREE.Vector3, THREE.Vector3] {
-  return [
-    rgbColorToVector3(colors[0]),
-    rgbColorToVector3(colors[1]),
-    rgbColorToVector3(colors[2]),
-  ];
+  return [rgbColorToVector3(colors[0]), rgbColorToVector3(colors[1]), rgbColorToVector3(colors[2])];
 }

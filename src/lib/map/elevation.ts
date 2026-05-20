@@ -6,7 +6,19 @@ import { createSimplexNoise2D } from '../noise/simplex.js';
  */
 export interface ElevationConfig {
   seed: string;
-  islandShape: 'radial' | 'square' | 'blob' | 'none' | 'coast-north' | 'coast-south' | 'coast-east' | 'coast-west' | 'coast-nw' | 'coast-sw' | 'coast-ne' | 'coast-se';
+  islandShape:
+    | 'radial'
+    | 'square'
+    | 'blob'
+    | 'none'
+    | 'coast-north'
+    | 'coast-south'
+    | 'coast-east'
+    | 'coast-west'
+    | 'coast-nw'
+    | 'coast-sw'
+    | 'coast-ne'
+    | 'coast-se';
   frequency: number; // The zoom/scale of the noise (e.g. 2.5)
   hasMountainRange?: boolean; // Whether the map generates an organized mountain spine
 }
@@ -15,7 +27,13 @@ export interface ElevationConfig {
  * Calculates a basic distance mask value between 0 and 1 for forming island shapes.
  * 1 means land (center), 0 means ocean (edge).
  */
-const getMaskValue = (x: number, y: number, width: number, height: number, shape: string): number => {
+const getMaskValue = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  shape: string,
+): number => {
   const nx = 2 * (x / width) - 1;
   const ny = 2 * (y / height) - 1;
 
@@ -59,7 +77,7 @@ export function assignElevation(map: RegionMap, config: ElevationConfig): Region
   const { width, height } = newMap;
 
   const noise2D = createSimplexNoise2D(config.seed);
-  const mountainNoise = createSimplexNoise2D(config.seed + "mtn");
+  const mountainNoise = createSimplexNoise2D(config.seed + 'mtn');
   const freq = config.frequency;
 
   // Setup basic mountain line (e.g. going roughly diagonal or vertical)
@@ -86,7 +104,7 @@ export function assignElevation(map: RegionMap, config: ElevationConfig): Region
     const e3 = (noise2D(nx * 4, ny * 4) + 1) / 2;
 
     // Combine octaves: e.g. 1/1 + 1/2 + 1/4 ...
-    let e = 1.00 * e1 + 0.50 * e2 + 0.25 * e3;
+    let e = 1.0 * e1 + 0.5 * e2 + 0.25 * e3;
     e = e / 1.75; // Normalize max down to 1.0
 
     // Apply distance mask
@@ -104,14 +122,14 @@ export function assignElevation(map: RegionMap, config: ElevationConfig): Region
       const distFromLine = (c.point.x - cx) * mDy - (c.point.y - cy) * mDx;
 
       // Make line wavy using noise
-      const wave = mountainNoise(c.point.x / width * 3, c.point.y / height * 3) * 0.15 * width;
+      const wave = mountainNoise((c.point.x / width) * 3, (c.point.y / height) * 3) * 0.15 * width;
       const tDist = Math.abs(distFromLine + wave);
 
       // Create a ridge using a sharp dropoff constraint
       const rangeWidth = Math.min(width, height) * 0.15; // 15% of map size
       if (tDist < rangeWidth) {
         // scale 1 at center of ridge to 0 at edge
-        const ridgeEffect = 1 - (tDist / rangeWidth);
+        const ridgeEffect = 1 - tDist / rangeWidth;
         // Square it for a sharper peak
         const raised = ridgeEffect * ridgeEffect * 2.0; // Strong boost
         e = e + raised;

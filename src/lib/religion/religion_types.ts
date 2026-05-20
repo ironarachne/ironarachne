@@ -5,7 +5,11 @@ import type {
   ReligionDimensionHints,
   ReligionDimensions,
 } from './comparative_dimension_types';
-import type { ReligionCosmology, PolytheisticStandingMode, SpiritCosmologyDepthMode } from './religion_complexity_types';
+import type {
+  ReligionCosmology,
+  PolytheisticStandingMode,
+  SpiritCosmologyDepthMode,
+} from './religion_complexity_types';
 import type { NonTheisticReligionDetail } from './non_theistic_religion_types';
 import type { Pantheon } from './pantheons/pantheon_types';
 import type { DivineRealm } from './realms/realm_types';

@@ -29,7 +29,10 @@ function scale3(v: [number, number, number], s: number): [number, number, number
   return [v[0] * s, v[1] * s, v[2] * s];
 }
 
-function reflect3(incident: [number, number, number], normal: [number, number, number]): [number, number, number] {
+function reflect3(
+  incident: [number, number, number],
+  normal: [number, number, number],
+): [number, number, number] {
   const d = dot3(incident, normal);
   return [
     incident[0] - 2 * d * normal[0],
@@ -269,16 +272,12 @@ function shadeGasGiantDiskPixel(
   const spotCoords1X = x - 0.2;
   const spotCoords1Y = (y - -0.2) * 1.8;
   const spotDist1 = Math.hypot(spotCoords1X, spotCoords1Y);
-  const spotMask1 =
-    1 -
-    smoothstep(0.1, 0.25, spotDist1 + spotNoise1 * 0.1);
+  const spotMask1 = 1 - smoothstep(0.1, 0.25, spotDist1 + spotNoise1 * 0.1);
 
   const spotCoords2X = x - -0.4;
   const spotCoords2Y = (y - 0.4) * 2.2;
   const spotDist2 = Math.hypot(spotCoords2X, spotCoords2Y);
-  const spotMask2 =
-    1 -
-    smoothstep(0.05, 0.15, spotDist2 + spotNoise2 * 0.1);
+  const spotMask2 = 1 - smoothstep(0.05, 0.15, spotDist2 + spotNoise2 * 0.1);
 
   const stormMask = Math.max(spotMask1, spotMask2) * hasSpots;
 

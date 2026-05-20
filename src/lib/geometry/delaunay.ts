@@ -61,8 +61,8 @@ export function createTriangle(a: Vertex, b: Vertex, c: Vertex): Triangle {
     edges: [
       { a, b },
       { a: b, b: c },
-      { a: c, b: a }
-    ]
+      { a: c, b: a },
+    ],
   };
 }
 
@@ -76,7 +76,10 @@ export function triangulate(vertices: Vertex[]): Triangle[] {
   if (vertices.length < 3) return [];
 
   // Determine bounding box to create the super-triangle
-  let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+  let minX = Infinity,
+    minY = Infinity,
+    maxX = -Infinity,
+    maxY = -Infinity;
   for (const v of vertices) {
     if (v.x < minX) minX = v.x;
     if (v.y < minY) minY = v.y;
@@ -131,7 +134,7 @@ export function triangulate(vertices: Vertex[]): Triangle[] {
     }
 
     // Remove bad triangles
-    triangles = triangles.filter(t => !badTriangles.includes(t));
+    triangles = triangles.filter((t) => !badTriangles.includes(t));
 
     // Re-triangulate the polygonal hole using the new vertex
     for (const edge of polygon) {
@@ -140,11 +143,17 @@ export function triangulate(vertices: Vertex[]): Triangle[] {
   }
 
   // Final cleanup: remove any triangle that shares a vertex with the super-triangle
-  triangles = triangles.filter(t => {
+  triangles = triangles.filter((t) => {
     return !(
-      vertexEquals(t.a, p1) || vertexEquals(t.b, p1) || vertexEquals(t.c, p1) ||
-      vertexEquals(t.a, p2) || vertexEquals(t.b, p2) || vertexEquals(t.c, p2) ||
-      vertexEquals(t.a, p3) || vertexEquals(t.b, p3) || vertexEquals(t.c, p3)
+      vertexEquals(t.a, p1) ||
+      vertexEquals(t.b, p1) ||
+      vertexEquals(t.c, p1) ||
+      vertexEquals(t.a, p2) ||
+      vertexEquals(t.b, p2) ||
+      vertexEquals(t.c, p2) ||
+      vertexEquals(t.a, p3) ||
+      vertexEquals(t.b, p3) ||
+      vertexEquals(t.c, p3)
     );
   });
 

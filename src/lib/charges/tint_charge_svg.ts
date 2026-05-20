@@ -2,11 +2,7 @@
  * Recolor standard charge artwork (white body, black line) to a flat fill. Used
  * by heraldry (tincture) and merchant marks (dye hex).
  */
-export function tintChargeSvg(
-  fillHex: string,
-  styleIdSuffix: string,
-  chargeSvg: string,
-): string {
+export function tintChargeSvg(fillHex: string, styleIdSuffix: string, chargeSvg: string): string {
   let svgResult = chargeSvg;
 
   if (fillHex === '#000000') {

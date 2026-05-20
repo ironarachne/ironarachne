@@ -91,7 +91,10 @@ function stepCost(
   if (neighbor.isOcean) {
     c += config.oceanPenalty;
   } else if (neighbor.isWater) {
-    c += mode === 'terrain_relax_water' || mode === 'allow_ocean' ? config.waterPenaltySoft : config.waterPenalty;
+    c +=
+      mode === 'terrain_relax_water' || mode === 'allow_ocean'
+        ? config.waterPenaltySoft
+        : config.waterPenalty;
   }
 
   const elevDelta = Math.abs(current.elevation - neighbor.elevation);
@@ -100,7 +103,8 @@ function stepCost(
   if (isMountainLandNode(neighbor)) {
     let mult = 0;
     if (mode === 'terrain') mult = config.mountainPenalty;
-    else if (mode === 'terrain_soft' || mode === 'terrain_relax_water') mult = config.mountainPenaltySoft;
+    else if (mode === 'terrain_soft' || mode === 'terrain_relax_water')
+      mult = config.mountainPenaltySoft;
     c += mult * c;
   }
 
@@ -170,7 +174,10 @@ function findPathOneMode(
       if (tentativeGScore < neighborGScore) {
         cameFrom.set(neighborId, currentId);
         gScore.set(neighborId, tentativeGScore);
-        fScore.set(neighborId, tentativeGScore + getDistance(map.nodes[neighborId], map.nodes[endId]));
+        fScore.set(
+          neighborId,
+          tentativeGScore + getDistance(map.nodes[neighborId], map.nodes[endId]),
+        );
         if (!openSet.has(neighborId)) {
           openSet.add(neighborId);
         }
@@ -189,7 +196,12 @@ const PATHFIND_SEQUENCE: PathfindMode[] = [
   'geometry_only',
 ];
 
-function pathTotalCost(map: RegionMap, path: number[], mode: PathfindMode, config: RoadConfig): number {
+function pathTotalCost(
+  map: RegionMap,
+  path: number[],
+  mode: PathfindMode,
+  config: RoadConfig,
+): number {
   let sum = 0;
   for (let i = 0; i < path.length - 1; i++) {
     const c = stepCost(map, path[i]!, path[i + 1]!, mode, config);
@@ -218,7 +230,11 @@ function findPathWithCost(
  * Step costs use **cell centers** (Voronoi sites); `MapEdge.road` marks dual edges, and SVG/ASCII
  * draw roads through `buildRoadCentroidPolylines` so lines meet settlements at centroids.
  */
-export function generateRoads(map: RegionMap, townNodeIds: number[], config: RoadConfig = defaultConfig): RegionMap {
+export function generateRoads(
+  map: RegionMap,
+  townNodeIds: number[],
+  config: RoadConfig = defaultConfig,
+): RegionMap {
   const newMap: RegionMap = structuredClone(map);
 
   const uniqueSorted = [...new Set(townNodeIds)]

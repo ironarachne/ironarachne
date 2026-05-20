@@ -11,4 +11,3 @@
     <a href="/word-generator-cheat-sheet">Word Generator Cheat Sheet</a>
   </nav>
 </section>
-

@@ -45,16 +45,16 @@ export function addRandomRivalryBetweenPairs(
   }
   const idA = orgs[a].id;
   const idB = orgs[b].id;
-  if (pairAlreadyLinked(orgs[a].relationships, idB) || pairAlreadyLinked(orgs[b].relationships, idA)) {
+  if (
+    pairAlreadyLinked(orgs[a].relationships, idB) ||
+    pairAlreadyLinked(orgs[b].relationships, idA)
+  ) {
     return;
   }
   orgs[a].relationships.push({ relatedOrganizationId: idB, kind: 'rival' });
   orgs[b].relationships.push({ relatedOrganizationId: idA, kind: 'rival' });
 }
 
-function pairAlreadyLinked(
-  rels: OrganizationRelationship[],
-  otherId: string,
-): boolean {
+function pairAlreadyLinked(rels: OrganizationRelationship[], otherId: string): boolean {
   return rels.some((r) => r.relatedOrganizationId === otherId);
 }

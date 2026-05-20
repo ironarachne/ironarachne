@@ -44,9 +44,7 @@ export function withDiscEmblem(identity: VisualIdentity, disc: DiscEmblem): Visu
   };
 }
 
-export function isHeraldryEmblem(
-  emblem: VisualEmblem,
-): emblem is { kind: 'heraldry'; arms: Arms } {
+export function isHeraldryEmblem(emblem: VisualEmblem): emblem is { kind: 'heraldry'; arms: Arms } {
   return emblem.kind === 'heraldry';
 }
 

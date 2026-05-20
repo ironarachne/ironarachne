@@ -21,13 +21,18 @@
 <p><strong>AC:</strong> {character.ac}</p>
 <p><strong>THAC0:</strong> {character.thaco}</p>
 <p><strong>Alignment:</strong> {character.alignment}</p>
-<p><strong>Currency:</strong> {Currency.valueToGpSpCpString(Number.isFinite(character.currency) ? character.currency : 0)}</p>
+<p>
+  <strong>Currency:</strong>
+  {Currency.valueToGpSpCpString(Number.isFinite(character.currency) ? character.currency : 0)}
+</p>
 
 <h3>Attributes</h3>
 
 <p>
   <strong>Strength:</strong>
-  {character.strength}{#if character.exceptionalStrength != -1}/{getEStrength(character.exceptionalStrength)}{/if}
+  {character.strength}{#if character.exceptionalStrength != -1}/{getEStrength(
+      character.exceptionalStrength,
+    )}{/if}
 </p>
 <p><strong>Dexterity:</strong> {character.dexterity}</p>
 <p><strong>Constitution:</strong> {character.constitution}</p>

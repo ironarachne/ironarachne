@@ -2,7 +2,10 @@ import allSpecies from '$lib/species/all';
 import type { CarcassBodyPlan } from '$lib/species/carcass_body_plan';
 import type Species from '$lib/species/species';
 import type { Resource } from './resource_types';
-import { SPECIES_PRODUCT_OVERRIDES, type SpeciesProductOverride } from './species_product_overrides';
+import {
+  SPECIES_PRODUCT_OVERRIDES,
+  type SpeciesProductOverride,
+} from './species_product_overrides';
 
 const RESOURCE_DERIVABLE_TAG = 'resource_derivable';
 

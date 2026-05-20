@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
@@ -56,7 +59,15 @@ const mutators: ReadonlyMap<string, MemberMutator> = new Map([
 function heraldryConfig(rng: RNG): HeraldryGeneratorConfig {
   return mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: getChargesMatchingAnyTags(['tree', 'oak', 'stag', 'leaf', 'moon', 'wolf', 'spiral']),
+    chargeOptions: getChargesMatchingAnyTags([
+      'tree',
+      'oak',
+      'stag',
+      'leaf',
+      'moon',
+      'wolf',
+      'spiral',
+    ]),
   });
 }
 
@@ -65,7 +76,10 @@ export function buildDruidCircleKind(rng: RNG): OrganizationKindDefinition {
     id: 'druid_circle',
     genre: 'fantasy',
     typeLabel: 'Druid circle',
-    namingProfile: { style: 'pattern_list', description: 'Circle of <Season> / The <Grove> Wardens' },
+    namingProfile: {
+      style: 'pattern_list',
+      description: 'Circle of <Season> / The <Grove> Wardens',
+    },
     defaultSizeRange: { min: 6, max: 80 },
     hierarchy,
     mutators,

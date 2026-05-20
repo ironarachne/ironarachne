@@ -38,7 +38,9 @@ describe('Titles', () => {
 
     it('uses explicit possessive when provided (non-default gender names)', () => {
       const kingTitle = Titles.getNobleTitleByName('king');
-      expect(Titles.getHonorific('non-binary', kingTitle, { possessive: 'their' })).toBe('Their Majesty');
+      expect(Titles.getHonorific('non-binary', kingTitle, { possessive: 'their' })).toBe(
+        'Their Majesty',
+      );
     });
 
     it('defaults non-binary honorific to their when no pronouns passed', () => {

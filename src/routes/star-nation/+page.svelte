@@ -148,8 +148,8 @@
   <h1>Star Nation Generator</h1>
 
   <p>
-    Choose <strong>WebGL</strong> for full GPU previews or <strong>Simple</strong> for Canvas 2D (no
-    WebGL). Your choice is remembered in this browser.
+    Choose <strong>WebGL</strong> for full GPU previews or <strong>Simple</strong> for Canvas 2D (no WebGL).
+    Your choice is remembered in this browser.
   </p>
 
   <div class="input-group">

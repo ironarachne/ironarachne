@@ -31,8 +31,8 @@ describe('getClassOptionsForRace', () => {
     c.wisdom = 18;
     c.charisma = 18;
     const opts = getClassOptionsForRace(c, dwarf, classes.getAll());
-      expect(opts.some((cl) => cl.name === 'mage')).toBe(false);
-      expect(opts.some((cl) => cl.name === 'fighter')).toBe(true);
+    expect(opts.some((cl) => cl.name === 'mage')).toBe(false);
+    expect(opts.some((cl) => cl.name === 'fighter')).toBe(true);
   });
 });
 

@@ -1,11 +1,9 @@
 import type RGBColor from '$lib/graphics/rgb_color';
 
 /** Photosphere, corona, and glow samples (same bucketing as legacy star fragment shader). */
-export function getRgbColorsFromStarSurfaceTemperature(surfaceTemperatureK: number): [
-  RGBColor,
-  RGBColor,
-  RGBColor,
-] {
+export function getRgbColorsFromStarSurfaceTemperature(
+  surfaceTemperatureK: number,
+): [RGBColor, RGBColor, RGBColor] {
   const t = surfaceTemperatureK;
   if (t < 3700) {
     return [

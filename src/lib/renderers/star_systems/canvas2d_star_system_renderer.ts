@@ -6,7 +6,10 @@ import {
   resolvePlanetCanvasTheme,
 } from '$lib/renderers/astronomical/planet_canvas_theme';
 import { drawStarPreviewDisk } from '$lib/renderers/stars/canvas2d_star_draw';
-import { drawPlanetSpherePatch, drawRingEllipsePatch } from '$lib/renderers/planets/canvas2d_planet_draw';
+import {
+  drawPlanetSpherePatch,
+  drawRingEllipsePatch,
+} from '$lib/renderers/planets/canvas2d_planet_draw';
 import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
 
 export function render(

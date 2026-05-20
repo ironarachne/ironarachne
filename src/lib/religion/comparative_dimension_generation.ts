@@ -50,19 +50,25 @@ function pickUniqueFromPool<T>(rng: RNG, pool: T[], count: number): T[] {
   return out;
 }
 
-function humanizePractice(kind: ReligionDimensionById['ritual']['primaryPractices'][number]): string {
+function humanizePractice(
+  kind: ReligionDimensionById['ritual']['primaryPractices'][number],
+): string {
   return Words.title(kind.replace(/_/g, ' '));
 }
 
-const mythKindLabels: Record<ReligionDimensionById['mythological']['storyKinds'][number], string> = {
-  creation: 'creation myths',
-  hero: 'hero legends',
-  apocalyptic: 'apocalyptic tales',
-  moral: 'moral exempla',
-  cosmological: 'cosmological lore',
-};
+const mythKindLabels: Record<ReligionDimensionById['mythological']['storyKinds'][number], string> =
+  {
+    creation: 'creation myths',
+    hero: 'hero legends',
+    apocalyptic: 'apocalyptic tales',
+    moral: 'moral exempla',
+    cosmological: 'cosmological lore',
+  };
 
-const institutionalStructurePhrase: Record<ReligionDimensionById['institutional']['structure'], string> = {
+const institutionalStructurePhrase: Record<
+  ReligionDimensionById['institutional']['structure'],
+  string
+> = {
   hierarchical: 'a steep hierarchy',
   congregational: 'congregational organization',
   diffuse: 'diffuse authority rooted in many local custodians',
@@ -207,8 +213,12 @@ function generateDoctrinal(
     ]),
   };
   const creedClause = hasFormalCreed
-    ? Words.buildSentence(['a formal creed bundles the non-negotiables for initiates and newcomers'])
-    : Words.buildSentence(['finer points of teaching stay open to debate among recognized teachers']);
+    ? Words.buildSentence([
+        'a formal creed bundles the non-negotiables for initiates and newcomers',
+      ])
+    : Words.buildSentence([
+        'finer points of teaching stay open to debate among recognized teachers',
+      ]);
   let summary = Words.fixPunctuation(`${authorityPhrase[authority]} ${creedClause}`);
   if (scriptureCharacter) {
     summary = Words.fixPunctuation(
@@ -316,7 +326,10 @@ function generateMaterial(
   return { sacredObjects, sacredSpaces, iconographyNotes, summary };
 }
 
-function applyOverrides(dimensions: ReligionDimensions, config: ReligionDimensionGenerationConfig): void {
+function applyOverrides(
+  dimensions: ReligionDimensions,
+  config: ReligionDimensionGenerationConfig,
+): void {
   const o = config;
   if (o.ritual && dimensions.ritual) {
     dimensions.ritual = { ...dimensions.ritual, ...o.ritual };

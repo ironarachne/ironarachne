@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
@@ -56,7 +59,16 @@ const mutators: ReadonlyMap<string, MemberMutator> = new Map([
 function heraldryConfig(rng: RNG): HeraldryGeneratorConfig {
   return mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: getChargesMatchingAnyTags(['eagle', 'sword', 'lightning', 'comet', 'void', 'star', 'fleur', 'objects']),
+    chargeOptions: getChargesMatchingAnyTags([
+      'eagle',
+      'sword',
+      'lightning',
+      'comet',
+      'void',
+      'star',
+      'fleur',
+      'objects',
+    ]),
   });
 }
 
@@ -65,7 +77,10 @@ export function buildStarshipSquadronKind(rng: RNG): OrganizationKindDefinition 
     id: 'starship_squadron',
     genre: 'science_fiction',
     typeLabel: 'Starship squadron',
-    namingProfile: { style: 'acronym_numeric', description: "No. <n> <Animal> <Wing> / the <Navy> " },
+    namingProfile: {
+      style: 'acronym_numeric',
+      description: 'No. <n> <Animal> <Wing> / the <Navy> ',
+    },
     defaultSizeRange: { min: 10, max: 400 },
     hierarchy,
     mutators,

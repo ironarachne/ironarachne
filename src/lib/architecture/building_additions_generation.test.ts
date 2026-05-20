@@ -20,7 +20,9 @@ describe('buildBuildingAdditions', () => {
     );
     expect(adds.length).toBeGreaterThan(0);
     const kinds = adds.map((a) => a.kind);
-    expect(kinds.some((k) => k === 'machicolations' || k === 'bartizan' || k === 'wall_walk')).toBe(true);
+    expect(kinds.some((k) => k === 'machicolations' || k === 'bartizan' || k === 'wall_walk')).toBe(
+      true,
+    );
     expect(kinds.includes('flying_buttress')).toBe(false);
   });
 
@@ -37,7 +39,9 @@ describe('buildBuildingAdditions', () => {
       },
       new RNG('no-mason'),
     );
-    expect(adds.every((a) => a.kind !== 'flying_buttress' && a.kind !== 'cornice_drip_band')).toBe(true);
+    expect(adds.every((a) => a.kind !== 'flying_buttress' && a.kind !== 'cornice_drip_band')).toBe(
+      true,
+    );
   });
 
   it('eventually selects flying buttresses for religious masonry across seeds', () => {

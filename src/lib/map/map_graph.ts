@@ -11,8 +11,8 @@ export interface MapNode {
   polygon: Polygon;
 
   neighbors: number[]; // IDs of adjacent MapNodes
-  edges: number[];     // IDs of MapEdges bordering this node
-  corners: number[];   // IDs of MapCorners forming the polygon
+  edges: number[]; // IDs of MapEdges bordering this node
+  corners: number[]; // IDs of MapCorners forming the polygon
 
   // Geography data
   elevation: number;
@@ -21,7 +21,7 @@ export interface MapNode {
   isWater: boolean;
   isOcean: boolean;
   isCoast: boolean;
-  biomeId?: string;    // String ID to link to the environment subsystem
+  biomeId?: string; // String ID to link to the environment subsystem
 }
 
 /**
@@ -31,9 +31,9 @@ export interface MapCorner {
   id: number;
   point: Vertex;
 
-  touches: number[];   // IDs of MapNodes touching this corner
+  touches: number[]; // IDs of MapNodes touching this corner
   protrudes: number[]; // IDs of MapEdges starting/ending at this corner
-  adjacent: number[];  // IDs of MapCorners connected by edges to this corner
+  adjacent: number[]; // IDs of MapCorners connected by edges to this corner
 
   // Geography data interpolated/calculated at corners
   elevation: number;
@@ -42,8 +42,8 @@ export interface MapCorner {
   isWater: boolean;
   isOcean: boolean;
   isCoast: boolean;
-  river: number;       // River flow volume (0 if no river)
-  downslope?: number;  // ID of the MapCorner that is downhill from this one
+  river: number; // River flow volume (0 if no river)
+  downslope?: number; // ID of the MapCorner that is downhill from this one
 }
 
 /**

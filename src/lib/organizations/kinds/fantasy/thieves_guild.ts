@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
@@ -56,7 +59,16 @@ const mutators: ReadonlyMap<string, MemberMutator> = new Map([
 function heraldryConfig(rng: RNG): HeraldryGeneratorConfig {
   return mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: getChargesMatchingAnyTags(['dagger', 'mask', 'snake', 'key', 'shadow', 'claw', 'raven', 'thief']),
+    chargeOptions: getChargesMatchingAnyTags([
+      'dagger',
+      'mask',
+      'snake',
+      'key',
+      'shadow',
+      'claw',
+      'raven',
+      'thief',
+    ]),
   });
 }
 
@@ -65,7 +77,10 @@ export function buildThievesGuildKind(rng: RNG): OrganizationKindDefinition {
     id: 'thieves_guild',
     genre: 'fantasy',
     typeLabel: "Thieves' guild",
-    namingProfile: { style: 'prefix_suffix', description: 'The <Adjective> <Crew> / The <Animal> Masks' },
+    namingProfile: {
+      style: 'prefix_suffix',
+      description: 'The <Adjective> <Crew> / The <Animal> Masks',
+    },
     defaultSizeRange: { min: 15, max: 150 },
     hierarchy,
     mutators,

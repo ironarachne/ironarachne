@@ -47,7 +47,11 @@ export default class ADNDClass {
     initialWP: number,
     initialNWP: number,
     wpPenalty: number,
-    apply: (character: ADNDCharacter, rng: RNG.RNG, options?: AdndClassApplyOptions) => ADNDCharacter,
+    apply: (
+      character: ADNDCharacter,
+      rng: RNG.RNG,
+      options?: AdndClassApplyOptions,
+    ) => ADNDCharacter,
   ) {
     this.name = name;
     this.group = group;

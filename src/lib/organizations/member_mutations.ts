@@ -48,7 +48,11 @@ export function withAgeCategoryName(
 /**
  * Replaces species; re-picks age category for the new species.
  */
-export function withSpecies(character: Character, species: Character['species'], rng: RNG): Character {
+export function withSpecies(
+  character: Character,
+  species: Character['species'],
+  rng: RNG,
+): Character {
   character.species = species;
   const newCat =
     species.ageCategories.find((c) => c.name === character.ageCategory.name) ??
@@ -64,7 +68,11 @@ export function buildLeaderBlurb(leader: Character): string {
   const leaderTitle = Characters.getHighestPrecedenceTitle(leader.titles || []);
   let leaderHonorific = '';
   if (leaderTitle) {
-    leaderHonorific = Characters.getHonorific(leader.gender.name, leaderTitle, leader.gender.pronouns);
+    leaderHonorific = Characters.getHonorific(
+      leader.gender.name,
+      leaderTitle,
+      leader.gender.pronouns,
+    );
   }
   return `They are led by ${leaderHonorific} ${leader.firstName} ${leader.lastName}. ${leader.description}`
     .replace(/\s+/g, ' ')
@@ -74,7 +82,10 @@ export function buildLeaderBlurb(leader: Character): string {
 /**
  * @returns Leader description string for the organization narrative block.
  */
-export function describeLeaderForOrganization(leader: Character, _organizationName: string): string {
+export function describeLeaderForOrganization(
+  leader: Character,
+  _organizationName: string,
+): string {
   return buildLeaderBlurb(leader);
 }
 
@@ -92,9 +103,7 @@ export function leaderRoleIdFromHierarchy(
 /**
  * Validates hierarchy invariants (throws if invalid).
  */
-export function assertValidOrganizationHierarchy(
-  h: OrganizationHierarchy,
-): void {
+export function assertValidOrganizationHierarchy(h: OrganizationHierarchy): void {
   const cpErrors = validateChildToParent(h.childToParent);
   if (cpErrors.length > 0) {
     throw new Error(`Invalid childToParent: ${JSON.stringify(cpErrors)}`);

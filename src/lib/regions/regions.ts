@@ -53,16 +53,26 @@ export function generate(config: RegionGeneratorConfig): Region {
     height: config.mapHeight,
     seed: config.rng.randomString(8),
     pointSpacing: 2.0, // Space between points in the Voronoi mesh
-    rng: config.rng
+    rng: config.rng,
   });
 
-  const startShape = config.rng.item(['coast-north', 'coast-south', 'coast-east', 'coast-west', 'coast-nw', 'coast-sw', 'coast-ne', 'coast-se', 'none']);
+  const startShape = config.rng.item([
+    'coast-north',
+    'coast-south',
+    'coast-east',
+    'coast-west',
+    'coast-nw',
+    'coast-sw',
+    'coast-ne',
+    'coast-se',
+    'none',
+  ]);
 
   map = MapElevation.assignElevation(map, {
     seed: config.rng.randomString(8),
     islandShape: startShape as any,
     frequency: 0.95,
-    hasMountainRange: config.rng.int(1, 100) > 50 // 50% chance of distinct mountain range
+    hasMountainRange: config.rng.int(1, 100) > 50, // 50% chance of distinct mountain range
   });
 
   const latitude = config.rng.weighted([
@@ -83,7 +93,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   map = MapWater.simulateWater(map, {
     seaLevel: -0.1,
     springCountPercentage: 0.1,
-    rng: config.rng
+    rng: config.rng,
   });
 
   map = MapClimate.assignTemperature(map, {
@@ -91,7 +101,7 @@ export function generate(config: RegionGeneratorConfig): Region {
     baseTemp: 30,
     latitude: latitude,
     elevationLapseRate: 6.5,
-    frequency: 2.5
+    frequency: 2.5,
   });
 
   const regionalMoisture = config.rng.int(10, 90) / 100;
@@ -99,12 +109,12 @@ export function generate(config: RegionGeneratorConfig): Region {
   map = MapClimate.assignMoisture(map, {
     seed: config.rng.randomString(8),
     baseMoisture: regionalMoisture,
-    frequency: 2.5
+    frequency: 2.5,
   });
 
   map = MapBiome.assignBiomes(map, {
     rng: config.rng,
-    paletteSize: 5
+    paletteSize: 5,
   });
   region.map = map;
 
@@ -116,7 +126,9 @@ export function generate(config: RegionGeneratorConfig): Region {
   // For now we continue building via config as an overarching description
   region.environment = Environments.generate(environmentConfig);
   region.settlements = randomSettlements(region.environment, nameGenSet, config.rng, region.map);
-  const townIds = region.settlements.map(s => s.mapNodeId).filter(id => id !== undefined) as number[];
+  const townIds = region.settlements
+    .map((s) => s.mapNodeId)
+    .filter((id) => id !== undefined) as number[];
   region.map = MapRoad.generateRoads(region.map, townIds);
   region.organizations = randomOrganizations(config.rng, region.environment);
   region.description = region.environment.description;
@@ -220,7 +232,7 @@ function randomSettlements(
   environment: Environment,
   nameGeneratorSet: Names.NameGeneratorSet,
   rng: RNG.RNG,
-  map: RegionMap
+  map: RegionMap,
 ): Settlement[] {
   let settlementGenConfig = Settlements.getDefaultConfig();
   settlementGenConfig.rng = rng;
@@ -255,9 +267,9 @@ function randomSettlements(
       Suitability.standardRules.notOcean(),
       Suitability.standardRules.nearFreshWater(),
       Suitability.standardRules.flatTerrain(),
-      Suitability.standardRules.temperateClimate()
+      Suitability.standardRules.temperateClimate(),
     ],
-    strict: true
+    strict: true,
   };
 
   const scores = Suitability.evaluateSuitability(map, suitabilityEngine);
@@ -274,7 +286,7 @@ function randomSettlements(
   if (bestNodes.length < totalSettlements) {
     const fallbackEngine: Suitability.SuitabilityEngine = {
       rules: [Suitability.standardRules.notOcean()],
-      strict: true
+      strict: true,
     };
     const fallbackScores = Suitability.evaluateSuitability(map, fallbackEngine);
     const fallbackNodes = Suitability.findBestLocations(fallbackScores, totalSettlements, 0, map);

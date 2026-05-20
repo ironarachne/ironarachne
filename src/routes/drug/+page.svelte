@@ -39,4 +39,3 @@
 
   <p>{drug.description}</p>
 </section>
-

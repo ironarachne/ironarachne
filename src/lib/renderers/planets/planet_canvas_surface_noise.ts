@@ -10,9 +10,7 @@ function mix(a: number, b: number, t: number): number {
 
 /** Scalar hash for lattice point (i,j,k). */
 function hashScalar(ix: number, iy: number, iz: number): number {
-  const n =
-    Math.sin(ix * 127.1 + iy * 311.7 + iz * 74.7 + 19.19) *
-    43758.5453123;
+  const n = Math.sin(ix * 127.1 + iy * 311.7 + iz * 74.7 + 19.19) * 43758.5453123;
   return fract(n);
 }
 
@@ -80,4 +78,3 @@ export function fbm(
 export function fbmMap(px: number, py: number, pz: number): number {
   return fbm(px, py, pz, 6, 0.5, 2, 4);
 }
-

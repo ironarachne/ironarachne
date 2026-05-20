@@ -157,10 +157,13 @@
 <section class="fantasy main">
   <h1>Organization Generator</h1>
 
-  <p>Generate organizations with hierarchy, visual identity, and member roles. Fantasy and science fiction kinds are available.</p>
   <p>
-    If you choose the Name Set &quot;any,&quot; names will follow the default species-driven generators.
-    Otherwise, names will follow the selected name set.
+    Generate organizations with hierarchy, visual identity, and member roles. Fantasy and science
+    fiction kinds are available.
+  </p>
+  <p>
+    If you choose the Name Set &quot;any,&quot; names will follow the default species-driven
+    generators. Otherwise, names will follow the selected name set.
   </p>
 
   <div class="input-group">
@@ -268,7 +271,11 @@
   {#each notableMembers as member}
     <p>
       <strong>
-        {Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member.titles || []), member.gender.pronouns)}
+        {Characters.getHonorific(
+          member.gender.name,
+          Characters.getHighestPrecedenceTitle(member.titles || []),
+          member.gender.pronouns,
+        )}
         {member.firstName}
         {member.lastName}{#if Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member.titles || []), member.gender.pronouns) == ''}
           ({Characters.getTitle(member)}){/if}:

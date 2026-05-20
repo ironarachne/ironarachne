@@ -92,4 +92,3 @@
 
   <p>{weapon.description}</p>
 </section>
-

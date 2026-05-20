@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
@@ -75,7 +78,10 @@ function heraldryForMercenary(rng: RNG): HeraldryGeneratorConfig {
   });
 }
 
-function prepareConfig(_roleId: string, base: CharacterGenerationConfig): CharacterGenerationConfig {
+function prepareConfig(
+  _roleId: string,
+  base: CharacterGenerationConfig,
+): CharacterGenerationConfig {
   return { ...base, allowedAgeCategoryNames: ['adult'] };
 }
 
@@ -84,18 +90,43 @@ export function buildMercenaryCompanyKind(rng: RNG): OrganizationKindDefinition 
     id: 'mercenary_company',
     genre: 'fantasy',
     typeLabel: 'Mercenary company',
-    namingProfile: { style: 'prefix_suffix', description: 'The <Epithet> <Collective> (e.g. The Iron Blades)' },
+    namingProfile: {
+      style: 'prefix_suffix',
+      description: 'The <Epithet> <Collective> (e.g. The Iron Blades)',
+    },
     defaultSizeRange: { min: 20, max: 80 },
     hierarchy,
     mutators,
     heraldryConfig: heraldryForMercenary(rng),
     generateName: (r) => {
       const prefix = r.item([
-        'Black', 'Blood', 'Burning', 'Crimson', 'Free', 'Gilded', 'Golden', 'Iron', 'Red', 'Silver', 'White',
+        'Black',
+        'Blood',
+        'Burning',
+        'Crimson',
+        'Free',
+        'Gilded',
+        'Golden',
+        'Iron',
+        'Red',
+        'Silver',
+        'White',
       ]);
       const suffix = r.item([
-        'Axes', 'Army', 'Bears', 'Blades', 'Coins', 'Company', 'Dragons', 'Giants', 'Lords', 'Pikes', 'Sentinels',
-        'Swords', 'Wolves', 'Wyverns',
+        'Axes',
+        'Army',
+        'Bears',
+        'Blades',
+        'Coins',
+        'Company',
+        'Dragons',
+        'Giants',
+        'Lords',
+        'Pikes',
+        'Sentinels',
+        'Swords',
+        'Wolves',
+        'Wyverns',
       ]);
       return `The ${prefix} ${suffix}`;
     },

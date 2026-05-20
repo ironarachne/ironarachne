@@ -54,7 +54,10 @@ export function getOrganizationKindById(id: string, rng: RNG): OrganizationKindD
 /**
  * Resolves a human label or `snake_case` id from the live registry.
  */
-export function getOrganizationKindByIdOrLabel(value: string, rng: RNG): OrganizationKindDefinition {
+export function getOrganizationKindByIdOrLabel(
+  value: string,
+  rng: RNG,
+): OrganizationKindDefinition {
   const all = getOrganizationKindsForRegistry(rng);
   const byId = all.find((d) => d.id === value);
   if (byId) {

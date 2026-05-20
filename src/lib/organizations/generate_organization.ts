@@ -17,7 +17,10 @@ import type Environment from '$lib/environment/environment.js';
 import { getKindsForGenerator, getOrganizationKindByIdOrLabel } from './kind_registry.js';
 import type { Organization, OrganizationWorldContext, RoleId } from './organization_types.js';
 import type { OrganizationKindDefinition } from './organization_kind.js';
-import { buildOrganizationProfile, composeOrganizationDescription } from './organization_profile.js';
+import {
+  buildOrganizationProfile,
+  composeOrganizationDescription,
+} from './organization_profile.js';
 import {
   assertValidOrganizationHierarchy,
   describeLeaderForOrganization,
@@ -115,10 +118,7 @@ function applyBuildVisualExtras(
   return out;
 }
 
-function buildVisualMaterialization(
-  kind: OrganizationKindDefinition,
-  rng: RNG,
-): VisualIdentity {
+function buildVisualMaterialization(kind: OrganizationKindDefinition, rng: RNG): VisualIdentity {
   const emblemStyle = kind.visualEmblemStyle ?? 'heraldry';
 
   if (emblemStyle === 'merchant_mark') {
@@ -230,7 +230,10 @@ export function generateOrganization(options: GenerateOrganizationOptions): Orga
   });
   const description = composeOrganizationDescription(memberCount, profile);
   const visualIdentity = buildVisualMaterialization(kind, rng);
-  const leaderId = leaderRoleIdFromHierarchy(kind.hierarchy.childToParent, kind.hierarchy.idToOrder);
+  const leaderId = leaderRoleIdFromHierarchy(
+    kind.hierarchy.childToParent,
+    kind.hierarchy.idToOrder,
+  );
   if (leaderId === null) {
     throw new Error(`Organization kind ${kind.id} has no leader role.`);
   }
@@ -239,10 +242,7 @@ export function generateOrganization(options: GenerateOrganizationOptions): Orga
     throw new Error(`Organization kind ${kind.id} has no mutator for leader ${leaderId}.`);
   }
   const leaderConfig = kind.prepareCharacterConfigForRole(leaderId, { ...characterConfig });
-  const leaderBase = Characters.generate(
-    `${prefix}-leader-${rng.randomString(12)}`,
-    leaderConfig,
-  );
+  const leaderBase = Characters.generate(`${prefix}-leader-${rng.randomString(12)}`, leaderConfig);
   const leader = mutator({
     rng,
     baseCharacter: leaderBase,

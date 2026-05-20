@@ -11,7 +11,12 @@ export interface BiomeAssignmentConfig {
 /**
  * Calculates a basic distance between a node's climate and a biome's ideal climate.
  */
-function getBiomeDistance(temp: number, moisture: number, elevation: number, b: BiomeClassification): number {
+function getBiomeDistance(
+  temp: number,
+  moisture: number,
+  elevation: number,
+  b: BiomeClassification,
+): number {
   const bTemp = (b.temperatureMin + b.temperatureMax) / 2;
   // Biome humidity is 0.0 - 1.0, similar to our moisture
   const bMoist = (b.humidityMin + b.humidityMax) / 2;
@@ -52,7 +57,7 @@ function buildBiomePalette(map: RegionMap, config: BiomeAssignmentConfig): strin
     [tempRange[1], moistRange[0], elevRange[1]],
     [tempRange[1], moistRange[1], elevRange[0]],
     [tempRange[1], moistRange[1], elevRange[1]],
-    [tempMid, moistMid, elevMid]
+    [tempMid, moistMid, elevMid],
   ];
 
   const palette = new Set<string>();
@@ -146,8 +151,18 @@ export function assignBiomes(map: RegionMap, config: BiomeAssignmentConfig): Reg
         const currentBiome = BiomeClassifications.getByName(node.biomeId);
         const neighborBiome = BiomeClassifications.getByName(mostCommon);
 
-        const currentDist = getBiomeDistance(node.temperature, node.moisture, node.elevation, currentBiome);
-        const neighborDist = getBiomeDistance(node.temperature, node.moisture, node.elevation, neighborBiome);
+        const currentDist = getBiomeDistance(
+          node.temperature,
+          node.moisture,
+          node.elevation,
+          currentBiome,
+        );
+        const neighborDist = getBiomeDistance(
+          node.temperature,
+          node.moisture,
+          node.elevation,
+          neighborBiome,
+        );
 
         // Adopt neighbor's biome if it's reasonably close to this node's ideal climate (20% tolerance)
         if (neighborDist < currentDist * 1.2) {

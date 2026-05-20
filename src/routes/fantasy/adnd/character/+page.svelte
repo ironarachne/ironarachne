@@ -39,7 +39,9 @@
 
   <p>This is an AD&amp;D 2e character generator.</p>
 
-  <p><a href="/fantasy/adnd/character/build">User-directed character builder</a> (dice for attributes only).</p>
+  <p>
+    <a href="/fantasy/adnd/character/build">User-directed character builder</a> (dice for attributes only).
+  </p>
 
   <div class="input-group">
     <label for="seed">Seed</label>
@@ -53,4 +55,3 @@
     <AdndCharacterSheet {character} />
   {/if}
 </section>
-

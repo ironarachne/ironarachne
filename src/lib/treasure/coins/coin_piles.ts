@@ -119,7 +119,9 @@ export function decreaseValueOfPileOfCoins(
   coinSystem: CurrencySystem,
 ): PileOfCoins {
   const totalValue = pile.value - reductionValue;
-  const coinValue = coinSystem.denominations.find((d: CurrencyDenomination) => d.name === pile.denomination)?.value || 0;
+  const coinValue =
+    coinSystem.denominations.find((d: CurrencyDenomination) => d.name === pile.denomination)
+      ?.value || 0;
   const newQuantity = Math.max(0, Math.floor(totalValue / coinValue));
   const newValue = newQuantity * coinValue;
   const newWeight = 0.01 * newQuantity;
@@ -150,7 +152,9 @@ export function getDenominationProportionsUpToDenomination(
     platinum: 0,
   };
 
-  const denominationIndex = coinSystem.denominations.findIndex((d: CurrencyDenomination) => d.name === denomination);
+  const denominationIndex = coinSystem.denominations.findIndex(
+    (d: CurrencyDenomination) => d.name === denomination,
+  );
   const lowerDenominationCount = denominationIndex;
   const baseAmount = lowerDenominationCount > 0 ? Math.floor(10 / lowerDenominationCount) : 0;
   let remainder = lowerDenominationCount > 0 ? 10 % lowerDenominationCount : 0;
@@ -192,7 +196,9 @@ export function getSetOfCoinsForValue(
 
   const totalProportion = Object.values(denominationProportions).reduce((sum, val) => sum + val, 0);
 
-  const sortedDenominations = coinSystem.denominations.slice().sort((a: CurrencyDenomination, b: CurrencyDenomination) => b.value - a.value);
+  const sortedDenominations = coinSystem.denominations
+    .slice()
+    .sort((a: CurrencyDenomination, b: CurrencyDenomination) => b.value - a.value);
 
   for (const denomination of sortedDenominations) {
     const proportion = denominationProportions[denomination.name] || 0;
@@ -232,9 +238,14 @@ export function getSetOfCoinsForValue(
  * @param targetValue the value in copper coins
  * @returns
  */
-export function getPileOfCoinsForValue(targetValue: number, coinSystem: CurrencySystem): PileOfCoins {
+export function getPileOfCoinsForValue(
+  targetValue: number,
+  coinSystem: CurrencySystem,
+): PileOfCoins {
   // Find the largest denomination that fits into the target value
-  const sortedDenominations = coinSystem.denominations.slice().sort((a: CurrencyDenomination, b: CurrencyDenomination) => b.value - a.value);
+  const sortedDenominations = coinSystem.denominations
+    .slice()
+    .sort((a: CurrencyDenomination, b: CurrencyDenomination) => b.value - a.value);
 
   for (const denomination of sortedDenominations) {
     if (targetValue >= denomination.value) {
@@ -267,7 +278,9 @@ export function increaseValueOfPileOfCoins(
   coinSystem: CurrencySystem,
 ): PileOfCoins {
   const totalValue = pile.value + additionalValue;
-  const coinValue = coinSystem.denominations.find((d: CurrencyDenomination) => d.name === pile.denomination)?.value || 0;
+  const coinValue =
+    coinSystem.denominations.find((d: CurrencyDenomination) => d.name === pile.denomination)
+      ?.value || 0;
   const newQuantity = Math.floor(totalValue / coinValue);
   const newValue = newQuantity * coinValue;
   const newWeight = 0.01 * newQuantity;
@@ -309,7 +322,8 @@ export function splitPileOfCoins(
       pile.denomination,
       quantityForThisPile,
       quantityForThisPile *
-        (coinSystem.denominations.find((d: CurrencyDenomination) => d.name === pile.denomination)?.value || 0),
+        (coinSystem.denominations.find((d: CurrencyDenomination) => d.name === pile.denomination)
+          ?.value || 0),
     );
 
     newPiles.push(newPile);
@@ -343,7 +357,9 @@ export function distributeCoins(
   const containedItems: PileOfCoins[] = [];
   const looseItems: PileOfCoins[] = [];
   let remainingQuantity = pile.quantity;
-  const coinValue = coinSystem.denominations.find((d: CurrencyDenomination) => d.name === pile.denomination)?.value || 0;
+  const coinValue =
+    coinSystem.denominations.find((d: CurrencyDenomination) => d.name === pile.denomination)
+      ?.value || 0;
   const weightPerCoin = 0.001;
   const volumePerCoin = getVolume({ ...pile, weight: weightPerCoin });
 
@@ -446,7 +462,10 @@ export function distributeCoins(
  * @param coinSystem The coin system to use for value calculations
  * @returns An array of consolidated piles, one per denomination found
  */
-export function combinePilesOfCoins(piles: PileOfCoins[], coinSystem: CurrencySystem): PileOfCoins[] {
+export function combinePilesOfCoins(
+  piles: PileOfCoins[],
+  coinSystem: CurrencySystem,
+): PileOfCoins[] {
   const pilesByDenomination: Record<string, PileOfCoins[]> = {};
 
   for (const pile of piles) {
@@ -463,7 +482,9 @@ export function combinePilesOfCoins(piles: PileOfCoins[], coinSystem: CurrencySy
     if (currentPiles.length === 0) continue;
 
     const totalQuantity = currentPiles.reduce((sum, p) => sum + p.quantity, 0);
-    const coinValue = coinSystem.denominations.find((d: CurrencyDenomination) => d.name === denomination)?.value || 0;
+    const coinValue =
+      coinSystem.denominations.find((d: CurrencyDenomination) => d.name === denomination)?.value ||
+      0;
     const totalValue = totalQuantity * coinValue;
 
     // Use the ID of the first pile as a base, or generate a new one

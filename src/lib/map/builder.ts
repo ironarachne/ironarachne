@@ -45,7 +45,7 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
     height: config.height,
     nodes: [],
     edges: [],
-    corners: []
+    corners: [],
   };
 
   // Helper structures for deduplicating corners and edges
@@ -72,7 +72,7 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
       isWater: false,
       isOcean: false,
       isCoast: false,
-      river: 0
+      river: 0,
     };
     cornerMap.set(hash, newCorner);
     regionMap.corners.push(newCorner);
@@ -96,7 +96,7 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
       v0: c1.id,
       v1: c2.id,
       river: 0,
-      midpoint
+      midpoint,
     };
     edgeMap.set(hash, newEdge);
     regionMap.edges.push(newEdge);
@@ -116,13 +116,15 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
 
     // Discard cells generated from our boundary constraints if their center is exactly on the edge
     const isBoundaryCenter =
-        cell.site.x <= 0.001 || cell.site.x >= config.width - 0.001 ||
-        cell.site.y <= 0.001 || cell.site.y >= config.height - 0.001;
+      cell.site.x <= 0.001 ||
+      cell.site.x >= config.width - 0.001 ||
+      cell.site.y <= 0.001 ||
+      cell.site.y >= config.height - 0.001;
 
     // We can map all sites to a MapNode.
     // Boundary constraint nodes simply have a flag indicating they're the map boundary.
 
-    const nodeCorners: MapCorner[] = cell.polygon.vertices.map(v => getOrCreateCorner(v));
+    const nodeCorners: MapCorner[] = cell.polygon.vertices.map((v) => getOrCreateCorner(v));
     const nodeEdges: MapEdge[] = [];
 
     // Link node back to corners
@@ -154,14 +156,14 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
       center: cell.site,
       polygon: cell.polygon,
       neighbors: [], // Populate after graph is formed
-      edges: nodeEdges.map(e => e.id),
-      corners: nodeCorners.map(c => c.id),
+      edges: nodeEdges.map((e) => e.id),
+      corners: nodeCorners.map((c) => c.id),
       elevation: 0,
       moisture: 0,
       temperature: 0,
       isWater: false,
       isOcean: isBoundaryCenter,
-      isCoast: false
+      isCoast: false,
     };
 
     regionMap.nodes.push(mapNode);

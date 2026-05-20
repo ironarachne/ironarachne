@@ -1,6 +1,9 @@
 import { getAllChargeGlyphs } from '$lib/charges/charge-data.js';
 import { matchingAnyTags } from '$lib/charges/charge-selectors.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import * as Names from '$lib/names';
 import type { RNG } from '@ironarachne/rng';
@@ -77,7 +80,11 @@ function generateNameImpl(rng: RNG, _characterConfig: CharacterGenerationConfig)
     () => {
       const prefix = rng.item(['Dynasty', 'Gilded', 'Luxury']);
       const suffix = rng.item([
-        'Trading Company', 'Traders', 'Navigation Company', 'Trade Company', 'Trade and Navigation Company',
+        'Trading Company',
+        'Traders',
+        'Navigation Company',
+        'Trade Company',
+        'Trade and Navigation Company',
       ]);
       return `${prefix} ${suffix}`;
     },
@@ -85,7 +92,11 @@ function generateNameImpl(rng: RNG, _characterConfig: CharacterGenerationConfig)
       const direction = rng.item(['North', 'West', 'South', 'East']);
       const feature = rng.item(['Wind', 'Sea', 'Mountain', 'Ocean']);
       const suffix = rng.item([
-        'Trading Company', 'Traders', 'Navigation Company', 'Trade Company', 'Trade and Navigation Company',
+        'Trading Company',
+        'Traders',
+        'Navigation Company',
+        'Trade Company',
+        'Trade and Navigation Company',
       ]);
       return `${direction} ${feature} ${suffix}`;
     },
@@ -97,7 +108,11 @@ function generateNameImpl(rng: RNG, _characterConfig: CharacterGenerationConfig)
       const familyName = rng.item(nameGeneratorSet.family.generate(100));
       const moniker = rng.item([' Brothers', ' & Sons', ' & Son', ' Family', '']);
       const suffix = rng.item([
-        'Trading Company', 'Traders', 'Navigation Company', 'Trade Company', 'Trade and Navigation Company',
+        'Trading Company',
+        'Traders',
+        'Navigation Company',
+        'Trade Company',
+        'Trade and Navigation Company',
       ]);
       return `${familyName} ${moniker} ${suffix}`;
     },
@@ -110,7 +125,10 @@ export function buildTradingCompanyKind(rng: RNG): OrganizationKindDefinition {
     id: 'trading_company',
     genre: 'fantasy',
     typeLabel: 'Trading company',
-    namingProfile: { style: 'family_business', description: 'Commercial compound names and family "House" trading lines' },
+    namingProfile: {
+      style: 'family_business',
+      description: 'Commercial compound names and family "House" trading lines',
+    },
     defaultSizeRange: { min: 30, max: 200 },
     hierarchy,
     mutators,

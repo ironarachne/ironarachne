@@ -225,8 +225,7 @@ function main(): void {
 
   for (let i = 0; i < styles.length; i++) {
     const style = styles[i];
-    const header =
-      count > 1 ? `\n--- Style ${i + 1}/${count} (seed: ${style.seed}) ---\n` : '\n';
+    const header = count > 1 ? `\n--- Style ${i + 1}/${count} (seed: ${style.seed}) ---\n` : '\n';
     if (i === 0) {
       console.log(`Architectural style (base seed: ${baseSeed})`);
       console.log(

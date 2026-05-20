@@ -65,7 +65,14 @@
       renderStarPreviewImage(document, star, width, height, rng.randomString(13), imageRenderer),
     );
     planetImageSrcs = current.planets.map((planet) =>
-      renderPlanetPreviewImage(document, planet, width, height, rng.randomString(13), imageRenderer),
+      renderPlanetPreviewImage(
+        document,
+        planet,
+        width,
+        height,
+        rng.randomString(13),
+        imageRenderer,
+      ),
     );
   }
 

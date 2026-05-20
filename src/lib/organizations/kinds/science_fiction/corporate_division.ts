@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
@@ -56,7 +59,15 @@ const mutators: ReadonlyMap<string, MemberMutator> = new Map([
 function heraldryConfig(rng: RNG): HeraldryGeneratorConfig {
   return mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: getChargesMatchingAnyTags(['geometric', 'star', 'compass', 'objects', 'tower', 'crown', 'fleur']),
+    chargeOptions: getChargesMatchingAnyTags([
+      'geometric',
+      'star',
+      'compass',
+      'objects',
+      'tower',
+      'crown',
+      'fleur',
+    ]),
   });
 }
 
@@ -65,19 +76,37 @@ export function buildCorporateDivisionKind(rng: RNG): OrganizationKindDefinition
     id: 'corporate_division',
     genre: 'science_fiction',
     typeLabel: 'Corporate division',
-    namingProfile: { style: 'acronym_numeric', description: '<CONSORT> Division <Greek> / <Planet> Acquisitions' },
+    namingProfile: {
+      style: 'acronym_numeric',
+      description: '<CONSORT> Division <Greek> / <Planet> Acquisitions',
+    },
     defaultSizeRange: { min: 40, max: 15000 },
     hierarchy,
     mutators,
     heraldryConfig: heraldryConfig(rng),
     buildVisualExtras: (r) => ({
-      motto: r.item(['Profit in orbit.', 'We own the margin.', 'Compliance is a product.', 'Sustainable extraction.']),
+      motto: r.item([
+        'Profit in orbit.',
+        'We own the margin.',
+        'Compliance is a product.',
+        'Sustainable extraction.',
+      ]),
     }),
     generateName: (r) => {
       const greek = r.item(['Lambda', 'Sigma', 'Omega', 'Theta', 'Zeta', 'Kappa', 'Iota']);
-      const con = r.item(['AstraDyne', 'HeliosMesa', 'VoidCartel', 'SynapseCore', 'TerraFirm', 'NyxaHoldings']);
+      const con = r.item([
+        'AstraDyne',
+        'HeliosMesa',
+        'VoidCartel',
+        'SynapseCore',
+        'TerraFirm',
+        'NyxaHoldings',
+      ]);
       return `${con}—${greek} Division`;
     },
-    prepareCharacterConfigForRole: (_id, base) => ({ ...base, allowedAgeCategoryNames: ['adult', 'elderly'] }),
+    prepareCharacterConfigForRole: (_id, base) => ({
+      ...base,
+      allowedAgeCategoryNames: ['adult', 'elderly'],
+    }),
   };
 }

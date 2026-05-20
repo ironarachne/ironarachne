@@ -25,11 +25,7 @@ export default new ADNDClass(
   2,
   3,
   -3,
-  (
-    character: ADNDCharacter,
-    rng: RNG.RNG,
-    options?: AdndClassApplyOptions,
-  ): ADNDCharacter => {
+  (character: ADNDCharacter, rng: RNG.RNG, options?: AdndClassApplyOptions): ADNDCharacter => {
     let skills = [
       { name: 'Pick Pockets', value: 10, points: 0 },
       { name: 'Detect Noise', value: 20, points: 0 },

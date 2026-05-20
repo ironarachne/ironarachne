@@ -159,8 +159,8 @@
 
   <p>
     This lets you generate a planet. Choose <strong>WebGL</strong> for full shader quality (uses the
-    GPU) or <strong>Simple</strong> for a Canvas 2D preview that avoids WebGL—useful on low-end
-    machines. Your choice is remembered in this browser.
+    GPU) or <strong>Simple</strong> for a Canvas 2D preview that avoids WebGL—useful on low-end machines.
+    Your choice is remembered in this browser.
   </p>
 
   <div class="input-group">

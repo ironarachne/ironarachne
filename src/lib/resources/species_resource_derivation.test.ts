@@ -77,8 +77,6 @@ describe('getAllSpeciesDerivedResources', () => {
     // At least as many as eligible species in the registry (heuristic: not empty, scales with all.ts)
     const eligible = allSpecies.filter((s) => speciesYieldsCarcassResources(s));
     expect(all.length).toBeGreaterThan(0);
-    expect(all.length).toBeLessThanOrEqual(
-      eligible.length * 4,
-    );
+    expect(all.length).toBeLessThanOrEqual(eligible.length * 4);
   });
 });

@@ -90,7 +90,7 @@ export function assignMoisture(map: RegionMap, config: MoistureConfig): RegionMa
   // Bleed moisture outward using a multi-pass relaxation
   const passes = 3;
   for (let i = 0; i < passes; i++) {
-    const prevMoisture = newMap.corners.map(c => c.moisture);
+    const prevMoisture = newMap.corners.map((c) => c.moisture);
     for (const corner of newMap.corners) {
       if (corner.moisture === maxMoisture) continue;
 
@@ -114,7 +114,7 @@ export function assignMoisture(map: RegionMap, config: MoistureConfig): RegionMa
     const nMoist = (noise(nx, ny) + 1) / 2; // [0,1]
 
     // Blend distance moisture and noise, using baseMoisture as a baseline offset against 0.5
-    corner.moisture = (corner.moisture * 0.7) + (nMoist * 0.3) + (config.baseMoisture - 0.5);
+    corner.moisture = corner.moisture * 0.7 + nMoist * 0.3 + (config.baseMoisture - 0.5);
     // Clamp
     corner.moisture = Math.max(0, Math.min(1, corner.moisture));
   }

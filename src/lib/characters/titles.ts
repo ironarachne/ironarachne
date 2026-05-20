@@ -260,7 +260,13 @@ export function getTitle(character: Character): string {
 
 type TitleCoreFields = Pick<
   Title,
-  'femaleTitle' | 'maleTitle' | 'femaleHonorific' | 'maleHonorific' | 'hasLands' | 'landName' | 'precedence'
+  | 'femaleTitle'
+  | 'maleTitle'
+  | 'femaleHonorific'
+  | 'maleHonorific'
+  | 'hasLands'
+  | 'landName'
+  | 'precedence'
 >;
 
 /** Builds a {@link Title} with empty tags and default rank flags (all false unless overridden). */

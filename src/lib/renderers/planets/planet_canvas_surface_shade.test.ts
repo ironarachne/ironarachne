@@ -40,8 +40,7 @@ describe('shadePlanetDiskPixel', () => {
     const py = 12;
     const g = shadePlanetDiskPixel(px, py, 50, theme, params, 'gas giant planet');
     const t = shadePlanetDiskPixel(px, py, 50, theme, params, 'garden planet');
-    const diff =
-      Math.abs(g[0] - t[0]) + Math.abs(g[1] - t[1]) + Math.abs(g[2] - t[2]);
+    const diff = Math.abs(g[0] - t[0]) + Math.abs(g[1] - t[1]) + Math.abs(g[2] - t[2]);
     expect(diff).toBeGreaterThan(0.02);
   });
 });

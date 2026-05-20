@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import * as Names from '$lib/names';
 import type { RNG } from '@ironarachne/rng';
@@ -57,12 +60,23 @@ const mutators: ReadonlyMap<string, MemberMutator> = new Map([
 function heraldryConfig(rng: RNG): HeraldryGeneratorConfig {
   return mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1, 1]),
-    chargeOptions: getChargesMatchingAnyTags(['crown', 'sword', 'rose', 'lion', 'eagle', 'fleur', 'castle']),
+    chargeOptions: getChargesMatchingAnyTags([
+      'crown',
+      'sword',
+      'rose',
+      'lion',
+      'eagle',
+      'fleur',
+      'castle',
+    ]),
   });
 }
 
 function houseNameFromRng(r: RNG, characterConfig: CharacterGenerationConfig): string {
-  const set = Names.getFantasyNameGeneratorSet(characterConfig.species.name.toLowerCase() || 'human', r);
+  const set = Names.getFantasyNameGeneratorSet(
+    characterConfig.species.name.toLowerCase() || 'human',
+    r,
+  );
   const last = r.item(set.family.generate(100));
   const suffix = r.item([' retinue', ' household guard', ' cadet line', ' sworn swords']);
   return `House ${last}'s${suffix}`;
@@ -73,7 +87,10 @@ export function buildNobleHouseKind(rng: RNG): OrganizationKindDefinition {
     id: 'noble_house',
     genre: 'fantasy',
     typeLabel: 'Noble house retinue',
-    namingProfile: { style: 'family_business', description: "House <Name>’s <Guard|retinue> — tied to a named lineage" },
+    namingProfile: {
+      style: 'family_business',
+      description: 'House <Name>’s <Guard|retinue> — tied to a named lineage',
+    },
     defaultSizeRange: { min: 8, max: 120 },
     hierarchy,
     mutators,

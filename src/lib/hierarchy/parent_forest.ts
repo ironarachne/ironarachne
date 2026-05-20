@@ -143,10 +143,7 @@ export function buildChildrenMap<Id extends string>(
 /**
  * All nodes in the subtrees under `id` (not including `id`). BFS.
  */
-export function listDescendants<Id extends string>(
-  m: ReadonlyMap<Id, Id | null>,
-  id: Id,
-): Id[] {
+export function listDescendants<Id extends string>(m: ReadonlyMap<Id, Id | null>, id: Id): Id[] {
   const children = buildChildrenMap(m);
   const res: Id[] = [];
   const queue: Id[] = children.get(id)?.slice() ?? [];

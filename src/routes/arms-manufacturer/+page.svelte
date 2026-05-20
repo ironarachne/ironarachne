@@ -34,4 +34,3 @@
     </div>
   {/each}
 </section>
-

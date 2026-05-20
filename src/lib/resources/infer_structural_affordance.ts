@@ -1,5 +1,9 @@
 import type { Resource } from './resource_types';
-import type { BuildingMaterialRole, BuildingStructuralAffordance, SpanCategory } from './structural_affordance';
+import type {
+  BuildingMaterialRole,
+  BuildingStructuralAffordance,
+  SpanCategory,
+} from './structural_affordance';
 
 function clamp01(n: number): number {
   if (Number.isNaN(n)) {
@@ -87,7 +91,7 @@ function rolesForMajorMinor(
   } else if (m === 'thatch' || m === 'fibre' || m === 'straw' || n.includes('thatch')) {
     roles.add('roofing');
     roles.add('enclosure');
-  } else   if (m === 'metal') {
+  } else if (m === 'metal') {
     roles.add('ornament');
     if (n.includes('ore')) {
       /* Raw ore: decorative / trace use only for vernacular architecture. */

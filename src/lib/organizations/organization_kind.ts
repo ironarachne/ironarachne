@@ -49,7 +49,9 @@ export type OrganizationKindDefinition = {
   /**
    * Optional colors and motto layered on top of emblem in `generateOrganization`.
    */
-  buildVisualExtras?: (rng: RNG) => Partial<Pick<VisualIdentity, 'colors' | 'motto' | 'emblem'>> | undefined;
+  buildVisualExtras?: (
+    rng: RNG,
+  ) => Partial<Pick<VisualIdentity, 'colors' | 'motto' | 'emblem'>> | undefined;
   generateName: (rng: RNG, ctx: { characterConfig: CharacterGenerationConfig }) => string;
   /**
    * Override base character config for a role before generation (age bands, archetype tags, etc.).

@@ -76,7 +76,7 @@ export const standardRules = {
       if (t > 10 && t < 25) return 1.0; // Ideal
       return 0.5; // Moderate
     };
-  }
+  },
 };
 
 /**
@@ -86,7 +86,10 @@ export const standardRules = {
  * @param {SuitabilityEngine} engine The ruleset to apply
  * @returns {Map<number, number>} A Map mapping MapNode ID to its final Suitability Score
  */
-export function evaluateSuitability(map: RegionMap, engine: SuitabilityEngine): Map<number, number> {
+export function evaluateSuitability(
+  map: RegionMap,
+  engine: SuitabilityEngine,
+): Map<number, number> {
   const scores = new Map<number, number>();
 
   for (const node of map.nodes) {
@@ -122,7 +125,12 @@ export function evaluateSuitability(map: RegionMap, engine: SuitabilityEngine): 
  * @param {RegionMap} map Reference to the map to calculate distance
  * @returns {number[]} Array of best MapNode IDs
  */
-export function findBestLocations(scores: Map<number, number>, count: number, minimumDistance: number, map: RegionMap): number[] {
+export function findBestLocations(
+  scores: Map<number, number>,
+  count: number,
+  minimumDistance: number,
+  map: RegionMap,
+): number[] {
   // Sort node IDs descending by score
   const sortedIds = Array.from(scores.entries())
     .filter(([_, score]) => score > 0)

@@ -15,4 +15,3 @@
     <a href="/swn/starship">Stars Without Number Starship</a>
   </nav>
 </section>
-

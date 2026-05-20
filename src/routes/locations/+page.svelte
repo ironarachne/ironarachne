@@ -14,4 +14,3 @@
     <a href="/star-system">Star System</a>
   </nav>
 </section>
-

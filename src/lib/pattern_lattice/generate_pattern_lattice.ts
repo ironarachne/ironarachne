@@ -54,11 +54,7 @@ export function generatePatternLattice(
   const cols = rng.int(minD, maxD);
 
   const swatchPool = DISPLAY_SWATCHES.map((s) => ({ commonality: s.commonality, value: s.hex }));
-  const palette = buildPalette(
-    rng,
-    colorCount,
-    swatchPool,
-  );
+  const palette = buildPalette(rng, colorCount, swatchPool);
   const pickColor = () => palette[rng.int(0, palette.length - 1)]!;
 
   const cells: string[] = new Array(rows * cols);

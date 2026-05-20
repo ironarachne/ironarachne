@@ -49,13 +49,11 @@ function effectiveWeight(
   return Math.max(1, Math.round(w));
 }
 
-function filterEligible(
-  config: {
-    purposes: BuildingPurpose[];
-    hasWood: boolean;
-    hasMasonry: boolean;
-  },
-): BuildingAdditionCatalogEntry[] {
+function filterEligible(config: {
+  purposes: BuildingPurpose[];
+  hasWood: boolean;
+  hasMasonry: boolean;
+}): BuildingAdditionCatalogEntry[] {
   const purposeSet = new Set(config.purposes);
   return BUILDING_ADDITION_CATALOG.filter((e) => {
     if (!e.eligiblePurposes.some((p) => purposeSet.has(p))) {

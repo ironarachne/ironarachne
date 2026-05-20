@@ -171,4 +171,3 @@
   <p><strong>Adult Age:</strong> {ingenium.adultAge}</p>
   <p><strong>Maximum Lifespan:</strong> {maximumAge}</p>
 </section>
-

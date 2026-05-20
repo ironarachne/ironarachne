@@ -1418,10 +1418,7 @@ export function applyAdndAbilityDerivedFields(character: ADNDCharacter): void {
   character.spellLevel = getSpellLevel(character.intelligence);
   character.systemShock = getSystemShock(character.constitution);
   character.warriorHitPointAdjustment = getWarriorHitPointAdjustment(character.constitution);
-  character.weightAllowance = getWeightAllowance(
-    character.strength,
-    character.exceptionalStrength,
-  );
+  character.weightAllowance = getWeightAllowance(character.strength, character.exceptionalStrength);
 }
 
 export function applyAdndSavingThrows(character: ADNDCharacter): void {

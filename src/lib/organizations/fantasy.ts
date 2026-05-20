@@ -7,9 +7,7 @@ import type { RNG } from '@ironarachne/rng';
 /**
  * Default character config for organization-focused flows (e.g. fantasy org generator page).
  */
-export function getDefaultOrganizationCharacterConfig(
-  seed: string,
-): CharacterGenerationConfig {
+export function getDefaultOrganizationCharacterConfig(seed: string): CharacterGenerationConfig {
   return Characters.getDefaultCharacterGenerationConfig(`character-${seed}`);
 }
 

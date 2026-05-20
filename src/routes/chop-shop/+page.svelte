@@ -24,4 +24,3 @@
   <button onclick={generateChopShop}>Generate</button>
   <p>{description}</p>
 </section>
-

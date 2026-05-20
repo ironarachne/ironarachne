@@ -15,4 +15,3 @@
     <a href="/star-nation">Star Nation</a>
   </nav>
 </section>
-

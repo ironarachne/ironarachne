@@ -1,7 +1,10 @@
 import * as RNG from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
 
-import { generateCulture, getDefaultCultureGenerationConfig } from '$lib/culture/culture_generation';
+import {
+  generateCulture,
+  getDefaultCultureGenerationConfig,
+} from '$lib/culture/culture_generation';
 import {
   cultureFromSnapshot,
   stripFunctionValuesDeep,
@@ -24,7 +27,9 @@ describe('culture_snapshot', () => {
     const json = JSON.stringify(stored);
     const parsed = JSON.parse(json) as typeof stored;
     const rebuilt = nameGeneratorSetFromPatternSources(parsed, rng);
-    expect(patternSourceFromNameGenerator(rebuilt.male)).toEqual(patternSourceFromNameGenerator(set!.male));
+    expect(patternSourceFromNameGenerator(rebuilt.male)).toEqual(
+      patternSourceFromNameGenerator(set!.male),
+    );
     expect(rebuilt.name).toBe(set!.name);
   });
 

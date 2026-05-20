@@ -5,7 +5,11 @@ import type { NonTheisticTagged } from './non_theistic_religion_data';
 import type { NonTheisticReligionDetail } from './non_theistic_religion_types';
 import type { ReligionCategory } from './religion_types';
 
-function pickUniqueTagged<T extends NonTheisticTagged>(rng: RNG, pool: readonly T[], count: number): T[] {
+function pickUniqueTagged<T extends NonTheisticTagged>(
+  rng: RNG,
+  pool: readonly T[],
+  count: number,
+): T[] {
   if (pool.length === 0 || count <= 0) {
     return [];
   }
@@ -33,7 +37,10 @@ function buildAnimism(rng: RNG): NonTheisticReligionDetail {
   const obligationRows = pickUniqueTagged(rng, Data.animismObligationPool, rng.int(2, 3));
   const spiritDomains = domainRows.map((r) => r.id);
   const obligationCycles = obligationRows.map((r) => r.id);
-  const mediationRoles = ['elders who read weather in the body', 'travelers who carry small exchange gifts'];
+  const mediationRoles = [
+    'elders who read weather in the body',
+    'travelers who carry small exchange gifts',
+  ];
   const pollutionRow = rng.item(Data.pollutionPool);
   const repairRow = rng.item(Data.purityRepairPool);
   const domainPhrase = Words.arrayToPhrase(domainRows.map((r) => r.phrase));
@@ -106,7 +113,10 @@ function buildAncestorWorship(rng: RNG): NonTheisticReligionDetail {
   const obligationRows = pickUniqueTagged(rng, Data.ancestorObligationPool, rng.int(2, 4));
   const spiritDomains = shrineRows.map((r) => `ancestor_${r.id}`);
   const obligationCycles = obligationRows.map((r) => r.id);
-  const mediationRoles = ['senior kin who tend the tablets', 'widows who relay dreams from the niche'];
+  const mediationRoles = [
+    'senior kin who tend the tablets',
+    'widows who relay dreams from the niche',
+  ];
   const pollutionRow = rng.item(Data.pollutionPool);
   const repairRow = rng.item(Data.purityRepairPool);
   const shrinePhrase = Words.arrayToPhrase(shrineRows.map((r) => r.phrase));

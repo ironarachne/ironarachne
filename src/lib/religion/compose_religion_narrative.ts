@@ -165,7 +165,11 @@ export function composeReligionOverviewDescription(
     );
   }
   const aspect = lowercaseFirstChar(stripTrailingPeriod(firstSentence(rng.item(candidates))));
-  const hookIntroPhrase = rng.item(['one thread worth tracing is that', 'a knot worth untangling is that', 'something interesting is that']);
+  const hookIntroPhrase = rng.item([
+    'one thread worth tracing is that',
+    'a knot worth untangling is that',
+    'something interesting is that',
+  ]);
   const hook = Words.buildSentence([hookIntroPhrase, aspect]);
   return Words.fixPunctuation(`${typeStructure} ${hook}`);
 }

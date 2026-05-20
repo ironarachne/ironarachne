@@ -22,9 +22,7 @@ function isCultureSavePayload(value: unknown): value is CultureSavePayload {
     return false;
   }
   const record = value as Record<string, unknown>;
-  return (
-    record.payloadVersion === CULTURE_SAVE_PAYLOAD_VERSION && Array.isArray(record.cultures)
-  );
+  return record.payloadVersion === CULTURE_SAVE_PAYLOAD_VERSION && Array.isArray(record.cultures);
 }
 
 export function readCultureSavePayload(): CultureSavePayload {

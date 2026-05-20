@@ -20,7 +20,11 @@ export type StarSystemLayoutPlanet = {
 export type StarSystemLayoutItem = StarSystemLayoutStar | StarSystemLayoutPlanet;
 
 /** Mirrors placement math in `webgl_star_system_renderer` for consistent previews. */
-export function computeStarSystemLayout(system: StarSystem, width: number, height: number): {
+export function computeStarSystemLayout(
+  system: StarSystem,
+  width: number,
+  height: number,
+): {
   items: StarSystemLayoutItem[];
   baseUnitWidth: number;
   totalUnits: number;

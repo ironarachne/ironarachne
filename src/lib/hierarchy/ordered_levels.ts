@@ -27,7 +27,10 @@ export function compareByOrder<Id extends string>(
  * Sort by ascending numeric order (low tier first / lower standing first with "larger = higher" semantics).
  * Ids that are not in the map are placed at the end, in stable order relative to other missing ids.
  */
-export function sortIdsByOrder<Id extends string>(ids: readonly Id[], m: ReadonlyMap<Id, number>): Id[] {
+export function sortIdsByOrder<Id extends string>(
+  ids: readonly Id[],
+  m: ReadonlyMap<Id, number>,
+): Id[] {
   return [...ids].sort((x, y) => {
     const ox = m.get(x);
     const oy = m.get(y);

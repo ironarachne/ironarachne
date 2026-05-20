@@ -36,4 +36,3 @@
 
   <p>{description}</p>
 </section>
-

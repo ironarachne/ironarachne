@@ -5,7 +5,12 @@ import { generateNonTheisticReligionDetail } from './non_theistic_religion_gener
 describe('generateNonTheisticReligionDetail', () => {
   it('throws for theistic categories', () => {
     expect(() =>
-      generateNonTheisticReligionDetail('x', { ...animism, hasDeities: true, minDeities: 1, maxDeities: 3 }),
+      generateNonTheisticReligionDetail('x', {
+        ...animism,
+        hasDeities: true,
+        minDeities: 1,
+        maxDeities: 3,
+      }),
     ).toThrow();
   });
 

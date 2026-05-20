@@ -89,63 +89,60 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
   }
 
   // 4. Generate Rivers using Downslopes
-  const landCorners = newMap.corners.filter(c => !c.isOcean);
+  const landCorners = newMap.corners.filter((c) => !c.isOcean);
   const riverCount = Math.floor(landCorners.length * springCountPercentage);
 
   if (landCorners.length > 0) {
     for (let i = 0; i < riverCount; i++) {
-        // Pick random land corner as spring
-        const spring = landCorners[rng.int(0, landCorners.length - 1)];
-        // Spring must be sufficiently high above sea level relative to map scale
-        if (spring.elevation < seaLevel + 0.1) continue;
+      // Pick random land corner as spring
+      const spring = landCorners[rng.int(0, landCorners.length - 1)];
+      // Spring must be sufficiently high above sea level relative to map scale
+      if (spring.elevation < seaLevel + 0.1) continue;
 
-        let current: number | undefined = spring.id;
-        while (current !== undefined) {
-          const currentCorner: MapCorner = newMap.corners[current as number];
-          if (currentCorner.isOcean) break; // River reached ocean
+      let current: number | undefined = spring.id;
+      while (current !== undefined) {
+        const currentCorner: MapCorner = newMap.corners[current as number];
+        if (currentCorner.isOcean) break; // River reached ocean
 
-          const next: number | undefined = currentCorner.downslope;
-          if (next === undefined) {
-            // Local minima: a lake forms
-            currentCorner.isWater = true;
+        const next: number | undefined = currentCorner.downslope;
+        if (next === undefined) {
+          // Local minima: a lake forms
+          currentCorner.isWater = true;
 
-            // Mark surrounding polygon node as Lake (water, but not ocean)
-            for (const touchId of currentCorner.touches) {
-               const n = newMap.nodes[touchId];
-               if (!n.isOcean) {
-                 n.isWater = true;
-               }
-            }
-            break; // Stop river flow
-          }
-
-          // Flow downhill
-          currentCorner.river++;
-
-          // Find the edge connecting current and next corners
-          let connectingEdge: MapEdge | undefined = undefined;
-          for (const edgeId of currentCorner.protrudes) {
-            const edge = newMap.edges[edgeId];
-            if ((edge.v0 === current && edge.v1 === next) || (edge.v1 === current && edge.v0 === next)) {
-              connectingEdge = edge;
-              break;
+          // Mark surrounding polygon node as Lake (water, but not ocean)
+          for (const touchId of currentCorner.touches) {
+            const n = newMap.nodes[touchId];
+            if (!n.isOcean) {
+              n.isWater = true;
             }
           }
-
-          if (connectingEdge) {
-            connectingEdge.river++;
-          }
-
-          current = next;
+          break; // Stop river flow
         }
+
+        // Flow downhill
+        currentCorner.river++;
+
+        // Find the edge connecting current and next corners
+        let connectingEdge: MapEdge | undefined = undefined;
+        for (const edgeId of currentCorner.protrudes) {
+          const edge = newMap.edges[edgeId];
+          if (
+            (edge.v0 === current && edge.v1 === next) ||
+            (edge.v1 === current && edge.v0 === next)
+          ) {
+            connectingEdge = edge;
+            break;
+          }
+        }
+
+        if (connectingEdge) {
+          connectingEdge.river++;
+        }
+
+        current = next;
+      }
     }
   }
 
-
-
-
-
   return newMap;
 }
-
-

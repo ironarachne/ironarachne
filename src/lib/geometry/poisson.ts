@@ -18,7 +18,7 @@ export function generatePoissonDisk(
   height: number,
   radius: number,
   rng: RNG.RNG,
-  k: number = 30
+  k: number = 30,
 ): Vertex[] {
   const cellSize = radius / Math.SQRT2;
   const cols = Math.ceil(width / cellSize);
@@ -56,7 +56,7 @@ export function generatePoissonDisk(
 
       const newPoint: Vertex = {
         x: point.x + Math.cos(angle) * r,
-        y: point.y + Math.sin(angle) * r
+        y: point.y + Math.sin(angle) * r,
       };
 
       // Check bounds

@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
@@ -82,7 +85,10 @@ export function buildHolyOrderKind(rng: RNG): OrganizationKindDefinition {
     id: 'holy_order',
     genre: 'fantasy',
     typeLabel: 'Holy order',
-    namingProfile: { style: 'pattern_list', description: 'Order of the <Revelation> / Brotherhood of <Saint name>' },
+    namingProfile: {
+      style: 'pattern_list',
+      description: 'Order of the <Revelation> / Brotherhood of <Saint name>',
+    },
     defaultSizeRange: { min: 12, max: 400 },
     hierarchy,
     mutators,

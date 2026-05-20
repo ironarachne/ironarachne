@@ -147,7 +147,11 @@
   {/if}
 
   <h3>
-    Ruler: {Characters.getHonorific(ruler.gender.name, ruler.titles?.[0] ?? null, ruler.gender.pronouns)}
+    Ruler: {Characters.getHonorific(
+      ruler.gender.name,
+      ruler.titles?.[0] ?? null,
+      ruler.gender.pronouns,
+    )}
     {ruler.firstName}
     {ruler.lastName}
   </h3>
@@ -211,7 +215,12 @@
           <p>
             <strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[neighbor.parent]
               .name}
-            {@html renderHeraldryDeviceSvg(region.realms[neighbor.parent].heraldry.device, 20, 22, rng)}.
+            {@html renderHeraldryDeviceSvg(
+              region.realms[neighbor.parent].heraldry.device,
+              20,
+              22,
+              rng,
+            )}.
           </p>
           <p>
             Ruled by {Characters.getHonorific(

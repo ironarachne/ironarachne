@@ -719,7 +719,10 @@ function minDistanceToWaterCellCenter(x: number, y: number, map: RegionMap): num
 }
 
 /** Endpoint of the river chain farthest from water; used to taper stroke to nothing there. */
-function riverDryEndAndTaperRadius(vertices: Vertex[], map: RegionMap): { dry: Vertex; taperR: number } {
+function riverDryEndAndTaperRadius(
+  vertices: Vertex[],
+  map: RegionMap,
+): { dry: Vertex; taperR: number } {
   const first = vertices[0]!;
   const last = vertices[vertices.length - 1]!;
   const da = minDistanceToWaterCellCenter(first.x, first.y, map);
@@ -787,9 +790,7 @@ function appendRiversAndRoads(
 
   const defsInner: string[] = [...riverTaperDefs];
   if (waterPolygons.length > 0) {
-    const cutouts = waterPolygons
-      .map((wp) => `<path d="${wp.d}" fill="black"/>`)
-      .join('\n    ');
+    const cutouts = waterPolygons.map((wp) => `<path d="${wp.d}" fill="black"/>`).join('\n    ');
     defsInner.push(
       `<mask id="${maskId}" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
     <rect x="0" y="0" width="${w}" height="${h}" fill="white"/>
@@ -822,7 +823,11 @@ function appendLandBiomeSymbols(map: RegionMap, parts: string[]): void {
   }
 }
 
-function appendSettlements(map: RegionMap, settlements: RegionMapSvgSettlement[], parts: string[]): void {
+function appendSettlements(
+  map: RegionMap,
+  settlements: RegionMapSvgSettlement[],
+  parts: string[],
+): void {
   for (const s of settlements) {
     if (s.mapNodeId === undefined) continue;
     const n = map.nodes[s.mapNodeId];
@@ -872,7 +877,9 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
 
   const body: string[] = [];
   const waterPolygons = listWaterPolygonsForMap(map);
-  body.push(`<rect width="${w}" height="${h}" fill="${PARCHMENT_FILL}" filter="url(#paperGrain)"/>`);
+  body.push(
+    `<rect width="${w}" height="${h}" fill="${PARCHMENT_FILL}" filter="url(#paperGrain)"/>`,
+  );
   appendWaterBodiesFromItems(waterPolygons, body);
   appendMountainTerrainBodies(map, body);
   appendRiversAndRoads(map, body, waterPolygons);

@@ -4,7 +4,10 @@ import {
   resolvePlanetCanvasTheme,
 } from '$lib/renderers/astronomical/planet_canvas_theme';
 import { planetRadiusKmToPreviewPixels } from '$lib/renderers/astronomical/image_body_scale';
-import { drawPlanetSpherePatch, drawRingEllipsePatch } from '$lib/renderers/planets/canvas2d_planet_draw';
+import {
+  drawPlanetSpherePatch,
+  drawRingEllipsePatch,
+} from '$lib/renderers/planets/canvas2d_planet_draw';
 import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
 
 export function render(

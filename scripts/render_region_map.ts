@@ -2,11 +2,7 @@ import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import * as Regions from '../src/lib/regions/regions.js';
 import { buildRegionMapSvgString } from '../src/lib/map/region_map_svg.js';
-import {
-  buildRoadCentroidPolylines,
-  minDistanceSquaredToRoadPolylines,
-  minDistanceSquaredToRivers,
-} from '../src/lib/map/road_polylines.js';
+import { buildRoadCentroidPolylines } from '../src/lib/map/road_polylines.js';
 
 function getBiomeChar(node: any): string {
   if (node.isOcean) return '\x1b[34m~\x1b[0m'; // Blue wave
@@ -39,6 +35,37 @@ function printUsage(): void {
 Example:
   npm run render:region -- --svg-out ./region_map.svg
 `);
+}
+
+function drawLine(grid: string[][], x0: number, y0: number, x1: number, y1: number, char: string) {
+  const dx = Math.abs(x1 - x0);
+  const dy = Math.abs(y1 - y0);
+  const sx = x0 < x1 ? 1 : -1;
+  const sy = y0 < y1 ? 1 : -1;
+  let err = dx - dy;
+
+  let x = x0;
+  let y = y0;
+
+  const gridHeight = grid.length;
+  const gridWidth = grid[0].length;
+
+  while (true) {
+    if (x >= 0 && x < gridWidth && y >= 0 && y < gridHeight) {
+      grid[y][x] = char;
+    }
+
+    if (x === x1 && y === y1) break;
+    const e2 = 2 * err;
+    if (e2 > -dy) {
+      err -= dy;
+      x += sx;
+    }
+    if (e2 < dx) {
+      err += dx;
+      y += sy;
+    }
+  }
 }
 
 function renderMap() {
@@ -102,11 +129,8 @@ function renderMap() {
   const gridWidth = map.width * aspectOffset;
   const gridHeight = map.height;
 
-  const roadPolylines = buildRoadCentroidPolylines(map);
-
-  // Render base land (roads/rivers: distance to segment, not edge midpoint — avoids disjoint parallel hits)
+  // 1. Initialize grid with biomes
   const grid: string[][] = [];
-  const lineHitSq = 1.0;
   for (let y = 0; y < gridHeight; y++) {
     const row: string[] = [];
     for (let x = 0; x < gridWidth; x++) {
@@ -126,28 +150,47 @@ function renderMap() {
           nearestNode = node;
         }
       }
-
-      const roadDistSq = minDistanceSquaredToRoadPolylines(roadPolylines, px, py);
-      const riverDistSq = minDistanceSquaredToRivers(map, px, py);
-
-      if (roadDistSq < lineHitSq) {
-        row.push('\x1b[33m#\x1b[0m'); // Brown/Yellow Road
-      } else if (riverDistSq < lineHitSq) {
-        row.push('\x1b[36m|\x1b[0m'); // River cyan |
-      } else {
-        row.push(getBiomeChar(nearestNode));
-      }
+      row.push(getBiomeChar(nearestNode));
     }
     grid.push(row);
   }
 
-  // Render settlements directly onto the grid
+  // 2. Draw rivers
+  for (const e of map.edges) {
+    if (e.river && e.river > 0) {
+      const a = map.corners[e.v0]?.point;
+      const b = map.corners[e.v1]?.point;
+      if (a && b) {
+        const x0 = Math.round(a.x * aspectOffset);
+        const y0 = Math.round(a.y);
+        const x1 = Math.round(b.x * aspectOffset);
+        const y1 = Math.round(b.y);
+        drawLine(grid, x0, y0, x1, y1, '\x1b[36m|\x1b[0m'); // River cyan |
+      }
+    }
+  }
+
+  // 3. Draw roads
+  const roadPolylines = buildRoadCentroidPolylines(map);
+  for (const poly of roadPolylines) {
+    for (let i = 0; i < poly.length - 1; i++) {
+      const p0 = poly[i];
+      const p1 = poly[i + 1];
+      const x0 = Math.round(p0.x * aspectOffset);
+      const y0 = Math.round(p0.y);
+      const x1 = Math.round(p1.x * aspectOffset);
+      const y1 = Math.round(p1.y);
+      drawLine(grid, x0, y0, x1, y1, '\x1b[33m#\x1b[0m'); // Road brown/yellow #
+    }
+  }
+
+  // 4. Draw settlements on top
   for (let i = 0; i < region.settlements.length; i++) {
     const s = region.settlements[i];
     if (s.mapNodeId !== undefined) {
       const sNode = map.nodes[s.mapNodeId];
-      let sx = Math.floor(sNode.center.x * aspectOffset);
-      let sy = Math.floor(sNode.center.y);
+      let sx = Math.round(sNode.center.x * aspectOffset);
+      let sy = Math.round(sNode.center.y);
 
       // Keep within bounds safely
       sx = Math.max(0, Math.min(gridWidth - 1, sx));

@@ -72,7 +72,8 @@ export function applyImportedScopes(
   if (payload === null) {
     return {
       ok: false,
-      error: 'Invalid save file (missing ironarachneExport, wrong formatVersion, or malformed scopes).',
+      error:
+        'Invalid save file (missing ironarachneExport, wrong formatVersion, or malformed scopes).',
     };
   }
   if (mode === 'replaceAll') {

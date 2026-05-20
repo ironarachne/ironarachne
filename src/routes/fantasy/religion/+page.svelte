@@ -183,13 +183,15 @@
     <select id="spirit-depth" bind:value={spiritCosmologyDepth}>
       <option value="random">Random</option>
       <option value="none">None — only the high gods as named</option>
-      <option value="shallow">Shallow — one or two extra orders (messengers, ancestors, etc.)</option>
+      <option value="shallow"
+        >Shallow — one or two extra orders (messengers, ancestors, etc.)</option
+      >
       <option value="moderate">Moderate — several intermediate kinds</option>
       <option value="deep">Deep — many ranks and overlapping jurisdictions</option>
     </select>
     <p class="field-hint">
-      Adds structured spirit echelons (messengers, rebels, nature spirits, saints, psychopomps, …) with
-      varying rank depth.
+      Adds structured spirit echelons (messengers, rebels, nature spirits, saints, psychopomps, …)
+      with varying rank depth.
     </p>
   </div>
 
@@ -241,14 +243,17 @@
   {#if religion.nonTheisticDetail}
     <h3>Tradition detail (non-theistic)</h3>
     <p>{religion.nonTheisticDetail.mediationSummary}</p>
-    <p><strong>Purity and pollution:</strong> {religion.nonTheisticDetail.pollutionOrPurityNotes}</p>
+    <p>
+      <strong>Purity and pollution:</strong>
+      {religion.nonTheisticDetail.pollutionOrPurityNotes}
+    </p>
   {/if}
 
   {#if religion.dimensions}
     <h3>Comparative dimensions</h3>
     <p class="dimensions-intro">
-      Aspects after Ninian Smart (ritual, experiential, mythological, doctrinal, ethical, institutional,
-      material).
+      Aspects after Ninian Smart (ritual, experiential, mythological, doctrinal, ethical,
+      institutional, material).
     </p>
     {#each ALL_RELIGION_DIMENSION_IDS as dimId}
       {#if religion.dimensions[dimId]}

@@ -9,7 +9,8 @@ const STRUCTURAL_PHRASES: Record<ArchitecturalStyle['structuralSystem'], string>
   post_and_beam: 'Frames rely on timber posts and beams, with infill carrying little load.',
   load_bearing_masonry: 'Thick masonry walls carry the building weight without a separate frame.',
   cob_or_adobe: 'Monolithic earth walls—adobe or rammed earth—anchor the design.',
-  hybrid_timber_and_masonry: 'Stone or brick shells work together with timber floors and roof frames.',
+  hybrid_timber_and_masonry:
+    'Stone or brick shells work together with timber floors and roof frames.',
 };
 
 const MASSING_PHRASES: Record<ArchitecturalStyle['massing'], string> = {
@@ -24,17 +25,23 @@ const ROOF_PHRASES: Record<ArchitecturalStyle['roof'], string> = {
   shallow_tile: 'Lower pitches suit heavy tiles or stone slates.',
   flat_or_low: 'Roofs stay shallow or nearly flat where climate and span allow.',
   pitched_board: 'Simple pitched roofs use boards or light sheathing over rafters.',
-  gable_roof: 'Classic dual-pitch gables shed water to the long eaves with familiar timber framing.',
+  gable_roof:
+    'Classic dual-pitch gables shed water to the long eaves with familiar timber framing.',
   hip_roof: 'Hipped roofs slope on all sides, tying the volume together without tall gable ends.',
-  gambrel: 'Gambrel profiles step the pitch—steeper below, shallower above—gaining headroom in the attic.',
+  gambrel:
+    'Gambrel profiles step the pitch—steeper below, shallower above—gaining headroom in the attic.',
   mansard: 'Mansard shells create a habitable attic story under a shallow upper roof plane.',
-  shed_mono_pitch: 'Single-slope “shed” roofs run rainwater off one edge and suit lean-to additions.',
+  shed_mono_pitch:
+    'Single-slope “shed” roofs run rainwater off one edge and suit lean-to additions.',
   barrel_vault: 'Barrel-vaulted roofs read as continuous masonry arches, strong in long halls.',
   domed: 'Domes or onion shells crown the volume, concentrating weight onto a ring or drum.',
-  clay_barrel_tile: 'Interlocking clay barrel tiles cap the pitch with rounded Mediterranean courses.',
+  clay_barrel_tile:
+    'Interlocking clay barrel tiles cap the pitch with rounded Mediterranean courses.',
   standing_seam_metal: 'Standing-seam metal skins shed weather with few through-fasteners.',
-  green_living_roof: 'Soil and turf over a waterproof deck insulate and slow runoff on the roof plane.',
-  cross_gabled: 'Cross-gabled plans join roof ridges at angles, breaking the silhouette for larger footprints.',
+  green_living_roof:
+    'Soil and turf over a waterproof deck insulate and slow runoff on the roof plane.',
+  cross_gabled:
+    'Cross-gabled plans join roof ridges at angles, breaking the silhouette for larger footprints.',
 };
 
 const OPENING_PHRASES: Record<ArchitecturalStyle['openings'], string> = {

@@ -23,4 +23,3 @@
     <a href="/velgarth-gifts">Velgarth Gifts</a>
   </nav>
 </section>
-

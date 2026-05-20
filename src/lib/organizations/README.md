@@ -70,23 +70,23 @@ import { addRandomRivalryBetweenPairs } from '$lib/organizations/organization_re
 
 ## Registered kinds (ids)
 
-| id | genre | Notes |
-|----|--------|--------|
-| `mercenary_company` | fantasy | |
-| `trading_company` | fantasy | |
-| `wizard_school` | fantasy | |
-| `holy_order` | fantasy | |
-| `thieves_guild` | fantasy | |
-| `druid_circle` | fantasy | |
-| `noble_house` | fantasy | |
-| `weavers_collective` | fantasy | |
-| `signet_circle` | fantasy | |
-| `corporate_division` | science_fiction | |
-| `sf_mercenary_outfit` | science_fiction | |
-| `research_institute` | science_fiction | |
-| `smuggler_outfit` | science_fiction | |
-| `starship_squadron` | science_fiction | |
-| `colonial_syndicate` | science_fiction | |
+| id                    | genre           | Notes |
+| --------------------- | --------------- | ----- |
+| `mercenary_company`   | fantasy         |       |
+| `trading_company`     | fantasy         |       |
+| `wizard_school`       | fantasy         |       |
+| `holy_order`          | fantasy         |       |
+| `thieves_guild`       | fantasy         |       |
+| `druid_circle`        | fantasy         |       |
+| `noble_house`         | fantasy         |       |
+| `weavers_collective`  | fantasy         |       |
+| `signet_circle`       | fantasy         |       |
+| `corporate_division`  | science_fiction |       |
+| `sf_mercenary_outfit` | science_fiction |       |
+| `research_institute`  | science_fiction |       |
+| `smuggler_outfit`     | science_fiction |       |
+| `starship_squadron`   | science_fiction |       |
+| `colonial_syndicate`  | science_fiction |       |
 
 ## Tests
 

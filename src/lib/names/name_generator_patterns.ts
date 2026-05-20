@@ -20,10 +20,7 @@ type GeneratorWithPatterns = NameGenerator & {
 };
 
 function isGeneratorWithPatterns(gen: NameGenerator): gen is GeneratorWithPatterns {
-  return (
-    'patterns' in gen &&
-    Array.isArray((gen as GeneratorWithPatterns).patterns)
-  );
+  return 'patterns' in gen && Array.isArray((gen as GeneratorWithPatterns).patterns);
 }
 
 /**
@@ -43,7 +40,9 @@ export function patternSourceFromNameGenerator(gen: NameGenerator): string[] | P
   return [...gen.patterns];
 }
 
-export function nameGeneratorSetToStoredPatternSet(set: NameGeneratorSet): StoredNameGeneratorPatternSet {
+export function nameGeneratorSetToStoredPatternSet(
+  set: NameGeneratorSet,
+): StoredNameGeneratorPatternSet {
   return {
     name: set.name,
     culture: patternSourceFromNameGenerator(set.culture),

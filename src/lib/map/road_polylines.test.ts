@@ -16,7 +16,12 @@ describe('buildRoadCentroidPolylines', () => {
   it('covers every road edge exactly once across polylines', () => {
     const rng = new RNG('road-polyline-segments');
     let map = buildBaseMapGraph({ width: 22, height: 18, seed: 'poly', pointSpacing: 2, rng });
-    map = assignElevation(map, { seed: 'e', islandShape: 'none', frequency: 0.88, hasMountainRange: false });
+    map = assignElevation(map, {
+      seed: 'e',
+      islandShape: 'none',
+      frequency: 0.88,
+      hasMountainRange: false,
+    });
     map = simulateWater(map, { seaLevel: -0.1, springCountPercentage: 0.1, rng });
     map = assignTemperature(map, {
       seed: 't',

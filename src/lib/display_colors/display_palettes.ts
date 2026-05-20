@@ -109,7 +109,9 @@ export function pickContrastingPair(
       return { ground, charge };
     }
   }
-  throw new Error('pickContrastingPair: could not find a contrasting pair; widen palette or lower minRatio');
+  throw new Error(
+    'pickContrastingPair: could not find a contrasting pair; widen palette or lower minRatio',
+  );
 }
 
 export function allDisplaySwatches(): DisplayColorSwatch[] {

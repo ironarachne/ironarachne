@@ -114,4 +114,3 @@
     </div>
   {/each}
 </section>
-

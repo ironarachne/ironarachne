@@ -22,10 +22,7 @@
   import * as Equipment from '$lib/adnd/equipment';
   import * as classes from '$lib/adnd/classes/classes';
   import * as races from '$lib/adnd/races/races';
-  import {
-    applyHalflingWithOptions,
-    type HalflingSubrace,
-  } from '$lib/adnd/races/halfling_apply';
+  import { applyHalflingWithOptions, type HalflingSubrace } from '$lib/adnd/races/halfling_apply';
   import {
     appendThiefSkillAbilityLines,
     ADND_THIEF_SKILL_BONUS_CAP,
@@ -191,17 +188,14 @@
 
   const thiefSkillAllocationComplete = $derived.by(() => {
     if (!thiefSkillKind || !characterAfterRace) return true;
-    const names = prepareThiefSkillRowsForCharacter(thiefSkillKind, characterAfterRace).map((r) => r.name);
+    const names = prepareThiefSkillRowsForCharacter(thiefSkillKind, characterAfterRace).map(
+      (r) => r.name,
+    );
     return thiefSkillBonusesAreValid(thiefSkillKind, thiefSkillBonuses, names);
   });
 
   const thiefSkillsPreviewIncomplete = $derived(
-    !!(
-      thiefSkillKind &&
-      alignment &&
-      characterAfterRace &&
-      !thiefSkillAllocationComplete
-    ),
+    !!(thiefSkillKind && alignment && characterAfterRace && !thiefSkillAllocationComplete),
   );
 
   const spellPreviewIncomplete = $derived(
@@ -221,9 +215,7 @@
   });
 
   const hpBounds = $derived(
-    characterForHpBounds
-      ? getAdndLevel1HpBounds(characterForHpBounds)
-      : { min: 1, max: 1 },
+    characterForHpBounds ? getAdndLevel1HpBounds(characterForHpBounds) : { min: 1, max: 1 },
   );
 
   $effect(() => {
@@ -357,10 +349,7 @@
   }
 
   function setThiefSkillBonus(skillName: string, raw: unknown): void {
-    const n = Math.max(
-      0,
-      Math.min(ADND_THIEF_SKILL_BONUS_CAP, Math.floor(Number(raw) || 0)),
-    );
+    const n = Math.max(0, Math.min(ADND_THIEF_SKILL_BONUS_CAP, Math.floor(Number(raw) || 0)));
     thiefSkillBonuses = { ...thiefSkillBonuses, [skillName]: n };
   }
 
@@ -458,7 +447,10 @@
 
   const previewCharacter = $derived.by(() => {
     if (!characterAfterRace || !selectedClass || !alignment || str < 1) return undefined;
-    if (selectedClass.hasSpells && !starterSpellSelectionIsComplete(selectedClass, starterSpellPicks)) {
+    if (
+      selectedClass.hasSpells &&
+      !starterSpellSelectionIsComplete(selectedClass, starterSpellPicks)
+    ) {
       return undefined;
     }
     if (thiefSkillKind && !thiefSkillAllocationComplete) {
@@ -517,10 +509,10 @@
   </header>
 
   <p>
-    Roll attributes, then choose race, class, and alignment. Caster level 1 spells, thief discretionary
-    points, hit points, funds, and equipment are yours to set; attribute dice, HP rolls, and starting money
-    rolls share one RNG stream. The random generator still rolls spells and thief points from the class
-    features seed.
+    Roll attributes, then choose race, class, and alignment. Caster level 1 spells, thief
+    discretionary points, hit points, funds, and equipment are yours to set; attribute dice, HP
+    rolls, and starting money rolls share one RNG stream. The random generator still rolls spells
+    and thief points from the class features seed.
     <a href="/fantasy/adnd/character">Random full generator</a>
   </p>
 
@@ -595,8 +587,8 @@
 
       <h2>5. Class features (RNG seed)</h2>
       <p>
-        Used by the random generator for rolled class features. In this builder, level 1 spells and thief /
-        bard skill points are chosen explicitly below.
+        Used by the random generator for rolled class features. In this builder, level 1 spells and
+        thief / bard skill points are chosen explicitly below.
         <button type="button" onclick={newClassFeaturesSeed}>New seed</button>
       </p>
       <input type="text" readonly value={classFeaturesSeed} />
@@ -604,8 +596,8 @@
       {#if selectedClass.hasSpells && startingSpellGroups.length > 0}
         <h2>{builderSteps.spells}. Starting spells (level 1)</h2>
         <p>
-          Same spell pools as the random generator (class and specialist restrictions). One pick per required
-          slot in each group.
+          Same spell pools as the random generator (class and specialist restrictions). One pick per
+          required slot in each group.
         </p>
         {#each startingSpellGroups as group, groupIdx (groupIdx)}
           <div class="spell-pick-group">
@@ -644,12 +636,16 @@
       {#if thiefSkillKind && thiefSkillRowsForBuilder.length > 0}
         <h2>{builderSteps.thiefSkills}. Thief skills (discretionary points)</h2>
         <p>
-          Allocate exactly {getThiefSkillPointPool(thiefSkillKind)} points (max {ADND_THIEF_SKILL_BONUS_CAP} per
-          skill). Base scores include Dexterity and racial modifiers.
+          Allocate exactly {getThiefSkillPointPool(thiefSkillKind)} points (max {ADND_THIEF_SKILL_BONUS_CAP}
+          per skill). Base scores include Dexterity and racial modifiers.
         </p>
         <p>
-          <strong>Allocated:</strong> {sumThiefSkillBonuses(thiefSkillBonuses)} /
-          {getThiefSkillPointPool(thiefSkillKind)}{#if thiefSkillKind && sumThiefSkillBonuses(thiefSkillBonuses) !== getThiefSkillPointPool(thiefSkillKind)} — must match total{/if}
+          <strong>Allocated:</strong>
+          {sumThiefSkillBonuses(thiefSkillBonuses)} /
+          {getThiefSkillPointPool(
+            thiefSkillKind,
+          )}{#if thiefSkillKind && sumThiefSkillBonuses(thiefSkillBonuses) !== getThiefSkillPointPool(thiefSkillKind)}
+            — must match total{/if}
         </p>
         <div class="thief-skill-grid">
           {#each thiefSkillRowsForBuilder as row (row.name)}
@@ -672,7 +668,9 @@
       {/if}
 
       <h2>{builderSteps.hitPoints}. Hit points (level 1)</h2>
-      <p>Allowed range: {hpBounds.min}–{hpBounds.max} ({selectedClass.hitDice} + Con adjustment).</p>
+      <p>
+        Allowed range: {hpBounds.min}–{hpBounds.max} ({selectedClass.hitDice} + Con adjustment).
+      </p>
       <p>
         <button type="button" onclick={rollHitPoints}>Roll {selectedClass.hitDice} + Con</button>
       </p>
@@ -683,8 +681,8 @@
 
       <h2>{builderSteps.funds}. Starting funds</h2>
       <p>
-        Typical random roll for this class: {startingFundsDiceLine(selectedClass)}. Values below use gp, sp,
-        and cp (the rules reference copper totals internally).
+        Typical random roll for this class: {startingFundsDiceLine(selectedClass)}. Values below use
+        gp, sp, and cp (the rules reference copper totals internally).
       </p>
       <p><strong>Total:</strong> {formatWealthCp(startingWealthCp)}</p>
       <p>
@@ -709,8 +707,9 @@
 
       <h2>{builderSteps.equipment}. Equipment</h2>
       <p>
-        Selected gear costs {formatWealthCp(equipmentSpend)}; you have {formatWealthCp(equipmentRemainingCp)} left
-        from your {formatWealthCp(startingWealthCp)} starting funds.
+        Selected gear costs {formatWealthCp(equipmentSpend)}; you have {formatWealthCp(
+          equipmentRemainingCp,
+        )} left from your {formatWealthCp(startingWealthCp)} starting funds.
       </p>
       {#if equipmentBudgetMessage}
         <p class="equipment-budget-notice" role="status">{equipmentBudgetMessage}</p>
@@ -777,7 +776,8 @@
     {:else if thiefSkillsPreviewIncomplete}
       <div class="builder-result">
         <p>
-          Allocate thief skill points so the total matches the required pool to preview the character sheet.
+          Allocate thief skill points so the total matches the required pool to preview the
+          character sheet.
         </p>
       </div>
     {/if}

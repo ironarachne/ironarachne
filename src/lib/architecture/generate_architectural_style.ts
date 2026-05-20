@@ -89,7 +89,11 @@ function siteMaterialMultiplier(
   return m;
 }
 
-function purposeMultiplier(resource: Resource, affordance: BuildingStructuralAffordance, purposes: BuildingPurpose[]): number {
+function purposeMultiplier(
+  resource: Resource,
+  affordance: BuildingStructuralAffordance,
+  purposes: BuildingPurpose[],
+): number {
   let m = 1;
   const major = resource.major_type.toLowerCase();
 
@@ -114,7 +118,10 @@ function purposeMultiplier(resource: Resource, affordance: BuildingStructuralAff
   return m;
 }
 
-function densityMultiplier(affordance: BuildingStructuralAffordance, band: PopulationDensityBand): number {
+function densityMultiplier(
+  affordance: BuildingStructuralAffordance,
+  band: PopulationDensityBand,
+): number {
   if (band === 'high') {
     if (affordance.compressiveSuitability >= 0.45) {
       return 1.1;
@@ -165,14 +172,22 @@ function pickStructuralSystem(
     return 'post_and_beam';
   }
 
-  const stoneLike = (r: { resource: Resource; affordance: BuildingStructuralAffordance } | undefined) =>
+  const stoneLike = (
+    r: { resource: Resource; affordance: BuildingStructuralAffordance } | undefined,
+  ) =>
     r &&
-    (r.resource.major_type.toLowerCase() === 'stone' || r.resource.major_type.toLowerCase() === 'brick');
+    (r.resource.major_type.toLowerCase() === 'stone' ||
+      r.resource.major_type.toLowerCase() === 'brick');
 
-  const earthLike = (r: { resource: Resource; affordance: BuildingStructuralAffordance } | undefined) =>
-    r && (r.resource.major_type.toLowerCase() === 'earth' || r.affordance.earthworkSuitability > 0.55);
+  const earthLike = (
+    r: { resource: Resource; affordance: BuildingStructuralAffordance } | undefined,
+  ) =>
+    r &&
+    (r.resource.major_type.toLowerCase() === 'earth' || r.affordance.earthworkSuitability > 0.55);
 
-  const woodLike = (r: { resource: Resource; affordance: BuildingStructuralAffordance } | undefined) =>
+  const woodLike = (
+    r: { resource: Resource; affordance: BuildingStructuralAffordance } | undefined,
+  ) =>
     r &&
     (r.resource.major_type.toLowerCase() === 'wood' ||
       r.resource.major_type.toLowerCase() === 'bamboo');
@@ -188,7 +203,7 @@ function pickStructuralSystem(
     return 'load_bearing_masonry';
   }
 
-  if (woodLike(top) || (top.resource.major_type.toLowerCase() === 'bamboo')) {
+  if (woodLike(top) || top.resource.major_type.toLowerCase() === 'bamboo') {
     return 'post_and_beam';
   }
 
@@ -484,7 +499,8 @@ function buildGeneratorHints(
     courtyardLikelihood = 0.45;
   }
 
-  const emphasisVertical = hasPurpose(purposes, 'religious') || (band === 'high' && rng.int(1, 100) > 60);
+  const emphasisVertical =
+    hasPurpose(purposes, 'religious') || (band === 'high' && rng.int(1, 100) > 60);
 
   return {
     preferredStoreys: preferredStoreys as 1 | 2 | 3,
@@ -496,10 +512,13 @@ function buildGeneratorHints(
 /**
  * Deterministically generates an architectural style from available resources and site context.
  */
-export function generateArchitecturalStyle(config: GenerateArchitecturalStyleConfig): ArchitecturalStyle {
+export function generateArchitecturalStyle(
+  config: GenerateArchitecturalStyleConfig,
+): ArchitecturalStyle {
   const rng = new RNG(config.seed);
   const band = resolveDensityBand(config);
-  const purposes = config.purposes.length > 0 ? config.purposes : (['residential'] as BuildingPurpose[]);
+  const purposes =
+    config.purposes.length > 0 ? config.purposes : (['residential'] as BuildingPurpose[]);
 
   const scored = config.availableResources.map((resource) => {
     const affordance = inferStructuralAffordance(resource);
@@ -515,7 +534,9 @@ export function generateArchitecturalStyle(config: GenerateArchitecturalStyleCon
   const primary = ranked.slice(0, primaryCount).map((x) => x.resource.name);
   const secondaryStart = primaryCount;
   const secondaryCount = Math.min(3, Math.max(1, ranked.length - primaryCount));
-  const secondary = ranked.slice(secondaryStart, secondaryStart + secondaryCount).map((x) => x.resource.name);
+  const secondary = ranked
+    .slice(secondaryStart, secondaryStart + secondaryCount)
+    .map((x) => x.resource.name);
 
   const structuralSystem = pickStructuralSystem(ranked, rng);
   const massing = pickMassing(band, config.site, rng);

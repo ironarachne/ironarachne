@@ -1,6 +1,10 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 
-import { applyImportedScopes, buildExportPayload, parseSaveExportPayload } from './save_file_export';
+import {
+  applyImportedScopes,
+  buildExportPayload,
+  parseSaveExportPayload,
+} from './save_file_export';
 import {
   SAVE_STORAGE_PREFIX,
   clearAllScopedStorageKeys,

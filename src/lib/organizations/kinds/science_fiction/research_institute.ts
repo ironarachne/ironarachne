@@ -1,5 +1,8 @@
 import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
-import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import {
+  mergeHeraldryGeneratorConfig,
+  type HeraldryGeneratorConfig,
+} from '$lib/heraldry/generatorconfig.js';
 import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
@@ -56,7 +59,15 @@ const mutators: ReadonlyMap<string, MemberMutator> = new Map([
 function heraldryConfig(rng: RNG): HeraldryGeneratorConfig {
   return mergeHeraldryGeneratorConfig({
     chargeCount: rng.item([0, 1]),
-    chargeOptions: getChargesMatchingAnyTags(['sword', 'star', 'compass', 'objects', 'crystal', 'spiral', 'mythical']),
+    chargeOptions: getChargesMatchingAnyTags([
+      'sword',
+      'star',
+      'compass',
+      'objects',
+      'crystal',
+      'spiral',
+      'mythical',
+    ]),
   });
 }
 
@@ -65,7 +76,10 @@ export function buildResearchInstituteKind(rng: RNG): OrganizationKindDefinition
     id: 'research_institute',
     genre: 'science_fiction',
     typeLabel: 'Research institute',
-    namingProfile: { style: 'compound_institutional', description: 'The <Planet> <Discipline> Institute' },
+    namingProfile: {
+      style: 'compound_institutional',
+      description: 'The <Planet> <Discipline> Institute',
+    },
     defaultSizeRange: { min: 20, max: 3000 },
     hierarchy,
     mutators,
