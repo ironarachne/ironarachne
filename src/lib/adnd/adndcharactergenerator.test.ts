@@ -1,0 +1,267 @@
+import { RNG } from '@ironarachne/rng';
+import { describe, expect, it } from 'vitest';
+import ADNDArmor from './adndarmor.js';
+import ADNDCharacter from './adndcharacter.js';
+import ADNDCharacterGenerator from './adndcharactergenerator.js';
+import {
+  applyAdndAbilityDerivedFields,
+  applyAdndPriestFundsCapIfNeeded,
+  applyAdndSavingThrows,
+  finalizeAdndCharacterDerivedStats,
+  getAdndLevel1HpBounds,
+  getPossibleArmor,
+  getPossibleWeapons,
+  recalculateAdndArmorClass,
+  rollAdndLevel1Hp,
+  rollAdndStartingCopper,
+} from './adndcharactergenerator.js';
+import ADNDCharacterGeneratorConfig from './adndcharactergeneratorconfig.js';
+import ADNDWeapon from './adndweapon.js';
+import cleric from './classes/cleric.js';
+import fighter from './classes/fighter.js';
+import mage from './classes/mage.js';
+import thief from './classes/thief.js';
+import dwarf from './races/dwarf.js';
+import human from './races/human.js';
+import * as Equipment from './equipment.js';
+
+function baseCharacter(): ADNDCharacter {
+  const c = new ADNDCharacter();
+  c.race = human;
+  c.class = fighter;
+  c.strength = 12;
+  c.exceptionalStrength = -1;
+  c.dexterity = 12;
+  c.constitution = 12;
+  c.intelligence = 12;
+  c.wisdom = 12;
+  c.charisma = 12;
+  c.currency = 10_000;
+  return c;
+}
+
+describe('ADNDCharacterGenerator', () => {
+  it('generates a complete level-1 character from a seeded config', () => {
+    const rng = new RNG('adnd-gen-full-character');
+    const config = new ADNDCharacterGeneratorConfig(rng);
+    const character = new ADNDCharacterGenerator(config).generateCharacter();
+
+    expect(character.race).toBeDefined();
+    expect(character.class).toBeDefined();
+    expect(character.hp).toBeGreaterThanOrEqual(1);
+    expect(character.alignment).toBeTruthy();
+    expect(character.currency).toBeGreaterThanOrEqual(0);
+    expect(character.poisonSavingThrow).toBeGreaterThan(0);
+    expect(character.weightAllowance).toBeGreaterThan(0);
+  });
+});
+
+describe('applyAdndAbilityDerivedFields', () => {
+  it('fills warrior exceptional-strength derived stats', () => {
+    const c = baseCharacter();
+    c.strength = 18;
+    c.exceptionalStrength = 100;
+
+    applyAdndAbilityDerivedFields(c);
+
+    expect(c.bendBarsLiftGates).toBe(40);
+    expect(c.damageAdjustment).toBe('+6');
+    expect(c.weightAllowance).toBe(335);
+    expect(c.warriorHitPointAdjustment).toBe(c.hitPointAdjustment);
+  });
+
+  it('fills high wisdom and intelligence priest/mage fields', () => {
+    const c = baseCharacter();
+    c.class = cleric;
+    c.wisdom = 25;
+    c.intelligence = 25;
+
+    applyAdndAbilityDerivedFields(c);
+
+    expect(c.bonusSpells.length).toBeGreaterThan(0);
+    expect(c.spellImmunity).toContain('mass charm');
+    expect(c.spellLevel).toBe(9);
+    expect(c.chanceOfSpellFailure).toBe(0);
+  });
+
+  it('maps exceptional strength 18/91+ to high open-door values', () => {
+    const c = baseCharacter();
+    c.strength = 18;
+    c.exceptionalStrength = 91;
+
+    applyAdndAbilityDerivedFields(c);
+
+    expect(c.damageAdjustment).toBe('+5');
+    expect(c.openDoors).toBe('15 (3)');
+  });
+
+  it('maps constitution 24 to fast regeneration', () => {
+    const c = baseCharacter();
+    c.constitution = 24;
+
+    applyAdndAbilityDerivedFields(c);
+
+    expect(c.regeneration).toBe('1/2 turns');
+    expect(c.resurrectionSurvival).toBe(100);
+  });
+
+  it('fills low ability score table entries', () => {
+    const c = baseCharacter();
+    c.strength = 3;
+    c.dexterity = 3;
+    c.constitution = 3;
+    c.intelligence = 3;
+    c.wisdom = 3;
+    c.charisma = 3;
+
+    applyAdndAbilityDerivedFields(c);
+
+    expect(c.bendBarsLiftGates).toBe(0);
+    expect(c.damageAdjustment).toBe('-1');
+    expect(c.reactionAdjustment).toBe(-3);
+    expect(c.regeneration).toBe('nil');
+    expect(c.spellLevel).toBe(-1);
+  });
+});
+
+describe('applyAdndSavingThrows', () => {
+  it('applies dwarf constitution bonuses to relevant saves', () => {
+    const c = baseCharacter();
+    c.race = dwarf;
+    c.class = fighter;
+    c.constitution = 18;
+
+    applyAdndAbilityDerivedFields(c);
+    applyAdndSavingThrows(c);
+
+    expect(c.poisonSavingThrow).toBe(14 + 5);
+    expect(c.rodSavingThrow).toBe(16 + 5);
+    expect(c.spellSavingThrow).toBe(17 + 5);
+  });
+
+  it('uses wizard base saving throws without racial bonuses for humans', () => {
+    const c = baseCharacter();
+    c.class = mage;
+
+    applyAdndAbilityDerivedFields(c);
+    applyAdndSavingThrows(c);
+
+    expect(c.poisonSavingThrow).toBe(14);
+    expect(c.rodSavingThrow).toBe(11);
+    expect(c.spellSavingThrow).toBe(12);
+  });
+});
+
+describe('finalizeAdndCharacterDerivedStats', () => {
+  it('returns the same character with derived fields populated', () => {
+    const c = baseCharacter();
+    const out = finalizeAdndCharacterDerivedStats(c);
+
+    expect(out).toBe(c);
+    expect(c.thaco).toBe(20);
+    expect(c.breathSavingThrow).toBeGreaterThan(0);
+  });
+});
+
+describe('getPossibleArmor', () => {
+  it('filters by class allowance and remaining funds', () => {
+    const c = baseCharacter();
+    c.class = fighter;
+    c.currency = 25_000;
+    const armor = [
+      new ADNDArmor('banded mail', 4, 35, 200 * 100),
+      new ADNDArmor('plate mail', 3, 45, 600 * 100),
+    ];
+
+    expect(getPossibleArmor(c, armor).map((a) => a.name)).toEqual(['banded mail']);
+  });
+});
+
+describe('getPossibleWeapons', () => {
+  it('includes bludgeoning weapons for priests and respects cost', () => {
+    const c = baseCharacter();
+    c.class = cleric;
+    c.currency = 50;
+    const weapons = [
+      new ADNDWeapon('club', 1, 3, 'medium', 'bludgeoning', 2, '1d6', '1d3', 'club'),
+      new ADNDWeapon('long sword', 15 * 100, 4, 'medium', 'slashing', 5, '1d8', '1d12', 'sword'),
+    ];
+
+    expect(getPossibleWeapons(c, weapons).map((w) => w.name)).toEqual(['club']);
+  });
+
+  it('allows any weapon for fighters with enough currency', () => {
+    const c = baseCharacter();
+    c.class = fighter;
+    c.currency = 10_000;
+    const weapons = Equipment.getWeapons();
+
+    expect(getPossibleWeapons(c, weapons).length).toBeGreaterThan(0);
+  });
+});
+
+describe('getAdndLevel1HpBounds', () => {
+  it('uses warrior constitution adjustment in the upper bound', () => {
+    const c = baseCharacter();
+    c.class = fighter;
+    c.constitution = 18;
+
+    expect(getAdndLevel1HpBounds(c)).toEqual({ min: 1, max: 14 });
+  });
+});
+
+describe('rollAdndStartingCopper', () => {
+  it('matches rogue fund dice range', () => {
+    const rng = new RNG('rogue-funds');
+    const cp = rollAdndStartingCopper(thief, rng);
+    expect(cp).toBeGreaterThanOrEqual(2 * 10 * 100);
+    expect(cp).toBeLessThanOrEqual(12 * 10 * 100);
+  });
+});
+
+describe('rollAdndLevel1Hp', () => {
+  it('never returns less than 1', () => {
+    const c = baseCharacter();
+    c.class = mage;
+    c.constitution = 3;
+    const rng = new RNG('hp-floor');
+
+    expect(rollAdndLevel1Hp(c, rng)).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe('applyAdndPriestFundsCapIfNeeded', () => {
+  it('caps priest funds above 300 cp', () => {
+    const c = baseCharacter();
+    c.class = cleric;
+    c.currency = 5000;
+    const rng = new RNG('priest-cap');
+
+    applyAdndPriestFundsCapIfNeeded(c, rng);
+
+    expect(c.currency).toBeGreaterThanOrEqual(100);
+    expect(c.currency).toBeLessThanOrEqual(300);
+  });
+
+  it('leaves non-priest funds unchanged', () => {
+    const c = baseCharacter();
+    c.class = fighter;
+    c.currency = 5000;
+    const rng = new RNG('priest-cap-fighter');
+
+    applyAdndPriestFundsCapIfNeeded(c, rng);
+
+    expect(c.currency).toBe(5000);
+  });
+});
+
+describe('recalculateAdndArmorClass', () => {
+  it('starts at 10 and adds equipped armor values', () => {
+    const c = baseCharacter();
+    c.armor = [new ADNDArmor('leather', 2, 15, 5 * 100), new ADNDArmor('shield', 1, 5, 10 * 100)];
+
+    recalculateAdndArmorClass(c);
+
+    expect(c.ac).toBe(13);
+  });
+});

@@ -671,6 +671,9 @@ function symbolFontSizeForNode(node: MapNode, map: RegionMap): number {
 function biomeSymbolForLandNode(node: MapNode): BiomeVisual {
   const b = node.biomeId?.toLowerCase() || '';
 
+  if (isMountainLandNode(node)) {
+    return { symbol: '' };
+  }
   if (node.elevation > 0.85) {
     return { symbol: '▲' };
   }
@@ -926,6 +929,63 @@ function appendForestTerrainBodies(map: RegionMap, parts: string[]): void {
   }
 }
 
+function getMountainType(node: MapNode): 'high' | 'low' | null {
+  if (!isMountainLandNode(node)) return null;
+  const b = node.biomeId?.toLowerCase() ?? '';
+  if (node.elevation > 0.82 || b.includes('alpine') || b.includes('high mountain')) {
+    return 'high';
+  }
+  return 'low';
+}
+
+function appendMountainTerrainSymbols(map: RegionMap, parts: string[]): void {
+  const MOUNTAIN_PEAK_DENSITY = 0.25;
+  const shadow = 'url(#symbolShadow)';
+
+  for (const node of map.nodes) {
+    const mountainType = getMountainType(node);
+    if (mountainType === null) continue;
+
+    const A = polygonArea(node.polygon.vertices);
+    const numPeaks = Math.round(A * MOUNTAIN_PEAK_DENSITY);
+    if (numPeaks <= 0) continue;
+
+    const bbox = getPolygonBoundingBox(node.polygon.vertices);
+    const peaks: Vertex[] = [];
+    let attempts = 0;
+    let seedCounter = 0;
+
+    const nextRandom = () => {
+      seedCounter++;
+      return hash01(node.id, seedCounter, 23.87);
+    };
+
+    while (peaks.length < numPeaks && attempts < 100) {
+      attempts++;
+      const tx = bbox.minX + nextRandom() * (bbox.maxX - bbox.minX);
+      const ty = bbox.minY + nextRandom() * (bbox.maxY - bbox.minY);
+      const p = { x: tx, y: ty };
+      if (isPointInPolygon(p, node.polygon.vertices)) {
+        peaks.push(p);
+      }
+    }
+
+    const fs = symbolFontSizeForNode(node, map);
+    const baseScale = fs * 0.9;
+
+    for (const peak of peaks) {
+      const scaleVar = 0.88 + nextRandom() * 0.24; // scale variation ±12%
+      const finalScale = (baseScale * scaleVar).toFixed(3);
+      const rot = (nextRandom() * 6 - 3).toFixed(1); // small rotation ±3 deg
+
+      const symbolId = `mountain-${mountainType}`;
+      parts.push(
+        `<use href="#${symbolId}" transform="translate(${peak.x.toFixed(3)}, ${peak.y.toFixed(3)}) scale(${finalScale}) rotate(${rot})" filter="${shadow}"/>`,
+      );
+    }
+  }
+}
+
 function appendLandBiomeSymbols(map: RegionMap, parts: string[]): void {
   const shadow = 'url(#symbolShadow)';
   for (const node of map.nodes) {
@@ -990,6 +1050,20 @@ function svgDefs(): string {
     <path d="M 0 0 Q -0.15 -0.5, 0 -1.2" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
     <path d="M 0 -1.2 Q -0.4 -1.5, -0.8 -1.3 M 0 -1.2 Q -0.5 -1.7, -0.5 -0.9 M 0 -1.2 Q 0.1 -1.8, -0.1 -1.5 M 0 -1.2 Q 0.5 -1.7, 0.5 -0.9 M 0 -1.2 Q 0.4 -1.5, 0.8 -1.3" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linecap="round"/>
   </g>
+  <g id="mountain-high">
+    <path d="M -1.4 0 L -0.4 -1.8 L 0.1 -1.1 L 0.6 -1.5 L 1.4 0 Z" fill="#dcd2c4" fill-opacity="0.9" stroke="none"/>
+    <path d="M -1.4 0 L -0.4 -1.8 L 0.1 -1.1 L 0.6 -1.5 L 1.4 0" fill="none" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M -0.4 -1.8 L -0.6 -0.6" fill="none" stroke="#4a3d32" stroke-width="0.12" stroke-linecap="round"/>
+    <path d="M 0.6 -1.5 L 0.4 -0.5" fill="none" stroke="#4a3d32" stroke-width="0.12" stroke-linecap="round"/>
+    <path d="M -0.35 -1.5 L -0.2 -1.5 M -0.3 -1.2 L -0.1 -1.2 M -0.25 -0.9 L -0.05 -0.9 M -0.2 -0.6 L 0.0 -0.6" stroke="#4a3d32" stroke-width="0.08" stroke-linecap="round"/>
+    <path d="M 0.65 -1.2 L 0.8 -1.2 M 0.6 -0.9 L 0.75 -0.9 M 0.55 -0.6 L 0.7 -0.6 M 0.5 -0.3 L 0.65 -0.3" stroke="#4a3d32" stroke-width="0.08" stroke-linecap="round"/>
+  </g>
+  <g id="mountain-low">
+    <path d="M -1.0 0 L -0.3 -1.0 L 0.1 -0.6 L 0.5 -0.8 L 1.0 0 Z" fill="#e5dec9" fill-opacity="0.9" stroke="none"/>
+    <path d="M -1.0 0 L -0.3 -1.0 L 0.1 -0.6 L 0.5 -0.8 L 1.0 0" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M -0.3 -1.0 L -0.4 -0.3" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linecap="round"/>
+    <path d="M 0.5 -0.8 L 0.4 -0.3" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linecap="round"/>
+  </g>
 </defs>`;
 }
 
@@ -1016,6 +1090,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendChartDoubleLineIfOcean(map, body);
   appendLandBiomeSymbols(map, body);
   appendForestTerrainSymbols(map, body);
+  appendMountainTerrainSymbols(map, body);
   appendSettlements(map, settlements, body);
 
   const titleEl =
