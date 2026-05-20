@@ -4,7 +4,9 @@ import * as Regions from '../src/lib/regions/regions.js';
 import { buildRegionMapSvgString } from '../src/lib/map/region_map_svg.js';
 import { buildRoadCentroidPolylines } from '../src/lib/map/road_polylines.js';
 
-function getBiomeChar(node: any): string {
+import type { MapNode } from '../src/lib/map/map_graph.js';
+
+function getBiomeChar(node: MapNode): string {
   if (node.isOcean) return '\x1b[34m~\x1b[0m'; // Blue wave
   if (node.isWater) return '\x1b[36m=\x1b[0m'; // Cyan equals
 

@@ -370,7 +370,7 @@ function cornerLoopToVertices(map: RegionMap, loop: number[]): Vertex[] {
   return pts;
 }
 
-function isComponentBoundaryEdge(edge: MapEdge, component: Set<number>, map: RegionMap): boolean {
+function isComponentBoundaryEdge(edge: MapEdge, component: Set<number>): boolean {
   const in0 = component.has(edge.d0);
   const in1 = edge.d1 !== undefined && component.has(edge.d1);
   if (edge.d1 === undefined) {
@@ -388,7 +388,7 @@ function buildBoundaryAdjacency(map: RegionMap, component: Set<number>): Map<num
   };
 
   for (const e of map.edges) {
-    if (!isComponentBoundaryEdge(e, component, map)) continue;
+    if (!isComponentBoundaryEdge(e, component)) continue;
     link(e.v0, e.v1);
     link(e.v1, e.v0);
   }
@@ -675,7 +675,7 @@ function biomeSymbolForLandNode(node: MapNode): BiomeVisual {
     return { symbol: '▲' };
   }
   if (b.includes('forest') || b.includes('woodland')) {
-    return { symbol: '♣' };
+    return { symbol: '' };
   }
   if (b.includes('desert') || b.includes('arid') || b.includes('dry')) {
     return { symbol: '∴' };
@@ -809,6 +809,123 @@ ${defsInner.join('\n')}
   }
 }
 
+function isForestNode(node: MapNode): boolean {
+  if (isWaterNode(node)) return false;
+  const b = node.biomeId?.toLowerCase() ?? '';
+  return b.includes('forest') || b.includes('woodland');
+}
+
+function getForestType(node: MapNode): 'oak' | 'pine' | 'palm' | null {
+  if (!isForestNode(node)) return null;
+  const b = node.biomeId?.toLowerCase() ?? '';
+  if (b.includes('tropical') || b.includes('mangrove') || b.includes('jungle')) {
+    return 'palm';
+  }
+  if (
+    b.includes('boreal') ||
+    b.includes('montane') ||
+    b.includes('coniferous') ||
+    b.includes('pine')
+  ) {
+    return 'pine';
+  }
+  return 'oak';
+}
+
+function getPolygonBoundingBox(vertices: Vertex[]): {
+  minX: number;
+  maxX: number;
+  minY: number;
+  maxY: number;
+} {
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  for (const v of vertices) {
+    if (v.x < minX) minX = v.x;
+    if (v.x > maxX) maxX = v.x;
+    if (v.y < minY) minY = v.y;
+    if (v.y > maxY) maxY = v.y;
+  }
+  return { minX, maxX, minY, maxY };
+}
+
+function isPointInPolygon(p: Vertex, vertices: Vertex[]): boolean {
+  let inside = false;
+  const n = vertices.length;
+  for (let i = 0, j = n - 1; i < n; j = i++) {
+    const xi = vertices[i].x,
+      yi = vertices[i].y;
+    const xj = vertices[j].x,
+      yj = vertices[j].y;
+    const intersect = yi > p.y !== yj > p.y && p.x < ((xj - xi) * (p.y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function appendForestTerrainSymbols(map: RegionMap, parts: string[]): void {
+  const FOREST_TREE_DENSITY = 0.45;
+  const shadow = 'url(#symbolShadow)';
+
+  for (const node of map.nodes) {
+    const forestType = getForestType(node);
+    if (forestType === null) continue;
+
+    const A = polygonArea(node.polygon.vertices);
+    const numTrees = Math.round(A * FOREST_TREE_DENSITY);
+    if (numTrees <= 0) continue;
+
+    const bbox = getPolygonBoundingBox(node.polygon.vertices);
+    const trees: Vertex[] = [];
+    let attempts = 0;
+    let seedCounter = 0;
+
+    const nextRandom = () => {
+      seedCounter++;
+      return hash01(node.id, seedCounter, 17.31);
+    };
+
+    while (trees.length < numTrees && attempts < 100) {
+      attempts++;
+      const tx = bbox.minX + nextRandom() * (bbox.maxX - bbox.minX);
+      const ty = bbox.minY + nextRandom() * (bbox.maxY - bbox.minY);
+      const p = { x: tx, y: ty };
+      if (isPointInPolygon(p, node.polygon.vertices)) {
+        trees.push(p);
+      }
+    }
+
+    const fs = symbolFontSizeForNode(node, map);
+    const baseScale = fs * 0.45;
+
+    for (const tree of trees) {
+      const scaleVar = 0.82 + nextRandom() * 0.36; // scale variation ±18%
+      const finalScale = (baseScale * scaleVar).toFixed(3);
+      const rot = (nextRandom() * 10 - 5).toFixed(1); // small rotation ±5 deg
+
+      const symbolId = `tree-${forestType}`;
+      parts.push(
+        `<use href="#${symbolId}" transform="translate(${tree.x.toFixed(3)}, ${tree.y.toFixed(3)}) scale(${finalScale}) rotate(${rot})" filter="${shadow}"/>`,
+      );
+    }
+  }
+}
+
+function appendForestTerrainBodies(map: RegionMap, parts: string[]): void {
+  const comps = connectedComponentsByNodeRule(map, isForestNode);
+  const fill = '#c2d7c2'; // Soft sage green
+  const fillOpacity = 0.42;
+
+  for (const comp of comps) {
+    const adj = buildBoundaryAdjacency(map, comp);
+    if (adj.size === 0) continue;
+    const loops = traceBoundaryCornerLoops(adj);
+    appendClosedRegionFromLoops(map, loops, parts, fill, fillOpacity, 'lake');
+  }
+}
+
 function appendLandBiomeSymbols(map: RegionMap, parts: string[]): void {
   const shadow = 'url(#symbolShadow)';
   for (const node of map.nodes) {
@@ -861,6 +978,18 @@ function svgDefs(): string {
   <filter id="symbolShadow" x="-50%" y="-50%" width="200%" height="200%">
     <feDropShadow dx="0.03" dy="0.05" stdDeviation="0.06" flood-color="#3d2e24" flood-opacity="0.35"/>
   </filter>
+  <g id="tree-oak">
+    <path d="M 0 0 L 0 -0.5" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
+    <path d="M -0.8 -0.5 C -1.2 -0.8, -1.2 -1.4, -0.6 -1.6 C -0.8 -2.0, -0.2 -2.3, 0 -2.0 C 0.2 -2.3, 0.8 -2.0, 0.6 -1.6 C 1.2 -1.4, 1.2 -0.8, 0.8 -0.5 Z" fill="#b6d7a8" fill-opacity="0.5" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round"/>
+  </g>
+  <g id="tree-pine">
+    <path d="M 0 0 L 0 -0.4" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
+    <path d="M 0 -2.0 L -0.6 -1.1 L -0.2 -1.1 L -0.8 -0.4 L 0.8 -0.4 L 0.2 -1.1 L 0.6 -1.1 Z" fill="#9ec4a0" fill-opacity="0.5" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round"/>
+  </g>
+  <g id="tree-palm">
+    <path d="M 0 0 Q -0.15 -0.5, 0 -1.2" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
+    <path d="M 0 -1.2 Q -0.4 -1.5, -0.8 -1.3 M 0 -1.2 Q -0.5 -1.7, -0.5 -0.9 M 0 -1.2 Q 0.1 -1.8, -0.1 -1.5 M 0 -1.2 Q 0.5 -1.7, 0.5 -0.9 M 0 -1.2 Q 0.4 -1.5, 0.8 -1.3" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linecap="round"/>
+  </g>
 </defs>`;
 }
 
@@ -882,9 +1011,11 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   );
   appendWaterBodiesFromItems(waterPolygons, body);
   appendMountainTerrainBodies(map, body);
+  appendForestTerrainBodies(map, body);
   appendRiversAndRoads(map, body, waterPolygons);
   appendChartDoubleLineIfOcean(map, body);
   appendLandBiomeSymbols(map, body);
+  appendForestTerrainSymbols(map, body);
   appendSettlements(map, settlements, body);
 
   const titleEl =
