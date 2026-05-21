@@ -29,9 +29,9 @@
     eligibleVariationTinctures,
     fieldDivisionNameFromOption,
     fieldUiStateFromGeneratorOptions,
+    fieldVariationSlotCountForDivision,
     hasPinnedFieldTinctures,
     resolveFieldOptions,
-    showSecondVariationSlot,
     variationTinctureCountForSlot,
   } from '$lib/heraldry/heraldry_ui_options';
   import {
@@ -77,7 +77,28 @@
   let variations = Variations.all();
   let allFields = Fields.all();
   let availableTags = Charges.allChargeTags();
-  const showVariationSlotTwo = $derived(showSecondVariationSlot(fieldDivisionOption));
+  const fieldVariationSlotCount = $derived(
+    fieldVariationSlotCountForDivision(fieldDivisionOption),
+  );
+
+  $effect(() => {
+    const slotCount = fieldVariationSlotCountForDivision(fieldDivisionOption);
+    if (variationSlotOptions.length < slotCount) {
+      variationSlotOptions = [
+        ...variationSlotOptions,
+        ...Array.from({ length: slotCount - variationSlotOptions.length }, () => 'any'),
+      ];
+    }
+    if (variationTinctureOptions.length < slotCount) {
+      variationTinctureOptions = [
+        ...variationTinctureOptions,
+        ...Array.from({ length: slotCount - variationTinctureOptions.length }, () => [
+          'any',
+          'any',
+        ]),
+      ];
+    }
+  });
   const isCurrentBlazonSaved = $derived.by(() => {
     const arms = currentArms;
     return arms !== null && savedHeraldries.some((saved) => saved.blazon === arms.blazon);
@@ -406,34 +427,41 @@
     </div>
   {/each}
 
-  {#if showVariationSlotTwo}
+  {#each { length: Math.max(0, fieldVariationSlotCount - 1) } as _, slotIndex (slotIndex)}
+    {@const slot = slotIndex + 1}
     <div class="input-group">
-      <label for="variation-slot-1">Variation 2</label>
-      <select name="variation-slot-1" id="variation-slot-1" bind:value={variationSlotOptions[1]}>
+      <label for="variation-slot-{slot}">Variation {slot + 1}</label>
+      <select
+        name="variation-slot-{slot}"
+        id="variation-slot-{slot}"
+        bind:value={variationSlotOptions[slot]}
+      >
         <option value="any">any</option>
         {#each variations as variation}
           <option value={variation.name}>{variation.name}</option>
         {/each}
       </select>
     </div>
-    <p class="field-variation-hint">Variation 2 applies to divided fields only.</p>
-    {#each { length: variationTinctureCountForSlot(variationSlotOptions, 1) } as _, tinctureIndex (tinctureIndex)}
+    {#if slot === 1}
+      <p class="field-variation-hint">Additional variations apply to divided fields only.</p>
+    {/if}
+    {#each { length: variationTinctureCountForSlot(variationSlotOptions, slot) } as _, tinctureIndex (tinctureIndex)}
       <div class="input-group">
-        <label for="variation-1-tincture-{tinctureIndex}">
-          Variation 2 tincture {tinctureIndex + 1}
+        <label for="variation-{slot}-tincture-{tinctureIndex}">
+          Variation {slot + 1} tincture {tinctureIndex + 1}
         </label>
         <select
-          id="variation-1-tincture-{tinctureIndex}"
-          bind:value={variationTinctureOptions[1][tinctureIndex]}
+          id="variation-{slot}-tincture-{tinctureIndex}"
+          bind:value={variationTinctureOptions[slot][tinctureIndex]}
         >
           <option value="any">any</option>
-          {#each eligibleVariationTinctures(variationSlotOptions[1]) as tincture}
+          {#each eligibleVariationTinctures(variationSlotOptions[slot]) as tincture}
             <option value={tincture.name}>{tincture.name}</option>
           {/each}
         </select>
       </div>
     {/each}
-  {/if}
+  {/each}
 
   <button type="button" onclick={reset}>Reset</button>
   <button onclick={generate}>Generate</button>

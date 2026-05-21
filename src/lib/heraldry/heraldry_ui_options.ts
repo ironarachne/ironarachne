@@ -44,7 +44,7 @@ export function buildVariationSlotPreferences(
   const result: VariationSlotPreference[] = [];
   let hasAnyPin = false;
 
-  for (let slotIndex = 0; slotIndex < 2; slotIndex++) {
+  for (let slotIndex = 0; slotIndex < variationSlotOptions.length; slotIndex++) {
     const preference: VariationSlotPreference = {};
     let slotHasPin = false;
 
@@ -94,16 +94,36 @@ export function fieldDivisionNameFromOption(fieldDivisionOption: string): string
   return fieldDivisionOption;
 }
 
-export function showSecondVariationSlot(fieldDivisionOption: string): boolean {
-  return fieldDivisionOption !== 'plain';
+export function fieldVariationSlotCountForDivision(fieldDivisionOption: string): number {
+  if (fieldDivisionOption === 'plain') {
+    return 1;
+  }
+  if (fieldDivisionOption === 'pall') {
+    return 3;
+  }
+  return 2;
 }
 
 export function fieldUiStateFromGeneratorOptions(
   options: HeraldryGeneratorOptionsSnapshot,
 ): HeraldryFieldUiState {
+  const fieldDivisionOption = options.fieldDivisionOption ?? 'any';
+  const slotCount = fieldVariationSlotCountForDivision(fieldDivisionOption);
+  const variationSlotOptions = [...(options.variationSlotOptions ?? ['any', 'any'])];
+  const variationTinctureOptions = (options.variationTinctureOptions ?? [['any'], ['any']]).map(
+    (row) => [...row],
+  );
+
+  while (variationSlotOptions.length < slotCount) {
+    variationSlotOptions.push('any');
+  }
+  while (variationTinctureOptions.length < slotCount) {
+    variationTinctureOptions.push(['any', 'any']);
+  }
+
   return {
-    fieldDivisionOption: options.fieldDivisionOption ?? 'any',
-    variationSlotOptions: options.variationSlotOptions ?? ['any', 'any'],
-    variationTinctureOptions: options.variationTinctureOptions ?? [['any'], ['any']],
+    fieldDivisionOption,
+    variationSlotOptions,
+    variationTinctureOptions,
   };
 }

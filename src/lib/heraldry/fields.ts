@@ -83,6 +83,14 @@ export function all(): Field[] {
       commonality: 2,
       variations: [],
     },
+    {
+      name: 'pall',
+      blazon: 'per pall variation1, variation2 and variation3',
+      variationCount: 3,
+      pattern: `<pattern id="Division" x="0" y="0" width="1" height="1"><g ${CRISP}><polygon points="0,0 0,660 300,660" fill="url(#variation1)"/><polygon points="600,0 600,660 300,660" fill="url(#variation2)"/><polygon points="0,0 600,0 300,660" fill="url(#variation3)"/></g></pattern>`,
+      commonality: 2,
+      variations: [],
+    },
   ];
 }
 

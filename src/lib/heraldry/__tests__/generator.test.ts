@@ -104,4 +104,22 @@ describe('heraldry/generator', () => {
     expect(first.blazon).toBe(second.blazon);
     expect(first.device.field.name).toBe('fess');
   });
+
+  test('generateHeraldry assigns three variations for per pall', () => {
+    const cfg = mergeHeraldryGeneratorConfig({
+      chargeCount: 0,
+      fieldDivisionName: 'pall',
+      fieldOptions: [],
+      variationSlotPreferences: [
+        { variationName: 'plain', tinctureNames: ['gules'] },
+        { variationName: 'plain', tinctureNames: ['Or'] },
+        { variationName: 'plain', tinctureNames: ['azure'] },
+      ],
+      rng: new RNG.RNG('pall-field'),
+    });
+    const arms = generateHeraldry(cfg);
+    expect(arms.device.field.name).toBe('pall');
+    expect(arms.device.field.variations).toHaveLength(3);
+    expect(arms.blazon).toBe('per pall gules, Or and azure');
+  });
 });

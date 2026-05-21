@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   buildVariationSlotPreferences,
   fieldDivisionNameFromOption,
+  fieldVariationSlotCountForDivision,
   hasPinnedFieldTinctures,
   resolveFieldOptions,
 } from '$lib/heraldry/heraldry_ui_options.js';
@@ -32,6 +33,12 @@ describe('heraldry_ui_options', () => {
   it('fieldDivisionNameFromOption returns undefined for any', () => {
     expect(fieldDivisionNameFromOption('any')).toBeUndefined();
     expect(fieldDivisionNameFromOption('pale')).toBe('pale');
+  });
+
+  it('fieldVariationSlotCountForDivision returns slot counts per division', () => {
+    expect(fieldVariationSlotCountForDivision('plain')).toBe(1);
+    expect(fieldVariationSlotCountForDivision('pale')).toBe(2);
+    expect(fieldVariationSlotCountForDivision('pall')).toBe(3);
   });
 
   it('hasPinnedFieldTinctures detects pinned tinctures', () => {

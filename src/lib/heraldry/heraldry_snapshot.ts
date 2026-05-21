@@ -23,9 +23,10 @@ export type HeraldryGeneratorOptionsSnapshot = {
 
 export const DEFAULT_FIELD_DIVISION_OPTION = 'any' as const;
 
-export const DEFAULT_VARIATION_SLOT_OPTIONS = ['any', 'any'] as const;
+export const DEFAULT_VARIATION_SLOT_OPTIONS = ['any', 'any', 'any'] as const;
 
 export const DEFAULT_VARIATION_TINCTURE_OPTIONS = [
+  ['any', 'any'],
   ['any', 'any'],
   ['any', 'any'],
 ] as const;

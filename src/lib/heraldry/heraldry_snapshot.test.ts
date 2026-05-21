@@ -90,8 +90,9 @@ describe('heraldry_snapshot', () => {
       chargePosition: 'normal',
       lockSeed: false,
       fieldDivisionOption: 'any',
-      variationSlotOptions: ['any', 'any'],
+      variationSlotOptions: ['any', 'any', 'any'],
       variationTinctureOptions: [
+        ['any', 'any'],
         ['any', 'any'],
         ['any', 'any'],
       ],
@@ -109,8 +110,9 @@ describe('heraldry_snapshot', () => {
     expect(normalizeHeraldryGeneratorOptions(legacy)).toEqual({
       ...legacy,
       fieldDivisionOption: 'any',
-      variationSlotOptions: ['any', 'any'],
+      variationSlotOptions: ['any', 'any', 'any'],
       variationTinctureOptions: [
+        ['any', 'any'],
         ['any', 'any'],
         ['any', 'any'],
       ],
