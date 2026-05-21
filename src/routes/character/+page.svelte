@@ -5,19 +5,31 @@
     generate,
     getDefaultCharacterGenerationConfig,
     type Character,
+    type CharacterGenerationConfig,
     type Title,
   } from '$lib/characters';
+  import type { Arms } from '$lib/heraldry/arms';
   import { renderDeviceBlazon } from '$lib/heraldry/device';
+  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+  import { showHeraldryPersistenceModal } from '$lib/ui/modal';
+  import { type Culture, loadSavedCultures } from '$lib/culture';
   import { onMount } from 'svelte';
   import { sentientSpeciesList } from '$lib/species_sentients';
   import { getAllFantasyArchetypes } from '$lib/archetypes';
   import { getCategoryList } from '$lib/age/age_categories';
   import { getFantasyNameGeneratorSet } from '$lib/names';
-  import * as MUN from '@ironarachne/made-up-names'; // Need to import this to check supported sets properly, or catch error
+
+  const heraldryWidth = 200;
+  const heraldryHeight = 220;
 
   let seed = new RNG(Date.now().toString()).randomString(13);
   let rng = new RNG(seed);
   let character: null | Character = null;
+
+  let savedCultures: Culture[] = [];
+  let useSavedCulture = false;
+  let savedCulture: string | undefined = undefined;
+  let culture: Culture | undefined = undefined;
 
   let speciesList = sentientSpeciesList;
   let archetypeOptions = getAllFantasyArchetypes().sort((a, b) => a.name.localeCompare(b.name));
@@ -34,6 +46,54 @@
     rng.setSeed(seed);
   }
 
+  function loadSavedCulture() {
+    for (const c of savedCultures) {
+      if (c.name === savedCulture) {
+        culture = c;
+        return;
+      }
+    }
+    if (savedCultures[0]) {
+      culture = savedCultures[0];
+      savedCulture = savedCultures[0].name;
+    }
+  }
+
+  function applyNameGeneratorsFromCulture(config: CharacterGenerationConfig) {
+    if (culture === undefined) {
+      return;
+    }
+    if (culture.nameGenerators.family !== null) {
+      config.familyNameGenerator = culture.nameGenerators.family;
+    }
+    if (culture.nameGenerators.female !== null) {
+      config.femaleFirstNameGenerator = culture.nameGenerators.female;
+    }
+    if (culture.nameGenerators.male !== null) {
+      config.maleFirstNameGenerator = culture.nameGenerators.male;
+    }
+  }
+
+  function applyNameGeneratorsFromSpecies(config: CharacterGenerationConfig, speciesName: string) {
+    try {
+      let nameSetToUse = speciesName.toLowerCase();
+      if (nameSetToUse.includes('elf')) nameSetToUse = 'elf';
+      if (nameSetToUse.includes('dwarf')) nameSetToUse = 'dwarf';
+      if (nameSetToUse.includes('gnome')) nameSetToUse = 'gnome';
+      if (nameSetToUse.includes('halfling')) nameSetToUse = 'halfling';
+      if (nameSetToUse.includes('human')) nameSetToUse = 'human';
+      if (nameSetToUse.includes('orc')) nameSetToUse = 'orc';
+      if (nameSetToUse.includes('goblin')) nameSetToUse = 'goblin';
+
+      const nameSet = getFantasyNameGeneratorSet(nameSetToUse, rng);
+      config.maleFirstNameGenerator = nameSet.male;
+      config.femaleFirstNameGenerator = nameSet.female;
+      config.familyNameGenerator = nameSet.family;
+    } catch {
+      console.log(`Name set not found for ${speciesName}, falling back to human.`);
+    }
+  }
+
   function generateCharacter() {
     if (!lockSeed) {
       seed = new RNG(Date.now().toString()).randomString(13);
@@ -47,29 +107,11 @@
       sentientSpeciesList.find((s) => s.name === selectedSpeciesName) || sentientSpeciesList[0];
     config.species = species;
 
-    // Name Generators
-    // Simple mapping attempt: lower case species name. If failure, default to human.
-    // Some species like "wild elf" might map to "elf".
-    // For now, we try exact match on name or fallback.
-    try {
-      // We can check supported sets if we want, but try-catch is easier here without importing MUN internals
-      // Common mapping:
-      let nameSetToUse = species.name.toLowerCase();
-      if (nameSetToUse.includes('elf')) nameSetToUse = 'elf';
-      if (nameSetToUse.includes('dwarf')) nameSetToUse = 'dwarf';
-      if (nameSetToUse.includes('gnome')) nameSetToUse = 'gnome';
-      if (nameSetToUse.includes('halfling')) nameSetToUse = 'halfling';
-      if (nameSetToUse.includes('human')) nameSetToUse = 'human';
-      if (nameSetToUse.includes('orc')) nameSetToUse = 'orc';
-      if (nameSetToUse.includes('goblin')) nameSetToUse = 'goblin';
-
-      const nameSet = getFantasyNameGeneratorSet(nameSetToUse, rng);
-      config.maleFirstNameGenerator = nameSet.male;
-      config.femaleFirstNameGenerator = nameSet.female;
-      config.familyNameGenerator = nameSet.family;
-    } catch (e) {
-      console.log(`Name set not found for ${species.name}, falling back to human.`);
-      // Default config is already human logic
+    if (useSavedCulture) {
+      loadSavedCulture();
+      applyNameGeneratorsFromCulture(config);
+    } else {
+      applyNameGeneratorsFromSpecies(config, species.name);
     }
 
     // Archetype
@@ -97,6 +139,23 @@
     character = generate(seed + '-character', config);
   }
 
+  async function openHeraldryModal(arms: Arms, title: string, applyReplacement: (arms: Arms) => void) {
+    const result = await showHeraldryPersistenceModal({ arms, seed, title });
+    if (result.action === 'replaced') {
+      applyReplacement(result.arms);
+    }
+  }
+
+  function replaceCharacterHeraldry(arms: Arms) {
+    if (character === null) {
+      return;
+    }
+    character = {
+      ...character,
+      heraldry: arms,
+    };
+  }
+
   function getDisplayTitle(title: Title, genderName: string): string {
     const titleName = genderName.toLowerCase() === 'female' ? title.femaleTitle : title.maleTitle;
     if (title.hasLands && title.landName) {
@@ -106,6 +165,10 @@
   }
 
   onMount(() => {
+    savedCultures = loadSavedCultures();
+    if (savedCultures.length > 0) {
+      savedCulture = savedCultures[0]!.name;
+    }
     generateCharacter();
   });
 </script>
@@ -163,6 +226,26 @@
     </select>
   </div>
 
+  {#if savedCultures.length > 0}
+    <div class="input-group">
+      <label for="useSavedCulture">Use a saved culture for naming</label>
+      <input
+        type="checkbox"
+        name="useSavedCulture"
+        id="useSavedCulture"
+        bind:checked={useSavedCulture}
+      />
+    </div>
+    <div class="input-group">
+      <label for="savedCulture">Saved culture</label>
+      <select id="savedCulture" name="savedCulture" bind:value={savedCulture} disabled={!useSavedCulture}>
+        {#each savedCultures as s}
+          <option value={s.name}>{s.name}</option>
+        {/each}
+      </select>
+    </div>
+  {/if}
+
   <button onclick={generateCharacter}>Generate</button>
 
   {#if character}
@@ -213,6 +296,24 @@
 
     {#if character.heraldry}
       <h3>Heraldry</h3>
+      <button
+        type="button"
+        class="character-heraldry heraldry-block-target"
+        aria-label="View heraldry for {character.name}"
+        onclick={() => {
+          const current = character;
+          if (current?.heraldry) {
+            void openHeraldryModal(current.heraldry, current.name, replaceCharacterHeraldry);
+          }
+        }}
+      >
+        {@html renderHeraldryDeviceSvg(
+          character.heraldry.device,
+          heraldryWidth,
+          heraldryHeight,
+          rng,
+        )}
+      </button>
       <p>{renderDeviceBlazon(character.heraldry.device)}</p>
     {/if}
 
@@ -235,3 +336,24 @@
     {/if}
   {/if}
 </section>
+
+<style>
+  button.character-heraldry {
+    width: 200px;
+    height: 220px;
+    margin-bottom: 0.5rem;
+  }
+
+  button.heraldry-block-target {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+  }
+
+  button.heraldry-block-target:hover {
+    opacity: 0.85;
+  }
+</style>
