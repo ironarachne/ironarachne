@@ -6,6 +6,8 @@
     getAllFantasyEncounterTemplates,
     type Encounter,
   } from '$lib/encounters';
+  import ArchetypeBadge from '$lib/components/archetype_badge.svelte';
+  import SpeciesBadge from '$lib/components/species_badge.svelte';
   import type { Character } from '$lib/characters/character_types';
   import type { Creature } from '$lib/creatures/creature_types';
 
@@ -100,12 +102,17 @@
             {#each group.mobs as mob}
               {@const asChar = mob as unknown as Character}
               {@const asCreature = mob as unknown as Creature}
-              <li>
+              {@const mobSpecies = asCreature.species}
+              <li class="mob-row">
                 <strong>{mob.name}</strong>
-                {#if asChar.archetype}
-                  — {asChar.species.name} {asChar.archetype.name}
-                {:else if asCreature.species}
-                  — {asCreature.species.name}
+                {#if mobSpecies}
+                  <SpeciesBadge speciesName={mobSpecies.name} size="sm" />
+                  {#if asChar.archetype}
+                    <ArchetypeBadge archetypeName={asChar.archetype.name} size="sm" />
+                    <span class="mob-meta">— {mobSpecies.name} {asChar.archetype.name}</span>
+                  {:else}
+                    <span class="mob-meta">— {mobSpecies.name}</span>
+                  {/if}
                 {/if}
               </li>
             {/each}
@@ -154,5 +161,14 @@
     padding: 0.5rem;
     background: rgba(168, 46, 46, 0.05);
     border-radius: 3px;
+  }
+  .mob-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+  .mob-meta {
+    color: rgba(68, 0, 0, 0.75);
   }
 </style>

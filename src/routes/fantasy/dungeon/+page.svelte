@@ -3,6 +3,10 @@
   import * as Words from '@ironarachne/words';
   import { onMount, tick } from 'svelte';
   import * as Currency from '$lib/currency/currency';
+  import ArchetypeBadge from '$lib/components/archetype_badge.svelte';
+  import SpeciesBadge from '$lib/components/species_badge.svelte';
+  import type { Character } from '$lib/characters/character_types';
+  import type { Creature } from '$lib/creatures/creature_types';
   import { generateDungeon, type EngineeredDungeon } from '$lib/dungeon';
   import { BLUEPRINTS } from '$lib/dungeon/theme/theme';
   import { renderClassicModuleMapToCanvas } from '$lib/dungeon/render/classic_module_map';
@@ -328,8 +332,22 @@
               </p>
               <div class="mobs">
                 {#each group.mobs as mob (mob.id)}
+                  {@const asChar = mob as unknown as Character}
+                  {@const asCreature = mob as unknown as Creature}
+                  {@const mobSpecies = asCreature.species}
                   <div class="mob">
-                    <h4>{mob.name}</h4>
+                    <div class="mob-header">
+                      <h4>{mob.name}</h4>
+                      {#if mobSpecies}
+                        <SpeciesBadge speciesName={mobSpecies.name} size="sm" />
+                        {#if asChar.archetype}
+                          <ArchetypeBadge archetypeName={asChar.archetype.name} size="sm" />
+                          <span class="mob-meta">— {mobSpecies.name} {asChar.archetype.name}</span>
+                        {:else}
+                          <span class="mob-meta">— {mobSpecies.name}</span>
+                        {/if}
+                      {/if}
+                    </div>
                     <p>{mob.shortDescription || mob.description}</p>
                     {#if mob.actions.length > 0}
                       <p>Actions:</p>
@@ -432,13 +450,27 @@
     margin: 0.5rem;
   }
 
-  div.mob > h4 {
+  div.mob-header {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+    width: 100%;
+    margin: 0;
+    padding: 0 0 0.25rem;
+    border-bottom: 1px solid black;
+  }
+
+  div.mob-header h4 {
     display: block;
     font-size: 1rem;
     margin: 0;
     padding: 0;
-    width: 100%;
-    border-bottom: 1px solid black;
+  }
+
+  .mob-meta {
+    font-size: 0.95rem;
+    color: color-mix(in srgb, currentColor 70%, transparent);
   }
 
   div.room-description {
