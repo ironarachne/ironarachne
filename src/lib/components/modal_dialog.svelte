@@ -8,6 +8,7 @@
     style?: AlertModalStyle;
     okLabel?: string;
     cancelLabel?: string;
+    dangerous?: boolean;
     onResolveAlert?: () => void;
     onResolveConfirm?: (confirmed: boolean) => void;
   };
@@ -19,6 +20,7 @@
     style = 'message',
     okLabel = 'OK',
     cancelLabel = 'Cancel',
+    dangerous = false,
     onResolveAlert,
     onResolveConfirm,
   }: Props = $props();
@@ -34,7 +36,13 @@
   <div class="modal-dialog-actions">
     {#if kind === 'confirm'}
       <button type="button" onclick={() => onResolveConfirm?.(false)}>{cancelLabel}</button>
-      <button type="button" onclick={() => onResolveConfirm?.(true)}>{okLabel}</button>
+      <button
+        type="button"
+        class:modal-dialog-action--danger={dangerous}
+        onclick={() => onResolveConfirm?.(true)}
+      >
+        {okLabel}
+      </button>
     {:else}
       <button type="button" onclick={() => onResolveAlert?.()}>{okLabel}</button>
     {/if}

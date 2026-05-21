@@ -49,6 +49,28 @@ dialog.ironarachne-modal--success {
   gap: 0.5rem;
 }
 
+.modal-dialog-actions .modal-dialog-action--danger {
+  border-color: var(--crimson);
+  background: linear-gradient(
+    165deg,
+    color-mix(in srgb, var(--crimson) 55%, rgb(92, 86, 73)) 0%,
+    rgb(10, 10, 10) 100%
+  );
+}
+
+.modal-dialog-actions .modal-dialog-action--danger:hover {
+  border-color: color-mix(in srgb, var(--crimson) 70%, white);
+}
+
+.modal-dialog-actions .modal-dialog-action--danger:active {
+  background: linear-gradient(
+    339deg,
+    color-mix(in srgb, var(--crimson) 55%, rgb(92, 86, 73)) 0%,
+    rgb(10, 10, 10) 100%
+  );
+  color: color-mix(in srgb, var(--crimson) 40%, white);
+}
+
 .heraldry-persistence-modal .heraldry-persistence-blazon {
   margin: 0 0 0.75rem;
   font-size: 0.9375rem;

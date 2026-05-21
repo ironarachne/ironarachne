@@ -13,6 +13,7 @@ export type ShowConfirmModalOptions = {
   title?: string;
   okLabel?: string;
   cancelLabel?: string;
+  dangerous?: boolean;
 };
 
 export type HeraldryPersistenceModalResult =
@@ -41,6 +42,7 @@ type ConfirmModalRequest = {
   title?: string;
   okLabel: string;
   cancelLabel: string;
+  dangerous: boolean;
   resolve: (confirmed: boolean) => void;
 };
 
@@ -139,6 +141,7 @@ export function showConfirmModal(options: ShowConfirmModalOptions): Promise<bool
       title: options.title,
       okLabel: options.okLabel ?? 'OK',
       cancelLabel: options.cancelLabel ?? 'Cancel',
+      dangerous: options.dangerous ?? false,
       resolve,
     });
   });

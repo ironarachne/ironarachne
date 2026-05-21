@@ -82,6 +82,7 @@
       message: `Delete "${snapshot.name}"? This cannot be undone.`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel',
+      dangerous: true,
     });
     if (!confirmed) {
       return;
@@ -97,6 +98,7 @@
       message: `Delete "${snapshot.name}"? This cannot be undone.`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel',
+      dangerous: true,
     });
     if (!confirmed) {
       return;
@@ -112,6 +114,7 @@
       message: `Delete "${snapshot.name}"? This cannot be undone.`,
       okLabel: 'Delete',
       cancelLabel: 'Cancel',
+      dangerous: true,
     });
     if (!confirmed) {
       return;

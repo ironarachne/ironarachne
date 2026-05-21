@@ -54,6 +54,18 @@ describe('modal_state', () => {
     await expect(promise).resolves.toBe(true);
   });
 
+  it('stores dangerous confirm modals when requested', () => {
+    showConfirmModal({
+      message: 'Delete this item?',
+      okLabel: 'Delete',
+      dangerous: true,
+    });
+    expect(modalState.current?.kind).toBe('confirm');
+    if (modalState.current?.kind === 'confirm') {
+      expect(modalState.current.dangerous).toBe(true);
+    }
+  });
+
   it('resolves confirm as false on cancel', async () => {
     const promise = showConfirmModal({
       message: 'Delete?',
