@@ -2,9 +2,9 @@
   import type { Arms } from '$lib/heraldry/arms';
   import { appendSavedHeraldry, loadSavedHeraldrySnapshots } from '$lib/heraldry/heraldry_saved_state';
   import {
+    defaultHeraldryGeneratorOptions,
     heraldryFromSnapshot,
     toHeraldrySnapshot,
-    type HeraldryGeneratorOptionsSnapshot,
     type HeraldrySnapshot,
   } from '$lib/heraldry/heraldry_snapshot';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
@@ -25,19 +25,7 @@
   const previewWidth = 120;
   const previewHeight = 132;
 
-  const defaultGeneratorOptions = (): HeraldryGeneratorOptionsSnapshot => ({
-    heraldryTag: 'any',
-    chargeTinctureName: 'any',
-    numberOfChargesOption: 'any',
-    chargePosition: 'normal',
-    lockSeed: false,
-    fieldDivisionOption: 'any',
-    variationSlotOptions: ['any', 'any'],
-    variationTinctureOptions: [
-      ['any', 'any'],
-      ['any', 'any'],
-    ],
-  });
+  const defaultGeneratorOptions = defaultHeraldryGeneratorOptions;
 
   let savedHeraldries = $state<HeraldrySnapshot[]>([]);
 

@@ -30,6 +30,16 @@ export const DEFAULT_VARIATION_TINCTURE_OPTIONS = [
   ['any', 'any'],
 ] as const;
 
+export function defaultHeraldryGeneratorOptions(): HeraldryGeneratorOptionsSnapshot {
+  return normalizeHeraldryGeneratorOptions({
+    heraldryTag: 'any',
+    chargeTinctureName: 'any',
+    numberOfChargesOption: 'any',
+    chargePosition: 'normal',
+    lockSeed: false,
+  });
+}
+
 export function normalizeHeraldryGeneratorOptions(
   options: HeraldryGeneratorOptionsSnapshot,
 ): HeraldryGeneratorOptionsSnapshot {

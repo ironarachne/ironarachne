@@ -33,9 +33,7 @@
     variationTinctureCountForSlot,
   } from '$lib/heraldry/heraldry_ui_options';
   import {
-    DEFAULT_FIELD_DIVISION_OPTION,
-    DEFAULT_VARIATION_SLOT_OPTIONS,
-    DEFAULT_VARIATION_TINCTURE_OPTIONS,
+    defaultHeraldryGeneratorOptions,
     heraldryFromSnapshot,
     toHeraldrySnapshot,
     type HeraldryGeneratorOptionsSnapshot,
@@ -43,11 +41,12 @@
   } from '$lib/heraldry/heraldry_snapshot';
 
   let rng = new RngCtor(Date.now().toString());
+  const initialOptions = defaultHeraldryGeneratorOptions();
   let seed = $state(rng.randomString(13));
   $effect(() => {
     rng.setSeed(seed);
   });
-  let lockSeed = $state(false);
+  let lockSeed = $state(initialOptions.lockSeed);
 
   let blazon = $state('');
   let image = $state('');
@@ -56,17 +55,17 @@
   let loadDialog: HTMLDialogElement | undefined = $state();
   let charges = Charges.all();
   let allCharges = Charges.all();
-  let heraldryTag = $state('any');
-  let chargeTinctureName = $state('any');
+  let heraldryTag = $state(initialOptions.heraldryTag);
+  let chargeTinctureName = $state(initialOptions.chargeTinctureName);
   let chargeTincture = Tinctures.randomChargeTincture(rng);
-  let numberOfChargesOption = $state('any');
-  let chargePosition = $state('normal');
+  let numberOfChargesOption = $state(initialOptions.numberOfChargesOption);
+  let chargePosition = $state(initialOptions.chargePosition);
   let fieldTinctures1 = Tinctures.all();
   let fieldTinctures2 = Tinctures.all();
-  let fieldDivisionOption = $state(DEFAULT_FIELD_DIVISION_OPTION);
-  let variationSlotOptions = $state([...DEFAULT_VARIATION_SLOT_OPTIONS]);
+  let fieldDivisionOption = $state(initialOptions.fieldDivisionOption!);
+  let variationSlotOptions = $state([...initialOptions.variationSlotOptions!]);
   let variationTinctureOptions = $state(
-    DEFAULT_VARIATION_TINCTURE_OPTIONS.map((row) => [...row]),
+    initialOptions.variationTinctureOptions!.map((row) => [...row]),
   );
   let variations = Variations.all();
   let allFields = Fields.all();
@@ -155,6 +154,19 @@
     blazon = arms.blazon;
     image = renderHeraldryDeviceSvg(arms.device, heraldryWidth, heraldryHeight, rng);
     renderSVGAsPNG(image, heraldryWidth, heraldryHeight, 'output');
+  }
+
+  function reset() {
+    const defaults = defaultHeraldryGeneratorOptions();
+    lockSeed = defaults.lockSeed;
+    heraldryTag = defaults.heraldryTag;
+    chargeTinctureName = defaults.chargeTinctureName;
+    numberOfChargesOption = defaults.numberOfChargesOption;
+    chargePosition = defaults.chargePosition;
+    applyFieldUiState(defaults);
+    charges = allCharges;
+    setChargeTincture(rng);
+    generate();
   }
 
   function generate() {
@@ -384,6 +396,7 @@
     {/each}
   {/if}
 
+  <button type="button" onclick={reset}>Reset</button>
   <button onclick={generate}>Generate</button>
   <button onclick={downloadSvg} disabled={currentArms === null}>Download SVG</button>
   <button onclick={downloadPng} disabled={currentArms === null}>Download PNG</button>

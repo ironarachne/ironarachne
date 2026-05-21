@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { generateHeraldry } from '$lib/heraldry/generator.js';
 import { mergeHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import {
+  defaultHeraldryGeneratorOptions,
   heraldryFromSnapshot,
   HERALDRY_SNAPSHOT_NAME_MAX_LENGTH,
   normalizeHeraldryGeneratorOptions,
@@ -79,6 +80,22 @@ describe('heraldry_snapshot', () => {
         arms.device.field.variations[i].tinctures.map((t) => t.name),
       );
     }
+  });
+
+  it('defaultHeraldryGeneratorOptions returns all-any generator defaults', () => {
+    expect(defaultHeraldryGeneratorOptions()).toEqual({
+      heraldryTag: 'any',
+      chargeTinctureName: 'any',
+      numberOfChargesOption: 'any',
+      chargePosition: 'normal',
+      lockSeed: false,
+      fieldDivisionOption: 'any',
+      variationSlotOptions: ['any', 'any'],
+      variationTinctureOptions: [
+        ['any', 'any'],
+        ['any', 'any'],
+      ],
+    });
   });
 
   it('normalizeHeraldryGeneratorOptions fills defaults for legacy snapshots', () => {
