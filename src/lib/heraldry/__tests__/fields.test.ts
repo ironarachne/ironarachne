@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { all } from '../fields';
+import { all, byName } from '../fields';
 
 describe('fields', () => {
   it('all() returns an array of Field objects', () => {
@@ -22,5 +22,15 @@ describe('fields', () => {
       expect(typeof field.variationCount).toBe('number');
       expect(field.variationCount).toBeGreaterThan(0);
     }
+  });
+
+  it('byName() returns each catalog field', () => {
+    for (const field of all()) {
+      expect(byName(field.name).name).toBe(field.name);
+    }
+  });
+
+  it('byName() throws for unknown names', () => {
+    expect(() => byName('not-a-field')).toThrowError();
   });
 });

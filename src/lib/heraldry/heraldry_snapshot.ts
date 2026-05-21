@@ -16,7 +16,31 @@ export type HeraldryGeneratorOptionsSnapshot = {
   numberOfChargesOption: string;
   chargePosition: string;
   lockSeed: boolean;
+  fieldDivisionOption?: string;
+  variationSlotOptions?: string[];
+  variationTinctureOptions?: string[][];
 };
+
+export const DEFAULT_FIELD_DIVISION_OPTION = 'any' as const;
+
+export const DEFAULT_VARIATION_SLOT_OPTIONS = ['any', 'any'] as const;
+
+export const DEFAULT_VARIATION_TINCTURE_OPTIONS = [
+  ['any', 'any'],
+  ['any', 'any'],
+] as const;
+
+export function normalizeHeraldryGeneratorOptions(
+  options: HeraldryGeneratorOptionsSnapshot,
+): HeraldryGeneratorOptionsSnapshot {
+  return {
+    ...options,
+    fieldDivisionOption: options.fieldDivisionOption ?? DEFAULT_FIELD_DIVISION_OPTION,
+    variationSlotOptions: options.variationSlotOptions ?? [...DEFAULT_VARIATION_SLOT_OPTIONS],
+    variationTinctureOptions:
+      options.variationTinctureOptions ?? DEFAULT_VARIATION_TINCTURE_OPTIONS.map((row) => [...row]),
+  };
+}
 
 export type StoredVariation = {
   variationName: string;
@@ -84,14 +108,6 @@ function toStoredDevice(device: Device): StoredDevice {
   };
 }
 
-function fieldByName(name: string) {
-  const field = Fields.all().find((candidate) => candidate.name === name);
-  if (field === undefined) {
-    throw new Error(`failed to find a field with name "${name}"`);
-  }
-  return field;
-}
-
 function variationFromStored(stored: StoredVariation): Variation {
   const template = Variations.byName(stored.variationName);
   return {
@@ -117,7 +133,7 @@ function chargeGroupFromStored(stored: StoredChargeGroup): ChargeGroup {
 }
 
 function deviceFromStored(stored: StoredDevice): Device {
-  const fieldTemplate = fieldByName(stored.fieldName);
+  const fieldTemplate = Fields.byName(stored.fieldName);
   return {
     field: {
       ...fieldTemplate,
@@ -150,6 +166,6 @@ export function heraldryFromSnapshot(snapshot: HeraldrySnapshot): RestoredHerald
     },
     seed: snapshot.seed,
     blazon: snapshot.blazon,
-    generatorOptions: snapshot.generatorOptions,
+    generatorOptions: normalizeHeraldryGeneratorOptions(snapshot.generatorOptions),
   };
 }

@@ -9,6 +9,11 @@ import * as Tinctures from './tinctures.js';
 import type { Variation } from './variation.js';
 import * as Variations from './variations.js';
 
+export type VariationSlotPreference = {
+  variationName?: string;
+  tinctureNames?: string[];
+};
+
 export type HeraldryGeneratorConfig = {
   chargeCount: number;
   chargeOptions: Array<Charge>;
@@ -17,6 +22,8 @@ export type HeraldryGeneratorConfig = {
   fieldTinctures1: Array<Tincture>;
   fieldTinctures2: Array<Tincture>;
   variationOptions: Array<Variation>;
+  fieldDivisionName?: string;
+  variationSlotPreferences?: VariationSlotPreference[];
   chargePosition?: string;
   width: number;
   height: number;

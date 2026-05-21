@@ -5,6 +5,7 @@ import { mergeHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 import {
   heraldryFromSnapshot,
   HERALDRY_SNAPSHOT_NAME_MAX_LENGTH,
+  normalizeHeraldryGeneratorOptions,
   toHeraldrySnapshot,
   type HeraldryGeneratorOptionsSnapshot,
 } from '$lib/heraldry/heraldry_snapshot.js';
@@ -15,6 +16,12 @@ const sampleGeneratorOptions: HeraldryGeneratorOptionsSnapshot = {
   numberOfChargesOption: 'one',
   chargePosition: 'normal',
   lockSeed: true,
+  fieldDivisionOption: 'pale',
+  variationSlotOptions: ['barry', 'plain'],
+  variationTinctureOptions: [
+    ['azure', 'Or'],
+    ['gules'],
+  ],
 };
 
 describe('heraldry_snapshot', () => {
@@ -72,5 +79,24 @@ describe('heraldry_snapshot', () => {
         arms.device.field.variations[i].tinctures.map((t) => t.name),
       );
     }
+  });
+
+  it('normalizeHeraldryGeneratorOptions fills defaults for legacy snapshots', () => {
+    const legacy: HeraldryGeneratorOptionsSnapshot = {
+      heraldryTag: 'any',
+      chargeTinctureName: 'any',
+      numberOfChargesOption: 'any',
+      chargePosition: 'normal',
+      lockSeed: false,
+    };
+    expect(normalizeHeraldryGeneratorOptions(legacy)).toEqual({
+      ...legacy,
+      fieldDivisionOption: 'any',
+      variationSlotOptions: ['any', 'any'],
+      variationTinctureOptions: [
+        ['any', 'any'],
+        ['any', 'any'],
+      ],
+    });
   });
 });

@@ -23,6 +23,19 @@
     loadSavedHeraldrySnapshots,
   } from '$lib/heraldry/heraldry_saved_state';
   import {
+    buildVariationSlotPreferences,
+    eligibleVariationTinctures,
+    fieldDivisionNameFromOption,
+    fieldUiStateFromGeneratorOptions,
+    hasPinnedFieldTinctures,
+    resolveFieldOptions,
+    showSecondVariationSlot,
+    variationTinctureCountForSlot,
+  } from '$lib/heraldry/heraldry_ui_options';
+  import {
+    DEFAULT_FIELD_DIVISION_OPTION,
+    DEFAULT_VARIATION_SLOT_OPTIONS,
+    DEFAULT_VARIATION_TINCTURE_OPTIONS,
     heraldryFromSnapshot,
     toHeraldrySnapshot,
     type HeraldryGeneratorOptionsSnapshot,
@@ -50,10 +63,15 @@
   let chargePosition = $state('normal');
   let fieldTinctures1 = Tinctures.all();
   let fieldTinctures2 = Tinctures.all();
-  let fields = Fields.all();
-  let furCount = 0;
+  let fieldDivisionOption = $state(DEFAULT_FIELD_DIVISION_OPTION);
+  let variationSlotOptions = $state([...DEFAULT_VARIATION_SLOT_OPTIONS]);
+  let variationTinctureOptions = $state(
+    DEFAULT_VARIATION_TINCTURE_OPTIONS.map((row) => [...row]),
+  );
   let variations = Variations.all();
+  let allFields = Fields.all();
   let availableTags = Charges.allChargeTags();
+  const showVariationSlotTwo = $derived(showSecondVariationSlot(fieldDivisionOption));
   const heraldryWidth = 600;
   const heraldryHeight = 660;
 
@@ -72,7 +90,17 @@
       numberOfChargesOption,
       chargePosition,
       lockSeed,
+      fieldDivisionOption,
+      variationSlotOptions: [...variationSlotOptions],
+      variationTinctureOptions: variationTinctureOptions.map((row) => [...row]),
     };
+  }
+
+  function applyFieldUiState(options: HeraldryGeneratorOptionsSnapshot) {
+    const fieldUi = fieldUiStateFromGeneratorOptions(options);
+    fieldDivisionOption = fieldUi.fieldDivisionOption;
+    variationSlotOptions = [...fieldUi.variationSlotOptions];
+    variationTinctureOptions = fieldUi.variationTinctureOptions.map((row) => [...row]);
   }
 
   function changeCharges() {
@@ -97,9 +125,12 @@
   }
 
   function setFieldTinctures(rng: RNG) {
+    if (hasPinnedFieldTinctures(variationTinctureOptions)) {
+      return;
+    }
+
     let types1 = [];
     let types2 = [];
-    // TODO: when choosing field tinctures is an option, this will need redoing
     if (chargeTincture.type === 'color' || chargeTincture.type === 'stain') {
       types1 = ['metal'];
       types2 = ['metal'];
@@ -114,9 +145,7 @@
         types2.push('stain');
       }
     }
-    if (furCount === 0) {
-      types1.push('furs');
-    }
+    types1.push('furs');
     fieldTinctures1 = Tinctures.ofTypes(types1);
     fieldTinctures2 = Tinctures.ofTypes(types2);
   }
@@ -152,7 +181,12 @@
       chargeOptions: charges as Charge[],
       chargeTinctures: [chargeTincture],
       chargePosition: chargePosition === 'normal' ? undefined : chargePosition,
-      fieldOptions: fields,
+      fieldOptions: resolveFieldOptions(fieldDivisionOption),
+      fieldDivisionName: fieldDivisionNameFromOption(fieldDivisionOption),
+      variationSlotPreferences: buildVariationSlotPreferences(
+        variationSlotOptions,
+        variationTinctureOptions,
+      ),
       variationOptions: variations,
       fieldTinctures1,
       fieldTinctures2,
@@ -208,6 +242,7 @@
     chargeTinctureName = restored.generatorOptions.chargeTinctureName;
     numberOfChargesOption = restored.generatorOptions.numberOfChargesOption;
     chargePosition = restored.generatorOptions.chargePosition;
+    applyFieldUiState(restored.generatorOptions);
     changeCharges();
     if (restored.arms.device.chargeGroups.length > 0) {
       chargeTincture = restored.arms.device.chargeGroups[0].charge.tincture;
@@ -285,6 +320,70 @@
       <option value="tenné">tenné (brown)</option>
     </select>
   </div>
+
+  <div class="input-group">
+    <label for="field-division">Field division</label>
+    <select name="field-division" id="field-division" bind:value={fieldDivisionOption}>
+      <option value="any">any</option>
+      {#each allFields as field}
+        <option value={field.name}>{field.name}</option>
+      {/each}
+    </select>
+  </div>
+
+  <div class="input-group">
+    <label for="variation-slot-0">Field variation</label>
+    <select name="variation-slot-0" id="variation-slot-0" bind:value={variationSlotOptions[0]}>
+      <option value="any">any</option>
+      {#each variations as variation}
+        <option value={variation.name}>{variation.name}</option>
+      {/each}
+    </select>
+  </div>
+  {#each { length: variationTinctureCountForSlot(variationSlotOptions, 0) } as _, tinctureIndex (tinctureIndex)}
+    <div class="input-group">
+      <label for="variation-0-tincture-{tinctureIndex}">Variation tincture {tinctureIndex + 1}</label>
+      <select
+        id="variation-0-tincture-{tinctureIndex}"
+        bind:value={variationTinctureOptions[0][tinctureIndex]}
+      >
+        <option value="any">any</option>
+        {#each eligibleVariationTinctures(variationSlotOptions[0]) as tincture}
+          <option value={tincture.name}>{tincture.name}</option>
+        {/each}
+      </select>
+    </div>
+  {/each}
+
+  {#if showVariationSlotTwo}
+    <div class="input-group">
+      <label for="variation-slot-1">Variation 2</label>
+      <select name="variation-slot-1" id="variation-slot-1" bind:value={variationSlotOptions[1]}>
+        <option value="any">any</option>
+        {#each variations as variation}
+          <option value={variation.name}>{variation.name}</option>
+        {/each}
+      </select>
+    </div>
+    <p class="field-variation-hint">Variation 2 applies to divided fields only.</p>
+    {#each { length: variationTinctureCountForSlot(variationSlotOptions, 1) } as _, tinctureIndex (tinctureIndex)}
+      <div class="input-group">
+        <label for="variation-1-tincture-{tinctureIndex}">
+          Variation 2 tincture {tinctureIndex + 1}
+        </label>
+        <select
+          id="variation-1-tincture-{tinctureIndex}"
+          bind:value={variationTinctureOptions[1][tinctureIndex]}
+        >
+          <option value="any">any</option>
+          {#each eligibleVariationTinctures(variationSlotOptions[1]) as tincture}
+            <option value={tincture.name}>{tincture.name}</option>
+          {/each}
+        </select>
+      </div>
+    {/each}
+  {/if}
+
   <button onclick={generate}>Generate</button>
   <button onclick={downloadSvg} disabled={currentArms === null}>Download SVG</button>
   <button onclick={downloadPng} disabled={currentArms === null}>Download PNG</button>
@@ -334,6 +433,12 @@
 
   p.blazon {
     text-align: center;
+  }
+
+  p.field-variation-hint {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    margin: 0 0 0.5rem;
   }
 
   dialog.heraldry-load-dialog {

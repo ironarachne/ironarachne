@@ -94,3 +94,15 @@ export function random(rng: RNG): Field {
 export function randomFrom(fields: Field[], rng: RNG): Field {
   return rng.item(fields);
 }
+
+export function byName(name: string): Field {
+  const fields = all();
+
+  for (let i = 0; i < fields.length; i++) {
+    if (fields[i].name === name) {
+      return fields[i];
+    }
+  }
+
+  throw new Error(`no field with name ${name}`);
+}

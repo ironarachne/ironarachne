@@ -31,6 +31,12 @@
     numberOfChargesOption: 'any',
     chargePosition: 'normal',
     lockSeed: false,
+    fieldDivisionOption: 'any',
+    variationSlotOptions: ['any', 'any'],
+    variationTinctureOptions: [
+      ['any', 'any'],
+      ['any', 'any'],
+    ],
   });
 
   let savedHeraldries = $state<HeraldrySnapshot[]>([]);
