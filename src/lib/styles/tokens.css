@@ -12,6 +12,10 @@
   --plasma-blue: #4286f4;
   --slate: #2a2f38;
   --tan: #5c5031;
+  --modal-backdrop: rgb(0 0 0 / 50%);
+  --modal-border-message: var(--gold);
+  --modal-border-error: var(--crimson);
+  --modal-border-success: var(--emerald);
 }
 
 @font-face {

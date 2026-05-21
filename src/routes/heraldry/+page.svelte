@@ -8,14 +8,26 @@
   import Download from '$lib/download';
   import SaveSVGToPNG from '$lib/renderers/svg-to-png';
   import { renderSVGAsPNG } from '$lib/images/svg';
+  import { onMount } from 'svelte';
 
   import { generateHeraldry } from '$lib/heraldry/generator';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+  import type { Arms } from '$lib/heraldry/arms';
   import type { Charge } from '$lib/heraldry/charge_heraldry';
   import {
     mergeHeraldryGeneratorConfig,
     type HeraldryGeneratorConfig,
   } from '$lib/heraldry/generatorconfig';
+  import {
+    appendSavedHeraldry,
+    loadSavedHeraldrySnapshots,
+  } from '$lib/heraldry/heraldry_saved_state';
+  import {
+    heraldryFromSnapshot,
+    toHeraldrySnapshot,
+    type HeraldryGeneratorOptionsSnapshot,
+    type HeraldrySnapshot,
+  } from '$lib/heraldry/heraldry_snapshot';
 
   let rng = new RngCtor(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -26,6 +38,9 @@
 
   let blazon = $state('');
   let image = $state('');
+  let currentArms = $state<Arms | null>(null);
+  let savedHeraldries = $state<HeraldrySnapshot[]>([]);
+  let loadDialog: HTMLDialogElement | undefined = $state();
   let charges = Charges.all();
   let allCharges = Charges.all();
   let heraldryTag = $state('any');
@@ -41,6 +56,24 @@
   let availableTags = Charges.allChargeTags();
   const heraldryWidth = 600;
   const heraldryHeight = 660;
+
+  onMount(() => {
+    refreshSavedHeraldries();
+  });
+
+  function refreshSavedHeraldries() {
+    savedHeraldries = loadSavedHeraldrySnapshots();
+  }
+
+  function currentGeneratorOptions(): HeraldryGeneratorOptionsSnapshot {
+    return {
+      heraldryTag,
+      chargeTinctureName,
+      numberOfChargesOption,
+      chargePosition,
+      lockSeed,
+    };
+  }
 
   function changeCharges() {
     if (heraldryTag === 'any') {
@@ -88,6 +121,13 @@
     fieldTinctures2 = Tinctures.ofTypes(types2);
   }
 
+  function applyHeraldryToPreview(arms: Arms) {
+    currentArms = arms;
+    blazon = arms.blazon;
+    image = renderHeraldryDeviceSvg(arms.device, heraldryWidth, heraldryHeight, rng);
+    renderSVGAsPNG(image, heraldryWidth, heraldryHeight, 'output');
+  }
+
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
@@ -121,11 +161,7 @@
       rng: rng,
     });
 
-    const heraldry = generateHeraldry(config);
-    blazon = heraldry.blazon;
-
-    image = renderHeraldryDeviceSvg(heraldry.device, config.width, config.height, rng);
-    renderSVGAsPNG(image, config.width, config.height, 'output');
+    applyHeraldryToPreview(generateHeraldry(config));
   }
 
   function randomNumberOfCharges(rng: RNG) {
@@ -142,13 +178,48 @@
     return result;
   }
 
-  function save() {
+  function downloadSvg() {
     const blob = new Blob([image], { type: 'image/svg+xml' });
     Download(window.URL.createObjectURL(blob), `heraldry-${seed}.svg`);
   }
 
-  function saveAsPNG() {
+  function downloadPng() {
     SaveSVGToPNG(image, heraldryWidth, heraldryHeight, `heraldry-${seed}.png`);
+  }
+
+  function saveHeraldry() {
+    if (currentArms === null) {
+      return;
+    }
+    appendSavedHeraldry(toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()));
+    refreshSavedHeraldries();
+  }
+
+  function openLoadDialog() {
+    refreshSavedHeraldries();
+    loadDialog?.showModal();
+  }
+
+  function loadSavedHeraldry(snapshot: HeraldrySnapshot) {
+    const restored = heraldryFromSnapshot(snapshot);
+    seed = restored.seed;
+    lockSeed = restored.generatorOptions.lockSeed;
+    heraldryTag = restored.generatorOptions.heraldryTag;
+    chargeTinctureName = restored.generatorOptions.chargeTinctureName;
+    numberOfChargesOption = restored.generatorOptions.numberOfChargesOption;
+    chargePosition = restored.generatorOptions.chargePosition;
+    changeCharges();
+    if (restored.arms.device.chargeGroups.length > 0) {
+      chargeTincture = restored.arms.device.chargeGroups[0].charge.tincture;
+    } else if (chargeTinctureName !== 'any') {
+      const tincture = Tinctures.byName(chargeTinctureName);
+      if (tincture !== undefined) {
+        chargeTincture = tincture;
+      }
+    }
+    rng.setSeed(seed);
+    applyHeraldryToPreview(restored.arms);
+    loadDialog?.close();
   }
 
   generate();
@@ -215,12 +286,40 @@
     </select>
   </div>
   <button onclick={generate}>Generate</button>
-  <button onclick={save} disabled={image === ''}>Save</button>
-  <button onclick={saveAsPNG} disabled={image === ''}>Save as PNG</button>
+  <button onclick={downloadSvg} disabled={currentArms === null}>Download SVG</button>
+  <button onclick={downloadPng} disabled={currentArms === null}>Download PNG</button>
+  <button onclick={saveHeraldry} disabled={currentArms === null}>Save</button>
+  <button type="button" onclick={openLoadDialog}>Load...</button>
 
   <p class="blazon">{blazon}</p>
   <div class="coat-of-arms"><img alt="" id="output" /></div>
 </section>
+
+<dialog bind:this={loadDialog} class="heraldry-load-dialog">
+  <form method="dialog" class="heraldry-load-dialog-content">
+    <h2>Load Saved Heraldry</h2>
+
+    {#if savedHeraldries.length === 0}
+      <p>No saved heraldry yet. Generate a coat of arms and click Save.</p>
+    {:else}
+      <ul class="heraldry-load-list">
+        {#each savedHeraldries as saved, index (index)}
+          <li class="heraldry-load-item">
+            <div class="heraldry-load-item-details">
+              <p class="heraldry-load-item-name">{saved.name}</p>
+              <p class="heraldry-load-item-seed">Seed: {saved.seed}</p>
+            </div>
+            <button type="button" onclick={() => loadSavedHeraldry(saved)}>Load</button>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+
+    <div class="heraldry-load-dialog-actions">
+      <button value="cancel">Cancel</button>
+    </div>
+  </form>
+</dialog>
 
 <svelte:head>
   <title>Heraldry Generator | Iron Arachne</title>
@@ -235,5 +334,66 @@
 
   p.blazon {
     text-align: center;
+  }
+
+  dialog.heraldry-load-dialog {
+    border: 1px solid var(--gold, #c9a227);
+    border-radius: 4px;
+    padding: 0;
+    max-width: 40rem;
+    width: calc(100% - 2rem);
+    background: var(--background, #1a1a1a);
+    color: inherit;
+  }
+
+  dialog.heraldry-load-dialog::backdrop {
+    background: rgb(0 0 0 / 50%);
+  }
+
+  .heraldry-load-dialog-content {
+    padding: 1rem 1.25rem;
+  }
+
+  .heraldry-load-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .heraldry-load-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+  }
+
+  .heraldry-load-item:last-child {
+    border-bottom: none;
+  }
+
+  .heraldry-load-item-details {
+    min-width: 0;
+  }
+
+  .heraldry-load-item-name,
+  .heraldry-load-item-seed {
+    margin: 0;
+  }
+
+  .heraldry-load-item-name {
+    font-weight: 600;
+  }
+
+  .heraldry-load-item-seed {
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+
+  .heraldry-load-dialog-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
   }
 </style>

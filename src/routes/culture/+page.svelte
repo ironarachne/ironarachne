@@ -11,13 +11,13 @@
   } from '$lib/culture';
   import { applyImportedScopes, buildExportPayload } from '$lib/persistent_save/save_file_export';
   import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from '$lib/names';
+  import { showAlertModal } from '$lib/ui/modal';
 
   const rng = new RNG.RNG(Date.now());
   const allNameSets = getAllFantasyNameGeneratorSets(rng);
 
   let savedCultures = $state<Culture[]>([]);
   let savedCulture: string | undefined = $state();
-  let importExportMessage = $state('');
   let importInput: HTMLInputElement | undefined = $state();
 
   const initialSeed = rng.randomString(13);
@@ -40,7 +40,6 @@
   }
 
   function generate() {
-    importExportMessage = '';
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
@@ -51,7 +50,6 @@
   }
 
   function loadSavedCulture() {
-    importExportMessage = '';
     for (let i = 0; i < savedCultures.length; i++) {
       if (savedCultures[i].name === savedCulture) {
         culture = savedCultures[i];
@@ -60,13 +58,11 @@
   }
 
   function saveCulture() {
-    importExportMessage = '';
     appendSavedCulture(culture);
     refreshSavedCultures();
   }
 
   function exportCulturesFile() {
-    importExportMessage = '';
     const payload = buildExportPayload([CULTURE_SAVE_SCOPE_ID]);
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -78,7 +74,6 @@
   }
 
   function triggerImportPicker() {
-    importExportMessage = '';
     importInput?.click();
   }
 
@@ -86,7 +81,6 @@
     const input = ev.currentTarget as HTMLInputElement;
     const file = input.files?.[0];
     input.value = '';
-    importExportMessage = '';
     if (!file) {
       return;
     }
@@ -94,19 +88,29 @@
     try {
       parsed = JSON.parse(await file.text()) as unknown;
     } catch {
-      importExportMessage = 'Could not read that file as JSON.';
+      void showAlertModal({
+        message: 'Could not read that file as JSON.',
+        style: 'error',
+      });
       return;
     }
     const result = applyImportedScopes(parsed, 'merge');
     if (!result.ok) {
-      importExportMessage = result.error;
+      void showAlertModal({ message: result.error, style: 'error' });
       return;
     }
     refreshSavedCultures();
-    importExportMessage =
-      result.appliedScopes.length > 0
-        ? `Imported scopes: ${result.appliedScopes.join(', ')}.`
-        : 'Import finished (no scopes in file).';
+    if (result.appliedScopes.length > 0) {
+      void showAlertModal({
+        message: `Imported scopes: ${result.appliedScopes.join(', ')}.`,
+        style: 'success',
+      });
+      return;
+    }
+    void showAlertModal({
+      message: 'Import finished (no scopes in file).',
+      style: 'message',
+    });
   }
 </script>
 
@@ -153,10 +157,6 @@
       onchange={onImportFile}
     />
   </div>
-
-  {#if importExportMessage !== ''}
-    <p class="culture-save-file-message" role="status">{importExportMessage}</p>
-  {/if}
 
   <h2>The {culture.name} Culture</h2>
 
@@ -254,9 +254,5 @@
     flex-wrap: wrap;
     gap: 0.5rem;
     align-items: center;
-  }
-
-  .culture-save-file-message {
-    margin-top: 0.25rem;
   }
 </style>

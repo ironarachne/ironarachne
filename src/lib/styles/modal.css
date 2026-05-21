@@ -1,0 +1,50 @@
+dialog.ironarachne-modal {
+  border: 1px solid var(--modal-border-message);
+  border-radius: 4px;
+  padding: 0;
+  max-width: 40rem;
+  width: calc(100% - 2rem);
+  background: var(--charcoal);
+  color: inherit;
+}
+
+dialog.ironarachne-modal::backdrop {
+  background: var(--modal-backdrop);
+}
+
+dialog.ironarachne-modal--error {
+  border-color: var(--modal-border-error);
+}
+
+dialog.ironarachne-modal--success {
+  border-color: var(--modal-border-success);
+}
+
+.modal-dialog-content {
+  padding: 1rem 1.25rem;
+}
+
+.modal-dialog-content--error {
+  background: color-mix(in srgb, var(--crimson) 12%, var(--charcoal));
+}
+
+.modal-dialog-content--success {
+  background: color-mix(in srgb, var(--emerald) 12%, var(--charcoal));
+}
+
+.modal-dialog-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.5rem;
+  line-height: 1.5rem;
+}
+
+.modal-dialog-message {
+  margin: 0 0 1rem;
+}
+
+.modal-dialog-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
