@@ -33,7 +33,7 @@ export function all(): Variation[] {
       name: 'bendy sinister',
       tinctureCount: 2,
       blazon: 'bendy sinister tincture1 and tincture2',
-      pattern: `<pattern id="variation" x="0" y="0" width="600" height="660" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="600" height="660" fill="tincture2"/><polygon points="700,0 800,0 300,660 200,660" fill="tincture1"/><polygon points="500,0 600,0 100,660 0,660" fill="tincture1"/><polygon points="300,0 400,0 -100,660 -200,660" fill="tincture1"/><polygon points="100,0 200,0 -300,660 -400,660" fill="tincture1"/></pattern>`,
+      pattern: `<pattern id="variation" x="0" y="0" width="600" height="660" patternUnits="userSpaceOnUse"><rect x="0" y="0" width="600" height="660" fill="tincture2"/><polygon points="600,0 0,660 -100,660 500,0" fill="tincture1"/><polygon points="400,0 -200,660 -300,660 300,0" fill="tincture1"/><polygon points="200,0 -400,660 -500,660 100,0" fill="tincture1"/><polygon points="800,0 200,660 100,660 700,0" fill="tincture1"/><polygon points="1000,0 400,660 300,660 900,0" fill="tincture1"/></pattern>`,
       supportsFurs: false,
       commonality: 5,
       tinctures: [],
