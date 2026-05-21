@@ -22,9 +22,11 @@
     isPatternLatticeEmblem,
   } from '$lib/visual_identity/visual_identity';
   import { renderDiscEmblemSvg } from '$lib/disc_emblem/render_disc_emblem_svg';
+  import type { Arms } from '$lib/heraldry/arms';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
   import { renderMerchantMarkSvg } from '$lib/merchant_marks/render_merchant_mark_svg';
   import { renderPatternLatticeSvg } from '$lib/pattern_lattice/render_pattern_lattice_svg';
+  import { showHeraldryPersistenceModal } from '$lib/ui/modal';
   let rng = new RNG(Date.now().toString());
   let seed: string = $state(rng.randomString(13));
   let lockSeed = $state(false);
@@ -95,14 +97,30 @@
   let relationships = $state(org.relationships);
   let motto = $state(org.visualIdentity.motto);
 
+  const heraldryWidth = 200;
+  const heraldryHeight = 220;
+
+  async function openHeraldryModal(arms: Arms, title: string, applyReplacement: (arms: Arms) => void) {
+    const result = await showHeraldryPersistenceModal({ arms, seed, title });
+    if (result.action === 'replaced') {
+      applyReplacement(result.arms);
+    }
+  }
+
+  function replaceOrganizationHeraldry(arms: Arms) {
+    org = {
+      ...org,
+      visualIdentity: {
+        ...org.visualIdentity,
+        emblem: { kind: 'heraldry', arms },
+      },
+    };
+  }
+
   function renderArmsForOrg(o: Organization) {
     const emblem = o.visualIdentity.emblem;
     if (isHeraldryEmblem(emblem)) {
-      const w = 200;
-      const h = 220;
-      const arms = emblem.arms;
-      const svg = renderHeraldryDeviceSvg(arms.device, w, h, rng);
-      renderSVGAsPNG(svg, w, h, 'org-arms');
+      return;
     } else if (isMerchantMarkEmblem(emblem)) {
       const w = 200;
       const h = 200;
@@ -226,7 +244,30 @@
 
   <h2>{name}</h2>
 
-  <div class="org-arms"><img alt="" id="org-arms" /></div>
+  <div class="org-arms">
+    {#if isHeraldryEmblem(org.visualIdentity.emblem)}
+      <button
+        type="button"
+        class="org-heraldry heraldry-block-target"
+        aria-label="View heraldry for {name}"
+        onclick={() => {
+          const emblem = org.visualIdentity.emblem;
+          if (isHeraldryEmblem(emblem)) {
+            void openHeraldryModal(emblem.arms, name, replaceOrganizationHeraldry);
+          }
+        }}
+      >
+        {@html renderHeraldryDeviceSvg(
+          org.visualIdentity.emblem.arms.device,
+          heraldryWidth,
+          heraldryHeight,
+          rng,
+        )}
+      </button>
+    {:else}
+      <img alt="" id="org-arms" />
+    {/if}
+  </div>
 
   {#if motto}
     <p class="motto">“{motto}”</p>
@@ -281,8 +322,27 @@
 <style>
   div.org-arms {
     width: 200px;
-    height: 200px;
+    height: 220px;
     margin: 0 auto;
+  }
+
+  button.org-heraldry {
+    width: 200px;
+    height: 220px;
+    margin: 0 auto;
+  }
+
+  button.heraldry-block-target {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+  }
+
+  button.heraldry-block-target:hover {
+    opacity: 0.85;
   }
   .motto {
     font-style: italic;

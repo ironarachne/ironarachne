@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { generateReligion, getDefaultReligionGenerationConfig } from '$lib/religion/religion_generation';
 import {
   appendSavedReligion,
+  deleteSavedReligionBySeed,
   loadSavedReligionSnapshots,
   readReligionSavePayload,
   RELIGION_SAVE_SCOPE_ID,
@@ -70,5 +71,19 @@ describe('religion_saved_state', () => {
     expect(loaded[0].seed).toBe('saved-seed');
     expect(loaded[0].name).toBe(religion.name);
     expect(store.has(`${SAVE_STORAGE_PREFIX}${RELIGION_SAVE_SCOPE_ID}`)).toBe(true);
+  });
+
+  it('deletes saved religion by seed', () => {
+    const config = getDefaultReligionGenerationConfig();
+    const religion = generateReligion('saved-seed', config);
+    const snapshot = toReligionSnapshot(religion, 'saved-seed', sampleGeneratorOptions);
+    appendSavedReligion(snapshot);
+
+    expect(deleteSavedReligionBySeed('saved-seed')).toBe(true);
+    expect(loadSavedReligionSnapshots()).toEqual([]);
+  });
+
+  it('returns false when deleting religion by unknown seed', () => {
+    expect(deleteSavedReligionBySeed('unknown-seed')).toBe(false);
   });
 });

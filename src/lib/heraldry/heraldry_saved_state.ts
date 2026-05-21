@@ -20,6 +20,39 @@ function isHeraldrySavePayload(value: unknown): value is HeraldrySavePayload {
   );
 }
 
+export type DedupeHeraldrySnapshotsResult = {
+  heraldries: HeraldrySnapshot[];
+  duplicateBlazonCount: number;
+};
+
+/** Keeps the first saved entry for each blazon; drops later duplicates. */
+export function dedupeHeraldrySnapshotsByBlazon(
+  heraldries: HeraldrySnapshot[],
+): DedupeHeraldrySnapshotsResult {
+  const seenBlazons = new Set<string>();
+  const deduped: HeraldrySnapshot[] = [];
+  let duplicateBlazonCount = 0;
+
+  for (const snapshot of heraldries) {
+    if (seenBlazons.has(snapshot.blazon)) {
+      duplicateBlazonCount += 1;
+      continue;
+    }
+    seenBlazons.add(snapshot.blazon);
+    deduped.push(snapshot);
+  }
+
+  return { heraldries: deduped, duplicateBlazonCount };
+}
+
+function normalizeHeraldrySavePayload(payload: HeraldrySavePayload): HeraldrySavePayload {
+  const { heraldries } = dedupeHeraldrySnapshotsByBlazon(payload.heraldries);
+  return {
+    payloadVersion: payload.payloadVersion,
+    heraldries,
+  };
+}
+
 export function readHeraldrySavePayload(): HeraldrySavePayload {
   const raw = readScopedJson(HERALDRY_SAVE_SCOPE_ID);
   if (raw === null) {
@@ -28,7 +61,11 @@ export function readHeraldrySavePayload(): HeraldrySavePayload {
   if (!isHeraldrySavePayload(raw)) {
     return { payloadVersion: HERALDRY_SAVE_PAYLOAD_VERSION, heraldries: [] };
   }
-  return raw;
+  const normalized = normalizeHeraldrySavePayload(raw);
+  if (normalized.heraldries.length !== raw.heraldries.length) {
+    writeHeraldrySavePayload(normalized);
+  }
+  return normalized;
 }
 
 export function writeHeraldrySavePayload(payload: HeraldrySavePayload): void {
@@ -39,17 +76,40 @@ export function loadSavedHeraldrySnapshots(): HeraldrySnapshot[] {
   return readHeraldrySavePayload().heraldries;
 }
 
+export function findSavedHeraldrySnapshotByBlazon(blazon: string): HeraldrySnapshot | undefined {
+  return loadSavedHeraldrySnapshots().find((saved) => saved.blazon === blazon);
+}
+
 export function saveHeraldrySnapshots(heraldries: HeraldrySnapshot[]): void {
+  const { heraldries: deduped } = dedupeHeraldrySnapshotsByBlazon(heraldries);
   writeHeraldrySavePayload({
     payloadVersion: HERALDRY_SAVE_PAYLOAD_VERSION,
-    heraldries,
+    heraldries: deduped,
   });
 }
 
-export function appendSavedHeraldry(snapshot: HeraldrySnapshot): void {
+export type AppendSavedHeraldryResult =
+  | { ok: true }
+  | { ok: false; reason: 'duplicate_blazon' };
+
+export function appendSavedHeraldry(snapshot: HeraldrySnapshot): AppendSavedHeraldryResult {
   const payload = readHeraldrySavePayload();
+  if (payload.heraldries.some((saved) => saved.blazon === snapshot.blazon)) {
+    return { ok: false, reason: 'duplicate_blazon' };
+  }
   writeHeraldrySavePayload({
     payloadVersion: HERALDRY_SAVE_PAYLOAD_VERSION,
     heraldries: [...payload.heraldries, snapshot],
   });
+  return { ok: true };
+}
+
+export function deleteSavedHeraldryByBlazon(blazon: string): boolean {
+  const payload = readHeraldrySavePayload();
+  const next = payload.heraldries.filter((item) => item.blazon !== blazon);
+  if (next.length === payload.heraldries.length) {
+    return false;
+  }
+  saveHeraldrySnapshots(next);
+  return true;
 }

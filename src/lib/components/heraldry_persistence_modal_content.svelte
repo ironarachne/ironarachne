@@ -28,6 +28,7 @@
   const defaultGeneratorOptions = defaultHeraldryGeneratorOptions;
 
   let savedHeraldries = $state<HeraldrySnapshot[]>([]);
+  const isCurrentBlazonSaved = $derived(savedHeraldries.some((saved) => saved.blazon === arms.blazon));
 
   $effect(() => {
     arms;
@@ -40,7 +41,13 @@
   }
 
   function saveCurrentHeraldry() {
-    appendSavedHeraldry(toHeraldrySnapshot(arms, seed, defaultGeneratorOptions()));
+    const result = appendSavedHeraldry(toHeraldrySnapshot(arms, seed, defaultGeneratorOptions()));
+    if (!result.ok) {
+      void showAlertModal({
+        message: 'This heraldry is already saved.',
+      });
+      return;
+    }
     refreshSavedHeraldries();
     void showAlertModal({
       message: 'Heraldry saved.',
@@ -66,7 +73,7 @@
   </div>
 
   <div class="modal-dialog-actions heraldry-persistence-actions">
-    <button type="button" onclick={saveCurrentHeraldry}>Save</button>
+    <button type="button" onclick={saveCurrentHeraldry} disabled={isCurrentBlazonSaved}>Save</button>
     <button type="button" onclick={onDismiss}>Close</button>
   </div>
 

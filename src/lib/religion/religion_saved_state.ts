@@ -54,3 +54,13 @@ export function appendSavedReligion(snapshot: ReligionSnapshot): void {
     religions: [...payload.religions, snapshot],
   });
 }
+
+export function deleteSavedReligionBySeed(seed: string): boolean {
+  const payload = readReligionSavePayload();
+  const next = payload.religions.filter((item) => item.seed !== seed);
+  if (next.length === payload.religions.length) {
+    return false;
+  }
+  saveReligionSnapshots(next);
+  return true;
+}

@@ -8,7 +8,8 @@
   import Download from '$lib/download';
   import SaveSVGToPNG from '$lib/renderers/svg-to-png';
   import { renderSVGAsPNG } from '$lib/images/svg';
-  import { onMount } from 'svelte';
+  import { afterNavigate } from '$app/navigation';
+  import { page } from '$app/state';
 
   import { generateHeraldry } from '$lib/heraldry/generator';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
@@ -20,6 +21,7 @@
   } from '$lib/heraldry/generatorconfig';
   import {
     appendSavedHeraldry,
+    findSavedHeraldrySnapshotByBlazon,
     loadSavedHeraldrySnapshots,
   } from '$lib/heraldry/heraldry_saved_state';
   import {
@@ -40,6 +42,10 @@
     type HeraldrySnapshot,
   } from '$lib/heraldry/heraldry_snapshot';
   import { showAlertModal } from '$lib/ui/modal';
+  import {
+    clearLoadParamFromUrl,
+    HERALDRY_LOAD_PARAM,
+  } from '$lib/persistent_save/saved_data_links';
 
   let rng = new RngCtor(Date.now().toString());
   const initialOptions = defaultHeraldryGeneratorOptions();
@@ -72,12 +78,30 @@
   let allFields = Fields.all();
   let availableTags = Charges.allChargeTags();
   const showVariationSlotTwo = $derived(showSecondVariationSlot(fieldDivisionOption));
+  const isCurrentBlazonSaved = $derived.by(() => {
+    const arms = currentArms;
+    return arms !== null && savedHeraldries.some((saved) => saved.blazon === arms.blazon);
+  });
   const heraldryWidth = 600;
   const heraldryHeight = 660;
 
-  onMount(() => {
+  afterNavigate(() => {
     refreshSavedHeraldries();
+    tryLoadHeraldryFromBlazonParam();
   });
+
+  function tryLoadHeraldryFromBlazonParam(): boolean {
+    const blazonParam = page.url.searchParams.get(HERALDRY_LOAD_PARAM);
+    if (blazonParam === null) {
+      return false;
+    }
+    const snapshot = findSavedHeraldrySnapshotByBlazon(blazonParam);
+    if (snapshot !== undefined) {
+      loadSavedHeraldry(snapshot);
+    }
+    clearLoadParamFromUrl(HERALDRY_LOAD_PARAM);
+    return snapshot !== undefined;
+  }
 
   function refreshSavedHeraldries() {
     savedHeraldries = loadSavedHeraldrySnapshots();
@@ -238,7 +262,15 @@
     if (currentArms === null) {
       return;
     }
-    appendSavedHeraldry(toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()));
+    const result = appendSavedHeraldry(
+      toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()),
+    );
+    if (!result.ok) {
+      void showAlertModal({
+        message: 'This heraldry is already saved.',
+      });
+      return;
+    }
     refreshSavedHeraldries();
     void showAlertModal({
       message: 'Heraldry saved.',
@@ -274,7 +306,9 @@
     loadDialog?.close();
   }
 
-  generate();
+  if (!page.url.searchParams.has(HERALDRY_LOAD_PARAM)) {
+    generate();
+  }
 </script>
 
 <section class="fantasy main">
@@ -405,7 +439,7 @@
   <button onclick={generate}>Generate</button>
   <button onclick={downloadSvg} disabled={currentArms === null}>Download SVG</button>
   <button onclick={downloadPng} disabled={currentArms === null}>Download PNG</button>
-  <button onclick={saveHeraldry} disabled={currentArms === null}>Save</button>
+  <button onclick={saveHeraldry} disabled={currentArms === null || isCurrentBlazonSaved}>Save</button>
   <button type="button" onclick={openLoadDialog}>Load...</button>
 
   <p class="blazon">{blazon}</p>

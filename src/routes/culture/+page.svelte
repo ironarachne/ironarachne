@@ -12,6 +12,11 @@
   import { applyImportedScopes, buildExportPayload } from '$lib/persistent_save/save_file_export';
   import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from '$lib/names';
   import { showAlertModal } from '$lib/ui/modal';
+  import {
+    clearLoadParamFromUrl,
+    CULTURE_LOAD_PARAM,
+    readCultureLoadParamFromLocation,
+  } from '$lib/persistent_save/saved_data_links';
 
   const rng = new RNG.RNG(Date.now());
   const allNameSets = getAllFantasyNameGeneratorSets(rng);
@@ -33,6 +38,12 @@
 
   onMount(() => {
     refreshSavedCultures();
+    const nameParam = readCultureLoadParamFromLocation();
+    if (nameParam !== null) {
+      savedCulture = nameParam;
+      loadSavedCulture();
+      clearLoadParamFromUrl(CULTURE_LOAD_PARAM);
+    }
   });
 
   function refreshSavedCultures() {

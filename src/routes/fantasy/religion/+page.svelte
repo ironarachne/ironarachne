@@ -26,6 +26,11 @@
   } from '$lib/religion';
   import { listDomains } from '$lib/religion/domains';
   import { showAlertModal } from '$lib/ui/modal';
+  import {
+    clearLoadParamFromUrl,
+    readReligionLoadParamFromLocation,
+    RELIGION_LOAD_PARAM,
+  } from '$lib/persistent_save/saved_data_links';
 
   const dimensionSectionTitles: Record<ReligionDimensionId, string> = {
     ritual: 'Ritual',
@@ -45,6 +50,14 @@
   onMount(() => {
     savedCultures = loadSavedCultures();
     refreshSavedReligions();
+    const seedParam = readReligionLoadParamFromLocation();
+    if (seedParam !== null) {
+      const snapshot = loadSavedReligionSnapshots().find((saved) => saved.seed === seedParam);
+      if (snapshot !== undefined) {
+        loadSavedReligion(snapshot);
+      }
+      clearLoadParamFromUrl(RELIGION_LOAD_PARAM);
+    }
   });
 
   function refreshSavedReligions() {
