@@ -46,6 +46,44 @@
     clearLoadParamFromUrl,
     HERALDRY_LOAD_PARAM,
   } from '$lib/persistent_save/saved_data_links';
+  import HeraldryTinctureSelect from '$lib/components/heraldry_tincture_select.svelte';
+  import HeraldryPreviewSelect from '$lib/components/heraldry_preview_select.svelte';
+  import { buildFieldDivisionPreviewSvg } from '$lib/heraldry/field_division_preview.js';
+  import { buildVariationPreviewSvg } from '$lib/heraldry/variation_preview.js';
+
+  const HERALDRY_UI_PREVIEW_SIZE = 16;
+
+  const CHARGE_TINCTURE_NAMES = [
+    'gules',
+    'argent',
+    'vert',
+    'purpure',
+    'sable',
+    'Or',
+    'azure',
+    'murrey',
+    'sanguine',
+    'tenné',
+  ] as const;
+
+  const CHARGE_TINCTURE_LABELS: Record<(typeof CHARGE_TINCTURE_NAMES)[number], string> = {
+    gules: 'gules (red)',
+    argent: 'argent (white)',
+    vert: 'vert (green)',
+    purpure: 'purpure (purple)',
+    sable: 'sable (black)',
+    Or: 'Or (gold)',
+    azure: 'azure (blue)',
+    murrey: 'murrey (mulberry)',
+    sanguine: 'sanguine (blood red)',
+    tenné: 'tenné (brown)',
+  };
+
+  const chargeTinctureOptions = CHARGE_TINCTURE_NAMES.map((name) => Tinctures.byName(name));
+
+  function chargeTinctureLabel(value: string): string {
+    return CHARGE_TINCTURE_LABELS[value as (typeof CHARGE_TINCTURE_NAMES)[number]] ?? value;
+  }
 
   let rng = new RngCtor(Date.now().toString());
   const initialOptions = defaultHeraldryGeneratorOptions();
@@ -76,6 +114,12 @@
   );
   let variations = Variations.all();
   let allFields = Fields.all();
+  const fieldDivisionSelectOptions = $derived(
+    allFields.map((field) => ({ value: field.name, label: field.name })),
+  );
+  const variationSelectOptions = $derived(
+    variations.map((variation) => ({ value: variation.name, label: variation.name })),
+  );
   let availableTags = Charges.allChargeTags();
   const fieldVariationSlotCount = $derived(
     fieldVariationSlotCountForDivision(fieldDivisionOption),
@@ -391,56 +435,42 @@
   </div>
   <div class="input-group">
     <label for="charge-tincture">Charge Tincture</label>
-    <select
-      name="charge-tincture"
+    <HeraldryTinctureSelect
+      id="charge-tincture"
       bind:value={chargeTinctureName}
+      tinctures={chargeTinctureOptions}
+      labelForValue={chargeTinctureLabel}
       onchange={() => setChargeTincture(rng)}
-    >
-      <option>any</option>
-      <option value="gules">gules (red)</option>
-      <option value="argent">argent (white)</option>
-      <option value="vert">vert (green)</option>
-      <option value="purpure">purpure (purple)</option>
-      <option value="sable">sable (black)</option>
-      <option value="Or">Or (gold)</option>
-      <option value="azure">azure (blue)</option>
-      <option value="murrey">murrey (mulberry)</option>
-      <option value="sanguine">sanguine (blood red)</option>
-      <option value="tenné">tenné (brown)</option>
-    </select>
+    />
   </div>
 
   <div class="input-group">
     <label for="field-division">Field division</label>
-    <select name="field-division" id="field-division" bind:value={fieldDivisionOption}>
-      <option value="any">any</option>
-      {#each allFields as field}
-        <option value={field.name}>{field.name}</option>
-      {/each}
-    </select>
+    <HeraldryPreviewSelect
+      id="field-division"
+      bind:value={fieldDivisionOption}
+      options={fieldDivisionSelectOptions}
+      previewSvg={(value) => buildFieldDivisionPreviewSvg(value, HERALDRY_UI_PREVIEW_SIZE)}
+    />
   </div>
 
   <div class="input-group">
     <label for="variation-slot-0">Field variation</label>
-    <select name="variation-slot-0" id="variation-slot-0" bind:value={variationSlotOptions[0]}>
-      <option value="any">any</option>
-      {#each variations as variation}
-        <option value={variation.name}>{variation.name}</option>
-      {/each}
-    </select>
+    <HeraldryPreviewSelect
+      id="variation-slot-0"
+      bind:value={variationSlotOptions[0]}
+      options={variationSelectOptions}
+      previewSvg={(value) => buildVariationPreviewSvg(value, HERALDRY_UI_PREVIEW_SIZE)}
+    />
   </div>
   {#each { length: variationTinctureCountForSlot(variationSlotOptions, 0) } as _, tinctureIndex (tinctureIndex)}
     <div class="input-group">
       <label for="variation-0-tincture-{tinctureIndex}">Variation tincture {tinctureIndex + 1}</label>
-      <select
+      <HeraldryTinctureSelect
         id="variation-0-tincture-{tinctureIndex}"
         bind:value={variationTinctureOptions[0][tinctureIndex]}
-      >
-        <option value="any">any</option>
-        {#each eligibleVariationTinctures(variationSlotOptions[0]) as tincture}
-          <option value={tincture.name}>{tincture.name}</option>
-        {/each}
-      </select>
+        tinctures={eligibleVariationTinctures(variationSlotOptions[0])}
+      />
     </div>
   {/each}
 
@@ -448,16 +478,12 @@
     {@const slot = slotIndex + 1}
     <div class="input-group">
       <label for="variation-slot-{slot}">Variation {slot + 1}</label>
-      <select
-        name="variation-slot-{slot}"
+      <HeraldryPreviewSelect
         id="variation-slot-{slot}"
         bind:value={variationSlotOptions[slot]}
-      >
-        <option value="any">any</option>
-        {#each variations as variation}
-          <option value={variation.name}>{variation.name}</option>
-        {/each}
-      </select>
+        options={variationSelectOptions}
+        previewSvg={(value) => buildVariationPreviewSvg(value, HERALDRY_UI_PREVIEW_SIZE)}
+      />
     </div>
     {#if slot === 1}
       <p class="field-variation-hint">Additional variations apply to divided fields only.</p>
@@ -467,15 +493,11 @@
         <label for="variation-{slot}-tincture-{tinctureIndex}">
           Variation {slot + 1} tincture {tinctureIndex + 1}
         </label>
-        <select
+        <HeraldryTinctureSelect
           id="variation-{slot}-tincture-{tinctureIndex}"
           bind:value={variationTinctureOptions[slot][tinctureIndex]}
-        >
-          <option value="any">any</option>
-          {#each eligibleVariationTinctures(variationSlotOptions[slot]) as tincture}
-            <option value={tincture.name}>{tincture.name}</option>
-          {/each}
-        </select>
+          tinctures={eligibleVariationTinctures(variationSlotOptions[slot])}
+        />
       </div>
     {/each}
   {/each}
