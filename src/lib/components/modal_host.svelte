@@ -1,24 +1,30 @@
 <script lang="ts">
+  import HeraldryPersistenceModalContent from '$lib/components/heraldry_persistence_modal_content.svelte';
   import ModalDialog from '$lib/components/modal_dialog.svelte';
   import {
     modalState,
     resolveActiveAlertModal,
     resolveActiveConfirmModal,
+    resolveActiveHeraldryPersistenceModal,
     type AlertModalStyle,
   } from '$lib/ui/modal';
+  import { RNG } from '@ironarachne/rng';
 
   let dialogEl: HTMLDialogElement | undefined = $state();
+  const heraldryModalRng = new RNG('heraldry-persistence-modal');
 
   const panelStyle = $derived.by((): AlertModalStyle => {
     const current = modalState.current;
     if (!current) {
       return 'message';
     }
-    if (current.kind === 'confirm') {
+    if (current.kind === 'confirm' || current.kind === 'heraldry') {
       return 'message';
     }
     return current.style;
   });
+
+  const isAlertDialog = $derived(modalState.current?.kind === 'alert' || modalState.current?.kind === 'confirm');
 
   $effect(() => {
     if (!dialogEl) {
@@ -41,6 +47,10 @@
       resolveActiveConfirmModal(false);
       return;
     }
+    if (modalState.current?.kind === 'heraldry') {
+      resolveActiveHeraldryPersistenceModal({ action: 'dismiss' });
+      return;
+    }
     resolveActiveAlertModal();
   }
 </script>
@@ -51,12 +61,23 @@
   class:ironarachne-modal--message={panelStyle === 'message'}
   class:ironarachne-modal--error={panelStyle === 'error'}
   class:ironarachne-modal--success={panelStyle === 'success'}
-  role="alertdialog"
-  aria-labelledby={modalState.current?.title ? 'modal-dialog-title' : undefined}
-  aria-describedby="modal-dialog-message"
+  role={isAlertDialog ? 'alertdialog' : 'dialog'}
+  aria-labelledby={modalState.current?.kind === 'heraldry' || modalState.current?.title
+    ? 'modal-dialog-title'
+    : undefined}
+  aria-describedby={modalState.current?.kind === 'heraldry' ? undefined : 'modal-dialog-message'}
   oncancel={onDialogCancel}
 >
-  {#if modalState.current}
+  {#if modalState.current?.kind === 'heraldry'}
+    <HeraldryPersistenceModalContent
+      arms={modalState.current.arms}
+      seed={modalState.current.seed}
+      title={modalState.current.title}
+      rng={heraldryModalRng}
+      onDismiss={() => resolveActiveHeraldryPersistenceModal({ action: 'dismiss' })}
+      onReplace={(arms) => resolveActiveHeraldryPersistenceModal({ action: 'replaced', arms })}
+    />
+  {:else if modalState.current}
     <ModalDialog
       kind={modalState.current.kind}
       message={modalState.current.message}

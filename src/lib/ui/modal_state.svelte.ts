@@ -1,3 +1,5 @@
+import type { Arms } from '$lib/heraldry/arms.js';
+
 export type AlertModalStyle = 'message' | 'error' | 'success';
 
 export type ShowAlertModalOptions = {
@@ -11,6 +13,16 @@ export type ShowConfirmModalOptions = {
   title?: string;
   okLabel?: string;
   cancelLabel?: string;
+};
+
+export type HeraldryPersistenceModalResult =
+  | { action: 'dismiss' }
+  | { action: 'replaced'; arms: Arms };
+
+export type ShowHeraldryPersistenceModalOptions = {
+  arms: Arms;
+  seed: string;
+  title?: string;
 };
 
 type AlertModalRequest = {
@@ -32,7 +44,16 @@ type ConfirmModalRequest = {
   resolve: (confirmed: boolean) => void;
 };
 
-export type ModalRequest = AlertModalRequest | ConfirmModalRequest;
+type HeraldryPersistenceModalRequest = {
+  kind: 'heraldry';
+  id: number;
+  arms: Arms;
+  seed: string;
+  title?: string;
+  resolve: (result: HeraldryPersistenceModalResult) => void;
+};
+
+export type ModalRequest = AlertModalRequest | ConfirmModalRequest | HeraldryPersistenceModalRequest;
 
 export type ModalState = {
   open: boolean;
@@ -85,6 +106,17 @@ export function resolveActiveConfirmModal(confirmed: boolean): void {
   showNextFromQueue();
 }
 
+export function resolveActiveHeraldryPersistenceModal(
+  result: HeraldryPersistenceModalResult,
+): void {
+  const current = modalState.current;
+  if (!current || current.kind !== 'heraldry') {
+    return;
+  }
+  current.resolve(result);
+  showNextFromQueue();
+}
+
 export function showAlertModal(options: ShowAlertModalOptions): Promise<void> {
   return new Promise((resolve) => {
     enqueue({
@@ -107,6 +139,21 @@ export function showConfirmModal(options: ShowConfirmModalOptions): Promise<bool
       title: options.title,
       okLabel: options.okLabel ?? 'OK',
       cancelLabel: options.cancelLabel ?? 'Cancel',
+      resolve,
+    });
+  });
+}
+
+export function showHeraldryPersistenceModal(
+  options: ShowHeraldryPersistenceModalOptions,
+): Promise<HeraldryPersistenceModalResult> {
+  return new Promise((resolve) => {
+    enqueue({
+      kind: 'heraldry',
+      id: nextId++,
+      arms: options.arms,
+      seed: options.seed,
+      title: options.title,
       resolve,
     });
   });

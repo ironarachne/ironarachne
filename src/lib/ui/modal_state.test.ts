@@ -1,12 +1,17 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
+import { generateHeraldry } from '$lib/heraldry/generator';
+import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig';
+import { RNG } from '@ironarachne/rng';
 import {
   modalState,
   resetModalStateForTests,
   resolveActiveAlertModal,
   resolveActiveConfirmModal,
+  resolveActiveHeraldryPersistenceModal,
   showAlertModal,
   showConfirmModal,
+  showHeraldryPersistenceModal,
 } from './modal_state.svelte';
 
 afterEach(() => {
@@ -80,5 +85,39 @@ describe('modal_state', () => {
     resolveActiveAlertModal();
     await second;
     expect(modalState.open).toBe(false);
+  });
+
+  it('opens a heraldry persistence modal and resolves on dismiss', async () => {
+    const rng = new RNG('heraldry-modal-test');
+    const arms = generateHeraldry(getDefaultHeraldryGeneratorConfig(rng));
+    const promise = showHeraldryPersistenceModal({
+      arms,
+      seed: 'test-seed',
+      title: 'Test Arms',
+    });
+
+    expect(modalState.open).toBe(true);
+    expect(modalState.current?.kind).toBe('heraldry');
+    if (modalState.current?.kind === 'heraldry') {
+      expect(modalState.current.seed).toBe('test-seed');
+      expect(modalState.current.title).toBe('Test Arms');
+    }
+
+    resolveActiveHeraldryPersistenceModal({ action: 'dismiss' });
+    await expect(promise).resolves.toEqual({ action: 'dismiss' });
+    expect(modalState.open).toBe(false);
+  });
+
+  it('resolves heraldry persistence modal with replaced arms', async () => {
+    const rng = new RNG('heraldry-modal-replace-test');
+    const originalArms = generateHeraldry(getDefaultHeraldryGeneratorConfig(rng));
+    const replacementArms = generateHeraldry(getDefaultHeraldryGeneratorConfig(new RNG('replacement')));
+    const promise = showHeraldryPersistenceModal({
+      arms: originalArms,
+      seed: 'seed-a',
+    });
+
+    resolveActiveHeraldryPersistenceModal({ action: 'replaced', arms: replacementArms });
+    await expect(promise).resolves.toEqual({ action: 'replaced', arms: replacementArms });
   });
 });

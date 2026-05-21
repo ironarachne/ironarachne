@@ -6,6 +6,8 @@
   import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+  import type { Arms } from '$lib/heraldry/arms';
+  import { showHeraldryPersistenceModal } from '$lib/ui/modal';
   import { type Culture, loadSavedCultures } from '$lib/culture';
   let savedCultures = $state<Culture[]>([]);
 
@@ -73,6 +75,32 @@
       }
     }
   }
+
+  async function openHeraldryModal(arms: Arms, title: string, applyReplacement: (arms: Arms) => void) {
+    const result = await showHeraldryPersistenceModal({ arms, seed, title });
+    if (result.action === 'replaced') {
+      applyReplacement(result.arms);
+    }
+  }
+
+  function replaceRulerHeraldry(arms: Arms) {
+    region = {
+      ...region,
+      authority: {
+        ...region.authority,
+        heraldry: arms,
+      },
+    };
+  }
+
+  function replaceRealmHeraldry(realmIndex: number, arms: Arms) {
+    region = {
+      ...region,
+      realms: region.realms.map((realm, index) =>
+        index === realmIndex ? { ...realm, heraldry: arms } : realm,
+      ),
+    };
+  }
 </script>
 
 <svelte:head>
@@ -136,12 +164,24 @@
       <p>
         {Words.title(region.name)} is part of {region.realms[region.realms[region.mainRealm].parent]
           .name}
-        {@html renderHeraldryDeviceSvg(
-          region.realms[region.realms[region.mainRealm].parent].heraldry.device,
-          20,
-          22,
-          rng,
-        )}.
+        <button
+          type="button"
+          class="heraldry-inline-target"
+          aria-label="View heraldry for {region.realms[region.realms[region.mainRealm].parent].name}"
+          onclick={() =>
+            openHeraldryModal(
+              region.realms[region.realms[region.mainRealm].parent].heraldry,
+              region.realms[region.realms[region.mainRealm].parent].name,
+              (arms) => replaceRealmHeraldry(region.realms[region.mainRealm].parent, arms),
+            )}
+        >
+          {@html renderHeraldryDeviceSvg(
+            region.realms[region.realms[region.mainRealm].parent].heraldry.device,
+            20,
+            22,
+            rng,
+          )}
+        </button>.
       </p>
     </div>
   {/if}
@@ -154,9 +194,19 @@
 
   <div class="ruler">
     {#if ruler.heraldry}
-      <div class="ruler-arms">
+      <button
+        type="button"
+        class="ruler-arms heraldry-block-target"
+        aria-label="View heraldry for {ruler.firstName} {ruler.lastName}"
+        onclick={() =>
+          openHeraldryModal(
+            ruler.heraldry!,
+            `${ruler.firstName} ${ruler.lastName}`,
+            replaceRulerHeraldry,
+          )}
+      >
         {@html renderHeraldryDeviceSvg(ruler.heraldry.device, 200, 220, rng)}
-      </div>
+      </button>
     {/if}
     <div>
       <p>
@@ -176,9 +226,17 @@
   {#each region.realms as neighbor, index}
     {#if index != region.mainRealm && neighbor.parent == -1}
       <div class="neighbor">
-        <div class="neighbor-arms">
+        <button
+          type="button"
+          class="neighbor-arms heraldry-block-target"
+          aria-label="View heraldry for {neighbor.name}"
+          onclick={() =>
+            openHeraldryModal(neighbor.heraldry, neighbor.name, (arms) =>
+              replaceRealmHeraldry(index, arms),
+            )}
+        >
           {@html renderHeraldryDeviceSvg(neighbor.heraldry.device, 80, 88, rng)}
-        </div>
+        </button>
         <div>
           <p><strong>{Words.title(neighbor.name)}</strong></p>
           <p>
@@ -204,14 +262,34 @@
   {#each region.realms as neighbor, index}
     {#if index != region.mainRealm && index != region.realms[region.mainRealm].parent && neighbor.parent != -1}
       <div class="neighbor">
-        <div class="neighbor-arms">
+        <button
+          type="button"
+          class="neighbor-arms heraldry-block-target"
+          aria-label="View heraldry for {neighbor.name}"
+          onclick={() =>
+            openHeraldryModal(neighbor.heraldry, neighbor.name, (arms) =>
+              replaceRealmHeraldry(index, arms),
+            )}
+        >
           {@html renderHeraldryDeviceSvg(neighbor.heraldry.device, 80, 88, rng)}
-        </div>
+        </button>
         <div>
           <p>
             <strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[neighbor.parent]
               .name}
-            {@html renderHeraldryDeviceSvg(region.realms[neighbor.parent].heraldry.device, 20, 22, rng)}.
+            <button
+              type="button"
+              class="heraldry-inline-target"
+              aria-label="View heraldry for {region.realms[neighbor.parent].name}"
+              onclick={() =>
+                openHeraldryModal(
+                  region.realms[neighbor.parent].heraldry,
+                  region.realms[neighbor.parent].name,
+                  (arms) => replaceRealmHeraldry(neighbor.parent, arms),
+                )}
+            >
+              {@html renderHeraldryDeviceSvg(region.realms[neighbor.parent].heraldry.device, 20, 22, rng)}
+            </button>.
           </p>
           <p>
             Ruled by {Characters.getHonorific(
@@ -252,11 +330,31 @@
     grid-template-columns: 210px auto;
   }
 
-  div.ruler-arms {
+  button.ruler-arms {
     align-self: start;
     width: 200px;
     height: 220px;
     margin: 0 auto;
+  }
+
+  button.heraldry-block-target,
+  button.heraldry-inline-target {
+    border: none;
+    background: none;
+    padding: 0;
+    cursor: pointer;
+    color: inherit;
+    font: inherit;
+  }
+
+  button.heraldry-block-target:hover,
+  button.heraldry-inline-target:hover {
+    opacity: 0.85;
+  }
+
+  button.heraldry-inline-target {
+    display: inline;
+    vertical-align: middle;
   }
 
   div.neighbor {
@@ -274,7 +372,7 @@
     margin: 0;
   }
 
-  div.neighbor-arms {
+  button.neighbor-arms {
     justify-self: center;
     width: 80px;
     height: 88px;
