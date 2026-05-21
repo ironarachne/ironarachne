@@ -98,6 +98,23 @@
         ]),
       ];
     }
+
+    let tinctureRows = variationTinctureOptions;
+    let tinctureRowsChanged = false;
+    const paddedTinctureRows = tinctureRows.map((row, slotIndex) => {
+      const tinctureCount = variationTinctureCountForSlot(variationSlotOptions, slotIndex);
+      if (row.length >= tinctureCount) {
+        return row;
+      }
+      tinctureRowsChanged = true;
+      return [
+        ...row,
+        ...Array.from({ length: tinctureCount - row.length }, () => 'any'),
+      ];
+    });
+    if (tinctureRowsChanged) {
+      variationTinctureOptions = paddedTinctureRows;
+    }
   });
   const isCurrentBlazonSaved = $derived.by(() => {
     const arms = currentArms;
@@ -190,7 +207,7 @@
         types2.push('stain');
       }
     }
-    types1.push('furs');
+    types1.push('fur');
     fieldTinctures1 = Tinctures.ofTypes(types1);
     fieldTinctures2 = Tinctures.ofTypes(types2);
   }

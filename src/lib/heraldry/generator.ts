@@ -102,7 +102,7 @@ export function generateHeraldryConfig(rng: RNG.RNG): HeraldryGeneratorConfig {
       types2.push('stain');
     }
   }
-  types1.push('furs');
+  types1.push('fur');
   fieldTinctures1 = Tinctures.ofTypes(types1);
   fieldTinctures2 = Tinctures.ofTypes(types2);
 
