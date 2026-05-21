@@ -57,7 +57,7 @@ const settlement = Settlements.generate({
 });
 ```
 
-**Kind filtering for orgs:** `settlement_organizations.ts` uses minimum population gates per `kindId` (e.g. `wizard_school` needs a large town). If no kind passes, the code falls back to any kind that fits the population.
+**Kind filtering for orgs:** `settlement_organizations.ts` uses minimum population gates per `kindId` (e.g. `wizard_school` needs a large town). If no kind passes the full filter, the code relaxes economic-role and size constraints but still respects the requested `genre`. When nothing fits, org generation returns an empty list.
 
 ## Tests
 

@@ -19,11 +19,25 @@ const KIND_MIN_POPULATION: Partial<Record<string, number>> = {
   trading_company: 800,
   thieves_guild: 2500,
   mercenary_company: 600,
+  sf_mercenary_outfit: 600,
   holy_order: 3000,
   smuggler_outfit: 2000,
   weavers_collective: 2000,
   druid_circle: 400,
 };
+
+function matchesOrganizationGenre(
+  kind: ReturnType<typeof getOrganizationKindsForRegistry>[number],
+  genre: 'fantasy' | 'science_fiction' | 'any',
+): boolean {
+  if (genre === 'fantasy') {
+    return kind.genre === 'fantasy';
+  }
+  if (genre === 'science_fiction') {
+    return kind.genre === 'science_fiction';
+  }
+  return true;
+}
 
 function filterKindsForSettlement(
   population: number,
@@ -35,10 +49,7 @@ function filterKindsForSettlement(
     if (population < (KIND_MIN_POPULATION[k.id] ?? 0)) {
       return false;
     }
-    if (genre === 'fantasy' && k.genre !== 'fantasy') {
-      return false;
-    }
-    if (genre === 'science_fiction' && k.genre !== 'science_fiction') {
+    if (!matchesOrganizationGenre(k, genre)) {
       return false;
     }
     if (economicRole === 'agrarian' && (k.id === 'corporate_division' || k.id === 'starship_squadron')) {
@@ -76,7 +87,10 @@ export function generateSettlementOrganizations(input: OrgGenInput): Organizatio
   const allKinds = getOrganizationKindsForRegistry(rng);
   let pool = filterKindsForSettlement(population, economicRole, genre, allKinds);
   if (pool.length === 0) {
-    pool = allKinds.filter((k) => population >= (KIND_MIN_POPULATION[k.id] ?? 0));
+    pool = allKinds.filter(
+      (k) =>
+        population >= (KIND_MIN_POPULATION[k.id] ?? 0) && matchesOrganizationGenre(k, genre),
+    );
   }
   if (pool.length === 0) {
     return [];

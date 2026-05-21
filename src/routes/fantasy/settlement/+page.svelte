@@ -29,7 +29,6 @@
   let includeProblems = $state(false);
   let includeOrganizations = $state(false);
   let includeNotables = $state(false);
-  let orgGenre = $state<'fantasy' | 'science_fiction' | 'any'>('fantasy');
 
   let settlement = $state<Settlement | null>(null);
 
@@ -78,7 +77,7 @@
         includeTrade: includeTrade,
         includeProblems: includeProblems,
         includeOrganizations: includeOrganizations,
-        genre: orgGenre,
+        genre: "fantasy",
         importantCharacterCount: includeNotables ? { min: 1, max: 2 } : undefined,
         characterConfig: getCharacterGenerationConfigForNameSet(
           `${seed}-settlement-vip`,
@@ -171,7 +170,7 @@
   {/if}
 
   <h2>Optional enrichment</h2>
-  <p>These layers call trade text, problem templates, <code>generateOrganization</code>, and <code>Characters.generate</code>. They are off by default.</p>
+  <p>These layers add more details, depending on what you want to see. They are off by default.</p>
 
   <div class="input-group">
     <input type="checkbox" id="trade" bind:checked={includeTrade} />
@@ -188,15 +187,6 @@
   <div class="input-group">
     <input type="checkbox" id="notables" bind:checked={includeNotables} />
     <label for="notables">Important characters (1–2)</label>
-  </div>
-
-  <div class="input-group">
-    <label for="orgGenre">Organization genre (when orgs are on)</label>
-    <select name="orgGenre" id="orgGenre" bind:value={orgGenre}>
-      <option value="fantasy">Fantasy</option>
-      <option value="science_fiction">Science fiction</option>
-      <option value="any">Any</option>
-    </select>
   </div>
 
   <p><button type="button" onclick={runGenerate}>Generate</button></p>
