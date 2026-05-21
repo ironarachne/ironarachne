@@ -100,9 +100,13 @@ export function all(): Tincture[] {
     {
       name: 'pean',
       hexColor: '',
-      pattern: erminePattern.replaceAll('#ffffff', '#000000').replaceAll('ermine', 'pean'),
+      pattern: erminePattern
+        .replaceAll('#ffffff', '#333333')
+        .replaceAll('#000000', '#F0D41F')
+        .replaceAll('#333333', '#000000')
+        .replaceAll('ermine', 'pean'),
       type: 'fur',
-      category: 'light',
+      category: 'dark',
       commonality: 2,
     },
     {
