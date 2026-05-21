@@ -1,5 +1,25 @@
 export default [
   {
+    date: '2026-05-21',
+    summary:
+      'Settlement generator, persistence and saving, heraldry overhaul, AD&D 2E character builder, and dragons',
+    updates: [
+      'Added a settlement generator with richer detail: notables, organizations, trade, problems, and narrative facets',
+      'Fixed a bug where settlement organizations could leak in from unrelated regions',
+      'Added dragons as a species group with many chromatic, metallic, and exotic variants, plus life stages and sizes',
+      'Added a new persistence system for saving cultures, religions, and heraldry, with export, import, and a saved data management page',
+      'Added heraldry saving and swapping on the character, region, and heraldry generators',
+      'Expanded heraldry generation controls, added a reset button, and added a confirmation modal after saving',
+      'Added heraldry previews for tinctures, divisions, and variations',
+      'Added the pall division and vair tincture to heraldry',
+      'Fixed heraldry rendering bugs: black charge borders, pean showing as black, bendy misalignment with per bend, and gaps in divisions',
+      'Added a brand new AD&D 2E character creator with a step-by-step builder, kits, and proficiencies',
+      'Added a site-wide modal system',
+      'Added species and archetype badges for clearer visual identification in generated content',
+      'Switched encounters to a dark color scheme and made destructive action buttons stand out more clearly',
+    ],
+  },
+  {
     date: '2026-04-24',
     summary: 'New libraries, better organizations, better religions, way more species, and tooling',
     updates: [
