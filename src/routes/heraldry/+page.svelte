@@ -39,6 +39,7 @@
     type HeraldryGeneratorOptionsSnapshot,
     type HeraldrySnapshot,
   } from '$lib/heraldry/heraldry_snapshot';
+  import { showAlertModal } from '$lib/ui/modal';
 
   let rng = new RngCtor(Date.now().toString());
   const initialOptions = defaultHeraldryGeneratorOptions();
@@ -239,6 +240,10 @@
     }
     appendSavedHeraldry(toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()));
     refreshSavedHeraldries();
+    void showAlertModal({
+      message: 'Heraldry saved.',
+      style: 'success',
+    });
   }
 
   function openLoadDialog() {
