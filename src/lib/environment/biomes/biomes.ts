@@ -9,8 +9,8 @@ import type { BiomeClassification } from './biome_types.js';
 export function generate(config: BiomeGeneratorConfig): Biome {
   const biomeClassification = getBiomeClassificationForConfig(config);
 
-  const features = generateBiomeFeatures(config.rng.randomString(13), biomeClassification);
-  const descriptions = generateBiomeDescriptions(config.rng.randomString(13), biomeClassification);
+  const features = generateBiomeFeatures(biomeClassification, config.rng);
+  const descriptions = generateBiomeDescriptions(biomeClassification, config.rng);
 
   let biome: Biome = {
     name: biomeClassification.name,
@@ -26,10 +26,9 @@ export function generate(config: BiomeGeneratorConfig): Biome {
 }
 
 export function generateBiomeDescriptions(
-  seed: string,
-  biomeClassification: BiomeClassification
+  biomeClassification: BiomeClassification,
+  rng: RNG.RNG,
 ): string[] {
-  const rng = new RNG.RNG(seed);
   let descriptions = [];
 
   const averageHumidity = (biomeClassification.humidityMax + biomeClassification.humidityMin) / 2;
@@ -83,10 +82,9 @@ export function generateBiomeDescriptions(
 }
 
 export function generateBiomeFeatures(
-  seed: string,
-  biomeClassification: BiomeClassification
+  biomeClassification: BiomeClassification,
+  rng: RNG.RNG,
 ): string[] {
-  const rng = new RNG.RNG(seed);
   let features = [];
 
   if (biomeClassification.vegetationDensity > 0) {

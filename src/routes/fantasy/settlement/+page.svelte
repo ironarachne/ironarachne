@@ -1,18 +1,16 @@
 <script lang="ts">
-  import { getContext } from 'svelte';
   import { RNG } from '@ironarachne/rng';
   import * as Names from '$lib/names';
   import { getCharacterGenerationConfigForNameSet } from '$lib/characters/character_generation';
-  import type { Culture } from '$lib/culture/culture_types';
+  import { type Culture, loadSavedCultures } from '$lib/culture';
   import * as Settlements from '$lib/settlements';
   import type { Settlement, SettlementGeneratorConfig } from '$lib/settlements';
-  import type UserData from '$lib/user_data';
   import { onMount } from 'svelte';
 
-  const userSession = getContext<{ get value(): UserData }>('user');
+  let savedCultures = $state<Culture[]>([]);
   let useSavedCulture = $state(false);
   let savedCulture = $state<string | undefined>(undefined);
-  let culture: Culture;
+  let culture: Culture | undefined = $state();
 
   let rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -36,23 +34,24 @@
   let settlement = $state<Settlement | null>(null);
 
   function loadSavedCulture() {
-    const list = userSession.value.savedCultures;
-    for (const c of list) {
+    for (const c of savedCultures) {
       if (c.name === savedCulture) {
         culture = c;
         return;
       }
     }
-    if (list[0]) {
-      culture = list[0];
-      savedCulture = list[0].name;
+    if (savedCultures[0]) {
+      culture = savedCultures[0];
+      savedCulture = savedCultures[0].name;
     }
   }
 
   function resolveNameSetForGeneration(): void {
     if (useSavedCulture) {
       loadSavedCulture();
-      nameSet = culture.nameGenerators;
+      if (culture !== undefined) {
+        nameSet = culture.nameGenerators;
+      }
     } else {
       if (nameSetName === 'any') {
         nameSet = rng.item(nameSets);
@@ -102,8 +101,9 @@
   }
 
   onMount(() => {
-    if (userSession.value.savedCultures && userSession.value.savedCultures.length > 0) {
-      savedCulture = userSession.value.savedCultures[0]!.name;
+    savedCultures = loadSavedCultures();
+    if (savedCultures.length > 0) {
+      savedCulture = savedCultures[0]!.name;
     }
     runGenerate();
   });
@@ -150,7 +150,7 @@
     </select>
   </div>
 
-  {#if userSession.value.savedCultures !== undefined && userSession.value.savedCultures.length > 0}
+  {#if savedCultures.length > 0}
     <div class="input-group">
       <label for="useSavedCulture">Use a saved culture for all names</label>
       <input
@@ -163,7 +163,7 @@
     <div class="input-group">
       <label for="savedCulture">Saved culture</label>
       <select id="savedCulture" name="savedCulture" bind:value={savedCulture} disabled={!useSavedCulture}>
-        {#each userSession.value.savedCultures as s}
+        {#each savedCultures as s}
           <option value={s.name}>{s.name}</option>
         {/each}
       </select>
