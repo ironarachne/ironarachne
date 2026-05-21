@@ -1,8 +1,9 @@
 import * as RNG from '@ironarachne/rng';
+import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
+import { assignRandomStartingSpellsForClass } from '../adnd_class_starting_spells.js';
 import type ADNDCharacter from '../adndcharacter.js';
 import ADNDClass from '../adndclass.js';
 import SpellFilter from '../spellfilter.js';
-import * as Spells from '../spells.js';
 
 export default new ADNDClass(
   'invoker',
@@ -53,18 +54,14 @@ export default new ADNDClass(
   1,
   4,
   -5,
-  function (this: ADNDClass, character: ADNDCharacter, rng: RNG.RNG): ADNDCharacter {
-    let allSpells = Spells.getAll();
-    for (let i = 0; i < this.spellList.length; i++) {
-      let filteredSpells = Spells.getFilteredSpells(this.spellList[i].filter, allSpells);
-      filteredSpells = rng.shuffle(filteredSpells);
-      for (let j = 0; j < this.spellList[i].count; j++) {
-        let filteredSpell = filteredSpells.pop();
-        if (filteredSpell === undefined) {
-          throw new Error('Spell is undefined.');
-        }
-        character.spells.push(filteredSpell);
-      }
+  function (
+    this: ADNDClass,
+    character: ADNDCharacter,
+    rng: RNG.RNG,
+    options?: AdndClassApplyOptions,
+  ): ADNDCharacter {
+    if (options?.spells !== 'user') {
+      assignRandomStartingSpellsForClass(this, character, rng);
     }
     return character;
   },

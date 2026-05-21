@@ -1,4 +1,5 @@
 import * as RNG from '@ironarachne/rng';
+import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
 import ADNDClass from '../adndclass.js';
 import * as ThiefSkills from '../adndthiefskills.js';
@@ -57,7 +58,12 @@ export default new ADNDClass(
   2,
   3,
   -3,
-  function (this: ADNDClass, character: ADNDCharacter, rng: RNG.RNG): ADNDCharacter {
+  function (
+    this: ADNDClass,
+    character: ADNDCharacter,
+    rng: RNG.RNG,
+    options?: AdndClassApplyOptions,
+  ): ADNDCharacter {
     let skills = [
       { name: 'Pick Pockets', value: 15, points: 0 },
       { name: 'Open Locks', value: 10, points: 0 },
@@ -68,8 +74,6 @@ export default new ADNDClass(
       { name: 'Climb Walls', value: 60, points: 0 },
       { name: 'Read Languages', value: 0, points: 0 },
     ];
-    skills = rng.shuffle(skills);
-
     skills = ThiefSkills.modifyForDexterity(skills, character.dexterity);
 
     let raceName = character.race.name;
@@ -78,10 +82,16 @@ export default new ADNDClass(
     }
 
     skills = ThiefSkills.modifyForRace(skills, raceName);
+
+    if (options?.thiefSkills === 'user') {
+      return character;
+    }
+
+    skills = rng.shuffle(skills);
     skills = ThiefSkills.distributePoints(skills, 60, rng);
 
     for (let i = 0; i < skills.length; i++) {
-      character.abilities.push(`${skills[i].name}: ${skills[i].value}%`);
+      character.abilities.push(`${skills[i].name}: ${skills[i].value + skills[i].points}%`);
     }
 
     return character;

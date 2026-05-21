@@ -1,4 +1,5 @@
 import type * as RNG from '@ironarachne/rng';
+import type { AdndClassApplyOptions } from './adnd_class_apply_options.js';
 import type ADNDCharacter from './adndcharacter.js';
 import type SpellFilter from './spellfilter.js';
 
@@ -23,7 +24,7 @@ export default class ADNDClass {
   initialWP: number;
   initialNWP: number;
   wpPenalty: number;
-  apply: (character: ADNDCharacter, rng: RNG.RNG) => ADNDCharacter;
+  apply: (character: ADNDCharacter, rng: RNG.RNG, options?: AdndClassApplyOptions) => ADNDCharacter;
 
   constructor(
     name: string,
@@ -46,7 +47,7 @@ export default class ADNDClass {
     initialWP: number,
     initialNWP: number,
     wpPenalty: number,
-    apply: (character: ADNDCharacter, rng: RNG.RNG) => ADNDCharacter,
+    apply: (character: ADNDCharacter, rng: RNG.RNG, options?: AdndClassApplyOptions) => ADNDCharacter,
   ) {
     this.name = name;
     this.group = group;

@@ -1,9 +1,8 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
-  import * as Currency from '$lib/currency/currency';
+  import AdndCharacterSheet from '$lib/adnd/adnd_character_sheet.svelte';
   import ADNDCharacterGenerator from '$lib/adnd/adndcharactergenerator';
   import ADNDCharacterGeneratorConfig from '$lib/adnd/adndcharactergeneratorconfig';
-  import * as Words from '@ironarachne/words';
   import type ADNDCharacter from '$lib/adnd/adndcharacter';
 
   let rng = new RNG.RNG(Date.now().toString());
@@ -36,11 +35,6 @@
     character = charGen.generateCharacter();
   }
 
-  function getEStrength(exStr: number) {
-    const estr = String(exStr).padStart(2, '0');
-    return estr.substring(estr.length - 2);
-  }
-
   generate();
 </script>
 
@@ -52,6 +46,8 @@
   <h1>AD&amp;D 2e Character Generator</h1>
 
   <p>This is an AD&amp;D 2e character generator.</p>
+
+  <p><a href="/fantasy/adnd/character/build">User-directed character builder</a> (dice for attributes only).</p>
 
   <div class="input-group">
     <label for="seed">Seed</label>
@@ -77,6 +73,7 @@
   <button onclick={generate}>Generate</button>
 
   {#if character}
+<<<<<<< HEAD
     <h2>{character.firstName} {character.lastName}</h2>
 
     <p>A level {character.level} {character.race.name} {character.class.name}</p>
@@ -272,6 +269,9 @@
         <p>{spell.name}</p>
       {/each}
     {/if}
+=======
+    <AdndCharacterSheet {character} />
+>>>>>>> 05f1ede98f5f628614cdfcfa6ae75814bd4fd1b1
   {/if}
 </section>
 

@@ -1,10 +1,15 @@
 import * as Dice from '$lib/dice';
+import type { RNG } from '@ironarachne/rng';
 import type ADNDArmor from './adndarmor.js';
 import ADNDCharacter from './adndcharacter.js';
 import type ADNDCharacterGeneratorConfig from './adndcharactergeneratorconfig.js';
 import type ADNDClass from './adndclass.js';
-import type ADNDRace from './adndrace.js';
 import type ADNDWeapon from './adndweapon.js';
+import {
+  assignExceptionalStrength,
+  getClassOptionsForRace,
+  getRaceOptions,
+} from './adnd_character_eligibility.js';
 import * as Equipment from './equipment.js';
 import { selectRandomKit } from './adnd_kit_selection.js';
 import {
@@ -30,15 +35,15 @@ export default class ADNDCharacterGenerator {
     character.strength = Dice.roll('3d6', this.config.rng);
     character.wisdom = Dice.roll('3d6', this.config.rng);
 
-    if (character.strength === 18) {
-      character.exceptionalStrength = this.config.rng.int(1, 100);
-    }
-
     character.race = this.config.rng.item(getRaceOptions(character, this.config.allowedRaces));
     character = character.race.apply(character, this.config.rng);
 
-    character.class = this.config.rng.item(getClassOptions(character, this.config.allowedClasses));
+    character.class = this.config.rng.item(
+      getClassOptionsForRace(character, character.race, this.config.allowedClasses),
+    );
     character = character.class.apply(character, this.config.rng);
+
+    assignExceptionalStrength(character, character.class, this.config.rng);
 
     if (character.class.group === 'warrior') {
       character.currency = Dice.roll('5d4', this.config.rng) * 10 * 100;
@@ -52,45 +57,7 @@ export default class ADNDCharacterGenerator {
 
     character.alignment = this.config.rng.item(character.class.allowedAlignments);
 
-    character.thaco = 20;
-    character.bendBarsLiftGates = getBendBarsLiftGates(
-      character.strength,
-      character.exceptionalStrength,
-    );
-    character.bonusSpells = getBonusPriestSpells(character.wisdom);
-    character.chanceOfSpellFailure = getChanceOfSpellFailure(character.wisdom);
-    character.chanceToLearnSpell = getChanceToLearnSpell(character.intelligence);
-    character.damageAdjustment = getDamageAdjustment(
-      character.strength,
-      character.exceptionalStrength,
-    );
-    character.defensiveAdjustment = getDefensiveAdjustment(character.dexterity);
-    character.hitPointAdjustment = getHitPointAdjustment(character.constitution);
-    character.hitProbability = getHitProbability(character.strength, character.exceptionalStrength);
-    character.illusionImmunity = getIllusionImmunity(character.intelligence);
-    character.loyaltyBase = getLoyaltyBase(character.charisma);
-    character.magicalDefenseAdjustment = getMagicalDefenseAdjustment(character.wisdom);
-    character.maximumNumberOfHenchmen = getMaximumNumberOfHenchmen(character.charisma);
-    character.maximumNumberOfSpellsPerLevel = getMaximumNumberOfSpellsPerLevel(
-      character.intelligence,
-    );
-    character.maxPress = getMaxPress(character.strength, character.exceptionalStrength);
-    character.missileAttackAdjustment = getMissileAttackAdjustment(character.dexterity);
-    character.npcReactionAdjustment = getNPCReactionAdjustment(character.charisma);
-    character.numberOfLanguages = getNumberOfLanguages(character.intelligence);
-    character.openDoors = getOpenDoors(character.strength, character.exceptionalStrength);
-    character.poisonSave = getPoisonSave(character.constitution);
-    character.reactionAdjustment = getReactionAdjustment(character.dexterity);
-    character.regeneration = getRegeneration(character.constitution);
-    character.resurrectionSurvival = getResurrectionSurvival(character.constitution);
-    character.spellImmunity = getSpellImmunity(character.wisdom);
-    character.spellLevel = getSpellLevel(character.intelligence);
-    character.systemShock = getSystemShock(character.constitution);
-    character.warriorHitPointAdjustment = getWarriorHitPointAdjustment(character.constitution);
-    character.weightAllowance = getWeightAllowance(
-      character.strength,
-      character.exceptionalStrength,
-    );
+    applyAdndAbilityDerivedFields(character);
 
     const hitPointAdjustment =
       character.class.group === 'warrior'
@@ -101,7 +68,7 @@ export default class ADNDCharacterGenerator {
       character.hp = 1;
     }
 
-    character = getSavingThrows(character);
+    applyAdndSavingThrows(character);
 
     const allWeapons = Equipment.getWeapons();
     const possibleWeapons = getPossibleWeapons(character, allWeapons);
@@ -324,25 +291,6 @@ function getChanceToLearnSpell(intelligence: number): number {
   };
 
   return table[intelligence];
-}
-
-function getClassOptions(character: ADNDCharacter, classes: ADNDClass[]): ADNDClass[] {
-  const options = [];
-
-  for (let i = 0; i < classes.length; i++) {
-    if (
-      character.charisma >= classes[i].minCharisma &&
-      character.constitution >= classes[i].minConstitution &&
-      character.dexterity >= classes[i].minDexterity &&
-      character.intelligence >= classes[i].minIntelligence &&
-      character.strength >= classes[i].minStrength &&
-      character.wisdom >= classes[i].minWisdom
-    ) {
-      options.push(classes[i]);
-    }
-  }
-
-  return options;
 }
 
 function getDamageAdjustment(strength: number, exceptionalStrength: number): string {
@@ -949,7 +897,7 @@ function getPoisonSave(constitution: number): number {
   return table[constitution];
 }
 
-function getPossibleArmor(character: ADNDCharacter, armor: ADNDArmor[]): ADNDArmor[] {
+export function getPossibleArmor(character: ADNDCharacter, armor: ADNDArmor[]): ADNDArmor[] {
   const possibleArmor = [];
   for (let i = 0; i < armor.length; i++) {
     if (
@@ -965,7 +913,7 @@ function getPossibleArmor(character: ADNDCharacter, armor: ADNDArmor[]): ADNDArm
   return possibleArmor;
 }
 
-function getPossibleWeapons(character: ADNDCharacter, weapons: ADNDWeapon[]): ADNDWeapon[] {
+export function getPossibleWeapons(character: ADNDCharacter, weapons: ADNDWeapon[]): ADNDWeapon[] {
   const possibleWeapons: ADNDWeapon[] = [];
 
   for (const weapon of weapons) {
@@ -982,31 +930,6 @@ function getPossibleWeapons(character: ADNDCharacter, weapons: ADNDWeapon[]): AD
   }
 
   return possibleWeapons;
-}
-
-function getRaceOptions(character: ADNDCharacter, races: ADNDRace[]): ADNDRace[] {
-  const options = [];
-
-  for (let i = 0; i < races.length; i++) {
-    if (
-      character.charisma >= races[i].minCharisma &&
-      character.charisma <= races[i].maxCharisma &&
-      character.constitution >= races[i].minConstitution &&
-      character.constitution <= races[i].maxConstitution &&
-      character.dexterity >= races[i].minDexterity &&
-      character.dexterity <= races[i].maxDexterity &&
-      character.intelligence >= races[i].minIntelligence &&
-      character.intelligence <= races[i].maxIntelligence &&
-      character.strength >= races[i].minStrength &&
-      character.strength <= races[i].maxStrength &&
-      character.wisdom >= races[i].minWisdom &&
-      character.wisdom <= races[i].maxWisdom
-    ) {
-      options.push(races[i]);
-    }
-  }
-
-  return options;
 }
 
 function getReactionAdjustment(dexterity: number): number {
@@ -1484,4 +1407,105 @@ function getWeightAllowance(strength: number, exceptionalStrength: number): numb
   }
 
   return 485;
+}
+
+export function applyAdndAbilityDerivedFields(character: ADNDCharacter): void {
+  character.thaco = 20;
+  character.bendBarsLiftGates = getBendBarsLiftGates(
+    character.strength,
+    character.exceptionalStrength,
+  );
+  character.bonusSpells = getBonusPriestSpells(character.wisdom);
+  character.chanceOfSpellFailure = getChanceOfSpellFailure(character.wisdom);
+  character.chanceToLearnSpell = getChanceToLearnSpell(character.intelligence);
+  character.damageAdjustment = getDamageAdjustment(
+    character.strength,
+    character.exceptionalStrength,
+  );
+  character.defensiveAdjustment = getDefensiveAdjustment(character.dexterity);
+  character.hitPointAdjustment = getHitPointAdjustment(character.constitution);
+  character.hitProbability = getHitProbability(character.strength, character.exceptionalStrength);
+  character.illusionImmunity = getIllusionImmunity(character.intelligence);
+  character.loyaltyBase = getLoyaltyBase(character.charisma);
+  character.magicalDefenseAdjustment = getMagicalDefenseAdjustment(character.wisdom);
+  character.maximumNumberOfHenchmen = getMaximumNumberOfHenchmen(character.charisma);
+  character.maximumNumberOfSpellsPerLevel = getMaximumNumberOfSpellsPerLevel(
+    character.intelligence,
+  );
+  character.maxPress = getMaxPress(character.strength, character.exceptionalStrength);
+  character.missileAttackAdjustment = getMissileAttackAdjustment(character.dexterity);
+  character.npcReactionAdjustment = getNPCReactionAdjustment(character.charisma);
+  character.numberOfLanguages = getNumberOfLanguages(character.intelligence);
+  character.openDoors = getOpenDoors(character.strength, character.exceptionalStrength);
+  character.poisonSave = getPoisonSave(character.constitution);
+  character.reactionAdjustment = getReactionAdjustment(character.dexterity);
+  character.regeneration = getRegeneration(character.constitution);
+  character.resurrectionSurvival = getResurrectionSurvival(character.constitution);
+  character.spellImmunity = getSpellImmunity(character.wisdom);
+  character.spellLevel = getSpellLevel(character.intelligence);
+  character.systemShock = getSystemShock(character.constitution);
+  character.warriorHitPointAdjustment = getWarriorHitPointAdjustment(character.constitution);
+  character.weightAllowance = getWeightAllowance(
+    character.strength,
+    character.exceptionalStrength,
+  );
+}
+
+export function applyAdndSavingThrows(character: ADNDCharacter): void {
+  getSavingThrows(character);
+}
+
+/** Ability-derived fields and saving throws (does not set HP, equipment, or AC). */
+export function finalizeAdndCharacterDerivedStats(character: ADNDCharacter): ADNDCharacter {
+  applyAdndAbilityDerivedFields(character);
+  applyAdndSavingThrows(character);
+  return character;
+}
+
+export function getAdndLevel1HpBounds(character: ADNDCharacter): { min: number; max: number } {
+  const hdMax = Dice.getMaxResult(Dice.toDicePool(character.class.hitDice));
+  const conAdj =
+    character.class.group === 'warrior'
+      ? getWarriorHitPointAdjustment(character.constitution)
+      : getHitPointAdjustment(character.constitution);
+  return { min: 1, max: Math.max(1, hdMax + conAdj) };
+}
+
+/** Hit dice + Con adjustment (warrior vs non-warrior table); matches {@link ADNDCharacterGenerator}. */
+export function rollAdndLevel1Hp(character: ADNDCharacter, rng: RNG): number {
+  const conAdj =
+    character.class.group === 'warrior'
+      ? getWarriorHitPointAdjustment(character.constitution)
+      : getHitPointAdjustment(character.constitution);
+  let hp = Dice.roll(character.class.hitDice, rng) + conAdj;
+  if (hp < 1) hp = 1;
+  return hp;
+}
+
+/** Starting funds in copper (before equipment); same dice as {@link ADNDCharacterGenerator}. */
+export function rollAdndStartingCopper(cls: ADNDClass, rng: RNG): number {
+  if (cls.group === 'warrior') {
+    return Dice.roll('5d4', rng) * 10 * 100;
+  }
+  if (cls.group === 'wizard') {
+    return Dice.roll('1d4+1', rng) * 10 * 100;
+  }
+  if (cls.group === 'rogue') {
+    return Dice.roll('2d6', rng) * 10 * 100;
+  }
+  return Dice.roll('3d6', rng) * 10 * 100;
+}
+
+/** PHB-style priest adjustment when remaining coins still exceed 300 cp after purchases. */
+export function applyAdndPriestFundsCapIfNeeded(character: ADNDCharacter, rng: RNG): void {
+  if (character.class.group === 'priest' && character.currency > 300) {
+    character.currency = rng.int(1, 3) * 100;
+  }
+}
+
+export function recalculateAdndArmorClass(character: ADNDCharacter): void {
+  character.ac = 10;
+  for (let i = 0; i < character.armor.length; i++) {
+    character.ac += character.armor[i].ac;
+  }
 }
