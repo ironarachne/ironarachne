@@ -1,0 +1,28 @@
+import { EquipmentItem, EquipmentList } from '../list.js';
+
+export const medicalHerbalList = new EquipmentList('Medical and Herbal', [
+  new EquipmentItem('bandages (1 roll)', 4),
+  new EquipmentItem('healer\'s kit', 500),
+  new EquipmentItem('surgeon\'s kit', 1200),
+  new EquipmentItem('salve, healing (1 jar)', 24),
+  new EquipmentItem('salve, burn (1 jar)', 16),
+  new EquipmentItem('liniment (1 bottle)', 12),
+  new EquipmentItem('smelling salts', 8),
+  new EquipmentItem('splint, wooden', 4),
+  new EquipmentItem('tourniquet', 6),
+  new EquipmentItem('leeches (1 dozen)', 8),
+  new EquipmentItem('herb, comfrey (1 bundle)', 4),
+  new EquipmentItem('herb, willow bark (1 bundle)', 3),
+  new EquipmentItem('herb, yarrow (1 bundle)', 3),
+  new EquipmentItem('herb, chamomile (1 bundle)', 2),
+  new EquipmentItem('herb, mint (1 bundle)', 2),
+  new EquipmentItem('herb, lavender (1 bundle)', 4),
+  new EquipmentItem('herb, foxglove (1 bundle)', 6),
+  new EquipmentItem('herb, belladonna (1 bundle)', 8),
+  new EquipmentItem('herb, valerian (1 bundle)', 4),
+  new EquipmentItem('herb, garlic (1 bundle)', 2),
+  new EquipmentItem('poultice, herbal (1 dose)', 6),
+  new EquipmentItem('tonic, restorative (1 dose)', 12),
+  new EquipmentItem('antitoxin (1 dose)', 480),
+  new EquipmentItem('feverfew (1 bundle)', 3),
+]);

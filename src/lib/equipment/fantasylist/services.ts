@@ -1,0 +1,28 @@
+import { EquipmentItem, EquipmentList } from '../list.js';
+
+export const servicesList = new EquipmentList('Services', [
+  new EquipmentItem('inn stay, common (1 night)', 4),
+  new EquipmentItem('inn stay, private room (1 night)', 20),
+  new EquipmentItem('inn stay, suite (1 night)', 80),
+  new EquipmentItem('meal, tavern common', 2),
+  new EquipmentItem('meal, tavern good', 6),
+  new EquipmentItem('meal, feast', 48),
+  new EquipmentItem('ferry crossing', 4),
+  new EquipmentItem('toll, bridge', 2),
+  new EquipmentItem('toll, road (1 day)', 8),
+  new EquipmentItem('stable, horse (1 night)', 4),
+  new EquipmentItem('stable, feed (1 day)', 2),
+  new EquipmentItem('bathhouse visit', 4),
+  new EquipmentItem('laundry service', 2),
+  new EquipmentItem('scribe (1 page)', 24),
+  new EquipmentItem('scribe (1 letter)', 12),
+  new EquipmentItem('messenger, local', 8),
+  new EquipmentItem('messenger, long distance (1 day)', 48),
+  new EquipmentItem('healing, minor wound', 120),
+  new EquipmentItem('healing, serious wound', 480),
+  new EquipmentItem('barber surgeon, bloodletting', 24),
+  new EquipmentItem('guide, local (1 day)', 24),
+  new EquipmentItem('guard hire (1 day)', 48),
+  new EquipmentItem('porter (1 day)', 12),
+  new EquipmentItem('teamster (1 day)', 16),
+]);

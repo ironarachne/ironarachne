@@ -1,0 +1,26 @@
+import { EquipmentItem, EquipmentList } from '../list.js';
+
+export const jewelryAdornmentList = new EquipmentList('Jewelry and Adornment', [
+  new EquipmentItem('ring, copper', 8),
+  new EquipmentItem('ring, bronze', 24),
+  new EquipmentItem('ring, silver', 240),
+  new EquipmentItem('ring, gold', 4800),
+  new EquipmentItem('signet ring, bronze', 48),
+  new EquipmentItem('signet ring, silver', 480),
+  new EquipmentItem('brooch, pewter', 24),
+  new EquipmentItem('brooch, silver', 240),
+  new EquipmentItem('brooch, gold', 2400),
+  new EquipmentItem('necklace, glass beads', 12),
+  new EquipmentItem('necklace, amber', 120),
+  new EquipmentItem('necklace, pearls', 960),
+  new EquipmentItem('bracelet, copper', 16),
+  new EquipmentItem('bracelet, silver', 180),
+  new EquipmentItem('earring, silver (pair)', 120),
+  new EquipmentItem('comb, bone', 4),
+  new EquipmentItem('comb, ivory', 240),
+  new EquipmentItem('mirror, hand (silver)', 480),
+  new EquipmentItem('perfume (1 vial)', 48),
+  new EquipmentItem('hairpin, silver', 24),
+  new EquipmentItem('tiara, silver', 960),
+  new EquipmentItem('circlet, gold', 4800),
+]);

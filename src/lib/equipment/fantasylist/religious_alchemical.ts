@@ -1,0 +1,28 @@
+import { EquipmentItem, EquipmentList } from '../list.js';
+
+export const religiousAlchemicalList = new EquipmentList('Religious and Alchemical', [
+  new EquipmentItem('holy water (1 vial)', 250),
+  new EquipmentItem('incense (1 lb)', 48),
+  new EquipmentItem('incense sticks (20)', 12),
+  new EquipmentItem('votive candle', 2),
+  new EquipmentItem('censer, brass', 240),
+  new EquipmentItem('thurible', 480),
+  new EquipmentItem('relic case, silver', 600),
+  new EquipmentItem('prayer beads', 8),
+  new EquipmentItem('rosary, wooden', 12),
+  new EquipmentItem('rosary, ivory', 480),
+  new EquipmentItem('vestments, plain', 480),
+  new EquipmentItem('vestments, fine', 2400),
+  new EquipmentItem('altar cloth', 120),
+  new EquipmentItem('communion wine (1 bottle)', 48),
+  new EquipmentItem('communion wafer (100)', 24),
+  new EquipmentItem('sulfur (1 lb)', 8),
+  new EquipmentItem('saltpeter (1 lb)', 12),
+  new EquipmentItem('bat guano (1 lb)', 6),
+  new EquipmentItem('charcoal, activated (1 lb)', 4),
+  new EquipmentItem('mercury (1 oz)', 120),
+  new EquipmentItem('vitriol (1 oz)', 16),
+  new EquipmentItem('sal ammoniac (1 lb)', 10),
+  new EquipmentItem('dragon bile (1 vial)', 480),
+  new EquipmentItem('mandrake root (1 root)', 80),
+]);
