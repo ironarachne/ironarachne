@@ -1,6 +1,7 @@
 <script>
   import * as RNG from '@ironarachne/rng';
   import * as CharGen from '$lib/swn/character';
+  import { downloadSwnCharacterPdf } from '$lib/swn/render_swn_character_pdf';
 
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -9,6 +10,7 @@
     rng.setSeed(seed);
   });
   let character = $state(CharGen.generate(rng));
+  let downloadingPdf = $state(false);
 
   function generate() {
     if (!lockSeed) {
@@ -29,6 +31,19 @@
     URL.revokeObjectURL(link.href);
   }
 
+  async function downloadPdf() {
+    if (downloadingPdf) {
+      return;
+    }
+
+    downloadingPdf = true;
+    try {
+      await downloadSwnCharacterPdf(character);
+    } finally {
+      downloadingPdf = false;
+    }
+  }
+
   generate();
 </script>
 
@@ -47,6 +62,7 @@
 
   <button onclick={generate}>Generate</button>
   <button onclick={save}>Save</button>
+  <button onclick={downloadPdf} disabled={downloadingPdf}>Download PDF</button>
 
   <h2>Character</h2>
 

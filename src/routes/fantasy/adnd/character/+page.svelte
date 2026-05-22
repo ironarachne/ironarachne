@@ -3,6 +3,7 @@
   import AdndCharacterSheet from '$lib/adnd/adnd_character_sheet.svelte';
   import ADNDCharacterGenerator from '$lib/adnd/adndcharactergenerator';
   import ADNDCharacterGeneratorConfig from '$lib/adnd/adndcharactergeneratorconfig';
+  import { downloadAdndCharacterPdf } from '$lib/adnd/render_adnd_character_pdf';
   import type ADNDCharacter from '$lib/adnd/adndcharacter';
 
   let rng = new RNG.RNG(Date.now().toString());
@@ -18,6 +19,7 @@
   let genConfig;
   let charGen;
   let character: ADNDCharacter | undefined = $state();
+  let downloadingPdf = $state(false);
 
   function generate() {
     if (!lockSeed) {
@@ -33,6 +35,19 @@
     lastIncludeKits = includeKits;
     charGen = new ADNDCharacterGenerator(genConfig);
     character = charGen.generateCharacter();
+  }
+
+  async function downloadPdf() {
+    if (downloadingPdf || !character) {
+      return;
+    }
+
+    downloadingPdf = true;
+    try {
+      await downloadAdndCharacterPdf(character);
+    } finally {
+      downloadingPdf = false;
+    }
   }
 
   generate();
@@ -73,6 +88,7 @@
   </div>
 
   <button onclick={generate}>Generate</button>
+  <button onclick={downloadPdf} disabled={downloadingPdf || !character}>Download PDF</button>
 
   {#if character}
     <AdndCharacterSheet {character} />

@@ -37,6 +37,7 @@
     starterSpellSelectionIsComplete,
     startingSpellsFromPicks,
   } from '$lib/adnd/adnd_class_starting_spells';
+  import { downloadAdndCharacterPdf } from '$lib/adnd/render_adnd_character_pdf';
   import { showAlertModal } from '$lib/ui/modal';
 
   let rollRng = new RNG.RNG(Date.now().toString());
@@ -66,6 +67,7 @@
   let starterSpellPicks = $state<string[][]>([]);
   let thiefSkillBonuses = $state<Record<string, number>>({});
   let wasEquipmentOverBudget = $state(false);
+  let downloadingPdf = $state(false);
 
   function wealthCpFromCoinFields(gp: unknown, sp: unknown, cp: unknown): number {
     const g = Math.max(0, Math.floor(Number(gp) || 0));
@@ -508,6 +510,19 @@
     recalculateAdndArmorClass(c);
     return c;
   });
+
+  async function downloadPdf() {
+    if (downloadingPdf || !previewCharacter) {
+      return;
+    }
+
+    downloadingPdf = true;
+    try {
+      await downloadAdndCharacterPdf(previewCharacter);
+    } finally {
+      downloadingPdf = false;
+    }
+  }
 </script>
 
 <svelte:head>
@@ -776,6 +791,7 @@
     {#if previewCharacter}
       <div class="builder-result">
         <h2>Character</h2>
+        <button type="button" onclick={downloadPdf} disabled={downloadingPdf}>Download PDF</button>
         <AdndCharacterSheet character={previewCharacter} />
       </div>
     {:else if spellPreviewIncomplete}

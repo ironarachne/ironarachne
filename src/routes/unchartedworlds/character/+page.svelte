@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as CharGen from '$lib/unchartedworlds/character';
+  import { downloadUwCharacterPdf } from '$lib/unchartedworlds/render_uw_character_pdf';
   import * as RNG from '@ironarachne/rng';
 
   let rng = new RNG.RNG(Date.now().toString());
@@ -9,6 +10,7 @@
     rng.setSeed(seed);
   });
   let character = $state(CharGen.generate(rng));
+  let downloadingPdf = $state(false);
 
   function generate() {
     if (!lockSeed) {
@@ -27,6 +29,19 @@
     link.download = 'uw-character.txt';
     link.click();
     URL.revokeObjectURL(link.href);
+  }
+
+  async function downloadPdf() {
+    if (downloadingPdf) {
+      return;
+    }
+
+    downloadingPdf = true;
+    try {
+      await downloadUwCharacterPdf(character);
+    } finally {
+      downloadingPdf = false;
+    }
   }
 
   generate();
@@ -49,6 +64,7 @@
 
   <button onclick={generate}>Generate</button>
   <button onclick={save}>Save</button>
+  <button onclick={downloadPdf} disabled={downloadingPdf}>Download PDF</button>
 
   <h2>Statistics</h2>
 
