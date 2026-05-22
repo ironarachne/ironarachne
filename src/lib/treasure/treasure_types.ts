@@ -1,4 +1,5 @@
 import type { ContainerType } from '$lib/equipment/equipment_types';
+import type { PotionGeneratorConfig } from '$lib/potions';
 
 export type TreasureHoardGeneratorConfig = {
   allowedContainerTypes?: ContainerType[];
@@ -7,6 +8,8 @@ export type TreasureHoardGeneratorConfig = {
   gemProportion: number;
   mundaneItemProportion?: number;
   magicItemProportion?: number;
+  potionProportion?: number;
+  potionGeneratorConfig?: PotionGeneratorConfig;
   roomDimensions?: { width: number; length: number; height: number };
   targetValue: number;
 };

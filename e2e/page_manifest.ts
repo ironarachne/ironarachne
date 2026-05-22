@@ -222,6 +222,12 @@ export const PAGE_MANIFEST: PageEntry[] = [
     kind: 'generator',
   },
   {
+    path: '/fantasy/potion-generator',
+    title: 'Potion Generator | Iron Arachne',
+    heading: 'Potion Generator',
+    kind: 'generator',
+  },
+  {
     path: '/fantasy/weapon',
     title: 'Magic Weapon Generator | Iron Arachne',
     heading: 'Magic Weapon Generator',

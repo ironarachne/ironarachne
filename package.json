@@ -35,6 +35,7 @@
     "@ironarachne/word-generator": "^2.3.1",
     "@ironarachne/words": "^2.0.0",
     "@sveltejs/kit": "^2.55.0",
+    "jspdf": "^4.2.1",
     "three": "^0.179.1",
     "xmlbuilder2": "^3.1.1"
   },

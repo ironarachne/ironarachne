@@ -22,6 +22,9 @@
   let artProportion = $state(5);
   let mundaneItemProportion = $state(20);
   let magicItemProportion = $state(5);
+  let potionProportion = $state(0);
+  let allowPotionVariations = $state(false);
+  let allowPotionHomebrew = $state(false);
   let roomWidth = $state(10);
   let roomLength = $state(10);
   let roomHeight = $state(10);
@@ -37,10 +40,15 @@
     return item.itemMinorType === 'art object';
   }
 
+  function isPotion(item: Item): boolean {
+    return item.itemMajorType === 'potion';
+  }
+
   function getDisplayItems(items: Item[]) {
     const gems = items.filter(isGem);
     const artObjects = items.filter(isArtObject);
-    const others = items.filter((i) => !isGem(i) && !isArtObject(i));
+    const potions = items.filter(isPotion);
+    const others = items.filter((i) => !isGem(i) && !isArtObject(i) && !isPotion(i));
 
     let displayGems: { name: string; value: number }[] = [];
 
@@ -75,9 +83,13 @@
       name: i.description || i.name,
       value: i.value,
     }));
+    const displayPotions = potions.map((i) => ({
+      name: i.name,
+      value: i.value,
+    }));
     const displayOthers = others.map((i) => ({ name: i.name, value: i.value }));
 
-    return [...displayOthers, ...displayArtObjects, ...displayGems];
+    return [...displayOthers, ...displayPotions, ...displayArtObjects, ...displayGems];
   }
 
   function generate() {
@@ -92,6 +104,12 @@
     hoardConfig.gemProportion = gemsProportion;
     hoardConfig.mundaneItemProportion = mundaneItemProportion;
     hoardConfig.magicItemProportion = magicItemProportion;
+    hoardConfig.potionProportion = potionProportion;
+    hoardConfig.potionGeneratorConfig = {
+      ...Treasure.getDefaultPotionConfig(),
+      allowHomebrew: allowPotionHomebrew,
+      allowProceduralNames: allowPotionVariations,
+    };
     hoardConfig.targetValue = treasureValue * 100; // convert to cp
 
     const containerTypes = Equipment.generateContainerTypes();
@@ -112,7 +130,8 @@
     const allLooseItems = Equipment.getLooseItems(containers, Equipment.filterOutContainers(hoard));
     const looseGems = allLooseItems.filter(isGem);
     const looseArtObjects = allLooseItems.filter(isArtObject);
-    const looseOthers = allLooseItems.filter((i) => !isGem(i) && !isArtObject(i));
+    const looseOthers = allLooseItems.filter((i) => !isGem(i) && !isArtObject(i) && !isPotion(i));
+    const loosePotions = allLooseItems.filter(isPotion);
 
     const displayLooseGems = getDisplayItems(looseGems);
     const looseGemStrings = displayLooseGems.map(
@@ -125,8 +144,11 @@
     );
 
     const looseOtherStrings = Equipment.createCombinedDescriptions(looseOthers, true);
+    const loosePotionStrings = loosePotions.map(
+      (i) => `${i.name} (Value: ${Currency.valueToString(i.value, Currency.COMMON_FANTASY)})`,
+    );
 
-    looseItems = [...looseOtherStrings, ...looseArtObjectStrings, ...looseGemStrings];
+    looseItems = [...looseOtherStrings, ...loosePotionStrings, ...looseArtObjectStrings, ...looseGemStrings];
   }
 
   onMount(() => {
@@ -216,6 +238,31 @@
       class="monospace"
     />
   </div>
+
+  <div class="input-group">
+    <label for="potions">Proportion of Potions</label>
+    <input
+      type="number"
+      id="potions"
+      min="0"
+      max="100"
+      bind:value={potionProportion}
+      class="monospace"
+    />
+  </div>
+
+  {#if potionProportion > 0}
+    <div class="input-group">
+      <label>
+        <input type="checkbox" bind:checked={allowPotionVariations} />
+        Allow Potion Variations
+      </label>
+      <label>
+        <input type="checkbox" bind:checked={allowPotionHomebrew} />
+        Allow Homebrew Potions
+      </label>
+    </div>
+  {/if}
 
   <div class="input-group">
     <label for="room-width">Room Width (ft)</label>
