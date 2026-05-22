@@ -37,6 +37,7 @@
     starterSpellSelectionIsComplete,
     startingSpellsFromPicks,
   } from '$lib/adnd/adnd_class_starting_spells';
+  import { showAlertModal } from '$lib/ui/modal';
 
   let rollRng = new RNG.RNG(Date.now().toString());
 
@@ -64,7 +65,7 @@
   let selectedArmorNames = $state<string[]>([]);
   let starterSpellPicks = $state<string[][]>([]);
   let thiefSkillBonuses = $state<Record<string, number>>({});
-  let equipmentBudgetMessage = $state('');
+  let wasEquipmentOverBudget = $state(false);
 
   function wealthCpFromCoinFields(gp: unknown, sp: unknown, cp: unknown): number {
     const g = Math.max(0, Math.floor(Number(gp) || 0));
@@ -298,7 +299,6 @@
     selectedArmorNames = [];
     starterSpellPicks = [];
     thiefSkillBonuses = {};
-    equipmentBudgetMessage = '';
     hpValue = 1;
     setStartingWealthFromTotalCp(0);
   }
@@ -325,7 +325,6 @@
     selectedArmorNames = [];
     starterSpellPicks = [];
     thiefSkillBonuses = {};
-    equipmentBudgetMessage = '';
   }
 
   function rollHitPoints() {
@@ -335,7 +334,6 @@
 
   function rollStartingFunds() {
     if (!selectedClass) return;
-    equipmentBudgetMessage = '';
     setStartingWealthFromTotalCp(rollAdndStartingCopper(selectedClass, rollRng));
     selectedWeaponNames = [];
     selectedArmorNames = [];
@@ -375,10 +373,22 @@
   const equipmentRemainingCp = $derived(Math.max(0, startingWealthCp - equipmentSpend));
 
   $effect(() => {
-    if (equipmentSpend <= startingWealthCp) return;
+    const overBudget = equipmentSpend > startingWealthCp;
+    if (!overBudget) {
+      wasEquipmentOverBudget = false;
+      return;
+    }
+    if (wasEquipmentOverBudget) {
+      return;
+    }
+    wasEquipmentOverBudget = true;
+    const clearedSpend = equipmentSpend;
     selectedWeaponNames = [];
     selectedArmorNames = [];
-    equipmentBudgetMessage = `Starting funds (${formatWealthCp(startingWealthCp)}) no longer cover that gear (${formatWealthCp(equipmentSpend)}). Equipment selections were cleared—choose again within budget.`;
+    void showAlertModal({
+      message: `Starting funds (${formatWealthCp(startingWealthCp)}) no longer cover that gear (${formatWealthCp(clearedSpend)}). Equipment selections were cleared—choose again within budget.`,
+      style: 'error',
+    });
   });
 
   function syncWeaponCheckboxSelection(weaponName: string, nextChecked: boolean): void {
@@ -388,15 +398,16 @@
       if (!w) return;
       const nextSpend = equipmentSpend + w.cost;
       if (nextSpend > startingWealthCp) {
-        equipmentBudgetMessage = `Cannot add ${weaponName} (${formatWealthCp(w.cost)}): only ${formatWealthCp(equipmentRemainingCp)} left of your ${formatWealthCp(startingWealthCp)} starting funds.`;
+        void showAlertModal({
+          message: `Cannot add ${weaponName} (${formatWealthCp(w.cost)}): only ${formatWealthCp(equipmentRemainingCp)} left of your ${formatWealthCp(startingWealthCp)} starting funds.`,
+          style: 'error',
+        });
         return;
       }
-      equipmentBudgetMessage = '';
       selectedWeaponNames = [...selectedWeaponNames, weaponName];
       return;
     }
     if (!selectedWeaponNames.includes(weaponName)) return;
-    equipmentBudgetMessage = '';
     selectedWeaponNames = selectedWeaponNames.filter((n) => n !== weaponName);
   }
 
@@ -407,15 +418,16 @@
       if (!piece) return;
       const nextSpend = equipmentSpend + piece.cost;
       if (nextSpend > startingWealthCp) {
-        equipmentBudgetMessage = `Cannot add ${armorName} (${formatWealthCp(piece.cost)}): only ${formatWealthCp(equipmentRemainingCp)} left of your ${formatWealthCp(startingWealthCp)} starting funds.`;
+        void showAlertModal({
+          message: `Cannot add ${armorName} (${formatWealthCp(piece.cost)}): only ${formatWealthCp(equipmentRemainingCp)} left of your ${formatWealthCp(startingWealthCp)} starting funds.`,
+          style: 'error',
+        });
         return;
       }
-      equipmentBudgetMessage = '';
       selectedArmorNames = [...selectedArmorNames, armorName];
       return;
     }
     if (!selectedArmorNames.includes(armorName)) return;
-    equipmentBudgetMessage = '';
     selectedArmorNames = selectedArmorNames.filter((n) => n !== armorName);
   }
 
@@ -711,9 +723,6 @@
           equipmentRemainingCp,
         )} left from your {formatWealthCp(startingWealthCp)} starting funds.
       </p>
-      {#if equipmentBudgetMessage}
-        <p class="equipment-budget-notice" role="status">{equipmentBudgetMessage}</p>
-      {/if}
 
       <h3>Weapons</h3>
       <ul class="equipment-list">
@@ -785,14 +794,6 @@
 </section>
 
 <style>
-  .equipment-budget-notice {
-    margin: 0.5rem 0 1rem;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--tan);
-    border-radius: 3px;
-    background: rgba(92, 86, 73, 0.25);
-  }
-
   label.equipment-option-blocked {
     opacity: 0.65;
   }

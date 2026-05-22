@@ -153,3 +153,4 @@ export function randomWeighted(names: string[], options: AgeCategory[], rng: RNG
 }
 
 export * from './beast_life_stages';
+export * from './dragon_life_stages';

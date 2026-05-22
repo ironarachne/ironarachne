@@ -286,3 +286,5 @@ export function humanStandard(): SizeMatrix {
     },
   ];
 }
+
+export { dragonTrueWyrmSizeMatrix } from './dragon_sizes';

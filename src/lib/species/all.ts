@@ -127,6 +127,30 @@ import salt_mephit from '$lib/species_monsters/elementals/salt_mephit';
 import smoke_mephit from '$lib/species_monsters/elementals/smoke_mephit';
 import steam_mephit from '$lib/species_monsters/elementals/steam_mephit';
 import water_elemental from '$lib/species_monsters/elementals/water_elemental';
+import amethyst_dragon from '$lib/species_monsters/dragons/amethyst_dragon';
+import black_dragon from '$lib/species_monsters/dragons/black_dragon';
+import blue_dragon from '$lib/species_monsters/dragons/blue_dragon';
+import brass_dragon from '$lib/species_monsters/dragons/brass_dragon';
+import bronze_dragon from '$lib/species_monsters/dragons/bronze_dragon';
+import copper_dragon from '$lib/species_monsters/dragons/copper_dragon';
+import crystal_dragon from '$lib/species_monsters/dragons/crystal_dragon';
+import deep_dragon from '$lib/species_monsters/dragons/deep_dragon';
+import emerald_dragon from '$lib/species_monsters/dragons/emerald_dragon';
+import gold_dragon from '$lib/species_monsters/dragons/gold_dragon';
+import green_dragon from '$lib/species_monsters/dragons/green_dragon';
+import moon_dragon from '$lib/species_monsters/dragons/moon_dragon';
+import night_dragon from '$lib/species_monsters/dragons/night_dragon';
+import platinum_dragon from '$lib/species_monsters/dragons/platinum_dragon';
+import radiant_dragon from '$lib/species_monsters/dragons/radiant_dragon';
+import red_dragon from '$lib/species_monsters/dragons/red_dragon';
+import sapphire_dragon from '$lib/species_monsters/dragons/sapphire_dragon';
+import shadow_dragon from '$lib/species_monsters/dragons/shadow_dragon';
+import silver_dragon from '$lib/species_monsters/dragons/silver_dragon';
+import steel_dragon from '$lib/species_monsters/dragons/steel_dragon';
+import sun_dragon from '$lib/species_monsters/dragons/sun_dragon';
+import topaz_dragon from '$lib/species_monsters/dragons/topaz_dragon';
+import void_dragon from '$lib/species_monsters/dragons/void_dragon';
+import white_dragon from '$lib/species_monsters/dragons/white_dragon';
 import fire_beetle from '$lib/species_animals/fire_beetle';
 import giant_ant from '$lib/species_animals/giant_ant';
 import giant_bee from '$lib/species_animals/giant_bee';
@@ -344,6 +368,30 @@ export default [
   smoke_mephit,
   steam_mephit,
   water_elemental,
+  amethyst_dragon,
+  black_dragon,
+  blue_dragon,
+  brass_dragon,
+  bronze_dragon,
+  copper_dragon,
+  crystal_dragon,
+  deep_dragon,
+  emerald_dragon,
+  gold_dragon,
+  green_dragon,
+  moon_dragon,
+  night_dragon,
+  platinum_dragon,
+  radiant_dragon,
+  red_dragon,
+  sapphire_dragon,
+  shadow_dragon,
+  silver_dragon,
+  steel_dragon,
+  sun_dragon,
+  topaz_dragon,
+  void_dragon,
+  white_dragon,
   aarakocra,
   aasimar,
   bugbear,

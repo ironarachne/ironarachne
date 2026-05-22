@@ -4,6 +4,7 @@
 @import './scifi.css';
 @import './navigation.css';
 @import './cyberpunk.css';
+@import './modal.css';
 
 html {
   background: var(--charcoal);

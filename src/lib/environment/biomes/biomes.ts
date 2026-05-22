@@ -90,22 +90,28 @@ export function generateBiomeFeatures(
   if (biomeClassification.vegetationDensity > 0) {
     const vegetation = rng.item(biomeClassification.vegetationTypes);
     if (biomeClassification.vegetationDensity > 0.5) {
-      features.push(`The area is filled with ${vegetation}s.`);
+      const denseWord = rng.item(['filled', 'thick', 'dense', 'overgrown']);
+      features.push(`The area is ${denseWord} with ${vegetation}s.`);
     } else if (biomeClassification.vegetationDensity > 0.3) {
-      features.push(`There are patches of ${vegetation}s.`);
+      const patchesWord = rng.item(['patches', 'patches of', 'patches of vegetation']);
+      features.push(`There are ${patchesWord} ${vegetation}s.`);
     } else {
-      features.push(`There are a few ${vegetation}s.`);
+      const fewWord = rng.item(['few', 'scattered', 'occasional', 'rare']);
+      features.push(`There are ${fewWord} ${vegetation}s.`);
     }
   }
 
   if (biomeClassification.faunaDensity > 0) {
     const fauna = rng.item(biomeClassification.faunaTypes);
     if (biomeClassification.faunaDensity > 0.5) {
-      features.push(`The area is teeming with ${fauna}s.`);
+      const denseWord = rng.item(['teeming', 'swarming', 'packed', 'thick']);
+      features.push(`The area is ${denseWord} with ${fauna}s.`);
     } else if (biomeClassification.faunaDensity > 0.3) {
-      features.push(`There are many ${fauna}s.`);
+      const manyWord = rng.item(['many', 'numerous', 'plentiful', 'abundant']);
+      features.push(`There are ${manyWord} ${fauna}s.`);
     } else {
-      features.push(`There are a few ${fauna}s.`);
+      const fewWord = rng.item(['few', 'scattered', 'occasional', 'rare']);
+      features.push(`There are ${fewWord} ${fauna}s.`);
     }
   }
 

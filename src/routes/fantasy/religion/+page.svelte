@@ -7,16 +7,30 @@
   import type Species from '$lib/species/species';
   import type { Culture } from '$lib/culture';
   import { loadSavedCultures } from '$lib/culture';
+  import { applyImportedScopes, buildExportPayload } from '$lib/persistent_save/save_file_export';
   import {
     ALL_RELIGION_DIMENSION_IDS,
+    appendSavedReligion,
+    loadSavedReligionSnapshots,
     type PolytheisticStandingMode,
+    RELIGION_SAVE_SCOPE_ID,
     type ReligionDimensionId,
+    religionFromSnapshot,
+    type ReligionGeneratorOptionsSnapshot,
+    type ReligionSnapshot,
     type SpiritCosmologyDepthMode,
     generateReligion,
     getDefaultReligionGenerationConfig,
     summaryTextForReligionDimension,
+    toReligionSnapshot,
   } from '$lib/religion';
   import { listDomains } from '$lib/religion/domains';
+  import { showAlertModal } from '$lib/ui/modal';
+  import {
+    clearLoadParamFromUrl,
+    readReligionLoadParamFromLocation,
+    RELIGION_LOAD_PARAM,
+  } from '$lib/persistent_save/saved_data_links';
 
   const dimensionSectionTitles: Record<ReligionDimensionId, string> = {
     ritual: 'Ritual',
@@ -29,10 +43,26 @@
   };
 
   let savedCultures = $state<Culture[]>([]);
+  let savedReligions = $state<ReligionSnapshot[]>([]);
+  let loadDialog: HTMLDialogElement | undefined = $state();
+  let importInput: HTMLInputElement | undefined = $state();
 
   onMount(() => {
     savedCultures = loadSavedCultures();
+    refreshSavedReligions();
+    const seedParam = readReligionLoadParamFromLocation();
+    if (seedParam !== null) {
+      const snapshot = loadSavedReligionSnapshots().find((saved) => saved.seed === seedParam);
+      if (snapshot !== undefined) {
+        loadSavedReligion(snapshot);
+      }
+      clearLoadParamFromUrl(RELIGION_LOAD_PARAM);
+    }
   });
+
+  function refreshSavedReligions() {
+    savedReligions = loadSavedReligionSnapshots();
+  }
 
   let savedCulture: string | undefined = $state();
   let useSavedCulture: boolean = $state(false);
@@ -131,6 +161,94 @@
         culture = savedCultures[i];
       }
     }
+  }
+
+  function currentGeneratorOptions(): ReligionGeneratorOptionsSnapshot {
+    return {
+      lockSeed,
+      selectedCategories: [...selectedCategories],
+      selectedSpecies: [...selectedSpecies],
+      polytheisticStanding,
+      spiritCosmologyDepth,
+      useSavedCulture,
+      savedCultureName: savedCulture,
+    };
+  }
+
+  function saveReligion() {
+    appendSavedReligion(toReligionSnapshot(religion, seed, currentGeneratorOptions()));
+    refreshSavedReligions();
+  }
+
+  function openLoadDialog() {
+    refreshSavedReligions();
+    loadDialog?.showModal();
+  }
+
+  function loadSavedReligion(snapshot: ReligionSnapshot) {
+    const restored = religionFromSnapshot(snapshot);
+    religion = restored.religion;
+    seed = restored.seed;
+    lockSeed = restored.generatorOptions.lockSeed;
+    selectedCategories = [...restored.generatorOptions.selectedCategories];
+    selectedSpecies = [...restored.generatorOptions.selectedSpecies];
+    polytheisticStanding = restored.generatorOptions.polytheisticStanding;
+    spiritCosmologyDepth = restored.generatorOptions.spiritCosmologyDepth;
+    useSavedCulture = restored.generatorOptions.useSavedCulture;
+    savedCulture = restored.generatorOptions.savedCultureName;
+    rng.setSeed(seed);
+    loadDialog?.close();
+  }
+
+  function exportReligionsFile() {
+    const payload = buildExportPayload([RELIGION_SAVE_SCOPE_ID]);
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = 'ironarachne-religions.json';
+    anchor.click();
+    URL.revokeObjectURL(url);
+  }
+
+  function triggerImportPicker() {
+    importInput?.click();
+  }
+
+  async function onImportFile(ev: Event) {
+    const input = ev.currentTarget as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(await file.text()) as unknown;
+    } catch {
+      void showAlertModal({
+        message: 'Could not read that file as JSON.',
+        style: 'error',
+      });
+      return;
+    }
+    const result = applyImportedScopes(parsed, 'merge');
+    if (!result.ok) {
+      void showAlertModal({ message: result.error, style: 'error' });
+      return;
+    }
+    refreshSavedReligions();
+    if (result.appliedScopes.length > 0) {
+      void showAlertModal({
+        message: `Imported scopes: ${result.appliedScopes.join(', ')}.`,
+        style: 'success',
+      });
+      return;
+    }
+    void showAlertModal({
+      message: 'Import finished (no scopes in file).',
+      style: 'message',
+    });
   }
 </script>
 
@@ -235,6 +353,20 @@
   {/if}
 
   <button onclick={generate}>Generate</button>
+  <button type="button" onclick={saveReligion}>Save</button>
+  <button type="button" onclick={openLoadDialog}>Load...</button>
+
+  <div class="input-group religion-save-file-actions">
+    <button type="button" onclick={exportReligionsFile}>Export saved religions (JSON)</button>
+    <button type="button" onclick={triggerImportPicker}>Import saves from file</button>
+    <input
+      bind:this={importInput}
+      type="file"
+      accept="application/json,.json"
+      style="display: none"
+      onchange={onImportFile}
+    />
+  </div>
 
   <h2>{religion.name}</h2>
 
@@ -321,6 +453,32 @@
   {/if}
 </section>
 
+<dialog bind:this={loadDialog} class="religion-load-dialog">
+  <form method="dialog" class="religion-load-dialog-content">
+    <h2>Load Saved Religion</h2>
+
+    {#if savedReligions.length === 0}
+      <p>No saved religions yet. Generate a religion and click Save.</p>
+    {:else}
+      <ul class="religion-load-list">
+        {#each savedReligions as saved, index (index)}
+          <li class="religion-load-item">
+            <div class="religion-load-item-details">
+              <p class="religion-load-item-name">{saved.name}</p>
+              <p class="religion-load-item-seed">Seed: {saved.seed}</p>
+            </div>
+            <button type="button" onclick={() => loadSavedReligion(saved)}>Load</button>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+
+    <div class="religion-load-dialog-actions">
+      <button value="cancel">Cancel</button>
+    </div>
+  </form>
+</dialog>
+
 <style>
   .input-group {
     ul > li {
@@ -355,5 +513,66 @@
 
   .cosmology-echelons li {
     margin-bottom: 0.5rem;
+  }
+
+  dialog.religion-load-dialog {
+    border: 1px solid var(--gold, #c9a227);
+    border-radius: 4px;
+    padding: 0;
+    max-width: 40rem;
+    width: calc(100% - 2rem);
+    background: var(--background, #1a1a1a);
+    color: inherit;
+  }
+
+  dialog.religion-load-dialog::backdrop {
+    background: rgb(0 0 0 / 50%);
+  }
+
+  .religion-load-dialog-content {
+    padding: 1rem 1.25rem;
+  }
+
+  .religion-load-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .religion-load-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+  }
+
+  .religion-load-item:last-child {
+    border-bottom: none;
+  }
+
+  .religion-load-item-details {
+    min-width: 0;
+  }
+
+  .religion-load-item-name,
+  .religion-load-item-seed {
+    margin: 0;
+  }
+
+  .religion-load-item-name {
+    font-weight: 600;
+  }
+
+  .religion-load-item-seed {
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+
+  .religion-load-dialog-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
   }
 </style>

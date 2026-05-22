@@ -68,3 +68,13 @@ export function appendSavedCulture(culture: Culture): void {
     cultures: [...payload.cultures, toCultureSnapshot(culture)],
   });
 }
+
+export function deleteSavedCultureByName(name: string): boolean {
+  const payload = readCultureSavePayload();
+  const next = payload.cultures.filter((item) => item.name !== name);
+  if (next.length === payload.cultures.length) {
+    return false;
+  }
+  saveCultureSnapshots(next);
+  return true;
+}

@@ -62,6 +62,9 @@ export default class ADNDCharacter {
   spells: ADNDSpell[];
   armor: ADNDArmor[];
   weapons: ADNDWeapon[];
+  weaponProficiencyGroups: string[];
+  nonweaponProficiencies: string[];
+  kit: { name: string; features: string[] } | null;
 
   constructor() {
     this.firstName = '';
@@ -81,5 +84,8 @@ export default class ADNDCharacter {
     this.spells = [];
     this.armor = [];
     this.weapons = [];
+    this.weaponProficiencyGroups = [];
+    this.nonweaponProficiencies = [];
+    this.kit = null;
   }
 }

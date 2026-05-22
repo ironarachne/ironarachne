@@ -57,4 +57,69 @@ describe('heraldry/generator', () => {
     expect(arms.device.chargeGroups.length).toBe(1);
     expect(arms.device.chargeGroups[0].numberOfCharges).toBe(4);
   });
+
+  test('generateHeraldry uses pinned field division', () => {
+    const cfg = mergeHeraldryGeneratorConfig({
+      chargeCount: 0,
+      fieldDivisionName: 'saltire',
+      fieldOptions: [],
+      rng: new RNG.RNG('pinned-field'),
+    });
+    const arms = generateHeraldry(cfg);
+    expect(arms.device.field.name).toBe('saltire');
+  });
+
+  test('generateHeraldry uses pinned variation and tinctures', () => {
+    const cfg = mergeHeraldryGeneratorConfig({
+      chargeCount: 0,
+      fieldDivisionName: 'plain',
+      fieldOptions: [],
+      variationSlotPreferences: [
+        {
+          variationName: 'barry',
+          tinctureNames: ['azure', 'Or'],
+        },
+      ],
+      rng: new RNG.RNG('pinned-variation'),
+    });
+    const arms = generateHeraldry(cfg);
+    expect(arms.device.field.variations[0].name).toBe('barry');
+    expect(arms.device.field.variations[0].tinctures.map((t) => t.name)).toEqual(['azure', 'Or']);
+    expect(arms.blazon).toContain('barry azure and Or');
+  });
+
+  test('generateHeraldry is deterministic with pinned field options', () => {
+    const cfg = mergeHeraldryGeneratorConfig({
+      chargeCount: 0,
+      fieldDivisionName: 'fess',
+      fieldOptions: [],
+      variationSlotPreferences: [
+        { variationName: 'plain', tinctureNames: ['gules'] },
+        { variationName: 'plain', tinctureNames: ['argent'] },
+      ],
+      rng: new RNG.RNG('repeatable-field'),
+    });
+    const first = generateHeraldry(cfg);
+    const second = generateHeraldry(cfg);
+    expect(first.blazon).toBe(second.blazon);
+    expect(first.device.field.name).toBe('fess');
+  });
+
+  test('generateHeraldry assigns three variations for per pall', () => {
+    const cfg = mergeHeraldryGeneratorConfig({
+      chargeCount: 0,
+      fieldDivisionName: 'pall',
+      fieldOptions: [],
+      variationSlotPreferences: [
+        { variationName: 'plain', tinctureNames: ['gules'] },
+        { variationName: 'plain', tinctureNames: ['Or'] },
+        { variationName: 'plain', tinctureNames: ['azure'] },
+      ],
+      rng: new RNG.RNG('pall-field'),
+    });
+    const arms = generateHeraldry(cfg);
+    expect(arms.device.field.name).toBe('pall');
+    expect(arms.device.field.variations).toHaveLength(3);
+    expect(arms.blazon).toBe('per pall gules, Or and azure');
+  });
 });

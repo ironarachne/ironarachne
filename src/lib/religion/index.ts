@@ -19,3 +19,17 @@ export {
 export type * from './non_theistic_religion_types';
 export { generateNonTheisticReligionDetail } from './non_theistic_religion_generation';
 export type * from './religion_types';
+export {
+  appendSavedReligion,
+  loadSavedReligionSnapshots,
+  readReligionSavePayload,
+  RELIGION_SAVE_SCOPE_ID,
+  saveReligionSnapshots,
+} from './religion_saved_state';
+export {
+  religionFromSnapshot,
+  toReligionSnapshot,
+  type ReligionGeneratorOptionsSnapshot,
+  type ReligionSnapshot,
+  type RestoredReligion,
+} from './religion_snapshot';

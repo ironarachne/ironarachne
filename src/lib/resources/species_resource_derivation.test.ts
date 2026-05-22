@@ -21,9 +21,10 @@ describe('speciesYieldsCarcassResources', () => {
     expect(speciesYieldsCarcassResources(ghoul)).toBe(false);
   });
 
-  it('includes common beasts', () => {
-    expect(speciesYieldsCarcassResources(cow)).toBe(true);
-    expect(speciesYieldsCarcassResources(bear)).toBe(true);
+  it('includes dragons', () => {
+    expect(speciesYieldsCarcassResources(allSpecies.find((s) => s.breedType === 'red_dragon')!)).toBe(
+      true,
+    );
   });
 });
 

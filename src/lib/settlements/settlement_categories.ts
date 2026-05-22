@@ -6,13 +6,16 @@ import Hamlet from './categories/hamlet.js';
 import Metropolis from './categories/metropolis.js';
 import Town from './categories/town.js';
 import Village from './categories/village.js';
-import type SettlementCategory from './settlement_category.js';
+import type { SettlementCategory } from './settlement_types.js';
 
 export function all(): SettlementCategory[] {
   return [Hamlet, Village, Town, Borough, City, Metropolis];
 }
 
 export function bySizeClass(sizeClass: string): SettlementCategory[] {
+  if (sizeClass === 'any') {
+    return all();
+  }
   const options = all();
   let result: SettlementCategory[] = [];
 

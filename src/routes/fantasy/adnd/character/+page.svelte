@@ -8,6 +8,10 @@
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
+  let includeProficiencies = $state(false);
+  let includeKits = $state(false);
+  let lastIncludeProficiencies = $state(false);
+  let lastIncludeKits = $state(false);
   $effect(() => {
     rng.setSeed(seed);
   });
@@ -23,6 +27,10 @@
 
     genConfig = new ADNDCharacterGeneratorConfig();
     genConfig.rng = rng;
+    genConfig.includeProficiencies = includeProficiencies;
+    genConfig.includeKits = includeKits;
+    lastIncludeProficiencies = includeProficiencies;
+    lastIncludeKits = includeKits;
     charGen = new ADNDCharacterGenerator(genConfig);
     character = charGen.generateCharacter();
   }
@@ -47,6 +55,21 @@
     <label for="seed">Seed</label>
     <input type="text" name="seed" bind:value={seed} id="seed" />
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
+  </div>
+
+  <div class="input-group">
+    <input
+      type="checkbox"
+      name="includeProficiencies"
+      bind:checked={includeProficiencies}
+      id="includeProficiencies"
+    />
+    <label for="includeProficiencies">Include proficiencies (weapon and nonweapon)</label>
+  </div>
+
+  <div class="input-group">
+    <input type="checkbox" name="includeKits" bind:checked={includeKits} id="includeKits" />
+    <label for="includeKits">Include character kit (optional sub-archetype)</label>
   </div>
 
   <button onclick={generate}>Generate</button>

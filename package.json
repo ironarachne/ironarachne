@@ -1,6 +1,6 @@
 {
   "name": "ironarachne",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -8,6 +8,7 @@
     "render:layout": "tsx scripts/render_layout.ts",
     "render:dungeon": "vite-node scripts/render_dungeon.ts",
     "render:region": "vite-node scripts/render_region_map.ts",
+    "settlement:cli": "npx vite-node scripts/generate_settlement_cli.ts",
     "arch:style": "tsx scripts/generate_architectural_style_cli.ts",
     "dev": "vite dev",
     "build": "vite build",

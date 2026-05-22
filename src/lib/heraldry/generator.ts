@@ -9,6 +9,7 @@ import {
   getDefaultHeraldryGeneratorConfig,
   mergeHeraldryGeneratorConfig,
   type HeraldryGeneratorConfig,
+  type VariationSlotPreference,
 } from './generatorconfig.js';
 import type { Tincture } from './tinctures.js';
 import * as Tinctures from './tinctures.js';
@@ -59,11 +60,7 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
     fieldTinctures2 = Tinctures.getContrasting(charge.tincture, fieldTinctures2);
   }
 
-  let field = cfg.rng.weighted(
-    Array.from(cfg.fieldOptions).map((f) => {
-      return { commonality: f.commonality, value: f };
-    }),
-  );
+  let field = resolveField(cfg);
 
   field.variations = generateVariations(
     field.variationCount,
@@ -71,6 +68,7 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
     fieldTinctures2,
     Array.from(cfg.variationOptions),
     cfg.rng,
+    cfg.variationSlotPreferences,
   );
 
   const device: Device = { field, chargeGroups };
@@ -104,7 +102,7 @@ export function generateHeraldryConfig(rng: RNG.RNG): HeraldryGeneratorConfig {
       types2.push('stain');
     }
   }
-  types1.push('furs');
+  types1.push('fur');
   fieldTinctures1 = Tinctures.ofTypes(types1);
   fieldTinctures2 = Tinctures.ofTypes(types2);
 
@@ -121,43 +119,104 @@ export function generateHeraldryConfig(rng: RNG.RNG): HeraldryGeneratorConfig {
   });
 }
 
-function generateVariations(
-  count: number,
+function resolveField(cfg: HeraldryGeneratorConfig) {
+  if (cfg.fieldDivisionName !== undefined) {
+    return JSON.parse(JSON.stringify(Fields.byName(cfg.fieldDivisionName)));
+  }
+
+  return cfg.rng.weighted(
+    Array.from(cfg.fieldOptions).map((f) => {
+      return { commonality: f.commonality, value: f };
+    }),
+  );
+}
+
+function cloneVariationTemplate(template: Variation): Variation {
+  return JSON.parse(JSON.stringify(template));
+}
+
+function pickVariationForSlot(
+  slotPreference: VariationSlotPreference | undefined,
+  variationOptions: Variation[],
+  rng: RNG.RNG,
+): { variation: Variation; removeFromOptions: boolean } {
+  if (slotPreference?.variationName !== undefined) {
+    return { variation: cloneVariationTemplate(Variations.byName(slotPreference.variationName)), removeFromOptions: false };
+  }
+
+  if (variationOptions.length === 0) {
+    throw new Error(
+      'Ran out of distinct field variation types before assigning all field divisions.',
+    );
+  }
+
+  const variation = rng.weighted(
+    variationOptions.map((v) => {
+      return { commonality: v.commonality, value: v };
+    }),
+  );
+
+  return { variation: cloneVariationTemplate(variation), removeFromOptions: true };
+}
+
+function pickTinctureForIndex(
+  index: number,
+  slotPreference: VariationSlotPreference | undefined,
+  tinctureSet: Tincture[],
+  rng: RNG.RNG,
+  allPinned: boolean,
+): Tincture {
+  const pinnedName = slotPreference?.tinctureNames?.[index];
+  if (pinnedName !== undefined) {
+    return Tinctures.byName(pinnedName);
+  }
+
+  if (allPinned) {
+    throw new Error('Variation slot has pinned tinctures but a required index is missing.');
+  }
+
+  return Tinctures.randomFrom(tinctureSet, rng);
+}
+
+function areAllTincturesPinned(
+  slotPreference: VariationSlotPreference | undefined,
+  requiredCount: number,
+): boolean {
+  const names = slotPreference?.tinctureNames;
+  if (names === undefined) {
+    return false;
+  }
+  for (let i = 0; i < requiredCount; i++) {
+    if (names[i] === undefined) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function assignVariationTinctures(
+  variation: Variation,
+  slotPreference: VariationSlotPreference | undefined,
   tinctures1: Tincture[],
   tinctures2: Tincture[],
-  options: Variation[],
   rng: RNG.RNG,
-): Variation[] {
-  let result = [];
-  let variationOptions: Variation[] = JSON.parse(JSON.stringify(options));
+): Variation {
+  let tinctureSet1 = JSON.parse(JSON.stringify(tinctures1));
+  let tinctureSet2 = JSON.parse(JSON.stringify(tinctures2));
 
-  for (let i = 0; i < count; i++) {
-    /** At most one fur tincture in this division’s tincture pair (e.g. barry of X and Y). */
-    let furCount = 0;
+  if (!variation.supportsFurs) {
+    tinctureSet1 = Tinctures.withoutFurs(tinctureSet1);
+    tinctureSet2 = Tinctures.withoutFurs(tinctureSet2);
+  }
 
-    if (variationOptions.length === 0) {
-      throw new Error(
-        'Ran out of distinct field variation types before assigning all field divisions.',
-      );
-    }
+  const requiredCount = variation.tinctureCount;
+  const allPinned = areAllTincturesPinned(slotPreference, requiredCount);
 
-    let tinctureSet1 = JSON.parse(JSON.stringify(tinctures1));
-    let tinctureSet2 = JSON.parse(JSON.stringify(tinctures2));
+  /** At most one fur tincture in this division's tincture pair (e.g. barry of X and Y). */
+  let furCount = 0;
 
-    let variation = rng.weighted(
-      variationOptions.map((v) => {
-        return { commonality: v.commonality, value: v };
-      }),
-    );
-
-    if (!variation.supportsFurs) {
-      tinctureSet1 = Tinctures.withoutFurs(tinctureSet1);
-      tinctureSet2 = Tinctures.withoutFurs(tinctureSet2);
-    }
-
-    variationOptions = Variations.removeFromSet(variation, variationOptions);
-
-    let firstTincture = Tinctures.randomFrom(tinctureSet1, rng);
+  const firstTincture = pickTinctureForIndex(0, slotPreference, tinctureSet1, rng, allPinned);
+  if (!allPinned) {
     tinctureSet1 = Tinctures.exclude(firstTincture, tinctureSet1);
     tinctureSet2 = Tinctures.exclude(firstTincture, tinctureSet2);
     if (firstTincture.type === 'fur' && furCount === 0) {
@@ -165,22 +224,48 @@ function generateVariations(
       tinctureSet1 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet1);
       tinctureSet2 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet2);
     }
+  }
 
-    if (variation.tinctureCount < 2) {
-      variation.tinctures = [firstTincture];
-      result.push(variation);
-      continue;
+  if (requiredCount < 2) {
+    variation.tinctures = [firstTincture];
+    return variation;
+  }
+
+  const secondTincture = pickTinctureForIndex(1, slotPreference, tinctureSet2, rng, allPinned);
+  if (!allPinned && secondTincture.type === 'fur' && furCount === 0) {
+    furCount = 1;
+  }
+
+  variation.tinctures = [firstTincture, secondTincture];
+  return variation;
+}
+
+function generateVariations(
+  count: number,
+  tinctures1: Tincture[],
+  tinctures2: Tincture[],
+  options: Variation[],
+  rng: RNG.RNG,
+  slotPreferences?: VariationSlotPreference[],
+): Variation[] {
+  let result = [];
+  let variationOptions: Variation[] = JSON.parse(JSON.stringify(options));
+
+  for (let i = 0; i < count; i++) {
+    const slotPreference = slotPreferences?.[i];
+    const { variation, removeFromOptions } = pickVariationForSlot(
+      slotPreference,
+      variationOptions,
+      rng,
+    );
+
+    if (removeFromOptions) {
+      variationOptions = Variations.removeFromSet(variation, variationOptions);
     }
 
-    let secondTincture = Tinctures.randomFrom(tinctureSet2, rng);
-    tinctureSet2 = Tinctures.exclude(secondTincture, tinctureSet2);
-    if (secondTincture.type === 'fur' && furCount === 0) {
-      furCount = 1;
-      tinctureSet2 = Tinctures.getSetExcluding(Tinctures.furs(), tinctureSet2);
-    }
-
-    variation.tinctures = [firstTincture, secondTincture];
-    result.push(variation);
+    result.push(
+      assignVariationTinctures(variation, slotPreference, tinctures1, tinctures2, rng),
+    );
   }
 
   return result;

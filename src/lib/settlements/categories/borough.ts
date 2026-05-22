@@ -1,4 +1,4 @@
-import type SettlementCategory from '../settlement_category.js';
+import type { SettlementCategory } from '../settlement_types.js';
 
 export default <SettlementCategory>{
   name: 'borough',

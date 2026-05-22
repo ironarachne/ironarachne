@@ -49,6 +49,24 @@ describe('tinctures.furs', () => {
     const furs = tinctures.furs();
     expect(furs.every((t) => t.type === 'fur')).toBe(true);
   });
+
+  it('pean uses a sable field with Or ermine spots', () => {
+    const pean = tinctures.byName('pean');
+    expect(pean.category).toBe('dark');
+    expect(pean.pattern).toContain('id="pean"');
+    expect(pean.pattern).toContain('fill="#000000"/>');
+    expect(pean.pattern).toContain('fill="#F0D41F"');
+    expect(pean.pattern).not.toMatch(/fill="#000000" stroke="#000000"/);
+  });
+
+  it('vair uses argent and azure fur pattern', () => {
+    const vair = tinctures.byName('vair');
+    expect(vair.type).toBe('fur');
+    expect(vair.category).toBe('neutral');
+    expect(vair.pattern).toContain('id="vair"');
+    expect(vair.pattern).toContain('fill="#ffffff"');
+    expect(vair.pattern).toContain('fill="#0731BA"');
+  });
 });
 
 describe('tinctures.metals', () => {

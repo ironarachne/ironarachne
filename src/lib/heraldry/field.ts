@@ -19,5 +19,8 @@ export function renderFieldBlazon(field: Field): string {
   if (field.variations.length > 1) {
     blazon = blazon.replace('variation2', renderBlazon(field.variations[1]));
   }
+  if (field.variations.length > 2) {
+    blazon = blazon.replace('variation3', renderBlazon(field.variations[2]));
+  }
   return blazon;
 }

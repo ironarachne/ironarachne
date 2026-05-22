@@ -6,6 +6,8 @@
     getAllFantasyEncounterTemplates,
     type Encounter,
   } from '$lib/encounters';
+  import ArchetypeBadge from '$lib/components/archetype_badge.svelte';
+  import SpeciesBadge from '$lib/components/species_badge.svelte';
   import type { Character } from '$lib/characters/character_types';
   import type { Creature } from '$lib/creatures/creature_types';
 
@@ -100,12 +102,17 @@
             {#each group.mobs as mob}
               {@const asChar = mob as unknown as Character}
               {@const asCreature = mob as unknown as Creature}
-              <li>
+              {@const mobSpecies = asCreature.species}
+              <li class="mob-row">
                 <strong>{mob.name}</strong>
-                {#if asChar.archetype}
-                  — {asChar.species.name} {asChar.archetype.name}
-                {:else if asCreature.species}
-                  — {asCreature.species.name}
+                {#if mobSpecies}
+                  <SpeciesBadge speciesName={mobSpecies.name} size="sm" />
+                  {#if asChar.archetype}
+                    <ArchetypeBadge archetypeName={asChar.archetype.name} size="sm" />
+                    <span class="mob-meta">— {mobSpecies.name} {asChar.archetype.name}</span>
+                  {:else}
+                    <span class="mob-meta">— {mobSpecies.name}</span>
+                  {/if}
                 {/if}
               </li>
             {/each}
@@ -119,40 +126,44 @@
 <style>
   .stat-block {
     margin-top: 2rem;
-    padding: 1.5rem;
-    background-color: #fdf6e3;
-    border: 2px solid #a82e2e;
+    padding: 1rem;
+    border: 1px solid var(--granite);
     border-radius: 4px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    font-family: serif;
-    color: #440000;
+    background: color-mix(in srgb, var(--slate) 40%, transparent);
   }
+
   .stat-block h2 {
-    color: #a82e2e;
     margin-top: 0;
-    margin-bottom: 0.5rem;
-    font-size: 1.8rem;
     text-transform: capitalize;
   }
-  .stat-block h3 {
-    color: #a82e2e;
-    font-size: 1.4rem;
-    border-bottom: 1px solid #a82e2e;
-    padding-bottom: 0.2rem;
-    margin-bottom: 1rem;
-    text-transform: capitalize;
-  }
+
   .group-section {
     margin-top: 1.5rem;
   }
+
   .group-section ul {
     list-style-type: none;
     padding-left: 0;
+    margin-left: 0;
   }
+
   .group-section li {
+    margin-left: 0;
     margin-bottom: 0.5rem;
     padding: 0.5rem;
-    background: rgba(168, 46, 46, 0.05);
+    border: 1px solid var(--granite);
     border-radius: 3px;
+    background: color-mix(in srgb, var(--charcoal) 85%, white 15%);
+  }
+
+  .mob-row {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+  }
+
+  .mob-meta {
+    color: color-mix(in srgb, currentColor 70%, transparent);
   }
 </style>

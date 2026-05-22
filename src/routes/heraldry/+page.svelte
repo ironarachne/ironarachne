@@ -8,39 +8,206 @@
   import Download from '$lib/download';
   import SaveSVGToPNG from '$lib/renderers/svg-to-png';
   import { renderSVGAsPNG } from '$lib/images/svg';
+  import { afterNavigate } from '$app/navigation';
+  import { page } from '$app/state';
 
   import { generateHeraldry } from '$lib/heraldry/generator';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+  import type { Arms } from '$lib/heraldry/arms';
   import type { Charge } from '$lib/heraldry/charge_heraldry';
   import {
     mergeHeraldryGeneratorConfig,
     type HeraldryGeneratorConfig,
   } from '$lib/heraldry/generatorconfig';
+  import {
+    appendSavedHeraldry,
+    findSavedHeraldrySnapshotByBlazon,
+    loadSavedHeraldrySnapshots,
+  } from '$lib/heraldry/heraldry_saved_state';
+  import {
+    buildVariationSlotPreferences,
+    eligibleVariationTinctures,
+    fieldDivisionNameFromOption,
+    fieldUiStateFromGeneratorOptions,
+    fieldVariationSlotCountForDivision,
+    hasPinnedFieldTinctures,
+    resolveFieldOptions,
+    variationTinctureCountForSlot,
+  } from '$lib/heraldry/heraldry_ui_options';
+  import {
+    defaultHeraldryGeneratorOptions,
+    heraldryFromSnapshot,
+    toHeraldrySnapshot,
+    type HeraldryGeneratorOptionsSnapshot,
+    type HeraldrySnapshot,
+  } from '$lib/heraldry/heraldry_snapshot';
+  import { showAlertModal } from '$lib/ui/modal';
+  import {
+    clearLoadParamFromUrl,
+    HERALDRY_LOAD_PARAM,
+  } from '$lib/persistent_save/saved_data_links';
+  import HeraldryTinctureSelect from '$lib/components/heraldry_tincture_select.svelte';
+  import HeraldryPreviewSelect from '$lib/components/heraldry_preview_select.svelte';
+  import { buildFieldDivisionPreviewSvg } from '$lib/heraldry/field_division_preview.js';
+  import { buildVariationPreviewSvg } from '$lib/heraldry/variation_preview.js';
+
+  const HERALDRY_UI_PREVIEW_SIZE = 16;
+
+  const CHARGE_TINCTURE_NAMES = [
+    'gules',
+    'argent',
+    'vert',
+    'purpure',
+    'sable',
+    'Or',
+    'azure',
+    'murrey',
+    'sanguine',
+    'tenné',
+  ] as const;
+
+  const CHARGE_TINCTURE_LABELS: Record<(typeof CHARGE_TINCTURE_NAMES)[number], string> = {
+    gules: 'gules (red)',
+    argent: 'argent (white)',
+    vert: 'vert (green)',
+    purpure: 'purpure (purple)',
+    sable: 'sable (black)',
+    Or: 'Or (gold)',
+    azure: 'azure (blue)',
+    murrey: 'murrey (mulberry)',
+    sanguine: 'sanguine (blood red)',
+    tenné: 'tenné (brown)',
+  };
+
+  const chargeTinctureOptions = CHARGE_TINCTURE_NAMES.map((name) => Tinctures.byName(name));
+
+  function chargeTinctureLabel(value: string): string {
+    return CHARGE_TINCTURE_LABELS[value as (typeof CHARGE_TINCTURE_NAMES)[number]] ?? value;
+  }
 
   let rng = new RngCtor(Date.now().toString());
+  const initialOptions = defaultHeraldryGeneratorOptions();
   let seed = $state(rng.randomString(13));
   $effect(() => {
     rng.setSeed(seed);
   });
-  let lockSeed = $state(false);
+  let lockSeed = $state(initialOptions.lockSeed);
 
   let blazon = $state('');
   let image = $state('');
+  let currentArms = $state<Arms | null>(null);
+  let savedHeraldries = $state<HeraldrySnapshot[]>([]);
+  let loadDialog: HTMLDialogElement | undefined = $state();
   let charges = Charges.all();
   let allCharges = Charges.all();
-  let heraldryTag = $state('any');
-  let chargeTinctureName = $state('any');
+  let heraldryTag = $state(initialOptions.heraldryTag);
+  let chargeTinctureName = $state(initialOptions.chargeTinctureName);
   let chargeTincture = Tinctures.randomChargeTincture(rng);
-  let numberOfChargesOption = $state('any');
-  let chargePosition = $state('normal');
+  let numberOfChargesOption = $state(initialOptions.numberOfChargesOption);
+  let chargePosition = $state(initialOptions.chargePosition);
   let fieldTinctures1 = Tinctures.all();
   let fieldTinctures2 = Tinctures.all();
-  let fields = Fields.all();
-  let furCount = 0;
+  let fieldDivisionOption = $state(initialOptions.fieldDivisionOption!);
+  let variationSlotOptions = $state([...initialOptions.variationSlotOptions!]);
+  let variationTinctureOptions = $state(
+    initialOptions.variationTinctureOptions!.map((row) => [...row]),
+  );
   let variations = Variations.all();
+  let allFields = Fields.all();
+  const fieldDivisionSelectOptions = $derived(
+    allFields.map((field) => ({ value: field.name, label: field.name })),
+  );
+  const variationSelectOptions = $derived(
+    variations.map((variation) => ({ value: variation.name, label: variation.name })),
+  );
   let availableTags = Charges.allChargeTags();
+  const fieldVariationSlotCount = $derived(
+    fieldVariationSlotCountForDivision(fieldDivisionOption),
+  );
+
+  $effect(() => {
+    const slotCount = fieldVariationSlotCountForDivision(fieldDivisionOption);
+    if (variationSlotOptions.length < slotCount) {
+      variationSlotOptions = [
+        ...variationSlotOptions,
+        ...Array.from({ length: slotCount - variationSlotOptions.length }, () => 'any'),
+      ];
+    }
+    if (variationTinctureOptions.length < slotCount) {
+      variationTinctureOptions = [
+        ...variationTinctureOptions,
+        ...Array.from({ length: slotCount - variationTinctureOptions.length }, () => [
+          'any',
+          'any',
+        ]),
+      ];
+    }
+
+    let tinctureRows = variationTinctureOptions;
+    let tinctureRowsChanged = false;
+    const paddedTinctureRows = tinctureRows.map((row, slotIndex) => {
+      const tinctureCount = variationTinctureCountForSlot(variationSlotOptions, slotIndex);
+      if (row.length >= tinctureCount) {
+        return row;
+      }
+      tinctureRowsChanged = true;
+      return [
+        ...row,
+        ...Array.from({ length: tinctureCount - row.length }, () => 'any'),
+      ];
+    });
+    if (tinctureRowsChanged) {
+      variationTinctureOptions = paddedTinctureRows;
+    }
+  });
+  const isCurrentBlazonSaved = $derived.by(() => {
+    const arms = currentArms;
+    return arms !== null && savedHeraldries.some((saved) => saved.blazon === arms.blazon);
+  });
   const heraldryWidth = 600;
   const heraldryHeight = 660;
+
+  afterNavigate(() => {
+    refreshSavedHeraldries();
+    tryLoadHeraldryFromBlazonParam();
+  });
+
+  function tryLoadHeraldryFromBlazonParam(): boolean {
+    const blazonParam = page.url.searchParams.get(HERALDRY_LOAD_PARAM);
+    if (blazonParam === null) {
+      return false;
+    }
+    const snapshot = findSavedHeraldrySnapshotByBlazon(blazonParam);
+    if (snapshot !== undefined) {
+      loadSavedHeraldry(snapshot);
+    }
+    clearLoadParamFromUrl(HERALDRY_LOAD_PARAM);
+    return snapshot !== undefined;
+  }
+
+  function refreshSavedHeraldries() {
+    savedHeraldries = loadSavedHeraldrySnapshots();
+  }
+
+  function currentGeneratorOptions(): HeraldryGeneratorOptionsSnapshot {
+    return {
+      heraldryTag,
+      chargeTinctureName,
+      numberOfChargesOption,
+      chargePosition,
+      lockSeed,
+      fieldDivisionOption,
+      variationSlotOptions: [...variationSlotOptions],
+      variationTinctureOptions: variationTinctureOptions.map((row) => [...row]),
+    };
+  }
+
+  function applyFieldUiState(options: HeraldryGeneratorOptionsSnapshot) {
+    const fieldUi = fieldUiStateFromGeneratorOptions(options);
+    fieldDivisionOption = fieldUi.fieldDivisionOption;
+    variationSlotOptions = [...fieldUi.variationSlotOptions];
+    variationTinctureOptions = fieldUi.variationTinctureOptions.map((row) => [...row]);
+  }
 
   function changeCharges() {
     if (heraldryTag === 'any') {
@@ -64,9 +231,12 @@
   }
 
   function setFieldTinctures(rng: RNG) {
+    if (hasPinnedFieldTinctures(variationTinctureOptions)) {
+      return;
+    }
+
     let types1 = [];
     let types2 = [];
-    // TODO: when choosing field tinctures is an option, this will need redoing
     if (chargeTincture.type === 'color' || chargeTincture.type === 'stain') {
       types1 = ['metal'];
       types2 = ['metal'];
@@ -81,11 +251,29 @@
         types2.push('stain');
       }
     }
-    if (furCount === 0) {
-      types1.push('furs');
-    }
+    types1.push('fur');
     fieldTinctures1 = Tinctures.ofTypes(types1);
     fieldTinctures2 = Tinctures.ofTypes(types2);
+  }
+
+  function applyHeraldryToPreview(arms: Arms) {
+    currentArms = arms;
+    blazon = arms.blazon;
+    image = renderHeraldryDeviceSvg(arms.device, heraldryWidth, heraldryHeight, rng);
+    renderSVGAsPNG(image, heraldryWidth, heraldryHeight, 'output');
+  }
+
+  function reset() {
+    const defaults = defaultHeraldryGeneratorOptions();
+    lockSeed = defaults.lockSeed;
+    heraldryTag = defaults.heraldryTag;
+    chargeTinctureName = defaults.chargeTinctureName;
+    numberOfChargesOption = defaults.numberOfChargesOption;
+    chargePosition = defaults.chargePosition;
+    applyFieldUiState(defaults);
+    charges = allCharges;
+    setChargeTincture(rng);
+    generate();
   }
 
   function generate() {
@@ -112,7 +300,12 @@
       chargeOptions: charges as Charge[],
       chargeTinctures: [chargeTincture],
       chargePosition: chargePosition === 'normal' ? undefined : chargePosition,
-      fieldOptions: fields,
+      fieldOptions: resolveFieldOptions(fieldDivisionOption),
+      fieldDivisionName: fieldDivisionNameFromOption(fieldDivisionOption),
+      variationSlotPreferences: buildVariationSlotPreferences(
+        variationSlotOptions,
+        variationTinctureOptions,
+      ),
       variationOptions: variations,
       fieldTinctures1,
       fieldTinctures2,
@@ -121,11 +314,7 @@
       rng: rng,
     });
 
-    const heraldry = generateHeraldry(config);
-    blazon = heraldry.blazon;
-
-    image = renderHeraldryDeviceSvg(heraldry.device, config.width, config.height, rng);
-    renderSVGAsPNG(image, config.width, config.height, 'output');
+    applyHeraldryToPreview(generateHeraldry(config));
   }
 
   function randomNumberOfCharges(rng: RNG) {
@@ -142,16 +331,66 @@
     return result;
   }
 
-  function save() {
+  function downloadSvg() {
     const blob = new Blob([image], { type: 'image/svg+xml' });
     Download(window.URL.createObjectURL(blob), `heraldry-${seed}.svg`);
   }
 
-  function saveAsPNG() {
+  function downloadPng() {
     SaveSVGToPNG(image, heraldryWidth, heraldryHeight, `heraldry-${seed}.png`);
   }
 
-  generate();
+  function saveHeraldry() {
+    if (currentArms === null) {
+      return;
+    }
+    const result = appendSavedHeraldry(
+      toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()),
+    );
+    if (!result.ok) {
+      void showAlertModal({
+        message: 'This heraldry is already saved.',
+      });
+      return;
+    }
+    refreshSavedHeraldries();
+    void showAlertModal({
+      message: 'Heraldry saved.',
+      style: 'success',
+    });
+  }
+
+  function openLoadDialog() {
+    refreshSavedHeraldries();
+    loadDialog?.showModal();
+  }
+
+  function loadSavedHeraldry(snapshot: HeraldrySnapshot) {
+    const restored = heraldryFromSnapshot(snapshot);
+    seed = restored.seed;
+    lockSeed = restored.generatorOptions.lockSeed;
+    heraldryTag = restored.generatorOptions.heraldryTag;
+    chargeTinctureName = restored.generatorOptions.chargeTinctureName;
+    numberOfChargesOption = restored.generatorOptions.numberOfChargesOption;
+    chargePosition = restored.generatorOptions.chargePosition;
+    applyFieldUiState(restored.generatorOptions);
+    changeCharges();
+    if (restored.arms.device.chargeGroups.length > 0) {
+      chargeTincture = restored.arms.device.chargeGroups[0].charge.tincture;
+    } else if (chargeTinctureName !== 'any') {
+      const tincture = Tinctures.byName(chargeTinctureName);
+      if (tincture !== undefined) {
+        chargeTincture = tincture;
+      }
+    }
+    rng.setSeed(seed);
+    applyHeraldryToPreview(restored.arms);
+    loadDialog?.close();
+  }
+
+  if (!page.url.searchParams.has(HERALDRY_LOAD_PARAM)) {
+    generate();
+  }
 </script>
 
 <section class="fantasy main">
@@ -196,31 +435,109 @@
   </div>
   <div class="input-group">
     <label for="charge-tincture">Charge Tincture</label>
-    <select
-      name="charge-tincture"
+    <HeraldryTinctureSelect
+      id="charge-tincture"
       bind:value={chargeTinctureName}
+      tinctures={chargeTinctureOptions}
+      labelForValue={chargeTinctureLabel}
       onchange={() => setChargeTincture(rng)}
-    >
-      <option>any</option>
-      <option value="gules">gules (red)</option>
-      <option value="argent">argent (white)</option>
-      <option value="vert">vert (green)</option>
-      <option value="purpure">purpure (purple)</option>
-      <option value="sable">sable (black)</option>
-      <option value="Or">Or (gold)</option>
-      <option value="azure">azure (blue)</option>
-      <option value="murrey">murrey (mulberry)</option>
-      <option value="sanguine">sanguine (blood red)</option>
-      <option value="tenné">tenné (brown)</option>
-    </select>
+    />
   </div>
+
+  <div class="input-group">
+    <label for="field-division">Field division</label>
+    <HeraldryPreviewSelect
+      id="field-division"
+      bind:value={fieldDivisionOption}
+      options={fieldDivisionSelectOptions}
+      previewSvg={(value) => buildFieldDivisionPreviewSvg(value, HERALDRY_UI_PREVIEW_SIZE)}
+    />
+  </div>
+
+  <div class="input-group">
+    <label for="variation-slot-0">Field variation</label>
+    <HeraldryPreviewSelect
+      id="variation-slot-0"
+      bind:value={variationSlotOptions[0]}
+      options={variationSelectOptions}
+      previewSvg={(value) => buildVariationPreviewSvg(value, HERALDRY_UI_PREVIEW_SIZE)}
+    />
+  </div>
+  {#each { length: variationTinctureCountForSlot(variationSlotOptions, 0) } as _, tinctureIndex (tinctureIndex)}
+    <div class="input-group">
+      <label for="variation-0-tincture-{tinctureIndex}">Variation tincture {tinctureIndex + 1}</label>
+      <HeraldryTinctureSelect
+        id="variation-0-tincture-{tinctureIndex}"
+        bind:value={variationTinctureOptions[0][tinctureIndex]}
+        tinctures={eligibleVariationTinctures(variationSlotOptions[0])}
+      />
+    </div>
+  {/each}
+
+  {#each { length: Math.max(0, fieldVariationSlotCount - 1) } as _, slotIndex (slotIndex)}
+    {@const slot = slotIndex + 1}
+    <div class="input-group">
+      <label for="variation-slot-{slot}">Variation {slot + 1}</label>
+      <HeraldryPreviewSelect
+        id="variation-slot-{slot}"
+        bind:value={variationSlotOptions[slot]}
+        options={variationSelectOptions}
+        previewSvg={(value) => buildVariationPreviewSvg(value, HERALDRY_UI_PREVIEW_SIZE)}
+      />
+    </div>
+    {#if slot === 1}
+      <p class="field-variation-hint">Additional variations apply to divided fields only.</p>
+    {/if}
+    {#each { length: variationTinctureCountForSlot(variationSlotOptions, slot) } as _, tinctureIndex (tinctureIndex)}
+      <div class="input-group">
+        <label for="variation-{slot}-tincture-{tinctureIndex}">
+          Variation {slot + 1} tincture {tinctureIndex + 1}
+        </label>
+        <HeraldryTinctureSelect
+          id="variation-{slot}-tincture-{tinctureIndex}"
+          bind:value={variationTinctureOptions[slot][tinctureIndex]}
+          tinctures={eligibleVariationTinctures(variationSlotOptions[slot])}
+        />
+      </div>
+    {/each}
+  {/each}
+
+  <button type="button" onclick={reset}>Reset</button>
   <button onclick={generate}>Generate</button>
-  <button onclick={save} disabled={image === ''}>Save</button>
-  <button onclick={saveAsPNG} disabled={image === ''}>Save as PNG</button>
+  <button onclick={downloadSvg} disabled={currentArms === null}>Download SVG</button>
+  <button onclick={downloadPng} disabled={currentArms === null}>Download PNG</button>
+  <button onclick={saveHeraldry} disabled={currentArms === null || isCurrentBlazonSaved}>Save</button>
+  <button type="button" onclick={openLoadDialog}>Load...</button>
 
   <p class="blazon">{blazon}</p>
   <div class="coat-of-arms"><img alt="" id="output" /></div>
 </section>
+
+<dialog bind:this={loadDialog} class="heraldry-load-dialog">
+  <form method="dialog" class="heraldry-load-dialog-content">
+    <h2>Load Saved Heraldry</h2>
+
+    {#if savedHeraldries.length === 0}
+      <p>No saved heraldry yet. Generate a coat of arms and click Save.</p>
+    {:else}
+      <ul class="heraldry-load-list">
+        {#each savedHeraldries as saved, index (index)}
+          <li class="heraldry-load-item">
+            <div class="heraldry-load-item-details">
+              <p class="heraldry-load-item-name">{saved.name}</p>
+              <p class="heraldry-load-item-seed">Seed: {saved.seed}</p>
+            </div>
+            <button type="button" onclick={() => loadSavedHeraldry(saved)}>Load</button>
+          </li>
+        {/each}
+      </ul>
+    {/if}
+
+    <div class="heraldry-load-dialog-actions">
+      <button value="cancel">Cancel</button>
+    </div>
+  </form>
+</dialog>
 
 <svelte:head>
   <title>Heraldry Generator | Iron Arachne</title>
@@ -235,5 +552,72 @@
 
   p.blazon {
     text-align: center;
+  }
+
+  p.field-variation-hint {
+    font-size: 0.875rem;
+    opacity: 0.8;
+    margin: 0 0 0.5rem;
+  }
+
+  dialog.heraldry-load-dialog {
+    border: 1px solid var(--gold, #c9a227);
+    border-radius: 4px;
+    padding: 0;
+    max-width: 40rem;
+    width: calc(100% - 2rem);
+    background: var(--background, #1a1a1a);
+    color: inherit;
+  }
+
+  dialog.heraldry-load-dialog::backdrop {
+    background: rgb(0 0 0 / 50%);
+  }
+
+  .heraldry-load-dialog-content {
+    padding: 1rem 1.25rem;
+  }
+
+  .heraldry-load-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .heraldry-load-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid rgb(255 255 255 / 10%);
+  }
+
+  .heraldry-load-item:last-child {
+    border-bottom: none;
+  }
+
+  .heraldry-load-item-details {
+    min-width: 0;
+  }
+
+  .heraldry-load-item-name,
+  .heraldry-load-item-seed {
+    margin: 0;
+  }
+
+  .heraldry-load-item-name {
+    font-weight: 600;
+  }
+
+  .heraldry-load-item-seed {
+    font-size: 0.875rem;
+    opacity: 0.8;
+  }
+
+  .heraldry-load-dialog-actions {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: flex-end;
   }
 </style>
