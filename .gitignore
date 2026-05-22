@@ -43,4 +43,8 @@ pnpm-debug.log*
 .turbo
 .vercel
 .test-tmp
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
 region_map.svg

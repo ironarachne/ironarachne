@@ -63,11 +63,29 @@ npm run preview
 
 ### Testing
 
-To run the test suite:
+Unit tests (Vitest, library code under `src/lib/`):
 
 ```bash
 npm run test
 ```
+
+End-to-end tests (Playwright, all pages against a production preview build):
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+The first command installs the Chromium browser Playwright uses. You only need to run it once per machine (or after upgrading `@playwright/test`).
+
+Other e2e commands:
+
+```bash
+npm run test:e2e:ui      # interactive UI mode for debugging
+npm run test:e2e:headed  # run tests in a visible browser window
+```
+
+`npm run test:e2e` builds the site, starts `vite preview` on port 4173, and runs the Playwright suite. Unit tests (`npm test`) and e2e tests are kept separate so library tests stay fast.
 
 ### Code Quality
 

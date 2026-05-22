@@ -18,6 +18,9 @@
     "lexicon:freq": "node scripts/generate_lexicon_frequency_buckets.mjs",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:headed": "playwright test --headed",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint ."
   },
@@ -38,6 +41,7 @@
   "devDependencies": {
     "@eslint/compat": "^1.4.0",
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.60.0",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.2",
