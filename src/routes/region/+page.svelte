@@ -76,7 +76,11 @@
     }
   }
 
-  async function openHeraldryModal(arms: Arms, title: string, applyReplacement: (arms: Arms) => void) {
+  async function openHeraldryModal(
+    arms: Arms,
+    title: string,
+    applyReplacement: (arms: Arms) => void,
+  ) {
     const result = await showHeraldryPersistenceModal({ arms, seed, title });
     if (result.action === 'replaced') {
       applyReplacement(result.arms);
@@ -167,7 +171,8 @@
         <button
           type="button"
           class="heraldry-inline-target"
-          aria-label="View heraldry for {region.realms[region.realms[region.mainRealm].parent].name}"
+          aria-label="View heraldry for {region.realms[region.realms[region.mainRealm].parent]
+            .name}"
           onclick={() =>
             openHeraldryModal(
               region.realms[region.realms[region.mainRealm].parent].heraldry,
@@ -281,14 +286,6 @@
           <p>
             <strong>{Words.title(neighbor.name)}</strong>, part of {region.realms[neighbor.parent]
               .name}
-<<<<<<< HEAD
-            {@html renderHeraldryDeviceSvg(
-              region.realms[neighbor.parent].heraldry.device,
-              20,
-              22,
-              rng,
-            )}.
-=======
             <button
               type="button"
               class="heraldry-inline-target"
@@ -300,9 +297,13 @@
                   (arms) => replaceRealmHeraldry(neighbor.parent, arms),
                 )}
             >
-              {@html renderHeraldryDeviceSvg(region.realms[neighbor.parent].heraldry.device, 20, 22, rng)}
+              {@html renderHeraldryDeviceSvg(
+                region.realms[neighbor.parent].heraldry.device,
+                20,
+                22,
+                rng,
+              )}
             </button>.
->>>>>>> 0834aaf5a434cde193828e93c443c639885e13b0
           </p>
           <p>
             Ruled by {Characters.getHonorific(

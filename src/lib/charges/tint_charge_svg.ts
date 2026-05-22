@@ -2,18 +2,9 @@
  * Recolor standard charge artwork (white body, black line) to a flat fill. Used
  * by heraldry (tincture) and merchant marks (dye hex).
  */
-<<<<<<< HEAD
 export function tintChargeSvg(fillHex: string, styleIdSuffix: string, chargeSvg: string): string {
-  let svgResult = chargeSvg;
-=======
-export function tintChargeSvg(
-  fillHex: string,
-  styleIdSuffix: string,
-  chargeSvg: string,
-): string {
   /** Line art on sable fill: neutral grey so the charge does not read as argent-outlined. */
   const outlineHex = fillHex === '#000000' ? '#808080' : '#000000';
->>>>>>> 0834aaf5a434cde193828e93c443c639885e13b0
 
   let svgResult = chargeSvg;
   svgResult = svgResult.replaceAll('#010101', 'TEMP_CHARGE_OUTLINE_PLACEHOLDER');
