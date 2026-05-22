@@ -1,6 +1,7 @@
 import type { RNG } from '@ironarachne/rng';
 import { generateOrganization } from '$lib/organizations/generate_organization.js';
 import { getOrganizationKindsForRegistry } from '$lib/organizations/kind_registry.js';
+import type { OrganizationKindDefinition } from '$lib/organizations/organization_kind.js';
 import type { Organization } from '$lib/organizations/organization_types.js';
 import { getDefaultOrganizationCharacterConfig } from '$lib/organizations/fantasy.js';
 import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
@@ -76,6 +77,28 @@ type OrgGenInput = {
 };
 
 /**
+ * Kinds eligible for settlement HQ generation after population, role, and genre filters (including fallback).
+ */
+export function buildSettlementOrganizationKindPool(
+  population: number,
+  economicRole: SettlementEconomicRole,
+  genre: 'fantasy' | 'science_fiction' | 'any',
+  rng: RNG,
+  /** When omitted, kinds are loaded from the registry (one RNG snapshot). */
+  kinds?: OrganizationKindDefinition[],
+): OrganizationKindDefinition[] {
+  const allKinds = kinds ?? getOrganizationKindsForRegistry(rng);
+  let pool = filterKindsForSettlement(population, economicRole, genre, allKinds);
+  if (pool.length === 0) {
+    pool = allKinds.filter(
+      (k) =>
+        population >= (KIND_MIN_POPULATION[k.id] ?? 0) && matchesOrganizationGenre(k, genre),
+    );
+  }
+  return pool;
+}
+
+/**
  * Produces N organizations with kinds suited to population and `economicRole`, reusing the global registry.
  */
 export function generateSettlementOrganizations(input: OrgGenInput): Organization[] {
@@ -84,14 +107,7 @@ export function generateSettlementOrganizations(input: OrgGenInput): Organizatio
   if (count <= 0) {
     return [];
   }
-  const allKinds = getOrganizationKindsForRegistry(rng);
-  let pool = filterKindsForSettlement(population, economicRole, genre, allKinds);
-  if (pool.length === 0) {
-    pool = allKinds.filter(
-      (k) =>
-        population >= (KIND_MIN_POPULATION[k.id] ?? 0) && matchesOrganizationGenre(k, genre),
-    );
-  }
+  const pool = buildSettlementOrganizationKindPool(population, economicRole, genre, rng);
   if (pool.length === 0) {
     return [];
   }

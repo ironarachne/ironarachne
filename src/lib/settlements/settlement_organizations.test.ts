@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import * as Environments from '$lib/environment/environments';
 import { getDefaultOrganizationCharacterConfig } from '$lib/organizations/fantasy';
-import { generateSettlementOrganizations } from './settlement_organizations';
+import { getOrganizationKindsForRegistry } from '$lib/organizations/kind_registry';
+import {
+  buildSettlementOrganizationKindPool,
+  generateSettlementOrganizations,
+} from './settlement_organizations';
 
 function sampleEnvironment(seed: string) {
   const cfg = Environments.getDefaultConfig();
@@ -10,20 +14,41 @@ function sampleEnvironment(seed: string) {
   return Environments.generate(cfg);
 }
 
+const ECONOMIC_ROLES = [
+  'agrarian',
+  'market',
+  'industrial',
+  'extractive',
+  'mixed',
+] as const;
+
 describe('generateSettlementOrganizations', () => {
-  it('never returns science-fiction orgs when genre is fantasy', () => {
-    const env = sampleEnvironment('org-genre-1');
-    const charCfg = getDefaultOrganizationCharacterConfig('org-genre-chars');
+  it('never offers science-fiction kinds in the fantasy kind pool', () => {
+    const allKinds = getOrganizationKindsForRegistry(new RNG('org-genre-kinds'));
     for (let i = 0; i < 80; i++) {
       const rng = new RNG(`org-genre-seed-${i}`);
       const population = rng.int(10, 20000);
-      const economicRole = rng.item([
-        'agrarian',
-        'market',
-        'industrial',
-        'extractive',
-        'mixed',
-      ] as const);
+      const economicRole = rng.item(ECONOMIC_ROLES);
+      const pool = buildSettlementOrganizationKindPool(
+        population,
+        economicRole,
+        'fantasy',
+        rng,
+        allKinds,
+      );
+      for (const kind of pool) {
+        expect(kind.genre).toBe('fantasy');
+      }
+    }
+  });
+
+  it('never returns science-fiction orgs when genre is fantasy', () => {
+    const env = sampleEnvironment('org-genre-1');
+    const charCfg = getDefaultOrganizationCharacterConfig('org-genre-chars');
+    for (let i = 0; i < 8; i++) {
+      const rng = new RNG(`org-genre-full-${i}`);
+      const population = rng.int(10, 20000);
+      const economicRole = rng.item(ECONOMIC_ROLES);
       const orgs = generateSettlementOrganizations({
         count: 1,
         population,
