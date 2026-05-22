@@ -39,6 +39,14 @@
   } from '$lib/adnd/adnd_class_starting_spells';
   import { downloadAdndCharacterPdf } from '$lib/adnd/render_adnd_character_pdf';
   import { showAlertModal } from '$lib/ui/modal';
+  import {
+    buildCharacterNameSource,
+    rollCharacterNameForSource,
+  } from '$lib/characters';
+  import CharacterNameControls from '$lib/components/character_name_controls.svelte';
+  import { loadSavedCultures, type Culture } from '$lib/culture';
+  import { getAllFantasyNameGeneratorSets } from '$lib/names';
+  import { onMount } from 'svelte';
 
   let rollRng = new RNG.RNG(Date.now().toString());
 
@@ -68,6 +76,16 @@
   let thiefSkillBonuses = $state<Record<string, number>>({});
   let wasEquipmentOverBudget = $state(false);
   let downloadingPdf = $state(false);
+
+  let savedCultures = $state<Culture[]>([]);
+  let nameSetNames = $state<string[]>([]);
+  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
+  let presetSetName = $state('human');
+  let savedCultureName = $state('');
+  let firstName = $state('');
+  let lastName = $state('');
+  let lockName = $state(false);
+  let namingGender = $state<'male' | 'female' | 'random'>('random');
 
   function wealthCpFromCoinFields(gp: unknown, sp: unknown, cp: unknown): number {
     const g = Math.max(0, Math.floor(Number(gp) || 0));
@@ -508,7 +526,41 @@
 
     finalizeAdndCharacterDerivedStats(c);
     recalculateAdndArmorClass(c);
+    c.firstName = firstName;
+    c.lastName = lastName;
     return c;
+  });
+
+  function rollNamesForCurrentSource(defaultHint: string) {
+    const source = buildCharacterNameSource(
+      nameSourceKind,
+      presetSetName,
+      savedCultureName,
+      savedCultures,
+    );
+    const nameRng = new RNG.RNG(`${Date.now()}-adnd-build-name`);
+    return rollCharacterNameForSource(nameRng, source, defaultHint, namingGender);
+  }
+
+  function generateNameOnly() {
+    if (lockName) {
+      return;
+    }
+
+    const defaultHint = (selectedRace?.name ?? raceName) || 'human';
+    const generated = rollNamesForCurrentSource(defaultHint);
+    firstName = generated.firstName;
+    lastName = generated.lastName;
+  }
+
+  onMount(() => {
+    savedCultures = loadSavedCultures();
+    nameSetNames = getAllFantasyNameGeneratorSets(new RNG.RNG('adnd-build-name-sets')).map(
+      (set) => set.name,
+    );
+    if (savedCultures.length > 0) {
+      savedCultureName = savedCultures[0]!.name;
+    }
   });
 
   async function downloadPdf() {
@@ -542,6 +594,20 @@
     and thief points from the class features seed.
     <a href="/fantasy/adnd/character">Random full generator</a>
   </p>
+
+  <CharacterNameControls
+    bind:nameSourceKind
+    bind:presetSetName
+    bind:savedCultureName
+    bind:firstName
+    bind:lastName
+    bind:lockName
+    bind:namingGender
+    {savedCultures}
+    {nameSetNames}
+    showGenderPicker={true}
+    onGenerateName={generateNameOnly}
+  />
 
   <h2>1. Attributes</h2>
   <p>

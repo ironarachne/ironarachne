@@ -1,3 +1,4 @@
+import { formatCharacterDisplayName } from '$lib/characters/character_name_generation';
 import Download from '$lib/download';
 import {
   buildLandscapeSciFiPdf,
@@ -24,6 +25,10 @@ function formatUwStat(value: number): string {
   }
 
   return `${value}`;
+}
+
+function formatUwHeaderTitle(character: UWCharacter): string {
+  return formatCharacterDisplayName(character.firstName, character.lastName) || 'Uncharted Worlds';
 }
 
 function formatUwSubtitle(character: UWCharacter): string {
@@ -78,7 +83,7 @@ function renderUwCharacterSheet(
   const contentTop = drawSciFiHeader(
     doc,
     page,
-    'Uncharted Worlds',
+    formatUwHeaderTitle(character),
     formatUwSubtitle(character),
     theme,
   );

@@ -1,6 +1,18 @@
 <script lang="ts">
   import { RNG } from '@ironarachne/rng';
+  import {
+    buildCharacterNameSource,
+    isCustomCharacterNameSource,
+    restoreLockedCharacterName,
+    resolveCharacterNameGeneratorSet,
+    rollCharacterNameForSource,
+  } from '$lib/characters';
+  import CharacterNameControls from '$lib/components/character_name_controls.svelte';
+  import { loadSavedCultures, type Culture } from '$lib/culture';
   import * as DCC from '$lib/dcc';
+  import { dccOccupationToNameSetHint } from '$lib/characters/character_name_generation';
+  import { getAllFantasyNameGeneratorSets } from '$lib/names';
+  import { onMount } from 'svelte';
 
   let rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -14,16 +26,45 @@
   let allowHalflings = $state(true);
   let allowHumans = $state(true);
 
+  let savedCultures = $state<Culture[]>([]);
+  let nameSetNames = $state<string[]>([]);
+  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
+  let presetSetName = $state('human');
+  let savedCultureName = $state('');
+  let firstName = $state('');
+  let lastName = $state('');
+  let lockName = $state(false);
+
   let genConfig = DCC.getDefaultDCCCharacterGeneratorConfig(rng.randomString(13));
   let character = $state(DCC.generateRandomDCCCharacter(rng.randomString(13), genConfig));
   let spellsKnown = $state(DCC.formatDccSpellsKnown(character.spellsKnown));
   let downloadingPdf = $state(false);
+
+  function resolveCustomNameGeneratorSet() {
+    const source = buildCharacterNameSource(
+      nameSourceKind,
+      presetSetName,
+      savedCultureName,
+      savedCultures,
+    );
+    if (!isCustomCharacterNameSource(source)) {
+      return undefined;
+    }
+    return resolveCharacterNameGeneratorSet(
+      rng,
+      source,
+      dccOccupationToNameSetHint(character.occupation.name),
+    );
+  }
 
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
+
+    const lockedFirstName = firstName;
+    const lockedLastName = lastName;
 
     let allowedOccupations = [];
 
@@ -45,8 +86,46 @@
 
     genConfig.allowedOccupations = allowedOccupations;
 
-    character = DCC.generateRandomDCCCharacter(rng.randomString(13), genConfig);
+    const customNameGeneratorSet = resolveCustomNameGeneratorSet();
+    character = DCC.generateRandomDCCCharacter(
+      rng.randomString(13),
+      genConfig,
+      customNameGeneratorSet,
+    );
+    if (lockName) {
+      restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
+    } else {
+      firstName = character.firstName;
+      lastName = character.lastName;
+    }
     spellsKnown = DCC.formatDccSpellsKnown(character.spellsKnown);
+  }
+
+  function generateNameOnly() {
+    if (lockName) {
+      return;
+    }
+    const nameRng = new RNG(`${Date.now()}-dcc-name`);
+    const source = buildCharacterNameSource(
+      nameSourceKind,
+      presetSetName,
+      savedCultureName,
+      savedCultures,
+    );
+    const generated = rollCharacterNameForSource(
+      nameRng,
+      source,
+      dccOccupationToNameSetHint(character.occupation.name),
+      'random',
+      character.gender,
+    );
+    firstName = generated.firstName;
+    lastName = generated.lastName;
+    character = {
+      ...character,
+      firstName: generated.firstName,
+      lastName: generated.lastName,
+    };
   }
 
   async function downloadPdf() {
@@ -61,6 +140,14 @@
       downloadingPdf = false;
     }
   }
+
+  onMount(() => {
+    savedCultures = loadSavedCultures();
+    nameSetNames = getAllFantasyNameGeneratorSets(new RNG('dcc-name-sets')).map((set) => set.name);
+    if (savedCultures.length > 0) {
+      savedCultureName = savedCultures[0]!.name;
+    }
+  });
 
   generate();
 </script>
@@ -104,6 +191,18 @@
     <label for="allowHumans">Allow Humans</label>
     <input type="checkbox" name="allowHumans" bind:checked={allowHumans} id="allowHumans" />
   </div>
+
+  <CharacterNameControls
+    bind:nameSourceKind
+    bind:presetSetName
+    bind:savedCultureName
+    bind:firstName
+    bind:lastName
+    bind:lockName
+    {savedCultures}
+    {nameSetNames}
+    onGenerateName={generateNameOnly}
+  />
 
   <button onclick={generate}>Generate</button>
   <button onclick={downloadPdf} disabled={downloadingPdf}>Download PDF</button>

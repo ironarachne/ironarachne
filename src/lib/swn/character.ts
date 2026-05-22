@@ -26,6 +26,8 @@ export class SWNCharacter {
   savingThrowMental: number;
   savingThrowEvasion: number;
   savingThrowPhysical: number;
+  firstName: string;
+  lastName: string;
 
   constructor(rng: RNG.RNG) {
     this.stats = randomStats(rng);
@@ -51,6 +53,8 @@ export class SWNCharacter {
     this.savingThrowMental = 0;
     this.savingThrowEvasion = 0;
     this.savingThrowPhysical = 0;
+    this.firstName = '';
+    this.lastName = '';
   }
 
   equipmentList() {
@@ -1375,6 +1379,11 @@ function randomCombatSkill(rng: RNG.RNG) {
 
 export function formatAsText(character: SWNCharacter) {
   let description = Text.header('Stars Without Number Character');
+
+  const displayName = `${character.firstName} ${character.lastName}`.trim();
+  if (displayName) {
+    description += `Name: ${displayName}\n`;
+  }
 
   description += `Background: ${character.background.name}\n`;
   description += `Class: ${character.characterClass.name}\n`;

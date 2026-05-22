@@ -2,22 +2,29 @@
   import { RNG } from '@ironarachne/rng';
   import * as Measurements from '$lib/measurements';
   import {
+    applyNameGeneratorsToCharacterGenerationConfig,
+    buildCharacterNameSource,
     generate,
     getDefaultCharacterGenerationConfig,
+    isCustomCharacterNameSource,
+    resolveCharacterNameGeneratorSet,
+    restoreLockedCharacterName,
+    rollCharacterNameForSource,
     type Character,
     type CharacterGenerationConfig,
     type Title,
   } from '$lib/characters';
+  import CharacterNameControls from '$lib/components/character_name_controls.svelte';
   import type { Arms } from '$lib/heraldry/arms';
   import { renderDeviceBlazon } from '$lib/heraldry/device';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
   import { showHeraldryPersistenceModal } from '$lib/ui/modal';
   import { type Culture, loadSavedCultures } from '$lib/culture';
+  import { getAllFantasyNameGeneratorSets } from '$lib/names';
   import { onMount } from 'svelte';
   import { sentientSpeciesList } from '$lib/species_sentients';
   import { getAllFantasyArchetypes } from '$lib/archetypes';
   import { getCategoryList } from '$lib/age/age_categories';
-  import { getFantasyNameGeneratorSet } from '$lib/names';
 
   const heraldryWidth = 200;
   const heraldryHeight = 220;
@@ -27,9 +34,13 @@
   let character: null | Character = null;
 
   let savedCultures: Culture[] = [];
-  let useSavedCulture = false;
-  let savedCulture: string | undefined = undefined;
-  let culture: Culture | undefined = undefined;
+  let nameSetNames: string[] = [];
+  let nameSourceKind: 'default' | 'preset' | 'saved_culture' = 'default';
+  let presetSetName = 'human';
+  let savedCultureName = '';
+  let firstName = '';
+  let lastName = '';
+  let lockName = false;
 
   let speciesList = sentientSpeciesList;
   let archetypeOptions = getAllFantasyArchetypes().sort((a, b) => a.name.localeCompare(b.name));
@@ -46,52 +57,24 @@
     rng.setSeed(seed);
   }
 
-  function loadSavedCulture() {
-    for (const c of savedCultures) {
-      if (c.name === savedCulture) {
-        culture = c;
-        return;
-      }
-    }
-    if (savedCultures[0]) {
-      culture = savedCultures[0];
-      savedCulture = savedCultures[0].name;
-    }
-  }
-
-  function applyNameGeneratorsFromCulture(config: CharacterGenerationConfig) {
-    if (culture === undefined) {
+  function applyNameGeneratorsForCharacterGeneration(
+    config: CharacterGenerationConfig,
+    speciesName: string,
+  ) {
+    const source = buildCharacterNameSource(
+      nameSourceKind,
+      presetSetName,
+      savedCultureName,
+      savedCultures,
+    );
+    if (isCustomCharacterNameSource(source)) {
+      const nameSet = resolveCharacterNameGeneratorSet(rng, source, speciesName);
+      applyNameGeneratorsToCharacterGenerationConfig(config, nameSet);
       return;
     }
-    if (culture.nameGenerators.family !== null) {
-      config.familyNameGenerator = culture.nameGenerators.family;
-    }
-    if (culture.nameGenerators.female !== null) {
-      config.femaleFirstNameGenerator = culture.nameGenerators.female;
-    }
-    if (culture.nameGenerators.male !== null) {
-      config.maleFirstNameGenerator = culture.nameGenerators.male;
-    }
-  }
 
-  function applyNameGeneratorsFromSpecies(config: CharacterGenerationConfig, speciesName: string) {
-    try {
-      let nameSetToUse = speciesName.toLowerCase();
-      if (nameSetToUse.includes('elf')) nameSetToUse = 'elf';
-      if (nameSetToUse.includes('dwarf')) nameSetToUse = 'dwarf';
-      if (nameSetToUse.includes('gnome')) nameSetToUse = 'gnome';
-      if (nameSetToUse.includes('halfling')) nameSetToUse = 'halfling';
-      if (nameSetToUse.includes('human')) nameSetToUse = 'human';
-      if (nameSetToUse.includes('orc')) nameSetToUse = 'orc';
-      if (nameSetToUse.includes('goblin')) nameSetToUse = 'goblin';
-
-      const nameSet = getFantasyNameGeneratorSet(nameSetToUse, rng);
-      config.maleFirstNameGenerator = nameSet.male;
-      config.femaleFirstNameGenerator = nameSet.female;
-      config.familyNameGenerator = nameSet.family;
-    } catch {
-      console.log(`Name set not found for ${speciesName}, falling back to human.`);
-    }
+    const nameSet = resolveCharacterNameGeneratorSet(rng, { kind: 'default' }, speciesName);
+    applyNameGeneratorsToCharacterGenerationConfig(config, nameSet);
   }
 
   function generateCharacter() {
@@ -100,21 +83,17 @@
       rng.setSeed(seed);
     }
 
+    const lockedFirstName = firstName;
+    const lockedLastName = lastName;
+
     let config = getDefaultCharacterGenerationConfig(seed + '-character');
 
-    // Species
     const species =
       sentientSpeciesList.find((s) => s.name === selectedSpeciesName) || sentientSpeciesList[0];
     config.species = species;
 
-    if (useSavedCulture) {
-      loadSavedCulture();
-      applyNameGeneratorsFromCulture(config);
-    } else {
-      applyNameGeneratorsFromSpecies(config, species.name);
-    }
+    applyNameGeneratorsForCharacterGeneration(config, species.name);
 
-    // Archetype
     if (selectedArchetypeName !== 'Random') {
       const arch = archetypeOptions.find((a) => a.name === selectedArchetypeName);
       if (arch) {
@@ -122,14 +101,12 @@
       }
     }
 
-    // Gender
     if (selectedGenderName !== 'Random') {
       config.allowedGenderNames = [selectedGenderName.toLowerCase()];
     } else {
       config.allowedGenderNames = undefined;
     }
 
-    // Age Category
     if (selectedAgeCategoryName !== 'Random') {
       config.allowedAgeCategoryNames = [selectedAgeCategoryName];
     } else {
@@ -137,6 +114,43 @@
     }
 
     character = generate(seed + '-character', config);
+    if (lockName) {
+      restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
+    } else {
+      firstName = character.firstName;
+      lastName = character.lastName;
+    }
+  }
+
+  function generateNameOnly() {
+    if (lockName) {
+      return;
+    }
+    const speciesName = character?.species.name ?? selectedSpeciesName;
+    const nameRng = new RNG(`${Date.now()}-character-name`);
+    const source = buildCharacterNameSource(
+      nameSourceKind,
+      presetSetName,
+      savedCultureName,
+      savedCultures,
+    );
+    const generated = rollCharacterNameForSource(
+      nameRng,
+      source,
+      speciesName,
+      'random',
+      character?.gender.name,
+    );
+    firstName = generated.firstName;
+    lastName = generated.lastName;
+    if (character) {
+      character = {
+        ...character,
+        firstName: generated.firstName,
+        lastName: generated.lastName,
+        name: `${generated.firstName} ${generated.lastName}`.trim(),
+      };
+    }
   }
 
   async function openHeraldryModal(arms: Arms, title: string, applyReplacement: (arms: Arms) => void) {
@@ -166,8 +180,11 @@
 
   onMount(() => {
     savedCultures = loadSavedCultures();
+    nameSetNames = getAllFantasyNameGeneratorSets(new RNG('character-name-sets')).map(
+      (set) => set.name,
+    );
     if (savedCultures.length > 0) {
-      savedCulture = savedCultures[0]!.name;
+      savedCultureName = savedCultures[0]!.name;
     }
     generateCharacter();
   });
@@ -226,25 +243,17 @@
     </select>
   </div>
 
-  {#if savedCultures.length > 0}
-    <div class="input-group">
-      <label for="useSavedCulture">Use a saved culture for naming</label>
-      <input
-        type="checkbox"
-        name="useSavedCulture"
-        id="useSavedCulture"
-        bind:checked={useSavedCulture}
-      />
-    </div>
-    <div class="input-group">
-      <label for="savedCulture">Saved culture</label>
-      <select id="savedCulture" name="savedCulture" bind:value={savedCulture} disabled={!useSavedCulture}>
-        {#each savedCultures as s}
-          <option value={s.name}>{s.name}</option>
-        {/each}
-      </select>
-    </div>
-  {/if}
+  <CharacterNameControls
+    bind:nameSourceKind
+    bind:presetSetName
+    bind:savedCultureName
+    bind:firstName
+    bind:lastName
+    bind:lockName
+    {savedCultures}
+    {nameSetNames}
+    onGenerateName={generateNameOnly}
+  />
 
   <button onclick={generateCharacter}>Generate</button>
 

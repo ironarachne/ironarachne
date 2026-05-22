@@ -1,3 +1,9 @@
+import {
+  dccOccupationToNameSetHint,
+  generateDccCharacterNames,
+  peopleNameGeneratorsFromNameSet,
+} from '$lib/characters/character_name_generation';
+import { getFantasyNameGeneratorSet, type NameGeneratorSet } from '$lib/names';
 import { RNG } from '@ironarachne/rng';
 import * as MUN from '@ironarachne/made-up-names';
 import * as Dice from '$lib/dice';
@@ -38,6 +44,7 @@ export function getDefaultDCCCharacterGeneratorConfig(seed: string): DCCCharacte
 export function generateRandomDCCCharacter(
   seed: string,
   config: DCCCharacterGeneratorConfig,
+  customNameGeneratorSet?: NameGeneratorSet,
 ): DCCCharacter {
   const rng = new RNG(seed);
 
@@ -143,48 +150,44 @@ export function generateRandomDCCCharacter(
   character = character.occupation.apply(character, rng);
   character = character.luckyRoll.apply(character);
 
-  // Name generation based on race/occupation
-  if (character.occupation.name.includes('elven')) {
-    const patterns = MUN.getClassicRaceNamePatternSet('elf');
-    let nameGenerator = MUN.getNameGeneratorForPatternSet('elf', patterns.family, rng);
-    character.lastName = nameGenerator.generate(1)[0];
-    if (character.gender === 'male') {
-      nameGenerator = MUN.getNameGeneratorForPatternSet('elf', patterns.male, rng);
-      character.firstName = nameGenerator.generate(1)[0];
-    } else {
-      nameGenerator = MUN.getNameGeneratorForPatternSet('elf', patterns.female, rng);
-      character.firstName = nameGenerator.generate(1)[0];
-    }
-  } else if (character.occupation.name.includes('dwarven')) {
-    const patterns = MUN.getClassicRaceNamePatternSet('dwarf');
-    let nameGenerator = MUN.getNameGeneratorForPatternSet('dwarf', patterns.family, rng);
-    character.lastName = nameGenerator.generate(1)[0];
-    if (character.gender === 'male') {
-      nameGenerator = MUN.getNameGeneratorForPatternSet('dwarf', patterns.male, rng);
-      character.firstName = nameGenerator.generate(1)[0];
-    } else {
-      nameGenerator = MUN.getNameGeneratorForPatternSet('dwarf', patterns.female, rng);
-      character.firstName = nameGenerator.generate(1)[0];
-    }
-  } else if (character.occupation.name.includes('halfling')) {
-    const patterns = MUN.getClassicRaceNamePatternSet('halfling');
-    let nameGenerator = MUN.getNameGeneratorForPatternSet('halfling', patterns.family, rng);
-    character.lastName = nameGenerator.generate(1)[0];
-    if (character.gender === 'male') {
-      nameGenerator = MUN.getNameGeneratorForPatternSet('halfling', patterns.male, rng);
-      character.firstName = nameGenerator.generate(1)[0];
-    } else {
-      nameGenerator = MUN.getNameGeneratorForPatternSet('halfling', patterns.female, rng);
-      character.firstName = nameGenerator.generate(1)[0];
-    }
-  } else {
-    // Human names are already set by default config, but we can re-roll if we want specific human culture logic later
-    // For now, the default config uses fantasy names which is fine for humans
-  }
+  applyDefaultOrCustomDccCharacterNames(character, rng, config, customNameGeneratorSet);
 
   character.languages = getLanguages(character, rng);
 
   return character;
+}
+
+function applyDefaultOrCustomDccCharacterNames(
+  character: DCCCharacter,
+  rng: RNG,
+  config: DCCCharacterGeneratorConfig,
+  customNameGeneratorSet?: NameGeneratorSet,
+): void {
+  if (customNameGeneratorSet) {
+    generateDccCharacterNames(
+      character,
+      peopleNameGeneratorsFromNameSet(customNameGeneratorSet),
+      rng,
+    );
+    return;
+  }
+
+  const hint = dccOccupationToNameSetHint(character.occupation.name);
+  if (hint === 'human') {
+    generateDccCharacterNames(
+      character,
+      {
+        male: config.nameGeneratorMale,
+        female: config.nameGeneratorFemale,
+        family: config.nameGeneratorFamily,
+      },
+      rng,
+    );
+    return;
+  }
+
+  const nameSet = getFantasyNameGeneratorSet(hint, rng);
+  generateDccCharacterNames(character, peopleNameGeneratorsFromNameSet(nameSet), rng);
 }
 
 export function getAttributeModifier(value: number): number {

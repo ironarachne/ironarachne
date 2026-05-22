@@ -11,6 +11,8 @@ export class UWCharacter {
   workspace: Workspace;
   advancement: string;
   assets: Asset[];
+  firstName: string;
+  lastName: string;
 
   constructor(stats: StatBlock, careers: Career[], origin: Origin, workspace: Workspace) {
     this.stats = stats;
@@ -21,6 +23,8 @@ export class UWCharacter {
     this.workspace = workspace;
     this.advancement = '';
     this.assets = [];
+    this.firstName = '';
+    this.lastName = '';
   }
 }
 
@@ -1504,6 +1508,11 @@ function formatStat(stat: number) {
 
 export function formatAsText(character: UWCharacter) {
   let description = Text.header('Uncharted Worlds Character');
+
+  const displayName = `${character.firstName} ${character.lastName}`.trim();
+  if (displayName) {
+    description += `Name: ${displayName}\n`;
+  }
 
   description += Text.header('Statistics');
 

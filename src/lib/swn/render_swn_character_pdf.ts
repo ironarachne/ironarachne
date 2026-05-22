@@ -1,3 +1,4 @@
+import { formatCharacterDisplayName } from '$lib/characters/character_name_generation';
 import Download from '$lib/download';
 import {
   buildLandscapeSciFiPdf,
@@ -25,6 +26,10 @@ function formatSigned(value: number): string {
   }
 
   return `${value}`;
+}
+
+function formatSwnHeaderTitle(character: SWNCharacter): string {
+  return formatCharacterDisplayName(character.firstName, character.lastName) || 'Stars Without Number';
 }
 
 function formatSwnSubtitle(character: SWNCharacter): string {
@@ -128,7 +133,7 @@ function renderSwnCharacterSheet(
   const contentTop = drawSciFiHeader(
     doc,
     page,
-    'Stars Without Number',
+    formatSwnHeaderTitle(character),
     formatSwnSubtitle(character),
     theme,
   );

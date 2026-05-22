@@ -2,6 +2,16 @@
   import * as CharGen from '$lib/unchartedworlds/character';
   import { downloadUwCharacterPdf } from '$lib/unchartedworlds/render_uw_character_pdf';
   import * as RNG from '@ironarachne/rng';
+  import {
+    buildCharacterNameSource,
+    isCustomCharacterNameSource,
+    restoreLockedCharacterName,
+    rollCharacterNameForSource,
+  } from '$lib/characters';
+  import CharacterNameControls from '$lib/components/character_name_controls.svelte';
+  import { loadSavedCultures, type Culture } from '$lib/culture';
+  import { getAllFantasyNameGeneratorSets } from '$lib/names';
+  import { onMount } from 'svelte';
 
   let rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -12,15 +22,86 @@
   let character = $state(CharGen.generate(rng));
   let downloadingPdf = $state(false);
 
+  let savedCultures = $state<Culture[]>([]);
+  let nameSetNames = $state<string[]>([]);
+  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
+  let presetSetName = $state('human');
+  let savedCultureName = $state('');
+  let firstName = $state('');
+  let lastName = $state('');
+  let lockName = $state(false);
+  let namingGender = $state<'male' | 'female' | 'random'>('random');
+
+  function applyNamesToCharacter(target: CharGen.UWCharacter) {
+    target.firstName = firstName;
+    target.lastName = lastName;
+  }
+
+  function rollNamesForCurrentSource() {
+    const source = buildCharacterNameSource(
+      nameSourceKind,
+      presetSetName,
+      savedCultureName,
+      savedCultures,
+    );
+    const nameRng = new RNG.RNG(`${Date.now()}-uw-name`);
+    return rollCharacterNameForSource(nameRng, source, 'human', namingGender);
+  }
+
+  function applyGeneratedNamesFromSource(target: CharGen.UWCharacter) {
+    const source = buildCharacterNameSource(
+      nameSourceKind,
+      presetSetName,
+      savedCultureName,
+      savedCultures,
+    );
+    if (!isCustomCharacterNameSource(source)) {
+      target.firstName = '';
+      target.lastName = '';
+      firstName = '';
+      lastName = '';
+      return;
+    }
+
+    const generated = rollNamesForCurrentSource();
+    target.firstName = generated.firstName;
+    target.lastName = generated.lastName;
+    firstName = generated.firstName;
+    lastName = generated.lastName;
+  }
+
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
+
+    const lockedFirstName = firstName;
+    const lockedLastName = lastName;
+
     character = CharGen.generate(rng);
+    if (lockName) {
+      restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
+    } else {
+      applyGeneratedNamesFromSource(character);
+    }
+  }
+
+  function generateNameOnly() {
+    if (lockName) {
+      return;
+    }
+    const generated = rollNamesForCurrentSource();
+    firstName = generated.firstName;
+    lastName = generated.lastName;
+    if (character) {
+      character.firstName = generated.firstName;
+      character.lastName = generated.lastName;
+    }
   }
 
   function save() {
+    applyNamesToCharacter(character);
     let description = CharGen.formatAsText(character);
 
     const blob = new Blob([description], { type: 'text/plain' });
@@ -36,6 +117,7 @@
       return;
     }
 
+    applyNamesToCharacter(character);
     downloadingPdf = true;
     try {
       await downloadUwCharacterPdf(character);
@@ -43,6 +125,16 @@
       downloadingPdf = false;
     }
   }
+
+  onMount(() => {
+    savedCultures = loadSavedCultures();
+    nameSetNames = getAllFantasyNameGeneratorSets(new RNG.RNG('uw-name-sets')).map(
+      (set) => set.name,
+    );
+    if (savedCultures.length > 0) {
+      savedCultureName = savedCultures[0]!.name;
+    }
+  });
 
   generate();
 </script>
@@ -62,11 +154,27 @@
     <input type="checkbox" name="lockSeed" bind:checked={lockSeed} id="lockSeed" /> Lock Seed
   </div>
 
+  <CharacterNameControls
+    bind:nameSourceKind
+    bind:presetSetName
+    bind:savedCultureName
+    bind:firstName
+    bind:lastName
+    bind:lockName
+    bind:namingGender
+    {savedCultures}
+    {nameSetNames}
+    showGenderPicker={true}
+    onGenerateName={generateNameOnly}
+  />
+
   <button onclick={generate}>Generate</button>
   <button onclick={save}>Save</button>
   <button onclick={downloadPdf} disabled={downloadingPdf}>Download PDF</button>
 
-  <h2>Statistics</h2>
+  <h2>{firstName || lastName ? `${firstName} ${lastName}`.trim() : 'Character summary'}</h2>
+
+  <h3>Statistics</h3>
 
   <p><strong>Physique:</strong> {character.stats.physique}</p>
   <p><strong>Mettle:</strong> {character.stats.mettle}</p>
