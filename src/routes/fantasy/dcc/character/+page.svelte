@@ -16,15 +16,8 @@
 
   let genConfig = DCC.getDefaultDCCCharacterGeneratorConfig(rng.randomString(13));
   let character = $state(DCC.generateRandomDCCCharacter(rng.randomString(13), genConfig));
-  let spellsKnown = $state(getSpellsKnown());
-
-  function dMod(modifier: number): string {
-    if (modifier > -1) {
-      return `+${modifier}`;
-    }
-
-    return `${modifier}`;
-  }
+  let spellsKnown = $state(DCC.formatDccSpellsKnown(character.spellsKnown));
+  let downloadingPdf = $state(false);
 
   function generate() {
     if (!lockSeed) {
@@ -53,29 +46,20 @@
     genConfig.allowedOccupations = allowedOccupations;
 
     character = DCC.generateRandomDCCCharacter(rng.randomString(13), genConfig);
-    spellsKnown = getSpellsKnown();
+    spellsKnown = DCC.formatDccSpellsKnown(character.spellsKnown);
   }
 
-  function getSpellsKnown(): string {
-    if (character.spellsKnown === -9) {
-      return 'No spellcasting possible';
+  async function downloadPdf() {
+    if (downloadingPdf) {
+      return;
     }
 
-    if (character.spellsKnown > -1) {
-      return `+${character.spellsKnown}`;
+    downloadingPdf = true;
+    try {
+      await DCC.downloadDccCharacterPdf(character);
+    } finally {
+      downloadingPdf = false;
     }
-
-    return `${character.spellsKnown}`;
-  }
-
-  function getCurrencyDescription(currency: Record<string, number>): string {
-    const parts = [];
-    for (const [key, value] of Object.entries(currency)) {
-      if (value > 0) {
-        parts.push(`${value} ${key}`);
-      }
-    }
-    return parts.join(', ');
   }
 
   generate();
@@ -122,6 +106,7 @@
   </div>
 
   <button onclick={generate}>Generate</button>
+  <button onclick={downloadPdf} disabled={downloadingPdf}>Download PDF</button>
 
   <h2>{character.firstName} {character.lastName}</h2>
 
@@ -130,40 +115,50 @@
   <p><strong>XP:</strong> {character.xp}</p>
   <p><strong>HP:</strong> {character.hp}</p>
   <p><strong>AC:</strong> {character.armorClass}</p>
-  <p><strong>Currency:</strong> {getCurrencyDescription(character.currency)}</p>
+  <p><strong>Currency:</strong> {DCC.formatDccCurrency(character.currency)}</p>
   <p><strong>Alignment:</strong> {character.alignment}</p>
   <p><strong>Gender:</strong> {character.gender}</p>
   <p><strong>Speed:</strong> {character.speed}'</p>
 
   <h3>Attributes</h3>
 
-  <p><strong>Strength:</strong> {character.strength.value} ({dMod(character.strength.modifier)})</p>
-  <p><strong>Agility:</strong> {character.agility.value} ({dMod(character.agility.modifier)})</p>
-  <p><strong>Stamina:</strong> {character.stamina.value} ({dMod(character.stamina.modifier)})</p>
+  <p>
+    <strong>Strength:</strong>
+    {character.strength.value} ({DCC.formatDccModifier(character.strength.modifier)})
+  </p>
+  <p>
+    <strong>Agility:</strong>
+    {character.agility.value} ({DCC.formatDccModifier(character.agility.modifier)})
+  </p>
+  <p>
+    <strong>Stamina:</strong>
+    {character.stamina.value} ({DCC.formatDccModifier(character.stamina.modifier)})
+  </p>
   <p>
     <strong>Personality:</strong>
-    {character.personality.value} ({dMod(character.personality.modifier)})
+    {character.personality.value} ({DCC.formatDccModifier(character.personality.modifier)})
   </p>
   <p>
     <strong>Intelligence:</strong>
-    {character.intelligence.value} ({dMod(character.intelligence.modifier)})
+    {character.intelligence.value} ({DCC.formatDccModifier(character.intelligence.modifier)})
   </p>
-  <p><strong>Luck:</strong> {character.luck.value} ({dMod(character.luck.modifier)})</p>
+  <p>
+    <strong>Luck:</strong>
+    {character.luck.value} ({DCC.formatDccModifier(character.luck.modifier)})
+  </p>
 
   <h3>Other Stats</h3>
 
   <p>
     <strong>Lucky Roll:</strong>
-    {character.luckyRoll.name}: {character.luckyRoll.description}: {dMod(
-      character.luckyRoll.modifier,
-    )}
+    {DCC.formatDccLuckySign(character.luckyRoll)}
   </p>
 
   <h3>Saving Throws</h3>
 
-  <p><strong>Fortitude:</strong> {dMod(character.fortitudeSave)}</p>
-  <p><strong>Reflex:</strong> {dMod(character.reflexSave)}</p>
-  <p><strong>Willpower:</strong> {dMod(character.willpowerSave)}</p>
+  <p><strong>Fortitude:</strong> {DCC.formatDccModifier(character.fortitudeSave)}</p>
+  <p><strong>Reflex:</strong> {DCC.formatDccModifier(character.reflexSave)}</p>
+  <p><strong>Willpower:</strong> {DCC.formatDccModifier(character.willpowerSave)}</p>
 
   <h3>Spellcasting</h3>
 
