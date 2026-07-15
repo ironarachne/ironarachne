@@ -43,6 +43,7 @@
     "@eslint/compat": "^1.4.0",
     "@eslint/js": "^9.39.1",
     "@playwright/test": "^1.60.0",
+    "@stryker-mutator/vitest-runner": "^9.6.1",
     "@sveltejs/adapter-static": "^3.0.10",
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
     "@tsconfig/svelte": "^5.0.2",

@@ -48,3 +48,7 @@ playwright-report/
 blob-report/
 playwright/.cache/
 region_map.svg
+
+# Testing
+.stryker-tmp
+reports

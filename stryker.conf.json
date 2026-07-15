@@ -1,0 +1,13 @@
+{
+  "$schema": "./node_modules/@stryker-mutator/core/schema/stryker-schema.json",
+  "testRunner": "vitest",
+  "vitest": {
+    "configFile": "vite.config.js",
+    "dir": "src",
+    "related": true
+  },
+  "coverageAnalysis": "perTest",
+  "mutate": ["src/lib/age/*.ts"],
+  "reporters": ["html", "json", "progress", "clear-text"],
+  "ignoreStatic": true
+}
