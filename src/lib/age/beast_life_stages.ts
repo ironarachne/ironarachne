@@ -14,7 +14,7 @@ export function beastLifespanCat(): AgeCategory[] {
       noun: 'kitten',
       minAge: 0,
       maxAge: 1,
-      genderedNoun: ['girl', 'boy', 'kitten'],
+      genderedNoun: ['kitten', 'kitten', 'kitten'],
       commonality: 2,
     },
     {
@@ -22,7 +22,7 @@ export function beastLifespanCat(): AgeCategory[] {
       noun: 'adult',
       minAge: 2,
       maxAge: 10,
-      genderedNoun: ['woman', 'man', 'adult'],
+      genderedNoun: ['adult', 'adult', 'adult'],
       commonality: 20,
     },
     {
@@ -30,7 +30,7 @@ export function beastLifespanCat(): AgeCategory[] {
       noun: 'elder',
       minAge: 11,
       maxAge: 30,
-      genderedNoun: ['old woman', 'old man', 'elder'],
+      genderedNoun: ['elder', 'elder', 'elder'],
       commonality: 3,
     },
   ];
@@ -45,7 +45,7 @@ export function beastLifespanFourStage(options: BeastLifespanFourOptions = {}): 
       noun: 'baby',
       minAge: 0,
       maxAge: 1,
-      genderedNoun: ['baby girl', 'baby boy', 'baby'],
+      genderedNoun: ['baby', 'baby', 'baby'],
       commonality: 1,
     },
     {
@@ -53,7 +53,7 @@ export function beastLifespanFourStage(options: BeastLifespanFourOptions = {}): 
       noun: 'child',
       minAge: 2,
       maxAge: 4,
-      genderedNoun: ['girl', 'boy', 'child'],
+      genderedNoun: ['adolescent', 'adolescent', 'adolescent'],
       commonality: 2,
     },
     {
@@ -61,7 +61,7 @@ export function beastLifespanFourStage(options: BeastLifespanFourOptions = {}): 
       noun: 'adult',
       minAge: 5,
       maxAge: 30,
-      genderedNoun: ['woman', 'man', 'adult'],
+      genderedNoun: ['adult', 'adult', 'adult'],
       commonality: 20,
     },
     {
@@ -69,7 +69,7 @@ export function beastLifespanFourStage(options: BeastLifespanFourOptions = {}): 
       noun: 'elder',
       minAge: 31,
       maxAge: 45,
-      genderedNoun: ['old woman', 'old man', 'elder'],
+      genderedNoun: ['elder', 'elder', 'elder'],
       commonality: elderlyCommonality,
     },
   ];
@@ -82,7 +82,7 @@ export function beastLifespanHatchlingAdultFromTwo(): AgeCategory[] {
       noun: 'baby',
       minAge: 0,
       maxAge: 1,
-      genderedNoun: ['baby girl', 'baby boy', 'baby'],
+      genderedNoun: ['baby', 'baby', 'baby'],
       commonality: 1,
     },
     {
@@ -90,7 +90,7 @@ export function beastLifespanHatchlingAdultFromTwo(): AgeCategory[] {
       noun: 'adult',
       minAge: 2,
       maxAge: 30,
-      genderedNoun: ['woman', 'man', 'adult'],
+      genderedNoun: ['adult', 'adult', 'adult'],
       commonality: 20,
     },
     {
@@ -98,7 +98,7 @@ export function beastLifespanHatchlingAdultFromTwo(): AgeCategory[] {
       noun: 'elder',
       minAge: 31,
       maxAge: 45,
-      genderedNoun: ['old woman', 'old man', 'elder'],
+      genderedNoun: ['elder', 'elder', 'elder'],
       commonality: 3,
     },
   ];
@@ -111,7 +111,7 @@ export function beastLifespanHatchlingAdultFromFive(): AgeCategory[] {
       noun: 'baby',
       minAge: 0,
       maxAge: 1,
-      genderedNoun: ['baby girl', 'baby boy', 'baby'],
+      genderedNoun: ['baby', 'baby', 'baby'],
       commonality: 1,
     },
     {
@@ -119,7 +119,7 @@ export function beastLifespanHatchlingAdultFromFive(): AgeCategory[] {
       noun: 'adult',
       minAge: 5,
       maxAge: 30,
-      genderedNoun: ['woman', 'man', 'adult'],
+      genderedNoun: ['adult', 'adult', 'adult'],
       commonality: 20,
     },
     {
@@ -127,7 +127,7 @@ export function beastLifespanHatchlingAdultFromFive(): AgeCategory[] {
       noun: 'elder',
       minAge: 31,
       maxAge: 45,
-      genderedNoun: ['old woman', 'old man', 'elder'],
+      genderedNoun: ['elder', 'elder', 'elder'],
       commonality: 3,
     },
   ];

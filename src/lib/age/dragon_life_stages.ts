@@ -19,7 +19,7 @@ export function dragonLifespanTrueWyrm(): AgeCategory[] {
       noun: 'young dragon',
       minAge: 9,
       maxAge: 99,
-      genderedNoun: ['young she-dragon', 'young he-dragon', 'young dragon'],
+      genderedNoun: ['young dragon', 'young dragon', 'young dragon'],
       commonality: 8,
     },
     {
@@ -27,7 +27,7 @@ export function dragonLifespanTrueWyrm(): AgeCategory[] {
       noun: 'adult dragon',
       minAge: 100,
       maxAge: 799,
-      genderedNoun: ['she-dragon', 'he-dragon', 'dragon'],
+      genderedNoun: ['dragon', 'dragon', 'dragon'],
       commonality: 20,
     },
     {
@@ -35,7 +35,7 @@ export function dragonLifespanTrueWyrm(): AgeCategory[] {
       noun: 'ancient dragon',
       minAge: 800,
       maxAge: 1999,
-      genderedNoun: ['ancient she-dragon', 'ancient he-dragon', 'ancient dragon'],
+      genderedNoun: ['ancient dragon', 'ancient dragon', 'ancient dragon'],
       commonality: 5,
     },
     {
@@ -43,7 +43,7 @@ export function dragonLifespanTrueWyrm(): AgeCategory[] {
       noun: 'great wyrm',
       minAge: 2000,
       maxAge: 5000,
-      genderedNoun: ['great she-wyrm', 'great he-wyrm', 'great wyrm'],
+      genderedNoun: ['great wyrm', 'great wyrm', 'great wyrm'],
       commonality: 1,
     },
   ];
