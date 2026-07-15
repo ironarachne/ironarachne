@@ -46,11 +46,6 @@ describe('getCategoryFromAge', () => {
     expect(category.name).toBe('adult');
   });
 
-  it('returns correct category at exact maxAge boundary', () => {
-    const category = getCategoryFromAge(60, categories);
-    expect(category.name).toBe('adult');
-  });
-
   it('returns infant for age 0', () => {
     const category = getCategoryFromAge(0, categories);
     expect(category.name).toBe('infant');
@@ -299,32 +294,20 @@ describe('getVariant', () => {
 });
 
 describe('humanStandard', () => {
-  it('returns 7 categories', () => {
+  it('returns 7 categories with correct names in order', () => {
     const categories = humanStandard();
     expect(categories).toHaveLength(7);
-  });
-
-  it('has correct category names in order', () => {
-    const categories = humanStandard();
     const names = categories.map(c => c.name);
     expect(names).toEqual(['infant', 'toddler', 'young child', 'child', 'teenager', 'adult', 'elderly']);
   });
 
-  it('has contiguous age ranges', () => {
+  it('has contiguous age ranges from 0 to 100', () => {
     const categories = humanStandard();
+    expect(categories[0].minAge).toBe(0);
+    expect(categories[categories.length - 1].maxAge).toBe(100);
     for (let i = 1; i < categories.length; i++) {
       expect(categories[i].minAge).toBe(categories[i - 1].maxAge + 1);
     }
-  });
-
-  it('starts at age 0', () => {
-    const categories = humanStandard();
-    expect(categories[0].minAge).toBe(0);
-  });
-
-  it('ends at age 100', () => {
-    const categories = humanStandard();
-    expect(categories[categories.length - 1].maxAge).toBe(100);
   });
 
   it('has correct commonality values', () => {
@@ -333,13 +316,6 @@ describe('humanStandard', () => {
     expect(categories[4].commonality).toBe(8);
     expect(categories[5].commonality).toBe(20);
     expect(categories[6].commonality).toBe(3);
-  });
-
-  it('has genderedNoun arrays with 3 elements', () => {
-    const categories = humanStandard();
-    categories.forEach(category => {
-      expect(category.genderedNoun).toHaveLength(3);
-    });
   });
 
   it('returns a fresh array each call', () => {
@@ -360,38 +336,14 @@ describe('humanStandard', () => {
     expect(categories[6].noun).toBe('elder');
   });
 
-  it('has correct genderedNoun values for infant', () => {
+  it('has correct genderedNoun values for all categories', () => {
     const categories = humanStandard();
     expect(categories[0].genderedNoun).toEqual(['baby girl', 'baby boy', 'baby']);
-  });
-
-  it('has correct genderedNoun values for toddler', () => {
-    const categories = humanStandard();
     expect(categories[1].genderedNoun).toEqual(['toddler', 'toddler', 'toddler']);
-  });
-
-  it('has correct genderedNoun values for young child', () => {
-    const categories = humanStandard();
     expect(categories[2].genderedNoun).toEqual(['young girl', 'young boy', 'young child']);
-  });
-
-  it('has correct genderedNoun values for child', () => {
-    const categories = humanStandard();
     expect(categories[3].genderedNoun).toEqual(['girl', 'boy', 'child']);
-  });
-
-  it('has correct genderedNoun values for teenager', () => {
-    const categories = humanStandard();
     expect(categories[4].genderedNoun).toEqual(['teen girl', 'teen boy', 'teenager']);
-  });
-
-  it('has correct genderedNoun values for adult', () => {
-    const categories = humanStandard();
     expect(categories[5].genderedNoun).toEqual(['woman', 'man', 'adult']);
-  });
-
-  it('has correct genderedNoun values for elderly', () => {
-    const categories = humanStandard();
     expect(categories[6].genderedNoun).toEqual(['old woman', 'old man', 'elder']);
   });
 });

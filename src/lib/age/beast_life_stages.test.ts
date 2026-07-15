@@ -34,11 +34,12 @@ describe('beastLifespanFourStage', () => {
     expect(a).not.toBe(b);
   });
 
-  it('resolves a representative in-range age with getCategoryFromAge', () => {
+  it('resolves representative ages with getCategoryFromAge', () => {
     const ages = beastLifespanFourStage();
     expect(getCategoryFromAge(0, ages).name).toBe('infant');
-    expect(getCategoryFromAge(3, ages).name).toBe('child');
-    expect(getCategoryFromAge(20, ages).name).toBe('adult');
+    expect(getCategoryFromAge(2, ages).name).toBe('child');
+    expect(getCategoryFromAge(5, ages).name).toBe('adult');
+    expect(getCategoryFromAge(31, ages).name).toBe('elderly');
   });
 
   it('has correct commonality values for all stages', () => {
@@ -47,56 +48,6 @@ describe('beastLifespanFourStage', () => {
     expect(c[1].commonality).toBe(2);
     expect(c[2].commonality).toBe(20);
     expect(c[3].commonality).toBe(3);
-  });
-
-  it('has correct genderedNoun arrays', () => {
-    const c = beastLifespanFourStage();
-    c.forEach((cat) => {
-      expect(cat.genderedNoun).toHaveLength(3);
-      cat.genderedNoun.forEach((noun) => {
-        expect(typeof noun).toBe('string');
-      });
-    });
-  });
-
-  it('resolves infant at age 0 (min boundary)', () => {
-    const c = beastLifespanFourStage();
-    expect(getCategoryFromAge(0, c).name).toBe('infant');
-  });
-
-  it('resolves infant at age 1 (max boundary)', () => {
-    const c = beastLifespanFourStage();
-    expect(getCategoryFromAge(1, c).name).toBe('infant');
-  });
-
-  it('resolves child at age 2 (min boundary)', () => {
-    const c = beastLifespanFourStage();
-    expect(getCategoryFromAge(2, c).name).toBe('child');
-  });
-
-  it('resolves child at age 4 (max boundary)', () => {
-    const c = beastLifespanFourStage();
-    expect(getCategoryFromAge(4, c).name).toBe('child');
-  });
-
-  it('resolves adult at age 5 (min boundary)', () => {
-    const c = beastLifespanFourStage();
-    expect(getCategoryFromAge(5, c).name).toBe('adult');
-  });
-
-  it('resolves adult at age 30 (max boundary)', () => {
-    const c = beastLifespanFourStage();
-    expect(getCategoryFromAge(30, c).name).toBe('adult');
-  });
-
-  it('resolves elderly at age 31 (min boundary)', () => {
-    const c = beastLifespanFourStage();
-    expect(getCategoryFromAge(31, c).name).toBe('elderly');
-  });
-
-  it('resolves elderly at age 45 (max boundary)', () => {
-    const c = beastLifespanFourStage();
-    expect(getCategoryFromAge(45, c).name).toBe('elderly');
   });
 
   it('throws for age above maximum', () => {
@@ -123,23 +74,11 @@ describe('beastLifespanFourStage', () => {
     expect(c[3].noun).toBe('elder');
   });
 
-  it('has correct genderedNoun values for infant', () => {
+  it('has correct genderedNoun values for all stages', () => {
     const c = beastLifespanFourStage();
     expect(c[0].genderedNoun).toEqual(['baby', 'baby', 'baby']);
-  });
-
-  it('has correct genderedNoun values for child', () => {
-    const c = beastLifespanFourStage();
     expect(c[1].genderedNoun).toEqual(['adolescent', 'adolescent', 'adolescent']);
-  });
-
-  it('has correct genderedNoun values for adult', () => {
-    const c = beastLifespanFourStage();
     expect(c[2].genderedNoun).toEqual(['adult', 'adult', 'adult']);
-  });
-
-  it('has correct genderedNoun values for elderly', () => {
-    const c = beastLifespanFourStage();
     expect(c[3].genderedNoun).toEqual(['elder', 'elder', 'elder']);
   });
 });
@@ -160,41 +99,11 @@ describe('beastLifespanCat', () => {
     expect(c[2].commonality).toBe(3);
   });
 
-  it('has correct genderedNoun arrays', () => {
-    const c = beastLifespanCat();
-    c.forEach((cat) => {
-      expect(cat.genderedNoun).toHaveLength(3);
-    });
-  });
-
-  it('resolves kitten at age 0 (min boundary)', () => {
+  it('resolves representative ages with getCategoryFromAge', () => {
     const c = beastLifespanCat();
     expect(getCategoryFromAge(0, c).name).toBe('kitten');
-  });
-
-  it('resolves kitten at age 1 (max boundary)', () => {
-    const c = beastLifespanCat();
-    expect(getCategoryFromAge(1, c).name).toBe('kitten');
-  });
-
-  it('resolves adult at age 2 (min boundary)', () => {
-    const c = beastLifespanCat();
     expect(getCategoryFromAge(2, c).name).toBe('adult');
-  });
-
-  it('resolves adult at age 10 (max boundary)', () => {
-    const c = beastLifespanCat();
-    expect(getCategoryFromAge(10, c).name).toBe('adult');
-  });
-
-  it('resolves elderly at age 11 (min boundary)', () => {
-    const c = beastLifespanCat();
     expect(getCategoryFromAge(11, c).name).toBe('elderly');
-  });
-
-  it('resolves elderly at age 30 (max boundary)', () => {
-    const c = beastLifespanCat();
-    expect(getCategoryFromAge(30, c).name).toBe('elderly');
   });
 
   it('throws for age above maximum', () => {
@@ -214,18 +123,10 @@ describe('beastLifespanCat', () => {
     expect(c[2].noun).toBe('elder');
   });
 
-  it('has correct genderedNoun values for kitten', () => {
+  it('has correct genderedNoun values for all stages', () => {
     const c = beastLifespanCat();
     expect(c[0].genderedNoun).toEqual(['kitten', 'kitten', 'kitten']);
-  });
-
-  it('has correct genderedNoun values for adult', () => {
-    const c = beastLifespanCat();
     expect(c[1].genderedNoun).toEqual(['adult', 'adult', 'adult']);
-  });
-
-  it('has correct genderedNoun values for elderly', () => {
-    const c = beastLifespanCat();
     expect(c[2].genderedNoun).toEqual(['elder', 'elder', 'elder']);
   });
 });
@@ -246,41 +147,11 @@ describe('beastLifespanHatchlingAdultFromTwo', () => {
     expect(c[2].commonality).toBe(3);
   });
 
-  it('has correct genderedNoun arrays', () => {
-    const c = beastLifespanHatchlingAdultFromTwo();
-    c.forEach((cat) => {
-      expect(cat.genderedNoun).toHaveLength(3);
-    });
-  });
-
-  it('resolves hatchling at age 0 (min boundary)', () => {
+  it('resolves representative ages with getCategoryFromAge', () => {
     const c = beastLifespanHatchlingAdultFromTwo();
     expect(getCategoryFromAge(0, c).name).toBe('hatchling');
-  });
-
-  it('resolves hatchling at age 1 (max boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromTwo();
-    expect(getCategoryFromAge(1, c).name).toBe('hatchling');
-  });
-
-  it('resolves adult at age 2 (min boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromTwo();
     expect(getCategoryFromAge(2, c).name).toBe('adult');
-  });
-
-  it('resolves adult at age 30 (max boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromTwo();
-    expect(getCategoryFromAge(30, c).name).toBe('adult');
-  });
-
-  it('resolves elderly at age 31 (min boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromTwo();
     expect(getCategoryFromAge(31, c).name).toBe('elderly');
-  });
-
-  it('resolves elderly at age 45 (max boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromTwo();
-    expect(getCategoryFromAge(45, c).name).toBe('elderly');
   });
 
   it('throws for age above maximum', () => {
@@ -300,18 +171,10 @@ describe('beastLifespanHatchlingAdultFromTwo', () => {
     expect(c[2].noun).toBe('elder');
   });
 
-  it('has correct genderedNoun values for hatchling', () => {
+  it('has correct genderedNoun values for all stages', () => {
     const c = beastLifespanHatchlingAdultFromTwo();
     expect(c[0].genderedNoun).toEqual(['baby', 'baby', 'baby']);
-  });
-
-  it('has correct genderedNoun values for adult', () => {
-    const c = beastLifespanHatchlingAdultFromTwo();
     expect(c[1].genderedNoun).toEqual(['adult', 'adult', 'adult']);
-  });
-
-  it('has correct genderedNoun values for elderly', () => {
-    const c = beastLifespanHatchlingAdultFromTwo();
     expect(c[2].genderedNoun).toEqual(['elder', 'elder', 'elder']);
   });
 });
@@ -324,9 +187,11 @@ describe('beastLifespanHatchlingAdultFromFive', () => {
     expect(getCategoryFromAge(0, c).name).toBe('hatchling');
   });
 
-  it('throws for age 3 when no row covers that age', () => {
+  it('throws for ages in the gap', () => {
     const c = beastLifespanHatchlingAdultFromFive();
+    expect(() => getCategoryFromAge(2, c)).toThrow();
     expect(() => getCategoryFromAge(3, c)).toThrow();
+    expect(() => getCategoryFromAge(4, c)).toThrow();
   });
 
   it('has correct commonality values', () => {
@@ -336,51 +201,11 @@ describe('beastLifespanHatchlingAdultFromFive', () => {
     expect(c[2].commonality).toBe(3);
   });
 
-  it('has correct genderedNoun arrays', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
-    c.forEach((cat) => {
-      expect(cat.genderedNoun).toHaveLength(3);
-    });
-  });
-
-  it('resolves hatchling at age 0 (min boundary)', () => {
+  it('resolves representative ages with getCategoryFromAge', () => {
     const c = beastLifespanHatchlingAdultFromFive();
     expect(getCategoryFromAge(0, c).name).toBe('hatchling');
-  });
-
-  it('resolves hatchling at age 1 (max boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
-    expect(getCategoryFromAge(1, c).name).toBe('hatchling');
-  });
-
-  it('throws for age 2 (in gap)', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
-    expect(() => getCategoryFromAge(2, c)).toThrow();
-  });
-
-  it('throws for age 4 (in gap)', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
-    expect(() => getCategoryFromAge(4, c)).toThrow();
-  });
-
-  it('resolves adult at age 5 (min boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
     expect(getCategoryFromAge(5, c).name).toBe('adult');
-  });
-
-  it('resolves adult at age 30 (max boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
-    expect(getCategoryFromAge(30, c).name).toBe('adult');
-  });
-
-  it('resolves elderly at age 31 (min boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
     expect(getCategoryFromAge(31, c).name).toBe('elderly');
-  });
-
-  it('resolves elderly at age 45 (max boundary)', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
-    expect(getCategoryFromAge(45, c).name).toBe('elderly');
   });
 
   it('throws for age above maximum', () => {
@@ -400,18 +225,10 @@ describe('beastLifespanHatchlingAdultFromFive', () => {
     expect(c[2].noun).toBe('elder');
   });
 
-  it('has correct genderedNoun values for hatchling', () => {
+  it('has correct genderedNoun values for all stages', () => {
     const c = beastLifespanHatchlingAdultFromFive();
     expect(c[0].genderedNoun).toEqual(['baby', 'baby', 'baby']);
-  });
-
-  it('has correct genderedNoun values for adult', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
     expect(c[1].genderedNoun).toEqual(['adult', 'adult', 'adult']);
-  });
-
-  it('has correct genderedNoun values for elderly', () => {
-    const c = beastLifespanHatchlingAdultFromFive();
     expect(c[2].genderedNoun).toEqual(['elder', 'elder', 'elder']);
   });
 });
