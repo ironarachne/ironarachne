@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getMaxAge } from '$lib/age/age_categories';
+import { getCategoryFromAge, getMaxAge } from '$lib/age/age_categories';
 import { dragonLifespanTrueWyrm } from '$lib/age/dragon_life_stages';
 
 describe('dragonLifespanTrueWyrm', () => {
@@ -30,5 +30,46 @@ describe('dragonLifespanTrueWyrm', () => {
     expect(adult).toBeDefined();
     expect(great).toBeDefined();
     expect(adult!.commonality).toBeGreaterThan(great!.commonality);
+  });
+
+  it('has correct commonality values for all stages', () => {
+    const cats = dragonLifespanTrueWyrm();
+    expect(cats[0].commonality).toBe(2);
+    expect(cats[1].commonality).toBe(8);
+    expect(cats[2].commonality).toBe(20);
+    expect(cats[3].commonality).toBe(5);
+    expect(cats[4].commonality).toBe(1);
+  });
+
+  it('resolves representative ages with getCategoryFromAge', () => {
+    const cats = dragonLifespanTrueWyrm();
+    expect(getCategoryFromAge(0, cats).name).toBe('wyrmling');
+    expect(getCategoryFromAge(9, cats).name).toBe('young');
+    expect(getCategoryFromAge(100, cats).name).toBe('adult');
+    expect(getCategoryFromAge(800, cats).name).toBe('ancient');
+    expect(getCategoryFromAge(2000, cats).name).toBe('great_wyrm');
+  });
+
+  it('throws for age above maximum', () => {
+    const cats = dragonLifespanTrueWyrm();
+    expect(() => getCategoryFromAge(5001, cats)).toThrow();
+  });
+
+  it('has correct noun values', () => {
+    const cats = dragonLifespanTrueWyrm();
+    expect(cats[0].noun).toBe('wyrmling');
+    expect(cats[1].noun).toBe('young dragon');
+    expect(cats[2].noun).toBe('adult dragon');
+    expect(cats[3].noun).toBe('ancient dragon');
+    expect(cats[4].noun).toBe('great wyrm');
+  });
+
+  it('has correct genderedNoun values for all stages', () => {
+    const cats = dragonLifespanTrueWyrm();
+    expect(cats[0].genderedNoun).toEqual(['wyrmling', 'wyrmling', 'wyrmling']);
+    expect(cats[1].genderedNoun).toEqual(['young dragon', 'young dragon', 'young dragon']);
+    expect(cats[2].genderedNoun).toEqual(['dragon', 'dragon', 'dragon']);
+    expect(cats[3].genderedNoun).toEqual(['ancient dragon', 'ancient dragon', 'ancient dragon']);
+    expect(cats[4].genderedNoun).toEqual(['great wyrm', 'great wyrm', 'great wyrm']);
   });
 });

@@ -7,7 +7,7 @@
     "related": true
   },
   "coverageAnalysis": "perTest",
-  "mutate": ["src/lib/age/*.ts"],
+  "mutate": ["src/lib/age/*.ts", "!src/lib/age/*.test.ts"],
   "reporters": ["html", "json", "progress", "clear-text"],
   "ignoreStatic": true
 }
