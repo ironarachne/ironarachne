@@ -93,6 +93,8 @@ Mutation testing, via StrykerJS:
 npx stryker run
 ```
 
+Check the output in the `reports/mutation` directory.
+
 **Note:** Mutation testing will take hours to run if run against the entire project. Don't do that. Instead, update the configuration file `stryker.conf.json` to target specific libraries. Also, it doesn't work on Svelte, so don't run it against Svelte components.
 
 ### Code Quality
