@@ -87,6 +87,14 @@ npm run test:e2e:headed  # run tests in a visible browser window
 
 `npm run test:e2e` builds the site, starts `vite preview` on port 4173, and runs the Playwright suite. Unit tests (`npm test`) and e2e tests are kept separate so library tests stay fast.
 
+Mutation testing, via StrykerJS:
+
+```bash
+npx stryker run
+```
+
+**Note:** Mutation testing will take hours to run if run against the entire project. Don't do that. Instead, update the configuration file `stryker.conf.json` to target specific libraries. Also, it doesn't work on Svelte, so don't run it against Svelte components.
+
 ### Code Quality
 
 To check for TypeScript and Svelte issues:
