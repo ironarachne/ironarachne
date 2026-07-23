@@ -24,6 +24,10 @@ UI components are stored in `src/components`. Each component should be a standal
 
 Components are Svelte code. Each component should have its own directory in `src/components`. Tests are not necessary for components.
 
+## Routes
+
+Svelte routes are stored in `src/routes`. Nesting is OK for these as long as it makes sense from a domain-narrowing perspective. The route files should be as lean as possible and reuse as many components as possible. Most UI logic should live in components, not routes.
+
 ## Coding Rules
 
 Always use a functional style. Avoid classes. Use typescript types to describe objects and interfaces.
@@ -33,3 +37,13 @@ Group related code together within a library or component. Types should exist se
 Write unit tests for all libraries. Use mutation testing (via stryker) to verify that the unit tests properly cover the library's functionality.
 
 Functions should have the lowest possible complexity. If you have several nested conditionals, try to refactor to multiple smaller functions.
+
+Function names should be descriptive and use camelCase. Aim for specificity in function names.
+
+Regarding file names and directory names, use snake_case always, except for component names which should be PascalCase.
+
+## Dependencies
+
+Avoid introducing new dependencies unless absolutely necessary. Prefer existing dependencies over new ones.
+
+For random number generation, always use [`@ironarachne/rng`](https://www.npmjs.com/package/@ironarachne/rng).
