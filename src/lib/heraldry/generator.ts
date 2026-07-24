@@ -141,7 +141,10 @@ function pickVariationForSlot(
   rng: RNG.RNG,
 ): { variation: Variation; removeFromOptions: boolean } {
   if (slotPreference?.variationName !== undefined) {
-    return { variation: cloneVariationTemplate(Variations.byName(slotPreference.variationName)), removeFromOptions: false };
+    return {
+      variation: cloneVariationTemplate(Variations.byName(slotPreference.variationName)),
+      removeFromOptions: false,
+    };
   }
 
   if (variationOptions.length === 0) {
@@ -263,9 +266,7 @@ function generateVariations(
       variationOptions = Variations.removeFromSet(variation, variationOptions);
     }
 
-    result.push(
-      assignVariationTinctures(variation, slotPreference, tinctures1, tinctures2, rng),
-    );
+    result.push(assignVariationTinctures(variation, slotPreference, tinctures1, tinctures2, rng));
   }
 
   return result;

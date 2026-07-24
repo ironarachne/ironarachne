@@ -58,25 +58,30 @@ describe('getCategoryFromAge', () => {
 
   it('throws for age below all categories', () => {
     expect(() => getCategoryFromAge(-1, categories)).toThrow(
-      'Failed to find age category for age -1'
+      'Failed to find age category for age -1',
     );
   });
 
   it('throws for age above all categories', () => {
     expect(() => getCategoryFromAge(101, categories)).toThrow(
-      'Failed to find age category for age 101'
+      'Failed to find age category for age 101',
     );
   });
 
   it('throws for empty categories array', () => {
-    expect(() => getCategoryFromAge(25, [])).toThrow(
-      'Failed to find age category for age 25'
-    );
+    expect(() => getCategoryFromAge(25, [])).toThrow('Failed to find age category for age 25');
   });
 
   it('throws for age in gap between categories', () => {
     const categoriesWithGap: AgeCategory[] = [
-      { name: 'young', noun: 'young', minAge: 0, maxAge: 10, genderedNoun: ['young'], commonality: 1 },
+      {
+        name: 'young',
+        noun: 'young',
+        minAge: 0,
+        maxAge: 10,
+        genderedNoun: ['young'],
+        commonality: 1,
+      },
       { name: 'old', noun: 'old', minAge: 20, maxAge: 30, genderedNoun: ['old'], commonality: 1 },
     ];
     expect(() => getCategoryFromAge(15, categoriesWithGap)).toThrow();
@@ -101,13 +106,13 @@ describe('getCategoryFromName', () => {
 
   it('throws for non-existent name', () => {
     expect(() => getCategoryFromName('nonexistent', categories)).toThrow(
-      'Failed to find age category for name nonexistent'
+      'Failed to find age category for name nonexistent',
     );
   });
 
   it('throws for empty array', () => {
     expect(() => getCategoryFromName('adult', [])).toThrow(
-      'Failed to find age category for name adult'
+      'Failed to find age category for name adult',
     );
   });
 
@@ -182,7 +187,7 @@ describe('getHumanVariant', () => {
 
   it('transforms teenager to young adult', () => {
     const categories = getHumanVariant(1.5);
-    const youngAdult = categories.find(c => c.name === 'young adult');
+    const youngAdult = categories.find((c) => c.name === 'young adult');
     expect(youngAdult).toBeDefined();
     expect(youngAdult?.noun).toBe('young adult');
     expect(youngAdult?.genderedNoun).toEqual(['young woman', 'young man', 'young adult']);
@@ -229,7 +234,7 @@ describe('getVariant', () => {
   it('sets minAge to previous maxAge + 1 for i > 0', () => {
     const categories = humanStandard();
     const variant = getVariant(1, categories);
-    
+
     for (let i = 1; i < variant.length; i++) {
       expect(variant[i].minAge).toBe(variant[i - 1].maxAge + 1);
     }
@@ -254,7 +259,7 @@ describe('getVariant', () => {
   it('transforms teenager to young adult', () => {
     const categories = humanStandard();
     const variant = getVariant(1, categories);
-    const teenager = variant.find(c => c.name === 'young adult');
+    const teenager = variant.find((c) => c.name === 'young adult');
     expect(teenager).toBeDefined();
     expect(teenager?.noun).toBe('young adult');
     expect(teenager?.genderedNoun).toEqual(['young woman', 'young man', 'young adult']);
@@ -263,7 +268,7 @@ describe('getVariant', () => {
   it('does not transform non-teenager names', () => {
     const categories = humanStandard();
     const variant = getVariant(1, categories);
-    const adult = variant.find(c => c.name === 'adult');
+    const adult = variant.find((c) => c.name === 'adult');
     expect(adult).toBeDefined();
     expect(adult?.noun).toBe('adult');
     expect(adult?.genderedNoun).toEqual(['woman', 'man', 'adult']);
@@ -286,7 +291,7 @@ describe('getVariant', () => {
   it('maintains contiguous age ranges', () => {
     const categories = humanStandard();
     const variant = getVariant(1.5, categories);
-    
+
     for (let i = 1; i < variant.length; i++) {
       expect(variant[i].minAge).toBe(variant[i - 1].maxAge + 1);
     }
@@ -297,8 +302,16 @@ describe('humanStandard', () => {
   it('returns 7 categories with correct names in order', () => {
     const categories = humanStandard();
     expect(categories).toHaveLength(7);
-    const names = categories.map(c => c.name);
-    expect(names).toEqual(['infant', 'toddler', 'young child', 'child', 'teenager', 'adult', 'elderly']);
+    const names = categories.map((c) => c.name);
+    expect(names).toEqual([
+      'infant',
+      'toddler',
+      'young child',
+      'child',
+      'teenager',
+      'adult',
+      'elderly',
+    ]);
   });
 
   it('has contiguous age ranges from 0 to 100', () => {
@@ -367,7 +380,7 @@ describe('randomWeighted', () => {
 
   it('uses commonality for weighting', () => {
     const items: { commonality: number; value: AgeCategory }[] = [];
-    
+
     const mockRng: RNG = {
       weighted: (passedItems) => {
         items.push(...passedItems);
@@ -381,7 +394,7 @@ describe('randomWeighted', () => {
 
     const names = ['infant', 'adult'];
     randomWeighted(names, categories, mockRng);
-    
+
     expect(items.length).toBe(2);
     expect(items[0].commonality).toBe(1);
     expect(items[1].commonality).toBe(20);
@@ -424,8 +437,8 @@ describe('randomWeighted', () => {
       pick: (items) => items[0],
     };
 
-    const names = categories.map(c => c.name);
+    const names = categories.map((c) => c.name);
     const result = randomWeighted(names, categories, mockRng);
-    expect(categories.map(c => c.name)).toContain(result.name);
+    expect(categories.map((c) => c.name)).toContain(result.name);
   });
 });

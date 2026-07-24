@@ -3,7 +3,11 @@ import { generateRandomContainer } from '$lib/equipment/containers';
 import { DENSITY_MAP } from '$lib/equipment/equipment_types';
 import type { Rarity } from '$lib/equipment/equipment_types';
 import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic/types';
-import { filterCatalogEntries, getDefaultPotionConfig, type PotionGeneratorConfig } from './potion_generator_config';
+import {
+  filterCatalogEntries,
+  getDefaultPotionConfig,
+  type PotionGeneratorConfig,
+} from './potion_generator_config';
 import { potionCatalog } from './potion_catalog';
 import { describePotion as buildPotionDescription } from './potion_descriptor';
 import { generateSensoryProfile } from './potion_sensory';
@@ -33,9 +37,25 @@ const HOMEBREW_DURATIONS: Duration[] = [
   { type: 'permanent' },
 ];
 
-const HOMEBREW_ELEMENTS: Element[] = ['arcane', 'life', 'death', 'fire', 'water', 'mind', 'poison', 'shadow'];
+const HOMEBREW_ELEMENTS: Element[] = [
+  'arcane',
+  'life',
+  'death',
+  'fire',
+  'water',
+  'mind',
+  'poison',
+  'shadow',
+];
 const HOMEBREW_SPHERES: MagicSphere[] = ['physical', 'mental', 'arcane', 'spiritual', 'nature'];
-const HOMEBREW_INTENTS: MagicIntent[] = ['restore', 'imbue', 'alter', 'protect', 'destroy', 'sense'];
+const HOMEBREW_INTENTS: MagicIntent[] = [
+  'restore',
+  'imbue',
+  'alter',
+  'protect',
+  'destroy',
+  'sense',
+];
 
 const RARITY_BY_MAGNITUDE: { min: number; rarity: Rarity }[] = [
   { min: 85, rarity: 'legendary' },
@@ -45,7 +65,10 @@ const RARITY_BY_MAGNITUDE: { min: number; rarity: Rarity }[] = [
   { min: 0, rarity: 'common' },
 ];
 
-export function generatePotion(seed: string, config: PotionGeneratorConfig = getDefaultPotionConfig()): Potion {
+export function generatePotion(
+  seed: string,
+  config: PotionGeneratorConfig = getDefaultPotionConfig(),
+): Potion {
   const rng = new RNG(seed);
   const resolved = pickCatalogEntry(rng, config);
   const baseEffect = buildPotionEffect(resolved, rng);
@@ -60,12 +83,7 @@ export function generatePotion(seed: string, config: PotionGeneratorConfig = get
   );
   const sensory = generateSensoryProfile(rng, effect, resolved.entry.sensoryHints);
   const rarity = resolveRarity(resolved.entry, resolved.variant);
-  const { displayName, canonicalName } = resolveDisplayName(
-    resolved,
-    effect,
-    modifications,
-    rng,
-  );
+  const { displayName, canonicalName } = resolveDisplayName(resolved, effect, modifications, rng);
   const liquidValue = isHomebrew
     ? calculateHomebrewLiquidValue(rarity, effect.magnitude)
     : resolveCatalogValue(resolved.entry, resolved.variant, effect);
@@ -129,8 +147,7 @@ export { getDefaultPotionConfig };
 
 function pickCatalogEntry(rng: RNG, config: PotionGeneratorConfig): ResolvedPotionCatalogEntry {
   const filtered = filterCatalogEntries(potionCatalog, config);
-  const useHomebrew =
-    config.allowHomebrew && (filtered.length === 0 || rng.int(1, 100) <= 20);
+  const useHomebrew = config.allowHomebrew && (filtered.length === 0 || rng.int(1, 100) <= 20);
 
   if (useHomebrew) {
     return { entry: buildHomebrewCatalogEntry(rng), catalogId: 'homebrew' };
@@ -222,7 +239,10 @@ function buildHomebrewEffect(entry: PotionCatalogEntry, rng: RNG): PotionEffect 
     restore: ['Wounds close and vigor returns.', 'Fatigue melts away under a warm surge.'],
     imbue: ['Power floods the limbs.', 'Senses sharpen to a knife edge.'],
     alter: ['The body twists under unfamiliar magic.', 'Perception shifts in uncanny ways.'],
-    protect: ['A ward settles over the body like invisible mail.', 'Harm slides away before it lands.'],
+    protect: [
+      'A ward settles over the body like invisible mail.',
+      'Harm slides away before it lands.',
+    ],
     destroy: ['Vitality curdles and burns from within.', 'A cold poison unravels the drinker.'],
     sense: ['Hidden truths press against the mind.', 'The world reveals secrets to the drinker.'],
     create: ['Something impossible takes shape within the drinker.'],

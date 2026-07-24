@@ -4,7 +4,7 @@ export const foodList = new EquipmentList('Food and Provisions', [
   new EquipmentItem('bread, white loaf (1 lb)', 1),
   new EquipmentItem('bread, rye loaf (1 lb)', 1),
   new EquipmentItem('bread, barley loaf (1 lb)', 1),
-  new EquipmentItem('biscuit, ship\'s (1 lb)', 2),
+  new EquipmentItem("biscuit, ship's (1 lb)", 2),
   new EquipmentItem('cheese, common (1 lb)', 2),
   new EquipmentItem('cheese, aged (1 lb)', 6),
   new EquipmentItem('butter (1 lb)', 4),

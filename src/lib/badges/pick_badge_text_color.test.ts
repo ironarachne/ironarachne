@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { contrastRatio } from '$lib/display_colors/display_palettes.js';
-import { pickBadgeInitialsStyle, pickBadgeTextColorForBackgrounds } from './pick_badge_text_color.js';
+import {
+  pickBadgeInitialsStyle,
+  pickBadgeTextColorForBackgrounds,
+} from './pick_badge_text_color.js';
 
 describe('pickBadgeTextColorForBackgrounds', () => {
   it('prefers light text when backgrounds include dark swatches', () => {

@@ -57,7 +57,12 @@ function drawAbilityBox(
   doc.text(value, x + width / 2, y + 14, { align: 'center' });
 }
 
-function measureSectionHeight(doc: PdfDoc, value: string, width: number, minHeight: number): number {
+function measureSectionHeight(
+  doc: PdfDoc,
+  value: string,
+  width: number,
+  minHeight: number,
+): number {
   doc.setFontSize(9);
   const lines = doc.splitTextToSize(value, width - 4);
   return Math.max(minHeight, 8 + lines.length * 4);
@@ -163,7 +168,15 @@ function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
     'THAC0',
     `${character.thaco}`,
   );
-  drawCompactField(doc, MARGIN + combatWidth * 3, y, combatWidth, ROW_HEIGHT, 'XP', `${character.xp}`);
+  drawCompactField(
+    doc,
+    MARGIN + combatWidth * 3,
+    y,
+    combatWidth,
+    ROW_HEIGHT,
+    'XP',
+    `${character.xp}`,
+  );
   drawCompactField(
     doc,
     MARGIN + combatWidth * 4,
@@ -225,9 +238,30 @@ function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
 
   y += ROW_HEIGHT + 2;
 
-  y += drawLabeledSection(doc, MARGIN, y, CONTENT_WIDTH, 'Weapons', formatAdndWeaponsSection(character));
-  y += drawLabeledSection(doc, MARGIN, y, CONTENT_WIDTH, 'Armor', formatAdndArmorSection(character));
-  y += drawLabeledSection(doc, MARGIN, y, CONTENT_WIDTH, 'Spells', formatAdndSpellsSection(character));
+  y += drawLabeledSection(
+    doc,
+    MARGIN,
+    y,
+    CONTENT_WIDTH,
+    'Weapons',
+    formatAdndWeaponsSection(character),
+  );
+  y += drawLabeledSection(
+    doc,
+    MARGIN,
+    y,
+    CONTENT_WIDTH,
+    'Armor',
+    formatAdndArmorSection(character),
+  );
+  y += drawLabeledSection(
+    doc,
+    MARGIN,
+    y,
+    CONTENT_WIDTH,
+    'Spells',
+    formatAdndSpellsSection(character),
+  );
   y += drawLabeledSection(
     doc,
     MARGIN,

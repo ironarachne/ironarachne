@@ -37,9 +37,7 @@ function normalizeDragonAbilities(inputs: DragonAbilityInput[]): Ability[] {
   return inputs.map((a) => {
     const { tags: optionalTags, ...rest } = a;
     const tags =
-      optionalTags && optionalTags.length > 0
-        ? [...optionalTags]
-        : defaultDragonAbilityTags(rest);
+      optionalTags && optionalTags.length > 0 ? [...optionalTags] : defaultDragonAbilityTags(rest);
     return { ...rest, tags };
   });
 }

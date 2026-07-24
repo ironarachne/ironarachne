@@ -11,9 +11,21 @@ const FISH = ['salt fish', 'fish oil', 'shellfish', 'kelp', 'dried fish'];
 const LUXURY = ['spices', 'dyes', 'fine cloth', 'glassware', 'worked metal goods'];
 
 const IMPORTS_INDUSTRIAL = ['coal', 'iron ingots', 'lime', 'timber', 'leather', 'resins'];
-const IMPORTS_MARKET = ['spices', 'textiles', 'exotic woods', 'salt', 'preserved food', 'fine ceramics'];
+const IMPORTS_MARKET = [
+  'spices',
+  'textiles',
+  'exotic woods',
+  'salt',
+  'preserved food',
+  'fine ceramics',
+];
 const IMPORTS_AGRARIAN = ['salt', 'iron tools', 'linseed oil', 'millstones', 'hemp rope'];
-const IMPORTS_EXTRACT = ['picks and drills', 'timber supports', 'leather aprons', 'quicksilver for amalgams'];
+const IMPORTS_EXTRACT = [
+  'picks and drills',
+  'timber supports',
+  'leather aprons',
+  'quicksilver for amalgams',
+];
 
 type TradeInput = {
   economicRole: SettlementEconomicRole;

@@ -151,7 +151,12 @@
       (i) => `${i.name} (Value: ${Currency.valueToString(i.value, Currency.COMMON_FANTASY)})`,
     );
 
-    looseItems = [...looseOtherStrings, ...loosePotionStrings, ...looseArtObjectStrings, ...looseGemStrings];
+    looseItems = [
+      ...looseOtherStrings,
+      ...loosePotionStrings,
+      ...looseArtObjectStrings,
+      ...looseGemStrings,
+    ];
   }
 
   onMount(() => {
@@ -166,18 +171,62 @@
 
   <SeedControls bind:seed bind:lockSeed inputClass="monospace" />
 
-  <NumberField id="value" label="Treasure Hoard Value (gp)" bind:value={treasureValue} min={1} max={200000} />
-  <NumberField id="coins" label="Proportion of Coins" bind:value={coinsProportion} min={0} max={100} />
+  <NumberField
+    id="value"
+    label="Treasure Hoard Value (gp)"
+    bind:value={treasureValue}
+    min={1}
+    max={200000}
+  />
+  <NumberField
+    id="coins"
+    label="Proportion of Coins"
+    bind:value={coinsProportion}
+    min={0}
+    max={100}
+  />
   <NumberField id="gems" label="Proportion of Gems" bind:value={gemsProportion} min={0} max={100} />
-  <NumberField id="art" label="Proportion of Art Objects" bind:value={artProportion} min={0} max={100} />
-  <NumberField id="mundane" label="Proportion of Mundane Items" bind:value={mundaneItemProportion} min={0} max={100} />
-  <NumberField id="magic" label="Proportion of Magic Items" bind:value={magicItemProportion} min={0} max={100} />
-  <NumberField id="potions" label="Proportion of Potions" bind:value={potionProportion} min={0} max={100} />
+  <NumberField
+    id="art"
+    label="Proportion of Art Objects"
+    bind:value={artProportion}
+    min={0}
+    max={100}
+  />
+  <NumberField
+    id="mundane"
+    label="Proportion of Mundane Items"
+    bind:value={mundaneItemProportion}
+    min={0}
+    max={100}
+  />
+  <NumberField
+    id="magic"
+    label="Proportion of Magic Items"
+    bind:value={magicItemProportion}
+    min={0}
+    max={100}
+  />
+  <NumberField
+    id="potions"
+    label="Proportion of Potions"
+    bind:value={potionProportion}
+    min={0}
+    max={100}
+  />
 
   {#if potionProportion > 0}
     <div class="input-group">
-      <CheckboxField id="allowPotionVariations" label="Allow Potion Variations" bind:checked={allowPotionVariations} />
-      <CheckboxField id="allowPotionHomebrew" label="Allow Homebrew Potions" bind:checked={allowPotionHomebrew} />
+      <CheckboxField
+        id="allowPotionVariations"
+        label="Allow Potion Variations"
+        bind:checked={allowPotionVariations}
+      />
+      <CheckboxField
+        id="allowPotionHomebrew"
+        label="Allow Homebrew Potions"
+        bind:checked={allowPotionHomebrew}
+      />
     </div>
   {/if}
 

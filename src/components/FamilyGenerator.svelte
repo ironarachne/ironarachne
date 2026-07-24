@@ -195,8 +195,8 @@
 <GeneratorPage theme="fantasy" title="Fantasy Family Generator">
   {#snippet description()}
     <p>
-      This generator creates a family. Note that more than 10 iterations can be quite slow. More than
-      30 may or may not crash your browser.
+      This generator creates a family. Note that more than 10 iterations can be quite slow. More
+      than 30 may or may not crash your browser.
     </p>
   {/snippet}
 
@@ -259,7 +259,11 @@
   </div>
 
   <div class="input-group">
-    <CheckboxField id="allow-illegitimate" label="Allow Illegitimate Children" bind:checked={allowIllegitimateChildren} />
+    <CheckboxField
+      id="allow-illegitimate"
+      label="Allow Illegitimate Children"
+      bind:checked={allowIllegitimateChildren}
+    />
     <input
       type="number"
       bind:value={illegitimateChildChance}
@@ -271,7 +275,11 @@
   </div>
 
   <div class="input-group">
-    <CheckboxField id="allow-multiple-marriages" label="Allow Multiple Marriages" bind:checked={allowMultipleMarriages} />
+    <CheckboxField
+      id="allow-multiple-marriages"
+      label="Allow Multiple Marriages"
+      bind:checked={allowMultipleMarriages}
+    />
     <input
       type="number"
       bind:value={multipleMarriageChance}
@@ -283,7 +291,11 @@
   </div>
 
   <div class="input-group">
-    <CheckboxField id="allow-same-gender" label="Allow Same Gender Marriage" bind:checked={allowSameGenderMarriage} />
+    <CheckboxField
+      id="allow-same-gender"
+      label="Allow Same Gender Marriage"
+      bind:checked={allowSameGenderMarriage}
+    />
     <input
       type="number"
       bind:value={sameGenderMarriageChance}
@@ -295,7 +307,11 @@
   </div>
 
   <div class="input-group">
-    <CheckboxField id="allow-cross-species" label="Allow Cross Species Marriage" bind:checked={allowCrossSpeciesMarriages} />
+    <CheckboxField
+      id="allow-cross-species"
+      label="Allow Cross Species Marriage"
+      bind:checked={allowCrossSpeciesMarriages}
+    />
     <input
       type="number"
       bind:value={crossSpeciesMarriageChance}

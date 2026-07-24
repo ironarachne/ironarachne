@@ -10,15 +10,24 @@ import {
 describe('heraldry_ui_options', () => {
   it('buildVariationSlotPreferences returns undefined when all any', () => {
     expect(
-      buildVariationSlotPreferences(['any', 'any'], [
+      buildVariationSlotPreferences(
         ['any', 'any'],
-        ['any', 'any'],
-      ]),
+        [
+          ['any', 'any'],
+          ['any', 'any'],
+        ],
+      ),
     ).toBeUndefined();
   });
 
   it('buildVariationSlotPreferences captures partial tincture pins', () => {
-    const prefs = buildVariationSlotPreferences(['barry', 'any'], [['azure', 'any'], ['any', 'any']]);
+    const prefs = buildVariationSlotPreferences(
+      ['barry', 'any'],
+      [
+        ['azure', 'any'],
+        ['any', 'any'],
+      ],
+    );
     expect(prefs?.[0]).toEqual({
       variationName: 'barry',
       tinctureNames: ['azure'],
@@ -42,7 +51,17 @@ describe('heraldry_ui_options', () => {
   });
 
   it('hasPinnedFieldTinctures detects pinned tinctures', () => {
-    expect(hasPinnedFieldTinctures([['any', 'any'], ['any', 'any']])).toBe(false);
-    expect(hasPinnedFieldTinctures([['gules', 'any'], ['any', 'any']])).toBe(true);
+    expect(
+      hasPinnedFieldTinctures([
+        ['any', 'any'],
+        ['any', 'any'],
+      ]),
+    ).toBe(false);
+    expect(
+      hasPinnedFieldTinctures([
+        ['gules', 'any'],
+        ['any', 'any'],
+      ]),
+    ).toBe(true);
   });
 });

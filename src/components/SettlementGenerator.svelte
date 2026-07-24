@@ -82,12 +82,9 @@
         includeTrade: includeTrade,
         includeProblems: includeProblems,
         includeOrganizations: includeOrganizations,
-        genre: "fantasy",
+        genre: 'fantasy',
         importantCharacterCount: includeNotables ? { min: 1, max: 2 } : undefined,
-        characterConfig: getCharacterGenerationConfigForNameSet(
-          `${seed}-settlement-vip`,
-          nameSet,
-        ),
+        characterConfig: getCharacterGenerationConfigForNameSet(`${seed}-settlement-vip`, nameSet),
       };
     } else {
       config.enrichment = undefined;
@@ -116,11 +113,13 @@
 <GeneratorPage theme="fantasy" title="Settlement Generator">
   {#snippet description()}
     <p>
-      Generate a settlement with derived facets (law, commerce, food security, health) and
-      economic role. Optionally add narrative trade, acute/creeping problems, local organizations, and
-      important people. Town name, org members, and notables can all use a <strong>saved culture</strong>
-      for naming (as on the region generator) instead of a random fantasy name set. Uses the same
-      pipeline as the settlements library <code>generate</code> entry point.
+      Generate a settlement with derived facets (law, commerce, food security, health) and economic
+      role. Optionally add narrative trade, acute/creeping problems, local organizations, and
+      important people. Town name, org members, and notables can all use a <strong
+        >saved culture</strong
+      >
+      for naming (as on the region generator) instead of a random fantasy name set. Uses the same pipeline
+      as the settlements library <code>generate</code> entry point.
     </p>
   {/snippet}
 
@@ -242,7 +241,8 @@
         {#each settlement.importantPeople as p}
           <li>
             <strong>{p.roleDisplay || p.roleId}</strong>:
-            {p.character.firstName} {p.character.lastName}
+            {p.character.firstName}
+            {p.character.lastName}
             <p class="importance">{p.importance}</p>
             {#if p.salientPersonality.length}
               <p class="traits-line">

@@ -189,18 +189,38 @@
     id="blueprint"
     label="Blueprint"
     bind:value={blueprintName}
-    options={[{ value: 'Random', label: 'Random' }, ...blueprintOptions.map((n) => ({ value: n, label: n }))]}
+    options={[
+      { value: 'Random', label: 'Random' },
+      ...blueprintOptions.map((n) => ({ value: n, label: n })),
+    ]}
   />
 
   <SelectField
     id="environment"
     label="Environment (Biome)"
     bind:value={environmentName}
-    options={[{ value: 'Random', label: 'Random' }, ...environmentOptions.map((n) => ({ value: n, label: n }))]}
+    options={[
+      { value: 'Random', label: 'Random' },
+      ...environmentOptions.map((n) => ({ value: n, label: n })),
+    ]}
   />
 
-  <NumberField id="encounterChance" label="Encounter chance per room (0–1)" bind:value={encounterChancePerRoom} min={0} max={1} step={0.05} />
-  <NumberField id="treasureChance" label="Treasure chance per room (0–1)" bind:value={treasureChancePerRoom} min={0} max={1} step={0.05} />
+  <NumberField
+    id="encounterChance"
+    label="Encounter chance per room (0–1)"
+    bind:value={encounterChancePerRoom}
+    min={0}
+    max={1}
+    step={0.05}
+  />
+  <NumberField
+    id="treasureChance"
+    label="Treasure chance per room (0–1)"
+    bind:value={treasureChancePerRoom}
+    min={0}
+    max={1}
+    step={0.05}
+  />
 
   <div class="actions">
     <button type="button" onclick={() => void generate()}>Generate</button>
@@ -222,12 +242,8 @@
 
   <div class="input-group">
     <label class="inline-label">
-      <input
-        type="checkbox"
-        bind:checked={fullSize}
-        id="fullSize"
-        onchange={triggerRender}
-      /> Show full size
+      <input type="checkbox" bind:checked={fullSize} id="fullSize" onchange={triggerRender} /> Show full
+      size
     </label>
   </div>
 

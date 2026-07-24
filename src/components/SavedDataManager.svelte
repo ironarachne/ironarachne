@@ -2,16 +2,25 @@
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
 
-  import { deleteSavedCultureByName, loadSavedCultureSnapshots } from '$lib/culture/culture_saved_state';
+  import {
+    deleteSavedCultureByName,
+    loadSavedCultureSnapshots,
+  } from '$lib/culture/culture_saved_state';
   import type { CultureSnapshot } from '$lib/culture/culture_snapshot';
-  import { deleteSavedHeraldryByBlazon, loadSavedHeraldrySnapshots } from '$lib/heraldry/heraldry_saved_state';
+  import {
+    deleteSavedHeraldryByBlazon,
+    loadSavedHeraldrySnapshots,
+  } from '$lib/heraldry/heraldry_saved_state';
   import type { HeraldrySnapshot } from '$lib/heraldry/heraldry_snapshot';
   import {
     cultureGeneratorHref,
     heraldryGeneratorHref,
     religionGeneratorHref,
   } from '$lib/persistent_save/saved_data_links';
-  import { deleteSavedReligionBySeed, loadSavedReligionSnapshots } from '$lib/religion/religion_saved_state';
+  import {
+    deleteSavedReligionBySeed,
+    loadSavedReligionSnapshots,
+  } from '$lib/religion/religion_saved_state';
   import type { ReligionSnapshot } from '$lib/religion/religion_snapshot';
   import { showConfirmModal } from '$lib/ui/modal';
   import SavedDataListItem from '$components/SavedDataListItem.svelte';
@@ -42,7 +51,8 @@
     }
 
     try {
-      const { buildHeraldryPreviewMap } = await import('$lib/persistent_save/saved_data_preview.js');
+      const { buildHeraldryPreviewMap } =
+        await import('$lib/persistent_save/saved_data_preview.js');
       heraldryPreviewSvgs = buildHeraldryPreviewMap(heraldryEntries);
     } catch {
       loadError = 'Could not render one or more heraldry previews.';
@@ -51,30 +61,26 @@
   }
 
   async function downloadHeraldrySvg(snapshot: HeraldrySnapshot) {
-    const { downloadHeraldrySvg: downloadSvg } = await import(
-      '$lib/persistent_save/saved_data_download.js'
-    );
+    const { downloadHeraldrySvg: downloadSvg } =
+      await import('$lib/persistent_save/saved_data_download.js');
     downloadSvg(snapshot);
   }
 
   async function downloadHeraldryPng(snapshot: HeraldrySnapshot) {
-    const { downloadHeraldryPng: downloadPng } = await import(
-      '$lib/persistent_save/saved_data_download.js'
-    );
+    const { downloadHeraldryPng: downloadPng } =
+      await import('$lib/persistent_save/saved_data_download.js');
     downloadPng(snapshot);
   }
 
   async function downloadCultureJson(snapshot: CultureSnapshot) {
-    const { downloadCultureJson: downloadJson } = await import(
-      '$lib/persistent_save/saved_data_download.js'
-    );
+    const { downloadCultureJson: downloadJson } =
+      await import('$lib/persistent_save/saved_data_download.js');
     downloadJson(snapshot);
   }
 
   async function downloadReligionJson(snapshot: ReligionSnapshot) {
-    const { downloadReligionJson: downloadJson } = await import(
-      '$lib/persistent_save/saved_data_download.js'
-    );
+    const { downloadReligionJson: downloadJson } =
+      await import('$lib/persistent_save/saved_data_download.js');
     downloadJson(snapshot);
   }
 
@@ -162,7 +168,9 @@
             onDelete={() => confirmDeleteHeraldry(snapshot)}
           >
             {#snippet children()}
-              <button type="button" onclick={() => downloadHeraldryPng(snapshot)}>Download PNG</button>
+              <button type="button" onclick={() => downloadHeraldryPng(snapshot)}
+                >Download PNG</button
+              >
             {/snippet}
           </SavedDataListItem>
         {/each}

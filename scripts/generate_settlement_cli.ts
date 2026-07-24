@@ -97,7 +97,9 @@ function buildConfig(
       importantCharacterCount: wantNotables ? { min: 1, max: 2 } : undefined,
     };
     if (wantOrgs || wantNotables) {
-      enrichment.characterConfig = getDefaultCharacterGenerationConfig(`${seedForChars}-settlement-cli`);
+      enrichment.characterConfig = getDefaultCharacterGenerationConfig(
+        `${seedForChars}-settlement-cli`,
+      );
     }
     config.enrichment = enrichment;
   } else {

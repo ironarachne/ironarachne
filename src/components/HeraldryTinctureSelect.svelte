@@ -63,11 +63,4 @@
   }
 </script>
 
-<HeraldryPreviewSelect
-  {id}
-  bind:value
-  {options}
-  {includeAny}
-  {previewSvg}
-  {onchange}
-/>
+<HeraldryPreviewSelect {id} bind:value {options} {includeAny} {previewSvg} {onchange} />

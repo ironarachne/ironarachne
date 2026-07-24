@@ -39,10 +39,7 @@
   } from '$lib/adnd/adnd_class_starting_spells';
   import { downloadAdndCharacterPdf } from '$lib/adnd/render_adnd_character_pdf';
   import { showAlertModal } from '$lib/ui/modal';
-  import {
-    buildCharacterNameSource,
-    rollCharacterNameForSource,
-  } from '$lib/characters';
+  import { buildCharacterNameSource, rollCharacterNameForSource } from '$lib/characters';
   import { type Culture, loadSavedCultures } from '$lib/culture';
   import { onMount } from 'svelte';
   import CharacterNameSection from '$components/CharacterNameSection.svelte';

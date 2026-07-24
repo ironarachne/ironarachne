@@ -4,7 +4,7 @@
   const sections = [
     {
       heading: 'Character Builders',
-      links: [{ href: '/fantasy/adnd/character/build', label: 'AD&amp;D 2E Character' }]
+      links: [{ href: '/fantasy/adnd/character/build', label: 'AD&amp;D 2E Character' }],
     },
     {
       heading: 'Character Generators',
@@ -13,16 +13,16 @@
         { href: '/fantasy/adnd/character', label: 'AD&amp;D 2E Character' },
         { href: '/fantasy/dcc/character', label: 'Dungeon Crawl Classics Character' },
         { href: '/swn/character', label: 'Stars Without Number Character' },
-        { href: '/unchartedworlds/character', label: 'Uncharted Worlds Character' }
-      ]
+        { href: '/unchartedworlds/character', label: 'Uncharted Worlds Character' },
+      ],
     },
     {
       heading: 'Related Generators',
       links: [
         { href: '/heraldry', label: 'Heraldry' },
-        { href: '/velgarth-gifts', label: 'Velgarth Gifts' }
-      ]
-    }
+        { href: '/velgarth-gifts', label: 'Velgarth Gifts' },
+      ],
+    },
   ];
 </script>
 

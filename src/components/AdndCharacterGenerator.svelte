@@ -149,7 +149,8 @@
     <p>This is an AD&D 2e character generator.</p>
 
     <p>
-      <a href="/fantasy/adnd/character/build">User-directed character builder</a> (dice for attributes only).
+      <a href="/fantasy/adnd/character/build">User-directed character builder</a> (dice for attributes
+      only).
     </p>
   {/snippet}
 

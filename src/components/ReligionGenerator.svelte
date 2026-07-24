@@ -256,9 +256,7 @@
     });
   }
 
-  const loadDialogItems = $derived(
-    savedReligions.map((s) => ({ name: s.name, seed: s.seed })),
-  );
+  const loadDialogItems = $derived(savedReligions.map((s) => ({ name: s.name, seed: s.seed })));
 </script>
 
 <GeneratorPage theme="fantasy" title="Fantasy Religion Generator">
@@ -332,11 +330,7 @@
     {/each}
   </div>
 
-  <SavedCulturePicker
-    cultures={savedCultures}
-    bind:useSavedCulture
-    bind:savedCulture
-  />
+  <SavedCulturePicker cultures={savedCultures} bind:useSavedCulture bind:savedCulture />
 
   <button onclick={generate}>Generate</button>
   <button type="button" onclick={saveReligion}>Save</button>

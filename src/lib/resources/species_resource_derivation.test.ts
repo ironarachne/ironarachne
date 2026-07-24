@@ -22,9 +22,9 @@ describe('speciesYieldsCarcassResources', () => {
   });
 
   it('includes dragons', () => {
-    expect(speciesYieldsCarcassResources(allSpecies.find((s) => s.breedType === 'red_dragon')!)).toBe(
-      true,
-    );
+    expect(
+      speciesYieldsCarcassResources(allSpecies.find((s) => s.breedType === 'red_dragon')!),
+    ).toBe(true);
   });
 });
 

@@ -147,7 +147,10 @@ export function applyPotionModifications(
   isHomebrew: boolean,
   hasVariant: boolean,
 ): { effect: PotionEffect; modifications: PotionModification[] } {
-  const updated: PotionEffect = { ...effect, statOffsets: effect.statOffsets ? { ...effect.statOffsets } : undefined };
+  const updated: PotionEffect = {
+    ...effect,
+    statOffsets: effect.statOffsets ? { ...effect.statOffsets } : undefined,
+  };
 
   if (isHomebrew) {
     return { effect: updated, modifications: [{ kind: 'homebrew' }] };
@@ -162,7 +165,13 @@ export function applyPotionModifications(
   }
 
   const modifications: PotionModification[] = [];
-  const variation = rng.item(['potency_up', 'potency_down', 'duration_extend', 'duration_shorten', 'tainted'] as const);
+  const variation = rng.item([
+    'potency_up',
+    'potency_down',
+    'duration_extend',
+    'duration_shorten',
+    'tainted',
+  ] as const);
 
   switch (variation) {
     case 'potency_up': {
@@ -205,7 +214,10 @@ export function applyPotionModifications(
   return { effect: updated, modifications };
 }
 
-function applyDurationChange(effect: PotionEffect, change: 'extended' | 'shortened' | 'permanent'): boolean {
+function applyDurationChange(
+  effect: PotionEffect,
+  change: 'extended' | 'shortened' | 'permanent',
+): boolean {
   const duration = effect.duration;
 
   if (change === 'permanent' && duration.type !== 'permanent') {

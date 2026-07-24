@@ -46,7 +46,9 @@ describe('buildDisplayNameFromModifications', () => {
       isHomebrew: true,
     });
 
-    expect(name).toMatch(/^(Greater|Potent|Concentrated|Strong|Sovereign|Mythic|Grand|Supreme) (Draught|Elixir|Philter|Tincture|Brew|Potion|Concoction|Infusion) of (Restoration|Renewal|Mending|Revival)$/);
+    expect(name).toMatch(
+      /^(Greater|Potent|Concentrated|Strong|Sovereign|Mythic|Grand|Supreme) (Draught|Elixir|Philter|Tincture|Brew|Potion|Concoction|Infusion) of (Restoration|Renewal|Mending|Revival)$/,
+    );
   });
 });
 

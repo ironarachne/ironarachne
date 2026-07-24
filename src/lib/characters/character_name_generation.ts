@@ -91,9 +91,7 @@ export function generateCharacterName(
 ): GeneratedCharacterName {
   const resolvedGender = resolveNamingGender(rng, gender, characterGender);
   const firstName =
-    resolvedGender === 'male'
-      ? generators.male.generate(1)[0]
-      : generators.female.generate(1)[0];
+    resolvedGender === 'male' ? generators.male.generate(1)[0] : generators.female.generate(1)[0];
   const lastName = generators.family.generate(1)[0];
   return { firstName, lastName };
 }
@@ -118,11 +116,9 @@ export function applyGeneratedCharacterName(
   }
 }
 
-export function restoreLockedCharacterName<T extends { firstName: string; lastName: string; name?: string }>(
-  target: T,
-  lockedFirstName: string,
-  lockedLastName: string,
-): T {
+export function restoreLockedCharacterName<
+  T extends { firstName: string; lastName: string; name?: string },
+>(target: T, lockedFirstName: string, lockedLastName: string): T {
   applyGeneratedCharacterName(target, {
     firstName: lockedFirstName,
     lastName: lockedLastName,

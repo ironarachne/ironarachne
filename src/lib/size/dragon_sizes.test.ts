@@ -24,7 +24,8 @@ describe('dragonTrueWyrmSizeMatrix', () => {
     let prevMaxWt = 0;
 
     for (const e of row.entries) {
-      const { minHeight, maxHeight, minLength, maxLength, minWeight, maxWeight } = e.sizeGeneratorConfig;
+      const { minHeight, maxHeight, minLength, maxLength, minWeight, maxWeight } =
+        e.sizeGeneratorConfig;
       expect(minHeight).toBeGreaterThan(prevMaxHt);
       expect(maxHeight).toBeGreaterThanOrEqual(minHeight);
       expect(minLength).toBeGreaterThan(prevMaxLen);

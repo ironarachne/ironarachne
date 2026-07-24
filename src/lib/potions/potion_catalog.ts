@@ -121,7 +121,8 @@ export const potionCatalog: PotionCatalogEntry[] = [
     form: 'drink',
     tags: ['magical', 'potion', 'movement'],
     effectTemplate: {
-      description: 'The drinker gains a flying speed equal to their walking speed for 1 hour and can hover.',
+      description:
+        'The drinker gains a flying speed equal to their walking speed for 1 hour and can hover.',
       duration: { type: 'timed', unit: 'hour', value: 1 },
       intent: 'move',
       elements: ['air'],
@@ -131,7 +132,10 @@ export const potionCatalog: PotionCatalogEntry[] = [
     },
     sensoryHints: {
       colors: ['clear', 'pale white'],
-      appearances: ['cloudy white impurities drifting in clear liquid', 'liquid floats at top of container'],
+      appearances: [
+        'cloudy white impurities drifting in clear liquid',
+        'liquid floats at top of container',
+      ],
     },
   },
   {
@@ -305,7 +309,8 @@ export const potionCatalog: PotionCatalogEntry[] = [
     form: 'drink',
     tags: ['magical', 'potion', 'illusion'],
     effectTemplate: {
-      description: 'The drinker becomes invisible for 1 hour; ends early if they attack or cast a spell.',
+      description:
+        'The drinker becomes invisible for 1 hour; ends early if they attack or cast a spell.',
       duration: {
         type: 'conditional',
         unit: 'hour',
@@ -455,7 +460,8 @@ export const potionCatalog: PotionCatalogEntry[] = [
     form: 'oil',
     tags: ['magical', 'oil', 'weapon'],
     effectTemplate: {
-      description: 'Coats a slashing or piercing weapon or ammunition; item becomes magical with +3 to attack and damage for 1 hour.',
+      description:
+        'Coats a slashing or piercing weapon or ammunition; item becomes magical with +3 to attack and damage for 1 hour.',
       duration: { type: 'timed', unit: 'hour', value: 1 },
       intent: 'imbue',
       elements: ['metal', 'force'],
@@ -499,7 +505,12 @@ export const potionCatalog: PotionCatalogEntry[] = [
     tags: ['magical', 'potion', 'charm'],
     effectTemplate: {
       description: 'The drinker becomes charmed by the first creature they see within 10 minutes.',
-      duration: { type: 'timed', unit: 'minute', value: 10, description: 'charm lasts 1 hour after sighting' },
+      duration: {
+        type: 'timed',
+        unit: 'minute',
+        value: 10,
+        description: 'charm lasts 1 hour after sighting',
+      },
       intent: 'control',
       elements: ['mind', 'spirit'],
       spheres: ['mental', 'spiritual'],
@@ -535,7 +546,11 @@ export const potionCatalog: PotionCatalogEntry[] = [
   },
 ];
 
-export const HOMEBREW_POTION_CATALOG_IDS = ['homebrew-buff', 'homebrew-curse', 'homebrew-wild'] as const;
+export const HOMEBREW_POTION_CATALOG_IDS = [
+  'homebrew-buff',
+  'homebrew-curse',
+  'homebrew-wild',
+] as const;
 
 export function getPotionCatalogEntry(id: string): PotionCatalogEntry | undefined {
   return potionCatalog.find((entry) => entry.id === id);

@@ -129,11 +129,7 @@
 
   <SelectField id="nameSet" label="Name Set" bind:value={nameSetName} options={nameSetOptions} />
 
-  <SavedCulturePicker
-    cultures={savedCultures}
-    bind:useSavedCulture
-    bind:savedCulture
-  />
+  <SavedCulturePicker cultures={savedCultures} bind:useSavedCulture bind:savedCulture />
 
   <button onclick={generate}>Generate</button>
 
@@ -149,8 +145,9 @@
     {#if region.realms[region.mainRealm].parent != -1}
       <div class="parent-realm">
         <p>
-          {Words.title(region.name)} is part of {region.realms[region.realms[region.mainRealm].parent]
-            .name}
+          {Words.title(region.name)} is part of {region.realms[
+            region.realms[region.mainRealm].parent
+          ].name}
           <button
             type="button"
             class="heraldry-inline-target"
@@ -193,7 +190,11 @@
           height={220}
           {rng}
           onclick={() =>
-            openHeraldryModal(ruler!.heraldry!, `${ruler!.firstName} ${ruler!.lastName}`, replaceRulerHeraldry)}
+            openHeraldryModal(
+              ruler!.heraldry!,
+              `${ruler!.firstName} ${ruler!.lastName}`,
+              replaceRulerHeraldry,
+            )}
         />
         <div>
           <p>

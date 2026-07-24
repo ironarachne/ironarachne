@@ -8,14 +8,12 @@ const CRISP = 'shape-rendering="crispEdges"';
  * Per-bend shared edge (0,0)-(600,660): nudge the dexter-base triangle ~2px across the line into
  * the sinister-chief triangle so rasterization does not leave a transparent seam.
  */
-const BEND_DEXTER_BASE_OVERLAP =
-  '1.4799,-1.3453 601.4799,658.6547 0,660';
+const BEND_DEXTER_BASE_OVERLAP = '1.4799,-1.3453 601.4799,658.6547 0,660';
 
 /**
  * Per bend sinister: shared edge (600,0)-(0,660); nudge the chief triangle across into the base.
  */
-const BEND_SINISTER_CHIEF_OVERLAP =
-  '0,0 601.4799,1.3453 1.4799,661.3453';
+const BEND_SINISTER_CHIEF_OVERLAP = '0,0 601.4799,1.3453 1.4799,661.3453';
 
 export function all(): Field[] {
   return [

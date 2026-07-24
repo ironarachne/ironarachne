@@ -34,7 +34,8 @@ export function deriveSettlementFacets(input: FacetInput): SettlementFacets {
 
   const waterType = (env.waterSystem.waterType || '').toLowerCase();
   const hasFresh = waterType.includes('fresh') || waterType === 'river';
-  const isSalt = waterType.includes('salt') || waterType.includes('sea') || waterType.includes('ocean');
+  const isSalt =
+    waterType.includes('salt') || waterType.includes('sea') || waterType.includes('ocean');
   const highRelief = env.terrain.reliefEnergy > 0.45;
   const veryHigh = env.terrain.elevationMax > 2500;
 
@@ -48,7 +49,9 @@ export function deriveSettlementFacets(input: FacetInput): SettlementFacets {
 
   const commerce = clamp10(2.2 + p * 0.55 + urbanBoost * 1.1 + (population > 8000 ? 0.7 : 0));
   const lawAndOrder = clamp10(2.5 + p * 0.45 + urbanBoost * 0.8 + (commerce > 6 ? 0.3 : 0));
-  const publicHealth = clamp10(2.4 + p * 0.5 + (hasFresh ? 0.4 : -0.3) + (foodSecurity > 5 ? 0.4 : 0));
+  const publicHealth = clamp10(
+    2.4 + p * 0.5 + (hasFresh ? 0.4 : -0.3) + (foodSecurity > 5 ? 0.4 : 0),
+  );
 
   const tags: string[] = [];
   if (isSalt || env.biome.isAquatic) {

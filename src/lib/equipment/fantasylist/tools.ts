@@ -24,8 +24,8 @@ export const toolsList = new EquipmentList('Tools', [
   new EquipmentItem('fish trap', 24),
   new EquipmentItem('loom', 240),
   new EquipmentItem('mortar and pestle', 16),
-  new EquipmentItem('smith\'s tongs', 48),
-  new EquipmentItem('smith\'s hammer', 40),
+  new EquipmentItem("smith's tongs", 48),
+  new EquipmentItem("smith's hammer", 40),
   new EquipmentItem('trowel', 8),
   new EquipmentItem('pickaxe', 36),
   new EquipmentItem('crowbar', 12),
@@ -36,5 +36,5 @@ export const toolsList = new EquipmentList('Tools', [
   new EquipmentItem('iron pot hook', 8),
   new EquipmentItem('shears', 12),
   new EquipmentItem('needle kit', 4),
-  new EquipmentItem('carpenter\'s square', 16),
+  new EquipmentItem("carpenter's square", 16),
 ]);

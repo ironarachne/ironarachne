@@ -14,7 +14,11 @@ type ProblemContext = {
   rng: RNG;
 };
 
-function addRowsUnique(seen: Set<string>, out: ProblemRow[], rows: readonly Pick<ProblemRow, 'summary' | 'detail'>[]): void {
+function addRowsUnique(
+  seen: Set<string>,
+  out: ProblemRow[],
+  rows: readonly Pick<ProblemRow, 'summary' | 'detail'>[],
+): void {
   for (const row of rows) {
     if (seen.has(row.summary)) {
       continue;
@@ -62,7 +66,8 @@ function buildAcutePool(ctx: ProblemContext): ProblemRow[] {
   const elev = env.terrain.elevationMax;
   const water = (env.waterSystem.waterType || '').toLowerCase();
   const isSalt = water.includes('salt') || water.includes('sea') || water.includes('ocean');
-  const hasFresh = water.includes('fresh') || water === 'river' || (water.includes('river') && !isSalt);
+  const hasFresh =
+    water.includes('fresh') || water === 'river' || (water.includes('river') && !isSalt);
   const name = category.name.toLowerCase();
   const biomeName = env.biome.name.toLowerCase();
 

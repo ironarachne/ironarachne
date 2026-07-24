@@ -16,9 +16,7 @@ function isReligionSavePayload(value: unknown): value is ReligionSavePayload {
     return false;
   }
   const record = value as Record<string, unknown>;
-  return (
-    record.payloadVersion === RELIGION_SAVE_PAYLOAD_VERSION && Array.isArray(record.religions)
-  );
+  return record.payloadVersion === RELIGION_SAVE_PAYLOAD_VERSION && Array.isArray(record.religions);
 }
 
 export function readReligionSavePayload(): ReligionSavePayload {

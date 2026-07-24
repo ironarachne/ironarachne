@@ -31,6 +31,7 @@
   <div class="input-group">
     <label for="seed">{label}</label>
     <input type="text" bind:value={seed} id="seed" name="seed" class={inputClass} />
-    <input type="checkbox" bind:checked={lockSeed} id="lockSeed" name="lockSeed" /> {lockLabel}
+    <input type="checkbox" bind:checked={lockSeed} id="lockSeed" name="lockSeed" />
+    {lockLabel}
   </div>
 {/if}

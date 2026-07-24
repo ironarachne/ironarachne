@@ -1,8 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  EXPECTED_SRD_BASE_CATALOG_IDS,
-  potionCatalog,
-} from './potion_catalog';
+import { EXPECTED_SRD_BASE_CATALOG_IDS, potionCatalog } from './potion_catalog';
 import { generatePotion, getDefaultPotionConfig } from './potion_generation';
 import { calculateLiquidValue } from './potion_value';
 

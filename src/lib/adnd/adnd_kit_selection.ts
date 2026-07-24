@@ -24,7 +24,10 @@ function meetsMinStats(c: ADNDCharacter, row: AdndKitRow): boolean {
   return true;
 }
 
-export function filterKitsForCharacter(c: ADNDCharacter, rows: AdndKitRow[] = adndKitRows): AdndKitRow[] {
+export function filterKitsForCharacter(
+  c: ADNDCharacter,
+  rows: AdndKitRow[] = adndKitRows,
+): AdndKitRow[] {
   return rows.filter((row) => row.className === c.class.name && meetsMinStats(c, row));
 }
 

@@ -1,6 +1,9 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { generateReligion, getDefaultReligionGenerationConfig } from '$lib/religion/religion_generation';
+import {
+  generateReligion,
+  getDefaultReligionGenerationConfig,
+} from '$lib/religion/religion_generation';
 import {
   appendSavedReligion,
   deleteSavedReligionBySeed,

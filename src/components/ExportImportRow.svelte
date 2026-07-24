@@ -26,7 +26,13 @@
 <div class="input-group export-import-row">
   <button type="button" onclick={onExport}>Export saved (JSON)</button>
   <button type="button" onclick={triggerImport}>Import saves from file</button>
-  <input bind:this={importInput} type="file" {accept} style="display: none" onchange={handleFileChange} />
+  <input
+    bind:this={importInput}
+    type="file"
+    {accept}
+    style="display: none"
+    onchange={handleFileChange}
+  />
 </div>
 
 <style>

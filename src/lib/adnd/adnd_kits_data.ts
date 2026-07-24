@@ -45,219 +45,161 @@ export const adndKitRows: AdndKitRow[] = [
     className: 'paladin',
     name: 'Avenger',
     minWisdom: 13,
-    features: [
-      'Special focus on smiting those who have broken oaths or harmed innocents',
-    ],
+    features: ['Special focus on smiting those who have broken oaths or harmed innocents'],
   },
   {
     className: 'ranger',
     name: 'Warden of the green',
     minWisdom: 14,
-    features: [
-      'Patrols wild borders; extra attention to foraging and trail signs in fiction',
-    ],
+    features: ['Patrols wild borders; extra attention to foraging and trail signs in fiction'],
   },
   {
     className: 'ranger',
     name: 'Beast friend',
-    features: [
-      'Builds trust with natural beasts faster in roleplay; tracking emphasis',
-    ],
+    features: ['Builds trust with natural beasts faster in roleplay; tracking emphasis'],
   },
   {
     className: 'mage',
     name: 'Academician',
     minIntelligence: 15,
-    features: [
-      'Keeps careful spell notes; favors research and library scenes',
-    ],
+    features: ['Keeps careful spell notes; favors research and library scenes'],
   },
   {
     className: 'mage',
     name: 'Vagabond arcanist',
-    features: [
-      'Learns from roadside masters and odd relics; comfortable with rough travel',
-    ],
+    features: ['Learns from roadside masters and odd relics; comfortable with rough travel'],
   },
   {
     className: 'abjurer',
     name: 'Ward-keeper',
     minIntelligence: 14,
-    features: [
-      'Obsessed with protecting others through barriers and negation',
-    ],
+    features: ['Obsessed with protecting others through barriers and negation'],
   },
   {
     className: 'abjurer',
     name: 'Oath of silence',
-    features: [
-      'Avoids speaking true names of powers in play; mystery around wards',
-    ],
+    features: ['Avoids speaking true names of powers in play; mystery around wards'],
   },
   {
     className: 'conjurer',
     name: 'Summoner of circles',
     minIntelligence: 15,
-    features: [
-      'Ritual circles and names matter in how you cast summoning; flair for names',
-    ],
+    features: ['Ritual circles and names matter in how you cast summoning; flair for names'],
   },
   {
     className: 'conjurer',
     name: 'Beast-binder',
-    features: [
-      'Prefers natural spirits and fey-adjacent allies over fiends in flavor',
-    ],
+    features: ['Prefers natural spirits and fey-adjacent allies over fiends in flavor'],
   },
   {
     className: 'diviner',
     name: 'Soothsayer',
     minWisdom: 13,
-    features: [
-      'Reads lots in small omens: weather, livers, cards, in fiction',
-    ],
+    features: ['Reads lots in small omens: weather, livers, cards, in fiction'],
   },
   {
     className: 'diviner',
     name: 'Tactical seer',
-    features: [
-      'Frames divination as battlefield intelligence, not just prophecy',
-    ],
+    features: ['Frames divination as battlefield intelligence, not just prophecy'],
   },
   {
     className: 'enchanter',
     name: 'Court enchanter',
     minCharisma: 14,
-    features: [
-      'Fits high society: favors charm and image as much as raw power',
-    ],
+    features: ['Fits high society: favors charm and image as much as raw power'],
   },
   {
     className: 'enchanter',
     name: 'Whisper-hexer',
-    features: [
-      'Favors subtle compulsions; reputation as someone not to be crossed lightly',
-    ],
+    features: ['Favors subtle compulsions; reputation as someone not to be crossed lightly'],
   },
   {
     className: 'illusionist',
     name: 'Stage mage',
     minDexterity: 13,
-    features: [
-      'Treats illusions as performance art: smoke, mirror, and voice',
-    ],
+    features: ['Treats illusions as performance art: smoke, mirror, and voice'],
   },
   {
     className: 'illusionist',
     name: 'Ghost painter',
-    features: [
-      "Leans on visual illusions with artistic descriptions and 'false scenery'",
-    ],
+    features: ["Leans on visual illusions with artistic descriptions and 'false scenery'"],
   },
   {
     className: 'invoker',
     name: 'Elemental purist',
     minConstitution: 14,
-    features: [
-      "Picks one element as a 'signature' in flavor, even if mechanics stay broad",
-    ],
+    features: ["Picks one element as a 'signature' in flavor, even if mechanics stay broad"],
   },
   {
     className: 'invoker',
     name: 'War-flinger',
-    features: [
-      "Loud, destructive reputation; comrades may ask you to 'hold the burst' in fiction",
-    ],
+    features: ["Loud, destructive reputation; comrades may ask you to 'hold the burst' in fiction"],
   },
   {
     className: 'necromancer',
     name: 'Caretaker of the dead',
     minWisdom: 13,
-    features: [
-      'Frames necromancy as rites, consent of spirits, or closure for families',
-    ],
+    features: ['Frames necromancy as rites, consent of spirits, or closure for families'],
   },
   {
     className: 'necromancer',
     name: 'Bone scholar',
-    features: [
-      'Collects morbid lore; not necessarily sadistic, but unnerving to NPCs',
-    ],
+    features: ['Collects morbid lore; not necessarily sadistic, but unnerving to NPCs'],
   },
   {
     className: 'transmuter',
     name: 'Alchemic tinkerer',
     minIntelligence: 14,
-    features: [
-      'Favors transmutation stories tied to materials, metals, and brews',
-    ],
+    features: ['Favors transmutation stories tied to materials, metals, and brews'],
   },
   {
     className: 'transmuter',
     name: 'Form-shaper',
-    features: [
-      "Narrative focus on self-transformation and 'perfecting' the body in play",
-    ],
+    features: ["Narrative focus on self-transformation and 'perfecting' the body in play"],
   },
   {
     className: 'cleric',
     name: 'Militant priest',
     minStrength: 12,
-    features: [
-      'Trains in armor as worship; sermons with a warlike edge',
-    ],
+    features: ['Trains in armor as worship; sermons with a warlike edge'],
   },
   {
     className: 'cleric',
     name: 'Village parson',
-    features: [
-      'Known in one region; ties to a single community or small shrine',
-    ],
+    features: ['Known in one region; ties to a single community or small shrine'],
   },
   {
     className: 'druid',
     name: 'Circle of seasons',
     minWisdom: 15,
-    features: [
-      'Rituals tied to equinox; strong seasonal story hooks',
-    ],
+    features: ['Rituals tied to equinox; strong seasonal story hooks'],
   },
   {
     className: 'druid',
     name: 'Swamp warden',
-    features: [
-      'Flavor around wetlands, disease, and thick growth instead of only forests',
-    ],
+    features: ['Flavor around wetlands, disease, and thick growth instead of only forests'],
   },
   {
     className: 'bard',
     name: 'Skald',
     minConstitution: 12,
-    features: [
-      'Songs of battles and long halls; mead-hall bragging rights in fiction',
-    ],
+    features: ['Songs of battles and long halls; mead-hall bragging rights in fiction'],
   },
   {
     className: 'bard',
     name: 'Minstrel spy',
     minDexterity: 13,
-    features: [
-      'Loves gossip and a good cover; stories double as information trade',
-    ],
+    features: ['Loves gossip and a good cover; stories double as information trade'],
   },
   {
     className: 'thief',
     name: 'Cutpurse of the bazaar',
     minDexterity: 14,
-    features: [
-      "Knows the crowd's rhythm; picks pockets in busy markets in fiction",
-    ],
+    features: ["Knows the crowd's rhythm; picks pockets in busy markets in fiction"],
   },
   {
     className: 'thief',
     name: 'Second-story worker',
-    features: [
-      'Leans to climbing and rooftop routes more than back-alley brawling',
-    ],
+    features: ['Leans to climbing and rooftop routes more than back-alley brawling'],
   },
 ];

@@ -124,9 +124,7 @@
     variations.map((variation) => ({ value: variation.name, label: variation.name })),
   );
   let availableTags = Charges.allChargeTags();
-  const fieldVariationSlotCount = $derived(
-    fieldVariationSlotCountForDivision(fieldDivisionOption),
-  );
+  const fieldVariationSlotCount = $derived(fieldVariationSlotCountForDivision(fieldDivisionOption));
 
   $effect(() => {
     const slotCount = fieldVariationSlotCountForDivision(fieldDivisionOption);
@@ -154,10 +152,7 @@
         return row;
       }
       tinctureRowsChanged = true;
-      return [
-        ...row,
-        ...Array.from({ length: tinctureCount - row.length }, () => 'any'),
-      ];
+      return [...row, ...Array.from({ length: tinctureCount - row.length }, () => 'any')];
     });
     if (tinctureRowsChanged) {
       variationTinctureOptions = paddedTinctureRows;
@@ -397,9 +392,7 @@
     }
   }
 
-  const loadDialogItems = $derived(
-    savedHeraldries.map((s) => ({ name: s.name, seed: s.seed })),
-  );
+  const loadDialogItems = $derived(savedHeraldries.map((s) => ({ name: s.name, seed: s.seed })));
 
   if (!page.url.searchParams.has(HERALDRY_LOAD_PARAM)) {
     generate();
@@ -475,7 +468,9 @@
   </div>
   {#each { length: variationTinctureCountForSlot(variationSlotOptions, 0) } as _, tinctureIndex (tinctureIndex)}
     <div class="input-group">
-      <label for="variation-0-tincture-{tinctureIndex}">Variation tincture {tinctureIndex + 1}</label>
+      <label for="variation-0-tincture-{tinctureIndex}"
+        >Variation tincture {tinctureIndex + 1}</label
+      >
       <HeraldryTinctureSelect
         id="variation-0-tincture-{tinctureIndex}"
         bind:value={variationTinctureOptions[0][tinctureIndex]}
@@ -516,7 +511,9 @@
   <button onclick={generate}>Generate</button>
   <button onclick={downloadSvg} disabled={currentArms === null}>Download SVG</button>
   <button onclick={downloadPng} disabled={currentArms === null}>Download PNG</button>
-  <button onclick={saveHeraldry} disabled={currentArms === null || isCurrentBlazonSaved}>Save</button>
+  <button onclick={saveHeraldry} disabled={currentArms === null || isCurrentBlazonSaved}
+    >Save</button
+  >
   <button type="button" onclick={openLoadDialog}>Load...</button>
 
   <p class="blazon">{blazon}</p>

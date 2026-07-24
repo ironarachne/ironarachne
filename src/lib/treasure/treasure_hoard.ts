@@ -57,8 +57,14 @@ export function generateRandomTreasureHoard(
     potions: config.potionProportion ?? 0,
   };
 
-  const { coinsValue, artObjectsValue, gemsValue, mundaneItemsValue, magicItemsValue, potionsValue } =
-    calculateHoardValues(targetValue, proportions);
+  const {
+    coinsValue,
+    artObjectsValue,
+    gemsValue,
+    mundaneItemsValue,
+    magicItemsValue,
+    potionsValue,
+  } = calculateHoardValues(targetValue, proportions);
 
   const coinGeneratorConfig = getDefaultCoinGenerationConfig();
   coinGeneratorConfig.maxValue = coinsValue;
@@ -90,7 +96,9 @@ export function generateRandomTreasureHoard(
 
   const potionGeneratorConfig = config.potionGeneratorConfig ?? getDefaultPotionConfig();
   const potions =
-    potionsValue > 0 ? getRandomPotionsForValue(rng.randomString(13), potionsValue, potionGeneratorConfig) : [];
+    potionsValue > 0
+      ? getRandomPotionsForValue(rng.randomString(13), potionsValue, potionGeneratorConfig)
+      : [];
   const potionItems = flattenPotionsToItems(potions);
 
   const items = [...mundaneItems, ...magicItems, ...potionItems];
@@ -223,7 +231,14 @@ function calculateHoardValues(
   const gemsValue =
     value - coinsValue - artObjectsValue - mundaneItemsValue - magicItemsValue - potionsValue;
 
-  return { coinsValue, artObjectsValue, gemsValue, mundaneItemsValue, magicItemsValue, potionsValue };
+  return {
+    coinsValue,
+    artObjectsValue,
+    gemsValue,
+    mundaneItemsValue,
+    magicItemsValue,
+    potionsValue,
+  };
 }
 
 function generateCoinPiles(value: number, coinSystem: CurrencySystem): PileOfCoins[] {

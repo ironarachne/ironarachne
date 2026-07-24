@@ -53,7 +53,10 @@ function filterKindsForSettlement(
     if (!matchesOrganizationGenre(k, genre)) {
       return false;
     }
-    if (economicRole === 'agrarian' && (k.id === 'corporate_division' || k.id === 'starship_squadron')) {
+    if (
+      economicRole === 'agrarian' &&
+      (k.id === 'corporate_division' || k.id === 'starship_squadron')
+    ) {
       return false;
     }
     if (population < 2000 && k.defaultSizeRange.min > 80) {
@@ -91,8 +94,7 @@ export function buildSettlementOrganizationKindPool(
   let pool = filterKindsForSettlement(population, economicRole, genre, allKinds);
   if (pool.length === 0) {
     pool = allKinds.filter(
-      (k) =>
-        population >= (KIND_MIN_POPULATION[k.id] ?? 0) && matchesOrganizationGenre(k, genre),
+      (k) => population >= (KIND_MIN_POPULATION[k.id] ?? 0) && matchesOrganizationGenre(k, genre),
     );
   }
   return pool;
@@ -102,8 +104,17 @@ export function buildSettlementOrganizationKindPool(
  * Produces N organizations with kinds suited to population and `economicRole`, reusing the global registry.
  */
 export function generateSettlementOrganizations(input: OrgGenInput): Organization[] {
-  const { count, population, economicRole, environment, settlementName, seedPrefix, genre, rng, characterConfig } =
-    input;
+  const {
+    count,
+    population,
+    economicRole,
+    environment,
+    settlementName,
+    seedPrefix,
+    genre,
+    rng,
+    characterConfig,
+  } = input;
   if (count <= 0) {
     return [];
   }

@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { contrastRatio } from '$lib/display_colors/display_palettes.js';
-import {
-  pickSpeciesBadgePalette,
-  pickSpeciesBadgeInitialsStyle,
-} from './species_badge_palette.js';
+import { pickSpeciesBadgePalette, pickSpeciesBadgeInitialsStyle } from './species_badge_palette.js';
 
 describe('pickSpeciesBadgePalette', () => {
   it('returns the same palette for the same species name', () => {

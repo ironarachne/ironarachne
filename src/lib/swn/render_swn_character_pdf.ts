@@ -29,7 +29,9 @@ function formatSigned(value: number): string {
 }
 
 function formatSwnHeaderTitle(character: SWNCharacter): string {
-  return formatCharacterDisplayName(character.firstName, character.lastName) || 'Stars Without Number';
+  return (
+    formatCharacterDisplayName(character.firstName, character.lastName) || 'Stars Without Number'
+  );
 }
 
 function formatSwnSubtitle(character: SWNCharacter): string {
@@ -147,7 +149,14 @@ function renderSwnCharacterSheet(
     formatSwnCombatMetrics(character),
     theme,
   );
-  y += drawSciFiStatRow(doc, page.margin, y, page.contentWidth, formatSwnStatBoxes(character), theme);
+  y += drawSciFiStatRow(
+    doc,
+    page.margin,
+    y,
+    page.contentWidth,
+    formatSwnStatBoxes(character),
+    theme,
+  );
 
   const columns = createSciFiSheetColumns(page, 3, 5, y + 1);
   const focusLines = formatSwnFocusLines(character);

@@ -123,7 +123,9 @@ describe('modal_state', () => {
   it('resolves heraldry persistence modal with replaced arms', async () => {
     const rng = new RNG('heraldry-modal-replace-test');
     const originalArms = generateHeraldry(getDefaultHeraldryGeneratorConfig(rng));
-    const replacementArms = generateHeraldry(getDefaultHeraldryGeneratorConfig(new RNG('replacement')));
+    const replacementArms = generateHeraldry(
+      getDefaultHeraldryGeneratorConfig(new RNG('replacement')),
+    );
     const promise = showHeraldryPersistenceModal({
       arms: originalArms,
       seed: 'seed-a',

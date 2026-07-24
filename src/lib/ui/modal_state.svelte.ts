@@ -55,7 +55,10 @@ type HeraldryPersistenceModalRequest = {
   resolve: (result: HeraldryPersistenceModalResult) => void;
 };
 
-export type ModalRequest = AlertModalRequest | ConfirmModalRequest | HeraldryPersistenceModalRequest;
+export type ModalRequest =
+  | AlertModalRequest
+  | ConfirmModalRequest
+  | HeraldryPersistenceModalRequest;
 
 export type ModalState = {
   open: boolean;

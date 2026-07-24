@@ -31,7 +31,7 @@ export const adventuringGearList = new EquipmentList('Adventuring Gear', [
   new EquipmentItem('pole, 10 ft', 2),
   new EquipmentItem('ladder, wooden (10 ft)', 20),
   new EquipmentItem('shovel', 8),
-  new EquipmentItem('pick, miner\'s', 60),
+  new EquipmentItem("pick, miner's", 60),
   new EquipmentItem('sack, large', 4),
   new EquipmentItem('sack, small', 2),
   new EquipmentItem('caltrops (bag of 20)', 10),

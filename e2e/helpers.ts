@@ -33,11 +33,14 @@ export async function expectGlobalChrome(page: Page): Promise<void> {
   await expect(page.getByRole('link', { name: 'Mastodon' })).toBeVisible();
 }
 
-export async function expectPageContent(page: Page, entry: {
-  heading?: string;
-  welcomeText?: string;
-  kind: string;
-}): Promise<void> {
+export async function expectPageContent(
+  page: Page,
+  entry: {
+    heading?: string;
+    welcomeText?: string;
+    kind: string;
+  },
+): Promise<void> {
   if (entry.welcomeText) {
     await expect(page.getByText(entry.welcomeText)).toBeVisible();
     return;
@@ -90,12 +93,14 @@ export async function expectGeneratorOutput(
       ).toBeVisible();
       return;
     case 'preview-image':
-      await expect(
-        page.locator('img[alt*="image"], img[alt*="composite"]').first(),
-      ).toBeVisible({ timeout: 30_000 });
+      await expect(page.locator('img[alt*="image"], img[alt*="composite"]').first()).toBeVisible({
+        timeout: 30_000,
+      });
       return;
     default: {
-      const main = page.locator('section.main, section.fantasy, section.navigation, section.home').first();
+      const main = page
+        .locator('section.main, section.fantasy, section.navigation, section.home')
+        .first();
       await expect(main).toBeVisible();
       await expect(main).not.toHaveText(/^[\s]*$/);
       return;

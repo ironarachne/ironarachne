@@ -104,7 +104,7 @@ Some crafting skills, like Woodworking, handle both refining and other crafting.
 
 ## Skill Specializations
 
-Rather than being a separate list of skills, a specialization is a general skill with an item type attached to it. 
+Rather than being a separate list of skills, a specialization is a general skill with an item type attached to it.
 
 For example, a character might have a skill specialization of "Blacksmithing: Bladesmithing", and an example of an applicable blueprint might be a Broadsword Blueprint, with major category Blacksmithing and minor category Bladesmithing.
 

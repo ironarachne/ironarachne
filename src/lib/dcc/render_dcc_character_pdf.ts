@@ -78,7 +78,12 @@ function drawAlignmentMarkers(doc: PdfDoc, x: number, y: number, alignment: stri
   }
 }
 
-function measureSectionHeight(doc: PdfDoc, value: string, width: number, minHeight: number): number {
+function measureSectionHeight(
+  doc: PdfDoc,
+  value: string,
+  width: number,
+  minHeight: number,
+): number {
   doc.setFontSize(9);
   const lines = doc.splitTextToSize(value, width - 4);
   return Math.max(minHeight, 8 + lines.length * 4);
@@ -165,12 +170,7 @@ function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
   doc.setFontSize(7);
   doc.setFont('helvetica', 'bold');
   doc.text('Alignment', MARGIN + nameWidth + occupationWidth + 2, y + 4);
-  drawAlignmentMarkers(
-    doc,
-    MARGIN + nameWidth + occupationWidth + 22,
-    y + 6,
-    character.alignment,
-  );
+  drawAlignmentMarkers(doc, MARGIN + nameWidth + occupationWidth + 22, y + 6, character.alignment);
 
   y += ROW_HEIGHT;
 
@@ -272,7 +272,14 @@ function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
     'Lucky Sign',
     formatDccLuckySign(character.luckyRoll),
   );
-  y += drawLabeledSection(doc, MARGIN, y, CONTENT_WIDTH, 'Weapons', formatWeaponsSection(character));
+  y += drawLabeledSection(
+    doc,
+    MARGIN,
+    y,
+    CONTENT_WIDTH,
+    'Weapons',
+    formatWeaponsSection(character),
+  );
   y += drawLabeledSection(
     doc,
     MARGIN,

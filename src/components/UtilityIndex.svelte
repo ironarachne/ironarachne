@@ -8,9 +8,9 @@
         { href: '/saved-data', label: 'Saved data' },
         { href: '/language', label: 'Language' },
         { href: '/species-stats', label: 'Species Height and Weight Calculator' },
-        { href: '/word-generator-cheat-sheet', label: 'Word Generator Cheat Sheet' }
-      ]
-    }
+        { href: '/word-generator-cheat-sheet', label: 'Word Generator Cheat Sheet' },
+      ],
+    },
   ];
 </script>
 

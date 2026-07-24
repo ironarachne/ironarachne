@@ -104,4 +104,3 @@ function randomProsperity(prosperity: number, rng: RNG.RNG): string {
 
   return rng.item(options);
 }
-

@@ -11,9 +11,9 @@
         { href: '/planet', label: 'Planet' },
         { href: '/region', label: 'Region' },
         { href: '/fantasy/settlement', label: 'Settlement' },
-        { href: '/star-system', label: 'Star System' }
-      ]
-    }
+        { href: '/star-system', label: 'Star System' },
+      ],
+    },
   ];
 </script>
 

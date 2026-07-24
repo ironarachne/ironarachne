@@ -3,8 +3,14 @@ import type { Settlement, SettlementEnrichmentConfig } from './settlement_types.
 import { deriveSettlementFacets } from './derive_settlement_facets.js';
 import { generateSettlementTrade } from './settlement_trade.js';
 import { generateSettlementProblems } from './settlement_problems.js';
-import { generateSettlementOrganizations, resolveOrgCharacterConfig } from './settlement_organizations.js';
-import { generateSettlementNotables, resolveNotableCharacterConfig } from './settlement_notables.js';
+import {
+  generateSettlementOrganizations,
+  resolveOrgCharacterConfig,
+} from './settlement_organizations.js';
+import {
+  generateSettlementNotables,
+  resolveNotableCharacterConfig,
+} from './settlement_notables.js';
 
 type BaseForFacets = Omit<
   Settlement,

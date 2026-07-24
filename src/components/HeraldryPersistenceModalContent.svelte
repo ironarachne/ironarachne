@@ -1,6 +1,9 @@
 <script lang="ts">
   import type { Arms } from '$lib/heraldry/arms';
-  import { appendSavedHeraldry, loadSavedHeraldrySnapshots } from '$lib/heraldry/heraldry_saved_state';
+  import {
+    appendSavedHeraldry,
+    loadSavedHeraldrySnapshots,
+  } from '$lib/heraldry/heraldry_saved_state';
   import {
     defaultHeraldryGeneratorOptions,
     heraldryFromSnapshot,
@@ -28,7 +31,9 @@
   const defaultGeneratorOptions = defaultHeraldryGeneratorOptions;
 
   let savedHeraldries = $state<HeraldrySnapshot[]>([]);
-  const isCurrentBlazonSaved = $derived(savedHeraldries.some((saved) => saved.blazon === arms.blazon));
+  const isCurrentBlazonSaved = $derived(
+    savedHeraldries.some((saved) => saved.blazon === arms.blazon),
+  );
 
   $effect(() => {
     arms;
@@ -73,7 +78,8 @@
   </div>
 
   <div class="modal-dialog-actions heraldry-persistence-actions">
-    <button type="button" onclick={saveCurrentHeraldry} disabled={isCurrentBlazonSaved}>Save</button>
+    <button type="button" onclick={saveCurrentHeraldry} disabled={isCurrentBlazonSaved}>Save</button
+    >
     <button type="button" onclick={onDismiss}>Close</button>
   </div>
 
@@ -86,12 +92,7 @@
       {#each savedHeraldries as saved, index (index)}
         <li class="heraldry-persistence-item">
           <div class="heraldry-persistence-item-preview">
-            {@html renderHeraldryDeviceSvg(
-              heraldryFromSnapshot(saved).arms.device,
-              48,
-              53,
-              rng,
-            )}
+            {@html renderHeraldryDeviceSvg(heraldryFromSnapshot(saved).arms.device, 48, 53, rng)}
           </div>
           <div class="heraldry-persistence-item-details">
             <p class="heraldry-persistence-item-name">{saved.name}</p>

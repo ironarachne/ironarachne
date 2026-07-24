@@ -97,7 +97,10 @@
 
       <h3>Container</h3>
       <p>{potion.container.name}: {potion.container.description}</p>
-      <p><strong>Container value:</strong> {valueToString(potion.container.value, COMMON_FANTASY)}</p>
+      <p>
+        <strong>Container value:</strong>
+        {valueToString(potion.container.value, COMMON_FANTASY)}
+      </p>
 
       <h3>Description</h3>
       <p>{potion.liquid.description}</p>

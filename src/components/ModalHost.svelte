@@ -24,7 +24,9 @@
     return current.style;
   });
 
-  const isAlertDialog = $derived(modalState.current?.kind === 'alert' || modalState.current?.kind === 'confirm');
+  const isAlertDialog = $derived(
+    modalState.current?.kind === 'alert' || modalState.current?.kind === 'confirm',
+  );
 
   $effect(() => {
     if (!dialogEl) {
@@ -84,7 +86,9 @@
       title={modalState.current.title}
       style={modalState.current.kind === 'alert' ? modalState.current.style : 'message'}
       okLabel={modalState.current.kind === 'confirm' ? modalState.current.okLabel : 'OK'}
-      cancelLabel={modalState.current.kind === 'confirm' ? modalState.current.cancelLabel : 'Cancel'}
+      cancelLabel={modalState.current.kind === 'confirm'
+        ? modalState.current.cancelLabel
+        : 'Cancel'}
       dangerous={modalState.current.kind === 'confirm' ? modalState.current.dangerous : false}
       onResolveAlert={resolveActiveAlertModal}
       onResolveConfirm={resolveActiveConfirmModal}

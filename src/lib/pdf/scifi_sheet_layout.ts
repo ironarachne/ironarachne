@@ -244,12 +244,7 @@ export function drawSciFiSectionTitle(
   return 4;
 }
 
-function measureWrappedLines(
-  doc: PdfDoc,
-  text: string,
-  width: number,
-  fontSize: number,
-): string[] {
+function measureWrappedLines(doc: PdfDoc, text: string, width: number, fontSize: number): string[] {
   doc.setFontSize(fontSize);
   return doc.splitTextToSize(text, width);
 }

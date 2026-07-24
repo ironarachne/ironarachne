@@ -21,8 +21,8 @@ describe('buildTincturePreviewSvg', () => {
 
   it('builds any preview and resolves option values', () => {
     expect(buildAnyTincturePreviewSvg(16)).toContain('<text');
-    expect(
-      buildTinctureOptionPreviewSvg('azure', Tinctures.all(), 16, 'option'),
-    ).toContain('fill="#0731BA"');
+    expect(buildTinctureOptionPreviewSvg('azure', Tinctures.all(), 16, 'option')).toContain(
+      'fill="#0731BA"',
+    );
   });
 });

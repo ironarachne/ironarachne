@@ -111,15 +111,27 @@
 
   <NumberField id="latitude" label="Latitude" bind:value={config.latitude} />
   <NumberField id="elevation" label="Elevation" bind:value={config.elevation} />
-  <NumberField id="erosionIterations" label="Erosion Iterations" bind:value={config.erosionIterations} />
+  <NumberField
+    id="erosionIterations"
+    label="Erosion Iterations"
+    bind:value={config.erosionIterations}
+  />
   <NumberField id="erosionStrength" label="Erosion Strength" bind:value={config.erosionStrength} />
   <NumberField id="reliefEnergy" label="Relief Energy" bind:value={config.reliefEnergy} />
   <NumberField id="terrainVector0" label="Terrain Vector X" bind:value={config.terrainVector[0]} />
   <NumberField id="terrainVector1" label="Terrain Vector Y" bind:value={config.terrainVector[1]} />
   <NumberField id="current0" label="Current X" bind:value={config.current[0]} />
   <NumberField id="current1" label="Current Y" bind:value={config.current[1]} />
-  <NumberField id="waterDirection0" label="Water Direction X" bind:value={config.waterDirection[0]} />
-  <NumberField id="waterDirection1" label="Water Direction Y" bind:value={config.waterDirection[1]} />
+  <NumberField
+    id="waterDirection0"
+    label="Water Direction X"
+    bind:value={config.waterDirection[0]}
+  />
+  <NumberField
+    id="waterDirection1"
+    label="Water Direction Y"
+    bind:value={config.waterDirection[1]}
+  />
 
   <SeedControls bind:seed bind:lockSeed />
 

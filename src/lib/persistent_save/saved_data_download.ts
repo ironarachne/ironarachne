@@ -40,7 +40,12 @@ export function downloadHeraldrySvg(snapshot: HeraldrySnapshot): void {
 
 export function downloadHeraldryPng(snapshot: HeraldrySnapshot): void {
   const svg = heraldrySvgString(snapshot);
-  SaveSVGToPNG(svg, HERALDRY_DOWNLOAD_WIDTH, HERALDRY_DOWNLOAD_HEIGHT, `heraldry-${snapshot.seed}.png`);
+  SaveSVGToPNG(
+    svg,
+    HERALDRY_DOWNLOAD_WIDTH,
+    HERALDRY_DOWNLOAD_HEIGHT,
+    `heraldry-${snapshot.seed}.png`,
+  );
 }
 
 export function downloadCultureJson(snapshot: CultureSnapshot): void {

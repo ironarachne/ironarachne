@@ -19,10 +19,7 @@ const sampleGeneratorOptions: HeraldryGeneratorOptionsSnapshot = {
   lockSeed: true,
   fieldDivisionOption: 'pale',
   variationSlotOptions: ['barry', 'plain'],
-  variationTinctureOptions: [
-    ['azure', 'Or'],
-    ['gules'],
-  ],
+  variationTinctureOptions: [['azure', 'Or'], ['gules']],
 };
 
 describe('heraldry_snapshot', () => {
@@ -75,7 +72,9 @@ describe('heraldry_snapshot', () => {
 
     expect(restored.arms.device.field.variations.length).toBe(arms.device.field.variations.length);
     for (let i = 0; i < arms.device.field.variations.length; i++) {
-      expect(restored.arms.device.field.variations[i].name).toBe(arms.device.field.variations[i].name);
+      expect(restored.arms.device.field.variations[i].name).toBe(
+        arms.device.field.variations[i].name,
+      );
       expect(restored.arms.device.field.variations[i].tinctures.map((t) => t.name)).toEqual(
         arms.device.field.variations[i].tinctures.map((t) => t.name),
       );

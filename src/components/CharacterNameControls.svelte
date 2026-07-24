@@ -104,7 +104,9 @@
       <input type="checkbox" bind:checked={lockName} />
       Lock Name
     </label>
-    <button type="button" disabled={lockName} onclick={() => onGenerateName?.()}>Generate name</button>
+    <button type="button" disabled={lockName} onclick={() => onGenerateName?.()}
+      >Generate name</button
+    >
   </div>
 </fieldset>
 

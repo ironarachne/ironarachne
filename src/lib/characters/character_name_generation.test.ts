@@ -39,11 +39,7 @@ describe('character_name_generation', () => {
   it('generates first and last names from a name set', () => {
     const rng = new RNG('name-seed');
     const nameSet = getFantasyNameGeneratorSet('human', rng);
-    const generated = generateCharacterName(
-      rng,
-      peopleNameGeneratorsFromNameSet(nameSet),
-      'male',
-    );
+    const generated = generateCharacterName(rng, peopleNameGeneratorsFromNameSet(nameSet), 'male');
     expect(generated.firstName.length).toBeGreaterThan(0);
     expect(generated.lastName.length).toBeGreaterThan(0);
   });

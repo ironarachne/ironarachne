@@ -89,7 +89,14 @@ function renderUwCharacterSheet(
   );
 
   let y = contentTop;
-  y += drawSciFiStatRow(doc, page.margin, y, page.contentWidth, formatUwStatBoxes(character), theme);
+  y += drawSciFiStatRow(
+    doc,
+    page.margin,
+    y,
+    page.contentWidth,
+    formatUwStatBoxes(character),
+    theme,
+  );
 
   const columns = createSciFiSheetColumns(page, 3, 5, y + 1);
   const careerLines = formatUwCareerLines(character);

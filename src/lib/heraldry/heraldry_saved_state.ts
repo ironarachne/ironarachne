@@ -88,9 +88,7 @@ export function saveHeraldrySnapshots(heraldries: HeraldrySnapshot[]): void {
   });
 }
 
-export type AppendSavedHeraldryResult =
-  | { ok: true }
-  | { ok: false; reason: 'duplicate_blazon' };
+export type AppendSavedHeraldryResult = { ok: true } | { ok: false; reason: 'duplicate_blazon' };
 
 export function appendSavedHeraldry(snapshot: HeraldrySnapshot): AppendSavedHeraldryResult {
   const payload = readHeraldrySavePayload();

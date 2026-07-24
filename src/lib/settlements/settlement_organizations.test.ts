@@ -14,13 +14,7 @@ function sampleEnvironment(seed: string) {
   return Environments.generate(cfg);
 }
 
-const ECONOMIC_ROLES = [
-  'agrarian',
-  'market',
-  'industrial',
-  'extractive',
-  'mixed',
-] as const;
+const ECONOMIC_ROLES = ['agrarian', 'market', 'industrial', 'extractive', 'mixed'] as const;
 
 describe('generateSettlementOrganizations', () => {
   it('never offers science-fiction kinds in the fantasy kind pool', () => {

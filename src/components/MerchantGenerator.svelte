@@ -2,11 +2,7 @@
   import { onMount } from 'svelte';
   import { valueToString } from '$lib/currency';
   import { COMMON_FANTASY } from '$lib/currency/systems';
-  import {
-    generateMerchant,
-    getDefaultMerchantConfig,
-    type Merchant,
-  } from '$lib/merchants';
+  import { generateMerchant, getDefaultMerchantConfig, type Merchant } from '$lib/merchants';
   import { renderMerchantMarkSvg } from '$lib/merchant_marks/render_merchant_mark_svg';
   import { RNG } from '@ironarachne/rng';
   import GeneratorPage from '$components/GeneratorPage.svelte';
@@ -67,8 +63,8 @@
 <GeneratorPage theme="fantasy" title="Fantasy Merchant Generator">
   {#snippet description()}
     <p>
-      Generate a fantasy merchant with a proprietor, shop or traveling venue, merchant mark, and stock
-      list priced according to honesty and markup settings.
+      Generate a fantasy merchant with a proprietor, shop or traveling venue, merchant mark, and
+      stock list priced according to honesty and markup settings.
     </p>
   {/snippet}
 
@@ -137,7 +133,11 @@
     <NumberField id="stockCount" label="Stock Items" bind:value={stockCount} min={4} max={30} />
 
     <div class="checkbox-group">
-      <CheckboxField id="includeMerchantMark" label="Merchant mark" bind:checked={includeMerchantMark} />
+      <CheckboxField
+        id="includeMerchantMark"
+        label="Merchant mark"
+        bind:checked={includeMerchantMark}
+      />
     </div>
 
     <SeedControls bind:seed bind:lockSeed inline />
@@ -175,7 +175,10 @@
       <ul class="trading-notes">
         <li><strong>Honesty:</strong> {merchant.honesty}</li>
         <li><strong>Price level:</strong> {merchant.priceLevel}</li>
-        <li><strong>Price modifier:</strong> {formatModifier(merchant.priceModifier)} of catalog value</li>
+        <li>
+          <strong>Price modifier:</strong>
+          {formatModifier(merchant.priceModifier)} of catalog value
+        </li>
         <li>{merchant.honestyNotes}</li>
         <li>{merchant.hagglingAdvice}</li>
       </ul>

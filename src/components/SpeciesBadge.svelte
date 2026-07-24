@@ -39,8 +39,9 @@
     {#if svg}
       <span class="species-badge__svg">{@html svg}</span>
     {:else}
-      <span class="species-badge__initials" class:species-badge__initials--scrim={!!initialsStyle.scrim}
-        >{initials}</span
+      <span
+        class="species-badge__initials"
+        class:species-badge__initials--scrim={!!initialsStyle.scrim}>{initials}</span
       >
     {/if}
   </span>

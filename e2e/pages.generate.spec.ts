@@ -1,10 +1,6 @@
 import { test } from '@playwright/test';
 import { GENERATE_TEST_PAGES } from './page_manifest';
-import {
-  clickGenerateButton,
-  expectGeneratorOutput,
-  visitRoute,
-} from './helpers';
+import { clickGenerateButton, expectGeneratorOutput, visitRoute } from './helpers';
 
 for (const entry of GENERATE_TEST_PAGES) {
   test(`generate: ${entry.path}`, async ({ page }) => {

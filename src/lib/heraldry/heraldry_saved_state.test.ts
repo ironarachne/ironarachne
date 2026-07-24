@@ -12,7 +12,10 @@ import {
   loadSavedHeraldrySnapshots,
   readHeraldrySavePayload,
 } from '$lib/heraldry/heraldry_saved_state.js';
-import { toHeraldrySnapshot, type HeraldryGeneratorOptionsSnapshot } from '$lib/heraldry/heraldry_snapshot.js';
+import {
+  toHeraldrySnapshot,
+  type HeraldryGeneratorOptionsSnapshot,
+} from '$lib/heraldry/heraldry_snapshot.js';
 import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save/scoped_local_storage.js';
 
 const sampleGeneratorOptions: HeraldryGeneratorOptionsSnapshot = {

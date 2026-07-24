@@ -1,4 +1,7 @@
-import { generate as generateCharacter, getDefaultCharacterGenerationConfig } from '$lib/characters/character_generation.js';
+import {
+  generate as generateCharacter,
+  getDefaultCharacterGenerationConfig,
+} from '$lib/characters/character_generation.js';
 import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
 import type { RNG } from '@ironarachne/rng';
 import type { Settlement, SettlementImportantPerson } from './settlement_types.js';

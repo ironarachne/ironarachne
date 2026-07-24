@@ -12,7 +12,13 @@ export type SettlementNotableRoleDefinition = {
    */
   title: Pick<
     Title,
-    'femaleTitle' | 'maleTitle' | 'femaleHonorific' | 'maleHonorific' | 'hasLands' | 'landName' | 'precedence'
+    | 'femaleTitle'
+    | 'maleTitle'
+    | 'femaleHonorific'
+    | 'maleHonorific'
+    | 'hasLands'
+    | 'landName'
+    | 'precedence'
   >;
   /** Archetype `name` values; the first that exists in the registry is used. */
   archetypeNames: string[];
@@ -31,7 +37,13 @@ function civicTitle(
   precedence: number,
 ): Pick<
   Title,
-  'femaleTitle' | 'maleTitle' | 'femaleHonorific' | 'maleHonorific' | 'hasLands' | 'landName' | 'precedence'
+  | 'femaleTitle'
+  | 'maleTitle'
+  | 'femaleHonorific'
+  | 'maleHonorific'
+  | 'hasLands'
+  | 'landName'
+  | 'precedence'
 > {
   return {
     femaleTitle: n,
@@ -67,7 +79,7 @@ export const SETTLEMENT_NOTABLE_ROLES: readonly SettlementNotableRoleDefinition[
     title: civicTitle('Captain of the Watch', 22),
     archetypeNames: ['fighter', 'rogue'],
     importanceTemplate:
-      "Commands the garrison, gate watches, and night patrols; {characterPossessive} word carries when steel is bared in {settlement}.",
+      'Commands the garrison, gate watches, and night patrols; {characterPossessive} word carries when steel is bared in {settlement}.',
     minPopulation: 200,
   },
   {
@@ -126,7 +138,10 @@ export const SETTLEMENT_NOTABLE_ROLES: readonly SettlementNotableRoleDefinition[
   },
 ];
 
-function categoryMatches(role: SettlementNotableRoleDefinition, category: SettlementCategory): boolean {
+function categoryMatches(
+  role: SettlementNotableRoleDefinition,
+  category: SettlementCategory,
+): boolean {
   if (role.allowedCategoryNames == null) {
     return true;
   }

@@ -130,12 +130,7 @@
     options={planetCountOptions}
   />
 
-  <SelectField
-    id="starType"
-    label="Star Type"
-    bind:value={starType}
-    options={starTypeOptions}
-  />
+  <SelectField id="starType" label="Star Type" bind:value={starType} options={starTypeOptions} />
 
   <button onclick={generate}>Generate</button>
 

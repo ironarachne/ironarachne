@@ -55,10 +55,7 @@ function rollQuantity(rng: RNG, baseCost: number): number {
   return rng.int(2, 12);
 }
 
-function maybeAddDishonestNote(
-  rng: RNG,
-  honesty: ResolvedHonestyLevel,
-): string | undefined {
+function maybeAddDishonestNote(rng: RNG, honesty: ResolvedHonestyLevel): string | undefined {
   if (honesty === 'honest' || honesty === 'fair') {
     return undefined;
   }

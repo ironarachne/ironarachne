@@ -107,10 +107,7 @@ function categoryForClassWeaponToken(
 /**
  * Eligible weapon proficiency groups (matches `ADNDWeapon.category`) for this class.
  */
-export function getEligibleWeaponGroups(
-  cls: ADNDClass,
-  allWeapons: ADNDWeapon[],
-): string[] {
+export function getEligibleWeaponGroups(cls: ADNDClass, allWeapons: ADNDWeapon[]): string[] {
   const nameToCategory = buildWeaponNameToCategory(allWeapons);
   if (cls.allowedWeapons.includes('any')) {
     return uniqueCategoriesFromWeapons(allWeapons);
@@ -118,9 +115,7 @@ export function getEligibleWeaponGroups(
 
   if (cls.allowedWeapons.includes('bludgeoning')) {
     return uniqueSorted(
-      allWeapons
-        .filter((w) => w.damageType.includes('bludgeoning'))
-        .map((w) => w.category),
+      allWeapons.filter((w) => w.damageType.includes('bludgeoning')).map((w) => w.category),
     );
   }
 

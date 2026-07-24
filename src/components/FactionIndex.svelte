@@ -11,9 +11,9 @@
         { href: '/fantasy/family', label: 'Fantasy Family' },
         { href: '/fantasy/organization', label: 'Fantasy Organization' },
         { href: '/fantasy/religion', label: 'Fantasy Religion' },
-        { href: '/star-nation', label: 'Star Nation' }
-      ]
-    }
+        { href: '/star-nation', label: 'Star Nation' },
+      ],
+    },
   ];
 </script>
 

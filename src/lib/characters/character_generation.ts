@@ -220,8 +220,5 @@ export function getCharacterGenerationConfigForNameSet(
 
 export function getDefaultCharacterGenerationConfig(seed: string): CharacterGenerationConfig {
   const rng = new RNG.RNG(seed + '-names');
-  return getCharacterGenerationConfigForNameSet(
-    seed,
-    getFantasyNameGeneratorSet('tiefling', rng),
-  );
+  return getCharacterGenerationConfigForNameSet(seed, getFantasyNameGeneratorSet('tiefling', rng));
 }

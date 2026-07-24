@@ -76,7 +76,11 @@
     ]}
   />
 
-  <CheckboxField id="force-uniform-species" label="Force Uniform Species" bind:checked={forceUniformSpecies} />
+  <CheckboxField
+    id="force-uniform-species"
+    label="Force Uniform Species"
+    bind:checked={forceUniformSpecies}
+  />
 
   <button onclick={generate}>Generate</button>
 

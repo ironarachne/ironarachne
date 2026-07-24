@@ -39,7 +39,11 @@ export async function buildTextPdf(title: string, body: string): Promise<Blob> {
   return doc.output('blob');
 }
 
-export async function downloadTextPdf(title: string, body: string, filename: string): Promise<void> {
+export async function downloadTextPdf(
+  title: string,
+  body: string,
+  filename: string,
+): Promise<void> {
   const blob = await buildTextPdf(title, body);
   const url = URL.createObjectURL(blob);
   Download(url, filename);

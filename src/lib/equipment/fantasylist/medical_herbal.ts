@@ -2,8 +2,8 @@ import { EquipmentItem, EquipmentList } from '../list.js';
 
 export const medicalHerbalList = new EquipmentList('Medical and Herbal', [
   new EquipmentItem('bandages (1 roll)', 4),
-  new EquipmentItem('healer\'s kit', 500),
-  new EquipmentItem('surgeon\'s kit', 1200),
+  new EquipmentItem("healer's kit", 500),
+  new EquipmentItem("surgeon's kit", 1200),
   new EquipmentItem('salve, healing (1 jar)', 24),
   new EquipmentItem('salve, burn (1 jar)', 16),
   new EquipmentItem('liniment (1 bottle)', 12),

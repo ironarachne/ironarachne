@@ -10,14 +10,7 @@
     onchange?: () => void;
   };
 
-  let {
-    id,
-    label,
-    value = $bindable(''),
-    options,
-    disabled = false,
-    onchange,
-  }: Props = $props();
+  let { id, label, value = $bindable(''), options, disabled = false, onchange }: Props = $props();
 
   function normalizeOption(opt: string | Option): Option {
     return typeof opt === 'string' ? { value: opt, label: opt } : opt;
@@ -28,7 +21,7 @@
 
 <div class="input-group">
   <label for={id}>{label}</label>
-  <select {id} bind:value onchange={onchange} {disabled}>
+  <select {id} bind:value {onchange} {disabled}>
     {#each normalizedOptions as opt}
       <option value={opt.value}>{opt.label}</option>
     {/each}

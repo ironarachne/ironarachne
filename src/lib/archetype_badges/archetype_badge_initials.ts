@@ -33,5 +33,8 @@ export function archetypeNameToBadgeInitials(name: string): string {
   }
 
   const single = firstTwoAlphabeticChars(words[0] ?? name);
-  return single.toUpperCase().padEnd(2, single.toUpperCase() || '?').slice(0, 2);
+  return single
+    .toUpperCase()
+    .padEnd(2, single.toUpperCase() || '?')
+    .slice(0, 2);
 }

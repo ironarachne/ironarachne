@@ -104,7 +104,11 @@
   const heraldryWidth = 200;
   const heraldryHeight = 220;
 
-  async function openHeraldryModal(arms: Arms, title: string, applyReplacement: (arms: Arms) => void) {
+  async function openHeraldryModal(
+    arms: Arms,
+    title: string,
+    applyReplacement: (arms: Arms) => void,
+  ) {
     const result = await showHeraldryPersistenceModal({ arms, seed, title });
     if (result.action === 'replaced') {
       applyReplacement(result.arms);

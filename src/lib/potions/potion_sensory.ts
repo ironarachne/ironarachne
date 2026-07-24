@@ -135,9 +135,16 @@ function pickFlavor(rng: RNG, elements: Element[] | undefined, hints?: PotionSen
   }
 
   const element = elements?.length ? rng.item(elements) : undefined;
-  const flavorPool = element && FLAVOR_BASES[element] ? FLAVOR_BASES[element] : FLAVOR_BASES.default;
+  const flavorPool =
+    element && FLAVOR_BASES[element] ? FLAVOR_BASES[element] : FLAVOR_BASES.default;
   const base = rng.item(flavorPool);
-  const modifier = rng.item(['faintly', 'distinctly', 'surprisingly', 'unpleasantly', 'pleasantly']);
+  const modifier = rng.item([
+    'faintly',
+    'distinctly',
+    'surprisingly',
+    'unpleasantly',
+    'pleasantly',
+  ]);
   return `${modifier} ${base}`;
 }
 

@@ -28,7 +28,8 @@ export function pickCategoryPlausibleLine(
     return rng.item(raw);
   }
   const fit = raw.filter((line) => !DISORDER_CUE_PATTERN.test(line));
-  const mix = fit.length > 0 ? [...fit, ...raw.filter((line) => DISORDER_CUE_PATTERN.test(line))] : raw;
+  const mix =
+    fit.length > 0 ? [...fit, ...raw.filter((line) => DISORDER_CUE_PATTERN.test(line))] : raw;
   return rng.item(mix);
 }
 

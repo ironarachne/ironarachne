@@ -13,9 +13,9 @@
         { href: '/fantasy/weapon', label: 'Fantasy Weapon' },
         { href: '/fantasy/treasure-hoard', label: 'Fantasy Treasure Hoard' },
         { href: '/spooky-ship', label: 'Spooky Starship' },
-        { href: '/swn/starship', label: 'Stars Without Number Starship' }
-      ]
-    }
+        { href: '/swn/starship', label: 'Stars Without Number Starship' },
+      ],
+    },
   ];
 </script>
 

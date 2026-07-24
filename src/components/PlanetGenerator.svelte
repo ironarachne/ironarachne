@@ -68,10 +68,7 @@
   const width = 400;
   const height = 400;
 
-  const planetTypeOptions = $derived([
-    'random',
-    ...planetTypes.map((p) => p.name),
-  ]);
+  const planetTypeOptions = $derived(['random', ...planetTypes.map((p) => p.name)]);
 
   function refreshPlanetImage() {
     if (!browser || planet === undefined || planetImageSeed === '') return;
@@ -152,9 +149,9 @@
 <GeneratorPage theme="scifi" title="Planet Generator">
   {#snippet description()}
     <p>
-      This lets you generate a planet. Choose <strong>WebGL</strong> for full shader quality (uses the
-      GPU) or <strong>Simple</strong> for a Canvas 2D preview that avoids WebGL—useful on low-end machines.
-      Your choice is remembered in this browser.
+      This lets you generate a planet. Choose <strong>WebGL</strong> for full shader quality (uses
+      the GPU) or <strong>Simple</strong> for a Canvas 2D preview that avoids WebGL—useful on low-end
+      machines. Your choice is remembered in this browser.
     </p>
   {/snippet}
 
@@ -162,7 +159,12 @@
 
   <SeedControls bind:seed bind:lockSeed />
 
-  <SelectField id="planetType" label="Planet Type" bind:value={planetType} options={planetTypeOptions} />
+  <SelectField
+    id="planetType"
+    label="Planet Type"
+    bind:value={planetType}
+    options={planetTypeOptions}
+  />
 
   <CheckboxField id="forceRings" label="Force Rings" bind:checked={forceRings} />
 
