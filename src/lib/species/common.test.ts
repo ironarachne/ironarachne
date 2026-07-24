@@ -74,6 +74,18 @@ describe('breedable and breed', () => {
     const b = dogVariant('beta', 'wolf');
     expect(() => breed(a, b)).toThrow(/not breedable/);
   });
+
+  it('does not mutate the parent species', () => {
+    const a = dogVariant('alpha');
+    const b = dogVariant('beta');
+    const originalName = a.name;
+    const originalEnvironments = [...a.environments];
+    const originalTags = [...a.tags];
+    breed(a, b);
+    expect(a.name).toBe(originalName);
+    expect(a.environments).toEqual(originalEnvironments);
+    expect(a.tags).toEqual(originalTags);
+  });
 });
 
 describe('species filters', () => {

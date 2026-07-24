@@ -28,7 +28,7 @@ export function breed(species1: Species, species2: Species): Species {
     throw new Error(`Species ${species1.name} and ${species2.name} are not breedable.`);
   }
 
-  let result: Species = species1;
+  const result: Species = JSON.parse(JSON.stringify(species1));
 
   result.environments = getCommonEnvironments(species1, species2);
   result.physicalTraitGeneratorConfigs = mergeTraits(species1, species2);
@@ -72,7 +72,7 @@ export function averageAgeCategories(species1: Species, species2: Species): AgeC
 }
 
 export function averageSizes(species1: Species, species2: Species): SizeMatrix {
-  let result: SizeMatrix = species1.sizeGeneratorConfigMatrix;
+  const result: SizeMatrix = JSON.parse(JSON.stringify(species1.sizeGeneratorConfigMatrix));
 
   for (let i = 0; i < species1.sizeGeneratorConfigMatrix.length; i++) {
     for (let j = 0; j < species1.sizeGeneratorConfigMatrix[i].entries.length; j++) {
@@ -229,7 +229,7 @@ export function getZombieVariants(options: Species[]): Species[] {
 }
 
 export function mergeTags(tags1: string[], tags2: string[]): string[] {
-  let result: string[] = tags1;
+  const result: string[] = [...tags1];
 
   for (let i = 0; i < tags2.length; i++) {
     if (!result.includes(tags2[i])) {
@@ -241,7 +241,10 @@ export function mergeTags(tags1: string[], tags2: string[]): string[] {
 }
 
 export function mergeTraits(species1: Species, species2: Species): PhysicalTraitGeneratorConfig[] {
-  let result: PhysicalTraitGeneratorConfig[] = species1.physicalTraitGeneratorConfigs;
+  const result: PhysicalTraitGeneratorConfig[] = species1.physicalTraitGeneratorConfigs.map((c) => ({
+    ...c,
+    options: [...c.options],
+  }));
 
   for (let i = 0; i < species2.physicalTraitGeneratorConfigs.length; i++) {
     let config = species2.physicalTraitGeneratorConfigs[i];
