@@ -54,9 +54,11 @@
       align-items: center;
       color: var(--iron-arachne-green);
       display: flex;
-      font-size: 2.2rem;
+      /* "Iron Arachne" sits on one line beside the glyph, so at 2.2rem it runs
+         past the edge of a 320px phone. Scale it with the viewport instead. */
+      font-size: clamp(1.6rem, 8.5vw, 2.2rem);
       font-family: 'cinzel', system-ui, Helvetica, sans-serif;
-      line-height: 2.2rem;
+      line-height: 1.1;
     }
   }
 

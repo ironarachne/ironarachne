@@ -531,8 +531,17 @@
 <style>
   div.coat-of-arms {
     width: 600px;
-    height: 660px;
+    /* Full size on desktop, but never wider than the screen it is drawn on. */
+    max-width: 100%;
+    aspect-ratio: 600 / 660;
+    height: auto;
     margin: 0 auto;
+  }
+
+  div.coat-of-arms img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   p.blazon {

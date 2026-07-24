@@ -40,6 +40,13 @@ a:visited {
   color: color-mix(in srgb, var(--iron-arachne-green) 10%, var(--gold) 90%);
 }
 
+/* Generated previews are rendered at a fixed pixel size; keep them inside the
+   viewport on phones rather than forcing the page to scroll sideways. */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
 button {
   font-family: 'cinzel', system-ui, Helvetica, sans-serif;
 }
@@ -52,6 +59,9 @@ h5,
 h6 {
   font-family: 'cinzel', system-ui, Helvetica, sans-serif;
   margin: 1.5rem 0;
+  /* Generated names can be a single long word; break it rather than let it run
+     off the side of a phone. */
+  overflow-wrap: break-word;
 }
 
 pre {
@@ -74,8 +84,10 @@ div.half-column {
 
 h1 {
   font-weight: 700;
-  font-size: 2.5rem;
-  line-height: 2.5rem;
+  /* Page titles like "Arms Manufacturer Generator" are wider than a 320px
+     screen at the full 2.5rem, so scale down on narrow viewports. */
+  font-size: clamp(1.9rem, 6vw + 0.5rem, 2.5rem);
+  line-height: 1.1;
   padding: 3px;
 }
 
@@ -127,6 +139,10 @@ select {
   font-size: 1rem;
   line-height: 1rem;
   padding: 0.25rem;
+  /* A select is as wide as its longest option, which on a narrow phone can be
+     wider than the screen. Border-box keeps the padding inside that limit. */
+  box-sizing: border-box;
+  max-width: 100%;
 }
 
 div.input-group {

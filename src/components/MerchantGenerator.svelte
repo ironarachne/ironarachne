@@ -184,28 +184,30 @@
       </ul>
 
       <h3>Stock</h3>
-      <table class="stock-table">
-        <thead>
-          <tr>
-            <th>Item</th>
-            <th>Qty</th>
-            <th>Catalog</th>
-            <th>Ask Price</th>
-            <th>Note</th>
-          </tr>
-        </thead>
-        <tbody>
-          {#each merchant.stock as item}
+      <div class="stock-table-scroll">
+        <table class="stock-table">
+          <thead>
             <tr>
-              <td>{item.name}</td>
-              <td>{item.quantity}</td>
-              <td>{formatPrice(item.baseCost)}</td>
-              <td>{formatPrice(item.price)}</td>
-              <td>{item.note ?? ''}</td>
+              <th>Item</th>
+              <th>Qty</th>
+              <th>Catalog</th>
+              <th>Ask Price</th>
+              <th>Note</th>
             </tr>
-          {/each}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {#each merchant.stock as item}
+              <tr>
+                <td>{item.name}</td>
+                <td>{item.quantity}</td>
+                <td>{formatPrice(item.baseCost)}</td>
+                <td>{formatPrice(item.price)}</td>
+                <td>{item.note ?? ''}</td>
+              </tr>
+            {/each}
+          </tbody>
+        </table>
+      </div>
     </article>
   {/if}
 </GeneratorPage>
@@ -223,6 +225,13 @@
     justify-content: space-between;
     gap: 1rem;
     align-items: flex-start;
+    /* A long shop name plus the 120px mark does not fit a phone on one line. */
+    flex-wrap: wrap;
+  }
+
+  .merchant-heading {
+    flex: 1 1 12rem;
+    min-width: 0;
   }
 
   .merchant-heading h2 {
@@ -250,8 +259,15 @@
     padding-left: 1.25rem;
   }
 
+  /* Five columns cannot compress to phone width without the item names turning
+     into one letter per line, so let the table scroll on its own instead. */
+  .stock-table-scroll {
+    overflow-x: auto;
+  }
+
   .stock-table {
     width: 100%;
+    min-width: 30rem;
     border-collapse: collapse;
     margin-top: 0.5rem;
   }
