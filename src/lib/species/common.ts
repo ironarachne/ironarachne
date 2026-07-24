@@ -241,10 +241,12 @@ export function mergeTags(tags1: string[], tags2: string[]): string[] {
 }
 
 export function mergeTraits(species1: Species, species2: Species): PhysicalTraitGeneratorConfig[] {
-  const result: PhysicalTraitGeneratorConfig[] = species1.physicalTraitGeneratorConfigs.map((c) => ({
-    ...c,
-    options: [...c.options],
-  }));
+  const result: PhysicalTraitGeneratorConfig[] = species1.physicalTraitGeneratorConfigs.map(
+    (c) => ({
+      ...c,
+      options: [...c.options],
+    }),
+  );
 
   for (let i = 0; i < species2.physicalTraitGeneratorConfigs.length; i++) {
     let config = species2.physicalTraitGeneratorConfigs[i];
