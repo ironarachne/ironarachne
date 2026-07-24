@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as CharGen from '$lib/unchartedworlds/character';
   import type { UWCharacter } from '$lib/unchartedworlds/character';
+  import { parseSkillDescription } from '$lib/unchartedworlds/skill_description';
   import { downloadUwCharacterPdf } from '$lib/unchartedworlds/render_uw_character_pdf';
   import * as RNG from '@ironarachne/rng';
   import {
@@ -189,11 +190,21 @@
 
     <h2>Skills</h2>
 
-    <ul>
+    <ul class="skills">
       {#each character.skills as skill}
-        <li>
-          <strong>{skill.name}: </strong>
-          <pre>{skill.description}</pre>
+        <li class="skill">
+          <p class="skill-name"><strong>{skill.name}</strong></p>
+          {#each parseSkillDescription(skill.description) as block}
+            {#if block.kind === 'options'}
+              <ul class="skill-options">
+                {#each block.items as item}
+                  <li>{item}</li>
+                {/each}
+              </ul>
+            {:else}
+              <p class="skill-line">{block.text}</p>
+            {/if}
+          {/each}
         </li>
       {/each}
     </ul>
@@ -227,3 +238,25 @@
     {/each}
   {/if}
 </GeneratorPage>
+
+<style>
+  ul.skills > li.skill {
+    list-style-type: none;
+    margin-left: 0;
+    margin-bottom: 1.25rem;
+  }
+
+  p.skill-name,
+  p.skill-line {
+    margin: 0 0 0.35rem;
+  }
+
+  ul.skill-options {
+    margin: 0 0 0.35rem;
+  }
+
+  ul.skill-options > li {
+    list-style-type: disc;
+    margin-left: 1.5rem;
+  }
+</style>
