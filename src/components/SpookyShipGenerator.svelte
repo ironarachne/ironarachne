@@ -1,0 +1,40 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import * as SpookyShip from '$lib/spooky_ship';
+  import { RNG } from '@ironarachne/rng';
+  import GeneratorPage from '$components/GeneratorPage.svelte';
+  import SeedControls from '$components/SeedControls.svelte';
+
+  let rng = new RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
+  $effect(() => {
+    rng.setSeed(seed);
+  });
+  let lockSeed = $state(false);
+
+  let shipDescription = $state('');
+
+  function generate() {
+    if (!lockSeed) {
+      seed = rng.randomString(13);
+    }
+    rng.setSeed(seed);
+    shipDescription = SpookyShip.generate(rng);
+  }
+
+  onMount(() => {
+    generate();
+  });
+</script>
+
+<GeneratorPage theme="scifi" title="Spooky Ship Generator">
+  {#snippet description()}
+    <p>Generate a spooky ship description.</p>
+  {/snippet}
+
+  <SeedControls bind:seed bind:lockSeed />
+
+  <button onclick={generate}>Generate</button>
+
+  <p>{shipDescription}</p>
+</GeneratorPage>

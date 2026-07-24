@@ -22,7 +22,7 @@ Libraries may also contain other supporting files, like SVGs.
 
 UI components are stored in `src/components`. Each component should be a standalone, reusable UI element that can be used across the application.
 
-Components are Svelte code. Each component should have its own directory in `src/components`. Tests are not necessary for components.
+Components are Svelte code, stored as PascalCase `.svelte` files directly in `src/components`, and imported via the `$components` alias. Tests are not necessary for components.
 
 ## Routes
 

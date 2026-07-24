@@ -1,5 +1,5 @@
 <script lang="ts">
-  import HeraldryPreviewSelect from '$lib/components/heraldry_preview_select.svelte';
+  import HeraldryPreviewSelect from '$components/HeraldryPreviewSelect.svelte';
   import {
     buildAnyOptionPreviewSvg,
     PREVIEW_STROKE,

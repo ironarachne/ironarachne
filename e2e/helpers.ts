@@ -53,9 +53,16 @@ export async function expectPageContent(page: Page, entry: {
   }
 }
 
+/**
+ * Matches only a button labelled exactly "Generate", so pages that also offer a
+ * narrower control (e.g. "Generate name") stay unambiguous. Pages whose main
+ * button is named something else declare `generateButton` in the manifest.
+ */
+const DEFAULT_GENERATE_BUTTON = /^Generate$/i;
+
 export async function clickGenerateButton(
   page: Page,
-  generateButton: RegExp = /^Generate/i,
+  generateButton: RegExp = DEFAULT_GENERATE_BUTTON,
   timeout = 15_000,
   noWaitAfter = false,
 ): Promise<void> {

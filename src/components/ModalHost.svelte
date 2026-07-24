@@ -1,6 +1,6 @@
 <script lang="ts">
-  import HeraldryPersistenceModalContent from '$lib/components/heraldry_persistence_modal_content.svelte';
-  import ModalDialog from '$lib/components/modal_dialog.svelte';
+  import HeraldryPersistenceModalContent from '$components/HeraldryPersistenceModalContent.svelte';
+  import ModalDialog from '$components/ModalDialog.svelte';
   import {
     modalState,
     resolveActiveAlertModal,

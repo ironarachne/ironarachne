@@ -7,6 +7,9 @@ const config = {
 
   kit: {
     adapter: adapter({ strict: true }),
+    alias: {
+      $components: './src/components',
+    },
   },
 };
 

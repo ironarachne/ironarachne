@@ -18,12 +18,7 @@ for (const entry of GENERATE_TEST_PAGES) {
     }
 
     const buttonTimeout = entry.webgl ? 30_000 : 15_000;
-    await clickGenerateButton(
-      page,
-      entry.generateButton ?? /^Generate/i,
-      buttonTimeout,
-      Boolean(entry.webgl),
-    );
+    await clickGenerateButton(page, entry.generateButton, buttonTimeout, Boolean(entry.webgl));
     await expectGeneratorOutput(page, entry.outputCheck ?? 'default');
   });
 }
