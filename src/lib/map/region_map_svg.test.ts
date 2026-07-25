@@ -4,6 +4,67 @@ import { buildBaseMapGraph } from './builder.js';
 import { buildRegionMapSvgString } from './region_map_svg.js';
 import type { RegionMap } from './map_graph.js';
 
+type PlacedSymbol = {
+  id: string;
+  x: number;
+  y: number;
+  rotation: number;
+  scale: number;
+};
+
+const PLACED_SYMBOL_PATTERN =
+  /<use href="#([^"]+)" transform="translate\((-?[\d.]+), (-?[\d.]+)\) rotate\((-?[\d.]+)\) scale\(([\d.]+)\)"/g;
+
+function parsePlacedSymbols(svg: string): PlacedSymbol[] {
+  const out: PlacedSymbol[] = [];
+  for (const m of svg.matchAll(PLACED_SYMBOL_PATTERN)) {
+    out.push({
+      id: m[1],
+      x: Number(m[2]),
+      y: Number(m[3]),
+      rotation: Number(m[4]),
+      scale: Number(m[5]),
+    });
+  }
+  return out;
+}
+
+/** Places a point of a glyph's silhouette (symbol space) into map space. */
+function placeSilhouettePoint(symbol: PlacedSymbol, sx: number, sy: number) {
+  const a = (symbol.rotation * Math.PI) / 180;
+  const cos = Math.cos(a);
+  const sin = Math.sin(a);
+  return {
+    x: symbol.x + (sx * cos - sy * sin) * symbol.scale,
+    y: symbol.y + (sx * sin + sy * cos) * symbol.scale,
+  };
+}
+
+function squareCellNode(id: number, minX: number, minY: number, size: number) {
+  return {
+    id,
+    center: { x: minX + size / 2, y: minY + size / 2 },
+    polygon: {
+      vertices: [
+        { x: minX, y: minY },
+        { x: minX + size, y: minY },
+        { x: minX + size, y: minY + size },
+        { x: minX, y: minY + size },
+      ],
+      edges: [],
+    },
+    neighbors: [] as number[],
+    edges: [] as number[],
+    corners: [] as number[],
+    elevation: 0.1,
+    moisture: 0.8,
+    temperature: 15,
+    isWater: false,
+    isOcean: false,
+    isCoast: false,
+  };
+}
+
 describe('buildRegionMapSvgString', () => {
   it('returns SVG with viewBox and at least one cell path for a built map', () => {
     const rng = new RNG('region-svg-test-seed');
@@ -184,6 +245,100 @@ describe('buildRegionMapSvgString', () => {
     // Verify the old mountain text symbols (▲ and △) are NOT present
     expect(svg).not.toContain('▲');
     expect(svg).not.toContain('△');
+  });
+
+  it('keeps a mountain glyph, base included, inside the mountain region', () => {
+    const mountain = { ...squareCellNode(0, 0, 0, 10), elevation: 0.9, biomeId: 'alpine' };
+    const plain = {
+      ...squareCellNode(1, 10, 0, 10),
+      elevation: 0.1,
+      biomeId: 'temperate grassland',
+    };
+    const map: RegionMap = {
+      width: 20,
+      height: 10,
+      nodes: [mountain, plain],
+      edges: [],
+      corners: [],
+    };
+
+    const peaks = parsePlacedSymbols(buildRegionMapSvgString(map)).filter((s) =>
+      s.id.startsWith('mountain-'),
+    );
+    expect(peaks.length).toBeGreaterThan(0);
+
+    // Silhouette extremes of #mountain-high: both base corners and the apex.
+    for (const peak of peaks) {
+      const outline = [
+        placeSilhouettePoint(peak, -1.4, 0),
+        placeSilhouettePoint(peak, 1.4, 0),
+        placeSilhouettePoint(peak, -0.4, -1.8),
+      ];
+      for (const p of outline) {
+        expect(p.x).toBeGreaterThanOrEqual(0);
+        expect(p.x).toBeLessThanOrEqual(10);
+        expect(p.y).toBeGreaterThanOrEqual(0);
+        expect(p.y).toBeLessThanOrEqual(10);
+      }
+    }
+  });
+
+  it('keeps tree canopies inside the forest region', () => {
+    const forest = { ...squareCellNode(0, 0, 0, 10), biomeId: 'temperate deciduous forest' };
+    const grass = { ...squareCellNode(1, 10, 0, 10), biomeId: 'temperate grassland' };
+    const map: RegionMap = {
+      width: 20,
+      height: 10,
+      nodes: [forest, grass],
+      edges: [],
+      corners: [],
+    };
+
+    const trees = parsePlacedSymbols(buildRegionMapSvgString(map)).filter((s) =>
+      s.id.startsWith('tree-'),
+    );
+    expect(trees.length).toBeGreaterThan(0);
+
+    // Canopy extremes of #tree-oak: widest points and crown.
+    for (const tree of trees) {
+      const outline = [
+        placeSilhouettePoint(tree, -1.2, -1.1),
+        placeSilhouettePoint(tree, 1.2, -1.1),
+        placeSilhouettePoint(tree, 0, -2.2),
+      ];
+      for (const p of outline) {
+        expect(p.x).toBeGreaterThanOrEqual(0);
+        expect(p.x).toBeLessThanOrEqual(10);
+        expect(p.y).toBeGreaterThanOrEqual(0);
+        expect(p.y).toBeLessThanOrEqual(10);
+      }
+    }
+  });
+
+  it('draws scattered symbols back to front, so lower symbols overlap higher ones', () => {
+    const map: RegionMap = {
+      width: 40,
+      height: 20,
+      nodes: [
+        { ...squareCellNode(0, 0, 0, 10), biomeId: 'temperate deciduous forest' },
+        { ...squareCellNode(1, 10, 0, 10), elevation: 0.9, biomeId: 'alpine' },
+        { ...squareCellNode(2, 0, 10, 10), biomeId: 'boreal forest' },
+        { ...squareCellNode(3, 10, 10, 10), elevation: 0.65, biomeId: 'hills' },
+      ],
+      edges: [],
+      corners: [],
+    };
+
+    const placed = parsePlacedSymbols(buildRegionMapSvgString(map));
+    expect(placed.length).toBeGreaterThan(0);
+
+    const baseYs = placed.map((s) => s.y);
+    expect(baseYs).toEqual([...baseYs].sort((a, b) => a - b));
+
+    // Trees and mountains share one ordering rather than being drawn in separate passes.
+    const kinds = placed.map((s) => (s.id.startsWith('tree-') ? 'tree' : 'mountain'));
+    const kindSwitches = kinds.filter((kind, i) => i > 0 && kind !== kinds[i - 1]).length;
+    expect(kindSwitches).toBeGreaterThan(1);
   });
 
   it('renders ocean chart border when the map includes ocean', () => {

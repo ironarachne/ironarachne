@@ -868,52 +868,277 @@ function isPointInPolygon(p: Vertex, vertices: Vertex[]): boolean {
   return inside;
 }
 
-function appendForestTerrainSymbols(map: RegionMap, parts: string[]): void {
-  const FOREST_TREE_DENSITY = 0.45;
-  const shadow = 'url(#symbolShadow)';
+/**
+ * Silhouette of each scattered glyph in symbol space, anchored at its base (0, 0) with -y pointing
+ * up. Placement uses these to keep a glyph inside the terrain region it belongs to, so the outlines
+ * must stay in step with the symbol geometry in `svgDefs`.
+ */
+const SYMBOL_SILHOUETTES: Record<string, Vertex[]> = {
+  'tree-oak': [
+    { x: 0, y: 0 },
+    { x: -0.8, y: -0.5 },
+    { x: -1.2, y: -1.1 },
+    { x: -0.7, y: -1.8 },
+    { x: 0, y: -2.2 },
+    { x: 0.7, y: -1.8 },
+    { x: 1.2, y: -1.1 },
+    { x: 0.8, y: -0.5 },
+  ],
+  'tree-pine': [
+    { x: 0, y: 0 },
+    { x: -0.8, y: -0.4 },
+    { x: -0.6, y: -1.1 },
+    { x: 0, y: -2.0 },
+    { x: 0.6, y: -1.1 },
+    { x: 0.8, y: -0.4 },
+  ],
+  'tree-palm': [
+    { x: 0, y: 0 },
+    { x: -0.8, y: -1.3 },
+    { x: -0.55, y: -1.75 },
+    { x: 0, y: -1.85 },
+    { x: 0.55, y: -1.75 },
+    { x: 0.8, y: -1.3 },
+  ],
+  'mountain-high': [
+    { x: -1.4, y: 0 },
+    { x: -0.4, y: -1.8 },
+    { x: 0.1, y: -1.1 },
+    { x: 0.6, y: -1.5 },
+    { x: 1.4, y: 0 },
+  ],
+  'mountain-low': [
+    { x: -1.0, y: 0 },
+    { x: -0.3, y: -1.0 },
+    { x: 0.1, y: -0.6 },
+    { x: 0.5, y: -0.8 },
+    { x: 1.0, y: 0 },
+  ],
+};
 
-  for (const node of map.nodes) {
-    const forestType = getForestType(node);
-    if (forestType === null) continue;
+/** Adds the midpoint of every silhouette leg so a long straight side cannot span a region boundary. */
+function densifyOutline(points: Vertex[]): Vertex[] {
+  const out: Vertex[] = [];
+  for (let i = 0; i < points.length; i++) {
+    const a = points[i]!;
+    const b = points[(i + 1) % points.length]!;
+    out.push(a, { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+  }
+  return out;
+}
 
-    const A = polygonArea(node.polygon.vertices);
-    const numTrees = Math.round(A * FOREST_TREE_DENSITY);
-    if (numTrees <= 0) continue;
+const SYMBOL_FIT_OUTLINES: Record<string, Vertex[]> = Object.fromEntries(
+  Object.entries(SYMBOL_SILHOUETTES).map(([id, points]) => [id, densifyOutline(points)]),
+);
 
-    const bbox = getPolygonBoundingBox(node.polygon.vertices);
-    const trees: Vertex[] = [];
-    let attempts = 0;
-    let seedCounter = 0;
+/**
+ * Slack in map units between a glyph and its region's edge. The drawn edge is not the raw cell
+ * boundary this test uses: `cornerLoopToVertices` jitters it and `inkEdge` displaces the fill again,
+ * so a glyph has to stand back from the boundary by roughly the sum of both wobbles.
+ */
+const REGION_EDGE_MARGIN = 0.14;
 
-    const nextRandom = () => {
-      seedCounter++;
-      return hash01(node.id, seedCounter, 17.31);
-    };
-
-    while (trees.length < numTrees && attempts < 100) {
-      attempts++;
-      const tx = bbox.minX + nextRandom() * (bbox.maxX - bbox.minX);
-      const ty = bbox.minY + nextRandom() * (bbox.maxY - bbox.minY);
-      const p = { x: tx, y: ty };
-      if (isPointInPolygon(p, node.polygon.vertices)) {
-        trees.push(p);
-      }
-    }
-
-    const fs = symbolFontSizeForNode(node, map);
-    const baseScale = fs * 0.45;
-
-    for (const tree of trees) {
-      const scaleVar = 0.82 + nextRandom() * 0.36; // scale variation ±18%
-      const finalScale = (baseScale * scaleVar).toFixed(3);
-      const rot = (nextRandom() * 10 - 5).toFixed(1); // small rotation ±5 deg
-
-      const symbolId = `tree-${forestType}`;
-      parts.push(
-        `<use href="#${symbolId}" transform="translate(${tree.x.toFixed(3)}, ${tree.y.toFixed(3)}) scale(${finalScale}) rotate(${rot})" filter="${shadow}"/>`,
-      );
+/** Cells within two graph steps — the only cells a glyph anchored in `nodeId` can reach. */
+function localCellNeighborhood(map: RegionMap, nodeId: number): number[] {
+  const near = new Set<number>([nodeId]);
+  for (const first of map.nodes[nodeId]?.neighbors ?? []) {
+    near.add(first);
+    for (const second of map.nodes[first]?.neighbors ?? []) {
+      near.add(second);
     }
   }
+  return [...near];
+}
+
+/**
+ * Point-in-terrain-region test for glyph placement. Region membership is what matters, not cell
+ * membership: a glyph may straddle the interior cell boundaries of its own range or forest, but
+ * never the outer edge where the region's fill stops.
+ */
+function makeRegionContainmentTest(
+  map: RegionMap,
+  inRegion: (node: MapNode) => boolean,
+): (point: Vertex, nodeId: number) => boolean {
+  const cache = new Map<number, MapNode[]>();
+
+  const cellsNear = (nodeId: number): MapNode[] => {
+    const cached = cache.get(nodeId);
+    if (cached !== undefined) return cached;
+    const cells = localCellNeighborhood(map, nodeId)
+      .map((id) => map.nodes[id])
+      .filter((n): n is MapNode => n !== undefined && inRegion(n));
+    cache.set(nodeId, cells);
+    return cells;
+  };
+
+  return (point, nodeId) =>
+    cellsNear(nodeId).some((n) => isPointInPolygon(point, n.polygon.vertices));
+}
+
+function rotatePoint(p: Vertex, degrees: number): Vertex {
+  const a = (degrees * Math.PI) / 180;
+  const cos = Math.cos(a);
+  const sin = Math.sin(a);
+  return { x: p.x * cos - p.y * sin, y: p.x * sin + p.y * cos };
+}
+
+/** One silhouette point placed in map space, pushed a margin further out from the glyph's base. */
+function outlinePointInMapSpace(
+  anchor: Vertex,
+  outlinePoint: Vertex,
+  scale: number,
+  rotation: number,
+): Vertex {
+  const r = rotatePoint(outlinePoint, rotation);
+  const len = Math.hypot(r.x, r.y);
+  const ux = len > 1e-9 ? r.x / len : 0;
+  const uy = len > 1e-9 ? r.y / len : 1;
+  return {
+    x: anchor.x + r.x * scale + ux * REGION_EDGE_MARGIN,
+    y: anchor.y + r.y * scale + uy * REGION_EDGE_MARGIN,
+  };
+}
+
+/** Bisection steps used to shrink a glyph onto the largest size that still fits its region. */
+const SCALE_FIT_STEPS = 6;
+
+/**
+ * Largest scale at or below `wanted` whose whole silhouette stays inside the region, or null when
+ * even `minimum` overflows — near a region's edge a glyph shrinks to a foothill rather than
+ * spilling its base onto neighbouring terrain.
+ */
+function largestFittingScale(
+  anchor: Vertex,
+  outline: Vertex[],
+  wanted: number,
+  minimum: number,
+  rotation: number,
+  nodeId: number,
+  contains: (point: Vertex, nodeId: number) => boolean,
+): number | null {
+  const fits = (scale: number) =>
+    outline.every((o) => contains(outlinePointInMapSpace(anchor, o, scale, rotation), nodeId));
+
+  if (fits(wanted)) return wanted;
+  if (!fits(minimum)) return null;
+
+  let low = minimum;
+  let high = wanted;
+  for (let i = 0; i < SCALE_FIT_STEPS; i++) {
+    const mid = (low + high) / 2;
+    if (fits(mid)) {
+      low = mid;
+    } else {
+      high = mid;
+    }
+  }
+  return low;
+}
+
+/** A placed glyph plus the base point it stands on, which is what the draw order sorts by. */
+type ScatterSymbol = {
+  x: number;
+  y: number;
+  el: string;
+};
+
+type ScatterSpec = {
+  /** Symbols per square map unit of cell area. */
+  density: number;
+  hashSalt: number;
+  scaleJitter: number;
+  rotationJitter: number;
+  /** Fraction of the desired scale below which a glyph is dropped instead of shrunk further. */
+  minScaleFactor: number;
+  inRegion: (node: MapNode) => boolean;
+  symbolIdForNode: (node: MapNode) => string | null;
+  scaleForNode: (node: MapNode) => number;
+};
+
+const SCATTER_PLACEMENT_ATTEMPTS = 40;
+
+function collectScatterSymbols(map: RegionMap, spec: ScatterSpec): ScatterSymbol[] {
+  const contains = makeRegionContainmentTest(map, spec.inRegion);
+  const out: ScatterSymbol[] = [];
+
+  for (const node of map.nodes) {
+    const symbolId = spec.symbolIdForNode(node);
+    if (symbolId === null) continue;
+    const outline = SYMBOL_FIT_OUTLINES[symbolId];
+    if (outline === undefined) continue;
+
+    const wantedCount = Math.round(polygonArea(node.polygon.vertices) * spec.density);
+    if (wantedCount <= 0) continue;
+
+    const bbox = getPolygonBoundingBox(node.polygon.vertices);
+    const desiredScale = spec.scaleForNode(node);
+    const minimumScale = desiredScale * spec.minScaleFactor;
+
+    let seedCounter = 0;
+    const nextRandom = () => hash01(node.id, ++seedCounter, spec.hashSalt);
+
+    let placed = 0;
+    for (let attempt = 0; attempt < SCATTER_PLACEMENT_ATTEMPTS && placed < wantedCount; attempt++) {
+      const anchor = {
+        x: bbox.minX + nextRandom() * (bbox.maxX - bbox.minX),
+        y: bbox.minY + nextRandom() * (bbox.maxY - bbox.minY),
+      };
+      const rotation = toBipolar(nextRandom()) * spec.rotationJitter;
+      const wantedScale = desiredScale * (1 + toBipolar(nextRandom()) * spec.scaleJitter);
+      if (!isPointInPolygon(anchor, node.polygon.vertices)) continue;
+
+      const scale = largestFittingScale(
+        anchor,
+        outline,
+        wantedScale,
+        minimumScale,
+        rotation,
+        node.id,
+        contains,
+      );
+      if (scale === null) continue;
+
+      out.push({
+        x: anchor.x,
+        y: anchor.y,
+        el: `<use href="#${symbolId}" transform="translate(${anchor.x.toFixed(3)}, ${anchor.y.toFixed(3)}) rotate(${rotation.toFixed(1)}) scale(${scale.toFixed(3)})" filter="url(#symbolShadow)"/>`,
+      });
+      placed++;
+    }
+  }
+
+  return out;
+}
+
+/**
+ * Painter's algorithm over the scattered glyphs: every one is anchored at its base, so drawing in
+ * order of increasing base y makes a symbol nearer the bottom of the map overlap the ones standing
+ * behind it. Trees and mountains share the ordering, so a tree in front of a peak covers its slope.
+ */
+function appendScatterSymbolsBackToFront(symbols: ScatterSymbol[], parts: string[]): void {
+  const ordered = [...symbols].sort((a, b) => a.y - b.y || a.x - b.x);
+  for (const symbol of ordered) {
+    parts.push(symbol.el);
+  }
+}
+
+/** Tree height relative to the cell's symbol size. */
+const TREE_SCALE_FACTOR = 0.42;
+
+function collectForestScatterSymbols(map: RegionMap): ScatterSymbol[] {
+  return collectScatterSymbols(map, {
+    density: 0.45,
+    hashSalt: 17.31,
+    scaleJitter: 0.18,
+    rotationJitter: 5,
+    minScaleFactor: 0.45,
+    inRegion: isForestNode,
+    symbolIdForNode: (node) => {
+      const forestType = getForestType(node);
+      return forestType === null ? null : `tree-${forestType}`;
+    },
+    scaleForNode: (node) => symbolFontSizeForNode(node, map) * TREE_SCALE_FACTOR,
+  });
 }
 
 function appendForestTerrainBodies(map: RegionMap, parts: string[]): void {
@@ -938,52 +1163,23 @@ function getMountainType(node: MapNode): 'high' | 'low' | null {
   return 'low';
 }
 
-function appendMountainTerrainSymbols(map: RegionMap, parts: string[]): void {
-  const MOUNTAIN_PEAK_DENSITY = 0.25;
-  const shadow = 'url(#symbolShadow)';
+/** Peak height relative to the cell's symbol size; a peak stays narrower than the cell it sits in. */
+const MOUNTAIN_SCALE_FACTOR = 0.7;
 
-  for (const node of map.nodes) {
-    const mountainType = getMountainType(node);
-    if (mountainType === null) continue;
-
-    const A = polygonArea(node.polygon.vertices);
-    const numPeaks = Math.round(A * MOUNTAIN_PEAK_DENSITY);
-    if (numPeaks <= 0) continue;
-
-    const bbox = getPolygonBoundingBox(node.polygon.vertices);
-    const peaks: Vertex[] = [];
-    let attempts = 0;
-    let seedCounter = 0;
-
-    const nextRandom = () => {
-      seedCounter++;
-      return hash01(node.id, seedCounter, 23.87);
-    };
-
-    while (peaks.length < numPeaks && attempts < 100) {
-      attempts++;
-      const tx = bbox.minX + nextRandom() * (bbox.maxX - bbox.minX);
-      const ty = bbox.minY + nextRandom() * (bbox.maxY - bbox.minY);
-      const p = { x: tx, y: ty };
-      if (isPointInPolygon(p, node.polygon.vertices)) {
-        peaks.push(p);
-      }
-    }
-
-    const fs = symbolFontSizeForNode(node, map);
-    const baseScale = fs * 0.9;
-
-    for (const peak of peaks) {
-      const scaleVar = 0.88 + nextRandom() * 0.24; // scale variation ±12%
-      const finalScale = (baseScale * scaleVar).toFixed(3);
-      const rot = (nextRandom() * 6 - 3).toFixed(1); // small rotation ±3 deg
-
-      const symbolId = `mountain-${mountainType}`;
-      parts.push(
-        `<use href="#${symbolId}" transform="translate(${peak.x.toFixed(3)}, ${peak.y.toFixed(3)}) scale(${finalScale}) rotate(${rot})" filter="${shadow}"/>`,
-      );
-    }
-  }
+function collectMountainScatterSymbols(map: RegionMap): ScatterSymbol[] {
+  return collectScatterSymbols(map, {
+    density: 0.4,
+    hashSalt: 23.87,
+    scaleJitter: 0.12,
+    rotationJitter: 3,
+    minScaleFactor: 0.4,
+    inRegion: isMountainLandNode,
+    symbolIdForNode: (node) => {
+      const mountainType = getMountainType(node);
+      return mountainType === null ? null : `mountain-${mountainType}`;
+    },
+    scaleForNode: (node) => symbolFontSizeForNode(node, map) * MOUNTAIN_SCALE_FACTOR,
+  });
 }
 
 function appendLandBiomeSymbols(map: RegionMap, parts: string[]): void {
@@ -1040,11 +1236,11 @@ function svgDefs(): string {
   </filter>
   <g id="tree-oak">
     <path d="M 0 0 L 0 -0.5" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
-    <path d="M -0.8 -0.5 C -1.2 -0.8, -1.2 -1.4, -0.6 -1.6 C -0.8 -2.0, -0.2 -2.3, 0 -2.0 C 0.2 -2.3, 0.8 -2.0, 0.6 -1.6 C 1.2 -1.4, 1.2 -0.8, 0.8 -0.5 Z" fill="#b6d7a8" fill-opacity="0.5" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round"/>
+    <path d="M -0.8 -0.5 C -1.2 -0.8, -1.2 -1.4, -0.6 -1.6 C -0.8 -2.0, -0.2 -2.3, 0 -2.0 C 0.2 -2.3, 0.8 -2.0, 0.6 -1.6 C 1.2 -1.4, 1.2 -0.8, 0.8 -0.5 Z" fill="#c3d9b0" fill-opacity="0.95" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round"/>
   </g>
   <g id="tree-pine">
     <path d="M 0 0 L 0 -0.4" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
-    <path d="M 0 -2.0 L -0.6 -1.1 L -0.2 -1.1 L -0.8 -0.4 L 0.8 -0.4 L 0.2 -1.1 L 0.6 -1.1 Z" fill="#9ec4a0" fill-opacity="0.5" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round"/>
+    <path d="M 0 -2.0 L -0.6 -1.1 L -0.2 -1.1 L -0.8 -0.4 L 0.8 -0.4 L 0.2 -1.1 L 0.6 -1.1 Z" fill="#b2cdac" fill-opacity="0.95" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round"/>
   </g>
   <g id="tree-palm">
     <path d="M 0 0 Q -0.15 -0.5, 0 -1.2" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
@@ -1089,8 +1285,10 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendRiversAndRoads(map, body, waterPolygons);
   appendChartDoubleLineIfOcean(map, body);
   appendLandBiomeSymbols(map, body);
-  appendForestTerrainSymbols(map, body);
-  appendMountainTerrainSymbols(map, body);
+  appendScatterSymbolsBackToFront(
+    [...collectForestScatterSymbols(map), ...collectMountainScatterSymbols(map)],
+    body,
+  );
   appendSettlements(map, settlements, body);
 
   const titleEl =

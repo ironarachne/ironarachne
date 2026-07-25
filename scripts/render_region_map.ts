@@ -1,5 +1,7 @@
 import { writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
+import { RNG } from '@ironarachne/rng';
+import * as Names from '../src/lib/names/index.js';
 import * as Regions from '../src/lib/regions/regions.js';
 import { buildRegionMapSvgString } from '../src/lib/map/region_map_svg.js';
 import { buildRoadCentroidPolylines } from '../src/lib/map/road_polylines.js';
@@ -30,12 +32,13 @@ function getBiomeChar(node: MapNode): string {
 }
 
 function printUsage(): void {
-  console.log(`Usage: vite-node scripts/render_region_map.ts [--svg-out <path> | -o <path>]
+  console.log(`Usage: vite-node scripts/render_region_map.ts [--svg-out <path> | -o <path>] [--seed <seed> | -s <seed>]
 
   --svg-out, -o   Write sepia SVG map to this file (ASCII still prints to stdout).
+  --seed, -s      Seed the generator so the same region is rebuilt every run.
 
 Example:
-  npm run render:region -- --svg-out ./region_map.svg
+  npm run render:region -- --svg-out ./region_map.svg --seed lakes-and-peaks
 `);
 }
 
@@ -74,6 +77,7 @@ function renderMap() {
   const { values } = parseArgs({
     options: {
       'svg-out': { type: 'string', short: 'o' },
+      seed: { type: 'string', short: 's' },
       help: { type: 'boolean', short: 'h' },
     },
     strict: false,
@@ -85,10 +89,18 @@ function renderMap() {
   }
 
   const svgOutPath = typeof values['svg-out'] === 'string' ? values['svg-out'] : undefined;
+  const seed = typeof values.seed === 'string' ? values.seed : undefined;
 
   console.log('Generating Region Map...\n');
+  if (seed !== undefined) {
+    console.log(`Seed: ${seed}\n`);
+  }
 
   const config = Regions.getDefaultConfig();
+  if (seed !== undefined) {
+    config.rng = new RNG(seed);
+    config.nameGeneratorSet = Names.getFantasyNameGeneratorSet('tiefling', new RNG(seed));
+  }
   // Adjust config sizes to fit terminal better
   config.mapWidth = 60;
   config.mapHeight = 35;
