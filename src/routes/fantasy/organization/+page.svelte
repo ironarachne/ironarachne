@@ -1,5 +1,5 @@
 <script lang="ts">
-  import OrganizationGenerator from '$components/OrganizationGenerator.svelte';
+  import OrganizationGenerator from '$components/factions/OrganizationGenerator.svelte';
 </script>
 
 <svelte:head>

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SettlementGenerator from '$components/SettlementGenerator.svelte';
+  import SettlementGenerator from '$components/locations/SettlementGenerator.svelte';
 </script>
 
 <svelte:head>

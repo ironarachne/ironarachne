@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WeaponGenerator from '$components/WeaponGenerator.svelte';
+  import WeaponGenerator from '$components/objects/WeaponGenerator.svelte';
 </script>
 
 <svelte:head>

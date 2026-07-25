@@ -1,5 +1,5 @@
 <script lang="ts">
-  import LanguageGenerator from '$components/LanguageGenerator.svelte';
+  import LanguageGenerator from '$components/utilities/LanguageGenerator.svelte';
 </script>
 
 <svelte:head>

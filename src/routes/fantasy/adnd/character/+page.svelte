@@ -1,5 +1,5 @@
 <script lang="ts">
-  import AdndCharacterGenerator from '$components/AdndCharacterGenerator.svelte';
+  import AdndCharacterGenerator from '$components/characters/AdndCharacterGenerator.svelte';
 </script>
 
 <svelte:head>

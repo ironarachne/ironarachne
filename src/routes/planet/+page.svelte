@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PlanetGenerator from '$components/PlanetGenerator.svelte';
+  import PlanetGenerator from '$components/locations/PlanetGenerator.svelte';
 </script>
 
 <svelte:head>

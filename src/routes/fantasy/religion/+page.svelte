@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ReligionGenerator from '$components/ReligionGenerator.svelte';
+  import ReligionGenerator from '$components/factions/ReligionGenerator.svelte';
 </script>
 
 <svelte:head>

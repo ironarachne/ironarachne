@@ -1,5 +1,5 @@
 <script lang="ts">
-  import UtilityIndex from '$components/UtilityIndex.svelte';
+  import UtilityIndex from '$components/utilities/UtilityIndex.svelte';
 </script>
 
 <UtilityIndex />

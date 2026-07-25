@@ -1,5 +1,5 @@
 <script lang="ts">
-  import UnchartedWorldsCharacterGenerator from '$components/UnchartedWorldsCharacterGenerator.svelte';
+  import UnchartedWorldsCharacterGenerator from '$components/characters/UnchartedWorldsCharacterGenerator.svelte';
 </script>
 
 <svelte:head>

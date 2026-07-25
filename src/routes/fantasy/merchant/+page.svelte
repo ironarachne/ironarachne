@@ -1,5 +1,5 @@
 <script lang="ts">
-  import MerchantGenerator from '$components/MerchantGenerator.svelte';
+  import MerchantGenerator from '$components/objects/MerchantGenerator.svelte';
 </script>
 
 <svelte:head>

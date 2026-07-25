@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EquipmentPriceLists from '$components/EquipmentPriceLists.svelte';
+  import EquipmentPriceLists from '$components/objects/EquipmentPriceLists.svelte';
 </script>
 
 <svelte:head>

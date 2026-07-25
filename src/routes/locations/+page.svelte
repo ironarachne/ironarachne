@@ -1,5 +1,5 @@
 <script lang="ts">
-  import LocationIndex from '$components/LocationIndex.svelte';
+  import LocationIndex from '$components/locations/LocationIndex.svelte';
 </script>
 
 <LocationIndex />

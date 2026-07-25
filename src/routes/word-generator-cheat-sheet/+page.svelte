@@ -1,5 +1,5 @@
 <script lang="ts">
-  import WordGeneratorCheatSheet from '$components/WordGeneratorCheatSheet.svelte';
+  import WordGeneratorCheatSheet from '$components/utilities/WordGeneratorCheatSheet.svelte';
 </script>
 
 <svelte:head>

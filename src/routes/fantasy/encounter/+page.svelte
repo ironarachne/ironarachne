@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EncounterGenerator from '$components/EncounterGenerator.svelte';
+  import EncounterGenerator from '$components/factions/EncounterGenerator.svelte';
 </script>
 
 <svelte:head>

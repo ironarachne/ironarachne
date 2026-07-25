@@ -1,5 +1,5 @@
 <script lang="ts">
-  import EquipmentGenerator from '$components/EquipmentGenerator.svelte';
+  import EquipmentGenerator from '$components/objects/EquipmentGenerator.svelte';
 </script>
 
 <svelte:head>

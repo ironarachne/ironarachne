@@ -1,5 +1,5 @@
 <script lang="ts">
-  import VelgarthGiftsGenerator from '$components/VelgarthGiftsGenerator.svelte';
+  import VelgarthGiftsGenerator from '$components/characters/VelgarthGiftsGenerator.svelte';
 </script>
 
 <svelte:head>

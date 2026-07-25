@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SwnStarshipGenerator from '$components/SwnStarshipGenerator.svelte';
+  import SwnStarshipGenerator from '$components/objects/SwnStarshipGenerator.svelte';
 </script>
 
 <svelte:head>

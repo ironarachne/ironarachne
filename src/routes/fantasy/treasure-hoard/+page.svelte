@@ -1,5 +1,5 @@
 <script lang="ts">
-  import TreasureHoardGenerator from '$components/TreasureHoardGenerator.svelte';
+  import TreasureHoardGenerator from '$components/objects/TreasureHoardGenerator.svelte';
 </script>
 
 <svelte:head>

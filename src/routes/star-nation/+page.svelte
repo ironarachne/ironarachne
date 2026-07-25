@@ -1,5 +1,5 @@
 <script lang="ts">
-  import StarNationGenerator from '$components/StarNationGenerator.svelte';
+  import StarNationGenerator from '$components/factions/StarNationGenerator.svelte';
 </script>
 
 <svelte:head>

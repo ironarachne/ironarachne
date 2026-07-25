@@ -22,7 +22,23 @@ Libraries may also contain other supporting files, like SVGs.
 
 UI components are stored in `src/components`. Each component should be a standalone, reusable UI element that can be used across the application.
 
-Components are Svelte code, stored as PascalCase `.svelte` files directly in `src/components`, and imported via the `$components` alias. Tests are not necessary for components.
+Components are Svelte code, stored as PascalCase `.svelte` files, and imported via the `$components` alias. Always import through the alias, including between sibling components in the same directory; never use relative paths. Tests are not necessary for components.
+
+Components are grouped into one level of snake_case domain directories. The domain directories mirror the site's own navigation taxonomy, so a generator's directory is predictable from where it appears in the nav:
+
+```
+src/components/
+  common/      # Shared primitives: form fields, panels, dialogs, seed controls
+  layout/      # Page chrome and shells: header, footer, generator/index page shells
+  characters/  # Characters & People
+  factions/    # Factions & Groups
+  locations/   # Locations & Places
+  objects/     # Objects & Items
+  utilities/   # Utilities & Reference
+  heraldry/    # Heraldry; cross-cutting, consumed by factions and locations
+```
+
+Keep this structure flat at one level — do not nest domain directories further. A component used by two or more domains belongs in `common/`, or in its own domain directory if it is a substantial feature in its own right (as `heraldry/` is).
 
 ## Routes
 

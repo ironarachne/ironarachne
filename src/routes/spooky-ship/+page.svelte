@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SpookyShipGenerator from '$components/SpookyShipGenerator.svelte';
+  import SpookyShipGenerator from '$components/objects/SpookyShipGenerator.svelte';
 </script>
 
 <svelte:head>

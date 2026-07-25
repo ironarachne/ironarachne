@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FamilyGenerator from '$components/FamilyGenerator.svelte';
+  import FamilyGenerator from '$components/factions/FamilyGenerator.svelte';
 </script>
 
 <svelte:head>

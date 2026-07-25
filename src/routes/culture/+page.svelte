@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CultureGenerator from '$components/CultureGenerator.svelte';
+  import CultureGenerator from '$components/factions/CultureGenerator.svelte';
 </script>
 
 <svelte:head>

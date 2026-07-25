@@ -1,5 +1,5 @@
 <script lang="ts">
-  import CharacterIndex from '$components/CharacterIndex.svelte';
+  import CharacterIndex from '$components/characters/CharacterIndex.svelte';
 </script>
 
 <CharacterIndex />

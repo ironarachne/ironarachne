@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DccCharacterGenerator from '$components/DccCharacterGenerator.svelte';
+  import DccCharacterGenerator from '$components/characters/DccCharacterGenerator.svelte';
 </script>
 
 <svelte:head>

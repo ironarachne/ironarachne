@@ -1,5 +1,5 @@
 <script lang="ts">
-  import DrugGenerator from '$components/DrugGenerator.svelte';
+  import DrugGenerator from '$components/objects/DrugGenerator.svelte';
 </script>
 
 <svelte:head>

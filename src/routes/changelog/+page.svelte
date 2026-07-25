@@ -1,5 +1,5 @@
 <script lang="ts">
-  import ChangelogPage from '$components/ChangelogPage.svelte';
+  import ChangelogPage from '$components/layout/ChangelogPage.svelte';
 </script>
 
 <ChangelogPage />

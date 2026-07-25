@@ -1,5 +1,5 @@
 <script lang="ts">
-  import RegionGenerator from '$components/RegionGenerator.svelte';
+  import RegionGenerator from '$components/locations/RegionGenerator.svelte';
 </script>
 
 <svelte:head>

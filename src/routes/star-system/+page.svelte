@@ -1,5 +1,5 @@
 <script lang="ts">
-  import StarSystemGenerator from '$components/StarSystemGenerator.svelte';
+  import StarSystemGenerator from '$components/locations/StarSystemGenerator.svelte';
 </script>
 
 <svelte:head>

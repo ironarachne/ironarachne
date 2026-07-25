@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SwnCharacterGenerator from '$components/SwnCharacterGenerator.svelte';
+  import SwnCharacterGenerator from '$components/characters/SwnCharacterGenerator.svelte';
 </script>
 
 <svelte:head>

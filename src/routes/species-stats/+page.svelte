@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SpeciesStatsCalculator from '$components/SpeciesStatsCalculator.svelte';
+  import SpeciesStatsCalculator from '$components/utilities/SpeciesStatsCalculator.svelte';
 </script>
 
 <svelte:head>

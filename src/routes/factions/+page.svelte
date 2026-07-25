@@ -1,5 +1,5 @@
 <script lang="ts">
-  import FactionIndex from '$components/FactionIndex.svelte';
+  import FactionIndex from '$components/factions/FactionIndex.svelte';
 </script>
 
 <FactionIndex />

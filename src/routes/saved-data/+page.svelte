@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SavedDataManager from '$components/SavedDataManager.svelte';
+  import SavedDataManager from '$components/utilities/SavedDataManager.svelte';
 </script>
 
 <svelte:head>

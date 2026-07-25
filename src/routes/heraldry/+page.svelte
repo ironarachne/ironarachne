@@ -1,5 +1,5 @@
 <script lang="ts">
-  import HeraldryGenerator from '$components/HeraldryGenerator.svelte';
+  import HeraldryGenerator from '$components/heraldry/HeraldryGenerator.svelte';
 </script>
 
 <svelte:head>
