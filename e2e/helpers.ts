@@ -29,7 +29,7 @@ export async function expectGlobalChrome(page: Page): Promise<void> {
     await expect(topNav.getByRole('link', { name: label, exact: true })).toBeVisible();
   }
 
-  await expect(page.getByRole('link', { name: 'Codeberg' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Worktree' })).toBeVisible();
   await expect(page.getByRole('link', { name: 'Mastodon' })).toBeVisible();
 }
 
