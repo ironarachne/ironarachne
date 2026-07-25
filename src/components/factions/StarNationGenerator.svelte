@@ -31,7 +31,7 @@
   import ImageRendererSelect from '$components/common/ImageRendererSelect.svelte';
   import SelectField from '$components/common/SelectField.svelte';
 
-  let rng = new RNG.RNG(Date.now().toString());
+  const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
 

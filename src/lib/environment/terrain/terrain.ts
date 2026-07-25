@@ -23,10 +23,10 @@ export function generate(config: TerrainGeneratorConfig): Terrain {
   const elevationMax = Math.min(baseElevation + reliefEnergy, 1.0);
 
   const numSoils = config.rng.int(1, 3);
-  let soilTypes: string[] = config.rng.randomSet(numSoils, possibleSoils);
+  const soilTypes: string[] = config.rng.randomSet(numSoils, possibleSoils);
 
   const numRocks = config.rng.int(1, 3);
-  let rockTypes: string[] = config.rng.randomSet(numRocks, possibleRocks);
+  const rockTypes: string[] = config.rng.randomSet(numRocks, possibleRocks);
 
   let result: Terrain = {
     elevationMin: elevationMin,

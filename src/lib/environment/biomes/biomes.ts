@@ -12,7 +12,7 @@ export function generate(config: BiomeGeneratorConfig): Biome {
   const features = generateBiomeFeatures(biomeClassification, config.rng);
   const descriptions = generateBiomeDescriptions(biomeClassification, config.rng);
 
-  let biome: Biome = {
+  const biome: Biome = {
     name: biomeClassification.name,
     altitude: config.altitude,
     humidity: config.rng.float(config.humidityMin, config.humidityMax),
@@ -85,7 +85,7 @@ export function generateBiomeFeatures(
   biomeClassification: BiomeClassification,
   rng: RNG.RNG,
 ): string[] {
-  let features = [];
+  const features = [];
 
   if (biomeClassification.vegetationDensity > 0) {
     const vegetation = rng.item(biomeClassification.vegetationTypes);

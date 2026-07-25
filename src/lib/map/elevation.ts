@@ -1,4 +1,4 @@
-import type { RegionMap, MapNode, MapCorner } from './map_graph.js';
+import type { RegionMap } from './map_graph.js';
 import { createSimplexNoise2D } from '../noise/simplex.js';
 
 /**

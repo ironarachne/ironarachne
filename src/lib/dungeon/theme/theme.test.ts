@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { buildTheme, BLUEPRINTS } from './theme';
+import { buildTheme } from './theme';
 import type Environment from '../../environment/environment.js';
 
 describe('Theme Configuration Subsystem', () => {

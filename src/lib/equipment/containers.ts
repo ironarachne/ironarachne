@@ -183,8 +183,12 @@ export function filterContainerTypes(
   });
 }
 
+export function isContainer(item: Item): item is Container {
+  return Object.hasOwn(item, 'contents');
+}
+
 export function filterOutContainers(items: Item[]): Item[] {
-  return items.filter((item) => !item.hasOwnProperty('contents'));
+  return items.filter((item) => !isContainer(item));
 }
 
 export function generateContainer(
@@ -432,7 +436,7 @@ export function separateContainersFromItems(items: Item[]): {
   const looseItems: Item[] = [];
 
   for (const item of items) {
-    if (item.hasOwnProperty('contents')) {
+    if (Object.hasOwn(item, 'contents')) {
       containers.push(item as Container);
       continue;
     }

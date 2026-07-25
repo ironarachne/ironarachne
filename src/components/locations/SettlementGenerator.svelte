@@ -17,7 +17,7 @@
   let savedCulture = $state<string | undefined>(undefined);
   let culture: Culture | undefined = $state();
 
-  let rng = new RNG(Date.now().toString());
+  const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   $effect(() => {
     rng.setSeed(seed);

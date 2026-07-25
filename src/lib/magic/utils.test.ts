@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import type { Spell } from './types';
+import type { Element, MagicComponent, Spell } from './types';
 import { getSpellSummary, hasComponent, formatComponents } from './utils';
 
 describe('Magic Utils', () => {
@@ -31,7 +31,7 @@ describe('Magic Utils', () => {
     });
 
     it('should handle multiple elements', () => {
-      const multiElementSpell = { ...mockSpell, elements: ['fire', 'air'] as any[] };
+      const multiElementSpell = { ...mockSpell, elements: ['fire', 'air'] as Element[] };
       const summary = getSpellSummary(multiElementSpell);
       expect(summary).toBe('Fireball (Magnitude 50 destroy - fire, air)');
     });
@@ -57,7 +57,7 @@ describe('Magic Utils', () => {
     it('should format components without descriptions', () => {
       const simpleSpell = {
         ...mockSpell,
-        components: [{ type: 'thought', description: '' } as any],
+        components: [{ type: 'thought', description: '' }] as MagicComponent[],
       };
       const formatted = formatComponents(simpleSpell);
       expect(formatted).toBe('thought');

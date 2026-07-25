@@ -14,7 +14,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'chicken meat, 5 lbs.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');
@@ -32,7 +32,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'fabric, 3 yds.', value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');
@@ -50,7 +50,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'gloves, 4 pairs', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');
@@ -68,7 +68,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'hex doll', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');
@@ -86,7 +86,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'fine suits, 3 sets', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');
@@ -104,7 +104,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'sailcloth, 2 yds.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');
@@ -122,7 +122,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'loan chest', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');
@@ -143,7 +143,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'coin purse', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');
@@ -162,7 +162,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'begging bowl', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Infravision');
         character.speed = 20;
         character.languages.push('Halfling');

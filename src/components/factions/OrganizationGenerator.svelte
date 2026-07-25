@@ -31,7 +31,7 @@
   import SelectField from '$components/common/SelectField.svelte';
   import HeraldryEmblemButton from '$components/heraldry/HeraldryEmblemButton.svelte';
 
-  let rng = new RNG(Date.now().toString());
+  const rng = new RNG(Date.now().toString());
   let seed: string = $state(rng.randomString(13));
   let lockSeed = $state(false);
   $effect(() => {
@@ -41,7 +41,7 @@
   let genreFilter = $state<'any' | 'fantasy' | 'science_fiction'>('fantasy');
   let organizationKindId = $state('any');
   let nameSetName = $state('any');
-  let nameSets = Names.getAllFantasyNameGeneratorSets(rng);
+  const nameSets = Names.getAllFantasyNameGeneratorSets(rng);
   let nameSet: Names.NameGeneratorSet = rng.item(nameSets);
   let sizePreset = $state<'any' | 'small' | 'medium' | 'large'>('any');
   let worldContextPreset = $state<'none' | OrganizationWorldContextPreset>('none');

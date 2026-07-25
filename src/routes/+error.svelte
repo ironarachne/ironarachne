@@ -1,5 +1,6 @@
 <script>
   import { page } from '$app/stores';
+  import { resolve } from '$app/paths';
 </script>
 
 <div class="error-container">
@@ -10,7 +11,7 @@
     internal error.
   </p>
 
-  <p><a href="/">Return to Home</a></p>
+  <p><a href={resolve('/')}>Return to Home</a></p>
 </div>
 
 <style>

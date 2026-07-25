@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'vitest';
+import type * as RNG from '@ironarachne/rng';
 import {
   DEFAULT_HEIGHT,
   DEFAULT_WIDTH,
@@ -10,11 +11,11 @@ import {
 
 // Simple deterministic RNGs for testing
 const rngFirst = {
-  int: (min: number, max: number) => min,
-} as any;
+  int: (min: number, _max: number) => min,
+} as unknown as RNG.RNG;
 const rngLast = {
   int: (min: number, max: number) => max,
-} as any;
+} as unknown as RNG.RNG;
 
 describe('heraldry/generatorconfig', () => {
   test('getDefaultHeraldryGeneratorConfig returns defaults and non-empty option sets', () => {

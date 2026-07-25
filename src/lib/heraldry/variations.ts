@@ -82,7 +82,7 @@ export function isIncludedIn(needle: Variation, haystack: Variation[]): boolean 
 }
 
 export function removeFromSet(variation: Variation, variations: Variation[]): Variation[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < variations.length; i++) {
     if (variations[i].name !== variation.name) {

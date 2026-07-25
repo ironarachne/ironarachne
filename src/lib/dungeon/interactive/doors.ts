@@ -1,7 +1,7 @@
 import * as RNG from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
-import { getTile, getNeighbors } from '../grid/grid';
-import type { DungeonLayout, PlacedRoom } from '../layout/types';
+import { getTile } from '../grid/grid';
+import type { DungeonLayout } from '../layout/types';
 import type { Door, DoorType, DoorState } from './types';
 
 /**

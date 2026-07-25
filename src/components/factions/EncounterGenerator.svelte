@@ -19,7 +19,7 @@
   let rng = $state(new RNG(seed));
   let encounter = $state<null | Encounter>(null);
 
-  let encounterTemplates = getAllFantasyEncounterTemplates().sort((a, b) =>
+  const encounterTemplates = getAllFantasyEncounterTemplates().sort((a, b) =>
     a.name.localeCompare(b.name),
   );
   let selectedTemplateName = $state('any');

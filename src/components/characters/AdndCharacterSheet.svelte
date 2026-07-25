@@ -4,7 +4,7 @@
   import type ADNDCharacter from '$lib/adnd/adndcharacter';
 
   type Props = { character: ADNDCharacter };
-  let { character }: Props = $props();
+  const { character }: Props = $props();
 
   function getEStrength(exStr: number) {
     const estr = String(exStr).padStart(2, '0');

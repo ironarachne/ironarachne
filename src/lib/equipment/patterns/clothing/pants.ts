@@ -17,17 +17,17 @@ export default class PantsPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): Clothing {
-    let body = rng.item(Components.withCategory('fabric', componentOptions));
-    let hardware = rng.item(Components.withCategory('soft metal', componentOptions));
+    const body = rng.item(Components.withCategory('fabric', componentOptions));
+    const hardware = rng.item(Components.withCategory('soft metal', componentOptions));
 
-    let value = this.baseValue + body.value + hardware.value;
+    const value = this.baseValue + body.value + hardware.value;
 
     let description = `${this.name} `;
 
     description += rng.item([`made of ${body.descriptor} with `, 'with ']);
 
-    let lacing = ` ${rng.item(['tight', 'loose', ''])} lacing`;
-    let closures =
+    const lacing = ` ${rng.item(['tight', 'loose', ''])} lacing`;
+    const closures =
       rng.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) +
       ` ${hardware.descriptor} ` +
       rng.item(['buttons', 'clasps']);
@@ -41,9 +41,9 @@ export default class PantsPattern implements Pattern {
       ]);
     }
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, 'bottom', 'pants', 'clothing'];
+    const tags = [name, this.name, 'bottom', 'pants', 'clothing'];
 
     return new Clothing(name, description, 'legs', value, quality, tags);
   }

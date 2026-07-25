@@ -6,7 +6,7 @@
   import SelectField from '$components/common/SelectField.svelte';
 
   let currency = $state('D&D currency');
-  let equipmentLists = FantasyEquipmentList.all();
+  const equipmentLists = FantasyEquipmentList.all();
 
   const DND_CURRENCY = {
     ...STANDARD_FANTASY,

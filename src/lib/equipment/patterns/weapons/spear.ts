@@ -22,10 +22,10 @@ export default class SpearPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
-    let blade = rng.item(Components.withCategory('metal', componentOptions));
-    let body = rng.item(Components.withCategory('wood', componentOptions));
+    const blade = rng.item(Components.withCategory('metal', componentOptions));
+    const body = rng.item(Components.withCategory('wood', componentOptions));
 
-    let value = this.baseValue + blade.value + body.value;
+    const value = this.baseValue + blade.value + body.value;
 
     let cosmeticBlade = rng.item([
       'serrated',
@@ -68,9 +68,9 @@ export default class SpearPattern implements Pattern {
       ]);
     }
 
-    let name = `${blade.descriptor} ${this.name}`;
+    const name = `${blade.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, 'spear', 'melee', 'simple weapon', 'bladed weapon', 'weapon'];
+    const tags = [name, this.name, 'spear', 'melee', 'simple weapon', 'bladed weapon', 'weapon'];
 
     return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }

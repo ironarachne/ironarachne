@@ -8,7 +8,7 @@
     children: Snippet;
   };
 
-  let { theme = '', title, description, children }: Props = $props();
+  const { theme = '', title, description, children }: Props = $props();
 </script>
 
 <section class="{theme} main">

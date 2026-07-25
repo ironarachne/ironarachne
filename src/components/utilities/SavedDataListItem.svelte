@@ -14,7 +14,7 @@
     children?: Snippet;
   };
 
-  let {
+  const {
     name,
     meta,
     previewHtml,
@@ -30,6 +30,8 @@
 
 <li class="saved-data-item">
   {#if previewHtml}
+    <!-- Renders app-generated markup (no external or user-supplied input). -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     <div class="saved-data-preview">{@html previewHtml}</div>
   {/if}
   <div class="saved-data-details">

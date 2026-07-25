@@ -61,7 +61,6 @@ describe('Calendar utilities', () => {
   describe('convertGregorianDateToCalendarDate', () => {
     it('converts a Gregorian date to calendar date', () => {
       // Gregorian base date is 0/0/0, so 1/1/1970 is 719528 days after base
-      const base = new Date(0, 0, 0);
       const testDate = new Date(1970, 0, 1);
       const calDate = convertGregorianDateToCalendarDate(testDate, calendar);
       expect(calDate.dayOfYear).toBeGreaterThanOrEqual(1);

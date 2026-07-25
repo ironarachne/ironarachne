@@ -23,7 +23,7 @@
     onReplace: (arms: Arms) => void;
   };
 
-  let { arms, seed, title, rng, onDismiss, onReplace }: Props = $props();
+  const { arms, seed, title, rng, onDismiss, onReplace }: Props = $props();
 
   const previewWidth = 120;
   const previewHeight = 132;
@@ -36,7 +36,11 @@
   );
 
   $effect(() => {
+    // These bare reads are load-bearing: they register `arms` and `seed` as dependencies so the
+    // saved list refreshes when either changes. `refreshSavedHeraldries` does not read them.
+    /* eslint-disable-next-line @typescript-eslint/no-unused-expressions */
     arms;
+    /* eslint-disable-next-line @typescript-eslint/no-unused-expressions */
     seed;
     refreshSavedHeraldries();
   });
@@ -74,6 +78,8 @@
   <p class="heraldry-persistence-blazon">{arms.blazon}</p>
 
   <div class="heraldry-persistence-preview">
+    <!-- Renders app-generated markup (no external or user-supplied input). -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html renderHeraldryDeviceSvg(arms.device, previewWidth, previewHeight, rng)}
   </div>
 
@@ -92,6 +98,8 @@
       {#each savedHeraldries as saved, index (index)}
         <li class="heraldry-persistence-item">
           <div class="heraldry-persistence-item-preview">
+            <!-- Renders app-generated markup (no external or user-supplied input). -->
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html renderHeraldryDeviceSvg(heraldryFromSnapshot(saved).arms.device, 48, 53, rng)}
           </div>
           <div class="heraldry-persistence-item-details">

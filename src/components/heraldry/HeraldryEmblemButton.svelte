@@ -12,7 +12,7 @@
     onclick?: () => void;
   };
 
-  let { arms, title, width = 200, height = 220, rng, onclick }: Props = $props();
+  const { arms, title, width = 200, height = 220, rng, onclick }: Props = $props();
 </script>
 
 {#if arms}
@@ -22,6 +22,8 @@
     aria-label="View heraldry for {title}"
     {onclick}
   >
+    <!-- Renders app-generated markup (no external or user-supplied input). -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html renderHeraldryDeviceSvg(arms.device, width, height, rng)}
   </button>
 {/if}

@@ -56,6 +56,19 @@ Functions should have the lowest possible complexity. If you have several nested
 
 Function names should be descriptive and use camelCase. Aim for specificity in function names.
 
+Prefix a binding with an underscore to mark it as deliberately unused; lint ignores `_`-prefixed
+parameters, variables and caught errors. This is mainly for parameters that exist to satisfy a
+callback signature, such as the `rng` argument on DCC occupation `apply` handlers, where dropping
+the parameter would hide the contract the callback is written against.
+
+Avoid `any`. Where a value is genuinely untyped at a boundary, describe its shape with a type
+instead. Deliberately invalid test fixtures should go through `as unknown as T`, which states the
+intent rather than disabling checking.
+
+Prefer a targeted `eslint-disable-next-line` with a comment explaining why over relaxing a rule
+project-wide. A rule is only turned off in `eslint.config.js` when it does not fit the project at
+all, and each of those carries a comment saying why.
+
 Regarding file names and directory names, use snake_case always, except for component names which should be PascalCase.
 
 ## Dependencies

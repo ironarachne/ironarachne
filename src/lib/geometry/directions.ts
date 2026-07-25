@@ -2,8 +2,8 @@ import type Vertex from './vertex';
 
 // getAngleOfLine gets the angle of the line compared to the x-axis in degrees
 export function getAngleOfLine(a: Vertex, b: Vertex): number {
-  let dx = b.x - a.x;
-  let dy = b.y - a.y;
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
 
   if (dx == 0) {
     if (dy > 0) {
@@ -23,7 +23,7 @@ export function getAngleOfLine(a: Vertex, b: Vertex): number {
 }
 
 export function getDirectionFromOrigin(a: Vertex, b: Vertex): string {
-  let angle = getAngleOfLine(a, b);
+  const angle = getAngleOfLine(a, b);
 
   if (angle >= 315 || angle <= 45) {
     return 'east';
@@ -37,8 +37,8 @@ export function getDirectionFromOrigin(a: Vertex, b: Vertex): string {
 }
 
 export function getWordForVector(vector: number[]): string {
-  let x = vector[0];
-  let y = vector[1];
+  const x = vector[0];
+  const y = vector[1];
 
   if (x > 0.0 && y > 0.0) {
     return 'northwest';

@@ -43,30 +43,30 @@ export function breed(species1: Species, species2: Species): Species {
 export function averageAgeCategories(species1: Species, species2: Species): AgeCategory[] {
   // Since there might be more age categories in one species than the other, we need to find the
   // species with the highest maximum age.
-  let maxAge: number = Math.max(
+  const maxAge: number = Math.max(
     species1.ageCategories[species1.ageCategories.length - 1].maxAge,
     species2.ageCategories[species2.ageCategories.length - 1].maxAge,
   );
-  let minAge: number = Math.min(
+  const minAge: number = Math.min(
     species1.ageCategories[species1.ageCategories.length - 1].maxAge,
     species2.ageCategories[species2.ageCategories.length - 1].maxAge,
   );
 
-  let maxSpecies: Species =
+  const maxSpecies: Species =
     species1.ageCategories[species1.ageCategories.length - 1].maxAge >
     species2.ageCategories[species2.ageCategories.length - 1].maxAge
       ? species1
       : species2;
 
   // Now average them
-  let average: number = (maxAge + minAge) / 2;
+  const average: number = (maxAge + minAge) / 2;
 
   // Now get a ratio of the max age to the average age.
-  let ratio: number = maxAge / average;
+  const ratio: number = maxAge / average;
 
   // Now generate a new set of age categories based on maxSpecies's age categories, but modified by the ratio
   // of the max age to the min age.
-  let result: AgeCategory[] = AgeCategories.getVariant(ratio, maxSpecies.ageCategories);
+  const result: AgeCategory[] = AgeCategories.getVariant(ratio, maxSpecies.ageCategories);
 
   return result;
 }
@@ -107,7 +107,7 @@ export function breedable(species1: Species, species2: Species): boolean {
 }
 
 export function byCreatureType(creatureType: string, options: Species[]): Species[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].creatureTypes.includes(creatureType)) {
@@ -119,7 +119,7 @@ export function byCreatureType(creatureType: string, options: Species[]): Specie
 }
 
 export function byEnvironment(environment: string, options: Species[]): Species[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].environments.includes(environment) || options[i].environments.length === 0) {
@@ -149,14 +149,14 @@ export function byName(name: string, options: Species[]): Species {
 }
 
 export function generateCompositeName(species1: Species, species2: Species): string {
-  let firstName = species1.name > species2.name ? species1.name : species2.name;
-  let lastName = species1.name > species2.name ? species2.name : species1.name;
+  const firstName = species1.name > species2.name ? species1.name : species2.name;
+  const lastName = species1.name > species2.name ? species2.name : species1.name;
 
   return `${firstName}-${lastName}`;
 }
 
 export function getCommonEnvironments(species1: Species, species2: Species): string[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < species1.environments.length; i++) {
     if (species2.environments.includes(species1.environments[i])) {
@@ -178,7 +178,7 @@ export function getModifiedVariants(options: Species[]): Species[] {
 }
 
 export function getSkeletonVariants(options: Species[]): Species[] {
-  let result = [];
+  const result = [];
 
   const mutators = allMutators();
   const Skeleton = mutators.find((m) => m.name === 'skeleton');
@@ -187,7 +187,7 @@ export function getSkeletonVariants(options: Species[]): Species[] {
   }
 
   for (let i = 0; i < options.length; i++) {
-    let skeleton = Skeleton.mutate('', options[i]);
+    const skeleton = Skeleton.mutate('', options[i]);
     result.push(skeleton);
   }
 
@@ -195,7 +195,7 @@ export function getSkeletonVariants(options: Species[]): Species[] {
 }
 
 export function getVampireVariants(options: Species[]): Species[] {
-  let result = [];
+  const result = [];
 
   const mutators = allMutators();
   const Vampire = mutators.find((m) => m.name === 'vampire');
@@ -204,7 +204,7 @@ export function getVampireVariants(options: Species[]): Species[] {
   }
 
   for (let i = 0; i < options.length; i++) {
-    let vampire = Vampire.mutate('', options[i]);
+    const vampire = Vampire.mutate('', options[i]);
     result.push(vampire);
   }
 
@@ -212,7 +212,7 @@ export function getVampireVariants(options: Species[]): Species[] {
 }
 
 export function getZombieVariants(options: Species[]): Species[] {
-  let result = [];
+  const result = [];
 
   const mutators = allMutators();
   const Zombie = mutators.find((m) => m.name === 'zombie');
@@ -221,7 +221,7 @@ export function getZombieVariants(options: Species[]): Species[] {
   }
 
   for (let i = 0; i < options.length; i++) {
-    let zombie = Zombie.mutate('', options[i]);
+    const zombie = Zombie.mutate('', options[i]);
     result.push(zombie);
   }
 
@@ -249,9 +249,9 @@ export function mergeTraits(species1: Species, species2: Species): PhysicalTrait
   );
 
   for (let i = 0; i < species2.physicalTraitGeneratorConfigs.length; i++) {
-    let config = species2.physicalTraitGeneratorConfigs[i];
+    const config = species2.physicalTraitGeneratorConfigs[i];
 
-    let configNames: string[] = result.map((c) => c.name);
+    const configNames: string[] = result.map((c) => c.name);
 
     for (let j = 0; j < result.length; j++) {
       if (result[j].name === config.name) {
@@ -275,7 +275,7 @@ export function mergeTraits(species1: Species, species2: Species): PhysicalTrait
 
 export function randomTraits(seed: string, species: Species): PhysicalTrait[] {
   const rng = new RngCtor(seed);
-  let traits: PhysicalTrait[] = [];
+  const traits: PhysicalTrait[] = [];
 
   for (let i = 0; i < species.physicalTraitGeneratorConfigs.length; i++) {
     const newTrait = PhysicalTraits.generate(species.physicalTraitGeneratorConfigs[i], rng);
@@ -286,13 +286,13 @@ export function randomTraits(seed: string, species: Species): PhysicalTrait[] {
 }
 
 export function randomUniqueSet(options: Species[], count: number, rng: RNG): Species[] {
-  let result: Species[] = [];
+  const result: Species[] = [];
 
-  let shuffledOptions = rng.shuffle(options);
+  const shuffledOptions = rng.shuffle(options);
 
   if (shuffledOptions.length >= count) {
     for (let i = 0; i < count; i++) {
-      let item: Species | undefined = shuffledOptions.pop();
+      const item: Species | undefined = shuffledOptions.pop();
       if (item !== undefined) {
         result.push(item);
       }
@@ -315,7 +315,7 @@ export function nonSentient(): Species[] {
 }
 
 export function withCreatureType(creatureType: string, options: Species[]): Species[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].creatureTypes.includes(creatureType)) {

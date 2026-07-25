@@ -7,14 +7,14 @@
   import * as Words from '@ironarachne/words';
   import * as Currency from '$lib/currency';
   import type { Container, Item } from '$lib/equipment/equipment_types';
-  import type { Gem } from '$lib/treasure';
+  import { isArtObject, isGem, isPotion } from '$lib/treasure';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import NumberField from '$components/common/NumberField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
 
-  let rng = new RNG.RNG(Date.now().toString());
+  const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   $effect(() => {
     rng.setSeed(seed);
@@ -36,18 +36,6 @@
   let containers: Container[] = $state([]);
   let looseItems: string[] = $state([]);
 
-  function isGem(item: Item): item is Gem {
-    return 'cut' in item;
-  }
-
-  function isArtObject(item: Item): boolean {
-    return item.itemMinorType === 'art object';
-  }
-
-  function isPotion(item: Item): boolean {
-    return item.itemMajorType === 'potion';
-  }
-
   function getDisplayItems(items: Item[]) {
     const gems = items.filter(isGem);
     const artObjects = items.filter(isArtObject);
@@ -56,10 +44,12 @@
 
     let displayGems: { name: string; value: number }[] = [];
 
-    if (gems.length === 0) {
-    } else if (gems.length < 12) {
+    if (gems.length > 0 && gems.length < 12) {
       displayGems = gems.map((g) => ({ name: g.name, value: g.value }));
-    } else if (gems.length <= 24) {
+    } else if (gems.length >= 12 && gems.length <= 24) {
+      // Local scratch map for tallying duplicates; never held as component state, so the
+      // plain Map is correct here and SvelteMap would only add reactivity overhead.
+      // eslint-disable-next-line svelte/prefer-svelte-reactivity
       const groups = new Map<string, { count: number; value: number }>();
       for (const gem of gems) {
         const entry = groups.get(gem.name) || { count: 0, value: 0 };
@@ -74,7 +64,7 @@
           value: data.value,
         });
       }
-    } else {
+    } else if (gems.length > 24) {
       const totalValue = gems.reduce((sum, g) => sum + g.value, 0);
       displayGems.push({
         name: `${gems.length} assorted gems`,

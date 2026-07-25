@@ -2,7 +2,7 @@ import { createTitleFromCore } from '$lib/characters/titles.js';
 import type RealmType from './realm_type.js';
 
 export function all(): RealmType[] {
-  let kingdom = {
+  const kingdom = {
     name: 'kingdom',
     minTiles: 10,
     maxTiles: 50,
@@ -22,7 +22,7 @@ export function all(): RealmType[] {
     isStandalone: true,
     parentType: null,
   };
-  let empire = {
+  const empire = {
     name: 'empire',
     minTiles: 50,
     maxTiles: 100,

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { domains } from '../domains/domain_data';
 import { deityMutators } from './deity_data';
 
-function getMatchingMutators(tags: string[], mutators: { tags: string[] }[]): any[] {
+function getMatchingMutators(tags: string[], mutators: { tags: string[] }[]): { tags: string[] }[] {
   return mutators.filter((mutator) => mutator.tags.some((tag) => tags.includes(tag)));
 }
 

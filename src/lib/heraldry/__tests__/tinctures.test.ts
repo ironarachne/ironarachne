@@ -123,7 +123,7 @@ describe('tinctures.isIncludedIn', () => {
   it('returns false if tincture is not in set', () => {
     const all = tinctures.all();
     const fake = { name: 'fake', type: 'fake', hex: '#000' };
-    expect(tinctures.isIncludedIn(fake as any, all)).toBe(false);
+    expect(tinctures.isIncludedIn(fake as unknown as tinctures.Tincture, all)).toBe(false);
   });
 });
 

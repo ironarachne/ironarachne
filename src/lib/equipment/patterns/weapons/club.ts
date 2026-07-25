@@ -21,12 +21,12 @@ export default class ClubPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
-    let body = rng.item(Components.withCategory('wood', componentOptions));
-    let handle = rng.item(Components.withCategory('leather', componentOptions));
+    const body = rng.item(Components.withCategory('wood', componentOptions));
+    const handle = rng.item(Components.withCategory('leather', componentOptions));
 
-    let cosmeticBody = rng.item(['carved', 'spiked', 'heavy', 'bulbous', 'square']);
+    const cosmeticBody = rng.item(['carved', 'spiked', 'heavy', 'bulbous', 'square']);
 
-    let cosmeticHandle = rng.item(['short', 'long', 'comfortable', 'broad']);
+    const cosmeticHandle = rng.item(['short', 'long', 'comfortable', 'broad']);
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
@@ -40,11 +40,11 @@ export default class ClubPattern implements Pattern {
       ` and ${Words.article(cosmeticHandle)} ${cosmeticHandle} ${handle.descriptor} wrapped handle`,
     ]);
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let value = this.baseValue + body.value + handle.value;
+    const value = this.baseValue + body.value + handle.value;
 
-    let tags = [name, this.name, 'club', 'melee', 'simple weapon', 'weapon'];
+    const tags = [name, this.name, 'club', 'melee', 'simple weapon', 'weapon'];
 
     return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }

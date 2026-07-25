@@ -14,7 +14,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'oil, 1 flask', value: 5 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -29,7 +29,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'pony', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -44,7 +44,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'iron helmet', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -59,7 +59,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'spyglass', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -74,7 +74,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'flour, 1 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -89,7 +89,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'scissors', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -104,7 +104,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'holy symbol', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -119,7 +119,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'jar of honey', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -134,7 +134,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'steel tongs', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -149,7 +149,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: "sinew, 10'", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -164,7 +164,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'side of beef', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -179,7 +179,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'barrel of ale', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -194,7 +194,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'linen, 1 yard', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -209,7 +209,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: "pole, 10'", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -224,7 +224,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'stinky cheese', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -239,7 +239,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'shoehorn', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -254,7 +254,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'quality cloak', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -269,7 +269,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'spices, 1 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -284,7 +284,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'barrel', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -299,7 +299,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'fruit', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -314,7 +314,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'small chest', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -329,7 +329,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'fine dirt, 1 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -344,7 +344,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: '1 late RPG book', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -386,7 +386,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'fishing pole', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -401,7 +401,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'tarot deck', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -416,7 +416,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'steel tongs', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -431,7 +431,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'deer pelt', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -446,7 +446,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'dice', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -461,7 +461,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'goat', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -476,7 +476,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'sack of night soil', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -491,7 +491,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'trowel', value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -506,7 +506,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'crutches', value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -521,7 +521,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'hat', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -536,7 +536,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'holy water', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -551,7 +551,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'herbs, 1 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -566,7 +566,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'herding dog', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -581,7 +581,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'deer pelt', value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -596,7 +596,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'locket', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -611,7 +611,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'coin purse', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.currency.cp += 100;
         return character;
       },
@@ -627,7 +627,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'silk clothes', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -642,7 +642,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'gem worth 20 gp', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -657,7 +657,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'fine tools', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -672,7 +672,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'cheese dip', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -687,7 +687,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'hide armor', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.armorClass += 3;
         return character;
       },
@@ -703,7 +703,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'coin purse', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.currency.cp += 27;
         character.currency.sp += 14;
         character.currency.gp += 4;
@@ -721,7 +721,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'flour, 1 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -736,7 +736,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'ukelele', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -751,7 +751,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'gold ring worth 10 gp', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -766,7 +766,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'rag doll', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -781,7 +781,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'bridle', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -796,7 +796,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'leather armor', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.armorClass += 2;
         return character;
       },
@@ -812,7 +812,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'potting clay, 5 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -827,7 +827,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'bag of stone chips', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -842,7 +842,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: "rope, 100'", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -857,7 +857,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'small rug', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -872,7 +872,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: "rope, 50'", value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -887,7 +887,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'parchment, 100 sheets', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -902,7 +902,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'herbs, 1 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -917,7 +917,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'sheep', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -932,7 +932,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'strange-looking rock', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -947,7 +947,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'waterproof sack', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -962,7 +962,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'shield', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.armorClass += 1;
         return character;
       },
@@ -978,7 +978,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'steel helmet', value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -993,7 +993,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'horse', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1008,7 +1008,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'sow', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1023,7 +1023,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'linen, 6 yds.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1038,7 +1038,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'sheet of leather', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1053,7 +1053,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'coin purse', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.currency.cp += 100;
         return character;
       },
@@ -1069,7 +1069,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'thatching, 1 bundle', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1084,7 +1084,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'badger pelt', value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1099,7 +1099,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'begging bowl', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1114,7 +1114,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'pushcart', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1129,7 +1129,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'pocket watch', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1144,7 +1144,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'fine suit of clothes', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1159,7 +1159,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'grapes, 1 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1174,7 +1174,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'black grimoire', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },
@@ -1189,7 +1189,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'bundle of wood', value: 1 },
       commonality: 3,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         return character;
       },
     },

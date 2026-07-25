@@ -11,7 +11,7 @@
     size?: 'sm' | 'md' | 'lg';
   };
 
-  let { archetypeName, size = 'sm' }: Props = $props();
+  const { archetypeName, size = 'sm' }: Props = $props();
 
   const palette = $derived(pickArchetypeBadgePalette(archetypeName));
   const initials = $derived(archetypeNameToBadgeInitials(archetypeName));
@@ -36,6 +36,8 @@
     style:--badge-text-scrim={initialsStyle.scrim ?? 'transparent'}
   >
     {#if svg}
+      <!-- Renders app-generated markup (no external or user-supplied input). -->
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       <span class="archetype-badge__svg">{@html svg}</span>
     {:else}
       <span

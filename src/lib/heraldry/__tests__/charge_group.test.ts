@@ -55,7 +55,7 @@ describe('renderChargeGroupSVG', () => {
         name: 'default',
         numberOfCharges: 1,
         blazonPattern: '{article} {name}',
-        renderSVG: (svg: string, w: number, h: number) => `<g>${svg}</g>`,
+        renderSVG: (svg: string, _w: number, _h: number) => `<g>${svg}</g>`,
       },
     };
     const svg = renderChargeGroupSVG(group, 100, 100);

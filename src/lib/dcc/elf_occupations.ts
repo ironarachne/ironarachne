@@ -14,7 +14,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'clay, 1 lb.', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Sensitive to iron');
         character.specialRules.push('Heightened senses');
         character.languages.push('Elf');
@@ -32,7 +32,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'book', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Sensitive to iron');
         character.specialRules.push('Heightened senses');
         character.languages.push('Elf');
@@ -50,7 +50,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'candles, 20', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Sensitive to iron');
         character.specialRules.push('Heightened senses');
         character.languages.push('Elf');
@@ -68,7 +68,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'falcon', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Sensitive to iron');
         character.specialRules.push('Heightened senses');
         character.languages.push('Elf');
@@ -86,7 +86,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'herbs, 1 lb.', value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Sensitive to iron');
         character.specialRules.push('Heightened senses');
         character.languages.push('Elf');
@@ -104,7 +104,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'glass beads', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Sensitive to iron');
         character.specialRules.push('Heightened senses');
         character.languages.push('Elf');
@@ -122,7 +122,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'spyglass', value: 1 },
       commonality: 1,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Sensitive to iron');
         character.specialRules.push('Heightened senses');
         character.languages.push('Elf');
@@ -140,7 +140,7 @@ export function all(): DCCOccupation[] {
       },
       tradeGoods: { name: 'parchment and quill pen', value: 1 },
       commonality: 2,
-      apply: (character: DCCCharacter, rng: RNG): DCCCharacter => {
+      apply: (character: DCCCharacter, _rng: RNG): DCCCharacter => {
         character.specialRules.push('Sensitive to iron');
         character.specialRules.push('Heightened senses');
         character.languages.push('Elf');

@@ -1,6 +1,5 @@
 import * as AgeCategories from '$lib/age/age_categories.js';
 import { traditional } from '$lib/gender/index.js';
-import * as Sizes from '$lib/size/sizes.js';
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
 import dog from '$lib/species_animals/dog.js';

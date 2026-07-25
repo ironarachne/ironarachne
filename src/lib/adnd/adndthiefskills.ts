@@ -8,11 +8,11 @@ export type ThiefSkillRow = {
 
 export function distributePoints(skillList: ThiefSkillRow[], extraPoints: number, rng: RNG) {
   while (extraPoints > 0) {
-    let skillIndex = rng.int(0, skillList.length - 1);
-    let skill = skillList[skillIndex];
+    const skillIndex = rng.int(0, skillList.length - 1);
+    const skill = skillList[skillIndex];
     if (skill.points < 30) {
-      let cap = 30 - skill.points > 30 ? 30 : 30 - skill.points;
-      let points = rng.int(1, cap);
+      const cap = 30 - skill.points > 30 ? 30 : 30 - skill.points;
+      const points = rng.int(1, cap);
       skill.points += points;
       extraPoints -= points;
     }

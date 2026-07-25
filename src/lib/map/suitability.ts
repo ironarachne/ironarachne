@@ -1,5 +1,4 @@
 import type { MapNode, RegionMap } from './map_graph.js';
-import type { RNG } from '@ironarachne/rng';
 
 /**
  * A generic rule for scoring a node's suitability for a settlement/landmark.

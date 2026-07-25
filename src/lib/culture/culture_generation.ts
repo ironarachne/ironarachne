@@ -41,12 +41,12 @@ export function generateCulture(seed: string, config: CultureGenerationConfig): 
 
   const rng = new RNG(seed);
 
-  let relGenConfig = getDefaultReligionGenerationConfig();
+  const relGenConfig = getDefaultReligionGenerationConfig();
   relGenConfig.nameGenerator = config.nameGenerators.family;
   relGenConfig.femaleNameGenerator = config.nameGenerators.female;
   relGenConfig.maleNameGenerator = config.nameGenerators.male;
 
-  let cultureName = config.nameGenerators.culture.generate(1)[0];
+  const cultureName = config.nameGenerators.culture.generate(1)[0];
 
   let musicStyle = MusicStyles.generateMusicStyle(rng).description;
   musicStyle = musicStyle.replace('This style of', cultureName);
@@ -144,7 +144,7 @@ function randomDominantProfession(seed: string) {
 
 function randomDesignTrait(seed: string): string {
   const rng = new RNG(seed);
-  let firstPart = rng.item([
+  const firstPart = rng.item([
     'Bright, vibrant colors',
     'Round shapes like circles, loops, and spirals',
     'Triangles',
@@ -173,7 +173,7 @@ function randomDesignTrait(seed: string): string {
     'Industrial design elements',
   ]);
 
-  let secondPart = rng.item([
+  const secondPart = rng.item([
     'are incorporated into everyday objects.',
     'are a hallmark of the local design aesthetic.',
     'are used in ceremonial and festive contexts.',
@@ -240,7 +240,7 @@ function randomGreeting(seed: string): string {
 function randomTaboos(seed: string): string[] {
   const rng = new RNG(seed);
 
-  let items = [
+  const items = [
     'Baring skin other than the face in public',
     'Eating animals',
     'Eating human flesh',
@@ -311,7 +311,7 @@ function randomTaboos(seed: string): string[] {
     'Not offering a seat to someone in need',
   ];
 
-  let contexts = [
+  const contexts = [
     'is forbidden.',
     'is strictly forbidden.',
     'is considered bad manners.',
@@ -349,7 +349,7 @@ function randomTaboos(seed: string): string[] {
     possible.push(`${items[i]} ${rng.item(contexts)}`);
   }
 
-  let taboos: string[] = [];
+  const taboos: string[] = [];
   possible = rng.shuffle(possible);
 
   if (possible.length === 0) {

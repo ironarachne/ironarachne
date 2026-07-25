@@ -17,9 +17,9 @@ export default class ChainmailPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): Armor {
-    let body = rng.item(Components.withCategory('metal', componentOptions));
+    const body = rng.item(Components.withCategory('metal', componentOptions));
 
-    let value = this.baseValue + body.value * 500;
+    const value = this.baseValue + body.value * 500;
 
     let description = rng.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
@@ -33,14 +33,14 @@ export default class ChainmailPattern implements Pattern {
       `${Words.article(body.descriptor)} ${body.descriptor} ${this.name}`,
     ]);
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
     if (quality > 1) {
       description += rng.item([' and decorative belting']);
     }
 
-    let armorClass = 16;
-    let tags = [name, this.name, 'chainmail', 'armor'];
+    const armorClass = 16;
+    const tags = [name, this.name, 'chainmail', 'armor'];
 
     return new Armor(name, description, 'torso', armorClass, value, quality, tags);
   }

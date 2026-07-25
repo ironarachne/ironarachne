@@ -36,7 +36,7 @@
   const genderOptions = ['Random', 'Male', 'Female'];
 
   let seed = $state(new RNG(Date.now().toString()).randomString(13));
-  let rng = new RNG(seed);
+  const rng = new RNG(seed);
   let character = $state<null | Character>(null);
 
   let savedCultures = $state<Culture[]>([]);
@@ -88,7 +88,7 @@
     const lockedFirstName = firstName;
     const lockedLastName = lastName;
 
-    let config = getDefaultCharacterGenerationConfig(seed + '-character');
+    const config = getDefaultCharacterGenerationConfig(seed + '-character');
 
     const species =
       sentientSpeciesList.find((s) => s.name === selectedSpeciesName) || sentientSpeciesList[0];
@@ -310,6 +310,8 @@
           }
         }}
       >
+        <!-- Renders app-generated markup (no external or user-supplied input). -->
+        <!-- eslint-disable-next-line svelte/no-at-html-tags -->
         {@html renderHeraldryDeviceSvg(
           character.heraldry.device,
           heraldryWidth,

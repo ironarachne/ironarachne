@@ -15,7 +15,7 @@ describe('Relationships Library', () => {
   describe('generateRelationshipDescription', () => {
     it('should generate a description based on template', () => {
       const mockRng = {
-        item: (arr: any[]) => arr[0],
+        item: <T>(arr: T[]) => arr[0],
       } as RNG;
 
       const type = relationshipTypes.find((t) => t.name === 'friend');

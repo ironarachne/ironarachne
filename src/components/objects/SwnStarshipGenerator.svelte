@@ -6,7 +6,7 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
 
-  let rng = new RNG.RNG(Date.now().toString());
+  const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
   $effect(() => {
@@ -24,7 +24,7 @@
 
   function save() {
     if (!starship) return;
-    let starshipDescription = Gen.formatAsText(starship);
+    const starshipDescription = Gen.formatAsText(starship);
 
     const blob = new Blob([starshipDescription], { type: 'text/plain' });
     const link = document.createElement('a');

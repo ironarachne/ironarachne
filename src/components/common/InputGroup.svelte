@@ -7,7 +7,7 @@
     children: Snippet;
   };
 
-  let { id, label, children }: Props = $props();
+  const { id, label, children }: Props = $props();
 </script>
 
 <div class="input-group">

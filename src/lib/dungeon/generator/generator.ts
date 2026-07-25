@@ -3,6 +3,8 @@ import * as Words from '@ironarachne/words';
 import { getFantasyNameGeneratorSet } from '../../names';
 import type Environment from '../../environment/environment.js';
 import { getTile } from '../grid/grid';
+import type { PlacedRoom } from '../layout/types';
+import type { Door } from '../interactive/types';
 import { buildTheme } from '../theme/theme';
 import { generateLayout } from '../layout/architect';
 import { connectRooms } from '../layout/corridors';
@@ -113,7 +115,7 @@ function generateRoomDescription(
 
 export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDungeon {
   // Helper: Find a room on the edge of the map
-  function findEdgeRoom(): { room: any; edge: string; ix: number } | null {
+  function findEdgeRoom(): { room: PlacedRoom; edge: string; ix: number } | null {
     for (let ix = 0; ix < layout.rooms.length; ix++) {
       const room = layout.rooms[ix];
       const { x, y, primitive } = room;
@@ -124,7 +126,6 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
     }
     return null;
   }
-  const rng = new RNG.RNG(config.seed);
   const encounterChance = config.encounterChancePerRoom ?? 0.4;
   const treasureChance = config.treasureChancePerRoom ?? 0.3;
 
@@ -146,7 +147,7 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
   // 4. Interactive Chokepoints (Locks & Keys, and Entrances)
   const doors = generateDoors(`${config.seed}-doors`, layout, theme.blueprint.doorOptions);
 
-  let entrances: DungeonEntrance[] = [];
+  const entrances: DungeonEntrance[] = [];
   const edgeResult = findEdgeRoom();
   let startX: number | undefined;
   let startY: number | undefined;
@@ -259,7 +260,7 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
       return false;
     };
 
-    const roomDoors: { door: any; wall: string }[] = [];
+    const roomDoors: { door: Door; wall: string }[] = [];
     for (const door of doors) {
       let wall = '';
       if (inRoom(door.x, door.y + 1) && !inRoom(door.x, door.y - 1)) {
@@ -278,9 +279,7 @@ export function generateDungeon(config: DungeonGeneratorConfig): EngineeredDunge
     }
 
     const doorDescs = roomDoors.map(({ door, wall }) => {
-      let typeDesc = 'door';
-      if (door.type === 'secret') typeDesc = 'secret door';
-
+      // `door.description` already conveys secrecy for secret doors; see buildDoor.
       return `There is ${door.description} on the ${wall} wall. It is ${door.state}.`;
     });
 

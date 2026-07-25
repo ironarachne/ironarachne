@@ -3,7 +3,7 @@ import { traditional } from '$lib/gender/index.js';
 import * as Sizes from '$lib/size/sizes.js';
 import type Species from '$lib/species/species.js';
 
-let ageCategories = AgeCategories.getHumanVariant(0.8);
+const ageCategories = AgeCategories.getHumanVariant(0.8);
 
 export default <Species>{
   name: 'dragonborn',

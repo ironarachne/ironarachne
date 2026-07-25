@@ -75,7 +75,7 @@
   let useSavedCulture: boolean = $state(false);
   let culture: Culture | undefined = $state();
 
-  let rng = new RNG.RNG(Date.now().toString());
+  const rng = new RNG.RNG(Date.now().toString());
   const initialSeed = rng.randomString(13);
   let seed = $state(initialSeed);
   let lockSeed = $state(false);
@@ -83,13 +83,13 @@
     rng.setSeed(seed);
   });
 
-  let humanNameGenSet = Names.getFantasyNameGeneratorSet('human', rng);
-  let genConfig = getDefaultReligionGenerationConfig();
+  const humanNameGenSet = Names.getFantasyNameGeneratorSet('human', rng);
+  const genConfig = getDefaultReligionGenerationConfig();
 
-  let allSpeciesNames: string[] = [];
+  const allSpeciesNames: string[] = [];
   const allSpecies = CommonSpecies.sentient();
   const allReligionCategories = ReligionCategories.all();
-  let allReligionCategoriesNames: string[] = [];
+  const allReligionCategoriesNames: string[] = [];
 
   for (let i = 0; i < allSpecies.length; i++) {
     allSpeciesNames.push(allSpecies[i].name);
@@ -121,12 +121,12 @@
     if (humanNameGenSet.male === null) {
       throw new Error('Name set does not have a male name generator.');
     }
-    let speciesOptions: Species[] = [];
+    const speciesOptions: Species[] = [];
     for (let i = 0; i < selectedSpecies.length; i++) {
       speciesOptions.push(CommonSpecies.byName(selectedSpecies[i], allSpecies));
     }
 
-    let categoryOptions = [];
+    const categoryOptions = [];
     for (let i = 0; i < selectedCategories.length; i++) {
       categoryOptions.push(ReligionCategories.byName(selectedCategories[i], allReligionCategories));
     }

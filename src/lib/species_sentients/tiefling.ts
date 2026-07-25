@@ -5,7 +5,7 @@ import type Species from '$lib/species/species.js';
 
 const hornLengths = ['short', 'long'];
 const hornTypes = ['curved', 'straight', 'curled', 'spiraled'];
-let hornAppearances = [];
+const hornAppearances = [];
 for (let j = 0; j < hornTypes.length; j++) {
   for (let i = 0; i < hornLengths.length; i++) {
     hornAppearances.push(`${hornLengths[i]} and ${hornTypes[j]}`);

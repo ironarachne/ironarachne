@@ -12,7 +12,7 @@
   import NumberField from '$components/common/NumberField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
 
-  let rng = new RNG(Date.now().toString());
+  const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   $effect(() => {
     rng.setSeed(seed);
@@ -156,6 +156,8 @@
         </div>
         {#if merchant.mark}
           <div class="merchant-mark" aria-hidden="true">
+            <!-- Renders app-generated markup (no external or user-supplied input). -->
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html renderMerchantMarkSvg(merchant.mark, 120, 120)}
           </div>
         {/if}

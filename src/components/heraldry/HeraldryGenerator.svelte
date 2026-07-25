@@ -88,7 +88,7 @@
     return CHARGE_TINCTURE_LABELS[value as (typeof CHARGE_TINCTURE_NAMES)[number]] ?? value;
   }
 
-  let rng = new RngCtor(Date.now().toString());
+  const rng = new RngCtor(Date.now().toString());
   const initialOptions = defaultHeraldryGeneratorOptions();
   let seed = $state(rng.randomString(13));
   $effect(() => {
@@ -102,7 +102,7 @@
   let savedHeraldries = $state<HeraldrySnapshot[]>([]);
   let loadDialogComponent: LoadSnapshotDialog | undefined = $state();
   let charges = Charges.all();
-  let allCharges = Charges.all();
+  const allCharges = Charges.all();
   let heraldryTag = $state(initialOptions.heraldryTag);
   let chargeTinctureName = $state(initialOptions.chargeTinctureName);
   let chargeTincture = Tinctures.randomChargeTincture(rng);
@@ -115,15 +115,15 @@
   let variationTinctureOptions = $state(
     initialOptions.variationTinctureOptions!.map((row) => [...row]),
   );
-  let variations = Variations.all();
-  let allFields = Fields.all();
+  const variations = Variations.all();
+  const allFields = Fields.all();
   const fieldDivisionSelectOptions = $derived(
     allFields.map((field) => ({ value: field.name, label: field.name })),
   );
   const variationSelectOptions = $derived(
     variations.map((variation) => ({ value: variation.name, label: variation.name })),
   );
-  let availableTags = Charges.allChargeTags();
+  const availableTags = Charges.allChargeTags();
   const fieldVariationSlotCount = $derived(fieldVariationSlotCountForDivision(fieldDivisionOption));
 
   $effect(() => {
@@ -144,7 +144,7 @@
       ];
     }
 
-    let tinctureRows = variationTinctureOptions;
+    const tinctureRows = variationTinctureOptions;
     let tinctureRowsChanged = false;
     const paddedTinctureRows = tinctureRows.map((row, slotIndex) => {
       const tinctureCount = variationTinctureCountForSlot(variationSlotOptions, slotIndex);
@@ -219,7 +219,7 @@
     if (chargeTinctureName === 'any') {
       chargeTincture = Tinctures.randomChargeTincture(rng);
     } else {
-      let tincture = Tinctures.byName(chargeTinctureName);
+      const tincture = Tinctures.byName(chargeTinctureName);
       if (tincture !== undefined) {
         chargeTincture = tincture;
       }

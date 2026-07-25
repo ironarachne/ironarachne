@@ -14,7 +14,7 @@ export const singleChargeCenterArrangement: ChargeGroupArrangement = {
     // contextWidth is the width of the bounding box for the entire device
     // contextHeight is the height of the bounding box for the entire device
     const chargeObject = convertXmlToSVGObject(chargeSVGString);
-    const svgObj = (chargeObject as any)['svg'];
+    const svgObj = chargeObject['svg'];
     const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
     let scaleAmount = Math.min(contextWidth / chargeWidth, contextHeight / chargeHeight);

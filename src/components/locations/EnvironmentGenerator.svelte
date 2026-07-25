@@ -10,7 +10,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import NumberField from '$components/common/NumberField.svelte';
 
-  let rng = new RNG.RNG(Date.now().toString());
+  const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   $effect(() => {
     rng.setSeed(seed);
@@ -19,7 +19,7 @@
 
   let environment: Environment | undefined = $state();
   let canvas: HTMLCanvasElement;
-  let config = $state(Environments.getDefaultConfig());
+  const config = $state(Environments.getDefaultConfig());
   config.rng = rng;
 
   function elevationToFeet(elevation: number): number {

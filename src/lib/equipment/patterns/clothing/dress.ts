@@ -18,9 +18,9 @@ export default class DressPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): Clothing {
-    let body = rng.item(Components.withCategory('fabric', componentOptions));
+    const body = rng.item(Components.withCategory('fabric', componentOptions));
 
-    let value = this.baseValue + body.value * 2;
+    const value = this.baseValue + body.value * 2;
 
     let description = `${Words.article(this.name)} ${this.name} `;
 
@@ -36,20 +36,25 @@ export default class DressPattern implements Pattern {
 
     description += ' with ';
 
-    let sleeves =
+    const sleeves =
       rng.item(['short', 'long', 'wide', 'narrow', 'bunched', 'volumnous', 'no']) + ' sleeves';
-    let lacing =
+    const lacing =
       rng.item(['tight ', '', 'double ', 'wide ']) +
       'lacing ' +
       rng.item(['down the middle', 'at the top', 'halfway down', 'down the back']);
-    let neck = rng.item(['a wide neck', 'a v-neck', 'a deep neck']);
-    let waist = rng.item(['a tight waist', 'a narrow waist', 'a cinched waist', 'a belted waist']);
+    const neck = rng.item(['a wide neck', 'a v-neck', 'a deep neck']);
+    const waist = rng.item([
+      'a tight waist',
+      'a narrow waist',
+      'a cinched waist',
+      'a belted waist',
+    ]);
 
     description += rng.item([sleeves, lacing, neck, waist]);
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, 'dress', 'clothing'];
+    const tags = [name, this.name, 'dress', 'clothing'];
 
     return new Clothing(name, description, 'torso', value, quality, tags);
   }

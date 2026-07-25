@@ -19,14 +19,14 @@ export function generateDomainSet(
       return false;
     }
     if (filter.requiredTags) {
-      for (let tag of filter.requiredTags) {
+      for (const tag of filter.requiredTags) {
         if (!domain.tags.includes(tag)) {
           return false;
         }
       }
     }
     if (filter.excludedTags) {
-      for (let tag of filter.excludedTags) {
+      for (const tag of filter.excludedTags) {
         if (domain.tags.includes(tag)) {
           return false;
         }

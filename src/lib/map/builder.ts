@@ -4,7 +4,6 @@ import { triangulate } from '../geometry/delaunay.js';
 import { computeVoronoi } from '../geometry/voronoi.js';
 import type { RegionMap, MapNode, MapEdge, MapCorner } from './map_graph.js';
 import type Vertex from '../geometry/vertex.js';
-import { distance, vertexEquals } from '../geometry/geometry.js';
 import { getMidpoint } from '../geometry/geometry.js';
 
 export interface MapBuilderConfig {

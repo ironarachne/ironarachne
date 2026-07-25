@@ -26,7 +26,7 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
   let fieldTinctures2: Tincture[] = JSON.parse(JSON.stringify(cfg.fieldTinctures2));
 
   if (cfg.chargeCount > 0 && cfg.chargeOptions.length > 0) {
-    let charge = cfg.rng.item(Array.from(cfg.chargeOptions));
+    const charge = cfg.rng.item(Array.from(cfg.chargeOptions));
     charge.tincture = cfg.rng.weighted(
       Array.from(cfg.chargeTinctures).map((t) => {
         return { commonality: t.commonality, value: t };
@@ -47,8 +47,8 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
       );
     }
 
-    let chargeArrangement = cfg.rng.item(arrangementOptions);
-    let chargeGroup: ChargeGroup = {
+    const chargeArrangement = cfg.rng.item(arrangementOptions);
+    const chargeGroup: ChargeGroup = {
       charge,
       numberOfCharges: cfg.chargeCount,
       arrangement: chargeArrangement,
@@ -60,7 +60,7 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
     fieldTinctures2 = Tinctures.getContrasting(charge.tincture, fieldTinctures2);
   }
 
-  let field = resolveField(cfg);
+  const field = resolveField(cfg);
 
   field.variations = generateVariations(
     field.variationCount,
@@ -79,11 +79,11 @@ export function generateHeraldry(config?: HeraldryGeneratorConfig): Arms {
 // Build a randomized but constrained config (was a class method previously)
 export function generateHeraldryConfig(rng: RNG.RNG): HeraldryGeneratorConfig {
   const charges = getAllCharges();
-  let chargeTincture = Tinctures.randomChargeTincture(rng);
+  const chargeTincture = Tinctures.randomChargeTincture(rng);
   let fieldTinctures1 = Tinctures.all();
   let fieldTinctures2 = Tinctures.all();
-  let fields = Fields.all();
-  let variations = Variations.all();
+  const fields = Fields.all();
+  const variations = Variations.all();
 
   let types1: string[] = [];
   let types2: string[] = [];
@@ -251,7 +251,7 @@ function generateVariations(
   rng: RNG.RNG,
   slotPreferences?: VariationSlotPreference[],
 ): Variation[] {
-  let result = [];
+  const result = [];
   let variationOptions: Variation[] = JSON.parse(JSON.stringify(options));
 
   for (let i = 0; i < count; i++) {

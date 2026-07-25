@@ -9,7 +9,7 @@ export default class CuisineGenerator {
   }
 
   generate(): Cuisine {
-    let cuisine = new Cuisine();
+    const cuisine = new Cuisine();
 
     // TODO: Generate cuisine
 

@@ -5,7 +5,7 @@
     label?: string;
   };
 
-  let { onclick, downloading = false, label = 'Download PDF' }: Props = $props();
+  const { onclick, downloading = false, label = 'Download PDF' }: Props = $props();
 </script>
 
 <button type="button" {onclick} disabled={downloading}>

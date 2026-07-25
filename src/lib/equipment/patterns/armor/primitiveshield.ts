@@ -17,13 +17,13 @@ export default class PrimitiveShieldPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): Armor {
-    let body = rng.item(Components.withCategory('wood', componentOptions));
+    const body = rng.item(Components.withCategory('wood', componentOptions));
 
-    let handle = rng.item(Components.withCategory('wood', componentOptions));
+    const handle = rng.item(Components.withCategory('wood', componentOptions));
 
-    let trim = rng.item(Components.withCategory('leather', componentOptions));
+    const trim = rng.item(Components.withCategory('leather', componentOptions));
 
-    let value = this.baseValue + body.value * 5 + trim.value;
+    const value = this.baseValue + body.value * 5 + trim.value;
 
     let description = rng.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
@@ -41,10 +41,10 @@ export default class PrimitiveShieldPattern implements Pattern {
       description += rng.item([' and decorated with bone']);
     }
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let armorClass = 1;
-    let tags = [name, this.name, 'shield', 'armor'];
+    const armorClass = 1;
+    const tags = [name, this.name, 'shield', 'armor'];
 
     return new Armor(name, description, 'arm', armorClass, value, quality, tags);
   }

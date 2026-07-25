@@ -7,9 +7,9 @@ export function allMutators(): Mutator<Species>[] {
       name: 'skeleton',
       tags: ['skeleton', 'undead'],
       mutate: (seed: string, target: Species) => {
-        let result: Species = JSON.parse(JSON.stringify(target));
+        const result: Species = JSON.parse(JSON.stringify(target));
 
-        let modifierName = 'skeletal';
+        const modifierName = 'skeletal';
 
         // TODO: remove physical traits that don't make sense for a skeleton, like "has fur" or "has feathers"
 
@@ -32,9 +32,9 @@ export function allMutators(): Mutator<Species>[] {
       name: 'zombie',
       tags: ['zombie', 'undead'],
       mutate: (seed: string, target: Species) => {
-        let result: Species = JSON.parse(JSON.stringify(target));
+        const result: Species = JSON.parse(JSON.stringify(target));
 
-        let modifierName = 'zombified';
+        const modifierName = 'zombified';
 
         // TODO: add physical traits that make sense for a zombie, like "has decaying flesh" or "has a foul stench"
 
@@ -57,9 +57,9 @@ export function allMutators(): Mutator<Species>[] {
       name: 'vampire',
       tags: ['vampire', 'undead'],
       mutate: (seed: string, target: Species) => {
-        let result: Species = JSON.parse(JSON.stringify(target));
+        const result: Species = JSON.parse(JSON.stringify(target));
 
-        let modifierName = 'vampiric';
+        const modifierName = 'vampiric';
 
         // TODO: add physical traits that make sense for a vampire, like "has fangs" or "has a pale complexion"
 

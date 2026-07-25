@@ -21,17 +21,17 @@ export default class MacePattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
-    let head = rng.item(Components.withCategory('metal', componentOptions));
-    let haft = rng.item(Components.withCategory('wood', componentOptions));
-    let handle = rng.item(Components.withCategory('leather', componentOptions));
+    const head = rng.item(Components.withCategory('metal', componentOptions));
+    const haft = rng.item(Components.withCategory('wood', componentOptions));
+    const handle = rng.item(Components.withCategory('leather', componentOptions));
 
-    let value = this.baseValue + head.value + haft.value + handle.value;
+    const value = this.baseValue + head.value + haft.value + handle.value;
 
-    let cosmeticHead = rng.item(['carved', 'spiked', 'heavy', 'large', 'dense']);
+    const cosmeticHead = rng.item(['carved', 'spiked', 'heavy', 'large', 'dense']);
 
-    let cosmeticHaft = rng.item(['straight', 'short', 'long']);
+    const cosmeticHaft = rng.item(['straight', 'short', 'long']);
 
-    let cosmeticHandle = rng.item(['short', 'long', 'comfortable', 'broad']);
+    const cosmeticHandle = rng.item(['short', 'long', 'comfortable', 'broad']);
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
@@ -50,9 +50,9 @@ export default class MacePattern implements Pattern {
       ` and ${Words.article(cosmeticHandle)} ${cosmeticHandle} ${handle.descriptor} wrapped handle`,
     ]);
 
-    let name = `${head.descriptor} ${this.name}`;
+    const name = `${head.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, 'mace', 'melee', 'simple weapon', 'weapon'];
+    const tags = [name, this.name, 'mace', 'melee', 'simple weapon', 'weapon'];
 
     return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }

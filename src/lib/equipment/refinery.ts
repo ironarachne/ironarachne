@@ -1,5 +1,5 @@
 import * as RNG from '@ironarachne/rng';
-import type { Armor, Item, Refinement, Weapon } from './equipment_types';
+import type { Item, Refinement, Weapon } from './equipment_types';
 import { REFINEMENTS } from './refinements';
 import { applyStatOffsets } from './items';
 

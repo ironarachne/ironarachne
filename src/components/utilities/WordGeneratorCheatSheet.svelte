@@ -4,7 +4,7 @@
   import InputGroup from '$components/common/InputGroup.svelte';
   import NumberField from '$components/common/NumberField.svelte';
 
-  let elements = allElements;
+  const elements = allElements;
 
   let html = $state(
     '<table><thead><tr><th>Name</th><th>Symbol</th><th>Elements</th></tr></thead><tbody>',
@@ -29,7 +29,7 @@
 
   function generate() {
     words = [];
-    let wordGen = new WordGenerator();
+    const wordGen = new WordGenerator();
     wordGen.patterns = [pattern];
     for (let i = 0; i < numberOfWords; i++) {
       words.push(wordGen.generate());
@@ -65,5 +65,7 @@
 
   <h2>Element Reference</h2>
 
+  <!-- Renders app-generated markup (no external or user-supplied input). -->
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html html}
 </GeneratorPage>

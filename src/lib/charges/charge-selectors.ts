@@ -22,12 +22,12 @@ export function random(charges: ChargeGlyph[], rng: RNG): ChargeGlyph {
 }
 
 export function randomWithTag(tag: string, charges: ChargeGlyph[], rng: RNG): ChargeGlyph {
-  let matching = matchingTag(tag, charges);
+  const matching = matchingTag(tag, charges);
   return random(matching, rng);
 }
 
 export function matchingTag(tag: string, charges: ChargeGlyph[]): ChargeGlyph[] {
-  let result: ChargeGlyph[] = [];
+  const result: ChargeGlyph[] = [];
   for (let i = 0; i < charges.length; i++) {
     for (let j = 0; j < charges[i].tags.length; j++) {
       if (charges[i].tags[j] === tag) {
@@ -40,7 +40,7 @@ export function matchingTag(tag: string, charges: ChargeGlyph[]): ChargeGlyph[] 
 }
 
 export function matchingAnyTags(tags: string[], charges: ChargeGlyph[]): ChargeGlyph[] {
-  let result: ChargeGlyph[] = [];
+  const result: ChargeGlyph[] = [];
   for (let i = 0; i < charges.length; i++) {
     for (let j = 0; j < charges[i].tags.length; j++) {
       if (tags.includes(charges[i].tags[j])) {

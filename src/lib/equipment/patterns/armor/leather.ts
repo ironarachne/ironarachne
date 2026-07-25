@@ -18,10 +18,10 @@ export default class LeatherArmorPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): Armor {
-    let body = rng.item(Components.withCategory('hard leather', componentOptions));
-    let trim = rng.item(Components.withCategory('soft metal', componentOptions));
+    const body = rng.item(Components.withCategory('hard leather', componentOptions));
+    const trim = rng.item(Components.withCategory('soft metal', componentOptions));
 
-    let value = this.baseValue + body.value * 1000 + trim.value;
+    const value = this.baseValue + body.value * 1000 + trim.value;
 
     let description = rng.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
@@ -46,10 +46,10 @@ export default class LeatherArmorPattern implements Pattern {
       ]);
     }
 
-    let name = `${body.descriptor} ${this.name}`;
-    let tags = [name, this.name, 'body armor', 'armor'];
+    const name = `${body.descriptor} ${this.name}`;
+    const tags = [name, this.name, 'body armor', 'armor'];
 
-    let armorClass = 11 + rng.int(0, 1);
+    const armorClass = 11 + rng.int(0, 1);
 
     return new Armor(name, description, 'torso', armorClass, value, quality, tags);
   }

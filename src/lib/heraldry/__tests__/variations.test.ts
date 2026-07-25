@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { all, byName, isIncludedIn, removeFromSet } from '../variations';
-import { renderBlazon, renderSVGPattern } from '../variation';
+import { renderBlazon, renderSVGPattern, type Variation } from '../variation';
 
 describe('variations.all', () => {
   it('returns an array of variations', () => {
@@ -57,7 +57,7 @@ describe('variation renderBlazon', () => {
       ...byName('barry'),
       tinctures: [{ name: 'azure' }, { name: 'or' }],
     };
-    const blazon = renderBlazon(v as any);
+    const blazon = renderBlazon(v as unknown as Variation);
     expect(blazon).toContain('azure');
     expect(blazon).toContain('or');
   });
@@ -69,7 +69,7 @@ describe('variation renderSVGPattern', () => {
       ...byName('barry'),
       tinctures: [{ name: 'azure' }, { name: 'or' }],
     };
-    const svg = renderSVGPattern(v as any);
+    const svg = renderSVGPattern(v as unknown as Variation);
     expect(svg).toContain('url(#azure)');
     expect(svg).toContain('url(#or)');
   });

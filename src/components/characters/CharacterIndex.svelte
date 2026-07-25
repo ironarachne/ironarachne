@@ -1,26 +1,27 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import NavIndexPage from '$components/layout/NavIndexPage.svelte';
 
   const sections = [
     {
       heading: 'Character Builders',
-      links: [{ href: '/fantasy/adnd/character/build', label: 'AD&amp;D 2E Character' }],
+      links: [{ href: resolve('/fantasy/adnd/character/build'), label: 'AD&amp;D 2E Character' }],
     },
     {
       heading: 'Character Generators',
       links: [
-        { href: '/character', label: 'Character' },
-        { href: '/fantasy/adnd/character', label: 'AD&amp;D 2E Character' },
-        { href: '/fantasy/dcc/character', label: 'Dungeon Crawl Classics Character' },
-        { href: '/swn/character', label: 'Stars Without Number Character' },
-        { href: '/unchartedworlds/character', label: 'Uncharted Worlds Character' },
+        { href: resolve('/character'), label: 'Character' },
+        { href: resolve('/fantasy/adnd/character'), label: 'AD&amp;D 2E Character' },
+        { href: resolve('/fantasy/dcc/character'), label: 'Dungeon Crawl Classics Character' },
+        { href: resolve('/swn/character'), label: 'Stars Without Number Character' },
+        { href: resolve('/unchartedworlds/character'), label: 'Uncharted Worlds Character' },
       ],
     },
     {
       heading: 'Related Generators',
       links: [
-        { href: '/heraldry', label: 'Heraldry' },
-        { href: '/velgarth-gifts', label: 'Velgarth Gifts' },
+        { href: resolve('/heraldry'), label: 'Heraldry' },
+        { href: resolve('/velgarth-gifts'), label: 'Velgarth Gifts' },
       ],
     },
   ];

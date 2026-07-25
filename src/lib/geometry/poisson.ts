@@ -28,12 +28,6 @@ export function generatePoissonDisk(
   const activeList: Vertex[] = [];
   const points: Vertex[] = [];
 
-  // Helper to safely get from grid
-  const getCell = (col: number, row: number): Vertex | null => {
-    if (col < 0 || col >= cols || row < 0 || row >= rows) return null;
-    return grid[col + row * cols];
-  };
-
   // Add initial point
   const initialPoint: Vertex = { x: rng.float(0, width), y: rng.float(0, height) };
 

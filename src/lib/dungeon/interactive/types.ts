@@ -1,5 +1,3 @@
-import type { CoordinateTuple } from '../grid/types';
-
 export type DoorType = 'regular' | 'secret';
 
 export type DoorState = 'open' | 'closed' | 'locked';

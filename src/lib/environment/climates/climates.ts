@@ -270,7 +270,7 @@ function getPrecipitation(
   return MT.clamp(precipitation, 0, 1);
 }
 
-function getSeasons(latitude: number, temperature: number, precipitation: number): Season[] {
+function getSeasons(latitude: number, _temperature: number, _precipitation: number): Season[] {
   // Seasons are influenced by latitude, temperature, and precipitation
   // The number of seasons is determined by the temperature and precipitation
   // The length of each season is determined by the temperature and precipitation
@@ -375,7 +375,7 @@ function getWind(
 
   const latitudeInfluence = 2 * (Math.abs(latitude) / 90) - 1; // -1 to 1, 1 being the equator, -1 being the poles
 
-  let wind = [0, 0, 0];
+  const wind = [0, 0, 0];
 
   wind[0] = latitudeInfluence;
 

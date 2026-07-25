@@ -18,10 +18,10 @@ export default class BreastplatePattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): Armor {
-    let body = rng.item(Components.withCategory('metal', componentOptions));
-    let trim = rng.item(Components.withCategory('soft metal', componentOptions));
+    const body = rng.item(Components.withCategory('metal', componentOptions));
+    const trim = rng.item(Components.withCategory('soft metal', componentOptions));
 
-    let value = this.baseValue + body.value * 1000 + trim.value;
+    const value = this.baseValue + body.value * 1000 + trim.value;
 
     let description = rng.item([
       `${Words.article(this.name)} ${this.name} made of ${body.descriptor}`,
@@ -42,10 +42,10 @@ export default class BreastplatePattern implements Pattern {
       ]);
     }
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let armorClass = 14;
-    let tags = [name, this.name, 'breastplate', 'armor'];
+    const armorClass = 14;
+    const tags = [name, this.name, 'breastplate', 'armor'];
 
     return new Armor(name, description, 'torso', armorClass, value, quality, tags);
   }

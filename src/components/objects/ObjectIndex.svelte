@@ -1,19 +1,20 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import NavIndexPage from '$components/layout/NavIndexPage.svelte';
 
   const sections = [
     {
       heading: 'Objects &amp; Items',
       links: [
-        { href: '/drug', label: 'Cyberpunk Drug' },
-        { href: '/fantasy/equipment', label: 'Fantasy Equipment Lists' },
-        { href: '/fantasy/equipment-generator', label: 'Fantasy Equipment' },
-        { href: '/fantasy/merchant', label: 'Fantasy Merchant' },
-        { href: '/fantasy/potion-generator', label: 'Fantasy Potion Generator' },
-        { href: '/fantasy/weapon', label: 'Fantasy Weapon' },
-        { href: '/fantasy/treasure-hoard', label: 'Fantasy Treasure Hoard' },
-        { href: '/spooky-ship', label: 'Spooky Starship' },
-        { href: '/swn/starship', label: 'Stars Without Number Starship' },
+        { href: resolve('/drug'), label: 'Cyberpunk Drug' },
+        { href: resolve('/fantasy/equipment'), label: 'Fantasy Equipment Lists' },
+        { href: resolve('/fantasy/equipment-generator'), label: 'Fantasy Equipment' },
+        { href: resolve('/fantasy/merchant'), label: 'Fantasy Merchant' },
+        { href: resolve('/fantasy/potion-generator'), label: 'Fantasy Potion Generator' },
+        { href: resolve('/fantasy/weapon'), label: 'Fantasy Weapon' },
+        { href: resolve('/fantasy/treasure-hoard'), label: 'Fantasy Treasure Hoard' },
+        { href: resolve('/spooky-ship'), label: 'Spooky Starship' },
+        { href: resolve('/swn/starship'), label: 'Stars Without Number Starship' },
       ],
     },
   ];

@@ -10,8 +10,8 @@ export function all(): ItemMutator[] {
 }
 
 export function withAnyTag(tags: string[], mutators: ItemMutator[]): ItemMutator[] {
-  let result: ItemMutator[] = [];
-  let names: string[] = [];
+  const result: ItemMutator[] = [];
+  const names: string[] = [];
 
   for (let i = 0; i < mutators.length; i++) {
     for (let j = 0; j < tags.length; j++) {
@@ -27,9 +27,9 @@ export function withAnyTag(tags: string[], mutators: ItemMutator[]): ItemMutator
 }
 
 export function withTag(tag: string, mutators: ItemMutator[]): ItemMutator[] {
-  let result: ItemMutator[] = [];
+  const result: ItemMutator[] = [];
 
-  for (let mutator of mutators) {
+  for (const mutator of mutators) {
     if (mutator.tags.includes(tag)) {
       result.push(mutator);
     }

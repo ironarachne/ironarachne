@@ -22,11 +22,11 @@ export default class StaffPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
-    let body = rng.item(Components.withCategory('wood', componentOptions));
+    const body = rng.item(Components.withCategory('wood', componentOptions));
 
-    let cosmeticBody = rng.item(['carved', 'engraved', 'stained', 'painted']);
+    const cosmeticBody = rng.item(['carved', 'engraved', 'stained', 'painted']);
 
-    let value = this.baseValue + body.value;
+    const value = this.baseValue + body.value;
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
@@ -55,9 +55,9 @@ export default class StaffPattern implements Pattern {
       ]);
     }
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, 'staff', 'melee', 'simple weapon', 'weapon'];
+    const tags = [name, this.name, 'staff', 'melee', 'simple weapon', 'weapon'];
 
     return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }

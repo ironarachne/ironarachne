@@ -32,7 +32,7 @@ export function convertMatrixToSummary(
   ageCategories: AgeCategory[],
   gender: string,
 ): SizeAgeSummary[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < matrix.length; i++) {
     if (matrix[i].gender == gender) {

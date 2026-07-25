@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { getTreasureHoardForValue, generateRandomTreasureHoard } from './treasure_hoard';
-import { baseContainerTypes, type Container, getVolume } from '$lib/equipment';
+import { baseContainerTypes, getVolume, isContainer } from '$lib/equipment';
+import { isArtObject, isGem, isPileOfCoins } from './treasure_predicates';
 
 describe('treasure_hoard', () => {
   describe('generateRandomTreasureHoard', () => {
@@ -26,9 +27,9 @@ describe('treasure_hoard', () => {
       expect(totalValue).toBeGreaterThan(targetValue * 0.9);
       expect(totalValue).toBeLessThan(targetValue * 1.5); // Shouldn't be massively over
 
-      const art = hoard.filter((i: any) => i.artist !== undefined);
-      const gems = hoard.filter((i: any) => i.isCut !== undefined);
-      const coins = hoard.filter((i: any) => i.denomination !== undefined);
+      const art = hoard.filter(isArtObject);
+      const gems = hoard.filter(isGem);
+      const coins = hoard.filter(isPileOfCoins);
 
       expect(art.length).toBeGreaterThan(0);
       expect(gems.length).toBeGreaterThan(0);
@@ -46,9 +47,9 @@ describe('treasure_hoard', () => {
 
       const hoard = generateRandomTreasureHoard('test-seed', config);
 
-      const art = hoard.filter((i: any) => i.artist !== undefined);
-      const gems = hoard.filter((i: any) => i.isCut !== undefined);
-      const coins = hoard.filter((i: any) => i.denomination !== undefined);
+      const art = hoard.filter(isArtObject);
+      const gems = hoard.filter(isGem);
+      const coins = hoard.filter(isPileOfCoins);
 
       expect(art).toHaveLength(0);
       expect(gems).toHaveLength(0);
@@ -66,9 +67,9 @@ describe('treasure_hoard', () => {
 
       const hoard = generateRandomTreasureHoard('test-seed', config);
 
-      const art = hoard.filter((i: any) => i.artist !== undefined);
-      const gems = hoard.filter((i: any) => i.isCut !== undefined);
-      const coins = hoard.filter((i: any) => i.denomination !== undefined);
+      const art = hoard.filter(isArtObject);
+      const gems = hoard.filter(isGem);
+      const coins = hoard.filter(isPileOfCoins);
 
       expect(art.length).toBeGreaterThan(0);
       expect(gems).toHaveLength(0);
@@ -86,9 +87,9 @@ describe('treasure_hoard', () => {
 
       const hoard = generateRandomTreasureHoard('test-seed', config);
 
-      const art = hoard.filter((i: any) => i.artist !== undefined);
-      const gems = hoard.filter((i: any) => i.isCut !== undefined);
-      const coins = hoard.filter((i: any) => i.denomination !== undefined);
+      const art = hoard.filter(isArtObject);
+      const gems = hoard.filter(isGem);
+      const coins = hoard.filter(isPileOfCoins);
 
       expect(art).toHaveLength(0);
       expect(gems.length).toBeGreaterThan(0);
@@ -106,11 +107,11 @@ describe('treasure_hoard', () => {
 
       const hoard = generateRandomTreasureHoard('test-seed-packing', config);
 
-      const gems = hoard.filter((i: any) => i.isCut !== undefined);
-      const containers = hoard.filter((i: any) => i.contents !== undefined) as Container[];
+      const gems = hoard.filter(isGem);
+      const containers = hoard.filter(isContainer);
 
       if (containers.length > 0 && gems.length > 0) {
-        const gemsInContainers = gems.filter((g: any) => g.containerId !== undefined);
+        const gemsInContainers = gems.filter((g) => g.containerId !== undefined);
         expect(gemsInContainers.length).toBeGreaterThan(0);
 
         const firstGemInContainer = gemsInContainers[0];
@@ -133,11 +134,11 @@ describe('treasure_hoard', () => {
 
       const hoard = generateRandomTreasureHoard('test-seed-packing-art', config);
 
-      const art = hoard.filter((i: any) => i.artist !== undefined);
-      const containers = hoard.filter((i: any) => i.contents !== undefined) as Container[];
+      const art = hoard.filter(isArtObject);
+      const containers = hoard.filter(isContainer);
 
       if (containers.length > 0 && art.length > 0) {
-        const artInContainers = art.filter((a: any) => a.containerId !== undefined);
+        const artInContainers = art.filter((a) => a.containerId !== undefined);
         expect(artInContainers.length).toBeGreaterThan(0);
       }
     });
@@ -152,7 +153,7 @@ describe('treasure_hoard', () => {
       };
 
       const hoard = generateRandomTreasureHoard('test-seed-multiple', config);
-      const containers = hoard.filter((i: any) => i.contents !== undefined);
+      const containers = hoard.filter(isContainer);
 
       // We expect more than 1 container usually
       expect(containers.length).toBeGreaterThan(1);
@@ -172,11 +173,11 @@ describe('treasure_hoard', () => {
       const hoard = generateRandomTreasureHoard('test-seed-items', config);
 
       const items = hoard.filter(
-        (i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor',
+        (i) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor',
       );
 
       expect(items.length).toBeGreaterThan(0);
-      expect(items.some((i: any) => i.enchantment)).toBe(false);
+      expect(items.some((i) => i.enchantment)).toBe(false);
     });
 
     it('should generate magic items when proportions dictate', () => {
@@ -193,11 +194,11 @@ describe('treasure_hoard', () => {
       const hoard = generateRandomTreasureHoard('test-seed-items-magic', config);
 
       const items = hoard.filter(
-        (i: any) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor',
+        (i) => i.itemMajorType === 'weapon' || i.itemMajorType === 'armor',
       );
 
       expect(items.length).toBeGreaterThan(0);
-      expect(items.some((i: any) => i.enchantment)).toBe(true);
+      expect(items.some((i) => i.enchantment)).toBe(true);
     });
 
     it('should not pack large art objects into small containers', () => {
@@ -211,7 +212,7 @@ describe('treasure_hoard', () => {
       };
 
       const hoard = generateRandomTreasureHoard('test-seed', config);
-      const art = hoard.filter((i: any) => i.artist !== undefined);
+      const art = hoard.filter(isArtObject);
 
       // Check that art objects that are too big are NOT in containers
       const maxContainerVolume = Math.max(...smallContainerTypes.map((c) => c.defaultVolume));
@@ -263,10 +264,10 @@ describe('treasure_hoard', () => {
       // Actually, let's just check that we got something.
       expect(hoard.length).toBeGreaterThan(0);
 
-      const hasCoins = hoard.some((item: any) => item.denomination !== undefined);
+      const hasCoins = hoard.some(isPileOfCoins);
       expect(hasCoins).toBe(true);
-      const hasArt = hoard.some((item: any) => item.artist !== undefined);
-      const hasGems = hoard.some((item: any) => item.isCut !== undefined);
+      const hasArt = hoard.some(isArtObject);
+      const hasGems = hoard.some(isGem);
 
       expect(hasArt).toBe(false);
       expect(hasGems).toBe(false);
@@ -285,9 +286,7 @@ describe('treasure_hoard', () => {
         baseContainerTypes,
         roomDimensions,
       );
-      const standardContainers = standardHoard.filter(
-        (i: any) => i.contents !== undefined,
-      ) as Container[];
+      const standardContainers = standardHoard.filter(isContainer);
       const totalStandardContainerVolume = standardContainers.reduce(
         (sum, c) => sum + c.maxVolume,
         0,
@@ -303,7 +302,7 @@ describe('treasure_hoard', () => {
 
       const hoard = getTreasureHoardForValue(value, proportions, baseContainerTypes, tinyRoom);
 
-      const containers = hoard.filter((i: any) => i.contents !== undefined) as Container[];
+      const containers = hoard.filter(isContainer);
       const totalContainerVolume = containers.reduce((sum, c) => sum + c.maxVolume, 0);
 
       // Room volume is 1 liter.

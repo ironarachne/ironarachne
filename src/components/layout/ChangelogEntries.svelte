@@ -6,13 +6,15 @@
     limit?: number;
   };
 
-  let { limit }: Props = $props();
+  const { limit }: Props = $props();
 
   const displayedEntries = $derived(limit !== undefined ? entries.slice(0, limit) : entries);
 </script>
 
 {#each displayedEntries as entry}
   <div>
+    <!-- Renders app-generated markup (no external or user-supplied input). -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     <h2>{@html Dates.getNiceDate(entry.date)}</h2>
     {#if entry.summary != ''}
       <p>{entry.summary}</p>

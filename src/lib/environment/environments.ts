@@ -17,12 +17,12 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
   config.terrainConfig.reliefEnergyMin = Math.max(config.reliefEnergy - 0.01, 0.0);
   config.terrainConfig.reliefEnergyMax = Math.min(config.reliefEnergy + 0.01, 1.0);
   config.terrainConfig.normalVector = config.terrainVector;
-  let terrain = TerrainGeneration.generate(config.terrainConfig);
+  const terrain = TerrainGeneration.generate(config.terrainConfig);
 
   config.waterSystemConfig.current = config.current;
   config.waterSystemConfig.latitude = config.latitude;
   config.waterSystemConfig.rng = config.rng;
-  let waterSystem = WaterSystems.generate(config.waterSystemConfig);
+  const waterSystem = WaterSystems.generate(config.waterSystemConfig);
 
   config.climateConfig.current = waterSystem.current;
   config.climateConfig.latitude = config.latitude;
@@ -30,10 +30,10 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
   config.climateConfig.elevation = config.rng.float(terrain.elevationMin, terrain.elevationMax);
   config.climateConfig.terrainNormalVector = config.terrainVector;
   config.climateConfig.waterDirection = config.waterDirection;
-  let climate = Climates.generate(config.climateConfig);
+  const climate = Climates.generate(config.climateConfig);
   climate.description = Climates.describe(climate, config.rng.randomString(16));
 
-  let biomeConfig = config.biomeConfig;
+  const biomeConfig = config.biomeConfig;
   biomeConfig.rng = config.rng;
   biomeConfig.altitude = config.climateConfig.elevation;
   biomeConfig.temperatureMax = climate.temperatureMax;
@@ -42,9 +42,9 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
   biomeConfig.humidityMin = Math.max(climate.humidity - 0.1, 0.0);
   const biome = Biomes.generate(biomeConfig);
 
-  let ecosystem = EcosystemGeneration.generate(config.ecosystemConfig);
+  const ecosystem = EcosystemGeneration.generate(config.ecosystemConfig);
 
-  let environment: Environment = {
+  const environment: Environment = {
     biome,
     climate,
     terrain,
@@ -91,7 +91,7 @@ export function describeTerrain(terrain: Terrain, rng: RNG.RNG): string {
 
   let description = `The terrain is ${relief} and ${elevation}`;
 
-  let slope = getDirectionOfSlope(terrain);
+  const slope = getDirectionOfSlope(terrain);
 
   if (slope !== '') {
     const slopeStrength = getStrengthOfSlope(terrain);

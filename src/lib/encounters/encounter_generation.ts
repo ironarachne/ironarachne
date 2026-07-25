@@ -46,7 +46,7 @@ export function generateEncounter(seed: string, config: EncounterGenerationConfi
     }
   }
 
-  const groups = template.groupTemplates.map((groupTemplate, index) => {
+  const groups = template.groupTemplates.map((groupTemplate, _index) => {
     const modifiedGroupTemplate = { ...groupTemplate };
     if (config.speciesOverride) {
       modifiedGroupTemplate.speciesTagFilter = { includeAllTags: [config.speciesOverride.name] };

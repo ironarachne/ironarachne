@@ -178,7 +178,7 @@ function renderUwCharacterSheet(
     'Workspace',
     estimateWrappedHeight(3),
     (x, bodyY, width) => {
-      let offset = drawSciFiWrappedText(doc, x, bodyY, width, `${character.workspace.name}:`, {
+      const offset = drawSciFiWrappedText(doc, x, bodyY, width, `${character.workspace.name}:`, {
         fontSize: 6.5,
         theme,
         maxLines: 1,

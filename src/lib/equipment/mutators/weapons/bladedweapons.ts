@@ -3,7 +3,7 @@ import type ItemMutator from '../itemmutator.js';
 import MeleeWeaponMutator from '../meleeweapon.js';
 
 export function all(): ItemMutator[] {
-  let sets = [
+  const sets = [
     {
       element: 'fire',
       damage: '+1d6 fire',
@@ -52,9 +52,9 @@ export function all(): ItemMutator[] {
     },
   ];
 
-  let result = [];
+  const result = [];
 
-  for (let set of sets) {
+  for (const set of sets) {
     result.push(
       new MeleeWeaponMutator(
         `${set.element}-enchanted melee weapon`,

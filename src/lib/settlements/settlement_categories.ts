@@ -17,7 +17,7 @@ export function bySizeClass(sizeClass: string): SettlementCategory[] {
     return all();
   }
   const options = all();
-  let result: SettlementCategory[] = [];
+  const result: SettlementCategory[] = [];
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].sizeClass === sizeClass) {
@@ -45,7 +45,7 @@ export function randomCategory(categories: SettlementCategory[], rng: RNG.RNG): 
 }
 
 export function randomDescription(category: SettlementCategory, rng: RNG.RNG): string {
-  let description = rng.item(category.possibleDescriptions);
+  const description = rng.item(category.possibleDescriptions);
   return description;
 }
 

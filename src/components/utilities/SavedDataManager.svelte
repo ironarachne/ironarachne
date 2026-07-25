@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { goto } from '$app/navigation';
+  import { resolve } from '$app/paths';
 
   import {
     deleteSavedCultureByName,
@@ -131,6 +132,25 @@
       await refreshEntries();
     }
   }
+
+  // The *GeneratorHref helpers put the route through `resolve()` before appending the query
+  // string, so these targets are already base-path correct. The lint rule only recognises a
+  // literal `resolve()` call at the navigation site, hence the disables.
+
+  function openHeraldry(snapshot: HeraldrySnapshot) {
+    // eslint-disable-next-line svelte/no-navigation-without-resolve
+    goto(heraldryGeneratorHref(snapshot));
+  }
+
+  function openCulture(snapshot: CultureSnapshot) {
+    // eslint-disable-next-line svelte/no-navigation-without-resolve
+    goto(cultureGeneratorHref(snapshot));
+  }
+
+  function openReligion(snapshot: ReligionSnapshot) {
+    // eslint-disable-next-line svelte/no-navigation-without-resolve
+    goto(religionGeneratorHref(snapshot));
+  }
 </script>
 
 <section class="saved-data-page">
@@ -148,9 +168,9 @@
   {#if !hasAnySavedData}
     <p class="saved-data-empty">
       Nothing saved yet. Save items from the
-      <a href="/heraldry">heraldry</a>,
-      <a href="/culture">culture</a>, or
-      <a href="/fantasy/religion">religion</a> generators.
+      <a href={resolve('/heraldry')}>heraldry</a>,
+      <a href={resolve('/culture')}>culture</a>, or
+      <a href={resolve('/fantasy/religion')}>religion</a> generators.
     </p>
   {:else}
     {#if heraldryEntries.length > 0}
@@ -163,15 +183,12 @@
             previewHtml={heraldryPreviewSvgs[snapshot.blazon] ?? null}
             openLabel="Open"
             downloadLabel="Download SVG"
-            onOpen={() => goto(heraldryGeneratorHref(snapshot))}
+            onOpen={() => openHeraldry(snapshot)}
             onDownload={() => downloadHeraldrySvg(snapshot)}
             onDelete={() => confirmDeleteHeraldry(snapshot)}
           >
-            {#snippet children()}
-              <button type="button" onclick={() => downloadHeraldryPng(snapshot)}
-                >Download PNG</button
-              >
-            {/snippet}
+            <button type="button" onclick={() => downloadHeraldryPng(snapshot)}>Download PNG</button
+            >
           </SavedDataListItem>
         {/each}
       </ul>
@@ -185,7 +202,7 @@
             name={snapshot.name}
             openLabel="Open"
             downloadLabel="Download JSON"
-            onOpen={() => goto(cultureGeneratorHref(snapshot))}
+            onOpen={() => openCulture(snapshot)}
             onDownload={() => downloadCultureJson(snapshot)}
             onDelete={() => confirmDeleteCulture(snapshot)}
           />
@@ -202,7 +219,7 @@
             meta="Seed: {snapshot.seed}"
             openLabel="Open"
             downloadLabel="Download JSON"
-            onOpen={() => goto(religionGeneratorHref(snapshot))}
+            onOpen={() => openReligion(snapshot)}
             onDownload={() => downloadReligionJson(snapshot)}
             onDelete={() => confirmDeleteReligion(snapshot)}
           />

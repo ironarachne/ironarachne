@@ -11,7 +11,7 @@ export function applyTagFilter<T extends TagTypes.TaggedItem>(
   return items.filter((item) => {
     if (filter.includeSomeTags) {
       let hasAtLeastOneTag = false;
-      for (let tag of filter.includeSomeTags) {
+      for (const tag of filter.includeSomeTags) {
         if (item.tags.includes(tag)) {
           hasAtLeastOneTag = true;
           break;
@@ -22,14 +22,14 @@ export function applyTagFilter<T extends TagTypes.TaggedItem>(
       }
     }
     if (filter.includeAllTags) {
-      for (let tag of filter.includeAllTags) {
+      for (const tag of filter.includeAllTags) {
         if (!item.tags.includes(tag)) {
           return false;
         }
       }
     }
     if (filter.excludeTags) {
-      for (let tag of filter.excludeTags) {
+      for (const tag of filter.excludeTags) {
         if (item.tags.includes(tag)) {
           return false;
         }

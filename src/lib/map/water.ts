@@ -1,4 +1,4 @@
-import type { RegionMap, MapNode, MapCorner, MapEdge } from './map_graph.js';
+import type { RegionMap, MapCorner, MapEdge } from './map_graph.js';
 import type { RNG } from '@ironarachne/rng';
 
 export interface WaterConfig {

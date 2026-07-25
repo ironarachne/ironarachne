@@ -5,7 +5,7 @@ import type Species from '$lib/species/species.js';
 
 const wingLengths = ['short', 'long'];
 const wingTypes = ['black-tipped', 'sleek', 'knife-edged', 'graceful', 'full'];
-let wingAppearances = [];
+const wingAppearances = [];
 for (let j = 0; j < wingTypes.length; j++) {
   for (let i = 0; i < wingLengths.length; i++) {
     wingAppearances.push(`${wingLengths[i]} and ${wingTypes[j]}`);

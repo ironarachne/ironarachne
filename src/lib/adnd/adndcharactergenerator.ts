@@ -36,11 +36,15 @@ export default class ADNDCharacterGenerator {
     character.wisdom = Dice.roll('3d6', this.config.rng);
 
     character.race = this.config.rng.item(getRaceOptions(character, this.config.allowedRaces));
+    // `apply` is a domain method on ADNDRace, not Function.prototype.apply.
+    // eslint-disable-next-line prefer-spread
     character = character.race.apply(character, this.config.rng);
 
     character.class = this.config.rng.item(
       getClassOptionsForRace(character, character.race, this.config.allowedClasses),
     );
+    // `apply` is a domain method on ADNDClass, not Function.prototype.apply.
+    // eslint-disable-next-line prefer-spread
     character = character.class.apply(character, this.config.rng);
 
     assignExceptionalStrength(character, character.class, this.config.rng);

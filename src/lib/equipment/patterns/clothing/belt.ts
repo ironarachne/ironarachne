@@ -18,10 +18,10 @@ export default class BeltPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): Clothing {
-    let body = rng.item(Components.withCategory('leather', componentOptions));
-    let hardware = rng.item(Components.withCategory('metal', componentOptions));
+    const body = rng.item(Components.withCategory('leather', componentOptions));
+    const hardware = rng.item(Components.withCategory('metal', componentOptions));
 
-    let value = this.baseValue + body.value + hardware.value;
+    const value = this.baseValue + body.value + hardware.value;
 
     let description = rng.item([
       `${Words.article(this.name)} ${this.name} `,
@@ -42,9 +42,9 @@ export default class BeltPattern implements Pattern {
       ]);
     }
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, 'belt', 'clothing'];
+    const tags = [name, this.name, 'belt', 'clothing'];
 
     return new Clothing(name, description, 'waist', value, quality, tags);
   }

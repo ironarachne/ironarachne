@@ -1,5 +1,4 @@
 import type { RNG } from '@ironarachne/rng';
-import { convert } from 'xmlbuilder2';
 import { fourChargesHorizontalCenterArrangement } from './four_charges_horizontal_center';
 import { fourChargesTwoAndTwoArrangement } from './four_charges_two_and_two';
 import { fourChargesVerticalCenterArrangement } from './four_charges_vertical_center';
@@ -33,7 +32,7 @@ export function getAllChargeArrangements(): ChargeGroupArrangement[] {
 }
 
 export function byName(name: string): ChargeGroupArrangement {
-  let options = getAllChargeArrangements();
+  const options = getAllChargeArrangements();
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].name === name) {
@@ -47,7 +46,7 @@ export function byName(name: string): ChargeGroupArrangement {
 export function randomByNumber(numberOfCharges: number, rng: RNG): ChargeGroupArrangement {
   const allArrangements = getAllChargeArrangements();
 
-  let options = [];
+  const options = [];
 
   for (let i = 0; i < allArrangements.length; i++) {
     if (allArrangements[i].numberOfCharges === numberOfCharges) {
@@ -65,7 +64,7 @@ export function randomByNumber(numberOfCharges: number, rng: RNG): ChargeGroupAr
 export function withCount(count: number): ChargeGroupArrangement[] {
   const options = getAllChargeArrangements();
 
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].numberOfCharges === count) {

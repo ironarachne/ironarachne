@@ -11,7 +11,7 @@ import * as RealmTypes from './realm_types.js';
 import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 
 export function generate(config: RealmGeneratorConfig): Realm {
-  let realmType = config.rng.weighted(
+  const realmType = config.rng.weighted(
     config.realmTypes.map((t) => {
       return { commonality: t.commonality, value: t };
     }),
@@ -24,7 +24,7 @@ export function generate(config: RealmGeneratorConfig): Realm {
   let name = config.nameGeneratorSet.country.generate(1)[0];
   name = `the ${Words.title(realmType.name)} of ${name}`;
   const heraldry = generateHeraldry(getDefaultHeraldryGeneratorConfig(config.rng));
-  let authority = randomAuthority(realmType, config.nameGeneratorSet, config.rng);
+  const authority = randomAuthority(realmType, config.nameGeneratorSet, config.rng);
 
   return {
     name: name,
@@ -57,7 +57,7 @@ function randomAuthority(
   nameGeneratorSet: Names.NameGeneratorSet,
   rng: RNG.RNG,
 ): Character {
-  let charGenConfig = Characters.getDefaultCharacterGenerationConfig(
+  const charGenConfig = Characters.getDefaultCharacterGenerationConfig(
     `character-${rng.randomString(13)}`,
   );
 
@@ -67,7 +67,7 @@ function randomAuthority(
   charGenConfig.femaleFirstNameGenerator = nameGeneratorSet.female;
   charGenConfig.maleFirstNameGenerator = nameGeneratorSet.male;
 
-  let authority = Characters.generate(`character-${rng.randomString(13)}`, charGenConfig);
+  const authority = Characters.generate(`character-${rng.randomString(13)}`, charGenConfig);
   authority.titles?.push(realmType.grantedTitle);
   const heraldryGenConfig = getDefaultHeraldryGeneratorConfig(rng);
   authority.heraldry = generateHeraldry(heraldryGenConfig);

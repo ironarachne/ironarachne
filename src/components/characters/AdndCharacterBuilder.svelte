@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
+  import { resolve } from '$app/paths';
   import * as Dice from '$lib/dice';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
   import ADNDCharacter from '$lib/adnd/adndcharacter';
@@ -580,7 +581,7 @@
     discretionary points, hit points, funds, and equipment are yours to set; attribute dice, HP
     rolls, and starting money rolls share one RNG stream. The random generator still rolls spells
     and thief points from the class features seed.
-    <a href="/fantasy/adnd/character">Random full generator</a>
+    <a href={resolve('/fantasy/adnd/character')}>Random full generator</a>
   </p>
 
   <CharacterNameSection
@@ -598,7 +599,7 @@
 
   <h2>1. Attributes</h2>
   <p>
-    STR {str || '—'} · DEX {dex || '—'} · CON {con || '—'} · INT {int || '—'} · WIS {wis || '—'} · CHA{' '}
+    STR {str || '—'} · DEX {dex || '—'} · CON {con || '—'} · INT {int || '—'} · WIS {wis || '—'} · CHA
     {cha || '—'}
   </p>
   <button type="button" onclick={rollAttributes}>Roll 6 × 3d6</button>

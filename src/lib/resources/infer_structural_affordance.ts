@@ -165,7 +165,7 @@ function inferFromWood(resource: Resource): Partial<BuildingStructuralAffordance
   };
 }
 
-function inferFromEarthClay(resource: Resource): Partial<BuildingStructuralAffordance> {
+function inferFromEarthClay(_resource: Resource): Partial<BuildingStructuralAffordance> {
   return {
     compressiveSuitability: 0.35,
     tensileSuitability: 0.08,

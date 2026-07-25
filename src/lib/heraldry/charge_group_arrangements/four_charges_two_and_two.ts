@@ -12,7 +12,7 @@ export const fourChargesTwoAndTwoArrangement: ChargeGroupArrangement = {
     contextHeight: number,
   ): string {
     const chargeObject = convertXmlToSVGObject(chargeSVGString);
-    const svgObj = (chargeObject as any)['svg'];
+    const svgObj = chargeObject['svg'];
     const { width: chargeWidth, height: chargeHeight } = getSVGDimensions(svgObj);
 
     let scaleAmount = Math.min(

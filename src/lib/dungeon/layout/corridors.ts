@@ -1,5 +1,5 @@
 import * as RNG from '@ironarachne/rng';
-import { setTile, getTile } from '../grid/grid';
+import { setTile } from '../grid/grid';
 import type { DungeonLayout, PlacedRoom } from './types';
 
 function getRoomCenter(room: PlacedRoom): [number, number] {

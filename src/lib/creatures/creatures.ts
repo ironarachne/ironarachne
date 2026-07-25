@@ -9,18 +9,18 @@ import type { CreatureGenerationConfig } from './creature_types';
 export function generate(seed: string, config: CreatureGenerationConfig): Creature {
   const rng = new RNG.RNG(seed);
 
-  let creatureSpecies = rng.weighted(
+  const creatureSpecies = rng.weighted(
     config.speciesOptions.map((s) => {
       return { commonality: s.commonality, value: s };
     }),
   );
-  let creatureAgeCategory = AgeCategories.randomWeighted(
+  const creatureAgeCategory = AgeCategories.randomWeighted(
     config.ageCategoryNames,
     creatureSpecies.ageCategories,
     rng,
   );
-  let age = rng.int(creatureAgeCategory.minAge, creatureAgeCategory.maxAge);
-  let genderName = rng.item(config.genderNames);
+  const age = rng.int(creatureAgeCategory.minAge, creatureAgeCategory.maxAge);
+  const genderName = rng.item(config.genderNames);
   const gender = creatureSpecies.genders.find((g) => g.name === genderName);
   if (!gender) {
     throw new Error(`Gender ${genderName} not found for species ${creatureSpecies.name}`);
@@ -33,12 +33,12 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
   const height = rng.int(sizeGeneratorConfig.minHeight, sizeGeneratorConfig.maxHeight);
   const weight = rng.int(sizeGeneratorConfig.minWeight, sizeGeneratorConfig.maxWeight);
   const length = rng.int(sizeGeneratorConfig.minLength, sizeGeneratorConfig.maxLength);
-  let physicalTraits = CommonSpecies.randomTraits(seed + '-physical', creatureSpecies);
-  let behaviors = ['cautious', 'hunting', 'lethargic', 'resting', 'sleeping', 'stalking'];
-  let summary = rng.item(behaviors);
-  let abilities = [...creatureSpecies.abilities];
+  const physicalTraits = CommonSpecies.randomTraits(seed + '-physical', creatureSpecies);
+  const behaviors = ['cautious', 'hunting', 'lethargic', 'resting', 'sleeping', 'stalking'];
+  const summary = rng.item(behaviors);
+  const abilities = [...creatureSpecies.abilities];
 
-  let creature: Creature = {
+  const creature: Creature = {
     id: rng.randomString(16),
     name: creatureSpecies.name,
     description: '',

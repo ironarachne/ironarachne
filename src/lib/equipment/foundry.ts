@@ -1,5 +1,5 @@
 import * as RNG from '@ironarachne/rng';
-import type { Armor, Item, Material, Weapon } from './equipment_types';
+import type { Armor, Item, Material } from './equipment_types';
 import { MATERIALS } from './materials';
 import { applyStatOffsets } from './items';
 

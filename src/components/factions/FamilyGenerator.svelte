@@ -19,11 +19,11 @@
   const INITIAL_INFANT_MORTALITY_CHANCE = 0.01;
   const INITIAL_FERTILITY_CHANCE = 0.8;
 
-  let rng = new RNG(Date.now().toString());
+  const rng = new RNG(Date.now().toString());
   const initialSeed = rng.randomString(13);
   let seed = $state(initialSeed);
   let lockSeed = $state(false);
-  let availableSpecies = CommonSpecies.sentient();
+  const availableSpecies = CommonSpecies.sentient();
   let selectedSpecies = $state('any');
   let species = CommonSpecies.randomWeighted(availableSpecies, rng);
   let iterations: number = $state(INITIAL_ITERATIONS);
@@ -56,7 +56,7 @@
   let infantMortalityChance = $state(INITIAL_INFANT_MORTALITY_CHANCE);
   let fertilityChance = $state(INITIAL_FERTILITY_CHANCE);
 
-  let config = Families.getDefaultFamilyGenerationConfig(initialSeed + '-family');
+  const config = Families.getDefaultFamilyGenerationConfig(initialSeed + '-family');
   config.speciesOptions = [species];
   config.generations = INITIAL_ITERATIONS;
   config.familyNameGenerator = familyNameGen;
@@ -328,6 +328,8 @@
 
   <h3>Family Tree</h3>
   <div class="family-tree">
+    <!-- Renders app-generated markup (no external or user-supplied input). -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html familyTreeSVG}
   </div>
 

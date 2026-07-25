@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import glyph from '$lib/assets/images/logo-glyphonly-green.svg';
 </script>
 
@@ -13,13 +14,13 @@
 </header>
 
 <nav>
-  <a href="/">Home</a>
-  <a href="/characters">Characters</a>
-  <a href="/factions">Factions</a>
-  <a href="/locations">Locations</a>
-  <a href="/objects">Objects</a>
-  <a href="/utilities">Utilities</a>
-  <a href="/changelog">Change Log</a>
+  <a href={resolve('/')}>Home</a>
+  <a href={resolve('/characters')}>Characters</a>
+  <a href={resolve('/factions')}>Factions</a>
+  <a href={resolve('/locations')}>Locations</a>
+  <a href={resolve('/objects')}>Objects</a>
+  <a href={resolve('/utilities')}>Utilities</a>
+  <a href={resolve('/changelog')}>Change Log</a>
 </nav>
 
 <style>

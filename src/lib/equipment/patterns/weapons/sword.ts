@@ -22,11 +22,11 @@ export default class SwordPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
-    let blade = rng.item(Components.withCategory('metal', componentOptions));
-    let hilt = rng.item(Components.withCategory('metal', componentOptions));
-    let handle = rng.item(Components.withCategory('wood', componentOptions));
+    const blade = rng.item(Components.withCategory('metal', componentOptions));
+    const hilt = rng.item(Components.withCategory('metal', componentOptions));
+    const handle = rng.item(Components.withCategory('wood', componentOptions));
 
-    let value = this.baseValue + blade.value * 2 + hilt.value + handle.value;
+    const value = this.baseValue + blade.value * 2 + hilt.value + handle.value;
 
     let cosmeticBlade = rng.item([
       'serrated',
@@ -82,9 +82,9 @@ export default class SwordPattern implements Pattern {
       ]);
     }
 
-    let name = `${blade.descriptor} ${this.name}`;
+    const name = `${blade.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, 'sword', 'melee', 'martial weapon', 'bladed weapon', 'weapon'];
+    const tags = [name, this.name, 'sword', 'melee', 'martial weapon', 'bladed weapon', 'weapon'];
 
     return new MeleeWeapon(name, description, this.damage, this.hands, value, quality, tags);
   }

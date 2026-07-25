@@ -506,7 +506,6 @@ export function getDicePoolFromPower(power: number, preferredSide: number): Dice
 
   let currentN = 1;
 
-  // eslint-disable-next-line no-constant-condition
   while (true) {
     const pEst = getPowerEstimate(currentN, preferredSide);
 

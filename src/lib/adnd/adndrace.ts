@@ -1,7 +1,12 @@
+import type * as RNG from '@ironarachne/rng';
+import type ADNDCharacter from './adndcharacter.js';
+
+export type ADNDRaceApply = (character: ADNDCharacter, rng: RNG.RNG) => ADNDCharacter;
+
 export default class ADNDRace {
   name: string;
   adjective: string;
-  apply: Function;
+  apply: ADNDRaceApply;
   minStrength: number;
   maxStrength: number;
   minDexterity: number;
@@ -29,7 +34,7 @@ export default class ADNDRace {
   constructor(
     name: string,
     adjective: string,
-    apply: Function,
+    apply: ADNDRaceApply,
     minStrength: number,
     maxStrength: number,
     minDexterity: number,

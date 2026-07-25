@@ -1,4 +1,5 @@
 import type { Family, FamilyGenerationConfig } from './family_types';
+import type Species from '$lib/species/species';
 import human from '$lib/species_sentients/human';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { RNG } from '@ironarachne/rng';
@@ -66,8 +67,8 @@ function addFounder(family: Family, config: FamilyGenerationConfig, rng: RNG) {
   addMember(family, founder);
 }
 
-function getYearsPerGeneration(species: any, rng: RNG): number {
-  const adultCategory = species.ageCategories.find((c: any) => c.name === 'adult');
+function getYearsPerGeneration(species: Species, rng: RNG): number {
+  const adultCategory = species.ageCategories.find((c) => c.name === 'adult');
   if (adultCategory) {
     return adultCategory.minAge + rng.int(0, 5);
   }
@@ -82,12 +83,12 @@ function ageMembers(family: Family, years: number, config: FamilyGenerationConfi
     member.age += years;
 
     // Find max age for species to avoid creating invalid age categories
-    const maxPossibleAge = Math.max(...member.species.ageCategories.map((c: any) => c.maxAge));
+    const maxPossibleAge = Math.max(...member.species.ageCategories.map((c) => c.maxAge));
 
     if (member.age > maxPossibleAge) {
       member.tags.push('dead');
       // Assign oldest category just in case
-      const elder = member.species.ageCategories.find((c: any) => c.name === 'elder');
+      const elder = member.species.ageCategories.find((c) => c.name === 'elder');
       if (elder) member.ageCategory = elder;
       member.description = CharacterGenerator.describe(member, rng);
       continue;
@@ -116,7 +117,7 @@ function ageMembers(family: Family, years: number, config: FamilyGenerationConfi
     member.description = CharacterGenerator.describe(member, rng);
 
     // Basic death check based on max age of species or old age
-    const maxAge = member.species.ageCategories.find((c: any) => c.name === 'elder')?.maxAge || 100;
+    const maxAge = member.species.ageCategories.find((c) => c.name === 'elder')?.maxAge || 100;
 
     // Chance to die random events?
     // Chance to die of old age?

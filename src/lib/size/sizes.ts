@@ -42,13 +42,13 @@ export function getHeightRange(config: SizeGeneratorConfig): string {
 
 export function getHumanVariant(weightModifier: number, heightModifier: number): SizeMatrix {
   const standard: SizeMatrix = humanStandard();
-  let variant: SizeMatrix = [];
+  const variant: SizeMatrix = [];
 
   for (let i = 0; i < standard.length; i++) {
-    let row: SizeMatrixRow = { gender: standard[i].gender, entries: [] };
+    const row: SizeMatrixRow = { gender: standard[i].gender, entries: [] };
     for (let j = 0; j < standard[i].entries.length; j++) {
-      let entry = standard[i].entries[j];
-      let config: SizeGeneratorConfig = {
+      const entry = standard[i].entries[j];
+      const config: SizeGeneratorConfig = {
         minHeight: Math.round(entry.sizeGeneratorConfig.minHeight * heightModifier),
         maxHeight: Math.round(entry.sizeGeneratorConfig.maxHeight * heightModifier),
         minWeight: Math.round(entry.sizeGeneratorConfig.minWeight * weightModifier),

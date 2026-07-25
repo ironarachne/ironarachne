@@ -9,9 +9,9 @@ export function getList(
   valueThreshold: number,
   rng: RNG,
 ): Item[] {
-  let components = Components.all();
+  const components = Components.all();
 
-  let items = Equipment.generate(category, components, amount, valueThreshold, rng);
+  const items = Equipment.generate(category, components, amount, valueThreshold, rng);
 
   return items;
 }

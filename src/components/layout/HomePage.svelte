@@ -1,10 +1,8 @@
 <script lang="ts">
-  import * as ChangeLogs from '$lib/change_log/change_logs';
-  import entries from '$lib/change_log/entries';
+  import { resolve } from '$app/paths';
   import ChangelogEntries from '$components/layout/ChangelogEntries.svelte';
 
   const numberOfEntries = 5;
-  const updates = ChangeLogs.mostRecent(numberOfEntries, entries);
 </script>
 
 <svelte:head>
@@ -27,8 +25,8 @@
   <h2>Featured Generators</h2>
   <p>The following are generators that I'm particularly proud of or are unique to this site.</p>
   <ul>
-    <li><a href="/culture">Culture Generator</a></li>
-    <li><a href="/planet">Planet Generator</a></li>
+    <li><a href={resolve('/culture')}>Culture Generator</a></li>
+    <li><a href={resolve('/planet')}>Planet Generator</a></li>
   </ul>
   <h2>Recent Changes</h2>
   <p>Showing the {numberOfEntries} most recent change log entries.</p>

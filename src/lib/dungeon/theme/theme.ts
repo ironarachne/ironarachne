@@ -1,4 +1,3 @@
-import * as RNG from '@ironarachne/rng';
 import type Environment from '../../environment/environment.js';
 import type { DungeonBlueprint, DungeonTheme } from './types';
 

@@ -25,7 +25,7 @@ import * as MapRoad from '$lib/map/road.js';
 import * as Suitability from '$lib/map/suitability.js';
 
 export function generate(config: RegionGeneratorConfig): Region {
-  let region: Region = {
+  const region: Region = {
     name: '',
     environment: {} as Environment,
     description: '',
@@ -56,7 +56,7 @@ export function generate(config: RegionGeneratorConfig): Region {
     rng: config.rng,
   });
 
-  const startShape = config.rng.item([
+  const islandShapes: MapElevation.ElevationConfig['islandShape'][] = [
     'coast-north',
     'coast-south',
     'coast-east',
@@ -66,11 +66,12 @@ export function generate(config: RegionGeneratorConfig): Region {
     'coast-ne',
     'coast-se',
     'none',
-  ]);
+  ];
+  const startShape = config.rng.item(islandShapes);
 
   map = MapElevation.assignElevation(map, {
     seed: config.rng.randomString(8),
-    islandShape: startShape as any,
+    islandShape: startShape,
     frequency: 0.95,
     hasMountainRange: config.rng.int(1, 100) > 50, // 50% chance of distinct mountain range
   });
@@ -133,16 +134,16 @@ export function generate(config: RegionGeneratorConfig): Region {
   region.organizations = randomOrganizations(config.rng, region.environment);
   region.description = region.environment.description;
 
-  let realmGenConfig = Realms.getDefaultConfig();
+  const realmGenConfig = Realms.getDefaultConfig();
   realmGenConfig.rng = config.rng;
   realmGenConfig.nameGeneratorSet = nameGenSet;
 
-  let mainRealm = Realms.generate(realmGenConfig);
+  const mainRealm = Realms.generate(realmGenConfig);
   region.realms.push(mainRealm);
   region.mainRealm = 0;
 
   if (!mainRealm.realmType.isStandalone) {
-    let parentRealmConfig = Realms.getDefaultConfig();
+    const parentRealmConfig = Realms.getDefaultConfig();
     parentRealmConfig.rng = config.rng;
     parentRealmConfig.nameGeneratorSet = realmGenConfig.nameGeneratorSet;
     if (mainRealm.realmType.parentType == null) {
@@ -150,25 +151,25 @@ export function generate(config: RegionGeneratorConfig): Region {
     }
     parentRealmConfig.realmTypes = [mainRealm.realmType.parentType];
 
-    let parentRealm = Realms.generate(parentRealmConfig);
+    const parentRealm = Realms.generate(parentRealmConfig);
 
     region.realms.push(parentRealm);
     mainRealm.parent = 1;
   }
 
-  let numberOfNeighbors = config.rng.int(config.minRealms, config.maxRealms);
+  const numberOfNeighbors = config.rng.int(config.minRealms, config.maxRealms);
   for (let i = 0; i < numberOfNeighbors; i++) {
     realmGenConfig.nameGeneratorSet = Names.getFantasyNameGeneratorSet('tiefling', config.rng);
     if (config.rng.int(1, 100) > 70) {
-      let neighborNameGenSet = config.rng.item(Names.getAllFantasyNameGeneratorSets(config.rng));
+      const neighborNameGenSet = config.rng.item(Names.getAllFantasyNameGeneratorSets(config.rng));
       realmGenConfig.nameGeneratorSet = neighborNameGenSet;
     }
-    let neighbor = Realms.generate(realmGenConfig);
+    const neighbor = Realms.generate(realmGenConfig);
     if (!neighbor.realmType.isStandalone) {
       if (config.rng.int(1, 100) > 50) {
         neighbor.parent = mainRealm.parent;
       } else {
-        let parentRealmConfig = Realms.getDefaultConfig();
+        const parentRealmConfig = Realms.getDefaultConfig();
         parentRealmConfig.rng = config.rng;
         if (neighbor.realmType.parentType == null) {
           throw new Error('Realm type has no parent type.');
@@ -176,7 +177,7 @@ export function generate(config: RegionGeneratorConfig): Region {
         parentRealmConfig.realmTypes = [neighbor.realmType.parentType];
         parentRealmConfig.nameGeneratorSet = realmGenConfig.nameGeneratorSet;
 
-        let parentRealm = Realms.generate(parentRealmConfig);
+        const parentRealm = Realms.generate(parentRealmConfig);
         region.realms.push(parentRealm);
         neighbor.parent = region.realms.length - 1;
       }
@@ -234,7 +235,7 @@ function randomSettlements(
   rng: RNG.RNG,
   map: RegionMap,
 ): Settlement[] {
-  let settlementGenConfig = Settlements.getDefaultConfig();
+  const settlementGenConfig = Settlements.getDefaultConfig();
   settlementGenConfig.rng = rng;
   settlementGenConfig.nameGenerator = nameGeneratorSet.town;
   settlementGenConfig.size = 'large';

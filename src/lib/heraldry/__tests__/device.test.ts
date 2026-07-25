@@ -32,7 +32,7 @@ const mockChargeGroup = {
     name: 'default',
     numberOfCharges: 1,
     blazonPattern: '{article} {name}',
-    renderSVG: (svg: string, w: number, h: number) => svg,
+    renderSVG: (svg: string, _w: number, _h: number) => svg,
   },
 };
 

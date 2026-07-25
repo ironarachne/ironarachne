@@ -1,6 +1,5 @@
 import { test, expect, describe } from 'vitest';
 import { getMonthAbbr, getMonthName, getNiceDate } from './dates';
-import * as Words from '@ironarachne/words';
 
 describe('getMonthAbbr', () => {
   test('returns correct abbreviation for each month', () => {

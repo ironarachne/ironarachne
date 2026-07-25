@@ -4,7 +4,7 @@ import type AgeCategory from './age_category';
 export function getCategoryList(): string[] {
   const categories = humanStandard();
 
-  let results = [];
+  const results = [];
 
   for (let i = 0; i < categories.length; i++) {
     results.push(categories[i].name);
@@ -38,7 +38,7 @@ export function getDescription(ageCategory: AgeCategory): string {
 }
 
 export function getHumanVariant(ageModifier: number): AgeCategory[] {
-  let categories = humanStandard();
+  const categories = humanStandard();
 
   return getVariant(ageModifier, categories);
 }
@@ -135,7 +135,7 @@ export function humanStandard(): AgeCategory[] {
 }
 
 export function randomWeighted(names: string[], options: AgeCategory[], rng: RNG): AgeCategory {
-  let possibleAgeCategories: AgeCategory[] = [];
+  const possibleAgeCategories: AgeCategory[] = [];
 
   for (let i = 0; i < options.length; i++) {
     if (names.includes(options[i].name)) {

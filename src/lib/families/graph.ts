@@ -1,4 +1,5 @@
 import type { Family } from './family_types';
+import type { Character } from '$lib/characters/character_types';
 import { create } from 'xmlbuilder2';
 
 export interface FamilyGraph {
@@ -14,7 +15,9 @@ export interface FamilyGraphNode {
   y: number;
   width: number;
   height: number;
-  data: any;
+  // Undefined when the node's id has no matching family member, the same case the `label`
+  // fallback above covers.
+  data: Character | undefined;
 }
 
 export interface FamilyGraphEdge {
@@ -338,8 +341,6 @@ export function getFamilyTreeSVG(family: Family): string {
   // Group children by parents to draw nice forks?
   // Simple implementation: Line from bottom center of parent to top center of child.
   // Improvement: If parents are married, draw from the middle of the spouse line.
-
-  const drawnChildLines = new Set<string>(); // childId
 
   // Group by child to find all parents
   const childParentsMap = new Map<string, string[]>();

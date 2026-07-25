@@ -147,7 +147,7 @@ export function all(): Tincture[] {
 }
 
 export function byName(name: string): Tincture {
-  let tinctures = all();
+  const tinctures = all();
 
   for (let i = 0; i < tinctures.length; i++) {
     if (tinctures[i].name === name) {
@@ -207,7 +207,7 @@ export function exclude(tincture: Tincture, setOfTinctures: Tincture[]) {
 }
 
 export function getContrasting(tincture: Tincture, tinctures: Tincture[]): Tincture[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < tinctures.length; i++) {
     if (contrasts(tincture, tinctures[i])) {
@@ -232,7 +232,7 @@ export function getSetExcluding(
   tincturesToRemove: Tincture[],
   tincturesToCompare: Tincture[],
 ): Tincture[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < tincturesToCompare.length; i++) {
     if (!isIncludedIn(tincturesToCompare[i], tincturesToRemove)) {
@@ -246,7 +246,7 @@ export function getSetExcluding(
 export function ofTypes(types: string[]): Tincture[] {
   const tinctures = all();
 
-  let matching = [];
+  const matching = [];
 
   for (let i = 0; i < tinctures.length; i++) {
     if (types.includes(tinctures[i].type)) {

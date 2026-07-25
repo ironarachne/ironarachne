@@ -9,7 +9,7 @@
     children?: Snippet;
   };
 
-  let { title, items, onLoad, emptyMessage = 'No saved items yet.', children }: Props = $props();
+  const { title, items, onLoad, emptyMessage = 'No saved items yet.', children }: Props = $props();
 
   let dialog: HTMLDialogElement | undefined = $state();
 

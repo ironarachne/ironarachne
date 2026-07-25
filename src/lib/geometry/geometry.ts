@@ -2,7 +2,7 @@ import type Edge from './edge.js';
 import type Vertex from './vertex.js';
 
 export function distance(a: Vertex, b: Vertex): number {
-  let d = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
+  const d = Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2));
 
   return d;
 }
@@ -18,15 +18,15 @@ export function edgeEquals(A: Edge, B: Edge): boolean {
 }
 
 export function edgesFromVertices(vertices: Vertex[]): Edge[] {
-  let edges = [];
+  const edges = [];
 
   for (let i = 0; i < vertices.length; i++) {
-    let a = vertices[i];
+    const a = vertices[i];
     let b = vertices[0];
     if (i < vertices.length - 1) {
       b = vertices[i + 1];
     }
-    let edge: Edge = { a, b };
+    const edge: Edge = { a, b };
     edges.push(edge);
   }
 
@@ -34,8 +34,8 @@ export function edgesFromVertices(vertices: Vertex[]): Edge[] {
 }
 
 export function getMidpoint(edge: Edge): Vertex {
-  let x = (edge.a.x + edge.b.x) / 2;
-  let y = (edge.a.y + edge.b.y) / 2;
+  const x = (edge.a.x + edge.b.x) / 2;
+  const y = (edge.a.y + edge.b.y) / 2;
 
   return { x, y };
 }

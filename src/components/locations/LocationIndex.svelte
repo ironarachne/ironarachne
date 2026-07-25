@@ -1,17 +1,18 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
   import NavIndexPage from '$components/layout/NavIndexPage.svelte';
 
   const sections = [
     {
       heading: 'Locations &amp; Places',
       links: [
-        { href: '/chop-shop', label: 'Cyberpunk Chop Shop' },
-        { href: '/fantasy/dungeon', label: 'Dungeon' },
-        { href: '/environment', label: 'Environment' },
-        { href: '/planet', label: 'Planet' },
-        { href: '/region', label: 'Region' },
-        { href: '/fantasy/settlement', label: 'Settlement' },
-        { href: '/star-system', label: 'Star System' },
+        { href: resolve('/chop-shop'), label: 'Cyberpunk Chop Shop' },
+        { href: resolve('/fantasy/dungeon'), label: 'Dungeon' },
+        { href: resolve('/environment'), label: 'Environment' },
+        { href: resolve('/planet'), label: 'Planet' },
+        { href: resolve('/region'), label: 'Region' },
+        { href: resolve('/fantasy/settlement'), label: 'Settlement' },
+        { href: resolve('/star-system'), label: 'Star System' },
       ],
     },
   ];

@@ -78,6 +78,8 @@
     onclick={toggleOpen}
   >
     <span class="heraldry-preview-select-preview">
+      <!-- Renders app-generated markup (no external or user-supplied input). -->
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       {@html markup(value, `${id}-selected`)}
     </span>
     <span class="heraldry-preview-select-label">{selectedLabel}</span>
@@ -97,6 +99,8 @@
             onclick={() => selectOption('any')}
           >
             <span class="heraldry-preview-select-preview">
+              <!-- Renders app-generated markup (no external or user-supplied input). -->
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html buildAnyOptionPreviewSvg(previewSize)}
             </span>
             <span class="heraldry-preview-select-label">any</span>
@@ -114,6 +118,8 @@
             onclick={() => selectOption(option.value)}
           >
             <span class="heraldry-preview-select-preview">
+              <!-- Renders app-generated markup (no external or user-supplied input). -->
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
               {@html markup(option.value, `${id}-${option.value}`)}
             </span>
             <span class="heraldry-preview-select-label">{option.label}</span>

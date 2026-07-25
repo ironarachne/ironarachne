@@ -11,7 +11,7 @@
     size?: 'sm' | 'md' | 'lg';
   };
 
-  let { speciesName, size = 'sm' }: Props = $props();
+  const { speciesName, size = 'sm' }: Props = $props();
 
   const palette = $derived(pickSpeciesBadgePalette(speciesName));
   const initials = $derived(speciesNameToBadgeInitials(speciesName));
@@ -37,6 +37,8 @@
     style:--badge-text-scrim={initialsStyle.scrim ?? 'transparent'}
   >
     {#if svg}
+      <!-- Renders app-generated markup (no external or user-supplied input). -->
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
       <span class="species-badge__svg">{@html svg}</span>
     {:else}
       <span

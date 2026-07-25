@@ -17,7 +17,7 @@
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
 
-  let rng = new RNG(Date.now().toString());
+  const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   $effect(() => {
     rng.setSeed(seed);
@@ -37,7 +37,7 @@
   let lastName = $state('');
   let lockName = $state(false);
 
-  let genConfig = DCC.getDefaultDCCCharacterGeneratorConfig(rng.randomString(13));
+  const genConfig = DCC.getDefaultDCCCharacterGeneratorConfig(rng.randomString(13));
   let character: DCCCharacter | null = $state(null);
   let spellsKnown = $state('');
   let downloadingPdf = $state(false);
@@ -69,7 +69,7 @@
     const lockedFirstName = firstName;
     const lockedLastName = lastName;
 
-    let allowedOccupations: string[] = [];
+    const allowedOccupations: string[] = [];
 
     if (allowDwarves) {
       allowedOccupations.push('dwarf');

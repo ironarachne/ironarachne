@@ -1,5 +1,6 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
+  import { resolve } from '$app/paths';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
   import ADNDCharacterGenerator from '$lib/adnd/adndcharactergenerator';
   import ADNDCharacterGeneratorConfig from '$lib/adnd/adndcharactergeneratorconfig';
@@ -18,13 +19,11 @@
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
 
-  let rng = new RNG.RNG(Date.now().toString());
+  const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
   let includeProficiencies = $state(false);
   let includeKits = $state(false);
-  let lastIncludeProficiencies = $state(false);
-  let lastIncludeKits = $state(false);
   $effect(() => {
     rng.setSeed(seed);
   });
@@ -96,8 +95,6 @@
     genConfig.rng = rng;
     genConfig.includeProficiencies = includeProficiencies;
     genConfig.includeKits = includeKits;
-    lastIncludeProficiencies = includeProficiencies;
-    lastIncludeKits = includeKits;
     charGen = new ADNDCharacterGenerator(genConfig);
     character = charGen.generateCharacter();
     if (lockName) {
@@ -149,8 +146,8 @@
     <p>This is an AD&D 2e character generator.</p>
 
     <p>
-      <a href="/fantasy/adnd/character/build">User-directed character builder</a> (dice for attributes
-      only).
+      <a href={resolve('/fantasy/adnd/character/build')}>User-directed character builder</a> (dice for
+      attributes only).
     </p>
   {/snippet}
 

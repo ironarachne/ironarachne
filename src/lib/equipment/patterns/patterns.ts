@@ -4,7 +4,7 @@ import type Pattern from './pattern.js';
 import * as WeaponPattern from './weapons.js';
 
 export function all(): Pattern[] {
-  let result = [];
+  const result = [];
 
   result.push(...ArmorPattern.all());
   result.push(...ClothingPattern.all());
@@ -14,7 +14,7 @@ export function all(): Pattern[] {
 }
 
 export function byName(name: string): Pattern {
-  let options = all();
+  const options = all();
 
   for (const option of options) {
     if (option.name == name) {
@@ -26,9 +26,9 @@ export function byName(name: string): Pattern {
 }
 
 export function forCategory(category: string): Pattern[] {
-  let options = all();
+  const options = all();
 
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < options.length; i++) {
     if (options[i].tags.includes(category)) {

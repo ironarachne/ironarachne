@@ -2,6 +2,7 @@ import type { CultureSnapshot } from '$lib/culture/culture_snapshot';
 import type { HeraldrySnapshot } from '$lib/heraldry/heraldry_snapshot';
 import type { ReligionSnapshot } from '$lib/religion/religion_snapshot';
 import { replaceState } from '$app/navigation';
+import { resolve } from '$app/paths';
 import { page } from '$app/state';
 
 export const HERALDRY_LOAD_PARAM = 'blazon' as const;
@@ -9,15 +10,15 @@ export const CULTURE_LOAD_PARAM = 'name' as const;
 export const RELIGION_LOAD_PARAM = 'seed' as const;
 
 export function heraldryGeneratorHref(snapshot: HeraldrySnapshot): string {
-  return `/heraldry?${HERALDRY_LOAD_PARAM}=${encodeURIComponent(snapshot.blazon)}`;
+  return `${resolve('/heraldry')}?${HERALDRY_LOAD_PARAM}=${encodeURIComponent(snapshot.blazon)}`;
 }
 
 export function cultureGeneratorHref(snapshot: CultureSnapshot): string {
-  return `/culture?${CULTURE_LOAD_PARAM}=${encodeURIComponent(snapshot.name)}`;
+  return `${resolve('/culture')}?${CULTURE_LOAD_PARAM}=${encodeURIComponent(snapshot.name)}`;
 }
 
 export function religionGeneratorHref(snapshot: ReligionSnapshot): string {
-  return `/fantasy/religion?${RELIGION_LOAD_PARAM}=${encodeURIComponent(snapshot.seed)}`;
+  return `${resolve('/fantasy/religion')}?${RELIGION_LOAD_PARAM}=${encodeURIComponent(snapshot.seed)}`;
 }
 
 function readSearchParam(name: string): string | null {
@@ -48,5 +49,7 @@ export function clearLoadParamFromUrl(paramName: string): void {
   }
   const nextUrl = new URL(page.url);
   nextUrl.searchParams.delete(paramName);
+  // `nextUrl` is derived from the current `page.url`, so it already carries any base path.
+  // eslint-disable-next-line svelte/no-navigation-without-resolve
   replaceState(nextUrl, page.state);
 }

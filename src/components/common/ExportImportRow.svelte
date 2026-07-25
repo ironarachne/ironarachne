@@ -5,7 +5,7 @@
     accept?: string;
   };
 
-  let { onExport, onImport, accept = 'application/json,.json' }: Props = $props();
+  const { onExport, onImport, accept = 'application/json,.json' }: Props = $props();
 
   let importInput: HTMLInputElement | undefined = $state();
 

@@ -18,20 +18,20 @@ export default class TopPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): Clothing {
-    let body = rng.item(Components.withCategory('fabric', componentOptions));
-    let hardware = rng.item(Components.withCategory('soft metal', componentOptions));
+    const body = rng.item(Components.withCategory('fabric', componentOptions));
+    const hardware = rng.item(Components.withCategory('soft metal', componentOptions));
 
-    let value = this.baseValue + body.value + hardware.value;
+    const value = this.baseValue + body.value + hardware.value;
 
     let description = `${Words.article(this.name)} ${this.name} `;
 
     description += rng.item([`made of ${body.descriptor} with `, 'with ']);
 
-    let sleeves =
+    const sleeves =
       rng.item(['short', 'long', 'wide', 'narrow', 'bunched', 'volumnous']) + ' sleeves';
-    let lacing = 'lacing ' + rng.item(['down the middle', 'at the top', 'halfway down']);
-    let collar = `a ${rng.item(['wide', 'tight', 'open'])} collar`;
-    let closures =
+    const lacing = 'lacing ' + rng.item(['down the middle', 'at the top', 'halfway down']);
+    const collar = `a ${rng.item(['wide', 'tight', 'open'])} collar`;
+    const closures =
       rng.item(['dull', 'embossed', 'rough', 'shiny', 'round', 'square']) +
       ` ${hardware.descriptor} ` +
       rng.item(['buttons', 'clasps']);
@@ -46,9 +46,9 @@ export default class TopPattern implements Pattern {
       ]);
     }
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let tags = [name, this.name, 'top', 'clothing'];
+    const tags = [name, this.name, 'top', 'clothing'];
 
     return new Clothing(name, description, 'torso', value, quality, tags);
   }

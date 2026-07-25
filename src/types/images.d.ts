@@ -1,5 +1,4 @@
 declare module '*.svg' {
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  const content: any;
+  const content: string;
   export default content;
 }

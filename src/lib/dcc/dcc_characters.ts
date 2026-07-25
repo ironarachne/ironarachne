@@ -8,11 +8,9 @@ import { RNG } from '@ironarachne/rng';
 import * as MUN from '@ironarachne/made-up-names';
 import * as Dice from '$lib/dice';
 import type {
-  DCCAttribute,
   DCCCharacter,
   DCCCharacterGeneratorConfig,
   DCCItem,
-  DCCLanguage,
   DCCLuckyRoll,
   DCCOccupation,
 } from './dcc_types';
@@ -63,7 +61,7 @@ export function generateRandomDCCCharacter(
       trainedWeapon: null,
       tradeGoods: null,
       commonality: 0,
-      apply: (c, rng) => c,
+      apply: (c, _rng) => c,
     },
     strength: { value: 0, modifier: 0 },
     agility: { value: 0, modifier: 0 },
@@ -147,6 +145,8 @@ export function generateRandomDCCCharacter(
 
   character.languages.push('Common');
 
+  // `apply` is a domain method on DCCOccupation, not Function.prototype.apply.
+  // eslint-disable-next-line prefer-spread
   character = character.occupation.apply(character, rng);
   character = character.luckyRoll.apply(character);
 
@@ -195,7 +195,7 @@ export function getAttributeModifier(value: number): number {
 }
 
 function getLanguages(character: DCCCharacter, rng: RNG): string[] {
-  let languages = character.languages;
+  const languages = character.languages;
   let possibleLanguages = Languages.getHuman();
 
   if (character.occupation.name.includes('dwarven')) {
@@ -217,7 +217,7 @@ function getLanguages(character: DCCCharacter, rng: RNG): string[] {
   for (let i = 0; i < character.numberOfLanguages; i++) {
     if (possibleLanguages.length === 0) break;
 
-    let language = rng.weighted(
+    const language = rng.weighted(
       possibleLanguages.map((l) => {
         return { commonality: l.commonality, value: l };
       }),

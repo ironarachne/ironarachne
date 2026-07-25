@@ -22,12 +22,12 @@ export default class BowPattern implements Pattern {
   }
 
   complete(componentOptions: Component[], quality: number, rng: RNG): MeleeWeapon {
-    let body = rng.item(Components.withCategory('soft wood', componentOptions));
-    let handle = rng.item(Components.withCategory('leather', componentOptions));
+    const body = rng.item(Components.withCategory('soft wood', componentOptions));
+    const handle = rng.item(Components.withCategory('leather', componentOptions));
 
-    let cosmeticBody = rng.item(['carved', 'heavy', 'light', 'simple']);
+    const cosmeticBody = rng.item(['carved', 'heavy', 'light', 'simple']);
 
-    let cosmeticHandle = rng.item(['short', 'long', 'comfortable']);
+    const cosmeticHandle = rng.item(['short', 'long', 'comfortable']);
 
     let description = `${Words.article(this.name)} ${this.name} with `;
 
@@ -45,11 +45,11 @@ export default class BowPattern implements Pattern {
       description += rng.item([' and gilt highlights']);
     }
 
-    let name = `${body.descriptor} ${this.name}`;
+    const name = `${body.descriptor} ${this.name}`;
 
-    let value = this.baseValue + body.value + handle.value;
+    const value = this.baseValue + body.value + handle.value;
 
-    let tags = [name, this.name, 'bow', 'ranged', 'martial weapon', 'weapon'];
+    const tags = [name, this.name, 'bow', 'ranged', 'martial weapon', 'weapon'];
 
     return new RangedWeapon(
       name,

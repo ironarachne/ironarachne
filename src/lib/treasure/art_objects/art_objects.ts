@@ -808,7 +808,7 @@ export function getRandomArtObjectsForValue(
 
       selectedArtObjects.push(artObject);
       remainingValue -= artObject.value;
-    } catch (error) {
+    } catch (_error) {
       // If we can't generate an object within the remaining value, we stop.
       break;
     }

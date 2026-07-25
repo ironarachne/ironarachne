@@ -13,7 +13,7 @@
     onResolveConfirm?: (confirmed: boolean) => void;
   };
 
-  let {
+  const {
     kind,
     message,
     title,

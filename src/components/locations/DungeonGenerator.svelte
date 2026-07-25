@@ -9,7 +9,6 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import NumberField from '$components/common/NumberField.svelte';
-  import CheckboxField from '$components/common/CheckboxField.svelte';
   import type { Character } from '$lib/characters/character_types';
   import type { Creature } from '$lib/creatures/creature_types';
   import { generateDungeon, type EngineeredDungeon } from '$lib/dungeon';

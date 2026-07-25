@@ -6,7 +6,7 @@ import * as Metals from './metals.js';
 import * as Wood from './wood.js';
 
 export function all(): Component[] {
-  let result = [];
+  const result = [];
 
   result.push(...Animal.all());
   result.push(...Fabrics.all());
@@ -23,7 +23,7 @@ export function getComponentForCategory(
   maxValue: number,
   rng: RNG,
 ): Component {
-  let possible = [];
+  const possible = [];
 
   for (let i = 0; i < components.length; i++) {
     if (
@@ -45,7 +45,7 @@ export function getComponentForCategory(
 }
 
 export function withCategory(category: string, components: Component[]): Component[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < components.length; i++) {
     if (components[i].category == category || components[i].subType == category) {
@@ -57,7 +57,7 @@ export function withCategory(category: string, components: Component[]): Compone
 }
 
 export function withMinValue(value: number, components: Component[]): Component[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < components.length; i++) {
     if (components[i].value >= value) {
@@ -69,7 +69,7 @@ export function withMinValue(value: number, components: Component[]): Component[
 }
 
 export function withMaxValue(value: number, components: Component[]): Component[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < components.length; i++) {
     if (components[i].value <= value) {
@@ -81,7 +81,7 @@ export function withMaxValue(value: number, components: Component[]): Component[
 }
 
 export function withMinQuality(quality: number, components: Component[]): Component[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < components.length; i++) {
     if (components[i].quality >= quality) {
@@ -93,7 +93,7 @@ export function withMinQuality(quality: number, components: Component[]): Compon
 }
 
 export function withMaxQuality(quality: number, components: Component[]): Component[] {
-  let result = [];
+  const result = [];
 
   for (let i = 0; i < components.length; i++) {
     if (components[i].quality <= quality) {

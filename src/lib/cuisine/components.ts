@@ -1,7 +1,7 @@
 import FoodComponent from './component.js';
 
 export function all(): FoodComponent[] {
-  let result: FoodComponent[] = [];
+  const result: FoodComponent[] = [];
   return result.concat(spices(), herbs(), vegetables(), meats(), seafood(), fruits());
 }
 

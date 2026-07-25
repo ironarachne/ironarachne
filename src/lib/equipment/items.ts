@@ -51,7 +51,7 @@ export function applyStatOffsets(offsets: Record<string, number>, item: Item): I
   for (const [stat, offset] of Object.entries(offsets)) {
     if (newItem.combatProfile) {
       if (stat in newItem.combatProfile) {
-        // @ts-ignore
+        // @ts-expect-error - `stat` is a runtime-checked key of combatProfile, not a literal type
         newItem.combatProfile[stat] += offset;
       }
     }

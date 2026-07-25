@@ -33,7 +33,7 @@ export default new ADNDClass(
   function (
     this: ADNDClass,
     character: ADNDCharacter,
-    rng: RNG.RNG,
+    _rng: RNG.RNG,
     _options?: AdndClassApplyOptions,
   ): ADNDCharacter {
     return character;

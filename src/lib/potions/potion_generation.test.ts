@@ -111,10 +111,6 @@ describe('generatePotion', () => {
       ...getDefaultPotionConfig(),
       allowedCatalogIds: ['flying'],
     });
-    const stormStrength = generatePotion('value-storm', {
-      ...getDefaultPotionConfig(),
-      allowedCatalogIds: ['giant-strength'],
-    });
 
     expect(flying.liquid.value).toBeGreaterThan(healing.liquid.value);
 

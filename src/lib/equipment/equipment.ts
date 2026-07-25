@@ -10,7 +10,7 @@ export function generate(
   valueThreshold: number,
   rng: RNG,
 ): Item[] {
-  let result = [];
+  const result = [];
   let patterns = [];
 
   if (category == 'general') {
@@ -20,8 +20,8 @@ export function generate(
   }
 
   for (let i = 0; i < amount; i++) {
-    let pattern = rng.item(patterns);
-    let item = pattern.complete(components, valueThreshold, rng);
+    const pattern = rng.item(patterns);
+    const item = pattern.complete(components, valueThreshold, rng);
     result.push(item);
   }
 

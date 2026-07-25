@@ -17,7 +17,7 @@
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
 
-  let rng = new RNG.RNG(Date.now().toString());
+  const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
   $effect(() => {
@@ -106,7 +106,7 @@
   function save() {
     if (!character) return;
     applyNamesToCharacter(character);
-    let description = CharGen.formatAsText(character);
+    const description = CharGen.formatAsText(character);
 
     const blob = new Blob([description], { type: 'text/plain' });
     const link = document.createElement('a');

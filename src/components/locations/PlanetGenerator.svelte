@@ -38,7 +38,7 @@
 
   const planetTypes = getPlanetClassifications();
 
-  let rng = new RNG.RNG(Date.now().toString());
+  const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
   $effect(() => {

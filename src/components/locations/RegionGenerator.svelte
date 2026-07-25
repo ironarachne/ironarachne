@@ -28,7 +28,7 @@
   let useSavedCulture: boolean = $state(false);
   let culture: Culture | undefined = $state();
 
-  let rng = new RNG(Date.now().toString());
+  const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
   $effect(() => {
@@ -36,10 +36,10 @@
   });
 
   let nameSetName = $state('any');
-  let nameSets = Names.getAllFantasyNameGeneratorSets(rng);
+  const nameSets = Names.getAllFantasyNameGeneratorSets(rng);
   let nameSet = rng.item(nameSets);
 
-  let config = Regions.getDefaultConfig();
+  const config = Regions.getDefaultConfig();
   config.rng = rng;
   config.nameGeneratorSet = nameSet;
 
@@ -160,6 +160,8 @@
                 (arms) => replaceRealmHeraldry(region!.realms[region!.mainRealm].parent, arms),
               )}
           >
+            <!-- Renders app-generated markup (no external or user-supplied input). -->
+            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
             {@html renderHeraldryDeviceSvg(
               region.realms[region.realms[region.mainRealm].parent].heraldry.device,
               20,
@@ -277,6 +279,8 @@
                     (arms) => replaceRealmHeraldry(neighbor.parent, arms),
                   )}
               >
+                <!-- Renders app-generated markup (no external or user-supplied input). -->
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
                 {@html renderHeraldryDeviceSvg(
                   region.realms[neighbor.parent].heraldry.device,
                   20,

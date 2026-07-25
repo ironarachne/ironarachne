@@ -241,7 +241,6 @@ export function renderClassicModuleMapToCanvas(
   for (const door of dungeon.doors) {
     doorAt.set(cellKey(door.x, door.y), door);
   }
-  const keyAt = new Set<string>(dungeon.keys.map((k) => cellKey(k.x, k.y)));
   const entranceAt = new Map<string, { type: 'stairs' | 'door' }>();
   for (const e of dungeon.entrances) {
     entranceAt.set(cellKey(e.x, e.y), { type: e.type });
@@ -260,7 +259,6 @@ export function renderClassicModuleMapToCanvas(
     });
   }
 
-  const fontSmall = `600 ${Math.max(7, Math.floor(cellSize * 0.34))}px system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
 
@@ -330,7 +328,7 @@ export function renderClassicModuleMapToCanvas(
         continue;
       }
 
-      let label = roomInfo.label;
+      const label = roomInfo.label;
 
       drawRoomLabelBlue(ctx, cx, cyPix, label, cellSize, glyphBlue);
     }

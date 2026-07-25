@@ -9,10 +9,10 @@ export function add_trait(trait: PhysicalTrait, traits: PhysicalTrait[]): Physic
 }
 
 export function generate(config: PhysicalTraitGeneratorConfig, rng: RNG): PhysicalTrait {
-  let name = config.name;
-  let category = config.category;
-  let tags = config.tags;
-  let description = `${rng.item(config.options)} ${config.name}`;
+  const name = config.name;
+  const category = config.category;
+  const tags = config.tags;
+  const description = `${rng.item(config.options)} ${config.name}`;
 
   return {
     name,
