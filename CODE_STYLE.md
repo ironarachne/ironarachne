@@ -44,6 +44,18 @@ Keep this structure flat at one level — do not nest domain directories further
 
 Svelte routes are stored in `src/routes`. Nesting is OK for these as long as it makes sense from a domain-narrowing perspective. The route files should be as lean as possible and reuse as many components as possible. Most UI logic should live in components, not routes.
 
+## The Tool Catalog
+
+Every user-facing tool — generator, editor, or reference page — has an entry in
+[`src/lib/tools`](src/lib/tools/README.md). The entry holds the tool's nav label, its kind and
+domain, and its metadata: an optional genre and an optional game system, both stored as
+namespaced tags (`genre:fantasy`, `system:swn`) so tools filter with the same
+`applyTagFilter` everything else uses.
+
+A new route that a visitor can reach from navigation needs a catalog entry. The index pages
+build their links from it, so the catalog is the one place a tool's name and classification
+live.
+
 ## Coding Rules
 
 Always use a functional style. Avoid classes. Use typescript types to describe objects and interfaces.
