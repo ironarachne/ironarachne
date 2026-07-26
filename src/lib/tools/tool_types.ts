@@ -26,8 +26,13 @@ export type GameSystem = (typeof SYSTEMS)[number];
  */
 export type ToolKind = 'generator' | 'editor' | 'reference';
 
-/** Nav section the tool is listed under; mirrors the top-level navigation taxonomy. */
-export type ToolDomain = 'characters' | 'factions' | 'locations' | 'objects' | 'utilities';
+/**
+ * Nav sections a tool can be listed under, in navigation order; mirrors the top-level
+ * navigation taxonomy. `ToolDomain` is derived from this list so the two cannot drift apart.
+ */
+export const DOMAINS = ['characters', 'factions', 'locations', 'objects', 'utilities'] as const;
+
+export type ToolDomain = (typeof DOMAINS)[number];
 
 /**
  * Authoring shape for a catalog entry. `genres` and `systems` are both optional and are

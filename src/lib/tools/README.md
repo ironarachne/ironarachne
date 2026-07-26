@@ -60,7 +60,30 @@ filterTools({ includeAllTags: ['genre:fantasy'], excludeTags: ['system:adnd-2e']
 
 `genresOf` and `systemsOf` return the distinct genres and systems present in a list of tools,
 in display order — useful for building filter controls that only offer values that match
-something. `genreDisplayName` and `systemDisplayName` turn a tag value into prose for the UI.
+something. `genreDisplayName`, `systemDisplayName`, and `domainDisplayName` turn a tag value or
+domain into prose for the UI.
+
+## Searching
+
+`searchTools` narrows a list of tools by name, genre, and system at once. Criteria that are left
+out do not narrow anything, so `searchTools(tools, {})` returns everything.
+
+```ts
+searchTools(allTools(), { query: 'star char', genre: 'scifi', system: 'swn' });
+```
+
+The name match takes each whitespace-separated term and requires it to appear somewhere in the
+label, so `star char` finds "Stars Without Number Character" without the user typing the whole
+name in order.
+
+The system rule is worth stating plainly, because it is the one filter meant to be
+non-negotiable: **a tool written for a different system is excluded, and a tool with no system
+tag is kept.** System-neutral content — a culture, a region, a language — mixes nothing, because
+it has no rules of its own to clash with. Excluding it as well would leave a Stars Without Number
+table with two tools. `isCompatibleWithSystem` is that rule on its own if you need it elsewhere.
+
+`groupToolsByDomain` buckets tools under their domain in navigation order and drops empty
+domains, which is what a filtered list wants.
 
 ## Adding a tool
 

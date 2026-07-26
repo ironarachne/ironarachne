@@ -85,3 +85,15 @@ export function genreDisplayName(genre: ToolTypes.Genre): string {
 export function systemDisplayName(system: ToolTypes.GameSystem): string {
   return SYSTEM_NAMES[system];
 }
+
+const DOMAIN_NAMES: Record<ToolTypes.ToolDomain, string> = {
+  characters: 'Characters & People',
+  factions: 'Factions & Groups',
+  locations: 'Locations & Places',
+  objects: 'Objects & Items',
+  utilities: 'Utilities & Reference',
+};
+
+export function domainDisplayName(domain: ToolTypes.ToolDomain): string {
+  return DOMAIN_NAMES[domain];
+}
