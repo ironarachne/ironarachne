@@ -1,28 +1,25 @@
 <script lang="ts">
-  import { resolve } from '$app/paths';
   import NavIndexPage from '$components/layout/NavIndexPage.svelte';
+  import { toolsByPath } from '$lib/tools';
 
   const sections = [
     {
       heading: 'Character Builders',
-      links: [{ href: resolve('/fantasy/adnd/character/build'), label: 'AD&amp;D 2E Character' }],
+      tools: toolsByPath(['/fantasy/adnd/character/build']),
     },
     {
       heading: 'Character Generators',
-      links: [
-        { href: resolve('/character'), label: 'Character' },
-        { href: resolve('/fantasy/adnd/character'), label: 'AD&amp;D 2E Character' },
-        { href: resolve('/fantasy/dcc/character'), label: 'Dungeon Crawl Classics Character' },
-        { href: resolve('/swn/character'), label: 'Stars Without Number Character' },
-        { href: resolve('/unchartedworlds/character'), label: 'Uncharted Worlds Character' },
-      ],
+      tools: toolsByPath([
+        '/character',
+        '/fantasy/adnd/character',
+        '/fantasy/dcc/character',
+        '/swn/character',
+        '/unchartedworlds/character',
+      ]),
     },
     {
       heading: 'Related Generators',
-      links: [
-        { href: resolve('/heraldry'), label: 'Heraldry' },
-        { href: resolve('/velgarth-gifts'), label: 'Velgarth Gifts' },
-      ],
+      tools: toolsByPath(['/heraldry', '/velgarth-gifts']),
     },
   ];
 </script>

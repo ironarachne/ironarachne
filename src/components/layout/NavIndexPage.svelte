@@ -1,7 +1,10 @@
 <script lang="ts">
+  import { resolve } from '$app/paths';
+  import type { Tool } from '$lib/tools';
+
   type NavSection = {
     heading: string;
-    links: { href: string; label: string }[];
+    tools: Tool[];
   };
 
   type Props = {
@@ -17,12 +20,11 @@
   {#each sections as section}
     <h2>{section.heading}</h2>
     <nav>
-      {#each section.links as link}
-        <!-- Callers build `href` by passing a route literal through `resolve()`, so these are
-             already base-path correct; the rule cannot see through the prop boundary. `label`
-             is a curated in-repo string (it carries entities such as &amp;), never user input. -->
-        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve, svelte/no-at-html-tags -->
-        <a href={link.href}>{@html link.label}</a>
+      {#each section.tools as tool}
+        <!-- `resolve` is typed against one specific route id at a time, so a value typed as the
+             union of every route id does not satisfy it. Catalog paths are all parameterless
+             static routes, so narrowing to an arbitrary member of the union is safe. -->
+        <a href={resolve(tool.path as '/')}>{tool.label}</a>
       {/each}
     </nav>
   {/each}
