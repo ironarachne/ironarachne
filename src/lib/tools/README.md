@@ -83,7 +83,8 @@ it has no rules of its own to clash with. Excluding it as well would leave a Sta
 table with two tools. `isCompatibleWithSystem` is that rule on its own if you need it elsewhere.
 
 `groupToolsByDomain` buckets tools under their domain in navigation order and drops empty
-domains, which is what a filtered list wants.
+domains, which is what a filtered list wants. `firstToolInBrowseOrder` returns the tool such a
+list shows first, for a UI that has to open with something selected.
 
 ## Adding a tool
 

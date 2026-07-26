@@ -84,3 +84,12 @@ export function groupToolsByDomain(tools: ToolTypes.Tool[]): ToolGroup[] {
     tools: tools.filter((tool) => tool.domain === domain),
   })).filter((group) => group.tools.length > 0);
 }
+
+/**
+ * The tool a browsing UI lists first: the first tool of the first non-empty domain. Deriving it
+ * from `groupToolsByDomain` rather than from the catalog order means a default selection and the
+ * top of the rendered list cannot disagree. Returns undefined for an empty list.
+ */
+export function firstToolInBrowseOrder(tools: ToolTypes.Tool[]): ToolTypes.Tool | undefined {
+  return groupToolsByDomain(tools)[0]?.tools[0];
+}

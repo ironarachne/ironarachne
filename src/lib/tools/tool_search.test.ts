@@ -1,5 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import {
+  firstToolInBrowseOrder,
   groupToolsByDomain,
   isCompatibleWithSystem,
   matchesToolQuery,
@@ -149,5 +150,19 @@ describe('groupToolsByDomain', () => {
 
   it('returns nothing for an empty list', () => {
     expect(groupToolsByDomain([])).toEqual([]);
+  });
+});
+
+describe('firstToolInBrowseOrder', () => {
+  it('returns the first tool of the first domain, not the first tool given', () => {
+    expect(firstToolInBrowseOrder([culture, environment, adndCharacter])).toBe(adndCharacter);
+  });
+
+  it('skips domains that have no tools', () => {
+    expect(firstToolInBrowseOrder([environment, culture])).toBe(culture);
+  });
+
+  it('returns undefined for an empty list', () => {
+    expect(firstToolInBrowseOrder([])).toBeUndefined();
   });
 });
