@@ -40,6 +40,52 @@ function placeSilhouettePoint(symbol: PlacedSymbol, sx: number, sy: number) {
   };
 }
 
+type MapLabel = {
+  x: number;
+  baselineY: number;
+  fontSize: number;
+  anchor: string;
+  fill: string;
+  text: string;
+};
+
+/** Matches the inked copy of a label, not the parchment halo drawn underneath it. */
+const MAP_LABEL_PATTERN =
+  /<text x="(-?[\d.]+)" y="(-?[\d.]+)" font-family="&apos;Times New Roman[^"]*" font-size="([\d.]+)" text-anchor="(\w+)" fill="(#[0-9a-f]{6})">([^<]*)<\/text>/g;
+
+/** Every label the text layer emits: the title plus any placed settlement names. */
+function parseMapLabels(svg: string): MapLabel[] {
+  const out: MapLabel[] = [];
+  for (const m of svg.matchAll(MAP_LABEL_PATTERN)) {
+    out.push({
+      x: Number(m[1]),
+      baselineY: Number(m[2]),
+      fontSize: Number(m[3]),
+      anchor: m[4],
+      fill: m[5],
+      text: m[6],
+    });
+  }
+  return out;
+}
+
+/** Same box model the layout uses, so overlap assertions match what was reserved. */
+function labelBox(label: MapLabel) {
+  const width = label.text.length * label.fontSize * 0.55;
+  const left =
+    label.anchor === 'middle'
+      ? label.x - width / 2
+      : label.anchor === 'start'
+        ? label.x
+        : label.x - width;
+  return {
+    minX: left,
+    maxX: left + width,
+    minY: label.baselineY - label.fontSize * 0.76,
+    maxY: label.baselineY + label.fontSize * 0.24,
+  };
+}
+
 function squareCellNode(id: number, minX: number, minY: number, size: number) {
   return {
     id,
@@ -339,6 +385,177 @@ describe('buildRegionMapSvgString', () => {
     const kinds = placed.map((s) => (s.id.startsWith('tree-') ? 'tree' : 'mountain'));
     const kindSwitches = kinds.filter((kind, i) => i > 0 && kind !== kinds[i - 1]).length;
     expect(kindSwitches).toBeGreaterThan(1);
+  });
+
+  it('titles the map in Times New Roman, centered near the top and larger than any label', () => {
+    const map: RegionMap = {
+      width: 40,
+      height: 30,
+      nodes: [
+        { ...squareCellNode(0, 0, 0, 10), biomeId: 'temperate grassland' },
+        { ...squareCellNode(1, 20, 10, 10), biomeId: 'temperate grassland' },
+      ],
+      edges: [],
+      corners: [],
+    };
+
+    const svg = buildRegionMapSvgString(map, {
+      title: 'the Duchy of Dorne',
+      settlements: [
+        { mapNodeId: 0, isCapital: true, name: 'Kaimlyn', population: 900000 },
+        { mapNodeId: 1, name: 'Camurr', population: 30 },
+      ],
+    });
+
+    const labels = parseMapLabels(svg);
+    const title = labels.find((l) => l.text === 'the Duchy of Dorne');
+    expect(title).toBeDefined();
+    expect(title!.anchor).toBe('middle');
+    expect(title!.x).toBeCloseTo(map.width / 2);
+    expect(title!.baselineY).toBeLessThan(map.height * 0.2);
+
+    const others = labels.filter((l) => l !== title);
+    expect(others.length).toBe(2);
+    for (const label of others) {
+      expect(label.fontSize).toBeLessThan(title!.fontSize);
+    }
+  });
+
+  it('sizes settlement labels by population and places them above the settlement', () => {
+    const map: RegionMap = {
+      width: 40,
+      height: 30,
+      nodes: [
+        { ...squareCellNode(0, 0, 0, 10), biomeId: 'temperate grassland' },
+        { ...squareCellNode(1, 20, 0, 10), biomeId: 'temperate grassland' },
+        { ...squareCellNode(2, 0, 15, 10), biomeId: 'temperate grassland' },
+      ],
+      edges: [],
+      corners: [],
+    };
+
+    const svg = buildRegionMapSvgString(map, {
+      settlements: [
+        { mapNodeId: 0, name: 'Bigton', population: 40000 },
+        { mapNodeId: 1, name: 'Midham', population: 900 },
+        { mapNodeId: 2, name: 'Smallby', population: 25 },
+      ],
+    });
+
+    const byName = new Map(parseMapLabels(svg).map((l) => [l.text, l]));
+    expect(byName.size).toBe(3);
+    expect(byName.get('Bigton')!.fontSize).toBeGreaterThan(byName.get('Midham')!.fontSize);
+    expect(byName.get('Midham')!.fontSize).toBeGreaterThan(byName.get('Smallby')!.fontSize);
+
+    // Each name sits above its settlement's center, centered on it.
+    for (const [name, centerY] of [
+      ['Bigton', 5],
+      ['Midham', 5],
+      ['Smallby', 20],
+    ] as const) {
+      const label = byName.get(name)!;
+      expect(label.anchor).toBe('middle');
+      expect(label.baselineY).toBeLessThan(centerY);
+    }
+  });
+
+  it('inks map text in dark brown, painted over its halo rather than under it', () => {
+    const map: RegionMap = {
+      width: 40,
+      height: 30,
+      nodes: [{ ...squareCellNode(0, 0, 0, 10), biomeId: 'temperate grassland' }],
+      edges: [],
+      corners: [],
+    };
+
+    const svg = buildRegionMapSvgString(map, {
+      title: 'Darkwood',
+      settlements: [{ mapNodeId: 0, name: 'Inkford', population: 500 }],
+    });
+
+    for (const label of parseMapLabels(svg)) {
+      const [r, g, b] = [1, 3, 5].map((i) => parseInt(label.fill.slice(i, i + 2), 16));
+      // Dark enough to read on parchment, and brown rather than grey or black.
+      expect(r + g + b).toBeLessThan(180);
+      expect(r).toBeGreaterThan(b);
+
+      // The halo copy is stroke-only and comes first, so the ink lands on top of it.
+      const haloIndex = svg.indexOf(`fill="none" stroke="${'#ede4d3'}"`);
+      expect(haloIndex).toBeGreaterThan(-1);
+      expect(svg.indexOf(`fill="${label.fill}">${label.text}`)).toBeGreaterThan(haloIndex);
+    }
+
+    expect(svg).not.toContain('paint-order');
+  });
+
+  it('still names a settlement sitting under the title', () => {
+    const map: RegionMap = {
+      width: 40,
+      height: 30,
+      nodes: [{ ...squareCellNode(0, 15, 0, 5), biomeId: 'temperate grassland' }],
+      edges: [],
+      corners: [],
+    };
+
+    const svg = buildRegionMapSvgString(map, {
+      title: 'the Grand Principality of Aedirn',
+      settlements: [{ mapNodeId: 0, name: 'Underhill', population: 500 }],
+    });
+
+    const labels = parseMapLabels(svg);
+    const label = labels.find((l) => l.text === 'Underhill');
+    expect(label).toBeDefined();
+    // Pushed clear of the title rather than dropped or stacked on it.
+    const title = labels.find((l) => l.text.startsWith('the Grand'))!;
+    expect(labelBox(label!).minY).toBeGreaterThan(labelBox(title).maxY);
+  });
+
+  it('moves settlement labels aside rather than stacking them on each other', () => {
+    const map: RegionMap = {
+      width: 40,
+      height: 30,
+      nodes: [
+        { ...squareCellNode(0, 0, 0, 10), center: { x: 18, y: 15 } },
+        { ...squareCellNode(1, 0, 0, 10), center: { x: 19, y: 15.4 } },
+        { ...squareCellNode(2, 0, 0, 10), center: { x: 20, y: 15.8 } },
+      ],
+      edges: [],
+      corners: [],
+    };
+
+    const svg = buildRegionMapSvgString(map, {
+      title: 'Crowded Coast',
+      settlements: [
+        { mapNodeId: 0, name: 'Northtown', population: 5000 },
+        { mapNodeId: 1, name: 'Middlemarch', population: 4000 },
+        { mapNodeId: 2, name: 'Southport', population: 3000 },
+      ],
+    });
+
+    const boxes = parseMapLabels(svg).map(labelBox);
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const a = boxes[i];
+        const b = boxes[j];
+        const overlaps = a.minX < b.maxX && b.minX < a.maxX && a.minY < b.maxY && b.minY < a.maxY;
+        expect(overlaps).toBe(false);
+      }
+    }
+  });
+
+  it('renders settlements without names as markers only', () => {
+    const map: RegionMap = {
+      width: 40,
+      height: 30,
+      nodes: [{ ...squareCellNode(0, 0, 0, 10), biomeId: 'temperate grassland' }],
+      edges: [],
+      corners: [],
+    };
+
+    const svg = buildRegionMapSvgString(map, { settlements: [{ mapNodeId: 0 }] });
+
+    expect(svg).toContain('<circle ');
+    expect(parseMapLabels(svg)).toHaveLength(0);
   });
 
   it('renders ocean chart border when the map includes ocean', () => {

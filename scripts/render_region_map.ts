@@ -114,6 +114,8 @@ function renderMap() {
       settlements: region.settlements.map((s, i) => ({
         mapNodeId: s.mapNodeId,
         isCapital: i === 0,
+        name: s.name,
+        population: s.population,
       })),
     });
     writeFileSync(svgOutPath, svg, 'utf8');
