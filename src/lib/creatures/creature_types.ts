@@ -1,7 +1,7 @@
 import type { Ability } from '$lib/abilities';
 import type AgeCategory from '$lib/age/age_category.js';
 import type { Item } from '$lib/equipment';
-import type Gender from '$lib/gender/gender';
+import type { Gender } from '$lib/gender';
 import type { Mob } from '$lib/mobs';
 import type PhysicalTrait from '$lib/physical_traits/physical_trait.js';
 import type { Relationship } from '$lib/relationships';
