@@ -10,8 +10,12 @@ describe('list', () => {
     expect(list(['apples'])).toBe('- apples\n\n');
   });
 
-  it('returns just the trailing blank line for an empty list', () => {
-    expect(list([])).toBe('\n');
+  it('returns nothing at all for an empty list', () => {
+    expect(list([])).toBe('');
+  });
+
+  it('adds no vertical space when following a header with no items', () => {
+    expect(header('Weapons') + list([])).toBe('\nWeapons\n\n');
   });
 
   it('preserves items verbatim, including empty strings', () => {
