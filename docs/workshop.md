@@ -14,8 +14,9 @@ here is built yet. The work is broken down in [The plan](#the-plan) and tracked 
 the `workshop` label.
 
 The [domain model](#domain-model) is drafted and **awaiting review**. Per the design process in
-CLAUDE.md, implementation does not begin until those diagrams are approved — which makes the
-[gaps it names](#what-this-model-does-not-settle) the next thing to settle, not #31.
+CLAUDE.md, implementation does not begin until those diagrams are approved. The four questions
+modelling forced are settled in [Decisions taken here](#decisions-taken-here); two of them close
+open questions this document had been carrying.
 
 ## The shift
 
@@ -132,6 +133,9 @@ Where the same concept differs by game system, those are **distinct kinds** —
 `character.swn` and `character.adnd-2e` are not interchangeable, and pretending otherwise would
 push system-specific fields into a shared type or force lossy conversion. System-neutral content
 (`culture`, `religion`, `language`, `region`) has one kind covering all uses.
+
+[Decision 4](#4-kinds-are-system-qualified-when-the-payload-is) turns that into a rule that decides
+new cases rather than an observation about characters.
 
 ### Tool
 
@@ -452,9 +456,16 @@ concerns with separate versioning, and drawn together they are unreadable.
 Field names are TypeScript. `?` marks an optional field and `[]` an array. `Record<string, unknown>`
 is written `Record~string, unknown~` because that is how Mermaid spells a generic.
 
+**These are types, not classes.** CODE_STYLE.md rules classes out and nothing here asks for one.
+Mermaid's only "is a" arrow is `<|--`, so it stands for whichever TypeScript construct the case
+calls for — an intersection for `TaggedItem`, a discriminated union for `ExportBody` — and never for
+`extends`. Read the arrows as structure, not as a hierarchy to implement.
+
 ### The store
 
-`Project` and `Artifact` are the two types a user thinks in, and the only two the store persists.
+`Project` and `Artifact` are the two types a user thinks in, and the two the store persists.
+`ProjectWorkspace` is persisted alongside them but is not user work; see
+[decision 3](#3-panel-state-is-persisted-per-project-and-may-be-dropped).
 
 ```mermaid
 classDiagram
@@ -492,31 +503,54 @@ classDiagram
         +ArtifactKind targetKind
         +string role
     }
+    class ProjectWorkspace {
+        +string projectId
+        +number workspaceVersion
+    }
+    class PanelState {
+        +number order
+        +RouteId toolPath?
+        +string artifactId?
+    }
 
     TaggedItem <|-- Project
     TaggedItem <|-- Artifact
     Vault "1" *-- "*" Project : holds
     Project "1" *-- "*" Artifact : owns
+    Project "1" *-- "0..1" ProjectWorkspace : bench
+    ProjectWorkspace "1" *-- "*" PanelState : panels
     Artifact "1" *-- "0..1" Provenance : records
     Artifact "1" *-- "*" ArtifactReference : declares
     ArtifactReference "*" ..> "1" Artifact : targets, may dangle
+    PanelState "*" ..> "0..1" Artifact : may show
 ```
 
 Reading the relationships:
 
 - **Filled diamonds are ownership and cascade on delete.** Deleting a project deletes its
-  artifacts; there is no orphan state and no cross-project edge, per
-  [Project](#project). `projectId` on the artifact is the same edge expressed for the store's
-  benefit, since storage is keyed by project.
-- **The dashed edge is the only one that may not resolve.** A reference names a target it does not
+  artifacts and its bench; there is no orphan state and no cross-project edge, per
+  [Project](#project).
+- **`projectId` on the artifact is authoritative, and the storage key is an index derived from
+  it.** The same edge is expressed twice — once as containment, once as a field — because storage
+  is keyed by project, and two representations of one fact can disagree. The field wins; a key that
+  contradicts it is a bug in the store, not a second opinion.
+- **The dashed edges are the ones that may not resolve.** A reference names a target it does not
   own, and [Composition](#composition) rule 3 makes a missing target an ordinary state rather than
   an error. Every consumer of that edge handles `undefined`; nothing walking it may assume a cycle
-  is impossible.
+  is impossible. A panel bound to a deleted artifact is the same case with a cheaper remedy — it is
+  dropped rather than shown broken, because a bench is not work.
+- **`role` on a reference is required.** A region references its capital and its member
+  settlements, and both are `kind: settlement`, so target kind alone cannot say which is which.
+  Without a role, references are an untyped bag and every consumer re-derives intent it cannot
+  actually recover. See [decision 1](#1-references-carry-a-required-role).
 - **`Provenance` is optional and stays optional.** Artifacts adopted from legacy saves (#34) have
-  no honest seed, and inventing one would be a lie the re-roll button acts on.
+  no honest seed, and inventing one would be a lie the re-roll button acts on. Its `toolPath` is a
+  catalog key — the one edge from the store to the registries below.
 - **`payload` is `unknown` here on purpose.** The store deliberately does not know payload shapes —
   that is the whole point of it being generic — so the type is narrowed by `kind` through the
   registry below, not by the store.
+- **Exactly one of `PanelState.toolPath` and `artifactId` is set**: a panel holds a mounted tool or
+  an open artifact. Both optional is Mermaid's approximation of a two-variant union.
 
 ### Kinds, tools, and the snapshot contract
 
@@ -524,13 +558,20 @@ The registries. `ArtifactKindEntry` is the contract requirement 3.2 describes, g
 
 ```mermaid
 classDiagram
-    class ArtifactKindEntry {
+    class ArtifactKindEntry~TPayload, TSnapshot~ {
         +ArtifactKind kind
         +number payloadVersion
-        +toSnapshot(value) unknown
-        +fromSnapshot(snapshot, rng) unknown
-        +validate(payload) boolean
-        +migrate(payload, fromVersion) unknown
+        +toSnapshot(value: TPayload) TSnapshot
+        +fromSnapshot(snapshot: TSnapshot, rng: RNG) TPayload
+        +validate(payload: unknown) PayloadResult~TPayload~
+        +migrate(payload: unknown, from: number) PayloadResult~TPayload~
+    }
+    class PayloadResult~T~ {
+        <<union>>
+        +boolean ok
+        +T value?
+        +QuarantineReason reason?
+        +string message?
     }
     class ArtifactKindRegistry {
         +register(entry) void
@@ -558,12 +599,22 @@ classDiagram
     }
 
     ArtifactKindRegistry "1" o-- "*" ArtifactKindEntry : indexes by kind
+    ArtifactKindEntry ..> PayloadResult : returns
     Tool "1" --> "0..1" ArtifactKindEntry : produces
     Tool --> ToolKind
     Tool --> MaturityLevel
     ArtifactKindEntry ..> Artifact : governs payload of
 ```
 
+- **The entry is generic; the registry is not.** `ArtifactKindEntry~TPayload, TSnapshot~` keeps a
+  library's own types intact where it defines them, and `ArtifactKindRegistry.get` hands back the
+  erased form. That confines the cast to the lookup instead of spreading it to every consumer,
+  which is what CODE_STYLE.md is asking for when it says to describe shapes at boundaries rather
+  than reach for `any`.
+- **`validate` and `migrate` return a result, not a boolean.** A boolean says no without saying
+  why, and the reason is exactly what `QuarantineReason` and the import summary have to report.
+  `PayloadResult` is a discriminated union on `ok` — the "well-defined empty result rather than
+  throwing" of readiness requirement 3.3, given a type.
 - **`Tool` is the existing catalog type** (`src/lib/tools/tool_types.ts`) plus `maturity`, which
   #43 adds. Everything else on it is built.
 - **`0..1` on _produces_ is the reference tools.** A reference tool defines no kind and saves
@@ -573,7 +624,8 @@ classDiagram
   exception.
 - **`ArtifactKind` is an open string, not an enum**, owned by the library defining the payload.
   Closing it would make an unrecognised kind unrepresentable, which is exactly the data
-  [invariant 2](#two-invariants) promises to keep.
+  [invariant 2](#two-invariants) promises to keep. Its naming rule is
+  [decision 4](#4-kinds-are-system-qualified-when-the-payload-is).
 
 `ToolPanelRegistry` is deliberately absent: it already exists, maps path to lazy component loader,
 and holds no domain state.
@@ -586,7 +638,7 @@ One envelope, one `formatVersion`, one parser — per
 ```mermaid
 classDiagram
     class ExportEnvelope {
-        +string format
+        +FormatMarker format
         +number formatVersion
         +ExportScope scope
         +string exportedAt
@@ -594,6 +646,10 @@ classDiagram
         +string vaultId
         +string checksum
         +ExportBody body
+    }
+    class FormatMarker {
+        <<literal>>
+        ironarachne.export
     }
     class ExportScope {
         <<enumeration>>
@@ -607,10 +663,12 @@ classDiagram
     class VaultBody {
         +Project[] projects
         +Artifact[] artifacts
+        +ProjectWorkspace[] workspaces
     }
     class ProjectBody {
         +Project project
         +Artifact[] artifacts
+        +ProjectWorkspace workspace?
     }
     class ArtifactBody {
         +Artifact artifact
@@ -621,15 +679,22 @@ classDiagram
         merge
     }
     class ImportSummary {
+        +ImportMode mode
         +number projectsAdded
         +number artifactsAdded
+        +number projectsRemoved
+        +number artifactsRemoved
         +string[] nameCollisions
         +Record~string, string~ remintedIds
+        +string backupFileName?
     }
     class QuarantinedArtifact {
         +string id
-        +unknown rawPayload
+        +string projectId
+        +string kind
+        +unknown raw
         +QuarantineReason reason
+        +string message
     }
     class QuarantineReason {
         <<enumeration>>
@@ -638,45 +703,106 @@ classDiagram
         failed_migration
     }
 
+    ExportEnvelope --> FormatMarker
     ExportEnvelope --> ExportScope : discriminated by
     ExportEnvelope "1" *-- "1" ExportBody : carries
     ExportBody <|-- VaultBody
     ExportBody <|-- ProjectBody
     ExportBody <|-- ArtifactBody
+    ImportSummary --> ImportMode : ran as
     ImportSummary "1" *-- "*" QuarantinedArtifact : lists
     QuarantinedArtifact --> QuarantineReason
-    ImportSummary ..> ImportMode : produced under
 ```
 
 - **`formatVersion` on the envelope is not `payloadVersion` on the artifact.** They advance
   independently and migrate in separate chains; sharing a field would couple every payload change
   to the file format.
+- **`FormatMarker` is a literal, not a string.** It is what identifies the file as ours before
+  anything else is trusted, and `string` is precisely the type that cannot do that.
+- **`checksum` is SHA-256 of the canonical body**, via `crypto.subtle` — no dependency, and the
+  stable key order the format already requires is what makes it reproducible.
 - **`remintedIds` is the old-to-new map** merge rewrites the reference graph through
   ([Identity on merge](#identity-on-merge)). Restore leaves it empty, which is the type-level
   statement that restore preserves ids.
-- **`QuarantinedArtifact` holds `rawPayload`, not a parsed one.** It exists precisely for data this
-  build cannot interpret, so it must not require interpreting it. It has no `kind` field for the
-  same reason — an unknown kind is a string we keep, not a value we validate.
+- **`QuarantinedArtifact` keeps the whole record, not just the payload.** `raw` is the artifact
+  verbatim; `id`, `projectId`, and `kind` are lifted out as plain strings so the record can be
+  indexed, reported, and re-adopted. Keeping the `kind` string is not the same as trusting it —
+  and without it, a later build that adds the missing kind cannot find the records waiting for it,
+  which is the entire promise of [invariant 2](#two-invariants). Dropping `projectId` would leave
+  nowhere to restore it to, and dropping the artifact's `name` and `tags` would discard work the
+  user authored rather than payload we failed to parse.
+- **`ImportSummary` counts removals as well as additions.** Restore destroys, and
+  [Importing](#importing) requires saying so in the user's terms; a summary that only counts
+  additions cannot describe the half of the operation that loses data. `backupFileName` names the
+  automatic pre-restore export — the download that _is_ the undo.
 - **`ImportSummary` is a return type, not a toast.** Every field on it is something the summary
   has to be able to say, per [Failure states](#failure-states).
 
-### What this model does not settle
+### Decisions taken here
 
-Deliberate gaps, listed so review can confirm them rather than discover them:
+Four questions the prose left open that modelling forced. They are settled, with the reasoning,
+because a model that defers its hard parts is not a model.
 
-- **`role` on `ArtifactReference` is proposed, not specified.** [Composition](#composition) says a
-  reference records the target's id and kind. That is not enough to tell a region's capital from
-  its member settlements, so the model adds `role`. If references are only ever untyped links, it
-  should come out.
-- **Timestamps are `number` (epoch milliseconds)** rather than ISO strings, on the grounds that
-  they sort and diff without parsing. `exportedAt` is a string because a human reads it in a
-  Downloads folder. Worth confirming the inconsistency is wanted.
-- **Project-scoped panel state has no type here.** It is [open question 3](#open-questions), and a
-  `VaultBody` field for it lands when that is answered — noted because
-  [What travels](#what-travels-and-what-does-not) says a vault file carries it.
-- **Kind granularity is unresolved** ([open question 4](#open-questions)). The model treats
-  `ArtifactKind` as an opaque string, which is what lets that question be answered later without
-  changing any type drawn here.
+#### 1. References carry a required `role`
+
+A region references its capital and its member settlements, and both are `kind: settlement`. Target
+kind alone therefore cannot say which reference is which, and that case is not exotic — it is the
+first composite artifact anyone builds.
+
+`role` is **required**, not optional: a defaulted empty role reconstructs the untyped bag it exists
+to prevent. It is a plain string owned by the consuming kind and documented in that kind's registry
+entry. It is also what lets a dangling reference render as "capital: missing" rather than "a
+settlement is missing", and what the generic picker in #37 is filling in — "use a saved religion?"
+is a named slot, not an anonymous link.
+
+#### 2. Stored work uses epoch milliseconds; the file header uses ISO 8601
+
+`createdAt` and `updatedAt` are `number`. They sort and compare without parsing and survive a JSON
+round trip exactly. `exportedAt` is an ISO 8601 string, because it is read by a human in a Downloads
+folder and by anyone who opens the file in a text editor, and ISO 8601 sorts lexicographically so
+nothing is given up.
+
+The inconsistency is deliberate and now has a rule rather than an excuse: **stored work uses epoch
+numbers, the file header uses ISO strings.** There is exactly one field on the boundary, it is
+diagnostic only, and nothing compares it — which is what makes the split safe instead of a
+recurring source of off-by-one-timezone bugs.
+
+#### 3. Panel state is persisted per project, and may be dropped
+
+Persisted, because [Panels](#panels) asks that reopening a project restore the bench as it was left.
+Not a user-visible concept: no named layouts and no layout manager, which is a feature with its own
+UI and migration surface and no evidence anyone wants it. It travels in vault and project exports so
+a new machine keeps the bench, and is absent from artifact exports, having nothing to attach to. It
+carries its own `workspaceVersion` because panel shape will churn faster than either the file format
+or any payload.
+
+The consequential half: **a workspace that cannot be read resets to a default bench, and a panel
+bound to an artifact that no longer exists is dropped silently.** That is a deliberate carve-out
+from [invariant 2](#two-invariants), and it is worth stating in the invariant's own terms —
+invariant 2 protects _work_, and a panel arrangement is not work. Quarantining a layout would be
+absurd; losing a culture would not.
+
+#### 4. Kinds are system-qualified when the payload is
+
+The rule: **a kind is system-qualified when its payload cannot round-trip through another system's
+tool without inventing or dropping fields.** That is the lossy-conversion test
+[Artifact kinds](#artifact-kinds) already applies to characters, stated generally so it decides the
+next case instead of being re-argued per tool.
+
+So `character.swn`, `character.adnd-2e`, and `character.dcc` qualify, since their stat blocks differ
+structurally. An SWN starship is `starship.swn` — hull, class, and fittings come from SWN's rules.
+`culture`, `religion`, `language`, `region`, `settlement`, and `heraldry` stay neutral.
+
+Two supporting rules:
+
+- **An unqualified kind is never a supertype of a qualified one.** Nothing reads `character.swn` as
+  a partial `character`; that is the lossy conversion this document already rejects.
+- **When in doubt, qualify.** Renaming a kind is a migration either way, but the costs are not
+  symmetric. A qualified kind that turns out to be neutral can be aliased cheaply. A neutral kind
+  that turns out to need splitting requires inspecting every stored payload to guess which system it
+  came from — and guessing over user data is the thing this design keeps refusing to do.
+
+This answers [open question 4](#open-questions) and unblocks #32.
 
 ## What exists today
 
@@ -928,11 +1054,17 @@ document is entitled to reopen.
    is the one operation that can double a vault in a single write — which is why it estimates
    before writing and rolls back if the estimate was wrong, rather than waiting on this question.
 3. **Panel layout persistence.** How much arrangement is remembered per project, and whether
-   layouts are a user-visible concept or an implementation detail.
+   layouts are a user-visible concept or an implementation detail. _Answered in
+   [decision 3](#3-panel-state-is-persisted-per-project-and-may-be-dropped): persisted per project
+   as `ProjectWorkspace`, an implementation detail rather than a user-visible concept, and the one
+   thing an import is allowed to drop silently._
 4. **Artifact kind granularity.** The proposal splits kinds by game system for characters. Where
    else does that bite — is an SWN starship a `starship`, or is `starship.swn` the honest name?
    This needs settling before #32 registers a kind that would otherwise have to be renamed later,
-   because renaming a kind is itself a migration.
+   because renaming a kind is itself a migration. _Answered in
+   [decision 4](#4-kinds-are-system-qualified-when-the-payload-is): qualify when the payload cannot
+   round-trip through another system's tool without loss, and when in doubt qualify. An SWN starship
+   is `starship.swn`._
 5. **Migration of existing saves.** Users have heraldry, cultures, and religions saved under
    `ironarachne.save.v1.*` today. _Answered in #34: adopted into a project on first run,
    idempotently, with the legacy keys left in place as a fallback and provenance recorded as
@@ -943,5 +1075,10 @@ document is entitled to reopen.
 - **Reference integrity on delete.** Prompt the user with what points at the artifact, allow the
   delete, tolerate the resulting dangling references, and surface them as visibly broken. Recorded
   in [Composition](#composition) and in #37.
+- **What a reference records.** Target id, target kind, and a required `role`, because two
+  references to the same kind are otherwise indistinguishable. Recorded in
+  [decision 1](#1-references-carry-a-required-role).
+- **Timestamp representation.** Epoch milliseconds on stored work, ISO 8601 in the export header.
+  Recorded in [decision 2](#2-stored-work-uses-epoch-milliseconds-the-file-header-uses-iso-8601).
 - **Scope of the first release.** The shell, projects, the artifact store, and culture, religion,
   and settlement taken to Release-ready. Recorded in [The plan](#the-plan).
