@@ -3,7 +3,8 @@
 This design document describes the next version of Iron Arachne: a **workshop** for building
 campaigns and worlds, rather than a collection of independent generator pages.
 
-It covers the model the site is built on, how the pieces fit together, and — in
+It covers the model the site is built on, how the pieces fit together, the types that model
+becomes in [Domain model](#domain-model), and — in
 [Tool release readiness](#tool-release-readiness) — the specification a tool must meet before it
 is considered finished.
 
@@ -11,6 +12,10 @@ is considered finished.
 `/workshop` (`src/routes/workshop/+page.svelte`), unlinked from navigation. Nothing else described
 here is built yet. The work is broken down in [The plan](#the-plan) and tracked on Worktree under
 the `workshop` label.
+
+The [domain model](#domain-model) is drafted and **awaiting review**. Per the design process in
+CLAUDE.md, implementation does not begin until those diagrams are approved — which makes the
+[gaps it names](#what-this-model-does-not-settle) the next thing to settle, not #31.
 
 ## The shift
 
@@ -434,6 +439,244 @@ a validation pass someone has to run.
 
 Reference cycles are possible and acceptable — a realm's ruler is a character from that realm —
 so anything that walks references must tolerate them.
+
+## Domain model
+
+The types this document implies, stated as types. What a diagram declares here is what the
+corresponding `*-types.ts` file declares in code, so this is where the shape gets argued about —
+before [the plan](#the-plan) starts building against it.
+
+Three diagrams rather than one: the store, the registries, and the file format. They are separate
+concerns with separate versioning, and drawn together they are unreadable.
+
+Field names are TypeScript. `?` marks an optional field and `[]` an array. `Record<string, unknown>`
+is written `Record~string, unknown~` because that is how Mermaid spells a generic.
+
+### The store
+
+`Project` and `Artifact` are the two types a user thinks in, and the only two the store persists.
+
+```mermaid
+classDiagram
+    class Vault {
+        +string vaultId
+    }
+    class TaggedItem {
+        <<interface>>
+        +string[] tags
+    }
+    class Project {
+        +string id
+        +string name
+        +string description?
+        +number createdAt
+        +number updatedAt
+    }
+    class Artifact {
+        +string id
+        +string projectId
+        +ArtifactKind kind
+        +string name
+        +unknown payload
+        +number payloadVersion
+        +number createdAt
+        +number updatedAt
+    }
+    class Provenance {
+        +RouteId toolPath
+        +string seed
+        +Record~string, unknown~ config
+    }
+    class ArtifactReference {
+        +string targetId
+        +ArtifactKind targetKind
+        +string role
+    }
+
+    TaggedItem <|-- Project
+    TaggedItem <|-- Artifact
+    Vault "1" *-- "*" Project : holds
+    Project "1" *-- "*" Artifact : owns
+    Artifact "1" *-- "0..1" Provenance : records
+    Artifact "1" *-- "*" ArtifactReference : declares
+    ArtifactReference "*" ..> "1" Artifact : targets, may dangle
+```
+
+Reading the relationships:
+
+- **Filled diamonds are ownership and cascade on delete.** Deleting a project deletes its
+  artifacts; there is no orphan state and no cross-project edge, per
+  [Project](#project). `projectId` on the artifact is the same edge expressed for the store's
+  benefit, since storage is keyed by project.
+- **The dashed edge is the only one that may not resolve.** A reference names a target it does not
+  own, and [Composition](#composition) rule 3 makes a missing target an ordinary state rather than
+  an error. Every consumer of that edge handles `undefined`; nothing walking it may assume a cycle
+  is impossible.
+- **`Provenance` is optional and stays optional.** Artifacts adopted from legacy saves (#34) have
+  no honest seed, and inventing one would be a lie the re-roll button acts on.
+- **`payload` is `unknown` here on purpose.** The store deliberately does not know payload shapes —
+  that is the whole point of it being generic — so the type is narrowed by `kind` through the
+  registry below, not by the store.
+
+### Kinds, tools, and the snapshot contract
+
+The registries. `ArtifactKindEntry` is the contract requirement 3.2 describes, given a type.
+
+```mermaid
+classDiagram
+    class ArtifactKindEntry {
+        +ArtifactKind kind
+        +number payloadVersion
+        +toSnapshot(value) unknown
+        +fromSnapshot(snapshot, rng) unknown
+        +validate(payload) boolean
+        +migrate(payload, fromVersion) unknown
+    }
+    class ArtifactKindRegistry {
+        +register(entry) void
+        +get(kind) ArtifactKindEntry?
+    }
+    class Tool {
+        +RouteId path
+        +string label
+        +ToolKind kind
+        +ToolDomain domain
+        +MaturityLevel maturity
+        +string[] tags
+    }
+    class ToolKind {
+        <<enumeration>>
+        generator
+        editor
+        reference
+    }
+    class MaturityLevel {
+        <<enumeration>>
+        experimental
+        beta
+        release_ready
+    }
+
+    ArtifactKindRegistry "1" o-- "*" ArtifactKindEntry : indexes by kind
+    Tool "1" --> "0..1" ArtifactKindEntry : produces
+    Tool --> ToolKind
+    Tool --> MaturityLevel
+    ArtifactKindEntry ..> Artifact : governs payload of
+```
+
+- **`Tool` is the existing catalog type** (`src/lib/tools/tool_types.ts`) plus `maturity`, which
+  #43 adds. Everything else on it is built.
+- **`0..1` on _produces_ is the reference tools.** A reference tool defines no kind and saves
+  nothing; the cardinality is what keeps section 3 of the readiness spec from applying to it.
+- **`get(kind)` returns optional, and that is load-bearing.** An unknown kind is the normal case
+  for a file from a newer build, and the miss is what routes it to quarantine instead of an
+  exception.
+- **`ArtifactKind` is an open string, not an enum**, owned by the library defining the payload.
+  Closing it would make an unrecognised kind unrepresentable, which is exactly the data
+  [invariant 2](#two-invariants) promises to keep.
+
+`ToolPanelRegistry` is deliberately absent: it already exists, maps path to lazy component loader,
+and holds no domain state.
+
+### The file format
+
+One envelope, one `formatVersion`, one parser — per
+[Three granularities, one format](#three-granularities-one-format). `scope` discriminates the body.
+
+```mermaid
+classDiagram
+    class ExportEnvelope {
+        +string format
+        +number formatVersion
+        +ExportScope scope
+        +string exportedAt
+        +string appVersion
+        +string vaultId
+        +string checksum
+        +ExportBody body
+    }
+    class ExportScope {
+        <<enumeration>>
+        vault
+        project
+        artifact
+    }
+    class ExportBody {
+        <<abstract>>
+    }
+    class VaultBody {
+        +Project[] projects
+        +Artifact[] artifacts
+    }
+    class ProjectBody {
+        +Project project
+        +Artifact[] artifacts
+    }
+    class ArtifactBody {
+        +Artifact artifact
+    }
+    class ImportMode {
+        <<enumeration>>
+        restore
+        merge
+    }
+    class ImportSummary {
+        +number projectsAdded
+        +number artifactsAdded
+        +string[] nameCollisions
+        +Record~string, string~ remintedIds
+    }
+    class QuarantinedArtifact {
+        +string id
+        +unknown rawPayload
+        +QuarantineReason reason
+    }
+    class QuarantineReason {
+        <<enumeration>>
+        unknown_kind
+        failed_validation
+        failed_migration
+    }
+
+    ExportEnvelope --> ExportScope : discriminated by
+    ExportEnvelope "1" *-- "1" ExportBody : carries
+    ExportBody <|-- VaultBody
+    ExportBody <|-- ProjectBody
+    ExportBody <|-- ArtifactBody
+    ImportSummary "1" *-- "*" QuarantinedArtifact : lists
+    QuarantinedArtifact --> QuarantineReason
+    ImportSummary ..> ImportMode : produced under
+```
+
+- **`formatVersion` on the envelope is not `payloadVersion` on the artifact.** They advance
+  independently and migrate in separate chains; sharing a field would couple every payload change
+  to the file format.
+- **`remintedIds` is the old-to-new map** merge rewrites the reference graph through
+  ([Identity on merge](#identity-on-merge)). Restore leaves it empty, which is the type-level
+  statement that restore preserves ids.
+- **`QuarantinedArtifact` holds `rawPayload`, not a parsed one.** It exists precisely for data this
+  build cannot interpret, so it must not require interpreting it. It has no `kind` field for the
+  same reason — an unknown kind is a string we keep, not a value we validate.
+- **`ImportSummary` is a return type, not a toast.** Every field on it is something the summary
+  has to be able to say, per [Failure states](#failure-states).
+
+### What this model does not settle
+
+Deliberate gaps, listed so review can confirm them rather than discover them:
+
+- **`role` on `ArtifactReference` is proposed, not specified.** [Composition](#composition) says a
+  reference records the target's id and kind. That is not enough to tell a region's capital from
+  its member settlements, so the model adds `role`. If references are only ever untyped links, it
+  should come out.
+- **Timestamps are `number` (epoch milliseconds)** rather than ISO strings, on the grounds that
+  they sort and diff without parsing. `exportedAt` is a string because a human reads it in a
+  Downloads folder. Worth confirming the inconsistency is wanted.
+- **Project-scoped panel state has no type here.** It is [open question 3](#open-questions), and a
+  `VaultBody` field for it lands when that is answered — noted because
+  [What travels](#what-travels-and-what-does-not) says a vault file carries it.
+- **Kind granularity is unresolved** ([open question 4](#open-questions)). The model treats
+  `ArtifactKind` as an opaque string, which is what lets that question be answered later without
+  changing any type drawn here.
 
 ## What exists today
 
