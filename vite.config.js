@@ -10,12 +10,16 @@ export default defineConfig({
     exclude: [...configDefaults.exclude, 'e2e/**'],
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'text-summary'],
-      thresholds: {
-        lines: 80,
-        statements: 80,
-        functions: 80,
-      },
+      reporter: ['text-summary', 'json-summary'],
+      // Without an explicit include, v8 reports only files a test happened to load, so a
+      // library nothing imports is absent from the report rather than counted as zero —
+      // which is exactly the case the gate needs to see.
+      include: ['src/lib/**/*.ts'],
+      exclude: ['src/lib/**/*.test.ts'],
+      // No project-wide threshold: a few thousand uncovered lines vanish into a large
+      // enough denominator, so one number cannot tell "a library has no tests" from
+      // "the codebase grew". scripts/check_library_coverage.ts enforces per library
+      // instead, and `npm run coverage:check` is what runs it.
     },
   },
 });

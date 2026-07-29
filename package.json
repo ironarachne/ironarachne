@@ -25,7 +25,8 @@
     "test:e2e:headed": "playwright test --headed",
     "format": "prettier --write .",
     "lint": "prettier --check . && eslint .",
-    "verify": "npm run check && npm run lint && npm run test",
+    "coverage:check": "npm run test:coverage && tsx scripts/check_library_coverage.ts",
+    "verify": "npm run check && npm run lint && npm run coverage:check",
     "verify:all": "npm run verify && npm run test:e2e"
   },
   "browserslist": [
