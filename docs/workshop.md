@@ -7,9 +7,10 @@ It covers the model the site is built on, how the pieces fit together, and — i
 [Tool release readiness](#tool-release-readiness) — the specification a tool must meet before it
 is considered finished.
 
-**Status:** proposal. A prototype of the workshop shell exists at `/workshop`
-(`src/routes/workshop/+page.svelte`), unlinked from navigation. Nothing else described here is
-built yet.
+**Status:** accepted; implementation not started. A prototype of the workshop shell exists at
+`/workshop` (`src/routes/workshop/+page.svelte`), unlinked from navigation. Nothing else described
+here is built yet. The work is broken down in [The plan](#the-plan) and tracked on Worktree under
+the `workshop` label.
 
 ## The shift
 
@@ -225,9 +226,17 @@ Three rules keep this from becoming a swamp:
 2. **References are by identity, not by copy.** Editing a religion updates every culture that
    follows it, because that is what a user means by "this culture follows _that_ religion". A
    user who wants divergence duplicates the artifact first.
-3. **Deleting a referenced artifact is a prompted decision.** The user is told what points at it
-   and chooses: block, or delete and leave the references dangling but visible. Silently breaking
-   links is not an option, and neither is refusing to ever delete anything.
+3. **Deleting a referenced artifact is a prompted decision, and dangling references are
+   tolerated.** The user is shown what points at the artifact and may delete it anyway; the
+   references that survive render as visibly broken rather than crashing their consumer, and
+   repairing one is a separate, explicit action. Silently breaking links is not an option, and
+   neither is refusing to ever delete anything.
+
+The alternative to rule 3 — blocking a delete until every referrer has been updated — is rejected
+because it collapses into never being able to delete. The cost of the rule as stated is that every
+consumer of a reference has to treat "the target is gone" as an ordinary state rather than an error
+path, and that a broken reference has to be visible where the artifact is shown rather than only in
+a validation pass someone has to run.
 
 Reference cycles are possible and acceptable — a realm's ruler is a character from that realm —
 so anything that walks references must tolerate them.
@@ -357,20 +366,102 @@ culture, and religion, which are approaching Beta. That is not a criticism of th
 the size of the gap between what exists and what the workshop needs, and it is better stated
 plainly than discovered one generator at a time.
 
-## Existing issues that need revisiting
+Nothing in the code records a tool's maturity today — `ToolDefinition` has no such field — so
+until it does, these levels are a paragraph in a document rather than something a user can see.
 
-Several open issues anticipate parts of this, but predate the workshop framing and describe a
-different shape. They should be re-scoped or closed in favour of work derived from this
-document rather than implemented as written.
+## The plan
 
-| Issue                                                                      | Relationship                                                                                                                                                                                                                                                                                                                                         |
-| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| #6 — a "world" container bundling saved artifacts                          | Superseded. This is the Project, but #6 describes it as a grouping bolted onto `/saved-data` rather than the primary context the site operates in.                                                                                                                                                                                                   |
-| #7 — persist output from all setting-building generators                   | Directionally right, wrong mechanism. It proposes extending the per-generator `*_saved_state.ts` pattern to every generator; the workshop replaces that with a generic project-scoped store. Implementing #7 as written would multiply the thing being removed.                                                                                      |
-| #1 — make `/saved-data` world-aware                                        | Superseded. `/saved-data` is replaced by the project view, not upgraded.                                                                                                                                                                                                                                                                             |
-| #3, #4, #5 — compose star systems, regions, and cultures from saved pieces | Right instinct, too narrow. These describe three bespoke cases; [Composition](#composition) generalises them. Worth keeping as motivating examples. Note #5's file references are already stale — the "Use a saved culture?" affordance now lives in `SavedCulturePicker.svelte`, used by three generators, not in `src/routes/region/+page.svelte`. |
-| #2 — reframe the civilization generator as setting flavor                  | Still valid and unaffected. Orthogonal to the workshop.                                                                                                                                                                                                                                                                                              |
-| #16, #17, #18, #19, #29 — entrypoints, declassing, tests, READMEs, imports | Unaffected, and now load-bearing: section 7 and section 8 of the readiness spec are largely these issues restated per tool.                                                                                                                                                                                                                          |
+The work below is derived from this document and tracked on Worktree under the `workshop` label.
+Phase boundaries are dependency boundaries, not dates.
+
+### First release
+
+The full spec applied to 35 tools is a very large body of work. The first release therefore proves
+the model end to end rather than applying it broadly: the shell, projects, the artifact store, and
+**three setting-building generators taken to Release-ready**.
+
+**Phase 1 — Foundation.** The model, with nothing depending on UI.
+
+| Issue                                                  | Depends on |
+| ------------------------------------------------------ | ---------- |
+| #31 — the project model and its local store            | —          |
+| #32 — the artifact kind registry and snapshot contract | —          |
+| #33 — the generic project-scoped artifact store        | #31, #32   |
+
+**Phase 2 — Durability.** Load-bearing rather than nice to have, because local-only means these
+are the only things standing between a user and losing their world.
+
+| Issue                                                        | Depends on |
+| ------------------------------------------------------------ | ---------- |
+| #34 — adopt existing saved heraldry, cultures, and religions | #33        |
+| #35 — project export and import as files                     | #33        |
+
+**Phase 3 — Surface.**
+
+| Issue                                                           | Depends on |
+| --------------------------------------------------------------- | ---------- |
+| #36 — the workshop shell: project context, panels, project view | #31, #33   |
+
+**Phase 4 — Composition and editing.** Where the workshop stops being a filing cabinet.
+
+| Issue                                          | Depends on |
+| ---------------------------------------------- | ---------- |
+| #37 — artifact references and a generic picker | #33        |
+| #39 — the artifact editing framework           | #33, #36   |
+
+**Phase 5 — Three tools to Release-ready.**
+
+| Issue            | Depends on |
+| ---------------- | ---------- |
+| #40 — culture    | #37, #39   |
+| #41 — religion   | #37, #39   |
+| #42 — settlement | #37, #39   |
+
+Independent of every phase and able to land at any point: **#43 — record tool maturity in the
+catalog.** Landing it early is better, because it makes the gap this document describes visible in
+the product while it is being closed rather than only in this file.
+
+### Why those three tools
+
+They were chosen to stress different parts of the model, not because they are the easiest:
+
+- **Culture** is the most-referenced kind on the site. It tests composition from the _referenced_
+  side, which is where "references are by identity, not by copy" actually bites.
+- **Religion** sits on both sides of a reference at once — it consumes a culture and is consumed by
+  one — so it is the honest test of cycle tolerance. Its pantheon is also the best available test
+  of editing one part without re-rolling the whole (requirement 4.4).
+- **Settlement** has no snapshot at all today. It is the only one of the three whose payload is
+  built against the registry contract from scratch rather than retrofitted from an existing
+  pattern, which is where an awkward contract will show up. Better discovered on the first tool
+  than the tenth.
+
+### Immediately after
+
+**#44 — retire `/saved-data`.** Blocked on #36 and #34, and deliberately held back by a release:
+the old page is the only fallback a user can reach if adoption has a bug, so it must not be removed
+in the same release that migrates the data.
+
+### Not in the first release
+
+- **#45 — storage limits.** Recorded rather than answered. It interacts directly with the artifact
+  store's keying decision, which is why #33 points at it.
+- **Every other tool.** Everything not named above stays Experimental. That is the honest state,
+  and #43 is what makes it legible.
+
+## Issues this document superseded
+
+Several issues predating the workshop framing described parts of it in a different shape. They have
+been closed in favour of work derived from this document, and are worth reading as motivating
+examples rather than as specifications.
+
+| Issue                                                                      | Disposition                                                                                                                                                                                                                                                                                    |
+| -------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #6 — a "world" container bundling saved artifacts                          | **Closed.** This is the Project, but #6 describes it as a grouping bolted onto `/saved-data` rather than the primary context the site operates in. Superseded by #31.                                                                                                                          |
+| #7 — persist output from all setting-building generators                   | **Closed.** Directionally right, wrong mechanism: it extends the per-generator `*_saved_state.ts` pattern to every generator, which multiplies exactly the thing the workshop removes. Superseded by #33.                                                                                      |
+| #1 — make `/saved-data` world-aware                                        | **Closed.** `/saved-data` is replaced by the project view, not upgraded. Superseded by #36, with the removal itself in #44.                                                                                                                                                                    |
+| #3, #4, #5 — compose star systems, regions, and cultures from saved pieces | **Closed.** Right instinct, too narrow — three bespoke cases of one mechanism. Superseded by #37. Note #5's file references were already stale: the "Use a saved culture?" affordance lives in `SavedCulturePicker.svelte`, used by three generators, not in `src/routes/region/+page.svelte`. |
+| #2 — reframe the civilization generator as setting flavor                  | **Open, unaffected.** Orthogonal to the workshop.                                                                                                                                                                                                                                              |
+| #16, #17, #18, #19, #29 — entrypoints, declassing, tests, READMEs, imports | **Open, and now load-bearing.** Sections 7 and 8 of the readiness spec are largely these issues restated per tool.                                                                                                                                                                             |
 
 ## Open questions
 
@@ -383,21 +474,28 @@ document is entitled to reopen.
 1. **Export format and granularity.** With no server, export is the only way work leaves a
    device, which makes it more important here than it would be elsewhere. Whole project or
    single artifact? A format that survives a `payloadVersion` bump, and that a user can
-   reasonably re-import into a newer build?
+   reasonably re-import into a newer build? _A proposed answer is in #35: both granularities, a
+   file format version distinct from any `payloadVersion`, and migration on import._
 2. **Storage limits.** Browser storage is finite and a project full of maps and heraldry is not
    small. What happens as a user approaches the ceiling, and whether the workshop should measure
-   and report usage before the browser starts refusing writes.
+   and report usage before the browser starts refusing writes. _Tracked in #45 and deliberately
+   left unanswered for the first release, but it constrains the artifact store's keying decision
+   in #33, so the two should be read together._
 3. **Panel layout persistence.** How much arrangement is remembered per project, and whether
    layouts are a user-visible concept or an implementation detail.
 4. **Artifact kind granularity.** The proposal splits kinds by game system for characters. Where
    else does that bite — is an SWN starship a `starship`, or is `starship.swn` the honest name?
-5. **Reference integrity on delete.** [Composition](#composition) proposes prompting the user.
-   Whether dangling references are ever tolerated, and how they surface, needs settling before
-   references ship.
-6. **Migration of existing saves.** Users have heraldry, cultures, and religions saved under
-   `ironarachne.save.v1.*` today. Adopting them into an implicit first project is proposed here;
-   the details are unspecified.
-7. **Scope of the first release.** The full spec applied to 35 tools is a very large body of
-   work. A plausible first cut is the workshop shell, projects, the artifact store, and three or
-   four setting-building generators taken to Release-ready — proving the model end to end before
-   it is applied broadly.
+   This needs settling before #32 registers a kind that would otherwise have to be renamed later,
+   because renaming a kind is itself a migration.
+5. **Migration of existing saves.** Users have heraldry, cultures, and religions saved under
+   `ironarachne.save.v1.*` today. _Answered in #34: adopted into a project on first run,
+   idempotently, with the legacy keys left in place as a fallback and provenance recorded as
+   absent rather than invented._
+
+### Settled since this document was first written
+
+- **Reference integrity on delete.** Prompt the user with what points at the artifact, allow the
+  delete, tolerate the resulting dangling references, and surface them as visibly broken. Recorded
+  in [Composition](#composition) and in #37.
+- **Scope of the first release.** The shell, projects, the artifact store, and culture, religion,
+  and settlement taken to Release-ready. Recorded in [The plan](#the-plan).
