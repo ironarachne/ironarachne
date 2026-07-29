@@ -49,7 +49,7 @@ Add entrypoints to sixteen libraries
 ```
 
 The body is prose in wrapped paragraphs, not bullets. It explains the problem first, then what the
-change does, then what it doesn't affect — a reader should learn *why* this change exists, since
+change does, then what it doesn't affect — a reader should learn _why_ this change exists, since
 the diff already shows what it does. Cite concrete call sites (`swn/starship.ts:2185-2214`) where
 they make the case. Note when behavior is deliberately unchanged, and note test changes and the
 reasoning behind them.

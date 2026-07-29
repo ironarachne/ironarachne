@@ -42,7 +42,7 @@ context — a diff hunk alone rarely tells you whether the change is correct.
    defeats code-splitting and pulls WebGL/PDF code into unrelated pages.
 5. **Style, per CODE_STYLE.md.** Functional style, no classes. Types live in their own
    `*_types.ts` file, separate from the functions that use them. No `any` (invalid test fixtures
-   go through `as unknown as T`). snake_case files and directories, PascalCase components,
+   go through `as unknown as T`). `snake_case` files and directories, PascalCase components,
    camelCase functions. Deliberately unused bindings are `_`-prefixed, not dropped. An
    `eslint-disable` is targeted and carries a reason.
 6. **Test coverage.** New library code in `src/lib/**` needs co-located `*.test.ts`. Flag tests
