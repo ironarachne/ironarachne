@@ -1,5 +1,9 @@
 name: CI
 
+# Workflows live in `.worktree/workflows` on Worktree.ca — not `.github` or `.forgejo`,
+# neither of which this host reads. Actions in the `actions/` namespace resolve bare;
+# anything else needs its full URL (`uses: https://github.com/owner/repo@vX`).
+#
 # `verify` is the fast gate: types, lint, unit tests. `e2e` is split out because it
 # does a full production build and drives a browser, so it is slower and fails for
 # different reasons. Keeping them separate gives two independent status checks to
