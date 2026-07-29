@@ -17,7 +17,8 @@ npm run verify             # the gate CI runs: check + lint + test, one exit cod
 npm run verify:all         # verify plus the full Playwright suite
 npm run test               # vitest run — all unit tests under src/lib/**
 npm run test -- <path>     # subset; prefer this while narrowing a failure
-npm run test:coverage      # coverage, 80% threshold on lines/statements/functions
+npm run test:coverage      # coverage; writes coverage/coverage-summary.json
+npm run coverage:check     # the above, then the per-library coverage gate (80% per library)
 npm run check              # svelte-kit sync + svelte-check (TS/Svelte type errors)
 npm run lint               # prettier --check . && eslint .
 npm run test:e2e           # Playwright: builds, serves preview on :4173, full suite
@@ -33,6 +34,10 @@ slow.
 
 Never run `npx stryker run` project-wide — it takes hours, and it doesn't support Svelte
 components. Mutation testing in this repo is run by humans against a single file.
+
+A coverage-gate failure is not a test failure — it means a library under `src/lib` is below 80%,
+or one carrying baselined debt got worse. Report which library and by how much. Never suggest
+editing `scripts/library_coverage_baseline.json` to clear it; that file only shrinks.
 
 ## Diagnosing
 

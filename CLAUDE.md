@@ -12,8 +12,9 @@ isn't obvious from a single file.
 ## Commands
 
 ```bash
-npm run verify             # the gate: check + lint + test, one exit code (~35s)
+npm run verify             # the gate: check + lint + tests + coverage, one exit code (~40s)
 npm run verify:all         # verify plus the full Playwright suite
+npm run coverage:check     # tests with coverage, then the per-library coverage gate
 
 npm run dev              # dev server
 npm run build             # production build (static adapter)
@@ -22,7 +23,7 @@ npm run check              # svelte-kit sync + svelte-check (TS/Svelte type erro
 
 npm run test               # vitest run (all unit tests, src/lib/**)
 npm run test -- mypath     # run a subset of unit tests — prefer this while iterating
-npm run test:coverage      # vitest with coverage (80% lines/statements/functions threshold)
+npm run test:coverage      # vitest with coverage; writes coverage/coverage-summary.json
 
 npm run test:e2e           # Playwright: builds, serves preview on :4173, runs full suite
 npm run test:e2e:desktop   # Chromium only
@@ -47,6 +48,16 @@ Notes:
   Worktree.ca reads workflows from `.worktree/workflows` only — `.github` and `.forgejo` are
   both ignored, and a workflow in either is silently never run. Actions under `actions/`
   resolve bare; any other action needs its full URL. See https://docs.worktree.ca/code/actions/.
+- **Coverage is enforced per library, not project-wide.** `scripts/check_library_coverage.ts`
+  requires every directory under `src/lib` to reach 80% line and function coverage. The
+  exception is the debt recorded in `scripts/library_coverage_baseline.json`: those libraries
+  were already below the bar when the gate was added, and each is pinned at the figure it had,
+  so it cannot get worse. That file is meant only to shrink — when a library reaches 80% the
+  gate tells you to delete its entry. **Never add an entry or lower one to make a run pass**;
+  a new library below the bar needs tests, and exempting it is the single thing the gate exists
+  to prevent. Note that `vite.config.js` sets `coverage.include` deliberately: without it v8
+  reports only files some test happened to load, so an untested library is missing from the
+  report rather than showing as zero.
 - Unit tests (Vitest) live beside their source in `src/lib/**/*.test.ts` and are excluded from
   e2e collection. E2e tests (Playwright) live in `e2e/` and run against a built+served preview,
   not the dev server.
