@@ -13,6 +13,8 @@ to change based on your report.
 ## Commands
 
 ```bash
+npm run verify             # the gate CI runs: check + lint + test, one exit code (~35s)
+npm run verify:all         # verify plus the full Playwright suite
 npm run test               # vitest run — all unit tests under src/lib/**
 npm run test -- <path>     # subset; prefer this while narrowing a failure
 npm run test:coverage      # coverage, 80% threshold on lines/statements/functions
@@ -23,9 +25,11 @@ npm run test:e2e:desktop   # Chromium only
 npm run test:e2e:mobile    # phone-width projects (320/360/375/390/430px)
 ```
 
-Scope to what the caller asked for. Absent direction, `npm run test` and `npm run check` are the
-default pair — they are fast and catch most of what breaks. Run e2e only when asked or when the
-change touches routes, components, or rendering, since it does a full build first and is slow.
+Scope to what the caller asked for. Absent direction, `npm run verify` is the default — it is
+what CI runs, so its result is the one that decides whether a PR can merge. Fall back to the
+individual commands when you are narrowing a specific failure. Run e2e only when asked or when
+the change touches routes, components, or rendering, since it does a full build first and is
+slow.
 
 Never run `npx stryker run` project-wide — it takes hours, and it doesn't support Svelte
 components. Mutation testing in this repo is run by humans against a single file.

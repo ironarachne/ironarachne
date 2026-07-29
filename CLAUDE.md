@@ -12,6 +12,9 @@ isn't obvious from a single file.
 ## Commands
 
 ```bash
+npm run verify             # the gate: check + lint + test, one exit code (~35s)
+npm run verify:all         # verify plus the full Playwright suite
+
 npm run dev              # dev server
 npm run build             # production build (static adapter)
 npm run preview           # preview a production build
@@ -35,6 +38,15 @@ npx stryker run -m src/lib/my_dir/my_file.ts   # mutation test one file (see not
 
 Notes:
 
+- `npm run verify` is the definition of done for a change, and it is what CI runs. It must be
+  green on `main` at all times — `svelte-check` reporting anything other than `0 ERRORS` is a
+  bug to fix, not noise to step around, because a gate nobody trusts is not a gate. Run
+  `verify:all` as well when the change touches routes, components, or rendering.
+- CI lives in `.worktree/workflows/ci.yaml` and runs on every PR to `main`. It is two jobs:
+  `verify` (fast) and `e2e` (full build plus a browser), so they report as independent checks.
+  Worktree.ca reads workflows from `.worktree/workflows` only — `.github` and `.forgejo` are
+  both ignored, and a workflow in either is silently never run. Actions under `actions/`
+  resolve bare; any other action needs its full URL. See https://docs.worktree.ca/code/actions/.
 - Unit tests (Vitest) live beside their source in `src/lib/**/*.test.ts` and are excluded from
   e2e collection. E2e tests (Playwright) live in `e2e/` and run against a built+served preview,
   not the dev server.
