@@ -3,6 +3,8 @@ import ADNDCharacter from './adndcharacter';
 import { buildAdndCharacterPdf } from './render_adnd_character_pdf';
 import ADNDClass from './adndclass';
 import ADNDRace from './adndrace';
+import ADNDArmor from './adndarmor';
+import ADNDWeapon from './adndweapon';
 
 function createTestCharacter(): ADNDCharacter {
   const character = new ADNDCharacter();
@@ -56,15 +58,9 @@ function createTestCharacter(): ADNDCharacter {
   character.npcReactionAdjustment = 0;
   character.abilities = ['Infravision 60 ft'];
   character.weapons = [
-    {
-      name: 'long sword',
-      damageType: 'slashing',
-      damageSM: '1d8',
-      damageL: '1d12',
-      speedFactor: 5,
-    },
+    new ADNDWeapon('long sword', 15 * 100, 4, 'medium', 'slashing', 5, '1d8', '1d12', 'sword'),
   ];
-  character.armor = [{ name: 'chain mail', ac: 5 }];
+  character.armor = [new ADNDArmor('chain mail', -6, 40, 75 * 100)];
   character.spells = [];
   character.weaponProficiencyGroups = ['long sword'];
   character.nonweaponProficiencies = ['Riding, Land-Based'];
