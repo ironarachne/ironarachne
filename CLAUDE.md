@@ -108,6 +108,51 @@ loaded via `vite-plugin-glsl`), `graphics`/`visual_identity`/`heraldry`/`disc_em
 with `xmlbuilder2`), and `pdf`/`download` (jsPDF export). If you touch one of these, check for a
 matching `scripts/render_*.ts` CLI entry point used to preview output outside the browser.
 
+## Design process
+
+Larger features are designed before they are built. "Larger" means anything that introduces a new
+library or a new concept, spans more than one library, or changes the shape of data that is
+persisted or handed between libraries. A bug fix, another entry in an existing data table, or a
+change confined to a single component is not larger — those go straight to implementation.
+
+The sequence is:
+
+1. **Design document** — a markdown file in `docs/`, stating the problem, the shape of the solution,
+   and the decisions taken. Follow the existing ones (`docs/workshop.md`,
+   `docs/crafting-system.md`), including a `**Status:**` line saying whether the document is a
+   proposal, accepted, or implemented.
+
+2. **Domain model** — a `## Domain model` section in that same document, expressing the feature's
+   types and their relationships as one or more [Mermaid](https://mermaid.js.org/) class diagrams.
+   Model the nouns, not the call flow: fields with their TypeScript types, associations with
+   cardinality, and variants. What the diagram declares is what the implementation's `*-types.ts`
+   files will declare, so this is where the data shape gets settled.
+
+   ````markdown
+   ```mermaid
+   classDiagram
+       class Project {
+           +string id
+           +string name
+       }
+       class Artifact {
+           +string id
+           +ArtifactKind kind
+       }
+       Project "1" o-- "*" Artifact : contains
+       Artifact "*" --> "*" Artifact : references
+   ```
+   ````
+
+   Split a model into several diagrams when one grows too dense to read; a diagram nobody can follow
+   defeats the point.
+
+3. **Human review** — a human reads the diagrams and explicitly approves them. **Implementation does
+   not start before that approval.** Reworking a class diagram costs minutes; reworking the types it
+   would have caught costs a great deal more.
+
+Break a design into work items only after the model is approved.
+
 ## Git workflow
 
 - Remote is Worktree.ca (Forgejo) — use the worktree MCP tool for PRs/issues, not `gh` or other
