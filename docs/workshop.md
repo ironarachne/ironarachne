@@ -211,6 +211,200 @@ Storage is browser storage plus explicit file export/import, per
 load-bearing rather than nice to have: they are the only things standing between a user and
 losing their world.
 
+## Export and import
+
+Everything a user has made lives in one browser profile on one machine, so a file is the only
+copy that survives clearing site data, replacing a laptop, or a browser deciding on its own that
+a site's storage is evictable. Export is not a convenience feature here; it is the backup story,
+the migration story, and the sharing story at once.
+
+[Local only](#local-only) asks that export be "obvious, cheap, and complete". Per-project export
+satisfies the first two and fails the third: a user with six projects has to remember to export
+six files, and the one they forget is the one they lose. **Completeness needs a granularity above
+the project** — one file that is the whole vault.
+
+### Three granularities, one format
+
+The vault is everything the user has saved: every project, and every artifact in every project.
+
+| Scope        | Contains                                                    | What it is for                                                          |
+| ------------ | ----------------------------------------------------------- | ----------------------------------------------------------------------- |
+| **Vault**    | Every project and every artifact, plus project-scoped state | Backup, moving to a new machine, handing someone your whole world.      |
+| **Project**  | One project and the artifacts in it                         | Sharing a setting, archiving a finished campaign.                       |
+| **Artifact** | One artifact                                                | Handing over a single culture or coat of arms; moving between projects. |
+
+These are **one file format with a `scope` discriminator**, not three formats. One envelope, one
+`formatVersion`, one parser, one migration chain, one vocabulary of error messages. Three formats
+would triple the migration surface, and migration is the part of a local-only application that has
+no server to fix it after the fact.
+
+The envelope carries:
+
+| Field           | Purpose                                                                                         |
+| --------------- | ----------------------------------------------------------------------------------------------- |
+| format marker   | Identifies the file as ours before anything else is trusted.                                    |
+| `formatVersion` | The file format's own version, **distinct from any artifact's `payloadVersion`**.               |
+| `scope`         | `vault`, `project`, or `artifact`. Determines the shape of the body.                            |
+| `exportedAt`    | Timestamp, for the user's benefit when a Downloads folder holds five of these.                  |
+| `appVersion`    | Which build wrote it. Diagnostics only; never a gate on import.                                 |
+| `vaultId`       | A random id for the originating browser profile, so import can recognise a file as one of ours. |
+| `checksum`      | Over the canonical body, so truncation is reported as damage rather than as a syntax error.     |
+
+Two rules follow from having one format:
+
+1. **Every import entry point accepts every scope.** A user who drags a vault file onto "import
+   project" gets their vault imported, not a lecture about the wrong button. The file declares
+   what it is; the application reads it.
+2. **The body is emitted in a stable order** — fixed key order, artifacts sorted by id — so two
+   exports of an unchanged vault differ only in the header. A user who keeps backups in a folder
+   or a git repository can diff them, and we get a free equality check in tests.
+
+`payloadVersion` migration is unchanged by any of this: on import, every artifact payload routes
+through the kind registry's migration path exactly as it does on read. The file format version
+governs the envelope; the kind governs the payload.
+
+### What a vault export is for
+
+Naming the cases, because they are what the failure states have to be measured against:
+
+- **Backup.** Before clearing site data, before a browser update, or just periodically because
+  the user has been burned before.
+- **A new machine.** Export on the old one, import on the new one, carry on.
+- **A different browser**, including moving out of a private window before it closes and takes
+  everything with it.
+- **Recovering after loss.** Storage was cleared or evicted; the vault file is the only copy left.
+- **Handing over everything** to a co-GM or a group archive.
+- **Making room.** Export the vault, delete the projects you are not running, keep the file — the
+  answer to a storage ceiling that does not involve losing anything.
+- **Bug reports.** A vault file reproduces a user's exact state. It also contains everything they
+  have ever written on the site, which is worth saying out loud before we ever ask for one.
+
+### Importing
+
+Two modes, and the distinction is the whole design:
+
+| Mode                  | Effect                                                                       | When                                             |
+| --------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------ |
+| **Restore** (replace) | The vault becomes what is in the file. Anything not in the file is gone.     | Recovering, or moving to a machine with no work. |
+| **Merge** (add)       | Every project in the file is added alongside what is there, as new projects. | Combining two machines, taking someone's world.  |
+
+Restore is destructive and must say so in the user's terms — "this removes 4 projects and 212
+artifacts" — not in the abstract. Before it writes, it exports the current vault to a file
+automatically. That download **is** the undo, and it costs nothing to produce in an application
+where the whole vault is already in memory.
+
+Merge never writes into an existing project. Reconciling a file's version of a project against the
+one already in storage is a sync problem: it needs causal history the format does not carry and
+cannot invent, and every shortcut for it — last-write-wins, newest-timestamp, field-level union —
+quietly destroys somebody's edits. **It is not built**, and this is the same reason
+[Local only](#local-only) rules out collaboration.
+
+Two projects ending up with the same name is fine and expected; names were never unique. The
+imported one is marked as imported so the user can tell them apart, and renaming is theirs to do.
+
+#### Identity on merge
+
+Artifact ids are referenced by other artifacts, which makes id handling the part of merge that
+silently corrupts data if it is done casually — and the obvious case is a user importing a backup
+taken from the same browser, where every id in the file already exists in the vault.
+
+- Restore preserves ids. It is replacing the vault, so there is nothing to collide with.
+- Merge **remints every id** and rewrites the reference graph through the old-to-new map, so a
+  culture that pointed at a religion still points at that religion and not at the one already in
+  storage under the same id.
+- A reference whose target is absent from the file stays absent. Broken references are
+  [tolerated and visible](#composition) rather than repaired by guessing, and an import is exactly
+  the wrong moment to start guessing.
+- Ids duplicated _within_ a single file mean the file is internally inconsistent. Both copies are
+  kept under new ids and the fact is reported, because we do not know which one the user wanted.
+
+Because the envelope carries `vaultId`, import can tell the user that a file came from this
+browser and offer Restore as the likely intent — the difference between "restore my backup" and
+"duplicate all my work" should not rest on the user picking the right radio button. The id is
+random and says nothing about who the user is, but it is stable and it travels in any file they
+share, which is the honest cost of that affordance.
+
+### Two invariants
+
+Everything in the failure table below is an application of one of these.
+
+1. **Commit is all or nothing.** The import is parsed, migrated, and validated into a staged
+   result in memory, and only then written. A file that fails at artifact 900 of 1000 leaves
+   storage exactly as it was. A half-imported vault is worse than a rejected file, because the
+   user cannot tell it happened.
+2. **Nothing is dropped silently.** Data this build cannot interpret is **quarantined** — kept
+   verbatim, listed, exportable, marked unreadable — not discarded. The two tempting alternatives
+   are both wrong: dropping it destroys work, and rejecting the whole file because one artifact is
+   unrecognised makes a 200-artifact backup unusable over a single bad record.
+
+Quarantine is what makes an unknown `kind` survivable. A file written by a newer build, or by a
+build that still had a tool we have since removed, imports; the artifacts we understand work
+normally, and the ones we do not are still there when a build that understands them arrives.
+
+### Failure states
+
+**Reading the file**
+
+| Condition                                       | Response                                                                                                                                                       |
+| ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Not JSON, or truncated                          | Rejected as damaged, naming the file. Truncation is the common end of an interrupted download and reads as "damaged", not as a parse error at character 40119. |
+| Valid JSON, not one of ours                     | Rejected as "not an Iron Arachne file" — a different message from damaged, because it is a different mistake.                                                  |
+| Checksum mismatch                               | **Warn, do not block.** Hand-editing a backup is a legitimate thing to do with your own file; we say it looks altered or damaged and let the user proceed.     |
+| `formatVersion` older than this build           | Migrated forward through the envelope's own chain, then payloads migrate per kind. This is the case the format exists for.                                     |
+| `formatVersion` newer than this build           | Rejected, with the reason: the file came from a newer version, reload the site and retry. Never partially read — a newer envelope may mean anything.           |
+| Unknown artifact `kind`                         | Quarantined. The rest of the file imports.                                                                                                                     |
+| A payload fails validation or its migration     | That artifact is quarantined with its raw payload. The rest of the file imports.                                                                               |
+| Artifact whose project is missing from the file | Attached to a generated "Recovered artifacts" project rather than dropped.                                                                                     |
+| Reference cycles                                | Fine. Anything walking references [tolerates them](#composition) already.                                                                                      |
+| A vault containing zero projects                | Valid. Reported as empty rather than reported as success, so the user knows they exported nothing.                                                             |
+| Gzipped file                                    | Accepted. Import sniffs for it, so compressed and plain files both work and the user never has to know which they have.                                        |
+
+**Writing the vault**
+
+| Condition                             | Response                                                                                                                                                                           |
+| ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| The import will not fit in storage    | Checked _before_ writing, from the file's own size and `navigator.storage.estimate()` where available. Refused up front with what would be needed, not discovered at artifact 900. |
+| `QuotaExceededError` during the write | Rolled back to the pre-import state. The estimate is an estimate; the rollback is what makes it safe to be wrong. See storage limits in [Open questions](#open-questions).         |
+| Storage unavailable or blocked        | Reported plainly, including that nothing was saved. Some browsers offer storage that is silently discarded — better to say so than to let a user believe an import worked.         |
+| The site is open in another tab       | Detected and warned before importing. Two tabs writing the vault clobber each other, and a restore in one tab under a workshop open in another is the worst version of it.         |
+| A restore lands under an open project | The workshop reloads its context afterwards. Panels must not be left bound to artifact ids the restore has removed.                                                                |
+| A large import stalls the main thread | Progress is shown and the import is interruptible before commit. Nothing is written until it completes, so cancelling costs nothing.                                               |
+
+**Producing the file**
+
+| Condition                                  | Response                                                                                                                                                                                                                 |
+| ------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Storage holds malformed or legacy data     | It is exported verbatim anyway. A backup that refuses to back up the data you most need recovered is exactly backwards.                                                                                                  |
+| An artifact's payload cannot be serialised | Reported in the export summary rather than throwing. `strip_function_values_deep` already exists for the closure case.                                                                                                   |
+| The browser blocks the download            | Fall back to showing the file for copy, so a download-blocking browser or an unusual mobile context is not a dead end.                                                                                                   |
+| The vault is very large                    | Compression via `CompressionStream` is available without a dependency, and is worth taking when size demands it — deferred, not designed away, and the import sniffing above is what keeps it a non-event when it lands. |
+| The file lands in a folder with ten others | Named `ironarachne-vault-YYYY-MM-DD.json`, so it sorts and reads correctly. Project exports carry the project slug.                                                                                                      |
+
+Every import ends in a **summary the user can read and copy**: projects added, artifacts added,
+artifacts quarantined and why, names that collided, ids reminted. "Import complete" is not a
+result; it is a way of not saying what happened.
+
+### What travels and what does not
+
+A vault file carries the user's _work_: projects, artifacts, tags, provenance, references, and
+project-scoped state such as panel arrangement if [that is persisted](#open-questions).
+
+It does not carry device-scoped preferences — theme, last-opened project, anything about how this
+browser is set up. Restoring a backup should not change the colour of the site, and a file handed
+to another person should not reach into their settings.
+
+### Legacy save files
+
+`src/lib/persistent_save/save_file_export.ts` already exports and imports today, but its unit is
+storage scopes rather than projects and artifacts, and it checks `SAVE_EXPORT_FORMAT_VERSION` with
+strict equality — which turns the first version bump into rejection of every file already in
+users' hands.
+
+Vault import **must accept those files**, routing them through the same adoption path as
+[#34](#the-plan) so a backup made today still restores in two years. That is the whole point of
+having a version field, and the existing exporter is retired only once its files can be read by
+its replacement.
+
 ## Composition
 
 Composition is the payoff, and it is what makes this a workshop rather than a filing cabinet.
@@ -254,6 +448,7 @@ absence of a workshop suggests.
 | Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                             |
 | Scoped storage             | **Built, wrong scope.** Per-generator, not per-project.                                                                                                             |
 | Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                  |
+| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                       |
 | Projects                   | **Not built.**                                                                                                                                                      |
 | Generic artifact store     | **Not built.**                                                                                                                                                      |
 | Artifact editing           | **Not built.** Two tools are editors; neither edits a saved artifact.                                                                                               |
@@ -394,7 +589,13 @@ are the only things standing between a user and losing their world.
 | Issue                                                        | Depends on |
 | ------------------------------------------------------------ | ---------- |
 | #34 — adopt existing saved heraldry, cultures, and religions | #33        |
-| #35 — project export and import as files                     | #33        |
+| #35 — project and artifact export and import as files        | #33        |
+| #47 — whole-vault export and import as a single file         | #35        |
+
+#47 follows #35 rather than replacing it: #35 establishes the envelope and the migration chain, and
+#47 adds the `vault` scope on top of the same format. It is in the first release because a backup
+you have to remember to take six times is not the "obvious, cheap, and complete" export that
+[Local only](#local-only) promises.
 
 **Phase 3 — Surface.**
 
@@ -471,16 +672,18 @@ Accounts, sync, hosted sharing, and collaboration are **not** on this list. They
 [Local only](#local-only), which is a principle of the application rather than a decision this
 document is entitled to reopen.
 
-1. **Export format and granularity.** With no server, export is the only way work leaves a
-   device, which makes it more important here than it would be elsewhere. Whole project or
-   single artifact? A format that survives a `payloadVersion` bump, and that a user can
-   reasonably re-import into a newer build? _A proposed answer is in #35: both granularities, a
-   file format version distinct from any `payloadVersion`, and migration on import._
+1. **Export format and granularity.** _Answered in [Export and import](#export-and-import), and
+   tracked in #35 and #47:_ three granularities — vault, project, artifact — expressed as a `scope`
+   discriminator on **one** file format, with a file format version distinct from any
+   `payloadVersion` and migration on import. What remains open is not the shape but the ceiling:
+   see storage limits below.
 2. **Storage limits.** Browser storage is finite and a project full of maps and heraldry is not
    small. What happens as a user approaches the ceiling, and whether the workshop should measure
    and report usage before the browser starts refusing writes. _Tracked in #45 and deliberately
    left unanswered for the first release, but it constrains the artifact store's keying decision
-   in #33, so the two should be read together._
+   in #33, so the two should be read together._ Vault import (#47) meets the ceiling head-on — it
+   is the one operation that can double a vault in a single write — which is why it estimates
+   before writing and rolls back if the estimate was wrong, rather than waiting on this question.
 3. **Panel layout persistence.** How much arrangement is remembered per project, and whether
    layouts are a user-visible concept or an implementation detail.
 4. **Artifact kind granularity.** The proposal splits kinds by game system for characters. Where
