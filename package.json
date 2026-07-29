@@ -24,7 +24,9 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "format": "prettier --write .",
-    "lint": "prettier --check . && eslint ."
+    "lint": "prettier --check . && eslint .",
+    "verify": "npm run check && npm run lint && npm run test",
+    "verify:all": "npm run verify && npm run test:e2e"
   },
   "browserslist": [
     "> 1%",

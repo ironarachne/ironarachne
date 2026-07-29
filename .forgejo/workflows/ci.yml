@@ -1,0 +1,43 @@
+name: CI
+
+# `verify` is the fast gate: types, lint, unit tests. `e2e` is split out because it
+# does a full production build and drives a browser, so it is slower and fails for
+# different reasons. Keeping them separate gives two independent status checks to
+# require on `main`, and lets the fast one report while the slow one is still going.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      - run: npm run verify
+
+  e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      # Every Playwright project in playwright.config.ts is Chromium-backed — the
+      # mobile ones are Chromium device emulation — so this is the only browser needed.
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e
