@@ -169,3 +169,45 @@ Break a design into work items only after the model is approved.
 
 - Remote is Worktree.ca (Forgejo) — use the worktree MCP tool for PRs/issues, not `gh` or other
   GitHub-only tooling.
+- `main` is protected on the remote: direct pushes are rejected, and a PR cannot merge until
+  `CI / verify (pull_request)` and `CI / e2e (pull_request)` both report green. Work on a branch
+  and open a PR; there is no path that bypasses this.
+
+## Agent configuration
+
+`.claude/settings.json` is checked in and applies to everyone. It holds the shared permission
+allowlist — this project's own tooling and the worktree MCP calls the workflow depends on — plus
+three hooks:
+
+- **Format on edit** (`PostToolUse` on `Write|Edit`) runs Prettier on the file just written, so
+  formatting never becomes a review comment or a failed `lint` in CI.
+- **Protected-branch guard** (`PreToolUse` on `Bash`, `.claude/hooks/guard_protected_branch.sh`)
+  refuses a commit, merge, rebase, cherry-pick, or revert while on `main`/`master`, refuses any
+  force-push, and refuses a push aimed at a protected branch. `git pull` is deliberately allowed —
+  fast-forwarding `main` is how you keep it current.
+- **Secret scan** (`PreToolUse` on `Bash`, `.claude/hooks/scan_staged_secrets.sh`) inspects what a
+  `git commit` is about to record and refuses recognisable credentials: AWS keys, private key
+  blocks, GitHub/Slack/npm/PyPI tokens, long values assigned to a `password`/`secret`/`token`
+  variable, and files such as `.env`, `*.pem`, or `id_rsa`. Only added lines are scanned.
+
+Both guards fail open — if the script itself errors, the command proceeds. A guard that blocked all
+work whenever it broke would be turned off, and then it would guard nothing. They are a safety net
+for the ordinary mistake, not a barrier against a determined bypass; the binding controls are
+branch protection and required status checks on the remote.
+
+Note that the branch guard reads the branch of the _hook's_ working directory. A command that
+`cd`s into a different repository before committing is not covered.
+
+Each guard locates its script by trying the working directory first and `$CLAUDE_PROJECT_DIR`
+second, and runs nothing if neither has it. That matters because `$CLAUDE_PROJECT_DIR` points at
+the main checkout even when the session is in a worktree under `.claude/worktrees/`, so resolving
+it alone would miss the scripts there — and invoking a path that does not exist reports a hook
+error on every single Bash call rather than failing quietly.
+
+Changing `.claude/settings.json` mid-session does not reliably take effect: the settings watcher
+only picks up directories that already had a settings file when the session started. Open `/hooks`
+once, or restart, after editing it.
+
+Personal, machine-specific permissions belong in `.claude/settings.local.json`, which is gitignored
+— keep broad rules such as bare interpreters out of the shared file. Put nothing secret in either;
+neither file is a place for credentials.

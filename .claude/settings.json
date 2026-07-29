@@ -1,0 +1,87 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run *)",
+      "Bash(npm test *)",
+      "Bash(npm ci)",
+      "Bash(npm install)",
+      "Bash(npx --no-install prettier *)",
+      "Bash(npx prettier *)",
+      "Bash(npx eslint *)",
+      "Bash(npx vitest *)",
+      "Bash(npx playwright *)",
+      "Bash(npx svelte-check *)",
+      "Bash(npx svelte-kit *)",
+      "Bash(npx tsc *)",
+      "Bash(npx vite *)",
+      "Bash(npx vite-node *)",
+      "Bash(npx tsx *)",
+      "Bash(git status *)",
+      "Bash(git diff *)",
+      "Bash(git log *)",
+      "Bash(git show *)",
+      "Bash(git branch *)",
+      "Bash(git checkout *)",
+      "Bash(git switch *)",
+      "Bash(git fetch *)",
+      "Bash(git pull *)",
+      "Bash(git add *)",
+      "Bash(git restore *)",
+      "Bash(git stash *)",
+      "Bash(git rev-parse *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "mcp__worktree__list_repo_issues",
+      "mcp__worktree__get_issue_by_index",
+      "mcp__worktree__list_issue_comments",
+      "mcp__worktree__list_repo_labels",
+      "mcp__worktree__list_repo_pull_requests",
+      "mcp__worktree__get_pull_request_by_index",
+      "mcp__worktree__get_pull_request_diff",
+      "mcp__worktree__list_pull_request_files",
+      "mcp__worktree__list_branch_protections",
+      "mcp__worktree__create_issue",
+      "mcp__worktree__create_issue_comment",
+      "mcp__worktree__add_issue_labels",
+      "mcp__worktree__remove_issue_labels",
+      "mcp__worktree__add_issue_dependency",
+      "mcp__worktree__issue_state_change",
+      "mcp__worktree__create_pull_request",
+      "mcp__worktree__update_pull_request"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "for d in . \"${CLAUDE_PROJECT_DIR:-.}\"; do s=\"$d/.claude/hooks/guard_protected_branch.sh\"; [ -f \"$s\" ] && exec bash \"$s\"; done; exit 0",
+            "timeout": 10,
+            "statusMessage": "Checking branch"
+          },
+          {
+            "type": "command",
+            "command": "for d in . \"${CLAUDE_PROJECT_DIR:-.}\"; do s=\"$d/.claude/hooks/scan_staged_secrets.sh\"; [ -f \"$s\" ] && exec bash \"$s\"; done; exit 0",
+            "timeout": 15,
+            "statusMessage": "Scanning staged changes for secrets"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "jq -r '.tool_response.filePath // .tool_input.file_path // empty' | { read -r f || exit 0; npx --no-install prettier --write --ignore-unknown \"$f\"; } >/dev/null 2>&1 || true",
+            "timeout": 30,
+            "statusMessage": "Formatting"
+          }
+        ]
+      }
+    ]
+  }
+}
