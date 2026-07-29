@@ -3,6 +3,7 @@ import { RNG } from '@ironarachne/rng';
 import * as Environments from '$lib/environment/environments';
 import { getDefaultOrganizationCharacterConfig } from '$lib/organizations/fantasy';
 import { getOrganizationKindsForRegistry } from '$lib/organizations/kind_registry';
+import type { SettlementEconomicRole } from './settlement_types';
 import {
   buildSettlementOrganizationKindPool,
   generateSettlementOrganizations,
@@ -14,7 +15,13 @@ function sampleEnvironment(seed: string) {
   return Environments.generate(cfg);
 }
 
-const ECONOMIC_ROLES = ['agrarian', 'market', 'industrial', 'extractive', 'mixed'] as const;
+const ECONOMIC_ROLES: SettlementEconomicRole[] = [
+  'agrarian',
+  'market',
+  'industrial',
+  'extractive',
+  'mixed',
+];
 
 describe('generateSettlementOrganizations', () => {
   it('never offers science-fiction kinds in the fantasy kind pool', () => {

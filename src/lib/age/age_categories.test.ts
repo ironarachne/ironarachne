@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { RNG } from '@ironarachne/rng';
+import type { RNG, WeightedEntry } from '@ironarachne/rng';
 import type AgeCategory from './age_category';
 import {
   getCategoryList,
@@ -364,14 +364,16 @@ describe('humanStandard', () => {
 describe('randomWeighted', () => {
   const categories = humanStandard();
 
+  /**
+   * `randomWeighted` only ever reaches for `rng.weighted`, so the stub implements that alone.
+   * `RNG` is a class with private state that an object literal cannot satisfy, hence the cast.
+   */
+  function weightedOnlyRng(weighted: (items: WeightedEntry<AgeCategory>[]) => AgeCategory): RNG {
+    return { weighted } as unknown as RNG;
+  }
+
   it('filters categories by names array', () => {
-    const mockRng: RNG = {
-      weighted: (items) => items[0].value,
-      int: () => 0,
-      float: () => 0,
-      bool: () => true,
-      pick: (items) => items[0],
-    };
+    const mockRng = weightedOnlyRng((items) => items[0].value);
 
     const names = ['infant', 'adult'];
     const result = randomWeighted(names, categories, mockRng);
@@ -379,18 +381,12 @@ describe('randomWeighted', () => {
   });
 
   it('uses commonality for weighting', () => {
-    const items: { commonality: number; value: AgeCategory }[] = [];
+    const items: WeightedEntry<AgeCategory>[] = [];
 
-    const mockRng: RNG = {
-      weighted: (passedItems) => {
-        items.push(...passedItems);
-        return passedItems[0].value;
-      },
-      int: () => 0,
-      float: () => 0,
-      bool: () => true,
-      pick: (items) => items[0],
-    };
+    const mockRng = weightedOnlyRng((passedItems) => {
+      items.push(...passedItems);
+      return passedItems[0].value;
+    });
 
     const names = ['infant', 'adult'];
     randomWeighted(names, categories, mockRng);
@@ -401,13 +397,7 @@ describe('randomWeighted', () => {
   });
 
   it('returns category from filtered list', () => {
-    const mockRng: RNG = {
-      weighted: (items) => items[items.length - 1].value,
-      int: () => 0,
-      float: () => 0,
-      bool: () => true,
-      pick: (items) => items[0],
-    };
+    const mockRng = weightedOnlyRng((items) => items[items.length - 1].value);
 
     const names = ['child', 'teenager'];
     const result = randomWeighted(names, categories, mockRng);
@@ -415,13 +405,7 @@ describe('randomWeighted', () => {
   });
 
   it('handles single name in array', () => {
-    const mockRng: RNG = {
-      weighted: (items) => items[0].value,
-      int: () => 0,
-      float: () => 0,
-      bool: () => true,
-      pick: (items) => items[0],
-    };
+    const mockRng = weightedOnlyRng((items) => items[0].value);
 
     const names = ['elderly'];
     const result = randomWeighted(names, categories, mockRng);
@@ -429,13 +413,7 @@ describe('randomWeighted', () => {
   });
 
   it('handles all category names', () => {
-    const mockRng: RNG = {
-      weighted: (items) => items[0].value,
-      int: () => 0,
-      float: () => 0,
-      bool: () => true,
-      pick: (items) => items[0],
-    };
+    const mockRng = weightedOnlyRng((items) => items[0].value);
 
     const names = categories.map((c) => c.name);
     const result = randomWeighted(names, categories, mockRng);

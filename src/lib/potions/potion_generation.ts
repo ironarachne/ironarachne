@@ -1,7 +1,7 @@
 import { RNG } from '@ironarachne/rng';
 import { generateRandomContainer } from '$lib/equipment/containers';
 import { DENSITY_MAP } from '$lib/equipment/equipment_types';
-import type { Rarity } from '$lib/equipment/equipment_types';
+import type { DensityCategory, Rarity } from '$lib/equipment/equipment_types';
 import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic/types';
 import {
   filterCatalogEntries,
@@ -91,7 +91,7 @@ export function generatePotion(
   const container = generateRandomContainer(`${seed}-container`, config.containerConfig);
   const fillPercentage = rng.int(80, 100) / 100;
   const volume = parseFloat((container.maxVolume * fillPercentage).toFixed(2));
-  const densityCategory = resolved.entry.form === 'oil' ? 'standard' : 'standard';
+  const densityCategory: DensityCategory = 'standard';
   const density = DENSITY_MAP[densityCategory];
   const weight = parseFloat((volume * density).toFixed(2));
   const catalogId = resolved.variant?.id ?? resolved.entry.id;
@@ -122,6 +122,7 @@ export function generatePotion(
       canonicalName,
       sensory,
       effect,
+      modifications,
     },
     resolved.entry.form,
   );
