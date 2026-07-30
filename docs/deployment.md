@@ -148,6 +148,12 @@ both were learned by hitting them:
 Do not "upgrade" them. If `v3-node20` is ever withdrawn, the replacement is a _patched_ v4 — a fork
 with the github.com check removed — rather than stock v4, which will always refuse.
 
+Releases are cut with `actions/create-release`, which Worktree publishes in its own `actions/`
+namespace for exactly this purpose. Prefer it over hand-rolled API calls: it runs on node20, it
+preserves an existing release rather than duplicating it, and it uploads assets in the same step. It
+also publishes a `.sha256` beside the artifact, which `scripts/fetch_release_artifact.sh` verifies
+before unpacking — so promotion moves bytes that are checked rather than merely assumed.
+
 ### The self-healing release step, and its limit
 
 The release step fires whenever HEAD is exactly at the version tag, rather than only when the tag was
