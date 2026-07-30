@@ -87,11 +87,14 @@ jobs:
           echo "artifact=$artifact" >> "$GITHUB_OUTPUT"
           ls -lh "$artifact"
 
-      # Pinned to v3 on purpose. v4 refuses to run anywhere but github.com --
-      # it reports `GHESNotSupportedError` and fails the job -- because the
-      # artifact API it needs is not implemented outside GitHub. v3 uses the
-      # older API, which this host does implement.
-      - uses: https://github.com/actions/upload-artifact@v3
+      # `v3-node20` is the only version that works here, and both halves of that
+      # matter. v4 refuses to run anywhere but github.com, failing with
+      # `GHESNotSupportedError`, because the artifact API it needs exists only
+      # there; v3 speaks the older API this host does implement, but plain v3
+      # ships as a node16 action and this runner rejects those outright
+      # (`unsupported action type: node16`). `v3-node20` is v3's protocol on a
+      # runtime the runner accepts. Both failures were hit in that order.
+      - uses: https://github.com/actions/upload-artifact@v3-node20
         with:
           name: ${{ steps.package.outputs.artifact }}
           path: ${{ steps.package.outputs.artifact }}
@@ -127,8 +130,8 @@ jobs:
       # Only the publish script is needed, not the history.
       - uses: actions/checkout@v4
 
-      # v3 for the same reason as the upload: v4 does not work off github.com.
-      - uses: https://github.com/actions/download-artifact@v3
+      # `v3-node20` for the same two reasons as the upload above.
+      - uses: https://github.com/actions/download-artifact@v3-node20
         with:
           name: ${{ needs.build.outputs.artifact }}
 
