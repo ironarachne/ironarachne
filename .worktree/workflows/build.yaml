@@ -7,10 +7,11 @@ name: Build
 # than an implicit side effect of the build — the same artifact staging and prod
 # later promote. See docs/deployment.md and docs/versioning.md.
 #
-# Deliberately no `workflow_dispatch` here: on Forgejo-derived hosts a
-# `workflow_dispatch` key alongside `push` has been known to stop the push
-# trigger firing, and this workflow's whole job is to run on push. Manual
-# deploys live in deploy.yaml.
+# Deliberately no `workflow_dispatch` here. Running on push is this workflow's
+# entire purpose, and a manual run of it would either re-tag or rebuild a commit
+# that already has an artifact — neither of which is what anyone wants from a
+# button. Manual deploys live in deploy.yaml, which promotes an existing
+# artifact rather than making a new one.
 
 on:
   push:

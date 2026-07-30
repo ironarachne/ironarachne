@@ -131,6 +131,11 @@ returning the error document, and pages rendering in a browser with no failed re
 **Tag pushing works.** The first run on `main` cut `v2.3.0` and pushed it. A protected branch does
 not block a tag.
 
+Worth holding in mind for all of this: **Worktree.ca is a hard fork of Gitea**, and its Actions
+implementation is GitHub-compatible rather than GitHub. Stock actions published by GitHub sometimes
+assume they are talking to github.com and refuse to run when they are not — which is the root of the
+artifact trouble below, not anything specific to this repository.
+
 **The artifact actions must be `v3-node20`** — not v4, and not plain v3. Both halves matter, and
 both were learned by hitting them:
 
@@ -140,7 +145,8 @@ both were learned by hitting them:
 | `v3`        | `unsupported action type: node16` — the runner rejects node16 actions outright                                        |
 | `v3-node20` | v3's protocol, which this host implements, on a runtime the runner accepts                                            |
 
-Do not "upgrade" them.
+Do not "upgrade" them. If `v3-node20` is ever withdrawn, the replacement is a _patched_ v4 — a fork
+with the github.com check removed — rather than stock v4, which will always refuse.
 
 ### The self-healing release step, and its limit
 

@@ -178,7 +178,7 @@ Break a design into work items only after the model is approved.
 
 ## Git workflow
 
-- Remote is Worktree.ca (Forgejo) — use the worktree MCP tool for PRs/issues, not `gh` or other
+- Remote is Worktree.ca (a hard fork of Gitea) — use the worktree MCP tool for PRs/issues, not `gh` or other
   GitHub-only tooling.
 - `main` is protected on the remote: direct pushes are rejected, and a PR cannot merge until
   `CI / verify (pull_request)` and `CI / e2e (pull_request)` both report green. Work on a branch

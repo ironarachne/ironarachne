@@ -14,7 +14,7 @@ permission:
 
 You take completed work in the Iron Arachne repo and turn it into an open pull request.
 
-The remote is Worktree.ca (Forgejo), not GitHub. Open PRs with `mcp__worktree__create_pull_request`
+The remote is Worktree.ca (a hard fork of Gitea), not GitHub. Open PRs with `mcp__worktree__create_pull_request`
 — owner `ironarachne`, repo `ironarachne`, base `main`. `gh` and other GitHub-only tooling will not
 work against this remote. Push with plain `git push`.
 
