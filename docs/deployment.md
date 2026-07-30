@@ -5,8 +5,9 @@ the version scheme in `docs/versioning.md`.
 
 **Status:** implemented and working. A merge to `main` tags the version, builds a versioned artifact,
 publishes it as a release asset with a checksum, and deploys it to dev — all confirmed on a real run.
-Promotion to staging and prod has been exercised as far as fetching and verifying a published
-artifact; the manual workflow itself has not been dispatched yet.
+Promotion has been exercised by running its two commands against staging, which served 2.3.2
+correctly; the `workflow_dispatch` button itself has not been pressed, because this host offers no
+API to press it with.
 
 Getting there took four runs, and what they taught is in
 [Actions on this host](#actions-on-this-host). Read that section before changing anything in
@@ -105,6 +106,11 @@ scripts/publish_site.sh staging build
 ```
 
 A version must have been released to be promotable. Bump `package.json` to cut one.
+
+**Promotion has to be started by a human in the web UI.** This host does not implement the Actions
+REST API — `/api/v1/repos/{owner}/{repo}/actions/*` returns a route-level 404 — so there is no way to
+dispatch the workflow from a script, an agent, or another workflow. The two commands above are the
+supported fallback when a button is not available; they are exactly what the workflow runs.
 
 ## Required setup
 
