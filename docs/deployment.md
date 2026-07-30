@@ -128,16 +128,19 @@ result was checked end to end — correct `Cache-Control` at the origin, the yea
 through the CDN, a cache `HIT` on a second asset request, deep links resolving, an unknown route
 returning the error document, and pages rendering in a browser with no failed requests.
 
-Three things in the workflows have not run yet, and are the places to look first if the initial merge
-to `main` misbehaves:
+**Tag pushing works.** The first run on `main` cut `v2.3.0` and pushed it. A protected branch does
+not block a tag.
 
-1. **Workflow artifacts.** Worktree's documentation does not mention them, so `upload-artifact` and
-   `download-artifact` are referenced by full GitHub URL at v4. If the hand-off between `build` and
-   `deploy-dev` fails, this is why.
-2. **Tag pushing.** `main` is protected, but a tag is not a branch, so the push should be allowed.
-   Untested.
-3. **Release creation.** `scripts/publish_release.sh` uses the Forgejo release API, which works on
-   this host, but has not been exercised with an Actions token.
+**Artifact actions must be v3, not v4.** The first run failed here. `upload-artifact@v4` and
+`download-artifact@v4` refuse to run anywhere but github.com, aborting with
+`GHESNotSupportedError` — the artifact API they need is not implemented outside GitHub. v3 uses the
+older API, which this host does implement, so both are pinned to v3. Do not "upgrade" them.
+
+**Release creation** is still unexercised: the first run died at the artifact upload, which sits
+before it. The step is written to be self-healing rather than one-shot — it fires whenever HEAD is
+exactly at the version tag, not only when the tag was just created — so a build that tags but fails
+before attaching the artifact is repaired by the next run on that commit, without anyone deleting
+and recreating a tag.
 
 One earlier unknown is now closed. Scaleway **does** implement the S3 directory redirect: a request
 for `/heraldry` returns `302` to `/heraldry/`, so the trailing-slash fallback described in
