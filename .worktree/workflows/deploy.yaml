@@ -27,11 +27,34 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # Read through `github.event.inputs`, not the `inputs` context. This host
+    # does not populate `inputs`, so `${{ inputs.version }}` expands to an empty
+    # string and the scripts are called with no arguments — which is how the
+    # first manual prod deploy failed, with a bare `usage:` line and no clue why.
+    # `github.event.inputs` works on both this host and GitHub.
+    env:
+      ENVIRONMENT: ${{ github.event.inputs.environment }}
+      VERSION: ${{ github.event.inputs.version }}
     steps:
       - uses: actions/checkout@v4
 
+      # Fail with a sentence rather than a usage line if an input is ever empty
+      # again, whatever the reason.
+      - name: Check the inputs arrived
+        run: |
+          missing=""
+          [ -n "$ENVIRONMENT" ] || missing="environment"
+          [ -n "$VERSION" ] || missing="${missing:+$missing and }version"
+
+          if [ -n "$missing" ]; then
+            echo "::error::The $missing input reached the workflow empty. Nothing has been deployed."
+            exit 1
+          fi
+
+          echo "Deploying $VERSION to $ENVIRONMENT"
+
       - name: Fetch the released artifact
-        run: ./scripts/fetch_release_artifact.sh "${{ inputs.version }}" build
+        run: ./scripts/fetch_release_artifact.sh "$VERSION" build
 
       - name: Install rclone
         run: |
@@ -43,12 +66,12 @@ jobs:
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           BUNNYNET_API_KEY: ${{ secrets.BUNNYNET_API_KEY }}
-        run: ./scripts/publish_site.sh "${{ inputs.environment }}" build
+        run: ./scripts/publish_site.sh "$ENVIRONMENT" build
 
       - name: Summarise
         run: |
-          case "${{ inputs.environment }}" in
+          case "$ENVIRONMENT" in
             staging) url="https://staging.ironarachne.com" ;;
-            prod)    url="https://app.ironarachne.com" ;;
+            prod) url="https://app.ironarachne.com" ;;
           esac
-          echo "Deployed ${{ inputs.version }} to ${{ inputs.environment }} — $url"
+          echo "Deployed $VERSION to $ENVIRONMENT — $url"
