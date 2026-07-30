@@ -171,14 +171,21 @@ currently disabled", and cache and artifacts are the same subsystem.
 survive beyond a single job has to go somewhere real: a release asset, or a bucket. That constraint
 is why `build.yaml` is one job.
 
-**`workflow_dispatch` inputs arrive under `github.event.inputs`, not `inputs`.** The `inputs` context
-is not populated here, so `${{ inputs.version }}` silently expands to an empty string — the workflow
-runs, calls its scripts with no arguments, and fails with whatever those scripts say about missing
-arguments. The first manual prod deploy died exactly that way, on a bare `usage:` line that named
-nothing. `github.event.inputs` works on both this host and GitHub, so prefer it everywhere.
+**Reading `workflow_dispatch` inputs is awkward here, and cost two failed prod deploys.** Two
+separate problems, which look nothing alike:
 
-`deploy.yaml` also checks its inputs are non-empty before doing anything, so a recurrence names
-itself instead of surfacing as a confusing error from a script three layers down.
+| Attempt                                                        | What happened                                                                                                   |
+| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `${{ inputs.version }}` in a step `run:`                       | Evaluated to an **empty string**. The scripts ran with no arguments and failed on their own usage messages.     |
+| `${{ github.event.inputs.version }}` in a **job-level `env:`** | **Not evaluated at all.** The literal `${{ … }}` text was passed through to `curl`, which choked on the braces. |
+
+The lesson is two-part: **expressions in job-level `env:` are not evaluated on this host** — step-level
+`env:` is, and `build.yaml` depends on that — and it is not obvious which input context is populated.
+
+So `deploy.yaml` reads both spellings in a step-level `env:`, discards any value that still looks like
+an unevaluated expression, uses whichever remains, and passes the result on as step outputs. If
+neither yields anything it fails with a message naming the problem and dumps `toJSON(github.event)`,
+so a third variation of this can be diagnosed from one run rather than another round trip.
 
 **`actions/create-release` needs `name`, `body`, `draft` and `prerelease` passed explicitly.** Its
 defaults are written in terms of `github.event.release.*`, which does not exist on a `push` event; the
