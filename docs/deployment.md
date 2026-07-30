@@ -179,13 +179,35 @@ separate problems, which look nothing alike:
 | `${{ inputs.version }}` in a step `run:`                       | Evaluated to an **empty string**. The scripts ran with no arguments and failed on their own usage messages.     |
 | `${{ github.event.inputs.version }}` in a **job-level `env:`** | **Not evaluated at all.** The literal `${{ … }}` text was passed through to `curl`, which choked on the braces. |
 
-The lesson is two-part: **expressions in job-level `env:` are not evaluated on this host** — step-level
-`env:` is, and `build.yaml` depends on that — and it is not obvious which input context is populated.
+A third attempt, reading both spellings from a step-level `env:`, finally showed what is actually
+going on:
 
-So `deploy.yaml` reads both spellings in a step-level `env:`, discards any value that still looks like
-an unevaluated expression, uses whichever remains, and passes the result on as step outputs. If
-neither yields anything it fails with a message naming the problem and dumps `toJSON(github.event)`,
-so a third variation of this can be diagnosed from one run rather than another round trip.
+```
+github.event.inputs.environment -> 'map[]'
+github.event.inputs.version     -> 'map[]'
+inputs.environment              -> ''
+inputs.version                  -> ''
+```
+
+`map[]` is how Go renders an empty map. **`github.event.inputs` exists but is empty** — the values
+typed into the dispatch form are not reaching the workflow by either name.
+
+Two things are established, and one is not:
+
+- **Expressions in job-level `env:` are not evaluated at all** on this host. Step-level `env:` is, and
+  `build.yaml` depends on that. Never put an expression in a job-level `env:` here.
+- **`inputs` is not populated**, and `github.event.inputs` is populated but empty.
+- Whether the inputs are anywhere else — the event payload file, the process environment — is still
+  open. `deploy.yaml` now dumps `$GITHUB_EVENT_PATH`, every `INPUT`-ish environment variable, and the
+  tools it depends on, **before** judging any value, and falls back to reading the payload with `jq`.
+
+That ordering is deliberate. An earlier version validated first and exited on a bad value, which
+suppressed the diagnostic dump added for exactly this purpose — the run failed with
+`unknown environment 'map[]'` and told us nothing else. Print, then judge.
+
+If the inputs turn out to be undeliverable on this host, the workflow needs a different shape: either
+one workflow per environment with no inputs, or promoting "the latest release" rather than a named
+version. Both are worse than what is written, so neither has been adopted while the question is open.
 
 **`actions/create-release` needs `name`, `body`, `draft` and `prerelease` passed explicitly.** Its
 defaults are written in terms of `github.event.release.*`, which does not exist on a `push` event; the
