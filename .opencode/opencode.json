@@ -1,0 +1,38 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "model": "opencode-go/qwen3.7-plus",
+  "small_model": "opencode-go/qwen3.7-plus",
+  "permission": {
+    "bash": {
+      "npm run *": "allow",
+      "npm test *": "allow",
+      "npm ci": "allow",
+      "npm install": "allow",
+      "npx --no-install prettier *": "allow",
+      "npx prettier *": "allow",
+      "npx eslint *": "allow",
+      "npx vitest *": "allow",
+      "npx playwright *": "allow",
+      "npx svelte-check *": "allow",
+      "npx svelte-kit *": "allow",
+      "npx tsc *": "allow",
+      "npx vite *": "allow",
+      "npx vite-node *": "allow",
+      "npx tsx *": "allow",
+      "git status *": "allow",
+      "git diff *": "allow",
+      "git log *": "allow",
+      "git show *": "allow",
+      "git branch *": "allow",
+      "git checkout *": "allow",
+      "git switch *": "allow",
+      "git fetch *": "allow",
+      "git pull *": "allow",
+      "git add *": "allow",
+      "git restore *": "allow",
+      "git stash *": "allow",
+      "git rev-parse *": "allow",
+      "*": "ask"
+    }
+  }
+}
