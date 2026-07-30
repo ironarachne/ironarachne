@@ -108,6 +108,15 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           files: ${{ steps.package.outputs.artifact }}
+          # These four have to be given explicitly. The action defaults them off
+          # `github.event.release.*`, which does not exist on a push event, and
+          # the expressions collapse to the string "true" — producing a release
+          # that is a draft prerelease titled "true". A draft is invisible to
+          # unauthenticated callers, so promotion could never fetch it.
+          name: ${{ steps.tag.outputs.tag }}
+          body: Automated release. Build artifact and its SHA-256 checksum are attached below.
+          draft: false
+          prerelease: false
           # Publishes a .sha256 beside the artifact, which
           # scripts/fetch_release_artifact.sh checks before unpacking. Promotion
           # is meant to move known bytes to prod; this makes "known" checkable.
