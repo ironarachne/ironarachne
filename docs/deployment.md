@@ -3,10 +3,14 @@
 How a build reaches a bucket. The infrastructure it targets is described in `docs/infrastructure.md`;
 the version scheme in `docs/versioning.md`.
 
-**Status:** implemented. The publish path is verified end to end against dev, and tagging works in
-CI. Release publishing and the CI-driven dev deploy have not yet completed a run — three attempts
-were spent finding out that this host has no workflow artifacts, which forced the single-job shape
-described below. See [Actions on this host](#actions-on-this-host).
+**Status:** implemented and working. A merge to `main` tags the version, builds a versioned artifact,
+publishes it as a release asset with a checksum, and deploys it to dev — all confirmed on a real run.
+Promotion to staging and prod has been exercised as far as fetching and verifying a published
+artifact; the manual workflow itself has not been dispatched yet.
+
+Getting there took four runs, and what they taught is in
+[Actions on this host](#actions-on-this-host). Read that section before changing anything in
+`build.yaml`: most of it exists to work around things this platform does not implement.
 
 ## The shape
 
@@ -160,6 +164,12 @@ currently disabled", and cache and artifacts are the same subsystem.
 **So do not add `upload-artifact` or `download-artifact` back in any form.** Anything that needs to
 survive beyond a single job has to go somewhere real: a release asset, or a bucket. That constraint
 is why `build.yaml` is one job.
+
+**`actions/create-release` needs `name`, `body`, `draft` and `prerelease` passed explicitly.** Its
+defaults are written in terms of `github.event.release.*`, which does not exist on a `push` event; the
+expressions collapse to the string `"true"`, and you get a draft prerelease titled `true`. That is
+not a cosmetic problem — a draft release is invisible to unauthenticated callers, so
+`scripts/fetch_release_artifact.sh` cannot see it and promotion silently has nothing to deploy.
 
 Releases are cut with `actions/create-release`, which Worktree publishes in its own `actions/`
 namespace for exactly this purpose. Prefer it over hand-rolled API calls: it runs on node20, it
