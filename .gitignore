@@ -55,6 +55,19 @@ reports
 # Written by `vitest run --coverage`; scripts/check_library_coverage.ts reads it.
 coverage
 
+# OpenTofu / Terraform (infra/)
+# Provider downloads and any local state. `.terraform.lock.hcl` is deliberately NOT
+# ignored — it pins provider versions and hashes, so it belongs in the repo.
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+# Variable files can carry account identifiers or credentials; supply them via
+# TF_VAR_* instead. See infra/README.md.
+*.tfvars
+*.tfvars.json
+
 # Claude Code
 # Worktrees are throwaway checkouts of this repo that Claude Code creates under here; the
 # subagent definitions in .claude/agents are shared and stay tracked.
