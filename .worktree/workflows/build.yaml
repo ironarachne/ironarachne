@@ -46,10 +46,10 @@ jobs:
           version="$(node -p "require('./package.json').version")"
           tag="v$version"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "package_version=$version" >> "$GITHUB_OUTPUT"
 
           if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
-            echo "$tag already exists — this is a build of work past that release."
-            echo "released=false" >> "$GITHUB_OUTPUT"
+            echo "$tag already exists."
             exit 0
           fi
 
@@ -58,7 +58,6 @@ jobs:
           # blocked. Setting the secret is a one-off; see docs/deployment.md.
           if [ -z "$WORKTREE_TOKEN" ]; then
             echo "::warning::$tag is not tagged, but WORKTREE_ACCESS_TOKEN is unset, so no tag or release was created. Staging and prod cannot deploy this version until it is."
-            echo "released=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
 
@@ -66,7 +65,6 @@ jobs:
           git config user.email "actions@worktree.ca"
           git tag -a "$tag" -m "Release $version"
           git push "https://oauth2:$WORKTREE_TOKEN@${GITHUB_SERVER_URL#https://}/$GITHUB_REPOSITORY.git" "$tag"
-          echo "released=true" >> "$GITHUB_OUTPUT"
 
       - name: Determine version
         id: version
@@ -89,20 +87,38 @@ jobs:
           echo "artifact=$artifact" >> "$GITHUB_OUTPUT"
           ls -lh "$artifact"
 
-      - uses: https://github.com/actions/upload-artifact@v4
+      # Pinned to v3 on purpose. v4 refuses to run anywhere but github.com --
+      # it reports `GHESNotSupportedError` and fails the job -- because the
+      # artifact API it needs is not implemented outside GitHub. v3 uses the
+      # older API, which this host does implement.
+      - uses: https://github.com/actions/upload-artifact@v3
         with:
           name: ${{ steps.package.outputs.artifact }}
           path: ${{ steps.package.outputs.artifact }}
           retention-days: 30
           if-no-files-found: error
 
-      # Only for a version that was just tagged. This is the copy staging and
-      # prod promote from, so it has to outlive the workflow run.
-      - name: Attach the artifact to the release
-        if: steps.tag.outputs.released == 'true'
+      # The release is the copy staging and prod promote from, so it has to
+      # outlive the workflow run.
+      #
+      # The condition is "HEAD is exactly at the version tag" rather than "the
+      # tag was created just now", which makes the step self-healing: if a build
+      # cut the tag but died before attaching the artifact, the next run of this
+      # workflow on the same commit finishes the job. publish_release.sh reuses
+      # an existing release and replaces a same-named asset, so re-running is
+      # safe. A commit past the tag has a different version and is skipped.
+      - name: Attach the artifact to its release
+        if: steps.version.outputs.version == steps.tag.outputs.package_version
         env:
           WORKTREE_TOKEN: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
-        run: ./scripts/publish_release.sh "${{ steps.tag.outputs.tag }}" "${{ steps.package.outputs.artifact }}"
+          TAG: ${{ steps.tag.outputs.tag }}
+          ARTIFACT: ${{ steps.package.outputs.artifact }}
+        run: |
+          if [ -z "$WORKTREE_TOKEN" ]; then
+            echo "::warning::WORKTREE_ACCESS_TOKEN is unset, so $TAG has no release and cannot be promoted."
+            exit 0
+          fi
+          ./scripts/publish_release.sh "$TAG" "$ARTIFACT"
 
   deploy-dev:
     needs: build
@@ -111,7 +127,8 @@ jobs:
       # Only the publish script is needed, not the history.
       - uses: actions/checkout@v4
 
-      - uses: https://github.com/actions/download-artifact@v4
+      # v3 for the same reason as the upload: v4 does not work off github.com.
+      - uses: https://github.com/actions/download-artifact@v3
         with:
           name: ${{ needs.build.outputs.artifact }}
 
