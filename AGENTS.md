@@ -213,5 +213,26 @@ patterns, which triggers the plugin checks.
 Plugins are auto-discovered from `.opencode/plugins/` — any `.ts` or `.js` file in that directory
 is loaded on startup. To disable a plugin, move it out of the directory or delete it.
 
+### Slash commands
+
+`.opencode/commands` holds four commands covering the workflows that repeat here. Each encodes
+what was learned doing the job by hand, so the knowledge lives with the task rather than in
+someone's memory:
+
+- **`/ci [pr]`** — waits for a PR's checks and, on failure, fetches the job log and says what
+  actually broke. Carries the two traps that have produced wrong reports before: the commit-statuses
+  API returns every status ever posted, and a _skipped_ job reports as `success`.
+- **`/triage <issue>`** — verifies an issue's claims rather than trusting them, records findings and
+  the decisions they force, and moves the label along `needs-triage` → `needs-design` →
+  `ready-for-agent`.
+- **`/promote <env> <version>`** — opens the `deploy/<env>.version` PR that deploys a released
+  version. Checks the release exists _authenticated_ first, because a draft release is invisible to
+  unauthenticated callers and will pass a casual check then fail the deploy.
+- **`/release <major|minor|patch>`** — bumps `package.json` and opens the PR that cuts the tag and
+  release.
+
+The commands are mirrored between `.claude/commands` and `.opencode/commands`, the same way agents
+and hooks are. Keep them in step; the bodies are identical and only the frontmatter differs.
+
 Personal, machine-specific permissions belong in a local config file that is gitignored. Put nothing
 secret in any config file; neither is a place for credentials.

@@ -219,6 +219,27 @@ Changing `.claude/settings.json` mid-session does not reliably take effect: the 
 only picks up directories that already had a settings file when the session started. Open `/hooks`
 once, or restart, after editing it.
 
+### Slash commands
+
+`.claude/commands` holds four commands covering the workflows that repeat here. Each encodes
+what was learned doing the job by hand, so the knowledge lives with the task rather than in
+someone's memory:
+
+- **`/ci [pr]`** — waits for a PR's checks and, on failure, fetches the job log and says what
+  actually broke. Carries the two traps that have produced wrong reports before: the commit-statuses
+  API returns every status ever posted, and a _skipped_ job reports as `success`.
+- **`/triage <issue>`** — verifies an issue's claims rather than trusting them, records findings and
+  the decisions they force, and moves the label along `needs-triage` → `needs-design` →
+  `ready-for-agent`.
+- **`/promote <env> <version>`** — opens the `deploy/<env>.version` PR that deploys a released
+  version. Checks the release exists _authenticated_ first, because a draft release is invisible to
+  unauthenticated callers and will pass a casual check then fail the deploy.
+- **`/release <major|minor|patch>`** — bumps `package.json` and opens the PR that cuts the tag and
+  release.
+
+The commands are mirrored between `.claude/commands` and `.opencode/commands`, the same way agents
+and hooks are. Keep them in step; the bodies are identical and only the frontmatter differs.
+
 Personal, machine-specific permissions belong in `.claude/settings.local.json`, which is gitignored
 — keep broad rules such as bare interpreters out of the shared file. Put nothing secret in either;
 neither file is a place for credentials.
