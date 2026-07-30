@@ -49,34 +49,61 @@ jobs:
           EVENT_VERSION: ${{ github.event.inputs.version }}
           CONTEXT_ENVIRONMENT: ${{ inputs.environment }}
           CONTEXT_VERSION: ${{ inputs.version }}
-          EVENT_PAYLOAD: ${{ toJSON(github.event) }}
         run: |
-          # A host that does not evaluate an expression leaves it verbatim.
-          # Treat that as "not supplied" rather than as a value.
+          # Everything is printed before anything is judged. A previous version
+          # validated first and exited on a bad value, which suppressed the very
+          # dump that would have explained it.
+          echo "--- expression contexts ---"
+          echo "github.event.inputs.environment -> '$EVENT_ENVIRONMENT'"
+          echo "github.event.inputs.version     -> '$EVENT_VERSION'"
+          echo "inputs.environment              -> '$CONTEXT_ENVIRONMENT'"
+          echo "inputs.version                  -> '$CONTEXT_VERSION'"
+
+          echo "--- event payload at \$GITHUB_EVENT_PATH ($GITHUB_EVENT_PATH) ---"
+          if [ -n "${GITHUB_EVENT_PATH:-}" ] && [ -f "$GITHUB_EVENT_PATH" ]; then
+            cat "$GITHUB_EVENT_PATH"
+            echo
+          else
+            echo "(no event payload file)"
+          fi
+
+          echo "--- environment variables mentioning INPUT ---"
+          env | grep -i input || echo "(none)"
+
+          echo "--- tools ---"
+          for tool in jq curl tar sha256sum; do
+            printf '%s: %s\n' "$tool" "$(command -v "$tool" || echo MISSING)"
+          done
+
+          # A value is only usable if the host actually substituted something.
+          # Two known non-values: an unevaluated `${{ … }}`, and `map[]`, which
+          # is how an empty map renders when the key does not exist.
           usable() {
             case "$1" in
-              *'${{'*) printf '' ;;
+              '' | 'map[]' | *'${{'*) printf '' ;;
               *) printf '%s' "$1" ;;
             esac
           }
 
-          event_environment="$(usable "$EVENT_ENVIRONMENT")"
-          event_version="$(usable "$EVENT_VERSION")"
-          context_environment="$(usable "$CONTEXT_ENVIRONMENT")"
-          context_version="$(usable "$CONTEXT_VERSION")"
+          environment="$(usable "$EVENT_ENVIRONMENT")"
+          [ -n "$environment" ] || environment="$(usable "$CONTEXT_ENVIRONMENT")"
+          version="$(usable "$EVENT_VERSION")"
+          [ -n "$version" ] || version="$(usable "$CONTEXT_VERSION")"
 
-          echo "github.event.inputs.environment -> '$event_environment'"
-          echo "github.event.inputs.version     -> '$event_version'"
-          echo "inputs.environment              -> '$context_environment'"
-          echo "inputs.version                  -> '$context_version'"
+          # Last resort: read them straight out of the event payload, bypassing
+          # the expression engine entirely.
+          if [ -z "$environment" ] && [ -f "${GITHUB_EVENT_PATH:-}" ] && command -v jq >/dev/null 2>&1; then
+            environment="$(jq -r '.inputs.environment // empty' "$GITHUB_EVENT_PATH")"
+          fi
+          if [ -z "$version" ] && [ -f "${GITHUB_EVENT_PATH:-}" ] && command -v jq >/dev/null 2>&1; then
+            version="$(jq -r '.inputs.version // empty' "$GITHUB_EVENT_PATH")"
+          fi
 
-          environment="${event_environment:-$context_environment}"
-          version="${event_version:-$context_version}"
+          echo "--- resolved ---"
+          echo "environment='$environment' version='$version'"
 
           if [ -z "$environment" ] || [ -z "$version" ]; then
-            echo "::error::The dispatch inputs did not reach the workflow (environment='$environment' version='$version'). Nothing has been deployed."
-            echo "--- github.event payload, for working out where the inputs went ---"
-            echo "$EVENT_PAYLOAD"
+            echo "::error::The dispatch inputs did not reach this workflow by any route. Nothing has been deployed. See the dumps above; docs/deployment.md records what has been tried."
             exit 1
           fi
 
