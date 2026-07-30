@@ -5,9 +5,8 @@ the version scheme in `docs/versioning.md`.
 
 **Status:** implemented and working. A merge to `main` tags the version, builds a versioned artifact,
 publishes it as a release asset with a checksum, and deploys it to dev — all confirmed on a real run.
-Promotion has been exercised by running its two commands against staging, which served 2.3.2
-correctly; the `workflow_dispatch` button itself has not been pressed, because this host offers no
-API to press it with.
+Promotion works both ways: its two commands were run against staging, which served 2.3.2 correctly,
+and the `workflow_dispatch` button has since been used for real.
 
 Getting there took four runs, and what they taught is in
 [Actions on this host](#actions-on-this-host). Read that section before changing anything in
@@ -107,10 +106,11 @@ scripts/publish_site.sh staging build
 
 A version must have been released to be promotable. Bump `package.json` to cut one.
 
-**Promotion has to be started by a human in the web UI.** This host does not implement the Actions
-REST API — `/api/v1/repos/{owner}/{repo}/actions/*` returns a route-level 404 — so there is no way to
-dispatch the workflow from a script, an agent, or another workflow. The two commands above are the
-supported fallback when a button is not available; they are exactly what the workflow runs.
+**Promotion has to be started by a human in the web UI.** The button works. What does not is doing it
+programmatically: this host implements no Actions REST API — `/api/v1/repos/{owner}/{repo}/actions/*`
+returns a route-level 404 — so no script, agent, or other workflow can dispatch it. The two commands
+above are the supported fallback when nobody is around to click; they are exactly what the workflow
+runs.
 
 ## Required setup
 
@@ -170,6 +170,15 @@ currently disabled", and cache and artifacts are the same subsystem.
 **So do not add `upload-artifact` or `download-artifact` back in any form.** Anything that needs to
 survive beyond a single job has to go somewhere real: a release asset, or a bucket. That constraint
 is why `build.yaml` is one job.
+
+**`workflow_dispatch` inputs arrive under `github.event.inputs`, not `inputs`.** The `inputs` context
+is not populated here, so `${{ inputs.version }}` silently expands to an empty string — the workflow
+runs, calls its scripts with no arguments, and fails with whatever those scripts say about missing
+arguments. The first manual prod deploy died exactly that way, on a bare `usage:` line that named
+nothing. `github.event.inputs` works on both this host and GitHub, so prefer it everywhere.
+
+`deploy.yaml` also checks its inputs are non-empty before doing anything, so a recurrence names
+itself instead of surfacing as a confusing error from a script three layers down.
 
 **`actions/create-release` needs `name`, `body`, `draft` and `prerelease` passed explicitly.** Its
 defaults are written in terms of `github.event.release.*`, which does not exist on a `push` event; the
