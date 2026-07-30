@@ -3,9 +3,10 @@
 How a build reaches a bucket. The infrastructure it targets is described in `docs/infrastructure.md`;
 the version scheme in `docs/versioning.md`.
 
-**Status:** implemented. The publish path is verified end to end against dev. The tag, release and
-workflow-artifact steps have not yet run on Worktree Actions — see
-[What has not been proven yet](#what-has-not-been-proven-yet).
+**Status:** implemented. The publish path is verified end to end against dev, and tagging works in
+CI. Release publishing and the CI-driven dev deploy have not yet completed a run — three attempts
+were spent finding out that this host has no workflow artifacts, which forced the single-job shape
+described below. See [Actions on this host](#actions-on-this-host).
 
 ## The shape
 
@@ -13,14 +14,14 @@ workflow-artifact steps have not yet run on Worktree Actions — see
 graph TD
     merge([merge to main]) --> build
 
-    subgraph buildwf["build.yaml — automatic"]
-        build["build job<br/>tag if new · npm run build<br/>ironarachne-&lt;version&gt;.tar.gz"]
-        devjob["deploy-dev job"]
-        build -->|workflow artifact| devjob
+    subgraph buildwf["build.yaml — automatic, one job"]
+        build["tag if new · npm run build<br/>ironarachne-&lt;version&gt;.tar.gz"]
+        unpack["unpack the artifact"]
+        build --> unpack
     end
 
-    build -->|"release asset<br/>(released versions only)"| release[("release v&lt;version&gt;")]
-    devjob --> dev[["dev.ironarachne.com"]]
+    build -->|"release asset + .sha256<br/>(released versions only)"| release[("release v&lt;version&gt;")]
+    unpack --> dev[["dev.ironarachne.com"]]
 
     subgraph deploywf["deploy.yaml — manual"]
         dispatch["workflow_dispatch<br/>environment + version"]
@@ -31,15 +32,21 @@ graph TD
     dispatch --> prod[["app.ironarachne.com"]]
 ```
 
-|         | Trigger               | Artifact source                         |
-| ------- | --------------------- | --------------------------------------- |
-| dev     | every merge to `main` | the workflow artifact from the same run |
-| staging | manual                | the release asset for a chosen version  |
-| prod    | manual                | the release asset for a chosen version  |
+|         | Trigger               | Deploys                                  |
+| ------- | --------------------- | ---------------------------------------- |
+| dev     | every merge to `main` | the artifact built in that run, unpacked |
+| staging | manual                | the release asset for a chosen version   |
+| prod    | manual                | the release asset for a chosen version   |
 
-Build and deploy are separate jobs, and promotion is a separate workflow, so the bytes that reach
-prod are the bytes that were built and tested — not a rebuild that happens to start from the same
-commit.
+Promotion is a separate workflow that fetches a published artifact, so the bytes reaching prod are
+the bytes that were built and tested — not a rebuild that happens to start from the same commit.
+
+Build and deploy are **not** separate jobs, though, and that is a platform constraint rather than a
+preference: this host provides no `ACTIONS_RUNTIME_TOKEN`, so workflow artifacts do not work and
+there is no way to hand a file between jobs. See [Actions on this host](#actions-on-this-host). The
+separation lives in the scripts and in `deploy.yaml` instead. To keep it honest, the dev deploy
+publishes the **unpacked artifact** rather than `build/` directly, so dev serves exactly what the
+release contains and a packaging bug surfaces there rather than first appearing in a prod promotion.
 
 ## Publishing
 
@@ -89,7 +96,7 @@ Run the **Deploy** workflow from the Actions UI, choosing an environment and a v
 that version's release asset and publishes it. Equivalently, by hand:
 
 ```bash
-scripts/fetch_release_artifact.sh 2.3.0 build
+scripts/fetch_release_artifact.sh 2.3.2 build
 scripts/publish_site.sh staging build
 ```
 
@@ -121,7 +128,7 @@ deploy job credentials for the state bucket, and the whole point of the scoped d
 that it can touch objects and nothing else. The values are stable; the comment in the script points
 at the source of truth.
 
-## What has not been proven yet
+## Actions on this host
 
 The publish path is verified: `scripts/publish_site.sh` has published a real build to dev, and the
 result was checked end to end — correct `Cache-Control` at the origin, the year-long header surviving
@@ -136,17 +143,23 @@ implementation is GitHub-compatible rather than GitHub. Stock actions published 
 assume they are talking to github.com and refuse to run when they are not — which is the root of the
 artifact trouble below, not anything specific to this repository.
 
-**The artifact actions must be `v3-node20`** — not v4, and not plain v3. Both halves matter, and
-both were learned by hitting them:
+**Workflow artifacts do not work here at all, at any version.** Three runs were spent discovering
+this, one version at a time:
 
-| Version     | Result                                                                                                                |
-| ----------- | --------------------------------------------------------------------------------------------------------------------- |
-| `v4`        | `GHESNotSupportedError` — refuses to run anywhere but github.com, because the artifact API it needs exists only there |
-| `v3`        | `unsupported action type: node16` — the runner rejects node16 actions outright                                        |
-| `v3-node20` | v3's protocol, which this host implements, on a runtime the runner accepts                                            |
+| Version     | Result                                                                                           |
+| ----------- | ------------------------------------------------------------------------------------------------ |
+| `v4`        | `GHESNotSupportedError` — refuses to run anywhere but github.com                                 |
+| `v3`        | `unsupported action type: node16` — the runner rejects node16 actions outright                   |
+| `v3-node20` | ran correctly on node20, found the file, then `Unable to get ACTIONS_RUNTIME_TOKEN env variable` |
 
-Do not "upgrade" them. If `v3-node20` is ever withdrawn, the replacement is a _patched_ v4 — a fork
-with the github.com check removed — rather than stock v4, which will always refuse.
+That last one is the real answer, and it is not a version problem. `ACTIONS_RUNTIME_TOKEN` is what
+the artifact protocol authenticates with, and this runner never sets it — the artifact service is not
+implemented. Worktree's own documentation corroborates it from the other side: "Build caching is
+currently disabled", and cache and artifacts are the same subsystem.
+
+**So do not add `upload-artifact` or `download-artifact` back in any form.** Anything that needs to
+survive beyond a single job has to go somewhere real: a release asset, or a bucket. That constraint
+is why `build.yaml` is one job.
 
 Releases are cut with `actions/create-release`, which Worktree publishes in its own `actions/`
 namespace for exactly this purpose. Prefer it over hand-rolled API calls: it runs on node20, it
