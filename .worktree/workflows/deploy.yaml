@@ -1,0 +1,54 @@
+name: Deploy
+
+# Manual promotion of a released version to staging or prod.
+#
+# Nothing is built here. The artifact comes from the release that build.yaml
+# attached it to, so what reaches prod is the exact bytes that were tested —
+# not a rebuild that happens to come from the same commit.
+#
+# Only released versions can be promoted, because only they have an artifact.
+# Cut one by bumping package.json; see docs/versioning.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: Environment to deploy to
+        type: choice
+        required: true
+        options:
+          - staging
+          - prod
+      version:
+        description: Released version to deploy, e.g. 2.3.0
+        type: string
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch the released artifact
+        run: ./scripts/fetch_release_artifact.sh "${{ inputs.version }}" build
+
+      - name: Install rclone
+        run: |
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+          rclone version | head -1
+
+      - name: Publish
+        env:
+          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          BUNNYNET_API_KEY: ${{ secrets.BUNNYNET_API_KEY }}
+        run: ./scripts/publish_site.sh "${{ inputs.environment }}" build
+
+      - name: Summarise
+        run: |
+          case "${{ inputs.environment }}" in
+            staging) url="https://staging.ironarachne.com" ;;
+            prod)    url="https://app.ironarachne.com" ;;
+          esac
+          echo "Deployed ${{ inputs.version }} to ${{ inputs.environment }} — $url"

@@ -51,11 +51,15 @@ setup, because the usual SEO argument for prerendering does not apply as written
 Both must sit at the **root** of the bucket, not in a subdirectory — a Scaleway requirement. Both
 are produced by `npm run build` at `build/index.html` and `build/404.html`.
 
-A request for `/heraldry` without the trailing slash is not covered by either rule. Hosts that
-implement S3's website semantics answer it with a 301 to `/heraldry/`; where a host does not, the
-error document is served, the client-side router boots, normalises the URL to `/heraldry/` and
-renders the page — so the content still arrives, with a 404 status. Internal links are unaffected
-either way, because the client router normalises them on navigation.
+A request for `/heraldry` without the trailing slash is not covered by either rule, so it depends on
+the host. **Scaleway redirects**, verified against a real published site: `/heraldry` returns `302`
+with `Location: /heraldry/`, and the slashed URL then serves the page. No fallback is needed in
+practice.
+
+Should that ever change, or another host not do it, the failure is soft rather than total: the error
+document is served, the client-side router boots, normalises the URL to `/heraldry/` and renders the
+page — the content still arrives, with a 404 status. Internal links are unaffected either way,
+because the client router normalises them on navigation.
 
 ## How this is enforced
 
