@@ -1,0 +1,139 @@
+name: Build
+
+# Runs on every merge to main: cuts a tag when package.json's version is new,
+# produces a versioned artifact, and deploys it to dev.
+#
+# Build and deploy are separate jobs so the artifact is a real hand-off rather
+# than an implicit side effect of the build — the same artifact staging and prod
+# later promote. See docs/deployment.md and docs/versioning.md.
+#
+# Deliberately no `workflow_dispatch` here: on Forgejo-derived hosts a
+# `workflow_dispatch` key alongside `push` has been known to stop the push
+# trigger firing, and this workflow's whole job is to run on push. Manual
+# deploys live in deploy.yaml.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      artifact: ${{ steps.package.outputs.artifact }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # scripts/site_version.sh derives the version with `git describe`, so
+          # it needs the full history and every tag. A shallow clone would find
+          # no tag and quietly produce a misleading version.
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - run: npm ci
+
+      # Tagging happens before the version is read, so a merge that bumps
+      # package.json produces a clean `2.3.0` rather than `2.3.0-1-g…`.
+      - name: Tag the version if it is new
+        id: tag
+        env:
+          WORKTREE_TOKEN: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
+        run: |
+          version="$(node -p "require('./package.json').version")"
+          tag="v$version"
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+
+          if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
+            echo "$tag already exists — this is a build of work past that release."
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Degrade rather than fail: without a token the build and the dev
+          # deploy are still useful, and only promotion to staging/prod is
+          # blocked. Setting the secret is a one-off; see docs/deployment.md.
+          if [ -z "$WORKTREE_TOKEN" ]; then
+            echo "::warning::$tag is not tagged, but WORKTREE_ACCESS_TOKEN is unset, so no tag or release was created. Staging and prod cannot deploy this version until it is."
+            echo "released=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          git config user.name "Worktree Actions"
+          git config user.email "actions@worktree.ca"
+          git tag -a "$tag" -m "Release $version"
+          git push "https://oauth2:$WORKTREE_TOKEN@${GITHUB_SERVER_URL#https://}/$GITHUB_REPOSITORY.git" "$tag"
+          echo "released=true" >> "$GITHUB_OUTPUT"
+
+      - name: Determine version
+        id: version
+        run: |
+          version="$(./scripts/site_version.sh)"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Building version $version"
+
+      - run: npm run build
+
+      - name: Package the build
+        id: package
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          artifact="ironarachne-$VERSION.tar.gz"
+          # Archived from inside build/ so the tarball holds the site at its
+          # root — unpacking it anywhere gives a directory ready to publish.
+          tar -czf "$artifact" -C build .
+          echo "artifact=$artifact" >> "$GITHUB_OUTPUT"
+          ls -lh "$artifact"
+
+      - uses: https://github.com/actions/upload-artifact@v4
+        with:
+          name: ${{ steps.package.outputs.artifact }}
+          path: ${{ steps.package.outputs.artifact }}
+          retention-days: 30
+          if-no-files-found: error
+
+      # Only for a version that was just tagged. This is the copy staging and
+      # prod promote from, so it has to outlive the workflow run.
+      - name: Attach the artifact to the release
+        if: steps.tag.outputs.released == 'true'
+        env:
+          WORKTREE_TOKEN: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
+        run: ./scripts/publish_release.sh "${{ steps.tag.outputs.tag }}" "${{ steps.package.outputs.artifact }}"
+
+  deploy-dev:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      # Only the publish script is needed, not the history.
+      - uses: actions/checkout@v4
+
+      - uses: https://github.com/actions/download-artifact@v4
+        with:
+          name: ${{ needs.build.outputs.artifact }}
+
+      - name: Unpack the build
+        env:
+          ARTIFACT: ${{ needs.build.outputs.artifact }}
+        run: |
+          mkdir -p build
+          tar -xzf "$ARTIFACT" -C build
+          echo "Unpacked $(find build -type f | wc -l) files"
+
+      - name: Install rclone
+        run: |
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+          rclone version | head -1
+
+      - name: Publish to dev
+        env:
+          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          BUNNYNET_API_KEY: ${{ secrets.BUNNYNET_API_KEY }}
+        run: ./scripts/publish_site.sh dev build
+
+      - name: Summarise
+        run: echo "Deployed ${{ needs.build.outputs.version }} to https://dev.ironarachne.com"
