@@ -20,40 +20,81 @@ on:
           - staging
           - prod
       version:
-        description: Released version to deploy, e.g. 2.3.0
+        description: Released version to deploy, e.g. 2.3.2
         type: string
         required: true
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    # Read through `github.event.inputs`, not the `inputs` context. This host
-    # does not populate `inputs`, so `${{ inputs.version }}` expands to an empty
-    # string and the scripts are called with no arguments — which is how the
-    # first manual prod deploy failed, with a bare `usage:` line and no clue why.
-    # `github.event.inputs` works on both this host and GitHub.
-    env:
-      ENVIRONMENT: ${{ github.event.inputs.environment }}
-      VERSION: ${{ github.event.inputs.version }}
     steps:
       - uses: actions/checkout@v4
 
-      # Fail with a sentence rather than a usage line if an input is ever empty
-      # again, whatever the reason.
-      - name: Check the inputs arrived
+      # Reading the dispatch inputs is genuinely awkward on this host, and two
+      # earlier prod deploys failed on it:
+      #
+      #   - `${{ inputs.x }}` evaluated to an empty string, so the scripts ran
+      #     with no arguments;
+      #   - `${{ github.event.inputs.x }}` in a *job-level* `env:` block was not
+      #     evaluated at all and arrived as literal `${{ … }}` text.
+      #
+      # Step-level `env:` is evaluated — build.yaml depends on it — so both
+      # spellings are read here, whichever one this host actually populates is
+      # used, and anything still looking like an unevaluated expression is
+      # discarded. The values then travel on as step outputs, which work.
+      - name: Resolve the dispatch inputs
+        id: resolve
+        env:
+          EVENT_ENVIRONMENT: ${{ github.event.inputs.environment }}
+          EVENT_VERSION: ${{ github.event.inputs.version }}
+          CONTEXT_ENVIRONMENT: ${{ inputs.environment }}
+          CONTEXT_VERSION: ${{ inputs.version }}
+          EVENT_PAYLOAD: ${{ toJSON(github.event) }}
         run: |
-          missing=""
-          [ -n "$ENVIRONMENT" ] || missing="environment"
-          [ -n "$VERSION" ] || missing="${missing:+$missing and }version"
+          # A host that does not evaluate an expression leaves it verbatim.
+          # Treat that as "not supplied" rather than as a value.
+          usable() {
+            case "$1" in
+              *'${{'*) printf '' ;;
+              *) printf '%s' "$1" ;;
+            esac
+          }
 
-          if [ -n "$missing" ]; then
-            echo "::error::The $missing input reached the workflow empty. Nothing has been deployed."
+          event_environment="$(usable "$EVENT_ENVIRONMENT")"
+          event_version="$(usable "$EVENT_VERSION")"
+          context_environment="$(usable "$CONTEXT_ENVIRONMENT")"
+          context_version="$(usable "$CONTEXT_VERSION")"
+
+          echo "github.event.inputs.environment -> '$event_environment'"
+          echo "github.event.inputs.version     -> '$event_version'"
+          echo "inputs.environment              -> '$context_environment'"
+          echo "inputs.version                  -> '$context_version'"
+
+          environment="${event_environment:-$context_environment}"
+          version="${event_version:-$context_version}"
+
+          if [ -z "$environment" ] || [ -z "$version" ]; then
+            echo "::error::The dispatch inputs did not reach the workflow (environment='$environment' version='$version'). Nothing has been deployed."
+            echo "--- github.event payload, for working out where the inputs went ---"
+            echo "$EVENT_PAYLOAD"
             exit 1
           fi
 
-          echo "Deploying $VERSION to $ENVIRONMENT"
+          case "$environment" in
+            staging | prod) ;;
+            *)
+              echo "::error::Refusing to deploy to unknown environment '$environment'."
+              exit 1
+              ;;
+          esac
+
+          echo "environment=$environment" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Deploying $version to $environment"
 
       - name: Fetch the released artifact
+        env:
+          VERSION: ${{ steps.resolve.outputs.version }}
         run: ./scripts/fetch_release_artifact.sh "$VERSION" build
 
       - name: Install rclone
@@ -63,12 +104,16 @@ jobs:
 
       - name: Publish
         env:
+          ENVIRONMENT: ${{ steps.resolve.outputs.environment }}
           SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
           SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
           BUNNYNET_API_KEY: ${{ secrets.BUNNYNET_API_KEY }}
         run: ./scripts/publish_site.sh "$ENVIRONMENT" build
 
       - name: Summarise
+        env:
+          ENVIRONMENT: ${{ steps.resolve.outputs.environment }}
+          VERSION: ${{ steps.resolve.outputs.version }}
         run: |
           case "$ENVIRONMENT" in
             staging) url="https://staging.ironarachne.com" ;;
