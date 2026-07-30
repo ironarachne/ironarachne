@@ -131,16 +131,43 @@ returning the error document, and pages rendering in a browser with no failed re
 **Tag pushing works.** The first run on `main` cut `v2.3.0` and pushed it. A protected branch does
 not block a tag.
 
-**Artifact actions must be v3, not v4.** The first run failed here. `upload-artifact@v4` and
-`download-artifact@v4` refuse to run anywhere but github.com, aborting with
-`GHESNotSupportedError` — the artifact API they need is not implemented outside GitHub. v3 uses the
-older API, which this host does implement, so both are pinned to v3. Do not "upgrade" them.
+Worth holding in mind for all of this: **Worktree.ca is a hard fork of Gitea**, and its Actions
+implementation is GitHub-compatible rather than GitHub. Stock actions published by GitHub sometimes
+assume they are talking to github.com and refuse to run when they are not — which is the root of the
+artifact trouble below, not anything specific to this repository.
 
-**Release creation** is still unexercised: the first run died at the artifact upload, which sits
-before it. The step is written to be self-healing rather than one-shot — it fires whenever HEAD is
-exactly at the version tag, not only when the tag was just created — so a build that tags but fails
-before attaching the artifact is repaired by the next run on that commit, without anyone deleting
-and recreating a tag.
+**The artifact actions must be `v3-node20`** — not v4, and not plain v3. Both halves matter, and
+both were learned by hitting them:
+
+| Version     | Result                                                                                                                |
+| ----------- | --------------------------------------------------------------------------------------------------------------------- |
+| `v4`        | `GHESNotSupportedError` — refuses to run anywhere but github.com, because the artifact API it needs exists only there |
+| `v3`        | `unsupported action type: node16` — the runner rejects node16 actions outright                                        |
+| `v3-node20` | v3's protocol, which this host implements, on a runtime the runner accepts                                            |
+
+Do not "upgrade" them. If `v3-node20` is ever withdrawn, the replacement is a _patched_ v4 — a fork
+with the github.com check removed — rather than stock v4, which will always refuse.
+
+Releases are cut with `actions/create-release`, which Worktree publishes in its own `actions/`
+namespace for exactly this purpose. Prefer it over hand-rolled API calls: it runs on node20, it
+preserves an existing release rather than duplicating it, and it uploads assets in the same step. It
+also publishes a `.sha256` beside the artifact, which `scripts/fetch_release_artifact.sh` verifies
+before unpacking — so promotion moves bytes that are checked rather than merely assumed.
+
+### The self-healing release step, and its limit
+
+The release step fires whenever HEAD is exactly at the version tag, rather than only when the tag was
+just created. So a build that cuts a tag but dies before attaching the artifact is repaired by the
+next run **on that same commit**.
+
+Its limit is worth understanding, because the first attempt ran into it. Once `main` moves past the
+tag, the version no longer matches and the step is skipped — correctly, since a later commit is not
+that release. A version whose build failed _and_ whose commit has been built over is therefore
+stranded: it has a tag and no artifact, and nothing will ever give it one.
+
+That is what happened to `v2.3.0`, which is why it is a tag with no release. The fix is not to
+resurrect it but to cut the next version, which is why `2.3.1` exists. If it happens again, bump the
+version rather than deleting and re-pushing a published tag.
 
 One earlier unknown is now closed. Scaleway **does** implement the S3 directory redirect: a request
 for `/heraldry` returns `302` to `/heraldry/`, so the trailing-slash fallback described in

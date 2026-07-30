@@ -7,10 +7,11 @@ name: Build
 # than an implicit side effect of the build — the same artifact staging and prod
 # later promote. See docs/deployment.md and docs/versioning.md.
 #
-# Deliberately no `workflow_dispatch` here: on Forgejo-derived hosts a
-# `workflow_dispatch` key alongside `push` has been known to stop the push
-# trigger firing, and this workflow's whole job is to run on push. Manual
-# deploys live in deploy.yaml.
+# Deliberately no `workflow_dispatch` here. Running on push is this workflow's
+# entire purpose, and a manual run of it would either re-tag or rebuild a commit
+# that already has an artifact — neither of which is what anyone wants from a
+# button. Manual deploys live in deploy.yaml, which promotes an existing
+# artifact rather than making a new one.
 
 on:
   push:
@@ -47,6 +48,14 @@ jobs:
           tag="v$version"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "package_version=$version" >> "$GITHUB_OUTPUT"
+
+          # Recorded as an output because the release step needs to know, and
+          # the `secrets` context is not reliably available in a step `if:`.
+          if [ -n "$WORKTREE_TOKEN" ]; then
+            echo "has_token=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "has_token=false" >> "$GITHUB_OUTPUT"
+          fi
 
           if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
             echo "$tag already exists."
@@ -87,11 +96,14 @@ jobs:
           echo "artifact=$artifact" >> "$GITHUB_OUTPUT"
           ls -lh "$artifact"
 
-      # Pinned to v3 on purpose. v4 refuses to run anywhere but github.com --
-      # it reports `GHESNotSupportedError` and fails the job -- because the
-      # artifact API it needs is not implemented outside GitHub. v3 uses the
-      # older API, which this host does implement.
-      - uses: https://github.com/actions/upload-artifact@v3
+      # `v3-node20` is the only version that works here, and both halves of that
+      # matter. v4 refuses to run anywhere but github.com, failing with
+      # `GHESNotSupportedError`, because the artifact API it needs exists only
+      # there; v3 speaks the older API this host does implement, but plain v3
+      # ships as a node16 action and this runner rejects those outright
+      # (`unsupported action type: node16`). `v3-node20` is v3's protocol on a
+      # runtime the runner accepts. Both failures were hit in that order.
+      - uses: https://github.com/actions/upload-artifact@v3-node20
         with:
           name: ${{ steps.package.outputs.artifact }}
           path: ${{ steps.package.outputs.artifact }}
@@ -104,21 +116,25 @@ jobs:
       # The condition is "HEAD is exactly at the version tag" rather than "the
       # tag was created just now", which makes the step self-healing: if a build
       # cut the tag but died before attaching the artifact, the next run of this
-      # workflow on the same commit finishes the job. publish_release.sh reuses
-      # an existing release and replaces a same-named asset, so re-running is
-      # safe. A commit past the tag has a different version and is skipped.
+      # workflow on the same commit finishes the job. The action preserves an
+      # existing release rather than duplicating it, so re-running is safe. A
+      # commit past the tag has a different version and is skipped.
       - name: Attach the artifact to its release
-        if: steps.version.outputs.version == steps.tag.outputs.package_version
-        env:
-          WORKTREE_TOKEN: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
-          TAG: ${{ steps.tag.outputs.tag }}
-          ARTIFACT: ${{ steps.package.outputs.artifact }}
-        run: |
-          if [ -z "$WORKTREE_TOKEN" ]; then
-            echo "::warning::WORKTREE_ACCESS_TOKEN is unset, so $TAG has no release and cannot be promoted."
-            exit 0
-          fi
-          ./scripts/publish_release.sh "$TAG" "$ARTIFACT"
+        if: steps.version.outputs.version == steps.tag.outputs.package_version && steps.tag.outputs.has_token == 'true'
+        uses: actions/create-release@v2
+        with:
+          tag_name: ${{ steps.tag.outputs.tag }}
+          files: ${{ steps.package.outputs.artifact }}
+          # Publishes a .sha256 beside the artifact, which
+          # scripts/fetch_release_artifact.sh checks before unpacking. Promotion
+          # is meant to move known bytes to prod; this is what makes "known"
+          # checkable rather than assumed.
+          sha256sum: true
+          token: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
+
+      - name: Warn when a release could not be published
+        if: steps.version.outputs.version == steps.tag.outputs.package_version && steps.tag.outputs.has_token != 'true'
+        run: echo "::warning::WORKTREE_ACCESS_TOKEN is unset, so ${{ steps.tag.outputs.tag }} has no release and cannot be promoted to staging or prod."
 
   deploy-dev:
     needs: build
@@ -127,8 +143,8 @@ jobs:
       # Only the publish script is needed, not the history.
       - uses: actions/checkout@v4
 
-      # v3 for the same reason as the upload: v4 does not work off github.com.
-      - uses: https://github.com/actions/download-artifact@v3
+      # `v3-node20` for the same two reasons as the upload above.
+      - uses: https://github.com/actions/download-artifact@v3-node20
         with:
           name: ${{ needs.build.outputs.artifact }}
 

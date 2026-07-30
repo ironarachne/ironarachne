@@ -65,6 +65,30 @@ tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 curl -sSfL -o "$tmp/$artifact" "$url"
 
+# The build publishes a .sha256 beside the artifact. Verify it when present, so
+# a truncated download or a tampered asset cannot reach a bucket. Absent for
+# releases cut before checksums were published, which is not an error.
+checksum_url="$(
+  echo "$release" |
+    jq -r --arg name "$artifact.sha256" '.assets[]? | select(.name == $name) | .browser_download_url'
+)"
+
+if [ -n "$checksum_url" ]; then
+  echo "--> Verifying checksum"
+  curl -sSfL -o "$tmp/$artifact.sha256" "$checksum_url"
+  expected="$(tr -d '\r' <"$tmp/$artifact.sha256" | awk '{print $1}')"
+  actual="$(sha256sum "$tmp/$artifact" | awk '{print $1}')"
+
+  if [ "$expected" != "$actual" ]; then
+    echo "error: checksum mismatch for $artifact" >&2
+    echo "       expected $expected" >&2
+    echo "       actual   $actual" >&2
+    exit 1
+  fi
+else
+  echo "--> No checksum published for this release; skipping verification"
+fi
+
 echo "--> Unpacking into $dest"
 rm -rf "$dest"
 mkdir -p "$dest"
