@@ -3,14 +3,15 @@
 How a build reaches a bucket. The infrastructure it targets is described in `docs/infrastructure.md`;
 the version scheme in `docs/versioning.md`.
 
-**Status:** implemented and working. A merge to `main` tags the version, builds a versioned artifact,
-publishes it as a release asset with a checksum, and deploys it to dev — all confirmed on a real run.
-Promotion works both ways: its two commands were run against staging, which served 2.3.2 correctly,
-and the `workflow_dispatch` button has since been used for real.
+**Status:** implemented. A merge to `main` tags the version, builds a versioned artifact, publishes it
+as a release asset with a checksum, and deploys it to dev — all confirmed on real runs. Promotion by
+committed version file replaces an earlier `workflow_dispatch` design that could not work here; the
+publish half of it is proven, since staging was promoted to 2.3.2 by running the same two commands
+by hand.
 
-Getting there took four runs, and what they taught is in
-[Actions on this host](#actions-on-this-host). Read that section before changing anything in
-`build.yaml`: most of it exists to work around things this platform does not implement.
+Most of the shape below exists to work around things this platform does not implement, and it took
+eight CI runs to find them all. Read [Actions on this host](#actions-on-this-host) before changing
+any workflow.
 
 ## The shape
 
@@ -27,30 +28,32 @@ graph TD
     build -->|"release asset + .sha256<br/>(released versions only)"| release[("release v&lt;version&gt;")]
     unpack --> dev[["dev.ironarachne.com"]]
 
-    subgraph deploywf["deploy.yaml — manual"]
-        dispatch["workflow_dispatch<br/>environment + version"]
+    subgraph promotewf["promote-*.yaml — on a version file changing"]
+        stagingfile["deploy/staging.version"]
+        prodfile["deploy/prod.version"]
     end
 
-    release --> dispatch
-    dispatch --> staging[["staging.ironarachne.com"]]
-    dispatch --> prod[["app.ironarachne.com"]]
+    release --> stagingfile
+    release --> prodfile
+    stagingfile --> staging[["staging.ironarachne.com"]]
+    prodfile --> prod[["app.ironarachne.com"]]
 ```
 
-|         | Trigger               | Deploys                                  |
-| ------- | --------------------- | ---------------------------------------- |
-| dev     | every merge to `main` | the artifact built in that run, unpacked |
-| staging | manual                | the release asset for a chosen version   |
-| prod    | manual                | the release asset for a chosen version   |
+|         | Trigger                          | Deploys                                  |
+| ------- | -------------------------------- | ---------------------------------------- |
+| dev     | every merge to `main`            | the artifact built in that run, unpacked |
+| staging | `deploy/staging.version` changes | the release asset for that version       |
+| prod    | `deploy/prod.version` changes    | the release asset for that version       |
 
-Promotion is a separate workflow that fetches a published artifact, so the bytes reaching prod are
-the bytes that were built and tested — not a rebuild that happens to start from the same commit.
+Promotion fetches a published artifact rather than rebuilding, so the bytes reaching prod are the
+bytes that were built and tested — not a rebuild that happens to start from the same commit.
 
-Build and deploy are **not** separate jobs, though, and that is a platform constraint rather than a
+Build and deploy are **not** separate jobs, and that is a platform constraint rather than a
 preference: this host provides no `ACTIONS_RUNTIME_TOKEN`, so workflow artifacts do not work and
 there is no way to hand a file between jobs. See [Actions on this host](#actions-on-this-host). The
-separation lives in the scripts and in `deploy.yaml` instead. To keep it honest, the dev deploy
-publishes the **unpacked artifact** rather than `build/` directly, so dev serves exactly what the
-release contains and a packaging bug surfaces there rather than first appearing in a prod promotion.
+separation lives in the scripts and in the promotion workflows instead. To keep it honest, the dev
+deploy publishes the **unpacked artifact** rather than `build/` directly, so dev serves exactly what
+the release contains and a packaging bug surfaces there rather than first appearing in prod.
 
 ## Publishing
 
@@ -96,35 +99,54 @@ unaffected — their URLs changed, so nothing stale is reachable.
 
 ## Promoting to staging or prod
 
-Run the **Deploy** workflow from the Actions UI, choosing an environment and a version. It fetches
-that version's release asset and publishes it. Equivalently, by hand:
+**Promotion is a commit.** Each environment has a file naming the version it should be running:
+
+```
+deploy/staging.version
+deploy/prod.version
+```
+
+Change the file, open a PR, merge it. `promote-staging.yaml` and `promote-prod.yaml` watch their
+respective file and, when it changes on `main`, fetch that version's release asset and publish it.
+
+```bash
+echo 2.3.3 > deploy/prod.version   # then PR and merge
+```
+
+**Rolling back is the same operation**: put the older version in the file and merge. Nothing special,
+nothing to remember under pressure.
+
+A version must have been released to be promotable — bump `package.json` to cut one — and the file
+holds bare digits, `2.3.2`, with no leading `v`.
+
+Doing it by hand is still supported and is exactly what the workflows run:
 
 ```bash
 scripts/fetch_release_artifact.sh 2.3.2 build
-scripts/publish_site.sh staging build
+scripts/publish_site.sh prod build
 ```
 
-A version must have been released to be promotable. Bump `package.json` to cut one.
+### Why a commit rather than a button
 
-**Promotion has to be started by a human in the web UI.** The button works. What does not is doing it
-programmatically: this host implements no Actions REST API — `/api/v1/repos/{owner}/{repo}/actions/*`
-returns a route-level 404 — so no script, agent, or other workflow can dispatch it. The two commands
-above are the supported fallback when nobody is around to click; they are exactly what the workflow
-runs.
+Because a button does not work here. `workflow_dispatch` inputs are collected by the web UI and then
+never delivered to the runner — see [Actions on this host](#actions-on-this-host). The three
+promotion attempts that failed were all this, wearing different masks.
+
+Having been forced into it, the committed version is the better design regardless: the repository
+states what each environment is meant to be running, promotion is reviewable before it happens, and
+rollback needs no new mechanism.
 
 ## Required setup
 
-Three secrets are already in place, named to match the local environment variables:
-`SCW_ACCESS_KEY`, `SCW_SECRET_KEY`, `BUNNYNET_API_KEY`.
+Four secrets are in place: `SCW_ACCESS_KEY`, `SCW_SECRET_KEY` and `BUNNYNET_API_KEY`, named to match
+the local environment variables, plus `WORKTREE_ACCESS_TOKEN` — a personal access token with write
+access to this repository, which is what lets `build.yaml` push the tag and cut the release. Without
+that last one, builds and dev deploys still work and the workflow logs a warning; only releases, and
+therefore promotion, are blocked.
 
-Two things still need doing:
+One thing still needs doing:
 
-**1. Add a `WORKTREE_ACCESS_TOKEN` secret** — a personal access token with write access to this
-repository. It is what lets `build.yaml` push the tag and create the release. Without it, builds and
-dev deploys still work; only promotion is blocked, and the workflow logs a warning rather than
-failing.
-
-**2. Point the Scaleway secrets at the deploy identity.** They currently hold a user-scoped API key,
+**Point the Scaleway secrets at the deploy identity.** They currently hold a user-scoped API key,
 which can do anything the account can. `infra/shared` exists to provide a narrower one: an IAM
 application whose policy allows only object-storage reads and writes within the site project. Mint a
 key against it and replace the secret values — the names do not change, so nothing here needs
@@ -171,7 +193,7 @@ currently disabled", and cache and artifacts are the same subsystem.
 survive beyond a single job has to go somewhere real: a release asset, or a bucket. That constraint
 is why `build.yaml` is one job.
 
-**Reading `workflow_dispatch` inputs is awkward here, and cost two failed prod deploys.** Two
+**`workflow_dispatch` inputs do not work here at all, and cost three failed prod deploys.** The first two failures looked like two
 separate problems, which look nothing alike:
 
 | Attempt                                                        | What happened                                                                                                   |
@@ -192,22 +214,30 @@ inputs.version                  -> ''
 `map[]` is how Go renders an empty map. **`github.event.inputs` exists but is empty** — the values
 typed into the dispatch form are not reaching the workflow by either name.
 
-Two things are established, and one is not:
+A fourth attempt dumped every possible source before judging any of them, and settled it:
 
-- **Expressions in job-level `env:` are not evaluated at all** on this host. Step-level `env:` is, and
-  `build.yaml` depends on that. Never put an expression in a job-level `env:` here.
-- **`inputs` is not populated**, and `github.event.inputs` is populated but empty.
-- Whether the inputs are anywhere else — the event payload file, the process environment — is still
-  open. `deploy.yaml` now dumps `$GITHUB_EVENT_PATH`, every `INPUT`-ish environment variable, and the
-  tools it depends on, **before** judging any value, and falls back to reading the payload with `jq`.
+```
+github.event.inputs.environment -> 'map[]'      # an empty map
+inputs.environment              -> ''           # not populated
+$GITHUB_EVENT_PATH              -> unset; no event payload file exists
+environment variables matching INPUT -> (none)
+```
 
-That ordering is deliberate. An earlier version validated first and exited on a bad value, which
-suppressed the diagnostic dump added for exactly this purpose — the run failed with
-`unknown environment 'map[]'` and told us nothing else. Print, then judge.
+**`workflow_dispatch` inputs are not delivered to the runner on this host, by any route.** The web UI
+renders the fields and collects what you type — this was confirmed by a human filling them in — and
+none of it reaches the job. There is not even an event payload file to read them from. This looks
+like a host bug worth reporting upstream.
 
-If the inputs turn out to be undeliverable on this host, the workflow needs a different shape: either
-one workflow per environment with no inputs, or promoting "the latest release" rather than a named
-version. Both are worse than what is written, so neither has been adopted while the question is open.
+Hence promotion by committed version file. No workflow here should be designed around dispatch
+inputs until that changes.
+
+Two related rules learned along the way:
+
+- **Expressions in job-level `env:` are not evaluated at all.** Step-level `env:` is, and `build.yaml`
+  depends on that. Never put an expression in a job-level `env:` here.
+- **Print, then judge.** An earlier diagnostic validated values before dumping them, so a bad value
+  exited the step early and suppressed the dump added for exactly that purpose. The run failed with
+  `unknown environment 'map[]'` and taught us nothing, costing a whole round trip.
 
 **`actions/create-release` needs `name`, `body`, `draft` and `prerelease` passed explicitly.** Its
 defaults are written in terms of `github.event.release.*`, which does not exist on a `push` event; the

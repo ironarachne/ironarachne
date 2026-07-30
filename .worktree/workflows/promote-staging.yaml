@@ -1,0 +1,88 @@
+name: Promote staging
+
+# Deploys whatever version is written in deploy/staging.version to staging, whenever
+# that file changes on main.
+#
+# Promotion is a commit rather than a button because this host collects
+# workflow_dispatch inputs in the UI and then never delivers them to the runner
+# — see docs/deployment.md. A committed version is arguably better anyway: it is
+# reviewable, it says in the repository what staging is meant to be running, and a
+# rollback is just another commit.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - deploy/staging.version
+
+jobs:
+  promote:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Two commits, so this push can be compared against its predecessor.
+          fetch-depth: 2
+
+      - name: Confirm the version file changed in this push
+        id: check
+        run: |
+          # Belt and braces. If `paths:` filtering is ever not honoured, this
+          # stops staging being redeployed on every unrelated merge to main.
+          if git diff --name-only HEAD^ HEAD | grep -qx 'deploy/staging.version'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "deploy/staging.version did not change in this push; nothing to promote."
+          fi
+
+      - name: Read the requested version
+        id: version
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          version="$(tr -d '[:space:]' < deploy/staging.version)"
+
+          if [ -z "$version" ]; then
+            echo "::error::deploy/staging.version is empty. Nothing has been deployed."
+            exit 1
+          fi
+
+          # A typo here deploys the wrong thing to staging, so be strict about the
+          # shape before going near a bucket.
+          case "$version" in
+            [0-9]*.[0-9]*.[0-9]*) ;;
+            *)
+              echo "::error::deploy/staging.version does not look like a version: '$version'"
+              echo "::error::Write it as bare digits, e.g. 2.3.2 — no leading v."
+              exit 1
+              ;;
+          esac
+
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Promoting $version to staging"
+
+      - name: Fetch the released artifact
+        if: steps.check.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: ./scripts/fetch_release_artifact.sh "$VERSION" build
+
+      - name: Install rclone
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+          rclone version | head -1
+
+      - name: Publish
+        if: steps.check.outputs.changed == 'true'
+        env:
+          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          BUNNYNET_API_KEY: ${{ secrets.BUNNYNET_API_KEY }}
+        run: ./scripts/publish_site.sh staging build
+
+      - name: Summarise
+        if: steps.check.outputs.changed == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: echo "Promoted $VERSION to https://staging.ironarachne.com"
