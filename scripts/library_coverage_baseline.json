@@ -1,22 +1,14 @@
 {
-  "$comment": "Debt register for the per-library coverage gate (scripts/check_library_coverage.ts). Each entry is a library that was below the threshold when the gate was introduced, recorded at the coverage it had. A library here may not get worse, and this list is meant to shrink: when one reaches the threshold, delete its entry. Do NOT add entries \u2014 a new library below the threshold needs tests, not an exemption.",
+  "$comment": "Debt register for the per-library coverage gate (scripts/check_library_coverage.ts). Each entry is a library that was below the threshold when the gate was introduced, recorded at the coverage it had. A library here may not get worse, and this list is meant to shrink: when one reaches the threshold, delete its entry. Do NOT add entries — a new library below the threshold needs tests, not an exemption.",
   "threshold": 80,
   "libraries": {
     "archetype_badges": {
       "lines": 69,
       "functions": 66
     },
-    "archetypes": {
-      "lines": 42,
-      "functions": 60
-    },
     "architecture": {
       "lines": 79,
       "functions": 100
-    },
-    "arms_manufacturer": {
-      "lines": 0,
-      "functions": 0
     },
     "astronomical_bodies": {
       "lines": 21,
@@ -26,25 +18,9 @@
       "lines": 71,
       "functions": 92
     },
-    "change_log": {
-      "lines": 0,
-      "functions": 0
-    },
     "charges": {
       "lines": 95,
       "functions": 60
-    },
-    "chopshop": {
-      "lines": 0,
-      "functions": 0
-    },
-    "civilizations": {
-      "lines": 0,
-      "functions": 0
-    },
-    "cuisine": {
-      "lines": 0,
-      "functions": 0
     },
     "currency": {
       "lines": 78,
@@ -58,10 +34,6 @@
       "lines": 78,
       "functions": 100
     },
-    "drug": {
-      "lines": 0,
-      "functions": 0
-    },
     "dungeon": {
       "lines": 67,
       "functions": 78
@@ -73,10 +45,6 @@
     "equipment": {
       "lines": 31,
       "functions": 27
-    },
-    "images": {
-      "lines": 26,
-      "functions": 50
     },
     "languages": {
       "lines": 72,
@@ -102,21 +70,9 @@
       "lines": 77,
       "functions": 89
     },
-    "realms": {
-      "lines": 0,
-      "functions": 0
-    },
-    "regions": {
-      "lines": 0,
-      "functions": 0
-    },
     "renderers": {
       "lines": 37,
       "functions": 46
-    },
-    "shaders": {
-      "lines": 0,
-      "functions": 0
     },
     "size": {
       "lines": 50,
@@ -126,21 +82,9 @@
       "lines": 69,
       "functions": 66
     },
-    "spooky_ship": {
-      "lines": 0,
-      "functions": 0
-    },
     "swn": {
       "lines": 35,
       "functions": 58
-    },
-    "velgarth_gifts": {
-      "lines": 0,
-      "functions": 0
-    },
-    "weapons": {
-      "lines": 0,
-      "functions": 0
     },
     "workshop": {
       "lines": 10,
