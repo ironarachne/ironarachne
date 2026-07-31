@@ -68,7 +68,7 @@ export function generateMoon(config: MoonGenerationConfig): AstronomicalBody {
     name: name,
     description: description,
     albedo: getAlbedoFromTemperature(temperature),
-    axis_of_rotation: Math.random() * 360,
+    axis_of_rotation: config.rng.float(0, 360),
     classification: `${classification.name} moon`,
     gravity: getGravityFromMassAndRadius(mass, radius),
     has_atmosphere: classification.has_atmosphere,
