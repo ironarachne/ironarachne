@@ -93,9 +93,17 @@ describe('every registered panel resolves to a component', () => {
     NonNullable<(typeof TOOL_PANELS)[keyof typeof TOOL_PANELS]>,
   ][];
 
-  it.each(entries)('%s loads a component', async (_path, loader) => {
-    const module = await loader();
+  // Each case transforms a whole generator component and its dependency graph on first import.
+  // Under `vitest run --coverage` — which is what `npm run verify` runs — v8 instrumentation
+  // pushes the heaviest of them (the AD&D character builder, which pulls in PDF export) past
+  // the 5s default, so the gate failed intermittently on work that had nothing to do with it.
+  it.each(entries)(
+    '%s loads a component',
+    async (_path, loader) => {
+      const module = await loader();
 
-    expect(typeof module.default).toBe('function');
-  });
+      expect(typeof module.default).toBe('function');
+    },
+    30_000,
+  );
 });
