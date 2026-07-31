@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { contrastRatio } from '$lib/display_colors/display_palettes.js';
-import { pickSpeciesBadgePalette, pickSpeciesBadgeInitialsStyle } from './species_badge_palette.js';
+import {
+  pickSpeciesBadgePalette,
+  pickSpeciesBadgeInitialsStyle,
+  pickSpeciesBadgeTextColor,
+} from './species_badge_palette.js';
 
 describe('pickSpeciesBadgePalette', () => {
   it('returns the same palette for the same species name', () => {
@@ -34,6 +38,33 @@ describe('pickSpeciesBadgeInitialsStyle', () => {
       for (const background of backgrounds) {
         expect(contrastRatio(style.text, background)).toBeGreaterThanOrEqual(4.5);
       }
+    }
+  });
+});
+
+describe('pickSpeciesBadgeTextColor', () => {
+  it('returns the text colour from the initials style', () => {
+    const palette = pickSpeciesBadgePalette('rogue');
+
+    expect(pickSpeciesBadgeTextColor(palette)).toBe(pickSpeciesBadgeInitialsStyle(palette).text);
+  });
+
+  it('returns a hex colour', () => {
+    expect(pickSpeciesBadgeTextColor(pickSpeciesBadgePalette('mage'))).toMatch(/^#[0-9A-Fa-f]{6}$/);
+  });
+
+  it('is stable for the same palette', () => {
+    const palette = pickSpeciesBadgePalette('fighter');
+
+    expect(pickSpeciesBadgeTextColor(palette)).toBe(pickSpeciesBadgeTextColor(palette));
+  });
+
+  it('reads well against the palette it was chosen for', () => {
+    for (const name of ['rogue', 'mage', 'fighter', 'cleric', 'ranger']) {
+      const palette = pickSpeciesBadgePalette(name);
+      const text = pickSpeciesBadgeTextColor(palette);
+
+      expect(contrastRatio(text, palette.primary)).toBeGreaterThan(1);
     }
   });
 });
