@@ -85,10 +85,6 @@
     "swn": {
       "lines": 35,
       "functions": 58
-    },
-    "workshop": {
-      "lines": 10,
-      "functions": 7
     }
   }
 }
