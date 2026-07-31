@@ -153,6 +153,13 @@ export function generate(rng: RNG.RNG) {
 
     const numberOfWeapons = rng.int(1, 2);
     for (let i = 0; i < numberOfWeapons; i++) {
+      // The filter above can match nothing at all: a class 0 hull that spent its mass and power
+      // on a drive upgrade has no budget left for any weapon in the table. rng.item of an empty
+      // list is undefined, which threw on the next property access and aborted generation.
+      if (possibleWeapons.length === 0) {
+        break;
+      }
+
       const newWeapon = rng.item(possibleWeapons);
 
       let weaponCost = newWeapon.cost;
