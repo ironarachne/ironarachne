@@ -49,7 +49,7 @@ export function generateStarSystem(config: StarSystemGenerationConfig): StarSyst
     const star = generateStar(star_config);
 
     if (config.star_count > 1) {
-      star.name += `${star.name} ${i + 1}`;
+      star.name = `${star.name} ${i + 1}`;
     }
 
     stars.push(star);
