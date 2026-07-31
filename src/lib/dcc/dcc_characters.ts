@@ -236,15 +236,15 @@ function getLanguages(character: DCCCharacter, rng: RNG): string[] {
   return languages;
 }
 
-function getMaxSpellLevel(score: number): number {
+export function getMaxSpellLevel(score: number): number {
   const values = [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 3, 3, 4, 4, 4, 5, 5, 5, 5];
   if (score >= values.length) return 5;
   if (score < 0) return 0;
   return values[score];
 }
 
-function getSpellsKnown(intScore: number): number {
-  const known = [-9, -9, -9, -9, -2, -2 - 1, -1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2];
+export function getSpellsKnown(intScore: number): number {
+  const known = [-9, -9, -9, -9, -2, -2, -1, -1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 2, 2];
   if (intScore >= known.length) return 2;
   if (intScore < 0) return -9;
   return known[intScore];
