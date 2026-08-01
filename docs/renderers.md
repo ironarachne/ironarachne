@@ -8,12 +8,17 @@ It exists because the library has three problems that are all the same problem w
 hats — the two backends duplicate the arithmetic that decides what a picture contains, and nothing
 holds them to the same answer.
 
-**Status:** proposal; domain model revised following review. Nothing here is built. The
-[domain model](#domain-model) has been through one round of review and the diagrams were amended in
-response — see decisions 5 and 6, which were raised as gaps rather than resolved by the first draft.
-Implementation does not begin until the revised diagrams are approved, per the design process in
-CLAUDE.md. Issue #95 (raise `renderers` coverage to 80%) is deliberately blocked on this document:
-writing tests against the current shape would cement the duplication this removes.
+**Status:** accepted 2026-08-01; implementation not started. The [domain model](#domain-model) went
+through one round of review (#115), which amended the diagrams and settled the two questions the
+first draft had left open as decisions 5 and 6. The diagrams are approved and
+[the plan](#the-plan) may begin at step 1.
+
+Issue #95 (raise `renderers` coverage to 80%) was blocked on this document, because tests written
+against the current shape would have cemented the duplication the plan removes. It is now blocked on
+the plan instead, and closes with step 6.
+
+Amend this document rather than working around it: if implementation contradicts a diagram, the
+diagram is what needs changing first.
 
 ## The problem
 
