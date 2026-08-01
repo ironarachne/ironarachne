@@ -15,7 +15,6 @@ export type ClassicModuleMapStyle = {
    */
   floorInsetMin: number;
   floorInsetRatio: number;
-  showFeatureMarkers: boolean;
 };
 
 const defaultClassicModuleMapStyle: ClassicModuleMapStyle = {
@@ -24,7 +23,6 @@ const defaultClassicModuleMapStyle: ClassicModuleMapStyle = {
   floorColor: '#ffffff',
   floorInsetMin: 1,
   floorInsetRatio: 0.055,
-  showFeatureMarkers: true,
 };
 
 function mergeStyle(overrides?: Partial<ClassicModuleMapStyle>): ClassicModuleMapStyle {
@@ -50,8 +48,9 @@ function doorCorridorOrientation(grid: Grid<boolean>, x: number, y: number): 'ns
   if (e && w && !n && !s) {
     return 'ew';
   }
+  /* A corner or junction: the guard already established a north/south run, so treat it as one. */
   if ((n || s) && (e || w)) {
-    return n || s ? 'ns' : 'ew';
+    return 'ns';
   }
   return null;
 }
@@ -246,17 +245,12 @@ export function renderClassicModuleMapToCanvas(
     entranceAt.set(cellKey(e.x, e.y), { type: e.type });
   }
 
-  const roomCenters = new Map<string, { label: string; treasure: boolean; encounter: boolean }>();
+  const roomLabelAt = new Map<string, string>();
   for (const room of dungeon.rooms) {
     const cx = Math.floor(room.x + room.primitive.width / 2);
     const cy = Math.floor(room.y + room.primitive.height / 2);
     const id = room.id;
-    const label = id.length > 2 ? id.slice(-2) : id;
-    roomCenters.set(cellKey(cx, cy), {
-      label,
-      treasure: (room.treasure?.length ?? 0) > 0,
-      encounter: room.encounter != null,
-    });
+    roomLabelAt.set(cellKey(cx, cy), id.length > 2 ? id.slice(-2) : id);
   }
 
   ctx.textAlign = 'center';
@@ -323,12 +317,10 @@ export function renderClassicModuleMapToCanvas(
         continue;
       }
 
-      const roomInfo = roomCenters.get(coordKey);
-      if (!roomInfo) {
+      const label = roomLabelAt.get(coordKey);
+      if (label === undefined) {
         continue;
       }
-
-      const label = roomInfo.label;
 
       drawRoomLabelBlue(ctx, cx, cyPix, label, cellSize, glyphBlue);
     }

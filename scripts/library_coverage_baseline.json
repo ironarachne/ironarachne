@@ -2,10 +2,6 @@
   "$comment": "Debt register for the per-library coverage gate (scripts/check_library_coverage.ts). Each entry is a library that was below the threshold when the gate was introduced, recorded at the coverage it had. A library here may not get worse, and this list is meant to shrink: when one reaches the threshold, delete its entry. Do NOT add entries \u2014 a new library below the threshold needs tests, not an exemption.",
   "threshold": 80,
   "libraries": {
-    "dungeon": {
-      "lines": 67,
-      "functions": 78
-    },
     "persistent_save": {
       "lines": 52,
       "functions": 37
