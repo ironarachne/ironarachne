@@ -6,10 +6,6 @@
       "lines": 79,
       "functions": 100
     },
-    "dice": {
-      "lines": 78,
-      "functions": 100
-    },
     "dungeon": {
       "lines": 67,
       "functions": 78
