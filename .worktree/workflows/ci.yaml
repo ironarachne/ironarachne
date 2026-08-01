@@ -8,6 +8,19 @@ name: CI
 # does a full production build and drives a browser, so it is slower and fails for
 # different reasons. Keeping them separate gives two independent status checks to
 # require on `main`, and lets the fast one report while the slow one is still going.
+#
+# A prose-only pull request skips the browser suite but still reports a status —
+# see the `scope` step in `e2e`. Note what this workflow deliberately does *not*
+# do: add `paths-ignore:` to the triggers above. `main` requires the contexts
+# "CI / verify (pull_request)" and "CI / e2e (pull_request)", and a workflow that
+# does not run posts no status at all, so a filtered-out pull request would wait
+# forever on two checks that can never arrive. The job has to run in order to
+# report; only its expensive steps are skipped.
+#
+# `verify` is deliberately *not* skipped for prose. `npm run lint` runs
+# `prettier --check .`, which covers Markdown, so it is the check that keeps a
+# badly formatted document from landing and breaking `lint` on `main`. It costs
+# about ninety seconds against the browser suite's four to seventeen minutes.
 
 on:
   pull_request:
@@ -31,17 +44,75 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
+    # A hung browser has twice held this job for about seventeen minutes before the
+    # host reaped it, reporting nothing useful. Fifteen minutes is roughly three
+    # times a healthy run (three to five minutes), so a real slowdown still passes
+    # and a wedged one fails while the log still says where it stopped.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v4
+        with:
+          # The scope step below diffs against the merge base, which a shallow
+          # clone does not contain.
+          fetch-depth: 0
+
+      # Decides whether this change can affect what a browser renders. Every
+      # branch of this errs towards running the suite: the cost of a needless run
+      # is minutes, and the cost of a wrongly skipped one is a bug reaching `main`.
+      - name: Decide whether the browser suite is needed
+        id: scope
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+        run: |
+          set -uo pipefail
+
+          run_suite() {
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+            echo "==> Running the browser suite: $1"
+            exit 0
+          }
+
+          # Only pull requests are ever skipped. A push to `main` always runs the
+          # full suite — that is the safety net, and it is not a required check
+          # there, so a red result informs without blocking.
+          [ "$EVENT_NAME" = "pull_request" ] || run_suite "event is '${EVENT_NAME:-unknown}', not a pull request"
+
+          # `origin/main` rather than `github.base_ref`, because the trigger above
+          # admits no other base, and because this host is unreliable about
+          # populating event payload fields (see docs/deployment.md).
+          git rev-parse -q --verify origin/main >/dev/null || run_suite "could not resolve origin/main"
+          merge_base="$(git merge-base origin/main HEAD)" || run_suite "could not find a merge base"
+
+          changed="$(git diff --name-only "$merge_base" HEAD)"
+          [ -n "$changed" ] || run_suite "no changed files could be determined"
+
+          echo "Changed files:"
+          echo "$changed" | sed 's/^/  /'
+
+          # Prose is Markdown anywhere, anything under docs/, and the licence.
+          # No Markdown is imported into the build — the app's `?raw` imports are
+          # all SVG and /changelog is a hand-written component — so none of it can
+          # change a rendered page. Everything else, including this workflow and
+          # anything under e2e/, runs the suite.
+          if echo "$changed" | grep -qvE '(\.md$|^docs/|^LICENSE$)'; then
+            run_suite "the change touches something other than prose"
+          fi
+
+          echo "needed=false" >> "$GITHUB_OUTPUT"
+          echo "==> Skipping the browser suite: this change is prose only."
 
       - uses: actions/setup-node@v4
+        if: steps.scope.outputs.needed == 'true'
         with:
           node-version: 24
 
       - run: npm ci
+        if: steps.scope.outputs.needed == 'true'
 
       # Every Playwright project in playwright.config.ts is Chromium-backed — the
       # mobile ones are Chromium device emulation — so this is the only browser needed.
       - run: npx playwright install --with-deps chromium
+        if: steps.scope.outputs.needed == 'true'
 
       - run: npm run test:e2e
+        if: steps.scope.outputs.needed == 'true'
