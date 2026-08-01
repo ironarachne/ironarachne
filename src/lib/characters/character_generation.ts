@@ -146,8 +146,9 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
   let heraldry = undefined;
   const titles: Title[] = [];
   if (archetype?.name === 'noble') {
-    const heraldryConfig = getDefaultHeraldryGeneratorConfig();
-    heraldryConfig.rng = rng;
+    /* Pass the seeded rng in: the default config draws chargeCount immediately, so building it
+       without one leaves the charge count on a wall-clock seed and the arms unreproducible. */
+    const heraldryConfig = getDefaultHeraldryGeneratorConfig(rng);
     heraldry = generateHeraldry(heraldryConfig);
 
     const possibleTitles = getStandardNobleTitles();
