@@ -63,6 +63,12 @@ function tryPresentLemmaFromPastForm(token: string, verbMeanings: Set<string>): 
   if (verbMeanings.has(withoutEd)) {
     return withoutEd;
   }
+  /* A lemma ending in "e" takes only "d" ("like" → "liked"), which is the form
+     pastSurfaceForLemma emits, so the reader has to accept it back. */
+  const withRestoredE = `${withoutEd}e`;
+  if (verbMeanings.has(withRestoredE)) {
+    return withRestoredE;
+  }
   if (withoutEd.length > 1) {
     const doubled = withoutEd.slice(0, -1);
     if (verbMeanings.has(doubled)) {
