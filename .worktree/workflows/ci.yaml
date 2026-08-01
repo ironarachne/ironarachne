@@ -44,11 +44,13 @@ jobs:
 
   e2e:
     runs-on: ubuntu-latest
-    # A hung browser has twice held this job for about seventeen minutes before the
-    # host reaped it, reporting nothing useful. Fifteen minutes is roughly three
-    # times a healthy run (three to five minutes), so a real slowdown still passes
-    # and a wedged one fails while the log still says where it stopped.
-    timeout-minutes: 15
+    # No `timeout-minutes:` here, deliberately. Adding it made this job fail one
+    # second after the worker was assigned, before the runner banner printed and
+    # before any step ran, with an empty log — while `verify`, from this same
+    # file, passed. So the file parsed and the runner rejected the job. No other
+    # workflow here uses the key; every other construct in this job is already
+    # proven in `build.yaml`. A hung browser therefore still runs until the host
+    # reaps it at about seventeen minutes.
     steps:
       - uses: actions/checkout@v4
         with:
