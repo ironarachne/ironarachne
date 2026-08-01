@@ -77,7 +77,9 @@ export function validateHeraldryGeneratorConfig(
 export function mergeHeraldryGeneratorConfig(
   partial: Partial<HeraldryGeneratorConfig> = {},
 ): HeraldryGeneratorConfig {
-  const base = getDefaultHeraldryGeneratorConfig();
+  /* Seed the defaults from the caller's rng when there is one, so a partial that omits
+     chargeCount still gets a reproducible count rather than a wall-clock one. */
+  const base = getDefaultHeraldryGeneratorConfig(partial.rng);
   // Shallow merge is sufficient because values are primitives or arrays
   return validateHeraldryGeneratorConfig({ ...base, ...partial });
 }
