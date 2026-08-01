@@ -8,10 +8,12 @@ It exists because the library has three problems that are all the same problem w
 hats — the two backends duplicate the arithmetic that decides what a picture contains, and nothing
 holds them to the same answer.
 
-**Status:** proposal; awaiting review. Nothing here is built. The [domain model](#domain-model) is
-drafted and implementation does not begin until those diagrams are approved, per the design process
-in CLAUDE.md. Issue #95 (raise `renderers` coverage to 80%) is deliberately blocked on this
-document: writing tests against the current shape would cement the duplication this removes.
+**Status:** proposal; domain model revised following review. Nothing here is built. The
+[domain model](#domain-model) has been through one round of review and the diagrams were amended in
+response — see decisions 5 and 6, which were raised as gaps rather than resolved by the first draft.
+Implementation does not begin until the revised diagrams are approved, per the design process in
+CLAUDE.md. Issue #95 (raise `renderers` coverage to 80%) is deliberately blocked on this document:
+writing tests against the current shape would cement the duplication this removes.
 
 ## The problem
 
@@ -20,18 +22,28 @@ document: writing tests against the current shape would cement the duplication t
 `ImageRendererSelect` offers "WebGL" and "Canvas2D" as a user-facing choice. The two backends draw
 different random numbers, in a different order, from the same seed:
 
-|                | `canvas2d_planet_renderer`                                                             | `webgl_planet_renderer`                                                                 |
-| -------------- | -------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| RNG draw order | `seedFloat`, `lx`, cloud, storm, **~180 background-star draws**, ring angle, ring tilt | `lx`, `randomString(13)`, cloud, storm, `seedFloat`, ring angle, ring tilt, ring colour |
-| Planet colours | `resolvePlanetCanvasTheme(classification, seed)`                                       | `getRandomGasGiantRgbTriplet(...)`, whatever the classification                         |
-| Ring colour    | `randomRingRgb(seed)`                                                                  | three floats off the main RNG                                                           |
+|                | `canvas2d_planet_renderer`                                                                  | `webgl_planet_renderer`                                                                 |
+| -------------- | ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| RNG draw order | `seedFloat`, `lx`, cloud, storm, **up to 720 background-star draws**, ring angle, ring tilt | `randomString(13)`, `lx`, cloud, storm, `seedFloat`, ring angle, ring tilt, ring colour |
+| Planet colours | `resolvePlanetCanvasTheme(classification, seed)`                                            | `getRandomGasGiantRgbTriplet(...)`, whatever the classification                         |
+| Ring colour    | `randomRingRgb(seed)`                                                                       | three floats off the main RNG                                                           |
+| Ring tilt      | `rng.float(0.15, 0.45)`                                                                     | `rng.float(0.1, 0.4)`                                                                   |
 
 The same seed therefore produces a different planet depending on which backend drew it — a
 different palette, and, because Canvas2D consumes the RNG for background stars part-way through,
-different ring geometry too. The star-system renderers have the same split; `star_system_layout.ts`
-records the situation in its own doc comment, that it "mirrors placement math in
-`webgl_star_system_renderer` for consistent previews". The mirroring is manual, and manual mirroring
-drifts.
+different ring geometry too.
+
+Two details sharpen this. `sprinkleStars` draws **four** floats per star — x, y, alpha, radius — so
+the desync is up to 720 draws, not 180. And the count is
+`Math.min(180, Math.floor((width * height) / 900))`, which means **the offset depends on the canvas
+size**: the same seed at two different preview dimensions produces different ring geometry from the
+same backend. Ring tilt diverges independently of all of that, on range rather than on ordering
+(`0.15–0.45` against `0.1–0.4`), so aligning the RNG sequence alone would not have made the two
+agree.
+
+The star-system renderers have the same split; `star_system_layout.ts` records the situation in its
+own doc comment, that it "mirrors placement math in `webgl_star_system_renderer` for consistent
+previews". The mirroring is manual, and manual mirroring drifts.
 
 This matters because the toggle is not an aesthetic choice. It is there so the site keeps working
 on hardware that cannot run WebGL — which means the two backends are meant to show **the same
@@ -41,15 +53,23 @@ thing**, at whatever fidelity the machine can manage.
 
 `drawPlanetSpherePatch` shades every pixel of the disk in JavaScript on the main thread. Each pixel
 calls `calcNormalFromMap`, which calls `fbmMap` six times; each `fbmMap` runs six octaves of eight
-lattice hashes; each hash is a `Math.sin`. That is roughly three hundred `Math.sin` calls per pixel.
+lattice hashes; each hash is a `Math.sin`. That is 288 `Math.sin` calls per pixel from the bump-normal
+pass alone, before the surface itself: the terrestrial path adds three more `fbm` calls at five, four
+and three octaves, and the gas giant path adds five. Call it three hundred as a floor, not an
+estimate.
 
-Measured on a developer machine — not the weak hardware this path exists to serve:
+Measured on two developer machines — neither of them the weak hardware this path exists to serve:
 
-| Body        | Disk radius | Pixels  | Time  |
-| ----------- | ----------- | ------- | ----- |
-| Terrestrial | 200px       | 125,629 | 1.0 s |
-| Gas giant   | 200px       | 125,629 | 1.4 s |
-| Gas giant   | 320px       | 321,657 | 3.4 s |
+| Body        | Disk radius | Pixels  | Time (1) | Time (2) |
+| ----------- | ----------- | ------- | -------- | -------- |
+| Terrestrial | 200px       | 125,629 | 1.0 s    | 1.1 s    |
+| Gas giant   | 200px       | 125,629 | 1.4 s    | 2.0 s    |
+| Gas giant   | 320px       | 321,657 | 3.4 s    | 4.7 s    |
+
+Both columns come from driving `shadePlanetDiskPixel` directly over the disk, so they measure the
+shading and nothing else. The pixel counts are identical because the disk is the same; the spread
+between columns is ordinary hardware variation, and it runs in the wrong direction — the second
+machine is a current developer laptop.
 
 That is per planet, synchronously, blocking the UI. `canvas2d_star_system_renderer` loops over every
 planet in the system, so an eight-planet system is a multi-second freeze. On a low-end device,
@@ -153,10 +173,31 @@ an `[number, number, number]` tuple, which Mermaid has no spelling for. **These 
 classes** — CODE_STYLE.md rules classes out. Mermaid's only "is a" arrow is `<|--`, so it stands for
 a discriminated union here, never for `extends`.
 
+That last point needs care where a union has fields of its own, because TypeScript has no such
+thing: a union cannot declare shared members for its variants to inherit. Where a diagram shows
+fields on a union box and `<|--` arrows beneath it, the code shape is a base type intersected into
+each variant, and the union is over the results:
+
+```ts
+type SceneBodyBase = { centerX: number; centerY: number; radiusPx: number };
+type SceneStar = SceneBodyBase & { kind: 'star' /* … */ };
+type ScenePlanet = SceneBodyBase & { kind: 'planet' /* … */ };
+type SceneBody = SceneStar | ScenePlanet;
+```
+
+`SceneBodyBase` is not drawn as its own box because it is a spelling device, not a concept — it has
+no meaning apart from the two variants that use it.
+
 ### The scene
 
 Everything a backend needs, and nothing about how to draw it. `RGBColor` is the existing
 `$lib/graphics/rgb_color`.
+
+Note what is deliberately absent: there is no star-system type. A system's layout — the unit
+arithmetic in `computeStarSystemLayout`, the ordering of stars before planets — resolves to absolute
+positions inside the builder and does not survive into the scene. That is the point of a display
+list. A backend that could see `totalUnits` would be able to do its own arithmetic with it, which is
+how the two backends drifted apart in the first place.
 
 ```mermaid
 classDiagram
@@ -234,9 +275,19 @@ classDiagram
 rather than each backend re-deriving it from `classification`, which is how the WebGL path came to
 hand gas-giant colours to terrestrial planets.
 
+Resolving it once narrows the blast radius but does not fix what is underneath:
+`isGasGiantPlanetClassification` is `classification === 'gas giant planet'`, an exact string match
+against a value produced elsewhere. Renaming that classification would silently shade every gas
+giant as terrestrial, with nothing failing. Moving the check into the builder at least gives it one
+call site and a unit test that names the string; a stricter fix — a classification union rather than
+a bare `string` on `SceneBody` — is worth considering when `astronomical_bodies` is next opened, and
+is out of scope here.
+
 ### The capability decision
 
-What the site knows about the machine, what it decided, and what it remembers.
+What the site knows about the machine, what it decided, where that decision lives, and what survives
+the tab closing. Those last two are different questions and the first draft of this diagram ran them
+together; see decision 6.
 
 ```mermaid
 classDiagram
@@ -264,14 +315,19 @@ classDiagram
         budget_exceeded
         user_override
     }
-    class RendererPreference {
-        +RendererBackend override?
-        +RenderQuality qualityOverride?
+    class RendererSession {
+        +RendererDecision decision
         +number lastRenderMs?
+        +boolean probed
+    }
+    class RendererPreference {
+        +RendererBackend backendOverride?
+        +RenderQuality qualityOverride?
     }
 
     RendererProbe "1" --> "1" RendererDecision : resolves to
     RendererPreference "0..1" --> "1" RendererDecision : overrides
+    RendererSession "1" *-- "1" RendererDecision : holds
     RendererDecision "1" --> "1" RendererBackend : selects
     RendererDecision "1" --> "1" RenderQuality : selects
     RendererDecision "1" --> "1" DecisionReason : because
@@ -279,6 +335,10 @@ classDiagram
 
 `reason` is carried so the settings UI can say _why_ — "Canvas2D, because WebGL is unavailable" is a
 different message from "Canvas2D, because you chose it" — and so a bug report can tell them apart.
+
+`RendererSession` is the runtime holder: one module-level value in `renderer_decision.ts`, resolved
+on first use and re-resolved on `webglcontextlost`. `RendererPreference` is the persisted half, and
+holds only what a person chose. Nothing measured is persisted — see decision 6.
 
 ## Decisions taken here
 
@@ -316,6 +376,45 @@ the other suite exists**. So the sequencing is golden images first, exclusion se
 reverse. Everything else in `renderers` clears 80% on its own once the scene builder lands, because
 the scene builder is where the logic will be.
 
+The exclusion must be **file-scoped, never directory-scoped** — the specific modules that submit to
+the GPU and nothing else. A directory-wide exclusion would silently swallow every future file added
+beside them, which turns the one honest use of `coverage.exclude` into the loophole the coverage
+gate exists to prevent.
+
+### 5. Render entry points stay synchronous, and the image-handle change is out of scope
+
+Capability detection needs the pipeline to be **stateful**, which it is not today, and that is
+easily confused with needing it to be **asynchronous**, which it does not. Probing is synchronous
+(`getContext`, then one extension read). Only context loss is an event, and it is handled by
+invalidating `RendererSession` and asking the caller to render again — not by making every render
+return a promise.
+
+So `renderPlanetPreviewImage` and its two siblings keep their current shape and keep returning a
+data URL. This matters because the tidy-up below floats replacing that string with a `Blob` or
+`ImageBitmap`, and both are async APIs (`canvas.toBlob` is callback-based, `createImageBitmap`
+returns a promise). Taking that on here would turn a rendering-correctness change into an
+async-refactor of three Svelte components and their e2e coverage, for a benefit — memory — that
+nobody has yet shown to be a problem in this app.
+
+The base64 weight is real and worth revisiting. It is a separate piece of work with a separate
+justification, and folding it in would make this one harder to review and harder to revert.
+
+### 6. Persist what a person chose; recompute what a machine measured
+
+The first draft of the capability diagram put `lastRenderMs` on `RendererPreference`, the type that
+goes to `localStorage`. That is wrong in a way worth recording. A render timing is a fact about a
+machine at a moment — thermal state, what else held the GPU, whether the tab was backgrounded — and
+persisting it lets one unlucky first render pin a capable machine to `reduced` quality permanently,
+with no way for the user to discover why.
+
+So the split is: `RendererPreference` persists only `backendOverride` and `qualityOverride`, both of
+which a person set deliberately and can unset the same way. `RendererSession` holds the resolved
+decision and the timing, lives for the page session, and starts over on reload. Re-probing costs one
+`getContext` call.
+
+This also keeps `astronomical_renderer_storage.ts` honest about what it is: a record of a choice,
+not a cache of a measurement.
+
 ## Testing strategy
 
 Three tiers, matching what the code actually is:
@@ -326,9 +425,20 @@ Three tiers, matching what the code actually is:
 2. **Draw-call structure** — a recording `Proxy` context, the technique used in
    `src/lib/dungeon/render/classic_module_map.test.ts`, over the Canvas2D backends. No DOM, no
    jsdom; asserts that a scene produces the expected sequence of draws.
+
+   The WebGL side gets the same treatment against its **uniforms**: build the uniform object from a
+   scene and assert it, without a GL context. Without this, tier 2 covers one backend and the
+   scene-equality test below covers the handover, but a backend that quietly ignores a scene field
+   it was handed goes unnoticed — which is the exact class of bug this whole document is about.
+
 3. **Golden images** — Playwright `toHaveScreenshot` on a handful of representative outputs at
    pinned seeds with a tolerance for GPU variance. This is the only tier that catches "the shader
    renders black", and it runs in the browser CI already starts.
+
+   Goldens are generated **in CI and committed from CI's output**, never from a developer machine.
+   CI renders through SwiftShader while a developer machine renders on a real GPU, and a baseline
+   captured on one will not match the other at any tolerance loose enough to still catch a black
+   frame. A local `--update-snapshots` is how this tier becomes permanently red and then disabled.
 
 Plus one contract test that is neither: for a set of seeds, build the scene once and assert both
 backends were handed the identical object.
@@ -338,31 +448,40 @@ backends were handed the identical object.
 - `svg-to-png.ts` moves out of `renderers` — it is a download utility, not an astronomical renderer.
   It also never calls `revokeObjectURL`, leaking a blob URL per invocation, and throws inside an
   `onload` handler where nothing can catch it. Both are fixed on the way past.
-- `rgbaCss` is defined identically in `canvas2d_planet_draw.ts` and `canvas2d_star_draw.ts`;
-  `rgbColorToVector3` and `vectorTripletFromRgbTriplet` are the same function under two names in two
-  WebGL files. One home each.
+- `rgbaCss` is defined identically in `canvas2d_planet_draw.ts` and `canvas2d_star_draw.ts`.
+  `rgbColorToVector3` is defined twice — in `webgl_star_renderer.ts` and
+  `webgl_star_system_renderer.ts` — and `vectorTripletFromRgbTriplet` in `webgl_planet_renderer.ts`
+  is the same idea a third time, over a triplet. One home each, three copies down to one.
 - `ringSemicircleAngles` and `ringBackHalfIsHalfZero` are real geometry, currently private inside a
   canvas module and reachable only through a context. They move to the scene builder, where they are
   ordinary testable functions.
-- `render()` returns a base64 data URL. A 1024px PNG as a string held in Svelte state is heavy;
-  whether a `Blob` or `ImageBitmap` serves better is worth settling while the signatures are already
-  changing.
+- `renderers` has neither an `index.ts` nor a README, against the convention in CLAUDE.md that every
+  directory under `src/lib` carries both — 69 of 88 libraries have the index today. A change that
+  reorganises the whole library is the moment to add them, not a later tidy-up nobody schedules.
+- `render()` returns a base64 data URL, and a 1024px PNG as a string in Svelte state is heavy.
+  Per decision 5 this is **not** changed here; it is recorded as known and deferred, because the
+  `Blob`/`ImageBitmap` alternatives are async and would drag an unrelated refactor into this one.
 
 ## The plan
 
 Ordered so each step is independently mergeable and green.
 
 1. **Scene types and builder.** `astronomical_scene.ts` plus `astronomical_scene_types.ts`, built
-   from the diagrams above, with unit tests. Nothing consumes it yet.
+   from the diagrams above, with unit tests. `computeStarSystemLayout` becomes an internal step of
+   the builder rather than a module the renderers call: its `baseUnitWidth`/`totalUnits` are working
+   values, and what leaves the builder is absolute `centerX`/`centerY`/`radiusPx` per body. The
+   library's missing `index.ts` and README land here too, since this step defines what the public
+   surface is.
 2. **Canvas2D backends consume the scene.** Includes the simplified planet path from decision 3.
    Draw-call tests land with it.
-3. **WebGL backends consume the scene.** The cross-backend scene-equality test lands here, and the
-   divergence bug closes.
-4. **Capability detection and quality tiers.** `RendererProbe`, `RendererDecision`, automatic
-   selection, `webglcontextlost` handling; `ImageRendererSelect` becomes an override and
-   `astronomical_renderer_storage` starts persisting a decision.
-5. **Golden images** in Playwright.
-6. **Coverage exclusion** for GPU submission files, with the comment explaining what covers them —
-   and `renderers` leaves `scripts/library_coverage_baseline.json`, closing #95.
+3. **WebGL backends consume the scene.** The cross-backend scene-equality test and the uniform-
+   structure tests land here, and the divergence bug closes.
+4. **Capability detection and quality tiers.** `RendererProbe`, `RendererDecision`,
+   `RendererSession`, automatic selection, `webglcontextlost` handling; `ImageRendererSelect`
+   becomes an override and `astronomical_renderer_storage` persists overrides only, per decision 6.
+   Render entry points keep their synchronous signatures, per decision 5.
+5. **Golden images** in Playwright, generated from CI.
+6. **Coverage exclusion** for GPU submission files — file-scoped, with the comment explaining what
+   covers them — and `renderers` leaves `scripts/library_coverage_baseline.json`, closing #95.
 
 Steps 1 through 3 are the ones that fix a live bug. Steps 4 through 6 are what make it stay fixed.
