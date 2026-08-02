@@ -4,10 +4,18 @@ name: CI
 # neither of which this host reads. Actions in the `actions/` namespace resolve bare;
 # anything else needs its full URL (`uses: https://github.com/owner/repo@vX`).
 #
-# `verify` is the fast gate: types, lint, unit tests. `e2e` is split out because it
-# does a full production build and drives a browser, so it is slower and fails for
-# different reasons. Keeping them separate gives two independent status checks to
-# require on `main`, and lets the fast one report while the slow one is still going.
+# This is the gate on a pull request, and it is the only one: types, lint, unit
+# tests, coverage. It is required by `main`'s branch protection as the context
+# "CI / verify (pull_request)".
+#
+# The browser suite is not here. It lives in `e2e.yaml` and runs only on merges
+# to `main` — see that file for why. Anything touching routes, components, or
+# rendering wants `npm run verify:all` locally before it is merged, because
+# nothing will run Playwright against the pull request.
+#
+# Note that `verify` runs on documentation-only changes too. `npm run lint`
+# calls `prettier --check .`, which covers Markdown, so this is the check that
+# stops a badly formatted document landing and breaking `lint` on `main`.
 
 on:
   pull_request:
@@ -28,20 +36,3 @@ jobs:
       - run: npm ci
 
       - run: npm run verify
-
-  e2e:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-
-      - run: npm ci
-
-      # Every Playwright project in playwright.config.ts is Chromium-backed — the
-      # mobile ones are Chromium device emulation — so this is the only browser needed.
-      - run: npx playwright install --with-deps chromium
-
-      - run: npm run test:e2e
