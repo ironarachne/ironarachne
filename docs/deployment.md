@@ -9,9 +9,10 @@ committed version file replaces an earlier `workflow_dispatch` design that could
 publish half of it is proven, since staging was promoted to 2.3.2 by running the same two commands
 by hand.
 
-Most of the shape below exists to work around things this platform does not implement, and it took
-eight CI runs to find them all. Read [Actions on this host](#actions-on-this-host) before changing
-any workflow.
+Most of the shape below exists to work around things this platform does not implement, and every one
+of those limits cost at least one CI round trip to find. Read
+[Actions on this host](#actions-on-this-host) before changing any workflow — the section is not
+background reading, it is the list of things that will otherwise waste an afternoon.
 
 ## The shape
 
@@ -238,6 +239,59 @@ Two related rules learned along the way:
 - **Print, then judge.** An earlier diagnostic validated values before dumping them, so a bad value
   exited the step early and suppressed the dump added for exactly that purpose. The run failed with
   `unknown environment 'map[]'` and taught us nothing, costing a whole round trip.
+
+**Most of the `GITHUB_*` context is empty; `GITHUB_REF` is the exception.** The gap above is wider
+than `workflow_dispatch`. Dumped from inside a real pull request job:
+
+```
+GITHUB_EVENT_NAME=''
+GITHUB_REF='refs/pull/117/head'
+GITHUB_BASE_REF=''
+GITHUB_HEAD_REF=''
+```
+
+`${{ github.event_name }}` is empty by the same token. So a step that needs to know it is running on
+a pull request has to match `GITHUB_REF` against `refs/pull/*`, which is also what
+`actions/checkout` resolves its ref from. `ci.yaml` does exactly this, and the first version of it
+did not: it read `github.event_name`, concluded `event is 'unknown'` on pull request #117, and fell
+through to its safe branch — correct behaviour, but the feature it guarded could never have fired.
+Prefer reading the runner's environment over a `${{ github.* }}` expression whenever there is a
+choice.
+
+**`timeout-minutes:` on a job makes the runner reject that job.** Adding it to `e2e` produced a
+failure one second after the worker was assigned — before the runner version banner, before any
+step, with a five-line log containing no error text at all:
+
+```
+⏳ Waiting for available worker...
+✅ Assigned to worker MgzuTShhrcQkyRvMmeKi4a
+```
+
+The workflow itself parsed: `verify`, from the same file, ran and passed in the same run. So the
+symptom is a job that dies instantly and silently while its sibling is fine, which looks nothing
+like a bad key and cost a round trip to attribute. No workflow here uses it. If a job needs a time
+limit, wrap the command in shell `timeout` instead, where the runner is not involved.
+
+**A job that stops producing output is reaped after about fifteen minutes.** Observed three times in
+one day on `e2e`, at three unrelated points — mid-suite twice, and once before any test ran while
+the preview server was still building:
+
+| Run | Last log line          | Failed   | Silence |
+| --- | ---------------------- | -------- | ------- |
+| 102 | test #113, mid-suite   | 12:19:14 | 14m30s  |
+| 110 | test #106, mid-suite   | 19:04:14 | 13m57s  |
+| 112 | webserver build output | 19:34:14 | 14m54s  |
+
+The consistency of the interval matters more than where each one stopped: this is a timer, not a
+deadlock in any particular test. Worth reading alongside the log truncation below, since a job that
+merely loses its log stream looks identical from outside until the timer fires.
+
+**Log output is sometimes lost without the job failing.** A `build` run reported success in 39
+seconds — the normal duration — while its log stopped mid-`vite build` and held 193 lines against a
+healthy run's ~1026, missing every `✓ built`, the publish output, and the `Deployed … to
+https://dev.ironarachne.com` line. The deploy had in fact happened; the origin's `last-modified`
+header sat inside the job's window. **Do not read a truncated log as a failed job.** Check the
+duration against a known-good run, and check the artefact the job was supposed to produce.
 
 **`actions/create-release` needs `name`, `body`, `draft` and `prerelease` passed explicitly.** Its
 defaults are written in terms of `github.event.release.*`, which does not exist on a `push` event; the
