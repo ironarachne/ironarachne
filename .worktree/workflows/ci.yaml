@@ -63,10 +63,16 @@ jobs:
       # is minutes, and the cost of a wrongly skipped one is a bug reaching `main`.
       - name: Decide whether the browser suite is needed
         id: scope
-        env:
-          EVENT_NAME: ${{ github.event_name }}
         run: |
           set -uo pipefail
+
+          # Print, then judge — the rule docs/deployment.md records from the
+          # promotion workflows. An earlier version of this step decided first and
+          # printed nothing, so a wrong answer cost a whole CI round trip to see.
+          echo "GITHUB_EVENT_NAME='${GITHUB_EVENT_NAME:-}'"
+          echo "GITHUB_REF='${GITHUB_REF:-}'"
+          echo "GITHUB_BASE_REF='${GITHUB_BASE_REF:-}'"
+          echo "GITHUB_HEAD_REF='${GITHUB_HEAD_REF:-}'"
 
           run_suite() {
             echo "needed=true" >> "$GITHUB_OUTPUT"
@@ -77,7 +83,19 @@ jobs:
           # Only pull requests are ever skipped. A push to `main` always runs the
           # full suite — that is the safety net, and it is not a required check
           # there, so a red result informs without blocking.
-          [ "$EVENT_NAME" = "pull_request" ] || run_suite "event is '${EVENT_NAME:-unknown}', not a pull request"
+          #
+          # Identified by GITHUB_REF rather than `github.event_name`, because that
+          # context expression arrives *empty* on this host — the first version of
+          # this step read it and concluded "event is 'unknown'" on a real pull
+          # request. GITHUB_REF is populated and is what actions/checkout itself
+          # resolves the ref from, so it is the reliable signal here. Reading the
+          # runner's environment directly also sidesteps context expressions
+          # altogether, which this host is unreliable about (see
+          # docs/deployment.md on `workflow_dispatch` inputs).
+          case "${GITHUB_REF:-}" in
+            refs/pull/*) ;;
+            *) run_suite "ref '${GITHUB_REF:-unset}' is not a pull request" ;;
+          esac
 
           # `origin/main` rather than `github.base_ref`, because the trigger above
           # admits no other base, and because this host is unreliable about
