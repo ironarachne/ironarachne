@@ -39,12 +39,18 @@ npx stryker run -m src/lib/my_dir/my_file.ts   # mutation test one file (see not
 
 Notes:
 
-- `npm run verify` is the definition of done for a change, and it is what CI runs. It must be
-  green on `main` at all times — `svelte-check` reporting anything other than `0 ERRORS` is a
-  bug to fix, not noise to step around, because a gate nobody trusts is not a gate. Run
-  `verify:all` as well when the change touches routes, components, or rendering.
-- CI lives in `.worktree/workflows/ci.yaml` and runs on every PR to `main`. It is two jobs:
-  `verify` (fast) and `e2e` (full build plus a browser), so they report as independent checks.
+- `npm run verify` is the definition of done for a change, and it is what CI runs on a PR. It
+  must be green on `main` at all times — `svelte-check` reporting anything other than
+  `0 ERRORS` is a bug to fix, not noise to step around, because a gate nobody trusts is not a
+  gate.
+- **`npm run verify:all` before merging anything that touches routes, components, or
+  rendering.** This is not optional politeness: no Playwright runs against a PR, so you are the
+  only thing standing between a browser-visible regression and `main`.
+- CI is two workflows. `.worktree/workflows/ci.yaml` runs `verify` on every PR and every merge,
+  and is the only required check. `.worktree/workflows/e2e.yaml` runs the browser suite on
+  merges to `main` only — never on a PR, because this host stalls jobs at random and a gate
+  that fails for reasons unrelated to the change teaches people to ignore it. A red run there
+  is a signal to investigate, not a blocked merge; `e2e.yaml` carries the full reasoning.
   Worktree.ca reads workflows from `.worktree/workflows` only — `.github` and `.forgejo` are
   both ignored, and a workflow in either is silently never run. Actions under `actions/`
   resolve bare; any other action needs its full URL. See https://docs.worktree.ca/code/actions/.
@@ -181,7 +187,8 @@ Break a design into work items only after the model is approved.
 - Remote is Worktree.ca (a hard fork of Gitea) — use the worktree MCP tool for PRs/issues, not `gh` or other
   GitHub-only tooling.
 - `main` is protected on the remote: direct pushes are rejected, and a PR cannot merge until
-  `CI / verify (pull_request)` and `CI / e2e (pull_request)` both report green. Work on a branch
+  `CI / verify (pull_request)` reports green. That is the only required context — the browser
+  suite deliberately does not gate a PR (see `.worktree/workflows/e2e.yaml`). Work on a branch
   and open a PR; there is no path that bypasses this.
 
 ## Agent configuration

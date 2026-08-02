@@ -252,10 +252,11 @@ GITHUB_HEAD_REF=''
 
 `${{ github.event_name }}` is empty by the same token. So a step that needs to know it is running on
 a pull request has to match `GITHUB_REF` against `refs/pull/*`, which is also what
-`actions/checkout` resolves its ref from. `ci.yaml` does exactly this, and the first version of it
-did not: it read `github.event_name`, concluded `event is 'unknown'` on pull request #117, and fell
-through to its safe branch — correct behaviour, but the feature it guarded could never have fired.
-Prefer reading the runner's environment over a `${{ github.* }}` expression whenever there is a
+`actions/checkout` resolves its ref from. This was found the hard way by a step in `ci.yaml` that
+read `github.event_name`, concluded `event is 'unknown'` on pull request #117, and fell through to
+its safe branch — correct behaviour, but the feature it guarded could never have fired. That step
+has since been removed with the rest of the pull-request browser suite, and the lesson outlived it:
+prefer reading the runner's environment over a `${{ github.* }}` expression whenever there is a
 choice.
 
 **`timeout-minutes:` on a job makes the runner reject that job.** Adding it to `e2e` produced a
@@ -270,21 +271,35 @@ step, with a five-line log containing no error text at all:
 The workflow itself parsed: `verify`, from the same file, ran and passed in the same run. So the
 symptom is a job that dies instantly and silently while its sibling is fine, which looks nothing
 like a bad key and cost a round trip to attribute. No workflow here uses it. If a job needs a time
-limit, wrap the command in shell `timeout` instead, where the runner is not involved.
+limit, note that shell `timeout` does not help against the stall below either — see there before
+assuming any timer will save you.
 
-**A job that stops producing output is reaped after about fifteen minutes.** Observed three times in
-one day on `e2e`, at three unrelated points — mid-suite twice, and once before any test ran while
-the preview server was still building:
+**A job that stops producing output is reaped after about fifteen minutes, and nothing inside the
+job can pre-empt it.** Observed four times in about twenty-four hours on `e2e`, at unrelated points
+— twice mid-suite, once before any test ran while the preview server was still building, and once
+at test 258 of 293:
 
 | Run | Last log line          | Failed   | Silence |
 | --- | ---------------------- | -------- | ------- |
 | 102 | test #113, mid-suite   | 12:19:14 | 14m30s  |
 | 110 | test #106, mid-suite   | 19:04:14 | 13m57s  |
 | 112 | webserver build output | 19:34:14 | 14m54s  |
+| 119 | test #258, mid-suite   | 11:34:14 | 14m13s  |
 
 The consistency of the interval matters more than where each one stopped: this is a timer, not a
 deadlock in any particular test. Worth reading alongside the log truncation below, since a job that
 merely loses its log stream looks identical from outside until the timer fires.
+
+**No timer inside the job pre-empts it.** Run 119 tested this directly. It ran under
+`timeout --kill-after=30s 12m npm run test:e2e`, with `npm run test:e2e` starting at 11:16:11, so
+the wrapper was due to fire at 11:28:11. The job died at 11:34:14 instead — the reap, six minutes
+late, with no timeout message. Playwright's `globalTimeout` and its 180-second `webServer.timeout`
+had already failed to fire in run 112. A shell `timeout` is a separate process and still did not
+run, which points at the whole container freezing rather than the browser or Node wedging.
+
+The practical consequence: **a stall cannot be made fast or legible from inside the repository.**
+Combined with there being no Actions API to re-run a job from, that is why the browser suite no
+longer gates a pull request — see `.worktree/workflows/e2e.yaml`.
 
 **Log output is sometimes lost without the job failing.** A `build` run reported success in 39
 seconds — the normal duration — while its log stopped mid-`vite build` and held 193 lines against a
