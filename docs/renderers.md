@@ -91,11 +91,17 @@ timeout, against 45s and 15s for everything else.
 ### The coverage gate cannot see what is verified
 
 The Playwright suite loads `/planet`, `/star-system`, and `/star-nation` in Chromium at pinned
-seeds, so the WebGL path runs in CI on every PR. But `expectGeneratorOutput` only asserts that an
+seeds, so the WebGL path is exercised in a browser. But `expectGeneratorOutput` only asserts that an
 `img` or `canvas` is visible — a shader that renders solid black passes. And
 `scripts/check_library_coverage.ts` reads Vitest output only, so none of that browser exercise
 reaches the gate. `renderers` reports 37% while the truth is: the maths is unit-tested, the
 orchestration is smoke-tested in a browser, and nothing checks the pixels.
+
+Since this document was drafted, that browser exercise has also moved: the suite no longer runs on
+a pull request, only on merges to `main` (`.worktree/workflows/e2e.yaml`). So the smoke test now
+happens _after_ a change lands rather than before it. That does not change what this document
+proposes — it makes the case for it sharper, because the tier that would catch a black shader is
+now the tier furthest from the person who broke it.
 
 ## Two failure modes, not one
 
@@ -438,12 +444,18 @@ Three tiers, matching what the code actually is:
 
 3. **Golden images** — Playwright `toHaveScreenshot` on a handful of representative outputs at
    pinned seeds with a tolerance for GPU variance. This is the only tier that catches "the shader
-   renders black", and it runs in the browser CI already starts.
+   renders black".
 
    Goldens are generated **in CI and committed from CI's output**, never from a developer machine.
    CI renders through SwiftShader while a developer machine renders on a real GPU, and a baseline
    captured on one will not match the other at any tolerance loose enough to still catch a black
    frame. A local `--update-snapshots` is how this tier becomes permanently red and then disabled.
+
+   Note that this tier runs only on `main`, since the browser suite no longer runs on a pull
+   request. It therefore reports a regression rather than preventing one, and `npm run verify:all`
+   before merging is what stands in for it. That is a weaker guarantee than this document assumed
+   when it was drafted, and it is an argument for putting as much as possible into tiers 1 and 2 —
+   which run on every pull request — rather than leaning on the images.
 
 Plus one contract test that is neither: for a set of seeds, build the scene once and assert both
 backends were handed the identical object.
@@ -485,7 +497,8 @@ Ordered so each step is independently mergeable and green.
    `RendererSession`, automatic selection, `webglcontextlost` handling; `ImageRendererSelect`
    becomes an override and `astronomical_renderer_storage` persists overrides only, per decision 6.
    Render entry points keep their synchronous signatures, per decision 5.
-5. **Golden images** in Playwright, generated from CI.
+5. **Golden images** in Playwright, generated from CI — which now means the `main` run, not a
+   pull request one.
 6. **Coverage exclusion** for GPU submission files — file-scoped, with the comment explaining what
    covers them — and `renderers` leaves `scripts/library_coverage_baseline.json`, closing #95.
 
