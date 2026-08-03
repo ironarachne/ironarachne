@@ -1,4 +1,3 @@
-import { RNG } from '@ironarachne/rng';
 import type RGBColor from '$lib/graphics/rgb_color';
 import { getRandomGasGiantRgbTriplet } from '$lib/renderers/astronomical/gas_giant_palette';
 
@@ -7,12 +6,6 @@ export type PlanetCanvasTheme = {
   band1: RGBColor;
   band2: RGBColor;
 };
-
-/** Deterministic-ish accent colors for rings (0–1). */
-export function randomRingRgb(seed: string): RGBColor {
-  const rng = new RNG(`${seed}:ring`);
-  return { r: rng.float(0.6, 0.9), g: rng.float(0.6, 0.9), b: rng.float(0.6, 0.9) };
-}
 
 /**
  * Base palettes by shader classification name; gas giants use the same RNG scheme as WebGL previews.

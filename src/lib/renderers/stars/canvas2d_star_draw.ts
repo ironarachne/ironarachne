@@ -1,60 +1,37 @@
-import { starCoronaWidthPixelsFromDiskRadius } from '$lib/renderers/astronomical/image_body_scale';
-import type RGBColor from '$lib/graphics/rgb_color';
+import { darkenRgb, lightenRgb, rgbaCss } from '$lib/graphics/rgb_color_ops';
+import type { SceneStar } from '$lib/renderers/astronomical_scene_types';
 
-export function drawStarPreviewDisk(
-  ctx: CanvasRenderingContext2D,
-  cx: number,
-  cy: number,
-  diskRadiusPx: number,
-  colors: [RGBColor, RGBColor, RGBColor],
-): void {
-  const [photosphere, corona, glow] = colors;
-  const coronaW = starCoronaWidthPixelsFromDiskRadius(diskRadiusPx);
-  const haloR = diskRadiusPx + coronaW * 4;
+/**
+ * Draws a star from the scene. Every number here comes off the `SceneStar` — position, radius,
+ * corona width and all three colours were resolved by the scene builder.
+ */
+export function drawStarPreviewDisk(ctx: CanvasRenderingContext2D, star: SceneStar): void {
+  const { centerX, centerY, radiusPx, photosphere, corona, glow, coronaWidthPx } = star;
+  const haloR = radiusPx + coronaWidthPx * 4;
 
-  const halo = ctx.createRadialGradient(cx, cy, diskRadiusPx * 0.2, cx, cy, haloR);
+  const halo = ctx.createRadialGradient(centerX, centerY, radiusPx * 0.2, centerX, centerY, haloR);
   halo.addColorStop(0, rgbaCss(photosphere, 1));
   halo.addColorStop(0.35, rgbaCss(corona, 0.9));
   halo.addColorStop(0.65, rgbaCss(glow, 0.35));
   halo.addColorStop(1, 'rgba(0,0,0,0)');
   ctx.fillStyle = halo;
   ctx.beginPath();
-  ctx.arc(cx, cy, haloR, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, haloR, 0, Math.PI * 2);
   ctx.fill();
 
   const core = ctx.createRadialGradient(
-    cx - diskRadiusPx * 0.2,
-    cy - diskRadiusPx * 0.15,
+    centerX - radiusPx * 0.2,
+    centerY - radiusPx * 0.15,
     0,
-    cx,
-    cy,
-    diskRadiusPx,
+    centerX,
+    centerY,
+    radiusPx,
   );
-  core.addColorStop(0, rgbaCss(lighten(photosphere, 0.25), 1));
+  core.addColorStop(0, rgbaCss(lightenRgb(photosphere, 0.25), 1));
   core.addColorStop(0.55, rgbaCss(photosphere, 1));
-  core.addColorStop(1, rgbaCss(darken(photosphere, 0.35), 1));
+  core.addColorStop(1, rgbaCss(darkenRgb(photosphere, 0.35), 1));
   ctx.fillStyle = core;
   ctx.beginPath();
-  ctx.arc(cx, cy, diskRadiusPx, 0, Math.PI * 2);
+  ctx.arc(centerX, centerY, radiusPx, 0, Math.PI * 2);
   ctx.fill();
-}
-
-function rgbaCss(c: RGBColor, alpha: number): string {
-  return `rgba(${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(c.b * 255)},${alpha})`;
-}
-
-function lighten(c: RGBColor, amount: number): RGBColor {
-  return {
-    r: Math.min(1, c.r + amount),
-    g: Math.min(1, c.g + amount),
-    b: Math.min(1, c.b + amount),
-  };
-}
-
-function darken(c: RGBColor, amount: number): RGBColor {
-  return {
-    r: Math.max(0, c.r - amount),
-    g: Math.max(0, c.g - amount),
-    b: Math.max(0, c.b - amount),
-  };
 }
