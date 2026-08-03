@@ -55,11 +55,12 @@ That is what makes the contract testable — equality is asserted on the scene, 
 ```
 astronomical_scene.ts         # the builder: body or system + seed → AstronomicalScene
 astronomical_scene_types.ts   # the scene's types, from the approved domain model
+canvas2d_scene_draw.ts        # the Canvas2D backend: walks a scene issuing context calls
 astronomical_preview.ts       # public render entry points; dispatches on renderer kind
 astronomical_renderer_kind.ts # 'webgl' | 'canvas2d', and parsing it
 astronomical_renderer_storage.ts
 astronomical/                 # shared maths: body scaling, palettes, star colours, ring geometry
-planets/  stars/  star_systems/  # the backends, one Canvas2D and one WebGL each
+planets/  stars/  star_systems/  # per-body drawing, and the render entry point for each kind
 ```
 
 `index.ts` exports the scene builder, its types, and the renderer kind and its storage. Two
@@ -79,14 +80,25 @@ directly today.
 
 ## Where this is going
 
-The design document sets out six steps, of which this library currently has the first. The scene
-builder exists and is tested, but **nothing consumes it yet** — the backends still compute their
-own content, and the divergence described above is still live. Steps 2 and 3 move the Canvas2D and
-then the WebGL backends onto the scene and close it; steps 4 to 6 add capability detection, golden
-images, and the coverage exclusion.
+The design document sets out six steps, of which this library has the first two. The scene builder
+exists, and **the Canvas2D backend consumes it** — `canvas2d_scene_draw.ts` computes nothing, and
+the three `canvas2d_*_renderer.ts` entry points are now delegation and no arithmetic.
 
-Two consequences while that is true:
+The WebGL backends still compute their own content, so **the divergence described above is still
+live** on that side: flip the renderer toggle and the palette, ring geometry and per-planet light
+direction all change. Step 3 moves them onto the scene and closes it. Steps 4 to 6 add capability
+detection, golden images, and the coverage exclusion.
 
-- `computeStarSystemLayout` is still imported by both star-system backends. It becomes fully
-  internal to the builder once step 3 lands and the last of those imports goes.
+Three consequences while that is true:
+
+- `computeStarSystemLayout` is still imported by `webgl_star_system_renderer.ts`. It becomes fully
+  internal to the builder once step 3 lands and that last import goes.
+- `resolvePlanetCanvasTheme` is now the shared palette resolver for both backends, so its name has
+  gone stale. It is renamed in step 3, when the WebGL side stops rolling its own palette and the
+  rename can be made once across both callers.
 - `renderers` is in `scripts/library_coverage_baseline.json`. It leaves in step 6, not before.
+
+The per-pixel `drawPlanetSpherePatch`/`planet_canvas_surface_shade.ts` path survives as the
+high-fidelity option the design keeps, but nothing routes to it yet — there is no selector for it
+until quality tiers arrive in step 4. Its unit tests are what hold it to the `ScenePlanet` shape in
+the meantime.
