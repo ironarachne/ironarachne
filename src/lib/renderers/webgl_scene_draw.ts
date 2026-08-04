@@ -12,6 +12,7 @@ import SceneStarsFragmentShader from '$lib/shaders/background/scene_stars.frag';
 import SceneStarsVertexShader from '$lib/shaders/background/scene_stars.vert';
 import SimpleVertexShader from '$lib/shaders/simple.vert';
 import { buildWebGLDrawList } from '$lib/renderers/webgl_scene_build';
+import { canvasToDataUrlAtSize, rasterSizeForQuality } from '$lib/renderers/render_scale';
 import type { AstronomicalScene } from '$lib/renderers/astronomical_scene_types';
 import type { WebGLPlaneItem, WebGLPointsItem } from '$lib/renderers/webgl_scene_types';
 
@@ -60,21 +61,38 @@ function pointsMesh(item: WebGLPointsItem): THREE.Points {
  *
  * A scene with no bodies renders as an empty string rather than an empty sky, matching the
  * Canvas2D backend: callers treat that as "nothing to show".
+ *
+ * At `reduced` quality the framebuffer is half size while the camera keeps the scene's own pixel
+ * bounds, so every shader draws exactly what it would have drawn, over a quarter of the fragments.
+ * The result is scaled back up to the size that was asked for. Antialiasing goes with the tier: a
+ * machine that cannot afford the fragments cannot afford to multisample them either.
+ *
+ * `onContextLost` fires if the GPU takes the context back. The listener outlives this call by
+ * design — a context can be lost after the frame is submitted — and the caller uses it to stop
+ * choosing WebGL for the rest of the session.
  */
-export function renderSceneToDataUrl(document: Document, scene: AstronomicalScene): string {
+export function renderSceneToDataUrl(
+  document: Document,
+  scene: AstronomicalScene,
+  onContextLost?: () => void,
+): string {
   if (scene.bodies.length === 0) return '';
 
+  const raster = rasterSizeForQuality(scene.quality, scene.width, scene.height);
   const canvas = document.createElement('canvas');
-  canvas.width = scene.width;
-  canvas.height = scene.height;
+  canvas.width = raster.width;
+  canvas.height = raster.height;
+  if (onContextLost !== undefined) {
+    canvas.addEventListener('webglcontextlost', () => onContextLost());
+  }
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
-    antialias: true,
+    antialias: scene.quality === 'full',
     alpha: true,
     preserveDrawingBuffer: true,
   });
-  renderer.setSize(scene.width, scene.height);
+  renderer.setSize(raster.width, raster.height, false);
   renderer.sortObjects = false;
 
   const glScene = new THREE.Scene();
@@ -87,7 +105,7 @@ export function renderSceneToDataUrl(document: Document, scene: AstronomicalScen
   for (const mesh of meshes) glScene.add(mesh);
 
   renderer.render(glScene, camera);
-  const data = renderer.domElement.toDataURL('image/png');
+  const data = canvasToDataUrlAtSize(document, renderer.domElement, scene.width, scene.height);
 
   for (const mesh of meshes) {
     mesh.geometry.dispose();

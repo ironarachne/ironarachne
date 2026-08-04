@@ -1,12 +1,64 @@
-import * as WebGLPlanetRenderer from '$lib/renderers/planets/webgl_planet_renderer';
-import * as Canvas2dPlanetRenderer from '$lib/renderers/planets/canvas2d_planet_renderer';
-import * as WebGLStarRenderer from '$lib/renderers/stars/webgl_star_renderer';
-import * as Canvas2dStarRenderer from '$lib/renderers/stars/canvas2d_star_renderer';
-import * as WebGLStarSystemRenderer from '$lib/renderers/star_systems/webgl_star_system_renderer';
-import * as Canvas2dStarSystemRenderer from '$lib/renderers/star_systems/canvas2d_star_system_renderer';
-import type { AstronomicalRendererKind } from '$lib/renderers/astronomical_renderer_kind';
+/**
+ * The public render entry points: a body or a system in, a PNG data URL out.
+ *
+ * Choosing a backend is not a question the caller is asked any more. Each entry point resolves the
+ * decision for the page session — probe once, honour any override, drop a tier if the machine
+ * cannot keep up — and a caller that wants a specific one passes it in. They stay synchronous and
+ * keep returning a data URL; capability detection needed the pipeline to be *stateful*, which is
+ * not the same as needing it to be asynchronous. See decision 5 in `docs/renderers.md`.
+ */
+
+import * as WebGLSceneDraw from '$lib/renderers/webgl_scene_draw';
+import * as Canvas2dSceneDraw from '$lib/renderers/canvas2d_scene_draw';
+import {
+  buildPlanetScene,
+  buildStarScene,
+  buildStarSystemScene,
+} from '$lib/renderers/astronomical_scene';
+import {
+  getRendererDecision,
+  noteRendererContextLost,
+  recordRenderDuration,
+} from '$lib/renderers/renderer_decision';
+import type { AstronomicalScene } from '$lib/renderers/astronomical_scene_types';
+import type { RendererDecision } from '$lib/renderers/renderer_decision_types';
 import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
 import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+
+/** Builds the scene at the decided quality, draws it on the decided backend, and times the result. */
+function renderScene(
+  document: Document,
+  decision: RendererDecision,
+  build: (quality: RendererDecision['quality']) => AstronomicalScene,
+): string {
+  const scene = build(decision.quality);
+  const startedAt = performance.now();
+  const data = drawOnBackend(document, decision, scene);
+  recordRenderDuration(performance.now() - startedAt);
+  return data;
+}
+
+/**
+ * A WebGL render that throws is a lost context arriving as an exception rather than as an event —
+ * a context taken back between frames, a driver reset, a machine coming out of sleep. The session
+ * is told, so it stops choosing WebGL, and this render falls back rather than showing nothing.
+ */
+function drawOnBackend(
+  document: Document,
+  decision: RendererDecision,
+  scene: AstronomicalScene,
+): string {
+  if (decision.backend === 'canvas2d') {
+    return Canvas2dSceneDraw.renderSceneToDataUrl(document, scene);
+  }
+
+  try {
+    return WebGLSceneDraw.renderSceneToDataUrl(document, scene, noteRendererContextLost);
+  } catch {
+    noteRendererContextLost();
+    return Canvas2dSceneDraw.renderSceneToDataUrl(document, scene);
+  }
+}
 
 export function renderPlanetPreviewImage(
   document: Document,
@@ -14,12 +66,11 @@ export function renderPlanetPreviewImage(
   width: number,
   height: number,
   seed: string,
-  kind: AstronomicalRendererKind,
+  decision: RendererDecision = getRendererDecision(document),
 ): string {
-  if (kind === 'canvas2d') {
-    return Canvas2dPlanetRenderer.render(document, planet, width, height, seed);
-  }
-  return WebGLPlanetRenderer.render(document, planet, width, height, seed);
+  return renderScene(document, decision, (quality) =>
+    buildPlanetScene(planet, width, height, seed, quality),
+  );
 }
 
 export function renderStarPreviewImage(
@@ -28,12 +79,11 @@ export function renderStarPreviewImage(
   width: number,
   height: number,
   seed: string,
-  kind: AstronomicalRendererKind,
+  decision: RendererDecision = getRendererDecision(document),
 ): string {
-  if (kind === 'canvas2d') {
-    return Canvas2dStarRenderer.render(document, star, width, height, seed);
-  }
-  return WebGLStarRenderer.render(document, star, width, height, seed);
+  return renderScene(document, decision, (quality) =>
+    buildStarScene(star, width, height, seed, quality),
+  );
 }
 
 export function renderStarSystemPreviewImage(
@@ -42,10 +92,9 @@ export function renderStarSystemPreviewImage(
   width: number,
   height: number,
   seed: string,
-  kind: AstronomicalRendererKind,
+  decision: RendererDecision = getRendererDecision(document),
 ): string {
-  if (kind === 'canvas2d') {
-    return Canvas2dStarSystemRenderer.render(document, system, width, height, seed);
-  }
-  return WebGLStarSystemRenderer.render(document, system, width, height, seed);
+  return renderScene(document, decision, (quality) =>
+    buildStarSystemScene(system, width, height, seed, quality),
+  );
 }

@@ -5,7 +5,6 @@
     renderStarPreviewImage,
     renderStarSystemPreviewImage,
   } from '$lib/renderers/astronomical_preview';
-  import type { AstronomicalRendererKind } from '$lib/renderers/astronomical_renderer_kind';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import {
@@ -19,7 +18,7 @@
   } from '$lib/astronomical_bodies/star/star_classifications';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
-  import ImageRendererSelect from '$components/common/ImageRendererSelect.svelte';
+  import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
 
   const width = 128;
@@ -41,7 +40,6 @@
   let planetImageSrcs = $state<string[]>([]);
   let planetCountControl: string = $state('random');
   let starType: string = $state('random');
-  let imageRenderer = $state<AstronomicalRendererKind>('webgl');
 
   const planetCountOptions = $derived([
     { value: 'random', label: 'Random' },
@@ -66,20 +64,12 @@
       compositeW,
       height,
       rng.randomString(13),
-      imageRenderer,
     );
     starImageSrcs = current.stars.map((star) =>
-      renderStarPreviewImage(document, star, width, height, rng.randomString(13), imageRenderer),
+      renderStarPreviewImage(document, star, width, height, rng.randomString(13)),
     );
     planetImageSrcs = current.planets.map((planet) =>
-      renderPlanetPreviewImage(
-        document,
-        planet,
-        width,
-        height,
-        rng.randomString(13),
-        imageRenderer,
-      ),
+      renderPlanetPreviewImage(document, planet, width, height, rng.randomString(13)),
     );
   }
 
@@ -119,7 +109,7 @@
 </script>
 
 <GeneratorPage theme="scifi" title="Star System Generator">
-  <ImageRendererSelect bind:renderer={imageRenderer} onchange={rebuildSystemPreviewImages} />
+  <RendererOverrideControls onchange={rebuildSystemPreviewImages} />
 
   <SeedControls bind:seed bind:lockSeed />
 

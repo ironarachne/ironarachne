@@ -8,6 +8,7 @@
 
 import { rgbaCss } from '$lib/graphics/rgb_color_ops';
 import { BACKGROUND_STAR_COLOR } from '$lib/renderers/astronomical/background_star_color';
+import { canvasToDataUrlAtSize, rasterSizeForQuality } from '$lib/renderers/render_scale';
 import {
   drawRingEllipsePatch,
   drawScenePlanetDisk,
@@ -60,21 +61,27 @@ export function drawScene(ctx: CanvasRenderingContext2D, scene: AstronomicalScen
  *
  * A scene with no bodies renders as an empty string rather than an empty sky — callers treat that
  * as "nothing to show", which is what the star-system renderer did before the scene existed.
+ *
+ * At `reduced` quality the canvas is half size and the context is scaled to match, so the same
+ * scene is drawn with a quarter of the pixels and then scaled back up. The drawing code above sees
+ * no difference at all, which is the point: the tier is a budget, not a second way to draw.
  */
 export function renderSceneToDataUrl(document: Document, scene: AstronomicalScene): string {
   if (scene.bodies.length === 0) return '';
 
+  const raster = rasterSizeForQuality(scene.quality, scene.width, scene.height);
   const canvas = document.createElement('canvas');
-  canvas.width = scene.width;
-  canvas.height = scene.height;
+  canvas.width = raster.width;
+  canvas.height = raster.height;
   const ctx = canvas.getContext('2d');
   if (ctx === null) {
     throw new Error('Could not get 2D context');
   }
 
+  ctx.scale(raster.width / scene.width, raster.height / scene.height);
   drawScene(ctx, scene);
 
-  const data = canvas.toDataURL('image/png');
+  const data = canvasToDataUrlAtSize(document, canvas, scene.width, scene.height);
   canvas.remove();
   return data;
 }

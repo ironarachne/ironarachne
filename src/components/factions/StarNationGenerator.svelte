@@ -2,7 +2,6 @@
   import * as RNG from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
   import { renderStarSystemPreviewImage } from '$lib/renderers/astronomical_preview';
-  import type { AstronomicalRendererKind } from '$lib/renderers/astronomical_renderer_kind';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import {
@@ -28,7 +27,7 @@
   import { getTechnologyLevelByLevel } from '$lib/technology_levels/technology_levels';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
-  import ImageRendererSelect from '$components/common/ImageRendererSelect.svelte';
+  import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
 
   const rng = new RNG.RNG(Date.now().toString());
@@ -62,7 +61,6 @@
 
   let homeSystemCompositeSrc = $state('');
   let homeSystemPreviewSeed = $state('');
-  let imageRenderer = $state<AstronomicalRendererKind>('webgl');
 
   let planetCountControl: string = $state('random');
 
@@ -85,7 +83,6 @@
       imageWidth * (homeSystem.stars.length + homeSystem.planets.length),
       imageHeight,
       homeSystemPreviewSeed,
-      imageRenderer,
     );
   }
 
@@ -144,12 +141,12 @@
 <GeneratorPage theme="scifi" title="Star Nation Generator">
   {#snippet description()}
     <p>
-      Choose <strong>WebGL</strong> for full GPU previews or <strong>Simple</strong> for Canvas 2D (no
-      WebGL). Your choice is remembered in this browser.
+      The previews pick how to draw themselves from what this machine can do; the controls below
+      override that if it gets it wrong, and an override is remembered in this browser.
     </p>
   {/snippet}
 
-  <ImageRendererSelect bind:renderer={imageRenderer} onchange={refreshHomeSystemComposite} />
+  <RendererOverrideControls onchange={refreshHomeSystemComposite} />
 
   <SeedControls bind:seed bind:lockSeed />
 
