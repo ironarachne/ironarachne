@@ -13,9 +13,8 @@ landed: the divergence bug is closed, backend selection is automatic, the previe
 images, and `renderers` is out of the coverage debt register. Step 5 amended decision 4 and added a
 fourth testing tier; both are recorded below.
 
-What remains is not implementation. The golden-image baselines have still to be generated from CI
-and committed — the suite is built and skips until they are — and that is the one thread this
-document leaves open. The [domain model](#domain-model) went through one round of review (#115), which amended the
+The golden-image baselines have been generated from CI and committed, so every tier the document
+describes is live. The [domain model](#domain-model) went through one round of review (#115), which amended the
 diagrams and settled the two questions the first draft had left open as decisions 5 and 6. It has
 taken one amendment since, `SceneStar.seedFloat` in step 3, described where the diagram declares it.
 
@@ -505,13 +504,27 @@ on a machine whose headless Chromium rasterizes through SwiftShader exactly as C
   `/star-nation` never wired their own RNG into `getDefaultStarSystemGeneratorConfig`, which seeds
   itself from `Date.now()`: the seed control did not control the system at all. Both are fixed in
   step 5, and the pinned-seed mobile tests were quietly not pinned until then either.
-- **What remains unknown is the one thing this repository cannot answer from a developer machine**:
-  whether a baseline rendered by CI's CPU matches one rendered by another. It is the reason the
-  loop has to run through CI, and it is why the suite skips rather than writes when a baseline is
-  absent.
+- **What the experiment could not answer from a developer machine** was whether a baseline rendered
+  by CI's CPU matches one rendered by another. That is why the loop runs through CI and why the
+  suite skips rather than writes when a baseline is absent.
 
-So the tier is built and dormant: `e2e/preview_goldens.spec.ts` asserts where a committed baseline
-exists and skips where none does, and `.worktree/workflows/goldens.yaml` produces them on demand.
+  **Answered, once the first baselines existed:** CI's five images and a regeneration on a
+  developer machine are **byte-identical** — not merely inside the tolerance, the same SHA-256 for
+  every file. Both are Linux x86-64 running the Chromium that `@playwright/test` pins, rasterizing
+  through SwiftShader, which is evidently enough to make the output reproducible. That is one pair
+  of machines rather than a general law: an ARM developer machine has not been tried and might
+  well differ, and the tolerance is there for exactly that case.
+
+  The practical consequence is the good one. A local `npm run verify:all` runs these goldens
+  against CI's baselines and passes, so the tier does not become a thing developers have to skip.
+  It also sharpens the rule against regenerating locally: a local run _should_ produce identical
+  bytes, so a local diff is a signal about the code, never noise about the machine — which is
+  precisely why overwriting the baseline to make it go away is the wrong move.
+
+So the tier is built and, since the first baselines landed, live:
+`e2e/preview_goldens.spec.ts` asserts where a committed baseline exists and skips where none does,
+and `.worktree/workflows/goldens.yaml` produces them on demand — pushing a branch rather than an
+artifact, because this host has no artifact service at all.
 Its tolerance (0.2% of pixels) was chosen against evidence rather than by taste — a deliberately
 injected regression that stopped the WebGL backend drawing bodies moved 18% of pixels, two orders
 of magnitude clear of it.

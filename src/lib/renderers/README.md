@@ -193,6 +193,12 @@ from CI; if CI's own output moves around between runs, that is a finding about t
 and belongs in the design document, not in a wider tolerance. A screenshot test that cannot fail is
 worse than none, because decision 4 leans on this one being real.
 
+The first set of baselines came out **byte-identical** between CI and a developer machine — same
+SHA-256, not merely inside the tolerance — on Linux x86-64 with the Chromium `@playwright/test`
+pins. So a golden that fails locally is telling you about the code, not about your machine, which
+is exactly why overwriting it is the wrong move. Another architecture has not been tried; the
+tolerance is there for that case.
+
 ## Coverage
 
 One file here is excluded from coverage in `vite.config.js`: `webgl_scene_draw.ts`, the three.js
@@ -211,12 +217,9 @@ every function, where the library was at 37% before the scene builder existed.
 
 ## Where this is going
 
-All six steps of the design document have landed. What is left is not implementation:
+All six steps of the design document have landed, and the golden baselines are committed, so every
+tier described above is live. What is left is not implementation:
 
-- **The golden baselines have not been generated yet.** `e2e/preview_goldens.spec.ts` skips every
-  case until they are, and the loop for producing them from CI is above. Until then the pixel
-  assertions are what stand behind the coverage exclusion, which is what the amended decision 4
-  says they should be.
 - **The per-pixel `drawPlanetSpherePatch`/`planet_canvas_surface_shade.ts` path is still unrouted.**
   It survives as the high-fidelity option the design keeps, but the quality dial only turns detail
   down, and nothing turns it past `full`. Its unit tests hold it to the `ScenePlanet` shape in the
