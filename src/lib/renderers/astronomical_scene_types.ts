@@ -70,6 +70,14 @@ export type SceneStar = SceneBodyBase & {
   corona: RGBColor;
   glow: RGBColor;
   coronaWidthPx: number;
+  /**
+   * Rotates the shader's plasma convection and corona flares, the way `PlanetShading.seedFloat`
+   * rotates a planet's banding. A star's *colours* follow from its surface temperature and need no
+   * seed, which is what the design document meant in saying stars need none; its surface detail
+   * does, and the WebGL backend used to draw that number itself from whichever RNG was to hand.
+   * The Canvas2D backend has no surface detail to rotate and ignores this.
+   */
+  seedFloat: number;
 };
 
 export type ScenePlanet = SceneBodyBase & {

@@ -3,13 +3,8 @@ import {
   ringBackHalfIsHalfZero,
   ringSemicircleAngles,
 } from '$lib/renderers/astronomical/ring_geometry';
-import {
-  shadePlanetDiskPixel,
-  type PlanetShadeParams,
-} from '$lib/renderers/planets/planet_canvas_surface_shade';
+import { shadePlanetDiskPixel } from '$lib/renderers/planets/planet_canvas_surface_shade';
 import type { ScenePlanet } from '$lib/renderers/astronomical_scene_types';
-
-export type { PlanetShadeParams };
 
 /**
  * Where the highlight sits, from the same light vector the shader is handed. Both backends must

@@ -1,6 +1,6 @@
 import { fbm, fbmMap } from '$lib/renderers/planets/planet_canvas_surface_noise';
 import { isGasGiantPlanetClassification } from '$lib/renderers/astronomical/planet_canvas_classification';
-import type { PlanetCanvasTheme } from '$lib/renderers/astronomical/planet_canvas_theme';
+import type { PlanetPalette, PlanetShading } from '$lib/renderers/astronomical_scene_types';
 import type RGBColor from '$lib/graphics/rgb_color';
 
 const GAMMA = 1 / 2.2;
@@ -65,13 +65,6 @@ function calcNormalFromMap(pos: [number, number, number], eps: number): [number,
   return normalize3([dx, dy, dz]);
 }
 
-export type PlanetShadeParams = {
-  seedFloat: number;
-  lightDir: [number, number, number];
-  cloudCoverage: number;
-  stormActivity: number;
-};
-
 /**
  * Gas giants: banding + storms (ported from `gas_giant_planet.frag`).
  * All other types: multi-scale FBM albedo on the sphere (no horizontal striped-giant structure).
@@ -80,24 +73,24 @@ export function shadePlanetDiskPixel(
   offsetX: number,
   offsetY: number,
   planetRadiusPx: number,
-  theme: PlanetCanvasTheme,
-  params: PlanetShadeParams,
+  palette: PlanetPalette,
+  shading: PlanetShading,
   classification: string,
 ): [number, number, number] {
   if (isGasGiantPlanetClassification(classification)) {
-    return shadeGasGiantDiskPixel(offsetX, offsetY, planetRadiusPx, theme, params);
+    return shadeGasGiantDiskPixel(offsetX, offsetY, planetRadiusPx, palette, shading);
   }
-  return shadeTerrestrialDiskPixel(offsetX, offsetY, planetRadiusPx, theme, params);
+  return shadeTerrestrialDiskPixel(offsetX, offsetY, planetRadiusPx, palette, shading);
 }
 
 function shadeTerrestrialDiskPixel(
   offsetX: number,
   offsetY: number,
   planetRadiusPx: number,
-  theme: PlanetCanvasTheme,
-  params: PlanetShadeParams,
+  palette: PlanetPalette,
+  shading: PlanetShading,
 ): [number, number, number] {
-  const { seedFloat, lightDir, stormActivity, cloudCoverage } = params;
+  const { seedFloat, lightDir, stormActivity, cloudCoverage } = shading;
 
   const angle = seedFloat * 0.1;
   const [rx, ry] = rotate2d(angle, offsetX, offsetY);
@@ -113,9 +106,9 @@ function shadeTerrestrialDiskPixel(
   const wsNormal: [number, number, number] = [x, y, z];
   const wsPosition: [number, number, number] = wsNormal;
 
-  const wBase = rgbToTriplet(theme.main);
-  const lBase = rgbToTriplet(theme.band1);
-  const mBase = rgbToTriplet(theme.band2);
+  const wBase = rgbToTriplet(palette.main);
+  const lBase = rgbToTriplet(palette.band1);
+  const mBase = rgbToTriplet(palette.band2);
 
   const noiseCoord = scale3(wsPosition, 2);
   const P: [number, number, number] = [
@@ -157,10 +150,10 @@ function shadeGasGiantDiskPixel(
   offsetX: number,
   offsetY: number,
   planetRadiusPx: number,
-  theme: PlanetCanvasTheme,
-  params: PlanetShadeParams,
+  palette: PlanetPalette,
+  shading: PlanetShading,
 ): [number, number, number] {
-  const { seedFloat, lightDir, stormActivity, cloudCoverage } = params;
+  const { seedFloat, lightDir, stormActivity, cloudCoverage } = shading;
 
   const angle = seedFloat * 0.1;
   const [rx, ry] = rotate2d(angle, offsetX, offsetY);
@@ -176,9 +169,9 @@ function shadeGasGiantDiskPixel(
   const wsNormal: [number, number, number] = [x, y, z];
   const wsPosition: [number, number, number] = wsNormal;
 
-  const wBase = rgbToTriplet(theme.main);
-  let lBase = rgbToTriplet(theme.band1);
-  let mBase = rgbToTriplet(theme.band2);
+  const wBase = rgbToTriplet(palette.main);
+  let lBase = rgbToTriplet(palette.band1);
+  let mBase = rgbToTriplet(palette.band2);
   let cBase = [...wBase] as [number, number, number];
 
   const pType = fract11(seedFloat * 0.98765);

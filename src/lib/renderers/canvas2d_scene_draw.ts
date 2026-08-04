@@ -7,6 +7,7 @@
  */
 
 import { rgbaCss } from '$lib/graphics/rgb_color_ops';
+import { BACKGROUND_STAR_COLOR } from '$lib/renderers/astronomical/background_star_color';
 import {
   drawRingEllipsePatch,
   drawScenePlanetDisk,
@@ -17,13 +18,6 @@ import type {
   SceneBackground,
   ScenePlanet,
 } from '$lib/renderers/astronomical_scene_types';
-
-/**
- * The scene carries a background star's position, radius and alpha, but not its colour — so there
- * is one colour, here. The three renderers each had their own slightly different blue-white before
- * (200,210,240 / 210,220,250 / 220,230,255); this is the middle one, and now both backends use it.
- */
-const BACKGROUND_STAR_COLOR = { r: 210 / 255, g: 220 / 255, b: 250 / 255 };
 
 function drawBackground(
   ctx: CanvasRenderingContext2D,
