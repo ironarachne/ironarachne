@@ -3,7 +3,11 @@
 // graph in the import chain of anything that wanted only the pure scene builder. Import them from
 // '$lib/renderers/astronomical_preview' instead — the same reasoning `$lib/workshop` applies to
 // its panel loaders.
-export * from './astronomical_renderer_kind';
-export * from './astronomical_renderer_storage';
+//
+// `renderer_decision.ts` is absent for the same reason: it reaches the probe, which is DOM, and the
+// settings UI that wants it can say so by importing it directly.
 export * from './astronomical_scene';
 export type * from './astronomical_scene_types';
+export * from './renderer_backend';
+export * from './renderer_preference_storage';
+export type * from './renderer_decision_types';

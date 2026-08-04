@@ -8,8 +8,8 @@ It exists because the library has three problems that are all the same problem w
 hats — the two backends duplicate the arithmetic that decides what a picture contains, and nothing
 holds them to the same answer.
 
-**Status:** accepted 2026-08-01; [steps 1 to 3](#the-plan) are implemented and the divergence bug is
-closed. The [domain model](#domain-model) went through one round of review (#115), which amended the
+**Status:** accepted 2026-08-01; [steps 1 to 4](#the-plan) are implemented. The divergence bug is
+closed and backend selection is automatic. The [domain model](#domain-model) went through one round of review (#115), which amended the
 diagrams and settled the two questions the first draft had left open as decisions 5 and 6. It has
 taken one amendment since, `SceneStar.seedFloat` in step 3, described where the diagram declares it.
 
@@ -508,6 +508,15 @@ Ordered so each step is independently mergeable and green.
    `RendererSession`, automatic selection, `webglcontextlost` handling; `ImageRendererSelect`
    becomes an override and `astronomical_renderer_storage` persists overrides only, per decision 6.
    Render entry points keep their synchronous signatures, per decision 5.
+
+   Two things this step settled that the plan had left open. The **timing budget** is one preview at
+   400ms — a still image someone waits on with nothing else happening, so the line sits where the
+   wait stops reading as "drawing" and starts reading as "stuck"; it is deliberately not a frame
+   budget. And a **backend override is honoured only where the machine can honour it**: forcing
+   WebGL on a browser without it would trade a working picture for a broken one, so the probe wins
+   and `reason` keeps saying `webgl_unavailable` so the UI can explain why the override did not
+   take.
+
 5. **Golden images** in Playwright, generated from CI — which now means the `main` run, not a
    pull request one.
 6. **Coverage exclusion** for GPU submission files — file-scoped, with the comment explaining what

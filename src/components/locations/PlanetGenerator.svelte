@@ -5,7 +5,6 @@
     searchPlanetClassificationByName,
   } from '$lib/astronomical_bodies/planet/planet_classifications';
   import { renderPlanetPreviewImage } from '$lib/renderers/astronomical_preview';
-  import type { AstronomicalRendererKind } from '$lib/renderers/astronomical_renderer_kind';
   import {
     convertAUToKM,
     type AstronomicalBody,
@@ -32,7 +31,7 @@
   import { browser } from '$app/environment';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
-  import ImageRendererSelect from '$components/common/ImageRendererSelect.svelte';
+  import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
 
@@ -52,7 +51,6 @@
   let planet: AstronomicalBody | undefined = $state();
   let planetImageSrc = $state('');
   let planetImageSeed = $state('');
-  let imageRenderer = $state<AstronomicalRendererKind>('webgl');
 
   let moonGenConfig = getDefaultMoonGenerationConfig();
   moonGenConfig.rng = rng;
@@ -72,14 +70,7 @@
 
   function refreshPlanetImage() {
     if (!browser || planet === undefined || planetImageSeed === '') return;
-    planetImageSrc = renderPlanetPreviewImage(
-      document,
-      planet,
-      width,
-      height,
-      planetImageSeed,
-      imageRenderer,
-    );
+    planetImageSrc = renderPlanetPreviewImage(document, planet, width, height, planetImageSeed);
   }
 
   function generate() {
@@ -149,13 +140,13 @@
 <GeneratorPage theme="scifi" title="Planet Generator">
   {#snippet description()}
     <p>
-      This lets you generate a planet. Choose <strong>WebGL</strong> for full shader quality (uses
-      the GPU) or <strong>Simple</strong> for a Canvas 2D preview that avoids WebGL—useful on low-end
-      machines. Your choice is remembered in this browser.
+      This lets you generate a planet. The preview picks how to draw itself from what this machine
+      can do; the controls below override that if it gets it wrong, and an override is remembered in
+      this browser.
     </p>
   {/snippet}
 
-  <ImageRendererSelect bind:renderer={imageRenderer} onchange={refreshPlanetImage} />
+  <RendererOverrideControls onchange={refreshPlanetImage} />
 
   <SeedControls bind:seed bind:lockSeed />
 

@@ -140,6 +140,11 @@ function buildStarItem(scene: AstronomicalScene, star: SceneStar): WebGLPlaneIte
  *
  * A planet with no ring still carries the three ring uniforms, because the shader declares them
  * and a missing uniform is a GL error rather than a default. `has_rings` is what turns them off.
+ *
+ * `bump_detail` is the only uniform that comes off the scene's quality rather than its content: it
+ * drops the bump-normal pass, which is six fbm evaluations a pixel and the most expensive thing the
+ * shader does. The picture is the same picture with a smoother surface, which is what the tier is
+ * meant to mean.
  */
 function buildPlanetItem(scene: AstronomicalScene, planet: ScenePlanet): WebGLPlaneItem {
   const planeSize = planetPlaneSizePx(planet);
@@ -155,6 +160,7 @@ function buildPlanetItem(scene: AstronomicalScene, planet: ScenePlanet): WebGLPl
     uniforms: {
       seed: { value: planet.shading.seedFloat },
       render_background: { value: 0 },
+      bump_detail: { value: scene.quality === 'reduced' ? 0 : 1 },
       resolution: { value: new THREE.Vector2(planeSize, planeSize) },
       planet_radius: { value: planet.radiusPx },
       light_direction: { value: new THREE.Vector3(...planet.shading.lightDir) },

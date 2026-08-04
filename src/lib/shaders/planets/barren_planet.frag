@@ -5,6 +5,9 @@ precision highp float;
 uniform vec2 resolution;
 uniform float seed;
 uniform float render_background;
+// 1.0 draws the bump-normal pass, 0.0 skips it: six fbm evaluations a pixel, and by far the
+// most expensive thing in this shader. `reduced` quality drops it.
+uniform float bump_detail;
 uniform float planet_radius;
 uniform vec3 light_direction;
 
@@ -386,7 +389,7 @@ vec3 DrawPlanet(vec2 pixelCoords, vec3 color, float planetRadius) {
     vec3 wsLightDir = normalize(light_direction);
 
     // Normal mapping for craters
-    vec3 wsSurfaceNormal = normalize(calcNormal(noiseCoord) * (1.0 + impactMap) + 16.0 * wsNormal);
+    vec3 wsSurfaceNormal = bump_detail > 0.5 ? normalize(calcNormal(noiseCoord) * (1.0 + impactMap) + 16.0 * wsNormal) : wsNormal;
 
     // Pure harsh diffuse
     float dp = max(0.0, dot(wsLightDir, wsSurfaceNormal));
