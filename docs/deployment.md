@@ -191,8 +191,12 @@ implemented. Worktree's own documentation corroborates it from the other side: "
 currently disabled", and cache and artifacts are the same subsystem.
 
 **So do not add `upload-artifact` or `download-artifact` back in any form.** Anything that needs to
-survive beyond a single job has to go somewhere real: a release asset, or a bucket. That constraint
-is why `build.yaml` is one job.
+survive beyond a single job has to go somewhere real: a release asset, a bucket, or a branch. That
+constraint is why `build.yaml` is one job, and why `goldens.yaml` — which has to get five rendered
+PNGs out of a run — pushes a `goldens/<short sha>` branch for a human to open a pull request from.
+This paragraph was written before that workflow existed and did not stop it being written with
+`upload-artifact` first; it cost a dispatch to find out. Read this section before adding a workflow,
+not after.
 
 **`workflow_dispatch` inputs do not work here at all, and cost three failed prod deploys.** The first two failures looked like two
 separate problems, which look nothing alike:

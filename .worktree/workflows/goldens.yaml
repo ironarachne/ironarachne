@@ -1,28 +1,31 @@
 name: Golden baselines
 
-# Generates the astronomical preview baselines that `e2e/preview_goldens.spec.ts` compares
-# against, and uploads them for a human to commit.
+# Generates the astronomical preview baselines that `e2e/preview_goldens.spec.ts` compares against,
+# and pushes them to a branch for a human to review and merge.
 #
 # It runs only when someone asks for it. Baselines are not something a schedule should decide to
-# replace, and a workflow that regenerated them automatically would turn every regression into a
-# new baseline — which is the failure mode this whole tier exists to avoid.
+# replace, and a workflow that regenerated them automatically would turn every regression into a new
+# baseline — which is the failure mode this whole tier exists to avoid.
 #
 # Why here rather than on a developer machine: CI rasterizes WebGL on the CPU through SwiftShader.
 # A machine with a GPU draws the same scene with different floating point, and a baseline captured
 # on one will not match the other at any tolerance loose enough to still catch a black frame. The
 # spec refuses to write baselines unless asked precisely because of that.
 #
+# Why a branch rather than an artifact: **workflow artifacts do not work on this host, at any
+# version.** The runner never sets `ACTIONS_RUNTIME_TOKEN`, so the artifact service cannot
+# authenticate; `docs/deployment.md`, "Actions on this host", records the three runs that
+# established it and says in as many words not to add `upload-artifact` back in any form. Anything
+# that has to outlive the job goes somewhere real. A branch is the most real thing available here,
+# and it is also the shape the output wants to be: a commit containing the baselines.
+#
 # The loop, which is written up in `src/lib/renderers/README.md`:
 #
-#   1. Dispatch this workflow (on `main`, or on the branch that changed the rendering).
-#   2. Download the `preview-goldens` artifact.
-#   3. Unpack it over `e2e/preview_goldens.spec.ts-snapshots/` and **look at the images**. They are
-#      the baseline: anything wrong in them is a regression this tier will then defend.
-#   4. Commit them, and the goldens start asserting on the next run of the E2E workflow.
-#
-# If this host turns out not to keep artifacts, the fallback is to have this job push the snapshots
-# to a branch with `secrets.WORKTREE_ACCESS_TOKEN` — the same token `build.yaml` uses for releases —
-# and open a pull request from it. The generation step is identical either way.
+#   1. Dispatch this workflow on the branch whose rendering you want to bless.
+#   2. It pushes `goldens/<short sha>` and prints the name.
+#   3. Open a pull request from that branch and **look at the images**. They are the baseline:
+#      anything wrong in them is a regression this tier will then defend.
+#   4. Merge. The goldens start asserting on the next run of the E2E workflow.
 
 on:
   workflow_dispatch:
@@ -47,16 +50,39 @@ jobs:
       - name: Render the baselines
         run: npx playwright test --project=chromium preview_goldens --update-snapshots=all
 
-      - name: Report what was produced
+      - name: Push them to a branch
+        env:
+          WORKTREE_TOKEN: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
         run: |
-          echo "Baselines rendered by this run:"
-          ls -l e2e/preview_goldens.spec.ts-snapshots/
-          echo
-          echo "WebGL renderer this job used, for the record:"
-          node -e "console.log(process.report?.getReport()?.header?.cpus?.[0]?.model ?? 'unknown cpu')"
+          set -eu
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: preview-goldens
-          path: e2e/preview_goldens.spec.ts-snapshots/
-          if-no-files-found: error
+          snapshots="e2e/preview_goldens.spec.ts-snapshots"
+          echo "Baselines rendered by this run:"
+          ls -l "$snapshots"
+
+          if git diff --quiet -- "$snapshots" && [ -z "$(git status --porcelain -- "$snapshots")" ]; then
+            echo "::notice::The committed baselines already match this run. Nothing to push."
+            exit 0
+          fi
+
+          if [ -z "$WORKTREE_TOKEN" ]; then
+            echo "::error::WORKTREE_ACCESS_TOKEN is unset, so the baselines cannot be pushed. They exist only in this job's workspace and will be discarded."
+            exit 1
+          fi
+
+          # `git rev-parse` rather than $GITHUB_SHA: most of the GITHUB_* context is empty on this
+          # host, and the working tree is always right in front of us.
+          branch="goldens/$(git rev-parse --short HEAD)"
+
+          git config user.name "Worktree Actions"
+          git config user.email "actions@worktree.ca"
+          git add "$snapshots"
+          git commit -m "Golden baselines rendered by CI at $(git rev-parse --short HEAD)"
+
+          # Force, so dispatching twice on the same commit means "do it again" rather than failing
+          # on a branch that already exists. It only ever touches a goldens/ branch.
+          git push --force \
+            "https://oauth2:$WORKTREE_TOKEN@${GITHUB_SERVER_URL#https://}/$GITHUB_REPOSITORY.git" \
+            "HEAD:refs/heads/$branch"
+
+          echo "::notice::Baselines pushed to $branch. Open a pull request from it, look at the images, and merge."

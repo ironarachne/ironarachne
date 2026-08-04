@@ -54,6 +54,11 @@ Notes:
   Worktree.ca reads workflows from `.worktree/workflows` only — `.github` and `.forgejo` are
   both ignored, and a workflow in either is silently never run. Actions under `actions/`
   resolve bare; any other action needs its full URL. See https://docs.worktree.ca/code/actions/.
+  **Read `docs/deployment.md`, "Actions on this host", before writing or changing a workflow.**
+  It is the list of things this host does not do — workflow artifacts at all, `workflow_dispatch`
+  inputs at all, most of the `GITHUB_*` context — each of which cost real runs to discover.
+  `.worktree/workflows/goldens.yaml` is the third workflow and gates nothing: it is dispatch-only,
+  renders the golden-image baselines, and pushes them to a branch for review.
 - **Coverage is enforced per library, not project-wide.** `scripts/check_library_coverage.ts`
   requires every directory under `src/lib` to reach 80% line and function coverage. The
   exception is the debt recorded in `scripts/library_coverage_baseline.json`: those libraries
