@@ -79,25 +79,26 @@ describe('generate', () => {
     }
   });
 
-  // DEFECT: the required-fitting block subtracts mass and power from the budget unconditionally,
-  // without first checking the fitting fits. A small hull whose owner type mandates a bulky
-  // fitting therefore overspends its own hull. Roughly 1% of ships, and only ever owners that
-  // have a required fitting — smuggler, mining ship and merchant.
-  it('overspends the hull’s mass only for owners with a required fitting', () => {
-    const overspent = shipsFrom(2000).filter((ship) => ship.usedMass > ship.hullType.mass);
-
-    expect(overspent.length).toBeGreaterThan(0);
-    for (const ship of overspent) {
-      expect(ship.ownerType.requiredFittingType.length).toBeGreaterThan(0);
-      expect(ship.fittings.length).toBeGreaterThan(0);
+  // Was a defect until #106: the required-fitting block spent mass and power without first
+  // checking the fitting fitted, so a mandated fitting could push a small hull past its own
+  // budget. 3.8% of 20,000 seeds, every one of them a ship with a required fitting. The fix
+  // chooses among the required fittings that fit, so these two now assert the opposite.
+  it('never spends more mass or power than the hull provides, required fitting included', () => {
+    for (const ship of shipsFrom(2000)) {
+      expect(ship.usedMass).toBeLessThanOrEqual(ship.hullType.mass);
+      expect(ship.usedPower).toBeLessThanOrEqual(ship.hullType.power);
     }
   });
 
-  it('keeps the mass overspend to a small minority of ships', () => {
-    const ships = shipsFrom(2000);
-    const overspent = ships.filter((ship) => ship.usedMass > ship.hullType.mass);
+  it('still fits the required fitting on the great majority of ships', () => {
+    // Skipping it is the fallback, not the outcome: a hull with no room for any option in its
+    // owner's mandated category goes without, and that has to stay rare or the fix has quietly
+    // turned "required" into "optional".
+    const ships = shipsFrom(2000).filter((ship) => ship.ownerType.requiredFittingType.length > 0);
+    const withoutAnyFitting = ships.filter((ship) => ship.fittings.length === 0);
 
-    expect(overspent.length / ships.length).toBeLessThan(0.05);
+    expect(ships.length).toBeGreaterThan(0);
+    expect(withoutAnyFitting.length / ships.length).toBeLessThan(0.05);
   });
 
   it('never spends a negative amount', () => {

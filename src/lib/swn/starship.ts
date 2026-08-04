@@ -96,39 +96,38 @@ export function generate(rng: RNG.RNG) {
 
     if (chanceOfDriveUpgrade > 70) {
       const allDrives = allDriveFittings();
-      const drives = [];
 
-      for (let i = 0; i < allDrives.length; i++) {
-        let driveMassCost = allDrives[i].mass;
-        let drivePowerCost = allDrives[i].power;
-
-        if (allDrives[i].massExpands) {
-          driveMassCost *= massMultiplier;
-        }
-
-        if (allDrives[i].powerExpands) {
-          drivePowerCost *= powerMultiplier;
-        }
-
-        if (
-          allDrives[i].minimumClass <= starship.hullType.hullClass &&
-          allDrives[i].maximumClass >= starship.hullType.hullClass
-        ) {
-          if (drivePowerCost <= powerBudget && driveMassCost <= massBudget) {
-            drives.push(allDrives[i]);
-          }
-        }
-      }
+      // The expanded costs are carried alongside the drive rather than recomputed after it is
+      // chosen. They used to be worked out twice and differently: the affordability check above
+      // applied each multiplier only when the drive's matching `*Expands` flag was set, while the
+      // subtraction below applied all three unconditionally. A drive that does not expand was
+      // therefore checked at its table cost and charged at the hull's multiple of it, which is a
+      // second way for a ship to spend more than its hull has — one the measurements in #106
+      // attributed to the required fitting.
+      const drives = allDrives
+        .map((drive) => ({
+          drive,
+          cost: drive.costExpands ? drive.cost * costMultiplier : drive.cost,
+          mass: drive.massExpands ? drive.mass * massMultiplier : drive.mass,
+          power: drive.powerExpands ? drive.power * powerMultiplier : drive.power,
+        }))
+        .filter(
+          (option) =>
+            option.drive.minimumClass <= starship.hullType.hullClass &&
+            option.drive.maximumClass >= starship.hullType.hullClass &&
+            option.power <= powerBudget &&
+            option.mass <= massBudget,
+        );
 
       if (drives.length > 0) {
-        const driveUpgrade = rng.item(drives) as Fitting;
+        const driveUpgrade = rng.item(drives);
 
-        starship.fittings.push(driveUpgrade);
-        starship.drive = driveUpgrade;
+        starship.fittings.push(driveUpgrade.drive);
+        starship.drive = driveUpgrade.drive;
 
-        massBudget -= driveUpgrade.mass * massMultiplier;
-        powerBudget -= driveUpgrade.power * powerMultiplier;
-        starship.totalCost += driveUpgrade.cost * costMultiplier;
+        massBudget -= driveUpgrade.mass;
+        powerBudget -= driveUpgrade.power;
+        starship.totalCost += driveUpgrade.cost;
       }
     }
   }
@@ -248,31 +247,32 @@ export function generate(rng: RNG.RNG) {
     starship.hullType.hullClass,
   );
 
-  if (requiredFittingOptions.length > 0) {
-    const requiredFitting = rng.item(requiredFittingOptions);
-    starship.fittings.push(requiredFitting);
+  // The required fitting used to be fitted whatever it cost — the one place in this function that
+  // spent the budget without checking it first. A mandated fitting on a small hull could push the
+  // ship past its own mass or power, which the sheet then reported as using more than the hull
+  // provides. Choosing among the options that fit keeps the fitting required wherever the hull can
+  // pay for it; when none fits, the ship goes without rather than overloading.
+  //
+  // The costs are expanded before the filter rather than after, because the hull class multipliers
+  // are what decide affordability: an expanding fitting is cheap in the table and not on a frigate.
+  const affordableRequiredFittings = requiredFittingOptions
+    .map((fitting) => ({
+      fitting,
+      cost: fitting.costExpands ? fitting.cost * costMultiplier : fitting.cost,
+      mass: fitting.massExpands ? fitting.mass * massMultiplier : fitting.mass,
+      power: fitting.powerExpands ? fitting.power * powerMultiplier : fitting.power,
+    }))
+    .filter((option) => option.mass <= massBudget && option.power <= powerBudget);
 
-    let requiredFittingCost = requiredFitting.cost;
-    let requiredMassCost = requiredFitting.mass;
-    let requiredPowerCost = requiredFitting.power;
+  if (affordableRequiredFittings.length > 0) {
+    const required = rng.item(affordableRequiredFittings);
 
-    if (requiredFitting.costExpands) {
-      requiredFittingCost *= costMultiplier;
-    }
+    starship.fittings.push(required.fitting);
+    massBudget -= required.mass;
+    powerBudget -= required.power;
+    starship.totalCost += required.cost;
 
-    if (requiredFitting.massExpands) {
-      requiredMassCost *= massMultiplier;
-    }
-
-    if (requiredFitting.powerExpands) {
-      requiredPowerCost *= powerMultiplier;
-    }
-
-    massBudget -= requiredMassCost;
-    powerBudget -= requiredPowerCost;
-    starship.totalCost += requiredFittingCost;
-
-    fittingOptions = removeFittingFromList(requiredFitting, fittingOptions);
+    fittingOptions = removeFittingFromList(required.fitting, fittingOptions);
   }
 
   // Begin addition of fittings
@@ -332,12 +332,16 @@ export function generate(rng: RNG.RNG) {
       }
     }
 
-    if (!foundCargo) {
+    // Cargo is bought a whole mass unit at a time, and the budget left over need not be whole:
+    // fittings that expand by half a unit are common on the larger hulls. Both spends below used
+    // to ignore that — the first took a unit whenever anything at all remained, and the loop ran
+    // `i < 3.5` for four iterations — so a ship with half a unit spare ended half a unit over.
+    if (!foundCargo && massBudget >= 1) {
       starship.fittings.push(cargoFitting);
       massBudget--;
     }
 
-    const numberOfCargoFittings = massBudget;
+    const numberOfCargoFittings = Math.floor(massBudget);
 
     for (let i = 0; i < numberOfCargoFittings; i++) {
       tonsOfCargo += tonsMultiplier;
@@ -1241,6 +1245,11 @@ function randomStarshipOwnerType(rng: RNG.RNG) {
 
 export class DriveFitting {
   name: string;
+  // Its three siblings — CargoFitting, DefenseFitting, WeaponFitting — all carry one, and a drive
+  // is pushed onto `starship.fittings` beside them. Without it the push needed a cast to Fitting,
+  // which is what kept this gap invisible. Nothing selects on it: drives come from
+  // `allDriveFittings`, which `getFittingsByType` never sees.
+  fittingType: string;
   cost: number;
   costExpands: boolean;
   power: number;
@@ -1261,6 +1270,7 @@ export class DriveFitting {
     effect: string,
   ) {
     this.name = name;
+    this.fittingType = 'drive';
     this.cost = cost;
     this.costExpands = true;
     this.power = power;
