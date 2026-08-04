@@ -1,7 +1,7 @@
 import Download from '$lib/download';
 import { heraldryFromSnapshot, type HeraldrySnapshot } from '$lib/heraldry/heraldry_snapshot';
 import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
-import SaveSVGToPNG from '$lib/renderers/svg-to-png';
+import saveSvgAsPng from '$lib/download/svg_to_png';
 import type { CultureSnapshot } from '$lib/culture/culture_snapshot';
 import type { ReligionSnapshot } from '$lib/religion/religion_snapshot';
 
@@ -38,9 +38,10 @@ export function downloadHeraldrySvg(snapshot: HeraldrySnapshot): void {
   Download(window.URL.createObjectURL(blob), `heraldry-${snapshot.seed}.svg`);
 }
 
-export function downloadHeraldryPng(snapshot: HeraldrySnapshot): void {
+/** Resolves once the file has been handed to the browser; rejects if the SVG could not be drawn. */
+export function downloadHeraldryPng(snapshot: HeraldrySnapshot): Promise<void> {
   const svg = heraldrySvgString(snapshot);
-  SaveSVGToPNG(
+  return saveSvgAsPng(
     svg,
     HERALDRY_DOWNLOAD_WIDTH,
     HERALDRY_DOWNLOAD_HEIGHT,
