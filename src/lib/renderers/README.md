@@ -179,10 +179,15 @@ and skips any case that has none, so a missing baseline is never a false pass.
 
 1. Dispatch the **Golden baselines** workflow (`.worktree/workflows/goldens.yaml`) on the branch
    whose rendering you want to bless.
-2. Download its `preview-goldens` artifact.
-3. Unpack it over `e2e/preview_goldens.spec.ts-snapshots/` and **look at the images**, because from
-   then on they are what "correct" means.
-4. Commit them. The next E2E run on `main` starts asserting against them.
+2. It renders them and pushes `goldens/<short sha>`, printing the branch name. If the committed
+   baselines already match, it says so and pushes nothing.
+3. Open a pull request from that branch and **look at the images**, because from then on they are
+   what "correct" means.
+4. Merge. The next E2E run on `main` starts asserting against them.
+
+The workflow pushes a branch rather than uploading an artifact because **workflow artifacts do not
+work on this host** — see `docs/deployment.md`, "Actions on this host". That is a platform fact
+with three burned runs behind it, not a preference.
 
 Never run `--update-snapshots` locally to fix a red golden. If a baseline is wrong, regenerate it
 from CI; if CI's own output moves around between runs, that is a finding about this infrastructure
