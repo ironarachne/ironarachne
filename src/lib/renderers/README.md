@@ -153,6 +153,42 @@ so the two of them must not paint over the sky:
 Order is painter's order, back to front, as `drawScene` walks a scene on a 2D context. Depth testing
 is off and `sortObjects` is off on the renderer, because three would otherwise reorder the draws.
 
+## What is tested, and where
+
+Three tiers, and they answer different questions:
+
+| tier             | where                            | asks                                                             |
+| ---------------- | -------------------------------- | ---------------------------------------------------------------- |
+| unit             | `src/lib/renderers/**/*.test.ts` | is the arithmetic right, and do both backends get the same scene |
+| pixel assertions | `e2e/preview_pixels.spec.ts`     | is this a picture of a planet at all                             |
+| golden images    | `e2e/preview_goldens.spec.ts`    | is it the same picture as last time                              |
+
+The middle tier is the one that catches "the shader renders solid black". It asserts properties of
+the image — something is lit, it is where the scene put it, the sky is dark, the image is not one
+flat colour — so it needs no baseline, cannot drift between machines, and fails loudly on a
+renderer that has stopped drawing. Before it existed, the strongest claim anything here made about
+a preview was that an `img` element was visible.
+
+### Regenerating the golden baselines
+
+Baselines are generated **in CI and committed from CI's output, never from a developer machine.**
+CI rasterizes WebGL on the CPU through SwiftShader; a machine with a GPU produces different
+floating point, and a baseline captured on one will not match the other at any tolerance loose
+enough to still catch a black frame. The spec will not write baselines unless explicitly told to,
+and skips any case that has none, so a missing baseline is never a false pass.
+
+1. Dispatch the **Golden baselines** workflow (`.worktree/workflows/goldens.yaml`) on the branch
+   whose rendering you want to bless.
+2. Download its `preview-goldens` artifact.
+3. Unpack it over `e2e/preview_goldens.spec.ts-snapshots/` and **look at the images**, because from
+   then on they are what "correct" means.
+4. Commit them. The next E2E run on `main` starts asserting against them.
+
+Never run `--update-snapshots` locally to fix a red golden. If a baseline is wrong, regenerate it
+from CI; if CI's own output moves around between runs, that is a finding about this infrastructure
+and belongs in the design document, not in a wider tolerance. A screenshot test that cannot fail is
+worse than none, because decision 4 leans on this one being real.
+
 ## Where this is going
 
 The design document sets out six steps, of which this library has the first four: the scene builder

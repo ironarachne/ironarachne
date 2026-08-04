@@ -54,6 +54,14 @@
     ...starTypes.map((s) => ({ value: s.name, label: s.name })),
   ]);
 
+  /**
+   * Image seeds come from the page's seed and each body's ordinal, not from a fresh RNG draw.
+   *
+   * They used to be drawn as this ran, so every rebuild produced different pictures of the same
+   * system: changing the renderer redrew every body rather than redrawing it differently, and the
+   * seed control — whose whole promise is that a seed reproduces what you saw — did not reproduce
+   * the previews. Same shape of bug as the one the scene builder fixed underneath, one layer up.
+   */
   function rebuildSystemPreviewImages() {
     if (!browser || system === undefined) return;
     const current = system;
@@ -63,14 +71,33 @@
       current,
       compositeW,
       height,
-      rng.randomString(13),
+      `${seed}:composite`,
     );
-    starImageSrcs = current.stars.map((star) =>
-      renderStarPreviewImage(document, star, width, height, rng.randomString(13)),
+    starImageSrcs = current.stars.map((star, index) =>
+      renderStarPreviewImage(document, star, width, height, `${seed}:star${index}`),
     );
-    planetImageSrcs = current.planets.map((planet) =>
-      renderPlanetPreviewImage(document, planet, width, height, rng.randomString(13)),
+    planetImageSrcs = current.planets.map((planet, index) =>
+      renderPlanetPreviewImage(document, planet, width, height, `${seed}:planet${index}`),
     );
+  }
+
+  /**
+   * Builds the config from the controls and, importantly, from this page's RNG.
+   *
+   * `getDefaultStarSystemGeneratorConfig` seeds itself from `Date.now()` and picks a planet count
+   * with it. Left unwired, as it was, the seed control changed nothing about the system: the same
+   * locked seed generated a different system on every click, and every reload. The mount path has
+   * to do this too, or the first system on screen is the one nobody can reproduce.
+   */
+  function applySystemConfig() {
+    config = getDefaultStarSystemGeneratorConfig();
+    config.rng = rng;
+    config.planet_count =
+      planetCountControl === 'random'
+        ? Math.max(1, Math.round(rng.bellFloat(1, 12)))
+        : parseInt(planetCountControl, 10);
+    config.star_classifications =
+      starType === 'random' ? starTypes : searchStarClassificationsByName(starType, starTypes);
   }
 
   function generate() {
@@ -79,30 +106,14 @@
     }
     rng.setSeed(seed);
 
-    if (planetCountControl !== 'random') {
-      config.planet_count = parseInt(planetCountControl, 10);
-    } else {
-      config.planet_count = Math.max(1, Math.round(rng.bellFloat(1, 12)));
-    }
-
-    if (starType !== 'random') {
-      config.star_classifications = searchStarClassificationsByName(starType, starTypes);
-    } else {
-      config.star_classifications = starTypes;
-    }
-
+    applySystemConfig();
     system = generateStarSystem(config);
     rebuildSystemPreviewImages();
   }
 
   onMount(() => {
-    config = getDefaultStarSystemGeneratorConfig();
-    if (planetCountControl !== 'random') {
-      config.planet_count = parseInt(planetCountControl, 10);
-    }
-    if (starType !== 'random') {
-      config.star_classifications = searchStarClassificationsByName(starType, starTypes);
-    }
+    rng.setSeed(seed);
+    applySystemConfig();
     system = generateStarSystem(config);
     rebuildSystemPreviewImages();
   });

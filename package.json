@@ -21,6 +21,8 @@
     "test:e2e": "playwright test",
     "test:e2e:desktop": "playwright test --project=chromium",
     "test:e2e:mobile": "playwright test --project=mobile-320 --project=mobile-360 --project=mobile-375 --project=mobile-390 --project=mobile-430",
+    "test:e2e:goldens": "playwright test --project=chromium preview_goldens",
+    "test:e2e:previews": "playwright test --project=chromium preview_pixels preview_goldens",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "format": "prettier --write .",

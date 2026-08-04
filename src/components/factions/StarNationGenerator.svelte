@@ -37,7 +37,11 @@
   const config = getDefaultCivilizationGenerationConfig();
   config.rng = rng;
   config.technology_level_range = [7, 9];
+  // Every config draws from the page's RNG. A config factory seeds itself from `Date.now()`, so
+  // one left unwired generates from a clock rather than from the seed, and the seed control stops
+  // meaning anything for whatever it produces.
   const systemConfig: StarSystemGenerationConfig = $state(getDefaultStarSystemGeneratorConfig());
+  systemConfig.rng = rng;
   const systemRegionConfig: RegionOfControlGenerationConfig =
     getDefaultRegionOfControlGenerationConfig();
   systemRegionConfig.region_types = [getRegionTypeByName('Star System')];
@@ -48,6 +52,7 @@
     getDefaultRegionOfControlGenerationConfig();
   homePlanetRegionConfig.region_types = [getRegionTypeByName('Planet')];
   homePlanetRegionConfig.technology_level = 7;
+  homePlanetRegionConfig.rng = rng;
 
   let nation: Civilization | null = $state(null);
   let homeSystem: StarSystem | null = $state(null);
