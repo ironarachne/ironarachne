@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { darkenRgb, lightenRgb, rgbaCss } from './rgb_color_ops';
+import { darkenRgb, lightenRgb, rgbaCss, rgbFromHexCss } from './rgb_color_ops';
 
 describe('rgbaCss', () => {
   it('scales 0–1 channels to the 0–255 CSS expects', () => {
@@ -13,6 +13,26 @@ describe('rgbaCss', () => {
   it('rounds rather than truncates', () => {
     // 0.6 * 255 = 153.0, 0.601 * 255 = 153.255, 0.599 * 255 = 152.745
     expect(rgbaCss({ r: 0.6, g: 0.601, b: 0.599 }, 1)).toBe('rgba(153,153,153,1)');
+  });
+});
+
+describe('rgbFromHexCss', () => {
+  it('reads a six-digit hex colour into 0–1 channels', () => {
+    expect(rgbFromHexCss('#05060a')).toEqual({ r: 5 / 255, g: 6 / 255, b: 10 / 255 });
+  });
+
+  it('expands a three-digit hex colour', () => {
+    expect(rgbFromHexCss('#f0a')).toEqual({ r: 1, g: 0, b: 170 / 255 });
+  });
+
+  it('reads a colour without the leading hash, in either case', () => {
+    expect(rgbFromHexCss('FFFFFF')).toEqual({ r: 1, g: 1, b: 1 });
+  });
+
+  it('is black for anything it cannot read', () => {
+    expect(rgbFromHexCss('rebeccapurple')).toEqual({ r: 0, g: 0, b: 0 });
+    expect(rgbFromHexCss('#12345')).toEqual({ r: 0, g: 0, b: 0 });
+    expect(rgbFromHexCss('#zzzzzz')).toEqual({ r: 0, g: 0, b: 0 });
   });
 });
 

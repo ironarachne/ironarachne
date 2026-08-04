@@ -1,29 +1,28 @@
-import type RGBColor from '$lib/graphics/rgb_color';
 import { getRandomGasGiantRgbTriplet } from '$lib/renderers/astronomical/gas_giant_palette';
-
-export type PlanetCanvasTheme = {
-  main: RGBColor;
-  band1: RGBColor;
-  band2: RGBColor;
-};
+import type { PlanetPalette } from '$lib/renderers/astronomical_scene_types';
 
 /**
- * Base palettes by shader classification name; gas giants use the same RNG scheme as WebGL previews.
+ * Base palettes by shader classification name; anything without one, gas giants included, gets a
+ * seeded random triplet.
+ *
+ * This is the palette both backends use. It resolves once, in the scene builder — the WebGL side
+ * used to roll `getRandomGasGiantRgbTriplet` for itself and hand gas-giant colours to every planet
+ * whatever its classification.
  */
-export function resolvePlanetCanvasTheme(classification: string, seed: string): PlanetCanvasTheme {
+export function resolvePlanetPalette(classification: string, seed: string): PlanetPalette {
   if (classification === 'gas giant planet') {
     const [main, band1, band2] = getRandomGasGiantRgbTriplet(seed);
     return { main, band1, band2 };
   }
 
-  const fixed = classificationTheme(classification);
+  const fixed = classificationPalette(classification);
   if (fixed !== undefined) return fixed;
 
   const [main, band1, band2] = getRandomGasGiantRgbTriplet(seed);
   return { main, band1, band2 };
 }
 
-function classificationTheme(classification: string): PlanetCanvasTheme | undefined {
+function classificationPalette(classification: string): PlanetPalette | undefined {
   switch (classification) {
     case 'arid planet':
       return {

@@ -271,6 +271,17 @@ describe('buildStarScene', () => {
     expect(star.glow).toEqual({ r: 1.0, g: 1.0, b: 0.5 });
   });
 
+  it('seeds the star from its own ordinal, so its surface detail is fixed for a seed', () => {
+    const first = starsIn(buildStarScene(mockBody({}), 256, 256, 'seed').bodies)[0];
+    const again = starsIn(buildStarScene(mockBody({}), 256, 256, 'seed').bodies)[0];
+    const other = starsIn(buildStarScene(mockBody({}), 256, 256, 'other').bodies)[0];
+
+    expect(first.seedFloat).toBe(again.seedFloat);
+    expect(first.seedFloat).not.toBe(other.seedFloat);
+    expect(first.seedFloat).toBeGreaterThanOrEqual(0);
+    expect(first.seedFloat).toBeLessThanOrEqual(100);
+  });
+
   it('gives a hot star different colours from a cool one', () => {
     const cool = starsIn(
       buildStarScene(mockBody({ surface_temperature: 3000 }), 256, 256, 's').bodies,
@@ -454,6 +465,15 @@ describe('buildStarSystemScene', () => {
     expect(after.palette).toEqual(before.palette);
     expect(after.ring).toEqual(before.ring);
     expect(after.centerX).not.toBe(before.centerX);
+  });
+
+  it('seeds each star from its own ordinal too', () => {
+    const scene = buildStarSystemScene(mockSystem({ stars: [sun, sun] }), 640, 160, 'seed');
+    const [first, second] = starsIn(scene.bodies);
+    expect(first.seedFloat).not.toBe(second.seedFloat);
+    expect(first.seedFloat).toBe(
+      starsIn(buildStarScene(sun, 512, 512, 'seed').bodies)[0].seedFloat,
+    );
   });
 
   it('matches the standalone planet scene for the first planet in a system', () => {

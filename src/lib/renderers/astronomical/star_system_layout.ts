@@ -19,7 +19,10 @@ export type StarSystemLayoutPlanet = {
 
 export type StarSystemLayoutItem = StarSystemLayoutStar | StarSystemLayoutPlanet;
 
-/** Mirrors placement math in `webgl_star_system_renderer` for consistent previews. */
+/**
+ * Places a system's bodies across the preview. This is a step inside the scene builder and the
+ * only place the arithmetic lives — both backends read the absolute positions it resolves to.
+ */
 export function computeStarSystemLayout(
   system: StarSystem,
   width: number,

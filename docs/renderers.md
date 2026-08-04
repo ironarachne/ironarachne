@@ -8,14 +8,15 @@ It exists because the library has three problems that are all the same problem w
 hats — the two backends duplicate the arithmetic that decides what a picture contains, and nothing
 holds them to the same answer.
 
-**Status:** accepted 2026-08-01; implementation not started. The [domain model](#domain-model) went
-through one round of review (#115), which amended the diagrams and settled the two questions the
-first draft had left open as decisions 5 and 6. The diagrams are approved and
-[the plan](#the-plan) may begin at step 1.
+**Status:** accepted 2026-08-01; [steps 1 to 3](#the-plan) are implemented and the divergence bug is
+closed. The [domain model](#domain-model) went through one round of review (#115), which amended the
+diagrams and settled the two questions the first draft had left open as decisions 5 and 6. It has
+taken one amendment since, `SceneStar.seedFloat` in step 3, described where the diagram declares it.
 
 Issue #95 (raise `renderers` coverage to 80%) was blocked on this document, because tests written
-against the current shape would have cemented the duplication the plan removes. It is now blocked on
-the plan instead, and closes with step 6.
+against the current shape would have cemented the duplication the plan removes. The library reached
+80% with step 3 and has left `scripts/library_coverage_baseline.json`, ahead of the step 6 the plan
+expected to get it there.
 
 Amend this document rather than working around it: if implementation contradicts a diagram, the
 diagram is what needs changing first.
@@ -245,6 +246,7 @@ classDiagram
         +RGBColor corona
         +RGBColor glow
         +number coronaWidthPx
+        +number seedFloat
     }
     class ScenePlanet {
         +string kind
@@ -281,6 +283,15 @@ classDiagram
     ScenePlanet "1" *-- "1" PlanetShading : shaded by
     ScenePlanet "1" o-- "0..1" SceneRing : may have
 ```
+
+`SceneStar.seedFloat` was added while step 3 was being built, and is the one amendment this diagram
+has taken since it was approved. A star's _colours_ follow from its surface temperature and need no
+seed, which is what the note below meant in saying stars need none — but the star shader also
+rotates its plasma convection and corona flares from a seed, and with nowhere in the scene to carry
+it the WebGL backend drew that number itself, from whichever RNG was to hand. That is the same
+shape of divergence as the rest of this document, so the number belongs here. It is seeded from the
+star's own ordinal, exactly as a planet's is, and the Canvas2D backend has no surface detail to
+rotate and ignores it.
 
 `kind` is the discriminant, `'star'` or `'planet'`. `isGasGiant` is resolved once by the builder
 rather than each backend re-deriving it from `classification`, which is how the WebGL path came to
@@ -500,6 +511,8 @@ Ordered so each step is independently mergeable and green.
 5. **Golden images** in Playwright, generated from CI — which now means the `main` run, not a
    pull request one.
 6. **Coverage exclusion** for GPU submission files — file-scoped, with the comment explaining what
-   covers them — and `renderers` leaves `scripts/library_coverage_baseline.json`, closing #95.
+   covers them. `renderers` left `scripts/library_coverage_baseline.json` in step 3 rather than
+   here: moving everything but the GPU submission itself into pure functions carried the library
+   past 80% on its own, so what remains for this step is the exclusion, not the debt entry.
 
 Steps 1 through 3 are the ones that fix a live bug. Steps 4 through 6 are what make it stay fixed.

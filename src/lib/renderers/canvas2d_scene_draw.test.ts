@@ -151,6 +151,7 @@ function sceneStar(overrides: Partial<SceneStar> = {}): SceneStar {
     corona: { r: 0.55, g: 0.35, b: 0 },
     glow: { r: 1, g: 1, b: 0.5 },
     coronaWidthPx: 4,
+    seedFloat: 12.5,
     ...overrides,
   };
 }

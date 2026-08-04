@@ -531,11 +531,23 @@ vec3 DrawRings(vec2 pixelCoords, vec3 color, float planetRadius, bool front) {
 void main() {
   vec2 pixelCoords = (vUvs - 0.5) * resolution;
 
-  vec3 color = vec3(0.0);
-  color = GenerateStars(pixelCoords);
+  // render_background is honoured rather than ignored: the scene draws the background once, in its
+  // own pass, from the star positions both backends share. A body plane that generated its own
+  // starfield would paint a different sky over that one — and, in a star system, over its
+  // neighbours as well.
+  vec3 color = render_background > 0.5 ? GenerateStars(pixelCoords) : vec3(0.0);
   color = DrawRings(pixelCoords, color, planet_radius, false);
   color = DrawPlanet(pixelCoords, color, planet_radius);
   color = DrawRings(pixelCoords, color, planet_radius, true);
 
-  gl_FragColor = vec4(pow(max(vec3(0.0), color), vec3(1.0 / 2.2)), 1.0);
+  vec3 finalColor = pow(max(vec3(0.0), color), vec3(1.0 / 2.2));
+
+  // Nothing was drawn at this pixel, so let the background through instead of covering it with an
+  // opaque black square. The threshold is below one 8-bit step; the planet's night side sits an
+  // order of magnitude above it and still occludes what is behind it.
+  if (render_background < 0.5 && max(finalColor.r, max(finalColor.g, finalColor.b)) < 0.004) {
+    discard;
+  }
+
+  gl_FragColor = vec4(finalColor, 1.0);
 }

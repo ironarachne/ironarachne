@@ -8,7 +8,7 @@
 
 import { RNG } from '@ironarachne/rng';
 import { isGasGiantPlanetClassification } from '$lib/renderers/astronomical/planet_canvas_classification';
-import { resolvePlanetCanvasTheme } from '$lib/renderers/astronomical/planet_canvas_theme';
+import { resolvePlanetPalette } from '$lib/renderers/astronomical/planet_palette';
 import {
   planetRadiusKmToPreviewPixels,
   starCoronaWidthPixelsFromDiskRadius,
@@ -84,13 +84,19 @@ const RING_MIN_TILT = 0.15;
 const RING_MAX_TILT = 0.45;
 
 /**
- * Each planet draws from its own RNG, seeded from the scene seed and the planet's ordinal. One
- * long sequence shared across the scene would make a planet's appearance depend on everything
- * drawn before it, so adding a star to a system would repaint every planet in it. Stars need no
- * seed at all — their colours follow from surface temperature.
+ * Each body draws from its own RNG, seeded from the scene seed and the body's ordinal. One long
+ * sequence shared across the scene would make a body's appearance depend on everything drawn
+ * before it, so adding a star to a system would repaint every planet in it.
+ *
+ * A star's colours follow from its surface temperature and need no seed; the one float it does get
+ * only rotates the shader's surface detail.
  */
 function planetSeed(seed: string, planetIndex: number): string {
   return `${seed}:planet${planetIndex}`;
+}
+
+function starSeed(seed: string, starIndex: number): string {
+  return `${seed}:star${starIndex}`;
 }
 
 function buildBackground(
@@ -147,7 +153,7 @@ function buildScenePlanet(
     radiusPx,
     classification: planet.classification,
     isGasGiant: isGasGiantPlanetClassification(planet.classification),
-    palette: resolvePlanetCanvasTheme(planet.classification, `${seed}:palette`),
+    palette: resolvePlanetPalette(planet.classification, `${seed}:palette`),
     shading,
     ...(planet.has_ring_system ? { ring: buildRing(rng) } : {}),
   };
@@ -158,6 +164,7 @@ function buildSceneStar(
   centerX: number,
   centerY: number,
   radiusPx: number,
+  seed: string,
 ): SceneStar {
   const [photosphere, corona, glow] = getRgbColorsFromStarSurfaceTemperature(
     star.surface_temperature,
@@ -171,6 +178,7 @@ function buildSceneStar(
     corona,
     glow,
     coronaWidthPx: starCoronaWidthPixelsFromDiskRadius(radiusPx),
+    seedFloat: new RNG(seed).float(0, 100),
   };
 }
 
@@ -208,7 +216,7 @@ export function buildStarScene(
     seed,
     quality,
     background: buildBackground(STAR_BACKGROUND, width, height, rng),
-    bodies: [buildSceneStar(star, width / 2, height / 2, radiusPx)],
+    bodies: [buildSceneStar(star, width / 2, height / 2, radiusPx, starSeed(seed, 0))],
   };
 }
 
@@ -234,7 +242,13 @@ export function buildStarSystemScene(
   const bodies = layout.items.map((item) => {
     const radiusPx = item.bodySizePixels / 2;
     if (item.kind === 'star') {
-      return buildSceneStar(item.body, item.centerX, centerY, radiusPx);
+      return buildSceneStar(
+        item.body,
+        item.centerX,
+        centerY,
+        radiusPx,
+        starSeed(seed, item.starIndex),
+      );
     }
     return buildScenePlanet(
       item.body,
