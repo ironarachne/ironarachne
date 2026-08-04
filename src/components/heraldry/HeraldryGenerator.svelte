@@ -6,7 +6,7 @@
   import * as Tinctures from '$lib/heraldry/tinctures';
   import * as Variations from '$lib/heraldry/variations';
   import Download from '$lib/download';
-  import SaveSVGToPNG from '$lib/renderers/svg-to-png';
+  import saveSvgAsPng from '$lib/download/svg_to_png';
   import { renderSVGAsPNG } from '$lib/images/svg';
   import { afterNavigate } from '$app/navigation';
   import { page } from '$app/state';
@@ -334,7 +334,11 @@
   }
 
   function downloadPng() {
-    SaveSVGToPNG(image, heraldryWidth, heraldryHeight, `heraldry-${seed}.png`);
+    // As in SavedDataManager: no error surface here, so a failure to rasterize is logged rather
+    // than swallowed. It used to throw inside an image `onload`, where nothing could catch it.
+    saveSvgAsPng(image, heraldryWidth, heraldryHeight, `heraldry-${seed}.png`).catch(
+      (error: unknown) => console.error(error),
+    );
   }
 
   function saveHeraldry() {

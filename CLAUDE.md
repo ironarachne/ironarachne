@@ -64,6 +64,13 @@ Notes:
   to prevent. Note that `vite.config.js` sets `coverage.include` deliberately: without it v8
   reports only files some test happened to load, so an untested library is missing from the
   report rather than showing as zero.
+- **There is exactly one `coverage.exclude` entry that is not a test file**, and it is not a
+  precedent to copy casually. `src/lib/renderers/webgl_scene_draw.ts` submits an already-decided
+  draw list to the GPU and cannot run without a GL context; `e2e/preview_pixels.spec.ts` covers
+  it in a real browser instead. An exclusion claims "verified by another suite", where a baseline
+  entry admits "untested debt" — so it is honest only while that suite exists, it must name what
+  covers it in a comment, and it must be **file-scoped**: a directory pattern would silently
+  swallow every file added beside it. If you cannot name the other suite, the answer is tests.
 - Unit tests (Vitest) live beside their source in `src/lib/**/*.test.ts` and are excluded from
   e2e collection. E2e tests (Playwright) live in `e2e/` and run against a built+served preview,
   not the dev server.

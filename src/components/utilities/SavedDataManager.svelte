@@ -70,7 +70,9 @@
   async function downloadHeraldryPng(snapshot: HeraldrySnapshot) {
     const { downloadHeraldryPng: downloadPng } =
       await import('$lib/persistent_save/saved_data_download.js');
-    downloadPng(snapshot);
+    // Rasterizing can fail — a canvas with no context, an SVG the browser will not load. There is
+    // no error surface on this screen, so the console is where it goes rather than nowhere.
+    await downloadPng(snapshot).catch((error: unknown) => console.error(error));
   }
 
   async function downloadCultureJson(snapshot: CultureSnapshot) {

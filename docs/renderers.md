@@ -8,9 +8,14 @@ It exists because the library has three problems that are all the same problem w
 hats — the two backends duplicate the arithmetic that decides what a picture contains, and nothing
 holds them to the same answer.
 
-**Status:** accepted 2026-08-01; [steps 1 to 5](#the-plan) are implemented. The divergence bug is
-closed, backend selection is automatic, and the previews are checked as images. Step 5 amended
-decision 4 and added a fourth testing tier; both are recorded below. The [domain model](#domain-model) went through one round of review (#115), which amended the
+**Status:** accepted 2026-08-01; **implemented**. All six steps of [the plan](#the-plan) have
+landed: the divergence bug is closed, backend selection is automatic, the previews are checked as
+images, and `renderers` is out of the coverage debt register. Step 5 amended decision 4 and added a
+fourth testing tier; both are recorded below.
+
+What remains is not implementation. The golden-image baselines have still to be generated from CI
+and committed — the suite is built and skips until they are — and that is the one thread this
+document leaves open. The [domain model](#domain-model) went through one round of review (#115), which amended the
 diagrams and settled the two questions the first draft had left open as decisions 5 and 6. It has
 taken one amendment since, `SceneStar.seedFloat` in step 3, described where the diagram declares it.
 
@@ -521,7 +526,9 @@ goldens did.
 
 - `svg-to-png.ts` moves out of `renderers` — it is a download utility, not an astronomical renderer.
   It also never calls `revokeObjectURL`, leaking a blob URL per invocation, and throws inside an
-  `onload` handler where nothing can catch it. Both are fixed on the way past.
+  `onload` handler where nothing can catch it. Both are fixed on the way past. **Done in step 6:**
+  it is `$lib/download/svg_to_png.ts` now, snake_case as CODE_STYLE.md asks, returning a promise so
+  a failure to rasterize reaches whoever asked for the file.
 - `rgbaCss` is defined identically in `canvas2d_planet_draw.ts` and `canvas2d_star_draw.ts`.
   `rgbColorToVector3` is defined twice — in `webgl_star_renderer.ts` and
   `webgl_star_system_renderer.ts` — and `vectorTripletFromRgbTriplet` in `webgl_planet_renderer.ts`
@@ -570,6 +577,13 @@ Ordered so each step is independently mergeable and green.
 6. **Coverage exclusion** for GPU submission files — file-scoped, with the comment explaining what
    covers them. `renderers` left `scripts/library_coverage_baseline.json` in step 3 rather than
    here: moving everything but the GPU submission itself into pure functions carried the library
-   past 80% on its own, so what remains for this step is the exclusion, not the debt entry.
+   past 80% on its own, so what remained for this step was the exclusion, not the debt entry.
+
+   Landed as one file, `src/lib/renderers/webgl_scene_draw.ts`, excluded in `vite.config.js` with
+   the comment naming `e2e/preview_pixels.spec.ts` as what covers it instead — per the amendment to
+   decision 4 above, which moved that claim off the golden images and onto the tier that runs on
+   every merge. `renderers` finishes at **94.7% lines and 100% functions**. The `svg-to-png.ts`
+   tidy-up came with it, since a download utility sitting in this library was 15 of the lines the
+   exclusion would otherwise have been asked to explain.
 
 Steps 1 through 3 are the ones that fix a live bug. Steps 4 through 6 are what make it stay fixed.

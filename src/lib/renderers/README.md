@@ -128,9 +128,8 @@ Three deliberate omissions:
 - **`renderer_decision.ts`**, which reaches the probe and therefore the DOM. The settings UI that
   wants it can say so by importing it directly.
 
-`svg-to-png.ts` is also not exported. It is a download utility that has nothing to do with
-astronomical rendering and is slated to move out of this library; its two consumers import it
-directly today.
+`svg-to-png.ts` used to sit here too, exported by nobody and belonging to nothing: a download
+utility with no astronomical content. It is `$lib/download/svg_to_png.ts` now.
 
 ## How the WebGL backend composes a picture
 
@@ -189,19 +188,31 @@ from CI; if CI's own output moves around between runs, that is a finding about t
 and belongs in the design document, not in a wider tolerance. A screenshot test that cannot fail is
 worse than none, because decision 4 leans on this one being real.
 
+## Coverage
+
+One file here is excluded from coverage in `vite.config.js`: `webgl_scene_draw.ts`, the three.js
+calls that put an already-decided draw list on the GPU. It cannot run without a GL context, so a
+unit test of it would assert against a stub of three.js and nothing more. What covers it is
+`e2e/preview_pixels.spec.ts`, in a real browser, on the pixels that came out.
+
+That exclusion says "verified by another suite", which is a different claim from the "untested
+debt" a baseline entry in `scripts/library_coverage_baseline.json` makes — and it is honest only
+while the suite is real. If the preview specs are ever deleted or skipped wholesale, the exclusion
+goes with them. It is file-scoped and must stay that way: a directory pattern would silently
+swallow every file added beside it.
+
+Everything else is covered normally, which is what the reorganisation bought — 94.7% of lines and
+every function, where the library was at 37% before the scene builder existed.
+
 ## Where this is going
 
-The design document sets out six steps, of which this library has the first four: the scene builder
-exists, **both backends consume it**, and **the site decides for itself** which one to use and how
-hard to work. The divergence bug is closed — the backend changes the fidelity and nothing else — and
-the control that used to ask a visitor whether their GPU was any good is now an override on a
-decision already made.
+All six steps of the design document have landed. What is left is not implementation:
 
-Steps 5 and 6 are what make it stay fixed: golden images in Playwright, generated from CI, and a
-file-scoped coverage exclusion for `webgl_scene_draw.ts`, the one module here that cannot be tested
-without a GPU.
-
-The per-pixel `drawPlanetSpherePatch`/`planet_canvas_surface_shade.ts` path survives as the
-high-fidelity option the design keeps, but nothing routes to it yet — the quality dial turns detail
-down, and there is no control that turns it past `full`. Its unit tests are what hold it to the
-`ScenePlanet` shape in the meantime.
+- **The golden baselines have not been generated yet.** `e2e/preview_goldens.spec.ts` skips every
+  case until they are, and the loop for producing them from CI is above. Until then the pixel
+  assertions are what stand behind the coverage exclusion, which is what the amended decision 4
+  says they should be.
+- **The per-pixel `drawPlanetSpherePatch`/`planet_canvas_surface_shade.ts` path is still unrouted.**
+  It survives as the high-fidelity option the design keeps, but the quality dial only turns detail
+  down, and nothing turns it past `full`. Its unit tests hold it to the `ScenePlanet` shape in the
+  meantime.
