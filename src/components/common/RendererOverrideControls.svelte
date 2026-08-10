@@ -1,7 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import SelectField from '$components/common/SelectField.svelte';
-  import { getRendererDecision, invalidateRendererSession } from '$lib/renderers/renderer_decision';
+  import {
+    clearRendererContextLoss,
+    getRendererDecision,
+    invalidateRendererSession,
+  } from '$lib/renderers/renderer_decision';
   import {
     readRendererPreference,
     writeBackendOverride,
@@ -53,7 +57,12 @@
   }
 
   function applyBackend() {
-    writeBackendOverride(parseRendererBackend(backendValue));
+    const backendOverride = parseRendererBackend(backendValue);
+    writeBackendOverride(backendOverride);
+    // Choosing WebGL after the site has fallen back is asking for it knowingly, so the session
+    // forgets that a context was lost and tries again. Accepting the choice and changing nothing —
+    // which is what this control used to do — leaves someone with no way to get back but a reload.
+    if (backendOverride === 'webgl') clearRendererContextLoss();
     invalidateRendererSession();
     onchange?.();
     refreshDecision();
