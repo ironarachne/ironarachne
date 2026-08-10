@@ -55,11 +55,13 @@ export type RendererSession = {
   lastRenderMs?: number;
   probed: boolean;
   /**
-   * Whether this session has seen a WebGL context go away. Not part of the diagram's shape but of
-   * its behaviour: it is what makes the fallback stick for the rest of the session rather than
-   * flapping back to a backend that has already failed once.
+   * How many times this session has seen a WebGL context go away.
+   *
+   * A count rather than a flag because one loss is recoverable and two are not: the renderer is
+   * rebuilt and the next preview draws on a fresh context, and only a repeat says the problem is
+   * the machine rather than the moment. See `CONTEXT_LOSS_TOLERANCE` in `renderer_decision.ts`.
    */
-  contextLost: boolean;
+  contextLossCount: number;
 };
 
 /**

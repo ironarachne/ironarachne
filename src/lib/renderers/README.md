@@ -42,8 +42,16 @@ Two questions that look alike and are not:
 `renderer_probe.ts` asks the machine (one `getContext`, one `WEBGL_debug_renderer_info` read, then
 it hands the context straight back). `renderer_decision.ts` turns that plus any override into a
 `RendererDecision`, and holds it for the page session: probed once, dropped a tier if a render
-overruns `RENDER_BUDGET_MS`, re-resolved to Canvas2D if a context is lost. `reason` says which of
-those happened, which is what the settings UI shows and what makes a bug report legible.
+overruns `RENDER_BUDGET_MS`. `reason` says which of those happened, which is what the settings UI
+shows and what makes a bug report legible.
+
+A lost context is **recoverable**. The renderer holding it is discarded, so the next preview builds
+a fresh one, and the session stays on WebGL. Canvas2D is reached when a render fails outright — no
+context to be had, or a submission that throws — or on a second loss in the same session
+(`CONTEXT_LOSS_TOLERANCE`): one loss is an event, two is a pattern. Choosing WebGL in the override
+control clears that state and tries again, because someone selecting it after a fallback is asking
+for it knowing what happened. Decisions 8 and 9 in the design document have the reasoning, and #135
+has what happens without it.
 
 `reduced` quality means both backends rasterize the same scene at half linear scale — a quarter of
 the fragments — and the result is scaled back up to the size that was asked for, so the page does
@@ -93,6 +101,7 @@ astronomical_preview.ts       # public render entry points; resolves the decisio
 canvas2d_scene_draw.ts        # the Canvas2D backend: walks a scene issuing context calls
 webgl_scene_build.ts          # the WebGL backend: a scene → a draw list of meshes and uniforms
 webgl_scene_draw.ts           # the WebGL backend: that draw list onto a canvas, via three.js
+webgl_renderer_cache.ts       # one GL context per antialias setting, held for the page session
 webgl_scene_types.ts          # the draw list's types
 render_scale.ts               # what `reduced` means to a backend: half scale, then scale back up
 renderer_probe.ts             # what this machine can do; the only module here that touches the DOM
@@ -110,6 +119,16 @@ blending, order — is a value in `webgl_scene_build.ts` that a test can read wi
 `webgl_scene_draw.ts` is the part that cannot be tested that way, and it is kept down to the
 three.js calls that put those values on the GPU. `renderer_probe.ts` and `renderer_decision.ts` are
 split along the same line and for the same reason.
+
+`webgl_renderer_cache.ts` is a third piece of that split: **how many contexts exist and when one is
+thrown away is bookkeeping, not GPU work**, so it takes the renderer's construction as a parameter
+and is unit-tested without a GL context — which is why it is not in the coverage exclusion that
+`webgl_scene_draw.ts` carries. It exists because building a renderer per preview image and relying
+on garbage collection to hand the context back ran browsers out of contexts and made them evict
+ours, which the site then read as a machine that cannot run WebGL (#135). Two rules live there:
+contexts are keyed by `antialias`, since that is a context-creation attribute and cannot be changed
+afterwards, and every release path detaches the `webglcontextlost` listener _before_ releasing,
+since `forceContextLoss()` dispatches that event for real.
 
 There is no per-body, per-backend `*_renderer.ts` layer any more. It existed to give each pair of
 backends a matching signature; both backends now take `(document, scene)`, so what is left of that
@@ -156,17 +175,23 @@ is off and `sortObjects` is off on the renderer, because three would otherwise r
 
 Three tiers, and they answer different questions:
 
-| tier             | where                            | asks                                                             |
-| ---------------- | -------------------------------- | ---------------------------------------------------------------- |
-| unit             | `src/lib/renderers/**/*.test.ts` | is the arithmetic right, and do both backends get the same scene |
-| pixel assertions | `e2e/preview_pixels.spec.ts`     | is this a picture of a planet at all                             |
-| golden images    | `e2e/preview_goldens.spec.ts`    | is it the same picture as last time                              |
+| tier             | where                               | asks                                                             |
+| ---------------- | ----------------------------------- | ---------------------------------------------------------------- |
+| unit             | `src/lib/renderers/**/*.test.ts`    | is the arithmetic right, and do both backends get the same scene |
+| pixel assertions | `e2e/preview_pixels.spec.ts`        | is this a picture of a planet at all                             |
+| golden images    | `e2e/preview_goldens.spec.ts`       | is it the same picture as last time                              |
+| session          | `e2e/preview_context_reuse.spec.ts` | does a long session stay on WebGL, and stay inside its contexts  |
 
 The middle tier is the one that catches "the shader renders solid black". It asserts properties of
 the image — something is lit, it is where the scene put it, the sky is dark, the image is not one
 flat colour — so it needs no baseline, cannot drift between machines, and fails loudly on a
 renderer that has stopped drawing. Before it existed, the strongest claim anything here made about
 a preview was that an `img` element was visible.
+
+The last tier is the newest and asks a question none of the others can, because all three of them
+open a fresh page per case with the override already pinned: what happens to a session that keeps
+rendering. It changes the Detail override ten times on `/star-system` and holds the page to still
+reporting WebGL, and to a bounded number of GL contexts. That is exactly the path #135 lived in.
 
 ### Regenerating the golden baselines
 

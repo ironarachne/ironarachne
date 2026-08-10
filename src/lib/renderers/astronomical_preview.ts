@@ -18,6 +18,7 @@ import {
 import {
   getRendererDecision,
   noteRendererContextLost,
+  noteRendererRenderFailed,
   recordRenderDuration,
 } from '$lib/renderers/renderer_decision';
 import type { AstronomicalScene } from '$lib/renderers/astronomical_scene_types';
@@ -39,9 +40,11 @@ function renderScene(
 }
 
 /**
- * A WebGL render that throws is a lost context arriving as an exception rather than as an event —
- * a context taken back between frames, a driver reset, a machine coming out of sleep. The session
- * is told, so it stops choosing WebGL, and this render falls back rather than showing nothing.
+ * A WebGL render that throws is a different failure from a context that goes away, and the two are
+ * reported differently. A lost context is recoverable — the renderer is rebuilt and the next
+ * preview draws on a fresh one — while a render that could not get a context or could not submit
+ * has nothing left to try, so it ends WebGL for the session and falls back here rather than showing
+ * nothing.
  */
 function drawOnBackend(
   document: Document,
@@ -55,7 +58,7 @@ function drawOnBackend(
   try {
     return WebGLSceneDraw.renderSceneToDataUrl(document, scene, noteRendererContextLost);
   } catch {
-    noteRendererContextLost();
+    noteRendererRenderFailed();
     return Canvas2dSceneDraw.renderSceneToDataUrl(document, scene);
   }
 }

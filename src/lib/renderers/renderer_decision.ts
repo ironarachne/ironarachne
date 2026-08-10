@@ -66,10 +66,19 @@ export function resolveRendererDecision(
 }
 
 /**
- * A context that has gone away once is not trusted again for the rest of the session, whatever the
- * probe now says — a context is easy to get and this one has already been taken back. It is not
- * persisted, though: a lost context is usually a driver hiccup or a machine waking from sleep, not
- * a permanent fact about the hardware, so a reload starts over.
+ * How many lost contexts a session absorbs before it stops asking for WebGL.
+ *
+ * One loss is a thing that happens: a driver hiccup, a machine waking from sleep, a tab the browser
+ * squeezed. The renderer is rebuilt and the next preview draws on a fresh context, which is the
+ * outcome the visitor wants. A second loss in the same session is a pattern rather than an event,
+ * and continuing to ask would be trading a working picture for a flickering one.
+ */
+export const CONTEXT_LOSS_TOLERANCE = 2;
+
+/**
+ * What to decide once WebGL has been ruled out for this session, whatever the probe now says — a
+ * context is easy to get, and getting one is not the part that failed. It is not persisted: a
+ * reload starts over, and so does an explicit re-selection of WebGL.
  */
 function resolveAfterContextLoss(
   probe: RendererProbe,
@@ -81,17 +90,23 @@ function resolveAfterContextLoss(
 }
 
 let session: RendererSession | undefined;
-let contextLostThisSession = false;
+let contextLossCount = 0;
+let renderFailed = false;
+
+/** A render that threw is conclusive on its own; a lost context takes the tolerance above. */
+function webglRuledOut(): boolean {
+  return renderFailed || contextLossCount >= CONTEXT_LOSS_TOLERANCE;
+}
 
 function resolveSession(document: Document): RendererSession {
   const probe = probeRendererCapability(document);
   const preference = readRendererPreference();
   return {
-    decision: contextLostThisSession
+    decision: webglRuledOut()
       ? resolveAfterContextLoss(probe, preference)
       : resolveRendererDecision(probe, preference),
     probed: true,
-    contextLost: contextLostThisSession,
+    contextLossCount,
   };
 }
 
@@ -128,12 +143,22 @@ export function recordRenderDuration(milliseconds: number): void {
 }
 
 /**
- * Called when a WebGL context is lost, and when a WebGL render fails outright — the same thing
- * arriving as an exception rather than as an event. The next render re-probes, and because the
- * session now knows WebGL has failed on this machine, it resolves to Canvas2D.
+ * Called when a WebGL context is lost. The renderer holding it is discarded underneath this, so the
+ * next render builds a fresh context and — up to {@link CONTEXT_LOSS_TOLERANCE} — draws on it. The
+ * session re-resolves either way, so a loss that does end WebGL takes effect on the next render.
  */
 export function noteRendererContextLost(): void {
-  contextLostThisSession = true;
+  contextLossCount += 1;
+  session = undefined;
+}
+
+/**
+ * Called when a WebGL render fails outright — a context that could not be created, a submission
+ * that threw. Unlike a lost context this is not recoverable by trying again, so it ends WebGL for
+ * the session on its own.
+ */
+export function noteRendererRenderFailed(): void {
+  renderFailed = true;
   session = undefined;
 }
 
@@ -145,8 +170,20 @@ export function invalidateRendererSession(): void {
   session = undefined;
 }
 
+/**
+ * Forgets that WebGL has failed here, so the next render asks for it again.
+ *
+ * This is what an explicit re-selection of the WebGL backend calls. Someone choosing it after the
+ * site has fallen back is asking for it knowing what happened, and a control that accepts a choice
+ * and then ignores it is worse than one that refuses.
+ */
+export function clearRendererContextLoss(): void {
+  contextLossCount = 0;
+  renderFailed = false;
+  session = undefined;
+}
+
 /** Clears everything this session learned, context loss included. For tests. */
 export function resetRendererSession(): void {
-  session = undefined;
-  contextLostThisSession = false;
+  clearRendererContextLoss();
 }

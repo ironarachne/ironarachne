@@ -1,10 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  CONTEXT_LOSS_TOLERANCE,
   RENDER_BUDGET_MS,
+  clearRendererContextLoss,
   getRendererDecision,
   getRendererSession,
   invalidateRendererSession,
   noteRendererContextLost,
+  noteRendererRenderFailed,
   recordRenderDuration,
   resetRendererSession,
   resolveRendererDecision,
@@ -188,26 +191,54 @@ describe('the session', () => {
     expect(getRendererSession()).toBeUndefined();
   });
 
-  it('leaves WebGL for the rest of the session once a context is lost', () => {
+  it('stays on WebGL through one lost context', () => {
+    // One loss is an event, not a verdict: the renderer holding that context is discarded and the
+    // next preview draws on a fresh one. Treating the first loss as final is what pinned a whole
+    // session to Canvas2D over a context the browser had merely reclaimed (#135).
     expect(getRendererDecision(document).backend).toBe('webgl');
 
     noteRendererContextLost();
 
+    expect(getRendererDecision(document)).toEqual({
+      backend: 'webgl',
+      quality: 'full',
+      reason: 'capable',
+    });
+    expect(getRendererSession()?.contextLossCount).toBe(1);
+  });
+
+  it('gives up on WebGL once losing a context becomes a pattern', () => {
+    for (let loss = 0; loss < CONTEXT_LOSS_TOLERANCE; loss++) noteRendererContextLost();
+
     // The probe still says WebGL is available — it always will, a context is easy to get — so the
-    // session has to remember that this one was taken back.
+    // session has to remember what happened to the ones it had.
     expect(getRendererDecision(document)).toEqual({
       backend: 'canvas2d',
       quality: 'full',
       reason: 'context_lost',
     });
-    expect(getRendererSession()?.contextLost).toBe(true);
+    expect(getRendererSession()?.contextLossCount).toBe(CONTEXT_LOSS_TOLERANCE);
   });
 
-  it('keeps the reduced tier through a lost context', () => {
+  it('falls back as soon as a render fails outright', () => {
+    // Not the same failure: a render that threw could not get a context or could not submit, and
+    // there is nothing to try again with.
+    expect(getRendererDecision(document).backend).toBe('webgl');
+
+    noteRendererRenderFailed();
+
+    expect(getRendererDecision(document)).toEqual({
+      backend: 'canvas2d',
+      quality: 'full',
+      reason: 'context_lost',
+    });
+  });
+
+  it('keeps the reduced tier through the fallback', () => {
     probeMock.result = SOFTWARE;
     expect(getRendererDecision(document).quality).toBe('reduced');
 
-    noteRendererContextLost();
+    noteRendererRenderFailed();
 
     expect(getRendererDecision(document)).toEqual({
       backend: 'canvas2d',
@@ -218,12 +249,40 @@ describe('the session', () => {
 
   it('does not report a lost context as an override when someone had chosen Canvas2D anyway', () => {
     writeBackendOverride('canvas2d');
-    noteRendererContextLost();
+    noteRendererRenderFailed();
 
     expect(getRendererDecision(document)).toEqual({
       backend: 'canvas2d',
       quality: 'full',
       reason: 'user_override',
     });
+  });
+
+  it('tries WebGL again when someone asks for it explicitly', () => {
+    // The control used to accept the choice, write it to storage, and change nothing at all, with
+    // no way back but a reload. Someone selecting WebGL after a fallback knows what happened.
+    noteRendererRenderFailed();
+    expect(getRendererDecision(document).backend).toBe('canvas2d');
+
+    writeBackendOverride('webgl');
+    clearRendererContextLoss();
+
+    expect(getRendererDecision(document)).toEqual({
+      backend: 'webgl',
+      quality: 'full',
+      reason: 'user_override',
+    });
+    expect(getRendererSession()?.contextLossCount).toBe(0);
+  });
+
+  it('starts the tolerance over after an explicit re-selection', () => {
+    for (let loss = 0; loss < CONTEXT_LOSS_TOLERANCE; loss++) noteRendererContextLost();
+    clearRendererContextLoss();
+
+    for (let loss = 0; loss < CONTEXT_LOSS_TOLERANCE - 1; loss++) noteRendererContextLost();
+    expect(getRendererDecision(document).backend).toBe('webgl');
+
+    noteRendererContextLost();
+    expect(getRendererDecision(document).backend).toBe('canvas2d');
   });
 });

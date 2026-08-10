@@ -16,7 +16,13 @@ fourth testing tier; both are recorded below.
 The golden-image baselines have been generated from CI and committed, so every tier the document
 describes is live. The [domain model](#domain-model) went through one round of review (#115), which amended the
 diagrams and settled the two questions the first draft had left open as decisions 5 and 6. It has
-taken one amendment since, `SceneStar.seedFloat` in step 3, described where the diagram declares it.
+taken two amendments since: `SceneStar.seedFloat` in step 3, and `RendererSession.contextLossCount`
+in the fix for #135, each described where the diagram declares it.
+
+Issue #135 also added decisions 7 through 9, on renderer reuse and what a lost context means. The
+context-loss handling this document originally specified was correct about a driver reset and wrong
+about the case it actually met, which was the pipeline exhausting the browser's supply of contexts
+by never releasing one.
 
 Issue #95 (raise `renderers` coverage to 80%) was blocked on this document, because tests written
 against the current shape would have cemented the duplication the plan removes. The library reached
@@ -346,6 +352,7 @@ classDiagram
         +RendererDecision decision
         +number lastRenderMs?
         +boolean probed
+        +number contextLossCount
     }
     class RendererPreference {
         +RendererBackend backendOverride?
@@ -366,6 +373,10 @@ different message from "Canvas2D, because you chose it" — and so a bug report 
 `RendererSession` is the runtime holder: one module-level value in `renderer_decision.ts`, resolved
 on first use and re-resolved on `webglcontextlost`. `RendererPreference` is the persisted half, and
 holds only what a person chose. Nothing measured is persisted — see decision 6.
+
+`contextLossCount` was added in the fix for #135 and is the one amendment this diagram has taken.
+It was a `contextLost` boolean, which forced every loss to mean the same thing; a count is what lets
+the first one be recovered from and the second one be believed. See decision 8.
 
 ## Decisions taken here
 
@@ -451,6 +462,70 @@ decision and the timing, lives for the page session, and starts over on reload. 
 This also keeps `astronomical_renderer_storage.ts` honest about what it is: a record of a choice,
 not a cache of a measurement.
 
+### 7. One WebGL context per antialias setting, held for the page session
+
+**Added by the fix for issue #135.** The pipeline as first built created a canvas and a
+`THREE.WebGLRenderer` on every call to `renderSceneToDataUrl`, which is once per preview image, and
+released neither. `renderer.dispose()` is not what releases a context — it frees three's own caches
+and listeners — so the only thing reclaiming a preview context was garbage collection of its canvas,
+at a time nobody controls. A `/star-system` rebuild is up to fourteen renders and every renderer or
+quality change is a full rebuild, so a browser with a hard cap of sixteen live contexts (Chromium's)
+started evicting the oldest, and each eviction fired `webglcontextlost` on a canvas whose picture had
+been captured long before. The session read that bookkeeping as evidence the machine could not run
+WebGL and fell back permanently. Measured: 110 contexts created across ten toggles, none reclaimed by
+us, and the fallback arriving on the tenth.
+
+`webgl_renderer_cache.ts` holds one renderer per `antialias` value instead, resized per render via
+`setSize` and the orthographic camera bounds exactly as before. Two contexts for the whole session,
+however many previews are drawn.
+
+The key is `antialias` and not "nothing" because it is a **context-creation attribute**: it cannot be
+changed on a renderer that already exists. It stays coupled to the quality tier
+(`antialias: scene.quality === 'full'`) rather than being dropped, because dropping it would move
+pixels, and the committed baselines in `e2e/preview_goldens.spec.ts-snapshots` must pass untouched.
+A golden diff from this change is a bug in the fix, not a baseline to re-render.
+
+The trap worth recording, because the obvious one-line version of this fix walks into it:
+`forceContextLoss()` — the call that actually releases a context — works by invoking
+`WEBGL_lose_context.loseContext()`, which dispatches a **real** `webglcontextlost` event. Adding it
+next to `dispose()` and leaving the listener attached would have fixed the leak and pinned every
+session to Canvas2D in the same commit. Every release path in that module therefore detaches the
+listener first.
+
+### 8. A lost context is recoverable, and only a repeat is a verdict
+
+**Added by the fix for issue #135, amending the behaviour decision 2 implied.** The original rule was
+that a context lost once is never trusted again for the rest of the session. That reasoning holds for
+a genuine driver reset; it did not hold for a context the browser reclaimed because we had asked for
+a hundred and ten of them.
+
+With reuse the event means something again — the shared context really is dead — so the response is
+to rebuild rather than to retreat. On loss the cached renderer is discarded, so the next render
+builds a fresh context, and the session stays on WebGL. Canvas2D is reached when a render **fails
+outright** (a context that cannot be created, a submission that throws — `drawOnBackend`'s
+`try`/`catch`, which remains the load-bearing backstop), or on a **second** loss in the same session:
+one loss is an event, two is a pattern, and continuing to ask would trade a working picture for a
+flickering one. `CONTEXT_LOSS_TOLERANCE` in `renderer_decision.ts` is that number, and
+`RendererSession.contextLossCount` is why the type carries a count rather than the flag it had.
+
+The two signals are reported separately — `noteRendererContextLost` against
+`noteRendererRenderFailed` — because they are different failures and only one of them is worth
+retrying.
+
+### 9. An explicit WebGL re-selection clears what the session learned
+
+**Added by the fix for issue #135.** `resolveAfterContextLoss` forces Canvas2D _even when the visitor
+has explicitly chosen WebGL_: the override was applied and then overruled. The Renderer control
+accepted the choice, wrote it to `localStorage`, changed nothing, and said nothing, and only a reload
+recovered.
+
+Selecting WebGL now clears the session's context-loss state and tries again, because someone choosing
+it after a fallback is asking for it knowing what happened. If a session really cannot hold a
+context, the tolerance above brings the fallback straight back — at the cost of one render, which is
+a much better price than a control that lies. The alternatives were to disable the WebGL option or to
+have the status line say a reload is needed; silently ignoring the choice was the one option ruled
+out.
+
 ## Testing strategy
 
 Three tiers, matching what the code actually is:
@@ -490,6 +565,14 @@ Three tiers, matching what the code actually is:
 
 Plus one contract test that is neither: for a set of seeds, build the scene once and assert both
 backends were handed the identical object.
+
+And, since #135, one that none of the four tiers could have caught: `e2e/preview_context_reuse.spec.ts`
+changes an override repeatedly **in a live session** and asserts the page is still drawing with
+WebGL and still inside a bounded number of GL contexts. Every other preview spec pins its override
+into `localStorage` and then navigates, one fresh page per case, so the suite had no case that
+changed an override in a running page or accumulated more than a page's worth of renders. The bug
+lived entirely in the path the fixtures skipped, which is the general lesson worth keeping: a
+fixture that sets up the end state cannot test the transitions into it.
 
 ### Finding: what a golden-image tier can and cannot be held to here (step 5)
 
