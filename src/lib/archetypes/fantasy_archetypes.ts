@@ -1,5 +1,4 @@
 import type { Archetype } from './archetype_types';
-import { getArmorGenerationConfig, getWeaponGenerationConfig } from '$lib/equipment';
 import { FANTASY_COMBAT_ARCHETYPES } from './fantasy_combat_archetype_data';
 
 export function getAllFantasyArchetypes(): Archetype[] {

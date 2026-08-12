@@ -1,14 +1,11 @@
 import type { Focus } from './character';
 import {
-  createBonusFocus,
   createBonusHP,
   createBonusSkill,
   createBonusSkillFromList,
   createBonusSkillOfType,
-  createEffortAbility,
   createFocus,
   createInnateAC,
-  createSpecialAbility,
 } from './character_effects';
 
 /**

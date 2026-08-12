@@ -1,4 +1,3 @@
-import { createTitleFromCore } from '$lib/characters/titles.js';
 import type RealmType from './realm_type.js';
 
 import { REALM_TYPES } from './realm_type_data.js';
