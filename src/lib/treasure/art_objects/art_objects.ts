@@ -731,17 +731,20 @@ export function generateArtObject(
 /**
  * Get an art object up to a maximum value.
  *
+ * @param seed The seed for the random number generator.
  * @param maxValue the maximum value to limit art by
  * @returns
  */
-export function getArtObjectOfMaxValue(maxValue: number): ArtObject {
+export function getArtObjectOfMaxValue(seed: string, maxValue: number): ArtObject {
+  const rng = new RNG(seed);
+
   const affordableArtObjects = artObjectTypes.filter((art) => art.baseValue <= maxValue);
   if (affordableArtObjects.length === 0) {
     throw new Error('No art objects available within the specified value.');
   }
 
-  const selectedArt = affordableArtObjects[Math.floor(Math.random() * affordableArtObjects.length)];
-  return generateArtObject(`art-${selectedArt.name.toLowerCase()}`, selectedArt);
+  const selectedArt = rng.item(affordableArtObjects);
+  return generateArtObject(`art-${rng.randomString(13)}`, selectedArt);
 }
 
 /**
