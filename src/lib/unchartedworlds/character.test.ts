@@ -1,10 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import * as RNG from '@ironarachne/rng';
 import {
+  createAssetTemplate,
+  createAssetType,
+  createCareer,
+  createOrigin,
+  createSkill,
   createStatBlock,
   createUpgrade,
   createUpgradeWithExtras,
   createUwCharacter,
+  createWorkspace,
   formatAsText,
   generate,
 } from './character';
@@ -241,5 +247,58 @@ describe('formatAsText', () => {
     expect(formatAsText({ ...character, firstName: 'Vela', lastName: 'Rook' })).toContain(
       'Name: Vela Rook',
     );
+  });
+});
+
+// The library's own content is written as literals in the *_data.ts modules, so these
+// constructors are exercised only by callers building content of their own. They are still part
+// of the public API, so they are tested directly rather than incidentally.
+describe('content constructors', () => {
+  it('builds a skill and a workspace from a name and description', () => {
+    expect(createSkill('Scapegoat', 'Blame someone else.')).toEqual({
+      name: 'Scapegoat',
+      description: 'Blame someone else.',
+    });
+    expect(createWorkspace('Medical', 'Sterile environment.')).toEqual({
+      name: 'Medical',
+      description: 'Sterile environment.',
+    });
+  });
+
+  it('builds an origin carrying its descriptors and skills', () => {
+    const skill = createSkill('Cutting Edge', 'New technology comes naturally.');
+    const origin = createOrigin('Advanced', ['Angular', 'Robust'], [skill]);
+
+    expect(origin.name).toBe('Advanced');
+    expect(origin.descriptors).toEqual(['Angular', 'Robust']);
+    expect(origin.skills).toEqual([skill]);
+  });
+
+  it('builds a career carrying its workspaces, advancements, and skills', () => {
+    const workspace = createWorkspace('Research', 'Laboratory.');
+    const skill = createSkill('Education', 'Teach an ally.');
+    const career = createCareer('Academic', ['Thin'], [workspace], ['A lesson lands.'], [skill]);
+
+    expect(career).toEqual({
+      name: 'Academic',
+      descriptors: ['Thin'],
+      workspaces: [workspace],
+      advancements: ['A lesson lands.'],
+      skills: [skill],
+    });
+  });
+
+  it('builds an asset template carrying its types, common traits, and upgrades', () => {
+    const type = createAssetType('Rugged', 'Crude, patched, aged and worn.');
+    const trait = createUpgrade('Tough', 'Hard to damage.');
+    const upgrade = createUpgrade('Armored', '+2 Armor.');
+    const template = createAssetTemplate('Attire', [type], [trait], [upgrade]);
+
+    expect(template).toEqual({
+      name: 'Attire',
+      types: [type],
+      commonTraits: [trait],
+      upgrades: [upgrade],
+    });
   });
 });
