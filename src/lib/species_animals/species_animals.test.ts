@@ -1,19 +1,28 @@
 import { expect, describe, it } from 'vitest';
 import type Species from '$lib/species/species';
 
+import * as entrypoint from './index';
+
 /**
- * The library is a flat directory of data modules with no aggregating index, so the suite
- * collects them the way Vite does: eagerly, by glob. Every file here must satisfy the same
- * contract, and a new animal is picked up without touching this test.
+ * The library is a flat directory of data modules, so the suite collects them the way Vite does:
+ * eagerly, by glob. Every file here must satisfy the same contract, and a new animal is picked up
+ * without touching this test. The glob is also what the entry point is checked against — it names
+ * each default export by hand, so a new module can be added and forgotten there.
  */
 const modules = import.meta.glob<{ default: Species }>('./*.ts', { eager: true });
 const animals = Object.entries(modules)
-  .filter(([path]) => !path.endsWith('.test.ts'))
+  .filter(([path]) => !path.endsWith('.test.ts') && !path.endsWith('/index.ts'))
   .map(([path, module]) => [path, module.default] as const);
 
 describe('animal species data', () => {
   it('finds a species module for every file in the library', () => {
     expect(animals.length).toBeGreaterThan(0);
+  });
+
+  it('names every module in the entry point', () => {
+    const fromModules = animals.map(([path]) => path.replace('./', '').replace('.ts', '')).sort();
+
+    expect(Object.keys(entrypoint).sort()).toEqual(fromModules);
   });
 
   it('gives every module a default-exported species', () => {

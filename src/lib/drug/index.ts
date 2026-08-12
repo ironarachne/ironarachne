@@ -1,0 +1,8 @@
+export type { default as Drug } from './drug';
+export type { default as DrugGeneratorConfig } from './drug_generator_config';
+export type { default as DrugType } from './drug_type';
+export type { default as EffectType } from './effect_type';
+export * from './drugs';
+// Both tables export `all`, so neither can be starred without the other name disappearing.
+export * as drugTypes from './drug_types';
+export * as effectTypes from './effect_types';
