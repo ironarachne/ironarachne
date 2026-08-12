@@ -238,6 +238,25 @@ export function generateContainer(
   };
 }
 
+/**
+ * Scale one of a base type's figures by a variation's modifier.
+ *
+ * Absolute floors used to sit here — 5 for volume, 1 for weight capacity, 0.1 for the container's
+ * own weight — and they were what made a `small glass bottle` bigger than a glass bottle. For any
+ * container under the floor every variation clamped to the same number, so the size adjectives
+ * stopped meaning anything. Rounding rather than flooring matters for the same reason: a cloth
+ * bag's 0.5 litres scaled by 1.25 floors to zero.
+ *
+ * Two decimals is the coarsest precision that keeps the variations distinct. At one, a small cloth
+ * pouch and a plain cloth pouch are both 0.2.
+ */
+function scaleForVariation(base: number, modifier: number | undefined): number {
+  const scaled = parseFloat((base * (modifier || 1)).toFixed(2));
+
+  // Only a base small enough to round away can reach this, and a capacity of zero is never useful.
+  return scaled > 0 ? scaled : 0.01;
+}
+
 export function generateContainerTypes(): ContainerType[] {
   const containerTypes: ContainerType[] = [];
   const variations = getContainerVariations();
@@ -248,24 +267,14 @@ export function generateContainerTypes(): ContainerType[] {
         name: variation.namePrefix + baseType.name + (variation.nameSuffix || ''),
         canHoldItems: baseType.canHoldItems,
         canHoldLiquid: baseType.canHoldLiquid,
-        defaultVolume: Math.max(
-          5,
-          Math.floor(baseType.defaultVolume * (variation.volumeCapacityModifier || 1)),
-        ),
-        defaultWeight: Math.max(
-          1,
-          Math.floor(baseType.defaultWeight * (variation.weightCapacityModifier || 1)),
-        ),
+        defaultVolume: scaleForVariation(baseType.defaultVolume, variation.volumeCapacityModifier),
+        defaultWeight: scaleForVariation(baseType.defaultWeight, variation.weightCapacityModifier),
         description: `${Words.article(variation.namePrefix || baseType.name)} ${variation.namePrefix || ''}${baseType.name}${variation.descriptionSuffix || ''}`,
         canBeLocked: baseType.canBeLocked,
-        weight: Math.max(
-          0.1,
-          parseFloat((baseType.weight * (variation.weightModifier || 1)).toFixed(2)),
-        ),
+        weight: scaleForVariation(baseType.weight, variation.weightModifier),
         value: baseType.value,
       });
     }
-    containerTypes.push(baseType);
   }
 
   return containerTypes;

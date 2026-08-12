@@ -339,44 +339,57 @@ describe('getContainerVariations', () => {
 describe('generateContainerTypes', () => {
   const types = generateContainerTypes();
 
-  it('produces a variation of every base type plus the base type itself', () => {
-    expect(types).toHaveLength(baseContainerTypes.length * (getContainerVariations().length + 1));
+  it('produces one entry per base type and variation', () => {
+    expect(types).toHaveLength(baseContainerTypes.length * getContainerVariations().length);
   });
 
-  it('keeps every variation above the capacity and weight floors', () => {
-    const baseNames = new Set(baseContainerTypes.map((type) => type.name));
+  it('names every entry exactly once', () => {
+    const names = types.map((type) => type.name);
 
-    for (const type of types.filter((candidate) => !baseNames.has(candidate.name))) {
-      expect(type.defaultVolume).toBeGreaterThanOrEqual(5);
-      expect(type.defaultWeight).toBeGreaterThanOrEqual(1);
-      expect(type.weight).toBeGreaterThanOrEqual(0.1);
+    expect(new Set(names).size).toBe(names.length);
+  });
+
+  it('orders small below plain below large, for every base type', () => {
+    for (const baseType of baseContainerTypes) {
+      const small = types.find((type) => type.name === `small ${baseType.name}`)!;
+      const plain = types.find((type) => type.name === baseType.name)!;
+      const large = types.find((type) => type.name === `large ${baseType.name}`)!;
+
+      expect(small.defaultVolume, baseType.name).toBeLessThan(plain.defaultVolume);
+      expect(plain.defaultVolume, baseType.name).toBeLessThan(large.defaultVolume);
+      expect(small.defaultWeight, baseType.name).toBeLessThan(plain.defaultWeight);
+      expect(plain.defaultWeight, baseType.name).toBeLessThan(large.defaultWeight);
     }
   });
 
-  // The floors are applied to variations only; base types are appended verbatim. Documented
-  // rather than asserted as correct — see the two defects pinned below.
-  it('lets base types fall below the variation floors', () => {
-    const bottle = baseContainerTypes.find((type) => type.name === 'glass bottle')!;
+  // `reinforced` is the one variation that does not scale volume: it carries more weight in the
+  // same space, so it ties with the plain variation and only the weight capacity separates them.
+  it('reinforces without enlarging', () => {
+    for (const baseType of baseContainerTypes) {
+      const plain = types.find((type) => type.name === baseType.name)!;
+      const reinforced = types.find((type) => type.name === `reinforced ${baseType.name}`)!;
 
-    expect(bottle.defaultVolume).toBeLessThan(5);
+      expect(reinforced.defaultVolume, baseType.name).toBe(plain.defaultVolume);
+      expect(reinforced.defaultWeight, baseType.name).toBeGreaterThan(plain.defaultWeight);
+    }
   });
 
-  // DEFECT: a `small` variation of a small container ends up larger than the container itself,
-  // because Math.max(5, ...) raises it while the base type keeps its own smaller value.
-  it('inverts the size ordering for containers smaller than the floor', () => {
+  // Pinned to the arithmetic rather than the ordering: a glass bottle's 2 litres sat under the old
+  // floor of 5, so every one of its variations clamped to the same capacity. An ordering assertion
+  // alone would not notice that floor coming back for a base type below it.
+  it('scales a container smaller than the old floor by its modifier', () => {
     const small = types.find((type) => type.name === 'small glass bottle')!;
-    const base = baseContainerTypes.find((type) => type.name === 'glass bottle')!;
 
-    expect(small.defaultVolume).toBeGreaterThan(base.defaultVolume);
+    expect(small.defaultVolume).toBe(1.5);
+    expect(small.defaultWeight).toBe(3.75);
   });
 
-  // DEFECT: the empty-prefix variation reproduces the base type's name, and the base type is
-  // then pushed as well, so every base name appears twice with different capacities.
-  it('emits each base type name twice with disagreeing volumes', () => {
-    const bottles = types.filter((type) => type.name === 'glass bottle');
+  // The same, for the container's own weight: a cloth pouch weighs 0.1, which the old floor of 0.1
+  // clamped its small variation back up to. This is the only figure in the table that moves.
+  it('scales the lightest container’s own weight by its modifier', () => {
+    const small = types.find((type) => type.name === 'small cloth pouch')!;
 
-    expect(bottles).toHaveLength(2);
-    expect(new Set(bottles.map((type) => type.defaultVolume)).size).toBe(2);
+    expect(small.weight).toBe(0.08);
   });
 
   it('carries the base type’s affordances onto each variation', () => {
