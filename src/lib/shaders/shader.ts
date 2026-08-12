@@ -1,9 +1,5 @@
-export default class Shader {
-  name: string;
-  shader: string;
+import type { Shader } from './shader_types';
 
-  constructor(name: string, shader: string) {
-    this.name = name;
-    this.shader = shader;
-  }
+export function createShader(name: string, shader: string): Shader {
+  return { name, shader };
 }

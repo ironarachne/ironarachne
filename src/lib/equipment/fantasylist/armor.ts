@@ -1,13 +1,16 @@
 import { getArmor } from '../../adnd/equipment.js';
-import { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentItem, EquipmentList } from '../list.js';
 
-export const armorList = new EquipmentList('Armor and Shields', [
-  ...getArmor().map((armor) => new EquipmentItem(armor.name, armor.cost)),
-  new EquipmentItem('helmet, open', 200),
-  new EquipmentItem('helmet, great', 600),
-  new EquipmentItem('coif, mail', 400),
-  new EquipmentItem('gauntlets, leather', 100),
-  new EquipmentItem('gauntlets, mail', 500),
-  new EquipmentItem('greaves', 400),
-  new EquipmentItem('vambraces', 300),
-]);
+export const armorList: EquipmentList = {
+  title: 'Armor and Shields',
+  items: [
+    ...getArmor().map((armor) => ({ name: armor.name, cost: armor.cost })),
+    { name: 'helmet, open', cost: 200 },
+    { name: 'helmet, great', cost: 600 },
+    { name: 'coif, mail', cost: 400 },
+    { name: 'gauntlets, leather', cost: 100 },
+    { name: 'gauntlets, mail', cost: 500 },
+    { name: 'greaves', cost: 400 },
+    { name: 'vambraces', cost: 300 },
+  ],
+};

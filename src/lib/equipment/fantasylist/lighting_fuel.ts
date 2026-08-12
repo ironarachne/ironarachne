@@ -1,19 +1,22 @@
-import { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentItem, EquipmentList } from '../list.js';
 
-export const lightingFuelList = new EquipmentList('Lighting and Fuel', [
-  new EquipmentItem('torch', 1),
-  new EquipmentItem('candle, tallow', 1),
-  new EquipmentItem('candle, beeswax', 4),
-  new EquipmentItem('candle, rush', 1),
-  new EquipmentItem('lantern, hooded', 70),
-  new EquipmentItem('lantern, bullseye', 120),
-  new EquipmentItem('lamp, oil', 6),
-  new EquipmentItem('lamp oil (1 pint)', 6),
-  new EquipmentItem('lamp oil (1 gallon)', 40),
-  new EquipmentItem('tinderbox', 8),
-  new EquipmentItem('flint and steel', 4),
-  new EquipmentItem('charcoal (1 lb)', 1),
-  new EquipmentItem('firewood (1 bundle)', 2),
-  new EquipmentItem('peat (1 bundle)', 1),
-  new EquipmentItem('pitch torch', 2),
-]);
+export const lightingFuelList: EquipmentList = {
+  title: 'Lighting and Fuel',
+  items: [
+    { name: 'torch', cost: 1 },
+    { name: 'candle, tallow', cost: 1 },
+    { name: 'candle, beeswax', cost: 4 },
+    { name: 'candle, rush', cost: 1 },
+    { name: 'lantern, hooded', cost: 70 },
+    { name: 'lantern, bullseye', cost: 120 },
+    { name: 'lamp, oil', cost: 6 },
+    { name: 'lamp oil (1 pint)', cost: 6 },
+    { name: 'lamp oil (1 gallon)', cost: 40 },
+    { name: 'tinderbox', cost: 8 },
+    { name: 'flint and steel', cost: 4 },
+    { name: 'charcoal (1 lb)', cost: 1 },
+    { name: 'firewood (1 bundle)', cost: 2 },
+    { name: 'peat (1 bundle)', cost: 1 },
+    { name: 'pitch torch', cost: 2 },
+  ],
+};

@@ -1,11 +1,11 @@
 import { getWeapons } from '../../adnd/equipment.js';
-import { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentList } from '../list.js';
 
 const excludedWeapons = new Set(['arquebus']);
 
-export const weaponsList = new EquipmentList(
-  'Weapons',
-  getWeapons()
+export const weaponsList: EquipmentList = {
+  title: 'Weapons',
+  items: getWeapons()
     .filter((weapon) => !excludedWeapons.has(weapon.name))
-    .map((weapon) => new EquipmentItem(weapon.name, weapon.cost)),
-);
+    .map((weapon) => ({ name: weapon.name, cost: weapon.cost })),
+};

@@ -1,19 +1,9 @@
-export class EquipmentList {
-  title: string;
-  items: EquipmentItem[];
-
-  constructor(title: string, items: EquipmentItem[]) {
-    this.title = title;
-    this.items = items;
-  }
-}
-
-export class EquipmentItem {
+export type EquipmentItem = {
   name: string;
   cost: number;
+};
 
-  constructor(name: string, cost: number) {
-    this.name = name;
-    this.cost = cost;
-  }
-}
+export type EquipmentList = {
+  title: string;
+  items: EquipmentItem[];
+};

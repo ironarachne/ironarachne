@@ -4,6 +4,7 @@ import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
 import dog from '$lib/species_animals/dog.js';
 import {
+  applySpeciesFilter,
   breed,
   breedable,
   byAllTags,
@@ -22,6 +23,7 @@ import {
   nonSentient,
   withCreatureType,
 } from './common.js';
+import type { SpeciesFilter } from './filter.js';
 import type Species from './species.js';
 
 function dogVariant(name: string, breedType = 'dog'): Species {
@@ -104,6 +106,45 @@ describe('species filters', () => {
   it('finds species by name or throws', () => {
     expect(byName('alpha', options).name).toBe('alpha');
     expect(() => byName('missing', options)).toThrow(/No species found/);
+  });
+});
+
+describe('applySpeciesFilter', () => {
+  const options = [dogVariant('alpha'), dogVariant('beta')];
+  const empty: SpeciesFilter = {
+    withAllTags: [],
+    withAnyTag: [],
+    withCreatureType: '',
+    withEnvironment: '',
+    withNoTags: [],
+  };
+
+  it('returns every option when no criterion is set', () => {
+    expect(applySpeciesFilter(empty, options)).toEqual(options);
+  });
+
+  it('narrows by each criterion in turn', () => {
+    expect(applySpeciesFilter({ ...empty, withAllTags: ['dog'] }, options)).toHaveLength(2);
+    expect(applySpeciesFilter({ ...empty, withAnyTag: ['missing'] }, options)).toHaveLength(0);
+    expect(applySpeciesFilter({ ...empty, withCreatureType: 'beast' }, options)).toHaveLength(2);
+    expect(applySpeciesFilter({ ...empty, withEnvironment: 'undersea' }, options)).toHaveLength(0);
+  });
+
+  it('excludes species carrying an unwanted tag', () => {
+    expect(applySpeciesFilter({ ...empty, withNoTags: ['dog'] }, options)).toHaveLength(0);
+    expect(applySpeciesFilter({ ...empty, withNoTags: ['missing'] }, options)).toHaveLength(2);
+  });
+
+  it('applies every criterion together', () => {
+    const filter: SpeciesFilter = {
+      withAllTags: ['dog'],
+      withAnyTag: ['dog'],
+      withCreatureType: 'beast',
+      withEnvironment: 'grassland',
+      withNoTags: ['missing'],
+    };
+
+    expect(applySpeciesFilter(filter, options)).toHaveLength(2);
   });
 });
 

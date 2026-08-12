@@ -1,8 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import * as Names from '$lib/names';
-import Claim from './claim';
-import { generate, getDefaultConfig } from './realms';
+import { createClaim, generate, getDefaultConfig } from './realms';
 import * as RealmTypes from './realm_types';
 import type RealmGeneratorConfig from './realm_generator_config';
 
@@ -20,9 +19,9 @@ function configFor(seed: string, overrides: Partial<RealmGeneratorConfig> = {}) 
   } satisfies RealmGeneratorConfig;
 }
 
-describe('Claim', () => {
+describe('createClaim', () => {
   it('starts unpressed with no claimant', () => {
-    const claim = new Claim();
+    const claim = createClaim();
 
     expect(claim.claimantName).toBe('');
     expect(claim.claimantId).toBe(0);

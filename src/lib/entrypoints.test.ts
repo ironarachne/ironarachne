@@ -84,7 +84,7 @@ describe('entry points added for issue #16', () => {
     expect(adnd.classes.paladin).toBeDefined();
     expect(adnd.races.dwarf).toBeDefined();
     expect(typeof cuisine.CuisineGenerator).toBe('function');
-    expect(typeof shaders.Shader).toBe('function');
+    expect(typeof shaders.createShader).toBe('function');
     expect(speciesAnimals.camel).toBeDefined();
     expect(speciesMonsters.balor).toBeDefined();
     expect(speciesMonsters.owlbear).toBeDefined();

@@ -1,11 +1,5 @@
-export default class Claim {
+export default interface Claim {
   claimantName: string;
   claimantId: number; // an array index
   status: string;
-
-  constructor() {
-    this.claimantName = '';
-    this.claimantId = 0;
-    this.status = 'unpressed';
-  }
 }
