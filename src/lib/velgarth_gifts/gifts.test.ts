@@ -158,11 +158,21 @@ describe('gift possibilities', () => {
     }
   });
 
-  it('returns a fresh list each call so callers cannot mutate the source', () => {
-    const first = all();
-    const originalName = first[0].name;
-    first[0].name = 'mutated';
+  it('hands out the one shared table rather than rebuilding it', () => {
+    expect(all()).toBe(all());
+  });
 
-    expect(all()[0].name).toBe(originalName);
+  /**
+   * `generate` narrows the pool as it draws, and the shared table would be the obvious thing to
+   * narrow. It uses `filter`, which builds a new array — this is the guard on that.
+   */
+  it('is not drained by generating many sets of gifts', () => {
+    const before = all().map((possibility) => possibility.name);
+
+    for (let index = 0; index < 60; index++) {
+      generate({ min_gifts: 1, max_gifts: 3, possibilities: all() }, new RNG(`drain-${index}`));
+    }
+
+    expect(all().map((possibility) => possibility.name)).toEqual(before);
   });
 });
