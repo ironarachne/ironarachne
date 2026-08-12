@@ -1,13 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import ADNDCharacter from './adndcharacter';
+import { createAdndCharacter, type default as ADNDCharacter } from './adndcharacter';
 import { buildAdndCharacterPdf } from './render_adnd_character_pdf';
-import ADNDClass from './adndclass';
-import ADNDRace from './adndrace';
-import ADNDArmor from './adndarmor';
-import ADNDWeapon from './adndweapon';
+import type ADNDClass from './adndclass';
+import type ADNDRace from './adndrace';
 
 function createTestCharacter(): ADNDCharacter {
-  const character = new ADNDCharacter();
+  const character = createAdndCharacter();
   character.firstName = 'Elara';
   character.lastName = 'Moonwhisper';
   character.race = { name: 'elf' } as ADNDRace;
@@ -58,9 +56,27 @@ function createTestCharacter(): ADNDCharacter {
   character.npcReactionAdjustment = 0;
   character.abilities = ['Infravision 60 ft'];
   character.weapons = [
-    new ADNDWeapon('long sword', 15 * 100, 4, 'medium', 'slashing', 5, '1d8', '1d12', 'sword'),
+    {
+      name: 'long sword',
+      cost: 15 * 100,
+      weight: 4,
+      size: 'medium',
+      damageType: 'slashing',
+      speedFactor: 5,
+      damageSM: '1d8',
+      damageL: '1d12',
+      category: 'sword',
+      usesAmmo: false,
+    },
   ];
-  character.armor = [new ADNDArmor('chain mail', -6, 40, 75 * 100)];
+  character.armor = [
+    {
+      name: 'chain mail',
+      ac: -6,
+      weight: 40,
+      cost: 75 * 100,
+    },
+  ];
   character.spells = [];
   character.weaponProficiencyGroups = ['long sword'];
   character.nonweaponProficiencies = ['Riding, Land-Based'];

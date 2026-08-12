@@ -2,8 +2,8 @@
   import * as RNG from '@ironarachne/rng';
   import { resolve } from '$app/paths';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
-  import ADNDCharacterGenerator from '$lib/adnd/adndcharactergenerator';
-  import ADNDCharacterGeneratorConfig from '$lib/adnd/adndcharactergeneratorconfig';
+  import { generateCharacter } from '$lib/adnd/adndcharactergenerator';
+  import { getDefaultConfig } from '$lib/adnd/adndcharactergeneratorconfig';
   import { downloadAdndCharacterPdf } from '$lib/adnd/render_adnd_character_pdf';
   import type ADNDCharacter from '$lib/adnd/adndcharacter';
   import {
@@ -27,8 +27,6 @@
   $effect(() => {
     rng.setSeed(seed);
   });
-  let genConfig;
-  let charGen;
   let character = $state<ADNDCharacter | undefined>();
   let downloadingPdf = $state(false);
 
@@ -91,12 +89,10 @@
     const lockedFirstName = firstName;
     const lockedLastName = lastName;
 
-    genConfig = new ADNDCharacterGeneratorConfig();
-    genConfig.rng = rng;
+    const genConfig = getDefaultConfig(rng);
     genConfig.includeProficiencies = includeProficiencies;
     genConfig.includeKits = includeKits;
-    charGen = new ADNDCharacterGenerator(genConfig);
-    character = charGen.generateCharacter();
+    character = generateCharacter(genConfig);
     if (lockName) {
       restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
     } else {

@@ -1,4 +1,4 @@
-import { EquipmentItem } from '../list.js';
+import type { EquipmentItem } from '../list.js';
 
 type ClothingItemDef = {
   name: string;
@@ -47,18 +47,18 @@ export function getClothingItems(): EquipmentItem[] {
 
   for (const item of clothingDefs) {
     equipmentItems.push(
-      new EquipmentItem(
-        item.name + ', cheap',
-        getClothingCost(item.materialType, item.materialAmount, 'cheap'),
-      ),
-      new EquipmentItem(
-        item.name + ', fine',
-        getClothingCost(item.materialType, item.materialAmount, 'fine'),
-      ),
-      new EquipmentItem(
-        item.name + ', courtly',
-        getClothingCost(item.materialType, item.materialAmount, 'courtly'),
-      ),
+      {
+        name: item.name + ', cheap',
+        cost: getClothingCost(item.materialType, item.materialAmount, 'cheap'),
+      },
+      {
+        name: item.name + ', fine',
+        cost: getClothingCost(item.materialType, item.materialAmount, 'fine'),
+      },
+      {
+        name: item.name + ', courtly',
+        cost: getClothingCost(item.materialType, item.materialAmount, 'courtly'),
+      },
     );
   }
 

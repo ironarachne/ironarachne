@@ -1,14 +1,17 @@
-import { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentList } from '../list.js';
 
-export const propertyList = new EquipmentList('Property', [
-  new EquipmentItem('cottage', 1920),
-  new EquipmentItem('row house', 4800),
-  new EquipmentItem("craftsman's house", 9600),
-  new EquipmentItem("merchant's house", 31680),
-  new EquipmentItem('warehouse', 19200),
-  new EquipmentItem('inn', 48000),
-  new EquipmentItem('mill', 28800),
-  new EquipmentItem('chapel', 57600),
-  new EquipmentItem('church', 115200),
-  new EquipmentItem('castle', 5616000),
-]);
+export const propertyList: EquipmentList = {
+  title: 'Property',
+  items: [
+    { name: 'cottage', cost: 1920 },
+    { name: 'row house', cost: 4800 },
+    { name: "craftsman's house", cost: 9600 },
+    { name: "merchant's house", cost: 31680 },
+    { name: 'warehouse', cost: 19200 },
+    { name: 'inn', cost: 48000 },
+    { name: 'mill', cost: 28800 },
+    { name: 'chapel', cost: 57600 },
+    { name: 'church', cost: 115200 },
+    { name: 'castle', cost: 5616000 },
+  ],
+};

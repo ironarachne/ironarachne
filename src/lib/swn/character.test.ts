@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as RNG from '@ironarachne/rng';
-import { SWNCharacter, formatAsText, generate } from './character';
+import { createSwnCharacter, equipmentList, formatAsText, generate } from './character';
 
 const seeds = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
@@ -62,7 +62,6 @@ describe('generate', () => {
     for (const seed of seeds) {
       const character = generate(new RNG.RNG(seed));
 
-      expect(character).toBeInstanceOf(SWNCharacter);
       expect(character.background.name.length).toBeGreaterThan(0);
       expect(character.characterClass.name.length).toBeGreaterThan(0);
       expect(character.currentLevel).toBe(1);
@@ -155,7 +154,7 @@ describe('generate', () => {
 
   it('lists equipment by name', () => {
     for (const character of charactersFrom(50)) {
-      expect(character.equipmentList()).toEqual(character.equipment.map((item) => item.name));
+      expect(equipmentList(character)).toEqual(character.equipment.map((item) => item.name));
     }
   });
 
@@ -236,9 +235,9 @@ describe('generate', () => {
   });
 });
 
-describe('SWNCharacter', () => {
+describe('createSwnCharacter', () => {
   it('starts at level one with the unskilled attack penalty', () => {
-    const character = new SWNCharacter(new RNG.RNG('seed-a'));
+    const character = createSwnCharacter(new RNG.RNG('seed-a'));
 
     expect(character.currentLevel).toBe(1);
     expect(character.attackBonus).toBe(0);
@@ -254,7 +253,7 @@ describe('SWNCharacter', () => {
   });
 
   it('returns an empty equipment list before anything is added', () => {
-    expect(new SWNCharacter(new RNG.RNG('seed-a')).equipmentList()).toEqual([]);
+    expect(equipmentList(createSwnCharacter(new RNG.RNG('seed-a')))).toEqual([]);
   });
 });
 

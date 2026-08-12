@@ -80,11 +80,11 @@ describe('entry points added for issue #16', () => {
   }
 
   it('carries the default exports a bare `export *` would have dropped', () => {
-    expect(typeof adnd.ADNDCharacterGenerator).toBe('function');
+    expect(typeof adnd.generateCharacter).toBe('function');
     expect(adnd.classes.paladin).toBeDefined();
     expect(adnd.races.dwarf).toBeDefined();
-    expect(typeof cuisine.CuisineGenerator).toBe('function');
-    expect(typeof shaders.Shader).toBe('function');
+    expect(typeof cuisine.generate).toBe('function');
+    expect(typeof shaders.createShader).toBe('function');
     expect(speciesAnimals.camel).toBeDefined();
     expect(speciesMonsters.balor).toBeDefined();
     expect(speciesMonsters.owlbear).toBeDefined();

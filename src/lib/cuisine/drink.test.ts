@@ -1,18 +1,12 @@
 import { expect, describe, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { Drink, generateDrink } from './drink';
+import { generateDrink } from './drink';
 import * as DrinkTypes from './drinktypes';
 
-describe('Drink', () => {
-  it('starts empty apart from a randomly chosen drink type', () => {
-    const drink = new Drink(new RNG('new'));
+describe('generateDrink drink type', () => {
+  it('draws the drink type from the table', () => {
+    const drink = generateDrink(new RNG('new'));
 
-    expect(drink.name).toBe('');
-    expect(drink.description).toBe('');
-    expect(drink.appearance).toBe('');
-    expect(drink.quality).toBe(0);
-    expect(drink.strength).toBe(0);
-    expect(drink.cost).toBe(0);
     expect(DrinkTypes.all().map((type) => type.name)).toContain(drink.drinkType.name);
   });
 });

@@ -1,20 +1,20 @@
 import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
-import ADNDClass from '../adndclass.js';
+import type ADNDClass from '../adndclass.js';
 
-export default new ADNDClass(
-  'paladin',
-  'warrior',
-  '1d10',
-  12,
-  -1,
-  9,
-  -1,
-  13,
-  17,
-  ['strength', 'charisma'],
-  [
+const paladin: ADNDClass = {
+  name: 'paladin',
+  group: 'warrior',
+  hitDice: '1d10',
+  minStrength: 12,
+  minDexterity: -1,
+  minConstitution: 9,
+  minIntelligence: -1,
+  minWisdom: 13,
+  minCharisma: 17,
+  primeRequisites: ['strength', 'charisma'],
+  abilities: [
     "Detect the presence of evil intent within 60'",
     '+2 bonus to all saving throws',
     'Immune to all diseases',
@@ -27,16 +27,16 @@ export default new ADNDClass(
     "Must tithe 10% of all income to the paladin's institution",
     'May only employ lawful good henchmen',
   ],
-  ['lawful good'],
-  false,
-  [],
-  [],
-  ['any'],
-  ['any'],
-  4,
-  3,
-  -2,
-  function (
+  allowedAlignments: ['lawful good'],
+  hasSpells: false,
+  allowedSpellTypes: [],
+  spellList: [],
+  allowedWeapons: ['any'],
+  allowedArmor: ['any'],
+  initialWP: 4,
+  initialNWP: 3,
+  wpPenalty: -2,
+  apply: function (
     this: ADNDClass,
     character: ADNDCharacter,
     _rng: RNG.RNG,
@@ -44,4 +44,6 @@ export default new ADNDClass(
   ): ADNDCharacter {
     return character;
   },
-);
+};
+
+export default paladin;

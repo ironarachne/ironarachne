@@ -3,7 +3,7 @@
   import { resolve } from '$app/paths';
   import * as Dice from '$lib/dice';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
-  import ADNDCharacter from '$lib/adnd/adndcharacter';
+  import { createAdndCharacter, type default as ADNDCharacter } from '$lib/adnd/adndcharacter';
   import type ADNDClass from '$lib/adnd/adndclass';
   import type ADNDRace from '$lib/adnd/adndrace';
   import {
@@ -104,7 +104,7 @@
   const allClasses = classes.getAll();
 
   function makeBaseCharacter(): ADNDCharacter {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.strength = str;
     c.dexterity = dex;
     c.constitution = con;
@@ -154,7 +154,7 @@
   }
 
   function copyAfterRaceBody(src: ADNDCharacter): ADNDCharacter {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.strength = src.strength;
     c.dexterity = src.dexterity;
     c.constitution = src.constitution;

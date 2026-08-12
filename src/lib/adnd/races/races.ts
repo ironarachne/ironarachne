@@ -1,4 +1,4 @@
-import ADNDRace from '../adndrace.js';
+import type ADNDRace from '../adndrace.js';
 import dwarf from './dwarf.js';
 import elf from './elf.js';
 import gnome from './gnome.js';

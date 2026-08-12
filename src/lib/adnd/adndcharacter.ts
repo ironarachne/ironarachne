@@ -1,91 +1,140 @@
-import ADNDArmor from './adndarmor.js';
-import ADNDClass from './adndclass.js';
-import ADNDRace from './adndrace.js';
-import ADNDSpell from './adndspell.js';
-import ADNDWeapon from './adndweapon.js';
+import type ADNDArmor from './adndarmor.js';
+import type ADNDClass from './adndclass.js';
+import type ADNDRace from './adndrace.js';
+import type ADNDSpell from './adndspell.js';
+import type ADNDWeapon from './adndweapon.js';
 
-export default class ADNDCharacter {
+// The fields the generator fills in later are optional on the way out of
+// createAdndCharacter, which is why they carried a definite-assignment `!` when
+// this was a class. A character is only complete once a race and a class have
+// been applied to it.
+export default interface ADNDCharacter {
   firstName: string;
   lastName: string;
-  race!: ADNDRace;
-  class!: ADNDClass;
+  race: ADNDRace;
+  class: ADNDClass;
   level: number;
-  strength!: number;
+  strength: number;
   exceptionalStrength: number;
-  dexterity!: number;
-  constitution!: number;
-  intelligence!: number;
-  wisdom!: number;
-  charisma!: number;
-  age!: number;
-  height!: number;
-  weight!: number;
+  dexterity: number;
+  constitution: number;
+  intelligence: number;
+  wisdom: number;
+  charisma: number;
+  age: number;
+  height: number;
+  weight: number;
   xp: number;
-  hp!: number;
-  thaco!: number;
+  hp: number;
+  thaco: number;
   ac: number;
   currency: number; // in copper pieces
   hitProbability: string;
   damageAdjustment: string;
-  weightAllowance!: number;
-  maxPress!: number;
-  openDoors!: string;
-  bendBarsLiftGates!: number;
-  reactionAdjustment!: number;
-  missileAttackAdjustment!: number;
-  defensiveAdjustment!: number;
-  hitPointAdjustment!: number;
-  warriorHitPointAdjustment!: number;
-  systemShock!: number;
-  resurrectionSurvival!: number;
-  poisonSave!: number;
+  weightAllowance: number;
+  maxPress: number;
+  openDoors: string;
+  bendBarsLiftGates: number;
+  reactionAdjustment: number;
+  missileAttackAdjustment: number;
+  defensiveAdjustment: number;
+  hitPointAdjustment: number;
+  warriorHitPointAdjustment: number;
+  systemShock: number;
+  resurrectionSurvival: number;
+  poisonSave: number;
   regeneration: string;
-  numberOfLanguages!: number;
-  spellLevel!: number;
+  numberOfLanguages: number;
+  spellLevel: number;
   chanceToLearnSpell: number;
-  maximumNumberOfSpellsPerLevel!: number;
-  illusionImmunity!: number;
-  magicalDefenseAdjustment!: number;
+  maximumNumberOfSpellsPerLevel: number;
+  illusionImmunity: number;
+  magicalDefenseAdjustment: number;
   bonusSpells: number[];
-  chanceOfSpellFailure!: number;
+  chanceOfSpellFailure: number;
   spellImmunity: string[];
-  maximumNumberOfHenchmen!: number;
-  loyaltyBase!: number;
-  npcReactionAdjustment!: number;
+  maximumNumberOfHenchmen: number;
+  loyaltyBase: number;
+  npcReactionAdjustment: number;
   abilities: string[];
-  alignment!: string;
-  poisonSavingThrow!: number;
-  rodSavingThrow!: number;
-  petrificationSavingThrow!: number;
-  breathSavingThrow!: number;
-  spellSavingThrow!: number;
+  alignment: string;
+  poisonSavingThrow: number;
+  rodSavingThrow: number;
+  petrificationSavingThrow: number;
+  breathSavingThrow: number;
+  spellSavingThrow: number;
   spells: ADNDSpell[];
   armor: ADNDArmor[];
   weapons: ADNDWeapon[];
   weaponProficiencyGroups: string[];
   nonweaponProficiencies: string[];
   kit: { name: string; features: string[] } | null;
+}
 
-  constructor() {
-    this.firstName = '';
-    this.lastName = '';
-    this.level = 1;
-    this.xp = 0;
-    this.ac = 10;
-    this.currency = 0;
-    this.exceptionalStrength = -1;
-    this.hitProbability = 'normal';
-    this.damageAdjustment = 'none';
-    this.regeneration = 'nil';
-    this.chanceToLearnSpell = -1;
-    this.bonusSpells = [];
-    this.spellImmunity = [];
-    this.abilities = [];
-    this.spells = [];
-    this.armor = [];
-    this.weapons = [];
-    this.weaponProficiencyGroups = [];
-    this.nonweaponProficiencies = [];
-    this.kit = null;
-  }
+export function createAdndCharacter(): ADNDCharacter {
+  // Everything the class left to definite assignment starts blank here: the
+  // generator overwrites each one as it rolls stats and applies a race and a
+  // class, and the PDF renderer never sees a half-built character.
+  return {
+    firstName: '',
+    lastName: '',
+    race: undefined as unknown as ADNDRace,
+    class: undefined as unknown as ADNDClass,
+    level: 1,
+    strength: 0,
+    exceptionalStrength: -1,
+    dexterity: 0,
+    constitution: 0,
+    intelligence: 0,
+    wisdom: 0,
+    charisma: 0,
+    age: 0,
+    height: 0,
+    weight: 0,
+    xp: 0,
+    hp: 0,
+    thaco: 0,
+    ac: 10,
+    currency: 0,
+    hitProbability: 'normal',
+    damageAdjustment: 'none',
+    weightAllowance: 0,
+    maxPress: 0,
+    openDoors: '',
+    bendBarsLiftGates: 0,
+    reactionAdjustment: 0,
+    missileAttackAdjustment: 0,
+    defensiveAdjustment: 0,
+    hitPointAdjustment: 0,
+    warriorHitPointAdjustment: 0,
+    systemShock: 0,
+    resurrectionSurvival: 0,
+    poisonSave: 0,
+    regeneration: 'nil',
+    numberOfLanguages: 0,
+    spellLevel: 0,
+    chanceToLearnSpell: -1,
+    maximumNumberOfSpellsPerLevel: 0,
+    illusionImmunity: 0,
+    magicalDefenseAdjustment: 0,
+    bonusSpells: [],
+    chanceOfSpellFailure: 0,
+    spellImmunity: [],
+    maximumNumberOfHenchmen: 0,
+    loyaltyBase: 0,
+    npcReactionAdjustment: 0,
+    abilities: [],
+    alignment: '',
+    poisonSavingThrow: 0,
+    rodSavingThrow: 0,
+    petrificationSavingThrow: 0,
+    breathSavingThrow: 0,
+    spellSavingThrow: 0,
+    spells: [],
+    armor: [],
+    weapons: [],
+    weaponProficiencyGroups: [],
+    nonweaponProficiencies: [],
+    kit: null,
+  };
 }

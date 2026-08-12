@@ -14,7 +14,7 @@ import {
   type SciFiSheetTheme,
   type SciFiStatBox,
 } from '$lib/pdf/scifi_sheet_layout';
-import type { SWNCharacter } from './character';
+import { equipmentList, type SWNCharacter } from './character';
 
 const DEFAULT_FILENAME = 'swn-character.pdf';
 
@@ -106,7 +106,7 @@ function formatSwnArmorLines(character: SWNCharacter): string[] {
 }
 
 function formatSwnEquipmentLines(character: SWNCharacter): string[] {
-  const equipment = character.equipmentList();
+  const equipment = equipmentList(character);
   return equipment.length > 0 ? equipment : ['None'];
 }
 

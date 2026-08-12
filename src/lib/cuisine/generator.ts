@@ -1,18 +1,14 @@
-import Cuisine from './cuisine.js';
-import CuisineGeneratorConfig from './generatorconfig.js';
+import type { Cuisine } from './cuisine.js';
+import type { CuisineGeneratorConfig } from './generatorconfig.js';
 
-export default class CuisineGenerator {
-  config: CuisineGeneratorConfig;
-
-  constructor(config: CuisineGeneratorConfig) {
-    this.config = config;
-  }
-
-  generate(): Cuisine {
-    const cuisine = new Cuisine();
-
-    // TODO: Generate cuisine
-
-    return cuisine;
-  }
+export function generate(_config: CuisineGeneratorConfig): Cuisine {
+  // TODO: Generate cuisine from the config
+  return {
+    commonDishes: [],
+    commonSeasonings: [],
+    commonVegetables: [],
+    commonMainComponents: [],
+    commonCookingMethods: [],
+    commonDrinks: [],
+  };
 }

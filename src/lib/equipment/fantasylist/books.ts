@@ -1,16 +1,19 @@
-import { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentList } from '../list.js';
 
-export const booksList = new EquipmentList('Books and Education', [
-  new EquipmentItem('book', 1344),
-  new EquipmentItem('prayer book', 960),
-  new EquipmentItem('bestiary', 1920),
-  new EquipmentItem('ledger', 480),
-  new EquipmentItem('almanac', 720),
-  new EquipmentItem('map, local region', 240),
-  new EquipmentItem('map, kingdom', 960),
-  new EquipmentItem('scroll, blank', 48),
-  new EquipmentItem('fencing instruction (1 month)', 480),
-  new EquipmentItem('monastery instruction (1 year)', 1920),
-  new EquipmentItem('university instruction (1 year)', 2880),
-  new EquipmentItem('tutoring, literacy (1 month)', 360),
-]);
+export const booksList: EquipmentList = {
+  title: 'Books and Education',
+  items: [
+    { name: 'book', cost: 1344 },
+    { name: 'prayer book', cost: 960 },
+    { name: 'bestiary', cost: 1920 },
+    { name: 'ledger', cost: 480 },
+    { name: 'almanac', cost: 720 },
+    { name: 'map, local region', cost: 240 },
+    { name: 'map, kingdom', cost: 960 },
+    { name: 'scroll, blank', cost: 48 },
+    { name: 'fencing instruction (1 month)', cost: 480 },
+    { name: 'monastery instruction (1 year)', cost: 1920 },
+    { name: 'university instruction (1 year)', cost: 2880 },
+    { name: 'tutoring, literacy (1 month)', cost: 360 },
+  ],
+};

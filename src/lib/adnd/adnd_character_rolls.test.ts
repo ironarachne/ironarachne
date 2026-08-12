@@ -1,13 +1,13 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
-import ADNDCharacter from './adndcharacter.js';
+import { createAdndCharacter } from './adndcharacter.js';
 import { rollAdndLevel1Hp, rollAdndStartingCopper } from './adndcharactergenerator.js';
 import cleric from './classes/cleric.js';
 import fighter from './classes/fighter.js';
 
 describe('rollAdndLevel1Hp', () => {
   it('returns at least 1 and no more than hit die max plus warrior Con bonus', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.class = fighter;
     c.constitution = 14;
     c.strength = 12;

@@ -2,22 +2,24 @@ import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import { assignRandomStartingSpellsForClass } from '../adnd_class_starting_spells.js';
 import type ADNDCharacter from '../adndcharacter.js';
-import ADNDClass from '../adndclass.js';
-import SpellFilter from '../spellfilter.js';
+import type ADNDClass from '../adndclass.js';
 
-export default new ADNDClass(
-  'necromancer',
-  'wizard',
-  '1d4',
-  -1,
-  -1,
-  -1,
-  9,
-  16,
-  -1,
-  ['intelligence'],
-  ['Create magical items', 'Cast wizard spells (other than illusion, enchantment, or charm)'],
-  [
+const necromancer: ADNDClass = {
+  name: 'necromancer',
+  group: 'wizard',
+  hitDice: '1d4',
+  minStrength: -1,
+  minDexterity: -1,
+  minConstitution: -1,
+  minIntelligence: 9,
+  minWisdom: 16,
+  minCharisma: -1,
+  primeRequisites: ['intelligence'],
+  abilities: [
+    'Create magical items',
+    'Cast wizard spells (other than illusion, enchantment, or charm)',
+  ],
+  allowedAlignments: [
     'lawful good',
     'lawful neutral',
     'lawful evil',
@@ -28,24 +30,36 @@ export default new ADNDClass(
     'chaotic neutral',
     'chaotic good',
   ],
-  true,
-  ['wizard'],
-  [
+  hasSpells: true,
+  allowedSpellTypes: ['wizard'],
+  spellList: [
     {
-      filter: new SpellFilter('', 1, 'wizard', ['necromancy'], []),
+      filter: {
+        name: '',
+        level: 1,
+        casterClass: 'wizard',
+        requiredTags: ['necromancy'],
+        bannedTags: [],
+      },
       count: 1,
     },
     {
-      filter: new SpellFilter('', 1, 'wizard', [], ['enchantment', 'charm', 'illusion']),
+      filter: {
+        name: '',
+        level: 1,
+        casterClass: 'wizard',
+        requiredTags: [],
+        bannedTags: ['enchantment', 'charm', 'illusion'],
+      },
       count: 1,
     },
   ],
-  ['dagger', 'staff', 'dart', 'knife', 'sling'],
-  ['none'],
-  1,
-  4,
-  -5,
-  function (
+  allowedWeapons: ['dagger', 'staff', 'dart', 'knife', 'sling'],
+  allowedArmor: ['none'],
+  initialWP: 1,
+  initialNWP: 4,
+  wpPenalty: -5,
+  apply: function (
     this: ADNDClass,
     character: ADNDCharacter,
     rng: RNG.RNG,
@@ -56,4 +70,6 @@ export default new ADNDClass(
     }
     return character;
   },
-);
+};
+
+export default necromancer;

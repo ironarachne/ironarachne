@@ -1,6 +1,6 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
-import ADNDCharacter from '../adndcharacter.js';
+import { createAdndCharacter } from '../adndcharacter.js';
 import human from '../races/human.js';
 import * as classes from './classes.js';
 
@@ -15,7 +15,7 @@ describe('ADND class apply', () => {
   it('runs each class apply hook for a qualifying human', () => {
     const rng = new RNG('all-class-apply');
     for (const cls of classes.getAll()) {
-      const c = new ADNDCharacter();
+      const c = createAdndCharacter();
       c.race = human;
       c.strength = 18;
       c.dexterity = 18;

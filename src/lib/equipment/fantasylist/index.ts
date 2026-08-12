@@ -1,4 +1,4 @@
-import { EquipmentList } from '../list.js';
+import type { EquipmentList } from '../list.js';
 import { adventuringGearList } from './adventuring_gear.js';
 import { ammunitionList } from './ammunition.js';
 import { armorList } from './armor.js';
@@ -27,7 +27,7 @@ export function all(): EquipmentList[] {
   return [
     foodList,
     drinksList,
-    new EquipmentList('Clothing', getClothingItems()),
+    { title: 'Clothing', items: getClothingItems() },
     weaponsList,
     ammunitionList,
     armorList,

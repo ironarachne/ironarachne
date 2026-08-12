@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import ADNDCharacter from './adndcharacter.js';
+import { createAdndCharacter } from './adndcharacter.js';
 import {
   appendThiefSkillAbilityLines,
   getThiefSkillPointPool,
@@ -42,7 +42,7 @@ describe('thiefSkillBonusesAreValid', () => {
 
 describe('appendThiefSkillAbilityLines', () => {
   it('adds one ability line per bard skill', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.race = human;
     c.dexterity = 13;
     c.abilities = [];
@@ -60,7 +60,7 @@ describe('appendThiefSkillAbilityLines', () => {
 
 describe('prepareThiefSkillRowsForCharacter', () => {
   it('applies dexterity to thief bases', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.race = human;
     c.dexterity = 18;
     const rows = prepareThiefSkillRowsForCharacter('thief', c);

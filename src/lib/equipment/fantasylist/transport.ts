@@ -1,23 +1,26 @@
-import { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentList } from '../list.js';
 
-export const transportList = new EquipmentList('Transport and Tack', [
-  new EquipmentItem('cart, hand', 120),
-  new EquipmentItem('cart, ox', 480),
-  new EquipmentItem('wagon, farm', 960),
-  new EquipmentItem('wagon, merchant', 2400),
-  new EquipmentItem('saddle, riding', 600),
-  new EquipmentItem('saddle, pack', 240),
-  new EquipmentItem('saddle, war', 1200),
-  new EquipmentItem('bridle', 80),
-  new EquipmentItem('harness, horse', 160),
-  new EquipmentItem('horseshoes (4)', 40),
-  new EquipmentItem('stirrups', 60),
-  new EquipmentItem('saddlebags (pair)', 48),
-  new EquipmentItem('feed bag', 8),
-  new EquipmentItem('rowboat', 960),
-  new EquipmentItem('fishing boat', 4800),
-  new EquipmentItem('sailboat, small', 9600),
-  new EquipmentItem('oar', 24),
-  new EquipmentItem('anchor, small', 120),
-  new EquipmentItem('cart harness', 96),
-]);
+export const transportList: EquipmentList = {
+  title: 'Transport and Tack',
+  items: [
+    { name: 'cart, hand', cost: 120 },
+    { name: 'cart, ox', cost: 480 },
+    { name: 'wagon, farm', cost: 960 },
+    { name: 'wagon, merchant', cost: 2400 },
+    { name: 'saddle, riding', cost: 600 },
+    { name: 'saddle, pack', cost: 240 },
+    { name: 'saddle, war', cost: 1200 },
+    { name: 'bridle', cost: 80 },
+    { name: 'harness, horse', cost: 160 },
+    { name: 'horseshoes (4)', cost: 40 },
+    { name: 'stirrups', cost: 60 },
+    { name: 'saddlebags (pair)', cost: 48 },
+    { name: 'feed bag', cost: 8 },
+    { name: 'rowboat', cost: 960 },
+    { name: 'fishing boat', cost: 4800 },
+    { name: 'sailboat, small', cost: 9600 },
+    { name: 'oar', cost: 24 },
+    { name: 'anchor, small', cost: 120 },
+    { name: 'cart harness', cost: 96 },
+  ],
+};

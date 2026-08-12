@@ -1,11 +1,14 @@
-import { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentList } from '../list.js';
 
-export const mountsList = new EquipmentList('Mounts', [
-  new EquipmentItem('donkey', 120),
-  new EquipmentItem('pony', 360),
-  new EquipmentItem('mule', 480),
-  new EquipmentItem('draught horse', 480),
-  new EquipmentItem('riding horse', 2400),
-  new EquipmentItem('war horse', 19200),
-  new EquipmentItem('war dog, trained', 480),
-]);
+export const mountsList: EquipmentList = {
+  title: 'Mounts',
+  items: [
+    { name: 'donkey', cost: 120 },
+    { name: 'pony', cost: 360 },
+    { name: 'mule', cost: 480 },
+    { name: 'draught horse', cost: 480 },
+    { name: 'riding horse', cost: 2400 },
+    { name: 'war horse', cost: 19200 },
+    { name: 'war dog, trained', cost: 480 },
+  ],
+};

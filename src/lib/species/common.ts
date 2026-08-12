@@ -7,6 +7,7 @@ import type PhysicalTraitGeneratorConfig from '$lib/physical_traits/physical_tra
 import * as PhysicalTraits from '$lib/physical_traits/physical_traits.js';
 import type { SizeMatrix } from '$lib/size/size_matrix.js';
 import all from './all.js';
+import type { SpeciesFilter } from './filter.js';
 import { allMutators } from './mutators.js';
 import type Species from './species.js';
 import { applyTagFilter } from '$lib/tags/index.js';
@@ -136,6 +137,32 @@ export function byAllTags(tags: string[], options: Species[]): Species[] {
 
 export function byAnyTag(tags: string[], options: Species[]): Species[] {
   return applyTagFilter(options, { includeSomeTags: tags });
+}
+
+export function applySpeciesFilter(filter: SpeciesFilter, options: Species[]): Species[] {
+  let result = options;
+
+  if (filter.withAllTags.length > 0) {
+    result = byAllTags(filter.withAllTags, result);
+  }
+
+  if (filter.withAnyTag.length > 0) {
+    result = byAnyTag(filter.withAnyTag, result);
+  }
+
+  if (filter.withCreatureType !== '') {
+    result = byCreatureType(filter.withCreatureType, result);
+  }
+
+  if (filter.withEnvironment !== '') {
+    result = byEnvironment(filter.withEnvironment, result);
+  }
+
+  if (filter.withNoTags.length > 0) {
+    result = result.filter((s) => !filter.withNoTags.some((tag) => s.tags.includes(tag)));
+  }
+
+  return result;
 }
 
 export function byName(name: string, options: Species[]): Species {

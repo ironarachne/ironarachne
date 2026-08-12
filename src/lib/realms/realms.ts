@@ -4,11 +4,20 @@ import { generateHeraldry } from '$lib/heraldry/generator.js';
 import * as Names from '$lib/names/index.js';
 import * as RNG from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
+import type Claim from './claim.js';
 import type Realm from './realm.js';
 import type RealmGeneratorConfig from './realm_generator_config.js';
 import type RealmType from './realm_type.js';
 import * as RealmTypes from './realm_types.js';
 import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+
+export function createClaim(): Claim {
+  return {
+    claimantName: '',
+    claimantId: 0,
+    status: 'unpressed',
+  };
+}
 
 export function generate(config: RealmGeneratorConfig): Realm {
   const realmType = config.rng.weighted(

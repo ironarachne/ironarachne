@@ -1,76 +1,57 @@
 import { expect, describe, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import WeaponGenerator from './generator';
-import WeaponGeneratorConfig from './config';
+import { describe as describeWeapon, generate } from './generator';
+import { getDefaultConfig, type WeaponGeneratorConfig } from './config';
 import * as SciFiWeaponTypes from './scifi';
 import type { WeaponType } from './weapons';
 
-function generatorFor(weaponTypes: WeaponType[], seed: string): WeaponGenerator {
-  const rng = new RNG(seed);
-  const generator = new WeaponGenerator(rng);
-  const config = new WeaponGeneratorConfig(rng);
+function configFor(weaponTypes: WeaponType[], seed: string): WeaponGeneratorConfig {
+  const config = getDefaultConfig(new RNG(seed));
   config.weaponTypes = weaponTypes;
-  generator.config = config;
-  return generator;
+  return config;
 }
 
 const energyRifle = SciFiWeaponTypes.all[0];
 
-describe('WeaponGeneratorConfig', () => {
+describe('getDefaultConfig', () => {
   it('starts with no weapon types', () => {
-    expect(new WeaponGeneratorConfig(new RNG('a')).weaponTypes).toEqual([]);
+    expect(getDefaultConfig(new RNG('a')).weaponTypes).toEqual([]);
   });
 
   it('keeps the RNG it was given', () => {
     const rng = new RNG('a');
 
-    expect(new WeaponGeneratorConfig(rng).rng).toBe(rng);
+    expect(getDefaultConfig(rng).rng).toBe(rng);
   });
 });
 
-describe('WeaponGenerator', () => {
-  it('keeps the RNG it was given', () => {
-    const rng = new RNG('a');
-
-    expect(new WeaponGenerator(rng).rng).toBe(rng);
-  });
-
-  it('starts with an empty config', () => {
-    expect(new WeaponGenerator(new RNG('a')).config.weaponTypes).toEqual([]);
-  });
-
-  it('seeds itself from the clock when given no RNG', () => {
-    expect(new WeaponGenerator().rng).toBeInstanceOf(RNG);
-  });
-});
-
-describe('WeaponGenerator.generate', () => {
+describe('generate', () => {
   it('is deterministic for a given seed', () => {
-    expect(generatorFor([energyRifle], 'gun').generate()).toEqual(
-      generatorFor([energyRifle], 'gun').generate(),
+    expect(generate(configFor([energyRifle], 'gun'))).toEqual(
+      generate(configFor([energyRifle], 'gun')),
     );
   });
 
   it('names the weapon with a model number and the weapon type', () => {
-    const weapon = generatorFor([energyRifle], 'named').generate();
+    const weapon = generate(configFor([energyRifle], 'named'));
 
     expect(weapon.name.endsWith(` ${energyRifle.name}`)).toBe(true);
     expect(weapon.name.length).toBeGreaterThan(energyRifle.name.length + 1);
   });
 
   it('takes its damage type from the weapon type', () => {
-    expect(generatorFor([energyRifle], 'damage').generate().damage).toBe(energyRifle.damageType);
+    expect(generate(configFor([energyRifle], 'damage')).damage).toBe(energyRifle.damageType);
   });
 
   it('leaves the maker unset, for the caller to fill in', () => {
-    expect(generatorFor([energyRifle], 'maker').generate().maker).toBe('');
+    expect(generate(configFor([energyRifle], 'maker')).maker).toBe('');
   });
 
   it('gives between one and three cosmetics, all drawn from the weapon type', () => {
     const allCosmetics = energyRifle.cosmetics.flatMap((component) => component.options);
 
     for (let index = 0; index < 20; index++) {
-      const weapon = generatorFor([energyRifle], `cosmetic-${index}`).generate();
+      const weapon = generate(configFor([energyRifle], `cosmetic-${index}`));
 
       expect(weapon.cosmetics.length).toBeGreaterThanOrEqual(1);
       expect(weapon.cosmetics.length).toBeLessThanOrEqual(3);
@@ -82,7 +63,7 @@ describe('WeaponGenerator.generate', () => {
     const allEffects = energyRifle.effects.flatMap((component) => component.options);
 
     for (let index = 0; index < 20; index++) {
-      const weapon = generatorFor([energyRifle], `effect-${index}`).generate();
+      const weapon = generate(configFor([energyRifle], `effect-${index}`));
 
       expect(weapon.effects.length).toBeGreaterThanOrEqual(1);
       expect(weapon.effects.length).toBeLessThanOrEqual(3);
@@ -91,7 +72,7 @@ describe('WeaponGenerator.generate', () => {
   });
 
   it('describes the weapon using its own effects and cosmetics', () => {
-    const weapon = generatorFor([energyRifle], 'describe').generate();
+    const weapon = generate(configFor([energyRifle], 'describe'));
 
     for (const effect of weapon.effects) {
       expect(weapon.description).toContain(effect);
@@ -102,20 +83,20 @@ describe('WeaponGenerator.generate', () => {
   });
 
   it('opens the description with one of the weapon type bases', () => {
-    const weapon = generatorFor([energyRifle], 'base').generate();
+    const weapon = generate(configFor([energyRifle], 'base'));
 
     expect(energyRifle.bases.some((base) => weapon.description.startsWith(base))).toBe(true);
   });
 
   it('ends the description with a full stop', () => {
-    expect(generatorFor([energyRifle], 'stop').generate().description).toMatch(/\.$/);
+    expect(generate(configFor([energyRifle], 'stop')).description).toMatch(/\.$/);
   });
 
   it('produces different weapons for different seeds', () => {
     const names = new Set(
       Array.from(
         { length: 10 },
-        (_, index) => generatorFor([energyRifle], `vary-${index}`).generate().name,
+        (_, index) => generate(configFor([energyRifle], `vary-${index}`)).name,
       ),
     );
 
@@ -125,7 +106,7 @@ describe('WeaponGenerator.generate', () => {
   it('picks from every configured weapon type across seeds', () => {
     const chosen = new Set(
       Array.from({ length: 60 }, (_, index) => {
-        const weapon = generatorFor(SciFiWeaponTypes.all, `pick-${index}`).generate();
+        const weapon = generate(configFor(SciFiWeaponTypes.all, `pick-${index}`));
         return SciFiWeaponTypes.all.find((type) => weapon.name.endsWith(type.name))?.name;
       }),
     );
@@ -136,7 +117,7 @@ describe('WeaponGenerator.generate', () => {
 
   it('generates a valid weapon for every sci-fi weapon type', () => {
     for (const weaponType of SciFiWeaponTypes.all) {
-      const weapon = generatorFor([weaponType], `each-${weaponType.name}`).generate();
+      const weapon = generate(configFor([weaponType], `each-${weaponType.name}`));
 
       expect(weapon.name).toContain(weaponType.name);
       expect(weapon.damage).toBe(weaponType.damageType);
@@ -145,9 +126,9 @@ describe('WeaponGenerator.generate', () => {
   });
 });
 
-describe('WeaponGenerator.describe', () => {
+describe('describe', () => {
   it('joins effects and cosmetics into one sentence', () => {
-    const generator = generatorFor([energyRifle], 'desc');
+    const config = configFor([energyRifle], 'desc');
     const weapon = {
       name: 'X-1 energy rifle',
       maker: '',
@@ -157,7 +138,7 @@ describe('WeaponGenerator.describe', () => {
       description: '',
     };
 
-    const description = generator.describe(weapon, energyRifle);
+    const description = describeWeapon(weapon, energyRifle, config.rng);
 
     expect(description).toContain('fires green bolts and has a short barrel.');
   });

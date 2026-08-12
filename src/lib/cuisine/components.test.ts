@@ -1,9 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import * as Components from './components';
-import FoodComponent from './component';
-import Cuisine from './cuisine';
-import CuisineGeneratorConfig from './generatorconfig';
-import CuisineGenerator from './generator';
+import { generate } from './generator';
+import { getDefaultConfig } from './generatorconfig';
 
 const CATEGORY_GROUPS = [
   ['spices', Components.spices, 'spice'],
@@ -13,18 +11,6 @@ const CATEGORY_GROUPS = [
   ['seafood', Components.seafood, 'seafood'],
   ['fruits', Components.fruits, 'fruit'],
 ] as const;
-
-describe('FoodComponent', () => {
-  it('stores everything it was constructed with', () => {
-    const component = new FoodComponent('leek', ['savory'], ['crisp'], ['green'], 'vegetable');
-
-    expect(component.name).toBe('leek');
-    expect(component.flavors).toEqual(['savory']);
-    expect(component.textures).toEqual(['crisp']);
-    expect(component.colors).toEqual(['green']);
-    expect(component.category).toBe('vegetable');
-  });
-});
 
 describe('Components.all', () => {
   it('is the concatenation of every category group', () => {
@@ -81,9 +67,28 @@ describe.each(CATEGORY_GROUPS)('Components.%s', (_name, group, category) => {
   });
 });
 
-describe('Cuisine', () => {
-  it('starts with every list empty', () => {
-    const cuisine = new Cuisine();
+describe('getDefaultConfig', () => {
+  it('starts with every option list empty', () => {
+    const config = getDefaultConfig();
+
+    expect(config.possibleSeasonings).toEqual([]);
+    expect(config.possibleComplements).toEqual([]);
+    expect(config.possibleMainComponents).toEqual([]);
+    expect(config.possibleCookingMethods).toEqual([]);
+    expect(config.possibleDrinks).toEqual([]);
+  });
+
+  it('gives each config its own lists', () => {
+    getDefaultConfig().possibleDrinks.push('ale');
+
+    expect(getDefaultConfig().possibleDrinks).toEqual([]);
+  });
+});
+
+describe('generate', () => {
+  // The generator body is still a TODO; it returns a blank cuisine for now.
+  it('returns a cuisine with every list empty', () => {
+    const cuisine = generate(getDefaultConfig());
 
     expect(cuisine.commonDishes).toEqual([]);
     expect(cuisine.commonSeasonings).toEqual([]);
@@ -93,35 +98,9 @@ describe('Cuisine', () => {
     expect(cuisine.commonDrinks).toEqual([]);
   });
 
-  it('gives each instance its own lists', () => {
-    const first = new Cuisine();
-    first.commonDishes.push('stew');
+  it('gives each cuisine its own lists', () => {
+    generate(getDefaultConfig()).commonDishes.push('stew');
 
-    expect(new Cuisine().commonDishes).toEqual([]);
-  });
-});
-
-describe('CuisineGeneratorConfig', () => {
-  it('starts with every option list empty', () => {
-    const config = new CuisineGeneratorConfig();
-
-    expect(config.possibleSeasonings).toEqual([]);
-    expect(config.possibleComplements).toEqual([]);
-    expect(config.possibleMainComponents).toEqual([]);
-    expect(config.possibleCookingMethods).toEqual([]);
-    expect(config.possibleDrinks).toEqual([]);
-  });
-});
-
-describe('CuisineGenerator', () => {
-  it('keeps the config it was given', () => {
-    const config = new CuisineGeneratorConfig();
-
-    expect(new CuisineGenerator(config).config).toBe(config);
-  });
-
-  // The generator body is still a TODO; it returns a blank Cuisine for now.
-  it('returns an empty Cuisine', () => {
-    expect(new CuisineGenerator(new CuisineGeneratorConfig()).generate()).toEqual(new Cuisine());
+    expect(generate(getDefaultConfig()).commonDishes).toEqual([]);
   });
 });

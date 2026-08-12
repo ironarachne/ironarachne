@@ -1,6 +1,6 @@
 export type { default as Environment } from './environment';
 export type { default as EnvironmentGeneratorConfig } from './environment_generator_config';
-export { default as PrecipitationType } from './precipitationtype';
+export type { default as PrecipitationType } from './precipitationtype';
 export * from './environments';
 // Every sub-library exports `generate` and `getDefaultConfig`, and `precipitationtypes` exports an
 // `all` that `landforms` also has, so each is namespaced rather than starred — the way
