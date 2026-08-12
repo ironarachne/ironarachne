@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as RNG from '@ironarachne/rng';
-import { SWNStarship, formatAsText, generate } from './starship';
+import { createSwnStarship, formatAsText, generate } from './starship';
 
 const seeds = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
@@ -40,7 +40,6 @@ describe('generate', () => {
     for (const seed of seeds) {
       const ship = generate(new RNG.RNG(seed));
 
-      expect(ship).toBeInstanceOf(SWNStarship);
       expect(ship.name.length).toBeGreaterThan(0);
       expect(ship.className.length).toBeGreaterThan(0);
       expect(ship.manufacturer.length).toBeGreaterThan(0);
@@ -216,10 +215,10 @@ describe('generate', () => {
   });
 });
 
-describe('SWNStarship', () => {
+describe('createSwnStarship', () => {
   it('starts empty apart from its hull, owner and starter drive', () => {
     const ship = generate(new RNG.RNG('seed-a'));
-    const fresh = new SWNStarship(ship.ownerType, ship.hullType);
+    const fresh = createSwnStarship(ship.ownerType, ship.hullType);
 
     expect(fresh.name).toBe('');
     expect(fresh.className).toBe('');
