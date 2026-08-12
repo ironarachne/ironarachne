@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import * as RNG from '@ironarachne/rng';
-import { createSwnStarship, formatAsText, generate } from './starship';
+import {
+  createFitting,
+  createOwnerType,
+  createSwnStarship,
+  formatAsText,
+  generate,
+} from './starship';
 
 const seeds = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
@@ -10,8 +16,9 @@ function shipsFrom(count: number) {
 
 describe('generate', () => {
   // Compared through their serialised form rather than with toEqual, because OwnerType carries
-  // getRandomShipName/getRandomClassName as function properties built fresh on every call. Those
-  // closures never compare equal by identity, so toEqual would fail on two identical ships.
+  // getRandomShipName/getRandomClassName as function properties. They now come from the shared
+  // owner type table, so identity would in fact hold — but comparing what a ship serialises to is
+  // the property worth asserting, since that is what gets saved and rendered.
   it('is reproducible from a seed', () => {
     const first = generate(new RNG.RNG('seed-a'));
     const second = generate(new RNG.RNG('seed-a'));
@@ -292,5 +299,64 @@ describe('formatAsText', () => {
 
   it('is stable for a given ship', () => {
     expect(formatAsText(ship)).toBe(text);
+  });
+});
+
+// The ship tables are written as literals in the *_data.ts modules, so these constructors are
+// exercised only by callers building content of their own. They remain public API, so they are
+// tested directly rather than incidentally.
+describe('content constructors', () => {
+  it('builds a fitting from its table figures', () => {
+    const fitting = createFitting(
+      'Advanced lab',
+      'science',
+      10000,
+      true,
+      1,
+      true,
+      2,
+      false,
+      1,
+      3,
+      'Skill bonus for analysis and research',
+    );
+
+    expect(fitting).toEqual({
+      name: 'Advanced lab',
+      fittingType: 'science',
+      cost: 10000,
+      costExpands: true,
+      power: 1,
+      powerExpands: true,
+      mass: 2,
+      massExpands: false,
+      minimumClass: 1,
+      maximumClass: 3,
+      effect: 'Skill bonus for analysis and research',
+    });
+  });
+
+  it('builds an owner type whose naming closures are called with the rng', () => {
+    const ownerType = createOwnerType(
+      'courier',
+      false,
+      true,
+      ['shuttle'],
+      () => 'Swift-class',
+      () => 'Errand',
+      'cargo',
+      false,
+      ['cargo', 'fuel'],
+    );
+
+    expect(ownerType.name).toBe('courier');
+    expect(ownerType.isArmed).toBe(false);
+    expect(ownerType.systemOnly).toBe(true);
+    expect(ownerType.possibleHullTypes).toEqual(['shuttle']);
+    expect(ownerType.requiredFittingType).toBe('cargo');
+    expect(ownerType.fillWithCargo).toBe(false);
+    expect(ownerType.allowedFittingTypes).toEqual(['cargo', 'fuel']);
+    expect(ownerType.getRandomClassName(new RNG.RNG('x'))).toBe('Swift-class');
+    expect(ownerType.getRandomShipName(new RNG.RNG('x'))).toBe('Errand');
   });
 });

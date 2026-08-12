@@ -1,6 +1,7 @@
-import * as MUN from '@ironarachne/made-up-names';
 import * as RNG from '@ironarachne/rng';
 import * as Text from '$lib/format';
+import { OWNER_TYPES } from './starship_owner_type_data';
+import { STARSHIP_FITTINGS } from './starship_fitting_data';
 
 export type SWNStarship = {
   name: string;
@@ -40,6 +41,349 @@ export function createSwnStarship(ownerType: OwnerType, hullType: HullType): SWN
   };
 }
 
+/**
+ * What a hull has left to spend. Every fitting phase draws the same three pools down, so they
+ * are threaded through the build as one mutable record rather than as three separate counters.
+ */
+type ShipBudget = {
+  mass: number;
+  power: number;
+  hardpoints: number;
+};
+
+/**
+ * How much a bigger hull multiplies a fitting's table figures by. Only the figures whose
+ * matching `*Expands` flag is set scale; the rest are flat whatever the hull.
+ */
+type ClassMultipliers = {
+  cost: number;
+  mass: number;
+  power: number;
+};
+
+function hullClassMultipliers(hullClass: number): ClassMultipliers {
+  if (hullClass === 1) {
+    return { cost: 10, mass: 2, power: 2 };
+  }
+
+  if (hullClass === 2) {
+    return { cost: 25, mass: 3, power: 3 };
+  }
+
+  if (hullClass === 3) {
+    return { cost: 100, mass: 4, power: 4 };
+  }
+
+  return { cost: 1, mass: 1, power: 1 };
+}
+
+/** The subset of a fitting the multipliers act on; every fitting table row satisfies it. */
+type ExpandableFitting = {
+  cost: number;
+  costExpands: boolean;
+  mass: number;
+  massExpands: boolean;
+  power: number;
+  powerExpands: boolean;
+};
+
+/** A fitting's cost, mass, and power once the hull's multipliers have been applied. */
+function expandedCosts(fitting: ExpandableFitting, multipliers: ClassMultipliers) {
+  return {
+    cost: fitting.costExpands ? fitting.cost * multipliers.cost : fitting.cost,
+    mass: fitting.massExpands ? fitting.mass * multipliers.mass : fitting.mass,
+    power: fitting.powerExpands ? fitting.power * multipliers.power : fitting.power,
+  };
+}
+
+/**
+ * A system-only owner trades its spike drive for a small system drive, which is cheaper and
+ * frees up the power and mass the spike drive would have taken.
+ */
+function installSystemDrive(
+  starship: SWNStarship,
+  budget: ShipBudget,
+  multipliers: ClassMultipliers,
+): void {
+  const systemDrive = createDriveFitting(
+    'System Drive',
+    0,
+    0,
+    0,
+    0,
+    3,
+    'Replace spike drive with small system drive',
+  );
+
+  starship.hullType.cost = Math.floor(starship.hullType.cost * 0.9);
+
+  starship.hullType.power += multipliers.power;
+  starship.hullType.mass += multipliers.power * 2;
+  starship.drive = systemDrive;
+
+  budget.mass = starship.hullType.mass;
+  budget.power = starship.hullType.power;
+}
+
+/**
+ * Most ships keep their stock drive; roughly three in ten shop for a better one they can afford.
+ *
+ * The expanded costs are carried alongside the drive rather than recomputed after it is
+ * chosen. They used to be worked out twice and differently: the affordability check applied each
+ * multiplier only when the drive's matching `*Expands` flag was set, while the subtraction
+ * applied all three unconditionally. A drive that does not expand was therefore checked at its
+ * table cost and charged at the hull's multiple of it, which is a second way for a ship to spend
+ * more than its hull has — one the measurements in #106 attributed to the required fitting.
+ */
+function installDriveUpgrade(
+  starship: SWNStarship,
+  budget: ShipBudget,
+  multipliers: ClassMultipliers,
+  rng: RNG.RNG,
+): void {
+  const chanceOfDriveUpgrade = rng.int(1, 100);
+
+  if (chanceOfDriveUpgrade <= 70) {
+    return;
+  }
+
+  const drives = allDriveFittings()
+    .map((drive) => ({ drive, ...expandedCosts(drive, multipliers) }))
+    .filter(
+      (option) =>
+        option.drive.minimumClass <= starship.hullType.hullClass &&
+        option.drive.maximumClass >= starship.hullType.hullClass &&
+        option.power <= budget.power &&
+        option.mass <= budget.mass,
+    );
+
+  if (drives.length === 0) {
+    return;
+  }
+
+  const driveUpgrade = rng.item(drives);
+
+  starship.fittings.push(driveUpgrade.drive);
+  starship.drive = driveUpgrade.drive;
+
+  budget.mass -= driveUpgrade.mass;
+  budget.power -= driveUpgrade.power;
+  starship.totalCost += driveUpgrade.cost;
+}
+
+function installDrive(
+  starship: SWNStarship,
+  budget: ShipBudget,
+  multipliers: ClassMultipliers,
+  rng: RNG.RNG,
+): void {
+  if (starship.ownerType.systemOnly) {
+    installSystemDrive(starship, budget, multipliers);
+  } else {
+    installDriveUpgrade(starship, budget, multipliers, rng);
+  }
+}
+
+function affordableWeapons(starship: SWNStarship, budget: ShipBudget, weapons: Weapon[]): Weapon[] {
+  return weapons.filter(
+    (weapon) =>
+      weapon.mass <= budget.mass &&
+      weapon.power <= budget.power &&
+      weapon.hardPoints <= budget.hardpoints &&
+      weapon.hullClass <= starship.hullType.hullClass,
+  );
+}
+
+function installWeapons(
+  starship: SWNStarship,
+  budget: ShipBudget,
+  multipliers: ClassMultipliers,
+  rng: RNG.RNG,
+): void {
+  let possibleWeapons = affordableWeapons(starship, budget, allWeapons());
+
+  const numberOfWeapons = rng.int(1, 2);
+
+  for (let i = 0; i < numberOfWeapons; i++) {
+    // The filter above can match nothing at all: a class 0 hull that spent its mass and power
+    // on a drive upgrade has no budget left for any weapon in the table. rng.item of an empty
+    // list is undefined, which threw on the next property access and aborted generation.
+    if (possibleWeapons.length === 0) {
+      break;
+    }
+
+    const newWeapon = rng.item(possibleWeapons);
+    const costs = expandedCosts(newWeapon, multipliers);
+
+    if (
+      costs.mass <= budget.mass &&
+      costs.power <= budget.power &&
+      newWeapon.hardPoints <= budget.hardpoints &&
+      newWeapon.hullClass <= starship.hullType.hullClass
+    ) {
+      starship.weapons.push(newWeapon);
+      budget.mass -= costs.mass;
+      budget.power -= costs.power;
+      budget.hardpoints -= newWeapon.hardPoints;
+      // Note that a weapon's cost never reaches `starship.totalCost`: the drive, defenses, and
+      // fittings all add theirs, and weapons alone do not. That is long-standing behaviour and
+      // is preserved here rather than changed as part of a refactor, but it looks like an
+      // oversight — an armed ship is priced as though its guns were free.
+    }
+
+    possibleWeapons = removeFittingFromList(newWeapon, possibleWeapons);
+  }
+}
+
+function installDefenses(
+  starship: SWNStarship,
+  budget: ShipBudget,
+  multipliers: ClassMultipliers,
+  rng: RNG.RNG,
+): void {
+  let possibleDefenses = allDefenses().filter(
+    (defense) => defense.hullClass <= starship.hullType.hullClass,
+  );
+
+  const numberOfDefenses = rng.int(0, 2);
+
+  for (let i = 0; i < numberOfDefenses; i++) {
+    const newDefense = rng.item(possibleDefenses) as DefenseFitting;
+    const costs = expandedCosts(newDefense, multipliers);
+
+    if (costs.mass <= budget.mass && costs.power <= budget.power) {
+      starship.defenses.push(newDefense);
+      budget.mass -= costs.mass;
+      budget.power -= costs.power;
+      starship.totalCost += costs.cost;
+    }
+
+    possibleDefenses = removeFittingFromList(newDefense, possibleDefenses);
+  }
+}
+
+/**
+ * The fitting an owner is defined by — cargo holds for a merchant, weapons for a patrol boat.
+ *
+ * The required fitting used to be fitted whatever it cost — the one place in this build that
+ * spent the budget without checking it first. A mandated fitting on a small hull could push the
+ * ship past its own mass or power, which the sheet then reported as using more than the hull
+ * provides. Choosing among the options that fit keeps the fitting required wherever the hull can
+ * pay for it; when none fits, the ship goes without rather than overloading.
+ *
+ * The costs are expanded before the filter rather than after, because the hull class multipliers
+ * are what decide affordability: an expanding fitting is cheap in the table and not on a frigate.
+ *
+ * Returns the remaining options with the chosen fitting removed.
+ */
+function installRequiredFitting(
+  starship: SWNStarship,
+  budget: ShipBudget,
+  multipliers: ClassMultipliers,
+  fittingOptions: Fitting[],
+  rng: RNG.RNG,
+): Fitting[] {
+  const requiredFittingOptions = filterFittingsByHullClass(
+    getFittingsByType(starship.ownerType.requiredFittingType),
+    starship.hullType.hullClass,
+  );
+
+  const affordableRequiredFittings = requiredFittingOptions
+    .map((fitting) => ({ fitting, ...expandedCosts(fitting, multipliers) }))
+    .filter((option) => option.mass <= budget.mass && option.power <= budget.power);
+
+  if (affordableRequiredFittings.length === 0) {
+    return fittingOptions;
+  }
+
+  const required = rng.item(affordableRequiredFittings);
+
+  starship.fittings.push(fittedCopy(required.fitting));
+  budget.mass -= required.mass;
+  budget.power -= required.power;
+  starship.totalCost += required.cost;
+
+  return removeFittingFromList(required.fitting, fittingOptions);
+}
+
+function installOptionalFittings(
+  starship: SWNStarship,
+  budget: ShipBudget,
+  multipliers: ClassMultipliers,
+  fittingOptions: Fitting[],
+  rng: RNG.RNG,
+): void {
+  let options = fittingOptions;
+
+  const maxNumberOfFittings = rng.int(1, 3);
+
+  for (let i = 0; i < maxNumberOfFittings; i++) {
+    const newFitting = rng.item(options);
+    const costs = expandedCosts(newFitting, multipliers);
+
+    if (costs.mass <= budget.mass && costs.power <= budget.power) {
+      starship.fittings.push(fittedCopy(newFitting));
+      budget.mass -= costs.mass;
+      budget.power -= costs.power;
+      starship.totalCost += costs.cost;
+    }
+
+    options = removeFittingFromList(newFitting, options);
+  }
+}
+
+/** How many tons one unit of cargo mass is worth on a hull of this class. */
+function tonsPerCargoUnit(hullClass: number): number {
+  if (hullClass === 1) {
+    return 20;
+  }
+
+  if (hullClass === 2) {
+    return 200;
+  }
+
+  if (hullClass === 3) {
+    return 2000;
+  }
+
+  return 2;
+}
+
+/**
+ * An owner that hauls freight turns whatever mass is left into cargo space.
+ *
+ * Cargo is bought a whole mass unit at a time, and the budget left over need not be whole:
+ * fittings that expand by half a unit are common on the larger hulls. Both spends below used
+ * to ignore that — the first took a unit whenever anything at all remained, and the loop ran
+ * `i < 3.5` for four iterations — so a ship with half a unit spare ended half a unit over.
+ */
+function fillRemainingMassWithCargo(starship: SWNStarship, budget: ShipBudget): number {
+  if (!starship.ownerType.fillWithCargo || budget.mass <= 0) {
+    return 0;
+  }
+
+  const tonsMultiplier = tonsPerCargoUnit(starship.hullType.hullClass);
+  const alreadyHasCargo = starship.fittings.some((fitting) => fitting.name === 'Cargo space');
+
+  let tonsOfCargo = alreadyHasCargo ? tonsMultiplier : 0;
+
+  if (!alreadyHasCargo && budget.mass >= 1) {
+    starship.fittings.push(
+      createCargoFitting('Cargo space', 0, 0, 1, 0, 3, 'Pressurized cargo space'),
+    );
+    budget.mass--;
+  }
+
+  const numberOfCargoFittings = Math.floor(budget.mass);
+
+  for (let i = 0; i < numberOfCargoFittings; i++) {
+    tonsOfCargo += tonsMultiplier;
+    budget.mass--;
+  }
+
+  return tonsOfCargo;
+}
+
 export function generate(rng: RNG.RNG): SWNStarship {
   const ownerType = randomStarshipOwnerType(rng);
   const hullType = randomHullType(ownerType, rng);
@@ -50,320 +394,44 @@ export function generate(rng: RNG.RNG): SWNStarship {
   starship.manufacturer = randomManufacturerName(rng);
   starship.currentCrew = rng.int(starship.hullType.crewMinimum, starship.hullType.crewMaximum);
 
-  let massBudget = starship.hullType.mass;
-  let powerBudget = starship.hullType.power;
-  let hardpointBudget = starship.hullType.hardPoints;
+  const budget: ShipBudget = {
+    mass: starship.hullType.mass,
+    power: starship.hullType.power,
+    hardpoints: starship.hullType.hardPoints,
+  };
 
-  let costMultiplier = 1;
-  let massMultiplier = 1;
-  let powerMultiplier = 1;
+  const multipliers = hullClassMultipliers(starship.hullType.hullClass);
 
+  // Read before the system drive discount below, which lowers the hull cost but not the total.
   starship.totalCost = starship.hullType.cost;
 
-  if (starship.hullType.hullClass === 1) {
-    costMultiplier = 10;
-    powerMultiplier = 2;
-    massMultiplier = 2;
-  } else if (starship.hullType.hullClass === 2) {
-    costMultiplier = 25;
-    powerMultiplier = 3;
-    massMultiplier = 3;
-  } else if (starship.hullType.hullClass === 3) {
-    costMultiplier = 100;
-    powerMultiplier = 4;
-    massMultiplier = 4;
-  }
-
-  if (starship.ownerType.systemOnly) {
-    const systemDrive = createDriveFitting(
-      'System Drive',
-      0,
-      0,
-      0,
-      0,
-      3,
-      'Replace spike drive with small system drive',
-    );
-
-    starship.hullType.cost = Math.floor(starship.hullType.cost * 0.9);
-
-    starship.hullType.power += powerMultiplier;
-    starship.hullType.mass += powerMultiplier * 2;
-    starship.drive = systemDrive;
-
-    massBudget = starship.hullType.mass;
-    powerBudget = starship.hullType.power;
-  } else {
-    const chanceOfDriveUpgrade = rng.int(1, 100);
-
-    if (chanceOfDriveUpgrade > 70) {
-      const allDrives = allDriveFittings();
-
-      // The expanded costs are carried alongside the drive rather than recomputed after it is
-      // chosen. They used to be worked out twice and differently: the affordability check above
-      // applied each multiplier only when the drive's matching `*Expands` flag was set, while the
-      // subtraction below applied all three unconditionally. A drive that does not expand was
-      // therefore checked at its table cost and charged at the hull's multiple of it, which is a
-      // second way for a ship to spend more than its hull has — one the measurements in #106
-      // attributed to the required fitting.
-      const drives = allDrives
-        .map((drive) => ({
-          drive,
-          cost: drive.costExpands ? drive.cost * costMultiplier : drive.cost,
-          mass: drive.massExpands ? drive.mass * massMultiplier : drive.mass,
-          power: drive.powerExpands ? drive.power * powerMultiplier : drive.power,
-        }))
-        .filter(
-          (option) =>
-            option.drive.minimumClass <= starship.hullType.hullClass &&
-            option.drive.maximumClass >= starship.hullType.hullClass &&
-            option.power <= powerBudget &&
-            option.mass <= massBudget,
-        );
-
-      if (drives.length > 0) {
-        const driveUpgrade = rng.item(drives);
-
-        starship.fittings.push(driveUpgrade.drive);
-        starship.drive = driveUpgrade.drive;
-
-        massBudget -= driveUpgrade.mass;
-        powerBudget -= driveUpgrade.power;
-        starship.totalCost += driveUpgrade.cost;
-      }
-    }
-  }
+  installDrive(starship, budget, multipliers, rng);
 
   if (starship.ownerType.isArmed) {
-    const weaponList = allWeapons();
-    let possibleWeapons: Weapon[] = [];
-    for (let i = 0; i < weaponList.length; i++) {
-      const weaponMassCost = weaponList[i].mass;
-      const weaponPowerCost = weaponList[i].power;
-      const weaponHardpoints = weaponList[i].hardPoints;
-
-      if (
-        weaponMassCost <= massBudget &&
-        weaponPowerCost <= powerBudget &&
-        weaponHardpoints <= hardpointBudget &&
-        weaponList[i].hullClass <= starship.hullType.hullClass
-      ) {
-        possibleWeapons.push(weaponList[i]);
-      }
-    }
-
-    const numberOfWeapons = rng.int(1, 2);
-    for (let i = 0; i < numberOfWeapons; i++) {
-      // The filter above can match nothing at all: a class 0 hull that spent its mass and power
-      // on a drive upgrade has no budget left for any weapon in the table. rng.item of an empty
-      // list is undefined, which threw on the next property access and aborted generation.
-      if (possibleWeapons.length === 0) {
-        break;
-      }
-
-      const newWeapon = rng.item(possibleWeapons);
-
-      let weaponCost = newWeapon.cost;
-      let weaponMassCost = newWeapon.mass;
-      let weaponPowerCost = newWeapon.power;
-      const weaponHardpoints = newWeapon.hardPoints;
-
-      if (newWeapon.massExpands) {
-        weaponMassCost = weaponMassCost * massMultiplier;
-      }
-
-      if (newWeapon.powerExpands) {
-        weaponPowerCost = weaponPowerCost * powerMultiplier;
-      }
-
-      if (newWeapon.costExpands) {
-        weaponCost = weaponCost * costMultiplier;
-      }
-
-      if (
-        weaponMassCost <= massBudget &&
-        weaponPowerCost <= powerBudget &&
-        weaponHardpoints <= hardpointBudget &&
-        newWeapon.hullClass <= starship.hullType.hullClass
-      ) {
-        starship.weapons.push(newWeapon);
-        massBudget -= weaponMassCost;
-        powerBudget -= weaponPowerCost;
-        hardpointBudget -= weaponHardpoints;
-      }
-
-      possibleWeapons = removeWeaponFittingFromList(newWeapon, possibleWeapons);
-    }
-
-    // Begin addition of defenses
-
-    const defenseList = allDefenses();
-    let possibleDefenses = [];
-
-    for (let i = 0; i < defenseList.length; i++) {
-      if (defenseList[i].hullClass <= starship.hullType.hullClass) {
-        possibleDefenses.push(defenseList[i]);
-      }
-    }
-
-    const numberOfDefenses = rng.int(0, 2);
-
-    for (let i = 0; i < numberOfDefenses; i++) {
-      const newDefense = rng.item(possibleDefenses) as DefenseFitting;
-
-      let defenseCost = newDefense.cost;
-      let defenseMassCost = newDefense.mass;
-      let defensePowerCost = newDefense.power;
-
-      if (newDefense.massExpands) {
-        defenseMassCost = defenseMassCost * massMultiplier;
-      }
-
-      if (newDefense.powerExpands) {
-        defensePowerCost = defensePowerCost * powerMultiplier;
-      }
-
-      if (newDefense.costExpands) {
-        defenseCost = defenseCost * costMultiplier;
-      }
-
-      if (defenseMassCost <= massBudget && defensePowerCost <= powerBudget) {
-        starship.defenses.push(newDefense);
-        massBudget -= defenseMassCost;
-        powerBudget -= defensePowerCost;
-        starship.totalCost += defenseCost;
-      }
-
-      possibleDefenses = removeFittingFromList(newDefense, possibleDefenses);
-    }
+    installWeapons(starship, budget, multipliers, rng);
+    installDefenses(starship, budget, multipliers, rng);
   }
 
-  const possibleFittings = getAllAppropriateFittings(starship.ownerType.allowedFittingTypes);
-  let fittingOptions = filterFittingsByHullClass(possibleFittings, starship.hullType.hullClass);
-
-  // Begin addition of required fitting
-
-  let requiredFittingOptions = getFittingsByType(starship.ownerType.requiredFittingType);
-  requiredFittingOptions = filterFittingsByHullClass(
-    requiredFittingOptions,
+  const fittingOptions = filterFittingsByHullClass(
+    getAllAppropriateFittings(starship.ownerType.allowedFittingTypes),
     starship.hullType.hullClass,
   );
 
-  // The required fitting used to be fitted whatever it cost — the one place in this function that
-  // spent the budget without checking it first. A mandated fitting on a small hull could push the
-  // ship past its own mass or power, which the sheet then reported as using more than the hull
-  // provides. Choosing among the options that fit keeps the fitting required wherever the hull can
-  // pay for it; when none fits, the ship goes without rather than overloading.
-  //
-  // The costs are expanded before the filter rather than after, because the hull class multipliers
-  // are what decide affordability: an expanding fitting is cheap in the table and not on a frigate.
-  const affordableRequiredFittings = requiredFittingOptions
-    .map((fitting) => ({
-      fitting,
-      cost: fitting.costExpands ? fitting.cost * costMultiplier : fitting.cost,
-      mass: fitting.massExpands ? fitting.mass * massMultiplier : fitting.mass,
-      power: fitting.powerExpands ? fitting.power * powerMultiplier : fitting.power,
-    }))
-    .filter((option) => option.mass <= massBudget && option.power <= powerBudget);
+  const remainingOptions = installRequiredFitting(
+    starship,
+    budget,
+    multipliers,
+    fittingOptions,
+    rng,
+  );
 
-  if (affordableRequiredFittings.length > 0) {
-    const required = rng.item(affordableRequiredFittings);
+  installOptionalFittings(starship, budget, multipliers, remainingOptions, rng);
 
-    starship.fittings.push(required.fitting);
-    massBudget -= required.mass;
-    powerBudget -= required.power;
-    starship.totalCost += required.cost;
+  starship.tonsOfCargo = fillRemainingMassWithCargo(starship, budget);
 
-    fittingOptions = removeFittingFromList(required.fitting, fittingOptions);
-  }
-
-  // Begin addition of fittings
-
-  const maxNumberOfFittings = rng.int(1, 3);
-
-  for (let i = 0; i < maxNumberOfFittings; i++) {
-    const newFitting = rng.item(fittingOptions);
-
-    let fittingCost = newFitting.cost;
-    let fittingMassCost = newFitting.mass;
-    let fittingPowerCost = newFitting.power;
-
-    if (newFitting.costExpands) {
-      fittingCost *= costMultiplier;
-    }
-
-    if (newFitting.massExpands) {
-      fittingMassCost *= massMultiplier;
-    }
-
-    if (newFitting.powerExpands) {
-      fittingPowerCost *= powerMultiplier;
-    }
-
-    if (fittingMassCost <= massBudget && fittingPowerCost <= powerBudget) {
-      starship.fittings.push(newFitting);
-      massBudget -= fittingMassCost;
-      powerBudget -= fittingPowerCost;
-      starship.totalCost += fittingCost;
-    }
-
-    fittingOptions = removeFittingFromList(newFitting, fittingOptions);
-  }
-
-  let tonsOfCargo = 0;
-
-  if (starship.ownerType.fillWithCargo && massBudget > 0) {
-    const cargoFitting = createCargoFitting(
-      'Cargo space',
-      0,
-      0,
-      1,
-      0,
-      3,
-      'Pressurized cargo space',
-    );
-
-    let foundCargo = false;
-
-    let tonsMultiplier = 2;
-
-    if (starship.hullType.hullClass === 1) {
-      tonsMultiplier = 20;
-    } else if (starship.hullType.hullClass === 2) {
-      tonsMultiplier = 200;
-    } else if (starship.hullType.hullClass === 3) {
-      tonsMultiplier = 2000;
-    }
-
-    for (let i = 0; i < starship.fittings.length; i++) {
-      if (starship.fittings[i].name === 'Cargo space') {
-        foundCargo = true;
-        tonsOfCargo = tonsMultiplier;
-      }
-    }
-
-    // Cargo is bought a whole mass unit at a time, and the budget left over need not be whole:
-    // fittings that expand by half a unit are common on the larger hulls. Both spends below used
-    // to ignore that — the first took a unit whenever anything at all remained, and the loop ran
-    // `i < 3.5` for four iterations — so a ship with half a unit spare ended half a unit over.
-    if (!foundCargo && massBudget >= 1) {
-      starship.fittings.push(cargoFitting);
-      massBudget--;
-    }
-
-    const numberOfCargoFittings = Math.floor(massBudget);
-
-    for (let i = 0; i < numberOfCargoFittings; i++) {
-      tonsOfCargo += tonsMultiplier;
-      massBudget--;
-    }
-  }
-
-  starship.tonsOfCargo = tonsOfCargo;
-
-  starship.usedMass = starship.hullType.mass - massBudget;
-  starship.usedPower = starship.hullType.power - powerBudget;
-  starship.usedHardPoints = starship.hullType.hardPoints - hardpointBudget;
+  starship.usedMass = starship.hullType.mass - budget.mass;
+  starship.usedPower = starship.hullType.power - budget.power;
+  starship.usedHardPoints = starship.hullType.hardPoints - budget.hardpoints;
 
   return starship;
 }
@@ -528,735 +596,16 @@ export function createOwnerType(
   };
 }
 
-function randomStarshipOwnerType(rng: RNG.RNG) {
-  const types = [
-    createOwnerType(
-      'civilian',
-      false,
-      false,
-      ['shuttle', 'free merchant'],
-      (rng: RNG.RNG) => {
-        const shipClassNames = [
-          'Coventry',
-          'Hermes',
-          'Laurel',
-          'Mermaid',
-          'Star Runner',
-          'Venus',
-          'Amazon',
-          'Hermione',
-          'Cerce',
-          'Triton',
-          'Wizard',
-          'Minerva',
-          'Pallas',
-          'Antioch',
-          'Cerberus',
-          'Diana',
-          'Dryad',
-          'Phoebe',
-          'Emerald',
-          'Ruby',
-          'Diamond',
-          'Seahorse',
-          'Stag',
-          'Hydra',
-          'Boadicea',
-          'Galatea',
-          'Shannon',
-        ];
-
-        const modelNumber = MUN.getModelNumberNameGenerator(rng).generate(1)[0];
-
-        return `${modelNumber} ${rng.item(shipClassNames)}`;
-      },
-      (rng: RNG.RNG) => {
-        const shipNames = [
-          'Mistral',
-          'Dictator',
-          'Alceste',
-          'Kilmersdon',
-          'Goldfinch',
-          'Century Hawk',
-          'Brazen Mistress',
-          'Norman',
-          'Badger',
-          'Nox',
-          'Dredger',
-          'Mimosa',
-          'Scotch',
-          'Bad Wine',
-          'Lady Luck',
-          'Powerful',
-          'Glasgow',
-          'Errant',
-          'Pouncer',
-          'Ayrshire',
-          'Rocinante',
-          'Mercy',
-          'Princess',
-          'Aphrodite',
-          'Athena',
-          'Hera',
-          'Deidre',
-          'Naomi',
-          'Alice',
-          'Denali',
-          'Roberta',
-          'Darlin',
-          'Marlin',
-          'Swordfish',
-          'Borderstar',
-          'Bad Habit',
-          'Escolano',
-          'Simplicity',
-          'Good Fortune',
-          'Fortune',
-          'Alistair',
-        ];
-
-        return rng.item(shipNames);
-      },
-      'cargo',
-      false,
-      [
-        'cargo',
-        'colony',
-        'computer',
-        'crew',
-        'fuel',
-        'landing',
-        'medical',
-        'navigation',
-        'passenger',
-        'science',
-        'sensors',
-        'shuttle',
-        'support',
-      ],
-    ),
-    createOwnerType(
-      'merchant',
-      false,
-      false,
-      ['shuttle', 'free merchant', 'bulk freighter'],
-      (rng: RNG.RNG) => {
-        const shipClassNames = [
-          'Coventry',
-          'Hermes',
-          'Laurel',
-          'Mermaid',
-          'Star Runner',
-          'Venus',
-          'Amazon',
-          'Hermione',
-          'Cerce',
-          'Triton',
-          'Wizard',
-          'Minerva',
-          'Pallas',
-          'Antioch',
-          'Cerberus',
-          'Diana',
-          'Dryad',
-          'Phoebe',
-          'Emerald',
-          'Ruby',
-          'Diamond',
-          'Seahorse',
-          'Stag',
-          'Hydra',
-          'Boadicea',
-          'Galatea',
-          'Shannon',
-        ];
-
-        const modelNumber = MUN.getModelNumberNameGenerator(rng).generate(1)[0];
-
-        return `${modelNumber} ${rng.item(shipClassNames)}`;
-      },
-      (rng: RNG.RNG) => {
-        const shipNames = [
-          'Mistral',
-          'Dictator',
-          'Alceste',
-          'Kilmersdon',
-          'Goldfinch',
-          'Century Hawk',
-          'Brazen Mistress',
-          'Norman',
-          'Badger',
-          'Nox',
-          'Dredger',
-          'Mimosa',
-          'Scotch',
-          'Bad Wine',
-          'Lady Luck',
-          'Powerful',
-          'Glasgow',
-          'Errant',
-          'Pouncer',
-          'Ayrshire',
-          'Rocinante',
-          'Mercy',
-          'Princess',
-          'Aphrodite',
-          'Athena',
-          'Hera',
-          'Deidre',
-          'Naomi',
-          'Alice',
-          'Denali',
-          'Roberta',
-          'Darlin',
-          'Marlin',
-          'Swordfish',
-          'Borderstar',
-          'Bad Habit',
-          'Escolano',
-          'Simplicity',
-          'Good Fortune',
-          'Fortune',
-          'Alistair',
-        ];
-
-        return rng.item(shipNames);
-      },
-      'cargo',
-      true,
-      [
-        'cargo',
-        'colony',
-        'computer',
-        'crew',
-        'factory',
-        'fuel',
-        'landing',
-        'medical',
-        'navigation',
-        'passenger',
-        'science',
-        'sensors',
-        'shuttle',
-        'support',
-      ],
-    ),
-    createOwnerType(
-      'mining ship',
-      false,
-      false,
-      ['shuttle', 'free merchant', 'bulk freighter'],
-      (rng: RNG.RNG) => {
-        const shipClassNames = [
-          'Behemoth',
-          'Leviathan',
-          'Hermes',
-          'Workhorse',
-          'Odyssey',
-          'Sojourner',
-          'Prospect',
-          'Procurer',
-          'Retriever',
-          'Covetor',
-          'Venture',
-          'Endurance',
-          'Orca',
-          'Hulk',
-        ];
-
-        const modelNumber = MUN.getModelNumberNameGenerator(rng).generate(1)[0];
-
-        return `${modelNumber} ${rng.item(shipClassNames)}`;
-      },
-      (rng: RNG.RNG) => {
-        const shipNames = [
-          'Mistral',
-          'Dictator',
-          'Alceste',
-          'Kilmersdon',
-          'Goldfinch',
-          'Century Hawk',
-          'Brazen Mistress',
-          'Norman',
-          'Badger',
-          'Nox',
-          'Dredger',
-          'Mimosa',
-          'Scotch',
-          'Bad Wine',
-          'Lady Luck',
-          'Powerful',
-          'Glasgow',
-          'Errant',
-          'Pouncer',
-          'Ayrshire',
-          'Rocinante',
-          'Mercy',
-          'Princess',
-          'Aphrodite',
-          'Athena',
-          'Hera',
-          'Deidre',
-          'Naomi',
-          'Alice',
-          'Denali',
-          'Roberta',
-          'Darlin',
-          'Marlin',
-          'Swordfish',
-          'Borderstar',
-          'Bad Habit',
-          'Escolano',
-          'Simplicity',
-          'Good Fortune',
-          'Fortune',
-          'Alistair',
-        ];
-
-        return rng.item(shipNames);
-      },
-      'mining',
-      true,
-      [
-        'cargo',
-        'colony',
-        'computer',
-        'crew',
-        'factory',
-        'fuel',
-        'landing',
-        'medical',
-        'navigation',
-        'passenger',
-        'science',
-        'sensors',
-        'shuttle',
-        'support',
-      ],
-    ),
-    createOwnerType(
-      'law enforcement',
-      true,
-      true,
-      ['patrol boat'],
-      (rng: RNG.RNG) => {
-        const shipClassNames = [
-          'Shrike',
-          'Shooting Star',
-          'Vindicator',
-          'Centurion',
-          'Sentinel',
-          'Guardian',
-          'Defender',
-          'Patroller',
-          'Sherriff',
-          'Constable',
-          'Cavalry',
-          'Marshal',
-          'Badge',
-        ];
-
-        const modelNumber = MUN.getModelNumberNameGenerator(rng).generate(1)[0];
-
-        return `${modelNumber} ${rng.item(shipClassNames)}`;
-      },
-      (rng: RNG.RNG) => {
-        let shipName = '';
-
-        shipName = rng.item([
-          'PS',
-          'SPS',
-          'SP',
-          'Star Police Cruiser',
-          'Solar Police',
-          'Star Police',
-          'LES',
-        ]);
-
-        const unitNumber = rng.int(100, 500);
-
-        const designationForm = rng.int(0, 100);
-
-        if (designationForm < 30) {
-          shipName += ` ${unitNumber}`;
-        } else if (designationForm < 70) {
-          shipName += ` ${rng.int(1, 9)}-${unitNumber}`;
-        } else {
-          shipName += ` Unit ${unitNumber}`;
-        }
-
-        return shipName;
-      },
-      'weapons',
-      false,
-      [
-        'cargo',
-        'computer',
-        'crew',
-        'fuel',
-        'landing',
-        'navigation',
-        'science',
-        'sensors',
-        'shuttle',
-        'support',
-        'weapons',
-      ],
-    ),
-    createOwnerType(
-      'military line of battle',
-      true,
-      false,
-      ['fleet cruiser', 'battleship', 'carrier'],
-      (rng: RNG.RNG) => {
-        const shipClassNames = [
-          'Vindicator',
-          'Imperator',
-          'Executor',
-          'Dreadnought',
-          'Invictus',
-          'Leviathan',
-          'Balwark',
-          'Sun Crusher',
-          'Brutality',
-          'Victory',
-          'Guardian',
-          'Dominator',
-          'Annihilator',
-          'Titan',
-          'Sovereign',
-          'Juggernaut',
-        ];
-
-        return `${rng.item(shipClassNames)}-class`;
-      },
-      (rng: RNG.RNG) => {
-        const shipNames = [
-          'Righteousness',
-          'Hammer of God',
-          'Apollo',
-          'Alexander',
-          'Atalanta',
-          'Baroness',
-          'Baron',
-          'Oberon',
-          'Wrath',
-          'Honor',
-          'Gladius',
-          'Harlegand',
-          'Hittite',
-          'Karnack',
-          'Helios',
-          'Andromeda',
-          'Liberator',
-          'Nirvana',
-          'Khan',
-          'Adogan',
-          'Chimera',
-          'Warlock',
-          'Warlord',
-          'Centipede',
-          'Manticore',
-          'Gryphon',
-        ];
-
-        const designator = rng.item(['HMS', 'USS', 'ISS']);
-
-        return `${designator} ${rng.item(shipNames)}`;
-      },
-      'weapons',
-      false,
-      [
-        'cargo',
-        'computer',
-        'crew',
-        'fuel',
-        'landing',
-        'medical',
-        'navigation',
-        'passenger',
-        'psychic',
-        'science',
-        'sensors',
-        'shuttle',
-        'stealth',
-        'support',
-        'troops',
-        'weapons',
-      ],
-    ),
-    createOwnerType(
-      'military patroller',
-      true,
-      false,
-      ['patrol boat', 'corvette', 'heavy frigate'],
-      (rng: RNG.RNG) => {
-        const shipClassNames = [
-          'Vanguard',
-          'Shrike',
-          'Avenger',
-          'Cutter',
-          'Ghost',
-          'Specter',
-          'Centipede',
-          'Wasp',
-          'Hornet',
-          'Dart',
-          'Talon',
-          'Bandit',
-          'Lancer',
-          'Angel',
-          'Paladin',
-        ];
-
-        return `${rng.item(shipClassNames)}-class`;
-      },
-      (rng: RNG.RNG) => {
-        const shipNames = [
-          'Gibraltar',
-          'Biddeford',
-          'Seaford',
-          'Pandora',
-          'Siren',
-          'Champion',
-          'Daphne',
-          'Unicorn',
-          'Perseus',
-          'Sphinx',
-          'Gryphon',
-          'Wight',
-          'Spectre',
-          'Dragon',
-          'Wyvern',
-          'Hyena',
-          'Wolf',
-          'Dagger',
-          'Falchion',
-          'Warhammer',
-          'Conway',
-          'Conqueror',
-          'Hind',
-        ];
-
-        const designator = rng.item(['HMS', 'USS', 'ISS']);
-
-        return `${designator} ${rng.item(shipNames)}`;
-      },
-      'weapons',
-      false,
-      [
-        'cargo',
-        'computer',
-        'crew',
-        'fuel',
-        'landing',
-        'medical',
-        'navigation',
-        'passenger',
-        'psychic',
-        'science',
-        'sensors',
-        'shuttle',
-        'stealth',
-        'support',
-        'weapons',
-      ],
-    ),
-    createOwnerType(
-      'pirate',
-      true,
-      false,
-      ['strike fighter', 'patrol boat', 'corvette', 'heavy frigate'],
-      (rng: RNG.RNG) => {
-        const shipClassNames = [
-          'Coventry',
-          'Hermes',
-          'Laurel',
-          'Mermaid',
-          'Star Runner',
-          'Venus',
-          'Amazon',
-          'Hermione',
-          'Cerce',
-          'Triton',
-          'Wizard',
-          'Minerva',
-          'Pallas',
-          'Antioch',
-          'Cerberus',
-          'Diana',
-          'Dryad',
-          'Phoebe',
-          'Emerald',
-          'Ruby',
-          'Diamond',
-          'Seahorse',
-          'Stag',
-          'Hydra',
-          'Boadicea',
-          'Galatea',
-          'Shannon',
-        ];
-
-        const modelNumber = MUN.getModelNumberNameGenerator(rng).generate(1)[0];
-
-        return `${modelNumber} ${rng.item(shipClassNames)}`;
-      },
-      (rng: RNG.RNG) => {
-        const shipNames = [
-          'Revenge',
-          'Blood',
-          'Bloodletter',
-          'Pearl',
-          'Broken Soul',
-          'Lost Soul',
-          'Reaver',
-          'Raider',
-          'Corsair',
-          'Vengeance',
-          'Freedom',
-          'Free Will',
-          'Serpent',
-          'Burning Rose',
-          'Black Rose',
-          'Black Star',
-          'Crimson Star',
-          'Crimson',
-          'Maelstrom',
-          'Runner',
-          'Old James',
-          'Dog of War',
-          'Solar Tide',
-        ];
-
-        return rng.item(shipNames);
-      },
-      'weapons',
-      false,
-      [
-        'cargo',
-        'computer',
-        'crew',
-        'fuel',
-        'landing',
-        'medical',
-        'navigation',
-        'sensors',
-        'shuttle',
-        'stealth',
-        'support',
-        'troops',
-        'weapons',
-      ],
-    ),
-    createOwnerType(
-      'smuggler',
-      true,
-      false,
-      ['free merchant', 'patrol boat'],
-      (rng: RNG.RNG) => {
-        const shipClassNames = [
-          'Coventry',
-          'Hermes',
-          'Laurel',
-          'Mermaid',
-          'Star Runner',
-          'Venus',
-          'Amazon',
-          'Hermione',
-          'Cerce',
-          'Triton',
-          'Wizard',
-          'Minerva',
-          'Pallas',
-          'Antioch',
-          'Cerberus',
-          'Diana',
-          'Dryad',
-          'Phoebe',
-          'Emerald',
-          'Ruby',
-          'Diamond',
-          'Seahorse',
-          'Stag',
-          'Hydra',
-          'Boadicea',
-          'Galatea',
-          'Shannon',
-        ];
-
-        const modelNumber = MUN.getModelNumberNameGenerator(rng).generate(1)[0];
-
-        return `${modelNumber} ${rng.item(shipClassNames)}`;
-      },
-      (rng: RNG.RNG) => {
-        const shipNames = [
-          'Mistral',
-          'Dictator',
-          'Alceste',
-          'Kilmersdon',
-          'Goldfinch',
-          'Century Hawk',
-          'Brazen Mistress',
-          'Norman',
-          'Badger',
-          'Nox',
-          'Dredger',
-          'Mimosa',
-          'Scotch',
-          'Bad Wine',
-          'Lady Luck',
-          'Powerful',
-          'Glasgow',
-          'Errant',
-          'Pouncer',
-          'Ayrshire',
-          'Rocinante',
-          'Mercy',
-          'Princess',
-          'Aphrodite',
-          'Athena',
-          'Hera',
-          'Deidre',
-          'Naomi',
-          'Alice',
-          'Denali',
-          'Roberta',
-          'Darlin',
-          'Marlin',
-          'Swordfish',
-          'Borderstar',
-          'Bad Habit',
-          'Escolano',
-          'Simplicity',
-          'Good Fortune',
-          'Fortune',
-          'Alistair',
-        ];
-
-        return rng.item(shipNames);
-      },
-      'smuggling',
-      true,
-      [
-        'cargo',
-        'computer',
-        'crew',
-        'fuel',
-        'landing',
-        'medical',
-        'navigation',
-        'passenger',
-        'sensors',
-        'shuttle',
-        'smuggling',
-        'stealth',
-        'support',
-      ],
-    ),
-  ];
-
-  return rng.item(types);
+/**
+ * Picks an owner type, and hands back the shared table entry rather than a copy.
+ *
+ * This one cannot be copied: an owner type carries `getRandomClassName` and `getRandomShipName`
+ * closures, and `structuredClone` throws on functions. It lands on `starship.ownerType`, so treat
+ * it as read-only — shuffling `possibleHullTypes` or `allowedFittingTypes` in place, for example,
+ * would reorder that owner type for every ship generated afterwards.
+ */
+function randomStarshipOwnerType(rng: RNG.RNG): OwnerType {
+  return rng.item(OWNER_TYPES);
 }
 
 export type DriveFitting = {
@@ -1448,478 +797,25 @@ export function createFitting(
   };
 }
 
-function allFittings() {
-  return [
-    createFitting(
-      'Advanced lab',
-      'science',
-      10000,
-      true,
-      1,
-      true,
-      2,
-      false,
-      1,
-      3,
-      'Skill bonus for analysis and research',
-    ),
-    createFitting(
-      'Advanced nav computer',
-      'navigation',
-      10000,
-      true,
-      1,
-      true,
-      0,
-      false,
-      1,
-      3,
-      'Adds +2 for traveling familiar spike courses',
-    ),
-    createFitting(
-      'Amphibious operation',
-      'landing',
-      25000,
-      false,
-      1,
-      false,
-      1,
-      true,
-      0,
-      3,
-      'Can land and can operate under water',
-    ),
-    createFitting(
-      'Armory',
-      'weapons',
-      10000,
-      true,
-      0,
-      false,
-      0,
-      false,
-      1,
-      3,
-      'Weapons and armor for the crew',
-    ),
-    createFitting(
-      'Atmospheric configuration',
-      'landing',
-      5000,
-      true,
-      0,
-      false,
-      1,
-      false,
-      0,
-      1,
-      'Can land',
-    ),
-    createFitting(
-      'Auto-targeting system',
-      'weapons',
-      50000,
-      false,
-      1,
-      false,
-      0,
-      false,
-      0,
-      3,
-      'Fires one weapon system without a gunner',
-    ),
-    createFitting(
-      'Automation support',
-      'computer',
-      10000,
-      true,
-      2,
-      false,
-      1,
-      false,
-      0,
-      3,
-      'Ship can use simple robots as crew',
-    ),
-    createFitting(
-      'Boarding tubes',
-      'troops',
-      5000,
-      true,
-      0,
-      false,
-      1,
-      false,
-      1,
-      3,
-      'Allows boarding of a hostile disabled ship',
-    ),
-    createFitting(
-      'Cargo lighter',
-      'shuttle',
-      25000,
-      false,
-      0,
-      false,
-      2,
-      false,
-      1,
-      3,
-      'Orbit-to-surface cargo shuttle',
-    ),
-    createCargoFitting('Cargo space', 0, 0, 1, 0, 3, 'Pressurized cargo space'),
-    createFitting(
-      'Cold sleep pods',
-      'passenger',
-      5000,
-      true,
-      1,
-      false,
-      1,
-      false,
-      1,
-      3,
-      'Keeps occupants in stasis',
-    ),
-    createFitting(
-      'Colony core',
-      'colony',
-      100000,
-      true,
-      4,
-      false,
-      2,
-      true,
-      1,
-      3,
-      'Ship can be deconstructed into a colony base',
-    ),
-    createFitting(
-      'Drill course regulator',
-      'navigation',
-      25000,
-      true,
-      1,
-      true,
-      1,
-      false,
-      1,
-      3,
-      'Common drill routes become auto-successes',
-    ),
-    createFitting(
-      'Drop pod',
-      'troops',
-      300000,
-      false,
-      0,
-      false,
-      2,
-      false,
-      1,
-      3,
-      'Stealthed landing pod for troops',
-    ),
-    createFitting(
-      'Emissions dampers',
-      'stealth',
-      25000,
-      true,
-      1,
-      true,
-      1,
-      true,
-      0,
-      3,
-      'Adds +2 to skill checks to avoid detection',
-    ),
-    createFitting(
-      'Exodus bay',
-      'passenger',
-      50000,
-      true,
-      1,
-      true,
-      2,
-      true,
-      2,
-      3,
-      'House vast numbers of cold sleep passengers',
-    ),
-    createFitting(
-      'Extended life support',
-      'crew',
-      5000,
-      true,
-      1,
-      true,
-      1,
-      true,
-      0,
-      3,
-      'Doubles maximum crew size',
-    ),
-    createFitting(
-      'Extended medbay',
-      'medical',
-      5000,
-      true,
-      1,
-      false,
-      1,
-      false,
-      1,
-      3,
-      'Can provide medical care to more patients',
-    ),
-    createFitting(
-      'Extended stores',
-      'crew',
-      2500,
-      true,
-      0,
-      false,
-      1,
-      true,
-      0,
-      3,
-      'Maximum life support duration is doubled',
-    ),
-    createFitting(
-      'Fuel bunkers',
-      'fuel',
-      2500,
-      true,
-      0,
-      false,
-      1,
-      false,
-      0,
-      3,
-      'Adds fuel for one more drill between fuelings',
-    ),
-    createFitting(
-      'Fuel scoops',
-      'fuel',
-      5000,
-      true,
-      2,
-      false,
-      1,
-      true,
-      1,
-      3,
-      'Ship can scoop fuel from a gas giant or star',
-    ),
-    createFitting(
-      'Hydroponic production',
-      'crew',
-      10000,
-      true,
-      1,
-      true,
-      2,
-      true,
-      2,
-      3,
-      'Ship produces life support resources',
-    ),
-    createFitting(
-      'Lifeboats',
-      'shuttle',
-      2500,
-      true,
-      0,
-      false,
-      1,
-      false,
-      1,
-      3,
-      "Emergency escape craft for a ship's crew",
-    ),
-    createFitting(
-      'Luxury cabins',
-      'crew',
-      10000,
-      true,
-      0,
-      false,
-      1,
-      true,
-      1,
-      3,
-      '10% of the max crew get luxurious quarters',
-    ),
-    createFitting(
-      'Mobile extractor',
-      'mining',
-      50000,
-      false,
-      2,
-      false,
-      1,
-      false,
-      1,
-      3,
-      'Space mining and refinery fittings',
-    ),
-    createFitting(
-      'Mobile factory',
-      'factory',
-      50000,
-      true,
-      3,
-      false,
-      2,
-      true,
-      2,
-      3,
-      'Self-sustaining factory and repair facilities',
-    ),
-    createFitting(
-      'Precognitive nav chamber',
-      'psychic',
-      100000,
-      true,
-      1,
-      false,
-      0,
-      false,
-      1,
-      3,
-      'Allows a precog to assist in navigation',
-    ),
-    createFitting(
-      'Sensor mask',
-      'stealth',
-      10000,
-      true,
-      1,
-      true,
-      0,
-      false,
-      1,
-      3,
-      'At long distances, disguise ship as another',
-    ),
-    createFitting(
-      'Ship bay: fighter',
-      'carrier',
-      200000,
-      false,
-      0,
-      false,
-      2,
-      false,
-      2,
-      3,
-      'Carrier housing for a fighter',
-    ),
-    createFitting(
-      'Ship bay: frigate',
-      'carrier',
-      1000000,
-      false,
-      1,
-      false,
-      4,
-      false,
-      3,
-      3,
-      'Carrier housing for a frigate',
-    ),
-    createFitting(
-      "Ship's locker",
-      'cargo',
-      2000,
-      true,
-      0,
-      false,
-      0,
-      false,
-      1,
-      3,
-      'General equipment for the crew',
-    ),
-    createFitting(
-      'Shiptender mount',
-      'support',
-      25000,
-      true,
-      1,
-      false,
-      1,
-      false,
-      1,
-      3,
-      'Allow another ship to hitch on a spike drive',
-    ),
-    createFitting(
-      "Smuggler's hold",
-      'smuggling',
-      2500,
-      true,
-      0,
-      false,
-      1,
-      false,
-      0,
-      3,
-      'Small amount of well-hidden cargo space',
-    ),
-    createFitting(
-      'Survey sensor array',
-      'sensors',
-      5000,
-      true,
-      2,
-      false,
-      1,
-      false,
-      1,
-      3,
-      'Improved planetary sensor array',
-    ),
-    createFitting(
-      'Tractor beams',
-      'support',
-      10000,
-      true,
-      2,
-      false,
-      1,
-      false,
-      1,
-      3,
-      'Manipulate objects in space at a distance',
-    ),
-    createFitting(
-      'Vehicle transport fittings',
-      'carrier',
-      2500,
-      true,
-      0,
-      false,
-      1,
-      true,
-      1,
-      3,
-      'Halve tonnage space of carried vehicles',
-    ),
-    createFitting(
-      'Workshop',
-      'support',
-      500,
-      true,
-      1,
-      false,
-      0.5,
-      true,
-      1,
-      3,
-      'Automated tech workshops for maintenance',
-    ),
-  ];
+/**
+ * The fitting table itself — shared and read-only.
+ *
+ * Nothing here alters a fitting, so the selection helpers may filter and sort this freely. What
+ * they must not do is put a row from it straight onto a ship: a ship owns the fittings on its
+ * sheet, so `fittedCopy` copies the chosen one on the way in.
+ */
+function allFittings(): Fitting[] {
+  return STARSHIP_FITTINGS;
+}
+
+/**
+ * A private copy of one fitting, for a ship to keep.
+ *
+ * Only the chosen row is copied. Cloning the whole table each time it was consulted cost far
+ * more than it saved, since a ship keeps a handful of fittings out of thirty-seven.
+ */
+function fittedCopy(fitting: Fitting): Fitting {
+  return structuredClone(fitting);
 }
 
 export type DefenseFitting = {
@@ -2188,31 +1084,16 @@ function randomManufacturerName(rng: RNG.RNG) {
   return nameType.generate(rng);
 }
 
-function removeFittingFromList(
-  fitting: Fitting | CargoFitting | Weapon | DefenseFitting,
-  fittings: (Fitting | CargoFitting | Weapon | DefenseFitting)[],
-) {
-  const options = [];
-
-  for (let i = 0; i < fittings.length; i++) {
-    if (fittings[i].name !== fitting.name) {
-      options.push(fittings[i]);
-    }
-  }
-
-  return options;
-}
-
-function removeWeaponFittingFromList(fitting: Weapon, fittings: Weapon[]): Weapon[] {
-  const options: Weapon[] = [];
-
-  for (let i = 0; i < fittings.length; i++) {
-    if (fittings[i].name !== fitting.name) {
-      options.push(fittings[i]);
-    }
-  }
-
-  return options;
+/**
+ * Every fitting list is narrowed the same way — drop everything sharing the chosen fitting's
+ * name so it cannot be picked twice — so one generic filter serves weapons, defenses, and
+ * fittings alike, and each caller keeps the element type it started with.
+ */
+function removeFittingFromList<T extends { name: string }>(
+  fitting: { name: string },
+  fittings: T[],
+): T[] {
+  return fittings.filter((candidate) => candidate.name !== fitting.name);
 }
 
 export function formatAsText(starship: SWNStarship) {

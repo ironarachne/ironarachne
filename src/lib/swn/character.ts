@@ -1,6 +1,7 @@
 import * as RNG from '@ironarachne/rng';
 import * as Dice from '$lib/dice';
 import * as Text from '$lib/format';
+import { PSYCHIC_DISCIPLINE_POWERS } from './psychic_discipline_data';
 
 export type SWNCharacter = {
   stats: Stat[];
@@ -64,180 +65,106 @@ export function equipmentList(character: SWNCharacter): string[] {
   return character.equipment.map((item) => item.name);
 }
 
+/** A character's modifier for one stat, or 0 if they somehow lack it. */
+function statModifier(character: SWNCharacter, abbreviation: string): number {
+  const stat = character.stats.find((s) => s.abbreviation === abbreviation);
+
+  return stat ? stat.modifier : 0;
+}
+
+/** A saving throw is 15 minus the better of its two governing stats. */
+function applySavingThrows(character: SWNCharacter): void {
+  character.savingThrowMental =
+    15 - Math.max(statModifier(character, 'WIS'), statModifier(character, 'CHA'));
+  character.savingThrowEvasion =
+    15 - Math.max(statModifier(character, 'INT'), statModifier(character, 'DEX'));
+  character.savingThrowPhysical =
+    15 - Math.max(statModifier(character, 'STR'), statModifier(character, 'CON'));
+}
+
+/** Melee uses the better of DEX and STR; ranged always uses DEX. */
+function applyAttackBonuses(character: SWNCharacter, skill: Skill): void {
+  if (skill.name === 'Stab') {
+    character.meleeAttackBonus =
+      skill.level +
+      character.attackBonus +
+      Math.max(statModifier(character, 'DEX'), statModifier(character, 'STR'));
+  } else if (skill.name === 'Shoot') {
+    character.rangedAttackBonus =
+      skill.level + character.attackBonus + statModifier(character, 'DEX');
+  }
+}
+
+/**
+ * A psychic skill grants its discipline's signature power at the level the character has it.
+ * At level 1 the character also learns one random ability from the same discipline, and a
+ * metapsion's maximum Effort goes up.
+ */
+function applyPsychicDiscipline(character: SWNCharacter, skill: Skill, rng: RNG.RNG): void {
+  const power = PSYCHIC_DISCIPLINE_POWERS.find((entry) => entry.skillName === skill.name);
+
+  if (power === undefined) {
+    return;
+  }
+
+  if (skill.level === 0) {
+    character.abilities.push(createSpecialAbility(power.levelZero));
+
+    return;
+  }
+
+  if (skill.level !== 1) {
+    return;
+  }
+
+  character.abilities.push(createSpecialAbility(power.levelOne));
+
+  if (power.raisesMaximumEffort) {
+    character.effort++;
+  }
+
+  const ability = randomPsionicAbilityOfDiscipline(skill.name, rng);
+
+  character.abilities.push(createSpecialAbility(`${ability.name}: ${ability.description}`));
+}
+
 export function generate(rng: RNG.RNG): SWNCharacter {
   const character = createSwnCharacter(rng);
 
-  let dexterity = 0;
-  let strength = 0;
-  let wisdom = 0;
-  let intelligence = 0;
-  let constitution = 0;
-  let charisma = 0;
-
-  for (let i = 0; i < character.stats.length; i++) {
-    if (character.stats[i].abbreviation === 'DEX') {
-      dexterity = character.stats[i].modifier;
-    } else if (character.stats[i].abbreviation === 'STR') {
-      strength = character.stats[i].modifier;
-    } else if (character.stats[i].abbreviation === 'CON') {
-      constitution = character.stats[i].modifier;
-    } else if (character.stats[i].abbreviation === 'WIS') {
-      wisdom = character.stats[i].modifier;
-    } else if (character.stats[i].abbreviation === 'INT') {
-      intelligence = character.stats[i].modifier;
-    } else if (character.stats[i].abbreviation === 'CHA') {
-      charisma = character.stats[i].modifier;
-    }
-  }
-
-  character.savingThrowMental = 15 - Math.max(wisdom, charisma);
-  character.savingThrowEvasion = 15 - Math.max(intelligence, dexterity);
-  character.savingThrowPhysical = 15 - Math.max(strength, constitution);
+  applySavingThrows(character);
 
   character.skills = randomStartingSkills(character.background, rng);
 
   const equipmentPackage = getEquipmentPackage(character.background.equipmentPackage);
 
-  for (let i = 0; i < equipmentPackage.items.length; i++) {
-    applyEquipmentItem(equipmentPackage.items[i], character);
+  for (const item of equipmentPackage.items) {
+    applyEquipmentItem(item, character);
   }
+
+  const dexterity = statModifier(character, 'DEX');
 
   character.armorClassUnequipped = character.armorClassUnequipped + dexterity;
   character.armorClassEquipped = character.armorClassEquipped + dexterity;
 
   character.attackBonus = character.characterClass.attackBonus;
-  character.hitPoints = Dice.roll(character.characterClass.hitPointRoll, rng);
+  character.hitPoints =
+    Dice.roll(character.characterClass.hitPointRoll, rng) + statModifier(character, 'CON');
 
-  for (let i = 0; i < character.stats.length; i++) {
-    if (character.stats[i].abbreviation === 'CON') {
-      character.hitPoints += character.stats[i].modifier;
-    }
+  character.focuses.push(randomNonPsychicFocus(rng));
+
+  for (const ability of character.characterClass.abilities) {
+    applyCharacterEffect(ability, character, rng);
   }
 
-  const firstFocus = randomNonPsychicFocus(rng);
-
-  character.focuses.push(firstFocus);
-
-  for (let i = 0; i < character.characterClass.abilities.length; i++) {
-    applyCharacterEffect(character.characterClass.abilities[i], character, rng);
-  }
-
-  for (let i = 0; i < character.focuses.length; i++) {
-    applyFocus(character.focuses[i], character, rng);
+  for (const focus of character.focuses) {
+    applyFocus(focus, character, rng);
   }
 
   applyCharacterEffect(createBonusSkillOfType(['non-combat', 'combat']), character, rng);
 
-  for (let i = 0; i < character.skills.length; i++) {
-    if (character.skills[i].name === 'Stab') {
-      character.meleeAttackBonus =
-        character.skills[i].level + character.attackBonus + Math.max(dexterity, strength);
-    } else if (character.skills[i].name === 'Shoot') {
-      character.rangedAttackBonus = character.skills[i].level + character.attackBonus + dexterity;
-    }
-
-    if (character.skills[i].name === 'Biopsionics') {
-      if (character.skills[i].level === 0) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Psychic Succor-0: The psychic’s touch can automatically stabilize a mortally-wounded target as a Main Action. This power must be used on a target within six rounds of their collapse, and does not function on targets that have been decapitated or killed by Heavy weapons. It’s the GM’s decision as to whether a target is intact enough for this power to work.',
-          ),
-        );
-      } else if (character.skills[i].level === 1) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Psychic Succor-1: The psychic’s touch can automatically stabilize a mortally-wounded target as a Main Action. This power must be used on a target within six rounds of their collapse, and does not function on targets that have been decapitated or killed by Heavy weapons. It’s the GM’s decision as to whether a target is intact enough for this power to work. Also heal 1d6+1 hit points of damage. If used on a mortally-wounded target, they revive with the rolled hit points and can act normally on the next round.',
-          ),
-        );
-
-        const ability = randomPsionicAbilityOfDiscipline('Biopsionics', rng);
-        character.abilities.push(createSpecialAbility(`${ability.name}: ${ability.description}`));
-      }
-    } else if (character.skills[i].name === 'Metapsionics') {
-      if (character.skills[i].level === 0) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Psychic Refinement-0: The adept can visually and audibly detect the use of psychic powers. If both the source and target are visible to the metapsion, they can tell who’s using the power, even if it’s normally imperceptible. They gain a +2 bonus on any saving throw versus a psionic power.',
-          ),
-        );
-      } else if (character.skills[i].level === 1) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Psychic Refinement-1: The adept can visually and audibly detect the use of psychic powers. If both the source and target are visible to the metapsion, they can tell who’s using the power, even if it’s normally imperceptible. They gain a +2 bonus on any saving throw versus a psionic power. The metapsion’s maximum Effort increases by an additional point.',
-          ),
-        );
-        character.effort++;
-
-        const ability = randomPsionicAbilityOfDiscipline('Metapsionics', rng);
-        character.abilities.push(createSpecialAbility(`${ability.name}: ${ability.description}`));
-      }
-    } else if (character.skills[i].name === 'Precognition') {
-      if (character.skills[i].level === 0) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Oracle-0: The precog gains a progressively-greater intuitive understanding of their own future. Each invocation of the Oracle technique requires a Main Action and that the user Commit Effort for the day. Once triggered, the adept gets a single brief vision related to the question about the future that they’re asking. This vision is always from their own personal vantage point and never reveals more than a minute of insight, though the psychic processes it almost instantly as part of the power’s use. Range: One minute into the future.',
-          ),
-        );
-      } else if (character.skills[i].level === 1) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Oracle-1: The precog gains a progressively-greater intuitive understanding of their own future. Each invocation of the Oracle technique requires a Main Action and that the user Commit Effort for the day. Once triggered, the adept gets a single brief vision related to the question about the future that they’re asking. This vision is always from their own personal vantage point and never reveals more than a minute of insight, though the psychic processes it almost instantly as part of the power’s use. Range: One day into the future.',
-          ),
-        );
-
-        const ability = randomPsionicAbilityOfDiscipline('Precognition', rng);
-        character.abilities.push(createSpecialAbility(`${ability.name}: ${ability.description}`));
-      }
-    } else if (character.skills[i].name === 'Telekinesis') {
-      if (character.skills[i].level === 0) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Telekinetic Manipulation-0: The psychic can exert force as if with one hand and their own strength.',
-          ),
-        );
-      } else if (character.skills[i].level === 1) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Telekinetic Manipulation-1: The psychic can manipulate objects as if with both hands and can lift up to two hundred kilograms with this ability.',
-          ),
-        );
-
-        const ability = randomPsionicAbilityOfDiscipline('Telekinesis', rng);
-        character.abilities.push(createSpecialAbility(`${ability.name}: ${ability.description}`));
-      }
-    } else if (character.skills[i].name === 'Telepathy') {
-      if (character.skills[i].level === 0) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Telepathic Contact-0: Observe emotional states in a target. Intense emotions provide a single word or image related to the focus of the feelings.',
-          ),
-        );
-      } else if (character.skills[i].level === 1) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Telepathic Contact-1: A shallow gestalt with the target’s language centers allows the telepath to understand any form of communication made by the target. If the psychic has the requisite body parts to speak the target’s language, they can communicate with it in turn.',
-          ),
-        );
-
-        const ability = randomPsionicAbilityOfDiscipline('Telepathy', rng);
-        character.abilities.push(createSpecialAbility(ability.name + ': ' + ability.description));
-      }
-    } else if (character.skills[i].name === 'Teleportation') {
-      if (character.skills[i].level === 0) {
-        character.abilities.push(
-          createSpecialAbility('Personal Apportation-0: The psychic can teleport up to 10 meters.'),
-        );
-      } else if (character.skills[i].level === 1) {
-        character.abilities.push(
-          createSpecialAbility(
-            'Personal Apportation-1: The psychic can teleport up to 100 meters.',
-          ),
-        );
-
-        const ability = randomPsionicAbilityOfDiscipline('Teleportation', rng);
-        character.abilities.push(createSpecialAbility(ability.name + ': ' + ability.description));
-      }
-    }
+  for (const skill of character.skills) {
+    applyAttackBonuses(character, skill);
+    applyPsychicDiscipline(character, skill, rng);
   }
 
   return character;

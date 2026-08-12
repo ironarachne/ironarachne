@@ -29,6 +29,22 @@ grant; `CharacterEffect` is either.
 - **PDF** — `buildSwnCharacterPdf` returns a `Blob`; `downloadSwnCharacterPdf` saves it. The sheet
   is drawn with the sci-fi layout in [`$lib/pdf`](../pdf/README.md).
 
+## Data tables
+
+The larger tables live in their own modules, so the generators read as generation logic rather
+than as pages of content. To add or change content, edit these rather than the generator:
+
+- `starship_owner_type_data.ts` — the eight owner types, with the name pools and the naming rules
+  each one uses.
+- `starship_fitting_data.ts` — every general fitting a ship can carry.
+- `psychic_discipline_data.ts` — the level-0 and level-1 power each psychic discipline grants.
+
+These tables are shared, module-level constants: treat them as read-only. A ship copies each
+fitting it keeps, so the fittings on its sheet are its own and editing them cannot change what
+the next ship is offered. `OWNER_TYPES` is the exception that cannot be copied — its entries carry
+naming closures, which `structuredClone` refuses — so an owner type reaching `starship.ownerType`
+really is the shared one, and mutating it would affect every later ship.
+
 ## Usage
 
 ```typescript
