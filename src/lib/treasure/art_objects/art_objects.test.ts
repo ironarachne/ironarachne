@@ -34,14 +34,39 @@ describe('art_objects', () => {
   describe('getArtObjectOfMaxValue', () => {
     it('should return an art object within the max value', () => {
       const maxValue = 2000;
-      const art = getArtObjectOfMaxValue(maxValue);
+      const art = getArtObjectOfMaxValue('test-seed', maxValue);
 
       expect(art.value).toBeLessThanOrEqual(maxValue);
     });
 
+    it('should return the same art object for the same seed', () => {
+      const first = getArtObjectOfMaxValue('test-seed', 2000);
+      const second = getArtObjectOfMaxValue('test-seed', 2000);
+
+      expect(second).toEqual(first);
+    });
+
+    it('should vary across seeds', () => {
+      const names = new Set(
+        ['alpha', 'beta', 'gamma', 'delta', 'epsilon'].map(
+          (seed) => getArtObjectOfMaxValue(seed, 4000).name,
+        ),
+      );
+
+      expect(names.size).toBeGreaterThan(1);
+    });
+
+    it('should give each art object a unique id', () => {
+      const ids = new Set(
+        ['alpha', 'beta', 'gamma', 'delta'].map((seed) => getArtObjectOfMaxValue(seed, 4000).id),
+      );
+
+      expect(ids.size).toBe(4);
+    });
+
     it('should throw an error if no art object is available within the max value', () => {
       const maxValue = 1; // Assuming no art object is this cheap
-      expect(() => getArtObjectOfMaxValue(maxValue)).toThrow();
+      expect(() => getArtObjectOfMaxValue('test-seed', maxValue)).toThrow();
     });
   });
 

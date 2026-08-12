@@ -30,7 +30,7 @@ Manages valuable artistic items often found in hoards.
 - **Generation**:
   - `generateArtObject`: Creates unique art objects with descriptions and artist names.
   - `getArtObjectsForValue`: Generates a collection of art objects that sum up to a target value using a greedy algorithm.
-  - `getArtObjectOfMaxValue`: Selects a single art object within a specific price limit.
+  - `getArtObjectOfMaxValue(seed, maxValue)`: Selects a single art object within a specific price limit, seeded so the same seed always yields the same object.
 
 ### Gems (`gems.ts`)
 
