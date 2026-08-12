@@ -1,104 +1,74 @@
 import * as MUN from '@ironarachne/made-up-names';
-import * as RNG from '@ironarachne/rng';
+import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
-import WeaponGeneratorConfig from './config';
+import type { WeaponGeneratorConfig } from './config';
 import type { WeaponType, WeaponComponent, Weapon } from './weapons';
 
-export default class WeaponGenerator {
-  config: WeaponGeneratorConfig;
-  rng: RNG.RNG;
+export function describe(weapon: Weapon, weaponType: WeaponType, rng: RNG): string {
+  let description = `${rng.item(weaponType.bases)} `;
 
-  constructor(rng: RNG.RNG = new RNG.RNG(Date.now())) {
-    this.config = new WeaponGeneratorConfig(rng);
-    this.rng = rng;
-  }
+  description += `${Words.arrayToPhrase(weapon.effects)} and has `;
+  description += `${Words.arrayToPhrase(weapon.cosmetics)}.`;
 
-  describe(weapon: Weapon, weaponType: WeaponType): string {
-    let description = `${this.rng.item(weaponType.bases)} `;
+  return description;
+}
 
-    description += `${Words.arrayToPhrase(weapon.effects)} and has `;
-    description += `${Words.arrayToPhrase(weapon.cosmetics)}.`;
+export function generate(config: WeaponGeneratorConfig): Weapon {
+  const rng = config.rng;
+  const weaponType = rng.item(config.weaponTypes);
+  const nameGenerator = MUN.getModelNumberNameGenerator(rng);
+  const weapon: Weapon = {
+    name: `${nameGenerator.generate(1)[0]} ${weaponType.name}`,
+    maker: '',
+    damage: weaponType.damageType,
+    cosmetics: randomCosmetics(weaponType, rng),
+    effects: randomEffects(weaponType, rng),
+    description: '',
+  };
 
-    return description;
-  }
+  weapon.description = describe(weapon, weaponType, rng);
 
-  generate(): Weapon {
-    const weaponType = this.rng.item(this.config.weaponTypes);
-    const nameGenerator = MUN.getModelNumberNameGenerator(this.rng);
-    const weapon: Weapon = {
-      name: `${nameGenerator.generate(1)[0]} ${weaponType.name}`,
-      maker: '',
-      damage: weaponType.damageType,
-      cosmetics: this.randomCosmetics(weaponType),
-      effects: this.randomEffects(weaponType),
-      description: '',
-    };
+  return weapon;
+}
 
-    weapon.description = this.describe(weapon, weaponType);
+export function randomCosmetics(weaponType: WeaponType, rng: RNG): string[] {
+  return randomComponentOptions(weaponType.cosmetics, rng);
+}
 
-    return weapon;
-  }
+export function randomEffects(weaponType: WeaponType, rng: RNG): string[] {
+  return randomComponentOptions(weaponType.effects, rng);
+}
 
-  randomCosmetics(weaponType: WeaponType): string[] {
-    const cosmetics: string[] = [];
+function randomComponentOptions(components: WeaponComponent[], rng: RNG): string[] {
+  const chosen: string[] = [];
 
-    const numberOfCosmetics = this.rng.int(1, 3);
+  const numberToPick = rng.int(1, 3);
 
-    let cosmeticList: string[] = [];
+  const names = rng.shuffle(components.map((component) => component.name));
 
-    for (const cosmetic of weaponType.cosmetics) {
-      cosmeticList.push(cosmetic.name);
+  for (let i = 0; i < numberToPick; i++) {
+    const name = names.pop();
+    const component = findLastComponentByName(components, name);
+
+    if (component !== undefined) {
+      chosen.push(rng.item(component.options));
     }
-
-    cosmeticList = this.rng.shuffle(cosmeticList);
-
-    for (let i = 0; i < numberOfCosmetics; i++) {
-      const cosmetic = cosmeticList.pop();
-      let cosmeticComponent: WeaponComponent | undefined;
-
-      for (const c of weaponType.cosmetics) {
-        if (c.name === cosmetic) {
-          cosmeticComponent = c;
-        }
-      }
-
-      if (cosmeticComponent !== undefined) {
-        cosmetics.push(this.rng.item(cosmeticComponent.options));
-      }
-    }
-
-    return cosmetics;
   }
 
-  randomEffects(weaponType: WeaponType): string[] {
-    const effects: string[] = [];
+  return chosen;
+}
 
-    const numberOfEffects = this.rng.int(1, 3);
+function findLastComponentByName(
+  components: WeaponComponent[],
+  name: string | undefined,
+): WeaponComponent | undefined {
+  let found: WeaponComponent | undefined;
 
-    let effectList: string[] = [];
-
-    for (const effect of weaponType.effects) {
-      effectList.push(effect.name);
+  for (const component of components) {
+    if (component.name === name) {
+      found = component;
     }
-
-    effectList = this.rng.shuffle(effectList);
-
-    for (let i = 0; i < numberOfEffects; i++) {
-      const effect = effectList.pop();
-
-      let effectComponent: WeaponComponent | undefined;
-
-      for (const e of weaponType.effects) {
-        if (e.name === effect) {
-          effectComponent = e;
-        }
-      }
-
-      if (effectComponent !== undefined) {
-        effects.push(this.rng.item(effectComponent.options));
-      }
-    }
-
-    return effects;
   }
+
+  return found;
 }

@@ -1,2 +1,2 @@
-export { default as ArmsManufacturer } from './arms_manufacturer';
-export { default as ArmsManufacturerGenerator } from './generator';
+export type * from './arms_manufacturer';
+export * from './generator';

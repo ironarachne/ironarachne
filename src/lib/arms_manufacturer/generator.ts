@@ -1,104 +1,87 @@
-import ArmsManufacturer from './arms_manufacturer.js';
-import WeaponGenerator from '$lib/weapons/generator.js';
-import WeaponGeneratorConfig from '$lib/weapons/config.js';
 import * as MUN from '@ironarachne/made-up-names';
 import type { RNG } from '@ironarachne/rng';
-import { RNG as RngCtor } from '@ironarachne/rng';
+import { getDefaultConfig } from '$lib/weapons/config.js';
+import { generate as generateWeapon } from '$lib/weapons/generator.js';
 import * as SciFiWeaponTypes from '$lib/weapons/scifi.js';
+import type { Weapon } from '$lib/weapons/weapons.js';
+import type { ArmsManufacturer } from './arms_manufacturer.js';
 
-export default class ArmsManufacturerGenerator {
-  rng: RNG;
+export function generate(rng: RNG): ArmsManufacturer {
+  const name = randomName(rng);
 
-  constructor(rng: RNG = new RngCtor(Date.now())) {
-    this.rng = rng;
+  let description = `${name} `;
+
+  const specialty = rng.item(SciFiWeaponTypes.all);
+  const secondaryOptions = SciFiWeaponTypes.all.filter((wType) => wType.name !== specialty.name);
+
+  const secondary = rng.item(secondaryOptions);
+
+  description += rng.item([
+    ` specializes in ${specialty.name}s. `,
+    ` is known for their ${specialty.name}s. `,
+  ]);
+
+  description += randomOutlook(rng);
+  description += randomReputation(rng);
+
+  const config = getDefaultConfig(rng);
+  const models: Weapon[] = [];
+
+  config.weaponTypes = [specialty];
+
+  const numberOfPrimary = rng.int(3, 4);
+
+  for (let i = 0; i < numberOfPrimary; i++) {
+    models.push(generateWeapon(config));
   }
 
-  generate(): ArmsManufacturer {
-    const name = this.randomName();
+  config.weaponTypes = [secondary];
 
-    let description = `${name} `;
+  const numberOfSecondary = rng.int(0, 2);
 
-    const specialty = this.rng.item(SciFiWeaponTypes.all);
-    const secondaryOptions = SciFiWeaponTypes.all.filter((wType) => wType.name !== specialty.name);
-
-    const secondary = this.rng.item(secondaryOptions);
-
-    description += this.rng.item([
-      ` specializes in ${specialty.name}s. `,
-      ` is known for their ${specialty.name}s. `,
-    ]);
-
-    description += this.randomOutlook();
-    description += this.randomReputation();
-
-    const models = [];
-
-    const numberOfPrimary = this.rng.int(3, 4);
-
-    const generator = new WeaponGenerator(this.rng);
-    const config = new WeaponGeneratorConfig(this.rng);
-    config.weaponTypes = [specialty];
-    generator.config = config;
-
-    for (let i = 0; i < numberOfPrimary; i++) {
-      const model = generator.generate();
-      models.push(model);
-    }
-
-    config.weaponTypes = [secondary];
-    generator.config = config;
-
-    const numberOfSecondary = this.rng.int(0, 2);
-
-    for (let i = 0; i < numberOfSecondary; i++) {
-      const model = generator.generate();
-      models.push(model);
-    }
-
-    return new ArmsManufacturer(name, description, models);
+  for (let i = 0; i < numberOfSecondary; i++) {
+    models.push(generateWeapon(config));
   }
 
-  randomOutlook(): string {
-    return this.rng.item([
-      ' They focus exclusively on quality, and their products are very expensive.',
-      ' They focus heavily on reliability.',
-      ' They are devoted to profit above all else and their products are lower in quality.',
-      ' They pride themselves on their workmanship.',
-    ]);
-  }
+  return { name, description, models };
+}
 
-  randomReputation(): string {
-    return this.rng.item([
-      ' Their products are widely regarded as the standard to beat.',
-      ' Their products have a following among bounty hunters and mercenaries.',
-      ' Their products are well-regarded by military powers.',
-      ' They sometimes suffer derision because of their attitude.',
-      ' Their market presence is almost nonexistent.',
-      ' Some black markets focus exclusively on their products.',
-    ]);
-  }
+export function randomOutlook(rng: RNG): string {
+  return rng.item([
+    ' They focus exclusively on quality, and their products are very expensive.',
+    ' They focus heavily on reliability.',
+    ' They are devoted to profit above all else and their products are lower in quality.',
+    ' They pride themselves on their workmanship.',
+  ]);
+}
 
-  randomName() {
-    const patterns = ['pvlul', 'vpvfv'];
+export function randomReputation(rng: RNG): string {
+  return rng.item([
+    ' Their products are widely regarded as the standard to beat.',
+    ' Their products have a following among bounty hunters and mercenaries.',
+    ' Their products are well-regarded by military powers.',
+    ' They sometimes suffer derision because of their attitude.',
+    ' Their market presence is almost nonexistent.',
+    ' Some black markets focus exclusively on their products.',
+  ]);
+}
 
-    const nameGenerator = MUN.getNameGeneratorForPatternSet(
-      'arms_manufacturer',
-      patterns,
-      this.rng,
-    );
-    const nameFragment = nameGenerator.generate(1)[0];
+export function randomName(rng: RNG): string {
+  const patterns = ['pvlul', 'vpvfv'];
 
-    const suffixes = [
-      'Heavy Industries',
-      'Arms, Limited',
-      'Incorporated',
-      'Consolidated',
-      'Corporation',
-      'Applied Sciences',
-    ];
+  const nameGenerator = MUN.getNameGeneratorForPatternSet('arms_manufacturer', patterns, rng);
+  const nameFragment = nameGenerator.generate(1)[0];
 
-    const suffix = this.rng.item(suffixes);
+  const suffixes = [
+    'Heavy Industries',
+    'Arms, Limited',
+    'Incorporated',
+    'Consolidated',
+    'Corporation',
+    'Applied Sciences',
+  ];
 
-    return `${nameFragment} ${suffix}`;
-  }
+  const suffix = rng.item(suffixes);
+
+  return `${nameFragment} ${suffix}`;
 }

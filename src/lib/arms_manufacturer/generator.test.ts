@@ -1,7 +1,12 @@
 import { expect, describe, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import ArmsManufacturer from './arms_manufacturer';
-import ArmsManufacturerGenerator from './generator';
+import type { ArmsManufacturer } from './arms_manufacturer';
+import {
+  generate as generateArmsManufacturer,
+  randomName,
+  randomOutlook,
+  randomReputation,
+} from './generator';
 import * as SciFiWeaponTypes from '$lib/weapons/scifi';
 
 const SUFFIXES = [
@@ -14,35 +19,10 @@ const SUFFIXES = [
 ];
 
 function generate(seed: string): ArmsManufacturer {
-  return new ArmsManufacturerGenerator(new RNG(seed)).generate();
+  return generateArmsManufacturer(new RNG(seed));
 }
 
-describe('ArmsManufacturer', () => {
-  it('stores the name, description and models it was constructed with', () => {
-    const models = [
-      { name: 'X-1', maker: '', damage: 'energy', cosmetics: [], effects: [], description: '' },
-    ];
-    const manufacturer = new ArmsManufacturer('Acme', 'Makes things.', models);
-
-    expect(manufacturer.name).toBe('Acme');
-    expect(manufacturer.description).toBe('Makes things.');
-    expect(manufacturer.models).toBe(models);
-  });
-});
-
-describe('ArmsManufacturerGenerator', () => {
-  it('keeps the RNG it was given', () => {
-    const rng = new RNG('a');
-
-    expect(new ArmsManufacturerGenerator(rng).rng).toBe(rng);
-  });
-
-  it('seeds itself from the clock when given no RNG', () => {
-    expect(new ArmsManufacturerGenerator().rng).toBeInstanceOf(RNG);
-  });
-});
-
-describe('ArmsManufacturerGenerator.generate', () => {
+describe('generate', () => {
   it('is deterministic for a given seed', () => {
     expect(generate('acme')).toEqual(generate('acme'));
   });
@@ -53,8 +33,12 @@ describe('ArmsManufacturerGenerator.generate', () => {
     expect(names.size).toBeGreaterThan(1);
   });
 
-  it('returns an ArmsManufacturer', () => {
-    expect(generate('type')).toBeInstanceOf(ArmsManufacturer);
+  it('returns a manufacturer carrying a name, a description and models', () => {
+    const manufacturer = generate('type');
+
+    expect(typeof manufacturer.name).toBe('string');
+    expect(typeof manufacturer.description).toBe('string');
+    expect(Array.isArray(manufacturer.models)).toBe(true);
   });
 
   it('names the manufacturer with a made-up word and a corporate suffix', () => {
@@ -138,15 +122,13 @@ describe('ArmsManufacturerGenerator.generate', () => {
   });
 });
 
-describe('ArmsManufacturerGenerator.randomOutlook', () => {
+describe('randomOutlook', () => {
   it('is deterministic for a given seed', () => {
-    expect(new ArmsManufacturerGenerator(new RNG('o')).randomOutlook()).toBe(
-      new ArmsManufacturerGenerator(new RNG('o')).randomOutlook(),
-    );
+    expect(randomOutlook(new RNG('o'))).toBe(randomOutlook(new RNG('o')));
   });
 
   it('returns a sentence starting with a space', () => {
-    const outlook = new ArmsManufacturerGenerator(new RNG('o')).randomOutlook();
+    const outlook = randomOutlook(new RNG('o'));
 
     expect(outlook.startsWith(' ')).toBe(true);
     expect(outlook).toMatch(/\.$/);
@@ -154,24 +136,20 @@ describe('ArmsManufacturerGenerator.randomOutlook', () => {
 
   it('varies across seeds', () => {
     const outlooks = new Set(
-      Array.from({ length: 30 }, (_, index) =>
-        new ArmsManufacturerGenerator(new RNG(`o${index}`)).randomOutlook(),
-      ),
+      Array.from({ length: 30 }, (_, index) => randomOutlook(new RNG(`o${index}`))),
     );
 
     expect(outlooks.size).toBeGreaterThan(1);
   });
 });
 
-describe('ArmsManufacturerGenerator.randomReputation', () => {
+describe('randomReputation', () => {
   it('is deterministic for a given seed', () => {
-    expect(new ArmsManufacturerGenerator(new RNG('r')).randomReputation()).toBe(
-      new ArmsManufacturerGenerator(new RNG('r')).randomReputation(),
-    );
+    expect(randomReputation(new RNG('r'))).toBe(randomReputation(new RNG('r')));
   });
 
   it('returns a sentence starting with a space', () => {
-    const reputation = new ArmsManufacturerGenerator(new RNG('r')).randomReputation();
+    const reputation = randomReputation(new RNG('r'));
 
     expect(reputation.startsWith(' ')).toBe(true);
     expect(reputation).toMatch(/\.$/);
@@ -179,24 +157,20 @@ describe('ArmsManufacturerGenerator.randomReputation', () => {
 
   it('varies across seeds', () => {
     const reputations = new Set(
-      Array.from({ length: 30 }, (_, index) =>
-        new ArmsManufacturerGenerator(new RNG(`r${index}`)).randomReputation(),
-      ),
+      Array.from({ length: 30 }, (_, index) => randomReputation(new RNG(`r${index}`))),
     );
 
     expect(reputations.size).toBeGreaterThan(1);
   });
 });
 
-describe('ArmsManufacturerGenerator.randomName', () => {
+describe('randomName', () => {
   it('is deterministic for a given seed', () => {
-    expect(new ArmsManufacturerGenerator(new RNG('n')).randomName()).toBe(
-      new ArmsManufacturerGenerator(new RNG('n')).randomName(),
-    );
+    expect(randomName(new RNG('n'))).toBe(randomName(new RNG('n')));
   });
 
   it('joins a name fragment to a suffix with a space', () => {
-    const name = new ArmsManufacturerGenerator(new RNG('n')).randomName();
+    const name = randomName(new RNG('n'));
 
     expect(name).toContain(' ');
     expect(SUFFIXES.some((suffix) => name.endsWith(suffix))).toBe(true);

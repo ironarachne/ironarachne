@@ -1,21 +1,20 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { RNG } from '@ironarachne/rng';
-  import ArmsManufacturerGenerator from '$lib/arms_manufacturer/generator.js';
-  import type ArmsManufacturer from '$lib/arms_manufacturer/arms_manufacturer.js';
+  import { generate as generateArmsManufacturer } from '$lib/arms_manufacturer/generator.js';
+  import type { ArmsManufacturer } from '$lib/arms_manufacturer/arms_manufacturer.js';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
 
   const rng = new RNG(Date.now());
 
   let seed = new RNG(Date.now().toString()).randomString(13);
   rng.setSeed(seed);
-  const generator = new ArmsManufacturerGenerator(rng);
   let manufacturer: ArmsManufacturer | null = $state(null);
 
   function generate() {
     seed = new RNG(Date.now().toString()).randomString(13);
     rng.setSeed(seed);
-    manufacturer = generator.generate();
+    manufacturer = generateArmsManufacturer(rng);
   }
 
   onMount(() => {
