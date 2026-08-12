@@ -283,7 +283,9 @@ function randomLuckyRoll(modifier: number, rng: RNG): DCCLuckyRoll {
   const rolls = LuckyRolls.all();
   // rolls[0] is empty placeholder, so we roll 1d30 to get index 1-30
   const rollIndex = Dice.roll('1d30', rng);
-  const roll = rolls[rollIndex];
+  // The table is shared, and `modifier` is per-character, so the drawn row is copied before it is
+  // written to. Copying the one row rather than the table keeps this off the hot path.
+  const roll = { ...rolls[rollIndex] };
   roll.modifier = modifier;
 
   return roll;
@@ -314,5 +316,14 @@ function randomOccupation(allowedOccupations: string[], rng: RNG): DCCOccupation
     }),
   );
 
-  return occupation;
+  // The occupation tables are shared, and some `apply` handlers rewrite the row they are attached
+  // to — the human farmer replaces its own `name` with the crop it rolled — so the chosen row is
+  // copied here. `trainedWeapon` and `tradeGoods` are copied too because they are handed straight
+  // to the character and would otherwise be shared between every character with this occupation.
+  // Copying one row rather than the whole table keeps this cheap.
+  return {
+    ...occupation,
+    trainedWeapon: occupation.trainedWeapon ? { ...occupation.trainedWeapon } : null,
+    tradeGoods: occupation.tradeGoods ? { ...occupation.tradeGoods } : null,
+  };
 }

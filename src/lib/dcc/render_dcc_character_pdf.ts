@@ -135,14 +135,19 @@ function formatLanguagesSection(character: DCCCharacter): string {
   return character.languages.join(', ');
 }
 
-function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
-  let y = MARGIN;
-
+/**
+ * The sheet is a stack of fixed-height bands. Each `draw*Band` below takes the y it starts at and
+ * returns the y the next band starts at, so `renderCharacterSheet` reads as the running order of
+ * the page.
+ */
+function drawTitleBand(doc: PdfDoc, y: number): number {
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.text('ZERO LEVEL CHARACTER SHEET (DCC)', PAGE_WIDTH / 2, y + 5, { align: 'center' });
-  y += 12;
+  return y + 12;
+}
 
+function drawIdentityBand(doc: PdfDoc, y: number, character: DCCCharacter): number {
   const nameWidth = CONTENT_WIDTH * 0.35;
   const occupationWidth = CONTENT_WIDTH * 0.35;
   const alignmentWidth = CONTENT_WIDTH * 0.3;
@@ -172,8 +177,10 @@ function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
   doc.text('Alignment', MARGIN + nameWidth + occupationWidth + 2, y + 4);
   drawAlignmentMarkers(doc, MARGIN + nameWidth + occupationWidth + 22, y + 6, character.alignment);
 
-  y += ROW_HEIGHT;
+  return y + ROW_HEIGHT;
+}
 
+function drawAbilityBand(doc: PdfDoc, y: number, character: DCCCharacter): number {
   const abilityWidth = CONTENT_WIDTH / 6;
   const abilityHeight = 22;
   const abilities = [
@@ -198,8 +205,10 @@ function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
     );
   }
 
-  y += abilityHeight;
+  return y + abilityHeight;
+}
 
+function drawCombatBand(doc: PdfDoc, y: number, character: DCCCharacter): number {
   const combatWidth = CONTENT_WIDTH / 5;
   drawCompactField(doc, MARGIN, y, combatWidth, ROW_HEIGHT, 'AC', `${character.armorClass}`);
   drawCompactField(doc, MARGIN + combatWidth, y, combatWidth, ROW_HEIGHT, 'HP', `${character.hp}`);
@@ -231,8 +240,10 @@ function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
     `${character.xp}`,
   );
 
-  y += ROW_HEIGHT;
+  return y + ROW_HEIGHT;
+}
 
+function drawSavesBand(doc: PdfDoc, y: number, character: DCCCharacter): number {
   const saveWidth = CONTENT_WIDTH / 3;
   drawCompactField(
     doc,
@@ -262,7 +273,12 @@ function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
     formatDccModifier(character.willpowerSave),
   );
 
-  y += ROW_HEIGHT + 2;
+  return y + ROW_HEIGHT + 2;
+}
+
+/** The variable-height prose sections that fill the rest of the page. */
+function drawDetailSections(doc: PdfDoc, startY: number, character: DCCCharacter): void {
+  let y = startY;
 
   y += drawLabeledSection(
     doc,
@@ -313,6 +329,16 @@ function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
     formatDccStartingFunds(character.currency),
     10,
   );
+}
+
+function renderCharacterSheet(doc: PdfDoc, character: DCCCharacter): void {
+  let y = MARGIN;
+  y = drawTitleBand(doc, y);
+  y = drawIdentityBand(doc, y, character);
+  y = drawAbilityBand(doc, y, character);
+  y = drawCombatBand(doc, y, character);
+  y = drawSavesBand(doc, y, character);
+  drawDetailSections(doc, y, character);
 }
 
 export async function buildDccCharacterPdf(character: DCCCharacter): Promise<Blob> {
