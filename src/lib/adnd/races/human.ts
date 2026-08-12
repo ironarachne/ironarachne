@@ -1,34 +1,34 @@
-import ADNDCharacter from '../adndcharacter.js';
-import ADNDRace from '../adndrace.js';
+import type ADNDCharacter from '../adndcharacter.js';
+import type ADNDRace from '../adndrace.js';
 
-export default new ADNDRace(
-  'human',
-  'human',
-  function (character: ADNDCharacter): ADNDCharacter {
+const human: ADNDRace = {
+  name: 'human',
+  adjective: 'human',
+  apply: function (character: ADNDCharacter): ADNDCharacter {
     return character;
   },
-  1,
-  25,
-  1,
-  25,
-  1,
-  25,
-  1,
-  25,
-  1,
-  25,
-  1,
-  25,
-  60,
-  59,
-  140,
-  100,
-  '2d10',
-  '6d10',
-  15,
-  12,
-  '1d4',
-  [
+  minStrength: 1,
+  maxStrength: 25,
+  minDexterity: 1,
+  maxDexterity: 25,
+  minConstitution: 1,
+  maxConstitution: 25,
+  minIntelligence: 1,
+  maxIntelligence: 25,
+  minWisdom: 1,
+  maxWisdom: 25,
+  minCharisma: 1,
+  maxCharisma: 25,
+  baseHeightMale: 60,
+  baseHeightFemale: 59,
+  baseWeightMale: 140,
+  baseWeightFemale: 100,
+  heightModifier: '2d10',
+  weightModifier: '6d10',
+  baseAge: 15,
+  baseMovement: 12,
+  ageModifier: '1d4',
+  availableInitialLanguages: [
     'common',
     'dwarf',
     'elf',
@@ -41,7 +41,7 @@ export default new ADNDRace(
     'giant',
     'kobold',
   ],
-  [
+  allowedClasses: [
     'bard',
     'cleric',
     'druid',
@@ -53,4 +53,6 @@ export default new ADNDRace(
     'specialist wizard',
     'thief',
   ],
-);
+};
+
+export default human;

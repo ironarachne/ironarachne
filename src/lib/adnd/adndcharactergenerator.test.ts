@@ -1,8 +1,7 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
-import ADNDArmor from './adndarmor.js';
-import ADNDCharacter from './adndcharacter.js';
-import ADNDCharacterGenerator from './adndcharactergenerator.js';
+import { createAdndCharacter, type default as ADNDCharacter } from './adndcharacter.js';
+import { generateCharacter } from './adndcharactergenerator.js';
 import {
   applyAdndAbilityDerivedFields,
   applyAdndPriestFundsCapIfNeeded,
@@ -15,8 +14,7 @@ import {
   rollAdndLevel1Hp,
   rollAdndStartingCopper,
 } from './adndcharactergenerator.js';
-import ADNDCharacterGeneratorConfig from './adndcharactergeneratorconfig.js';
-import ADNDWeapon from './adndweapon.js';
+import { getDefaultConfig } from './adndcharactergeneratorconfig.js';
 import cleric from './classes/cleric.js';
 import fighter from './classes/fighter.js';
 import mage from './classes/mage.js';
@@ -26,7 +24,7 @@ import human from './races/human.js';
 import * as Equipment from './equipment.js';
 
 function baseCharacter(): ADNDCharacter {
-  const c = new ADNDCharacter();
+  const c = createAdndCharacter();
   c.race = human;
   c.class = fighter;
   c.strength = 12;
@@ -40,11 +38,10 @@ function baseCharacter(): ADNDCharacter {
   return c;
 }
 
-describe('ADNDCharacterGenerator', () => {
+describe('generateCharacter', () => {
   it('generates a complete level-1 character from a seeded config', () => {
     const rng = new RNG('adnd-gen-full-character');
-    const config = new ADNDCharacterGeneratorConfig(rng);
-    const character = new ADNDCharacterGenerator(config).generateCharacter();
+    const character = generateCharacter(getDefaultConfig(rng));
 
     expect(character.race).toBeDefined();
     expect(character.class).toBeDefined();
@@ -169,8 +166,18 @@ describe('getPossibleArmor', () => {
     c.class = fighter;
     c.currency = 25_000;
     const armor = [
-      new ADNDArmor('banded mail', 4, 35, 200 * 100),
-      new ADNDArmor('plate mail', 3, 45, 600 * 100),
+      {
+        name: 'banded mail',
+        ac: 4,
+        weight: 35,
+        cost: 200 * 100,
+      },
+      {
+        name: 'plate mail',
+        ac: 3,
+        weight: 45,
+        cost: 600 * 100,
+      },
     ];
 
     expect(getPossibleArmor(c, armor).map((a) => a.name)).toEqual(['banded mail']);
@@ -183,8 +190,30 @@ describe('getPossibleWeapons', () => {
     c.class = cleric;
     c.currency = 50;
     const weapons = [
-      new ADNDWeapon('club', 1, 3, 'medium', 'bludgeoning', 2, '1d6', '1d3', 'club'),
-      new ADNDWeapon('long sword', 15 * 100, 4, 'medium', 'slashing', 5, '1d8', '1d12', 'sword'),
+      {
+        name: 'club',
+        cost: 1,
+        weight: 3,
+        size: 'medium',
+        damageType: 'bludgeoning',
+        speedFactor: 2,
+        damageSM: '1d6',
+        damageL: '1d3',
+        category: 'club',
+        usesAmmo: false,
+      },
+      {
+        name: 'long sword',
+        cost: 15 * 100,
+        weight: 4,
+        size: 'medium',
+        damageType: 'slashing',
+        speedFactor: 5,
+        damageSM: '1d8',
+        damageL: '1d12',
+        category: 'sword',
+        usesAmmo: false,
+      },
     ];
 
     expect(getPossibleWeapons(c, weapons).map((w) => w.name)).toEqual(['club']);
@@ -258,7 +287,20 @@ describe('applyAdndPriestFundsCapIfNeeded', () => {
 describe('recalculateAdndArmorClass', () => {
   it('starts at 10 and adds equipped armor values', () => {
     const c = baseCharacter();
-    c.armor = [new ADNDArmor('leather', 2, 15, 5 * 100), new ADNDArmor('shield', 1, 5, 10 * 100)];
+    c.armor = [
+      {
+        name: 'leather',
+        ac: 2,
+        weight: 15,
+        cost: 5 * 100,
+      },
+      {
+        name: 'shield',
+        ac: 1,
+        weight: 5,
+        cost: 10 * 100,
+      },
+    ];
 
     recalculateAdndArmorClass(c);
 

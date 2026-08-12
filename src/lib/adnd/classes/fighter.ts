@@ -1,21 +1,21 @@
 import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
-import ADNDClass from '../adndclass.js';
+import type ADNDClass from '../adndclass.js';
 
-export default new ADNDClass(
-  'fighter',
-  'warrior',
-  '1d10',
-  9,
-  -1,
-  -1,
-  -1,
-  -1,
-  -1,
-  ['strength'],
-  [],
-  [
+const fighter: ADNDClass = {
+  name: 'fighter',
+  group: 'warrior',
+  hitDice: '1d10',
+  minStrength: 9,
+  minDexterity: -1,
+  minConstitution: -1,
+  minIntelligence: -1,
+  minWisdom: -1,
+  minCharisma: -1,
+  primeRequisites: ['strength'],
+  abilities: [],
+  allowedAlignments: [
     'lawful good',
     'lawful neutral',
     'lawful evil',
@@ -26,14 +26,19 @@ export default new ADNDClass(
     'chaotic neutral',
     'chaotic good',
   ],
-  false,
-  [],
-  [],
-  ['any'],
-  ['any'],
-  4,
-  3,
-  -2,
-  (character: ADNDCharacter, _rng: RNG.RNG, _options?: AdndClassApplyOptions): ADNDCharacter =>
-    character,
-);
+  hasSpells: false,
+  allowedSpellTypes: [],
+  spellList: [],
+  allowedWeapons: ['any'],
+  allowedArmor: ['any'],
+  initialWP: 4,
+  initialNWP: 3,
+  wpPenalty: -2,
+  apply: (
+    character: ADNDCharacter,
+    _rng: RNG.RNG,
+    _options?: AdndClassApplyOptions,
+  ): ADNDCharacter => character,
+};
+
+export default fighter;

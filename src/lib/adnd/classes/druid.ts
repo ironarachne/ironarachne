@@ -2,26 +2,25 @@ import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import { assignRandomStartingSpellsForClass } from '../adnd_class_starting_spells.js';
 import type ADNDCharacter from '../adndcharacter.js';
-import ADNDClass from '../adndclass.js';
-import SpellFilter from '../spellfilter.js';
+import type ADNDClass from '../adndclass.js';
 
-export default new ADNDClass(
-  'druid',
-  'priest',
-  '1d8',
-  -1,
-  -1,
-  -1,
-  -1,
-  12,
-  15,
-  ['wisdom'],
-  [
+const druid: ADNDClass = {
+  name: 'druid',
+  group: 'priest',
+  hitDice: '1d8',
+  minStrength: -1,
+  minDexterity: -1,
+  minConstitution: -1,
+  minIntelligence: -1,
+  minWisdom: 12,
+  minCharisma: 15,
+  primeRequisites: ['wisdom'],
+  abilities: [
     'Cast priest spells',
     'Speak druidic',
     '+2 bonus to saving throws vs. fire or electrical attacks',
   ],
-  [
+  allowedAlignments: [
     'lawful good',
     'lawful neutral',
     'lawful evil',
@@ -32,26 +31,26 @@ export default new ADNDClass(
     'chaotic neutral',
     'chaotic good',
   ],
-  true,
-  ['priest'],
-  [
+  hasSpells: true,
+  allowedSpellTypes: ['priest'],
+  spellList: [
     {
-      filter: new SpellFilter(
-        '',
-        1,
-        'priest',
-        ['plant', 'animal', 'healing', 'weather', 'elemental'],
-        [],
-      ),
+      filter: {
+        name: '',
+        level: 1,
+        casterClass: 'priest',
+        requiredTags: ['plant', 'animal', 'healing', 'weather', 'elemental'],
+        bannedTags: [],
+      },
       count: 1,
     },
   ],
-  ['club', 'sickle', 'spear', 'scimitar', 'dagger', 'staff', 'dart', 'sling'],
-  ['leather', 'studded leather', 'wooden shield'],
-  2,
-  4,
-  -3,
-  function (
+  allowedWeapons: ['club', 'sickle', 'spear', 'scimitar', 'dagger', 'staff', 'dart', 'sling'],
+  allowedArmor: ['leather', 'studded leather', 'wooden shield'],
+  initialWP: 2,
+  initialNWP: 4,
+  wpPenalty: -3,
+  apply: function (
     this: ADNDClass,
     character: ADNDCharacter,
     rng: RNG.RNG,
@@ -62,4 +61,6 @@ export default new ADNDClass(
     }
     return character;
   },
-);
+};
+
+export default druid;

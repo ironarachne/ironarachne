@@ -1,31 +1,47 @@
 import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
-import ADNDClass from '../adndclass.js';
+import type ADNDClass from '../adndclass.js';
 import * as ThiefSkills from '../adndthiefskills.js';
 
-export default new ADNDClass(
-  'bard',
-  'rogue',
-  '1d6',
-  -1,
-  12,
-  -1,
-  13,
-  -1,
-  15,
-  ['dexterity', 'charisma'],
-  ['Climb walls', 'Detect noise', 'Pick pockets', 'Read languages', 'Influence reactions'],
-  ['lawful neutral', 'neutral good', 'true neutral', 'neutral evil', 'chaotic neutral'],
-  false,
-  [],
-  [],
-  ['any'],
-  ['padded', 'leather', 'studded leather', 'chain mail'],
-  2,
-  3,
-  -3,
-  (character: ADNDCharacter, rng: RNG.RNG, options?: AdndClassApplyOptions): ADNDCharacter => {
+const bard: ADNDClass = {
+  name: 'bard',
+  group: 'rogue',
+  hitDice: '1d6',
+  minStrength: -1,
+  minDexterity: 12,
+  minConstitution: -1,
+  minIntelligence: 13,
+  minWisdom: -1,
+  minCharisma: 15,
+  primeRequisites: ['dexterity', 'charisma'],
+  abilities: [
+    'Climb walls',
+    'Detect noise',
+    'Pick pockets',
+    'Read languages',
+    'Influence reactions',
+  ],
+  allowedAlignments: [
+    'lawful neutral',
+    'neutral good',
+    'true neutral',
+    'neutral evil',
+    'chaotic neutral',
+  ],
+  hasSpells: false,
+  allowedSpellTypes: [],
+  spellList: [],
+  allowedWeapons: ['any'],
+  allowedArmor: ['padded', 'leather', 'studded leather', 'chain mail'],
+  initialWP: 2,
+  initialNWP: 3,
+  wpPenalty: -3,
+  apply: (
+    character: ADNDCharacter,
+    rng: RNG.RNG,
+    options?: AdndClassApplyOptions,
+  ): ADNDCharacter => {
     let skills = [
       { name: 'Pick Pockets', value: 10, points: 0 },
       { name: 'Detect Noise', value: 20, points: 0 },
@@ -53,4 +69,6 @@ export default new ADNDClass(
 
     return character;
   },
-);
+};
+
+export default bard;

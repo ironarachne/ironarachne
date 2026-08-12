@@ -1,4 +1,4 @@
-import type { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentList } from '../list.js';
 
 export const booksList: EquipmentList = {
   title: 'Books and Education',

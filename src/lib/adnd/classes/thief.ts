@@ -1,21 +1,21 @@
 import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
-import ADNDClass from '../adndclass.js';
+import type ADNDClass from '../adndclass.js';
 import * as ThiefSkills from '../adndthiefskills.js';
 
-export default new ADNDClass(
-  'thief',
-  'rogue',
-  '1d6',
-  -1,
-  9,
-  -1,
-  -1,
-  -1,
-  -1,
-  ['dexterity'],
-  [
+const thief: ADNDClass = {
+  name: 'thief',
+  group: 'rogue',
+  hitDice: '1d6',
+  minStrength: -1,
+  minDexterity: 9,
+  minConstitution: -1,
+  minIntelligence: -1,
+  minWisdom: -1,
+  minCharisma: -1,
+  primeRequisites: ['dexterity'],
+  abilities: [
     'Pick pockets',
     'Open locks',
     'Find/remove traps',
@@ -27,7 +27,7 @@ export default new ADNDClass(
     'Backstab',
     "Thieves' cant",
   ],
-  [
+  allowedAlignments: [
     'lawful neutral',
     'lawful evil',
     'neutral good',
@@ -37,10 +37,10 @@ export default new ADNDClass(
     'chaotic neutral',
     'chaotic good',
   ],
-  false,
-  [],
-  [],
-  [
+  hasSpells: false,
+  allowedSpellTypes: [],
+  spellList: [],
+  allowedWeapons: [
     'club',
     'dagger',
     'hand crossbow',
@@ -54,11 +54,11 @@ export default new ADNDClass(
     'knife',
     'sling',
   ],
-  ['leather', 'studded leather', 'padded', 'elven chain armor'],
-  2,
-  3,
-  -3,
-  function (
+  allowedArmor: ['leather', 'studded leather', 'padded', 'elven chain armor'],
+  initialWP: 2,
+  initialNWP: 3,
+  wpPenalty: -3,
+  apply: function (
     this: ADNDClass,
     character: ADNDCharacter,
     rng: RNG.RNG,
@@ -96,4 +96,6 @@ export default new ADNDClass(
 
     return character;
   },
-);
+};
+
+export default thief;

@@ -1,6 +1,6 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
-import ADNDCharacter from '../adndcharacter.js';
+import { createAdndCharacter } from '../adndcharacter.js';
 import dwarf from './dwarf.js';
 import human from './human.js';
 import * as races from './races.js';
@@ -22,7 +22,7 @@ describe('ADNDRace apply', () => {
   const rng = new RNG('race-apply-spot');
 
   it('applies dwarf racial adjustments and abilities', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.constitution = 10;
     c.charisma = 10;
 
@@ -34,7 +34,7 @@ describe('ADNDRace apply', () => {
   });
 
   it('leaves human stats unchanged', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.constitution = 12;
     c.charisma = 12;
 
@@ -48,7 +48,7 @@ describe('ADNDRace apply', () => {
   it('applies every race hook without error', () => {
     const rng = new RNG('all-race-apply');
     for (const race of races.getAll()) {
-      const c = new ADNDCharacter();
+      const c = createAdndCharacter();
       c.race = race;
       c.constitution = 12;
       c.charisma = 12;

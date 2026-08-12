@@ -1,10 +1,10 @@
-import ADNDCharacter from '../adndcharacter.js';
-import ADNDRace from '../adndrace.js';
+import type ADNDCharacter from '../adndcharacter.js';
+import type ADNDRace from '../adndrace.js';
 
-export default new ADNDRace(
-  'elf',
-  'elven',
-  function (character: ADNDCharacter): ADNDCharacter {
+const elf: ADNDRace = {
+  name: 'elf',
+  adjective: 'elven',
+  apply: function (character: ADNDCharacter): ADNDCharacter {
     character.dexterity += 1;
     character.constitution -= 1;
     // TODO: address special abilities
@@ -20,27 +20,38 @@ export default new ADNDRace(
     );
     return character;
   },
-  3,
-  18,
-  6,
-  18,
-  7,
-  18,
-  8,
-  18,
-  3,
-  18,
-  3,
-  18,
-  55,
-  50,
-  90,
-  70,
-  '1d10',
-  '3d10',
-  100,
-  12,
-  '5d6',
-  ['common', 'elf', 'gnome', 'halfling', 'goblin', 'hobgoblin', 'gnoll', 'orc'],
-  ['cleric', 'fighter', 'mage', 'ranger', 'thief'],
-);
+  minStrength: 3,
+  maxStrength: 18,
+  minDexterity: 6,
+  maxDexterity: 18,
+  minConstitution: 7,
+  maxConstitution: 18,
+  minIntelligence: 8,
+  maxIntelligence: 18,
+  minWisdom: 3,
+  maxWisdom: 18,
+  minCharisma: 3,
+  maxCharisma: 18,
+  baseHeightMale: 55,
+  baseHeightFemale: 50,
+  baseWeightMale: 90,
+  baseWeightFemale: 70,
+  heightModifier: '1d10',
+  weightModifier: '3d10',
+  baseAge: 100,
+  baseMovement: 12,
+  ageModifier: '5d6',
+  availableInitialLanguages: [
+    'common',
+    'elf',
+    'gnome',
+    'halfling',
+    'goblin',
+    'hobgoblin',
+    'gnoll',
+    'orc',
+  ],
+  allowedClasses: ['cleric', 'fighter', 'mage', 'ranger', 'thief'],
+};
+
+export default elf;

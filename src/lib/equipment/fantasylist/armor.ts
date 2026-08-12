@@ -1,5 +1,5 @@
 import { getArmor } from '../../adnd/equipment.js';
-import type { EquipmentItem, EquipmentList } from '../list.js';
+import type { EquipmentList } from '../list.js';
 
 export const armorList: EquipmentList = {
   title: 'Armor and Shields',

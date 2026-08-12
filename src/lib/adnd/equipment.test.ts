@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import ADNDWeapon from './adndweapon.js';
 import * as Equipment from './equipment.js';
 
 describe('getWeapons', () => {
@@ -20,77 +19,100 @@ describe('getArmor', () => {
 
 describe('getAmmoTypes', () => {
   it('returns blowgun dart variants', () => {
-    const blowgun = new ADNDWeapon(
-      'blowgun',
-      5 * 100,
-      2,
-      'medium',
-      'piercing',
-      5,
-      '1',
-      '1',
-      'blowgun',
-      true,
-    );
+    const blowgun = {
+      name: 'blowgun',
+      cost: 5 * 100,
+      weight: 2,
+      size: 'medium',
+      damageType: 'piercing',
+      speedFactor: 5,
+      damageSM: '1',
+      damageL: '1',
+      category: 'blowgun',
+      usesAmmo: true,
+    };
     const ammo = Equipment.getAmmoTypes(blowgun);
     expect(ammo.map((a) => a.name)).toEqual(['blowgun barbed dart', 'blowgun needle']);
   });
 
   it('returns bow arrows for bow category weapons', () => {
-    const bow = new ADNDWeapon(
-      'long bow',
-      75 * 100,
-      3,
-      'large',
-      'piercing',
-      8,
-      '1d6',
-      '1d6',
-      'bow',
-    );
+    const bow = {
+      name: 'long bow',
+      cost: 75 * 100,
+      weight: 3,
+      size: 'large',
+      damageType: 'piercing',
+      speedFactor: 8,
+      damageSM: '1d6',
+      damageL: '1d6',
+      category: 'bow',
+      usesAmmo: false,
+    };
     const ammo = Equipment.getAmmoTypes(bow);
     expect(ammo.map((a) => a.name)).toEqual(['flight arrow (12)', 'sheaf arrow (6)']);
   });
 
   it('returns hand crossbow quarrels', () => {
-    const crossbow = new ADNDWeapon(
-      'Crossbow, hand',
-      300 * 100,
-      3,
-      'small',
-      'piercing',
-      5,
-      '1d3',
-      '1d2',
-      'crossbow',
-      true,
-    );
+    const crossbow = {
+      name: 'Crossbow, hand',
+      cost: 300 * 100,
+      weight: 3,
+      size: 'small',
+      damageType: 'piercing',
+      speedFactor: 5,
+      damageSM: '1d3',
+      damageL: '1d2',
+      category: 'crossbow',
+      usesAmmo: true,
+    };
     expect(Equipment.getAmmoTypes(crossbow)).toHaveLength(1);
   });
 
   it('returns heavy crossbow quarrels', () => {
-    const crossbow = new ADNDWeapon(
-      'crossbow, heavy',
-      50 * 100,
-      10,
-      'medium',
-      'piercing',
-      7,
-      '1d4+1',
-      '1d6+1',
-      'crossbow',
-      true,
-    );
+    const crossbow = {
+      name: 'crossbow, heavy',
+      cost: 50 * 100,
+      weight: 10,
+      size: 'medium',
+      damageType: 'piercing',
+      speedFactor: 7,
+      damageSM: '1d4+1',
+      damageL: '1d6+1',
+      category: 'crossbow',
+      usesAmmo: true,
+    };
     expect(Equipment.getAmmoTypes(crossbow)[0]?.name).toBe('heavy quarrel');
   });
 
   it('returns sling bullets', () => {
-    const sling = new ADNDWeapon('sling', 5, 0, 'small', 'bludgeoning', 2, '1d4', '1d4', 'sling');
+    const sling = {
+      name: 'sling',
+      cost: 5,
+      weight: 0,
+      size: 'small',
+      damageType: 'bludgeoning',
+      speedFactor: 2,
+      damageSM: '1d4',
+      damageL: '1d4',
+      category: 'sling',
+      usesAmmo: false,
+    };
     expect(Equipment.getAmmoTypes(sling)[0]?.name).toBe('sling bullet');
   });
 
   it('returns an empty list for weapons without ammo', () => {
-    const club = new ADNDWeapon('club', 1, 3, 'medium', 'bludgeoning', 2, '1d6', '1d3', 'club');
+    const club = {
+      name: 'club',
+      cost: 1,
+      weight: 3,
+      size: 'medium',
+      damageType: 'bludgeoning',
+      speedFactor: 2,
+      damageSM: '1d6',
+      damageL: '1d3',
+      category: 'club',
+      usesAmmo: false,
+    };
     expect(Equipment.getAmmoTypes(club)).toEqual([]);
   });
 });

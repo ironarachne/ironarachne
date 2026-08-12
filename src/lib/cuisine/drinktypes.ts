@@ -1,5 +1,3 @@
-import type { DrinkType } from './drinktype.js';
-
 export function all() {
   return [
     {

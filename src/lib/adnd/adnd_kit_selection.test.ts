@@ -1,13 +1,13 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
-import ADNDCharacter from './adndcharacter';
+import { createAdndCharacter } from './adndcharacter';
 import { filterKitsForCharacter, selectRandomKit } from './adnd_kit_selection';
 import { adndKitRows } from './adnd_kits_data';
 import paladin from './classes/paladin';
 
 describe('filterKitsForCharacter', () => {
   it('excludes rows when a minimum stat is not met', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.class = paladin;
     c.strength = 10;
     c.dexterity = 10;
@@ -21,7 +21,7 @@ describe('filterKitsForCharacter', () => {
   });
 
   it('includes rows when all minimum stats are met', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.class = paladin;
     c.strength = 10;
     c.dexterity = 10;
@@ -37,7 +37,7 @@ describe('filterKitsForCharacter', () => {
 
 describe('selectRandomKit', () => {
   it('returns null when the candidate list is empty', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.class = paladin;
     c.charisma = 8;
     const rng = new RNG('kit-empty-1');
@@ -47,7 +47,7 @@ describe('selectRandomKit', () => {
   });
 
   it('returns a kit from qualifying rows with stable seeded RNG', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.class = paladin;
     c.charisma = 18;
     c.strength = 10;

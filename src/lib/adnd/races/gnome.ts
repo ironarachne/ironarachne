@@ -1,10 +1,10 @@
-import ADNDCharacter from '../adndcharacter.js';
-import ADNDRace from '../adndrace.js';
+import type ADNDCharacter from '../adndcharacter.js';
+import type ADNDRace from '../adndrace.js';
 
-export default new ADNDRace(
-  'gnome',
-  'gnomish',
-  function (character: ADNDCharacter): ADNDCharacter {
+const gnome: ADNDRace = {
+  name: 'gnome',
+  adjective: 'gnomish',
+  apply: function (character: ADNDCharacter): ADNDCharacter {
     character.intelligence += 1;
     character.wisdom -= 1;
     // TODO: address saving throws
@@ -26,27 +26,37 @@ export default new ADNDRace(
     );
     return character;
   },
-  6,
-  18,
-  3,
-  18,
-  8,
-  18,
-  6,
-  18,
-  3,
-  18,
-  3,
-  18,
-  38,
-  36,
-  72,
-  68,
-  '1d6',
-  '5d4',
-  60,
-  6,
-  '3d12',
-  ['common', 'gnome', 'dwarf', 'halfling', 'goblin', 'kobold', 'burrowing mammal'],
-  ['cleric', 'fighter', 'illusionist', 'thief'],
-);
+  minStrength: 6,
+  maxStrength: 18,
+  minDexterity: 3,
+  maxDexterity: 18,
+  minConstitution: 8,
+  maxConstitution: 18,
+  minIntelligence: 6,
+  maxIntelligence: 18,
+  minWisdom: 3,
+  maxWisdom: 18,
+  minCharisma: 3,
+  maxCharisma: 18,
+  baseHeightMale: 38,
+  baseHeightFemale: 36,
+  baseWeightMale: 72,
+  baseWeightFemale: 68,
+  heightModifier: '1d6',
+  weightModifier: '5d4',
+  baseAge: 60,
+  baseMovement: 6,
+  ageModifier: '3d12',
+  availableInitialLanguages: [
+    'common',
+    'gnome',
+    'dwarf',
+    'halfling',
+    'goblin',
+    'kobold',
+    'burrowing mammal',
+  ],
+  allowedClasses: ['cleric', 'fighter', 'illusionist', 'thief'],
+};
+
+export default gnome;

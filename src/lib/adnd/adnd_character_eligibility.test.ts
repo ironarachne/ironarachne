@@ -1,6 +1,6 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
-import ADNDCharacter from './adndcharacter.js';
+import { createAdndCharacter } from './adndcharacter.js';
 import {
   assignExceptionalStrength,
   getClassOptionsForRace,
@@ -23,7 +23,7 @@ describe('isWarriorClass', () => {
 
 describe('getClassOptionsForRace', () => {
   it('excludes classes not allowed for dwarf even when stats qualify', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.strength = 18;
     c.dexterity = 18;
     c.constitution = 18;
@@ -38,7 +38,7 @@ describe('getClassOptionsForRace', () => {
 
 describe('assignExceptionalStrength', () => {
   it('clears percentile for non-warrior at STR 18', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.strength = 18;
     c.exceptionalStrength = 50;
     const rng = new RNG('pct-test-a');
@@ -47,7 +47,7 @@ describe('assignExceptionalStrength', () => {
   });
 
   it('rolls percentile for warrior at STR 18', () => {
-    const c = new ADNDCharacter();
+    const c = createAdndCharacter();
     c.strength = 18;
     c.exceptionalStrength = -1;
     const rng = new RNG('pct-test-b');

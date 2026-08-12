@@ -1,7 +1,7 @@
 import * as Dice from '$lib/dice';
 import type { RNG } from '@ironarachne/rng';
 import type ADNDArmor from './adndarmor.js';
-import ADNDCharacter from './adndcharacter.js';
+import { createAdndCharacter, type default as ADNDCharacter } from './adndcharacter.js';
 import type ADNDCharacterGeneratorConfig from './adndcharactergeneratorconfig.js';
 import type ADNDClass from './adndclass.js';
 import type ADNDWeapon from './adndweapon.js';
@@ -18,115 +18,107 @@ import {
   selectWeaponProficiencyGroups,
 } from './adnd_proficiency_selection.js';
 
-export default class ADNDCharacterGenerator {
-  config: ADNDCharacterGeneratorConfig;
+export function generateCharacter(config: ADNDCharacterGeneratorConfig): ADNDCharacter {
+  let character = createAdndCharacter();
 
-  constructor(config: ADNDCharacterGeneratorConfig) {
-    this.config = config;
+  character.charisma = Dice.roll('3d6', config.rng);
+  character.constitution = Dice.roll('3d6', config.rng);
+  character.dexterity = Dice.roll('3d6', config.rng);
+  character.intelligence = Dice.roll('3d6', config.rng);
+  character.strength = Dice.roll('3d6', config.rng);
+  character.wisdom = Dice.roll('3d6', config.rng);
+
+  character.race = config.rng.item(getRaceOptions(character, config.allowedRaces));
+  // `apply` is a domain method on ADNDRace, not Function.prototype.apply.
+  // eslint-disable-next-line prefer-spread
+  character = character.race.apply(character, config.rng);
+
+  character.class = config.rng.item(
+    getClassOptionsForRace(character, character.race, config.allowedClasses),
+  );
+  // `apply` is a domain method on ADNDClass, not Function.prototype.apply.
+  // eslint-disable-next-line prefer-spread
+  character = character.class.apply(character, config.rng);
+
+  assignExceptionalStrength(character, character.class, config.rng);
+
+  if (character.class.group === 'warrior') {
+    character.currency = Dice.roll('5d4', config.rng) * 10 * 100;
+  } else if (character.class.group === 'wizard') {
+    character.currency = Dice.roll('1d4+1', config.rng) * 10 * 100;
+  } else if (character.class.group === 'rogue') {
+    character.currency = Dice.roll('2d6', config.rng) * 10 * 100;
+  } else {
+    character.currency = Dice.roll('3d6', config.rng) * 10 * 100;
   }
 
-  generateCharacter(): ADNDCharacter {
-    let character = new ADNDCharacter();
+  character.alignment = config.rng.item(character.class.allowedAlignments);
 
-    character.charisma = Dice.roll('3d6', this.config.rng);
-    character.constitution = Dice.roll('3d6', this.config.rng);
-    character.dexterity = Dice.roll('3d6', this.config.rng);
-    character.intelligence = Dice.roll('3d6', this.config.rng);
-    character.strength = Dice.roll('3d6', this.config.rng);
-    character.wisdom = Dice.roll('3d6', this.config.rng);
+  applyAdndAbilityDerivedFields(character);
 
-    character.race = this.config.rng.item(getRaceOptions(character, this.config.allowedRaces));
-    // `apply` is a domain method on ADNDRace, not Function.prototype.apply.
-    // eslint-disable-next-line prefer-spread
-    character = character.race.apply(character, this.config.rng);
+  const hitPointAdjustment =
+    character.class.group === 'warrior'
+      ? character.warriorHitPointAdjustment
+      : character.hitPointAdjustment;
+  character.hp = Dice.roll(character.class.hitDice, config.rng) + hitPointAdjustment;
+  if (character.hp < 1) {
+    character.hp = 1;
+  }
 
-    character.class = this.config.rng.item(
-      getClassOptionsForRace(character, character.race, this.config.allowedClasses),
+  applyAdndSavingThrows(character);
+
+  const allWeapons = Equipment.getWeapons();
+  const possibleWeapons = getPossibleWeapons(character, allWeapons);
+  if (possibleWeapons.length > 0) {
+    const weapon = config.rng.item(possibleWeapons);
+    character.weapons.push(weapon);
+    character.currency -= weapon.cost;
+  } else {
+    console.debug('No weapons available for character');
+  }
+
+  const allArmor = Equipment.getArmor();
+  const possibleArmor = getPossibleArmor(character, allArmor);
+  if (possibleArmor.length > 0) {
+    const armor = config.rng.item(possibleArmor);
+    character.armor.push(armor);
+    character.currency -= armor.cost;
+  } else {
+    console.debug('No armor available for character');
+  }
+
+  if (character.class.group === 'priest') {
+    if (character.currency > 300) {
+      character.currency = config.rng.int(1, 3) * 100;
+    }
+  }
+
+  for (let i = 0; i < character.armor.length; i++) {
+    character.ac += character.armor[i].ac;
+  }
+
+  if (config.includeProficiencies) {
+    const allWeaponsForGroups = Equipment.getWeapons();
+    const eligibleGroups = getEligibleWeaponGroups(character.class, allWeaponsForGroups);
+    const preferredCategory = character.weapons[0]?.category;
+    character.weaponProficiencyGroups = selectWeaponProficiencyGroups(
+      character.class.initialWP,
+      eligibleGroups,
+      preferredCategory,
+      config.rng,
     );
-    // `apply` is a domain method on ADNDClass, not Function.prototype.apply.
-    // eslint-disable-next-line prefer-spread
-    character = character.class.apply(character, this.config.rng);
-
-    assignExceptionalStrength(character, character.class, this.config.rng);
-
-    if (character.class.group === 'warrior') {
-      character.currency = Dice.roll('5d4', this.config.rng) * 10 * 100;
-    } else if (character.class.group === 'wizard') {
-      character.currency = Dice.roll('1d4+1', this.config.rng) * 10 * 100;
-    } else if (character.class.group === 'rogue') {
-      character.currency = Dice.roll('2d6', this.config.rng) * 10 * 100;
-    } else {
-      character.currency = Dice.roll('3d6', this.config.rng) * 10 * 100;
-    }
-
-    character.alignment = this.config.rng.item(character.class.allowedAlignments);
-
-    applyAdndAbilityDerivedFields(character);
-
-    const hitPointAdjustment =
-      character.class.group === 'warrior'
-        ? character.warriorHitPointAdjustment
-        : character.hitPointAdjustment;
-    character.hp = Dice.roll(character.class.hitDice, this.config.rng) + hitPointAdjustment;
-    if (character.hp < 1) {
-      character.hp = 1;
-    }
-
-    applyAdndSavingThrows(character);
-
-    const allWeapons = Equipment.getWeapons();
-    const possibleWeapons = getPossibleWeapons(character, allWeapons);
-    if (possibleWeapons.length > 0) {
-      const weapon = this.config.rng.item(possibleWeapons);
-      character.weapons.push(weapon);
-      character.currency -= weapon.cost;
-    } else {
-      console.debug('No weapons available for character');
-    }
-
-    const allArmor = Equipment.getArmor();
-    const possibleArmor = getPossibleArmor(character, allArmor);
-    if (possibleArmor.length > 0) {
-      const armor = this.config.rng.item(possibleArmor);
-      character.armor.push(armor);
-      character.currency -= armor.cost;
-    } else {
-      console.debug('No armor available for character');
-    }
-
-    if (character.class.group === 'priest') {
-      if (character.currency > 300) {
-        character.currency = this.config.rng.int(1, 3) * 100;
-      }
-    }
-
-    for (let i = 0; i < character.armor.length; i++) {
-      character.ac += character.armor[i].ac;
-    }
-
-    if (this.config.includeProficiencies) {
-      const allWeaponsForGroups = Equipment.getWeapons();
-      const eligibleGroups = getEligibleWeaponGroups(character.class, allWeaponsForGroups);
-      const preferredCategory = character.weapons[0]?.category;
-      character.weaponProficiencyGroups = selectWeaponProficiencyGroups(
-        character.class.initialWP,
-        eligibleGroups,
-        preferredCategory,
-        this.config.rng,
-      );
-      character.nonweaponProficiencies = selectNonweaponProficiencies(
-        character.class.group,
-        character.class.initialNWP,
-        this.config.rng,
-      );
-    }
-
-    if (this.config.includeKits) {
-      character.kit = selectRandomKit(character, this.config.rng);
-    }
-
-    return character;
+    character.nonweaponProficiencies = selectNonweaponProficiencies(
+      character.class.group,
+      character.class.initialNWP,
+      config.rng,
+    );
   }
+
+  if (config.includeKits) {
+    character.kit = selectRandomKit(character, config.rng);
+  }
+
+  return character;
 }
 
 function getBendBarsLiftGates(strength: number, exceptionalStrength: number): number {

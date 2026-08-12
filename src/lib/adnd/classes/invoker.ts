@@ -2,25 +2,24 @@ import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import { assignRandomStartingSpellsForClass } from '../adnd_class_starting_spells.js';
 import type ADNDCharacter from '../adndcharacter.js';
-import ADNDClass from '../adndclass.js';
-import SpellFilter from '../spellfilter.js';
+import type ADNDClass from '../adndclass.js';
 
-export default new ADNDClass(
-  'invoker',
-  'wizard',
-  '1d4',
-  -1,
-  -1,
-  16,
-  9,
-  -1,
-  -1,
-  ['intelligence'],
-  [
+const invoker: ADNDClass = {
+  name: 'invoker',
+  group: 'wizard',
+  hitDice: '1d4',
+  minStrength: -1,
+  minDexterity: -1,
+  minConstitution: 16,
+  minIntelligence: 9,
+  minWisdom: -1,
+  minCharisma: -1,
+  primeRequisites: ['intelligence'],
+  abilities: [
     'Create magical items',
     'Cast wizard spells (other than enchantment, charm, conjuration, or summoning)',
   ],
-  [
+  allowedAlignments: [
     'lawful good',
     'lawful neutral',
     'lawful evil',
@@ -31,30 +30,36 @@ export default new ADNDClass(
     'chaotic neutral',
     'chaotic good',
   ],
-  true,
-  ['wizard'],
-  [
+  hasSpells: true,
+  allowedSpellTypes: ['wizard'],
+  spellList: [
     {
-      filter: new SpellFilter('', 1, 'wizard', ['invocation', 'evocation'], []),
+      filter: {
+        name: '',
+        level: 1,
+        casterClass: 'wizard',
+        requiredTags: ['invocation', 'evocation'],
+        bannedTags: [],
+      },
       count: 1,
     },
     {
-      filter: new SpellFilter(
-        '',
-        1,
-        'wizard',
-        [],
-        ['enchantment', 'charm', 'conjuration', 'summoning'],
-      ),
+      filter: {
+        name: '',
+        level: 1,
+        casterClass: 'wizard',
+        requiredTags: [],
+        bannedTags: ['enchantment', 'charm', 'conjuration', 'summoning'],
+      },
       count: 1,
     },
   ],
-  ['dagger', 'staff', 'dart', 'knife', 'sling'],
-  ['none'],
-  1,
-  4,
-  -5,
-  function (
+  allowedWeapons: ['dagger', 'staff', 'dart', 'knife', 'sling'],
+  allowedArmor: ['none'],
+  initialWP: 1,
+  initialNWP: 4,
+  wpPenalty: -5,
+  apply: function (
     this: ADNDClass,
     character: ADNDCharacter,
     rng: RNG.RNG,
@@ -65,4 +70,6 @@ export default new ADNDClass(
     }
     return character;
   },
-);
+};
+
+export default invoker;

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import ADNDCharacter from './adndcharacter';
+import { createAdndCharacter } from './adndcharacter';
 import {
   formatAdndSignedNumber,
   formatAdndStrength,
@@ -29,7 +29,7 @@ describe('formatAdndStrength', () => {
 
 describe('formatAdndWeaponsSection', () => {
   it('returns None when there are no weapons', () => {
-    const character = new ADNDCharacter();
+    const character = createAdndCharacter();
     expect(formatAdndWeaponsSection(character)).toBe('None');
   });
 });
