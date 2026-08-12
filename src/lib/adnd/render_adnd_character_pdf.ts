@@ -88,14 +88,19 @@ function drawLabeledSection(
   return height;
 }
 
-function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
-  let y = MARGIN;
-
+/**
+ * The sheet is a stack of fixed-height bands. Each `draw*Band` below takes the y it starts at and
+ * returns the y the next band starts at, so `renderCharacterSheet` reads as the running order of
+ * the page.
+ */
+function drawTitleBand(doc: PdfDoc, y: number): number {
   doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
   doc.text('AD&D 2E CHARACTER SHEET', PAGE_WIDTH / 2, y + 5, { align: 'center' });
-  y += 12;
+  return y + 12;
+}
 
+function drawIdentityBand(doc: PdfDoc, y: number, character: ADNDCharacter): number {
   const nameWidth = CONTENT_WIDTH * 0.4;
   const classWidth = CONTENT_WIDTH * 0.35;
   const alignmentWidth = CONTENT_WIDTH * 0.25;
@@ -128,8 +133,10 @@ function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
     character.alignment,
   );
 
-  y += ROW_HEIGHT;
+  return y + ROW_HEIGHT;
+}
 
+function drawAbilityBand(doc: PdfDoc, y: number, character: ADNDCharacter): number {
   const abilityWidth = CONTENT_WIDTH / 6;
   const abilityHeight = 18;
   const abilities = [
@@ -154,8 +161,10 @@ function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
     );
   }
 
-  y += abilityHeight;
+  return y + abilityHeight;
+}
 
+function drawCombatBand(doc: PdfDoc, y: number, character: ADNDCharacter): number {
   const combatWidth = CONTENT_WIDTH / 5;
   drawCompactField(doc, MARGIN, y, combatWidth, ROW_HEIGHT, 'HP', `${character.hp}`);
   drawCompactField(doc, MARGIN + combatWidth, y, combatWidth, ROW_HEIGHT, 'AC', `${character.ac}`);
@@ -187,8 +196,10 @@ function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
     formatAdndCurrency(character.currency),
   );
 
-  y += ROW_HEIGHT;
+  return y + ROW_HEIGHT;
+}
 
+function drawSavesBand(doc: PdfDoc, y: number, character: ADNDCharacter): number {
   const saveWidth = CONTENT_WIDTH / 5;
   drawCompactField(
     doc,
@@ -236,7 +247,12 @@ function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
     `${character.spellSavingThrow}`,
   );
 
-  y += ROW_HEIGHT + 2;
+  return y + ROW_HEIGHT + 2;
+}
+
+/** The variable-height prose sections that fill the rest of the page. */
+function drawDetailSections(doc: PdfDoc, startY: number, character: ADNDCharacter): void {
+  let y = startY;
 
   y += drawLabeledSection(
     doc,
@@ -288,6 +304,16 @@ function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
     formatAdndDerivedStatsSection(character),
     20,
   );
+}
+
+function renderCharacterSheet(doc: PdfDoc, character: ADNDCharacter): void {
+  let y = MARGIN;
+  y = drawTitleBand(doc, y);
+  y = drawIdentityBand(doc, y, character);
+  y = drawAbilityBand(doc, y, character);
+  y = drawCombatBand(doc, y, character);
+  y = drawSavesBand(doc, y, character);
+  drawDetailSections(doc, y, character);
 }
 
 export async function buildAdndCharacterPdf(character: ADNDCharacter): Promise<Blob> {
