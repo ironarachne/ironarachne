@@ -46,9 +46,21 @@ describe('humanStandard', () => {
     }
   });
 
-  it('returns a fresh matrix on each call', () => {
-    expect(humanStandard()).not.toBe(standard);
-    expect(humanStandard()).toEqual(standard);
+  /**
+   * The matrix is a shared constant. Most species point their `sizeGeneratorConfigMatrix` straight
+   * at it, and the one place a species' matrix is written to — `averageSizes` in
+   * `species/common.ts` — deep-clones it first.
+   */
+  it('hands out the one shared matrix rather than rebuilding it', () => {
+    expect(humanStandard()).toBe(standard);
+  });
+
+  it('is not disturbed by deriving a variant from it', () => {
+    const before = JSON.stringify(humanStandard());
+
+    getHumanVariant(1.4, 0.8);
+
+    expect(JSON.stringify(humanStandard())).toBe(before);
   });
 });
 

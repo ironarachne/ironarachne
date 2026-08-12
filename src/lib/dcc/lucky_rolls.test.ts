@@ -94,11 +94,8 @@ describe('all', () => {
     }
   });
 
-  it('returns a fresh table each call, since the generator assigns a modifier onto it', () => {
-    const first = all();
-    first[1].modifier = 99;
-
-    expect(all()[1].modifier).toBe(0);
+  it('hands out the one shared table rather than rebuilding it', () => {
+    expect(all()).toBe(all());
   });
 });
 

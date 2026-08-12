@@ -17,7 +17,10 @@ subdirectories (`classes/`, `races/`) rather than a flat file list.
   builders use these to narrow the choices they offer.
 - **Data tables** — `classes.getAll()`, `races.getAll()`, `spells.getAll()`, `getWeapons()`,
   `getArmor()`, `getAmmoTypes`, and `adndKitRows`. The three `getAll` sources are namespaced
-  (`classes`, `races`, `spells`) rather than starred, because they share a function name.
+  (`classes`, `races`, `spells`) rather than starred, because they share a function name. The
+  weapon table lives in `adnd_weapon_data.ts`, and `getWeapons()` hands out that shared constant
+  rather than rebuilding it — **treat what it returns as read-only**. The generator copies the
+  weapon it picks so a character owns its equipment instead of holding a reference into the table.
 - **Proficiencies and kits** — `selectWeaponProficiencyGroups`, `selectNonweaponProficiencies`,
   `getEligibleWeaponGroups`, `filterKitsForCharacter`, and `selectRandomKit`.
 - **Thief skills** — `getBaseThiefSkillRows`, `prepareThiefSkillRowsForCharacter`,

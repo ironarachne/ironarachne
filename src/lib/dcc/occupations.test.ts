@@ -103,14 +103,6 @@ describe.each(ALL_TABLES)('%s occupations', (_name, all) => {
     }
   });
 
-  it('returns a fresh table each call, since apply mutates what it is given', () => {
-    const first = all();
-    const originalName = first[0].name;
-    first[0].name = 'mutated';
-
-    expect(all()[0].name).toBe(originalName);
-  });
-
   it('applies every occupation without throwing, returning the character', () => {
     for (const occupation of all()) {
       const character = baseCharacter();
@@ -214,5 +206,16 @@ describe('the occupation tables together', () => {
         all().map((occupation) => occupation.name),
       );
     }
+  });
+
+  /**
+   * The two large tables were moved into `*_data.ts` siblings and are now handed out as shared
+   * constants; the two small ones are still rebuilt per call. Either is safe because
+   * `randomOccupation` copies whichever row it draws, but which is which is worth pinning down —
+   * a caller that mutates what `all()` returns is a bug only for the shared pair.
+   */
+  it('hand out the human and halfling tables as shared constants', () => {
+    expect(HumanOccupations.all()).toBe(HumanOccupations.all());
+    expect(HalflingOccupations.all()).toBe(HalflingOccupations.all());
   });
 });

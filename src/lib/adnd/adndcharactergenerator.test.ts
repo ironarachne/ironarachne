@@ -307,3 +307,36 @@ describe('recalculateAdndArmorClass', () => {
     expect(c.ac).toBe(13);
   });
 });
+
+describe('the shared weapon table', () => {
+  /**
+   * `getWeapons` hands out a shared constant rather than rebuilding the table per call, so a
+   * character that kept a reference into it would let any later edit to its equipment write back
+   * into the table for every other character. The generator copies the weapon it picks.
+   */
+  it('hands out the one shared table rather than rebuilding it', () => {
+    expect(Equipment.getWeapons()).toBe(Equipment.getWeapons());
+  });
+
+  it('is not corrupted by generating many characters', () => {
+    const before = Equipment.getWeapons().map((weapon) => `${weapon.name}|${weapon.cost}`);
+
+    for (let index = 0; index < 40; index++) {
+      const config = getDefaultConfig(new RNG(`weapon-table-${index}`));
+      generateCharacter(config);
+    }
+
+    expect(Equipment.getWeapons().map((weapon) => `${weapon.name}|${weapon.cost}`)).toEqual(before);
+  });
+
+  it('gives each character its own weapon objects, not the shared rows', () => {
+    const sharedRows = new Set<unknown>(Equipment.getWeapons());
+
+    for (let index = 0; index < 40; index++) {
+      const config = getDefaultConfig(new RNG(`weapon-own-${index}`));
+      for (const weapon of generateCharacter(config).weapons) {
+        expect(sharedRows.has(weapon)).toBe(false);
+      }
+    }
+  });
+});

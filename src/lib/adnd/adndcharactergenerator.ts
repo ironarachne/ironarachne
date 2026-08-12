@@ -70,7 +70,9 @@ export function generateCharacter(config: ADNDCharacterGeneratorConfig): ADNDCha
   const allWeapons = Equipment.getWeapons();
   const possibleWeapons = getPossibleWeapons(character, allWeapons);
   if (possibleWeapons.length > 0) {
-    const weapon = config.rng.item(possibleWeapons);
+    // `getWeapons` hands out a shared table, so the chosen row is copied before it is handed to a
+    // character — a character owns its equipment rather than holding a reference into the table.
+    const weapon = { ...config.rng.item(possibleWeapons) };
     character.weapons.push(weapon);
     character.currency -= weapon.cost;
   } else {

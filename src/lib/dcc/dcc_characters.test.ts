@@ -13,6 +13,7 @@ import * as DwarfOccupations from './dwarf_occupations';
 import * as ElfOccupations from './elf_occupations';
 import * as HalflingOccupations from './halfling_occupations';
 import * as HumanOccupations from './human_occupations';
+import * as LuckyRolls from './lucky_rolls';
 
 function generate(seed: string, allowedOccupations?: string[]) {
   const config = getDefaultDCCCharacterGeneratorConfig(seed);
@@ -454,6 +455,56 @@ describe('generateRandomDCCCharacter', () => {
   it('never sets a negative number of bonus languages', () => {
     for (let index = 0; index < 30; index++) {
       expect(generate(`nonneg-${index}`).numberOfLanguages).toBeGreaterThanOrEqual(0);
+    }
+  });
+});
+
+describe('the shared occupation and lucky sign tables', () => {
+  function snapshotOccupations(): string[] {
+    return [
+      DwarfOccupations.all(),
+      ElfOccupations.all(),
+      HalflingOccupations.all(),
+      HumanOccupations.all(),
+    ].flatMap((rows) =>
+      rows.map(
+        (row) => `${row.name}|${row.trainedWeapon?.name ?? ''}|${row.tradeGoods?.name ?? ''}`,
+      ),
+    );
+  }
+
+  /**
+   * The occupation and lucky sign tables are shared constants, and generation writes to both: the
+   * human farmer's `apply` rewrites the occupation's own `name` with the crop it rolled, and every
+   * character has its Luck modifier stamped onto its lucky sign. Both are copied at the point a row
+   * is drawn, and this is the guard on that. Issue #20 shipped this same bug in Uncharted Worlds,
+   * where it silently corrupted every character generated from roughly the fourth seed onward.
+   */
+  it('is not corrupted by generating many characters', () => {
+    const occupationsBefore = snapshotOccupations();
+    const luckBefore = LuckyRolls.all().map((roll) => `${roll.name}|${roll.modifier}`);
+
+    for (let index = 0; index < 60; index++) {
+      generate(`table-corruption-${index}`);
+    }
+
+    expect(snapshotOccupations()).toEqual(occupationsBefore);
+    expect(LuckyRolls.all().map((roll) => `${roll.name}|${roll.modifier}`)).toEqual(luckBefore);
+  });
+
+  it('gives each character its own occupation rather than the shared row', () => {
+    const sharedRows = new Set<unknown>(HumanOccupations.all());
+
+    for (let index = 0; index < 40; index++) {
+      expect(sharedRows.has(generate(`own-row-${index}`, ['human']).occupation)).toBe(false);
+    }
+  });
+
+  it('gives each character its own lucky sign, so the modifier does not leak between them', () => {
+    const sharedRolls = new Set<unknown>(LuckyRolls.all());
+
+    for (let index = 0; index < 40; index++) {
+      expect(sharedRolls.has(generate(`own-luck-${index}`).luckyRoll)).toBe(false);
     }
   });
 });

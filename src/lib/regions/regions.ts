@@ -24,8 +24,8 @@ import * as MapBiome from '$lib/map/biome.js';
 import * as MapRoad from '$lib/map/road.js';
 import * as Suitability from '$lib/map/suitability.js';
 
-export function generate(config: RegionGeneratorConfig): Region {
-  const region: Region = {
+function createEmptyRegion(): Region {
+  return {
     name: '',
     environment: {} as Environment,
     description: '',
@@ -37,17 +37,34 @@ export function generate(config: RegionGeneratorConfig): Region {
     organizations: [] as Organization[],
     map: {} as RegionMap, // Will be populated
   };
+}
 
-  let nameGenSet: Names.NameGeneratorSet;
-
+/** A dominant culture brings its own names; without one the config's set is used as given. */
+function resolveNameGeneratorSet(
+  region: Region,
+  config: RegionGeneratorConfig,
+): Names.NameGeneratorSet {
   if (config.dominantCulture != null) {
     region.dominantCulture = config.dominantCulture;
-    nameGenSet = region.dominantCulture.nameGenerators;
-  } else {
-    nameGenSet = config.nameGeneratorSet;
+    return region.dominantCulture.nameGenerators;
   }
 
-  // 1. Generate the Map Graph
+  return config.nameGeneratorSet;
+}
+
+/**
+ * Builds the map and runs the physical passes over it in order — elevation, water, temperature,
+ * moisture, biomes — since each reads what the one before it wrote.
+ *
+ * The latitude is drawn here rather than alongside the other environment settings because it is
+ * needed by the temperature pass, and returned because the region's environment needs the same
+ * value. Every draw below comes off `config.rng` in this order, so moving one changes every
+ * region generated from a given seed.
+ */
+function buildRegionTerrain(config: RegionGeneratorConfig): {
+  map: RegionMap;
+  latitude: number;
+} {
   let map = MapBuilder.buildBaseMapGraph({
     width: config.mapWidth,
     height: config.mapHeight,
@@ -117,8 +134,17 @@ export function generate(config: RegionGeneratorConfig): Region {
     rng: config.rng,
     paletteSize: 5,
   });
-  region.map = map;
 
+  return { map, latitude };
+}
+
+/** What lives on the map: the environment description, its settlements, roads and organizations. */
+function populateRegionInhabitants(
+  region: Region,
+  config: RegionGeneratorConfig,
+  latitude: number,
+  nameGenSet: Names.NameGeneratorSet,
+): void {
   const environmentConfig = Environments.getDefaultConfig();
   environmentConfig.rng = config.rng;
   environmentConfig.latitude = latitude;
@@ -133,7 +159,35 @@ export function generate(config: RegionGeneratorConfig): Region {
   region.map = MapRoad.generateRoads(region.map, townIds);
   region.organizations = randomOrganizations(config.rng, region.environment);
   region.description = region.environment.description;
+}
 
+/** A realm that is not standalone needs the realm above it generated too. */
+function generateParentRealm(
+  config: RegionGeneratorConfig,
+  nameGeneratorSet: Names.NameGeneratorSet,
+  parentType: Realm['realmType'] | null,
+): Realm {
+  if (parentType == null) {
+    throw new Error('Realm type has no parent type.');
+  }
+
+  const parentRealmConfig = Realms.getDefaultConfig();
+  parentRealmConfig.rng = config.rng;
+  parentRealmConfig.realmTypes = [parentType];
+  parentRealmConfig.nameGeneratorSet = nameGeneratorSet;
+
+  return Realms.generate(parentRealmConfig);
+}
+
+/**
+ * The region's main realm, the realm above it if it has one, and a handful of neighbours — some of
+ * which are vassals of the main realm's parent, and some of which bring a parent of their own.
+ */
+function addRealmsToRegion(
+  region: Region,
+  config: RegionGeneratorConfig,
+  nameGenSet: Names.NameGeneratorSet,
+): void {
   const realmGenConfig = Realms.getDefaultConfig();
   realmGenConfig.rng = config.rng;
   realmGenConfig.nameGeneratorSet = nameGenSet;
@@ -143,17 +197,9 @@ export function generate(config: RegionGeneratorConfig): Region {
   region.mainRealm = 0;
 
   if (!mainRealm.realmType.isStandalone) {
-    const parentRealmConfig = Realms.getDefaultConfig();
-    parentRealmConfig.rng = config.rng;
-    parentRealmConfig.nameGeneratorSet = realmGenConfig.nameGeneratorSet;
-    if (mainRealm.realmType.parentType == null) {
-      throw new Error('Realm type has no parent type.');
-    }
-    parentRealmConfig.realmTypes = [mainRealm.realmType.parentType];
-
-    const parentRealm = Realms.generate(parentRealmConfig);
-
-    region.realms.push(parentRealm);
+    region.realms.push(
+      generateParentRealm(config, realmGenConfig.nameGeneratorSet, mainRealm.realmType.parentType),
+    );
     mainRealm.parent = 1;
   }
 
@@ -169,16 +215,13 @@ export function generate(config: RegionGeneratorConfig): Region {
       if (config.rng.int(1, 100) > 50) {
         neighbor.parent = mainRealm.parent;
       } else {
-        const parentRealmConfig = Realms.getDefaultConfig();
-        parentRealmConfig.rng = config.rng;
-        if (neighbor.realmType.parentType == null) {
-          throw new Error('Realm type has no parent type.');
-        }
-        parentRealmConfig.realmTypes = [neighbor.realmType.parentType];
-        parentRealmConfig.nameGeneratorSet = realmGenConfig.nameGeneratorSet;
-
-        const parentRealm = Realms.generate(parentRealmConfig);
-        region.realms.push(parentRealm);
+        region.realms.push(
+          generateParentRealm(
+            config,
+            realmGenConfig.nameGeneratorSet,
+            neighbor.realmType.parentType,
+          ),
+        );
         neighbor.parent = region.realms.length - 1;
       }
     }
@@ -187,6 +230,17 @@ export function generate(config: RegionGeneratorConfig): Region {
 
   region.authority = mainRealm.authority;
   region.name = mainRealm.name;
+}
+
+export function generate(config: RegionGeneratorConfig): Region {
+  const region = createEmptyRegion();
+  const nameGenSet = resolveNameGeneratorSet(region, config);
+
+  const { map, latitude } = buildRegionTerrain(config);
+  region.map = map;
+
+  populateRegionInhabitants(region, config, latitude, nameGenSet);
+  addRealmsToRegion(region, config, nameGenSet);
 
   return region;
 }

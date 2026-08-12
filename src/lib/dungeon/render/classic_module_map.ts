@@ -140,16 +140,24 @@ function drawRoomLabelBlue(
  * Classic B-style “blue map”: white cut-out on darker rock blue; floor grid uses a lighter blue;
  * labels and symbols use the rock blue on white.
  */
-export function renderClassicModuleMapToCanvas(
-  dungeon: EngineeredDungeon,
-  canvas: HTMLCanvasElement,
-  styleOverrides?: Partial<ClassicModuleMapStyle>,
-): void {
-  const style = mergeStyle(styleOverrides);
-  const rockBlue = style.paperColor;
-  const glyphBlue = style.paperColor;
-  const { width: gw, height: gh, grid } = dungeon.layout;
+/** Where the grid sits on the canvas, in CSS pixels. */
+type MapLayout = {
+  cellSize: number;
+  offsetX: number;
+  offsetY: number;
+  mapW: number;
+  mapH: number;
+};
 
+/**
+ * Sizes the backing store for the device pixel ratio and centres the grid, returning the drawing
+ * context along with the placement. Returns null when the canvas has no 2D context.
+ */
+function prepareCanvas(
+  canvas: HTMLCanvasElement,
+  gw: number,
+  gh: number,
+): { ctx: CanvasRenderingContext2D; layout: MapLayout } | null {
   const dpr = typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1;
   const cssW = Math.max(1, canvas.clientWidth || canvas.width / dpr || 800);
   const cssH = Math.max(1, canvas.clientHeight || canvas.height / dpr || 600);
@@ -159,7 +167,7 @@ export function renderClassicModuleMapToCanvas(
 
   const ctx = canvas.getContext('2d');
   if (!ctx) {
-    return;
+    return null;
   }
 
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
@@ -168,12 +176,32 @@ export function renderClassicModuleMapToCanvas(
   const cellSize = Math.floor(Math.min((cssW - 2 * pad) / gw, (cssH - 2 * pad) / gh));
   const mapW = cellSize * gw;
   const mapH = cellSize * gh;
-  const offsetX = (cssW - mapW) / 2;
-  const offsetY = (cssH - mapH) / 2;
 
-  ctx.fillStyle = rockBlue;
-  ctx.fillRect(offsetX, offsetY, mapW, mapH);
+  return {
+    ctx,
+    layout: {
+      cellSize,
+      mapW,
+      mapH,
+      offsetX: (cssW - mapW) / 2,
+      offsetY: (cssH - mapH) / 2,
+    },
+  };
+}
 
+/**
+ * Paints the floor in two passes: a solid gutter square per floor cell, then the floor itself
+ * inset on each side that faces another floor cell. Insetting only on shared sides is what draws
+ * the grid lines inside a room while leaving its outer wall a clean edge.
+ */
+function paintFloor(
+  ctx: CanvasRenderingContext2D,
+  style: ClassicModuleMapStyle,
+  dungeon: EngineeredDungeon,
+  layout: MapLayout,
+): void {
+  const { width: gw, height: gh, grid } = dungeon.layout;
+  const { cellSize, offsetX, offsetY } = layout;
   const inset = Math.max(style.floorInsetMin, Math.floor(cellSize * style.floorInsetRatio));
 
   const floorNeighbor = (fx: number, fy: number): boolean => {
@@ -189,9 +217,7 @@ export function renderClassicModuleMapToCanvas(
       if (!isFloorCell(grid, x, y)) {
         continue;
       }
-      const px0 = offsetX + x * cellSize;
-      const py0 = offsetY + y * cellSize;
-      ctx.fillRect(px0, py0, cellSize, cellSize);
+      ctx.fillRect(offsetX + x * cellSize, offsetY + y * cellSize, cellSize, cellSize);
     }
   }
 
@@ -200,30 +226,10 @@ export function renderClassicModuleMapToCanvas(
       if (!isFloorCell(grid, x, y)) {
         continue;
       }
-      let insetTop = inset;
-      let insetBottom = inset;
-      let insetLeft = inset;
-      let insetRight = inset;
-      if (floorNeighbor(x, y - 1)) {
-        insetTop = inset;
-      } else {
-        insetTop = 0;
-      }
-      if (floorNeighbor(x, y + 1)) {
-        insetBottom = inset;
-      } else {
-        insetBottom = 0;
-      }
-      if (floorNeighbor(x - 1, y)) {
-        insetLeft = inset;
-      } else {
-        insetLeft = 0;
-      }
-      if (floorNeighbor(x + 1, y)) {
-        insetRight = inset;
-      } else {
-        insetRight = 0;
-      }
+      const insetTop = floorNeighbor(x, y - 1) ? inset : 0;
+      const insetBottom = floorNeighbor(x, y + 1) ? inset : 0;
+      const insetLeft = floorNeighbor(x - 1, y) ? inset : 0;
+      const insetRight = floorNeighbor(x + 1, y) ? inset : 0;
 
       const px = offsetX + x * cellSize + insetLeft;
       const py = offsetY + y * cellSize + insetTop;
@@ -235,7 +241,16 @@ export function renderClassicModuleMapToCanvas(
       }
     }
   }
+}
 
+/** Everything that gets drawn on top of a floor cell, indexed by that cell. */
+type GlyphIndex = {
+  doorAt: Map<string, Door>;
+  entranceAt: Map<string, { type: 'stairs' | 'door' }>;
+  roomLabelAt: Map<string, string>;
+};
+
+function indexGlyphsByCell(dungeon: EngineeredDungeon): GlyphIndex {
   const doorAt = new Map<string, Door>();
   for (const door of dungeon.doors) {
     doorAt.set(cellKey(door.x, door.y), door);
@@ -252,6 +267,64 @@ export function renderClassicModuleMapToCanvas(
     const id = room.id;
     roomLabelAt.set(cellKey(cx, cy), id.length > 2 ? id.slice(-2) : id);
   }
+
+  return { doorAt, entranceAt, roomLabelAt };
+}
+
+/** The bar, plus a keyhole box when locked and a rotated S when secret. */
+function drawDoorGlyph(
+  ctx: CanvasRenderingContext2D,
+  style: ClassicModuleMapStyle,
+  door: Door,
+  orientation: 'ns' | 'ew',
+  cx: number,
+  cy: number,
+  cellSize: number,
+  glyphBlue: string,
+): void {
+  if (door.state === 'open') {
+    drawDoorBar(ctx, cx, cy, cellSize, orientation, glyphBlue, { gapInMiddle: true });
+  } else {
+    drawDoorBar(ctx, cx, cy, cellSize, orientation, glyphBlue, { gapInMiddle: false });
+    if (door.state === 'locked') {
+      const s = Math.max(3, cellSize * 0.16);
+      ctx.strokeStyle = glyphBlue;
+      ctx.lineWidth = Math.max(1, cellSize * 0.06);
+      ctx.strokeRect(cx - s / 2, cy + cellSize * 0.12, s, s * 0.85);
+    }
+  }
+
+  if (door.type === 'secret') {
+    ctx.save();
+    ctx.translate(cx, cy);
+    // Rotate if vertical door (corridor ew)
+    if (orientation === 'ew') {
+      ctx.rotate(-Math.PI / 2);
+    }
+    ctx.font = `700 ${Math.max(10, Math.floor(cellSize * 0.5))}px system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
+    ctx.fillStyle = glyphBlue;
+    ctx.strokeStyle = style.floorColor;
+    ctx.lineWidth = Math.max(2, cellSize * 0.06);
+    ctx.strokeText('S', 0, 0);
+    ctx.fillText('S', 0, 0);
+    ctx.restore();
+  }
+}
+
+/**
+ * Walks the floor cells once, drawing at most one glyph on each: an entrance wins over a door,
+ * and a door over a room label.
+ */
+function paintGlyphs(
+  ctx: CanvasRenderingContext2D,
+  style: ClassicModuleMapStyle,
+  dungeon: EngineeredDungeon,
+  layout: MapLayout,
+  glyphBlue: string,
+): void {
+  const { width: gw, height: gh, grid } = dungeon.layout;
+  const { cellSize, offsetX, offsetY } = layout;
+  const { doorAt, entranceAt, roomLabelAt } = indexGlyphsByCell(dungeon);
 
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
@@ -287,33 +360,7 @@ export function renderClassicModuleMapToCanvas(
       const door = doorAt.get(coordKey);
       if (door) {
         const co = doorCorridorOrientation(grid, x, y) ?? 'ew';
-        if (door.state === 'open') {
-          drawDoorBar(ctx, cx, cyPix, cellSize, co, glyphBlue, { gapInMiddle: true });
-        } else {
-          drawDoorBar(ctx, cx, cyPix, cellSize, co, glyphBlue, { gapInMiddle: false });
-          if (door.state === 'locked') {
-            const s = Math.max(3, cellSize * 0.16);
-            ctx.strokeStyle = glyphBlue;
-            ctx.lineWidth = Math.max(1, cellSize * 0.06);
-            ctx.strokeRect(cx - s / 2, cyPix + cellSize * 0.12, s, s * 0.85);
-          }
-        }
-
-        if (door.type === 'secret') {
-          ctx.save();
-          ctx.translate(cx, cyPix);
-          // Rotate if vertical door (corridor ew)
-          if (co === 'ew') {
-            ctx.rotate(-Math.PI / 2);
-          }
-          ctx.font = `700 ${Math.max(10, Math.floor(cellSize * 0.5))}px system-ui, "Segoe UI", Roboto, Helvetica, Arial, sans-serif`;
-          ctx.fillStyle = glyphBlue;
-          ctx.strokeStyle = style.floorColor;
-          ctx.lineWidth = Math.max(2, cellSize * 0.06);
-          ctx.strokeText('S', 0, 0);
-          ctx.fillText('S', 0, 0);
-          ctx.restore();
-        }
+        drawDoorGlyph(ctx, style, door, co, cx, cyPix, cellSize, glyphBlue);
         continue;
       }
 
@@ -325,4 +372,27 @@ export function renderClassicModuleMapToCanvas(
       drawRoomLabelBlue(ctx, cx, cyPix, label, cellSize, glyphBlue);
     }
   }
+}
+
+export function renderClassicModuleMapToCanvas(
+  dungeon: EngineeredDungeon,
+  canvas: HTMLCanvasElement,
+  styleOverrides?: Partial<ClassicModuleMapStyle>,
+): void {
+  const style = mergeStyle(styleOverrides);
+  const rockBlue = style.paperColor;
+  const glyphBlue = style.paperColor;
+  const { width: gw, height: gh } = dungeon.layout;
+
+  const prepared = prepareCanvas(canvas, gw, gh);
+  if (!prepared) {
+    return;
+  }
+  const { ctx, layout } = prepared;
+
+  ctx.fillStyle = rockBlue;
+  ctx.fillRect(layout.offsetX, layout.offsetY, layout.mapW, layout.mapH);
+
+  paintFloor(ctx, style, dungeon, layout);
+  paintGlyphs(ctx, style, dungeon, layout, glyphBlue);
 }

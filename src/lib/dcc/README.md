@@ -44,6 +44,14 @@ import * as HumanOccupations from '$lib/dcc/human_occupations';
 const occupations = HumanOccupations.all();
 ```
 
+The two large tables — human occupations and the lucky signs — live in `human_occupation_data.ts`,
+`halfling_occupation_data.ts` and `lucky_roll_data.ts`, and their `all()` hands out the shared
+constant rather than rebuilding it. **Treat what `all()` returns as read-only.** Generation writes
+to rows it draws — the human farmer's `apply` rewrites its own `name` with the crop it rolled, and
+each character's Luck modifier is stamped onto its lucky sign — so `randomOccupation` and
+`randomLuckyRoll` copy the single row they select. Copy per row, not per table; cloning a whole
+table to use one row of it is far slower and buys nothing.
+
 Export a sheet:
 
 ```typescript

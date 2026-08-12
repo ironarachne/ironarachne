@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import * as RNG from '@ironarachne/rng';
 import { createSwnCharacter, equipmentList, formatAsText, generate } from './character';
+import { FOCUSES } from './focus_data';
 
 const seeds = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
@@ -316,5 +317,55 @@ describe('formatAsText', () => {
 
   it('is stable for a given character', () => {
     expect(formatAsText(character)).toBe(text);
+  });
+});
+
+describe('the shared focus table', () => {
+  /**
+   * `FOCUSES` is a shared constant, and `applyBonusFocus` writes `currentLevel` onto the focus a
+   * character holds — raising it to 2 when the character draws the same focus twice. A drawn focus
+   * is therefore copied. Without that copy, one character's second draw of a focus would raise the
+   * level on every other character holding it, and a later character's draw would reset it again.
+   *
+   * Unit tests over one or two characters cannot see this; it took diffing 60 seeds of generator
+   * output against a pre-refactor baseline. That is what this test stands in for.
+   */
+  it('is not corrupted by generating many characters', () => {
+    const before = FOCUSES.map((focus) => `${focus.name}|${focus.currentLevel}`);
+
+    for (let index = 0; index < 60; index++) {
+      generate(new RNG.RNG(`focus-table-${index}`));
+    }
+
+    expect(FOCUSES.map((focus) => `${focus.name}|${focus.currentLevel}`)).toEqual(before);
+  });
+
+  it('leaves every entry at level one', () => {
+    for (const focus of FOCUSES) {
+      expect(focus.currentLevel, focus.name).toBe(1);
+    }
+  });
+
+  it('gives each character its own focus objects, not the shared rows', () => {
+    const sharedRows = new Set<unknown>(FOCUSES);
+
+    for (let index = 0; index < 40; index++) {
+      for (const focus of generate(new RNG.RNG(`focus-own-${index}`)).focuses) {
+        expect(sharedRows.has(focus)).toBe(false);
+      }
+    }
+  });
+
+  /**
+   * The level-2 case is the one that corrupted the table, so it needs to actually happen in the
+   * seeds this suite runs. If a change to generation stops producing it, this test says so rather
+   * than letting the guards above pass vacuously.
+   */
+  it('still produces characters who raise a focus to level two', () => {
+    const levels = Array.from({ length: 60 }, (_, index) =>
+      generate(new RNG.RNG(`focus-level-${index}`)).focuses.map((focus) => focus.currentLevel),
+    ).flat();
+
+    expect(levels).toContain(2);
   });
 });
