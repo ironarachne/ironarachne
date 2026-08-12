@@ -1,7 +1,7 @@
 import type { RNG } from '@ironarachne/rng';
 import { generatePoissonDisk } from '../geometry/poisson.js';
 import { triangulate } from '../geometry/delaunay.js';
-import { computeVoronoi } from '../geometry/voronoi.js';
+import { computeVoronoi, type VoronoiCell } from '../geometry/voronoi.js';
 import type { RegionMap, MapNode, MapEdge, MapCorner } from './map_graph.js';
 import type Vertex from '../geometry/vertex.js';
 import { getMidpoint } from '../geometry/geometry.js';
@@ -15,17 +15,12 @@ export interface MapBuilderConfig {
 }
 
 /**
- * Builds a fresh, empty topological RegionMap graph from scratch using Poisson Disk, Delaunay, and Voronoi algorithms.
- *
- * @param {MapBuilderConfig} config Map generation configuration.
- * @returns {RegionMap} The constructed base graph (without elevation/climate data).
+ * Poisson-disk sites, plus the eight boundary points that keep the outermost Voronoi cells from
+ * running off to infinity and give the map a clean rectangular edge.
  */
-export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
-  // 1. Generate points
+function generateSeedPoints(config: MapBuilderConfig): Vertex[] {
   const points = generatePoissonDisk(config.width, config.height, config.pointSpacing, config.rng);
 
-  // 2. Add boundary corners to constrain the map edges nicely.
-  // (We push points outside or exactly on the edges)
   points.push({ x: 0, y: 0 });
   points.push({ x: config.width / 2, y: 0 });
   points.push({ x: config.width, y: 0 });
@@ -35,19 +30,33 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
   points.push({ x: config.width / 2, y: config.height });
   points.push({ x: config.width, y: config.height });
 
-  // 3. Triangulate and Voronoi
-  const delaunay = triangulate(points);
-  const voronoi = computeVoronoi(points, delaunay);
+  return points;
+}
 
-  const regionMap: RegionMap = {
+function createEmptyRegionMap(config: MapBuilderConfig): RegionMap {
+  return {
     width: config.width,
     height: config.height,
     nodes: [],
     edges: [],
     corners: [],
   };
+}
 
-  // Helper structures for deduplicating corners and edges
+/**
+ * Interns corners and edges into one `RegionMap` as cells are walked.
+ *
+ * Voronoi cells share their corners and edges with their neighbours, so the same corner arrives
+ * once per cell that touches it. Both lookups deduplicate, which is what turns a list of polygons
+ * into a connected graph — and why they hold state and are built per map rather than being free
+ * functions.
+ */
+type GraphAccumulator = {
+  getOrCreateCorner: (vertex: Vertex) => MapCorner;
+  getOrCreateEdge: (c1: MapCorner, c2: MapCorner) => MapEdge;
+};
+
+function createGraphAccumulator(regionMap: RegionMap): GraphAccumulator {
   const cornerMap = new Map<string, MapCorner>();
   const edgeMap = new Map<string, MapEdge>();
 
@@ -109,66 +118,78 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
     return newEdge;
   };
 
-  // 4. Construct Nodes, tracking Corners and Edges
-  for (let i = 0; i < voronoi.cells.length; i++) {
-    const cell = voronoi.cells[i];
+  return { getOrCreateCorner, getOrCreateEdge };
+}
 
-    // Discard cells generated from our boundary constraints if their center is exactly on the edge
-    const isBoundaryCenter =
-      cell.site.x <= 0.001 ||
-      cell.site.x >= config.width - 0.001 ||
-      cell.site.y <= 0.001 ||
-      cell.site.y >= config.height - 0.001;
+/**
+ * Cells grown from the eight boundary points sit on the map's rim. They become nodes like any
+ * other, flagged as ocean so later passes treat them as the surrounding sea.
+ */
+function isBoundarySite(site: Vertex, config: MapBuilderConfig): boolean {
+  return (
+    site.x <= 0.001 ||
+    site.x >= config.width - 0.001 ||
+    site.y <= 0.001 ||
+    site.y >= config.height - 0.001
+  );
+}
 
-    // We can map all sites to a MapNode.
-    // Boundary constraint nodes simply have a flag indicating they're the map boundary.
+/** Adds one Voronoi cell to the graph as a node, interning its corners and edges as it goes. */
+function addNodeForCell(
+  regionMap: RegionMap,
+  accumulator: GraphAccumulator,
+  cell: VoronoiCell,
+  nodeId: number,
+  config: MapBuilderConfig,
+): void {
+  const nodeCorners = cell.polygon.vertices.map((v) => accumulator.getOrCreateCorner(v));
+  const nodeEdges: MapEdge[] = [];
 
-    const nodeCorners: MapCorner[] = cell.polygon.vertices.map((v) => getOrCreateCorner(v));
-    const nodeEdges: MapEdge[] = [];
-
-    // Link node back to corners
-    for (const c of nodeCorners) {
-      if (!c.touches.includes(i)) {
-        c.touches.push(i);
-      }
+  // Link node back to corners
+  for (const c of nodeCorners) {
+    if (!c.touches.includes(nodeId)) {
+      c.touches.push(nodeId);
     }
-
-    // Build edges sequentially connecting corners
-    for (let j = 0; j < nodeCorners.length; j++) {
-      const nextIdx = (j + 1) % nodeCorners.length;
-      const c1 = nodeCorners[j];
-      const c2 = nodeCorners[nextIdx];
-      const edge = getOrCreateEdge(c1, c2);
-
-      // Link the node to the edge, edge to the node
-      if (edge.d0 === -1) {
-        edge.d0 = i;
-      } else if (edge.d1 === undefined) {
-        edge.d1 = i;
-      }
-
-      nodeEdges.push(edge);
-    }
-
-    const mapNode: MapNode = {
-      id: i,
-      center: cell.site,
-      polygon: cell.polygon,
-      neighbors: [], // Populate after graph is formed
-      edges: nodeEdges.map((e) => e.id),
-      corners: nodeCorners.map((c) => c.id),
-      elevation: 0,
-      moisture: 0,
-      temperature: 0,
-      isWater: false,
-      isOcean: isBoundaryCenter,
-      isCoast: false,
-    };
-
-    regionMap.nodes.push(mapNode);
   }
 
-  // 5. Establish MapNode 'neighbors' relationship using the shared edges.
+  // Build edges sequentially connecting corners
+  for (let j = 0; j < nodeCorners.length; j++) {
+    const nextIdx = (j + 1) % nodeCorners.length;
+    const edge = accumulator.getOrCreateEdge(nodeCorners[j], nodeCorners[nextIdx]);
+
+    // Link the node to the edge, edge to the node
+    if (edge.d0 === -1) {
+      edge.d0 = nodeId;
+    } else if (edge.d1 === undefined) {
+      edge.d1 = nodeId;
+    }
+
+    nodeEdges.push(edge);
+  }
+
+  const mapNode: MapNode = {
+    id: nodeId,
+    center: cell.site,
+    polygon: cell.polygon,
+    neighbors: [], // Populate after graph is formed
+    edges: nodeEdges.map((e) => e.id),
+    corners: nodeCorners.map((c) => c.id),
+    elevation: 0,
+    moisture: 0,
+    temperature: 0,
+    isWater: false,
+    isOcean: isBoundarySite(cell.site, config),
+    isCoast: false,
+  };
+
+  regionMap.nodes.push(mapNode);
+}
+
+/**
+ * Two nodes are neighbours exactly when they share an edge, so this reads the adjacency off the
+ * edges once every node exists.
+ */
+function linkNodeNeighborsAcrossEdges(regionMap: RegionMap): void {
   for (const edge of regionMap.edges) {
     if (edge.d0 !== -1 && edge.d1 !== undefined) {
       const n0 = regionMap.nodes[edge.d0];
@@ -178,6 +199,26 @@ export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
       if (!n1.neighbors.includes(n0.id)) n1.neighbors.push(n0.id);
     }
   }
+}
+
+/**
+ * Builds a fresh, empty topological RegionMap graph from scratch using Poisson Disk, Delaunay, and Voronoi algorithms.
+ *
+ * @param {MapBuilderConfig} config Map generation configuration.
+ * @returns {RegionMap} The constructed base graph (without elevation/climate data).
+ */
+export function buildBaseMapGraph(config: MapBuilderConfig): RegionMap {
+  const points = generateSeedPoints(config);
+  const voronoi = computeVoronoi(points, triangulate(points));
+
+  const regionMap = createEmptyRegionMap(config);
+  const accumulator = createGraphAccumulator(regionMap);
+
+  for (let i = 0; i < voronoi.cells.length; i++) {
+    addNodeForCell(regionMap, accumulator, voronoi.cells[i], i, config);
+  }
+
+  linkNodeNeighborsAcrossEdges(regionMap);
 
   return regionMap;
 }

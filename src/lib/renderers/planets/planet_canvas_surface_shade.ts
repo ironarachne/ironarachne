@@ -146,29 +146,29 @@ function shadeTerrestrialDiskPixel(
   return finishLitPlanetSurface(planetColor, wsNormal, wsSurfaceNormal, lightDir, wBase);
 }
 
-function shadeGasGiantDiskPixel(
-  offsetX: number,
-  offsetY: number,
-  planetRadiusPx: number,
+/**
+ * The gas giant's look is chosen from its seed: four families of banding, each with its own
+ * frequency, turbulence, wisping and palette mixing. Resolved up front so the shading below reads
+ * as one path rather than four.
+ */
+type GasGiantStyle = {
+  baseFreq: number;
+  turbulence: number;
+  wispStrength: number;
+  hasSpots: number;
+  bandSmoothness: number;
+  wBase: [number, number, number];
+  lBase: [number, number, number];
+  mBase: [number, number, number];
+  cBase: [number, number, number];
+};
+
+function resolveGasGiantStyle(
+  seedFloat: number,
   palette: PlanetPalette,
-  shading: PlanetShading,
-): [number, number, number] {
-  const { seedFloat, lightDir, stormActivity, cloudCoverage } = shading;
-
-  const angle = seedFloat * 0.1;
-  const [rx, ry] = rotate2d(angle, offsetX, offsetY);
-
-  const x = rx / planetRadiusPx;
-  const y = ry / planetRadiusPx;
-  const r2 = x * x + y * y;
-  if (r2 > 1.0000001) {
-    return [0, 0, 0];
-  }
-
-  const z = Math.sqrt(Math.max(0, 1 - r2));
-  const wsNormal: [number, number, number] = [x, y, z];
-  const wsPosition: [number, number, number] = wsNormal;
-
+  stormActivity: number,
+  cloudCoverage: number,
+): GasGiantStyle {
   const wBase = rgbToTriplet(palette.main);
   let lBase = rgbToTriplet(palette.band1);
   let mBase = rgbToTriplet(palette.band2);
@@ -217,32 +217,26 @@ function shadeGasGiantDiskPixel(
     cBase = mix3(wBase, [1, 1, 1], 0.35);
   }
 
-  const noiseCoord = scale3(wsPosition, 2);
-  const seededNoiseCoord: [number, number, number] = [
-    noiseCoord[0] + seedFloat / 100,
-    noiseCoord[1] + seedFloat / 100,
-    noiseCoord[2] + seedFloat / 100,
-  ];
+  return {
+    baseFreq,
+    turbulence,
+    wispStrength,
+    hasSpots,
+    bandSmoothness,
+    wBase,
+    lBase,
+    mBase,
+    cBase,
+  };
+}
 
-  const noiseSample1 = fbm(
-    seededNoiseCoord[0],
-    seededNoiseCoord[1],
-    seededNoiseCoord[2],
-    6,
-    0.5,
-    2,
-    4,
-  );
-  const noiseSample2 = fbm(
-    seededNoiseCoord[0],
-    seededNoiseCoord[1],
-    seededNoiseCoord[2],
-    6,
-    0.5,
-    4,
-    4,
-  );
-
+/** The two great storms, as an oval mask each, combined and gated by the style's spot strength. */
+function gasGiantStormMask(
+  x: number,
+  y: number,
+  seededNoiseCoord: [number, number, number],
+  hasSpots: number,
+): number {
   const spotNoise1 = fbm(
     seededNoiseCoord[0] * 3,
     seededNoiseCoord[1] * 3,
@@ -272,7 +266,39 @@ function shadeGasGiantDiskPixel(
   const spotDist2 = Math.hypot(spotCoords2X, spotCoords2Y);
   const spotMask2 = 1 - smoothstep(0.05, 0.15, spotDist2 + spotNoise2 * 0.1);
 
-  const stormMask = Math.max(spotMask1, spotMask2) * hasSpots;
+  return Math.max(spotMask1, spotMask2) * hasSpots;
+}
+
+/**
+ * Three sine bands at rising frequency, mixed over the base colour, then the storms and the
+ * high-frequency wisps on top.
+ */
+function gasGiantSurfaceColor(
+  style: GasGiantStyle,
+  y: number,
+  seededNoiseCoord: [number, number, number],
+  stormMask: number,
+): [number, number, number] {
+  const { wBase, lBase, mBase, cBase, baseFreq, turbulence, bandSmoothness, wispStrength } = style;
+
+  const noiseSample1 = fbm(
+    seededNoiseCoord[0],
+    seededNoiseCoord[1],
+    seededNoiseCoord[2],
+    6,
+    0.5,
+    2,
+    4,
+  );
+  const noiseSample2 = fbm(
+    seededNoiseCoord[0],
+    seededNoiseCoord[1],
+    seededNoiseCoord[2],
+    6,
+    0.5,
+    4,
+    4,
+  );
 
   const amplitude = turbulence + noiseSample1 * (turbulence * 0.5);
   const frequency = baseFreq + noiseSample2;
@@ -311,13 +337,50 @@ function shadeGasGiantDiskPixel(
     1,
   );
   const wispMask = smoothstep(0.5 - bandSmoothness, 0.7 + bandSmoothness, wispMap);
-  planetColor = mix3(planetColor, cBase, wispMask * wispStrength);
+
+  return mix3(planetColor, cBase, wispMask * wispStrength);
+}
+
+function shadeGasGiantDiskPixel(
+  offsetX: number,
+  offsetY: number,
+  planetRadiusPx: number,
+  palette: PlanetPalette,
+  shading: PlanetShading,
+): [number, number, number] {
+  const { seedFloat, lightDir, stormActivity, cloudCoverage } = shading;
+
+  const angle = seedFloat * 0.1;
+  const [rx, ry] = rotate2d(angle, offsetX, offsetY);
+
+  const x = rx / planetRadiusPx;
+  const y = ry / planetRadiusPx;
+  const r2 = x * x + y * y;
+  if (r2 > 1.0000001) {
+    return [0, 0, 0];
+  }
+
+  const z = Math.sqrt(Math.max(0, 1 - r2));
+  const wsNormal: [number, number, number] = [x, y, z];
+  const wsPosition: [number, number, number] = wsNormal;
+
+  const style = resolveGasGiantStyle(seedFloat, palette, stormActivity, cloudCoverage);
+
+  const noiseCoord = scale3(wsPosition, 2);
+  const seededNoiseCoord: [number, number, number] = [
+    noiseCoord[0] + seedFloat / 100,
+    noiseCoord[1] + seedFloat / 100,
+    noiseCoord[2] + seedFloat / 100,
+  ];
+
+  const stormMask = gasGiantStormMask(x, y, seededNoiseCoord, style.hasSpots);
+  const planetColor = gasGiantSurfaceColor(style, y, seededNoiseCoord, stormMask);
 
   const epsNormal = 0.035;
   const gradN = calcNormalFromMap(wsPosition, epsNormal);
   const wsSurfaceNormal = normalize3(add3(gradN, scale3(wsNormal, 16)));
 
-  return finishLitPlanetSurface(planetColor, wsNormal, wsSurfaceNormal, lightDir, wBase);
+  return finishLitPlanetSurface(planetColor, wsNormal, wsSurfaceNormal, lightDir, style.wBase);
 }
 
 function finishLitPlanetSurface(
