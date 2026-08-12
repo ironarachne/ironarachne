@@ -27,7 +27,6 @@
   $effect(() => {
     rng.setSeed(seed);
   });
-  let genConfig;
   let character = $state<ADNDCharacter | undefined>();
   let downloadingPdf = $state(false);
 
@@ -90,8 +89,7 @@
     const lockedFirstName = firstName;
     const lockedLastName = lastName;
 
-    genConfig = getDefaultConfig();
-    genConfig.rng = rng;
+    const genConfig = getDefaultConfig(rng);
     genConfig.includeProficiencies = includeProficiencies;
     genConfig.includeKits = includeKits;
     character = generateCharacter(genConfig);
