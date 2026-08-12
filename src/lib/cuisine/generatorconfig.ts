@@ -1,19 +1,20 @@
-import FoodComponent from './component.js';
+import type { FoodComponent } from './component.js';
 
-export default class CuisineGeneratorConfig {
+export type CuisineGeneratorConfig = {
   possibleSeasonings: FoodComponent[];
   possibleComplements: FoodComponent[];
   possibleMainComponents: FoodComponent[];
   possibleCookingMethods: string[];
   possibleDrinks: string[];
+};
 
-  constructor() {
-    this.possibleSeasonings = [];
-    this.possibleComplements = [];
-    this.possibleMainComponents = [];
-    this.possibleCookingMethods = [];
-    this.possibleDrinks = [];
-
-    // TODO: Populate the above using components.ts
-  }
+export function getDefaultConfig(): CuisineGeneratorConfig {
+  // TODO: Populate the below using components.ts
+  return {
+    possibleSeasonings: [],
+    possibleComplements: [],
+    possibleMainComponents: [],
+    possibleCookingMethods: [],
+    possibleDrinks: [],
+  };
 }

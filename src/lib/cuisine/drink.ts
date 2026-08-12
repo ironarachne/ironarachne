@@ -1,9 +1,9 @@
 import type { RNG } from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
-import DrinkType from './drinktype.js';
+import type { DrinkType } from './drinktype.js';
 import * as DrinkTypes from './drinktypes.js';
 
-export class Drink {
+export type Drink = {
   name: string;
   description: string;
   appearance: string;
@@ -11,20 +11,19 @@ export class Drink {
   strength: number;
   cost: number;
   drinkType: DrinkType;
+};
 
-  constructor(rng: RNG) {
-    this.name = '';
-    this.description = '';
-    this.appearance = '';
-    this.quality = 0;
-    this.strength = 0;
-    this.cost = 0;
-    this.drinkType = randomType(rng);
-  }
-}
+export function generateDrink(rng: RNG): Drink {
+  const drink: Drink = {
+    name: '',
+    description: '',
+    appearance: '',
+    quality: 0,
+    strength: 0,
+    cost: 0,
+    drinkType: randomType(rng),
+  };
 
-export function generateDrink(rng: RNG) {
-  const drink = new Drink(rng);
   drink.appearance = rng.item(drink.drinkType.appearances);
   drink.strength = rng.int(drink.drinkType.strengthMin, drink.drinkType.strengthMax);
   drink.quality = rng.int(0, 6);
