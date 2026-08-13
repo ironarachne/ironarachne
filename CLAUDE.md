@@ -151,11 +151,13 @@ matching `scripts/render_*.ts` CLI entry point used to preview output outside th
 
 ### Vendored brand assets
 
-The icons in `static/` are copies from `ironarachne/ironarachne_branding`, pinned to a commit in
-`brand-assets.json` and copied by `scripts/sync_brand_assets.sh` (`--check` reports drift). **Never
-edit a vendored asset in place** — change it in the brand repo and sync, because editing both sides
-is exactly how these silently diverged twice. Anything else vendored from that repo (fonts, lockups)
-goes in the same pin rather than growing a second mechanism. See `docs/brand-assets.md`.
+The icons in `static/` and the fonts in `src/lib/assets/fonts/` are copies from
+`ironarachne/ironarachne_branding`, pinned to a commit in `brand-assets.json` and copied by
+`scripts/sync_brand_assets.sh` (`--check` reports drift). **Never edit or rename a vendored asset in
+place** — change it in the brand repo and sync, because editing both sides is exactly how these
+silently diverged twice, and a rename makes the next sync add a duplicate rather than overwrite.
+Anything else vendored from that repo (lockups) goes in the same pin rather than growing a second
+mechanism. See `docs/brand-assets.md`.
 
 ## Design process
 
