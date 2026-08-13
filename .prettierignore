@@ -2,3 +2,7 @@ public
 node_modules
 .vscode
 .github
+
+# Vendored from the brand repo — see docs/brand-assets.md. Reformatting one is
+# an in-place edit like any other, and in-place edits are how these drifted.
+static/manifest.json
