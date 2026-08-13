@@ -32,3 +32,8 @@ output "pull_zone_id" {
   description = "Bunny pull zone ID, for cache purges from a deployment pipeline."
   value       = bunnynet_pullzone.site.id
 }
+
+output "pull_zone_name" {
+  description = "Bunny pull zone name. This, not the hostname, is what a DNS record of type PullZone stores in `value`."
+  value       = bunnynet_pullzone.site.name
+}

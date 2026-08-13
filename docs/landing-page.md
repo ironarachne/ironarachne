@@ -140,7 +140,29 @@ So the apex is the fallback this document already named: a second `bunnynet_pull
 landing pull zone, with a `bunnynet_pullzone_edgerule` doing the redirect. Three resources rather than
 one, and every hop is one we control. The apex record itself is `type = "PullZone"`, which links a
 record straight to a pull zone — Bunny is authoritative here, so this needs no hardcoded anycast
-addresses. `pullzone_id` is required for that type; `value` holds the pull zone hostname.
+addresses. `pullzone_id` is required for that type; `value` holds the pull zone **name**.
+
+**`value` is the one field on that record that cannot be chosen, and getting it wrong fails in the
+worst possible place.** The provider requires it to be non-empty, and Bunny then overwrites whatever
+is sent with the pull zone's name — so `ironarachne-landing`, never `ironarachne-landing.b-cdn.net`.
+Sending the hostname aborts the apply with:
+
+```
+Error: Provider produced inconsistent result after apply
+.value: was cty.StringVal("ironarachne-landing.b-cdn.net"), but now
+cty.StringVal("ironarachne-landing").
+This is a bug in the provider, which should be reported in the provider's own issue tracker.
+```
+
+It is not a provider bug in any useful sense, and the message sends you to the wrong place. What
+makes it expensive is _when_ it happens: the record is created before the error, and the apply then
+stops — so the apex points at the pull zone while the pull-zone hostname that carries its certificate
+has not been created yet. The apex does not 404 at that point, it fails the TLS handshake outright.
+Re-run with the corrected `value` and the apply finishes. The record is left tainted, so `tofu
+untaint bunnynet_dns_record.apex` first if you would rather not have it destroyed and recreated for
+nothing — recreating it is another short window where the apex does not resolve at all.
+
+`modules/static_site` exports `pull_zone_name` for exactly this, so the name is not restated.
 
 **The edge rule sends everything to the www root and does not preserve the path.** The landing site is
 a single page: there is no second path to arrive on and nothing to deep-link to. Preserving the path
