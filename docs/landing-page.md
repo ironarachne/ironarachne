@@ -147,6 +147,9 @@ and are published to the app's bucket; the landing page is a different bucket an
 same `from` directory appearing twice with two different `to` values is fine — the sync script iterates
 the mappings independently.
 
+The same reasoning applies to the palette, which #150 has since vendored to `src/lib/styles/brand` for
+the app's benefit. The landing page cannot reach that either, so it takes its own copy.
+
 Proposed additions to `brand-assets.json`:
 
 | `from`           | `to`                   |
@@ -154,15 +157,21 @@ Proposed additions to `brand-assets.json`:
 | `logo/primary`   | `landing/assets/logo`  |
 | `fonts`          | `landing/assets/fonts` |
 | `logo/web-icons` | `landing/assets/icons` |
+| `tokens`         | `landing/assets/brand` |
 
-### 6. The app's colour-token drift stays separate (#150)
+### 6. The landing page uses the brand token names directly
 
-The landing page consumes the brand names — `--ia-charcoal`, `--ia-green` — directly, by vendoring or
-mirroring `tokens/colors.css`. The app still declares its own renamed set (`--charcoal`,
-`--iron-arachne-green`, no `--ia-` prefix); reconciling that is #150 and is not this page's problem.
+The landing page consumes `--ia-charcoal`, `--ia-green` and the rest as the brand repo declares them,
+by vendoring `tokens/` as above and linking `colors.css` from the page.
 
-The point of consuming `--ia-*` here is that the new thing is correct from the start, leaving the app as
-the only thing left to reconcile.
+**#150 has landed, so this is now a settled house pattern rather than a divergence.** The app vendors
+the same file to `src/lib/styles/brand` and aliases its own vocabulary onto it — `--charcoal` is
+`var(--ia-charcoal)` — so no hex value is restated anywhere and the two files cannot drift. That
+aliasing layer exists because the app has an established vocabulary in 74 call sites; the landing page
+has none, so it skips the layer and uses the brand names as-is.
+
+The consequence worth carrying forward: **the landing page must not restate a hex.** If it needs a
+colour the brand repo does not have, the colour goes in the brand repo first.
 
 ### 7. Inclusive Sans from the start
 
@@ -319,12 +328,19 @@ is a change to #151's mechanism and belongs there.
 `fonts/OFL-CinzelDecorative.txt` come along with the directory mapping, which satisfies clause 2 by
 construction — one more reason not to prune.
 
-**Prettier cannot parse SVG, so vendored artwork is invisible to it.** Verified: passing an `.svg`
-explicitly produces "No parser could be inferred", and `prettier --check .` only globs extensions it
-supports. Fonts are binary and equally invisible. But `docs/brand-assets.md` is clear that any vendored
-file Prettier _can_ parse needs a `.prettierignore` entry — `static/manifest.json` is there for exactly
-this reason. If `logo/web-icons` is vendored into `landing/assets/icons`, its `manifest.json` needs an
-entry too, or Prettier will reformat it and `--check` will then report drift on a file nobody touched.
+**Every vendored file Prettier can parse needs a `.prettierignore` entry, and two of these do.**
+Artwork and fonts are safe: passing an `.svg` explicitly produces "No parser could be inferred", and
+`prettier --check .` only globs extensions it supports, so vendored SVG is invisible to it and fonts are
+binary. The risk is the other two mappings.
+
+This is not hypothetical — #150 hit it. Its `.prettierignore` entry records that Prettier "would unpick
+the aligned comments in `colors.css` and rewrap `colors.json`", so it ignores `src/lib/styles/brand/`
+wholesale. The landing page's copy of `tokens` will hit exactly the same two files, and
+`logo/web-icons` carries a `manifest.json` — which is why `static/manifest.json` is already listed.
+
+So `landing/assets/brand/` and `landing/assets/icons/manifest.json` both need entries, added in the
+same change that adds the mappings. Miss them and Prettier reformats a vendored file, `--check` then
+reports drift in a file nobody knowingly touched, and the format-on-edit hook keeps reintroducing it.
 
 **The pull zone must not forward the visitor's Host header.** Inherited from the module, which sets
 `forward_host_header = false` deliberately: Object Storage routes bucket-website requests by hostname and
@@ -361,7 +377,8 @@ current DNS state is confirmed against the live zone. Neither confirms runtime b
 
 **The app.** Nothing here changes `app.ironarachne.com`, its build, or its deployment.
 
-**The app's colour tokens.** #150.
+**The app's colour tokens.** #150, which has landed — the app now aliases the vendored brand palette
+rather than restating it. Nothing is left outstanding there; decision 6 follows the pattern it set.
 
 **The `docs/infrastructure.md` status line.** It still says "Nothing here has been applied yet", which
 has been false since all three environments went live. It should be corrected as part of this work's
