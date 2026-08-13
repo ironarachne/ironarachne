@@ -149,6 +149,14 @@ loaded via `vite-plugin-glsl`), `graphics`/`visual_identity`/`heraldry`/`disc_em
 with `xmlbuilder2`), and `pdf`/`download` (jsPDF export). If you touch one of these, check for a
 matching `scripts/render_*.ts` CLI entry point used to preview output outside the browser.
 
+### Vendored brand assets
+
+The icons in `static/` are copies from `ironarachne/ironarachne_branding`, pinned to a commit in
+`brand-assets.json` and copied by `scripts/sync_brand_assets.sh` (`--check` reports drift). **Never
+edit a vendored asset in place** — change it in the brand repo and sync, because editing both sides
+is exactly how these silently diverged twice. Anything else vendored from that repo (fonts, lockups)
+goes in the same pin rather than growing a second mechanism. See `docs/brand-assets.md`.
+
 ## Design process
 
 Larger features are designed before they are built. "Larger" means anything that introduces a new
