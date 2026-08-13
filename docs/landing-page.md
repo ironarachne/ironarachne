@@ -215,31 +215,46 @@ at the zone apex.
 
 ### `scripts/publish_site.sh` — a fourth `case` arm
 
-The script maps environment to bucket and pull zone in a `case` statement. Add:
+The script maps environment to bucket and pull zone in a `case` statement, and `landing` is now a
+fourth arm. Its pull zone is `6330365`, which could only be filled in after the first apply — the ID is
+assigned by Bunny, so this edit had to follow the infrastructure rather than precede it.
 
-```sh
-landing)
-  bucket="ironarachne-web-landing"
-  pull_zone="<id from the apply>"
-  ;;
-```
+Each arm also names its own default source directory, which is new. The app builds to `build/` and the
+landing page is the checked-in `landing/`, so the single shared `build` default would have meant
+`publish_site.sh landing` quietly uploading the app to the landing bucket — a foot-gun worth closing
+while adding the arm rather than after someone finds it.
 
-The pull zone ID is not known until the infrastructure is applied, so this edit follows the apply rather
-than preceding it.
+**The two-pass upload does not work unmodified, and an earlier draft of this document was wrong to say
+it did.** The first pass targets `_app/immutable/**`, which a static page does not have. The claim was
+that it would copy nothing and do no harm; in fact `rclone copy` exits **3** on a source directory that
+does not exist — `directory not found` — and under `set -euo pipefail` that aborts the publish before
+the second pass uploads anything at all. So `publish_site.sh landing` would have failed on its first
+run, every time, for a reason that looks nothing like its cause.
 
-Its two-pass upload works unmodified. The first pass targets `_app/immutable/**`, which a static page
-does not have, so it copies nothing and does no harm; the second pass uploads everything with
-`public, max-age=0, must-revalidate`. That means the fonts and lockup revalidate on every visit. For a
-page this size that is a 304 and not worth optimising before the page exists — but if it ever matters,
-the fix is a third pass giving `landing/assets/**` a moderate lifetime, **not** a long one, because
-these files are not content-hashed and a year-long header on a logo is unrecallable.
+The fix is a `[ -d ]` guard around the first pass, which is correct rather than merely tolerable: a
+page with no content-hashed assets has nothing to cache for a year. The app's own publishes are
+unaffected, since the directory is always there.
+
+The second pass then uploads everything with `public, max-age=0, must-revalidate`, so the fonts and
+lockup revalidate on every visit. For a page this size that is a 304 and not worth optimising — but if
+it ever matters, the fix is a third pass giving `landing/assets/**` a moderate lifetime, **not** a long
+one, because these files are not content-hashed and a year-long header on a logo is unrecallable.
 
 ### A publish workflow
 
-Push-triggered and path-filtered on `landing/`, modelled on `promote-prod.yaml` — including its
-belt-and-braces check that the path actually changed in the push. Per `docs/deployment.md`, "Actions on
-this host": no workflow artifacts, no `workflow_dispatch` inputs, no `timeout-minutes:`, and nothing
-handed between jobs. Path-filtered `push` triggers do work; `promote-prod.yaml` relies on one today.
+`.worktree/workflows/publish-landing.yaml`: push-triggered and path-filtered on `landing/`, modelled on
+`promote-prod.yaml` — including its belt-and-braces check that the path actually changed in the push.
+Per `docs/deployment.md`, "Actions on this host": no workflow artifacts, no `workflow_dispatch` inputs,
+no `timeout-minutes:`, and nothing handed between jobs. Path-filtered `push` triggers do work;
+`promote-prod.yaml` relies on one today.
+
+It has no build step and no `npm ci`, because the page is checked in rather than compiled. That is the
+whole of the difference from the app's pipeline, and it is why decision 1 holds: there is no artifact to
+version and nothing to promote between environments.
+
+**The workflow only fires when `landing/` changes**, so merging it does not itself publish anything. The
+bucket was seeded by running `scripts/publish_site.sh landing` by hand, which is also how the whole path
+was verified end to end before any of it was trusted.
 
 ## The DNS cutover
 
@@ -258,9 +273,11 @@ fight a record it does not know about, in both places rather than one.
 
 Sequence:
 
-1. **Apply the landing stack with no DNS cutover.** Bucket, pull zone, and the `www` hostname. Verify on
-   the bucket website endpoint and on `ironarachne-landing.b-cdn.net` directly. Nothing visitor-facing
-   has moved yet.
+1. **Apply the landing stack with no DNS cutover.** Bucket and pull zone only, via `-target`; the exact
+   command is in `infra/README.md`. **Not** the `www` hostname — an earlier draft listed it here, but
+   Bunny will not issue its certificate while `www` still resolves to Fly, so it belongs to step 4 with
+   the records. Verify on the bucket website endpoint and on `ironarachne-landing.b-cdn.net` directly.
+   Nothing visitor-facing has moved yet.
 2. **Publish the page** to the bucket and confirm it over the `b-cdn.net` hostname.
 3. **Resolve the two existing records** — either import them into state or delete them by hand
    immediately before the apply. Deleting is simpler and these records are trivially reconstructible;

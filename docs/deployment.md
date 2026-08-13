@@ -45,9 +45,17 @@ graph TD
 | dev     | every merge to `main`            | the artifact built in that run, unpacked |
 | staging | `deploy/staging.version` changes | the release asset for that version       |
 | prod    | `deploy/prod.version` changes    | the release asset for that version       |
+| landing | `landing/` changes on `main`     | the directory as it stands in the commit |
 
 Promotion fetches a published artifact rather than rebuilding, so the bytes reaching prod are the
 bytes that were built and tested — not a rebuild that happens to start from the same commit.
+
+**The landing page is not part of any of that**, and the last row is in the table only so nobody looks
+for it elsewhere. It is the one-page site at `www.ironarachne.com`, checked in under `landing/` rather
+than built, published straight from `main` by `publish-landing.yaml` with no version, no release and no
+promotion. A single static page that links to the app does not earn that machinery, and tying it to
+`package.json`'s version would mean an app release forcing a landing-page deploy. See
+`docs/landing-page.md`.
 
 Build and deploy are **not** separate jobs, and that is a platform constraint rather than a
 preference: this host provides no `ACTIONS_RUNTIME_TOKEN`, so workflow artifacts do not work and

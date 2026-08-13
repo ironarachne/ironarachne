@@ -1,10 +1,15 @@
 variable "environment" {
-  description = "Environment this site serves: dev, staging or prod."
+  description = "Deploy target this site serves: dev, staging, prod, or landing."
   type        = string
 
   validation {
-    condition     = contains(["dev", "staging", "prod"], var.environment)
-    error_message = "environment must be one of: dev, staging, prod."
+    # "landing" is not an environment of the app; it is the marketing page at
+    # www.ironarachne.com, which is a fourth thing this module builds rather
+    # than a fourth copy of the app. The variable really means "which deploy
+    # target is this", and the string only reaches a bucket tag and the DNS
+    # record's comment, both of which read correctly as "landing".
+    condition     = contains(["dev", "staging", "prod", "landing"], var.environment)
+    error_message = "environment must be one of: dev, staging, prod, landing."
   }
 }
 
