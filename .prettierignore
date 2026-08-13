@@ -10,3 +10,9 @@ node_modules
 # drift in files nobody knowingly touched.
 static/manifest.json
 src/lib/styles/brand/
+
+# The landing page's own copies of the same assets. It is a separate bucket and
+# cannot reach the app's, so the same files are vendored twice and need ignoring
+# twice. SVG and woff2 are invisible to Prettier already; these two are not.
+landing/assets/brand/
+landing/assets/icons/manifest.json

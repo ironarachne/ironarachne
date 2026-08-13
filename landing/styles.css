@@ -1,0 +1,146 @@
+/* Iron Arachne landing page.
+ *
+ * Every colour resolves to a token in assets/brand/colors.css, which is vendored from the
+ * brand repo. No hex is restated here — a colour this page needs and the brand repo lacks
+ * goes in the brand repo first. See docs/landing-page.md.
+ */
+
+/* Only the roman is declared. The page sets no display text (the wordmark is outlined inside
+ * the lockup SVG) and no italics, so Cinzel Decorative and the italic file are vendored but
+ * deliberately not referenced — 46KB of font instead of 127KB. GUIDELINES.md forbids
+ * synthesising either, so adding italic or display copy means shipping the file, not faking it. */
+@font-face {
+  font-family: 'Inclusive Sans';
+  src: url('assets/fonts/InclusiveSans-Variable.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Charcoal is the ground everywhere — this page has no light mode by brand decision,
+   * so these are deliberately not wrapped in a prefers-color-scheme query. */
+  --page-bg: var(--ia-charcoal);
+  --page-ink: color-mix(in srgb, var(--ia-charcoal) 5%, white 95%);
+  --page-accent: var(--ia-green);
+
+  --measure: 34rem;
+  --gutter: 1.5rem;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  /* Belt and braces: the body is centred in the viewport, and an overscroll bounce
+   * on a phone would otherwise expose the browser's own white behind it. */
+  background: var(--page-bg);
+}
+
+body {
+  margin: 0;
+  padding: clamp(2rem, 8vw, 5rem) var(--gutter);
+  background: var(--page-bg);
+  color: var(--page-ink);
+  font-family: 'Inclusive Sans', system-ui, Helvetica, sans-serif;
+  font-weight: 400;
+  font-size: clamp(1rem, 0.95rem + 0.3vw, 1.125rem);
+  line-height: 1.65;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+main {
+  max-width: var(--measure);
+  margin-inline: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(2.5rem, 7vw, 4rem);
+}
+
+/* Clear space is half the glyph height on all four sides. The gap above plus the
+ * lockup's own padding keeps well clear of that at every width. */
+.hero {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.lockup {
+  display: block;
+  height: auto;
+
+  /* Both lockups have a documented minimum width below which the artwork stops resolving:
+   * 200px horizontal, 140px stacked. The stacked mark carries the narrow end because it
+   * clears its floor with far more room — at a 320px viewport it renders about 230px wide
+   * against a 140px floor, where the horizontal lockup would sit almost exactly on its own. */
+  width: min(72vw, 260px);
+}
+
+@media (min-width: 480px) {
+  .lockup {
+    width: min(70vw, 460px);
+  }
+}
+
+.intro {
+  width: 100%;
+}
+
+.intro p {
+  margin: 0 0 1.25rem;
+}
+
+.intro p:last-child {
+  margin-bottom: 0;
+}
+
+a {
+  color: var(--page-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+a:hover {
+  text-decoration-thickness: 2px;
+}
+
+/* The green is the brightest thing on the page, and the primary action is where it belongs.
+ * Green on charcoal measures 10.65:1, and charcoal on green the same, so both directions pass AA. */
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.75rem;
+  border-radius: 0.25rem;
+  background: var(--page-accent);
+  color: var(--ia-charcoal);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.button:hover {
+  background: var(--ia-green-acid);
+}
+
+a:focus-visible,
+.button:focus-visible {
+  outline: 2px solid var(--page-accent);
+  outline-offset: 3px;
+}
+
+.button:focus-visible {
+  /* The button is already green, so a green ring on it would be invisible. */
+  outline-color: var(--page-ink);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a,
+  .button {
+    transition:
+      background-color 120ms ease,
+      text-decoration-thickness 120ms ease;
+  }
+}
