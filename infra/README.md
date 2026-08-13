@@ -11,10 +11,15 @@ Use **OpenTofu** (`tofu`), not Terraform. `>= 1.10` is required — the state ba
 | `environments/dev`     | `dev.ironarachne.com`     | `ironarachne-web-dev`     | `ironarachne-dev`     |
 | `environments/staging` | `staging.ironarachne.com` | `ironarachne-web-staging` | `ironarachne-staging` |
 | `environments/prod`    | `app.ironarachne.com`     | `ironarachne-web-prod`    | `ironarachne-prod`    |
+| `environments/landing` | `www.ironarachne.com`     | `ironarachne-web-landing` | `ironarachne-landing` |
 | `shared`               | the CD identity           | —                         | —                     |
 
 `modules/static_site` holds the per-environment resources; each environment stack is a thin call to
 it with its own backend key. The design and the reasoning behind it are in `docs/infrastructure.md`.
+
+`landing` is the odd one out: it is not an environment of the app but the one-page site built from
+`landing/` in this repository, and it also owns the apex redirect. Its design is in
+`docs/landing-page.md`, and **its first apply is deliberately partial** — see below.
 
 ## Credentials
 
@@ -101,6 +106,40 @@ resolves to the pull zone, so the module orders the DNS record ahead of the host
 authoritative for `ironarachne.com`, so the gap is normally seconds — but on a cold create this is
 the step most likely to fail. If it does, re-run `tofu apply`; the record will be in place and the
 hostname will settle.
+
+## The landing stack applies in two phases
+
+`environments/landing` cannot be applied in one go, and that is a property of the zone rather than a
+preference. Two records it declares already exist and are not managed here:
+
+```
+www.ironarachne.com.  IN  CNAME  ironarachne.com.
+ironarachne.com.      IN  A      66.241.125.222   (Fly)
+```
+
+Applying the whole stack would collide with both, and Bunny will not issue the managed certificate
+for `www` until that name resolves to the pull zone — which it will not while it still points at
+Fly. So phase one creates only the bucket and the pull zone:
+
+```bash
+cd infra/environments/landing
+tofu apply \
+  -target=module.site.scaleway_object_bucket.site \
+  -target=module.site.scaleway_object_bucket_policy.public_read \
+  -target=module.site.scaleway_object_bucket_website_configuration.site \
+  -target=module.site.bunnynet_pullzone.site
+```
+
+Verify on the pull zone's own hostname, `ironarachne-landing.b-cdn.net`, and on the bucket website
+endpoint. Nothing visitor-facing has moved at this point.
+
+Phase two is the DNS cutover, and it is a plain `tofu apply` **after** the two records above have
+been removed or imported. It creates the `www` CNAME, the pull-zone hostname with its certificate,
+and the apex `Redirect`. Expect the certificate to need a second apply, for the same reason as
+above. The sequence is in `docs/landing-page.md`.
+
+`-target` is otherwise a smell, and it is used here for the one thing it is genuinely for: a
+dependency that lives outside the configuration and has to be dealt with in between.
 
 ## What this does not do
 

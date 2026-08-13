@@ -227,12 +227,21 @@ landing)
 The pull zone ID is not known until the infrastructure is applied, so this edit follows the apply rather
 than preceding it.
 
-Its two-pass upload works unmodified. The first pass targets `_app/immutable/**`, which a static page
-does not have, so it copies nothing and does no harm; the second pass uploads everything with
-`public, max-age=0, must-revalidate`. That means the fonts and lockup revalidate on every visit. For a
-page this size that is a 304 and not worth optimising before the page exists — but if it ever matters,
-the fix is a third pass giving `landing/assets/**` a moderate lifetime, **not** a long one, because
-these files are not content-hashed and a year-long header on a logo is unrecallable.
+**The two-pass upload does not work unmodified, and an earlier draft of this document was wrong to say
+it did.** The first pass targets `_app/immutable/**`, which a static page does not have. The claim was
+that it would copy nothing and do no harm; in fact `rclone copy` exits **3** on a source directory that
+does not exist — `directory not found` — and under `set -euo pipefail` that aborts the publish before
+the second pass uploads anything at all. So `publish_site.sh landing` would have failed on its first
+run, every time, for a reason that looks nothing like its cause.
+
+The fix is a `[ -d ]` guard around the first pass, which is correct rather than merely tolerable: a
+page with no content-hashed assets has nothing to cache for a year. The app's own publishes are
+unaffected, since the directory is always there.
+
+The second pass then uploads everything with `public, max-age=0, must-revalidate`, so the fonts and
+lockup revalidate on every visit. For a page this size that is a 304 and not worth optimising — but if
+it ever matters, the fix is a third pass giving `landing/assets/**` a moderate lifetime, **not** a long
+one, because these files are not content-hashed and a year-long header on a logo is unrecallable.
 
 ### A publish workflow
 
@@ -258,9 +267,11 @@ fight a record it does not know about, in both places rather than one.
 
 Sequence:
 
-1. **Apply the landing stack with no DNS cutover.** Bucket, pull zone, and the `www` hostname. Verify on
-   the bucket website endpoint and on `ironarachne-landing.b-cdn.net` directly. Nothing visitor-facing
-   has moved yet.
+1. **Apply the landing stack with no DNS cutover.** Bucket and pull zone only, via `-target`; the exact
+   command is in `infra/README.md`. **Not** the `www` hostname — an earlier draft listed it here, but
+   Bunny will not issue its certificate while `www` still resolves to Fly, so it belongs to step 4 with
+   the records. Verify on the bucket website endpoint and on `ironarachne-landing.b-cdn.net` directly.
+   Nothing visitor-facing has moved yet.
 2. **Publish the page** to the bucket and confirm it over the `b-cdn.net` hostname.
 3. **Resolve the two existing records** — either import them into state or delete them by hand
    immediately before the apply. Deleting is simpler and these records are trivially reconstructible;

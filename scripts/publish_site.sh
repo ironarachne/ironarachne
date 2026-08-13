@@ -108,10 +108,20 @@ echo "==> Publishing $build_dir to $environment ($remote)"
 
 # Pass 1: the hashed assets, copied rather than synced so nothing is removed
 # yet. New HTML must never reach a visitor before the assets it references.
-echo "--> assets ($immutable_prefix, cached for a year)"
-rclone copy "$build_dir/$immutable_prefix" "$remote/$immutable_prefix" \
-  "${common_flags[@]}" \
-  --header-upload "Cache-Control: $immutable_cache"
+#
+# The guard is for the landing page, which is hand-written static HTML and has no
+# content-hashed assets at all. rclone exits 3 on a source directory that does not
+# exist -- "directory not found" -- and with `set -e` that would abort the publish
+# before pass 2 ever uploaded anything. Skipping is correct rather than merely
+# tolerable: there is nothing to cache for a year.
+if [ -d "$build_dir/$immutable_prefix" ]; then
+  echo "--> assets ($immutable_prefix, cached for a year)"
+  rclone copy "$build_dir/$immutable_prefix" "$remote/$immutable_prefix" \
+    "${common_flags[@]}" \
+    --header-upload "Cache-Control: $immutable_cache"
+else
+  echo "--> no $immutable_prefix directory, skipping the immutable pass"
+fi
 
 # Pass 2: everything else, synced so files deleted from the build are pruned
 # from the bucket. The hashed assets are excluded, so this cannot delete an
