@@ -110,14 +110,20 @@ hostname will settle.
 ## The landing stack applies in two phases
 
 `environments/landing` cannot be applied in one go, and that is a property of the zone rather than a
-preference. Two records it declares already exist and are not managed here:
+preference. Records it declares already exist and are not managed here, and a third points at the same
+old deployment without colliding with anything:
 
 ```
 www.ironarachne.com.  IN  CNAME  ironarachne.com.
-ironarachne.com.      IN  A      66.241.125.222   (Fly)
+ironarachne.com.      IN  A      66.241.125.222          (Fly)
+ironarachne.com.      IN  AAAA   2a09:8280:1::87:402:0   (Fly, IPv6)
 ```
 
-Applying the whole stack would collide with both, and Bunny will not issue the managed certificate
+The `AAAA` collides with nothing, which is exactly why it is easy to miss: the apply succeeds without
+it and the apex keeps answering over IPv6 from Fly. Delete all three. Do **not** touch the apex `TXT`
+and `MX` records — they carry live email. `docs/landing-page.md` has the query that enumerates them.
+
+Applying the whole stack would collide with the first two, and Bunny will not issue the managed certificate
 for `www` until that name resolves to the pull zone — which it will not while it still points at
 Fly. So phase one creates only the bucket and the pull zone:
 

@@ -258,18 +258,39 @@ was verified end to end before any of it was trusted.
 
 ## The DNS cutover
 
-Two existing records are in the way, not one. Both were confirmed against the live zone:
+Three existing records are in the way, not one. All three were confirmed against the live zone:
 
 ```
 www.ironarachne.com.  IN  CNAME  ironarachne.com.
 ironarachne.com.      IN  A      66.241.125.222
+ironarachne.com.      IN  AAAA   2a09:8280:1::87:402:0
 ```
 
 The triage flagged the apex `A`. **`www` is also already present and also unmanaged** — it is a CNAME to
 the apex, which is how it currently reaches Fly. `docs/infrastructure.md` is explicit that the zone is
 read through a data source and never managed because it carries many records predating that code; these
-two are among them. So OpenTofu will try to create a `www` record that already exists, and the apply will
-fight a record it does not know about, in both places rather than one.
+are among them. So OpenTofu will try to create a `www` record that already exists, and the apply will
+fight a record it does not know about, in more than one place.
+
+**The apex `AAAA` is the one this document missed until the cutover was actually attempted**, and it is
+the most dangerous of the three because nothing fails when you forget it. Deleting the `A` alone leaves
+the apex still resolving over IPv6 to Fly, so the cutover silently half-lands: IPv4 visitors reach the
+new page, IPv6 visitors keep reaching the machine we are retiring, and every check that resolves v4
+first reports success. It has to go in the same step as the other two.
+
+The general lesson, which is worth more than the specific record: **enumerate the apex by querying the
+zone, not by reading this list.** The zone carries 27 records and predates all of this code.
+
+```bash
+curl -sS -H "AccessKey: $BUNNYNET_API_KEY" -H "Accept: application/json" \
+  https://api.bunny.net/dnszone/491318 \
+  | jq '.Records[] | select(.Name=="" or .Name=="www") | {Id, Type, Name, Value}'
+```
+
+`Type` is an integer, not a string: `0` = A, `1` = AAAA, `2` = CNAME, `3` = TXT, `4` = MX. Only the A,
+AAAA and CNAME above are removed. **The apex `TXT` and `MX` records carry live email** — SPF, the
+`forward-email` record, Migadu, and a Google site verification — and deleting one breaks mail delivery
+rather than the website. Back the whole zone up before touching it.
 
 Sequence:
 
@@ -279,9 +300,10 @@ Sequence:
    the records. Verify on the bucket website endpoint and on `ironarachne-landing.b-cdn.net` directly.
    Nothing visitor-facing has moved yet.
 2. **Publish the page** to the bucket and confirm it over the `b-cdn.net` hostname.
-3. **Resolve the two existing records** — either import them into state or delete them by hand
+3. **Resolve the three existing records** — either import them into state or delete them by hand
    immediately before the apply. Deleting is simpler and these records are trivially reconstructible;
-   importing is safer if the window matters.
+   importing is safer if the window matters. Note that importing does not cover the apex `AAAA`: no
+   resource in this configuration corresponds to it, so it is deleted either way.
 4. **Apply the `www` CNAME and the apex `Redirect`.** Expect the managed certificate to lag: Bunny will
    not issue until the hostname resolves to the pull zone, which is why `static_site` already orders the
    record before the hostname. On a cold create this is the step most likely to need a second apply.

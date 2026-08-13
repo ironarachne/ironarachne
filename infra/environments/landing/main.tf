@@ -49,6 +49,14 @@ data "bunnynet_dns_zone" "site" {
  *     www.ironarachne.com.  IN  CNAME  ironarachne.com.
  *     ironarachne.com.      IN  A      66.241.125.222   (Fly)
  *
+ * A third record has to go at the same time even though nothing here collides
+ * with it, and nothing will complain if it is forgotten:
+ *
+ *     ironarachne.com.      IN  AAAA   2a09:8280:1::87:402:0   (Fly, IPv6)
+ *
+ * Leave it and the apex still answers from Fly over IPv6 after a cutover that
+ * otherwise looks clean.
+ *
  * They have to be removed or imported first, and until `www` resolves to the pull
  * zone Bunny will not issue the managed certificate for it either. So the first
  * apply targets the bucket and pull zone only; this record and the module's
