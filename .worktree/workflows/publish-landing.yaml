@@ -1,0 +1,63 @@
+name: Publish landing page
+
+# Publishes the one-page site at landing/ to its own bucket whenever it changes
+# on main. See docs/landing-page.md.
+#
+# Deliberately not modelled on build.yaml. The app is versioned, released and
+# promoted between three environments because it is large and a bad build should
+# not reach prod unnoticed. A single static page that links to the app does not
+# earn that ceremony, and tying it to package.json's version would mean every app
+# release forced a landing-page deploy.
+#
+# Path-filtered `push` triggers do work on this host, which is why promote-*.yaml
+# uses them. Most other things do not: no workflow artifacts, no workflow_dispatch
+# inputs, no `timeout-minutes:`, and no expressions in a job-level `env:`. Read
+# "Actions on this host" in docs/deployment.md before changing this file.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - landing/**
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Two commits, so this push can be compared against its predecessor.
+          fetch-depth: 2
+
+      - name: Confirm the landing page changed in this push
+        id: check
+        run: |
+          # Belt and braces, as in promote-prod.yaml. If `paths:` filtering is
+          # ever not honoured, this stops a republish on every unrelated merge.
+          if git diff --name-only HEAD^ HEAD | grep -q '^landing/'; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing under landing/ changed in this push; nothing to publish."
+          fi
+
+      - name: Install rclone
+        if: steps.check.outputs.changed == 'true'
+        run: |
+          curl -fsSL https://rclone.org/install.sh | sudo bash
+          rclone version | head -1
+
+      - name: Publish
+        if: steps.check.outputs.changed == 'true'
+        env:
+          SCW_ACCESS_KEY: ${{ secrets.SCW_ACCESS_KEY }}
+          SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+          BUNNYNET_API_KEY: ${{ secrets.BUNNYNET_API_KEY }}
+        # No build step and no npm install: the page is checked in, not compiled.
+        # The source directory defaults to `landing/` for this target, but naming
+        # it here keeps the workflow readable on its own.
+        run: ./scripts/publish_site.sh landing landing
+
+      - name: Summarise
+        if: steps.check.outputs.changed == 'true'
+        run: echo "Published landing/ to https://www.ironarachne.com"
