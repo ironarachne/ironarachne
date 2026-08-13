@@ -151,7 +151,8 @@ matching `scripts/render_*.ts` CLI entry point used to preview output outside th
 
 ### Vendored brand assets
 
-The icons in `static/` and the fonts in `src/lib/assets/fonts/` are copies from
+The icons in `static/`, the fonts in `src/lib/assets/fonts/`, and the colour palette in
+`src/lib/styles/brand/` are copies from
 `ironarachne/ironarachne_branding`, pinned to a commit in `brand-assets.json` and copied by
 `scripts/sync_brand_assets.sh` (`--check` reports drift). **Never edit or rename a vendored asset in
 place** — change it in the brand repo and sync, because editing both sides is exactly how these

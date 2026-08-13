@@ -1,5 +1,7 @@
 @import './reset.css';
+@import './brand/colors.css';
 @import './tokens.css';
+@import './fonts.css';
 @import './fantasy.css';
 @import './scifi.css';
 @import './navigation.css';

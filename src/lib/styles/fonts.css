@@ -1,0 +1,27 @@
+/* The site's faces. The files themselves are vendored from the brand repo into
+   `src/lib/assets/fonts/` — see docs/brand-assets.md. */
+
+@font-face {
+  font-family: 'cinzel';
+  src: url('$lib/assets/fonts/CinzelDecorative-Regular.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Inclusive Sans ships as two variable files covering a 300-700 weight axis;
+   the italic is a real cut, so never let the browser slant the roman. */
+@font-face {
+  font-family: 'Inclusive Sans';
+  src: url('$lib/assets/fonts/InclusiveSans-Variable.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Inclusive Sans';
+  src: url('$lib/assets/fonts/InclusiveSans-Italic-Variable.woff2') format('woff2-variations');
+  font-weight: 300 700;
+  font-style: italic;
+  font-display: swap;
+}

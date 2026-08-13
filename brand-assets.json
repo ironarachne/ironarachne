@@ -12,6 +12,11 @@
       "from": "fonts",
       "to": "src/lib/assets/fonts",
       "note": "Cinzel Decorative (display) and Inclusive Sans (body), with their OFL licence texts."
+    },
+    {
+      "from": "tokens",
+      "to": "src/lib/styles/brand",
+      "note": "The colour palette. src/lib/styles/tokens.css aliases these rather than restating the hexes; colors.json is the machine-readable twin and nothing in the app reads it."
     }
   ]
 }
