@@ -65,12 +65,19 @@ data "bunnynet_dns_zone" "site" {
 # pull zone — the provider's own record type for it, rather than hardcoding the
 # anycast addresses an A/AAAA pair would need. `name = ""` is the documented
 # spelling for the apex, and `pullzone_id` is required for this type.
+#
+# `value` is the pull zone **name**, not its `.b-cdn.net` hostname. The provider
+# requires the attribute to be non-empty but Bunny overwrites whatever is sent
+# with the name, so a hostname here fails the apply with "Provider produced
+# inconsistent result after apply" — after the record has already been created.
+# That is a confusing failure to meet at an apex that is mid-cutover, because it
+# reads as a provider bug and is really a value that cannot be chosen.
 resource "bunnynet_dns_record" "apex" {
   zone = data.bunnynet_dns_zone.site.id
 
   name        = ""
   type        = "PullZone"
-  value       = module.site.cdn_hostname
+  value       = module.site.pull_zone_name
   pullzone_id = module.site.pull_zone_id
   ttl         = 300
 
