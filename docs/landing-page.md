@@ -4,18 +4,18 @@ A one-page static site at `ironarachne.com`, separate from the app, linking thro
 `app.ironarachne.com`. This document records its shape, the decisions behind it, and the DNS cutover
 that moves the apex off the old Fly deployment.
 
-**Status:** proposal. Resolves the design step of issue #72. Nothing here has been built. The seven
-decisions below were settled on the issue before this document was written; what this adds is the
-resource graph, the cutover sequence, and the corrections that came out of checking the plan against
-the live zone and the pinned provider.
+**Status:** accepted. Resolves the design of issue #72. The page itself is built and lives in
+`landing/`; the infrastructure it will be published to is #157, and the DNS cutover is still to come,
+so nothing here is visitor-facing yet.
+
+The seven decisions below were settled on the issue before this document was written; what this adds
+is the resource graph, the cutover sequence, and the corrections that came out of checking the plan
+against the live zone and the pinned provider. The page design was approved on #72, and its outcome
+is recorded in [The page design](#the-page-design).
 
 Per the design process in CLAUDE.md this feature introduces no TypeScript types, so the class diagram
 that process asks for does not apply. The equivalent artefact — the resource graph and the decisions
 behind it — is below, following the precedent set by `docs/infrastructure.md`.
-
-**This document does not settle the page design.** Copy, sections, and which lockup appears at which
-breakpoint are a separate step with its own human-review gate. What is settled here is everything that
-step needs as input; see [What the page design must still settle](#what-the-page-design-must-still-settle).
 
 ## The problem
 
@@ -276,12 +276,12 @@ Step 3 is the one that can go wrong quietly. Whether a `Redirect` record can be 
 still holds an `A` record is the last thing this design could not verify without touching the live zone;
 if it cannot, step 3 becomes mandatory rather than merely tidy, and step 4 is two applies.
 
-## What the page design must still settle
+## The page design
 
-This is the next gate, and CLAUDE.md is explicit that implementation does not start before a human
-approves it. The brand repo has retired most of the risk — what remains is genuinely about this page.
+Approved on #72, where the copy was supplied and the remaining choices delegated. The page is built
+from it: `landing/index.html`, `landing/404.html` and `landing/styles.css`.
 
-**Already decided upstream, not open for the review:**
+**Decided upstream by the brand repo, and not open here:**
 
 - **The ground is charcoal.** `BRAND.md`: "Charcoal remains the ground everywhere. The setting changes;
   the room doesn't." Combined with the rule that the green is a dark-surface colour, the page sits on
@@ -295,21 +295,36 @@ approves it. The brand repo has retired most of the risk — what remains is gen
   as a stated position, and says requests for one "should be answered with this section." A landing page
   is exactly where all three get proposed, so this is worth quoting rather than paraphrasing.
 
-**Open, and for the review to settle:**
+**Settled by the copy, approved on #72:**
 
-- **The copy and sections.** One screen, one call to action to `app.ironarachne.com`.
-- **Which lockup at which breakpoint.** The floors are 200px wide for the horizontal lockup and 140px
-  for the stacked, with clear space of half the glyph height on all four sides. At the narrowest
-  viewport the app pins, 320px, a 200px horizontal lockup leaves 60px a side — workable, but it is a
-  deliberate choice rather than a comfortable one. The stacked lockup is the safer call at phone widths.
-  Review at the widths in `e2e/mobile_viewports.ts`: 320/360/375/390/430px.
-- **The font budget.** Inclusive Sans roman (46KB) is a given. Cinzel Decorative (33KB) ships only if
-  the page sets a display heading — the wordmark itself is outlined in the lockup SVG and does not need
-  the font. The italic (48KB) ships only if the copy sets italics; `GUIDELINES.md` forbids synthesising
-  it, so this is a copy decision, made here rather than discovered later.
+- **Three sections.** A hero that is the lockup alone, an introductory section of four paragraphs, and
+  the call to action to `app.ironarachne.com`. No tagline on the page — the hero is the mark and
+  nothing else. `BRAND.md` permits the tagline beside the mark; it does not require it, and the copy
+  does not use it.
+- **The lockup per breakpoint.** Stacked below 480px, horizontal at and above it, both `…-green.svg`.
+  Measured in a browser at the widths in `e2e/mobile_viewports.ts` plus desktop: the stacked mark
+  renders 230–260px against its 140px floor, and the horizontal 460px against its 200px floor, with no
+  horizontal overflow at any width. The stacked mark carries the narrow end deliberately — a 200px
+  horizontal lockup at a 320px viewport would sit almost exactly on its own floor.
+- **The font budget is one file.** `InclusiveSans-Variable.woff2`, 46KB.
 
-Note that the font budget is about what the page **references**, not what the sync copies — see the
-first item under "Things that will bite".
+### Why the budget is one file
+
+This follows from the copy rather than from preference, which is why it could not be settled earlier:
+
+| File                                  | Ships | Because                                                                   |
+| ------------------------------------- | ----- | ------------------------------------------------------------------------- |
+| `InclusiveSans-Variable.woff2`        | Yes   | body copy and the call to action                                          |
+| `CinzelDecorative-Regular.woff`       | No    | the page sets no display text; the wordmark is outlined in the lockup SVG |
+| `InclusiveSans-Italic-Variable.woff2` | No    | the copy sets no italics                                                  |
+
+46KB rather than the 127KB worst case. Both omissions are conditional on the copy, and
+`GUIDELINES.md` forbids synthesising either face — so adding a heading or an italic means shipping
+the file, not faking it. Both are already vendored, so doing that is a one-line change to
+`landing/styles.css`.
+
+The budget is about what the page **references**, not what the sync copies — see the first item under
+"Things that will bite".
 
 ## Things that will bite
 
@@ -368,10 +383,11 @@ current DNS state is confirmed against the live zone. Neither confirms runtime b
 3. **The cost of a fourth pull zone.** Bunny is pay-per-GB with no monthly floor per
    `docs/infrastructure.md`, so this is expected to be negligible; not confirmed against the account.
 4. **Whether the Fly machine serves anything besides the old site.** Only that it answers on the apex.
-5. **Whether `format("woff2-variations")` behaves as prescribed when served from a bucket.** The
-   `@font-face` block is specified by `GUIDELINES.md` and now also ships in the app, so this is far less
-   of an unknown than when the issue raised it — but the app serves it from a different bucket and the
-   declaration has not been checked on this one.
+   The `@font-face` declaration is no longer on this list. It was checked in Chromium against the built
+   page over HTTP: `document.fonts.check('1rem "Inclusive Sans"')` returns true and the rendered text is
+   the webfont rather than the fallback, at every width tested. Serving those bytes from a bucket instead
+   of a local server is the same HTTP transaction, so what remained of that unknown is the origin's
+   `Content-Type`, which `publish_site.sh` does not set and browsers do not require for woff2.
 
 ## Out of scope
 

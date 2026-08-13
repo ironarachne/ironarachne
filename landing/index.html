@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Iron Arachne</title>
+    <meta
+      name="description"
+      content="A web app for building worlds. Local-only, no accounts, no tracking, and no AI — the generators are procedural and deterministic."
+    />
+
+    <link rel="icon" href="assets/icons/favicon.ico" sizes="any" />
+    <link rel="icon" type="image/png" sizes="32x32" href="assets/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="assets/icons/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/icons/apple-icon-180x180.png" />
+
+    <meta property="og:title" content="Iron Arachne" />
+    <meta
+      property="og:description"
+      content="A web app for building worlds. Local-only, no accounts, no tracking, and no AI — the generators are procedural and deterministic."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://www.ironarachne.com/" />
+
+    <!-- The palette is vendored from the brand repo and is the source of truth for
+         every colour on this page; see docs/brand-assets.md. Nothing here restates a hex. -->
+    <link rel="stylesheet" href="assets/brand/colors.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+
+  <body>
+    <main>
+      <!-- The hero is the lockup alone. The wordmark ships as outlines inside the
+           SVG, which is why this page needs no display font at all. -->
+      <header class="hero">
+        <picture>
+          <source media="(min-width: 480px)" srcset="assets/logo/lockup-horizontal-green.svg" />
+          <img
+            class="lockup"
+            src="assets/logo/lockup-stacked-green.svg"
+            alt="Iron Arachne"
+            width="848"
+            height="445"
+          />
+        </picture>
+      </header>
+
+      <section class="intro">
+        <p>
+          Iron Arachne is a web app for building worlds. If you’re a game master, a player, an
+          author, or just someone who enjoys world-building, this app is for you.
+        </p>
+
+        <p>
+          The app is local-only. There are no accounts. Anything that can be saved is saved locally
+          to your browser’s storage. There is no tracking of any kind. No advertising, and no
+          affiliate links. This is built for humans to use and enjoy.
+        </p>
+
+        <p>
+          It’s built as an open-source project by Ben Overmyer. That’s me. If you have comments,
+          questions, complaints, or other feedback, feel free to send it to
+          <a href="mailto:ben@ironarachne.com">ben@ironarachne.com</a>, or if you’re on Mastodon,
+          <a href="https://floss.social/@skysong" rel="me noopener">@skysong@floss.social</a>.
+        </p>
+
+        <p>
+          Side note: none of the generators or tools use AI; it’s all procedural and deterministic.
+        </p>
+      </section>
+
+      <nav class="cta">
+        <a class="button" href="https://app.ironarachne.com">Open the app</a>
+      </nav>
+    </main>
+  </body>
+</html>

@@ -17,6 +17,26 @@
       "from": "tokens",
       "to": "src/lib/styles/brand",
       "note": "The colour palette. src/lib/styles/tokens.css aliases these rather than restating the hexes; colors.json is the machine-readable twin and nothing in the app reads it."
+    },
+    {
+      "from": "logo/primary",
+      "to": "landing/assets/logo",
+      "note": "Lockups for the landing page hero. It uses the two -green variants; the rest arrive because the sync copies a directory whole, and pruning them would make --check report them missing forever."
+    },
+    {
+      "from": "fonts",
+      "to": "landing/assets/fonts",
+      "note": "The landing page is a separate bucket and cannot reach the app's copy, so it takes its own. Only InclusiveSans-Variable.woff2 is referenced; see docs/landing-page.md for why Cinzel and the italic are not."
+    },
+    {
+      "from": "tokens",
+      "to": "landing/assets/brand",
+      "note": "Same reason as the fonts. The landing page uses the --ia-* names directly rather than aliasing them, having no vocabulary of its own to preserve."
+    },
+    {
+      "from": "logo/web-icons",
+      "to": "landing/assets/icons",
+      "note": "Favicons for the landing page."
     }
   ]
 }

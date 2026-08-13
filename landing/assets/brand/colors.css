@@ -1,0 +1,62 @@
+/* Iron Arachne — colour tokens
+ *
+ * Single source of truth. The site (ironarachne/src/lib/styles/tokens.css)
+ * should import or mirror this file rather than redeclaring the values;
+ * the two drifted apart once already.
+ *
+ * Contrast ratios are measured against #ffffff and --ia-charcoal.
+ * ✓ = passes WCAG AA for body text (4.5:1)
+ * ~ = large text only (3:1)
+ * ✗ = decorative use only, never text
+ */
+
+:root {
+  /* ---- Brand core ------------------------------------------------------
+   * The green is a dark-background colour. On white it measures 1.57:1,
+   * which is why every lockup carries a charcoal keyline — the outline
+   * supplies the contrast the fill cannot. Never set green text on white.
+   */
+  --ia-green: #76e841;          /* on white 1.57 ✗ | on charcoal 10.65 ✓ */
+  --ia-green-acid: #9eff5b;     /* on white 1.24 ✗ | on charcoal 13.44 ✓ */
+
+  /* ---- Neutrals --------------------------------------------------------
+   * Charcoal is the brand's black. Pure #000 is never used: it flattens
+   * the keyline against the green and reads harsh on screens.
+   */
+  --ia-charcoal: #1b1e24;       /* on white 16.70 ✓ */
+  --ia-slate: #2a2f38;          /* on white 13.44 ✓ */
+  --ia-granite: #3c4350;        /* on white  9.95 ✓ */
+
+  /* ---- Accents ---------------------------------------------------------
+   * Generator-domain colours. Used to distinguish tool families in the
+   * product; not part of the logo palette and never used inside the mark.
+   */
+  --ia-gold: #c8a46e;           /* fantasy, heraldry   */
+  --ia-tan: #5c5031;            /* maps, parchment     */
+  --ia-emerald: #2f6b4f;        /* nature, wilderness  */
+  --ia-crimson: #8b3a3a;        /* combat, danger      */
+  --ia-amethyst: #6c2dbd;       /* magic, arcane       */
+  --ia-cyan: #39d0ff;           /* sci-fi, tech        */
+  --ia-plasma-blue: #4286f4;    /* starships, systems  */
+  --ia-magenta: #ff4fd6;        /* anomalies, exotica  */
+
+  /* ---- Semantic --------------------------------------------------------
+   * Map roles to palette entries. Change the mapping, not the hex.
+   */
+  --ia-ink: var(--ia-charcoal);
+  --ia-surface: #ffffff;
+  --ia-surface-dark: var(--ia-charcoal);
+  --ia-accent: var(--ia-green);
+
+  --ia-status-success: var(--ia-emerald);
+  --ia-status-error: var(--ia-crimson);
+  --ia-status-message: var(--ia-gold);
+}
+
+/* Dark surfaces are where the brand green belongs. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ia-surface: var(--ia-charcoal);
+    --ia-ink: #ffffff;
+  }
+}
