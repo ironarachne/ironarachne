@@ -1,5 +1,31 @@
 export default [
   {
+    date: '2026-08-13',
+    summary:
+      'Merchant and potion generators, printable character sheets, a new typeface, and a long list of generator fixes',
+    updates: [
+      'Added a fantasy merchant generator, and expanded the fantasy equipment list it draws from',
+      'Added a potion generator',
+      'Added PDF download to the character generators, so a finished character can be printed as a sheet',
+      'Character generators now name the characters they roll up',
+      'Added a tool catalog that tags every generator by genre and game system, and a tool browser for searching it',
+      'Added an early prototype of the workshop, a workspace that opens several generators side by side',
+      'Switched body text from Georgia to Inclusive Sans, a face drawn to keep invented names legible, and refreshed the site icons and colours to match the current brand',
+      'Rebuilt the star, planet, and moon previews on a shared renderer that detects what your device can do and picks a quality tier to match, with a Canvas2D fallback where WebGL is unavailable',
+      'Fixed a leak where every preview image claimed its own WebGL context, which eventually made the browser give up on rendering them',
+      'Fixed SWN starships fitting more weapons, drives, and gear than their hull could carry, and a crash when a hull had no budget left for any weapon',
+      'Fixed the DCC spells-known table being shifted by one, so casters knew the wrong number of spells',
+      'Fixed noble heraldry, moons, star systems, and art object values not being reproducible from their seed',
+      'Fixed container variations ignoring their own size, so a small glass bottle no longer holds more than a glass bottle',
+      'Fixed conlang translation losing verbs whose past tense ends in "-e", which broke translating a sentence back into English',
+      'Improved mountain and tree placement on region maps, and how they are drawn',
+      'Fixed several species bugs, some awkward gendered nouns, and a stray blank line in generated lists',
+      'Fixed a range of mobile layout problems, and added tests at five phone widths so they stay fixed',
+      'Fixed deep links breaking on the new static hosting, and gave ironarachne.com a proper landing page',
+      'Under the hood: rewrote the codebase from classes to plain functions, broke up its longest functions, documented every library, and put automatic testing, coverage, and deployment gates in front of every change',
+    ],
+  },
+  {
     date: '2026-05-21',
     summary:
       'Settlement generator, persistence and saving, heraldry overhaul, AD&D 2E character builder, and dragons',
