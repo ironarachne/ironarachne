@@ -9,6 +9,11 @@ the copy and reports drift. Verified by round trip: the script produced the 27 f
 `--check` reports them in sync, and after deliberately corrupting and deleting files it named both
 and restored them.
 
+The fonts in `src/lib/assets/fonts/` joined the pin in #149, which adopted Inclusive Sans as the
+app's body face. That group is the reason `CinzelDecorative-Regular-webfont.woff` is now
+`CinzelDecorative-Regular.woff`: a vendored file has to keep the brand repo's name, or the sync
+writes a second copy beside it instead of over it.
+
 ## The rule
 
 Assets flow one way. `GUIDELINES.md` in the brand repo is explicit:
@@ -32,13 +37,19 @@ were taken from, the date, and which directories map onto which:
   "repository": "https://worktree.ca/ironarachne/ironarachne_branding",
   "commit": "e5f6040e9a31f4dd5346c6870fd83352aa1232f2",
   "synced": "2026-08-13",
-  "assets": [{ "from": "logo/web-icons", "to": "static", "note": "…" }]
+  "assets": [
+    { "from": "logo/web-icons", "to": "static", "note": "…" },
+    { "from": "fonts", "to": "src/lib/assets/fonts", "note": "…" }
+  ]
 }
 ```
 
 One pin covers every asset group. Anything else vendored from the brand repo — the landing page's
-lockup and fonts (#72), the app's fonts (#149) — belongs in `assets` rather than in a second
-mechanism of its own.
+lockup and fonts (#72) — belongs in `assets` rather than in a second mechanism of its own.
+
+`from` and `to` are directories, and the copy is name-for-name within them. So a vendored file is
+named whatever the brand repo names it; renaming it on this side is the same mistake as editing it,
+because the sync then has nothing to overwrite and adds a duplicate instead.
 
 ## Commands
 

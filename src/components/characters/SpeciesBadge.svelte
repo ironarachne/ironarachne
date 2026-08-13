@@ -80,7 +80,6 @@
     font-weight: 700;
     letter-spacing: -0.02em;
     line-height: 1;
-    font-family: system-ui, sans-serif;
     text-shadow: 0 0 2px rgba(0, 0, 0, 0.35);
   }
 

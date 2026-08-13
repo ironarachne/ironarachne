@@ -9,7 +9,7 @@
 html {
   background: var(--charcoal);
   color: color-mix(in srgb, var(--charcoal) 5%, white 95%);
-  font-family: Georgia, serif;
+  font-family: 'Inclusive Sans', system-ui, Helvetica, sans-serif;
   font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em);
   max-width: 70ch;
   padding: 0;

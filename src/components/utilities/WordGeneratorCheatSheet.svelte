@@ -65,7 +65,19 @@
 
   <h2>Element Reference</h2>
 
-  <!-- Renders app-generated markup (no external or user-supplied input). -->
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html html}
+  <div class="element-table-scroll">
+    <!-- Renders app-generated markup (no external or user-supplied input). -->
+    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+    {@html html}
+  </div>
 </GeneratorPage>
+
+<style>
+  /* The narrowest this table can get is set by unbreakable terms like
+     "palatals/post-alveolars", which is already wider than a 320px phone allows
+     once the other two columns are beside it. Wrapping cannot fix that without
+     breaking words mid-term, so let the table scroll on its own instead. */
+  .element-table-scroll {
+    overflow-x: auto;
+  }
+</style>

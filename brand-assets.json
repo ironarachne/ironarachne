@@ -7,6 +7,11 @@
       "from": "logo/web-icons",
       "to": "static",
       "note": "Favicons, app icons, manifest.json and browserconfig.xml."
+    },
+    {
+      "from": "fonts",
+      "to": "src/lib/assets/fonts",
+      "note": "Cinzel Decorative (display) and Inclusive Sans (body), with their OFL licence texts."
     }
   ]
 }

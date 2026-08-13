@@ -233,9 +233,12 @@
 </GeneratorPage>
 
 <style>
+  /* Three fixed columns only ever just fit a 320px phone, and generated names
+     have no upper bound on length. Let the columns reflow instead: three side
+     by side wherever they fit, fewer when they don't. */
   .namelist {
     display: grid;
-    grid-template-columns: auto auto auto;
+    grid-template-columns: repeat(auto-fit, minmax(8rem, 1fr));
     align-items: start;
     justify-items: center;
   }
