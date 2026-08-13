@@ -5,4 +5,8 @@ node_modules
 
 # Vendored from the brand repo — see docs/brand-assets.md. Reformatting one is
 # an in-place edit like any other, and in-place edits are how these drifted.
+# Prettier does disagree with all three today: it would unpick the aligned
+# comments in colors.css and rewrap colors.json, and `--check` would then report
+# drift in files nobody knowingly touched.
 static/manifest.json
+src/lib/styles/brand/

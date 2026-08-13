@@ -1,0 +1,53 @@
+{
+  "$comment": "Iron Arachne colour tokens. Machine-readable twin of colors.css. Contrast measured against #ffffff and #1b1e24 per WCAG 2.1.",
+  "brand": {
+    "green": {
+      "hex": "#76e841",
+      "role": "Primary brand colour. Dark-background use only.",
+      "contrast": { "onWhite": 1.57, "onCharcoal": 10.65 },
+      "textSafe": { "onWhite": false, "onCharcoal": true }
+    },
+    "greenAcid": {
+      "hex": "#9eff5b",
+      "role": "Highlight and hover state on dark surfaces.",
+      "contrast": { "onWhite": 1.24, "onCharcoal": 13.44 },
+      "textSafe": { "onWhite": false, "onCharcoal": true }
+    }
+  },
+  "neutral": {
+    "charcoal": {
+      "hex": "#1b1e24",
+      "role": "The brand's black. Keyline colour in every lockup.",
+      "contrast": { "onWhite": 16.7 }
+    },
+    "slate": { "hex": "#2a2f38", "role": "Raised dark surface.", "contrast": { "onWhite": 13.44 } },
+    "granite": { "hex": "#3c4350", "role": "Borders, dividers, muted text on light.", "contrast": { "onWhite": 9.95 } }
+  },
+  "accent": {
+    "gold": { "hex": "#c8a46e", "domain": "fantasy, heraldry" },
+    "tan": { "hex": "#5c5031", "domain": "maps, parchment" },
+    "emerald": { "hex": "#2f6b4f", "domain": "nature, wilderness" },
+    "crimson": { "hex": "#8b3a3a", "domain": "combat, danger" },
+    "amethyst": { "hex": "#6c2dbd", "domain": "magic, arcane" },
+    "cyan": { "hex": "#39d0ff", "domain": "sci-fi, tech" },
+    "plasmaBlue": { "hex": "#4286f4", "domain": "starships, systems" },
+    "magenta": { "hex": "#ff4fd6", "domain": "anomalies, exotica" }
+  },
+  "typography": {
+    "display": {
+      "family": "Cinzel Decorative",
+      "license": "SIL OFL 1.1",
+      "designer": "Natanael Gama",
+      "use": "Wordmark, headings. The wordmark ships as outlines; the font is not required to render it."
+    },
+    "body": {
+      "family": "Inclusive Sans, system-ui, Helvetica, sans-serif",
+      "license": "SIL OFL 1.1",
+      "designer": "Olivia King",
+      "version": "2.004",
+      "axes": { "wght": [300, 700] },
+      "use": "Body copy, UI. Chosen for character-level legibility; the display face still carries the character.",
+      "files": ["fonts/InclusiveSans-Variable.woff2", "fonts/InclusiveSans-Italic-Variable.woff2"]
+    }
+  }
+}

@@ -1,44 +1,36 @@
+/* Custom properties for the site.
+ *
+ * Every colour value lives in `brand/colors.css`, which is vendored from the brand repo and is
+ * the declared source of truth for the palette (see docs/brand-assets.md). The names below are
+ * this app's local vocabulary for those values — `--gold` reads better in a component than
+ * `--ia-gold` — but they hold no hexes of their own, so the two files cannot drift apart. This
+ * file used to restate all thirteen hexes; they still matched when they were replaced, and the
+ * point of doing it then was that nothing would have noticed when they stopped.
+ *
+ * Add a colour by adding it to the brand repo and syncing; alias it here only if the site uses
+ * it. `src/lib/styles/tokens.test.ts` fails if an alias points at a brand token that no longer
+ * exists, because an undefined custom property fails silently in CSS.
+ */
+
 :root {
-  --acid-green: #9eff5b;
-  --amethyst: #6c2dbd;
-  --charcoal: #1b1e24;
-  --crimson: #8b3a3a;
-  --cyan: #39d0ff;
-  --emerald: #2f6b4f;
-  --gold: #c8a46e;
-  --granite: #3c4350;
-  --iron-arachne-green: #76e841;
-  --magenta: #ff4fd6;
-  --plasma-blue: #4286f4;
-  --slate: #2a2f38;
-  --tan: #5c5031;
+  --acid-green: var(--ia-green-acid);
+  --amethyst: var(--ia-amethyst);
+  --charcoal: var(--ia-charcoal);
+  --crimson: var(--ia-crimson);
+  --cyan: var(--ia-cyan);
+  --emerald: var(--ia-emerald);
+  --gold: var(--ia-gold);
+  --granite: var(--ia-granite);
+  --iron-arachne-green: var(--ia-green);
+  --magenta: var(--ia-magenta);
+  --plasma-blue: var(--ia-plasma-blue);
+  --slate: var(--ia-slate);
+  --tan: var(--ia-tan);
+
+  /* The modal system's roles. The brand file maps success/error/message to palette entries
+     itself, so the mapping is stated in one place too. The backdrop is not a brand colour. */
   --modal-backdrop: rgb(0 0 0 / 50%);
-  --modal-border-message: var(--gold);
-  --modal-border-error: var(--crimson);
-  --modal-border-success: var(--emerald);
-}
-
-@font-face {
-  font-family: 'cinzel';
-  src: url('$lib/assets/fonts/CinzelDecorative-Regular.woff') format('woff');
-  font-weight: normal;
-  font-style: normal;
-}
-
-/* Inclusive Sans ships as two variable files covering a 300-700 weight axis;
-   the italic is a real cut, so never let the browser slant the roman. */
-@font-face {
-  font-family: 'Inclusive Sans';
-  src: url('$lib/assets/fonts/InclusiveSans-Variable.woff2') format('woff2-variations');
-  font-weight: 300 700;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Inclusive Sans';
-  src: url('$lib/assets/fonts/InclusiveSans-Italic-Variable.woff2') format('woff2-variations');
-  font-weight: 300 700;
-  font-style: italic;
-  font-display: swap;
+  --modal-border-message: var(--ia-status-message);
+  --modal-border-error: var(--ia-status-error);
+  --modal-border-success: var(--ia-status-success);
 }

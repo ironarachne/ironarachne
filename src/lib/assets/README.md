@@ -5,7 +5,7 @@ This directory holds **static assets that are imported by code**, as opposed to 
 files, not a library.
 
 ```
-fonts/   # Webfonts loaded by the site's stylesheets (Cinzel Decorative, declared in styles/tokens.css)
+fonts/   # Webfonts loaded by the site's stylesheets (declared in styles/fonts.css)
 images/  # The Iron Arachne logo and shared textures
 ```
 
