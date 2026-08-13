@@ -4,9 +4,15 @@ A one-page static site at `ironarachne.com`, separate from the app, linking thro
 `app.ironarachne.com`. This document records its shape, the decisions behind it, and the DNS cutover
 that moves the apex off the old Fly deployment.
 
-**Status:** accepted. Resolves the design of issue #72. The page itself is built and lives in
-`landing/`; the infrastructure it will be published to is #157, and the DNS cutover is still to come,
-so nothing here is visitor-facing yet.
+**Status:** implemented. Resolves the design of issue #72. The page is built and lives in `landing/`,
+the infrastructure it publishes to landed in #157, and the DNS cutover has been performed:
+`www.ironarachne.com` serves the page and the apex redirects to it. Fly is still to be decommissioned
+per decision 4.
+
+Decision 3 changed at the cutover — the apex is a pull-zone hostname with an edge rule, not the
+`Redirect` record originally chosen, because that record redirects to a doubled slash and 404s. The
+original reasoning is kept under that decision, since the schema work behind it was correct and only
+the runtime behaviour betrayed it.
 
 The seven decisions below were settled on the issue before this document was written; what this adds
 is the resource graph, the cutover sequence, and the corrections that came out of checking the plan
@@ -29,12 +35,14 @@ the app left where it is.
 
 ## The shape
 
-One bucket, one pull zone, two DNS records. `www` is the site; the apex redirects to it.
+One bucket, one pull zone, two DNS records. `www` is the site; the apex redirects to it. Both names
+are hostnames on the same pull zone — see [decision 3](#3-the-apex-is-a-pull-zone-hostname-with-an-edge-rule)
+for why the apex is not the simpler `Redirect` record it started as.
 
 | Hostname                 | Serves                  | Mechanism                                            |
 | ------------------------ | ----------------------- | ---------------------------------------------------- |
 | `www.ironarachne.com`    | the landing page        | CNAME → `ironarachne-landing.b-cdn.net`, managed TLS |
-| `ironarachne.com` (apex) | a redirect to `www`     | Bunny `Redirect` record, `name = ""`                 |
+| `ironarachne.com` (apex) | a 301 to `www`          | `PullZone` record + pull-zone hostname + edge rule   |
 | `app.ironarachne.com`    | the app — **unchanged** | existing prod stack                                  |
 
 | Resource  | Name                      |
@@ -45,15 +53,17 @@ One bucket, one pull zone, two DNS records. `www` is the site; the apex redirect
 
 ```mermaid
 graph LR
-    visitor([visitor]) -->|"https://ironarachne.com"| rdr
+    visitor([visitor]) -->|"https://ironarachne.com"| apexrec
     visitor -->|"https://www.ironarachne.com"| wwwrec
 
     subgraph bunny["bunny.net"]
         zone["dns_zone ironarachne.com<br/><i>data source — never managed</i>"]
-        rdr["dns_record Redirect<br/>name = '' → https://www.ironarachne.com"]
+        apexrec["dns_record PullZone<br/>name = '' → ironarachne-landing"]
         wwwrec["dns_record CNAME<br/>www → ironarachne-landing.b-cdn.net"]
         pullzone["pullzone ironarachne-landing<br/>cache_enabled, forward_host_header = false"]
         hostname["pullzone_hostname<br/>www.ironarachne.com, managed TLS"]
+        apexhost["pullzone_hostname<br/>ironarachne.com, managed TLS"]
+        edgerule["pullzone_edgerule<br/>Url matches apex → 301 to www root"]
     end
 
     subgraph scaleway["Scaleway — same project, pl-waw"]
@@ -64,9 +74,13 @@ graph LR
 
     src["landing/<br/><i>page + vendored brand assets</i>"]
 
-    zone --> rdr
+    zone --> apexrec
     zone --> wwwrec
-    rdr -.->|"302 to"| wwwrec
+    apexrec --> pullzone
+    apexhost -.->|"cert needs the record to resolve first"| apexrec
+    apexhost --> pullzone
+    edgerule -->|"fires on the apex only"| pullzone
+    edgerule -.->|"301 to"| wwwrec
     wwwrec --> pullzone
     hostname -.->|"cert needs the record to resolve first"| wwwrec
     hostname --> pullzone
@@ -102,7 +116,44 @@ and a static page has nothing to test.
 A top-level directory sidesteps both and is still format-gated: `npm run lint` runs `prettier --check .`,
 which covers HTML and CSS anywhere in the tree.
 
-### 3. The apex is a Bunny `Redirect` record
+### 3. The apex is a pull-zone hostname with an edge rule
+
+**Superseded at the cutover. This decision was originally "the apex is a Bunny `Redirect` record",
+and that does not work.** The reasoning that led there is kept below, because it was sound and the
+thing that defeated it is invisible from the configuration — the record applies cleanly, resolves,
+and serves a valid certificate. What it does not do is build a usable URL.
+
+Bunny composes the redirect target as `value + "/" + requestPath`, and the request path keeps its own
+leading slash. Every apex request therefore lands on a doubled slash:
+
+```
+https://ironarachne.com/     ->  301  ->  https://www.ironarachne.com//      ->  404
+https://ironarachne.com/foo  ->  301  ->  https://www.ironarachne.com//foo   ->  404
+```
+
+`//` is not `/` to the bucket website origin, so the apex — the name a visitor is most likely to type,
+and the whole reason this work exists — answered 404 while `www` answered 200. Setting `value` to a
+trailing-slash form was tried against the live record and doubles it identically; the behaviour is
+undocumented, and no field on the record changes it.
+
+So the apex is the fallback this document already named: a second `bunnynet_pullzone_hostname` on the
+landing pull zone, with a `bunnynet_pullzone_edgerule` doing the redirect. Three resources rather than
+one, and every hop is one we control. The apex record itself is `type = "PullZone"`, which links a
+record straight to a pull zone — Bunny is authoritative here, so this needs no hardcoded anycast
+addresses. `pullzone_id` is required for that type; `value` holds the pull zone hostname.
+
+**The edge rule sends everything to the www root and does not preserve the path.** The landing site is
+a single page: there is no second path to arrive on and nothing to deep-link to. Preserving the path
+would carry the old Fly site's URLs onto a bucket that has never held them, turning every stale link
+into a 404 rather than the page we want people on. The rule is triggered on the request URL rather
+than left unconditional, because the pull zone now answers for both names and an unconditional rule
+would redirect `www` to itself forever.
+
+The lesson worth keeping: **a DNS-level redirect was never testable before the cutover**, because it
+only exists once the apex is pointed at it. Verifying the provider schema, as the original reasoning
+below did carefully, proves the record can be _created_ — not that it does anything useful.
+
+#### The original reasoning, which was not wrong about the schema
 
 Bunny is authoritative for the zone — `dig NS ironarachne.com` returns `kiki.bunny.net.` and
 `coco.bunny.net.` — so the usual "you cannot CNAME an apex" problem does not apply here. Bunny offers a
@@ -128,6 +179,11 @@ The alternative — adding the apex as a second `bunnynet_pullzone_hostname` and
 an edge rule — is more moving parts for the same visitor-visible behaviour. It stays available as a
 fallback if the managed certificate for a `Redirect` record does not materialise; see
 [Still unverified](#still-unverified).
+
+**This is the paragraph that saved the cutover, and it was nearly right for the wrong reason.** The
+fallback was held in reserve against a certificate that never issued. The certificate issued fine;
+what failed was the redirect target. Naming the fallback at all is what made the fix a decision
+already taken rather than one to make under pressure with the front door down.
 
 ### 4. Cut DNS first, decommission Fly after about a day
 
@@ -304,12 +360,21 @@ Sequence:
    immediately before the apply. Deleting is simpler and these records are trivially reconstructible;
    importing is safer if the window matters. Note that importing does not cover the apex `AAAA`: no
    resource in this configuration corresponds to it, so it is deleted either way.
-4. **Apply the `www` CNAME and the apex `Redirect`.** Expect the managed certificate to lag: Bunny will
-   not issue until the hostname resolves to the pull zone, which is why `static_site` already orders the
-   record before the hostname. On a cold create this is the step most likely to need a second apply.
-5. **Verify** both hostnames over HTTPS, including that the apex redirect lands on `www` with a valid
-   certificate and that the call-to-action reaches the app.
+4. **Apply the `www` CNAME and the apex.** Expect the managed certificate to lag: Bunny will not issue
+   until the hostname resolves to the pull zone, which is why `static_site` already orders the record
+   before the hostname, and why the apex resources here carry the same `depends_on`. On a cold create
+   this is the step most likely to need a second apply.
+5. **Verify** both hostnames over HTTPS — and **follow the apex redirect to its final status code, not
+   just to its `Location` header.** This is the step that caught the doubled slash, and only because
+   the redirect was followed; the 301 itself looks entirely healthy. `curl -sSL -o /dev/null -w
+'%{url_effective} %{http_code}\n' https://ironarachne.com/` is the whole check, and it must end at
+   `https://www.ironarachne.com/` with a `200`. Check the call-to-action reaches the app.
 6. **Decommission Fly** after about a day — delete the app, remove `fly.toml` and `Dockerfile`.
+
+What actually happened, for the next person: steps 1 and 2 went exactly as written. Step 3 turned up a
+third record (the apex `AAAA`). Step 4 was a single clean apply and the certificate issued without a
+retry. Step 5 failed — the apex 404'd — and the fix was the fallback in decision 3, which is now the
+design rather than the contingency.
 
 Step 3 is the one that can go wrong quietly. Whether a `Redirect` record can be created at an apex that
 still holds an `A` record is the last thing this design could not verify without touching the live zone;
@@ -414,11 +479,19 @@ front door is a worse place to meet it than an app subdomain.
 The provider schema and enums are confirmed against the pinned `bunnyway/bunnynet` `0.16.0`, and the
 current DNS state is confirmed against the live zone. Neither confirms runtime behaviour.
 
-1. **Whether Bunny issues a managed certificate for a `Redirect` record at an apex.** The whole appeal of
-   decision 3 is that `https://ironarachne.com` works with valid TLS and no bucket behind it. If it does
-   not, the fallback is the apex as a second pull-zone hostname with an edge rule.
-2. **Whether a `Redirect` record can be created at an apex that still holds an `A` record.** This decides
-   whether the cutover is one apply or two.
+**The first two items are now answered, and the answers are why decision 3 changed.** They are kept
+here rather than deleted, because the shape of the mistake is the useful part: both were framed as
+questions about whether the record could be _created_, and both came back yes. Neither asked whether
+the thing it created would _work_, which is the question that mattered.
+
+1. ~~**Whether Bunny issues a managed certificate for a `Redirect` record at an apex.**~~ **Answered:
+   yes.** The apex served a valid certificate on IPv4 and IPv6 immediately after the cutover. This was
+   the risk the fallback was held in reserve against, and it never materialised — the fallback was
+   needed for an entirely different reason: the redirect target is built with a doubled slash and
+   404s. See decision 3.
+2. ~~**Whether a `Redirect` record can be created at an apex that still holds an `A` record.**~~
+   **Answered: moot.** The `A` was deleted before the apply, along with an `AAAA` this document did
+   not know about and the `www` CNAME, so the question was never put. The cutover was one apply.
 3. **The cost of a fourth pull zone.** Bunny is pay-per-GB with no monthly floor per
    `docs/infrastructure.md`, so this is expected to be negligible; not confirmed against the account.
 4. **Whether the Fly machine serves anything besides the old site.** Only that it answers on the apex.

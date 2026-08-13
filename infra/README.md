@@ -139,10 +139,17 @@ tofu apply \
 Verify on the pull zone's own hostname, `ironarachne-landing.b-cdn.net`, and on the bucket website
 endpoint. Nothing visitor-facing has moved at this point.
 
-Phase two is the DNS cutover, and it is a plain `tofu apply` **after** the two records above have
-been removed or imported. It creates the `www` CNAME, the pull-zone hostname with its certificate,
-and the apex `Redirect`. Expect the certificate to need a second apply, for the same reason as
-above. The sequence is in `docs/landing-page.md`.
+Phase two is the DNS cutover, and it is a plain `tofu apply` **after** the three records above have
+been removed or imported. It creates the `www` CNAME and its pull-zone hostname, and the apex — a
+`PullZone` record, a second pull-zone hostname, and the edge rule that redirects to `www`. Expect a
+certificate to need a second apply, for the same reason as above. The sequence is in
+`docs/landing-page.md`.
+
+The apex is three resources rather than the one `Redirect` record it was designed as. That record
+works in the sense that it applies, resolves and serves a valid certificate — and redirects every
+request to a doubled slash, which the origin 404s. Decision 3 in `docs/landing-page.md` has the
+detail. **Verify an apex change by following the redirect to its final status code**, not by checking
+that the 301 exists.
 
 `-target` is otherwise a smell, and it is used here for the one thing it is genuinely for: a
 dependency that lives outside the configuration and has to be dealt with in between.
