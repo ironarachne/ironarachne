@@ -95,3 +95,97 @@ test.describe('workshop projects', () => {
     );
   });
 });
+
+/**
+ * Legacy adoption (#34), proved end to end against data the site itself wrote.
+ *
+ * The unit tests cover the library against real generator output; what only a browser can settle is
+ * the wiring — that adoption actually runs on a page load, against a real localStorage, and leaves
+ * a note where a user will see it. So this test does not seed a fixture: it saves a culture through
+ * the old Save button, which is exactly what is sitting in returning users' browsers, and then goes
+ * to the workshop.
+ */
+test.describe('legacy save adoption', () => {
+  const CULTURE_SCOPE_KEY = 'ironarachne.save.v1.generator.culture';
+
+  async function savedLegacyCultureName(page: Page): Promise<string> {
+    return page.evaluate((key) => {
+      const raw = localStorage.getItem(key);
+      const payload = JSON.parse(raw ?? '{}') as { cultures?: { name: string }[] };
+      return payload.cultures?.[0]?.name ?? '';
+    }, CULTURE_SCOPE_KEY);
+  }
+
+  /** The adopted artifacts, read out of the store the way the project view will once #36 lands. */
+  async function adoptedArtifactNames(page: Page): Promise<string[]> {
+    return page.evaluate(() => {
+      const prefix = 'ironarachne.save.v1.workshop.artifact_index.';
+      const names: string[] = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key === null || !key.startsWith(prefix)) continue;
+        const index = JSON.parse(localStorage.getItem(key) ?? '{}') as {
+          artifacts?: { name: string }[];
+        };
+        names.push(...(index.artifacts ?? []).map((artifact) => artifact.name));
+      }
+      return names;
+    });
+  }
+
+  test('adopts a culture saved the old way, and says so in the project bar', async ({ page }) => {
+    await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: 'load' });
+
+    // Saved through the real button, so what lands in `generator.culture` is a real snapshot.
+    await page.getByRole('button', { name: 'Save Current Culture' }).click();
+    const savedName = await savedLegacyCultureName(page);
+    expect(savedName).not.toBe('');
+
+    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+
+    // The count is interpolated as its own text node, so this matches on the whole notice rather
+    // than on a text node — `toContainText` walks the children the message is spread across.
+    const notice = page.getByRole('status');
+    await expect(notice).toContainText('1 item you saved before projects existed is now in');
+    await expect(notice).toContainText('My Setting');
+    await expect(page.locator('section.project-context').getByLabel('Name')).toHaveValue(
+      'My Setting',
+    );
+    expect(await adoptedArtifactNames(page)).toEqual([savedName]);
+
+    // The originals are the fallback and must survive adoption untouched.
+    expect(await savedLegacyCultureName(page)).toBe(savedName);
+  });
+
+  test('does not adopt the same culture twice, and the note can be dismissed', async ({ page }) => {
+    await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: 'load' });
+    await page.getByRole('button', { name: 'Save Current Culture' }).click();
+    const savedName = await savedLegacyCultureName(page);
+
+    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    const projectContext = page.locator('section.project-context');
+    await expect(page.getByRole('status')).toContainText('1 item you saved');
+
+    await projectContext.getByRole('button', { name: 'Got it' }).click();
+    await expect(page.getByRole('status')).toBeHidden();
+
+    // A reload runs adoption again. One artifact, one project, and the note stays dismissed.
+    await page.reload({ waitUntil: 'load' });
+    await expect(projectContext.getByText('1 project', { exact: true })).toBeVisible();
+    await expect(page.getByRole('status')).toBeHidden();
+    expect(await adoptedArtifactNames(page)).toEqual([savedName]);
+  });
+
+  test('leaves a browser with nothing saved alone', async ({ page }) => {
+    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await page.evaluate(() => localStorage.clear());
+    await page.reload({ waitUntil: 'load' });
+
+    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+    expect(await adoptedArtifactNames(page)).toEqual([]);
+  });
+});
