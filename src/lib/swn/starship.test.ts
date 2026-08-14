@@ -121,6 +121,22 @@ describe('generate', () => {
     }
   });
 
+  // Weapons were the one component whose price never reached totalCost, so an armed ship was
+  // priced as though its guns were free — 7.5% understated over 5000 seeds. Asserted as a floor
+  // rather than an exact total because the hull share of totalCost is the pre-discount hull
+  // price: a system-only owner marks hullType.cost down after it has already been charged.
+  it('charges for the weapons it fits', () => {
+    const armed = shipsFrom(500).filter((ship) => ship.weapons.length > 0);
+
+    expect(armed.length).toBeGreaterThan(0);
+    for (const ship of armed) {
+      const weaponTablePrice = ship.weapons.reduce((total, weapon) => total + weapon.cost, 0);
+
+      expect(weaponTablePrice).toBeGreaterThan(0);
+      expect(ship.totalCost).toBeGreaterThanOrEqual(ship.hullType.cost + weaponTablePrice);
+    }
+  });
+
   it('only arms ships whose owner type is armed', () => {
     for (const ship of shipsFrom(500)) {
       if (!ship.ownerType.isArmed) {
