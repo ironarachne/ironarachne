@@ -558,13 +558,18 @@ The registries. `ArtifactKindEntry` is the contract requirement 3.2 describes, g
 
 ```mermaid
 classDiagram
-    class ArtifactKindEntry~TPayload, TSnapshot~ {
+    class ArtifactKindEntry~TValue, TSnapshot~ {
         +ArtifactKind kind
+        +string displayName
         +number payloadVersion
-        +toSnapshot(value: TPayload) TSnapshot
-        +fromSnapshot(snapshot: TSnapshot, rng: RNG) TPayload
-        +validate(payload: unknown) PayloadResult~TPayload~
-        +migrate(payload: unknown, from: number) PayloadResult~TPayload~
+        +loadCodec() Promise~ArtifactKindCodec~
+        +nameOf(snapshot: TSnapshot) string
+        +validate(payload: unknown) PayloadResult~TSnapshot~
+        +migrate(payload: unknown, from: number) PayloadResult~TSnapshot~
+    }
+    class ArtifactKindCodec~TValue, TSnapshot~ {
+        +toSnapshot(value: TValue) TSnapshot
+        +fromSnapshot(snapshot: TSnapshot, rng: RNG) TValue
     }
     class PayloadResult~T~ {
         <<union>>
@@ -599,6 +604,7 @@ classDiagram
     }
 
     ArtifactKindRegistry "1" o-- "*" ArtifactKindEntry : indexes by kind
+    ArtifactKindEntry "1" ..> "1" ArtifactKindCodec : loads on demand
     ArtifactKindEntry ..> PayloadResult : returns
     Tool "1" --> "0..1" ArtifactKindEntry : produces
     Tool --> ToolKind
@@ -606,11 +612,24 @@ classDiagram
     ArtifactKindEntry ..> Artifact : governs payload of
 ```
 
-- **The entry is generic; the registry is not.** `ArtifactKindEntry~TPayload, TSnapshot~` keeps a
+- **The entry is generic; the registry is not.** `ArtifactKindEntry~TValue, TSnapshot~` keeps a
   library's own types intact where it defines them, and `ArtifactKindRegistry.get` hands back the
   erased form. That confines the cast to the lookup instead of spreading it to every consumer,
   which is what CODE_STYLE.md is asking for when it says to describe shapes at boundaries rather
   than reach for `any`.
+- **`TValue` is the live thing; `TSnapshot` is the artifact's payload.** An earlier draft of this
+  diagram called both "payload", which cannot hold: `fromSnapshot` needs an RNG, so it is not what
+  a validator can return. `validate`, `migrate`, and `nameOf` are handed whatever was in storage or
+  in a file and therefore speak in snapshots; only `fromSnapshot` produces a live value.
+- **The codec is separate, and loads on demand.** Everything else on the entry is synchronous,
+  which is what lets a store read and a project listing stay synchronous. The conversion pair is
+  not, because it is the expensive half: rebuilding a coat of arms resolves stored charge names
+  against `$lib/charges`, which is 18 MB of glyph art — measured — and only a panel that is
+  actually opening an artifact needs it. Assembling the registry through the three libraries'
+  entry points costs 296 KB in whatever chunk imports it, against 4 KB through the kind modules
+  with their codecs deferred. This is the trade `ToolPanelRegistry` already makes for components,
+  applied to payloads: one `await` where a user opens or saves something, in exchange for keeping
+  the site's charge library out of the chunk that merely lists what a project contains.
 - **`validate` and `migrate` return a result, not a boolean.** A boolean says no without saying
   why, and the reason is exactly what `QuarantineReason` and the import summary have to report.
   `PayloadResult` is a discriminated union on `ok` — the "well-defined empty result rather than

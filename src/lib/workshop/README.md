@@ -1,6 +1,16 @@
 # Workshop
 
-Maps a tool in the [catalog](../tools) to the component that renders it, so a tool can be
+Where the workshop's two registries are assembled: a tool in the [catalog](../tools) mapped to the
+component that renders it, and an artifact [kind](../artifact_kinds/README.md) mapped to the
+library that knows how to store it.
+
+Both are lists of static imports, and both are here for the same reason — the libraries they name
+must not know about each other, and the assembly has to be somewhere that no one imports by
+accident.
+
+## Tool panels
+
+Maps a tool in the catalog to the component that renders it, so a tool can be
 mounted inside a panel instead of only on its own route.
 
 The catalog says a tool exists, what it is called, and where it lives; it says nothing about how
@@ -31,3 +41,34 @@ does on its own page.
 Add the entry to `TOOL_PANELS` alongside the `defineTool` entry in the catalog. The unit tests
 check the two agree in both directions: every catalog tool has a panel, and no panel is
 registered for a path that is not a tool.
+
+## Artifact kinds
+
+`ARTIFACT_KINDS` is every kind of content this build can store, built by registering the
+`defineArtifactKind` entries the owning libraries declare. `$lib/artifact_kinds` owns the contract
+and the registry mechanics and knows about no kind in particular; this is the one file that names
+them.
+
+```ts
+import { artifactKindEntry, readRegisteredArtifactPayload } from '$lib/workshop';
+
+const result = readRegisteredArtifactPayload(kind, payload, storedVersion);
+if (!result.ok) quarantine(kind, payload, result.reason, result.message);
+```
+
+Assembled statically, and not by self-registration on import: a kind that exists only once
+something happens to load its library is a kind that is missing exactly when an import needs it.
+Registering the same id twice throws rather than letting one library's codec quietly read
+another's payloads.
+
+The imports here are deep — `$lib/culture/culture_artifact_kind`, not `$lib/culture` — and
+measured. Through the entry points this registry costs 296 KB in whatever chunk imports it;
+through the kind modules, 4 KB. Everything in the workshop touches it, and a kind module holds
+metadata and validation only: its codec is a dynamic import, which is what keeps 18 MB of charge
+art out of the chunk that merely lists what a project contains.
+
+### Adding a kind
+
+Declare the entry with `defineArtifactKind` in the library that owns the payload — see
+[`$lib/artifact_kinds`](../artifact_kinds/README.md) for the contract — then add one line here. No
+generic code changes: not the store, not export, not the project view.
