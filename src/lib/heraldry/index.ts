@@ -1,4 +1,5 @@
 export * from './generator';
+export * from './heraldry_artifact_kind';
 export * from './generatorconfig';
 
 export * as Fields from './fields';
@@ -9,6 +10,7 @@ export * from './charge_group_arrangements/single_charge_center';
 export * from './device';
 export * from './field_division_preview';
 export * from './heraldry_option_preview';
+export * from './heraldry_rehydrate';
 export * from './heraldry_saved_state';
 export * from './heraldry_snapshot';
 export * from './heraldry_ui_options';

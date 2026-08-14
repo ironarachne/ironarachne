@@ -1,3 +1,4 @@
+export * from './religion_artifact_kind';
 export * from './religion_generation';
 export {
   generateReligionDimensions,
