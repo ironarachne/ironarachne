@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { baseContainerTypes } from '$lib/equipment';
-import { generateContainer } from '$lib/equipment/containers';
+import { baseContainerTypes, generateContainer } from '$lib/equipment';
 import {
   flattenPotionsToItems,
   getPotionTotalValue,

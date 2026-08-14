@@ -1,5 +1,5 @@
-import type { Container, Item, Rarity } from '$lib/equipment/equipment_types';
-import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic/types';
+import type { Container, Item, Rarity } from '$lib/equipment';
+import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic';
 
 export type PotionForm = 'drink' | 'oil' | 'ointment';
 

@@ -2,10 +2,8 @@
   import * as RNG from '@ironarachne/rng';
   import { resolve } from '$app/paths';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
-  import { generateCharacter } from '$lib/adnd/adndcharactergenerator';
-  import { getDefaultConfig } from '$lib/adnd/adndcharactergeneratorconfig';
-  import { downloadAdndCharacterPdf } from '$lib/adnd/render_adnd_character_pdf';
-  import type ADNDCharacter from '$lib/adnd/adndcharacter';
+  import { generateCharacter, getDefaultConfig, downloadAdndCharacterPdf } from '$lib/adnd';
+  import type { ADNDCharacter } from '$lib/adnd';
   import {
     buildCharacterNameSource,
     isCustomCharacterNameSource,

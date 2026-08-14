@@ -1,4 +1,4 @@
-import type { TaggedItem } from '$lib/tags/tag_types';
+import type { TaggedItem } from '$lib/tags';
 
 export type Element =
   | 'fire'

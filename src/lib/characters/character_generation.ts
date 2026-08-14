@@ -1,19 +1,18 @@
 import type { CharacterGenerationConfig, Character, Title } from './character_types';
-import * as AgeCategories from '$lib/age/age_categories';
+import { AgeCategories } from '$lib/age';
 import * as Words from '@ironarachne/words';
 import * as Measurements from '$lib/measurements';
 import * as RNG from '@ironarachne/rng';
-import * as SizeMatrix from '$lib/size/size_matrix';
-import * as Genders from '$lib/gender/genders';
-import * as PersonalityTraits from '$lib/characters/personality_traits';
-import { randomTraits } from '$lib/species/common';
+import { getSizeConfig } from '$lib/size';
+import { Genders } from '$lib/gender';
+import * as PersonalityTraits from './personality_traits';
+import { randomTraits } from '$lib/species';
 import { getDefaultCombatActions, getDefaultCombatProfile } from '$lib/combat_system';
-import type PhysicalTrait from '$lib/physical_traits/physical_trait';
+import type { PhysicalTrait } from '$lib/physical_traits';
 import { getAllFantasyArchetypes, type Archetype } from '$lib/archetypes';
-import human from '$lib/species_sentients/human';
+import { human } from '$lib/species_sentients';
 import { getFantasyNameGeneratorSet, type NameGeneratorSet } from '$lib/names';
-import { generateHeraldry } from '$lib/heraldry/generator';
-import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';
+import { generateHeraldry, getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';
 import { getStandardNobleTitles } from './titles';
 import { applyTagFilter } from '$lib/tags';
 
@@ -79,7 +78,7 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
       )
     : rng.item(config.species.ageCategories);
 
-  const sizeGeneratorConfig = SizeMatrix.getSizeConfig(
+  const sizeGeneratorConfig = getSizeConfig(
     gender.name,
     ageCategory.name,
     config.species.sizeGeneratorConfigMatrix,

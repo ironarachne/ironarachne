@@ -1,4 +1,4 @@
-import { contrastRatio } from '$lib/display_colors/display_palettes.js';
+import { contrastRatio } from '$lib/display_colors';
 
 const MIN_TEXT_CONTRAST = 4.5;
 

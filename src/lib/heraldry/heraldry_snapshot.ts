@@ -1,4 +1,4 @@
-import { getChargeGlyphByName } from '$lib/charges/charge-data.js';
+import { getChargeGlyphByName } from '$lib/charges';
 import type { Arms } from './arms.js';
 import * as Arrangements from './charge_group_arrangements/index.js';
 import type { ChargeGroup } from './charge_group.js';

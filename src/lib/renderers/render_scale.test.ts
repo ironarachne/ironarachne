@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  canvasToDataUrlAtSize,
-  rasterScaleForQuality,
-  rasterSizeForQuality,
-} from '$lib/renderers/render_scale';
+import { canvasToDataUrlAtSize, rasterScaleForQuality, rasterSizeForQuality } from './render_scale';
 
 type Recorded = { op: string; args: unknown[] };
 

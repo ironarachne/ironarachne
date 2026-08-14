@@ -7,7 +7,7 @@ import {
   isMerchantMarkEmblem,
   isPatternLatticeEmblem,
   isDiscEmblem,
-} from '$lib/visual_identity/visual_identity';
+} from '$lib/visual_identity';
 import { generateOrganization } from './generate_organization';
 import { lineChain } from './organization_hierarchy_builders';
 import { assertValidOrganizationHierarchy } from './member_mutations';

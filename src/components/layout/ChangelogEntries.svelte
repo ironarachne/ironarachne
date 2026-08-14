@@ -1,5 +1,5 @@
 <script lang="ts">
-  import entries from '$lib/change_log/entries';
+  import { changeLogEntries as entries } from '$lib/change_log';
   import * as Dates from '$lib/dates';
 
   type Props = {

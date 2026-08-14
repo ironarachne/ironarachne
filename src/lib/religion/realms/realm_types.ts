@@ -1,4 +1,4 @@
-import type { Biome } from '$lib/environment/biomes/biome_types';
+import type { Biome } from '$lib/environment';
 import type { Mutator } from '$lib/mutator';
 import type { Deity } from '../deities';
 

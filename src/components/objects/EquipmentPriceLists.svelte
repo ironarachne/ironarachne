@@ -1,7 +1,6 @@
 <script lang="ts">
-  import { valueToString } from '$lib/currency';
-  import { STANDARD_FANTASY, HISTORICAL_BRITISH } from '$lib/currency/systems';
-  import * as FantasyEquipmentList from '$lib/equipment/fantasylist';
+  import { valueToString, STANDARD_FANTASY, HISTORICAL_BRITISH } from '$lib/currency';
+  import { FantasyEquipmentList } from '$lib/equipment';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SelectField from '$components/common/SelectField.svelte';
 

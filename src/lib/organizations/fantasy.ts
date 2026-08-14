@@ -1,7 +1,7 @@
 import * as Characters from '$lib/characters';
 import { getOrganizationKindsForRegistry } from './kind_registry.js';
 import type { OrganizationKindDefinition } from './organization_kind.js';
-import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
+import type { CharacterGenerationConfig } from '$lib/characters';
 import type { RNG } from '@ironarachne/rng';
 
 /**

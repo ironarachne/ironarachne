@@ -1,6 +1,6 @@
-import type { CultureSnapshot } from '$lib/culture/culture_snapshot';
-import type { HeraldrySnapshot } from '$lib/heraldry/heraldry_snapshot';
-import type { ReligionSnapshot } from '$lib/religion/religion_snapshot';
+import type { CultureSnapshot } from '$lib/culture';
+import type { HeraldrySnapshot } from '$lib/heraldry';
+import type { ReligionSnapshot } from '$lib/religion';
 import { replaceState } from '$app/navigation';
 import { resolve } from '$app/paths';
 import { page } from '$app/state';

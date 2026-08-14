@@ -1,10 +1,7 @@
 <script lang="ts">
   import HeraldryPreviewSelect from '$components/heraldry/HeraldryPreviewSelect.svelte';
-  import {
-    buildAnyOptionPreviewSvg,
-    PREVIEW_STROKE,
-  } from '$lib/heraldry/heraldry_option_preview.js';
-  import type { Tincture } from '$lib/heraldry/tinctures.js';
+  import { buildAnyOptionPreviewSvg, PREVIEW_STROKE } from '$lib/heraldry';
+  import type { Tincture } from '$lib/heraldry';
 
   type Props = {
     id: string;

@@ -8,23 +8,18 @@
  * not the same as needing it to be asynchronous. See decision 5 in `docs/renderers.md`.
  */
 
-import * as WebGLSceneDraw from '$lib/renderers/webgl_scene_draw';
-import * as Canvas2dSceneDraw from '$lib/renderers/canvas2d_scene_draw';
-import {
-  buildPlanetScene,
-  buildStarScene,
-  buildStarSystemScene,
-} from '$lib/renderers/astronomical_scene';
+import * as WebGLSceneDraw from './webgl_scene_draw';
+import * as Canvas2dSceneDraw from './canvas2d_scene_draw';
+import { buildPlanetScene, buildStarScene, buildStarSystemScene } from './astronomical_scene';
 import {
   getRendererDecision,
   noteRendererContextLost,
   noteRendererRenderFailed,
   recordRenderDuration,
-} from '$lib/renderers/renderer_decision';
-import type { AstronomicalScene } from '$lib/renderers/astronomical_scene_types';
-import type { RendererDecision } from '$lib/renderers/renderer_decision_types';
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+} from './renderer_decision';
+import type { AstronomicalScene } from './astronomical_scene_types';
+import type { RendererDecision } from './renderer_decision_types';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 
 /** Builds the scene at the decided quality, draws it on the decided backend, and times the result. */
 function renderScene(

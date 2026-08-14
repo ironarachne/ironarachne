@@ -1,11 +1,10 @@
-import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
+import type { Character, CharacterGenerationConfig } from '$lib/characters';
 import * as Characters from '$lib/characters';
-import { createTitleFromCore } from '$lib/characters/titles.js';
-import * as AgeCategories from '$lib/age/age_categories.js';
+import { createTitleFromCore } from '$lib/characters';
+import { AgeCategories } from '$lib/age';
 import type { RNG } from '@ironarachne/rng';
-import { maxByOrder } from '$lib/hierarchy/ordered_levels.js';
-import { validateChildToParent, validateIdToOrder } from '$lib/hierarchy';
-import type { ChildToParent, IdToOrder } from '$lib/hierarchy/hierarchy_types.js';
+import { maxByOrder, validateChildToParent, validateIdToOrder } from '$lib/hierarchy';
+import type { ChildToParent, IdToOrder } from '$lib/hierarchy';
 import type { RoleId, OrganizationHierarchy } from './organization_types.js';
 
 export type MemberMutationContext = {

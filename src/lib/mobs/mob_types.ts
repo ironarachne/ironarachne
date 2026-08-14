@@ -1,5 +1,5 @@
 import type { CombatAction, CombatProfile } from '$lib/combat_system';
-import type { TaggedItem } from '$lib/tags/tag_types';
+import type { TaggedItem } from '$lib/tags';
 
 export type Mob = TaggedItem & {
   id: string;

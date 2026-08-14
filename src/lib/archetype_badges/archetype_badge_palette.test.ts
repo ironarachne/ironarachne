@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { contrastRatio } from '$lib/display_colors/display_palettes.js';
+import { contrastRatio } from '$lib/display_colors';
 import {
   pickArchetypeBadgePalette,
   pickArchetypeBadgeInitialsStyle,

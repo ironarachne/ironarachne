@@ -6,7 +6,7 @@
   import * as Treasure from '$lib/treasure';
   import * as Words from '@ironarachne/words';
   import * as Currency from '$lib/currency';
-  import type { Container, Item } from '$lib/equipment/equipment_types';
+  import type { Container, Item } from '$lib/equipment';
   import { isArtObject, isGem, isPotion } from '$lib/treasure';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';

@@ -1,4 +1,4 @@
-import type { Title } from '$lib/characters/character_types.js';
+import type { Title } from '$lib/characters';
 import type { SettlementCategory } from './settlement_types.js';
 
 /**

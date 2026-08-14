@@ -52,3 +52,5 @@ export function getFantasyNameGeneratorSet(setName: string, rng: RNG): NameGener
     town: MUN.getNameGeneratorForPatternSet('town', patternSet.town, rng),
   };
 }
+
+export * from './name_generator_patterns';

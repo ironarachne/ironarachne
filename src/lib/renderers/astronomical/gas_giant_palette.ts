@@ -1,5 +1,5 @@
 import { RNG } from '@ironarachne/rng';
-import type RGBColor from '$lib/graphics/rgb_color';
+import type { RGBColor } from '$lib/graphics';
 
 export function getRandomGasGiantRgbTriplet(seed: string): [RGBColor, RGBColor, RGBColor] {
   const rng = new RNG(seed);

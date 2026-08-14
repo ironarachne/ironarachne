@@ -54,8 +54,7 @@ Constrain a run through the config rather than post-processing the result:
 
 ```typescript
 import { generateHeraldry, getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';
-import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data';
-import * as Fields from '$lib/heraldry/fields';
+import { getChargesMatchingAnyTags, Fields } from '$lib/heraldry';
 
 const config = getDefaultHeraldryGeneratorConfig(rng);
 config.chargeCount = 1;
@@ -68,7 +67,7 @@ const arms = generateHeraldry(config);
 Then draw it:
 
 ```typescript
-import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+import { renderHeraldryDeviceSvg } from '$lib/heraldry';
 
 const svg = renderHeraldryDeviceSvg(arms.device, config.width, config.height);
 ```
@@ -84,7 +83,7 @@ same blazon are the same arms. `appendSavedHeraldry` refuses a duplicate on that
 `{ ok: false, reason: 'duplicate_blazon' }` rather than throwing.
 
 ```typescript
-import { appendSavedHeraldry, toHeraldrySnapshot } from '$lib/heraldry/heraldry_saved_state';
+import { appendSavedHeraldry, toHeraldrySnapshot } from '$lib/heraldry';
 
 const result = appendSavedHeraldry(toHeraldrySnapshot(arms, seed, generatorOptions));
 ```

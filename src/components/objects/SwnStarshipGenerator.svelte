@@ -1,8 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import * as RNG from '@ironarachne/rng';
+  // Deep by necessity: `$lib/swn` also carries the character PDF renderer, which reaches
+  // `$lib/characters` and from there the whole species table. Going through the entry point put
+  // 19 MB of it on a page that only builds a starship. The type import below is free — it erases.
   import * as Gen from '$lib/swn/starship';
-  import type { SWNStarship } from '$lib/swn/starship';
+  import type { SWNStarship } from '$lib/swn';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
 

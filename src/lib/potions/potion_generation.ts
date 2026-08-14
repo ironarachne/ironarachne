@@ -1,8 +1,7 @@
 import { RNG } from '@ironarachne/rng';
-import { generateRandomContainer } from '$lib/equipment/containers';
-import { DENSITY_MAP } from '$lib/equipment/equipment_types';
-import type { DensityCategory, Rarity } from '$lib/equipment/equipment_types';
-import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic/types';
+import { generateRandomContainer, DENSITY_MAP } from '$lib/equipment';
+import type { DensityCategory, Rarity } from '$lib/equipment';
+import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic';
 import {
   filterCatalogEntries,
   getDefaultPotionConfig,

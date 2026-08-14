@@ -3,3 +3,5 @@ export type { default as RegionGeneratorConfig } from './region_generator_config
 export * from './regions';
 export * from './settlement_tiles';
 export * from './terrain_tiles';
+
+export * as Regions from './regions';

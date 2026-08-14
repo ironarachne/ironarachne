@@ -1,4 +1,4 @@
-import { type Culture } from '$lib/culture/culture_types.js';
+import { type Culture } from '$lib/culture';
 import type { NameGeneratorSet } from '$lib/names';
 import type { RNG } from '@ironarachne/rng';
 

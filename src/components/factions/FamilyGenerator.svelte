@@ -1,12 +1,12 @@
 <script lang="ts">
-  import * as CommonSpecies from '$lib/species/common';
+  import { CommonSpecies } from '$lib/species';
   import * as Families from '$lib/families';
   import * as Names from '$lib/names';
   import { RNG } from '@ironarachne/rng';
   import type { Gender } from '$lib/gender';
   import type { NameGenerator } from '@ironarachne/made-up-names';
-  import type Species from '$lib/species/species';
-  import type { Character } from '$lib/characters/character_types';
+  import type { Species } from '$lib/species';
+  import type { Character } from '$lib/characters';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';

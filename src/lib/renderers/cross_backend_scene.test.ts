@@ -1,8 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AstronomicalScene } from '$lib/renderers/astronomical_scene_types';
-import type { RendererDecision } from '$lib/renderers/renderer_decision_types';
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+import type { AstronomicalScene } from './astronomical_scene_types';
+import type { RendererDecision } from './renderer_decision_types';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 
 /**
  * The contract test the design document asks for: for a set of seeds, build the scene once and

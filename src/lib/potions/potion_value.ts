@@ -1,5 +1,5 @@
-import { roundValue } from '$lib/equipment/generation';
-import type { Rarity } from '$lib/equipment/equipment_types';
+import { roundValue } from '$lib/equipment';
+import type { Rarity } from '$lib/equipment';
 import type { PotionCatalogEntry, PotionCatalogVariant, PotionEffect } from './potion_types';
 
 const RARITY_BASE_VALUES: Record<Rarity, number> = {

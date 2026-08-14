@@ -1,13 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import black_pudding from '$lib/species_monsters/oozes/black_pudding';
-import camel from '$lib/species_animals/camel';
-import cow from '$lib/species_animals/cow';
-import eagle from '$lib/species_animals/eagle';
-import ghoul from '$lib/species_monsters/undead/ghoul';
-import bear from '$lib/species_animals/bear';
-import snake from '$lib/species_animals/snake';
-import owlbear from '$lib/species_monsters/monstrosities/owlbear';
-import allSpecies from '$lib/species/all';
+import { black_pudding, ghoul, owlbear } from '$lib/species_monsters';
+import { camel, cow, eagle, bear, snake } from '$lib/species_animals';
+import { allSpecies } from '$lib/species';
 import {
   deriveResourcesFromSpecies,
   getAllSpeciesDerivedResources,

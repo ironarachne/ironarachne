@@ -1,10 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { RNG } from '@ironarachne/rng';
-  import * as VelgarthGifts from '$lib/velgarth_gifts/gifts';
-  import * as VelgarthGiftPossibilities from '$lib/velgarth_gifts/gift_possibilities';
-  import type Gift from '$lib/velgarth_gifts/gift';
-  import type GiftGeneratorConfig from '$lib/velgarth_gifts/generator_config';
+  import { VelgarthGifts, VelgarthGiftPossibilities } from '$lib/velgarth_gifts';
+  import type { Gift, GiftGeneratorConfig } from '$lib/velgarth_gifts';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
 

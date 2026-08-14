@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { getAllChargeGlyphs } from '$lib/charges/charge-data.js';
+import { getAllChargeGlyphs } from '$lib/charges';
 import { MEDIEVAL_DYE_SWATCHES, allMedievalDyeSwatches } from './medieval_dye_colors.js';
 import { generateMerchantMark } from './generate_merchant_mark.js';
 import { renderMerchantMarkSvg } from './render_merchant_mark_svg.js';

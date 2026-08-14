@@ -3,28 +3,21 @@
   import { resolve } from '$app/paths';
   import * as Dice from '$lib/dice';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
-  import { createAdndCharacter, type default as ADNDCharacter } from '$lib/adnd/adndcharacter';
-  import type ADNDClass from '$lib/adnd/adndclass';
-  import type ADNDRace from '$lib/adnd/adndrace';
   import {
+    createAdndCharacter,
+    type ADNDCharacter,
     assignExceptionalStrength,
     getClassOptionsForRace,
     getRaceOptions,
-  } from '$lib/adnd/adnd_character_eligibility';
-  import {
     applyAdndPriestFundsCapIfNeeded,
     finalizeAdndCharacterDerivedStats,
     getAdndLevel1HpBounds,
     recalculateAdndArmorClass,
     rollAdndLevel1Hp,
     rollAdndStartingCopper,
-  } from '$lib/adnd/adndcharactergenerator';
-  import * as Currency from '$lib/currency/currency';
-  import * as Equipment from '$lib/adnd/equipment';
-  import * as classes from '$lib/adnd/classes/classes';
-  import * as races from '$lib/adnd/races/races';
-  import { applyHalflingWithOptions, type HalflingSubrace } from '$lib/adnd/races/halfling_apply';
-  import {
+    Equipment,
+    applyHalflingWithOptions,
+    type HalflingSubrace,
     appendThiefSkillAbilityLines,
     ADND_THIEF_SKILL_BONUS_CAP,
     getThiefSkillBuildKindForClass,
@@ -32,14 +25,16 @@
     prepareThiefSkillRowsForCharacter,
     sumThiefSkillBonuses,
     thiefSkillBonusesAreValid,
-  } from '$lib/adnd/adnd_thief_skill_builder';
-  import {
     getStartingSpellChoiceGroups,
     starterSpellSelectionIsComplete,
     startingSpellsFromPicks,
-  } from '$lib/adnd/adnd_class_starting_spells';
-  import { downloadAdndCharacterPdf } from '$lib/adnd/render_adnd_character_pdf';
-  import { showAlertModal } from '$lib/ui/modal';
+    downloadAdndCharacterPdf,
+    classes,
+    races,
+  } from '$lib/adnd';
+  import type { ADNDClass, ADNDRace } from '$lib/adnd';
+  import { Currency } from '$lib/currency';
+  import { showAlertModal } from '$lib/ui';
   import { buildCharacterNameSource, rollCharacterNameForSource } from '$lib/characters';
   import { type Culture, loadSavedCultures } from '$lib/culture';
   import { onMount } from 'svelte';

@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { generateHeraldry } from '$lib/heraldry/generator.js';
-import { mergeHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import { generateHeraldry } from './generator.js';
+import { mergeHeraldryGeneratorConfig } from './generatorconfig.js';
 import {
   appendSavedHeraldry,
   dedupeHeraldrySnapshotsByBlazon,
@@ -11,12 +11,9 @@ import {
   HERALDRY_SAVE_SCOPE_ID,
   loadSavedHeraldrySnapshots,
   readHeraldrySavePayload,
-} from '$lib/heraldry/heraldry_saved_state.js';
-import {
-  toHeraldrySnapshot,
-  type HeraldryGeneratorOptionsSnapshot,
-} from '$lib/heraldry/heraldry_snapshot.js';
-import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save/scoped_local_storage.js';
+} from './heraldry_saved_state.js';
+import { toHeraldrySnapshot, type HeraldryGeneratorOptionsSnapshot } from './heraldry_snapshot.js';
+import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save';
 
 const sampleGeneratorOptions: HeraldryGeneratorOptionsSnapshot = {
   heraldryTag: 'any',

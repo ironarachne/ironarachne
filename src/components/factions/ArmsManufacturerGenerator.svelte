@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { RNG } from '@ironarachne/rng';
-  import { generate as generateArmsManufacturer } from '$lib/arms_manufacturer/generator.js';
-  import type { ArmsManufacturer } from '$lib/arms_manufacturer/arms_manufacturer.js';
+  import { generate as generateArmsManufacturer } from '$lib/arms_manufacturer';
+  import type { ArmsManufacturer } from '$lib/arms_manufacturer';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
 
   const rng = new RNG(Date.now());

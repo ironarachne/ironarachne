@@ -1,7 +1,6 @@
-import { type Character } from '$lib/characters/character_types.js';
-import { type Title } from '$lib/characters/character_types.js';
-import type Vertex from '$lib/geometry/vertex.js';
-import type { Arms } from '$lib/heraldry/arms.js';
+import { type Character, type Title } from '$lib/characters';
+import type { Vertex } from '$lib/geometry';
+import type { Arms } from '$lib/heraldry';
 import type Claim from './claim.js';
 import type RealmType from './realm_type.js';
 

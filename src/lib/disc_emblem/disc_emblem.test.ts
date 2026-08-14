@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { annulet } from '$lib/charges/symbols/annulet/charge.js';
-import { contrastRatio, DISC_MIN_CONTRAST_RATIO } from '$lib/display_colors/display_palettes.js';
+import { annulet } from '$lib/charges';
+import { contrastRatio, DISC_MIN_CONTRAST_RATIO } from '$lib/display_colors';
 import { generateDiscEmblem } from './generate_disc_emblem.js';
 import { renderDiscEmblemSvg } from './render_disc_emblem_svg.js';
 

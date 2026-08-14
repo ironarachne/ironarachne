@@ -1,4 +1,4 @@
-import type { DensityCategory, Item } from '$lib/equipment/equipment_types';
+import type { DensityCategory, Item } from '$lib/equipment';
 
 export type GemGeneratorConfig = {
   allowCutGems: boolean;

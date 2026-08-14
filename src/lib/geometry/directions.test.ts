@@ -1,5 +1,5 @@
-import * as Directions from '$lib/geometry/directions';
-import type Vertex from '$lib/geometry/vertex';
+import * as Directions from './directions';
+import type Vertex from './vertex';
 import { describe, expect, it } from 'vitest';
 
 describe('getAngleOfLine', () => {

@@ -103,3 +103,37 @@ export const sentientSpeciesList = [
   troll,
   yuan_ti_pureblood,
 ];
+
+export { default as aarakocra } from './aarakocra';
+export { default as aasimar } from './aasimar';
+export { default as bugbear } from './bugbear';
+export { default as centaur } from './centaur';
+export { default as changeling } from './changeling';
+export { default as dark_elf } from './dark_elf';
+export { default as deep_gnome } from './deep_gnome';
+export { default as dragonborn } from './dragonborn';
+export { default as duergar } from './duergar';
+export { default as dwarf } from './dwarf';
+export { default as elf } from './elf';
+export { default as firbolg } from './firbolg';
+export { default as genasi } from './genasi';
+export { default as gnome } from './gnome';
+export { default as goblin } from './goblin';
+export { default as goliath } from './goliath';
+export { default as halfling } from './halfling';
+export { default as harengon } from './harengon';
+export { default as hobgoblin } from './hobgoblin';
+export { default as human } from './human';
+export { default as kenku } from './kenku';
+export { default as leonin } from './leonin';
+export { default as lizardfolk } from './lizardfolk';
+export { default as orc } from './orc';
+export { default as owlin } from './owlin';
+export { default as satyr } from './satyr';
+export { default as shifter } from './shifter';
+export { default as tabaxi } from './tabaxi';
+export { default as tiefling } from './tiefling';
+export { default as tortle } from './tortle';
+export { default as triton } from './triton';
+export { default as troll } from './troll';
+export { default as yuan_ti_pureblood } from './yuan_ti_pureblood';

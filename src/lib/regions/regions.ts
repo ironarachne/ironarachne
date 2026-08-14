@@ -1,13 +1,12 @@
-import { type Character } from '$lib/characters/character_types.js';
-import { type Culture } from '$lib/culture/culture_types.js';
-import type Environment from '$lib/environment/environment.js';
-import * as Environments from '$lib/environment/environments.js';
+import { type Character } from '$lib/characters';
+import { type Culture } from '$lib/culture';
+import type { Environment } from '$lib/environment';
+import { Environments } from '$lib/environment';
 import * as Characters from '$lib/characters';
-import { generateOrganization } from '$lib/organizations/generate_organization.js';
-import { addRandomRivalryBetweenPairs } from '$lib/organizations/organization_relationships.js';
-import type { Organization } from '$lib/organizations/organization_types.js';
-import type Realm from '$lib/realms/realm.js';
-import * as Realms from '$lib/realms/realms.js';
+import { generateOrganization, addRandomRivalryBetweenPairs } from '$lib/organizations';
+import type { Organization } from '$lib/organizations';
+import type { Realm } from '$lib/realms';
+import { Realms } from '$lib/realms';
 import type { Settlement } from '$lib/settlements';
 import * as Settlements from '$lib/settlements';
 import * as Names from '$lib/names';
@@ -15,14 +14,16 @@ import * as RNG from '@ironarachne/rng';
 
 import type Region from './region.js';
 import type RegionGeneratorConfig from './region_generator_config.js';
-import type { RegionMap } from '$lib/map/map_graph.js';
-import * as MapBuilder from '$lib/map/builder.js';
-import * as MapElevation from '$lib/map/elevation.js';
-import * as MapWater from '$lib/map/water.js';
-import * as MapClimate from '$lib/map/climate.js';
-import * as MapBiome from '$lib/map/biome.js';
-import * as MapRoad from '$lib/map/road.js';
-import * as Suitability from '$lib/map/suitability.js';
+import type { RegionMap } from '$lib/map';
+import {
+  MapBuilder,
+  MapElevation,
+  MapWater,
+  MapClimate,
+  MapBiome,
+  MapRoad,
+  Suitability,
+} from '$lib/map';
 
 function createEmptyRegion(): Region {
   return {

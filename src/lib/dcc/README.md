@@ -39,7 +39,7 @@ The occupation tables (one module per ancestry, each exporting `all()`), the lan
 need the raw data:
 
 ```typescript
-import * as HumanOccupations from '$lib/dcc/human_occupations';
+import { HumanOccupations } from '$lib/dcc';
 
 const occupations = HumanOccupations.all();
 ```

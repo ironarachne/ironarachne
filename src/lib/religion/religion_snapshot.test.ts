@@ -1,14 +1,11 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  generateReligion,
-  getDefaultReligionGenerationConfig,
-} from '$lib/religion/religion_generation';
+import { generateReligion, getDefaultReligionGenerationConfig } from './religion_generation';
 import {
   religionFromSnapshot,
   toReligionSnapshot,
   type ReligionGeneratorOptionsSnapshot,
-} from '$lib/religion/religion_snapshot';
+} from './religion_snapshot';
 
 const sampleGeneratorOptions: ReligionGeneratorOptionsSnapshot = {
   lockSeed: true,

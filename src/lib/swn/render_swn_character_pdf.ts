@@ -1,4 +1,4 @@
-import { formatCharacterDisplayName } from '$lib/characters/character_name_generation';
+import { formatCharacterDisplayName } from '$lib/characters';
 import Download from '$lib/download';
 import {
   buildLandscapeSciFiPdf,
@@ -13,7 +13,7 @@ import {
   type SciFiSheetPage,
   type SciFiSheetTheme,
   type SciFiStatBox,
-} from '$lib/pdf/scifi_sheet_layout';
+} from '$lib/pdf';
 import { equipmentList, type SWNCharacter } from './character';
 
 const DEFAULT_FILENAME = 'swn-character.pdf';

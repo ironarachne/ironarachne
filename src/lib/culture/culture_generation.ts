@@ -1,7 +1,7 @@
 import { RNG } from '@ironarachne/rng';
 import type { Culture, CultureGenerationConfig, CulturalOrganization } from './culture_types';
 import * as Words from '@ironarachne/words';
-import * as MusicStyles from '$lib/music/music_styles';
+import { MusicStyles } from '$lib/music';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generateReligion, getDefaultReligionGenerationConfig } from '$lib/religion';
 

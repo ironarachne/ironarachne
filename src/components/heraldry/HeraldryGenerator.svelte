@@ -1,30 +1,16 @@
 <script lang="ts">
   import * as Charges from '$lib/charges';
-  import * as Fields from '$lib/heraldry/fields';
-  import type { RNG } from '@ironarachne/rng';
-  import { RNG as RngCtor } from '@ironarachne/rng';
-  import * as Tinctures from '$lib/heraldry/tinctures';
-  import * as Variations from '$lib/heraldry/variations';
-  import Download from '$lib/download';
-  import saveSvgAsPng from '$lib/download/svg_to_png';
-  import { renderSVGAsPNG } from '$lib/images/svg';
-  import { afterNavigate } from '$app/navigation';
-  import { page } from '$app/state';
-
-  import { generateHeraldry } from '$lib/heraldry/generator';
-  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
-  import type { Arms } from '$lib/heraldry/arms';
-  import type { Charge } from '$lib/heraldry/charge_heraldry';
   import {
+    Fields,
+    Tinctures,
+    Variations,
+    generateHeraldry,
+    renderHeraldryDeviceSvg,
     mergeHeraldryGeneratorConfig,
     type HeraldryGeneratorConfig,
-  } from '$lib/heraldry/generatorconfig';
-  import {
     appendSavedHeraldry,
     findSavedHeraldrySnapshotByBlazon,
     loadSavedHeraldrySnapshots,
-  } from '$lib/heraldry/heraldry_saved_state';
-  import {
     buildVariationSlotPreferences,
     eligibleVariationTinctures,
     fieldDivisionNameFromOption,
@@ -33,23 +19,27 @@
     hasPinnedFieldTinctures,
     resolveFieldOptions,
     variationTinctureCountForSlot,
-  } from '$lib/heraldry/heraldry_ui_options';
-  import {
     defaultHeraldryGeneratorOptions,
     heraldryFromSnapshot,
     toHeraldrySnapshot,
     type HeraldryGeneratorOptionsSnapshot,
     type HeraldrySnapshot,
-  } from '$lib/heraldry/heraldry_snapshot';
-  import { showAlertModal } from '$lib/ui/modal';
-  import {
-    clearLoadParamFromUrl,
-    HERALDRY_LOAD_PARAM,
-  } from '$lib/persistent_save/saved_data_links';
+    buildFieldDivisionPreviewSvg,
+    buildVariationPreviewSvg,
+  } from '$lib/heraldry';
+  import type { RNG } from '@ironarachne/rng';
+  import { RNG as RngCtor } from '@ironarachne/rng';
+  import Download from '$lib/download';
+  import { saveSvgAsPng } from '$lib/download';
+  import { renderSVGAsPNG } from '$lib/images';
+  import { afterNavigate } from '$app/navigation';
+  import { page } from '$app/state';
+
+  import type { Arms, Charge } from '$lib/heraldry';
+  import { showAlertModal } from '$lib/ui';
+  import { clearLoadParamFromUrl, HERALDRY_LOAD_PARAM } from '$lib/persistent_save';
   import HeraldryTinctureSelect from '$components/heraldry/HeraldryTinctureSelect.svelte';
   import HeraldryPreviewSelect from '$components/heraldry/HeraldryPreviewSelect.svelte';
-  import { buildFieldDivisionPreviewSvg } from '$lib/heraldry/field_division_preview.js';
-  import { buildVariationPreviewSvg } from '$lib/heraldry/variation_preview.js';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import LoadSnapshotDialog from '$components/common/LoadSnapshotDialog.svelte';

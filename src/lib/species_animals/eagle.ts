@@ -1,7 +1,7 @@
-import * as Sizes from '$lib/size/sizes.js';
-import type Species from '$lib/species/species.js';
-import { traditional } from '$lib/gender/index.js';
-import * as AgeCategories from '$lib/age/age_categories.js';
+import { Sizes } from '$lib/size';
+import type { Species } from '$lib/species';
+import { traditional } from '$lib/gender';
+import { AgeCategories } from '$lib/age';
 
 export default <Species>{
   name: 'eagle',

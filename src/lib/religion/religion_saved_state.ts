@@ -1,4 +1,4 @@
-import { readScopedJson, writeScopedJson } from '$lib/persistent_save/scoped_local_storage';
+import { readScopedJson, writeScopedJson } from '$lib/persistent_save';
 
 import type { ReligionSnapshot } from './religion_snapshot.js';
 

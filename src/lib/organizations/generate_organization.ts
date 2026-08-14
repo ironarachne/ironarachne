@@ -1,19 +1,19 @@
 import * as Characters from '$lib/characters';
 import type { RNG } from '@ironarachne/rng';
-import { generateDiscEmblem } from '$lib/disc_emblem/generate_disc_emblem.js';
-import { generateHeraldry } from '$lib/heraldry/generator.js';
-import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
-import { generatePatternLattice } from '$lib/pattern_lattice/generate_pattern_lattice.js';
-import { generateMerchantMark } from '$lib/merchant_marks/generate_merchant_mark.js';
+import { generateDiscEmblem } from '$lib/disc_emblem';
+import { generateHeraldry, mergeHeraldryGeneratorConfig } from '$lib/heraldry';
+import type { CharacterGenerationConfig } from '$lib/characters';
+import { generatePatternLattice } from '$lib/pattern_lattice';
+import { generateMerchantMark } from '$lib/merchant_marks';
 import {
   createEmptyVisualIdentity,
   withDiscEmblem,
   withHeraldryEmblem,
   withMerchantMarkEmblem,
   withPatternLatticeEmblem,
-} from '$lib/visual_identity/visual_identity.js';
-import type { VisualIdentity } from '$lib/visual_identity/visual_identity_types.js';
-import type Environment from '$lib/environment/environment.js';
+} from '$lib/visual_identity';
+import type { VisualIdentity } from '$lib/visual_identity';
+import type { Environment } from '$lib/environment';
 import { getKindsForGenerator, getOrganizationKindByIdOrLabel } from './kind_registry.js';
 import type { Organization, OrganizationWorldContext, RoleId } from './organization_types.js';
 import type { OrganizationKindDefinition } from './organization_kind.js';
@@ -26,7 +26,6 @@ import {
   describeLeaderForOrganization,
   leaderRoleIdFromHierarchy,
 } from './member_mutations.js';
-import { mergeHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 
 const SIZE_PRESETS = {
   small: { min: 5, max: 50 },

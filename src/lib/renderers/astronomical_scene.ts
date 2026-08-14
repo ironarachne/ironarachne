@@ -7,17 +7,16 @@
  */
 
 import { RNG } from '@ironarachne/rng';
-import { isGasGiantPlanetClassification } from '$lib/renderers/astronomical/planet_canvas_classification';
-import { resolvePlanetPalette } from '$lib/renderers/astronomical/planet_palette';
+import { isGasGiantPlanetClassification } from './astronomical/planet_canvas_classification';
+import { resolvePlanetPalette } from './astronomical/planet_palette';
 import {
   planetRadiusKmToPreviewPixels,
   starCoronaWidthPixelsFromDiskRadius,
   starRadiusKmToPreviewPixels,
-} from '$lib/renderers/astronomical/image_body_scale';
-import { getRgbColorsFromStarSurfaceTemperature } from '$lib/renderers/astronomical/star_surface_colors';
-import { computeStarSystemLayout } from '$lib/renderers/astronomical/star_system_layout';
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+} from './astronomical/image_body_scale';
+import { getRgbColorsFromStarSurfaceTemperature } from './astronomical/star_surface_colors';
+import { computeStarSystemLayout } from './astronomical/star_system_layout';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 import type {
   AstronomicalScene,
   BackgroundStar,
@@ -26,7 +25,7 @@ import type {
   ScenePlanet,
   SceneRing,
   SceneStar,
-} from '$lib/renderers/astronomical_scene_types';
+} from './astronomical_scene_types';
 
 /**
  * How dense and how dark a given kind of preview's starfield is. The three differ deliberately —

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { buildAnyOptionPreviewSvg } from '$lib/heraldry/heraldry_option_preview.js';
+  import { buildAnyOptionPreviewSvg } from '$lib/heraldry';
 
   export type HeraldryPreviewOption = {
     value: string;

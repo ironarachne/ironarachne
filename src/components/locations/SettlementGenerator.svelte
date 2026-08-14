@@ -1,7 +1,7 @@
 <script lang="ts">
   import { RNG } from '@ironarachne/rng';
   import * as Names from '$lib/names';
-  import { getCharacterGenerationConfigForNameSet } from '$lib/characters/character_generation';
+  import { getCharacterGenerationConfigForNameSet } from '$lib/characters';
   import { type Culture, loadSavedCultures } from '$lib/culture';
   import * as Settlements from '$lib/settlements';
   import type { Settlement, SettlementGeneratorConfig } from '$lib/settlements';

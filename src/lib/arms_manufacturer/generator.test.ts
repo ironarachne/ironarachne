@@ -7,7 +7,7 @@ import {
   randomOutlook,
   randomReputation,
 } from './generator';
-import * as SciFiWeaponTypes from '$lib/weapons/scifi';
+import { SciFiWeaponTypes } from '$lib/weapons';
 
 const SUFFIXES = [
   'Heavy Industries',

@@ -1,6 +1,5 @@
-import { getChargeGlyphByName } from '$lib/charges/charge-data.js';
-import { tintChargeSvg } from '$lib/charges/tint_charge_svg.js';
-import { singleChargeCenterArrangement } from '$lib/heraldry/charge_group_arrangements/single_charge_center.js';
+import { getChargeGlyphByName, tintChargeSvg } from '$lib/charges';
+import { singleChargeCenterArrangement } from '$lib/heraldry';
 import type { DiscEmblem } from './disc_emblem_types.js';
 
 const DISC_VIEWBOX = 600;

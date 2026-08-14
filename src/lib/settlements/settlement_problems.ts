@@ -1,5 +1,5 @@
 import type { RNG } from '@ironarachne/rng';
-import type Environment from '$lib/environment/environment.js';
+import type { Environment } from '$lib/environment';
 import type { SettlementCategory, SettlementProblem } from './settlement_types.js';
 import type { SettlementFacets } from './derive_settlement_facets.js';
 import type { ProblemRow } from './settlement_problem_rows.js';

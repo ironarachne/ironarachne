@@ -35,7 +35,7 @@ The realm type is chosen by commonality weight, so restricting `config.realmType
 a particular scale of polity:
 
 ```typescript
-import * as RealmTypes from '$lib/realms/realm_types';
+import { RealmTypes } from '$lib/realms';
 
 config.realmTypes = RealmTypes.all().filter((type) => type.name === 'kingdom');
 ```

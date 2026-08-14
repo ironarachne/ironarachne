@@ -1,8 +1,8 @@
 import type { Pantheon, PantheonGenerationConfig } from './pantheon_types';
 import { generate as generateDeity } from '../deities/deity_generation';
-import { generateRelationships } from '$lib/relationships/relationships';
+import { generateRelationships } from '$lib/relationships';
 import { RNG } from '@ironarachne/rng';
-import { byName as speciesByName, sentient } from '$lib/species/common';
+import { byName as speciesByName, sentient } from '$lib/species';
 
 export function generate(seed: string, config: PantheonGenerationConfig): Pantheon {
   const rng = new RNG(seed);

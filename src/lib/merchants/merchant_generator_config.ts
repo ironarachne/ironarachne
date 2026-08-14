@@ -1,4 +1,4 @@
-import type { CharacterNameSource } from '$lib/characters/character_name_generation.js';
+import type { CharacterNameSource } from '$lib/characters';
 import type { HonestyLevel, PriceLevel, ShopType, VenueType } from './merchant_types.js';
 
 export type MerchantGeneratorConfig = {

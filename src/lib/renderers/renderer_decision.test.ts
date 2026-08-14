@@ -11,12 +11,9 @@ import {
   recordRenderDuration,
   resetRendererSession,
   resolveRendererDecision,
-} from '$lib/renderers/renderer_decision';
-import {
-  writeBackendOverride,
-  writeQualityOverride,
-} from '$lib/renderers/renderer_preference_storage';
-import type { RendererProbe } from '$lib/renderers/renderer_decision_types';
+} from './renderer_decision';
+import { writeBackendOverride, writeQualityOverride } from './renderer_preference_storage';
+import type { RendererProbe } from './renderer_decision_types';
 
 const probeMock = vi.hoisted(() => ({
   result: { webglAvailable: true, softwareRasterizer: false },

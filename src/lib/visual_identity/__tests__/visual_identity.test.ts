@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import * as RNG from '@ironarachne/rng';
-import { generateHeraldry } from '$lib/heraldry/generator.js';
-import { mergeHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import { generateHeraldry, mergeHeraldryGeneratorConfig } from '$lib/heraldry';
 import {
   createEmptyVisualIdentity,
   isDiscEmblem,

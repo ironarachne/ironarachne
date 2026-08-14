@@ -1,14 +1,14 @@
 import type { RNG } from '@ironarachne/rng';
 
-import type { Culture } from '$lib/culture/culture_types';
+import type { Culture } from './culture_types';
 import {
   nameGeneratorSetFromPatternSources,
   nameGeneratorSetToStoredPatternSet,
   type StoredNameGeneratorPatternSet,
-} from '$lib/names/name_generator_patterns';
-import { stripFunctionValuesDeep } from '$lib/persistent_save/strip_function_values_deep';
+} from '$lib/names';
+import { stripFunctionValuesDeep } from '$lib/persistent_save';
 
-export { stripFunctionValuesDeep } from '$lib/persistent_save/strip_function_values_deep';
+export { stripFunctionValuesDeep } from '$lib/persistent_save';
 
 export type CultureSnapshot = Omit<Culture, 'nameGenerators'> & {
   nameGenerators: StoredNameGeneratorPatternSet;

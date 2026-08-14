@@ -7,7 +7,7 @@ import {
   mergeHeraldryGeneratorConfig,
   type HeraldryGeneratorConfig,
   validateHeraldryGeneratorConfig,
-} from '$lib/heraldry/generatorconfig.js';
+} from '../generatorconfig.js';
 
 // Simple deterministic RNGs for testing
 const rngFirst = {

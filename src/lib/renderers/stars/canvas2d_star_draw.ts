@@ -1,5 +1,5 @@
-import { darkenRgb, lightenRgb, rgbaCss } from '$lib/graphics/rgb_color_ops';
-import type { SceneStar } from '$lib/renderers/astronomical_scene_types';
+import { darkenRgb, lightenRgb, rgbaCss } from '$lib/graphics';
+import type { SceneStar } from '../astronomical_scene_types';
 
 /**
  * Draws a star from the scene. Every number here comes off the `SceneStar` — position, radius,

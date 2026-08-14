@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 import { computeStarSystemLayout } from './star_system_layout';
 
 function mockStarSystem(overrides: Partial<StarSystem>): StarSystem {

@@ -1,4 +1,4 @@
-import type { Item } from '$lib/equipment/equipment_types';
+import type { Item } from '$lib/equipment';
 import type { ArtObject } from './art_objects/art_object_types';
 import type { Gem } from './gems/gem_types';
 import type { PileOfCoins } from './coins/coin_types';

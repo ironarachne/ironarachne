@@ -1,7 +1,7 @@
 import type { Relationship } from '$lib/relationships';
-import type Species from '$lib/species/species';
+import type { Species } from '$lib/species';
 import type { NameGenerator } from '@ironarachne/made-up-names';
-import type { Character } from '$lib/characters/character_types';
+import type { Character } from '$lib/characters';
 
 export type FamilyGenerationConfig = {
   speciesOptions: Species[];

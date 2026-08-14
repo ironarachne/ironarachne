@@ -1,17 +1,15 @@
 <script lang="ts">
-  import type { Arms } from '$lib/heraldry/arms';
+  import type { Arms } from '$lib/heraldry';
   import {
     appendSavedHeraldry,
     loadSavedHeraldrySnapshots,
-  } from '$lib/heraldry/heraldry_saved_state';
-  import {
     defaultHeraldryGeneratorOptions,
     heraldryFromSnapshot,
     toHeraldrySnapshot,
     type HeraldrySnapshot,
-  } from '$lib/heraldry/heraldry_snapshot';
-  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
-  import { showAlertModal } from '$lib/ui/modal';
+    renderHeraldryDeviceSvg,
+  } from '$lib/heraldry';
+  import { showAlertModal } from '$lib/ui';
   import type { RNG } from '@ironarachne/rng';
 
   type Props = {

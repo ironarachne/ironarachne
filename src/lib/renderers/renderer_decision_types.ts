@@ -12,8 +12,8 @@
  * makes that worse, and the answer is less work, not different work.
  */
 
-import type { RenderQuality } from '$lib/renderers/astronomical_scene_types';
-import type { RendererBackend } from '$lib/renderers/renderer_backend';
+import type { RenderQuality } from './astronomical_scene_types';
+import type { RendererBackend } from './renderer_backend';
 
 /** What one look at the machine found. Cheap enough to redo, and it is redone rather than stored. */
 export type RendererProbe = {

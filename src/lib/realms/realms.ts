@@ -1,7 +1,7 @@
 import type { Character } from '$lib/characters';
 import * as Characters from '$lib/characters';
-import { generateHeraldry } from '$lib/heraldry/generator.js';
-import * as Names from '$lib/names/index.js';
+import { generateHeraldry, getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';
+import * as Names from '$lib/names';
 import * as RNG from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';
 import type Claim from './claim.js';
@@ -9,7 +9,6 @@ import type Realm from './realm.js';
 import type RealmGeneratorConfig from './realm_generator_config.js';
 import type RealmType from './realm_type.js';
 import * as RealmTypes from './realm_types.js';
-import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
 
 export function createClaim(): Claim {
   return {

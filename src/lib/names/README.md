@@ -38,10 +38,7 @@ A `NameGenerator` is a live object holding an `RNG`, so it cannot be serialized.
 that owns a name set, store its **patterns** instead and rebuild the generators on load:
 
 ```typescript
-import {
-  nameGeneratorSetFromPatternSources,
-  nameGeneratorSetToStoredPatternSet,
-} from '$lib/names/name_generator_patterns';
+import { nameGeneratorSetFromPatternSources, nameGeneratorSetToStoredPatternSet } from '$lib/names';
 
 const stored = nameGeneratorSetToStoredPatternSet(nameSet);
 const restored = nameGeneratorSetFromPatternSources(stored, rng);

@@ -1,5 +1,4 @@
-import { getAllChargeGlyphs } from '$lib/charges/charge-data.js';
-import { matchingAnyTags } from '$lib/charges/charge-selectors.js';
+import { getAllChargeGlyphs, matchingAnyTags } from '$lib/charges';
 import { asHeraldryCharge, type Charge } from './charge_heraldry.js';
 
 /**

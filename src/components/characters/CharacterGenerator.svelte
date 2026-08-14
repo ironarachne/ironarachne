@@ -14,14 +14,13 @@
     type CharacterGenerationConfig,
     type Title,
   } from '$lib/characters';
-  import type { Arms } from '$lib/heraldry/arms';
-  import { renderDeviceBlazon } from '$lib/heraldry/device';
-  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
-  import { showHeraldryPersistenceModal } from '$lib/ui/modal';
+  import type { Arms } from '$lib/heraldry';
+  import { renderDeviceBlazon, renderHeraldryDeviceSvg } from '$lib/heraldry';
+  import { showHeraldryPersistenceModal } from '$lib/ui';
   import { type Culture, loadSavedCultures } from '$lib/culture';
   import { sentientSpeciesList } from '$lib/species_sentients';
   import { getAllFantasyArchetypes } from '$lib/archetypes';
-  import { getCategoryList } from '$lib/age/age_categories';
+  import { getCategoryList } from '$lib/age';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';

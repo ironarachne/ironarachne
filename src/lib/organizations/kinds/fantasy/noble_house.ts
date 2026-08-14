@@ -1,9 +1,9 @@
-import { getChargesMatchingAnyTags } from '$lib/heraldry/charge_data.js';
 import {
+  getChargesMatchingAnyTags,
   mergeHeraldryGeneratorConfig,
   type HeraldryGeneratorConfig,
-} from '$lib/heraldry/generatorconfig.js';
-import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
+} from '$lib/heraldry';
+import type { Character, CharacterGenerationConfig } from '$lib/characters';
 import * as Names from '$lib/names';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';

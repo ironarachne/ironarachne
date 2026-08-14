@@ -10,7 +10,7 @@ import {
   readCultureSavePayload,
 } from '$lib/culture';
 import { getFantasyNameGeneratorSet } from '$lib/names';
-import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save/scoped_local_storage';
+import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save';
 import { RNG } from '@ironarachne/rng';
 
 describe('culture_saved_state', () => {

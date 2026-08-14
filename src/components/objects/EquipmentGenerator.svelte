@@ -1,11 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import * as RNG from '@ironarachne/rng';
-  import { type Item, type Weapon, type Armor } from '$lib/equipment/equipment_types';
-  import { generateItem, getDefaultGenerationConfig } from '$lib/equipment/generation';
+  import {
+    type Item,
+    type Weapon,
+    type Armor,
+    generateItem,
+    getDefaultGenerationConfig,
+  } from '$lib/equipment';
   import { kgToPounds } from '$lib/measurements';
-  import { valueToString } from '$lib/currency';
-  import { COMMON_FANTASY } from '$lib/currency/systems';
+  import { valueToString, COMMON_FANTASY } from '$lib/currency';
   import { convertPowerToDice, convertToDnDArmorClass } from '$lib/combat_system';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';

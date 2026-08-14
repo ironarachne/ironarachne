@@ -7,7 +7,7 @@
  * authority: if an implementation needs a shape the diagram does not have, amend the diagram first.
  */
 
-import type RGBColor from '$lib/graphics/rgb_color';
+import type { RGBColor } from '$lib/graphics';
 
 /**
  * How much work a backend should do. `reduced` renders at half linear scale and drops the

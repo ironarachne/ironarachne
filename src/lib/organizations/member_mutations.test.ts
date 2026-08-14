@@ -1,7 +1,7 @@
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
 import * as Characters from '$lib/characters';
-import type { Character } from '$lib/characters/character_types.js';
+import type { Character } from '$lib/characters';
 import {
   buildLeaderBlurb,
   describeLeaderForOrganization,

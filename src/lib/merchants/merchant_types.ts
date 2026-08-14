@@ -1,4 +1,4 @@
-import type { MerchantMark } from '$lib/merchant_marks/merchant_mark_types.js';
+import type { MerchantMark } from '$lib/merchant_marks';
 
 export type ShopType =
   | 'any'

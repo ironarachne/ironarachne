@@ -10,6 +10,8 @@ export * from './member_mutations';
 export * from './organization_hierarchy_builders';
 export type * from './organization_naming';
 export * from './organization_profile';
-export type * from './organization_relationships';
+export * from './organization_relationships';
 export type * from './organization_types';
 export * from './science_fiction';
+
+export * as FantasyOrganizations from './fantasy';

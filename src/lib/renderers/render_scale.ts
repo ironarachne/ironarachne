@@ -12,7 +12,7 @@
  * around underneath the person waiting for it.
  */
 
-import type { RenderQuality } from '$lib/renderers/astronomical_scene_types';
+import type { RenderQuality } from './astronomical_scene_types';
 
 /** Half linear scale is a quarter of the fragments, which is the whole point of the tier. */
 export function rasterScaleForQuality(quality: RenderQuality): number {

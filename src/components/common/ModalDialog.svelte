@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { AlertModalStyle } from '$lib/ui/modal';
+  import type { AlertModalStyle } from '$lib/ui';
 
   type Props = {
     kind: 'alert' | 'confirm';

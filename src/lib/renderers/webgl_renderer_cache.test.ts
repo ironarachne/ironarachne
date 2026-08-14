@@ -3,7 +3,7 @@ import {
   acquireWebGLRenderer,
   heldWebGLRendererCount,
   releaseWebGLRenderers,
-} from '$lib/renderers/webgl_renderer_cache';
+} from './webgl_renderer_cache';
 import type * as THREE from 'three';
 
 /**

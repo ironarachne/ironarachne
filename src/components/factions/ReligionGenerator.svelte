@@ -2,14 +2,10 @@
   import { onMount } from 'svelte';
   import * as Names from '$lib/names';
   import * as RNG from '@ironarachne/rng';
-  import * as CommonSpecies from '$lib/species/common.js';
-  import * as ReligionCategories from '$lib/religion/categories';
-  import type Species from '$lib/species/species';
-  import type { Culture } from '$lib/culture';
-  import type { Religion } from '$lib/religion/religion_types';
-  import { loadSavedCultures } from '$lib/culture';
-  import { applyImportedScopes, buildExportPayload } from '$lib/persistent_save/save_file_export';
+  import { CommonSpecies } from '$lib/species';
   import {
+    ReligionCategories,
+    listDomains,
     ALL_RELIGION_DIMENSION_IDS,
     appendSavedReligion,
     loadSavedReligionSnapshots,
@@ -25,13 +21,18 @@
     summaryTextForReligionDimension,
     toReligionSnapshot,
   } from '$lib/religion';
-  import { listDomains } from '$lib/religion/domains';
-  import { showAlertModal } from '$lib/ui/modal';
+  import type { Species } from '$lib/species';
+  import type { Culture } from '$lib/culture';
+  import type { Religion } from '$lib/religion';
+  import { loadSavedCultures } from '$lib/culture';
   import {
+    applyImportedScopes,
+    buildExportPayload,
     clearLoadParamFromUrl,
     readReligionLoadParamFromLocation,
     RELIGION_LOAD_PARAM,
-  } from '$lib/persistent_save/saved_data_links';
+  } from '$lib/persistent_save';
+  import { showAlertModal } from '$lib/ui';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import ExportImportRow from '$components/common/ExportImportRow.svelte';

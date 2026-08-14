@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { shadePlanetDiskPixel } from './planet_canvas_surface_shade';
-import type { PlanetPalette } from '$lib/renderers/astronomical_scene_types';
+import type { PlanetPalette } from '../astronomical_scene_types';
 
 describe('shadePlanetDiskPixel', () => {
   const palette: PlanetPalette = {

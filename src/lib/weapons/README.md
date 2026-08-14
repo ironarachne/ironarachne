@@ -22,7 +22,7 @@ kinds of weapon may be generated — there is no implicit default table:
 
 ```typescript
 import { generate, getDefaultConfig } from '$lib/weapons';
-import { all } from '$lib/weapons/scifi';
+import { all } from '$lib/weapons';
 
 const config = getDefaultConfig(rng);
 config.weaponTypes = all;

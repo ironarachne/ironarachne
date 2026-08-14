@@ -1,5 +1,5 @@
-import { all } from '$lib/equipment/fantasylist/index.js';
-import type { EquipmentItem } from '$lib/equipment/list.js';
+import { all } from '$lib/equipment';
+import type { EquipmentItem } from '$lib/equipment';
 import type { ResolvedShopType } from './merchant_types.js';
 
 export const SHOP_TYPE_LABELS: Record<ResolvedShopType, string> = {

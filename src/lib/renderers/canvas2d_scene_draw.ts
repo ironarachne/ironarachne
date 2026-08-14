@@ -6,19 +6,12 @@
  * number the scene does not carry, the number belongs in the builder.
  */
 
-import { rgbaCss } from '$lib/graphics/rgb_color_ops';
-import { BACKGROUND_STAR_COLOR } from '$lib/renderers/astronomical/background_star_color';
-import { canvasToDataUrlAtSize, rasterSizeForQuality } from '$lib/renderers/render_scale';
-import {
-  drawRingEllipsePatch,
-  drawScenePlanetDisk,
-} from '$lib/renderers/planets/canvas2d_planet_draw';
-import { drawStarPreviewDisk } from '$lib/renderers/stars/canvas2d_star_draw';
-import type {
-  AstronomicalScene,
-  SceneBackground,
-  ScenePlanet,
-} from '$lib/renderers/astronomical_scene_types';
+import { rgbaCss } from '$lib/graphics';
+import { BACKGROUND_STAR_COLOR } from './astronomical/background_star_color';
+import { canvasToDataUrlAtSize, rasterSizeForQuality } from './render_scale';
+import { drawRingEllipsePatch, drawScenePlanetDisk } from './planets/canvas2d_planet_draw';
+import { drawStarPreviewDisk } from './stars/canvas2d_star_draw';
+import type { AstronomicalScene, SceneBackground, ScenePlanet } from './astronomical_scene_types';
 
 function drawBackground(
   ctx: CanvasRenderingContext2D,

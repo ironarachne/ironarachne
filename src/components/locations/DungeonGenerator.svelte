@@ -2,25 +2,28 @@
   import * as RNG from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
   import { onMount, tick } from 'svelte';
-  import * as Currency from '$lib/currency/currency';
+  import { Currency } from '$lib/currency';
   import ArchetypeBadge from '$components/characters/ArchetypeBadge.svelte';
   import SpeciesBadge from '$components/characters/SpeciesBadge.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import NumberField from '$components/common/NumberField.svelte';
-  import type { Character } from '$lib/characters/character_types';
-  import type { Creature } from '$lib/creatures/creature_types';
-  import { generateDungeon, type EngineeredDungeon } from '$lib/dungeon';
-  import { BLUEPRINTS } from '$lib/dungeon/theme/theme';
-  import { renderClassicModuleMapToCanvas } from '$lib/dungeon/render/classic_module_map';
+  import type { Character } from '$lib/characters';
+  import type { Creature } from '$lib/creatures';
+  import {
+    generateDungeon,
+    type EngineeredDungeon,
+    BLUEPRINTS,
+    renderClassicModuleMapToCanvas,
+  } from '$lib/dungeon';
   import {
     generate as generateEnvironment,
     getDefaultConfig as getDefaultEnvironmentConfig,
     describeTerrain,
-  } from '$lib/environment/environments';
-  import * as BiomeClassifications from '$lib/environment/biomes/biome_classifications';
-  import * as Biomes from '$lib/environment/biomes/biomes';
+    BiomeClassifications,
+    Biomes,
+  } from '$lib/environment';
 
   const blueprintOptions = BLUEPRINTS.map((b) => b.name);
   const environmentOptions = BiomeClassifications.getAll()

@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest';
-import { renderBlazon, type Variation } from '$lib/heraldry/variation.js';
-import * as Tinctures from '$lib/heraldry/tinctures.js';
+import { renderBlazon, type Variation } from '../variation.js';
+import * as Tinctures from '../tinctures.js';
 
 describe('heraldry/variation', () => {
   test('renderBlazon replaces every tincture placeholder', () => {

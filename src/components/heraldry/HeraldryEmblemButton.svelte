@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { Arms } from '$lib/heraldry/arms';
-  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+  import type { Arms } from '$lib/heraldry';
+  import { renderHeraldryDeviceSvg } from '$lib/heraldry';
   import type { RNG } from '@ironarachne/rng';
 
   type Props = {

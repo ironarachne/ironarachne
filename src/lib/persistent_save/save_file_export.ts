@@ -3,7 +3,7 @@ import {
   listScopedEntries,
   readScopedJson,
   writeScopedJson,
-} from '$lib/persistent_save/scoped_local_storage';
+} from './scoped_local_storage';
 
 export const SAVE_EXPORT_FORMAT_VERSION = 1 as const;
 

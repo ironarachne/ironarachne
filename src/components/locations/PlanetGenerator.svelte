@@ -3,31 +3,25 @@
   import {
     getPlanetClassifications,
     searchPlanetClassificationByName,
-  } from '$lib/astronomical_bodies/planet/planet_classifications';
-  import { renderPlanetPreviewImage } from '$lib/renderers/astronomical_preview';
-  import {
     convertAUToKM,
     type AstronomicalBody,
-  } from '$lib/astronomical_bodies/astronomical_bodies';
+    generatePlanet,
+    getDefaultPlanetGenerationConfig,
+    generateMoon,
+    getDefaultMoonGenerationConfig,
+    getNumberOfMoonsForParent,
+  } from '$lib/astronomical_bodies';
+  import { renderPlanetPreviewImage } from '$lib/renderers/astronomical_preview';
   import * as Measurements from '$lib/measurements';
   import { formatNumber } from '$lib/format';
   import { onMount } from 'svelte';
-  import {
-    generatePlanet,
-    getDefaultPlanetGenerationConfig,
-  } from '$lib/astronomical_bodies/planet/planets';
   import {
     generateCivilization,
     getDefaultCivilizationGenerationConfig,
     getFriendlyPopulation,
     type Civilization,
-  } from '$lib/civilizations/civilizations';
-  import { getTechnologyLevelByLevel } from '$lib/technology_levels/technology_levels';
-  import {
-    generateMoon,
-    getDefaultMoonGenerationConfig,
-    getNumberOfMoonsForParent,
-  } from '$lib/astronomical_bodies/moon/moons';
+  } from '$lib/civilizations';
+  import { getTechnologyLevelByLevel } from '$lib/technology_levels';
   import { browser } from '$app/environment';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';

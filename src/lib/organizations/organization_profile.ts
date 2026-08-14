@@ -1,5 +1,5 @@
 import type { RNG } from '@ironarachne/rng';
-import type Environment from '$lib/environment/environment.js';
+import type { Environment } from '$lib/environment';
 import type {
   LabeledOrgFacet,
   OrganizationEnvironmentNarrative,

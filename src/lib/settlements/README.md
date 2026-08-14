@@ -38,7 +38,7 @@ const settlement = Settlements.generate(config);
 
 ```typescript
 import * as Settlements from '$lib/settlements';
-import { getDefaultCharacterGenerationConfig } from '$lib/characters/character_generation';
+import { getDefaultCharacterGenerationConfig } from '$lib/characters';
 import { RNG } from '@ironarachne/rng';
 
 const rng = new RNG('rich-seed');

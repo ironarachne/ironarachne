@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import * as Environments from '$lib/environment/environments';
-import { getDefaultOrganizationCharacterConfig } from '$lib/organizations/fantasy';
-import { getOrganizationKindsForRegistry } from '$lib/organizations/kind_registry';
+import { Environments } from '$lib/environment';
+import {
+  getDefaultOrganizationCharacterConfig,
+  getOrganizationKindsForRegistry,
+} from '$lib/organizations';
 import type { SettlementEconomicRole } from './settlement_types';
 import {
   buildSettlementOrganizationKindPool,

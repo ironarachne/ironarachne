@@ -1,9 +1,8 @@
-import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
-import type { ChargeGlyph } from '$lib/charges/charge-types.js';
-import type { Arms } from '$lib/heraldry/arms.js';
-import type { HeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import type { CharacterGenerationConfig } from '$lib/characters';
+import type { ChargeGlyph } from '$lib/charges';
+import type { Arms, HeraldryGeneratorConfig } from '$lib/heraldry';
 import type { RNG } from '@ironarachne/rng';
-import type { VisualIdentity } from '$lib/visual_identity/visual_identity_types.js';
+import type { VisualIdentity } from '$lib/visual_identity';
 import type { OrganizationNamingProfile } from './organization_naming.js';
 import type { OrganizationHierarchy, OrganizationGenre } from './organization_types.js';
 import type { MemberMutator } from './member_mutations.js';

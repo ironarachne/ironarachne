@@ -6,3 +6,5 @@ export * from './drugs';
 // Both tables export `all`, so neither can be starred without the other name disappearing.
 export * as drugTypes from './drug_types';
 export * as effectTypes from './effect_types';
+
+export * as Drugs from './drugs';

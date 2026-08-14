@@ -13,3 +13,7 @@ export * from './landforms';
 export * as PrecipitationTypes from './precipitationtypes';
 export * as Terrain from './terrain';
 export * as WaterSystems from './water_systems';
+
+export * as BiomeClassifications from './biomes/biome_classifications';
+export * as Environments from './environments';
+export type * from './biomes/biome_types';

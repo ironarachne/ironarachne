@@ -1,10 +1,6 @@
-import { getAllChargeGlyphs } from '$lib/charges/charge-data.js';
-import { matchingAnyTags } from '$lib/charges/charge-selectors.js';
-import {
-  mergeHeraldryGeneratorConfig,
-  type HeraldryGeneratorConfig,
-} from '$lib/heraldry/generatorconfig.js';
-import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
+import { getAllChargeGlyphs, matchingAnyTags } from '$lib/charges';
+import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry';
+import type { Character, CharacterGenerationConfig } from '$lib/characters';
 import * as Names from '$lib/names';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';

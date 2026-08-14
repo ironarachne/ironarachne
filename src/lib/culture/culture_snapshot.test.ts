@@ -1,21 +1,19 @@
 import * as RNG from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
 
-import {
-  generateCulture,
-  getDefaultCultureGenerationConfig,
-} from '$lib/culture/culture_generation';
+import { generateCulture, getDefaultCultureGenerationConfig } from './culture_generation';
 import {
   cultureFromSnapshot,
   stripFunctionValuesDeep,
   toCultureSnapshot,
-} from '$lib/culture/culture_snapshot';
+} from './culture_snapshot';
 import {
   nameGeneratorSetFromPatternSources,
   nameGeneratorSetToStoredPatternSet,
   patternSourceFromNameGenerator,
-} from '$lib/names/name_generator_patterns';
-import { getAllFantasyNameGeneratorSets, getFantasyNameGeneratorSet } from '$lib/names';
+  getAllFantasyNameGeneratorSets,
+  getFantasyNameGeneratorSet,
+} from '$lib/names';
 
 describe('culture_snapshot', () => {
   it('round-trips name generator patterns through JSON', () => {

@@ -36,7 +36,7 @@ const chosen = randomWithTag('animal', charges, rng);
 Charges arrive uncoloured, so drawing one means tinting it first:
 
 ```typescript
-import { tintChargeSvg } from '$lib/charges/tint_charge_svg';
+import { tintChargeSvg } from '$lib/charges';
 
 const svg = tintChargeSvg('#B22222', 'unique-id', chosen.SVG);
 ```

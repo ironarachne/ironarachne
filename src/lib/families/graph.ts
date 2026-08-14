@@ -1,5 +1,5 @@
 import type { Family } from './family_types';
-import type { Character } from '$lib/characters/character_types';
+import type { Character } from '$lib/characters';
 import { create } from 'xmlbuilder2';
 
 export interface FamilyGraph {

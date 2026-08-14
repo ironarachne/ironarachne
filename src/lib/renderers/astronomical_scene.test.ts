@@ -1,12 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import {
-  buildPlanetScene,
-  buildStarScene,
-  buildStarSystemScene,
-} from '$lib/renderers/astronomical_scene';
-import type { ScenePlanet, SceneStar } from '$lib/renderers/astronomical_scene_types';
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+import { buildPlanetScene, buildStarScene, buildStarSystemScene } from './astronomical_scene';
+import type { ScenePlanet, SceneStar } from './astronomical_scene_types';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 
 const SUN_RADIUS_KM = 695700;
 const EARTH_RADIUS_KM = 6371;
