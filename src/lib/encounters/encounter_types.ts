@@ -2,7 +2,7 @@ import type { Character } from '$lib/characters';
 import type { Creature } from '$lib/creatures';
 import type { MobGroup } from '$lib/mobs';
 import type { Mutator } from '$lib/mutator';
-import type Species from '$lib/species/species';
+import type { Species } from '$lib/species';
 import type { TagFilter, TaggedItem } from '$lib/tags';
 
 export type Encounter = {

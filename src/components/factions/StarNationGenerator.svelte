@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
-  import { renderStarSystemPreviewImage } from '$lib/renderers/astronomical_preview';
+  import { renderStarSystemPreviewImage } from '$lib/renderers';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import {
@@ -10,21 +10,19 @@
     getDefaultCivilizationGenerationConfig,
     getFriendlyPopulation,
     type Civilization,
-  } from '$lib/civilizations/civilizations';
-  import {
-    generateStarSystem,
-    getDefaultStarSystemGeneratorConfig,
-    type StarSystem,
-    type StarSystemGenerationConfig,
-  } from '$lib/astronomical_bodies/star_systems';
-  import {
     generateRegionOfControl,
     getDefaultRegionOfControlGenerationConfig,
     getRegionTypeByName,
     type RegionOfControl,
     type RegionOfControlGenerationConfig,
-  } from '$lib/civilizations/regions_of_control';
-  import { getTechnologyLevelByLevel } from '$lib/technology_levels/technology_levels';
+  } from '$lib/civilizations';
+  import {
+    generateStarSystem,
+    getDefaultStarSystemGeneratorConfig,
+    type StarSystem,
+    type StarSystemGenerationConfig,
+  } from '$lib/astronomical_bodies';
+  import { getTechnologyLevelByLevel } from '$lib/technology_levels';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';

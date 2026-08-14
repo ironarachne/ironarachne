@@ -24,7 +24,7 @@ This library models **factions and institutions** in world-building: trading com
 ## Usage
 
 ```typescript
-import { generateOrganization } from '$lib/organizations/generate_organization';
+import { generateOrganization } from '$lib/organizations';
 import * as Characters from '$lib/characters';
 import { RNG } from '@ironarachne/rng';
 
@@ -42,7 +42,7 @@ const org = generateOrganization({
 **Registry** (all kinds for one `rng` snapshot, including randomized heraldry templates where applicable):
 
 ```typescript
-import { getOrganizationKindsForRegistry } from '$lib/organizations/kind_registry';
+import { getOrganizationKindsForRegistry } from '$lib/organizations';
 
 const kinds = getOrganizationKindsForRegistry(rng);
 ```
@@ -55,7 +55,7 @@ const kinds = getOrganizationKindsForRegistry(rng);
 **Batch relationships** (optional second pass on co-generated orgs):
 
 ```typescript
-import { addRandomRivalryBetweenPairs } from '$lib/organizations/organization_relationships';
+import { addRandomRivalryBetweenPairs } from '$lib/organizations';
 ```
 
 ## Adding a new kind

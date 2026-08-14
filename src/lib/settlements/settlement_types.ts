@@ -1,9 +1,9 @@
 import type * as MUN from '@ironarachne/made-up-names';
 import type { RNG } from '@ironarachne/rng';
-import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
-import type Environment from '$lib/environment/environment.js';
-import type { Organization } from '$lib/organizations/organization_types.js';
-import type Vertex from '$lib/geometry/vertex.js';
+import type { Character, CharacterGenerationConfig } from '$lib/characters';
+import type { Environment } from '$lib/environment';
+import type { Organization } from '$lib/organizations';
+import type { Vertex } from '$lib/geometry';
 
 /**
  * One row in the settlement size table (village, town, city, …).

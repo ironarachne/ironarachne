@@ -1,4 +1,4 @@
-import * as Environments from '$lib/environment/environments.js';
+import { Environments } from '$lib/environment';
 import * as Names from '$lib/names';
 import * as RNG from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';

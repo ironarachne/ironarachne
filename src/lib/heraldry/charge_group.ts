@@ -1,5 +1,5 @@
 import * as Words from '@ironarachne/words';
-import { tintChargeSvg } from '$lib/charges/tint_charge_svg.js';
+import { tintChargeSvg } from '$lib/charges';
 import type { Charge } from './charge_heraldry.js';
 import type { ChargeGroupArrangement } from './charge_group_arrangements/index.js';
 

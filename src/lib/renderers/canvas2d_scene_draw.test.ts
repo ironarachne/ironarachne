@@ -1,14 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { drawScene, renderSceneToDataUrl } from '$lib/renderers/canvas2d_scene_draw';
-import { drawPlanetSpherePatch } from '$lib/renderers/planets/canvas2d_planet_draw';
-import { buildStarSystemScene } from '$lib/renderers/astronomical_scene';
-import type {
-  AstronomicalScene,
-  ScenePlanet,
-  SceneStar,
-} from '$lib/renderers/astronomical_scene_types';
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+import { drawScene, renderSceneToDataUrl } from './canvas2d_scene_draw';
+import { drawPlanetSpherePatch } from './planets/canvas2d_planet_draw';
+import { buildStarSystemScene } from './astronomical_scene';
+import type { AstronomicalScene, ScenePlanet, SceneStar } from './astronomical_scene_types';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 
 /**
  * A 2D context that records what was drawn and the style state in force at the time. The backend

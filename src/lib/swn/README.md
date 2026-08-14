@@ -6,7 +6,7 @@ through drives, fittings, defenses, and cargo.
 
 Characters and starships are namespaced rather than starred (`characters.generate`,
 `starships.generate`) because both modules export `generate`, `Weapon`, and `formatAsText`. The
-components consume them the same way: `import * as CharGen from '$lib/swn/character'`.
+components consume them the same way: `import { characters as CharGen } from '$lib/swn'`.
 
 ## How effects work
 

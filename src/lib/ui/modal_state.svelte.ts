@@ -1,4 +1,4 @@
-import type { Arms } from '$lib/heraldry/arms.js';
+import type { Arms } from '$lib/heraldry';
 
 export type AlertModalStyle = 'message' | 'error' | 'success';
 

@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import { getFantasyNameGeneratorSet } from '$lib/names';
-import { stripFunctionValuesDeep } from '$lib/persistent_save/strip_function_values_deep';
+import { stripFunctionValuesDeep } from '$lib/persistent_save';
 import { RNG } from '@ironarachne/rng';
 import {
   generateRandomDCCCharacter,

@@ -52,7 +52,7 @@ resemble, the name generators, and `dimensionGeneration` for hard constraints on
 (where a category's `dimensionHints` only bias them):
 
 ```typescript
-import * as Categories from '$lib/religion/categories';
+import { ReligionCategories as Categories } from '$lib/religion';
 
 const config = getDefaultReligionGenerationConfig();
 config.categories = Categories.all().filter((category) => category.hasDeities);

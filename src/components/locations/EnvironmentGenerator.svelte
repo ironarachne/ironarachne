@@ -1,10 +1,10 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
-  import * as Directions from '$lib/geometry/directions';
-  import * as Environments from '$lib/environment/environments';
+  import { Directions } from '$lib/geometry';
+  import { Environments } from '$lib/environment';
   import * as Temperature from '$lib/temperature';
   import * as MathTranslation from '$lib/math_translation';
-  import type Environment from '$lib/environment/environment';
+  import type { Environment } from '$lib/environment';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';

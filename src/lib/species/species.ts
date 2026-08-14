@@ -1,8 +1,8 @@
 import type { Ability } from '$lib/abilities';
-import type AgeCategory from '$lib/age/age_category.js';
+import type { AgeCategory } from '$lib/age';
 import type { Gender } from '$lib/gender';
-import type PhysicalTraitGeneratorConfig from '$lib/physical_traits/physical_trait_generator_config.js';
-import type { SizeMatrix } from '$lib/size/size_matrix';
+import type { PhysicalTraitGeneratorConfig } from '$lib/physical_traits';
+import type { SizeMatrix } from '$lib/size';
 import type { CarcassBodyPlan } from './carcass_body_plan';
 
 export default interface Species {

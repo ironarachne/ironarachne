@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import type { NameGenerator } from '@ironarachne/made-up-names';
-import * as Environments from '$lib/environment/environments';
-import { getDefaultCharacterGenerationConfig } from '$lib/characters/character_generation';
+import { Environments } from '$lib/environment';
+import { getDefaultCharacterGenerationConfig } from '$lib/characters';
 import { deriveSettlementFacets } from './derive_settlement_facets';
 import * as Settlements from './settlements';
 import Hamlet from './categories/hamlet';

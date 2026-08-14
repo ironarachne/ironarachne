@@ -1,4 +1,4 @@
-import type { NameGeneratorSet } from '$lib/names/index.js';
+import type { NameGeneratorSet } from '$lib/names';
 import type RealmType from './realm_type.js';
 import type { RNG } from '@ironarachne/rng';
 

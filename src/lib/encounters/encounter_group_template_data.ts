@@ -1,4 +1,4 @@
-import type { Character } from '$lib/characters/character_types';
+import type { Character } from '$lib/characters';
 import { getMutatorByName } from '$lib/species';
 import type { EncounterGroupTemplate } from './encounter_types';
 

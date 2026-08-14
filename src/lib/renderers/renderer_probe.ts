@@ -5,7 +5,7 @@
  * to do about the answer is `renderer_decision.ts`, which is pure and is where the tests are.
  */
 
-import type { RendererProbe } from '$lib/renderers/renderer_decision_types';
+import type { RendererProbe } from './renderer_decision_types';
 
 /**
  * Renderer strings that mean the fragments are being drawn by the CPU. This is the whole of what

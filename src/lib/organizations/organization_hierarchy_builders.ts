@@ -1,5 +1,5 @@
-import { childToParentFromEntries } from '$lib/hierarchy/parent_forest.js';
-import type { ChildToParent, HierarchyId } from '$lib/hierarchy/hierarchy_types.js';
+import { childToParentFromEntries } from '$lib/hierarchy';
+import type { ChildToParent, HierarchyId } from '$lib/hierarchy';
 import type { OrganizationHierarchy, RoleId } from './organization_types.js';
 
 type RoleDef = { id: RoleId; roleName: string; order: number };

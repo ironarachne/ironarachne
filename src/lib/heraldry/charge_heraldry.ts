@@ -1,4 +1,4 @@
-import type { ChargeGlyph } from '$lib/charges/charge-types.js';
+import type { ChargeGlyph } from '$lib/charges';
 import type { Tincture } from './tinctures.js';
 import * as Tinctures from './tinctures.js';
 

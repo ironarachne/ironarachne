@@ -1,4 +1,4 @@
-import { readScopedJson, writeScopedJson } from '$lib/persistent_save/scoped_local_storage';
+import { readScopedJson, writeScopedJson } from '$lib/persistent_save';
 import type { HeraldrySnapshot } from './heraldry_snapshot.js';
 
 export const HERALDRY_SAVE_SCOPE_ID = 'generator.heraldry' as const;

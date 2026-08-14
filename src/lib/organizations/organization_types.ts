@@ -1,6 +1,6 @@
-import type { Character } from '$lib/characters/character_types.js';
-import type { ChildToParent, IdToOrder } from '$lib/hierarchy/hierarchy_types.js';
-import type { VisualIdentity } from '$lib/visual_identity/visual_identity_types.js';
+import type { Character } from '$lib/characters';
+import type { ChildToParent, IdToOrder } from '$lib/hierarchy';
+import type { VisualIdentity } from '$lib/visual_identity';
 import type { OrganizationRelationship } from './organization_relationships.js';
 
 /**

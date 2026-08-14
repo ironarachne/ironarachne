@@ -1,5 +1,5 @@
-import { getRandomGasGiantRgbTriplet } from '$lib/renderers/astronomical/gas_giant_palette';
-import type { PlanetPalette } from '$lib/renderers/astronomical_scene_types';
+import { getRandomGasGiantRgbTriplet } from './gas_giant_palette';
+import type { PlanetPalette } from '../astronomical_scene_types';
 
 /**
  * Base palettes by shader classification name; anything without one, gas giants included, gets a

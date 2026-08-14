@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type Drug from '$lib/drug/drug';
-  import * as Drugs from '$lib/drug/drugs';
+  import type { Drug } from '$lib/drug';
+  import { Drugs } from '$lib/drug';
   import { RNG } from '@ironarachne/rng';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';

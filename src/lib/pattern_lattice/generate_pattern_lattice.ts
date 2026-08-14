@@ -1,5 +1,5 @@
 import type { RNG } from '@ironarachne/rng';
-import { DISPLAY_SWATCHES } from '$lib/display_colors/display_palettes.js';
+import { DISPLAY_SWATCHES } from '$lib/display_colors';
 import type { PatternLattice } from './pattern_lattice_types.js';
 
 export type GeneratePatternLatticeOptions = {

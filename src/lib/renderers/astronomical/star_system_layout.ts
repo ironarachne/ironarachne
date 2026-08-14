@@ -1,5 +1,4 @@
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 
 export type StarSystemLayoutStar = {
   kind: 'star';

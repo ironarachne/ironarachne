@@ -1,6 +1,5 @@
-import allSpecies from '$lib/species/all';
-import type { CarcassBodyPlan } from '$lib/species/carcass_body_plan';
-import type Species from '$lib/species/species';
+import { allSpecies } from '$lib/species';
+import type { CarcassBodyPlan, Species } from '$lib/species';
 import type { Resource } from './resource_types';
 import {
   SPECIES_PRODUCT_OVERRIDES,
@@ -12,7 +11,7 @@ const RESOURCE_DERIVABLE_TAG = 'resource_derivable';
 const EXCLUDED_CREATURE_TYPES = new Set(['undead', 'ooze', 'elemental', 'fiend']);
 const ALLOWED_CREATURE_TYPES = new Set(['beast', 'dragon', 'monstrosity']);
 
-export type { CarcassBodyPlan } from '$lib/species/carcass_body_plan';
+export type { CarcassBodyPlan } from '$lib/species';
 
 function collectPhysicalTraitTagSet(species: Species): Set<string> {
   const out = new Set<string>();

@@ -1,4 +1,4 @@
-import type { TagFilter, TaggedItem } from '$lib/tags/tag_types';
+import type { TagFilter, TaggedItem } from '$lib/tags';
 
 export type Relationship = {
   id: string;

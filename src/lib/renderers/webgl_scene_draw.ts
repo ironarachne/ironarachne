@@ -11,11 +11,11 @@ import * as THREE from 'three';
 import SceneStarsFragmentShader from '$lib/shaders/background/scene_stars.frag';
 import SceneStarsVertexShader from '$lib/shaders/background/scene_stars.vert';
 import SimpleVertexShader from '$lib/shaders/simple.vert';
-import { acquireWebGLRenderer } from '$lib/renderers/webgl_renderer_cache';
-import { buildWebGLDrawList } from '$lib/renderers/webgl_scene_build';
-import { canvasToDataUrlAtSize, rasterSizeForQuality } from '$lib/renderers/render_scale';
-import type { AstronomicalScene } from '$lib/renderers/astronomical_scene_types';
-import type { WebGLPlaneItem, WebGLPointsItem } from '$lib/renderers/webgl_scene_types';
+import { acquireWebGLRenderer } from './webgl_renderer_cache';
+import { buildWebGLDrawList } from './webgl_scene_build';
+import { canvasToDataUrlAtSize, rasterSizeForQuality } from './render_scale';
+import type { AstronomicalScene } from './astronomical_scene_types';
+import type { WebGLPlaneItem, WebGLPointsItem } from './webgl_scene_types';
 
 /**
  * Depth testing is off and the meshes are added in draw-list order, with `sortObjects` off on the

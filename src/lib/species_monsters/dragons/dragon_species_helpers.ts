@@ -1,9 +1,9 @@
 import type { Ability } from '$lib/abilities';
-import { dragonLifespanTrueWyrm } from '$lib/age/dragon_life_stages.js';
-import { traditional } from '$lib/gender/index.js';
-import type PhysicalTraitGeneratorConfig from '$lib/physical_traits/physical_trait_generator_config.js';
-import { dragonTrueWyrmSizeMatrix } from '$lib/size/dragon_sizes.js';
-import type Species from '$lib/species/species.js';
+import { dragonLifespanTrueWyrm } from '$lib/age';
+import { traditional } from '$lib/gender';
+import type { PhysicalTraitGeneratorConfig } from '$lib/physical_traits';
+import { dragonTrueWyrmSizeMatrix } from '$lib/size';
+import type { Species } from '$lib/species';
 
 export type DragonFamily = 'chromatic' | 'metallic' | 'gem' | 'other';
 

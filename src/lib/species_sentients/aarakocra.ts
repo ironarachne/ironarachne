@@ -1,7 +1,7 @@
-import * as AgeCategories from '$lib/age/age_categories.js';
-import * as Sizes from '$lib/size/sizes.js';
+import { AgeCategories } from '$lib/age';
+import { Sizes } from '$lib/size';
 import { traditional } from '$lib/gender';
-import type Species from '$lib/species/species.js';
+import type { Species } from '$lib/species';
 
 const wingLengths = ['short', 'long'];
 const wingTypes = ['black-tipped', 'sleek', 'knife-edged', 'graceful', 'full'];

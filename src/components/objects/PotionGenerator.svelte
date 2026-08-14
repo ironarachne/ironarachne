@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { valueToString } from '$lib/currency';
-  import { COMMON_FANTASY } from '$lib/currency/systems';
+  import { valueToString, COMMON_FANTASY } from '$lib/currency';
   import {
     describeDurationShort,
     describeEffect,

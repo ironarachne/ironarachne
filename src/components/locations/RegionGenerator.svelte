@@ -1,15 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { RNG } from '@ironarachne/rng';
-  import * as Regions from '$lib/regions/regions.js';
-  import type Region from '$lib/regions/region.js';
+  import { Regions } from '$lib/regions';
+  import type { Region } from '$lib/regions';
   import * as Words from '@ironarachne/words';
   import * as Characters from '$lib/characters';
   import type { Character } from '$lib/characters';
   import * as Names from '$lib/names';
-  import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
-  import { showHeraldryPersistenceModal } from '$lib/ui/modal';
-  import type { Arms } from '$lib/heraldry/arms';
+  import { renderHeraldryDeviceSvg } from '$lib/heraldry';
+  import { showHeraldryPersistenceModal } from '$lib/ui';
+  import type { Arms } from '$lib/heraldry';
   import { type Culture, loadSavedCultures } from '$lib/culture';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';

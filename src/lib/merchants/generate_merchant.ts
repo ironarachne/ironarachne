@@ -2,11 +2,10 @@ import {
   describe,
   generate as generateCharacter,
   getCharacterGenerationConfigForNameSet,
-} from '$lib/characters/character_generation.js';
-import { resolveCharacterNameGeneratorSet } from '$lib/characters/character_name_generation.js';
-import { getAllChargeGlyphs } from '$lib/charges/charge-data.js';
-import { matchingAnyTags } from '$lib/charges/charge-selectors.js';
-import { generateMerchantMark } from '$lib/merchant_marks/generate_merchant_mark.js';
+  resolveCharacterNameGeneratorSet,
+} from '$lib/characters';
+import { getAllChargeGlyphs, matchingAnyTags } from '$lib/charges';
+import { generateMerchantMark } from '$lib/merchant_marks';
 import { RNG } from '@ironarachne/rng';
 import type { MerchantGeneratorConfig } from './merchant_generator_config.js';
 import {

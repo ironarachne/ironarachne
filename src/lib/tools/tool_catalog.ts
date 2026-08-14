@@ -1,5 +1,5 @@
-import { applyTagFilter } from '$lib/tags/tags';
-import type { TagFilter } from '$lib/tags/tag_types';
+import { applyTagFilter } from '$lib/tags';
+import type { TagFilter } from '$lib/tags';
 import { defineTool, genreTag, systemTag } from './tools';
 import type * as ToolTypes from './tool_types';
 

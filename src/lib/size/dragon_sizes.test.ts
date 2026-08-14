@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { dragonLifespanTrueWyrm } from '$lib/age/dragon_life_stages';
-import { dragonTrueWyrmSizeMatrix } from '$lib/size/dragon_sizes';
+import { dragonLifespanTrueWyrm } from '$lib/age';
+import { dragonTrueWyrmSizeMatrix } from './dragon_sizes';
 
 describe('dragonTrueWyrmSizeMatrix', () => {
   it('maps every dragon age category on female and male rows', () => {

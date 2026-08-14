@@ -1,7 +1,7 @@
-import * as AgeCategories from '$lib/age/age_categories.js';
-import { traditional } from '$lib/gender/index.js';
-import * as Sizes from '$lib/size/sizes.js';
-import type Species from '$lib/species/species.js';
+import { AgeCategories } from '$lib/age';
+import { traditional } from '$lib/gender';
+import { Sizes } from '$lib/size';
+import type { Species } from '$lib/species';
 
 export default <Species>{
   name: 'changeling',

@@ -1,5 +1,5 @@
 import type { RNG } from '@ironarachne/rng';
-import type { Element } from '$lib/magic/types';
+import type { Element } from '$lib/magic';
 import type { PotionEffect, PotionSensoryHints, PotionSensoryProfile } from './potion_types';
 
 const DEFAULT_COLORS = [

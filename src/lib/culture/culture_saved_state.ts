@@ -1,12 +1,8 @@
 import { RNG } from '@ironarachne/rng';
 
-import {
-  cultureFromSnapshot,
-  toCultureSnapshot,
-  type CultureSnapshot,
-} from '$lib/culture/culture_snapshot';
-import type { Culture } from '$lib/culture/culture_types';
-import { readScopedJson, writeScopedJson } from '$lib/persistent_save/scoped_local_storage';
+import { cultureFromSnapshot, toCultureSnapshot, type CultureSnapshot } from './culture_snapshot';
+import type { Culture } from './culture_types';
+import { readScopedJson, writeScopedJson } from '$lib/persistent_save';
 
 export const CULTURE_SAVE_SCOPE_ID = 'generator.culture' as const;
 

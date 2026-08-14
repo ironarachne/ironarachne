@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { isSoftwareRasterizerName, probeRendererCapability } from '$lib/renderers/renderer_probe';
+import { isSoftwareRasterizerName, probeRendererCapability } from './renderer_probe';
 
 const UNMASKED_RENDERER_WEBGL = 37446;
 

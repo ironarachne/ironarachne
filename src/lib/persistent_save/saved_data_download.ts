@@ -1,9 +1,12 @@
 import Download from '$lib/download';
-import { heraldryFromSnapshot, type HeraldrySnapshot } from '$lib/heraldry/heraldry_snapshot';
-import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
-import saveSvgAsPng from '$lib/download/svg_to_png';
-import type { CultureSnapshot } from '$lib/culture/culture_snapshot';
-import type { ReligionSnapshot } from '$lib/religion/religion_snapshot';
+import {
+  heraldryFromSnapshot,
+  type HeraldrySnapshot,
+  renderHeraldryDeviceSvg,
+} from '$lib/heraldry';
+import { saveSvgAsPng } from '$lib/download';
+import type { CultureSnapshot } from '$lib/culture';
+import type { ReligionSnapshot } from '$lib/religion';
 
 const HERALDRY_DOWNLOAD_WIDTH = 600;
 const HERALDRY_DOWNLOAD_HEIGHT = 660;

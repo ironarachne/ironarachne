@@ -1,10 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import * as RNG from '@ironarachne/rng';
-import { generateHeraldry, generateHeraldryConfig } from '$lib/heraldry/generator.js';
-import {
-  mergeHeraldryGeneratorConfig,
-  type HeraldryGeneratorConfig,
-} from '$lib/heraldry/generatorconfig.js';
+import { generateHeraldry, generateHeraldryConfig } from '../generator.js';
+import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '../generatorconfig.js';
 
 const rng = new RNG.RNG('test-seed');
 

@@ -6,10 +6,10 @@
  * one.
  */
 
-import { parseRendererBackend } from '$lib/renderers/renderer_backend';
-import type { RenderQuality } from '$lib/renderers/astronomical_scene_types';
-import type { RendererBackend } from '$lib/renderers/renderer_backend';
-import type { RendererPreference } from '$lib/renderers/renderer_decision_types';
+import { parseRendererBackend } from './renderer_backend';
+import type { RenderQuality } from './astronomical_scene_types';
+import type { RendererBackend } from './renderer_backend';
+import type { RendererPreference } from './renderer_decision_types';
 
 export const RENDERER_PREFERENCE_STORAGE_KEY = 'ironarachne.rendererPreference';
 

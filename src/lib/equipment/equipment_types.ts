@@ -1,5 +1,5 @@
 import type { Element, MagicSphere, MagicIntent } from '../magic';
-import type { CombatAction, CombatProfile, Damage } from '$lib/combat_system/types';
+import type { CombatAction, CombatProfile, Damage } from '$lib/combat_system';
 
 export type Armor = Item & {
   armorType: ArmorType;

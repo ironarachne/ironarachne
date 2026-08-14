@@ -1,11 +1,11 @@
-import { STANDARD_FANTASY } from '$lib/currency/systems';
+import { STANDARD_FANTASY } from '$lib/currency';
 export {
   getAppropriateCoinTypes,
   getCoinTypesAboveValue,
   getCoinTypesBelowValue,
   getIndexOfCoinType,
   getMaxCoinTypeForValue,
-} from '$lib/currency/currency';
+} from '$lib/currency';
 
 /**
  * Get the default coin system.

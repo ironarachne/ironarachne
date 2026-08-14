@@ -1,6 +1,6 @@
-import type { ChargeGlyph } from '$lib/charges/charge-types.js';
+import type { ChargeGlyph } from '$lib/charges';
 import type { RNG } from '@ironarachne/rng';
-import { pickContrastingPair } from '$lib/display_colors/display_palettes.js';
+import { pickContrastingPair } from '$lib/display_colors';
 import type { DiscEmblem } from './disc_emblem_types.js';
 
 export function generateDiscEmblem(

@@ -7,7 +7,7 @@
     resolveActiveConfirmModal,
     resolveActiveHeraldryPersistenceModal,
     type AlertModalStyle,
-  } from '$lib/ui/modal';
+  } from '$lib/ui';
   import { RNG } from '@ironarachne/rng';
 
   let dialogEl: HTMLDialogElement | undefined = $state();

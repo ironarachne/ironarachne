@@ -21,7 +21,7 @@ const dragons = byCreatureType('dragon', nonSentient());
 Import a group directly when you want that kind specifically:
 
 ```typescript
-import * as Dragons from '$lib/species_monsters/dragons';
+import { Dragons } from '$lib/species_monsters';
 ```
 
 ## Adding a monster

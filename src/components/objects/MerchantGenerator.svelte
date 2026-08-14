@@ -1,9 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { valueToString } from '$lib/currency';
-  import { COMMON_FANTASY } from '$lib/currency/systems';
+  import { valueToString, COMMON_FANTASY } from '$lib/currency';
   import { generateMerchant, getDefaultMerchantConfig, type Merchant } from '$lib/merchants';
-  import { renderMerchantMarkSvg } from '$lib/merchant_marks/render_merchant_mark_svg';
+  import { renderMerchantMarkSvg } from '$lib/merchant_marks';
   import { RNG } from '@ironarachne/rng';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';

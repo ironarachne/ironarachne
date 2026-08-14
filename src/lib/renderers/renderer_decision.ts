@@ -7,14 +7,14 @@
  * written to storage; see decision 6 in `docs/renderers.md`.
  */
 
-import { probeRendererCapability } from '$lib/renderers/renderer_probe';
-import { readRendererPreference } from '$lib/renderers/renderer_preference_storage';
+import { probeRendererCapability } from './renderer_probe';
+import { readRendererPreference } from './renderer_preference_storage';
 import type {
   RendererDecision,
   RendererPreference,
   RendererProbe,
   RendererSession,
-} from '$lib/renderers/renderer_decision_types';
+} from './renderer_decision_types';
 
 /**
  * How long one preview may take before the site stops asking this machine for full quality.

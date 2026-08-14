@@ -1,5 +1,5 @@
 import type { RouteId } from '$app/types';
-import type { TaggedItem } from '$lib/tags/tag_types';
+import type { TaggedItem } from '$lib/tags';
 
 /**
  * Every genre the site knows about, in display order. `Genre` is derived from this list so the

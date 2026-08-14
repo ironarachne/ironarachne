@@ -2,7 +2,7 @@ import {
   dccOccupationToNameSetHint,
   generateDccCharacterNames,
   peopleNameGeneratorsFromNameSet,
-} from '$lib/characters/character_name_generation';
+} from '$lib/characters';
 import { getFantasyNameGeneratorSet, type NameGeneratorSet } from '$lib/names';
 import { RNG } from '@ironarachne/rng';
 import * as MUN from '@ironarachne/made-up-names';

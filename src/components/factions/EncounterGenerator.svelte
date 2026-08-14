@@ -12,8 +12,8 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
-  import type { Character } from '$lib/characters/character_types';
-  import type { Creature } from '$lib/creatures/creature_types';
+  import type { Character } from '$lib/characters';
+  import type { Creature } from '$lib/creatures';
 
   let seed = $state(new RNG(Date.now().toString()).randomString(13));
   let rng = $state(new RNG(seed));

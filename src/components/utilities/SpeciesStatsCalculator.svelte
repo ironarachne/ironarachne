@@ -1,7 +1,6 @@
 <script lang="ts">
-  import * as AgeCategories from '$lib/age/age_categories';
-  import * as Sizes from '$lib/size/sizes';
-  import { convertMatrixToSummary } from '$lib/size/size_matrix';
+  import { AgeCategories } from '$lib/age';
+  import { Sizes, convertMatrixToSummary } from '$lib/size';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import NumberField from '$components/common/NumberField.svelte';
 

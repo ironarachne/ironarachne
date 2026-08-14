@@ -1,7 +1,7 @@
 import { getFantasyCombatArchetypes } from '$lib/archetypes';
 import type { MobGroup } from '$lib/mobs';
-import { nonSentient, sentient } from '$lib/species/common';
-import { applyTagFilter } from '$lib/tags/tags';
+import { nonSentient, sentient } from '$lib/species';
+import { applyTagFilter } from '$lib/tags';
 import { RNG } from '@ironarachne/rng';
 import {
   generate as generateCharacter,
@@ -15,7 +15,7 @@ import type {
   EncounterGroupTemplate,
 } from './encounter_types';
 import { applyMutators } from '$lib/mutator';
-import type Species from '$lib/species/species';
+import type { Species } from '$lib/species';
 
 export function generateEncounter(seed: string, config: EncounterGenerationConfig): Encounter {
   const rng = new RNG(seed);

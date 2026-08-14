@@ -3,7 +3,7 @@ import {
   getAlbedoFromTemperature,
   getGravityFromMassAndRadius,
   getPlanetTemperature,
-} from '$lib/astronomical_bodies/astronomical_bodies';
+} from '../astronomical_bodies';
 import { getPlanetClassifications } from './planet_classifications';
 import * as MUN from '@ironarachne/made-up-names';
 import * as RNG from '@ironarachne/rng';

@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import type Species from '$lib/species/species';
+import type { Species } from '$lib/species';
 
 import * as entrypoint from './index';
 

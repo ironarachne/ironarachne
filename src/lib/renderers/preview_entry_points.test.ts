@@ -3,10 +3,9 @@ import {
   renderPlanetPreviewImage,
   renderStarPreviewImage,
   renderStarSystemPreviewImage,
-} from '$lib/renderers/astronomical_preview';
-import type { RendererDecision } from '$lib/renderers/renderer_decision_types';
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+} from './astronomical_preview';
+import type { RendererDecision } from './renderer_decision_types';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 
 /**
  * The three entry points, driven on the Canvas2D backend with an explicit decision so no probe

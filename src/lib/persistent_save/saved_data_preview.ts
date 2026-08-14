@@ -1,5 +1,8 @@
-import { heraldryFromSnapshot, type HeraldrySnapshot } from '$lib/heraldry/heraldry_snapshot';
-import { renderHeraldryDeviceSvg } from '$lib/heraldry/renderers/svg';
+import {
+  heraldryFromSnapshot,
+  type HeraldrySnapshot,
+  renderHeraldryDeviceSvg,
+} from '$lib/heraldry';
 
 const HERALDRY_PREVIEW_WIDTH = 120;
 const HERALDRY_PREVIEW_HEIGHT = 132;

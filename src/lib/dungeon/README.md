@@ -53,7 +53,7 @@ The top-level exported macro-factory. When provided a root layout size, an Envir
 
 ```typescript
 import { generateDungeon } from '$lib/dungeon';
-import type Environment from '$lib/environment/environment';
+import type { Environment } from '$lib/environment';
 
 const environment: Environment = {
   /* ... pulled from $lib/environment/environments ... */

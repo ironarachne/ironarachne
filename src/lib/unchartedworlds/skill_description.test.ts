@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { parseSkillDescription } from '$lib/unchartedworlds/skill_description';
+import { parseSkillDescription } from './skill_description';
 
 describe('parseSkillDescription', () => {
   it('returns no blocks for an empty description', () => {

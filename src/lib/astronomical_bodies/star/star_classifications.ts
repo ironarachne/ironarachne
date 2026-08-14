@@ -1,8 +1,4 @@
-import type {
-  LuminosityClass,
-  SpectralClass,
-  StarClassification,
-} from '$lib/astronomical_bodies/star/stars';
+import type { LuminosityClass, SpectralClass, StarClassification } from './stars';
 
 export function getStarClassificationByName(name: string): StarClassification {
   const classifications = getStarClassifications();

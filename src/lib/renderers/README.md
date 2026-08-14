@@ -13,7 +13,7 @@ not have, amend the diagram first.
 ## Usage
 
 ```ts
-import { renderPlanetPreviewImage } from '$lib/renderers/astronomical_preview';
+import { renderPlanetPreviewImage } from '$lib/renderers';
 
 const dataUrl = renderPlanetPreviewImage(document, planet, 512, 512, seed);
 ```

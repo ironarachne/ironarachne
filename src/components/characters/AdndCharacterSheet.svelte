@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Words from '@ironarachne/words';
-  import * as Currency from '$lib/currency/currency';
-  import type ADNDCharacter from '$lib/adnd/adndcharacter';
+  import { Currency } from '$lib/currency';
+  import type { ADNDCharacter } from '$lib/adnd';
 
   type Props = { character: ADNDCharacter };
   const { character }: Props = $props();

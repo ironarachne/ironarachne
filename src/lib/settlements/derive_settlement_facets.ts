@@ -1,4 +1,4 @@
-import type Environment from '$lib/environment/environment.js';
+import type { Environment } from '$lib/environment';
 import type { SettlementCategory, SettlementEconomicRole } from './settlement_types.js';
 
 export type SettlementFacets = {

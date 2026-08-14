@@ -7,3 +7,5 @@ export default function downloadInBrowser(href: string, name: string) {
   link.click();
   link.remove();
 }
+
+export { default as saveSvgAsPng } from './svg_to_png';

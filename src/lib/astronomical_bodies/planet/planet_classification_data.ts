@@ -1,4 +1,4 @@
-import type { PlanetClassification } from '$lib/astronomical_bodies/planet/planets';
+import type { PlanetClassification } from './planets';
 import * as RNG from '@ironarachne/rng';
 
 import { getDescriptionFromFeatures } from './planet_feature_description';

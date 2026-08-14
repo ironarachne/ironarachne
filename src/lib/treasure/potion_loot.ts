@@ -1,6 +1,6 @@
 import { RNG } from '@ironarachne/rng';
-import type { Container, Item } from '$lib/equipment/equipment_types';
-import { addItemToContainer, canFit } from '$lib/equipment/containers';
+import type { Container, Item } from '$lib/equipment';
+import { addItemToContainer, canFit } from '$lib/equipment';
 import {
   generatePotion,
   getDefaultPotionConfig,

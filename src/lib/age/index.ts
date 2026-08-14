@@ -2,3 +2,5 @@
 // re-exports both, the same reason `size/index.ts` omits `dragon_sizes`.
 export type { default as AgeCategory } from './age_category';
 export * from './age_categories';
+
+export * as AgeCategories from './age_categories';

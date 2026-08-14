@@ -1,4 +1,4 @@
-import type { ContainerGeneratorConfig, Rarity } from '$lib/equipment/equipment_types';
+import type { ContainerGeneratorConfig, Rarity } from '$lib/equipment';
 import type { PotionCatalogEntry, PotionForm } from './potion_types';
 
 export type PotionGeneratorConfig = {

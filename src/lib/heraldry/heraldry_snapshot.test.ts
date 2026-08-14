@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
-import { generateHeraldry } from '$lib/heraldry/generator.js';
-import { mergeHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig.js';
+import { generateHeraldry } from './generator.js';
+import { mergeHeraldryGeneratorConfig } from './generatorconfig.js';
 import {
   defaultHeraldryGeneratorOptions,
   heraldryFromSnapshot,
@@ -9,7 +9,7 @@ import {
   normalizeHeraldryGeneratorOptions,
   toHeraldrySnapshot,
   type HeraldryGeneratorOptionsSnapshot,
-} from '$lib/heraldry/heraldry_snapshot.js';
+} from './heraldry_snapshot.js';
 
 const sampleGeneratorOptions: HeraldryGeneratorOptionsSnapshot = {
   heraldryTag: 'any',

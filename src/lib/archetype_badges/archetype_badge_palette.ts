@@ -1,6 +1,6 @@
 import { RNG } from '@ironarachne/rng';
-import { DISPLAY_SWATCHES } from '$lib/display_colors/display_palettes.js';
-import { pickBadgeInitialsStyle } from '$lib/badges/pick_badge_text_color.js';
+import { DISPLAY_SWATCHES } from '$lib/display_colors';
+import { pickBadgeInitialsStyle } from '$lib/badges';
 import { archetypeNameToBadgeSlug } from './archetype_badge_slug.js';
 
 export type ArchetypeBadgePalette = {

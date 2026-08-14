@@ -1,7 +1,7 @@
-import type { DiscEmblem } from '$lib/disc_emblem/disc_emblem_types.js';
-import type { Arms } from '$lib/heraldry/arms.js';
-import type { MerchantMark } from '$lib/merchant_marks/merchant_mark_types.js';
-import type { PatternLattice } from '$lib/pattern_lattice/pattern_lattice_types.js';
+import type { DiscEmblem } from '$lib/disc_emblem';
+import type { Arms } from '$lib/heraldry';
+import type { MerchantMark } from '$lib/merchant_marks';
+import type { PatternLattice } from '$lib/pattern_lattice';
 
 /**
  * Display colors for an entity (houses, guilds, schools). Values are typically

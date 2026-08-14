@@ -16,19 +16,11 @@ import * as THREE from 'three';
 import * as PlanetShaders from '$lib/shaders/planets/planets';
 import SceneFillShader from '$lib/shaders/background/scene_fill.frag';
 import StarShader from '$lib/shaders/stars/star.frag';
-import { BACKGROUND_STAR_COLOR } from '$lib/renderers/astronomical/background_star_color';
-import { rgbFromHexCss } from '$lib/graphics/rgb_color_ops';
-import type RGBColor from '$lib/graphics/rgb_color';
-import type {
-  AstronomicalScene,
-  ScenePlanet,
-  SceneStar,
-} from '$lib/renderers/astronomical_scene_types';
-import type {
-  WebGLDrawItem,
-  WebGLPlaneItem,
-  WebGLPointsItem,
-} from '$lib/renderers/webgl_scene_types';
+import { BACKGROUND_STAR_COLOR } from './astronomical/background_star_color';
+import { rgbFromHexCss } from '$lib/graphics';
+import type { RGBColor } from '$lib/graphics';
+import type { AstronomicalScene, ScenePlanet, SceneStar } from './astronomical_scene_types';
+import type { WebGLDrawItem, WebGLPlaneItem, WebGLPointsItem } from './webgl_scene_types';
 
 /**
  * The one home for RGB-to-vector conversion. It was three functions in three files —

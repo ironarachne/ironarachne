@@ -6,11 +6,11 @@
     restoreLockedCharacterName,
     resolveCharacterNameGeneratorSet,
     rollCharacterNameForSource,
+    dccOccupationToNameSetHint,
   } from '$lib/characters';
   import { type Culture, loadSavedCultures } from '$lib/culture';
   import * as DCC from '$lib/dcc';
-  import type { DCCCharacter } from '$lib/dcc/dcc_types';
-  import { dccOccupationToNameSetHint } from '$lib/characters/character_name_generation';
+  import type { DCCCharacter } from '$lib/dcc';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';

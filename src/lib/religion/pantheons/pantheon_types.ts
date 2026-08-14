@@ -1,7 +1,7 @@
 import type { Relationship } from '$lib/relationships';
 import type { NameGenerator } from '@ironarachne/made-up-names';
 import type { Deity } from '../deities/deity_types';
-import type Species from '$lib/species/species';
+import type { Species } from '$lib/species';
 import type { DivineRealm } from '../realms/realm_types';
 import type { Domain } from '../domains/domain_types';
 

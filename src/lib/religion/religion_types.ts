@@ -1,4 +1,4 @@
-import type Species from '$lib/species/species';
+import type { Species } from '$lib/species';
 import type { NameGenerator } from '@ironarachne/made-up-names';
 import type {
   ReligionDimensionGenerationConfig,

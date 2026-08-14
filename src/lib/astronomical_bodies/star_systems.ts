@@ -1,4 +1,4 @@
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
+import type { AstronomicalBody } from './astronomical_bodies';
 import { getPlanetClassifications } from './planet/planet_classifications';
 import {
   generatePlanet,

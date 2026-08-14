@@ -1,4 +1,4 @@
-import { stripFunctionValuesDeep } from '$lib/persistent_save/strip_function_values_deep';
+import { stripFunctionValuesDeep } from '$lib/persistent_save';
 
 import type {
   PolytheisticStandingMode,

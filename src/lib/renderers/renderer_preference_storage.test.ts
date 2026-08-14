@@ -6,7 +6,7 @@ import {
   writeBackendOverride,
   writeQualityOverride,
   writeRendererPreference,
-} from '$lib/renderers/renderer_preference_storage';
+} from './renderer_preference_storage';
 
 describe('the renderer preference', () => {
   const store = new Map<string, string>();

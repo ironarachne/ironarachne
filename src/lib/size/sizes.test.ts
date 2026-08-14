@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type AgeCategory from '$lib/age/age_category';
+import type { AgeCategory } from '$lib/age';
 import type SizeGeneratorConfig from './size_generator_config';
 import { convertMatrixToSummary, getSizeConfig, type SizeMatrix } from './size_matrix';
 import { generate, getHeightRange, getHumanVariant, getWeightRange, humanStandard } from './sizes';

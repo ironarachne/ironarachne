@@ -14,7 +14,7 @@ on) and stores one JSON payload under it. That is the whole storage contract: on
 one payload per key, versioned by the generator that owns it.
 
 ```typescript
-import { readScopedJson, writeScopedJson } from '$lib/persistent_save/scoped_local_storage';
+import { readScopedJson, writeScopedJson } from '$lib/persistent_save';
 
 writeScopedJson('generator.culture', payload);
 const saved = readScopedJson('generator.culture'); // null when absent

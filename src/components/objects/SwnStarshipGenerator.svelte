@@ -1,8 +1,8 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import * as RNG from '@ironarachne/rng';
-  import * as Gen from '$lib/swn/starship';
-  import type { SWNStarship } from '$lib/swn/starship';
+  import { starships as Gen } from '$lib/swn';
+  import type { SWNStarship } from '$lib/swn';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
 

@@ -19,7 +19,7 @@ import {
   filterRelationshipTypes,
   generateRelationshipDescription,
   getInverseRelationshipType,
-} from '$lib/relationships/relationships';
+} from '$lib/relationships';
 ```
 
 ### Filtering Relationship Types

@@ -1,9 +1,9 @@
 import type { Archetype } from '$lib/archetypes';
 import type { Creature } from '$lib/creatures';
-import type { Arms } from '$lib/heraldry/arms';
-import type PhysicalTrait from '$lib/physical_traits/physical_trait';
-import type Species from '$lib/species/species';
-import type { TaggedItem } from '$lib/tags/tag_types';
+import type { Arms } from '$lib/heraldry';
+import type { PhysicalTrait } from '$lib/physical_traits';
+import type { Species } from '$lib/species';
+import type { TaggedItem } from '$lib/tags';
 import type { NameGenerator } from '@ironarachne/made-up-names';
 
 export type CharacterGenerationConfig = {

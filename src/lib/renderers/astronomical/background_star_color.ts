@@ -1,4 +1,4 @@
-import type RGBColor from '$lib/graphics/rgb_color';
+import type { RGBColor } from '$lib/graphics';
 
 /**
  * The colour of a background star, for both backends.

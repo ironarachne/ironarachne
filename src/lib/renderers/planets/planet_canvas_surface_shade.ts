@@ -1,7 +1,7 @@
-import { fbm, fbmMap } from '$lib/renderers/planets/planet_canvas_surface_noise';
-import { isGasGiantPlanetClassification } from '$lib/renderers/astronomical/planet_canvas_classification';
-import type { PlanetPalette, PlanetShading } from '$lib/renderers/astronomical_scene_types';
-import type RGBColor from '$lib/graphics/rgb_color';
+import { fbm, fbmMap } from './planet_canvas_surface_noise';
+import { isGasGiantPlanetClassification } from '../astronomical/planet_canvas_classification';
+import type { PlanetPalette, PlanetShading } from '../astronomical_scene_types';
+import type { RGBColor } from '$lib/graphics';
 
 const GAMMA = 1 / 2.2;
 

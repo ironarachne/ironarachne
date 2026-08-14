@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import * as Environments from '$lib/environment/environments';
+import { Environments } from '$lib/environment';
 import { generateSettlementProblems } from './settlement_problems';
 import { deriveSettlementFacets } from './derive_settlement_facets';
 import Hamlet from './categories/hamlet';
-import type Environment from '$lib/environment/environment';
+import type { Environment } from '$lib/environment';
 
 function sampleEnv(seed: string): Environment {
   const cfg = Environments.getDefaultConfig();

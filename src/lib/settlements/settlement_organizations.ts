@@ -1,12 +1,13 @@
 import type { RNG } from '@ironarachne/rng';
-import { generateOrganization } from '$lib/organizations/generate_organization.js';
-import { getOrganizationKindsForRegistry } from '$lib/organizations/kind_registry.js';
-import type { OrganizationKindDefinition } from '$lib/organizations/organization_kind.js';
-import type { Organization } from '$lib/organizations/organization_types.js';
-import { getDefaultOrganizationCharacterConfig } from '$lib/organizations/fantasy.js';
-import type { CharacterGenerationConfig } from '$lib/characters/character_types.js';
+import {
+  generateOrganization,
+  getOrganizationKindsForRegistry,
+  getDefaultOrganizationCharacterConfig,
+} from '$lib/organizations';
+import type { OrganizationKindDefinition, Organization } from '$lib/organizations';
+import type { CharacterGenerationConfig } from '$lib/characters';
 import type { SettlementEconomicRole } from './settlement_types.js';
-import type Environment from '$lib/environment/environment.js';
+import type { Environment } from '$lib/environment';
 
 /** Minimum population before a kind is allowed to headquarter in the settlement. */
 const KIND_MIN_POPULATION: Partial<Record<string, number>> = {

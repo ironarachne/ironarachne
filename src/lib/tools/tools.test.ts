@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import { applyTagFilter } from '$lib/tags/tags';
+import { applyTagFilter } from '$lib/tags';
 import {
   defineTool,
   genreDisplayName,

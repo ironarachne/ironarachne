@@ -5,7 +5,7 @@ import {
   fieldVariationSlotCountForDivision,
   hasPinnedFieldTinctures,
   resolveFieldOptions,
-} from '$lib/heraldry/heraldry_ui_options.js';
+} from '../heraldry_ui_options.js';
 
 describe('heraldry_ui_options', () => {
   it('buildVariationSlotPreferences returns undefined when all any', () => {

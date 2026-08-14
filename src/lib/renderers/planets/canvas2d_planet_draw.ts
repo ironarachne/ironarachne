@@ -1,10 +1,7 @@
-import { darkenRgb, lightenRgb, rgbaCss } from '$lib/graphics/rgb_color_ops';
-import {
-  ringBackHalfIsHalfZero,
-  ringSemicircleAngles,
-} from '$lib/renderers/astronomical/ring_geometry';
-import { shadePlanetDiskPixel } from '$lib/renderers/planets/planet_canvas_surface_shade';
-import type { ScenePlanet } from '$lib/renderers/astronomical_scene_types';
+import { darkenRgb, lightenRgb, rgbaCss } from '$lib/graphics';
+import { ringBackHalfIsHalfZero, ringSemicircleAngles } from '../astronomical/ring_geometry';
+import { shadePlanetDiskPixel } from './planet_canvas_surface_shade';
+import type { ScenePlanet } from '../astronomical_scene_types';
 
 /**
  * Where the highlight sits, from the same light vector the shader is handed. Both backends must

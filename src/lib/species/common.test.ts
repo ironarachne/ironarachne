@@ -1,8 +1,8 @@
-import * as AgeCategories from '$lib/age/age_categories.js';
-import { traditional } from '$lib/gender/index.js';
+import { AgeCategories } from '$lib/age';
+import { traditional } from '$lib/gender';
 import { RNG } from '@ironarachne/rng';
 import { describe, expect, it } from 'vitest';
-import dog from '$lib/species_animals/dog.js';
+import { dog } from '$lib/species_animals';
 import {
   applySpeciesFilter,
   breed,

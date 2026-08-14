@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 
-import { generateHeraldry } from '$lib/heraldry/generator';
-import { getDefaultHeraldryGeneratorConfig } from '$lib/heraldry/generatorconfig';
+import { generateHeraldry, getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';
 import { RNG } from '@ironarachne/rng';
 import {
   modalState,

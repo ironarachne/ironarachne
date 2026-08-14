@@ -1,9 +1,8 @@
 import type { Archetype } from '$lib/archetypes';
 import { getAllFantasyArchetypes } from '$lib/archetypes';
-import { describe } from '$lib/characters/character_generation';
-import type { Character } from '$lib/characters/character_types';
-import { getTitle } from '$lib/characters/titles';
-import { withPushedTitle } from '$lib/organizations/member_mutations';
+import { describe, getTitle } from '$lib/characters';
+import type { Character } from '$lib/characters';
+import { withPushedTitle } from '$lib/organizations';
 import type { RNG } from '@ironarachne/rng';
 import type { SettlementNotableRoleDefinition } from './settlement_notable_roles.js';
 

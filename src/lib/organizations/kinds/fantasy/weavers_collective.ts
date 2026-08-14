@@ -1,8 +1,5 @@
-import {
-  mergeHeraldryGeneratorConfig,
-  type HeraldryGeneratorConfig,
-} from '$lib/heraldry/generatorconfig.js';
-import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types.js';
+import { mergeHeraldryGeneratorConfig, type HeraldryGeneratorConfig } from '$lib/heraldry';
+import type { Character, CharacterGenerationConfig } from '$lib/characters';
 import type { RNG } from '@ironarachne/rng';
 import { withPushedTitle, type MemberMutator } from '../../member_mutations.js';
 import { lineChain } from '../../organization_hierarchy_builders.js';

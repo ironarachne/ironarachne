@@ -1,4 +1,4 @@
-import type AgeCategory from '$lib/age/age_category';
+import type { AgeCategory } from '$lib/age';
 import type SizeGeneratorConfig from './size_generator_config';
 import * as Sizes from './sizes';
 

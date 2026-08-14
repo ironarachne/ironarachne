@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
-import { getSizeConfig } from '$lib/size/size_matrix';
-import { nonSentient } from '$lib/species/common';
+import { getSizeConfig } from '$lib/size';
+import { nonSentient } from '$lib/species';
 import { generate, getDefaultCreatureGenerationConfig } from './creatures';
 import type { CreatureGenerationConfig } from './creature_types';
 

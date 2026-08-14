@@ -1,7 +1,7 @@
 import type { Mutator } from '$lib/mutator';
 import { RNG } from '@ironarachne/rng';
 import type { Deity } from './deity_types';
-import { add_trait } from '$lib/physical_traits/physical_traits';
+import { add_trait } from '$lib/physical_traits';
 import { describeDeity } from './deity_generation';
 
 export const deityMutators: Mutator<Deity>[] = [

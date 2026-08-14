@@ -1,9 +1,6 @@
-import { getStarClassifications } from '$lib/astronomical_bodies/star/star_classifications';
-import {
-  type AstronomicalBody,
-  getAlbedoFromTemperature,
-} from '$lib/astronomical_bodies/astronomical_bodies';
-import { getGravityFromMassAndRadius } from '$lib/astronomical_bodies/astronomical_bodies';
+import { getStarClassifications } from './star_classifications';
+import { type AstronomicalBody, getAlbedoFromTemperature } from '../astronomical_bodies';
+import { getGravityFromMassAndRadius } from '../astronomical_bodies';
 import * as MUN from '@ironarachne/made-up-names';
 import * as RNG from '@ironarachne/rng';
 import * as Words from '@ironarachne/words';

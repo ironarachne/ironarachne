@@ -1,21 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {
-  generateReligion,
-  getDefaultReligionGenerationConfig,
-} from '$lib/religion/religion_generation';
+import { generateReligion, getDefaultReligionGenerationConfig } from './religion_generation';
 import {
   appendSavedReligion,
   deleteSavedReligionBySeed,
   loadSavedReligionSnapshots,
   readReligionSavePayload,
   RELIGION_SAVE_SCOPE_ID,
-} from '$lib/religion/religion_saved_state';
-import {
-  toReligionSnapshot,
-  type ReligionGeneratorOptionsSnapshot,
-} from '$lib/religion/religion_snapshot';
-import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save/scoped_local_storage';
+} from './religion_saved_state';
+import { toReligionSnapshot, type ReligionGeneratorOptionsSnapshot } from './religion_snapshot';
+import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save';
 
 const sampleGeneratorOptions: ReligionGeneratorOptionsSnapshot = {
   lockSeed: false,

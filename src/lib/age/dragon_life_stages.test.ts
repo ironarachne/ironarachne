@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { getCategoryFromAge, getMaxAge } from '$lib/age/age_categories';
-import { dragonLifespanTrueWyrm } from '$lib/age/dragon_life_stages';
+import { getCategoryFromAge, getMaxAge } from './age_categories';
+import { dragonLifespanTrueWyrm } from './dragon_life_stages';
 
 describe('dragonLifespanTrueWyrm', () => {
   it('has five contiguous non-overlapping bands', () => {

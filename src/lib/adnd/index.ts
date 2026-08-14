@@ -26,3 +26,6 @@ export * from './render_adnd_character_pdf';
 export * as classes from './classes';
 export * as races from './races';
 export * as spells from './spells';
+
+export * as Equipment from './equipment';
+export * from './races/halfling_apply';

@@ -1,8 +1,7 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
-  import * as CharGen from '$lib/swn/character';
-  import type { SWNCharacter } from '$lib/swn/character';
-  import { downloadSwnCharacterPdf } from '$lib/swn/render_swn_character_pdf';
+  import { characters as CharGen, downloadSwnCharacterPdf } from '$lib/swn';
+  import type { SWNCharacter } from '$lib/swn';
   import {
     buildCharacterNameSource,
     isCustomCharacterNameSource,

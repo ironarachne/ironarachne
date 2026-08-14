@@ -2,16 +2,11 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import * as PlanetShaders from '$lib/shaders/planets/planets';
 import StarShader from '$lib/shaders/stars/star.frag';
-import { buildWebGLDrawList } from '$lib/renderers/webgl_scene_build';
-import { buildPlanetScene, buildStarSystemScene } from '$lib/renderers/astronomical_scene';
-import type {
-  AstronomicalScene,
-  ScenePlanet,
-  SceneStar,
-} from '$lib/renderers/astronomical_scene_types';
-import type { WebGLPlaneItem, WebGLPointsItem } from '$lib/renderers/webgl_scene_types';
-import type { AstronomicalBody } from '$lib/astronomical_bodies/astronomical_bodies';
-import type { StarSystem } from '$lib/astronomical_bodies/star_systems.js';
+import { buildWebGLDrawList } from './webgl_scene_build';
+import { buildPlanetScene, buildStarSystemScene } from './astronomical_scene';
+import type { AstronomicalScene, ScenePlanet, SceneStar } from './astronomical_scene_types';
+import type { WebGLPlaneItem, WebGLPointsItem } from './webgl_scene_types';
+import type { AstronomicalBody, StarSystem } from '$lib/astronomical_bodies';
 
 /**
  * These are the WebGL half of step 2's draw-call tests: the uniforms a scene produces, asserted

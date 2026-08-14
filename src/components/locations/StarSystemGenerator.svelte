@@ -4,18 +4,16 @@
     renderPlanetPreviewImage,
     renderStarPreviewImage,
     renderStarSystemPreviewImage,
-  } from '$lib/renderers/astronomical_preview';
+  } from '$lib/renderers';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import {
     generateStarSystem,
     getDefaultStarSystemGeneratorConfig,
     type StarSystem,
-  } from '$lib/astronomical_bodies/star_systems';
-  import {
     getStarClassifications,
     searchStarClassificationsByName,
-  } from '$lib/astronomical_bodies/star/star_classifications';
+  } from '$lib/astronomical_bodies';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';

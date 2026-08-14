@@ -1,6 +1,8 @@
 export * from './containers';
 export * from './beverages';
-export type * from './equipment_types';
+// Not `export type *`: `equipment_types` also holds the `DENSITY_MAP` value, which a type-only
+// star silently makes unusable at the call site.
+export * from './equipment_types';
 export * from './materials';
 export * from './items';
 export * from './weapons';
@@ -14,3 +16,7 @@ export * from './decorator';
 export * from './decorations';
 export * from './descriptor';
 export * from './generation';
+
+export * as FantasyEquipmentList from './fantasylist';
+export * from './fantasylist';
+export type * from './list';

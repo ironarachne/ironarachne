@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { renderSceneToDataUrl } from '$lib/renderers/webgl_scene_draw';
-import type { AstronomicalScene } from '$lib/renderers/astronomical_scene_types';
+import { renderSceneToDataUrl } from './webgl_scene_draw';
+import type { AstronomicalScene } from './astronomical_scene_types';
 
 /**
  * The rest of this module needs a GL context and is covered by `webgl_scene_build.test.ts` on one

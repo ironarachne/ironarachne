@@ -1,6 +1,6 @@
 import { create } from 'xmlbuilder2';
 import type { ChargeGroupArrangement } from '.';
-import { convertXmlToSVGObject, getSVGDimensions } from '$lib/images/svg';
+import { convertXmlToSVGObject, getSVGDimensions } from '$lib/images';
 
 export const twoChargesHorizontalCenterArrangement: ChargeGroupArrangement = {
   name: 'two charges horizontal center',

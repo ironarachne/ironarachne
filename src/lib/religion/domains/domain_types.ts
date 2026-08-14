@@ -1,5 +1,5 @@
 import type { Mutator } from '$lib/mutator';
-import type { TaggedItem } from '$lib/tags/tag_types';
+import type { TaggedItem } from '$lib/tags';
 import type { Deity } from '../deities';
 
 export type Domain = TaggedItem & {

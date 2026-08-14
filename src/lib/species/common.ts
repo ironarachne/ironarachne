@@ -1,16 +1,15 @@
 import type { RNG } from '@ironarachne/rng';
 import { RNG as RngCtor } from '@ironarachne/rng';
-import * as AgeCategories from '$lib/age/age_categories.js';
-import type AgeCategory from '$lib/age/age_category.js';
-import type PhysicalTrait from '$lib/physical_traits/physical_trait.js';
-import type PhysicalTraitGeneratorConfig from '$lib/physical_traits/physical_trait_generator_config.js';
-import * as PhysicalTraits from '$lib/physical_traits/physical_traits.js';
-import type { SizeMatrix } from '$lib/size/size_matrix.js';
+import { AgeCategories } from '$lib/age';
+import type { AgeCategory } from '$lib/age';
+import type { PhysicalTrait, PhysicalTraitGeneratorConfig } from '$lib/physical_traits';
+import { PhysicalTraits } from '$lib/physical_traits';
+import type { SizeMatrix } from '$lib/size';
 import all from './all.js';
 import type { SpeciesFilter } from './filter.js';
 import { allMutators } from './mutators.js';
 import type Species from './species.js';
-import { applyTagFilter } from '$lib/tags/index.js';
+import { applyTagFilter } from '$lib/tags';
 
 export function randomWeighted(speciesList: Species[], rng: RNG): Species {
   const totalWeight = speciesList.reduce((acc, s) => acc + s.commonality, 0);

@@ -1,4 +1,4 @@
-import type { ChargeGlyph } from '$lib/charges/charge-types.js';
+import type { ChargeGlyph } from '$lib/charges';
 import type { RNG } from '@ironarachne/rng';
 import { MEDIEVAL_DYE_SWATCHES } from './medieval_dye_colors.js';
 import type { MerchantMark } from './merchant_mark_types.js';

@@ -1,31 +1,31 @@
 <script lang="ts">
-  import { getOrganizationKindsForRegistry } from '$lib/organizations/kind_registry';
   import {
+    getOrganizationKindsForRegistry,
     generateOrganization,
     type OrganizationSizeInput,
-  } from '$lib/organizations/generate_organization';
+    FantasyOrganizations,
+  } from '$lib/organizations';
   import type {
     Organization,
     OrganizationProfile,
     OrganizationWorldContextPreset,
-  } from '$lib/organizations/organization_types.js';
-  import * as FantasyOrganizations from '$lib/organizations/fantasy';
+  } from '$lib/organizations';
   import { RNG } from '@ironarachne/rng';
   import * as Characters from '$lib/characters';
   import * as Names from '$lib/names';
   import { onMount } from 'svelte';
-  import { renderSVGAsPNG } from '$lib/images/svg';
+  import { renderSVGAsPNG } from '$lib/images';
   import {
     isDiscEmblem,
     isHeraldryEmblem,
     isMerchantMarkEmblem,
     isPatternLatticeEmblem,
-  } from '$lib/visual_identity/visual_identity';
-  import { renderDiscEmblemSvg } from '$lib/disc_emblem/render_disc_emblem_svg';
-  import type { Arms } from '$lib/heraldry/arms';
-  import { renderMerchantMarkSvg } from '$lib/merchant_marks/render_merchant_mark_svg';
-  import { renderPatternLatticeSvg } from '$lib/pattern_lattice/render_pattern_lattice_svg';
-  import { showHeraldryPersistenceModal } from '$lib/ui/modal';
+  } from '$lib/visual_identity';
+  import { renderDiscEmblemSvg } from '$lib/disc_emblem';
+  import type { Arms } from '$lib/heraldry';
+  import { renderMerchantMarkSvg } from '$lib/merchant_marks';
+  import { renderPatternLatticeSvg } from '$lib/pattern_lattice';
+  import { showHeraldryPersistenceModal } from '$lib/ui';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';

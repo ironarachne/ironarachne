@@ -3,27 +3,18 @@
   import { goto } from '$app/navigation';
   import { resolve } from '$app/paths';
 
-  import {
-    deleteSavedCultureByName,
-    loadSavedCultureSnapshots,
-  } from '$lib/culture/culture_saved_state';
-  import type { CultureSnapshot } from '$lib/culture/culture_snapshot';
-  import {
-    deleteSavedHeraldryByBlazon,
-    loadSavedHeraldrySnapshots,
-  } from '$lib/heraldry/heraldry_saved_state';
-  import type { HeraldrySnapshot } from '$lib/heraldry/heraldry_snapshot';
+  import { deleteSavedCultureByName, loadSavedCultureSnapshots } from '$lib/culture';
+  import type { CultureSnapshot } from '$lib/culture';
+  import { deleteSavedHeraldryByBlazon, loadSavedHeraldrySnapshots } from '$lib/heraldry';
+  import type { HeraldrySnapshot } from '$lib/heraldry';
   import {
     cultureGeneratorHref,
     heraldryGeneratorHref,
     religionGeneratorHref,
-  } from '$lib/persistent_save/saved_data_links';
-  import {
-    deleteSavedReligionBySeed,
-    loadSavedReligionSnapshots,
-  } from '$lib/religion/religion_saved_state';
-  import type { ReligionSnapshot } from '$lib/religion/religion_snapshot';
-  import { showConfirmModal } from '$lib/ui/modal';
+  } from '$lib/persistent_save';
+  import { deleteSavedReligionBySeed, loadSavedReligionSnapshots } from '$lib/religion';
+  import type { ReligionSnapshot } from '$lib/religion';
+  import { showConfirmModal } from '$lib/ui';
   import SavedDataListItem from '$components/utilities/SavedDataListItem.svelte';
 
   let heraldryEntries = $state<HeraldrySnapshot[]>([]);

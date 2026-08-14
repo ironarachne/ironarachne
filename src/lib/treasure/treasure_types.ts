@@ -1,4 +1,4 @@
-import type { ContainerType } from '$lib/equipment/equipment_types';
+import type { ContainerType } from '$lib/equipment';
 import type { PotionGeneratorConfig } from '$lib/potions';
 
 export type TreasureHoardGeneratorConfig = {

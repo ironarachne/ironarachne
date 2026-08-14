@@ -1,14 +1,13 @@
 import type { Family, FamilyGenerationConfig } from './family_types';
-import type Species from '$lib/species/species';
-import human from '$lib/species_sentients/human';
+import type { Species } from '$lib/species';
+import { human } from '$lib/species_sentients';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { RNG } from '@ironarachne/rng';
-import type { Character, CharacterGenerationConfig } from '$lib/characters/character_types';
-import * as CharacterGenerator from '$lib/characters/character_generation';
-import * as AgeCategories from '$lib/age/age_categories';
-import { relationshipTypes } from '$lib/relationships/relationships';
-import * as SizeMatrix from '$lib/size/size_matrix';
-import * as PersonalityTraits from '$lib/characters/personality_traits';
+import type { Character, CharacterGenerationConfig } from '$lib/characters';
+import { CharacterGenerator, PersonalityTraits } from '$lib/characters';
+import { AgeCategories } from '$lib/age';
+import { relationshipTypes } from '$lib/relationships';
+import { getSizeConfig } from '$lib/size';
 
 export function generateFamilyGeneration(
   seed: string,
@@ -104,7 +103,7 @@ function ageMembers(family: Family, years: number, config: FamilyGenerationConfi
     }
 
     if (member.ageCategory.name !== oldAgeCategoryName) {
-      const sizeGeneratorConfig = SizeMatrix.getSizeConfig(
+      const sizeGeneratorConfig = getSizeConfig(
         member.gender.name,
         member.ageCategory.name,
         member.species.sizeGeneratorConfigMatrix,

@@ -1,9 +1,9 @@
-import { loadSavedCultureSnapshots } from '$lib/culture/culture_saved_state';
-import type { CultureSnapshot } from '$lib/culture/culture_snapshot';
-import { loadSavedHeraldrySnapshots } from '$lib/heraldry/heraldry_saved_state';
-import type { HeraldrySnapshot } from '$lib/heraldry/heraldry_snapshot';
-import { loadSavedReligionSnapshots } from '$lib/religion/religion_saved_state';
-import type { ReligionSnapshot } from '$lib/religion/religion_snapshot';
+import { loadSavedCultureSnapshots } from '$lib/culture';
+import type { CultureSnapshot } from '$lib/culture';
+import { loadSavedHeraldrySnapshots } from '$lib/heraldry';
+import type { HeraldrySnapshot } from '$lib/heraldry';
+import { loadSavedReligionSnapshots } from '$lib/religion';
+import type { ReligionSnapshot } from '$lib/religion';
 
 export type SavedDataEntry =
   | { kind: 'heraldry'; snapshot: HeraldrySnapshot }

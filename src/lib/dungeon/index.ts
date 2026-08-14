@@ -17,3 +17,5 @@ export * from './theme/theme';
 
 export * from './generator/types';
 export * from './generator/generator';
+
+export * from './render/classic_module_map';

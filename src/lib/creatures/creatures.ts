@@ -1,8 +1,8 @@
 import * as RNG from '@ironarachne/rng';
-import * as AgeCategories from '$lib/age/age_categories';
+import { AgeCategories } from '$lib/age';
 import * as CombatSystem from '$lib/combat_system';
-import * as CommonSpecies from '$lib/species/common';
-import * as SizeMatrix from '$lib/size/size_matrix';
+import { CommonSpecies } from '$lib/species';
+import { getSizeConfig } from '$lib/size';
 import type { Creature } from './creature_types';
 import type { CreatureGenerationConfig } from './creature_types';
 
@@ -25,7 +25,7 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
   if (!gender) {
     throw new Error(`Gender ${genderName} not found for species ${creatureSpecies.name}`);
   }
-  const sizeGeneratorConfig = SizeMatrix.getSizeConfig(
+  const sizeGeneratorConfig = getSizeConfig(
     gender.name,
     creatureAgeCategory.name,
     creatureSpecies.sizeGeneratorConfigMatrix,

@@ -33,3 +33,7 @@ export {
   type ReligionSnapshot,
   type RestoredReligion,
 } from './religion_snapshot';
+
+export * as ReligionCategories from './categories';
+export * from './domains';
+export * from './religion_saved_state';

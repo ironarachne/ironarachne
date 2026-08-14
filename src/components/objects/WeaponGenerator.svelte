@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { domains } from '$lib/religion/domains';
-  import * as Equipment from '$lib/equipment/index';
-  import type { Item } from '$lib/equipment/equipment_types';
+  import { domains } from '$lib/religion';
+  import * as Equipment from '$lib/equipment';
+  import type { Item } from '$lib/equipment';
   import * as RNG from '@ironarachne/rng';
-  import { getDefaultGenerationConfig } from '$lib/equipment/generation';
+  import { getDefaultGenerationConfig } from '$lib/equipment';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';

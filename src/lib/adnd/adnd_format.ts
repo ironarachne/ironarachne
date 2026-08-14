@@ -1,5 +1,5 @@
 import * as Words from '@ironarachne/words';
-import * as Currency from '$lib/currency/currency';
+import { Currency } from '$lib/currency';
 import type ADNDCharacter from './adndcharacter';
 
 export function formatAdndSignedNumber(value: number): string {

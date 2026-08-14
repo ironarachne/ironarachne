@@ -18,6 +18,33 @@ index.ts # Library entry point; exports the library's public API
 
 Libraries may also contain other supporting files, like SVGs.
 
+### Importing a library
+
+Reach another library through its entry point and nothing else — `$lib/heraldry`, never
+`$lib/heraldry/tinctures` and never `$lib/heraldry/index.js`. A deep import type-checks fine, which
+is why 849 of them accumulated before anyone noticed; the cost is that it pins the caller to a
+layout it has no business knowing, so moving a module inside a library breaks files that never
+named it. If a deep import is the only way to reach something, the entry point is incomplete —
+extend it rather than routing around it.
+
+Inside a library it is the other way round: a module reaches its siblings by relative path
+(`./tinctures`), because routing through its own entry point is how you get a circular import.
+
+Two things are allowed past an entry point, and both are deliberate:
+
+- **Assets** — `.svg`, `.css`, `.frag`, and friends are not modules and have no entry point.
+- **Code-splitting** — a dynamic `import()` exists to split a chunk off, and a barrel would pull
+  the whole library back into the chunk it was split out of. `SavedDataManager.svelte` is the
+  standing example; `shaders/planets/planets` is the same reasoning applied statically, recorded in
+  a comment at the top of `shaders/index.ts`.
+
+`src/lib/library_imports.test.ts` enforces all of this.
+
+An entry point also has to actually carry what it claims. `export *` silently drops a default
+export, and `export type *` silently turns a value into a type-only export that callers cannot
+call — both compile and lint clean. Use `export { default as Thing } from './thing'` for a default,
+and keep `export type *` for modules that hold nothing but types.
+
 ## UI Components
 
 UI components are stored in `src/components`. Each component should be a standalone, reusable UI element that can be used across the application.

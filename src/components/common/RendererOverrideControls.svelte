@@ -5,15 +5,12 @@
     clearRendererContextLoss,
     getRendererDecision,
     invalidateRendererSession,
-  } from '$lib/renderers/renderer_decision';
-  import {
     readRendererPreference,
     writeBackendOverride,
     writeQualityOverride,
-  } from '$lib/renderers/renderer_preference_storage';
-  import { parseRendererBackend } from '$lib/renderers/renderer_backend';
-  import type { RenderQuality } from '$lib/renderers/astronomical_scene_types';
-  import type { RendererDecision } from '$lib/renderers/renderer_decision_types';
+    parseRendererBackend,
+  } from '$lib/renderers';
+  import type { RenderQuality, RendererDecision } from '$lib/renderers';
 
   /**
    * How the previews are drawn is decided for the visitor, and these are the overrides for when

@@ -1,4 +1,4 @@
-import type { Weapon } from '$lib/weapons/weapons';
+import type { Weapon } from '$lib/weapons';
 
 export type ArmsManufacturer = {
   name: string;

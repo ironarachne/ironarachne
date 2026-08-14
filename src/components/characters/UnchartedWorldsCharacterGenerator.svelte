@@ -1,8 +1,6 @@
 <script lang="ts">
-  import * as CharGen from '$lib/unchartedworlds/character';
-  import type { UWCharacter } from '$lib/unchartedworlds/character';
-  import { parseSkillDescription } from '$lib/unchartedworlds/skill_description';
-  import { downloadUwCharacterPdf } from '$lib/unchartedworlds/render_uw_character_pdf';
+  import { CharGen, parseSkillDescription, downloadUwCharacterPdf } from '$lib/unchartedworlds';
+  import type { UWCharacter } from '$lib/unchartedworlds';
   import * as RNG from '@ironarachne/rng';
   import {
     buildCharacterNameSource,

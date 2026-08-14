@@ -1,9 +1,7 @@
 import * as MUN from '@ironarachne/made-up-names';
 import type { RNG } from '@ironarachne/rng';
-import { getDefaultConfig } from '$lib/weapons/config.js';
-import { generate as generateWeapon } from '$lib/weapons/generator.js';
-import * as SciFiWeaponTypes from '$lib/weapons/scifi.js';
-import type { Weapon } from '$lib/weapons/weapons.js';
+import { getDefaultConfig, generate as generateWeapon, SciFiWeaponTypes } from '$lib/weapons';
+import type { Weapon } from '$lib/weapons';
 import type { ArmsManufacturer } from './arms_manufacturer.js';
 
 export function generate(rng: RNG): ArmsManufacturer {
