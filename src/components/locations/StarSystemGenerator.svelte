@@ -4,7 +4,7 @@
     renderPlanetPreviewImage,
     renderStarPreviewImage,
     renderStarSystemPreviewImage,
-  } from '$lib/renderers';
+  } from '$lib/renderers/astronomical_preview';
   import { onMount } from 'svelte';
   import { browser } from '$app/environment';
   import {

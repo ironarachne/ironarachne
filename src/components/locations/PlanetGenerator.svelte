@@ -11,7 +11,7 @@
     getDefaultMoonGenerationConfig,
     getNumberOfMoonsForParent,
   } from '$lib/astronomical_bodies';
-  import { renderPlanetPreviewImage } from '$lib/renderers';
+  import { renderPlanetPreviewImage } from '$lib/renderers/astronomical_preview';
   import * as Measurements from '$lib/measurements';
   import { formatNumber } from '$lib/format';
   import { onMount } from 'svelte';

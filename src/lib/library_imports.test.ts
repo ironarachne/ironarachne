@@ -30,6 +30,11 @@ const libRoot = join(repoRoot, 'src/lib');
 const ALLOWED_DEEP_IMPORTS = new Set([
   // Statically imports every planet GLSL module; see the comment atop `shaders/index.ts`.
   '$lib/shaders/planets/planets',
+  // `renderers/index.ts` says the same about these two in its own header: the preview renderers
+  // pull `three` and the shader graph, and the decision module reaches the DOM probe. Routing them
+  // through the entry point added 700 KB to /planet, /star-system, and /star-nation.
+  '$lib/renderers/astronomical_preview',
+  '$lib/renderers/renderer_decision',
   // `/saved-data` and `/swn/starship` are list-and-read pages. Their libraries' entry points all
   // reach a generator and from there the species table — 19 MB apiece, measured.
   '$lib/culture/culture_saved_state',

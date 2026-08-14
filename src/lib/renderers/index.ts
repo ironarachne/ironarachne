@@ -11,6 +11,3 @@ export type * from './astronomical_scene_types';
 export * from './renderer_backend';
 export * from './renderer_preference_storage';
 export type * from './renderer_decision_types';
-
-export * from './astronomical_preview';
-export * from './renderer_decision';

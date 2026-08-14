@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
-  import { renderStarSystemPreviewImage } from '$lib/renderers';
+  import { renderStarSystemPreviewImage } from '$lib/renderers/astronomical_preview';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import {

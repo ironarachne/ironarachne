@@ -5,6 +5,8 @@
     clearRendererContextLoss,
     getRendererDecision,
     invalidateRendererSession,
+  } from '$lib/renderers/renderer_decision';
+  import {
     readRendererPreference,
     writeBackendOverride,
     writeQualityOverride,
