@@ -7,7 +7,13 @@ export default defineConfig({
   test: {
     // e2e/ holds Playwright specs, which throw if collected by Vitest.
     // Run them with `npm run test:e2e` instead.
-    exclude: [...configDefaults.exclude, 'e2e/**'],
+    //
+    // .claude/worktrees/ holds nested git worktrees — whole second checkouts of this
+    // repository. It is gitignored, so CI never sees it, but a local `npm run test`
+    // otherwise collects every test file in every worktree and fails all of them with
+    // "Tsconfig not found" (the nested checkout has no tsconfig resolvable from here).
+    // That turns a green run into hundreds of failures that say nothing about the code.
+    exclude: [...configDefaults.exclude, 'e2e/**', '.claude/worktrees/**'],
     coverage: {
       provider: 'v8',
       reporter: ['text-summary', 'json-summary'],

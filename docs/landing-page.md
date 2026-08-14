@@ -4,10 +4,11 @@ A one-page static site at `ironarachne.com`, separate from the app, linking thro
 `app.ironarachne.com`. This document records its shape, the decisions behind it, and the DNS cutover
 that moves the apex off the old Fly deployment.
 
-**Status:** implemented. Resolves the design of issue #72. The page is built and lives in `landing/`,
-the infrastructure it publishes to landed in #157, and the DNS cutover has been performed:
-`www.ironarachne.com` serves the page and the apex redirects to it. Fly is still to be decommissioned
-per decision 4.
+**Status:** implemented and complete. Resolves the design of issue #72. The page is built and lives in
+`landing/`, the infrastructure it publishes to landed in #157, the DNS cutover has been performed —
+`www.ironarachne.com` serves the page and the apex redirects to it — and Fly has been decommissioned
+per decision 4: the app is deleted and `fly.toml`, `Dockerfile` and `.dockerignore` are gone from the
+repository.
 
 Decision 3 changed at the cutover — the apex is a pull-zone hostname with an edge rule, not the
 `Redirect` record originally chosen, because that record redirects to a doubled slash and 404s. The
@@ -25,9 +26,9 @@ behind it — is below, following the precedent set by `docs/infrastructure.md`.
 
 ## The problem
 
-`ironarachne.com` and `www.ironarachne.com` still resolve to `66.241.125.222` — the old Fly
-deployment. The current static stack lives only on `dev`, `staging` and `app`. So the domain a visitor
-is most likely to type serves the thing we are trying to retire, and the app is reachable only at a
+As this work began, `ironarachne.com` and `www.ironarachne.com` resolved to `66.241.125.222` — the old
+Fly deployment. The static stack lived only on `dev`, `staging` and `app`. So the domain a visitor was
+most likely to type served the thing we were trying to retire, and the app was reachable only at a
 subdomain nobody guesses.
 
 The fix is a second deployable in this repository: a single static page on the apex and `www`, with
@@ -213,6 +214,19 @@ DNS moves, Fly keeps running for roughly a day, then the app is deleted and `fly
 are removed from the repository in the same change — so the repo stops describing a deployment that no
 longer exists. Confirm nothing else points at that machine before it goes.
 
+**Done.** The app has been deleted and the files are gone. Two things the decision did not anticipate,
+both worth knowing if a similar retirement comes up:
+
+- **`Dockerfile` had a second consumer.** `build.sh` and `publish.sh` at the repository root built that
+  same image and pushed it to a Scaleway container registry — a container-serving path older than Fly
+  and referenced by no workflow, npm script or document. Every deploy target in `docs/deployment.md` is
+  a static bucket publish, so the whole path went with the Dockerfile rather than leaving two scripts
+  pointing at a deleted file. `.dockerignore` went too; it existed only to serve those builds.
+- **The apex is Bunny's now, and answers.** `dig` returns Bunny anycast rather than the Fly addresses on
+  both families, `66.241.125.222` refuses connections, and `curl -sSL` on the apex ends at
+  `https://www.ironarachne.com/` with a `200`. That last check is the one from step 5 of the cutover,
+  and re-running it after the machine went away is what proves nothing was still leaning on it.
+
 ### 5. Brand assets are vendored into `landing/`, under the existing pin
 
 #151 has landed, so this no longer needs inventing: `brand-assets.json` records the brand-repo commit
@@ -396,7 +410,10 @@ Sequence:
 What actually happened, for the next person: steps 1 and 2 went exactly as written. Step 3 turned up a
 third record (the apex `AAAA`). Step 4 was a single clean apply and the certificate issued without a
 retry. Step 5 failed — the apex 404'd — and the fix was the fallback in decision 3, which is now the
-design rather than the contingency.
+design rather than the contingency. Step 6 turned up one more file than it expected; see decision 4.
+
+**The cutover is complete and this sequence is now history.** It is kept because the shape of it — the
+records nobody knew about, the redirect that applied cleanly and did not work — is the reusable part.
 
 Step 3 is the one that can go wrong quietly. Whether a `Redirect` record can be created at an apex that
 still holds an `A` record is the last thing this design could not verify without touching the live zone;
@@ -516,7 +533,10 @@ the thing it created would _work_, which is the question that mattered.
    not know about and the `www` CNAME, so the question was never put. The cutover was one apply.
 3. **The cost of a fourth pull zone.** Bunny is pay-per-GB with no monthly floor per
    `docs/infrastructure.md`, so this is expected to be negligible; not confirmed against the account.
-4. **Whether the Fly machine serves anything besides the old site.** Only that it answers on the apex.
+4. ~~**Whether the Fly machine serves anything besides the old site.**~~ **Answered: moot.** The app was
+   deleted a day after the cutover and nothing has been reported missing since. The question was never
+   settled on its own terms — it was retired by deleting the thing it asked about, which is a legitimate
+   answer for a machine nobody could name a second use for, and a bad one for anything load-bearing.
    The `@font-face` declaration is no longer on this list. It was checked in Chromium against the built
    page over HTTP: `document.fonts.check('1rem "Inclusive Sans"')` returns true and the rendered text is
    the webfont rather than the fallback, at every width tested. Serving those bytes from a bucket instead
