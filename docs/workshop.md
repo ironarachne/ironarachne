@@ -14,7 +14,7 @@ here is built yet. The work is broken down in [The plan](#the-plan) and tracked 
 the `workshop` label.
 
 The [domain model](#domain-model) is drafted and **awaiting review**. Per the design process in
-CLAUDE.md, implementation does not begin until those diagrams are approved. The five questions it
+CLAUDE.md, implementation does not begin until those diagrams are approved. The six questions it
 forced are settled in [Decisions taken here](#decisions-taken-here); three of them close open
 questions this document had been carrying.
 
@@ -258,12 +258,105 @@ Choosing this now rather than later is deliberate. Every consumer of the store i
 switch is cheaper today than it will ever be again — which is the reason #45 said the artifact
 store was the moment to weigh it.
 
-Two limits stay real and are not solved by the substrate. Private windows offer little or no
-quota, and any browser may still evict an origin's storage — Safari discards script-writable
-storage for origins untouched for seven days. Requesting `navigator.storage.persist()` resists
-eviction and is worth doing at first project creation, when the user has done something worth
-protecting, rather than on first page load. Neither limit changes the standing conclusion that
-export is the backup story.
+Two limits stay real and are not solved by the substrate: private windows offer little or no quota,
+and any browser may still evict an origin's storage. Both are handled in
+[Eviction and persistence](#eviction-and-persistence) below, and neither changes the standing
+conclusion that export is the backup story.
+
+### Storage limits
+
+Three numbers exist, they measure different things, and conflating them produces a display that is
+confidently wrong.
+
+| Number                      | Source                               | Good for                               | Not good for                                                                                       |
+| --------------------------- | ------------------------------------ | -------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Origin usage and quota      | `navigator.storage.estimate()`       | A proportion, and a rough band         | A byte budget. Browsers deliberately fuzz it, and quota moves as free disk moves.                  |
+| Per-project size            | Sum of `byteSize` over its summaries | Attribution — _which_ project is large | The origin total. It excludes index overhead, other stores, and anything the browser counts extra. |
+| Whether the next write fits | Nothing reliable                     | —                                      | Everything. There is no pre-flight for a single save.                                              |
+
+The policy that follows:
+
+- **Measure continuously, cheaply.** `estimate()` at startup and after writes that materially change
+  size, cached in between. It is cheap, not free, and nothing calls it per keystroke.
+- **Do not pre-flight ordinary writes.** Refusing to save a culture because an estimate suggests the
+  origin is close to full is refusing real work on the strength of a guess. The exception is bulk
+  import (#47), which already estimates before writing, because a 400 MB file is a different
+  proposition from one artifact and the failure is far more expensive.
+- **Escalate on a threshold, act on an error.** Below 80% of the estimate, nothing is said beyond
+  the always-available panel. At 80%, a persistent non-modal notice. `QuotaExceededError` is the
+  only authoritative signal and is handled everywhere regardless of what the estimate claimed.
+
+**A failed write is never swallowed**, and three things make that enforceable rather than
+aspirational:
+
+- **The store's write API does not return `void`.** It returns a result the caller must handle. An
+  API that returns nothing makes silent loss the default and leaves "do not lose saves" to
+  discipline, which is the wrong place for it.
+- **The hydrated index is not updated until the transaction commits.** Otherwise memory claims a
+  save the database does not have, the UI shows saved, and the next reload loses it — the exact
+  failure this whole section exists to prevent, arrived at from the inside.
+- **The editor keeps the unsaved value.** The artifact stays on screen and stays editable. Whatever
+  else has gone wrong, the user has not been made to retype it.
+
+What the user gets on `QuotaExceededError` is blocking, because it is the one storage condition
+where continuing to work quietly compounds the loss: what failed, that nothing already saved was
+harmed, and a **Download this artifact** action that works with no storage at all — plus export
+vault and manage storage. The transaction has already rolled back, so there is no half-written
+artifact to reconcile.
+
+### Eviction and persistence
+
+Under [Local only](#local-only) the browser holds the only copy, so eviction is not a tidiness
+concern — it is silent total loss, arriving without the user doing anything.
+
+`navigator.storage.persist()` asks the browser not to evict. The workshop requests it **at first
+project creation**, not on first page load. Firefox prompts for it and Chromium decides silently on
+engagement heuristics; a prompt shown before the user has made anything is a prompt they dismiss,
+and a declined permission is much harder to recover than one not yet asked. At first project
+creation there is something worth protecting and the request has a reason the user can see.
+
+If it is refused or unavailable, the workshop does not nag. It re-requests at most once per session
+and only after the user has done more work — creating another project, or an export — and it never
+asks modally. The status is reported honestly instead, and export carries more of the weight.
+
+Two things this must not imply:
+
+- **Persistence is not a backup.** It resists automatic eviction under storage pressure. It does
+  nothing about the user clearing site data, a lost laptop, or a different browser. Presenting
+  "Protected" as safety would be the most expensive lie in the product.
+- **Safari is a separate case.** Its ITP discards script-writable storage for origins with no user
+  interaction for seven days, and its support for persistence is inconsistent. Where that applies,
+  the honest line is that export is the protection, and the panel says so rather than showing a
+  reassuring badge it cannot back up.
+
+### What the user is told about storage
+
+Local-only means the user is the only backup they have, and someone cannot act on a risk nobody
+told them about. Two moments and one place.
+
+**At first project creation — said once, plainly.** Work is stored in this browser only; there is
+no account and no server; export is how it leaves. This shares a moment with the persistence
+request above, and deliberately: the permission prompt makes sense because the sentence before it
+explained why.
+
+**The storage panel — always available, never modal.** Reachable from the workshop, in this order:
+
+1. **Last export.** "Last exported 12 days ago", or "Never exported", with _Export vault_ as the
+   primary action.
+2. **Protection.** One line of plain language: protected, not protected, or unknown, and what that
+   means.
+3. **Usage.** The total as a proportion, then a table of projects — name, artifacts, size, last
+   exported — sorted by size, because "which one is big" is the question actually being asked.
+4. **Actions.** Export vault, export a project, delete a project.
+
+**Escalation.** At 80% a non-modal banner in the workshop, dismissible for the session and back the
+next one; it states a true fact about a real condition, so it is not permanently silenceable. On a
+failed write, the blocking dialog described above.
+
+Two presentation rules, because a storage display that overstates its own precision teaches users
+to ignore it. Quota is never shown as an exact figure — "about 240 MB of roughly 2 GB", not
+`251658240 / 2147483648`. And a percentage never appears without the sizes underneath it, since a
+percentage of an estimate is two layers of imprecision wearing one number's clothes.
 
 ## Export and import
 
@@ -418,7 +511,7 @@ normally, and the ones we do not are still there when a build that understands t
 | Condition                             | Response                                                                                                                                                                           |
 | ------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | The import will not fit in storage    | Checked _before_ writing, from the file's own size and `navigator.storage.estimate()` where available. Refused up front with what would be needed, not discovered at artifact 900. |
-| `QuotaExceededError` during the write | Rolled back to the pre-import state. The estimate is an estimate; the rollback is what makes it safe to be wrong. See storage limits in [Open questions](#open-questions).         |
+| `QuotaExceededError` during the write | Rolled back to the pre-import state. The estimate is an estimate; the rollback is what makes it safe to be wrong. See [Storage limits](#storage-limits).                           |
 | Storage unavailable or blocked        | Reported plainly, including that nothing was saved. Some browsers offer storage that is silently discarded — better to say so than to let a user believe an import worked.         |
 | The site is open in another tab       | Detected and warned before importing. Two tabs writing the vault clobber each other, and a restore in one tab under a workshop open in another is the worst version of it.         |
 | A restore lands under an open project | The workshop reloads its context afterwards. Panels must not be left bound to artifact ids the restore has removed.                                                                |
@@ -495,9 +588,9 @@ The types this document implies, stated as types. What a diagram declares here i
 corresponding `*-types.ts` file declares in code, so this is where the shape gets argued about —
 before [the plan](#the-plan) starts building against it.
 
-Four diagrams rather than one: the store, the storage layer it persists to, the registries, and
-the file format. They are separate concerns with separate versioning, and drawn together they are
-unreadable.
+Five diagrams rather than one: the store, the storage layer it persists to, storage status, the
+registries, and the file format. They are separate concerns with separate versioning, and drawn
+together they are unreadable.
 
 Field names are TypeScript. `?` marks an optional field and `[]` an array. `Record<string, unknown>`
 is written `Record~string, unknown~` because that is how Mermaid spells a generic.
@@ -685,6 +778,58 @@ Reading it:
 - **A cascade is one transaction.** Deleting a project removes its artifacts, their payloads, and
   its workspace atomically, which is the ownership the first diagram draws with filled diamonds and
   the thing `localStorage` could only approximate.
+
+### Storage status
+
+What [What the user is told about storage](#what-the-user-is-told-about-storage) displays. Almost
+all of it is **derived, not stored** — recomputed from the summaries and from
+`navigator.storage` — and the two exceptions are marked, because a field that is persisted has a
+migration story and a derived one does not.
+
+```mermaid
+classDiagram
+    class StorageStatus {
+        +number usageBytes?
+        +number quotaBytes?
+        +PersistenceState persistence
+        +number lastVaultExportAt?
+        +number measuredAt
+    }
+    class ProjectUsage {
+        +string projectId
+        +number artifactCount
+        +number byteSize
+        +number lastExportAt?
+    }
+    class PersistenceState {
+        <<enumeration>>
+        persisted
+        notPersisted
+        unknown
+    }
+
+    StorageStatus "1" *-- "*" ProjectUsage : per project
+    StorageStatus "1" --> "1" PersistenceState : persistence
+```
+
+Reading it:
+
+- **`usageBytes` and `quotaBytes` are optional because `estimate()` is.** Not every browser answers,
+  and a missing number is displayed as unknown rather than as zero. Zero is a claim; unknown is the
+  truth.
+- **`persistence` is three-valued on purpose.** `unknown` is a real state — the API may be absent, or
+  the answer may not have arrived yet — and collapsing it into `notPersisted` would report a
+  protected origin as unprotected.
+- **`lastVaultExportAt` and `lastExportAt` are the only stored fields here**, written on a
+  _successful_ export and nowhere else. `lastVaultExportAt` lives in the `meta` store,
+  `lastExportAt` on the project record. They are stored because they are the number that predicts
+  loss, per [decision 6](#6-storage-is-reported-continuously-and-export-recency-leads), and a
+  measurement that resets on reload cannot answer "how long has this been the only copy".
+- **`measuredAt` is what keeps the display honest.** The status is cached between measurements, so
+  the UI can say how stale the figure is instead of presenting a cached number as live.
+- **`ProjectUsage.byteSize` is a sum, not a measurement.** It adds the `byteSize` recorded on each
+  summary; it is attribution across projects and is not reconciled against `usageBytes`, which
+  counts overhead this cannot see. The two disagreeing is expected, not a bug.
 
 ### Kinds, tools, and the snapshot contract
 
@@ -893,9 +1038,9 @@ classDiagram
 
 ### Decisions taken here
 
-Five questions the prose left open. The first four modelling forced; the fifth is the storage
-substrate, settled when #45 was refined. They are recorded with the reasoning, because a model
-that defers its hard parts is not a model.
+Six questions the prose left open. The first four modelling forced; the last two are the storage
+substrate and the quota policy built on it, settled when #45 was refined. They are recorded with
+the reasoning, because a model that defers its hard parts is not a model.
 
 #### 1. References carry a required `role`
 
@@ -982,6 +1127,30 @@ rather than guessed at, a failed write rolls back rather than tearing, and the e
 by `navigator.storage.estimate()` stays advisory while `QuotaExceededError` stays authoritative.
 What remains open in #45 is the policy built on those — thresholds, what the UI shows, and when it
 shows it.
+
+#### 6. Storage is reported continuously, and export recency leads
+
+**Decided: the workshop always shows what is stored, and the first number it shows is how long ago
+the user last exported — not how full storage is.**
+
+A usage meter answers "how full am I". Under [Local only](#local-only) that is not the question. A
+user at 12% of quota who has never exported is one cleared browser away from losing everything,
+and a meter reports them as comfortable. A user at 85% who exported this morning has a tidying
+problem, not a loss problem. **Fullness predicts inconvenience; export recency predicts loss.** So
+recency goes first and takes the primary action, and usage is diagnostic detail below it.
+
+That ordering is also what makes the display honest about which risk is actually likely. Running
+out of space is now rare — that is what [decision 5](#5-the-store-persists-to-indexeddb) bought.
+Eviction, a cleared browser, and a replaced laptop are not rare, and none of them announce
+themselves. Leading with the meter would put the loudest element of the UI on the least likely
+hazard.
+
+The rest follows from the same principle — measure continuously rather than wait for a failure,
+escalate at 80%, block only on an actual failed write, and request persistence at first project
+creation rather than first load. The reasoning for each is in
+[Storage limits](#storage-limits) and [Eviction and persistence](#eviction-and-persistence).
+
+This answers the remainder of #45.
 
 ## What exists today
 
@@ -1131,6 +1300,12 @@ the model end to end rather than applying it broadly: the shell, projects, the a
 | #31 — the project model and its local store            | —          |
 | #32 — the artifact kind registry and snapshot contract | —          |
 | #33 — the generic project-scoped artifact store        | #31, #32   |
+| #176 — move the artifact store onto IndexedDB          | #33        |
+
+#176 is in this phase rather than a later one because it changes whether the store's API is
+synchronous, and every later issue is a caller. It is the one piece of
+[decision 5](#5-the-store-persists-to-indexeddb) that cannot be deferred without being paid for
+twice.
 
 **Phase 2 — Durability.** Load-bearing rather than nice to have, because local-only means these
 are the only things standing between a user and losing their world.
@@ -1140,6 +1315,8 @@ are the only things standing between a user and losing their world.
 | #34 — adopt existing saved heraldry, cultures, and religions | #33        |
 | #35 — project and artifact export and import as files        | #33        |
 | #47 — whole-vault export and import as a single file         | #35        |
+| #177 — report storage status                                 | #176       |
+| #180 — handle `QuotaExceededError` without losing work       | #176       |
 
 #47 follows #35 rather than replacing it: #35 establishes the envelope and the migration chain, and
 #47 adds the `vault` scope on top of the same format. It is in the first release because a backup
@@ -1148,9 +1325,16 @@ you have to remember to take six times is not the "obvious, cheap, and complete"
 
 **Phase 3 — Surface.**
 
-| Issue                                                           | Depends on |
-| --------------------------------------------------------------- | ---------- |
-| #36 — the workshop shell: project context, panels, project view | #31, #33   |
+| Issue                                                               | Depends on |
+| ------------------------------------------------------------------- | ---------- |
+| #36 — the workshop shell: project context, panels, project view     | #31, #33   |
+| #178 — request persistence and disclose local-only at first project | #36        |
+| #179 — the storage panel                                            | #36, #177  |
+
+#178 and #179 are the half of #45 that faces the user, and they are in the first release rather
+than after it because a user who is not told their work lives in one browser cannot take the one
+action that protects it. Shipping the workshop without them would mean shipping the risk without
+the disclosure.
 
 **Phase 4 — Composition and editing.** Where the workshop stops being a filing cabinet.
 
@@ -1193,12 +1377,15 @@ in the same release that migrates the data.
 
 ### Not in the first release
 
-- **#45 — storage limits.** The substrate half is now answered — IndexedDB, per
-  [decision 5](#5-the-store-persists-to-indexeddb) — and that part is not optional for the first
-  release, because it decides whether the store's API is synchronous. Quota policy is what stays
-  out: thresholds, usage reporting, and the warning UI.
 - **Every other tool.** Everything not named above stays Experimental. That is the honest state,
   and #43 is what makes it legible.
+
+#45 used to sit on this list. It does not any more: it is answered in
+[decisions 5](#5-the-store-persists-to-indexeddb) and
+[6](#6-storage-is-reported-continuously-and-export-recency-leads), and the work it implies is
+#176, #177, #178, #179, and #180 — all of them in the phases above. The substrate could not wait,
+because it decides whether the store's API is synchronous; the disclosure could not wait, because
+shipping local-only storage without telling anyone is shipping the risk without the warning.
 
 ## Issues this document superseded
 
@@ -1226,18 +1413,20 @@ document is entitled to reopen.
 1. **Export format and granularity.** _Answered in [Export and import](#export-and-import), and
    tracked in #35 and #47:_ three granularities — vault, project, artifact — expressed as a `scope`
    discriminator on **one** file format, with a file format version distinct from any
-   `payloadVersion` and migration on import. What remains open is not the shape but the ceiling:
-   see storage limits below.
+   `payloadVersion` and migration on import. The ceiling that once qualified this is settled below.
 2. **Storage limits.** Browser storage is finite and a project full of maps and heraldry is not
    small. What happens as a user approaches the ceiling, and whether the workshop should measure
-   and report usage before the browser starts refusing writes. _Partly answered in
-   [decision 5](#5-the-store-persists-to-indexeddb): the substrate is IndexedDB, which moves the
-   ceiling from megabytes to a share of free disk and makes usage measurable per project. That also
-   settles the keying question #33 raised — an index on `projectId` replaces the per-project
-   summary array. Quota policy is what remains in #45: thresholds, what the UI shows, and when._
-   Vault import (#47) meets the ceiling head-on — it
+   and report usage before the browser starts refusing writes. _Answered in
+   [decision 5](#5-the-store-persists-to-indexeddb) and
+   [decision 6](#6-storage-is-reported-continuously-and-export-recency-leads): the substrate is
+   IndexedDB, which moves the ceiling from megabytes to a share of free disk; usage is measured
+   continuously and reported per project; a failed write blocks rather than being swallowed; and
+   the workshop leads with how long ago the user last exported rather than with a fullness meter,
+   because fullness predicts inconvenience and export recency predicts loss. That also settles the
+   keying question #33 raised — an index on `projectId` replaces the per-project summary array.
+   Tracked in #176, #177, #178, #179, and #180._ Vault import (#47) meets the ceiling head-on — it
    is the one operation that can double a vault in a single write — which is why it estimates
-   before writing and rolls back if the estimate was wrong, rather than waiting on this question.
+   before writing and rolls back if the estimate was wrong.
 3. **Panel layout persistence.** How much arrangement is remembered per project, and whether
    layouts are a user-visible concept or an implementation detail. _Answered in
    [decision 3](#3-panel-state-is-persisted-per-project-and-may-be-dropped): persisted per project
