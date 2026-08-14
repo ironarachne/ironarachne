@@ -225,10 +225,7 @@ function installWeapons(
       budget.mass -= costs.mass;
       budget.power -= costs.power;
       budget.hardpoints -= newWeapon.hardPoints;
-      // Note that a weapon's cost never reaches `starship.totalCost`: the drive, defenses, and
-      // fittings all add theirs, and weapons alone do not. That is long-standing behaviour and
-      // is preserved here rather than changed as part of a refactor, but it looks like an
-      // oversight — an armed ship is priced as though its guns were free.
+      starship.totalCost += costs.cost;
     }
 
     possibleWeapons = removeFittingFromList(newWeapon, possibleWeapons);
