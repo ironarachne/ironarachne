@@ -14,9 +14,13 @@ here is built yet. The work is broken down in [The plan](#the-plan) and tracked 
 the `workshop` label.
 
 The [domain model](#domain-model) is drafted and **awaiting review**. Per the design process in
-CLAUDE.md, implementation does not begin until those diagrams are approved. The four questions
-modelling forced are settled in [Decisions taken here](#decisions-taken-here); two of them close
-open questions this document had been carrying.
+CLAUDE.md, implementation does not begin until those diagrams are approved. The five questions it
+forced are settled in [Decisions taken here](#decisions-taken-here); three of them close open
+questions this document had been carrying.
+
+The store built for #33 and #34 persists to `localStorage` and predates
+[decision 5](#5-the-store-persists-to-indexeddb). Moving it to IndexedDB is outstanding work, not
+a described-but-unbuilt part of the design.
 
 ## The shift
 
@@ -206,8 +210,8 @@ of any kind, keyed by project, without a hand-maintained list of which kinds exi
 libraries keep owning their payload shape — the `toSnapshot` / `fromSnapshot` pair and the
 `payloadVersion` — but they stop owning storage, enumeration, and the save UI.
 
-The existing `src/lib/persistent_save/scoped_local_storage.ts` is a reasonable foundation; the
-scope becomes the project rather than the generator.
+The substrate that store is built on is **IndexedDB**, not `localStorage`; see
+[Storage substrate](#storage-substrate) for why and for what stays behind.
 
 **Migration matters.** Users have saved heraldry, cultures, and religions in
 `ironarachne.save.v1.*` today. Those must be adopted into a project on first run rather than
@@ -219,6 +223,47 @@ Storage is browser storage plus explicit file export/import, per
 [Local only](#local-only). There is no server to fall back on, which makes migration and export
 load-bearing rather than nice to have: they are the only things standing between a user and
 losing their world.
+
+### Storage substrate
+
+The store persists to **IndexedDB**. `localStorage` keeps only small synchronous pointers — the
+active project id and UI preferences — which are not user work and are cheap to lose.
+
+The deciding fact is the content. A project is region maps, heraldry SVGs, and star system
+imagery, and `localStorage` offers roughly five megabytes per origin, shared across every project
+a user has, storing bytes as base64 inside a JSON string at a 33% premium. That is not a project
+full of maps; it is one or two. Treating that as a quota-handling problem misreads it — under
+`localStorage` the ceiling is reached in ordinary use, and a ceiling reached in ordinary use is
+not an edge case, it is the product failing to do the thing it exists for.
+
+IndexedDB is sized against free disk rather than a fixed few megabytes, stores `Blob` and
+`ArrayBuffer` natively instead of base64, does its I/O off the main thread instead of blocking it
+on a multi-megabyte `JSON.parse`, and commits transactionally. That last property is not a bonus:
+[Failure states](#failure-states) already requires a failed vault import to roll back to the
+pre-import state, and `localStorage` cannot do that — a multi-key write there can tear and leave
+a half-imported vault, which is the outcome that section calls worse than a rejected file.
+
+The cost is an asynchronous API through the store, and it is paid down two ways. **The index is
+hydrated once**: projects and artifact summaries are read at startup into memory, so summary reads
+stay synchronous for callers and only writes go through a promise. **Payloads stay lazy and
+async**, loaded per artifact on demand, which is what you want regardless — nothing should hold
+every map in a project resident in memory.
+
+This also dissolves the keying tension #33 recorded. One entry per project holding an array of
+summaries existed because `localStorage` has no query: the array was the index. IndexedDB has
+indexes, so an artifact is one record keyed by its own id with an index on `projectId`, and
+editing one artifact stops rewriting every summary in the project.
+
+Choosing this now rather than later is deliberate. Every consumer of the store is new, so the
+switch is cheaper today than it will ever be again — which is the reason #45 said the artifact
+store was the moment to weigh it.
+
+Two limits stay real and are not solved by the substrate. Private windows offer little or no
+quota, and any browser may still evict an origin's storage — Safari discards script-writable
+storage for origins untouched for seven days. Requesting `navigator.storage.persist()` resists
+eviction and is worth doing at first project creation, when the user has done something worth
+protecting, rather than on first page load. Neither limit changes the standing conclusion that
+export is the backup story.
 
 ## Export and import
 
@@ -450,8 +495,9 @@ The types this document implies, stated as types. What a diagram declares here i
 corresponding `*-types.ts` file declares in code, so this is where the shape gets argued about —
 before [the plan](#the-plan) starts building against it.
 
-Three diagrams rather than one: the store, the registries, and the file format. They are separate
-concerns with separate versioning, and drawn together they are unreadable.
+Four diagrams rather than one: the store, the storage layer it persists to, the registries, and
+the file format. They are separate concerns with separate versioning, and drawn together they are
+unreadable.
 
 Field names are TypeScript. `?` marks an optional field and `[]` an array. `Record<string, unknown>`
 is written `Record~string, unknown~` because that is how Mermaid spells a generic.
@@ -551,6 +597,94 @@ Reading the relationships:
   registry below, not by the store.
 - **Exactly one of `PanelState.toolPath` and `artifactId` is set**: a panel holds a mounted tool or
   an open artifact. Both optional is Mermaid's approximation of a two-variant union.
+
+### The storage layer
+
+The diagram above is what a user thinks in. This one is what is written to disk, per
+[Storage substrate](#storage-substrate). The two differ in one structural way: `Artifact` splits
+into a **summary** and a **payload** held in separate object stores, so listing a project does not
+read a single map.
+
+Five object stores — `projects`, `artifacts`, `artifact_payloads`, `workspaces`, and `meta`. Each
+class below is one store's record shape, and the edge label from `VaultDatabase` is the store's
+name.
+
+```mermaid
+classDiagram
+    class VaultDatabase {
+        <<IDBDatabase>>
+        +string name
+        +number schemaVersion
+    }
+    class ProjectRecord {
+        <<objectStore>>
+        +string id
+        +Project value
+    }
+    class ArtifactSummaryRecord {
+        <<objectStore>>
+        +string id
+        +string projectId
+        +ArtifactKind kind
+        +string name
+        +string[] tags
+        +ArtifactReference[] references
+        +Provenance provenance?
+        +number payloadVersion
+        +number byteSize
+        +number createdAt
+        +number updatedAt
+    }
+    class ArtifactPayloadRecord {
+        <<objectStore>>
+        +string artifactId
+        +unknown payload
+    }
+    class WorkspaceRecord {
+        <<objectStore>>
+        +string projectId
+        +ProjectWorkspace value
+    }
+    class MetaRecord {
+        <<objectStore>>
+        +string key
+        +unknown value
+    }
+    class HydratedIndex {
+        <<cache>>
+        +Project[] projects
+        +ArtifactSummaryRecord[] summaries
+    }
+
+    VaultDatabase "1" *-- "*" ProjectRecord : projects
+    VaultDatabase "1" *-- "*" ArtifactSummaryRecord : artifacts
+    VaultDatabase "1" *-- "*" ArtifactPayloadRecord : artifact_payloads
+    VaultDatabase "1" *-- "*" WorkspaceRecord : workspaces
+    VaultDatabase "1" *-- "*" MetaRecord : meta
+    ArtifactSummaryRecord "1" *-- "1" ArtifactPayloadRecord : payload, loaded on demand
+    ArtifactSummaryRecord "*" --> "1" ProjectRecord : by_projectId index
+    HydratedIndex ..> ProjectRecord : read once at startup
+    HydratedIndex ..> ArtifactSummaryRecord : read once at startup
+```
+
+Reading it:
+
+- **`byteSize` is new, and it is what makes usage reportable.** It is the serialized size of the
+  payload, recorded at write time because that is the one moment the number is free. Summing it
+  over a project's summaries attributes usage per project without re-reading a single payload,
+  which `navigator.storage.estimate()` cannot do — that reports for the whole origin.
+- **`storeVersion` per record is gone.** It existed because `localStorage` has no schema and every
+  record had to carry its own. A database has a version and an upgrade transaction, so the schema
+  is versioned once in `VaultDatabase.schemaVersion`. `payloadVersion` stays exactly as it is: it
+  versions a kind's payload shape, which is the registry's business and not the store's.
+- **The `by_projectId` index replaces the per-project summary array.** The arrow is an index, not
+  ownership — `projectId` on the record remains authoritative, as
+  [The store](#the-store) already requires.
+- **`HydratedIndex` is a cache, not a source of truth**, and it holds no payloads. It exists so
+  callers listing a project do not await, and it is rebuilt from the database rather than repaired.
+- **A cascade is one transaction.** Deleting a project removes its artifacts, their payloads, and
+  its workspace atomically, which is the ownership the first diagram draws with filled diamonds and
+  the thing `localStorage` could only approximate.
 
 ### Kinds, tools, and the snapshot contract
 
@@ -759,8 +893,9 @@ classDiagram
 
 ### Decisions taken here
 
-Four questions the prose left open that modelling forced. They are settled, with the reasoning,
-because a model that defers its hard parts is not a model.
+Five questions the prose left open. The first four modelling forced; the fifth is the storage
+substrate, settled when #45 was refined. They are recorded with the reasoning, because a model
+that defers its hard parts is not a model.
 
 #### 1. References carry a required `role`
 
@@ -823,25 +958,50 @@ Two supporting rules:
 
 This answers [open question 4](#open-questions) and unblocks #32.
 
+#### 5. The store persists to IndexedDB
+
+**Decided: IndexedDB is the storage back end for projects, artifact summaries, artifact payloads,
+and workspaces.** `localStorage` is kept only for small synchronous pointers that are not user
+work. The reasoning is in [Storage substrate](#storage-substrate); what belongs here is why it was
+settled ahead of the rest of #45.
+
+The other three questions #45 raises — whether to measure usage or wait for a failed write, where
+the ceiling actually sits, and what happens when a write fails — are quota _policy_, and policy
+can be revised in a release. The substrate cannot: it decides whether the store's API is
+synchronous or asynchronous, and that shape propagates into every caller. Deciding it late means
+rewriting them all.
+
+It is also the answer that makes the remaining three tractable rather than urgent. Under
+`localStorage` they were forced questions, because ordinary use hit the ceiling. Under IndexedDB
+the ceiling moves far enough out that quota exhaustion is a genuine edge case, which is the
+condition under which "warn, then fail loudly, then point at export" is an adequate answer instead
+of a euphemism for losing work.
+
+What the substrate does settle by implication: usage is measurable per project via `byteSize`
+rather than guessed at, a failed write rolls back rather than tearing, and the estimate reported
+by `navigator.storage.estimate()` stays advisory while `QuotaExceededError` stays authoritative.
+What remains open in #45 is the policy built on those — thresholds, what the UI shows, and when it
+shows it.
+
 ## What exists today
 
 Worth being precise about what is already built, since more of the substrate exists than the
 absence of a workshop suggests.
 
-| Piece                      | State                                                                                                                                                                 |
-| -------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                         |
-| Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                        |
-| Workshop shell             | **Prototype.** One browser plus one panel at `/workshop`, unlinked.                                                                                                   |
-| Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                               |
-| Scoped storage             | **Built, wrong scope.** Per-generator, not per-project.                                                                                                               |
-| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                    |
-| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                         |
-| Projects                   | **Built (#31).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project, stored per browser. Deleting one cascades to its artifacts.   |
-| Generic artifact store     | **Built (#33).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One index entry per project, one entry per payload.      |
-| Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place. |
-| Artifact editing           | **Not built.** Two tools are editors; neither edits a saved artifact.                                                                                                 |
-| Composition                | **Partial.** `SavedCulturePicker` lets the region, settlement, and religion generators take a saved culture — the pattern to generalise, built three times by hand.   |
+| Piece                      | State                                                                                                                                                                                |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                        |
+| Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                       |
+| Workshop shell             | **Prototype.** One browser plus one panel at `/workshop`, unlinked.                                                                                                                  |
+| Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                              |
+| Scoped storage             | **Built, wrong scope and wrong substrate.** Per-generator rather than per-project, and on `localStorage` rather than IndexedDB per [decision 5](#5-the-store-persists-to-indexeddb). |
+| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                   |
+| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                                        |
+| Projects                   | **Built (#31).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project, stored per browser. Deleting one cascades to its artifacts.                  |
+| Generic artifact store     | **Built (#33).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One index entry per project, one entry per payload.                     |
+| Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place.                |
+| Artifact editing           | **Not built.** Two tools are editors; neither edits a saved artifact.                                                                                                                |
+| Composition                | **Partial.** `SavedCulturePicker` lets the region, settlement, and religion generators take a saved culture — the pattern to generalise, built three times by hand.                  |
 
 ## Tool release readiness
 
@@ -1033,8 +1193,10 @@ in the same release that migrates the data.
 
 ### Not in the first release
 
-- **#45 — storage limits.** Recorded rather than answered. It interacts directly with the artifact
-  store's keying decision, which is why #33 points at it.
+- **#45 — storage limits.** The substrate half is now answered — IndexedDB, per
+  [decision 5](#5-the-store-persists-to-indexeddb) — and that part is not optional for the first
+  release, because it decides whether the store's API is synchronous. Quota policy is what stays
+  out: thresholds, usage reporting, and the warning UI.
 - **Every other tool.** Everything not named above stays Experimental. That is the honest state,
   and #43 is what makes it legible.
 
@@ -1068,9 +1230,12 @@ document is entitled to reopen.
    see storage limits below.
 2. **Storage limits.** Browser storage is finite and a project full of maps and heraldry is not
    small. What happens as a user approaches the ceiling, and whether the workshop should measure
-   and report usage before the browser starts refusing writes. _Tracked in #45 and deliberately
-   left unanswered for the first release, but it constrains the artifact store's keying decision
-   in #33, so the two should be read together._ Vault import (#47) meets the ceiling head-on — it
+   and report usage before the browser starts refusing writes. _Partly answered in
+   [decision 5](#5-the-store-persists-to-indexeddb): the substrate is IndexedDB, which moves the
+   ceiling from megabytes to a share of free disk and makes usage measurable per project. That also
+   settles the keying question #33 raised — an index on `projectId` replaces the per-project
+   summary array. Quota policy is what remains in #45: thresholds, what the UI shows, and when._
+   Vault import (#47) meets the ceiling head-on — it
    is the one operation that can double a vault in a single write — which is why it estimates
    before writing and rolls back if the estimate was wrong, rather than waiting on this question.
 3. **Panel layout persistence.** How much arrangement is remembered per project, and whether
