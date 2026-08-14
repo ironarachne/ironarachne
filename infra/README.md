@@ -1,6 +1,6 @@
 # infra
 
-OpenTofu configuration for Iron Arachne's hosting: three static sites on Scaleway Object Storage,
+OpenTofu configuration for Iron Arachne's hosting: four static sites on Scaleway Object Storage,
 each fronted by a Bunny pull zone that terminates TLS for its own subdomain.
 
 Use **OpenTofu** (`tofu`), not Terraform. `>= 1.10` is required — the state backend relies on
@@ -107,11 +107,32 @@ authoritative for `ironarachne.com`, so the gap is normally seconds — but on a
 the step most likely to fail. If it does, re-run `tofu apply`; the record will be in place and the
 hostname will settle.
 
-## The landing stack applies in two phases
+## The landing stack
 
-`environments/landing` cannot be applied in one go, and that is a property of the zone rather than a
-preference. Records it declares already exist and are not managed here, and a third points at the same
-old deployment without colliding with anything:
+**Applied. It now applies in one pass like any other stack** — the two-phase dance described below was
+a migration constraint, and the migration is done.
+
+The apex is three resources rather than the one `Redirect` record it was designed as. That record
+works in the sense that it applies, resolves and serves a valid certificate — and redirects every
+request to a doubled slash, which the origin 404s. Decision 3 in `docs/landing-page.md` has the
+detail. **Verify an apex change by following the redirect to its final status code**, not by checking
+that the 301 exists:
+
+```bash
+curl -sSL -o /dev/null -w '%{url_effective} %{http_code}\n' https://ironarachne.com/
+# must end at https://www.ironarachne.com/ with 200
+```
+
+Do **not** touch the apex `TXT` and `MX` records — they carry live email, they are not managed here,
+and deleting one breaks mail rather than the website. `docs/landing-page.md` has the query that
+enumerates them.
+
+### Why it once took two phases
+
+Kept because the shape of the problem recurs whenever a live name moves into managed configuration,
+not because anyone needs to repeat these commands.
+
+Three records stood in the way, two of which the configuration wanted to create itself:
 
 ```
 www.ironarachne.com.  IN  CNAME  ironarachne.com.
@@ -119,40 +140,17 @@ ironarachne.com.      IN  A      66.241.125.222          (Fly)
 ironarachne.com.      IN  AAAA   2a09:8280:1::87:402:0   (Fly, IPv6)
 ```
 
-The `AAAA` collides with nothing, which is exactly why it is easy to miss: the apply succeeds without
-it and the apex keeps answering over IPv6 from Fly. Delete all three. Do **not** touch the apex `TXT`
-and `MX` records — they carry live email. `docs/landing-page.md` has the query that enumerates them.
+The `AAAA` collided with nothing, which is exactly why it was easy to miss: the apply succeeds without
+touching it and the apex keeps answering over IPv6 from the old host. A cutover that forgets it
+half-lands silently, and every check that resolves IPv4 first reports success.
 
-Applying the whole stack would collide with the first two, and Bunny will not issue the managed certificate
-for `www` until that name resolves to the pull zone — which it will not while it still points at
-Fly. So phase one creates only the bucket and the pull zone:
+Applying the whole stack would have collided with the first two, and Bunny will not issue the managed
+certificate for `www` until that name resolves to the pull zone — which it could not while it still
+pointed at Fly. So phase one created only the bucket and the pull zone, via `-target`; phase two was a
+plain apply after the three records were deleted.
 
-```bash
-cd infra/environments/landing
-tofu apply \
-  -target=module.site.scaleway_object_bucket.site \
-  -target=module.site.scaleway_object_bucket_policy.public_read \
-  -target=module.site.scaleway_object_bucket_website_configuration.site \
-  -target=module.site.bunnynet_pullzone.site
-```
-
-Verify on the pull zone's own hostname, `ironarachne-landing.b-cdn.net`, and on the bucket website
-endpoint. Nothing visitor-facing has moved at this point.
-
-Phase two is the DNS cutover, and it is a plain `tofu apply` **after** the three records above have
-been removed or imported. It creates the `www` CNAME and its pull-zone hostname, and the apex — a
-`PullZone` record, a second pull-zone hostname, and the edge rule that redirects to `www`. Expect a
-certificate to need a second apply, for the same reason as above. The sequence is in
-`docs/landing-page.md`.
-
-The apex is three resources rather than the one `Redirect` record it was designed as. That record
-works in the sense that it applies, resolves and serves a valid certificate — and redirects every
-request to a doubled slash, which the origin 404s. Decision 3 in `docs/landing-page.md` has the
-detail. **Verify an apex change by following the redirect to its final status code**, not by checking
-that the 301 exists.
-
-`-target` is otherwise a smell, and it is used here for the one thing it is genuinely for: a
-dependency that lives outside the configuration and has to be dealt with in between.
+`-target` is otherwise a smell, and that was the one thing it is genuinely for: a dependency living
+outside the configuration that has to be dealt with in between.
 
 ## What this does not do
 
@@ -171,4 +169,5 @@ content-hashed `_app/immutable/` assets, short for the HTML shells — or cachin
 default regardless of what is configured here.
 
 **The existing DNS.** `ironarachne.com` carries many records predating this code. The zone is read
-through a data source and never managed; only the three new subdomains are declared here.
+through a data source and never managed. Only the names this configuration introduces are declared
+here: the three environment subdomains, plus `www` and the apex from the landing stack.

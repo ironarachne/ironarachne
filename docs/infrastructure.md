@@ -3,9 +3,10 @@
 This document records how Iron Arachne is hosted and why the pieces are arranged as they are. The
 configuration itself lives in `infra/`; `infra/README.md` covers how to run it.
 
-**Status:** implemented. Resolves issue #56. Nothing here has been applied yet — the configuration
-is written and plans cleanly, but the buckets, pull zones and DNS records do not exist. The first
-apply is a deliberate human step.
+**Status:** implemented and applied. Resolves issue #56. All three environments are live and serving
+over HTTPS on their own subdomains. A fourth stack, `environments/landing`, reuses `modules/static_site`
+for the one-page site on `www.ironarachne.com` and the apex; it is not an environment of the app and is
+documented in `docs/landing-page.md` rather than here.
 
 Per the design process in CLAUDE.md this feature introduces no TypeScript types, so the class
 diagram that process asks for does not apply. The equivalent artefact — the resource graph and the
@@ -119,17 +120,25 @@ than an implicit side effect. Index and error documents must both sit at the buc
 resolves to the pull zone, so the module orders the record first. On a cold create this is still the
 step most likely to need a second apply.
 
-## Still unverified
+## Verified on the applies
 
-The configuration plans cleanly against the live Scaleway and Bunny APIs, which confirms the schemas,
-the credentials and that the `ironarachne.com` zone resolves. It does not confirm runtime behaviour.
-Three things to check on first apply:
+This section listed three runtime behaviours the plan could not confirm. All three are now answered by
+the four stacks running in production, and are kept here as answers because each one was a real risk:
 
-1. That a Bunny-managed DV certificate issues for a hostname whose record is a CNAME to
-   `<name>.b-cdn.net` in the same account.
-2. That the `pl-waw` bucket website endpoint behaves as a pull zone origin.
-3. What Scaleway returns for a path missing its trailing slash. S3 semantics give a 301 to the
-   slashed form; `docs/static-hosting.md` describes the client-side recovery if it does not.
+1. **A Bunny-managed DV certificate issues for a hostname whose record is a CNAME to `<name>.b-cdn.net`
+   in the same account.** Yes, on every hostname, usually within seconds. The ordering the module
+   already enforces — record before hostname — is what makes it reliable; see the retry note above.
+2. **The `pl-waw` bucket website endpoint behaves as a pull zone origin.** Yes, with the one caveat the
+   module encodes: `forward_host_header = false` is mandatory, because Object Storage routes
+   bucket-website requests by hostname and no bucket is named after a public hostname.
+3. **A path missing its trailing slash gets a redirect to the slashed form** — but it is a **302**, not
+   the 301 S3 semantics predicted. It redirects either way, so the client-side recovery in
+   `docs/static-hosting.md` is not needed; the difference matters only if something ever caches on the
+   assumption that the redirect is permanent.
+
+Issue #148 remains open and is unrelated to any of the above: the bucket-website origin returns
+intermittent 500s, roughly 1 request in 5, reproducible with Bunny bypassed. It affects every
+environment.
 
 ## Out of scope
 
