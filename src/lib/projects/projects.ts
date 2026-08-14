@@ -1,3 +1,5 @@
+import { deleteProjectArtifacts } from '$lib/artifacts';
+
 import {
   readActiveProjectPayload,
   readProjectsPayload,
@@ -148,8 +150,15 @@ export function renameProject(
 /**
  * Delete a project and everything it owns.
  *
- * Artifacts do not exist yet (#33), so `removedArtifactIds` is always empty — but the cascade is
- * this function's responsibility when they do, and the result type is the shape that reports it.
+ * A project owns its artifacts and nothing else does, so they go with it — `$lib/artifacts` does
+ * the removal and reports the ids. The dependency runs this way round on purpose: the store is
+ * keyed by project id and knows nothing about the project set, which is what keeps it from
+ * reaching back into here.
+ *
+ * The artifacts go first. A refused write between the two leaves a project with nothing in it,
+ * which the user can delete again; the reverse order would leave artifacts in a project that no
+ * longer exists, which nothing would ever list or collect.
+ *
  * Deleting the active project clears the selection rather than leaving it pointing at nothing;
  * `getActiveProject` then picks whichever project was touched most recently.
  */
@@ -160,13 +169,14 @@ export function deleteProject(id: string): ProjectDeletion {
     return { deleted: false, removedArtifactIds: [], wasActive: false };
   }
 
+  const removedArtifactIds = deleteProjectArtifacts(id);
   writeProjectsPayload(remaining);
 
   const wasActive = readActiveProjectPayload().activeProjectId === id;
   if (wasActive) {
     writeActiveProjectPayload(null);
   }
-  return { deleted: true, removedArtifactIds: [], wasActive };
+  return { deleted: true, removedArtifactIds, wasActive };
 }
 
 /**
