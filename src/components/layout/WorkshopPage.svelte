@@ -1,4 +1,5 @@
 <script lang="ts">
+  import ProjectContextBar from '$components/common/ProjectContextBar.svelte';
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
   import { allTools, findToolByPath, firstToolInBrowseOrder } from '$lib/tools';
@@ -13,6 +14,8 @@
 
 <section class="main workshop">
   <h1>Workshop</h1>
+
+  <ProjectContextBar />
 
   <div class="workshop__panels">
     <ToolBrowser {tools} bind:activeToolPath />
