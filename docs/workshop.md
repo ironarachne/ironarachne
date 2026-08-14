@@ -818,7 +818,7 @@ absence of a workshop suggests.
 | Scoped storage             | **Built, wrong scope.** Per-generator, not per-project.                                                                                                             |
 | Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                  |
 | Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                       |
-| Projects                   | **Not built.**                                                                                                                                                      |
+| Projects                   | **Built (#31).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project, stored per browser. No artifacts in them yet.               |
 | Generic artifact store     | **Not built.**                                                                                                                                                      |
 | Artifact editing           | **Not built.** Two tools are editors; neither edits a saved artifact.                                                                                               |
 | Composition                | **Partial.** `SavedCulturePicker` lets the region, settlement, and religion generators take a saved culture — the pattern to generalise, built three times by hand. |
