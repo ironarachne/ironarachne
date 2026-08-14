@@ -21,11 +21,22 @@ const repoRoot = resolve(__dirname, '../..');
 const libRoot = join(repoRoot, 'src/lib');
 
 /**
- * Deep imports that stay. `planets/planets` statically imports every planet GLSL module, so
- * re-exporting it would drag all of them into anything that wanted only the `Shader` type —
- * the reasoning `shaders/index.ts` records at the top of the file.
+ * Deep imports that stay, each because routing it through the entry point would pull a heavy
+ * subtree into a page that does not need it. Every one of these was measured against the build,
+ * not guessed, and the call site carries the reason.
+ *
+ * Add to this list only with a build measurement behind it. "It felt heavy" is how the rule rots.
  */
-const ALLOWED_DEEP_IMPORTS = new Set(['$lib/shaders/planets/planets']);
+const ALLOWED_DEEP_IMPORTS = new Set([
+  // Statically imports every planet GLSL module; see the comment atop `shaders/index.ts`.
+  '$lib/shaders/planets/planets',
+  // `/saved-data` and `/swn/starship` are list-and-read pages. Their libraries' entry points all
+  // reach a generator and from there the species table — 19 MB apiece, measured.
+  '$lib/culture/culture_saved_state',
+  '$lib/heraldry/heraldry_saved_state',
+  '$lib/religion/religion_saved_state',
+  '$lib/swn/starship',
+]);
 
 /** A specifier ending in something other than a TS/JS extension is an asset, not a module. */
 function isAsset(specifier: string): boolean {

@@ -1,8 +1,12 @@
-import { loadSavedCultureSnapshots } from '$lib/culture';
+// Deep on purpose, and measured: the culture, heraldry, and religion entry points each reach a
+// generator and from there the whole species table. This module only reads what is already in
+// local storage, and `/saved-data` is the page that pays for it — 19 MB through the entry points
+// against 140 KB through these. The type imports are free; they erase.
+import { loadSavedCultureSnapshots } from '$lib/culture/culture_saved_state';
 import type { CultureSnapshot } from '$lib/culture';
-import { loadSavedHeraldrySnapshots } from '$lib/heraldry';
+import { loadSavedHeraldrySnapshots } from '$lib/heraldry/heraldry_saved_state';
 import type { HeraldrySnapshot } from '$lib/heraldry';
-import { loadSavedReligionSnapshots } from '$lib/religion';
+import { loadSavedReligionSnapshots } from '$lib/religion/religion_saved_state';
 import type { ReligionSnapshot } from '$lib/religion';
 
 export type SavedDataEntry =
