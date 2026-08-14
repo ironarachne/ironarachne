@@ -46,12 +46,12 @@ export type ProjectMutationOptions = {
 
 /**
  * What a delete removed. It reports rather than returns a bare boolean because deleting a project
- * grows a cascade as soon as artifacts exist (#33): the artifacts inside it, and the bench state
- * that referenced them, are removed with it, and the caller has to be able to say what went.
+ * cascades: the artifacts inside it go with it, and the caller has to be able to say what went.
+ * The bench state joins them once panels are persisted.
  */
 export type ProjectDeletion = {
   deleted: boolean;
-  /** Ids of the artifacts removed with the project. Always empty until artifacts exist (#33). */
+  /** Ids of the artifacts removed with the project, as `$lib/artifacts` reported them. */
   removedArtifactIds: string[];
   /** True when the deleted project was the active one, so the caller knows the context moved. */
   wasActive: boolean;

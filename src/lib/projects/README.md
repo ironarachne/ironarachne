@@ -6,8 +6,10 @@ is the context the whole site operates in, and everything a user makes belongs t
 This library owns the project type, the operations over it, and where it is stored. It is
 deliberately thin, because a project is — see [`docs/workshop.md`](../../../docs/workshop.md) — a
 namespace and a workspace rather than a document with content of its own. What makes a project
-meaningful is the artifacts inside it, and those are [#33](https://worktree.ca/ironarachne/ironarachne/issues/33)'s
-job, not this one's.
+meaningful is the artifacts inside it, and those live in
+[`$lib/artifacts`](../artifacts/README.md). The dependency runs one way: this library reaches into
+the store to cascade a delete, and the store — which is keyed by project id and knows nothing about
+the project set — never reaches back.
 
 ## The type
 
@@ -90,10 +92,13 @@ function that has to change to route them there instead.
 
 ## Deleting
 
-`deleteProject` returns a `ProjectDeletion` rather than a boolean, because deleting a project grows
-a cascade as soon as artifacts exist: the artifacts inside it, and the bench state that referenced
-them, go with it. Until then `removedArtifactIds` is always empty, and the shape is what lets a
-caller report the delete honestly once it is not.
+`deleteProject` returns a `ProjectDeletion` rather than a boolean, because deleting a project
+cascades: the artifacts inside it go with it, and `removedArtifactIds` is what lets a caller say so
+in the user's terms. The bench state joins them once panels are persisted.
+
+The artifacts go first. A refused write between the two steps leaves a project with nothing in it,
+which the user can delete again; the reverse order would leave artifacts in a project that no
+longer exists, which nothing would ever list or collect.
 
 Deleting the open project clears the selection instead of leaving it pointing at nothing;
 `getActiveProject` then picks whichever project was touched most recently.

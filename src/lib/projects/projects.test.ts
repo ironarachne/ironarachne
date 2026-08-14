@@ -1,6 +1,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  acceptedPayload,
+  asRecord,
+  createArtifactKindRegistry,
+  defineArtifactKind,
+  registerArtifactKind,
+  rejectedPayload,
+} from '$lib/artifact_kinds';
+import { createArtifact, listArtifacts, readArtifact } from '$lib/artifacts';
+
+import {
   readActiveProjectPayload,
   readProjectsPayload,
   writeActiveProjectPayload,
@@ -43,6 +53,38 @@ beforeEach(() => {
 afterEach(() => {
   vi.unstubAllGlobals();
 });
+
+type Note = { title: string };
+
+const note: Note = { title: 'A note' };
+
+/** Enough of a kind to put something in a project, so the delete cascade has work to do. */
+const NOTE_KINDS = (() => {
+  const registry = createArtifactKindRegistry();
+  registerArtifactKind(
+    registry,
+    defineArtifactKind<Note, Note>({
+      kind: 'note',
+      displayName: 'Note',
+      payloadVersion: 1,
+      loadCodec: async () => ({
+        toSnapshot: (value: Note) => ({ ...value }),
+        fromSnapshot: (snapshot: Note) => ({ ...snapshot }),
+      }),
+      nameOf: (snapshot) => snapshot.title,
+      validate: (payload) => {
+        const record = asRecord(payload);
+        if (record === null || typeof record.title !== 'string') {
+          return rejectedPayload<Note>('invalid-payload', 'note has no title');
+        }
+        return acceptedPayload({ title: record.title });
+      },
+      migrate: (_payload, from) =>
+        rejectedPayload<Note>('unsupported-version', `nothing at ${from}`),
+    }),
+  );
+  return registry;
+})();
 
 describe('newProjectId', () => {
   it('uses crypto.randomUUID where it exists', () => {
@@ -225,6 +267,23 @@ describe('deleteProject', () => {
       wasActive: false,
     });
     expect(listProjects().map((project) => project.id)).toEqual(['p2']);
+  });
+
+  it('takes the artifacts in the project with it, and leaves other projects alone', () => {
+    createProject({ name: 'One' }, { id: 'p1' });
+    createProject({ name: 'Two' }, { id: 'p2' });
+    const kept = createArtifact(NOTE_KINDS, { projectId: 'p2', kind: 'note', payload: note }, {});
+    createArtifact(NOTE_KINDS, { projectId: 'p1', kind: 'note', payload: note }, { id: 'a1' });
+    createArtifact(NOTE_KINDS, { projectId: 'p1', kind: 'note', payload: note }, { id: 'a2' });
+
+    const deletion = deleteProject('p1');
+
+    expect(deletion.removedArtifactIds.sort()).toEqual(['a1', 'a2']);
+    expect(listArtifacts('p1')).toEqual([]);
+    expect(readArtifact(NOTE_KINDS, 'p1', 'a1')).toBeUndefined();
+    expect(kept.ok && listArtifacts('p2').map((summary) => summary.id)).toEqual([
+      kept.ok ? kept.value.id : '',
+    ]);
   });
 
   it('reports nothing deleted for an unknown id', () => {
