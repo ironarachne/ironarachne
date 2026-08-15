@@ -1171,7 +1171,7 @@ absence of a workshop suggests.
 | Storage status             | **Built (#177).** `src/lib/storage_status` — usage, quota, persistence, per-project attribution, and the export stamps, as `StorageStatus`. The panel that displays it is #179.          |
 | The bench                  | **Built (#36).** `src/lib/workspaces` — `ProjectWorkspace` and `PanelState`, persisted per project, reset rather than migrated, and dropped panel by panel when a target is gone.        |
 | Saving from a tool         | **Built for three kinds (#36).** `saveToolArtifact` plus `SaveArtifactButton`; heraldry, culture, and religion save into the open project, and prompt for one on their own routes.       |
-| Artifact editing           | **Not built.** Two tools are editors; neither edits a saved artifact.                                                                                                                    |
+| Artifact editing           | **Framework built (#39).** `openArtifactForEditing`, the dirty/save lifecycle, the destructive re-roll, and the unsaved-edits guard, with a per-kind editor slot. No kind fills it yet.  |
 | Composition                | **Built (#37).** `SavedArtifactPicker` offers any registered kind, `loadArtifactValue` rebuilds the choice, and references are recorded, resolved both ways, and shown where they break. |
 
 ## Tool release readiness

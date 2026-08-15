@@ -1,12 +1,16 @@
 # Workshop
 
-Where the workshop's two registries are assembled: a tool in the [catalog](../tools) mapped to the
-component that renders it, and an artifact [kind](../artifact_kinds/README.md) mapped to the
-library that knows how to store it.
+Where the workshop's three registries are assembled: a tool in the [catalog](../tools) mapped to
+the component that renders it, an artifact [kind](../artifact_kinds/README.md) mapped to the
+library that knows how to store it, and a kind mapped to the component that edits it.
 
-Both are lists of static imports, and both are here for the same reason — the libraries they name
-must not know about each other, and the assembly has to be somewhere that no one imports by
-accident.
+All three are lists of static imports, and all three are here for the same reason — the libraries
+they name must not know about each other, and the assembly has to be somewhere that no one imports
+by accident.
+
+This is also where the operations that need more than one of them live: saving what a tool made,
+loading a saved artifact back into a generator, and the editing lifecycle around an artifact that
+is open.
 
 ## Tool panels
 
@@ -131,3 +135,78 @@ holding it.
 Rehydration is seeded from the artifact's id, so the same saved artifact rebuilds the same way
 every time it is picked. Nothing is rolled: the payload is the truth, and the RNG is there to
 rebuild name generators and the like.
+
+## Editing a saved artifact
+
+`openArtifactForEditing` is where an artifact is picked up to be changed: it reads the artifact,
+resolves the kind's editor, and reports what this build can do to it. `saveArtifactEdits` writes
+what the surface is holding, and `rerollArtifact` throws it away and rolls the artifact again from
+its provenance.
+
+```ts
+import { hasUnsavedArtifactEdits, openArtifactForEditing, saveArtifactEdits } from '$lib/workshop';
+
+const target = await openArtifactForEditing(project.id, artifactId);
+if (target === undefined) return; // deleted out from under us — not a failure to report
+const dirty = hasUnsavedArtifactEdits(target, { name, payload: draft });
+const result = await saveArtifactEdits(project.id, artifactId, { name, payload: draft });
+```
+
+`ArtifactPanel.svelte` is the surface built on this, and it is the whole of the framework's UI:
+the name field, the dirty state, saving, discarding, re-rolling, and the warnings before edits are
+lost. A kind supplies the fields; it does not supply any of that.
+
+**The payload is the truth.** Nothing here regenerates from provenance except `rerollArtifact`,
+which is destructive, explicit, and confirmed by its caller. Saving writes the payload it is
+given, and the kind's `validate` gates it on the way in like any other write — a rejection leaves
+the artifact exactly as it was, which is why the payload is written before the name rather than
+after it.
+
+An untouched payload — `edits.payload === undefined` — is not rewritten at all, so renaming an
+artifact does not restamp contents nobody changed.
+
+## Artifact editors
+
+`ARTIFACT_EDITORS` maps a kind to the component that edits it, alongside an optional roller. It
+is **empty**, and that is the shipped state: #39 built the frame, and an editing view for a
+particular kind is part of taking that tool to Release-ready (docs/workshop.md, section 4). A kind
+with no entry opens read-only — the stored snapshot, rendered honestly — which is a state the
+surface draws rather than an error it reports.
+
+```ts
+export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
+  culture: {
+    loadEditor: () => import('$components/factions/CultureArtifactEditor.svelte'),
+    loadRoller: async () => (await import('$lib/culture/culture_reroll.js')).rollCultureSnapshot,
+  },
+};
+```
+
+The specifiers are written out in full, for the reason `TOOL_PANELS` is: a bundler can only split
+a dynamic import it can see.
+
+An editor is handed a **snapshot** and an `onChange` that takes a whole replacement snapshot. It
+owns its fields and nothing else — a patch would need a merge only the kind could write, and
+dirty state, saving, and re-rolling are the framework's.
+
+The roller sits beside the editor rather than in the kind registry because re-rolling exists to
+undo edits: a kind nobody can change has nothing for a re-roll to destroy. `rerollArtifact` is
+unavailable in two different ways, and they read differently on screen —
+`artifactRerollAvailability` tells them apart: `unsupported` is a kind with no roller, and
+`no-provenance` is an artifact with no record of its own origin, which is everything adopted from
+`ironarachne.save.v1.*` (#34 records provenance as absent rather than inventing a seed).
+
+## Unsaved edits
+
+`trackUnsavedEdits` is how a surface holding unwritten changes answers for itself, and
+`hasUnsavedEdits` is how something else asks. It exists because the workshop is one route: the
+control that closes a panel belongs to the bench, `beforeNavigate` never fires for it, and closing
+a panel is the likeliest way to lose an edit.
+
+```ts
+const stop = trackUnsavedEdits(artifactId, () => dirty);
+```
+
+It holds predicates rather than booleans, so the answer is computed when it is asked for. A flag
+pushed in on every keystroke would be a second copy of the surface's dirty state, and the copy is
+what would be stale at the moment it mattered.

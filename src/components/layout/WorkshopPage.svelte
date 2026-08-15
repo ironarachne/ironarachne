@@ -10,7 +10,8 @@
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import type { Project } from '$lib/projects';
   import { allTools, findToolByPath, type Tool } from '$lib/tools';
-  import { hasToolPanel } from '$lib/workshop';
+  import { showConfirmModal } from '$lib/ui';
+  import { hasToolPanel, hasUnsavedEdits } from '$lib/workshop';
   import {
     emptyWorkspace,
     panelKey,
@@ -132,6 +133,29 @@
       : { toolPath: panel.toolPath };
   }
 
+  /**
+   * Close a panel, asking first when it is holding edits nobody has written.
+   *
+   * The question belongs here rather than inside the panel because the control that closes it is
+   * the bench's, and closing is the likeliest way to lose an edit on a single-route workshop —
+   * `beforeNavigate` never fires for it. What the panel contributes is the answer, through the
+   * shared guard it registered.
+   */
+  async function closePanel(panel: PanelState) {
+    if (panel.toolPath === undefined && hasUnsavedEdits(panel.artifactId)) {
+      const confirmed = await showConfirmModal({
+        title: 'Close panel',
+        message: `“${panelTitle(panel)}” has changes you have not saved. Close it and leave them behind?`,
+        okLabel: 'Close',
+        dangerous: true,
+      });
+      if (!confirmed) {
+        return;
+      }
+    }
+    updateBench(withPanelClosed(bench, targetOf(panel)));
+  }
+
   function panelTitle(panel: PanelState): string {
     if (panel.toolPath !== undefined) {
       return toolFor(panel.toolPath)?.label ?? panel.toolPath;
@@ -161,7 +185,7 @@
           subtitle={panel.toolPath === undefined ? 'Artifact' : 'Tool'}
           position={panel.order + 1}
           total={bench.panels.length}
-          onClose={() => updateBench(withPanelClosed(bench, targetOf(panel)))}
+          onClose={() => void closePanel(panel)}
           onMoveLeft={() => updateBench(withPanelMoved(bench, targetOf(panel), -1))}
           onMoveRight={() => updateBench(withPanelMoved(bench, targetOf(panel), 1))}
         >
