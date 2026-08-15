@@ -10,18 +10,22 @@ import {
 import type { Culture } from '$lib/culture';
 import { closeVault, writeArtifactRecord } from '$lib/vault_db';
 
-import { loadArtifactValue } from './artifact_loading';
+import { createProject, resetProjectIndex, setActiveProject } from '$lib/projects';
+
+import { loadActiveProjectArtifactValues, loadArtifactValue } from './artifact_loading';
 import { saveToolArtifact } from './artifact_saving';
 
 beforeEach(() => {
   closeVault();
   resetArtifactIndex();
+  resetProjectIndex();
   vi.stubGlobal('indexedDB', new IDBFactory());
 });
 
 afterEach(() => {
   closeVault();
   resetArtifactIndex();
+  resetProjectIndex();
   vi.unstubAllGlobals();
 });
 
@@ -189,5 +193,63 @@ describe('loadArtifactValue', () => {
     vi.stubGlobal('indexedDB', undefined);
 
     expect(await loadArtifactValue('p1', saved.id)).toMatchObject({ ok: false });
+  });
+});
+
+describe('loadActiveProjectArtifactValues', () => {
+  /** The open project with two cultures in it, which is what the naming dropdowns read. */
+  async function openAProjectHoldingCultures(names: string[]): Promise<string> {
+    const project = await createProject({ name: 'Ashfall' });
+    if (!project.ok) {
+      throw new Error(`expected a project, got ${project.reason}`);
+    }
+    setActiveProject(project.value.id);
+    for (const name of names) {
+      await saveToolArtifact(project.value.id, {
+        kind: 'culture',
+        payload: cultureSnapshot(name),
+        toolPath: '/culture',
+      });
+    }
+    return project.value.id;
+  }
+
+  it('rebuilds every artifact of one kind in the open project', async () => {
+    await openAProjectHoldingCultures(['Ashfall', 'Saltmarch']);
+
+    const cultures = (await loadActiveProjectArtifactValues('culture')) as Culture[];
+
+    expect(cultures.map((culture) => culture.name).sort()).toEqual(['Ashfall', 'Saltmarch']);
+    // Live values, not snapshots: a caller asked for something it can name a character from.
+    expect(cultures[0].nameGenerators.town.generate(1)).toHaveLength(1);
+  });
+
+  it('offers nothing of a kind the project does not hold', async () => {
+    await openAProjectHoldingCultures(['Ashfall']);
+
+    expect(await loadActiveProjectArtifactValues('heraldry')).toEqual([]);
+  });
+
+  it('offers nothing when no project is open, which is not a failure', async () => {
+    setActiveProject(null);
+
+    expect(await loadActiveProjectArtifactValues('culture')).toEqual([]);
+  });
+
+  /**
+   * One unreadable artifact costs that artifact and not the list. A dropdown of things to name a
+   * character from is not a place a user can act on a broken payload.
+   */
+  it('leaves out what it cannot read and keeps the rest', async () => {
+    const projectId = await openAProjectHoldingCultures(['Ashfall']);
+    const broken = await saveToolArtifact(projectId, {
+      kind: 'heraldry',
+      payload: armsSnapshotNamingACharge('a-charge-this-build-does-not-have'),
+      toolPath: '/heraldry',
+    });
+    expect(broken.ok).toBe(true);
+
+    expect(await loadActiveProjectArtifactValues('heraldry')).toEqual([]);
+    expect(await loadActiveProjectArtifactValues('culture')).toHaveLength(1);
   });
 });

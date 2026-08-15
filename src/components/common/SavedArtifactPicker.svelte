@@ -46,6 +46,14 @@
      * for an artifact that could not be read would claim an input that was never used.
      */
     reference?: ArtifactReference;
+    /**
+     * Why the chosen artifact is not on offer, or `null` when nothing is wrong.
+     *
+     * Shown here regardless; exposed because a consumer needs to tell "still loading" from "this
+     * one cannot be used". A generator that waits for the value before rolling would otherwise
+     * wait forever on an artifact that is never going to arrive.
+     */
+    problem?: string | null;
   };
 
   let {
@@ -57,6 +65,7 @@
     artifactId = $bindable(),
     value = $bindable(),
     reference = $bindable(),
+    problem = $bindable(null),
   }: Props = $props();
 
   // Two of these on one page — a generator in a panel and the same one on its own route — must not
@@ -69,7 +78,6 @@
 
   let projectId: string | undefined = $state();
   let choices: ArtifactSummary[] = $state([]);
-  let problem: string | null = $state(null);
   /** Whether the store has been read at all. Before it has, an empty list means "not looked yet". */
   let looked = $state(false);
 

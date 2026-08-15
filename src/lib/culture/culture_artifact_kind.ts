@@ -14,7 +14,16 @@ import type { Culture } from './culture_types';
 /** Stable artifact kind id. A culture is system-neutral: one kind covers every use of it. */
 export const CULTURE_ARTIFACT_KIND = 'culture' as const;
 
-/** Version 1. The snapshot shape has not changed since cultures became savable. */
+/**
+ * Version 1, still, after `religion` grew the ability to be null.
+ *
+ * A version marks the shape a payload was *written* at, and it advances when something already
+ * stored would otherwise be misread. Nothing is: every culture written before composition existed
+ * carries an embedded religion, which is as valid now as it was then. Bumping would have put
+ * "these contents were brought forward from an older version" on every culture in every project
+ * to describe a change that did not touch them, and a migration notice nobody needs is how a
+ * migration notice stops being read.
+ */
 export const CULTURE_PAYLOAD_VERSION = 1 as const;
 
 const CULTURE_STRING_FIELDS = ['name', 'greeting', 'eatingTrait', 'designTrait', 'musicStyle'];
@@ -74,11 +83,33 @@ function validateCulturalOrganization(value: unknown): PayloadResult<unknown> {
 }
 
 /**
+ * The culture's own religion, which is either there or deliberately absent.
+ *
+ * `null` is a statement, not a gap: it says a referenced religion artifact supplies this culture's
+ * faith, and the reference on the artifact says which. Rejecting it would make a composed culture
+ * unreadable by the very build that wrote it.
+ *
+ * A religion that *is* embedded is checked for a name and nothing more — a culture's religion is
+ * generated content whose full shape belongs to `$lib/religion`, and restating it here would be a
+ * second copy of those types that goes stale the first time one of them changes.
+ */
+function validateCultureReligion(value: unknown): PayloadResult<unknown> {
+  if (value === null) {
+    return acceptedPayload(value);
+  }
+  const religion = asRecord(value);
+  if (religion === null || typeof religion.name !== 'string') {
+    return rejectedPayload(
+      'invalid-payload',
+      'culture religion is neither null nor an object with a name',
+    );
+  }
+  return acceptedPayload(religion);
+}
+
+/**
  * Checks what `cultureFromSnapshot` depends on: the fields it copies straight through, and
- * enough of `nameGenerators` to rebuild the six generators from. The embedded religion is
- * checked for a name and nothing more — a culture's religion is generated content whose full
- * shape belongs to `$lib/religion`, and restating it here would be a second copy of those types
- * that goes stale the first time one of them changes.
+ * enough of `nameGenerators` to rebuild the six generators from.
  */
 export function validateCultureSnapshot(payload: unknown): PayloadResult<CultureSnapshot> {
   const record = asRecord(payload);
@@ -99,9 +130,9 @@ export function validateCultureSnapshot(payload: unknown): PayloadResult<Culture
   if (!organization.ok) {
     return organization;
   }
-  const religion = asRecord(record.religion);
-  if (religion === null || typeof religion.name !== 'string') {
-    return rejectedPayload('invalid-payload', 'culture religion is not an object with a name');
+  const religion = validateCultureReligion(record.religion);
+  if (!religion.ok) {
+    return religion;
   }
   const generators = validateStoredNameGenerators(record.nameGenerators);
   if (!generators.ok) {

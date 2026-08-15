@@ -43,10 +43,61 @@ describe('culture_snapshot', () => {
     expect(restored.name).toBe(culture.name);
     expect(restored.greeting).toBe(culture.greeting);
     expect(restored.organization.description).toBe(culture.organization.description);
-    expect(restored.religion.description).toBe(culture.religion.description);
+    expect(restored.religion?.description).toBe(culture.religion?.description);
     expect(nameGeneratorSetToStoredPatternSet(restored.nameGenerators)).toEqual(
       nameGeneratorSetToStoredPatternSet(culture.nameGenerators),
     );
+  });
+
+  /**
+   * The composed case: a culture whose religion is a referenced artifact keeps no religion of its
+   * own, and that absence has to survive storage. A round trip that quietly grew one back would
+   * put a stale copy of someone's religion inside every culture that links to it.
+   */
+  it('round-trips a culture that takes its religion from a reference', () => {
+    const rng = new RNG.RNG('snap-referenced');
+    const genConfig = getDefaultCultureGenerationConfig();
+    genConfig.nameGenerators = getFantasyNameGeneratorSet('dwarf', rng);
+    genConfig.religionSource = 'reference';
+    const culture = generateCulture('seed-one', genConfig);
+    expect(culture.religion).toBeNull();
+
+    const parsed = JSON.parse(JSON.stringify(toCultureSnapshot(culture))) as ReturnType<
+      typeof toCultureSnapshot
+    >;
+    const restored = cultureFromSnapshot(parsed, rng);
+
+    expect(restored.religion).toBeNull();
+    expect(restored.name).toBe(culture.name);
+    expect(restored.taboos).toEqual(culture.taboos);
+  });
+
+  /**
+   * A referenced religion changes where the religion comes from and nothing else. If it moved any
+   * other field, a user who ticked the box would find the seed they had written down no longer
+   * produced the culture they wrote it down for.
+   */
+  it('leaves every other field alone when the religion comes from a reference', () => {
+    function roll(religionSource: 'generate' | 'reference') {
+      const rng = new RNG.RNG('snap-parity');
+      const genConfig = getDefaultCultureGenerationConfig();
+      genConfig.nameGenerators = getFantasyNameGeneratorSet('elf', rng);
+      genConfig.religionSource = religionSource;
+      return generateCulture('parity-seed', genConfig);
+    }
+
+    const own = roll('generate');
+    const referenced = roll('reference');
+
+    expect(referenced.name).toBe(own.name);
+    expect(referenced.taboos).toEqual(own.taboos);
+    expect(referenced.greeting).toBe(own.greeting);
+    expect(referenced.eatingTrait).toBe(own.eatingTrait);
+    expect(referenced.designTrait).toBe(own.designTrait);
+    expect(referenced.musicStyle).toBe(own.musicStyle);
+    expect(referenced.organization).toEqual(own.organization);
+    expect(own.religion).not.toBeNull();
+    expect(referenced.religion).toBeNull();
   });
 
   it('stripFunctionValuesDeep removes functions from nested objects', () => {

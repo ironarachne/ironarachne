@@ -1,6 +1,11 @@
 <script lang="ts">
   type Props = {
-    onExport: () => void;
+    /**
+     * Omitted by a tool that has nothing complete to offer. The culture generator is the standing
+     * case: it saves into projects now, so an "export saved" button there would write a file of
+     * whatever happens to be left in the old scope and call it a backup.
+     */
+    onExport?: () => void;
     onImport: (file: File) => void;
     accept?: string;
   };
@@ -24,7 +29,9 @@
 </script>
 
 <div class="input-group export-import-row">
-  <button type="button" onclick={onExport}>Export saved (JSON)</button>
+  {#if onExport !== undefined}
+    <button type="button" onclick={onExport}>Export saved (JSON)</button>
+  {/if}
   <button type="button" onclick={triggerImport}>Import saves from file</button>
   <input
     bind:this={importInput}

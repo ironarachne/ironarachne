@@ -136,6 +136,13 @@ Rehydration is seeded from the artifact's id, so the same saved artifact rebuild
 every time it is picked. Nothing is rolled: the payload is the truth, and the RNG is there to
 rebuild name generators and the like.
 
+`loadActiveProjectArtifactValues` is the bulk form, for a tool that wants to _offer_ everything of
+a kind rather than resolve one thing a user picked — the character generators listing the cultures
+available to name from. It hydrates first, because its callers are standalone routes that have not
+read the store, and it leaves out artifacts it cannot read: a naming dropdown is not somewhere a
+user can act on a broken payload, so dropping one costs an option where surfacing it would cost the
+list.
+
 ## Editing a saved artifact
 
 `openArtifactForEditing` is where an artifact is picked up to be changed: it reads the artifact,
@@ -167,20 +174,29 @@ artifact does not restamp contents nobody changed.
 
 ## Artifact editors
 
-`ARTIFACT_EDITORS` maps a kind to the component that edits it, alongside an optional roller. It
-is **empty**, and that is the shipped state: #39 built the frame, and an editing view for a
-particular kind is part of taking that tool to Release-ready (docs/workshop.md, section 4). A kind
-with no entry opens read-only — the stored snapshot, rendered honestly — which is a state the
-surface draws rather than an error it reports.
+`ARTIFACT_EDITORS` maps a kind to the component that edits it, alongside an optional roller.
+**Culture is the only entry**, and most kinds having none is the shipped state: #39 built the
+frame, and an editing view for a particular kind is part of taking that tool to Release-ready
+(docs/workshop.md, section 4). A kind with no entry opens read-only — the stored snapshot,
+rendered honestly — which is a state the surface draws rather than an error it reports. Heraldry
+is the standing example.
 
 ```ts
 export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
   culture: {
     loadEditor: () => import('$components/factions/CultureArtifactEditor.svelte'),
-    loadRoller: async () => (await import('$lib/culture/culture_reroll.js')).rollCultureSnapshot,
+    loadRoller: async () => {
+      const { readCultureGeneratorConfig, rollCultureSnapshot } =
+        await import('$lib/culture/culture_roll.js');
+      return (provenance) =>
+        rollCultureSnapshot(provenance.seed, readCultureGeneratorConfig(provenance.config));
+    },
   },
 };
 ```
+
+Nothing in the framework changed to accommodate culture, which is the claim the first entry
+exists to test: adding a kind is a line here and a component taking `ArtifactEditorProps`.
 
 The specifiers are written out in full, for the reason `TOOL_PANELS` is: a bundler can only split
 a dynamic import it can see.

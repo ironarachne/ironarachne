@@ -39,13 +39,36 @@ describe('the artifact editor registry', () => {
   });
 
   /**
-   * The parity the tool panels have with the tool catalog, applied here. It passes vacuously
-   * today — no kind has an editor yet — and it is what stops the first one being registered
-   * against a kind id that nothing stores, which would be an editor no artifact could ever reach.
+   * The parity the tool panels have with the tool catalog, applied here: an editor registered
+   * against a kind id nothing stores would be an editor no artifact could ever reach.
    */
   it('registers editors only for kinds this build can store', () => {
     const kinds = registeredArtifactKinds().map((entry) => entry.kind);
 
     expect(kindsWithArtifactEditors().filter((kind) => !kinds.includes(kind))).toEqual([]);
+  });
+
+  /**
+   * Culture is the first kind through the slot #39 built (#40). Asserted by name rather than by
+   * "at least one", because the point of taking a tool to Release-ready is that *that tool* is
+   * editable — a passing count would survive the entry being swapped for any other kind.
+   */
+  it('gives culture an editor and a roller', () => {
+    const culture = artifactEditorEntry('culture');
+
+    expect(culture?.loadEditor).toBeDefined();
+    expect(culture?.loadRoller).toBeDefined();
+  });
+
+  it('rolls a culture from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('culture')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/culture',
+      seed: 'registry-roll',
+      config: { nameGeneratorSet: 'dwarf' },
+    }) as { name: string };
+
+    expect(typeof rolled.name).toBe('string');
+    expect(rolled.name).not.toBe('');
   });
 });
