@@ -51,11 +51,20 @@ export function generateCulture(seed: string, config: CultureGenerationConfig): 
   let musicStyle = MusicStyles.generateMusicStyle(rng).description;
   musicStyle = musicStyle.replace('This style of', cultureName);
 
+  // Both drawn here, in the order the object literal used to draw them, and the religion's is
+  // drawn whether or not it is used. Two reasons, and the second is the one that bites: the draw
+  // order decides every seed's output, so moving it would give every culture anyone has ever
+  // saved a different re-roll; and skipping the religion's draw would shift the fields after it,
+  // making "the same seed gave me a different culture because I ticked a box" true.
+  const organizationSeed = rng.randomString(16);
+  const religionSeed = rng.randomString(16);
+
   const culture = {
     name: cultureName,
     nameGenerators: config.nameGenerators,
-    organization: generateCulturalOrganization(rng.randomString(16)),
-    religion: generateReligion(rng.randomString(16), relGenConfig),
+    organization: generateCulturalOrganization(organizationSeed),
+    religion:
+      config.religionSource === 'reference' ? null : generateReligion(religionSeed, relGenConfig),
     taboos: randomTaboos(rng.randomString(16)),
     greeting: randomGreeting(rng.randomString(16)),
     eatingTrait: randomEatingTrait(rng.randomString(16)),

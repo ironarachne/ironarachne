@@ -7,8 +7,9 @@
     resolveCharacterNameGeneratorSet,
     rollCharacterNameForSource,
     dccOccupationToNameSetHint,
+    loadCulturesForNaming,
   } from '$lib/characters';
-  import { type Culture, loadSavedCultures } from '$lib/culture';
+  import type { Culture } from '$lib/culture';
   import * as DCC from '$lib/dcc';
   import type { DCCCharacter } from '$lib/dcc';
   import { onMount } from 'svelte';
@@ -145,10 +146,14 @@
   }
 
   onMount(() => {
-    savedCultures = loadSavedCultures();
-    if (savedCultures.length > 0) {
-      savedCultureName = savedCultures[0]!.name;
-    }
+    // Not awaited: the cultures come from the vault database, and a character worth looking at
+    // should be on screen before a naming dropdown has finished filling in.
+    void loadCulturesForNaming().then((cultures) => {
+      savedCultures = cultures;
+      if (savedCultures.length > 0) {
+        savedCultureName = savedCultures[0]!.name;
+      }
+    });
     generate();
   });
 </script>

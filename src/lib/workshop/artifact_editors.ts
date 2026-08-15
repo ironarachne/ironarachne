@@ -10,16 +10,30 @@ import type { ArtifactEditorEntry, ArtifactEditorRegistry } from './workshop_typ
  * see, and a registry built by self-registration on import would be missing a kind depending on
  * which page the user happened to start from.
  *
- * **It is empty, and that is the shipped state.** #39 built the frame — the surface an artifact
- * opens in, the dirty/save lifecycle, the destructive re-roll — and an editing view for a
+ * **Most kinds are not here, and that is the shipped state.** #39 built the frame — the surface an
+ * artifact opens in, the dirty/save lifecycle, the destructive re-roll — and an editing view for a
  * particular kind is part of taking *that tool* to Release-ready, per docs/workshop.md. A kind
  * with no entry here opens read-only, which is a state the surface renders rather than an error
  * it reports.
  *
  * Adding one is a line here and a component that takes {@link ArtifactEditorProps}. Nothing in
- * the framework changes to accommodate it.
+ * the framework changed to accommodate culture, which is the claim the first entry exists to test.
+ *
+ * The roller's specifier reaches past `$lib/culture` on purpose: it is a dynamic import, which
+ * exists to split a chunk off, and going through the entry point would pull the whole library —
+ * generation tables and all — back into the chunk that opening any artifact loads.
  */
-export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {};
+export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
+  culture: {
+    loadEditor: () => import('$components/factions/CultureArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readCultureGeneratorConfig, rollCultureSnapshot } =
+        await import('$lib/culture/culture_roll.js');
+      return (provenance) =>
+        rollCultureSnapshot(provenance.seed, readCultureGeneratorConfig(provenance.config));
+    },
+  },
+};
 
 /** The editor registration for a kind, or undefined when it has none and opens read-only. */
 export function artifactEditorEntry(

@@ -1,13 +1,15 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
-  appendSavedCulture,
   CULTURE_SAVE_SCOPE_ID,
   deleteSavedCultureByName,
   generateCulture,
   getDefaultCultureGenerationConfig,
+  loadSavedCultures,
   loadSavedCultureSnapshots,
   readCultureSavePayload,
+  saveCultureSnapshots,
+  toCultureSnapshot,
 } from '$lib/culture';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save';
@@ -50,12 +52,18 @@ describe('culture_saved_state', () => {
     expect(readCultureSavePayload().cultures).toEqual([]);
   });
 
-  it('appends and reads culture snapshots', () => {
+  /** A culture in the legacy scope, as a build that still wrote there would have left it. */
+  function storeALegacyCulture() {
     const rng = new RNG('test');
     const config = getDefaultCultureGenerationConfig();
     config.nameGenerators = getFantasyNameGeneratorSet('human', rng);
     const culture = generateCulture('saved-seed', config);
-    appendSavedCulture(culture);
+    saveCultureSnapshots([toCultureSnapshot(culture)]);
+    return culture;
+  }
+
+  it('reads culture snapshots left in the legacy scope', () => {
+    const culture = storeALegacyCulture();
 
     const loaded = loadSavedCultureSnapshots();
     expect(loaded).toHaveLength(1);
@@ -63,12 +71,16 @@ describe('culture_saved_state', () => {
     expect(store.has(`${SAVE_STORAGE_PREFIX}${CULTURE_SAVE_SCOPE_ID}`)).toBe(true);
   });
 
+  it('rebuilds legacy snapshots into cultures with working name generators', () => {
+    const culture = storeALegacyCulture();
+
+    const [loaded] = loadSavedCultures();
+    expect(loaded.name).toBe(culture.name);
+    expect(loaded.nameGenerators.female.generate(1)).toHaveLength(1);
+  });
+
   it('deletes saved culture by name', () => {
-    const rng = new RNG('test');
-    const config = getDefaultCultureGenerationConfig();
-    config.nameGenerators = getFantasyNameGeneratorSet('human', rng);
-    const culture = generateCulture('saved-seed', config);
-    appendSavedCulture(culture);
+    const culture = storeALegacyCulture();
 
     expect(deleteSavedCultureByName(culture.name)).toBe(true);
     expect(loadSavedCultureSnapshots()).toEqual([]);

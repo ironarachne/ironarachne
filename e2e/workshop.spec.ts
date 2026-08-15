@@ -228,7 +228,7 @@ test.describe('saving what a tool made', () => {
 
     await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
     const artifactPanel = page.locator('.artifact-panel');
-    await expect(artifactPanel.getByLabel('Name')).toHaveValue('The Emberfolk');
+    await expect(artifactPanel.getByLabel('Name', { exact: true })).toHaveValue('The Emberfolk');
     // Provenance is what makes a saved artifact traceable back to what rolled it.
     await expect(artifactPanel).toContainText('/culture');
   });
@@ -365,17 +365,66 @@ test.describe('building one artifact from another', () => {
     await artifactRow(page, 'The Ember').click();
     await expect(artifactPanel(page).filter({ hasText: 'Built from' })).toContainText('missing');
   });
+
+  /**
+   * The other direction, and the one #40 turns on: a culture built around a saved religion keeps
+   * no religion of its own. The proof that it is a link rather than a copy is that renaming the
+   * religion changes what the culture shows, and that the culture's editor has no religion fields
+   * to offer — there is nothing there to edit.
+   */
+  test('builds a culture around a saved religion, holding a link rather than a copy', async ({
+    page,
+  }) => {
+    await mountTool(page, /^Fantasy Religion/);
+    await saveFromPanel(page, /Religion Generator/, 'The Ember');
+
+    await mountTool(page, /^Culture/);
+    const culturePanel = panels(page).filter({
+      has: page.getByRole('heading', { name: /Culture Generator/ }),
+    });
+    await culturePanel.getByLabel('Use a saved religion?').check();
+    await culturePanel
+      .getByLabel('Saved religion', { exact: true })
+      .selectOption({ label: 'The Ember' });
+    await culturePanel.getByRole('button', { name: 'Generate' }).click();
+    // The generator says outright that this culture's faith is borrowed. It names the religion's
+    // own name, which is what the payload carries — not the name the artifact was filed under.
+    await expect(culturePanel.getByText(/^From the saved religion /)).toBeVisible();
+    await saveFromPanel(page, /Culture Generator/, 'The Emberfolk');
+
+    await artifactRow(page, 'The Emberfolk').click();
+    const savedCulture = artifactPanel(page);
+    await expect(savedCulture.filter({ hasText: 'Built from' })).toContainText('Religion');
+    await expect(savedCulture.filter({ hasText: 'Built from' })).toContainText('The Ember');
+    // No copy to edit: the payload carries no religion, so the editor offers none.
+    await expect(savedCulture.getByLabel('Religion name')).toHaveCount(0);
+    await expect(savedCulture.getByText('linked above')).toBeVisible();
+
+    // Renaming the religion is reflected wherever it is referenced, which is what a link buys.
+    await artifactRow(page, 'The Ember').click();
+    const savedReligion = panels(page)
+      .filter({ has: page.getByRole('heading', { name: 'The Ember Artifact', exact: true }) })
+      .locator('.artifact-panel');
+    // Named exactly, and with the "Artifact" the panel heading carries: "The Ember" is a prefix of
+    // "The Emberfolk", and a panel of the wrong artifact would let the rest of this pass while
+    // proving nothing.
+    await expect(savedReligion).toContainText('Religion');
+    await savedReligion.getByLabel('Name', { exact: true }).fill('The Ashen Path');
+    await savedReligion.getByRole('button', { name: 'Save changes' }).click();
+
+    await expect(savedCulture.filter({ hasText: 'Built from' })).toContainText('The Ashen Path');
+  });
 });
 
 /**
  * Editing (#39), end to end: the generic surface an artifact opens in, and the lifecycle around
- * whatever a kind eventually plugs into it.
+ * what a kind plugs into it.
  *
- * No kind registers an editing component yet — that arrives with each tool as it is taken to
- * Release-ready — so what a browser can settle here is the framework itself: an artifact opens,
- * changes, and keeps the change across a reload; a kind with no editor opens read-only rather than
- * breaking; and edits are not lost quietly, whether the way out is the panel's close button or the
- * site's own navigation.
+ * Culture is the one kind with an editing component (#40); heraldry is the standing example of a
+ * kind without one, which is the ordinary state for most of the site. Both are exercised here, so
+ * what a browser settles is the framework itself: an artifact opens, changes, and keeps the change
+ * across a reload; a kind with no editor opens read-only rather than breaking; and edits are not
+ * lost quietly, whether the way out is the panel's close button or the site's own navigation.
  */
 test.describe('editing a saved artifact', () => {
   const artifactPanel = (page: Page) => page.locator('.artifact-panel');
@@ -385,17 +434,30 @@ test.describe('editing a saved artifact', () => {
     return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
   }
 
-  /** A project with one saved culture in it, open in a panel of its own. */
-  async function openASavedCulture(page: Page, name: string): Promise<void> {
-    await createProject(page, 'Ashfall');
-    await mountTool(page, /^Culture/);
-    await panels(page).getByRole('button', { name: 'Save to project' }).click();
-    await page.getByLabel('Name', { exact: true }).last().fill(name);
-    await page.getByRole('button', { name: 'Save', exact: true }).click();
+  /** A project with one saved artifact of the named tool in it, open in a panel of its own. */
+  async function openASavedArtifact(
+    page: Page,
+    tool: RegExp,
+    name: string,
+    project = 'Ashfall',
+  ): Promise<void> {
+    await createProject(page, project);
+    await mountTool(page, tool);
+    // Scoped to the save control: a generator page has fields of its own, and the tools this is
+    // called with carry a per-generator save button beside the artifact one.
+    const saveArtifact = panels(page).locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
     await expect(artifactRow(page, name)).toBeVisible();
 
     await artifactRow(page, name).click();
-    await expect(artifactPanel(page).getByLabel('Name')).toHaveValue(name);
+    await expect(artifactPanel(page).getByLabel('Name', { exact: true })).toHaveValue(name);
+  }
+
+  /** A project with one saved culture in it, open in a panel of its own. */
+  function openASavedCulture(page: Page, name: string): Promise<void> {
+    return openASavedArtifact(page, /^Culture/, name);
   }
 
   test.beforeEach(async ({ page }) => {
@@ -410,7 +472,9 @@ test.describe('editing a saved artifact', () => {
   test('fits a 320px screen with an artifact open on it', async ({ page }) => {
     await page.setViewportSize({ width: 320, height: 720 });
     await openASavedCulture(page, 'The Emberfolk');
-    await artifactPanel(page).getByText('Contents').click();
+    // The culture editor, not a collapsed summary: a form of labelled text fields and textareas is
+    // where a narrow layout actually goes wrong (requirement 6.1).
+    await expect(artifactPanel(page).getByLabel('Culture name')).toBeVisible();
 
     await expectNoHorizontalOverflow(page);
     await expectInteractiveControlsReachable(page);
@@ -423,7 +487,7 @@ test.describe('editing a saved artifact', () => {
     // Nothing has been touched, so there is nothing to write.
     await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
 
-    await panel.getByLabel('Name').fill('The Saltmarch');
+    await panel.getByLabel('Name', { exact: true }).fill('The Saltmarch');
     await expect(panel.getByText('Unsaved changes.')).toBeVisible();
     await panel.getByRole('button', { name: 'Save changes' }).click();
 
@@ -440,27 +504,101 @@ test.describe('editing a saved artifact', () => {
       .toBe(true);
     await page.reload({ waitUntil: 'load' });
 
-    await expect(artifactPanel(page).getByLabel('Name')).toHaveValue('The Saltmarch');
+    await expect(artifactPanel(page).getByLabel('Name', { exact: true })).toHaveValue(
+      'The Saltmarch',
+    );
   });
 
   test('opens a kind with no editor read-only, and offers nothing destructive', async ({
     page,
   }) => {
-    await openASavedCulture(page, 'The Emberfolk');
+    // Heraldry is the standing example, and the ordinary state for most of the site: a kind that
+    // stores artifacts long before anything can edit them.
+    await openASavedArtifact(page, /^Heraldry/, 'Emberhold arms');
     const panel = artifactPanel(page);
 
     // Read-only means the stored snapshot, shown honestly — not a blank panel and not an error.
     await panel.getByText('Contents').click();
-    await expect(panel).toContainText('Music Style');
+    await expect(panel).toContainText('Blazon');
     await expect(panel.getByRole('alert')).toHaveCount(0);
     // Re-rolling is registered by the same entry an editor is, so a kind with no editor has
     // nothing that could overwrite a payload from a seed.
     await expect(panel.getByRole('button', { name: 'Roll again' })).toHaveCount(0);
   });
 
+  /**
+   * Requirement 7.4, and the whole point of taking a tool to Release-ready: generate, save,
+   * reopen, edit — with the edit landing in the payload rather than only on the label.
+   */
+  test('edits a saved culture’s contents, and the change survives a reload', async ({ page }) => {
+    await openASavedCulture(page, 'The Emberfolk');
+    const panel = artifactPanel(page);
+
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+
+    await panel.getByLabel('Culture name').fill('The Saltmarch');
+    await panel.getByLabel('Greetings').fill('They clasp forearms and say nothing.');
+    await expect(panel.getByText('Unsaved changes.')).toBeVisible();
+
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByText('Saved.')).toBeVisible();
+
+    await expect
+      .poll(async () =>
+        (await storedPanels(page)).some((stored) => stored.artifactId !== undefined),
+      )
+      .toBe(true);
+    await page.reload({ waitUntil: 'load' });
+
+    await expect(artifactPanel(page).getByLabel('Culture name')).toHaveValue('The Saltmarch');
+    await expect(artifactPanel(page).getByLabel('Greetings')).toHaveValue(
+      'They clasp forearms and say nothing.',
+    );
+  });
+
+  /** Requirement 4.4: one part changes and the rest of the payload does not move. */
+  test('rewrites one taboo without disturbing the others', async ({ page }) => {
+    await openASavedCulture(page, 'The Emberfolk');
+    const panel = artifactPanel(page);
+
+    // By role: the remove button beside each taboo carries "Remove taboo 2" as its label, which a
+    // by-label lookup would match too.
+    const taboo = (position: number) => panel.getByRole('textbox', { name: `Taboo ${position}` });
+    const second = await taboo(2).inputValue();
+    await taboo(1).fill('Speaking the old name aloud is forbidden.');
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByText('Saved.')).toBeVisible();
+
+    await expect(taboo(1)).toHaveValue('Speaking the old name aloud is forbidden.');
+    await expect(taboo(2)).toHaveValue(second);
+  });
+
+  /**
+   * Requirement 4.3. Re-rolling is the one path that throws away what the user has, so it is
+   * confirmed every time and says outright when there are unsaved edits in front of it.
+   */
+  test('warns before rolling a culture again, and rolls it when told to', async ({ page }) => {
+    await openASavedCulture(page, 'The Emberfolk');
+    const panel = artifactPanel(page);
+    const before = await panel.getByLabel('Culture name').inputValue();
+
+    await panel.getByLabel('Greetings').fill('An edit about to be thrown away.');
+    await panel.getByRole('button', { name: 'Roll again' }).click();
+    await expect(confirmDialog(page)).toContainText('unsaved changes go too');
+    await confirmDialog(page).getByRole('button', { name: 'Cancel' }).click();
+
+    // Cancelling changes nothing, including the edit that was at risk.
+    await expect(panel.getByLabel('Greetings')).toHaveValue('An edit about to be thrown away.');
+
+    await panel.getByRole('button', { name: 'Roll again' }).click();
+    await confirmDialog(page).getByRole('button', { name: 'Roll again' }).click();
+    await expect(panel.getByText('Rolled again from the original seed.')).toBeVisible();
+    await expect(panel.getByLabel('Culture name')).not.toHaveValue(before);
+  });
+
   test('asks before a panel holding unsaved changes is closed', async ({ page }) => {
     await openASavedCulture(page, 'The Emberfolk');
-    await artifactPanel(page).getByLabel('Name').fill('Half a thought');
+    await artifactPanel(page).getByLabel('Name', { exact: true }).fill('Half a thought');
 
     await page.getByRole('button', { name: /^Close The Emberfolk$/ }).click();
     await expect(confirmDialog(page)).toContainText('changes you have not saved');
@@ -468,7 +606,9 @@ test.describe('editing a saved artifact', () => {
 
     // Cancelling keeps the panel and the edit in it.
     await expect(panels(page)).toHaveCount(2);
-    await expect(artifactPanel(page).getByLabel('Name')).toHaveValue('Half a thought');
+    await expect(artifactPanel(page).getByLabel('Name', { exact: true })).toHaveValue(
+      'Half a thought',
+    );
 
     await page.getByRole('button', { name: /^Close The Emberfolk$/ }).click();
     await confirmDialog(page).getByRole('button', { name: 'Close' }).click();
@@ -477,7 +617,7 @@ test.describe('editing a saved artifact', () => {
 
   test('warns before navigating away from unsaved changes', async ({ page }) => {
     await openASavedCulture(page, 'The Emberfolk');
-    await artifactPanel(page).getByLabel('Name').fill('Half a thought');
+    await artifactPanel(page).getByLabel('Name', { exact: true }).fill('Half a thought');
 
     // The browser's own prompt, because `beforeNavigate` is synchronous and the site's modal
     // answers through a promise. Dismissing it is refusing to leave.
@@ -490,7 +630,9 @@ test.describe('editing a saved artifact', () => {
     await page.getByRole('link', { name: 'Home', exact: true }).click();
     await expect.poll(() => prompts.length).toBe(1);
     await expect(page).toHaveURL(/\/workshop/);
-    await expect(artifactPanel(page).getByLabel('Name')).toHaveValue('Half a thought');
+    await expect(artifactPanel(page).getByLabel('Name', { exact: true })).toHaveValue(
+      'Half a thought',
+    );
 
     await page.getByRole('link', { name: 'Home', exact: true }).click();
     await expect(page).not.toHaveURL(/\/workshop/);
@@ -564,9 +706,11 @@ test.describe('workshop projects', () => {
  *
  * The unit tests cover the library against real generator output; what only a browser can settle is
  * the wiring — that adoption actually runs on a page load, against a real localStorage, and leaves
- * a note where a user will see it. So this test does not seed a fixture: it saves a culture through
- * the old Save button, which is exactly what is sitting in returning users' browsers, and then goes
- * to the workshop.
+ * a note where a user will see it. So this still does not seed a fixture. The old Save button that
+ * used to write `generator.culture` is gone (#40), so `seedALegacyCulture` takes the long way round
+ * to the same place: it saves a culture the current way and moves the payload the store wrote into
+ * the old scope, which leaves a real snapshot from a real generator where a returning user's
+ * browser has one.
  */
 test.describe('legacy save adoption', () => {
   const CULTURE_SCOPE_KEY = 'ironarachne.save.v1.generator.culture';
@@ -609,14 +753,63 @@ test.describe('legacy save adoption', () => {
     });
   }
 
-  test('adopts a culture saved the old way, and says so in the project bar', async ({ page }) => {
+  /**
+   * A culture in the legacy scope, generated by the site rather than written out by hand.
+   *
+   * Saves one the way the site saves cultures now, lifts the stored payload straight out of
+   * IndexedDB, writes it where the old build wrote its saves, and clears the vault so adoption
+   * starts from nothing — which is the state a returning user is actually in.
+   */
+  async function seedALegacyCulture(page: Page): Promise<string> {
     await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'load' });
 
-    // Saved through the real button, so what lands in `generator.culture` is a real snapshot.
-    await page.getByRole('button', { name: 'Save Current Culture' }).click();
-    const savedName = await savedLegacyCultureName(page);
+    const saveArtifact = page.locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(saveArtifact.getByText(/^Saved /)).toBeVisible();
+
+    const name = await page.evaluate(async (key) => {
+      const database = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open('ironarachne.vault');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      let stored: { payload: { name: string } }[] = [];
+      try {
+        stored = await new Promise((resolve, reject) => {
+          const request = database
+            .transaction('artifact_payloads')
+            .objectStore('artifact_payloads')
+            .getAll();
+          request.onsuccess = () => resolve(request.result as { payload: { name: string } }[]);
+          request.onerror = () => reject(request.error);
+        });
+      } finally {
+        database.close();
+      }
+      const payload = stored[0]?.payload;
+      localStorage.setItem(key, JSON.stringify({ payloadVersion: 1, cultures: [payload] }));
+      return payload?.name ?? '';
+    }, CULTURE_SCOPE_KEY);
+
+    // The vault goes, the legacy scope stays: adoption has to find the culture and no record of
+    // having already taken it.
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          const request = indexedDB.deleteDatabase('ironarachne.vault');
+          request.onsuccess = () => resolve();
+          request.onerror = () => resolve();
+          request.onblocked = () => resolve();
+        }),
+    );
+    return name;
+  }
+
+  test('adopts a culture saved the old way, and says so in the project bar', async ({ page }) => {
+    const savedName = await seedALegacyCulture(page);
     expect(savedName).not.toBe('');
 
     await openWorkshop(page);
@@ -634,11 +827,7 @@ test.describe('legacy save adoption', () => {
   });
 
   test('does not adopt the same culture twice, and the note can be dismissed', async ({ page }) => {
-    await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
-    await page.evaluate(() => localStorage.clear());
-    await page.reload({ waitUntil: 'load' });
-    await page.getByRole('button', { name: 'Save Current Culture' }).click();
-    const savedName = await savedLegacyCultureName(page);
+    const savedName = await seedALegacyCulture(page);
 
     await openWorkshop(page);
     await expect(page.getByRole('status')).toContainText('1 item you saved');

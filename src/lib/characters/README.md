@@ -21,6 +21,9 @@ always produce the same person.
   `restoreLockedCharacterName` (for a name the user has pinned while rerolling everything else),
   and the system-specific bridges `fantasyHintToNameSetName`, `dccOccupationToNameSetHint`, and
   `generateDccCharacterNames`.
+- **Cultures to name from** — `loadCulturesForNaming`, which gathers the open project's cultures
+  and whatever is still in the older `localStorage` scope into one list, so the seven generators
+  that offer "name this character from a saved culture" agree about what the user has saved.
 - **Personality traits** — `allPersonalityTraits` and `getRandomPersonalityTraits`, which respects
   each trait's `conflictingTraits` so a character is not both bold and timid.
 - **Titles** — `getStandardNobleTitles`, `getNobleTitleByName`, `getTitle`, `getHonorific`,

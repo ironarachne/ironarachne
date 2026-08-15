@@ -13,11 +13,12 @@
     type Character,
     type CharacterGenerationConfig,
     type Title,
+    loadCulturesForNaming,
   } from '$lib/characters';
   import type { Arms } from '$lib/heraldry';
   import { renderDeviceBlazon, renderHeraldryDeviceSvg } from '$lib/heraldry';
   import { showHeraldryPersistenceModal } from '$lib/ui';
-  import { type Culture, loadSavedCultures } from '$lib/culture';
+  import type { Culture } from '$lib/culture';
   import { sentientSpeciesList } from '$lib/species_sentients';
   import { getAllFantasyArchetypes } from '$lib/archetypes';
   import { getCategoryList } from '$lib/age';
@@ -184,10 +185,14 @@
   }
 
   onMount(() => {
-    savedCultures = loadSavedCultures();
-    if (savedCultures.length > 0) {
-      savedCultureName = savedCultures[0]!.name;
-    }
+    // Not awaited: the cultures come from the vault database, and a character worth looking at
+    // should be on screen before a naming dropdown has finished filling in.
+    void loadCulturesForNaming().then((cultures) => {
+      savedCultures = cultures;
+      if (savedCultures.length > 0) {
+        savedCultureName = savedCultures[0]!.name;
+      }
+    });
     generateCharacter();
   });
 </script>

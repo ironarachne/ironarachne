@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { loadSavedCultures, type Culture } from '$lib/culture';
+  import { loadCulturesForNaming } from '$lib/characters';
+  import type { Culture } from '$lib/culture';
   import { getAllFantasyNameGeneratorSets } from '$lib/names';
   import { RNG } from '@ironarachne/rng';
   import CharacterNameControls from '$components/characters/CharacterNameControls.svelte';
@@ -37,11 +38,15 @@
   let nameSetNames = $state<string[]>([]);
 
   onMount(() => {
-    savedCultures = loadSavedCultures();
     nameSetNames = getAllFantasyNameGeneratorSets(new RNG(seed)).map((set) => set.name);
-    if (savedCultures.length > 0) {
-      savedCultureName = savedCultures[0]!.name;
-    }
+    // Not awaited: the cultures come from the vault database, and the preset name sets beside
+    // them are ready immediately. One list arriving a moment after the other is unremarkable.
+    void loadCulturesForNaming().then((cultures) => {
+      savedCultures = cultures;
+      if (savedCultures.length > 0) {
+        savedCultureName = savedCultures[0]!.name;
+      }
+    });
   });
 </script>
 

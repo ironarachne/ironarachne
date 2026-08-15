@@ -42,7 +42,7 @@ describe('cultureArtifactKind', () => {
     expect(restored.greeting).toBe(culture.greeting);
     expect(restored.taboos).toEqual(culture.taboos);
     expect(restored.organization).toEqual(culture.organization);
-    expect(restored.religion.name).toBe(culture.religion.name);
+    expect(restored.religion?.name).toBe(culture.religion?.name);
     expect(nameGeneratorSetToStoredPatternSet(restored.nameGenerators)).toEqual(
       nameGeneratorSetToStoredPatternSet(culture.nameGenerators),
     );
@@ -90,10 +90,20 @@ describe('validateCultureSnapshot', () => {
     ).toBe(false);
   });
 
-  it('rejects a culture with no religion object', async () => {
+  it('rejects a religion that is neither null nor an object with a name', async () => {
     const snapshot = await sampleSnapshot();
-    const result = validateCultureSnapshot({ ...snapshot, religion: 'the Ashen Path' });
+    expect(validateCultureSnapshot({ ...snapshot, religion: 'the Ashen Path' }).ok).toBe(false);
+    const result = validateCultureSnapshot({ ...snapshot, religion: { description: 'no name' } });
     expect(result.ok === false && result.message).toContain('religion');
+  });
+
+  /**
+   * The composed culture. A null religion says a referenced artifact supplies it, and rejecting
+   * that would make a culture unreadable by the build that wrote it.
+   */
+  it('accepts a culture whose religion comes from a reference', async () => {
+    const snapshot = await sampleSnapshot();
+    expect(validateCultureSnapshot({ ...snapshot, religion: null }).ok).toBe(true);
   });
 
   it('rejects name generators with no usable patterns', async () => {
