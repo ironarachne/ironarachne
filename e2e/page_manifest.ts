@@ -259,6 +259,16 @@ export const PAGE_MANIFEST: PageEntry[] = [
     kind: 'generator',
   },
   {
+    // 'static' rather than 'tool': the workshop mounts tools, it is not one, and it has no
+    // Generate button of its own for the generate suite to press. Its own behaviour is covered
+    // in workshop.spec.ts; what the manifest buys is the smoke and mobile-layout passes now that
+    // it is linked from navigation.
+    path: '/workshop',
+    title: 'Workshop | Iron Arachne',
+    heading: 'Workshop',
+    kind: 'static',
+  },
+  {
     path: '/language',
     title: 'Language Generator | Iron Arachne',
     heading: 'Language Generator',

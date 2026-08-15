@@ -25,6 +25,12 @@
     system?: GameSystem;
     /** Path of the tool currently loaded. Bindable, so a parent can drive or read it. */
     activeToolPath?: string;
+    /**
+     * Paths of every tool the caller has open, for the "Loaded" badge. A workshop has several
+     * panels at once, so which tools are mounted is a list rather than the single
+     * `activeToolPath` a one-panel caller tracks; left unset, the two are the same thing.
+     */
+    openToolPaths?: string[];
     /** Called when the user picks a tool other than the one already loaded. */
     onToolChange?: (tool: Tool) => void;
   };
@@ -35,6 +41,7 @@
     genre,
     system,
     activeToolPath = $bindable(undefined),
+    openToolPaths,
     onToolChange,
   }: Props = $props();
 
@@ -46,13 +53,20 @@
   let query = $state('');
   let genreOnly = $state(false);
 
+  const loadedPaths = $derived(
+    new Set(openToolPaths ?? (activeToolPath === undefined ? [] : [activeToolPath])),
+  );
+
   const visibleTools = $derived(
     searchTools(tools, { query, genre: genreOnly ? genre : undefined, system }),
   );
   const groups = $derived(groupToolsByDomain(visibleTools));
 
   function selectTool(tool: Tool) {
-    if (tool.path === activeToolPath) {
+    // With several panels open, picking a tool that is already mounted is a request the caller
+    // still has to see — it decides whether that means "move to it" or "nothing to do". Only the
+    // single-panel case, where the caller tracks one path, short-circuits here.
+    if (openToolPaths === undefined && tool.path === activeToolPath) {
       return;
     }
 
@@ -95,7 +109,7 @@
       <h3>{group.heading}</h3>
       <ul>
         {#each group.tools as tool (tool.path)}
-          {@const isActive = tool.path === activeToolPath}
+          {@const isActive = loadedPaths.has(tool.path)}
           <li>
             <button
               type="button"

@@ -116,3 +116,15 @@ nothing lists; that whole class of residue is gone.
 
 Deleting the open project clears the selection instead of leaving it pointing at nothing;
 `getActiveProject` then picks whichever project was touched most recently.
+
+## Saying what changed
+
+`onProjectsChanged` hands a listener every committed create, edit, and delete, plus `opened` when
+the workshop moves to a different project. It exists because more than one surface touches
+projects: the context bar at the top of the workshop, and a generator in a panel that may create a
+project and open it in the course of saving the first thing into it.
+
+`getActiveProject` deliberately does **not** announce, even though it can write the pointer. It
+resolves a stale id by picking another project and storing that choice, so a listener that re-read
+the active project would set it off again — a read that notifies is a loop waiting for a
+subscriber.

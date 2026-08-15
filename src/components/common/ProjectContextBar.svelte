@@ -15,12 +15,24 @@
     getActiveProject,
     hydrateProjects,
     listProjects,
+    onProjectsChanged,
     renameProject,
     setActiveProject,
     type Project,
   } from '$lib/projects';
   import type { VaultResult } from '$lib/vault_db';
   import { ARTIFACT_KINDS } from '$lib/workshop';
+
+  type Props = {
+    /**
+     * Told which project is open, whenever that answer changes or is re-read. Called with the
+     * project itself rather than its id so a rename reaches the caller too — a workshop showing
+     * a stale project name is the same failure as one showing the wrong project.
+     */
+    onProjectChange?: (project: Project | undefined) => void;
+  };
+
+  const { onProjectChange }: Props = $props();
 
   // One id per component instance, so two bars on a page do not collide on label `for`.
   const uid = $props.id();
@@ -56,12 +68,18 @@
     refresh();
   });
 
+  // A project can be created and opened from somewhere else entirely — a generator in a panel
+  // saving its first culture — and a bar still reading "no project yet" over one the user has just
+  // filled is the whole reason this subscription exists.
+  onMount(() => onProjectsChanged(refresh));
+
   function refresh() {
     projects = listProjects();
     const active = getActiveProject();
     activeProjectId = active?.id;
     name = active?.name ?? '';
     adoption = legacyAdoptionNotice();
+    onProjectChange?.(active);
   }
 
   /**

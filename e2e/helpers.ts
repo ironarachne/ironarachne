@@ -7,6 +7,7 @@ const TOP_NAV_LINKS = [
   'Locations',
   'Objects',
   'Utilities',
+  'Workshop',
   'Change Log',
 ] as const;
 

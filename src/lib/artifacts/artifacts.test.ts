@@ -19,6 +19,7 @@ import {
   writeArtifactSummaryRecord,
 } from '$lib/vault_db';
 
+import { onArtifactsChanged, resetArtifactChangeListeners } from './artifact_events';
 import { hydrateArtifacts, resetArtifactIndex } from './artifact_index';
 import {
   createArtifact,
@@ -37,6 +38,7 @@ import {
 } from './artifacts';
 import type {
   Artifact,
+  ArtifactChange,
   ArtifactDraft,
   ArtifactMutationOptions,
   ArtifactProvenance,
@@ -730,5 +732,90 @@ describe('deleteArtifact', () => {
 
     expect(deletion.ok === false && deletion.reason).toBe('storage-failed');
     expect(listArtifacts('project-1').map((s) => s.id)).toEqual(['artifact-1']);
+  });
+});
+
+/**
+ * The store announcing what it committed, which is what lets a project view and a generator in
+ * another panel stay in step without either knowing the other exists. The mechanism itself is
+ * covered in `artifact_events.test.ts`; what is checked here is that every write reaches it, and
+ * that a write which stored nothing stays quiet.
+ */
+describe('change notifications', () => {
+  let changes: ArtifactChange[] = [];
+  let unsubscribe: () => void = () => {};
+
+  beforeEach(() => {
+    changes = [];
+    unsubscribe = onArtifactsChanged((change) => changes.push(change));
+  });
+
+  afterEach(() => {
+    unsubscribe();
+    resetArtifactChangeListeners();
+  });
+
+  it('announces a created artifact', async () => {
+    const artifact = await create();
+
+    expect(changes).toEqual([
+      { change: 'created', projectId: 'project-1', artifactId: artifact.id },
+    ]);
+  });
+
+  it('announces a new payload', async () => {
+    const artifact = await create();
+    changes = [];
+
+    await updateArtifactPayload(KINDS, 'project-1', artifact.id, { title: 'Ashfall Revised' });
+
+    expect(changes).toEqual([
+      { change: 'updated', projectId: 'project-1', artifactId: artifact.id },
+    ]);
+  });
+
+  it('announces a metadata edit', async () => {
+    const artifact = await create();
+    changes = [];
+
+    await renameArtifact('project-1', artifact.id, 'Renamed');
+
+    expect(changes).toEqual([
+      { change: 'updated', projectId: 'project-1', artifactId: artifact.id },
+    ]);
+  });
+
+  it('announces a delete', async () => {
+    const artifact = await create();
+    changes = [];
+
+    await deleteArtifact('project-1', artifact.id);
+
+    expect(changes).toEqual([
+      { change: 'deleted', projectId: 'project-1', artifactId: artifact.id },
+    ]);
+  });
+
+  it('says nothing when an edit changed nothing', async () => {
+    const artifact = await create();
+    changes = [];
+
+    await renameArtifact('project-1', artifact.id, artifact.name);
+
+    expect(changes).toEqual([]);
+  });
+
+  it('says nothing when there was nothing to delete', async () => {
+    await deleteArtifact('project-1', 'never-existed');
+
+    expect(changes).toEqual([]);
+  });
+
+  it('says nothing when the database refused the write', async () => {
+    refuseTheDatabase();
+
+    await createArtifact(KINDS, draft());
+
+    expect(changes).toEqual([]);
   });
 });

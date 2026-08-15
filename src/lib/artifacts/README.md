@@ -153,6 +153,27 @@ The dependency runs one way: projects reaches into this library, and this librar
 back. It is keyed by project id and does not know the project set, so it cannot check that a
 project exists — the caller opens a project before saving into it.
 
+## Finding things
+
+`artifact_search.ts` is the project view's half: `searchArtifacts` narrows a project's summaries by
+name, kind, and tags; `groupArtifactsByKind` groups what is left under headings. Tags go through
+`applyTagFilter` from [`$lib/tags`](../tags), so artifacts filter by exactly the mechanism tools and
+everything else tagged on the site already use.
+
+`groupArtifactsByKind` takes the kind order as a parameter rather than reading the registry. The
+registry is the workshop's, this library is the store's, and a listing that had to import the
+registry to sort itself would be the dependency this whole design keeps pointing the other way.
+
+## Saying what changed
+
+`onArtifactsChanged` hands a listener every committed create, edit, and delete. The workshop has
+several things on screen looking at one project — a generator saving from inside a panel, a project
+view listing what the project holds — and no other way for them to hear about each other.
+
+Announcements come **after the transaction commits**, for the same reason the hydrated index is
+only updated then: a listener told about a save the database does not have would redraw as though
+the work were safe. An edit that changed nothing says nothing.
+
 ## Not yet here
 
 - **Legacy adoption** (#34) — the heraldry, cultures, and religions saved under the old

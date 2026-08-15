@@ -1,36 +1,267 @@
 import { expect, test, type Page } from '@playwright/test';
 import { visitRoute } from './helpers';
+import { expectInteractiveControlsReachable, expectNoHorizontalOverflow } from './mobile_layout';
+
+const projectContext = (page: Page) => page.locator('section.project-context');
+const projectView = (page: Page) => page.locator('section.project-view');
+const toolBrowser = (page: Page) => page.locator('section.tool-browser');
+const panels = (page: Page) => page.locator('section.workshop-panel');
+const panelTitles = (page: Page) => page.locator('.workshop-panel__title');
+
+async function openWorkshop(page: Page): Promise<void> {
+  await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+}
+
+/** A workshop with nothing in it: each test starts from an origin no other run has touched. */
+async function openEmptyWorkshop(page: Page): Promise<void> {
+  await openWorkshop(page);
+  await page.evaluate(() => localStorage.clear());
+  await page.evaluate(
+    () =>
+      new Promise<void>((resolve) => {
+        const request = indexedDB.deleteDatabase('ironarachne.vault');
+        request.onsuccess = () => resolve();
+        request.onerror = () => resolve();
+        request.onblocked = () => resolve();
+      }),
+  );
+  await page.reload({ waitUntil: 'load' });
+}
+
+async function createProject(page: Page, name: string): Promise<void> {
+  await projectContext(page).getByLabel('New project').fill(name);
+  await projectContext(page).getByRole('button', { name: 'Create project' }).click();
+  await expect(projectContext(page).getByLabel('Name')).toHaveValue(name);
+}
+
+function mountTool(page: Page, label: string | RegExp) {
+  return toolBrowser(page).getByRole('button', { name: label }).click();
+}
 
 /**
- * The workshop is a prototype: it is reachable at /workshop but deliberately not linked from
- * navigation, so it has no PAGE_MANIFEST entry and the smoke suite never visits it.
+ * The bench as the database holds it.
  *
- * The default-tool assertions are structural rather than named after a particular tool, so
- * reordering the catalog does not break them.
+ * Read straight from IndexedDB rather than from the page, because the workshop deliberately does
+ * not await the write that stores an arrangement — a bench is not work, and blocking a panel from
+ * opening on a round trip would make the workshop feel broken. That makes "the record has landed"
+ * the only sound thing to wait on before reloading; a click only says the handler started.
  */
-test.describe('the workshop', () => {
-  const toolButtons = (page: Page) => page.locator('section.tool-browser button');
-  const panelHeading = (page: Page) => page.locator('section.tool-panel h1');
+async function storedPanels(page: Page): Promise<{ toolPath?: string; artifactId?: string }[]> {
+  return page.evaluate(async () => {
+    const database = await new Promise<IDBDatabase>((resolve, reject) => {
+      const request = indexedDB.open('ironarachne.vault');
+      request.onsuccess = () => resolve(request.result);
+      request.onerror = () => reject(request.error);
+    });
+    try {
+      if (!database.objectStoreNames.contains('workspaces')) {
+        return [];
+      }
+      const records = await new Promise<{ value: { panels: { order: number }[] } }[]>(
+        (resolve, reject) => {
+          const request = database.transaction('workspaces').objectStore('workspaces').getAll();
+          request.onsuccess = () =>
+            resolve(request.result as { value: { panels: { order: number }[] } }[]);
+          request.onerror = () => reject(request.error);
+        },
+      );
+      return records.flatMap((record) =>
+        [...record.value.panels].sort((a, b) => a.order - b.order),
+      );
+    } finally {
+      database.close();
+    }
+  });
+}
 
-  test('opens with the first tool in the browser already loaded', async ({ page }) => {
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
-
-    await expect(page.getByRole('heading', { level: 1, name: 'Workshop' })).toBeVisible();
-    await expect(toolButtons(page).first()).toContainText('Loaded');
-    await expect(panelHeading(page)).toBeVisible();
+/**
+ * The workshop shell: what is on the bench, and the controls that put it there and take it away.
+ *
+ * The assertions name tools rather than positions in the catalog wherever a name is what the user
+ * would use, and the tools named are ones with an artifact kind, since those are the ones the rest
+ * of the suite goes on to save from.
+ */
+test.describe('the workshop bench', () => {
+  test.beforeEach(async ({ page }) => {
+    await openEmptyWorkshop(page);
   });
 
-  test('swaps the panel when a different tool is picked', async ({ page }) => {
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
-    await expect(panelHeading(page)).toBeVisible();
+  test('starts empty and mounts a tool when one is picked', async ({ page }) => {
+    await expect(page.getByRole('heading', { level: 1, name: 'Workshop' })).toBeVisible();
+    await expect(page.getByText('Nothing on the bench.')).toBeVisible();
 
-    // Matched on the label as a prefix: picking a tool appends "Loaded" to its accessible name.
-    const culture = page.getByRole('button', { name: /^Culture/ });
-    await culture.click();
+    await mountTool(page, /^Culture/);
 
+    await expect(panels(page)).toHaveCount(1);
     await expect(page.getByRole('heading', { level: 1, name: 'Culture Generator' })).toBeVisible();
-    await expect(culture).toContainText('Loaded');
-    await expect(toolButtons(page).first()).not.toContainText('Loaded');
+    // The browser badges what is mounted, which is how a user tells the two lists apart.
+    await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).toContainText(
+      'Loaded',
+    );
+  });
+
+  test('holds several tools at once, which is the point of a bench', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+    await mountTool(page, /^Heraldry/);
+
+    await expect(panels(page)).toHaveCount(2);
+    await expect(panelTitles(page)).toHaveText([/Culture/, /Heraldry/]);
+  });
+
+  test('does not mount a second copy of a tool already on the bench', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+    await mountTool(page, /^Culture/);
+
+    await expect(panels(page)).toHaveCount(1);
+  });
+
+  test('moves and closes panels from the keyboard-operable controls', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+    await mountTool(page, /^Heraldry/);
+
+    await page.getByRole('button', { name: /^Move Heraldry left$/ }).click();
+    await expect(panelTitles(page)).toHaveText([/Heraldry/, /Culture/]);
+
+    // The leftmost panel has nowhere further to go, and says so rather than wrapping around.
+    await expect(page.getByRole('button', { name: /^Move Heraldry left$/ })).toBeDisabled();
+
+    await page.getByRole('button', { name: /^Close Heraldry$/ }).click();
+    await expect(panels(page)).toHaveCount(1);
+    await expect(panelTitles(page)).toHaveText([/Culture/]);
+  });
+
+  test('restores the bench when the project is reopened', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Culture/);
+    await mountTool(page, /^Heraldry/);
+
+    await expect
+      .poll(async () => (await storedPanels(page)).map((panel) => panel.toolPath))
+      .toEqual(['/culture', '/heraldry']);
+
+    await page.reload({ waitUntil: 'load' });
+
+    await expect(panels(page)).toHaveCount(2);
+    await expect(panelTitles(page)).toHaveText([/Culture/, /Heraldry/]);
+  });
+
+  test('keeps one project’s bench out of another’s', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Culture/);
+    await expect.poll(async () => (await storedPanels(page)).length).toBe(1);
+
+    await createProject(page, 'Dolmenwood');
+    // A project with no bench of its own adopts what is in front of the user rather than sweeping
+    // it away, so closing the panel is what proves the two benches are separate.
+    await page.getByRole('button', { name: /^Close Culture$/ }).click();
+    await expect(panels(page)).toHaveCount(0);
+
+    await projectContext(page).getByLabel('Open project').selectOption({ label: 'Ashfall' });
+    await expect(panels(page)).toHaveCount(1);
+    await expect(panelTitles(page)).toHaveText([/Culture/]);
+  });
+});
+
+/**
+ * The bench at phone width.
+ *
+ * `pages.mobile.spec.ts` visits `/workshop` at every width in the manifest, but it visits it
+ * empty — and an empty bench is the one arrangement that cannot overflow. Two panels side by side
+ * is the layout this issue actually added, so it is checked with something on it.
+ */
+test.describe('the bench on a phone', () => {
+  test('fits a 320px screen with two panels on it', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await openEmptyWorkshop(page);
+
+    await mountTool(page, /^Culture/);
+    await mountTool(page, /^Heraldry/);
+    await expect(panels(page)).toHaveCount(2);
+
+    await expectNoHorizontalOverflow(page);
+    await expectInteractiveControlsReachable(page);
+  });
+});
+
+/**
+ * The acceptance path from #36, end to end: open a project, use a tool in a panel, save what it
+ * made, and find it in the project view after a reload.
+ *
+ * It runs against the real culture generator rather than a fixture, because what is being proved
+ * is the wiring between a generator, the kind registry, and the store — the part no unit test can
+ * reach.
+ */
+test.describe('saving what a tool made', () => {
+  test.beforeEach(async ({ page }) => {
+    await openEmptyWorkshop(page);
+  });
+
+  async function saveTheCulture(page: Page, name: string): Promise<void> {
+    await panels(page).getByRole('button', { name: 'Save to project' }).click();
+    await page.getByLabel('Name', { exact: true }).last().fill(name);
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+  }
+
+  test('saves a generated culture into the open project and lists it there', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Culture/);
+    await expect(page.getByRole('heading', { level: 1, name: 'Culture Generator' })).toBeVisible();
+
+    await saveTheCulture(page, 'The Emberfolk');
+
+    await expect(projectView(page).getByRole('button', { name: /^The Emberfolk/ })).toBeVisible();
+    await expect(projectView(page).getByText('1 artifact', { exact: true })).toBeVisible();
+
+    await page.reload({ waitUntil: 'load' });
+    await expect(projectView(page).getByRole('button', { name: /^The Emberfolk/ })).toBeVisible();
+  });
+
+  test('opens a saved artifact in a panel of its own', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Culture/);
+    await saveTheCulture(page, 'The Emberfolk');
+    await expect(projectView(page).getByRole('button', { name: /^The Emberfolk/ })).toBeVisible();
+
+    await projectView(page)
+      .getByRole('button', { name: /^The Emberfolk/ })
+      .click();
+
+    await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
+    const artifactPanel = page.locator('.artifact-panel');
+    await expect(artifactPanel.getByLabel('Name')).toHaveValue('The Emberfolk');
+    // Provenance is what makes a saved artifact traceable back to what rolled it.
+    await expect(artifactPanel).toContainText('/culture');
+  });
+
+  test('filters a project’s contents by name', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Culture/);
+    await saveTheCulture(page, 'The Emberfolk');
+    await panels(page).getByRole('button', { name: 'Generate' }).click();
+    await saveTheCulture(page, 'The Saltmarch');
+    await expect(projectView(page).getByText('2 artifacts')).toBeVisible();
+
+    await projectView(page).getByLabel('Find').fill('salt');
+
+    await expect(projectView(page).getByText('1 of 2 artifacts')).toBeVisible();
+    await expect(projectView(page).getByRole('button', { name: /^The Saltmarch/ })).toBeVisible();
+    await expect(projectView(page).getByRole('button', { name: /^The Emberfolk/ })).toBeHidden();
+  });
+
+  test('prompts for a project when a tool is used on its own route', async ({ page }) => {
+    await visitRoute(page, '/culture', { title: 'Culture Generator | Iron Arachne' });
+
+    await page.getByRole('button', { name: 'Save to project' }).click();
+    // With nothing to save into, the prompt offers to make somewhere rather than refusing.
+    await page.getByLabel('New project name').fill('Ashfall');
+    await page.getByLabel('Name', { exact: true }).fill('The Emberfolk');
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+
+    await expect(page.getByText(/Saved “The Emberfolk” to Ashfall\./)).toBeVisible();
+
+    await openWorkshop(page);
+    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+    await expect(projectView(page).getByRole('button', { name: /^The Emberfolk/ })).toBeVisible();
   });
 });
 
@@ -42,17 +273,10 @@ test.describe('the workshop', () => {
  */
 test.describe('workshop projects', () => {
   test.beforeEach(async ({ page }) => {
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await openWorkshop(page);
     await page.evaluate(() => localStorage.clear());
     await page.reload({ waitUntil: 'load' });
   });
-
-  const projectContext = (page: Page) => page.locator('section.project-context');
-
-  async function createProject(page: Page, name: string): Promise<void> {
-    await projectContext(page).getByLabel('New project').fill(name);
-    await projectContext(page).getByRole('button', { name: 'Create project' }).click();
-  }
 
   test('creates, renames, and deletes projects, and the set survives a reload', async ({
     page,
@@ -163,16 +387,14 @@ test.describe('legacy save adoption', () => {
     const savedName = await savedLegacyCultureName(page);
     expect(savedName).not.toBe('');
 
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await openWorkshop(page);
 
     // The count is interpolated as its own text node, so this matches on the whole notice rather
     // than on a text node — `toContainText` walks the children the message is spread across.
     const notice = page.getByRole('status');
     await expect(notice).toContainText('1 item you saved before projects existed is now in');
     await expect(notice).toContainText('My Setting');
-    await expect(page.locator('section.project-context').getByLabel('Name')).toHaveValue(
-      'My Setting',
-    );
+    await expect(projectContext(page).getByLabel('Name')).toHaveValue('My Setting');
     expect(await adoptedArtifactNames(page)).toEqual([savedName]);
 
     // The originals are the fallback and must survive adoption untouched.
@@ -186,24 +408,21 @@ test.describe('legacy save adoption', () => {
     await page.getByRole('button', { name: 'Save Current Culture' }).click();
     const savedName = await savedLegacyCultureName(page);
 
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
-    const projectContext = page.locator('section.project-context');
+    await openWorkshop(page);
     await expect(page.getByRole('status')).toContainText('1 item you saved');
 
-    await projectContext.getByRole('button', { name: 'Got it' }).click();
+    await projectContext(page).getByRole('button', { name: 'Got it' }).click();
     await expect(page.getByRole('status')).toBeHidden();
 
     // A reload runs adoption again. One artifact, one project, and the note stays dismissed.
     await page.reload({ waitUntil: 'load' });
-    await expect(projectContext.getByText('1 project', { exact: true })).toBeVisible();
+    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
     await expect(page.getByRole('status')).toBeHidden();
     expect(await adoptedArtifactNames(page)).toEqual([savedName]);
   });
 
   test('leaves a browser with nothing saved alone', async ({ page }) => {
-    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
-    await page.evaluate(() => localStorage.clear());
-    await page.reload({ waitUntil: 'load' });
+    await openEmptyWorkshop(page);
 
     await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
     expect(await adoptedArtifactNames(page)).toEqual([]);

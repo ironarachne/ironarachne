@@ -178,6 +178,23 @@ export type ArtifactReadResult =
     }
   | { ok: false; summary: ArtifactSummary; reason: ArtifactFailureReason; message: string };
 
+/** What happened to an artifact. See `artifact_events.ts` for who is listening and why. */
+export type ArtifactChangeType = 'created' | 'updated' | 'deleted';
+
+/**
+ * A committed change to one artifact.
+ *
+ * It carries identity and nothing else: a listener that wants the artifact reads it, which keeps
+ * the announcement from becoming a second, staler copy of the store.
+ */
+export type ArtifactChange = {
+  change: ArtifactChangeType;
+  projectId: string;
+  artifactId: string;
+};
+
+export type ArtifactChangeListener = (change: ArtifactChange) => void;
+
 /**
  * What a delete removed, and what pointed at it.
  *

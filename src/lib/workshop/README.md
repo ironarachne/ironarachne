@@ -72,3 +72,26 @@ art out of the chunk that merely lists what a project contains.
 Declare the entry with `defineArtifactKind` in the library that owns the payload — see
 [`$lib/artifact_kinds`](../artifact_kinds/README.md) for the contract — then add one line here. No
 generic code changes: not the store, not export, not the project view.
+
+## Saving what a tool made
+
+`saveToolArtifact` is the one entry point a generator needs, in a panel or on its own route. It
+takes a **snapshot** rather than a live value: the tool already owns that conversion — it is the
+`toSnapshot` half of its own kind — and asking for the snapshot keeps the save path off the codec
+loader, which is the expensive half.
+
+```ts
+import { saveToolArtifact } from '$lib/workshop';
+
+const result = await saveToolArtifact(project.id, {
+  kind: CULTURE_ARTIFACT_KIND,
+  payload: toCultureSnapshot(culture),
+  toolPath: '/culture',
+  seed,
+});
+```
+
+It is here rather than in `$lib/artifacts` because it is where a _tool_ — a catalog path, and this
+build's registry of kinds — meets the store, and the store deliberately knows about neither. A seed
+that is not given records no provenance at all rather than an invented one, per the design
+document: provenance is a record of origin, and a made-up seed is a lie the re-roll button acts on.
