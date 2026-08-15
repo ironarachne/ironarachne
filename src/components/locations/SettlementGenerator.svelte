@@ -2,19 +2,18 @@
   import { RNG } from '@ironarachne/rng';
   import * as Names from '$lib/names';
   import { getCharacterGenerationConfigForNameSet } from '$lib/characters';
-  import { type Culture, loadSavedCultures } from '$lib/culture';
+  import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
   import * as Settlements from '$lib/settlements';
   import type { Settlement, SettlementGeneratorConfig } from '$lib/settlements';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
-  import SavedCulturePicker from '$components/common/SavedCulturePicker.svelte';
+  import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
 
-  let savedCultures = $state<Culture[]>([]);
+  // Filled in by the picker: the culture the user chose, rebuilt by its own kind.
   let useSavedCulture = $state(false);
-  let savedCulture = $state<string | undefined>(undefined);
   let culture: Culture | undefined = $state();
 
   const rng = new RNG(Date.now().toString());
@@ -37,25 +36,9 @@
 
   let settlement = $state<Settlement | null>(null);
 
-  function loadSavedCulture() {
-    for (const c of savedCultures) {
-      if (c.name === savedCulture) {
-        culture = c;
-        return;
-      }
-    }
-    if (savedCultures[0]) {
-      culture = savedCultures[0];
-      savedCulture = savedCultures[0].name;
-    }
-  }
-
   function resolveNameSetForGeneration(): void {
-    if (useSavedCulture) {
-      loadSavedCulture();
-      if (culture !== undefined) {
-        nameSet = culture.nameGenerators;
-      }
+    if (useSavedCulture && culture !== undefined) {
+      nameSet = culture.nameGenerators;
     } else {
       if (nameSetName === 'any') {
         nameSet = rng.item(nameSets);
@@ -102,10 +85,6 @@
   }
 
   onMount(() => {
-    savedCultures = loadSavedCultures();
-    if (savedCultures.length > 0) {
-      savedCulture = savedCultures[0]!.name;
-    }
     runGenerate();
   });
 </script>
@@ -148,12 +127,12 @@
     disabled={useSavedCulture}
   />
 
-  <SavedCulturePicker
-    cultures={savedCultures}
-    bind:useSavedCulture
-    bind:savedCulture
+  <SavedArtifactPicker
+    kind={CULTURE_ARTIFACT_KIND}
+    role="naming-culture"
     checkboxLabel="Use a saved culture for all names"
-    selectLabel="Saved culture"
+    bind:enabled={useSavedCulture}
+    bind:value={culture}
   />
 
   <h2>Optional enrichment</h2>

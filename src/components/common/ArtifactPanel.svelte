@@ -9,6 +9,7 @@
     type ArtifactSummary,
   } from '$lib/artifacts';
   import { artifactKindEntry, ARTIFACT_KINDS } from '$lib/workshop';
+  import ArtifactReferences from '$components/common/ArtifactReferences.svelte';
 
   type Props = {
     projectId: string;
@@ -162,6 +163,10 @@
         <dd>{summary.provenance.toolPath}, seed {summary.provenance.seed}</dd>
       {/if}
     </dl>
+
+    <!-- Below the metadata and above the contents, because a link that has gone missing is
+         something the user has to see on the way past rather than something to go looking for. -->
+    <ArtifactReferences {projectId} {summary} />
 
     {#if problem !== null}
       <p class="artifact-panel__problem" role="status">{problem}</p>

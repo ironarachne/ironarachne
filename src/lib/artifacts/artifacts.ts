@@ -133,8 +133,9 @@ export function getArtifactSummary(projectId: string, id: string): ArtifactSumma
 }
 
 /**
- * The artifacts whose references name this one — what #37's delete prompt has to show, and useful
- * on its own for "which of my regions use this culture?".
+ * The artifacts whose references name this one — what the delete prompt has to show, and useful
+ * on its own for "which of my regions use this culture?". `listArtifactBacklinks` in
+ * `artifact_references.ts` is the same question answered with the roles attached.
  *
  * Cheap because references live in the summary, so this reads memory rather than every payload in
  * the project. A self-reference is reported like any other; cycles are legitimate.
@@ -418,8 +419,8 @@ export function tagArtifact(
 }
 
 /**
- * Replace an artifact's references. The mechanism #37 drives; the store carries and queries the
- * links but does not decide what any of them mean.
+ * Replace an artifact's references. The store carries and queries the links but does not decide
+ * what any of them mean; the referring kind owns the roles.
  */
 export function setArtifactReferences(
   projectId: string,
@@ -433,9 +434,9 @@ export function setArtifactReferences(
 /**
  * Delete an artifact, reporting what pointed at it.
  *
- * It does not refuse, and does not repair the references it breaks. That is settled policy from
- * #37: the user is prompted with the referrer list, may delete anyway, and the dangling references
- * are tolerated and surfaced as visibly broken. `referrers` is what the prompt is built from.
+ * It does not refuse, and does not repair the references it breaks. That is settled policy: the
+ * user is prompted with the referrer list, may delete anyway, and the dangling references are
+ * tolerated and surfaced as visibly broken. `referrers` reports what was left pointing at nothing.
  *
  * The summary and the payload go in one transaction, so there is no order to reason about and no
  * residue to clean up: either both are gone or neither is.

@@ -27,8 +27,9 @@ export type ArtifactProvenance = {
  * which. A defaulted empty role rebuilds the untyped bag the field exists to prevent, and it is
  * what lets a dangling reference read as "capital: missing" rather than "a settlement is missing".
  *
- * The field is carried and queried here; populating it, the picker that fills it in, and the
- * delete prompt that reads it are #37.
+ * The field is carried and queried here. What fills it in is `SavedArtifactPicker`, and what
+ * turns a target back into a value a generator can use is `loadArtifactValue` in `$lib/workshop`:
+ * a store that does not know what a payload is cannot be the thing that rebuilds one.
  */
 export type ArtifactReference = {
   targetId: string;
@@ -56,7 +57,7 @@ export interface ArtifactSummary extends TaggedItem {
   kind: ArtifactKind;
   /** User-facing and user-editable. Not required to be unique. */
   name: string;
-  /** Ids of other artifacts in this project. Empty until #37 populates it. */
+  /** Ids of other artifacts in this project. Empty for a tool that was handed nothing. */
   references: ArtifactReference[];
   /** Absent rather than empty when the artifact's origin is not known. */
   provenance?: ArtifactProvenance;
@@ -198,10 +199,14 @@ export type ArtifactChangeListener = (change: ArtifactChange) => void;
 /**
  * What a delete removed, and what pointed at it.
  *
- * `referrers` is the seam for #37: the store reports what would be broken and deletes anyway,
- * because the policy — prompt with the referrer list, allow the delete, tolerate the dangling
- * references and surface them as visibly broken — belongs in the UI that can ask. Refusing the
- * delete here would be the "never delete anything" behaviour docs/workshop.md rules out.
+ * The store reports what was broken and deletes anyway, because the policy — prompt with the
+ * referrer list, allow the delete, tolerate the dangling references and surface them as visibly
+ * broken — belongs in the UI that can ask. Refusing the delete here would be the "never delete
+ * anything" behaviour docs/workshop.md rules out.
+ *
+ * `referrers` is what happened, not what the prompt was built from: the project view reads
+ * `listArtifactBacklinks` before it asks, since after the delete there is nothing left to ask
+ * about. Both come from the same field, so they agree unless something changed in between.
  */
 export type ArtifactDeletion = {
   deleted: boolean;

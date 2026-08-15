@@ -95,3 +95,39 @@ It is here rather than in `$lib/artifacts` because it is where a _tool_ — a ca
 build's registry of kinds — meets the store, and the store deliberately knows about neither. A seed
 that is not given records no provenance at all rather than an invented one, per the design
 document: provenance is a record of origin, and a made-up seed is a lie the re-roll button acts on.
+
+The draft also carries `references` — the saved artifacts the tool was handed, as
+`SavedArtifactPicker` filled them in — so the link is recorded in the same write that stores what
+was made. They are not checked against the project: the store tolerates a reference to something
+that is gone by design, and a target deleted between choosing and saving must cost the link, not
+the artifact.
+
+## Using a saved artifact
+
+`loadArtifactValue` is the other direction, and what the generic picker is built on: it reads a
+saved artifact and runs the kind's codec over it, so a generator receives the live value its own
+library works with rather than a stored snapshot.
+
+```ts
+import { loadArtifactValue } from '$lib/workshop';
+
+const result = await loadArtifactValue(project.id, artifactId);
+if (result.ok) {
+  config.dominantCulture = result.value as Culture;
+}
+```
+
+The value is `unknown`. The caller asked for a kind and narrows there; a registry that knew each
+kind's types would be the hand-maintained list of kinds it exists to remove.
+
+**Every failure is a value.** A target that has been deleted is `missing-target` rather than a
+throw, because a reference to a missing artifact is an ordinary state under rule 3 of the design
+document and its consumer must keep working. A codec that throws is caught for the same reason:
+`validate` gates what `fromSnapshot` depends on rather than the whole tree, so a payload can
+satisfy its kind and still surprise the conversion — a heraldry snapshot naming a charge this build
+has dropped is the standing example — and one bad saved artifact must not take out the generator
+holding it.
+
+Rehydration is seeded from the artifact's id, so the same saved artifact rebuilds the same way
+every time it is picked. Nothing is rolled: the payload is the truth, and the RNG is there to
+rebuild name generators and the like.
