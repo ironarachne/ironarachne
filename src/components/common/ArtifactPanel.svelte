@@ -1,15 +1,22 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
+  import { beforeNavigate } from '$app/navigation';
+
+  import { onArtifactsChanged } from '$lib/artifacts';
+  import { showConfirmModal } from '$lib/ui';
   import {
-    onArtifactsChanged,
-    readArtifact,
-    renameArtifact,
-    type Artifact,
-    type ArtifactSummary,
-  } from '$lib/artifacts';
-  import { artifactKindEntry, ARTIFACT_KINDS } from '$lib/workshop';
+    artifactKindEntry,
+    artifactRerollAvailability,
+    hasUnsavedArtifactEdits,
+    openArtifactForEditing,
+    rerollArtifact,
+    saveArtifactEdits,
+    trackUnsavedEdits,
+    type ArtifactEditingTarget,
+  } from '$lib/workshop';
   import ArtifactReferences from '$components/common/ArtifactReferences.svelte';
+  import ArtifactSnapshotView from '$components/common/ArtifactSnapshotView.svelte';
 
   type Props = {
     projectId: string;
@@ -21,133 +28,219 @@
   const uid = $props.id();
   const nameId = `${uid}-name`;
 
-  /**
-   * How deep the generic view descends before it stops and says how much is below.
-   *
-   * This panel deliberately shows an artifact rather than editing it — per-kind views and editors
-   * are their own work — so what it renders is the snapshot itself. A snapshot can be a culture's
-   * six name generators and every pattern in them, which is not something to unroll on screen.
-   */
-  const MAX_DEPTH = 4;
-  /** How many entries of a long list are shown before it says how many more there are. */
-  const MAX_ENTRIES = 12;
+  /** What the user is asked before edits are thrown away, wherever they are thrown away from. */
+  const DISCARD_PROMPT = 'This artifact has changes you have not saved. Leave them behind?';
 
-  let artifact = $state<Artifact | undefined>(undefined);
-  let summary = $state<ArtifactSummary | undefined>(undefined);
-  let problem: string | null = $state(null);
+  let target = $state<ArtifactEditingTarget | undefined>(undefined);
   let name = $state('');
-  let renameError: string | null = $state(null);
+  /** The editor's replacement snapshot, or undefined while the payload is as it was read. */
+  let draft = $state<unknown>(undefined);
+  /**
+   * Bumped when the payload is replaced from outside the editor — a load, a discard, a re-roll —
+   * so the editing component is remounted around the new snapshot rather than being asked to
+   * reconcile one it did not produce. A keystroke does not bump it.
+   */
+  let revision = $state(0);
+  let gone = $state(false);
+  let saving = $state(false);
+  let error: string | null = $state(null);
+  let status: string | null = $state(null);
+  /** Set when another panel changed this artifact while there were edits here to protect. */
+  let changedElsewhere = $state(false);
 
+  const summary = $derived(target?.summary);
   const kindName = $derived(
     summary === undefined ? '' : (artifactKindEntry(summary.kind)?.displayName ?? summary.kind),
   );
+  const dirty = $derived(
+    target !== undefined && hasUnsavedArtifactEdits(target, { name, payload: draft }),
+  );
+  const editorSnapshot = $derived(draft ?? target?.snapshot);
+  const reroll = $derived(
+    target === undefined ? 'unsupported' : artifactRerollAvailability(target),
+  );
 
+  /**
+   * Read the artifact and adopt what is stored.
+   *
+   * Never called while there are unsaved edits: re-reading would overwrite them with the very
+   * thing the user changed, which is the loss this whole surface exists to prevent.
+   */
   async function load() {
-    const result = await readArtifact(ARTIFACT_KINDS, projectId, artifactId);
-    if (result === undefined) {
-      artifact = undefined;
-      summary = undefined;
-      problem = 'That artifact is no longer in this project.';
+    const opened = await openArtifactForEditing(projectId, artifactId);
+    if (opened === undefined) {
+      target = undefined;
+      gone = true;
       return;
     }
-    if (!result.ok) {
-      // A payload this build cannot read is still an artifact the user has to be able to see and
-      // rename, so the summary stays on screen and only the contents are missing.
-      artifact = undefined;
-      summary = result.summary;
-      name = result.summary.name;
-      problem = `This build cannot read the contents (${result.reason}). ${result.message}`;
-      return;
-    }
-    artifact = result.artifact;
-    summary = result.artifact;
-    name = result.artifact.name;
-    problem = result.migrated
-      ? 'These contents were written by an older version and were brought forward on the way out. Saving an edit stores them at the current version.'
+    gone = false;
+    target = opened;
+    name = opened.summary.name;
+    draft = undefined;
+    revision += 1;
+    changedElsewhere = false;
+    status = opened.migrated
+      ? 'These contents were written by an older version and were brought forward on the way out. Saving stores them at the current version.'
       : null;
   }
 
   onMount(() => {
     void load();
-    // Another panel can rename or delete what this one is showing, and a stale panel claiming an
-    // artifact still exists is the one thing this must not do.
-    return onArtifactsChanged((change) => {
-      if (change.artifactId === artifactId) {
-        void load();
+
+    const stopTracking = trackUnsavedEdits(artifactId, () => dirty);
+    // The browser's own prompt, for the ways out of the page that no in-app handler sees: a
+    // reload, a closed tab, a typed address.
+    const warnOnUnload = (event: BeforeUnloadEvent) => {
+      if (dirty) {
+        event.preventDefault();
       }
+    };
+    window.addEventListener('beforeunload', warnOnUnload);
+
+    // Another panel can rename, edit, or delete what this one is showing, and a stale panel
+    // claiming an artifact still exists is the one thing it must not do.
+    const stopListening = onArtifactsChanged((change) => {
+      if (change.artifactId !== artifactId) {
+        return;
+      }
+      if (dirty) {
+        changedElsewhere = true;
+        return;
+      }
+      void load();
     });
+
+    return () => {
+      stopTracking();
+      stopListening();
+      window.removeEventListener('beforeunload', warnOnUnload);
+    };
   });
 
-  async function rename() {
-    const result = await renameArtifact(projectId, artifactId, name);
-    renameError =
-      result === undefined
-        ? 'That artifact is no longer in this project.'
-        : result.ok
-          ? null
-          : `That could not be saved (${result.reason}).`;
+  // Leaving the page inside the app is a navigation this can still stop, and the browser's own
+  // confirm is what stops it: `beforeNavigate` is synchronous, so the site's modal — which
+  // answers through a promise — could not reply before the navigation had already happened.
+  beforeNavigate((navigation) => {
+    if (!dirty || navigation.willUnload) {
+      return;
+    }
+    if (!window.confirm(DISCARD_PROMPT)) {
+      navigation.cancel();
+    }
+  });
+
+  function editorChanged(snapshot: unknown) {
+    draft = snapshot;
+    status = null;
+  }
+
+  async function save() {
+    const current = target;
+    if (current === undefined || !dirty || saving) {
+      return;
+    }
+    saving = true;
+    error = null;
+    try {
+      // `$state.snapshot` because what an editor handed back is held in reactive state, and
+      // reactive state is a proxy: IndexedDB structure-clones what it stores, and a proxy is not
+      // something the structured clone algorithm will take.
+      const result = await saveArtifactEdits(projectId, artifactId, {
+        name,
+        payload: draft === undefined ? undefined : $state.snapshot(draft),
+      });
+      if (!result.ok) {
+        // What the user typed is still on screen and still saveable, whatever went wrong.
+        error = `That could not be saved (${result.reason}). ${result.message}`;
+        return;
+      }
+      target = {
+        ...current,
+        summary: result.summary,
+        snapshot: result.snapshot ?? current.snapshot,
+      };
+      name = result.summary.name;
+      draft = undefined;
+      changedElsewhere = false;
+      status = 'Saved.';
+    } finally {
+      saving = false;
+    }
+  }
+
+  async function discard() {
+    if (!dirty) {
+      return;
+    }
+    const confirmed = await showConfirmModal({
+      title: 'Discard changes',
+      message: DISCARD_PROMPT,
+      okLabel: 'Discard',
+      dangerous: true,
+    });
+    if (confirmed) {
+      await load();
+    }
+  }
+
+  /**
+   * Roll the artifact again from the record of how it was made — the one path here that throws
+   * away what the user has. It is confirmed every time, and says outright when there are edits in
+   * front of it to lose.
+   */
+  async function rollAgain() {
+    if (target === undefined || reroll !== 'available' || saving) {
+      return;
+    }
+    const confirmed = await showConfirmModal({
+      title: 'Roll again',
+      message: dirty
+        ? 'Rolling again replaces these contents with a fresh roll from the seed this artifact was made with. Your unsaved changes go too, and neither can be brought back.'
+        : 'Rolling again replaces these contents with a fresh roll from the seed this artifact was made with. What is stored now cannot be brought back.',
+      okLabel: 'Roll again',
+      dangerous: true,
+    });
+    if (!confirmed) {
+      return;
+    }
+    saving = true;
+    error = null;
+    try {
+      const result = await rerollArtifact(projectId, target);
+      if (!result.ok) {
+        error = `That could not be rolled again (${result.reason}). ${result.message}`;
+        return;
+      }
+      await load();
+      status = 'Rolled again from the original seed.';
+    } finally {
+      saving = false;
+    }
   }
 
   function formatTimestamp(epochMilliseconds: number): string {
     return new Date(epochMilliseconds).toLocaleString();
   }
-
-  function isPlainObject(value: unknown): value is Record<string, unknown> {
-    return typeof value === 'object' && value !== null && !Array.isArray(value);
-  }
-
-  /** Turns a snapshot's field name into something readable: `musicStyle` becomes "Music style". */
-  function fieldLabel(key: string): string {
-    const spaced = key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[_-]+/g, ' ');
-    return spaced.charAt(0).toUpperCase() + spaced.slice(1);
-  }
 </script>
-
-{#snippet snapshotValue(value: unknown, depth: number)}
-  {#if value === null || value === undefined || value === ''}
-    <span class="artifact-panel__absent">—</span>
-  {:else if Array.isArray(value)}
-    {#if depth >= MAX_DEPTH}
-      <span class="artifact-panel__absent">{value.length} entries</span>
-    {:else}
-      <ul class="artifact-panel__list">
-        {#each value.slice(0, MAX_ENTRIES) as entry, index (index)}
-          <li>{@render snapshotValue(entry, depth + 1)}</li>
-        {/each}
-        {#if value.length > MAX_ENTRIES}
-          <li class="artifact-panel__absent">…and {value.length - MAX_ENTRIES} more</li>
-        {/if}
-      </ul>
-    {/if}
-  {:else if isPlainObject(value)}
-    {#if depth >= MAX_DEPTH}
-      <span class="artifact-panel__absent">{Object.keys(value).length} fields</span>
-    {:else}
-      <dl class="artifact-panel__fields">
-        {#each Object.entries(value) as [key, nested] (key)}
-          <dt>{fieldLabel(key)}</dt>
-          <dd>{@render snapshotValue(nested, depth + 1)}</dd>
-        {/each}
-      </dl>
-    {/if}
-  {:else}
-    {String(value)}
-  {/if}
-{/snippet}
 
 <div class="artifact-panel">
   {#if summary === undefined}
-    <p class="artifact-panel__status">{problem ?? 'Loading…'}</p>
+    <p class="artifact-panel__status">
+      {gone ? 'That artifact is no longer in this project.' : 'Loading…'}
+    </p>
   {:else}
     <div class="input-group">
       <label for={nameId}>Name</label>
-      <input id={nameId} type="text" bind:value={name} autocomplete="off" />
-      <button type="button" onclick={rename}>Rename</button>
+      <!-- Typing clears the last outcome, so "Saved." cannot sit under a field that has changed
+           since it was true. -->
+      <input
+        id={nameId}
+        type="text"
+        bind:value={name}
+        oninput={() => (status = null)}
+        autocomplete="off"
+      />
     </div>
-
-    {#if renameError !== null}
-      <p class="artifact-panel__problem" role="alert">{renameError}</p>
-    {/if}
 
     <dl class="artifact-panel__meta">
       <dt>Kind</dt>
@@ -168,18 +261,79 @@
          something the user has to see on the way past rather than something to go looking for. -->
     <ArtifactReferences {projectId} {summary} />
 
-    {#if problem !== null}
-      <p class="artifact-panel__problem" role="status">{problem}</p>
-    {/if}
-
-    {#if artifact !== undefined}
-      <!-- Collapsed by default: what an artifact looks like when its kind knows how to draw it is
-           the editing work, and until then this is an honest view of what is actually stored
-           rather than a pretence at one. -->
+    {#if target?.problem !== undefined}
+      <!-- A payload this build cannot read is still an artifact the user can name and export, so
+           the surface stays and only the contents are missing. -->
+      <p class="artifact-panel__problem" role="alert">
+        This build cannot read the contents ({target.problem.reason}). {target.problem.message}
+      </p>
+    {:else if target?.loadEditor !== undefined}
+      {#key `${artifactId}:${revision}`}
+        {#await target.loadEditor()}
+          <p class="artifact-panel__status">Loading the editor…</p>
+        {:then editor}
+          {@const ArtifactEditor = editor.default}
+          <ArtifactEditor snapshot={editorSnapshot} onChange={editorChanged} />
+        {:catch}
+          <p class="artifact-panel__problem" role="alert">
+            The editor for this kind could not be loaded. The contents are unchanged.
+          </p>
+        {/await}
+      {/key}
+    {:else}
+      <!-- No editor registered for this kind: it opens read-only rather than not opening, and
+           what is shown is the snapshot itself rather than a pretence at a view of it. -->
       <details class="artifact-panel__contents">
         <summary>Contents</summary>
-        {@render snapshotValue(artifact.payload, 0)}
+        <ArtifactSnapshotView snapshot={editorSnapshot} />
       </details>
+    {/if}
+
+    <div class="artifact-panel__actions">
+      <button type="button" onclick={save} disabled={!dirty || saving}>
+        {saving ? 'Saving…' : 'Save changes'}
+      </button>
+      {#if dirty}
+        <button type="button" onclick={discard} disabled={saving}>Discard changes</button>
+      {/if}
+      {#if reroll !== 'unsupported'}
+        <button
+          type="button"
+          class="artifact-panel__destructive"
+          onclick={rollAgain}
+          disabled={reroll !== 'available' || saving}
+          title={reroll === 'no-provenance'
+            ? 'This artifact has no record of how it was made.'
+            : 'Replaces the contents with a fresh roll from the original seed.'}
+        >
+          Roll again
+        </button>
+      {/if}
+    </div>
+
+    {#if reroll === 'no-provenance'}
+      <p class="artifact-panel__status">
+        This artifact has no record of how it was made, so it cannot be rolled again.
+      </p>
+    {/if}
+
+    {#if dirty}
+      <p class="artifact-panel__status" role="status">Unsaved changes.</p>
+    {/if}
+
+    {#if changedElsewhere}
+      <p class="artifact-panel__problem" role="alert">
+        This artifact changed somewhere else while you were editing it. Saving overwrites that;
+        discarding takes it.
+      </p>
+    {/if}
+
+    {#if error !== null}
+      <p class="artifact-panel__problem" role="alert">{error}</p>
+    {/if}
+
+    {#if status !== null}
+      <p class="artifact-panel__status" role="status">{status}</p>
     {/if}
   {/if}
 </div>
@@ -220,40 +374,27 @@
     text-transform: uppercase;
   }
 
-  .artifact-panel__meta dd,
-  .artifact-panel__fields dd {
+  .artifact-panel__meta dd {
     margin: 0;
     min-width: 0;
     overflow-wrap: anywhere;
   }
 
-  .artifact-panel__fields {
-    margin: 0;
+  .artifact-panel__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
   }
 
-  .artifact-panel__fields dt {
-    margin-top: 0.35rem;
-    color: var(--gold);
-    font-size: 0.8rem;
-  }
-
-  .artifact-panel__fields dd {
-    padding-left: 0.75rem;
-  }
-
-  .artifact-panel__list {
-    margin: 0;
-    padding-left: 1.1rem;
+  .artifact-panel__destructive {
+    /* Named as destructive rather than only worded as such: 4.3 asks for a re-roll that is
+       clearly the dangerous one of the controls beside it. */
+    border-color: var(--gold);
   }
 
   .artifact-panel__contents summary {
     cursor: pointer;
     color: var(--gold);
-  }
-
-  .artifact-panel__absent {
-    font-style: italic;
-    opacity: 0.7;
   }
 
   .artifact-panel__status,

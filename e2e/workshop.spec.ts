@@ -368,6 +368,136 @@ test.describe('building one artifact from another', () => {
 });
 
 /**
+ * Editing (#39), end to end: the generic surface an artifact opens in, and the lifecycle around
+ * whatever a kind eventually plugs into it.
+ *
+ * No kind registers an editing component yet — that arrives with each tool as it is taken to
+ * Release-ready — so what a browser can settle here is the framework itself: an artifact opens,
+ * changes, and keeps the change across a reload; a kind with no editor opens read-only rather than
+ * breaking; and edits are not lost quietly, whether the way out is the panel's close button or the
+ * site's own navigation.
+ */
+test.describe('editing a saved artifact', () => {
+  const artifactPanel = (page: Page) => page.locator('.artifact-panel');
+  const confirmDialog = (page: Page) => page.locator('dialog.ironarachne-modal');
+
+  function artifactRow(page: Page, name: string) {
+    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
+  }
+
+  /** A project with one saved culture in it, open in a panel of its own. */
+  async function openASavedCulture(page: Page, name: string): Promise<void> {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Culture/);
+    await panels(page).getByRole('button', { name: 'Save to project' }).click();
+    await page.getByLabel('Name', { exact: true }).last().fill(name);
+    await page.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(artifactRow(page, name)).toBeVisible();
+
+    await artifactRow(page, name).click();
+    await expect(artifactPanel(page).getByLabel('Name')).toHaveValue(name);
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await openEmptyWorkshop(page);
+  });
+
+  /**
+   * An editing form is where a mobile layout is easiest to get wrong, and the manifest sweep
+   * visits `/workshop` with nothing on the bench — the one arrangement that cannot overflow. So
+   * the narrowest screen the site supports is checked with an artifact actually open on it.
+   */
+  test('fits a 320px screen with an artifact open on it', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await openASavedCulture(page, 'The Emberfolk');
+    await artifactPanel(page).getByText('Contents').click();
+
+    await expectNoHorizontalOverflow(page);
+    await expectInteractiveControlsReachable(page);
+  });
+
+  test('changes a saved artifact, and the change survives a reload', async ({ page }) => {
+    await openASavedCulture(page, 'The Emberfolk');
+    const panel = artifactPanel(page);
+
+    // Nothing has been touched, so there is nothing to write.
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+
+    await panel.getByLabel('Name').fill('The Saltmarch');
+    await expect(panel.getByText('Unsaved changes.')).toBeVisible();
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+
+    await expect(panel.getByText('Saved.')).toBeVisible();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    // The project view is reading the same store, so the edit is visible where the user browses.
+    await expect(artifactRow(page, 'The Saltmarch')).toBeVisible();
+
+    // The bench write is deliberately not awaited, so wait for the record rather than the click.
+    await expect
+      .poll(async () =>
+        (await storedPanels(page)).some((stored) => stored.artifactId !== undefined),
+      )
+      .toBe(true);
+    await page.reload({ waitUntil: 'load' });
+
+    await expect(artifactPanel(page).getByLabel('Name')).toHaveValue('The Saltmarch');
+  });
+
+  test('opens a kind with no editor read-only, and offers nothing destructive', async ({
+    page,
+  }) => {
+    await openASavedCulture(page, 'The Emberfolk');
+    const panel = artifactPanel(page);
+
+    // Read-only means the stored snapshot, shown honestly — not a blank panel and not an error.
+    await panel.getByText('Contents').click();
+    await expect(panel).toContainText('Music Style');
+    await expect(panel.getByRole('alert')).toHaveCount(0);
+    // Re-rolling is registered by the same entry an editor is, so a kind with no editor has
+    // nothing that could overwrite a payload from a seed.
+    await expect(panel.getByRole('button', { name: 'Roll again' })).toHaveCount(0);
+  });
+
+  test('asks before a panel holding unsaved changes is closed', async ({ page }) => {
+    await openASavedCulture(page, 'The Emberfolk');
+    await artifactPanel(page).getByLabel('Name').fill('Half a thought');
+
+    await page.getByRole('button', { name: /^Close The Emberfolk$/ }).click();
+    await expect(confirmDialog(page)).toContainText('changes you have not saved');
+    await confirmDialog(page).getByRole('button', { name: 'Cancel' }).click();
+
+    // Cancelling keeps the panel and the edit in it.
+    await expect(panels(page)).toHaveCount(2);
+    await expect(artifactPanel(page).getByLabel('Name')).toHaveValue('Half a thought');
+
+    await page.getByRole('button', { name: /^Close The Emberfolk$/ }).click();
+    await confirmDialog(page).getByRole('button', { name: 'Close' }).click();
+    await expect(panels(page)).toHaveCount(1);
+  });
+
+  test('warns before navigating away from unsaved changes', async ({ page }) => {
+    await openASavedCulture(page, 'The Emberfolk');
+    await artifactPanel(page).getByLabel('Name').fill('Half a thought');
+
+    // The browser's own prompt, because `beforeNavigate` is synchronous and the site's modal
+    // answers through a promise. Dismissing it is refusing to leave.
+    const prompts: string[] = [];
+    page.on('dialog', (dialog) => {
+      prompts.push(dialog.message());
+      void (prompts.length === 1 ? dialog.dismiss() : dialog.accept());
+    });
+
+    await page.getByRole('link', { name: 'Home', exact: true }).click();
+    await expect.poll(() => prompts.length).toBe(1);
+    await expect(page).toHaveURL(/\/workshop/);
+    await expect(artifactPanel(page).getByLabel('Name')).toHaveValue('Half a thought');
+
+    await page.getByRole('link', { name: 'Home', exact: true }).click();
+    await expect(page).not.toHaveURL(/\/workshop/);
+  });
+});
+
+/**
  * The project context bar is the proof that `$lib/projects` works against a real browser's
  * IndexedDB: unit tests run against an in-memory implementation, and "survives a reload" is a
  * claim only a browser can settle. Each test starts from a cleared origin so one run cannot
