@@ -14,6 +14,11 @@ import type { ToolArtifactDraft } from './workshop_types';
  * The result is never `void`. An unknown kind, a payload its own kind refuses, and a database
  * that would not take the write all come back as a rejection the caller has to show the user,
  * with the generated content still on screen.
+ *
+ * References travel with the draft, so a tool that was handed a saved artifact records the link in
+ * the same write that stores what it made. They are not checked against the project: the store
+ * tolerates a reference to something that is gone by design, and a picker whose target is deleted
+ * between choosing and saving must cost the user the link, not the artifact.
  */
 export function saveToolArtifact(
   projectId: string,
@@ -25,6 +30,7 @@ export function saveToolArtifact(
     payload: draft.payload,
     name: draft.name,
     tags: draft.tags,
+    references: draft.references,
     ...(draft.seed === undefined
       ? {}
       : {

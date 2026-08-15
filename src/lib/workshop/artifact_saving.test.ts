@@ -117,6 +117,52 @@ describe('saveToolArtifact', () => {
     expect(result.ok && result.value.tags).toEqual(['north']);
   });
 
+  it('records the saved artifacts a tool was handed, as references', async () => {
+    const culture = await saveToolArtifact('p1', {
+      kind: 'culture',
+      payload: cultureSnapshot(),
+      toolPath: '/culture',
+    });
+    const result = await saveToolArtifact('p1', {
+      kind: 'religion',
+      payload: {
+        name: 'The Ember',
+        seed: 'abc123',
+        religion: { name: 'The Ember' },
+        generatorOptions: {
+          lockSeed: false,
+          useSavedCulture: true,
+          selectedCategories: [],
+          selectedSpecies: [],
+          polytheisticStanding: 'random',
+          spiritCosmologyDepth: 'random',
+        },
+      },
+      toolPath: '/fantasy/religion',
+      references: culture.ok
+        ? [{ targetId: culture.value.id, targetKind: 'culture', role: 'naming-culture' }]
+        : [],
+    });
+
+    expect(result.ok && result.value.references).toEqual([
+      {
+        targetId: culture.ok ? culture.value.id : '',
+        targetKind: 'culture',
+        role: 'naming-culture',
+      },
+    ]);
+  });
+
+  it('records no references for a tool that was handed nothing', async () => {
+    const result = await saveToolArtifact('p1', {
+      kind: 'culture',
+      payload: cultureSnapshot(),
+      toolPath: '/culture',
+    });
+
+    expect(result.ok && result.value.references).toEqual([]);
+  });
+
   it('rejects a kind this build does not have, rather than storing it', async () => {
     const result = await saveToolArtifact('p1', {
       kind: 'not-a-kind',

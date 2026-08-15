@@ -103,11 +103,15 @@ Three things about that shape are deliberate:
 | `listArtifacts` / `listArtifactsOfKind`             | sync  | Summaries, most recently updated first                                        |
 | `getArtifactSummary(projectId, id)`                 | sync  | From the hydrated index                                                       |
 | `listArtifactReferrers(projectId, id)`              | sync  | What points at an artifact                                                    |
+| `listArtifactBacklinks(projectId, id)`              | sync  | The same, grouped by referrer, with the roles                                 |
+| `resolveArtifactReferences(projectId, summary)`     | sync  | Each reference with its target, or nothing where it dangles                   |
+| `brokenArtifactReferences` / `hasBroken…`           | sync  | References pointing at something that is gone                                 |
+| `collectReferencedArtifacts(projectId, id)`         | sync  | Everything reachable, breadth-first and cycle-tolerant                        |
 | `createArtifact(registry, draft, options?)`         | async | Validates against the kind first; names it via `nameOf`                       |
 | `readArtifact(registry, projectId, id)`             | async | Reads the payload and migrates it. `undefined` when there is no such artifact |
 | `updateArtifactPayload(registry, projectId, id, …)` | async | What saving an edit does                                                      |
 | `updateArtifact` / `renameArtifact` / `tagArtifact` | async | Metadata only; never deserialises a payload                                   |
-| `setArtifactReferences(projectId, id, …)`           | async | The links #37 drives                                                          |
+| `setArtifactReferences(projectId, id, …)`           | async | Replaces an artifact's links                                                  |
 | `deleteArtifact(projectId, id)`                     | async | Reports referrers; never refuses                                              |
 | `forgetProjectArtifacts(projectId)`                 | sync  | Index maintenance after `$lib/projects` cascades a delete                     |
 
@@ -131,16 +135,26 @@ References are ids of other artifacts in the same project, each carrying a requi
 a region references its capital and its member settlements and both are `kind: settlement`, so
 target kind alone cannot say which is which (decision 1 in `docs/workshop.md`).
 
-The field, the referrer query, and the delete report live here. Populating references, the generic
-picker that fills them in, and the prompt that shows referrers before a delete are #37.
+The field, both directions of the query, and the delete report live here. What fills the field in
+is `SavedArtifactPicker`, and what rebuilds a referenced artifact into a value a generator can use
+is `loadArtifactValue` in [`$lib/workshop`](../workshop/README.md) — neither belongs to a store
+that deliberately does not know what a payload is.
+
+**A reference resolves or it does not, and both are ordinary.** `resolveArtifactReferences` hands
+back each reference with its target or with nothing, which is what lets a panel draw
+"capital: missing" instead of failing to draw. Nothing here throws for a target that is gone, and
+no consumer of these functions may treat one as an error path. A target held by another project
+never resolves either: references are project-local, and resolving one across the boundary would
+invent an edge the model does not have.
 
 `deleteArtifact` **reports and proceeds**. It does not refuse, and it does not repair the links it
 breaks: the settled policy is that the user is shown what points at the artifact, may delete it
 anyway, and the surviving references are tolerated and rendered as visibly broken. A store that
 refused would amount to never deleting anything, which the design document rules out directly.
 
-Cycles are legitimate — a realm's ruler is a character of that realm — so nothing here walks
-references transitively.
+Cycles are legitimate — a realm's ruler is a character of that realm. `collectReferencedArtifacts`
+is the one function here that walks references transitively, and it visits each id once, so a cycle
+terminates rather than hanging. Anything else that walks them has to do the same.
 
 ## Cascade
 

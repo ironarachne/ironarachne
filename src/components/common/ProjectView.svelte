@@ -5,7 +5,9 @@
     artifactTagsOf,
     deleteArtifact,
     groupArtifactsByKind,
+    hasBrokenArtifactReferences,
     hydrateArtifacts,
+    listArtifactBacklinks,
     listArtifacts,
     onArtifactsChanged,
     searchArtifacts,
@@ -54,6 +56,22 @@
   );
   const groups = $derived(groupArtifactsByKind(visible, kindOrder));
   const presentKinds = $derived(groupArtifactsByKind(artifacts, kindOrder));
+  /**
+   * The artifacts pointing at something that is gone.
+   *
+   * Computed over the whole list rather than per row so it follows `artifacts`, which is what the
+   * change subscription refreshes: deleting a culture has to mark the regions that used it in the
+   * same redraw, not the next time something else happens.
+   */
+  const withBrokenReferences = $derived(
+    new Set(
+      projectId === undefined
+        ? []
+        : artifacts
+            .filter((summary) => hasBrokenArtifactReferences(projectId, summary))
+            .map((summary) => summary.id),
+    ),
+  );
 
   function refresh() {
     artifacts = projectId === undefined ? [] : listArtifacts(projectId);
@@ -87,12 +105,38 @@
       : [...selectedTags, tag];
   }
 
+  /** How many referrers the prompt names before it starts counting. */
+  const REFERRERS_SHOWN = 5;
+
+  /**
+   * What the user is being asked to break.
+   *
+   * The list is read before the delete, because after it there is nothing left to ask about. A
+   * self-reference is left out — it goes with the artifact — and a long list is cut short rather
+   * than filling the screen, since past a handful the answer is "a lot of things" either way.
+   */
+  function deletionMessage(projectId: string, summary: ArtifactSummary): string {
+    const referrers = listArtifactBacklinks(projectId, summary.id)
+      .map((backlink) => backlink.referrer)
+      .filter((referrer) => referrer.id !== summary.id);
+    if (referrers.length === 0) {
+      return `Delete “${summary.name}”? This cannot be undone.`;
+    }
+    const named = referrers.slice(0, REFERRERS_SHOWN).map((referrer) => referrer.name);
+    const rest = referrers.length - named.length;
+    const list = rest === 0 ? named.join(', ') : `${named.join(', ')}, and ${rest} more`;
+    return `Delete “${summary.name}”? This cannot be undone. ${list} ${
+      referrers.length === 1 ? 'uses' : 'use'
+    } it, and will be left pointing at something that is gone.`;
+  }
+
   /**
    * Deleting an artifact says what points at it before it goes.
    *
    * The store deletes and reports the referrers rather than refusing, per the settled policy in
    * docs/workshop.md — so the confirmation names what will be left pointing at nothing, and the
-   * user decides.
+   * user decides. Refusing the delete until every referrer was updated was the alternative, and
+   * it collapses into never being able to delete anything.
    */
   async function remove(summary: ArtifactSummary) {
     if (projectId === undefined) {
@@ -100,7 +144,7 @@
     }
     const confirmed = await showConfirmModal({
       title: 'Delete artifact',
-      message: `Delete “${summary.name}”? This cannot be undone.`,
+      message: deletionMessage(projectId, summary),
       okLabel: 'Delete',
       dangerous: true,
     });
@@ -201,6 +245,11 @@
                 onclick={() => onOpenArtifact?.(summary.id)}
               >
                 <span class="project-view__name">{summary.name}</span>
+                {#if withBrokenReferences.has(summary.id)}
+                  <!-- A dangling reference is tolerated, never silent: the listing is where a
+                       user meets this artifact, so it is where the breakage has to show. -->
+                  <span class="project-view__badge project-view__badge--broken">Broken link</span>
+                {/if}
                 {#if isOpen}
                   <span class="project-view__badge">Open</span>
                 {/if}
@@ -378,6 +427,11 @@
     letter-spacing: 0.04em;
     line-height: 1.5;
     text-transform: uppercase;
+  }
+
+  .project-view__badge--broken {
+    border-color: var(--tan);
+    color: var(--tan);
   }
 
   .project-view__empty,

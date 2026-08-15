@@ -23,9 +23,10 @@
     toReligionSnapshot,
   } from '$lib/religion';
   import type { Species } from '$lib/species';
-  import type { Culture } from '$lib/culture';
   import type { Religion } from '$lib/religion';
-  import { loadSavedCultures } from '$lib/culture';
+  import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
+  import { hydrateArtifacts, listArtifactsOfKind, type ArtifactReference } from '$lib/artifacts';
+  import { getActiveProject, hydrateProjects } from '$lib/projects';
   import {
     applyImportedScopes,
     buildExportPayload,
@@ -38,7 +39,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import ExportImportRow from '$components/common/ExportImportRow.svelte';
   import LoadSnapshotDialog from '$components/common/LoadSnapshotDialog.svelte';
-  import SavedCulturePicker from '$components/common/SavedCulturePicker.svelte';
+  import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
 
   const dimensionSectionTitles: Record<ReligionDimensionId, string> = {
@@ -51,12 +52,10 @@
     material: 'Material',
   };
 
-  let savedCultures = $state<Culture[]>([]);
   let savedReligions = $state<ReligionSnapshot[]>([]);
   let loadDialogComponent: LoadSnapshotDialog | undefined = $state();
 
   onMount(() => {
-    savedCultures = loadSavedCultures();
     refreshSavedReligions();
     const seedParam = readReligionLoadParamFromLocation();
     if (seedParam !== null) {
@@ -74,9 +73,22 @@
     savedReligions = loadSavedReligionSnapshots();
   }
 
-  let savedCulture: string | undefined = $state();
+  // Filled in by the picker: which saved culture supplies the names, the culture itself rebuilt by
+  // its own kind, and the link to record on whatever this religion is saved as.
   let useSavedCulture: boolean = $state(false);
+  let cultureArtifactId: string | undefined = $state();
   let culture: Culture | undefined = $state();
+  let cultureReference: ArtifactReference | undefined = $state();
+
+  /**
+   * What a saved religion records about the culture it borrowed names from, and what it links to.
+   *
+   * The reference is the link: it names the artifact by id, so renaming that culture does not
+   * break it. The name in `generatorOptions` is not a second copy of that — it is the older
+   * per-generator save format, which predates projects and can only carry a name, and it is kept
+   * so a religion saved the old way still says which culture it came from.
+   */
+  const savedCultureReferences = $derived(cultureReference === undefined ? [] : [cultureReference]);
 
   const rng = new RNG.RNG(Date.now().toString());
   const initialSeed = rng.randomString(13);
@@ -142,19 +154,15 @@
     genConfig.femaleNameGenerator = humanNameGenSet.female;
     genConfig.maleNameGenerator = humanNameGenSet.male;
 
-    if (useSavedCulture) {
-      loadSavedCulture();
-
-      if (culture !== undefined) {
-        if (culture.nameGenerators.family !== null) {
-          genConfig.nameGenerator = culture.nameGenerators.family;
-        }
-        if (culture.nameGenerators.female !== null) {
-          genConfig.femaleNameGenerator = culture.nameGenerators.female;
-        }
-        if (culture.nameGenerators.male !== null) {
-          genConfig.maleNameGenerator = culture.nameGenerators.male;
-        }
+    if (useSavedCulture && culture !== undefined) {
+      if (culture.nameGenerators.family !== null) {
+        genConfig.nameGenerator = culture.nameGenerators.family;
+      }
+      if (culture.nameGenerators.female !== null) {
+        genConfig.femaleNameGenerator = culture.nameGenerators.female;
+      }
+      if (culture.nameGenerators.male !== null) {
+        genConfig.maleNameGenerator = culture.nameGenerators.male;
       }
     } else {
       genConfig.nameGenerator = humanNameGenSet.family;
@@ -165,14 +173,6 @@
     religion = generateReligion(seed, genConfig);
   }
 
-  function loadSavedCulture() {
-    for (let i = 0; i < savedCultures.length; i++) {
-      if (savedCultures[i].name === savedCulture) {
-        culture = savedCultures[i];
-      }
-    }
-  }
-
   function currentGeneratorOptions(): ReligionGeneratorOptionsSnapshot {
     return {
       lockSeed,
@@ -181,7 +181,7 @@
       polytheisticStanding,
       spiritCosmologyDepth,
       useSavedCulture,
-      savedCultureName: savedCulture,
+      savedCultureName: culture?.name,
     };
   }
 
@@ -202,6 +202,33 @@
     loadDialogComponent?.open();
   }
 
+  /**
+   * The culture a religion saved the old way named, as an artifact in the open project.
+   *
+   * A per-generator save from before projects existed carries a culture's *name* and nothing else,
+   * so this is the only way back to the artifact. It matches or it does not: an unmatched name
+   * leaves the picker empty rather than guessing, and the religion regenerates its own names, per
+   * rule 1. Names are not unique, so the first match wins — which is the most recently updated,
+   * the order `listArtifactsOfKind` returns.
+   *
+   * It waits for the store, because this runs on mount and the reads are synchronous against an
+   * index that may not have been read yet: without the await, restoring a religion from a link
+   * would find an empty vault and quietly drop the culture.
+   */
+  async function selectSavedCultureNamed(name: string | undefined): Promise<void> {
+    if (name === undefined) {
+      return;
+    }
+    await Promise.all([hydrateProjects(), hydrateArtifacts()]);
+    const projectId = getActiveProject()?.id;
+    cultureArtifactId =
+      projectId === undefined
+        ? undefined
+        : listArtifactsOfKind(projectId, CULTURE_ARTIFACT_KIND).find(
+            (summary) => summary.name === name,
+          )?.id;
+  }
+
   function loadSavedReligion(snapshot: ReligionSnapshot) {
     const restored = religionFromSnapshot(snapshot);
     religion = restored.religion;
@@ -212,7 +239,7 @@
     polytheisticStanding = restored.generatorOptions.polytheisticStanding;
     spiritCosmologyDepth = restored.generatorOptions.spiritCosmologyDepth;
     useSavedCulture = restored.generatorOptions.useSavedCulture;
-    savedCulture = restored.generatorOptions.savedCultureName;
+    void selectSavedCultureNamed(restored.generatorOptions.savedCultureName);
     rng.setSeed(seed);
     loadDialogComponent?.close();
   }
@@ -339,7 +366,15 @@
     {/each}
   </div>
 
-  <SavedCulturePicker cultures={savedCultures} bind:useSavedCulture bind:savedCulture />
+  <SavedArtifactPicker
+    kind={CULTURE_ARTIFACT_KIND}
+    role="naming-culture"
+    checkboxLabel="Use a saved culture for naming?"
+    bind:enabled={useSavedCulture}
+    bind:artifactId={cultureArtifactId}
+    bind:value={culture}
+    bind:reference={cultureReference}
+  />
 
   <button onclick={generate}>Generate</button>
   <button type="button" onclick={saveReligion}>Save</button>
@@ -351,6 +386,7 @@
     {seed}
     config={{ ...currentGeneratorOptions() }}
     defaultName={religion?.name ?? ''}
+    references={savedCultureReferences}
   />
   <button type="button" onclick={openLoadDialog}>Load...</button>
 

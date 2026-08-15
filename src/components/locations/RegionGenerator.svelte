@@ -10,21 +10,19 @@
   import { renderHeraldryDeviceSvg } from '$lib/heraldry';
   import { showHeraldryPersistenceModal } from '$lib/ui';
   import type { Arms } from '$lib/heraldry';
-  import { type Culture, loadSavedCultures } from '$lib/culture';
+  import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
-  import SavedCulturePicker from '$components/common/SavedCulturePicker.svelte';
+  import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import HeraldryEmblemButton from '$components/heraldry/HeraldryEmblemButton.svelte';
 
-  let savedCultures = $state<Culture[]>([]);
-
   onMount(() => {
-    savedCultures = loadSavedCultures();
     generate();
   });
 
-  let savedCulture: string | undefined = $state();
+  // Filled in by the picker: the culture the user chose, rebuilt by its own kind. Undefined until
+  // they choose one, and while the offer stands unaccepted.
   let useSavedCulture: boolean = $state(false);
   let culture: Culture | undefined = $state();
 
@@ -55,12 +53,9 @@
     rng.setSeed(seed);
 
     config.dominantCulture = null;
-    if (useSavedCulture) {
-      loadSavedCulture();
-      if (culture !== undefined) {
-        config.dominantCulture = culture;
-        nameSet = culture.nameGenerators;
-      }
+    if (useSavedCulture && culture !== undefined) {
+      config.dominantCulture = culture;
+      nameSet = culture.nameGenerators;
     } else {
       if (nameSetName === 'any') {
         nameSet = rng.item(nameSets);
@@ -77,14 +72,6 @@
 
     region = Regions.generate(config);
     ruler = region.authority;
-  }
-
-  function loadSavedCulture() {
-    for (let i = 0; i < savedCultures.length; i++) {
-      if (savedCultures[i].name === savedCulture) {
-        culture = savedCultures[i];
-      }
-    }
   }
 
   async function openHeraldryModal(
@@ -129,7 +116,13 @@
 
   <SelectField id="nameSet" label="Name Set" bind:value={nameSetName} options={nameSetOptions} />
 
-  <SavedCulturePicker cultures={savedCultures} bind:useSavedCulture bind:savedCulture />
+  <SavedArtifactPicker
+    kind={CULTURE_ARTIFACT_KIND}
+    role="naming-culture"
+    checkboxLabel="Use a saved culture for naming?"
+    bind:enabled={useSavedCulture}
+    bind:value={culture}
+  />
 
   <button onclick={generate}>Generate</button>
 

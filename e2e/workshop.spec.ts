@@ -266,6 +266,108 @@ test.describe('saving what a tool made', () => {
 });
 
 /**
+ * Composition (#37), end to end: one generator takes a saved artifact from another, the link is
+ * recorded, and it is visible from both ends.
+ *
+ * This is the half no unit test can reach. The picker reads the open project, the kind registry
+ * decides what it offers, and the codec that rebuilds the choice is a dynamic import — so what is
+ * being proved here is that a real browser can go from "save a culture" to "a religion built from
+ * it" without either generator knowing the other exists.
+ */
+test.describe('building one artifact from another', () => {
+  const artifactPanel = (page: Page) => page.locator('.artifact-panel');
+  const confirmDialog = (page: Page) => page.locator('dialog.ironarachne-modal');
+
+  test.beforeEach(async ({ page }) => {
+    await openEmptyWorkshop(page);
+    await createProject(page, 'Ashfall');
+  });
+
+  /**
+   * An artifact's row in the project view, by name.
+   *
+   * The trailing boundary matters: a row's accessible name picks up the badges beside it — "Open",
+   * "Broken link" — so an anchored exact match would stop finding a row the moment it acquired one,
+   * and a bare prefix would find "The Emberfolk" when asked for "The Ember".
+   */
+  function artifactRow(page: Page, name: string) {
+    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
+  }
+
+  /** Saves whatever the named panel has made, under a name of its own. */
+  async function saveFromPanel(page: Page, panelTitle: RegExp, name: string): Promise<void> {
+    const panel = panels(page).filter({ has: page.getByRole('heading', { name: panelTitle }) });
+    // Scoped to the save control rather than the panel: the religion generator still carries its
+    // own per-generator Save button, and "Save" alone would be ambiguous between the two.
+    const saveArtifact = panel.locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(artifactRow(page, name)).toBeVisible();
+  }
+
+  /** A culture, then a religion built from it through the shared picker. */
+  async function buildAReligionFromACulture(page: Page): Promise<void> {
+    await mountTool(page, /^Culture/);
+    await saveFromPanel(page, /Culture Generator/, 'The Emberfolk');
+
+    await mountTool(page, /^Fantasy Religion/);
+    const religionPanel = panels(page).filter({
+      has: page.getByRole('heading', { name: /Religion Generator/ }),
+    });
+    // The offer only appears because the project holds a culture: a picker with nothing to offer
+    // shows nothing at all.
+    await religionPanel.getByLabel('Use a saved culture for naming?').check();
+    await religionPanel
+      .getByLabel('Saved culture', { exact: true })
+      .selectOption({ label: 'The Emberfolk' });
+    await religionPanel.getByRole('button', { name: 'Generate' }).click();
+    await saveFromPanel(page, /Religion Generator/, 'The Ember');
+  }
+
+  test('records the culture a religion was built from, and shows it from both ends', async ({
+    page,
+  }) => {
+    await buildAReligionFromACulture(page);
+
+    await artifactRow(page, 'The Ember').click();
+    // The role is what makes the link legible: "naming culture", not "a culture".
+    await expect(artifactPanel(page).filter({ hasText: 'Built from' })).toContainText(
+      'Naming culture',
+    );
+    await expect(artifactPanel(page).filter({ hasText: 'Built from' })).toContainText(
+      'The Emberfolk',
+    );
+
+    // And from the other end, which is the question a user actually asks of a culture.
+    await artifactRow(page, 'The Emberfolk').click();
+    await expect(artifactPanel(page).filter({ hasText: 'Used by' })).toContainText('The Ember');
+
+    await page.reload({ waitUntil: 'load' });
+    await expect(artifactRow(page, 'The Ember')).toBeVisible();
+  });
+
+  test('names what a delete will break, deletes anyway, and shows the break', async ({ page }) => {
+    await buildAReligionFromACulture(page);
+
+    await projectView(page).getByRole('button', { name: 'Delete The Emberfolk' }).click();
+
+    // The prompt is the whole point of the settled policy: the user is told what they are about to
+    // leave pointing at nothing, and then allowed to do it.
+    await expect(confirmDialog(page)).toContainText('The Ember');
+    await expect(confirmDialog(page)).toContainText('left pointing at something that is gone');
+    await confirmDialog(page).getByRole('button', { name: 'Delete' }).click();
+
+    await expect(artifactRow(page, 'The Emberfolk')).toBeHidden();
+    // The religion survives its input being deleted, and says so where the user meets it.
+    await expect(projectView(page).getByText('Broken link')).toBeVisible();
+
+    await artifactRow(page, 'The Ember').click();
+    await expect(artifactPanel(page).filter({ hasText: 'Built from' })).toContainText('missing');
+  });
+});
+
+/**
  * The project context bar is the proof that `$lib/projects` works against a real browser's
  * IndexedDB: unit tests run against an in-memory implementation, and "survives a reload" is a
  * claim only a browser can settle. Each test starts from a cleared origin so one run cannot

@@ -2,6 +2,7 @@ import type { RouteId } from '$app/types';
 import type { Component } from 'svelte';
 
 import type { ArtifactKind } from '$lib/artifact_kinds';
+import type { ArtifactFailureReason, ArtifactReference, ArtifactSummary } from '$lib/artifacts';
 
 /**
  * Loads the component that renders a tool inside a panel. Loading is deferred so a workshop
@@ -38,4 +39,35 @@ export type ToolArtifactDraft = {
   /** What to call it. The kind's `nameOf` decides when this is blank. */
   name?: string;
   tags?: string[];
+  /**
+   * The saved artifacts this one was built from — what the picker filled in. Empty for a tool
+   * that was handed nothing, which is every tool until the user takes the offer up: composition
+   * is opt-in, per rule 1 in docs/workshop.md.
+   */
+  references?: ArtifactReference[];
 };
+
+/**
+ * Why a saved artifact could not be turned back into something a tool can use.
+ *
+ * `missing-target` is the reference case and it is the reason this is not simply
+ * `ArtifactFailureReason`: an artifact that has been deleted out from under a picker is an
+ * ordinary state under rule 3, not a storage failure, and the two want different words on screen.
+ */
+export type ArtifactValueFailureReason = ArtifactFailureReason | 'missing-target';
+
+/**
+ * A saved artifact rebuilt into the live value its library works with.
+ *
+ * A rejection carries the summary when there is one to carry — the same bargain
+ * `ArtifactReadResult` makes — so a picker can say which artifact it could not use rather than
+ * only that something failed. `missing-target` is the one case with no summary at all.
+ */
+export type ArtifactValueResult<TValue = unknown> =
+  | { ok: true; summary: ArtifactSummary; value: TValue }
+  | {
+      ok: false;
+      summary?: ArtifactSummary;
+      reason: ArtifactValueFailureReason;
+      message: string;
+    };
