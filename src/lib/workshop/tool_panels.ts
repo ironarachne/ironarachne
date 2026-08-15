@@ -59,6 +59,17 @@ export const TOOL_PANELS: ToolPanelRegistry = {
     import('$components/utilities/WordGeneratorCheatSheet.svelte'),
 };
 
+/**
+ * Catalog tools that deliberately have no panel.
+ *
+ * There is exactly one, and it is the workshop itself: a panel is a thing the workshop mounts, so
+ * mounting the workshop inside one would nest a bench inside a bench and give the user two project
+ * contexts to keep straight. The list exists rather than the test simply skipping the path,
+ * because "no panel" and "we forgot the panel" look identical from the outside, and the parity
+ * test's whole job is telling them apart.
+ */
+export const PATHS_WITHOUT_TOOL_PANELS: RouteId[] = ['/workshop'];
+
 /** The loader for a tool's panel, or undefined when no component is registered for it. */
 export function toolPanelLoader(path: RouteId): ToolPanelLoader | undefined {
   return TOOL_PANELS[path];

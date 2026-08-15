@@ -57,6 +57,20 @@ export type ProjectDeletion = {
   wasActive: boolean;
 };
 
+/**
+ * What happened to a project. `opened` is not a change to the project itself but to which one the
+ * workshop is working in, which is the same news to everything watching. See `project_events.ts`.
+ */
+export type ProjectChangeType = 'created' | 'updated' | 'deleted' | 'opened';
+
+/** A committed change. `projectId` is null when the change is that nothing is open any more. */
+export type ProjectChange = {
+  change: ProjectChangeType;
+  projectId: string | null;
+};
+
+export type ProjectChangeListener = (change: ProjectChange) => void;
+
 export const ACTIVE_PROJECT_PAYLOAD_VERSION = 1 as const;
 
 /**

@@ -5,6 +5,7 @@
   import { CommonSpecies } from '$lib/species';
   import {
     ReligionCategories,
+    RELIGION_ARTIFACT_KIND,
     listDomains,
     ALL_RELIGION_DIMENSION_IDS,
     appendSavedReligion,
@@ -38,6 +39,7 @@
   import ExportImportRow from '$components/common/ExportImportRow.svelte';
   import LoadSnapshotDialog from '$components/common/LoadSnapshotDialog.svelte';
   import SavedCulturePicker from '$components/common/SavedCulturePicker.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
 
   const dimensionSectionTitles: Record<ReligionDimensionId, string> = {
     ritual: 'Ritual',
@@ -189,6 +191,12 @@
     refreshSavedReligions();
   }
 
+  // What a project stores. The generator already owns the conversion, and the options travel with
+  // it so a saved religion can be picked back up and rolled on from where it was left.
+  const religionSnapshot = $derived(
+    religion === null ? null : toReligionSnapshot(religion, seed, currentGeneratorOptions()),
+  );
+
   function openLoadDialog() {
     refreshSavedReligions();
     loadDialogComponent?.open();
@@ -335,6 +343,15 @@
 
   <button onclick={generate}>Generate</button>
   <button type="button" onclick={saveReligion}>Save</button>
+
+  <SaveArtifactButton
+    kind={RELIGION_ARTIFACT_KIND}
+    toolPath="/fantasy/religion"
+    snapshot={religionSnapshot}
+    {seed}
+    config={{ ...currentGeneratorOptions() }}
+    defaultName={religion?.name ?? ''}
+  />
   <button type="button" onclick={openLoadDialog}>Load...</button>
 
   <ExportImportRow onExport={exportReligionsFile} onImport={onImportFile} />

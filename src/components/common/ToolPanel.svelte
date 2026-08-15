@@ -40,9 +40,9 @@
 
 <style>
   .tool-panel {
-    /* Takes the lion's share of the row it sits in, but shrinks rather than pushing the row
-       into overflow; `min-width: 0` lets its contents wrap instead of setting a floor. */
-    flex: 3 1 24rem;
+    /* The panel frame around this owns its width on the bench; this is only the content inside
+       it. `min-width: 0` lets a wide generator wrap rather than setting a floor under the frame. */
+    width: 100%;
     min-width: 0;
   }
 

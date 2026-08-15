@@ -8,19 +8,16 @@ becomes in [Domain model](#domain-model), and — in
 [Tool release readiness](#tool-release-readiness) — the specification a tool must meet before it
 is considered finished.
 
-**Status:** accepted; implementation not started. A prototype of the workshop shell exists at
-`/workshop` (`src/routes/workshop/+page.svelte`), unlinked from navigation. Nothing else described
-here is built yet. The work is broken down in [The plan](#the-plan) and tracked on Worktree under
-the `workshop` label.
+**Status:** accepted; being built. The foundation and durability phases are largely in place, and
+the shell is live at `/workshop` — linked from navigation, with a project always open, several
+panels on a bench at once, and a project view listing what the project holds. The work is broken
+down in [The plan](#the-plan) and tracked on Worktree under the `workshop` label; what is built and
+what is not is in [What exists today](#what-exists-today).
 
-The [domain model](#domain-model) is drafted and **awaiting review**. Per the design process in
-CLAUDE.md, implementation does not begin until those diagrams are approved. The six questions it
-forced are settled in [Decisions taken here](#decisions-taken-here); three of them close open
-questions this document had been carrying.
-
-The store built for #33 and #34 persists to `localStorage` and predates
-[decision 5](#5-the-store-persists-to-indexeddb). Moving it to IndexedDB is outstanding work, not
-a described-but-unbuilt part of the design.
+The [domain model](#domain-model) is settled, and the work in [The plan](#the-plan) is built
+against it. The six questions it forced are recorded in
+[Decisions taken here](#decisions-taken-here); three of them close open questions this document had
+been carrying.
 
 ## The shift
 
@@ -175,9 +172,10 @@ the project. They open it again later, edit it, and reference it from something 
 Panels are how more than one thing is visible at once, which is the entire point of a workshop:
 you cannot build a region _from_ your settlements if you cannot see them while you work.
 
-The existing prototype mounts one tool panel beside the browser. The full version needs several
-panels open at once, holding a mix of tools and artifacts, and needs to remember that arrangement
-per project so reopening a project restores the bench as it was left.
+Built in #36 as `src/lib/workspaces`: several panels at once, holding a mix of tools and artifacts,
+opened, closed, and reordered from the panel's own controls, and remembered per project so
+reopening a project restores the bench as it was left. A panel is identified by what it holds, so
+opening something already on the bench moves to it rather than putting a second copy beside it.
 
 Panel components are loaded on demand and the import specifiers are written out in full, because
 a bundler can only split a dynamic import it can see — a computed specifier would pull every
@@ -1161,7 +1159,7 @@ absence of a workshop suggests.
 | -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                         |
 | Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                        |
-| Workshop shell             | **Prototype.** One browser plus one panel at `/workshop`, unlinked.                                                                                                                   |
+| Workshop shell             | **Built (#36).** `/workshop`, linked from navigation and in the tool catalog: project context, a bench of panels, and the project view.                                               |
 | Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                               |
 | Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else. |
 | Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                    |
@@ -1171,6 +1169,8 @@ absence of a workshop suggests.
 | Vault database             | **Built (#176).** `src/lib/vault_db` — the five IndexedDB stores of [the storage layer](#the-storage-layer), hydrated summaries, transactional writes that return a result.           |
 | Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place.                 |
 | Storage status             | **Built (#177).** `src/lib/storage_status` — usage, quota, persistence, per-project attribution, and the export stamps, as `StorageStatus`. The panel that displays it is #179.       |
+| The bench                  | **Built (#36).** `src/lib/workspaces` — `ProjectWorkspace` and `PanelState`, persisted per project, reset rather than migrated, and dropped panel by panel when a target is gone.     |
+| Saving from a tool         | **Built for three kinds (#36).** `saveToolArtifact` plus `SaveArtifactButton`; heraldry, culture, and religion save into the open project, and prompt for one on their own routes.    |
 | Artifact editing           | **Not built.** Two tools are editors; neither edits a saved artifact.                                                                                                                 |
 | Composition                | **Partial.** `SavedCulturePicker` lets the region, settlement, and religion generators take a saved culture — the pattern to generalise, built three times by hand.                   |
 

@@ -2,6 +2,7 @@ import { forgetProjectArtifacts, hydrateArtifacts } from '$lib/artifacts';
 import { deleteProjectCascade, writeProjectRecord, type VaultResult } from '$lib/vault_db';
 
 import { readActiveProjectPayload, writeActiveProjectPayload } from './active_project_state';
+import { notifyProjectsChanged } from './project_events';
 import {
   forgetProject,
   hydrateProjects,
@@ -109,6 +110,7 @@ export async function createProject(
     return written;
   }
   rememberProject(project);
+  notifyProjectsChanged({ change: 'created', projectId: project.id });
   return { ok: true, value: project };
 }
 
@@ -164,6 +166,7 @@ export async function updateProject(
     return written;
   }
   rememberProject(next);
+  notifyProjectsChanged({ change: 'updated', projectId: next.id });
   return { ok: true, value: next };
 }
 
@@ -213,6 +216,7 @@ export async function deleteProject(id: string): Promise<VaultResult<ProjectDele
   if (wasActive) {
     writeActiveProjectPayload(null);
   }
+  notifyProjectsChanged({ change: 'deleted', projectId: id });
   return { ok: true, value: { deleted: true, removedArtifactIds, wasActive } };
 }
 
@@ -255,6 +259,7 @@ export function getActiveProject(): Project | undefined {
 export function setActiveProject(id: string | null): Project | undefined {
   if (id === null) {
     writeActiveProjectPayload(null);
+    notifyProjectsChanged({ change: 'opened', projectId: null });
     return undefined;
   }
   const project = getProject(id);
@@ -262,5 +267,6 @@ export function setActiveProject(id: string | null): Project | undefined {
     return undefined;
   }
   writeActiveProjectPayload(project.id);
+  notifyProjectsChanged({ change: 'opened', projectId: project.id });
   return project;
 }

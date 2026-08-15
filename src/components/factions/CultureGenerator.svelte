@@ -7,6 +7,8 @@
     loadSavedCultures,
     generateCulture,
     getDefaultCultureGenerationConfig,
+    toCultureSnapshot,
+    CULTURE_ARTIFACT_KIND,
     type Culture,
   } from '$lib/culture';
   import {
@@ -21,6 +23,7 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import ExportImportRow from '$components/common/ExportImportRow.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
 
   const rng = new RNG.RNG(Date.now());
   const allNameSets = getAllFantasyNameGeneratorSets(rng);
@@ -79,6 +82,10 @@
     refreshSavedCultures();
   }
 
+  // The snapshot is what a project stores, and the generator already owns the conversion: the
+  // payload is the truth, so what is kept is what is on screen rather than the seed that made it.
+  const cultureSnapshot = $derived(culture === null ? null : toCultureSnapshot(culture));
+
   function exportCulturesFile() {
     const payload = buildExportPayload([CULTURE_SAVE_SCOPE_ID]);
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -130,6 +137,15 @@
 
   <button onclick={generate}>Generate</button>
   <button onclick={saveCulture}>Save Current Culture</button>
+
+  <SaveArtifactButton
+    kind={CULTURE_ARTIFACT_KIND}
+    toolPath="/culture"
+    snapshot={cultureSnapshot}
+    {seed}
+    config={{ nameGeneratorSet: cultureSnapshot?.nameGenerators.name ?? '' }}
+    defaultName={culture?.name ?? ''}
+  />
 
   <h2>Saved Cultures</h2>
 

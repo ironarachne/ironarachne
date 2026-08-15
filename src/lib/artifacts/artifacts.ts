@@ -15,6 +15,7 @@ import {
   writeArtifactSummaryRecord,
 } from '$lib/vault_db';
 
+import { notifyArtifactsChanged } from './artifact_events';
 import {
   forgetArtifact,
   hydrateArtifacts,
@@ -211,6 +212,7 @@ export async function createArtifact(
     return written;
   }
   rememberArtifact(summary);
+  notifyArtifactsChanged({ change: 'created', projectId: summary.projectId, artifactId: id });
   return acceptedPayload({ ...summary, payload: validated.value });
 }
 
@@ -317,6 +319,7 @@ export async function updateArtifactPayload(
     return written;
   }
   rememberArtifact(next);
+  notifyArtifactsChanged({ change: 'updated', projectId, artifactId: id });
   return acceptedPayload({ ...next, payload: validated.value });
 }
 
@@ -392,6 +395,7 @@ export async function updateArtifact(
     return written;
   }
   rememberArtifact(next);
+  notifyArtifactsChanged({ change: 'updated', projectId, artifactId: id });
   return acceptedPayload(next);
 }
 
@@ -458,5 +462,6 @@ export async function deleteArtifact(
     return deleted;
   }
   forgetArtifact(id);
+  notifyArtifactsChanged({ change: 'deleted', projectId, artifactId: id });
   return acceptedPayload({ deleted: true, id, referrers });
 }

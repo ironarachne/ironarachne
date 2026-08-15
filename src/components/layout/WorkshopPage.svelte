@@ -1,36 +1,191 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+
+  import ArtifactPanel from '$components/common/ArtifactPanel.svelte';
   import ProjectContextBar from '$components/common/ProjectContextBar.svelte';
+  import ProjectView from '$components/common/ProjectView.svelte';
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
-  import { allTools, findToolByPath, firstToolInBrowseOrder } from '$lib/tools';
+  import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
+  import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
+  import type { Project } from '$lib/projects';
+  import { allTools, findToolByPath, type Tool } from '$lib/tools';
+  import { hasToolPanel } from '$lib/workshop';
+  import {
+    emptyWorkspace,
+    panelKey,
+    readProjectWorkspace,
+    withPanelClosed,
+    withPanelMoved,
+    withPanelOpened,
+    withUnresolvablePanelsDropped,
+    writeProjectWorkspace,
+    type PanelState,
+    type PanelTarget,
+    type ProjectWorkspace,
+  } from '$lib/workspaces';
 
-  const tools = allTools();
+  // The browser offers what the workshop can actually mount, which is also what keeps the
+  // workshop's own catalog entry from listing itself inside itself.
+  const mountableTools = allTools().filter((tool) => hasToolPanel(tool.path));
 
-  // The browser lists the catalog grouped by domain, so the tool it shows first is the one the
-  // workshop opens with. Asking the same function the list is built from keeps the two in step.
-  let activeToolPath: string | undefined = $state(firstToolInBrowseOrder(tools)?.path);
-  const activeTool = $derived(activeToolPath ? findToolByPath(activeToolPath) : undefined);
+  let project = $state<Project | undefined>(undefined);
+  let bench: ProjectWorkspace = $state(emptyWorkspace(''));
+  /**
+   * Bumped whenever an artifact changes, so anything reading the artifact index during render —
+   * a panel's title, for one — recomputes. The index is a plain cache rather than reactive state,
+   * and this is the seam between the two.
+   */
+  let artifactRevision = $state(0);
+
+  const openToolPaths = $derived(
+    bench.panels
+      .map((panel) => panel.toolPath)
+      .filter((path): path is string => path !== undefined),
+  );
+  const openArtifactIds = $derived(
+    bench.panels.map((panel) => panel.artifactId).filter((id): id is string => id !== undefined),
+  );
+
+  /** The catalog tool for a path, and only when it is one the workshop can mount. */
+  function toolFor(path: string): Tool | undefined {
+    const tool = findToolByPath(path);
+    return tool !== undefined && hasToolPanel(tool.path) ? tool : undefined;
+  }
+
+  function isResolvable(panel: PanelState): boolean {
+    if (panel.toolPath !== undefined) {
+      return toolFor(panel.toolPath) !== undefined;
+    }
+    return project !== undefined && getArtifactSummary(project.id, panel.artifactId) !== undefined;
+  }
+
+  /**
+   * Follow the project context bar into whichever project is open.
+   *
+   * A rename comes through here too, so the bench is only re-read when the project itself changes;
+   * rereading it on every edit would throw away an arrangement mid-use.
+   */
+  async function openProject(next: Project | undefined) {
+    const changed = next?.id !== project?.id;
+    project = next;
+    if (!changed) {
+      return;
+    }
+    if (next === undefined) {
+      bench = emptyWorkspace('');
+      return;
+    }
+    // The bench names artifacts, so the artifact index has to be in memory before a panel bound to
+    // one that has since been deleted can be recognised as such.
+    await hydrateArtifacts();
+    const stored = withUnresolvablePanelsDropped(await readProjectWorkspace(next.id), isResolvable);
+    if (stored.panels.length === 0 && bench.panels.length > 0) {
+      // A project with no bench of its own adopts whatever is on the one in front of the user.
+      // This is the path a generator takes when it saves its first artifact and creates the
+      // project to hold it: closing the panel it was saved from would be a strange thanks.
+      updateBench({ ...bench, projectId: next.id });
+      return;
+    }
+    bench = stored;
+  }
+
+  /**
+   * Move the bench, and remember it.
+   *
+   * The write is deliberately not awaited and its result deliberately not shown: a bench is not
+   * work, and blocking a panel from opening on a database round trip would make the workshop feel
+   * broken over something whose worst failure costs a click.
+   */
+  function updateBench(next: ProjectWorkspace) {
+    if (next === bench) {
+      return;
+    }
+    bench = next;
+    if (project !== undefined) {
+      void writeProjectWorkspace({ ...next, projectId: project.id });
+    }
+  }
+
+  onMount(() =>
+    onArtifactsChanged((change) => {
+      artifactRevision += 1;
+      if (change.change === 'deleted') {
+        // A panel showing an artifact another panel has just deleted is dropped rather than left
+        // pointing at nothing — the one thing a bench is allowed to lose silently.
+        updateBench(withUnresolvablePanelsDropped(bench, isResolvable));
+      }
+    }),
+  );
+
+  function openTool(tool: Tool) {
+    updateBench(withPanelOpened(bench, { toolPath: tool.path }));
+  }
+
+  function openArtifact(artifactId: string) {
+    updateBench(withPanelOpened(bench, { artifactId }));
+  }
+
+  function targetOf(panel: PanelState): PanelTarget {
+    return panel.toolPath === undefined
+      ? { artifactId: panel.artifactId }
+      : { toolPath: panel.toolPath };
+  }
+
+  function panelTitle(panel: PanelState): string {
+    if (panel.toolPath !== undefined) {
+      return toolFor(panel.toolPath)?.label ?? panel.toolPath;
+    }
+    void artifactRevision;
+    const summary =
+      project === undefined ? undefined : getArtifactSummary(project.id, panel.artifactId);
+    return summary?.name ?? 'Artifact';
+  }
 </script>
 
 <section class="main workshop">
   <h1>Workshop</h1>
 
-  <ProjectContextBar />
+  <ProjectContextBar onProjectChange={(next) => void openProject(next)} />
 
-  <div class="workshop__panels">
-    <ToolBrowser {tools} bind:activeToolPath />
+  <div class="workshop__layout">
+    <div class="workshop__rail">
+      <ToolBrowser tools={mountableTools} {openToolPaths} onToolChange={openTool} />
+      <ProjectView projectId={project?.id} {openArtifactIds} onOpenArtifact={openArtifact} />
+    </div>
 
-    {#if activeTool}
-      <ToolPanel tool={activeTool} />
-    {:else}
-      <p class="workshop__empty">No tool loaded.</p>
-    {/if}
+    <div class="workshop__bench">
+      {#each bench.panels as panel (panelKey(panel))}
+        <WorkshopPanel
+          title={panelTitle(panel)}
+          subtitle={panel.toolPath === undefined ? 'Artifact' : 'Tool'}
+          position={panel.order + 1}
+          total={bench.panels.length}
+          onClose={() => updateBench(withPanelClosed(bench, targetOf(panel)))}
+          onMoveLeft={() => updateBench(withPanelMoved(bench, targetOf(panel), -1))}
+          onMoveRight={() => updateBench(withPanelMoved(bench, targetOf(panel), 1))}
+        >
+          {#if panel.toolPath !== undefined}
+            {@const tool = toolFor(panel.toolPath)}
+            {#if tool}
+              <ToolPanel {tool} />
+            {/if}
+          {:else if project !== undefined}
+            <ArtifactPanel projectId={project.id} artifactId={panel.artifactId} />
+          {/if}
+        </WorkshopPanel>
+      {:else}
+        <p class="workshop__empty">
+          Nothing on the bench. Pick a tool to start, or open something you have saved.
+        </p>
+      {/each}
+    </div>
   </div>
 </section>
 
 <style>
   .workshop {
-    /* Every other page is a single reading column, which `html` caps at 70ch. Two panels side
+    /* Every other page is a single reading column, which `html` caps at 70ch. Several panels side
        by side do not fit in that, so the workshop breaks out of it: it takes the viewport width
        (less a gutter, so a scrollbar cannot push the page sideways) and recentres itself on the
        viewport rather than on the column it sits in. Kept local to this page so the column
@@ -44,14 +199,44 @@
     margin: 0 0 0.5rem;
   }
 
-  .workshop__panels {
+  .workshop__layout {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     align-items: flex-start;
   }
 
+  .workshop__rail {
+    /* The rail holds the two lists you work *from*. It takes a column of its own where there is
+       room and sits above the bench where there is not, which is the mobile-first arrangement:
+       both its lists scroll internally so the bench is never more than a screen away. */
+    flex: 1 1 18rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .workshop__bench {
+    flex: 3 1 26rem;
+    min-width: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  @media (max-width: 48rem) {
+    .workshop__rail {
+      /* On a phone the rail is stacked above the bench, so its lists are what stands between the
+         user and the tool they just opened. Shorter here, taller where they sit beside it. */
+      --tool-browser-max-height: 14rem;
+      --project-view-max-height: 12rem;
+    }
+  }
+
   .workshop__empty {
+    margin: 0;
     font-style: italic;
     opacity: 0.8;
   }

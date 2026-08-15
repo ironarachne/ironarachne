@@ -26,6 +26,7 @@
     type HeraldrySnapshot,
     buildFieldDivisionPreviewSvg,
     buildVariationPreviewSvg,
+    HERALDRY_ARTIFACT_KIND,
   } from '$lib/heraldry';
   import type { RNG } from '@ironarachne/rng';
   import { RNG as RngCtor } from '@ironarachne/rng';
@@ -43,6 +44,7 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import LoadSnapshotDialog from '$components/common/LoadSnapshotDialog.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
 
   const HERALDRY_UI_PREVIEW_SIZE = 16;
 
@@ -351,6 +353,12 @@
     });
   }
 
+  // What a project stores: the arms, the seed, and the options that produced them, so a saved
+  // coat of arms can be picked back up and kept rolling from.
+  const heraldrySnapshot = $derived(
+    currentArms === null ? null : toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()),
+  );
+
   function openLoadDialog() {
     refreshSavedHeraldries();
     loadDialogComponent?.open();
@@ -509,6 +517,15 @@
     >Save</button
   >
   <button type="button" onclick={openLoadDialog}>Load...</button>
+
+  <SaveArtifactButton
+    kind={HERALDRY_ARTIFACT_KIND}
+    toolPath="/heraldry"
+    snapshot={heraldrySnapshot}
+    {seed}
+    config={{ ...currentGeneratorOptions() }}
+    defaultName={blazon}
+  />
 
   <p class="blazon">{blazon}</p>
   <div class="coat-of-arms"><img alt="" id="output" /></div>

@@ -274,6 +274,17 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
 
   // Utilities & Reference
   defineTool({
+    // The workshop is where every other tool in this catalog can be mounted, which makes it the
+    // one entry with no panel of its own — see `PATHS_WITHOUT_TOOL_PANELS` in `$lib/workshop`.
+    // It is here rather than only in the nav because the catalog is where a tool's name and
+    // classification live, and a surface nothing can find is a surface nobody uses.
+    path: '/workshop',
+    label: 'Workshop',
+    kind: 'editor',
+    domain: 'utilities',
+    tags: ['workshop', 'projects'],
+  }),
+  defineTool({
     path: '/saved-data',
     label: 'Saved data',
     kind: 'editor',

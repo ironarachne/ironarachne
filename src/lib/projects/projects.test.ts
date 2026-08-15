@@ -19,8 +19,9 @@ import {
 import { closeVault, type VaultResult } from '$lib/vault_db';
 
 import { readActiveProjectPayload, writeActiveProjectPayload } from './active_project_state';
+import { onProjectsChanged, resetProjectChangeListeners } from './project_events';
 import { hydrateProjects, resetProjectIndex } from './project_index';
-import type { Project, ProjectDeletion } from './project_types';
+import type { Project, ProjectChange, ProjectDeletion } from './project_types';
 import {
   DEFAULT_PROJECT_NAME,
   createProject,
@@ -514,5 +515,99 @@ describe('the whole set', () => {
     expect(reloaded.map((project) => project.name)).toEqual(['One Renamed', 'Two']);
     expect(reloaded[0].tags).toEqual(['fantasy']);
     expect(reloaded[1].description).toBe('Second');
+  });
+});
+
+/**
+ * The store announcing what it committed, which is what keeps the project bar and a generator
+ * saving from inside a panel in step. The mechanism is covered in `project_events.test.ts`; what
+ * is checked here is that every write reaches it, and — the one that would be a loop rather than a
+ * missing feature — that reading the active project does not.
+ */
+describe('change notifications', () => {
+  let changes: ProjectChange[] = [];
+  let unsubscribe: () => void = () => {};
+
+  beforeEach(() => {
+    changes = [];
+    unsubscribe = onProjectsChanged((change) => changes.push(change));
+  });
+
+  afterEach(() => {
+    unsubscribe();
+    resetProjectChangeListeners();
+  });
+
+  it('announces a created project', async () => {
+    const project = stored(await createProject({ name: 'Ashfall' }));
+
+    expect(changes).toEqual([{ change: 'created', projectId: project.id }]);
+  });
+
+  it('announces an edit', async () => {
+    const project = stored(await createProject({ name: 'Ashfall' }));
+    changes = [];
+
+    await renameProject(project.id, 'Ashfall Revised');
+
+    expect(changes).toEqual([{ change: 'updated', projectId: project.id }]);
+  });
+
+  it('says nothing when an edit changed nothing', async () => {
+    const project = stored(await createProject({ name: 'Ashfall' }));
+    changes = [];
+
+    await renameProject(project.id, 'Ashfall');
+
+    expect(changes).toEqual([]);
+  });
+
+  it('announces a delete', async () => {
+    const project = stored(await createProject({ name: 'Ashfall' }));
+    changes = [];
+
+    await deleteProject(project.id);
+
+    expect(changes).toEqual([{ change: 'deleted', projectId: project.id }]);
+  });
+
+  it('says nothing when there was nothing to delete', async () => {
+    await hydrateProjects();
+    changes = [];
+
+    await deleteProject('never-existed');
+
+    expect(changes).toEqual([]);
+  });
+
+  it('announces which project was opened, and which was closed', async () => {
+    const project = stored(await createProject({ name: 'Ashfall' }));
+    changes = [];
+
+    setActiveProject(project.id);
+    setActiveProject(null);
+
+    expect(changes).toEqual([
+      { change: 'opened', projectId: project.id },
+      { change: 'opened', projectId: null },
+    ]);
+  });
+
+  it('says nothing when asked to open a project that is not there', async () => {
+    await hydrateProjects();
+    changes = [];
+
+    setActiveProject('never-existed');
+
+    expect(changes).toEqual([]);
+  });
+
+  it('stays quiet when reading the active project, even where that rewrites the pointer', async () => {
+    const project = stored(await createProject({ name: 'Ashfall' }));
+    writeActiveProjectPayload('a project that is gone');
+    changes = [];
+
+    expect(getActiveProject()?.id).toBe(project.id);
+    expect(changes).toEqual([]);
   });
 });
