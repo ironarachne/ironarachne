@@ -60,6 +60,7 @@
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-svelte": "^3.13.1",
+    "fake-indexeddb": "^6.2.5",
     "globals": "^16.5.0",
     "postcss": "^8.4.33",
     "prettier": "^3.7.4",

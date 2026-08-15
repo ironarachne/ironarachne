@@ -1,3 +1,4 @@
+import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -10,17 +11,18 @@ import {
   type ArtifactKindEntry,
   type ArtifactKindRegistry,
 } from '$lib/artifact_kinds';
-
 import {
-  artifactIndexScopeId,
-  readArtifactIndex,
+  closeVault,
+  readAllArtifactRecords,
   readArtifactPayloadRecord,
-  writeArtifactPayloadRecord,
-} from './artifact_saved_state';
+  writeArtifactRecord,
+  writeArtifactSummaryRecord,
+} from '$lib/vault_db';
+
+import { hydrateArtifacts, resetArtifactIndex } from './artifact_index';
 import {
   createArtifact,
   deleteArtifact,
-  deleteProjectArtifacts,
   getArtifactSummary,
   listArtifactReferrers,
   listArtifacts,
@@ -38,33 +40,38 @@ import type {
   ArtifactDraft,
   ArtifactMutationOptions,
   ArtifactProvenance,
+  ArtifactSummary,
 } from './artifact_types';
 
-const store = new Map<string, string>();
-
 beforeEach(() => {
-  store.clear();
-  vi.stubGlobal('localStorage', {
-    get length() {
-      return store.size;
-    },
-    key: (i: number) => [...store.keys()][i] ?? null,
-    getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
-    setItem: (key: string, value: string) => {
-      store.set(key, value);
-    },
-    removeItem: (key: string) => {
-      store.delete(key);
-    },
-    clear: () => {
-      store.clear();
-    },
-  });
+  closeVault();
+  resetArtifactIndex();
+  vi.stubGlobal('indexedDB', new IDBFactory());
 });
 
 afterEach(() => {
+  closeVault();
+  resetArtifactIndex();
   vi.unstubAllGlobals();
 });
+
+/** A database that refuses to open, for the writes that have to survive being refused. */
+function refuseTheDatabase(): void {
+  closeVault();
+  vi.stubGlobal('indexedDB', {
+    open: () => {
+      const request = { error: new Error('storage is gone'), onerror: null };
+      queueMicrotask(() => (request.onerror as (() => void) | null)?.());
+      return request;
+    },
+  });
+}
+
+/** A reload: memory is dropped, the database is not. */
+async function reload(): Promise<void> {
+  resetArtifactIndex();
+  await hydrateArtifacts();
+}
 
 type Note = { title: string };
 type NoteV2 = { title: string; body: string };
@@ -166,16 +173,30 @@ function draft(overrides: Partial<ArtifactDraft> = {}): ArtifactDraft {
   };
 }
 
-/** Creates an artifact and fails the test rather than the assertion if the kind refused it. */
-function create(
+/** Creates an artifact and fails the test rather than the assertion if it was not stored. */
+async function create(
   overrides: Partial<ArtifactDraft> = {},
   options: ArtifactMutationOptions = {},
-): Artifact {
-  const result = createArtifact(KINDS, draft(overrides), options);
+): Promise<Artifact> {
+  const result = await createArtifact(KINDS, draft(overrides), options);
   if (!result.ok) {
     throw new Error(`expected a stored artifact, got ${result.reason}: ${result.message}`);
   }
   return result.value;
+}
+
+/** The summary as the database holds it, rather than as memory remembers it. */
+async function storedSummary(id: string): Promise<ArtifactSummary | undefined> {
+  const records = await readAllArtifactRecords();
+  const stored = records.ok ? records.value : [];
+  return stored.find((record) => (record as ArtifactSummary).id === id) as
+    | ArtifactSummary
+    | undefined;
+}
+
+async function storedPayload(id: string): Promise<unknown> {
+  const record = await readArtifactPayloadRecord(id);
+  return record.ok && record.value !== undefined ? record.value.payload : undefined;
 }
 
 describe('newArtifactId', () => {
@@ -193,8 +214,8 @@ describe('newArtifactId', () => {
 });
 
 describe('createArtifact', () => {
-  it('stores an artifact of any registered kind and survives a reload', () => {
-    const artifact = create({}, { id: 'artifact-1', now: 100 });
+  it('stores an artifact of any registered kind and survives a reload', async () => {
+    const artifact = await create({}, { id: 'artifact-1', now: 100 });
 
     expect(artifact).toEqual({
       id: 'artifact-1',
@@ -205,32 +226,38 @@ describe('createArtifact', () => {
       references: [],
       payload: { title: 'Ashfall' },
       payloadVersion: 1,
+      byteSize: 19,
       createdAt: 100,
       updatedAt: 100,
     });
-    // Nothing is cached in memory: a fresh read goes back to storage, as a reload would.
+
+    await reload();
     expect(getArtifactSummary('project-1', 'artifact-1')?.name).toBe('Ashfall');
-    expect(readArtifactPayloadRecord('artifact-1')).toEqual({
-      storeVersion: 1,
-      payloadVersion: 1,
-      payload: { title: 'Ashfall' },
-    });
+    expect(await storedPayload('artifact-1')).toEqual({ title: 'Ashfall' });
   });
 
-  it('names an artifact from the kind when the caller does not', () => {
-    expect(create({ payload: { title: 'Dolmenwood' } }).name).toBe('Dolmenwood');
+  it('records the payload version and size on the summary, where a listing can read them', async () => {
+    await create({ payload: { title: 'Dolmenwood' } }, { id: 'artifact-1' });
+
+    const stored = await storedSummary('artifact-1');
+    expect(stored?.payloadVersion).toBe(1);
+    expect(stored?.byteSize).toBe(22);
   });
 
-  it('falls back to the kind display name when the payload yields none', () => {
-    expect(create({ payload: { title: '  ' } }).name).toBe('Note (note)');
+  it('names an artifact from the kind when the caller does not', async () => {
+    expect((await create({ payload: { title: 'Dolmenwood' } })).name).toBe('Dolmenwood');
   });
 
-  it('prefers a supplied name, trimmed', () => {
-    expect(create({ name: '  My notes  ' }).name).toBe('My notes');
+  it('falls back to the kind display name when the payload yields none', async () => {
+    expect((await create({ payload: { title: '  ' } })).name).toBe('Note (note)');
   });
 
-  it('normalizes tags and references', () => {
-    const artifact = create({
+  it('prefers a supplied name, trimmed', async () => {
+    expect((await create({ name: '  My notes  ' })).name).toBe('My notes');
+  });
+
+  it('normalizes tags and references', async () => {
+    const artifact = await create({
       tags: ['  worlds ', 'worlds', '', 'draft'],
       references: [
         { targetId: ' artifact-2 ', targetKind: 'note', role: ' sequel ' },
@@ -246,104 +273,94 @@ describe('createArtifact', () => {
     ]);
   });
 
-  it('keeps provenance as given, defaulting only an absent config', () => {
+  it('keeps provenance as given, defaulting only an absent config', async () => {
     const provenance: ArtifactProvenance = {
       toolPath: '/culture',
       seed: 'seed-1',
       config: { size: 3 },
     };
-    expect(create({ provenance }).provenance).toEqual(provenance);
+    expect((await create({ provenance })).provenance).toEqual(provenance);
 
     const bare = { toolPath: '/culture', seed: 'seed-1' } as unknown as ArtifactProvenance;
-    expect(create({ provenance: bare }).provenance).toEqual({
+    expect((await create({ provenance: bare })).provenance).toEqual({
       toolPath: '/culture',
       seed: 'seed-1',
       config: {},
     });
   });
 
-  it('leaves provenance absent rather than inventing one', () => {
-    expect(create()).not.toHaveProperty('provenance');
+  it('leaves provenance absent rather than inventing one', async () => {
+    expect(await create()).not.toHaveProperty('provenance');
   });
 
-  it('separates when it was first made from when it was written here', () => {
-    const artifact = create({}, { id: 'artifact-1', now: 500, createdAt: 20 });
+  it('separates when it was first made from when it was written here', async () => {
+    const artifact = await create({}, { id: 'artifact-1', now: 500, createdAt: 20 });
     expect(artifact.createdAt).toBe(20);
     expect(artifact.updatedAt).toBe(500);
   });
 
-  it('rejects an unknown kind without writing anything', () => {
-    const result = createArtifact(KINDS, draft({ kind: 'starship.swn' }));
+  it('rejects an unknown kind without writing anything', async () => {
+    const result = await createArtifact(KINDS, draft({ kind: 'starship.swn' }));
     expect(result).toEqual({
       ok: false,
       reason: 'unknown-kind',
       message: 'no artifact kind registered as "starship.swn"',
     });
     expect(listArtifacts('project-1')).toEqual([]);
-    expect(store.size).toBe(0);
+    expect(await readAllArtifactRecords()).toEqual({ ok: true, value: [] });
   });
 
-  it('rejects a payload the kind refuses without writing anything', () => {
-    const result = createArtifact(KINDS, draft({ payload: { titel: 'typo' } }));
+  it('rejects a payload the kind refuses without writing anything', async () => {
+    const result = await createArtifact(KINDS, draft({ payload: { titel: 'typo' } }));
     expect(result.ok).toBe(false);
     expect(result.ok === false && result.reason).toBe('invalid-payload');
-    expect(store.size).toBe(0);
+    expect(await readAllArtifactRecords()).toEqual({ ok: true, value: [] });
   });
 
-  it('refuses a reused id rather than overwriting the payload it belongs to', () => {
-    create({}, { id: 'artifact-1' });
+  it('refuses a reused id rather than overwriting the payload it belongs to', async () => {
+    await create({}, { id: 'artifact-1' });
 
-    expect(() => createArtifact(KINDS, draft(), { id: 'artifact-1' })).toThrow(/already in use/);
-    // Including from another project: the index is per project, but payload keys are not.
-    expect(() =>
+    await expect(createArtifact(KINDS, draft(), { id: 'artifact-1' })).rejects.toThrow(
+      /already in use/,
+    );
+    // Including from another project: summaries are keyed by their own id, vault-wide.
+    await expect(
       createArtifact(KINDS, draft({ projectId: 'project-2' }), { id: 'artifact-1' }),
-    ).toThrow(/already in use/);
-    expect(readArtifactPayloadRecord('artifact-1')?.payload).toEqual({ title: 'Ashfall' });
+    ).rejects.toThrow(/already in use/);
+    expect(await storedPayload('artifact-1')).toEqual({ title: 'Ashfall' });
     expect(listArtifacts('project-2')).toEqual([]);
   });
 
-  it('throws for a draft with no project, which is a bug in the caller', () => {
-    expect(() => createArtifact(KINDS, draft({ projectId: '  ' }))).toThrow(/project id/);
+  it('throws for a draft with no project, which is a bug in the caller', async () => {
+    await expect(createArtifact(KINDS, draft({ projectId: '  ' }))).rejects.toThrow(/project id/);
   });
 
-  it('leaves nothing behind when the index write is refused', () => {
-    const artifact = create({}, { id: 'artifact-1' });
-    const failing = new Error('QuotaExceededError');
-    const setItem = vi.fn((key: string, value: string) => {
-      if (key.includes(artifactIndexScopeId('project-2'))) {
-        throw failing;
-      }
-      store.set(key, value);
-    });
-    vi.stubGlobal('localStorage', {
-      getItem: (key: string) => store.get(key) ?? null,
-      setItem,
-      removeItem: (key: string) => {
-        store.delete(key);
-      },
-    });
+  it('reports a refused write instead of pretending it saved', async () => {
+    await create({}, { id: 'artifact-1' });
+    refuseTheDatabase();
 
-    expect(() =>
-      createArtifact(KINDS, draft({ projectId: 'project-2' }), { id: 'artifact-2' }),
-    ).toThrow(failing);
-    // The payload written first is rolled back, so no payload is left with nothing pointing at it.
-    expect(readArtifactPayloadRecord('artifact-2')).toBeNull();
-    expect(readArtifactPayloadRecord(artifact.id)).not.toBeNull();
+    const result = await createArtifact(KINDS, draft(), { id: 'artifact-2' });
+
+    expect(result.ok).toBe(false);
+    expect(result.ok === false && result.reason).toBe('storage-failed');
+    // The hydrated index is not updated until the transaction commits, so memory does not claim a
+    // save the database never took.
+    expect(listArtifacts('project-1').map((summary) => summary.id)).toEqual(['artifact-1']);
   });
 });
 
 describe('listing', () => {
-  it('lists a project most recently updated first, breaking ties by name then id', () => {
-    create({ name: 'Older' }, { id: 'a', now: 100 });
-    create({ name: 'Bravo' }, { id: 'c', now: 300 });
-    create({ name: 'Alpha' }, { id: 'b', now: 300 });
+  it('lists a project most recently updated first, breaking ties by name then id', async () => {
+    await create({ name: 'Older' }, { id: 'a', now: 100 });
+    await create({ name: 'Bravo' }, { id: 'c', now: 300 });
+    await create({ name: 'Alpha' }, { id: 'b', now: 300 });
 
     expect(listArtifacts('project-1').map((summary) => summary.id)).toEqual(['b', 'c', 'a']);
   });
 
-  it('keeps projects apart', () => {
-    create({}, { id: 'a' });
-    create({ projectId: 'project-2' }, { id: 'b' });
+  it('keeps projects apart', async () => {
+    await create({}, { id: 'a' });
+    await create({ projectId: 'project-2' }, { id: 'b' });
 
     expect(listArtifacts('project-1').map((s) => s.id)).toEqual(['a']);
     expect(listArtifacts('project-2').map((s) => s.id)).toEqual(['b']);
@@ -351,97 +368,122 @@ describe('listing', () => {
     expect(getArtifactSummary('project-2', 'a')).toBeUndefined();
   });
 
-  it('lists by kind', () => {
-    create({}, { id: 'a' });
-    create({ kind: 'sketch' }, { id: 'b' });
+  it('lists by kind', async () => {
+    await create({}, { id: 'a' });
+    await create({ kind: 'sketch' }, { id: 'b' });
 
     expect(listArtifactsOfKind('project-1', 'sketch').map((s) => s.id)).toEqual(['b']);
     expect(listArtifactsOfKind('project-1', 'note').map((s) => s.id)).toEqual(['a']);
     expect(listArtifactsOfKind('project-1', 'culture')).toEqual([]);
   });
+
+  it('is empty before anything has been hydrated, rather than blocking on a read', async () => {
+    await create({}, { id: 'a' });
+    resetArtifactIndex();
+
+    expect(listArtifacts('project-1')).toEqual([]);
+    await hydrateArtifacts();
+    expect(listArtifacts('project-1').map((s) => s.id)).toEqual(['a']);
+  });
 });
 
 describe('readArtifact', () => {
-  it('hands back a stored artifact', () => {
-    create({}, { id: 'artifact-1', now: 100 });
+  it('hands back a stored artifact', async () => {
+    await create({}, { id: 'artifact-1', now: 100 });
 
-    const result = readArtifact(KINDS, 'project-1', 'artifact-1');
+    const result = await readArtifact(KINDS, 'project-1', 'artifact-1');
     expect(result?.ok).toBe(true);
     expect(result?.ok === true && result.artifact.payload).toEqual({ title: 'Ashfall' });
     expect(result?.ok === true && result.migrated).toBe(false);
   });
 
-  it('is undefined for an artifact that is not in that project', () => {
-    create({}, { id: 'artifact-1' });
-    expect(readArtifact(KINDS, 'project-1', 'nope')).toBeUndefined();
-    expect(readArtifact(KINDS, 'project-2', 'artifact-1')).toBeUndefined();
+  it('is undefined for an artifact that is not in that project', async () => {
+    await create({}, { id: 'artifact-1' });
+    expect(await readArtifact(KINDS, 'project-1', 'nope')).toBeUndefined();
+    expect(await readArtifact(KINDS, 'project-2', 'artifact-1')).toBeUndefined();
   });
 
-  it('migrates a payload stored at an older version, without writing it back', () => {
-    create({}, { id: 'artifact-1' });
+  it('migrates a payload stored at an older version, without writing it back', async () => {
+    await create({}, { id: 'artifact-1' });
     const laterBuild = registryOf(noteKindV2());
 
-    const result = readArtifact(laterBuild, 'project-1', 'artifact-1');
+    const result = await readArtifact(laterBuild, 'project-1', 'artifact-1');
     expect(result?.ok).toBe(true);
     expect(result?.ok === true && result.artifact.payload).toEqual({ title: 'Ashfall', body: '' });
     expect(result?.ok === true && result.artifact.payloadVersion).toBe(2);
     expect(result?.ok === true && result.migrated).toBe(true);
     // Storage is untouched: a read must not be the operation that fills a full disk.
-    expect(readArtifactPayloadRecord('artifact-1')?.payloadVersion).toBe(1);
+    expect((await storedSummary('artifact-1'))?.payloadVersion).toBe(1);
   });
 
-  it('reports a payload from a newer build rather than guessing at it', () => {
-    create({}, { id: 'artifact-1' });
-    writeArtifactPayloadRecord('artifact-1', 9, { title: 'From the future' });
+  it('reports a payload from a newer build rather than guessing at it', async () => {
+    const artifact = await create({}, { id: 'artifact-1' });
+    const fromANewerBuild = { ...artifact, payloadVersion: 9 };
+    await writeArtifactRecord(fromANewerBuild, { title: 'From the future' });
+    await reload();
 
-    const result = readArtifact(KINDS, 'project-1', 'artifact-1');
+    const result = await readArtifact(KINDS, 'project-1', 'artifact-1');
     expect(result?.ok).toBe(false);
     expect(result?.ok === false && result.reason).toBe('unsupported-version');
     expect(result?.ok === false && result.summary.name).toBe('Ashfall');
   });
 
-  it('reports a failed migration and keeps the artifact visible', () => {
-    const registry = registryOf(brokenMigrationKind());
-    createArtifact(registryOf(noteKind('broken')), draft({ kind: 'broken' }), { id: 'artifact-1' });
+  it('reports a failed migration and keeps the artifact visible', async () => {
+    await createArtifact(registryOf(noteKind('broken')), draft({ kind: 'broken' }), {
+      id: 'artifact-1',
+    });
 
-    const result = readArtifact(registry, 'project-1', 'artifact-1');
+    const result = await readArtifact(registryOf(brokenMigrationKind()), 'project-1', 'artifact-1');
     expect(result?.ok).toBe(false);
     expect(result?.ok === false && result.reason).toBe('migration-failed');
     expect(result?.ok === false && result.summary.id).toBe('artifact-1');
   });
 
-  it('reports a kind this build does not have, and still shows the summary', () => {
-    create({}, { id: 'artifact-1' });
+  it('reports a kind this build does not have, and still shows the summary', async () => {
+    await create({}, { id: 'artifact-1' });
 
-    const result = readArtifact(registryOf(noteKind('sketch')), 'project-1', 'artifact-1');
+    const result = await readArtifact(registryOf(noteKind('sketch')), 'project-1', 'artifact-1');
     expect(result?.ok).toBe(false);
     expect(result?.ok === false && result.reason).toBe('unknown-kind');
     expect(result?.ok === false && result.summary.name).toBe('Ashfall');
   });
 
-  it('reports a summary whose payload entry is gone', () => {
-    create({}, { id: 'artifact-1' });
-    store.delete(`ironarachne.save.v1.workshop.artifact.artifact-1`);
+  it('reports a summary whose payload record is gone', async () => {
+    const artifact = await create({}, { id: 'artifact-1' });
+    // A summary with no payload beside it: what adoption leaves when the old payload entry was
+    // already missing.
+    await writeArtifactSummaryRecord({ ...artifact, id: 'artifact-2' });
+    await reload();
 
-    const result = readArtifact(KINDS, 'project-1', 'artifact-1');
+    const result = await readArtifact(KINDS, 'project-1', 'artifact-2');
     expect(result?.ok).toBe(false);
     expect(result?.ok === false && result.reason).toBe('invalid-payload');
   });
 
-  it('reports a payload that no longer matches its kind', () => {
-    create({}, { id: 'artifact-1' });
-    writeArtifactPayloadRecord('artifact-1', 1, { corrupted: true });
+  it('reports a payload that no longer matches its kind', async () => {
+    const artifact = await create({}, { id: 'artifact-1' });
+    await writeArtifactRecord(artifact, { corrupted: true });
 
-    const result = readArtifact(KINDS, 'project-1', 'artifact-1');
+    const result = await readArtifact(KINDS, 'project-1', 'artifact-1');
     expect(result?.ok === false && result.reason).toBe('invalid-payload');
+  });
+
+  it('reports a database it could not reach, rather than an artifact that is not there', async () => {
+    await create({}, { id: 'artifact-1' });
+    refuseTheDatabase();
+
+    const result = await readArtifact(KINDS, 'project-1', 'artifact-1');
+    expect(result?.ok).toBe(false);
+    expect(result?.ok === false && result.reason).toBe('storage-failed');
+    expect(result?.ok === false && result.summary.name).toBe('Ashfall');
   });
 });
 
 describe('updateArtifactPayload', () => {
-  it('replaces the payload and moves updatedAt', () => {
-    create({}, { id: 'artifact-1', now: 100 });
+  it('replaces the payload and moves updatedAt', async () => {
+    await create({}, { id: 'artifact-1', now: 100 });
 
-    const result = updateArtifactPayload(
+    const result = await updateArtifactPayload(
       KINDS,
       'project-1',
       'artifact-1',
@@ -452,37 +494,52 @@ describe('updateArtifactPayload', () => {
     expect(result?.ok).toBe(true);
     expect(result?.ok === true && result.value.updatedAt).toBe(200);
     expect(result?.ok === true && result.value.createdAt).toBe(100);
-    expect(readArtifactPayloadRecord('artifact-1')?.payload).toEqual({ title: 'Ashfall Revised' });
+    expect(await storedPayload('artifact-1')).toEqual({ title: 'Ashfall Revised' });
     expect(getArtifactSummary('project-1', 'artifact-1')?.updatedAt).toBe(200);
   });
 
-  it('stores an edit at the current version, which is what ends a migration', () => {
-    create({}, { id: 'artifact-1' });
+  it('re-measures the payload, so the storage panel does not report a stale size', async () => {
+    await create({}, { id: 'artifact-1' });
+
+    await updateArtifactPayload(KINDS, 'project-1', 'artifact-1', {
+      title: 'A considerably longer title',
+    });
+
+    expect(getArtifactSummary('project-1', 'artifact-1')?.byteSize).toBe(39);
+  });
+
+  it('stores an edit at the current version, which is what ends a migration', async () => {
+    await create({}, { id: 'artifact-1' });
     const laterBuild = registryOf(noteKindV2());
 
-    updateArtifactPayload(laterBuild, 'project-1', 'artifact-1', { title: 'Ashfall', body: 'Ash' });
+    await updateArtifactPayload(laterBuild, 'project-1', 'artifact-1', {
+      title: 'Ashfall',
+      body: 'Ash',
+    });
 
-    expect(readArtifactPayloadRecord('artifact-1')?.payloadVersion).toBe(2);
-    const result = readArtifact(laterBuild, 'project-1', 'artifact-1');
+    expect((await storedSummary('artifact-1'))?.payloadVersion).toBe(2);
+    const result = await readArtifact(laterBuild, 'project-1', 'artifact-1');
     expect(result?.ok === true && result.migrated).toBe(false);
   });
 
-  it('is undefined for an artifact that is not there', () => {
-    expect(updateArtifactPayload(KINDS, 'project-1', 'nope', { title: 'x' })).toBeUndefined();
+  it('is undefined for an artifact that is not there', async () => {
+    expect(await updateArtifactPayload(KINDS, 'project-1', 'nope', { title: 'x' })).toBeUndefined();
   });
 
-  it('rejects a payload the kind refuses and leaves the stored one alone', () => {
-    create({}, { id: 'artifact-1' });
+  it('rejects a payload the kind refuses and leaves the stored one alone', async () => {
+    await create({}, { id: 'artifact-1' });
 
-    const result = updateArtifactPayload(KINDS, 'project-1', 'artifact-1', { titel: 'typo' });
+    const result = await updateArtifactPayload(KINDS, 'project-1', 'artifact-1', {
+      titel: 'typo',
+    });
     expect(result?.ok).toBe(false);
-    expect(readArtifactPayloadRecord('artifact-1')?.payload).toEqual({ title: 'Ashfall' });
+    expect(await storedPayload('artifact-1')).toEqual({ title: 'Ashfall' });
   });
 
-  it('rejects an edit to a kind this build does not have', () => {
-    create({}, { id: 'artifact-1' });
+  it('rejects an edit to a kind this build does not have', async () => {
+    await create({}, { id: 'artifact-1' });
 
-    const result = updateArtifactPayload(
+    const result = await updateArtifactPayload(
       registryOf(noteKind('sketch')),
       'project-1',
       'artifact-1',
@@ -490,76 +547,98 @@ describe('updateArtifactPayload', () => {
     );
     expect(result?.ok === false && result.reason).toBe('unknown-kind');
   });
+
+  it('reports a refused write and leaves memory agreeing with the database', async () => {
+    await create({}, { id: 'artifact-1', now: 100 });
+    refuseTheDatabase();
+
+    const result = await updateArtifactPayload(
+      KINDS,
+      'project-1',
+      'artifact-1',
+      { title: 'Never saved' },
+      { now: 200 },
+    );
+
+    expect(result?.ok === false && result.reason).toBe('storage-failed');
+    expect(getArtifactSummary('project-1', 'artifact-1')?.updatedAt).toBe(100);
+  });
 });
 
 describe('metadata edits', () => {
-  it('renames without touching the payload entry', () => {
-    create({}, { id: 'artifact-1', now: 100 });
-    const before = store.get('ironarachne.save.v1.workshop.artifact.artifact-1');
+  it('renames without touching the payload record', async () => {
+    await create({}, { id: 'artifact-1', now: 100 });
 
-    const renamed = renameArtifact('project-1', 'artifact-1', 'The Ashfall notes', { now: 200 });
+    const renamed = await renameArtifact('project-1', 'artifact-1', 'The Ashfall notes', {
+      now: 200,
+    });
 
-    expect(renamed?.name).toBe('The Ashfall notes');
-    expect(renamed?.updatedAt).toBe(200);
-    expect(store.get('ironarachne.save.v1.workshop.artifact.artifact-1')).toBe(before);
+    expect(renamed?.ok === true && renamed.value.name).toBe('The Ashfall notes');
+    expect(renamed?.ok === true && renamed.value.updatedAt).toBe(200);
+    expect(await storedPayload('artifact-1')).toEqual({ title: 'Ashfall' });
   });
 
-  it('keeps the existing name when a rename is blank', () => {
-    create({}, { id: 'artifact-1', now: 100 });
-    const renamed = renameArtifact('project-1', 'artifact-1', '   ', { now: 200 });
-    expect(renamed?.name).toBe('Ashfall');
-    expect(renamed?.updatedAt).toBe(100);
+  it('keeps the existing name when a rename is blank', async () => {
+    await create({}, { id: 'artifact-1', now: 100 });
+    const renamed = await renameArtifact('project-1', 'artifact-1', '   ', { now: 200 });
+    expect(renamed?.ok === true && renamed.value.name).toBe('Ashfall');
+    expect(renamed?.ok === true && renamed.value.updatedAt).toBe(100);
   });
 
-  it('tags and clears tags', () => {
-    create({}, { id: 'artifact-1', now: 100 });
+  it('tags and clears tags', async () => {
+    await create({}, { id: 'artifact-1', now: 100 });
 
-    expect(
-      tagArtifact('project-1', 'artifact-1', ['worlds', 'worlds'], { now: 200 })?.tags,
-    ).toEqual(['worlds']);
-    expect(tagArtifact('project-1', 'artifact-1', [], { now: 300 })?.tags).toEqual([]);
+    const tagged = await tagArtifact('project-1', 'artifact-1', ['worlds', 'worlds'], { now: 200 });
+    expect(tagged?.ok === true && tagged.value.tags).toEqual(['worlds']);
+    const cleared = await tagArtifact('project-1', 'artifact-1', [], { now: 300 });
+    expect(cleared?.ok === true && cleared.value.tags).toEqual([]);
     expect(getArtifactSummary('project-1', 'artifact-1')?.updatedAt).toBe(300);
   });
 
-  it('leaves updatedAt alone when nothing actually changed', () => {
-    create({ tags: ['worlds'] }, { id: 'artifact-1', now: 100 });
+  it('leaves updatedAt alone, and writes nothing, when nothing actually changed', async () => {
+    await create({ tags: ['worlds'] }, { id: 'artifact-1', now: 100 });
 
-    const unchanged = updateArtifact(
+    const unchanged = await updateArtifact(
       'project-1',
       'artifact-1',
       { name: 'Ashfall', tags: ['worlds'] },
       { now: 999 },
     );
-    expect(unchanged?.updatedAt).toBe(100);
+    expect(unchanged?.ok === true && unchanged.value.updatedAt).toBe(100);
   });
 
-  it('leaves an omitted field alone', () => {
-    create({ tags: ['worlds'], name: 'Ashfall' }, { id: 'artifact-1', now: 100 });
+  it('leaves an omitted field alone', async () => {
+    await create({ tags: ['worlds'], name: 'Ashfall' }, { id: 'artifact-1', now: 100 });
 
-    const updated = updateArtifact('project-1', 'artifact-1', { name: 'Ember' }, { now: 200 });
-    expect(updated?.tags).toEqual(['worlds']);
+    const updated = await updateArtifact(
+      'project-1',
+      'artifact-1',
+      { name: 'Ember' },
+      { now: 200 },
+    );
+    expect(updated?.ok === true && updated.value.tags).toEqual(['worlds']);
   });
 
-  it('is undefined for an artifact that is not in that project', () => {
-    create({}, { id: 'artifact-1' });
-    expect(renameArtifact('project-1', 'nope', 'x')).toBeUndefined();
-    expect(renameArtifact('project-2', 'artifact-1', 'x')).toBeUndefined();
+  it('is undefined for an artifact that is not in that project', async () => {
+    await create({}, { id: 'artifact-1' });
+    expect(await renameArtifact('project-1', 'nope', 'x')).toBeUndefined();
+    expect(await renameArtifact('project-2', 'artifact-1', 'x')).toBeUndefined();
   });
 });
 
 describe('references', () => {
-  it('records references and reports what points at an artifact', () => {
-    const target = create({ name: 'Ashfall' }, { id: 'culture-1' });
-    create({ name: 'Emberhold' }, { id: 'settlement-1', now: 200 });
-    create({ name: 'Ashmoor' }, { id: 'settlement-2', now: 100 });
+  it('records references and reports what points at an artifact', async () => {
+    const target = await create({ name: 'Ashfall' }, { id: 'culture-1' });
+    await create({ name: 'Emberhold' }, { id: 'settlement-1', now: 200 });
+    await create({ name: 'Ashmoor' }, { id: 'settlement-2', now: 100 });
 
-    setArtifactReferences(
+    await setArtifactReferences(
       'project-1',
       'settlement-1',
       [{ targetId: target.id, targetKind: 'note', role: 'culture' }],
       { now: 400 },
     );
-    setArtifactReferences(
+    await setArtifactReferences(
       'project-1',
       'settlement-2',
       [{ targetId: target.id, targetKind: 'note', role: 'culture' }],
@@ -573,21 +652,25 @@ describe('references', () => {
     expect(listArtifactReferrers('project-1', 'settlement-1')).toEqual([]);
   });
 
-  it('tolerates a reference to an artifact that is not there', () => {
-    create({}, { id: 'artifact-1' });
-    const updated = setArtifactReferences('project-1', 'artifact-1', [
+  it('tolerates a reference to an artifact that is not there', async () => {
+    await create({}, { id: 'artifact-1' });
+    const updated = await setArtifactReferences('project-1', 'artifact-1', [
       { targetId: 'deleted-thing', targetKind: 'note', role: 'culture' },
     ]);
-    expect(updated?.references).toEqual([
+    expect(updated?.ok === true && updated.value.references).toEqual([
       { targetId: 'deleted-thing', targetKind: 'note', role: 'culture' },
     ]);
   });
 
-  it('does not walk a cycle', () => {
-    create({}, { id: 'a' });
-    create({}, { id: 'b' });
-    setArtifactReferences('project-1', 'a', [{ targetId: 'b', targetKind: 'note', role: 'ruler' }]);
-    setArtifactReferences('project-1', 'b', [{ targetId: 'a', targetKind: 'note', role: 'realm' }]);
+  it('does not walk a cycle', async () => {
+    await create({}, { id: 'a' });
+    await create({}, { id: 'b' });
+    await setArtifactReferences('project-1', 'a', [
+      { targetId: 'b', targetKind: 'note', role: 'ruler' },
+    ]);
+    await setArtifactReferences('project-1', 'b', [
+      { targetId: 'a', targetKind: 'note', role: 'realm' },
+    ]);
 
     expect(listArtifactReferrers('project-1', 'a').map((s) => s.id)).toEqual(['b']);
     expect(listArtifactReferrers('project-1', 'b').map((s) => s.id)).toEqual(['a']);
@@ -595,61 +678,57 @@ describe('references', () => {
 });
 
 describe('deleteArtifact', () => {
-  it('removes the summary and the payload', () => {
-    create({}, { id: 'artifact-1' });
+  it('removes the summary and the payload', async () => {
+    await create({}, { id: 'artifact-1' });
 
-    expect(deleteArtifact('project-1', 'artifact-1')).toEqual({
-      deleted: true,
-      id: 'artifact-1',
-      referrers: [],
+    const deletion = await deleteArtifact('project-1', 'artifact-1');
+
+    expect(deletion).toEqual({
+      ok: true,
+      value: { deleted: true, id: 'artifact-1', referrers: [] },
     });
     expect(listArtifacts('project-1')).toEqual([]);
-    expect(readArtifactPayloadRecord('artifact-1')).toBeNull();
-    expect(readArtifact(KINDS, 'project-1', 'artifact-1')).toBeUndefined();
+    expect(await storedPayload('artifact-1')).toBeUndefined();
+    expect(await readArtifact(KINDS, 'project-1', 'artifact-1')).toBeUndefined();
   });
 
-  it('reports what pointed at it and deletes anyway', () => {
-    create({}, { id: 'culture-1' });
-    create({ name: 'Emberhold' }, { id: 'settlement-1' });
-    setArtifactReferences('project-1', 'settlement-1', [
+  it('reports what pointed at it and deletes anyway', async () => {
+    await create({}, { id: 'culture-1' });
+    await create({ name: 'Emberhold' }, { id: 'settlement-1' });
+    await setArtifactReferences('project-1', 'settlement-1', [
       { targetId: 'culture-1', targetKind: 'note', role: 'culture' },
     ]);
 
-    const deletion = deleteArtifact('project-1', 'culture-1');
+    const deletion = await deleteArtifact('project-1', 'culture-1');
 
-    expect(deletion.deleted).toBe(true);
-    expect(deletion.referrers.map((s) => s.id)).toEqual(['settlement-1']);
+    expect(deletion.ok === true && deletion.value.deleted).toBe(true);
+    expect(deletion.ok === true && deletion.value.referrers.map((summary) => summary.id)).toEqual([
+      'settlement-1',
+    ]);
     // The dangling reference is left as it is, to be surfaced as broken rather than repaired here.
     expect(getArtifactSummary('project-1', 'settlement-1')?.references).toEqual([
       { targetId: 'culture-1', targetKind: 'note', role: 'culture' },
     ]);
   });
 
-  it('reports nothing deleted for an artifact that is not in that project', () => {
-    create({}, { id: 'artifact-1' });
+  it('reports nothing deleted for an artifact that is not in that project', async () => {
+    await create({}, { id: 'artifact-1' });
 
-    expect(deleteArtifact('project-2', 'artifact-1').deleted).toBe(false);
-    expect(deleteArtifact('project-1', 'nope').deleted).toBe(false);
-    expect(readArtifactPayloadRecord('artifact-1')).not.toBeNull();
-  });
-});
+    const wrongProject = await deleteArtifact('project-2', 'artifact-1');
+    const noSuchId = await deleteArtifact('project-1', 'nope');
 
-describe('deleteProjectArtifacts', () => {
-  it('removes every artifact in the project and nothing outside it', () => {
-    create({}, { id: 'a' });
-    create({ kind: 'sketch' }, { id: 'b' });
-    create({ projectId: 'project-2' }, { id: 'c' });
-
-    expect(deleteProjectArtifacts('project-1').sort()).toEqual(['a', 'b']);
-
-    expect(readArtifactIndex('project-1').artifacts).toEqual([]);
-    expect(readArtifactPayloadRecord('a')).toBeNull();
-    expect(readArtifactPayloadRecord('b')).toBeNull();
-    expect(listArtifacts('project-2').map((s) => s.id)).toEqual(['c']);
-    expect(readArtifactPayloadRecord('c')).not.toBeNull();
+    expect(wrongProject.ok === true && wrongProject.value.deleted).toBe(false);
+    expect(noSuchId.ok === true && noSuchId.value.deleted).toBe(false);
+    expect(await storedPayload('artifact-1')).toEqual({ title: 'Ashfall' });
   });
 
-  it('is a no-op for a project with nothing in it', () => {
-    expect(deleteProjectArtifacts('project-9')).toEqual([]);
+  it('reports a refused delete, and keeps the artifact listed', async () => {
+    await create({}, { id: 'artifact-1' });
+    refuseTheDatabase();
+
+    const deletion = await deleteArtifact('project-1', 'artifact-1');
+
+    expect(deletion.ok === false && deletion.reason).toBe('storage-failed');
+    expect(listArtifacts('project-1').map((s) => s.id)).toEqual(['artifact-1']);
   });
 });

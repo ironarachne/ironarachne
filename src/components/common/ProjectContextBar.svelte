@@ -13,11 +13,13 @@
     createProject,
     deleteProject,
     getActiveProject,
+    hydrateProjects,
     listProjects,
     renameProject,
     setActiveProject,
     type Project,
   } from '$lib/projects';
+  import type { VaultResult } from '$lib/vault_db';
   import { ARTIFACT_KINDS } from '$lib/workshop';
 
   // One id per component instance, so two bars on a page do not collide on label `for`.
@@ -31,22 +33,26 @@
   let name = $state('');
   let newName = $state('');
   let adoption: LegacyAdoptionNotice | null = $state(null);
+  let storageError: string | null = $state(null);
 
-  // Projects live in localStorage, which does not exist while the site is being prerendered.
+  // Projects live in the vault database, which does not exist while the site is being prerendered.
   // Reading after mount keeps the server-rendered markup and the first client render identical.
-  onMount(() => {
+  onMount(async () => {
     // The root layout runs adoption too, and that is the call that matters — it is what adopts a
     // user's saved work whether or not they ever open the workshop. This one is here so the note
     // below is right the first time this bar renders: the layout's call is asynchronous and a
     // child's onMount runs before a parent's finishes, so waiting on it would show nothing until
-    // the next navigation. Adoption is idempotent, so on every load after the first this reads
-    // four storage entries and returns.
+    // the next navigation. Adoption is idempotent, so on every load after the first this reads a
+    // handful of entries and returns.
     try {
-      adoptLegacySaves(ARTIFACT_KINDS);
+      await adoptLegacySaves(ARTIFACT_KINDS);
     } catch (error: unknown) {
       // Same reasoning as the layout: a refused write must not take the project bar down with it.
       console.error(error);
     }
+    // Nothing lists until the index is in memory, and adoption has already put it there — this is
+    // what covers the case where it failed before it got that far.
+    await hydrateProjects();
     refresh();
   });
 
@@ -56,6 +62,20 @@
     activeProjectId = active?.id;
     name = active?.name ?? '';
     adoption = legacyAdoptionNotice();
+  }
+
+  /**
+   * Report a write the database refused rather than letting the bar redraw as though it worked.
+   *
+   * The full treatment — a blocking dialog offering a download, an export, and the storage panel —
+   * is the storage-status work. What is not deferred is saying that it failed: a store whose
+   * writes return a result the caller drops is a store that loses work silently.
+   */
+  function report<T>(result: VaultResult<T> | undefined): void {
+    storageError =
+      result === undefined || result.ok
+        ? null
+        : `That could not be saved (${result.reason}). Your work is still here; try again.`;
   }
 
   // Undefined once the project the note names has been deleted, which is what hides the note: an
@@ -71,12 +91,20 @@
     adoption = null;
   }
 
-  function create() {
-    // Creating a project from this bar is an explicit request to work in it, so it is opened.
-    // The library deliberately does not do that on its own.
-    const project = createProject({ name: newName });
-    setActiveProject(project.id);
-    newName = '';
+  async function create() {
+    const requested = newName;
+    const created = await createProject({ name: requested });
+    report(created);
+    if (created.ok) {
+      // Creating a project from this bar is an explicit request to work in it, so it is opened.
+      // The library deliberately does not do that on its own.
+      setActiveProject(created.value.id);
+      // Only what this call consumed. The write is asynchronous now, and someone typing the next
+      // project's name while it commits must not have it wiped out from under them.
+      if (newName === requested) {
+        newName = '';
+      }
+    }
     refresh();
   }
 
@@ -85,16 +113,16 @@
     refresh();
   }
 
-  function rename() {
+  async function rename() {
     if (activeProjectId !== undefined) {
-      renameProject(activeProjectId, name);
+      report(await renameProject(activeProjectId, name));
     }
     refresh();
   }
 
-  function remove() {
+  async function remove() {
     if (activeProjectId !== undefined) {
-      deleteProject(activeProjectId);
+      report(await deleteProject(activeProjectId));
     }
     refresh();
   }
@@ -126,6 +154,10 @@
       {/if}
       <button type="button" onclick={dismissAdoptionNotice}>Got it</button>
     </div>
+  {/if}
+
+  {#if storageError !== null}
+    <p class="project-context__error" role="alert">{storageError}</p>
   {/if}
 
   <div class="project-context__row">
@@ -227,6 +259,14 @@
   .project-context select {
     min-width: 0;
     flex: 1 1 10rem;
+  }
+
+  .project-context__error {
+    margin: 0;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid var(--tan);
+    border-radius: 4px;
+    font-size: 0.9rem;
   }
 
   .project-context__empty,

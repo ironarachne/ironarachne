@@ -23,6 +23,12 @@ const saved = readScopedJson('generator.culture'); // null when absent
 `listScopedEntries` enumerates every scope, `removeScopedJson` drops one, and
 `clearAllScopedStorageKeys` clears the lot.
 
+**It clears the lot of `localStorage`, which is no longer all of it.** The workshop's projects and
+artifacts live in [`$lib/vault_db`](../vault_db/README.md) — an IndexedDB database this library
+knows nothing about — and what stays here is the small synchronous pointers beside it, such as
+which project is open. Anything that means "clear everything a user has" has to do both, and
+`deleteVaultDatabase()` is the other half.
+
 ## Features
 
 - **Storage** — `readScopedJson`, `writeScopedJson`, `removeScopedJson`, `listScopedEntries`, and

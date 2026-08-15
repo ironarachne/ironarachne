@@ -1157,20 +1157,21 @@ This answers the remainder of #45.
 Worth being precise about what is already built, since more of the substrate exists than the
 absence of a workshop suggests.
 
-| Piece                      | State                                                                                                                                                                                |
-| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                        |
-| Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                       |
-| Workshop shell             | **Prototype.** One browser plus one panel at `/workshop`, unlinked.                                                                                                                  |
-| Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                              |
-| Scoped storage             | **Built, wrong scope and wrong substrate.** Per-generator rather than per-project, and on `localStorage` rather than IndexedDB per [decision 5](#5-the-store-persists-to-indexeddb). |
-| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                   |
-| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                                        |
-| Projects                   | **Built (#31).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project, stored per browser. Deleting one cascades to its artifacts.                  |
-| Generic artifact store     | **Built (#33).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One index entry per project, one entry per payload.                     |
-| Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place.                |
-| Artifact editing           | **Not built.** Two tools are editors; neither edits a saved artifact.                                                                                                                |
-| Composition                | **Partial.** `SavedCulturePicker` lets the region, settlement, and religion generators take a saved culture — the pattern to generalise, built three times by hand.                  |
+| Piece                      | State                                                                                                                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                         |
+| Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                        |
+| Workshop shell             | **Prototype.** One browser plus one panel at `/workshop`, unlinked.                                                                                                                   |
+| Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                               |
+| Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else. |
+| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                    |
+| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                                         |
+| Projects                   | **Built (#31, #176).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project. Deleting one cascades to its artifacts in a single transaction.         |
+| Generic artifact store     | **Built (#33, #176).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One record per summary, one per payload.                           |
+| Vault database             | **Built (#176).** `src/lib/vault_db` — the five IndexedDB stores of [the storage layer](#the-storage-layer), hydrated summaries, transactional writes that return a result.           |
+| Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place.                 |
+| Artifact editing           | **Not built.** Two tools are editors; neither edits a saved artifact.                                                                                                                 |
+| Composition                | **Partial.** `SavedCulturePicker` lets the region, settlement, and religion generators take a saved culture — the pattern to generalise, built three times by hand.                   |
 
 ## Tool release readiness
 

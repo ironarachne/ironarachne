@@ -1,4 +1,5 @@
-import type { ArtifactKind, QuarantineReason } from '$lib/artifact_kinds';
+import type { ArtifactKind } from '$lib/artifact_kinds';
+import type { ArtifactFailureReason } from '$lib/artifacts';
 
 /**
  * One of the three historical per-generator save scopes, described well enough to be read without
@@ -65,7 +66,11 @@ export type SkippedLegacyItem = {
   kind: ArtifactKind;
   /** The item's identity where it had a readable one, for a message a user can act on. */
   identity: string | null;
-  reason: QuarantineReason;
+  /**
+   * Why it was not adopted: the payload was not something this build understands, or the database
+   * refused the write. The second is retried on the next load, because a skip records no key.
+   */
+  reason: ArtifactFailureReason;
   message: string;
 };
 

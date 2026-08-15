@@ -17,8 +17,11 @@
   // workshop. Local-only means there is no server-side copy and no migration anyone can run after
   // the fact, so it does not wait for a surface that shows it.
   //
+  // This is also what opens the vault database on an ordinary page load, which is what runs the
+  // one-time copy of the workshop's own `localStorage` keys into it (see $lib/vault_db).
+  //
   // Imported dynamically so none of it is in the chunk that renders the page, and cheap to call
-  // repeatedly: with nothing new to take it reads four storage entries and writes nothing.
+  // repeatedly: with nothing new to take it reads a handful of entries and writes nothing.
   // ProjectContextBar shows the note it leaves. See src/lib/legacy_adoption/README.md.
   onMount(async () => {
     try {
@@ -26,7 +29,7 @@
         import('$lib/legacy_adoption'),
         import('$lib/workshop'),
       ]);
-      adoptLegacySaves(ARTIFACT_KINDS);
+      await adoptLegacySaves(ARTIFACT_KINDS);
     } catch (error: unknown) {
       // A refused write is the realistic failure, and it must not take the page down with it. The
       // legacy scopes are untouched either way, and the record of what was adopted is written per

@@ -1,3 +1,4 @@
+import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
@@ -8,13 +9,18 @@ import {
   registerArtifactKind,
   rejectedPayload,
 } from '$lib/artifact_kinds';
-import { createArtifact, listArtifacts, readArtifact } from '$lib/artifacts';
-
 import {
-  readActiveProjectPayload,
-  readProjectsPayload,
-  writeActiveProjectPayload,
-} from './project_saved_state';
+  createArtifact,
+  listArtifacts,
+  readArtifact,
+  resetArtifactIndex,
+  type Artifact,
+} from '$lib/artifacts';
+import { closeVault, type VaultResult } from '$lib/vault_db';
+
+import { readActiveProjectPayload, writeActiveProjectPayload } from './active_project_state';
+import { hydrateProjects, resetProjectIndex } from './project_index';
+import type { Project, ProjectDeletion } from './project_types';
 import {
   DEFAULT_PROJECT_NAME,
   createProject,
@@ -28,31 +34,57 @@ import {
   updateProject,
 } from './projects';
 
-const store = new Map<string, string>();
+const local = new Map<string, string>();
 
 beforeEach(() => {
-  store.clear();
+  local.clear();
+  closeVault();
+  resetProjectIndex();
+  resetArtifactIndex();
+  vi.stubGlobal('indexedDB', new IDBFactory());
   vi.stubGlobal('localStorage', {
     get length() {
-      return store.size;
+      return local.size;
     },
-    key: (i: number) => [...store.keys()][i] ?? null,
-    getItem: (key: string) => (store.has(key) ? store.get(key)! : null),
+    key: (i: number) => [...local.keys()][i] ?? null,
+    getItem: (key: string) => local.get(key) ?? null,
     setItem: (key: string, value: string) => {
-      store.set(key, value);
+      local.set(key, value);
     },
     removeItem: (key: string) => {
-      store.delete(key);
-    },
-    clear: () => {
-      store.clear();
+      local.delete(key);
     },
   });
 });
 
 afterEach(() => {
+  closeVault();
+  resetProjectIndex();
+  resetArtifactIndex();
   vi.unstubAllGlobals();
 });
+
+/** Unwraps a stored result, failing the test rather than an assertion when the write was refused. */
+function stored<T>(result: VaultResult<T> | undefined): T {
+  if (result === undefined) {
+    throw new Error('expected a project, got nothing at all');
+  }
+  if (!result.ok) {
+    throw new Error(`expected the vault to store it, got ${result.reason}: ${result.message}`);
+  }
+  return result.value;
+}
+
+function make(
+  draft: Parameters<typeof createProject>[0] = {},
+  options: Parameters<typeof createProject>[1] = {},
+): Promise<Project> {
+  return createProject(draft, options).then(stored);
+}
+
+function removed(result: VaultResult<ProjectDeletion>): ProjectDeletion {
+  return stored(result);
+}
 
 type Note = { title: string };
 
@@ -86,6 +118,17 @@ const NOTE_KINDS = (() => {
   return registry;
 })();
 
+function addNote(projectId: string, id?: string): Promise<Artifact> {
+  return createArtifact(NOTE_KINDS, { projectId, kind: 'note', payload: note }, { id }).then(
+    (result) => {
+      if (!result.ok) {
+        throw new Error(`expected a stored artifact, got ${result.reason}`);
+      }
+      return result.value;
+    },
+  );
+}
+
 describe('newProjectId', () => {
   it('uses crypto.randomUUID where it exists', () => {
     vi.stubGlobal('crypto', { randomUUID: () => 'uuid-from-crypto' });
@@ -102,8 +145,8 @@ describe('newProjectId', () => {
 });
 
 describe('createProject', () => {
-  it('stores a project and returns it', () => {
-    const project = createProject({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
+  it('stores a project and returns it', async () => {
+    const project = await make({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
     expect(project).toEqual({
       id: 'p1',
       name: 'Ashfall',
@@ -111,157 +154,199 @@ describe('createProject', () => {
       createdAt: 1000,
       updatedAt: 1000,
     });
-    expect(readProjectsPayload().projects).toEqual([project]);
+
+    // A reload: memory is dropped, the database is not.
+    resetProjectIndex();
+    await hydrateProjects();
+    expect(listProjects()).toEqual([project]);
   });
 
-  it('names an unnamed or blank project rather than storing an empty name', () => {
-    expect(createProject({}, { id: 'p1' }).name).toBe(DEFAULT_PROJECT_NAME);
-    expect(createProject({ name: '   ' }, { id: 'p2' }).name).toBe(DEFAULT_PROJECT_NAME);
+  it('names an unnamed or blank project rather than storing an empty name', async () => {
+    expect((await make({}, { id: 'p1' })).name).toBe(DEFAULT_PROJECT_NAME);
+    expect((await make({ name: '   ' }, { id: 'p2' })).name).toBe(DEFAULT_PROJECT_NAME);
   });
 
-  it('trims the name and description, and omits an empty description', () => {
-    const project = createProject(
-      { name: '  Dolmenwood  ', description: '  A wood  ' },
-      { id: 'p1' },
-    );
+  it('trims the name and description, and omits an empty description', async () => {
+    const project = await make({ name: '  Dolmenwood  ', description: '  A wood  ' }, { id: 'p1' });
     expect(project.name).toBe('Dolmenwood');
     expect(project.description).toBe('A wood');
-    expect(createProject({ description: '   ' }, { id: 'p2' })).not.toHaveProperty('description');
+    expect(await make({ description: '   ' }, { id: 'p2' })).not.toHaveProperty('description');
   });
 
-  it('trims, drops empty, and de-duplicates tags', () => {
-    const project = createProject({ tags: [' fantasy ', '', 'fantasy', 'grim'] }, { id: 'p1' });
+  it('trims, drops empty, and de-duplicates tags', async () => {
+    const project = await make({ tags: [' fantasy ', '', 'fantasy', 'grim'] }, { id: 'p1' });
     expect(project.tags).toEqual(['fantasy', 'grim']);
   });
 
-  it('keeps existing projects', () => {
-    createProject({ name: 'One' }, { id: 'p1' });
-    createProject({ name: 'Two' }, { id: 'p2' });
-    expect(readProjectsPayload().projects.map((project) => project.id)).toEqual(['p1', 'p2']);
+  it('keeps existing projects', async () => {
+    await make({ name: 'One' }, { id: 'p1' });
+    await make({ name: 'Two' }, { id: 'p2' });
+    expect(
+      listProjects()
+        .map((project) => project.id)
+        .sort(),
+    ).toEqual(['p1', 'p2']);
   });
 
-  it('does not open the project it created', () => {
-    createProject({ name: 'One' }, { id: 'p1' });
-    createProject({ name: 'Two' }, { id: 'p2' });
+  it('does not open the project it created', async () => {
+    await make({ name: 'One' }, { id: 'p1' });
+    await make({ name: 'Two' }, { id: 'p2' });
     setActiveProject('p1');
-    createProject({ name: 'Three' }, { id: 'p3' });
+    await make({ name: 'Three' }, { id: 'p3' });
     expect(getActiveProject()?.id).toBe('p1');
   });
 
-  it('mints an id when none is supplied', () => {
-    const first = createProject({ name: 'One' });
-    const second = createProject({ name: 'Two' });
+  it('mints an id when none is supplied', async () => {
+    const first = await make({ name: 'One' });
+    const second = await make({ name: 'Two' });
     expect(first.id).not.toBe(second.id);
     expect(first.id).not.toBe('');
   });
 
-  it('timestamps with the current time when none is supplied', () => {
-    vi.useFakeTimers();
+  it('timestamps with the current time when none is supplied', async () => {
+    // Only the clock: fake-indexeddb runs its request queue on real timers, and faking those
+    // would leave every await here waiting for a callback that never fires.
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-08-14T00:00:00Z'));
-    const project = createProject({ name: 'One' });
+    const project = await make({ name: 'One' });
     expect(project.createdAt).toBe(Date.now());
     expect(project.updatedAt).toBe(project.createdAt);
     vi.useRealTimers();
   });
+
+  it('reports a refused write rather than leaving a project only memory believes in', async () => {
+    await hydrateProjects();
+    closeVault();
+    vi.stubGlobal('indexedDB', {
+      open: () => {
+        const request = { error: new Error('storage is gone'), onerror: null };
+        queueMicrotask(() => (request.onerror as (() => void) | null)?.());
+        return request;
+      },
+    });
+
+    const result = await createProject({ name: 'Ashfall' }, { id: 'p1' });
+
+    expect(result.ok).toBe(false);
+    expect(result.ok === false && result.reason).toBe('storage-failed');
+    expect(listProjects()).toEqual([]);
+  });
 });
 
 describe('listProjects and getProject', () => {
-  it('lists most recently updated first', () => {
-    createProject({ name: 'Old' }, { id: 'p1', now: 1000 });
-    createProject({ name: 'New' }, { id: 'p2', now: 3000 });
-    createProject({ name: 'Middle' }, { id: 'p3', now: 2000 });
+  it('lists most recently updated first', async () => {
+    await make({ name: 'Old' }, { id: 'p1', now: 1000 });
+    await make({ name: 'New' }, { id: 'p2', now: 3000 });
+    await make({ name: 'Middle' }, { id: 'p3', now: 2000 });
     expect(listProjects().map((project) => project.id)).toEqual(['p2', 'p3', 'p1']);
   });
 
-  it('breaks ties by name, then by id', () => {
-    createProject({ name: 'Beta' }, { id: 'p1', now: 1000 });
-    createProject({ name: 'Alpha' }, { id: 'p3', now: 1000 });
-    createProject({ name: 'Alpha' }, { id: 'p2', now: 1000 });
+  it('breaks ties by name, then by id', async () => {
+    await make({ name: 'Beta' }, { id: 'p1', now: 1000 });
+    await make({ name: 'Alpha' }, { id: 'p3', now: 1000 });
+    await make({ name: 'Alpha' }, { id: 'p2', now: 1000 });
     expect(listProjects().map((project) => project.id)).toEqual(['p2', 'p3', 'p1']);
   });
 
-  it('lists nothing when nothing is stored', () => {
+  it('lists nothing when nothing is stored', async () => {
+    await hydrateProjects();
     expect(listProjects()).toEqual([]);
   });
 
-  it('gets a project by id, and nothing for an unknown id', () => {
-    const project = createProject({ name: 'Ashfall' }, { id: 'p1' });
+  it('lists nothing before the index has been read, rather than blocking a render', async () => {
+    await make({ name: 'Ashfall' }, { id: 'p1' });
+    resetProjectIndex();
+
+    expect(listProjects()).toEqual([]);
+    await hydrateProjects();
+    expect(listProjects()).toHaveLength(1);
+  });
+
+  it('gets a project by id, and nothing for an unknown id', async () => {
+    const project = await make({ name: 'Ashfall' }, { id: 'p1' });
     expect(getProject('p1')).toEqual(project);
     expect(getProject('missing')).toBeUndefined();
   });
 });
 
 describe('updateProject', () => {
-  it('renames a project and moves its updatedAt', () => {
-    createProject({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
-    const renamed = renameProject('p1', 'Ashfall Reborn', { now: 2000 });
-    expect(renamed?.name).toBe('Ashfall Reborn');
-    expect(renamed?.updatedAt).toBe(2000);
-    expect(renamed?.createdAt).toBe(1000);
+  it('renames a project and moves its updatedAt', async () => {
+    await make({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
+    const renamed = stored(await renameProject('p1', 'Ashfall Reborn', { now: 2000 }));
+    expect(renamed.name).toBe('Ashfall Reborn');
+    expect(renamed.updatedAt).toBe(2000);
+    expect(renamed.createdAt).toBe(1000);
     expect(getProject('p1')?.name).toBe('Ashfall Reborn');
   });
 
-  it('falls back to the default name when renamed to blank', () => {
-    createProject({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
-    expect(renameProject('p1', '  ', { now: 2000 })?.name).toBe(DEFAULT_PROJECT_NAME);
+  it('falls back to the default name when renamed to blank', async () => {
+    await make({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
+    expect(stored(await renameProject('p1', '  ', { now: 2000 })).name).toBe(DEFAULT_PROJECT_NAME);
   });
 
-  it('edits the description and tags', () => {
-    createProject({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
-    const updated = updateProject(
-      'p1',
-      { description: '  A ruined empire  ', tags: ['fantasy', 'fantasy'] },
-      { now: 2000 },
+  it('edits the description and tags', async () => {
+    await make({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
+    const updated = stored(
+      await updateProject(
+        'p1',
+        { description: '  A ruined empire  ', tags: ['fantasy', 'fantasy'] },
+        { now: 2000 },
+      ),
     );
-    expect(updated?.description).toBe('A ruined empire');
-    expect(updated?.tags).toEqual(['fantasy']);
+    expect(updated.description).toBe('A ruined empire');
+    expect(updated.tags).toEqual(['fantasy']);
   });
 
-  it('clears a description when passed an empty one', () => {
-    createProject({ name: 'Ashfall', description: 'A ruined empire' }, { id: 'p1', now: 1000 });
-    const cleared = updateProject('p1', { description: '' }, { now: 2000 });
+  it('clears a description when passed an empty one', async () => {
+    await make({ name: 'Ashfall', description: 'A ruined empire' }, { id: 'p1', now: 1000 });
+    const cleared = stored(await updateProject('p1', { description: '' }, { now: 2000 }));
     expect(cleared).not.toHaveProperty('description');
     expect(getProject('p1')).not.toHaveProperty('description');
   });
 
-  it('leaves fields alone when they are not named', () => {
-    createProject(
+  it('leaves fields alone when they are not named', async () => {
+    await make(
       { name: 'Ashfall', description: 'A ruined empire', tags: ['fantasy'] },
       { id: 'p1', now: 1000 },
     );
-    const updated = updateProject('p1', { name: 'Ashfall Reborn' }, { now: 2000 });
-    expect(updated?.description).toBe('A ruined empire');
-    expect(updated?.tags).toEqual(['fantasy']);
+    const updated = stored(await updateProject('p1', { name: 'Ashfall Reborn' }, { now: 2000 }));
+    expect(updated.description).toBe('A ruined empire');
+    expect(updated.tags).toEqual(['fantasy']);
   });
 
-  it('does not touch updatedAt when nothing actually changed', () => {
-    createProject({ name: 'Ashfall', tags: ['fantasy'] }, { id: 'p1', now: 1000 });
-    const updated = updateProject('p1', { name: 'Ashfall', tags: ['fantasy'] }, { now: 2000 });
-    expect(updated?.updatedAt).toBe(1000);
+  it('does not touch updatedAt when nothing actually changed', async () => {
+    await make({ name: 'Ashfall', tags: ['fantasy'] }, { id: 'p1', now: 1000 });
+    const updated = stored(
+      await updateProject('p1', { name: 'Ashfall', tags: ['fantasy'] }, { now: 2000 }),
+    );
+    expect(updated.updatedAt).toBe(1000);
     expect(getProject('p1')?.updatedAt).toBe(1000);
   });
 
-  it('returns nothing for an unknown id and writes nothing', () => {
-    createProject({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
-    expect(updateProject('missing', { name: 'Nope' })).toBeUndefined();
-    expect(renameProject('missing', 'Nope')).toBeUndefined();
+  it('returns nothing for an unknown id and writes nothing', async () => {
+    await make({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
+    expect(await updateProject('missing', { name: 'Nope' })).toBeUndefined();
+    expect(await renameProject('missing', 'Nope')).toBeUndefined();
     expect(listProjects().map((project) => project.name)).toEqual(['Ashfall']);
   });
 
-  it('stamps the current time when none is supplied', () => {
-    vi.useFakeTimers();
+  it('stamps the current time when none is supplied', async () => {
+    // Only the clock: fake-indexeddb runs its request queue on real timers, and faking those
+    // would leave every await here waiting for a callback that never fires.
+    vi.useFakeTimers({ toFake: ['Date'] });
     vi.setSystemTime(new Date('2026-08-14T00:00:00Z'));
-    createProject({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
-    expect(renameProject('p1', 'Renamed')?.updatedAt).toBe(Date.now());
+    await make({ name: 'Ashfall' }, { id: 'p1', now: 1000 });
+    expect(stored(await renameProject('p1', 'Renamed')).updatedAt).toBe(Date.now());
     vi.useRealTimers();
   });
 });
 
 describe('deleteProject', () => {
-  it('removes the project and reports the deletion', () => {
-    createProject({ name: 'One' }, { id: 'p1' });
-    createProject({ name: 'Two' }, { id: 'p2' });
-    expect(deleteProject('p1')).toEqual({
+  it('removes the project and reports the deletion', async () => {
+    await make({ name: 'One' }, { id: 'p1' });
+    await make({ name: 'Two' }, { id: 'p2' });
+
+    expect(removed(await deleteProject('p1'))).toEqual({
       deleted: true,
       removedArtifactIds: [],
       wasActive: false,
@@ -269,26 +354,24 @@ describe('deleteProject', () => {
     expect(listProjects().map((project) => project.id)).toEqual(['p2']);
   });
 
-  it('takes the artifacts in the project with it, and leaves other projects alone', () => {
-    createProject({ name: 'One' }, { id: 'p1' });
-    createProject({ name: 'Two' }, { id: 'p2' });
-    const kept = createArtifact(NOTE_KINDS, { projectId: 'p2', kind: 'note', payload: note }, {});
-    createArtifact(NOTE_KINDS, { projectId: 'p1', kind: 'note', payload: note }, { id: 'a1' });
-    createArtifact(NOTE_KINDS, { projectId: 'p1', kind: 'note', payload: note }, { id: 'a2' });
+  it('takes the artifacts in the project with it, and leaves other projects alone', async () => {
+    await make({ name: 'One' }, { id: 'p1' });
+    await make({ name: 'Two' }, { id: 'p2' });
+    const kept = await addNote('p2');
+    await addNote('p1', 'a1');
+    await addNote('p1', 'a2');
 
-    const deletion = deleteProject('p1');
+    const deletion = removed(await deleteProject('p1'));
 
     expect(deletion.removedArtifactIds.sort()).toEqual(['a1', 'a2']);
     expect(listArtifacts('p1')).toEqual([]);
-    expect(readArtifact(NOTE_KINDS, 'p1', 'a1')).toBeUndefined();
-    expect(kept.ok && listArtifacts('p2').map((summary) => summary.id)).toEqual([
-      kept.ok ? kept.value.id : '',
-    ]);
+    expect(await readArtifact(NOTE_KINDS, 'p1', 'a1')).toBeUndefined();
+    expect(listArtifacts('p2').map((summary) => summary.id)).toEqual([kept.id]);
   });
 
-  it('reports nothing deleted for an unknown id', () => {
-    createProject({ name: 'One' }, { id: 'p1' });
-    expect(deleteProject('missing')).toEqual({
+  it('reports nothing deleted for an unknown id', async () => {
+    await make({ name: 'One' }, { id: 'p1' });
+    expect(removed(await deleteProject('missing'))).toEqual({
       deleted: false,
       removedArtifactIds: [],
       wasActive: false,
@@ -296,102 +379,137 @@ describe('deleteProject', () => {
     expect(listProjects()).toHaveLength(1);
   });
 
-  it('clears the selection when the open project is deleted', () => {
-    createProject({ name: 'One' }, { id: 'p1', now: 1000 });
-    createProject({ name: 'Two' }, { id: 'p2', now: 2000 });
+  it('clears the selection when the open project is deleted', async () => {
+    await make({ name: 'One' }, { id: 'p1', now: 1000 });
+    await make({ name: 'Two' }, { id: 'p2', now: 2000 });
     setActiveProject('p1');
-    expect(deleteProject('p1').wasActive).toBe(true);
+
+    expect(removed(await deleteProject('p1')).wasActive).toBe(true);
     expect(readActiveProjectPayload().activeProjectId).toBeNull();
     expect(getActiveProject()?.id).toBe('p2');
   });
 
-  it('leaves the selection alone when another project is deleted', () => {
-    createProject({ name: 'One' }, { id: 'p1', now: 1000 });
-    createProject({ name: 'Two' }, { id: 'p2', now: 2000 });
+  it('leaves the selection alone when another project is deleted', async () => {
+    await make({ name: 'One' }, { id: 'p1', now: 1000 });
+    await make({ name: 'Two' }, { id: 'p2', now: 2000 });
     setActiveProject('p1');
-    deleteProject('p2');
+    await deleteProject('p2');
     expect(readActiveProjectPayload().activeProjectId).toBe('p1');
   });
 
-  it('leaves no open project when the last one is deleted', () => {
-    createProject({ name: 'Only' }, { id: 'p1' });
+  it('leaves no open project when the last one is deleted', async () => {
+    await make({ name: 'Only' }, { id: 'p1' });
     setActiveProject('p1');
-    deleteProject('p1');
+    await deleteProject('p1');
     expect(getActiveProject()).toBeUndefined();
+  });
+
+  it('reports a refused cascade, and keeps the project and its artifacts listed', async () => {
+    await make({ name: 'One' }, { id: 'p1' });
+    await addNote('p1', 'a1');
+    closeVault();
+    vi.stubGlobal('indexedDB', {
+      open: () => {
+        const request = { error: new Error('storage is gone'), onerror: null };
+        queueMicrotask(() => (request.onerror as (() => void) | null)?.());
+        return request;
+      },
+    });
+
+    const result = await deleteProject('p1');
+
+    expect(result.ok === false && result.reason).toBe('storage-failed');
+    expect(listProjects().map((project) => project.id)).toEqual(['p1']);
+    expect(listArtifacts('p1').map((summary) => summary.id)).toEqual(['a1']);
   });
 });
 
 describe('the active project', () => {
-  it('is nothing when there are no projects', () => {
+  it('is nothing when there are no projects', async () => {
+    await hydrateProjects();
     expect(getActiveProject()).toBeUndefined();
   });
 
-  it('is the project that was opened', () => {
-    createProject({ name: 'One' }, { id: 'p1', now: 1000 });
-    createProject({ name: 'Two' }, { id: 'p2', now: 2000 });
+  it('is the project that was opened', async () => {
+    await make({ name: 'One' }, { id: 'p1', now: 1000 });
+    await make({ name: 'Two' }, { id: 'p2', now: 2000 });
     expect(setActiveProject('p1')?.id).toBe('p1');
     expect(getActiveProject()?.id).toBe('p1');
   });
 
-  it('survives a reload, because the selection is stored', () => {
-    createProject({ name: 'One' }, { id: 'p1', now: 1000 });
-    createProject({ name: 'Two' }, { id: 'p2', now: 2000 });
+  it('survives a reload, because the selection is stored', async () => {
+    await make({ name: 'One' }, { id: 'p1', now: 1000 });
+    await make({ name: 'Two' }, { id: 'p2', now: 2000 });
     setActiveProject('p1');
-    // A reload is a fresh read of the same storage, which is what these functions do every call.
+
+    resetProjectIndex();
+    await hydrateProjects();
+
     expect(readActiveProjectPayload().activeProjectId).toBe('p1');
     expect(getActiveProject()?.id).toBe('p1');
   });
 
-  it('selects the most recently updated project when nothing is open, and persists that', () => {
-    createProject({ name: 'Old' }, { id: 'p1', now: 1000 });
-    createProject({ name: 'New' }, { id: 'p2', now: 2000 });
+  it('selects the most recently updated project when nothing is open, and persists that', async () => {
+    await make({ name: 'Old' }, { id: 'p1', now: 1000 });
+    await make({ name: 'New' }, { id: 'p2', now: 2000 });
     expect(getActiveProject()?.id).toBe('p2');
     expect(readActiveProjectPayload().activeProjectId).toBe('p2');
   });
 
-  it('recovers when the stored id names a project that is gone', () => {
-    createProject({ name: 'One' }, { id: 'p1', now: 1000 });
+  it('recovers when the stored id names a project that is gone', async () => {
+    await make({ name: 'One' }, { id: 'p1', now: 1000 });
     writeActiveProjectPayload('deleted-elsewhere');
     expect(getActiveProject()?.id).toBe('p1');
     expect(readActiveProjectPayload().activeProjectId).toBe('p1');
   });
 
-  it('clears a stored id when every project is gone', () => {
+  it('clears a stored id when every project is gone', async () => {
+    await hydrateProjects();
     writeActiveProjectPayload('deleted-elsewhere');
     expect(getActiveProject()).toBeUndefined();
     expect(readActiveProjectPayload().activeProjectId).toBeNull();
   });
 
-  it('closes the open project when set to null', () => {
-    createProject({ name: 'One' }, { id: 'p1' });
+  it('keeps a stored id while the index has not been read yet', () => {
+    writeActiveProjectPayload('not-read-yet');
+    // An empty list before hydration means "not looked", and a selection is not something to throw
+    // away over a read that has not happened.
+    expect(getActiveProject()).toBeUndefined();
+    expect(readActiveProjectPayload().activeProjectId).toBe('not-read-yet');
+  });
+
+  it('closes the open project when set to null', async () => {
+    await make({ name: 'One' }, { id: 'p1' });
     setActiveProject('p1');
     expect(setActiveProject(null)).toBeUndefined();
     expect(readActiveProjectPayload().activeProjectId).toBeNull();
   });
 
-  it('ignores an id that names no project', () => {
-    createProject({ name: 'One' }, { id: 'p1' });
+  it('ignores an id that names no project', async () => {
+    await make({ name: 'One' }, { id: 'p1' });
     setActiveProject('p1');
     expect(setActiveProject('missing')).toBeUndefined();
     expect(readActiveProjectPayload().activeProjectId).toBe('p1');
   });
 
-  it('is exactly one project once one exists', () => {
-    createProject({ name: 'One' }, { id: 'p1', now: 1000 });
-    createProject({ name: 'Two' }, { id: 'p2', now: 2000 });
-    createProject({ name: 'Three' }, { id: 'p3', now: 3000 });
+  it('is exactly one project once one exists', async () => {
+    await make({ name: 'One' }, { id: 'p1', now: 1000 });
+    await make({ name: 'Two' }, { id: 'p2', now: 2000 });
+    await make({ name: 'Three' }, { id: 'p3', now: 3000 });
     const active = getActiveProject();
     expect(listProjects().filter((project) => project.id === active?.id)).toHaveLength(1);
   });
 });
 
 describe('the whole set', () => {
-  it('survives a reload', () => {
-    createProject({ name: 'One', tags: ['fantasy'] }, { id: 'p1', now: 1000 });
-    createProject({ name: 'Two', description: 'Second' }, { id: 'p2', now: 2000 });
-    renameProject('p1', 'One Renamed', { now: 3000 });
+  it('survives a reload', async () => {
+    await make({ name: 'One', tags: ['fantasy'] }, { id: 'p1', now: 1000 });
+    await make({ name: 'Two', description: 'Second' }, { id: 'p2', now: 2000 });
+    await renameProject('p1', 'One Renamed', { now: 3000 });
 
-    // Storage is the only state these functions hold, so re-reading it is the reload.
+    resetProjectIndex();
+    await hydrateProjects();
+
     const reloaded = listProjects();
     expect(reloaded.map((project) => project.name)).toEqual(['One Renamed', 'Two']);
     expect(reloaded[0].tags).toEqual(['fantasy']);

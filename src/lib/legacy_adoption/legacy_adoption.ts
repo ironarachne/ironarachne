@@ -1,6 +1,7 @@
 import { readArtifactPayloadForKind, type ArtifactKindRegistry } from '$lib/artifact_kinds';
 import { createArtifact } from '$lib/artifacts';
-import { createProject, getProject } from '$lib/projects';
+import { createProject, getProject, hydrateProjects } from '$lib/projects';
+import type { VaultResult } from '$lib/vault_db';
 
 import { readLegacyAdoptionRecord, writeLegacyAdoptionRecord } from './legacy_adoption_saved_state';
 import {
@@ -56,17 +57,20 @@ function currentRecord(
  * a migration running on page load is precisely the case that must not move the workshop out from
  * under someone.
  */
-function adoptionProjectId(run: AdoptionRun): string {
+async function adoptionProjectId(run: AdoptionRun): Promise<VaultResult<string>> {
   if (run.projectId !== null) {
-    return run.projectId;
+    return { ok: true, value: run.projectId };
   }
-  const project = createProject(
+  const created = await createProject(
     { name: run.projectName, description: ADOPTION_PROJECT_DESCRIPTION },
     { now: run.now },
   );
-  run.projectId = project.id;
+  if (!created.ok) {
+    return created;
+  }
+  run.projectId = created.value.id;
   run.result.projectCreated = true;
-  return project.id;
+  return { ok: true, value: created.value.id };
 }
 
 /**
@@ -107,12 +111,12 @@ function identifyLegacyItems(scope: LegacySaveScope, items: unknown[]): (string 
  * function that names a freshly generated one. Passing a name lifted out of the snapshot here
  * would be a second, drifting copy of that rule.
  */
-function adoptLegacyItem(
+async function adoptLegacyItem(
   run: AdoptionRun,
   contents: LegacyScopeContents,
   item: unknown,
   key: string,
-): void {
+): Promise<void> {
   const { scope } = contents;
   const payload = readArtifactPayloadForKind(
     run.registry,
@@ -131,10 +135,21 @@ function adoptLegacyItem(
     return;
   }
 
-  const projectId = adoptionProjectId(run);
-  const created = createArtifact(
+  const project = await adoptionProjectId(run);
+  if (!project.ok) {
+    run.result.skipped.push({
+      scopeId: scope.scopeId,
+      kind: scope.kind,
+      identity: legacyItemIdentity(scope, item),
+      reason: project.reason,
+      message: project.message,
+    });
+    return;
+  }
+
+  const created = await createArtifact(
     run.registry,
-    { projectId, kind: scope.kind, payload: payload.value },
+    { projectId: project.value, kind: scope.kind, payload: payload.value },
     { now: run.now, createdAt: run.now },
   );
   if (!created.ok) {
@@ -161,14 +176,16 @@ function adoptLegacyItem(
   writeLegacyAdoptionRecord(currentRecord(run, run.previousNotice));
 }
 
-function adoptLegacyScope(run: AdoptionRun, contents: LegacyScopeContents): void {
+async function adoptLegacyScope(run: AdoptionRun, contents: LegacyScopeContents): Promise<void> {
   if (contents.status === 'unreadable') {
     run.result.unreadableScopeIds.push(contents.scope.scopeId);
     return;
   }
 
   const keys = identifyLegacyItems(contents.scope, contents.items);
-  contents.items.forEach((item, index) => {
+  // One item at a time, in order. Two writes racing would both see the same missing project and
+  // create one apiece, and the adoption record is rewritten after every item.
+  for (const [index, item] of contents.items.entries()) {
     const key = keys[index];
     if (key === null) {
       run.result.skipped.push({
@@ -178,14 +195,14 @@ function adoptLegacyScope(run: AdoptionRun, contents: LegacyScopeContents): void
         reason: 'invalid-payload',
         message: `a saved ${contents.scope.kind} has no ${contents.scope.identityField} to identify it by`,
       });
-      return;
+      continue;
     }
     if (run.adoptedKeys.has(key)) {
       run.result.alreadyAdopted += 1;
-      return;
+      continue;
     }
-    adoptLegacyItem(run, contents, item, key);
-  });
+    await adoptLegacyItem(run, contents, item, key);
+  }
 }
 
 /**
@@ -203,6 +220,9 @@ function noticeAfterRun(run: AdoptionRun, projectId: string): LegacyAdoptionNoti
   };
 }
 
+/** The run in flight, so two callers on one page load share it rather than racing. */
+let running: Promise<LegacyAdoptionResult> | null = null;
+
 /**
  * Adopt every legacy per-generator save into a project, skipping anything a previous run already
  * took.
@@ -211,6 +231,12 @@ function noticeAfterRun(run: AdoptionRun, projectId: string): LegacyAdoptionNoti
  * adoption record, and does nothing else when there is nothing new. A browser that never used the
  * old save buttons gets no project, no record, and no writes at all.
  *
+ * **Two callers on one page load get one run.** The root layout calls this and so does the project
+ * bar, and now that a write is asynchronous both would otherwise read the same empty adoption
+ * record, create a project apiece, and adopt everything twice. The record makes a *later* run a
+ * no-op; it cannot make a concurrent one a no-op, because it is not written until the first item
+ * has been stored. Whoever asks second waits on the first run and is handed its result.
+ *
  * **The legacy scopes are not touched.** Nothing is deleted, and nothing is rewritten — not even
  * the entries this adopts. They are small, they are the only fallback if this has a bug, and
  * `/saved-data` still reads them until #44 retires it.
@@ -218,7 +244,20 @@ function noticeAfterRun(run: AdoptionRun, projectId: string): LegacyAdoptionNoti
 export function adoptLegacySaves(
   registry: ArtifactKindRegistry,
   options: LegacyAdoptionOptions = {},
-): LegacyAdoptionResult {
+): Promise<LegacyAdoptionResult> {
+  running ??= runLegacyAdoption(registry, options).finally(() => {
+    running = null;
+  });
+  return running;
+}
+
+async function runLegacyAdoption(
+  registry: ArtifactKindRegistry,
+  options: LegacyAdoptionOptions,
+): Promise<LegacyAdoptionResult> {
+  // The project set has to be in memory before a previous run's project can be looked up, and
+  // before creating one would be the second project named "My Setting" this browser has.
+  await hydrateProjects();
   const record = readLegacyAdoptionRecord();
   const existingProject = record.projectId === null ? undefined : getProject(record.projectId);
   const run: AdoptionRun = {
@@ -239,7 +278,7 @@ export function adoptLegacySaves(
   };
 
   for (const contents of readLegacyScopes()) {
-    adoptLegacyScope(run, contents);
+    await adoptLegacyScope(run, contents);
   }
 
   run.result.projectId = run.projectId;
