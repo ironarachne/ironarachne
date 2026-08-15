@@ -37,8 +37,13 @@ export type VaultResult<T> =
  * itself does not have — `lastExportAt` is the one docs/workshop.md already names. The database
  * does not know what a project is beyond its id, which is what keeps `$lib/projects` the only
  * library that decides the shape.
+ *
+ * `lastExportAt` is epoch milliseconds of the last **successful** export of this project, written
+ * by export and nothing else. It is here rather than on the `Project` because it is not something
+ * the user edits, it does not travel in an export file, and a project written back unchanged must
+ * not be able to erase it — which is why {@link writeProjectRecord} preserves it.
  */
-export type VaultProjectRecord = { id: string; value: unknown };
+export type VaultProjectRecord = { id: string; value: unknown; lastExportAt?: number };
 
 /**
  * The minimum the database knows about an artifact summary: its identity and its project. The

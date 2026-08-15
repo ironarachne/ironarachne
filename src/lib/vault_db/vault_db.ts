@@ -130,12 +130,76 @@ export function readAllProjectRecords(): Promise<VaultResult<unknown[]>> {
   );
 }
 
-/** Store one project. The record wraps it; see {@link VaultProjectRecord}. */
+/**
+ * Store one project. The record wraps it; see {@link VaultProjectRecord}.
+ *
+ * Read-modify-write rather than a bare `put`, in the transaction that writes, so that the
+ * record-level fields the project does not carry survive. `lastExportAt` is the one that exists:
+ * it is written on a successful export and it is the number that predicts loss, so a rename
+ * silently resetting it to "never exported" would be the display lying about the one thing
+ * docs/workshop.md puts first.
+ */
 export function writeProjectRecord(project: { id: string }): Promise<VaultResult<void>> {
   return withStores(['projects'], 'readwrite', async (transaction) => {
-    await requestToPromise(
-      transaction.objectStore('projects').put({ id: project.id, value: project }),
-    );
+    const store = transaction.objectStore('projects');
+    const existing = asProjectRecord(await requestToPromise(store.get(project.id)));
+    await requestToPromise(store.put({ ...existing, id: project.id, value: project }));
+  });
+}
+
+/** A stored record as an object, or `undefined` when nothing readable is stored under that key. */
+function asProjectRecord(record: unknown): Record<string, unknown> | undefined {
+  if (record === null || typeof record !== 'object' || Array.isArray(record)) {
+    return undefined;
+  }
+  return record as Record<string, unknown>;
+}
+
+/**
+ * When each project was last exported, by project id — projects that have never been exported are
+ * absent rather than zero, because "never" and "at the epoch" are different answers.
+ *
+ * Read from the store rather than from the hydrated index because the stamp is a field of the
+ * record, not of the project: `$lib/projects` does not know it exists, and keeping it that way is
+ * what stops an export timestamp from travelling in an export file.
+ */
+export function readProjectExportStamps(): Promise<VaultResult<Map<string, number>>> {
+  return withStores(['projects'], 'readonly', async (transaction) => {
+    const records = await requestToPromise(transaction.objectStore('projects').getAll());
+    const stamps = new Map<string, number>();
+    for (const raw of records) {
+      const record = asProjectRecord(raw);
+      if (typeof record?.id === 'string' && isFiniteNumber(record.lastExportAt)) {
+        stamps.set(record.id, record.lastExportAt);
+      }
+    }
+    return stamps;
+  });
+}
+
+function isFiniteNumber(value: unknown): value is number {
+  return typeof value === 'number' && Number.isFinite(value);
+}
+
+/**
+ * Record that a project was exported, reporting `false` when no project has that id.
+ *
+ * **Called only after an export has succeeded.** The stamp is what tells a user how long their
+ * work has been the browser's only copy, so writing it for an export that failed or was cancelled
+ * would replace a true warning with a false reassurance.
+ */
+export function writeProjectExportStamp(
+  projectId: string,
+  exportedAt: number,
+): Promise<VaultResult<boolean>> {
+  return withStores(['projects'], 'readwrite', async (transaction) => {
+    const store = transaction.objectStore('projects');
+    const existing = asProjectRecord(await requestToPromise(store.get(projectId)));
+    if (existing === undefined) {
+      return false;
+    }
+    await requestToPromise(store.put({ ...existing, lastExportAt: exportedAt }));
+    return true;
   });
 }
 

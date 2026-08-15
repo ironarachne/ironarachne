@@ -12,11 +12,13 @@ import {
   readAllArtifactRecords,
   readAllProjectRecords,
   readArtifactPayloadRecord,
+  readProjectExportStamps,
   readVaultId,
   readVaultMeta,
   readWorkspaceRecord,
   writeArtifactRecord,
   writeArtifactSummaryRecord,
+  writeProjectExportStamp,
   writeProjectRecord,
   writeVaultMeta,
   writeWorkspaceRecord,
@@ -118,6 +120,66 @@ describe('projects', () => {
     expect(value(await readAllProjectRecords())).toEqual([
       { id: 'project-1', name: 'Ashfall Revised' },
     ]);
+  });
+});
+
+describe('project export stamps', () => {
+  it('has no stamp for a project that has never been exported', async () => {
+    await writeProjectRecord({ id: 'project-1' });
+
+    expect([...value(await readProjectExportStamps())]).toEqual([]);
+  });
+
+  it('records an export against the project it names', async () => {
+    await writeProjectRecord({ id: 'project-1' });
+    await writeProjectRecord({ id: 'project-2' });
+
+    expect(value(await writeProjectExportStamp('project-1', 1700))).toBe(true);
+
+    expect([...value(await readProjectExportStamps())]).toEqual([['project-1', 1700]]);
+  });
+
+  it('refuses a stamp for a project that is not there rather than minting a record', async () => {
+    expect(value(await writeProjectExportStamp('nope', 1700))).toBe(false);
+
+    expect(value(await readAllProjectRecords())).toEqual([]);
+  });
+
+  it('keeps the stamp when the project is written again', async () => {
+    // The whole reason writeProjectRecord reads before it writes: a rename must not reset the
+    // number that says how long this has been the only copy.
+    await writeProjectRecord({ id: 'project-1', name: 'Ashfall' } as { id: string });
+    await writeProjectExportStamp('project-1', 1700);
+    await writeProjectRecord({ id: 'project-1', name: 'Ashfall Revised' } as { id: string });
+
+    expect([...value(await readProjectExportStamps())]).toEqual([['project-1', 1700]]);
+    expect(value(await readAllProjectRecords())).toEqual([
+      { id: 'project-1', name: 'Ashfall Revised' },
+    ]);
+  });
+
+  it('replaces an earlier stamp with a later one', async () => {
+    await writeProjectRecord({ id: 'project-1' });
+    await writeProjectExportStamp('project-1', 1700);
+    await writeProjectExportStamp('project-1', 2700);
+
+    expect([...value(await readProjectExportStamps())]).toEqual([['project-1', 2700]]);
+  });
+
+  it('drops a stamp that is not a usable number', async () => {
+    await writeProjectRecord({ id: 'project-1' });
+    await writeProjectExportStamp('project-1', Number.NaN);
+
+    expect([...value(await readProjectExportStamps())]).toEqual([]);
+  });
+
+  it('loses the stamp with the project it belonged to', async () => {
+    await writeProjectRecord({ id: 'project-1' });
+    await writeProjectExportStamp('project-1', 1700);
+
+    await deleteProjectCascade('project-1');
+
+    expect([...value(await readProjectExportStamps())]).toEqual([]);
   });
 });
 
