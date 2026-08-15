@@ -32,45 +32,36 @@ never be one.
 
 ## How it is keyed
 
-Two entries, not one blob per project:
+One record per artifact, in two stores of [`$lib/vault_db`](../vault_db/README.md):
 
-| Entry                                 | Holds                                                  | Rewritten when                     |
-| ------------------------------------- | ------------------------------------------------------ | ---------------------------------- |
-| `workshop.artifact_index.<projectId>` | Every summary in the project — everything but payloads | Any create, rename, tag, or delete |
-| `workshop.artifact.<artifactId>`      | One payload and the version it was written at          | That artifact's content changes    |
+| Store               | Key          | Holds                                    | Rewritten when                              |
+| ------------------- | ------------ | ---------------------------------------- | ------------------------------------------- |
+| `artifacts`         | `id`         | The summary — everything but the payload | That artifact's metadata or content changes |
+| `artifact_payloads` | `artifactId` | One payload                              | That artifact's content changes             |
 
-This is the decision #33 asks be made deliberately rather than by default, and #45 — the storage
-ceiling — is the same decision seen from the other side. The reasoning:
+The summary carries `payloadVersion` and `byteSize` alongside the name, kind, tags, and references.
+`by_projectId` indexes the summaries, which is how a project is listed.
 
-- **One blob per project rewrites everything on every edit.** Renaming a region would re-serialise
-  every map and every coat of arms beside it. That is the cost that grows fastest with exactly the
-  payloads this application produces.
 - **Listing a project is the hot path.** The project view, the reference picker, and the delete
-  prompt all want names, kinds, tags, and links — never payloads. Splitting summaries out means
-  they read a few kilobytes instead of parsing every map in the project.
-- **A payload is only touched when it is opened or saved.** Metadata edits never deserialise one.
+  prompt all want names, kinds, tags, and links — never payloads. Splitting payloads out means a
+  listing reads a few kilobytes instead of every map in the project.
+- **A payload is only touched when it is opened or saved.** Metadata edits never deserialise one,
+  and renaming a region rewrites a few hundred bytes rather than the map inside it.
+- **Editing one artifact does not rewrite its neighbours.** The per-project array of summaries that
+  #33 recorded as an open question existed only because `localStorage` has no query; an index
+  removes the need for it. That is decision 5 in the design document.
 
-The cost is that two entries can disagree, so the writes are ordered to bound what a refused write
-can leave behind:
-
-| Operation | Order               | If the second write fails                                |
-| --------- | ------------------- | -------------------------------------------------------- |
-| Create    | Payload, then index | The payload is removed again; storage is left as it was. |
-| Update    | Payload, then index | New content, stale `updatedAt`. Consistent, not wrong.   |
-| Delete    | Index, then payload | An unreferenced payload — wasted space, nothing broken.  |
-
-The invariant that falls out: **there is never an index entry pointing at a payload that was never
-written.** The residue is always a payload nothing points at.
-
-`payloadVersion` is stored with the payload rather than with the summary, so the number and the
-bytes it describes cannot drift apart in a partial write.
+**The two records go in one transaction**, so `payloadVersion`, `byteSize`, and the bytes they
+describe cannot end up disagreeing, and a refused write leaves nothing behind at all — no summary
+naming a payload that was never written, and no payload nothing points at. Under `localStorage`
+this had to be a careful ordering of two writes that bounded the residue; here there is none.
 
 ### What this does not decide
 
-Whether the workshop measures storage before the browser refuses a write, what the user is told
-when it does, and whether `localStorage` is the right substrate at all — all #45, deliberately.
-What this library does is refuse to lose a write silently: a refused write propagates its error to
-the caller (a `QuotaExceededError`, typically) rather than being swallowed into a `false`.
+What the user is told when a write is refused, when a warning appears, and how usage is displayed —
+all storage-status work, deliberately. What this library does is refuse to lose a write silently:
+**every write returns a result**, carrying `quota-exceeded`, `unavailable`, or `storage-failed` and
+a message, and the caller has to look at it.
 
 ## Reading and migration
 
@@ -81,7 +72,7 @@ written at an older `payloadVersion` before handing it back:
 import { readArtifact } from '$lib/artifacts';
 import { ARTIFACT_KINDS } from '$lib/workshop';
 
-const result = readArtifact(ARTIFACT_KINDS, projectId, artifactId);
+const result = await readArtifact(ARTIFACT_KINDS, projectId, artifactId);
 if (result === undefined) {
   // No artifact has that id in that project.
 } else if (result.ok) {
@@ -96,34 +87,42 @@ Three things about that shape are deliberate:
 
 - **The registry is a parameter.** The store does not import the catalog, so it has no opinion
   about which kinds exist and a test can hand it two invented ones.
-- **A rejection still carries the summary.** A payload this build cannot read is still an artifact
-  the user has to be able to see, rename, and export. Dropping it from the listing would be the
-  silent loss a local-only application has no server to undo.
+- **A rejection still carries the summary.** A payload this build cannot read — or could not reach,
+  because the database refused — is still an artifact the user has to be able to see, rename, and
+  export. Dropping it from the listing would be the silent loss a local-only application has no
+  server to undo.
 - **A migration is not written back.** A read that writes can fail on a full disk, and opening a
   project would then be the operation that filled it. The migrated payload is handed back; the
   user's next save stores it at the current version.
 
 ## Operations
 
-| Function                                            | Notes                                                        |
-| --------------------------------------------------- | ------------------------------------------------------------ |
-| `createArtifact(registry, draft, options?)`         | Validates against the kind first; names it via `nameOf`      |
-| `readArtifact(registry, projectId, id)`             | Migrates on read. `undefined` when there is no such artifact |
-| `updateArtifactPayload(registry, projectId, id, …)` | What saving an edit does                                     |
-| `updateArtifact` / `renameArtifact` / `tagArtifact` | Metadata only; never deserialises a payload                  |
-| `setArtifactReferences(projectId, id, …)`           | The links #37 drives                                         |
-| `listArtifacts` / `listArtifactsOfKind`             | Summaries, most recently updated first                       |
-| `listArtifactReferrers(projectId, id)`              | What points at an artifact                                   |
-| `deleteArtifact(projectId, id)`                     | Reports referrers; never refuses                             |
-| `deleteProjectArtifacts(projectId)`                 | The cascade behind `deleteProject`                           |
+| Function                                            | Sync? | Notes                                                                         |
+| --------------------------------------------------- | ----- | ----------------------------------------------------------------------------- |
+| `hydrateArtifacts()`                                | async | Once at startup; every summary into memory                                    |
+| `listArtifacts` / `listArtifactsOfKind`             | sync  | Summaries, most recently updated first                                        |
+| `getArtifactSummary(projectId, id)`                 | sync  | From the hydrated index                                                       |
+| `listArtifactReferrers(projectId, id)`              | sync  | What points at an artifact                                                    |
+| `createArtifact(registry, draft, options?)`         | async | Validates against the kind first; names it via `nameOf`                       |
+| `readArtifact(registry, projectId, id)`             | async | Reads the payload and migrates it. `undefined` when there is no such artifact |
+| `updateArtifactPayload(registry, projectId, id, …)` | async | What saving an edit does                                                      |
+| `updateArtifact` / `renameArtifact` / `tagArtifact` | async | Metadata only; never deserialises a payload                                   |
+| `setArtifactReferences(projectId, id, …)`           | async | The links #37 drives                                                          |
+| `deleteArtifact(projectId, id)`                     | async | Reports referrers; never refuses                                              |
+| `forgetProjectArtifacts(projectId)`                 | sync  | Index maintenance after `$lib/projects` cascades a delete                     |
 
-Unknown kinds and invalid payloads come back as a `PayloadResult` rejection rather than an
-exception, because they are data. Three things throw, and none of them is a bad record: an artifact
-drafted with no project id, an artifact created under an id already in use, and a storage write the
-browser refuses.
+**Reads are synchronous and writes are not.** Listing answers from the hydrated index — a cache,
+rebuilt rather than repaired, that is not updated until the transaction behind a write has
+committed. Before hydration a listing is empty, which is the same answer a browser with no storage
+gives, so a project view never blocks a render on a database read. Payloads stay lazy: nothing
+holds every map in a project resident in memory.
 
-The id check earns its place because payload keys are global while the index is per project — a
-reused id would overwrite another project's payload rather than merely duplicating a row. Ids are
+Unknown kinds, invalid payloads, and refused writes all come back as a rejection rather than an
+exception, because they are outcomes a caller has to report. Two things throw, and neither is a bad
+record: an artifact drafted with no project id, and an artifact created under an id already in use.
+
+The id check earns its place because summaries are keyed by their own id across the whole vault — a
+reused id would overwrite another project's artifact rather than merely duplicating a row. Ids are
 never reused, so it only fires when the caller supplied one, which is import (#35).
 
 ## References and deleting
@@ -145,15 +144,20 @@ references transitively.
 
 ## Cascade
 
-Deleting a project deletes its artifacts. `$lib/projects` owns that call, which is why the
-dependency runs one way: projects reaches into this library, and this library never reaches back.
-It is keyed by project id and does not know the project set, so it cannot check that a project
-exists — the caller opens a project before saving into it.
+Deleting a project deletes its artifacts, their payloads, and its bench — in one transaction, owned
+by `$lib/projects`, because the project record has to go in the same commit as what it contains.
+This library's part is `forgetProjectArtifacts`, which drops them from the hydrated index once that
+transaction has committed.
+
+The dependency runs one way: projects reaches into this library, and this library never reaches
+back. It is keyed by project id and does not know the project set, so it cannot check that a
+project exists — the caller opens a project before saving into it.
 
 ## Not yet here
 
 - **Legacy adoption** (#34) — the heraldry, cultures, and religions saved under the old
   per-generator scopes are adopted into a project on first run. Nothing here reads those keys.
+  The workshop's own former `localStorage` records are adopted a layer down, by `$lib/vault_db`.
 - **Export and import** (#35, #47) — the file format, and the vault-sized write that meets the
   storage ceiling head-on.
 - **The bench** — `ProjectWorkspace` and panel state are persisted per project, separately, and are

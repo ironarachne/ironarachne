@@ -9,7 +9,8 @@ namespace and a workspace rather than a document with content of its own. What m
 meaningful is the artifacts inside it, and those live in
 [`$lib/artifacts`](../artifacts/README.md). The dependency runs one way: this library reaches into
 the store to cascade a delete, and the store — which is keyed by project id and knows nothing about
-the project set — never reaches back.
+the project set — never reaches back. Both persist to
+[`$lib/vault_db`](../vault_db/README.md).
 
 ## The type
 
@@ -34,19 +35,34 @@ import {
   updateProject,
 } from '$lib/projects';
 
-const project = createProject({ name: 'Ashfall', tags: ['fantasy'] });
-setActiveProject(project.id);
+// Once, at startup: every project into memory, so listing them is synchronous afterwards.
+await hydrateProjects();
 
-renameProject(project.id, 'Ashfall Reborn');
-updateProject(project.id, { description: 'A ruined empire', tags: ['fantasy', 'grim'] });
+const created = await createProject({ name: 'Ashfall', tags: ['fantasy'] });
+if (!created.ok) {
+  // 'quota-exceeded', 'unavailable', or 'storage-failed'. Nothing was stored, and nothing in
+  // memory pretends otherwise.
+  return;
+}
+setActiveProject(created.value.id);
+
+await renameProject(created.value.id, 'Ashfall Reborn');
+await updateProject(created.value.id, { description: 'A ruined empire', tags: ['grim'] });
 
 const open = getActiveProject(); // the project the workshop is working in
 const all = listProjects(); // most recently updated first
-deleteProject(project.id);
+await deleteProject(created.value.id);
 ```
 
-Every operation reads and writes storage on each call, so there is no in-memory state to keep in
-step and a reload is simply the next read.
+**Reads are synchronous, writes are not.** `listProjects`, `getProject`, and `getActiveProject`
+answer from the hydrated index — the copy read into memory once by `hydrateProjects` — so a picker
+never blocks a render on a database read. Every write goes to IndexedDB and returns a
+`VaultResult`: the index is not updated until the transaction has committed, so memory can never
+claim a save the database does not have.
+
+Before hydration the list is empty. That is the same answer a browser with no storage gives, and it
+is why `getActiveProject` will not clear a stored selection until it has actually looked: an empty
+list means "not read yet" until it doesn't.
 
 `createProject` does **not** open what it created. Opening a project is a decision the caller
 states with `setActiveProject`, because a project created in the background must not move the
@@ -70,35 +86,33 @@ two scopes are what let an export take one without the other.
 
 ## Storage
 
-Both scopes go through
-[`$lib/persistent_save/scoped_local_storage`](../persistent_save/README.md), which owns the JSON
-envelope, the `ironarachne.save.v1.` prefix, and behaving sanely where `localStorage` is absent.
+Two substrates, and which one holds what is the point of the split:
 
-| Scope                     | Holds                 | Travels in an export |
-| ------------------------- | --------------------- | -------------------- |
-| `workshop.projects`       | Every project         | Yes — user work      |
-| `workshop.active_project` | Which project is open | No — device state    |
+| Where                                     | Holds                 | Travels in an export |
+| ----------------------------------------- | --------------------- | -------------------- |
+| The `projects` store in `$lib/vault_db`   | Every project         | Yes — user work      |
+| `workshop.active_project` in localStorage | Which project is open | No — device state    |
 
-Each carries its own `payloadVersion` and is validated on read. Absent, malformed, and
-wrong-version payloads all read as a well-defined empty result rather than throwing, per
-requirement 3.3 of the readiness spec — this is a local-only application, and there is no server to
-repair a bad read after the fact.
+The open project stayed in `localStorage` deliberately (decision 5 in the design document): it is a
+small synchronous pointer rather than user work, losing it costs a click, and keeping it out of the
+database is part of what keeps it out of an export.
 
-Individual records that fail validation are dropped from the read and the rest are kept. That is
-the one place this library falls short of "nothing is dropped silently", and it is deliberate:
-quarantine needs somewhere to put a bad record, which arrives with import in
-[#35](https://worktree.ca/ironarachne/ironarachne/issues/35). `readProjectsPayload` is the single
-function that has to change to route them there instead.
+A stored record that does not validate is dropped when the index is hydrated, and the rest are
+kept. That is the one place this library falls short of "nothing is dropped silently", and it is
+deliberate: quarantine needs somewhere to put a bad record, which arrives with import in
+[#35](https://worktree.ca/ironarachne/ironarachne/issues/35). `toProject` is the single function
+that has to change to route them there instead.
 
 ## Deleting
 
-`deleteProject` returns a `ProjectDeletion` rather than a boolean, because deleting a project
-cascades: the artifacts inside it go with it, and `removedArtifactIds` is what lets a caller say so
-in the user's terms. The bench state joins them once panels are persisted.
+`deleteProject` reports a `ProjectDeletion` rather than a boolean, because deleting a project
+cascades: the artifacts inside it, their payloads, and its bench go with it, and
+`removedArtifactIds` is what lets a caller say so in the user's terms.
 
-The artifacts go first. A refused write between the two steps leaves a project with nothing in it,
-which the user can delete again; the reverse order would leave artifacts in a project that no
-longer exists, which nothing would ever list or collect.
+**The cascade is one transaction.** Either all of it happened or none of it did, which is the
+ownership the domain model draws with a filled diamond. Under `localStorage` the artifacts had to go
+first so that an interrupted cascade left an empty project rather than artifacts in a project
+nothing lists; that whole class of residue is gone.
 
 Deleting the open project clears the selection instead of leaving it pointing at nothing;
 `getActiveProject` then picks whichever project was touched most recently.

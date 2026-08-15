@@ -1,6 +1,7 @@
 import type { RouteId } from '$app/types';
 import type { ArtifactKind, QuarantineReason } from '$lib/artifact_kinds';
 import type { TaggedItem } from '$lib/tags';
+import type { VaultFailureReason } from '$lib/vault_db';
 
 /**
  * How an artifact was first made: which tool, from which seed, with which settings.
@@ -39,16 +40,16 @@ export type ArtifactReference = {
 /**
  * An artifact without its payload — everything a listing, a picker, or a backlink query needs.
  *
- * This is a storage boundary as much as a type. Summaries live in one entry per project and
- * payloads live one entry apiece, so listing a project reads a few kilobytes rather than every
- * region map in it. See the README for why the store is keyed that way.
+ * This is a storage boundary as much as a type. A summary is one record in the `artifacts` store
+ * and its payload is one record in `artifact_payloads`, so listing a project reads a few kilobytes
+ * rather than every region map in it. See the README for why the store is keyed that way.
  */
 export interface ArtifactSummary extends TaggedItem {
   /** Stable identity. Referenced by other artifacts; never reused, including after a delete. */
   id: string;
   /**
-   * The owning project. Authoritative: the storage key is an index derived from this field, and a
-   * key that contradicts it is a bug in the store rather than a second opinion.
+   * The owning project. Authoritative: the `by_projectId` index is derived from this field, and an
+   * index entry that contradicts it is a bug in the store rather than a second opinion.
    */
   projectId: string;
   /** Registry key, owned by `$lib/artifact_kinds`. Determines the payload shape. */
@@ -59,6 +60,22 @@ export interface ArtifactSummary extends TaggedItem {
   references: ArtifactReference[];
   /** Absent rather than empty when the artifact's origin is not known. */
   provenance?: ArtifactProvenance;
+  /**
+   * The kind's snapshot version the stored payload was written at.
+   *
+   * On the summary rather than beside the payload because the two are written in one transaction
+   * and so cannot disagree — which is what the database bought that `localStorage` could not. It
+   * being here is what lets a listing say an artifact needs migrating without reading a payload.
+   */
+  payloadVersion: number;
+  /**
+   * The stored payload's size in bytes, recorded at write time — the one moment it is free.
+   *
+   * Summing it over a project's summaries is how usage is attributed per project. It is an
+   * approximation of what the browser actually holds, and is not reconciled against
+   * `navigator.storage.estimate()`; the two disagreeing is expected.
+   */
+  byteSize: number;
   /** Epoch milliseconds, per decision 2 in docs/workshop.md. */
   createdAt: number;
   /** Epoch milliseconds, per decision 2 in docs/workshop.md. */
@@ -75,17 +92,11 @@ export interface ArtifactSummary extends TaggedItem {
  *
  * `payload` is `unknown` because the store does not know payload shapes — that is the point of it
  * being generic. It is narrowed by `kind` through the kind registry, which is also what stamps
- * {@link Artifact.payloadVersion}.
+ * {@link ArtifactSummary.payloadVersion}.
  */
 export interface Artifact extends ArtifactSummary {
   /** A snapshot, as the kind's `validate` accepted it. Never a live value carrying functions. */
   payload: unknown;
-  /**
-   * The kind's snapshot version this payload was written at. It travels with the payload in
-   * storage rather than with the summary, so the number and the bytes it describes cannot end up
-   * in disagreement.
-   */
-  payloadVersion: number;
 }
 
 /** What a caller supplies to create an artifact. */
@@ -127,11 +138,33 @@ export type ArtifactMutationOptions = {
 };
 
 /**
+ * Why an artifact operation did not do what was asked: the payload was not something this build
+ * understands, or the database refused.
+ *
+ * One union rather than two results because a caller has one thing to do with either — tell the
+ * user and keep their work on screen. What separates them is the message.
+ */
+export type ArtifactFailureReason = QuarantineReason | VaultFailureReason;
+
+/**
+ * What every write here returns.
+ *
+ * **Never `void`**, per docs/workshop.md ("Storage limits"): the caller is handed a result it has
+ * to look at, because an API that returns nothing makes silent loss the default. A `PayloadResult`
+ * rejection from the kind registry is one of these already, which is what lets validation and
+ * storage failures come back through one channel.
+ */
+export type ArtifactWriteResult<T> =
+  | { ok: true; value: T }
+  | { ok: false; reason: ArtifactFailureReason; message: string };
+
+/**
  * The result of reading an artifact back.
  *
- * A rejection still carries the summary, because a payload this build cannot read is an artifact
- * the user must still be able to see, name, and export. Dropping it from the listing would be the
- * silent loss that a local-only application has no server to recover from.
+ * A rejection still carries the summary, because a payload this build cannot read — or could not
+ * reach — is an artifact the user must still be able to see, name, and export. Dropping it from
+ * the listing would be the silent loss that a local-only application has no server to recover
+ * from.
  */
 export type ArtifactReadResult =
   | {
@@ -143,7 +176,7 @@ export type ArtifactReadResult =
        */
       migrated: boolean;
     }
-  | { ok: false; summary: ArtifactSummary; reason: QuarantineReason; message: string };
+  | { ok: false; summary: ArtifactSummary; reason: ArtifactFailureReason; message: string };
 
 /**
  * What a delete removed, and what pointed at it.
@@ -158,29 +191,4 @@ export type ArtifactDeletion = {
   id: string;
   /** Artifacts whose references named this one, as they were immediately before the delete. */
   referrers: ArtifactSummary[];
-};
-
-export const ARTIFACT_INDEX_STORE_VERSION = 1 as const;
-
-/**
- * The stored envelope for one project's artifact summaries.
- *
- * Called `storeVersion` rather than `payloadVersion` — the name the other saved-state modules use
- * — because `payloadVersion` is taken here by the artifact's own kind-payload version. Two fields
- * of that name one nesting level apart is exactly how the wrong number reaches a migration.
- */
-export type ArtifactIndexPayload = {
-  storeVersion: typeof ARTIFACT_INDEX_STORE_VERSION;
-  projectId: string;
-  artifacts: ArtifactSummary[];
-};
-
-export const ARTIFACT_PAYLOAD_STORE_VERSION = 1 as const;
-
-/** The stored envelope for one artifact's payload. See {@link ArtifactIndexPayload} on naming. */
-export type ArtifactPayloadRecord = {
-  storeVersion: typeof ARTIFACT_PAYLOAD_STORE_VERSION;
-  /** The kind's snapshot version these bytes were written at. */
-  payloadVersion: number;
-  payload: unknown;
 };

@@ -3,7 +3,7 @@ import type { TaggedItem } from '$lib/tags';
 /**
  * The top-level container in the workshop: one campaign, one setting, one world. Deliberately
  * thin — a project is a namespace and a workspace, not a document with content of its own.
- * Artifacts belong to exactly one project (see docs/workshop.md); they are not modelled yet.
+ * Artifacts belong to exactly one project (see docs/workshop.md) and live in `$lib/artifacts`.
  */
 export interface Project extends TaggedItem {
   /** Stable identity. Never reused, including after the project is deleted. */
@@ -46,32 +46,27 @@ export type ProjectMutationOptions = {
 
 /**
  * What a delete removed. It reports rather than returns a bare boolean because deleting a project
- * cascades: the artifacts inside it go with it, and the caller has to be able to say what went.
- * The bench state joins them once panels are persisted.
+ * cascades: the artifacts inside it and its bench go with it, in one transaction, and the caller
+ * has to be able to say what went.
  */
 export type ProjectDeletion = {
   deleted: boolean;
-  /** Ids of the artifacts removed with the project, as `$lib/artifacts` reported them. */
+  /** Ids of the artifacts removed with the project. */
   removedArtifactIds: string[];
   /** True when the deleted project was the active one, so the caller knows the context moved. */
   wasActive: boolean;
 };
 
-export const PROJECTS_PAYLOAD_VERSION = 1 as const;
-
-/** The stored envelope for the project set. Versioned and validated on read. */
-export type ProjectsPayload = {
-  payloadVersion: typeof PROJECTS_PAYLOAD_VERSION;
-  projects: Project[];
-};
-
 export const ACTIVE_PROJECT_PAYLOAD_VERSION = 1 as const;
 
 /**
- * The stored envelope for which project is open. Separate from {@link ProjectsPayload} because
- * this is device-scoped state rather than user work: docs/workshop.md ("What travels and what does
- * not") keeps the last-opened project out of export files, and a separate storage scope is what
- * lets export take one without the other.
+ * The stored envelope for which project is open.
+ *
+ * This is the one thing about projects that is still in `localStorage`, and deliberately: it is a
+ * small synchronous pointer rather than user work (docs/workshop.md, "Storage substrate"). Losing
+ * it costs a click. Keeping it out of the database is also what lets the answer to "which project
+ * is open" be available before anything has been read, and what keeps it out of an export —
+ * "What travels and what does not" puts the last-opened project firmly in the second column.
  */
 export type ActiveProjectPayload = {
   payloadVersion: typeof ACTIVE_PROJECT_PAYLOAD_VERSION;

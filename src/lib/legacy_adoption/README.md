@@ -15,13 +15,19 @@ artifact store does not adopt them, they are simply not there.
 import { ARTIFACT_KINDS } from '$lib/workshop';
 import { adoptLegacySaves, legacyAdoptionNotice } from '$lib/legacy_adoption';
 
-adoptLegacySaves(ARTIFACT_KINDS);
+await adoptLegacySaves(ARTIFACT_KINDS);
 const notice = legacyAdoptionNotice();
 ```
 
 `adoptLegacySaves` is safe to call on every page load and is meant to be. When there is nothing new
 it reads four storage entries and returns; a browser that never used the old save buttons gets no
 project, no record, and no writes at all.
+
+It is asynchronous because the store is: an artifact is a transaction in
+[`$lib/vault_db`](../vault_db/README.md) now. **Two callers on one page load get one run** — the
+root layout calls this and so does the project bar, and without that they would both read the same
+empty adoption record and adopt everything twice. The record makes a later run a no-op; it cannot
+make a concurrent one a no-op, because it is not written until the first item has been stored.
 
 The registry is a parameter rather than an import, for the reason `$lib/artifacts` takes one: this
 library has no opinion about which kinds exist, and reaching into `$lib/workshop` for the catalog
@@ -33,7 +39,8 @@ would point the dependency the wrong way.
   it adopts. They are small, they are the only fallback if adoption has a bug, and `/saved-data`
   still reads them until #44 retires it.
 - **Running twice adopts nothing twice.** Every adopted item is recorded by a key, and the record
-  is written after each one, so an interrupted run resumes rather than starting over.
+  is written after each one, so an interrupted run resumes rather than starting over. Two
+  overlapping calls share a single run rather than racing.
 - **Nothing is dropped quietly.** An item this build cannot read is reported and left where it is,
   with no adoption key against it, so a later build that understands it will adopt it then.
 - **A browser with no legacy saves is unaffected**, including getting no empty project.

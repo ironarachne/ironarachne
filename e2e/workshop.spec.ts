@@ -36,8 +36,9 @@ test.describe('the workshop', () => {
 
 /**
  * The project context bar is the proof that `$lib/projects` works against a real browser's
- * localStorage: unit tests run against a stub, and "survives a reload" is a claim only a browser
- * can settle. Each test starts from a cleared origin so one run cannot inherit another's projects.
+ * IndexedDB: unit tests run against an in-memory implementation, and "survives a reload" is a
+ * claim only a browser can settle. Each test starts from a cleared origin so one run cannot
+ * inherit another's projects.
  */
 test.describe('workshop projects', () => {
   test.beforeEach(async ({ page }) => {
@@ -67,6 +68,12 @@ test.describe('workshop projects', () => {
 
     await projectContext(page).getByLabel('Name').fill('Dolmenwood Revised');
     await projectContext(page).getByRole('button', { name: 'Rename' }).click();
+    // The option list is redrawn from what the bar re-read after the write committed, so the new
+    // name appearing there is the signal that the database has it. A click only says the handler
+    // started, and reloading on that would race the transaction.
+    await expect(
+      projectContext(page).getByRole('option', { name: 'Dolmenwood Revised' }),
+    ).toHaveCount(1);
 
     await page.reload({ waitUntil: 'load' });
     await expect(projectContext(page).getByText('2 projects')).toBeVisible();
@@ -116,20 +123,33 @@ test.describe('legacy save adoption', () => {
     }, CULTURE_SCOPE_KEY);
   }
 
-  /** The adopted artifacts, read out of the store the way the project view will once #36 lands. */
+  /**
+   * The adopted artifacts, read out of the vault database itself.
+   *
+   * Straight from IndexedDB rather than through the library, because what this suite is for is the
+   * half a unit test cannot reach: that a real browser's database holds the records after a real
+   * page load.
+   */
   async function adoptedArtifactNames(page: Page): Promise<string[]> {
-    return page.evaluate(() => {
-      const prefix = 'ironarachne.save.v1.workshop.artifact_index.';
-      const names: string[] = [];
-      for (let i = 0; i < localStorage.length; i++) {
-        const key = localStorage.key(i);
-        if (key === null || !key.startsWith(prefix)) continue;
-        const index = JSON.parse(localStorage.getItem(key) ?? '{}') as {
-          artifacts?: { name: string }[];
-        };
-        names.push(...(index.artifacts ?? []).map((artifact) => artifact.name));
+    return page.evaluate(async () => {
+      const database = await new Promise<IDBDatabase>((resolve, reject) => {
+        const request = indexedDB.open('ironarachne.vault');
+        request.onsuccess = () => resolve(request.result);
+        request.onerror = () => reject(request.error);
+      });
+      try {
+        if (!database.objectStoreNames.contains('artifacts')) {
+          return [];
+        }
+        return await new Promise<string[]>((resolve, reject) => {
+          const request = database.transaction('artifacts').objectStore('artifacts').getAll();
+          request.onsuccess = () =>
+            resolve((request.result as { name: string }[]).map((record) => record.name));
+          request.onerror = () => reject(request.error);
+        });
+      } finally {
+        database.close();
       }
-      return names;
     });
   }
 
