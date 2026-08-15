@@ -46,6 +46,12 @@ nothing should hold every map in a project resident in memory.
 `projectId` on an artifact record is authoritative; the index is derived from it, never the other
 way round.
 
+A project record carries one field the project itself does not: `lastExportAt`, epoch milliseconds
+of the last successful export of that project. It is a field of the record rather than of the
+`Project` because the user does not edit it and it does not travel in an export file, which is why
+`writeProjectRecord` reads before it writes — a rename must not reset it to "never exported". The
+whole-vault equivalent, `lastVaultExportAt`, is a `meta` key for the same reason.
+
 `byteSize` is recorded at write time because that is the one moment the number is free. Summing it
 over a project's summaries attributes usage per project, which `navigator.storage.estimate()`
 cannot do — that reports for the whole origin. It is JSON size in UTF-8 bytes: attribution, not
@@ -100,6 +106,7 @@ half of that; the scoped keys are cleared through `$lib/persistent_save`.
 
 - **Storage status** — usage, quota, persistence, and what the user is told. It reads `byteSize`
   from the summaries and `navigator.storage` from the browser; neither is this library's business.
+  `$lib/storage_status` assembles it, and the export stamps stored here are what it reads.
 - **Export and import** (#35, #47) — the file format and the vault-sized write.
 - **The hydrated index** — it caches what a domain library decided a record means, so it lives in
   `$lib/projects` and `$lib/artifacts` rather than here.
