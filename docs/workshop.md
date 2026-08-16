@@ -578,7 +578,16 @@ path, and that a broken reference has to be visible where the artifact is shown 
 a validation pass someone has to run.
 
 Reference cycles are possible and acceptable — a realm's ruler is a character from that realm —
-so anything that walks references must tolerate them.
+so anything that walks references must tolerate them. The store does: `collectReferencedArtifacts`
+visits every id once, and a culture and a religion pointing at each other terminate from either
+end (`artifact_loading.test.ts`).
+
+**Today the UI cannot build a cycle**, which #41 found rather than assumed. A reference is recorded
+when an artifact is saved, and saving always makes a new artifact, so a user can build
+`culture → religion → culture` across three artifacts but cannot close the loop over two. Nothing
+here changes: cycles remain legitimate, and the day something can add a reference to an artifact
+that already exists — re-saving over one, or editing its links — the walkers are already ready for
+what it produces.
 
 ## Domain model
 
@@ -1155,24 +1164,24 @@ This answers the remainder of #45.
 Worth being precise about what is already built, since more of the substrate exists than the
 absence of a workshop suggests.
 
-| Piece                      | State                                                                                                                                                                                     |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                             |
-| Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                            |
-| Workshop shell             | **Built (#36).** `/workshop`, linked from navigation and in the tool catalog: project context, a bench of panels, and the project view.                                                   |
-| Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                                   |
-| Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else.     |
-| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                        |
-| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                                             |
-| Projects                   | **Built (#31, #176).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project. Deleting one cascades to its artifacts in a single transaction.             |
-| Generic artifact store     | **Built (#33, #176).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One record per summary, one per payload.                               |
-| Vault database             | **Built (#176).** `src/lib/vault_db` — the five IndexedDB stores of [the storage layer](#the-storage-layer), hydrated summaries, transactional writes that return a result.               |
-| Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place.                     |
-| Storage status             | **Built (#177).** `src/lib/storage_status` — usage, quota, persistence, per-project attribution, and the export stamps, as `StorageStatus`. The panel that displays it is #179.           |
-| The bench                  | **Built (#36).** `src/lib/workspaces` — `ProjectWorkspace` and `PanelState`, persisted per project, reset rather than migrated, and dropped panel by panel when a target is gone.         |
-| Saving from a tool         | **Built for three kinds (#36).** `saveToolArtifact` plus `SaveArtifactButton`; heraldry, culture, and religion save into the open project, and prompt for one on their own routes.        |
-| Artifact editing           | **Framework built (#39), culture fills it (#40).** `openArtifactForEditing`, the dirty/save lifecycle, the destructive re-roll, and the unsaved-edits guard, with a per-kind editor slot. |
-| Composition                | **Built (#37).** `SavedArtifactPicker` offers any registered kind, `loadArtifactValue` rebuilds the choice, and references are recorded, resolved both ways, and shown where they break.  |
+| Piece                      | State                                                                                                                                                                                                       |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                                               |
+| Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                                              |
+| Workshop shell             | **Built (#36).** `/workshop`, linked from navigation and in the tool catalog: project context, a bench of panels, and the project view.                                                                     |
+| Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                                                     |
+| Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else.                       |
+| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                                          |
+| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                                                               |
+| Projects                   | **Built (#31, #176).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project. Deleting one cascades to its artifacts in a single transaction.                               |
+| Generic artifact store     | **Built (#33, #176).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One record per summary, one per payload.                                                 |
+| Vault database             | **Built (#176).** `src/lib/vault_db` — the five IndexedDB stores of [the storage layer](#the-storage-layer), hydrated summaries, transactional writes that return a result.                                 |
+| Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place.                                       |
+| Storage status             | **Built (#177).** `src/lib/storage_status` — usage, quota, persistence, per-project attribution, and the export stamps, as `StorageStatus`. The panel that displays it is #179.                             |
+| The bench                  | **Built (#36).** `src/lib/workspaces` — `ProjectWorkspace` and `PanelState`, persisted per project, reset rather than migrated, and dropped panel by panel when a target is gone.                           |
+| Saving from a tool         | **Built for three kinds (#36).** `saveToolArtifact` plus `SaveArtifactButton`; heraldry, culture, and religion save into the open project, and prompt for one on their own routes.                          |
+| Artifact editing           | **Framework built (#39); culture (#40) and religion (#41) fill it.** `openArtifactForEditing`, the dirty/save lifecycle, the destructive re-roll, and the unsaved-edits guard, with a per-kind editor slot. |
+| Composition                | **Built (#37).** `SavedArtifactPicker` offers any registered kind, `loadArtifactValue` rebuilds the choice, and references are recorded, resolved both ways, and shown where they break.                    |
 
 ## Tool release readiness
 
@@ -1276,8 +1285,8 @@ levels, so a tool's state is legible to users and to us:
 | **Beta**          | Produces durable artifacts. Editing may be partial.                      | Sections 1–3, 6, 7.1–7.2. |
 | **Release-ready** | A full citizen of the workshop.                                          | All sections.             |
 
-Measured against this, **every tool on the site today is Experimental**, except heraldry and
-religion, which are approaching Beta, and **culture, which is Release-ready (#40)**. That is not a
+Measured against this, **every tool on the site today is Experimental**, except heraldry, which is
+approaching Beta, and **culture (#40) and religion (#41), which are Release-ready**. That is not a
 criticism of the tools; it is the size of the gap between what exists and what the workshop needs,
 and it is better stated plainly than discovered one generator at a time.
 
@@ -1347,11 +1356,11 @@ the disclosure.
 
 **Phase 5 — Three tools to Release-ready.**
 
-| Issue            | Depends on | State                                                             |
-| ---------------- | ---------- | ----------------------------------------------------------------- |
-| #40 — culture    | #37, #39   | **Done.** The first kind with an editor, and the first reference. |
-| #41 — religion   | #37, #39   | —                                                                 |
-| #42 — settlement | #37, #39   | —                                                                 |
+| Issue            | Depends on | State                                                                         |
+| ---------------- | ---------- | ----------------------------------------------------------------------------- |
+| #40 — culture    | #37, #39   | **Done.** The first kind with an editor, and the first reference.             |
+| #41 — religion   | #37, #39   | **Done.** Editing inside a list of sub-objects, and both ends of a reference. |
+| #42 — settlement | #37, #39   | —                                                                             |
 
 Independent of every phase and able to land at any point: **#43 — record tool maturity in the
 catalog.** Landing it early is better, because it makes the gap this document describes visible in

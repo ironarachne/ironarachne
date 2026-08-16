@@ -8,12 +8,14 @@
     RELIGION_ARTIFACT_KIND,
     listDomains,
     ALL_RELIGION_DIMENSION_IDS,
-    appendSavedReligion,
+    deityTitleLine,
     loadSavedReligionSnapshots,
     type PolytheisticStandingMode,
-    RELIGION_SAVE_SCOPE_ID,
     type ReligionDimensionId,
+    religionFileStem,
     religionFromSnapshot,
+    religionToMarkdown,
+    religionToPlainText,
     type ReligionGeneratorOptionsSnapshot,
     type ReligionSnapshot,
     type SpiritCosmologyDepthMode,
@@ -25,11 +27,12 @@
   import type { Species } from '$lib/species';
   import type { Religion } from '$lib/religion';
   import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
+  import Download from '$lib/download';
   import { hydrateArtifacts, listArtifactsOfKind, type ArtifactReference } from '$lib/artifacts';
+  import { downloadTextPdf } from '$lib/pdf';
   import { getActiveProject, hydrateProjects } from '$lib/projects';
   import {
     applyImportedScopes,
-    buildExportPayload,
     clearLoadParamFromUrl,
     readReligionLoadParamFromLocation,
     RELIGION_LOAD_PARAM,
@@ -37,8 +40,8 @@
   import { showAlertModal } from '$lib/ui';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
+  import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
   import ExportImportRow from '$components/common/ExportImportRow.svelte';
-  import LoadSnapshotDialog from '$components/common/LoadSnapshotDialog.svelte';
   import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
 
@@ -52,25 +55,35 @@
     material: 'Material',
   };
 
-  let savedReligions = $state<ReligionSnapshot[]>([]);
-  let loadDialogComponent: LoadSnapshotDialog | undefined = $state();
+  // One id per component instance: this generator may be mounted in a workshop panel and on its own
+  // route at the same time, and two sets of checkboxes on a page must not collide on label `for`.
+  const uid = $props.id();
 
   onMount(() => {
-    refreshSavedReligions();
     const seedParam = readReligionLoadParamFromLocation();
     if (seedParam !== null) {
-      const snapshot = loadSavedReligionSnapshots().find((saved) => saved.seed === seedParam);
-      if (snapshot !== undefined) {
-        loadSavedReligion(snapshot);
-      }
+      showLegacyReligionSeeded(seedParam);
       clearLoadParamFromUrl(RELIGION_LOAD_PARAM);
     } else {
       generate();
     }
   });
 
-  function refreshSavedReligions() {
-    savedReligions = loadSavedReligionSnapshots();
+  /**
+   * Show a religion saved under the old per-generator scope, named by the `/saved-data` link that
+   * sent the user here.
+   *
+   * Read-only, and the last thing on this page that touches that scope: religions are saved into a
+   * project now. It stays until `/saved-data` goes (#44), because that page still links here and a
+   * dead link on the page holding someone's saved work is the worst place for one.
+   */
+  function showLegacyReligionSeeded(savedSeed: string) {
+    const found = loadSavedReligionSnapshots().find((saved) => saved.seed === savedSeed);
+    if (found === undefined) {
+      generate();
+      return;
+    }
+    loadSavedReligion(found);
   }
 
   // Filled in by the picker: which saved culture supplies the names, the culture itself rebuilt by
@@ -79,16 +92,62 @@
   let cultureArtifactId: string | undefined = $state();
   let culture: Culture | undefined = $state();
   let cultureReference: ArtifactReference | undefined = $state();
+  let cultureProblem: string | null = $state(null);
 
   /**
-   * What a saved religion records about the culture it borrowed names from, and what it links to.
-   *
-   * The reference is the link: it names the artifact by id, so renaming that culture does not
-   * break it. The name in `generatorOptions` is not a second copy of that — it is the older
-   * per-generator save format, which predates projects and can only carry a name, and it is kept
-   * so a religion saved the old way still says which culture it came from.
+   * The culture the religion **on screen** was actually named from, which is not the same question
+   * as which culture the next roll would use. They differ the moment the box is ticked and nothing
+   * has been rolled since.
    */
-  const savedCultureReferences = $derived(cultureReference === undefined ? [] : [cultureReference]);
+  let namingCulture: Culture | undefined = $state();
+
+  /**
+   * The culture a religion restored from an older save says it was named from, until that culture
+   * arrives.
+   *
+   * A restored religion was named from a culture before this page was open, so nothing here rolled
+   * it and `generate` never ran — and without this, saving it into a project would drop the link it
+   * came with. It is matched by name because a name is all the old format kept, and it clears once
+   * matched so that switching the picker afterwards cannot claim a culture this religion never saw.
+   */
+  let restoredCultureName: string | undefined = $state();
+  $effect(() => {
+    if (restoredCultureName !== undefined && culture?.name === restoredCultureName) {
+      namingCulture = culture;
+      rolledSettings = { ...settingsOnScreen, nameGeneratorSet: culture.nameGenerators.name };
+      restoredCultureName = undefined;
+    }
+  });
+
+  /**
+   * The link to record on whatever is saved, and only when the religion on screen actually used it.
+   *
+   * A reference is a record of what the tool was handed; one written for a religion that named its
+   * own gods would claim an input that was never used.
+   *
+   * The name in `generatorOptions` is not a second copy of this. It is the older per-generator save
+   * format, which predates projects and can only carry a name, and it is kept so a religion saved
+   * the old way still says which culture it came from.
+   */
+  const savedCultureReferences = $derived(
+    namingCulture !== undefined && cultureReference !== undefined ? [cultureReference] : [],
+  );
+
+  /**
+   * A culture has been chosen and has not arrived yet.
+   *
+   * Generating during this window would quietly ignore the choice and name the gods itself, and the
+   * user would have no way of telling that from a religion that took the culture they picked. So
+   * the roll waits — briefly, and only while there is something to wait for. A chosen artifact that
+   * cannot be read reports a problem instead of a value, and waiting on that would be waiting
+   * forever.
+   */
+  const awaitingCulture = $derived(
+    useSavedCulture &&
+      cultureArtifactId !== undefined &&
+      culture === undefined &&
+      cultureProblem === null,
+  );
 
   const rng = new RNG.RNG(Date.now().toString());
   const initialSeed = rng.randomString(13);
@@ -101,18 +160,10 @@
   const humanNameGenSet = Names.getFantasyNameGeneratorSet('human', rng);
   const genConfig = getDefaultReligionGenerationConfig();
 
-  const allSpeciesNames: string[] = [];
   const allSpecies = CommonSpecies.sentient();
+  const allSpeciesNames = allSpecies.map((species) => species.name);
   const allReligionCategories = ReligionCategories.all();
-  const allReligionCategoriesNames: string[] = [];
-
-  for (let i = 0; i < allSpecies.length; i++) {
-    allSpeciesNames.push(allSpecies[i].name);
-  }
-
-  for (let i = 0; i < allReligionCategories.length; i++) {
-    allReligionCategoriesNames.push(allReligionCategories[i].name);
-  }
+  const allReligionCategoriesNames = allReligionCategories.map((category) => category.name);
 
   let selectedSpecies: string[] = $state(['human']);
   let selectedCategories: string[] = $state(allReligionCategories.map((c) => c.name));
@@ -122,20 +173,33 @@
 
   let religion: Religion | null = $state(null);
 
+  /**
+   * The settings the religion **on screen** was made with, as against the controls above, which say
+   * what the next roll would use.
+   *
+   * They diverge the moment a checkbox is touched and nothing has been rolled since, and what an
+   * artifact records about itself has to be the former: provenance is what a re-roll reads back, so
+   * a config naming categories this religion was never drawn from would roll a religion of a
+   * different kind entirely and call it the same one.
+   *
+   * Undefined only before anything has been generated, when there is also nothing to save.
+   */
+  type RolledSettings = {
+    selectedCategories: string[];
+    selectedSpecies: string[];
+    polytheisticStanding: PolytheisticStandingMode;
+    spiritCosmologyDepth: SpiritCosmologyDepthMode;
+    nameGeneratorSet: string;
+  };
+  let rolledSettings: RolledSettings | undefined = $state();
+  const settingsOnScreen = $derived(rolledSettings ?? liveSettings());
+
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
-    if (humanNameGenSet.family === null) {
-      throw new Error('Name set does not have a family name generator.');
-    }
-    if (humanNameGenSet.female === null) {
-      throw new Error('Name set does not have a female name generator.');
-    }
-    if (humanNameGenSet.male === null) {
-      throw new Error('Name set does not have a male name generator.');
-    }
+
     const speciesOptions: Species[] = [];
     for (let i = 0; i < selectedSpecies.length; i++) {
       speciesOptions.push(CommonSpecies.byName(selectedSpecies[i], allSpecies));
@@ -150,46 +214,50 @@
     genConfig.categories = categoryOptions;
     genConfig.polytheisticStanding = polytheisticStanding;
     genConfig.spiritCosmologyDepth = spiritCosmologyDepth;
-    genConfig.nameGenerator = humanNameGenSet.family;
-    genConfig.femaleNameGenerator = humanNameGenSet.female;
-    genConfig.maleNameGenerator = humanNameGenSet.male;
 
-    if (useSavedCulture && culture !== undefined) {
-      if (culture.nameGenerators.family !== null) {
-        genConfig.nameGenerator = culture.nameGenerators.family;
-      }
-      if (culture.nameGenerators.female !== null) {
-        genConfig.femaleNameGenerator = culture.nameGenerators.female;
-      }
-      if (culture.nameGenerators.male !== null) {
-        genConfig.maleNameGenerator = culture.nameGenerators.male;
-      }
-    } else {
-      genConfig.nameGenerator = humanNameGenSet.family;
-      genConfig.femaleNameGenerator = humanNameGenSet.female;
-      genConfig.maleNameGenerator = humanNameGenSet.male;
-    }
+    // A referenced culture supplies the names and nothing else: its family generator names the
+    // religion, and its personal ones name the gods.
+    namingCulture = useSavedCulture ? culture : undefined;
+    const names = namingCulture?.nameGenerators ?? humanNameGenSet;
+    genConfig.nameGenerator = names.family;
+    genConfig.femaleNameGenerator = names.female;
+    genConfig.maleNameGenerator = names.male;
 
     religion = generateReligion(seed, genConfig);
+    rolledSettings = { ...liveSettings(), nameGeneratorSet: names.name };
+  }
+
+  /** What the controls above are set to now — which is what the *next* roll would use. */
+  function liveSettings(): RolledSettings {
+    return {
+      selectedCategories: [...selectedCategories],
+      selectedSpecies: [...selectedSpecies],
+      polytheisticStanding,
+      spiritCosmologyDepth,
+      nameGeneratorSet: humanNameGenSet.name,
+    };
   }
 
   function currentGeneratorOptions(): ReligionGeneratorOptionsSnapshot {
     return {
       lockSeed,
-      selectedCategories: [...selectedCategories],
-      selectedSpecies: [...selectedSpecies],
-      polytheisticStanding,
-      spiritCosmologyDepth,
-      useSavedCulture,
-      savedCultureName: culture?.name,
+      selectedCategories: [...settingsOnScreen.selectedCategories],
+      selectedSpecies: [...settingsOnScreen.selectedSpecies],
+      polytheisticStanding: settingsOnScreen.polytheisticStanding,
+      spiritCosmologyDepth: settingsOnScreen.spiritCosmologyDepth,
+      useSavedCulture: namingCulture !== undefined,
+      savedCultureName: namingCulture?.name,
     };
   }
 
-  function saveReligion() {
-    if (!religion) return;
-    appendSavedReligion(toReligionSnapshot(religion, seed, currentGeneratorOptions()));
-    refreshSavedReligions();
-  }
+  /**
+   * The name pattern set the religion on screen was named from, recorded as provenance.
+   *
+   * It is what makes a re-roll faithful to a religion that borrowed a culture's names: a roll is
+   * handed a seed and a config, so without this it would have to reach back into the store for an
+   * artifact it has no way to ask for, and would silently name the gods from somewhere else.
+   */
+  const nameGeneratorSet = $derived(settingsOnScreen.nameGeneratorSet);
 
   // What a project stores. The generator already owns the conversion, and the options travel with
   // it so a saved religion can be picked back up and rolled on from where it was left.
@@ -197,19 +265,14 @@
     religion === null ? null : toReligionSnapshot(religion, seed, currentGeneratorOptions()),
   );
 
-  function openLoadDialog() {
-    refreshSavedReligions();
-    loadDialogComponent?.open();
-  }
-
   /**
    * The culture a religion saved the old way named, as an artifact in the open project.
    *
    * A per-generator save from before projects existed carries a culture's *name* and nothing else,
    * so this is the only way back to the artifact. It matches or it does not: an unmatched name
-   * leaves the picker empty rather than guessing, and the religion regenerates its own names, per
-   * rule 1. Names are not unique, so the first match wins — which is the most recently updated,
-   * the order `listArtifactsOfKind` returns.
+   * leaves the picker empty rather than guessing, and the religion keeps the names it was saved
+   * with. Names are not unique, so the first match wins — which is the most recently updated, the
+   * order `listArtifactsOfKind` returns.
    *
    * It waits for the store, because this runs on mount and the reads are synchronous against an
    * index that may not have been read yet: without the await, restoring a religion from a link
@@ -239,29 +302,61 @@
     polytheisticStanding = restored.generatorOptions.polytheisticStanding;
     spiritCosmologyDepth = restored.generatorOptions.spiritCosmologyDepth;
     useSavedCulture = restored.generatorOptions.useSavedCulture;
+    namingCulture = undefined;
+    // Restoring is the other way a religion arrives on screen, so it captures its settings too —
+    // from the options it was saved with rather than from the controls, which have just been set
+    // from those same options. The name set is the one thing the old format never kept; the effect
+    // above fills it in if the culture it names turns up.
+    rolledSettings = {
+      selectedCategories: [...restored.generatorOptions.selectedCategories],
+      selectedSpecies: [...restored.generatorOptions.selectedSpecies],
+      polytheisticStanding: restored.generatorOptions.polytheisticStanding,
+      spiritCosmologyDepth: restored.generatorOptions.spiritCosmologyDepth,
+      nameGeneratorSet: humanNameGenSet.name,
+    };
+    restoredCultureName = restored.generatorOptions.useSavedCulture
+      ? restored.generatorOptions.savedCultureName
+      : undefined;
     void selectSavedCultureNamed(restored.generatorOptions.savedCultureName);
     rng.setSeed(seed);
-    loadDialogComponent?.close();
   }
 
-  function handleLoadReligionItem(item: { name: string; seed: string }) {
-    const snapshot = savedReligions.find((s) => s.seed === item.seed);
-    if (snapshot !== undefined) {
-      loadSavedReligion(snapshot);
+  let downloadingPdf = $state(false);
+
+  function exportMarkdown() {
+    if (religion === null) {
+      return;
     }
-  }
-
-  function exportReligionsFile() {
-    const payload = buildExportPayload([RELIGION_SAVE_SCOPE_ID]);
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = 'ironarachne-religions.json';
-    anchor.click();
+    const markdown = religionToMarkdown(religion);
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
+    Download(url, `${religionFileStem(religion)}.md`);
     URL.revokeObjectURL(url);
   }
 
+  async function exportPdf() {
+    if (religion === null || downloadingPdf) {
+      return;
+    }
+    downloadingPdf = true;
+    try {
+      await downloadTextPdf(
+        religion.name,
+        religionToPlainText(religion),
+        `${religionFileStem(religion)}.pdf`,
+      );
+    } finally {
+      downloadingPdf = false;
+    }
+  }
+
+  /**
+   * Take in a file exported by an older build, which lands in the old `localStorage` scope.
+   *
+   * Kept without its matching export button, deliberately. A user who backed religions up that way
+   * must still be able to bring them back — the root layout adopts what lands there into a project
+   * on the next load — but offering to *write* such a file now would produce something missing
+   * every religion saved since, labelled as a backup.
+   */
   async function onImportFile(file: File) {
     let parsed: unknown;
     try {
@@ -278,10 +373,9 @@
       void showAlertModal({ message: result.error, style: 'error' });
       return;
     }
-    refreshSavedReligions();
     if (result.appliedScopes.length > 0) {
       void showAlertModal({
-        message: `Imported scopes: ${result.appliedScopes.join(', ')}.`,
+        message: `Imported ${result.appliedScopes.join(', ')}. Reload to add them to a project.`,
         style: 'success',
       });
       return;
@@ -291,8 +385,6 @@
       style: 'message',
     });
   }
-
-  const loadDialogItems = $derived(savedReligions.map((s) => ({ name: s.name, seed: s.seed })));
 </script>
 
 <GeneratorPage theme="fantasy" title="Fantasy Religion Generator">
@@ -302,27 +394,29 @@
 
   <SeedControls bind:seed bind:lockSeed />
 
-  <div class="input-group">
-    <label for="selected-categories">Allow these religion categories</label>
-    {#each allReligionCategoriesNames as categoryName}
-      <ul>
+  <fieldset class="input-group">
+    <legend>Allow these religion categories</legend>
+    <ul>
+      {#each allReligionCategoriesNames as categoryName (categoryName)}
         <li>
           <input
             type="checkbox"
-            name="selected-categories"
+            name="{uid}-selected-categories"
             bind:group={selectedCategories}
-            id="selected-categories"
+            id="{uid}-category-{categoryName}"
             value={categoryName}
           />
-          {categoryName}
+          <label for="{uid}-category-{categoryName}">{categoryName}</label>
         </li>
-      </ul>
-    {/each}
-  </div>
+      {/each}
+    </ul>
+  </fieldset>
 
   <div class="input-group complexity-controls">
-    <label for="poly-standing">Polytheistic deity standing (when the draw is polytheism)</label>
-    <select id="poly-standing" bind:value={polytheisticStanding}>
+    <label for="{uid}-poly-standing"
+      >Polytheistic deity standing (when the draw is polytheism)</label
+    >
+    <select id="{uid}-poly-standing" bind:value={polytheisticStanding}>
       <option value="random">Random</option>
       <option value="egalitarian">Egalitarian — coequal high gods</option>
       <option value="hierarchical">Hierarchical — uneven cult and precedence</option>
@@ -332,8 +426,8 @@
       Monotheism ignores this. Egalitarian polytheism avoids elevating one king of the gods.
     </p>
 
-    <label for="spirit-depth">Spirit cosmology depth (when the religion has deities)</label>
-    <select id="spirit-depth" bind:value={spiritCosmologyDepth}>
+    <label for="{uid}-spirit-depth">Spirit cosmology depth (when the religion has deities)</label>
+    <select id="{uid}-spirit-depth" bind:value={spiritCosmologyDepth}>
       <option value="random">Random</option>
       <option value="none">None — only the high gods as named</option>
       <option value="shallow"
@@ -348,23 +442,23 @@
     </p>
   </div>
 
-  <div class="input-group">
-    <label for="selected-species">Allow deities of these species</label>
-    {#each allSpeciesNames as speciesName}
-      <ul>
+  <fieldset class="input-group">
+    <legend>Allow deities of these species</legend>
+    <ul>
+      {#each allSpeciesNames as speciesName (speciesName)}
         <li>
           <input
             type="checkbox"
-            name="selected-species"
+            name="{uid}-selected-species"
             bind:group={selectedSpecies}
-            id="selected-species"
+            id="{uid}-species-{speciesName}"
             value={speciesName}
           />
-          {speciesName}
+          <label for="{uid}-species-{speciesName}">{speciesName}</label>
         </li>
-      </ul>
-    {/each}
-  </div>
+      {/each}
+    </ul>
+  </fieldset>
 
   <SavedArtifactPicker
     kind={CULTURE_ARTIFACT_KIND}
@@ -374,26 +468,34 @@
     bind:artifactId={cultureArtifactId}
     bind:value={culture}
     bind:reference={cultureReference}
+    bind:problem={cultureProblem}
   />
 
-  <button onclick={generate}>Generate</button>
-  <button type="button" onclick={saveReligion}>Save</button>
+  <button onclick={generate} disabled={awaitingCulture}>Generate</button>
 
   <SaveArtifactButton
     kind={RELIGION_ARTIFACT_KIND}
     toolPath="/fantasy/religion"
     snapshot={religionSnapshot}
     {seed}
-    config={{ ...currentGeneratorOptions() }}
+    config={{ ...currentGeneratorOptions(), nameGeneratorSet }}
     defaultName={religion?.name ?? ''}
     references={savedCultureReferences}
   />
-  <button type="button" onclick={openLoadDialog}>Load...</button>
-
-  <ExportImportRow onExport={exportReligionsFile} onImport={onImportFile} />
 
   {#if religion}
     <h2>{religion.name}</h2>
+
+    <div class="religion-exports">
+      <button type="button" onclick={exportMarkdown}>Download Markdown</button>
+      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
+    </div>
+
+    {#if namingCulture !== undefined}
+      <!-- Named as borrowed, because it is: the gods are named in that culture's tongue, and the
+           link recorded on a saved religion says which culture it was. -->
+      <p class="religion-naming-culture">Named from the saved culture {namingCulture.name}.</p>
+    {/if}
 
     <p>{religion.description}</p>
 
@@ -454,12 +556,20 @@
         <div>
           <h4>{member.name}</h4>
 
-          <p>{member.titles?.join(',')}</p>
+          <!-- A title is a record with a form per gender, not a string: printing the array
+               straight read as "[object Object]" the moment a god was crowned. -->
+          {#if deityTitleLine(member) !== ''}
+            <p>{deityTitleLine(member)}</p>
+          {/if}
 
           <p><strong>Domains:</strong> {listDomains(member.domains)}</p>
 
-          <p><strong>Holy Item:</strong> {member.holyItem}</p>
-          <p><strong>Holy Symbol:</strong> {member.holySymbol}</p>
+          {#if member.holyItem !== null}
+            <p><strong>Holy Item:</strong> {member.holyItem}</p>
+          {/if}
+          {#if member.holySymbol !== null}
+            <p><strong>Holy Symbol:</strong> {member.holySymbol}</p>
+          {/if}
 
           <p>{member.description}</p>
 
@@ -477,21 +587,50 @@
       {/each}
     {/if}
   {/if}
-</GeneratorPage>
 
-<LoadSnapshotDialog
-  bind:this={loadDialogComponent}
-  title="Load Saved Religion"
-  items={loadDialogItems}
-  onLoad={handleLoadReligionItem}
-  emptyMessage="No saved religions yet. Generate a religion and click Save."
-/>
+  <h2>Older saved religions</h2>
+
+  <p>
+    Religions are saved into a project now. A file exported by an older version of the site can
+    still be brought in here, and it joins a project the next time the page loads.
+  </p>
+
+  <ExportImportRow onImport={onImportFile} />
+</GeneratorPage>
 
 <style>
   .input-group {
+    ul {
+      margin: 0;
+      padding: 0;
+    }
+
     ul > li {
       list-style: none;
     }
+  }
+
+  /* The checkbox lists are grouped, so their heading is a legend rather than a label pointing at
+     one arbitrary box among six. */
+  fieldset.input-group {
+    border: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  fieldset.input-group legend {
+    padding: 0;
+  }
+
+  .religion-exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .religion-naming-culture {
+    font-style: italic;
+    opacity: 0.9;
   }
 
   .dimensions-intro {

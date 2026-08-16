@@ -71,4 +71,29 @@ describe('the artifact editor registry', () => {
     expect(typeof rolled.name).toBe('string');
     expect(rolled.name).not.toBe('');
   });
+
+  /**
+   * Religion is the second kind through the slot (#41), and the one that says whether the slot is
+   * a slot at all: it went in as a registration and a component, with nothing here changed to
+   * accommodate a payload shaped nothing like a culture's.
+   */
+  it('gives religion an editor and a roller', () => {
+    const religion = artifactEditorEntry('religion');
+
+    expect(religion?.loadEditor).toBeDefined();
+    expect(religion?.loadRoller).toBeDefined();
+  });
+
+  it('rolls a religion from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('religion')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/fantasy/religion',
+      seed: 'registry-roll',
+      config: { selectedCategories: ['polytheism'], nameGeneratorSet: 'dwarf' },
+    }) as { name: string; religion: { pantheon: unknown } };
+
+    expect(typeof rolled.name).toBe('string');
+    expect(rolled.name).not.toBe('');
+    expect(rolled.religion.pantheon).not.toBeNull();
+  });
 });

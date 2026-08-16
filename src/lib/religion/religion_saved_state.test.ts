@@ -2,11 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { generateReligion, getDefaultReligionGenerationConfig } from './religion_generation';
 import {
-  appendSavedReligion,
   deleteSavedReligionBySeed,
   loadSavedReligionSnapshots,
   readReligionSavePayload,
   RELIGION_SAVE_SCOPE_ID,
+  saveReligionSnapshots,
 } from './religion_saved_state';
 import { toReligionSnapshot, type ReligionGeneratorOptionsSnapshot } from './religion_snapshot';
 import { SAVE_STORAGE_PREFIX, writeScopedJson } from '$lib/persistent_save';
@@ -57,11 +57,11 @@ describe('religion_saved_state', () => {
     expect(readReligionSavePayload().religions).toEqual([]);
   });
 
-  it('appends and reads religion snapshots', () => {
+  it('reads religion snapshots left by an older build', () => {
     const config = getDefaultReligionGenerationConfig();
     const religion = generateReligion('saved-seed', config);
     const snapshot = toReligionSnapshot(religion, 'saved-seed', sampleGeneratorOptions);
-    appendSavedReligion(snapshot);
+    saveReligionSnapshots([snapshot]);
 
     const loaded = loadSavedReligionSnapshots();
     expect(loaded).toHaveLength(1);
@@ -74,7 +74,7 @@ describe('religion_saved_state', () => {
     const config = getDefaultReligionGenerationConfig();
     const religion = generateReligion('saved-seed', config);
     const snapshot = toReligionSnapshot(religion, 'saved-seed', sampleGeneratorOptions);
-    appendSavedReligion(snapshot);
+    saveReligionSnapshots([snapshot]);
 
     expect(deleteSavedReligionBySeed('saved-seed')).toBe(true);
     expect(loadSavedReligionSnapshots()).toEqual([]);

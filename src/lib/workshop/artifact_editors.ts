@@ -17,11 +17,13 @@ import type { ArtifactEditorEntry, ArtifactEditorRegistry } from './workshop_typ
  * it reports.
  *
  * Adding one is a line here and a component that takes {@link ArtifactEditorProps}. Nothing in
- * the framework changed to accommodate culture, which is the claim the first entry exists to test.
+ * the framework changed to accommodate culture or religion, which is the claim these entries exist
+ * to test: the second kind cost a registration and a component, exactly as the first did.
  *
- * The roller's specifier reaches past `$lib/culture` on purpose: it is a dynamic import, which
- * exists to split a chunk off, and going through the entry point would pull the whole library —
- * generation tables and all — back into the chunk that opening any artifact loads.
+ * The rollers' specifiers reach past `$lib/culture` and `$lib/religion` on purpose: they are
+ * dynamic imports, which exist to split a chunk off, and going through an entry point would pull
+ * the whole library — generation tables and all — back into the chunk that opening any artifact
+ * loads.
  */
 export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
   culture: {
@@ -31,6 +33,15 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         await import('$lib/culture/culture_roll.js');
       return (provenance) =>
         rollCultureSnapshot(provenance.seed, readCultureGeneratorConfig(provenance.config));
+    },
+  },
+  religion: {
+    loadEditor: () => import('$components/factions/ReligionArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readReligionGeneratorConfig, rollReligionSnapshot } =
+        await import('$lib/religion/religion_roll.js');
+      return (provenance) =>
+        rollReligionSnapshot(provenance.seed, readReligionGeneratorConfig(provenance.config));
     },
   },
 };

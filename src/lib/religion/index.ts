@@ -21,7 +21,6 @@ export type * from './non_theistic_religion_types';
 export { generateNonTheisticReligionDetail } from './non_theistic_religion_generation';
 export type * from './religion_types';
 export {
-  appendSavedReligion,
   loadSavedReligionSnapshots,
   readReligionSavePayload,
   RELIGION_SAVE_SCOPE_ID,
@@ -34,6 +33,13 @@ export {
   type ReligionSnapshot,
   type RestoredReligion,
 } from './religion_snapshot';
+export * from './religion_editing';
+export * from './religion_presentation';
+export {
+  readReligionGeneratorConfig,
+  rollReligionSnapshot,
+  type ReligionGeneratorConfigRecord,
+} from './religion_roll';
 
 export * as ReligionCategories from './categories';
 export * from './domains';
