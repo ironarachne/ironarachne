@@ -5,7 +5,6 @@ import { mergeHeraldryGeneratorConfig } from './generatorconfig.js';
 import {
   appendSavedHeraldry,
   dedupeHeraldrySnapshotsByBlazon,
-  deleteSavedHeraldryByBlazon,
   findSavedHeraldrySnapshotByBlazon,
   HERALDRY_SAVE_PAYLOAD_VERSION,
   HERALDRY_SAVE_SCOPE_ID,
@@ -80,19 +79,6 @@ describe('heraldry_saved_state', () => {
     const duplicate = toHeraldrySnapshot(arms, 'different-seed', sampleGeneratorOptions);
     expect(appendSavedHeraldry(duplicate)).toEqual({ ok: false, reason: 'duplicate_blazon' });
     expect(loadSavedHeraldrySnapshots()).toHaveLength(1);
-  });
-
-  it('deletes saved heraldry by blazon', () => {
-    const arms = generateHeraldry(mergeHeraldryGeneratorConfig({ chargeCount: 1 }));
-    const snapshot = toHeraldrySnapshot(arms, 'saved-seed', sampleGeneratorOptions);
-    appendSavedHeraldry(snapshot);
-
-    expect(deleteSavedHeraldryByBlazon(arms.blazon)).toBe(true);
-    expect(loadSavedHeraldrySnapshots()).toEqual([]);
-  });
-
-  it('returns false when deleting heraldry by unknown blazon', () => {
-    expect(deleteSavedHeraldryByBlazon('unknown blazon')).toBe(false);
   });
 
   it('finds saved heraldry by blazon', () => {

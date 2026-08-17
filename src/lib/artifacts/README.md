@@ -14,11 +14,11 @@ here — that is the whole point.
 
 ## Why it replaces the per-generator pattern
 
-`culture_saved_state.ts` writes every culture the user has ever kept into one global scope as a
-flat array, and `persistent_save/saved_data_catalog.ts` names each savable domain explicitly.
-A fourth savable generator means editing the catalog, a union, and a page — and there are
-thirty-five tools. Closed issue #7 proposed extending that pattern to all of them; it was closed
-because it multiplies exactly this.
+`culture_saved_state.ts` wrote every culture the user had ever kept into one global scope as a flat
+array, and `persistent_save/saved_data_catalog.ts` named each savable domain explicitly. A fourth
+savable generator meant editing the catalog, a union, and a page — and there are thirty-five tools.
+Closed issue #7 proposed extending that pattern to all of them; it was closed because it multiplies
+exactly this. The catalog and the page are gone (#44), and those scopes are read-only now.
 
 ## The payload is the truth
 

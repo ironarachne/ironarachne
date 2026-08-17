@@ -36,8 +36,9 @@ would point the dependency the wrong way.
 ## What it guarantees
 
 - **Nothing legacy is touched.** No scope is deleted and none is rewritten — not even the entries
-  it adopts. They are small, they are the only fallback if adoption has a bug, and `/saved-data`
-  still reads them until #44 retires it.
+  it adopts. They are small, and they are the only fallback if adoption has a bug. `/saved-data`
+  used to read them; that page is gone (#44), and the scopes now outlive it as read-only data that
+  the character generators, the heraldry generator, and a bookmarked deep link still draw on.
 - **Running twice adopts nothing twice.** Every adopted item is recorded by a key, and the record
   is written after each one, so an interrupted run resumes rather than starting over. Two
   overlapping calls share a single run rather than racing.

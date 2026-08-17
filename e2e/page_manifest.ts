@@ -58,12 +58,6 @@ export const PAGE_MANIFEST: PageEntry[] = [
     kind: 'hub',
   },
   {
-    path: '/saved-data',
-    title: 'Saved Data | Iron Arachne',
-    heading: 'Saved Data',
-    kind: 'static',
-  },
-  {
     path: '/character',
     title: 'Character | Iron Arachne',
     heading: 'Character',

@@ -4,17 +4,32 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { resetArtifactIndex } from '$lib/artifacts';
 import {
+  CULTURE_SAVE_PAYLOAD_VERSION,
+  CULTURE_SAVE_SCOPE_ID,
   generateCulture,
   getDefaultCultureGenerationConfig,
-  saveCultureSnapshots,
   toCultureSnapshot,
+  type CultureSnapshot,
 } from '$lib/culture';
 import { getFantasyNameGeneratorSet } from '$lib/names';
+import { writeScopedJson } from '$lib/persistent_save';
 import { createProject, resetProjectIndex, setActiveProject } from '$lib/projects';
 import { closeVault } from '$lib/vault_db';
 import { saveToolArtifact } from '$lib/workshop';
 
 import { loadCulturesForNaming } from './character_culture_sources';
+
+/**
+ * Cultures as a build that still wrote to the legacy scope would have left them.
+ *
+ * Written straight to the scope: it is read-only as of #44, so there is no writer left to call.
+ */
+function storeLegacyCultures(cultures: CultureSnapshot[]): void {
+  writeScopedJson(CULTURE_SAVE_SCOPE_ID, {
+    payloadVersion: CULTURE_SAVE_PAYLOAD_VERSION,
+    cultures,
+  });
+}
 
 /** A localStorage the legacy scope can be written into and read back from. */
 function stubLocalStorage() {
@@ -87,7 +102,7 @@ describe('loadCulturesForNaming', () => {
    * character generator that stopped seeing them would look like it had forgotten the user's work.
    */
   it('still offers cultures left in the older save scope', async () => {
-    saveCultureSnapshots([toCultureSnapshot(cultureNamed('Saltmarch'))]);
+    storeLegacyCultures([toCultureSnapshot(cultureNamed('Saltmarch'))]);
 
     expect((await loadCulturesForNaming()).map((culture) => culture.name)).toEqual(['Saltmarch']);
   });
@@ -99,7 +114,7 @@ describe('loadCulturesForNaming', () => {
       payload: toCultureSnapshot(cultureNamed('Emberfolk')),
       toolPath: '/culture',
     });
-    saveCultureSnapshots([
+    storeLegacyCultures([
       toCultureSnapshot(cultureNamed('Emberfolk')),
       toCultureSnapshot(cultureNamed('Saltmarch')),
     ]);

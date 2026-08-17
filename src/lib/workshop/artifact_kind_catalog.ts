@@ -9,9 +9,8 @@ import {
   type ArtifactKindRegistry,
   type PayloadResult,
 } from '$lib/artifact_kinds';
-// Deep on purpose, and measured against the bundle, for the reason
-// `persistent_save/saved_data_catalog.ts` gives for these same three libraries: their entry
-// points reach a generator and from there the species tables. Assembling this registry through
+// Deep on purpose, and measured against the bundle: these three libraries' entry points reach a
+// generator and from there the species tables. Assembling this registry through
 // them costs 296 KB in the chunk that imports it; through the kind modules it costs 4 KB.
 // Everything in the workshop touches this registry, so that difference is paid by any page that
 // so much as lists what a project contains.
