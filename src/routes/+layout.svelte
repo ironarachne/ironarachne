@@ -37,6 +37,19 @@
       console.error(error);
     }
   });
+
+  // Answer other tabs asking whether anyone else has the site open, for as long as this one is.
+  // A restore in one tab under a workshop open in another is how two tabs undo each other's
+  // writes, and this is what lets the import warn before it happens. Registered explicitly rather
+  // than as an import side effect: a tab that only answers once some module happened to load is a
+  // tab that is invisible exactly when a restore is about to run.
+  onMount(() => {
+    let stop: (() => void) | undefined;
+    void import('$lib/vault_db').then(({ announceVaultTab }) => {
+      stop = announceVaultTab();
+    });
+    return () => stop?.();
+  });
 </script>
 
 <Header />

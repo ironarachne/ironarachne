@@ -1,8 +1,14 @@
 /**
- * The five object stores, per the *storage layer* diagram in docs/workshop.md. The names are the
+ * The object stores, per the *storage layer* diagram in docs/workshop.md. The names are the
  * ones written to disk, so renaming one is a schema migration rather than a rename.
  */
-export type VaultStoreName = 'projects' | 'artifacts' | 'artifact_payloads' | 'workspaces' | 'meta';
+export type VaultStoreName =
+  | 'projects'
+  | 'artifacts'
+  | 'artifact_payloads'
+  | 'workspaces'
+  | 'quarantine'
+  | 'meta';
 
 /**
  * Why the database could not do what was asked.
@@ -60,8 +66,26 @@ export type VaultArtifactPayloadRecord = { artifactId: string; payload: unknown 
 /** A record in the `workspaces` store: one project's bench. Not user work; see decision 3. */
 export type VaultWorkspaceRecord = { projectId: string; value: unknown };
 
+/** A record in the `quarantine` store: one thing this build could not read, kept whole. */
+export type VaultQuarantineRecord = { recordId: string };
+
 /** A record in the `meta` store. */
 export type VaultMetaRecord = { key: string; value: unknown };
+
+/**
+ * Everything the vault holds, as records ready to be written in one transaction.
+ *
+ * The unit a whole-vault write works in. It is deliberately structural — the database knows a
+ * record's key and nothing else about what is inside one — so that deciding what a project or an
+ * artifact *is* stays with `$lib/projects` and `$lib/artifacts`.
+ */
+export type VaultContents = {
+  projects: VaultProjectRecord[];
+  artifacts: VaultArtifactRecord[];
+  payloads: VaultArtifactPayloadRecord[];
+  workspaces: VaultWorkspaceRecord[];
+  quarantine: VaultQuarantineRecord[];
+};
 
 /**
  * The keys the `meta` store holds. Kept together because they are the one store with no schema of

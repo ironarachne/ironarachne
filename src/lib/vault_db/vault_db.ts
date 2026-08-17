@@ -10,9 +10,12 @@ import {
   VAULT_META_KEYS,
   type VaultArtifactPayloadRecord,
   type VaultArtifactRecord,
+  type VaultContents,
   type VaultMetaKey,
+  type VaultMetaRecord,
   type VaultResult,
   type VaultStoreName,
+  type VaultWorkspaceRecord,
 } from './vault_db_types';
 
 /**
@@ -322,6 +325,125 @@ export function writeWorkspaceRecord(
 export function deleteWorkspaceRecord(projectId: string): Promise<VaultResult<void>> {
   return withStores(['workspaces'], 'readwrite', async (transaction) => {
     await requestToPromise(transaction.objectStore('workspaces').delete(projectId));
+  });
+}
+
+/** Every stored bench, for a whole-vault export. Reads all of them; callers keyed by project. */
+export function readAllWorkspaceRecords(): Promise<VaultResult<VaultWorkspaceRecord[]>> {
+  return withStores(
+    ['workspaces'],
+    'readonly',
+    async (transaction) =>
+      (await requestToPromise(
+        transaction.objectStore('workspaces').getAll(),
+      )) as VaultWorkspaceRecord[],
+  );
+}
+
+/** Every payload in the vault, by artifact id. What a whole-vault export has to write out. */
+export function readAllArtifactPayloadRecords(): Promise<
+  VaultResult<VaultArtifactPayloadRecord[]>
+> {
+  return withStores(
+    ['artifact_payloads'],
+    'readonly',
+    async (transaction) =>
+      (await requestToPromise(
+        transaction.objectStore('artifact_payloads').getAll(),
+      )) as VaultArtifactPayloadRecord[],
+  );
+}
+
+/** Everything in the `quarantine` store, as it was put there. */
+export function readAllQuarantineRecords(): Promise<VaultResult<unknown[]>> {
+  return withStores(
+    ['quarantine'],
+    'readonly',
+    async (transaction) =>
+      (await requestToPromise(transaction.objectStore('quarantine').getAll())) as unknown[],
+  );
+}
+
+/** Remove one quarantined record — what discarding something unreadable does. */
+export function deleteQuarantineRecord(id: string): Promise<VaultResult<void>> {
+  return withStores(['quarantine'], 'readwrite', async (transaction) => {
+    await requestToPromise(transaction.objectStore('quarantine').delete(id));
+  });
+}
+
+/** The stores a whole-vault write touches. `meta` is in the list so a stamp commits with them. */
+const VAULT_CONTENT_STORES: VaultStoreName[] = [
+  'projects',
+  'artifacts',
+  'artifact_payloads',
+  'workspaces',
+  'quarantine',
+  'meta',
+];
+
+export type WriteVaultContentsOptions = {
+  /**
+   * True to make the vault *become* these contents: every content store is emptied first. False
+   * adds them alongside what is there, which is what a merge does.
+   */
+  replace: boolean;
+  /** Meta values to write in the same transaction, so a stamp cannot outlive a failed write. */
+  meta?: VaultMetaRecord[];
+};
+
+/**
+ * Write a whole vault in **one transaction**.
+ *
+ * This is invariant 1 in docs/workshop.md — commit is all or nothing — implemented rather than
+ * approximated. An import that runs out of quota at artifact 900 of 1000 aborts the transaction,
+ * and IndexedDB unwinds every put in it: storage is byte-identical to what it was before, with no
+ * snapshot to restore and no rollback path of our own to get wrong. A restore that emptied the
+ * stores in one transaction and refilled them in another would have a window in which the user's
+ * whole vault was gone, and a crash inside that window is unrecoverable.
+ *
+ * `meta` is written here rather than after, for the same reason: a stamp saying the vault was
+ * replaced must not survive a replacement that did not happen.
+ */
+export function writeVaultContents(
+  contents: VaultContents,
+  options: WriteVaultContentsOptions,
+): Promise<VaultResult<void>> {
+  return withStores(VAULT_CONTENT_STORES, 'readwrite', async (transaction) => {
+    if (options.replace) {
+      // Not `meta`: the vault id identifies this browser rather than the work in it, and the stamp
+      // recording that `localStorage` was already adopted must survive, or the next connection
+      // adopts those keys all over again.
+      for (const store of [
+        'projects',
+        'artifacts',
+        'artifact_payloads',
+        'workspaces',
+        'quarantine',
+      ] as const) {
+        transaction.objectStore(store).clear();
+      }
+    }
+    for (const project of contents.projects) {
+      transaction.objectStore('projects').put(project);
+    }
+    for (const artifact of contents.artifacts) {
+      transaction.objectStore('artifacts').put(artifact);
+    }
+    for (const payload of contents.payloads) {
+      transaction.objectStore('artifact_payloads').put(payload);
+    }
+    for (const workspace of contents.workspaces) {
+      transaction.objectStore('workspaces').put(workspace);
+    }
+    for (const record of contents.quarantine) {
+      transaction.objectStore('quarantine').put(record);
+    }
+    for (const entry of options.meta ?? []) {
+      transaction.objectStore('meta').put(entry);
+    }
+    // Awaiting one request is enough to surface a rejected put; `runTransaction` resolves on the
+    // commit, which is what the caller is actually waiting for.
+    await requestToPromise(transaction.objectStore('meta').get(VAULT_META_KEYS.schemaVersion));
   });
 }
 

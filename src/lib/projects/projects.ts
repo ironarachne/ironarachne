@@ -76,6 +76,34 @@ export function getProject(id: string): Project | undefined {
 }
 
 /**
+ * A draft as the project the store would write, **without writing it**.
+ *
+ * The one description of what a stored project looks like: how a blank name is filled in, how tags
+ * and the description are normalised, which timestamp goes where. `createProject` writes it a
+ * record at a time; a whole-vault import (#47) stages a vault's worth and commits them in one
+ * transaction, and those two paths agreeing by coincidence is how an imported project ends up
+ * subtly unlike a created one.
+ */
+export function toProjectRecord(
+  draft: ProjectDraft = {},
+  options: ProjectMutationOptions = {},
+): Project {
+  const now = options.now ?? Date.now();
+  const project: Project = {
+    id: options.id ?? newProjectId(),
+    name: normalizeName(draft.name),
+    tags: normalizeTags(draft.tags),
+    createdAt: options.createdAt ?? now,
+    updatedAt: now,
+  };
+  const description = normalizeDescription(draft.description);
+  if (description !== undefined) {
+    project.description = description;
+  }
+  return project;
+}
+
+/**
  * Create an empty project and store it. It does not become active on its own: opening what you
  * just made is a decision the caller states with `setActiveProject`, not a side effect of creating
  * it — a project created in the background must not move the workshop out from under the user.
@@ -92,19 +120,7 @@ export async function createProject(
     return ready;
   }
 
-  const now = options.now ?? Date.now();
-  const project: Project = {
-    id: options.id ?? newProjectId(),
-    name: normalizeName(draft.name),
-    tags: normalizeTags(draft.tags),
-    createdAt: options.createdAt ?? now,
-    updatedAt: now,
-  };
-  const description = normalizeDescription(draft.description);
-  if (description !== undefined) {
-    project.description = description;
-  }
-
+  const project = toProjectRecord(draft, options);
   const written = await writeProjectRecord(project);
   if (!written.ok) {
     return written;

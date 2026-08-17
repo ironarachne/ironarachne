@@ -1,6 +1,7 @@
 import type { QuarantineReason } from '$lib/artifact_kinds';
+import type { QuarantinedArtifact } from '$lib/quarantine';
 
-import type { ImportSummary, QuarantinedArtifact } from './vault_file_types';
+import type { ImportSummary } from './vault_file_types';
 
 /**
  * How many quarantined artifacts are named before the message starts counting. Past a handful the
@@ -41,7 +42,17 @@ function namedQuarantine(quarantined: QuarantinedArtifact[]): string {
 export function describeImportSummary(summary: ImportSummary): string[] {
   const lines: string[] = [];
 
-  if (summary.projectsAdded > 0) {
+  if (summary.empty === true) {
+    // Valid, and said rather than counted as success: a user who exported nothing should be told
+    // so, not congratulated on restoring a backup of nothing.
+    lines.push('That file held no projects at all.');
+  }
+
+  if (summary.mode === 'restore') {
+    lines.push(
+      `Restored ${count(summary.projectsAdded, 'project')} holding ${count(summary.artifactsAdded, 'artifact')}, replacing everything that was here.`,
+    );
+  } else if (summary.projectsAdded > 0) {
     lines.push(
       `Added ${count(summary.projectsAdded, 'project')} holding ${count(summary.artifactsAdded, 'artifact')}.`,
     );
@@ -54,6 +65,20 @@ export function describeImportSummary(summary: ImportSummary): string[] {
   if (summary.projectsRemoved > 0 || summary.artifactsRemoved > 0) {
     lines.push(
       `Removed ${count(summary.projectsRemoved, 'project')} and ${count(summary.artifactsRemoved, 'artifact')}.`,
+    );
+  }
+
+  if (summary.backupFileName !== undefined) {
+    // The undo, named. A restore that says what it destroyed without saying where the copy went
+    // has told the user the frightening half and withheld the reassuring one.
+    lines.push(
+      `Everything you had first went to ${summary.backupFileName}. That file is the undo — keep it until you are sure.`,
+    );
+  }
+
+  if (summary.recoveredProjectId !== undefined) {
+    lines.push(
+      'Some artifacts arrived without the project they belonged to, and are in a project called “Recovered artifacts”.',
     );
   }
 

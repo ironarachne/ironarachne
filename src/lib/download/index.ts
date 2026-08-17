@@ -9,3 +9,4 @@ export default function downloadInBrowser(href: string, name: string) {
 }
 
 export { default as saveSvgAsPng } from './svg_to_png';
+export { downloadTextFile } from './download_text_file';

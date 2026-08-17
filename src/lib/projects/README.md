@@ -98,12 +98,12 @@ small synchronous pointer rather than user work, losing it costs a click, and ke
 database is part of what keeps it out of an export.
 
 A stored record that does not validate is dropped when the index is hydrated, and the rest are
-kept. That is the one place this library falls short of "nothing is dropped silently", and it is
-deliberate: quarantine needs somewhere to put a bad record. Import has one now —
-[`$lib/vault_file`](../vault_file/README.md) reports what it cannot read rather than dropping it —
-but it reports into a summary rather than into a store, so there is still nowhere to put a bad
-record found while _reading storage_. That store arrives with #47. `toProject` is the single
-function that has to change to route them there instead.
+kept. That is the one place this library falls short of "nothing is dropped silently". There is
+somewhere to put a bad record now — [`$lib/quarantine`](../quarantine/README.md) — and `toProject`
+is still the single function that has to change to route them there instead of dropping them. It
+has not been, because a project record carries no payload: everything in one is a handful of fields
+the user can type again, where the artifacts it named are the part that cannot be replaced, and
+those are kept by their own project id whether or not a project record survived.
 
 ## Deleting
 

@@ -41,6 +41,7 @@ nothing should hold every map in a project resident in memory.
 | `artifacts`         | `id`         | The summary, with `payloadVersion` and `byteSize`; indexed `by_projectId` |
 | `artifact_payloads` | `artifactId` | `{ artifactId, payload }`, read only when an artifact is opened           |
 | `workspaces`        | `projectId`  | `{ projectId, value }` — the bench. Not user work                         |
+| `quarantine`        | `recordId`   | Records this build cannot read, kept verbatim; see `$lib/quarantine`      |
 | `meta`              | `key`        | Schema version, vault id, last vault export, adoption stamp               |
 
 `projectId` on an artifact record is authoritative; the index is derived from it, never the other
@@ -107,7 +108,10 @@ half of that; the scoped keys are cleared through `$lib/persistent_save`.
 - **Storage status** — usage, quota, persistence, and what the user is told. It reads `byteSize`
   from the summaries and `navigator.storage` from the browser; neither is this library's business.
   `$lib/storage_status` assembles it, and the export stamps stored here are what it reads.
-- **Export and import** — the file format is [`$lib/vault_file`](../vault_file/README.md) (#35).
-  What it reads from here is the payload records, verbatim; the vault-sized write is #47.
+- **Export and import** — the file format is [`$lib/vault_file`](../vault_file/README.md). What it
+  reads from here is the payload records, verbatim; what it writes goes through `writeVaultContents`,
+  which is the vault-sized write in a single transaction.
+- **What a quarantined record means** — the `quarantine` store is here, and
+  [`$lib/quarantine`](../quarantine/README.md) is what decides what one is.
 - **The hydrated index** — it caches what a domain library decided a record means, so it lives in
   `$lib/projects` and `$lib/artifacts` rather than here.

@@ -45,8 +45,19 @@ export const LEGACY_SAVE_SCOPES: readonly LegacySaveScope[] = [
  * adoption guess.
  */
 export function readLegacyScope(scope: LegacySaveScope): LegacyScopeContents {
-  const raw = readScopedJson(scope.scopeId);
-  if (raw === null) {
+  return legacyScopeContents(scope, readScopedJson(scope.scopeId));
+}
+
+/**
+ * The same reading, applied to a value from anywhere.
+ *
+ * Split from {@link readLegacyScope} because these envelopes reach the site by two routes now:
+ * sitting in `localStorage` where an old build left them, and inside a `save_file_export` file
+ * someone kept (#47). One function decides what a legacy envelope means, so a file restored in two
+ * years is read exactly as the same data in storage would be.
+ */
+export function legacyScopeContents(scope: LegacySaveScope, raw: unknown): LegacyScopeContents {
+  if (raw === null || raw === undefined) {
     return { scope, status: 'absent', payloadVersion: 0, items: [] };
   }
 

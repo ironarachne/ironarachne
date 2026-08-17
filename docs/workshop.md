@@ -705,9 +705,9 @@ The diagram above is what a user thinks in. This one is what is written to disk,
 into a **summary** and a **payload** held in separate object stores, so listing a project does not
 read a single map.
 
-Five object stores — `projects`, `artifacts`, `artifact_payloads`, `workspaces`, and `meta`. Each
-class below is one store's record shape, and the edge label from `VaultDatabase` is the store's
-name.
+Six object stores — `projects`, `artifacts`, `artifact_payloads`, `workspaces`, `quarantine`, and
+`meta`. Each class below is one store's record shape, and the edge label from `VaultDatabase` is
+the store's name. `quarantine` arrived with #47, in schema version 2.
 
 ```mermaid
 classDiagram
@@ -745,6 +745,17 @@ classDiagram
         +string projectId
         +ProjectWorkspace value
     }
+    class QuarantineRecord {
+        <<objectStore>>
+        +string recordId
+        +string id
+        +string projectId
+        +string kind
+        +string name
+        +unknown raw
+        +QuarantineReason reason
+        +number quarantinedAt
+    }
     class MetaRecord {
         <<objectStore>>
         +string key
@@ -760,6 +771,7 @@ classDiagram
     VaultDatabase "1" *-- "*" ArtifactSummaryRecord : artifacts
     VaultDatabase "1" *-- "*" ArtifactPayloadRecord : artifact_payloads
     VaultDatabase "1" *-- "*" WorkspaceRecord : workspaces
+    VaultDatabase "1" *-- "*" QuarantineRecord : quarantine
     VaultDatabase "1" *-- "*" MetaRecord : meta
     ArtifactSummaryRecord "1" *-- "1" ArtifactPayloadRecord : payload, loaded on demand
     ArtifactSummaryRecord "*" --> "1" ProjectRecord : by_projectId index
@@ -785,6 +797,16 @@ Reading it:
 - **A cascade is one transaction.** Deleting a project removes its artifacts, their payloads, and
   its workspace atomically, which is the ownership the first diagram draws with filled diamonds and
   the thing `localStorage` could only approximate.
+- **A whole-vault write is one transaction too**, across every content store at once (#47). That is
+  what makes [invariant 1](#two-invariants) structural rather than remembered: an import that runs
+  out of quota part way aborts, and IndexedDB unwinds every put in it, so there is no rollback path
+  of our own to get wrong — and no window in which a restore has emptied the vault but not refilled
+  it.
+- **`QuarantineRecord` is keyed by `recordId`, not by the record's own `id`.** A record damaged
+  enough to have lost its id has nothing to be filed under, and two of those would overwrite each
+  other — which would be the quarantine store losing the work it exists to keep. It is deliberately
+  outside the project cascade: a record nothing can read is not owned by a project that may not
+  exist.
 
 ### Storage status
 
@@ -1055,11 +1077,12 @@ disagree quietly:
   able to take the user to, and an import that succeeds while leaving someone to hunt through a
   project list for what arrived has told them less than it knew.
 
-Quarantined records are **reported and not stored** in this build: there is no object store for
-them in [the storage layer](#the-storage-layer), and the file the user still holds is where they
-survive. That is enough while import always adds — the file is never consumed. It stops being
-enough at #47, where a quarantined artifact has to survive a subsequent vault export, and the store
-for them lands there with the scope that needs it.
+Quarantined records are stored, as of #47: the `quarantine` object store holds them and
+`$lib/quarantine` reads them. They are **re-emitted into a file's ordinary `artifacts` array** on
+export rather than into a compartment of their own, which is what makes the promise real — a build
+that has since learned the missing kind imports one as a normal artifact, with no code that knows
+quarantine ever happened. A body with a quarantine section would make every future reader look in
+two places for the same thing.
 
 ### Decisions taken here
 
@@ -1182,25 +1205,26 @@ This answers the remainder of #45.
 Worth being precise about what is already built, since more of the substrate exists than the
 absence of a workshop suggests.
 
-| Piece                      | State                                                                                                                                                                                                       |
-| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                                               |
-| Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                                              |
-| Workshop shell             | **Built (#36).** `/workshop`, linked from navigation and in the tool catalog: project context, a bench of panels, and the project view.                                                                     |
-| Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                                                     |
-| Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else.                       |
-| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                                          |
-| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own. Superseded by `src/lib/vault_file`; retired by #47.           |
-| The file format            | **Built (#35).** `src/lib/vault_file` — the envelope, the canonical body, the checksum, the parser, and the migration chain. Project and artifact export and import; the vault scope parses and is refused. |
-| Projects                   | **Built (#31, #176).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project. Deleting one cascades to its artifacts in a single transaction.                               |
-| Generic artifact store     | **Built (#33, #176).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One record per summary, one per payload.                                                 |
-| Vault database             | **Built (#176).** `src/lib/vault_db` — the five IndexedDB stores of [the storage layer](#the-storage-layer), hydrated summaries, transactional writes that return a result.                                 |
-| Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place.                                       |
-| Storage status             | **Built (#177).** `src/lib/storage_status` — usage, quota, persistence, per-project attribution, and the export stamps, as `StorageStatus`. The panel that displays it is #179.                             |
-| The bench                  | **Built (#36).** `src/lib/workspaces` — `ProjectWorkspace` and `PanelState`, persisted per project, reset rather than migrated, and dropped panel by panel when a target is gone.                           |
-| Saving from a tool         | **Built for three kinds (#36).** `saveToolArtifact` plus `SaveArtifactButton`; heraldry, culture, and religion save into the open project, and prompt for one on their own routes.                          |
-| Artifact editing           | **Framework built (#39); culture (#40) and religion (#41) fill it.** `openArtifactForEditing`, the dirty/save lifecycle, the destructive re-roll, and the unsaved-edits guard, with a per-kind editor slot. |
-| Composition                | **Built (#37).** `SavedArtifactPicker` offers any registered kind, `loadArtifactValue` rebuilds the choice, and references are recorded, resolved both ways, and shown where they break.                    |
+| Piece                      | State                                                                                                                                                                                                                                                                   |
+| -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                                                                                                           |
+| Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                                                                                                          |
+| Workshop shell             | **Built (#36).** `/workshop`, linked from navigation and in the tool catalog: project context, a bench of panels, and the project view.                                                                                                                                 |
+| Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                                                                                                                 |
+| Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else.                                                                                   |
+| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                                                                                                      |
+| Save file export/import    | **Superseded, still present.** `save_file_export.ts` exports storage scopes and rejects any `formatVersion` but its own. `src/lib/vault_file` replaces it and **reads its files** (#47), so retiring it is now #44's to do.                                             |
+| The file format            | **Built (#35, #47).** `src/lib/vault_file` — the envelope, the canonical body, the checksum, the parser, and the migration chain, at all three scopes. Restore and merge, the pre-restore backup, quarantine, the capacity check, gzip sniffing, and legacy save files. |
+| Quarantine                 | **Built (#47).** `src/lib/quarantine` and the `quarantine` object store — records this build cannot interpret, kept verbatim, listed, and carried in every subsequent export until a build that understands them arrives.                                               |
+| Projects                   | **Built (#31, #176).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project. Deleting one cascades to its artifacts in a single transaction.                                                                                           |
+| Generic artifact store     | **Built (#33, #176).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One record per summary, one per payload.                                                                                                             |
+| Vault database             | **Built (#176).** `src/lib/vault_db` — the five IndexedDB stores of [the storage layer](#the-storage-layer), hydrated summaries, transactional writes that return a result.                                                                                             |
+| Legacy save adoption       | **Built (#34).** `src/lib/legacy_adoption` — the three `generator.*` scopes become artifacts in a project on page load, idempotently, leaving the originals in place.                                                                                                   |
+| Storage status             | **Built (#177).** `src/lib/storage_status` — usage, quota, persistence, per-project attribution, and the export stamps, as `StorageStatus`. The panel that displays it is #179.                                                                                         |
+| The bench                  | **Built (#36).** `src/lib/workspaces` — `ProjectWorkspace` and `PanelState`, persisted per project, reset rather than migrated, and dropped panel by panel when a target is gone.                                                                                       |
+| Saving from a tool         | **Built for three kinds (#36).** `saveToolArtifact` plus `SaveArtifactButton`; heraldry, culture, and religion save into the open project, and prompt for one on their own routes.                                                                                      |
+| Artifact editing           | **Framework built (#39); culture (#40) and religion (#41) fill it.** `openArtifactForEditing`, the dirty/save lifecycle, the destructive re-roll, and the unsaved-edits guard, with a per-kind editor slot.                                                             |
+| Composition                | **Built (#37).** `SavedArtifactPicker` offers any registered kind, `loadArtifactValue` rebuilds the choice, and references are recorded, resolved both ways, and shown where they break.                                                                                |
 
 ## Tool release readiness
 

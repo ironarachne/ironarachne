@@ -1,7 +1,10 @@
 import { asRecord } from '$lib/artifact_kinds';
 import { toArtifactSummary } from '$lib/artifacts';
 import { toProject } from '$lib/projects';
+import type { QuarantinedArtifact } from '$lib/quarantine';
 import { toProjectWorkspace } from '$lib/workspaces';
+
+import { legacySaveFileToEnvelope, looksLikeLegacySaveFile } from './vault_file_legacy';
 
 import {
   EXPORT_FORMAT_MARKER,
@@ -14,7 +17,6 @@ import {
   type ExportFormatMigration,
   type ExportedArtifact,
   type ProjectBody,
-  type QuarantinedArtifact,
   type VaultBody,
 } from './vault_file_types';
 
@@ -196,7 +198,12 @@ export async function parseExportFile(
     );
   }
 
-  const record = asRecord(parsed);
+  // A file the old exporter wrote is one of ours too, and is read by translating it into an
+  // envelope rather than by a second import path — see `vault_file_legacy.ts`. It happens before
+  // the marker check because a legacy file carries a different marker, which is precisely what
+  // makes it look foreign to a reader that only knows the current one.
+  const legacy = looksLikeLegacySaveFile(parsed) ? legacySaveFileToEnvelope(parsed) : undefined;
+  const record = legacy ?? asRecord(parsed);
   if (record === null || record.format !== EXPORT_FORMAT_MARKER) {
     return rejected(
       'not-ours',
