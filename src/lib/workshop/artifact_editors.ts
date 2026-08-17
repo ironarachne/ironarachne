@@ -3,7 +3,7 @@ import type { ArtifactKind } from '$lib/artifact_kinds';
 import type { ArtifactEditorEntry, ArtifactEditorRegistry } from './workshop_types';
 
 /**
- * Which component edits each artifact kind, keyed by kind id.
+ * What each artifact kind contributes to the panel it opens in, keyed by kind id.
  *
  * Assembled statically, in one list, exactly like `TOOL_PANELS` and `ARTIFACT_KINDS` beside it,
  * and for the same two reasons: a bundler can only split a dynamic import whose specifier it can
@@ -26,6 +26,17 @@ import type { ArtifactEditorEntry, ArtifactEditorRegistry } from './workshop_typ
  * loads.
  */
 export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
+  /**
+   * A viewer and no editor, which is heraldry's honest state: it can draw itself and hand you an
+   * SVG or a PNG (requirement 6.3), and it has no editing view (4.1). Registering it as an editor
+   * to get the drawing would claim a readiness it does not have.
+   *
+   * The viewer is why `/saved-data` could be retired (#44): a saved coat of arms is seen and
+   * downloaded here now, which was the one affordance that page had and the project view did not.
+   */
+  heraldry: {
+    loadViewer: () => import('$components/heraldry/HeraldryArtifactView.svelte'),
+  },
   culture: {
     loadEditor: () => import('$components/factions/CultureArtifactEditor.svelte'),
     loadRoller: async () => {
@@ -46,7 +57,7 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
   },
 };
 
-/** The editor registration for a kind, or undefined when it has none and opens read-only. */
+/** What a kind registered, or undefined when it registered nothing and opens on the generic view. */
 export function artifactEditorEntry(
   kind: ArtifactKind,
   registry: ArtifactEditorRegistry = ARTIFACT_EDITORS,
@@ -54,17 +65,23 @@ export function artifactEditorEntry(
   return registry[kind];
 }
 
-/** Whether a kind can be edited at all. Answers without loading the component. */
+/**
+ * Whether a kind can be **edited**, which is not the same as whether it registered anything.
+ *
+ * A kind with a viewer and no editor answers false here, and that is the point: "this artifact can
+ * be changed" is a claim about 4.1 in docs/workshop.md, and a registry that answered true because
+ * heraldry can draw itself would put a save button in front of a surface with nothing to save.
+ */
 export function hasArtifactEditor(
   kind: ArtifactKind,
   registry: ArtifactEditorRegistry = ARTIFACT_EDITORS,
 ): boolean {
-  return artifactEditorEntry(kind, registry) !== undefined;
+  return artifactEditorEntry(kind, registry)?.loadEditor !== undefined;
 }
 
-/** Every kind with an editor registered, in registry order. */
+/** Every kind with an editing view, in registry order. Viewer-only kinds are not among them. */
 export function kindsWithArtifactEditors(
   registry: ArtifactEditorRegistry = ARTIFACT_EDITORS,
 ): ArtifactKind[] {
-  return Object.keys(registry);
+  return Object.keys(registry).filter((kind) => hasArtifactEditor(kind, registry));
 }

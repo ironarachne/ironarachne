@@ -123,6 +123,24 @@ export type ArtifactRoller = (provenance: ArtifactProvenance) => unknown;
 export type ArtifactRollerLoader = () => Promise<ArtifactRoller>;
 
 /**
+ * What a kind's read-only view is handed. The snapshot, and nothing to say back.
+ *
+ * Separate from {@link ArtifactEditorProps} because they answer different requirements in
+ * docs/workshop.md: 4.1 asks for an **editing view** covering every field a user would want to
+ * change, and 6.3 asks for **output a user can take to the table** — a rendered coat of arms, an
+ * SVG, a PDF. A kind can have the second long before it has the first, and heraldry does. Handing
+ * a viewer an `onChange` it must never call would make "this kind is editable" a claim the
+ * registry could no longer answer honestly.
+ */
+export type ArtifactViewerProps = {
+  /** The stored snapshot, as the kind's `validate` accepted it. */
+  snapshot: unknown;
+};
+
+/** Loads a kind's read-only view, deferred for the same reason an editor is. */
+export type ArtifactViewerLoader = () => Promise<{ default: Component<ArtifactViewerProps> }>;
+
+/**
  * What a kind registers to become editable.
  *
  * The roller sits beside the editor rather than in the kind registry because re-rolling exists to
@@ -131,15 +149,28 @@ export type ArtifactRollerLoader = () => Promise<ArtifactRoller>;
  * keeps "this artifact can be re-rolled" from being true of artifacts nobody can edit.
  */
 export type ArtifactEditorEntry = {
-  loadEditor: ArtifactEditorLoader;
+  /** Absent when the kind cannot be edited yet, and then {@link loadViewer} decides what is shown. */
+  loadEditor?: ArtifactEditorLoader;
   /** Absent when the kind cannot regenerate itself from provenance; then re-roll is not offered. */
   loadRoller?: ArtifactRollerLoader;
+  /**
+   * How the kind renders itself when it is not being edited.
+   *
+   * Absent for most kinds, which fall back to the generic snapshot view — the snapshot itself,
+   * honestly, rather than a pretence at a view of it. A kind supplies one when the generic view
+   * would be actively worse than what it can draw: a coat of arms shown as a list of tincture
+   * names is not a coat of arms.
+   */
+  loadViewer?: ArtifactViewerLoader;
 };
 
 /**
- * The editor for each artifact kind, keyed by kind id. Partial because a kind is storable long
- * before it is editable — every kind starts that way, and until it registers here its artifacts
- * open read-only rather than not opening at all.
+ * What each artifact kind contributes to the panel an artifact opens in, keyed by kind id.
+ *
+ * Partial because a kind is storable long before it is editable — every kind starts that way, and
+ * until it registers here its artifacts open read-only rather than not opening at all. An entry
+ * with only a `loadViewer` is a kind that can show itself properly but not yet be changed, which
+ * is a real state and not a half-finished one.
  */
 export type ArtifactEditorRegistry = Partial<Record<ArtifactKind, ArtifactEditorEntry>>;
 
@@ -168,6 +199,8 @@ export type ArtifactEditingTarget = {
   loadEditor?: ArtifactEditorLoader;
   /** The kind's roller. See {@link ArtifactEditorEntry} for why it travels with the editor. */
   loadRoller?: ArtifactRollerLoader;
+  /** The kind's read-only view, used when it has no editor. Absent falls back to the generic one. */
+  loadViewer?: ArtifactViewerLoader;
 };
 
 /**

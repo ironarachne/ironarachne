@@ -560,18 +560,44 @@ test.describe('editing a saved artifact', () => {
   test('opens a kind with no editor read-only, and offers nothing destructive', async ({
     page,
   }) => {
-    // Heraldry is the standing example, and the ordinary state for most of the site: a kind that
-    // stores artifacts long before anything can edit them.
+    // Heraldry is the standing example of a kind that stores artifacts long before anything can
+    // edit them. It draws itself (requirement 6.3) without having an editing view (4.1), and the
+    // panel has to tell those two apart.
     await openASavedArtifact(page, /^Heraldry/, 'Emberhold arms');
     const panel = artifactPanel(page);
 
-    // Read-only means the stored snapshot, shown honestly — not a blank panel and not an error.
-    await panel.getByText('Contents').click();
-    await expect(panel).toContainText('Blazon');
+    // The arms, drawn — not a list of tincture names, which is what the generic view would give.
+    // The direct child, because a charge is an SVG nested inside the device's own.
+    await expect(panel.locator('.heraldry-artifact__device > svg')).toBeVisible();
+    await expect(panel.locator('.heraldry-artifact__blazon')).not.toBeEmpty();
     await expect(panel.getByRole('alert')).toHaveCount(0);
-    // Re-rolling is registered by the same entry an editor is, so a kind with no editor has
-    // nothing that could overwrite a payload from a seed.
+
+    // Read-only all the same: nothing to save, and nothing that could overwrite the payload.
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
     await expect(panel.getByRole('button', { name: 'Roll again' })).toHaveCount(0);
+  });
+
+  /**
+   * The affordance `/saved-data` had and the project view did not (#44). Downloading a *saved*
+   * coat of arms is not the same as downloading the one the generator happens to be showing, and
+   * retiring that page without this would have taken a capability away from users.
+   */
+  test('downloads a saved coat of arms as SVG and as PNG', async ({ page }) => {
+    await openASavedArtifact(page, /^Heraldry/, 'Emberhold arms');
+    const panel = artifactPanel(page);
+
+    const [svg] = await Promise.all([
+      page.waitForEvent('download'),
+      panel.getByRole('button', { name: 'Download SVG' }).click(),
+    ]);
+    expect(svg.suggestedFilename()).toMatch(/^heraldry-.+\.svg$/);
+
+    const [png] = await Promise.all([
+      page.waitForEvent('download'),
+      panel.getByRole('button', { name: 'Download PNG' }).click(),
+    ]);
+    expect(png.suggestedFilename()).toMatch(/^heraldry-.+\.png$/);
+    await expect(panel.getByRole('alert')).toHaveCount(0);
   });
 
   /**
