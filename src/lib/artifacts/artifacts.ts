@@ -147,6 +147,45 @@ export function listArtifactReferrers(projectId: string, id: string): ArtifactSu
 }
 
 /**
+ * A draft as the summary the store would write, **without writing it**.
+ *
+ * Split out so that the one description of what a stored artifact looks like — how a blank name is
+ * filled in, how tags and references are normalised, which timestamp goes where — has exactly one
+ * home. `createArtifact` writes it a record at a time; a whole-vault import (#47) stages thousands
+ * of them and commits in a single transaction, and those two paths agreeing about the shape by
+ * coincidence is how an imported artifact ends up subtly unlike a saved one.
+ *
+ * The payload must already have been through the kind's `validate`: the version and the byte size
+ * recorded here describe *that* value, not the one the caller started with.
+ */
+export function toArtifactSummaryRecord(
+  entry: AnyArtifactKindEntry,
+  draft: ArtifactDraft,
+  payload: unknown,
+  options: ArtifactMutationOptions = {},
+): ArtifactSummary {
+  const now = options.now ?? Date.now();
+  const name = (draft.name ?? '').trim();
+  const summary: ArtifactSummary = {
+    id: options.id ?? newArtifactId(),
+    projectId: draft.projectId,
+    kind: draft.kind,
+    name: name === '' ? defaultArtifactName(entry, payload) : name,
+    tags: normalizeTags(draft.tags),
+    references: normalizeReferences(draft.references),
+    payloadVersion: entry.payloadVersion,
+    byteSize: payloadByteSize(payload),
+    createdAt: options.createdAt ?? now,
+    updatedAt: now,
+  };
+  const provenance = normalizeProvenance(draft.provenance);
+  if (provenance !== undefined) {
+    summary.provenance = provenance;
+  }
+  return summary;
+}
+
+/**
  * Create an artifact and store it.
  *
  * The payload is validated against its kind first, so the store never writes something the kind
@@ -189,24 +228,7 @@ export async function createArtifact(
     throw new Error(`artifact id "${id}" is already in use`);
   }
 
-  const now = options.now ?? Date.now();
-  const name = (draft.name ?? '').trim();
-  const summary: ArtifactSummary = {
-    id,
-    projectId: draft.projectId,
-    kind: draft.kind,
-    name: name === '' ? defaultArtifactName(entry, validated.value) : name,
-    tags: normalizeTags(draft.tags),
-    references: normalizeReferences(draft.references),
-    payloadVersion: entry.payloadVersion,
-    byteSize: payloadByteSize(validated.value),
-    createdAt: options.createdAt ?? now,
-    updatedAt: now,
-  };
-  const provenance = normalizeProvenance(draft.provenance);
-  if (provenance !== undefined) {
-    summary.provenance = provenance;
-  }
+  const summary = toArtifactSummaryRecord(entry, draft, validated.value, { ...options, id });
 
   const written = await writeArtifactRecord(summary, validated.value);
   if (!written.ok) {

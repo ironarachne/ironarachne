@@ -938,6 +938,143 @@ test.describe('project export and import', () => {
 });
 
 /**
+ * Whole-vault export and import (#47), end to end.
+ *
+ * The library tests prove the format against real generator output; what only a browser can settle
+ * is that a vault genuinely leaves and genuinely comes back — a real download, a real file input,
+ * and storage that was actually cleared in between. In an application with no server copy, this is
+ * the operation everything else depends on.
+ */
+test.describe('vault export and import', () => {
+  const vaultTransfer = (page: Page) => page.locator('section.vault-transfer');
+  const confirmDialog = (page: Page) => page.locator('dialog.ironarachne-modal');
+
+  function artifactRow(page: Page, name: string) {
+    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await openEmptyWorkshop(page);
+  });
+
+  async function saveACulture(page: Page, name: string): Promise<void> {
+    await mountTool(page, /^Culture/);
+    const saveArtifact = panels(page)
+      .filter({ has: page.getByRole('heading', { name: /Culture Generator/ }) })
+      .locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(artifactRow(page, name)).toBeVisible();
+  }
+
+  async function exportVault(page: Page): Promise<string> {
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      vaultTransfer(page).getByRole('button', { name: 'Export everything' }).click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/^ironarachne-vault-\d{4}-\d{2}-\d{2}\.json$/);
+    return download.path();
+  }
+
+  test('a whole vault survives export, clearing site data, and import', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await saveACulture(page, 'The Emberfolk');
+    await createProject(page, 'Dolmenwood');
+    await saveACulture(page, 'The Drune');
+
+    const file = await exportVault(page);
+    await expect(vaultTransfer(page).getByText(/^Saved ironarachne-vault-/)).toBeVisible();
+
+    // Everything really goes: a new origin's worth of storage, not a soft reset.
+    await openEmptyWorkshop(page);
+    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+
+    await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
+    await expect(
+      vaultTransfer(page).getByText(/Added 2 projects holding 2 artifacts\./),
+    ).toBeVisible();
+
+    await expect(projectContext(page).getByText('2 projects')).toBeVisible();
+    await projectContext(page).getByLabel('Open project').selectOption({ label: 'Ashfall' });
+    await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
+    await projectContext(page).getByLabel('Open project').selectOption({ label: 'Dolmenwood' });
+    await expect(artifactRow(page, 'The Drune')).toBeVisible();
+
+    // In the database, not merely on screen.
+    await page.reload({ waitUntil: 'load' });
+    await expect(projectContext(page).getByText('2 projects')).toBeVisible();
+  });
+
+  test('restoring replaces what is there, and downloads the undo first', async ({ page }) => {
+    await createProject(page, 'Keeper');
+    await saveACulture(page, 'The Emberfolk');
+    const file = await exportVault(page);
+
+    // Work done after the backup, which the restore is about to remove.
+    await createProject(page, 'Doomed');
+    await saveACulture(page, 'The Doomed');
+    await expect(projectContext(page).getByText('2 projects')).toBeVisible();
+
+    await vaultTransfer(page)
+      .getByLabel('Importing')
+      .selectOption({ label: 'replaces everything (restore)' });
+
+    // The confirmation counts what is about to go, in the user's terms rather than in the abstract.
+    const [backup] = await Promise.all([
+      page.waitForEvent('download'),
+      (async () => {
+        await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
+        await expect(confirmDialog(page)).toContainText('removing 2 projects and 2 artifacts');
+        await confirmDialog(page).getByRole('button', { name: 'Restore' }).click();
+      })(),
+    ]);
+    // The pre-restore export is the undo, and it is produced before anything is written.
+    expect(backup.suggestedFilename()).toMatch(/^ironarachne-vault-/);
+
+    await expect(
+      vaultTransfer(page).getByText(/Restored 1 project holding 1 artifact/),
+    ).toBeVisible();
+    await expect(vaultTransfer(page).getByText(/That file is the undo/)).toBeVisible();
+    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
+
+    await page.reload({ waitUntil: 'load' });
+    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Keeper');
+    await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
+    await expect(artifactRow(page, 'The Doomed')).toBeHidden();
+  });
+
+  test('re-importing this browser’s own backup says so before it duplicates anything', async ({
+    page,
+  }) => {
+    await createProject(page, 'Ashfall');
+    await saveACulture(page, 'The Emberfolk');
+    const file = await exportVault(page);
+
+    // Straight back in, with nothing cleared: merging this is legitimate and leaves two copies of
+    // everything, so the one thing it must not be is silent.
+    await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
+    await expect(confirmDialog(page)).toContainText('This file came out of this browser');
+    await expect(confirmDialog(page)).toContainText('1 projects and 1 artifacts');
+    await confirmDialog(page).getByRole('button', { name: 'Cancel' }).click();
+
+    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
+  });
+
+  test('the backup controls are there before there is any project to back up', async ({ page }) => {
+    // A user restoring into a fresh browser has no project to start from, so a control that
+    // needed one would be missing in exactly the case it exists for.
+    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+    await expect(
+      vaultTransfer(page).getByRole('button', { name: 'Export everything' }),
+    ).toBeVisible();
+    await expect(
+      vaultTransfer(page).getByRole('button', { name: 'Import from file…' }),
+    ).toBeVisible();
+  });
+});
+
+/**
  * Legacy adoption (#34), proved end to end against data the site itself wrote.
  *
  * The unit tests cover the library against real generator output; what only a browser can settle is

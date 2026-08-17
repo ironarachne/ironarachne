@@ -186,18 +186,22 @@ const handBuiltProject = {
 };
 
 describe('importExportFile: reading the file', () => {
-  it('refuses a whole-vault file by name rather than reading it as a project', async () => {
+  it('imports a vault file dropped on the project import, because the file says what it is', async () => {
     const file = handBuiltFile('vault', {
       projects: [handBuiltProject],
       artifacts: [exportedArtifact()],
       workspaces: [],
     });
-    const result = await importExportFile(testKinds(), file);
-    expect(result).toMatchObject({ ok: false, reason: 'unsupported-scope' });
-    if (!result.ok) {
-      expect(result.message).toMatch(/whole-vault backup/);
+    // No mode, no vault-shaped call: this is the plain "import a file" path, and a user who picked
+    // the file they meant should not also have had to press the right button.
+    const result = await importExportFile(testKinds(), file, { skipCapacityCheck: true });
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.summary.scope).toBe('vault');
+      expect(result.summary.mode).toBe('merge');
+      expect(result.summary.artifactsAdded).toBe(1);
     }
-    expect(listProjects()).toEqual([]);
+    expect(listProjects()).toHaveLength(1);
   });
 
   it('refuses a truncated file and writes nothing', async () => {

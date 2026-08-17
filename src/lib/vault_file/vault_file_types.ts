@@ -1,6 +1,7 @@
 import type { QuarantineReason } from '$lib/artifact_kinds';
 import type { Artifact } from '$lib/artifacts';
 import type { Project } from '$lib/projects';
+import type { QuarantinedArtifact } from '$lib/quarantine';
 import type { VaultFailureReason } from '$lib/vault_db';
 import type { ProjectWorkspace } from '$lib/workspaces';
 
@@ -117,27 +118,6 @@ export type ExportFileProblem =
 export type ChecksumState = 'ok' | 'mismatch' | 'unchecked';
 
 /**
- * An artifact kept verbatim because this build could not turn it into one of its own.
- *
- * Invariant 2 in docs/workshop.md: nothing is dropped silently. Dropping destroys work, and
- * rejecting a two-hundred-artifact file over one bad record makes the backup useless — so the
- * record is reported with enough of itself lifted out to be named on screen, and `raw` holds the
- * whole thing so a later build that understands it can still find it in the file.
- *
- * `id`, `projectId`, `kind`, and `name` are empty strings when the record was too damaged to carry
- * them. Keeping the `kind` string is not the same as trusting it.
- */
-export type QuarantinedArtifact = {
-  id: string;
-  projectId: string;
-  kind: string;
-  name: string;
-  raw: unknown;
-  reason: QuarantineReason;
-  message: string;
-};
-
-/**
  * One step in the envelope's own migration chain.
  *
  * The chain is empty in this build, because version 1 is the only envelope that has ever been
@@ -171,10 +151,16 @@ export type ExportFileParseResult =
 /**
  * How an import treats what is already stored.
  *
- * Only `merge` is produced by this build: a project file is imported *as a new project*, because
- * reconciling a file's version of a project against the stored one is a sync problem needing causal
- * history the format cannot carry, and every shortcut for it quietly destroys somebody's edits.
- * `restore` arrives with whole-vault import (#47), which is the granularity it makes sense at.
+ * `merge` **adds**: every project in the file arrives alongside what is there, as a new project,
+ * and nothing already stored is touched. It is the only mode available below vault scope, because
+ * reconciling a file's version of a project against the one in storage is a sync problem needing
+ * causal history the format does not carry — and last-write-wins, newest-timestamp, and
+ * field-level union all quietly destroy somebody's edits.
+ *
+ * `restore` **replaces**: the vault becomes what is in the file, and anything not in the file is
+ * gone. Only a whole-vault file can do it, since only a whole-vault file describes a whole vault.
+ * It is destructive, it says so in the user's terms before it runs, and it exports the current
+ * vault first — that download *is* the undo.
  */
 export type ImportMode = 'restore' | 'merge';
 
@@ -183,7 +169,8 @@ export type ImportMode = 'restore' | 'merge';
  *
  * A return type, not a toast: every field here is something the summary has to be able to say, and
  * "Import complete" is a way of not saying what happened. Counts of removals are on it because
- * restore destroys and has to say so — this build never fills them in, and #47 does.
+ * restore destroys, and a summary that only counts additions cannot describe the half of the
+ * operation that loses data.
  */
 export type ImportSummary = {
   mode: ImportMode;
@@ -212,16 +199,29 @@ export type ImportSummary = {
   fromThisVault: boolean;
   checksum: ChecksumState;
   formatMigrated: boolean;
-  /** The pre-restore backup that *is* the undo. Written by #47; never set here. */
+  /**
+   * The automatic pre-restore export. That download **is** the undo, and it costs nothing to
+   * produce in an application where the whole vault is already in memory. Absent for a merge,
+   * which destroys nothing and so has nothing to undo.
+   */
   backupFileName?: string;
+  /**
+   * True when a vault file held no projects at all. Valid, and reported rather than counted as
+   * success: a user who exported nothing should be told so, not congratulated.
+   */
+  empty?: boolean;
+  /** Artifacts whose project was missing from the file, gathered into a project of their own. */
+  recoveredProjectId?: string;
 };
 
 /**
  * Why an import did nothing.
  *
- * `unsupported-scope` is the vault file this build refuses by name rather than misreading, and
- * `no-target-project` is a single artifact with nowhere to go — both are states the user can
- * resolve, which is why they are reported rather than thrown.
+ * Every one of these is a state the user can resolve, which is why they are reported rather than
+ * thrown: `no-target-project` is a single artifact with nowhere to go, `wrong-scope` is asking for
+ * a whole-vault operation with a file that describes one project, `cancelled` is the user stopping
+ * it before anything was written, and `too-large` is an import that would not fit — refused up
+ * front rather than discovered at artifact 900.
  *
  * A {@link QuarantineReason} appearing here is the store refusing a payload that had already
  * passed its kind's validator during staging. It should not happen, and it is in the union rather
@@ -231,8 +231,10 @@ export type ImportFailureReason =
   | ExportFileProblem
   | VaultFailureReason
   | QuarantineReason
-  | 'unsupported-scope'
-  | 'no-target-project';
+  | 'wrong-scope'
+  | 'no-target-project'
+  | 'cancelled'
+  | 'too-large';
 
 export type ImportResult =
   | { ok: true; summary: ImportSummary }

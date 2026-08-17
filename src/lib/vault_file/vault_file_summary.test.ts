@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
 import { describeImportSummary } from './vault_file_summary';
-import type { ImportSummary, QuarantinedArtifact } from './vault_file_types';
+import type { QuarantinedArtifact } from '$lib/quarantine';
+
+import type { ImportSummary } from './vault_file_types';
 
 function summary(overrides: Partial<ImportSummary> = {}): ImportSummary {
   return {

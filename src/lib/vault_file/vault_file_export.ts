@@ -1,7 +1,20 @@
-import { getArtifactSummary, hydrateArtifacts, listArtifacts } from '$lib/artifacts';
-import { getProject, hydrateProjects } from '$lib/projects';
-import { readArtifactPayloadRecord, readVaultId, type VaultResult } from '$lib/vault_db';
-import { readProjectWorkspace } from '$lib/workspaces';
+import {
+  getArtifactSummary,
+  hydrateArtifacts,
+  listArtifacts,
+  toArtifactSummary,
+} from '$lib/artifacts';
+import { getProject, hydrateProjects, listProjects } from '$lib/projects';
+import { quarantinedForExport, readQuarantinedArtifacts } from '$lib/quarantine';
+import {
+  readAllArtifactPayloadRecords,
+  readAllArtifactRecords,
+  readAllWorkspaceRecords,
+  readArtifactPayloadRecord,
+  readVaultId,
+  type VaultResult,
+} from '$lib/vault_db';
+import { readProjectWorkspace, toProjectWorkspace, type ProjectWorkspace } from '$lib/workspaces';
 
 import { checksumOf, canonicalJson, exportFileText, tryCanonicalJson } from './vault_file_format';
 import {
@@ -16,6 +29,7 @@ import {
   type ExportScope,
   type ExportedArtifact,
   type ProjectBody,
+  type VaultBody,
 } from './vault_file_types';
 
 /**
@@ -171,6 +185,140 @@ export async function buildProjectExportFile(
     ok: true,
     value: toExportFile(envelope, exportFileName('project', project.name, exportedAt), issues),
   };
+}
+
+/**
+ * Records that are not artifacts this build can read, going into the file exactly as they are.
+ *
+ * Two kinds of thing arrive here: a stored record malformed enough that `toArtifactSummary`
+ * refuses it, and a record already in quarantine. Both are carried in the body's ordinary
+ * `artifacts` array rather than in a compartment of their own, because a build that understands
+ * them should import them as artifacts without knowing anything about how this build filed them.
+ *
+ * The cast is the one place the writer's view and the reader's view differ, and it is deliberate:
+ * what comes *out* of a parse is `ExportedArtifact`, because the parser quarantines whatever is
+ * not; what goes *in* has to include the records nobody could parse, or a backup would refuse to
+ * carry the data most in need of recovering.
+ */
+function carriedVerbatim(records: unknown[]): ExportedArtifact[] {
+  return records as ExportedArtifact[];
+}
+
+/** Any record's id, for ordering a body that may hold records this build cannot read. */
+function recordId(record: unknown): string {
+  const id = (record as { id?: unknown })?.id;
+  return typeof id === 'string' ? id : '';
+}
+
+/**
+ * Everything the user has, as one file.
+ *
+ * This is the granularity that makes the backup story complete. Per-project export is obvious and
+ * cheap and *not complete*: a user with six projects has to remember to export six files, and the
+ * one they forget is the one they lose.
+ *
+ * It reads the stored artifact records rather than the hydrated index, and that difference is the
+ * point. The index drops a record it cannot parse; a backup that drops the same record fails at
+ * exactly the moment it was needed, so anything unparseable is carried verbatim instead. Quarantine
+ * goes out the same way, which is what lets an artifact of an unknown kind survive a round trip
+ * through a build that never understood it.
+ */
+export async function buildVaultExportFile(
+  options: BuildExportOptions = {},
+): Promise<ExportFileResult> {
+  await hydrateProjects();
+  await hydrateArtifacts();
+
+  const issues: string[] = [];
+  const stored = await readAllArtifactRecords();
+  if (!stored.ok) {
+    return stored;
+  }
+  const payloads = await readAllArtifactPayloadRecords();
+  if (!payloads.ok) {
+    return payloads;
+  }
+  const byArtifactId = new Map(payloads.value.map((record) => [record.artifactId, record.payload]));
+
+  const artifacts: ExportedArtifact[] = [];
+  const unreadable: unknown[] = [];
+  for (const record of stored.value) {
+    const summary = toArtifactSummary(record);
+    if (summary === undefined) {
+      unreadable.push(record);
+      continue;
+    }
+    const { byteSize: _byteSize, ...rest } = summary;
+    artifacts.push({ ...rest, payload: exportablePayload(summary, byArtifactId, issues) });
+  }
+  if (unreadable.length > 0) {
+    issues.push(
+      `${unreadable.length} stored ${unreadable.length === 1 ? 'record is' : 'records are'} not something this build can read. ${unreadable.length === 1 ? 'It travels' : 'They travel'} in the file exactly as stored.`,
+    );
+  }
+
+  const held = await readQuarantinedArtifacts();
+  const quarantined = held.ok ? quarantinedForExport(held.value) : [];
+  if (quarantined.length > 0) {
+    issues.push(
+      `${quarantined.length} quarantined ${quarantined.length === 1 ? 'record travels' : 'records travel'} in the file, so a later build can still read ${quarantined.length === 1 ? 'it' : 'them'}.`,
+    );
+  }
+
+  const projects = listProjects();
+  if (projects.length === 0) {
+    // Valid, and said out loud. A user who exported nothing should be told so rather than
+    // congratulated on a backup of nothing.
+    issues.push('This vault has no projects in it, so the file is empty.');
+  }
+
+  const exportedAt = new Date(options.now ?? Date.now()).toISOString();
+  const body: VaultBody = {
+    projects,
+    artifacts: [...artifacts, ...carriedVerbatim(unreadable), ...carriedVerbatim(quarantined)].sort(
+      (a, b) => recordId(a).localeCompare(recordId(b)),
+    ),
+    workspaces: await storedWorkspaces(),
+  };
+  const envelope: ExportEnvelope = {
+    ...(await sealedHeader(exportedAt, body)),
+    scope: 'vault',
+    body,
+  };
+  return {
+    ok: true,
+    value: toExportFile(envelope, exportFileName('vault', 'vault', exportedAt), issues),
+  };
+}
+
+/** A stored payload as the file should carry it, or null with a line saying why it could not. */
+function exportablePayload(
+  summary: { id: string; name: string },
+  payloads: Map<string, unknown>,
+  issues: string[],
+): unknown {
+  if (!payloads.has(summary.id)) {
+    issues.push(`“${summary.name}” had no stored payload to export, and travels without one.`);
+    return null;
+  }
+  const payload = payloads.get(summary.id);
+  if (tryCanonicalJson(payload) === undefined) {
+    issues.push(`“${summary.name}” could not be written to the file, and travels without content.`);
+    return null;
+  }
+  return payload;
+}
+
+/** Every bench in the vault, in project id order. A bench that cannot be read is simply absent. */
+async function storedWorkspaces(): Promise<ProjectWorkspace[]> {
+  const stored = await readAllWorkspaceRecords();
+  if (!stored.ok) {
+    return [];
+  }
+  return stored.value
+    .map((record) => toProjectWorkspace(record.value))
+    .filter((workspace): workspace is ProjectWorkspace => workspace !== undefined)
+    .sort((a, b) => a.projectId.localeCompare(b.projectId));
 }
 
 /**

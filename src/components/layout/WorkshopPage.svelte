@@ -6,6 +6,7 @@
   import ProjectView from '$components/common/ProjectView.svelte';
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
+  import VaultTransferControls from '$components/common/VaultTransferControls.svelte';
   import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import type { Project } from '$lib/projects';
@@ -171,6 +172,15 @@
   <h1>Workshop</h1>
 
   <ProjectContextBar onProjectChange={(next) => void openProject(next)} />
+
+  <!-- One step from the workshop, and available with no project open: a user restoring into a
+       fresh browser has no project to start from, so a backup control that needed one would be
+       unreachable in exactly the case it exists for.
+
+       Nothing is wired back from it. An import announces what it changed through the ordinary
+       project and artifact change events, which the bar and the project view are already
+       listening to — including the restore that closes the open project and empties this bench. -->
+  <VaultTransferControls projectId={project?.id} />
 
   <div class="workshop__layout">
     <div class="workshop__rail">
