@@ -94,6 +94,6 @@ await saveToolArtifact(projectId, {
 
 `culture_saved_state.ts` reads the global `localStorage` scope cultures were saved to before
 projects existed. **Nothing writes new cultures there.** It survives because that scope still holds
-work: `/saved-data` browses it, [`$lib/legacy_adoption`](../legacy_adoption/README.md) copies it
+work: [`$lib/legacy_adoption`](../legacy_adoption/README.md) copies it
 into a project, and the character generators offer it for naming beside what a project holds — see
-`mergeCultureChoices`. It goes when `/saved-data` does (#44).
+`mergeCultureChoices`. It is read-only as of #44: nothing writes there, and the page that browsed and deleted these is gone.

@@ -148,7 +148,7 @@ into the store for the culture itself.
 
 `religion_saved_state.ts` reads the global `localStorage` scope religions were saved to before
 projects existed. **Nothing writes new religions there.** It survives because that scope still holds
-work: `/saved-data` browses it, [`$lib/legacy_adoption`](../legacy_adoption/README.md) copies it into
+work: [`$lib/legacy_adoption`](../legacy_adoption/README.md) copies it into
 a project, and a link from that page still opens one in the generator. Entries there are keyed by
 **seed** — `deleteSavedReligionBySeed` — because a religion is reproducible from its seed and
-config, and the seed is what such a link carries. It goes when `/saved-data` does (#44).
+config, and the seed is what such a link carries. It is read-only as of #44: nothing writes there, and the page that browsed and deleted these is gone.

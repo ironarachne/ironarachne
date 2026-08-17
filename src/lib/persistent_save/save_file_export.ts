@@ -18,6 +18,18 @@ export type ApplyImportedScopesResult =
   | { ok: true; appliedScopes: string[] }
   | { ok: false; error: string };
 
+/**
+ * Build a save file in the old format.
+ *
+ * **Nothing in the site calls this any more.** `/saved-data` was the only surface that exported
+ * these, and it is gone (#44); `$lib/vault_file` writes the format that replaced it. What keeps
+ * this here is the one test that matters for it: `vault_file_legacy.test.ts` proves a file a user
+ * made with an older build still imports, and it builds its fixture with *this* function rather
+ * than with a hand-written approximation of what this function was believed to produce. The whole
+ * risk being tested is that the two differ.
+ *
+ * The import half below is still live — the culture and religion generators read these files.
+ */
 export function buildExportPayload(scopeIds?: string[]): IronArachneSaveExportPayload {
   const scopes: Record<string, unknown> = {};
   if (scopeIds === undefined) {

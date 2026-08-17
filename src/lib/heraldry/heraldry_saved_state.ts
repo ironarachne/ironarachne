@@ -80,14 +80,6 @@ export function findSavedHeraldrySnapshotByBlazon(blazon: string): HeraldrySnaps
   return loadSavedHeraldrySnapshots().find((saved) => saved.blazon === blazon);
 }
 
-export function saveHeraldrySnapshots(heraldries: HeraldrySnapshot[]): void {
-  const { heraldries: deduped } = dedupeHeraldrySnapshotsByBlazon(heraldries);
-  writeHeraldrySavePayload({
-    payloadVersion: HERALDRY_SAVE_PAYLOAD_VERSION,
-    heraldries: deduped,
-  });
-}
-
 export type AppendSavedHeraldryResult = { ok: true } | { ok: false; reason: 'duplicate_blazon' };
 
 export function appendSavedHeraldry(snapshot: HeraldrySnapshot): AppendSavedHeraldryResult {
@@ -100,14 +92,4 @@ export function appendSavedHeraldry(snapshot: HeraldrySnapshot): AppendSavedHera
     heraldries: [...payload.heraldries, snapshot],
   });
   return { ok: true };
-}
-
-export function deleteSavedHeraldryByBlazon(blazon: string): boolean {
-  const payload = readHeraldrySavePayload();
-  const next = payload.heraldries.filter((item) => item.blazon !== blazon);
-  if (next.length === payload.heraldries.length) {
-    return false;
-  }
-  saveHeraldrySnapshots(next);
-  return true;
 }

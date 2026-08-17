@@ -35,11 +35,13 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // through the entry point added 700 KB to /planet, /star-system, and /star-nation.
   '$lib/renderers/astronomical_preview',
   '$lib/renderers/renderer_decision',
-  // `/saved-data` and `/swn/starship` are list-and-read pages. Their libraries' entry points all
-  // reach a generator and from there the species table — 19 MB apiece, measured.
-  '$lib/culture/culture_saved_state',
-  '$lib/heraldry/heraldry_saved_state',
-  '$lib/religion/religion_saved_state',
+  // `/swn/starship` is a list-and-read page. Its library's entry point reaches a generator and
+  // from there the species table — 19 MB, measured.
+  //
+  // The three `*_saved_state` modules were here for the same reason, for `/saved-data`. That page
+  // is gone (#44) and nothing reaches past those entry points any more, so the exceptions went
+  // with it: an allowlist that keeps entries after their reason has gone is how the rule rots
+  // from the other end.
   '$lib/swn/starship',
   // The artifact kind registry, which everything in the workshop touches. Assembled through the
   // three libraries' entry points it costs 296 KB in the importing chunk; through these modules,

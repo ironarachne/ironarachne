@@ -41,17 +41,17 @@ which project is open. Anything that means "clear everything a user has" has to 
 - **Sanitizing** — `stripFunctionValuesDeep` removes the closures generator output carries (live
   name generators, `apply` handlers) so what remains can be serialized. Anything persisted or
   exported goes through it first.
-- **Catalog** — `listAllSavedDataEntries`, and the per-kind `listSavedHeraldryEntries`,
-  `listSavedCultureEntries`, and `listSavedReligionEntries` that back `/saved-data`.
 - **Export and import** — `buildExportPayload` (optionally limited to given scopes),
   `parseSaveExportPayload` (returns `null` on anything that is not a valid save file), and
-  `applyImportedScopes`.
-- **Downloads** — `downloadSnapshotJson`, `downloadCultureJson`, `downloadReligionJson`,
-  `downloadHeraldrySvg`, `downloadHeraldryPng`, and `slugifyDownloadName`.
-- **Deep links** — `heraldryGeneratorHref`, `cultureGeneratorHref`, `religionGeneratorHref`, the
-  matching `read*LoadParamFromLocation` readers, and `clearLoadParamFromUrl`, which together let a
-  saved item open in the generator that made it.
-- **Previews** — `buildHeraldryPreviewMap` renders thumbnails for the saved-data page.
+  `applyImportedScopes`. Superseded by [`$lib/vault_file`](../vault_file/README.md), which reads
+  the files these wrote; nothing new should be built on them.
+- **Load cues** — `readLoadCueFromUrl` and `clearLoadParamFromUrl`. `/saved-data` used to put
+  `?blazon=`, `?name=`, or `?seed=` on a generator's URL to open one of the items it listed.
+  Nothing produces those links any more — that page is gone (#44) — but three generators still
+  read them, because people bookmarked them.
+
+The catalog, the per-kind downloads, the heraldry preview map, and the deep-link _builders_ went
+with `/saved-data` (#44). They existed only to serve it.
 
 ## Usage
 

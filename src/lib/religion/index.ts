@@ -24,7 +24,6 @@ export {
   loadSavedReligionSnapshots,
   readReligionSavePayload,
   RELIGION_SAVE_SCOPE_ID,
-  saveReligionSnapshots,
 } from './religion_saved_state';
 export {
   religionFromSnapshot,

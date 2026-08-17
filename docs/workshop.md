@@ -195,13 +195,15 @@ project.
 
 ## Persistence
 
-Today, saving is per-generator and global. `src/lib/culture/culture_saved_state.ts` writes every
-culture the user has ever kept to one storage scope (`generator.culture`) as a flat array, and
-`src/lib/persistent_save/saved_data_catalog.ts` enumerates the three domains that can do this by
-naming each one explicitly. Adding a fourth savable generator means touching the catalog, the
+Saving used to be per-generator and global. `src/lib/culture/culture_saved_state.ts` wrote every
+culture the user had ever kept to one storage scope (`generator.culture`) as a flat array, and
+`src/lib/persistent_save/saved_data_catalog.ts` enumerated the three domains that could do this by
+naming each one explicitly. Adding a fourth savable generator meant touching the catalog, the
 `SavedDataEntry` union, and the `/saved-data` page.
 
-That does not scale to every generator, and it has no concept of a project.
+That did not scale to every generator, and it had no concept of a project. What follows is what
+replaced it. Those three scopes are still there and still read — they are the fallback #34 left in
+place — but they are **read-only** now, and the page and catalog that named them are gone (#44).
 
 The workshop needs a **generic, project-scoped artifact store**: one place that stores artifacts
 of any kind, keyed by project, without a hand-maintained list of which kinds exist. Individual
@@ -1212,7 +1214,7 @@ absence of a workshop suggests.
 | Workshop shell             | **Built (#36).** `/workshop`, linked from navigation and in the tool catalog: project context, a bench of panels, and the project view.                                                                                                                                                                                                                    |
 | Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                                                                                                                                                                                                    |
 | Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else.                                                                                                                                                                      |
-| Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                                                                                                                                                                                         |
+| Saved data page            | **Removed (#44).** `/saved-data` redirects to the workshop. The legacy storage scopes it browsed are untouched and still read; the page, its catalog, its per-kind downloads, and its deep-link builders are gone.                                                                                                                                         |
 | Save file export/import    | **Superseded, still present.** `save_file_export.ts` exports storage scopes and rejects any `formatVersion` but its own. `src/lib/vault_file` replaces it and **reads its files** (#47), so retiring it is now #44's to do.                                                                                                                                |
 | The file format            | **Built (#35, #47).** `src/lib/vault_file` — the envelope, the canonical body, the checksum, the parser, and the migration chain, at all three scopes. Restore and merge, the pre-restore backup, quarantine, the capacity check, gzip sniffing, and legacy save files.                                                                                    |
 | Quarantine                 | **Built (#47).** `src/lib/quarantine` and the `quarantine` object store — records this build cannot interpret, kept verbatim, listed, and carried in every subsequent export until a build that understands them arrives.                                                                                                                                  |
@@ -1425,9 +1427,10 @@ They were chosen to stress different parts of the model, not because they are th
 
 ### Immediately after
 
-**#44 — retire `/saved-data`.** Blocked on #36 and #34, and deliberately held back by a release:
-the old page is the only fallback a user can reach if adoption has a bug, so it must not be removed
-in the same release that migrates the data.
+**#44 — retire `/saved-data`. Done.** It was held back a release exactly as planned: adoption
+shipped in 2.5.0 with the old page still reachable, and the removal followed. `/saved-data` now
+redirects to the workshop, and the legacy scopes it browsed are still there, still read, and now
+read-only.
 
 ### Not in the first release
 

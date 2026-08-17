@@ -1087,6 +1087,18 @@ test.describe('vault export and import', () => {
     await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
   });
 
+  /**
+   * `/saved-data` was retired in favour of the project view (#44), and redirects rather than 404s.
+   * People have it bookmarked, and the page that held their saved work is the worst possible place
+   * for a dead link — so this is the one piece of that page's e2e coverage that survives it.
+   */
+  test('the retired saved-data page sends you to the workshop', async ({ page }) => {
+    await visitRoute(page, '/saved-data', { title: 'Workshop | Iron Arachne' });
+
+    await expect(page).toHaveURL(/\/workshop\/?$/);
+    await expect(page.getByRole('heading', { name: 'Workshop', level: 1 })).toBeVisible();
+  });
+
   test('the backup controls are there before there is any project to back up', async ({ page }) => {
     // A user restoring into a fresh browser has no project to start from, so a control that
     // needed one would be missing in exactly the case it exists for.

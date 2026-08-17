@@ -285,12 +285,6 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     tags: ['workshop', 'projects'],
   }),
   defineTool({
-    path: '/saved-data',
-    label: 'Saved data',
-    kind: 'editor',
-    domain: 'utilities',
-  }),
-  defineTool({
     path: '/language',
     label: 'Language',
     kind: 'generator',

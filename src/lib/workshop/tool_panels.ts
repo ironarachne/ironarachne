@@ -52,7 +52,6 @@ export const TOOL_PANELS: ToolPanelRegistry = {
   '/swn/starship': () => import('$components/objects/SwnStarshipGenerator.svelte'),
 
   // Utilities & Reference
-  '/saved-data': () => import('$components/utilities/SavedDataManager.svelte'),
   '/language': () => import('$components/utilities/LanguageGenerator.svelte'),
   '/species-stats': () => import('$components/utilities/SpeciesStatsCalculator.svelte'),
   '/word-generator-cheat-sheet': () =>

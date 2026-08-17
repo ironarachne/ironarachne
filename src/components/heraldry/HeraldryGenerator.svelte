@@ -37,8 +37,8 @@
   import { page } from '$app/state';
 
   import type { Arms, Charge } from '$lib/heraldry';
+  import { clearLoadParamFromUrl, readLoadCueFromUrl } from '$lib/persistent_save';
   import { showAlertModal } from '$lib/ui';
-  import { clearLoadParamFromUrl, HERALDRY_LOAD_PARAM } from '$lib/persistent_save';
   import HeraldryTinctureSelect from '$components/heraldry/HeraldryTinctureSelect.svelte';
   import HeraldryPreviewSelect from '$components/heraldry/HeraldryPreviewSelect.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -162,8 +162,14 @@
     tryLoadHeraldryFromBlazonParam();
   });
 
+  /**
+   * The deep link `/saved-data` used to produce. Nothing generates these any more — that page is
+   * gone (#44) — but people bookmarked them, so the generator still honours one.
+   */
+  const HERALDRY_LOAD_PARAM = 'blazon';
+
   function tryLoadHeraldryFromBlazonParam(): boolean {
-    const blazonParam = page.url.searchParams.get(HERALDRY_LOAD_PARAM);
+    const blazonParam = readLoadCueFromUrl(HERALDRY_LOAD_PARAM);
     if (blazonParam === null) {
       return false;
     }
@@ -326,7 +332,7 @@
   }
 
   function downloadPng() {
-    // As in SavedDataManager: no error surface here, so a failure to rasterize is logged rather
+    // No error surface on this screen, so a failure to rasterize is logged rather
     // than swallowed. It used to throw inside an image `onload`, where nothing could catch it.
     saveSvgAsPng(image, heraldryWidth, heraldryHeight, `heraldry-${seed}.png`).catch(
       (error: unknown) => console.error(error),

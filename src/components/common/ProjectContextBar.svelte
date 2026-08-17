@@ -1,8 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
-  import { resolve } from '$app/paths';
-
   import {
     acknowledgeLegacyAdoptionNotice,
     adoptLegacySaves,
@@ -167,15 +165,17 @@
 
   {#if adoption !== null && adoptedProjectName !== undefined}
     <!-- Adoption happens on page load, wherever the user happens to be, so this is where they are
-         told it happened. It says where the originals still are because that is the reassurance
-         the message needs: nothing was moved out from under them. -->
+         told it happened. It still says the originals are untouched, because that is the
+         reassurance the message exists to give — but it no longer points at the saved data page,
+         which has gone (#44). Naming a page that now redirects would be a worse answer than
+         naming none. -->
     <div class="project-context__adoption" role="status">
       <p>
         {adoption.adoptedCount}
         {adoption.adoptedCount === 1 ? 'item you saved' : 'items you saved'} before projects existed
         {adoption.adoptedCount === 1 ? 'is' : 'are'} now in
-        <strong>{adoptedProjectName}</strong>. Your originals are untouched, and still on the
-        <a href={resolve('/saved-data')}>saved data</a> page.
+        <strong>{adoptedProjectName}</strong>. Copied, not moved — the originals are untouched in
+        this browser's storage.
       </p>
       {#if adoption.skippedCount > 0}
         <p>

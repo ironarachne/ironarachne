@@ -17,8 +17,7 @@
   import {
     applyImportedScopes,
     clearLoadParamFromUrl,
-    CULTURE_LOAD_PARAM,
-    readCultureLoadParamFromLocation,
+    readLoadCueFromUrl,
   } from '$lib/persistent_save';
   import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from '$lib/names';
   import { downloadTextPdf } from '$lib/pdf';
@@ -94,8 +93,14 @@
       religionProblem === null,
   );
 
+  /**
+   * The deep link `/saved-data` used to produce. Nothing generates these any more — that page is
+   * gone (#44) — but people bookmarked them, so this still honours one.
+   */
+  const CULTURE_LOAD_PARAM = 'name';
+
   onMount(() => {
-    const nameParam = readCultureLoadParamFromLocation();
+    const nameParam = readLoadCueFromUrl(CULTURE_LOAD_PARAM);
     if (nameParam !== null) {
       showLegacyCultureNamed(nameParam);
       clearLoadParamFromUrl(CULTURE_LOAD_PARAM);
@@ -109,8 +114,8 @@
    * sent the user here.
    *
    * Read-only, and the last thing on this page that touches that scope: cultures are saved into a
-   * project now. It stays until `/saved-data` goes (#44), because that page still links here and
-   * a dead link on the page holding someone's saved work is the worst place for one.
+   * project now. It stays while the legacy scope does — a bookmarked link that quietly stopped
+   * showing the culture it names would fail without saying so.
    */
   function showLegacyCultureNamed(name: string) {
     const found = loadSavedCultures().find((saved) => saved.name === name);

@@ -34,8 +34,7 @@
   import {
     applyImportedScopes,
     clearLoadParamFromUrl,
-    readReligionLoadParamFromLocation,
-    RELIGION_LOAD_PARAM,
+    readLoadCueFromUrl,
   } from '$lib/persistent_save';
   import { showAlertModal } from '$lib/ui';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -59,8 +58,14 @@
   // route at the same time, and two sets of checkboxes on a page must not collide on label `for`.
   const uid = $props.id();
 
+  /**
+   * The deep link `/saved-data` used to produce. Nothing generates these any more — that page is
+   * gone (#44) — but people bookmarked them, so this still honours one.
+   */
+  const RELIGION_LOAD_PARAM = 'seed';
+
   onMount(() => {
-    const seedParam = readReligionLoadParamFromLocation();
+    const seedParam = readLoadCueFromUrl(RELIGION_LOAD_PARAM);
     if (seedParam !== null) {
       showLegacyReligionSeeded(seedParam);
       clearLoadParamFromUrl(RELIGION_LOAD_PARAM);
@@ -74,8 +79,8 @@
    * sent the user here.
    *
    * Read-only, and the last thing on this page that touches that scope: religions are saved into a
-   * project now. It stays until `/saved-data` goes (#44), because that page still links here and a
-   * dead link on the page holding someone's saved work is the worst place for one.
+   * project now. It stays while the legacy scope does — a bookmarked link that quietly stopped
+   * showing the religion it names would fail without saying so.
    */
   function showLegacyReligionSeeded(savedSeed: string) {
     const found = loadSavedReligionSnapshots().find((saved) => saved.seed === savedSeed);

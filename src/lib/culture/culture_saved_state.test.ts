@@ -1,14 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  CULTURE_SAVE_PAYLOAD_VERSION,
   CULTURE_SAVE_SCOPE_ID,
-  deleteSavedCultureByName,
   generateCulture,
   getDefaultCultureGenerationConfig,
   loadSavedCultures,
   loadSavedCultureSnapshots,
   readCultureSavePayload,
-  saveCultureSnapshots,
   toCultureSnapshot,
 } from '$lib/culture';
 import { getFantasyNameGeneratorSet } from '$lib/names';
@@ -52,13 +51,22 @@ describe('culture_saved_state', () => {
     expect(readCultureSavePayload().cultures).toEqual([]);
   });
 
-  /** A culture in the legacy scope, as a build that still wrote there would have left it. */
+  /**
+   * A culture in the legacy scope, as a build that still wrote there would have left it.
+   *
+   * Written straight to the scope rather than through a helper, because the scope is **read-only**
+   * as of #44: nothing in the site writes a culture there any more, so a writer kept for tests to
+   * call would be a function no shipped code has a use for.
+   */
   function storeALegacyCulture() {
     const rng = new RNG('test');
     const config = getDefaultCultureGenerationConfig();
     config.nameGenerators = getFantasyNameGeneratorSet('human', rng);
     const culture = generateCulture('saved-seed', config);
-    saveCultureSnapshots([toCultureSnapshot(culture)]);
+    writeScopedJson(CULTURE_SAVE_SCOPE_ID, {
+      payloadVersion: CULTURE_SAVE_PAYLOAD_VERSION,
+      cultures: [toCultureSnapshot(culture)],
+    });
     return culture;
   }
 
@@ -77,16 +85,5 @@ describe('culture_saved_state', () => {
     const [loaded] = loadSavedCultures();
     expect(loaded.name).toBe(culture.name);
     expect(loaded.nameGenerators.female.generate(1)).toHaveLength(1);
-  });
-
-  it('deletes saved culture by name', () => {
-    const culture = storeALegacyCulture();
-
-    expect(deleteSavedCultureByName(culture.name)).toBe(true);
-    expect(loadSavedCultureSnapshots()).toEqual([]);
-  });
-
-  it('returns false when deleting culture by unknown name', () => {
-    expect(deleteSavedCultureByName('Unknown Culture')).toBe(false);
   });
 });

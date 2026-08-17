@@ -14,10 +14,10 @@ the catalog lives. Nothing here knows that heraldry exists.
 
 ## Why a registry
 
-Saving a culture today means importing `culture_saved_state.ts` and knowing it is there, and
-`persistent_save/saved_data_catalog.ts` names each savable kind in a union. A fourth savable
-generator means editing the catalog, the union, and the page. That does not reach thirty-five
-tools.
+Saving a culture used to mean importing `culture_saved_state.ts` and knowing it was there, while
+`persistent_save/saved_data_catalog.ts` named each savable kind in a union. A fourth savable
+generator meant editing the catalog, the union, and the page — which does not reach thirty-five
+tools. The catalog and the page it fed are gone (#44); this is what replaced them.
 
 With a registry, a library declares its kind once and every generic consumer reads it from here.
 
