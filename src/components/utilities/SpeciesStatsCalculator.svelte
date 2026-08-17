@@ -42,7 +42,7 @@
   });
 </script>
 
-<GeneratorPage theme="default" title="Species Stats Tool">
+<GeneratorPage toolPath="/species-stats" theme="default" title="Species Stats Tool">
   {#snippet description()}
     <p>
       This tool helps in the construction of non-human species. I built it to help me input standard

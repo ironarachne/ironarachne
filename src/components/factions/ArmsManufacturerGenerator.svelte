@@ -22,7 +22,7 @@
   });
 </script>
 
-<GeneratorPage theme="scifi" title="Arms Manufacturer Generator">
+<GeneratorPage toolPath="/arms-manufacturer" theme="scifi" title="Arms Manufacturer Generator">
   {#snippet description()}
     <p>This generator produces sci-fi arms manufacturing companies.</p>
   {/snippet}

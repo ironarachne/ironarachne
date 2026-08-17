@@ -7,6 +7,9 @@ export const GENRE_TAG_PREFIX = 'genre:';
 /** Prefix marking a tag as a game system label. */
 export const SYSTEM_TAG_PREFIX = 'system:';
 
+/** Prefix marking a tag as a maturity label. */
+export const MATURITY_TAG_PREFIX = 'maturity:';
+
 export function genreTag(genre: ToolTypes.Genre): string {
   return `${GENRE_TAG_PREFIX}${genre}`;
 }
@@ -15,9 +18,18 @@ export function systemTag(system: ToolTypes.GameSystem): string {
   return `${SYSTEM_TAG_PREFIX}${system}`;
 }
 
+export function maturityTag(maturity: ToolTypes.ToolMaturity): string {
+  return `${MATURITY_TAG_PREFIX}${maturity}`;
+}
+
 /**
  * Builds a catalog entry, expanding the optional `genres` and `systems` into namespaced tags.
  * A tool with neither is genre-neutral and system-neutral, and simply carries no such tags.
+ *
+ * Maturity is required, and is expanded into a tag as well as kept as a field: the field is what a
+ * badge reads, and the tag is what makes "only tools that will keep my work" the same filtering
+ * operation as a genre or a system. Deriving the tag here is what keeps them in agreement — the
+ * authoring site sets one value.
  */
 export function defineTool(definition: ToolTypes.ToolDefinition): ToolTypes.Tool {
   const genreTags = (definition.genres ?? []).map(genreTag);
@@ -28,7 +40,13 @@ export function defineTool(definition: ToolTypes.ToolDefinition): ToolTypes.Tool
     label: definition.label,
     kind: definition.kind,
     domain: definition.domain,
-    tags: [...genreTags, ...systemTags, ...(definition.tags ?? [])],
+    maturity: definition.maturity,
+    tags: [
+      ...genreTags,
+      ...systemTags,
+      maturityTag(definition.maturity),
+      ...(definition.tags ?? []),
+    ],
   };
 }
 
@@ -84,6 +102,31 @@ export function genreDisplayName(genre: ToolTypes.Genre): string {
 
 export function systemDisplayName(system: ToolTypes.GameSystem): string {
   return SYSTEM_NAMES[system];
+}
+
+const MATURITY_NAMES: Record<ToolTypes.ToolMaturity, string> = {
+  experimental: 'Experimental',
+  beta: 'Beta',
+  'release-ready': 'Release-ready',
+};
+
+/**
+ * What each level promises the user about their work, in the terms they care about rather than in
+ * terms of the readiness spec's section numbers. A level whose name means nothing to a visitor is
+ * a label, not a warning, so the badge shows this sentence beside it.
+ */
+const MATURITY_DESCRIPTIONS: Record<ToolTypes.ToolMaturity, string> = {
+  experimental: 'This tool may change or disappear, and its output may not be savable.',
+  beta: 'Output saves as a durable artifact, but editing it may be partial or unavailable.',
+  'release-ready': 'A full citizen of the workshop: it saves, edits, and composes.',
+};
+
+export function maturityDisplayName(maturity: ToolTypes.ToolMaturity): string {
+  return MATURITY_NAMES[maturity];
+}
+
+export function maturityDescription(maturity: ToolTypes.ToolMaturity): string {
+  return MATURITY_DESCRIPTIONS[maturity];
 }
 
 const DOMAIN_NAMES: Record<ToolTypes.ToolDomain, string> = {

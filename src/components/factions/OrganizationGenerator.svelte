@@ -176,7 +176,7 @@
   });
 </script>
 
-<GeneratorPage theme="fantasy" title="Organization Generator">
+<GeneratorPage toolPath="/fantasy/organization" theme="fantasy" title="Organization Generator">
   {#snippet description()}
     <p>
       Generate organizations with hierarchy, visual identity, and member roles. Fantasy and science

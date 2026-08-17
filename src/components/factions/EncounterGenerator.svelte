@@ -59,7 +59,7 @@
   });
 </script>
 
-<GeneratorPage title="Encounter Generation">
+<GeneratorPage toolPath="/fantasy/encounter" title="Encounter Generation">
   {#snippet description()}
     <p>This generator creates random encounters.</p>
   {/snippet}

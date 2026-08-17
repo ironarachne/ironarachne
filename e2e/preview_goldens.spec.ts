@@ -18,6 +18,20 @@ import { PREVIEW_CASES, openPinnedPreview } from './preview_fixtures';
  * merges to `main` where a first run has nowhere to put a new file and nothing to compare it to.
  * A skip here says "no baseline yet", never "this passed".
  *
+ * ## Moving the image on the page invalidates its baseline
+ *
+ * These compare an element screenshot, and the previews sit at fractional offsets down the page
+ * (the composite strip's top measured 907.828125 at the time of writing). Chromium rasterizes a box
+ * on a fractional device-pixel boundary by sampling across pixels, so the same 384×128 image
+ * captured half a pixel lower is a slightly different 385×129 PNG — enough to cross the tolerance
+ * below, though nothing about the render changed. **Anything added above a preview on its route
+ * therefore needs the baselines regenerated**, and a plain paragraph is enough to do it: adding the
+ * maturity badge (#43) is what turned this up, and an empty `<p>` in its place moved the failure to
+ * a different case. Which cases fail is luck; that some will is not.
+ *
+ * Regenerate with the goldens workflow on your branch, before merging, never with
+ * `--update-snapshots` locally — see below.
+ *
  * ## The tolerance is small on purpose
  *
  * Locally, and in separate browser launches, these renders come out byte-identical; the tolerance

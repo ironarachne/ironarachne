@@ -945,7 +945,7 @@ classDiagram
   `PayloadResult` is a discriminated union on `ok` — the "well-defined empty result rather than
   throwing" of readiness requirement 3.3, given a type.
 - **`Tool` is the existing catalog type** (`src/lib/tools/tool_types.ts`) plus `maturity`, which
-  #43 adds. Everything else on it is built.
+  #43 added. All of it is built.
 - **`0..1` on _produces_ is the reference tools.** A reference tool defines no kind and saves
   nothing; the cardinality is what keeps section 3 of the readiness spec from applying to it.
 - **`get(kind)` returns optional, and that is load-bearing.** An unknown kind is the normal case
@@ -1209,7 +1209,7 @@ absence of a workshop suggests.
 
 | Piece                      | State                                                                                                                                                                                                                                                                                                                                                      |
 | -------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system tags, search and grouping.                                                                                                                                                                                                                                                                              |
+| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system/maturity tags, search and grouping. Maturity (#43) is required on every entry and shown to the user.                                                                                                                                                                                                    |
 | Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                                                                                                                                                                                             |
 | Workshop shell             | **Built (#36).** `/workshop`, linked from navigation and in the tool catalog: project context, a bench of panels, and the project view.                                                                                                                                                                                                                    |
 | Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                                                                                                                                                                                                    |
@@ -1332,12 +1332,21 @@ levels, so a tool's state is legible to users and to us:
 | **Release-ready** | A full citizen of the workshop.                                          | All sections.             |
 
 Measured against this, **every tool on the site today is Experimental**, except heraldry, which is
-approaching Beta, and **culture (#40) and religion (#41), which are Release-ready**. That is not a
+Beta, and **culture (#40) and religion (#41), which are Release-ready**. That is not a
 criticism of the tools; it is the size of the gap between what exists and what the workshop needs,
 and it is better stated plainly than discovered one generator at a time.
 
-Nothing in the code records a tool's maturity today — `ToolDefinition` has no such field — so
-until it does, these levels are a paragraph in a document rather than something a user can see.
+**The catalog records this (#43).** `maturity` is a required field on `ToolDefinition` and `Tool`,
+with no default — a default would let a tool claim a level nobody assessed, which is the one thing
+the levels exist to prevent — and it is expanded into a `maturity:` tag beside `genre:` and
+`system:`, so "tools that will keep my work" is the same filtering operation as a genre. The level
+appears beside the heading on the tool's own page, with the sentence saying what it promises, and
+beside every entry in the workshop's tool browser. `GeneratorPage` takes the catalog path for that
+reason and requires it: a page cannot render a tool without stating where the tool stands.
+
+Heraldry's Beta was assessed rather than inherited from "approaching Beta": it clears sections 1–3,
+6, and 7.1–7.2, and what holds it short of Release-ready is 4.1 — `ARTIFACT_EDITORS` gives it a
+viewer and no editor, so a saved coat of arms can be seen and downloaded but not changed.
 
 ## The plan
 
@@ -1409,8 +1418,9 @@ the disclosure.
 | #42 — settlement | #37, #39   | —                                                                             |
 
 Independent of every phase and able to land at any point: **#43 — record tool maturity in the
-catalog.** Landing it early is better, because it makes the gap this document describes visible in
-the product while it is being closed rather than only in this file.
+catalog. Done.** It landed while #42 was still open, which was the point: the gap this document
+describes is now visible in the product while it is being closed rather than only in this file.
+Settlement's entry reads Experimental until #42 earns it something else.
 
 ### Why those three tools
 
@@ -1435,8 +1445,8 @@ read-only.
 
 ### Not in the first release
 
-- **Every other tool.** Everything not named above stays Experimental. That is the honest state,
-  and #43 is what makes it legible.
+- **Every other tool.** Everything not named above stays Experimental, and now says so on its own
+  page and in the tool browser. That is the honest state, and #43 is what makes it legible.
 
 #45 used to sit on this list. It does not any more: it is answered in
 [decisions 5](#5-the-store-persists-to-indexeddb) and

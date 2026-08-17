@@ -7,12 +7,16 @@ import {
   genresOf,
   hasGenre,
   hasSystem,
+  maturityDescription,
+  maturityDisplayName,
+  maturityTag,
   systemDisplayName,
   systemTag,
   systemsOf,
   toolGenres,
   toolSystems,
 } from './tools';
+import { MATURITIES } from './tool_types';
 import type { Tool, ToolDefinition } from './tool_types';
 
 const swnCharacter: ToolDefinition = {
@@ -20,6 +24,7 @@ const swnCharacter: ToolDefinition = {
   label: 'Stars Without Number Character',
   kind: 'generator',
   domain: 'characters',
+  maturity: 'experimental',
   genres: ['scifi'],
   systems: ['swn'],
   tags: ['character'],
@@ -30,6 +35,7 @@ const environment: ToolDefinition = {
   label: 'Environment',
   kind: 'generator',
   domain: 'locations',
+  maturity: 'experimental',
 };
 
 describe('genreTag', () => {
@@ -44,6 +50,12 @@ describe('systemTag', () => {
   });
 });
 
+describe('maturityTag', () => {
+  it('namespaces the maturity', () => {
+    expect(maturityTag('release-ready')).toBe('maturity:release-ready');
+  });
+});
+
 describe('defineTool', () => {
   it('keeps the identifying fields', () => {
     const tool = defineTool(swnCharacter);
@@ -52,18 +64,26 @@ describe('defineTool', () => {
     expect(tool.label).toBe('Stars Without Number Character');
     expect(tool.kind).toBe('generator');
     expect(tool.domain).toBe('characters');
+    expect(tool.maturity).toBe('experimental');
   });
 
   it('expands genres and systems into namespaced tags, keeping free-form tags', () => {
     const tool = defineTool(swnCharacter);
 
-    expect(tool.tags).toEqual(['genre:scifi', 'system:swn', 'character']);
+    expect(tool.tags).toEqual(['genre:scifi', 'system:swn', 'maturity:experimental', 'character']);
   });
 
-  it('gives a tool with no genre or system an empty tag list', () => {
+  it('tags a tool with no genre or system with its maturity and nothing else', () => {
     const tool = defineTool(environment);
 
-    expect(tool.tags).toEqual([]);
+    expect(tool.tags).toEqual(['maturity:experimental']);
+  });
+
+  it('keeps the maturity field and the maturity tag saying the same thing', () => {
+    const tool = defineTool({ ...environment, maturity: 'beta' });
+
+    expect(tool.maturity).toBe('beta');
+    expect(tool.tags).toContain(maturityTag('beta'));
   });
 
   it('expands every genre of a multi-genre tool', () => {
@@ -72,10 +92,11 @@ describe('defineTool', () => {
       label: 'Spooky Starship',
       kind: 'generator',
       domain: 'objects',
+      maturity: 'experimental',
       genres: ['scifi', 'horror'],
     });
 
-    expect(tool.tags).toEqual(['genre:scifi', 'genre:horror']);
+    expect(tool.tags).toEqual(['genre:scifi', 'genre:horror', 'maturity:experimental']);
   });
 });
 
@@ -94,6 +115,7 @@ describe('toolGenres', () => {
       label: 'Environment',
       kind: 'generator',
       domain: 'locations',
+      maturity: 'experimental',
       tags: ['genre', 'subgenre:weird'],
     };
 
@@ -191,5 +213,30 @@ describe('genreDisplayName', () => {
 describe('systemDisplayName', () => {
   it('returns prose for a system', () => {
     expect(systemDisplayName('adnd-2e')).toBe('AD&D 2E');
+  });
+});
+
+describe('maturityDisplayName', () => {
+  it('returns prose for a maturity', () => {
+    expect(maturityDisplayName('release-ready')).toBe('Release-ready');
+  });
+
+  it('names every level in MATURITIES', () => {
+    const unnamed = MATURITIES.filter((maturity) => maturityDisplayName(maturity) === undefined);
+
+    expect(unnamed).toEqual([]);
+  });
+});
+
+describe('maturityDescription', () => {
+  it('says what the level promises about the user’s work', () => {
+    expect(maturityDescription('experimental')).toMatch(/may change or disappear/);
+  });
+
+  it('describes every level in MATURITIES, in distinct terms', () => {
+    const descriptions = MATURITIES.map(maturityDescription);
+
+    expect(descriptions.every((description) => description.trim() !== '')).toBe(true);
+    expect(new Set(descriptions).size).toBe(MATURITIES.length);
   });
 });

@@ -5,12 +5,13 @@
   import ProjectContextBar from '$components/common/ProjectContextBar.svelte';
   import ProjectView from '$components/common/ProjectView.svelte';
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
+  import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
   import VaultTransferControls from '$components/common/VaultTransferControls.svelte';
   import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import type { Project } from '$lib/projects';
-  import { allTools, findToolByPath, type Tool } from '$lib/tools';
+  import { allTools, findToolByPath, toolMaturityForPath, type Tool } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
   import { hasToolPanel, hasUnsavedEdits } from '$lib/workshop';
   import {
@@ -171,6 +172,15 @@
 <section class="main workshop">
   <h1>Workshop</h1>
 
+  <!-- The workshop is a catalog tool like any other and says where it stands like any other, but
+       the level alone: Experimental's sentence warns that a tool's output may not be savable, which
+       is true of a generator and false here — the workshop is what does the saving. What a user
+       needs to know about their work on this page is the Backup section below, which says it
+       accurately, and a generic caveat above it would only compete with that. -->
+  <p class="workshop__maturity">
+    <ToolMaturityBadge maturity={toolMaturityForPath('/workshop')} />
+  </p>
+
   <ProjectContextBar onProjectChange={(next) => void openProject(next)} />
 
   <!-- One step from the workshop, and available with no project open: a user restoring into a
@@ -231,6 +241,10 @@
 
   .workshop h1 {
     margin: 0 0 0.5rem;
+  }
+
+  .workshop__maturity {
+    margin: 0 0 0.75rem;
   }
 
   .workshop__layout {

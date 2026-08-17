@@ -23,7 +23,7 @@
   }
 </script>
 
-<GeneratorPage theme="fantasy" title="Fantasy Equipment Lists">
+<GeneratorPage toolPath="/fantasy/equipment" theme="fantasy" title="Fantasy Equipment Lists">
   {#snippet description()}
     <p>
       This page is meant to be a comprehensive list of equipment for fantasy games. It will be

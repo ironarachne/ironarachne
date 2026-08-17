@@ -177,7 +177,7 @@
   });
 </script>
 
-<GeneratorPage theme="fantasy" title="Dungeon Generator">
+<GeneratorPage toolPath="/fantasy/dungeon" theme="fantasy" title="Dungeon Generator">
   {#snippet description()}
     <p>Grid-based dungeons with themed rooms, doors, keys, encounters, and treasure.</p>
   {/snippet}

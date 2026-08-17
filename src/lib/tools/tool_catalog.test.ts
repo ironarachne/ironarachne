@@ -4,14 +4,23 @@ import {
   allTools,
   filterTools,
   findToolByPath,
+  toolMaturityForPath,
   toolsByPath,
   toolsForSystem,
   toolsInDomain,
   toolsOfKind,
   toolsWithGenre,
+  toolsWithMaturity,
 } from './tool_catalog';
-import { genreTag, systemTag, toolGenres, toolSystems } from './tools';
-import { GENRES, SYSTEMS } from './tool_types';
+import {
+  MATURITY_TAG_PREFIX,
+  genreTag,
+  maturityTag,
+  systemTag,
+  toolGenres,
+  toolSystems,
+} from './tools';
+import { GENRES, MATURITIES, SYSTEMS } from './tool_types';
 
 describe('TOOL_CATALOG', () => {
   it('has a unique path for every tool', () => {
@@ -48,6 +57,43 @@ describe('TOOL_CATALOG', () => {
     );
 
     expect(systemWithoutGenre.map((tool) => tool.path)).toEqual([]);
+  });
+
+  it('gives every tool a maturity from MATURITIES', () => {
+    const unknown = TOOL_CATALOG.filter((tool) => !MATURITIES.includes(tool.maturity));
+
+    expect(unknown.map((tool) => tool.path)).toEqual([]);
+  });
+
+  it('carries each tool’s maturity as a tag as well, exactly once', () => {
+    const mismatched = TOOL_CATALOG.filter(
+      (tool) =>
+        tool.tags.filter((tag) => tag.startsWith(MATURITY_TAG_PREFIX)).length !== 1 ||
+        !tool.tags.includes(maturityTag(tool.maturity)),
+    );
+
+    expect(mismatched.map((tool) => tool.path)).toEqual([]);
+  });
+
+  it('records the maturity of the tools assessed above Experimental', () => {
+    // The three the design document singles out. Locked down here because these are the values a
+    // user reads as a promise about their work, and a careless edit to one is otherwise invisible.
+    expect(findToolByPath('/culture')?.maturity).toBe('release-ready');
+    expect(findToolByPath('/fantasy/religion')?.maturity).toBe('release-ready');
+    expect(findToolByPath('/heraldry')?.maturity).toBe('beta');
+  });
+
+  it('leaves every other tool Experimental until it is taken further', () => {
+    // A tripwire rather than a rule: raising a tool's level means adding it here, in the same
+    // change that earns it. That is the point — a level should not be able to rise as a side
+    // effect of editing a catalog entry for some other reason.
+    const assessedHigher = ['/culture', '/fantasy/religion', '/heraldry'];
+
+    const claimingMore = TOOL_CATALOG.filter(
+      (tool) => !assessedHigher.includes(tool.path) && tool.maturity !== 'experimental',
+    );
+
+    expect(claimingMore.map((tool) => tool.path)).toEqual([]);
   });
 
   it('covers every domain in the navigation', () => {
@@ -129,6 +175,33 @@ describe('toolsForSystem', () => {
   });
 });
 
+describe('toolsWithMaturity', () => {
+  it('returns the tools at that maturity', () => {
+    const releaseReady = toolsWithMaturity('release-ready');
+
+    expect(releaseReady.map((tool) => tool.path).sort()).toEqual(['/culture', '/fantasy/religion']);
+  });
+
+  it('accounts for every tool across the three levels', () => {
+    const counted = MATURITIES.reduce(
+      (total, maturity) => total + toolsWithMaturity(maturity).length,
+      0,
+    );
+
+    expect(counted).toBe(TOOL_CATALOG.length);
+  });
+});
+
+describe('toolMaturityForPath', () => {
+  it('returns the maturity recorded for that tool', () => {
+    expect(toolMaturityForPath('/heraldry')).toBe('beta');
+  });
+
+  it('throws on an unknown path rather than assuming a level', () => {
+    expect(() => toolMaturityForPath('/nowhere')).toThrow('/nowhere');
+  });
+});
+
 describe('filterTools', () => {
   it('composes a genre filter with a system exclusion', () => {
     const systemNeutralFantasy = filterTools({
@@ -141,6 +214,16 @@ describe('filterTools', () => {
     expect(paths).toContain('/culture');
     expect(paths).not.toContain('/fantasy/adnd/character');
     expect(paths).not.toContain('/fantasy/dcc/character');
+  });
+
+  it('composes a maturity filter with a genre', () => {
+    // The reason maturity is a tag as well as a field: "fantasy tools that will keep my work" is
+    // one filter, not a filter plus a second pass.
+    const durableFantasy = filterTools({
+      includeAllTags: [genreTag('fantasy'), maturityTag('release-ready')],
+    });
+
+    expect(durableFantasy.map((tool) => tool.path)).toEqual(['/culture', '/fantasy/religion']);
   });
 
   it('returns the whole catalog for an empty filter', () => {

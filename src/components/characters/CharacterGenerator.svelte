@@ -197,7 +197,7 @@
   });
 </script>
 
-<GeneratorPage title="Character">
+<GeneratorPage toolPath="/character" title="Character">
   {#snippet description()}
     <p>This generator creates random characters.</p>
   {/snippet}

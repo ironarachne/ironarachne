@@ -1,6 +1,6 @@
 import { applyTagFilter } from '$lib/tags';
 import type { TagFilter } from '$lib/tags';
-import { defineTool, genreTag, systemTag } from './tools';
+import { defineTool, genreTag, maturityTag, systemTag } from './tools';
 import type * as ToolTypes from './tool_types';
 
 /**
@@ -11,6 +11,12 @@ import type * as ToolTypes from './tool_types';
  * Genre and system are both optional. A tool that works for any genre (the environment
  * generator) or any system (the culture generator) carries no such tag, rather than a
  * catch-all value.
+ *
+ * Maturity is not optional, and the value here is an assessment rather than an aspiration: it is
+ * what the tool measures at against the readiness spec in `docs/workshop.md` today. Almost every
+ * entry reads `experimental`, which is the honest state of a site whose tools mostly predate the
+ * workshop and cannot yet save what they produce. Raising one is part of taking that tool to the
+ * next level, not a separate tidy-up.
  */
 export const TOOL_CATALOG: ToolTypes.Tool[] = [
   // Characters & People
@@ -19,6 +25,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'AD&D 2E Character',
     kind: 'editor',
     domain: 'characters',
+    maturity: 'experimental',
     genres: ['fantasy'],
     systems: ['adnd-2e'],
     tags: ['character'],
@@ -28,6 +35,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Character',
     kind: 'generator',
     domain: 'characters',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['character'],
   }),
@@ -36,6 +44,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'AD&D 2E Character',
     kind: 'generator',
     domain: 'characters',
+    maturity: 'experimental',
     genres: ['fantasy'],
     systems: ['adnd-2e'],
     tags: ['character'],
@@ -45,6 +54,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Dungeon Crawl Classics Character',
     kind: 'generator',
     domain: 'characters',
+    maturity: 'experimental',
     genres: ['fantasy'],
     systems: ['dcc'],
     tags: ['character'],
@@ -54,6 +64,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Stars Without Number Character',
     kind: 'generator',
     domain: 'characters',
+    maturity: 'experimental',
     genres: ['scifi'],
     systems: ['swn'],
     tags: ['character'],
@@ -63,15 +74,23 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Uncharted Worlds Character',
     kind: 'generator',
     domain: 'characters',
+    maturity: 'experimental',
     genres: ['scifi'],
     systems: ['uncharted-worlds'],
     tags: ['character'],
   }),
   defineTool({
+    // Beta, measured against the Beta bar rather than assumed from "approaching Beta" in the
+    // design document. It clears sections 1–3 (a registered kind with a validating v1→v2
+    // migration, a round-tripping snapshot, provenance and a name recorded on save), 6 (mobile,
+    // keyboard, SVG and PNG export), and 7.1–7.2. What holds it short of Release-ready is section
+    // 4: `ARTIFACT_EDITORS` registers a viewer for heraldry and no editor, so a saved coat of arms
+    // can be seen and downloaded but not changed.
     path: '/heraldry',
     label: 'Heraldry',
     kind: 'generator',
     domain: 'characters',
+    maturity: 'beta',
     genres: ['fantasy'],
     tags: ['heraldry'],
   }),
@@ -80,6 +99,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Velgarth Gifts',
     kind: 'generator',
     domain: 'characters',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['character', 'velgarth'],
   }),
@@ -90,14 +110,17 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Arms Manufacturer',
     kind: 'generator',
     domain: 'factions',
+    maturity: 'experimental',
     genres: ['scifi'],
     tags: ['organization'],
   }),
   defineTool({
+    // Release-ready, taken there by #40 before this field existed to record it.
     path: '/culture',
     label: 'Culture',
     kind: 'generator',
     domain: 'factions',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['worldbuilding'],
   }),
@@ -106,6 +129,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Encounter',
     kind: 'generator',
     domain: 'factions',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['encounter'],
   }),
@@ -114,6 +138,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Family',
     kind: 'generator',
     domain: 'factions',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['character'],
   }),
@@ -122,14 +147,17 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Organization',
     kind: 'generator',
     domain: 'factions',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['organization'],
   }),
   defineTool({
+    // Release-ready, taken there by #41 before this field existed to record it.
     path: '/fantasy/religion',
     label: 'Fantasy Religion',
     kind: 'generator',
     domain: 'factions',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['worldbuilding'],
   }),
@@ -138,6 +166,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Star Nation',
     kind: 'generator',
     domain: 'factions',
+    maturity: 'experimental',
     genres: ['scifi'],
     tags: ['organization', 'worldbuilding'],
   }),
@@ -148,6 +177,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Cyberpunk Chop Shop',
     kind: 'generator',
     domain: 'locations',
+    maturity: 'experimental',
     genres: ['cyberpunk'],
   }),
   defineTool({
@@ -155,6 +185,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Dungeon',
     kind: 'generator',
     domain: 'locations',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['map'],
   }),
@@ -163,6 +194,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Environment',
     kind: 'generator',
     domain: 'locations',
+    maturity: 'experimental',
     tags: ['worldbuilding'],
   }),
   defineTool({
@@ -170,6 +202,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Planet',
     kind: 'generator',
     domain: 'locations',
+    maturity: 'experimental',
     genres: ['scifi'],
     tags: ['worldbuilding'],
   }),
@@ -178,6 +211,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Region',
     kind: 'generator',
     domain: 'locations',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['map', 'worldbuilding'],
   }),
@@ -186,6 +220,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Settlement',
     kind: 'generator',
     domain: 'locations',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['worldbuilding'],
   }),
@@ -194,6 +229,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Star System',
     kind: 'generator',
     domain: 'locations',
+    maturity: 'experimental',
     genres: ['scifi'],
     tags: ['worldbuilding'],
   }),
@@ -204,6 +240,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Cyberpunk Drug',
     kind: 'generator',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['cyberpunk'],
   }),
   defineTool({
@@ -211,6 +248,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Equipment Lists',
     kind: 'reference',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['equipment'],
   }),
@@ -219,6 +257,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Equipment',
     kind: 'generator',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['equipment'],
   }),
@@ -227,6 +266,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Merchant',
     kind: 'generator',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['equipment'],
   }),
@@ -235,6 +275,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Potion Generator',
     kind: 'generator',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['magic'],
   }),
@@ -243,6 +284,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Weapon',
     kind: 'generator',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['equipment', 'magic'],
   }),
@@ -251,6 +293,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Treasure Hoard',
     kind: 'generator',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['treasure'],
   }),
@@ -259,6 +302,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Spooky Starship',
     kind: 'generator',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['scifi', 'horror'],
     tags: ['starship'],
   }),
@@ -267,6 +311,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Stars Without Number Starship',
     kind: 'generator',
     domain: 'objects',
+    maturity: 'experimental',
     genres: ['scifi'],
     systems: ['swn'],
     tags: ['starship'],
@@ -278,10 +323,16 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     // one entry with no panel of its own — see `PATHS_WITHOUT_TOOL_PANELS` in `$lib/workshop`.
     // It is here rather than only in the nav because the catalog is where a tool's name and
     // classification live, and a surface nothing can find is a surface nobody uses.
+    //
+    // Experimental, and not as a placeholder: the readiness spec measures a tool by what happens
+    // to the artifacts it produces, and the workshop produces none of its own — it is the bench
+    // the others are worked on. What the level does say truthfully is the part a user needs, which
+    // is that the workshop is still being built and may change under them.
     path: '/workshop',
     label: 'Workshop',
     kind: 'editor',
     domain: 'utilities',
+    maturity: 'experimental',
     tags: ['workshop', 'projects'],
   }),
   defineTool({
@@ -289,6 +340,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Language',
     kind: 'generator',
     domain: 'utilities',
+    maturity: 'experimental',
     tags: ['naming', 'worldbuilding'],
   }),
   defineTool({
@@ -296,6 +348,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Species Height and Weight Calculator',
     kind: 'reference',
     domain: 'utilities',
+    maturity: 'experimental',
     genres: ['fantasy'],
     tags: ['species'],
   }),
@@ -304,6 +357,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Word Generator Cheat Sheet',
     kind: 'reference',
     domain: 'utilities',
+    maturity: 'experimental',
     tags: ['naming'],
   }),
 ];
@@ -330,6 +384,23 @@ export function toolsByPath(paths: string[]): ToolTypes.Tool[] {
   });
 }
 
+/**
+ * The maturity of the tool at a path, for a page or panel that has to state its own.
+ *
+ * Throws on an unknown path rather than falling back to a level, for the same reason `maturity`
+ * has no default: a page that showed nothing because a lookup missed, or showed `experimental`
+ * because that is the safe-looking answer, would be making a durability promise nobody assessed.
+ * Every page that calls this is prerendered by the static adapter, so a wrong path fails the
+ * build rather than shipping.
+ */
+export function toolMaturityForPath(path: string): ToolTypes.ToolMaturity {
+  const tool = findToolByPath(path);
+  if (!tool) {
+    throw new Error(`No tool in the catalog has the path ${path}`);
+  }
+  return tool.maturity;
+}
+
 export function toolsInDomain(domain: ToolTypes.ToolDomain): ToolTypes.Tool[] {
   return TOOL_CATALOG.filter((tool) => tool.domain === domain);
 }
@@ -349,4 +420,13 @@ export function toolsWithGenre(genre: ToolTypes.Genre): ToolTypes.Tool[] {
 
 export function toolsForSystem(system: ToolTypes.GameSystem): ToolTypes.Tool[] {
   return filterTools({ includeAllTags: [systemTag(system)] });
+}
+
+/**
+ * Tools at exactly the given maturity. Goes through the tag filter rather than the field so that
+ * "durable tools only" composes with a genre or a system in one filter, which is the reason the
+ * maturity tag exists at all.
+ */
+export function toolsWithMaturity(maturity: ToolTypes.ToolMaturity): ToolTypes.Tool[] {
+  return filterTools({ includeAllTags: [maturityTag(maturity)] });
 }

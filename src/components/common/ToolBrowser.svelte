@@ -7,6 +7,7 @@
     systemDisplayName,
   } from '$lib/tools';
   import type { GameSystem, Genre, Tool } from '$lib/tools';
+  import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
 
   type Props = {
     /** Tools to browse; the whole catalog by default. */
@@ -119,9 +120,15 @@
               onclick={() => selectTool(tool)}
             >
               <span class="tool-browser__name">{tool.label}</span>
-              {#if isActive}
-                <span class="tool-browser__badge">Loaded</span>
-              {/if}
+              <!-- The maturity rides along with every entry, unfiltered and unhidden: a list that
+                   only marked the unfinished tools would leave the user reading absence, which is
+                   not something you can read. -->
+              <span class="tool-browser__badges">
+                {#if isActive}
+                  <span class="tool-browser__badge">Loaded</span>
+                {/if}
+                <ToolMaturityBadge maturity={tool.maturity} plain />
+              </span>
             </button>
           </li>
         {/each}
@@ -248,6 +255,16 @@
   .tool-browser__name {
     min-width: 0;
     overflow-wrap: anywhere;
+  }
+
+  .tool-browser__badges {
+    /* Wraps under the name in a narrow rail rather than squeezing it; `flex-end` keeps the badges
+       against the right edge when they do. */
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 0.25rem;
   }
 
   .tool-browser__badge {

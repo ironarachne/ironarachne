@@ -14,6 +14,7 @@ const swnCharacter = defineTool({
   label: 'Stars Without Number Character',
   kind: 'generator',
   domain: 'characters',
+  maturity: 'experimental',
   genres: ['scifi'],
   systems: ['swn'],
 });
@@ -23,6 +24,7 @@ const adndCharacter = defineTool({
   label: 'AD&D 2E Character',
   kind: 'generator',
   domain: 'characters',
+  maturity: 'experimental',
   genres: ['fantasy'],
   systems: ['adnd-2e'],
 });
@@ -32,6 +34,7 @@ const culture = defineTool({
   label: 'Culture',
   kind: 'generator',
   domain: 'factions',
+  maturity: 'experimental',
   genres: ['fantasy'],
 });
 
@@ -40,6 +43,7 @@ const environment = defineTool({
   label: 'Environment',
   kind: 'generator',
   domain: 'locations',
+  maturity: 'experimental',
 });
 
 const tools: Tool[] = [swnCharacter, adndCharacter, culture, environment];
