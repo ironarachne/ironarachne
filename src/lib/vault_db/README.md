@@ -107,6 +107,7 @@ half of that; the scoped keys are cleared through `$lib/persistent_save`.
 - **Storage status** — usage, quota, persistence, and what the user is told. It reads `byteSize`
   from the summaries and `navigator.storage` from the browser; neither is this library's business.
   `$lib/storage_status` assembles it, and the export stamps stored here are what it reads.
-- **Export and import** (#35, #47) — the file format and the vault-sized write.
+- **Export and import** — the file format is [`$lib/vault_file`](../vault_file/README.md) (#35).
+  What it reads from here is the payload records, verbatim; the vault-sized write is #47.
 - **The hydrated index** — it caches what a domain library decided a record means, so it lives in
   `$lib/projects` and `$lib/artifacts` rather than here.

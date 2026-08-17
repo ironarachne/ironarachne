@@ -1,8 +1,16 @@
+import { readFileSync } from 'node:fs';
 import { sveltekit } from '@sveltejs/kit/vite';
 import { configDefaults, defineConfig } from 'vitest/config';
 import glsl from 'vite-plugin-glsl';
 
+// The released version, substituted into the bundle as `__APP_VERSION__`. Export files record it
+// so a bug report says which build wrote them; it is diagnostics only and never gates an import.
+// Read from package.json rather than kept as a second constant, because the copy nobody remembers
+// to bump is worse than no version at all.
+const { version } = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'));
+
 export default defineConfig({
+  define: { __APP_VERSION__: JSON.stringify(version) },
   plugins: [sveltekit(), glsl()],
   test: {
     // e2e/ holds Playwright specs, which throw if collected by Vitest.

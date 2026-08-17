@@ -97,7 +97,7 @@ export async function createProject(
     id: options.id ?? newProjectId(),
     name: normalizeName(draft.name),
     tags: normalizeTags(draft.tags),
-    createdAt: now,
+    createdAt: options.createdAt ?? now,
     updatedAt: now,
   };
   const description = normalizeDescription(draft.description);

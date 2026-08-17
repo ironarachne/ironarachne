@@ -193,7 +193,8 @@ the work were safe. An edit that changed nothing says nothing.
 - **Legacy adoption** (#34) — the heraldry, cultures, and religions saved under the old
   per-generator scopes are adopted into a project on first run. Nothing here reads those keys.
   The workshop's own former `localStorage` records are adopted a layer down, by `$lib/vault_db`.
-- **Export and import** (#35, #47) — the file format, and the vault-sized write that meets the
-  storage ceiling head-on.
+- **Export and import** — [`$lib/vault_file`](../vault_file/README.md) (#35) owns the file format
+  and reaches in here to create what a file carries. The vault-sized write that meets the storage
+  ceiling head-on is #47.
 - **The bench** — `ProjectWorkspace` and panel state are persisted per project, separately, and are
   not artifacts. A layout is not work.

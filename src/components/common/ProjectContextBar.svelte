@@ -21,7 +21,9 @@
     type Project,
   } from '$lib/projects';
   import type { VaultResult } from '$lib/vault_db';
+  import type { ImportSummary } from '$lib/vault_file';
   import { ARTIFACT_KINDS } from '$lib/workshop';
+  import ProjectTransferControls from '$components/common/ProjectTransferControls.svelte';
 
   type Props = {
     /**
@@ -144,6 +146,20 @@
     }
     refresh();
   }
+
+  /**
+   * Open what an import brought in.
+   *
+   * An imported project is opened because importing one is an explicit request to work in it —
+   * the same reasoning that opens a project created from this bar. An imported artifact went into
+   * the project that was already open, so there is nothing to move to.
+   */
+  function afterImport(summary: ImportSummary) {
+    if (summary.projectsAdded > 0 && summary.projectId !== undefined) {
+      setActiveProject(summary.projectId);
+    }
+    refresh();
+  }
 </script>
 
 <section class="project-context">
@@ -224,6 +240,12 @@
       {projects.length === 1 ? 'project' : 'projects'}
     </p>
   {/if}
+
+  <!-- One step from the project itself, and never behind a menu. In an application with no server
+       copy, a file is the only copy of this work that survives clearing site data, so export is
+       the durability story rather than a convenience. Import sits beside it and takes a project
+       file or a single artifact — the file says which. -->
+  <ProjectTransferControls projectId={activeProjectId} onImported={afterImport} />
 </section>
 
 <style>

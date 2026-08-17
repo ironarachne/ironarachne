@@ -13,7 +13,9 @@
     searchArtifacts,
     type ArtifactSummary,
   } from '$lib/artifacts';
+  import Download from '$lib/download';
   import { showConfirmModal } from '$lib/ui';
+  import { buildArtifactExportFile } from '$lib/vault_file';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
 
   type Props = {
@@ -128,6 +130,33 @@
     return `Delete “${summary.name}”? This cannot be undone. ${list} ${
       referrers.length === 1 ? 'uses' : 'use'
     } it, and will be left pointing at something that is gone.`;
+  }
+
+  /**
+   * Write one artifact to a file — what handing a single culture to another person looks like.
+   *
+   * Beside the delete button rather than inside the artifact's panel, because this list is where a
+   * user meets an artifact and export is the only way one leaves this browser. It does not stamp
+   * the project as exported: one artifact is not a backup of the project, and treating it as one
+   * is how a user ends up believing work is covered when it is not.
+   */
+  async function exportArtifact(summary: ArtifactSummary) {
+    if (projectId === undefined) {
+      return;
+    }
+    const built = await buildArtifactExportFile(projectId, summary.id);
+    if (!built.ok) {
+      error = `“${summary.name}” could not be exported (${built.reason}).`;
+      return;
+    }
+    const url = URL.createObjectURL(new Blob([built.value.text], { type: 'application/json' }));
+    Download(url, built.value.fileName);
+    URL.revokeObjectURL(url);
+    error = null;
+    notice =
+      built.value.issues.length > 0
+        ? built.value.issues.join(' ')
+        : `Saved ${built.value.fileName}.`;
   }
 
   /**
@@ -256,7 +285,16 @@
               </button>
               <button
                 type="button"
-                class="project-view__delete"
+                class="project-view__row-action"
+                aria-label="Export {summary.name}"
+                title="Export"
+                onclick={() => void exportArtifact(summary)}
+              >
+                ⤓
+              </button>
+              <button
+                type="button"
+                class="project-view__row-action"
                 aria-label="Delete {summary.name}"
                 onclick={() => remove(summary)}
               >
@@ -403,11 +441,13 @@
     background: color-mix(in srgb, var(--gold) 20%, transparent);
   }
 
-  .project-view__delete {
+  .project-view__row-action {
+    /* Two of these sit beside every row, so they are sized to the smallest comfortable tap target
+       rather than to their glyph — a row on a 320px phone has to hold both without wrapping. */
     flex-shrink: 0;
-    min-width: 2.75rem;
+    min-width: 2.5rem;
     margin: 0;
-    padding: 0.2rem 0.5rem;
+    padding: 0.2rem 0.4rem;
     line-height: 1;
   }
 

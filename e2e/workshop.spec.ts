@@ -837,6 +837,107 @@ test.describe('workshop projects', () => {
 });
 
 /**
+ * Export and import (#35), end to end.
+ *
+ * The unit tests settle the format against real generator output. What only a browser can settle is
+ * that a file actually leaves and actually comes back: a real download, a real file input, and a
+ * vault that was genuinely emptied in between. In an application with no server copy this is the
+ * whole durability story, so "the round trip works" is not something to infer from two libraries
+ * that each pass their own tests.
+ */
+test.describe('project export and import', () => {
+  const transfer = (page: Page) => page.locator('.project-transfer');
+
+  function artifactRow(page: Page, name: string) {
+    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
+  }
+
+  test.beforeEach(async ({ page }) => {
+    await openEmptyWorkshop(page);
+  });
+
+  /** Mounts the culture generator and keeps what it made, under a name of its own. */
+  async function saveACulture(page: Page, name: string): Promise<void> {
+    await mountTool(page, /^Culture/);
+    const saveArtifact = panels(page)
+      .filter({ has: page.getByRole('heading', { name: /Culture Generator/ }) })
+      .locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(artifactRow(page, name)).toBeVisible();
+  }
+
+  test('a project survives being exported, deleted, and imported', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await saveACulture(page, 'The Emberfolk');
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      transfer(page).getByRole('button', { name: 'Export project' }).click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/^ironarachne-ashfall-\d{4}-\d{2}-\d{2}\.json$/);
+    const file = await download.path();
+    await expect(transfer(page).getByText(/^Saved ironarachne-ashfall-/)).toBeVisible();
+
+    // The vault genuinely loses it. Everything after this comes out of the file.
+    await projectContext(page).getByRole('button', { name: 'Delete project' }).click();
+    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+
+    await transfer(page).locator('input[type=file]').setInputFiles(file);
+    await expect(transfer(page).getByText('Added 1 project holding 1 artifact.')).toBeVisible();
+    // The import opens what it brought in, so the work is in front of the user rather than
+    // somewhere in a project list.
+    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+    await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
+
+    // And it is in the database, not merely on screen.
+    await page.reload({ waitUntil: 'load' });
+    await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
+  });
+
+  test('one artifact can be carried to another project as a file', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await saveACulture(page, 'The Emberfolk');
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      projectView(page).getByRole('button', { name: 'Export The Emberfolk' }).click(),
+    ]);
+    const file = await download.path();
+
+    await createProject(page, 'Dolmenwood');
+    await expect(artifactRow(page, 'The Emberfolk')).toBeHidden();
+
+    await transfer(page).locator('input[type=file]').setInputFiles(file);
+    await expect(transfer(page).getByText('Added 1 artifact to this project.')).toBeVisible();
+    await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
+
+    // The one it came from still has its own copy: an artifact travels, it does not move.
+    await projectContext(page).getByLabel('Open project').selectOption({ label: 'Ashfall' });
+    await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
+  });
+
+  test('a file that is not ours is refused by name, and nothing is changed', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+
+    await transfer(page)
+      .locator('input[type=file]')
+      .setInputFiles({
+        name: 'notes.json',
+        mimeType: 'application/json',
+        buffer: Buffer.from('{"just":"some other file"}'),
+      });
+
+    await expect(transfer(page).getByRole('alert')).toContainText(
+      'not an Iron Arachne export file',
+    );
+    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
+    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+  });
+});
+
+/**
  * Legacy adoption (#34), proved end to end against data the site itself wrote.
  *
  * The unit tests cover the library against real generator output; what only a browser can settle is
