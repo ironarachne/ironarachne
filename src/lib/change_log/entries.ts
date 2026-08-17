@@ -1,5 +1,26 @@
 export default [
   {
+    date: '2026-08-17',
+    summary:
+      'Projects, a workshop that keeps what you make, editing for saved work, and backup files you can take with you',
+    updates: [
+      'Added projects: what you save now lives in a named project instead of one flat list, and a project can be renamed, deleted, or worked in one at a time',
+      'Rebuilt the workshop so you can open several tools side by side, save what they make into the open project, and open a saved item again in a panel of its own',
+      'Saved cultures and religions can now be edited after the fact — every field you can see, plus renaming, with an explicit re-roll for when you want to start that one over',
+      'Added composition: a religion can be built from a culture you saved, what uses what is shown both ways, and a link to something you deleted is shown as broken rather than quietly disappearing',
+      'Heraldry you have saved can now be seen as drawn arms in the workshop and downloaded as an SVG or a PNG from there',
+      'Moved saved work out of browser local storage and into a database, which lifts the roughly five megabyte ceiling that region maps and coats of arms were running into',
+      'Anything you saved before projects existed is moved into a project for you the first time you open the site, and your originals are left exactly where they were',
+      'Added export and import: back up everything you have as one file, or share a single project or a single item, and bring any of them back on another machine or in another browser',
+      'Restoring from a backup downloads a copy of what you have now first, so there is always a way back, and it says what it is about to replace before it does it',
+      'An item this version cannot read is kept as it arrived rather than dropped, stays visible, and travels in your exports, so a later version can still open it',
+      'Backups made by the old save-and-export buttons still import, and the old saved data page is still there',
+      'Added a storage summary: how much room the site is using, how it is split between projects, and how long it has been since you last exported',
+      'Fixed Stars Without Number starships not charging for the weapons they fit, so a fitted ship costs what it should',
+      'Under the hood: retired the old container hosting, moved the site onto its new front door, and put every library behind its own entry point',
+    ],
+  },
+  {
     date: '2026-08-13',
     summary:
       'Merchant and potion generators, printable character sheets, a new typeface, and a long list of generator fixes',
