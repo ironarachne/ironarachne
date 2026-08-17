@@ -99,9 +99,11 @@ database is part of what keeps it out of an export.
 
 A stored record that does not validate is dropped when the index is hydrated, and the rest are
 kept. That is the one place this library falls short of "nothing is dropped silently", and it is
-deliberate: quarantine needs somewhere to put a bad record, which arrives with import in
-[#35](https://worktree.ca/ironarachne/ironarachne/issues/35). `toProject` is the single function
-that has to change to route them there instead.
+deliberate: quarantine needs somewhere to put a bad record. Import has one now —
+[`$lib/vault_file`](../vault_file/README.md) reports what it cannot read rather than dropping it —
+but it reports into a summary rather than into a store, so there is still nowhere to put a bad
+record found while _reading storage_. That store arrives with #47. `toProject` is the single
+function that has to change to route them there instead.
 
 ## Deleting
 

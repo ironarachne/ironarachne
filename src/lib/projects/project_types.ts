@@ -42,6 +42,12 @@ export type ProjectChanges = {
 export type ProjectMutationOptions = {
   id?: string;
   now?: number;
+  /**
+   * Only meaningful on create, where it separates "first made" from "written to this vault" —
+   * exactly as it does for an artifact. An imported project keeps the day it was started rather
+   * than being redated to the day its backup was restored.
+   */
+  createdAt?: number;
 };
 
 /**

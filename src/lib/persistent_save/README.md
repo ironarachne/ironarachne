@@ -6,6 +6,11 @@ stays in the browser — there is no account and no server anywhere in this path
 
 > **Note:** the saved-data model is expected to change with the workshop's universal result vault
 > (see `docs/workshop.md`). Prefer adding to it over building new things on top of it.
+>
+> `save_file_export.ts` in particular is superseded by [`$lib/vault_file`](../vault_file/README.md)
+> (#35), which exports projects and artifacts rather than storage scopes and migrates an older
+> `formatVersion` forward instead of comparing it with `===`. It is retired once its files can be
+> read by its replacement (#47), so nothing new should be built on it.
 
 ## Scoped storage
 

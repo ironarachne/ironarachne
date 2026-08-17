@@ -1043,6 +1043,24 @@ classDiagram
 - **`ImportSummary` is a return type, not a toast.** Every field on it is something the summary
   has to be able to say, per [Failure states](#failure-states).
 
+Two refinements the implementation (#35) made, recorded here so the diagram and the code do not
+disagree quietly:
+
+- **`QuarantineReason` is the registry's, not a second one.** `$lib/artifact_kinds` already had
+  `unknown-kind`, `invalid-payload`, `unsupported-version`, and `migration-failed`, and they are
+  what `readArtifactPayloadForKind` returns on every read from storage. The diagram's three names
+  were written before that existed; reusing the registry's is what keeps one vocabulary of reasons
+  rather than a translation layer between two.
+- **`ImportSummary` carries `projectId`.** Where the work landed is something the caller has to be
+  able to take the user to, and an import that succeeds while leaving someone to hunt through a
+  project list for what arrived has told them less than it knew.
+
+Quarantined records are **reported and not stored** in this build: there is no object store for
+them in [the storage layer](#the-storage-layer), and the file the user still holds is where they
+survive. That is enough while import always adds — the file is never consumed. It stops being
+enough at #47, where a quarantined artifact has to survive a subsequent vault export, and the store
+for them lands there with the scope that needs it.
+
 ### Decisions taken here
 
 Six questions the prose left open. The first four modelling forced; the last two are the storage
@@ -1172,7 +1190,8 @@ absence of a workshop suggests.
 | Snapshot pattern           | **Built for three kinds.** Heraldry, culture, religion.                                                                                                                                                     |
 | Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else.                       |
 | Saved data page            | **Built, superseded.** `/saved-data` is a flat three-section list.                                                                                                                                          |
-| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own.                                                               |
+| Save file export/import    | **Built, wrong unit.** `save_file_export.ts` exports storage scopes, not projects and artifacts, and rejects any `formatVersion` but its own. Superseded by `src/lib/vault_file`; retired by #47.           |
+| The file format            | **Built (#35).** `src/lib/vault_file` — the envelope, the canonical body, the checksum, the parser, and the migration chain. Project and artifact export and import; the vault scope parses and is refused. |
 | Projects                   | **Built (#31, #176).** `src/lib/projects` — the type, create/rename/edit/delete/list, and the active project. Deleting one cascades to its artifacts in a single transaction.                               |
 | Generic artifact store     | **Built (#33, #176).** `src/lib/artifacts` — any registered kind, scoped to a project, migrating payloads on read. One record per summary, one per payload.                                                 |
 | Vault database             | **Built (#176).** `src/lib/vault_db` — the five IndexedDB stores of [the storage layer](#the-storage-layer), hydrated summaries, transactional writes that return a result.                                 |
