@@ -37,7 +37,7 @@
   }
 </script>
 
-<GeneratorPage title="Word Generator Cheat Sheet">
+<GeneratorPage toolPath="/word-generator-cheat-sheet" title="Word Generator Cheat Sheet">
   {#snippet description()}
     <p>This is meant only for development reference.</p>
     <p>

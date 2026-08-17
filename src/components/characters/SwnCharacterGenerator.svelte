@@ -142,7 +142,11 @@
   });
 </script>
 
-<GeneratorPage theme="scifi" title="Stars Without Number Character Generator">
+<GeneratorPage
+  toolPath="/swn/character"
+  theme="scifi"
+  title="Stars Without Number Character Generator"
+>
   <SeedControls bind:seed bind:lockSeed />
 
   <CharacterNameSection

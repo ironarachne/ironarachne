@@ -79,6 +79,11 @@ domain, and its metadata: an optional genre and an optional game system, both st
 namespaced tags (`genre:fantasy`, `system:swn`) so tools filter with the same
 `applyTagFilter` everything else uses.
 
+It also holds a **required `maturity`** — `experimental`, `beta`, or `release-ready`, from
+`docs/workshop.md`. There is no default, because a defaulted level would be a durability promise
+nobody assessed; assess it against the readiness spec, and expect `experimental` for anything new.
+The tool's page shows the level it declares, which is why `GeneratorPage` requires the catalog path.
+
 A new route that a visitor can reach from navigation needs a catalog entry. The index pages
 build their links from it, so the catalog is the one place a tool's name and classification
 live.

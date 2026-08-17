@@ -154,7 +154,7 @@
   });
 </script>
 
-<GeneratorPage theme="fantasy" title="Treasure Hoard Generator">
+<GeneratorPage toolPath="/fantasy/treasure-hoard" theme="fantasy" title="Treasure Hoard Generator">
   {#snippet description()}
     <p>This generates a unique treasure hoard.</p>
   {/snippet}

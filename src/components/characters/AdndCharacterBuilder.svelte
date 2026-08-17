@@ -34,6 +34,7 @@
   } from '$lib/adnd';
   import type { ADNDClass, ADNDRace } from '$lib/adnd';
   import { Currency } from '$lib/currency';
+  import { toolMaturityForPath } from '$lib/tools';
   import { showAlertModal } from '$lib/ui';
   import {
     buildCharacterNameSource,
@@ -44,6 +45,11 @@
   import { onMount } from 'svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
+  import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
+
+  // The builder keeps its own header — the h1 shares a row with Reset — rather than mounting
+  // `GeneratorPage`, so it states its maturity itself. The value still comes from the catalog.
+  const maturity = toolMaturityForPath('/fantasy/adnd/character/build');
 
   let rollRng = new RNG.RNG(Date.now().toString());
 
@@ -579,6 +585,10 @@
     <button type="button" onclick={resetBuilderForm}>Reset</button>
   </header>
 
+  <p class="builder-maturity">
+    <ToolMaturityBadge {maturity} detailed />
+  </p>
+
   <p>
     Roll attributes, then choose race, class, and alignment. Caster level 1 spells, thief
     discretionary points, hit points, funds, and equipment are yours to set; attribute dice, HP
@@ -881,6 +891,10 @@
 
   .builder-header h1 {
     margin: 0;
+  }
+
+  .builder-maturity {
+    margin: 0.5rem 0 0.75rem;
   }
 
   .spell-pick-slots {

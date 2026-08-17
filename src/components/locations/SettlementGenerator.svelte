@@ -89,7 +89,7 @@
   });
 </script>
 
-<GeneratorPage theme="fantasy" title="Settlement Generator">
+<GeneratorPage toolPath="/fantasy/settlement" theme="fantasy" title="Settlement Generator">
   {#snippet description()}
     <p>
       Generate a settlement with derived facets (law, commerce, food security, health) and economic

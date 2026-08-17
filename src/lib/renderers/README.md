@@ -201,6 +201,15 @@ floating point, and a baseline captured on one will not match the other at any t
 enough to still catch a black frame. The spec will not write baselines unless explicitly told to,
 and skips any case that has none, so a missing baseline is never a false pass.
 
+There is a second reason to regenerate, and it has nothing to do with rendering: **a golden fails
+when its preview simply moves down the page.** The comparison is an element screenshot, the previews
+sit at fractional device-pixel offsets, and Chromium samples across pixels to rasterize a box on
+one — so the same image half a pixel lower is a different PNG by more than the tolerance allows.
+Adding the tool maturity badge (#43) above every generator's controls is what established this, and
+an empty paragraph in its place moved the failure to a different case. If you change what sits above
+a preview on its route, expect to run this loop, and read the diff image before assuming a
+regression: scattered single pixels over unchanged structure is resampling, not a renderer.
+
 1. Dispatch the **Golden baselines** workflow (`.worktree/workflows/goldens.yaml`) on the branch
    whose rendering you want to bless.
 2. It renders them and pushes `goldens/<short sha>`, printing the branch name. If the committed

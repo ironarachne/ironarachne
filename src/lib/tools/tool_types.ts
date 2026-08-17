@@ -27,6 +27,20 @@ export type GameSystem = (typeof SYSTEMS)[number];
 export type ToolKind = 'generator' | 'editor' | 'reference';
 
 /**
+ * How finished a tool is, least to most, from the maturity levels in `docs/workshop.md`.
+ * `ToolMaturity` is derived from this list so the two cannot drift apart.
+ *
+ * This is a promise about durability rather than a note about polish, which is why it is on the
+ * catalog entry and shown to the user: an experimental tool may change or vanish and its output
+ * may not be savable, a beta tool produces durable artifacts but may not be fully editable, and a
+ * release-ready tool meets every requirement in the readiness spec. In a local-only application
+ * that promise is the user's only basis for deciding what to trust with a campaign's worth of work.
+ */
+export const MATURITIES = ['experimental', 'beta', 'release-ready'] as const;
+
+export type ToolMaturity = (typeof MATURITIES)[number];
+
+/**
  * Nav sections a tool can be listed under, in navigation order; mirrors the top-level
  * navigation taxonomy. `ToolDomain` is derived from this list so the two cannot drift apart.
  */
@@ -37,12 +51,17 @@ export type ToolDomain = (typeof DOMAINS)[number];
 /**
  * Authoring shape for a catalog entry. `genres` and `systems` are both optional and are
  * expanded into namespaced tags by `defineTool`.
+ *
+ * `maturity` is required and deliberately has no default. A default would let a tool claim a
+ * maturity nobody assessed, which is the one failure the levels exist to prevent; requiring it
+ * forces the question while the entry is being written.
  */
 export type ToolDefinition = {
   path: RouteId;
   label: string;
   kind: ToolKind;
   domain: ToolDomain;
+  maturity: ToolMaturity;
   genres?: Genre[];
   systems?: GameSystem[];
   /** Free-form tags beyond genre and system, such as 'heraldry' or 'naming'. */
@@ -53,10 +72,15 @@ export type ToolDefinition = {
  * A user-facing tool. Genre and system are not fields: they live in `tags` as `genre:` and
  * `system:` entries so tools can be filtered with the shared tag filtering in `$lib/tags`.
  * Read them back with `toolGenres` and `toolSystems`.
+ *
+ * Maturity is both — a field, because every reader of it wants exactly one value and a field is
+ * the only shape that guarantees that, and a `maturity:` tag alongside it so it composes with the
+ * same filter. `defineTool` derives the tag from the field, so the two cannot disagree.
  */
 export type Tool = TaggedItem & {
   path: RouteId;
   label: string;
   kind: ToolKind;
   domain: ToolDomain;
+  maturity: ToolMaturity;
 };

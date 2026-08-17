@@ -25,7 +25,7 @@
   });
 </script>
 
-<GeneratorPage theme="cyberpunk" title="Drug Generator">
+<GeneratorPage toolPath="/drug" theme="cyberpunk" title="Drug Generator">
   {#snippet description()}
     <p>I suppose you could also use this for any sci-fi setting, really.</p>
   {/snippet}

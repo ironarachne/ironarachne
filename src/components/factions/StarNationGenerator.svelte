@@ -141,7 +141,7 @@
   });
 </script>
 
-<GeneratorPage theme="scifi" title="Star Nation Generator">
+<GeneratorPage toolPath="/star-nation" theme="scifi" title="Star Nation Generator">
   {#snippet description()}
     <p>
       The previews pick how to draw themselves from what this machine can do; the controls below

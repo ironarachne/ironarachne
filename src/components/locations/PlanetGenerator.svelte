@@ -131,7 +131,7 @@
   });
 </script>
 
-<GeneratorPage theme="scifi" title="Planet Generator">
+<GeneratorPage toolPath="/planet" theme="scifi" title="Planet Generator">
   {#snippet description()}
     <p>
       This lets you generate a planet. The preview picks how to draw itself from what this machine
