@@ -44,6 +44,7 @@ export async function openArtifactForEditing(
     migrated: read.ok && read.migrated,
     loadEditor: entry?.loadEditor,
     loadRoller: entry?.loadRoller,
+    loadViewer: entry?.loadViewer,
   };
   return read.ok
     ? { ...editing, snapshot: read.artifact.payload }

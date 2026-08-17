@@ -15,12 +15,25 @@ const registry: ArtifactEditorRegistry = {
     loadEditor: () => Promise.resolve({ default: (() => undefined) as never }),
     loadRoller: () => Promise.resolve(() => ({})),
   },
+  // Registered, and not editable. The state heraldry is actually in.
+  heraldry: { loadViewer: () => Promise.resolve({ default: (() => undefined) as never }) },
 };
 
 describe('the artifact editor registry', () => {
   it('answers whether a kind can be edited without loading anything', () => {
     expect(hasArtifactEditor('culture', registry)).toBe(true);
+    expect(hasArtifactEditor('not-a-kind', registry)).toBe(false);
+  });
+
+  /**
+   * A kind that registered a view and no editing view answers **false**. "This can be edited" is a
+   * claim about requirement 4.1 in docs/workshop.md, and a registry that said true because
+   * heraldry can draw itself would put a save button in front of a surface with nothing to save.
+   */
+  it('does not call a kind editable because it can draw itself', () => {
+    expect(artifactEditorEntry('heraldry', registry)?.loadViewer).toBeDefined();
     expect(hasArtifactEditor('heraldry', registry)).toBe(false);
+    expect(kindsWithArtifactEditors(registry)).not.toContain('heraldry');
   });
 
   it('hands back the registration, roller and all', () => {
@@ -34,7 +47,9 @@ describe('the artifact editor registry', () => {
   });
 
   it('reads the build’s own registry when it is not given one', () => {
-    expect(kindsWithArtifactEditors()).toEqual(Object.keys(ARTIFACT_EDITORS));
+    expect(kindsWithArtifactEditors()).toEqual(
+      Object.keys(ARTIFACT_EDITORS).filter((kind) => hasArtifactEditor(kind)),
+    );
     expect(hasArtifactEditor('not-a-kind')).toBe(false);
   });
 
@@ -45,7 +60,20 @@ describe('the artifact editor registry', () => {
   it('registers editors only for kinds this build can store', () => {
     const kinds = registeredArtifactKinds().map((entry) => entry.kind);
 
-    expect(kindsWithArtifactEditors().filter((kind) => !kinds.includes(kind))).toEqual([]);
+    expect(Object.keys(ARTIFACT_EDITORS).filter((kind) => !kinds.includes(kind))).toEqual([]);
+  });
+
+  /**
+   * Heraldry draws itself and hands over an SVG or a PNG (requirement 6.3) without having an
+   * editing view (4.1). That combination is why `/saved-data` could be retired: seeing a saved
+   * coat of arms and downloading it was the one thing that page did and the project view did not.
+   */
+  it('gives heraldry a view and no editor', () => {
+    const heraldry = artifactEditorEntry('heraldry');
+
+    expect(heraldry?.loadViewer).toBeDefined();
+    expect(heraldry?.loadEditor).toBeUndefined();
+    expect(hasArtifactEditor('heraldry')).toBe(false);
   });
 
   /**

@@ -280,6 +280,21 @@
           </p>
         {/await}
       {/key}
+    {:else if target?.loadViewer !== undefined}
+      <!-- A kind with no editing view that can still draw itself. Not a degenerate editor: it is
+           handed the snapshot and has nothing to say back, so there is nothing here to save. -->
+      {#key `${artifactId}:${revision}`}
+        {#await target.loadViewer()}
+          <p class="artifact-panel__status">Loading…</p>
+        {:then viewer}
+          {@const ArtifactViewer = viewer.default}
+          <ArtifactViewer snapshot={editorSnapshot} />
+        {:catch}
+          <!-- The generic view is the floor, and it needs nothing loaded to render. A kind whose
+               own view will not load still shows its contents rather than an apology. -->
+          <ArtifactSnapshotView snapshot={editorSnapshot} />
+        {/await}
+      {/key}
     {:else}
       <!-- No editor registered for this kind: it opens read-only rather than not opening, and
            what is shown is the snapshot itself rather than a pretence at a view of it. -->
