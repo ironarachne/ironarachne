@@ -1,5 +1,5 @@
-import type { QuarantineReason } from '$lib/artifact_kinds';
-import type { Artifact } from '$lib/artifacts';
+import type { ArtifactKind, QuarantineReason } from '$lib/artifact_kinds';
+import type { Artifact, ArtifactProvenance, ArtifactReference } from '$lib/artifacts';
 import type { Project } from '$lib/projects';
 import type { QuarantinedArtifact } from '$lib/quarantine';
 import type { VaultFailureReason } from '$lib/vault_db';
@@ -26,10 +26,9 @@ export const EXPORT_FORMAT_VERSION = 1;
 /**
  * Which of the three granularities a file holds, per "Three granularities, one format".
  *
- * The discriminator exists in this build even though `vault` is not implemented here: #47 adds a
- * scope to a format that already has the field, rather than introducing a second format with a
- * second parser and a second migration chain. A vault file reaching this build is refused by name
- * — it is never read as though it were a project.
+ * All three are implemented. The discriminator is what lets one parser read any of them, so an
+ * import entry point never has to assume the scope its button was labelled with: the file declares
+ * what it is, and a vault file dropped on "import project" imports the vault.
  */
 export type ExportScope = 'vault' | 'project' | 'artifact';
 
@@ -239,6 +238,25 @@ export type ImportFailureReason =
 export type ImportResult =
   | { ok: true; summary: ImportSummary }
   | { ok: false; reason: ImportFailureReason; message: string };
+
+/**
+ * Something the user has made that never reached storage.
+ *
+ * What a save the browser had no room for leaves in hand (#180). It is a draft rather than an
+ * artifact: no id, no timestamps, and no project it belongs to — those are decided by whatever
+ * eventually stores it, which in this case is an import on some other day.
+ */
+export type UnsavedArtifact = {
+  kind: ArtifactKind;
+  payload: unknown;
+  /** Blank falls through to the kind's own `nameOf`, exactly as it does on a real save. */
+  name?: string;
+  /** The project the save was aimed at, when there was one. */
+  projectId?: string;
+  tags?: string[];
+  references?: ArtifactReference[];
+  provenance?: ArtifactProvenance;
+};
 
 /** A file, ready to be handed to the browser. */
 export type ExportFile = {

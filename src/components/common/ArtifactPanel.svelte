@@ -4,7 +4,10 @@
   import { beforeNavigate } from '$app/navigation';
 
   import { onArtifactsChanged } from '$lib/artifacts';
-  import { showConfirmModal } from '$lib/ui';
+  import { downloadTextFile } from '$lib/download';
+  import { showConfirmModal, showStorageFailureModal } from '$lib/ui';
+  import { buildUnsavedArtifactExportFile, buildVaultExportFile } from '$lib/vault_file';
+  import { ARTIFACT_KINDS } from '$lib/workshop';
   import {
     artifactKindEntry,
     artifactRerollAvailability,
@@ -151,6 +154,12 @@
       });
       if (!result.ok) {
         // What the user typed is still on screen and still saveable, whatever went wrong.
+        if (result.reason === 'quota-exceeded') {
+          // Blocking, because this is the one storage failure where carrying on quietly compounds
+          // the loss — and the edit in front of the user is the copy that exists nowhere else.
+          await offerToRescue();
+          return;
+        }
         error = `That could not be saved (${result.reason}). ${result.message}`;
         return;
       }
@@ -166,6 +175,47 @@
     } finally {
       saving = false;
     }
+  }
+
+  /**
+   * Put an edit the browser had no room for in front of the user, with a way out that needs no
+   * storage.
+   *
+   * What goes in the file is the **edited** value, not what is stored: the stored one is safe by
+   * definition — the transaction rolled back — and the edit is the copy that exists nowhere else.
+   */
+  async function offerToRescue(): Promise<void> {
+    const current = target;
+    if (current === undefined) {
+      return;
+    }
+    const result = await showStorageFailureModal({
+      message: `“${name.trim() === '' ? current.summary.name : name.trim()}” could not be saved: this browser has no room left.`,
+      downloadLabel: 'Download these changes so they are not lost',
+      onDownload: async () => {
+        const built = await buildUnsavedArtifactExportFile(ARTIFACT_KINDS, {
+          kind: current.summary.kind,
+          payload: draft === undefined ? current.snapshot : $state.snapshot(draft),
+          name,
+          projectId,
+          tags: current.summary.tags,
+          references: current.summary.references,
+          ...(current.summary.provenance === undefined
+            ? {}
+            : { provenance: current.summary.provenance }),
+        });
+        return built.ok && downloadTextFile(built.value.text, built.value.fileName);
+      },
+      onExportVault: async () => {
+        const built = await buildVaultExportFile();
+        return built.ok && downloadTextFile(built.value.text, built.value.fileName);
+      },
+    });
+    if (result.action === 'retry') {
+      await save();
+      return;
+    }
+    error = 'Not saved: this browser has no room left. Your changes are still here.';
   }
 
   async function discard() {

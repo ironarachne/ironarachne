@@ -3,9 +3,11 @@ export {
   showAlertModal,
   showConfirmModal,
   showHeraldryPersistenceModal,
+  showStorageFailureModal,
   resolveActiveAlertModal,
   resolveActiveConfirmModal,
   resolveActiveHeraldryPersistenceModal,
+  resolveActiveStorageFailureModal,
   type AlertModalStyle,
   type HeraldryPersistenceModalResult,
   type ModalRequest,
@@ -13,4 +15,6 @@ export {
   type ShowAlertModalOptions,
   type ShowConfirmModalOptions,
   type ShowHeraldryPersistenceModalOptions,
+  type ShowStorageFailureModalOptions,
+  type StorageFailureModalResult,
 } from './modal_state.svelte';

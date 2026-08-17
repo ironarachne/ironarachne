@@ -134,19 +134,20 @@ that refers to itself — travels as `null` and is named in `issues` rather than
 
 ## Public API
 
-| Function                  | Does                                                                 |
-| ------------------------- | -------------------------------------------------------------------- |
-| `buildVaultExportFile`    | Everything the user has, as one file                                 |
-| `buildProjectExportFile`  | A project and everything in it, as a named file ready to download    |
-| `buildArtifactExportFile` | One artifact, the same way                                           |
-| `importExportFile`        | Reads a file of any scope and writes what is in it, or says why not  |
-| `parseExportFile`         | The reader on its own, for anything that wants to inspect a file     |
-| `readExportFileText`      | Picked bytes as text, decompressing a gzipped file it sniffs         |
-| `checkImportCapacity`     | Whether an import looks like it will fit, before anything is written |
-| `describeImportSummary`   | What an import did, as sentences a user can read                     |
-| `canonicalJson`           | Key-sorted JSON — the stable order the format is built on            |
-| `checksumOf`              | SHA-256 of a canonical body                                          |
-| `exportFileName`          | `ironarachne-<what>-YYYY-MM-DD.json`                                 |
+| Function                         | Does                                                                                                        |
+| -------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `buildVaultExportFile`           | Everything the user has, as one file                                                                        |
+| `buildUnsavedArtifactExportFile` | Something that never reached storage, as a file — the way out of a write the browser had no room for (#180) |
+| `buildProjectExportFile`         | A project and everything in it, as a named file ready to download                                           |
+| `buildArtifactExportFile`        | One artifact, the same way                                                                                  |
+| `importExportFile`               | Reads a file of any scope and writes what is in it, or says why not                                         |
+| `parseExportFile`                | The reader on its own, for anything that wants to inspect a file                                            |
+| `readExportFileText`             | Picked bytes as text, decompressing a gzipped file it sniffs                                                |
+| `checkImportCapacity`            | Whether an import looks like it will fit, before anything is written                                        |
+| `describeImportSummary`          | What an import did, as sentences a user can read                                                            |
+| `canonicalJson`                  | Key-sorted JSON — the stable order the format is built on                                                   |
+| `checksumOf`                     | SHA-256 of a canonical body                                                                                 |
+| `exportFileName`                 | `ironarachne-<what>-YYYY-MM-DD.json`                                                                        |
 
 Recording that an export happened is `recordProjectExport` / `recordVaultExport` in
 [`$lib/storage_status`](../storage_status/README.md), called by whatever performed the download.

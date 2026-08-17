@@ -10,13 +10,15 @@ state — which is why it is a `.svelte.ts` file with a plain `modal.ts` facade 
 ## Features
 
 - **`modalState`** — the reactive state a single `<Modal>` component renders from.
-- **Showing a modal** — `showAlertModal`, `showConfirmModal`, and
-  `showHeraldryPersistenceModal`, each returning a promise that settles when the user answers.
-- **Resolving one** — `resolveActiveAlertModal`, `resolveActiveConfirmModal`, and
-  `resolveActiveHeraldryPersistenceModal`, called by the modal component itself.
+- **Showing a modal** — `showAlertModal`, `showConfirmModal`, `showHeraldryPersistenceModal`, and
+  `showStorageFailureModal`, each returning a promise that settles when the user answers.
+- **Resolving one** — `resolveActiveAlertModal`, `resolveActiveConfirmModal`,
+  `resolveActiveHeraldryPersistenceModal`, and `resolveActiveStorageFailureModal`, called by the
+  modal component itself.
 - **Types** — `ModalState`, `ModalRequest`, `AlertModalStyle`, `ShowAlertModalOptions`,
-  `ShowConfirmModalOptions`, `ShowHeraldryPersistenceModalOptions`, and
-  `HeraldryPersistenceModalResult`.
+  `ShowConfirmModalOptions`, `ShowHeraldryPersistenceModalOptions`,
+  `HeraldryPersistenceModalResult`, `ShowStorageFailureModalOptions`, and
+  `StorageFailureModalResult`.
 
 ## Usage
 
@@ -29,9 +31,14 @@ const confirmed = await showConfirmModal({
 });
 
 if (confirmed) {
-  deleteSavedCultureByName(culture.name);
+  await deleteArtifact(projectId, artifact.id);
 }
 ```
+
+`showStorageFailureModal` is the one that blocks on purpose (#180): a write the browser had no room
+for is the single storage condition where carrying on quietly compounds the loss. It takes the
+actions rather than a payload — `onDownload` and an optional `onExportVault` — because what is
+downloadable differs by caller, and this library cannot know what an artifact is.
 
 Import from `$lib/ui`, not from `modal_state.svelte` directly. The facade re-exports everything
 except `resetModalStateForTests`, which is a test hook rather than public API — that distinction is

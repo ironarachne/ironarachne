@@ -1,8 +1,10 @@
+import { getArtifactKind, type ArtifactKindRegistry } from '$lib/artifact_kinds';
 import {
   getArtifactSummary,
   hydrateArtifacts,
   listArtifacts,
   toArtifactSummary,
+  toArtifactSummaryRecord,
 } from '$lib/artifacts';
 import { getProject, hydrateProjects, listProjects } from '$lib/projects';
 import { quarantinedForExport, readQuarantinedArtifacts } from '$lib/quarantine';
@@ -29,6 +31,7 @@ import {
   type ExportScope,
   type ExportedArtifact,
   type ProjectBody,
+  type UnsavedArtifact,
   type VaultBody,
 } from './vault_file_types';
 
@@ -319,6 +322,71 @@ async function storedWorkspaces(): Promise<ProjectWorkspace[]> {
     .map((record) => toProjectWorkspace(record.value))
     .filter((workspace): workspace is ProjectWorkspace => workspace !== undefined)
     .sort((a, b) => a.projectId.localeCompare(b.projectId));
+}
+
+/**
+ * Something the user has made that is **not** in the vault, as a file.
+ *
+ * The escape hatch for a save the browser had no room for (#180). Everything else here reads from
+ * storage, which is exactly what is unavailable at the moment this is needed: a culture that could
+ * not be written has no record to export, and telling someone their work is gone because the thing
+ * that would have saved it is the thing that failed is not an answer.
+ *
+ * So it takes the value in hand. Nothing about the artifact is read from the database — the only
+ * thing that is, `vaultId`, is a header field that already tolerates being absent. The file it
+ * produces is an ordinary artifact export: it imports later through the same path as any other,
+ * which is what makes it a rescue rather than a souvenir.
+ */
+export async function buildUnsavedArtifactExportFile(
+  registry: ArtifactKindRegistry,
+  unsaved: UnsavedArtifact,
+  options: BuildExportOptions = {},
+): Promise<ExportFileResult> {
+  const entry = getArtifactKind(registry, unsaved.kind);
+  if (entry === undefined) {
+    return {
+      ok: false,
+      reason: 'not-found',
+      message: `no artifact kind registered as "${unsaved.kind}"`,
+    };
+  }
+
+  const now = options.now ?? Date.now();
+  const summary = toArtifactSummaryRecord(
+    entry,
+    {
+      // A project it never reached. The id is honest about that rather than borrowed from whichever
+      // project the save was aimed at, and import gives it a home either way.
+      projectId: unsaved.projectId ?? 'unsaved',
+      kind: unsaved.kind,
+      payload: unsaved.payload,
+      ...(unsaved.name === undefined ? {} : { name: unsaved.name }),
+      ...(unsaved.tags === undefined ? {} : { tags: unsaved.tags }),
+      ...(unsaved.references === undefined ? {} : { references: unsaved.references }),
+      ...(unsaved.provenance === undefined ? {} : { provenance: unsaved.provenance }),
+    },
+    unsaved.payload,
+    { now, createdAt: now },
+  );
+  const { byteSize: _byteSize, ...rest } = summary;
+
+  const issues: string[] = [];
+  const payload = tryCanonicalJson(unsaved.payload) === undefined ? null : unsaved.payload;
+  if (payload === null) {
+    issues.push('This could not be written to the file, and travels without content.');
+  }
+
+  const exportedAt = new Date(now).toISOString();
+  const body: ArtifactBody = { artifact: { ...rest, payload } };
+  const envelope: ExportEnvelope = {
+    ...(await sealedHeader(exportedAt, body)),
+    scope: 'artifact',
+    body,
+  };
+  return {
+    ok: true,
+    value: toExportFile(envelope, exportFileName('artifact', summary.name, exportedAt), issues),
+  };
 }
 
 /**
