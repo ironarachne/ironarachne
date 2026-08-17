@@ -8,9 +8,11 @@ import {
   resolveActiveAlertModal,
   resolveActiveConfirmModal,
   resolveActiveHeraldryPersistenceModal,
+  resolveActiveStorageFailureModal,
   showAlertModal,
   showConfirmModal,
   showHeraldryPersistenceModal,
+  showStorageFailureModal,
 } from './modal_state.svelte';
 
 afterEach(() => {
@@ -117,6 +119,58 @@ describe('modal_state', () => {
     resolveActiveHeraldryPersistenceModal({ action: 'dismiss' });
     await expect(promise).resolves.toEqual({ action: 'dismiss' });
     expect(modalState.open).toBe(false);
+  });
+
+  /**
+   * The dialog a write with no room for it raises (#180). It carries the actions rather than a
+   * payload, because what is downloadable differs by caller — a generator holds a snapshot that
+   * never reached the vault, an editor holds one that did — and neither can be described in this
+   * library without it knowing what an artifact is.
+   */
+  it('opens a storage failure modal and resolves on retry', async () => {
+    const promise = showStorageFailureModal({
+      message: '“The Deep” could not be saved: this browser has no room left.',
+      onDownload: () => true,
+      downloadLabel: 'Download this so it is not lost',
+    });
+
+    expect(modalState.open).toBe(true);
+    expect(modalState.current?.kind).toBe('storage');
+    if (modalState.current?.kind === 'storage') {
+      expect(modalState.current.message).toContain('no room left');
+      expect(modalState.current.downloadLabel).toBe('Download this so it is not lost');
+      expect(modalState.current.onExportVault).toBeUndefined();
+    }
+
+    resolveActiveStorageFailureModal({ action: 'retry' });
+    await expect(promise).resolves.toEqual({ action: 'retry' });
+    expect(modalState.open).toBe(false);
+  });
+
+  it('resolves a storage failure modal on dismiss, and names the download by default', async () => {
+    const promise = showStorageFailureModal({
+      message: 'no room',
+      onDownload: () => true,
+      onExportVault: () => true,
+    });
+
+    if (modalState.current?.kind === 'storage') {
+      expect(modalState.current.downloadLabel).toBe('Download this');
+      expect(modalState.current.onExportVault).toBeDefined();
+    }
+
+    resolveActiveStorageFailureModal({ action: 'dismiss' });
+    await expect(promise).resolves.toEqual({ action: 'dismiss' });
+  });
+
+  it('ignores a resolve aimed at a different kind of modal', async () => {
+    const promise = showConfirmModal({ message: 'still open?' });
+
+    resolveActiveStorageFailureModal({ action: 'retry' });
+    expect(modalState.open).toBe(true);
+
+    resolveActiveConfirmModal(true);
+    await expect(promise).resolves.toBe(true);
   });
 
   it('resolves heraldry persistence modal with replaced arms', async () => {

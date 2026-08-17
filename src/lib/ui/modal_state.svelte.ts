@@ -16,6 +16,37 @@ export type ShowConfirmModalOptions = {
   dangerous?: boolean;
 };
 
+/**
+ * What the user chose to do about a write the browser had no room for.
+ *
+ * `retry` exists because the fix — freeing space, in another tab or another application — happens
+ * outside this page, and the whole point of keeping the value on screen is that it can still be
+ * saved afterwards. Dismissing does not throw anything away: the artifact is still in the editor.
+ */
+export type StorageFailureModalResult = { action: 'retry' } | { action: 'dismiss' };
+
+/**
+ * A write that failed for want of room, and the one thing the user can do that needs no storage.
+ *
+ * `onDownload` is handed in rather than a payload, because what is downloadable differs by caller:
+ * a generator has a snapshot that never reached the vault, and an editor has one that did. Both
+ * can produce a file; neither can be described here without this library knowing about artifacts.
+ */
+export type ShowStorageFailureModalOptions = {
+  /** What failed, in the user's terms. Not a reason code. */
+  message: string;
+  title?: string;
+  /**
+   * Saves the work to a file. Reports false when the browser would not take the download, so the
+   * dialog can say so rather than looking as though it worked.
+   */
+  onDownload: () => boolean | Promise<boolean>;
+  /** Exports the whole vault. Absent when there is nothing stored worth offering it for. */
+  onExportVault?: () => boolean | Promise<boolean>;
+  /** What the download is called, so the dialog can name it before and after. */
+  downloadLabel?: string;
+};
+
 export type HeraldryPersistenceModalResult =
   | { action: 'dismiss' }
   | { action: 'replaced'; arms: Arms };
@@ -55,10 +86,22 @@ type HeraldryPersistenceModalRequest = {
   resolve: (result: HeraldryPersistenceModalResult) => void;
 };
 
+type StorageFailureModalRequest = {
+  kind: 'storage';
+  id: number;
+  message: string;
+  title?: string;
+  onDownload: () => boolean | Promise<boolean>;
+  onExportVault?: () => boolean | Promise<boolean>;
+  downloadLabel: string;
+  resolve: (result: StorageFailureModalResult) => void;
+};
+
 export type ModalRequest =
   | AlertModalRequest
   | ConfirmModalRequest
-  | HeraldryPersistenceModalRequest;
+  | HeraldryPersistenceModalRequest
+  | StorageFailureModalRequest;
 
 export type ModalState = {
   open: boolean;
@@ -120,6 +163,38 @@ export function resolveActiveHeraldryPersistenceModal(
   }
   current.resolve(result);
   showNextFromQueue();
+}
+
+export function resolveActiveStorageFailureModal(result: StorageFailureModalResult): void {
+  const current = modalState.current;
+  if (!current || current.kind !== 'storage') {
+    return;
+  }
+  current.resolve(result);
+  showNextFromQueue();
+}
+
+/**
+ * Block on a write that failed for want of room.
+ *
+ * Blocking is the point, and it is the only storage condition that gets to be: carrying on working
+ * quietly compounds the loss, because every further edit is one more thing the browser cannot keep.
+ */
+export function showStorageFailureModal(
+  options: ShowStorageFailureModalOptions,
+): Promise<StorageFailureModalResult> {
+  return new Promise((resolve) => {
+    enqueue({
+      kind: 'storage',
+      id: nextId++,
+      message: options.message,
+      title: options.title,
+      onDownload: options.onDownload,
+      onExportVault: options.onExportVault,
+      downloadLabel: options.downloadLabel ?? 'Download this',
+      resolve,
+    });
+  });
 }
 
 export function showAlertModal(options: ShowAlertModalOptions): Promise<void> {

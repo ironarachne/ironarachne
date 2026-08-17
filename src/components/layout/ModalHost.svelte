@@ -1,11 +1,13 @@
 <script lang="ts">
   import HeraldryPersistenceModalContent from '$components/heraldry/HeraldryPersistenceModalContent.svelte';
   import ModalDialog from '$components/common/ModalDialog.svelte';
+  import StorageFailureModalContent from '$components/common/StorageFailureModalContent.svelte';
   import {
     modalState,
     resolveActiveAlertModal,
     resolveActiveConfirmModal,
     resolveActiveHeraldryPersistenceModal,
+    resolveActiveStorageFailureModal,
     type AlertModalStyle,
   } from '$lib/ui';
   import { RNG } from '@ironarachne/rng';
@@ -21,11 +23,17 @@
     if (current.kind === 'confirm' || current.kind === 'heraldry') {
       return 'message';
     }
+    // A write that did not happen is an error, and looks like one.
+    if (current.kind === 'storage') {
+      return 'error';
+    }
     return current.style;
   });
 
   const isAlertDialog = $derived(
-    modalState.current?.kind === 'alert' || modalState.current?.kind === 'confirm',
+    modalState.current?.kind === 'alert' ||
+      modalState.current?.kind === 'confirm' ||
+      modalState.current?.kind === 'storage',
   );
 
   $effect(() => {
@@ -53,6 +61,12 @@
       resolveActiveHeraldryPersistenceModal({ action: 'dismiss' });
       return;
     }
+    if (modalState.current?.kind === 'storage') {
+      // Escape dismisses rather than being ignored. The work is still on screen either way, and a
+      // dialog that cannot be closed is its own kind of trap.
+      resolveActiveStorageFailureModal({ action: 'dismiss' });
+      return;
+    }
     resolveActiveAlertModal();
   }
 </script>
@@ -64,13 +78,28 @@
   class:ironarachne-modal--error={panelStyle === 'error'}
   class:ironarachne-modal--success={panelStyle === 'success'}
   role={isAlertDialog ? 'alertdialog' : 'dialog'}
-  aria-labelledby={modalState.current?.kind === 'heraldry' || modalState.current?.title
+  aria-labelledby={modalState.current?.kind === 'heraldry' ||
+  modalState.current?.kind === 'storage' ||
+  modalState.current?.title
     ? 'modal-dialog-title'
     : undefined}
-  aria-describedby={modalState.current?.kind === 'heraldry' ? undefined : 'modal-dialog-message'}
+  aria-describedby={modalState.current?.kind === 'heraldry' ||
+  modalState.current?.kind === 'storage'
+    ? undefined
+    : 'modal-dialog-message'}
   oncancel={onDialogCancel}
 >
-  {#if modalState.current?.kind === 'heraldry'}
+  {#if modalState.current?.kind === 'storage'}
+    <StorageFailureModalContent
+      message={modalState.current.message}
+      title={modalState.current.title}
+      downloadLabel={modalState.current.downloadLabel}
+      onDownload={modalState.current.onDownload}
+      onExportVault={modalState.current.onExportVault}
+      onRetry={() => resolveActiveStorageFailureModal({ action: 'retry' })}
+      onDismiss={() => resolveActiveStorageFailureModal({ action: 'dismiss' })}
+    />
+  {:else if modalState.current?.kind === 'heraldry'}
     <HeraldryPersistenceModalContent
       arms={modalState.current.arms}
       seed={modalState.current.seed}

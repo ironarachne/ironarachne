@@ -1113,6 +1113,115 @@ test.describe('vault export and import', () => {
 });
 
 /**
+ * A save the browser has no room for (#180).
+ *
+ * Local-only means this browser holds the only copy, so a dropped save costs work that exists
+ * nowhere else. The library tests prove storage is left untouched and memory does not claim a
+ * phantom save; what only a browser can settle is the half the user meets — that they are stopped
+ * rather than left to carry on, and that the way out produces a real file from a real download.
+ *
+ * The full disk is simulated by refusing every `put` with the one error that is authoritative,
+ * installed before the app boots so the app's own code path is what meets it.
+ */
+test.describe('when the browser has no room to save', () => {
+  const storageDialog = (page: Page) => page.locator('dialog.ironarachne-modal .storage-failure');
+
+  function artifactRow(page: Page, name: string) {
+    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
+  }
+
+  /** Refuses writes to the artifact stores, leaving projects and reads alone. */
+  async function fillTheDisk(page: Page): Promise<void> {
+    await page.addInitScript(() => {
+      const put = IDBObjectStore.prototype.put;
+      IDBObjectStore.prototype.put = function refusing(this: IDBObjectStore, ...args: unknown[]) {
+        if (this.name === 'artifacts' || this.name === 'artifact_payloads') {
+          throw new DOMException('the quota has been exceeded', 'QuotaExceededError');
+        }
+        return (put as (...args: unknown[]) => IDBRequest).apply(this, args);
+      } as typeof put;
+    });
+  }
+
+  test('stops the user, keeps their work, and hands them a file', async ({ page }) => {
+    await openEmptyWorkshop(page);
+    await createProject(page, 'Ashfall');
+    await fillTheDisk(page);
+    await page.reload({ waitUntil: 'load' });
+
+    await mountTool(page, /^Culture/);
+    const saveArtifact = panels(page).locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByLabel('Name', { exact: true }).fill('The Emberfolk');
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+
+    // Blocking, because carrying on quietly compounds the loss.
+    await expect(storageDialog(page)).toBeVisible();
+    await expect(storageDialog(page)).toContainText('no room left');
+    // And it says the thing that changes what a user does next: nothing else was harmed.
+    await expect(storageDialog(page)).toContainText('Everything you had already saved is unharmed');
+
+    // The primary action needs no storage, which is exactly the situation they are in.
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      storageDialog(page)
+        .getByRole('button', { name: /^Download this/ })
+        .click(),
+    ]);
+    expect(download.suggestedFilename()).toMatch(/^ironarachne-the-emberfolk-.*\.json$/);
+    await expect(storageDialog(page)).toContainText('Saved to your downloads');
+
+    await storageDialog(page).getByRole('button', { name: 'Not now' }).click();
+    await expect(storageDialog(page)).toBeHidden();
+
+    // No phantom save: nothing claims to be in the project, on screen or after a reload.
+    await expect(artifactRow(page, 'The Emberfolk')).toBeHidden();
+    await page.reload({ waitUntil: 'load' });
+    await expect(artifactRow(page, 'The Emberfolk')).toBeHidden();
+  });
+
+  /**
+   * A second browser context, because `addInitScript` stays registered for every later navigation
+   * in the page it was installed on — so "there is room again" cannot be reached by reloading. A
+   * fresh context is also the more honest staging of it: the rescue file is meant to survive the
+   * browser it could not be saved in.
+   */
+  test('the rescued file imports once there is room again', async ({ page, browser }) => {
+    await openEmptyWorkshop(page);
+    await createProject(page, 'Ashfall');
+    await fillTheDisk(page);
+    await page.reload({ waitUntil: 'load' });
+
+    await mountTool(page, /^Culture/);
+    const saveArtifact = panels(page).locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByLabel('Name', { exact: true }).fill('The Emberfolk');
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+
+    const [download] = await Promise.all([
+      page.waitForEvent('download'),
+      storageDialog(page)
+        .getByRole('button', { name: /^Download this/ })
+        .click(),
+    ]);
+    const file = await download.path();
+    await storageDialog(page).getByRole('button', { name: 'Not now' }).click();
+
+    const roomy = await browser.newContext();
+    try {
+      const fresh = await roomy.newPage();
+      await openEmptyWorkshop(fresh);
+      await createProject(fresh, 'Ashfall');
+      await fresh.locator('.project-transfer input[type=file]').setInputFiles(file);
+
+      await expect(artifactRow(fresh, 'The Emberfolk')).toBeVisible();
+    } finally {
+      await roomy.close();
+    }
+  });
+});
+
+/**
  * Legacy adoption (#34), proved end to end against data the site itself wrote.
  *
  * The unit tests cover the library against real generator output; what only a browser can settle is

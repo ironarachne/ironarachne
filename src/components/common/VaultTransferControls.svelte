@@ -93,6 +93,8 @@
       // Stamped only once the browser has actually taken the file: this number is what tells a
       // user how long their work has been the browser's only copy, and stamping an export that
       // never landed replaces a true warning with a false reassurance.
+      // Dropped deliberately, as in `ProjectTransferControls`: the backup is already on disk, and
+      // a failed stamp costs an out-of-date "last exported" figure rather than any work.
       await recordVaultExport();
       notes = [
         `Saved ${built.value.fileName}. Keep it somewhere that is not this browser — clearing site data takes everything else with it.`,

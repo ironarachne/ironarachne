@@ -53,6 +53,9 @@
       const url = URL.createObjectURL(new Blob([built.value.text], { type: 'application/json' }));
       Download(url, built.value.fileName);
       URL.revokeObjectURL(url);
+      // The stamp's own result is deliberately dropped: the file is already saved, and telling
+      // someone their export failed because a bookkeeping write did would be worse than the stale
+      // "last exported" figure it costs. It is not the user's work.
       await recordProjectExport(projectId);
       notes = [
         `Saved ${built.value.fileName}. Keep it somewhere that is not this browser — it is the only copy that survives clearing site data.`,
