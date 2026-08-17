@@ -175,11 +175,11 @@ artifact does not restamp contents nobody changed.
 ## Artifact editors
 
 `ARTIFACT_EDITORS` maps a kind to the component that edits it, alongside an optional roller.
-**Culture is the only entry**, and most kinds having none is the shipped state: #39 built the
-frame, and an editing view for a particular kind is part of taking that tool to Release-ready
-(docs/workshop.md, section 4). A kind with no entry opens read-only — the stored snapshot,
-rendered honestly — which is a state the surface draws rather than an error it reports. Heraldry
-is the standing example.
+**Culture and religion are the entries**, and most kinds having none is the shipped state: #39
+built the frame, and an editing view for a particular kind is part of taking that tool to
+Release-ready (docs/workshop.md, section 4). A kind with no entry opens read-only — the stored
+snapshot, rendered honestly — which is a state the surface draws rather than an error it reports.
+Heraldry is the standing example.
 
 ```ts
 export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
@@ -192,11 +192,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollCultureSnapshot(provenance.seed, readCultureGeneratorConfig(provenance.config));
     },
   },
+  religion: {
+    /* … the same two lines again, and nothing else. */
+  },
 };
 ```
 
-Nothing in the framework changed to accommodate culture, which is the claim the first entry
-exists to test: adding a kind is a line here and a component taking `ArtifactEditorProps`.
+Nothing in the framework changed to accommodate culture (#40) or religion (#41), which is the claim
+these entries exist to test: adding a kind is a line here and a component taking
+`ArtifactEditorProps`. Religion is the harder of the two — its payload is a list of sub-objects
+rather than a flat record — and it needed nothing here either.
 
 The specifiers are written out in full, for the reason `TOOL_PANELS` is: a bundler can only split
 a dynamic import it can see.

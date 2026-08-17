@@ -297,8 +297,9 @@ test.describe('building one artifact from another', () => {
   /** Saves whatever the named panel has made, under a name of its own. */
   async function saveFromPanel(page: Page, panelTitle: RegExp, name: string): Promise<void> {
     const panel = panels(page).filter({ has: page.getByRole('heading', { name: panelTitle }) });
-    // Scoped to the save control rather than the panel: the religion generator still carries its
-    // own per-generator Save button, and "Save" alone would be ambiguous between the two.
+    // Scoped to the save control rather than the panel: a generator page carries controls of its
+    // own, and "Save" should not have to be unique across a whole tool for this to find the right
+    // button.
     const saveArtifact = panel.locator('.save-artifact');
     await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
     await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
@@ -322,6 +323,9 @@ test.describe('building one artifact from another', () => {
       .getByLabel('Saved culture', { exact: true })
       .selectOption({ label: 'The Emberfolk' });
     await religionPanel.getByRole('button', { name: 'Generate' }).click();
+    // The generator says outright whose tongue the gods are named in, and names the culture's own
+    // name — which is what it was handed, not the name the artifact happens to be filed under.
+    await expect(religionPanel.getByText(/^Named from the saved culture /)).toBeVisible();
     await saveFromPanel(page, /Religion Generator/, 'The Ember');
   }
 
@@ -443,8 +447,8 @@ test.describe('editing a saved artifact', () => {
   ): Promise<void> {
     await createProject(page, project);
     await mountTool(page, tool);
-    // Scoped to the save control: a generator page has fields of its own, and the tools this is
-    // called with carry a per-generator save button beside the artifact one.
+    // Scoped to the save control: a generator page has fields of its own, and heraldry still
+    // carries a per-generator save button beside the artifact one.
     const saveArtifact = panels(page).locator('.save-artifact');
     await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
     await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
@@ -458,6 +462,34 @@ test.describe('editing a saved artifact', () => {
   /** A project with one saved culture in it, open in a panel of its own. */
   function openASavedCulture(page: Page, name: string): Promise<void> {
     return openASavedArtifact(page, /^Culture/, name);
+  }
+
+  /**
+   * A project with one saved religion in it — one that has gods — open in a panel of its own.
+   *
+   * Every category but polytheism is unticked first, because a religion drawn from the whole table
+   * may be animist and have no pantheon at all. What is being tested here is editing a list of
+   * sub-objects, so the religion has to have the list.
+   */
+  async function openASavedReligion(page: Page, name: string): Promise<void> {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Fantasy Religion/);
+    const generator = panels(page).filter({
+      has: page.getByRole('heading', { name: /Religion Generator/ }),
+    });
+    for (const category of ['monotheism', 'animism', 'totemism', 'ancestor worship', 'shamanism']) {
+      await generator.getByLabel(category, { exact: true }).uncheck();
+    }
+    await generator.getByRole('button', { name: 'Generate' }).click();
+
+    const saveArtifact = generator.locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(artifactRow(page, name)).toBeVisible();
+
+    await artifactRow(page, name).click();
+    await expect(artifactPanel(page).getByLabel('Name', { exact: true })).toHaveValue(name);
   }
 
   test.beforeEach(async ({ page }) => {
@@ -475,6 +507,22 @@ test.describe('editing a saved artifact', () => {
     // The culture editor, not a collapsed summary: a form of labelled text fields and textareas is
     // where a narrow layout actually goes wrong (requirement 6.1).
     await expect(artifactPanel(page).getByLabel('Culture name')).toBeVisible();
+
+    await expectNoHorizontalOverflow(page);
+    await expectInteractiveControlsReachable(page);
+  });
+
+  /**
+   * The same at the other end of the range of editors: a religion's form is nested — fieldsets of
+   * dimensions, realms, and a god per block — which is where a narrow layout gives out if it is
+   * going to (requirement 6.1).
+   */
+  test('fits a 320px screen with a religion’s pantheon open on it', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await openASavedReligion(page, 'The Ember');
+    await expect(
+      artifactPanel(page).getByRole('textbox', { name: 'Deity 1 name', exact: true }),
+    ).toBeVisible();
 
     await expectNoHorizontalOverflow(page);
     await expectInteractiveControlsReachable(page);
@@ -571,6 +619,93 @@ test.describe('editing a saved artifact', () => {
 
     await expect(taboo(1)).toHaveValue('Speaking the old name aloud is forbidden.');
     await expect(taboo(2)).toHaveValue(second);
+  });
+
+  /**
+   * Requirement 7.4 for religion (#41): generate, save, reopen, edit — where the edit lands inside
+   * the pantheon rather than on a top-level field, because a list of sub-objects is the shape this
+   * kind was chosen to test.
+   */
+  test('edits a saved religion’s pantheon, and the change survives a reload', async ({ page }) => {
+    await openASavedReligion(page, 'The Ember');
+    const panel = artifactPanel(page);
+
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+
+    await panel.getByLabel('Religion name').fill('The Ashen Path');
+    await panel.getByRole('textbox', { name: 'Deity 1 name', exact: true }).fill('Vethra');
+    await panel.getByLabel('Deity 1 holy symbol').fill('a broken wheel');
+    await expect(panel.getByText('Unsaved changes.')).toBeVisible();
+
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByText('Saved.')).toBeVisible();
+    // The project view reads the same store, and a religion's name is the name it is filed under.
+    await expect(artifactRow(page, 'The Ember')).toBeVisible();
+
+    await expect
+      .poll(async () =>
+        (await storedPanels(page)).some((stored) => stored.artifactId !== undefined),
+      )
+      .toBe(true);
+    await page.reload({ waitUntil: 'load' });
+
+    await expect(artifactPanel(page).getByLabel('Religion name')).toHaveValue('The Ashen Path');
+    await expect(
+      artifactPanel(page).getByRole('textbox', { name: 'Deity 1 name', exact: true }),
+    ).toHaveValue('Vethra');
+    await expect(artifactPanel(page).getByLabel('Deity 1 holy symbol')).toHaveValue(
+      'a broken wheel',
+    );
+  });
+
+  /**
+   * Requirement 4.4, and the reason religion is one of the three tools: renaming one god must not
+   * re-roll the pantheon around them.
+   */
+  test('renames one deity without re-rolling the pantheon', async ({ page }) => {
+    await openASavedReligion(page, 'The Ember');
+    const panel = artifactPanel(page);
+
+    const deityName = (position: number) =>
+      panel.getByRole('textbox', { name: `Deity ${position} name`, exact: true });
+    const secondName = await deityName(2).inputValue();
+    const secondDescription = await panel.getByLabel('Deity 2 description').inputValue();
+
+    await deityName(1).fill('Vethra');
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByText('Saved.')).toBeVisible();
+
+    await expect(deityName(1)).toHaveValue('Vethra');
+    await expect(deityName(2)).toHaveValue(secondName);
+    await expect(panel.getByLabel('Deity 2 description')).toHaveValue(secondDescription);
+  });
+
+  /**
+   * Requirement 4.3 for the second kind: a different roller, the same destructive confirmation.
+   *
+   * And requirement 2.2 for free, which is the more interesting half. A religion is reproducible
+   * from its seed and the settings recorded beside it, so rolling one again from unchanged
+   * provenance brings back the same gods — what the roll throws away is the *edits*, not the
+   * religion. That there is a pantheon there at all is the roll reading the categories it was
+   * saved with: falling back to the defaults could as easily have returned an animist tradition
+   * with no gods in it.
+   */
+  test('warns before rolling a religion again, and rolls it when told to', async ({ page }) => {
+    await openASavedReligion(page, 'The Ember');
+    const panel = artifactPanel(page);
+    const deity = panel.getByRole('textbox', { name: 'Deity 1 name', exact: true });
+    const before = await deity.inputValue();
+
+    await panel.getByLabel('Religion name').fill('An edit about to be thrown away.');
+    await panel.getByRole('button', { name: 'Roll again' }).click();
+    await expect(confirmDialog(page)).toContainText('unsaved changes go too');
+    await confirmDialog(page).getByRole('button', { name: 'Roll again' }).click();
+
+    await expect(panel.getByText('Rolled again from the original seed.')).toBeVisible();
+    await expect(panel.getByLabel('Religion name')).not.toHaveValue(
+      'An edit about to be thrown away.',
+    );
+    await expect(deity).toHaveValue(before);
   });
 
   /**

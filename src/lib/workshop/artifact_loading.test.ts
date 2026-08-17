@@ -2,8 +2,13 @@ import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import {
+  collectReferencedArtifacts,
   deleteArtifact,
+  getArtifactSummary,
+  hasBrokenArtifactReferences,
+  listArtifactBacklinks,
   resetArtifactIndex,
+  setArtifactReferences,
   type Artifact,
   type ArtifactSummary,
 } from '$lib/artifacts';
@@ -251,5 +256,96 @@ describe('loadActiveProjectArtifactValues', () => {
 
     expect(await loadActiveProjectArtifactValues('heraldry')).toEqual([]);
     expect(await loadActiveProjectArtifactValues('culture')).toHaveLength(1);
+  });
+});
+
+/**
+ * Requirement 5.4, for the pair that makes it a real question rather than a hypothetical.
+ *
+ * A culture takes its religion from a saved religion; a religion takes its gods' names from a
+ * saved culture. Pointed at each other, they are a cycle — and per docs/workshop.md that is an
+ * ordinary arrangement rather than a bug to detect, so everything that walks references has to
+ * terminate on it and everything that reads one has to keep working.
+ *
+ * Built through the store rather than through the two generators, because a reference is recorded
+ * when an artifact is saved and saving always makes a new artifact: the UI can build
+ * `culture → religion → culture` across three artifacts but cannot yet close the loop over two.
+ * Closing it here is what proves the model tolerates what the model allows.
+ */
+describe('a culture and a religion that reference each other', () => {
+  function religionSnapshot(name = 'The Ember'): Record<string, unknown> {
+    return {
+      name,
+      seed: 'ember',
+      generatorOptions: {
+        lockSeed: false,
+        selectedCategories: ['polytheism'],
+        selectedSpecies: ['human'],
+        polytheisticStanding: 'random',
+        spiritCosmologyDepth: 'random',
+        useSavedCulture: true,
+        savedCultureName: 'Ashfall',
+      },
+      religion: { name, description: 'They keep the long silence.', realms: [], pantheon: null },
+    };
+  }
+
+  /** Two artifacts, each naming the other, in the roles their generators actually record. */
+  async function saveACycle(): Promise<{ culture: Artifact; religion: Artifact }> {
+    const culture = await saveCulture();
+    const stored = await saveToolArtifact('p1', {
+      kind: 'religion',
+      payload: religionSnapshot(),
+      toolPath: '/fantasy/religion',
+      references: [{ targetId: culture.id, targetKind: 'culture', role: 'naming-culture' }],
+    });
+    if (!stored.ok) {
+      throw new Error(`expected a stored religion, got ${stored.reason}: ${stored.message}`);
+    }
+    await setArtifactReferences('p1', culture.id, [
+      { targetId: stored.value.id, targetKind: 'religion', role: 'religion' },
+    ]);
+    return { culture, religion: stored.value };
+  }
+
+  it('terminates when the walk goes round, from either end', async () => {
+    const { culture, religion } = await saveACycle();
+
+    // Each reaches the other and stops. Neither reaches itself: a project is not a thing that
+    // reaches itself, and looping back is precisely what would hang.
+    expect(collectReferencedArtifacts('p1', culture.id).map((entry) => entry.id)).toEqual([
+      religion.id,
+    ]);
+    expect(collectReferencedArtifacts('p1', religion.id).map((entry) => entry.id)).toEqual([
+      culture.id,
+    ]);
+  });
+
+  it('answers what points at each of them, by role', async () => {
+    const { culture, religion } = await saveACycle();
+
+    expect(listArtifactBacklinks('p1', culture.id)).toMatchObject([
+      { referrer: { id: religion.id }, references: [{ role: 'naming-culture' }] },
+    ]);
+    expect(listArtifactBacklinks('p1', religion.id)).toMatchObject([
+      { referrer: { id: culture.id }, references: [{ role: 'religion' }] },
+    ]);
+  });
+
+  it('still rebuilds both, since a cycle is a shape of the links and not of the payloads', async () => {
+    const { culture, religion } = await saveACycle();
+
+    expect(await loadArtifactValue('p1', culture.id)).toMatchObject({ ok: true });
+    expect(await loadArtifactValue('p1', religion.id)).toMatchObject({ ok: true });
+  });
+
+  it('leaves the survivor readable and visibly broken when one half is deleted', async () => {
+    const { culture, religion } = await saveACycle();
+
+    await deleteArtifact('p1', culture.id);
+
+    expect(hasBrokenArtifactReferences('p1', getArtifactSummary('p1', religion.id)!)).toBe(true);
+    expect(collectReferencedArtifacts('p1', religion.id)).toEqual([]);
+    expect(await loadArtifactValue('p1', religion.id)).toMatchObject({ ok: true });
   });
 });
