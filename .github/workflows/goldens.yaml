@@ -12,12 +12,12 @@ name: Golden baselines
 # on one will not match the other at any tolerance loose enough to still catch a black frame. The
 # spec refuses to write baselines unless asked precisely because of that.
 #
-# Why a branch rather than an artifact: **workflow artifacts do not work on this host, at any
-# version.** The runner never sets `ACTIONS_RUNTIME_TOKEN`, so the artifact service cannot
-# authenticate; `docs/deployment.md`, "Actions on this host", records the three runs that
-# established it and says in as many words not to add `upload-artifact` back in any form. Anything
-# that has to outlive the job goes somewhere real. A branch is the most real thing available here,
-# and it is also the shape the output wants to be: a commit containing the baselines.
+# Why a branch rather than a workflow artifact: on GitHub either would work — this originally had to
+# be a branch because the previous forge implemented no artifact service at all. It stays a branch
+# because that is the shape the output wants to be. The end state of blessing a baseline is a commit
+# on `main`; a branch is already that commit, and review happens in a pull request where the images
+# render side by side with what they replace. An artifact would have to be downloaded, unpacked and
+# committed by hand before anyone could look at it.
 #
 # The loop, which is written up in `src/lib/renderers/README.md`:
 #
@@ -30,6 +30,9 @@ name: Golden baselines
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   goldens:
     runs-on: ubuntu-latest
@@ -39,6 +42,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
 
       - run: npm ci
 
@@ -51,8 +55,6 @@ jobs:
         run: npx playwright test --project=chromium preview_goldens --update-snapshots=all
 
       - name: Push them to a branch
-        env:
-          WORKTREE_TOKEN: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
         run: |
           set -eu
 
@@ -65,24 +67,15 @@ jobs:
             exit 0
           fi
 
-          if [ -z "$WORKTREE_TOKEN" ]; then
-            echo "::error::WORKTREE_ACCESS_TOKEN is unset, so the baselines cannot be pushed. They exist only in this job's workspace and will be discarded."
-            exit 1
-          fi
-
-          # `git rev-parse` rather than $GITHUB_SHA: most of the GITHUB_* context is empty on this
-          # host, and the working tree is always right in front of us.
           branch="goldens/$(git rev-parse --short HEAD)"
 
-          git config user.name "Worktree Actions"
-          git config user.email "actions@worktree.ca"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add "$snapshots"
           git commit -m "Golden baselines rendered by CI at $(git rev-parse --short HEAD)"
 
-          # Force, so dispatching twice on the same commit means "do it again" rather than failing
+          # Forced, so dispatching twice on the same commit means "do it again" rather than failing
           # on a branch that already exists. It only ever touches a goldens/ branch.
-          git push --force \
-            "https://oauth2:$WORKTREE_TOKEN@${GITHUB_SERVER_URL#https://}/$GITHUB_REPOSITORY.git" \
-            "HEAD:refs/heads/$branch"
+          git push --force origin "HEAD:refs/heads/$branch"
 
           echo "::notice::Baselines pushed to $branch. Open a pull request from it, look at the images, and merge."

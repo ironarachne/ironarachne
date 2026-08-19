@@ -36,7 +36,7 @@ were taken from, the date, and which directories map onto which:
 
 ```json
 {
-  "repository": "https://worktree.ca/ironarachne/ironarachne_branding",
+  "repository": "https://github.com/ironarachne/ironarachne_branding",
   "commit": "e5f6040e9a31f4dd5346c6870fd83352aa1232f2",
   "synced": "2026-08-13",
   "assets": [
@@ -115,9 +115,8 @@ define custom properties nothing reads. The site does use the three status roles
 ## What is not here
 
 **No CI check.** Issue #151 weighed one and recommended against it for now: it would couple every
-run to a second repository for the sake of some SVGs and PNGs, and this host's Actions are
-constrained enough already (see `docs/deployment.md`, "Actions on this host"). If drift recurs
-despite the pin, `--check` is one line in a workflow and the decision can be revisited.
+run to a second repository for the sake of some SVGs and PNGs. If drift recurs despite the pin,
+`--check` is one line in a workflow and the decision can be revisited.
 
 **No submodule.** Same reasoning, more strongly — it would couple every clone as well as every CI
 run.

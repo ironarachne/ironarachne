@@ -46,14 +46,11 @@ Notes:
 - **`npm run verify:all` before merging anything that touches routes, components, or
   rendering.** This is not optional politeness: no Playwright runs against a PR, so you are the
   only thing standing between a browser-visible regression and `main`.
-- CI is two workflows. `.worktree/workflows/ci.yaml` runs `verify` on every PR and every merge,
-  and is the only required check. `.worktree/workflows/e2e.yaml` runs the browser suite on
-  merges to `main` only — never on a PR, because this host stalls jobs at random and a gate
-  that fails for reasons unrelated to the change teaches people to ignore it. A red run there
-  is a signal to investigate, not a blocked merge; `e2e.yaml` carries the full reasoning.
-  Worktree.ca reads workflows from `.worktree/workflows` only — `.github` and `.forgejo` are
-  both ignored, and a workflow in either is silently never run. Actions under `actions/`
-  resolve bare; any other action needs its full URL. See https://docs.worktree.ca/code/actions/.
+- CI is two workflows. `.github/workflows/ci.yaml` runs `verify` on every PR and every merge,
+  and is the only required check. `.github/workflows/e2e.yaml` runs the browser suite on
+  merges to `main` only — never on a PR, because the suite takes about seventeen minutes and
+  `npm run verify:all` locally is the faster loop for a rendering change. A red run there is a
+  signal to investigate, not a blocked merge; `e2e.yaml` carries the full reasoning.
 - **Coverage is enforced per library, not project-wide.** `scripts/check_library_coverage.ts`
   requires every directory under `src/lib` to reach 80% line and function coverage. The
   exception is the debt recorded in `scripts/library_coverage_baseline.json`: those libraries
@@ -192,17 +189,17 @@ Break a design into work items only after the model is approved.
 
 ## Git workflow
 
-- Remote is Worktree.ca (a hard fork of Gitea) — use the worktree MCP tool for PRs/issues, not `gh` or other
-  GitHub-only tooling.
+- Remote is GitHub (`ironarachne/ironarachne`) — use the `gh` CLI for PRs, issues and runs.
+  The repository moved here from Worktree.ca; issues carry a footer linking their original.
 - `main` is protected on the remote: direct pushes are rejected, and a PR cannot merge until
-  `CI / verify (pull_request)` reports green. That is the only required context — the browser
-  suite deliberately does not gate a PR (see `.worktree/workflows/e2e.yaml`). Work on a branch
-  and open a PR; there is no path that bypasses this.
+  `verify` reports green. That is the only required context — the browser suite deliberately
+  does not gate a PR (see `.github/workflows/e2e.yaml`). Work on a branch and open a PR; there
+  is no path that bypasses this.
 
 ## Agent configuration
 
 `.opencode/opencode.json` is checked in and applies to everyone. It holds the shared permission
-allowlist — this project's own tooling and the worktree MCP calls the workflow depends on — plus
+allowlist — this project's own tooling and the `gh` calls the workflow depends on — plus
 three plugins that enforce safety constraints:
 
 - **Format on edit** (`.opencode/plugins/format-on-edit.ts`) runs Prettier on any file written or

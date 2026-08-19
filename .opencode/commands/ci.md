@@ -2,62 +2,50 @@
 description: Watch a pull request's CI checks, and pull the job log when something fails. Usage: /ci [PR number — defaults to the PR for the current branch]
 ---
 
-Report the state of CI for PR **$ARGUMENTS** (if that is empty, find the open PR whose head is the
-current branch with `mcp__worktree__list_repo_pull_requests`). Owner `ironarachne`, repo
-`ironarachne`.
+Report the state of CI for PR **$ARGUMENTS** (if that is empty, `gh pr status` finds the PR whose
+head is the current branch). Repo `ironarachne/ironarachne`.
 
 Wait until every check has finished, then say what passed, what failed, and — if anything failed —
 what the log says went wrong. Do not stop at "the check is red".
 
-## How to read status on this host
+## Reading status
 
-Worktree.ca is a hard fork of Gitea and **does not implement the Actions REST API**. Every
-`/api/v1/repos/{owner}/{repo}/actions/*` route returns a 404, so `list_workflow_runs`,
-`get_workflow_run` and `dispatch_workflow` are all unusable. Do not waste turns on them.
-
-What does work:
-
-**Check status** — the commit statuses API, which is not part of the Actions API:
+GitHub implements the Actions REST API and `gh` speaks it directly, so there is nothing to scrape:
 
 ```bash
-curl -s "https://worktree.ca/api/v1/repos/ironarachne/ironarachne/commits/<sha>/statuses"
+gh pr checks <pr> --watch --fail-fast   # blocks until every check settles
+gh pr checks <pr>                       # one-shot table: name, state, duration, link
 ```
 
-Two traps here, both of which have caused wrong reports before:
+`--watch` is the whole "while waiting" story — it streams state changes and exits non-zero if
+anything failed. Do not build a polling loop around it, and do not use WebFetch, which caches for
+15 minutes and will happily report a state that has already changed.
 
-- It returns **every status ever posted** for that commit, so group by `context` and take the newest
-  by `created_at`. Do not trust ordering.
-- **A skipped job is reported as `success`.** A job whose `needs:` dependency failed looks green.
-  Compare timestamps: a "success" a second after an upstream failure never ran. Say so if you see it.
+One trap worth keeping from the old forge, because it still produces wrong reports: **a skipped job
+is not a passing job.** A job whose `needs:` dependency failed never ran; `gh pr checks` shows it as
+`skipping`, and calling that "passed" hides the real failure. Say which checks actually executed.
 
-**Run numbers** — scrape the run list, since there is no API:
+## Diagnosing a failure
+
+Go to the failing step's log — never infer the cause from the check name:
 
 ```bash
-curl -s "https://worktree.ca/ironarachne/ironarachne/actions"
+gh run list --branch <branch> --limit 5   # find the run id
+gh run view <run-id> --log-failed         # just the failed steps
+gh run view <run-id> --job <job-id> --log  # one job in full
 ```
 
-**Job logs** — plain text, no auth, and the only real way to diagnose a failure:
+Each row from `gh pr checks` carries a URL ending in `/job/<job-id>`; that id is what `--job` takes.
 
-```bash
-curl -s "https://worktree.ca/ironarachne/ironarachne/actions/runs/<run>/jobs/<n>/logs"
-```
+## What runs
 
-`<n>` is the zero-based job index. A job that never started returns `job is not started`, which is
-itself how you tell a skipped job from one that ran and failed. The run _detail_ page renders
-client-side, so its HTML is useless — go straight to the log.
-
-Use `curl` rather than WebFetch throughout: WebFetch caches for 15 minutes, which is longer than a
-check takes to change state.
-
-## While waiting
-
-Poll in the background rather than blocking, and do not poll faster than every 20 seconds. `verify`
-takes about 1m15s and `e2e` about 4m45s, so a full round is roughly five minutes.
+`verify` is the only required check and the only one gating the merge — types, lint, unit tests,
+coverage, about 1m15s. `e2e` runs on merges to `main` only and never on a pull request, so a red
+`e2e` is a signal to investigate rather than a blocked merge; `.github/workflows/e2e.yaml` carries
+the reasoning.
 
 ## What to report
 
 - Each check by name, with its result and duration.
 - For a failure: the actual error from the log, quoted, plus which step it died in.
-- If the failure looks like a known platform limitation rather than a code problem, say which one —
-  `docs/deployment.md` under "Actions on this host" lists the ones already discovered, and repeating
-  that diagnosis from scratch is wasted work.
+- Which checks were skipped rather than passed, if any.

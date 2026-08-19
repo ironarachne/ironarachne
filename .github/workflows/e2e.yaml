@@ -1,0 +1,43 @@
+name: E2E
+
+# The Playwright suite, on merges to `main` only. Deliberately never on a pull
+# request.
+#
+# It used to be a required check on every pull request, and it was removed on
+# the previous forge because that host stalled: four times in about twenty-four
+# hours a job went silent mid-run and was reaped roughly fifteen minutes later.
+# A required check that fails at random, for reasons unrelated to the change,
+# and takes seventeen minutes to say nothing, is not a gate — it teaches people
+# that red means "press the button again", which is exactly the habit that lets
+# a real failure through.
+#
+# That specific host problem is gone. The suite stays here rather than gating a
+# pull request because it is still seventeen minutes, and `npm run verify:all`
+# locally is the faster feedback loop for the person making a rendering change.
+# Revisit if the wall-clock cost comes down or a regression slips through: a red
+# run on `main` says look at this, and blocks nobody, so the gap is real and it
+# is on the person merging.
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      # Every Playwright project in playwright.config.ts is Chromium-backed — the
+      # mobile ones are Chromium device emulation — so this is the only browser needed.
+      - run: npx playwright install --with-deps chromium
+
+      - run: npm run test:e2e

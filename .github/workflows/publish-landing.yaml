@@ -9,10 +9,8 @@ name: Publish landing page
 # earn that ceremony, and tying it to package.json's version would mean every app
 # release forced a landing-page deploy.
 #
-# Path-filtered `push` triggers do work on this host, which is why promote-*.yaml
-# uses them. Most other things do not: no workflow artifacts, no workflow_dispatch
-# inputs, no `timeout-minutes:`, and no expressions in a job-level `env:`. Read
-# "Actions on this host" in docs/deployment.md before changing this file.
+# Path-filtered `push` triggers are what promote-*.yaml uses too, for the same
+# reason: the thing that should trigger a publish is the content changing.
 
 on:
   push:

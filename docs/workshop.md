@@ -11,7 +11,7 @@ is considered finished.
 **Status:** accepted; being built. The foundation and durability phases are largely in place, and
 the shell is live at `/workshop` — linked from navigation, with a project always open, several
 panels on a bench at once, and a project view listing what the project holds. The work is broken
-down in [The plan](#the-plan) and tracked on Worktree under the `workshop` label; what is built and
+down in [The plan](#the-plan) and tracked on GitHub under the `workshop` label; what is built and
 what is not is in [What exists today](#what-exists-today).
 
 The [domain model](#domain-model) is settled, and the work in [The plan](#the-plan) is built
@@ -1350,7 +1350,7 @@ viewer and no editor, so a saved coat of arms can be seen and downloaded but not
 
 ## The plan
 
-The work below is derived from this document and tracked on Worktree under the `workshop` label.
+The work below is derived from this document and tracked on GitHub under the `workshop` label.
 Phase boundaries are dependency boundaries, not dates.
 
 ### First release

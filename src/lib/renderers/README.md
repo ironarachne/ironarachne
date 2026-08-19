@@ -210,7 +210,7 @@ an empty paragraph in its place moved the failure to a different case. If you ch
 a preview on its route, expect to run this loop, and read the diff image before assuming a
 regression: scattered single pixels over unchanged structure is resampling, not a renderer.
 
-1. Dispatch the **Golden baselines** workflow (`.worktree/workflows/goldens.yaml`) on the branch
+1. Dispatch the **Golden baselines** workflow (`.github/workflows/goldens.yaml`) on the branch
    whose rendering you want to bless.
 2. It renders them and pushes `goldens/<short sha>`, printing the branch name. If the committed
    baselines already match, it says so and pushes nothing.
@@ -218,9 +218,10 @@ regression: scattered single pixels over unchanged structure is resampling, not 
    what "correct" means.
 4. Merge. The next E2E run on `main` starts asserting against them.
 
-The workflow pushes a branch rather than uploading an artifact because **workflow artifacts do not
-work on this host** — see `docs/deployment.md`, "Actions on this host". That is a platform fact
-with three burned runs behind it, not a preference.
+The workflow pushes a branch rather than uploading an artifact. That started as a platform fact —
+the previous host implemented no workflow artifacts at all — and it stays because a branch is
+already the commit you want: review happens in a pull request where the images render beside what
+they replace. See `docs/deployment.md`, "Actions notes".
 
 Never run `--update-snapshots` locally to fix a red golden. If a baseline is wrong, regenerate it
 from CI; if CI's own output moves around between runs, that is a finding about this infrastructure

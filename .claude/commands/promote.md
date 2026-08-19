@@ -14,14 +14,15 @@ latest" version.
 A version is only promotable if it has a release with an artifact attached. Verify before opening
 anything:
 
-```
-mcp__worktree__get_release_by_tag  owner=ironarachne repo=ironarachne tag=v$2
+```bash
+gh release view "v$2" --json tagName,isDraft,assets \
+  --jq '{tag: .tagName, draft: .isDraft, assets: [.assets[].name]}'
 ```
 
-Use that, **not** an unauthenticated listing. A draft release is invisible to unauthenticated
-callers, and a release that exists but is a draft will pass a casual check and then fail the deploy —
-this has happened. Confirm the release exists, is not a draft, and has both
-`ironarachne-$2.tar.gz` and its `.sha256` attached.
+Run it **authenticated** — which `gh` is by default — and check the `draft` field rather than
+assuming. A draft release is invisible to unauthenticated callers, so a version that looks released
+in a browser tab can still fail the deploy; this has happened. Confirm the release exists, is not a
+draft, and has both `ironarachne-$2.tar.gz` and its `.sha256` attached.
 
 If there is no release, say so and stop. The fix is to cut one by bumping `package.json` (`/release`),
 not to invent a version.
@@ -31,8 +32,8 @@ not to invent a version.
 `deploy/$1.version` holds bare digits and nothing else — `2.3.2`, no leading `v`, no comment. The
 workflow rejects anything else before it goes near a bucket.
 
-Branch off `main`, make the one-line change, commit, push, and open the PR. Nothing else belongs in
-this PR.
+Branch off `main`, make the one-line change, commit, push, and open the PR with `gh pr create`.
+Nothing else belongs in this PR.
 
 ## What the PR description must say
 
@@ -45,8 +46,9 @@ this PR.
 ## After merging, if asked to see it through
 
 Watch the `Promote $1` run — the `/ci` command's notes on reading status apply — and then verify the
-site rather than trusting the check. A skipped job reports as success here, so confirm from the job
-log that the publish steps actually ran, and check the environment serves:
+site rather than trusting the check. Every publish step in that workflow is conditional on the
+version file having actually changed, so confirm from the job log that they ran rather than skipped,
+and check the environment serves:
 
 | Environment | URL                             |
 | ----------- | ------------------------------- |
