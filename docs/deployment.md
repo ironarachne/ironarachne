@@ -154,11 +154,7 @@ There is no fourth. Pushing the version tag and cutting the release used to need
 token; on GitHub the workflow's built-in `GITHUB_TOKEN` does both, given `permissions: contents:
 write` on the job. Nothing needs minting for that.
 
-Two things still need doing:
-
-**Set the three secrets on the GitHub repository.** They did not come across with the code —
-`gh secret set SCW_ACCESS_KEY`, and so on for the other two. Until they exist, `build.yaml` will
-tag and release correctly and then fail at the publish step.
+All three are set on the GitHub repository as of 2026-08-19. One thing still needs doing:
 
 **Point the Scaleway secrets at the deploy identity.** They currently hold a user-scoped API key,
 which can do anything the account can. `infra/shared` exists to provide a narrower one: an IAM
