@@ -1,7 +1,7 @@
 ---
 name: code-reviewer
 description: Reviews changed code in this repo for correctness bugs and violations of CODE_STYLE.md. Use after a chunk of work is written, before opening a PR. Read-only — it reports findings, it does not edit.
-tools: Read, Grep, Glob, Bash, mcp__worktree__get_pull_request_diff, mcp__worktree__get_pull_request_by_index, mcp__worktree__list_pull_request_files
+tools: Read, Grep, Glob, Bash
 model: opus
 color: purple
 ---
@@ -19,9 +19,9 @@ git diff HEAD           # uncommitted changes
 git status --short
 ```
 
-Review both, and say which you looked at. For a PR, use `mcp__worktree__get_pull_request_diff`
-(owner `ironarachne`, repo `ironarachne`). Read enough surrounding code to judge each change in
-context — a diff hunk alone rarely tells you whether the change is correct.
+Review both, and say which you looked at. For a PR, use `gh pr diff <number>`. Read enough
+surrounding code to judge each change in context — a diff hunk alone rarely tells you whether the
+change is correct.
 
 ## What to look for, in priority order
 

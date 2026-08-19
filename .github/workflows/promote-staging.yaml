@@ -3,11 +3,11 @@ name: Promote staging
 # Deploys whatever version is written in deploy/staging.version to staging, whenever
 # that file changes on main.
 #
-# Promotion is a commit rather than a button because this host collects
-# workflow_dispatch inputs in the UI and then never delivers them to the runner
-# — see docs/deployment.md. A committed version is arguably better anyway: it is
-# reviewable, it says in the repository what staging is meant to be running, and a
-# rollback is just another commit.
+# Promotion is a commit rather than a button. It began as a workaround — the
+# previous forge collected workflow_dispatch inputs in the UI and never
+# delivered them to the runner — but it is kept deliberately: a committed
+# version is reviewable, it says in the repository what staging is meant to be
+# running, and a rollback is just another commit.
 
 on:
   push:

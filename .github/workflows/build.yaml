@@ -4,21 +4,26 @@ name: Build
 # produces a versioned artifact, publishes it as a release asset, and deploys it
 # to dev. See docs/deployment.md and docs/versioning.md.
 #
-# One job, not two, because this host provides no ACTIONS_RUNTIME_TOKEN and so
-# implements no workflow artifacts — there is no way to hand a file from one job
-# to another. The build/deploy separation therefore lives in the scripts and in
-# deploy.yaml rather than in job boundaries. To keep the hand-off honest anyway,
-# the deploy step publishes the *unpacked artifact* rather than the build output
-# directly, so dev serves exactly the bytes the release contains.
+# One job rather than two. GitHub does implement workflow artifacts, so a
+# build/deploy split across jobs is now possible — but the hand-off already
+# lives in the scripts and in the promote-*.yaml workflows, and the deploy step
+# below publishes the *unpacked release artifact* rather than the build output
+# directly, so dev serves exactly the bytes the release contains. Splitting the
+# job would add a boundary without adding a guarantee.
 #
 # Deliberately no `workflow_dispatch` here. Running on push is this workflow's
 # entire purpose, and a manual run would either re-tag or rebuild a commit that
-# already has an artifact. Manual deploys live in deploy.yaml, which promotes an
-# existing artifact rather than making a new one.
+# already has an artifact. Manual deploys are commits to deploy/<env>.version,
+# which promote-staging.yaml and promote-prod.yaml pick up.
 
 on:
   push:
     branches: [main]
+
+permissions:
+  # Pushing the version tag and creating the release. This replaces the
+  # dedicated access token the previous forge needed for the same two things.
+  contents: write
 
 jobs:
   build:
@@ -34,6 +39,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
 
       - run: npm ci
 
@@ -41,36 +47,21 @@ jobs:
       # package.json produces a clean `2.3.2` rather than `2.3.2-1-g…`.
       - name: Tag the version if it is new
         id: tag
-        env:
-          WORKTREE_TOKEN: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
         run: |
           version="$(node -p "require('./package.json').version")"
           tag="v$version"
           echo "tag=$tag" >> "$GITHUB_OUTPUT"
           echo "package_version=$version" >> "$GITHUB_OUTPUT"
 
-          # Recorded as an output because the release step needs to know, and
-          # the `secrets` context is not reliably available in a step `if:`.
-          if [ -n "$WORKTREE_TOKEN" ]; then
-            echo "has_token=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_token=false" >> "$GITHUB_OUTPUT"
-          fi
-
           if git rev-parse -q --verify "refs/tags/$tag" >/dev/null; then
             echo "$tag already exists."
             exit 0
           fi
 
-          if [ -z "$WORKTREE_TOKEN" ]; then
-            echo "::warning::$tag is not tagged, but WORKTREE_ACCESS_TOKEN is unset, so no tag or release was created. Staging and prod cannot deploy this version until it is."
-            exit 0
-          fi
-
-          git config user.name "Worktree Actions"
-          git config user.email "actions@worktree.ca"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git tag -a "$tag" -m "Release $version"
-          git push "https://oauth2:$WORKTREE_TOKEN@${GITHUB_SERVER_URL#https://}/$GITHUB_REPOSITORY.git" "$tag"
+          git push origin "$tag"
 
       - name: Determine version
         id: version
@@ -90,6 +81,10 @@ jobs:
           # Archived from inside build/ so the tarball holds the site at its
           # root — unpacking it anywhere gives a directory ready to publish.
           tar -czf "$artifact" -C build .
+          # Published beside the artifact, which scripts/fetch_release_artifact.sh
+          # checks before unpacking. Promotion is meant to move known bytes to
+          # prod; this makes "known" checkable.
+          sha256sum "$artifact" > "$artifact.sha256"
           echo "artifact=$artifact" >> "$GITHUB_OUTPUT"
           ls -lh "$artifact"
 
@@ -99,33 +94,24 @@ jobs:
       # The condition is "HEAD is exactly at the version tag" rather than "the
       # tag was created just now", which makes the step self-healing: a build
       # that cut the tag but died before publishing is repaired by the next run
-      # on the same commit. The action preserves an existing release rather than
-      # duplicating it, so re-running is safe. A commit past the tag has a
-      # different version and is skipped.
+      # on the same commit. An existing release is topped up rather than
+      # duplicated, so re-running is safe. A commit past the tag has a different
+      # version and is skipped.
       - name: Publish the release
-        if: steps.version.outputs.version == steps.tag.outputs.package_version && steps.tag.outputs.has_token == 'true'
-        uses: actions/create-release@v2
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          files: ${{ steps.package.outputs.artifact }}
-          # These four have to be given explicitly. The action defaults them off
-          # `github.event.release.*`, which does not exist on a push event, and
-          # the expressions collapse to the string "true" — producing a release
-          # that is a draft prerelease titled "true". A draft is invisible to
-          # unauthenticated callers, so promotion could never fetch it.
-          name: ${{ steps.tag.outputs.tag }}
-          body: Automated release. Build artifact and its SHA-256 checksum are attached below.
-          draft: false
-          prerelease: false
-          # Publishes a .sha256 beside the artifact, which
-          # scripts/fetch_release_artifact.sh checks before unpacking. Promotion
-          # is meant to move known bytes to prod; this makes "known" checkable.
-          sha256sum: true
-          token: ${{ secrets.WORKTREE_ACCESS_TOKEN }}
-
-      - name: Warn when a release could not be published
-        if: steps.version.outputs.version == steps.tag.outputs.package_version && steps.tag.outputs.has_token != 'true'
-        run: echo "::warning::WORKTREE_ACCESS_TOKEN is unset, so ${{ steps.tag.outputs.tag }} has no release and cannot be promoted to staging or prod."
+        if: steps.version.outputs.version == steps.tag.outputs.package_version
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ steps.tag.outputs.tag }}
+          ARTIFACT: ${{ steps.package.outputs.artifact }}
+        run: |
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Release $TAG exists; uploading assets."
+            gh release upload "$TAG" "$ARTIFACT" "$ARTIFACT.sha256" --clobber
+          else
+            gh release create "$TAG" "$ARTIFACT" "$ARTIFACT.sha256" \
+              --title "$TAG" \
+              --notes "Automated release. Build artifact and its SHA-256 checksum are attached below."
+          fi
 
       - name: Unpack the artifact
         env:

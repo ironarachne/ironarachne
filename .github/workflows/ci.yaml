@@ -1,12 +1,8 @@
 name: CI
 
-# Workflows live in `.worktree/workflows` on Worktree.ca — not `.github` or `.forgejo`,
-# neither of which this host reads. Actions in the `actions/` namespace resolve bare;
-# anything else needs its full URL (`uses: https://github.com/owner/repo@vX`).
-#
 # This is the gate on a pull request, and it is the only one: types, lint, unit
 # tests, coverage. It is required by `main`'s branch protection as the context
-# "CI / verify (pull_request)".
+# "verify".
 #
 # The browser suite is not here. It lives in `e2e.yaml` and runs only on merges
 # to `main` — see that file for why. Anything touching routes, components, or
@@ -32,6 +28,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 24
+          cache: npm
 
       - run: npm ci
 

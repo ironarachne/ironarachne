@@ -334,11 +334,10 @@ one, because these files are not content-hashed and a year-long header on a logo
 
 ### A publish workflow
 
-`.worktree/workflows/publish-landing.yaml`: push-triggered and path-filtered on `landing/`, modelled on
+`.github/workflows/publish-landing.yaml`: push-triggered and path-filtered on `landing/`, modelled on
 `promote-prod.yaml` — including its belt-and-braces check that the path actually changed in the push.
-Per `docs/deployment.md`, "Actions on this host": no workflow artifacts, no `workflow_dispatch` inputs,
-no `timeout-minutes:`, and nothing handed between jobs. Path-filtered `push` triggers do work;
-`promote-prod.yaml` relies on one today.
+A path-filtered `push` trigger is the right shape here for the same reason `promote-prod.yaml` uses
+one: the thing that should cause a publish is the content changing.
 
 It has no build step and no `npm ci`, because the page is checked in rather than compiled. That is the
 whole of the difference from the app's pipeline, and it is why decision 1 holds: there is no artifact to

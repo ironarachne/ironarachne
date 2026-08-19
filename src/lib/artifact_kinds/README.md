@@ -5,7 +5,7 @@ this library is the contract a library implements to make its content storable, 
 that holds those implementations.
 
 It stores nothing. Storage is the artifact store's job
-([#33](https://worktree.ca/ironarachne/ironarachne/issues/33)); this is the vocabulary the store,
+([worktree#33](https://worktree.ca/ironarachne/ironarachne/issues/33)); this is the vocabulary the store,
 export, import, and the project view all speak, so none of them needs a hand-written list of which
 kinds exist.
 

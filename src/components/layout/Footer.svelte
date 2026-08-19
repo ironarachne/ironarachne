@@ -1,7 +1,7 @@
 <footer>
   <p>
     The source code for this site is available on <a
-      href="https://worktree.ca/ironarachne/ironarachne">Worktree</a
+      href="https://github.com/ironarachne/ironarachne">GitHub</a
     >.
   </p>
   <p>Follow me on <a rel="me" href="https://floss.social/@skysong">Mastodon</a>.</p>

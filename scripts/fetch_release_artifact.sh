@@ -23,9 +23,8 @@ fi
 tag="v${version#v}"
 artifact="ironarachne-${version#v}.tar.gz"
 
-server="${GITHUB_SERVER_URL:-https://worktree.ca}"
 repository="${GITHUB_REPOSITORY:-ironarachne/ironarachne}"
-api="$server/api/v1/repos/$repository"
+api="${GITHUB_API_URL:-https://api.github.com}/repos/$repository"
 
 for tool in curl jq tar; do
   command -v "$tool" >/dev/null 2>&1 || {

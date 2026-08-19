@@ -64,9 +64,9 @@ repository="$(jq -r .repository "$pinfile")"
 pinned="$(jq -r .commit "$pinfile")"
 wanted="${ref:-$pinned}"
 
-# https://worktree.ca/ironarachne/ironarachne_branding -> ironarachne/ironarachne_branding
+# https://github.com/ironarachne/ironarachne_branding -> ironarachne/ironarachne_branding
 slug="${repository#*://*/}"
-api="${repository%/"$slug"}/api/v1/repos/$slug"
+api="${GITHUB_API_URL:-https://api.github.com}/repos/$slug"
 
 work="$(mktemp -d)"
 trap 'rm -rf "$work"' EXIT
@@ -87,12 +87,12 @@ else
     exit 1
   }
   echo "==> Fetching $wanted from $repository"
-  resolved="$(curl -sSf "$api/git/commits/$wanted" | jq -r .sha)"
+  resolved="$(curl -sSfL "$api/commits/$wanted" | jq -r .sha)"
   if [ -z "$resolved" ] || [ "$resolved" = "null" ]; then
     echo "error: $repository has no commit $wanted" >&2
     exit 1
   fi
-  curl -sSf -o "$work/brand.tar.gz" "$api/archive/$resolved.tar.gz"
+  curl -sSfL -o "$work/brand.tar.gz" "$api/tarball/$resolved"
   tar -xzf "$work/brand.tar.gz" -C "$tree" --strip-components=1
 fi
 
@@ -137,7 +137,7 @@ if [ "$mode" = "check" ]; then
   echo "==> In sync with $resolved"
 
   if [ -z "${BRAND_REPO_DIR:-}" ] && command -v curl >/dev/null 2>&1; then
-    latest="$(curl -sSf "$api/git/commits/HEAD" | jq -r .sha || true)"
+    latest="$(curl -sSfL "$api/commits/HEAD" | jq -r .sha || true)"
     if [ -n "$latest" ] && [ "$latest" != "null" ] && [ "$latest" != "$resolved" ]; then
       echo "    Note: the brand repo has moved on to ${latest:0:12}."
       echo "    Run scripts/sync_brand_assets.sh --ref main to take it."

@@ -9,10 +9,10 @@ committed version file replaces an earlier `workflow_dispatch` design that could
 publish half of it is proven, since staging was promoted to 2.3.2 by running the same two commands
 by hand.
 
-Most of the shape below exists to work around things this platform does not implement, and every one
-of those limits cost at least one CI round trip to find. Read
-[Actions on this host](#actions-on-this-host) before changing any workflow — the section is not
-background reading, it is the list of things that will otherwise waste an afternoon.
+Some of the shape below was worked out against a previous host whose Actions implementation was
+missing several things GitHub provides. Where a choice looks defensive, [Actions
+notes](#actions-notes) says whether it was forced or chosen — worth reading before you change a
+workflow on the assumption that it is arbitrary.
 
 ## The shape
 
@@ -57,10 +57,10 @@ promotion. A single static page that links to the app does not earn that machine
 `package.json`'s version would mean an app release forcing a landing-page deploy. See
 `docs/landing-page.md`.
 
-Build and deploy are **not** separate jobs, and that is a platform constraint rather than a
-preference: this host provides no `ACTIONS_RUNTIME_TOKEN`, so workflow artifacts do not work and
-there is no way to hand a file between jobs. See [Actions on this host](#actions-on-this-host). The
-separation lives in the scripts and in the promotion workflows instead. To keep it honest, the dev
+Build and deploy are **not** separate jobs. That began as a platform constraint — the previous host
+implemented no workflow artifacts, so nothing could be handed between jobs — and it is kept because
+the separation lives in the scripts and in the promotion workflows instead, where splitting the job
+would add a boundary without adding a guarantee. See [Actions notes](#actions-notes). To keep it honest, the dev
 deploy publishes the **unpacked artifact** rather than `build/` directly, so dev serves exactly what
 the release contains and a packaging bug surfaces there rather than first appearing in prod.
 
@@ -137,23 +137,24 @@ scripts/publish_site.sh prod build
 
 ### Why a commit rather than a button
 
-Because a button does not work here. `workflow_dispatch` inputs are collected by the web UI and then
-never delivered to the runner — see [Actions on this host](#actions-on-this-host). The three
-promotion attempts that failed were all this, wearing different masks.
+Originally because a button did not work: the previous host collected `workflow_dispatch` inputs in
+its web UI and never delivered them to the runner, and three failed promotion attempts were all that,
+wearing different masks. See [the history note](#history-what-the-previous-host-could-not-do).
 
-Having been forced into it, the committed version is the better design regardless: the repository
-states what each environment is meant to be running, promotion is reviewable before it happens, and
-rollback needs no new mechanism.
+`workflow_dispatch` inputs work on GitHub, so this is now a choice rather than a workaround — and it
+is the better design regardless: the repository states what each environment is meant to be running,
+promotion is reviewable before it happens, and rollback needs no new mechanism.
 
 ## Required setup
 
-Four secrets are in place: `SCW_ACCESS_KEY`, `SCW_SECRET_KEY` and `BUNNYNET_API_KEY`, named to match
-the local environment variables, plus `WORKTREE_ACCESS_TOKEN` — a personal access token with write
-access to this repository, which is what lets `build.yaml` push the tag and cut the release. Without
-that last one, builds and dev deploys still work and the workflow logs a warning; only releases, and
-therefore promotion, are blocked.
+Three repository secrets are needed: `SCW_ACCESS_KEY`, `SCW_SECRET_KEY` and `BUNNYNET_API_KEY`,
+named to match the local environment variables. Every workflow that touches a bucket reads all three.
 
-One thing still needs doing:
+There is no fourth. Pushing the version tag and cutting the release used to need a personal access
+token; on GitHub the workflow's built-in `GITHUB_TOKEN` does both, given `permissions: contents:
+write` on the job. Nothing needs minting for that.
+
+All three are set on the GitHub repository as of 2026-08-19. One thing still needs doing:
 
 **Point the Scaleway secrets at the deploy identity.** They currently hold a user-scoped API key,
 which can do anything the account can. `infra/shared` exists to provide a narrower one: an IAM
@@ -169,168 +170,49 @@ deploy job credentials for the state bucket, and the whole point of the scoped d
 that it can touch objects and nothing else. The values are stable; the comment in the script points
 at the source of truth.
 
-## Actions on this host
+## Actions notes
 
 The publish path is verified: `scripts/publish_site.sh` has published a real build to dev, and the
 result was checked end to end — correct `Cache-Control` at the origin, the year-long header surviving
 through the CDN, a cache `HIT` on a second asset request, deep links resolving, an unknown route
 returning the error document, and pages rendering in a browser with no failed requests.
 
-**Tag pushing works.** The first run on `main` cut `v2.3.0` and pushed it. A protected branch does
-not block a tag.
+**Tag pushing works, and needs no personal token.** A protected branch does not block a tag, so
+`build.yaml` cuts `v<version>` on a merge to `main` and pushes it as the workflow's own
+`GITHUB_TOKEN`. That token gets write access from `permissions: contents: write`, declared on the
+job rather than granted repository-wide.
 
-Worth holding in mind for all of this: **Worktree.ca is a hard fork of Gitea**, and its Actions
-implementation is GitHub-compatible rather than GitHub. Stock actions published by GitHub sometimes
-assume they are talking to github.com and refuse to run when they are not — which is the root of the
-artifact trouble below, not anything specific to this repository.
+**Releases are cut with `gh release create`, not with an action.** `gh` is preinstalled on
+GitHub-hosted runners and authenticates from `GH_TOKEN`, so there is no third-party action in the
+release path and nothing to keep pinned. The step creates the release when it does not exist and
+uploads into it when it does, which is what makes it self-healing — see below. It attaches the build
+artifact and a `.sha256` computed in the packaging step, and `scripts/fetch_release_artifact.sh`
+verifies that checksum before unpacking, so promotion moves bytes that are checked rather than
+merely assumed.
 
-**Workflow artifacts do not work here at all, at any version.** Three runs were spent discovering
-this, one version at a time:
+### History: what the previous host could not do
 
-| Version     | Result                                                                                           |
-| ----------- | ------------------------------------------------------------------------------------------------ |
-| `v4`        | `GHESNotSupportedError` — refuses to run anywhere but github.com                                 |
-| `v3`        | `unsupported action type: node16` — the runner rejects node16 actions outright                   |
-| `v3-node20` | ran correctly on node20, found the file, then `Unable to get ACTIONS_RUNTIME_TOKEN env variable` |
+This repository ran on Worktree.ca, a hard fork of Gitea, before moving back to GitHub. Several
+things in these workflows look defensive because they were written against that host's limits — none
+of which apply here:
 
-That last one is the real answer, and it is not a version problem. `ACTIONS_RUNTIME_TOKEN` is what
-the artifact protocol authenticates with, and this runner never sets it — the artifact service is not
-implemented. Worktree's own documentation corroborates it from the other side: "Build caching is
-currently disabled", and cache and artifacts are the same subsystem.
+- **Workflow artifacts did not exist there at all**; the runner never set `ACTIONS_RUNTIME_TOKEN`.
+  That is why `build.yaml` is a single job and why `goldens.yaml` pushes a branch instead of
+  uploading files. Both keep their shape on their own merits, argued in the workflow files, rather
+  than because the constraint still binds.
+- **`workflow_dispatch` inputs were never delivered to the runner** by any route — the form
+  collected them and the job saw an empty map. That cost three failed prod deploys and is the origin
+  of promotion-by-committed-file, which was then kept deliberately; see
+  [Why a commit rather than a button](#why-a-commit-rather-than-a-button).
+- **`timeout-minutes:` on a job made the runner reject that job outright**, and a job that stopped
+  producing output was reaped after about fifteen minutes with nothing inside it able to pre-empt
+  that. Four such stalls in twenty-four hours are why the browser suite stopped gating pull
+  requests. `e2e.yaml` now carries `timeout-minutes: 45`, which behaves normally here.
+- **Most of the `GITHUB_*` context was empty**, `GITHUB_REF` excepted. Workflows here read
+  `github.event_name`, `GITHUB_BASE_REF` and the rest as documented.
 
-**So do not add `upload-artifact` or `download-artifact` back in any form.** Anything that needs to
-survive beyond a single job has to go somewhere real: a release asset, a bucket, or a branch. That
-constraint is why `build.yaml` is one job, and why `goldens.yaml` — which has to get five rendered
-PNGs out of a run — pushes a `goldens/<short sha>` branch for a human to open a pull request from.
-This paragraph was written before that workflow existed and did not stop it being written with
-`upload-artifact` first; it cost a dispatch to find out. Read this section before adding a workflow,
-not after.
-
-**`workflow_dispatch` inputs do not work here at all, and cost three failed prod deploys.** The first two failures looked like two
-separate problems, which look nothing alike:
-
-| Attempt                                                        | What happened                                                                                                   |
-| -------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `${{ inputs.version }}` in a step `run:`                       | Evaluated to an **empty string**. The scripts ran with no arguments and failed on their own usage messages.     |
-| `${{ github.event.inputs.version }}` in a **job-level `env:`** | **Not evaluated at all.** The literal `${{ … }}` text was passed through to `curl`, which choked on the braces. |
-
-A third attempt, reading both spellings from a step-level `env:`, finally showed what is actually
-going on:
-
-```
-github.event.inputs.environment -> 'map[]'
-github.event.inputs.version     -> 'map[]'
-inputs.environment              -> ''
-inputs.version                  -> ''
-```
-
-`map[]` is how Go renders an empty map. **`github.event.inputs` exists but is empty** — the values
-typed into the dispatch form are not reaching the workflow by either name.
-
-A fourth attempt dumped every possible source before judging any of them, and settled it:
-
-```
-github.event.inputs.environment -> 'map[]'      # an empty map
-inputs.environment              -> ''           # not populated
-$GITHUB_EVENT_PATH              -> unset; no event payload file exists
-environment variables matching INPUT -> (none)
-```
-
-**`workflow_dispatch` inputs are not delivered to the runner on this host, by any route.** The web UI
-renders the fields and collects what you type — this was confirmed by a human filling them in — and
-none of it reaches the job. There is not even an event payload file to read them from. This looks
-like a host bug worth reporting upstream.
-
-Hence promotion by committed version file. No workflow here should be designed around dispatch
-inputs until that changes.
-
-Two related rules learned along the way:
-
-- **Expressions in job-level `env:` are not evaluated at all.** Step-level `env:` is, and `build.yaml`
-  depends on that. Never put an expression in a job-level `env:` here.
-- **Print, then judge.** An earlier diagnostic validated values before dumping them, so a bad value
-  exited the step early and suppressed the dump added for exactly that purpose. The run failed with
-  `unknown environment 'map[]'` and taught us nothing, costing a whole round trip.
-
-**Most of the `GITHUB_*` context is empty; `GITHUB_REF` is the exception.** The gap above is wider
-than `workflow_dispatch`. Dumped from inside a real pull request job:
-
-```
-GITHUB_EVENT_NAME=''
-GITHUB_REF='refs/pull/117/head'
-GITHUB_BASE_REF=''
-GITHUB_HEAD_REF=''
-```
-
-`${{ github.event_name }}` is empty by the same token. So a step that needs to know it is running on
-a pull request has to match `GITHUB_REF` against `refs/pull/*`, which is also what
-`actions/checkout` resolves its ref from. This was found the hard way by a step in `ci.yaml` that
-read `github.event_name`, concluded `event is 'unknown'` on pull request #117, and fell through to
-its safe branch — correct behaviour, but the feature it guarded could never have fired. That step
-has since been removed with the rest of the pull-request browser suite, and the lesson outlived it:
-prefer reading the runner's environment over a `${{ github.* }}` expression whenever there is a
-choice.
-
-**`timeout-minutes:` on a job makes the runner reject that job.** Adding it to `e2e` produced a
-failure one second after the worker was assigned — before the runner version banner, before any
-step, with a five-line log containing no error text at all:
-
-```
-⏳ Waiting for available worker...
-✅ Assigned to worker MgzuTShhrcQkyRvMmeKi4a
-```
-
-The workflow itself parsed: `verify`, from the same file, ran and passed in the same run. So the
-symptom is a job that dies instantly and silently while its sibling is fine, which looks nothing
-like a bad key and cost a round trip to attribute. No workflow here uses it. If a job needs a time
-limit, note that shell `timeout` does not help against the stall below either — see there before
-assuming any timer will save you.
-
-**A job that stops producing output is reaped after about fifteen minutes, and nothing inside the
-job can pre-empt it.** Observed four times in about twenty-four hours on `e2e`, at unrelated points
-— twice mid-suite, once before any test ran while the preview server was still building, and once
-at test 258 of 293:
-
-| Run | Last log line          | Failed   | Silence |
-| --- | ---------------------- | -------- | ------- |
-| 102 | test #113, mid-suite   | 12:19:14 | 14m30s  |
-| 110 | test #106, mid-suite   | 19:04:14 | 13m57s  |
-| 112 | webserver build output | 19:34:14 | 14m54s  |
-| 119 | test #258, mid-suite   | 11:34:14 | 14m13s  |
-
-The consistency of the interval matters more than where each one stopped: this is a timer, not a
-deadlock in any particular test. Worth reading alongside the log truncation below, since a job that
-merely loses its log stream looks identical from outside until the timer fires.
-
-**No timer inside the job pre-empts it.** Run 119 tested this directly. It ran under
-`timeout --kill-after=30s 12m npm run test:e2e`, with `npm run test:e2e` starting at 11:16:11, so
-the wrapper was due to fire at 11:28:11. The job died at 11:34:14 instead — the reap, six minutes
-late, with no timeout message. Playwright's `globalTimeout` and its 180-second `webServer.timeout`
-had already failed to fire in run 112. A shell `timeout` is a separate process and still did not
-run, which points at the whole container freezing rather than the browser or Node wedging.
-
-The practical consequence: **a stall cannot be made fast or legible from inside the repository.**
-Combined with there being no Actions API to re-run a job from, that is why the browser suite no
-longer gates a pull request — see `.worktree/workflows/e2e.yaml`.
-
-**Log output is sometimes lost without the job failing.** A `build` run reported success in 39
-seconds — the normal duration — while its log stopped mid-`vite build` and held 193 lines against a
-healthy run's ~1026, missing every `✓ built`, the publish output, and the `Deployed … to
-https://dev.ironarachne.com` line. The deploy had in fact happened; the origin's `last-modified`
-header sat inside the job's window. **Do not read a truncated log as a failed job.** Check the
-duration against a known-good run, and check the artefact the job was supposed to produce.
-
-**`actions/create-release` needs `name`, `body`, `draft` and `prerelease` passed explicitly.** Its
-defaults are written in terms of `github.event.release.*`, which does not exist on a `push` event; the
-expressions collapse to the string `"true"`, and you get a draft prerelease titled `true`. That is
-not a cosmetic problem — a draft release is invisible to unauthenticated callers, so
-`scripts/fetch_release_artifact.sh` cannot see it and promotion silently has nothing to deploy.
-
-Releases are cut with `actions/create-release`, which Worktree publishes in its own `actions/`
-namespace for exactly this purpose. Prefer it over hand-rolled API calls: it runs on node20, it
-preserves an existing release rather than duplicating it, and it uploads assets in the same step. It
-also publishes a `.sha256` beside the artifact, which `scripts/fetch_release_artifact.sh` verifies
-before unpacking — so promotion moves bytes that are checked rather than merely assumed.
+This is recorded because the shapes it produced are still visible in the files, and someone reading
+them deserves to know which choices were forced and which were made. It constrains nothing new.
 
 ### The self-healing release step, and its limit
 

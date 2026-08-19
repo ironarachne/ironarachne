@@ -2,8 +2,8 @@
 description: Triage an issue — verify its claims, record findings and decisions, move the label along. Usage: /triage <issue number>
 ---
 
-Triage issue **#$ARGUMENTS** in `ironarachne/ironarachne`. Read it with
-`mcp__worktree__get_issue_by_index`, along with any existing comments.
+Triage issue **#$ARGUMENTS** in `ironarachne/ironarachne`. Read it, and its comments, with
+`gh issue view $ARGUMENTS --comments`.
 
 **Triage is not implementation.** Produce a comment and a label change. Do not write the feature.
 
@@ -23,6 +23,10 @@ premises are a starting point, not facts.
 
 Anything you could not verify, say so plainly rather than presenting it as established.
 
+Issues migrated from Worktree.ca carry a footer linking the original, and their bodies may reference
+issues that were never migrated — those render as `[worktree#NN](…)` and are read-only history. A
+bare `#NN` is a live GitHub issue.
+
 ## What the comment should contain
 
 - **Findings** that change the shape of the work, each with the evidence behind it. A finding nobody
@@ -32,18 +36,23 @@ Anything you could not verify, say so plainly rather than presenting it as estab
 - **A proposed breakdown** into work items, if the issue is large enough to need one.
 - **What is still unverified**, explicitly.
 
-If triage reveals a separate problem, file it as its own issue and link it rather than widening this
-one.
+Post it with `gh issue comment $ARGUMENTS --body-file <file>` — write the body to a file rather than
+inlining it, so backticks and `$` survive the shell intact.
+
+If triage reveals a separate problem, file it as its own issue (`gh issue create`) and link it rather
+than widening this one.
 
 ## Labels
 
 The workflow is `needs-triage` → `needs-design` → `ready-for-agent`. Move it to `needs-design` if
 real decisions are still open, or straight to `ready-for-agent` if the path is now unambiguous. Then
-remove the label it came from.
+remove the label it came from:
 
-**The MCP takes numeric label IDs, not names** — passing a name fails with a parse error. Fetch them
-with `mcp__worktree__list_repo_labels`; at time of writing `needs-triage` is 1140, `needs-design`
-1141, `ready-for-agent` 1139.
+```bash
+gh issue edit $ARGUMENTS --add-label needs-design --remove-label needs-triage
+```
+
+`gh` takes label **names**, not numeric IDs. `gh label list` shows what exists.
 
 ## Design process
 

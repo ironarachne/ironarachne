@@ -110,7 +110,7 @@ reaches the gate. `renderers` reports 37% while the truth is: the maths is unit-
 orchestration is smoke-tested in a browser, and nothing checks the pixels.
 
 Since this document was drafted, that browser exercise has also moved: the suite no longer runs on
-a pull request, only on merges to `main` (`.worktree/workflows/e2e.yaml`). So the smoke test now
+a pull request, only on merges to `main` (`.github/workflows/e2e.yaml`). So the smoke test now
 happens _after_ a change lands rather than before it. That does not change what this document
 proposes — it makes the case for it sharper, because the tier that would catch a black shader is
 now the tier furthest from the person who broke it.
@@ -606,7 +606,7 @@ on a machine whose headless Chromium rasterizes through SwiftShader exactly as C
 
 So the tier is built and, since the first baselines landed, live:
 `e2e/preview_goldens.spec.ts` asserts where a committed baseline exists and skips where none does,
-and `.worktree/workflows/goldens.yaml` produces them on demand — pushing a branch rather than an
+and `.github/workflows/goldens.yaml` produces them on demand — pushing a branch rather than an
 artifact, because this host has no artifact service at all.
 Its tolerance (0.2% of pixels) was chosen against evidence rather than by taste — a deliberately
 injected regression that stopped the WebGL backend drawing bodies moved 18% of pixels, two orders

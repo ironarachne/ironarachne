@@ -11,7 +11,7 @@ import { PREVIEW_CASES, openPinnedPreview } from './preview_fixtures';
  * CI rasterizes WebGL on the CPU through SwiftShader and a developer machine may not, so a baseline
  * captured on one will not match the other at any tolerance loose enough to still catch a black
  * frame. Running `--update-snapshots` locally is how this tier becomes permanently red and then
- * quietly disabled, so **do not**. `.worktree/workflows/goldens.yaml` generates them in CI; the
+ * quietly disabled, so **do not**. `.github/workflows/goldens.yaml` generates them in CI; the
  * loop is written up in `src/lib/renderers/README.md`.
  *
  * A case with no baseline **skips** rather than writing one and failing, because this suite runs on
