@@ -175,12 +175,18 @@ Identity, status, date — reading left to right.
 
 - **Date** — today's date, far right, formatted by `$lib/dates`.
 
-**Two things the status strip must get right.** It reads the vault, and the vault does not exist
-during prerender; the counts must therefore render as an honest placeholder on the server and
-resolve after mount, exactly as `ProjectContextBar` does today, or the first client render will not
-match the prerendered markup. And the date is read once at mount rather than at module scope: a
-module-scope date is baked into the prerendered HTML at build time and every visitor sees the day
-the site was built.
+**What the status strip must get right.** It reads the vault, and the vault is an IndexedDB
+database that has not been opened when the bar first renders. `readShellStatus` would honestly
+answer zero, and a bar that says "0 artifacts" for a moment before saying 12 is worse than one that
+says nothing yet — so the counts render as a placeholder until the reader has run, then go live on
+`onArtifactsChanged` and `onProjectsChanged`.
+
+This was written up as a hydration-mismatch problem, and it is not one: `src/routes/+layout.ts`
+sets `ssr = false` for the whole site, so `prerender = true` emits an app shell per route with no
+server-rendered content to disagree with. The placeholder is about not lying to the user, not about
+matching markup. For the same reason the date is safe to read at module scope — nothing is
+evaluated at build time — though it is read at mount anyway, beside the counts, because the two
+belong to the same object.
 
 ## Layout
 
@@ -235,7 +241,6 @@ classDiagram
         +string id
         +string label
         +RouteId path
-        +string iconName
     }
     class ShellStatus {
         +number toolCount
@@ -380,6 +385,13 @@ sit outside. A tool route that renders without the shell would have no way back 
 been reasonable to want, and each belongs inside one of the five rather than beside them. The
 sidebar's value is that it is short enough not to need reading.
 
+**6. No icons; the rail is a narrower sidebar.** Taken during implementation, and it drops the
+`iconName` the approved model carried. The brand repo has no icon set, and five marks drawn in the
+app to sit beside a carefully drawn wordmark is the kind of thing that looks improvised forever.
+Between 768 and 1199px the sidebar keeps its labels at a smaller size in a narrower column, which
+needs no assets and does not ask a screen reader to read a `title` attribute as a label. This
+closes the open question the first draft of this document carried.
+
 ## What this changes
 
 | Thing                                                          | Change                                                           |
@@ -429,5 +441,7 @@ Ordered so that each step is mergeable on its own and `main` is never mid-redesi
 - **Does the sidebar show the open project's artifact kinds?** A second rank under Workshop, the
   way an IDE shows a file tree, is tempting and would make the sidebar a variable-length list.
   Deferred, not rejected.
-- **Icon set.** The sidebar's icon rail at 768–1199px needs five icons, and the brand repo has
-  none. Either they are commissioned there, or the rail shows short labels instead of icons.
+  Settled since this document was first written:
+
+- **Icon set** — closed by [decision 6](#decisions-taken-here). There is no icon rail; the band
+  between 768 and 1199px is a narrower sidebar carrying the same labels.
