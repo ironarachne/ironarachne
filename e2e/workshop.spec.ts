@@ -40,6 +40,39 @@ function mountTool(page: Page, label: string | RegExp) {
   return toolBrowser(page).getByRole('button', { name: label }).click();
 }
 
+/** A saved artifact's row in the project view, anchored so a row and its actions do not both match. */
+function artifactRow(page: Page, name: string) {
+  return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
+}
+
+/**
+ * Mounts the culture generator and keeps what it made, under a name of its own.
+ *
+ * Module scope because three describes need it. It leaves the Culture tool on the bench, which is
+ * what callers wanting a tool *and* an artifact open rely on.
+ */
+async function saveACulture(page: Page, name: string): Promise<void> {
+  await mountTool(page, /^Culture/);
+  const saveArtifact = panels(page)
+    .filter({ has: page.getByRole('heading', { name: /Culture Generator/ }) })
+    .locator('.save-artifact');
+  await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+  await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
+  await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+  await expect(artifactRow(page, name)).toBeVisible();
+}
+
+/**
+ * A bench holding the Culture tool and one saved artifact — two panels, which is what the panel
+ * controls need now that two tools cannot be open together.
+ */
+async function benchWithToolAndArtifact(page: Page, name: string): Promise<void> {
+  await createProject(page, 'Ashfall');
+  await saveACulture(page, name);
+  await artifactRow(page, name).click();
+  await expect(panels(page)).toHaveCount(2);
+}
+
 /**
  * The bench as the database holds it.
  *
@@ -102,12 +135,32 @@ test.describe('the workshop bench', () => {
     );
   });
 
-  test('holds several tools at once, which is the point of a bench', async ({ page }) => {
+  test('holds one tool at a time, swapping the last one out', async ({ page }) => {
     await mountTool(page, /^Culture/);
     await mountTool(page, /^Heraldry/);
 
+    await expect(panels(page)).toHaveCount(1);
+    await expect(panelTitles(page)).toHaveText([/Heraldry/]);
+
+    // The browser badges what is mounted, so the badge has to move with the tool rather than
+    // accumulating on everything that was ever opened.
+    await expect(toolBrowser(page).getByRole('button', { name: /^Heraldry/ })).toContainText(
+      'Loaded',
+    );
+    await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).not.toContainText(
+      'Loaded',
+    );
+  });
+
+  test('keeps open artifacts when the tool is swapped', async ({ page }) => {
+    // What is single is the instrument. A settlement stays open beside whichever generator is
+    // being built from it, which is the composition case docs/workshop.md argues for.
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
+
+    await mountTool(page, /^Heraldry/);
+
     await expect(panels(page)).toHaveCount(2);
-    await expect(panelTitles(page)).toHaveText([/Culture/, /Heraldry/]);
+    await expect(panelTitles(page)).toHaveText([/The Emberfolk/, /Heraldry/]);
   });
 
   test('does not mount a second copy of a tool already on the bench', async ({ page }) => {
@@ -117,34 +170,81 @@ test.describe('the workshop bench', () => {
     await expect(panels(page)).toHaveCount(1);
   });
 
-  test('moves and closes panels from the keyboard-operable controls', async ({ page }) => {
+  test('swaps tools without asking when nothing was worked for', async ({ page }) => {
+    // A generator rolls on mount, so "has output" is true from the first frame. Asking here would
+    // be the always-confirm that trains people to click through the prompt that matters.
     await mountTool(page, /^Culture/);
     await mountTool(page, /^Heraldry/);
 
-    await page.getByRole('button', { name: /^Move Heraldry left$/ }).click();
-    await expect(panelTitles(page)).toHaveText([/Heraldry/, /Culture/]);
+    // The dialog element is always in the DOM; ModalHost opens and closes it, so "not asked"
+    // is hidden rather than absent.
+    await expect(page.locator('dialog.ironarachne-modal')).toBeHidden();
+    await expect(panelTitles(page)).toHaveText([/Heraldry/]);
+  });
+
+  test('asks before swapping away a tool the user rolled again', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+
+    // A deliberate re-roll is the thing worth protecting: it is output that took a decision, and
+    // switching tools would drop it with nothing to get it back from.
+    const culture = panels(page).filter({
+      has: page.getByRole('heading', { name: /Culture Generator/ }),
+    });
+    await culture.getByRole('button', { name: 'Generate', exact: true }).click();
+
+    await mountTool(page, /^Heraldry/);
+
+    const dialog = page.locator('dialog.ironarachne-modal');
+    await expect(dialog).toContainText('you have not saved');
+
+    // Refusing leaves the bench exactly as it was.
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await expect(panelTitles(page)).toHaveText([/Culture/]);
+
+    await mountTool(page, /^Heraldry/);
+    await dialog.getByRole('button', { name: 'Switch' }).click();
+    await expect(panelTitles(page)).toHaveText([/Heraldry/]);
+  });
+
+  test('does not ask about a tool whose output was saved', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await saveACulture(page, 'The Emberfolk');
+
+    await mountTool(page, /^Heraldry/);
+
+    // The dialog element is always in the DOM; ModalHost opens and closes it, so "not asked"
+    // is hidden rather than absent.
+    await expect(page.locator('dialog.ironarachne-modal')).toBeHidden();
+    await expect(panelTitles(page)).toHaveText([/Heraldry/]);
+  });
+
+  test('moves and closes panels from the keyboard-operable controls', async ({ page }) => {
+    // A tool and an artifact, since two tools can no longer be open together.
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
+    await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
+
+    await page.getByRole('button', { name: /^Move The Emberfolk left$/ }).click();
+    await expect(panelTitles(page)).toHaveText([/The Emberfolk/, /Culture/]);
 
     // The leftmost panel has nowhere further to go, and says so rather than wrapping around.
-    await expect(page.getByRole('button', { name: /^Move Heraldry left$/ })).toBeDisabled();
+    await expect(page.getByRole('button', { name: /^Move The Emberfolk left$/ })).toBeDisabled();
 
-    await page.getByRole('button', { name: /^Close Heraldry$/ }).click();
+    await page.getByRole('button', { name: /^Close The Emberfolk$/ }).click();
     await expect(panels(page)).toHaveCount(1);
     await expect(panelTitles(page)).toHaveText([/Culture/]);
   });
 
   test('restores the bench when the project is reopened', async ({ page }) => {
-    await createProject(page, 'Ashfall');
-    await mountTool(page, /^Culture/);
-    await mountTool(page, /^Heraldry/);
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
 
     await expect
       .poll(async () => (await storedPanels(page)).map((panel) => panel.toolPath))
-      .toEqual(['/culture', '/heraldry']);
+      .toEqual(['/culture', undefined]);
 
     await page.reload({ waitUntil: 'load' });
 
     await expect(panels(page)).toHaveCount(2);
-    await expect(panelTitles(page)).toHaveText([/Culture/, /Heraldry/]);
+    await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
   });
 
   test('keeps one project’s bench out of another’s', async ({ page }) => {
@@ -182,9 +282,8 @@ test.describe('the bench on a phone', () => {
     await page.setViewportSize({ width: 320, height: 720 });
     await openEmptyWorkshop(page);
 
-    await mountTool(page, /^Culture/);
-    await mountTool(page, /^Heraldry/);
-    await expect(panels(page)).toHaveCount(2);
+    // A tool and an artifact: the two-panel arrangement that is still reachable.
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
 
     await expectNoHorizontalOverflow(page);
     await expectInteractiveControlsReachable(page);
@@ -298,10 +397,6 @@ test.describe('building one artifact from another', () => {
    * "Broken link" — so an anchored exact match would stop finding a row the moment it acquired one,
    * and a bare prefix would find "The Emberfolk" when asked for "The Ember".
    */
-  function artifactRow(page: Page, name: string) {
-    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
-  }
-
   /** Saves whatever the named panel has made, under a name of its own. */
   async function saveFromPanel(page: Page, panelTitle: RegExp, name: string): Promise<void> {
     const panel = panels(page).filter({ has: page.getByRole('heading', { name: panelTitle }) });
@@ -441,10 +536,6 @@ test.describe('building one artifact from another', () => {
 test.describe('editing a saved artifact', () => {
   const artifactPanel = (page: Page) => page.locator('.artifact-panel');
   const confirmDialog = (page: Page) => page.locator('dialog.ironarachne-modal');
-
-  function artifactRow(page: Page, name: string) {
-    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
-  }
 
   /** A project with one saved artifact of the named tool in it, open in a panel of its own. */
   async function openASavedArtifact(
@@ -890,25 +981,9 @@ test.describe('workshop projects', () => {
 test.describe('project export and import', () => {
   const transfer = (page: Page) => page.locator('.project-transfer');
 
-  function artifactRow(page: Page, name: string) {
-    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
-  }
-
   test.beforeEach(async ({ page }) => {
     await openEmptyWorkshop(page);
   });
-
-  /** Mounts the culture generator and keeps what it made, under a name of its own. */
-  async function saveACulture(page: Page, name: string): Promise<void> {
-    await mountTool(page, /^Culture/);
-    const saveArtifact = panels(page)
-      .filter({ has: page.getByRole('heading', { name: /Culture Generator/ }) })
-      .locator('.save-artifact');
-    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
-    await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
-    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
-    await expect(artifactRow(page, name)).toBeVisible();
-  }
 
   test('a project survives being exported, deleted, and imported', async ({ page }) => {
     await createProject(page, 'Ashfall');
@@ -999,24 +1074,9 @@ test.describe('vault export and import', () => {
   const vaultTransfer = (page: Page) => page.locator('section.vault-transfer');
   const confirmDialog = (page: Page) => page.locator('dialog.ironarachne-modal');
 
-  function artifactRow(page: Page, name: string) {
-    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
-  }
-
   test.beforeEach(async ({ page }) => {
     await openEmptyWorkshop(page);
   });
-
-  async function saveACulture(page: Page, name: string): Promise<void> {
-    await mountTool(page, /^Culture/);
-    const saveArtifact = panels(page)
-      .filter({ has: page.getByRole('heading', { name: /Culture Generator/ }) })
-      .locator('.save-artifact');
-    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
-    await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
-    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
-    await expect(artifactRow(page, name)).toBeVisible();
-  }
 
   async function exportVault(page: Page): Promise<string> {
     return onProjectsPage(page, async () => {
@@ -1164,10 +1224,6 @@ test.describe('vault export and import', () => {
  */
 test.describe('when the browser has no room to save', () => {
   const storageDialog = (page: Page) => page.locator('dialog.ironarachne-modal .storage-failure');
-
-  function artifactRow(page: Page, name: string) {
-    return projectView(page).getByRole('button', { name: new RegExp(`^${name}( |$)`) });
-  }
 
   /** Refuses writes to the artifact stores, leaving projects and reads alone. */
   async function fillTheDisk(page: Page): Promise<void> {

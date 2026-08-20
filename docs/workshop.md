@@ -177,6 +177,18 @@ opened, closed, and reordered from the panel's own controls, and remembered per 
 reopening a project restores the bench as it was left. A panel is identified by what it holds, so
 opening something already on the bench moves to it rather than putting a second copy beside it.
 
+**At most one of those panels is a tool.** Opening a second tool takes the first off the bench;
+artifacts are not capped and stay open beside whichever tool is mounted. This narrows the paragraph
+above rather than contradicting it: the case it argues for is building a region _from_ settlements
+you can see, and those settlements are artifacts. What is single is the **instrument**, not the
+bench — a workbench has one thing clamped in it and as many references open around it as you like.
+
+The invariant is enforced in `renumberPanels`, which every mutation and every read passes through,
+so a bench stored before the rule existed comes back obeying it — keeping the rightmost tool, which
+is the one most recently opened. Swapping a tool out asks first when it is holding generated
+content nobody has saved, through the same unsaved-edits registry that guards closing a panel;
+`SaveArtifactButton` is what registers that answer for a generator.
+
 Panel components are loaded on demand and the import specifiers are written out in full, because
 a bundler can only split a dynamic import it can see — a computed specifier would pull every
 generator on the site, WebGL renderers and PDF export included, into whatever page opened one

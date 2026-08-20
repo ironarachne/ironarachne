@@ -54,12 +54,62 @@ describe('renumberPanels', () => {
   it('keeps array position and stamps order onto it', () => {
     const panels: PanelState[] = [
       { order: 9, toolPath: '/culture' },
-      { order: 2, toolPath: '/heraldry' },
+      { order: 2, artifactId: 'a1' },
     ];
 
     expect(renumberPanels(panels)).toEqual([
       { order: 0, toolPath: '/culture' },
+      { order: 1, artifactId: 'a1' },
+    ]);
+  });
+
+  it('keeps only the rightmost tool', () => {
+    // A bench stored before the one-tool rule existed can hold several. Reading it has to produce
+    // a bench that obeys the invariant, not one that merely stops breaking it from here on. The
+    // rightmost is the one opened most recently, which is the one the user was last working in.
+    const panels: PanelState[] = [
+      { order: 0, toolPath: '/culture' },
+      { order: 1, artifactId: 'a1' },
+      { order: 2, toolPath: '/heraldry' },
+    ];
+
+    expect(renumberPanels(panels)).toEqual([
+      { order: 0, artifactId: 'a1' },
       { order: 1, toolPath: '/heraldry' },
+    ]);
+  });
+
+  it('leaves artifacts alone when reducing tools', () => {
+    const panels: PanelState[] = [
+      { order: 0, toolPath: '/culture' },
+      { order: 1, artifactId: 'a1' },
+      { order: 2, artifactId: 'a2' },
+      { order: 3, toolPath: '/heraldry' },
+      { order: 4, artifactId: 'a3' },
+    ];
+
+    expect(renumberPanels(panels).map(panelKey)).toEqual([
+      'artifact:a1',
+      'artifact:a2',
+      'tool:/heraldry',
+      'artifact:a3',
+    ]);
+  });
+
+  it('frees room by dropping surplus tools before the cap applies', () => {
+    // Order matters: capping first would push artifacts off the left to make space for tools that
+    // are about to be discarded anyway.
+    const panels: PanelState[] = [
+      ...Array.from({ length: MAX_PANELS }, (_unused, index) => ({
+        order: index,
+        toolPath: `/tool-${index}`,
+      })),
+      { order: MAX_PANELS, artifactId: 'a1' },
+    ];
+
+    expect(renumberPanels(panels).map(panelKey)).toEqual([
+      `tool:/tool-${MAX_PANELS - 1}`,
+      'artifact:a1',
     ]);
   });
 });
@@ -68,11 +118,11 @@ describe('normalizePanels', () => {
   it('sorts by order and renumbers from zero', () => {
     const panels: PanelState[] = [
       { order: 9, toolPath: '/culture' },
-      { order: 2, toolPath: '/heraldry' },
+      { order: 2, artifactId: 'a1' },
     ];
 
     expect(normalizePanels(panels)).toEqual([
-      { order: 0, toolPath: '/heraldry' },
+      { order: 0, artifactId: 'a1' },
       { order: 1, toolPath: '/culture' },
     ]);
   });
@@ -112,12 +162,47 @@ describe('withPanelOpened', () => {
   });
 
   it('does not move a panel that is reopened', () => {
-    const bench = benchOf({ toolPath: '/culture' }, { toolPath: '/heraldry' });
+    const bench = benchOf({ toolPath: '/culture' }, { artifactId: 'a1' });
 
     expect(keysOf(withPanelOpened(bench, { toolPath: '/culture' }))).toEqual([
       'tool:/culture',
+      'artifact:a1',
+    ]);
+  });
+
+  it('replaces the tool on the bench rather than adding a second', () => {
+    const bench = benchOf({ toolPath: '/culture' });
+
+    expect(keysOf(withPanelOpened(bench, { toolPath: '/heraldry' }))).toEqual(['tool:/heraldry']);
+  });
+
+  it('keeps the artifacts when the tool is swapped', () => {
+    // The composition case docs/workshop.md argues for: a settlement stays open beside whichever
+    // generator is being built from it. What is single is the instrument, not the bench.
+    const bench = benchOf({ artifactId: 'a1' }, { toolPath: '/culture' }, { artifactId: 'a2' });
+
+    expect(keysOf(withPanelOpened(bench, { toolPath: '/heraldry' }))).toEqual([
+      'artifact:a1',
+      'artifact:a2',
       'tool:/heraldry',
     ]);
+  });
+
+  it('does not evict an artifact to make room for a replacement tool', () => {
+    // A full bench whose tool is being swapped is not gaining a panel, so nothing has to go.
+    const full = benchOf(
+      { toolPath: '/culture' },
+      ...Array.from({ length: MAX_PANELS - 1 }, (_unused, index) => ({
+        artifactId: `a${index}`,
+      })),
+    );
+    expect(full.panels).toHaveLength(MAX_PANELS);
+
+    const swapped = withPanelOpened(full, { toolPath: '/heraldry' });
+
+    expect(swapped.panels).toHaveLength(MAX_PANELS);
+    expect(keysOf(swapped)[0]).toBe('artifact:a0');
+    expect(keysOf(swapped).at(-1)).toBe('tool:/heraldry');
   });
 
   it('drops the leftmost panel to make room on a full bench', () => {
@@ -145,16 +230,12 @@ describe('isPanelOpen', () => {
 
 describe('withPanelClosed', () => {
   it('removes the panel and renumbers what is left', () => {
-    const bench = benchOf(
-      { toolPath: '/culture' },
-      { artifactId: 'a1' },
-      { toolPath: '/heraldry' },
-    );
+    const bench = benchOf({ artifactId: 'a1' }, { artifactId: 'a2' }, { toolPath: '/heraldry' });
 
-    const closed = withPanelClosed(bench, { artifactId: 'a1' });
+    const closed = withPanelClosed(bench, { artifactId: 'a2' });
 
     expect(closed.panels).toEqual([
-      { order: 0, toolPath: '/culture' },
+      { order: 0, artifactId: 'a1' },
       { order: 1, toolPath: '/heraldry' },
     ]);
   });
@@ -167,27 +248,27 @@ describe('withPanelClosed', () => {
 });
 
 describe('withPanelMoved', () => {
-  const bench = benchOf({ toolPath: '/culture' }, { artifactId: 'a1' }, { toolPath: '/heraldry' });
+  const bench = benchOf({ artifactId: 'a1' }, { toolPath: '/heraldry' }, { artifactId: 'a2' });
 
   it('swaps a panel with its left neighbour', () => {
-    expect(keysOf(withPanelMoved(bench, { artifactId: 'a1' }, -1))).toEqual([
-      'artifact:a1',
-      'tool:/culture',
+    expect(keysOf(withPanelMoved(bench, { toolPath: '/heraldry' }, -1))).toEqual([
       'tool:/heraldry',
+      'artifact:a1',
+      'artifact:a2',
     ]);
   });
 
   it('swaps a panel with its right neighbour', () => {
-    expect(keysOf(withPanelMoved(bench, { artifactId: 'a1' }, 1))).toEqual([
-      'tool:/culture',
-      'tool:/heraldry',
+    expect(keysOf(withPanelMoved(bench, { toolPath: '/heraldry' }, 1))).toEqual([
       'artifact:a1',
+      'artifact:a2',
+      'tool:/heraldry',
     ]);
   });
 
   it('stops at the ends rather than wrapping around', () => {
-    expect(withPanelMoved(bench, { toolPath: '/culture' }, -1)).toBe(bench);
-    expect(withPanelMoved(bench, { toolPath: '/heraldry' }, 1)).toBe(bench);
+    expect(withPanelMoved(bench, { artifactId: 'a1' }, -1)).toBe(bench);
+    expect(withPanelMoved(bench, { artifactId: 'a2' }, 1)).toBe(bench);
   });
 
   it('changes nothing when the panel is not open', () => {
