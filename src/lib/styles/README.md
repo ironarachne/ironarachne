@@ -10,7 +10,6 @@ reset.css       # Normalizes browser defaults
 brand/          # Vendored from the brand repo: the colour palette, as --ia-* tokens
 tokens.css      # Custom properties — the site's names for the palette, plus spacing
 fonts.css       # The @font-face declarations
-navigation.css  # Site navigation
 modal.css       # The shared modal system's styles
 fantasy.css     # Genre themes, applied to generated output
 scifi.css

@@ -41,8 +41,13 @@ export const MATURITIES = ['experimental', 'beta', 'release-ready'] as const;
 export type ToolMaturity = (typeof MATURITIES)[number];
 
 /**
- * Nav sections a tool can be listed under, in navigation order; mirrors the top-level
- * navigation taxonomy. `ToolDomain` is derived from this list so the two cannot drift apart.
+ * What a tool is broadly for. `ToolDomain` is derived from this list so the two cannot drift
+ * apart.
+ *
+ * These were the site's five top-level nav sections, and each had an index page listing the tools
+ * in it. The shell deleted those pages (docs/app-shell.md, decision 1); the domains survive
+ * because they are still how the workshop's tool browser groups and filters, which is the job
+ * they were always doing.
  */
 export const DOMAINS = ['characters', 'factions', 'locations', 'objects', 'utilities'] as const;
 

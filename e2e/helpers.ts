@@ -46,22 +46,11 @@ export async function expectPageContent(
   page: Page,
   entry: {
     heading?: string;
-    welcomeText?: string;
     kind: string;
   },
 ): Promise<void> {
-  if (entry.welcomeText) {
-    await expect(page.getByText(entry.welcomeText)).toBeVisible();
-    return;
-  }
-
   if (entry.heading) {
     await expect(page.getByRole('heading', { level: 1, name: entry.heading })).toBeVisible();
-  }
-
-  if (entry.kind === 'hub') {
-    const hubNav = page.locator('section.navigation nav, section.main nav').first();
-    await expect(hubNav.locator('a[href]').first()).toBeVisible();
   }
 }
 

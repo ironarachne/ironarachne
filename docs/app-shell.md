@@ -7,8 +7,9 @@ and tool taxonomy the site has today.
 It is the layout half of [the workshop](workshop.md). The workshop settled what a user's work
 _is_ — projects, artifacts, tools. This settles where a user _stands_ while they do it.
 
-**Status:** accepted; being built. The [domain model](#domain-model) was reviewed and approved, and
-the work is proceeding in the order set out in [The plan](#the-plan).
+**Status:** implemented. The [domain model](#domain-model) was reviewed and approved, and all six
+steps in [The plan](#the-plan) are built. One item is deliberately not built — copying an artifact
+between projects; see [Open questions](#open-questions).
 
 Supersedes [#13](https://github.com/ironarachne/ironarachne/issues/13), which asked for better use
 of desktop screen space. That framing was too small: the reason the site wastes horizontal space is
@@ -435,13 +436,20 @@ Ordered so that each step is mergeable on its own and `main` is never mid-redesi
 
 ## Open questions
 
-- **Where does the About copy go?** The home page's "My name is Ben" paragraph is worth keeping
-  somewhere. The footer is the cheap answer; an About page would be a sixth destination, which
-  decision 5 refuses.
+- **Copying an artifact to another project.** Listed above as an action the vault keeps, and the
+  one part of this document that was not built. An artifact's `references` point at artifacts in
+  its own project, so a copy either drops them — silently, which is the failure mode the reference
+  machinery exists to prevent — or points at ids the destination project cannot resolve. Neither
+  is a decision to take inside a component. It needs the same treatment `docs/workshop.md` gave
+  references in the first place: a rule stated in the model, then built.
 - **Does the sidebar show the open project's artifact kinds?** A second rank under Workshop, the
   way an IDE shows a file tree, is tempting and would make the sidebar a variable-length list.
   Deferred, not rejected.
-  Settled since this document was first written:
+
+### Settled since this document was first written
 
 - **Icon set** — closed by [decision 6](#decisions-taken-here). There is no icon rail; the band
   between 768 and 1199px is a narrower sidebar carrying the same labels.
+- **Where the About copy goes** — the footer. The home page's "My name is Ben" paragraph is worth
+  keeping, and a first-person introduction above the fold of an application competes with what the
+  site is for; decision 5 refuses an About page as a sixth destination.

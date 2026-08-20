@@ -4,9 +4,9 @@ import { defineTool, genreTag, maturityTag, systemTag } from './tools';
 import type * as ToolTypes from './tool_types';
 
 /**
- * Every user-facing tool on the site, in the order it is listed in navigation. This is the
- * single source of truth for what a tool is called, where it lives, and what it is for; the
- * index pages build their links from it.
+ * Every user-facing tool on the site, in domain order. This is the single source of truth for what
+ * a tool is called, where it lives, and what it is for; the workshop's tool browser and the home
+ * page's featured list are both built from it.
  *
  * Genre and system are both optional. A tool that works for any genre (the environment
  * generator) or any system (the culture generator) carries no such tag, rather than a
