@@ -56,6 +56,39 @@ test.describe('the application shell', () => {
     expect(Number(await tools.innerText())).toBeGreaterThan(0);
   });
 
+  test('reports what the vault holds on a page it did not save anything on', async ({ page }) => {
+    // The regression this exists for: the bar reads indexes that are empty until someone reads the
+    // database, and hydration publishes no event. A bar that only read at mount said "0 artifacts,
+    // no project" for an entire visit and came right only if the user happened to save something.
+    await page.setViewportSize(DESKTOP);
+    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    await page.evaluate(() => localStorage.clear());
+    await page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          const request = indexedDB.deleteDatabase('ironarachne.vault');
+          request.onsuccess = () => resolve();
+          request.onerror = () => resolve();
+          request.onblocked = () => resolve();
+        }),
+    );
+    await page.reload({ waitUntil: 'load' });
+
+    const projects = page.locator('section.projects');
+    await projects.getByLabel('New project').fill('Ashfall');
+    await projects.getByRole('button', { name: 'Create project' }).click();
+    await expect(projects.locator('.project-card', { hasText: 'Ashfall' })).toBeVisible();
+
+    const bar = page.locator('.top-bar');
+    await expect(bar.locator('.top-bar__stat--project dd')).toHaveText('Ashfall');
+
+    // A fresh load of a different page: nothing here writes anything, so the bar has to have gone
+    // and looked.
+    await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
+    await expect(bar.locator('.top-bar__stat--project dd')).toHaveText('Ashfall');
+    await expect(bar.locator('.top-bar__stat--artifacts dd')).toHaveText('0');
+  });
+
   test('keeps the sidebar in the layout down to the rail width', async ({ page }) => {
     await page.setViewportSize(RAIL);
     await visitRoute(page, '/');

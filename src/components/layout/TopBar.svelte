@@ -2,10 +2,10 @@
   import { onMount } from 'svelte';
 
   import { resolve } from '$app/paths';
-  import { onArtifactsChanged } from '$lib/artifacts';
+  import { hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import { getShortDate } from '$lib/dates';
   import { readShellStatus, type ShellStatus } from '$lib/navigation';
-  import { onProjectsChanged } from '$lib/projects';
+  import { hydrateProjects, onProjectsChanged } from '$lib/projects';
   import lockup from '$lib/assets/images/logo/lockup-horizontal-green.svg';
 
   type Props = {
@@ -30,9 +30,26 @@
     status = readShellStatus();
   }
 
-  onMount(() => {
+  onMount(async () => {
+    // Hydrate before reading, and this is not optional. `readShellStatus` answers from the indexes
+    // in memory, which on a fresh page load are empty until someone reads the database — so a bar
+    // that only read at mount would say "0 artifacts, no project" for the whole visit, and go right
+    // only if the user happened to save something. Hydration publishes no event, so there is
+    // nothing to subscribe to instead of awaiting it.
+    //
+    // Both calls are idempotent and cheap after the first: whichever page the user landed on is
+    // probably hydrating too, and the second caller gets the same in-flight promise.
+    try {
+      await Promise.all([hydrateProjects(), hydrateArtifacts()]);
+    } catch (error: unknown) {
+      // A vault that will not open is the storage layer's problem to report, not the status bar's.
+      // The counts stay at their placeholder rather than taking the page down.
+      console.error(error);
+    }
     refresh();
+  });
 
+  onMount(() => {
     // The counts are live: saving or deleting anything, and renaming or switching a project, all
     // have to reach the bar. Both libraries already publish exactly these events.
     const stopArtifacts = onArtifactsChanged(refresh);
