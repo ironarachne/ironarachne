@@ -64,6 +64,15 @@ export type ToolDefinition = {
   maturity: ToolMaturity;
   genres?: Genre[];
   systems?: GameSystem[];
+  /**
+   * Whether the home page points at this tool. Optional and defaulting to false, because most
+   * tools are not featured and an entry should not have to say so.
+   *
+   * An editorial judgement, deliberately not derived from `maturity`. Deriving it would sound
+   * principled and would produce an empty list: almost every entry is `experimental` today, and
+   * the home page would ship with a hole in it until that changed.
+   */
+  featured?: boolean;
   /** Free-form tags beyond genre and system, such as 'heraldry' or 'naming'. */
   tags?: string[];
 };
@@ -83,4 +92,11 @@ export type Tool = TaggedItem & {
   kind: ToolKind;
   domain: ToolDomain;
   maturity: ToolMaturity;
+  /**
+   * Both a field and a `featured` tag, for the same reason maturity is: the home page wants one
+   * boolean answer and a field is the only shape that guarantees it, while the tag lets "featured"
+   * compose with the same filtering as a genre. `defineTool` derives the tag from the field, so
+   * the two cannot disagree.
+   */
+  featured: boolean;
 };

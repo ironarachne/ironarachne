@@ -122,6 +122,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     domain: 'factions',
     maturity: 'release-ready',
     genres: ['fantasy'],
+    featured: true,
     tags: ['worldbuilding'],
   }),
   defineTool({
@@ -204,6 +205,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     domain: 'locations',
     maturity: 'experimental',
     genres: ['scifi'],
+    featured: true,
     tags: ['worldbuilding'],
   }),
   defineTool({
@@ -368,6 +370,16 @@ export function allTools(): ToolTypes.Tool[] {
 
 export function findToolByPath(path: string): ToolTypes.Tool | undefined {
   return TOOL_CATALOG.find((tool) => tool.path === path);
+}
+
+/**
+ * The tools the home page points at, in catalog order.
+ *
+ * Catalog order rather than an order of its own: the featured list is short enough that the
+ * difference is invisible, and a second ordering would be a second thing to keep in step.
+ */
+export function featuredTools(): ToolTypes.Tool[] {
+  return TOOL_CATALOG.filter((tool) => tool.featured);
 }
 
 /**

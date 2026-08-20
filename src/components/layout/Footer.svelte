@@ -3,6 +3,16 @@
 </script>
 
 <footer>
+  <!--
+    This used to be the home page's third paragraph. The home page is now the top of an
+    application rather than a personal index, and a first-person introduction above the fold
+    competes with what the site is for — but it is worth keeping, and decision 5 in
+    docs/app-shell.md refuses an About page as a sixth destination. The footer is where it lands.
+  -->
+  <p>
+    Iron Arachne is written by Ben, who also writes about it at
+    <a href="https://benovermyer.com">benovermyer.com</a>.
+  </p>
   <p>
     The source code for this site is available on <a
       href="https://github.com/ironarachne/ironarachne">GitHub</a

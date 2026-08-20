@@ -16,10 +16,12 @@ export type PageEntry = {
 
 export const PAGE_MANIFEST: PageEntry[] = [
   {
+    // The hero's h1 is the stacked lockup, whose accessible name is its alt text — so the heading
+    // check and what a visitor reads are the same words.
     path: '/',
     title: 'Iron Arachne',
-    welcomeText: 'Welcome to Iron Arachne!',
-    kind: 'hub',
+    heading: 'Iron Arachne',
+    kind: 'static',
   },
   {
     path: '/release-notes',

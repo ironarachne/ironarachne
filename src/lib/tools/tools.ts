@@ -10,6 +10,14 @@ export const SYSTEM_TAG_PREFIX = 'system:';
 /** Prefix marking a tag as a maturity label. */
 export const MATURITY_TAG_PREFIX = 'maturity:';
 
+/**
+ * Tag marking a tool as one the home page points at.
+ *
+ * Unprefixed, unlike the three above, because it has no value to namespace — a tool is featured or
+ * it is not, so `featured:true` would be a prefix pretending at a vocabulary of one.
+ */
+export const FEATURED_TAG = 'featured';
+
 export function genreTag(genre: ToolTypes.Genre): string {
   return `${GENRE_TAG_PREFIX}${genre}`;
 }
@@ -34,6 +42,7 @@ export function maturityTag(maturity: ToolTypes.ToolMaturity): string {
 export function defineTool(definition: ToolTypes.ToolDefinition): ToolTypes.Tool {
   const genreTags = (definition.genres ?? []).map(genreTag);
   const systemTags = (definition.systems ?? []).map(systemTag);
+  const featured = definition.featured ?? false;
 
   return {
     path: definition.path,
@@ -41,10 +50,12 @@ export function defineTool(definition: ToolTypes.ToolDefinition): ToolTypes.Tool
     kind: definition.kind,
     domain: definition.domain,
     maturity: definition.maturity,
+    featured,
     tags: [
       ...genreTags,
       ...systemTags,
       maturityTag(definition.maturity),
+      ...(featured ? [FEATURED_TAG] : []),
       ...(definition.tags ?? []),
     ],
   };

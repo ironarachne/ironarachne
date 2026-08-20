@@ -1,6 +1,7 @@
 import { expect, describe, it } from 'vitest';
 import { applyTagFilter } from '$lib/tags';
 import {
+  FEATURED_TAG,
   defineTool,
   genreDisplayName,
   genreTag,
@@ -41,6 +42,32 @@ const environment: ToolDefinition = {
 describe('genreTag', () => {
   it('namespaces the genre', () => {
     expect(genreTag('fantasy')).toBe('genre:fantasy');
+  });
+});
+
+describe('featured', () => {
+  it('defaults to false and adds no tag', () => {
+    const tool = defineTool(environment);
+
+    expect(tool.featured).toBe(false);
+    expect(tool.tags).not.toContain(FEATURED_TAG);
+  });
+
+  it('keeps the field and the tag saying the same thing', () => {
+    // Same contract as maturity: the home page reads the field, filtering reads the tag, and
+    // `defineTool` deriving one from the other is what stops them disagreeing.
+    const tool = defineTool({ ...environment, featured: true });
+
+    expect(tool.featured).toBe(true);
+    expect(tool.tags).toContain(FEATURED_TAG);
+  });
+
+  it('composes with the shared tag filtering', () => {
+    const tools = [defineTool({ ...environment, featured: true }), defineTool(swnCharacter)];
+
+    const filtered = applyTagFilter(tools, { includeAllTags: [FEATURED_TAG] });
+
+    expect(filtered.map((tool) => tool.path)).toEqual(['/environment']);
   });
 });
 
@@ -116,6 +143,7 @@ describe('toolGenres', () => {
       kind: 'generator',
       domain: 'locations',
       maturity: 'experimental',
+      featured: false,
       tags: ['genre', 'subgenre:weird'],
     };
 
