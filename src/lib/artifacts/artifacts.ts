@@ -127,6 +127,22 @@ export function listArtifactsOfKind(projectId: string, kind: ArtifactKind): Arti
   return listArtifacts(projectId).filter((summary) => summary.kind === kind);
 }
 
+/**
+ * Every artifact in every project, in the same order as {@link listArtifacts} — what the result
+ * vault lists.
+ *
+ * The vault is deliberately global: "where is that culture I made" is a question about the whole
+ * store, and an answer scoped to whichever project happens to be open is not an answer. That is
+ * only safe because the vault's inspector is read-only — an editable listing spanning projects
+ * would be a way to build the cross-project references docs/workshop.md forbids.
+ *
+ * No new storage and no new query path: `projectId` is already on every summary and the index
+ * already holds every one of them, so this is the sort without the filter.
+ */
+export function listAllArtifacts(): ArtifactSummary[] {
+  return sortSummaries(indexedArtifacts());
+}
+
 export function getArtifactSummary(projectId: string, id: string): ArtifactSummary | undefined {
   const summary = indexedArtifact(id);
   return summary?.projectId === projectId ? summary : undefined;

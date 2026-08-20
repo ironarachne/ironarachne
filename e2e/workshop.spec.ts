@@ -1121,15 +1121,17 @@ test.describe('vault export and import', () => {
   });
 
   /**
-   * `/saved-data` was retired in favour of the project view (#44), and redirects rather than 404s.
-   * People have it bookmarked, and the page that held their saved work is the worst possible place
-   * for a dead link — so this is the one piece of that page's e2e coverage that survives it.
+   * `/saved-data` was retired (#44) and redirects rather than 404s. People have it bookmarked, and
+   * the page that held their saved work is the worst possible place for a dead link.
+   *
+   * It pointed at the workshop while the workshop was the closest thing that existed. It points at
+   * the vault now, which is what that page actually was: everything saved, in one list.
    */
-  test('the retired saved-data page sends you to the workshop', async ({ page }) => {
-    await visitRoute(page, '/saved-data', { title: 'Workshop | Iron Arachne' });
+  test('the retired saved-data page sends you to the vault', async ({ page }) => {
+    await visitRoute(page, '/saved-data', { title: 'Result Vault | Iron Arachne' });
 
-    await expect(page).toHaveURL(/\/workshop\/?$/);
-    await expect(page.getByRole('heading', { name: 'Workshop', level: 1 })).toBeVisible();
+    await expect(page).toHaveURL(/\/vault\/?$/);
+    await expect(page.getByRole('heading', { name: 'Result Vault', level: 1 })).toBeVisible();
   });
 
   test('the backup controls are there before there is any project to back up', async ({ page }) => {
