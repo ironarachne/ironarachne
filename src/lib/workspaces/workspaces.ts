@@ -31,24 +31,51 @@ function panelFromTarget(target: PanelTarget, order: number): PanelState {
 }
 
 /**
- * Panels renumbered from 0 in the order the array already has, deduplicated and capped.
+ * The bench holds at most one tool, keeping the rightmost — which is the most recently opened,
+ * since {@link withPanelOpened} appends.
+ *
+ * Artifacts are not capped: the composition case in docs/workshop.md is a settlement open beside
+ * the region generator being built from it, and that still wants several things visible. What is
+ * single is the *instrument*.
+ *
+ * Applied inside {@link renumberPanels} rather than only at the point a tool is opened, because a
+ * bench stored before this rule existed can hold several, and reading one has to produce a bench
+ * that obeys the invariant rather than one that merely stops breaking it from here on.
+ */
+function withSingleTool(panels: PanelState[]): PanelState[] {
+  const lastTool = panels.reduce(
+    (last, panel, index) => (panel.toolPath === undefined ? last : index),
+    -1,
+  );
+  return lastTool === -1
+    ? panels
+    : panels.filter((panel, index) => panel.toolPath === undefined || index === lastTool);
+}
+
+/**
+ * Panels renumbered from 0 in the order the array already has, deduplicated, reduced to a single
+ * tool, and capped.
  *
  * **Array position is what a bench means here, not the `order` field.** The field is how the
  * arrangement survives a round trip through storage, and it is stamped from the array rather than
  * read back into it — otherwise moving a panel would be undone by the stale numbers travelling
  * with it.
+ *
+ * The cap is applied after the single-tool rule, so dropping surplus tools frees room rather than
+ * letting them push artifacts off the left-hand end on the way out.
  */
 export function renumberPanels(panels: PanelState[]): PanelState[] {
   const seen = new Set<string>();
-  return panels
-    .filter((panel) => {
-      const key = panelKey(panel);
-      if (seen.has(key)) {
-        return false;
-      }
-      seen.add(key);
-      return true;
-    })
+  const unique = panels.filter((panel) => {
+    const key = panelKey(panel);
+    if (seen.has(key)) {
+      return false;
+    }
+    seen.add(key);
+    return true;
+  });
+
+  return withSingleTool(unique)
     .slice(0, MAX_PANELS)
     .map((panel, index) => ({ ...panel, order: index }));
 }
@@ -80,6 +107,11 @@ export function isPanelOpen(workspace: ProjectWorkspace, target: PanelTarget): b
  * user clicking a tool twice does not end up with two of it. A bench already holding
  * {@link MAX_PANELS} drops its leftmost panel to make room: refusing instead would leave the user
  * to work out which panel is in the way of the one they just asked for.
+ *
+ * Opening a **tool** takes the tool that was there off first: one instrument at a time. The
+ * removal happens here rather than being left to `renumberPanels` so that replacing a tool costs
+ * nothing else — the bench is back under the cap before the new panel is added, and no artifact is
+ * evicted to make room for something that displaced a panel of its own.
  */
 export function withPanelOpened(
   workspace: ProjectWorkspace,
@@ -88,7 +120,11 @@ export function withPanelOpened(
   if (isPanelOpen(workspace, target)) {
     return workspace;
   }
-  const kept = workspace.panels.slice(Math.max(0, workspace.panels.length - (MAX_PANELS - 1)));
+  const existing =
+    target.toolPath === undefined
+      ? workspace.panels
+      : workspace.panels.filter((panel) => panel.toolPath === undefined);
+  const kept = existing.slice(Math.max(0, existing.length - (MAX_PANELS - 1)));
   return withPanels(workspace, [...kept, panelFromTarget(target, kept.length)]);
 }
 

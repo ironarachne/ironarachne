@@ -120,7 +120,32 @@
     }),
   );
 
-  function openTool(tool: Tool) {
+  /**
+   * Mount a tool, taking the one that was there off the bench.
+   *
+   * One instrument at a time. The swap is silent when the outgoing tool has nothing to lose, and
+   * asks when it is holding generated content nobody kept — the same guard closing a panel uses,
+   * because swapping a tool out *is* closing its panel, just without a close button being the
+   * thing that did it.
+   */
+  async function openTool(tool: Tool) {
+    const current = bench.panels.find((panel) => panel.toolPath !== undefined);
+    if (
+      current?.toolPath !== undefined &&
+      current.toolPath !== tool.path &&
+      hasUnsavedEdits(current.toolPath)
+    ) {
+      const outgoing = toolFor(current.toolPath)?.label ?? current.toolPath;
+      const confirmed = await showConfirmModal({
+        title: 'Switch tools',
+        message: `“${outgoing}” has made something you have not saved. Open ${tool.label} and leave it behind?`,
+        okLabel: 'Switch',
+        dangerous: true,
+      });
+      if (!confirmed) {
+        return;
+      }
+    }
     updateBench(withPanelOpened(bench, { toolPath: tool.path }));
   }
 
@@ -193,7 +218,11 @@
 
   <div class="workshop__layout">
     <div class="workshop__rail">
-      <ToolBrowser tools={mountableTools} {openToolPaths} onToolChange={openTool} />
+      <ToolBrowser
+        tools={mountableTools}
+        {openToolPaths}
+        onToolChange={(tool) => void openTool(tool)}
+      />
       <ProjectView projectId={project?.id} {openArtifactIds} onOpenArtifact={openArtifact} />
     </div>
 
