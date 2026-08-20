@@ -1,5 +1,5 @@
 import { test, expect, describe } from 'vitest';
-import { getMonthAbbr, getMonthName, getNiceDate } from './dates';
+import { getMonthAbbr, getMonthName, getNiceDate, getShortDate } from './dates';
 
 describe('getMonthAbbr', () => {
   test('returns correct abbreviation for each month', () => {
@@ -40,5 +40,19 @@ describe('getNiceDate', () => {
     expect(getNiceDate('2025-07-15')).toBe('Jul. 15<sup>th</sup>, 2025');
     expect(getNiceDate('2025-01-01')).toBe('Jan. 1<sup>st</sup>, 2025');
     expect(getNiceDate('2025-12-31')).toBe('Dec. 31<sup>st</sup>, 2025');
+  });
+});
+
+describe('getShortDate', () => {
+  test('returns day, abbreviated month and year', () => {
+    expect(getShortDate(new Date(2026, 7, 20))).toBe('20 Aug. 2026');
+    expect(getShortDate(new Date(2025, 0, 1))).toBe('1 Jan. 2025');
+    expect(getShortDate(new Date(2025, 11, 31))).toBe('31 Dec. 2025');
+  });
+
+  test('carries no markup', () => {
+    // The whole reason it exists next to getNiceDate: the top bar renders it as text, so a tag
+    // creeping in here would show up literally rather than being escaped into a superscript.
+    expect(getShortDate(new Date(2026, 4, 3))).not.toContain('<');
   });
 });

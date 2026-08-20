@@ -81,18 +81,22 @@ Notes:
   they know nothing about Svelte.
 - **`src/components/`** — Svelte UI, PascalCase files, imported only via the `$components` alias
   (never relative, even between siblings). Grouped one level deep into snake_case domain
-  directories that mirror the site's nav (`characters/`, `factions/`, `locations/`, `objects/`,
-  `utilities/`, `heraldry/`, plus `common/` and `layout/`). A component shared across domains goes
-  in `common/`; don't nest domain directories further.
+  directories (`characters/`, `factions/`, `locations/`, `objects/`, `utilities/`, `heraldry/`,
+  plus `common/` and `layout/`) that mirror the tool catalog's domains. A component shared across
+  domains goes in `common/`; don't nest domain directories further.
 - **`src/routes/`** — SvelteKit routes, kept thin; they compose components rather than holding
   logic. Nesting mirrors domain narrowing (e.g. `fantasy/dcc`, `swn/character`).
 
 ### The tool catalog (`src/lib/tools`) and workshop (`src/lib/workshop`)
 
-Every generator/editor/reference page a visitor can reach from nav has an entry in the tool
-catalog, created with `defineTool` (path, label, `kind`, `domain`, optional `genres`/`systems`).
-Index pages and nav build their links from this catalog — it's the single source of truth for
-a tool's name and classification. New routes reachable from navigation need a catalog entry.
+Every generator/editor/reference page has an entry in the tool catalog, created with `defineTool`
+(path, label, `kind`, `domain`, `maturity`, optional `featured`/`genres`/`systems`). The workshop's
+tool browser and the home page's featured list are both built from it — it's the single source of
+truth for a tool's name and classification. A new tool route needs a catalog entry.
+
+Tools are **not** in the site's navigation: the sidebar has five destinations
+(`src/lib/navigation`) and the workshop's browser is how a tool is reached. Tool routes still
+resolve by URL, for search-engine arrivals and one-off use. See `docs/app-shell.md`.
 
 `workshop` maps a catalog `path` to the Svelte component that renders it (`TOOL_PANELS`), so tools
 can be mounted in a panel (e.g. a multi-tool workspace) instead of only on their own route. Import
@@ -120,11 +124,26 @@ larger generation run that already owns one. When a callback signature requires 
 param (e.g. DCC occupation `apply` handlers), prefix it `_rng` rather than dropping it, to keep the
 contract visible.
 
-### Saved data (`src/lib/persistent_save`, `src/routes/saved-data`)
+### Saved data (`src/lib/persistent_save`)
 
-Generated content can be saved to `localStorage` (via `scoped_local_storage`) and browsed/exported
-from `/saved-data`. `strip_function_values_deep` sanitizes generator output (which may carry
-closures) before it's persisted or exported. This pattern will change in the near future to support a universal "result vault," so don't rely on it.
+The universal result vault exists: work lives in projects (`src/lib/projects`) as artifacts
+(`src/lib/artifacts`) in IndexedDB, browsed at `/vault` and managed at `/projects`.
+`persistent_save`'s `scoped_local_storage` is now only for device-scoped pointers (which project
+is open) and the legacy scopes `src/lib/legacy_adoption` migrates from; `/saved-data` redirects to
+`/vault`. `strip_function_values_deep` still sanitizes generator output, which may carry closures,
+before it is persisted or exported.
+
+### The application shell (`src/lib/navigation`, `src/routes/+layout.svelte`)
+
+Every route renders inside a shell: a pinned top bar (lockup, live tool/artifact counts, the open
+project, the date) and a left sidebar of exactly five destinations — Home, Workshop, Projects,
+Result Vault, Release Notes. `NAV_DESTINATIONS` is the single source of truth for that list and
+five is a cap, not a coincidence. Below 768px the sidebar is a drawer and the page region goes
+`inert` behind it.
+
+Prose is capped by `--measure` on `section.main`, not by `html`. A page that wants the full width
+opts out by not being `section.main` — that is the whole of the opt-out mechanism, and it is how
+the workshop and the vault get the viewport. See `docs/app-shell.md`.
 
 ### Rendering pipelines
 

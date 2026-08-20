@@ -1,4 +1,11 @@
-export type PageKind = 'hub' | 'generator' | 'static' | 'tool';
+/**
+ * What a page is, for the checks the suites apply to it.
+ *
+ * There was a 'hub' kind for the five domain index pages, which listed tools and nothing else.
+ * The shell deleted them (docs/app-shell.md, decision 1): tools are reached through the workshop's
+ * browser now, and nothing navigates to a page whose only job was to hold links.
+ */
+export type PageKind = 'generator' | 'static' | 'tool';
 
 export type OutputCheck = 'canvas' | 'svg' | 'stats' | 'preview-image' | 'default';
 
@@ -6,7 +13,6 @@ export type PageEntry = {
   path: string;
   title: string;
   heading?: string;
-  welcomeText?: string;
   kind: PageKind;
   outputCheck?: OutputCheck;
   generateButton?: RegExp;
@@ -16,46 +22,18 @@ export type PageEntry = {
 
 export const PAGE_MANIFEST: PageEntry[] = [
   {
+    // The hero's h1 is the stacked lockup, whose accessible name is its alt text — so the heading
+    // check and what a visitor reads are the same words.
     path: '/',
     title: 'Iron Arachne',
-    welcomeText: 'Welcome to Iron Arachne!',
-    kind: 'hub',
+    heading: 'Iron Arachne',
+    kind: 'static',
   },
   {
     path: '/release-notes',
     title: 'Release Notes | Iron Arachne',
     heading: 'Release Notes',
     kind: 'static',
-  },
-  {
-    path: '/characters',
-    title: 'Characters & People | Iron Arachne',
-    heading: 'Characters & People',
-    kind: 'hub',
-  },
-  {
-    path: '/factions',
-    title: 'Factions & Groups | Iron Arachne',
-    heading: 'Factions & Groups',
-    kind: 'hub',
-  },
-  {
-    path: '/locations',
-    title: 'Locations & Places | Iron Arachne',
-    heading: 'Locations & Places',
-    kind: 'hub',
-  },
-  {
-    path: '/objects',
-    title: 'Objects & Items | Iron Arachne',
-    heading: 'Objects & Items',
-    kind: 'hub',
-  },
-  {
-    path: '/utilities',
-    title: 'Utilities & Reference | Iron Arachne',
-    heading: 'Utilities & Reference',
-    kind: 'hub',
   },
   {
     path: '/character',
@@ -260,6 +238,22 @@ export const PAGE_MANIFEST: PageEntry[] = [
     path: '/workshop',
     title: 'Workshop | Iron Arachne',
     heading: 'Workshop',
+    kind: 'static',
+  },
+  {
+    // The other two shell destinations. 'static' for the same reason the workshop is: they hold
+    // the user's own work rather than a generator, so there is no Generate button to press. What
+    // the manifest buys them is the smoke pass and, more usefully, the mobile-layout pass at every
+    // width — the vault's two columns are the layout in this redesign most likely to overflow.
+    path: '/projects',
+    title: 'Projects | Iron Arachne',
+    heading: 'Projects',
+    kind: 'static',
+  },
+  {
+    path: '/vault',
+    title: 'Result Vault | Iron Arachne',
+    heading: 'Result Vault',
     kind: 'static',
   },
   {

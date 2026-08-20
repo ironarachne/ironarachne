@@ -14,7 +14,7 @@
 <section class="main">
   <h1>Saved Data has moved</h1>
   <p>
-    What used to be here is now in the <a href={resolve('/workshop')}>workshop</a>, where saved work
-    lives in projects and can be opened, edited, exported, and backed up.
+    What used to be here is now the <a href={resolve('/vault')}>result vault</a>, which lists
+    everything you have saved across every project, and hands each one to the workshop to edit.
   </p>
 </section>

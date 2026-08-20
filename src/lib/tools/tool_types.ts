@@ -41,8 +41,13 @@ export const MATURITIES = ['experimental', 'beta', 'release-ready'] as const;
 export type ToolMaturity = (typeof MATURITIES)[number];
 
 /**
- * Nav sections a tool can be listed under, in navigation order; mirrors the top-level
- * navigation taxonomy. `ToolDomain` is derived from this list so the two cannot drift apart.
+ * What a tool is broadly for. `ToolDomain` is derived from this list so the two cannot drift
+ * apart.
+ *
+ * These were the site's five top-level nav sections, and each had an index page listing the tools
+ * in it. The shell deleted those pages (docs/app-shell.md, decision 1); the domains survive
+ * because they are still how the workshop's tool browser groups and filters, which is the job
+ * they were always doing.
  */
 export const DOMAINS = ['characters', 'factions', 'locations', 'objects', 'utilities'] as const;
 
@@ -64,6 +69,15 @@ export type ToolDefinition = {
   maturity: ToolMaturity;
   genres?: Genre[];
   systems?: GameSystem[];
+  /**
+   * Whether the home page points at this tool. Optional and defaulting to false, because most
+   * tools are not featured and an entry should not have to say so.
+   *
+   * An editorial judgement, deliberately not derived from `maturity`. Deriving it would sound
+   * principled and would produce an empty list: almost every entry is `experimental` today, and
+   * the home page would ship with a hole in it until that changed.
+   */
+  featured?: boolean;
   /** Free-form tags beyond genre and system, such as 'heraldry' or 'naming'. */
   tags?: string[];
 };
@@ -83,4 +97,11 @@ export type Tool = TaggedItem & {
   kind: ToolKind;
   domain: ToolDomain;
   maturity: ToolMaturity;
+  /**
+   * Both a field and a `featured` tag, for the same reason maturity is: the home page wants one
+   * boolean answer and a field is the only shape that guarantees it, while the tag lets "featured"
+   * compose with the same filtering as a genre. `defineTool` derives the tag from the field, so
+   * the two cannot disagree.
+   */
+  featured: boolean;
 };

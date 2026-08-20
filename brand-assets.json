@@ -20,6 +20,11 @@
     },
     {
       "from": "logo/primary",
+      "to": "src/lib/assets/images/logo",
+      "note": "Lockups for the app's top bar and home hero: the bar uses lockup-horizontal-green.svg, the hero uses lockup-stacked-green.svg. The rest arrive because the sync copies a directory whole. The landing page keeps its own copy below — it is a separate bucket and cannot reach this one."
+    },
+    {
+      "from": "logo/primary",
       "to": "landing/assets/logo",
       "note": "Lockups for the landing page hero. It uses the two -green variants; the rest arrive because the sync copies a directory whole, and pruning them would make --check report them missing forever."
     },

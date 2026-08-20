@@ -7,7 +7,6 @@
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
-  import VaultTransferControls from '$components/common/VaultTransferControls.svelte';
   import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import type { Project } from '$lib/projects';
@@ -169,28 +168,28 @@
   }
 </script>
 
-<section class="main workshop">
+<section class="workshop">
   <h1>Workshop</h1>
 
   <!-- The workshop is a catalog tool like any other and says where it stands like any other, but
        the level alone: Experimental's sentence warns that a tool's output may not be savable, which
        is true of a generator and false here — the workshop is what does the saving. What a user
-       needs to know about their work on this page is the Backup section below, which says it
-       accurately, and a generic caveat above it would only compete with that. -->
+       needs to know about the durability of their work is the Backup section, which says it
+       accurately; that now lives on /projects, one click away in the sidebar. -->
   <p class="workshop__maturity">
     <ToolMaturityBadge maturity={toolMaturityForPath('/workshop')} />
   </p>
 
   <ProjectContextBar onProjectChange={(next) => void openProject(next)} />
 
-  <!-- One step from the workshop, and available with no project open: a user restoring into a
-       fresh browser has no project to start from, so a backup control that needed one would be
-       unreachable in exactly the case it exists for.
+  <!-- Backup moved to /projects with the shell (docs/app-shell.md, step 4). It is still reachable
+       with no project open — the projects page is a sidebar destination, so the user restoring
+       into a fresh browser gets there in one click — and the bench keeps the room the controls
+       were taking.
 
-       Nothing is wired back from it. An import announces what it changed through the ordinary
-       project and artifact change events, which the bar and the project view are already
-       listening to — including the restore that closes the open project and empties this bench. -->
-  <VaultTransferControls projectId={project?.id} />
+       Nothing was ever wired back from it: an import announces what it changed through the
+       ordinary project and artifact change events, which the bar and the project view are already
+       listening to, including the restore that closes the open project and empties this bench. -->
 
   <div class="workshop__layout">
     <div class="workshop__rail">
@@ -229,14 +228,14 @@
 
 <style>
   .workshop {
-    /* Every other page is a single reading column, which `html` caps at 70ch. Several panels side
-       by side do not fit in that, so the workshop breaks out of it: it takes the viewport width
-       (less a gutter, so a scrollbar cannot push the page sideways) and recentres itself on the
-       viewport rather than on the column it sits in. Kept local to this page so the column
-       everything else relies on is untouched. */
-    --workshop-width: min(96rem, 100vw - 2rem);
-    width: var(--workshop-width);
-    margin-inline: calc(50% - var(--workshop-width) / 2);
+    /* Not `section.main`, and that is the whole of how a page opts out of the measure: the shell's
+       page region is already the width the bench needs, so there is nothing to break out of.
+
+       This used to take `100vw` and pull itself back with a negative inline margin, to escape the
+       70ch cap `html` put on every page. The cap moved to `section.main` with the shell
+       (docs/app-shell.md), so the hack and the horizontal-scroll risk that came with it are both
+       gone. */
+    padding: 0.5rem;
   }
 
   .workshop h1 {

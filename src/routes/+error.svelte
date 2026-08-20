@@ -23,6 +23,10 @@
     min-height: 50vh;
     text-align: center;
     gap: 1rem;
+    /* Centred text needs the measure of its own now that `html` no longer caps the document;
+       without it the apology runs the full width of a desktop display. */
+    max-width: var(--measure);
+    margin-inline: auto;
   }
 
   h1 {

@@ -2,6 +2,7 @@ import { expect, describe, it } from 'vitest';
 import {
   TOOL_CATALOG,
   allTools,
+  featuredTools,
   filterTools,
   findToolByPath,
   toolMaturityForPath,
@@ -13,6 +14,7 @@ import {
   toolsWithMaturity,
 } from './tool_catalog';
 import {
+  FEATURED_TAG,
   MATURITY_TAG_PREFIX,
   genreTag,
   maturityTag,
@@ -228,5 +230,29 @@ describe('filterTools', () => {
 
   it('returns the whole catalog for an empty filter', () => {
     expect(filterTools({})).toEqual(TOOL_CATALOG);
+  });
+});
+
+describe('featuredTools', () => {
+  it('finds at least one, so the home page never ships an empty column', () => {
+    // The failure this guards is quiet: unfeaturing the last tool leaves a heading with nothing
+    // under it, and nothing else in the suite would notice.
+    expect(featuredTools().length).toBeGreaterThan(0);
+  });
+
+  it('returns only tools the catalog marks featured', () => {
+    expect(featuredTools().every((tool) => tool.featured)).toBe(true);
+  });
+
+  it('agrees with the featured tag', () => {
+    expect(featuredTools().map((tool) => tool.path)).toEqual(
+      filterTools({ includeAllTags: [FEATURED_TAG] }).map((tool) => tool.path),
+    );
+  });
+
+  it('keeps catalog order', () => {
+    const catalogOrder = TOOL_CATALOG.filter((tool) => tool.featured).map((tool) => tool.path);
+
+    expect(featuredTools().map((tool) => tool.path)).toEqual(catalogOrder);
   });
 });

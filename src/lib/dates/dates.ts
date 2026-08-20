@@ -49,3 +49,18 @@ export function getNiceDate(date: string): string {
 
   return `${monthAbbr} ${fullDate.getDate()}<sup>${ordinal}</sup>, ${fullDate.getFullYear()}`;
 }
+
+/**
+ * A date as plain text: `20 Aug. 2026`.
+ *
+ * {@link getNiceDate} returns markup — an ordinal wrapped in `<sup>` — so rendering it costs an
+ * `{@html}` and the eslint exemption that goes with it. The shell's top bar shows the date beside
+ * a handful of counts, where day-month-year is compact, reads the same in every locale, and needs
+ * no markup at all.
+ *
+ * Takes a `Date` rather than a `YYYY-MM-DD` string because its caller has one: the release notes
+ * parse stored strings, the top bar asks the clock.
+ */
+export function getShortDate(date: Date): string {
+  return `${date.getDate()} ${getMonthAbbr(date.getMonth())} ${date.getFullYear()}`;
+}
