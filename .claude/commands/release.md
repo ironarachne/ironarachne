@@ -25,8 +25,18 @@ proceeding — an honest objection now is cheaper than a version number that lie
 
 ## The change
 
-Only `package.json`'s `version` field. Nothing else belongs in this PR: a release PR that also
-changes behaviour makes the tag meaningless as a marker of what shipped.
+Two things, and only these two:
+
+1. `package.json`'s `version` field.
+2. The `version` field on the **topmost unversioned entry** in `src/lib/release_notes/entries.ts`,
+   set to the new version. Entries are written dated but unversioned by the PR that earns them,
+   because the number is not decided until now. If the topmost entry already has a `version`, no
+   release note was written for this release — say so and ask before inventing one.
+
+Nothing else belongs in this PR: a release PR that also changes behaviour makes the tag meaningless
+as a marker of what shipped. Stamping the version onto the note that describes the release is not
+behaviour — it is the same fact as the bump, and the two drift apart if they land separately. See
+`docs/versioning.md`.
 
 Run `npm run verify` before opening it — the gate is the definition of done here.
 

@@ -1,6 +1,6 @@
 # Dates
 
-Month names/abbreviations and `getNiceDate` for changelog and home page copy (HTML includes ordinal `<sup>` markup).
+Month names/abbreviations and `getNiceDate` for release notes and home page copy (HTML includes ordinal `<sup>` markup).
 
 ## Usage
 

@@ -57,7 +57,7 @@ describe('toolPanelLoader', () => {
   });
 
   it('returns undefined for a route with no panel', () => {
-    expect(toolPanelLoader('/changelog')).toBeUndefined();
+    expect(toolPanelLoader('/release-notes')).toBeUndefined();
   });
 
   it('returns the registry entry itself, not a wrapper', () => {
@@ -75,7 +75,7 @@ describe('hasToolPanel', () => {
   });
 
   it('is false for a route with no panel', () => {
-    expect(hasToolPanel('/changelog')).toBe(false);
+    expect(hasToolPanel('/release-notes')).toBe(false);
   });
 
   it('is false for a tool exempted from having one', () => {

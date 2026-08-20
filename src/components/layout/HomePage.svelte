@@ -1,8 +1,6 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
-  import ChangelogEntries from '$components/layout/ChangelogEntries.svelte';
-
-  const numberOfEntries = 5;
+  import ReleaseNotes from '$components/layout/ReleaseNotes.svelte';
 </script>
 
 <svelte:head>
@@ -29,6 +27,8 @@
     <li><a href={resolve('/planet')}>Planet Generator</a></li>
   </ul>
   <h2>Recent Changes</h2>
-  <p>Showing the {numberOfEntries} most recent change log entries.</p>
-  <ChangelogEntries limit={numberOfEntries} />
+  <p>
+    Showing the most recent release note. <a href={resolve('/release-notes')}>See them all</a>.
+  </p>
+  <ReleaseNotes limit={1} />
 </section>

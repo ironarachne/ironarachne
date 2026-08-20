@@ -21,7 +21,7 @@
   <a href={resolve('/objects')}>Objects</a>
   <a href={resolve('/utilities')}>Utilities</a>
   <a href={resolve('/workshop')}>Workshop</a>
-  <a href={resolve('/changelog')}>Change Log</a>
+  <a href={resolve('/release-notes')}>Release Notes</a>
 </nav>
 
 <style>
