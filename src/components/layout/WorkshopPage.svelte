@@ -169,7 +169,7 @@
   }
 </script>
 
-<section class="main workshop">
+<section class="workshop">
   <h1>Workshop</h1>
 
   <!-- The workshop is a catalog tool like any other and says where it stands like any other, but
@@ -229,14 +229,14 @@
 
 <style>
   .workshop {
-    /* Every other page is a single reading column, which `html` caps at 70ch. Several panels side
-       by side do not fit in that, so the workshop breaks out of it: it takes the viewport width
-       (less a gutter, so a scrollbar cannot push the page sideways) and recentres itself on the
-       viewport rather than on the column it sits in. Kept local to this page so the column
-       everything else relies on is untouched. */
-    --workshop-width: min(96rem, 100vw - 2rem);
-    width: var(--workshop-width);
-    margin-inline: calc(50% - var(--workshop-width) / 2);
+    /* Not `section.main`, and that is the whole of how a page opts out of the measure: the shell's
+       page region is already the width the bench needs, so there is nothing to break out of.
+
+       This used to take `100vw` and pull itself back with a negative inline margin, to escape the
+       70ch cap `html` put on every page. The cap moved to `section.main` with the shell
+       (docs/app-shell.md), so the hack and the horizontal-scroll risk that came with it are both
+       gone. */
+    padding: 0.5rem;
   }
 
   .workshop h1 {

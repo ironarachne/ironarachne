@@ -263,6 +263,22 @@ export const PAGE_MANIFEST: PageEntry[] = [
     kind: 'static',
   },
   {
+    // The other two shell destinations. 'static' for the same reason the workshop is: they hold
+    // the user's own work rather than a generator, so there is no Generate button to press. What
+    // the manifest buys them is the smoke pass and, more usefully, the mobile-layout pass at every
+    // width — the vault's two columns are the layout in this redesign most likely to overflow.
+    path: '/projects',
+    title: 'Projects | Iron Arachne',
+    heading: 'Projects',
+    kind: 'static',
+  },
+  {
+    path: '/vault',
+    title: 'Result Vault | Iron Arachne',
+    heading: 'Result Vault',
+    kind: 'static',
+  },
+  {
     path: '/language',
     title: 'Language Generator | Iron Arachne',
     heading: 'Language Generator',

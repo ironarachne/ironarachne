@@ -1,15 +1,12 @@
 import { expect, type Page } from '@playwright/test';
 
-const TOP_NAV_LINKS = [
-  'Home',
-  'Characters',
-  'Factions',
-  'Locations',
-  'Objects',
-  'Utilities',
-  'Workshop',
-  'Release Notes',
-] as const;
+/**
+ * The five shell destinations, in sidebar order. Mirrors `NAV_DESTINATIONS` in `$lib/navigation`
+ * deliberately rather than importing it: this is the browser's view of the navigation, and a test
+ * that read the same constant the component reads could not tell a rendering failure from an
+ * empty list.
+ */
+const SIDEBAR_LINKS = ['Home', 'Workshop', 'Projects', 'Result Vault', 'Release Notes'] as const;
 
 export async function visitRoute(
   page: Page,
@@ -22,12 +19,23 @@ export async function visitRoute(
   }
 }
 
+/**
+ * The shell every route renders inside: the lockup in the top bar, the five sidebar destinations,
+ * and the footer links.
+ *
+ * The sidebar is only asserted at widths where it is in the layout. Below 768px it is an
+ * off-canvas drawer, and a link inside a closed drawer is legitimately not visible — asserting it
+ * there would be asserting the drawer is broken.
+ */
 export async function expectGlobalChrome(page: Page): Promise<void> {
-  await expect(page.getByRole('img', { name: 'Iron Arachne logo glyph' })).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Iron Arachne' }).first()).toBeVisible();
 
-  const topNav = page.getByRole('navigation').first();
-  for (const label of TOP_NAV_LINKS) {
-    await expect(topNav.getByRole('link', { name: label, exact: true })).toBeVisible();
+  const width = page.viewportSize()?.width ?? 1280;
+  if (width >= 768) {
+    const sidebar = page.getByRole('navigation', { name: 'Main' });
+    for (const label of SIDEBAR_LINKS) {
+      await expect(sidebar.getByRole('link', { name: label, exact: true })).toBeVisible();
+    }
   }
 
   await expect(page.getByRole('link', { name: 'GitHub' })).toBeVisible();
