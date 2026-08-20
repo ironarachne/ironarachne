@@ -31,6 +31,22 @@ request that earns the bump.** When that merges to `main`, CI notices the versio
 Merges that do not touch `version` produce no tag and no release. They still build, and they still
 deploy to dev.
 
+## The release note that goes with it
+
+Visitor-facing release notes live in `src/lib/release_notes/entries.ts`, and an entry may carry the
+`version` it shipped as.
+
+**Write the entry dated but unversioned, in the pull request that earns it. The bump PR stamps the
+version on.** A version is not a fact until someone decides the level, so asking a feature PR to
+write it asks its author to predict a number they do not own. `/release` fills in `version` on the
+topmost unversioned entry in the same pull request that bumps `package.json` — the two are the same
+fact recorded twice, and keeping them in one commit is what stops them drifting apart.
+
+This is the one thing besides the `version` field that belongs in a release PR. `.claude/commands/release.md`
+is otherwise right that a release PR changes no behaviour: a version stamp is not behaviour.
+
+Entries older than this scheme have no `version` and are not backfilled — see that library's README.
+
 ## What the version string looks like
 
 `scripts/site_version.sh` derives it with `git describe --tags --match 'v*'`, so it is the tag plus a

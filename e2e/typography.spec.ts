@@ -53,9 +53,9 @@ test('italic text resolves to the italic file rather than a slanted roman', asyn
 });
 
 test('headings still use the display face', async ({ page }) => {
-  await visitRoute(page, '/changelog', { title: 'Change Log | Iron Arachne' });
+  await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
 
-  const heading = page.getByRole('heading', { level: 1, name: 'Change Log' });
+  const heading = page.getByRole('heading', { level: 1, name: 'Release Notes' });
   await expect(heading).toBeVisible();
 
   const headingStack = await heading.evaluate((node) => getComputedStyle(node).fontFamily);

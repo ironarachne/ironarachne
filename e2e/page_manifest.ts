@@ -22,9 +22,9 @@ export const PAGE_MANIFEST: PageEntry[] = [
     kind: 'hub',
   },
   {
-    path: '/changelog',
-    title: 'Change Log | Iron Arachne',
-    heading: 'Change Log',
+    path: '/release-notes',
+    title: 'Release Notes | Iron Arachne',
+    heading: 'Release Notes',
     kind: 'static',
   },
   {

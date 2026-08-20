@@ -8,7 +8,7 @@ const TOP_NAV_LINKS = [
   'Objects',
   'Utilities',
   'Workshop',
-  'Change Log',
+  'Release Notes',
 ] as const;
 
 export async function visitRoute(
