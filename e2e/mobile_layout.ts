@@ -158,6 +158,15 @@ export async function expectInteractiveControlsReachable(page: Page): Promise<vo
         if (rect.width === 0 || rect.height === 0) {
           return false;
         }
+        // A control that is not rendered is not an unreachable control — it is not there. The
+        // closed navigation drawer is the case that matters: it is parked off-canvas by a
+        // transform, which leaves its links with a real size at a negative offset. `visibility`
+        // is inherited, so the drawer's own `hidden` reaches every link inside it without this
+        // having to walk ancestors. `findHorizontalOverflow` skips the same two states.
+        const { display, visibility } = window.getComputedStyle(element);
+        if (display === 'none' || visibility === 'hidden') {
+          return false;
+        }
         return rect.left < -tolerance || rect.right > viewportWidth + tolerance;
       })
       .slice(0, 8)

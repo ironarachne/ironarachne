@@ -7,7 +7,6 @@
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
-  import VaultTransferControls from '$components/common/VaultTransferControls.svelte';
   import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import type { Project } from '$lib/projects';
@@ -175,22 +174,22 @@
   <!-- The workshop is a catalog tool like any other and says where it stands like any other, but
        the level alone: Experimental's sentence warns that a tool's output may not be savable, which
        is true of a generator and false here — the workshop is what does the saving. What a user
-       needs to know about their work on this page is the Backup section below, which says it
-       accurately, and a generic caveat above it would only compete with that. -->
+       needs to know about the durability of their work is the Backup section, which says it
+       accurately; that now lives on /projects, one click away in the sidebar. -->
   <p class="workshop__maturity">
     <ToolMaturityBadge maturity={toolMaturityForPath('/workshop')} />
   </p>
 
   <ProjectContextBar onProjectChange={(next) => void openProject(next)} />
 
-  <!-- One step from the workshop, and available with no project open: a user restoring into a
-       fresh browser has no project to start from, so a backup control that needed one would be
-       unreachable in exactly the case it exists for.
+  <!-- Backup moved to /projects with the shell (docs/app-shell.md, step 4). It is still reachable
+       with no project open — the projects page is a sidebar destination, so the user restoring
+       into a fresh browser gets there in one click — and the bench keeps the room the controls
+       were taking.
 
-       Nothing is wired back from it. An import announces what it changed through the ordinary
-       project and artifact change events, which the bar and the project view are already
-       listening to — including the restore that closes the open project and empties this bench. -->
-  <VaultTransferControls projectId={project?.id} />
+       Nothing was ever wired back from it: an import announces what it changed through the
+       ordinary project and artifact change events, which the bar and the project view are already
+       listening to, including the restore that closes the open project and empties this bench. -->
 
   <div class="workshop__layout">
     <div class="workshop__rail">

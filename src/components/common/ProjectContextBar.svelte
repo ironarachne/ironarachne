@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
+  import { resolve } from '$app/paths';
   import {
     acknowledgeLegacyAdoptionNotice,
     adoptLegacySaves,
@@ -8,20 +9,14 @@
     type LegacyAdoptionNotice,
   } from '$lib/legacy_adoption';
   import {
-    createProject,
-    deleteProject,
     getActiveProject,
     hydrateProjects,
     listProjects,
     onProjectsChanged,
-    renameProject,
     setActiveProject,
     type Project,
   } from '$lib/projects';
-  import type { VaultResult } from '$lib/vault_db';
-  import type { ImportSummary } from '$lib/vault_file';
   import { ARTIFACT_KINDS } from '$lib/workshop';
-  import ProjectTransferControls from '$components/common/ProjectTransferControls.svelte';
 
   type Props = {
     /**
@@ -37,15 +32,10 @@
   // One id per component instance, so two bars on a page do not collide on label `for`.
   const uid = $props.id();
   const openId = `${uid}-open`;
-  const nameId = `${uid}-name`;
-  const newNameId = `${uid}-new-name`;
 
   let projects: Project[] = $state([]);
   let activeProjectId: string | undefined = $state(undefined);
-  let name = $state('');
-  let newName = $state('');
   let adoption: LegacyAdoptionNotice | null = $state(null);
-  let storageError: string | null = $state(null);
 
   // Projects live in the vault database, which does not exist while the site is being prerendered.
   // Reading after mount keeps the server-rendered markup and the first client render identical.
@@ -68,32 +58,17 @@
     refresh();
   });
 
-  // A project can be created and opened from somewhere else entirely — a generator in a panel
-  // saving its first culture — and a bar still reading "no project yet" over one the user has just
-  // filled is the whole reason this subscription exists.
+  // A project can be created and opened from somewhere else entirely — the projects page, or a
+  // generator in a panel saving its first culture — and a bar still reading "no project yet" over
+  // one the user has just filled is the whole reason this subscription exists.
   onMount(() => onProjectsChanged(refresh));
 
   function refresh() {
     projects = listProjects();
     const active = getActiveProject();
     activeProjectId = active?.id;
-    name = active?.name ?? '';
     adoption = legacyAdoptionNotice();
     onProjectChange?.(active);
-  }
-
-  /**
-   * Report a write the database refused rather than letting the bar redraw as though it worked.
-   *
-   * The full treatment — a blocking dialog offering a download, an export, and the storage panel —
-   * is the storage-status work. What is not deferred is saying that it failed: a store whose
-   * writes return a result the caller drops is a store that loses work silently.
-   */
-  function report<T>(result: VaultResult<T> | undefined): void {
-    storageError =
-      result === undefined || result.ok
-        ? null
-        : `That could not be saved (${result.reason}). Your work is still here; try again.`;
   }
 
   // Undefined once the project the note names has been deleted, which is what hides the note: an
@@ -109,66 +84,26 @@
     adoption = null;
   }
 
-  async function create() {
-    const requested = newName;
-    const created = await createProject({ name: requested });
-    report(created);
-    if (created.ok) {
-      // Creating a project from this bar is an explicit request to work in it, so it is opened.
-      // The library deliberately does not do that on its own.
-      setActiveProject(created.value.id);
-      // Only what this call consumed. The write is asynchronous now, and someone typing the next
-      // project's name while it commits must not have it wiped out from under them.
-      if (newName === requested) {
-        newName = '';
-      }
-    }
-    refresh();
-  }
-
   function open(id: string) {
     setActiveProject(id);
     refresh();
   }
-
-  async function rename() {
-    if (activeProjectId !== undefined) {
-      report(await renameProject(activeProjectId, name));
-    }
-    refresh();
-  }
-
-  async function remove() {
-    if (activeProjectId !== undefined) {
-      report(await deleteProject(activeProjectId));
-    }
-    refresh();
-  }
-
-  /**
-   * Open what an import brought in.
-   *
-   * An imported project is opened because importing one is an explicit request to work in it —
-   * the same reasoning that opens a project created from this bar. An imported artifact went into
-   * the project that was already open, so there is nothing to move to.
-   */
-  function afterImport(summary: ImportSummary) {
-    if (summary.projectsAdded > 0 && summary.projectId !== undefined) {
-      setActiveProject(summary.projectId);
-    }
-    refresh();
-  }
 </script>
 
+<!--
+  The bench's project control, and deliberately only that: which project is open, and switching
+  it. Creating, renaming, describing, deleting, exporting and importing all moved to /projects
+  with the shell (docs/app-shell.md, step 4). A bench cluttered with administration is a bench
+  with less room for panels, and every one of those actions is something a user does between
+  sessions rather than while building.
+-->
 <section class="project-context">
   <h2>Project</h2>
 
   {#if adoption !== null && adoptedProjectName !== undefined}
     <!-- Adoption happens on page load, wherever the user happens to be, so this is where they are
          told it happened. It still says the originals are untouched, because that is the
-         reassurance the message exists to give — but it no longer points at the saved data page,
-         which has gone (#44). Naming a page that now redirects would be a worse answer than
-         naming none. -->
+         reassurance the message exists to give. -->
     <div class="project-context__adoption" role="status">
       <p>
         {adoption.adoptedCount}
@@ -190,26 +125,10 @@
     </div>
   {/if}
 
-  {#if storageError !== null}
-    <p class="project-context__error" role="alert">{storageError}</p>
-  {/if}
-
-  <div class="project-context__row">
-    <div class="input-group">
-      <label for={newNameId}>New project</label>
-      <input
-        id={newNameId}
-        type="text"
-        bind:value={newName}
-        placeholder="Name"
-        autocomplete="off"
-      />
-    </div>
-    <button type="button" onclick={create}>Create project</button>
-  </div>
-
   {#if activeProjectId === undefined}
-    <p class="project-context__empty">No project yet. Create one to start building.</p>
+    <p class="project-context__empty">
+      No project yet. <a href={resolve('/projects')}>Create one</a> to start building.
+    </p>
   {:else}
     <div class="project-context__row">
       <div class="input-group">
@@ -224,28 +143,9 @@
           {/each}
         </select>
       </div>
+      <a class="project-context__manage" href={resolve('/projects')}>Manage projects</a>
     </div>
-
-    <div class="project-context__row">
-      <div class="input-group">
-        <label for={nameId}>Name</label>
-        <input id={nameId} type="text" bind:value={name} autocomplete="off" />
-      </div>
-      <button type="button" onclick={rename}>Rename</button>
-      <button type="button" onclick={remove}>Delete project</button>
-    </div>
-
-    <p class="project-context__count">
-      {projects.length}
-      {projects.length === 1 ? 'project' : 'projects'}
-    </p>
   {/if}
-
-  <!-- One step from the project itself, and never behind a menu. In an application with no server
-       copy, a file is the only copy of this work that survives clearing site data, so export is
-       the durability story rather than a convenience. Import sits beside it and takes a project
-       file or a single artifact — the file says which. -->
-  <ProjectTransferControls projectId={activeProjectId} onImported={afterImport} />
 </section>
 
 <style>
@@ -295,22 +195,17 @@
     min-width: 0;
   }
 
-  .project-context input[type='text'],
   .project-context select {
     min-width: 0;
     flex: 1 1 10rem;
   }
 
-  .project-context__error {
-    margin: 0;
-    padding: 0.6rem 0.75rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    font-size: 0.9rem;
+  .project-context__manage {
+    font-size: 0.85rem;
+    white-space: nowrap;
   }
 
-  .project-context__empty,
-  .project-context__count {
+  .project-context__empty {
     margin: 0;
     font-size: 0.85rem;
     font-style: italic;

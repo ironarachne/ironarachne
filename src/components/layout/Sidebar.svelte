@@ -102,13 +102,24 @@
       position: fixed;
       top: 0;
       transform: translateX(-100%);
-      transition: transform 0.2s ease;
+      /* `visibility` and not transform alone. A drawer parked off-canvas by a transform is still
+         rendered: its links stay in the tab order and in the accessibility tree, so tabbing out of
+         the top bar walks into five invisible destinations. `visibility: hidden` takes it out of
+         both, and delaying it until the slide has finished keeps the animation. */
+      visibility: hidden;
+      transition:
+        transform 0.2s ease,
+        visibility 0s linear 0.2s;
       width: min(16rem, 80vw);
       z-index: 20;
     }
 
     .sidebar--open {
       transform: translateX(0);
+      visibility: visible;
+      transition:
+        transform 0.2s ease,
+        visibility 0s;
     }
   }
 

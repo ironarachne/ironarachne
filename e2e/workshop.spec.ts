@@ -1,6 +1,14 @@
 import { expect, test, type Page } from '@playwright/test';
 import { visitRoute } from './helpers';
 import { expectInteractiveControlsReachable, expectNoHorizontalOverflow } from './mobile_layout';
+import {
+  createProject,
+  deleteProject,
+  expectOpenProject,
+  expectProjectCount,
+  onProjectsPage,
+  renameProject,
+} from './projects';
 
 const projectContext = (page: Page) => page.locator('section.project-context');
 const projectView = (page: Page) => page.locator('section.project-view');
@@ -26,12 +34,6 @@ async function openEmptyWorkshop(page: Page): Promise<void> {
       }),
   );
   await page.reload({ waitUntil: 'load' });
-}
-
-async function createProject(page: Page, name: string): Promise<void> {
-  await projectContext(page).getByLabel('New project').fill(name);
-  await projectContext(page).getByRole('button', { name: 'Create project' }).click();
-  await expect(projectContext(page).getByLabel('Name')).toHaveValue(name);
 }
 
 function mountTool(page: Page, label: string | RegExp) {
@@ -146,11 +148,17 @@ test.describe('the workshop bench', () => {
   });
 
   test('keeps one project’s bench out of another’s', async ({ page }) => {
+    // Both projects up front, then switched between with the bench's own control. Creating a
+    // project is a trip to /projects now, and coming back is a fresh page — so this switches with
+    // the switcher, which is the only way a bench changes project without reloading.
     await createProject(page, 'Ashfall');
+    await createProject(page, 'Dolmenwood');
+
+    await projectContext(page).getByLabel('Open project').selectOption({ label: 'Ashfall' });
     await mountTool(page, /^Culture/);
     await expect.poll(async () => (await storedPanels(page)).length).toBe(1);
 
-    await createProject(page, 'Dolmenwood');
+    await projectContext(page).getByLabel('Open project').selectOption({ label: 'Dolmenwood' });
     // A project with no bench of its own adopts what is in front of the user rather than sweeping
     // it away, so closing the panel is what proves the two benches are separate.
     await page.getByRole('button', { name: /^Close Culture$/ }).click();
@@ -260,7 +268,7 @@ test.describe('saving what a tool made', () => {
     await expect(page.getByText(/Saved “The Emberfolk” to Ashfall\./)).toBeVisible();
 
     await openWorkshop(page);
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+    await expectOpenProject(page, 'Ashfall');
     await expect(projectView(page).getByRole('button', { name: /^The Emberfolk/ })).toBeVisible();
   });
 });
@@ -813,36 +821,44 @@ test.describe('workshop projects', () => {
     await page.reload({ waitUntil: 'load' });
   });
 
-  test('creates, renames, and deletes projects, and the set survives a reload', async ({
-    page,
-  }) => {
-    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+  test('sends someone with no project to the page that makes one', async ({ page }) => {
+    // The bench no longer creates projects — the empty state has to say where they come from, or
+    // a first-time visitor on the site's main screen is simply stuck.
+    const empty = projectContext(page).getByText('No project yet.');
+    await expect(empty).toBeVisible();
+    await expect(empty.getByRole('link', { name: 'Create one' })).toHaveAttribute(
+      'href',
+      /\/projects\/?$/,
+    );
+  });
 
+  test('follows a rename made on the projects page', async ({ page }) => {
     await createProject(page, 'Ashfall');
     await createProject(page, 'Dolmenwood');
-    await expect(projectContext(page).getByText('2 projects')).toBeVisible();
+    await expectProjectCount(page, 2);
 
-    // The bar opens what it creates, so the second project is the one on show.
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Dolmenwood');
+    // Creating a project opens it, so the second one is the one on the bench.
+    await expectOpenProject(page, 'Dolmenwood');
 
-    await projectContext(page).getByLabel('Name').fill('Dolmenwood Revised');
-    await projectContext(page).getByRole('button', { name: 'Rename' }).click();
-    // The option list is redrawn from what the bar re-read after the write committed, so the new
-    // name appearing there is the signal that the database has it. A click only says the handler
-    // started, and reloading on that would race the transaction.
-    await expect(
-      projectContext(page).getByRole('option', { name: 'Dolmenwood Revised' }),
-    ).toHaveCount(1);
+    await renameProject(page, 'Dolmenwood', 'Dolmenwood Revised');
+    await expectOpenProject(page, 'Dolmenwood Revised');
 
     await page.reload({ waitUntil: 'load' });
-    await expect(projectContext(page).getByText('2 projects')).toBeVisible();
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Dolmenwood Revised');
+    await expectProjectCount(page, 2);
+    await expectOpenProject(page, 'Dolmenwood Revised');
+  });
 
-    await projectContext(page).getByRole('button', { name: 'Delete project' }).click();
-    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
+  test('falls back to another project when the open one is deleted', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await createProject(page, 'Dolmenwood');
+
+    await deleteProject(page, 'Dolmenwood');
+
+    await expectProjectCount(page, 1);
+    await expectOpenProject(page, 'Ashfall');
 
     await page.reload({ waitUntil: 'load' });
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+    await expectOpenProject(page, 'Ashfall');
   });
 
   test('opens exactly one project at a time, and that survives a reload', async ({ page }) => {
@@ -850,12 +866,12 @@ test.describe('workshop projects', () => {
     await createProject(page, 'Dolmenwood');
 
     await projectContext(page).getByLabel('Open project').selectOption({ label: 'Ashfall' });
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+    await expectOpenProject(page, 'Ashfall');
 
     // Ashfall is the older project, so if the selection had not persisted the workshop would
     // reopen Dolmenwood — the most recently updated one — instead.
     await page.reload({ waitUntil: 'load' });
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+    await expectOpenProject(page, 'Ashfall');
     await expect(projectContext(page).getByRole('option', { selected: true })).toHaveText(
       'Ashfall',
     );
@@ -898,23 +914,27 @@ test.describe('project export and import', () => {
     await createProject(page, 'Ashfall');
     await saveACulture(page, 'The Emberfolk');
 
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      transfer(page).getByRole('button', { name: 'Export project' }).click(),
-    ]);
-    expect(download.suggestedFilename()).toMatch(/^ironarachne-ashfall-\d{4}-\d{2}-\d{2}\.json$/);
-    const file = await download.path();
-    await expect(transfer(page).getByText(/^Saved ironarachne-ashfall-/)).toBeVisible();
+    const file = await onProjectsPage(page, async () => {
+      const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        transfer(page).getByRole('button', { name: 'Export project' }).click(),
+      ]);
+      expect(download.suggestedFilename()).toMatch(/^ironarachne-ashfall-\d{4}-\d{2}-\d{2}\.json$/);
+      await expect(transfer(page).getByText(/^Saved ironarachne-ashfall-/)).toBeVisible();
+      return download.path();
+    });
 
     // The vault genuinely loses it. Everything after this comes out of the file.
-    await projectContext(page).getByRole('button', { name: 'Delete project' }).click();
-    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+    await deleteProject(page, 'Ashfall');
+    await expect(page.getByText('No project yet.')).toBeVisible();
 
-    await transfer(page).locator('input[type=file]').setInputFiles(file);
-    await expect(transfer(page).getByText('Added 1 project holding 1 artifact.')).toBeVisible();
+    await onProjectsPage(page, async () => {
+      await transfer(page).locator('input[type=file]').setInputFiles(file);
+      await expect(transfer(page).getByText('Added 1 project holding 1 artifact.')).toBeVisible();
+    });
     // The import opens what it brought in, so the work is in front of the user rather than
     // somewhere in a project list.
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+    await expectOpenProject(page, 'Ashfall');
     await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
 
     // And it is in the database, not merely on screen.
@@ -935,8 +955,10 @@ test.describe('project export and import', () => {
     await createProject(page, 'Dolmenwood');
     await expect(artifactRow(page, 'The Emberfolk')).toBeHidden();
 
-    await transfer(page).locator('input[type=file]').setInputFiles(file);
-    await expect(transfer(page).getByText('Added 1 artifact to this project.')).toBeVisible();
+    await onProjectsPage(page, async () => {
+      await transfer(page).locator('input[type=file]').setInputFiles(file);
+      await expect(transfer(page).getByText('Added 1 artifact to this project.')).toBeVisible();
+    });
     await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
 
     // The one it came from still has its own copy: an artifact travels, it does not move.
@@ -947,19 +969,21 @@ test.describe('project export and import', () => {
   test('a file that is not ours is refused by name, and nothing is changed', async ({ page }) => {
     await createProject(page, 'Ashfall');
 
-    await transfer(page)
-      .locator('input[type=file]')
-      .setInputFiles({
-        name: 'notes.json',
-        mimeType: 'application/json',
-        buffer: Buffer.from('{"just":"some other file"}'),
-      });
+    await onProjectsPage(page, async () => {
+      await transfer(page)
+        .locator('input[type=file]')
+        .setInputFiles({
+          name: 'notes.json',
+          mimeType: 'application/json',
+          buffer: Buffer.from('{"just":"some other file"}'),
+        });
 
-    await expect(transfer(page).getByRole('alert')).toContainText(
-      'not an Iron Arachne export file',
-    );
-    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Ashfall');
+      await expect(transfer(page).getByRole('alert')).toContainText(
+        'not an Iron Arachne export file',
+      );
+    });
+    await expectProjectCount(page, 1);
+    await expectOpenProject(page, 'Ashfall');
   });
 });
 
@@ -995,12 +1019,15 @@ test.describe('vault export and import', () => {
   }
 
   async function exportVault(page: Page): Promise<string> {
-    const [download] = await Promise.all([
-      page.waitForEvent('download'),
-      vaultTransfer(page).getByRole('button', { name: 'Export everything' }).click(),
-    ]);
-    expect(download.suggestedFilename()).toMatch(/^ironarachne-vault-\d{4}-\d{2}-\d{2}\.json$/);
-    return download.path();
+    return onProjectsPage(page, async () => {
+      const [download] = await Promise.all([
+        page.waitForEvent('download'),
+        vaultTransfer(page).getByRole('button', { name: 'Export everything' }).click(),
+      ]);
+      expect(download.suggestedFilename()).toMatch(/^ironarachne-vault-\d{4}-\d{2}-\d{2}\.json$/);
+      await expect(vaultTransfer(page).getByText(/^Saved ironarachne-vault-/)).toBeVisible();
+      return download.path();
+    });
   }
 
   test('a whole vault survives export, clearing site data, and import', async ({ page }) => {
@@ -1010,18 +1037,19 @@ test.describe('vault export and import', () => {
     await saveACulture(page, 'The Drune');
 
     const file = await exportVault(page);
-    await expect(vaultTransfer(page).getByText(/^Saved ironarachne-vault-/)).toBeVisible();
 
     // Everything really goes: a new origin's worth of storage, not a soft reset.
     await openEmptyWorkshop(page);
-    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+    await expect(page.getByText('No project yet.')).toBeVisible();
 
-    await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
-    await expect(
-      vaultTransfer(page).getByText(/Added 2 projects holding 2 artifacts\./),
-    ).toBeVisible();
+    await onProjectsPage(page, async () => {
+      await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
+      await expect(
+        vaultTransfer(page).getByText(/Added 2 projects holding 2 artifacts\./),
+      ).toBeVisible();
+    });
 
-    await expect(projectContext(page).getByText('2 projects')).toBeVisible();
+    await expectProjectCount(page, 2);
     await projectContext(page).getByLabel('Open project').selectOption({ label: 'Ashfall' });
     await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
     await projectContext(page).getByLabel('Open project').selectOption({ label: 'Dolmenwood' });
@@ -1029,7 +1057,7 @@ test.describe('vault export and import', () => {
 
     // In the database, not merely on screen.
     await page.reload({ waitUntil: 'load' });
-    await expect(projectContext(page).getByText('2 projects')).toBeVisible();
+    await expectProjectCount(page, 2);
   });
 
   test('restoring replaces what is there, and downloads the undo first', async ({ page }) => {
@@ -1040,32 +1068,35 @@ test.describe('vault export and import', () => {
     // Work done after the backup, which the restore is about to remove.
     await createProject(page, 'Doomed');
     await saveACulture(page, 'The Doomed');
-    await expect(projectContext(page).getByText('2 projects')).toBeVisible();
+    await expectProjectCount(page, 2);
 
-    await vaultTransfer(page)
-      .getByLabel('Importing')
-      .selectOption({ label: 'replaces everything (restore)' });
+    await onProjectsPage(page, async () => {
+      await vaultTransfer(page)
+        .getByLabel('Importing')
+        .selectOption({ label: 'replaces everything (restore)' });
 
-    // The confirmation counts what is about to go, in the user's terms rather than in the abstract.
-    const [backup] = await Promise.all([
-      page.waitForEvent('download'),
-      (async () => {
-        await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
-        await expect(confirmDialog(page)).toContainText('removing 2 projects and 2 artifacts');
-        await confirmDialog(page).getByRole('button', { name: 'Restore' }).click();
-      })(),
-    ]);
-    // The pre-restore export is the undo, and it is produced before anything is written.
-    expect(backup.suggestedFilename()).toMatch(/^ironarachne-vault-/);
+      // The confirmation counts what is about to go, in the user's terms rather than in the
+      // abstract.
+      const [backup] = await Promise.all([
+        page.waitForEvent('download'),
+        (async () => {
+          await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
+          await expect(confirmDialog(page)).toContainText('removing 2 projects and 2 artifacts');
+          await confirmDialog(page).getByRole('button', { name: 'Restore' }).click();
+        })(),
+      ]);
+      // The pre-restore export is the undo, and it is produced before anything is written.
+      expect(backup.suggestedFilename()).toMatch(/^ironarachne-vault-/);
 
-    await expect(
-      vaultTransfer(page).getByText(/Restored 1 project holding 1 artifact/),
-    ).toBeVisible();
-    await expect(vaultTransfer(page).getByText(/That file is the undo/)).toBeVisible();
-    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
+      await expect(
+        vaultTransfer(page).getByText(/Restored 1 project holding 1 artifact/),
+      ).toBeVisible();
+      await expect(vaultTransfer(page).getByText(/That file is the undo/)).toBeVisible();
+    });
+    await expectProjectCount(page, 1);
 
     await page.reload({ waitUntil: 'load' });
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('Keeper');
+    await expectOpenProject(page, 'Keeper');
     await expect(artifactRow(page, 'The Emberfolk')).toBeVisible();
     await expect(artifactRow(page, 'The Doomed')).toBeHidden();
   });
@@ -1079,12 +1110,14 @@ test.describe('vault export and import', () => {
 
     // Straight back in, with nothing cleared: merging this is legitimate and leaves two copies of
     // everything, so the one thing it must not be is silent.
-    await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
-    await expect(confirmDialog(page)).toContainText('This file came out of this browser');
-    await expect(confirmDialog(page)).toContainText('1 projects and 1 artifacts');
-    await confirmDialog(page).getByRole('button', { name: 'Cancel' }).click();
+    await onProjectsPage(page, async () => {
+      await vaultTransfer(page).locator('input[type=file]').setInputFiles(file);
+      await expect(confirmDialog(page)).toContainText('This file came out of this browser');
+      await expect(confirmDialog(page)).toContainText('1 projects and 1 artifacts');
+      await confirmDialog(page).getByRole('button', { name: 'Cancel' }).click();
+    });
 
-    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
+    await expectProjectCount(page, 1);
   });
 
   /**
@@ -1101,8 +1134,12 @@ test.describe('vault export and import', () => {
 
   test('the backup controls are there before there is any project to back up', async ({ page }) => {
     // A user restoring into a fresh browser has no project to start from, so a control that
-    // needed one would be missing in exactly the case it exists for.
-    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+    // needed one would be missing in exactly the case it exists for. That is why backup sits on
+    // the projects page — a sidebar destination reachable with nothing saved — rather than behind
+    // an open project.
+    await expect(page.getByText('No project yet.')).toBeVisible();
+
+    await page.goto('/projects/');
     await expect(
       vaultTransfer(page).getByRole('button', { name: 'Export everything' }),
     ).toBeVisible();
@@ -1212,7 +1249,12 @@ test.describe('when the browser has no room to save', () => {
       const fresh = await roomy.newPage();
       await openEmptyWorkshop(fresh);
       await createProject(fresh, 'Ashfall');
-      await fresh.locator('.project-transfer input[type=file]').setInputFiles(file);
+      await onProjectsPage(fresh, async () => {
+        await fresh.locator('.project-transfer input[type=file]').setInputFiles(file);
+        // Waited for before navigating back. Setting the file only starts the read; leaving the
+        // page on that would race the write and the artifact would never arrive.
+        await expect(fresh.locator('.project-transfer').getByText(/^Added /)).toBeVisible();
+      });
 
       await expect(artifactRow(fresh, 'The Emberfolk')).toBeVisible();
     } finally {
@@ -1339,7 +1381,7 @@ test.describe('legacy save adoption', () => {
     const notice = page.getByRole('status');
     await expect(notice).toContainText('1 item you saved before projects existed is now in');
     await expect(notice).toContainText('My Setting');
-    await expect(projectContext(page).getByLabel('Name')).toHaveValue('My Setting');
+    await expectOpenProject(page, 'My Setting');
     expect(await adoptedArtifactNames(page)).toEqual([savedName]);
 
     // The originals are the fallback and must survive adoption untouched.
@@ -1357,7 +1399,7 @@ test.describe('legacy save adoption', () => {
 
     // A reload runs adoption again. One artifact, one project, and the note stays dismissed.
     await page.reload({ waitUntil: 'load' });
-    await expect(projectContext(page).getByText('1 project', { exact: true })).toBeVisible();
+    await expectProjectCount(page, 1);
     await expect(page.getByRole('status')).toBeHidden();
     expect(await adoptedArtifactNames(page)).toEqual([savedName]);
   });
@@ -1365,7 +1407,7 @@ test.describe('legacy save adoption', () => {
   test('leaves a browser with nothing saved alone', async ({ page }) => {
     await openEmptyWorkshop(page);
 
-    await expect(page.getByText('No project yet. Create one to start building.')).toBeVisible();
+    await expect(page.getByText('No project yet.')).toBeVisible();
     expect(await adoptedArtifactNames(page)).toEqual([]);
   });
 });
