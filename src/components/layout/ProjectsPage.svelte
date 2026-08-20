@@ -251,15 +251,12 @@
        browser has no project to start from, and a control that required one would be unreachable
        in exactly the case it exists for. -->
   <section class="projects__transfer">
-    <h2>Backup</h2>
-    <p>
-      Everything you make lives in this browser and nowhere else. A file is the only copy that
-      survives clearing site data, a new machine, or a browser deciding on its own to reclaim the
-      space.
-    </p>
+    <!-- No heading or standfirst here: VaultTransferControls carries its own "Backup" heading and
+         says the same sentence about this browser holding the only copy. Repeating them above it
+         put the word twice on screen and the paragraph twice under that. -->
     <VaultTransferControls projectId={activeProjectId} onVaultChanged={afterImport} />
 
-    <h3>This project</h3>
+    <h2>This project</h2>
     <p>Take one project on its own, or bring one in from a file.</p>
     <ProjectTransferControls projectId={activeProjectId} onImported={afterImport} />
   </section>
