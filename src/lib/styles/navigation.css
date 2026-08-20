@@ -1,6 +1,8 @@
 .navigation {
   margin-top: 0.5rem;
   padding: 0.25rem;
+  max-width: var(--measure);
+  margin-inline: auto;
 
   & a {
     background-blend-mode: screen;

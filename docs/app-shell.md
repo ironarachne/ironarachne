@@ -7,8 +7,8 @@ and tool taxonomy the site has today.
 It is the layout half of [the workshop](workshop.md). The workshop settled what a user's work
 _is_ — projects, artifacts, tools. This settles where a user _stands_ while they do it.
 
-**Status:** proposal. The [domain model](#domain-model) has not been approved, and per the design
-process in `CLAUDE.md` no implementation starts before it is.
+**Status:** accepted; being built. The [domain model](#domain-model) was reviewed and approved, and
+the work is proceeding in the order set out in [The plan](#the-plan).
 
 Supersedes [#13](https://github.com/ironarachne/ironarachne/issues/13), which asked for better use
 of desktop screen space. That framing was too small: the reason the site wastes horizontal space is

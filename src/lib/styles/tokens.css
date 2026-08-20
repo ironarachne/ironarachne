@@ -33,4 +33,15 @@
   --modal-border-message: var(--ia-status-message);
   --modal-border-error: var(--ia-status-error);
   --modal-border-success: var(--ia-status-success);
+
+  /* How wide a column of prose is allowed to get, per docs/app-shell.md.
+
+     This used to be `max-width` on `html`, which capped the entire document and is why the site
+     used a quarter of a wide display. It is a token rather than a repeated literal because it is
+     now set in several places — every wrapper that holds running text — and a measure that
+     disagrees with itself between two pages is worse than one that is merely wrong.
+
+     Not a brand value, and deliberately not in the brand repo: line length is a property of this
+     app's typography, not of the mark. */
+  --measure: 70ch;
 }

@@ -8,14 +8,15 @@
 @import './cyberpunk.css';
 @import './modal.css';
 
+/* No `max-width` here on purpose. Capping the document was what kept the site inside 70ch of a
+   2560px display, and the shell in docs/app-shell.md needs the viewport. The measure moved to the
+   wrappers that actually hold prose — see `--measure` in tokens.css and `section.main` below. */
 html {
   background: var(--charcoal);
   color: color-mix(in srgb, var(--charcoal) 5%, white 95%);
   font-family: 'Inclusive Sans', system-ui, Helvetica, sans-serif;
   font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em);
-  max-width: 70ch;
   padding: 0;
-  margin-inline: auto;
 }
 
 body {
@@ -224,8 +225,13 @@ button:hover {
   border: 3px solid white;
 }
 
+/* The prose wrapper. Every page that is mostly text uses it, and it is what carries the measure
+   now that `html` does not. A page that wants the full width of the shell — the workshop, the
+   vault — opts out by not being `section.main`, which is the whole of the opt-out mechanism. */
 section.main {
   padding: 0.5rem;
+  max-width: var(--measure);
+  margin-inline: auto;
 }
 
 #seed {
