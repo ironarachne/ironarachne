@@ -5,7 +5,9 @@ the origin is protected from eviction, how full it is, and which projects accoun
 
 This is the library half of
 [_What the user is told about storage_](../../../docs/workshop.md#what-the-user-is-told-about-storage).
-The panel that displays it is #179; nothing here renders anything.
+The panel that displays it is `StoragePanel.svelte` ([docs/storage-panel.md](../../../docs/storage-panel.md));
+nothing here draws. What _is_ here is the phrasing — see
+[Saying it, not drawing it](#saying-it-not-drawing-it).
 
 ## Why this exists
 
@@ -70,8 +72,9 @@ Persistence is read fresh every time. It is one cheap call with none of the fuzz
 ## Export stamps
 
 ```typescript
-const exported = await exportVault();
-if (exported.ok) {
+// What `exportWholeVault` in $lib/vault_file does, and the reason it exists as a function at all:
+// the stamp is written only once the browser has actually taken the file.
+if (downloadTextFile(text, fileName)) {
   await recordVaultExport();
 }
 ```
@@ -113,10 +116,32 @@ None of this is protection. `persist()` resists automatic eviction and does noth
 site data, a lost laptop, or Safari's ITP — which is why the disclosure copy says export is what
 protects the work, in every browser, with no user-agent check anywhere.
 
+## Saying it, not drawing it
+
+`storage_presentation.ts` turns a `StorageStatus` into the sentences a reader sees:
+`exportHeadline`, `exportCell`, `protectionAdvice`, `usageSentence`, `buildStoragePanelView`, and
+`storageWarning` with the `STORAGE_WARNING_FRACTION` threshold the workshop's banner uses.
+
+Phrasing lives in the library rather than in the `.svelte` files because the rules
+docs/workshop.md sets are only worth anything if they are tested, and components here have no unit
+tests:
+
+- **A quota is never shown as an exact figure.** `formatApproximateBytes` rounds to the precision
+  an estimate actually has — `240 MB`, `2 GB`, `1.7 GB` — and it deliberately does not live in
+  `$lib/format` beside `formatBytes`, so it is not reached for on figures that _are_ exact, such as
+  `ProjectUsage.byteSize`.
+- **A percentage never appears without the sizes underneath it.** `usageSentence` is the only place
+  a percentage exists, and it emits both in one string; there is no arrangement of a template that
+  can show one without the other.
+- **Unknown renders as unknown.** Every branch says what is known and nothing more.
+
+The banner's dismissal is module state, so a session is the page's lifetime — the same reading of
+"session" the persistence request takes, and a reload correctly brings back a statement that is
+still true.
+
 ## Not here
 
-- **The panel, the banner, and the 80% threshold** — #179. What a number means to a reader is a
-  presentation decision, including the two rules docs/workshop.md sets: quota is never shown as an
-  exact figure, and a percentage never appears without the sizes underneath it.
+- **Drawing any of it** — `StoragePanel.svelte` and `StorageWarningBanner.svelte` in
+  `$components/common`. This library returns strings and numbers; it does not render.
 - **`QuotaExceededError`** — #180. An estimate is advisory; a refused write is not.
 - **Export itself** — #35 and #47. This library records that one happened, and does not perform one.

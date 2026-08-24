@@ -29,6 +29,9 @@
 
   const { onProjectChange }: Props = $props();
 
+  /** The storage panel, which is a section of /projects rather than a destination of its own. */
+  const storagePanelHref = `${resolve('/projects')}#storage`;
+
   // One id per component instance, so two bars on a page do not collide on label `for`.
   const uid = $props.id();
   const openId = `${uid}-open`;
@@ -152,6 +155,13 @@
         </select>
       </div>
       <a class="project-context__manage" href={resolve('/projects')}>Manage projects</a>
+      <!-- How the workshop reaches the storage panel. One link rather than a panel on the bench:
+           storage is administration, and the bench is for building. See docs/storage-panel.md.
+
+           A fragment appended to a resolved route, which is why the rule is disabled here rather
+           than the path being written out. -->
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+      <a class="project-context__manage" href={storagePanelHref}>Storage</a>
     </div>
   {/if}
 </section>

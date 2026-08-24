@@ -109,7 +109,12 @@ test.describe('the projects page', () => {
     // An empty project reports zero rather than leaving the line blank — a blank reads as a
     // failure to load rather than as an empty project.
     await expect(projectCard(page, 'Ashfall')).toContainText('0 artifacts');
-    await expect(projectCard(page, 'Ashfall')).toContainText('0 B');
+
+    // The size is not here any more. The cards are ordered by recency and the storage panel's
+    // table by size, and the same number in two orders on one page is a number a reader has to
+    // reconcile — so it lives in the table, which is what e2e/storage_panel.spec.ts covers.
+    // See docs/storage-panel.md, decision 3.
+    await expect(projectCard(page, 'Ashfall')).not.toContainText('0 B');
   });
 
   test('offers both backup granularities with no project open', async ({ page }) => {
