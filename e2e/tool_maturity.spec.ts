@@ -19,6 +19,11 @@ const TOOL_PAGES = [
   { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne', level: 'Beta' },
   { path: '/culture', title: 'Culture Generator | Iron Arachne', level: 'Release-ready' },
   {
+    path: '/fantasy/settlement',
+    title: 'Settlement Generator | Iron Arachne',
+    level: 'Release-ready',
+  },
+  {
     // Its own header rather than `GeneratorPage`, so it states its maturity itself and is worth
     // checking separately.
     path: '/fantasy/adnd/character/build',
@@ -55,6 +60,7 @@ test('maturity: the tool browser marks every tool it lists', async ({ page }) =>
   await expect(browser.locator('.maturity__level')).toHaveCount(toolCount);
 
   await expect(browser.getByRole('button', { name: /^Culture/ })).toContainText('Release-ready');
+  await expect(browser.getByRole('button', { name: /^Settlement/ })).toContainText('Release-ready');
   await expect(browser.getByRole('button', { name: /^Heraldry/ })).toContainText('Beta');
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');
 });

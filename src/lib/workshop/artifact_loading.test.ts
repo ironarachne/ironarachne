@@ -349,3 +349,142 @@ describe('a culture and a religion that reference each other', () => {
     expect(await loadArtifactValue('p1', religion.id)).toMatchObject({ ok: true });
   });
 });
+
+/**
+ * Requirement 5.4 for settlement (#20), which is the tool that makes a cycle reachable through
+ * three real kinds rather than two.
+ *
+ * A settlement takes its names from a saved culture and records a saved religion as the local
+ * faith; a religion takes its gods' names from a saved culture; a culture takes its faith from a
+ * saved religion. Pointed round, `settlement → culture → religion → settlement` is a cycle, and
+ * per docs/workshop.md that is an ordinary arrangement rather than a bug to detect.
+ *
+ * Built through the store for the reason the two-kind case is: a reference is recorded when an
+ * artifact is saved, and saving always makes a new artifact, so the UI cannot close a loop it is
+ * allowed to describe.
+ */
+describe('a settlement in a cycle of references', () => {
+  /**
+   * The smallest payload the registered settlement kind accepts. What is proved here is the shape
+   * of the links; `settlement_artifact_kind.test.ts` is where the shape of a settlement is argued
+   * about.
+   */
+  function settlementSnapshot(name = 'White Ridge'): Record<string, unknown> {
+    return {
+      name,
+      description: 'A city on a ridge above the salt road.',
+      category: { name: 'city', sizeClass: 'large', minSize: 8000, maxSize: 20000 },
+      population: 12000,
+      prosperity: 8,
+      environment: { description: 'Dry uplands, cut by one green valley.' },
+      lawAndOrder: 6,
+      commerce: 7,
+      foodSecurity: 5,
+      publicHealth: 4,
+      settlementTags: ['highland'],
+      economicRole: 'market',
+    };
+  }
+
+  async function saveALoop(): Promise<{
+    settlement: Artifact;
+    culture: Artifact;
+    religion: Artifact;
+  }> {
+    const culture = await saveCulture();
+    const storedReligion = await saveToolArtifact('p1', {
+      kind: 'religion',
+      payload: {
+        name: 'The Ember',
+        seed: 'ember',
+        generatorOptions: {
+          lockSeed: false,
+          selectedCategories: ['polytheism'],
+          selectedSpecies: ['human'],
+          polytheisticStanding: 'random',
+          spiritCosmologyDepth: 'random',
+          useSavedCulture: true,
+          savedCultureName: 'Ashfall',
+        },
+        religion: { name: 'The Ember', description: 'They keep the long silence.' },
+      },
+      toolPath: '/fantasy/religion',
+      references: [{ targetId: culture.id, targetKind: 'culture', role: 'naming-culture' }],
+    });
+    if (!storedReligion.ok) {
+      throw new Error(`expected a stored religion, got ${storedReligion.reason}`);
+    }
+    const storedSettlement = await saveToolArtifact('p1', {
+      kind: 'settlement',
+      payload: settlementSnapshot(),
+      toolPath: '/fantasy/settlement',
+      references: [
+        { targetId: culture.id, targetKind: 'culture', role: 'naming-culture' },
+        { targetId: storedReligion.value.id, targetKind: 'religion', role: 'faith' },
+      ],
+    });
+    if (!storedSettlement.ok) {
+      throw new Error(`expected a stored settlement, got ${storedSettlement.reason}`);
+    }
+    // The link that closes the loop: the culture's own faith is the religion above, and that
+    // religion is practised in the settlement named from the culture.
+    await setArtifactReferences('p1', culture.id, [
+      { targetId: storedReligion.value.id, targetKind: 'religion', role: 'religion' },
+    ]);
+    return { settlement: storedSettlement.value, culture, religion: storedReligion.value };
+  }
+
+  it('walks out of a settlement and stops, rather than going round', async () => {
+    const { settlement, culture, religion } = await saveALoop();
+
+    expect(
+      collectReferencedArtifacts('p1', settlement.id)
+        .map((entry) => entry.id)
+        .sort(),
+    ).toEqual([culture.id, religion.id].sort());
+  });
+
+  it('rebuilds a settlement that is part of one', async () => {
+    const { settlement } = await saveALoop();
+
+    expect(await loadArtifactValue('p1', settlement.id)).toMatchObject({ ok: true });
+  });
+
+  /** The roles are what make two links of different kinds legible from the other end. */
+  it('answers what a culture and a religion are used for, by role', async () => {
+    const { settlement, culture, religion } = await saveALoop();
+
+    expect(listArtifactBacklinks('p1', culture.id)).toMatchObject([
+      { referrer: { id: religion.id }, references: [{ role: 'naming-culture' }] },
+      { referrer: { id: settlement.id }, references: [{ role: 'naming-culture' }] },
+    ]);
+    expect(listArtifactBacklinks('p1', religion.id)).toMatchObject([
+      { referrer: { id: culture.id }, references: [{ role: 'religion' }] },
+      { referrer: { id: settlement.id }, references: [{ role: 'faith' }] },
+    ]);
+  });
+
+  /**
+   * Requirement 5.3: composition is opt-in, so a settlement that was handed nothing is a settlement
+   * with no references — not one with empty ones.
+   */
+  it('records nothing for a settlement that was handed nothing', async () => {
+    const stored = await saveToolArtifact('p1', {
+      kind: 'settlement',
+      payload: settlementSnapshot('Oakhollow'),
+      toolPath: '/fantasy/settlement',
+    });
+
+    expect(stored.ok && stored.value.references).toEqual([]);
+    expect(stored.ok && collectReferencedArtifacts('p1', stored.value.id)).toEqual([]);
+  });
+
+  it('leaves a settlement readable and visibly broken when its faith is deleted', async () => {
+    const { settlement, religion } = await saveALoop();
+
+    await deleteArtifact('p1', religion.id);
+
+    expect(hasBrokenArtifactReferences('p1', getArtifactSummary('p1', settlement.id)!)).toBe(true);
+    expect(await loadArtifactValue('p1', settlement.id)).toMatchObject({ ok: true });
+  });
+});

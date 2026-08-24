@@ -11,6 +11,17 @@ export type NameGeneratorSet = {
   town: MUN.NameGenerator;
 };
 
+/**
+ * The names of the fantasy pattern sets, without building a generator for any of them.
+ *
+ * {@link getAllFantasyNameGeneratorSets} answers the same question, but it needs an RNG and builds
+ * six generators per set to do it. A caller that only wants to know which sets exist — to fill a
+ * dropdown, or to draw one from a seed before rolling — should not pay for that.
+ */
+export function getFantasyNameGeneratorSetNames(): string[] {
+  return MUN.getSupportedClassicRaceNamePatternSets();
+}
+
 export function getAllFantasyNameGeneratorSets(rng: RNG): NameGeneratorSet[] {
   const sets: NameGeneratorSet[] = [];
   const availableSets = MUN.getSupportedClassicRaceNamePatternSets();

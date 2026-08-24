@@ -9,6 +9,8 @@
 
 import { getChargeGlyphByName } from '$lib/charges';
 
+import type { Arms } from './arms.js';
+
 import * as Arrangements from './charge_group_arrangements/index.js';
 import type { ChargeGroup } from './charge_group.js';
 import type { Device } from './device.js';
@@ -17,6 +19,7 @@ import {
   normalizeHeraldryGeneratorOptions,
   type HeraldrySnapshot,
   type RestoredHeraldry,
+  type StoredArms,
   type StoredChargeGroup,
   type StoredDevice,
   type StoredVariation,
@@ -49,7 +52,11 @@ function chargeGroupFromStored(stored: StoredChargeGroup): ChargeGroup {
   };
 }
 
-function deviceFromStored(stored: StoredDevice): Device {
+/**
+ * A device rebuilt from the names it was stored under. The expensive half: every charge name is
+ * resolved against `$lib/charges`, which is why this module is separate from the writing side.
+ */
+export function deviceFromStored(stored: StoredDevice): Device {
   const fieldTemplate = Fields.byName(stored.fieldName);
   return {
     field: {
@@ -58,6 +65,11 @@ function deviceFromStored(stored: StoredDevice): Device {
     },
     chargeGroups: stored.chargeGroups.map(chargeGroupFromStored),
   };
+}
+
+/** Arms rebuilt from {@link StoredArms} — an organization's emblem, a character's own device. */
+export function armsFromStored(stored: StoredArms): Arms {
+  return { device: deviceFromStored(stored.device), blazon: stored.blazon };
 }
 
 export function heraldryFromSnapshot(snapshot: HeraldrySnapshot): RestoredHeraldry {

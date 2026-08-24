@@ -9,14 +9,16 @@ import {
   type ArtifactKindRegistry,
   type PayloadResult,
 } from '$lib/artifact_kinds';
-// Deep on purpose, and measured against the bundle: these three libraries' entry points reach a
+// Deep on purpose, and measured against the bundle: these libraries' entry points reach a
 // generator and from there the species tables. Assembling this registry through
 // them costs 296 KB in the chunk that imports it; through the kind modules it costs 4 KB.
 // Everything in the workshop touches this registry, so that difference is paid by any page that
-// so much as lists what a project contains.
+// so much as lists what a project contains. Settlement is the sharpest case of the four: its entry
+// point reaches `$lib/organizations`, and from there the heraldry generator and the charge library.
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
+import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
 
 /**
  * Assembled statically, in a single list, exactly like `TOOL_PANELS` beside it and the tool
@@ -32,6 +34,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, heraldryArtifactKind);
   registerArtifactKind(registry, cultureArtifactKind);
   registerArtifactKind(registry, religionArtifactKind);
+  registerArtifactKind(registry, settlementArtifactKind);
   return registry;
 }
 

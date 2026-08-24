@@ -89,7 +89,7 @@ describe('TOOL_CATALOG', () => {
     // A tripwire rather than a rule: raising a tool's level means adding it here, in the same
     // change that earns it. That is the point — a level should not be able to rise as a side
     // effect of editing a catalog entry for some other reason.
-    const assessedHigher = ['/culture', '/fantasy/religion', '/heraldry'];
+    const assessedHigher = ['/culture', '/fantasy/religion', '/fantasy/settlement', '/heraldry'];
 
     const claimingMore = TOOL_CATALOG.filter(
       (tool) => !assessedHigher.includes(tool.path) && tool.maturity !== 'experimental',
@@ -181,7 +181,11 @@ describe('toolsWithMaturity', () => {
   it('returns the tools at that maturity', () => {
     const releaseReady = toolsWithMaturity('release-ready');
 
-    expect(releaseReady.map((tool) => tool.path).sort()).toEqual(['/culture', '/fantasy/religion']);
+    expect(releaseReady.map((tool) => tool.path).sort()).toEqual([
+      '/culture',
+      '/fantasy/religion',
+      '/fantasy/settlement',
+    ]);
   });
 
   it('accounts for every tool across the three levels', () => {
@@ -225,7 +229,11 @@ describe('filterTools', () => {
       includeAllTags: [genreTag('fantasy'), maturityTag('release-ready')],
     });
 
-    expect(durableFantasy.map((tool) => tool.path)).toEqual(['/culture', '/fantasy/religion']);
+    expect(durableFantasy.map((tool) => tool.path)).toEqual([
+      '/culture',
+      '/fantasy/religion',
+      '/fantasy/settlement',
+    ]);
   });
 
   it('returns the whole catalog for an empty filter', () => {

@@ -521,6 +521,63 @@ test.describe('building one artifact from another', () => {
 
     await expect(savedCulture.filter({ hasText: 'Built from' })).toContainText('The Ashen Path');
   });
+
+  /**
+   * Two references of different kinds on one artifact (#20), and the reason `role` is required.
+   *
+   * A settlement takes a culture as an *input* — the tongue its town, organizations, and people
+   * are named in — and records a religion as the faith practised there. Both are links by id, and
+   * a picker that recorded only "a culture" and "a religion" would leave the panel unable to say
+   * which was which.
+   */
+  test('builds a settlement from a saved culture and a saved religion', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+    await saveFromPanel(page, /Culture Generator/, 'The Emberfolk');
+    await mountTool(page, /^Fantasy Religion/);
+    await saveFromPanel(page, /Religion Generator/, 'The Ember');
+
+    await mountTool(page, /^Settlement/);
+    const settlementPanel = panels(page).filter({
+      has: page.getByRole('heading', { name: /Settlement Generator/ }),
+    });
+    await settlementPanel.getByLabel('Use a saved culture for all names').check();
+    await settlementPanel
+      .getByLabel('Saved culture', { exact: true })
+      .selectOption({ label: 'The Emberfolk' });
+    await settlementPanel.getByLabel('Record a saved religion as the local faith?').check();
+    await settlementPanel
+      .getByLabel('Saved religion', { exact: true })
+      .selectOption({ label: 'The Ember' });
+    await settlementPanel.getByRole('button', { name: 'Generate' }).click();
+
+    // The page says outright where the names came from and whose faith is kept here. Both name the
+    // referenced artifact's own name, which is what was handed over.
+    await expect(settlementPanel.getByText(/^Naming: /)).toBeVisible();
+    await expect(settlementPanel.getByText(/^From the saved religion /)).toBeVisible();
+    await saveFromPanel(page, /Settlement Generator/, 'White Ridge');
+
+    await artifactRow(page, 'White Ridge').click();
+    const saved = page.locator('.artifact-panel').filter({ hasText: 'Built from' });
+    await expect(saved).toContainText('Naming culture');
+    await expect(saved).toContainText('The Emberfolk');
+    await expect(saved).toContainText('Faith');
+    await expect(saved).toContainText('The Ember');
+
+    // And from the other end, which is the question a user asks of a religion they wrote.
+    await artifactRow(page, 'The Ember').click();
+    await expect(page.locator('.artifact-panel').filter({ hasText: 'Used by' })).toContainText(
+      'White Ridge',
+    );
+  });
+
+  /** Requirement 5.3: composition is opt-in, and a settlement handed nothing records nothing. */
+  test('saves a settlement with no references when it was offered none', async ({ page }) => {
+    await mountTool(page, /^Settlement/);
+    await saveFromPanel(page, /Settlement Generator/, 'Oakhollow');
+
+    await artifactRow(page, 'Oakhollow').click();
+    await expect(page.locator('.artifact-panel').filter({ hasText: 'Built from' })).toHaveCount(0);
+  });
 });
 
 /**
@@ -579,6 +636,36 @@ test.describe('editing a saved artifact', () => {
     for (const category of ['monotheism', 'animism', 'totemism', 'ancestor worship', 'shamanism']) {
       await generator.getByLabel(category, { exact: true }).uncheck();
     }
+    await generator.getByRole('button', { name: 'Generate' }).click();
+
+    const saveArtifact = generator.locator('.save-artifact');
+    await saveArtifact.getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact.getByLabel('Name', { exact: true }).fill(name);
+    await saveArtifact.getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(artifactRow(page, name)).toBeVisible();
+
+    await artifactRow(page, name).click();
+    await expect(artifactPanel(page).getByLabel('Name', { exact: true })).toHaveValue(name);
+  }
+
+  /**
+   * A project with one saved settlement in it — an enriched one — open in a panel of its own.
+   *
+   * Enrichment is ticked on first because it is the half of this kind worth editing: a settlement
+   * rolled plain has a name and a description, where one with problems and notables has the lists
+   * that requirement 4.4 is about. The size filter is forced large so notables and organizations
+   * have a place big enough to appear in.
+   */
+  async function openASavedSettlement(page: Page, name: string): Promise<void> {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Settlement/);
+    const generator = panels(page).filter({
+      has: page.getByRole('heading', { name: /Settlement Generator/ }),
+    });
+    await generator.getByLabel('Size class filter').selectOption('large');
+    await generator.getByLabel('Trade (imports / exports / blurb)').check();
+    await generator.getByLabel('Acute and creeping problems').check();
+    await generator.getByLabel(/^Important characters/).check();
     await generator.getByRole('button', { name: 'Generate' }).click();
 
     const saveArtifact = generator.locator('.save-artifact');
@@ -896,6 +983,112 @@ test.describe('editing a saved artifact', () => {
 
     await page.getByRole('link', { name: 'Home', exact: true }).click();
     await expect(page).not.toHaveURL(/\/workshop/);
+  });
+
+  /**
+   * Requirement 6.1 for the largest editing form on the site. A settlement's editor is nested
+   * three deep — facets, trade, two problem lists, and a block per notable — which is where a
+   * 320px layout gives out if it is going to.
+   */
+  test('fits a 320px screen with a settlement open on it', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await openASavedSettlement(page, 'White Ridge');
+    await expect(artifactPanel(page).getByLabel('Settlement name')).toBeVisible();
+    await expect(
+      artifactPanel(page).getByRole('textbox', { name: 'Acute problem 1', exact: true }),
+    ).toBeVisible();
+
+    await expectNoHorizontalOverflow(page);
+    await expectInteractiveControlsReachable(page);
+  });
+
+  /**
+   * Requirement 7.4 for settlement (#20): generate, save, reopen, edit — with the edit landing on
+   * a field the settlement itself owns and on one inside a sub-object, since a settlement is both.
+   */
+  test('edits a saved settlement’s contents, and the change survives a reload', async ({
+    page,
+  }) => {
+    await openASavedSettlement(page, 'White Ridge');
+    const panel = artifactPanel(page);
+
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+
+    await panel.getByLabel('Settlement name').fill('Saltmarch');
+    await panel.getByLabel('Description', { exact: true }).fill('A wet town on a slow river.');
+    await panel
+      .getByRole('textbox', { name: 'Notable 1 title', exact: true })
+      .fill('Harbourmaster');
+    await expect(panel.getByText('Unsaved changes.')).toBeVisible();
+
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByText('Saved.')).toBeVisible();
+
+    await expect
+      .poll(async () =>
+        (await storedPanels(page)).some((stored) => stored.artifactId !== undefined),
+      )
+      .toBe(true);
+    await page.reload({ waitUntil: 'load' });
+
+    await expect(artifactPanel(page).getByLabel('Settlement name')).toHaveValue('Saltmarch');
+    await expect(artifactPanel(page).getByLabel('Description', { exact: true })).toHaveValue(
+      'A wet town on a slow river.',
+    );
+    await expect(
+      artifactPanel(page).getByRole('textbox', { name: 'Notable 1 title', exact: true }),
+    ).toHaveValue('Harbourmaster');
+  });
+
+  /** Requirement 4.4: one problem changes and the rest of the settlement does not move. */
+  test('rewrites one problem without disturbing the settlement around it', async ({ page }) => {
+    await openASavedSettlement(page, 'White Ridge');
+    const panel = artifactPanel(page);
+
+    const creeping = panel.getByRole('textbox', { name: 'Creeping problem 1', exact: true });
+    const creepingBefore = await creeping.inputValue();
+    const notable = panel.getByRole('textbox', { name: 'Notable 1 first name', exact: true });
+    const notableBefore = await notable.inputValue();
+
+    await panel
+      .getByRole('textbox', { name: 'Acute problem 1', exact: true })
+      .fill('The mill has stopped.');
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByText('Saved.')).toBeVisible();
+
+    await expect(panel.getByRole('textbox', { name: 'Acute problem 1', exact: true })).toHaveValue(
+      'The mill has stopped.',
+    );
+    await expect(creeping).toHaveValue(creepingBefore);
+    await expect(notable).toHaveValue(notableBefore);
+  });
+
+  /**
+   * Requirement 4.3 for settlement. What makes this worth its own test rather than resting on the
+   * culture one is that a settlement's roll reads four enrichment flags out of provenance: falling
+   * back to the defaults would return a plain settlement with no problems in it at all, which
+   * would read as a successful re-roll and be a silent loss.
+   */
+  test('warns before rolling a settlement again, and brings its enrichment back', async ({
+    page,
+  }) => {
+    await openASavedSettlement(page, 'White Ridge');
+    const panel = artifactPanel(page);
+    const acute = panel.getByRole('textbox', { name: 'Acute problem 1', exact: true });
+    const before = await acute.inputValue();
+
+    await panel.getByLabel('Settlement name').fill('An edit about to be thrown away.');
+    await panel.getByRole('button', { name: 'Roll again' }).click();
+    await expect(confirmDialog(page)).toContainText('unsaved changes go too');
+    await confirmDialog(page).getByRole('button', { name: 'Roll again' }).click();
+
+    await expect(panel.getByText('Rolled again from the original seed.')).toBeVisible();
+    await expect(panel.getByLabel('Settlement name')).not.toHaveValue(
+      'An edit about to be thrown away.',
+    );
+    // The same seed and the same recorded settings give the same settlement back: what a re-roll
+    // discards is the edits, not the place.
+    await expect(acute).toHaveValue(before);
   });
 });
 
