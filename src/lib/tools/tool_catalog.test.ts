@@ -37,6 +37,24 @@ describe('TOOL_CATALOG', () => {
     expect(unlabelled).toEqual([]);
   });
 
+  // A label is the only thing identifying a tool in the places it is shown: the browser row, the
+  // bench panel title, and the switch-tools confirmation all render it with no path and no kind
+  // beside it. Two entries sharing one gives the user a choice they cannot make. This asserts on
+  // the duplicated labels rather than on a count, so a failure names the collision instead of
+  // reporting that 35 is not 34.
+  it('has a unique label for every tool', () => {
+    const seen = new Set<string>();
+    const duplicated = new Set<string>();
+    for (const { label } of TOOL_CATALOG) {
+      if (seen.has(label)) {
+        duplicated.add(label);
+      }
+      seen.add(label);
+    }
+
+    expect([...duplicated]).toEqual([]);
+  });
+
   it('uses only known genres', () => {
     const unknown = TOOL_CATALOG.flatMap(toolGenres).filter(
       (genre) => !GENRES.includes(genre as (typeof GENRES)[number]),

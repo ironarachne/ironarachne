@@ -22,7 +22,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   // Characters & People
   defineTool({
     path: '/fantasy/adnd/character/build',
-    label: 'AD&D 2E Character',
+    label: 'AD&D 2E Character Builder',
     kind: 'editor',
     domain: 'characters',
     maturity: 'experimental',
@@ -32,7 +32,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   }),
   defineTool({
     path: '/character',
-    label: 'Character',
+    label: 'Fantasy Character',
     kind: 'generator',
     domain: 'characters',
     maturity: 'experimental',
@@ -249,7 +249,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   }),
   defineTool({
     path: '/fantasy/equipment',
-    label: 'Fantasy Equipment Lists',
+    label: 'Fantasy Equipment Price Lists',
     kind: 'reference',
     domain: 'objects',
     maturity: 'experimental',
@@ -276,7 +276,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   }),
   defineTool({
     path: '/fantasy/potion-generator',
-    label: 'Fantasy Potion Generator',
+    label: 'Fantasy Potion',
     kind: 'generator',
     domain: 'objects',
     maturity: 'experimental',
@@ -285,7 +285,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   }),
   defineTool({
     path: '/fantasy/weapon',
-    label: 'Fantasy Weapon',
+    label: 'Fantasy Magic Weapon',
     kind: 'generator',
     domain: 'objects',
     maturity: 'experimental',
@@ -303,7 +303,7 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   }),
   defineTool({
     path: '/spooky-ship',
-    label: 'Spooky Starship',
+    label: 'Spooky Ship',
     kind: 'generator',
     domain: 'objects',
     maturity: 'experimental',
