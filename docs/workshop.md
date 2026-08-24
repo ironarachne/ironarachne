@@ -321,6 +321,11 @@ artifact to reconcile.
 Under [Local only](#local-only) the browser holds the only copy, so eviction is not a tidiness
 concern — it is silent total loss, arriving without the user doing anything.
 
+This section and the one after it are designed for implementation in
+[The storage disclosure and the persistence request](storage-disclosure.md), which settles which
+creation paths trigger a request, what "once per session" means, and where the "told once" stamp
+lives.
+
 `navigator.storage.persist()` asks the browser not to evict. The workshop requests it **at first
 project creation**, not on first page load. Firefox prompts for it and Chromium decides silently on
 engagement heuristics; a prompt shown before the user has made anything is a prompt they dismiss,
