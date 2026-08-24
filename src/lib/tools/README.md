@@ -25,7 +25,7 @@ Storing them as tags rather than as fields means `applyTagFilter` works on tools
 a genre filter, a system filter, and a free-form tag filter are all the same operation and
 compose with each other.
 
-A tool may have more than one genre (the Spooky Starship generator is both `scifi` and
+A tool may have more than one genre (the Spooky Ship generator is both `scifi` and
 `horror`), and a tool that is genre- or system-agnostic simply has no such tag. The environment
 generator carries no genre because its biomes suit any setting; the culture generator carries no
 system because its output is not written to any ruleset.
