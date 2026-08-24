@@ -351,6 +351,11 @@ Two things this must not imply:
 Local-only means the user is the only backup they have, and someone cannot act on a risk nobody
 told them about. Two moments and one place.
 
+The panel, the table and the escalation below are designed for implementation in
+[The storage panel](storage-panel.md), which settles where the panel lives now that the shell caps
+the sidebar at five destinations, how a figure that is an estimate is phrased, and what the eighty
+per cent banner may say.
+
 **At first project creation — said once, plainly.** Work is stored in this browser only; there is
 no account and no server; export is how it leaves. This shares a moment with the persistence
 request above, and deliberately: the permission prompt makes sense because the sentence before it
