@@ -450,18 +450,39 @@ describe('a settlement in a cycle of references', () => {
     expect(await loadArtifactValue('p1', settlement.id)).toMatchObject({ ok: true });
   });
 
+  /**
+   * Backlinks as (referrer, roles), in an order this test can assert on.
+   *
+   * `listArtifactBacklinks` follows the listing order — most recently updated first, with name and
+   * id breaking ties — so which of two referrers comes back first depends on whether their writes
+   * landed in the same millisecond. That is a fact about the clock, not about roles, so both sides
+   * are sorted by id here and the ordering rule is covered where it belongs.
+   */
+  function backlinkRoles(projectId: string, id: string): { id: string; roles: string[] }[] {
+    return listArtifactBacklinks(projectId, id)
+      .map((backlink) => ({
+        id: backlink.referrer.id,
+        roles: backlink.references.map((reference) => reference.role),
+      }))
+      .sort((a, b) => a.id.localeCompare(b.id));
+  }
+
   /** The roles are what make two links of different kinds legible from the other end. */
   it('answers what a culture and a religion are used for, by role', async () => {
     const { settlement, culture, religion } = await saveALoop();
 
-    expect(listArtifactBacklinks('p1', culture.id)).toMatchObject([
-      { referrer: { id: religion.id }, references: [{ role: 'naming-culture' }] },
-      { referrer: { id: settlement.id }, references: [{ role: 'naming-culture' }] },
-    ]);
-    expect(listArtifactBacklinks('p1', religion.id)).toMatchObject([
-      { referrer: { id: culture.id }, references: [{ role: 'religion' }] },
-      { referrer: { id: settlement.id }, references: [{ role: 'faith' }] },
-    ]);
+    expect(backlinkRoles('p1', culture.id)).toEqual(
+      [
+        { id: religion.id, roles: ['naming-culture'] },
+        { id: settlement.id, roles: ['naming-culture'] },
+      ].sort((a, b) => a.id.localeCompare(b.id)),
+    );
+    expect(backlinkRoles('p1', religion.id)).toEqual(
+      [
+        { id: culture.id, roles: ['religion'] },
+        { id: settlement.id, roles: ['faith'] },
+      ].sort((a, b) => a.id.localeCompare(b.id)),
+    );
   });
 
   /**
