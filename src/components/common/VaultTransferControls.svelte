@@ -7,7 +7,7 @@
     readQuarantinedArtifacts,
     type QuarantineRecord,
   } from '$lib/quarantine';
-  import { recordVaultExport } from '$lib/storage_status';
+  import { recordVaultExport, requestPersistenceIfWarranted } from '$lib/storage_status';
   import { showConfirmModal } from '$lib/ui';
   import { otherVaultTabsOpen } from '$lib/vault_db';
   import {
@@ -96,6 +96,10 @@
       // Dropped deliberately, as in `ProjectTransferControls`: the backup is already on disk, and
       // a failed stamp costs an out-of-date "last exported" figure rather than any work.
       await recordVaultExport();
+      // A completed export is one of the three moments allowed to ask the browser for persistence
+      // (docs/storage-disclosure.md): the user has just done more work, and the policy decides
+      // whether anything is actually asked. Nothing here waits on the answer.
+      await requestPersistenceIfWarranted('vaultExported');
       notes = [
         `Saved ${built.value.fileName}. Keep it somewhere that is not this browser — clearing site data takes everything else with it.`,
         ...built.value.issues,

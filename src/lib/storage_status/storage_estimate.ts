@@ -1,4 +1,8 @@
-import type { PersistenceState, StorageMeasurement } from './storage_status_types';
+import type {
+  PersistenceGrantOutcome,
+  PersistenceState,
+  StorageMeasurement,
+} from './storage_status_types';
 
 /**
  * The parts of `navigator.storage` this library uses, described rather than assumed.
@@ -11,6 +15,7 @@ import type { PersistenceState, StorageMeasurement } from './storage_status_type
 type OptionalStorageManager = {
   estimate?: () => Promise<{ usage?: number; quota?: number }>;
   persisted?: () => Promise<boolean>;
+  persist?: () => Promise<boolean>;
 };
 
 function storageManager(): OptionalStorageManager | undefined {
@@ -85,5 +90,29 @@ export async function readPersistenceState(): Promise<PersistenceState> {
     return (await manager.persisted()) ? 'persisted' : 'notPersisted';
   } catch {
     return 'unknown';
+  }
+}
+
+/**
+ * Ask the browser not to evict this origin, and report what it said.
+ *
+ * The browser surface and nothing else: **when** to ask is
+ * `requestPersistenceIfWarranted`'s decision, and this function will ask whenever it is called.
+ * Firefox raises a permission prompt here and Chromium decides silently on engagement heuristics,
+ * which is why the caller shows the disclosure first — see `docs/storage-disclosure.md`.
+ *
+ * Never rejects. A browser with no `persist()`, and one whose `persist()` throws, are both
+ * `unavailable`, which is deliberately not `refused`: one is a browser that could not be asked and
+ * the other is a browser that said no.
+ */
+export async function requestPersistence(): Promise<PersistenceGrantOutcome> {
+  const manager = storageManager();
+  if (manager?.persist === undefined) {
+    return 'unavailable';
+  }
+  try {
+    return (await manager.persist()) ? 'granted' : 'refused';
+  } catch {
+    return 'unavailable';
   }
 }

@@ -74,3 +74,44 @@ export type StorageMeasurement = {
   quotaBytes?: number;
   measuredAt: number;
 };
+
+/**
+ * The completions of real work that may ask the browser for persistence.
+ *
+ * The whole retry policy is this list. `docs/workshop.md` asks that a refused request be repeated
+ * at most once per session and only after the user has done more work; because these three are the
+ * only callers of {@link requestPersistenceIfWarranted}, "after more work" is structural rather
+ * than a tally somebody has to keep correct. No page load, route change, or timer can ask.
+ */
+export type PersistenceTrigger = 'projectCreated' | 'vaultExported' | 'projectExported';
+
+/** What the browser itself said when it was asked. */
+export type PersistenceGrantOutcome =
+  /** `persist()` resolved true: the origin is now protected from automatic eviction. */
+  | 'granted'
+  /** `persist()` resolved false. A decision the user can revisit in the browser, so it is not stored. */
+  | 'refused'
+  /** There is no `persist()` here, or calling it threw. Not the same answer as a refusal. */
+  | 'unavailable';
+
+/**
+ * How one call to {@link requestPersistenceIfWarranted} ended.
+ *
+ * Five-valued for the same reason {@link PersistenceState} is three-valued: the answers are
+ * genuinely different, and collapsing any pair produces a display or a log that is confidently
+ * wrong. In particular `refused` is the browser saying no, while `notAsked` and `alreadyPersisted`
+ * mean nothing was asked at all.
+ */
+export type PersistenceRequestOutcome =
+  | PersistenceGrantOutcome
+  /** The origin was already protected, so no prompt was raised over a question already settled. */
+  | 'alreadyPersisted'
+  /** This session had asked once already. The gate declined to ask again. */
+  | 'notAsked';
+
+/** One pass through the persistence request policy: what prompted it, when, and how it ended. */
+export type PersistenceRequest = {
+  trigger: PersistenceTrigger;
+  requestedAt: number;
+  outcome: PersistenceRequestOutcome;
+};
