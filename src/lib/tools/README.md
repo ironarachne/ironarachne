@@ -52,14 +52,21 @@ Two consequences follow from it being a promise:
   `applyTagFilter` call rather than a filter plus a second pass. The authoring site sets one value,
   so the two cannot disagree.
 
-`maturityDisplayName` and `maturityDescription` give the badge its text; `toolsWithMaturity` and
-`toolMaturityForPath` are the readers. Raising a tool's level belongs in the change that earns it —
-`tool_catalog.test.ts` pins the tools currently assessed above `experimental` so a level cannot
-rise as a side effect of an unrelated edit.
+`maturityDisplayName` and `maturityDescription` give the badge its text; `showsMaturityBadge` says
+whether it is shown at all; `toolsWithMaturity` and `toolMaturityForPath` are the readers. Raising a
+tool's level belongs in the change that earns it — `tool_catalog.test.ts` pins the tools currently
+assessed above `experimental` so a level cannot rise as a side effect of an unrelated edit.
 
 The UI shows it in two places: `ToolMaturityBadge` beside the heading on the tool's own page
 (via `GeneratorPage`, which requires the catalog path for exactly this reason), and beside every
 entry in `ToolBrowser`.
+
+**`release-ready` is shown in neither.** It is an internal classifier: `experimental` and `beta`
+each qualify what will happen to a user's work, and `release-ready` is the ordinary case with
+nothing to qualify, so announcing it makes a warning into a decoration (#43). The field and the
+`maturity:release-ready` tag are unaffected — filtering, `toolsWithMaturity`, and the catalog tests
+all still see it. A caller that wraps the badge in an element of its own asks `showsMaturityBadge`
+too, because a component that renders nothing still leaves the wrapper and its margin behind.
 
 ## Usage
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { maturityDescription, maturityDisplayName } from '$lib/tools';
+  import { maturityDescription, maturityDisplayName, showsMaturityBadge } from '$lib/tools';
   import type { ToolMaturity } from '$lib/tools';
 
   type Props = {
@@ -21,14 +21,20 @@
   const { maturity, detailed = false, plain = false }: Props = $props();
 </script>
 
-<!-- The level is carried by the text, never by the colour alone: the colours say the same thing a
-     second time for people who can see them, and nothing is lost if they cannot. -->
-<span class="maturity maturity--{maturity}" class:maturity--plain={plain}>
-  <span class="maturity__level">{maturityDisplayName(maturity)}</span>
-  {#if detailed}
-    <span class="maturity__detail">{maturityDescription(maturity)}</span>
-  {/if}
-</span>
+<!-- Nothing at all for a release-ready tool: `showsMaturityBadge` explains why, and rendering no
+     element rather than an empty one matters, because every caller that lists these puts them in a
+     flex container with a `gap` that an empty span would still open.
+
+     Otherwise: the level is carried by the text, never by the colour alone: the colours say the
+     same thing a second time for people who can see them, and nothing is lost if they cannot. -->
+{#if showsMaturityBadge(maturity)}
+  <span class="maturity maturity--{maturity}" class:maturity--plain={plain}>
+    <span class="maturity__level">{maturityDisplayName(maturity)}</span>
+    {#if detailed}
+      <span class="maturity__detail">{maturityDescription(maturity)}</span>
+    {/if}
+  </span>
+{/if}
 
 <style>
   .maturity {
@@ -73,16 +79,12 @@
   }
 
   /* Gold for a tool that may change under you, cyan for one that keeps your work but is not
-     finished, brand green for one that is. */
+     finished. There is no third colour, because a finished tool says nothing. */
   .maturity--experimental {
     --maturity-color: var(--gold);
   }
 
   .maturity--beta {
     --maturity-color: var(--cyan);
-  }
-
-  .maturity--release-ready {
-    --maturity-color: var(--acid-green);
   }
 </style>

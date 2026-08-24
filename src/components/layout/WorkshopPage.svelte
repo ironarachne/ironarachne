@@ -11,7 +11,13 @@
   import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import type { Project } from '$lib/projects';
-  import { allTools, findToolByPath, toolMaturityForPath, type Tool } from '$lib/tools';
+  import {
+    allTools,
+    findToolByPath,
+    showsMaturityBadge,
+    toolMaturityForPath,
+    type Tool,
+  } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
   import { hasToolPanel, hasUnsavedEdits } from '$lib/workshop';
   import {
@@ -31,6 +37,7 @@
   // The browser offers what the workshop can actually mount, which is also what keeps the
   // workshop's own catalog entry from listing itself inside itself.
   const mountableTools = allTools().filter((tool) => hasToolPanel(tool.path));
+  const workshopMaturity = toolMaturityForPath('/workshop');
 
   let project = $state<Project | undefined>(undefined);
   let bench: ProjectWorkspace = $state(emptyWorkspace(''));
@@ -202,9 +209,11 @@
        is true of a generator and false here — the workshop is what does the saving. What a user
        needs to know about the durability of their work is the Backup section, which says it
        accurately; that now lives on /projects, one click away in the sidebar. -->
-  <p class="workshop__maturity">
-    <ToolMaturityBadge maturity={toolMaturityForPath('/workshop')} />
-  </p>
+  {#if showsMaturityBadge(workshopMaturity)}
+    <p class="workshop__maturity">
+      <ToolMaturityBadge maturity={workshopMaturity} />
+    </p>
+  {/if}
 
   <!-- The one thing on this surface allowed to raise its voice, and only when the browser really
        is nearly full. It is here rather than in the shell because this is where a user with a

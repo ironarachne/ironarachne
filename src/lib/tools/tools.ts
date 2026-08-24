@@ -140,6 +140,27 @@ export function maturityDescription(maturity: ToolTypes.ToolMaturity): string {
   return MATURITY_DESCRIPTIONS[maturity];
 }
 
+/**
+ * Whether a level is worth putting in front of a user, as opposed to being kept as the internal
+ * classifier it also is.
+ *
+ * Only the levels that carry a warning are: `experimental` and `beta` each qualify what will
+ * happen to the user's work, which is something they have to know before they invest any.
+ * `release-ready` qualifies nothing — it is the ordinary case — so showing it turns a warning into
+ * a decoration, and a badge on every tool is a badge nobody reads, including the two that matter.
+ *
+ * The trade is that a finished tool is now recognised by an absence, which is harder to read than
+ * a label. That was the argument for marking every row in the tool browser, and #43 settled it the
+ * other way: release-ready is our classification of a tool, not a promise the user asked for.
+ *
+ * The level itself stays on the catalog entry and in the `maturity:` tag either way; this governs
+ * display only. Callers that wrap the badge in an element of their own must ask this too, because
+ * a component rendering nothing still leaves that wrapper behind.
+ */
+export function showsMaturityBadge(maturity: ToolTypes.ToolMaturity): boolean {
+  return maturity !== 'release-ready';
+}
+
 const DOMAIN_NAMES: Record<ToolTypes.ToolDomain, string> = {
   characters: 'Characters & People',
   factions: 'Factions & Groups',

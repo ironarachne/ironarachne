@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import type { RouteId } from '$app/types';
-  import { toolMaturityForPath } from '$lib/tools';
+  import { showsMaturityBadge, toolMaturityForPath } from '$lib/tools';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
 
   type Props = {
@@ -25,10 +25,17 @@
 <section class="{theme} main">
   <h1>{title}</h1>
   <!-- Directly under the title, above anything the tool renders: the point of the level is that a
-       user reads it before they start, not after they have generated something they wanted to keep. -->
-  <p class="generator-page__maturity">
-    <ToolMaturityBadge {maturity} detailed />
-  </p>
+       user reads it before they start, not after they have generated something they wanted to keep.
+
+       A release-ready tool has nothing to warn about and loses the paragraph as well as the badge.
+       The wrapper has to go with it: the badge rendering nothing would still leave an empty `<p>`
+       and its margin pushing the tool down the page, which is exactly the shift
+       `e2e/preview_goldens.spec.ts` warns about. -->
+  {#if showsMaturityBadge(maturity)}
+    <p class="generator-page__maturity">
+      <ToolMaturityBadge {maturity} detailed />
+    </p>
+  {/if}
   {#if description}
     {@render description()}
   {/if}

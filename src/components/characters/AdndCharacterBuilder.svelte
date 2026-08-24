@@ -34,7 +34,7 @@
   } from '$lib/adnd';
   import type { ADNDClass, ADNDRace } from '$lib/adnd';
   import { Currency } from '$lib/currency';
-  import { toolMaturityForPath } from '$lib/tools';
+  import { showsMaturityBadge, toolMaturityForPath } from '$lib/tools';
   import { showAlertModal } from '$lib/ui';
   import {
     buildCharacterNameSource,
@@ -585,9 +585,11 @@
     <button type="button" onclick={resetBuilderForm}>Reset</button>
   </header>
 
-  <p class="builder-maturity">
-    <ToolMaturityBadge {maturity} detailed />
-  </p>
+  {#if showsMaturityBadge(maturity)}
+    <p class="builder-maturity">
+      <ToolMaturityBadge {maturity} detailed />
+    </p>
+  {/if}
 
   <p>
     Roll attributes, then choose race, class, and alignment. Caster level 1 spells, thief
