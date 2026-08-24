@@ -67,7 +67,8 @@ another's payloads.
 
 The imports here are deep — `$lib/culture/culture_artifact_kind`, not `$lib/culture` — and
 measured. Through the entry points this registry costs 296 KB in whatever chunk imports it;
-through the kind modules, 4 KB. Everything in the workshop touches it, and a kind module holds
+through the kind modules, 4 KB. `$lib/settlements` is the sharpest case: its entry point reaches
+`$lib/organizations`, and from there the heraldry generator and the charge library. Everything in the workshop touches it, and a kind module holds
 metadata and validation only: its codec is a dynamic import, which is what keeps 18 MB of charge
 art out of the chunk that merely lists what a project contains.
 
@@ -99,6 +100,12 @@ It is here rather than in `$lib/artifacts` because it is where a _tool_ — a ca
 build's registry of kinds — meets the store, and the store deliberately knows about neither. A seed
 that is not given records no provenance at all rather than an invented one, per the design
 document: provenance is a record of origin, and a made-up seed is a lie the re-roll button acts on.
+
+**A tool's `config` must be plain data.** The store writes through IndexedDB, which serialises with
+`structuredClone`, and `structuredClone` refuses a Proxy — so a `config` held in a Svelte `$state`
+object comes back as `storage-failed: could not be cloned`, with the generated content still on
+screen and nothing saved. Build the record inline, or hold it in `$state.raw`; a provenance config
+is replaced wholesale by every roll and never mutated in place, which is what raw state is for.
 
 The draft also carries `references` — the saved artifacts the tool was handed, as
 `SavedArtifactPicker` filled them in — so the link is recorded in the same write that stores what
@@ -175,7 +182,8 @@ artifact does not restamp contents nobody changed.
 ## Artifact editors
 
 `ARTIFACT_EDITORS` maps a kind to the component that edits it, alongside an optional roller.
-**Culture and religion are the entries**, and most kinds having none is the shipped state: #39
+**Culture, religion, and settlement are the entries**, and most kinds having none is the shipped
+state: #39
 built the frame, and an editing view for a particular kind is part of taking that tool to
 Release-ready (docs/workshop.md, section 4). A kind with no entry opens read-only — the stored
 snapshot, rendered honestly — which is a state the surface draws rather than an error it reports.
@@ -198,10 +206,12 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
 };
 ```
 
-Nothing in the framework changed to accommodate culture (#40) or religion (#41), which is the claim
-these entries exist to test: adding a kind is a line here and a component taking
-`ArtifactEditorProps`. Religion is the harder of the two — its payload is a list of sub-objects
-rather than a flat record — and it needed nothing here either.
+Nothing in the framework changed to accommodate culture (#40), religion (#41), or settlement
+(#20), which is the claim these entries exist to test: adding a kind is a line here and a component
+taking `ArtifactEditorProps`. The three were chosen to be progressively less like each other —
+culture is a flat record, religion is a list of sub-objects, and a settlement is sixteen legitimate
+shapes of one kind, since its enrichment is opt-in four times over — and none of them needed
+anything here.
 
 The specifiers are written out in full, for the reason `TOOL_PANELS` is: a bundler can only split
 a dynamic import it can see.

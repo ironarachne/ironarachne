@@ -17,13 +17,16 @@ import type { ArtifactEditorEntry, ArtifactEditorRegistry } from './workshop_typ
  * it reports.
  *
  * Adding one is a line here and a component that takes {@link ArtifactEditorProps}. Nothing in
- * the framework changed to accommodate culture or religion, which is the claim these entries exist
- * to test: the second kind cost a registration and a component, exactly as the first did.
+ * the framework changed to accommodate culture, religion, or settlement, which is the claim these
+ * entries exist to test: the second and third kinds each cost a registration and a component,
+ * exactly as the first did — and the three are as unlike each other as the site has to offer. A
+ * culture is a flat record, a religion is a list of sub-objects, and a settlement is sixteen
+ * legitimate shapes of one kind, its enrichment being opt-in four times over.
  *
- * The rollers' specifiers reach past `$lib/culture` and `$lib/religion` on purpose: they are
- * dynamic imports, which exist to split a chunk off, and going through an entry point would pull
- * the whole library — generation tables and all — back into the chunk that opening any artifact
- * loads.
+ * The rollers' specifiers reach past `$lib/culture`, `$lib/religion`, and `$lib/settlements` on
+ * purpose: they are dynamic imports, which exist to split a chunk off, and going through an entry
+ * point would pull the whole library — generation tables and all — back into the chunk that
+ * opening any artifact loads.
  */
 export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
   /**
@@ -53,6 +56,15 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         await import('$lib/religion/religion_roll.js');
       return (provenance) =>
         rollReligionSnapshot(provenance.seed, readReligionGeneratorConfig(provenance.config));
+    },
+  },
+  settlement: {
+    loadEditor: () => import('$components/locations/SettlementArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readSettlementGeneratorConfig, rollSettlementSnapshot } =
+        await import('$lib/settlements/settlement_roll.js');
+      return (provenance) =>
+        rollSettlementSnapshot(provenance.seed, readSettlementGeneratorConfig(provenance.config));
     },
   },
 };

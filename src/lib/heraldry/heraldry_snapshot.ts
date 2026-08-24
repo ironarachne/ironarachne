@@ -73,6 +73,20 @@ export type StoredDevice = {
   chargeGroups: StoredChargeGroup[];
 };
 
+/**
+ * A coat of arms as plain data: the device by the names of its parts, and the blazon that
+ * describes it.
+ *
+ * Separate from {@link HeraldrySnapshot}, which is a saved *artifact* and so also carries the seed
+ * and the settings it was rolled from. Arms that belong to something else — an organization's
+ * visual identity, a character's own device — have no such history of their own, and a type that
+ * demanded one would have callers inventing seeds to satisfy it.
+ */
+export type StoredArms = {
+  device: StoredDevice;
+  blazon: string;
+};
+
 export type HeraldrySnapshot = {
   name: string;
   seed: string;
@@ -112,12 +126,18 @@ function toStoredChargeGroup(group: ChargeGroup): StoredChargeGroup {
   };
 }
 
-function toStoredDevice(device: Device): StoredDevice {
+/** A device as the names of its field, variations, and charges. The cheap half of the pair. */
+export function toStoredDevice(device: Device): StoredDevice {
   return {
     fieldName: device.field.name,
     variations: device.field.variations.map(toStoredVariation),
     chargeGroups: device.chargeGroups.map(toStoredChargeGroup),
   };
+}
+
+/** Arms as plain data, for anything that owns a coat of arms without owning its provenance. */
+export function toStoredArms(arms: Arms): StoredArms {
+  return { device: toStoredDevice(arms.device), blazon: arms.blazon };
 }
 
 export function toHeraldrySnapshot(

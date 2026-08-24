@@ -10,7 +10,12 @@ import { artifactKindIds } from '$lib/artifact_kinds';
 
 describe('artifact kind catalog', () => {
   it('registers the kinds this build knows how to store', () => {
-    expect(artifactKindIds(ARTIFACT_KINDS)).toEqual(['heraldry', 'culture', 'religion']);
+    expect(artifactKindIds(ARTIFACT_KINDS)).toEqual([
+      'heraldry',
+      'culture',
+      'religion',
+      'settlement',
+    ]);
   });
 
   it('gives every registered kind a display name and a usable payload version', () => {
@@ -28,7 +33,9 @@ describe('artifact kind catalog', () => {
 
   it('looks a kind up by id', () => {
     expect(artifactKindEntry('culture')?.displayName).toBe('Culture');
-    expect(artifactKindEntry('settlement')).toBeUndefined();
+    // A kind this build does not have is the normal case for a file from a newer one, and the miss
+    // is what routes it to quarantine rather than an exception.
+    expect(artifactKindEntry('character.swn')).toBeUndefined();
   });
 
   it('loads a codec for every registered kind', async () => {

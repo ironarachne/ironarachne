@@ -44,12 +44,15 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // from the other end.
   '$lib/swn/starship',
   // The artifact kind registry, which everything in the workshop touches. Assembled through the
-  // three libraries' entry points it costs 296 KB in the importing chunk; through these modules,
+  // four libraries' entry points it costs 296 KB in the importing chunk; through these modules,
   // 4 KB. Each kind module holds metadata and validation only — its codec is a dynamic import,
   // which is what keeps 18 MB of charge art out of the chunk that merely lists a project.
+  // `$lib/settlements` is the sharpest of the four: its entry point reaches `$lib/organizations`
+  // and from there the heraldry generator and the charge library.
   '$lib/culture/culture_artifact_kind',
   '$lib/heraldry/heraldry_artifact_kind',
   '$lib/religion/religion_artifact_kind',
+  '$lib/settlements/settlement_artifact_kind',
 ]);
 
 /** A specifier ending in something other than a TS/JS extension is an asset, not a module. */

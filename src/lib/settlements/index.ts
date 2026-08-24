@@ -12,3 +12,9 @@ export {
 export { generateSettlementNotables, resolveNotableCharacterConfig } from './settlement_notables';
 export * from './settlement_notable_roles';
 export * from './settlement_notable_mutators';
+export * from './settlement_artifact_kind';
+export * from './settlement_editing';
+export * from './settlement_presentation';
+export * from './settlement_rehydrate';
+export * from './settlement_roll';
+export * from './settlement_snapshot';

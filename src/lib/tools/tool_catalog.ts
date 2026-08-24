@@ -218,11 +218,13 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     tags: ['map', 'worldbuilding'],
   }),
   defineTool({
+    // Release-ready as of #20, the third and hardest of the first release's three tools: the only
+    // one whose payload was built against the kind contract from scratch rather than retrofitted.
     path: '/fantasy/settlement',
     label: 'Settlement',
     kind: 'generator',
     domain: 'locations',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['worldbuilding'],
   }),

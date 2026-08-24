@@ -124,4 +124,33 @@ describe('the artifact editor registry', () => {
     expect(rolled.name).not.toBe('');
     expect(rolled.religion.pantheon).not.toBeNull();
   });
+
+  /**
+   * Settlement is the third (#20), and the only one whose payload was built against the contract
+   * from scratch rather than retrofitted from an existing snapshot. Nothing here changed to take
+   * it either, which is the claim these three entries exist to keep testing.
+   */
+  it('gives settlement an editor and a roller', () => {
+    const settlement = artifactEditorEntry('settlement');
+
+    expect(settlement?.loadEditor).toBeDefined();
+    expect(settlement?.loadRoller).toBeDefined();
+  });
+
+  it('rolls a settlement from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('settlement')!.loadRoller!();
+    const provenance = {
+      toolPath: '/fantasy/settlement' as const,
+      seed: 'registry-roll',
+      config: { nameGeneratorSet: 'dwarf', size: 'large', includeNotables: true },
+    };
+    const rolled = roll(provenance) as { name: string; importantPeople?: unknown[] };
+
+    expect(typeof rolled.name).toBe('string');
+    expect(rolled.name).not.toBe('');
+    expect(rolled.importantPeople?.length).toBeGreaterThan(0);
+    // Requirement 2.2 through the registry rather than only in the library: the same provenance
+    // rolls the same settlement, which is what makes re-rolling an unedited artifact safe.
+    expect(roll(provenance)).toEqual(rolled);
+  });
 });
