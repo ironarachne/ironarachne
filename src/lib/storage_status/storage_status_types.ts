@@ -115,3 +115,107 @@ export type PersistenceRequest = {
   requestedAt: number;
   outcome: PersistenceRequestOutcome;
 };
+
+/**
+ * How long ago something was exported, as facts rather than as a sentence.
+ *
+ * The same value is phrased two ways — "Last exported 12 days ago" as a headline, "12 days ago" in
+ * a table cell — so a type carrying one rendered string would leave the other written out in a
+ * template, where none of the rules in docs/storage-panel.md can be tested.
+ *
+ * `everExported` is separate from {@link lastExportAt} for the reason {@link PersistenceState} is
+ * three-valued: never exported is a different answer from exported a long time ago, and both are
+ * different from a stamp that could not be read.
+ */
+export type ExportRecency = {
+  everExported: boolean;
+  /** Epoch milliseconds of the last successful export. Absent when there has never been one. */
+  lastExportAt?: number;
+  /**
+   * Whole days elapsed since that export, floored, and clamped at zero.
+   *
+   * Elapsed days rather than calendar days: a figure that changes at midnight because of something
+   * nobody did is worse than one that changes when it means something. A timestamp in the future —
+   * a corrected clock, a file from another machine — reads as today rather than as a negative.
+   */
+  daysAgo?: number;
+};
+
+/**
+ * What the panel says about eviction, and what it is careful not to say.
+ *
+ * `persisted` never reads as safety. It resists automatic eviction under storage pressure and does
+ * nothing about cleared site data, a lost laptop, a different browser, or Safari's ITP — so
+ * {@link meaning} always carries the limit, and no branch ends on reassurance. A "Protected" badge
+ * presented as a backup would be the most expensive lie in the product, because it would talk
+ * someone out of the export that is their actual protection.
+ */
+export type ProtectionAdvice = {
+  state: PersistenceState;
+  headline: string;
+  meaning: string;
+};
+
+/**
+ * How full the browser says this origin is.
+ *
+ * {@link known} means **both** figures arrived, which is what a proportion needs. One figure on its
+ * own is still worth saying and is still not a proportion, so it is reported rather than completed
+ * with a guess.
+ *
+ * There is deliberately no `percentage` field. A percentage of an estimate is two layers of
+ * imprecision wearing one number's clothes, so it exists only inside the one function that also
+ * emits the sizes — see `usageSentence`.
+ */
+export type UsageProportion = {
+  known: boolean;
+  usageBytes?: number;
+  quotaBytes?: number;
+  /** Usage over quota, present only when both are. */
+  fraction?: number;
+};
+
+/**
+ * One line of the panel's project table: {@link ProjectUsage} joined to the project index for a
+ * name.
+ *
+ * The join is a presentation concern rather than a library one. Giving `ProjectUsage` a name field
+ * would make it re-derivable state that a rename can falsify, which is the same argument that keeps
+ * `StorageStatus` from caching anything the browser answers directly.
+ */
+export type ProjectStorageRow = {
+  projectId: string;
+  name: string;
+  artifactCount: number;
+  byteSize: number;
+  lastExport: ExportRecency;
+};
+
+/**
+ * Everything the storage panel renders, derived on the spot and persisted nowhere.
+ *
+ * The order of the fields is the order of the panel, and that order is the design: export recency
+ * leads because fullness predicts inconvenience while export recency predicts loss. See
+ * docs/storage-panel.md.
+ */
+export type StoragePanelView = {
+  lastExport: ExportRecency;
+  protection: ProtectionAdvice;
+  usage: UsageProportion;
+  /** Largest first, as `summarizeProjectUsage` ordered them; the view does not re-sort. */
+  projects: ProjectStorageRow[];
+};
+
+/**
+ * Whether the browser is full enough to say so where the user is working, and the numbers that
+ * claim has to carry.
+ *
+ * It holds a {@link UsageProportion} rather than its own copy of the figures, which is what makes
+ * "a percentage never appears without the sizes" structural: the banner and the panel get that
+ * sentence from one function. An unknown estimate is never `warranted` — a missing figure is not
+ * eighty per cent of anything.
+ */
+export type StorageWarning = {
+  warranted: boolean;
+  usage: UsageProportion;
+};

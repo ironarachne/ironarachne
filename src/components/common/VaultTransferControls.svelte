@@ -7,7 +7,6 @@
     readQuarantinedArtifacts,
     type QuarantineRecord,
   } from '$lib/quarantine';
-  import { recordVaultExport, requestPersistenceIfWarranted } from '$lib/storage_status';
   import { showConfirmModal } from '$lib/ui';
   import { otherVaultTabsOpen } from '$lib/vault_db';
   import {
@@ -73,40 +72,6 @@
     unsavedFile = file;
     error = `This browser would not save ${file.fileName}. The file is below — copy it somewhere safe.`;
     return false;
-  }
-
-  async function exportVault() {
-    if (busy) {
-      return;
-    }
-    busy = true;
-    reset();
-    try {
-      const built = await buildVaultExportFile();
-      if (!built.ok) {
-        error = `The vault could not be exported (${built.reason}). Nothing was changed.`;
-        return;
-      }
-      if (!saveFile(built.value)) {
-        return;
-      }
-      // Stamped only once the browser has actually taken the file: this number is what tells a
-      // user how long their work has been the browser's only copy, and stamping an export that
-      // never landed replaces a true warning with a false reassurance.
-      // Dropped deliberately, as in `ProjectTransferControls`: the backup is already on disk, and
-      // a failed stamp costs an out-of-date "last exported" figure rather than any work.
-      await recordVaultExport();
-      // A completed export is one of the three moments allowed to ask the browser for persistence
-      // (docs/storage-disclosure.md): the user has just done more work, and the policy decides
-      // whether anything is actually asked. Nothing here waits on the answer.
-      await requestPersistenceIfWarranted('vaultExported');
-      notes = [
-        `Saved ${built.value.fileName}. Keep it somewhere that is not this browser — clearing site data takes everything else with it.`,
-        ...built.value.issues,
-      ];
-    } finally {
-      busy = false;
-    }
   }
 
   function chooseFile() {
@@ -252,15 +217,16 @@
 </script>
 
 <section class="vault-transfer">
-  <h2>Backup</h2>
+  <!-- Export is the storage panel's, one section above: it is the primary action there, under the
+       "last exported" figure that gives someone a reason to press it. What is left here is the way
+       back in — see docs/storage-panel.md. -->
+  <h2>Restore from a backup</h2>
   <p class="vault-transfer__lede">
-    Everything you make lives in this browser and nowhere else. A file is the only copy that
-    survives clearing site data, a new machine, or a browser deciding on its own to reclaim the
-    space.
+    Bring a file back into this browser. Adding puts it alongside what is already here; restoring
+    replaces everything with what the file holds.
   </p>
 
   <div class="vault-transfer__row">
-    <button type="button" onclick={exportVault} disabled={busy}>Export everything</button>
     <div class="input-group">
       <label for={modeId}>Importing</label>
       <select id={modeId} bind:value={mode} disabled={busy}>

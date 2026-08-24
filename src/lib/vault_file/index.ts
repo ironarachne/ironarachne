@@ -1,3 +1,4 @@
+export * from './vault_export';
 export * from './vault_file_export';
 export * from './vault_file_format';
 export * from './vault_file_capacity';

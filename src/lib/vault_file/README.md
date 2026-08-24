@@ -155,6 +155,11 @@ Building a file is not exporting it: a file that was built and never saved must 
 as backed up, because that stamp is what tells a user how long their work has been the browser's
 only copy.
 
+`exportWholeVault` is that whole sequence for the vault — build, hand to the browser, and stamp
+only if the browser took it — as one function rather than as a paragraph two components each have
+to get right. It returns `saved`, `blocked` (with the text, so a browser that refused the download
+still lets the user copy the file out by hand), or `failed`, and it never rejects.
+
 ## The legacy exporter
 
 [`$lib/persistent_save`](../persistent_save/README.md)'s `save_file_export.ts` still exports storage

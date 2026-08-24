@@ -6,6 +6,7 @@
   import ProjectView from '$components/common/ProjectView.svelte';
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
+  import StorageWarningBanner from '$components/common/StorageWarningBanner.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
   import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
@@ -204,6 +205,12 @@
   <p class="workshop__maturity">
     <ToolMaturityBadge maturity={toolMaturityForPath('/workshop')} />
   </p>
+
+  <!-- The one thing on this surface allowed to raise its voice, and only when the browser really
+       is nearly full. It is here rather than in the shell because this is where a user with a
+       nearly-full browser is about to write more; a storage warning over the release notes would
+       be shouting at someone who cannot act on it. -->
+  <StorageWarningBanner />
 
   <ProjectContextBar onProjectChange={(next) => void openProject(next)} />
 

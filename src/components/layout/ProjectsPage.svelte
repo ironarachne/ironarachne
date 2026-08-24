@@ -4,7 +4,6 @@
   import { resolve } from '$app/paths';
   import { hydrateArtifacts, listArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import { getShortDate } from '$lib/dates';
-  import { formatBytes } from '$lib/format';
   import {
     createProject,
     deleteProject,
@@ -26,6 +25,7 @@
   import type { ImportSummary } from '$lib/vault_file';
   import ProjectTransferControls from '$components/common/ProjectTransferControls.svelte';
   import StorageDisclosureNotice from '$components/common/StorageDisclosureNotice.svelte';
+  import StoragePanel from '$components/common/StoragePanel.svelte';
   import VaultTransferControls from '$components/common/VaultTransferControls.svelte';
 
   const uid = $props.id();
@@ -34,7 +34,6 @@
   type Row = {
     project: Project;
     artifactCount: number;
-    byteSize: number;
   };
 
   let rows: Row[] = $state([]);
@@ -47,18 +46,23 @@
   let editDescription = $state('');
   /** The local-only disclosure, shown once ever and dismissible. See docs/storage-disclosure.md. */
   let showDisclosure = $state(false);
-  const backupId = `${uid}-backup`;
+
+  /**
+   * The anchor for a project's card, which the storage panel's table links each row to.
+   *
+   * Built from the project id rather than from `$props.id()`, because the table and the card have
+   * to agree on it and a per-instance prefix would only make the two sides harder to read.
+   */
+  function cardId(projectId: string): string {
+    return `project-${projectId}`;
+  }
 
   function refresh(): void {
     const projects = listProjects();
-    rows = projects.map((project) => {
-      const artifacts = listArtifacts(project.id);
-      return {
-        project,
-        artifactCount: artifacts.length,
-        byteSize: artifacts.reduce((total, artifact) => total + artifact.byteSize, 0),
-      };
-    });
+    rows = projects.map((project) => ({
+      project,
+      artifactCount: listArtifacts(project.id).length,
+    }));
     activeProjectId = getActiveProject()?.id;
   }
 
@@ -230,7 +234,7 @@
 
   {#if showDisclosure}
     <StorageDisclosureNotice
-      backupHref="#{backupId}"
+      backupHref="#storage"
       onDismiss={() => {
         showDisclosure = false;
       }}
@@ -244,7 +248,11 @@
   {:else}
     <ul class="projects__list">
       {#each rows as row (row.project.id)}
-        <li class="project-card" class:project-card--active={row.project.id === activeProjectId}>
+        <li
+          class="project-card"
+          class:project-card--active={row.project.id === activeProjectId}
+          id={cardId(row.project.id)}
+        >
           {#if editingId === row.project.id}
             <div class="project-card__edit">
               <div class="input-group">
@@ -277,10 +285,13 @@
               <p class="project-card__description">{row.project.description}</p>
             {/if}
 
+            <!-- No size here. The card answers "which project do I work in" and is ordered by
+                 recency; the storage panel's table answers "which one is big" and is ordered by
+                 size. The same number in two orders on one page is how a reader ends up trusting
+                 neither, so it is said once, where it can be compared. -->
             <p class="project-card__facts">
               {row.artifactCount}
               {row.artifactCount === 1 ? 'artifact' : 'artifacts'}
-              · {formatBytes(row.byteSize)}
               · updated {getShortDate(new Date(row.project.updatedAt))}
             </p>
 
@@ -307,19 +318,17 @@
        you take, one project is the thing you hand to someone else. Neither needs a project open,
        which is what makes this page the right home for them — a user restoring into a fresh
        browser has no project to start from, and a control that required one would be unreachable
-       in exactly the case it exists for. -->
-  <!-- The id is what the storage disclosure links to: "export is how your work leaves" is a
-       promise the page has to be able to deliver on without a search. -->
-  <section class="projects__transfer" id={backupId}>
-    <!-- No heading or standfirst here: VaultTransferControls carries its own "Backup" heading and
-         says the same sentence about this browser holding the only copy. Repeating them above it
-         put the word twice on screen and the paragraph twice under that. -->
+       in exactly the case it exists for.
+
+       They are section 4 of the storage panel rather than a region beside it, so that the account
+       of what is stored and the actions that act on it are one thing. See docs/storage-panel.md. -->
+  <StoragePanel projectAnchor={(projectId) => `#${cardId(projectId)}`}>
     <VaultTransferControls projectId={activeProjectId} onVaultChanged={afterImport} />
 
-    <h2>This project</h2>
+    <h2 class="projects__transfer-heading">This project</h2>
     <p>Take one project on its own, or bring one in from a file.</p>
     <ProjectTransferControls projectId={activeProjectId} onImported={afterImport} />
-  </section>
+  </StoragePanel>
 </section>
 
 <style>
@@ -444,10 +453,10 @@
     margin: 0;
   }
 
-  .projects__transfer {
-    border-top: 1px solid var(--granite);
-    margin-top: 2rem;
-    padding-top: 1rem;
-    max-width: var(--measure);
+  /* The panel supplies the rule above it and its own spacing; what is left here is the heading
+     that separates the whole-vault controls from the one-project ones inside its actions. */
+  .projects__transfer-heading {
+    font-size: 1.1rem;
+    margin: 1rem 0 0.25rem;
   }
 </style>

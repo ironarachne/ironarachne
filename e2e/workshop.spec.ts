@@ -1265,6 +1265,9 @@ test.describe('project export and import', () => {
  */
 test.describe('vault export and import', () => {
   const vaultTransfer = (page: Page) => page.locator('section.vault-transfer');
+  // Export is the storage panel's primary action; what is left in the transfer controls is the way
+  // back in. See docs/storage-panel.md.
+  const storagePanel = (page: Page) => page.locator('section.storage');
   const confirmDialog = (page: Page) => page.locator('dialog.ironarachne-modal');
 
   test.beforeEach(async ({ page }) => {
@@ -1275,10 +1278,10 @@ test.describe('vault export and import', () => {
     return onProjectsPage(page, async () => {
       const [download] = await Promise.all([
         page.waitForEvent('download'),
-        vaultTransfer(page).getByRole('button', { name: 'Export everything' }).click(),
+        storagePanel(page).getByRole('button', { name: 'Export everything' }).click(),
       ]);
       expect(download.suggestedFilename()).toMatch(/^ironarachne-vault-\d{4}-\d{2}-\d{2}\.json$/);
-      await expect(vaultTransfer(page).getByText(/^Saved ironarachne-vault-/)).toBeVisible();
+      await expect(storagePanel(page).getByText(/^Saved ironarachne-vault-/)).toBeVisible();
       return download.path();
     });
   }
@@ -1395,8 +1398,11 @@ test.describe('vault export and import', () => {
     await expect(page.getByText('No project yet.')).toBeVisible();
 
     await page.goto('/projects/');
+    // Export leads the storage panel, under the "last exported" figure that gives someone a
+    // reason to press it; what is left in the transfer section is the way back in.
+    // See docs/storage-panel.md.
     await expect(
-      vaultTransfer(page).getByRole('button', { name: 'Export everything' }),
+      storagePanel(page).getByRole('button', { name: 'Export everything' }),
     ).toBeVisible();
     await expect(
       vaultTransfer(page).getByRole('button', { name: 'Import from file…' }),

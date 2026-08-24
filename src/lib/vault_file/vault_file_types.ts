@@ -275,3 +275,31 @@ export type ExportFile = {
 export type ExportFileResult =
   | { ok: true; value: ExportFile }
   | { ok: false; reason: VaultFailureReason | 'not-found'; message: string };
+
+/**
+ * How far an export got.
+ *
+ * `blocked` is deliberately not `failed`: the file was built and is intact, and the browser simply
+ * would not take the download. For an export the file *is* the product, so a caller can still put
+ * the text on screen to be copied out — which a "failed" would have talked them out of.
+ */
+export type VaultExportStatus = 'saved' | 'blocked' | 'failed';
+
+/**
+ * The outcome of {@link exportWholeVault}, with whatever the caller needs to render it.
+ *
+ * Only `saved` means the browser took the file, and only `saved` stamps the vault: the export
+ * stamp is what tells a user how long their work has been this browser's only copy, so recording
+ * one for an export that never landed replaces a true warning with a false reassurance.
+ */
+export type VaultExportResult = {
+  status: VaultExportStatus;
+  /** Present once a file was built, whether or not the browser took it. */
+  fileName?: string;
+  /** The file's contents, carried only when the download was `blocked` and must be offered by hand. */
+  text?: string;
+  /** What could not be exported cleanly, said rather than thrown. Never absent, often empty. */
+  issues: string[];
+  /** Why the file could not be built, present only on `failed`. */
+  reason?: string;
+};

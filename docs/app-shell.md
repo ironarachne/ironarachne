@@ -114,9 +114,15 @@ bench cluttered with administration is a bench with less room for panels.
 
 #### Projects
 
-The projects a user has: name, description, tags, when they were last touched, how many artifacts
-they hold and how much storage that is. Create, rename, describe, tag, delete, export, import, and
-open. This is `ProjectContextBar`'s management half, given a page instead of a strip.
+The projects a user has: name, description, tags, when they were last touched, and how many
+artifacts they hold. Create, rename, describe, tag, delete, export, import, and open. This is
+`ProjectContextBar`'s management half, given a page instead of a strip.
+
+Below the cards is the **storage panel** — what is in this browser, how long it has been the only
+copy, and what to do about it, including the whole-vault export and the per-project sizes the cards
+no longer carry. It is a section of this page with the id `storage` rather than a sixth
+destination, because five destinations is a cap; the workshop reaches it by link and, when the
+browser is nearly full, by banner. See [the storage panel](storage-panel.md).
 
 #### Result Vault
 

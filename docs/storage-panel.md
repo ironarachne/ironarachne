@@ -10,8 +10,9 @@ storage_](workshop.md#what-the-user-is-told-about-storage).
 first project creation, and the request that asks the browser not to evict. `src/lib/storage_status`
 has produced every number this panel shows since #177; nothing has ever rendered them.
 
-**Status:** proposal. The [domain model](#domain-model) needs human review before implementation
-starts.
+**Status:** implemented. The [domain model](#domain-model) was reviewed and approved, and the seven
+steps below have landed: `storage_presentation.ts` and `vault_export.ts` in the libraries,
+`StoragePanel.svelte` and `StorageWarningBanner.svelte` in `$components/common`.
 
 Designs [#27](https://github.com/ironarachne/ironarachne/issues/27).
 
