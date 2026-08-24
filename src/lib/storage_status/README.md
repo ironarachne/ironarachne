@@ -84,11 +84,39 @@ them as one is how a user ends up believing the project they forgot is covered.
 `lastVaultExportAt` lives in the vault's `meta` store and `lastExportAt` on the project record —
 both in `$lib/vault_db`, which is also why a rename cannot erase one.
 
+## Asking, and telling
+
+Reading the state is half of it. `requestPersistenceIfWarranted(trigger)` asks the browser not to
+evict this origin, and `hasSeenStorageDisclosure` / `recordStorageDisclosureShown` record whether
+the user has been told their work lives in one browser. Both are
+[docs/storage-disclosure.md](../../../docs/storage-disclosure.md); the summary is:
+
+```typescript
+// Only completions of real work may ask, and there are exactly three of them.
+await requestPersistenceIfWarranted('projectCreated');
+```
+
+**The retry policy is the caller list, not a counter.** `docs/workshop.md` asks that a refusal be
+repeated at most once per session and only after the user has done more work; because a created
+project, an exported vault, and an exported project are the only triggers, "after more work" is
+structural. There is no page-load or timer caller to get wrong. Inside, three gates: an origin that
+is already persisted is never asked again, a session that has asked does not ask twice, and a grant
+throws away the cached estimate.
+
+A session is the page's lifetime, in module state. Nothing about a refusal is persisted — a
+browser-level decision the user can revisit must not become a product-level one they cannot. The
+disclosure stamp _is_ persisted, in the vault's `meta` store, because "told once" has to survive a
+reload; the export envelope does not carry `meta`, so it cannot ride a backup into a browser that
+was never told.
+
+None of this is protection. `persist()` resists automatic eviction and does nothing about cleared
+site data, a lost laptop, or Safari's ITP — which is why the disclosure copy says export is what
+protects the work, in every browser, with no user-agent check anywhere.
+
 ## Not here
 
 - **The panel, the banner, and the 80% threshold** — #179. What a number means to a reader is a
   presentation decision, including the two rules docs/workshop.md sets: quota is never shown as an
   exact figure, and a percentage never appears without the sizes underneath it.
-- **Requesting persistence** — #178, at first project creation rather than first load.
 - **`QuotaExceededError`** — #180. An estimate is advisory; a refused write is not.
 - **Export itself** — #35 and #47. This library records that one happened, and does not perform one.

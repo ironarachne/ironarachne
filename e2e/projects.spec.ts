@@ -121,3 +121,58 @@ test.describe('the projects page', () => {
     await expect(page.getByRole('button', { name: 'Import from file…' })).toBeVisible();
   });
 });
+
+/**
+ * The local-only disclosure (docs/storage-disclosure.md, #26).
+ *
+ * **Nothing here asserts what the browser decided about persistence.** `navigator.storage.persist()`
+ * is requested in the same moment, and headless Chromium's answer is not ours to pin: a suite that
+ * depended on it would fail on a browser upgrade for a reason that has nothing to do with the
+ * feature. What is testable is what the user is told, and how often.
+ */
+test.describe('being told the work lives in this browser', () => {
+  const disclosure = (page: Page) => projectsPage(page).locator('.storage-disclosure');
+
+  test.beforeEach(async ({ page }) => {
+    await openEmptyProjects(page);
+  });
+
+  test('is not said before there is anything to lose', async ({ page }) => {
+    // Not on first load, deliberately: the sentence pairs with a permission request, and a request
+    // made before the user has built anything is one they dismiss.
+    await expect(disclosure(page)).toHaveCount(0);
+  });
+
+  test('is said once at the first project, and not again', async ({ page }) => {
+    await create(page, 'Ashfall');
+
+    await expect(disclosure(page)).toContainText('saved in this browser only');
+    await expect(disclosure(page)).toContainText('no account and no server');
+
+    await disclosure(page).getByRole('button', { name: 'Got it' }).click();
+    await expect(disclosure(page)).toHaveCount(0);
+
+    await create(page, 'Tallow');
+    await expect(disclosure(page)).toHaveCount(0);
+  });
+
+  test('stays said across a reload, because the stamp is in the vault', async ({ page }) => {
+    await create(page, 'Ashfall');
+    await expect(disclosure(page)).toBeVisible();
+
+    await page.reload({ waitUntil: 'load' });
+    await create(page, 'Tallow');
+
+    await expect(disclosure(page)).toHaveCount(0);
+  });
+
+  test('points at the backup controls, since export is what it asks for', async ({ page }) => {
+    await create(page, 'Ashfall');
+
+    await disclosure(page).getByRole('link', { name: 'Back up your work' }).click();
+
+    // The promise the sentence makes — export is how your work leaves — has to land somewhere the
+    // reader can act on without hunting for it.
+    await expect(page.getByRole('button', { name: 'Export everything' })).toBeInViewport();
+  });
+});

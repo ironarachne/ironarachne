@@ -100,6 +100,15 @@ export const VAULT_META_KEYS = {
   lastVaultExportAt: 'lastVaultExportAt',
   /** Epoch milliseconds of the one-time copy of the `localStorage` workshop keys into here. */
   localStorageAdoptedAt: 'localStorageAdoptedAt',
+  /**
+   * Epoch milliseconds of the moment the user was told their work lives in this browser only.
+   *
+   * Here rather than in `localStorage` because it is a once-ever fact about this vault, and
+   * because the export envelope does not carry the `meta` store: a stamp that travelled in a
+   * backup would silence the disclosure in a browser that was never told. See
+   * `docs/storage-disclosure.md`.
+   */
+  storageDisclosureShownAt: 'storageDisclosureShownAt',
 } as const;
 
 export type VaultMetaKey = (typeof VAULT_META_KEYS)[keyof typeof VAULT_META_KEYS];

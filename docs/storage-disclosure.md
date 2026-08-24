@@ -7,12 +7,13 @@ browser not to throw that work away**.
 It is one section of [the workshop](workshop.md) — [Eviction and
 persistence](workshop.md#eviction-and-persistence) and
 [What the user is told about storage](workshop.md#what-the-user-is-told-about-storage) — worked out
-far enough to build. `src/lib/storage_status` already _reports_ whether the origin is protected;
-nothing yet _asks_ for it, and nothing yet tells the user anything.
+far enough to build. `src/lib/storage_status` _reported_ whether the origin is protected long before
+anything _asked_ for it; this is the half that asks, and the half that tells the user.
 
-**Status:** proposal. The [domain model](#domain-model) has not been reviewed. Per `CLAUDE.md`,
-implementation does not start until a human has approved it, and there are three
-[questions for review](#questions-for-review) that change what gets built.
+**Status:** accepted and **implemented**. The [domain model](#domain-model) was reviewed and
+approved, the three questions it carried were answered — they are now
+[decisions 8, 9 and 10](#decisions-taken-here) — and all six steps in [The plan](#the-plan) are
+built.
 
 Designs [#26](https://github.com/ironarachne/ironarachne/issues/26). The storage panel
 ([#27](https://github.com/ironarachne/ironarachne/issues/27)) is the neighbouring piece of the same
@@ -54,7 +55,7 @@ One moment, two halves, in this order:
              │                                               │ browser only. There is no    │
              │                                               │ account and no server.       │
              │                                               │ Export is how it leaves.     │
-             │                                               │           [Got it] [Export]  │
+             │                                               │  Back up your work  [Got it] │
              │                                               └──────────────────────────────┘
              │
              └─ 3. persistence is requested                   navigator.storage.persist()
@@ -75,7 +76,7 @@ there is something to lose, and the reason is on screen one line above the promp
 Projects are created in exactly one place a user can see. `src/components/layout/ProjectsPage.svelte`
 is the only caller of `createProject` a user drives; the workshop's project bar links here rather
 than creating one itself, and `/projects` already carries `VaultTransferControls`, so the
-disclosure's _Export vault_ action is a scroll away rather than a navigation.
+disclosure's _Back up your work_ link is a fragment down the same page rather than a navigation.
 
 The notice follows the pattern the legacy-adoption notice already established in
 `ProjectContextBar` — inline, dismissible, a **Got it** button, no dialog. It is not a modal: a modal
@@ -97,7 +98,7 @@ load and may never press Create, so under the rule above they are never told and
 The proposal is the cheapest thing that closes it: **one sentence added to the adoption notice
 copy**, in a notice that is already on screen and already dismissible, saying the same thing. No new
 trigger, no new state, no cross-library coupling. Their persistence request then arrives at the next
-qualifying moment through the rule below. See [question 2](#questions-for-review).
+qualifying moment through the rule below. See [decision 9](#decisions-taken-here).
 
 ## Asking at most once per session
 
@@ -124,7 +125,7 @@ no route change, and no idle timer can ask. The function then applies three gate
 therefore permits one more request — but only paired with fresh work, and in the browser where the
 distinction matters, Firefox remembers an explicit denial and answers `false` without prompting
 again. The gate that actually protects the user from nagging is the call-site restriction, not the
-storage the flag lives in. See [question 3](#questions-for-review).
+storage the flag lives in. See [decision 10](#decisions-taken-here).
 
 Nothing about this is modal, nothing blocks, and no outcome stops the project from being created.
 `persist()` is fire-and-observe: a refusal is recorded and the work carries on.
@@ -279,7 +280,7 @@ The README's **Not here** list loses its "#178" line and gains a paragraph on th
 | 2    | `persistence_request.ts`: outcomes, the session gate, `requestPersistenceIfWarranted`, tests on a fake `navigator` | —          |
 | 3    | `StorageDisclosureNotice.svelte`, and `ProjectsPage` showing it once and requesting after it paints                | 1, 2       |
 | 4    | The two export paths call `requestPersistenceIfWarranted` on success                                               | 2          |
-| 5    | One sentence in the adoption notice copy (subject to [question 2](#questions-for-review))                          | —          |
+| 5    | One sentence in the adoption notice copy (decision 9)                                                              | —          |
 | 6    | `storage_status/README.md` and the two `docs/workshop.md` sections updated to point here                           | 1–4        |
 
 Steps 1 and 2 are independent and are where the coverage lives. Step 3 is the one that needs
@@ -323,19 +324,20 @@ re-prompted.
 **7. `StorageStatus` gains no fields.** The request's effect is observable through `persisted()`, and
 a cached copy of it would be a second source of truth that can be stale.
 
-## Questions for review
+**8. The notice links to the backup controls rather than carrying an Export button.** They are on
+the same page, so the link is a fragment to `#…-backup` and the sketch above is out of date by one
+control. Offering export of a project made ten seconds ago is a strange first act; #27's panel is
+where export properly belongs.
 
-1. **Does the notice carry an Export vault button, or only a way down to the controls already on the
-   page?** A button means the first thing a new user is offered is exporting a nearly empty project,
-   which is a strange first act and also teaches the habit at the cheapest possible moment. A link
-   means one fewer thing to build. The sketch above shows the button.
-2. **Is the adoption sentence in scope for #26?** It is one string in a notice that already exists,
-   and it closes the only path by which a user can hold work and never be told. It is also, strictly,
-   not what the issue asked for.
-3. **Is "a session" the page's lifetime or the tab's?** The proposal is module state — a reload
-   allows one more request, paired with fresh work. `sessionStorage` would make it the tab, at the
-   cost of a mechanism `persistent_save` does not have today. It matters only in Firefox, and only
-   before the user gives the explicit answer that Firefox then remembers.
+**9. The adoption sentence is in scope.** One string in the legacy-adoption notice in
+`ProjectContextBar`, which is already on screen and already dismissible. It closes the only path by
+which a user can hold work and never be told.
+
+**10. A session is the page's lifetime.** Module state in `persistence_request.ts`. A reload permits
+one more request, and only paired with fresh work; Firefox remembers an explicit denial and answers
+`false` without prompting again, so the looser reading costs at most one more silent call.
+`sessionStorage` would have bought the stricter reading at the price of a mechanism
+`persistent_save` does not have.
 
 ## Acceptance, against the issue
 

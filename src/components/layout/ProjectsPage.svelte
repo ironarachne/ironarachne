@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
 
   import { resolve } from '$app/paths';
   import { hydrateArtifacts, listArtifacts, onArtifactsChanged } from '$lib/artifacts';
@@ -16,10 +16,16 @@
     updateProject,
     type Project,
   } from '$lib/projects';
+  import {
+    hasSeenStorageDisclosure,
+    recordStorageDisclosureShown,
+    requestPersistenceIfWarranted,
+  } from '$lib/storage_status';
   import { showConfirmModal } from '$lib/ui';
   import type { VaultResult } from '$lib/vault_db';
   import type { ImportSummary } from '$lib/vault_file';
   import ProjectTransferControls from '$components/common/ProjectTransferControls.svelte';
+  import StorageDisclosureNotice from '$components/common/StorageDisclosureNotice.svelte';
   import VaultTransferControls from '$components/common/VaultTransferControls.svelte';
 
   const uid = $props.id();
@@ -39,6 +45,9 @@
   let editingId: string | undefined = $state(undefined);
   let editName = $state('');
   let editDescription = $state('');
+  /** The local-only disclosure, shown once ever and dismissible. See docs/storage-disclosure.md. */
+  let showDisclosure = $state(false);
+  const backupId = `${uid}-backup`;
 
   function refresh(): void {
     const projects = listProjects();
@@ -76,6 +85,43 @@
         : `That could not be saved (${result.reason}). Your work is still here; try again.`;
   }
 
+  /**
+   * Wait until the disclosure is actually on screen.
+   *
+   * `tick()` flushes the DOM update and the frame after it is when the browser has painted.
+   * Firefox raises its permission prompt from `persist()`, and a prompt answered over a page that
+   * has not yet said why is the one that gets denied — a denial being much harder to recover than a
+   * request not yet made.
+   */
+  async function painted(): Promise<void> {
+    await tick();
+    if (typeof requestAnimationFrame !== 'function') {
+      return;
+    }
+    await new Promise<void>((done) => requestAnimationFrame(() => done()));
+  }
+
+  /**
+   * The paired moment: say that this browser holds the only copy, then ask the browser not to throw
+   * it away. The order is the design — see docs/storage-disclosure.md.
+   *
+   * The stamp is written when the notice appears rather than when it is dismissed, because someone
+   * who navigates away has still been told, and telling them again would make "exactly once" a lie.
+   * A refused stamp is deliberately not reported: the project was created, the sentence is on
+   * screen, and the only consequence is that it appears once more another day.
+   */
+  async function discloseThenRequestPersistence(): Promise<void> {
+    const seen = await hasSeenStorageDisclosure();
+    if (seen.ok && !seen.value) {
+      showDisclosure = true;
+      await recordStorageDisclosureShown();
+      await painted();
+    }
+    // Every created project is a completion of real work, first or not. Whether anything is
+    // actually asked is the policy's decision, not this page's.
+    await requestPersistenceIfWarranted('projectCreated');
+  }
+
   async function create(): Promise<void> {
     const requested = newName.trim();
     const created = await createProject(requested === '' ? {} : { name: requested });
@@ -91,6 +137,9 @@
       }
     }
     refresh();
+    if (created.ok) {
+      await discloseThenRequestPersistence();
+    }
   }
 
   function open(id: string): void {
@@ -179,6 +228,15 @@
     <button type="button" onclick={create}>Create project</button>
   </div>
 
+  {#if showDisclosure}
+    <StorageDisclosureNotice
+      backupHref="#{backupId}"
+      onDismiss={() => {
+        showDisclosure = false;
+      }}
+    />
+  {/if}
+
   {#if rows.length === 0}
     <p class="projects__empty">
       No projects yet. Create one above, or import a project file below.
@@ -250,7 +308,9 @@
        which is what makes this page the right home for them — a user restoring into a fresh
        browser has no project to start from, and a control that required one would be unreachable
        in exactly the case it exists for. -->
-  <section class="projects__transfer">
+  <!-- The id is what the storage disclosure links to: "export is how your work leaves" is a
+       promise the page has to be able to deliver on without a search. -->
+  <section class="projects__transfer" id={backupId}>
     <!-- No heading or standfirst here: VaultTransferControls carries its own "Backup" heading and
          says the same sentence about this browser holding the only copy. Repeating them above it
          put the word twice on screen and the paragraph twice under that. -->

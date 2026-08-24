@@ -1,6 +1,6 @@
 <script lang="ts">
   import Download from '$lib/download';
-  import { recordProjectExport } from '$lib/storage_status';
+  import { recordProjectExport, requestPersistenceIfWarranted } from '$lib/storage_status';
   import {
     buildProjectExportFile,
     describeImportSummary,
@@ -57,6 +57,9 @@
       // someone their export failed because a bookkeeping write did would be worse than the stale
       // "last exported" figure it costs. It is not the user's work.
       await recordProjectExport(projectId);
+      // One of the three moments allowed to ask for persistence, for the same reason the vault
+      // export is: the user has just completed real work. See docs/storage-disclosure.md.
+      await requestPersistenceIfWarranted('projectExported');
       notes = [
         `Saved ${built.value.fileName}. Keep it somewhere that is not this browser — it is the only copy that survives clearing site data.`,
         ...built.value.issues,

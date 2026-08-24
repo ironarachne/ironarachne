@@ -121,6 +121,14 @@
             : 'they are'}.
         </p>
       {/if}
+      <!-- The local-only disclosure, for the one cohort that would otherwise never see it: adoption
+           creates their project for them on page load, so they may never press Create and never
+           reach the notice on /projects. Said here rather than given its own trigger, in a message
+           that is already on screen and already dismissible. See docs/storage-disclosure.md. -->
+      <p>
+        It is saved in this browser only — there is no account and no server.
+        <a href={resolve('/projects')}>Export a copy</a> to keep work that outlives this browser.
+      </p>
       <button type="button" onclick={dismissAdoptionNotice}>Got it</button>
     </div>
   {/if}
