@@ -120,9 +120,13 @@
               onclick={() => selectTool(tool)}
             >
               <span class="tool-browser__name">{tool.label}</span>
-              <!-- The maturity rides along with every entry, unfiltered and unhidden: a list that
-                   only marked the unfinished tools would leave the user reading absence, which is
-                   not something you can read. -->
+              <!-- The maturity rides along with every entry that has one to state. This list
+                   used to mark all of them, on the grounds that marking only the unfinished tools
+                   leaves the user reading absence; #43 settled it the other way, because
+                   release-ready is an internal classifier and a promise the user never asked to
+                   read. So an unmarked row is a finished tool, and the levels that remain are the
+                   ones that qualify what will happen to their work — which is the only reason a
+                   level was ever put in front of them. -->
               <span class="tool-browser__badges">
                 {#if isActive}
                   <span class="tool-browser__badge">Loaded</span>

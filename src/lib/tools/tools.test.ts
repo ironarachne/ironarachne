@@ -11,6 +11,7 @@ import {
   maturityDescription,
   maturityDisplayName,
   maturityTag,
+  showsMaturityBadge,
   systemDisplayName,
   systemTag,
   systemsOf,
@@ -253,6 +254,26 @@ describe('maturityDisplayName', () => {
     const unnamed = MATURITIES.filter((maturity) => maturityDisplayName(maturity) === undefined);
 
     expect(unnamed).toEqual([]);
+  });
+});
+
+describe('showsMaturityBadge', () => {
+  it('shows the levels that carry a warning', () => {
+    expect(showsMaturityBadge('experimental')).toBe(true);
+    expect(showsMaturityBadge('beta')).toBe(true);
+  });
+
+  it('keeps release-ready to itself', () => {
+    expect(showsMaturityBadge('release-ready')).toBe(false);
+  });
+
+  it('shows every level that describes a limitation, and only those', () => {
+    // The rule is not "hide the top level" but "show what qualifies the user's work". If a level
+    // is ever added between beta and release-ready, it announces itself unless someone decides
+    // otherwise here, which is the right default for a warning.
+    const shown = MATURITIES.filter(showsMaturityBadge);
+
+    expect(shown).toEqual(['experimental', 'beta']);
   });
 });
 

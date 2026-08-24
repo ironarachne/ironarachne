@@ -26,8 +26,13 @@ import { PREVIEW_CASES, openPinnedPreview } from './preview_fixtures';
  * captured half a pixel lower is a slightly different 385×129 PNG — enough to cross the tolerance
  * below, though nothing about the render changed. **Anything added above a preview on its route
  * therefore needs the baselines regenerated**, and a plain paragraph is enough to do it: adding the
- * maturity badge (#43) is what turned this up, and an empty `<p>` in its place moved the failure to
+ * maturity badge is what turned this up, and an empty `<p>` in its place moved the failure to
  * a different case. Which cases fail is luck; that some will is not.
+ *
+ * (Removing that badge again for release-ready tools, in #43, did *not* need a regeneration: both
+ * preview routes are `experimental` and keep theirs. The `#43` this paragraph used to cite was a
+ * pre-migration number belonging to the change that added the badge, not to the issue that number
+ * now names.)
  *
  * Regenerate with the goldens workflow on your branch, before merging, never with
  * `--update-snapshots` locally — see below.

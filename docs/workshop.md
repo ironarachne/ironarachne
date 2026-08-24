@@ -1359,13 +1359,20 @@ Beta, and **culture (#40), religion (#41), and settlement (#20), which are Relea
 not a criticism of the tools; it is the size of the gap between what exists and what the workshop
 needs, and it is better stated plainly than discovered one generator at a time.
 
-**The catalog records this (#43).** `maturity` is a required field on `ToolDefinition` and `Tool`,
+**The catalog records this.** `maturity` is a required field on `ToolDefinition` and `Tool`,
 with no default — a default would let a tool claim a level nobody assessed, which is the one thing
 the levels exist to prevent — and it is expanded into a `maturity:` tag beside `genre:` and
 `system:`, so "tools that will keep my work" is the same filtering operation as a genre. The level
 appears beside the heading on the tool's own page, with the sentence saying what it promises, and
 beside every entry in the workshop's tool browser. `GeneratorPage` takes the catalog path for that
 reason and requires it: a page cannot render a tool without stating where the tool stands.
+
+**Release-ready is recorded but not shown (#43).** Experimental and Beta each qualify what will
+happen to the user's work; Release-ready qualifies nothing, and a badge that promises everything is
+fine is a decoration rather than a warning. So it stays a classifier — the field, the tag, and
+`toolsWithMaturity` are unchanged, and every surface that would have displayed it shows nothing.
+`showsMaturityBadge` in `$lib/tools` is the single place that decides, because the badge and the
+elements callers wrap it in have to make the same call.
 
 Heraldry's Beta was assessed rather than inherited from "approaching Beta": it clears sections 1–3,
 6, and 7.1–7.2, and what holds it short of Release-ready is 4.1 — `ARTIFACT_EDITORS` gives it a

@@ -8,6 +8,10 @@ import { visitRoute } from './helpers';
  * level reaches a screen. That is the whole point of the field — a promise about durability that
  * lives only in a TypeScript type is the paragraph in a document it replaced.
  *
+ * Release-ready is the exception, and the other half of what this file pins: it is an internal
+ * classifier, so it must reach no screen at all (#43). The absence is asserted rather than assumed,
+ * because a badge that quietly comes back is exactly the regression nothing else here would catch.
+ *
  * The expected levels are written out rather than imported from `$lib/tools`, in keeping with the
  * rest of `e2e/`: a spec that read the catalog would pass whatever the catalog happened to say.
  */
@@ -17,12 +21,6 @@ const maturityBadge = (page: Page) => page.locator('.maturity__level');
 const TOOL_PAGES = [
   { path: '/planet', title: 'Planet Generator | Iron Arachne', level: 'Experimental' },
   { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne', level: 'Beta' },
-  { path: '/culture', title: 'Culture Generator | Iron Arachne', level: 'Release-ready' },
-  {
-    path: '/fantasy/settlement',
-    title: 'Settlement Generator | Iron Arachne',
-    level: 'Release-ready',
-  },
   {
     // Its own header rather than `GeneratorPage`, so it states its maturity itself and is worth
     // checking separately.
@@ -33,11 +31,29 @@ const TOOL_PAGES = [
   { path: '/workshop', title: 'Workshop | Iron Arachne', level: 'Experimental' },
 ] as const;
 
+/** The release-ready tools, which must say nothing at all. */
+const SILENT_TOOL_PAGES = [
+  { path: '/culture', title: 'Culture Generator | Iron Arachne' },
+  { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
+  { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
+] as const;
+
 for (const { path, title, level } of TOOL_PAGES) {
   test(`maturity: ${path} shows ${level}`, async ({ page }) => {
     await visitRoute(page, path, { title, webgl: path === '/planet' });
 
     await expect(maturityBadge(page).first()).toHaveText(level);
+  });
+}
+
+for (const { path, title } of SILENT_TOOL_PAGES) {
+  test(`maturity: ${path} shows no badge`, async ({ page }) => {
+    await visitRoute(page, path, { title });
+
+    await expect(maturityBadge(page)).toHaveCount(0);
+    // The paragraph that wrapped it goes too, not just its contents: an empty `<p>` keeps its
+    // margin and pushes the tool down the page for no reason a reader could see.
+    await expect(page.locator('.generator-page__maturity')).toHaveCount(0);
   });
 }
 
@@ -49,18 +65,38 @@ test('maturity: a tool page says what its level promises', async ({ page }) => {
   await expect(page.locator('.maturity__detail').first()).toContainText('may change or disappear');
 });
 
-test('maturity: the tool browser marks every tool it lists', async ({ page }) => {
+test('maturity: the home page does not advertise release-ready either', async ({ page }) => {
+  await visitRoute(page, '/');
+
+  // Culture is featured *and* release-ready, which is the one place outside the workshop the level
+  // used to reach. Planet is featured and experimental, so the list still marks what it should.
+  const featured = page.locator('.home__featured');
+  await expect(featured.getByRole('link', { name: 'Culture' })).toBeVisible();
+  await expect(featured).not.toContainText('Release-ready');
+  await expect(featured).toContainText('Experimental');
+});
+
+test('maturity: the tool browser marks every tool that has something to warn about', async ({
+  page,
+}) => {
   await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
 
   const browser = page.locator('section.tool-browser');
   const tools = browser.locator('.tool-browser__tool');
   await expect(tools.first()).toBeVisible();
 
-  const toolCount = await tools.count();
-  await expect(browser.locator('.maturity__level')).toHaveCount(toolCount);
+  // Exactly the release-ready tools are unmarked, and all three of them are mountable so all
+  // three are listed here. Counted rather than spot-checked: a tool that quietly lost its badge
+  // would otherwise pass every assertion below it.
+  const unmarked = tools.filter({ hasNot: page.locator('.maturity__level') });
+  await expect(unmarked).toHaveCount(SILENT_TOOL_PAGES.length);
 
-  await expect(browser.getByRole('button', { name: /^Culture/ })).toContainText('Release-ready');
-  await expect(browser.getByRole('button', { name: /^Settlement/ })).toContainText('Release-ready');
+  await expect(browser.getByRole('button', { name: /^Culture/ })).not.toContainText(
+    'Release-ready',
+  );
+  await expect(browser.getByRole('button', { name: /^Settlement/ })).not.toContainText(
+    'Release-ready',
+  );
   await expect(browser.getByRole('button', { name: /^Heraldry/ })).toContainText('Beta');
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');
 });
