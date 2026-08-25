@@ -509,6 +509,52 @@ describe('importExportFile: a project', () => {
   });
 });
 
+describe('importExportFile: what a project is set in', () => {
+  it('carries a genre and a system through export and back', async () => {
+    const created = await createProject({ name: 'Ashfall', genre: 'horror', system: 'dcc' });
+    if (!created.ok) {
+      expect.unreachable('the test project should be created');
+      return;
+    }
+    const built = await buildProjectExportFile(created.value.id, { now: EXPORTED_AT });
+    if (!built.ok) {
+      expect.unreachable('the project should export');
+      return;
+    }
+
+    await deleteProjectCascade(created.value.id);
+    resetProjectIndex();
+    resetArtifactIndex();
+
+    const result = await importExportFile(testKinds(), built.value.text);
+    expect(result.ok).toBe(true);
+
+    const [restored] = listProjects();
+    expect(restored.genre).toBe('horror');
+    expect(restored.system).toBe('dcc');
+    expect(restored.tags).toEqual(['genre:horror', 'system:dcc']);
+  });
+
+  it('keeps a project whose genre this build has never heard of', async () => {
+    // The file is from a later build with a fifth genre. Rejecting the record would lose the
+    // project entirely and drop its artifacts into the recovered bucket, over a field that only
+    // decides which tools get listed.
+    const file = handBuiltFile('project', {
+      project: { ...handBuiltProject, genre: 'weird-west', system: 'pf2e' },
+      artifacts: [exportedArtifact({ projectId: 'project-1' })],
+    });
+
+    const result = await importExportFile(testKinds(), file);
+    expect(result.ok).toBe(true);
+
+    const [restored] = listProjects();
+    expect(restored.name).toBe('Imported');
+    expect(restored).not.toHaveProperty('genre');
+    expect(restored).not.toHaveProperty('system');
+    expect(listArtifacts(restored.id)).toHaveLength(1);
+  });
+});
+
 describe('importExportFile: a single artifact', () => {
   it('puts an artifact into the project that is open', async () => {
     const sourceProjectId = await seedProject('Source');

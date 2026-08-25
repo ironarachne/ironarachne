@@ -234,8 +234,13 @@
 
   <div class="workshop__layout">
     <div class="workshop__rail">
+      <!-- The open project's setting narrows the list, and a tool already mounted for a genre the
+           project does not have stays on the bench: taking a tool out of a list is not a reason to
+           close someone's work (docs/workshop.md, "Genre and system"). -->
       <ToolBrowser
         tools={mountableTools}
+        genre={project?.genre}
+        system={project?.system}
         {openToolPaths}
         onToolChange={(tool) => void openTool(tool)}
       />

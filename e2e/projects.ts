@@ -40,12 +40,28 @@ export const editingCard = (page: Page) =>
     .locator('.project-card')
     .filter({ has: page.getByRole('button', { name: 'Save' }) });
 
-/** Create a project, opening it, and return to the route the caller started on. */
-export async function createProject(page: Page, name: string): Promise<void> {
+/**
+ * Create a project, opening it, and return to the route the caller started on.
+ *
+ * `setting` is what the project is set in — the values, not the labels, since that is what the
+ * select's options carry. Omitting it creates a project set in nothing, which is the ordinary case
+ * and the one every caller predating the setting wants.
+ */
+export async function createProject(
+  page: Page,
+  name: string,
+  setting: { genre?: string; system?: string } = {},
+): Promise<void> {
   const returnTo = new URL(page.url()).pathname;
 
   await page.goto('/projects/');
   await projectsPage(page).getByLabel('New project').fill(name);
+  if (setting.genre !== undefined) {
+    await projectsPage(page).getByLabel('Genre').selectOption(setting.genre);
+  }
+  if (setting.system !== undefined) {
+    await projectsPage(page).getByLabel('System').selectOption(setting.system);
+  }
   await projectsPage(page).getByRole('button', { name: 'Create project' }).click();
 
   // The card carrying the name is drawn from what the page re-read after the write committed, so

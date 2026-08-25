@@ -449,6 +449,8 @@ function stageProjectRecord(staging: Staging, project: Project, id: string): voi
     {
       name: project.name,
       ...(project.description === undefined ? {} : { description: project.description }),
+      ...(project.genre === undefined ? {} : { genre: project.genre }),
+      ...(project.system === undefined ? {} : { system: project.system }),
       tags: project.tags,
     },
     { id, now: project.updatedAt, createdAt: project.createdAt },
