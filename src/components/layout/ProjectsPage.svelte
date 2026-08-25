@@ -14,22 +14,57 @@
     setActiveProject,
     updateProject,
     type Project,
+    type ProjectDraft,
   } from '$lib/projects';
   import {
     hasSeenStorageDisclosure,
     recordStorageDisclosureShown,
     requestPersistenceIfWarranted,
   } from '$lib/storage_status';
+  import {
+    GENRES,
+    SYSTEMS,
+    genreDisplayName,
+    systemDisplayName,
+    type GameSystem,
+    type Genre,
+  } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
   import type { VaultResult } from '$lib/vault_db';
   import type { ImportSummary } from '$lib/vault_file';
   import ProjectTransferControls from '$components/common/ProjectTransferControls.svelte';
+  import SelectField from '$components/common/SelectField.svelte';
   import StorageDisclosureNotice from '$components/common/StorageDisclosureNotice.svelte';
   import StoragePanel from '$components/common/StoragePanel.svelte';
   import VaultTransferControls from '$components/common/VaultTransferControls.svelte';
 
   const uid = $props.id();
   const newNameId = `${uid}-new-name`;
+
+  /**
+   * What a project is set in, offered as the catalog's own vocabularies. The empty value is the
+   * default and means unset — a project that is a box of tools rather than a campaign — and it is
+   * also how a setting is cleared again, since neither choice is permanent (docs/workshop.md,
+   * decision 7).
+   */
+  const GENRE_OPTIONS = [
+    { value: '', label: 'Any genre' },
+    ...GENRES.map((genre) => ({ value: genre, label: genreDisplayName(genre) })),
+  ];
+  const SYSTEM_OPTIONS = [
+    { value: '', label: 'Any system' },
+    ...SYSTEMS.map((system) => ({ value: system, label: systemDisplayName(system) })),
+  ];
+
+  /** The genre and system of a project, as the card's fact line says them. Empty when it has none. */
+  function settingSummary(project: Project): string {
+    return [
+      project.genre === undefined ? undefined : genreDisplayName(project.genre),
+      project.system === undefined ? undefined : systemDisplayName(project.system),
+    ]
+      .filter((name) => name !== undefined)
+      .join(' · ');
+  }
 
   type Row = {
     project: Project;
@@ -39,11 +74,15 @@
   let rows: Row[] = $state([]);
   let activeProjectId: string | undefined = $state(undefined);
   let newName = $state('');
+  let newGenre = $state('');
+  let newSystem = $state('');
   let storageError: string | null = $state(null);
   /** The project whose name and description are being edited, if any. */
   let editingId: string | undefined = $state(undefined);
   let editName = $state('');
   let editDescription = $state('');
+  let editGenre = $state('');
+  let editSystem = $state('');
   /** The local-only disclosure, shown once ever and dismissible. See docs/storage-disclosure.md. */
   let showDisclosure = $state(false);
 
@@ -128,7 +167,17 @@
 
   async function create(): Promise<void> {
     const requested = newName.trim();
-    const created = await createProject(requested === '' ? {} : { name: requested });
+    const draft: ProjectDraft = {};
+    if (requested !== '') {
+      draft.name = requested;
+    }
+    if (newGenre !== '') {
+      draft.genre = newGenre as Genre;
+    }
+    if (newSystem !== '') {
+      draft.system = newSystem as GameSystem;
+    }
+    const created = await createProject(draft);
     report(created);
     if (created.ok) {
       // Creating a project here is an explicit request to work in it, so it is opened. The library
@@ -138,6 +187,12 @@
       // while it commits must not have it wiped from under them.
       if (newName === requested) {
         newName = '';
+      }
+      if (newGenre === (draft.genre ?? '')) {
+        newGenre = '';
+      }
+      if (newSystem === (draft.system ?? '')) {
+        newSystem = '';
       }
     }
     refresh();
@@ -155,6 +210,8 @@
     editingId = project.id;
     editName = project.name;
     editDescription = project.description ?? '';
+    editGenre = project.genre ?? '';
+    editSystem = project.system ?? '';
   }
 
   function cancelEditing(): void {
@@ -165,7 +222,16 @@
     // One call rather than a rename followed by a description write: `updateProject` takes both,
     // and two calls would bump `updatedAt` twice and reorder the list mid-edit for a single user
     // action. An empty description clears it, which is what the field's placeholder promises.
-    report(await updateProject(id, { name: editName, description: editDescription.trim() }));
+    // `null` clears rather than an empty string, which is what "Any genre" has to mean: the field
+    // is an enum and there is no empty member of one to stand in for absent.
+    report(
+      await updateProject(id, {
+        name: editName,
+        description: editDescription.trim(),
+        genre: editGenre === '' ? null : (editGenre as Genre),
+        system: editSystem === '' ? null : (editSystem as GameSystem),
+      }),
+    );
     editingId = undefined;
     refresh();
   }
@@ -229,6 +295,13 @@
         autocomplete="off"
       />
     </div>
+    <SelectField id="{uid}-new-genre" label="Genre" bind:value={newGenre} options={GENRE_OPTIONS} />
+    <SelectField
+      id="{uid}-new-system"
+      label="System"
+      bind:value={newSystem}
+      options={SYSTEM_OPTIONS}
+    />
     <button type="button" onclick={create}>Create project</button>
   </div>
 
@@ -268,6 +341,18 @@
                   placeholder="Optional"
                 />
               </div>
+              <SelectField
+                id="{uid}-genre-{row.project.id}"
+                label="Genre"
+                bind:value={editGenre}
+                options={GENRE_OPTIONS}
+              />
+              <SelectField
+                id="{uid}-system-{row.project.id}"
+                label="System"
+                bind:value={editSystem}
+                options={SYSTEM_OPTIONS}
+              />
               <div class="project-card__actions">
                 <button type="button" onclick={() => saveEdits(row.project.id)}>Save</button>
                 <button type="button" onclick={cancelEditing}>Cancel</button>
@@ -290,6 +375,9 @@
                  size. The same number in two orders on one page is how a reader ends up trusting
                  neither, so it is said once, where it can be compared. -->
             <p class="project-card__facts">
+              <!-- The setting leads, because it is what the project is rather than how much is in
+                   it, and because a user who has just changed it needs to see that it took. -->
+              {#if settingSummary(row.project) !== ''}{settingSummary(row.project)} ·{/if}
               {row.artifactCount}
               {row.artifactCount === 1 ? 'artifact' : 'artifacts'}
               · updated {getShortDate(new Date(row.project.updatedAt))}

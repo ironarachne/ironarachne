@@ -1,11 +1,11 @@
-import { domainDisplayName, hasGenre, toolSystems } from './tools';
+import { domainDisplayName, toolGenres, toolSystems } from './tools';
 import { DOMAINS } from './tool_types';
 import type * as ToolTypes from './tool_types';
 
 export type ToolSearchCriteria = {
   /** Free text matched against the tool's label. An empty or blank query matches everything. */
   query?: string;
-  /** When set, only tools carrying this genre are kept. */
+  /** When set, tools written for a different genre are dropped. */
   genre?: ToolTypes.Genre;
   /** When set, tools written for a different system are dropped. */
   system?: ToolTypes.GameSystem;
@@ -50,6 +50,23 @@ export function isCompatibleWithSystem(
 }
 
 /**
+ * Decides whether a tool belongs in a project set in the given genre.
+ *
+ * The same shape as `isCompatibleWithSystem`, and for the same reason: a tool written for another
+ * genre is excluded, and a tool carrying no genre at all is kept. That second half is what makes
+ * this usable — four tools in the catalog are genre-neutral, and a filter that dropped them would
+ * take the environment generator away from a fantasy campaign, which is the opposite of the point.
+ *
+ * A tool carrying several genres matches if any of them does: `/spooky-ship` is science fiction and
+ * horror, and belongs in both.
+ */
+export function isCompatibleWithGenre(tool: ToolTypes.Tool, genre: ToolTypes.Genre): boolean {
+  const genres = toolGenres(tool);
+
+  return genres.length === 0 || genres.includes(genre);
+}
+
+/**
  * Filters tools by name, genre, and system. Criteria that are left out do not narrow the list,
  * so an empty set of criteria returns everything.
  */
@@ -63,7 +80,7 @@ export function searchTools(
     if (query && !matchesToolQuery(tool, query)) {
       return false;
     }
-    if (genre && !hasGenre(tool, genre)) {
+    if (genre && !isCompatibleWithGenre(tool, genre)) {
       return false;
     }
     if (system && !isCompatibleWithSystem(tool, system)) {

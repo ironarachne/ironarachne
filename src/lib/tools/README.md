@@ -118,11 +118,17 @@ The name match takes each whitespace-separated term and requires it to appear so
 label, so `star char` finds "Stars Without Number Character" without the user typing the whole
 name in order.
 
-The system rule is worth stating plainly, because it is the one filter meant to be
-non-negotiable: **a tool written for a different system is excluded, and a tool with no system
-tag is kept.** System-neutral content — a culture, a region, a language — mixes nothing, because
-it has no rules of its own to clash with. Excluding it as well would leave a Stars Without Number
-table with two tools. `isCompatibleWithSystem` is that rule on its own if you need it elsewhere.
+The genre and system rules are the same rule, and worth stating plainly: **a tool written for a
+different genre or system is excluded, and a tool carrying no such tag is kept.** Setting-neutral
+content — a culture, a region, a language — mixes nothing, because it has no rules of its own to
+clash with. Excluding it as well would leave a Stars Without Number table with two tools, and a
+horror project with one. `isCompatibleWithSystem` and `isCompatibleWithGenre` are those rules on
+their own if you need them elsewhere.
+
+A tool carrying several genres matches if **any** of them does: `/spooky-ship` is `scifi` and
+`horror`, and belongs in both lists. Note that `hasGenre` is the narrower predicate — carries this
+genre, full stop — and is not what a project's tool list wants; the workshop passes the open
+project's genre and system into `searchTools`, where "no genre" means "suits any setting".
 
 `groupToolsByDomain` buckets tools under their domain in navigation order and drops empty
 domains, which is what a filtered list wants. `firstToolInBrowseOrder` returns the tool such a

@@ -3,6 +3,7 @@ import { deleteProjectCascade, writeProjectRecord, type VaultResult } from '$lib
 
 import { readActiveProjectPayload, writeActiveProjectPayload } from './active_project_state';
 import { notifyProjectsChanged } from './project_events';
+import { deriveSettingTags } from './project_setting';
 import {
   forgetProject,
   hydrateProjects,
@@ -100,6 +101,13 @@ export function toProjectRecord(
   if (description !== undefined) {
     project.description = description;
   }
+  if (draft.genre !== undefined) {
+    project.genre = draft.genre;
+  }
+  if (draft.system !== undefined) {
+    project.system = draft.system;
+  }
+  project.tags = deriveSettingTags(project.tags, project);
   return project;
 }
 
@@ -134,6 +142,8 @@ function sameProject(a: Project, b: Project): boolean {
   return (
     a.name === b.name &&
     a.description === b.description &&
+    a.genre === b.genre &&
+    a.system === b.system &&
     a.tags.length === b.tags.length &&
     a.tags.every((tag, index) => tag === b.tags[index])
   );
@@ -172,6 +182,26 @@ export async function updateProject(
       next.description = description;
     }
   }
+  // `null` clears and a value sets, per `ProjectChanges`. Both may be changed as often as the user
+  // likes: nothing keys off either field but which tools the workshop lists, so a change here
+  // invalidates no artifact and breaks no reference (docs/workshop.md, decision 7).
+  if (changes.genre !== undefined) {
+    if (changes.genre === null) {
+      delete next.genre;
+    } else {
+      next.genre = changes.genre;
+    }
+  }
+  if (changes.system !== undefined) {
+    if (changes.system === null) {
+      delete next.system;
+    } else {
+      next.system = changes.system;
+    }
+  }
+  // Last, and unconditionally: the setting tags are derived from the fields as they now stand, so a
+  // caller that rewrote `tags` wholesale cannot leave one behind contradicting them.
+  next.tags = deriveSettingTags(next.tags, next);
   if (sameProject(existing, next)) {
     return { ok: true, value: existing };
   }

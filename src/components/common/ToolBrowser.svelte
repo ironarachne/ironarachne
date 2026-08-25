@@ -15,14 +15,11 @@
     /** Panel heading. */
     title?: string;
     /**
-     * Genre of the work in progress. When set, the panel offers a checkbox to narrow the list
-     * to that genre; when unset, no checkbox is shown and genre never narrows anything.
+     * Genre of the work in progress — in the workshop, the open project's. When set, tools written
+     * for a different genre are hidden and genre-neutral tools are kept.
      */
     genre?: Genre;
-    /**
-     * System of the work in progress. Unlike genre this is not optional for the user: tools
-     * written for another system are never listed, so a session cannot mix systems.
-     */
+    /** System of the work in progress. Narrows the list the same way `genre` does. */
     system?: GameSystem;
     /** Path of the tool currently loaded. Bindable, so a parent can drive or read it. */
     activeToolPath?: string;
@@ -49,19 +46,40 @@
   // One id per component instance, so two browsers side by side do not collide on label `for`.
   const uid = $props.id();
   const filterId = `${uid}-filter`;
-  const genreFilterId = `${uid}-genre`;
+  const showAllId = `${uid}-show-all`;
 
   let query = $state('');
-  let genreOnly = $state(false);
+  /**
+   * Whether the setting filter is suspended. Per session and never persisted: looking at the rest
+   * of the catalog is not a change to the project (docs/workshop.md, decision 8). One control
+   * rather than one per filter — "show me everything" is a request users make, and "other genres
+   * but not other systems" is not.
+   */
+  let showAll = $state(false);
 
   const loadedPaths = $derived(
     new Set(openToolPaths ?? (activeToolPath === undefined ? [] : [activeToolPath])),
   );
 
-  const visibleTools = $derived(
-    searchTools(tools, { query, genre: genreOnly ? genre : undefined, system }),
-  );
+  const setting = $derived(showAll ? {} : { genre, system });
+  const visibleTools = $derived(searchTools(tools, { query, ...setting }));
   const groups = $derived(groupToolsByDomain(visibleTools));
+
+  /**
+   * How many tools the project's setting takes out of the list, counted against the whole catalog
+   * rather than against the current search — it describes the project, so it must not flicker as
+   * the user types. Zero is why the notice can be absent entirely: with nothing hidden there is
+   * nothing to explain and nothing to reveal.
+   */
+  const hiddenCount = $derived(tools.length - searchTools(tools, { genre, system }).length);
+  const settingLabel = $derived(
+    [
+      genre === undefined ? undefined : genreDisplayName(genre),
+      system === undefined ? undefined : systemDisplayName(system),
+    ]
+      .filter((name) => name !== undefined)
+      .join(' · '),
+  );
 
   function selectTool(tool: Tool) {
     // With several panels open, picking a tool that is already mounted is a request the caller
@@ -90,19 +108,28 @@
         autocomplete="off"
       />
     </div>
-
-    {#if genre}
-      <div class="input-group tool-browser__genre">
-        <input id={genreFilterId} type="checkbox" bind:checked={genreOnly} />
-        <label for={genreFilterId}>{genreDisplayName(genre)} only</label>
-      </div>
-    {/if}
   </div>
 
-  {#if system}
-    <p class="tool-browser__system">
-      {systemDisplayName(system)} — tools for other systems are hidden.
-    </p>
+  <!-- Only when the setting actually costs the user something to see. The count is the honest part:
+       a genre hides most of the catalog, so a panel that quietly showed five tools of thirty-five
+       would look broken rather than filtered. The checkbox is the way back, because hiding here is
+       a default and not a rule — nothing about generating a cyberpunk name in a fantasy campaign is
+       unsafe. -->
+  {#if hiddenCount > 0}
+    <div class="tool-browser__setting">
+      <p class="tool-browser__setting-note">
+        {#if showAll}
+          Showing every tool, including the {hiddenCount} for other settings.
+        {:else}
+          {settingLabel} — {hiddenCount}
+          {hiddenCount === 1 ? 'tool' : 'tools'} for other settings hidden.
+        {/if}
+      </p>
+      <div class="input-group tool-browser__show-all">
+        <input id={showAllId} type="checkbox" bind:checked={showAll} />
+        <label for={showAllId}>Show all tools</label>
+      </div>
+    </div>
   {/if}
 
   <div class="tool-browser__list">
@@ -196,11 +223,26 @@
     flex: 1 1 8rem;
   }
 
-  .tool-browser__system {
+  .tool-browser__setting {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem 0.75rem;
+    align-items: baseline;
+  }
+
+  .tool-browser__setting-note {
     margin: 0;
     font-size: 0.85rem;
     font-style: italic;
     color: var(--gold);
+  }
+
+  .tool-browser__show-all {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin: 0;
+    font-size: 0.85rem;
   }
 
   .tool-browser__list {

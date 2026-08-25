@@ -1,5 +1,7 @@
+import { isGameSystem, isGenre } from '$lib/tools';
 import { readAllProjectRecords, type VaultResult } from '$lib/vault_db';
 
+import { deriveSettingTags } from './project_setting';
 import type { Project } from './project_types';
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -24,6 +26,12 @@ function isFiniteNumber(value: unknown): value is number {
  * one with a non-numeric `updatedAt` cannot be ordered against the rest. Once the import machinery
  * lands (#35) this is where a rejected record gets quarantined instead of dropped, and it is the
  * single place that has to change to do it.
+ *
+ * `genre` and `system` are the exception, and deliberately: an unrecognised value **drops the field
+ * and keeps the project**. Rejecting the record would mean a vault written by a build that knows a
+ * fifth genre loses the whole project here — its name, description, tags and id — and spills its
+ * artifacts into the recovered-artifacts bucket, which is a far worse answer than a project that
+ * lists every tool.
  */
 export function toProject(value: unknown): Project | undefined {
   const record = asRecord(value);
@@ -56,6 +64,15 @@ export function toProject(value: unknown): Project | undefined {
   if (record.description !== undefined) {
     project.description = record.description;
   }
+  if (isGenre(record.genre)) {
+    project.genre = record.genre;
+  }
+  if (isGameSystem(record.system)) {
+    project.system = record.system;
+  }
+  // Derived on the way in as well as on the way out: a file may carry a `genre:` tag that disagrees
+  // with the field, or one this build could not read, and neither may survive the read.
+  project.tags = deriveSettingTags(project.tags, project);
   return project;
 }
 

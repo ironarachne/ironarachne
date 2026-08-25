@@ -73,6 +73,22 @@ export function toolSystems(tool: ToolTypes.Tool): ToolTypes.GameSystem[] {
   return tagValuesWithPrefix(tool.tags, SYSTEM_TAG_PREFIX) as ToolTypes.GameSystem[];
 }
 
+/**
+ * Whether a value is one of the genres this build knows.
+ *
+ * Exported because the vocabulary is the catalog's and nothing else may keep a second copy of it —
+ * `$lib/projects` asks this of a value read from storage or from an export file, where a genre from
+ * a future build is an ordinary thing to meet rather than an error.
+ */
+export function isGenre(value: unknown): value is ToolTypes.Genre {
+  return typeof value === 'string' && (GENRES as readonly string[]).includes(value);
+}
+
+/** Whether a value is one of the game systems this build knows. See `isGenre`. */
+export function isGameSystem(value: unknown): value is ToolTypes.GameSystem {
+  return typeof value === 'string' && (SYSTEMS as readonly string[]).includes(value);
+}
+
 export function hasGenre(tool: ToolTypes.Tool, genre: ToolTypes.Genre): boolean {
   return tool.tags.includes(genreTag(genre));
 }

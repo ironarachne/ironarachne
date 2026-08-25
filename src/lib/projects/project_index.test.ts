@@ -64,6 +64,34 @@ describe('toProject', () => {
   it('keeps only the fields a project has, so a stray one cannot ride along', () => {
     expect(toProject({ ...aProject(), lastExportAt: 5000 })).toEqual(aProject());
   });
+
+  it('reads a genre and a system it knows, and derives their tags', () => {
+    const read = toProject({ ...aProject({ tags: ['homebrew'] }), genre: 'horror', system: 'dcc' });
+
+    expect(read?.genre).toBe('horror');
+    expect(read?.system).toBe('dcc');
+    expect(read?.tags).toEqual(['homebrew', 'genre:horror', 'system:dcc']);
+  });
+
+  it.each<[string, unknown, string]>([
+    ['a genre from a later build', { genre: 'weird-west' }, 'genre'],
+    ['a system from a later build', { system: 'pf2e' }, 'system'],
+    ['a genre that is not a string', { genre: 7 }, 'genre'],
+  ])('drops %s and keeps the project', (_label, extra, field) => {
+    // The alternative — rejecting the record — loses the project's name, description, tags and id,
+    // and spills its artifacts into the recovered bucket, all over a field that only decides which
+    // tools get listed.
+    const read = toProject({ ...aProject(), ...(extra as object) });
+
+    expect(read).toEqual(aProject());
+    expect(read).not.toHaveProperty(field);
+  });
+
+  it('rebuilds a setting tag that disagrees with the field it came from', () => {
+    const read = toProject({ ...aProject({ tags: ['genre:scifi'] }), genre: 'fantasy' });
+
+    expect(read?.tags).toEqual(['genre:fantasy']);
+  });
 });
 
 describe('hydrateProjects', () => {

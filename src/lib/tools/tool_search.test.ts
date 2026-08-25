@@ -2,6 +2,7 @@ import { expect, describe, it } from 'vitest';
 import {
   firstToolInBrowseOrder,
   groupToolsByDomain,
+  isCompatibleWithGenre,
   isCompatibleWithSystem,
   matchesToolQuery,
   searchTools,
@@ -46,6 +47,18 @@ const environment = defineTool({
   maturity: 'experimental',
 });
 
+/** Two genres at once, as `/spooky-ship` really is in the catalog. Not in `tools`: it is here to
+ * prove that any genre matching is enough, and adding a fifth entry would restate every list
+ * expectation below for a case none of them is about. */
+const spookyShip = defineTool({
+  path: '/spooky-ship',
+  label: 'Spooky Ship',
+  kind: 'generator',
+  domain: 'locations',
+  maturity: 'experimental',
+  genres: ['scifi', 'horror'],
+});
+
 const tools: Tool[] = [swnCharacter, adndCharacter, culture, environment];
 
 const paths = (found: Tool[]) => found.map((tool) => tool.path);
@@ -85,6 +98,27 @@ describe('isCompatibleWithSystem', () => {
   });
 });
 
+describe('isCompatibleWithGenre', () => {
+  it('keeps a tool written for that genre', () => {
+    expect(isCompatibleWithGenre(culture, 'fantasy')).toBe(true);
+  });
+
+  it('drops a tool written for a different genre', () => {
+    expect(isCompatibleWithGenre(culture, 'scifi')).toBe(false);
+  });
+
+  it('keeps a tool carrying several genres when any of them matches', () => {
+    expect(isCompatibleWithGenre(spookyShip, 'scifi')).toBe(true);
+    expect(isCompatibleWithGenre(spookyShip, 'horror')).toBe(true);
+    expect(isCompatibleWithGenre(spookyShip, 'fantasy')).toBe(false);
+  });
+
+  it('keeps a genre-neutral tool, which suits any setting', () => {
+    expect(isCompatibleWithGenre(environment, 'fantasy')).toBe(true);
+    expect(isCompatibleWithGenre(environment, 'horror')).toBe(true);
+  });
+});
+
 describe('searchTools', () => {
   it('returns everything when no criteria are given', () => {
     expect(searchTools(tools, {})).toEqual(tools);
@@ -97,15 +131,18 @@ describe('searchTools', () => {
     ]);
   });
 
-  it('filters by genre', () => {
+  it('filters by genre, keeping genre-neutral tools', () => {
     expect(paths(searchTools(tools, { genre: 'fantasy' }))).toEqual([
       '/fantasy/adnd/character',
       '/culture',
+      '/environment',
     ]);
   });
 
-  it('excludes tools with no genre when a genre is required', () => {
-    expect(paths(searchTools(tools, { genre: 'scifi' }))).toEqual(['/swn/character']);
+  it('never returns a tool from another genre', () => {
+    const found = searchTools(tools, { genre: 'scifi' });
+
+    expect(paths(found)).toEqual(['/swn/character', '/environment']);
   });
 
   it('filters by system, keeping system-neutral tools', () => {

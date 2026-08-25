@@ -1163,6 +1163,104 @@ test.describe('workshop projects', () => {
 });
 
 /**
+ * The Tools panel narrowed by what the open project is set in (#44, #78).
+ *
+ * Only a browser settles this: the filter is a library function with its own unit tests, but that
+ * the workshop passes the *open project's* setting into it — and that a user can get past it — is a
+ * wiring question, and wiring is what was dark for as long as the props existed with nothing
+ * passing them.
+ */
+test.describe('the tools panel and what a project is set in', () => {
+  test.beforeEach(async ({ page }) => {
+    await openEmptyWorkshop(page);
+  });
+
+  test('lists every tool for a project set in nothing', async ({ page }) => {
+    await createProject(page, 'A box of tools');
+
+    await expect(
+      toolBrowser(page).getByRole('button', { name: /^Cyberpunk Chop Shop/ }),
+    ).toBeVisible();
+    await expect(toolBrowser(page).getByText('for other settings hidden')).toHaveCount(0);
+    await expect(toolBrowser(page).getByLabel('Show all tools')).toHaveCount(0);
+  });
+
+  test('hides tools for another genre and keeps the genre-neutral ones', async ({ page }) => {
+    await createProject(page, 'Ashfall', { genre: 'fantasy' });
+
+    await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).toBeVisible();
+    // The load-bearing half of the rule: only four tools carry no genre, so a filter that dropped
+    // them would take the environment generator away from a fantasy campaign.
+    await expect(toolBrowser(page).getByRole('button', { name: /^Environment/ })).toBeVisible();
+    await expect(
+      toolBrowser(page).getByRole('button', { name: /^Cyberpunk Chop Shop/ }),
+    ).toHaveCount(0);
+
+    // Hiding most of the catalog without saying so looks like a broken page rather than a filter.
+    await expect(toolBrowser(page).getByText('Fantasy —')).toBeVisible();
+    await expect(toolBrowser(page).getByText('for other settings hidden')).toBeVisible();
+  });
+
+  test('hides tools written for another system', async ({ page }) => {
+    await createProject(page, 'Ashfall', { system: 'swn' });
+
+    await expect(
+      toolBrowser(page).getByRole('button', { name: /^Stars Without Number Character/ }),
+    ).toBeVisible();
+    await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).toBeVisible();
+    await expect(
+      toolBrowser(page).getByRole('button', { name: /^Dungeon Crawl Classics/ }),
+    ).toHaveCount(0);
+  });
+
+  test('shows everything again when asked, without changing the project', async ({ page }) => {
+    await createProject(page, 'Ashfall', { genre: 'fantasy' });
+
+    await toolBrowser(page).getByLabel('Show all tools').check();
+    await expect(
+      toolBrowser(page).getByRole('button', { name: /^Cyberpunk Chop Shop/ }),
+    ).toBeVisible();
+    await expect(toolBrowser(page).getByText('Showing every tool')).toBeVisible();
+
+    // Looking at the rest of the catalog is not a change to the project, so it is not remembered:
+    // the filter is back after a reload, and the project still says what it is set in.
+    await page.reload({ waitUntil: 'load' });
+    await expect(
+      toolBrowser(page).getByRole('button', { name: /^Cyberpunk Chop Shop/ }),
+    ).toHaveCount(0);
+    await onProjectsPage(page, async () => {
+      await expect(page.locator('.project-card', { hasText: 'Ashfall' })).toContainText('Fantasy');
+    });
+  });
+
+  test('leaves a mounted tool on the bench when the setting hides it', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await mountTool(page, /^Cyberpunk Chop Shop/);
+    await expect(panels(page)).toHaveCount(1);
+    // The bench write is deliberately not awaited, so wait for the record rather than the click:
+    // leaving for the projects page before it lands would test a lost bench instead of a kept one.
+    await expect
+      .poll(async () => (await storedPanels(page)).map((panel) => panel.toolPath))
+      .toEqual(['/chop-shop']);
+
+    await onProjectsPage(page, async () => {
+      const card = page.locator('.project-card', { hasText: 'Ashfall' });
+      await card.getByRole('button', { name: 'Rename' }).click();
+      await page.locator('.project-card').getByLabel('Genre').selectOption('fantasy');
+      await page.locator('.project-card').getByRole('button', { name: 'Save' }).click();
+      await expect(card).toContainText('Fantasy');
+    });
+
+    // Taking a tool out of a list is not a reason to close someone's work.
+    await expect(panels(page)).toHaveCount(1);
+    await expect(panelTitles(page)).toHaveText([/Cyberpunk Chop Shop/]);
+    await expect(
+      toolBrowser(page).getByRole('button', { name: /^Cyberpunk Chop Shop/ }),
+    ).toHaveCount(0);
+  });
+});
+
+/**
  * Export and import (#35), end to end.
  *
  * The unit tests settle the format against real generator output. What only a browser can settle is

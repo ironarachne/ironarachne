@@ -1,4 +1,5 @@
 import type { TaggedItem } from '$lib/tags';
+import type { GameSystem, Genre } from '$lib/tools';
 
 /**
  * The top-level container in the workshop: one campaign, one setting, one world. Deliberately
@@ -12,6 +13,17 @@ export interface Project extends TaggedItem {
   name: string;
   /** Optional, and absent rather than empty when the user has not written one. */
   description?: string;
+  /**
+   * What the project is set in, and what it is played with. Both optional — a project that is a
+   * box of tools is neither — and both changeable, per decision 7 in docs/workshop.md.
+   *
+   * They narrow the workshop's tool list and nothing else: no artifact records the genre of the
+   * project it was saved into, so changing one invalidates nothing. `Genre` and `GameSystem` are
+   * the tool catalog's own vocabularies rather than a second pair, which is why this library knows
+   * about `$lib/tools` and `$lib/tools` must never learn about this one.
+   */
+  genre?: Genre;
+  system?: GameSystem;
   /** Epoch milliseconds, per decision 2 in docs/workshop.md. */
   createdAt: number;
   /** Epoch milliseconds, per decision 2 in docs/workshop.md. */
@@ -22,6 +34,8 @@ export interface Project extends TaggedItem {
 export type ProjectDraft = {
   name?: string;
   description?: string;
+  genre?: Genre;
+  system?: GameSystem;
   tags?: string[];
 };
 
@@ -32,6 +46,13 @@ export type ProjectDraft = {
 export type ProjectChanges = {
   name?: string;
   description?: string;
+  /**
+   * `null` clears, a value sets, and omitting leaves alone. The convention the fields above use —
+   * an empty string clears — has no honest analogue for an enum, and `'' as Genre` would be a lie
+   * told to the type system to save a keystroke.
+   */
+  genre?: Genre | null;
+  system?: GameSystem | null;
   tags?: string[];
 };
 

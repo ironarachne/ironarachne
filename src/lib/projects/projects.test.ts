@@ -342,6 +342,65 @@ describe('updateProject', () => {
   });
 });
 
+describe("a project's genre and system", () => {
+  it('stores what a draft asked for, and derives the tags from it', async () => {
+    const created = await make(
+      { name: 'Ashfall', genre: 'fantasy', system: 'adnd-2e', tags: ['homebrew'] },
+      { id: 'p1', now: 1000 },
+    );
+    expect(created.genre).toBe('fantasy');
+    expect(created.system).toBe('adnd-2e');
+    expect(created.tags).toEqual(['homebrew', 'genre:fantasy', 'system:adnd-2e']);
+  });
+
+  it('leaves both unset when the draft says nothing, and derives no tags', async () => {
+    const created = await make({ name: 'A box of tools' }, { id: 'p1', now: 1000 });
+    expect(created).not.toHaveProperty('genre');
+    expect(created).not.toHaveProperty('system');
+    expect(created.tags).toEqual([]);
+  });
+
+  it('changes both, because neither is permanent', async () => {
+    await make({ name: 'Ashfall', genre: 'fantasy' }, { id: 'p1', now: 1000 });
+    const updated = stored(
+      await updateProject('p1', { genre: 'cyberpunk', system: 'swn' }, { now: 2000 }),
+    );
+    expect(updated.genre).toBe('cyberpunk');
+    expect(updated.system).toBe('swn');
+    expect(updated.tags).toEqual(['genre:cyberpunk', 'system:swn']);
+    expect(updated.updatedAt).toBe(2000);
+  });
+
+  it('clears one when passed null, and leaves an unnamed one alone', async () => {
+    await make({ name: 'Ashfall', genre: 'fantasy', system: 'adnd-2e' }, { id: 'p1', now: 1000 });
+    const cleared = stored(await updateProject('p1', { genre: null }, { now: 2000 }));
+    expect(cleared).not.toHaveProperty('genre');
+    expect(cleared.system).toBe('adnd-2e');
+    expect(cleared.tags).toEqual(['system:adnd-2e']);
+  });
+
+  it('does not touch updatedAt when the setting is written back unchanged', async () => {
+    await make({ name: 'Ashfall', genre: 'fantasy' }, { id: 'p1', now: 1000 });
+    const updated = stored(await updateProject('p1', { genre: 'fantasy' }, { now: 2000 }));
+    expect(updated.updatedAt).toBe(1000);
+  });
+
+  it('refuses a setting tag written through tags, because the field owns it', async () => {
+    await make({ name: 'Ashfall', genre: 'fantasy' }, { id: 'p1', now: 1000 });
+    // A wholesale tag rewrite is what `ProjectChanges.tags` is, so this is the accident the
+    // derivation exists to make impossible rather than a caller doing something exotic.
+    const updated = stored(
+      await updateProject(
+        'p1',
+        { tags: ['genre:horror', 'system:dcc', 'homebrew'] },
+        { now: 2000 },
+      ),
+    );
+    expect(updated.genre).toBe('fantasy');
+    expect(updated.tags).toEqual(['homebrew', 'genre:fantasy']);
+  });
+});
+
 describe('deleteProject', () => {
   it('removes the project and reports the deletion', async () => {
     await make({ name: 'One' }, { id: 'p1' });

@@ -117,6 +117,39 @@ test.describe('the projects page', () => {
     await expect(projectCard(page, 'Ashfall')).not.toContainText('0 B');
   });
 
+  test('sets what a project is set in, and changes it again', async ({ page }) => {
+    await projectsPage(page).getByLabel('New project').fill('Ashfall');
+    await projectsPage(page).getByLabel('Genre').selectOption('fantasy');
+    await projectsPage(page).getByLabel('System').selectOption('adnd-2e');
+    await projectsPage(page).getByRole('button', { name: 'Create project' }).click();
+
+    const card = projectCard(page, 'Ashfall');
+    await expect(card).toContainText('Fantasy · AD&D 2E');
+
+    // Neither choice is permanent: nothing keys off them but which tools the workshop lists, so
+    // the remedy for picking wrong is a select rather than a second project.
+    await card.getByRole('button', { name: 'Rename' }).click();
+    await editingCard(page).getByLabel('Genre').selectOption('cyberpunk');
+    await editingCard(page).getByLabel('System').selectOption('');
+    await editingCard(page).getByRole('button', { name: 'Save' }).click();
+
+    await expect(projectCard(page, 'Ashfall')).toContainText('Cyberpunk · 0 artifacts');
+    await expect(projectCard(page, 'Ashfall')).not.toContainText('AD&D 2E');
+
+    // In the database rather than merely on screen.
+    await page.reload({ waitUntil: 'load' });
+    await expect(projectCard(page, 'Ashfall')).toContainText('Cyberpunk');
+  });
+
+  test('leaves a project set in nothing when nothing is chosen', async ({ page }) => {
+    await create(page, 'A box of tools');
+
+    // "Any genre" is the default and it means unset, not a genre called any: a generic toolbox
+    // project is a legitimate thing to want.
+    await expect(projectCard(page, 'A box of tools')).toContainText('0 artifacts · updated');
+    await expect(projectCard(page, 'A box of tools')).not.toContainText('Any genre');
+  });
+
   test('offers both backup granularities with no project open', async ({ page }) => {
     // The whole point of backup living here: a user restoring into a fresh browser has no project,
     // and a control that needed one would be missing in exactly the case it exists for.
