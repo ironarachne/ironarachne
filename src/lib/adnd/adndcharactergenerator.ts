@@ -18,7 +18,25 @@ import {
   selectWeaponProficiencyGroups,
 } from './adnd_proficiency_selection.js';
 
-export function generateCharacter(config: ADNDCharacterGeneratorConfig): ADNDCharacter {
+/**
+ * How many times a roll may start over when the dice produce a character no class will take.
+ *
+ * There is no cleverer recovery available. Straight 3d6 down the line can produce 6/5/15/5/8/5,
+ * which meets no class's minimums under any race, so relaxing the race would not help — the only
+ * answer, and the one the PHB itself gives, is to roll again. Each attempt fails about 1.3% of
+ * the time, so twenty of them fail together about once in 10^38 rolls.
+ */
+const MAX_ROLL_ATTEMPTS = 20;
+
+/**
+ * One attempt at rolling a character up to the point a class is chosen, or `null` when the dice
+ * qualified for none.
+ *
+ * Split out so the retry can restart cleanly. It draws in exactly the order the generator always
+ * has, which is what keeps every seed that already worked producing the character it always did:
+ * a seed only reaches a second attempt if the first one used to crash.
+ */
+function attemptCharacterUpToClass(config: ADNDCharacterGeneratorConfig): ADNDCharacter | null {
   let character = createAdndCharacter();
 
   character.charisma = Dice.roll('3d6', config.rng);
@@ -28,14 +46,34 @@ export function generateCharacter(config: ADNDCharacterGeneratorConfig): ADNDCha
   character.strength = Dice.roll('3d6', config.rng);
   character.wisdom = Dice.roll('3d6', config.rng);
 
-  character.race = config.rng.item(getRaceOptions(character, config.allowedRaces));
+  const raceOptions = getRaceOptions(character, config.allowedRaces);
+  if (raceOptions.length === 0) {
+    return null;
+  }
+  character.race = config.rng.item(raceOptions);
   // `apply` is a domain method on ADNDRace, not Function.prototype.apply.
   // eslint-disable-next-line prefer-spread
   character = character.race.apply(character, config.rng);
 
-  character.class = config.rng.item(
-    getClassOptionsForRace(character, character.race, config.allowedClasses),
-  );
+  const classOptions = getClassOptionsForRace(character, character.race, config.allowedClasses);
+  if (classOptions.length === 0) {
+    return null;
+  }
+  character.class = config.rng.item(classOptions);
+  return character;
+}
+
+export function generateCharacter(config: ADNDCharacterGeneratorConfig): ADNDCharacter {
+  let character: ADNDCharacter | null = null;
+  for (let attempt = 0; attempt < MAX_ROLL_ATTEMPTS && character === null; attempt += 1) {
+    character = attemptCharacterUpToClass(config);
+  }
+  if (character === null) {
+    throw new Error(
+      `could not roll an AD&D character that qualifies for any class in ${MAX_ROLL_ATTEMPTS} attempts`,
+    );
+  }
+
   // `apply` is a domain method on ADNDClass, not Function.prototype.apply.
   // eslint-disable-next-line prefer-spread
   character = character.class.apply(character, config.rng);
