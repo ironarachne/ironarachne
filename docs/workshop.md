@@ -15,7 +15,7 @@ down in [The plan](#the-plan) and tracked on GitHub under the `workshop` label; 
 what is not is in [What exists today](#what-exists-today).
 
 The [domain model](#domain-model) is settled, and the work in [The plan](#the-plan) is built
-against it. The eight questions it forced are recorded in
+against it. The nine questions it forced are recorded in
 [Decisions taken here](#decisions-taken-here); three of them close open questions this document had
 been carrying.
 
@@ -270,6 +270,12 @@ The three tool kinds have genuinely different obligations in the workshop:
 
 Today most generators are _only_ generators; making them editors of their own output is the
 single largest piece of work the workshop implies.
+
+The catalog holds instruments, and only instruments. The workshop itself is not one — it is the
+bench the instruments are clamped into — and neither are Projects, the Result Vault, or the release
+notes. Those are **surfaces**: the places a user works, reached from the sidebar rather than from
+the tool browser, carrying no `kind` and no maturity because neither question is asked of them. See
+[decision 9](#9-the-workshop-is-a-surface-not-a-tool).
 
 ## How the workshop works
 
@@ -1069,6 +1075,11 @@ classDiagram
         editor
         reference
     }
+    class Surface {
+        +string id
+        +string label
+        +RouteId path
+    }
     class MaturityLevel {
         <<enumeration>>
         experimental
@@ -1082,6 +1093,7 @@ classDiagram
     Tool "1" --> "0..1" ArtifactKindEntry : produces
     Tool --> ToolKind
     Tool --> MaturityLevel
+    Surface "0..1" ..> "*" Tool : mounts in panels
     ArtifactKindEntry ..> Artifact : governs payload of
 ```
 
@@ -1109,6 +1121,14 @@ classDiagram
   throwing" of readiness requirement 3.3, given a type.
 - **`Tool` is the existing catalog type** (`src/lib/tools/tool_types.ts`) plus `maturity`, which
   #43 added. All of it is built.
+- **`Surface` is what the catalog does not hold.** It is `NavDestination`
+  (`src/lib/navigation/nav_types.ts`), named here for what it is in this document: a place the user
+  works, rather than an instrument they work with. The workshop is the surface that mounts tools;
+  Projects and the Result Vault mount none, which is why the association is `0..1` and why it is a
+  dependency rather than composition — a bench holds a tool for as long as it is clamped there and
+  owns nothing about it. **No arrow runs from `Surface` to `ToolKind` or `MaturityLevel`, and that
+  absence is the point**: neither question is asked of a surface. See
+  [decision 9](#9-the-workshop-is-a-surface-not-a-tool).
 - **`0..1` on _produces_ is the reference tools.** A reference tool defines no kind and saves
   nothing; the cardinality is what keeps section 3 of the readiness spec from applying to it.
 - **`get(kind)` returns optional, and that is load-bearing.** An unknown kind is the normal case
@@ -1251,10 +1271,11 @@ two places for the same thing.
 
 ### Decisions taken here
 
-Eight questions the prose left open. The first four modelling forced; the next two are the storage
-substrate and the quota policy built on it, settled when #45 was refined; the last two are what a
-project is set in, settled when #44 and #78 were designed together. They are recorded with
-the reasoning, because a model that defers its hard parts is not a model.
+Nine questions the prose left open. The first four modelling forced; the next two are the storage
+substrate and the quota policy built on it, settled when #45 was refined; the next two are what a
+project is set in, settled when #44 and #78 were designed together; the ninth is what the catalog is
+a catalog of, settled when #73 was designed. They are recorded with the reasoning, because a model
+that defers its hard parts is not a model.
 
 #### 1. References carry a required `role`
 
@@ -1410,6 +1431,63 @@ Keeping it to one checkbox rather than one per filter is the same judgement in m
 lives in a narrow rail; "show me everything" is a request users actually make, and "show me other
 genres but keep hiding other systems" is not.
 
+#### 9. The workshop is a surface, not a tool
+
+The workshop had a catalog entry reading `kind: 'editor'`, `maturity: 'experimental'`, and both
+values were wrong in the same way. An editor modifies content the user supplies; the workshop
+modifies nothing. It is a container — a bench that mounts one instrument and holds artifacts open
+beside it — and the reason no `kind` fits is that the catalog is a catalog of instruments, not of
+places to stand.
+
+So the entry goes, rather than acquiring a better `kind`. The workshop joins Projects, the Result
+Vault, and the release notes as a **surface**: listed in `NAV_DESTINATIONS` and nowhere else. Those
+three are surfaces by exactly this argument and have never had catalog entries, which makes the
+workshop's entry the anomaly rather than the precedent — and `e2e/page_manifest.ts` had already
+reached the conclusion in a comment, classifying `/workshop` as `static` rather than `tool` because
+"the workshop mounts tools, it is not one".
+
+That answers the maturity question along with it. The ladder measures what becomes of the work a
+tool produces, and a bench produces no work of its own, so there is nothing for a level to promise.
+`experimental` was borrowed for the honest-sounding half of its meaning — the workshop is still
+being built and may change under the user — but the sentence a user actually reads beside the badge
+is "This tool may change or disappear, and its output may not be savable", and the second clause is
+false of the one surface on the site whose entire job is saving. `WorkshopPage` already carried a
+comment admitting exactly that. A badge that has to be explained away is worse than no badge.
+
+The competing answer was a fourth `ToolKind` — `surface`, `workspace`, `container` — with the
+readiness spec growing an **S** column and `MATURITIES` growing a value meaning "not measured on
+this scale". It fails on arithmetic: the category would have one member inside the catalog and two
+obvious non-members outside it, since Projects and the Result Vault qualify identically and nobody
+wants them in the tool browser. A classification that cannot say why its members are in and its
+non-members are out is a label rather than a classification. A maturity meaning "ignore this" fails
+for the reason #43 already established when it stopped showing Release-ready: a level that qualifies
+nothing is a decoration, and decorations are what stop the two levels that carry a warning from
+being read.
+
+The discoverability argument the entry carried — "a surface nothing can find is a surface nobody
+uses" — does not survive contact with what the entry does. `WorkshopPage` builds its browser from
+the tools it can mount, so the workshop's own row has never been visible to anyone; the sidebar
+lists the workshop on every page of the site, which is stronger placement than a row in a browser
+that only opens inside the workshop. Nothing becomes harder to find.
+
+What removal takes with it is the machinery the anomaly required. `PATHS_WITHOUT_TOOL_PANELS`
+exists solely to hold `/workshop`; with it empty, the parity test stops saying "every tool has a
+panel unless it is on this list" and starts saying "every tool has a panel". The exemption was
+there to tell "no panel" apart from "we forgot the panel", and a rule with no exceptions tells them
+apart better. The top bar's tool count goes from 35 to 34 and starts counting instruments.
+`toolMaturityForPath('/workshop')`, the badge it feeds, and the row in `e2e/tool_maturity.spec.ts`
+asserting the false sentence all go with it.
+
+None of that relaxes an obligation. Sections 6, 7 and 8 bind on the workshop because they bind on
+any page a user reaches: the bench and its panels must lay out on a phone (6.1) and be operable
+from the keyboard, opening, closing and reordering panels included (6.2); `src/lib/workshop` keeps
+its `README.md` and its `index.ts` and the rest of section 8; and the bench earns an end-to-end
+test of its own — open a project, mount a tool, save what it makes, reopen the project, find the
+bench as it was left — which is 7.4 rewritten for a surface that composes artifacts instead of
+producing one. Genuinely inapplicable are section 1 (an entry it should not have), 2.2 through 2.4
+(there is no seed), and sections 3, 4 and 5 (there is no artifact of its own). That list, rather
+than a level, is what "finished" means for the workshop, and #73 is done when it holds.
+
 ## What exists today
 
 Worth being precise about what is already built, since more of the substrate exists than the
@@ -1417,9 +1495,9 @@ absence of a workshop suggests.
 
 | Piece                      | State                                                                                                                                                                                                                                                                                                                                                                         |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools, genre/system/maturity tags, search and grouping. Maturity (#43) is required on every entry and shown to the user.                                                                                                                                                                                                                       |
+| Tool catalog with metadata | **Built.** `src/lib/tools`, 35 tools — 34 once #73 removes the workshop's own entry ([decision 9](#9-the-workshop-is-a-surface-not-a-tool)) — genre/system/maturity tags, search and grouping. Maturity (#43) is required on every entry and shown to the user.                                                                                                               |
 | Panel registry             | **Built.** `src/lib/workshop/tool_panels.ts`, lazy loaders, parity-tested against the catalog.                                                                                                                                                                                                                                                                                |
-| Workshop shell             | **Built (#36).** `/workshop`, linked from navigation and in the tool catalog: project context, a bench of panels, and the project view.                                                                                                                                                                                                                                       |
+| Workshop shell             | **Built (#36).** `/workshop`, linked from navigation: project context, a bench of panels, and the project view. It also holds a tool catalog entry until #73 removes it ([decision 9](#9-the-workshop-is-a-surface-not-a-tool)).                                                                                                                                              |
 | Snapshot pattern           | **Built for four kinds.** Heraldry, culture, religion, settlement — the last built against the contract from scratch rather than retrofitted.                                                                                                                                                                                                                                 |
 | Scoped storage             | **Built, wrong scope.** `src/lib/persistent_save` is per-generator rather than per-project, and still on `localStorage`, which is now where the small pointers live and nothing else.                                                                                                                                                                                         |
 | Saved data page            | **Removed (#44).** `/saved-data` redirects to the workshop. The legacy storage scopes it browsed are untouched and still read; the page, its catalog, its per-kind downloads, and its deep-link builders are gone.                                                                                                                                                            |
@@ -1446,6 +1524,12 @@ correct, durable, and usable both in a panel and on its own. Until then it may s
 
 Requirements use MUST and SHOULD in the usual sense. Applicability depends on tool kind, given in
 the _Applies to_ column: **G** generator, **E** editor, **R** reference.
+
+This spec measures **tools**. A [surface](#tool) — the workshop, Projects, the Result Vault — is not
+in the catalog and carries no maturity, so sections 1 through 5 have nothing to say about it.
+Sections 6, 7 and 8 bind on it regardless: they are requirements about a page a user reaches and a
+library that backs it, and a surface is both. See
+[decision 9](#9-the-workshop-is-a-surface-not-a-tool).
 
 ### 1. Discoverability
 
@@ -1563,6 +1647,13 @@ elements callers wrap it in have to make the same call.
 Heraldry's Beta was assessed rather than inherited from "approaching Beta": it clears sections 1–3,
 6, and 7.1–7.2, and what holds it short of Release-ready is 4.1 — `ARTIFACT_EDITORS` gives it a
 viewer and no editor, so a saved coat of arms can be seen and downloaded but not changed.
+
+**The workshop has no level, and that is not an omission (#73).** Every level in the table above is
+a promise about what becomes of the work a tool produces, and the bench produces none: it is where
+the saving happens rather than a thing that might fail to save. It is not on this scale because it
+is not a tool — [decision 9](#9-the-workshop-is-a-surface-not-a-tool) takes it out of the catalog
+rather than inventing a fourth level meaning "not measured", which is a level a user would have to
+learn in order to ignore.
 
 ## The plan
 
@@ -1777,6 +1868,11 @@ document is entitled to reopen.
   Recorded in [decision 2](#2-stored-work-uses-epoch-milliseconds-the-file-header-uses-iso-8601).
 - **Scope of the first release.** The shell, projects, the artifact store, and culture, religion,
   and settlement taken to Release-ready. Recorded in [The plan](#the-plan).
+- **Whether the maturity ladder applies to the workshop itself.** It does not: the ladder promises
+  what becomes of the work a tool produces, and the bench produces none. The entry that raised the
+  question leaves the catalog rather than acquiring a `kind` and a level that would both mean "not
+  measured". Recorded in [decision 9](#9-the-workshop-is-a-surface-not-a-tool) and beside
+  [Maturity levels](#maturity-levels); tracked in #73.
 - **What a project is set in.** An optional genre and an optional game system, both changeable,
   narrowing the Tools panel with one control that suspends the filter. Recorded in
   [Genre and system](#genre-and-system),
