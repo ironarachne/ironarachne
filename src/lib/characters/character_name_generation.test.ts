@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { generateCulture, getDefaultCultureGenerationConfig } from '$lib/culture';
 import { getFantasyNameGeneratorSet } from '$lib/names';
+import type { Culture } from '$lib/culture';
 import {
   applyNameGeneratorsToCharacterGenerationConfig,
   buildCharacterNameSource,
@@ -9,6 +10,7 @@ import {
   fantasyHintToNameSetName,
   generateCharacterName,
   isCustomCharacterNameSource,
+  nameGeneratorSetForSource,
   peopleNameGeneratorsFromNameSet,
   resolveCharacterNameGeneratorSet,
   resolveNamingGender,
@@ -111,5 +113,68 @@ describe('character_name_generation', () => {
       lastName: 'Person',
       name: 'Locked Person',
     });
+  });
+});
+
+describe('referenced_culture as a name source', () => {
+  const culture = {
+    name: 'Vashai',
+    nameGenerators: getFantasyNameGeneratorSet('elf', new RNG('culture')),
+  } as unknown as Culture;
+
+  it('builds from a culture handed in by the picker', () => {
+    const source = buildCharacterNameSource('referenced_culture', 'human', '', [], culture);
+
+    expect(source.kind).toBe('referenced_culture');
+  });
+
+  it('falls back to default while the picker is still loading', () => {
+    // A tool that named from a culture it does not have yet would be naming from nothing and
+    // calling it a culture.
+    const source = buildCharacterNameSource('referenced_culture', 'human', '', []);
+
+    expect(source.kind).toBe('default');
+  });
+
+  it('names from the culture rather than a preset', () => {
+    const source = buildCharacterNameSource('referenced_culture', 'human', '', [], culture);
+
+    expect(resolveCharacterNameGeneratorSet(new RNG('x'), source)).toBe(culture.nameGenerators);
+  });
+
+  it('is a custom source, so a tool knows to use it', () => {
+    const source = buildCharacterNameSource('referenced_culture', 'human', '', [], culture);
+
+    expect(isCustomCharacterNameSource(source)).toBe(true);
+  });
+
+  it('does not disturb the three sources that already existed', () => {
+    expect(buildCharacterNameSource('default', 'human', '', []).kind).toBe('default');
+    expect(buildCharacterNameSource('preset', 'dwarf', '', []).kind).toBe('preset');
+    expect(buildCharacterNameSource('saved_culture', 'human', 'Vashai', [culture]).kind).toBe(
+      'saved_culture',
+    );
+  });
+});
+
+describe('nameGeneratorSetForSource', () => {
+  const culture = {
+    name: 'Vashai',
+    nameGenerators: getFantasyNameGeneratorSet('elf', new RNG('culture')),
+  } as unknown as Culture;
+
+  it('records a preset by its own name', () => {
+    expect(nameGeneratorSetForSource({ kind: 'preset', setName: 'dwarf' })).toBe('dwarf');
+  });
+
+  it('records a culture by the pattern set its generators carry', () => {
+    // This is what lets a re-roll produce names of the same tongue without reaching back into the
+    // store for an artifact it has no way to ask for.
+    expect(nameGeneratorSetForSource({ kind: 'referenced_culture', culture })).toBe('elf');
+    expect(nameGeneratorSetForSource({ kind: 'saved_culture', culture })).toBe('elf');
+  });
+
+  it('records nothing for the default source', () => {
+    expect(nameGeneratorSetForSource({ kind: 'default' })).toBe('');
   });
 });

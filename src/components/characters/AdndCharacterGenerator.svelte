@@ -12,10 +12,12 @@
   import {
     buildCharacterNameSource,
     isCustomCharacterNameSource,
+    nameGeneratorSetForSource,
     restoreLockedCharacterName,
     rollCharacterNameForSource,
     loadCulturesForNaming,
   } from '$lib/characters';
+  import type { ArtifactReference } from '$lib/artifacts';
   import type { Culture } from '$lib/culture';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -44,13 +46,26 @@
   let rolledConfig = $state.raw<Record<string, unknown>>({});
 
   let savedCultures = $state<Culture[]>([]);
-  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
+  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture' | 'referenced_culture'>(
+    'default',
+  );
   let presetSetName = $state('human');
   let savedCultureName = $state('');
   let firstName = $state('');
   let lastName = $state('');
   let lockName = $state(false);
   let namingGender = $state<'male' | 'female' | 'random'>('random');
+  /** The culture the picker loaded, and the link to record for it. */
+  let referencedCulture = $state<Culture | undefined>();
+  let cultureReference = $state<ArtifactReference | undefined>();
+  /**
+   * The link, recorded only when the character on screen was actually named from that culture.
+   *
+   * Gated on the roll rather than on the picker, for the reason the settlement generator gates
+   * its own: a reference is a record of what the tool was handed, and one written for a character
+   * whose names came from somewhere else would claim an input that was never used.
+   */
+  let rolledCultureReference = $state.raw<ArtifactReference | undefined>();
 
   /**
    * What gets stored, with the names the page is showing rather than the ones the roll produced.
@@ -88,6 +103,7 @@
       presetSetName,
       savedCultureName,
       savedCultures,
+      referencedCulture,
     );
     const nameRng = new RNG.RNG(nameSeed);
     return rollCharacterNameForSource(nameRng, source, defaultHint, namingGender);
@@ -99,6 +115,7 @@
       presetSetName,
       savedCultureName,
       savedCultures,
+      referencedCulture,
     );
     if (!isCustomCharacterNameSource(source)) {
       target.firstName = '';
@@ -122,9 +139,25 @@
    * names from that culture's own generators, which are not one of the build's named sets — that
    * link is an artifact reference, and recording it is composition's job rather than this step's.
    */
+  /**
+   * The settings a roll takes, and the ones provenance records.
+   *
+   * `nameGeneratorSet` comes from whichever source is chosen: a preset records its own name, and a
+   * culture records the pattern set its generators carry. That second case is what lets a re-roll
+   * produce names of the same tongue without reaching back into the store for an artifact it has
+   * no way to ask for — the bargain `$lib/settlements` and `$lib/religion` already make.
+   */
   function currentConfig(): AdndCharacterGeneratorConfigRecord {
+    const source = buildCharacterNameSource(
+      nameSourceKind,
+      presetSetName,
+      savedCultureName,
+      savedCultures,
+      referencedCulture,
+    );
+    const nameGeneratorSet = nameGeneratorSetForSource(source);
     return {
-      ...(nameSourceKind === 'preset' ? { nameGeneratorSet: presetSetName } : {}),
+      ...(nameGeneratorSet === '' ? {} : { nameGeneratorSet }),
       namingGender,
       includeProficiencies,
       includeKits,
@@ -145,10 +178,14 @@
     // The resolved set, not the requested one: a set this build has since dropped would otherwise
     // be recorded as provenance that a re-roll could not honour.
     rolledConfig = { ...config, nameGeneratorSet: rolled.nameGeneratorSet };
+    rolledCultureReference =
+      nameSourceKind === 'referenced_culture' && referencedCulture !== undefined
+        ? cultureReference
+        : undefined;
 
     if (lockName) {
       restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
-    } else if (nameSourceKind === 'preset') {
+    } else if (nameSourceKind === 'preset' || nameSourceKind === 'referenced_culture') {
       // Already named by the roll, from the seed. Mirror it into the fields the page shows.
       firstName = character.firstName;
       lastName = character.lastName;
@@ -232,6 +269,9 @@
   </div>
 
   <CharacterNameSection
+    offerReferencedCulture
+    bind:referencedCulture
+    bind:cultureReference
     bind:nameSourceKind
     bind:presetSetName
     bind:savedCultureName
@@ -254,6 +294,7 @@
     {seed}
     config={rolledConfig}
     defaultName={defaultArtifactName}
+    references={rolledCultureReference === undefined ? [] : [rolledCultureReference]}
   />
 
   {#if character}
