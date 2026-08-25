@@ -10,8 +10,14 @@ because the two make the same thing and the readiness spec requires them to make
 kind. It sits inside [the workshop](workshop.md) and is measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** proposal. The [domain model](#domain-model) has not been reviewed. Implementation does
-not start before it is.
+**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved, so
+[the plan](#the-plan) is clear to start.
+
+One decision moved after that approval, on the instruction that a character build be as robust and
+recreatable as possible: [decision 6](#6-a-built-character-records-its-build-as-provenance) now has
+the builder record its build rather than record nothing, which makes a built character reproducible
+from the decisions that made it. It is the only change, it is additive, and the one diagram it
+touches says so where it happens.
 
 ## The problem
 
@@ -159,15 +165,47 @@ currently rolls the character from the page's seed but rolls the **name** from
 a clock-seeded RNG of its own, so the same seed does not produce the same character today.
 The name comes off the seed after this.
 
-A generated character records provenance — tool path, seed, and that config (3.6). **A built
-character records no seed**, and therefore no provenance: `ToolArtifactDraft.seed` is documented as
-absent rather than invented, and a hand-built character has no seed that reproduces it. It falls
-out of that, correctly, that re-roll reports `no-provenance` on a built character and `available`
-on a generated one.
+A generated character records provenance — tool path, seed, and that config (3.6).
 
 The provenance `config` must be plain data, not a Svelte `$state` object — IndexedDB serialises
 with `structuredClone`, which refuses a Proxy. This is the trap `$lib/workshop`'s README records
 beside `saveToolArtifact`, and it is on the path both tools take.
+
+### A built character records its build
+
+A character made in the builder is reproducible from the decisions that made it, and it stores
+them: provenance is `toolPath: '/fantasy/adnd/character/build'`, `seed: classFeaturesSeed`, and a
+`config` holding `AdndCharacterBuildRecord` — the attribute rolls, race, class, alignment, the
+halfling options, hit points, funds, gear by name, spell picks, and the thief allocation.
+
+So the one kind carries **two provenance shapes, told apart by `toolPath`**, and the registered
+roller branches on it: the generator's path calls `rollAdndCharacter(seed, config)`, the builder's
+calls `buildAdndCharacter(readAdndCharacterBuildRecord(config), seed)`. `readAdndCharacterBuildRecord`
+is the same kind of boundary as its generator counterpart — the store's `Record<string, unknown>`
+becoming typed, dropping what it does not recognise.
+
+Three things follow, and each is worth stating because each is a promise:
+
+- **Re-roll means "rebuild from my decisions".** For a generated character a re-roll is a fresh
+  draw; for a built one it reproduces the same character, discarding hand-edits made outside the
+  builder. Both are the destructive operation requirement 4.3 describes, and both are honestly
+  described by the same button — "this will overwrite your edits" is true of each.
+- **Reopening the builder is exact, not reconstructed.** With a build record present, every control
+  comes back as it was set, `classFeaturesSeed` included. `adndBuildFromSnapshot` is then only the
+  fallback for a character that has no record — a generated one — where the reverse map is
+  best-effort and the base covers the rest.
+- **A structural change stays reproducible.** Changing class re-derives from the stored seed rather
+  than a freshly minted one, so the same sequence of decisions gives the same character twice.
+
+The invariant that keeps this from rotting is one line: **the build record is present only when the
+builder last wrote the character.** Any other writer clears it. There is no merge, no staleness
+flag, and no moment where the record and the payload disagree — the payload stays authoritative,
+exactly as `Artifact.payload` says it is, and the record is a description of how it came to be
+rather than a second copy of it.
+
+Robustness costs one more rule: **an unreadable build record is dropped, not fatal.** A record
+written by a build that spelled a field differently loses the recreate affordance and nothing else.
+The character is in the payload and does not depend on it.
 
 ### Editing a saved character
 
@@ -191,12 +229,13 @@ becomes, and it has two paths:
   allocation. Nothing the builder does not model is touched, which is how a generated character
   survives being opened.
 
-`adndBuildFromSnapshot(snapshot)` is the reverse map that seeds the form on open. It is exact where
-it can be — attributes, race and class names, alignment, gear by name, spell picks, the thief
-allocation now that it is a field — and where it cannot be, the base covers for it: starting funds
-come back as the purse plus what the stored gear cost, and `classFeaturesSeed` is simply not needed
-on this path, because nothing is being re-derived. A fresh seed is minted only when the user forces
-a structural change, which is the one moment a fresh seed is the right answer.
+Where a build record exists the form is restored from it exactly, and none of this reconstruction
+is needed. `adndBuildFromSnapshot(snapshot)` is the fallback for the case that has no record — a
+generated character opened in the builder. It is exact where it can be: attributes, race and class
+names, alignment, gear by name, spell picks, and the thief allocation now that it is a field.
+Where it cannot be, the base covers for it — starting funds come back as the purse plus what the
+stored gear cost, and there is no `classFeaturesSeed` to recover, so one is minted and recorded the
+first time the builder writes that character.
 
 The builder also gains the fields it does not have today, because 4.1 asks for every field a user
 would reasonably want to change and at minimum every field displayed. In a **Details** section,
@@ -440,6 +479,22 @@ classDiagram
         +boolean includeProficiencies
         +boolean includeKits
     }
+    class AdndCharacterBuildRecord {
+        +number strength
+        +number dexterity
+        +number constitution
+        +number intelligence
+        +number wisdom
+        +number charisma
+        +string raceName
+        +string className
+        +string alignment
+        +number hp
+        +number startingWealthCp
+        +string[] selectedWeaponNames
+        +string[] selectedArmorNames
+        +string[][] starterSpellPicks
+    }
     class ArtifactProvenance {
         +string toolPath
         +string seed
@@ -468,11 +523,20 @@ classDiagram
     ArtifactKindEntry "1" --> "0..1" ArtifactEditorEntry : same kind id
     ArtifactEditorEntry ..> AdndCharacterBuild : editor mounts the builder
     ArtifactEditorEntry ..> ArtifactProvenance : roller reads
-    ArtifactProvenance "1" --> "1" AdndCharacterGeneratorConfigRecord : config, once read
+    ArtifactProvenance "1" --> "0..1" AdndCharacterGeneratorConfigRecord : config when generated
+    ArtifactProvenance "1" --> "0..1" AdndCharacterBuildRecord : config when built
+    AdndCharacterBuildRecord "1" o-- "*" AdndThiefSkillAllocation : thiefSkillPoints
 ```
 
-A generated character has provenance and can be re-rolled; a built one has neither, and the surface
-says so rather than offering a control that would do nothing.
+**This is the one part of the model that moved after approval.** `ArtifactProvenance.config`
+previously resolved to a generator record alone; it now resolves to one of two, told apart by
+`toolPath`. Exactly one is present on any artifact — the two `0..1` associations are exclusive, not
+independent — and the roller reads whichever the tool path names.
+
+Both tools therefore produce a re-rollable character, and the two mean different things: for a
+generated one a re-roll is a fresh draw, and for a built one it is a faithful rebuild from the
+recorded decisions. `AdndCharacterBuildRecord` is `AdndCharacterBuild` without its `base`, which
+does not travel — the base is the artifact's own payload.
 
 ## Decisions taken here
 
@@ -512,13 +576,27 @@ does not model, and re-deriving on open would discard them before the user touch
 Structural changes — race, class, attributes — still derive, because there is no honest way to
 patch a class change, and the surface confirms that as destructive.
 
-### 6. A built character records no seed, and therefore no provenance
+### 6. A built character records its build as provenance
 
-`ToolArtifactDraft.seed` is documented as absent rather than invented. The builder's
-`classFeaturesSeed` reproduces a fragment of one character, not the character, and recording it
-would put a re-roll button in front of something it cannot re-roll. Re-roll reporting
-`no-provenance` on a built character is the correct answer, and it is one the surface already
-renders.
+**Revised after the model was approved**, on the instruction that a character build be as robust
+and recreatable as possible. It previously read "a built character records no seed, and therefore
+no provenance", reasoning that `ToolArtifactDraft.seed` is documented as absent rather than
+invented and that `classFeaturesSeed` reproduces a fragment of a character rather than the
+character.
+
+The premise was wrong. `classFeaturesSeed` is a fragment **only because the rest of the build was
+being thrown away**; recorded alongside it, the two reproduce the character exactly. So the builder
+records `toolPath`, that seed, and an `AdndCharacterBuildRecord` config, and the kind's roller
+branches on `toolPath` to decide whether a re-roll is a fresh draw or a faithful rebuild.
+
+What the old decision got right is kept as the invariant: the payload stays authoritative and the
+record never competes with it. The record is present only when the builder last wrote the
+character, any other writer clears it, and an unreadable one is dropped rather than fatal — losing
+the recreate affordance and nothing else.
+
+This costs a second shape in provenance `config` under one kind, which is the one thing to watch:
+`readAdndCharacterGeneratorConfig` and `readAdndCharacterBuildRecord` are separate readers and
+neither may accept the other's record.
 
 ### 7. The culture reference goes into `CharacterNameSection`, not beside it
 
@@ -545,11 +623,14 @@ proves the first did not build something bespoke.
 | 2    | `adnd_character_snapshot.ts` and `adnd_character_artifact_kind.ts`; registration; round-trip tests  | #47   |
 | 3    | `adnd_character_roll.ts`; the generator's name roll moves onto the seed; provenance and save        | #47   |
 | 4    | `adnd_character_build.ts`; the builder patches a base; the Details section; the editor registration | #45   |
-| 5    | `CharacterNameSource.referenced_culture` and the picker in `CharacterNameSection`                   | #45   |
-| 6    | 6.2 and 6.4 fixes; the end-to-end tests; the README's 8.4 section; `maturity: 'release-ready'`      | both  |
+| 5    | `AdndCharacterBuildRecord` as provenance; the roller branches on `toolPath`; rebuild tests          | #45   |
+| 6    | `CharacterNameSource.referenced_culture` and the picker in `CharacterNameSection`                   | #45   |
+| 7    | 6.2 and 6.4 fixes; the end-to-end tests; the README's 8.4 section; `maturity: 'release-ready'`      | both  |
 
 Step 1 is first and is the only step that touches shipped output before there is a kind to store
-it in, which is deliberate: the field must exist before version 1 does.
+it in, which is deliberate: the field must exist before version 1 does. Step 5 follows step 4
+rather than merging into it because the build record is a shape only worth freezing once
+`AdndCharacterBuild` has settled — a provenance record is user data the moment it ships.
 
 `npm run verify` gates each step and `npm run verify:all` runs before merge — this touches
 components and routes, and no Playwright suite runs against a PR.

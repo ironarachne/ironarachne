@@ -1790,6 +1790,16 @@ read-only.
 - **Every other tool.** Everything not named above stays Experimental, and now says so on its own
   page and in the tool browser. That is the honest state, and #43 is what makes it legible.
 
+The first of those tools to be designed is the pair that shares one kind: the AD&D 2E character
+builder and generator, in [The AD&D 2E character artifact](adnd-character.md). It is accepted and
+not yet built. A character is the first payload here that is mostly rule data applied to a few user
+decisions, so what it settles — rule tables stored by name, every derived number kept, and a build
+recorded as provenance so a hand-built character is reproducible — is what the next system-qualified
+character kind will meet.
+
+The paragraph below refers to the **pre-migration** #45, which was about storage. Issue numbers all
+changed when the forge moved to GitHub, and today's #45 is the character builder above.
+
 #45 used to sit on this list. It does not any more: it is answered in
 [decisions 5](#5-the-store-persists-to-indexeddb) and
 [6](#6-storage-is-reported-continuously-and-export-recency-leads), and the work it implies is
