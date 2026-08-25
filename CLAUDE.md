@@ -47,7 +47,9 @@ Notes:
   rendering.** This is not optional politeness: no Playwright runs against a PR, so you are the
   only thing standing between a browser-visible regression and `main`.
 - CI is two workflows. `.github/workflows/ci.yaml` runs `verify` on every PR and every merge,
-  and is the only required check. `.github/workflows/e2e.yaml` runs the browser suite on
+  and is the only required check. It carries no base-branch filter, so a PR based on another
+  branch is checked like any other — see [Stacked pull requests](#stacked-pull-requests).
+  `.github/workflows/e2e.yaml` runs the browser suite on
   merges to `main` only — never on a PR, because the suite takes about seventeen minutes and
   `npm run verify:all` locally is the faster loop for a rendering change. A red run there is a
   signal to investigate, not a blocked merge; `e2e.yaml` carries the full reasoning.
@@ -228,6 +230,31 @@ Break a design into work items only after the model is approved.
   `verify` reports green. That is the only required context — the browser suite deliberately
   does not gate a PR (see `.github/workflows/e2e.yaml`). Work on a branch and open a PR; there
   is no path that bypasses this.
+
+### Stacked pull requests
+
+A PR may be based on another branch rather than on `main`. This used not to work at all:
+`ci.yaml` filtered `pull_request` by base branch, so a stacked PR never triggered it, the
+required `verify` context was never posted, and `enforce_admins` meant nobody could merge past
+the gap. The filter is gone, and a stacked PR is now verified against the cumulative state of
+the stack below it, which is what the merge-commit checkout gives you for free.
+
+Two rules make a stack behave, and neither is enforceable by CI:
+
+- **Merge the bottom first.** An upper PR merged first drags the lower branch's commits into
+  `main` along with it, and the lower PR then closes as already-merged without ever having been
+  reviewed on its own.
+- **Only add commits to a branch someone has stacked on.** Restacking after a rewrite needs a
+  force-push, and `.claude/hooks/guard_protected_branch.sh` refuses every force-push including
+  `--force-with-lease`. Adding a commit is what the guard's own message tells you to do instead.
+
+Squash-merging would undo all of this — `main` would hold a commit the upper branch does not
+have, so every stack would need a rebase after each merge and would show phantom conflicts. The
+merge-commit strategy is what keeps retargeting clean, and it is worth keeping for that reason.
+
+Stacking earns its keep for independent work reviewed in parallel. Steps of one feature that
+genuinely depend on each other are usually better merged one at a time, because e2e only runs
+after a merge to `main`.
 
 ## Agent configuration
 

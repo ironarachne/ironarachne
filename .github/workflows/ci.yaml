@@ -12,10 +12,31 @@ name: CI
 # Note that `verify` runs on documentation-only changes too. `npm run lint`
 # calls `prettier --check .`, which covers Markdown, so this is the check that
 # stops a badly formatted document landing and breaking `lint` on `main`.
+#
+# `pull_request` carries no `branches` filter, and that omission is deliberate:
+# the filter matches a pull request's *base*, so `branches: [main]` meant a pull
+# request aimed at anything else never triggered this workflow at all. The
+# required context "verify" was then never posted, and because `main` protection
+# has `enforce_admins` on, nobody could merge past it. A stacked pull request —
+# one based on another branch rather than on `main` — was therefore not merely
+# discouraged, it was impossible. Removing the filter is what makes stacking
+# work; the cost is an `npm ci` and a `verify` run on pull requests aimed at
+# branches other than `main`, which is cheap next to a workflow that silently
+# cannot be satisfied.
+#
+# The checkout for a pull request is the merge of head into base, so a stacked
+# pull request is verified against the cumulative state of the stack below it
+# rather than against its own commits alone. That is the behaviour worth having.
+#
+# Two things about stacking that this file cannot enforce, recorded because they
+# are how a stack goes wrong. **Merge the bottom first** — merging an upper pull
+# request first drags the lower one's commits into `main` with it, closing that
+# pull request as already-merged without it ever being reviewed. And **only add
+# commits to a branch someone has stacked on**: restacking after a rewrite needs
+# a force-push, which `.claude/hooks/guard_protected_branch.sh` refuses outright.
 
 on:
   pull_request:
-    branches: [main]
   push:
     branches: [main]
 
