@@ -53,6 +53,11 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   '$lib/heraldry/heraldry_artifact_kind',
   '$lib/religion/religion_artifact_kind',
   '$lib/settlements/settlement_artifact_kind',
+  // The fifth kind, measured the same way. `$lib/adnd`'s entry point re-exports the PDF renderer,
+  // and from there jsPDF, along with the spell, class, race and equipment tables. Routed through
+  // it the registry chunk goes from 25.4 KB to 50.2 KB — it very nearly doubles, and every page
+  // that lists what a project contains pays the difference.
+  '$lib/adnd/adnd_character_artifact_kind',
 ]);
 
 /** A specifier ending in something other than a TS/JS extension is an asset, not a module. */
