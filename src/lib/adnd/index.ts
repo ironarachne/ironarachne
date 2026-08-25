@@ -10,6 +10,7 @@ export { createAdndCharacter } from './adndcharacter';
 export { getDefaultConfig } from './adndcharactergeneratorconfig';
 export * from './adndcharactergenerator';
 export * from './adnd_character_artifact_kind';
+export * from './adnd_character_build';
 export * from './adnd_character_eligibility';
 export * from './adnd_character_roll';
 export * from './adnd_character_snapshot';
