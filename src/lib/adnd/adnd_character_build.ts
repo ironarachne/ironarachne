@@ -45,7 +45,7 @@ import type ADNDRace from './adndrace.js';
 import * as classes from './classes/classes.js';
 import * as Equipment from './equipment.js';
 import * as races from './races/races.js';
-import { applyHalflingWithOptions, type HalflingSubrace } from './races/halfling_apply.js';
+import { findAdndSubrace } from './adnd_subrace.js';
 
 /** The six attributes, which together with race and class make up a build's structure. */
 export type AdndAttributeScores = {
@@ -69,8 +69,14 @@ export type AdndCharacterBuild = {
   raceName: string;
   className: string;
   alignment: string;
-  halflingSubrace: HalflingSubrace;
-  halflingInfravision: boolean;
+  /**
+   * The chosen variety within the race, or `''` for a race with none.
+   *
+   * Structural, like race and class: a subrace adjusts ability scores and grants abilities, so a
+   * character whose subrace changed is not the character that was stored. Patching across the
+   * change would leave the old variety's adjustments applied with the new one's stacked on top.
+   */
+  subraceName: string;
   hp: number;
   startingWealthCp: number;
   selectedWeaponNames: string[];
@@ -97,8 +103,7 @@ export function createAdndCharacterBuild(classFeaturesSeed: string): AdndCharact
     raceName: '',
     className: '',
     alignment: '',
-    halflingSubrace: 'Hairfeet',
-    halflingInfravision: false,
+    subraceName: '',
     hp: 1,
     startingWealthCp: 0,
     selectedWeaponNames: [],
@@ -132,11 +137,13 @@ function attributesOf(character: {
 /**
  * Whether the build still describes the same character the base is.
  *
- * Only race, class, and the six attributes count. Everything else the builder offers — hit points,
+ * Only race, subrace, class, and the six attributes count. Everything else the builder offers — hit points,
  * funds, gear, spells, the thief allocation, names — is a field it writes over the base, so
  * changing one is an edit rather than a different character. These three are different: a class
  * decides hit dice, saving throws, proficiency counts, and what `apply` puts on the character, so
- * a new one cannot be patched in, only rolled for.
+ * a new one cannot be patched in, only rolled for. A subrace is structural for the same reason at
+ * a smaller scale: it adjusts ability scores and grants abilities, so patching across a change
+ * would leave the old variety's adjustments applied with the new one's stacked on top.
  *
  * A build with no base is not "unchanged"; there is nothing for it to match.
  */
@@ -148,6 +155,7 @@ export function adndBuildMatchesBase(build: AdndCharacterBuild): boolean {
   const buildAttributes = build.attributes;
   return (
     build.base.raceName === build.raceName &&
+    build.base.subraceName === build.subraceName &&
     build.base.className === build.className &&
     baseAttributes.strength === buildAttributes.strength &&
     baseAttributes.dexterity === buildAttributes.dexterity &&
@@ -209,14 +217,11 @@ export function adndCharacterAfterRace(build: AdndCharacterBuild): ADNDCharacter
   }
   const character = baseCharacterFromAttributes(build.attributes);
   character.race = race;
-  if (race.name === 'halfling') {
-    applyHalflingWithOptions(character, {
-      subrace: build.halflingSubrace,
-      hasInfravision: build.halflingInfravision,
-    });
-  } else {
-    race.apply(character, new RNG(`race-${race.name}`));
-  }
+  // The chosen variety is handed to the race rather than drawn by it: the builder's whole point
+  // is that the user picked one. A race with no varieties takes no option and no draw.
+  race.apply(character, new RNG(`race-${race.name}`), {
+    subrace: findAdndSubrace(race, build.subraceName),
+  });
   return character;
 }
 
@@ -348,9 +353,8 @@ export function buildAdndCharacter(build: AdndCharacterBuild): ADNDCharacter | n
  *   while the structure holds, and the moment the user forces a structural change a fresh seed is
  *   the right answer anyway. The caller supplies one.
  *
- * The halfling options are the honest gap. A stored halfling records the subrace's effects but not
- * which subrace was chosen, so this defaults them; they are only read again if the user re-derives,
- * which already discards more than that.
+ * The subrace comes back exactly, now that it is a field on the payload rather than something
+ * smuggled into the race's name (#99).
  */
 export function adndBuildFromSnapshot(
   snapshot: AdndCharacterSnapshot,
@@ -370,8 +374,7 @@ export function adndBuildFromSnapshot(
     raceName: snapshot.raceName,
     className: snapshot.className,
     alignment: snapshot.alignment,
-    halflingSubrace: 'Hairfeet',
-    halflingInfravision: false,
+    subraceName: snapshot.subraceName,
     hp: snapshot.hp,
     startingWealthCp: snapshot.currency + spent,
     selectedWeaponNames: snapshot.weapons.map((weapon) => weapon.name),

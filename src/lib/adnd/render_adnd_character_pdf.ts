@@ -1,5 +1,6 @@
 import Download from '$lib/download';
 import type ADNDCharacter from './adndcharacter';
+import { adndRaceDisplayName } from './adnd_subrace';
 import {
   formatAdndAbilitiesSection,
   formatAdndArmorSection,
@@ -122,7 +123,7 @@ function drawIdentityBand(doc: PdfDoc, y: number, character: ADNDCharacter): num
     classWidth,
     ROW_HEIGHT,
     'Race / Class / Level',
-    `${character.race.name} ${character.class.name} ${character.level}`,
+    `${adndRaceDisplayName(character)} ${character.class.name} ${character.level}`,
   );
   drawCompactField(
     doc,

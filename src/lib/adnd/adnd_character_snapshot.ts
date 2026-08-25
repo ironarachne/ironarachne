@@ -39,6 +39,12 @@ export type AdndCharacterSnapshot = Omit<ADNDCharacter, 'race' | 'class'> & {
 };
 
 /**
+ * `subraceName` needs no conversion and so is not listed above — it is already a string on the
+ * character, which is the whole point of #99's fix. It travels through `Omit`'s remainder like
+ * every other plain field.
+ */
+
+/**
  * A race this build does not have, carrying nothing but the name it was stored under.
  *
  * The point of it is that it is inert. Every number a character needs is already in the payload,
@@ -80,6 +86,7 @@ export function unknownAdndRace(name: string): ADNDRace {
     ageModifier: '0',
     availableInitialLanguages: [],
     allowedClasses: [],
+    subraces: [],
   };
 }
 
@@ -140,11 +147,18 @@ export function adndCharacterFromSnapshot(snapshot: AdndCharacterSnapshot): ADND
   const { raceName, className, ...rest } = snapshot;
   const race = races.getAll().find((entry) => entry.name === raceName);
   const characterClass = classes.getAll().find((entry) => entry.name === className);
+  const resolvedRace = race ?? unknownAdndRace(raceName);
 
   return {
     ...createAdndCharacter(),
     ...rest,
-    race: race ?? unknownAdndRace(raceName),
+    race: resolvedRace,
+    // A variety this build no longer has is dropped rather than quarantined, consistently with
+    // the race and class lookups above: a subrace that was removed is not a corrupt record, and
+    // every number it contributed is already in the payload.
+    subraceName: resolvedRace.subraces.some((subrace) => subrace.name === rest.subraceName)
+      ? rest.subraceName
+      : '',
     class: characterClass ?? unknownAdndClass(className),
   };
 }

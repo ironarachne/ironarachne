@@ -11,6 +11,8 @@ export { getDefaultConfig } from './adndcharactergeneratorconfig';
 export * from './adndcharactergenerator';
 export * from './adnd_character_artifact_kind';
 export * from './adnd_character_build';
+export * from './adnd_subrace';
+export type { default as ADNDSubrace } from './adndsubrace';
 export * from './adnd_character_eligibility';
 export * from './adnd_character_roll';
 export * from './adnd_character_snapshot';
@@ -32,4 +34,4 @@ export * as races from './races';
 export * as spells from './spells';
 
 export * as Equipment from './equipment';
-export * from './races/halfling_apply';
+export * from './races/halfling_subraces';

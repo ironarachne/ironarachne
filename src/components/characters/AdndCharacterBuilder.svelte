@@ -33,7 +33,6 @@
     races,
     type AdndCharacterBuild,
     type AdndCharacterSnapshot,
-    type HalflingSubrace,
   } from '$lib/adnd';
 
   /**
@@ -139,8 +138,7 @@
   let className = $state(initial.className);
   let alignment = $state(initial.alignment);
 
-  let halflingSubrace = $state<HalflingSubrace>(initial.halflingSubrace);
-  let halflingInfravision = $state(initial.halflingInfravision);
+  let subraceName = $state(initial.subraceName);
 
   let hpValue = $state(initial.hp);
   let startingGp = $state(0);
@@ -211,8 +209,7 @@
     raceName,
     className,
     alignment,
-    halflingSubrace,
-    halflingInfravision,
+    subraceName,
     hp: hpValue,
     startingWealthCp,
     selectedWeaponNames,
@@ -229,6 +226,27 @@
   const selectedRace = $derived(allRaces.find((r) => r.name === raceName) ?? null);
 
   const characterAfterRace = $derived(adndCharacterAfterRace(currentBuild));
+
+  /** The varieties the chosen race offers, empty for a race with none. */
+  const availableSubraces = $derived(selectedRace?.subraces ?? []);
+
+  /**
+   * Keep the chosen variety one the race actually has.
+   *
+   * Changing race has to clear a variety that belonged to the previous one, and a race that has
+   * varieties needs one chosen rather than an empty select — a character with a blank subrace
+   * would be applied as though the race had no varieties at all.
+   */
+  $effect(() => {
+    const names = availableSubraces.map((subrace) => subrace.name);
+    if (names.length === 0) {
+      if (subraceName !== '') subraceName = '';
+      return;
+    }
+    if (!names.includes(subraceName)) {
+      subraceName = names[0];
+    }
+  });
 
   const eligibleClasses = $derived(adndClassOptionsForBuild(currentBuild));
 
@@ -247,7 +265,7 @@
   const thiefSkillBonusResetKey = $derived.by(() => {
     if (!thiefSkillKind || !characterAfterRace) return '';
     const rows = prepareThiefSkillRowsForCharacter(thiefSkillKind, characterAfterRace);
-    const baseKey = `${className}-${raceName}-${dex}-${halflingSubrace}-${halflingInfravision}`;
+    const baseKey = `${className}-${raceName}-${dex}-${subraceName}`;
     const skillsSig = rows.map((r) => `${r.name}:${r.value}`).join('|');
     return `${baseKey}|${skillsSig}`;
   });
@@ -397,8 +415,7 @@
     raceName = '';
     className = '';
     alignment = '';
-    halflingSubrace = 'Hairfeet';
-    halflingInfravision = false;
+    subraceName = '';
     hpValue = 1;
     startingGp = 0;
     startingSp = 0;
@@ -765,19 +782,15 @@
         </select>
       </label>
 
-      {#if selectedRace?.name === 'halfling'}
+      {#if availableSubraces.length > 0}
         <div class="input-group">
           <label>
             Subrace
-            <select bind:value={halflingSubrace}>
-              <option value="Hairfeet">Hairfeet</option>
-              <option value="Tallfellow">Tallfellow</option>
-              <option value="Stout">Stout</option>
+            <select bind:value={subraceName}>
+              {#each availableSubraces as subrace}
+                <option value={subrace.name}>{subrace.name}</option>
+              {/each}
             </select>
-          </label>
-          <label>
-            <input type="checkbox" bind:checked={halflingInfravision} />
-            Infravision (per book odds; toggle if your DM assigned it)
           </label>
         </div>
       {/if}

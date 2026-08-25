@@ -117,6 +117,51 @@ describe('AD&D character snapshot round trip', () => {
   });
 });
 
+describe('subraces in the payload', () => {
+  it('round-trips a halfling with its variety', () => {
+    const character = generateMatching((c) => c.subraceName !== '');
+    const restored = adndCharacterFromSnapshot(toAdndCharacterSnapshot(character));
+
+    expect(restored.subraceName).toBe(character.subraceName);
+    expect(restored.race.name).toBe('halfling');
+  });
+
+  it('stores the variety as its own field, not inside the race name', () => {
+    // #99: it used to be smuggled into `raceName` as "Stout halfling", which resolved in no
+    // table and cost the character its racial rules on reopen.
+    const snapshot = toAdndCharacterSnapshot(generateMatching((c) => c.subraceName !== ''));
+
+    expect(snapshot.raceName).toBe('halfling');
+    expect(snapshot.subraceName).not.toBe('');
+  });
+
+  it('keeps the race resolvable, so a saved halfling keeps its rules', () => {
+    const snapshot = toAdndCharacterSnapshot(generateMatching((c) => c.subraceName !== ''));
+
+    const restored = adndCharacterFromSnapshot(snapshot);
+
+    expect(restored.race.allowedClasses.length).toBeGreaterThan(0);
+    expect(restored.race.baseMovement).toBeGreaterThan(0);
+  });
+
+  it('drops a variety this build no longer has, keeping the character', () => {
+    const snapshot = toAdndCharacterSnapshot(generateMatching((c) => c.subraceName !== ''));
+    snapshot.subraceName = 'Furfoot';
+
+    const restored = adndCharacterFromSnapshot(snapshot);
+
+    expect(restored.subraceName).toBe('');
+    expect(restored.race.name).toBe('halfling');
+    expect(restored.hp).toBe(snapshot.hp);
+  });
+
+  it('leaves a race with no varieties with an empty field', () => {
+    const character = generateMatching((c) => c.race.name === 'human');
+
+    expect(toAdndCharacterSnapshot(character).subraceName).toBe('');
+  });
+});
+
 describe('unknown races and classes', () => {
   it('falls back to a placeholder carrying the stored name', () => {
     const character = createAdndCharacter();

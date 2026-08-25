@@ -13,6 +13,17 @@ export default interface ADNDCharacter {
   firstName: string;
   lastName: string;
   race: ADNDRace;
+  /**
+   * The variety within {@link ADNDCharacter.race}, or `''` for a race with no varieties.
+   *
+   * A name rather than an object, like the race and class on a stored character: the adjustments
+   * and abilities it contributed are already applied, and what this records is which variety
+   * produced them. It is resolved within the race, never globally.
+   *
+   * This used to be smuggled into `race.name` — a halfling's race was renamed to `Stout halfling`
+   * in place, which edited the shared rule table rather than the character (#99).
+   */
+  subraceName: string;
   class: ADNDClass;
   level: number;
   strength: number;
@@ -94,6 +105,7 @@ export function createAdndCharacter(): ADNDCharacter {
     firstName: '',
     lastName: '',
     race: undefined as unknown as ADNDRace,
+    subraceName: '',
     class: undefined as unknown as ADNDClass,
     level: 1,
     strength: 0,

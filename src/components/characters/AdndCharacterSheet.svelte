@@ -1,7 +1,7 @@
 <script lang="ts">
   import * as Words from '@ironarachne/words';
   import { Currency } from '$lib/currency';
-  import type { ADNDCharacter } from '$lib/adnd';
+  import { adndRaceDisplayName, type ADNDCharacter } from '$lib/adnd';
 
   type Props = { character: ADNDCharacter };
   const { character }: Props = $props();
@@ -14,7 +14,7 @@
 
 <h2>{character.firstName} {character.lastName}</h2>
 
-<p>A level {character.level} {character.race.name} {character.class.name}</p>
+<p>A level {character.level} {adndRaceDisplayName(character)} {character.class.name}</p>
 
 <p><strong>XP:</strong> {character.xp}</p>
 <p><strong>HP:</strong> {character.hp}</p>
