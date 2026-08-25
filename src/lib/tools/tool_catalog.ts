@@ -25,7 +25,10 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'AD&D 2E Character Builder',
     kind: 'editor',
     domain: 'characters',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/adnd-character.md (#45). It is also the editor `ARTIFACT_EDITORS` mounts for
+    // `character.adnd-2e`, so editing a saved character and building a new one are the same tool.
+    maturity: 'release-ready',
     genres: ['fantasy'],
     systems: ['adnd-2e'],
     tags: ['character'],
@@ -44,7 +47,8 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'AD&D 2E Character',
     kind: 'generator',
     domain: 'characters',
-    maturity: 'experimental',
+    // Release-ready, assessed with the builder it shares a kind with (#47, docs/adnd-character.md).
+    maturity: 'release-ready',
     genres: ['fantasy'],
     systems: ['adnd-2e'],
     tags: ['character'],

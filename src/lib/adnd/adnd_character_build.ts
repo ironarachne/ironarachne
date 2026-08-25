@@ -33,7 +33,11 @@ import {
   applyThiefSkillAllocation,
   getThiefSkillBuildKindForClass,
 } from './adnd_thief_skill_builder.js';
-import { startingSpellsFromPicks } from './adnd_class_starting_spells.js';
+import {
+  getStartingSpellChoiceGroups,
+  starterSpellSelectionIsComplete,
+  startingSpellsFromPicks,
+} from './adnd_class_starting_spells.js';
 import type ADNDCharacter from './adndcharacter.js';
 import { createAdndCharacter } from './adndcharacter.js';
 import {
@@ -261,7 +265,12 @@ function applyBuildFields(character: ADNDCharacter, build: AdndCharacterBuild): 
   character.lastName = build.lastName;
   character.hp = build.hp;
 
-  if (cls.hasSpells) {
+  // Only once the picks are complete. `startingSpellsFromPicks` throws on a partial set, and this
+  // function runs on every keystroke of a form the user is still filling in — including from
+  // `characterForHpBounds`, which needs a character before the spell step has been reached. A
+  // half-filled form is not an error, it is a form; the caller decides when to show what it
+  // describes.
+  if (cls.hasSpells && starterSpellSelectionIsComplete(cls, build.starterSpellPicks)) {
     character.spells = startingSpellsFromPicks(cls, build.starterSpellPicks);
   }
 
@@ -357,6 +366,28 @@ export function buildAdndCharacter(build: AdndCharacterBuild): ADNDCharacter | n
  * The subrace comes back exactly, now that it is a field on the payload rather than something
  * smuggled into the race's name (#99).
  */
+/**
+ * A stored spellbook back into the per-group picks the builder's controls hold.
+ *
+ * The groups matter. `getStartingSpellChoiceGroups` may return several — a priest chooses from
+ * more than one sphere — and `starterSpellSelectionIsComplete` checks each against its own count.
+ * Reconstructing the picks as one flat list therefore read as an unfinished form, and a saved
+ * caster reopened in the builder showed no character at all: the preview waits for complete picks,
+ * so it waited forever. Splitting the stored spells across the groups in order is what the builder
+ * itself did to produce them.
+ */
+function spellPicksFromSpells(cls: ADNDClass, snapshot: AdndCharacterSnapshot): string[][] {
+  const names = snapshot.spells.map((spell) => spell.name);
+  let taken = 0;
+  return getStartingSpellChoiceGroups(cls).map((group) => {
+    const slice = names.slice(taken, taken + group.count);
+    taken += group.count;
+    // Padded, so a group short of spells still has one entry per slot: the completeness check
+    // counts entries, and a short row would be indistinguishable from a form still being filled.
+    return Array.from({ length: group.count }, (_, index) => slice[index] ?? '');
+  });
+}
+
 export function adndBuildFromSnapshot(
   snapshot: AdndCharacterSnapshot,
   classFeaturesSeed: string,
@@ -366,8 +397,7 @@ export function adndBuildFromSnapshot(
     0,
   );
   const cls = findAdndClass(snapshot.className);
-  const spellPicks =
-    cls !== null && cls.hasSpells ? [snapshot.spells.map((spell) => spell.name)] : [];
+  const spellPicks = cls !== null && cls.hasSpells ? spellPicksFromSpells(cls, snapshot) : [];
 
   return {
     base: snapshot,

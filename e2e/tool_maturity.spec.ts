@@ -21,13 +21,6 @@ const maturityBadge = (page: Page) => page.locator('.maturity__level');
 const TOOL_PAGES = [
   { path: '/planet', title: 'Planet Generator | Iron Arachne', level: 'Experimental' },
   { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne', level: 'Beta' },
-  {
-    // Its own header rather than `GeneratorPage`, so it states its maturity itself and is worth
-    // checking separately.
-    path: '/fantasy/adnd/character/build',
-    title: 'AD&D 2e Character Builder | Iron Arachne',
-    level: 'Experimental',
-  },
 ] as const;
 
 /** The release-ready tools, which must say nothing at all. */
@@ -35,6 +28,14 @@ const SILENT_TOOL_PAGES = [
   { path: '/culture', title: 'Culture Generator | Iron Arachne' },
   { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
   { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
+  { path: '/fantasy/adnd/character', title: 'AD&D 2e Character Generator | Iron Arachne' },
+  {
+    // Its own header rather than `GeneratorPage`, so it decides for itself whether to show a
+    // badge. Worth keeping in the list for exactly that reason: the rule is the same but the code
+    // making the call is not.
+    path: '/fantasy/adnd/character/build',
+    title: 'AD&D 2e Character Builder | Iron Arachne',
+  },
 ] as const;
 
 for (const { path, title, level } of TOOL_PAGES) {
@@ -84,9 +85,9 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   const tools = browser.locator('.tool-browser__tool');
   await expect(tools.first()).toBeVisible();
 
-  // Exactly the release-ready tools are unmarked, and all three of them are mountable so all
-  // three are listed here. Counted rather than spot-checked: a tool that quietly lost its badge
-  // would otherwise pass every assertion below it.
+  // Exactly the release-ready tools are unmarked, and every one of them is mountable so every one
+  // is listed here. Counted rather than spot-checked: a tool that quietly lost its badge would
+  // otherwise pass every assertion below it.
   const unmarked = tools.filter({ hasNot: page.locator('.maturity__level') });
   await expect(unmarked).toHaveCount(SILENT_TOOL_PAGES.length);
 
@@ -96,6 +97,9 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   await expect(browser.getByRole('button', { name: /^Settlement/ })).not.toContainText(
     'Release-ready',
   );
+  await expect(
+    browser.getByRole('button', { name: /^AD&D 2E Character Builder/ }),
+  ).not.toContainText('Release-ready');
   await expect(browser.getByRole('button', { name: /^Heraldry/ })).toContainText('Beta');
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');
 });
