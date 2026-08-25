@@ -1,5 +1,12 @@
 import type { ArtifactKind } from '$lib/artifact_kinds';
 
+/**
+ * The builder's catalog path, which is how an AD&D character's provenance says it was hand-built
+ * rather than rolled. Written out rather than imported from `$lib/tools` so that this module keeps
+ * to the registries it belongs beside.
+ */
+const ADND_BUILDER_TOOL_PATH = '/fantasy/adnd/character/build';
+
 import type { ArtifactEditorEntry, ArtifactEditorRegistry } from './workshop_types';
 
 /**
@@ -78,14 +85,35 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
    */
   'character.adnd-2e': {
     loadEditor: () => import('$components/characters/AdndCharacterArtifactEditor.svelte'),
+    /**
+     * One kind, two provenance shapes, told apart by the tool path.
+     *
+     * A character from the generator re-rolls to a fresh draw. One from the builder had no dice
+     * worth re-rolling, so it rebuilds from the decisions that made it — the same character again,
+     * discarding edits made to the payload since. Both are the destructive operation requirement
+     * 4.3 describes, and the surface's warning is honestly true of either.
+     *
+     * The two readers are separate on purpose and neither may accept the other's record. They
+     * share a kind, so a reader that guessed would rebuild a character out of a generator's
+     * settings.
+     */
     loadRoller: async () => {
-      const { readAdndCharacterGeneratorConfig, rollAdndCharacterSnapshot } =
-        await import('$lib/adnd/adnd_character_roll.js');
-      return (provenance) =>
-        rollAdndCharacterSnapshot(
+      const [roll, build] = await Promise.all([
+        import('$lib/adnd/adnd_character_roll.js'),
+        import('$lib/adnd/adnd_character_build.js'),
+      ]);
+      return (provenance) => {
+        if (provenance.toolPath === ADND_BUILDER_TOOL_PATH) {
+          return build.rebuildAdndCharacterSnapshot(
+            provenance.seed,
+            build.readAdndCharacterBuildRecord(provenance.config),
+          );
+        }
+        return roll.rollAdndCharacterSnapshot(
           provenance.seed,
-          readAdndCharacterGeneratorConfig(provenance.config),
+          roll.readAdndCharacterGeneratorConfig(provenance.config),
         );
+      };
     },
   },
 };

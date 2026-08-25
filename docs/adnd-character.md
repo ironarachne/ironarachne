@@ -191,8 +191,13 @@ beside `saveToolArtifact`, and it is on the path both tools take.
 
 A character made in the builder is reproducible from the decisions that made it, and it stores
 them: provenance is `toolPath: '/fantasy/adnd/character/build'`, `seed: classFeaturesSeed`, and a
-`config` holding `AdndCharacterBuildRecord` — the attribute rolls, race, class, alignment, the
-halfling options, hit points, funds, gear by name, spell picks, and the thief allocation.
+`config` holding `AdndCharacterBuildRecord` — the attribute rolls, race, subrace, class, alignment,
+hit points, funds, gear by name, spell picks, and the thief allocation.
+
+The record carries neither `base` nor `classFeaturesSeed`. The base is the artifact's own payload,
+and a copy of it inside the record of how it was made would be two answers to one question with the
+payload being the authoritative one. The seed is already provenance's own field, and a record
+holding a second copy could disagree with it.
 
 So the one kind carries **two provenance shapes, told apart by `toolPath`**, and the registered
 roller branches on it: the generator's path calls `rollAdndCharacter(seed, config)`, the builder's
@@ -213,11 +218,19 @@ Three things follow, and each is worth stating because each is a promise:
 - **A structural change stays reproducible.** Changing class re-derives from the stored seed rather
   than a freshly minted one, so the same sequence of decisions gives the same character twice.
 
-The invariant that keeps this from rotting is one line: **the build record is present only when the
-builder last wrote the character.** Any other writer clears it. There is no merge, no staleness
-flag, and no moment where the record and the payload disagree — the payload stays authoritative,
-exactly as `Artifact.payload` says it is, and the record is a description of how it came to be
-rather than a second copy of it.
+The invariant that keeps this from rotting turned out to need no enforcement at all. Provenance is
+written when an artifact is created and never touched afterwards — `applyArtifactEdits` changes the
+payload and the name and leaves it alone — so the record describes how the character was **first
+made**, which is exactly what `ArtifactProvenance` says it is for. There is no merge, no staleness
+flag, and no writer to clear anything.
+
+An earlier draft of this section claimed the record was "present only when the builder last wrote
+the character, and any other writer clears it". That was a rule invented for a problem the store
+does not have, and it is recorded here rather than quietly deleted because it is the kind of
+invariant that sounds prudent and would have cost real code. What follows from the real behaviour
+is simpler and slightly different: a generated character edited in the builder keeps its
+_generator_ provenance, so re-rolling it is a fresh draw that discards those edits — which is what
+re-rolling a generated character should mean.
 
 Robustness costs one more rule: **an unreadable build record is dropped, not fatal.** A record
 written by a build that spelled a field differently loses the recreate affordance and nothing else.
@@ -609,10 +622,10 @@ being thrown away**; recorded alongside it, the two reproduce the character exac
 records `toolPath`, that seed, and an `AdndCharacterBuildRecord` config, and the kind's roller
 branches on `toolPath` to decide whether a re-roll is a fresh draw or a faithful rebuild.
 
-What the old decision got right is kept as the invariant: the payload stays authoritative and the
-record never competes with it. The record is present only when the builder last wrote the
-character, any other writer clears it, and an unreadable one is dropped rather than fatal — losing
-the recreate affordance and nothing else.
+What the old decision got right is kept: the payload stays authoritative and the record never
+competes with it. Provenance is written once, at creation, and never edited, so "which of these is
+the truth" is a question that cannot arise. An unreadable record is dropped rather than fatal,
+losing the recreate affordance and nothing else.
 
 This costs a second shape in provenance `config` under one kind, which is the one thing to watch:
 `readAdndCharacterGeneratorConfig` and `readAdndCharacterBuildRecord` are separate readers and

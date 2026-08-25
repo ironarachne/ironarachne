@@ -26,6 +26,7 @@ import {
 } from './adnd_character_eligibility.js';
 import {
   adndCharacterFromSnapshot,
+  toAdndCharacterSnapshot,
   type AdndCharacterSnapshot,
 } from './adnd_character_snapshot.js';
 import {
@@ -385,4 +386,114 @@ export function adndBuildFromSnapshot(
     firstName: snapshot.firstName,
     lastName: snapshot.lastName,
   };
+}
+
+/**
+ * A build as it is stored in an artifact's provenance: the user's decisions, without the character
+ * they were applied to.
+ *
+ * `base` is absent because the base is the artifact's own payload — storing a copy of it inside
+ * the record of how it was made would be two answers to one question, and the payload is the one
+ * that is authoritative.
+ *
+ * `classFeaturesSeed` is absent for a smaller reason and a similar one: provenance already has a
+ * `seed` field, and a record carrying its own copy could disagree with it. The seed travels there
+ * and {@link rebuildAdndCharacterSnapshot} puts it back.
+ */
+export type AdndCharacterBuildRecord = Omit<AdndCharacterBuild, 'base' | 'classFeaturesSeed'>;
+
+/** A build as provenance. Plain data, which is what `structuredClone` requires of a config. */
+export function toAdndCharacterBuildRecord(build: AdndCharacterBuild): AdndCharacterBuildRecord {
+  const { base: _base, classFeaturesSeed: _seed, ...record } = build;
+  return {
+    ...record,
+    attributes: { ...record.attributes },
+    selectedWeaponNames: [...record.selectedWeaponNames],
+    selectedArmorNames: [...record.selectedArmorNames],
+    starterSpellPicks: record.starterSpellPicks.map((group) => [...group]),
+    thiefSkillPoints: { ...record.thiefSkillPoints },
+  };
+}
+
+function readNumber(value: unknown, fallback: number): number {
+  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+}
+
+function readString(value: unknown): string {
+  return typeof value === 'string' ? value : '';
+}
+
+function readStringArray(value: unknown): string[] {
+  return Array.isArray(value) && value.every((entry) => typeof entry === 'string')
+    ? [...(value as string[])]
+    : [];
+}
+
+/**
+ * Read a stored build record back into the decisions a rebuild needs.
+ *
+ * The same boundary `readAdndCharacterGeneratorConfig` is, and it must not accept that one's
+ * shape: the two live under one artifact kind and are told apart by the tool path alone, so a
+ * reader that guessed would rebuild a character from a generator's settings. Anything
+ * unrecognisable is dropped rather than coerced, which costs the recreate affordance and nothing
+ * else — the character itself is in the payload.
+ */
+export function readAdndCharacterBuildRecord(
+  config: Record<string, unknown>,
+): AdndCharacterBuildRecord {
+  const attributes = asPlainRecord(config.attributes);
+  const thiefSkillPoints = asPlainRecord(config.thiefSkillPoints);
+  const picks = config.starterSpellPicks;
+
+  return {
+    attributes: {
+      strength: readNumber(attributes.strength, 0),
+      dexterity: readNumber(attributes.dexterity, 0),
+      constitution: readNumber(attributes.constitution, 0),
+      intelligence: readNumber(attributes.intelligence, 0),
+      wisdom: readNumber(attributes.wisdom, 0),
+      charisma: readNumber(attributes.charisma, 0),
+    },
+    raceName: readString(config.raceName),
+    className: readString(config.className),
+    alignment: readString(config.alignment),
+    subraceName: readString(config.subraceName),
+    hp: readNumber(config.hp, 1),
+    startingWealthCp: readNumber(config.startingWealthCp, 0),
+    selectedWeaponNames: readStringArray(config.selectedWeaponNames),
+    selectedArmorNames: readStringArray(config.selectedArmorNames),
+    starterSpellPicks: Array.isArray(picks) ? picks.map(readStringArray) : [],
+    thiefSkillPoints: Object.fromEntries(
+      Object.entries(thiefSkillPoints).filter(
+        (entry): entry is [string, number] => typeof entry[1] === 'number',
+      ),
+    ),
+    firstName: readString(config.firstName),
+    lastName: readString(config.lastName),
+  };
+}
+
+function asPlainRecord(value: unknown): Record<string, unknown> {
+  return value !== null && typeof value === 'object' && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+}
+
+/**
+ * Rebuild a character from the decisions that made it — the re-roll of a hand-built character.
+ *
+ * It is not a fresh draw, and that difference is the point. A generated character re-rolls to
+ * something new; a built one had no dice worth re-rolling, so its re-roll reproduces the same
+ * character and discards edits made to the payload afterwards. Both are the destructive operation
+ * requirement 4.3 describes, and the same warning is honestly true of each.
+ *
+ * `base` is null, so this always derives. That is correct here: a rebuild is being asked for
+ * precisely because the stored payload is what is to be replaced.
+ */
+export function rebuildAdndCharacterSnapshot(
+  seed: string,
+  record: AdndCharacterBuildRecord,
+): AdndCharacterSnapshot | null {
+  const character = buildAdndCharacter({ ...record, base: null, classFeaturesSeed: seed });
+  return character === null ? null : toAdndCharacterSnapshot(character);
 }
