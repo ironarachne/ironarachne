@@ -67,6 +67,27 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollSettlementSnapshot(provenance.seed, readSettlementGeneratorConfig(provenance.config));
     },
   },
+  /**
+   * The first kind whose editor is a tool rather than a component written for the purpose.
+   *
+   * `AdndCharacterArtifactEditor` is an adapter of about thirty lines around the builder at
+   * `/fantasy/adnd/character/build`, which already asks every question that makes a character.
+   * That is why #45 and #47 were designed to land together: writing a second editor beside a tool
+   * that is already an editor would have been two things to keep in step, and requirement 2.1
+   * wants one component working in a panel, on its own route, and here.
+   */
+  'character.adnd-2e': {
+    loadEditor: () => import('$components/characters/AdndCharacterArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readAdndCharacterGeneratorConfig, rollAdndCharacterSnapshot } =
+        await import('$lib/adnd/adnd_character_roll.js');
+      return (provenance) =>
+        rollAdndCharacterSnapshot(
+          provenance.seed,
+          readAdndCharacterGeneratorConfig(provenance.config),
+        );
+    },
+  },
 };
 
 /** What a kind registered, or undefined when it registered nothing and opens on the generic view. */

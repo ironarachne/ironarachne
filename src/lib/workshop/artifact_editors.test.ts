@@ -57,6 +57,16 @@ describe('the artifact editor registry', () => {
    * The parity the tool panels have with the tool catalog, applied here: an editor registered
    * against a kind id nothing stores would be an editor no artifact could ever reach.
    */
+  it('gives the AD&D character kind both an editor and a roller', () => {
+    // The editor is the builder tool itself rather than a component written for the purpose, and
+    // the roller is what makes a saved character re-rollable from the seed it was generated with.
+    const entry = artifactEditorEntry('character.adnd-2e');
+
+    expect(entry?.loadEditor).toBeDefined();
+    expect(entry?.loadRoller).toBeDefined();
+    expect(hasArtifactEditor('character.adnd-2e')).toBe(true);
+  });
+
   it('registers editors only for kinds this build can store', () => {
     const kinds = registeredArtifactKinds().map((entry) => entry.kind);
 

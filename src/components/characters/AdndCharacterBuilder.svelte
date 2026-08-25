@@ -4,35 +4,73 @@
   import * as Dice from '$lib/dice';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
   import {
-    createAdndCharacter,
-    type ADNDCharacter,
-    assignExceptionalStrength,
-    getClassOptionsForRace,
-    getRaceOptions,
-    applyAdndPriestFundsCapIfNeeded,
+    ADND_CHARACTER_ARTIFACT_KIND,
+    ADND_THIEF_SKILL_BONUS_CAP,
+    adndBuildFromSnapshot,
+    adndCharacterAfterRace,
+    createAdndCharacterBuild,
+    adndCharacterFromSnapshot,
+    adndClassOptionsForBuild,
+    adndBuildWouldRederive,
+    adndRaceOptionsForBuild,
+    buildAdndCharacter,
+    downloadAdndCharacterPdf,
+    Equipment,
     finalizeAdndCharacterDerivedStats,
     getAdndLevel1HpBounds,
-    recalculateAdndArmorClass,
-    rollAdndLevel1Hp,
-    rollAdndStartingCopper,
-    Equipment,
-    applyHalflingWithOptions,
-    type HalflingSubrace,
-    applyThiefSkillAllocation,
-    ADND_THIEF_SKILL_BONUS_CAP,
+    getStartingSpellChoiceGroups,
     getThiefSkillBuildKindForClass,
     getThiefSkillPointPool,
     prepareThiefSkillRowsForCharacter,
+    recalculateAdndArmorClass,
+    rollAdndLevel1Hp,
+    rollAdndStartingCopper,
+    starterSpellSelectionIsComplete,
     sumThiefSkillBonuses,
     thiefSkillBonusesAreValid,
-    getStartingSpellChoiceGroups,
-    starterSpellSelectionIsComplete,
-    startingSpellsFromPicks,
-    downloadAdndCharacterPdf,
+    toAdndCharacterSnapshot,
     classes,
     races,
+    type AdndCharacterBuild,
+    type AdndCharacterSnapshot,
+    type HalflingSubrace,
   } from '$lib/adnd';
-  import type { ADNDClass, ADNDRace } from '$lib/adnd';
+
+  /**
+   * Optional props, present only when the builder is mounted as an artifact editor.
+   *
+   * Absent on its own route and in a workshop panel, where the builder composes a new character
+   * and saves it itself. Requirement 2.1 wants one component in both places, so the difference is
+   * two optional props rather than two components.
+   */
+  type Props = {
+    /** A saved character to open, seeding every control from it. */
+    editing?: AdndCharacterSnapshot;
+    /** Announces a replacement snapshot. Present only when `editing` is. */
+    onChange?: (snapshot: unknown) => void;
+  };
+
+  const { editing, onChange }: Props = $props();
+
+  const TOOL_PATH = '/fantasy/adnd/character/build';
+
+  /** The derived numbers the Details section lets a user correct. */
+  type AdndDerivedNumberField =
+    | 'level'
+    | 'xp'
+    | 'thaco'
+    | 'poisonSavingThrow'
+    | 'rodSavingThrow'
+    | 'petrificationSavingThrow'
+    | 'breathSavingThrow'
+    | 'spellSavingThrow'
+    | 'weightAllowance'
+    | 'maxPress'
+    | 'systemShock'
+    | 'resurrectionSurvival'
+    | 'maximumNumberOfHenchmen'
+    | 'numberOfLanguages';
+  import type { ADNDClass } from '$lib/adnd';
   import { Currency } from '$lib/currency';
   import { showsMaturityBadge, toolMaturityForPath } from '$lib/tools';
   import { showAlertModal } from '$lib/ui';
@@ -42,41 +80,78 @@
     rollCharacterNameForSource,
   } from '$lib/characters';
   import type { Culture } from '$lib/culture';
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
 
   // The builder keeps its own header — the h1 shares a row with Reset — rather than mounting
   // `GeneratorPage`, so it states its maturity itself. The value still comes from the catalog.
   const maturity = toolMaturityForPath('/fantasy/adnd/character/build');
 
+  /**
+   * The derived block, as rows, so the markup is a loop rather than forty near-identical inputs.
+   *
+   * Not every derived field is here. The ones a table actually gets consulted about are — saving
+   * throws, THAC0, encumbrance, system shock — while the spell-progression numbers are omitted
+   * because they are read off the class and a level-1 character has nothing to correct in them.
+   */
+  const DERIVED_NUMBER_FIELDS: { field: AdndDerivedNumberField; label: string }[] = [
+    { field: 'thaco', label: 'THAC0' },
+    { field: 'poisonSavingThrow', label: 'Save: paralyzation / poison / death' },
+    { field: 'rodSavingThrow', label: 'Save: rod / staff / wand' },
+    { field: 'petrificationSavingThrow', label: 'Save: petrification / polymorph' },
+    { field: 'breathSavingThrow', label: 'Save: breath weapon' },
+    { field: 'spellSavingThrow', label: 'Save: spell' },
+    { field: 'weightAllowance', label: 'Weight allowance' },
+    { field: 'maxPress', label: 'Maximum press' },
+    { field: 'systemShock', label: 'System shock %' },
+    { field: 'resurrectionSurvival', label: 'Resurrection survival %' },
+    { field: 'maximumNumberOfHenchmen', label: 'Maximum henchmen' },
+    { field: 'numberOfLanguages', label: 'Number of languages' },
+  ];
+
   let rollRng = new RNG.RNG(Date.now().toString());
 
-  let str = $state(0);
-  let dex = $state(0);
-  let con = $state(0);
-  let int = $state(0);
-  let wis = $state(0);
-  let cha = $state(0);
+  /**
+   * The form, seeded from the artifact when there is one.
+   *
+   * `adndBuildFromSnapshot` is exact for everything the builder models, so opening a saved
+   * character and changing nothing produces the character that was stored — which is what stops an
+   * artifact being marked dirty the moment it is opened. The class-features seed it is handed is
+   * fresh, because the payload does not carry one and nothing is re-derived while the structure
+   * holds; it matters only if the user forces a re-derivation, and then fresh is right.
+   */
+  const initial = untrack(() => {
+    const seed = new RNG.RNG(Date.now().toString()).randomString(13);
+    return editing ? adndBuildFromSnapshot(editing, seed) : createAdndCharacterBuild(seed);
+  });
 
-  let raceName = $state('');
-  let className = $state('');
-  let alignment = $state('');
+  let str = $state(initial.attributes.strength);
+  let dex = $state(initial.attributes.dexterity);
+  let con = $state(initial.attributes.constitution);
+  let int = $state(initial.attributes.intelligence);
+  let wis = $state(initial.attributes.wisdom);
+  let cha = $state(initial.attributes.charisma);
 
-  let halflingSubrace = $state<HalflingSubrace>('Hairfeet');
-  let halflingInfravision = $state(false);
+  let raceName = $state(initial.raceName);
+  let className = $state(initial.className);
+  let alignment = $state(initial.alignment);
 
-  let hpValue = $state(1);
+  let halflingSubrace = $state<HalflingSubrace>(initial.halflingSubrace);
+  let halflingInfravision = $state(initial.halflingInfravision);
+
+  let hpValue = $state(initial.hp);
   let startingGp = $state(0);
   let startingSp = $state(0);
   let startingCp = $state(0);
 
-  let classFeaturesSeed = $state(rollRng.randomString(13));
-  let selectedWeaponNames = $state<string[]>([]);
-  let selectedArmorNames = $state<string[]>([]);
-  let starterSpellPicks = $state<string[][]>([]);
-  let thiefSkillBonuses = $state<Record<string, number>>({});
+  let classFeaturesSeed = $state(initial.classFeaturesSeed);
+  let selectedWeaponNames = $state<string[]>(initial.selectedWeaponNames);
+  let selectedArmorNames = $state<string[]>(initial.selectedArmorNames);
+  let starterSpellPicks = $state<string[][]>(initial.starterSpellPicks);
+  let thiefSkillBonuses = $state<Record<string, number>>(initial.thiefSkillPoints);
   let wasEquipmentOverBudget = $state(false);
   let downloadingPdf = $state(false);
 
@@ -108,72 +183,57 @@
   const allRaces = races.getAll();
   const allClasses = classes.getAll();
 
-  function makeBaseCharacter(): ADNDCharacter {
-    const c = createAdndCharacter();
-    c.strength = str;
-    c.dexterity = dex;
-    c.constitution = con;
-    c.intelligence = int;
-    c.wisdom = wis;
-    c.charisma = cha;
-    c.exceptionalStrength = -1;
-    c.abilities = [];
-    c.spells = [];
-    c.weapons = [];
-    c.armor = [];
-    return c;
-  }
+  /**
+   * The saved character being edited, or `null` when composing from nothing.
+   *
+   * `$state.raw` because it is a stored payload: it is replaced whole, never mutated in place, and
+   * a deep-reactive Proxy is what `structuredClone` refuses when the write reaches IndexedDB.
+   */
+  let base = $state.raw<AdndCharacterSnapshot | null>(initial.base);
 
-  const eligibleRaces = $derived.by(() => {
-    if (str < 1) return [] as ADNDRace[];
-    return getRaceOptions(makeBaseCharacter(), allRaces);
+  /**
+   * The form as the library's own type, assembled in one place.
+   *
+   * Every derivation below goes through `$lib/adnd` rather than being rebuilt here. That is what
+   * lets the same rules produce a character on this page, in a workshop panel, and in the artifact
+   * editor, and it is what made the fields testable without a browser.
+   */
+  const currentBuild = $derived<AdndCharacterBuild>({
+    base,
+    attributes: {
+      strength: str,
+      dexterity: dex,
+      constitution: con,
+      intelligence: int,
+      wisdom: wis,
+      charisma: cha,
+    },
+    raceName,
+    className,
+    alignment,
+    halflingSubrace,
+    halflingInfravision,
+    hp: hpValue,
+    startingWealthCp,
+    selectedWeaponNames,
+    selectedArmorNames,
+    starterSpellPicks,
+    thiefSkillPoints: thiefSkillBonuses,
+    classFeaturesSeed,
+    firstName,
+    lastName,
   });
+
+  const eligibleRaces = $derived(adndRaceOptionsForBuild(currentBuild));
 
   const selectedRace = $derived(allRaces.find((r) => r.name === raceName) ?? null);
 
-  const characterAfterRace = $derived.by(() => {
-    if (!selectedRace || str < 1) return null;
-    const c = makeBaseCharacter();
-    c.race = selectedRace;
-    if (selectedRace.name === 'halfling') {
-      applyHalflingWithOptions(c, {
-        subrace: halflingSubrace,
-        hasInfravision: halflingInfravision,
-      });
-    } else {
-      const r = new RNG.RNG(`race-${selectedRace.name}`);
-      selectedRace.apply(c, r);
-    }
-    return c;
-  });
+  const characterAfterRace = $derived(adndCharacterAfterRace(currentBuild));
 
-  const eligibleClasses = $derived.by(() => {
-    if (!characterAfterRace || !selectedRace) return [] as ADNDClass[];
-    return getClassOptionsForRace(characterAfterRace, selectedRace, allClasses);
-  });
+  const eligibleClasses = $derived(adndClassOptionsForBuild(currentBuild));
 
-  function applyClassFeaturesWithSeed(c: ADNDCharacter, cls: ADNDClass, seed: string): void {
-    const r = new RNG.RNG(seed);
-    cls.apply(c, r, { spells: 'user', thiefSkills: 'user' });
-    assignExceptionalStrength(c, cls, r);
-  }
-
-  function copyAfterRaceBody(src: ADNDCharacter): ADNDCharacter {
-    const c = createAdndCharacter();
-    c.strength = src.strength;
-    c.dexterity = src.dexterity;
-    c.constitution = src.constitution;
-    c.intelligence = src.intelligence;
-    c.wisdom = src.wisdom;
-    c.charisma = src.charisma;
-    c.exceptionalStrength = src.exceptionalStrength;
-    c.abilities = [...src.abilities];
-    c.race = src.race;
-    c.spells = [];
-    c.weapons = [];
-    c.armor = [];
-    return c;
-  }
+  /** True when applying the form to the saved character would throw work away (4.3). */
+  const wouldRederive = $derived(adndBuildWouldRederive(currentBuild));
 
   const selectedClass = $derived(allClasses.find((cl) => cl.name === className) ?? null);
 
@@ -229,13 +289,15 @@
     ),
   );
 
-  const characterForHpBounds = $derived.by(() => {
-    if (!characterAfterRace || !selectedClass) return null;
-    const c = copyAfterRaceBody(characterAfterRace);
-    c.class = selectedClass;
-    applyClassFeaturesWithSeed(c, selectedClass, classFeaturesSeed);
-    return c;
-  });
+  /**
+   * The character the hit-point range is read off.
+   *
+   * Built with the alignment forced, because hit dice do not depend on alignment and the form may
+   * not have one yet — the range has to be offerable before the last dropdown is answered.
+   */
+  const characterForHpBounds = $derived(
+    buildAdndCharacter({ ...currentBuild, alignment: alignment || 'true neutral' }),
+  );
 
   const hpBounds = $derived(
     characterForHpBounds ? getAdndLevel1HpBounds(characterForHpBounds) : { min: 1, max: 1 },
@@ -478,6 +540,14 @@
     );
   });
 
+  /**
+   * The character the form describes, or nothing while a required choice is still outstanding.
+   *
+   * The derivation itself lives in `$lib/adnd`; what stays here is only the question of whether
+   * the form is finished enough to show a character at all. `buildAdndCharacter` decides whether
+   * that means deriving from scratch or writing these fields over a saved character — see
+   * `adnd_character_build.ts`, where the difference is the whole design.
+   */
   const previewCharacter = $derived.by(() => {
     if (!characterAfterRace || !selectedClass || !alignment || str < 1) return undefined;
     if (
@@ -489,48 +559,101 @@
     if (thiefSkillKind && !thiefSkillAllocationComplete) {
       return undefined;
     }
-
-    const c = copyAfterRaceBody(characterAfterRace);
-    c.class = selectedClass;
-    applyClassFeaturesWithSeed(c, selectedClass, classFeaturesSeed);
-    c.alignment = alignment;
-
-    if (selectedClass.hasSpells) {
-      c.spells = startingSpellsFromPicks(selectedClass, starterSpellPicks);
-    }
-
-    if (thiefSkillKind) {
-      applyThiefSkillAllocation(c, thiefSkillKind, thiefSkillBonuses);
-    }
-
-    const hp = Math.min(Math.max(hpValue, hpBounds.min), hpBounds.max);
-    c.hp = hp;
-
-    c.weapons = [];
-    c.armor = [];
-    for (const n of selectedWeaponNames) {
-      const w = Equipment.getWeapons().find((x) => x.name === n);
-      if (w) c.weapons.push(w);
-    }
-    for (const n of selectedArmorNames) {
-      const ar = Equipment.getArmor().find((x) => x.name === n);
-      if (ar) c.armor.push(ar);
-    }
-
-    const spent = equipmentSpend;
-    const purse = Math.max(0, startingWealthCp - spent);
-    c.currency = purse;
-    const purseRng = new RNG.RNG(
-      `priest-purse-${classFeaturesSeed}-${startingWealthCp}-${spent}-${purse}`,
-    );
-    applyAdndPriestFundsCapIfNeeded(c, purseRng);
-
-    finalizeAdndCharacterDerivedStats(c);
-    recalculateAdndArmorClass(c);
-    c.firstName = firstName;
-    c.lastName = lastName;
-    return c;
+    return buildAdndCharacter(currentBuild) ?? undefined;
   });
+
+  const previewSnapshot = $derived(
+    previewCharacter === undefined ? null : toAdndCharacterSnapshot(previewCharacter),
+  );
+
+  /**
+   * Tell the surrounding artifact surface what the form now describes.
+   *
+   * Only when mounted as an editor; on its own route there is nobody to tell, and the builder
+   * saves for itself. Announcing a snapshot identical to the stored one is harmless — the
+   * framework's dirty check is `sameSnapshot`, a value comparison — so this does not need to know
+   * whether the user has actually changed anything, which is just as well, because the answer is
+   * spread across every control on the page.
+   */
+  $effect(() => {
+    const snapshot = previewSnapshot;
+    if (onChange !== undefined && snapshot !== null) {
+      onChange(snapshot);
+    }
+  });
+
+  /**
+   * Apply one edit to a field the form does not otherwise own — a derived stat, a proficiency, the
+   * kit.
+   *
+   * It works by making the character on screen the new `base` and changing it there, which has a
+   * consequence worth stating: the first Details edit turns a composed character into an edited
+   * payload. From then on the payload is authoritative and the rules stop being recomputed
+   * underneath it, which is requirement 4.2 and is what the user asked for by typing a number into
+   * a derived field.
+   */
+  function editDetail(mutate: (snapshot: AdndCharacterSnapshot) => AdndCharacterSnapshot): void {
+    if (previewSnapshot === null) return;
+    base = mutate(previewSnapshot);
+  }
+
+  function setDerivedNumber(field: AdndDerivedNumberField, raw: unknown): void {
+    const value = Math.trunc(Number(raw));
+    if (!Number.isFinite(value)) return;
+    editDetail((snapshot) => ({ ...snapshot, [field]: value }));
+  }
+
+  function setStringList(field: 'weaponProficiencyGroups' | 'nonweaponProficiencies', raw: string) {
+    const entries = raw
+      .split(',')
+      .map((entry) => entry.trim())
+      .filter((entry) => entry !== '');
+    editDetail((snapshot) => ({ ...snapshot, [field]: entries }));
+  }
+
+  function setAbilities(raw: string) {
+    const lines = raw
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== '');
+    editDetail((snapshot) => ({ ...snapshot, abilities: lines }));
+  }
+
+  function setKitName(raw: string) {
+    const name = raw.trim();
+    editDetail((snapshot) => ({
+      ...snapshot,
+      kit: name === '' ? null : { name, features: snapshot.kit?.features ?? [] },
+    }));
+  }
+
+  function setKitFeatures(raw: string) {
+    const features = raw
+      .split('\n')
+      .map((line) => line.trim())
+      .filter((line) => line !== '');
+    editDetail((snapshot) =>
+      snapshot.kit === null ? snapshot : { ...snapshot, kit: { ...snapshot.kit, features } },
+    );
+  }
+
+  /**
+   * Recompute the derived block from race, class, and attributes — the command that used to be
+   * automatic.
+   *
+   * Demoting it to a button is the point. While a character is only ever composed, recomputing on
+   * every keystroke is right; once it can be saved and corrected, the same behaviour would undo
+   * the correction the moment anything else changed. So it stays available and becomes explicit,
+   * and it says plainly that it overwrites.
+   */
+  function recalculateDerivedStats(): void {
+    const cls = selectedClass;
+    if (previewSnapshot === null || cls === null) return;
+    const recomputed = adndCharacterFromSnapshot(previewSnapshot);
+    finalizeAdndCharacterDerivedStats(recomputed);
+    recalculateAdndArmorClass(recomputed);
+    base = toAdndCharacterSnapshot(recomputed);
+  }
 
   function rollNamesForCurrentSource(defaultHint: string) {
     const source = buildCharacterNameSource(
@@ -584,6 +707,14 @@
     <h1>AD&D 2e Character Builder</h1>
     <button type="button" onclick={resetBuilderForm}>Reset</button>
   </header>
+
+  {#if wouldRederive}
+    <p class="builder-rederive-warning" role="status">
+      <strong>This will re-roll the character.</strong> Changing race, class, or an attribute means everything
+      that follows from them — proficiencies, the kit, exceptional strength, and the derived numbers —
+      is worked out afresh. Edits to those will be lost.
+    </p>
+  {/if}
 
   {#if showsMaturityBadge(maturity)}
     <p class="builder-maturity">
@@ -861,6 +992,107 @@
       <div class="builder-result">
         <h2>Character</h2>
         <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
+
+        <SaveArtifactButton
+          kind={ADND_CHARACTER_ARTIFACT_KIND}
+          toolPath={TOOL_PATH}
+          snapshot={previewSnapshot}
+          defaultName={`${firstName} ${lastName}`.trim()}
+        />
+
+        <details class="builder-details">
+          <summary>Details</summary>
+
+          <p class="builder-details-note">
+            Everything below is stored exactly as you leave it. Changing a value here makes this
+            character's own numbers authoritative, so the rules stop being recalculated underneath
+            them.
+          </p>
+
+          <h3>Experience</h3>
+          <div class="builder-detail-grid">
+            {#each [{ field: 'level', label: 'Level' }, { field: 'xp', label: 'XP' }] as row}
+              <label>
+                {row.label}
+                <input
+                  type="number"
+                  value={previewCharacter[row.field as 'level' | 'xp']}
+                  onchange={(e) =>
+                    setDerivedNumber(row.field as AdndDerivedNumberField, e.currentTarget.value)}
+                />
+              </label>
+            {/each}
+          </div>
+
+          <h3>Proficiencies</h3>
+          <label>
+            Weapon proficiency groups (comma separated)
+            <input
+              type="text"
+              value={previewCharacter.weaponProficiencyGroups.join(', ')}
+              onchange={(e) => setStringList('weaponProficiencyGroups', e.currentTarget.value)}
+            />
+          </label>
+          <label>
+            Nonweapon proficiencies (comma separated)
+            <input
+              type="text"
+              value={previewCharacter.nonweaponProficiencies.join(', ')}
+              onchange={(e) => setStringList('nonweaponProficiencies', e.currentTarget.value)}
+            />
+          </label>
+
+          <h3>Kit</h3>
+          <label>
+            Kit name (blank for none)
+            <input
+              type="text"
+              value={previewCharacter.kit?.name ?? ''}
+              onchange={(e) => setKitName(e.currentTarget.value)}
+            />
+          </label>
+          {#if previewCharacter.kit}
+            <label>
+              Kit features, one per line
+              <textarea
+                rows="4"
+                value={previewCharacter.kit.features.join('\n')}
+                onchange={(e) => setKitFeatures(e.currentTarget.value)}
+              ></textarea>
+            </label>
+          {/if}
+
+          <h3>Abilities</h3>
+          <label>
+            One per line
+            <textarea
+              rows="6"
+              value={previewCharacter.abilities.join('\n')}
+              onchange={(e) => setAbilities(e.currentTarget.value)}
+            ></textarea>
+          </label>
+
+          <h3>Derived stats</h3>
+          <p>
+            <button type="button" onclick={recalculateDerivedStats}>
+              Recalculate from race, class, and attributes
+            </button>
+            <span class="builder-details-note">This overwrites every value below.</span>
+          </p>
+          <div class="builder-detail-grid">
+            {#each DERIVED_NUMBER_FIELDS as row}
+              <label>
+                {row.label}
+                <input
+                  type="number"
+                  value={previewCharacter[row.field]}
+                  onchange={(e) => setDerivedNumber(row.field, e.currentTarget.value)}
+                />
+              </label>
+            {/each}
+          </div>
+        </details>
+
         <AdndCharacterSheet character={previewCharacter} />
       </div>
     {:else if spellPreviewIncomplete}
