@@ -5,19 +5,12 @@
   import ProjectContextBar from '$components/common/ProjectContextBar.svelte';
   import ProjectView from '$components/common/ProjectView.svelte';
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
-  import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
   import StorageWarningBanner from '$components/common/StorageWarningBanner.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
   import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import type { Project } from '$lib/projects';
-  import {
-    allTools,
-    findToolByPath,
-    showsMaturityBadge,
-    toolMaturityForPath,
-    type Tool,
-  } from '$lib/tools';
+  import { allTools, findToolByPath, type Tool } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
   import { hasToolPanel, hasUnsavedEdits } from '$lib/workshop';
   import {
@@ -34,10 +27,11 @@
     type ProjectWorkspace,
   } from '$lib/workspaces';
 
-  // The browser offers what the workshop can actually mount, which is also what keeps the
-  // workshop's own catalog entry from listing itself inside itself.
+  // The browser offers what the workshop can actually mount. Every tool in the catalog has a
+  // panel, so this filters nothing today; it stays because a bench should offer what it can mount
+  // rather than what a list says exists, and the parity test — not this line — is what keeps the
+  // two the same.
   const mountableTools = allTools().filter((tool) => hasToolPanel(tool.path));
-  const workshopMaturity = toolMaturityForPath('/workshop');
 
   let project = $state<Project | undefined>(undefined);
   let bench: ProjectWorkspace = $state(emptyWorkspace(''));
@@ -204,16 +198,11 @@
 <section class="workshop">
   <h1>Workshop</h1>
 
-  <!-- The workshop is a catalog tool like any other and says where it stands like any other, but
-       the level alone: Experimental's sentence warns that a tool's output may not be savable, which
-       is true of a generator and false here — the workshop is what does the saving. What a user
-       needs to know about the durability of their work is the Backup section, which says it
-       accurately; that now lives on /projects, one click away in the sidebar. -->
-  {#if showsMaturityBadge(workshopMaturity)}
-    <p class="workshop__maturity">
-      <ToolMaturityBadge maturity={workshopMaturity} />
-    </p>
-  {/if}
+  <!-- No maturity badge, because the workshop is not a tool and the ladder measures what becomes
+       of the work a tool produces (decision 9 in docs/workshop.md). It borrowed Experimental once,
+       whose sentence warns that output may not be savable — true of a generator, false of the
+       surface that does the saving. What a user needs to know about the durability of their work
+       is the Backup section on /projects, one click away in the sidebar, which says it accurately. -->
 
   <!-- The one thing on this surface allowed to raise its voice, and only when the browser really
        is nearly full. It is here rather than in the shell because this is where a user with a
@@ -290,10 +279,6 @@
 
   .workshop h1 {
     margin: 0 0 0.5rem;
-  }
-
-  .workshop__maturity {
-    margin: 0 0 0.75rem;
   }
 
   .workshop__layout {

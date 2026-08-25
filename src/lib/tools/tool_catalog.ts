@@ -322,23 +322,9 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   }),
 
   // Utilities & Reference
-  defineTool({
-    // The workshop is where every other tool in this catalog can be mounted, which makes it the
-    // one entry with no panel of its own — see `PATHS_WITHOUT_TOOL_PANELS` in `$lib/workshop`.
-    // It is here rather than only in the nav because the catalog is where a tool's name and
-    // classification live, and a surface nothing can find is a surface nobody uses.
-    //
-    // Experimental, and not as a placeholder: the readiness spec measures a tool by what happens
-    // to the artifacts it produces, and the workshop produces none of its own — it is the bench
-    // the others are worked on. What the level does say truthfully is the part a user needs, which
-    // is that the workshop is still being built and may change under them.
-    path: '/workshop',
-    label: 'Workshop',
-    kind: 'editor',
-    domain: 'utilities',
-    maturity: 'experimental',
-    tags: ['workshop', 'projects'],
-  }),
+  // The workshop is deliberately absent. It is a surface rather than an instrument — the bench
+  // the tools below are worked on — and this catalog holds instruments; see decision 9 in
+  // docs/workshop.md. It is reached from `NAV_DESTINATIONS`, as Projects and the Result Vault are.
   defineTool({
     path: '/language',
     label: 'Language',

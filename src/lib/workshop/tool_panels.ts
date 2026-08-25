@@ -59,15 +59,12 @@ export const TOOL_PANELS: ToolPanelRegistry = {
 };
 
 /**
- * Catalog tools that deliberately have no panel.
- *
- * There is exactly one, and it is the workshop itself: a panel is a thing the workshop mounts, so
- * mounting the workshop inside one would nest a bench inside a bench and give the user two project
- * contexts to keep straight. The list exists rather than the test simply skipping the path,
- * because "no panel" and "we forgot the panel" look identical from the outside, and the parity
- * test's whole job is telling them apart.
+ * Every tool in the catalog has a panel, with no exceptions. There used to be one — the workshop
+ * itself, which cannot be mounted inside its own bench — and it stopped being an exception when it
+ * stopped being a tool (decision 9 in docs/workshop.md). What replaced the exemption list is the
+ * stronger statement: "no panel" and "we forgot the panel" are told apart by there being no such
+ * thing as a tool without one.
  */
-export const PATHS_WITHOUT_TOOL_PANELS: RouteId[] = ['/workshop'];
 
 /** The loader for a tool's panel, or undefined when no component is registered for it. */
 export function toolPanelLoader(path: RouteId): ToolPanelLoader | undefined {
