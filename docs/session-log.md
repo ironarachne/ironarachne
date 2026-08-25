@@ -13,8 +13,10 @@ workshop is a single route and a query parameter on it cannot say which panel it
 Designs [#80](https://github.com/ironarachne/ironarachne/issues/80). It sits inside
 [the workshop](workshop.md) and uses its bench, its tool catalog, and its RNG contract.
 
-**Status:** proposal. The [domain model](#domain-model) has not been reviewed, and per the design
-process in CLAUDE.md implementation does not start before a human approves it.
+**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved, so
+[the plan](#the-plan) is clear to start. What it is broken into is tracked on GitHub under the
+`workshop` label, as sub-issues of #80. Nothing in [Still open](#still-open) blocks it — the three
+questions there are presentation and scope, not shape.
 
 ## The problem
 
