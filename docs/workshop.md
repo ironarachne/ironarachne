@@ -15,7 +15,7 @@ down in [The plan](#the-plan) and tracked on GitHub under the `workshop` label; 
 what is not is in [What exists today](#what-exists-today).
 
 The [domain model](#domain-model) is settled, and the work in [The plan](#the-plan) is built
-against it. The six questions it forced are recorded in
+against it. The eight questions it forced are recorded in
 [Decisions taken here](#decisions-taken-here); three of them close open questions this document had
 been carrying.
 
@@ -85,7 +85,8 @@ graph LR
 The top-level container and the unit a user thinks in: "my Dolmenwood campaign", "the
 Ashfall setting". A project owns artifacts, and artifacts belong to exactly one project.
 
-A project carries a name, an optional description, free-form tags, and timestamps. It is
+A project carries a name, an optional description, an optional genre and game system
+([Genre and system](#genre-and-system)), free-form tags, and timestamps. It is
 deliberately thin — it is a namespace and a workspace, not a document with its own content. What
 makes a project meaningful is what is inside it.
 
@@ -95,6 +96,121 @@ different project, because a world that depends on another world is not a world.
 
 Copying an artifact between projects is a supported operation, but it copies — the two diverge
 afterwards.
+
+#### Genre and system
+
+A project may say what it is **set in**: a genre — `fantasy`, `scifi`, `cyberpunk`, `horror` — and a
+game system — `adnd-2e`, `dcc`, `swn`, `uncharted-worlds`. The two are independent and both are
+optional. A Stars Without Number campaign is `scifi` and `swn`; a homebrew sword-and-sorcery
+setting is `fantasy` and no system at all; a project that is simply a box of tools is neither.
+
+What they buy is a shorter Tools panel. A fantasy campaign has no use for a cyberpunk chop shop in
+its tool list, and at 35 tools the noise is real.
+
+**The vocabularies are the tool catalog's, not a second pair.** `Genre` and `GameSystem` are
+declared in `src/lib/tools/tool_types.ts` and already expand into `genre:` and `system:` tags on
+every catalog entry; `$lib/projects` imports them from there. Two lists of genres is how the
+project form and the tool browser end up offering different ones. The dependency runs one way —
+projects knows about tools, tools knows nothing about projects — and has to stay that way.
+
+**Both can be changed, at any time.**
+[Decision 7](#7-a-projects-genre-and-system-are-fields-and-both-can-change) argues it in full. The
+short version is that nothing keys off either field except which tools are listed: no artifact
+records the genre of the project it was saved in, no payload changes shape, no reference breaks. A
+change costs a different list and nothing else, where a permanent choice costs a user who picked
+wrong an entire second project — and since a genre hides most of the catalog, picking wrong is the
+likeliest thing that will happen here.
+
+**A tool with no genre is always listed, and so is a tool with no system.** That rule is the whole
+filter and it is load-bearing: only four tools carry no genre — `/environment`, `/language`,
+`/workshop`, and `/word-generator-cheat-sheet` — so a filter that dropped genre-neutral tools would
+take the environment generator away from a fantasy project, which is the opposite of the point. A
+tool carrying several genres matches if any of them does: `/spooky-ship` is `scifi` and `horror`
+and belongs in both lists. `isCompatibleWithSystem` in `src/lib/tools/tool_search.ts` is already
+exactly this shape; `isCompatibleWithGenre` joins it, and the genre criterion in `searchTools`
+changes from `hasGenre` — keep only tools carrying this genre — to compatibility. The strict filter
+has one caller, a checkbox that is about to go, so nothing depends on the old meaning.
+
+**There is one way past the filter, and it is one control.** The catalog is not evenly spread:
+
+| Project setting | Tools listed, of 35     |
+| --------------- | ----------------------- |
+| No genre        | 35                      |
+| `fantasy`       | 25 (21 + the 4 neutral) |
+| `scifi`         | 12 (8 + 4)              |
+| `cyberpunk`     | 6 (2 + 4)               |
+| `horror`        | 5 (1 + 4)               |
+| Any system      | 30 or 31 of 35          |
+
+A `horror` project seeing five tools is a fact about the catalog rather than a bug in the filter —
+but a panel that hides thirty tools with no way to say "show me anyway" is a wall, and the one
+route around it, typing a tool's URL, is invisible. So the Tools panel filters by default and
+offers a single unchecked checkbox, _Show all tools_, that suspends both filters at once, above it
+a line naming the setting and counting what is hidden. That state is per session and is not
+persisted: looking at the rest of the catalog is not a change to the project. Separate checkboxes
+per filter were considered and rejected — two controls in a narrow rail for a distinction nobody
+has asked to draw.
+
+This does soften the stance `ToolBrowser`'s present copy takes, that tools for other systems are
+never listed. Mixing systems was never a data hazard: kinds are system-qualified
+([decision 4](#4-kinds-are-system-qualified-when-the-payload-is)), so an AD&D character saved into
+an SWN project is still a `character.adnd-2e` and nothing downstream is confused by it. The hiding
+is decluttering, and decluttering may be undone.
+
+**Where they are set.** Two paths create a project. The create row on `/projects` gets both, as
+selects defaulting to "Any genre" and "Any system", and the project card's edit form gets the same
+pair beside name and description — which is also where a project made before this feature gets one,
+and where a wrong choice is corrected. The other path is the save dialog on a tool's own route,
+which offers to make a project when the user has none; it stays name-only and creates a project
+with neither set. It is reached mid-task by someone who wanted to save a culture, and its one field
+is already more than they came for.
+
+Inferring the system there from the tool being saved from — a project created out of
+`/swn/character` is probably an SWN project — is tempting, and is not done. "Probably" is the
+problem: a fact the user never stated, written silently, that then hides tools they never chose to
+hide.
+
+**The field is the answer; the tag is derived.** Genre and system are fields on `Project`, and the
+matching `genre:<g>` and `system:<s>` tags are recomputed from those fields on every write — the
+both-shapes pattern `defineTool` already uses for `maturity`, for the same reason: every reader
+wants exactly one answer, which only a field guarantees, while the tag keeps the fact composing
+with the filtering in `$lib/tags`. A project's tags differ from a catalog entry's in one way that
+matters, though: `ProjectChanges.tags` lets a caller rewrite them wholesale, and an import carries
+whatever the file said. So the derivation strips any incoming `genre:`/`system:` tag before
+appending the derived ones, and runs on the read path (`toProject`) as well as the write path
+(`toProjectRecord`) — one helper, both places. A stored record whose tag disagrees with its field
+is then not a state anything else has to consider.
+
+`ProjectChanges` needs `null` to mean "clear": the convention it uses for strings, where empty
+clears, has no honest analogue for an enum, and `'' as Genre` would be a lie. So
+`genre?: Genre | null` — absent leaves it alone, `null` unsets it, a value sets it.
+
+**What travels.** Both fields are optional and additive, so `EXPORT_FORMAT_VERSION` does not move,
+and must not: `parseExportFile` refuses any file whose version is newer than the build, so a bump
+makes every export from the new build unreadable to a deployed older one — a total refusal in
+exchange for a field that build would have ignored anyway. Additive-optional degrades the right
+way instead; the older build drops what it does not know and keeps the project.
+
+The import side has to degrade the same way, and the obvious implementation does not. `toProject`
+returns `undefined` when any field fails its check and `readVaultBody` filters those out, so
+validating `genre` as "must be one of `GENRES`" would mean a vault from a future build with a fifth
+genre loses the whole project — name, description, tags, id — and spills its artifacts into the
+"Recovered artifacts" bucket. The rule is that an unrecognised genre or system **drops the field
+and keeps the project**, with a test that says so. It is the same discipline requirement 3.3 asks
+of artifact payloads, and here the failure it prevents is worse than a throw.
+
+Three places handle a project field by field and will silently lose these unless they are changed
+with the type: `toProjectRecord`, `stageProjectRecord` in `vault_file_import.ts`, which rebuilds an
+imported project through a draft, and `sameProject`, which decides whether an update writes at all
+— leave it alone and a genre-only edit is discarded as no change.
+
+**What does not key off them, yet.** Genre themes (`fantasy.css`, `scifi.css`, `cyberpunk.css`)
+style generated output per tool today, and whether a project's genre should also theme the workshop
+is a real question with real arguments on both sides. It is not answered here, and nothing in this
+design depends on the answer. Artifact kinds do not key off the project either: they are qualified
+by system where the payload demands it (decision 4), which is a property of the payload rather than
+of the project holding it. And a panel already mounted for a tool the setting now hides **stays
+mounted** — taking a tool out of a list is not a reason to close someone's work.
 
 ### Artifact
 
@@ -160,8 +276,9 @@ single largest piece of work the workshop implies.
 The workshop is a single surface with three regions:
 
 - **Project context** — which project is open, and switching between projects.
-- **Tool browser** — the catalog, searchable and filterable by genre, system, and domain. This
-  exists (`src/lib/tools/tool_search.ts`, `ToolBrowser.svelte`).
+- **Tool browser** — the catalog, searchable and filterable by genre, system, and domain, and
+  narrowed to the open project's [genre and system](#genre-and-system) unless the user asks to see
+  everything. This exists (`src/lib/tools/tool_search.ts`, `ToolBrowser.svelte`).
 - **Panels** — mounted tools and open artifacts.
 
 A user opens a project, picks a tool, generates something, names it, and keeps it. It appears in
@@ -650,8 +767,24 @@ classDiagram
         +string id
         +string name
         +string description?
+        +Genre genre?
+        +GameSystem system?
         +number createdAt
         +number updatedAt
+    }
+    class Genre {
+        <<enumeration>>
+        fantasy
+        scifi
+        cyberpunk
+        horror
+    }
+    class GameSystem {
+        <<enumeration>>
+        adnd_2e
+        dcc
+        swn
+        uncharted_worlds
     }
     class Artifact {
         +string id
@@ -685,6 +818,8 @@ classDiagram
 
     TaggedItem <|-- Project
     TaggedItem <|-- Artifact
+    Project --> "0..1" Genre : set in
+    Project --> "0..1" GameSystem : played with
     Vault "1" *-- "*" Project : holds
     Project "1" *-- "*" Artifact : owns
     Project "1" *-- "0..1" ProjectWorkspace : bench
@@ -716,6 +851,12 @@ Reading the relationships:
 - **`Provenance` is optional and stays optional.** Artifacts adopted from legacy saves (#34) have
   no honest seed, and inventing one would be a lie the re-roll button acts on. Its `toolPath` is a
   catalog key — the one edge from the store to the registries below.
+- **`Genre` and `GameSystem` are the tool catalog's own vocabularies**, imported from
+  `src/lib/tools/tool_types.ts` rather than restated — the diagram spells `adnd-2e` and
+  `uncharted-worlds` with underscores only because Mermaid reads a hyphen as an operator. Both are
+  optional, both may change, and the `genre:`/`system:` tags on the project are derived from the
+  fields on every read and write, never authored. See [Genre and system](#genre-and-system) and
+  [decision 7](#7-a-projects-genre-and-system-are-fields-and-both-can-change).
 - **`payload` is `unknown` here on purpose.** The store deliberately does not know payload shapes —
   that is the whole point of it being generic — so the type is narrowed by `kind` through the
   registry below, not by the store.
@@ -1110,8 +1251,9 @@ two places for the same thing.
 
 ### Decisions taken here
 
-Six questions the prose left open. The first four modelling forced; the last two are the storage
-substrate and the quota policy built on it, settled when #45 was refined. They are recorded with
+Eight questions the prose left open. The first four modelling forced; the next two are the storage
+substrate and the quota policy built on it, settled when #45 was refined; the last two are what a
+project is set in, settled when #44 and #78 were designed together. They are recorded with
 the reasoning, because a model that defers its hard parts is not a model.
 
 #### 1. References carry a required `role`
@@ -1223,6 +1365,50 @@ creation rather than first load. The reasoning for each is in
 [Storage limits](#storage-limits) and [Eviction and persistence](#eviction-and-persistence).
 
 This answers the remainder of #45.
+
+#### 7. A project's genre and system are fields, and both can change
+
+`Project` gains `genre?: Genre` and `system?: GameSystem` as fields, with the `genre:`/`system:`
+tags derived from them. A field is the only shape that guarantees one answer to "what is this
+project set in", and `ProjectChanges.tags` is a wholesale rewrite — a genre kept only as a tag is a
+genre any caller can change by accident, and an imported file could arrive carrying two of them.
+
+The harder half is whether either may change once set. The proposal for genre (#78) was that it
+cannot: artifacts accumulate under a project, and a project that quietly changes what it is about
+is worse than a second project. That argument does not survive contact with the model. Nothing in
+the store keys off either field — no artifact records the genre of the project it was saved into,
+no payload shape depends on it, no reference resolves through it — so changing one invalidates
+nothing and destroys nothing. The entire consequence is which tools the Tools panel lists.
+
+Set against that, permanence is expensive in exactly the case that will happen most. A genre hides
+between ten and thirty of the catalog's thirty-five tools, which makes a mis-pick both easy and
+punishing, and the remedy under permanence is to create a second project and copy artifacts across
+— a real cost, imposed to protect a list filter. Permanence also doubles the states every surface
+must handle: unset-and-settable, and set-forever, each with its own copy and its own confirmation.
+
+So both change, from the same control, with no confirmation. The alternative that was genuinely
+close is making both permanent — one rule, honestly stated, and a project that means something
+durable. It loses to the asymmetry of the mistake: an unwanted change is one select away from being
+undone, and an unwanted permanence is not. What is refused outright is the shape the two issues
+arrived in, genre permanent and system not, because the consequence of changing either is
+identical and no sentence explains the difference to a user.
+
+#### 8. The Tools panel filters by the project's setting, and one control suspends it
+
+The filter is on whenever the open project has a genre or a system, with no per-project opt-out to
+remember, and a single session-scoped _Show all tools_ checkbox reveals the rest of the catalog.
+
+The competing answer — hide unconditionally, as `ToolBrowser` already claims to do for system — is
+the stronger statement and the worse tool. It is defensible while a filter hides four tools of
+thirty-five, which is all a system does; it is not defensible when a `horror` project's panel shows
+five entries and the only route to the other thirty is a URL nobody is told about. Hiding is a
+default here, not a rule, because nothing about mixing settings is unsafe: kinds are
+system-qualified, artifacts are payloads rather than promises about a genre, and the worst outcome
+of generating a cyberpunk street name inside a fantasy campaign is that the user wanted one.
+
+Keeping it to one checkbox rather than one per filter is the same judgement in miniature. The panel
+lives in a narrow rail; "show me everything" is a request users actually make, and "show me other
+genres but keep hiding other systems" is not.
 
 ## What exists today
 
@@ -1591,3 +1777,9 @@ document is entitled to reopen.
   Recorded in [decision 2](#2-stored-work-uses-epoch-milliseconds-the-file-header-uses-iso-8601).
 - **Scope of the first release.** The shell, projects, the artifact store, and culture, religion,
   and settlement taken to Release-ready. Recorded in [The plan](#the-plan).
+- **What a project is set in.** An optional genre and an optional game system, both changeable,
+  narrowing the Tools panel with one control that suspends the filter. Recorded in
+  [Genre and system](#genre-and-system),
+  [decision 7](#7-a-projects-genre-and-system-are-fields-and-both-can-change), and
+  [decision 8](#8-the-tools-panel-filters-by-the-projects-setting-and-one-control-suspends-it);
+  tracked in #44 and #78.
