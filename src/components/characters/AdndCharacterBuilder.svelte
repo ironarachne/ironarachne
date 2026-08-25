@@ -28,6 +28,7 @@
     starterSpellSelectionIsComplete,
     sumThiefSkillBonuses,
     thiefSkillBonusesAreValid,
+    toAdndCharacterBuildRecord,
     toAdndCharacterSnapshot,
     classes,
     races,
@@ -584,6 +585,19 @@
   );
 
   /**
+   * The decisions that made this character, as provenance.
+   *
+   * What makes a hand-built character reproducible. A generated one records a seed and the
+   * generator's settings; this one records the choices, and the kind's roller tells the two apart
+   * by the tool path. `toAdndCharacterBuildRecord` copies every array and object out, because
+   * IndexedDB serialises with `structuredClone` and that refuses the Proxy a deep-reactive value
+   * would hand it.
+   */
+  const buildRecord = $derived(
+    toAdndCharacterBuildRecord(currentBuild) as unknown as Record<string, unknown>,
+  );
+
+  /**
    * Tell the surrounding artifact surface what the form now describes.
    *
    * Only when mounted as an editor; on its own route there is nobody to tell, and the builder
@@ -1010,6 +1024,8 @@
           kind={ADND_CHARACTER_ARTIFACT_KIND}
           toolPath={TOOL_PATH}
           snapshot={previewSnapshot}
+          seed={classFeaturesSeed}
+          config={buildRecord}
           defaultName={`${firstName} ${lastName}`.trim()}
         />
 

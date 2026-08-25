@@ -9,6 +9,9 @@ import {
   adndRaceOptionsForBuild,
   buildAdndCharacter,
   createAdndCharacterBuild,
+  readAdndCharacterBuildRecord,
+  rebuildAdndCharacterSnapshot,
+  toAdndCharacterBuildRecord,
   type AdndCharacterBuild,
 } from './adnd_character_build.js';
 import { rollAdndCharacter } from './adnd_character_roll.js';
@@ -297,5 +300,123 @@ describe('createAdndCharacterBuild', () => {
     const rng = new RNG('unused');
     expect(rng).toBeDefined();
     expect(createAdndCharacterBuild('a')).toEqual(createAdndCharacterBuild('a'));
+  });
+});
+
+describe('the build record as provenance', () => {
+  it('reproduces the same character from the decisions that made it', () => {
+    // The whole promise of decision 6: a hand-built character has no dice worth re-rolling, so its
+    // re-roll is a faithful rebuild rather than a fresh draw.
+    const build = composedBuild();
+    const record = toAdndCharacterBuildRecord(build);
+
+    const rebuilt = rebuildAdndCharacterSnapshot(build.classFeaturesSeed, record);
+
+    expect(rebuilt).toEqual(toAdndCharacterSnapshot(buildAdndCharacter(build)!));
+  });
+
+  it('survives the round trip through a stored config', () => {
+    const build = composedBuild();
+    const stored = JSON.parse(JSON.stringify(toAdndCharacterBuildRecord(build))) as Record<
+      string,
+      unknown
+    >;
+
+    const rebuilt = rebuildAdndCharacterSnapshot(
+      build.classFeaturesSeed,
+      readAdndCharacterBuildRecord(stored),
+    );
+
+    expect(rebuilt).toEqual(toAdndCharacterSnapshot(buildAdndCharacter(build)!));
+  });
+
+  it('is storable, which a Proxy-backed config would not be', () => {
+    // The trap `$lib/workshop`'s README records: IndexedDB serialises with `structuredClone`,
+    // which refuses a Proxy and fails the write with `could not be cloned`.
+    expect(() => structuredClone(toAdndCharacterBuildRecord(composedBuild()))).not.toThrow();
+  });
+
+  it('carries no base, because the payload is the base', () => {
+    const record = toAdndCharacterBuildRecord(
+      adndBuildFromSnapshot(generatedSnapshot(), 'seed'),
+    ) as Record<string, unknown>;
+
+    expect(record.base).toBeUndefined();
+    expect(record.classFeaturesSeed).toBeUndefined();
+  });
+
+  it('takes its seed from provenance rather than from itself', () => {
+    const record = toAdndCharacterBuildRecord(composedBuild());
+
+    const one = rebuildAdndCharacterSnapshot('seed-one', record);
+    const two = rebuildAdndCharacterSnapshot('seed-two', record);
+
+    // Same decisions, different class-feature seed: the parts the class rolls may differ, the
+    // parts the user chose may not.
+    expect(two?.alignment).toBe(one?.alignment);
+    expect(two?.hp).toBe(one?.hp);
+    expect(two?.thiefSkills).toEqual(one?.thiefSkills);
+  });
+
+  it('rebuilds a subrace choice exactly', () => {
+    const build = composedBuild();
+    build.raceName = 'halfling';
+    build.className = 'thief';
+    build.subraceName = 'Stout';
+
+    const rebuilt = rebuildAdndCharacterSnapshot(
+      build.classFeaturesSeed,
+      toAdndCharacterBuildRecord(build),
+    );
+
+    expect(rebuilt?.subraceName).toBe('Stout');
+    expect(rebuilt?.raceName).toBe('halfling');
+  });
+
+  it('is null when the decisions no longer make a character', () => {
+    const record = toAdndCharacterBuildRecord(composedBuild());
+
+    expect(
+      rebuildAdndCharacterSnapshot('seed', { ...record, className: 'bladesinger' }),
+    ).toBeNull();
+  });
+});
+
+describe('readAdndCharacterBuildRecord', () => {
+  it('drops what it does not recognise rather than coercing it', () => {
+    const record = readAdndCharacterBuildRecord({
+      raceName: 42,
+      className: 'thief',
+      attributes: 'not an object',
+      selectedWeaponNames: ['dagger', 7],
+      thiefSkillPoints: { 'Pick Pockets': 'lots' },
+      starterSpellPicks: 'nope',
+    });
+
+    expect(record.raceName).toBe('');
+    expect(record.className).toBe('thief');
+    expect(record.attributes.strength).toBe(0);
+    expect(record.selectedWeaponNames).toEqual([]);
+    expect(record.thiefSkillPoints).toEqual({});
+    expect(record.starterSpellPicks).toEqual([]);
+  });
+
+  it('reads an empty config without throwing', () => {
+    expect(() => readAdndCharacterBuildRecord({})).not.toThrow();
+    expect(readAdndCharacterBuildRecord({}).raceName).toBe('');
+  });
+
+  it('does not accept a generator config as a build', () => {
+    // The two share a kind and are told apart by tool path alone, so a reader that guessed would
+    // rebuild a character out of the generator's settings.
+    const record = readAdndCharacterBuildRecord({
+      nameGeneratorSet: 'human',
+      includeProficiencies: true,
+      includeKits: true,
+    });
+
+    expect(record.raceName).toBe('');
+    expect(record.className).toBe('');
+    expect(rebuildAdndCharacterSnapshot('seed', record)).toBeNull();
   });
 });

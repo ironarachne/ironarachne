@@ -67,6 +67,52 @@ describe('the artifact editor registry', () => {
     expect(hasArtifactEditor('character.adnd-2e')).toBe(true);
   });
 
+  it('rebuilds a hand-built character and re-rolls a generated one', async () => {
+    // One kind, two provenance shapes. The branch is on the tool path, and getting it wrong would
+    // rebuild a character out of the generator's settings — which reads as an empty character
+    // rather than as an error, so it is worth pinning.
+    const roll = await artifactEditorEntry('character.adnd-2e')!.loadRoller!();
+
+    const built = roll({
+      toolPath: '/fantasy/adnd/character/build',
+      seed: 'seed',
+      config: {
+        raceName: 'human',
+        className: 'fighter',
+        alignment: 'true neutral',
+        subraceName: '',
+        attributes: {
+          strength: 14,
+          dexterity: 13,
+          constitution: 12,
+          intelligence: 11,
+          wisdom: 10,
+          charisma: 9,
+        },
+        hp: 8,
+        startingWealthCp: 1000,
+        selectedWeaponNames: [],
+        selectedArmorNames: [],
+        starterSpellPicks: [],
+        thiefSkillPoints: {},
+        firstName: 'Aldric',
+        lastName: 'Vane',
+      },
+    }) as { raceName: string; hp: number; firstName: string };
+
+    expect(built.raceName).toBe('human');
+    expect(built.hp).toBe(8);
+    expect(built.firstName).toBe('Aldric');
+
+    const generated = roll({
+      toolPath: '/fantasy/adnd/character',
+      seed: 'seed',
+      config: { includeKits: true },
+    }) as { raceName: string };
+
+    expect(generated.raceName).not.toBe('');
+  });
+
   it('registers editors only for kinds this build can store', () => {
     const kinds = registeredArtifactKinds().map((entry) => entry.kind);
 
