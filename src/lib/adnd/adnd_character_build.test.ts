@@ -9,11 +9,13 @@ import {
   adndRaceOptionsForBuild,
   buildAdndCharacter,
   createAdndCharacterBuild,
+  findAdndClass,
   readAdndCharacterBuildRecord,
   rebuildAdndCharacterSnapshot,
   toAdndCharacterBuildRecord,
   type AdndCharacterBuild,
 } from './adnd_character_build.js';
+import { getStartingSpellChoiceGroups } from './adnd_class_starting_spells.js';
 import { rollAdndCharacter } from './adnd_character_roll.js';
 import { toAdndCharacterSnapshot } from './adnd_character_snapshot.js';
 import type { AdndCharacterSnapshot } from './adnd_character_snapshot.js';
@@ -418,5 +420,97 @@ describe('readAdndCharacterBuildRecord', () => {
     expect(record.raceName).toBe('');
     expect(record.className).toBe('');
     expect(rebuildAdndCharacterSnapshot('seed', record)).toBeNull();
+  });
+});
+
+describe('a form that is only part-filled', () => {
+  /**
+   * The regression this exists for.
+   *
+   * `buildAdndCharacter` runs on every keystroke, including from the hit-point bounds, which need
+   * a character long before the spell step has been reached. `startingSpellsFromPicks` throws on a
+   * partial set, so building a caster with no picks yet took the whole builder down: the derived
+   * value threw, the page stopped updating, and the alignment step never appeared. No unit test
+   * saw it because none built a caster mid-form, and no end-to-end test saw it because none drove
+   * the builder past choosing a class.
+   */
+  it('builds a caster whose spells have not been chosen yet', () => {
+    const build = composedBuild();
+    build.className = 'cleric';
+    build.alignment = 'true neutral';
+    build.starterSpellPicks = [];
+
+    const character = buildAdndCharacter(build);
+
+    expect(character).not.toBeNull();
+    expect(character?.class.name).toBe('cleric');
+    expect(character?.spells).toEqual([]);
+  });
+
+  it('never throws while the form is being filled in', () => {
+    const build = composedBuild();
+    build.className = 'cleric';
+    build.alignment = 'true neutral';
+
+    for (const picks of [[], [[]], [['']], [['Bless', '']]]) {
+      build.starterSpellPicks = picks;
+      expect(() => buildAdndCharacter(build)).not.toThrow();
+    }
+  });
+
+  it('uses the picks once they are complete', () => {
+    const build = composedBuild();
+    build.className = 'cleric';
+    build.alignment = 'true neutral';
+    const groups = getStartingSpellChoiceGroups(findAdndClass('cleric')!);
+    build.starterSpellPicks = groups.map((group) =>
+      group.candidates.slice(0, group.count).map((spell) => spell.name),
+    );
+
+    const character = buildAdndCharacter(build);
+
+    expect(character?.spells.length).toBeGreaterThan(0);
+  });
+});
+
+describe('reopening a saved caster', () => {
+  /**
+   * A saved caster used to reopen as nothing at all.
+   *
+   * `adndBuildFromSnapshot` rebuilt the spell picks as one flat list, but
+   * `starterSpellSelectionIsComplete` checks each of the class's groups against its own count, so
+   * the form read as unfinished and the preview — which waits for complete picks — waited forever.
+   * The builder showed a blank page for a character that was saved perfectly well.
+   */
+  it('shows the character it was handed', () => {
+    const snapshot = generatedSnapshot((s) => s.spells.length > 0);
+
+    const character = buildAdndCharacter(adndBuildFromSnapshot(snapshot, 'seed'));
+
+    expect(character).not.toBeNull();
+    expect(character?.spells.map((spell) => spell.name)).toEqual(
+      snapshot.spells.map((spell) => spell.name),
+    );
+  });
+
+  it('round-trips a caster unchanged, so opening one is not an edit', () => {
+    const snapshot = generatedSnapshot((s) => s.spells.length > 0);
+
+    const rebuilt = buildAdndCharacter(adndBuildFromSnapshot(snapshot, 'seed'));
+
+    expect(toAdndCharacterSnapshot(rebuilt!)).toEqual(snapshot);
+  });
+
+  it('gives every group one entry per slot', () => {
+    const snapshot = generatedSnapshot((s) => s.spells.length > 0);
+    const cls = findAdndClass(snapshot.className)!;
+
+    const build = adndBuildFromSnapshot(snapshot, 'seed');
+
+    const groups = getStartingSpellChoiceGroups(cls);
+    expect(build.starterSpellPicks).toHaveLength(groups.length);
+    build.starterSpellPicks.forEach((row, index) => {
+      expect(row).toHaveLength(groups[index].count);
+    });
   });
 });

@@ -101,13 +101,23 @@ describe('TOOL_CATALOG', () => {
     expect(findToolByPath('/culture')?.maturity).toBe('release-ready');
     expect(findToolByPath('/fantasy/religion')?.maturity).toBe('release-ready');
     expect(findToolByPath('/heraldry')?.maturity).toBe('beta');
+    // The AD&D pair, assessed together because they share an artifact kind (#45, #47).
+    expect(findToolByPath('/fantasy/adnd/character')?.maturity).toBe('release-ready');
+    expect(findToolByPath('/fantasy/adnd/character/build')?.maturity).toBe('release-ready');
   });
 
   it('leaves every other tool Experimental until it is taken further', () => {
     // A tripwire rather than a rule: raising a tool's level means adding it here, in the same
     // change that earns it. That is the point — a level should not be able to rise as a side
     // effect of editing a catalog entry for some other reason.
-    const assessedHigher = ['/culture', '/fantasy/religion', '/fantasy/settlement', '/heraldry'];
+    const assessedHigher = [
+      '/culture',
+      '/fantasy/religion',
+      '/fantasy/settlement',
+      '/heraldry',
+      '/fantasy/adnd/character',
+      '/fantasy/adnd/character/build',
+    ];
 
     const claimingMore = TOOL_CATALOG.filter(
       (tool) => !assessedHigher.includes(tool.path) && tool.maturity !== 'experimental',
@@ -201,6 +211,8 @@ describe('toolsWithMaturity', () => {
 
     expect(releaseReady.map((tool) => tool.path).sort()).toEqual([
       '/culture',
+      '/fantasy/adnd/character',
+      '/fantasy/adnd/character/build',
       '/fantasy/religion',
       '/fantasy/settlement',
     ]);
@@ -248,6 +260,8 @@ describe('filterTools', () => {
     });
 
     expect(durableFantasy.map((tool) => tool.path)).toEqual([
+      '/fantasy/adnd/character/build',
+      '/fantasy/adnd/character',
       '/culture',
       '/fantasy/religion',
       '/fantasy/settlement',

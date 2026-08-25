@@ -70,3 +70,48 @@ import { downloadAdndCharacterPdf } from '$lib/adnd';
 
 await downloadAdndCharacterPdf(character);
 ```
+
+## What edition this is, and what it leaves out
+
+Requirement 8.4 in [the readiness spec](../../../docs/workshop.md#8-documentation) asks a tool
+that implements a game system to say which edition and what it deliberately omits. This is
+**AD&D 2nd Edition**, from the Player's Handbook.
+
+Everything here is **level 1**. That is the single largest omission and the one every other
+follows from: there is no experience progression, no hit dice past the first, no spell progression
+table, and no saving-throw improvement. A character is made and then read; it is not advanced.
+
+Also deliberately absent:
+
+- **Multi-classing and dual-classing.** A character has exactly one class. The demihuman
+  multi-class combinations are a large part of the PHB and none of them are here.
+- **Psionics.** Not modelled at all.
+- **Non-weapon proficiency slots and checks.** `selectNonweaponProficiencies` picks a plausible
+  list of names. It does not track slot costs, does not spend them against an allowance, and there
+  is no proficiency check.
+- **The mechanical half of kits.** `adnd_kits_data.ts` is curated narrative features, chosen for
+  what they suggest at a table. A kit's real hindrances, weapon restrictions, and benefits are not
+  applied to the character.
+- **Encumbrance, movement, and combat resolution.** Weight allowance and maximum press are
+  computed and shown, but nothing consumes them.
+- **Spheres and schools beyond filtering.** A priest's spells are drawn through `SpellFilter`
+  rather than by modelling sphere access.
+
+Two rules are implemented in a way worth naming, because they are easy to misread as bugs:
+
+- **Discretionary thief skill points are spent exactly.** `distributePoints` clamps its last award
+  to whatever is left of the pool. It did not always: 86% of rolled rogues used to come out above
+  their budget, by as much as 27 points on a pool of 60.
+- **A roll that qualifies for no class is re-rolled**, up to twenty times. Straight 3d6 down the
+  line can produce a character no class will take under any race — the PHB's own answer is to roll
+  again, and `generateCharacter` does.
+
+## Storage
+
+An AD&D character is an artifact of kind `character.adnd-2e`, shared by the generator at
+`/fantasy/adnd/character` and the builder at `/fantasy/adnd/character/build`. `ADNDRace` and
+`ADNDClass` each carry an `apply` function and so are stored by name; everything else on the
+character, including every derived number, travels as it is. See
+[the design](../../../docs/adnd-character.md) for why the numbers are kept rather than recomputed,
+and [subraces](../../../docs/adnd-subraces.md) for why a variety is a field on the character rather
+than a rewrite of its race.

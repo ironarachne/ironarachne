@@ -33,7 +33,18 @@
   let lockSeed = $state(false);
   let includeProficiencies = $state(false);
   let includeKits = $state(false);
-  let character = $state<ADNDCharacter | undefined>();
+  /**
+   * The rolled character.
+   *
+   * `$state.raw`, and this is not a preference. Deep-reactive `$state` wraps every array and
+   * object inside the character in a Proxy, and `structuredClone` — what IndexedDB stores with —
+   * refuses a Proxy outright. Saving failed with
+   * `[object Array] could not be cloned` and kept failing until an end-to-end test tried it: no
+   * unit test touches Svelte state, so nothing below the browser could see it. The same trap is
+   * written up in `$lib/workshop`'s README beside `saveToolArtifact`, and guarding the config
+   * alone was not enough — the payload goes to the same place.
+   */
+  let character = $state.raw<ADNDCharacter | undefined>();
   let downloadingPdf = $state(false);
   /**
    * The settings the character on screen was actually rolled with.
@@ -67,6 +78,11 @@
    */
   let rolledCultureReference = $state.raw<ArtifactReference | undefined>();
 
+  /** The character with the names the page is showing, which is what the sheet and the PDF want. */
+  const namedCharacter = $derived(
+    character === undefined ? undefined : { ...character, firstName, lastName },
+  );
+
   /**
    * What gets stored, with the names the page is showing rather than the ones the roll produced.
    *
@@ -75,18 +91,10 @@
    * can see is not what they asked for.
    */
   const characterSnapshot = $derived(
-    character === undefined ? null : toAdndCharacterSnapshot({ ...character, firstName, lastName }),
+    namedCharacter === undefined ? null : toAdndCharacterSnapshot(namedCharacter),
   );
 
   const defaultArtifactName = $derived(`${firstName} ${lastName}`.trim());
-
-  function applyNamesToCharacter(target: ADNDCharacter | undefined) {
-    if (!target) {
-      return;
-    }
-    target.firstName = firstName;
-    target.lastName = lastName;
-  }
 
   /**
    * Names for the current source, from a stream the seed decides.
@@ -204,21 +212,19 @@
     const generated = rollNamesForCurrentSource(defaultHint, `${Date.now()}-adnd-name`);
     firstName = generated.firstName;
     lastName = generated.lastName;
-    if (character) {
-      character.firstName = generated.firstName;
-      character.lastName = generated.lastName;
-    }
+    // The character is not touched: it is raw state, and every reader already composes the names
+    // the page is showing over it.
   }
 
   async function downloadPdf() {
-    if (downloadingPdf || !character) {
+    const sheet = namedCharacter;
+    if (downloadingPdf || sheet === undefined) {
       return;
     }
 
-    applyNamesToCharacter(character);
     downloadingPdf = true;
     try {
-      await downloadAdndCharacterPdf(character);
+      await downloadAdndCharacterPdf(sheet);
     } finally {
       downloadingPdf = false;
     }
@@ -298,6 +304,6 @@
   />
 
   {#if character}
-    <AdndCharacterSheet character={{ ...character, firstName, lastName }} />
+    <AdndCharacterSheet character={namedCharacter!} />
   {/if}
 </GeneratorPage>

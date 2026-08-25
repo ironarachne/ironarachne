@@ -143,9 +143,13 @@
   let subraceName = $state(initial.subraceName);
 
   let hpValue = $state(initial.hp);
-  let startingGp = $state(0);
-  let startingSp = $state(0);
-  let startingCp = $state(0);
+  // Seeded from the artifact, not zeroed. Left at zero, a reopened character's gear costs more
+  // than its funds the instant the form mounts, so the over-budget guard fired: it cleared the
+  // equipment and put an error dialog over the page. The purse and the gear are one decision and
+  // have to arrive together.
+  let startingGp = $state(Math.floor(initial.startingWealthCp / 100));
+  let startingSp = $state(Math.floor((initial.startingWealthCp % 100) / 10));
+  let startingCp = $state(initial.startingWealthCp % 10);
 
   let classFeaturesSeed = $state(initial.classFeaturesSeed);
   let selectedWeaponNames = $state<string[]>(initial.selectedWeaponNames);
@@ -161,8 +165,8 @@
   );
   let presetSetName = $state('human');
   let savedCultureName = $state('');
-  let firstName = $state('');
-  let lastName = $state('');
+  let firstName = $state(initial.firstName);
+  let lastName = $state(initial.lastName);
   let lockName = $state(false);
   let namingGender = $state<'male' | 'female' | 'random'>('random');
   let referencedCulture = $state<Culture | undefined>();
@@ -368,8 +372,26 @@
     }
   });
 
+  /**
+   * What these two reset effects were keyed on when they last ran.
+   *
+   * `null` means "has not run yet", and the first run is the one that must do nothing. Both
+   * effects exist to clear a choice that belongs to a class the user has moved away from, and both
+   * used to fire on mount as well — which silently wiped the spell picks and the thief allocation
+   * that `adndBuildFromSnapshot` had just restored. A saved caster then read as an unfinished form
+   * and showed no character at all.
+   */
+  let lastSpellClass: string | null = null;
+  let lastThiefKey: string | null = null;
+
   $effect(() => {
     const cls = selectedClass;
+    const key = cls?.name ?? '';
+    if (lastSpellClass === null || lastSpellClass === key) {
+      lastSpellClass = key;
+      return;
+    }
+    lastSpellClass = key;
     if (!cls?.hasSpells) {
       starterSpellPicks = [];
       return;
@@ -380,11 +402,12 @@
 
   $effect(() => {
     const key = thiefSkillBonusResetKey;
-    if (!thiefSkillKind || !characterAfterRace) {
-      thiefSkillBonuses = {};
+    if (lastThiefKey === null || lastThiefKey === key) {
+      lastThiefKey = key;
       return;
     }
-    if (!key) {
+    lastThiefKey = key;
+    if (!thiefSkillKind || !characterAfterRace || !key) {
       thiefSkillBonuses = {};
       return;
     }
@@ -603,19 +626,33 @@
   );
 
   /**
+   * What was last announced to the surrounding surface, as a value rather than a reference.
+   *
+   * `toAdndCharacterSnapshot` builds a fresh object every time it runs, so announcing on every
+   * render meant announcing a *different object* describing an *identical character*. The surface
+   * stored it, re-rendered, and the effect ran again — a loop that never settled. The panel stayed
+   * visibly alive and its Save button could not be clicked, because nothing was ever stable long
+   * enough. Comparing by value is what stops it.
+   */
+  let lastAnnounced: string | null = null;
+
+  /**
    * Tell the surrounding artifact surface what the form now describes.
    *
    * Only when mounted as an editor; on its own route there is nobody to tell, and the builder
-   * saves for itself. Announcing a snapshot identical to the stored one is harmless — the
-   * framework's dirty check is `sameSnapshot`, a value comparison — so this does not need to know
-   * whether the user has actually changed anything, which is just as well, because the answer is
-   * spread across every control on the page.
+   * saves for itself.
    */
   $effect(() => {
     const snapshot = previewSnapshot;
-    if (onChange !== undefined && snapshot !== null) {
-      onChange(snapshot);
+    if (onChange === undefined || snapshot === null) {
+      return;
     }
+    const announced = JSON.stringify(snapshot);
+    if (announced === lastAnnounced) {
+      return;
+    }
+    lastAnnounced = announced;
+    onChange(snapshot);
   });
 
   /**
@@ -1041,7 +1078,13 @@
             : [cultureReference]}
         />
 
-        <details class="builder-details">
+        <!--
+          `aria-label` because a `<details>` maps to an unnamed `group`: the `<summary>` names the
+          disclosure visually but does not name the group in the accessibility tree, so a screen
+          reader announces "group" with nothing after it. Native `<details>` keeps the keyboard
+          behaviour that a custom disclosure would have to reimplement (6.2).
+        -->
+        <details class="builder-details" aria-label="Details">
           <summary>Details</summary>
 
           <p class="builder-details-note">

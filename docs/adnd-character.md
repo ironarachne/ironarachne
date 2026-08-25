@@ -10,7 +10,8 @@ because the two make the same thing and the readiness spec requires them to make
 kind. It sits inside [the workshop](workshop.md) and is measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved, so
+**Status:** accepted; **built**. Both tools are Release-ready, assessed section by section in
+[What shipped](#what-shipped). The [domain model](#domain-model) was reviewed and approved, so
 [the plan](#the-plan) is clear to start.
 
 One decision moved after that approval, on the instruction that a character build be as robust and
@@ -683,3 +684,47 @@ None of these blocks the model; each is presentation or scope.
 - **Should the derived-stats block be editable in the panel as well as on the route?** It is a long
   block of number inputs and the panel is narrow. Requirement 2.1 says the tool must work
   identically in both, which argues yes; the collapsed Details section is what makes that bearable.
+
+## What shipped
+
+Both tools reached `maturity: 'release-ready'` on 2026-08-25. Assessed against every requirement
+that applies, rather than declared:
+
+| Section               | How it is met                                                                                                                                                                                                                                                                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1 Discoverability** | Both were already met and are unchanged: catalog entries with the right `kind` and `domain`, `genre:fantasy` and `system:adnd-2e`, both in `TOOL_PANELS`, and labels that already read correctly out of context.                                                                                                 |
+| **2 Behaviour**       | `rollAdndCharacter` is the one path from a seed, and it fixed a real 2.2 failure — the name was drawn from the clock, so a locked seed gave a different character each press. Neither tool generates over user input.                                                                                            |
+| **3 Artifacts**       | `character.adnd-2e` at `payloadVersion` 1, shared by both tools. Race and class stored by name; every derived number kept. `validate` returns a rejection rather than throwing; `migrate` rejects and says so. Provenance records tool path, seed, and settings — a generator's config or a builder's decisions. |
+| **4 Editing**         | The builder **is** the kind's editor. It patches a saved character rather than re-deriving it, so rolled proficiencies and a kit survive being opened. Derived numbers are editable, with recalculation demoted to an explicit command. A structural change re-derives and says so first.                        |
+| **5 Composition**     | A culture is taken through `SavedArtifactPicker` and recorded by id, with the culture's own pattern set in provenance so a re-roll keeps the tongue. Both tools work with no culture at all.                                                                                                                     |
+| **6 Output**          | Both routes render at every width in `e2e/mobile_viewports.ts`. Every control is reachable by role and name — asserted by driving the whole builder that way. PDF export is the presentation format.                                                                                                             |
+| **7 Verification**    | Round-trip, migration, build, subrace and roll tests in `$lib/adnd`; `e2e/adnd_character.spec.ts` covers generate, save, reopen, edit for both tools.                                                                                                                                                            |
+| **8 Documentation**   | `$lib/adnd/README.md` says which edition, that everything is level 1, and what is deliberately left out.                                                                                                                                                                                                         |
+
+### What the end-to-end test found
+
+Requirement 7.4 was the last thing built and it earned its place immediately. Five bugs, none of
+which any unit test could have seen, because each lived in the space between Svelte's reactivity
+and the store:
+
+- **The generator could not save at all.** `character` was deep-reactive `$state`, so the
+  snapshot's arrays were Proxies and `structuredClone` — what IndexedDB writes with — refused them:
+  `[object Array] could not be cloned`. Guarding the provenance config was not enough; the payload
+  goes to the same place. Broken since the save button was added.
+- **The builder crashed for every spellcasting class.** `buildAdndCharacter` runs on each
+  keystroke, including for the hit-point bounds, and `startingSpellsFromPicks` throws on a partial
+  set. Choosing a caster took the page down before the alignment step appeared.
+- **Reopening a saved caster showed nothing.** The stored spellbook was rebuilt as one flat list
+  rather than one row per choice group, so the form read as unfinished forever.
+- **Reopening a character with equipment deleted its gear.** Starting funds were not seeded from
+  the artifact, so the over-budget guard fired on mount, cleared the equipment, and put an error
+  dialog over the page.
+- **The editor never settled.** Announcing a freshly built snapshot on every render meant a new
+  object describing an identical character, which the surface stored and re-rendered — a loop that
+  left the Save button unclickable.
+
+The last three share a cause worth naming: **the builder is the first artifact editor with state
+of its own.** Culture, religion and settlement editors hold everything in the snapshot prop, so
+nothing about seeding or re-announcing could go wrong for them. A tool mounted as an editor has to
+be seeded completely and has to announce only real changes, and neither requirement existed before
+this kind.
