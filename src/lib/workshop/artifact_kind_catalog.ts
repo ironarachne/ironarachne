@@ -15,6 +15,7 @@ import {
 // Everything in the workshop touches this registry, so that difference is paid by any page that
 // so much as lists what a project contains. Settlement is the sharpest case of the four: its entry
 // point reaches `$lib/organizations`, and from there the heraldry generator and the charge library.
+import { adndCharacterArtifactKind } from '$lib/adnd/adnd_character_artifact_kind';
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
@@ -35,6 +36,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, cultureArtifactKind);
   registerArtifactKind(registry, religionArtifactKind);
   registerArtifactKind(registry, settlementArtifactKind);
+  registerArtifactKind(registry, adndCharacterArtifactKind);
   return registry;
 }
 

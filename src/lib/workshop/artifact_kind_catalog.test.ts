@@ -15,6 +15,7 @@ describe('artifact kind catalog', () => {
       'culture',
       'religion',
       'settlement',
+      'character.adnd-2e',
     ]);
   });
 
