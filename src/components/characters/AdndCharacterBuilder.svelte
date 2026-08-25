@@ -79,6 +79,7 @@
     loadCulturesForNaming,
     rollCharacterNameForSource,
   } from '$lib/characters';
+  import type { ArtifactReference } from '$lib/artifacts';
   import type { Culture } from '$lib/culture';
   import { onMount, untrack } from 'svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
@@ -155,13 +156,17 @@
   let downloadingPdf = $state(false);
 
   let savedCultures = $state<Culture[]>([]);
-  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
+  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture' | 'referenced_culture'>(
+    'default',
+  );
   let presetSetName = $state('human');
   let savedCultureName = $state('');
   let firstName = $state('');
   let lastName = $state('');
   let lockName = $state(false);
   let namingGender = $state<'male' | 'female' | 'random'>('random');
+  let referencedCulture = $state<Culture | undefined>();
+  let cultureReference = $state<ArtifactReference | undefined>();
 
   function wealthCpFromCoinFields(gp: unknown, sp: unknown, cp: unknown): number {
     const g = Math.max(0, Math.floor(Number(gp) || 0));
@@ -692,6 +697,7 @@
       presetSetName,
       savedCultureName,
       savedCultures,
+      referencedCulture,
     );
     const nameRng = new RNG.RNG(`${Date.now()}-adnd-build-name`);
     return rollCharacterNameForSource(nameRng, source, defaultHint, namingGender);
@@ -762,6 +768,9 @@
   </p>
 
   <CharacterNameSection
+    offerReferencedCulture
+    bind:referencedCulture
+    bind:cultureReference
     bind:nameSourceKind
     bind:presetSetName
     bind:savedCultureName
@@ -1027,6 +1036,9 @@
           seed={classFeaturesSeed}
           config={buildRecord}
           defaultName={`${firstName} ${lastName}`.trim()}
+          references={cultureReference === undefined || nameSourceKind !== 'referenced_culture'
+            ? []
+            : [cultureReference]}
         />
 
         <details class="builder-details">

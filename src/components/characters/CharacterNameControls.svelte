@@ -1,12 +1,14 @@
 <script lang="ts">
   import type { Culture } from '$lib/culture';
 
-  type NameSourceKind = 'default' | 'preset' | 'saved_culture';
+  type NameSourceKind = 'default' | 'preset' | 'saved_culture' | 'referenced_culture';
 
   type Props = {
     nameSourceKind?: NameSourceKind;
     presetSetName?: string;
     savedCultureName?: string;
+    /** Whether the tool offers a project culture through the artifact picker above these fields. */
+    offerReferencedCulture?: boolean;
     savedCultures?: Culture[];
     nameSetNames?: string[];
     namingGender?: 'male' | 'female' | 'random';
@@ -28,6 +30,7 @@
     lastName = $bindable(''),
     lockName = $bindable(false),
     showGenderPicker = false,
+    offerReferencedCulture = false,
     onGenerateName,
   }: Props = $props();
 
@@ -51,6 +54,13 @@
         <option value="preset">Preset name set</option>
         {#if hasSavedCultures}
           <option value="saved_culture">Saved culture</option>
+        {/if}
+        {#if offerReferencedCulture}
+          <!--
+            Chosen through the picker above rather than here, so this option only reports what the
+            picker did. Disabled because selecting it would claim a culture nobody chose.
+          -->
+          <option value="referenced_culture" disabled>Culture from this project</option>
         {/if}
       </select>
     </div>
