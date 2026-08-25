@@ -57,6 +57,7 @@ const gnome: ADNDRace = {
     'burrowing mammal',
   ],
   allowedClasses: ['cleric', 'fighter', 'illusionist', 'thief'],
+  subraces: [],
 };
 
 export default gnome;

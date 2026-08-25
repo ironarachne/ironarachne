@@ -53,6 +53,7 @@ const halfelf: ADNDRace = {
     'specialist wizard',
     'thief',
   ],
+  subraces: [],
 };
 
 export default halfelf;

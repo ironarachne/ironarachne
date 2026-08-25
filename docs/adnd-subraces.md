@@ -9,8 +9,8 @@ of that mechanism causes. It sits inside [the AD&D 2E character
 artifact](adnd-character.md) and shares its payload, so it is measured against the same
 [Tool release readiness](workshop.md#tool-release-readiness) spec.
 
-**Status:** proposal. The [domain model](#domain-model) has not been reviewed. Implementation does
-not start before it is.
+**Status:** accepted; built. The [domain model](#domain-model) was reviewed and approved, and
+[the plan](#the-plan) is implemented — #99 is closed by it.
 
 ## The problem
 

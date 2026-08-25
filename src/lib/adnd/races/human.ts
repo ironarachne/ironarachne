@@ -53,6 +53,7 @@ const human: ADNDRace = {
     'specialist wizard',
     'thief',
   ],
+  subraces: [],
 };
 
 export default human;

@@ -29,7 +29,14 @@ export const ADND_CHARACTER_ARTIFACT_KIND = 'character.adnd-2e' as const;
 /** Version 1. The first shape an AD&D 2E character has been stored in. */
 export const ADND_CHARACTER_PAYLOAD_VERSION = 1 as const;
 
-const CHARACTER_STRING_FIELDS = ['firstName', 'lastName', 'raceName', 'className', 'alignment'];
+const CHARACTER_STRING_FIELDS = [
+  'firstName',
+  'lastName',
+  'raceName',
+  'className',
+  'alignment',
+  'subraceName',
+];
 
 /**
  * The numbers a character cannot be read without.
@@ -203,7 +210,11 @@ function adndCharacterName(snapshot: AdndCharacterSnapshot): string {
   if (given !== '') {
     return given;
   }
-  const described = `${snapshot.raceName} ${snapshot.className}`.trim();
+  const race =
+    snapshot.subraceName === ''
+      ? snapshot.raceName
+      : `${snapshot.subraceName} ${snapshot.raceName}`;
+  const described = `${race} ${snapshot.className}`.trim();
   return described === '' ? 'AD&D 2E Character' : described;
 }
 

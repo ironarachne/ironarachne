@@ -46,6 +46,7 @@ const dwarf: ADNDRace = {
   ageModifier: '5d6',
   availableInitialLanguages: ['common', 'dwarf', 'gnome', 'goblin', 'kobold', 'orc'],
   allowedClasses: ['cleric', 'fighter', 'thief'],
+  subraces: [],
 };
 
 export default dwarf;

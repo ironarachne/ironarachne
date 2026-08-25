@@ -52,6 +52,7 @@ const elf: ADNDRace = {
     'orc',
   ],
   allowedClasses: ['cleric', 'fighter', 'mage', 'ranger', 'thief'],
+  subraces: [],
 };
 
 export default elf;
