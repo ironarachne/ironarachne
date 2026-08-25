@@ -1,30 +1,22 @@
 import { expect, describe, it } from 'vitest';
 import { allTools } from '$lib/tools';
-import {
-  PATHS_WITHOUT_TOOL_PANELS,
-  TOOL_PANELS,
-  hasToolPanel,
-  pathsWithToolPanels,
-  toolPanelLoader,
-} from './tool_panels';
+import { TOOL_PANELS, hasToolPanel, pathsWithToolPanels, toolPanelLoader } from './tool_panels';
 
 describe('the tool panel registry', () => {
-  it('has a panel for every tool in the catalog that is meant to have one', () => {
-    const exempt = new Set<string>(PATHS_WITHOUT_TOOL_PANELS);
+  // No exemption list, and that is the assertion: every tool has a panel, so a missing one is
+  // always a mistake rather than possibly a decision. The workshop was the single exception until
+  // it stopped being a tool — decision 9 in docs/workshop.md.
+  it('has a panel for every tool in the catalog', () => {
     const missing = allTools()
-      .filter((tool) => !exempt.has(tool.path) && !hasToolPanel(tool.path))
+      .filter((tool) => !hasToolPanel(tool.path))
       .map((tool) => tool.path);
 
     expect(missing).toEqual([]);
   });
 
-  it('exempts only paths that are actually tools, and actually have no panel', () => {
-    const catalogPaths = new Set<string>(allTools().map((tool) => tool.path));
-
-    for (const path of PATHS_WITHOUT_TOOL_PANELS) {
-      expect(catalogPaths.has(path)).toBe(true);
-      expect(hasToolPanel(path)).toBe(false);
-    }
+  it('holds no entry for the workshop, which is a surface rather than a tool', () => {
+    expect(allTools().map((tool) => tool.path)).not.toContain('/workshop');
+    expect(hasToolPanel('/workshop')).toBe(false);
   });
 
   it('registers no path that is not a tool', () => {
@@ -76,12 +68,6 @@ describe('hasToolPanel', () => {
 
   it('is false for a route with no panel', () => {
     expect(hasToolPanel('/release-notes')).toBe(false);
-  });
-
-  it('is false for a tool exempted from having one', () => {
-    for (const path of PATHS_WITHOUT_TOOL_PANELS) {
-      expect(hasToolPanel(path)).toBe(false);
-    }
   });
 
   it('agrees with toolPanelLoader for every catalog tool', () => {

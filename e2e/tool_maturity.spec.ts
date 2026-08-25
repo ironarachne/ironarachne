@@ -28,7 +28,6 @@ const TOOL_PAGES = [
     title: 'AD&D 2e Character Builder | Iron Arachne',
     level: 'Experimental',
   },
-  { path: '/workshop', title: 'Workshop | Iron Arachne', level: 'Experimental' },
 ] as const;
 
 /** The release-ready tools, which must say nothing at all. */
