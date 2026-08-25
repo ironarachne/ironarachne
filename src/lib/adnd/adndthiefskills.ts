@@ -6,12 +6,22 @@ export type ThiefSkillRow = {
   value: number;
 };
 
+/**
+ * Deals `extraPoints` discretionary points across the skills, at most 30 into any one.
+ *
+ * The budget is exact. It did not used to be: the award was drawn against the per-skill headroom
+ * alone and only then subtracted, so the last one spent whatever it liked and 86% of rolled
+ * thieves and bards came out above their pool — by as much as 27 points on a budget of 60.
+ * Clamping the draw to what is left is the whole fix, and it was made before AD&D characters
+ * became storable, because after that the choice is between changing artifacts a user has kept
+ * and leaving them permanently wrong.
+ */
 export function distributePoints(skillList: ThiefSkillRow[], extraPoints: number, rng: RNG) {
   while (extraPoints > 0) {
     const skillIndex = rng.int(0, skillList.length - 1);
     const skill = skillList[skillIndex];
     if (skill.points < 30) {
-      const cap = 30 - skill.points > 30 ? 30 : 30 - skill.points;
+      const cap = Math.min(30 - skill.points, extraPoints);
       const points = rng.int(1, cap);
       skill.points += points;
       extraPoints -= points;

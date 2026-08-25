@@ -173,6 +173,31 @@
   <p>{ability}</p>
 {/each}
 
+{#if character.thiefSkills.length > 0}
+  <h3>Thief Skills</h3>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Skill</th>
+        <th>Base</th>
+        <th>Allocated</th>
+        <th>Total</th>
+      </tr>
+    </thead>
+    <tbody>
+      {#each character.thiefSkills as skill}
+        <tr>
+          <td>{skill.name}</td>
+          <td>{skill.value}%</td>
+          <td>{skill.points > 0 ? `+${skill.points}` : '—'}</td>
+          <td>{skill.value + skill.points}%</td>
+        </tr>
+      {/each}
+    </tbody>
+  </table>
+{/if}
+
 {#if character.spells.length > 0}
   <h3>Spells</h3>
 

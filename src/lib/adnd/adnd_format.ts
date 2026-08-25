@@ -119,6 +119,23 @@ export function formatAdndProficienciesSection(character: ADNDCharacter): string
   return parts.join('; ');
 }
 
+/**
+ * A thief's or bard's skills as `Pick Pockets: 45%`, or an empty string when the class has none.
+ *
+ * Empty rather than `'None'`, unlike every other section here, and the difference is deliberate.
+ * The others describe something any character might have and happens not to — a fighter with no
+ * kit has no kit — so `'None'` is an answer. Thief skills belong to two classes out of twenty, and
+ * "Thief Skills: None" on a wizard answers a question nobody asked. The caller draws this section
+ * only when there is something in it.
+ */
+export function formatAdndThiefSkillsSection(character: ADNDCharacter): string {
+  if (character.thiefSkills.length === 0) {
+    return '';
+  }
+
+  return character.thiefSkills.map((row) => `${row.name}: ${row.value + row.points}%`).join('; ');
+}
+
 export function formatAdndKitSection(character: ADNDCharacter): string {
   if (!character.kit) {
     return 'None';

@@ -9,6 +9,7 @@ import {
   formatAdndProficienciesSection,
   formatAdndSpellsSection,
   formatAdndStrength,
+  formatAdndThiefSkillsSection,
   formatAdndWeaponsSection,
   slugifyAdndCharacterFilename,
 } from './adnd_format';
@@ -286,6 +287,12 @@ function drawDetailSections(doc: PdfDoc, startY: number, character: ADNDCharacte
     'Abilities',
     formatAdndAbilitiesSection(character),
   );
+  const thiefSkills = formatAdndThiefSkillsSection(character);
+  if (thiefSkills !== '') {
+    // Drawn only when the class has skills. See `formatAdndThiefSkillsSection` for why this one
+    // section is conditional where its neighbours print "None".
+    y += drawLabeledSection(doc, MARGIN, y, CONTENT_WIDTH, 'Thief Skills', thiefSkills);
+  }
   y += drawLabeledSection(
     doc,
     MARGIN,

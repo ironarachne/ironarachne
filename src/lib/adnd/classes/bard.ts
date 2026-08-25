@@ -2,6 +2,10 @@ import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
 import type ADNDClass from '../adndclass.js';
+import {
+  orderThiefSkillRows,
+  prepareThiefSkillRowsForCharacter,
+} from '../adnd_thief_skill_builder.js';
 import * as ThiefSkills from '../adndthiefskills.js';
 
 const bard: ADNDClass = {
@@ -42,30 +46,17 @@ const bard: ADNDClass = {
     rng: RNG.RNG,
     options?: AdndClassApplyOptions,
   ): ADNDCharacter => {
-    let skills = [
-      { name: 'Pick Pockets', value: 10, points: 0 },
-      { name: 'Detect Noise', value: 20, points: 0 },
-      { name: 'Climb Walls', value: 50, points: 0 },
-      { name: 'Read Languages', value: 5, points: 0 },
-    ];
-    skills = ThiefSkills.modifyForDexterity(skills, character.dexterity);
-    let raceName = character.race.name;
-    if (character.race.name.includes('halfling')) {
-      raceName = 'halfling';
-    }
-
-    skills = ThiefSkills.modifyForRace(skills, raceName);
+    let skills = prepareThiefSkillRowsForCharacter('bard', character);
 
     if (options?.thiefSkills === 'user') {
       return character;
     }
 
+    // See the same passage in `thief.ts`: the shuffle decides the allocation and must stay, and
+    // the order it leaves behind is not what the sheet should print.
     skills = rng.shuffle(skills);
     skills = ThiefSkills.distributePoints(skills, 20, rng);
-
-    for (let i = 0; i < skills.length; i++) {
-      character.abilities.push(`${skills[i].name}: ${skills[i].value + skills[i].points}%`);
-    }
+    character.thiefSkills = orderThiefSkillRows('bard', skills);
 
     return character;
   },

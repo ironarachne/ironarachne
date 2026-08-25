@@ -2,6 +2,10 @@ import * as RNG from '@ironarachne/rng';
 import type { AdndClassApplyOptions } from '../adnd_class_apply_options.js';
 import type ADNDCharacter from '../adndcharacter.js';
 import type ADNDClass from '../adndclass.js';
+import {
+  orderThiefSkillRows,
+  prepareThiefSkillRowsForCharacter,
+} from '../adnd_thief_skill_builder.js';
 import * as ThiefSkills from '../adndthiefskills.js';
 
 const thief: ADNDClass = {
@@ -64,35 +68,18 @@ const thief: ADNDClass = {
     rng: RNG.RNG,
     options?: AdndClassApplyOptions,
   ): ADNDCharacter {
-    let skills = [
-      { name: 'Pick Pockets', value: 15, points: 0 },
-      { name: 'Open Locks', value: 10, points: 0 },
-      { name: 'Find/Remove Traps', value: 5, points: 0 },
-      { name: 'Move Silently', value: 10, points: 0 },
-      { name: 'Hide in Shadows', value: 5, points: 0 },
-      { name: 'Detect Noise', value: 15, points: 0 },
-      { name: 'Climb Walls', value: 60, points: 0 },
-      { name: 'Read Languages', value: 0, points: 0 },
-    ];
-    skills = ThiefSkills.modifyForDexterity(skills, character.dexterity);
-
-    let raceName = character.race.name;
-    if (character.race.name.includes('halfling')) {
-      raceName = 'halfling';
-    }
-
-    skills = ThiefSkills.modifyForRace(skills, raceName);
+    let skills = prepareThiefSkillRowsForCharacter('thief', character);
 
     if (options?.thiefSkills === 'user') {
       return character;
     }
 
+    // Shuffled before distributing: `distributePoints` picks by index, so the shuffle is what
+    // decides which skills a roll favours, and it consumes the RNG. Sorted back afterwards,
+    // because the order points were dealt in is not something a character sheet should show.
     skills = rng.shuffle(skills);
     skills = ThiefSkills.distributePoints(skills, 60, rng);
-
-    for (let i = 0; i < skills.length; i++) {
-      character.abilities.push(`${skills[i].name}: ${skills[i].value + skills[i].points}%`);
-    }
+    character.thiefSkills = orderThiefSkillRows('thief', skills);
 
     return character;
   },

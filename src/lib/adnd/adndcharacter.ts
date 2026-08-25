@@ -2,6 +2,7 @@ import type ADNDArmor from './adndarmor.js';
 import type ADNDClass from './adndclass.js';
 import type ADNDRace from './adndrace.js';
 import type ADNDSpell from './adndspell.js';
+import type { ThiefSkillRow } from './adndthiefskills.js';
 import type ADNDWeapon from './adndweapon.js';
 
 // The fields the generator fills in later are optional on the way out of
@@ -68,6 +69,20 @@ export default interface ADNDCharacter {
   weapons: ADNDWeapon[];
   weaponProficiencyGroups: string[];
   nonweaponProficiencies: string[];
+  /**
+   * A thief's or bard's skill percentages, empty for every other class.
+   *
+   * Two numbers rather than one, because they answer different questions and only one of them is
+   * the user's. `value` is what the rule tables give this character for the skill — the class base,
+   * adjusted for dexterity and race — and `points` is the discretionary allocation, whether rolled
+   * by {@link distributePoints} or assigned in the builder. What a sheet prints is their sum.
+   *
+   * These used to be prose on {@link ADNDCharacter.abilities} — `Pick Pockets: 45%` — which stored
+   * the total and threw the allocation away. That reads back as a sentence and not as a decision,
+   * so nothing could offer it for editing without re-parsing it, and a renamed skill would have
+   * broken the parse silently.
+   */
+  thiefSkills: ThiefSkillRow[];
   kit: { name: string; features: string[] } | null;
 }
 
@@ -135,6 +150,7 @@ export function createAdndCharacter(): ADNDCharacter {
     weapons: [],
     weaponProficiencyGroups: [],
     nonweaponProficiencies: [],
+    thiefSkills: [],
     kit: null,
   };
 }

@@ -18,7 +18,7 @@
     Equipment,
     applyHalflingWithOptions,
     type HalflingSubrace,
-    appendThiefSkillAbilityLines,
+    applyThiefSkillAllocation,
     ADND_THIEF_SKILL_BONUS_CAP,
     getThiefSkillBuildKindForClass,
     getThiefSkillPointPool,
@@ -500,7 +500,7 @@
     }
 
     if (thiefSkillKind) {
-      appendThiefSkillAbilityLines(c, thiefSkillKind, thiefSkillBonuses);
+      applyThiefSkillAllocation(c, thiefSkillKind, thiefSkillBonuses);
     }
 
     const hp = Math.min(Math.max(hpValue, hpBounds.min), hpBounds.max);
