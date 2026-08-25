@@ -11,6 +11,7 @@ export { getDefaultConfig } from './adndcharactergeneratorconfig';
 export * from './adndcharactergenerator';
 export * from './adnd_character_artifact_kind';
 export * from './adnd_character_eligibility';
+export * from './adnd_character_roll';
 export * from './adnd_character_snapshot';
 export type * from './adnd_class_apply_options';
 export * from './adnd_class_starting_spells';

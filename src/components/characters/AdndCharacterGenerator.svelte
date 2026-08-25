@@ -2,8 +2,13 @@
   import * as RNG from '@ironarachne/rng';
   import { resolve } from '$app/paths';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
-  import { generateCharacter, getDefaultConfig, downloadAdndCharacterPdf } from '$lib/adnd';
-  import type { ADNDCharacter } from '$lib/adnd';
+  import {
+    ADND_CHARACTER_ARTIFACT_KIND,
+    downloadAdndCharacterPdf,
+    rollAdndCharacter,
+    toAdndCharacterSnapshot,
+  } from '$lib/adnd';
+  import type { ADNDCharacter, AdndCharacterGeneratorConfigRecord } from '$lib/adnd';
   import {
     buildCharacterNameSource,
     isCustomCharacterNameSource,
@@ -17,17 +22,26 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+
+  const TOOL_PATH = '/fantasy/adnd/character';
 
   const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
   let includeProficiencies = $state(false);
   let includeKits = $state(false);
-  $effect(() => {
-    rng.setSeed(seed);
-  });
   let character = $state<ADNDCharacter | undefined>();
   let downloadingPdf = $state(false);
+  /**
+   * The settings the character on screen was actually rolled with.
+   *
+   * `$state.raw` rather than `$state`, and that is not a style choice: IndexedDB serialises with
+   * `structuredClone`, which refuses a Proxy, so a deep-reactive config fails the write with
+   * `could not be cloned`. A roll replaces the whole record rather than mutating it. The same trap
+   * is written up in `$lib/workshop`'s README beside `saveToolArtifact`.
+   */
+  let rolledConfig = $state.raw<Record<string, unknown>>({});
 
   let savedCultures = $state<Culture[]>([]);
   let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
@@ -38,6 +52,19 @@
   let lockName = $state(false);
   let namingGender = $state<'male' | 'female' | 'random'>('random');
 
+  /**
+   * What gets stored, with the names the page is showing rather than the ones the roll produced.
+   *
+   * The two differ whenever the user has typed a name or locked one, and the sheet below already
+   * renders the character that way. Saving the roll's name instead would keep something the user
+   * can see is not what they asked for.
+   */
+  const characterSnapshot = $derived(
+    character === undefined ? null : toAdndCharacterSnapshot({ ...character, firstName, lastName }),
+  );
+
+  const defaultArtifactName = $derived(`${firstName} ${lastName}`.trim());
+
   function applyNamesToCharacter(target: ADNDCharacter | undefined) {
     if (!target) {
       return;
@@ -46,14 +73,23 @@
     target.lastName = lastName;
   }
 
-  function rollNamesForCurrentSource(defaultHint: string) {
+  /**
+   * Names for the current source, from a stream the seed decides.
+   *
+   * `nameSeed` is what makes requirement 2.2 true here. This used to draw from
+   * `new RNG(\`${Date.now()}-adnd-name\`)`, so a locked seed reproduced the character's body and
+   * a different name every time — the tool was not in fact deterministic. The one caller that
+   * still wants a fresh draw is the "generate a name" button, which passes its own value because
+   * asking for another name is a deliberate act rather than part of the roll.
+   */
+  function rollNamesForCurrentSource(defaultHint: string, nameSeed: string) {
     const source = buildCharacterNameSource(
       nameSourceKind,
       presetSetName,
       savedCultureName,
       savedCultures,
     );
-    const nameRng = new RNG.RNG(`${Date.now()}-adnd-name`);
+    const nameRng = new RNG.RNG(nameSeed);
     return rollCharacterNameForSource(nameRng, source, defaultHint, namingGender);
   }
 
@@ -72,28 +108,50 @@
       return;
     }
 
-    const generated = rollNamesForCurrentSource(defaultHint);
+    const generated = rollNamesForCurrentSource(defaultHint, `${seed}-adnd-name`);
     target.firstName = generated.firstName;
     target.lastName = generated.lastName;
     firstName = generated.firstName;
     lastName = generated.lastName;
   }
 
+  /**
+   * The settings a roll takes, and the ones provenance records.
+   *
+   * `nameGeneratorSet` is the preset set only. A character named from a saved culture takes its
+   * names from that culture's own generators, which are not one of the build's named sets — that
+   * link is an artifact reference, and recording it is composition's job rather than this step's.
+   */
+  function currentConfig(): AdndCharacterGeneratorConfigRecord {
+    return {
+      ...(nameSourceKind === 'preset' ? { nameGeneratorSet: presetSetName } : {}),
+      namingGender,
+      includeProficiencies,
+      includeKits,
+    };
+  }
+
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    rng.setSeed(seed);
 
     const lockedFirstName = firstName;
     const lockedLastName = lastName;
 
-    const genConfig = getDefaultConfig(rng);
-    genConfig.includeProficiencies = includeProficiencies;
-    genConfig.includeKits = includeKits;
-    character = generateCharacter(genConfig);
+    const config = currentConfig();
+    const rolled = rollAdndCharacter(seed, config);
+    character = rolled.character;
+    // The resolved set, not the requested one: a set this build has since dropped would otherwise
+    // be recorded as provenance that a re-roll could not honour.
+    rolledConfig = { ...config, nameGeneratorSet: rolled.nameGeneratorSet };
+
     if (lockName) {
       restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
+    } else if (nameSourceKind === 'preset') {
+      // Already named by the roll, from the seed. Mirror it into the fields the page shows.
+      firstName = character.firstName;
+      lastName = character.lastName;
     } else {
       applyGeneratedNamesFromSource(character, character.race.name);
     }
@@ -104,7 +162,9 @@
       return;
     }
     const defaultHint = character?.race.name ?? 'human';
-    const generated = rollNamesForCurrentSource(defaultHint);
+    // A fresh stream, deliberately: asking for another name is the one place a clock-driven draw
+    // is right, because the user is asking for something different rather than for this roll.
+    const generated = rollNamesForCurrentSource(defaultHint, `${Date.now()}-adnd-name`);
     firstName = generated.firstName;
     lastName = generated.lastName;
     if (character) {
@@ -186,6 +246,15 @@
 
   <button onclick={generate}>Generate</button>
   <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf || !character} />
+
+  <SaveArtifactButton
+    kind={ADND_CHARACTER_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={characterSnapshot}
+    {seed}
+    config={rolledConfig}
+    defaultName={defaultArtifactName}
+  />
 
   {#if character}
     <AdndCharacterSheet character={{ ...character, firstName, lastName }} />
