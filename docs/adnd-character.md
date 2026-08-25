@@ -143,6 +143,22 @@ a bonus is the kind of fragility that breaks the first time a skill is renamed.
 nothing older; adding the field after version 1 is in users' browsers costs a migration step and a
 test for it, forever.
 
+Two things surfaced while building it, both recorded here because the second changed shipped
+output:
+
+- **The generator shuffles before it deals.** `distributePoints` picks by index, so the shuffle is
+  what decides which skills a roll favours and it cannot be removed. It has no business reaching
+  the sheet, though, where a skill list in a different order for every character is a presentation
+  defect — so `orderThiefSkillRows` sorts the rows back into the canonical order on the way out.
+  The values are untouched.
+- **The point pool overshot, and was fixed.** `distributePoints` drew each award against the
+  per-skill headroom alone and subtracted afterwards, so the last one spent whatever it liked:
+  measured over 300 seeds, 86% of rolled thieves and bards came out above their budget, by as much
+  as 27 points on a pool of 60. Clamping the draw to what remains is the fix. It changes seeded
+  output — 77 thieves in that sample, no bards and no other class, because the clamp only shifts
+  later draws when it forces an extra iteration — and it was made **before** the kind ships, since
+  afterwards the choice is between rewriting artifacts a user has kept and leaving them wrong.
+
 Weapon and non-weapon proficiencies need none of this — `weaponProficiencyGroups` and
 `nonweaponProficiencies` are already string arrays on the character, and already round-trip and
 edit as lists.
@@ -277,9 +293,13 @@ nothing in the design depends on that remaining true.
   widening the page.
 - **6.2.** The builder's equipment checkboxes and thief-skill number inputs need accessible names,
   and the new Details section needs its disclosure to be a real `<button>`.
-- **6.4.** `drawDetailSections` in the PDF renderer draws a labelled box for Kit and Proficiencies
-  unconditionally, so a character with neither gets two empty boxes. The formatters already return
-  an empty string; the renderer skips a section whose content is empty.
+- **6.4.** ~~`drawDetailSections` draws a labelled box for Kit and Proficiencies unconditionally, so
+  a character with neither gets two empty boxes.~~ **Withdrawn — this was wrong.** Those formatters
+  return `'None'`, not an empty string, so the PDF prints "Kit: None" rather than a blank box. That
+  is a deliberate answer to a question a sheet may reasonably ask, not a layout artifact, and there
+  is nothing to fix. The one section that genuinely should not appear is Thief Skills, which
+  belongs to two classes out of twenty; it returns an empty string and the renderer omits it. Text
+  output is otherwise already free of stray blank sections.
 - **7.2.** A round-trip test over three characters that between them cover the shapes: a plain
   generated fighter, a generated one with proficiencies and a kit, and a built thief with an
   allocation.

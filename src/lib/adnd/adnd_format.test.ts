@@ -3,6 +3,7 @@ import { createAdndCharacter } from './adndcharacter';
 import {
   formatAdndSignedNumber,
   formatAdndStrength,
+  formatAdndThiefSkillsSection,
   formatAdndWeaponsSection,
   slugifyAdndCharacterFilename,
 } from './adnd_format';
@@ -41,5 +42,21 @@ describe('slugifyAdndCharacterFilename', () => {
 
   it('falls back when names are empty', () => {
     expect(slugifyAdndCharacterFilename('', '')).toBe('adnd-character.pdf');
+  });
+});
+
+describe('formatAdndThiefSkillsSection', () => {
+  it('sums base and allocation for each skill', () => {
+    const c = createAdndCharacter();
+    c.thiefSkills = [
+      { name: 'Pick Pockets', value: 25, points: 20 },
+      { name: 'Climb Walls', value: 60, points: 0 },
+    ];
+
+    expect(formatAdndThiefSkillsSection(c)).toBe('Pick Pockets: 45%; Climb Walls: 60%');
+  });
+
+  it('is empty for a class with no thief skills, so the caller can omit the section', () => {
+    expect(formatAdndThiefSkillsSection(createAdndCharacter())).toBe('');
   });
 });

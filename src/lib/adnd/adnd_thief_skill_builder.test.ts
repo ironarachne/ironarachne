@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createAdndCharacter } from './adndcharacter.js';
 import {
-  appendThiefSkillAbilityLines,
+  applyThiefSkillAllocation,
+  orderThiefSkillRows,
   getThiefSkillPointPool,
   prepareThiefSkillRowsForCharacter,
   thiefSkillBonusesAreValid,
@@ -40,21 +41,71 @@ describe('thiefSkillBonusesAreValid', () => {
   });
 });
 
-describe('appendThiefSkillAbilityLines', () => {
-  it('adds one ability line per bard skill', () => {
+describe('applyThiefSkillAllocation', () => {
+  it('writes one row per bard skill, carrying base and allocation apart', () => {
     const c = createAdndCharacter();
     c.race = human;
     c.dexterity = 13;
     c.abilities = [];
-    const b = {
+
+    applyThiefSkillAllocation(c, 'bard', {
       'Pick Pockets': 5,
       'Detect Noise': 5,
       'Climb Walls': 5,
       'Read Languages': 5,
-    };
-    appendThiefSkillAbilityLines(c, 'bard', b);
-    expect(c.abilities).toHaveLength(4);
-    expect(c.abilities.every((line) => /%$/.test(line))).toBe(true);
+    });
+
+    expect(c.thiefSkills).toHaveLength(4);
+    expect(c.thiefSkills.every((row) => row.points === 5)).toBe(true);
+    // The allocation is readable as a decision, which is the whole reason it is a field.
+    expect(c.thiefSkills.find((row) => row.name === 'Climb Walls')?.value).toBe(50);
+    expect(c.abilities).toEqual([]);
+  });
+
+  it('gives a skill the user left alone a zero rather than dropping it', () => {
+    const c = createAdndCharacter();
+    c.race = human;
+    c.dexterity = 13;
+
+    applyThiefSkillAllocation(c, 'bard', { 'Pick Pockets': 20 });
+
+    expect(c.thiefSkills).toHaveLength(4);
+    expect(c.thiefSkills.filter((row) => row.points === 0)).toHaveLength(3);
+  });
+});
+
+describe('orderThiefSkillRows', () => {
+  it('restores the canonical order after the generator has shuffled', () => {
+    const shuffled = [
+      { name: 'Climb Walls', value: 50, points: 0 },
+      { name: 'Pick Pockets', value: 10, points: 20 },
+      { name: 'Read Languages', value: 5, points: 0 },
+      { name: 'Detect Noise', value: 20, points: 0 },
+    ];
+
+    expect(orderThiefSkillRows('bard', shuffled).map((row) => row.name)).toEqual([
+      'Pick Pockets',
+      'Detect Noise',
+      'Climb Walls',
+      'Read Languages',
+    ]);
+  });
+
+  it('does not disturb the values it reorders', () => {
+    const rows = [
+      { name: 'Climb Walls', value: 50, points: 7 },
+      { name: 'Pick Pockets', value: 10, points: 13 },
+      { name: 'Read Languages', value: 5, points: 0 },
+      { name: 'Detect Noise', value: 20, points: 0 },
+    ];
+
+    const ordered = orderThiefSkillRows('bard', rows);
+
+    expect(ordered.find((row) => row.name === 'Climb Walls')).toEqual({
+      name: 'Climb Walls',
+      value: 50,
+      points: 7,
+    });
   });
 });
 

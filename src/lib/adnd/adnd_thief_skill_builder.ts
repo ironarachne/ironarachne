@@ -90,15 +90,38 @@ export function thiefSkillBonusesAreValid(
   return sum === pool;
 }
 
-/** Pushes thief skill lines onto `character.abilities` (builder path). */
-export function appendThiefSkillAbilityLines(
+/**
+ * Puts rows back into the order {@link getBaseThiefSkillRows} lists them in.
+ *
+ * The generator shuffles before distributing points, because `distributePoints` picks by index and
+ * the shuffle is what decides which skills the roll favours. That shuffle must stay — it consumes
+ * the RNG and determines the allocation — but it has no business reaching the sheet, where a skill
+ * list in a different order for every character is a presentation defect rather than a result. The
+ * values are unchanged by sorting; only the rows' order becomes stable.
+ */
+export function orderThiefSkillRows(
+  kind: AdndThiefSkillBuildKind,
+  rows: ThiefSkillRow[],
+): ThiefSkillRow[] {
+  const order = getBaseThiefSkillRows(kind).map((row) => row.name);
+  return [...rows].sort((a, b) => order.indexOf(a.name) - order.indexOf(b.name));
+}
+
+/**
+ * Writes the builder's allocation onto the character as rows (builder path).
+ *
+ * The counterpart of what a class `apply` does on the generator path, and it produces the same
+ * shape: the rule-derived `value` from {@link prepareThiefSkillRowsForCharacter}, and `points` as
+ * the user assigned them. A skill the user left alone gets zero rather than being left out, so the
+ * sheet shows the whole list.
+ */
+export function applyThiefSkillAllocation(
   character: ADNDCharacter,
   kind: AdndThiefSkillBuildKind,
   bonuses: Record<string, number>,
 ): void {
-  const rows = prepareThiefSkillRowsForCharacter(kind, character);
-  for (const row of rows) {
-    const bonus = bonuses[row.name] ?? 0;
-    character.abilities.push(`${row.name}: ${row.value + bonus}%`);
-  }
+  character.thiefSkills = prepareThiefSkillRowsForCharacter(kind, character).map((row) => ({
+    ...row,
+    points: bonuses[row.name] ?? 0,
+  }));
 }
