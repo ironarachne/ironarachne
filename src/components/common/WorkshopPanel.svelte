@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Snippet } from 'svelte';
+  import { tick, type Snippet } from 'svelte';
 
   type Props = {
     /** What the panel holds, shown in its header and used to name its controls. */
@@ -23,6 +23,32 @@
   // alongside it to be operable at all, and two buttons are that equivalent without the drag.
   const canMoveLeft = $derived(position > 1);
   const canMoveRight = $derived(position < total);
+
+  let moveLeftButton: HTMLButtonElement | undefined;
+  let moveRightButton: HTMLButtonElement | undefined;
+
+  /**
+   * A move can disable the button that performed it: a panel arriving at either end of the bench
+   * cannot go further. A disabled button loses the focus ring, and the browser drops focus to the
+   * document, which on this page means tabbing through a whole generator to get back to the
+   * bench. So focus follows the panel to the control that can still act on it.
+   *
+   * This works because the bench's `{#each}` is keyed by panel, so a panel keeps this component —
+   * and these two buttons — as it moves. Positional reuse would leave them pointing at whichever
+   * panel had taken this slot instead.
+   */
+  async function moveWithFocusKept(
+    onMove: () => void,
+    pressed: HTMLButtonElement | undefined,
+    counterpart: HTMLButtonElement | undefined,
+  ): Promise<void> {
+    onMove();
+    await tick();
+
+    if (pressed?.disabled === true && counterpart?.disabled === false) {
+      counterpart.focus();
+    }
+  }
 </script>
 
 <!-- A labelled `section` is a region landmark, so a panel is reachable by landmark as well as by
@@ -42,7 +68,8 @@
     <div class="workshop-panel__controls">
       <button
         type="button"
-        onclick={onMoveLeft}
+        bind:this={moveLeftButton}
+        onclick={() => void moveWithFocusKept(onMoveLeft, moveLeftButton, moveRightButton)}
         disabled={!canMoveLeft}
         aria-label="Move {title} left"
         title="Move left"
@@ -51,7 +78,8 @@
       </button>
       <button
         type="button"
-        onclick={onMoveRight}
+        bind:this={moveRightButton}
+        onclick={() => void moveWithFocusKept(onMoveRight, moveRightButton, moveLeftButton)}
         disabled={!canMoveRight}
         aria-label="Move {title} right"
         title="Move right"

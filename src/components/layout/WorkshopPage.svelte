@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
 
   import ArtifactPanel from '$components/common/ArtifactPanel.svelte';
   import ProjectContextBar from '$components/common/ProjectContextBar.svelte';
@@ -41,6 +41,14 @@
    * and this is the seam between the two.
    */
   let artifactRevision = $state(0);
+
+  /**
+   * Bound for `placeFocusAfterClose`, which has to find what is on the bench after a close.
+   * `$state` because the empty-bench message comes and goes with the panels, so its binding is
+   * reassigned rather than set once.
+   */
+  let benchElement = $state<HTMLDivElement | undefined>(undefined);
+  let emptyBenchMessage = $state<HTMLParagraphElement | undefined>(undefined);
 
   const openToolPaths = $derived(
     bench.panels
@@ -182,6 +190,33 @@
       }
     }
     updateBench(withPanelClosed(bench, targetOf(panel)));
+    await placeFocusAfterClose(panel.order);
+  }
+
+  /**
+   * Closing a panel unmounts the button that closed it, and a browser with nowhere to put the
+   * focus ring puts it on the document — which on this page means tabbing back through a whole
+   * generator to reach the bench again. Losing your place is how a keyboard user experiences a
+   * broken control, so focus is placed deliberately: on the panel that took the closed one's
+   * position, or on the message that replaces the bench when the last panel goes.
+   *
+   * Read from the DOM rather than from `bench`, because what has to be focused is whichever
+   * control is actually enabled — a lone panel can move nowhere, so its only live control is its
+   * own Close.
+   */
+  async function placeFocusAfterClose(closedOrder: number): Promise<void> {
+    await tick();
+
+    const remaining = benchElement?.querySelectorAll('section.workshop-panel') ?? [];
+    const next = remaining[Math.min(closedOrder, remaining.length - 1)];
+    const control = next?.querySelector('.workshop-panel__controls button:not([disabled])');
+
+    if (control instanceof HTMLElement) {
+      control.focus();
+      return;
+    }
+
+    emptyBenchMessage?.focus();
   }
 
   function panelTitle(panel: PanelState): string {
@@ -236,7 +271,7 @@
       <ProjectView projectId={project?.id} {openArtifactIds} onOpenArtifact={openArtifact} />
     </div>
 
-    <div class="workshop__bench">
+    <div class="workshop__bench" bind:this={benchElement}>
       {#each bench.panels as panel (panelKey(panel))}
         <WorkshopPanel
           title={panelTitle(panel)}
@@ -257,7 +292,10 @@
           {/if}
         </WorkshopPanel>
       {:else}
-        <p class="workshop__empty">
+        <!-- `tabindex="-1"` so closing the last panel has somewhere to put focus: not a tab stop,
+             but a focusable target, which also reads this sentence out to a screen reader at the
+             moment the bench empties. -->
+        <p class="workshop__empty" tabindex="-1" bind:this={emptyBenchMessage}>
           Nothing on the bench. Pick a tool to start, or open something you have saved.
         </p>
       {/each}

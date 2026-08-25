@@ -218,7 +218,7 @@ test.describe('the workshop bench', () => {
     await expect(panelTitles(page)).toHaveText([/Heraldry/]);
   });
 
-  test('moves and closes panels from the keyboard-operable controls', async ({ page }) => {
+  test('moves and closes panels from the controls', async ({ page }) => {
     // A tool and an artifact, since two tools can no longer be open together.
     await benchWithToolAndArtifact(page, 'The Emberfolk');
     await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
@@ -232,6 +232,54 @@ test.describe('the workshop bench', () => {
     await page.getByRole('button', { name: /^Close The Emberfolk$/ }).click();
     await expect(panels(page)).toHaveCount(1);
     await expect(panelTitles(page)).toHaveText([/Culture/]);
+  });
+
+  /**
+   * Requirement 6.2, driven rather than asserted: the test above finds the controls by their
+   * accessible names and clicks them, which proves they are named but not that anyone can reach
+   * or fire them without a mouse. This one uses the keyboard for every step.
+   *
+   * What it is really guarding is focus. Both operations destroy the button that was just
+   * pressed — a move can disable it, a close unmounts it — and a button that vanishes from under
+   * the focus ring drops the user back to the top of the document, which on this page means
+   * tabbing through a whole generator to get back. Losing your place is how a keyboard user
+   * experiences a broken control, so "operable" has to mean focus survives.
+   */
+  test('moves and closes panels from the keyboard, keeping the user’s place', async ({ page }) => {
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
+    await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
+
+    const focusedName = () =>
+      page.evaluate(() => document.activeElement?.getAttribute('aria-label') ?? '');
+
+    // The controls sit in the tab order in the order they are read. The rightmost panel cannot
+    // move right, and that button being disabled takes it out of the tab order rather than
+    // leaving a stop that does nothing — so Close is one Tab from Move left, not two.
+    await page.getByRole('button', { name: /^Move The Emberfolk left$/ }).focus();
+    await page.keyboard.press('Tab');
+    expect(await focusedName()).toBe('Close The Emberfolk');
+
+    // Enter fires the control, and the panel moves to the head of the bench.
+    await page.getByRole('button', { name: /^Move The Emberfolk left$/ }).focus();
+    await page.keyboard.press('Enter');
+    await expect(panelTitles(page)).toHaveText([/The Emberfolk/, /Culture/]);
+
+    // That move disabled the button under the ring — the panel is leftmost and cannot go
+    // further — so focus moves to the control that can still act on the panel the user was
+    // working with, rather than being dropped.
+    expect(await focusedName()).toBe('Move The Emberfolk right');
+
+    // Space fires it too, which is what a button promises, and sends the panel back.
+    await page.keyboard.press('Space');
+    await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
+
+    // Closing unmounts the focused button. Focus lands on the neighbouring panel's first
+    // control, so the next Tab carries on from the bench rather than from the document.
+    await page.getByRole('button', { name: /^Close The Emberfolk$/ }).focus();
+    await page.keyboard.press('Enter');
+    await expect(panels(page)).toHaveCount(1);
+    await expect(panelTitles(page)).toHaveText([/Culture/]);
+    expect(await focusedName()).toBe('Close Culture');
   });
 
   test('restores the bench when the project is reopened', async ({ page }) => {
