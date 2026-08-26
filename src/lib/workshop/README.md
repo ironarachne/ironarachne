@@ -46,6 +46,47 @@ Add the entry to `TOOL_PANELS` alongside the `defineTool` entry in the catalog. 
 check the two agree in both directions: every catalog tool has a panel, and no panel is
 registered for a path that is not a tool.
 
+## Telling a mounted tool to roll again
+
+`ToolPanel` mounts its component keyed on the tool's path, so until `ToolCue` there was no way to
+say anything to a tool already on the bench — the only way to reach one was to mount a different
+one. The one precedent, heraldry's `?blazon=` URL cue, does not compose with panels: the workshop
+is a single route, so a query parameter on it cannot say which panel it addresses.
+
+A cue is a seed, a config, and an id. A tool opts in by declaring the prop:
+
+```ts
+import type { ToolCue } from '$lib/workshop';
+
+const { cue }: { cue?: ToolCue } = $props();
+
+let lastCueId: string | undefined;
+$effect(() => {
+  if (cue === undefined || cue.id === lastCueId) {
+    return;
+  }
+  lastCueId = cue.id;
+  applyCue(cue);
+});
+```
+
+Two rules make it behave, and both are contracts rather than types:
+
+- **Watch the `id`, not the contents.** Replaying the same result twice is two distinct requests,
+  and comparing seeds would swallow the second. The id is minted at the moment of the request.
+- **Apply the config keys you recognise and ignore the rest.** A config from a differently-shaped
+  build cannot arrive, because the session log that mints these does not outlive the build
+  (decision 2 in `docs/session-log.md`).
+
+The panel is deliberately **not** re-keyed on the cue: re-keying would remount the tool, throwing
+away everything else in its panel and flickering, to deliver a message the tool can simply read.
+
+Reading a cue is opt-in, and a tool that ignores one needs no edit — Svelte drops a prop a
+component does not declare. `toolPanelComponent` is the one place that is reconciled with the
+registry's type, and it carries the reasoning: Svelte types a component's props contravariantly,
+so widening `ToolPanelLoader` to `Component<ToolPanelProps>` fails to compile against the thirty
+panels that declare no props at all.
+
 ## Artifact kinds
 
 `ARTIFACT_KINDS` is every kind of content this build can store, built by registering the

@@ -1,6 +1,14 @@
 import { expect, describe, it } from 'vitest';
+import type { Component } from 'svelte';
+
 import { allTools } from '$lib/tools';
-import { TOOL_PANELS, hasToolPanel, pathsWithToolPanels, toolPanelLoader } from './tool_panels';
+import {
+  TOOL_PANELS,
+  hasToolPanel,
+  pathsWithToolPanels,
+  toolPanelComponent,
+  toolPanelLoader,
+} from './tool_panels';
 
 describe('the tool panel registry', () => {
   // No exemption list, and that is the assertion: every tool has a panel, so a missing one is
@@ -114,4 +122,21 @@ describe('every registered panel resolves to a component', () => {
     },
     30_000,
   );
+});
+
+describe('toolPanelComponent', () => {
+  it('hands back the component it was given', () => {
+    const component = (() => undefined) as unknown as Component;
+
+    expect(toolPanelComponent(component)).toBe(component);
+  });
+
+  it('lets a registered panel be mounted with a cue', async () => {
+    const loader = toolPanelLoader('/culture');
+    const module = await loader?.();
+
+    // The point of the cast, exercised: a tool that declares no props is still something the
+    // bench can hand a cue to, because Svelte drops a prop a component does not read.
+    expect(typeof toolPanelComponent(module!.default)).toBe('function');
+  }, 30_000);
 });

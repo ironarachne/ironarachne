@@ -10,8 +10,55 @@ import type {
 } from '$lib/artifacts';
 
 /**
+ * A request to a tool that is already mounted: roll this seed, with these settings.
+ *
+ * The tool↔panel boundary needed one, because nothing in the codebase could signal a mounted
+ * tool. `ToolPanel` mounts its component keyed on the tool's path, so the only way to say anything
+ * to a tool was to mount a different one — and the one precedent, heraldry's `?blazon=` URL cue,
+ * does not compose with panels: the workshop is a single route, so a query parameter on it cannot
+ * say which panel it addresses.
+ *
+ * `id` is minted at the moment of the request and is deliberately **not** carried over from
+ * whatever the request came from. Replaying the same session-log entry twice is two distinct
+ * requests, and a tool comparing seeds would swallow the second.
+ */
+export type ToolCue = {
+  /** Fresh per request. What a tool watches; see {@link ToolPanelProps}. */
+  id: string;
+  seed: string;
+  /** Settings as the tool understood them when it rolled. A tool applies what it recognises. */
+  config: Record<string, unknown>;
+};
+
+/**
+ * What a tool component may be handed when it is mounted in a panel.
+ *
+ * The contract for a tool that reads a cue, since the tools adopting it are the audience:
+ *
+ * - Read it with an effect that fires when the cue's **`id`** changes, not its contents.
+ *   Replaying the same entry twice is two distinct requests, and comparing seeds would swallow
+ *   the second.
+ * - Apply the config keys you recognise and ignore the rest. A config from a differently-shaped
+ *   build cannot arrive, because the session log does not outlive the build (decision 2 in
+ *   docs/session-log.md).
+ *
+ * Reading a cue is opt-in, and a tool that ignores it needs no edit at all — see
+ * {@link toolPanelComponent} for why the registry cannot say so in its own type.
+ */
+export type ToolPanelProps = {
+  /** Absent unless something has asked this tool to roll a particular result again. */
+  cue?: ToolCue;
+};
+
+/**
  * Loads the component that renders a tool inside a panel. Loading is deferred so a workshop
  * pulls in only the tool the user asked for, rather than every generator on the site.
+ *
+ * Deliberately still `Component` and not `Component<ToolPanelProps>`. A Svelte component's props
+ * are contravariant in assignability, and a component declaring no props is
+ * `Component<Record<string, never>>` — so widening the loader would reject all thirty tools that
+ * do not read a cue, and the fix would be thirty files growing a prop they ignore.
+ * {@link toolPanelComponent} is where that is reconciled instead.
  */
 export type ToolPanelLoader = () => Promise<{ default: Component }>;
 

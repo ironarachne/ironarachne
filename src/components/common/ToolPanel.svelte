@@ -1,14 +1,19 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import type { Tool } from '$lib/tools';
-  import { toolPanelLoader } from '$lib/workshop';
+  import { toolPanelComponent, toolPanelLoader, type ToolCue } from '$lib/workshop';
 
   type Props = {
     /** Tool to render. Its component is fetched on demand the first time it is shown. */
     tool: Tool;
+    /**
+     * A request for this tool to roll a particular result again. Passed straight through: what a
+     * tool makes of it is the tool's business, and most tools make nothing of it at all.
+     */
+    cue?: ToolCue;
   };
 
-  const { tool }: Props = $props();
+  const { tool, cue }: Props = $props();
 
   const loadPanel = $derived(toolPanelLoader(tool.path));
 </script>
@@ -16,13 +21,15 @@
 <section class="tool-panel">
   {#if loadPanel}
     <!-- Keyed on the path so switching tools mounts a fresh component rather than reusing the
-         previous one's state. -->
+         previous one's state. Deliberately *not* keyed on the cue: re-keying would remount the
+         tool — throwing away everything else in its panel, and flickering — to deliver a message
+         the tool can simply read. -->
     {#key tool.path}
       {#await loadPanel()}
         <p class="tool-panel__status">Loading {tool.label}…</p>
       {:then panel}
-        {@const ToolComponent = panel.default}
-        <ToolComponent />
+        {@const ToolComponent = toolPanelComponent(panel.default)}
+        <ToolComponent {cue} />
       {:catch}
         <p class="tool-panel__status">{tool.label} could not be loaded.</p>
       {/await}
