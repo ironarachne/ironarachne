@@ -398,6 +398,19 @@
     flex-wrap: wrap;
     gap: 1rem;
     align-items: flex-start;
+    /* This row is a container, so the log below can ask about *it* rather than about the viewport.
+       That is not a preference. The width the columns wrap in is the page region — the viewport
+       less a sidebar whose width is decided by its own content — and the columns are sized in
+       `rem` against a root font size that itself scales with the viewport (`main.css` clamps it
+       between 1em and 1.25em). A media query can see neither, and a threshold guessed from the
+       viewport is wrong by several hundred pixels: measured, the three columns stopped fitting
+       somewhere between 1280px and 1400px depending on the window's *height*.
+
+       `inline-size` containment is safe here: this row's width already comes from its parent
+       rather than from its contents, and nothing inside a panel is positioned against the
+       viewport — the sidebar is the only fixed element on the site and it is not in here. */
+    container-type: inline-size;
+    container-name: workshop-layout;
   }
 
   .workshop__rail {
@@ -433,15 +446,14 @@
   /* Below the wrap the log goes full width instead of sitting on its own row as a 14rem stub
      beside empty space.
 
-     The threshold is the shell's own 1200px band rather than a width derived from the columns,
-     because the row this wraps in is the page region — viewport less a sidebar of content-decided
-     width — and CSS cannot ask about that. Erring early costs nothing: the stacked arrangement is
-     the correct one for every width below it, and one row of three columns needs about 60rem of
-     page region before it stops wrapping.
+     60rem is the three columns' own arithmetic — 18 + 26 + 14 plus two 1rem gaps — asked of the
+     row they are in, so the log stops being a column at exactly the width it stops fitting beside
+     one. It resolves in the same `rem` the columns are sized in, which is what keeps the two in
+     step as the root font size scales.
 
-     Nothing in the e2e suite looks at this band. The mobile projects are all 430px and below,
-     where everything is stacked and full width already, so this is checked by hand at 900px. */
-  @media (max-width: 1199px) {
+     Nothing in the e2e suite looks at this band: the mobile projects are all 430px and below,
+     where everything is stacked and full width already. It is checked by hand. */
+  @container workshop-layout (max-width: 60rem) {
     .workshop__log {
       flex-basis: 100%;
       --session-log-max-height: 12rem;
