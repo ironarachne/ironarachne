@@ -7,6 +7,7 @@ files, not a library.
 ```
 fonts/   # Webfonts loaded by the site's stylesheets (declared in styles/fonts.css)
 images/  # The Iron Arachne logo and shared textures
+icons/   # The SunGraphica icon set — see icons/README.md, and mind the credit
 ```
 
 ## Usage

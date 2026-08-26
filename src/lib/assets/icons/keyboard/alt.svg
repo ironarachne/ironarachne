@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1725.36 950.36 62.27 62.27" width="24" height="24" role="img">
+  <mask id="keyboard044" maskUnits="userSpaceOnUse" x="1725.36" y="950.36" width="62.27" height="62.27"><path d="M1735,965.4h8.2l6.3,32.2h-6.1l-1.1-6.4v0.1h-6.9l-1.1,6.3h-5.6L1735,965.4z M1741.6,986.9l-2.7-15.9h-0.1    l-2.7,15.9H1741.6z" fill="#fff"/>
+		<path d="M1752.4,965.4h6.1V993h10v4.6h-16.1V965.4z" fill="#fff"/>
+		<path d="M1771.9,970h-6.4v-4.6h18.8v4.6h-6.4v27.6h-6.1V970z" fill="#fff"/>
+	</mask>
+  <rect x="1725.36" y="950.36" width="62.27" height="62.27" fill="currentColor" mask="url(#keyboard044)"/>
+</svg>

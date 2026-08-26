@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="158.07 784.17 131.26 131.26" width="24" height="24" role="img">
+  <mask id="controller032" maskUnits="userSpaceOnUse" x="158.07" y="784.17" width="131.26" height="131.26"><path d="M223.7,791.2c-32.3,0-58.6,26.2-58.6,58.6c0,32.4,26.2,58.6,58.6,58.6c32.4,0,58.6-26.2,58.6-58.6   C282.3,817.4,256.1,791.2,223.7,791.2z" fill="#fff"/>
+	<rect x="191.8" y="863.1" width="63.8" height="11.3" fill="#000"/>
+	<rect x="191.8" y="844.1" width="63.8" height="11.3" fill="#000"/>
+	<rect x="191.8" y="825.1" width="63.8" height="11.3" fill="#000"/>
+	</mask>
+  <rect x="158.07" y="784.17" width="131.26" height="131.26" fill="currentColor" mask="url(#controller032)"/>
+</svg>

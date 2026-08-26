@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1571.23 1311.23 81.54 81.54" width="24" height="24" role="img">
+  <mask id="set2070" maskUnits="userSpaceOnUse" x="1571.23" y="1311.23" width="81.54" height="81.54"><path d="M1648.3,1376.4h-69.9v-46.3h33.4v23.5c0,4.2,3.4,7.6,7.6,7.6h13C1641,1361.2,1648,1368,1648.3,1376.4z" fill="#fff"/>
+		<path d="M1648.4,1379v4.5c0,1.6-1.3,2.9-2.9,2.9h-63.1c-2.1,0-3.9-1.7-3.9-3.9v-3.5H1648.4z" fill="#fff"/>
+		<path d="M1577.2,1317.6h35.9c0.9,0,1.6,0.7,1.6,1.6v8.4h-39v-8.4C1575.6,1318.3,1576.3,1317.6,1577.2,1317.6z" fill="#fff"/>
+	</mask>
+  <rect x="1571.23" y="1311.23" width="81.54" height="81.54" fill="currentColor" mask="url(#set2070)"/>
+</svg>

@@ -1,0 +1,3179 @@
+[
+  {
+    "sheet": "controller",
+    "name": "a",
+    "source": "controller/controller-038.svg",
+    "named": "matched",
+    "score": 0.0087
+  },
+  {
+    "sheet": "controller",
+    "name": "b",
+    "source": "controller/controller-039.svg",
+    "named": "matched",
+    "score": 0.0098
+  },
+  {
+    "sheet": "controller",
+    "name": "button-pill",
+    "source": "controller/controller-042.svg",
+    "named": "by-eye"
+  },
+  {
+    "sheet": "controller",
+    "name": "button-pill-2",
+    "source": "controller/controller-043.svg",
+    "named": "by-eye"
+  },
+  {
+    "sheet": "controller",
+    "name": "circle",
+    "source": "controller/controller-013.svg",
+    "named": "matched",
+    "score": 0.0114
+  },
+  {
+    "sheet": "controller",
+    "name": "cross",
+    "source": "controller/controller-000.svg",
+    "named": "matched",
+    "score": 0.0107
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad",
+    "source": "controller/controller-023.svg",
+    "named": "matched",
+    "score": 0.0048
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-2-down",
+    "source": "controller/controller-006.svg",
+    "named": "matched",
+    "score": 0.0497
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-2-left",
+    "source": "controller/controller-015.svg",
+    "named": "matched",
+    "score": 0.0498
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-2-right",
+    "source": "controller/controller-014.svg",
+    "named": "matched",
+    "score": 0.0495
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-2-up",
+    "source": "controller/controller-005.svg",
+    "named": "matched",
+    "score": 0.0498
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-3-down",
+    "source": "controller/controller-028.svg",
+    "named": "matched",
+    "score": 0.0038
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-3-left",
+    "source": "controller/controller-029.svg",
+    "named": "matched",
+    "score": 0.004
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-3-right",
+    "source": "controller/controller-027.svg",
+    "named": "matched",
+    "score": 0.0041
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-3-up",
+    "source": "controller/controller-026.svg",
+    "named": "matched",
+    "score": 0.0044
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-4-down",
+    "source": "controller/controller-022.svg",
+    "named": "matched",
+    "score": 0.0067
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-4-left",
+    "source": "controller/controller-031.svg",
+    "named": "matched",
+    "score": 0.0096
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-4-right",
+    "source": "controller/controller-030.svg",
+    "named": "matched",
+    "score": 0.0091
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-4-up",
+    "source": "controller/controller-021.svg",
+    "named": "matched",
+    "score": 0.0078
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-down",
+    "source": "controller/controller-009.svg",
+    "named": "matched",
+    "score": 0.0081
+  },
+  {
+    "sheet": "controller",
+    "name": "d-pad-up",
+    "source": "controller/controller-004.svg",
+    "named": "matched",
+    "score": 0.008
+  },
+  {
+    "sheet": "controller",
+    "name": "l",
+    "source": "controller/controller-002.svg",
+    "named": "matched",
+    "score": 0.0164
+  },
+  {
+    "sheet": "controller",
+    "name": "l-down",
+    "source": "controller/controller-034.svg",
+    "named": "matched",
+    "score": 0.0066
+  },
+  {
+    "sheet": "controller",
+    "name": "l-left",
+    "source": "controller/controller-037.svg",
+    "named": "matched",
+    "score": 0.007
+  },
+  {
+    "sheet": "controller",
+    "name": "l-right",
+    "source": "controller/controller-036.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "controller",
+    "name": "l-up",
+    "source": "controller/controller-035.svg",
+    "named": "matched",
+    "score": 0.0063
+  },
+  {
+    "sheet": "controller",
+    "name": "l1",
+    "source": "controller/controller-019.svg",
+    "named": "matched",
+    "score": 0.0098
+  },
+  {
+    "sheet": "controller",
+    "name": "l2",
+    "source": "controller/controller-024.svg",
+    "named": "matched",
+    "score": 0.0125
+  },
+  {
+    "sheet": "controller",
+    "name": "l3",
+    "source": "controller/controller-016.svg",
+    "named": "matched",
+    "score": 0.0176
+  },
+  {
+    "sheet": "controller",
+    "name": "lb",
+    "source": "controller/controller-007.svg",
+    "named": "matched",
+    "score": 0.0106
+  },
+  {
+    "sheet": "controller",
+    "name": "lt",
+    "source": "controller/controller-010.svg",
+    "named": "matched",
+    "score": 0.0111
+  },
+  {
+    "sheet": "controller",
+    "name": "menu",
+    "source": "controller/controller-032.svg",
+    "named": "matched",
+    "score": 0.011
+  },
+  {
+    "sheet": "controller",
+    "name": "r",
+    "source": "controller/controller-003.svg",
+    "named": "matched",
+    "score": 0.0178
+  },
+  {
+    "sheet": "controller",
+    "name": "r-down",
+    "source": "controller/controller-044.svg",
+    "named": "matched",
+    "score": 0.0072
+  },
+  {
+    "sheet": "controller",
+    "name": "r-left",
+    "source": "controller/controller-046.svg",
+    "named": "matched",
+    "score": 0.0079
+  },
+  {
+    "sheet": "controller",
+    "name": "r-right",
+    "source": "controller/controller-047.svg",
+    "named": "matched",
+    "score": 0.0097
+  },
+  {
+    "sheet": "controller",
+    "name": "r-up",
+    "source": "controller/controller-045.svg",
+    "named": "matched",
+    "score": 0.0072
+  },
+  {
+    "sheet": "controller",
+    "name": "r1",
+    "source": "controller/controller-020.svg",
+    "named": "matched",
+    "score": 0.011
+  },
+  {
+    "sheet": "controller",
+    "name": "r2",
+    "source": "controller/controller-025.svg",
+    "named": "matched",
+    "score": 0.0132
+  },
+  {
+    "sheet": "controller",
+    "name": "r3",
+    "source": "controller/controller-017.svg",
+    "named": "matched",
+    "score": 0.02
+  },
+  {
+    "sheet": "controller",
+    "name": "rb",
+    "source": "controller/controller-008.svg",
+    "named": "matched",
+    "score": 0.0112
+  },
+  {
+    "sheet": "controller",
+    "name": "rt",
+    "source": "controller/controller-011.svg",
+    "named": "matched",
+    "score": 0.0117
+  },
+  {
+    "sheet": "controller",
+    "name": "sellect",
+    "source": "controller/controller-033.svg",
+    "named": "matched",
+    "score": 0.0121
+  },
+  {
+    "sheet": "controller",
+    "name": "square",
+    "source": "controller/controller-001.svg",
+    "named": "matched",
+    "score": 0.0104
+  },
+  {
+    "sheet": "controller",
+    "name": "triangle",
+    "source": "controller/controller-012.svg",
+    "named": "matched",
+    "score": 0.0098
+  },
+  {
+    "sheet": "controller",
+    "name": "triangle-left",
+    "source": "controller/controller-018.svg",
+    "named": "split-by-eye"
+  },
+  {
+    "sheet": "controller",
+    "name": "triangle-right",
+    "source": "controller/controller-018.svg",
+    "named": "split-by-eye"
+  },
+  {
+    "sheet": "controller",
+    "name": "x",
+    "source": "controller/controller-041.svg",
+    "named": "matched",
+    "score": 0.008
+  },
+  {
+    "sheet": "controller",
+    "name": "y",
+    "source": "controller/controller-040.svg",
+    "named": "matched",
+    "score": 0.0083
+  },
+  {
+    "sheet": "emoji",
+    "name": "alien",
+    "source": "emoji/emoji-024.svg",
+    "named": "matched",
+    "score": 0.0127
+  },
+  {
+    "sheet": "emoji",
+    "name": "cool",
+    "source": "emoji/emoji-018.svg",
+    "named": "matched",
+    "score": 0.0135
+  },
+  {
+    "sheet": "emoji",
+    "name": "crazy",
+    "source": "emoji/emoji-013.svg",
+    "named": "matched",
+    "score": 0.0116
+  },
+  {
+    "sheet": "emoji",
+    "name": "dead",
+    "source": "emoji/emoji-019.svg",
+    "named": "matched",
+    "score": 0.0123
+  },
+  {
+    "sheet": "emoji",
+    "name": "demon",
+    "source": "emoji/emoji-005.svg",
+    "named": "matched",
+    "score": 0.0177
+  },
+  {
+    "sheet": "emoji",
+    "name": "excited",
+    "source": "emoji/emoji-009.svg",
+    "named": "matched",
+    "score": 0.0122
+  },
+  {
+    "sheet": "emoji",
+    "name": "happy",
+    "source": "emoji/emoji-000.svg",
+    "named": "matched",
+    "score": 0.0122
+  },
+  {
+    "sheet": "emoji",
+    "name": "kiss",
+    "source": "emoji/emoji-015.svg",
+    "named": "matched",
+    "score": 0.0107
+  },
+  {
+    "sheet": "emoji",
+    "name": "love",
+    "source": "emoji/emoji-007.svg",
+    "named": "matched",
+    "score": 0.0132
+  },
+  {
+    "sheet": "emoji",
+    "name": "mad",
+    "source": "emoji/emoji-016.svg",
+    "named": "matched",
+    "score": 0.0118
+  },
+  {
+    "sheet": "emoji",
+    "name": "nausea",
+    "source": "emoji/emoji-017.svg",
+    "named": "matched",
+    "score": 0.0118
+  },
+  {
+    "sheet": "emoji",
+    "name": "nervous",
+    "source": "emoji/emoji-008.svg",
+    "named": "matched",
+    "score": 0.0118
+  },
+  {
+    "sheet": "emoji",
+    "name": "no-mouth",
+    "source": "emoji/emoji-004.svg",
+    "named": "matched",
+    "score": 0.0103
+  },
+  {
+    "sheet": "emoji",
+    "name": "poker-face",
+    "source": "emoji/emoji-010.svg",
+    "named": "matched",
+    "score": 0.0109
+  },
+  {
+    "sheet": "emoji",
+    "name": "relax",
+    "source": "emoji/emoji-021.svg",
+    "named": "matched",
+    "score": 0.0132
+  },
+  {
+    "sheet": "emoji",
+    "name": "sad",
+    "source": "emoji/emoji-023.svg",
+    "named": "matched",
+    "score": 0.0106
+  },
+  {
+    "sheet": "emoji",
+    "name": "sad-2",
+    "source": "emoji/emoji-002.svg",
+    "named": "matched",
+    "score": 0.0131
+  },
+  {
+    "sheet": "emoji",
+    "name": "satisfied",
+    "source": "emoji/emoji-011.svg",
+    "named": "matched",
+    "score": 0.0117
+  },
+  {
+    "sheet": "emoji",
+    "name": "silent",
+    "source": "emoji/emoji-014.svg",
+    "named": "matched",
+    "score": 0.0114
+  },
+  {
+    "sheet": "emoji",
+    "name": "sleep",
+    "source": "emoji/emoji-020.svg",
+    "named": "matched",
+    "score": 0.0113
+  },
+  {
+    "sheet": "emoji",
+    "name": "surprised",
+    "source": "emoji/emoji-003.svg",
+    "named": "matched",
+    "score": 0.0116
+  },
+  {
+    "sheet": "emoji",
+    "name": "very-happy",
+    "source": "emoji/emoji-006.svg",
+    "named": "matched",
+    "score": 0.0124
+  },
+  {
+    "sheet": "emoji",
+    "name": "very-sad",
+    "source": "emoji/emoji-001.svg",
+    "named": "matched",
+    "score": 0.0114
+  },
+  {
+    "sheet": "emoji",
+    "name": "what-happened",
+    "source": "emoji/emoji-012.svg",
+    "named": "matched",
+    "score": 0.0125
+  },
+  {
+    "sheet": "emoji",
+    "name": "wink",
+    "source": "emoji/emoji-022.svg",
+    "named": "matched",
+    "score": 0.0136
+  },
+  {
+    "sheet": "food",
+    "name": "apple-2",
+    "source": "food/food-020.svg",
+    "named": "matched",
+    "score": 0.0063
+  },
+  {
+    "sheet": "food",
+    "name": "bakon",
+    "source": "food/food-001.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "food",
+    "name": "cherry",
+    "source": "food/food-006.svg",
+    "named": "matched",
+    "score": 0.0049
+  },
+  {
+    "sheet": "food",
+    "name": "chicken",
+    "source": "food/food-003.svg",
+    "named": "matched",
+    "score": 0.0047
+  },
+  {
+    "sheet": "food",
+    "name": "donut",
+    "source": "food/food-005.svg",
+    "named": "matched",
+    "score": 0.0228
+  },
+  {
+    "sheet": "food",
+    "name": "egg",
+    "source": "food/food-010.svg",
+    "named": "matched",
+    "score": 0.0109
+  },
+  {
+    "sheet": "food",
+    "name": "fish",
+    "source": "food/food-007.svg",
+    "named": "by-eye"
+  },
+  {
+    "sheet": "food",
+    "name": "french-fries",
+    "source": "food/food-018.svg",
+    "named": "matched",
+    "score": 0.0089
+  },
+  {
+    "sheet": "food",
+    "name": "fried-egg",
+    "source": "food/food-000.svg",
+    "named": "matched",
+    "score": 0.0146
+  },
+  {
+    "sheet": "food",
+    "name": "glass",
+    "source": "food/food-011.svg",
+    "named": "matched",
+    "score": 0.0084
+  },
+  {
+    "sheet": "food",
+    "name": "hamburger",
+    "source": "food/food-015.svg",
+    "named": "matched",
+    "score": 0.0168
+  },
+  {
+    "sheet": "food",
+    "name": "hotdog",
+    "source": "food/food-017.svg",
+    "named": "matched",
+    "score": 0.0058
+  },
+  {
+    "sheet": "food",
+    "name": "hotdog-2",
+    "source": "food/food-019.svg",
+    "named": "matched",
+    "score": 0.0098
+  },
+  {
+    "sheet": "food",
+    "name": "ice-cream-1",
+    "source": "food/food-014.svg",
+    "named": "matched",
+    "score": 0.0049
+  },
+  {
+    "sheet": "food",
+    "name": "ice-cream-2",
+    "source": "food/food-013.svg",
+    "named": "matched",
+    "score": 0.0072
+  },
+  {
+    "sheet": "food",
+    "name": "lobster",
+    "source": "food/food-004.svg",
+    "named": "matched",
+    "score": 0.0137
+  },
+  {
+    "sheet": "food",
+    "name": "orange",
+    "source": "food/food-016.svg",
+    "named": "matched",
+    "score": 0.0099
+  },
+  {
+    "sheet": "food",
+    "name": "pizza",
+    "source": "food/food-012.svg",
+    "named": "matched",
+    "score": 0.0255
+  },
+  {
+    "sheet": "food",
+    "name": "slice",
+    "source": "food/food-008.svg",
+    "named": "matched",
+    "score": 0.008
+  },
+  {
+    "sheet": "food",
+    "name": "tea",
+    "source": "food/food-002.svg",
+    "named": "matched",
+    "score": 0.0078
+  },
+  {
+    "sheet": "food",
+    "name": "tomato",
+    "source": "food/food-009.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "keyboard",
+    "name": "0",
+    "source": "keyboard/keyboard-014.svg",
+    "named": "matched",
+    "score": 0.0086
+  },
+  {
+    "sheet": "keyboard",
+    "name": "0-2",
+    "source": "keyboard/keyboard-035.svg",
+    "named": "matched",
+    "score": 0.0086
+  },
+  {
+    "sheet": "keyboard",
+    "name": "1",
+    "source": "keyboard/keyboard-026.svg",
+    "named": "matched",
+    "score": 0.0033
+  },
+  {
+    "sheet": "keyboard",
+    "name": "2",
+    "source": "keyboard/keyboard-027.svg",
+    "named": "matched",
+    "score": 0.0089
+  },
+  {
+    "sheet": "keyboard",
+    "name": "3",
+    "source": "keyboard/keyboard-028.svg",
+    "named": "matched",
+    "score": 0.0064
+  },
+  {
+    "sheet": "keyboard",
+    "name": "4",
+    "source": "keyboard/keyboard-029.svg",
+    "named": "matched",
+    "score": 0.0063
+  },
+  {
+    "sheet": "keyboard",
+    "name": "5",
+    "source": "keyboard/keyboard-030.svg",
+    "named": "matched",
+    "score": 0.0075
+  },
+  {
+    "sheet": "keyboard",
+    "name": "6",
+    "source": "keyboard/keyboard-031.svg",
+    "named": "matched",
+    "score": 0.0096
+  },
+  {
+    "sheet": "keyboard",
+    "name": "7",
+    "source": "keyboard/keyboard-032.svg",
+    "named": "matched",
+    "score": 0.0051
+  },
+  {
+    "sheet": "keyboard",
+    "name": "8",
+    "source": "keyboard/keyboard-033.svg",
+    "named": "matched",
+    "score": 0.0092
+  },
+  {
+    "sheet": "keyboard",
+    "name": "9",
+    "source": "keyboard/keyboard-034.svg",
+    "named": "matched",
+    "score": 0.0094
+  },
+  {
+    "sheet": "keyboard",
+    "name": "a",
+    "source": "keyboard/keyboard-000.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "keyboard",
+    "name": "alt",
+    "source": "keyboard/keyboard-044.svg",
+    "named": "matched",
+    "score": 0.0101
+  },
+  {
+    "sheet": "keyboard",
+    "name": "asterisk",
+    "source": "keyboard/keyboard-066.svg",
+    "named": "matched",
+    "score": 0.0077
+  },
+  {
+    "sheet": "keyboard",
+    "name": "at-sign",
+    "source": "keyboard/keyboard-077.svg",
+    "named": "matched",
+    "score": 0.0219
+  },
+  {
+    "sheet": "keyboard",
+    "name": "b",
+    "source": "keyboard/keyboard-001.svg",
+    "named": "matched",
+    "score": 0.0098
+  },
+  {
+    "sheet": "keyboard",
+    "name": "backslash",
+    "source": "keyboard/keyboard-067.svg",
+    "named": "matched",
+    "score": 0.0012
+  },
+  {
+    "sheet": "keyboard",
+    "name": "backspace",
+    "source": "keyboard/keyboard-046.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "keyboard",
+    "name": "c",
+    "source": "keyboard/keyboard-002.svg",
+    "named": "matched",
+    "score": 0.0091
+  },
+  {
+    "sheet": "keyboard",
+    "name": "caps",
+    "source": "keyboard/keyboard-042.svg",
+    "named": "matched",
+    "score": 0.0108
+  },
+  {
+    "sheet": "keyboard",
+    "name": "carat",
+    "source": "keyboard/keyboard-081.svg",
+    "named": "matched",
+    "score": 0.0046
+  },
+  {
+    "sheet": "keyboard",
+    "name": "close-brace",
+    "source": "keyboard/keyboard-075.svg",
+    "named": "matched",
+    "score": 0.0036
+  },
+  {
+    "sheet": "keyboard",
+    "name": "close-bracket",
+    "source": "keyboard/keyboard-072.svg",
+    "named": "matched",
+    "score": 0.0048
+  },
+  {
+    "sheet": "keyboard",
+    "name": "cmd",
+    "source": "keyboard/keyboard-036.svg",
+    "named": "matched",
+    "score": 0.0159
+  },
+  {
+    "sheet": "keyboard",
+    "name": "colon",
+    "source": "keyboard/keyboard-083.svg",
+    "named": "matched",
+    "score": 0.0025
+  },
+  {
+    "sheet": "keyboard",
+    "name": "ctrl",
+    "source": "keyboard/keyboard-045.svg",
+    "named": "matched",
+    "score": 0.009
+  },
+  {
+    "sheet": "keyboard",
+    "name": "d",
+    "source": "keyboard/keyboard-003.svg",
+    "named": "matched",
+    "score": 0.0074
+  },
+  {
+    "sheet": "keyboard",
+    "name": "dash",
+    "source": "keyboard/keyboard-051.svg",
+    "named": "matched",
+    "score": 0.0038
+  },
+  {
+    "sheet": "keyboard",
+    "name": "del",
+    "source": "keyboard/keyboard-049.svg",
+    "named": "matched",
+    "score": 0.0102
+  },
+  {
+    "sheet": "keyboard",
+    "name": "dolor",
+    "source": "keyboard/keyboard-080.svg",
+    "named": "matched",
+    "score": 0.0054
+  },
+  {
+    "sheet": "keyboard",
+    "name": "dot",
+    "source": "keyboard/keyboard-082.svg",
+    "named": "matched",
+    "score": 0.0085
+  },
+  {
+    "sheet": "keyboard",
+    "name": "double-quote",
+    "source": "keyboard/keyboard-088.svg",
+    "named": "matched",
+    "score": 0.0155
+  },
+  {
+    "sheet": "keyboard",
+    "name": "e",
+    "source": "keyboard/keyboard-004.svg",
+    "named": "matched",
+    "score": 0.0085
+  },
+  {
+    "sheet": "keyboard",
+    "name": "end",
+    "source": "keyboard/keyboard-040.svg",
+    "named": "matched",
+    "score": 0.0149
+  },
+  {
+    "sheet": "keyboard",
+    "name": "enter",
+    "source": "keyboard/keyboard-047.svg",
+    "named": "matched",
+    "score": 0.0097
+  },
+  {
+    "sheet": "keyboard",
+    "name": "enter-2",
+    "source": "keyboard/keyboard-050.svg",
+    "named": "matched",
+    "score": 0.0085
+  },
+  {
+    "sheet": "keyboard",
+    "name": "esc",
+    "source": "keyboard/keyboard-048.svg",
+    "named": "matched",
+    "score": 0.0132
+  },
+  {
+    "sheet": "keyboard",
+    "name": "eszett",
+    "source": "keyboard/keyboard-086.svg",
+    "named": "by-eye"
+  },
+  {
+    "sheet": "keyboard",
+    "name": "exclamation",
+    "source": "keyboard/keyboard-076.svg",
+    "named": "matched",
+    "score": 0.0034
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f",
+    "source": "keyboard/keyboard-005.svg",
+    "named": "matched",
+    "score": 0.0075
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f-10",
+    "source": "keyboard/keyboard-063.svg",
+    "named": "matched",
+    "score": 0.0112
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f1",
+    "source": "keyboard/keyboard-054.svg",
+    "named": "matched",
+    "score": 0.0096
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f11",
+    "source": "keyboard/keyboard-064.svg",
+    "named": "matched",
+    "score": 0.0091
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f12",
+    "source": "keyboard/keyboard-065.svg",
+    "named": "matched",
+    "score": 0.0072
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f2",
+    "source": "keyboard/keyboard-055.svg",
+    "named": "matched",
+    "score": 0.0123
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f3",
+    "source": "keyboard/keyboard-056.svg",
+    "named": "matched",
+    "score": 0.0172
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f4",
+    "source": "keyboard/keyboard-057.svg",
+    "named": "matched",
+    "score": 0.0104
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f5",
+    "source": "keyboard/keyboard-058.svg",
+    "named": "matched",
+    "score": 0.0161
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f6",
+    "source": "keyboard/keyboard-059.svg",
+    "named": "matched",
+    "score": 0.0133
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f7",
+    "source": "keyboard/keyboard-060.svg",
+    "named": "matched",
+    "score": 0.0095
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f8",
+    "source": "keyboard/keyboard-061.svg",
+    "named": "matched",
+    "score": 0.0157
+  },
+  {
+    "sheet": "keyboard",
+    "name": "f9",
+    "source": "keyboard/keyboard-062.svg",
+    "named": "matched",
+    "score": 0.0125
+  },
+  {
+    "sheet": "keyboard",
+    "name": "g",
+    "source": "keyboard/keyboard-006.svg",
+    "named": "matched",
+    "score": 0.0153
+  },
+  {
+    "sheet": "keyboard",
+    "name": "h",
+    "source": "keyboard/keyboard-007.svg",
+    "named": "matched",
+    "score": 0.0074
+  },
+  {
+    "sheet": "keyboard",
+    "name": "hash",
+    "source": "keyboard/keyboard-071.svg",
+    "named": "matched",
+    "score": 0.0085
+  },
+  {
+    "sheet": "keyboard",
+    "name": "home",
+    "source": "keyboard/keyboard-037.svg",
+    "named": "matched",
+    "score": 0.0102
+  },
+  {
+    "sheet": "keyboard",
+    "name": "i",
+    "source": "keyboard/keyboard-008.svg",
+    "named": "matched",
+    "score": 0.0036
+  },
+  {
+    "sheet": "keyboard",
+    "name": "insert",
+    "source": "keyboard/keyboard-038.svg",
+    "named": "matched",
+    "score": 0.0098
+  },
+  {
+    "sheet": "keyboard",
+    "name": "j",
+    "source": "keyboard/keyboard-009.svg",
+    "named": "matched",
+    "score": 0.0038
+  },
+  {
+    "sheet": "keyboard",
+    "name": "k",
+    "source": "keyboard/keyboard-010.svg",
+    "named": "matched",
+    "score": 0.0055
+  },
+  {
+    "sheet": "keyboard",
+    "name": "l",
+    "source": "keyboard/keyboard-011.svg",
+    "named": "matched",
+    "score": 0.0066
+  },
+  {
+    "sheet": "keyboard",
+    "name": "left-parenthesis",
+    "source": "keyboard/keyboard-069.svg",
+    "named": "matched",
+    "score": 0.0045
+  },
+  {
+    "sheet": "keyboard",
+    "name": "less-than",
+    "source": "keyboard/keyboard-089.svg",
+    "named": "matched",
+    "score": 0.0045
+  },
+  {
+    "sheet": "keyboard",
+    "name": "m",
+    "source": "keyboard/keyboard-012.svg",
+    "named": "matched",
+    "score": 0.0102
+  },
+  {
+    "sheet": "keyboard",
+    "name": "n",
+    "source": "keyboard/keyboard-013.svg",
+    "named": "matched",
+    "score": 0.0091
+  },
+  {
+    "sheet": "keyboard",
+    "name": "negative",
+    "source": "keyboard/keyboard-079.svg",
+    "named": "matched",
+    "score": 0.0039
+  },
+  {
+    "sheet": "keyboard",
+    "name": "open-brace",
+    "source": "keyboard/keyboard-074.svg",
+    "named": "matched",
+    "score": 0.0038
+  },
+  {
+    "sheet": "keyboard",
+    "name": "open-bracket",
+    "source": "keyboard/keyboard-073.svg",
+    "named": "matched",
+    "score": 0.0032
+  },
+  {
+    "sheet": "keyboard",
+    "name": "p",
+    "source": "keyboard/keyboard-015.svg",
+    "named": "matched",
+    "score": 0.007
+  },
+  {
+    "sheet": "keyboard",
+    "name": "pgdn",
+    "source": "keyboard/keyboard-039.svg",
+    "named": "matched",
+    "score": 0.0064
+  },
+  {
+    "sheet": "keyboard",
+    "name": "pgup",
+    "source": "keyboard/keyboard-041.svg",
+    "named": "matched",
+    "score": 0.0105
+  },
+  {
+    "sheet": "keyboard",
+    "name": "plus",
+    "source": "keyboard/keyboard-078.svg",
+    "named": "matched",
+    "score": 0.0053
+  },
+  {
+    "sheet": "keyboard",
+    "name": "q",
+    "source": "keyboard/keyboard-016.svg",
+    "named": "matched",
+    "score": 0.0095
+  },
+  {
+    "sheet": "keyboard",
+    "name": "r",
+    "source": "keyboard/keyboard-017.svg",
+    "named": "matched",
+    "score": 0.0134
+  },
+  {
+    "sheet": "keyboard",
+    "name": "right-parenthesis",
+    "source": "keyboard/keyboard-070.svg",
+    "named": "matched",
+    "score": 0.0054
+  },
+  {
+    "sheet": "keyboard",
+    "name": "s",
+    "source": "keyboard/keyboard-018.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "keyboard",
+    "name": "semicolon",
+    "source": "keyboard/keyboard-084.svg",
+    "named": "matched",
+    "score": 0.0022
+  },
+  {
+    "sheet": "keyboard",
+    "name": "shift",
+    "source": "keyboard/keyboard-043.svg",
+    "named": "matched",
+    "score": 0.0078
+  },
+  {
+    "sheet": "keyboard",
+    "name": "single-quote",
+    "source": "keyboard/keyboard-087.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "keyboard",
+    "name": "slash",
+    "source": "keyboard/keyboard-068.svg",
+    "named": "matched",
+    "score": 0.0015
+  },
+  {
+    "sheet": "keyboard",
+    "name": "t",
+    "source": "keyboard/keyboard-019.svg",
+    "named": "matched",
+    "score": 0.0052
+  },
+  {
+    "sheet": "keyboard",
+    "name": "u",
+    "source": "keyboard/keyboard-020.svg",
+    "named": "matched",
+    "score": 0.0139
+  },
+  {
+    "sheet": "keyboard",
+    "name": "underscore",
+    "source": "keyboard/keyboard-085.svg",
+    "named": "matched",
+    "score": 0.002
+  },
+  {
+    "sheet": "keyboard",
+    "name": "v",
+    "source": "keyboard/keyboard-021.svg",
+    "named": "matched",
+    "score": 0.0052
+  },
+  {
+    "sheet": "keyboard",
+    "name": "w",
+    "source": "keyboard/keyboard-022.svg",
+    "named": "matched",
+    "score": 0.0151
+  },
+  {
+    "sheet": "keyboard",
+    "name": "windows",
+    "source": "keyboard/keyboard-052.svg",
+    "named": "matched",
+    "score": 0.018
+  },
+  {
+    "sheet": "keyboard",
+    "name": "x",
+    "source": "keyboard/keyboard-023.svg",
+    "named": "matched",
+    "score": 0.0035
+  },
+  {
+    "sheet": "keyboard",
+    "name": "y",
+    "source": "keyboard/keyboard-024.svg",
+    "named": "matched",
+    "score": 0.0044
+  },
+  {
+    "sheet": "keyboard",
+    "name": "z",
+    "source": "keyboard/keyboard-025.svg",
+    "named": "matched",
+    "score": 0.0082
+  },
+  {
+    "sheet": "set1",
+    "name": "alarm",
+    "source": "set1/set1-004.svg",
+    "named": "matched",
+    "score": 0.0167
+  },
+  {
+    "sheet": "set1",
+    "name": "apple",
+    "source": "set1/set1-083.svg",
+    "named": "matched",
+    "score": 0.0082
+  },
+  {
+    "sheet": "set1",
+    "name": "back",
+    "source": "set1/set1-019.svg",
+    "named": "matched",
+    "score": 0.0099
+  },
+  {
+    "sheet": "set1",
+    "name": "back-2",
+    "source": "set1/set1-022.svg",
+    "named": "matched",
+    "score": 0.0063
+  },
+  {
+    "sheet": "set1",
+    "name": "battery-full",
+    "source": "set1/set1-078.svg",
+    "named": "matched",
+    "score": 0.0112
+  },
+  {
+    "sheet": "set1",
+    "name": "bone-head",
+    "source": "set1/set1-042.svg",
+    "named": "matched",
+    "score": 0.0136
+  },
+  {
+    "sheet": "set1",
+    "name": "camera-1",
+    "source": "set1/set1-043.svg",
+    "named": "matched",
+    "score": 0.0135
+  },
+  {
+    "sheet": "set1",
+    "name": "camera-2",
+    "source": "set1/set1-044.svg",
+    "named": "matched",
+    "score": 0.0103
+  },
+  {
+    "sheet": "set1",
+    "name": "click-left",
+    "source": "set1/set1-064.svg",
+    "named": "matched",
+    "score": 0.0092
+  },
+  {
+    "sheet": "set1",
+    "name": "click-middle",
+    "source": "set1/set1-066.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "set1",
+    "name": "click-right",
+    "source": "set1/set1-063.svg",
+    "named": "matched",
+    "score": 0.0101
+  },
+  {
+    "sheet": "set1",
+    "name": "cross",
+    "source": "set1/set1-023.svg",
+    "named": "matched",
+    "score": 0.0082
+  },
+  {
+    "sheet": "set1",
+    "name": "danger-sign-1",
+    "source": "set1/set1-049.svg",
+    "named": "matched",
+    "score": 0.0071
+  },
+  {
+    "sheet": "set1",
+    "name": "delete",
+    "source": "set1/set1-059.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "set1",
+    "name": "divide",
+    "source": "set1/set1-026.svg",
+    "named": "matched",
+    "score": 0.0043
+  },
+  {
+    "sheet": "set1",
+    "name": "download",
+    "source": "set1/set1-034.svg",
+    "named": "matched",
+    "score": 0.008
+  },
+  {
+    "sheet": "set1",
+    "name": "empty-battery",
+    "source": "set1/set1-080.svg",
+    "named": "matched",
+    "score": 0.0152
+  },
+  {
+    "sheet": "set1",
+    "name": "equal",
+    "source": "set1/set1-027.svg",
+    "named": "matched",
+    "score": 0.0061
+  },
+  {
+    "sheet": "set1",
+    "name": "exclamation-sign",
+    "source": "set1/set1-055.svg",
+    "named": "matched",
+    "score": 0.0023
+  },
+  {
+    "sheet": "set1",
+    "name": "exclamation-sign-2",
+    "source": "set1/set1-054.svg",
+    "named": "matched",
+    "score": 0.0042
+  },
+  {
+    "sheet": "set1",
+    "name": "f",
+    "source": "set1/set1-082.svg",
+    "named": "matched",
+    "score": 0.0043
+  },
+  {
+    "sheet": "set1",
+    "name": "gamepad-1",
+    "source": "set1/set1-072.svg",
+    "named": "matched",
+    "score": 0.0059
+  },
+  {
+    "sheet": "set1",
+    "name": "gamepad-2",
+    "source": "set1/set1-073.svg",
+    "named": "matched",
+    "score": 0.0053
+  },
+  {
+    "sheet": "set1",
+    "name": "gift",
+    "source": "set1/set1-038.svg",
+    "named": "matched",
+    "score": 0.011
+  },
+  {
+    "sheet": "set1",
+    "name": "house",
+    "source": "set1/set1-018.svg",
+    "named": "matched",
+    "score": 0.0067
+  },
+  {
+    "sheet": "set1",
+    "name": "key",
+    "source": "set1/set1-046.svg",
+    "named": "matched",
+    "score": 0.0043
+  },
+  {
+    "sheet": "set1",
+    "name": "keyboard",
+    "source": "set1/set1-036.svg",
+    "named": "matched",
+    "score": 0.0127
+  },
+  {
+    "sheet": "set1",
+    "name": "like",
+    "source": "set1/set1-000.svg",
+    "named": "matched",
+    "score": 0.0059
+  },
+  {
+    "sheet": "set1",
+    "name": "link",
+    "source": "set1/set1-045.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "set1",
+    "name": "lock",
+    "source": "set1/set1-061.svg",
+    "named": "matched",
+    "score": 0.0133
+  },
+  {
+    "sheet": "set1",
+    "name": "low-battery",
+    "source": "set1/set1-079.svg",
+    "named": "matched",
+    "score": 0.01
+  },
+  {
+    "sheet": "set1",
+    "name": "magnifier",
+    "source": "set1/set1-006.svg",
+    "named": "matched",
+    "score": 0.0084
+  },
+  {
+    "sheet": "set1",
+    "name": "mail",
+    "source": "set1/set1-029.svg",
+    "named": "matched",
+    "score": 0.0127
+  },
+  {
+    "sheet": "set1",
+    "name": "map",
+    "source": "set1/set1-011.svg",
+    "named": "matched",
+    "score": 0.0058
+  },
+  {
+    "sheet": "set1",
+    "name": "market",
+    "source": "set1/set1-037.svg",
+    "named": "matched",
+    "score": 0.0098
+  },
+  {
+    "sheet": "set1",
+    "name": "medal-1",
+    "source": "set1/set1-039.svg",
+    "named": "matched",
+    "score": 0.0079
+  },
+  {
+    "sheet": "set1",
+    "name": "medal-2",
+    "source": "set1/set1-040.svg",
+    "named": "matched",
+    "score": 0.0068
+  },
+  {
+    "sheet": "set1",
+    "name": "medal-3",
+    "source": "set1/set1-041.svg",
+    "named": "matched",
+    "score": 0.0074
+  },
+  {
+    "sheet": "set1",
+    "name": "menu",
+    "source": "set1/set1-067.svg",
+    "named": "matched",
+    "score": 0.0163
+  },
+  {
+    "sheet": "set1",
+    "name": "menu-1",
+    "source": "set1/set1-016.svg",
+    "named": "matched",
+    "score": 0.0149
+  },
+  {
+    "sheet": "set1",
+    "name": "menu-2",
+    "source": "set1/set1-017.svg",
+    "named": "matched",
+    "score": 0.0105
+  },
+  {
+    "sheet": "set1",
+    "name": "message",
+    "source": "set1/set1-068.svg",
+    "named": "matched",
+    "score": 0.0102
+  },
+  {
+    "sheet": "set1",
+    "name": "money",
+    "source": "set1/set1-052.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "set1",
+    "name": "monitor",
+    "source": "set1/set1-060.svg",
+    "named": "matched",
+    "score": 0.0192
+  },
+  {
+    "sheet": "set1",
+    "name": "mouse",
+    "source": "set1/set1-065.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "set1",
+    "name": "musick-note",
+    "source": "set1/set1-076.svg",
+    "named": "matched",
+    "score": 0.0094
+  },
+  {
+    "sheet": "set1",
+    "name": "mute",
+    "source": "set1/set1-077.svg",
+    "named": "matched",
+    "score": 0.0081
+  },
+  {
+    "sheet": "set1",
+    "name": "mute-2",
+    "source": "set1/set1-075.svg",
+    "named": "matched",
+    "score": 0.0052
+  },
+  {
+    "sheet": "set1",
+    "name": "negative",
+    "source": "set1/set1-025.svg",
+    "named": "matched",
+    "score": 0.0027
+  },
+  {
+    "sheet": "set1",
+    "name": "network",
+    "source": "set1/set1-028.svg",
+    "named": "matched",
+    "score": 0.0269
+  },
+  {
+    "sheet": "set1",
+    "name": "network-2",
+    "source": "set1/set1-051.svg",
+    "named": "matched",
+    "score": 0.0109
+  },
+  {
+    "sheet": "set1",
+    "name": "next-speed-up",
+    "source": "set1/set1-012.svg",
+    "named": "matched",
+    "score": 0.0074
+  },
+  {
+    "sheet": "set1",
+    "name": "no-wifi",
+    "source": "set1/set1-057.svg",
+    "named": "matched",
+    "score": 0.0046
+  },
+  {
+    "sheet": "set1",
+    "name": "pause",
+    "source": "set1/set1-014.svg",
+    "named": "matched",
+    "score": 0.0117
+  },
+  {
+    "sheet": "set1",
+    "name": "play",
+    "source": "set1/set1-015.svg",
+    "named": "matched",
+    "score": 0.0084
+  },
+  {
+    "sheet": "set1",
+    "name": "play-puse",
+    "source": "set1/set1-013.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "set1",
+    "name": "plus",
+    "source": "set1/set1-024.svg",
+    "named": "matched",
+    "score": 0.0035
+  },
+  {
+    "sheet": "set1",
+    "name": "power-plug",
+    "source": "set1/set1-010.svg",
+    "named": "matched",
+    "score": 0.007
+  },
+  {
+    "sheet": "set1",
+    "name": "power-sign",
+    "source": "set1/set1-009.svg",
+    "named": "matched",
+    "score": 0.0096
+  },
+  {
+    "sheet": "set1",
+    "name": "question",
+    "source": "set1/set1-053.svg",
+    "named": "matched",
+    "score": 0.0066
+  },
+  {
+    "sheet": "set1",
+    "name": "ranking",
+    "source": "set1/set1-033.svg",
+    "named": "matched",
+    "score": 0.0056
+  },
+  {
+    "sheet": "set1",
+    "name": "reply",
+    "source": "set1/set1-020.svg",
+    "named": "matched",
+    "score": 0.0117
+  },
+  {
+    "sheet": "set1",
+    "name": "rotate-phone-1",
+    "source": "set1/set1-001.svg",
+    "named": "matched",
+    "score": 0.0114
+  },
+  {
+    "sheet": "set1",
+    "name": "rotate-phone-2",
+    "source": "set1/set1-003.svg",
+    "named": "matched",
+    "score": 0.0273
+  },
+  {
+    "sheet": "set1",
+    "name": "save",
+    "source": "set1/set1-005.svg",
+    "named": "matched",
+    "score": 0.0155
+  },
+  {
+    "sheet": "set1",
+    "name": "setting-1",
+    "source": "set1/set1-048.svg",
+    "named": "matched",
+    "score": 0.0065
+  },
+  {
+    "sheet": "set1",
+    "name": "setting-2",
+    "source": "set1/set1-047.svg",
+    "named": "matched",
+    "score": 0.0077
+  },
+  {
+    "sheet": "set1",
+    "name": "share-1",
+    "source": "set1/set1-070.svg",
+    "named": "matched",
+    "score": 0.0046
+  },
+  {
+    "sheet": "set1",
+    "name": "share-2",
+    "source": "set1/set1-069.svg",
+    "named": "matched",
+    "score": 0.0051
+  },
+  {
+    "sheet": "set1",
+    "name": "star",
+    "source": "set1/set1-071.svg",
+    "named": "matched",
+    "score": 0.0079
+  },
+  {
+    "sheet": "set1",
+    "name": "steam",
+    "source": "set1/set1-081.svg",
+    "named": "matched",
+    "score": 0.021
+  },
+  {
+    "sheet": "set1",
+    "name": "swap",
+    "source": "set1/set1-021.svg",
+    "named": "by-eye"
+  },
+  {
+    "sheet": "set1",
+    "name": "triangle",
+    "source": "set1/set1-050.svg",
+    "named": "by-eye"
+  },
+  {
+    "sheet": "set1",
+    "name": "twitch",
+    "source": "set1/set1-084.svg",
+    "named": "matched",
+    "score": 0.0091
+  },
+  {
+    "sheet": "set1",
+    "name": "unlock",
+    "source": "set1/set1-062.svg",
+    "named": "matched",
+    "score": 0.0094
+  },
+  {
+    "sheet": "set1",
+    "name": "upload",
+    "source": "set1/set1-035.svg",
+    "named": "matched",
+    "score": 0.0067
+  },
+  {
+    "sheet": "set1",
+    "name": "video-cam",
+    "source": "set1/set1-086.svg",
+    "named": "matched",
+    "score": 0.0107
+  },
+  {
+    "sheet": "set1",
+    "name": "volume",
+    "source": "set1/set1-074.svg",
+    "named": "matched",
+    "score": 0.0077
+  },
+  {
+    "sheet": "set1",
+    "name": "waving",
+    "source": "set1/set1-002.svg",
+    "named": "matched",
+    "score": 0.0365
+  },
+  {
+    "sheet": "set1",
+    "name": "wi-fi",
+    "source": "set1/set1-056.svg",
+    "named": "matched",
+    "score": 0.0213
+  },
+  {
+    "sheet": "set1",
+    "name": "wi-fi-allert",
+    "source": "set1/set1-058.svg",
+    "named": "matched",
+    "score": 0.0167
+  },
+  {
+    "sheet": "set1",
+    "name": "wrench-1",
+    "source": "set1/set1-031.svg",
+    "named": "matched",
+    "score": 0.0105
+  },
+  {
+    "sheet": "set1",
+    "name": "wrench-2",
+    "source": "set1/set1-032.svg",
+    "named": "matched",
+    "score": 0.0146
+  },
+  {
+    "sheet": "set1",
+    "name": "wrench-3",
+    "source": "set1/set1-030.svg",
+    "named": "matched",
+    "score": 0.0059
+  },
+  {
+    "sheet": "set1",
+    "name": "youtube-video-play",
+    "source": "set1/set1-085.svg",
+    "named": "matched",
+    "score": 0.0119
+  },
+  {
+    "sheet": "set1",
+    "name": "zoom-in",
+    "source": "set1/set1-007.svg",
+    "named": "matched",
+    "score": 0.0109
+  },
+  {
+    "sheet": "set1",
+    "name": "zoom-out",
+    "source": "set1/set1-008.svg",
+    "named": "matched",
+    "score": 0.009
+  },
+  {
+    "sheet": "set2",
+    "name": "armor",
+    "source": "set2/set2-068.svg",
+    "named": "matched",
+    "score": 0.0162
+  },
+  {
+    "sheet": "set2",
+    "name": "arrow",
+    "source": "set2/set2-081.svg",
+    "named": "matched",
+    "score": 0.0066
+  },
+  {
+    "sheet": "set2",
+    "name": "bag",
+    "source": "set2/set2-027.svg",
+    "named": "matched",
+    "score": 0.019
+  },
+  {
+    "sheet": "set2",
+    "name": "bag-3",
+    "source": "set2/set2-021.svg",
+    "named": "matched",
+    "score": 0.0168
+  },
+  {
+    "sheet": "set2",
+    "name": "bag-bone",
+    "source": "set2/set2-056.svg",
+    "named": "matched",
+    "score": 0.0064
+  },
+  {
+    "sheet": "set2",
+    "name": "bag-food",
+    "source": "set2/set2-059.svg",
+    "named": "matched",
+    "score": 0.0056
+  },
+  {
+    "sheet": "set2",
+    "name": "bag-gear",
+    "source": "set2/set2-058.svg",
+    "named": "matched",
+    "score": 0.0052
+  },
+  {
+    "sheet": "set2",
+    "name": "bag-magic",
+    "source": "set2/set2-055.svg",
+    "named": "matched",
+    "score": 0.0046
+  },
+  {
+    "sheet": "set2",
+    "name": "bag-money",
+    "source": "set2/set2-054.svg",
+    "named": "matched",
+    "score": 0.0046
+  },
+  {
+    "sheet": "set2",
+    "name": "bag-question",
+    "source": "set2/set2-057.svg",
+    "named": "matched",
+    "score": 0.005
+  },
+  {
+    "sheet": "set2",
+    "name": "bag2",
+    "source": "set2/set2-060.svg",
+    "named": "matched",
+    "score": 0.0039
+  },
+  {
+    "sheet": "set2",
+    "name": "band-aid",
+    "source": "set2/set2-049.svg",
+    "named": "matched",
+    "score": 0.0059
+  },
+  {
+    "sheet": "set2",
+    "name": "barrel",
+    "source": "set2/set2-061.svg",
+    "named": "matched",
+    "score": 0.0336
+  },
+  {
+    "sheet": "set2",
+    "name": "battery",
+    "source": "set2/set2-046.svg",
+    "named": "matched",
+    "score": 0.0117
+  },
+  {
+    "sheet": "set2",
+    "name": "bear-hand",
+    "source": "set2/set2-039.svg",
+    "named": "matched",
+    "score": 0.0092
+  },
+  {
+    "sheet": "set2",
+    "name": "biohazard",
+    "source": "set2/set2-040.svg",
+    "named": "matched",
+    "score": 0.0102
+  },
+  {
+    "sheet": "set2",
+    "name": "bottle",
+    "source": "set2/set2-047.svg",
+    "named": "matched",
+    "score": 0.0048
+  },
+  {
+    "sheet": "set2",
+    "name": "bow",
+    "source": "set2/set2-079.svg",
+    "named": "matched",
+    "score": 0.0061
+  },
+  {
+    "sheet": "set2",
+    "name": "bow-2",
+    "source": "set2/set2-080.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "set2",
+    "name": "campfire",
+    "source": "set2/set2-034.svg",
+    "named": "matched",
+    "score": 0.009
+  },
+  {
+    "sheet": "set2",
+    "name": "canon",
+    "source": "set2/set2-096.svg",
+    "named": "matched",
+    "score": 0.0156
+  },
+  {
+    "sheet": "set2",
+    "name": "chest",
+    "source": "set2/set2-053.svg",
+    "named": "matched",
+    "score": 0.0186
+  },
+  {
+    "sheet": "set2",
+    "name": "cigarette",
+    "source": "set2/set2-052.svg",
+    "named": "matched",
+    "score": 0.0054
+  },
+  {
+    "sheet": "set2",
+    "name": "compass",
+    "source": "set2/set2-028.svg",
+    "named": "matched",
+    "score": 0.016
+  },
+  {
+    "sheet": "set2",
+    "name": "compote",
+    "source": "set2/set2-042.svg",
+    "named": "matched",
+    "score": 0.0115
+  },
+  {
+    "sheet": "set2",
+    "name": "door",
+    "source": "set2/set2-017.svg",
+    "named": "matched",
+    "score": 0.0104
+  },
+  {
+    "sheet": "set2",
+    "name": "drop",
+    "source": "set2/set2-038.svg",
+    "named": "matched",
+    "score": 0.0037
+  },
+  {
+    "sheet": "set2",
+    "name": "fire",
+    "source": "set2/set2-036.svg",
+    "named": "matched",
+    "score": 0.0087
+  },
+  {
+    "sheet": "set2",
+    "name": "first-aid",
+    "source": "set2/set2-050.svg",
+    "named": "matched",
+    "score": 0.0137
+  },
+  {
+    "sheet": "set2",
+    "name": "flag",
+    "source": "set2/set2-029.svg",
+    "named": "matched",
+    "score": 0.0107
+  },
+  {
+    "sheet": "set2",
+    "name": "flashlight",
+    "source": "set2/set2-035.svg",
+    "named": "matched",
+    "score": 0.0053
+  },
+  {
+    "sheet": "set2",
+    "name": "glove",
+    "source": "set2/set2-071.svg",
+    "named": "matched",
+    "score": 0.0054
+  },
+  {
+    "sheet": "set2",
+    "name": "glove-2",
+    "source": "set2/set2-020.svg",
+    "named": "matched",
+    "score": 0.0047
+  },
+  {
+    "sheet": "set2",
+    "name": "grave",
+    "source": "set2/set2-098.svg",
+    "named": "matched",
+    "score": 0.0056
+  },
+  {
+    "sheet": "set2",
+    "name": "grave-2",
+    "source": "set2/set2-097.svg",
+    "named": "matched",
+    "score": 0.0082
+  },
+  {
+    "sheet": "set2",
+    "name": "hand-axe",
+    "source": "set2/set2-064.svg",
+    "named": "matched",
+    "score": 0.0127
+  },
+  {
+    "sheet": "set2",
+    "name": "hat",
+    "source": "set2/set2-019.svg",
+    "named": "matched",
+    "score": 0.0081
+  },
+  {
+    "sheet": "set2",
+    "name": "heart-empty",
+    "source": "set2/set2-003.svg",
+    "named": "matched",
+    "score": 0.0084
+  },
+  {
+    "sheet": "set2",
+    "name": "heart-full",
+    "source": "set2/set2-005.svg",
+    "named": "matched",
+    "score": 0.0121
+  },
+  {
+    "sheet": "set2",
+    "name": "heart-half",
+    "source": "set2/set2-004.svg",
+    "named": "matched",
+    "score": 0.0098
+  },
+  {
+    "sheet": "set2",
+    "name": "helmet-1",
+    "source": "set2/set2-067.svg",
+    "named": "matched",
+    "score": 0.0083
+  },
+  {
+    "sheet": "set2",
+    "name": "helmet-2",
+    "source": "set2/set2-066.svg",
+    "named": "matched",
+    "score": 0.0154
+  },
+  {
+    "sheet": "set2",
+    "name": "helmet-3",
+    "source": "set2/set2-069.svg",
+    "named": "matched",
+    "score": 0.0088
+  },
+  {
+    "sheet": "set2",
+    "name": "light-empty",
+    "source": "set2/set2-009.svg",
+    "named": "matched",
+    "score": 0.0072
+  },
+  {
+    "sheet": "set2",
+    "name": "light-full",
+    "source": "set2/set2-010.svg",
+    "named": "matched",
+    "score": 0.0104
+  },
+  {
+    "sheet": "set2",
+    "name": "map",
+    "source": "set2/set2-045.svg",
+    "named": "matched",
+    "score": 0.01
+  },
+  {
+    "sheet": "set2",
+    "name": "necklece",
+    "source": "set2/set2-024.svg",
+    "named": "matched",
+    "score": 0.0099
+  },
+  {
+    "sheet": "set2",
+    "name": "neklece-2",
+    "source": "set2/set2-025.svg",
+    "named": "matched",
+    "score": 0.0143
+  },
+  {
+    "sheet": "set2",
+    "name": "pants",
+    "source": "set2/set2-022.svg",
+    "named": "matched",
+    "score": 0.0086
+  },
+  {
+    "sheet": "set2",
+    "name": "pill",
+    "source": "set2/set2-051.svg",
+    "named": "matched",
+    "score": 0.0097
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-2-empty",
+    "source": "set2/set2-011.svg",
+    "named": "matched",
+    "score": 0.0083
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-2-full",
+    "source": "set2/set2-013.svg",
+    "named": "matched",
+    "score": 0.01
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-2-half",
+    "source": "set2/set2-012.svg",
+    "named": "matched",
+    "score": 0.0103
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-3-full",
+    "source": "set2/set2-008.svg",
+    "named": "matched",
+    "score": 0.0097
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-3-half",
+    "source": "set2/set2-007.svg",
+    "named": "matched",
+    "score": 0.0088
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-empty",
+    "source": "set2/set2-014.svg",
+    "named": "matched",
+    "score": 0.0089
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-empty-2",
+    "source": "set2/set2-006.svg",
+    "named": "matched",
+    "score": 0.0063
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-full",
+    "source": "set2/set2-016.svg",
+    "named": "matched",
+    "score": 0.0108
+  },
+  {
+    "sheet": "set2",
+    "name": "potion-half",
+    "source": "set2/set2-015.svg",
+    "named": "matched",
+    "score": 0.0111
+  },
+  {
+    "sheet": "set2",
+    "name": "radioactive-sign",
+    "source": "set2/set2-041.svg",
+    "named": "matched",
+    "score": 0.0075
+  },
+  {
+    "sheet": "set2",
+    "name": "ring",
+    "source": "set2/set2-026.svg",
+    "named": "matched",
+    "score": 0.0135
+  },
+  {
+    "sheet": "set2",
+    "name": "rope",
+    "source": "set2/set2-048.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "set2",
+    "name": "scroll",
+    "source": "set2/set2-087.svg",
+    "named": "matched",
+    "score": 0.0115
+  },
+  {
+    "sheet": "set2",
+    "name": "scroll-heart",
+    "source": "set2/set2-086.svg",
+    "named": "matched",
+    "score": 0.013
+  },
+  {
+    "sheet": "set2",
+    "name": "scroll-magic",
+    "source": "set2/set2-084.svg",
+    "named": "matched",
+    "score": 0.0156
+  },
+  {
+    "sheet": "set2",
+    "name": "scroll-potion",
+    "source": "set2/set2-083.svg",
+    "named": "matched",
+    "score": 0.0162
+  },
+  {
+    "sheet": "set2",
+    "name": "scroll-potion-2",
+    "source": "set2/set2-085.svg",
+    "named": "matched",
+    "score": 0.0161
+  },
+  {
+    "sheet": "set2",
+    "name": "shield-empty",
+    "source": "set2/set2-002.svg",
+    "named": "matched",
+    "score": 0.0036
+  },
+  {
+    "sheet": "set2",
+    "name": "shield-full",
+    "source": "set2/set2-000.svg",
+    "named": "matched",
+    "score": 0.007
+  },
+  {
+    "sheet": "set2",
+    "name": "shield-half",
+    "source": "set2/set2-001.svg",
+    "named": "matched",
+    "score": 0.0082
+  },
+  {
+    "sheet": "set2",
+    "name": "shild",
+    "source": "set2/set2-095.svg",
+    "named": "matched",
+    "score": 0.0239
+  },
+  {
+    "sheet": "set2",
+    "name": "shild-1",
+    "source": "set2/set2-094.svg",
+    "named": "matched",
+    "score": 0.0118
+  },
+  {
+    "sheet": "set2",
+    "name": "shild-2",
+    "source": "set2/set2-093.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "set2",
+    "name": "shild-3",
+    "source": "set2/set2-092.svg",
+    "named": "matched",
+    "score": 0.0114
+  },
+  {
+    "sheet": "set2",
+    "name": "shild-4",
+    "source": "set2/set2-091.svg",
+    "named": "matched",
+    "score": 0.0147
+  },
+  {
+    "sheet": "set2",
+    "name": "shild-5",
+    "source": "set2/set2-090.svg",
+    "named": "matched",
+    "score": 0.0081
+  },
+  {
+    "sheet": "set2",
+    "name": "shild-6",
+    "source": "set2/set2-089.svg",
+    "named": "matched",
+    "score": 0.0128
+  },
+  {
+    "sheet": "set2",
+    "name": "shild-7",
+    "source": "set2/set2-088.svg",
+    "named": "matched",
+    "score": 0.0181
+  },
+  {
+    "sheet": "set2",
+    "name": "shoe",
+    "source": "set2/set2-070.svg",
+    "named": "matched",
+    "score": 0.0139
+  },
+  {
+    "sheet": "set2",
+    "name": "sleeping-bag",
+    "source": "set2/set2-044.svg",
+    "named": "matched",
+    "score": 0.0148
+  },
+  {
+    "sheet": "set2",
+    "name": "snow",
+    "source": "set2/set2-037.svg",
+    "named": "matched",
+    "score": 0.0077
+  },
+  {
+    "sheet": "set2",
+    "name": "staff",
+    "source": "set2/set2-082.svg",
+    "named": "matched",
+    "score": 0.0027
+  },
+  {
+    "sheet": "set2",
+    "name": "stick",
+    "source": "set2/set2-033.svg",
+    "named": "matched",
+    "score": 0.0059
+  },
+  {
+    "sheet": "set2",
+    "name": "stick-2",
+    "source": "set2/set2-031.svg",
+    "named": "matched",
+    "score": 0.0121
+  },
+  {
+    "sheet": "set2",
+    "name": "stick-3",
+    "source": "set2/set2-032.svg",
+    "named": "matched",
+    "score": 0.0037
+  },
+  {
+    "sheet": "set2",
+    "name": "sword-1",
+    "source": "set2/set2-076.svg",
+    "named": "matched",
+    "score": 0.0039
+  },
+  {
+    "sheet": "set2",
+    "name": "sword-2",
+    "source": "set2/set2-075.svg",
+    "named": "matched",
+    "score": 0.0034
+  },
+  {
+    "sheet": "set2",
+    "name": "sword-3",
+    "source": "set2/set2-074.svg",
+    "named": "matched",
+    "score": 0.0024
+  },
+  {
+    "sheet": "set2",
+    "name": "sword-5",
+    "source": "set2/set2-073.svg",
+    "named": "matched",
+    "score": 0.0041
+  },
+  {
+    "sheet": "set2",
+    "name": "sword-6",
+    "source": "set2/set2-072.svg",
+    "named": "matched",
+    "score": 0.0056
+  },
+  {
+    "sheet": "set2",
+    "name": "sword-7",
+    "source": "set2/set2-062.svg",
+    "named": "matched",
+    "score": 0.0034
+  },
+  {
+    "sheet": "set2",
+    "name": "sword-8",
+    "source": "set2/set2-063.svg",
+    "named": "matched",
+    "score": 0.0045
+  },
+  {
+    "sheet": "set2",
+    "name": "t-shirt",
+    "source": "set2/set2-023.svg",
+    "named": "matched",
+    "score": 0.0063
+  },
+  {
+    "sheet": "set2",
+    "name": "tent",
+    "source": "set2/set2-043.svg",
+    "named": "matched",
+    "score": 0.0045
+  },
+  {
+    "sheet": "set2",
+    "name": "torch",
+    "source": "set2/set2-030.svg",
+    "named": "matched",
+    "score": 0.0044
+  },
+  {
+    "sheet": "set2",
+    "name": "war-axe",
+    "source": "set2/set2-065.svg",
+    "named": "matched",
+    "score": 0.0054
+  },
+  {
+    "sheet": "set2",
+    "name": "war-hammer",
+    "source": "set2/set2-077.svg",
+    "named": "matched",
+    "score": 0.0072
+  },
+  {
+    "sheet": "set2",
+    "name": "war-mace",
+    "source": "set2/set2-078.svg",
+    "named": "matched",
+    "score": 0.0082
+  },
+  {
+    "sheet": "set2",
+    "name": "witch-hat",
+    "source": "set2/set2-018.svg",
+    "named": "matched",
+    "score": 0.0097
+  },
+  {
+    "sheet": "set3",
+    "name": "airplane",
+    "source": "set3/set3-035.svg",
+    "named": "matched",
+    "score": 0.0084
+  },
+  {
+    "sheet": "set3",
+    "name": "ammo",
+    "source": "set3/set3-056.svg",
+    "named": "matched",
+    "score": 0.0089
+  },
+  {
+    "sheet": "set3",
+    "name": "ball-basketball",
+    "source": "set3/set3-001.svg",
+    "named": "matched",
+    "score": 0.0139
+  },
+  {
+    "sheet": "set3",
+    "name": "ball-bolling",
+    "source": "set3/set3-002.svg",
+    "named": "matched",
+    "score": 0.0103
+  },
+  {
+    "sheet": "set3",
+    "name": "ball-tennis",
+    "source": "set3/set3-003.svg",
+    "named": "matched",
+    "score": 0.0091
+  },
+  {
+    "sheet": "set3",
+    "name": "baton",
+    "source": "set3/set3-050.svg",
+    "named": "matched",
+    "score": 0.004
+  },
+  {
+    "sheet": "set3",
+    "name": "bear",
+    "source": "set3/set3-084.svg",
+    "named": "matched",
+    "score": 0.0022
+  },
+  {
+    "sheet": "set3",
+    "name": "bomb",
+    "source": "set3/set3-058.svg",
+    "named": "matched",
+    "score": 0.0053
+  },
+  {
+    "sheet": "set3",
+    "name": "bone",
+    "source": "set3/set3-017.svg",
+    "named": "matched",
+    "score": 0.005
+  },
+  {
+    "sheet": "set3",
+    "name": "book",
+    "source": "set3/set3-019.svg",
+    "named": "matched",
+    "score": 0.0442
+  },
+  {
+    "sheet": "set3",
+    "name": "bullet-9mm",
+    "source": "set3/set3-055.svg",
+    "named": "matched",
+    "score": 0.0049
+  },
+  {
+    "sheet": "set3",
+    "name": "bullet-riffle",
+    "source": "set3/set3-053.svg",
+    "named": "matched",
+    "score": 0.0032
+  },
+  {
+    "sheet": "set3",
+    "name": "bullet-shut-gun",
+    "source": "set3/set3-052.svg",
+    "named": "matched",
+    "score": 0.0032
+  },
+  {
+    "sheet": "set3",
+    "name": "car-1",
+    "source": "set3/set3-040.svg",
+    "named": "matched",
+    "score": 0.0088
+  },
+  {
+    "sheet": "set3",
+    "name": "car-1-1",
+    "source": "set3/set3-037.svg",
+    "named": "matched",
+    "score": 0.0094
+  },
+  {
+    "sheet": "set3",
+    "name": "car-2",
+    "source": "set3/set3-039.svg",
+    "named": "matched",
+    "score": 0.0083
+  },
+  {
+    "sheet": "set3",
+    "name": "cloud",
+    "source": "set3/set3-032.svg",
+    "named": "matched",
+    "score": 0.0064
+  },
+  {
+    "sheet": "set3",
+    "name": "cloud-rain",
+    "source": "set3/set3-034.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "set3",
+    "name": "cloud-thunder",
+    "source": "set3/set3-033.svg",
+    "named": "matched",
+    "score": 0.0053
+  },
+  {
+    "sheet": "set3",
+    "name": "coin-1",
+    "source": "set3/set3-029.svg",
+    "named": "matched",
+    "score": 0.0168
+  },
+  {
+    "sheet": "set3",
+    "name": "coin-money",
+    "source": "set3/set3-028.svg",
+    "named": "matched",
+    "score": 0.0182
+  },
+  {
+    "sheet": "set3",
+    "name": "cow",
+    "source": "set3/set3-081.svg",
+    "named": "matched",
+    "score": 0.0049
+  },
+  {
+    "sheet": "set3",
+    "name": "crown",
+    "source": "set3/set3-016.svg",
+    "named": "matched",
+    "score": 0.0044
+  },
+  {
+    "sheet": "set3",
+    "name": "dumbell",
+    "source": "set3/set3-000.svg",
+    "named": "matched",
+    "score": 0.0055
+  },
+  {
+    "sheet": "set3",
+    "name": "female",
+    "source": "set3/set3-008.svg",
+    "named": "matched",
+    "score": 0.0073
+  },
+  {
+    "sheet": "set3",
+    "name": "flashbang",
+    "source": "set3/set3-060.svg",
+    "named": "matched",
+    "score": 0.006
+  },
+  {
+    "sheet": "set3",
+    "name": "gem-1",
+    "source": "set3/set3-027.svg",
+    "named": "matched",
+    "score": 0.0088
+  },
+  {
+    "sheet": "set3",
+    "name": "gem-2",
+    "source": "set3/set3-026.svg",
+    "named": "matched",
+    "score": 0.0143
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-pistol",
+    "source": "set3/set3-070.svg",
+    "named": "matched",
+    "score": 0.0067
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-pistol-1",
+    "source": "set3/set3-044.svg",
+    "named": "matched",
+    "score": 0.0054
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-pistol-2",
+    "source": "set3/set3-045.svg",
+    "named": "matched",
+    "score": 0.0069
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-pistol-3",
+    "source": "set3/set3-069.svg",
+    "named": "matched",
+    "score": 0.007
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-pistol-4",
+    "source": "set3/set3-068.svg",
+    "named": "matched",
+    "score": 0.0038
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-pistol-5",
+    "source": "set3/set3-067.svg",
+    "named": "matched",
+    "score": 0.0063
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-rifle",
+    "source": "set3/set3-075.svg",
+    "named": "matched",
+    "score": 0.0133
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-rifle-2",
+    "source": "set3/set3-074.svg",
+    "named": "matched",
+    "score": 0.008
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-rifle-3",
+    "source": "set3/set3-073.svg",
+    "named": "matched",
+    "score": 0.0036
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-rifle-4",
+    "source": "set3/set3-071.svg",
+    "named": "matched",
+    "score": 0.0067
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-rifle-5",
+    "source": "set3/set3-072.svg",
+    "named": "matched",
+    "score": 0.0036
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-shutgun-2",
+    "source": "set3/set3-077.svg",
+    "named": "matched",
+    "score": 0.0097
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-shutgun-3",
+    "source": "set3/set3-076.svg",
+    "named": "matched",
+    "score": 0.0032
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-smg-2",
+    "source": "set3/set3-064.svg",
+    "named": "matched",
+    "score": 0.0066
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-smg-3",
+    "source": "set3/set3-062.svg",
+    "named": "matched",
+    "score": 0.0117
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-smg-4",
+    "source": "set3/set3-065.svg",
+    "named": "matched",
+    "score": 0.005
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-smg-5",
+    "source": "set3/set3-063.svg",
+    "named": "matched",
+    "score": 0.0081
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-smg-6",
+    "source": "set3/set3-061.svg",
+    "named": "matched",
+    "score": 0.0076
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-snipper-1",
+    "source": "set3/set3-078.svg",
+    "named": "matched",
+    "score": 0.0082
+  },
+  {
+    "sheet": "set3",
+    "name": "gun-snipper-2",
+    "source": "set3/set3-079.svg",
+    "named": "matched",
+    "score": 0.0093
+  },
+  {
+    "sheet": "set3",
+    "name": "handcuffs",
+    "source": "set3/set3-051.svg",
+    "named": "matched",
+    "score": 0.0087
+  },
+  {
+    "sheet": "set3",
+    "name": "handheld-console",
+    "source": "set3/set3-010.svg",
+    "named": "matched",
+    "score": 0.012
+  },
+  {
+    "sheet": "set3",
+    "name": "handheld-console-2",
+    "source": "set3/set3-011.svg",
+    "named": "matched",
+    "score": 0.0131
+  },
+  {
+    "sheet": "set3",
+    "name": "head-empty",
+    "source": "set3/set3-006.svg",
+    "named": "matched",
+    "score": 0.0148
+  },
+  {
+    "sheet": "set3",
+    "name": "head-full",
+    "source": "set3/set3-005.svg",
+    "named": "matched",
+    "score": 0.0055
+  },
+  {
+    "sheet": "set3",
+    "name": "headphone",
+    "source": "set3/set3-009.svg",
+    "named": "matched",
+    "score": 0.0104
+  },
+  {
+    "sheet": "set3",
+    "name": "human",
+    "source": "set3/set3-004.svg",
+    "named": "matched",
+    "score": 0.0048
+  },
+  {
+    "sheet": "set3",
+    "name": "info",
+    "source": "set3/set3-018.svg",
+    "named": "matched",
+    "score": 0.0084
+  },
+  {
+    "sheet": "set3",
+    "name": "jeep",
+    "source": "set3/set3-038.svg",
+    "named": "matched",
+    "score": 0.01
+  },
+  {
+    "sheet": "set3",
+    "name": "jeep-2",
+    "source": "set3/set3-041.svg",
+    "named": "matched",
+    "score": 0.0171
+  },
+  {
+    "sheet": "set3",
+    "name": "layer-38",
+    "source": "set3/set3-043.svg",
+    "named": "matched",
+    "score": 0.0032
+  },
+  {
+    "sheet": "set3",
+    "name": "layer-39",
+    "source": "set3/set3-048.svg",
+    "named": "matched",
+    "score": 0.0029
+  },
+  {
+    "sheet": "set3",
+    "name": "layer-40",
+    "source": "set3/set3-049.svg",
+    "named": "matched",
+    "score": 0.0066
+  },
+  {
+    "sheet": "set3",
+    "name": "layer-41",
+    "source": "set3/set3-059.svg",
+    "named": "matched",
+    "score": 0.0187
+  },
+  {
+    "sheet": "set3",
+    "name": "layer-42",
+    "source": "set3/set3-057.svg",
+    "named": "matched",
+    "score": 0.0078
+  },
+  {
+    "sheet": "set3",
+    "name": "layer-43",
+    "source": "set3/set3-066.svg",
+    "named": "matched",
+    "score": 0.0089
+  },
+  {
+    "sheet": "set3",
+    "name": "male",
+    "source": "set3/set3-007.svg",
+    "named": "matched",
+    "score": 0.0094
+  },
+  {
+    "sheet": "set3",
+    "name": "money",
+    "source": "set3/set3-030.svg",
+    "named": "matched",
+    "score": 0.0106
+  },
+  {
+    "sheet": "set3",
+    "name": "money-2",
+    "source": "set3/set3-031.svg",
+    "named": "matched",
+    "score": 0.0094
+  },
+  {
+    "sheet": "set3",
+    "name": "mouse",
+    "source": "set3/set3-083.svg",
+    "named": "matched",
+    "score": 0.011
+  },
+  {
+    "sheet": "set3",
+    "name": "ore",
+    "source": "set3/set3-024.svg",
+    "named": "matched",
+    "score": 0.0109
+  },
+  {
+    "sheet": "set3",
+    "name": "pet",
+    "source": "set3/set3-080.svg",
+    "named": "matched",
+    "score": 0.0072
+  },
+  {
+    "sheet": "set3",
+    "name": "pickaxe",
+    "source": "set3/set3-023.svg",
+    "named": "matched",
+    "score": 0.006
+  },
+  {
+    "sheet": "set3",
+    "name": "police-car",
+    "source": "set3/set3-036.svg",
+    "named": "matched",
+    "score": 0.006
+  },
+  {
+    "sheet": "set3",
+    "name": "puzzle",
+    "source": "set3/set3-012.svg",
+    "named": "matched",
+    "score": 0.0119
+  },
+  {
+    "sheet": "set3",
+    "name": "rock",
+    "source": "set3/set3-025.svg",
+    "named": "matched",
+    "score": 0.0099
+  },
+  {
+    "sheet": "set3",
+    "name": "roll",
+    "source": "set3/set3-015.svg",
+    "named": "matched",
+    "score": 0.0161
+  },
+  {
+    "sheet": "set3",
+    "name": "scrool-2",
+    "source": "set3/set3-020.svg",
+    "named": "matched",
+    "score": 0.0093
+  },
+  {
+    "sheet": "set3",
+    "name": "scythe",
+    "source": "set3/set3-021.svg",
+    "named": "matched",
+    "score": 0.0084
+  },
+  {
+    "sheet": "set3",
+    "name": "shovel",
+    "source": "set3/set3-022.svg",
+    "named": "matched",
+    "score": 0.0077
+  },
+  {
+    "sheet": "set3",
+    "name": "shut-gun",
+    "source": "set3/set3-046.svg",
+    "named": "matched",
+    "score": 0.0023
+  },
+  {
+    "sheet": "set3",
+    "name": "smg",
+    "source": "set3/set3-047.svg",
+    "named": "matched",
+    "score": 0.0062
+  },
+  {
+    "sheet": "set3",
+    "name": "snake",
+    "source": "set3/set3-082.svg",
+    "named": "matched",
+    "score": 0.0115
+  },
+  {
+    "sheet": "set3",
+    "name": "spider",
+    "source": "set3/set3-085.svg",
+    "named": "matched",
+    "score": 0.0037
+  },
+  {
+    "sheet": "set3",
+    "name": "tank",
+    "source": "set3/set3-042.svg",
+    "named": "matched",
+    "score": 0.0063
+  },
+  {
+    "sheet": "set3",
+    "name": "teddy-bear",
+    "source": "set3/set3-014.svg",
+    "named": "matched",
+    "score": 0.0144
+  },
+  {
+    "sheet": "set3",
+    "name": "toy",
+    "source": "set3/set3-013.svg",
+    "named": "matched",
+    "score": 0.0076
+  }
+]
