@@ -17,6 +17,13 @@ so nothing lines up between two pages.
 built from it without further design work. Nothing here is built yet — see [What this
 changes](#what-this-changes) for what the implementation covers.
 
+**Amended 2026-08-26 by [#114](https://github.com/ironarachne/ironarachne/issues/114)**, which
+adds [The shell](#the-shell). That section settles the top bar, sidebar and drawer at all three
+widths — detail the [control vocabulary](#control-vocabulary) left to one paragraph — and it
+changes the taxonomy in one place: it names a third corner treatment, `--corner-nav`, which
+[#113](https://github.com/ironarachne/ironarachne/issues/113) delivers with the rest of the corner
+vocabulary. Nothing else in the approved taxonomy moves.
+
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
 the workshop at 1440, the phone at 390 with its drawer, genre skins, the token taxonomy, and the
@@ -232,8 +239,10 @@ Supporting tokens:
 - `--edge` — `inset 0 1px 0 rgb(255 255 255 / 7%)`, the top highlight that makes a plate a plate.
 - `--lift` — `0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%)`, the one shadow in the system.
 - `--notch` — the corner vocabulary: a 9px cut on the top-right and bottom-left, as a `clip-path`
-  polygon. Controls use a 7px cut of the same shape. **These are the only two corner treatments**;
-  a skin picks between cut, bevelled and square from this vocabulary rather than inventing one.
+  polygon. Controls use a 7px cut of the same shape (`--corner-control`), and a nav item a 7px cut
+  of both corners on one edge (`--corner-nav`, added by [the shell](#the-nav-corner-is-a-third-treatment)).
+  **These are the only three corner treatments**; a skin picks between cut, bevelled and square
+  from this vocabulary rather than inventing one.
 
 **Density.** A panel differs from the page by surface, keyline and notch — not by padding, which
 is `--s5` everywhere. The bench differs from a panel by having no surface at all: it is the page,
@@ -371,7 +380,8 @@ the `--focus` keyline plus the ring. A seed field is the same control in a monos
 **Navigation** is the one shape that breaks the button rule on purpose: flush to the left edge,
 square on that side, notched on the other, with the current destination taking the plate, the
 `--accent` left marker and the notch. Nothing else in the app is notched on that side, so the eye
-finds the current destination without reading it.
+finds the current destination without reading it. [The shell](#the-shell) states the geometry,
+the four states and the three widths.
 
 **Badges** are pill-shaped, `--t-micro`, bordered in `currentColor` over `--surface-inset`.
 `ToolMaturityBadge` shows experimental in `--accent-quiet` and beta in cyan; release-ready shows
@@ -380,6 +390,214 @@ nothing, which is already how it behaves.
 **Modals** keep `modal.css`'s structure and lose its literals: the dialog is a raised plate, and
 the danger action becomes the destructive button variant rather than a second hand-written
 gradient.
+
+## The shell
+
+The top bar and the sidebar are the one part of the app a genre skin may never touch
+([decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)), so the frame never
+changes shape underneath the user. That makes the shell the right place to state the system
+plainly: it is the same at every width and in every genre, and everything below is a recipe in
+tokens with no per-genre branch.
+
+[The application shell](app-shell.md) settled the shell's _structure_ — six destinations, three
+breakpoints, what drops and in what order. None of that is reopened here. What follows is its
+_look_, and it is what [#114](https://github.com/ironarachne/ironarachne/issues/114) builds.
+
+No class diagram. The shell persists nothing and introduces no types; the model that would be
+drawn is the destination list, which `NAV_DESTINATIONS` already is. Drawing it would be
+[form's sake](#token-taxonomy).
+
+### Widths are stated in pixels
+
+`main.css` sets `html { font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em) }`, a fluid root that
+scales the base from roughly 14.5px to 20px with the viewport. Every `rem` in the shell is
+relative to that moving target, which is why the sidebar is a different fraction of a 1280px
+screen than of a 1920px one despite `width: 12rem` being one number.
+
+The shell's widths and heights are therefore stated in `px` and applied directly. The type ramp is
+already in `px`; this makes the frame agree with it. The fluid root itself is not this issue's to
+remove — it affects every page, and `--measure` is in `ch`, which the root scales too — but the
+shell stops depending on it.
+
+### Top bar
+
+44px tall at every width. That is the [hit target](#3-focus-and-contrast-are-targets-not-assumptions)
+floor, and a bar that is exactly one target tall needs no separate rule to be tappable.
+
+| Property  | Value                                                                  |
+| --------- | ---------------------------------------------------------------------- |
+| Height    | 44px, fixed                                                            |
+| Surface   | `--surface-raised`                                                     |
+| Keyline   | 1px `--border`, bottom edge only                                       |
+| Highlight | `--edge`                                                               |
+| Shadow    | None — see below                                                       |
+| Corner    | None — see below                                                       |
+| Padding   | `--s5` inline, block padding is whatever centres a 28px lockup in 44px |
+| Gap       | `--s6` at ≥768px, `--s4` below it                                      |
+
+**No `--lift`, and this is not an omission.** The bar is a grid row, not an overlay: scrolling
+happens inside the page region, so nothing ever passes underneath the bar. A shadow exists to
+say "this is above that", and here there is no that. The keyline carries the separation, which
+is [what the elevation model says it should](#elevation).
+
+**No notch.** `--notch` cuts a corner off a plate that sits _on_ a surface. The bar runs to both
+viewport edges, and a cut corner on an edge that has nothing beyond it reads as damage rather
+than as a cut. Same for the sidebar's outer edge.
+
+Contents map onto the ramp, replacing four hand-mixed values:
+
+| Element             | Type        | Colour        | Replaces                            |
+| ------------------- | ----------- | ------------- | ----------------------------------- |
+| Lockup              | —           | —             | 28px tall (24px below 768px)        |
+| Stat label (`dt`)   | `--t-micro` | `--ink-faint` | `color-mix(… --tan 55%, white 45%)` |
+| Stat value (`dd`)   | `--t-small` | `--ink`       | `color: white`                      |
+| Project name (link) | `--t-small` | `--accent`    | `color: white`                      |
+| Date                | `--t-micro` | `--ink-faint` | `color-mix(… --tan 55%, white 45%)` |
+
+The stat label already sets `letter-spacing: 0.04em` and `text-transform: uppercase` by hand;
+`--t-micro` carries both, at `0.08em`, so the local rules go.
+
+The drawer button is the **icon button** from the [control vocabulary](#control-vocabulary):
+28×28, square, `--plate`, 1px `--border-strong`, hover lights the keyline to `--focus`. It keeps
+its `☰` glyph for now — see [icons](#icons-are-not-reopened-here).
+
+### Sidebar
+
+Flush to the left edge of the screen, square on that side, and cut on the inner edge. Nothing
+else in the app is cut on that side, so the eye finds the current destination without reading it.
+
+| Property | ≥1200px                  | 768–1199px               | <768px (drawer)          |
+| -------- | ------------------------ | ------------------------ | ------------------------ |
+| Width    | 176px                    | 128px                    | `min(272px, 80vw)`       |
+| Padding  | `--s5` block, `0` inline | `--s5` block, `0` inline | `--s5` block, `0` inline |
+| Item gap | `--s1`                   | `--s1`                   | `--s1`                   |
+
+Inline padding is zero at every width, because "flush to the left edge" is the whole idea: the
+items themselves run edge to edge and carry their own inset padding. The surface is
+`--surface-raised` with a 1px `--border` right keyline and `--edge`; no notch on the outer edge,
+for the reason the bar has none.
+
+#### A nav item
+
+One size, at every width. Today the 768–1199px band overrides `font-size` and `padding` to fit
+narrower labels; `--t-micro` is 11px uppercase Cinzel, and `RELEASE NOTES` — the longest label —
+measures about 95px with its tracking, which clears the 128px column's usable width. **The ramp
+deletes the mid-band override rather than restating it**, which is the ramp doing the job it
+exists for.
+
+| Property | Value                                                     |
+| -------- | --------------------------------------------------------- |
+| Height   | 32px (`--s3` block padding around a `--t-micro` line)     |
+| Padding  | `--s5` inline-start, `--s3` inline-end, `--s3` block      |
+| Type     | `--t-micro`                                               |
+| Corner   | Square on the inline-start edge; `--corner-nav` otherwise |
+
+Four states, and only one of them draws a plate:
+
+| State       | Recipe                                                                                                                                                                    |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Rest**    | No fill, no keyline, no clip. Label `--ink-muted`.                                                                                                                        |
+| **Hover**   | `--surface-inset` fill, label `--ink`, over `--motion-swift`. No keyline — one would compete with the marker.                                                             |
+| **Focus**   | 2px `--focus` outline at 2px offset, on top of whatever else the item is showing. Never traded away for a fill.                                                           |
+| **Current** | `--plate` fill, `--edge`, 1px `--border-strong` on the top, right and bottom edges, `--corner-nav` clip, a 3px `--accent` marker on the inline-start edge, label `--ink`. |
+
+Current + hover is the same as current. The destination you are already on is not a target worth
+lighting, and a hover state there is how a user learns that clicking it does nothing.
+
+This replaces `linear-gradient(0deg, var(--granite) 0%, var(--tan) 100%)` with `color: black`,
+which is the single element in the shell that most reads as unfinished — black ink on a tan
+gradient belongs to a different system than everything around it.
+
+**The marker is an inset shadow, not a border or a pseudo-element.** `--corner-nav` is a
+`clip-path`, and a clip cuts _everything_ the element paints, borders included — so a
+`border-inline-start` would be shaved at both ends by the very corners it needs to survive. An
+`inset 3px 0 0 var(--accent)` is painted inside the clip on an edge the clip does not touch, and
+stays a clean 3px bar for the item's full height. A pseudo-element would work too and costs a
+node per destination for the same result.
+
+#### The nav corner is a third treatment
+
+[Elevation](#elevation) says `--notch` and `--corner-control` are the only two corner treatments.
+That was written before this section, and it is now wrong by one: the nav item is _square on one
+side and cut on the other_, which is neither of them. `--notch` cuts diagonally opposite corners
+(top-right, bottom-left); the nav item needs both corners of one edge.
+
+```css
+--corner-nav: polygon(
+  0 0,
+  calc(100% - 7px) 0,
+  100% 7px,
+  100% calc(100% - 7px),
+  calc(100% - 7px) 100%,
+  0 100%
+);
+```
+
+7px, matching `--corner-control` rather than `--notch`'s 9px, because a nav item is the size of a
+control and not the size of a panel.
+
+**Three is the cap, and the same rule applies:** a component picks from `--notch`,
+`--corner-control` and `--corner-nav`, and a skin picks between cut, bevelled and square from
+that vocabulary. Inventing a fourth is what this rule exists to make awkward.
+
+This is a change to what [#113](https://github.com/ironarachne/ironarachne/issues/113) delivers —
+that issue lands `tokens.css` and its scope predates this token. `--corner-nav` goes in there with
+the rest of the corner vocabulary, not into `Sidebar.svelte`.
+
+### The drawer, below 768px
+
+The same sidebar, in a different position. The item recipe does not change; four things around it
+do.
+
+- **It is the one place in the shell that gets `--lift`.** The drawer is `position: fixed` over
+  the page — this is the one spot where something genuinely overlaps content, which is the
+  condition [Elevation](#elevation) states for a shadow. The keyline still identifies it; the
+  shadow says which of the two layers is in front.
+- **The scrim is `--modal-backdrop`.** `+layout.svelte` writes `rgb(0 0 0 / 50%)` by hand today,
+  and `tokens.css` already declares that exact value as a role for the modal system. The shell
+  and the modals dim the page for the same reason, so they dim it by the same amount from the
+  same place — and it takes a literal out of a component, which is what
+  [Enforcement](#enforcement) is about.
+- **The slide uses `--motion-swift`.** It runs at 200ms today, and the motion rule is that nothing
+  animates for longer than 120ms. The `visibility` delay that keeps the drawer out of the tab
+  order must read the same token, or the two fall out of step and the drawer disappears mid-slide:
+
+  ```css
+  transition:
+    transform var(--motion-swift) ease,
+    visibility 0s linear var(--motion-swift);
+  ```
+
+- **Hit targets grow to 44px**, as `min-height` under `(pointer: coarse)` rather than under
+  `(max-width: 767px)`. The condition is the pointer, not the width — a touch laptop at 1280px
+  wants the same target, and a phone plugged into a mouse does not.
+
+Behaviour is untouched: the page region stays `inert` behind the open drawer, Escape and a scrim
+tap still close it, and crossing the breakpoint still closes it from the media query rather than
+from a resize handler. Those are `docs/app-shell.md`'s, and this section restyles them without
+reopening them.
+
+### The page region
+
+`--s7` padding at ≥768px, `--s5` below it. It is `--surface-page` with no border and no shadow —
+the **Page** level of [Elevation](#elevation) — and `--measure` on `section.main` is exactly as it
+is. Nothing here changes which pages opt out of the measure.
+
+### Icons are not reopened here
+
+`docs/app-shell.md` [decision 6](app-shell.md#decisions-taken-here) dropped icons from the shell
+because the brand repo had no icon set. It now has one — 455 SunGraphica glyphs, per
+[decision 5](#5-the-icon-set-is-sungraphicas-and-the-credit-is-a-licence-term) — so the reason the
+decision gave has expired, and the decision is still kept.
+
+The 768–1199px band was the case for an icon rail, and the ramp removes it: one type size fits
+every label in a 128px column, so the rail no longer has a problem an icon would solve. Six
+glyphs chosen to sit beside a carefully drawn wordmark is work with a real chance of looking
+improvised, and it would need an accessible-name story that a `title` attribute does not provide.
+Nav labels are words.
+
+This narrows [open question 1](#open-questions) rather than answering it: the six destinations
+need no icons, and the control set and the tool catalog's domains still might.
 
 ## Enforcement
 
@@ -423,8 +641,13 @@ For the implementation issues that follow this one:
 
 1. **Which icons the app actually uses.** The pack is in (see [decision
    5](#5-the-icon-set-is-sungraphicas-and-the-credit-is-a-licence-term)) and all 455 icons are
-   split and named, but nothing maps them to the six nav destinations, the control set, or the
-   tool catalog's domains yet. That mapping is the tokens issue's business, not this document's.
+   split and named, but nothing maps them to the control set or the tool catalog's domains yet.
+   That mapping is the tokens issue's business, not this document's.
+
+   **Narrowed by [the shell](#icons-are-not-reopened-here):** the six nav destinations are out of
+   it. They carry words, `docs/app-shell.md` decision 6 stands, and the question is now about the
+   control set and the domains only.
+
 2. **Whether `--surface-sunken` earns its place.** It is declared for scroll wells behind an inset
    run, and if the implementation finds one use for it, it should be dropped rather than kept for
    symmetry. Four surface levels is one more than the elevation model claims.
