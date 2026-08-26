@@ -36,6 +36,16 @@ export const PAGE_MANIFEST: PageEntry[] = [
     kind: 'static',
   },
   {
+    // The catalog index (#105). 'static' rather than 'hub': the kind that died with the domain
+    // index pages meant "a page of links and nothing else", and the checks it carried are gone.
+    // What matters here is what every static page is checked for — it renders, it is titled, and
+    // `pages.mobile` proves thirty-four rows of links fit a phone without overflowing it.
+    path: '/tools',
+    title: 'All Tools | Iron Arachne',
+    heading: 'All Tools',
+    kind: 'static',
+  },
+  {
     path: '/character',
     title: 'Character | Iron Arachne',
     heading: 'Character',

@@ -1,7 +1,7 @@
 # The application shell
 
 This design document describes the navigation and layout Iron Arachne is rebuilt on: a persistent
-**shell** — a top bar and a left sidebar — wrapped around five destinations, replacing the header
+**shell** — a top bar and a left sidebar — wrapped around six destinations, replacing the header
 and tool taxonomy the site has today.
 
 It is the layout half of [the workshop](workshop.md). The workshop settled what a user's work
@@ -56,7 +56,7 @@ One shell, always present, on every route:
 
 - **Top bar** — identity on the left, status in the middle, today's date on the right. It tells you
   where you are and what you have; it holds no navigation.
-- **Left sidebar** — the five destinations, and nothing else. This is the whole of the site's
+- **Left sidebar** — the six destinations, and nothing else. This is the whole of the site's
   navigation.
 - **Page region** — everything else, filling the remaining viewport in both directions.
 
@@ -65,18 +65,23 @@ first column, so the page region is a single grid cell that owns exactly the spa
 does not scroll the shell away: the sidebar and top bar are pinned, and scrolling happens inside
 the page region.
 
-### Five destinations
+### Six destinations
 
-The sidebar is deliberately short. Five items is a list you read rather than scan, and the moment a
-sixth is proposed the question is which of these five it belongs inside.
+The sidebar is deliberately short. Six items is a list you read rather than scan, and the moment a
+seventh is proposed the question is which of these six it belongs inside.
 
 | Destination       | Route            | What it is                                                     |
 | ----------------- | ---------------- | -------------------------------------------------------------- |
 | **Home**          | `/`              | What this site is, what to try, what changed.                  |
 | **Workshop**      | `/workshop`      | The bench. The main screen; where the work is done.            |
+| **All Tools**     | `/tools`         | The whole catalog, grouped by domain, every entry a link.      |
 | **Projects**      | `/projects`      | The projects a user has, and which one is open.                |
 | **Result Vault**  | `/vault`         | Every saved artifact, across every project, with an inspector. |
 | **Release Notes** | `/release-notes` | What changed and when.                                         |
+
+This document was written with five, and the sixth was added afterwards by
+[#105](https://github.com/ironarachne/ironarachne/issues/105); see
+[decision 5](#decisions-taken-here) for why it is the one exception the cap has.
 
 #### Home
 
@@ -120,8 +125,8 @@ artifacts they hold. Create, rename, describe, tag, delete, export, import, and 
 
 Below the cards is the **storage panel** — what is in this browser, how long it has been the only
 copy, and what to do about it, including the whole-vault export and the per-project sizes the cards
-no longer carry. It is a section of this page with the id `storage` rather than a sixth
-destination, because five destinations is a cap; the workshop reaches it by link and, when the
+no longer carry. It is a section of this page with the id `storage` rather than a destination of
+its own, because the sidebar is capped; the workshop reaches it by link and, when the
 browser is nearly full, by banner. See [the storage panel](storage-panel.md).
 
 #### Result Vault
@@ -378,6 +383,15 @@ lists better. Navigation no longer surfaces tools; URLs still resolve them.
 This narrows, but does not contradict, the Routes section of `docs/workshop.md`. That section
 should be amended to say the routes are an entry point rather than a navigational destination.
 
+**Amended by [#105](https://github.com/ironarachne/ironarachne/issues/105).** The half of this that
+was wrong is "links that `ToolBrowser` lists better". `ToolBrowser` lists them _differently_: it
+renders a button that mounts a panel, and a button is not a link. With the index pages gone, and
+the home page linking only the two featured entries, thirty-two of the thirty-four tools had no
+anchor pointing at them anywhere on the site — nothing for a crawler to follow, nothing to
+bookmark, nothing to open in a new tab. Deleting five taxonomy pages was still right. Leaving the
+catalog with no linked index at all was not, and `/tools` is that index: one page, every entry an
+anchor to the tool's own route.
+
 **2. The vault is global; the Inspector is read-only.** Covered above. The pairing is the decision:
 a global vault is only safe because nothing in it can be edited in place, and an editable global
 vault would be a way to build cross-project references by accident.
@@ -388,9 +402,21 @@ vault would be a way to build cross-project references by accident.
 to every route including the tool routes, rather than being a `(app)` route group that some pages
 sit outside. A tool route that renders without the shell would have no way back to anything.
 
-**5. Five destinations is the cap.** An About page, a search, a settings screen — each of these has
-been reasonable to want, and each belongs inside one of the five rather than beside them. The
+**5. Six destinations is the cap.** An About page, a search, a settings screen — each of these has
+been reasonable to want, and each belongs inside one of the six rather than beside them. The
 sidebar's value is that it is short enough not to need reading.
+
+**Amended by [#105](https://github.com/ironarachne/ironarachne/issues/105); it read five.** The cap
+is unchanged in kind — the test is still "which of these does it belong inside?" — and All Tools is
+the one entry that failed to have an answer. It is not a tool, so it does not reopen the taxonomy
+this document deleted; no individual generator appears in the sidebar and none may. What it is is
+the catalog's front door, and per the amendment to decision 1 there was no other door. Home is
+where someone reads what the site is, the workshop is where the work happens, and neither can be
+the place thirty-four links live without becoming the taxonomy page in disguise.
+
+Raising a cap is cheap to do twice, which is the risk. So the number lives in a test that asserts
+the destination list itself rather than its length (`nav_destinations.test.ts`): a seventh
+destination cannot be added without editing an assertion that says, in words, that it is capped.
 
 **6. No icons; the rail is a narrower sidebar.** Taken during implementation, and it drops the
 `iconName` the approved model carried. The brand repo has no icon set, and five marks drawn in the

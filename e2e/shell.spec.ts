@@ -10,14 +10,15 @@ const RAIL = { width: 1000, height: 800 };
 const DRAWER = { width: 375, height: 700 };
 
 test.describe('the application shell', () => {
-  test('puts the same five destinations on every route', async ({ page }) => {
+  test('puts the same six destinations on every route', async ({ page }) => {
     await page.setViewportSize(DESKTOP);
 
-    for (const route of ['/', '/workshop', '/vault', '/projects', '/release-notes']) {
+    for (const route of ['/', '/workshop', '/tools', '/vault', '/projects', '/release-notes']) {
       await visitRoute(page, route);
       await expect(sidebar(page).getByRole('link')).toHaveText([
         'Home',
         'Workshop',
+        'All Tools',
         'Projects',
         'Result Vault',
         'Release Notes',

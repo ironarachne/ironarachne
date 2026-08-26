@@ -57,7 +57,7 @@ The panel therefore states; it does not alarm. Nothing in sections 1–3 is styl
 region that is already there.** The workshop reaches it by a link.
 
 The issue asks for a panel "reachable from the workshop", and that wording predates the shell. Since
-[docs/app-shell.md](app-shell.md) the site has **five destinations and five is a cap**, and project
+[docs/app-shell.md](app-shell.md) the site's **sidebar is capped**, and project
 management — export, import, delete, and how much room each project takes — has already moved to
 `/projects`. That leaves three candidate homes, and two of them are worse:
 
@@ -398,8 +398,8 @@ and routes, so they are what `npm run verify:all` exists for.
 
 ## Decisions taken here
 
-**1. The panel is a section of `/projects` with the id `storage`, not a sixth destination and not a
-bench panel.** Five destinations is a cap, and administration was moved off the bench on purpose. The
+**1. The panel is a section of `/projects` with the id `storage`, not a destination of its own and
+not a bench panel.** The sidebar is capped, and administration was moved off the bench on purpose. The
 workshop reaches it with a link and, when there is something to escalate, a banner.
 
 **2. The panel absorbs the Backup region rather than sitting beside it.** Whole-vault export moves

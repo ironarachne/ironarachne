@@ -1,15 +1,19 @@
 import { describe, expect, it } from 'vitest';
 
+import { allTools } from '$lib/tools';
 import { NAV_DESTINATIONS, activeDestination } from './nav_destinations';
 import type { NavDestination } from './nav_types';
 
 describe('NAV_DESTINATIONS', () => {
-  it('holds exactly the five destinations the shell is capped at', () => {
-    // The cap is decision 5 in docs/app-shell.md, and this is what makes adding a sixth a
-    // deliberate act rather than a quiet one.
+  it('holds exactly the six destinations the shell is capped at', () => {
+    // The cap is decision 5 in docs/app-shell.md, and this is what makes adding a seventh a
+    // deliberate act rather than a quiet one. It read five until #105 added the tool catalog,
+    // which is why the assertion is the list and not the length: raising the number has to be a
+    // line someone wrote on purpose.
     expect(NAV_DESTINATIONS.map((destination) => destination.id)).toEqual([
       'home',
       'workshop',
+      'tools',
       'projects',
       'vault',
       'release-notes',
@@ -29,11 +33,12 @@ describe('NAV_DESTINATIONS', () => {
   });
 
   it('lists no tool routes', () => {
-    // Tools are reached through the workshop. A tool path appearing here would be the old
-    // navigation growing back one entry at a time.
-    const toolish = NAV_DESTINATIONS.filter((destination) =>
-      destination.path.startsWith('/fantasy'),
-    );
+    // An individual tool appearing here would be the old navigation growing back one entry at a
+    // time. Checked against the catalog rather than against a path prefix: `/tools` is a
+    // destination now, so "does this look like a tool route" is no longer a question a prefix can
+    // answer, and the catalog is the only thing that knows what a tool is.
+    const catalogPaths = new Set(allTools().map((tool) => tool.path));
+    const toolish = NAV_DESTINATIONS.filter((destination) => catalogPaths.has(destination.path));
 
     expect(toolish).toEqual([]);
   });

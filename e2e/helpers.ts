@@ -1,12 +1,19 @@
 import { expect, type Page } from '@playwright/test';
 
 /**
- * The five shell destinations, in sidebar order. Mirrors `NAV_DESTINATIONS` in `$lib/navigation`
+ * The six shell destinations, in sidebar order. Mirrors `NAV_DESTINATIONS` in `$lib/navigation`
  * deliberately rather than importing it: this is the browser's view of the navigation, and a test
  * that read the same constant the component reads could not tell a rendering failure from an
  * empty list.
  */
-const SIDEBAR_LINKS = ['Home', 'Workshop', 'Projects', 'Result Vault', 'Release Notes'] as const;
+const SIDEBAR_LINKS = [
+  'Home',
+  'Workshop',
+  'All Tools',
+  'Projects',
+  'Result Vault',
+  'Release Notes',
+] as const;
 
 export async function visitRoute(
   page: Page,
@@ -20,7 +27,7 @@ export async function visitRoute(
 }
 
 /**
- * The shell every route renders inside: the lockup in the top bar, the five sidebar destinations,
+ * The shell every route renders inside: the lockup in the top bar, the six sidebar destinations,
  * and the footer links.
  *
  * The sidebar is only asserted at widths where it is in the layout. Below 768px it is an
