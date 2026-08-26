@@ -12,9 +12,10 @@ omission is the whole of [#77](https://github.com/ironarachne/ironarachne/issues
 works and does not look finished, because spacing, type and colour are decided per component and
 so nothing lines up between two pages.
 
-**Status:** proposal, awaiting human approval. Per CLAUDE.md, implementation does not start until
-a human has read the [token taxonomy](#token-taxonomy) and approved it; this line records that
-approval when it is given.
+**Status:** accepted. The [token taxonomy](#token-taxonomy) was reviewed and approved on
+2026-08-26, which is the gate CLAUDE.md puts in front of implementation: the tokens issue can be
+built from it without further design work. Nothing here is built yet — see [What this
+changes](#what-this-changes) for what the implementation covers.
 
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
