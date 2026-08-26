@@ -94,9 +94,11 @@ Every generator/editor/reference page has an entry in the tool catalog, created 
 tool browser and the home page's featured list are both built from it — it's the single source of
 truth for a tool's name and classification. A new tool route needs a catalog entry.
 
-Tools are **not** in the site's navigation: the sidebar has five destinations
-(`src/lib/navigation`) and the workshop's browser is how a tool is reached. Tool routes still
-resolve by URL, for search-engine arrivals and one-off use. See `docs/app-shell.md`.
+No individual tool is in the site's navigation. The sidebar has six destinations
+(`src/lib/navigation`), one of which is **All Tools** (`/tools`) — the catalog as a page of links,
+grouped by domain, and the way a visitor reaches a tool without the bench. The workshop's browser
+reaches the same tools as panels. Tool routes also still resolve by URL, for search-engine
+arrivals and one-off use. See `docs/app-shell.md`.
 
 `workshop` maps a catalog `path` to the Svelte component that renders it (`TOOL_PANELS`), so tools
 can be mounted in a panel (e.g. a multi-tool workspace) instead of only on their own route. Import
@@ -136,10 +138,11 @@ before it is persisted or exported.
 ### The application shell (`src/lib/navigation`, `src/routes/+layout.svelte`)
 
 Every route renders inside a shell: a pinned top bar (lockup, live tool/artifact counts, the open
-project, the date) and a left sidebar of exactly five destinations — Home, Workshop, Projects,
-Result Vault, Release Notes. `NAV_DESTINATIONS` is the single source of truth for that list and
-five is a cap, not a coincidence. Below 768px the sidebar is a drawer and the page region goes
-`inert` behind it.
+project, the date) and a left sidebar of exactly six destinations — Home, Workshop, All Tools,
+Projects, Result Vault, Release Notes. `NAV_DESTINATIONS` is the single source of truth for that
+list and six is a cap, not a coincidence: it read five until #105, and decision 5 in
+`docs/app-shell.md` records why All Tools is the exception rather than a precedent. Below 768px the
+sidebar is a drawer and the page region goes `inert` behind it.
 
 Prose is capped by `--measure` on `section.main`, not by `html`. A page that wants the full width
 opts out by not being `section.main` — that is the whole of the opt-out mechanism, and it is how

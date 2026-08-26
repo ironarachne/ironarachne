@@ -4,15 +4,26 @@ import type { NavDestination } from './nav_types';
  * Every destination the site navigates to, in sidebar order. The single source of truth for the
  * shell's navigation, the way `TOOL_CATALOG` is for tools.
  *
- * Five, and five is a cap rather than a coincidence — see
- * [decision 5](../../../docs/app-shell.md#decisions-taken-here). A sixth entry is a sign that
- * something belongs *inside* one of these, not beside it. Tools are deliberately absent: they are
- * reached through the workshop's browser, and the taxonomy that used to list them here was a
- * taxonomy of tools on a site that is no longer organised around them.
+ * Six, and six is a cap rather than a coincidence — see
+ * [decision 5](../../../docs/app-shell.md#decisions-taken-here). A seventh entry is a sign that
+ * something belongs *inside* one of these, not beside it.
+ *
+ * The sixth was taken deliberately, and it is the one exception the cap has: the catalog is not
+ * a tool, and no individual tool appears here. What put it here is that nothing else linked to a
+ * tool at all. The workshop's `ToolBrowser` renders buttons that mount a panel, and the home page
+ * links only the handful of featured entries, so thirty-two of the thirty-four tools had no
+ * anchor pointing at them anywhere on the site — not for a crawler, not for a bookmark, not for a
+ * middle click. See [decision 1](../../../docs/app-shell.md#decisions-taken-here), which deleted
+ * the five domain index pages on the understanding that the browser listed those links better.
+ * It lists them differently; it does not list links.
+ *
+ * All Tools sits beside the workshop rather than at the top, because the two are both ways into a
+ * tool and the bench keeps the position a returning user reaches for.
  */
 export const NAV_DESTINATIONS: NavDestination[] = [
   { id: 'home', label: 'Home', path: '/' },
   { id: 'workshop', label: 'Workshop', path: '/workshop' },
+  { id: 'tools', label: 'All Tools', path: '/tools' },
   { id: 'projects', label: 'Projects', path: '/projects' },
   { id: 'vault', label: 'Result Vault', path: '/vault' },
   { id: 'release-notes', label: 'Release Notes', path: '/release-notes' },

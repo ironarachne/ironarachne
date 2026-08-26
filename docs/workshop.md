@@ -476,7 +476,7 @@ told them about. Two moments and one place.
 
 The panel, the table and the escalation below are designed for implementation in
 [The storage panel](storage-panel.md), which settles where the panel lives now that the shell caps
-the sidebar at five destinations, how a figure that is an estimate is phrased, and what the eighty
+the sidebar, how a figure that is an estimate is phrased, and what the eighty
 per cent banner may say.
 
 **At first project creation — said once, plainly.** Work is stored in this browser only; there is

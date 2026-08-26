@@ -5,9 +5,11 @@ bar reports. See `docs/app-shell.md` for the design this implements.
 
 ## What is here
 
-- **`NAV_DESTINATIONS`** — the five sidebar destinations, in order. The single source of truth for
-  the site's navigation, the way `TOOL_CATALOG` is for tools. Five is a cap, not a coincidence:
-  a sixth entry is a sign that something belongs inside one of these rather than beside it.
+- **`NAV_DESTINATIONS`** — the six sidebar destinations, in order. The single source of truth for
+  the site's navigation, the way `TOOL_CATALOG` is for tools. Six is a cap, not a coincidence:
+  a seventh entry is a sign that something belongs inside one of these rather than beside it. It
+  read five until #105 added All Tools, the catalog's own page; see decision 5 in
+  `docs/app-shell.md` for why that one is an exception and not a precedent.
 - **`activeDestination(pathname)`** — which destination a pathname is inside, or `undefined` on a
   page that is under none of them. Tool routes are the `undefined` case: they keep their URLs but
   are not navigational destinations.
