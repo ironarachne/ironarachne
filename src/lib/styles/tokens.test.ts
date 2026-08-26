@@ -1,5 +1,6 @@
 /**
- * Guards the seam between the vendored brand palette and the site's names for it.
+ * Guards the seam between the vendored brand palette and the site's names for it, and the shape
+ * of the token system those names sit in.
  *
  * `brand/colors.css` is copied from the brand repo, which declares itself the source of truth
  * for colour values; `tokens.css` aliases those values under the names the site uses. The
@@ -7,6 +8,13 @@
  * a sync brings it in, and every alias pointing at the old name resolves to nothing. CSS says
  * nothing about an undefined custom property — the declaration is simply dropped at computed
  * value time — so the symptom is an unstyled element noticed by whoever happens to look.
+ *
+ * The ramps and roles added by the visual system (docs/visual-design.md) fail the same silent
+ * way, and one layer deeper: a role is built from an alias and a ramp step is built from its own
+ * parts, so a token can dangle without a rename ever crossing the brand seam. The suites below
+ * therefore check that *every* `var()` inside `tokens.css` resolves, and that each ramp still
+ * holds the steps and the values the approved taxonomy names — a ramp that quietly grows a ninth
+ * step or loses a corner treatment is the system coming apart at the place it was meant to hold.
  *
  * These tests are cheap because nothing here parses CSS properly: the files are small, flat,
  * and vendored, so matching declarations and `var()` references by regex is enough.
@@ -33,6 +41,21 @@ function declaredProperties(css: string): string[] {
 function referencedProperties(css: string): string[] {
   return [...css.matchAll(/var\(\s*(--[\w-]+)/g)].map((match) => match[1]);
 }
+
+/**
+ * Custom property values by name, with comments stripped first so a token named in a comment is
+ * not mistaken for a declaration. A declaration runs to its semicolon and a value never contains
+ * one, which is what makes this safe for the multi-line `polygon()` and `linear-gradient()`
+ * values.
+ */
+function declarations(css: string): Map<string, string> {
+  const source = css.replace(/\/\*[\s\S]*?\*\//g, '');
+  const pairs = [...source.matchAll(/(--[\w-]+)\s*:\s*([^;]+);/g)];
+
+  return new Map(pairs.map(([, name, value]) => [name, value.replace(/\s+/g, ' ').trim()]));
+}
+
+const tokens = declarations(tokensSource);
 
 /**
  * Everywhere on this side of the seam that CSS can be written: the global stylesheets, and the
@@ -88,12 +111,6 @@ describe('brand colour tokens', () => {
 describe('site colour tokens', () => {
   const aliases = [...tokensSource.matchAll(/^\s*(--[\w-]+)\s*:\s*var\(\s*(--ia-[\w-]+)\s*\)/gm)];
 
-  it('aliases the brand palette rather than restating it', () => {
-    // Thirteen palette entries plus the three modal roles. A new alias is welcome; an alias
-    // that stopped being an alias — a hex pasted back in — is what this counts.
-    expect(aliases.length).toBeGreaterThanOrEqual(16);
-  });
-
   it('resolves every alias to a declared brand token', () => {
     const brandTokens = new Set(declaredProperties(brandSource));
 
@@ -103,5 +120,182 @@ describe('site colour tokens', () => {
         `${alias} aliases ${target}, which brand/colors.css does not declare`,
       ).toContain(target);
     }
+  });
+
+  it('resolves every token this file builds on another', () => {
+    // The count assertion this replaces — "at least sixteen aliases" — was a proxy for "nobody
+    // pasted a hex back in", which the no-hex test above says directly. What matters now is
+    // that the layers hold: a role resolves to an alias, a ramp step resolves to its own parts,
+    // and nothing in the file points at a name the file (or the brand palette) does not declare.
+    const brandTokens = new Set(declaredProperties(brandSource));
+    const dangling = referencedProperties(tokensSource).filter(
+      (property) => !tokens.has(property) && !brandTokens.has(property),
+    );
+
+    expect(dangling, 'tokens.css reads custom properties nothing declares').toEqual([]);
+  });
+
+  it('declares every colour role the taxonomy names', () => {
+    // The vocabulary components are given. Dropping one does not break a build; it leaves a
+    // component with a declaration the browser discards, which is the failure this file exists
+    // to make loud.
+    const roles = [
+      '--surface-page',
+      '--surface-raised',
+      '--surface-inset',
+      '--surface-sunken',
+      '--border',
+      '--border-strong',
+      '--ink',
+      '--ink-muted',
+      '--ink-faint',
+      '--accent',
+      '--accent-quiet',
+      '--danger',
+      '--focus',
+      '--modal-backdrop',
+      '--modal-border-message',
+      '--modal-border-error',
+      '--modal-border-success',
+    ];
+
+    const missing = roles.filter((role) => !tokens.has(role));
+
+    expect(missing, 'components build from these roles by name').toEqual([]);
+  });
+
+  it('declares no token twice', () => {
+    const declared = declaredProperties(tokensSource);
+    const duplicates = declared.filter((name, index) => declared.indexOf(name) !== index);
+
+    expect(duplicates, 'a redeclared token silently wins over the one above it').toEqual([]);
+  });
+});
+
+describe('the type ramp', () => {
+  // Six steps, and the sizes the approved taxonomy states. They are asserted literally because
+  // the ramp is the one thing every surface is measured against: a step that drifts by a pixel
+  // is a page that stops agreeing with the page beside it.
+  const steps: [string, string, string][] = [
+    ['--t-display', '26px', '1.05'],
+    ['--t-title', '20px', '1.1'],
+    ['--t-heading', '16px', '1.2'],
+    ['--t-body', '14px', '1.45'],
+    ['--t-small', '12.5px', '1.4'],
+    ['--t-micro', '11px', '1.4'],
+  ];
+
+  it.each(steps)('declares %s at its stated size and line height', (step, size, line) => {
+    expect(tokens.get(`${step}-size`)).toBe(size);
+    expect(tokens.get(`${step}-line`)).toBe(line);
+  });
+
+  it.each(steps)('builds the %s shorthand from its own parts', (step) => {
+    // The shorthand and the parts are two forms of one step, so they are declared from the same
+    // numbers rather than restated — a shorthand carrying its own literal size is how the two
+    // forms of a step come to disagree.
+    const shorthand = tokens.get(step);
+
+    expect(shorthand).toContain(`var(${step}-size)`);
+    expect(shorthand).toContain(`var(${step}-line)`);
+    expect(shorthand).toMatch(/var\(--face-(display|body)\)/);
+  });
+
+  it('carries the two faces and nothing else', () => {
+    expect(tokens.get('--face-display')).toContain('cinzel');
+    expect(tokens.get('--face-body')).toContain('Inclusive Sans');
+
+    const faces = [...tokens.keys()].filter((name) => name.startsWith('--face-'));
+    expect(faces).toEqual(['--face-display', '--face-body']);
+  });
+
+  it('gives --t-micro the tracking the step is defined with', () => {
+    // `font` cannot carry letter-spacing, so the tracking is a separate token rather than part
+    // of the shorthand. It is still part of the step, and a use of `--t-micro` without it is
+    // 11px Cinzel set too tight to read.
+    expect(tokens.get('--t-micro-tracking')).toBe('0.08em');
+  });
+
+  it('holds exactly the six steps', () => {
+    const declared = [...tokens.keys()].filter(
+      (name) => name.startsWith('--t-') && !/-(size|line|tracking)$/.test(name),
+    );
+
+    expect(declared).toEqual(steps.map(([step]) => step));
+  });
+});
+
+describe('the space ramp', () => {
+  it('holds its eight steps, in order, at their stated values', () => {
+    const ramp = ['2px', '4px', '6px', '8px', '12px', '16px', '24px', '32px'];
+
+    expect(ramp.map((_, index) => tokens.get(`--s${index + 1}`))).toEqual(ramp);
+  });
+
+  it('stops at --s8', () => {
+    // Nothing above `--s8` exists: a gap that wants 48px is a layout that wants rethinking, and
+    // the ramp making that awkward is the point of having a ramp at all.
+    const steps = [...tokens.keys()].filter((name) => /^--s\d+$/.test(name));
+
+    expect(steps).toHaveLength(8);
+    expect(tokens.has('--s9')).toBe(false);
+  });
+});
+
+describe('elevation and corners', () => {
+  it('declares the one plate gradient and the one shadow', () => {
+    expect(tokens.get('--plate')).toContain('linear-gradient');
+    expect(tokens.get('--edge')).toContain('inset');
+    expect(tokens.get('--lift')).toContain('rgb(');
+  });
+
+  it('mixes the plate from a role rather than a literal', () => {
+    // The gradient replaced three copies of `rgb(92, 86, 73)`. Written as a mix of `--slate` it
+    // follows the palette; written as two more literals it would be a fourth copy in the one
+    // file that is supposed to end them.
+    expect(tokens.get('--plate')).toContain('color-mix');
+    expect(tokens.get('--plate')).toContain('var(--slate)');
+    expect(tokens.get('--plate')).not.toMatch(/rgb\(\s*\d/);
+  });
+
+  it('holds exactly three corner treatments', () => {
+    // Three is a cap, not a count. A component picks from these and a skin picks between cut,
+    // bevelled and square from the same vocabulary; a fourth is what the rule exists to prevent.
+    const corners = ['--notch', '--corner-control', '--corner-nav'];
+
+    for (const corner of corners) {
+      expect(tokens.get(corner), `${corner} is a clip-path polygon`).toMatch(/^polygon\(/);
+    }
+
+    const declared = [...tokens.keys()].filter(
+      (name) => name === '--notch' || name.startsWith('--corner-'),
+    );
+    expect(declared.sort()).toEqual([...corners].sort());
+  });
+
+  it('cuts the nav corner on one edge and the other two diagonally', () => {
+    // The three shapes are easy to confuse and impossible to tell apart by name. The nav item is
+    // square on its flush edge and cut at both corners of the inner one; the notch and the
+    // control cut diagonally opposite corners, at 9px and 7px respectively.
+    expect(tokens.get('--notch')).toContain('9px');
+    expect(tokens.get('--corner-control')).toContain('7px');
+
+    expect(tokens.get('--corner-nav')).toContain('100% calc(100% - 7px)');
+    expect(tokens.get('--notch')).not.toContain('100% calc(100% - 9px)');
+  });
+});
+
+describe('motion', () => {
+  it('declares one duration, and it is swift', () => {
+    expect(tokens.get('--motion-swift')).toBe('120ms');
+
+    const durations = [...tokens.keys()].filter((name) => name.startsWith('--motion-'));
+    expect(durations).toEqual(['--motion-swift']);
+  });
+});
+
+describe('the measure', () => {
+  it('stays in ch, because it is a line length', () => {
+    expect(tokens.get('--measure')).toBe('70ch');
   });
 });

@@ -1,4 +1,10 @@
-/* Custom properties for the site.
+/* Custom properties for the site — the whole vocabulary a component builds from.
+ *
+ * This file is the middle layer of the three in docs/visual-design.md: the vendored palette in
+ * `brand/colors.css` below it, components above it. The direction is one-way. A role here
+ * resolves to a palette entry or to a `color-mix()` of two and never holds a hex; a component
+ * references a role or a ramp step and never reaches past this file to `--ia-*`; a genre skin
+ * overrides a permitted subset of the roles and never touches a ramp.
  *
  * Every colour value lives in `brand/colors.css`, which is vendored from the brand repo and is
  * the declared source of truth for the palette (see docs/brand-assets.md). The names below are
@@ -13,6 +19,10 @@
  */
 
 :root {
+  /* ---- The palette, under the site's names ---------------------------------------------
+     Aliases only. A component names a *role* below rather than one of these; these exist so a
+     role — and a genre skin, which is the one other thing allowed to name a hue — has something
+     short to resolve to. */
   --acid-green: var(--ia-green-acid);
   --amethyst: var(--ia-amethyst);
   --charcoal: var(--ia-charcoal);
@@ -27,14 +37,156 @@
   --slate: var(--ia-slate);
   --tan: var(--ia-tan);
 
+  /* ---- Colour roles --------------------------------------------------------------------
+     What a component actually names. Ratios are measured against `--surface-page`; every text
+     role clears 4.5:1, which is the target docs/visual-design.md holds them to.
+
+     `--ink-faint` is a 48% mix rather than the flat grey the mockup drew: that value measures
+     4.16:1 and would have shipped a failure at the one size it is used at. */
+  --surface-page: var(--charcoal);
+  --surface-raised: var(--slate);
+  --surface-inset: color-mix(in srgb, var(--charcoal) 80%, black);
+  --surface-sunken: color-mix(in srgb, var(--charcoal) 60%, black);
+
+  --border: var(--granite);
+  --border-strong: var(--tan);
+
+  --ink: color-mix(in srgb, white 95%, var(--charcoal)); /* 15.2:1 */
+  --ink-muted: color-mix(in srgb, white 60%, var(--charcoal)); /* 6.8:1 */
+  /* 4.8:1 — labels and kickers only, never a sentence. */
+  --ink-faint: color-mix(in srgb, white 48%, var(--charcoal));
+
+  --accent: var(--iron-arachne-green); /* 10.6:1 */
+  --accent-quiet: var(--gold); /* 7.1:1 */
+  /* Crimson on charcoal is 2.2:1. Destructive intent is a crimson edge and fill under
+     `--ink`-coloured text; this is never a text colour. */
+  --danger: var(--crimson);
+  --focus: var(--acid-green); /* 13.4:1 — the focus ring, and nothing else */
+
   /* The modal system's roles. The brand file maps success/error/message to palette entries
-     itself, so the mapping is stated in one place too. The backdrop is not a brand colour. */
+     itself, so the mapping is stated in one place too. The backdrop is not a brand colour, and
+     the shell's drawer scrim reads it as well — the page is dimmed by one amount from one
+     place. */
   --modal-backdrop: rgb(0 0 0 / 50%);
   --modal-border-message: var(--ia-status-message);
   --modal-border-error: var(--ia-status-error);
   --modal-border-success: var(--ia-status-success);
 
-  /* How wide a column of prose is allowed to get, per docs/app-shell.md.
+  /* ---- Type ramp -----------------------------------------------------------------------
+     Six steps, in `px`. Cinzel Decorative carries headings, controls and labels; Inclusive Sans
+     carries anything read as a sentence.
+
+     Each step comes in three forms, because both are needed in practice: `--t-body` is a `font`
+     shorthand carrying weight, size, line height and face together, and `--t-body-size` /
+     `--t-body-line` are the parts, for a rule setting one of them on an element that already has
+     the rest. They are declared from the same numbers, so they cannot disagree.
+
+     The ramp is designed to be read inside `--measure`, which is roughly 640px at `--t-body` —
+     not at the full bench width. */
+  --face-display: 'cinzel', system-ui, Helvetica, sans-serif;
+  --face-body: 'Inclusive Sans', system-ui, Helvetica, sans-serif;
+
+  --t-display-size: 26px;
+  --t-display-line: 1.05;
+  --t-display: 700 var(--t-display-size) / var(--t-display-line) var(--face-display);
+
+  --t-title-size: 20px;
+  --t-title-line: 1.1;
+  --t-title: 700 var(--t-title-size) / var(--t-title-line) var(--face-display);
+
+  --t-heading-size: 16px;
+  --t-heading-line: 1.2;
+  --t-heading: 700 var(--t-heading-size) / var(--t-heading-line) var(--face-display);
+
+  --t-body-size: 14px;
+  --t-body-line: 1.45;
+  --t-body: 400 var(--t-body-size) / var(--t-body-line) var(--face-body);
+
+  --t-small-size: 12.5px;
+  --t-small-line: 1.4;
+  --t-small: 400 var(--t-small-size) / var(--t-small-line) var(--face-body);
+
+  /* Labels, kickers, badges and buttons. The tracking and the uppercasing are part of the step,
+     but `font` can carry neither, so they are separate: every use of `--t-micro` sets
+     `letter-spacing: var(--t-micro-tracking)` and `text-transform: uppercase` beside it. */
+  --t-micro-size: 11px;
+  --t-micro-line: 1.4;
+  --t-micro-tracking: 0.08em;
+  --t-micro: 400 var(--t-micro-size) / var(--t-micro-line) var(--face-display);
+
+  /* ---- Space ramp ----------------------------------------------------------------------
+     Eight steps, and a component may not invent a value outside them. Nothing above `--s8`
+     exists: a gap that wants 48px is a layout that wants rethinking, and making that awkward is
+     the point. The ramp is dense at the bottom because 2px to 8px is the range where a control
+     either reads as one object or as three. */
+  --s1: 2px; /* hairline gaps, label to field */
+  --s2: 4px; /* badge padding */
+  --s3: 6px; /* icon to text, chip gaps */
+  --s4: 8px; /* gap inside a control group */
+  --s5: 12px; /* panel padding, gap between panels */
+  --s6: 16px; /* section spacing inside a panel body */
+  --s7: 24px; /* page padding, gap between sections */
+  --s8: 32px; /* page-level separation, hero spacing */
+
+  /* ---- Elevation -----------------------------------------------------------------------
+     Depth is a keyline plus a one-pixel top highlight, not blur: pressed metal at 100% zoom
+     rather than a floating card. The border carries the identity of a plate; `--lift` exists
+     only so a raised plate does not float against the page, and is the one shadow in the
+     system. A skin may change a border colour safely; a shadow that changed per genre would sit
+     panels at different heights beside each other. */
+
+  /* The control gradient — a 4%-white mix of slate down to a 6%-black mix. This is the one
+     place it is written; `main.css`, `fantasy.css` and `modal.css` each held their own copy of
+     `rgb(92, 86, 73)`. */
+  --plate: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--slate) 96%, white) 0%,
+    color-mix(in srgb, var(--slate) 94%, black) 100%
+  );
+  --edge: inset 0 1px 0 rgb(255 255 255 / 7%);
+  --lift: 0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%);
+
+  /* ---- Corners -------------------------------------------------------------------------
+     Three treatments, and three is a cap. A component picks one of these, and a skin picks
+     between cut, bevelled and square from this vocabulary; inventing a fourth is what the rule
+     exists to make awkward.
+
+     A `clip-path` cuts everything the element paints, borders included — so an edge marker on a
+     clipped element is an inset shadow, not a border, or the clip shaves it at both ends. */
+
+  /* A panel: 9px off the top-right and bottom-left. */
+  --notch: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+
+  /* A control: the same diagonal shape at 7px, because a control is not the size of a panel. */
+  --corner-control: polygon(
+    0 0,
+    calc(100% - 7px) 0,
+    100% 7px,
+    100% 100%,
+    7px 100%,
+    0 calc(100% - 7px)
+  );
+
+  /* A nav item: square on the flush edge, both corners cut on the inner one. Neither of the
+     other two is that shape. 7px, matching the control — a nav item is control-sized. */
+  --corner-nav: polygon(
+    0 0,
+    calc(100% - 7px) 0,
+    100% 7px,
+    100% calc(100% - 7px),
+    calc(100% - 7px) 100%,
+    0 100%
+  );
+
+  /* ---- Motion --------------------------------------------------------------------------
+     Every hover and press transition uses this, and nothing in the interface animates for
+     longer. A `visibility` delay that holds an element out of the tab order must read the same
+     token, or the two fall out of step mid-transition. Ambient genre motion is capped at one
+     effect per skin and is off entirely under `prefers-reduced-motion: reduce`. */
+  --motion-swift: 120ms;
+
+  /* ---- Measure -------------------------------------------------------------------------
+     How wide a column of prose is allowed to get, per docs/app-shell.md.
 
      This used to be `max-width` on `html`, which capped the entire document and is why the site
      used a quarter of a wide display. It is a token rather than a repeated literal because it is

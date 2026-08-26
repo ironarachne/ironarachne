@@ -8,7 +8,7 @@ what lives here is what applies site-wide.
 main.css        # The entry point — imports everything below, then the base element styles
 reset.css       # Normalizes browser defaults
 brand/          # Vendored from the brand repo: the colour palette, as --ia-* tokens
-tokens.css      # Custom properties — the site's names for the palette, plus spacing
+tokens.css      # Custom properties — colour roles, the type and space ramps, elevation, motion
 fonts.css       # The @font-face declarations
 modal.css       # The shared modal system's styles
 fantasy.css     # Genre themes, applied to generated output
@@ -31,6 +31,17 @@ specificity.
 
 Define a new spacing value as a custom property in `tokens.css` rather than inline, so it is
 available to components and to the genre themes alike.
+
+## Tokens
+
+`tokens.css` holds the whole vocabulary a component builds from: the colour roles, the six-step
+type ramp, the eight-step space ramp, the elevation and corner tokens, and the one motion
+duration. It is the middle of three layers, and the direction is one-way — `brand/colors.css`
+below it, components above it. A role resolves to a palette alias or to a `color-mix()` of two
+and never holds a hex; a component names a role or a ramp step and never reaches past this file
+to `--ia-*`; a genre skin overrides a permitted subset of the roles and never touches a ramp.
+`docs/visual-design.md` states the taxonomy and the reasoning; `tokens.test.ts` enforces the
+parts of it that a regex can see.
 
 ## Colours
 
