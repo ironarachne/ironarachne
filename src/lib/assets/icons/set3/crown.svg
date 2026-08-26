@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1568.99 252.99 86.02 86.02" width="24" height="24" role="img">
+  <mask id="set3016" maskUnits="userSpaceOnUse" x="1568.99" y="252.99" width="86.02" height="86.02"><path d="M1642.3,295.2l-7,26.8h-47l-6.9-25.4c1.8-0.5,3.3-1.6,4.4-3.1l12.4,8.4l9.6-19.2c1,0.5,2.2,0.8,3.5,0.8    c1.4,0,2.7-0.4,3.8-1l9.8,17.4l13.2-8.3C1638.9,293.4,1640.5,294.6,1642.3,295.2z" fill="#fff"/>
+		<circle cx="1579.4" cy="289.1" r="5.8" fill="#fff"/>
+		<circle cx="1611.2" cy="275.8" r="5.8" fill="#fff"/>
+		<circle cx="1644.6" cy="287.8" r="5.8" fill="#fff"/>
+	</mask>
+  <rect x="1568.99" y="252.99" width="86.02" height="86.02" fill="currentColor" mask="url(#set3016)"/>
+</svg>

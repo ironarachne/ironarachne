@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1783.52 439.52 64.96 64.96" width="24" height="24" role="img">
+  <mask id="set3026" maskUnits="userSpaceOnUse" x="1783.52" y="439.52" width="64.96" height="64.96"><polygon points="1809.2,488.4 1799.6,478.8 1799.6,465.2 1809.2,455.6 1822.8,455.6 1832.4,465.2 1832.4,478.8     1822.8,488.4   " fill="#fff"/>
+		<polygon points="1797.1,465.5 1797.1,478.5 1787,482.7 1787,461.3   " fill="#fff"/>
+		<polygon points="1798,463.2 1788,459 1803,444 1807.2,454   " fill="#fff"/>
+		<polygon points="1809.5,453.1 1805.3,443 1826.7,443 1822.5,453.1   " fill="#fff"/>
+		<polygon points="1834,463.2 1824.8,454 1829,444 1844,459   " fill="#fff"/>
+		<polygon points="1807.2,490 1803,500 1788,485 1798,480.8   " fill="#fff"/>
+		<polygon points="1826.7,501 1805.3,501 1809.5,490.9 1822.5,490.9   " fill="#fff"/>
+		<polygon points="1844,485 1829,500 1824.8,490 1834,480.8   " fill="#fff"/>
+		<polygon points="1845,461.3 1845,482.7 1834.9,478.5 1834.9,465.5   " fill="#fff"/>
+	</mask>
+  <rect x="1783.52" y="439.52" width="64.96" height="64.96" fill="currentColor" mask="url(#set3026)"/>
+</svg>

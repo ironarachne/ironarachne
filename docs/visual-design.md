@@ -332,13 +332,24 @@ respected everywhere a button exists. Defaulted to on, it is a generator site th
 you click Generate. Neither is worth the surface area in a first pass, and nothing about the token
 system forecloses adding it later — a press is already a distinct state with a distinct token.
 
-### 5. Icons are placeholders until the pack is bought
+### 5. The icon set is SunGraphica's, and the credit is a licence term
 
-The glyphs in the mockup are drawn to one house stroke — 24px grid, 1.5px, square caps, no fill —
-and are **placeholders**. They stand in for a licensed itch.io GUI pack. Whichever set is bought
-gets redrawn to that weight so the family reads as one hand, and its licence terms decide whether
-it is vendored through `brand-assets.json` like the fonts. This is a purchase decision, not a
-design one; see [Open questions](#open-questions).
+**Settled.** The pack is bought: SunGraphica's _600 Minimal Icons_, licensed for commercial use,
+split into 455 individual SVGs in `src/lib/assets/icons/`. The mockup's placeholder glyphs are
+replaced by it.
+
+Three consequences the token system has to absorb:
+
+- **The credit ships.** The licence requires SunGraphica be credited, so the footer carries it on
+  every page. It is a licence term, not a courtesy, and it is not a candidate for tidying away.
+- **They are not brand assets.** The pack was bought for this app, so it is not vendored through
+  `brand-assets.json` and there is no upstream to sync from. It is the one class of asset here
+  that may be edited in place.
+- **They are filled, not stroked.** The mockup drew a 1.5px stroked house style; these are solid
+  glyphs with knockouts. The stroke weight in that mockup is therefore not a rule the system
+  holds anything to — it described placeholders. What the system does hold is that an icon is
+  painted with `currentColor` through a mask, so it takes its colour from the role around it and
+  the surface shows through its holes, on any surface and in any genre skin.
 
 ## Control vocabulary
 
@@ -409,9 +420,10 @@ For the implementation issues that follow this one:
 
 ## Open questions
 
-1. **The icon pack.** Which itch.io GUI set is licensed, and whether its terms allow vendoring it
-   through `brand-assets.json` alongside the fonts. Blocks nothing in the token work; the
-   placeholders are drawn to a stated weight so the swap is mechanical.
+1. **Which icons the app actually uses.** The pack is in (see [decision
+   5](#5-the-icon-set-is-sungraphicas-and-the-credit-is-a-licence-term)) and all 455 icons are
+   split and named, but nothing maps them to the six nav destinations, the control set, or the
+   tool catalog's domains yet. That mapping is the tokens issue's business, not this document's.
 2. **Whether `--surface-sunken` earns its place.** It is declared for scroll wells behind an inset
    run, and if the implementation finds one use for it, it should be dropped rather than kept for
    symmetry. Four surface levels is one more than the elevation model claims.

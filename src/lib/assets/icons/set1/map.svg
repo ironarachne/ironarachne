@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="557.23 331.28 69.44 69.44" width="24" height="24" role="img">
+  <mask id="set1011" maskUnits="userSpaceOnUse" x="557.23" y="331.28" width="69.44" height="69.44"><path d="M608.9,335h-33.9c-2.5,0-4.5,2-4.5,4.5v33.9c0,2.5,2,4.5,4.5,4.5h33.9c2.5,0,4.5-2,4.5-4.5v-33.9    C613.4,337,611.4,335,608.9,335z M604.2,364.8c0,2.1-1.7,3.8-3.8,3.8h-16.8c-2.1,0-3.8-1.7-3.8-3.8V348c0-2.1,1.7-3.8,3.8-3.8    h16.8c2.1,0,3.8,1.7,3.8,3.8V364.8z" fill="#fff"/>
+		<polygon points="579.7,373.2 592,397 604.5,373.2   " fill="#fff"/>
+	</mask>
+  <rect x="557.23" y="331.28" width="69.44" height="69.44" fill="currentColor" mask="url(#set1011)"/>
+</svg>

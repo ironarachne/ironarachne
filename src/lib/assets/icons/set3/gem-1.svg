@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="138.75 602.75 90.50 90.50" width="24" height="24" role="img">
+  <mask id="set3027" maskUnits="userSpaceOnUse" x="138.75" y="602.75" width="90.50" height="90.50"><polygon points="180.3,613.6 160.6,635.1 143.6,635.1 161.7,613.6   " fill="#fff"/>
+		<polygon points="184.1,613.6 203.9,635.1 164.1,635.1 183.9,613.6   " fill="#fff"/>
+		<polygon points="224.4,635.1 207.4,635.1 187.7,613.6 206.3,613.6   " fill="#fff"/>
+		<polygon points="159.9,637.8 180.7,681.6 143.6,637.8   " fill="#fff"/>
+		<polygon points="162.8,637.8 204.9,637.8 184,682.4   " fill="#fff"/>
+		<polygon points="187.2,681.6 207.8,637.8 224.4,637.8   " fill="#fff"/>
+	</mask>
+  <rect x="138.75" y="602.75" width="90.50" height="90.50" fill="currentColor" mask="url(#set3027)"/>
+</svg>

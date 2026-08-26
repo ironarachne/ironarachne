@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="116.84 265.94 141.12 141.12" width="24" height="24" role="img">
+  <mask id="controller010" maskUnits="userSpaceOnUse" x="116.84" y="265.94" width="141.12" height="141.12"><path d="M124.4,286.6h126v81c-42,18.8-84,18.8-126,0V286.6z" fill="#fff"/>
+		<polygon points="208.3,309.3 208.3,315.5 201.2,315.5 201.2,352.4 194.5,352.4 194.5,315.5 187.4,315.5 187.4,309.3       " fill="#000"/>
+		<polygon points="186.1,346.2 186.1,352.4 168.2,352.4 168.2,309.3 175,309.3 175,346.2   " fill="#000"/>
+	</mask>
+  <rect x="116.84" y="265.94" width="141.12" height="141.12" fill="currentColor" mask="url(#controller010)"/>
+</svg>

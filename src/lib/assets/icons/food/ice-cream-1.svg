@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="746.30 1163.35 129.70 129.70" width="24" height="24" role="img">
+  <mask id="food014" maskUnits="userSpaceOnUse" x="746.30" y="1163.35" width="129.70" height="129.70"><polygon points="810,1286.1 783.7,1209.7 838.6,1209.7   " fill="#fff"/>
+		<path d="M838.6,1188v18h-54.9v-18c0-9.8,7.9-17.7,17.7-17.7h19.5C830.7,1170.3,838.6,1178.2,838.6,1188z" fill="#fff"/>
+	</mask>
+  <rect x="746.30" y="1163.35" width="129.70" height="129.70" fill="currentColor" mask="url(#food014)"/>
+</svg>

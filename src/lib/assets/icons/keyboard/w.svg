@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="911.65 424.60 57.79 57.79" width="24" height="24" role="img">
+  <mask id="keyboard022" maskUnits="userSpaceOnUse" x="911.65" y="424.60" width="57.79" height="57.79"><path d="M916.2,427.7h9.8l4.5,39.6h0.2l4.8-39.6h11.1l4.8,39.6h0.2l4.5-39.6h8.8l-6.5,51.6h-12.6l-4.6-34.8h-0.2    l-4.6,34.8h-13.4L916.2,427.7z" fill="#fff"/>
+	</mask>
+  <rect x="911.65" y="424.60" width="57.79" height="57.79" fill="currentColor" mask="url(#keyboard022)"/>
+</svg>

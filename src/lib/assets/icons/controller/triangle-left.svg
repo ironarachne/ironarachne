@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="985.34 375.44 73.92 73.92" width="24" height="24" role="img">
+  <mask id="e1" maskUnits="userSpaceOnUse" x="985.34" y="375.44" width="73.92" height="73.92"><polygon points="993.1,412.4 1051.5,379.4 1051.5,445.4  " fill="#fff"/>
+	</mask>
+  <rect x="985.34" y="375.44" width="73.92" height="73.92" fill="currentColor" mask="url(#e1)"/>
+</svg>

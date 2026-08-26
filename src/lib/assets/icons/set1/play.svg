@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1373.37 331.17 69.66 69.66" width="24" height="24" role="img">
+  <mask id="set1015" maskUnits="userSpaceOnUse" x="1373.37" y="331.17" width="69.66" height="69.66"><path d="M1386,338v56c0,1.9,2.2,3.1,3.8,2l38.9-27.5c1.7-1.2,1.7-3.7,0-4.9l-38.9-27.5    C1388.2,334.9,1386,336,1386,338z" fill="#fff"/>
+	</mask>
+  <rect x="1373.37" y="331.17" width="69.66" height="69.66" fill="currentColor" mask="url(#set1015)"/>
+</svg>

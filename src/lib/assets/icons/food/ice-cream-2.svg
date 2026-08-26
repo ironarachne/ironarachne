@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="436.34 1163.69 128.91 128.91" width="24" height="24" role="img">
+  <mask id="food013" maskUnits="userSpaceOnUse" x="436.34" y="1163.69" width="128.91" height="128.91"><path d="M526.1,1185v16.8h-50.7V1185c0-7.9,6.4-14.3,14.3-14.3h22C519.7,1170.6,526.1,1177.1,526.1,1185z" fill="#fff"/>
+		<path d="M475.5,1206.1h50.7v40.6c0,7.9-6.4,14.3-14.3,14.3h-22c-7.9,0-14.3-6.4-14.3-14.3V1206.1z" fill="#fff"/>
+		<path d="M500.8,1285.7L500.8,1285.7c3,0,5.5-2.4,5.5-5.5v-15.8h-10.9v15.8C495.3,1283.3,497.8,1285.7,500.8,1285.7z" fill="#fff"/>
+	</mask>
+  <rect x="436.34" y="1163.69" width="128.91" height="128.91" fill="currentColor" mask="url(#food013)"/>
+</svg>

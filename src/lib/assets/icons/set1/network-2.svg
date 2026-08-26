@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="1374.18 1036.23 67.54 67.54" width="24" height="24" role="img">
+  <mask id="set1051" maskUnits="userSpaceOnUse" x="1374.18" y="1036.23" width="67.54" height="67.54"><rect x="1377.8" y="1082.7" width="8.3" height="16.3" fill="#fff"/>
+		<rect x="1390.8" y="1072.5" width="8.3" height="26.5" fill="#fff"/>
+		<rect x="1403.8" y="1062" width="8.3" height="37" fill="#fff"/>
+		<rect x="1416.8" y="1051.8" width="8.3" height="47.2" fill="#fff"/>
+		<rect x="1429.8" y="1041" width="8.3" height="58" fill="#fff"/>
+	</mask>
+  <rect x="1374.18" y="1036.23" width="67.54" height="67.54" fill="currentColor" mask="url(#set1051)"/>
+</svg>
