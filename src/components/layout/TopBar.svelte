@@ -104,13 +104,25 @@
 </header>
 
 <style>
+  /* 44px tall at every width, which is the hit-target floor — a bar that is exactly one target
+     tall needs no separate rule to be tappable. The block padding is what centres a 28px lockup
+     in that height.
+
+     No `--lift`, and that is not an omission: the bar is a grid row rather than an overlay, and
+     scrolling happens inside the page region, so nothing ever passes underneath it. A shadow
+     says "this is above that", and here there is no that — the keyline carries the separation.
+     No notch either, for the reason the sidebar's outer edge has none. See
+     docs/visual-design.md, "The shell". */
   .top-bar {
     align-items: center;
-    background: var(--slate);
-    border-bottom: 1px solid var(--granite);
+    background: var(--surface-raised);
+    border-bottom: 1px solid var(--border);
+    box-shadow: var(--edge);
+    box-sizing: border-box;
     display: flex;
-    gap: 1rem;
-    padding: 0.35rem 0.75rem;
+    gap: var(--s6);
+    height: 44px;
+    padding: var(--s4) var(--s5);
   }
 
   .top-bar__identity {
@@ -119,67 +131,91 @@
 
     & img {
       display: block;
-      height: 2.25rem;
+      height: 28px;
       width: auto;
     }
   }
 
-  /* Only the drawer band has a drawer to toggle. Hidden rather than not rendered, so the button
-     is present the instant the viewport narrows past the breakpoint. */
+  /* The icon button from the control vocabulary: 28×28 and square, because a cut corner on a
+     28px square eats the glyph. Only the drawer band has a drawer to toggle — hidden rather than
+     not rendered, so the button is present the instant the viewport narrows past the
+     breakpoint. */
   .top-bar__menu {
-    display: none;
-    background: none;
-    border: 1px solid var(--granite);
-    border-radius: 6px;
-    color: var(--iron-arachne-green);
+    align-items: center;
+    background: var(--plate);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--edge);
+    color: var(--ink);
     cursor: pointer;
+    display: none;
     flex: 0 0 auto;
-    font-size: 1.1rem;
+    font: var(--t-micro);
+    height: 28px;
+    justify-content: center;
     line-height: 1;
-    padding: 0.35rem 0.5rem;
+    padding: 0;
+    transition:
+      border-color var(--motion-swift) ease,
+      color var(--motion-swift) ease;
+    width: 28px;
   }
 
   .top-bar__menu:hover {
-    border-color: white;
-    color: white;
+    border-color: var(--focus);
+  }
+
+  .top-bar__menu:active {
+    color: var(--accent);
+  }
+
+  .top-bar__menu:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
   }
 
   /* The status items sit together in the middle; the date is pushed to the far right by this
      margin rather than by `justify-content`, which would spread the identity too. */
   .top-bar__status {
     display: flex;
-    gap: 1.25rem;
-    margin: 0 auto 0 0.5rem;
+    gap: var(--s6);
+    margin: 0 auto 0 var(--s4);
   }
 
   .top-bar__stat {
     display: flex;
     align-items: baseline;
-    gap: 0.35rem;
+    gap: var(--s3);
     white-space: nowrap;
   }
 
-  /* Lightened off the raw tan, which at 0.7rem on the slate bar sat close enough to the
-     background to read as disabled rather than as a label. */
+  /* `--t-micro` carries the uppercasing and the tracking this rule used to set by hand, at the
+     ramp's 0.08em rather than a local 0.04em. */
   .top-bar__stat dt {
-    color: color-mix(in srgb, var(--tan) 55%, white 45%);
-    font-family: 'cinzel', system-ui, Helvetica, sans-serif;
-    font-size: 0.7rem;
-    letter-spacing: 0.04em;
+    color: var(--ink-faint);
+    font: var(--t-micro);
+    letter-spacing: var(--t-micro-tracking);
     text-transform: uppercase;
   }
 
   .top-bar__stat dd {
-    color: white;
-    font-size: 0.9rem;
+    color: var(--ink);
+    font: var(--t-small);
     margin: 0;
   }
 
+  /* The one status that is also a control, so it takes the accent every other link on the site
+     takes rather than reading as a value. */
+  .top-bar__stat--project dd a {
+    color: var(--accent);
+  }
+
   .top-bar__date {
-    color: color-mix(in srgb, var(--tan) 55%, white 45%);
+    color: var(--ink-faint);
     flex: 0 0 auto;
-    font-size: 0.8rem;
+    font: var(--t-micro);
+    letter-spacing: var(--t-micro-tracking);
     margin: 0;
+    text-transform: uppercase;
     white-space: nowrap;
   }
 
@@ -203,11 +239,11 @@
 
   @media (max-width: 767px) {
     .top-bar {
-      gap: 0.5rem;
+      gap: var(--s4);
     }
 
     .top-bar__menu {
-      display: block;
+      display: flex;
     }
 
     .top-bar__stat--tools,
@@ -216,7 +252,25 @@
     }
 
     .top-bar__identity img {
-      height: 1.75rem;
+      height: 24px;
+    }
+  }
+
+  /* 28px is the visual size of the control; the tap area is padded out to 44px. The condition is
+     the pointer and not the width — a touch laptop at 1280px wants the same target, and a phone
+     plugged into a mouse does not. The bar is 44px tall, so the target fills it exactly. */
+  @media (pointer: coarse) {
+    .top-bar__menu {
+      position: relative;
+    }
+
+    /* Grown as an overlay rather than as padding, because padding would grow the plate itself and
+       the button would stop being a 28px control. The bar is 44px tall, so 8px either side of a
+       28px body fills it exactly. */
+    .top-bar__menu::after {
+      content: '';
+      inset: calc(var(--s4) * -1) 0;
+      position: absolute;
     }
   }
 </style>

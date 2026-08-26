@@ -36,17 +36,23 @@
 </nav>
 
 <style>
+  /* The sidebar is flush to the left edge of the screen and square on that side: the items run
+     edge to edge and carry their own inset padding, which is why the inline padding here is zero
+     at every width. No notch on the outer edge — `--notch` cuts a corner off a plate that sits on
+     a surface, and a cut on an edge with nothing beyond it reads as damage rather than as a cut.
+     See docs/visual-design.md, "The shell". */
   .sidebar {
-    background: var(--slate);
-    border-right: 1px solid var(--granite);
+    background: var(--surface-raised);
+    border-right: 1px solid var(--border);
+    box-shadow: var(--edge);
     overflow-y: auto;
-    padding: 0.75rem 0.5rem;
+    padding: var(--s5) 0;
   }
 
   .sidebar ul {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--s1);
     margin: 0;
     padding: 0;
   }
@@ -60,57 +66,83 @@
     margin-left: 0;
   }
 
+  /* One size at every width. The 768–1199px band used to override `font-size` and `padding` to
+     fit narrower labels; `--t-micro` is 11px uppercase Cinzel, and `RELEASE NOTES` — the longest
+     label — clears the 128px column's usable width, so that override is deleted rather than
+     restated.
+
+     The transparent keyline is geometry rather than decoration: the current item takes a
+     `--border-strong` edge on three sides, and an item that grew a border only on becoming
+     current would shift its own label by a pixel. Rest still shows no keyline. */
   .sidebar a {
     border: 1px solid transparent;
-    border-radius: 6px;
-    color: var(--iron-arachne-green);
+    border-inline-start: 0;
+    color: var(--ink-muted);
     display: block;
-    font-family: 'cinzel', system-ui, Helvetica, sans-serif;
-    padding: 0.5rem 0.6rem;
+    font: var(--t-micro);
+    letter-spacing: var(--t-micro-tracking);
+    padding: var(--s3) var(--s3) var(--s3) var(--s5);
     text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      background-color var(--motion-swift) ease,
+      color var(--motion-swift) ease;
   }
 
+  /* No keyline on hover: one would compete with the current item's marker, which is the thing the
+     eye is meant to find without reading. */
   .sidebar a:hover {
-    background: var(--granite);
-    color: white;
+    background-color: var(--surface-inset);
+    color: var(--ink);
+  }
+
+  .sidebar a:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 2px;
   }
 
   /* The current destination, marked by the same attribute a screen reader reads, so the visual
-     state and the announced state cannot drift apart. */
-  .sidebar a[aria-current='page'] {
-    background: linear-gradient(0deg, var(--granite) 0%, var(--tan) 100%);
-    border-color: var(--tan);
-    color: black;
-  }
+     state and the announced state cannot drift apart. It outranks the hover rule on specificity,
+     which is the intent: current plus hover is current. The destination you are already on is not
+     a target worth lighting, and a hover state there is how a user learns that clicking it does
+     nothing.
 
-  /* 768–1199px: narrower, with the same labels at a smaller size. There is no icon rail — the
-     brand repo has no icon set, and five marks drawn here would sit badly beside the wordmark.
-     See docs/app-shell.md, decision 6. */
-  @media (max-width: 1199px) {
-    .sidebar a {
-      font-size: 0.85rem;
-      padding: 0.45rem 0.4rem;
-    }
+     The marker is an inset shadow rather than a border or a pseudo-element because `--corner-nav`
+     is a `clip-path`, and a clip cuts everything the element paints, borders included — a
+     `border-inline-start` would be shaved at both ends by the very corners it needs to survive.
+     An inset shadow is painted inside the clip, on the one edge the clip does not touch. */
+  .sidebar a[aria-current='page'] {
+    background: var(--plate);
+    border-color: var(--border-strong);
+    box-shadow:
+      var(--edge),
+      inset 3px 0 0 var(--accent);
+    clip-path: var(--corner-nav);
+    color: var(--ink);
   }
 
   /* Below 768px it is a drawer: off-canvas, over the page rather than beside it. The shell owns
-     whether it is open; this owns where it sits. */
+     whether it is open; this owns where it sits. It is the one part of the shell that takes
+     `--lift` — the one place where something genuinely overlaps content, which is the condition
+     the elevation model states for a shadow. */
   @media (max-width: 767px) {
     .sidebar {
       bottom: 0;
+      box-shadow: var(--edge), var(--lift);
       left: 0;
       position: fixed;
       top: 0;
       transform: translateX(-100%);
       /* `visibility` and not transform alone. A drawer parked off-canvas by a transform is still
          rendered: its links stay in the tab order and in the accessibility tree, so tabbing out of
-         the top bar walks into five invisible destinations. `visibility: hidden` takes it out of
-         both, and delaying it until the slide has finished keeps the animation. */
+         the top bar walks into six invisible destinations. `visibility: hidden` takes it out of
+         both, and delaying it by exactly the slide's own duration keeps the animation — the two
+         read the same token, or the drawer disappears mid-slide. */
       visibility: hidden;
       transition:
-        transform 0.2s ease,
-        visibility 0s linear 0.2s;
-      width: min(16rem, 80vw);
+        transform var(--motion-swift) ease,
+        visibility 0s linear var(--motion-swift);
+      width: min(272px, 80vw);
       z-index: 20;
     }
 
@@ -118,8 +150,18 @@
       transform: translateX(0);
       visibility: visible;
       transition:
-        transform 0.2s ease,
+        transform var(--motion-swift) ease,
         visibility 0s;
+    }
+  }
+
+  /* The hit target keys off the pointer rather than off the width: a touch laptop at 1280px wants
+     the same 44px target, and a phone plugged into a mouse does not. */
+  @media (pointer: coarse) {
+    .sidebar a {
+      align-items: center;
+      display: flex;
+      min-height: 44px;
     }
   }
 

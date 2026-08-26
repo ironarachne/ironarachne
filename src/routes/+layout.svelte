@@ -135,20 +135,29 @@
     grid-area: bar;
   }
 
+  /* The shell's widths are stated in `px` and not in `rem`. `main.css` sets a fluid root —
+     `clamp(1em, 0.909em + 0.45vmin, 1.25em)` — so every `rem` here would be relative to a moving
+     target, and the sidebar would be a different fraction of a 1280px screen than of a 1920px
+     one despite `width` being one number. The type ramp is already in `px`; this makes the frame
+     agree with it. See docs/visual-design.md, "The shell". */
   .shell > :global(.sidebar) {
     grid-area: nav;
-    width: 12rem;
+    width: 176px;
   }
 
+  /* The Page level of the elevation model: flat, no border, no shadow. */
   .shell__page {
+    background: var(--surface-page);
     grid-area: page;
     min-width: 0;
     overflow-y: auto;
-    padding: 0.5rem;
+    padding: var(--s7);
   }
 
+  /* The shell and the modals dim the page for the same reason, so they dim it by the same amount
+     from the same place. */
   .shell__scrim {
-    background: rgb(0 0 0 / 50%);
+    background: var(--modal-backdrop);
     inset: 0;
     position: fixed;
     z-index: 10;
@@ -156,7 +165,7 @@
 
   @media (max-width: 1199px) {
     .shell > :global(.sidebar) {
-      width: 8.5rem;
+      width: 128px;
     }
   }
 
@@ -171,7 +180,11 @@
     }
 
     .shell > :global(.sidebar) {
-      width: min(16rem, 80vw);
+      width: min(272px, 80vw);
+    }
+
+    .shell__page {
+      padding: var(--s5);
     }
   }
 </style>
