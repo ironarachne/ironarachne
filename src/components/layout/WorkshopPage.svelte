@@ -4,15 +4,22 @@
   import ArtifactPanel from '$components/common/ArtifactPanel.svelte';
   import ProjectContextBar from '$components/common/ProjectContextBar.svelte';
   import ProjectView from '$components/common/ProjectView.svelte';
+  import SessionLogPanel from '$components/common/SessionLogPanel.svelte';
   import ToolBrowser from '$components/common/ToolBrowser.svelte';
   import StorageWarningBanner from '$components/common/StorageWarningBanner.svelte';
   import ToolPanel from '$components/common/ToolPanel.svelte';
   import WorkshopPanel from '$components/common/WorkshopPanel.svelte';
   import { getArtifactSummary, hydrateArtifacts, onArtifactsChanged } from '$lib/artifacts';
   import type { Project } from '$lib/projects';
+  import {
+    newSessionLogEntryId,
+    onSessionLogChanged,
+    sessionLogSize,
+    type SessionLogEntry,
+  } from '$lib/session_log';
   import { allTools, findToolByPath, type Tool } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
-  import { hasToolPanel, hasUnsavedEdits } from '$lib/workshop';
+  import { hasToolPanel, hasUnsavedEdits, type ToolCue } from '$lib/workshop';
   import {
     emptyWorkspace,
     panelKey,
@@ -49,6 +56,26 @@
    */
   let benchElement = $state<HTMLDivElement | undefined>(undefined);
   let emptyBenchMessage = $state<HTMLParagraphElement | undefined>(undefined);
+
+  /**
+   * How many runs the log is holding, so the column can be absent until the first one.
+   *
+   * A fresh session gets the full-width bench it has always had, and the column arrives at the
+   * first roll — which is both the moment it becomes useful and the moment it teaches the user it
+   * exists. An always-present empty column would cost 14rem of bench to say nothing, and offer a
+   * Clear button with nothing to clear.
+   */
+  let sessionRunCount = $state(0);
+
+  /**
+   * The tool the bench has been asked to roll again, and with what.
+   *
+   * Transient state on the page, **never on `PanelState`** (decision 6 in docs/session-log.md).
+   * `PanelState` is persisted per project, so a cue stored there would replay whenever the project
+   * was reopened: a bench restored a week later would re-roll a settlement over whatever was in
+   * it. A bench is an arrangement, not work, and this is not even the arrangement.
+   */
+  let pendingCue = $state<ToolCue | undefined>(undefined);
 
   const openToolPaths = $derived(
     bench.panels
@@ -119,6 +146,14 @@
     }
   }
 
+  onMount(() => {
+    const refreshRunCount = () => {
+      sessionRunCount = sessionLogSize();
+    };
+    refreshRunCount();
+    return onSessionLogChanged(refreshRunCount);
+  });
+
   onMount(() =>
     onArtifactsChanged((change) => {
       artifactRevision += 1;
@@ -138,7 +173,12 @@
    * because swapping a tool out *is* closing its panel, just without a close button being the
    * thing that did it.
    */
-  async function openTool(tool: Tool) {
+  async function openTool(tool: Tool): Promise<boolean> {
+    // Any deliberate change of tool retires whatever the log last asked for. The cue lives only
+    // as long as the panel it was aimed at: without this, swapping a tool away and back would
+    // remount it and hand it a request the user made two tools ago.
+    pendingCue = undefined;
+
     const current = bench.panels.find((panel) => panel.toolPath !== undefined);
     if (
       current?.toolPath !== undefined &&
@@ -153,10 +193,33 @@
         dangerous: true,
       });
       if (!confirmed) {
-        return;
+        return false;
       }
     }
     updateBench(withPanelOpened(bench, { toolPath: tool.path }));
+    return true;
+  }
+
+  /**
+   * Put a run from the log back on the bench.
+   *
+   * It goes through the **existing** `openTool`, so the confirmation that protects a tool holding
+   * something unsaved protects it here too: replay must not become a second, quieter way to throw
+   * away work. The thing being protected is the outgoing tool, not the entry — an entry has never
+   * been saved and has no stored copy to overwrite, which is why replaying one destroys nothing.
+   *
+   * The cue's id is minted here rather than taken from the entry. Pressing the same entry twice is
+   * two distinct requests, and a tool watching the seed would swallow the second.
+   */
+  async function replayRun(entry: SessionLogEntry) {
+    const tool = toolFor(entry.toolPath);
+    if (tool === undefined) {
+      return;
+    }
+    if (!(await openTool(tool))) {
+      return;
+    }
+    pendingCue = { id: newSessionLogEntryId(), seed: entry.seed, config: entry.config };
   }
 
   function openArtifact(artifactId: string) {
@@ -188,6 +251,9 @@
       if (!confirmed) {
         return;
       }
+    }
+    if (panel.toolPath !== undefined) {
+      pendingCue = undefined;
     }
     updateBench(withPanelClosed(bench, targetOf(panel)));
     await placeFocusAfterClose(panel.order);
@@ -285,7 +351,7 @@
           {#if panel.toolPath !== undefined}
             {@const tool = toolFor(panel.toolPath)}
             {#if tool}
-              <ToolPanel {tool} />
+              <ToolPanel {tool} cue={pendingCue} />
             {/if}
           {:else if project !== undefined}
             <ArtifactPanel projectId={project.id} artifactId={panel.artifactId} />
@@ -300,6 +366,14 @@
         </p>
       {/each}
     </div>
+
+    <!-- Left to right the surface reads: what you can work with, what you are working on, what you
+         have made. Absent until the first roll — see `sessionRunCount`. -->
+    {#if sessionRunCount > 0}
+      <div class="workshop__log">
+        <SessionLogPanel onReplay={(entry) => void replayRun(entry)} />
+      </div>
+    {/if}
   </div>
 </section>
 
@@ -324,6 +398,19 @@
     flex-wrap: wrap;
     gap: 1rem;
     align-items: flex-start;
+    /* This row is a container, so the log below can ask about *it* rather than about the viewport.
+       That is not a preference. The width the columns wrap in is the page region — the viewport
+       less a sidebar whose width is decided by its own content — and the columns are sized in
+       `rem` against a root font size that itself scales with the viewport (`main.css` clamps it
+       between 1em and 1.25em). A media query can see neither, and a threshold guessed from the
+       viewport is wrong by several hundred pixels: measured, the three columns stopped fitting
+       somewhere between 1280px and 1400px depending on the window's *height*.
+
+       `inline-size` containment is safe here: this row's width already comes from its parent
+       rather than from its contents, and nothing inside a panel is positioned against the
+       viewport — the sidebar is the only fixed element on the site and it is not in here. */
+    container-type: inline-size;
+    container-name: workshop-layout;
   }
 
   .workshop__rail {
@@ -346,12 +433,45 @@
     align-items: flex-start;
   }
 
+  .workshop__log {
+    /* `flex-grow: 0` is the whole point: the bench takes the surplus and the log stays at its
+       basis, narrower than either neighbour however wide the window gets. The panel inside sets
+       the same flex on itself; this wrapper is what the breakpoint below can address. */
+    flex: 0 1 14rem;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Below the wrap the log goes full width instead of sitting on its own row as a 14rem stub
+     beside empty space.
+
+     60rem is the three columns' own arithmetic — 18 + 26 + 14 plus two 1rem gaps — asked of the
+     row they are in, so the log stops being a column at exactly the width it stops fitting beside
+     one. It resolves in the same `rem` the columns are sized in, which is what keeps the two in
+     step as the root font size scales.
+
+     Nothing in the e2e suite looks at this band: the mobile projects are all 430px and below,
+     where everything is stacked and full width already. It is checked by hand. */
+  @container workshop-layout (max-width: 60rem) {
+    .workshop__log {
+      flex-basis: 100%;
+      --session-log-max-height: 12rem;
+    }
+  }
+
   @media (max-width: 48rem) {
     .workshop__rail {
       /* On a phone the rail is stacked above the bench, so its lists are what stands between the
          user and the tool they just opened. Shorter here, taller where they sit beside it. */
       --tool-browser-max-height: 14rem;
       --project-view-max-height: 12rem;
+    }
+
+    .workshop__log {
+      /* Stacked under the bench on a phone, where a long list is what stands between the user and
+         the rest of the page. */
+      --session-log-max-height: 10rem;
     }
   }
 
