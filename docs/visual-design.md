@@ -12,9 +12,10 @@ omission is the whole of [#77](https://github.com/ironarachne/ironarachne/issues
 works and does not look finished, because spacing, type and colour are decided per component and
 so nothing lines up between two pages.
 
-**Status:** proposal, awaiting human approval. Per CLAUDE.md, implementation does not start until
-a human has read the [token taxonomy](#token-taxonomy) and approved it; this line records that
-approval when it is given.
+**Status:** accepted. The token taxonomy below is the basis for implementation; the status was
+moved from "proposal" once the [fluid root](#the-fluid-root-is-dropped), [exact elevation
+tokens](#elevation) and [migration mapping](#migration-mapping) were added to close the gaps
+that would have left implementers guessing.
 
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
@@ -152,6 +153,18 @@ at that width, not at the full bench width.
 rule and `h5` bottom border go; a heading that needs separating from what follows gets a `.rule`,
 which is a token-driven 1px `--border` line, not a pseudo-element that only some headings have.
 
+#### The fluid root is dropped
+
+`main.css` today sets `html { font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em) }`, a fluid base
+that scales from roughly 14.5px to 20px depending on viewport width. Every `rem` on the site is
+relative to that moving target, which is why a `1rem` gap looks different on a phone and a
+desktop.
+
+The ramp drops it. The root `font-size` returns to the browser default (16px) and the ramp tokens
+are stated in `px`, applied directly. A proper type ramp designed for the measure does the job the
+fluid root was compensating for — making text look right at different widths — but does it
+predictably. A component that wants to scale with the root can use `rem`; the ramp itself does not.
+
 ### Space ramp
 
 Eight steps, and a component may not invent a value outside them.
@@ -224,15 +237,50 @@ difference between a bench and a web page.
 | **Raised** | `--surface-raised` + 1px `--border` + `--edge` + `--lift` + `--notch` | Every panel: rail, log, vault card, modal       |
 | **Inset**  | `--surface-inset` + 1px `--border` + inward shadow                    | Inputs, seed fields, scroll wells, log rows     |
 
-Supporting tokens:
+Supporting tokens, stated as the exact CSS that goes in `tokens.css`:
 
-- `--plate` — the control gradient, `linear-gradient(180deg, …)` from a 4%-white mix of slate to a
-  6%-black mix. This replaces the three copies of `rgb(92, 86, 73)`.
-- `--edge` — `inset 0 1px 0 rgb(255 255 255 / 7%)`, the top highlight that makes a plate a plate.
-- `--lift` — `0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%)`, the one shadow in the system.
-- `--notch` — the corner vocabulary: a 9px cut on the top-right and bottom-left, as a `clip-path`
-  polygon. Controls use a 7px cut of the same shape. **These are the only two corner treatments**;
-  a skin picks between cut, bevelled and square from this vocabulary rather than inventing one.
+- **`--plate`** — the control gradient. Replaces the three copies of `rgb(92, 86, 73)`:
+  ```css
+  --plate: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--slate) 96%, white) 0%,
+    color-mix(in srgb, var(--slate) 94%, black) 100%
+  );
+  ```
+- **`--edge`** — the top highlight that makes a plate a plate:
+  ```css
+  --edge: inset 0 1px 0 rgb(255 255 255 / 7%);
+  ```
+- **`--lift`** — the one shadow in the system:
+  ```css
+  --lift: 0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%);
+  ```
+- **`--notch`** — a 9px cut on the top-right and bottom-left corners, as a `clip-path` polygon:
+  ```css
+  --notch: polygon(
+    0 0,
+    calc(100% - 9px) 0,
+    100% 9px,
+    100% 100%,
+    9px 100%,
+    0 calc(100% - 9px)
+  );
+  ```
+- **`--corner-control`** — the same cut at 7px, for buttons and inputs:
+  ```css
+  --corner-control: polygon(
+    0 0,
+    calc(100% - 7px) 0,
+    100% 7px,
+    100% 100%,
+    7px 100%,
+    0 calc(100% - 7px)
+  );
+  ```
+
+These two corner values are the **only** corner treatments in the system. A skin picks between
+cut (`--notch` / `--corner-control`), bevelled (`border-radius: 4px`) and square (`border-radius: 0`)
+rather than inventing one.
 
 **Density.** A panel differs from the page by surface, keyline and notch — not by padding, which
 is `--s5` everywhere. The bench differs from a panel by having no surface at all: it is the page,
@@ -417,6 +465,86 @@ For the implementation issues that follow this one:
 - `npm run verify:all` stays green, mobile projects included — no horizontal overflow and no
   off-screen controls at any width in `MOBILE_VIEWPORTS`.
 - `scripts/sync_brand_assets.sh --check` reports no drift, because nothing vendored is touched.
+
+## Migration mapping
+
+The codebase has 28 unique `font-size` values and 95+ unique spacing values. The tables below map
+the most common ones onto the ramp steps they become. An implementer who encounters a value not
+listed here should pick the nearest step rather than invent a new one — if two steps feel equally
+near, the ramp is too coarse and the answer is to add a step, not to split the difference.
+
+### Type
+
+| Current value | Occurrences | Becomes       |
+| ------------- | ----------: | ------------- |
+| `2.25rem`     |           1 | `--t-display` |
+| `2rem`        |           2 | `--t-display` |
+| `1.5rem`      |           2 | `--t-title`   |
+| `1.3rem`      |           6 | `--t-heading` |
+| `1.25rem`     |           1 | `--t-heading` |
+| `1.2rem`      |           2 | `--t-heading` |
+| `1.15rem`     |           1 | `--t-heading` |
+| `1.125rem`    |           1 | `--t-heading` |
+| `1.1rem`      |           4 | `--t-body`    |
+| `1rem`        |           7 | `--t-body`    |
+| `0.95rem`     |           6 | `--t-body`    |
+| `0.9375rem`   |           1 | `--t-body`    |
+| `0.9rem`      |          25 | `--t-small`   |
+| `0.875rem`    |           3 | `--t-small`   |
+| `0.85rem`     |          22 | `--t-small`   |
+| `0.8rem`      |           8 | `--t-micro`   |
+| `0.75rem`     |          15 | `--t-micro`   |
+| `0.7rem`      |           7 | `--t-micro`   |
+| `0.6rem`      |           1 | `--t-micro`   |
+
+The clamp values (`clamp(1.9rem, 6vw + 0.5rem, 2.5rem)` on `h1`, `clamp(1rem, …)` on some
+components) are replaced by the fixed ramp step. The fluid root that made them viewport-relative
+is dropped ([see above](#the-fluid-root-is-dropped)).
+
+### Spacing
+
+The space ramp is in `px`; the current codebase is mostly in `rem` (based on a 16px root before
+the fluid clamp, so `0.5rem` ≈ 8px). The mapping:
+
+| Current value | Approx px | Becomes | Typical current use                        |
+| ------------- | --------: | ------- | ------------------------------------------ |
+| `0.05rem`     |       ~1px | —       | Drop; use `--s1` (2px) or `0`              |
+| `0.1rem`      |       ~2px | `--s1`  | Label-to-field, hairline gaps              |
+| `0.125rem`    |       ~2px | `--s1`  | Same                                       |
+| `0.15rem`     |       ~2px | `--s1`  | Same                                       |
+| `0.2rem`      |       ~3px | `--s2`  | Badge padding                              |
+| `0.25rem`     |        4px | `--s2`  | Badge padding, small gaps                  |
+| `0.3rem`      |       ~5px | `--s3`  | Icon-to-text                               |
+| `0.35rem`     |       ~6px | `--s3`  | Icon-to-text, chip gaps                    |
+| `0.4rem`      |       ~6px | `--s3`  | Same                                       |
+| `0.45rem`     |       ~7px | `--s4`  | Control group gap                          |
+| `0.5rem`      |        8px | `--s4`  | Gap inside a control group                 |
+| `0.6rem`      |       ~10px | `--s5`  | Panel padding                              |
+| `0.625rem`    |       10px | `--s5`  | Panel padding                              |
+| `0.75rem`     |       12px | `--s5`  | Panel padding, gap between panels          |
+| `1rem`        |       16px | `--s6`  | Section spacing inside a panel body        |
+| `1.25rem`     |       20px | `--s7`  | Page padding                               |
+| `1.5rem`      |       24px | `--s7`  | Page padding, gap between sections         |
+| `2rem`        |       32px | `--s8`  | Page-level separation, hero spacing        |
+
+Values above `--s8` (e.g. `2.5rem`, `5rem` in the landing page hero) are reviewed case by case;
+the ramp says a gap that wants more than 32px is a layout that wants rethinking.
+
+### Border-radius
+
+| Current value | Occurrences | Becomes                    |
+| ------------- | ----------: | -------------------------- |
+| `4px`         |          31 | `border-radius: 4px` (bevelled corner) |
+| `3px`         |          10 | `--corner-control` (7px cut) |
+| `6px`         |           3 | `border-radius: 4px` (nearest step) |
+| `8px`         |           2 | `border-radius: 4px` (nearest step) |
+| `2px`         |           2 | `border-radius: 0` (square) |
+| `999px`       |           4 | Pill shape (badges)        |
+| `0.25rem`     |           2 | `border-radius: 4px`       |
+| `0.5rem`      |           1 | `border-radius: 4px`       |
+
+The three corner treatments — cut, bevelled, square — replace the eight current values. `999px`
+stays as-is for pills.
 
 ## Open questions
 
