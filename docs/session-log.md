@@ -13,10 +13,15 @@ workshop is a single route and a query parameter on it cannot say which panel it
 Designs [#80](https://github.com/ironarachne/ironarachne/issues/80). It sits inside
 [the workshop](workshop.md) and uses its bench, its tool catalog, and its RNG contract.
 
-**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved, so
-[the plan](#the-plan) is clear to start. What it is broken into is tracked on GitHub under the
-`workshop` label, as sub-issues of #80. Nothing in [Still open](#still-open) blocks it — the three
-questions there are presentation and scope, not shape.
+**Status:** implemented. Every step of [the plan](#the-plan) has landed — #84 the library, #85 the
+cue, #86 the column and replay, #87 the four tools that report. Two things were settled by building
+rather than by design, and both are recorded where they were decided: a tool declaring no props does
+**not** satisfy a `ToolPanelLoader` widened to `Component<ToolPanelProps>` (Svelte types props
+contravariantly), so the registry's type is unchanged and `toolPanelComponent` reconciles the two;
+and the wrap below the column is a **container query on the layout row**, not a viewport media
+query, because the row is the page region less a content-sized sidebar and the columns are sized in
+a `rem` that itself scales with the viewport. The three questions in
+[Still open](#still-open) are unchanged — they are presentation and scope, not shape.
 
 ## The problem
 
@@ -124,10 +129,21 @@ would cost 14rem of bench to say nothing and offer a Clear button with nothing t
 
 **Below the wrap the column goes full width.** `.workshop__layout` wraps, so around 60rem the log
 drops to its own row; left at a 14rem basis it would sit there as a stub beside empty space. It takes
-`flex-basis: 100%` under that breakpoint and a shorter `--session-log-max-height`, the way the rail's
-two lists already do at 48rem. This band is worth an explicit note: the mobile e2e widths are all
-430px and below, where everything is stacked and full width, so **nothing in the suite looks at
-900px** and the stub would ship unseen. See [the plan](#the-plan).
+`flex-basis: 100%` under that threshold and a shorter `--session-log-max-height`, the way the rail's
+two lists already do at 48rem.
+
+The threshold is a **container query on `.workshop__layout`**, not a viewport media query, and that
+was settled by measurement rather than by preference. The width the columns wrap in is the page
+region — the viewport less a sidebar whose width is decided by its own content — and they are sized
+in `rem` against a root font size `main.css` clamps between `1em` and `1.25em` against `vmin`. So the
+point at which three columns stop fitting moves with the window's _height_ as well as its width: a
+viewport breakpoint set at 1199px left a 260px stub on its own row at every width from 1200px to
+about 1360px. The container query asks the columns' own arithmetic — 18 + 26 + 14 plus two 1rem gaps
+— of the row they are actually in.
+
+This band is still worth an explicit note: the mobile e2e widths are all 430px and below, where
+everything is stacked and full width, so **nothing in the suite looks at 900px**. See
+[the plan](#the-plan).
 
 ### Replaying an entry
 

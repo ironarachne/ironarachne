@@ -22,13 +22,27 @@
   import { getAllFantasyNameGeneratorSets, type NameGeneratorSet } from '$lib/names';
   import { downloadTextPdf } from '$lib/pdf';
   import { RELIGION_ARTIFACT_KIND, type RestoredReligion } from '$lib/religion';
+  import { recordGeneration } from '$lib/session_log';
   import { showAlertModal } from '$lib/ui';
+  import type { ToolCue } from '$lib/workshop';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
   import ExportImportRow from '$components/common/ExportImportRow.svelte';
   import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+
+  const TOOL_PATH = '/culture';
+
+  type Props = {
+    /**
+     * A request from the session log to roll a particular culture again. Absent everywhere except
+     * a workshop panel that has been pressed in the log.
+     */
+    cue?: ToolCue;
+  };
+
+  const { cue }: Props = $props();
 
   const rng = new RNG.RNG(Date.now());
   const allNameSets = getAllFantasyNameGeneratorSets(rng);
@@ -126,15 +140,69 @@
     generate();
   }
 
-  function generate() {
-    if (!lockSeed) {
+  /**
+   * Where a replay says the culture on screen got its religion, for the one roll that honours it.
+   *
+   * A plain variable: it is read once, synchronously, inside the roll it belongs to, and putting
+   * it in the reactive graph would make it a second copy of the picker's state.
+   */
+  let cuedReligionSource: 'generate' | 'reference' | undefined;
+
+  function generate(keepSeed = false) {
+    if (!keepSeed && !lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
     genSet = rng.item(allNameSets);
     genConfig.nameGenerators = genSet;
-    genConfig.religionSource = religionSource;
-    culture = generateCulture(seed, genConfig);
+    genConfig.religionSource = cuedReligionSource ?? religionSource;
+    const rolled = generateCulture(seed, genConfig);
+    culture = rolled;
+
+    // Reported with the settings it rolled *with*: the resolved pattern set rather than the draw
+    // that chose it, and where this culture's religion actually came from rather than where the
+    // next roll would get one. The two differ the moment the picker is touched.
+    recordGeneration({
+      toolPath: TOOL_PATH,
+      summary: rolled.name,
+      seed,
+      config: {
+        nameGeneratorSet: rolled.nameGenerators.name,
+        religionSource: genConfig.religionSource,
+      },
+    });
+  }
+
+  /**
+   * The cue this panel has already acted on.
+   *
+   * Compared by id and not by contents: pressing the same log entry twice is two distinct
+   * requests, and comparing seeds would swallow the second. A plain variable rather than `$state`
+   * because nothing renders from it, which is also what keeps the effect from retriggering itself.
+   */
+  let lastCueId: string | undefined;
+
+  $effect(() => {
+    if (cue === undefined || cue.id === lastCueId) {
+      return;
+    }
+    lastCueId = cue.id;
+    applyCue(cue);
+  });
+
+  /**
+   * Roll a recorded run again.
+   *
+   * The recorded `nameGeneratorSet` is deliberately not applied: this generator draws its pattern
+   * set from the seed, so restoring the seed restores the set. It is recorded because provenance
+   * records it — a saved culture's re-roll has no seeded draw to reach back into.
+   */
+  function applyCue(request: ToolCue) {
+    const source = request.config.religionSource;
+    seed = request.seed;
+    cuedReligionSource = source === 'generate' || source === 'reference' ? source : undefined;
+    generate(true);
+    cuedReligionSource = undefined;
   }
 
   // The snapshot is what a project stores, and the generator already owns the conversion: the
@@ -242,7 +310,7 @@
   }
 </script>
 
-<GeneratorPage toolPath="/culture" theme="fantasy" title="Culture Generator">
+<GeneratorPage toolPath={TOOL_PATH} theme="fantasy" title="Culture Generator">
   {#snippet description()}
     <p>This generator lets you create fantasy cultures.</p>
   {/snippet}
@@ -261,11 +329,11 @@
     bind:problem={religionProblem}
   />
 
-  <button onclick={generate} disabled={awaitingReligion}>Generate</button>
+  <button onclick={() => generate()} disabled={awaitingReligion}>Generate</button>
 
   <SaveArtifactButton
     kind={CULTURE_ARTIFACT_KIND}
-    toolPath="/culture"
+    toolPath={TOOL_PATH}
     snapshot={cultureSnapshot}
     {seed}
     config={{

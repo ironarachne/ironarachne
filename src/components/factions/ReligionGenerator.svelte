@@ -36,7 +36,9 @@
     clearLoadParamFromUrl,
     readLoadCueFromUrl,
   } from '$lib/persistent_save';
+  import { recordGeneration } from '$lib/session_log';
   import { showAlertModal } from '$lib/ui';
+  import type { ToolCue } from '$lib/workshop';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
@@ -53,6 +55,18 @@
     institutional: 'Institutional',
     material: 'Material',
   };
+
+  const TOOL_PATH = '/fantasy/religion';
+
+  type Props = {
+    /**
+     * A request from the session log to roll a particular religion again. Absent everywhere except
+     * a workshop panel that has been pressed in the log.
+     */
+    cue?: ToolCue;
+  };
+
+  const { cue }: Props = $props();
 
   // One id per component instance: this generator may be mounted in a workshop panel and on its own
   // route at the same time, and two sets of checkboxes on a page must not collide on label `for`.
@@ -163,6 +177,8 @@
   });
 
   const humanNameGenSet = Names.getFantasyNameGeneratorSet('human', rng);
+  /** The pattern sets this build has, so a cue naming one it does not is dropped rather than thrown on. */
+  const knownNameGeneratorSets = Names.getFantasyNameGeneratorSetNames();
   const genConfig = getDefaultReligionGenerationConfig();
 
   const allSpecies = CommonSpecies.sentient();
@@ -199,8 +215,56 @@
   let rolledSettings: RolledSettings | undefined = $state();
   const settingsOnScreen = $derived(rolledSettings ?? liveSettings());
 
-  function generate() {
-    if (!lockSeed) {
+  /**
+   * The name pattern set a replay asked for, for the one roll that honours it.
+   *
+   * A plain variable: it is read once, synchronously, inside the roll it belongs to, and putting
+   * it in the reactive graph would make it a second copy of the picker's state.
+   */
+  let cuedNameGeneratorSet: string | undefined;
+
+  /**
+   * The culture credited with naming this roll.
+   *
+   * On an ordinary roll that is simply whichever culture the picker holds. On a replay it is that
+   * culture only when it is still the one whose tongue was used: crediting a culture whose names
+   * this religion was not given would claim an input it never had.
+   */
+  function cultureNamingThisRun(): Culture | undefined {
+    const picked = useSavedCulture ? culture : undefined;
+    if (cuedNameGeneratorSet === undefined) {
+      return picked;
+    }
+    return picked?.nameGenerators.name === cuedNameGeneratorSet ? picked : undefined;
+  }
+
+  /**
+   * The pattern set this roll names from.
+   *
+   * A cue names the set that was actually used, and it has to win over the picker — a pantheon
+   * named in a culture's tongue is the same pantheon only if it is named from the same set. Where
+   * the picker still holds that culture its own generators are used, which is exact; otherwise the
+   * set is rebuilt from its name, which is the same bargain `rollReligionSnapshot` makes for a
+   * saved religion's re-roll.
+   *
+   * Building a generator draws nothing from the RNG, so doing it here rather than at mount does
+   * not move the stream the pantheon is drawn from.
+   */
+  function namesForThisRun(): Names.NameGeneratorSet {
+    if (cuedNameGeneratorSet === undefined) {
+      return namingCulture?.nameGenerators ?? humanNameGenSet;
+    }
+    if (namingCulture?.nameGenerators.name === cuedNameGeneratorSet) {
+      return namingCulture.nameGenerators;
+    }
+    if (cuedNameGeneratorSet === humanNameGenSet.name) {
+      return humanNameGenSet;
+    }
+    return Names.getFantasyNameGeneratorSet(cuedNameGeneratorSet, rng);
+  }
+
+  function generate(keepSeed = false) {
+    if (!keepSeed && !lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
@@ -222,14 +286,107 @@
 
     // A referenced culture supplies the names and nothing else: its family generator names the
     // religion, and its personal ones name the gods.
-    namingCulture = useSavedCulture ? culture : undefined;
-    const names = namingCulture?.nameGenerators ?? humanNameGenSet;
+    namingCulture = cultureNamingThisRun();
+    const names = namesForThisRun();
     genConfig.nameGenerator = names.family;
     genConfig.femaleNameGenerator = names.female;
     genConfig.maleNameGenerator = names.male;
 
-    religion = generateReligion(seed, genConfig);
-    rolledSettings = { ...liveSettings(), nameGeneratorSet: names.name };
+    const rolled = generateReligion(seed, genConfig);
+    religion = rolled;
+    const settings = { ...liveSettings(), nameGeneratorSet: names.name };
+    rolledSettings = settings;
+
+    // Reported with the settings it rolled *with*, built from `settings` rather than from the
+    // controls: a config naming categories this religion was never drawn from would roll a religion
+    // of a different kind entirely and call it the same one.
+    recordGeneration({
+      toolPath: TOOL_PATH,
+      summary: rolled.name,
+      seed,
+      config: { ...generatorOptionsFor(settings), nameGeneratorSet: names.name },
+    });
+  }
+
+  /**
+   * The cue this panel has already acted on.
+   *
+   * Compared by id and not by contents: pressing the same log entry twice is two distinct
+   * requests, and comparing seeds would swallow the second. A plain variable rather than `$state`
+   * because nothing renders from it, which is also what keeps the effect from retriggering itself.
+   */
+  let lastCueId: string | undefined;
+
+  $effect(() => {
+    if (cue === undefined || cue.id === lastCueId) {
+      return;
+    }
+    lastCueId = cue.id;
+    applyCue(cue);
+  });
+
+  function isStringArray(value: unknown): value is string[] {
+    return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+  }
+
+  function isPolytheisticStanding(value: unknown): value is PolytheisticStandingMode {
+    return (
+      value === 'random' ||
+      value === 'egalitarian' ||
+      value === 'hierarchical' ||
+      value === 'balanced'
+    );
+  }
+
+  function isSpiritCosmologyDepth(value: unknown): value is SpiritCosmologyDepthMode {
+    return (
+      value === 'random' ||
+      value === 'none' ||
+      value === 'shallow' ||
+      value === 'moderate' ||
+      value === 'deep'
+    );
+  }
+
+  /**
+   * Put the controls back where they were for a recorded run, and roll it again.
+   *
+   * Names this build does not have are dropped rather than substituted, and a config that names
+   * none of them leaves the control alone: rolling from an empty pool is the one thing that cannot
+   * be done, and it is what the same reader in `$lib/religion` guards against too.
+   */
+  function applyCue(request: ToolCue) {
+    const config = request.config;
+    seed = request.seed;
+
+    if (isStringArray(config.selectedCategories)) {
+      const known = config.selectedCategories.filter((name) =>
+        allReligionCategoriesNames.includes(name),
+      );
+      if (known.length > 0) {
+        selectedCategories = known;
+      }
+    }
+    if (isStringArray(config.selectedSpecies)) {
+      const known = config.selectedSpecies.filter((name) => allSpeciesNames.includes(name));
+      if (known.length > 0) {
+        selectedSpecies = known;
+      }
+    }
+    if (isPolytheisticStanding(config.polytheisticStanding)) {
+      polytheisticStanding = config.polytheisticStanding;
+    }
+    if (isSpiritCosmologyDepth(config.spiritCosmologyDepth)) {
+      spiritCosmologyDepth = config.spiritCosmologyDepth;
+    }
+
+    cuedNameGeneratorSet =
+      typeof config.nameGeneratorSet === 'string' &&
+      knownNameGeneratorSets.includes(config.nameGeneratorSet)
+        ? config.nameGeneratorSet
+        : undefined;
+    generate(true);
+    cuedNameGeneratorSet = undefined;
   }
 
   /** What the controls above are set to now — which is what the *next* roll would use. */
@@ -243,16 +400,27 @@
     };
   }
 
-  function currentGeneratorOptions(): ReligionGeneratorOptionsSnapshot {
+  /**
+   * The options a given set of settings amounts to.
+   *
+   * Split out from {@link currentGeneratorOptions} so a roll can build the record from the
+   * settings it has just used, rather than reading it back through the derived that follows them:
+   * the two agree, and only one of them is obviously synchronous.
+   */
+  function generatorOptionsFor(settings: RolledSettings): ReligionGeneratorOptionsSnapshot {
     return {
       lockSeed,
-      selectedCategories: [...settingsOnScreen.selectedCategories],
-      selectedSpecies: [...settingsOnScreen.selectedSpecies],
-      polytheisticStanding: settingsOnScreen.polytheisticStanding,
-      spiritCosmologyDepth: settingsOnScreen.spiritCosmologyDepth,
+      selectedCategories: [...settings.selectedCategories],
+      selectedSpecies: [...settings.selectedSpecies],
+      polytheisticStanding: settings.polytheisticStanding,
+      spiritCosmologyDepth: settings.spiritCosmologyDepth,
       useSavedCulture: namingCulture !== undefined,
       savedCultureName: namingCulture?.name,
     };
+  }
+
+  function currentGeneratorOptions(): ReligionGeneratorOptionsSnapshot {
+    return generatorOptionsFor(settingsOnScreen);
   }
 
   /**
@@ -392,7 +560,7 @@
   }
 </script>
 
-<GeneratorPage toolPath="/fantasy/religion" theme="fantasy" title="Fantasy Religion Generator">
+<GeneratorPage toolPath={TOOL_PATH} theme="fantasy" title="Fantasy Religion Generator">
   {#snippet description()}
     <p>Generate a fictional fantasy religion.</p>
   {/snippet}
@@ -476,11 +644,11 @@
     bind:problem={cultureProblem}
   />
 
-  <button onclick={generate} disabled={awaitingCulture}>Generate</button>
+  <button onclick={() => generate()} disabled={awaitingCulture}>Generate</button>
 
   <SaveArtifactButton
     kind={RELIGION_ARTIFACT_KIND}
-    toolPath="/fantasy/religion"
+    toolPath={TOOL_PATH}
     snapshot={religionSnapshot}
     {seed}
     config={{ ...currentGeneratorOptions(), nameGeneratorSet }}

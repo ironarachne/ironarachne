@@ -8,6 +8,7 @@
   import { getFantasyNameGeneratorSetNames } from '$lib/names';
   import { downloadTextPdf } from '$lib/pdf';
   import { RELIGION_ARTIFACT_KIND, type RestoredReligion } from '$lib/religion';
+  import { recordGeneration } from '$lib/session_log';
   import {
     rollSettlement,
     settlementFileStem,
@@ -26,8 +27,19 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import type { ToolCue } from '$lib/workshop';
 
   const TOOL_PATH = '/fantasy/settlement';
+
+  type Props = {
+    /**
+     * A request from the session log to roll a particular settlement again. Absent everywhere
+     * except a workshop panel that has been pressed in the log.
+     */
+    cue?: ToolCue;
+  };
+
+  const { cue }: Props = $props();
 
   let seed = $state(new RNG(Date.now().toString()).randomString(13));
   let lockSeed = $state(false);
@@ -131,8 +143,8 @@
    * nothing else could reproduce — which made "same seed, same settlement" true only for as long
    * as nobody touched this file, and left a re-roll with no way to reproduce anything.
    */
-  function generate() {
-    if (!lockSeed) {
+  function generate(keepSeed = false) {
+    if (!keepSeed && !lockSeed) {
       seed = new RNG(Date.now().toString()).randomString(13);
     }
     const requestedSet = useSavedCulture ? culture?.nameGenerators.name : sanitisedNameSetName();
@@ -148,10 +160,66 @@
     settlement = rolled.settlement;
     // The resolved set, not the requested one: "any" recorded as provenance would make a re-roll a
     // fresh draw rather than the same settlement again.
-    rolledConfig = { ...config, nameGeneratorSet: rolled.nameGeneratorSet };
+    const runConfig = { ...config, nameGeneratorSet: rolled.nameGeneratorSet };
+    rolledConfig = runConfig;
     const namedFromCulture = useSavedCulture && culture !== undefined;
     rolledCultureReference = namedFromCulture ? cultureReference : undefined;
     rolledCultureName = namedFromCulture ? culture?.name : undefined;
+
+    // The session log is told what was rolled, with the config it rolled *with* — the same value
+    // provenance records, and for the same reason.
+    recordGeneration({
+      toolPath: TOOL_PATH,
+      summary: rolled.settlement.name,
+      seed,
+      config: runConfig,
+    });
+  }
+
+  /**
+   * The cue this panel has already acted on.
+   *
+   * Compared by id and not by contents: pressing the same log entry twice is two distinct
+   * requests, and comparing seeds would swallow the second. A plain variable rather than `$state`
+   * because nothing renders from it, which is also what keeps the effect from retriggering itself.
+   */
+  let lastCueId: string | undefined;
+
+  $effect(() => {
+    if (cue === undefined || cue.id === lastCueId) {
+      return;
+    }
+    lastCueId = cue.id;
+    applyCue(cue);
+  });
+
+  function isSizeFilter(value: unknown): value is SettlementSizeFilter {
+    return value === 'any' || value === 'small' || value === 'medium' || value === 'large';
+  }
+
+  /** Put the controls back where they were for a recorded run, and roll it again. */
+  function applyCue(request: ToolCue) {
+    const config = request.config;
+    seed = request.seed;
+    if (isSizeFilter(config.size)) {
+      sizeClass = config.size;
+    }
+    includeTrade = config.includeTrade === true;
+    includeProblems = config.includeProblems === true;
+    includeOrganizations = config.includeOrganizations === true;
+    includeNotables = config.includeNotables === true;
+    if (
+      typeof config.nameGeneratorSet === 'string' &&
+      nameSetNames.includes(config.nameGeneratorSet)
+    ) {
+      // The recorded set is the one that was *drawn*, so it has to win over both an "any" left in
+      // the control and a culture still in the picker — otherwise the same entry replays as a
+      // different town. Nothing is lost by releasing the picker: a culture only ever contributed
+      // the name of its pattern set, which is exactly what is being restored here.
+      useSavedCulture = false;
+      nameSetName = config.nameGeneratorSet;
+    }
+    generate(true);
   }
 
   function sanitisedNameSetName(): string | undefined {
@@ -258,7 +326,7 @@
   <CheckboxField id="notables" label="Important characters (1–2)" bind:checked={includeNotables} />
 
   <p>
-    <button type="button" onclick={generate} disabled={awaitingCulture}>Generate</button>
+    <button type="button" onclick={() => generate()} disabled={awaitingCulture}>Generate</button>
   </p>
 
   <SaveArtifactButton
