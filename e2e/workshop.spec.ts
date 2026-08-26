@@ -319,6 +319,121 @@ test.describe('the workshop bench', () => {
 });
 
 /**
+ * The session log: the column that remembers what the tools have rolled, and puts a roll back.
+ *
+ * Against the real generators rather than a fixture, because what is being proved is the wiring
+ * between a tool's `generate()`, the log, and the cue that reaches a mounted panel — three things
+ * no unit test can hold together at once.
+ */
+test.describe('the session log', () => {
+  const sessionLog = (page: Page) => page.locator('section.session-log');
+  const logEntries = (page: Page) => sessionLog(page).locator('.session-log__entry');
+
+  test.beforeEach(async ({ page }) => {
+    await openEmptyWorkshop(page);
+  });
+
+  test('is absent until something has been rolled', async ({ page }) => {
+    await expect(sessionLog(page)).toBeHidden();
+
+    await mountTool(page, /^Culture/);
+
+    // A generator rolls on mount, so the column arrives with the tool.
+    await expect(sessionLog(page)).toBeVisible();
+    await expect(logEntries(page)).toHaveCount(1);
+  });
+
+  test('says that nothing in it is stored', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+
+    await expect(sessionLog(page)).toContainText('nothing here is stored');
+  });
+
+  test('brings a roll back, and moves its entry to the top rather than copying it', async ({
+    page,
+  }) => {
+    await mountTool(page, /^Culture/);
+    const first = await logEntries(page).first().locator('.session-log__headline').textContent();
+
+    await panels(page).getByRole('button', { name: 'Generate', exact: true }).click();
+    await expect(logEntries(page)).toHaveCount(2);
+    const second = await logEntries(page).first().locator('.session-log__headline').textContent();
+    expect(second).not.toBe(first);
+    await expect(page.getByRole('heading', { name: `The ${second} Culture` })).toBeVisible();
+
+    // The older entry, which is the roll the user passed over.
+    await logEntries(page).nth(1).click();
+
+    await expect(page.getByRole('heading', { name: `The ${first} Culture` })).toBeVisible();
+    // Replaying is a real generation run and the tool reports every run it makes, so without the
+    // move-rather-than-duplicate rule this would be three.
+    await expect(logEntries(page)).toHaveCount(2);
+    await expect(logEntries(page).first()).toContainText(first ?? '');
+  });
+
+  test('mounts the entry’s own tool when another one is on the bench', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+    const culture = await logEntries(page).first().locator('.session-log__headline').textContent();
+
+    await mountTool(page, /^Heraldry/);
+    await expect(panelTitles(page)).toHaveText([/Heraldry/]);
+
+    await sessionLog(page)
+      .getByRole('button', { name: new RegExp(`^Roll ${culture} again`) })
+      .click();
+
+    await expect(panelTitles(page)).toHaveText([/Culture/]);
+    await expect(page.getByRole('heading', { name: `The ${culture} Culture` })).toBeVisible();
+  });
+
+  test('asks before it is cleared, and clearing takes the column with it', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+    await expect(logEntries(page)).toHaveCount(1);
+
+    const dialog = page.locator('dialog.ironarachne-modal');
+
+    await sessionLog(page).getByRole('button', { name: 'Clear' }).click();
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await expect(logEntries(page)).toHaveCount(1);
+
+    await sessionLog(page).getByRole('button', { name: 'Clear' }).click();
+    await dialog.getByRole('button', { name: 'Clear' }).click();
+
+    await expect(sessionLog(page)).toBeHidden();
+  });
+
+  /**
+   * The trap #87 names, end to end.
+   *
+   * The settlement generator's name set control sits on "any", and the set is drawn from the seed
+   * while the roll runs. An entry that recorded "any" would replay as a different town under the
+   * same seed, so what is being proved here is that the resolved set is what was written down.
+   */
+  test('brings back a settlement whose name set was left on “any”', async ({ page }) => {
+    await mountTool(page, /^Settlement/);
+    const first = await logEntries(page).first().locator('.session-log__headline').textContent();
+
+    await panels(page).getByRole('button', { name: 'Generate', exact: true }).click();
+    await expect(logEntries(page)).toHaveCount(2);
+
+    await logEntries(page).nth(1).click();
+
+    await expect(panels(page).getByRole('heading', { level: 2, name: first ?? '' })).toBeVisible();
+    await expect(logEntries(page)).toHaveCount(2);
+  });
+
+  test('does not outlive a reload', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+    await expect(sessionLog(page)).toBeVisible();
+
+    await page.reload({ waitUntil: 'load' });
+
+    // The bench is empty again with no project open, so nothing has rolled and nothing is logged.
+    await expect(sessionLog(page)).toBeHidden();
+  });
+});
+
+/**
  * The bench at phone width.
  *
  * `pages.mobile.spec.ts` visits `/workshop` at every width in the manifest, but it visits it

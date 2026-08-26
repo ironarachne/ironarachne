@@ -26,6 +26,7 @@
     type HeraldrySnapshot,
     buildFieldDivisionPreviewSvg,
     buildVariationPreviewSvg,
+    normalizeHeraldryGeneratorOptions,
     HERALDRY_ARTIFACT_KIND,
   } from '$lib/heraldry';
   import type { RNG } from '@ironarachne/rng';
@@ -38,7 +39,9 @@
 
   import type { Arms, Charge } from '$lib/heraldry';
   import { clearLoadParamFromUrl, readLoadCueFromUrl } from '$lib/persistent_save';
+  import { recordGeneration } from '$lib/session_log';
   import { showAlertModal } from '$lib/ui';
+  import type { ToolCue } from '$lib/workshop';
   import HeraldryTinctureSelect from '$components/heraldry/HeraldryTinctureSelect.svelte';
   import HeraldryPreviewSelect from '$components/heraldry/HeraldryPreviewSelect.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -46,7 +49,19 @@
   import LoadSnapshotDialog from '$components/common/LoadSnapshotDialog.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
 
+  const TOOL_PATH = '/heraldry';
+
   const HERALDRY_UI_PREVIEW_SIZE = 16;
+
+  type Props = {
+    /**
+     * A request from the session log to roll a particular coat of arms again. Absent everywhere
+     * except a workshop panel that has been pressed in the log.
+     */
+    cue?: ToolCue;
+  };
+
+  const { cue }: Props = $props();
 
   const CHARGE_TINCTURE_NAMES = [
     'gules',
@@ -271,8 +286,8 @@
     generate();
   }
 
-  function generate() {
-    if (!lockSeed) {
+  function generate(keepSeed = false) {
+    if (!keepSeed && !lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
@@ -310,6 +325,92 @@
     });
 
     applyHeraldryToPreview(generateHeraldry(config));
+
+    // Read at the end of the roll rather than during a later render, because that is the one
+    // moment the controls and the arms on screen are the same thing: every "any" above is resolved
+    // from the seed *while* this runs, and an entry recording the settings as they read afterwards
+    // would replay as different arms.
+    recordGeneration({
+      toolPath: TOOL_PATH,
+      summary: blazon,
+      seed,
+      config: { ...currentGeneratorOptions() },
+    });
+  }
+
+  /**
+   * The cue this panel has already acted on.
+   *
+   * Compared by id and not by contents: pressing the same log entry twice is two distinct
+   * requests, and comparing seeds would swallow the second. A plain variable rather than `$state`
+   * because nothing renders from it, which is also what keeps the effect from retriggering itself.
+   */
+  let lastCueId: string | undefined;
+
+  $effect(() => {
+    if (cue === undefined || cue.id === lastCueId) {
+      return;
+    }
+    lastCueId = cue.id;
+    applyCue(cue);
+  });
+
+  function readString(value: unknown, fallback: string): string {
+    return typeof value === 'string' ? value : fallback;
+  }
+
+  function isStringArray(value: unknown): value is string[] {
+    return Array.isArray(value) && value.every((entry) => typeof entry === 'string');
+  }
+
+  function isStringMatrix(value: unknown): value is string[][] {
+    return Array.isArray(value) && value.every((row) => isStringArray(row));
+  }
+
+  /**
+   * A recorded run's settings, read back into the shape the controls speak.
+   *
+   * Anything unrecognisable falls back to the default rather than being coerced, the same bargain
+   * `readReligionGeneratorConfig` and its siblings make: a setting this build misread would draw
+   * arms nobody asked for and call them the same ones. `lockSeed` is deliberately not restored —
+   * it says what the *next* roll should do, and this roll is being handed its seed anyway.
+   */
+  function optionsFromCue(config: Record<string, unknown>): HeraldryGeneratorOptionsSnapshot {
+    const defaults = defaultHeraldryGeneratorOptions();
+    return normalizeHeraldryGeneratorOptions({
+      heraldryTag: readString(config.heraldryTag, defaults.heraldryTag),
+      chargeTinctureName: readString(config.chargeTinctureName, defaults.chargeTinctureName),
+      numberOfChargesOption: readString(
+        config.numberOfChargesOption,
+        defaults.numberOfChargesOption,
+      ),
+      chargePosition: readString(config.chargePosition, defaults.chargePosition),
+      lockSeed,
+      ...(typeof config.fieldDivisionOption === 'string'
+        ? { fieldDivisionOption: config.fieldDivisionOption }
+        : {}),
+      ...(isStringArray(config.variationSlotOptions)
+        ? { variationSlotOptions: config.variationSlotOptions }
+        : {}),
+      ...(isStringMatrix(config.variationTinctureOptions)
+        ? { variationTinctureOptions: config.variationTinctureOptions }
+        : {}),
+    });
+  }
+
+  /** Put the controls back where they were for a recorded run, and roll it again. */
+  function applyCue(request: ToolCue) {
+    const options = optionsFromCue(request.config);
+    seed = request.seed;
+    heraldryTag = options.heraldryTag;
+    chargeTinctureName = options.chargeTinctureName;
+    numberOfChargesOption = options.numberOfChargesOption;
+    chargePosition = options.chargePosition;
+    applyFieldUiState(options);
+    // The charge pool follows the tag, and it is a plain variable rather than reactive state, so
+    // it has to be refreshed by hand — exactly as loading a saved coat of arms does.
+    changeCharges();
+    generate(true);
   }
 
   function randomNumberOfCharges(rng: RNG) {
@@ -407,7 +508,7 @@
   }
 </script>
 
-<GeneratorPage toolPath="/heraldry" theme="fantasy" title="Heraldry Generator">
+<GeneratorPage toolPath={TOOL_PATH} theme="fantasy" title="Heraldry Generator">
   {#snippet description()}
     <p>
       Generate fantasy coats-of-arms. Note: if you change the seed, the page URL won't change, but
@@ -516,7 +617,7 @@
   {/each}
 
   <button type="button" onclick={reset}>Reset</button>
-  <button onclick={generate}>Generate</button>
+  <button onclick={() => generate()}>Generate</button>
   <button onclick={downloadSvg} disabled={currentArms === null}>Download SVG</button>
   <button onclick={downloadPng} disabled={currentArms === null}>Download PNG</button>
   <button onclick={saveHeraldry} disabled={currentArms === null || isCurrentBlazonSaved}
@@ -526,7 +627,7 @@
 
   <SaveArtifactButton
     kind={HERALDRY_ARTIFACT_KIND}
-    toolPath="/heraldry"
+    toolPath={TOOL_PATH}
     snapshot={heraldrySnapshot}
     {seed}
     config={{ ...currentGeneratorOptions() }}
