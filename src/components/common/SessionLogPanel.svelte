@@ -89,7 +89,10 @@
 
 <section class="session-log">
   <div class="session-log__header">
-    <h2>Rolled this session</h2>
+    <!-- Short, because the column is 14rem wide and a two-line heading pushes Clear onto a line
+         of its own. What the list is of is said by the note under it and by each entry's tool
+         name, so the heading does not have to carry it. -->
+    <h2>This session</h2>
     <button type="button" class="session-log__clear" onclick={() => void clear()}>Clear</button>
   </div>
 
