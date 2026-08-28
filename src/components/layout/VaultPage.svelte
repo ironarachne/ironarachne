@@ -18,6 +18,7 @@
   import { hydrateProjects, listProjects, onProjectsChanged } from '$lib/projects';
   import { showConfirmModal } from '$lib/ui';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
+  import ListButton from '$components/common/ListButton.svelte';
   import ArtifactInspector from '$components/common/ArtifactInspector.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
@@ -202,15 +203,13 @@
           <ul>
             {#each group.artifacts as artifact (artifact.id)}
               <li>
-                <button
-                  type="button"
-                  class="vault__row {artifact.id === selectedId ? 'vault__row--selected' : ''}"
-                  aria-current={artifact.id === selectedId ? 'true' : undefined}
+                <ListButton
+                  selected={artifact.id === selectedId}
                   onclick={() => (selectedId = artifact.id)}
                 >
                   <span class="vault__row-name">{artifact.name}</span>
                   <span class="vault__row-project">{projectNameFor(artifact.id)}</span>
-                </button>
+                </ListButton>
               </li>
             {/each}
           </ul>
@@ -319,29 +318,6 @@
   .vault__list li {
     list-style-type: none;
     margin-left: 0;
-  }
-
-  .vault__row {
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    display: flex;
-    font-family: inherit;
-    gap: 0.5rem;
-    justify-content: space-between;
-    padding: 0.35rem 0.5rem;
-    text-align: left;
-    width: 100%;
-  }
-
-  .vault__row:hover {
-    background: var(--slate);
-    border-color: var(--granite);
-  }
-
-  .vault__row--selected {
-    background: var(--slate);
-    border-color: var(--tan);
   }
 
   .vault__row-name {

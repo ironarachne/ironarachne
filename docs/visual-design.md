@@ -625,6 +625,44 @@ and onto the panel is [#119](https://github.com/ironarachne/ironarachne/issues/1
 [#121](https://github.com/ironarachne/ironarachne/issues/121), one skin at a time, and pulling
 that forward here would put four genres' worth of untested surface in a controls change.
 
+### A list row
+
+A row in a list of choices — the tool browser's tools, the vault's artifacts, a project's
+contents, the session log's runs. Four lists had hand-rolled one of these each, with four sets of
+literals and three different corner radii between them; `ListButton` is the one of them.
+
+It is a button and takes none of the plate: no gradient, no 28px body, and **no uppercase**. Type
+is `--t-small` in the body face, sentence case, because a row is a name someone reads rather than
+a label they scan — a generated name in caps stops being the name.
+
+| Property | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Width    | Full, with the content laid out name-left, detail-right            |
+| Type     | `--t-small`, sentence case, `--ink`                                |
+| Padding  | `--s2` block, `--s4` inline                                        |
+| Corner   | `--corner-control`, with the same liner a button uses for its edge |
+| Gap      | `--s1` between rows                                                |
+
+| State        | Recipe                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| **Rest**     | No edge and no fill. The row shows the surface it sits on.                                       |
+| **Hover**    | `--accent` edge over an 18% accent fill.                                                         |
+| **Selected** | `--accent-quiet` edge over a 22% fill, and `--s3` block padding — the current row stands taller. |
+| **Focus**    | The inset ring, as on every clipped control.                                                     |
+
+**The selected row is taller on purpose.** Gold against green says which one the list is on rather
+than which one the pointer is over, and the extra two pixels a side make it findable down a long
+list without reading it — the same job the sidebar's current destination does with a marker. It is
+the one place in the system where a state changes a control's size, so it transitions at
+`--motion-swift` like everything else.
+
+**The fills are opaque**, mixed into `--surface-inset` rather than into `transparent`. That is
+forced by the two-layer edge: a translucent liner lets the edge colour through across the whole
+row, and the row reads as solid green instead of edged. It also makes a row look the same on the
+page as it does on a panel, which the four translucent versions did not.
+
+Selected plus hover is selected, for the reason [a nav item](#a-nav-item) gives.
+
 ### Navigation, badges and modals
 
 **Navigation** is the one shape that breaks the button rule on purpose: flush to the left edge,

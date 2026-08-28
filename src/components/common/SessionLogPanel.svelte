@@ -14,6 +14,7 @@
   import { findToolByPath } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
   import { hasToolPanel } from '$lib/workshop';
+  import ListButton from '$components/common/ListButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
@@ -118,16 +119,16 @@
                  single-route workshop that action is not navigation: it mounts a panel and signals
                  it. An anchor to /fantasy/settlement would take the user off the bench, which is
                  the opposite of what the log is for. -->
-            <button
-              type="button"
+            <ListButton
               class="session-log__entry"
+              stacked
               aria-label={runAccessibleName(entry, label, now)}
               title={`seed ${entry.seed}${settings === '' ? '' : `\n${settings}`}`}
               onclick={() => onReplay?.(entry)}
             >
               <span class="session-log__headline">{runHeadline(entry)}</span>
               <span class="session-log__meta">{label} · {runAge(entry.at, now)}</span>
-            </button>
+            </ListButton>
           </li>
         {/each}
       </ul>
@@ -194,34 +195,6 @@
   .session-log li {
     list-style-type: none;
     margin: 0;
-  }
-
-  .session-log__entry {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-    width: 100%;
-    margin: 0 0 0.15rem;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    background: transparent;
-    color: white;
-    font-family: inherit;
-    font-size: 0.9rem;
-    line-height: 1.3;
-    text-align: left;
-  }
-
-  .session-log__entry:hover {
-    border: 1px solid var(--iron-arachne-green);
-    background: color-mix(in srgb, var(--iron-arachne-green) 15%, transparent);
-  }
-
-  .session-log__entry:active {
-    transform: none;
-    background: color-mix(in srgb, var(--iron-arachne-green) 30%, transparent);
-    color: white;
   }
 
   .session-log__headline {

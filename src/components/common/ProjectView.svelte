@@ -17,6 +17,7 @@
   import { showConfirmModal } from '$lib/ui';
   import { buildArtifactExportFile } from '$lib/vault_file';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
+  import ListButton from '$components/common/ListButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
@@ -267,10 +268,9 @@
           {#each group.artifacts as summary (summary.id)}
             {@const isOpen = open.has(summary.id)}
             <li>
-              <button
-                type="button"
-                class="project-view__artifact {isOpen ? 'project-view__artifact--open' : ''}"
-                aria-current={isOpen ? 'true' : undefined}
+              <ListButton
+                class="project-view__artifact"
+                selected={isOpen}
                 onclick={() => onOpenArtifact?.(summary.id)}
               >
                 <span class="project-view__name">{summary.name}</span>
@@ -282,7 +282,7 @@
                 {#if isOpen}
                   <span class="project-view__badge">Open</span>
                 {/if}
-              </button>
+              </ListButton>
               <BaseButton
                 class="project-view__row-action"
                 aria-label="Export {summary.name}"
@@ -409,33 +409,11 @@
     margin: 0 0 0.15rem;
   }
 
-  .project-view__artifact {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+  /* The row sits beside two action buttons in the same `li`, so it takes the space they leave.
+     Everything else about how it looks is `ListButton`'s. */
+  :global(.project-view__artifact) {
     flex: 1 1 auto;
     min-width: 0;
-    margin: 0;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    background: transparent;
-    color: white;
-    font-family: inherit;
-    font-size: 0.95rem;
-    line-height: 1.3;
-    text-align: left;
-  }
-
-  .project-view__artifact:hover {
-    border: 1px solid var(--iron-arachne-green);
-    background: color-mix(in srgb, var(--iron-arachne-green) 15%, transparent);
-  }
-
-  .project-view__artifact--open {
-    border: 1px solid var(--gold);
-    background: color-mix(in srgb, var(--gold) 20%, transparent);
   }
 
   :global(.project-view__row-action) {

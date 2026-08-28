@@ -7,6 +7,7 @@
     systemDisplayName,
   } from '$lib/tools';
   import type { GameSystem, Genre, Tool } from '$lib/tools';
+  import ListButton from '$components/common/ListButton.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
 
   type Props = {
@@ -139,10 +140,9 @@
         {#each group.tools as tool (tool.path)}
           {@const isActive = loadedPaths.has(tool.path)}
           <li>
-            <button
-              type="button"
-              class="tool-browser__tool {isActive ? 'tool-browser__tool--active' : ''}"
-              aria-current={isActive ? 'true' : undefined}
+            <ListButton
+              class="tool-browser__tool"
+              selected={isActive}
               onclick={() => selectTool(tool)}
             >
               <span class="tool-browser__name">{tool.label}</span>
@@ -159,7 +159,7 @@
                 {/if}
                 <ToolMaturityBadge maturity={tool.maturity} plain />
               </span>
-            </button>
+            </ListButton>
           </li>
         {/each}
       </ul>
@@ -261,40 +261,6 @@
   .tool-browser li {
     list-style-type: none;
     margin: 0;
-  }
-
-  .tool-browser__tool {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    width: 100%;
-    margin: 0 0 0.15rem;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    background: transparent;
-    color: white;
-    font-family: inherit;
-    font-size: 0.95rem;
-    line-height: 1.3;
-    text-align: left;
-  }
-
-  .tool-browser__tool:hover {
-    border: 1px solid var(--iron-arachne-green);
-    background: color-mix(in srgb, var(--iron-arachne-green) 15%, transparent);
-  }
-
-  .tool-browser__tool:active {
-    transform: none;
-    background: color-mix(in srgb, var(--iron-arachne-green) 30%, transparent);
-    color: white;
-  }
-
-  .tool-browser__tool--active {
-    border: 1px solid var(--gold);
-    background: color-mix(in srgb, var(--gold) 20%, transparent);
   }
 
   .tool-browser__name {
