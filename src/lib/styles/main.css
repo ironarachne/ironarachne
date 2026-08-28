@@ -49,10 +49,6 @@ img {
   height: auto;
 }
 
-button {
-  font-family: 'cinzel', system-ui, Helvetica, sans-serif;
-}
-
 h1,
 h2,
 h3,
@@ -127,28 +123,8 @@ p {
   margin: 1rem 0;
 }
 
-label {
-  font-weight: 700;
-  margin-right: 1rem;
-}
-
 article {
   margin: 1rem 0;
-}
-
-input,
-select {
-  font-size: 1rem;
-  line-height: 1rem;
-  padding: 0.25rem;
-  /* A select is as wide as its longest option, which on a narrow phone can be
-     wider than the screen. Border-box keeps the padding inside that limit. */
-  box-sizing: border-box;
-  max-width: 100%;
-}
-
-div.input-group {
-  margin-bottom: 1rem;
 }
 
 ul {
@@ -189,39 +165,327 @@ table {
 
 pre {
   font-family: monospace;
-  background-color: #454343;
-  color: #fff;
-  padding: 0.5rem;
-  font-size: 0.85rem;
+  background-color: var(--surface-inset);
+  color: var(--ink);
+  padding: var(--s4);
+  font-size: var(--t-small-size);
 }
+
+/* ---- Controls -------------------------------------------------------------------------------
+   docs/visual-design.md, "Control vocabulary". A button is a stamped plate and an input is the
+   inverse of one, sunk into the surface; both are reached from the element selector rather than
+   from a class, because there are about 120 buttons across `src/components` and `src/routes` and
+   a system that only reached the annotated ones would leave most of the app on the old gradient.
+
+   The three literal `rgb(92, 86, 73)` gradients this replaces lived here, in `fantasy.css` and in
+   `modal.css`. There is now one, in `tokens.css`, and the variants below mix from it. */
 
 button {
-  background: rgb(92, 86, 73);
-  background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-  border: 3px solid var(--tan);
-  border-radius: 3px;
-  color: #fff;
-  font-size: 1rem;
-  line-height: 1rem;
-  margin: 0.1rem;
-  padding: 0.5rem 1rem;
+  /* The ring rides in a custom property so that every state can compose it into its own shadow
+     list. Declared transparent here and only ever set by `:focus-visible`, it means a pressed or
+     hovered button keeps its ring instead of losing it to whichever rule won the cascade — which
+     is what the design means by "never traded away". */
+  --btn-ring: 0 0 rgb(0 0 0 / 0%);
+
+  /* The edge and the fill are properties rather than declarations, and that is what lets one set
+     of rules dress two different markups. A plain `<button>` paints the fill as its background and
+     the edge as its border; `BaseButton` paints the edge across its whole box and covers all but a
+     pixel of it with a liner, which is the only way to keep a border on a clipped diagonal. A
+     variant or a state sets these two colours and never touches either rendering. */
+  --btn-edge: var(--border-strong);
+  --btn-fill: var(--plate);
+
+  background: var(--btn-fill);
+  border: 1px solid var(--btn-edge);
+  box-shadow: var(--edge), var(--btn-ring);
+  box-sizing: border-box;
+  clip-path: var(--corner-control);
+  color: var(--ink);
+  cursor: pointer;
+  font: var(--t-micro);
+  letter-spacing: var(--t-micro-tracking);
+  min-height: 28px;
+  /* `--s2` and not `--s3`: with a 1px border and a 15.4px line, `--s3` puts the box at 29.4px and
+     the min-height never binds — a plain button then stands a pixel taller than a lined one, which
+     is the kind of difference nobody can name and everybody can see. At `--s2` the min-height is
+     what sets the height, and both markups land on 28. */
+  padding: var(--s2) var(--s5);
+  text-transform: uppercase;
+  /* Every state change is animated, and all of them at `--motion-swift`: the plate brightens
+     under `filter` because a gradient cannot be transitioned as a colour, and the 1px hover lift
+     and 1px press drop are the whole of the movement. Nothing in the interface animates for
+     longer than 120ms, and all of it stops under `prefers-reduced-motion` at the foot of this
+     file. */
+  transition:
+    border-color var(--motion-swift) ease,
+    box-shadow var(--motion-swift) ease,
+    color var(--motion-swift) ease,
+    filter var(--motion-swift) ease,
+    transform var(--motion-swift) ease;
 }
 
-button:active {
-  background: rgb(92, 86, 73);
-  background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-  color: var(--iron-arachne-green);
-  transform: translateY(2px);
+button:hover:not(:disabled) {
+  --btn-edge: var(--focus);
+
+  box-shadow:
+    var(--edge),
+    0 0 6px color-mix(in srgb, var(--focus) 30%, transparent),
+    var(--btn-ring);
+  filter: brightness(1.08);
+  transform: translateY(-1px);
 }
 
+/* The press drops the plate into its own inset shadow and turns the label `--accent`. It reads as
+   a press because the highlight goes: `--edge` is what says "raised", so a state that keeps it
+   while claiming to be pushed in is the thing that feels wrong without being nameable. */
+button:active:not(:disabled) {
+  box-shadow:
+    inset 0 2px 4px rgb(0 0 0 / 45%),
+    var(--btn-ring);
+  color: var(--accent);
+  filter: brightness(0.95);
+  transform: translateY(1px);
+}
+
+/* Inside, not outside, and this is the one place the system departs from "a 2px outline at 2px
+   offset". `clip-path` clips everything the element paints, so an outline at a positive offset
+   lies wholly outside the clip region and paints nothing at all — a cut-cornered button declaring
+   one has no focus ring, silently. The unclipped controls below keep the outline. */
+button:focus-visible {
+  --btn-ring: inset 0 0 0 2px var(--focus);
+
+  outline: none;
+}
+
+/* The one state that drops the plate entirely. A greyed gradient still reads as a raised object,
+   and a raised object reads as pressable. */
 button:disabled {
-  background: #666;
-  color: #777;
-  border-color: #999;
+  --btn-edge: var(--border);
+  --btn-fill: var(--surface-inset);
+
+  box-shadow: none;
+  color: var(--ink-faint);
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
 }
 
-button:hover {
-  border: 3px solid white;
+/* Primary is a claim about the page, not about the button: a surface with two primaries has none.
+   A variant sets a fill, a keyline and a label colour and inherits every bit of the geometry. */
+.btn-primary {
+  --btn-edge: var(--accent-quiet);
+  --btn-fill: var(--plate-primary);
+}
+
+.btn-quiet {
+  --btn-edge: var(--border);
+  --btn-fill: none;
+
+  box-shadow: var(--btn-ring);
+  color: var(--ink-muted);
+}
+
+.btn-quiet:hover:not(:disabled) {
+  --btn-fill: var(--surface-inset);
+
+  color: var(--ink);
+}
+
+/* Crimson is 2.2:1 on charcoal and is never the label. Destructive intent is the edge and the
+   fill, under `--ink`-coloured text. */
+.btn-destructive {
+  --btn-edge: var(--danger);
+  --btn-fill: var(--plate-danger);
+}
+
+/* 28×28 and square. A 7px cut on a 28px square eats the glyph, and being unclipped is also what
+   lets this one carry the ordinary outside ring. */
+.btn-icon {
+  align-items: center;
+  clip-path: none;
+  display: inline-flex;
+  justify-content: center;
+  min-height: 28px;
+  padding: 0;
+  width: 28px;
+}
+
+.btn-icon:focus-visible {
+  --btn-ring: 0 0 rgb(0 0 0 / 0%);
+
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+/* Composes with any of the above. The type does not shrink with it: `--t-micro` is the floor of
+   the ramp, and a control set below it stops being readable before it stops being small. */
+.btn-sm {
+  min-height: 24px;
+  padding: var(--s2) var(--s4);
+}
+
+/* `body :not(:is(h1, h2, h3, h4, h5, h6)) { line-height: 1.75 }` near the top of this file is two
+   selectors' worth of specificity and outranks the element rules above, so a control's line height
+   was coming from prose rather than from its own ramp step — which is why a plain button stood
+   33px tall against a `BaseButton`'s 28px. Restated here at a weight that wins. The global rule is
+   the type work's to remove, not this issue's. */
+body :is(button, select) {
+  line-height: var(--t-micro-line);
+}
+
+body :is(input, textarea) {
+  line-height: var(--t-small-line);
+}
+
+/* An input is the inverse of a button, and deliberately unclipped: a cut corner on a text field
+   puts the diagonal exactly where the caret sits at the end of a long value, and would cost the
+   outside focus ring as well. Checkboxes and radios are excluded — the native box is already the
+   right shape, and rebuilding its checked and indeterminate states by hand buys nothing. */
+input:not([type='checkbox'], [type='radio']),
+select,
+textarea {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  /* A select is as wide as its longest option, which on a narrow phone can be wider than the
+     screen. Border-box keeps the padding inside that limit. */
+  box-sizing: border-box;
+  box-shadow: var(--sink);
+  color: var(--ink);
+  font: var(--t-small);
+  max-width: 100%;
+  min-height: 28px;
+  padding: var(--s2) var(--s4);
+  transition:
+    border-color var(--motion-swift) ease,
+    box-shadow var(--motion-swift) ease;
+}
+
+input:not([type='checkbox'], [type='radio']):hover:not(:disabled),
+select:hover:not(:disabled),
+textarea:hover:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+input:not([type='checkbox'], [type='radio']):focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+input[type='checkbox']:focus-visible,
+input[type='radio']:focus-visible {
+  border-color: var(--focus);
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+input:disabled,
+select:disabled,
+textarea:disabled {
+  color: var(--ink-faint);
+  cursor: not-allowed;
+}
+
+/* The native box, in the site's accent. */
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--accent);
+  block-size: 16px;
+  inline-size: 16px;
+  margin: 0;
+}
+
+/* A label names the field below it, so it is a kicker rather than a heading: `--t-micro` at
+   `--ink-faint`, which the ramp holds at 4.5:1 for exactly this size. The rule this replaces —
+   `font-weight: 700; margin-right: 1rem` — was written for a label sitting beside its field. */
+label {
+  color: var(--ink-faint);
+  font: var(--t-micro);
+  letter-spacing: var(--t-micro-tracking);
+  text-transform: uppercase;
+}
+
+/* `align-items` is not decoration here. The group was a plain block before, so a field took its
+   natural width; a flex column stretches its children, and every seed field and select on the
+   site would silently become as wide as the measure. A control is sized by what it holds. */
+.input-group {
+  align-items: flex-start;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s1);
+  margin-block-end: var(--s6);
+}
+
+/* A checkbox reads the other way round — the box first, then the label — and there the label is
+   the thing being clicked rather than a name for what is below it, so it takes `--ink`. */
+.input-group--inline {
+  align-items: center;
+  flex-direction: row;
+  gap: var(--s3);
+}
+
+.input-group--inline label,
+.inline-label {
+  color: var(--ink);
+}
+
+/* A label wrapped around its own checkbox — the lock beside a seed field is the one every
+   generator has. It is a row whether or not the group around it is, which is why it carries the
+   layout rather than inheriting it. */
+.inline-label {
+  align-items: center;
+  display: inline-flex;
+  gap: var(--s3);
+}
+
+/* The tap area is 44px under a coarse pointer, and the control itself grows to it. This is not
+   the invisible `::after` overlay the top bar's icon button uses: that keeps a 28px plate at a
+   44px target by painting 8px past the control on each side, which is right for one button alone
+   in a 44px row and wrong in a wrapping row of controls `--s5` apart, where two overlays meet in
+   the middle and the overlap is a mis-tap. Where controls sit beside one another the target has
+   to be the control.
+
+   The condition is the pointer and not the width: a touch laptop at 1280px wants the same target,
+   and a phone plugged into a mouse does not. */
+@media (pointer: coarse) {
+  button,
+  .btn-sm,
+  input:not([type='checkbox'], [type='radio']),
+  select,
+  textarea {
+    min-height: 44px;
+  }
+
+  .btn-icon {
+    width: 44px;
+  }
+
+  .input-group--inline label,
+  .inline-label {
+    align-items: center;
+    display: inline-flex;
+    min-height: 44px;
+  }
+
+  input[type='checkbox'],
+  input[type='radio'] {
+    block-size: 24px;
+    inline-size: 24px;
+  }
+}
+
+/* Reduced motion takes the movement, not the state: hover still lights the keyline and press
+   still drops the highlight and turns the label — they simply arrive rather than travel. A
+   control that stopped responding would be a worse answer than one that responds instantly. */
+@media (prefers-reduced-motion: reduce) {
+  button,
+  input,
+  select,
+  textarea {
+    transition: none;
+  }
+
+  button:hover:not(:disabled),
+  button:active:not(:disabled) {
+    transform: none;
+  }
 }
 
 /* The prose wrapper. Every page that is mostly text uses it, and it is what carries the measure
@@ -233,7 +497,10 @@ section.main {
   margin-inline: auto;
 }
 
-#seed {
+/* The seed field is an input in a monospace face. Styled by class rather than by `#seed`: the id
+   is what the e2e suite pins a generator's seed through, and an id selector doing a component's
+   styling is how a page with two seed fields ends up with two elements sharing one id. */
+.seed-field {
   font-family: monospace;
 }
 

@@ -48,6 +48,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import LoadSnapshotDialog from '$components/common/LoadSnapshotDialog.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const TOOL_PATH = '/heraldry';
 
@@ -616,14 +617,14 @@
     {/each}
   {/each}
 
-  <button type="button" onclick={reset}>Reset</button>
-  <button onclick={() => generate()}>Generate</button>
-  <button onclick={downloadSvg} disabled={currentArms === null}>Download SVG</button>
-  <button onclick={downloadPng} disabled={currentArms === null}>Download PNG</button>
-  <button onclick={saveHeraldry} disabled={currentArms === null || isCurrentBlazonSaved}
-    >Save</button
+  <BaseButton onclick={reset}>Reset</BaseButton>
+  <BaseButton onclick={() => generate()}>Generate</BaseButton>
+  <BaseButton onclick={downloadSvg} disabled={currentArms === null}>Download SVG</BaseButton>
+  <BaseButton onclick={downloadPng} disabled={currentArms === null}>Download PNG</BaseButton>
+  <BaseButton onclick={saveHeraldry} disabled={currentArms === null || isCurrentBlazonSaved}
+    >Save</BaseButton
   >
-  <button type="button" onclick={openLoadDialog}>Load...</button>
+  <BaseButton onclick={openLoadDialog}>Load...</BaseButton>
 
   <SaveArtifactButton
     kind={HERALDRY_ARTIFACT_KIND}

@@ -35,27 +35,8 @@
     animation: shimmering-gold 8s linear infinite;
   }
 
-  & button {
-    background: rgb(92, 86, 73);
-    background: linear-gradient(165deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-    border: 3px solid var(--tan);
-    border-radius: 3px;
-    color: #fff;
-    line-height: 1rem;
-    margin: 0.1rem;
-    padding: 0.5rem 1rem;
-  }
-
-  & button:active {
-    background: rgb(92, 86, 73);
-    background: linear-gradient(339deg, rgba(92, 86, 73, 1) 0%, rgba(10, 10, 10, 1) 100%);
-    color: var(--iron-arachne-green);
-    transform: translateY(2px);
-  }
-
-  & button:disabled {
-    background: #666;
-    color: #777;
-    border-color: #999;
-  }
+  /* No `button` rule. A skin may set a surface, a keyline, a corner, an accent hue and one
+     ambient effect; control geometry is not on that list, and a skin's copy of the old gradient
+     would outrank the control system wherever a genre is applied. See docs/visual-design.md,
+     decision 2 and "What this leaves to the skins". */
 }

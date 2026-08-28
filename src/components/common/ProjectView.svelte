@@ -17,6 +17,9 @@
   import { showConfirmModal } from '$lib/ui';
   import { buildArtifactExportFile } from '$lib/vault_file';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
+  import ListButton from '$components/common/ListButton.svelte';
+  import DeleteButton from '$components/common/DeleteButton.svelte';
+  import ExportButton from '$components/common/ExportButton.svelte';
 
   type Props = {
     /** The open project, or undefined when there is none. */
@@ -202,7 +205,7 @@
     <p class="project-view__empty">No project open. Create one to start keeping what you make.</p>
   {:else}
     <div class="project-view__filters">
-      <div class="input-group">
+      <div class="input-group input-group--inline">
         <label for={filterId}>Find</label>
         <input
           id={filterId}
@@ -214,7 +217,7 @@
       </div>
 
       {#if presentKinds.length > 1}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for={kindId}>Kind</label>
           <select id={kindId} bind:value={kindFilter}>
             <option value="">All kinds</option>
@@ -266,11 +269,9 @@
           {#each group.artifacts as summary (summary.id)}
             {@const isOpen = open.has(summary.id)}
             <li>
-              <button
-                type="button"
+              <ListButton
                 class="project-view__artifact"
-                class:project-view__artifact--open={isOpen}
-                aria-current={isOpen ? 'true' : undefined}
+                selected={isOpen}
                 onclick={() => onOpenArtifact?.(summary.id)}
               >
                 <span class="project-view__name">{summary.name}</span>
@@ -282,24 +283,13 @@
                 {#if isOpen}
                   <span class="project-view__badge">Open</span>
                 {/if}
-              </button>
-              <button
-                type="button"
-                class="project-view__row-action"
-                aria-label="Export {summary.name}"
+              </ListButton>
+              <ExportButton
+                label="Export {summary.name}"
                 title="Export"
                 onclick={() => void exportArtifact(summary)}
-              >
-                ⤓
-              </button>
-              <button
-                type="button"
-                class="project-view__row-action"
-                aria-label="Delete {summary.name}"
-                onclick={() => remove(summary)}
-              >
-                ×
-              </button>
+              />
+              <DeleteButton label="Delete {summary.name}" onclick={() => remove(summary)} />
             </li>
           {/each}
         </ul>
@@ -351,10 +341,9 @@
     align-items: center;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .project-view .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }
@@ -404,51 +393,22 @@
     padding: 0;
   }
 
+  /* `center`, not `stretch`: the two round buttons carry their own 28px height, so stretching the
+     line lands them at the top of a row that is taller than they are. The gap between rows is the
+     row's own `--s1` margin rather than one here, or the two stack. */
   .project-view li {
+    align-items: center;
     display: flex;
-    align-items: stretch;
-    gap: 0.25rem;
+    gap: var(--s2);
     list-style-type: none;
-    margin: 0 0 0.15rem;
+    margin: 0;
   }
 
-  .project-view__artifact {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
+  /* The row sits beside two action buttons in the same `li`, so it takes the space they leave.
+     Everything else about how it looks is `ListButton`'s. */
+  :global(.project-view__artifact) {
     flex: 1 1 auto;
     min-width: 0;
-    margin: 0;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    background: transparent;
-    color: white;
-    font-family: inherit;
-    font-size: 0.95rem;
-    line-height: 1.3;
-    text-align: left;
-  }
-
-  .project-view__artifact:hover {
-    border: 1px solid var(--iron-arachne-green);
-    background: color-mix(in srgb, var(--iron-arachne-green) 15%, transparent);
-  }
-
-  .project-view__artifact--open {
-    border: 1px solid var(--gold);
-    background: color-mix(in srgb, var(--gold) 20%, transparent);
-  }
-
-  .project-view__row-action {
-    /* Two of these sit beside every row, so they are sized to the smallest comfortable tap target
-       rather than to their glyph — a row on a 320px phone has to hold both without wrapping. */
-    flex-shrink: 0;
-    min-width: 2.5rem;
-    margin: 0;
-    padding: 0.2rem 0.4rem;
-    line-height: 1;
   }
 
   .project-view__name {

@@ -86,6 +86,7 @@
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   // The builder keeps its own header — the h1 shares a row with Reset — rather than mounting
   // `GeneratorPage`, so it states its maturity itself. The value still comes from the catalog.
@@ -779,7 +780,7 @@
 <section class="fantasy main">
   <header class="builder-header">
     <h1>AD&D 2e Character Builder</h1>
-    <button type="button" onclick={resetBuilderForm}>Reset</button>
+    <BaseButton onclick={resetBuilderForm}>Reset</BaseButton>
   </header>
 
   {#if wouldRederive}
@@ -825,7 +826,7 @@
     STR {str || '—'} · DEX {dex || '—'} · CON {con || '—'} · INT {int || '—'} · WIS {wis || '—'} · CHA
     {cha || '—'}
   </p>
-  <button type="button" onclick={rollAttributes}>Roll 6 × 3d6</button>
+  <BaseButton onclick={rollAttributes}>Roll 6 × 3d6</BaseButton>
 
   {#if str > 0}
     <h2>2. Race</h2>
@@ -889,7 +890,7 @@
       <p>
         Used by the random generator for rolled class features. In this builder, level 1 spells and
         thief / bard skill points are chosen explicitly below.
-        <button type="button" onclick={newClassFeaturesSeed}>New seed</button>
+        <BaseButton onclick={newClassFeaturesSeed}>New seed</BaseButton>
       </p>
       <input type="text" readonly value={classFeaturesSeed} />
 
@@ -972,7 +973,7 @@
         Allowed range: {hpBounds.min}–{hpBounds.max} ({selectedClass.hitDice} + Con adjustment).
       </p>
       <p>
-        <button type="button" onclick={rollHitPoints}>Roll {selectedClass.hitDice} + Con</button>
+        <BaseButton onclick={rollHitPoints}>Roll {selectedClass.hitDice} + Con</BaseButton>
       </p>
       <label>
         HP
@@ -986,8 +987,8 @@
       </p>
       <p><strong>Total:</strong> {formatWealthCp(startingWealthCp)}</p>
       <p>
-        <button type="button" onclick={rollStartingFunds}
-          >Roll starting funds ({startingFundsDiceLine(selectedClass)})</button
+        <BaseButton onclick={rollStartingFunds}
+          >Roll starting funds ({startingFundsDiceLine(selectedClass)})</BaseButton
         >
       </p>
       <div class="wealth-inputs">
@@ -1158,9 +1159,9 @@
 
           <h3>Derived stats</h3>
           <p>
-            <button type="button" onclick={recalculateDerivedStats}>
+            <BaseButton onclick={recalculateDerivedStats}>
               Recalculate from race, class, and attributes
-            </button>
+            </BaseButton>
             <span class="builder-details-note">This overwrites every value below.</span>
           </p>
           <div class="builder-detail-grid">

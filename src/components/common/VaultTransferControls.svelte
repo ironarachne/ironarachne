@@ -20,6 +20,7 @@
     type ImportSummary,
   } from '$lib/vault_file';
   import { ARTIFACT_KINDS } from '$lib/workshop';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /** The open project, so a single-artifact file has somewhere to go. */
@@ -227,14 +228,14 @@
   </p>
 
   <div class="vault-transfer__row">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for={modeId}>Importing</label>
       <select id={modeId} bind:value={mode} disabled={busy}>
         <option value="merge">adds to what is here</option>
         <option value="restore">replaces everything (restore)</option>
       </select>
     </div>
-    <button type="button" onclick={chooseFile} disabled={busy}>Import from file…</button>
+    <BaseButton onclick={chooseFile} disabled={busy}>Import from file…</BaseButton>
     <input
       bind:this={importInput}
       type="file"
@@ -256,7 +257,7 @@
       {#if progress.stage !== 'writing'}
         <!-- Interruptible right up to the commit, and nothing is written until then, so stopping
              costs nothing. -->
-        <button type="button" onclick={() => controller?.abort()}>Stop</button>
+        <BaseButton onclick={() => controller?.abort()}>Stop</BaseButton>
       {/if}
     </p>
   {/if}
@@ -279,7 +280,7 @@
           <li>{note}</li>
         {/each}
       </ul>
-      <button type="button" onclick={copySummary}>Copy this summary</button>
+      <BaseButton onclick={copySummary}>Copy this summary</BaseButton>
     </div>
   {/if}
 
@@ -297,7 +298,7 @@
           <li>
             <span>{record.name === '' ? record.kind || 'An unnamed record' : record.name}</span>
             <span class="vault-transfer__reason">{record.message}</span>
-            <button type="button" onclick={() => void discard(record)}>Throw away</button>
+            <BaseButton onclick={() => void discard(record)}>Throw away</BaseButton>
           </li>
         {/each}
       </ul>
@@ -342,10 +343,9 @@
     align-items: center;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .vault-transfer .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }

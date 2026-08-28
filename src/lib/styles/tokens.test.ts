@@ -244,7 +244,9 @@ describe('the space ramp', () => {
 
 describe('elevation and corners', () => {
   it('declares the one plate gradient and the one shadow', () => {
-    expect(tokens.get('--plate')).toContain('linear-gradient');
+    // A gradient, not which kind: the plate reads as a lit surface, and whether the light comes
+    // down the box or off one corner of it is a look to tune rather than a rule to hold.
+    expect(tokens.get('--plate')).toMatch(/(linear|radial)-gradient/);
     expect(tokens.get('--edge')).toContain('inset');
     expect(tokens.get('--lift')).toContain('rgb(');
   });
@@ -267,10 +269,14 @@ describe('elevation and corners', () => {
       expect(tokens.get(corner), `${corner} is a clip-path polygon`).toMatch(/^polygon\(/);
     }
 
+    // `--corner-control-inner` is the control treatment a second time, not a fourth treatment: a
+    // clipped border is shaved at the diagonals, so a button paints its edge as a box and covers
+    // all but a pixel of it with a liner cut to the same shape. The cap counts treatments, and
+    // there are still three; a genuinely new shape would not be named after one of these.
     const declared = [...tokens.keys()].filter(
       (name) => name === '--notch' || name.startsWith('--corner-'),
     );
-    expect(declared.sort()).toEqual([...corners].sort());
+    expect(declared.sort()).toEqual([...corners, '--corner-control-inner'].sort());
   });
 
   it('cuts the nav corner on one edge and the other two diagonally', () => {
@@ -279,9 +285,95 @@ describe('elevation and corners', () => {
     // control cut diagonally opposite corners, at 9px and 7px respectively.
     expect(tokens.get('--notch')).toContain('9px');
     expect(tokens.get('--corner-control')).toContain('7px');
+    // The liner sits 1px inside the plate on every edge, so its cut is 1px shallower — that is
+    // what keeps the two diagonals parallel instead of converging.
+    expect(tokens.get('--corner-control-inner')).toContain('6px');
 
     expect(tokens.get('--corner-nav')).toContain('100% calc(100% - 7px)');
     expect(tokens.get('--notch')).not.toContain('100% calc(100% - 9px)');
+  });
+});
+
+describe('the control system', () => {
+  // docs/visual-design.md, "What is enforced". Three sweeps, and each one guards a rule that was
+  // broken in the file it checks before #115: `main.css` held four hexes and three copies of a
+  // gradient, `modal.css` held a fourth copy, and all three skins re-declared the button.
+  const controlSheets = ['main.css', 'modal.css'];
+
+  it.each(controlSheets)('writes no colour value of its own in %s', (name) => {
+    // Comments first: these files cite issue numbers, and `#115` is a hex as far as a regex is
+    // concerned.
+    const css = readFileSync(join(STYLES_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+    expect(css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [], `${name} declares a hex`).toEqual([]);
+
+    // The space-separated `rgb(0 0 0 / 45%)` form is the stated exemption: it is an overlay on a
+    // shadow, which has no palette entry to name. The legacy comma form is what the copied button
+    // gradients were written in, and nothing on this side of the seam needs it.
+    expect(
+      css.match(/rgba?\(\s*\d+\s*,/g) ?? [],
+      `${name} declares a literal colour in the comma form`,
+    ).toEqual([]);
+  });
+
+  it.each(['fantasy.css', 'scifi.css', 'cyberpunk.css'])(
+    'leaves control geometry alone in %s',
+    (name) => {
+      // Decision 2: a skin may set a surface, a keyline, a corner, an accent hue and one ambient
+      // effect. A button is none of those, and a skin's own button rule outranks the control system
+      // wherever a genre is applied — which is how a redesign comes to show only on ungenre'd pages.
+      const css = readFileSync(join(STYLES_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+      expect(css).not.toMatch(/(^|[\s&>+~,])button\b/);
+    },
+  );
+
+  it('never leaves a checkbox in a column group', () => {
+    // `.input-group` is a flex column, so a checkbox written straight into one renders above its
+    // own label rather than beside it — which is what the AD&D and DCC generators did, and it
+    // looks like a rendering bug rather than a layout choice. `CheckboxField` and
+    // `.input-group--inline` are the two right answers; a label wrapped around its own box
+    // (`.inline-label`, as the seed lock and the dungeon's full-size toggle do) is a third.
+    const groups = /<div class="input-group([^"]*)"[^>]*>([\s\S]*?)<\/div>/g;
+    const offenders: string[] = [];
+
+    for (const { name, css } of siteStylesheets()) {
+      if (!name.endsWith('.svelte')) {
+        continue;
+      }
+
+      for (const [, modifiers, contents] of css.matchAll(groups)) {
+        const inline = modifiers.includes('--inline') || contents.includes('inline-label');
+        if (!inline && contents.includes('type="checkbox"')) {
+          offenders.push(name);
+        }
+      }
+    }
+
+    expect(offenders, 'a checkbox in a column group renders above its label').toEqual([]);
+  });
+
+  it('keeps the control components on the ramps', () => {
+    // The general rule from "Enforcement", applied to the files #115 touches rather than to all of
+    // `src/components` — which does not pass it yet, and making it pass everywhere is #116 and
+    // #117's work. These five are the ones that define what a field looks like, so a literal
+    // appearing here is the system starting to come apart at its own foundation.
+    const controls = ['InputGroup', 'CheckboxField', 'NumberField', 'SelectField', 'SeedControls'];
+
+    for (const name of controls) {
+      const css = readFileSync(join(COMPONENTS_DIR, `common/${name}.svelte`), 'utf8').replace(
+        /\/\*[\s\S]*?\*\//g,
+        '',
+      );
+      const offRamp = [
+        ...css.matchAll(/(?:font-size|padding|margin|gap)[^:;]*:\s*([^;{}]+);/g),
+      ].filter(([, value]) => /\d/.test(value) && !value.includes('var('));
+
+      expect(
+        offRamp.map(([declaration]) => declaration),
+        `${name} sizes something outside the ramps`,
+      ).toEqual([]);
+    }
   });
 });
 

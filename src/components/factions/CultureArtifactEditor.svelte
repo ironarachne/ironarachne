@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
   import {
     addCultureTaboo,
     redescribeCultureOrganization,
@@ -76,7 +77,7 @@
   </p>
 {:else}
   <div class="culture-editor">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for="{uid}-culture-name">Culture name</label>
       <input
         id="{uid}-culture-name"
@@ -91,7 +92,7 @@
       <legend>Organization</legend>
 
       {#each ORGANIZATION_FIELDS as entry (entry.field)}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for="{uid}-{entry.field}">{entry.label}</label>
           <input
             id="{uid}-{entry.field}"
@@ -122,9 +123,9 @@
       <!-- Offered rather than done automatically: the description is the user's once they have
            touched it, and recomposing it the moment a field above changed would throw away a
            paragraph they wrote by hand. -->
-      <button type="button" onclick={() => edit(redescribeCultureOrganization)}>
+      <BaseButton onclick={() => edit(redescribeCultureOrganization)}>
         Rewrite description from these
-      </button>
+      </BaseButton>
     </fieldset>
 
     <fieldset>
@@ -136,7 +137,7 @@
           changes it everywhere it is used, including here.
         </p>
       {:else}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for="{uid}-religion-name">Religion name</label>
           <input
             id="{uid}-religion-name"
@@ -170,7 +171,7 @@
       <!-- Keyed by position rather than by value: two taboos may read the same, and a key that
            changed as the user typed would lose focus on every keystroke. -->
       {#each culture.taboos as taboo, index (index)}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for="{uid}-taboo-{index}">Taboo {index + 1}</label>
           <input
             id="{uid}-taboo-{index}"
@@ -180,19 +181,18 @@
               edit((current) => setCultureTaboo(current, index, event.currentTarget.value))}
             autocomplete="off"
           />
-          <button
-            type="button"
+          <BaseButton
             aria-label="Remove taboo {index + 1}"
             onclick={() => edit((current) => removeCultureTaboo(current, index))}
           >
             Remove
-          </button>
+          </BaseButton>
         </div>
       {/each}
 
-      <button type="button" onclick={() => edit((current) => addCultureTaboo(current))}>
+      <BaseButton onclick={() => edit((current) => addCultureTaboo(current))}>
         Add a taboo
-      </button>
+      </BaseButton>
     </fieldset>
 
     <fieldset>
@@ -248,13 +248,12 @@
     text-transform: uppercase;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset, the room to shrink and the full width. */
   .culture-editor .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
-    width: 100%;
     min-width: 0;
+    width: 100%;
   }
 
   /* Prose wants the width; a label sitting beside a three-row textarea on a 320px screen leaves

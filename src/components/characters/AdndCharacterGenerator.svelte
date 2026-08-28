@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
   import { resolve } from '$app/paths';
+  import CheckboxField from '$components/common/CheckboxField.svelte';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
   import {
     ADND_CHARACTER_ARTIFACT_KIND,
@@ -25,6 +26,7 @@
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const TOOL_PATH = '/fantasy/adnd/character';
 
@@ -259,20 +261,17 @@
 
   <SeedControls bind:seed bind:lockSeed />
 
-  <div class="input-group">
-    <input
-      type="checkbox"
-      name="includeProficiencies"
-      bind:checked={includeProficiencies}
-      id="includeProficiencies"
-    />
-    <label for="includeProficiencies">Include proficiencies (weapon and nonweapon)</label>
-  </div>
+  <CheckboxField
+    id="includeProficiencies"
+    label="Include proficiencies (weapon and nonweapon)"
+    bind:checked={includeProficiencies}
+  />
 
-  <div class="input-group">
-    <input type="checkbox" name="includeKits" bind:checked={includeKits} id="includeKits" />
-    <label for="includeKits">Include character kit (optional sub-archetype)</label>
-  </div>
+  <CheckboxField
+    id="includeKits"
+    label="Include character kit (optional sub-archetype)"
+    bind:checked={includeKits}
+  />
 
   <CharacterNameSection
     offerReferencedCulture
@@ -290,7 +289,7 @@
     onGenerateName={generateNameOnly}
   />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
   <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf || !character} />
 
   <SaveArtifactButton

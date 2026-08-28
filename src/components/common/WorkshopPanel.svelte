@@ -1,5 +1,8 @@
 <script lang="ts">
   import { tick, type Snippet } from 'svelte';
+  import CloseButton from '$components/common/CloseButton.svelte';
+  import MoveLeftButton from '$components/common/MoveLeftButton.svelte';
+  import MoveRightButton from '$components/common/MoveRightButton.svelte';
 
   type Props = {
     /** What the panel holds, shown in its header and used to name its controls. */
@@ -24,8 +27,11 @@
   const canMoveLeft = $derived(position > 1);
   const canMoveRight = $derived(position < total);
 
-  let moveLeftButton: HTMLButtonElement | undefined;
-  let moveRightButton: HTMLButtonElement | undefined;
+  // `$state`, because these are bound through the button component's `element` prop rather than by
+  // `bind:this` on an element: a component binding writes back through the reactive graph, and a
+  // plain `let` is assigned without anything noticing.
+  let moveLeftButton: HTMLButtonElement | undefined = $state();
+  let moveRightButton: HTMLButtonElement | undefined = $state();
 
   /**
    * A move can disable the button that performed it: a panel arriving at either end of the bench
@@ -66,27 +72,21 @@
     </h2>
 
     <div class="workshop-panel__controls">
-      <button
-        type="button"
-        bind:this={moveLeftButton}
+      <MoveLeftButton
+        bind:element={moveLeftButton}
         onclick={() => void moveWithFocusKept(onMoveLeft, moveLeftButton, moveRightButton)}
         disabled={!canMoveLeft}
-        aria-label="Move {title} left"
+        label="Move {title} left"
         title="Move left"
-      >
-        ←
-      </button>
-      <button
-        type="button"
-        bind:this={moveRightButton}
+      />
+      <MoveRightButton
+        bind:element={moveRightButton}
         onclick={() => void moveWithFocusKept(onMoveRight, moveRightButton, moveLeftButton)}
         disabled={!canMoveRight}
-        aria-label="Move {title} right"
+        label="Move {title} right"
         title="Move right"
-      >
-        →
-      </button>
-      <button type="button" onclick={onClose} aria-label="Close {title}" title="Close"> × </button>
+      />
+      <CloseButton onclick={onClose} label="Close {title}" title="Close" />
     </div>
   </header>
 
@@ -109,14 +109,21 @@
     background: var(--slate);
   }
 
+  /* The controls stay in the upper right whatever the title does. `wrap` used to let them drop
+     to a line of their own as soon as a title like "Dungeon Crawl Classics Character" ran out of
+     room, which reads as the header having broken rather than as the title being long; the title
+     has `min-width: 0` and breaks its own words instead. `flex-start` rather than `center`, so a
+     title that takes two lines does not carry the buttons down to the middle of them. */
   .workshop-panel__header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.4rem 0.5rem;
+    align-items: flex-start;
     border-bottom: 1px solid var(--tan);
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--s4);
+    justify-content: space-between;
+    /* Even padding, so the control group sits the same distance from the top edge as it does from
+       the right one — an inset that differs by axis reads as the buttons having drifted. */
+    padding: var(--s4);
   }
 
   .workshop-panel__title {
@@ -136,16 +143,14 @@
   .workshop-panel__controls {
     display: flex;
     flex-shrink: 0;
-    gap: 0.25rem;
+    gap: var(--s2);
   }
 
-  .workshop-panel__controls button {
-    /* Sized to the 44px touch target the rest of the site uses, not to the glyph inside it. */
-    min-width: 2.75rem;
-    min-height: 2.75rem;
+  /* No sizing of its own. These were hand-set to a 44px square so they would be tappable; the
+     control system grows every button to that under `(pointer: coarse)` and leaves it at the
+     ramp's density under a mouse, which is the whole point of having the ramp. */
+  .workshop-panel__controls :global(button) {
     margin: 0;
-    padding: 0.2rem 0.5rem;
-    line-height: 1;
   }
 
   .workshop-panel__body {

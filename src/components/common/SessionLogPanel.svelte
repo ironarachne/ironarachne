@@ -14,6 +14,8 @@
   import { findToolByPath } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
   import { hasToolPanel } from '$lib/workshop';
+  import ListButton from '$components/common/ListButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /** Called when the user asks for a run back. Absent leaves the entries unpressable. */
@@ -93,7 +95,7 @@
          of its own. What the list is of is said by the note under it and by each entry's tool
          name, so the heading does not have to carry it. -->
     <h2>This session</h2>
-    <button type="button" class="session-log__clear" onclick={() => void clear()}>Clear</button>
+    <BaseButton size="sm" class="session-log__clear" onclick={() => void clear()}>Clear</BaseButton>
   </div>
 
   <!-- The one thing in this column that is not an entry, and it is not optional. Under
@@ -117,16 +119,16 @@
                  single-route workshop that action is not navigation: it mounts a panel and signals
                  it. An anchor to /fantasy/settlement would take the user off the bench, which is
                  the opposite of what the log is for. -->
-            <button
-              type="button"
+            <ListButton
               class="session-log__entry"
+              stacked
               aria-label={runAccessibleName(entry, label, now)}
               title={`seed ${entry.seed}${settings === '' ? '' : `\n${settings}`}`}
               onclick={() => onReplay?.(entry)}
             >
               <span class="session-log__headline">{runHeadline(entry)}</span>
               <span class="session-log__meta">{label} · {runAge(entry.at, now)}</span>
-            </button>
+            </ListButton>
           </li>
         {/each}
       </ul>
@@ -163,10 +165,10 @@
     font-size: 1.3rem;
   }
 
-  .session-log__clear {
+  /* `size="sm"` carries what the padding and the font size here were reaching for; the flex reset
+     is this panel's own, and `:global` because the button is `BaseButton`'s element now. */
+  :global(.session-log__clear) {
     flex-shrink: 0;
-    padding: 0.2rem 0.6rem;
-    font-size: 0.8rem;
   }
 
   .session-log__note {
@@ -193,34 +195,6 @@
   .session-log li {
     list-style-type: none;
     margin: 0;
-  }
-
-  .session-log__entry {
-    display: flex;
-    flex-direction: column;
-    gap: 0.1rem;
-    width: 100%;
-    margin: 0 0 0.15rem;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    background: transparent;
-    color: white;
-    font-family: inherit;
-    font-size: 0.9rem;
-    line-height: 1.3;
-    text-align: left;
-  }
-
-  .session-log__entry:hover {
-    border: 1px solid var(--iron-arachne-green);
-    background: color-mix(in srgb, var(--iron-arachne-green) 15%, transparent);
-  }
-
-  .session-log__entry:active {
-    transform: none;
-    background: color-mix(in srgb, var(--iron-arachne-green) 30%, transparent);
-    color: white;
   }
 
   .session-log__headline {

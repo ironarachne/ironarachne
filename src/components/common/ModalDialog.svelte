@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { AlertModalStyle } from '$lib/ui';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     kind: 'alert' | 'confirm';
@@ -35,16 +36,20 @@
   <p id="modal-dialog-message" class="modal-dialog-message">{message}</p>
   <div class="modal-dialog-actions">
     {#if kind === 'confirm'}
-      <button type="button" onclick={() => onResolveConfirm?.(false)}>{cancelLabel}</button>
-      <button
-        type="button"
-        class:modal-dialog-action--danger={dangerous}
+      <!-- The base plate rather than `quiet`: these two are peer actions in a dialog that exists to
+           ask which one you meant, and a tertiary treatment on one of a pair reads as the pair
+           being unequal. Quiet is for an action sitting beside work, not for half of a choice. -->
+      <BaseButton onclick={() => onResolveConfirm?.(false)}>
+        {cancelLabel}
+      </BaseButton>
+      <BaseButton
+        variant={dangerous ? 'destructive' : 'secondary'}
         onclick={() => onResolveConfirm?.(true)}
       >
         {okLabel}
-      </button>
+      </BaseButton>
     {:else}
-      <button type="button" onclick={() => onResolveAlert?.()}>{okLabel}</button>
+      <BaseButton onclick={() => onResolveAlert?.()}>{okLabel}</BaseButton>
     {/if}
   </div>
 </div>

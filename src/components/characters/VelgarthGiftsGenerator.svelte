@@ -5,6 +5,7 @@
   import type { Gift, GiftGeneratorConfig } from '$lib/velgarth_gifts';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   let seed = $state(new RNG(Date.now().toString()).randomString(13));
   let lockSeed = $state(false);
@@ -35,7 +36,7 @@
 
   <SeedControls bind:seed bind:lockSeed />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#each gifts as gift}
     <div class="gift">

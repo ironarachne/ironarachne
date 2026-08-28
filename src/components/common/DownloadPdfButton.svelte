@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
   type Props = {
     onclick: () => void;
     downloading?: boolean;
@@ -8,10 +9,10 @@
   const { onclick, downloading = false, label = 'Download PDF' }: Props = $props();
 </script>
 
-<button type="button" {onclick} disabled={downloading}>
+<BaseButton {onclick} disabled={downloading}>
   {#if downloading}
     Downloading...
   {:else}
     {label}
   {/if}
-</button>
+</BaseButton>

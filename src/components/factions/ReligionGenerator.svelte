@@ -45,6 +45,7 @@
   import ExportImportRow from '$components/common/ExportImportRow.svelte';
   import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const dimensionSectionTitles: Record<ReligionDimensionId, string> = {
     ritual: 'Ritual',
@@ -644,7 +645,7 @@
     bind:problem={cultureProblem}
   />
 
-  <button onclick={() => generate()} disabled={awaitingCulture}>Generate</button>
+  <BaseButton onclick={() => generate()} disabled={awaitingCulture}>Generate</BaseButton>
 
   <SaveArtifactButton
     kind={RELIGION_ARTIFACT_KIND}
@@ -660,7 +661,7 @@
     <h2>{religion.name}</h2>
 
     <div class="religion-exports">
-      <button type="button" onclick={exportMarkdown}>Download Markdown</button>
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
       <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
     </div>
 

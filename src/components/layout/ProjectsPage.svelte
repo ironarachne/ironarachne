@@ -37,6 +37,7 @@
   import StorageDisclosureNotice from '$components/common/StorageDisclosureNotice.svelte';
   import StoragePanel from '$components/common/StoragePanel.svelte';
   import VaultTransferControls from '$components/common/VaultTransferControls.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const uid = $props.id();
   const newNameId = `${uid}-new-name`;
@@ -285,7 +286,7 @@
   {/if}
 
   <div class="projects__create">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for={newNameId}>New project</label>
       <input
         id={newNameId}
@@ -302,7 +303,10 @@
       bind:value={newSystem}
       options={SYSTEM_OPTIONS}
     />
-    <button type="button" onclick={create}>Create project</button>
+    <!-- The page's one primary action. Primary is a claim about the page rather than about the
+         button: everything else here — rename, delete, export — acts on something that already
+         exists, and this is the thing a visitor with no projects came to do. -->
+    <BaseButton variant="primary" onclick={create}>Create project</BaseButton>
   </div>
 
   {#if showDisclosure}
@@ -354,8 +358,8 @@
                 options={SYSTEM_OPTIONS}
               />
               <div class="project-card__actions">
-                <button type="button" onclick={() => saveEdits(row.project.id)}>Save</button>
-                <button type="button" onclick={cancelEditing}>Cancel</button>
+                <BaseButton onclick={() => saveEdits(row.project.id)}>Save</BaseButton>
+                <BaseButton onclick={cancelEditing}>Cancel</BaseButton>
               </div>
             </div>
           {:else}
@@ -387,10 +391,10 @@
               {#if row.project.id === activeProjectId}
                 <a class="project-card__link" href={resolve('/workshop')}>Go to workshop</a>
               {:else}
-                <button type="button" onclick={() => open(row.project.id)}>Open</button>
+                <BaseButton onclick={() => open(row.project.id)}>Open</BaseButton>
               {/if}
-              <button type="button" onclick={() => startEditing(row.project)}>Rename</button>
-              <button type="button" onclick={() => remove(row)}>Delete</button>
+              <BaseButton onclick={() => startEditing(row.project)}>Rename</BaseButton>
+              <BaseButton onclick={() => remove(row)}>Delete</BaseButton>
             </div>
           {/if}
         </li>
@@ -450,10 +454,9 @@
     margin: 1rem 0;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .projects__create .input-group {
-    align-items: center;
-    display: flex;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }
@@ -534,10 +537,9 @@
     gap: 0.5rem;
   }
 
+  /* A column with a hairline gap is exactly `.input-group`'s default now; only the margin
+     reset is local. */
   .project-card__edit .input-group {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
     margin: 0;
   }
 

@@ -8,6 +8,7 @@
     type ImportSummary,
   } from '$lib/vault_file';
   import { ARTIFACT_KINDS } from '$lib/workshop';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /** The open project. Export needs one; import does not, and creates one from the file. */
@@ -119,9 +120,9 @@
 <div class="project-transfer">
   <div class="project-transfer__row">
     {#if projectId !== undefined}
-      <button type="button" onclick={exportProject} disabled={busy}>Export project</button>
+      <BaseButton onclick={exportProject} disabled={busy}>Export project</BaseButton>
     {/if}
-    <button type="button" onclick={chooseFile} disabled={busy}>Import from file</button>
+    <BaseButton onclick={chooseFile} disabled={busy}>Import from file</BaseButton>
     <input
       bind:this={importInput}
       type="file"

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
   type Props = {
     /**
      * Omitted by a tool that has nothing complete to offer. The culture generator is the standing
@@ -30,9 +31,9 @@
 
 <div class="input-group export-import-row">
   {#if onExport !== undefined}
-    <button type="button" onclick={onExport}>Export saved (JSON)</button>
+    <BaseButton onclick={onExport}>Export saved (JSON)</BaseButton>
   {/if}
-  <button type="button" onclick={triggerImport}>Import saves from file</button>
+  <BaseButton onclick={triggerImport}>Import saves from file</BaseButton>
   <input
     bind:this={importInput}
     type="file"

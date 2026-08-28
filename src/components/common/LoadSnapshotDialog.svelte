@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     title: string;
@@ -36,7 +37,7 @@
               <p class="load-snapshot-item-name">{item.name}</p>
               <p class="load-snapshot-item-seed">Seed: {item.seed}</p>
             </div>
-            <button type="button" onclick={() => onLoad(item)}>Load</button>
+            <BaseButton onclick={() => onLoad(item)}>Load</BaseButton>
           </li>
         {/each}
       </ul>
@@ -47,7 +48,7 @@
     {/if}
 
     <div class="load-snapshot-dialog-actions">
-      <button value="cancel">Cancel</button>
+      <BaseButton value="cancel">Cancel</BaseButton>
     </div>
   </form>
 </dialog>

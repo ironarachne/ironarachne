@@ -7,6 +7,7 @@
     systemDisplayName,
   } from '$lib/tools';
   import type { GameSystem, Genre, Tool } from '$lib/tools';
+  import ListButton from '$components/common/ListButton.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
 
   type Props = {
@@ -98,7 +99,7 @@
   <h2>{title}</h2>
 
   <div class="tool-browser__filters">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for={filterId}>Filter</label>
       <input
         id={filterId}
@@ -125,7 +126,7 @@
           {hiddenCount === 1 ? 'tool' : 'tools'} for other settings hidden.
         {/if}
       </p>
-      <div class="input-group tool-browser__show-all">
+      <div class="input-group input-group--inline tool-browser__show-all">
         <input id={showAllId} type="checkbox" bind:checked={showAll} />
         <label for={showAllId}>Show all tools</label>
       </div>
@@ -139,11 +140,9 @@
         {#each group.tools as tool (tool.path)}
           {@const isActive = loadedPaths.has(tool.path)}
           <li>
-            <button
-              type="button"
+            <ListButton
               class="tool-browser__tool"
-              class:tool-browser__tool--active={isActive}
-              aria-current={isActive ? 'true' : undefined}
+              selected={isActive}
               onclick={() => selectTool(tool)}
             >
               <span class="tool-browser__name">{tool.label}</span>
@@ -160,7 +159,7 @@
                 {/if}
                 <ToolMaturityBadge maturity={tool.maturity} plain />
               </span>
-            </button>
+            </ListButton>
           </li>
         {/each}
       </ul>
@@ -210,17 +209,17 @@
     align-items: center;
   }
 
+  /* The row layout is `--inline`'s now. What is left is this panel's own business: the group sits
+     in a wrapping flex row, so it needs to be allowed to shrink. `flex: 1 1 8rem` on the field is
+     gone with the column direction it was written against — a basis of 8rem in a column is 8rem of
+     *height*, which is how the filter became a square. */
   .tool-browser__filters .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }
 
   .tool-browser__filters input[type='search'] {
     min-width: 0;
-    flex: 1 1 8rem;
   }
 
   .tool-browser__setting {
@@ -237,12 +236,9 @@
     color: var(--gold);
   }
 
+  /* The row layout and the gap are `--inline`'s; the margin reset is this panel's. */
   .tool-browser__show-all {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
-    font-size: 0.85rem;
   }
 
   .tool-browser__list {
@@ -262,40 +258,6 @@
   .tool-browser li {
     list-style-type: none;
     margin: 0;
-  }
-
-  .tool-browser__tool {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    width: 100%;
-    margin: 0 0 0.15rem;
-    padding: 0.3rem 0.5rem;
-    border: 1px solid transparent;
-    border-radius: 3px;
-    background: transparent;
-    color: white;
-    font-family: inherit;
-    font-size: 0.95rem;
-    line-height: 1.3;
-    text-align: left;
-  }
-
-  .tool-browser__tool:hover {
-    border: 1px solid var(--iron-arachne-green);
-    background: color-mix(in srgb, var(--iron-arachne-green) 15%, transparent);
-  }
-
-  .tool-browser__tool:active {
-    transform: none;
-    background: color-mix(in srgb, var(--iron-arachne-green) 30%, transparent);
-    color: white;
-  }
-
-  .tool-browser__tool--active {
-    border: 1px solid var(--gold);
-    background: color-mix(in srgb, var(--gold) 20%, transparent);
   }
 
   .tool-browser__name {

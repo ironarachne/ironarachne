@@ -17,6 +17,7 @@
     type Project,
   } from '$lib/projects';
   import { ARTIFACT_KINDS } from '$lib/workshop';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /**
@@ -132,7 +133,7 @@
         It is saved in this browser only — there is no account and no server.
         <a href={resolve('/projects')}>Export a copy</a> to keep work that outlives this browser.
       </p>
-      <button type="button" onclick={dismissAdoptionNotice}>Got it</button>
+      <BaseButton onclick={dismissAdoptionNotice}>Got it</BaseButton>
     </div>
   {/if}
 
@@ -142,7 +143,7 @@
     </p>
   {:else}
     <div class="project-context__row">
-      <div class="input-group">
+      <div class="input-group input-group--inline">
         <label for={openId}>Open project</label>
         <select
           id={openId}
@@ -205,10 +206,9 @@
     font-size: 0.9rem;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .project-context .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }

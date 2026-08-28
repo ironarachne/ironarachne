@@ -2,6 +2,7 @@
   import * as ChopShop from '$lib/chopshop';
   import { RNG } from '@ironarachne/rng';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   let shopDescription = $state('');
   let seed = new RNG(Date.now().toString()).randomString(13);
@@ -20,7 +21,7 @@
     <p>This is a cyberpunk chop shop generator.</p>
   {/snippet}
 
-  <button onclick={generateChopShop}>Generate</button>
+  <BaseButton onclick={generateChopShop}>Generate</BaseButton>
 
   <p>{shopDescription}</p>
 </GeneratorPage>

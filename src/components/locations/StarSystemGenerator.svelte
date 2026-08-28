@@ -18,6 +18,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const width = 128;
   const height = 128;
@@ -131,7 +132,7 @@
 
   <SelectField id="starType" label="Star Type" bind:value={starType} options={starTypeOptions} />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if system}
     <h2>The {system.name} System</h2>

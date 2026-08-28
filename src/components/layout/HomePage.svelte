@@ -101,20 +101,29 @@
     margin: 1.5rem 0 0;
   }
 
+  /* A link that acts as a control, so it wears the control system: the plate, the strong keyline
+     and `--t-micro`. Square rather than cut, because an `<a>` cannot carry `BaseButton`'s liner
+     and a clipped border is shaved at the diagonals. `linear-gradient(--granite, --tan)` under
+     `color: black` was the last of the pre-redesign controls. */
   .home__cta a {
-    background: linear-gradient(0deg, var(--granite) 0%, var(--tan) 100%);
-    border: 1px solid var(--tan);
-    border-radius: 6px;
-    color: black;
+    background: var(--plate);
+    border: 1px solid var(--border-strong);
+    box-shadow: var(--edge);
+    color: var(--ink);
     display: inline-block;
-    font-family: 'cinzel', system-ui, Helvetica, sans-serif;
-    padding: 0.5rem 1.25rem;
+    font: var(--t-micro);
+    letter-spacing: var(--t-micro-tracking);
+    padding: var(--s3) var(--s6);
     text-decoration: none;
+    text-transform: uppercase;
+    transition:
+      border-color var(--motion-swift) ease,
+      color var(--motion-swift) ease;
   }
 
   .home__cta a:hover {
-    background: var(--iron-arachne-green);
-    color: black;
+    border-color: var(--focus);
+    color: var(--ink);
   }
 
   .home__columns {

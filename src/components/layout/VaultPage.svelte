@@ -18,7 +18,9 @@
   import { hydrateProjects, listProjects, onProjectsChanged } from '$lib/projects';
   import { showConfirmModal } from '$lib/ui';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
+  import ListButton from '$components/common/ListButton.svelte';
   import ArtifactInspector from '$components/common/ArtifactInspector.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const uid = $props.id();
   const queryId = `${uid}-query`;
@@ -148,11 +150,11 @@
   <div class="vault__columns">
     <div class="vault__list">
       <div class="vault__filters">
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for={queryId}>Search</label>
           <input id={queryId} type="search" bind:value={query} placeholder="Name or kind" />
         </div>
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for={projectId}>Project</label>
           <select id={projectId} bind:value={projectFilter}>
             <option value="">All projects</option>
@@ -161,7 +163,7 @@
             {/each}
           </select>
         </div>
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for={kindId}>Kind</label>
           <select id={kindId} bind:value={kindFilter}>
             <option value="">All kinds</option>
@@ -201,16 +203,13 @@
           <ul>
             {#each group.artifacts as artifact (artifact.id)}
               <li>
-                <button
-                  type="button"
-                  class="vault__row"
-                  class:vault__row--selected={artifact.id === selectedId}
-                  aria-current={artifact.id === selectedId ? 'true' : undefined}
+                <ListButton
+                  selected={artifact.id === selectedId}
                   onclick={() => (selectedId = artifact.id)}
                 >
                   <span class="vault__row-name">{artifact.name}</span>
                   <span class="vault__row-project">{projectNameFor(artifact.id)}</span>
-                </button>
+                </ListButton>
               </li>
             {/each}
           </ul>
@@ -227,9 +226,9 @@
           a list above an inspector means every selection scrolls the page. This control is what
           gets back, and it is hidden above the breakpoint where both columns are on screen.
         -->
-        <button type="button" class="vault__back" onclick={() => (selectedId = undefined)}>
+        <BaseButton class="vault__back" onclick={() => (selectedId = undefined)}>
           ← All results
-        </button>
+        </BaseButton>
         {#key selected.artifact.id}
           <ArtifactInspector
             projectId={selected.artifact.projectId}
@@ -276,10 +275,9 @@
     margin-bottom: 0.75rem;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .vault__filters .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }
@@ -322,29 +320,6 @@
     margin-left: 0;
   }
 
-  .vault__row {
-    background: none;
-    border: 1px solid transparent;
-    border-radius: 4px;
-    display: flex;
-    font-family: inherit;
-    gap: 0.5rem;
-    justify-content: space-between;
-    padding: 0.35rem 0.5rem;
-    text-align: left;
-    width: 100%;
-  }
-
-  .vault__row:hover {
-    background: var(--slate);
-    border-color: var(--granite);
-  }
-
-  .vault__row--selected {
-    background: var(--slate);
-    border-color: var(--tan);
-  }
-
   .vault__row-name {
     overflow-wrap: anywhere;
   }
@@ -368,7 +343,7 @@
     padding: 0.6rem 0.75rem;
   }
 
-  .vault__back {
+  :global(.vault__back) {
     display: none;
     margin-bottom: 0.5rem;
   }
@@ -381,7 +356,7 @@
       grid-template-columns: 1fr;
     }
 
-    .vault__back {
+    :global(.vault__back) {
       display: inline-block;
     }
 

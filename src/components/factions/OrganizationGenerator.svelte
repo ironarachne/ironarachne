@@ -30,6 +30,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import HeraldryEmblemButton from '$components/heraldry/HeraldryEmblemButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const rng = new RNG(Date.now().toString());
   let seed: string = $state(rng.randomString(13));
@@ -238,7 +239,7 @@
     options={worldPresetChoices.map((c) => ({ value: c.value, label: c.label }))}
   />
 
-  <button onclick={runGenerate}>Generate</button>
+  <BaseButton onclick={runGenerate}>Generate</BaseButton>
 
   <h2>{name}</h2>
 

@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
 
   import { readStorageStatus, type StorageStatus } from '$lib/storage_status';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /** What failed, in the user's terms. */
@@ -89,13 +90,13 @@
   <div class="storage-failure__actions">
     <!-- The primary action, and the only one that needs no storage at all — which is precisely the
          situation the user is in. -->
-    <button type="button" class="storage-failure__primary" onclick={download}>
+    <BaseButton variant="primary" onclick={download}>
       {downloaded ? 'Downloaded — download again' : downloadLabel}
-    </button>
+    </BaseButton>
     {#if onExportVault !== undefined}
-      <button type="button" onclick={exportVault}>
+      <BaseButton onclick={exportVault}>
         {exported ? 'Exported — export again' : 'Export everything'}
-      </button>
+      </BaseButton>
     {/if}
   </div>
 
@@ -112,8 +113,8 @@
   <div class="storage-failure__actions storage-failure__actions--closing">
     <!-- Freeing space happens outside this page, so retry is the point of keeping the value on
          screen: come back and press it. -->
-    <button type="button" onclick={onRetry}>Try saving again</button>
-    <button type="button" onclick={onDismiss}>Not now</button>
+    <BaseButton onclick={onRetry}>Try saving again</BaseButton>
+    <BaseButton onclick={onDismiss}>Not now</BaseButton>
   </div>
 </div>
 
@@ -149,11 +150,6 @@
 
   .storage-failure__actions--closing {
     margin-top: 0.25rem;
-  }
-
-  .storage-failure__primary {
-    border-color: var(--gold);
-    font-weight: bold;
   }
 
   .storage-failure__problem {

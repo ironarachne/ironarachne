@@ -108,11 +108,17 @@
 
   /* Labels, kickers, badges and buttons. The tracking and the uppercasing are part of the step,
      but `font` can carry neither, so they are separate: every use of `--t-micro` sets
-     `letter-spacing: var(--t-micro-tracking)` and `text-transform: uppercase` beside it. */
+     `letter-spacing: var(--t-micro-tracking)` and `text-transform: uppercase` beside it.
+
+     **The body face, not the display face**, and it is the one step where that is true of a face
+     the other five would have taken. Cinzel Decorative is a display face with a great deal of
+     modulation in its strokes; at 11px, uppercased, that detail lands between pixels and a button
+     label stops being quickly readable — which is the whole job of a button label. The other five
+     steps are unchanged, so a heading is still Cinzel and the smallest thing on the page is not. */
   --t-micro-size: 11px;
   --t-micro-line: 1.4;
   --t-micro-tracking: 0.08em;
-  --t-micro: 400 var(--t-micro-size) / var(--t-micro-line) var(--face-display);
+  --t-micro: 400 var(--t-micro-size) / var(--t-micro-line) var(--face-body);
 
   /* ---- Space ramp ----------------------------------------------------------------------
      Eight steps, and a component may not invent a value outside them. Nothing above `--s8`
@@ -138,12 +144,32 @@
   /* The control gradient — a 4%-white mix of slate down to a 6%-black mix. This is the one
      place it is written; `main.css`, `fantasy.css` and `modal.css` each held their own copy of
      `rgb(92, 86, 73)`. */
-  --plate: linear-gradient(
+  --plate: radial-gradient(
+    circle at 75% 5%,
+    color-mix(in srgb, var(--slate) 95%, var(--iron-arachne-green)) 0%,
+    color-mix(in srgb, var(--slate) 74%, black) 100%
+  );
+  /* The two variant plates, mixed from the same slate the base plate is. A variant sets a fill,
+     a keyline and a label colour and inherits the geometry, so this is the whole of what makes a
+     primary button primary — and it is written here rather than in `main.css` because a plate is
+     a colour value, and `main.css` names roles. */
+  --plate-primary: linear-gradient(
     180deg,
-    color-mix(in srgb, var(--slate) 96%, white) 0%,
+    color-mix(in srgb, var(--slate) 88%, var(--gold)) 0%,
     color-mix(in srgb, var(--slate) 94%, black) 100%
   );
+  --plate-danger: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--slate) 72%, var(--crimson)) 0%,
+    color-mix(in srgb, var(--slate) 92%, black) 100%
+  );
+
   --edge: inset 0 1px 0 rgb(255 255 255 / 7%);
+
+  /* The inward shadow an inset control carries: a text field is the inverse of a button, sunk
+     into the surface rather than raised off it. Written once here for the same reason `--plate`
+     is — it appears on every input, select and textarea on the site. */
+  --sink: inset 0 1px 2px rgb(0 0 0 / 45%);
   --lift: 0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%);
 
   /* ---- Corners -------------------------------------------------------------------------
@@ -165,6 +191,20 @@
     100% 100%,
     7px 100%,
     0 calc(100% - 7px)
+  );
+
+  /* The control treatment again, for the liner a button draws its edge with — one shape, two
+     polygons, not a fourth treatment. A `clip-path` cuts a border off at the diagonals, so a
+     button paints its edge as a box and covers all but a pixel of it with a liner; the liner is
+     2px smaller in each direction, and 6px here is the cut that keeps the two diagonals parallel
+     rather than converging on each other. It is never used on anything but that liner. */
+  --corner-control-inner: polygon(
+    0 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% 100%,
+    6px 100%,
+    0 calc(100% - 6px)
   );
 
   /* A nav item: square on the flush edge, both corners cut on the inner one. Neither of the

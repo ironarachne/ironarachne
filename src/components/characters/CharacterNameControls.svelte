@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { Culture } from '$lib/culture';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type NameSourceKind = 'default' | 'preset' | 'saved_culture' | 'referenced_culture';
 
@@ -114,9 +115,7 @@
       <input type="checkbox" bind:checked={lockName} />
       Lock Name
     </label>
-    <button type="button" disabled={lockName} onclick={() => onGenerateName?.()}
-      >Generate name</button
-    >
+    <BaseButton disabled={lockName} onclick={() => onGenerateName?.()}>Generate name</BaseButton>
   </div>
 </fieldset>
 

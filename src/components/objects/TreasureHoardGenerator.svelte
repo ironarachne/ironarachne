@@ -13,6 +13,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import NumberField from '$components/common/NumberField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -224,7 +225,7 @@
   <NumberField id="room-length" label="Room Length (ft)" bind:value={roomLength} min={1} />
   <NumberField id="room-height" label="Room Height (ft)" bind:value={roomHeight} min={1} />
 
-  <button onclick={generate}>Generate Treasure Hoard</button>
+  <BaseButton onclick={generate}>Generate Treasure Hoard</BaseButton>
 
   <h2>Generated Treasure Hoard</h2>
 

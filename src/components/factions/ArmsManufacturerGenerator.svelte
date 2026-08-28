@@ -4,6 +4,7 @@
   import { generate as generateArmsManufacturer } from '$lib/arms_manufacturer';
   import type { ArmsManufacturer } from '$lib/arms_manufacturer';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const rng = new RNG(Date.now());
 
@@ -27,7 +28,7 @@
     <p>This generator produces sci-fi arms manufacturing companies.</p>
   {/snippet}
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if manufacturer}
     <p>{manufacturer.description}</p>

@@ -13,6 +13,7 @@
     type StoragePanelView,
   } from '$lib/storage_status';
   import { exportWholeVault } from '$lib/vault_file';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   /**
    * What is in this browser, how long it has been the only copy, and what to do about it.
@@ -120,14 +121,9 @@
     <p class="storage__headline">
       {view === null ? 'Reading storage…' : exportHeadline(view.lastExport)}
     </p>
-    <button
-      type="button"
-      class="storage__primary"
-      onclick={() => void exportEverything()}
-      disabled={busy}
-    >
+    <BaseButton variant="primary" onclick={() => void exportEverything()} disabled={busy}>
       Export everything
-    </button>
+    </BaseButton>
   </div>
 
   {#if problem !== null}
@@ -253,11 +249,6 @@
     font-size: 1.1rem;
     font-weight: bold;
     margin: 0;
-  }
-
-  .storage__primary {
-    border-color: var(--gold);
-    font-weight: bold;
   }
 
   .storage__protection {

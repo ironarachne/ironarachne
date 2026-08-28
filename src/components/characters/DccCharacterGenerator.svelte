@@ -13,10 +13,12 @@
   import * as DCC from '$lib/dcc';
   import type { DCCCharacter } from '$lib/dcc';
   import { onMount } from 'svelte';
+  import CheckboxField from '$components/common/CheckboxField.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -169,30 +171,13 @@
 
   <SeedControls bind:seed bind:lockSeed />
 
-  <div class="input-group">
-    <label for="allowDwarves">Allow Dwarves</label>
-    <input type="checkbox" name="allowDwarves" bind:checked={allowDwarves} id="allowDwarves" />
-  </div>
+  <CheckboxField id="allowDwarves" label="Allow Dwarves" bind:checked={allowDwarves} />
 
-  <div class="input-group">
-    <label for="allowElves">Allow Elves</label>
-    <input type="checkbox" name="allowElves" bind:checked={allowElves} id="allowElves" />
-  </div>
+  <CheckboxField id="allowElves" label="Allow Elves" bind:checked={allowElves} />
 
-  <div class="input-group">
-    <label for="allowHalflings">Allow Halflings</label>
-    <input
-      type="checkbox"
-      name="allowHalflings"
-      bind:checked={allowHalflings}
-      id="allowHalflings"
-    />
-  </div>
+  <CheckboxField id="allowHalflings" label="Allow Halflings" bind:checked={allowHalflings} />
 
-  <div class="input-group">
-    <label for="allowHumans">Allow Humans</label>
-    <input type="checkbox" name="allowHumans" bind:checked={allowHumans} id="allowHumans" />
-  </div>
+  <CheckboxField id="allowHumans" label="Allow Humans" bind:checked={allowHumans} />
 
   <CharacterNameSection
     bind:nameSourceKind
@@ -205,7 +190,7 @@
     onGenerateName={generateNameOnly}
   />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
   <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
 
   {#if character}

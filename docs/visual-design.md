@@ -34,6 +34,18 @@ clipped because a `clip-path` leaves an outline nothing to paint on; and the 44p
 grows the control itself wherever controls sit beside one another, rather than the invisible
 overlay the top bar's lone icon button can afford.
 
+**Amended 2026-08-28, again during implementation:** `--t-micro` moves to the body face. Cinzel
+Decorative at 11px uppercase is not quickly readable, and a button label that is not quickly
+readable is not doing its job — so every control, label, badge, kicker and nav item is Inclusive
+Sans, and the five larger steps are untouched.
+
+**Amended 2026-08-28 during implementation**, with [a button's two layers](#a-button-draws-its-own-edge-and-needs-a-liner-to-do-it).
+A cut corner and a border cannot both survive on one element, so a button is a `<button>` painting
+its edge and a liner painting its fill — which is what `BaseButton` is for, and why the variants
+are two custom properties rather than two rule sets. The plate also becomes a corner-lit radial
+rather than a top-down linear gradient; what the system holds is that there is one gradient, in one
+place, mixed from the palette.
+
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
 the workshop at 1440, the phone at 390 with its drawer, genre skins, the token taxonomy, and the
@@ -145,17 +157,25 @@ Read the diagram as four rules:
 
 ### Type ramp
 
-Six steps. Cinzel Decorative carries headings, controls and labels; Inclusive Sans carries
-anything read as a sentence.
+Six steps. Cinzel Decorative carries headings; Inclusive Sans carries anything read as a sentence,
+and the smallest step — the one controls and labels are set in.
 
-| Token         |   Size | Line height | Face                                  | Used for                         |
-| ------------- | -----: | ----------: | ------------------------------------- | -------------------------------- |
-| `--t-display` |   26px |        1.05 | Cinzel Decorative 700                 | Page title, one per page         |
-| `--t-title`   |   20px |        1.10 | Cinzel Decorative 700                 | Generated name, bench heading    |
-| `--t-heading` |   16px |        1.20 | Cinzel Decorative 700                 | Panel heading                    |
-| `--t-body`    |   14px |        1.45 | Inclusive Sans                        | Prose and generated output       |
-| `--t-small`   | 12.5px |        1.40 | Inclusive Sans                        | Lists, sublines, field values    |
-| `--t-micro`   |   11px |        1.40 | Cinzel Decorative, +0.08em, uppercase | Labels, kickers, badges, buttons |
+| Token         |   Size | Line height | Face                               | Used for                         |
+| ------------- | -----: | ----------: | ---------------------------------- | -------------------------------- |
+| `--t-display` |   26px |        1.05 | Cinzel Decorative 700              | Page title, one per page         |
+| `--t-title`   |   20px |        1.10 | Cinzel Decorative 700              | Generated name, bench heading    |
+| `--t-heading` |   16px |        1.20 | Cinzel Decorative 700              | Panel heading                    |
+| `--t-body`    |   14px |        1.45 | Inclusive Sans                     | Prose and generated output       |
+| `--t-small`   | 12.5px |        1.40 | Inclusive Sans                     | Lists, sublines, field values    |
+| `--t-micro`   |   11px |        1.40 | Inclusive Sans, +0.08em, uppercase | Labels, kickers, badges, buttons |
+
+**`--t-micro` is the body face, and it is the one step where the display face would have been the
+obvious choice.** Cinzel Decorative is a display face with a great deal of modulation in its
+strokes; at 11px, uppercased, that detail falls between pixels and a button label stops being
+quickly readable, which is the whole job of a button label. It reaches further than buttons —
+every nav item, badge, kicker and field label is this step — and that is the point: two 11px steps
+in two faces is exactly the split the ramp exists to prevent. Headings are unaffected, so the
+brand's face still carries every line that is read as a title.
 
 Two numbers do most of the work. Line height falls from today's global 1.75 to **1.45**, and the
 largest step falls from 40px to **26px**. The ramp is what makes the site read tighter — not
@@ -244,8 +264,15 @@ difference between a bench and a web page.
 
 Supporting tokens:
 
-- `--plate` — the control gradient, `linear-gradient(180deg, …)` from a 4%-white mix of slate to a
-  6%-black mix. This replaces the three copies of `rgb(92, 86, 73)`.
+- `--plate` — the control gradient: a highlight off the top-right corner of a slate box, mixed a
+  little toward the brand green and falling to a 26%-black mix. This replaces the three copies of
+  `rgb(92, 86, 73)`. What the system holds is that it is one gradient in one place, mixed from the
+  palette; where the light falls is a look to tune, not a rule. `--plate-primary` and
+  `--plate-danger` are the two variant fills, mixed from the same slate toward gold and toward
+  crimson; a variant sets a fill, a keyline and a label colour and inherits the geometry.
+- `--sink` — `inset 0 1px 2px rgb(0 0 0 / 45%)`, the inward shadow every input, select and
+  textarea carries. A control is either raised off the surface by `--edge` or sunk into it by
+  this.
 - `--edge` — `inset 0 1px 0 rgb(255 255 255 / 7%)`, the top highlight that makes a plate a plate.
 - `--lift` — `0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%)`, the one shadow in the system.
 - `--notch` — the corner vocabulary: a 9px cut on the top-right and bottom-left, as a `clip-path`
@@ -401,28 +428,72 @@ class. There are about 120 of them across `src/components` and `src/routes`; a s
 reached the ones somebody remembered to annotate would leave most of the app on the old gradient,
 which is the state this issue exists to end.
 
-| Property   | Value                                                      |
-| ---------- | ---------------------------------------------------------- |
-| Height     | 28px, as `min-height` — a label that wraps grows the plate |
-| Padding    | `--s3` block, `--s5` inline                                |
-| Type       | `--t-micro`, `--t-micro-tracking`, uppercase, `--ink`      |
-| Fill       | `--plate`                                                  |
-| Keyline    | 1px `--border-strong`                                      |
-| Highlight  | `--edge`                                                   |
-| Corner     | `--corner-control`                                         |
-| Transition | `--motion-swift` on border colour, colour and box shadow   |
+| Property   | Value                                                                  |
+| ---------- | ---------------------------------------------------------------------- |
+| Height     | 28px, as `min-height` — a label that wraps grows the plate             |
+| Padding    | `--s3` block, `--s5` inline                                            |
+| Type       | `--t-micro`, `--t-micro-tracking`, uppercase, `--ink` — Inclusive Sans |
+| Fill       | `--plate`                                                              |
+| Keyline    | 1px `--border-strong`                                                  |
+| Highlight  | `--edge`                                                               |
+| Corner     | `--corner-control`                                                     |
+| Transition | `--motion-swift` on border colour, colour and box shadow               |
 
 Four states, and the press is the one that has to feel like a press:
 
-| State        | Recipe                                                                                                                |
-| ------------ | --------------------------------------------------------------------------------------------------------------------- |
-| **Rest**     | The plate above.                                                                                                      |
-| **Hover**    | Keyline to `--focus`, plus a faint glow: `0 0 6px color-mix(in srgb, var(--focus) 30%, transparent)` beside `--edge`. |
-| **Press**    | `translateY(1px)`, `--edge` swapped for an inward shadow, label `--accent`.                                           |
-| **Disabled** | Flat `--surface-inset`, 1px `--border`, no highlight and no shadow, label `--ink-faint`, `cursor: not-allowed`.       |
+| State        | Recipe                                                                                                                                                    |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Rest**     | The plate above.                                                                                                                                          |
+| **Hover**    | Keyline to `--focus`, a faint glow — `0 0 6px color-mix(in srgb, var(--focus) 30%, transparent)` beside `--edge` — the plate 8% brighter, and a 1px lift. |
+| **Press**    | `translateY(1px)`, `--edge` swapped for an inward shadow, label `--accent`.                                                                               |
+| **Disabled** | Flat `--surface-inset`, 1px `--border`, no highlight and no shadow, label `--ink-faint`, `cursor: not-allowed`.                                           |
+
+The movement is the 1px lift and the 1px drop, and that is all of it. Both run at
+`--motion-swift` like every other state change, and both go under `prefers-reduced-motion: reduce`
+while the state itself stays: hover still lights the keyline and press still drops the highlight
+and turns the label, they simply arrive rather than travel. The plate brightens under `filter`
+rather than by swapping gradients, because a gradient cannot be transitioned as a colour and two
+gradients cross-fading is a repaint rather than a transition.
 
 The disabled state is the one that drops the plate entirely. A greyed gradient still reads as a
 raised object, and a raised object reads as pressable; a flat inset one does not.
+
+### A button draws its own edge, and needs a liner to do it
+
+`clip-path` clips everything the element paints, and a `border` is something the element paints.
+On the two diagonal edges of a cut-cornered button the border is therefore sliced off: the plate
+meets the page with no keyline exactly where the shape is most visible. A single element cannot
+draw this, whatever is written on it — `background-clip: padding-box` under a border-box layer
+fails the same way, because the clip cuts both layers along the same diagonal.
+
+**So a button is two elements.** The `<button>` paints the edge colour across its whole box; a
+liner one pixel inside it paints the fill over all of that except a one-pixel band. The band _is_
+the border, and it follows the diagonal because both shapes are cut. `BaseButton` is that markup,
+and it is the reason the component exists — not styling convenience, which the element selector
+already had.
+
+| Layer                         | Paints                                             | Clip                     |
+| ----------------------------- | -------------------------------------------------- | ------------------------ |
+| `<button>`                    | `--btn-edge`, across the whole box, `padding: 1px` | `--corner-control`       |
+| `<span class="…inner-field">` | `--btn-fill`, one pixel inside                     | `--corner-control-inner` |
+
+`--corner-control-inner` cuts at 6px where the plate cuts at 7px. The liner is 2px smaller in each
+direction, so an equal cut would converge on the outer diagonal at one end and diverge at the
+other; a pixel shallower keeps the two parallel. **It is not a fourth corner treatment** — it is
+the control's own treatment, drawn a pixel in, and the cap in [Elevation](#elevation) counts
+treatments rather than polygons.
+
+**The variants are two custom properties, not two rule sets.** Everything in `main.css` is written
+against `--btn-edge` and `--btn-fill`, so a variant, a hover and a disabled state each set two
+colours and neither markup is mentioned. That is what lets a plain `<button>` — the six wrapper
+buttons around images, and any that has not been converted — read the same system from the element
+selector, differing only in the one thing it cannot draw.
+
+Two variants stay single-layer on purpose. An **icon** button is square and unclipped, so it has no
+diagonal to rescue. A **quiet** button has no fill, and a band is only visible against one: a
+transparent liner would show the whole edge colour rather than a pixel of it. So quiet is square
+too — a control with nothing to paint over cannot have a painted edge, and a shaved one reads as a
+rendering fault rather than as a shape.
 
 ### Focus on a clipped control is drawn inside it
 
@@ -460,14 +531,14 @@ the geometry — which is what makes "a skin may not touch control geometry"
 ([decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)) a rule with something
 behind it.
 
-| Variant         | Class              | Recipe                                                                                            |
-| --------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
-| **Secondary**   | none               | The base plate. The default, and the reason an unannotated `button` is already correct.           |
-| **Primary**     | `.btn-primary`     | `--accent-quiet` keyline over a plate warmed toward gold. One per surface.                        |
-| **Quiet**       | `.btn-quiet`       | No fill, 1px `--border`, label `--ink-muted`. Hover fills `--surface-inset` and lifts to `--ink`. |
-| **Destructive** | `.btn-destructive` | `--danger` keyline over a crimson-mixed plate, label `--ink`. Never crimson text — 2.2:1.         |
-| **Icon**        | `.btn-icon`        | 28×28, square, no clip, no inline padding. A 7px cut on a 28px square eats the glyph.             |
-| **Small**       | `.btn-sm`          | 24px, `--s2` block and `--s4` inline padding. Type does not change: `--t-micro` is the floor.     |
+| Variant         | Class              | Recipe                                                                                                                                                                                                       |
+| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Secondary**   | none               | The base plate. The default, and the reason an unannotated `button` is already correct.                                                                                                                      |
+| **Primary**     | `.btn-primary`     | `--accent-quiet` keyline over `--plate-primary`, the base plate warmed toward gold. One per surface.                                                                                                         |
+| **Quiet**       | `.btn-quiet`       | No fill, 1px `--border`, label `--ink-muted`, and **square**: there is no fill to paint a band against, and a clipped border is shaved at the diagonals. Hover fills `--surface-inset` and lifts to `--ink`. |
+| **Destructive** | `.btn-destructive` | `--danger` keyline over `--plate-danger`, the base plate mixed toward crimson, label `--ink`. Never crimson text — 2.2:1.                                                                                    |
+| **Icon**        | `.btn-icon`        | 28×28, square, no clip, no inline padding. A 7px cut on a 28px square eats the glyph.                                                                                                                        |
+| **Small**       | `.btn-sm`          | 24px, `--s2` block and `--s4` inline padding. Type does not change: `--t-micro` is the floor.                                                                                                                |
 
 `.btn-sm` composes with any of the others; the rest are mutually exclusive, and a button wearing
 two of them gets whichever the stylesheet lists last, which is a bug rather than a feature. The
@@ -482,15 +553,15 @@ none, and a generator whose Generate is primary should not also promote Save.
 
 An input is the inverse of a button: sunk into the surface rather than raised off it.
 
-| Property | Value                                                         |
-| -------- | ------------------------------------------------------------- |
-| Height   | 28px, as `min-height`                                         |
-| Padding  | `--s2` block, `--s4` inline                                   |
-| Type     | `--t-small`, `--ink`                                          |
-| Fill     | `--surface-inset`                                             |
-| Keyline  | 1px `--border`                                                |
-| Shadow   | `inset 0 1px 2px rgb(0 0 0 / 45%)` — inward, and the only one |
-| Corner   | None. Square, and see below                                   |
+| Property | Value                                                                |
+| -------- | -------------------------------------------------------------------- |
+| Height   | 28px, as `min-height`                                                |
+| Padding  | `--s2` block, `--s4` inline                                          |
+| Type     | `--t-small`, `--ink`                                                 |
+| Fill     | `--surface-inset`                                                    |
+| Keyline  | 1px `--border`                                                       |
+| Shadow   | `--sink`, the one inward shadow — `inset 0 1px 2px rgb(0 0 0 / 45%)` |
+| Corner   | None. Square, and see below                                          |
 
 Focus takes the `--focus` keyline **and** the ring; hover lightens the keyline to
 `--border-strong`. Disabled matches the button's: `--ink-faint` on a flat surface.
@@ -567,6 +638,89 @@ and onto the panel is [#119](https://github.com/ironarachne/ironarachne/issues/1
 [#121](https://github.com/ironarachne/ironarachne/issues/121), one skin at a time, and pulling
 that forward here would put four genres' worth of untested surface in a controls change.
 
+### A round icon button
+
+Five controls are round: **move left**, **move right** and **close** on a workshop panel's header,
+and **export** and **delete** on a row in the project listing. `RoundIconButton` is what they
+share; the five named components over it each carry a glyph and a default accessible name.
+
+**Round says what they act on.** A plate acts on the content in front of you — generate it, save
+it, download it. These act on a thing as an object: which slot a panel occupies and whether it is
+there at all; whether a saved artifact leaves as a file or stops existing. They carry no label to
+say so, so the shape says it. It is the one shape in the system that is not a cut rectangle, and
+a new one has to be the same kind of thing — a verb applied to a whole object, with no room for a
+word — or it is a plate.
+
+| Property | Value                                                                      |
+| -------- | -------------------------------------------------------------------------- |
+| Size     | 28px circle, 44px under `(pointer: coarse)`                                |
+| Fill     | `--btn-fill`, the plate                                                    |
+| Keyline  | 1px `--btn-edge`                                                           |
+| Glyph    | 14px, `currentColor` — `--ink`, `--accent` pressed, `--ink-faint` disabled |
+| Focus    | The ordinary outline at 2px offset                                         |
+
+Two things follow from being round rather than cut. There is **no liner**: a `border-radius` does
+not clip a border the way a `clip-path` does, so the edge survives on its own and there is nothing
+to paint a band with. And the **focus ring is an outline again**, at the offset
+[decision 3](#3-focus-and-contrast-are-targets-not-assumptions) asks for, because an outline
+follows the circle instead of being shaved by a clip region.
+
+Hover, press and disabled are not restated in the component: it reads `--btn-edge` and
+`--btn-fill` like every other control, so the states come from `main.css` and a round button
+lights its keyline exactly when a plate does.
+
+**Delete is the one with a tone.** `tone="danger"` sets those same two properties to `--danger`
+and `--plate-danger`, so a destructive round button is crimson-edged at rest and still lights,
+sinks and dims from the rules every other control uses. Crimson is 2.2:1 on charcoal and is never
+the glyph — the edge and the fill carry it, under an `--ink`-coloured mark, which is what
+[the colour roles](#colour-roles) say destructive intent is.
+
+**The glyphs are the first use of the icon set.** `triangle-left`, `triangle-right`, `cross`,
+`download` and `delete`,
+inlined with `?raw` rather than loaded through an `<img>` — each file paints one `currentColor`
+rect through a mask, so inlined it takes the colour of the button around it and the plate shows
+through its holes, which is what [decision 5](#5-the-icon-set-is-sungraphicas-and-the-credit-is-a-licence-term)
+says an icon is. `cross` is `set1`'s plain X rather than `controller`'s circled one: the button is
+already a circle, and a disc inside a disc reads as a mistake.
+
+### A list row
+
+A row in a list of choices — the tool browser's tools, the vault's artifacts, a project's
+contents, the session log's runs. Four lists had hand-rolled one of these each, with four sets of
+literals and three different corner radii between them; `ListButton` is the one of them.
+
+It is a button and takes none of the plate: no gradient, no 28px body, and **no uppercase**. Type
+is `--t-small` in the body face, sentence case, because a row is a name someone reads rather than
+a label they scan — a generated name in caps stops being the name.
+
+| Property | Value                                                              |
+| -------- | ------------------------------------------------------------------ |
+| Width    | Full, with the content laid out name-left, detail-right            |
+| Type     | `--t-small`, sentence case, `--ink`                                |
+| Padding  | `--s2` block, `--s4` inline                                        |
+| Corner   | `--corner-control`, with the same liner a button uses for its edge |
+| Gap      | `--s1` between rows                                                |
+
+| State        | Recipe                                                                                           |
+| ------------ | ------------------------------------------------------------------------------------------------ |
+| **Rest**     | No edge and no fill. The row shows the surface it sits on.                                       |
+| **Hover**    | `--accent` edge over an 18% accent fill.                                                         |
+| **Selected** | `--accent-quiet` edge over a 22% fill, and `--s3` block padding — the current row stands taller. |
+| **Focus**    | The inset ring, as on every clipped control.                                                     |
+
+**The selected row is taller on purpose.** Gold against green says which one the list is on rather
+than which one the pointer is over, and the extra two pixels a side make it findable down a long
+list without reading it — the same job the sidebar's current destination does with a marker. It is
+the one place in the system where a state changes a control's size, so it transitions at
+`--motion-swift` like everything else.
+
+**The fills are opaque**, mixed into `--surface-inset` rather than into `transparent`. That is
+forced by the two-layer edge: a translucent liner lets the edge colour through across the whole
+row, and the row reads as solid green instead of edged. It also makes a row look the same on the
+page as it does on a panel, which the four translucent versions did not.
+
+Selected plus hover is selected, for the reason [a nav item](#a-nav-item) gives.
+
 ### Navigation, badges and modals
 
 **Navigation** is the one shape that breaks the button rule on purpose: flush to the left edge,
@@ -579,8 +733,10 @@ the four states and the three widths, and #114 built it.
 `ToolMaturityBadge` shows experimental in `--accent-quiet` and beta in cyan; release-ready shows
 nothing, which is already how it behaves. That is #116's, with the panels.
 
-**Modals** keep `modal.css`'s structure and lose its literals, which is #117's — with one
-exception taken here, because it is a button and not a modal: `.modal-dialog-action--danger`
+**Modals** keep `modal.css`'s structure and lose its literals, which is #117's. Their actions are
+plates: a dialog exists to ask which of two things you meant, and a tertiary treatment on one of a
+pair reads as the pair being unequal, so cancel is the base plate rather than `quiet`. One further
+exception is taken here, because it is a button and not a modal: `.modal-dialog-action--danger`
 writes out a second `rgb(92, 86, 73)` gradient of its own, and it becomes `.btn-destructive`.
 Deleting a copy of the gradient this issue exists to replace is this issue's job; the dialog
 around it can wait for #117.
@@ -598,7 +754,8 @@ does:
   2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)'s "a skin may never touch control
   geometry", stated as a test rather than as a paragraph nobody re-reads.
 - The five control components in `src/components/common` declare no `font-size`, `padding`,
-  `margin` or `gap` outside the ramps.
+  `margin` or `gap` outside the ramps. `BaseButton` is held to the same rule, with the one
+  exception of the `1px` that is the border's own width.
 
 The last one is the general rule from [Enforcement](#enforcement) applied to the files this issue
 touches, rather than to the whole of `src/components` — which does not pass it yet, and making it
@@ -860,6 +1017,12 @@ For the implementation issues that follow this one:
    **Narrowed by [the shell](#icons-are-not-reopened-here):** the six nav destinations are out of
    it. They carry words, `docs/app-shell.md` decision 6 stands, and the question is now about the
    control set and the domains only.
+
+   **Narrowed again by [the round icon button](#a-round-icon-button):** five of the control set are
+   answered — `triangle-left`, `triangle-right` and `cross` on the panel header, `download` and
+   `delete` on an artifact row. They are the controls that had no room for a label, which is also
+   the rule the rest of the answer should follow: a glyph replaces a label there is no space for,
+   not one that already works.
 
 2. **Whether `--surface-sunken` earns its place.** It is declared for scroll wells behind an inset
    run, and if the implementation finds one use for it, it should be dropped rather than kept for

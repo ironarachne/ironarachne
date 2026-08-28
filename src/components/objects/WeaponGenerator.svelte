@@ -8,6 +8,7 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const themes = domains.map((domain) => domain.name).sort();
   const categories = ['any', 'melee', 'ranged'];
@@ -70,7 +71,7 @@
 
   <SeedControls bind:seed bind:lockSeed />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if weapon}
     <h2>{weapon.uniqueName}</h2>

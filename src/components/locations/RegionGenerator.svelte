@@ -16,6 +16,7 @@
   import SelectField from '$components/common/SelectField.svelte';
   import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import HeraldryEmblemButton from '$components/heraldry/HeraldryEmblemButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   onMount(() => {
     generate();
@@ -124,7 +125,7 @@
     bind:value={culture}
   />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if region}
     <h2>{Words.capitalize(region.name)}</h2>
@@ -323,8 +324,12 @@
   }
 
   button.heraldry-inline-target {
+    /* A wrapper around an image, not a plate: it opts out of the fill and the keyline, and out of
+       the corner cut with them, which would otherwise clip the emblem's corners. */
     border: none;
     background: none;
+    box-shadow: none;
+    clip-path: none;
     padding: 0;
     cursor: pointer;
     color: inherit;

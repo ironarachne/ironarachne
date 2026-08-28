@@ -5,6 +5,7 @@
   import { RNG } from '@ironarachne/rng';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const initialSeed = new RNG(Date.now().toString()).randomString(13);
   let seed = $state(initialSeed);
@@ -32,7 +33,7 @@
 
   <SeedControls bind:seed bind:lockSeed label="Random Seed" />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if drug}
     <p>{drug.description}</p>

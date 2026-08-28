@@ -9,6 +9,7 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import NumberField from '$components/common/NumberField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -135,11 +136,11 @@
 
   <SeedControls bind:seed bind:lockSeed />
 
-  <button onclick={generate}>Generate</button>
-  <button
+  <BaseButton onclick={generate}>Generate</BaseButton>
+  <BaseButton
     onclick={() => {
       randomizeParameters(rng);
-    }}>Randomize Parameters</button
+    }}>Randomize Parameters</BaseButton
   >
 
   {#if environment}

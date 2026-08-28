@@ -11,6 +11,7 @@
   } from '$lib/heraldry';
   import { showAlertModal } from '$lib/ui';
   import type { RNG } from '@ironarachne/rng';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     arms: Arms;
@@ -82,9 +83,8 @@
   </div>
 
   <div class="modal-dialog-actions heraldry-persistence-actions">
-    <button type="button" onclick={saveCurrentHeraldry} disabled={isCurrentBlazonSaved}>Save</button
-    >
-    <button type="button" onclick={onDismiss}>Close</button>
+    <BaseButton onclick={saveCurrentHeraldry} disabled={isCurrentBlazonSaved}>Save</BaseButton>
+    <BaseButton onclick={onDismiss}>Close</BaseButton>
   </div>
 
   <h3 class="heraldry-persistence-saved-heading">Replace with saved heraldry</h3>
@@ -104,7 +104,7 @@
             <p class="heraldry-persistence-item-name">{saved.name}</p>
             <p class="heraldry-persistence-item-seed">Seed: {saved.seed}</p>
           </div>
-          <button type="button" onclick={() => replaceWithSavedHeraldry(saved)}>Use</button>
+          <BaseButton onclick={() => replaceWithSavedHeraldry(saved)}>Use</BaseButton>
         </li>
       {/each}
     </ul>

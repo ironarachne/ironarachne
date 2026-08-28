@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
   import {
     ALL_RELIGION_DIMENSION_IDS,
     deityTitleLine,
@@ -93,7 +94,7 @@
   </p>
 {:else}
   <div class="religion-editor">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for="{uid}-religion-name">Religion name</label>
       <input
         id="{uid}-religion-name"
@@ -175,7 +176,7 @@
         <!-- Keyed by position rather than by value: two orders may read the same, and a key that
              changed as the user typed would lose focus on every keystroke. -->
         {#each religion.religion.cosmology.echelons as echelon, index (index)}
-          <div class="input-group">
+          <div class="input-group input-group--inline">
             <label for="{uid}-echelon-{index}">Spirit order {index + 1}</label>
             <input
               id="{uid}-echelon-{index}"
@@ -188,7 +189,7 @@
               autocomplete="off"
             />
           </div>
-          <div class="input-group">
+          <div class="input-group input-group--inline">
             <label for="{uid}-echelon-{index}-depth">Spirit order {index + 1} rank depth</label>
             <input
               id="{uid}-echelon-{index}-depth"
@@ -223,7 +224,7 @@
       <legend>Realms</legend>
 
       {#each religion.religion.realms as realm, index (index)}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for="{uid}-realm-{index}">Realm {index + 1}</label>
           <input
             id="{uid}-realm-{index}"
@@ -268,7 +269,7 @@
 
         {#each religion.religion.pantheon.members as deity, index (index)}
           <div class="religion-editor__deity">
-            <div class="input-group">
+            <div class="input-group input-group--inline">
               <label for="{uid}-deity-{index}">Deity {index + 1} name</label>
               <input
                 id="{uid}-deity-{index}"
@@ -280,13 +281,12 @@
                   )}
                 autocomplete="off"
               />
-              <button
-                type="button"
+              <BaseButton
                 aria-label="Remove deity {index + 1}"
                 onclick={() => edit((current) => removeDeity(current, index))}
               >
                 Remove
-              </button>
+              </BaseButton>
             </div>
 
             <!-- Read-only, and named rather than hidden. A deity's domains are a set drawn from the
@@ -299,7 +299,7 @@
               {/if}Domains: {listDomains(deity.domains)}
             </p>
 
-            <div class="input-group">
+            <div class="input-group input-group--inline">
               <label for="{uid}-deity-{index}-item">Deity {index + 1} holy item</label>
               <input
                 id="{uid}-deity-{index}-item"
@@ -313,7 +313,7 @@
               />
             </div>
 
-            <div class="input-group">
+            <div class="input-group input-group--inline">
               <label for="{uid}-deity-{index}-symbol">Deity {index + 1} holy symbol</label>
               <input
                 id="{uid}-deity-{index}-symbol"
@@ -396,13 +396,12 @@
     text-transform: uppercase;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset, the room to shrink and the full width. */
   .religion-editor .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
-    width: 100%;
     min-width: 0;
+    width: 100%;
   }
 
   /* Prose wants the width; a label sitting beside a three-row textarea on a 320px screen leaves

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
   // Said once, at the moment the user first has something to lose, and never again — see
   // docs/storage-disclosure.md. Inline and dismissible rather than a modal: a dialog over the first
   // thing somebody ever made is a toll gate, and this is a sentence.
@@ -27,7 +28,7 @@
          resolve() to add, and a base path would make it point off the page. -->
     <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
     <a href={backupHref}>Back up your work</a>
-    <button type="button" onclick={onDismiss}>Got it</button>
+    <BaseButton onclick={onDismiss}>Got it</BaseButton>
   </div>
 </div>
 
