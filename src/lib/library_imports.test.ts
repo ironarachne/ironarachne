@@ -60,9 +60,15 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   '$lib/adnd/adnd_character_artifact_kind',
 ]);
 
-/** A specifier ending in something other than a TS/JS extension is an asset, not a module. */
+/**
+ * A specifier ending in something other than a TS/JS extension is an asset, not a module.
+ *
+ * The Vite query is stripped first: an icon is imported as `…/cross.svg?raw`, which is the same
+ * asset with an instruction about how to load it, and without this the rule reads the specifier as
+ * ending in `raw` and asks for an entry point that an SVG does not have.
+ */
 function isAsset(specifier: string): boolean {
-  const last = specifier.split('/').pop() ?? '';
+  const last = (specifier.split('?')[0] ?? '').split('/').pop() ?? '';
   return /\.[a-z0-9]+$/i.test(last) && !/\.(ts|js)$/i.test(last);
 }
 

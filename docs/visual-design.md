@@ -625,6 +625,43 @@ and onto the panel is [#119](https://github.com/ironarachne/ironarachne/issues/1
 [#121](https://github.com/ironarachne/ironarachne/issues/121), one skin at a time, and pulling
 that forward here would put four genres' worth of untested surface in a controls change.
 
+### A round icon button
+
+Three controls are round: **move left**, **move right** and **close**, the buttons on a workshop
+panel's header. `RoundIconButton` is what they share; `MoveLeftButton`, `MoveRightButton` and
+`CloseButton` are the three of them, each carrying its own glyph and a default accessible name.
+
+**Round says what they act on.** A plate acts on the content in front of you — generate, save,
+export. These act on the frame that content sits in: which slot a panel occupies, and whether it
+is there at all. They carry no label to say so, so the shape says it. It is the one shape in the
+system that is not a cut rectangle, and the list is closed at three: a fourth round control needs
+to be the same kind of thing, or it is a plate.
+
+| Property | Value                                                                      |
+| -------- | -------------------------------------------------------------------------- |
+| Size     | 28px circle, 44px under `(pointer: coarse)`                                |
+| Fill     | `--btn-fill`, the plate                                                    |
+| Keyline  | 1px `--btn-edge`                                                           |
+| Glyph    | 14px, `currentColor` — `--ink`, `--accent` pressed, `--ink-faint` disabled |
+| Focus    | The ordinary outline at 2px offset                                         |
+
+Two things follow from being round rather than cut. There is **no liner**: a `border-radius` does
+not clip a border the way a `clip-path` does, so the edge survives on its own and there is nothing
+to paint a band with. And the **focus ring is an outline again**, at the offset
+[decision 3](#3-focus-and-contrast-are-targets-not-assumptions) asks for, because an outline
+follows the circle instead of being shaved by a clip region.
+
+Hover, press and disabled are not restated in the component: it reads `--btn-edge` and
+`--btn-fill` like every other control, so the states come from `main.css` and a round button
+lights its keyline exactly when a plate does.
+
+**The glyphs are the first use of the icon set.** `triangle-left`, `triangle-right` and `cross`,
+inlined with `?raw` rather than loaded through an `<img>` — each file paints one `currentColor`
+rect through a mask, so inlined it takes the colour of the button around it and the plate shows
+through its holes, which is what [decision 5](#5-the-icon-set-is-sungraphicas-and-the-credit-is-a-licence-term)
+says an icon is. `cross` is `set1`'s plain X rather than `controller`'s circled one: the button is
+already a circle, and a disc inside a disc reads as a mistake.
+
 ### A list row
 
 A row in a list of choices — the tool browser's tools, the vault's artifacts, a project's
@@ -957,6 +994,11 @@ For the implementation issues that follow this one:
    **Narrowed by [the shell](#icons-are-not-reopened-here):** the six nav destinations are out of
    it. They carry words, `docs/app-shell.md` decision 6 stands, and the question is now about the
    control set and the domains only.
+
+   **Narrowed again by [the round icon button](#a-round-icon-button):** three of the control set
+   are answered — `triangle-left`, `triangle-right` and `cross`, on the panel header. They are the
+   controls that had no label to begin with, which is also the rule the rest of the answer should
+   follow: a glyph replaces a label nobody could write, not one that already works.
 
 2. **Whether `--surface-sunken` earns its place.** It is declared for scroll wells behind an inset
    run, and if the implementation finds one use for it, it should be dropped rather than kept for

@@ -1,6 +1,8 @@
 <script lang="ts">
   import { tick, type Snippet } from 'svelte';
-  import BaseButton from '$components/common/BaseButton.svelte';
+  import CloseButton from '$components/common/CloseButton.svelte';
+  import MoveLeftButton from '$components/common/MoveLeftButton.svelte';
+  import MoveRightButton from '$components/common/MoveRightButton.svelte';
 
   type Props = {
     /** What the panel holds, shown in its header and used to name its controls. */
@@ -25,7 +27,7 @@
   const canMoveLeft = $derived(position > 1);
   const canMoveRight = $derived(position < total);
 
-  // `$state`, because these are bound through `BaseButton`'s `element` prop rather than by
+  // `$state`, because these are bound through the button component's `element` prop rather than by
   // `bind:this` on an element: a component binding writes back through the reactive graph, and a
   // plain `let` is assigned without anything noticing.
   let moveLeftButton: HTMLButtonElement | undefined = $state();
@@ -70,29 +72,21 @@
     </h2>
 
     <div class="workshop-panel__controls">
-      <BaseButton
-        variant="icon"
+      <MoveLeftButton
         bind:element={moveLeftButton}
         onclick={() => void moveWithFocusKept(onMoveLeft, moveLeftButton, moveRightButton)}
         disabled={!canMoveLeft}
-        aria-label="Move {title} left"
+        label="Move {title} left"
         title="Move left"
-      >
-        ←
-      </BaseButton>
-      <BaseButton
-        variant="icon"
+      />
+      <MoveRightButton
         bind:element={moveRightButton}
         onclick={() => void moveWithFocusKept(onMoveRight, moveRightButton, moveLeftButton)}
         disabled={!canMoveRight}
-        aria-label="Move {title} right"
+        label="Move {title} right"
         title="Move right"
-      >
-        →
-      </BaseButton>
-      <BaseButton variant="icon" onclick={onClose} aria-label="Close {title}" title="Close">
-        ×
-      </BaseButton>
+      />
+      <CloseButton onclick={onClose} label="Close {title}" title="Close" />
     </div>
   </header>
 
