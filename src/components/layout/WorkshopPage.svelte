@@ -429,7 +429,9 @@
   }
 
   .workshop__bench {
-    flex: 3 1 26rem;
+    /* Five to the rail's one: the bench takes most of the surplus, so a wide window spends it on
+       the thing being worked on rather than on the two lists you work *from*. */
+    flex: 5 1 32rem;
     min-width: 0;
     display: flex;
     flex-wrap: wrap;
@@ -450,14 +452,15 @@
   /* Below the wrap the log goes full width instead of sitting on its own row as a 14rem stub
      beside empty space.
 
-     60rem is the three columns' own arithmetic — 18 + 26 + 14 plus two 1rem gaps — asked of the
+     66rem is the three columns' own arithmetic — 18 + 32 + 14 plus two 1rem gaps — asked of the
      row they are in, so the log stops being a column at exactly the width it stops fitting beside
-     one. It resolves in the same `rem` the columns are sized in, which is what keeps the two in
+     one. It moved with the bench's basis; a threshold that did not would put the log on its own
+     row while there was still space for it, or leave it wrapping mid-column. It resolves in the same `rem` the columns are sized in, which is what keeps the two in
      step as the root font size scales.
 
      Nothing in the e2e suite looks at this band: the mobile projects are all 430px and below,
      where everything is stacked and full width already. It is checked by hand. */
-  @container workshop-layout (max-width: 60rem) {
+  @container workshop-layout (max-width: 66rem) {
     .workshop__log {
       flex-basis: 100%;
       --session-log-max-height: 12rem;

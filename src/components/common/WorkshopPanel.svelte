@@ -98,16 +98,18 @@
   /* `:global`, because the element carrying it is `Panel`'s. Panels share a row and give up width
      rather than pushing it into overflow; `min-width: 0` lets the contents wrap instead of setting
      a floor under the whole bench. One panel takes the row, two share it, and on a phone they
-     stack. */
+     stack. The basis is wider than the rail's two lists by design: the bench is where the work
+     happens, and a generator's controls wrap into a second row long before its output does. */
   :global(.workshop-panel) {
-    flex: 1 1 26rem;
+    flex: 1 1 32rem;
   }
 
+  /* No max height and no scroller of its own. It used to cap at 40rem so that one long tool could
+     not push everything beside it off the bottom of the page — but that trades a problem nobody
+     has for one everybody does: a panel with no surface reads as part of the page, and a scrollbar
+     down the middle of the page contradicts that every time the tool is taller than the cap, which
+     for a generator is most of the time. The page scrolls instead, which is what a page does. */
   .workshop-panel__body {
     min-width: 0;
-    /* A generator can be far taller than the bench; the panel scrolls its own content so one
-       long tool does not push everything beside it off the bottom of the page. */
-    max-height: var(--workshop-panel-max-height, 40rem);
-    overflow-y: auto;
   }
 </style>
