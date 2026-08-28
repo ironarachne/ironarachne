@@ -12,6 +12,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
   import type { Character } from '$lib/characters';
   import type { Creature } from '$lib/creatures';
 
@@ -82,7 +83,7 @@
     bind:checked={forceUniformSpecies}
   />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if encounter}
     <div class="stat-block">

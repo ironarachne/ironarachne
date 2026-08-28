@@ -138,10 +138,10 @@
   /* The control gradient — a 4%-white mix of slate down to a 6%-black mix. This is the one
      place it is written; `main.css`, `fantasy.css` and `modal.css` each held their own copy of
      `rgb(92, 86, 73)`. */
-  --plate: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--slate) 96%, white) 0%,
-    color-mix(in srgb, var(--slate) 94%, black) 100%
+  --plate: radial-gradient(
+    circle at 75% 5%,
+    color-mix(in srgb, var(--slate) 95%, var(--iron-arachne-green)) 0%,
+    color-mix(in srgb, var(--slate) 74%, black) 100%
   );
   /* The two variant plates, mixed from the same slate the base plate is. A variant sets a fill,
      a keyline and a label colour and inherits the geometry, so this is the whole of what makes a
@@ -185,6 +185,20 @@
     100% 100%,
     7px 100%,
     0 calc(100% - 7px)
+  );
+
+  /* The control treatment again, for the liner a button draws its edge with — one shape, two
+     polygons, not a fourth treatment. A `clip-path` cuts a border off at the diagonals, so a
+     button paints its edge as a box and covers all but a pixel of it with a liner; the liner is
+     2px smaller in each direction, and 6px here is the cut that keeps the two diagonals parallel
+     rather than converging on each other. It is never used on anything but that liner. */
+  --corner-control-inner: polygon(
+    0 0,
+    calc(100% - 6px) 0,
+    100% 6px,
+    100% 100%,
+    6px 100%,
+    0 calc(100% - 6px)
   );
 
   /* A nav item: square on the flush edge, both corners cut on the inner one. Neither of the

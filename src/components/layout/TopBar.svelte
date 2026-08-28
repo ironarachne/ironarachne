@@ -7,6 +7,7 @@
   import { readShellStatus, type ShellStatus } from '$lib/navigation';
   import { hydrateProjects, onProjectsChanged } from '$lib/projects';
   import lockup from '$lib/assets/images/logo/lockup-horizontal-green.svg';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /** Whether the sidebar drawer is open. Only meaningful below the drawer breakpoint. */
@@ -64,16 +65,16 @@
 
 <header class="top-bar">
   {#if onToggleDrawer !== undefined}
-    <button
-      type="button"
-      class="top-bar__menu btn-icon"
+    <BaseButton
+      variant="icon"
+      class="top-bar__menu"
       aria-expanded={drawerOpen}
       aria-controls="shell-sidebar"
       onclick={onToggleDrawer}
     >
       <span aria-hidden="true">☰</span>
       <span class="visually-hidden">{drawerOpen ? 'Close navigation' : 'Open navigation'}</span>
-    </button>
+    </BaseButton>
   {/if}
 
   <a class="top-bar__identity" href={resolve('/')}>
@@ -136,41 +137,16 @@
     }
   }
 
-  /* The icon button from the control vocabulary: 28×28 and square, because a cut corner on a
-     28px square eats the glyph. Only the drawer band has a drawer to toggle — hidden rather than
-     not rendered, so the button is present the instant the viewport narrows past the
-     breakpoint. */
-  .top-bar__menu {
-    align-items: center;
-    background: var(--plate);
-    border: 1px solid var(--border-strong);
-    box-shadow: var(--edge);
-    color: var(--ink);
-    cursor: pointer;
+  /* The drawer toggle is `BaseButton`'s icon variant, so the plate, the keyline, the hover and the
+     focus ring all come from the control system and none of them are restated here. What is left
+     is where it sits and when it exists: hidden rather than not rendered, so the button is present
+     the instant the viewport narrows past the breakpoint.
+
+     `:global`, because the element now lives inside `BaseButton` and a scoped selector cannot
+     reach it; kept under `.top-bar` so the pair outranks `.btn-icon` in `main.css`. */
+  .top-bar :global(.top-bar__menu) {
     display: none;
     flex: 0 0 auto;
-    font: var(--t-micro);
-    height: 28px;
-    justify-content: center;
-    line-height: 1;
-    padding: 0;
-    transition:
-      border-color var(--motion-swift) ease,
-      color var(--motion-swift) ease;
-    width: 28px;
-  }
-
-  .top-bar__menu:hover {
-    border-color: var(--focus);
-  }
-
-  .top-bar__menu:active {
-    color: var(--accent);
-  }
-
-  .top-bar__menu:focus-visible {
-    outline: 2px solid var(--focus);
-    outline-offset: 2px;
   }
 
   /* The status items sit together in the middle; the date is pushed to the far right by this
@@ -242,8 +218,8 @@
       gap: var(--s4);
     }
 
-    .top-bar__menu {
-      display: flex;
+    .top-bar :global(.top-bar__menu) {
+      display: inline-flex;
     }
 
     .top-bar__stat--tools,
@@ -256,18 +232,21 @@
     }
   }
 
-  /* 28px is the visual size of the control; the tap area is padded out to 44px. The condition is
-     the pointer and not the width — a touch laptop at 1280px wants the same target, and a phone
-     plugged into a mouse does not. The bar is 44px tall, so the target fills it exactly. */
+  /* The one control on the site that keeps its 28px body under a coarse pointer and grows an
+     invisible target around it instead. Everywhere else the target is the control, because
+     controls sit beside one another and two overlapping targets are a mis-tap; this button stands
+     alone in a 44px row, where a 44px plate would fill the bar edge to edge and the overlay has
+     nothing to collide with. It overrides `.btn-icon`'s coarse-pointer size to do it. */
   @media (pointer: coarse) {
-    .top-bar__menu {
+    .top-bar :global(.top-bar__menu) {
+      height: 28px;
+      min-height: 28px;
       position: relative;
+      width: 28px;
     }
 
-    /* Grown as an overlay rather than as padding, because padding would grow the plate itself and
-       the button would stop being a 28px control. The bar is 44px tall, so 8px either side of a
-       28px body fills it exactly. */
-    .top-bar__menu::after {
+    /* 8px either side of a 28px body fills a 44px bar exactly. */
+    .top-bar :global(.top-bar__menu)::after {
       content: '';
       inset: calc(var(--s4) * -1) 0;
       position: absolute;

@@ -25,6 +25,7 @@
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const TOOL_PATH = '/fantasy/adnd/character';
 
@@ -290,7 +291,7 @@
     onGenerateName={generateNameOnly}
   />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
   <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf || !character} />
 
   <SaveArtifactButton

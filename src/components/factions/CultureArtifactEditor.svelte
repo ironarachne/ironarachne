@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
   import {
     addCultureTaboo,
     redescribeCultureOrganization,
@@ -122,9 +123,9 @@
       <!-- Offered rather than done automatically: the description is the user's once they have
            touched it, and recomposing it the moment a field above changed would throw away a
            paragraph they wrote by hand. -->
-      <button type="button" onclick={() => edit(redescribeCultureOrganization)}>
+      <BaseButton onclick={() => edit(redescribeCultureOrganization)}>
         Rewrite description from these
-      </button>
+      </BaseButton>
     </fieldset>
 
     <fieldset>
@@ -180,19 +181,18 @@
               edit((current) => setCultureTaboo(current, index, event.currentTarget.value))}
             autocomplete="off"
           />
-          <button
-            type="button"
+          <BaseButton
             aria-label="Remove taboo {index + 1}"
             onclick={() => edit((current) => removeCultureTaboo(current, index))}
           >
             Remove
-          </button>
+          </BaseButton>
         </div>
       {/each}
 
-      <button type="button" onclick={() => edit((current) => addCultureTaboo(current))}>
+      <BaseButton onclick={() => edit((current) => addCultureTaboo(current))}>
         Add a taboo
-      </button>
+      </BaseButton>
     </fieldset>
 
     <fieldset>

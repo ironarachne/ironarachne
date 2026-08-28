@@ -20,6 +20,7 @@
   } from '$lib/workshop';
   import ArtifactReferences from '$components/common/ArtifactReferences.svelte';
   import ArtifactSnapshotView from '$components/common/ArtifactSnapshotView.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     projectId: string;
@@ -355,16 +356,15 @@
     {/if}
 
     <div class="artifact-panel__actions">
-      <button type="button" onclick={save} disabled={!dirty || saving}>
+      <BaseButton onclick={save} disabled={!dirty || saving}>
         {saving ? 'Saving…' : 'Save changes'}
-      </button>
+      </BaseButton>
       {#if dirty}
-        <button type="button" onclick={discard} disabled={saving}>Discard changes</button>
+        <BaseButton onclick={discard} disabled={saving}>Discard changes</BaseButton>
       {/if}
       {#if reroll !== 'unsupported'}
-        <button
-          type="button"
-          class="btn-destructive"
+        <BaseButton
+          variant="destructive"
           onclick={rollAgain}
           disabled={reroll !== 'available' || saving}
           title={reroll === 'no-provenance'
@@ -372,7 +372,7 @@
             : 'Replaces the contents with a fresh roll from the original seed.'}
         >
           Roll again
-        </button>
+        </BaseButton>
       {/if}
     </div>
 

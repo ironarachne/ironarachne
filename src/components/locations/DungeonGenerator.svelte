@@ -9,6 +9,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import NumberField from '$components/common/NumberField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
   import type { Character } from '$lib/characters';
   import type { Creature } from '$lib/creatures';
   import {
@@ -225,21 +226,13 @@
   />
 
   <div class="actions">
-    <button type="button" onclick={() => void generate()}>Generate</button>
-    <button
-      type="button"
-      onclick={() => downloadMap('image/png')}
-      disabled={!mapCanvas || !dungeon}
-    >
+    <BaseButton onclick={() => void generate()}>Generate</BaseButton>
+    <BaseButton onclick={() => downloadMap('image/png')} disabled={!mapCanvas || !dungeon}>
       Download PNG
-    </button>
-    <button
-      type="button"
-      onclick={() => downloadMap('image/jpeg')}
-      disabled={!mapCanvas || !dungeon}
-    >
+    </BaseButton>
+    <BaseButton onclick={() => downloadMap('image/jpeg')} disabled={!mapCanvas || !dungeon}>
       Download JPEG
-    </button>
+    </BaseButton>
   </div>
 
   <div class="input-group">

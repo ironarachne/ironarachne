@@ -26,6 +26,7 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const heraldryWidth = 200;
   const heraldryHeight = 220;
@@ -253,7 +254,7 @@
     onGenerateName={generateNameOnly}
   />
 
-  <button onclick={generateCharacter}>Generate</button>
+  <BaseButton onclick={generateCharacter}>Generate</BaseButton>
 
   {#if character}
     <h2>{character.name}</h2>

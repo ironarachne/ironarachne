@@ -1,5 +1,6 @@
 <script lang="ts">
   import { tick, type Snippet } from 'svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /** What the panel holds, shown in its header and used to name its controls. */
@@ -24,8 +25,11 @@
   const canMoveLeft = $derived(position > 1);
   const canMoveRight = $derived(position < total);
 
-  let moveLeftButton: HTMLButtonElement | undefined;
-  let moveRightButton: HTMLButtonElement | undefined;
+  // `$state`, because these are bound through `BaseButton`'s `element` prop rather than by
+  // `bind:this` on an element: a component binding writes back through the reactive graph, and a
+  // plain `let` is assigned without anything noticing.
+  let moveLeftButton: HTMLButtonElement | undefined = $state();
+  let moveRightButton: HTMLButtonElement | undefined = $state();
 
   /**
    * A move can disable the button that performed it: a panel arriving at either end of the bench
@@ -66,37 +70,29 @@
     </h2>
 
     <div class="workshop-panel__controls">
-      <button
-        type="button"
-        class="btn-icon"
-        bind:this={moveLeftButton}
+      <BaseButton
+        variant="icon"
+        bind:element={moveLeftButton}
         onclick={() => void moveWithFocusKept(onMoveLeft, moveLeftButton, moveRightButton)}
         disabled={!canMoveLeft}
         aria-label="Move {title} left"
         title="Move left"
       >
         ←
-      </button>
-      <button
-        type="button"
-        class="btn-icon"
-        bind:this={moveRightButton}
+      </BaseButton>
+      <BaseButton
+        variant="icon"
+        bind:element={moveRightButton}
         onclick={() => void moveWithFocusKept(onMoveRight, moveRightButton, moveLeftButton)}
         disabled={!canMoveRight}
         aria-label="Move {title} right"
         title="Move right"
       >
         →
-      </button>
-      <button
-        type="button"
-        class="btn-icon"
-        onclick={onClose}
-        aria-label="Close {title}"
-        title="Close"
-      >
+      </BaseButton>
+      <BaseButton variant="icon" onclick={onClose} aria-label="Close {title}" title="Close">
         ×
-      </button>
+      </BaseButton>
     </div>
   </header>
 
@@ -152,7 +148,7 @@
   /* No sizing of its own. These were hand-set to a 44px square so they would be tappable; the
      control system grows every button to that under `(pointer: coarse)` and leaves it at the
      ramp's density under a mouse, which is the whole point of having the ramp. */
-  .workshop-panel__controls button {
+  .workshop-panel__controls :global(button) {
     margin: 0;
   }
 

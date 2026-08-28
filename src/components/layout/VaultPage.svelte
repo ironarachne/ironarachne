@@ -19,6 +19,7 @@
   import { showConfirmModal } from '$lib/ui';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
   import ArtifactInspector from '$components/common/ArtifactInspector.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const uid = $props.id();
   const queryId = `${uid}-query`;
@@ -203,8 +204,7 @@
               <li>
                 <button
                   type="button"
-                  class="vault__row"
-                  class:vault__row--selected={artifact.id === selectedId}
+                  class="vault__row {artifact.id === selectedId ? 'vault__row--selected' : ''}"
                   aria-current={artifact.id === selectedId ? 'true' : undefined}
                   onclick={() => (selectedId = artifact.id)}
                 >
@@ -227,9 +227,9 @@
           a list above an inspector means every selection scrolls the page. This control is what
           gets back, and it is hidden above the breakpoint where both columns are on screen.
         -->
-        <button type="button" class="vault__back" onclick={() => (selectedId = undefined)}>
+        <BaseButton class="vault__back" onclick={() => (selectedId = undefined)}>
           ← All results
-        </button>
+        </BaseButton>
         {#key selected.artifact.id}
           <ArtifactInspector
             projectId={selected.artifact.projectId}
@@ -367,7 +367,7 @@
     padding: 0.6rem 0.75rem;
   }
 
-  .vault__back {
+  :global(.vault__back) {
     display: none;
     margin-bottom: 0.5rem;
   }
@@ -380,7 +380,7 @@
       grid-template-columns: 1fr;
     }
 
-    .vault__back {
+    :global(.vault__back) {
       display: inline-block;
     }
 

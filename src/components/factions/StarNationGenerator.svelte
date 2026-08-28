@@ -27,6 +27,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const rng = new RNG.RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -160,7 +161,7 @@
     options={planetCountOptions}
   />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if nation && homeSystem && homeSystemRegion && homePlanetRegion}
     <h2>{nation.name}</h2>

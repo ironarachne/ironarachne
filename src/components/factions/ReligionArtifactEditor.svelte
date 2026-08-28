@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
   import {
     ALL_RELIGION_DIMENSION_IDS,
     deityTitleLine,
@@ -280,13 +281,12 @@
                   )}
                 autocomplete="off"
               />
-              <button
-                type="button"
+              <BaseButton
                 aria-label="Remove deity {index + 1}"
                 onclick={() => edit((current) => removeDeity(current, index))}
               >
                 Remove
-              </button>
+              </BaseButton>
             </div>
 
             <!-- Read-only, and named rather than hidden. A deity's domains are a set drawn from the

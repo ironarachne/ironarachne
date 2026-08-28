@@ -3,6 +3,7 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import InputGroup from '$components/common/InputGroup.svelte';
   import NumberField from '$components/common/NumberField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const elements = allElements;
 
@@ -55,7 +56,7 @@
 
   <NumberField id="number-of-words" label="Number of Words" bind:value={numberOfWords} />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   <ul>
     {#each words as word}

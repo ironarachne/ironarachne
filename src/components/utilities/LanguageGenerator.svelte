@@ -11,6 +11,7 @@
     type ConstructedLanguage,
   } from '$lib/languages';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   let language: ConstructedLanguage | undefined = $state();
   let englishTranslationInput = $state('the cat sees a dog');
@@ -54,7 +55,7 @@
     <p>This generates fictional languages. This is mostly useful for debugging.</p>
   {/snippet}
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if language}
     <h2>{language.name}</h2>
@@ -80,13 +81,13 @@
     <div>
       <label for="en-to-con">English → {language.name}</label>
       <input id="en-to-con" type="text" bind:value={englishTranslationInput} />
-      <button type="button" onclick={runEnglishToConlang}>Translate</button>
+      <BaseButton onclick={runEnglishToConlang}>Translate</BaseButton>
       <p><code>{englishToConlangResult}</code></p>
     </div>
     <div>
       <label for="con-to-en">{language.name} → English</label>
       <input id="con-to-en" type="text" bind:value={conlangTranslationInput} />
-      <button type="button" onclick={runConlangToEnglish}>Translate</button>
+      <BaseButton onclick={runConlangToEnglish}>Translate</BaseButton>
       <p><code>{conlangToEnglishResult}</code></p>
     </div>
 

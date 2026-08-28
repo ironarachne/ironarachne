@@ -10,6 +10,7 @@
     validateHeraldrySnapshot,
   } from '$lib/heraldry';
   import type { ArtifactViewerProps } from '$lib/workshop';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const { snapshot }: ArtifactViewerProps = $props();
 
@@ -102,8 +103,8 @@
       {@html preview}
     </div>
     <div class="heraldry-artifact__actions">
-      <button type="button" onclick={downloadSvg}>Download SVG</button>
-      <button type="button" onclick={() => void downloadPng()}>Download PNG</button>
+      <BaseButton onclick={downloadSvg}>Download SVG</BaseButton>
+      <BaseButton onclick={() => void downloadPng()}>Download PNG</BaseButton>
     </div>
     {#if error !== null}
       <p class="heraldry-artifact__problem" role="alert">{error}</p>

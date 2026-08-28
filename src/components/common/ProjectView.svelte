@@ -17,6 +17,7 @@
   import { showConfirmModal } from '$lib/ui';
   import { buildArtifactExportFile } from '$lib/vault_file';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /** The open project, or undefined when there is none. */
@@ -268,8 +269,7 @@
             <li>
               <button
                 type="button"
-                class="project-view__artifact"
-                class:project-view__artifact--open={isOpen}
+                class="project-view__artifact {isOpen ? 'project-view__artifact--open' : ''}"
                 aria-current={isOpen ? 'true' : undefined}
                 onclick={() => onOpenArtifact?.(summary.id)}
               >
@@ -283,23 +283,21 @@
                   <span class="project-view__badge">Open</span>
                 {/if}
               </button>
-              <button
-                type="button"
+              <BaseButton
                 class="project-view__row-action"
                 aria-label="Export {summary.name}"
                 title="Export"
                 onclick={() => void exportArtifact(summary)}
               >
                 ⤓
-              </button>
-              <button
-                type="button"
+              </BaseButton>
+              <BaseButton
                 class="project-view__row-action"
                 aria-label="Delete {summary.name}"
                 onclick={() => remove(summary)}
               >
                 ×
-              </button>
+              </BaseButton>
             </li>
           {/each}
         </ul>
@@ -440,7 +438,7 @@
     background: color-mix(in srgb, var(--gold) 20%, transparent);
   }
 
-  .project-view__row-action {
+  :global(.project-view__row-action) {
     /* Two of these sit beside every row, so they are sized to the smallest comfortable tap target
        rather than to their glyph — a row on a 320px phone has to hold both without wrapping. */
     flex-shrink: 0;

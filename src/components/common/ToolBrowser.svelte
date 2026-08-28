@@ -141,8 +141,7 @@
           <li>
             <button
               type="button"
-              class="tool-browser__tool"
-              class:tool-browser__tool--active={isActive}
+              class="tool-browser__tool {isActive ? 'tool-browser__tool--active' : ''}"
               aria-current={isActive ? 'true' : undefined}
               onclick={() => selectTool(tool)}
             >

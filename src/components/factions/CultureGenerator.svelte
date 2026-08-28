@@ -31,6 +31,7 @@
   import ExportImportRow from '$components/common/ExportImportRow.svelte';
   import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const TOOL_PATH = '/culture';
 
@@ -329,7 +330,7 @@
     bind:problem={religionProblem}
   />
 
-  <button onclick={() => generate()} disabled={awaitingReligion}>Generate</button>
+  <BaseButton onclick={() => generate()} disabled={awaitingReligion}>Generate</BaseButton>
 
   <SaveArtifactButton
     kind={CULTURE_ARTIFACT_KIND}
@@ -348,7 +349,7 @@
     <h2>The {culture.name} Culture</h2>
 
     <div class="culture-exports">
-      <button type="button" onclick={exportMarkdown}>Download Markdown</button>
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
       <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
     </div>
 

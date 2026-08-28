@@ -17,6 +17,7 @@
     type Project,
   } from '$lib/projects';
   import { ARTIFACT_KINDS } from '$lib/workshop';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /**
@@ -132,7 +133,7 @@
         It is saved in this browser only — there is no account and no server.
         <a href={resolve('/projects')}>Export a copy</a> to keep work that outlives this browser.
       </p>
-      <button type="button" onclick={dismissAdoptionNotice}>Got it</button>
+      <BaseButton onclick={dismissAdoptionNotice}>Got it</BaseButton>
     </div>
   {/if}
 

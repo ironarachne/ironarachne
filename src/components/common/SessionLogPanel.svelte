@@ -14,6 +14,7 @@
   import { findToolByPath } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
   import { hasToolPanel } from '$lib/workshop';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     /** Called when the user asks for a run back. Absent leaves the entries unpressable. */
@@ -93,7 +94,7 @@
          of its own. What the list is of is said by the note under it and by each entry's tool
          name, so the heading does not have to carry it. -->
     <h2>This session</h2>
-    <button type="button" class="session-log__clear" onclick={() => void clear()}>Clear</button>
+    <BaseButton size="sm" class="session-log__clear" onclick={() => void clear()}>Clear</BaseButton>
   </div>
 
   <!-- The one thing in this column that is not an entry, and it is not optional. Under
@@ -163,10 +164,10 @@
     font-size: 1.3rem;
   }
 
-  .session-log__clear {
+  /* `size="sm"` carries what the padding and the font size here were reaching for; the flex reset
+     is this panel's own, and `:global` because the button is `BaseButton`'s element now. */
+  :global(.session-log__clear) {
     flex-shrink: 0;
-    padding: 0.2rem 0.6rem;
-    font-size: 0.8rem;
   }
 
   .session-log__note {

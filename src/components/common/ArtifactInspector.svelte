@@ -14,6 +14,7 @@
   } from '$lib/workshop';
   import ArtifactReferences from '$components/common/ArtifactReferences.svelte';
   import ArtifactSnapshotView from '$components/common/ArtifactSnapshotView.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     projectId: string;
@@ -146,9 +147,9 @@
     {/if}
 
     <div class="artifact-inspector__actions">
-      <button type="button" onclick={openInWorkshop}>Open in workshop</button>
-      <button type="button" onclick={exportArtifact}>Export</button>
-      <button type="button" onclick={() => onDelete?.(summary)}>Delete</button>
+      <BaseButton onclick={openInWorkshop}>Open in workshop</BaseButton>
+      <BaseButton onclick={exportArtifact}>Export</BaseButton>
+      <BaseButton onclick={() => onDelete?.(summary)}>Delete</BaseButton>
     </div>
 
     <!--
@@ -173,7 +174,7 @@
           autocomplete="off"
         />
       </div>
-      <button type="button" onclick={saveMetadata} disabled={!metadataDirty}>Save details</button>
+      <BaseButton onclick={saveMetadata} disabled={!metadataDirty}>Save details</BaseButton>
     </div>
 
     <ArtifactReferences {projectId} {summary} />

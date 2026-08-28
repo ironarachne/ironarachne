@@ -244,7 +244,9 @@ describe('the space ramp', () => {
 
 describe('elevation and corners', () => {
   it('declares the one plate gradient and the one shadow', () => {
-    expect(tokens.get('--plate')).toContain('linear-gradient');
+    // A gradient, not which kind: the plate reads as a lit surface, and whether the light comes
+    // down the box or off one corner of it is a look to tune rather than a rule to hold.
+    expect(tokens.get('--plate')).toMatch(/(linear|radial)-gradient/);
     expect(tokens.get('--edge')).toContain('inset');
     expect(tokens.get('--lift')).toContain('rgb(');
   });
@@ -267,10 +269,14 @@ describe('elevation and corners', () => {
       expect(tokens.get(corner), `${corner} is a clip-path polygon`).toMatch(/^polygon\(/);
     }
 
+    // `--corner-control-inner` is the control treatment a second time, not a fourth treatment: a
+    // clipped border is shaved at the diagonals, so a button paints its edge as a box and covers
+    // all but a pixel of it with a liner cut to the same shape. The cap counts treatments, and
+    // there are still three; a genuinely new shape would not be named after one of these.
     const declared = [...tokens.keys()].filter(
       (name) => name === '--notch' || name.startsWith('--corner-'),
     );
-    expect(declared.sort()).toEqual([...corners].sort());
+    expect(declared.sort()).toEqual([...corners, '--corner-control-inner'].sort());
   });
 
   it('cuts the nav corner on one edge and the other two diagonally', () => {
@@ -279,6 +285,9 @@ describe('elevation and corners', () => {
     // control cut diagonally opposite corners, at 9px and 7px respectively.
     expect(tokens.get('--notch')).toContain('9px');
     expect(tokens.get('--corner-control')).toContain('7px');
+    // The liner sits 1px inside the plate on every edge, so its cut is 1px shallower — that is
+    // what keeps the two diagonals parallel instead of converging.
+    expect(tokens.get('--corner-control-inner')).toContain('6px');
 
     expect(tokens.get('--corner-nav')).toContain('100% calc(100% - 7px)');
     expect(tokens.get('--notch')).not.toContain('100% calc(100% - 9px)');

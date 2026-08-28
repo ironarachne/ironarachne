@@ -27,6 +27,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
   import type { ToolCue } from '$lib/workshop';
 
   const TOOL_PATH = '/fantasy/settlement';
@@ -326,7 +327,7 @@
   <CheckboxField id="notables" label="Important characters (1–2)" bind:checked={includeNotables} />
 
   <p>
-    <button type="button" onclick={() => generate()} disabled={awaitingCulture}>Generate</button>
+    <BaseButton onclick={() => generate()} disabled={awaitingCulture}>Generate</BaseButton>
   </p>
 
   <SaveArtifactButton
@@ -347,7 +348,7 @@
     <p class="settlement-meta">{settlementSummaryLine(settlement)}</p>
 
     <div class="settlement-exports">
-      <button type="button" onclick={exportMarkdown}>Download Markdown</button>
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
       <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
     </div>
 

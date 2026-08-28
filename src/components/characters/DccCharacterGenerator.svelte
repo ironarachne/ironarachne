@@ -17,6 +17,7 @@
   import SeedControls from '$components/common/SeedControls.svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
@@ -205,7 +206,7 @@
     onGenerateName={generateNameOnly}
   />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
   <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
 
   {#if character}

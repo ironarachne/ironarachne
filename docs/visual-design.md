@@ -34,6 +34,13 @@ clipped because a `clip-path` leaves an outline nothing to paint on; and the 44p
 grows the control itself wherever controls sit beside one another, rather than the invisible
 overlay the top bar's lone icon button can afford.
 
+**Amended 2026-08-28 during implementation**, with [a button's two layers](#a-button-draws-its-own-edge-and-needs-a-liner-to-do-it).
+A cut corner and a border cannot both survive on one element, so a button is a `<button>` painting
+its edge and a liner painting its fill — which is what `BaseButton` is for, and why the variants
+are two custom properties rather than two rule sets. The plate also becomes a corner-lit radial
+rather than a top-down linear gradient; what the system holds is that there is one gradient, in one
+place, mixed from the palette.
+
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
 the workshop at 1440, the phone at 390 with its drawer, genre skins, the token taxonomy, and the
@@ -244,8 +251,10 @@ difference between a bench and a web page.
 
 Supporting tokens:
 
-- `--plate` — the control gradient, `linear-gradient(180deg, …)` from a 4%-white mix of slate to a
-  6%-black mix. This replaces the three copies of `rgb(92, 86, 73)`. `--plate-primary` and
+- `--plate` — the control gradient: a highlight off the top-right corner of a slate box, mixed a
+  little toward the brand green and falling to a 26%-black mix. This replaces the three copies of
+  `rgb(92, 86, 73)`. What the system holds is that it is one gradient in one place, mixed from the
+  palette; where the light falls is a look to tune, not a rule. `--plate-primary` and
   `--plate-danger` are the two variant fills, mixed from the same slate toward gold and toward
   crimson; a variant sets a fill, a keyline and a label colour and inherits the geometry.
 - `--sink` — `inset 0 1px 2px rgb(0 0 0 / 45%)`, the inward shadow every input, select and
@@ -436,6 +445,43 @@ gradients cross-fading is a repaint rather than a transition.
 The disabled state is the one that drops the plate entirely. A greyed gradient still reads as a
 raised object, and a raised object reads as pressable; a flat inset one does not.
 
+### A button draws its own edge, and needs a liner to do it
+
+`clip-path` clips everything the element paints, and a `border` is something the element paints.
+On the two diagonal edges of a cut-cornered button the border is therefore sliced off: the plate
+meets the page with no keyline exactly where the shape is most visible. A single element cannot
+draw this, whatever is written on it — `background-clip: padding-box` under a border-box layer
+fails the same way, because the clip cuts both layers along the same diagonal.
+
+**So a button is two elements.** The `<button>` paints the edge colour across its whole box; a
+liner one pixel inside it paints the fill over all of that except a one-pixel band. The band _is_
+the border, and it follows the diagonal because both shapes are cut. `BaseButton` is that markup,
+and it is the reason the component exists — not styling convenience, which the element selector
+already had.
+
+| Layer                         | Paints                                             | Clip                     |
+| ----------------------------- | -------------------------------------------------- | ------------------------ |
+| `<button>`                    | `--btn-edge`, across the whole box, `padding: 1px` | `--corner-control`       |
+| `<span class="…inner-field">` | `--btn-fill`, one pixel inside                     | `--corner-control-inner` |
+
+`--corner-control-inner` cuts at 6px where the plate cuts at 7px. The liner is 2px smaller in each
+direction, so an equal cut would converge on the outer diagonal at one end and diverge at the
+other; a pixel shallower keeps the two parallel. **It is not a fourth corner treatment** — it is
+the control's own treatment, drawn a pixel in, and the cap in [Elevation](#elevation) counts
+treatments rather than polygons.
+
+**The variants are two custom properties, not two rule sets.** Everything in `main.css` is written
+against `--btn-edge` and `--btn-fill`, so a variant, a hover and a disabled state each set two
+colours and neither markup is mentioned. That is what lets a plain `<button>` — the six wrapper
+buttons around images, and any that has not been converted — read the same system from the element
+selector, differing only in the one thing it cannot draw.
+
+Two variants stay single-layer on purpose. An **icon** button is square and unclipped, so it has no
+diagonal to rescue. A **quiet** button has no fill, and a band is only visible against one: a
+transparent liner would show the whole edge colour rather than a pixel of it, so quiet keeps the
+ordinary border and the clip shaves its diagonals. A control with nothing to paint over cannot
+have a painted edge.
+
 ### Focus on a clipped control is drawn inside it
 
 [Decision 3](#3-focus-and-contrast-are-targets-not-assumptions) asks for a 2px `--focus` outline
@@ -610,7 +656,8 @@ does:
   2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)'s "a skin may never touch control
   geometry", stated as a test rather than as a paragraph nobody re-reads.
 - The five control components in `src/components/common` declare no `font-size`, `padding`,
-  `margin` or `gap` outside the ramps.
+  `margin` or `gap` outside the ramps. `BaseButton` is held to the same rule, with the one
+  exception of the `1px` that is the border's own width.
 
 The last one is the general rule from [Enforcement](#enforcement) applied to the files this issue
 touches, rather than to the whole of `src/components` — which does not pass it yet, and making it

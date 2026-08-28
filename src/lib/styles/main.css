@@ -187,8 +187,16 @@ button {
      is what the design means by "never traded away". */
   --btn-ring: 0 0 rgb(0 0 0 / 0%);
 
-  background: var(--plate);
-  border: 1px solid var(--border-strong);
+  /* The edge and the fill are properties rather than declarations, and that is what lets one set
+     of rules dress two different markups. A plain `<button>` paints the fill as its background and
+     the edge as its border; `BaseButton` paints the edge across its whole box and covers all but a
+     pixel of it with a liner, which is the only way to keep a border on a clipped diagonal. A
+     variant or a state sets these two colours and never touches either rendering. */
+  --btn-edge: var(--border-strong);
+  --btn-fill: var(--plate);
+
+  background: var(--btn-fill);
+  border: 1px solid var(--btn-edge);
   box-shadow: var(--edge), var(--btn-ring);
   box-sizing: border-box;
   clip-path: var(--corner-control);
@@ -197,7 +205,11 @@ button {
   font: var(--t-micro);
   letter-spacing: var(--t-micro-tracking);
   min-height: 28px;
-  padding: var(--s3) var(--s5);
+  /* `--s2` and not `--s3`: with a 1px border and a 15.4px line, `--s3` puts the box at 29.4px and
+     the min-height never binds — a plain button then stands a pixel taller than a lined one, which
+     is the kind of difference nobody can name and everybody can see. At `--s2` the min-height is
+     what sets the height, and both markups land on 28. */
+  padding: var(--s2) var(--s5);
   text-transform: uppercase;
   /* Every state change is animated, and all of them at `--motion-swift`: the plate brightens
      under `filter` because a gradient cannot be transitioned as a colour, and the 1px hover lift
@@ -213,7 +225,8 @@ button {
 }
 
 button:hover:not(:disabled) {
-  border-color: var(--focus);
+  --btn-edge: var(--focus);
+
   box-shadow:
     var(--edge),
     0 0 6px color-mix(in srgb, var(--focus) 30%, transparent),
@@ -247,8 +260,9 @@ button:focus-visible {
 /* The one state that drops the plate entirely. A greyed gradient still reads as a raised object,
    and a raised object reads as pressable. */
 button:disabled {
-  background: var(--surface-inset);
-  border-color: var(--border);
+  --btn-edge: var(--border);
+  --btn-fill: var(--surface-inset);
+
   box-shadow: none;
   color: var(--ink-faint);
   cursor: not-allowed;
@@ -259,27 +273,29 @@ button:disabled {
 /* Primary is a claim about the page, not about the button: a surface with two primaries has none.
    A variant sets a fill, a keyline and a label colour and inherits every bit of the geometry. */
 .btn-primary {
-  background: var(--plate-primary);
-  border-color: var(--accent-quiet);
+  --btn-edge: var(--accent-quiet);
+  --btn-fill: var(--plate-primary);
 }
 
 .btn-quiet {
-  background: none;
-  border-color: var(--border);
+  --btn-edge: var(--border);
+  --btn-fill: none;
+
   box-shadow: var(--btn-ring);
   color: var(--ink-muted);
 }
 
 .btn-quiet:hover:not(:disabled) {
-  background: var(--surface-inset);
+  --btn-fill: var(--surface-inset);
+
   color: var(--ink);
 }
 
 /* Crimson is 2.2:1 on charcoal and is never the label. Destructive intent is the edge and the
    fill, under `--ink`-coloured text. */
 .btn-destructive {
-  background: var(--plate-danger);
-  border-color: var(--danger);
+  --btn-edge: var(--danger);
+  --btn-fill: var(--plate-danger);
 }
 
 /* 28×28 and square. A 7px cut on a 28px square eats the glyph, and being unclipped is also what
@@ -306,6 +322,19 @@ button:disabled {
 .btn-sm {
   min-height: 24px;
   padding: var(--s2) var(--s4);
+}
+
+/* `body :not(:is(h1, h2, h3, h4, h5, h6)) { line-height: 1.75 }` near the top of this file is two
+   selectors' worth of specificity and outranks the element rules above, so a control's line height
+   was coming from prose rather than from its own ramp step — which is why a plain button stood
+   33px tall against a `BaseButton`'s 28px. Restated here at a weight that wins. The global rule is
+   the type work's to remove, not this issue's. */
+body :is(button, select) {
+  line-height: var(--t-micro-line);
+}
+
+body :is(input, textarea) {
+  line-height: var(--t-small-line);
 }
 
 /* An input is the inverse of a button, and deliberately unclipped: a cut corner on a text field

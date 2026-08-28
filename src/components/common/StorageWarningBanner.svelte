@@ -3,6 +3,7 @@
 
   import { resolve } from '$app/paths';
   import { onArtifactsChanged } from '$lib/artifacts';
+  import BaseButton from '$components/common/BaseButton.svelte';
   import {
     dismissStorageWarning,
     hasDismissedStorageWarning,
@@ -65,7 +66,7 @@
       <!-- A fragment appended to a resolved route. -->
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a href={storagePanelHref}>Storage and backup</a>
-      <button type="button" onclick={dismiss}>Dismiss</button>
+      <BaseButton onclick={dismiss}>Dismiss</BaseButton>
     </div>
   </div>
 {/if}

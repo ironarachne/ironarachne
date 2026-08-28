@@ -12,6 +12,7 @@
   import SelectField from '$components/common/SelectField.svelte';
   import NumberField from '$components/common/NumberField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const INITIAL_ITERATIONS = 3;
   const INITIAL_MIN_MEMBERS_PER_GENERATION = 2;
@@ -322,7 +323,7 @@
     />
   </div>
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   <h2>The {family.name} Family</h2>
 

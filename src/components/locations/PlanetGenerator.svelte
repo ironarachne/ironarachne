@@ -28,6 +28,7 @@
   import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const planetTypes = getPlanetClassifications();
 
@@ -153,7 +154,7 @@
 
   <CheckboxField id="forceRings" label="Force Rings" bind:checked={forceRings} />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if planet}
     <h2>{planet.name}</h2>

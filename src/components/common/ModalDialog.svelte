@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { AlertModalStyle } from '$lib/ui';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   type Props = {
     kind: 'alert' | 'confirm';
@@ -35,18 +36,17 @@
   <p id="modal-dialog-message" class="modal-dialog-message">{message}</p>
   <div class="modal-dialog-actions">
     {#if kind === 'confirm'}
-      <button type="button" class="btn-quiet" onclick={() => onResolveConfirm?.(false)}>
+      <BaseButton variant="quiet" onclick={() => onResolveConfirm?.(false)}>
         {cancelLabel}
-      </button>
-      <button
-        type="button"
-        class:btn-destructive={dangerous}
+      </BaseButton>
+      <BaseButton
+        variant={dangerous ? 'destructive' : 'secondary'}
         onclick={() => onResolveConfirm?.(true)}
       >
         {okLabel}
-      </button>
+      </BaseButton>
     {:else}
-      <button type="button" onclick={() => onResolveAlert?.()}>{okLabel}</button>
+      <BaseButton onclick={() => onResolveAlert?.()}>{okLabel}</BaseButton>
     {/if}
   </div>
 </div>

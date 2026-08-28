@@ -12,6 +12,7 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
+  import BaseButton from '$components/common/BaseButton.svelte';
 
   const initialSeed = new RNG(Date.now().toString()).randomString(13);
   let seed = $state(initialSeed);
@@ -54,7 +55,7 @@
     bind:checked={allowProceduralNames}
   />
 
-  <button onclick={generate}>Generate</button>
+  <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if potion}
     <article class="potion-result">

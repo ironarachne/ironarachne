@@ -1,4 +1,5 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
   import {
     addSettlementProblem,
     removeSettlementNotable,
@@ -307,22 +308,18 @@
                   )}
               ></textarea>
             </div>
-            <button
-              type="button"
+            <BaseButton
               aria-label="Remove {list.singular.toLowerCase()} {index + 1}"
               onclick={() => edit((current) => removeSettlementProblem(current, list.field, index))}
             >
               Remove
-            </button>
+            </BaseButton>
           </div>
         {/each}
 
-        <button
-          type="button"
-          onclick={() => edit((current) => addSettlementProblem(current, list.field))}
-        >
+        <BaseButton onclick={() => edit((current) => addSettlementProblem(current, list.field))}>
           Add {list.singular.toLowerCase()}
-        </button>
+        </BaseButton>
       </fieldset>
     {/each}
 
@@ -449,13 +446,12 @@
             <!-- No way to add one, deliberately: a notable is a generated character with a
                  species, an age, and an archetype, so an empty one would be a broken record
                  rather than a blank field. -->
-            <button
-              type="button"
+            <BaseButton
               aria-label="Remove {notableName(index) || `notable ${index + 1}`}"
               onclick={() => edit((current) => removeSettlementNotable(current, index))}
             >
               Remove
-            </button>
+            </BaseButton>
           </div>
         {/each}
       </fieldset>
