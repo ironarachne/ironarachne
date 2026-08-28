@@ -328,6 +328,31 @@ describe('the control system', () => {
     },
   );
 
+  it('never leaves a checkbox in a column group', () => {
+    // `.input-group` is a flex column, so a checkbox written straight into one renders above its
+    // own label rather than beside it — which is what the AD&D and DCC generators did, and it
+    // looks like a rendering bug rather than a layout choice. `CheckboxField` and
+    // `.input-group--inline` are the two right answers; a label wrapped around its own box
+    // (`.inline-label`, as the seed lock and the dungeon's full-size toggle do) is a third.
+    const groups = /<div class="input-group([^"]*)"[^>]*>([\s\S]*?)<\/div>/g;
+    const offenders: string[] = [];
+
+    for (const { name, css } of siteStylesheets()) {
+      if (!name.endsWith('.svelte')) {
+        continue;
+      }
+
+      for (const [, modifiers, contents] of css.matchAll(groups)) {
+        const inline = modifiers.includes('--inline') || contents.includes('inline-label');
+        if (!inline && contents.includes('type="checkbox"')) {
+          offenders.push(name);
+        }
+      }
+    }
+
+    expect(offenders, 'a checkbox in a column group renders above its label').toEqual([]);
+  });
+
   it('keeps the control components on the ramps', () => {
     // The general rule from "Enforcement", applied to the files #115 touches rather than to all of
     // `src/components` — which does not pass it yet, and making it pass everywhere is #116 and

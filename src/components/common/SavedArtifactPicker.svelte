@@ -10,6 +10,7 @@
     type ArtifactSummary,
   } from '$lib/artifacts';
   import { getActiveProject, hydrateProjects, onProjectsChanged } from '$lib/projects';
+  import CheckboxField from '$components/common/CheckboxField.svelte';
   import { artifactKindEntry, loadArtifactValue } from '$lib/workshop';
 
   /**
@@ -158,10 +159,11 @@
 </script>
 
 {#if choices.length > 0}
-  <div class="input-group">
-    <label for={checkboxId}>{checkboxLabel ?? `Use a saved ${kindName}?`}</label>
-    <input id={checkboxId} type="checkbox" bind:checked={enabled} />
-  </div>
+  <CheckboxField
+    id={checkboxId}
+    label={checkboxLabel ?? `Use a saved ${kindName}?`}
+    bind:checked={enabled}
+  />
   <div class="input-group">
     <label for={selectId}>{selectLabel ?? `Saved ${kindName}`}</label>
     <select id={selectId} bind:value={artifactId} disabled={!enabled}>

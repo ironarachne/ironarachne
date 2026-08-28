@@ -126,7 +126,7 @@
           {hiddenCount === 1 ? 'tool' : 'tools'} for other settings hidden.
         {/if}
       </p>
-      <div class="input-group tool-browser__show-all">
+      <div class="input-group input-group--inline tool-browser__show-all">
         <input id={showAllId} type="checkbox" bind:checked={showAll} />
         <label for={showAllId}>Show all tools</label>
       </div>
@@ -236,12 +236,9 @@
     color: var(--gold);
   }
 
+  /* The row layout and the gap are `--inline`'s; the margin reset is this panel's. */
   .tool-browser__show-all {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
-    font-size: 0.85rem;
   }
 
   .tool-browser__list {

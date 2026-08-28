@@ -1,6 +1,7 @@
 <script lang="ts">
   import * as RNG from '@ironarachne/rng';
   import { resolve } from '$app/paths';
+  import CheckboxField from '$components/common/CheckboxField.svelte';
   import AdndCharacterSheet from '$components/characters/AdndCharacterSheet.svelte';
   import {
     ADND_CHARACTER_ARTIFACT_KIND,
@@ -260,20 +261,17 @@
 
   <SeedControls bind:seed bind:lockSeed />
 
-  <div class="input-group">
-    <input
-      type="checkbox"
-      name="includeProficiencies"
-      bind:checked={includeProficiencies}
-      id="includeProficiencies"
-    />
-    <label for="includeProficiencies">Include proficiencies (weapon and nonweapon)</label>
-  </div>
+  <CheckboxField
+    id="includeProficiencies"
+    label="Include proficiencies (weapon and nonweapon)"
+    bind:checked={includeProficiencies}
+  />
 
-  <div class="input-group">
-    <input type="checkbox" name="includeKits" bind:checked={includeKits} id="includeKits" />
-    <label for="includeKits">Include character kit (optional sub-archetype)</label>
-  </div>
+  <CheckboxField
+    id="includeKits"
+    label="Include character kit (optional sub-archetype)"
+    bind:checked={includeKits}
+  />
 
   <CharacterNameSection
     offerReferencedCulture
