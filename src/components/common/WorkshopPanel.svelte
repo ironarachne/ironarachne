@@ -109,14 +109,21 @@
     background: var(--slate);
   }
 
+  /* The controls stay in the upper right whatever the title does. `wrap` used to let them drop
+     to a line of their own as soon as a title like "Dungeon Crawl Classics Character" ran out of
+     room, which reads as the header having broken rather than as the title being long; the title
+     has `min-width: 0` and breaks its own words instead. `flex-start` rather than `center`, so a
+     title that takes two lines does not carry the buttons down to the middle of them. */
   .workshop-panel__header {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: space-between;
-    gap: 0.5rem;
-    padding: 0.4rem 0.5rem;
+    align-items: flex-start;
     border-bottom: 1px solid var(--tan);
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--s4);
+    justify-content: space-between;
+    /* Even padding, so the control group sits the same distance from the top edge as it does from
+       the right one — an inset that differs by axis reads as the buttons having drifted. */
+    padding: var(--s4);
   }
 
   .workshop-panel__title {
