@@ -24,6 +24,8 @@
     icon: string;
     /** The accessible name. Required — there is no visible text to fall back on. */
     label: string;
+    /** `danger` takes the crimson edge and fill destructive intent is carried by. */
+    tone?: 'neutral' | 'danger';
     class?: string;
     element?: HTMLButtonElement;
   };
@@ -31,6 +33,7 @@
   let {
     icon,
     label,
+    tone = 'neutral',
     class: extraClass = '',
     element = $bindable(),
     type = 'button',
@@ -42,6 +45,7 @@
   bind:this={element}
   {type}
   class="round-icon-button {extraClass}"
+  class:round-icon-button--danger={tone === 'danger'}
   aria-label={label}
   {...rest}
 >
@@ -72,6 +76,15 @@
     min-height: 0;
     padding: 0;
     width: 28px;
+  }
+
+  /* The same two properties every variant sets, so the states below are untouched: a danger button
+     lights its keyline on hover exactly when a neutral one does, from the same rule in `main.css`.
+     Crimson is 2.2:1 on charcoal and is never the glyph — the edge and the fill carry it, under an
+     `--ink`-coloured mark. */
+  .round-icon-button--danger {
+    --btn-edge: var(--danger);
+    --btn-fill: var(--plate-danger);
   }
 
   /* Round, so an outline at an offset follows the circle and is not shaved by a clip — this is one

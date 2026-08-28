@@ -627,15 +627,16 @@ that forward here would put four genres' worth of untested surface in a controls
 
 ### A round icon button
 
-Three controls are round: **move left**, **move right** and **close**, the buttons on a workshop
-panel's header. `RoundIconButton` is what they share; `MoveLeftButton`, `MoveRightButton` and
-`CloseButton` are the three of them, each carrying its own glyph and a default accessible name.
+Five controls are round: **move left**, **move right** and **close** on a workshop panel's header,
+and **export** and **delete** on a row in the project listing. `RoundIconButton` is what they
+share; the five named components over it each carry a glyph and a default accessible name.
 
-**Round says what they act on.** A plate acts on the content in front of you — generate, save,
-export. These act on the frame that content sits in: which slot a panel occupies, and whether it
-is there at all. They carry no label to say so, so the shape says it. It is the one shape in the
-system that is not a cut rectangle, and the list is closed at three: a fourth round control needs
-to be the same kind of thing, or it is a plate.
+**Round says what they act on.** A plate acts on the content in front of you — generate it, save
+it, download it. These act on a thing as an object: which slot a panel occupies and whether it is
+there at all; whether a saved artifact leaves as a file or stops existing. They carry no label to
+say so, so the shape says it. It is the one shape in the system that is not a cut rectangle, and
+a new one has to be the same kind of thing — a verb applied to a whole object, with no room for a
+word — or it is a plate.
 
 | Property | Value                                                                      |
 | -------- | -------------------------------------------------------------------------- |
@@ -655,7 +656,14 @@ Hover, press and disabled are not restated in the component: it reads `--btn-edg
 `--btn-fill` like every other control, so the states come from `main.css` and a round button
 lights its keyline exactly when a plate does.
 
-**The glyphs are the first use of the icon set.** `triangle-left`, `triangle-right` and `cross`,
+**Delete is the one with a tone.** `tone="danger"` sets those same two properties to `--danger`
+and `--plate-danger`, so a destructive round button is crimson-edged at rest and still lights,
+sinks and dims from the rules every other control uses. Crimson is 2.2:1 on charcoal and is never
+the glyph — the edge and the fill carry it, under an `--ink`-coloured mark, which is what
+[the colour roles](#colour-roles) say destructive intent is.
+
+**The glyphs are the first use of the icon set.** `triangle-left`, `triangle-right`, `cross`,
+`download` and `delete`,
 inlined with `?raw` rather than loaded through an `<img>` — each file paints one `currentColor`
 rect through a mask, so inlined it takes the colour of the button around it and the plate shows
 through its holes, which is what [decision 5](#5-the-icon-set-is-sungraphicas-and-the-credit-is-a-licence-term)
@@ -995,10 +1003,11 @@ For the implementation issues that follow this one:
    it. They carry words, `docs/app-shell.md` decision 6 stands, and the question is now about the
    control set and the domains only.
 
-   **Narrowed again by [the round icon button](#a-round-icon-button):** three of the control set
-   are answered — `triangle-left`, `triangle-right` and `cross`, on the panel header. They are the
-   controls that had no label to begin with, which is also the rule the rest of the answer should
-   follow: a glyph replaces a label nobody could write, not one that already works.
+   **Narrowed again by [the round icon button](#a-round-icon-button):** five of the control set are
+   answered — `triangle-left`, `triangle-right` and `cross` on the panel header, `download` and
+   `delete` on an artifact row. They are the controls that had no room for a label, which is also
+   the rule the rest of the answer should follow: a glyph replaces a label there is no space for,
+   not one that already works.
 
 2. **Whether `--surface-sunken` earns its place.** It is declared for scroll wells behind an inset
    run, and if the implementation finds one use for it, it should be dropped rather than kept for

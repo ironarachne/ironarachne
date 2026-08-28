@@ -18,7 +18,8 @@
   import { buildArtifactExportFile } from '$lib/vault_file';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
   import ListButton from '$components/common/ListButton.svelte';
-  import BaseButton from '$components/common/BaseButton.svelte';
+  import DeleteButton from '$components/common/DeleteButton.svelte';
+  import ExportButton from '$components/common/ExportButton.svelte';
 
   type Props = {
     /** The open project, or undefined when there is none. */
@@ -283,21 +284,12 @@
                   <span class="project-view__badge">Open</span>
                 {/if}
               </ListButton>
-              <BaseButton
-                class="project-view__row-action"
-                aria-label="Export {summary.name}"
+              <ExportButton
+                label="Export {summary.name}"
                 title="Export"
                 onclick={() => void exportArtifact(summary)}
-              >
-                ⤓
-              </BaseButton>
-              <BaseButton
-                class="project-view__row-action"
-                aria-label="Delete {summary.name}"
-                onclick={() => remove(summary)}
-              >
-                ×
-              </BaseButton>
+              />
+              <DeleteButton label="Delete {summary.name}" onclick={() => remove(summary)} />
             </li>
           {/each}
         </ul>
@@ -401,12 +393,15 @@
     padding: 0;
   }
 
+  /* `center`, not `stretch`: the two round buttons carry their own 28px height, so stretching the
+     line lands them at the top of a row that is taller than they are. The gap between rows is the
+     row's own `--s1` margin rather than one here, or the two stack. */
   .project-view li {
+    align-items: center;
     display: flex;
-    align-items: stretch;
-    gap: 0.25rem;
+    gap: var(--s2);
     list-style-type: none;
-    margin: 0 0 0.15rem;
+    margin: 0;
   }
 
   /* The row sits beside two action buttons in the same `li`, so it takes the space they leave.
@@ -414,16 +409,6 @@
   :global(.project-view__artifact) {
     flex: 1 1 auto;
     min-width: 0;
-  }
-
-  :global(.project-view__row-action) {
-    /* Two of these sit beside every row, so they are sized to the smallest comfortable tap target
-       rather than to their glyph — a row on a 320px phone has to hold both without wrapping. */
-    flex-shrink: 0;
-    min-width: 2.5rem;
-    margin: 0;
-    padding: 0.2rem 0.4rem;
-    line-height: 1;
   }
 
   .project-view__name {
