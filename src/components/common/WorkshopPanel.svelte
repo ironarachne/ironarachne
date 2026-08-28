@@ -68,6 +68,7 @@
     <div class="workshop-panel__controls">
       <button
         type="button"
+        class="btn-icon"
         bind:this={moveLeftButton}
         onclick={() => void moveWithFocusKept(onMoveLeft, moveLeftButton, moveRightButton)}
         disabled={!canMoveLeft}
@@ -78,6 +79,7 @@
       </button>
       <button
         type="button"
+        class="btn-icon"
         bind:this={moveRightButton}
         onclick={() => void moveWithFocusKept(onMoveRight, moveRightButton, moveLeftButton)}
         disabled={!canMoveRight}
@@ -86,7 +88,15 @@
       >
         →
       </button>
-      <button type="button" onclick={onClose} aria-label="Close {title}" title="Close"> × </button>
+      <button
+        type="button"
+        class="btn-icon"
+        onclick={onClose}
+        aria-label="Close {title}"
+        title="Close"
+      >
+        ×
+      </button>
     </div>
   </header>
 
@@ -136,16 +146,14 @@
   .workshop-panel__controls {
     display: flex;
     flex-shrink: 0;
-    gap: 0.25rem;
+    gap: var(--s2);
   }
 
+  /* No sizing of its own. These were hand-set to a 44px square so they would be tappable; the
+     control system grows every button to that under `(pointer: coarse)` and leaves it at the
+     ramp's density under a mouse, which is the whole point of having the ramp. */
   .workshop-panel__controls button {
-    /* Sized to the 44px touch target the rest of the site uses, not to the glyph inside it. */
-    min-width: 2.75rem;
-    min-height: 2.75rem;
     margin: 0;
-    padding: 0.2rem 0.5rem;
-    line-height: 1;
   }
 
   .workshop-panel__body {

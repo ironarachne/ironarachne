@@ -66,7 +66,7 @@
   {#if onToggleDrawer !== undefined}
     <button
       type="button"
-      class="top-bar__menu"
+      class="top-bar__menu btn-icon"
       aria-expanded={drawerOpen}
       aria-controls="shell-sidebar"
       onclick={onToggleDrawer}

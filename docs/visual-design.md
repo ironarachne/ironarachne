@@ -245,7 +245,12 @@ difference between a bench and a web page.
 Supporting tokens:
 
 - `--plate` — the control gradient, `linear-gradient(180deg, …)` from a 4%-white mix of slate to a
-  6%-black mix. This replaces the three copies of `rgb(92, 86, 73)`.
+  6%-black mix. This replaces the three copies of `rgb(92, 86, 73)`. `--plate-primary` and
+  `--plate-danger` are the two variant fills, mixed from the same slate toward gold and toward
+  crimson; a variant sets a fill, a keyline and a label colour and inherits the geometry.
+- `--sink` — `inset 0 1px 2px rgb(0 0 0 / 45%)`, the inward shadow every input, select and
+  textarea carries. A control is either raised off the surface by `--edge` or sunk into it by
+  this.
 - `--edge` — `inset 0 1px 0 rgb(255 255 255 / 7%)`, the top highlight that makes a plate a plate.
 - `--lift` — `0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%)`, the one shadow in the system.
 - `--notch` — the corner vocabulary: a 9px cut on the top-right and bottom-left, as a `clip-path`
@@ -414,12 +419,19 @@ which is the state this issue exists to end.
 
 Four states, and the press is the one that has to feel like a press:
 
-| State        | Recipe                                                                                                                |
-| ------------ | --------------------------------------------------------------------------------------------------------------------- |
-| **Rest**     | The plate above.                                                                                                      |
-| **Hover**    | Keyline to `--focus`, plus a faint glow: `0 0 6px color-mix(in srgb, var(--focus) 30%, transparent)` beside `--edge`. |
-| **Press**    | `translateY(1px)`, `--edge` swapped for an inward shadow, label `--accent`.                                           |
-| **Disabled** | Flat `--surface-inset`, 1px `--border`, no highlight and no shadow, label `--ink-faint`, `cursor: not-allowed`.       |
+| State        | Recipe                                                                                                                                                    |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Rest**     | The plate above.                                                                                                                                          |
+| **Hover**    | Keyline to `--focus`, a faint glow — `0 0 6px color-mix(in srgb, var(--focus) 30%, transparent)` beside `--edge` — the plate 8% brighter, and a 1px lift. |
+| **Press**    | `translateY(1px)`, `--edge` swapped for an inward shadow, label `--accent`.                                                                               |
+| **Disabled** | Flat `--surface-inset`, 1px `--border`, no highlight and no shadow, label `--ink-faint`, `cursor: not-allowed`.                                           |
+
+The movement is the 1px lift and the 1px drop, and that is all of it. Both run at
+`--motion-swift` like every other state change, and both go under `prefers-reduced-motion: reduce`
+while the state itself stays: hover still lights the keyline and press still drops the highlight
+and turns the label, they simply arrive rather than travel. The plate brightens under `filter`
+rather than by swapping gradients, because a gradient cannot be transitioned as a colour and two
+gradients cross-fading is a repaint rather than a transition.
 
 The disabled state is the one that drops the plate entirely. A greyed gradient still reads as a
 raised object, and a raised object reads as pressable; a flat inset one does not.
@@ -460,14 +472,14 @@ the geometry — which is what makes "a skin may not touch control geometry"
 ([decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)) a rule with something
 behind it.
 
-| Variant         | Class              | Recipe                                                                                            |
-| --------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
-| **Secondary**   | none               | The base plate. The default, and the reason an unannotated `button` is already correct.           |
-| **Primary**     | `.btn-primary`     | `--accent-quiet` keyline over a plate warmed toward gold. One per surface.                        |
-| **Quiet**       | `.btn-quiet`       | No fill, 1px `--border`, label `--ink-muted`. Hover fills `--surface-inset` and lifts to `--ink`. |
-| **Destructive** | `.btn-destructive` | `--danger` keyline over a crimson-mixed plate, label `--ink`. Never crimson text — 2.2:1.         |
-| **Icon**        | `.btn-icon`        | 28×28, square, no clip, no inline padding. A 7px cut on a 28px square eats the glyph.             |
-| **Small**       | `.btn-sm`          | 24px, `--s2` block and `--s4` inline padding. Type does not change: `--t-micro` is the floor.     |
+| Variant         | Class              | Recipe                                                                                                                    |
+| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| **Secondary**   | none               | The base plate. The default, and the reason an unannotated `button` is already correct.                                   |
+| **Primary**     | `.btn-primary`     | `--accent-quiet` keyline over `--plate-primary`, the base plate warmed toward gold. One per surface.                      |
+| **Quiet**       | `.btn-quiet`       | No fill, 1px `--border`, label `--ink-muted`. Hover fills `--surface-inset` and lifts to `--ink`.                         |
+| **Destructive** | `.btn-destructive` | `--danger` keyline over `--plate-danger`, the base plate mixed toward crimson, label `--ink`. Never crimson text — 2.2:1. |
+| **Icon**        | `.btn-icon`        | 28×28, square, no clip, no inline padding. A 7px cut on a 28px square eats the glyph.                                     |
+| **Small**       | `.btn-sm`          | 24px, `--s2` block and `--s4` inline padding. Type does not change: `--t-micro` is the floor.                             |
 
 `.btn-sm` composes with any of the others; the rest are mutually exclusive, and a button wearing
 two of them gets whichever the stylesheet lists last, which is a bug rather than a feature. The
@@ -482,15 +494,15 @@ none, and a generator whose Generate is primary should not also promote Save.
 
 An input is the inverse of a button: sunk into the surface rather than raised off it.
 
-| Property | Value                                                         |
-| -------- | ------------------------------------------------------------- |
-| Height   | 28px, as `min-height`                                         |
-| Padding  | `--s2` block, `--s4` inline                                   |
-| Type     | `--t-small`, `--ink`                                          |
-| Fill     | `--surface-inset`                                             |
-| Keyline  | 1px `--border`                                                |
-| Shadow   | `inset 0 1px 2px rgb(0 0 0 / 45%)` — inward, and the only one |
-| Corner   | None. Square, and see below                                   |
+| Property | Value                                                                |
+| -------- | -------------------------------------------------------------------- |
+| Height   | 28px, as `min-height`                                                |
+| Padding  | `--s2` block, `--s4` inline                                          |
+| Type     | `--t-small`, `--ink`                                                 |
+| Fill     | `--surface-inset`                                                    |
+| Keyline  | 1px `--border`                                                       |
+| Shadow   | `--sink`, the one inward shadow — `inset 0 1px 2px rgb(0 0 0 / 45%)` |
+| Corner   | None. Square, and see below                                          |
 
 Focus takes the `--focus` keyline **and** the ring; hover lightens the keyline to
 `--border-strong`. Disabled matches the button's: `--ink-faint` on a flat surface.

@@ -37,14 +37,13 @@
   .controls :global(.checkbox-group label) {
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: var(--s3);
     margin: 0;
   }
 
+  /* `.inline-label` carries its own row layout from main.css now; only the margin reset is this
+     panel's business. */
   .controls :global(.inline-label) {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
   }
 </style>

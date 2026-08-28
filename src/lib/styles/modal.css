@@ -49,27 +49,10 @@ dialog.ironarachne-modal--success {
   gap: 0.5rem;
 }
 
-.modal-dialog-actions .modal-dialog-action--danger {
-  border-color: var(--crimson);
-  background: linear-gradient(
-    165deg,
-    color-mix(in srgb, var(--crimson) 55%, rgb(92, 86, 73)) 0%,
-    rgb(10, 10, 10) 100%
-  );
-}
-
-.modal-dialog-actions .modal-dialog-action--danger:hover {
-  border-color: color-mix(in srgb, var(--crimson) 70%, white);
-}
-
-.modal-dialog-actions .modal-dialog-action--danger:active {
-  background: linear-gradient(
-    339deg,
-    color-mix(in srgb, var(--crimson) 55%, rgb(92, 86, 73)) 0%,
-    rgb(10, 10, 10) 100%
-  );
-  color: color-mix(in srgb, var(--crimson) 40%, white);
-}
+/* No danger rule here any more. The dialog's dangerous action *is* the destructive button variant,
+   so `ModalDialog` puts `.btn-destructive` on the element and this file stops carrying a second
+   `rgb(92, 86, 73)` gradient with a hover and a press hand-drawn to match. The rest of the
+   literals below are #117's to remove. */
 
 .heraldry-persistence-modal .heraldry-persistence-blazon {
   margin: 0 0 0.75rem;

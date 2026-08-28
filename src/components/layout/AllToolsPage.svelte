@@ -35,7 +35,7 @@
   </p>
 
   <div class="all-tools__filters">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for={filterId}>Filter</label>
       <input
         id={filterId}
@@ -107,10 +107,9 @@
     margin: 1rem 0;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .all-tools__filters .input-group {
-    align-items: center;
-    display: flex;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }

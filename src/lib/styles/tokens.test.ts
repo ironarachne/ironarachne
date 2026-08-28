@@ -285,6 +285,64 @@ describe('elevation and corners', () => {
   });
 });
 
+describe('the control system', () => {
+  // docs/visual-design.md, "What is enforced". Three sweeps, and each one guards a rule that was
+  // broken in the file it checks before #115: `main.css` held four hexes and three copies of a
+  // gradient, `modal.css` held a fourth copy, and all three skins re-declared the button.
+  const controlSheets = ['main.css', 'modal.css'];
+
+  it.each(controlSheets)('writes no colour value of its own in %s', (name) => {
+    // Comments first: these files cite issue numbers, and `#115` is a hex as far as a regex is
+    // concerned.
+    const css = readFileSync(join(STYLES_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+    expect(css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [], `${name} declares a hex`).toEqual([]);
+
+    // The space-separated `rgb(0 0 0 / 45%)` form is the stated exemption: it is an overlay on a
+    // shadow, which has no palette entry to name. The legacy comma form is what the copied button
+    // gradients were written in, and nothing on this side of the seam needs it.
+    expect(
+      css.match(/rgba?\(\s*\d+\s*,/g) ?? [],
+      `${name} declares a literal colour in the comma form`,
+    ).toEqual([]);
+  });
+
+  it.each(['fantasy.css', 'scifi.css', 'cyberpunk.css'])(
+    'leaves control geometry alone in %s',
+    (name) => {
+      // Decision 2: a skin may set a surface, a keyline, a corner, an accent hue and one ambient
+      // effect. A button is none of those, and a skin's own button rule outranks the control system
+      // wherever a genre is applied — which is how a redesign comes to show only on ungenre'd pages.
+      const css = readFileSync(join(STYLES_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+      expect(css).not.toMatch(/(^|[\s&>+~,])button\b/);
+    },
+  );
+
+  it('keeps the control components on the ramps', () => {
+    // The general rule from "Enforcement", applied to the files #115 touches rather than to all of
+    // `src/components` — which does not pass it yet, and making it pass everywhere is #116 and
+    // #117's work. These five are the ones that define what a field looks like, so a literal
+    // appearing here is the system starting to come apart at its own foundation.
+    const controls = ['InputGroup', 'CheckboxField', 'NumberField', 'SelectField', 'SeedControls'];
+
+    for (const name of controls) {
+      const css = readFileSync(join(COMPONENTS_DIR, `common/${name}.svelte`), 'utf8').replace(
+        /\/\*[\s\S]*?\*\//g,
+        '',
+      );
+      const offRamp = [
+        ...css.matchAll(/(?:font-size|padding|margin|gap)[^:;]*:\s*([^;{}]+);/g),
+      ].filter(([, value]) => /\d/.test(value) && !value.includes('var('));
+
+      expect(
+        offRamp.map(([declaration]) => declaration),
+        `${name} sizes something outside the ramps`,
+      ).toEqual([]);
+    }
+  });
+});
+
 describe('motion', () => {
   it('declares one duration, and it is swift', () => {
     expect(tokens.get('--motion-swift')).toBe('120ms');

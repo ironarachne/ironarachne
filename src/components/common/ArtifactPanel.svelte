@@ -279,7 +279,7 @@
       {gone ? 'That artifact is no longer in this project.' : 'Loading…'}
     </p>
   {:else}
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for={nameId}>Name</label>
       <!-- Typing clears the last outcome, so "Saved." cannot sit under a field that has changed
            since it was true. -->
@@ -364,7 +364,7 @@
       {#if reroll !== 'unsupported'}
         <button
           type="button"
-          class="artifact-panel__destructive"
+          class="btn-destructive"
           onclick={rollAgain}
           disabled={reroll !== 'available' || saving}
           title={reroll === 'no-provenance'
@@ -411,10 +411,9 @@
     min-width: 0;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .artifact-panel .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }
@@ -449,12 +448,6 @@
     display: flex;
     flex-wrap: wrap;
     gap: 0.5rem;
-  }
-
-  .artifact-panel__destructive {
-    /* Named as destructive rather than only worded as such: 4.3 asks for a re-roll that is
-       clearly the dangerous one of the controls beside it. */
-    border-color: var(--gold);
   }
 
   .artifact-panel__contents summary {

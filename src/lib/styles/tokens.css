@@ -143,7 +143,27 @@
     color-mix(in srgb, var(--slate) 96%, white) 0%,
     color-mix(in srgb, var(--slate) 94%, black) 100%
   );
+  /* The two variant plates, mixed from the same slate the base plate is. A variant sets a fill,
+     a keyline and a label colour and inherits the geometry, so this is the whole of what makes a
+     primary button primary — and it is written here rather than in `main.css` because a plate is
+     a colour value, and `main.css` names roles. */
+  --plate-primary: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--slate) 88%, var(--gold)) 0%,
+    color-mix(in srgb, var(--slate) 94%, black) 100%
+  );
+  --plate-danger: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--slate) 72%, var(--crimson)) 0%,
+    color-mix(in srgb, var(--slate) 92%, black) 100%
+  );
+
   --edge: inset 0 1px 0 rgb(255 255 255 / 7%);
+
+  /* The inward shadow an inset control carries: a text field is the inverse of a button, sunk
+     into the surface rather than raised off it. Written once here for the same reason `--plate`
+     is — it appears on every input, select and textarea on the site. */
+  --sink: inset 0 1px 2px rgb(0 0 0 / 45%);
   --lift: 0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%);
 
   /* ---- Corners -------------------------------------------------------------------------

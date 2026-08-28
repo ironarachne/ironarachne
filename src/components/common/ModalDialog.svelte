@@ -35,10 +35,12 @@
   <p id="modal-dialog-message" class="modal-dialog-message">{message}</p>
   <div class="modal-dialog-actions">
     {#if kind === 'confirm'}
-      <button type="button" onclick={() => onResolveConfirm?.(false)}>{cancelLabel}</button>
+      <button type="button" class="btn-quiet" onclick={() => onResolveConfirm?.(false)}>
+        {cancelLabel}
+      </button>
       <button
         type="button"
-        class:modal-dialog-action--danger={dangerous}
+        class:btn-destructive={dangerous}
         onclick={() => onResolveConfirm?.(true)}
       >
         {okLabel}

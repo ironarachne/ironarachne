@@ -202,7 +202,7 @@
     <p class="project-view__empty">No project open. Create one to start keeping what you make.</p>
   {:else}
     <div class="project-view__filters">
-      <div class="input-group">
+      <div class="input-group input-group--inline">
         <label for={filterId}>Find</label>
         <input
           id={filterId}
@@ -214,7 +214,7 @@
       </div>
 
       {#if presentKinds.length > 1}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for={kindId}>Kind</label>
           <select id={kindId} bind:value={kindFilter}>
             <option value="">All kinds</option>
@@ -351,10 +351,9 @@
     align-items: center;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .project-view .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }

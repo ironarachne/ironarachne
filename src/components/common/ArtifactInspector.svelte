@@ -159,11 +159,11 @@
       accident, which docs/workshop.md forbids.
     -->
     <div class="artifact-inspector__metadata">
-      <div class="input-group">
+      <div class="input-group input-group--inline">
         <label for={nameId}>Name</label>
         <input id={nameId} type="text" bind:value={name} autocomplete="off" />
       </div>
-      <div class="input-group">
+      <div class="input-group input-group--inline">
         <label for={tagsId}>Tags</label>
         <input
           id={tagsId}
@@ -233,10 +233,9 @@
     align-items: center;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .artifact-inspector__metadata .input-group {
-    align-items: center;
-    display: flex;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }

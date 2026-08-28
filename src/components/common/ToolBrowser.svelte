@@ -98,7 +98,7 @@
   <h2>{title}</h2>
 
   <div class="tool-browser__filters">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for={filterId}>Filter</label>
       <input
         id={filterId}
@@ -210,17 +210,17 @@
     align-items: center;
   }
 
+  /* The row layout is `--inline`'s now. What is left is this panel's own business: the group sits
+     in a wrapping flex row, so it needs to be allowed to shrink. `flex: 1 1 8rem` on the field is
+     gone with the column direction it was written against — a basis of 8rem in a column is 8rem of
+     *height*, which is how the filter became a square. */
   .tool-browser__filters .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }
 
   .tool-browser__filters input[type='search'] {
     min-width: 0;
-    flex: 1 1 8rem;
   }
 
   .tool-browser__setting {

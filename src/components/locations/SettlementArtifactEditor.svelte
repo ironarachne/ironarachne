@@ -102,7 +102,7 @@
   </p>
 {:else}
   <div class="settlement-editor">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for="{uid}-settlement-name">Settlement name</label>
       <input
         id="{uid}-settlement-name"
@@ -114,7 +114,7 @@
       />
     </div>
 
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for="{uid}-category">Kind of place</label>
       <input
         id="{uid}-category"
@@ -127,7 +127,7 @@
     </div>
 
     {#each COUNT_FIELDS as entry (entry.field)}
-      <div class="input-group">
+      <div class="input-group input-group--inline">
         <label for="{uid}-{entry.field}">{entry.label}</label>
         <input
           id="{uid}-{entry.field}"
@@ -142,7 +142,7 @@
       </div>
     {/each}
 
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for="{uid}-economic-role">Economic role</label>
       <select
         id="{uid}-economic-role"
@@ -172,7 +172,7 @@
       <p class="settlement-editor__note">Each runs from 0 to 10.</p>
 
       {#each FACET_FIELDS as entry (entry.field)}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for="{uid}-{entry.field}">{entry.label}</label>
           <input
             id="{uid}-{entry.field}"
@@ -332,7 +332,7 @@
 
         {#each settlement.organizations as organization, index (index)}
           <div class="settlement-editor__row">
-            <div class="input-group">
+            <div class="input-group input-group--inline">
               <label for="{uid}-org-{index}">Organization {index + 1}</label>
               <input
                 id="{uid}-org-{index}"
@@ -378,7 +378,7 @@
 
         {#each settlement.importantPeople as person, index (index)}
           <div class="settlement-editor__row">
-            <div class="input-group">
+            <div class="input-group input-group--inline">
               <label for="{uid}-notable-{index}-role">Notable {index + 1} title</label>
               <input
                 id="{uid}-notable-{index}-role"
@@ -396,7 +396,7 @@
                 autocomplete="off"
               />
             </div>
-            <div class="input-group">
+            <div class="input-group input-group--inline">
               <label for="{uid}-notable-{index}-first">Notable {index + 1} first name</label>
               <input
                 id="{uid}-notable-{index}-first"
@@ -414,7 +414,7 @@
                 autocomplete="off"
               />
             </div>
-            <div class="input-group">
+            <div class="input-group input-group--inline">
               <label for="{uid}-notable-{index}-last">Notable {index + 1} family name</label>
               <input
                 id="{uid}-notable-{index}-last"
@@ -503,13 +503,12 @@
     border-bottom: 1px solid var(--tan);
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset, the room to shrink and the full width. */
   .settlement-editor .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
-    width: 100%;
     min-width: 0;
+    width: 100%;
   }
 
   /* Prose wants the width; a label sitting beside a three-row textarea on a 320px screen leaves

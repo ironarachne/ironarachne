@@ -227,7 +227,7 @@
   </p>
 
   <div class="vault-transfer__row">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for={modeId}>Importing</label>
       <select id={modeId} bind:value={mode} disabled={busy}>
         <option value="merge">adds to what is here</option>
@@ -342,10 +342,9 @@
     align-items: center;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .vault-transfer .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }

@@ -148,11 +148,11 @@
   <div class="vault__columns">
     <div class="vault__list">
       <div class="vault__filters">
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for={queryId}>Search</label>
           <input id={queryId} type="search" bind:value={query} placeholder="Name or kind" />
         </div>
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for={projectId}>Project</label>
           <select id={projectId} bind:value={projectFilter}>
             <option value="">All projects</option>
@@ -161,7 +161,7 @@
             {/each}
           </select>
         </div>
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for={kindId}>Kind</label>
           <select id={kindId} bind:value={kindFilter}>
             <option value="">All kinds</option>
@@ -276,10 +276,9 @@
     margin-bottom: 0.75rem;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset and the room to shrink. */
   .vault__filters .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
     min-width: 0;
   }

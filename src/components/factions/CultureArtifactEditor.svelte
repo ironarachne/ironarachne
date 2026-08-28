@@ -76,7 +76,7 @@
   </p>
 {:else}
   <div class="culture-editor">
-    <div class="input-group">
+    <div class="input-group input-group--inline">
       <label for="{uid}-culture-name">Culture name</label>
       <input
         id="{uid}-culture-name"
@@ -91,7 +91,7 @@
       <legend>Organization</legend>
 
       {#each ORGANIZATION_FIELDS as entry (entry.field)}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for="{uid}-{entry.field}">{entry.label}</label>
           <input
             id="{uid}-{entry.field}"
@@ -136,7 +136,7 @@
           changes it everywhere it is used, including here.
         </p>
       {:else}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for="{uid}-religion-name">Religion name</label>
           <input
             id="{uid}-religion-name"
@@ -170,7 +170,7 @@
       <!-- Keyed by position rather than by value: two taboos may read the same, and a key that
            changed as the user typed would lose focus on every keystroke. -->
       {#each culture.taboos as taboo, index (index)}
-        <div class="input-group">
+        <div class="input-group input-group--inline">
           <label for="{uid}-taboo-{index}">Taboo {index + 1}</label>
           <input
             id="{uid}-taboo-{index}"
@@ -248,13 +248,12 @@
     text-transform: uppercase;
   }
 
+  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
+     others did. What is left is local: the reset, the room to shrink and the full width. */
   .culture-editor .input-group {
-    display: flex;
-    align-items: center;
-    gap: 0.35rem;
     margin: 0;
-    width: 100%;
     min-width: 0;
+    width: 100%;
   }
 
   /* Prose wants the width; a label sitting beside a three-row textarea on a 320px screen leaves

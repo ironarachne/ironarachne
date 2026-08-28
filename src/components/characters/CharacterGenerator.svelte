@@ -354,8 +354,12 @@
   }
 
   button.heraldry-block-target {
+    /* A wrapper around an image, not a plate: it opts out of the fill and the keyline, and out of
+       the corner cut with them, which would otherwise clip the emblem's corners. */
     border: none;
     background: none;
+    box-shadow: none;
+    clip-path: none;
     padding: 0;
     cursor: pointer;
     color: inherit;
