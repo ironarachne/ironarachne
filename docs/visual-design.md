@@ -46,6 +46,18 @@ are two custom properties rather than two rule sets. The plate also becomes a co
 rather than a top-down linear gradient; what the system holds is that there is one gradient, in one
 place, mixed from the palette.
 
+**Amended 2026-08-28 by [#116](https://github.com/ironarachne/ironarachne/issues/116)**, which
+adds [the panel language](#panel-language). It settles the surfaces the way the controls section
+settled the controls, and it changes the taxonomy in two places: a panel needs a liner to keep its
+keyline through the notch, so `--notch-inner` joins `--corner-control-inner` as a polygon rather
+than a treatment; and `--halo` becomes the second shadow in the system, as a focus _state_ that no
+skin may touch, where `--lift` stays the only _elevation_ shadow. It also answers [open question
+2](#open-questions): `--surface-sunken` stays, as the well inside a scrolling panel.
+
+Awaiting approval, unlike the two amendments above it: #116 is still `needs-design`, and [the panel
+anatomy](#panel-anatomy) is the diagram CLAUDE.md's review gate asks a human to approve before the
+implementation starts.
+
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
 the workshop at 1440, the phone at 390 with its drawer, genre skins, the token taxonomy, and the
@@ -761,6 +773,333 @@ The last one is the general rule from [Enforcement](#enforcement) applied to the
 touches, rather than to the whole of `src/components` — which does not pass it yet, and making it
 pass everywhere is #116 and #117's work, not a precondition for this.
 
+## Panel language
+
+Every surface in the app, settled: what a panel is, how it draws the corner the corner vocabulary
+gives it, what a card is (it is a panel), what a badge and a chip are, and what happens to the one
+panel that is not allowed to look like a panel. This is what
+[#116](https://github.com/ironarachne/ironarachne/issues/116) builds.
+
+[Elevation](#elevation) named three levels and one paragraph of density. That was enough for the
+tokens issue to declare the tokens and not enough to build from: it does not say how a keyline
+survives a `clip-path`, which of the nineteen files carrying `border-radius: 4px` over
+`1px solid var(--tan)` becomes what, or how the main tool panel is identifiable at all once it has
+given up its border and its background. Those are the questions below.
+
+Out of it: **modals and banners**, which are
+[#117](https://github.com/ironarachne/ironarachne/issues/117)'s, though a modal is a panel and
+takes the recipe here; **genre skinning**, which is #119–#121's and hooks into
+[what this leaves to the skins](#what-this-leaves-to-the-skins-1); and **controls**, which are
+[#115](https://github.com/ironarachne/ironarachne/issues/115)'s and already built.
+
+### The problem is nineteen copies of a box
+
+Counted rather than asserted: nineteen components declare `1px solid var(--tan)` today, twenty-nine
+declare `border-radius: 4px`, and ten declare `background: var(--slate)`. Those three lines
+together are the whole of the current panel language, and because each file writes them out, a
+panel and a fieldset and an error message and a disclosure notice are all the same box at the same
+height. Nothing in the app is _emphasised_ by being a panel, because everything is one.
+
+The direction on [#77](https://github.com/ironarachne/ironarachne/issues/77) — panelled surfaces
+"read as boxes rather than as a bench" — is that observation. A bench is a work surface with
+things lying on it at different heights, and the way you know which thing is being worked on is
+that it is the one with room around it.
+
+### A panel draws its own edge, and needs a liner to do it
+
+The same fact that gave [a button two layers](#a-button-draws-its-own-edge-and-needs-a-liner-to-do-it)
+holds for a panel, and it has been hidden so far only because panels are still on a 4px radius.
+`--notch` is a `clip-path`, a `clip-path` cuts everything the element paints, and a `border` is
+something the element paints — so the moment a panel takes the corner treatment the taxonomy gives
+it, its keyline is sliced off along both diagonals, at the two corners the treatment exists to make
+visible.
+
+**So a panel is two elements, exactly as a button is.** The outer element paints the edge colour
+across its whole box; a liner one pixel inside paints the surface over all of that except a
+one-pixel band. The band _is_ the keyline, and it follows the diagonal because both shapes are cut.
+
+| Layer                        | Paints                                               | Clip            |
+| ---------------------------- | ---------------------------------------------------- | --------------- |
+| `<section class="panel">`    | `--panel-edge`, across the whole box, `padding: 1px` | `--notch`       |
+| `<div class="panel__field">` | `--panel-surface`, one pixel inside                  | `--notch-inner` |
+
+`--notch-inner` cuts at **8px** where `--notch` cuts at 9px, by the same arithmetic that put
+`--corner-control-inner` at 6px against the control's 7px: the liner is 2px smaller in each
+direction, so an equal cut converges on the outer diagonal at one end and diverges at the other,
+and a pixel shallower keeps the two parallel. **It is not a fourth corner treatment** — it is the
+panel's own treatment, drawn a pixel in, and the cap in [Elevation](#elevation) counts treatments
+rather than polygons. The vocabulary is still cut, round and square.
+
+`Panel` is that markup, in `src/components/common`, and it exists for the same reason `BaseButton`
+does: not styling convenience, which a class in `main.css` already had, but a shape a single
+element cannot draw. It takes a `title`, an optional `actions` snippet for the header's right-hand
+end, and its children as the body.
+
+**The variants are two custom properties, not two rule sets.** Everything is written against
+`--panel-edge` and `--panel-surface`, so a level, a state and a genre skin each set two colours and
+none of them mentions the markup. That is what lets the surfaces this issue does not convert by
+hand keep reading the same system from a class, differing only in the one thing they cannot draw.
+
+### Three levels, and the well makes four
+
+The levels are [Elevation](#elevation)'s, restated as recipes a component can be built from, with
+the fourth surface the taxonomy declared and left unclaimed now given its one job.
+
+| Level      | `--panel-edge` | `--panel-surface`  | Also                              | Used for                                              |
+| ---------- | -------------- | ------------------ | --------------------------------- | ----------------------------------------------------- |
+| **Page**   | none           | none               | no clip, no shadow                | The page region, the bench, the main tool panel       |
+| **Raised** | `--border`     | `--surface-raised` | `--edge` inside, `--lift` outside | Every panel: rail, log, vault card, storage, modal    |
+| **Inset**  | `--border`     | `--surface-inset`  | `--sink` inside                   | A fieldset, a meta block, an error message on a panel |
+| **Well**   | `--border`     | `--surface-sunken` | `--sink` inside, no lift          | The scrolling region inside a panel                   |
+
+**The well settles [open question 2](#open-questions).** `--surface-sunken` earns its place: four
+panels scroll their contents internally — the tool browser's list, the project view's list, the
+session log's list and the vault's — and each of those is a run of rows that has to read as _held
+by_ the panel rather than as continuing past its edge. A well is the darkest surface in the app and
+the only one that is allowed to be cut off mid-row, which is precisely what tells a reader there is
+more of it. Without it the fourth level would have been dropped, as that question asked.
+
+A well takes no clip of its own: it is inside the panel's liner already, and clipping it again
+would put a diagonal in the middle of a panel where nothing is cut.
+
+### Density is padding, and focus is the space around it
+
+A panel differs from the page by surface, keyline and notch — not by padding, which
+[Elevation](#elevation) fixes at `--s5` everywhere. That rule stands for the panel's own box. What
+this section adds is the ramp for everything _between_ boxes, because that is where emphasis
+actually comes from: the way a bench says which panel is being worked on is that it has room
+around it, not that it is drawn more loudly.
+
+| Gap                                     | Step   | Why                                                          |
+| --------------------------------------- | ------ | ------------------------------------------------------------ |
+| Panel padding, header and body alike    | `--s5` | Elevation's rule, unchanged                                  |
+| Between blocks inside a panel body      | `--s6` | A panel holds sections, and `--s5` twice reads as one column |
+| Between panels stacked in one column    | `--s5` | The rail's two lists are one apparatus                       |
+| Between the rail, the bench and the log | `--s7` | Three regions, not three panels                              |
+| Between panels on the bench             | `--s7` | The bench's panels have no edges of their own — see below    |
+| Header plate to body content            | `--s6` | The one deliberate piece of negative space in the panel      |
+
+The last two are the whole of "grant focus with negative space". `--s7` is 24px and `--s5` is 12px,
+and the doubling is what separates a region from a component. Nothing above `--s8` exists, so a
+layout that wants more space than this is a layout that wants rethinking, which is the ramp working
+as designed.
+
+### The main tool panel has no surface, so its header carries it
+
+Per the direction on #77, the panel holding the thing being worked on gets **no border and no
+background of its own**. On the bench that is both panel kinds: a `ToolPanel` and an
+`ArtifactPanel` are each the work, and the two of them are what a `WorkshopPanel` wraps. The rail's
+two lists and the session log are furniture and stay raised.
+
+That leaves a real problem, and it is the reason this issue is not one line of CSS: a panel with no
+edge and no fill, sitting on a bench beside another panel with no edge and no fill, has nothing to
+say where one ends and the next begins. Two answers, and the design takes both:
+
+1. **The header is a plate.** It keeps `--plate`, `--edge` and a 1px `--border-strong` keyline —
+   the control recipe, at panel width — and it is clipped to `--notch` with a liner, exactly as
+   [a panel](#a-panel-draws-its-own-edge-and-needs-a-liner-to-do-it) and
+   [a button](#a-button-draws-its-own-edge-and-needs-a-liner-to-do-it) are. A label plate lying on
+   a work surface is the bench metaphor stated in one object, and it means the thing that
+   identifies a panel is the thing that names it.
+2. **The bench's gap goes to `--s7`.** Twenty-four pixels between two surfaceless panels is what an
+   edge was doing, and it is doing it with space rather than with more chrome.
+
+**The header plate never touches the panel's edge.** In a framed panel it sits inside the panel's
+own `--s5` padding rather than running full-bleed to the keyline; in a bare one there is no keyline
+to touch. One offset, one implementation, and the acceptance criterion that "the same panel
+furniture looks the same wherever it appears" is satisfied by construction rather than by a second
+rule set. The alternative — a full-bleed header whose top edge coincides with the panel's — needs
+the header to suppress three of its four edges in the framed case only, which is two shapes
+pretending to be one.
+
+The rejected alternative for the whole section is worth recording: give the bare panel a keyline
+and no fill. It was rejected because an empty frame is louder than a filled one, not quieter — an
+outline with nothing in it is the most conspicuous thing on a dark page — and because a skin could
+then reach the work through the frame, which
+[decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look) says it may do only through
+the output.
+
+### The halo, and the second shadow in the system
+
+[Elevation](#elevation) says `--lift` is the one shadow in the system, and the reason is stated
+there: a shadow that changed per genre would sit panels at different heights beside each other.
+**This amends that to two**, under a rule that keeps the reason intact.
+
+`--halo` is a state, not an elevation. It does not move a panel, it is not a skin's to change, and
+it is spent in one place:
+
+```css
+--halo:
+  0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+  0 0 20px color-mix(in srgb, var(--accent) 14%, transparent);
+```
+
+A bench panel takes it on `:focus-within` — the panel you are working in glows faintly, arriving at
+`--motion-swift` like every other state change. That is the whole of its use, and three rules hold
+it there:
+
+- **At most one halo on screen.** `:focus-within` gives that for free, and it is the same claim
+  `.btn-primary` makes about a page: a surface with two focal points has none.
+- **It never carries meaning alone.** The focused control inside the panel still has its own 2px
+  `--focus` ring, per [decision 3](#3-focus-and-contrast-are-targets-not-assumptions). The halo
+  says which panel; the ring says which control. Remove the halo and nothing is lost but the
+  reading distance.
+- **A skin may not touch it.** It is `--accent`, in every genre, for the reason `--lift` is fixed.
+
+`--accent` and not `--accent-quiet`: gold is what the [list row](#a-list-row) uses for the current
+choice, and a panel that merely has focus is not a selection.
+
+### Cards are panels
+
+There is no card recipe, and that is a decision rather than an omission. The vault's listing, the
+projects page's rows and the storage panel each hand-rolled a box that differs from a panel only in
+being in a grid — and being in a grid is layout, not elevation. **A card is a raised panel**, with
+the panel's padding, keyline, notch and liner, and the grid it sits in owns nothing but its gaps.
+
+The consequence is worth stating because it is the point of the whole issue: after this there are
+_three_ things that can look like a container in this app — a panel, an inset, and a well — and a
+component that wants a fourth is a component that has misread the hierarchy.
+
+### Badges and chips
+
+A **badge** is non-interactive furniture: a pill, `--t-micro` with its tracking and uppercase, 1px
+`currentColor` over `--surface-inset`, `--s2` block and `--s3` inline padding. `Badge` is the one
+component, and it takes a `tone`:
+
+| Tone      | Colour           | Used for                                      |
+| --------- | ---------------- | --------------------------------------------- |
+| `notice`  | `--accent-quiet` | Experimental maturity; "featured"             |
+| `info`    | `--cyan`         | Beta maturity                                 |
+| `neutral` | `--ink-faint`    | A count, a kind, a genre                      |
+| `danger`  | `--danger`       | A broken reference — the edge, never the text |
+
+Three hand-rolled copies of this pill exist today — `ToolMaturityBadge`'s, `ToolBrowser`'s and
+`ProjectView`'s — with the same six declarations written out three times and `--gold` hard-coded in
+two of them. They become one component with a tone.
+
+The pill is **not a fourth corner treatment**. `border-radius: 999px` on a 16px-tall object is what
+happens when there is no straight edge long enough to cut: a 7px diagonal on a badge eats the first
+letter. [Elevation](#elevation) already said badges are pill-shaped, and the round icon button
+already broke the rectangle; the cap counts the treatments a _rectangular_ surface may take.
+
+`ToolMaturityBadge` keeps its two forms, and both are stated here rather than left to the
+component: the **pill** for a page, and the **plain** form — `--t-small`, sentence case, the tone's
+colour, no border and no fill — for a list, where thirty bordered pills stop annotating the names
+and start shouting over them. `detailed` appends the sentence in `--t-small` italic at `--ink-muted`
+beside the pill. A release-ready tool still renders nothing at all.
+
+A **chip** is a badge you can click: the tag filters in `ProjectView`, and anything that filters a
+list later. It is a badge wrapping a visually-hidden checkbox, and its states are the
+[list row](#a-list-row)'s, so the two filtering surfaces in the app agree:
+
+| State        | Recipe                                                                       |
+| ------------ | ---------------------------------------------------------------------------- |
+| **Rest**     | The badge above, `--ink-muted`                                               |
+| **Hover**    | `--accent` edge over an 18% accent mix into `--surface-inset`                |
+| **Selected** | `--accent-quiet` edge over a 22% mix, label `--ink`                          |
+| **Focus**    | The ordinary 2px outline at 2px offset — a pill is not clipped, so it paints |
+
+The fills are opaque, mixed into `--surface-inset` rather than into `transparent`, for the reason
+[a list row](#a-list-row) gives: a chip has to look the same on a panel as it does on the page.
+
+### Panel anatomy
+
+The markup, since it is the part a reader has to hold in their head to follow the rest:
+
+```mermaid
+classDiagram
+    class Panel {
+        +string title
+        +Level level
+        +boolean bare
+        paints(--panel-edge)
+        clips(--notch)
+    }
+    class PanelField {
+        paints(--panel-surface)
+        clips(--notch-inner)
+    }
+    class PanelHeader {
+        +Snippet actions
+        paints(--plate)
+        clips(--notch)
+    }
+    class PanelBody {
+        pads(--s5)
+        gaps(--s6)
+    }
+    class Well {
+        paints(--surface-sunken)
+        scrolls()
+    }
+    class Badge {
+        +Tone tone
+    }
+    class Chip {
+        +boolean selected
+    }
+
+    Panel "1" *-- "1" PanelField : lines
+    PanelField "1" *-- "1" PanelHeader : holds
+    PanelField "1" *-- "1" PanelBody : holds
+    PanelBody "1" o-- "0..1" Well : may scroll in
+    PanelHeader "1" o-- "*" Badge : may name with
+    Badge <|-- Chip : interactive form
+```
+
+`bare` is the tool panel's form: `--panel-edge` and `--panel-surface` both `none`, no clip on the
+outer element, no `--lift`, and the header plate unchanged.
+
+### What this converts
+
+The nineteen files carrying the box recipe are not all panels, and sorting them is most of the
+implementation:
+
+- **Panels** — `WorkshopPanel` (bare on the bench), `ToolBrowser`, `ProjectView`,
+  `SessionLogPanel`, `StoragePanel`, `ProjectContextBar`, and the listing surfaces in
+  `ProjectsPage` and `VaultPage`.
+- **Insets** — `ProjectView`'s tag fieldset and error message, `ArtifactPanel`'s meta block,
+  `ArtifactInspector` and `ArtifactReferences`.
+- **Wells** — the four scrolling lists.
+- **Left alone by this issue** — `StorageFailureModalContent` and `StorageDisclosureNotice` are
+  #117's banners; the three artifact editors and `HeraldryArtifactView` hold generated output and
+  are the skins' business.
+
+`ToolPanel` itself needs no change: it already declares no surface. What is removed is the frame
+around it.
+
+### What this leaves to the skins
+
+A skin may set `--panel-edge` and `--panel-surface`, and it may put its one ambient effect on the
+panel surface — which is where [decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)
+moves the shimmer, the pulse and the glitch off type, and is why this issue precedes #119–#121
+rather than following them.
+
+A skin may not touch the notch geometry, the liner, the padding ramp, the halo, or a badge's shape.
+Those are the same class of thing as control geometry, and the rule is the same one.
+
+### What the panel language enforces
+
+`tokens.test.ts` grows by four assertions, in the same style as the three
+[the controls](#what-is-enforced) added:
+
+- No component declares `border-radius` outside the vocabulary. The only permitted values are
+  `999px` (a pill) and `50%` (the round icon button); a `4px` anywhere is a box that has not been
+  converted.
+- No component declares `1px solid var(--tan)`, and none declares `background: var(--slate)`. Both
+  are the old recipe by name, and both are now `--panel-edge` and `--panel-surface`.
+- The six components named in #116's scope declare no `font-size`, `padding`, `margin` or `gap`
+  outside the ramps, and no hex — the rule [the controls](#what-is-enforced) applied to their five,
+  extended to these six. `Panel` takes the same `1px` exception `BaseButton` has, for the same
+  reason: it is the keyline's own width.
+- No skin file declares a `.panel`, `.panel__field` or badge rule, which is decision 2 as a test
+  rather than as a paragraph.
+
+One thing is checked in the browser instead, because it is a computed style and not a source
+sweep: a bench tool panel's computed `background-color` equals the page's and its `border-width` is
+`0`. "The main tool panel has no border and no background" is #116's second acceptance criterion,
+and it is the one a future refactor is most likely to undo by accident.
+
 ## The shell
 
 The top bar and the sidebar are the one part of the app a genre skin may never touch
@@ -1024,9 +1363,11 @@ For the implementation issues that follow this one:
    the rule the rest of the answer should follow: a glyph replaces a label there is no space for,
    not one that already works.
 
-2. **Whether `--surface-sunken` earns its place.** It is declared for scroll wells behind an inset
-   run, and if the implementation finds one use for it, it should be dropped rather than kept for
-   symmetry. Four surface levels is one more than the elevation model claims.
+2. ~~**Whether `--surface-sunken` earns its place.**~~ **Answered by [the panel
+   language](#three-levels-and-the-well-makes-four):** it stays. Four panels scroll their contents
+   internally, and the well is the surface that says a run of rows is held by the panel rather than
+   continuing past its edge. Four surface levels is one more than the elevation model claimed, and
+   the model gains the fourth rather than the token being dropped.
 3. **Domain accent markers.** The eight unused palette entries are described as reachable "through
    a genre skin or a domain marker", but no domain marker is designed here. The tool catalog has a
    `domain` field and the mockup does not use it. Either a later document designs that, or the
