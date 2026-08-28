@@ -18,6 +18,7 @@
   import { hydrateProjects, listProjects, onProjectsChanged } from '$lib/projects';
   import { showConfirmModal } from '$lib/ui';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
+  import Chip from '$components/common/Chip.svelte';
   import ListButton from '$components/common/ListButton.svelte';
   import ArtifactInspector from '$components/common/ArtifactInspector.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
@@ -141,10 +142,10 @@
   <h1>Result Vault</h1>
 
   {#if error !== null}
-    <p class="vault__error" role="alert">{error}</p>
+    <p class="vault__error inset" role="alert">{error}</p>
   {/if}
   {#if notice !== null}
-    <p class="vault__notice" role="status">{notice}</p>
+    <p class="vault__notice inset" role="status">{notice}</p>
   {/if}
 
   <div class="vault__columns">
@@ -175,17 +176,10 @@
       </div>
 
       {#if tagOptions.length > 0}
-        <fieldset class="vault__tags">
+        <fieldset class="vault__tags inset">
           <legend>Tags</legend>
           {#each tagOptions as tag (tag)}
-            <label>
-              <input
-                type="checkbox"
-                checked={activeTags.includes(tag)}
-                onchange={() => toggleTag(tag)}
-              />
-              {tag}
-            </label>
+            <Chip selected={activeTags.includes(tag)} onchange={() => toggleTag(tag)}>{tag}</Chip>
           {/each}
         </fieldset>
       {/if}
@@ -288,21 +282,12 @@
     min-width: 0;
   }
 
+  /* An inset, and the fieldset's own layout on top of it. */
   .vault__tags {
-    border: 1px solid var(--granite);
-    border-radius: 4px;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 0 0 0.75rem;
-    padding: 0.5rem;
-  }
-
-  .vault__tags label {
-    align-items: center;
-    display: flex;
-    font-size: 0.85rem;
-    gap: 0.25rem;
+    gap: var(--s3);
+    margin: 0 0 var(--s5);
   }
 
   .vault__list h2 {
@@ -337,10 +322,7 @@
 
   .vault__error,
   .vault__notice {
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    margin: 0 0 0.75rem;
-    padding: 0.6rem 0.75rem;
+    margin: 0 0 var(--s5);
   }
 
   :global(.vault__back) {

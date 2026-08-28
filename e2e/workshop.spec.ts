@@ -14,7 +14,7 @@ const projectContext = (page: Page) => page.locator('section.project-context');
 const projectView = (page: Page) => page.locator('section.project-view');
 const toolBrowser = (page: Page) => page.locator('section.tool-browser');
 const panels = (page: Page) => page.locator('section.workshop-panel');
-const panelTitles = (page: Page) => page.locator('.workshop-panel__title');
+const panelTitles = (page: Page) => page.locator('.workshop-panel .panel__title');
 
 async function openWorkshop(page: Page): Promise<void> {
   await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
@@ -133,6 +133,89 @@ test.describe('the workshop bench', () => {
     await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).toContainText(
       'Loaded',
     );
+  });
+
+  /**
+   * docs/visual-design.md, "The main tool panel has no surface": the panel holding the thing being
+   * worked on has no border and no background of its own, so the work is not competing with the
+   * furniture around it.
+   *
+   * Checked here rather than by `tokens.test.ts` because it is a *computed* style — the rule that
+   * would break it is not a literal any source sweep could find, and a panel quietly growing a
+   * surface again is exactly the kind of regression a later refactor makes by accident.
+   */
+  test('gives the tool panel no surface of its own', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+
+    const surface = await panels(page)
+      .first()
+      .evaluate((element) => {
+        const panel = getComputedStyle(element);
+        const field = getComputedStyle(element.querySelector('.panel__field') as Element);
+        // The rail's lists are furniture and keep their surface, so this is a claim about the
+        // bench rather than about every panel on the screen.
+        const rail = getComputedStyle(document.querySelector('section.tool-browser') as Element);
+
+        return {
+          background: panel.backgroundColor,
+          fieldBackground: field.backgroundColor,
+          borderWidth: panel.borderTopWidth,
+          railBackground: rail.backgroundColor,
+        };
+      });
+
+    // Transparent, both layers: the panel paints nothing, so what is behind the tool is the page.
+    expect(surface.background).toBe('rgba(0, 0, 0, 0)');
+    expect(surface.fieldBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(surface.borderWidth).toBe('0px');
+    expect(surface.railBackground).not.toBe('rgba(0, 0, 0, 0)');
+  });
+
+  /**
+   * The other half of the surface rule: an artifact panel is reference *for* the work rather than
+   * the work, so it keeps the raised surface the tool panel gives up. Two surfaceless panels side
+   * by side have nothing to say where one ends and the next begins, which is what building it the
+   * other way showed.
+   */
+  test('keeps a surface on the artifact panel beside the bare tool panel', async ({ page }) => {
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
+
+    const surfaces = await page.evaluate(() => {
+      const read = (selector: string) => {
+        const element = document.querySelector(selector) as Element;
+        return {
+          background: getComputedStyle(element).backgroundColor,
+          field: getComputedStyle(element.querySelector('.panel__field') as Element)
+            .backgroundColor,
+        };
+      };
+
+      return { tool: read('.workshop-panel--tool'), artifact: read('.workshop-panel--artifact') };
+    });
+
+    expect(surfaces.tool.background).toBe('rgba(0, 0, 0, 0)');
+    expect(surfaces.tool.field).toBe('rgba(0, 0, 0, 0)');
+    expect(surfaces.artifact.background).not.toBe('rgba(0, 0, 0, 0)');
+    expect(surfaces.artifact.field).not.toBe('rgba(0, 0, 0, 0)');
+  });
+
+  /**
+   * The width the cap exists for. A tool panel with `flex-grow` and no maximum takes the whole
+   * bench, and the artifact opened beside it wraps underneath — reference below the fold, which
+   * is reference nobody reads. Asserted by geometry rather than by CSS, because what matters is
+   * where the two panels land, not which rule put them there.
+   */
+  test('sits an artifact beside the tool on a wide screen', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
+
+    const tool = await page.locator('.workshop-panel--tool').boundingBox();
+    const artifact = await page.locator('.workshop-panel--artifact').boundingBox();
+    expect(tool).not.toBeNull();
+    expect(artifact).not.toBeNull();
+    // Same row, artifact to the right: a wrap would put its top below the tool's bottom.
+    expect(artifact!.y).toBeLessThan(tool!.y + tool!.height);
+    expect(artifact!.x).toBeGreaterThan(tool!.x + tool!.width - 1);
   });
 
   test('holds one tool at a time, swapping the last one out', async ({ page }) => {

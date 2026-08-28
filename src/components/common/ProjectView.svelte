@@ -17,9 +17,12 @@
   import { showConfirmModal } from '$lib/ui';
   import { buildArtifactExportFile } from '$lib/vault_file';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
+  import Badge from '$components/common/Badge.svelte';
+  import Chip from '$components/common/Chip.svelte';
   import ListButton from '$components/common/ListButton.svelte';
   import DeleteButton from '$components/common/DeleteButton.svelte';
   import ExportButton from '$components/common/ExportButton.svelte';
+  import Panel from '$components/common/Panel.svelte';
 
   type Props = {
     /** The open project, or undefined when there is none. */
@@ -198,9 +201,7 @@
   }
 </script>
 
-<section class="project-view">
-  <h2>In this project</h2>
-
+<Panel title="In this project" class="project-view" label="Project contents panel">
   {#if projectId === undefined}
     <p class="project-view__empty">No project open. Create one to start keeping what you make.</p>
   {:else}
@@ -230,27 +231,20 @@
     </div>
 
     {#if tagOptions.length > 0}
-      <fieldset class="project-view__tags">
+      <fieldset class="project-view__tags inset">
         <legend>Tags</legend>
         {#each tagOptions as tag (tag)}
-          <label>
-            <input
-              type="checkbox"
-              checked={selectedTags.includes(tag)}
-              onchange={() => toggleTag(tag)}
-            />
-            {tag}
-          </label>
+          <Chip selected={selectedTags.includes(tag)} onchange={() => toggleTag(tag)}>{tag}</Chip>
         {/each}
       </fieldset>
     {/if}
 
     {#if error !== null}
-      <p class="project-view__error" role="alert">{error}</p>
+      <p class="project-view__error inset" role="alert">{error}</p>
     {/if}
 
     {#if notice !== null}
-      <p class="project-view__error" role="status">{notice}</p>
+      <p class="project-view__error inset" role="status">{notice}</p>
     {/if}
 
     <p class="project-view__count">
@@ -262,7 +256,7 @@
       {/if}
     </p>
 
-    <div class="project-view__list">
+    <div class="project-view__list well">
       {#each groups as group (group.kind)}
         <h3>{kindName(group.kind)}</h3>
         <ul>
@@ -278,10 +272,10 @@
                 {#if withBrokenReferences.has(summary.id)}
                   <!-- A dangling reference is tolerated, never silent: the listing is where a
                        user meets this artifact, so it is where the breakage has to show. -->
-                  <span class="project-view__badge project-view__badge--broken">Broken link</span>
+                  <Badge tone="danger">Broken link</Badge>
                 {/if}
                 {#if isOpen}
-                  <span class="project-view__badge">Open</span>
+                  <Badge tone="notice">Open</Badge>
                 {/if}
               </ListButton>
               <ExportButton
@@ -302,93 +296,69 @@
       {/each}
     </div>
   {/if}
-</section>
+</Panel>
 
 <style>
-  .project-view {
+  /* `:global`, because the element carrying it is `Panel`'s. */
+  :global(.project-view) {
     flex: 1 1 18rem;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    background: var(--slate);
-  }
-
-  .project-view h2 {
-    margin: 0;
-    font-size: 1.3rem;
-  }
-
-  .project-view h3 {
-    margin: 0.75rem 0 0.25rem;
-    font-size: 0.85rem;
-    color: var(--gold);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .project-view h3:first-child {
-    margin-top: 0;
   }
 
   .project-view__filters {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: var(--s5);
     align-items: center;
   }
 
-  /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
-     others did. What is left is local: the reset and the room to shrink. */
-  .project-view .input-group {
+  /* The row layout is `.input-group--inline`'s. What is left is local: the reset and the room to
+     shrink. */
+  .project-view__filters .input-group {
     margin: 0;
     min-width: 0;
   }
 
-  .project-view input[type='search'],
-  .project-view select {
+  input[type='search'],
+  select {
     min-width: 0;
     flex: 1 1 8rem;
   }
 
+  /* An inset, and the fieldset's own layout on top of it. */
   .project-view__tags {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--s3);
     margin: 0;
-    padding: 0.4rem 0.6rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
   }
 
   .project-view__tags legend {
-    padding: 0 0.3rem;
-    color: var(--gold);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
+    padding: 0 var(--s3);
+    color: var(--accent-quiet);
+    font: var(--t-micro);
+    letter-spacing: var(--t-micro-tracking);
     text-transform: uppercase;
   }
 
-  .project-view__tags label {
-    display: flex;
-    align-items: center;
-    gap: 0.25rem;
-    font-size: 0.85rem;
-  }
-
+  /* The well: the list is what scrolls, so a project holding a hundred artifacts does not push
+     the bench off the bottom of the page. */
   .project-view__list {
-    /* The list is what scrolls, so a project holding a hundred artifacts does not push the bench
-       off the bottom of the page. */
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
     max-height: var(--project-view-max-height, 20rem);
   }
 
-  .project-view ul {
+  h3 {
+    margin: var(--s5) 0 var(--s2);
+    font: var(--t-micro);
+    letter-spacing: var(--t-micro-tracking);
+    color: var(--accent-quiet);
+    text-transform: uppercase;
+  }
+
+  h3:first-child {
+    margin-top: 0;
+  }
+
+  ul {
     margin: 0;
     padding: 0;
   }
@@ -396,7 +366,7 @@
   /* `center`, not `stretch`: the two round buttons carry their own 28px height, so stretching the
      line lands them at the top of a row that is taller than they are. The gap between rows is the
      row's own `--s1` margin rather than one here, or the two stack. */
-  .project-view li {
+  li {
     align-items: center;
     display: flex;
     gap: var(--s2);
@@ -416,37 +386,17 @@
     overflow-wrap: anywhere;
   }
 
-  .project-view__badge {
-    flex-shrink: 0;
-    padding: 0.05rem 0.4rem;
-    border: 1px solid var(--gold);
-    border-radius: 999px;
-    background: var(--charcoal);
-    color: var(--gold);
-    font-size: 0.7rem;
-    letter-spacing: 0.04em;
-    line-height: 1.5;
-    text-transform: uppercase;
-  }
-
-  .project-view__badge--broken {
-    border-color: var(--tan);
-    color: var(--tan);
-  }
-
   .project-view__empty,
   .project-view__count {
     margin: 0;
-    font-size: 0.85rem;
+    font: var(--t-small);
     font-style: italic;
-    opacity: 0.8;
+    color: var(--ink-muted);
   }
 
+  /* An inset, so a message about a failure sits *in* the panel rather than floating on it. */
   .project-view__error {
     margin: 0;
-    padding: 0.5rem 0.6rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    font-size: 0.9rem;
+    font: var(--t-small);
   }
 </style>

@@ -7,7 +7,9 @@
     systemDisplayName,
   } from '$lib/tools';
   import type { GameSystem, Genre, Tool } from '$lib/tools';
+  import Badge from '$components/common/Badge.svelte';
   import ListButton from '$components/common/ListButton.svelte';
+  import Panel from '$components/common/Panel.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
 
   type Props = {
@@ -95,9 +97,7 @@
   }
 </script>
 
-<section class="tool-browser">
-  <h2>{title}</h2>
-
+<Panel {title} class="tool-browser" label="{title} panel">
   <div class="tool-browser__filters">
     <div class="input-group input-group--inline">
       <label for={filterId}>Filter</label>
@@ -133,7 +133,7 @@
     </div>
   {/if}
 
-  <div class="tool-browser__list">
+  <div class="tool-browser__list well">
     {#each groups as group (group.domain)}
       <h3>{group.heading}</h3>
       <ul>
@@ -155,7 +155,7 @@
                    level was ever put in front of them. -->
               <span class="tool-browser__badges">
                 {#if isActive}
-                  <span class="tool-browser__badge">Loaded</span>
+                  <Badge tone="notice">Loaded</Badge>
                 {/if}
                 <ToolMaturityBadge maturity={tool.maturity} plain />
               </span>
@@ -167,52 +167,25 @@
       <p class="tool-browser__empty">No tools match.</p>
     {/each}
   </div>
-</section>
+</Panel>
 
 <style>
-  .tool-browser {
-    /* Sized to sit beside other panels in a flex row: it takes a fair share of the row but
-       gives up width when the row is tight. `min-width: 0` lets it shrink past the width of
-       its longest tool name instead of forcing the row to overflow. */
+  /* `:global`, because the element carrying it is `Panel`'s: the browser sits beside other panels
+     in a flex row, taking a fair share and giving up width when the row is tight. `min-width: 0`
+     is the panel's own. */
+  :global(.tool-browser) {
     flex: 1 1 18rem;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    background: var(--slate);
-  }
-
-  .tool-browser h2 {
-    margin: 0;
-    font-size: 1.3rem;
-  }
-
-  .tool-browser h3 {
-    margin: 0.75rem 0 0.25rem;
-    font-size: 0.85rem;
-    color: var(--gold);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .tool-browser h3:first-child {
-    margin-top: 0;
   }
 
   .tool-browser__filters {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
+    gap: var(--s5);
     align-items: center;
   }
 
-  /* The row layout is `--inline`'s now. What is left is this panel's own business: the group sits
-     in a wrapping flex row, so it needs to be allowed to shrink. `flex: 1 1 8rem` on the field is
-     gone with the column direction it was written against — a basis of 8rem in a column is 8rem of
-     *height*, which is how the filter became a square. */
+  /* The row layout is `--inline`'s. What is left is this panel's own business: the group sits in a
+     wrapping flex row, so it needs to be allowed to shrink. */
   .tool-browser__filters .input-group {
     margin: 0;
     min-width: 0;
@@ -225,15 +198,15 @@
   .tool-browser__setting {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.35rem 0.75rem;
+    gap: var(--s2) var(--s5);
     align-items: baseline;
   }
 
   .tool-browser__setting-note {
     margin: 0;
-    font-size: 0.85rem;
+    font: var(--t-small);
     font-style: italic;
-    color: var(--gold);
+    color: var(--accent-quiet);
   }
 
   /* The row layout and the gap are `--inline`'s; the margin reset is this panel's. */
@@ -241,21 +214,30 @@
     margin: 0;
   }
 
+  /* The well: the list is what scrolls, so the panel as a whole stays the height its parent
+     allows. Standalone there is no such limit, hence the fallback max height. */
   .tool-browser__list {
-    /* The list is the part that scrolls, so the panel as a whole stays the height its parent
-       allows. Standalone there is no such limit, hence the fallback max height. */
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
     max-height: var(--tool-browser-max-height, 24rem);
   }
 
-  .tool-browser ul {
+  h3 {
+    margin: var(--s5) 0 var(--s2);
+    font: var(--t-micro);
+    letter-spacing: var(--t-micro-tracking);
+    color: var(--accent-quiet);
+    text-transform: uppercase;
+  }
+
+  h3:first-child {
+    margin-top: 0;
+  }
+
+  ul {
     margin: 0;
     padding: 0;
   }
 
-  .tool-browser li {
+  li {
     list-style-type: none;
     margin: 0;
   }
@@ -272,25 +254,12 @@
     flex-wrap: wrap;
     justify-content: flex-end;
     align-items: center;
-    gap: 0.25rem;
-  }
-
-  .tool-browser__badge {
-    flex-shrink: 0;
-    padding: 0.05rem 0.4rem;
-    border: 1px solid var(--gold);
-    border-radius: 999px;
-    background: var(--charcoal);
-    color: var(--gold);
-    font-size: 0.7rem;
-    letter-spacing: 0.04em;
-    line-height: 1.5;
-    text-transform: uppercase;
+    gap: var(--s2);
   }
 
   .tool-browser__empty {
     margin: 0;
     font-style: italic;
-    opacity: 0.8;
+    color: var(--ink-muted);
   }
 </style>

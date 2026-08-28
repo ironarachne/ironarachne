@@ -269,14 +269,15 @@ describe('elevation and corners', () => {
       expect(tokens.get(corner), `${corner} is a clip-path polygon`).toMatch(/^polygon\(/);
     }
 
-    // `--corner-control-inner` is the control treatment a second time, not a fourth treatment: a
-    // clipped border is shaved at the diagonals, so a button paints its edge as a box and covers
-    // all but a pixel of it with a liner cut to the same shape. The cap counts treatments, and
-    // there are still three; a genuinely new shape would not be named after one of these.
+    // `--corner-control-inner` and `--notch-inner` are those treatments a second time, not two
+    // more treatments: a clipped border is shaved at the diagonals, so a button and a panel each
+    // paint their edge as a box and cover all but a pixel of it with a liner cut to the same
+    // shape. The cap counts treatments, and there are still three; a genuinely new shape would
+    // not be named after one of these.
     const declared = [...tokens.keys()].filter(
-      (name) => name === '--notch' || name.startsWith('--corner-'),
+      (name) => name.startsWith('--notch') || name.startsWith('--corner-'),
     );
-    expect(declared.sort()).toEqual([...corners, '--corner-control-inner'].sort());
+    expect(declared.sort()).toEqual([...corners, '--corner-control-inner', '--notch-inner'].sort());
   });
 
   it('cuts the nav corner on one edge and the other two diagonally', () => {
@@ -285,9 +286,10 @@ describe('elevation and corners', () => {
     // control cut diagonally opposite corners, at 9px and 7px respectively.
     expect(tokens.get('--notch')).toContain('9px');
     expect(tokens.get('--corner-control')).toContain('7px');
-    // The liner sits 1px inside the plate on every edge, so its cut is 1px shallower — that is
-    // what keeps the two diagonals parallel instead of converging.
+    // A liner sits 1px inside on every edge, so its cut is 1px shallower — that is what keeps the
+    // two diagonals parallel instead of converging. Both liners, at both scales.
     expect(tokens.get('--corner-control-inner')).toContain('6px');
+    expect(tokens.get('--notch-inner')).toContain('8px');
 
     expect(tokens.get('--corner-nav')).toContain('100% calc(100% - 7px)');
     expect(tokens.get('--notch')).not.toContain('100% calc(100% - 9px)');
@@ -375,6 +377,144 @@ describe('the control system', () => {
       ).toEqual([]);
     }
   });
+});
+
+describe('the panel language', () => {
+  // docs/visual-design.md, "What the panel language enforces". Each of these guards a rule that
+  // was broken in the files it checks before #116: nineteen components declared the same box, and
+  // three of them hand-rolled the same pill with `--gold` written into two.
+  //
+  // Two sets of files are deferred rather than exempt, and the design says which: the banners and
+  // the dialog belong to #117, and the surfaces that hold *generated output* belong to the skins
+  // in #119–#121, which is why #116 precedes them. Each name here is a file the panel language
+  // has not reached yet — the list is meant to shrink, and adding to it is how the sweep stops
+  // meaning anything.
+  const DEFERRED = new Set([
+    // #117: banners, notices and the modal dialog.
+    'src/components/common/StorageDisclosureNotice.svelte',
+    'src/components/common/StorageFailureModalContent.svelte',
+    'src/components/common/StorageWarningBanner.svelte',
+    'src/components/common/LoadSnapshotDialog.svelte',
+    // #119-#121: surfaces that hold generated output, which is what a genre skin dresses.
+    'src/components/characters/AdndCharacterBuilder.svelte',
+    'src/components/factions/CultureArtifactEditor.svelte',
+    'src/components/factions/EncounterGenerator.svelte',
+    'src/components/factions/ReligionArtifactEditor.svelte',
+    'src/components/heraldry/HeraldryArtifactView.svelte',
+    'src/components/locations/SettlementArtifactEditor.svelte',
+    'src/components/objects/EquipmentGenerator.svelte',
+    'src/components/objects/MerchantGenerator.svelte',
+    'src/components/objects/PotionGenerator.svelte',
+  ]);
+
+  const componentSheets = siteStylesheets().filter(
+    ({ name }) => name.endsWith('.svelte') && !DEFERRED.has(name),
+  );
+
+  it('defers only files another issue owns', () => {
+    // A deferred file that no longer exists is a list nobody pruned, and a list nobody prunes is
+    // how an exemption outlives the thing it was granted for.
+    const missing = [...DEFERRED].filter(
+      (name) => !siteStylesheets().some((sheet) => sheet.name === name),
+    );
+
+    expect(missing, 'a deferred file that is gone').toEqual([]);
+  });
+
+  it('declares the two shadows, and the halo is a state rather than an elevation', () => {
+    // `--lift` sits a panel off the page and is fixed across the genres so two panels beside each
+    // other are at the same height. `--halo` says which panel has focus, which is not a height.
+    expect(tokens.get('--halo')).toContain('color-mix');
+    expect(tokens.get('--halo')).toContain('var(--accent)');
+
+    const shadows = [...tokens.keys()].filter((name) =>
+      ['--edge', '--sink', '--lift', '--halo'].includes(name),
+    );
+    expect(shadows.sort()).toEqual(['--edge', '--halo', '--lift', '--sink']);
+  });
+
+  it('leaves no component on the old box recipe', () => {
+    // `1px solid var(--tan)` over `border-radius: 4px` over `var(--slate)` *was* the panel
+    // language, written out nineteen times. A panel is now a class, and the class is the only
+    // place those three lines exist.
+    const offenders = componentSheets
+      .filter(({ css }) => {
+        const source = css.replace(/\/\*[\s\S]*?\*\//g, '');
+        return (
+          /border[^:;]*:\s*1px solid var\(--tan\)/.test(source) ||
+          /background[^:;]*:\s*var\(--slate\)/.test(source)
+        );
+      })
+      .map(({ name }) => name);
+
+    expect(offenders, 'a hand-rolled panel outlives the panel language').toEqual([]);
+  });
+
+  it('keeps every corner in the vocabulary', () => {
+    // Cut, round and square, plus the pill — `border-radius: 999px` on something with no straight
+    // edge long enough to cut. A `4px` anywhere is a box that has not been converted.
+    const permitted = new Set(['999px', '50%', '0']);
+    const offenders: string[] = [];
+
+    for (const { name, css } of componentSheets) {
+      const source = css.replace(/\/\*[\s\S]*?\*\//g, '');
+
+      for (const [, value] of source.matchAll(/border-radius:\s*([^;{}]+);/g)) {
+        const radius = value.trim();
+        if (!permitted.has(radius) && !radius.includes('var(')) {
+          offenders.push(`${name}: ${radius}`);
+        }
+      }
+    }
+
+    expect(offenders, 'a corner outside the vocabulary').toEqual([]);
+  });
+
+  it('keeps the panel components on the ramps', () => {
+    // The rule the control components are held to, extended to the six #116 names plus the three
+    // it adds. `Panel` and `Chip` take the same `1px` exception `BaseButton` has — it is the
+    // keyline's own width, and the visually-hidden box's.
+    const panels = [
+      'Panel',
+      'Badge',
+      'Chip',
+      'WorkshopPanel',
+      'ToolBrowser',
+      'ProjectView',
+      'SessionLogPanel',
+      'ArtifactPanel',
+      'ToolMaturityBadge',
+    ];
+
+    for (const name of panels) {
+      const css = readFileSync(join(COMPONENTS_DIR, `common/${name}.svelte`), 'utf8').replace(
+        /\/\*[\s\S]*?\*\//g,
+        '',
+      );
+      const offRamp = [
+        ...css.matchAll(/(?:font-size|padding|margin|gap)[^:;]*:\s*([^;{}]+);/g),
+      ].filter(([, value]) => /\d/.test(value) && !value.includes('var(') && value.trim() !== '0');
+
+      expect(
+        offRamp.map(([declaration]) => declaration),
+        `${name} sizes something outside the ramps`,
+      ).toEqual([]);
+    }
+  });
+
+  it.each(['fantasy.css', 'scifi.css', 'cyberpunk.css'])(
+    'leaves panel and badge geometry alone in %s',
+    (name) => {
+      // Decision 2 again, for the surfaces: a skin may set `--panel-edge` and `--panel-surface`
+      // and put its one ambient effect on the panel, and may not touch the notch, the liner, the
+      // padding or the halo.
+      const css = readFileSync(join(STYLES_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+      expect(css).not.toMatch(/\.panel(__|--)?[\w-]*\s*\{/);
+      expect(css).not.toMatch(/\.(badge|chip)(--)?[\w-]*\s*\{/);
+      expect(css).not.toContain('--halo');
+    },
+  );
 });
 
 describe('motion', () => {

@@ -293,7 +293,7 @@
       />
     </div>
 
-    <dl class="artifact-panel__meta">
+    <dl class="artifact-panel__meta inset">
       <dt>Kind</dt>
       <dd>{kindName}</dd>
       <dt>Updated</dt>
@@ -407,7 +407,7 @@
   .artifact-panel {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: var(--s5);
     min-width: 0;
   }
 
@@ -423,18 +423,19 @@
     flex: 1 1 8rem;
   }
 
+  /* An inset: the artifact's own facts, held in the panel rather than laid on it. */
   .artifact-panel__meta {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 0.15rem 0.6rem;
+    gap: var(--s1) var(--s5);
     margin: 0;
-    font-size: 0.9rem;
+    font: var(--t-small);
   }
 
   .artifact-panel__meta dt {
-    color: var(--gold);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
+    color: var(--accent-quiet);
+    font: var(--t-micro);
+    letter-spacing: var(--t-micro-tracking);
     text-transform: uppercase;
   }
 
@@ -447,19 +448,19 @@
   .artifact-panel__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--s4);
   }
 
   .artifact-panel__contents summary {
     cursor: pointer;
-    color: var(--gold);
+    color: var(--accent-quiet);
   }
 
   .artifact-panel__status,
   .artifact-panel__problem {
     margin: 0;
-    font-size: 0.9rem;
+    font: var(--t-small);
     font-style: italic;
-    opacity: 0.9;
+    color: var(--ink-muted);
   }
 </style>

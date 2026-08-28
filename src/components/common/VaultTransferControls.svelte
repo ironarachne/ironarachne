@@ -217,7 +217,7 @@
   }
 </script>
 
-<section class="vault-transfer">
+<section class="vault-transfer inset">
   <!-- Export is the storage panel's, one section above: it is the primary action there, under the
        "last exported" figure that gives someone a reason to press it. What is left here is the way
        back in — see docs/storage-panel.md. -->
@@ -246,7 +246,7 @@
   </div>
 
   {#if progress !== null}
-    <p class="vault-transfer__progress" role="status">
+    <p class="vault-transfer__progress inset" role="status">
       {#if progress.stage === 'staging'}
         Reading {progress.done} of {progress.total}…
       {:else if progress.stage === 'writing'}
@@ -263,7 +263,7 @@
   {/if}
 
   {#if error !== null}
-    <p class="vault-transfer__error" role="alert">{error}</p>
+    <p class="vault-transfer__error inset" role="alert">{error}</p>
   {/if}
 
   {#if unsavedFile !== null}
@@ -274,7 +274,7 @@
   {/if}
 
   {#if notes.length > 0}
-    <div class="vault-transfer__summary" role="status">
+    <div class="vault-transfer__summary inset" role="status">
       <ul>
         {#each notes as note (note)}
           <li>{note}</li>
@@ -287,7 +287,7 @@
   {#if quarantined.length > 0}
     <!-- Kept, listed, and marked unreadable rather than dropped: a later version may understand
          them, and they travel in every export until then. -->
-    <div class="vault-transfer__quarantine">
+    <div class="vault-transfer__quarantine inset">
       <h3>Could not be read ({quarantined.length})</h3>
       <p>
         This version does not understand these, so they are being kept as they arrived. They travel
@@ -307,15 +307,13 @@
 </section>
 
 <style>
+  /* A control strip rather than a panel: it is not a named region, it is the two things you can
+     do to the vault. An inset sits it *in* the page instead of on it. */
   .vault-transfer {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.75rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    background: var(--slate);
+    gap: var(--s4);
+    margin-bottom: var(--s6);
   }
 
   .vault-transfer h2 {
@@ -360,10 +358,7 @@
   .vault-transfer__summary,
   .vault-transfer__quarantine {
     margin: 0;
-    padding: 0.5rem 0.6rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    font-size: 0.9rem;
+    font: var(--t-small);
   }
 
   .vault-transfer__progress {

@@ -1270,6 +1270,6 @@
   .builder-result {
     margin-top: 2rem;
     padding-top: 1.5rem;
-    border-top: 1px solid var(--tan);
+    border-top: 1px solid var(--border-strong);
   }
 </style>

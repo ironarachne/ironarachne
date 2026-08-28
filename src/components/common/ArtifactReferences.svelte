@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Badge from '$components/common/Badge.svelte';
   import { onMount } from 'svelte';
 
   import {
@@ -66,7 +67,7 @@
               <!-- Deleting a referenced artifact is allowed and the link is left dangling on
                    purpose, so this is the ordinary way a reference ends up looking. Saying which
                    role is missing is what the required role on a reference buys. -->
-              <span class="artifact-references__broken">missing — this was deleted</span>
+              <Badge tone="danger">missing — this was deleted</Badge>
             {:else}
               <span>{resolved.target.name}</span>
             {/if}
@@ -128,12 +129,5 @@
     letter-spacing: 0.04em;
     text-transform: uppercase;
     opacity: 0.75;
-  }
-
-  .artifact-references__broken {
-    padding: 0 0.35rem;
-    border: 1px solid var(--tan);
-    border-radius: 3px;
-    font-style: italic;
   }
 </style>

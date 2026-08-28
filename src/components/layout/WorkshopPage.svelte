@@ -275,7 +275,11 @@
 
     const remaining = benchElement?.querySelectorAll('section.workshop-panel') ?? [];
     const next = remaining[Math.min(closedOrder, remaining.length - 1)];
-    const control = next?.querySelector('.workshop-panel__controls button:not([disabled])');
+    // `.panel__actions` is `Panel`'s: the header plate's right-hand end, where a panel's own
+    // controls live. It was `.workshop-panel__controls` before the panel language (#116) gave
+    // every panel the same header, and a selector naming a class nobody renders drops focus on
+    // the document silently — which is what the keyboard test in `e2e/workshop.spec.ts` caught.
+    const control = next?.querySelector('.panel__actions button:not([disabled])');
 
     if (control instanceof HTMLElement) {
       control.focus();
@@ -342,6 +346,7 @@
         <WorkshopPanel
           title={panelTitle(panel)}
           subtitle={panel.toolPath === undefined ? 'Artifact' : 'Tool'}
+          holds={panel.toolPath === undefined ? 'artifact' : 'tool'}
           position={panel.order + 1}
           total={bench.panels.length}
           onClose={() => void closePanel(panel)}
@@ -416,8 +421,12 @@
   .workshop__rail {
     /* The rail holds the two lists you work *from*. It takes a column of its own where there is
        room and sits above the bench where there is not, which is the mobile-first arrangement:
-       both its lists scroll internally so the bench is never more than a screen away. */
-    flex: 1 1 18rem;
+       both its lists scroll internally so the bench is never more than a screen away.
+
+       `flex-grow: 0`, like the log: a list of tool names does not get better for being wider, and
+       every pixel the rail took from the bench was a pixel that decided whether an artifact could
+       sit beside the tool or had to wrap under it. The bench takes the surplus. */
+    flex: 0 1 18rem;
     min-width: 0;
     display: flex;
     flex-direction: column;
@@ -425,7 +434,9 @@
   }
 
   .workshop__bench {
-    flex: 3 1 26rem;
+    /* Five to the rail's one: the bench takes most of the surplus, so a wide window spends it on
+       the thing being worked on rather than on the two lists you work *from*. */
+    flex: 5 1 32rem;
     min-width: 0;
     display: flex;
     flex-wrap: wrap;
@@ -446,14 +457,15 @@
   /* Below the wrap the log goes full width instead of sitting on its own row as a 14rem stub
      beside empty space.
 
-     60rem is the three columns' own arithmetic — 18 + 26 + 14 plus two 1rem gaps — asked of the
+     66rem is the three columns' own arithmetic — 18 + 32 + 14 plus two 1rem gaps — asked of the
      row they are in, so the log stops being a column at exactly the width it stops fitting beside
-     one. It resolves in the same `rem` the columns are sized in, which is what keeps the two in
+     one. It moved with the bench's basis; a threshold that did not would put the log on its own
+     row while there was still space for it, or leave it wrapping mid-column. It resolves in the same `rem` the columns are sized in, which is what keeps the two in
      step as the root font size scales.
 
      Nothing in the e2e suite looks at this band: the mobile projects are all 430px and below,
      where everything is stacked and full width already. It is checked by hand. */
-  @container workshop-layout (max-width: 60rem) {
+  @container workshop-layout (max-width: 66rem) {
     .workshop__log {
       flex-basis: 100%;
       --session-log-max-height: 12rem;

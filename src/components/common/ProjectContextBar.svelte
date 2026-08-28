@@ -18,6 +18,7 @@
   } from '$lib/projects';
   import { ARTIFACT_KINDS } from '$lib/workshop';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import Panel from '$components/common/Panel.svelte';
 
   type Props = {
     /**
@@ -101,14 +102,12 @@
   with less room for panels, and every one of those actions is something a user does between
   sessions rather than while building.
 -->
-<section class="project-context">
-  <h2>Project</h2>
-
+<Panel title="Project" class="project-context" label="Project panel">
   {#if adoption !== null && adoptedProjectName !== undefined}
     <!-- Adoption happens on page load, wherever the user happens to be, so this is where they are
          told it happened. It still says the originals are untouched, because that is the
          reassurance the message exists to give. -->
-    <div class="project-context__adoption" role="status">
+    <div class="project-context__adoption inset" role="status">
       <p>
         {adoption.adoptedCount}
         {adoption.adoptedCount === 1 ? 'item you saved' : 'items you saved'} before projects existed
@@ -165,23 +164,13 @@
       <a class="project-context__manage" href={storagePanelHref}>Storage</a>
     </div>
   {/if}
-</section>
+</Panel>
 
 <style>
-  .project-context {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.75rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    background: var(--slate);
-  }
-
-  .project-context h2 {
-    margin: 0;
-    font-size: 1.3rem;
+  /* `:global`, because the element carrying it is `Panel`'s. The surface, the keyline and the
+     padding are the panel's; the space under it is this bar's own business. */
+  :global(.project-context) {
+    margin-bottom: var(--s6);
   }
 
   .project-context__row {
@@ -195,37 +184,34 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.5rem;
-    padding: 0.6rem 0.75rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
+    gap: var(--s4);
   }
 
   .project-context__adoption p {
     margin: 0;
-    font-size: 0.9rem;
+    font: var(--t-small);
   }
 
   /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
      others did. What is left is local: the reset and the room to shrink. */
-  .project-context .input-group {
+  .input-group {
     margin: 0;
     min-width: 0;
   }
 
-  .project-context select {
+  select {
     min-width: 0;
     flex: 1 1 10rem;
   }
 
   .project-context__manage {
-    font-size: 0.85rem;
+    font: var(--t-small);
     white-space: nowrap;
   }
 
   .project-context__empty {
     margin: 0;
-    font-size: 0.85rem;
+    font: var(--t-small);
     font-style: italic;
     opacity: 0.8;
   }

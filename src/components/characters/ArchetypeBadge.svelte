@@ -56,8 +56,9 @@
     justify-content: center;
     width: var(--badge-size);
     height: var(--badge-size);
+    /* Square, which is in the corner vocabulary; a 2px radius was not. A swatch this small has
+       no room for a treatment anyway. */
     border: 1px solid var(--badge-primary);
-    border-radius: 2px;
     overflow: hidden;
     vertical-align: middle;
     background: conic-gradient(
