@@ -1095,10 +1095,20 @@ Those are the same class of thing as control geometry, and the rule is the same 
 - No skin file declares a `.panel`, `.panel__field` or badge rule, which is decision 2 as a test
   rather than as a paragraph.
 
-One thing is checked in the browser instead, because it is a computed style and not a source
-sweep: a bench tool panel's computed `background-color` equals the page's and its `border-width` is
-`0`. "The main tool panel has no border and no background" is #116's second acceptance criterion,
-and it is the one a future refactor is most likely to undo by accident.
+Two details of that, settled in the implementation. The first three sweeps carry a **deferred
+list**: the banners and the dialog (#117's) and the surfaces that hold generated output (#119–#121's)
+are named in `tokens.test.ts` rather than swept, because this issue's own inventory says it does not
+convert them. A fourth assertion checks that every deferred file still exists, so the list cannot
+outlive the files it exempts, and it is meant only to shrink.
+
+The second is checked in the browser rather than by a source sweep, because it is a computed style:
+`e2e/workshop.spec.ts` mounts a tool and asserts that both of the bench panel's layers compute to
+`rgba(0, 0, 0, 0)` and that its border width is `0`, with the rail's list beside it as the control
+that still has a surface. Transparent rather than "the same colour as the page": a panel painting
+the page's own colour would pass a colour comparison while still being a surface, and what the
+design asks for is that it paints nothing. "The main tool panel has no border and no background" is
+#116's second acceptance criterion, and it is the one a future refactor is most likely to undo by
+accident.
 
 ## The shell
 

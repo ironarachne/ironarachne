@@ -32,6 +32,7 @@
   import { showConfirmModal } from '$lib/ui';
   import type { VaultResult } from '$lib/vault_db';
   import type { ImportSummary } from '$lib/vault_file';
+  import Badge from '$components/common/Badge.svelte';
   import ProjectTransferControls from '$components/common/ProjectTransferControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import StorageDisclosureNotice from '$components/common/StorageDisclosureNotice.svelte';
@@ -282,7 +283,7 @@
   </p>
 
   {#if storageError !== null}
-    <p class="projects__error" role="alert">{storageError}</p>
+    <p class="projects__error inset" role="alert">{storageError}</p>
   {/if}
 
   <div class="projects__create">
@@ -325,78 +326,84 @@
   {:else}
     <ul class="projects__list">
       {#each rows as row (row.project.id)}
+        <!-- A card is a raised panel (docs/visual-design.md, "Cards are panels"), so it takes the
+             panel's two layers: the `li` paints the keyline across its box and the field inside
+             covers all but a pixel of it. It does not use `Panel` itself, because a card in edit
+             mode replaces its own header with a form and a panel's header is not optional. -->
         <li
-          class="project-card"
+          class="project-card panel"
           class:project-card--active={row.project.id === activeProjectId}
           id={cardId(row.project.id)}
         >
-          {#if editingId === row.project.id}
-            <div class="project-card__edit">
-              <div class="input-group">
-                <label for="{uid}-name-{row.project.id}">Name</label>
-                <input id="{uid}-name-{row.project.id}" type="text" bind:value={editName} />
-              </div>
-              <div class="input-group">
-                <label for="{uid}-desc-{row.project.id}">Description</label>
-                <input
-                  id="{uid}-desc-{row.project.id}"
-                  type="text"
-                  bind:value={editDescription}
-                  placeholder="Optional"
+          <div class="panel__field">
+            {#if editingId === row.project.id}
+              <div class="project-card__edit">
+                <div class="input-group">
+                  <label for="{uid}-name-{row.project.id}">Name</label>
+                  <input id="{uid}-name-{row.project.id}" type="text" bind:value={editName} />
+                </div>
+                <div class="input-group">
+                  <label for="{uid}-desc-{row.project.id}">Description</label>
+                  <input
+                    id="{uid}-desc-{row.project.id}"
+                    type="text"
+                    bind:value={editDescription}
+                    placeholder="Optional"
+                  />
+                </div>
+                <SelectField
+                  id="{uid}-genre-{row.project.id}"
+                  label="Genre"
+                  bind:value={editGenre}
+                  options={GENRE_OPTIONS}
                 />
+                <SelectField
+                  id="{uid}-system-{row.project.id}"
+                  label="System"
+                  bind:value={editSystem}
+                  options={SYSTEM_OPTIONS}
+                />
+                <div class="project-card__actions">
+                  <BaseButton onclick={() => saveEdits(row.project.id)}>Save</BaseButton>
+                  <BaseButton onclick={cancelEditing}>Cancel</BaseButton>
+                </div>
               </div>
-              <SelectField
-                id="{uid}-genre-{row.project.id}"
-                label="Genre"
-                bind:value={editGenre}
-                options={GENRE_OPTIONS}
-              />
-              <SelectField
-                id="{uid}-system-{row.project.id}"
-                label="System"
-                bind:value={editSystem}
-                options={SYSTEM_OPTIONS}
-              />
+            {:else}
+              <div class="project-card__header">
+                <h2>{row.project.name}</h2>
+                {#if row.project.id === activeProjectId}
+                  <Badge tone="notice">Open</Badge>
+                {/if}
+              </div>
+
+              {#if row.project.description !== undefined && row.project.description !== ''}
+                <p class="project-card__description">{row.project.description}</p>
+              {/if}
+
+              <!-- No size here. The card answers "which project do I work in" and is ordered by
+                   recency; the storage panel's table answers "which one is big" and is ordered by
+                   size. The same number in two orders on one page is how a reader ends up trusting
+                   neither, so it is said once, where it can be compared. -->
+              <p class="project-card__facts">
+                <!-- The setting leads, because it is what the project is rather than how much is in
+                     it, and because a user who has just changed it needs to see that it took. -->
+                {#if settingSummary(row.project) !== ''}{settingSummary(row.project)} ·{/if}
+                {row.artifactCount}
+                {row.artifactCount === 1 ? 'artifact' : 'artifacts'}
+                · updated {getShortDate(new Date(row.project.updatedAt))}
+              </p>
+
               <div class="project-card__actions">
-                <BaseButton onclick={() => saveEdits(row.project.id)}>Save</BaseButton>
-                <BaseButton onclick={cancelEditing}>Cancel</BaseButton>
+                {#if row.project.id === activeProjectId}
+                  <a class="project-card__link" href={resolve('/workshop')}>Go to workshop</a>
+                {:else}
+                  <BaseButton onclick={() => open(row.project.id)}>Open</BaseButton>
+                {/if}
+                <BaseButton onclick={() => startEditing(row.project)}>Rename</BaseButton>
+                <BaseButton onclick={() => remove(row)}>Delete</BaseButton>
               </div>
-            </div>
-          {:else}
-            <div class="project-card__header">
-              <h2>{row.project.name}</h2>
-              {#if row.project.id === activeProjectId}
-                <span class="project-card__badge">Open</span>
-              {/if}
-            </div>
-
-            {#if row.project.description !== undefined && row.project.description !== ''}
-              <p class="project-card__description">{row.project.description}</p>
             {/if}
-
-            <!-- No size here. The card answers "which project do I work in" and is ordered by
-                 recency; the storage panel's table answers "which one is big" and is ordered by
-                 size. The same number in two orders on one page is how a reader ends up trusting
-                 neither, so it is said once, where it can be compared. -->
-            <p class="project-card__facts">
-              <!-- The setting leads, because it is what the project is rather than how much is in
-                   it, and because a user who has just changed it needs to see that it took. -->
-              {#if settingSummary(row.project) !== ''}{settingSummary(row.project)} ·{/if}
-              {row.artifactCount}
-              {row.artifactCount === 1 ? 'artifact' : 'artifacts'}
-              · updated {getShortDate(new Date(row.project.updatedAt))}
-            </p>
-
-            <div class="project-card__actions">
-              {#if row.project.id === activeProjectId}
-                <a class="project-card__link" href={resolve('/workshop')}>Go to workshop</a>
-              {:else}
-                <BaseButton onclick={() => open(row.project.id)}>Open</BaseButton>
-              {/if}
-              <BaseButton onclick={() => startEditing(row.project)}>Rename</BaseButton>
-              <BaseButton onclick={() => remove(row)}>Delete</BaseButton>
-            </div>
-          {/if}
+          </div>
         </li>
       {/each}
     </ul>
@@ -440,10 +447,7 @@
   }
 
   .projects__error {
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    margin: 0 0 1rem;
-    padding: 0.6rem 0.75rem;
+    margin: 0 0 var(--s6);
   }
 
   .projects__create {
@@ -476,15 +480,10 @@
     margin-left: 0;
   }
 
-  .project-card {
-    background: var(--slate);
-    border: 1px solid var(--granite);
-    border-radius: 4px;
-    padding: 0.75rem;
-  }
-
+  /* The surface, the keyline, the notch and the liner are the panel's. What is left is the one
+     thing this card says that a panel does not: which project is open. */
   .project-card--active {
-    border-color: var(--tan);
+    --panel-edge: var(--border-strong);
   }
 
   .project-card__header {
@@ -498,16 +497,6 @@
     font-size: 1.2rem;
     margin: 0;
     overflow-wrap: anywhere;
-  }
-
-  .project-card__badge {
-    border: 1px solid var(--tan);
-    border-radius: 999px;
-    color: var(--gold);
-    font-size: 0.7rem;
-    letter-spacing: 0.05em;
-    padding: 0.05rem 0.5rem;
-    text-transform: uppercase;
   }
 
   .project-card__description {

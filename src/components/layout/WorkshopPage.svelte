@@ -275,7 +275,11 @@
 
     const remaining = benchElement?.querySelectorAll('section.workshop-panel') ?? [];
     const next = remaining[Math.min(closedOrder, remaining.length - 1)];
-    const control = next?.querySelector('.workshop-panel__controls button:not([disabled])');
+    // `.panel__actions` is `Panel`'s: the header plate's right-hand end, where a panel's own
+    // controls live. It was `.workshop-panel__controls` before the panel language (#116) gave
+    // every panel the same header, and a selector naming a class nobody renders drops focus on
+    // the document silently — which is what the keyboard test in `e2e/workshop.spec.ts` caught.
+    const control = next?.querySelector('.panel__actions button:not([disabled])');
 
     if (control instanceof HTMLElement) {
       control.focus();

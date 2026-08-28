@@ -140,7 +140,7 @@
     </header>
 
     {#if error !== null}
-      <p class="artifact-inspector__error" role="alert">{error}</p>
+      <p class="artifact-inspector__error inset" role="alert">{error}</p>
     {/if}
     {#if status !== null}
       <p class="artifact-inspector__status" role="status">{status}</p>
@@ -180,7 +180,7 @@
     <ArtifactReferences {projectId} {summary} />
 
     {#if target?.problem !== undefined}
-      <p class="artifact-inspector__error" role="alert">
+      <p class="artifact-inspector__error inset" role="alert">
         This build cannot read the contents ({target.problem.reason}). {target.problem.message}
       </p>
     {:else if target?.loadViewer !== undefined}
@@ -247,11 +247,8 @@
     font-size: 0.9rem;
   }
 
-  .artifact-inspector__error {
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    padding: 0.6rem 0.75rem;
-  }
+  /* The `inset` class carries the surface, the keyline and the padding; what is left here is
+     nothing, so the rule is gone. */
 
   .artifact-inspector__status {
     font-style: italic;

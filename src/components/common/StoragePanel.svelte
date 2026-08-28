@@ -127,7 +127,7 @@
   </div>
 
   {#if problem !== null}
-    <p class="storage__problem" role="alert">{problem}</p>
+    <p class="storage__problem inset" role="alert">{problem}</p>
   {/if}
 
   {#if unsavedFile !== null}
@@ -138,7 +138,7 @@
   {/if}
 
   {#if notes.length > 0}
-    <ul class="storage__notes" role="status">
+    <ul class="storage__notes inset" role="status">
       {#each notes as note (note)}
         <li>{note}</li>
       {/each}
@@ -273,10 +273,8 @@
 
   .storage__problem,
   .storage__notes {
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    font-size: 0.9rem;
-    margin: 0.75rem 0 0;
+    font: var(--t-small);
+    margin: var(--s5) 0 0;
     padding: 0.5rem 0.6rem;
   }
 

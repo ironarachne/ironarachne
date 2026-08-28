@@ -3,6 +3,7 @@
   import CloseButton from '$components/common/CloseButton.svelte';
   import MoveLeftButton from '$components/common/MoveLeftButton.svelte';
   import MoveRightButton from '$components/common/MoveRightButton.svelte';
+  import Panel from '$components/common/Panel.svelte';
 
   type Props = {
     /** What the panel holds, shown in its header and used to name its controls. */
@@ -57,105 +58,53 @@
   }
 </script>
 
-<!-- A labelled `section` is a region landmark, so a panel is reachable by landmark as well as by
-     heading. The heading itself is an `h2` and the tool mounted inside it still renders its own
-     `h1`, because a tool must behave identically in a panel and on its own route — the cost of
-     that is an inverted heading level here, and the alternative is a tool that is a different
-     component in each place. -->
-<section class="workshop-panel" aria-label="{title} panel">
-  <header class="workshop-panel__header">
-    <h2 class="workshop-panel__title">
-      {title}
-      {#if subtitle}
-        <span class="workshop-panel__subtitle">{subtitle}</span>
-      {/if}
-    </h2>
+<!-- The panel is `bare`: on the bench it holds the thing being worked on, and per
+     docs/visual-design.md that panel has no border and no background of its own, so the work is
+     not competing with the furniture around it. What identifies it instead is the header plate
+     and the `--s7` the bench puts between two of them.
 
-    <div class="workshop-panel__controls">
-      <MoveLeftButton
-        bind:element={moveLeftButton}
-        onclick={() => void moveWithFocusKept(onMoveLeft, moveLeftButton, moveRightButton)}
-        disabled={!canMoveLeft}
-        label="Move {title} left"
-        title="Move left"
-      />
-      <MoveRightButton
-        bind:element={moveRightButton}
-        onclick={() => void moveWithFocusKept(onMoveRight, moveRightButton, moveLeftButton)}
-        disabled={!canMoveRight}
-        label="Move {title} right"
-        title="Move right"
-      />
-      <CloseButton onclick={onClose} label="Close {title}" title="Close" />
-    </div>
-  </header>
+     `focal`, so the panel takes the halo while something inside it has focus — one per screen,
+     which `:focus-within` gives for free.
+
+     The heading inside `Panel` is an `h2` and the tool mounted here still renders its own `h1`,
+     because a tool must behave identically in a panel and on its own route — the cost of that is
+     an inverted heading level, and the alternative is a tool that is a different component in
+     each place. -->
+<Panel {title} {subtitle} bare focal class="workshop-panel" label="{title} panel">
+  {#snippet actions()}
+    <MoveLeftButton
+      bind:element={moveLeftButton}
+      onclick={() => void moveWithFocusKept(onMoveLeft, moveLeftButton, moveRightButton)}
+      disabled={!canMoveLeft}
+      label="Move {title} left"
+      title="Move left"
+    />
+    <MoveRightButton
+      bind:element={moveRightButton}
+      onclick={() => void moveWithFocusKept(onMoveRight, moveRightButton, moveLeftButton)}
+      disabled={!canMoveRight}
+      label="Move {title} right"
+      title="Move right"
+    />
+    <CloseButton onclick={onClose} label="Close {title}" title="Close" />
+  {/snippet}
 
   <div class="workshop-panel__body">
     {@render children()}
   </div>
-</section>
+</Panel>
 
 <style>
-  .workshop-panel {
-    /* Panels share a row and give up width rather than pushing it into overflow; `min-width: 0`
-       lets the contents wrap instead of setting a floor under the whole bench. One panel takes
-       the row, two share it, and on a phone they stack. */
+  /* `:global`, because the element carrying it is `Panel`'s. Panels share a row and give up width
+     rather than pushing it into overflow; `min-width: 0` lets the contents wrap instead of setting
+     a floor under the whole bench. One panel takes the row, two share it, and on a phone they
+     stack. */
+  :global(.workshop-panel) {
     flex: 1 1 26rem;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    background: var(--slate);
-  }
-
-  /* The controls stay in the upper right whatever the title does. `wrap` used to let them drop
-     to a line of their own as soon as a title like "Dungeon Crawl Classics Character" ran out of
-     room, which reads as the header having broken rather than as the title being long; the title
-     has `min-width: 0` and breaks its own words instead. `flex-start` rather than `center`, so a
-     title that takes two lines does not carry the buttons down to the middle of them. */
-  .workshop-panel__header {
-    align-items: flex-start;
-    border-bottom: 1px solid var(--tan);
-    display: flex;
-    flex-wrap: nowrap;
-    gap: var(--s4);
-    justify-content: space-between;
-    /* Even padding, so the control group sits the same distance from the top edge as it does from
-       the right one — an inset that differs by axis reads as the buttons having drifted. */
-    padding: var(--s4);
-  }
-
-  .workshop-panel__title {
-    margin: 0;
-    min-width: 0;
-    font-size: 1rem;
-    overflow-wrap: anywhere;
-  }
-
-  .workshop-panel__subtitle {
-    color: var(--gold);
-    font-size: 0.75rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-
-  .workshop-panel__controls {
-    display: flex;
-    flex-shrink: 0;
-    gap: var(--s2);
-  }
-
-  /* No sizing of its own. These were hand-set to a 44px square so they would be tappable; the
-     control system grows every button to that under `(pointer: coarse)` and leaves it at the
-     ramp's density under a mouse, which is the whole point of having the ramp. */
-  .workshop-panel__controls :global(button) {
-    margin: 0;
   }
 
   .workshop-panel__body {
     min-width: 0;
-    padding: 0.5rem;
     /* A generator can be far taller than the bench; the panel scrolls its own content so one
        long tool does not push everything beside it off the bottom of the page. */
     max-height: var(--workshop-panel-max-height, 40rem);

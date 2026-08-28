@@ -172,6 +172,15 @@
   --sink: inset 0 1px 2px rgb(0 0 0 / 45%);
   --lift: 0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%);
 
+  /* The second shadow, and the only other one there will be. `--lift` is an *elevation* and is
+     fixed across the genres so that two panels beside each other sit at the same height; this is
+     a *state*, spent in one place — a bench panel under `:focus-within` — and a skin may not
+     touch it either. It never carries meaning alone: the control inside the panel still has its
+     own `--focus` ring, and the halo only says which panel that ring is in. */
+  --halo:
+    0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 0 20px color-mix(in srgb, var(--accent) 14%, transparent);
+
   /* ---- Corners -------------------------------------------------------------------------
      Three treatments, and three is a cap. A component picks one of these, and a skin picks
      between cut, bevelled and square from this vocabulary; inventing a fourth is what the rule
@@ -182,6 +191,20 @@
 
   /* A panel: 9px off the top-right and bottom-left. */
   --notch: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+
+  /* The panel treatment again, for the liner a panel draws its keyline with. Same story as
+     `--corner-control-inner` below, at the panel's scale: the liner sits a pixel inside on every
+     edge, so its cut is a pixel shallower — 8px against the notch's 9px — and the two diagonals
+     run parallel instead of converging. Not a fourth treatment; the panel's own, drawn a pixel
+     in. */
+  --notch-inner: polygon(
+    0 0,
+    calc(100% - 8px) 0,
+    100% 8px,
+    100% 100%,
+    8px 100%,
+    0 calc(100% - 8px)
+  );
 
   /* A control: the same diagonal shape at 7px, because a control is not the size of a panel. */
   --corner-control: polygon(

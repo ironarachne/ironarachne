@@ -14,7 +14,7 @@ const projectContext = (page: Page) => page.locator('section.project-context');
 const projectView = (page: Page) => page.locator('section.project-view');
 const toolBrowser = (page: Page) => page.locator('section.tool-browser');
 const panels = (page: Page) => page.locator('section.workshop-panel');
-const panelTitles = (page: Page) => page.locator('.workshop-panel__title');
+const panelTitles = (page: Page) => page.locator('.workshop-panel .panel__title');
 
 async function openWorkshop(page: Page): Promise<void> {
   await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
@@ -133,6 +133,42 @@ test.describe('the workshop bench', () => {
     await expect(toolBrowser(page).getByRole('button', { name: /^Culture/ })).toContainText(
       'Loaded',
     );
+  });
+
+  /**
+   * docs/visual-design.md, "The main tool panel has no surface": the panel holding the thing being
+   * worked on has no border and no background of its own, so the work is not competing with the
+   * furniture around it.
+   *
+   * Checked here rather than by `tokens.test.ts` because it is a *computed* style — the rule that
+   * would break it is not a literal any source sweep could find, and a panel quietly growing a
+   * surface again is exactly the kind of regression a later refactor makes by accident.
+   */
+  test('gives the tool panel no surface of its own', async ({ page }) => {
+    await mountTool(page, /^Culture/);
+
+    const surface = await panels(page)
+      .first()
+      .evaluate((element) => {
+        const panel = getComputedStyle(element);
+        const field = getComputedStyle(element.querySelector('.panel__field') as Element);
+        // The rail's lists are furniture and keep their surface, so this is a claim about the
+        // bench rather than about every panel on the screen.
+        const rail = getComputedStyle(document.querySelector('section.tool-browser') as Element);
+
+        return {
+          background: panel.backgroundColor,
+          fieldBackground: field.backgroundColor,
+          borderWidth: panel.borderTopWidth,
+          railBackground: rail.backgroundColor,
+        };
+      });
+
+    // Transparent, both layers: the panel paints nothing, so what is behind the tool is the page.
+    expect(surface.background).toBe('rgba(0, 0, 0, 0)');
+    expect(surface.fieldBackground).toBe('rgba(0, 0, 0, 0)');
+    expect(surface.borderWidth).toBe('0px');
+    expect(surface.railBackground).not.toBe('rgba(0, 0, 0, 0)');
   });
 
   test('holds one tool at a time, swapping the last one out', async ({ page }) => {

@@ -464,6 +464,13 @@ label {
     min-height: 44px;
   }
 
+  /* A chip is interactive, so it takes the target every other control does. It grows itself
+     rather than an overlay, for the reason the comment above gives: chips sit in a wrapping row
+     `--s3` apart, and two overlays would meet in the middle of that gap. */
+  .chip {
+    min-height: 44px;
+  }
+
   input[type='checkbox'],
   input[type='radio'] {
     block-size: 24px;
@@ -485,6 +492,251 @@ label {
   button:hover:not(:disabled),
   button:active:not(:disabled) {
     transform: none;
+  }
+}
+
+/* ---- Surfaces -------------------------------------------------------------------------------
+   docs/visual-design.md, "Panel language". Four levels — page, raised, inset, well — and the page
+   is the absence of the other three. What a component picks is a class, and what a class sets is
+   two custom properties, so a level, a state and a genre skin each set two colours and none of
+   them mentions the markup.
+
+   This replaces nineteen copies of `1px solid var(--tan)` over `border-radius: 4px`, which was
+   the whole of the panel language before: a panel, a fieldset, an error message and a disclosure
+   notice were all the same box at the same height, and nothing was emphasised by being a panel
+   because everything was one. */
+
+.panel {
+  --panel-edge: var(--border);
+  --panel-surface: var(--surface-raised);
+  /* Composed the way `--btn-ring` is, so a panel that takes the halo keeps its lift underneath
+     rather than replacing it — and so the halo can be set by a state without restating either. */
+  --panel-halo: 0 0 rgb(0 0 0 / 0%);
+
+  /* The edge, painted across the whole box. `--notch` is a `clip-path`, a `clip-path` cuts
+     everything the element paints, and a `border` is something the element paints — so a panel
+     carrying the corner treatment loses its keyline along both diagonals, at exactly the two
+     corners the treatment exists to make visible. The liner below covers all of this but a pixel,
+     and that pixel is the keyline. `padding: 1px` is its width. */
+  background: var(--panel-edge);
+  box-shadow: var(--lift), var(--panel-halo);
+  box-sizing: border-box;
+  clip-path: var(--notch);
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 1px;
+  transition: box-shadow var(--motion-swift) ease;
+}
+
+/* The surface, one pixel inside, cut to the same shape a pixel shallower so the two diagonals run
+   parallel. `--s5` of padding and `--s6` between the blocks it holds: a panel holds sections, and
+   `--s5` twice reads as one column. */
+.panel__field {
+  background: var(--panel-surface);
+  box-shadow: var(--edge);
+  box-sizing: border-box;
+  clip-path: var(--notch-inner);
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--s6);
+  min-height: 0;
+  min-width: 0;
+  padding: var(--s5);
+}
+
+/* The panel holding the thing being worked on has no surface of its own, so the work is not
+   competing with the furniture around it. What identifies it instead is its header plate and the
+   `--s7` the bench puts between two of them. */
+.panel--bare {
+  --panel-edge: none;
+  --panel-surface: none;
+
+  box-shadow: var(--panel-halo);
+  clip-path: none;
+  padding: 0;
+}
+
+.panel--bare .panel__field {
+  box-shadow: none;
+  clip-path: none;
+  padding: 0;
+}
+
+/* The halo. One per screen, which `:focus-within` gives for free, and only on a bench panel —
+   the rail's lists and the log are furniture, and furniture does not glow. */
+.panel--focal:focus-within {
+  --panel-halo: var(--halo);
+}
+
+/* The header is a plate: the control recipe at panel width, lined the same way a button and a
+   panel are, because it is clipped like both. It sits inside the panel's own padding rather than
+   running full-bleed to the keyline — one offset in both forms, so the same furniture looks the
+   same on a framed panel as it does on a bare one. */
+.panel__header {
+  background: var(--border-strong);
+  box-sizing: border-box;
+  clip-path: var(--notch);
+  padding: 1px;
+}
+
+.panel__header-field {
+  align-items: flex-start;
+  background: var(--plate);
+  box-shadow: var(--edge);
+  box-sizing: border-box;
+  clip-path: var(--notch-inner);
+  display: flex;
+  gap: var(--s4);
+  justify-content: space-between;
+  padding: var(--s4) var(--s5);
+}
+
+/* An `h2` inside a plate, at the ramp's heading step rather than at the 2.25rem the element rule
+   gives it. The margin reset is the same one every panel wrote by hand. */
+.panel__title {
+  font: var(--t-heading);
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  padding: 0;
+}
+
+.panel__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--s2);
+}
+
+.panel__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s6);
+  min-height: 0;
+  min-width: 0;
+}
+
+/* An inset is the panel inverted: sunk into the surface rather than raised off it, and unclipped,
+   because it sits inside a panel's liner already and a second diagonal in the middle of a panel
+   is a cut where nothing is cut. */
+.inset {
+  background: var(--surface-inset);
+  border: 1px solid var(--border);
+  box-shadow: var(--sink);
+  box-sizing: border-box;
+  min-width: 0;
+  padding: var(--s5);
+}
+
+/* A well is an inset that scrolls, and the darkest surface in the app. It is the one thing
+   allowed to be cut off mid-row, which is what tells a reader there is more of it. */
+.well {
+  background: var(--surface-sunken);
+  border: 1px solid var(--border);
+  box-shadow: var(--sink);
+  box-sizing: border-box;
+  flex: 1 1 auto;
+  min-height: 0;
+  min-width: 0;
+  overflow-y: auto;
+  padding: var(--s3);
+}
+
+/* ---- Badges and chips -----------------------------------------------------------------------
+   A badge is non-interactive furniture and a chip is a badge you can click. The pill is not a
+   fourth corner treatment: `border-radius: 999px` on a 16px-tall object is what happens when
+   there is no straight edge long enough to cut — a 7px diagonal on a badge eats the first
+   letter. Three hand-rolled copies of this pill existed before, in `ToolMaturityBadge`,
+   `ToolBrowser` and `ProjectView`, with `--gold` written into two of them. */
+
+.badge {
+  --badge-tone: var(--ink-faint);
+
+  align-items: center;
+  background: var(--surface-inset);
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  color: var(--badge-tone);
+  display: inline-flex;
+  flex-shrink: 0;
+  font: var(--t-micro);
+  gap: var(--s2);
+  letter-spacing: var(--t-micro-tracking);
+  line-height: var(--t-micro-line);
+  padding: var(--s2) var(--s3);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge--notice {
+  --badge-tone: var(--accent-quiet);
+}
+
+.badge--info {
+  --badge-tone: var(--cyan);
+}
+
+/* Crimson is 2.2:1 on charcoal, so it is the edge and never the text — the same rule the
+   destructive button follows. */
+.badge--danger {
+  --badge-tone: var(--danger);
+
+  color: var(--ink);
+  border-color: var(--danger);
+}
+
+/* The plain form: for a list, where thirty bordered pills stop annotating the names and start
+   shouting over them, and the two rows that differ are what the user is scanning for. */
+.badge--plain {
+  background: none;
+  border: none;
+  border-radius: 0;
+  font: var(--t-small);
+  letter-spacing: normal;
+  padding: 0;
+  text-transform: none;
+}
+
+/* A chip takes the list row's states, so the two filtering surfaces in the app agree. The fills
+   are opaque, mixed into `--surface-inset` rather than into `transparent`, so a chip looks the
+   same on a panel as it does on the page. */
+.chip {
+  cursor: pointer;
+  transition:
+    background-color var(--motion-swift) ease,
+    border-color var(--motion-swift) ease,
+    color var(--motion-swift) ease;
+}
+
+.chip:hover {
+  background: color-mix(in srgb, var(--accent) 18%, var(--surface-inset));
+  border-color: var(--accent);
+  color: var(--ink);
+}
+
+.chip--selected {
+  background: color-mix(in srgb, var(--accent-quiet) 22%, var(--surface-inset));
+  border-color: var(--accent-quiet);
+  color: var(--ink);
+}
+
+/* Selected plus hover is selected: the choice you are on is not a target worth lighting. */
+.chip--selected:hover {
+  border-color: var(--accent-quiet);
+}
+
+/* A pill is not clipped, so the ordinary outside ring paints. `:focus-within`, because the box
+   itself is inside the label and visually hidden. */
+.chip:focus-within {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel,
+  .chip {
+    transition: none;
   }
 }
 

@@ -69,7 +69,7 @@
                    The cast is the one `resolve` forces: it is typed against a single route id, so
                    a value typed as the union of every route id does not satisfy it. Every catalog
                    path is a parameterless static route, as the home page's featured links are. -->
-              <a class="all-tools__tool" href={resolve(tool.path as '/')}>
+              <a class="all-tools__tool inset" href={resolve(tool.path as '/')}>
                 <span class="all-tools__name">{tool.label}</span>
                 <!-- Same rule the workshop's browser follows, settled in #43: a release-ready tool
                      says nothing, because the level is a qualifier on what will happen to the
@@ -151,16 +151,14 @@
     margin-left: 0;
   }
 
+  /* An inset row: this page is a list of links on the page itself, not a panel of them, so a
+     row sits in the surface rather than being raised off it. */
   .all-tools__tool {
     align-items: baseline;
-    background: var(--slate);
-    border: 1px solid var(--granite);
-    border-radius: 4px;
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
+    gap: var(--s4);
     justify-content: space-between;
-    padding: 0.6rem 0.75rem;
     text-decoration: none;
   }
 

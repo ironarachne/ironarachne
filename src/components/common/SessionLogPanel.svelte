@@ -16,6 +16,7 @@
   import { hasToolPanel } from '$lib/workshop';
   import ListButton from '$components/common/ListButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import Panel from '$components/common/Panel.svelte';
 
   type Props = {
     /** Called when the user asks for a run back. Absent leaves the entries unpressable. */
@@ -89,14 +90,13 @@
   }
 </script>
 
-<section class="session-log">
-  <div class="session-log__header">
-    <!-- Short, because the column is 14rem wide and a two-line heading pushes Clear onto a line
-         of its own. What the list is of is said by the note under it and by each entry's tool
-         name, so the heading does not have to carry it. -->
-    <h2>This session</h2>
+<!-- The title is short because the column is 14rem wide and a two-line heading pushes Clear onto
+     a line of its own. What the list is of is said by the note under it and by each entry's tool
+     name, so the heading does not have to carry it. -->
+<Panel title="This session" class="session-log" label="Session log panel">
+  {#snippet actions()}
     <BaseButton size="sm" class="session-log__clear" onclick={() => void clear()}>Clear</BaseButton>
-  </div>
+  {/snippet}
 
   <!-- The one thing in this column that is not an entry, and it is not optional. Under
        docs/storage-disclosure.md a user has to be able to see what protects their work, and a list
@@ -106,7 +106,7 @@
     Kept until you reload — nothing here is stored. Save a result to keep it.
   </p>
 
-  <div class="session-log__list">
+  <div class="session-log__list well">
     {#if visible.length === 0}
       <p class="session-log__empty">Nothing rolled yet.</p>
     {:else}
@@ -134,65 +134,41 @@
       </ul>
     {/if}
   </div>
-</section>
+</Panel>
 
 <style>
-  .session-log {
-    /* A sidebar, not a third bench: `flex-grow: 0` is the point of this line. The log never takes
-       any of the surplus width, so it stays narrower than either neighbour however wide the
-       window gets. Reading is all it does, and two short lines do not need more. */
+  /* A sidebar, not a third bench: `flex-grow: 0` is the point of this line. The log never takes
+     any of the surplus width, so it stays narrower than either neighbour however wide the window
+     gets. Reading is all it does, and two short lines do not need more. `:global`, because the
+     element carrying it is `Panel`'s. */
+  :global(.session-log) {
     flex: 0 1 14rem;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    background: var(--slate);
   }
 
-  .session-log__header {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    align-items: baseline;
-    justify-content: space-between;
-  }
-
-  .session-log h2 {
-    margin: 0;
-    font-size: 1.3rem;
-  }
-
-  /* `size="sm"` carries what the padding and the font size here were reaching for; the flex reset
-     is this panel's own, and `:global` because the button is `BaseButton`'s element now. */
+  /* The flex reset is this panel's own; `size="sm"` carries the rest. */
   :global(.session-log__clear) {
     flex-shrink: 0;
   }
 
   .session-log__note {
     margin: 0;
-    font-size: 0.8rem;
+    font: var(--t-small);
     font-style: italic;
-    color: var(--gold);
-    line-height: 1.4;
+    color: var(--accent-quiet);
   }
 
+  /* The well: the list is what scrolls, so fifty rolls do not push the bench off the bottom of
+     the page. */
   .session-log__list {
-    /* The list is what scrolls, so fifty rolls do not push the bench off the bottom of the page. */
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
     max-height: var(--session-log-max-height, 24rem);
   }
 
-  .session-log ul {
+  ul {
     margin: 0;
     padding: 0;
   }
 
-  .session-log li {
+  li {
     list-style-type: none;
     margin: 0;
   }
@@ -203,14 +179,15 @@
   }
 
   .session-log__meta {
-    font-size: 0.75rem;
-    opacity: 0.8;
+    font: var(--t-micro);
+    letter-spacing: normal;
+    color: var(--ink-muted);
     overflow-wrap: anywhere;
   }
 
   .session-log__empty {
     margin: 0;
     font-style: italic;
-    opacity: 0.8;
+    color: var(--ink-muted);
   }
 </style>

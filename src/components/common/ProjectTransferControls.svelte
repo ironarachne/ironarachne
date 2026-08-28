@@ -133,13 +133,13 @@
   </div>
 
   {#if error !== null}
-    <p class="project-transfer__error" role="alert">{error}</p>
+    <p class="project-transfer__error inset" role="alert">{error}</p>
   {/if}
 
   {#if notes.length > 0}
     <!-- Every line the summary had to say, kept on screen rather than flashed: "import complete"
          is a way of not saying what happened. -->
-    <ul class="project-transfer__notes" role="status">
+    <ul class="project-transfer__notes inset" role="status">
       {#each notes as note (note)}
         <li>{note}</li>
       {/each}
@@ -165,10 +165,7 @@
   .project-transfer__error,
   .project-transfer__notes {
     margin: 0;
-    padding: 0.5rem 0.6rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    font-size: 0.9rem;
+    font: var(--t-small);
   }
 
   .project-transfer__notes {

@@ -8,7 +8,7 @@
   const { children }: Props = $props();
 </script>
 
-<div class="controls">
+<div class="controls inset">
   {@render children()}
 </div>
 
@@ -16,11 +16,8 @@
   .controls {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 1rem;
-    padding: 0.75rem;
-    border: 1px solid var(--border-color, #ccc);
-    border-radius: 0.25rem;
+    gap: var(--s5);
+    margin-bottom: var(--s6);
   }
 
   .controls :global(.input-group) {
