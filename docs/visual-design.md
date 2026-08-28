@@ -24,6 +24,16 @@ changes the taxonomy in one place: it names a third corner treatment, `--corner-
 [#113](https://github.com/ironarachne/ironarachne/issues/113) delivers with the rest of the corner
 vocabulary. Nothing else in the approved taxonomy moves.
 
+**Amended 2026-08-28 by [#115](https://github.com/ironarachne/ironarachne/issues/115)**, which
+grows the [control vocabulary](#control-vocabulary) from four paragraphs of geometry into the
+settled recipe for every control: the button's six variants and four states, the input, the
+select, the checkbox, the field around them, and the classes they are reached by. The geometry
+does not move. It amends one decision and narrows another: [focus](#3-focus-and-contrast-are-targets-not-assumptions)
+is a 2px `--focus` ring on every interactive element, drawn _inside_ a control whose corner is
+clipped because a `clip-path` leaves an outline nothing to paint on; and the 44px touch target
+grows the control itself wherever controls sit beside one another, rather than the invisible
+overlay the top bar's lone icon button can afford.
+
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
 the workshop at 1440, the phone at 390 with its drawer, genre skins, the token taxonomy, and the
@@ -321,15 +331,20 @@ being read; the effect moves to the panel surface.
 
 ### 3. Focus and contrast are targets, not assumptions
 
-- **Focus:** a 2px `--focus` outline at 2px offset on every interactive element. Never removed,
-  never colour-only, and never replaced by a border change alone — a border change is invisible to
-  someone who cannot distinguish the two colours.
+- **Focus:** a 2px `--focus` ring on every interactive element. Never removed, never colour-only,
+  and never replaced by a border change alone — a border change is invisible to someone who cannot
+  distinguish the two colours. It is an outline at 2px offset on an unclipped control and an inset
+  shadow on a clipped one, because a `clip-path` clips everything the element paints and an
+  outline at a positive offset then paints nothing at all; see [the control
+  vocabulary](#focus-on-a-clipped-control-is-drawn-inside-it).
 - **Contrast:** every text role clears **4.5:1** against the surface it sits on. `--ink` is
   15.2:1, `--ink-muted` 6.8:1, `--ink-faint` 4.8:1 at its 11px uppercase size. `--danger` is a
   fill and an edge, not a text colour.
-- **Hit target:** 28px is the visual height of a control; the tap area is padded to **44px** under
+- **Hit target:** 28px is the visual height of a control; the tap area is **44px** under
   `(pointer: coarse)`. This is what keeps `e2e/pages.mobile.spec.ts` honest at 320px rather than
-  merely passing.
+  merely passing. A control standing alone can hold its 28px body and grow an invisible target
+  around it; one standing in a row of controls grows itself, because two overlapping targets are a
+  mis-tap. See [hit targets](#hit-targets-grow-the-control-not-an-overlay).
 
 ### 4. Sound on press does not ship
 
@@ -363,33 +378,231 @@ Three consequences the token system has to absorb:
 
 ## Control vocabulary
 
-Stated here so the tokens issue knows what the tokens are for; the geometry is settled, the markup
-is not.
+Every control in the app, settled: the button and its six variants, the input, the select, the
+checkbox, the field around them, and what focus looks like on each. This is what
+[#115](https://github.com/ironarachne/ironarachne/issues/115) builds.
 
-A **button** is a stamped plate: 28px body, `--plate` fill, 1px `--border-strong` edge, a 7px
-corner cut, and Cinzel Decorative at `--t-micro` uppercase. Hover lights the keyline to `--focus`
-with a faint glow; press drops it 1px into its own inset shadow and turns the label `--accent`.
-Variants are **primary** (gold edge, warmer plate), **secondary** (the base plate), **quiet** (no
-fill, `--border` edge, `--ink-muted` label), **destructive** (crimson edge and fill) and
-**disabled** (flat, no shadow, `--ink-faint`). Sizes are the 28px default and a 24px `--sm`; an
-icon button is 28×28 and square, because a cut corner on a 28px square eats the glyph.
+The section used to be four paragraphs stating the geometry so that the tokens issue would know
+what the tokens were for. The geometry below is unchanged from those paragraphs — what follows
+settles the states, the classes and the two questions the paragraphs left open: how a focus ring
+survives a clipped corner, and how a 28px control becomes a 44px tap target without eating its
+neighbour's.
 
-An **input** is inset: `--surface-inset`, 1px `--border`, inward shadow, `--t-small`. Focus takes
-the `--focus` keyline plus the ring. A seed field is the same control in a monospace face.
+Out of it: **badges** and **panels**, which are
+[#116](https://github.com/ironarachne/ironarachne/issues/116)'s; **modals and banners**, which are
+[#117](https://github.com/ironarachne/ironarachne/issues/117)'s beyond the one danger action
+described below; and **sound on press**, which
+[decision 4](#4-sound-on-press-does-not-ship) settled as not shipping.
+
+### A button is a stamped plate
+
+One recipe, and every `button` on the site gets it from the element selector rather than from a
+class. There are about 120 of them across `src/components` and `src/routes`; a system that only
+reached the ones somebody remembered to annotate would leave most of the app on the old gradient,
+which is the state this issue exists to end.
+
+| Property   | Value                                                      |
+| ---------- | ---------------------------------------------------------- |
+| Height     | 28px, as `min-height` — a label that wraps grows the plate |
+| Padding    | `--s3` block, `--s5` inline                                |
+| Type       | `--t-micro`, `--t-micro-tracking`, uppercase, `--ink`      |
+| Fill       | `--plate`                                                  |
+| Keyline    | 1px `--border-strong`                                      |
+| Highlight  | `--edge`                                                   |
+| Corner     | `--corner-control`                                         |
+| Transition | `--motion-swift` on border colour, colour and box shadow   |
+
+Four states, and the press is the one that has to feel like a press:
+
+| State        | Recipe                                                                                                                |
+| ------------ | --------------------------------------------------------------------------------------------------------------------- |
+| **Rest**     | The plate above.                                                                                                      |
+| **Hover**    | Keyline to `--focus`, plus a faint glow: `0 0 6px color-mix(in srgb, var(--focus) 30%, transparent)` beside `--edge`. |
+| **Press**    | `translateY(1px)`, `--edge` swapped for an inward shadow, label `--accent`.                                           |
+| **Disabled** | Flat `--surface-inset`, 1px `--border`, no highlight and no shadow, label `--ink-faint`, `cursor: not-allowed`.       |
+
+The disabled state is the one that drops the plate entirely. A greyed gradient still reads as a
+raised object, and a raised object reads as pressable; a flat inset one does not.
+
+### Focus on a clipped control is drawn inside it
+
+[Decision 3](#3-focus-and-contrast-are-targets-not-assumptions) asks for a 2px `--focus` outline
+at 2px offset on every interactive element. That is right for every control the app has except
+the one it has most of: **`clip-path` clips everything the element paints, and an outline at a
+positive offset lies entirely outside the clip region**, so a cut-cornered button declaring one
+paints no ring at all. This is the same property that makes the sidebar's current-item marker an
+inset shadow rather than a border — [the nav item](#a-nav-item) states it — and it lands harder
+here, because a marker that gets shaved is cosmetic and a focus ring that never paints is an
+accessibility failure.
+
+**The rule, restated so it holds for both:** every interactive element shows a 2px `--focus` ring,
+and whether the ring is drawn outside or inside the control follows from whether the control is
+clipped.
+
+| Control                                                  | Ring                                                       |
+| -------------------------------------------------------- | ---------------------------------------------------------- |
+| Clipped — any button carrying `--corner-control`         | `inset 0 0 0 2px var(--focus)`, beside `--edge`            |
+| Unclipped — inputs, selects, checkboxes, the icon button | `outline: 2px solid var(--focus)` at `outline-offset: 2px` |
+
+Checked rather than assumed: a Chromium render of two identical buttons, one clipped and one not,
+each declaring the same `outline: 2px solid` at `outline-offset: 2px`, paints the ring on the
+unclipped one and nothing at all on the clipped one.
+
+Neither is traded away for a fill, a border change or a colour change, at any state — including
+on a control that is already hovered or pressed, which is exactly when a keyboard user is most
+likely to be looking for it.
+
+### Variants
+
+Six, and each is a single class on the element that already carries the base. Nothing here is a
+second button implementation; a variant sets a fill, a keyline and a label colour, and inherits
+the geometry — which is what makes "a skin may not touch control geometry"
+([decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)) a rule with something
+behind it.
+
+| Variant         | Class              | Recipe                                                                                            |
+| --------------- | ------------------ | ------------------------------------------------------------------------------------------------- |
+| **Secondary**   | none               | The base plate. The default, and the reason an unannotated `button` is already correct.           |
+| **Primary**     | `.btn-primary`     | `--accent-quiet` keyline over a plate warmed toward gold. One per surface.                        |
+| **Quiet**       | `.btn-quiet`       | No fill, 1px `--border`, label `--ink-muted`. Hover fills `--surface-inset` and lifts to `--ink`. |
+| **Destructive** | `.btn-destructive` | `--danger` keyline over a crimson-mixed plate, label `--ink`. Never crimson text — 2.2:1.         |
+| **Icon**        | `.btn-icon`        | 28×28, square, no clip, no inline padding. A 7px cut on a 28px square eats the glyph.             |
+| **Small**       | `.btn-sm`          | 24px, `--s2` block and `--s4` inline padding. Type does not change: `--t-micro` is the floor.     |
+
+`.btn-sm` composes with any of the others; the rest are mutually exclusive, and a button wearing
+two of them gets whichever the stylesheet lists last, which is a bug rather than a feature. The
+`btn-` prefix is deliberate — these are global classes in `main.css`, so they sit in the same
+namespace as every component's own class names, and a bare `.primary` would collide with one
+eventually.
+
+**Primary is a claim about the page, not about the button.** A surface with two primaries has
+none, and a generator whose Generate is primary should not also promote Save.
+
+### Inputs, selects and checkboxes
+
+An input is the inverse of a button: sunk into the surface rather than raised off it.
+
+| Property | Value                                                         |
+| -------- | ------------------------------------------------------------- |
+| Height   | 28px, as `min-height`                                         |
+| Padding  | `--s2` block, `--s4` inline                                   |
+| Type     | `--t-small`, `--ink`                                          |
+| Fill     | `--surface-inset`                                             |
+| Keyline  | 1px `--border`                                                |
+| Shadow   | `inset 0 1px 2px rgb(0 0 0 / 45%)` — inward, and the only one |
+| Corner   | None. Square, and see below                                   |
+
+Focus takes the `--focus` keyline **and** the ring; hover lightens the keyline to
+`--border-strong`. Disabled matches the button's: `--ink-faint` on a flat surface.
+
+**An input is not clipped, and that is the decision.** A cut corner on a text field puts the
+diagonal exactly where the caret sits at the end of a long value, and the clip would then cost
+the outside focus ring as well — two prices for a shape nobody reads as meaningful on a field.
+The button carries the corner vocabulary; the input carries the inset.
+
+A **select** is the same box. Its arrow stays the native one: a custom arrow is a background image
+per state per genre, and the native control is the one thing on the page that already renders its
+own options correctly on every platform. `box-sizing: border-box` and `max-width: 100%` stay
+exactly as `main.css` has them, because a select is as wide as its longest option and that is
+wider than a 320px phone.
+
+A **checkbox** keeps its native box and takes `accent-color: var(--accent)`. It is the one control
+where the native rendering is already the right size and shape, and restyling it means rebuilding
+the indeterminate and checked states by hand for nothing.
+
+The **seed field** is an input in a monospace face. `main.css` styles it by `#seed`, which is an
+id selector doing a component's job; it becomes a class on the field so that a second seed on a
+page is not a second element with the same id.
+
+### The field around a control
+
+`.input-group` is the wrapper every generator's controls already use, so it is where the label
+belongs rather than in a new component:
+
+| Property | Value                                            |
+| -------- | ------------------------------------------------ |
+| Layout   | Flex column                                      |
+| Gap      | `--s1` — the label belongs to the field it names |
+| Margin   | `--s6` block-end                                 |
+| Label    | `--t-micro`, tracking, uppercase, `--ink-faint`  |
+
+The global `label { font-weight: 700; margin-right: 1rem }` goes. It was written for a label
+beside its field and is wrong for one above it, and 1rem of the fluid root is not a ramp step.
+
+A checkbox reads the other way round — box first, then label — so `.input-group--inline` lays the
+group out as a row with `--s3` between the two and the label's `--ink` weight, since there it is
+the thing being clicked. `CheckboxField` and `SeedControls`' lock take that modifier; nothing
+else does.
+
+### Hit targets grow the control, not an overlay
+
+Under `(pointer: coarse)`, every button, input, select and inline label reaches `min-height: 44px`
+directly. The condition is the pointer and not the width, for the reason
+[the drawer](#the-drawer-below-768px) gives: a touch laptop at 1280px wants the same target and a
+phone plugged into a mouse does not.
+
+**This is deliberately not the `::after` overlay the top bar's icon button uses.** That trick
+keeps a 28px plate at a 44px target by painting an invisible box 8px past the control on each
+side, and it is right there because the bar holds one button in a 44px row with nothing above or
+below it to collide with. A generator's controls are a wrapping flex row with `--s5` between
+rows: two overlays 8px deep on either side of a 12px gap overlap in the middle, and an overlap
+between two tap targets is a mis-tap that the user reads as the site being broken. Where controls
+sit next to each other, the target has to be the control.
+
+The visual height therefore grows on touch. That is the correct trade: the 28px body is a density
+decision for a pointer that can hit it, and a phone is not that.
+
+### What this leaves to the skins
+
+The three skin files each re-declare `button` today, with their own gradients, borders, sizes and
+`:disabled` greys — which is precisely what
+[decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look) says a skin may never do.
+**Those `& button` blocks come out as part of this issue**, because a skin's copy of the old
+gradient outranks the new system wherever a genre is applied, and a redesign that only shows up
+on ungenre'd pages is not a redesign.
+
+Their heading effects stay where they are. Moving the shimmer, the pulse and the glitch off type
+and onto the panel is [#119](https://github.com/ironarachne/ironarachne/issues/119),
+[#120](https://github.com/ironarachne/ironarachne/issues/120) and
+[#121](https://github.com/ironarachne/ironarachne/issues/121), one skin at a time, and pulling
+that forward here would put four genres' worth of untested surface in a controls change.
+
+### Navigation, badges and modals
 
 **Navigation** is the one shape that breaks the button rule on purpose: flush to the left edge,
 square on that side, notched on the other, with the current destination taking the plate, the
 `--accent` left marker and the notch. Nothing else in the app is notched on that side, so the eye
 finds the current destination without reading it. [The shell](#the-shell) states the geometry,
-the four states and the three widths.
+the four states and the three widths, and #114 built it.
 
 **Badges** are pill-shaped, `--t-micro`, bordered in `currentColor` over `--surface-inset`.
 `ToolMaturityBadge` shows experimental in `--accent-quiet` and beta in cyan; release-ready shows
-nothing, which is already how it behaves.
+nothing, which is already how it behaves. That is #116's, with the panels.
 
-**Modals** keep `modal.css`'s structure and lose its literals: the dialog is a raised plate, and
-the danger action becomes the destructive button variant rather than a second hand-written
-gradient.
+**Modals** keep `modal.css`'s structure and lose its literals, which is #117's — with one
+exception taken here, because it is a button and not a modal: `.modal-dialog-action--danger`
+writes out a second `rgb(92, 86, 73)` gradient of its own, and it becomes `.btn-destructive`.
+Deleting a copy of the gradient this issue exists to replace is this issue's job; the dialog
+around it can wait for #117.
+
+### What is enforced
+
+`tokens.test.ts` grows by three assertions, all of them cheap regex sweeps of the kind it already
+does:
+
+- `main.css` and `modal.css` declare no hex and no legacy `rgb(r, g, b)` literal. Both are
+  hex-free once this lands, and asserting it is what keeps the next hand-mixed grey out. The
+  three skin files are not held to this yet — their heading effects are full of hexes and belong
+  to #119–#121.
+- No skin file declares a `button` rule. This is [decision
+  2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)'s "a skin may never touch control
+  geometry", stated as a test rather than as a paragraph nobody re-reads.
+- The five control components in `src/components/common` declare no `font-size`, `padding`,
+  `margin` or `gap` outside the ramps.
+
+The last one is the general rule from [Enforcement](#enforcement) applied to the files this issue
+touches, rather than to the whole of `src/components` — which does not pass it yet, and making it
+pass everywhere is #116 and #117's work, not a precondition for this.
 
 ## The shell
 
