@@ -346,6 +346,7 @@
         <WorkshopPanel
           title={panelTitle(panel)}
           subtitle={panel.toolPath === undefined ? 'Artifact' : 'Tool'}
+          holds={panel.toolPath === undefined ? 'artifact' : 'tool'}
           position={panel.order + 1}
           total={bench.panels.length}
           onClose={() => void closePanel(panel)}
@@ -420,8 +421,12 @@
   .workshop__rail {
     /* The rail holds the two lists you work *from*. It takes a column of its own where there is
        room and sits above the bench where there is not, which is the mobile-first arrangement:
-       both its lists scroll internally so the bench is never more than a screen away. */
-    flex: 1 1 18rem;
+       both its lists scroll internally so the bench is never more than a screen away.
+
+       `flex-grow: 0`, like the log: a list of tool names does not get better for being wider, and
+       every pixel the rail took from the bench was a pixel that decided whether an artifact could
+       sit beside the tool or had to wrap under it. The bench takes the surplus. */
+    flex: 0 1 18rem;
     min-width: 0;
     display: flex;
     flex-direction: column;

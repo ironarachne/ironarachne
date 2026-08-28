@@ -887,9 +887,16 @@ as designed.
 ### The main tool panel has no surface, so its header carries it
 
 Per the direction on #77, the panel holding the thing being worked on gets **no border and no
-background of its own**. On the bench that is both panel kinds: a `ToolPanel` and an
-`ArtifactPanel` are each the work, and the two of them are what a `WorkshopPanel` wraps. The rail's
-two lists and the session log are furniture and stay raised.
+background of its own**. The rail's two lists and the session log are furniture and stay raised.
+
+**Only the tool panel, and that is a correction.** This section first said the bench's two panel
+kinds were both the work, so an `ArtifactPanel` went bare alongside a `ToolPanel`. Built and looked
+at, that was wrong twice over: two surfaceless panels side by side have nothing at all to say where
+one ends and the next begins — the header plate marks the top of each, and everything below the
+headers is one continuous page — and it loses the contrast that made a saved artifact legible as an
+object. An artifact panel is _reference for_ the work rather than the work: you read it while you
+build, and a thing you read beside the bench is furniture in the sense this section means. So it
+keeps the raised surface, and only the tool panel gives one up.
 
 That leaves a real problem, and it is the reason this issue is not one line of CSS: a panel with no
 edge and no fill, sitting on a bench beside another panel with no edge and no fill, has nothing to
@@ -903,6 +910,14 @@ say where one ends and the next begins. Two answers, and the design takes both:
    identifies a panel is the thing that names it.
 2. **The bench's gap goes to `--s7`.** Twenty-four pixels between two surfaceless panels is what an
    edge was doing, and it is doing it with space rather than with more chrome.
+
+**The tool panel is capped, so the bench can hold a third column.** A panel with `flex-grow` and no
+maximum takes the whole bench, and an artifact opened beside it then wraps underneath — which is
+the one arrangement the bench must not produce, because reference below the fold is reference
+nobody reads. The tool caps at 34rem and the artifact panel takes what is left on a 18rem basis, so
+a wide window reads rail | tool | artifact | log and a narrow one stacks them in that order. The
+tool panel also has no scroller of its own: it capped at 40rem of height once, and a scrollbar down
+the middle of a panel that is meant to read as the page contradicts the whole of this section.
 
 **The header plate never touches the panel's edge.** In a framed panel it sits inside the panel's
 own `--s5` padding rather than running full-bleed to the keyline; in a bare one there is no keyline
@@ -1047,8 +1062,9 @@ classDiagram
     Badge <|-- Chip : interactive form
 ```
 
-`bare` is the tool panel's form: `--panel-edge` and `--panel-surface` both `none`, no clip on the
-outer element, no `--lift`, and the header plate unchanged.
+`bare` is the tool panel's form, and only its form: `--panel-edge` and `--panel-surface` both
+`none`, no clip on the outer element, no `--lift`, and the header plate unchanged. `WorkshopPanel`
+picks it from what the panel `holds` — a tool is bare, an artifact is raised.
 
 ### What this converts
 

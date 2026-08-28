@@ -14,14 +14,33 @@
     position: number;
     /** How many panels are on the bench, so the end panels can drop the moves they cannot make. */
     total: number;
+    /**
+     * What the panel holds, which decides both its surface and its share of the bench.
+     *
+     * A **tool** is the thing being worked on: no surface of its own, and capped in width so a
+     * wide bench has room for an artifact beside it rather than under it. An **artifact** is a
+     * saved object the work refers to: it keeps its panel surface, because two surfaceless panels
+     * side by side have nothing between them, and because a thing you are reading beside the work
+     * is not the work.
+     */
+    holds: 'tool' | 'artifact';
     onClose: () => void;
     onMoveLeft: () => void;
     onMoveRight: () => void;
     children: Snippet;
   };
 
-  const { title, subtitle, position, total, onClose, onMoveLeft, onMoveRight, children }: Props =
-    $props();
+  const {
+    title,
+    subtitle,
+    position,
+    total,
+    holds,
+    onClose,
+    onMoveLeft,
+    onMoveRight,
+    children,
+  }: Props = $props();
 
   // Panels are moved with buttons rather than dragged. A drag needs a keyboard equivalent built
   // alongside it to be operable at all, and two buttons are that equivalent without the drag.
@@ -70,7 +89,14 @@
      because a tool must behave identically in a panel and on its own route — the cost of that is
      an inverted heading level, and the alternative is a tool that is a different component in
      each place. -->
-<Panel {title} {subtitle} bare focal class="workshop-panel" label="{title} panel">
+<Panel
+  {title}
+  {subtitle}
+  bare={holds === 'tool'}
+  focal
+  class="workshop-panel workshop-panel--{holds}"
+  label="{title} panel"
+>
   {#snippet actions()}
     <MoveLeftButton
       bind:element={moveLeftButton}
@@ -102,6 +128,22 @@
      happens, and a generator's controls wrap into a second row long before its output does. */
   :global(.workshop-panel) {
     flex: 1 1 32rem;
+  }
+
+  /* The cap is what makes a third column possible. Without it the tool takes the whole bench and
+     an artifact opened beside it wraps underneath — which is the one arrangement the bench should
+     never produce, because the artifact is *reference* for the work and reference below the fold
+     is reference nobody reads. 32rem is measured rather than chosen: at 1920 the bench is a little
+     over 52rem once the rail stops growing, and 32 + a 1rem gap + the artifact's 18rem basis is
+     what fits inside that with room to spare. */
+  :global(.workshop-panel--tool) {
+    max-width: 32rem;
+  }
+
+  /* Narrower, and it takes whatever the capped tool leaves: an artifact panel is a column of
+     facts about one object, not a workspace. */
+  :global(.workshop-panel--artifact) {
+    flex: 1 1 18rem;
   }
 
   /* No max height and no scroller of its own. It used to cap at 40rem so that one long tool could

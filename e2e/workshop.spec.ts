@@ -171,6 +171,53 @@ test.describe('the workshop bench', () => {
     expect(surface.railBackground).not.toBe('rgba(0, 0, 0, 0)');
   });
 
+  /**
+   * The other half of the surface rule: an artifact panel is reference *for* the work rather than
+   * the work, so it keeps the raised surface the tool panel gives up. Two surfaceless panels side
+   * by side have nothing to say where one ends and the next begins, which is what building it the
+   * other way showed.
+   */
+  test('keeps a surface on the artifact panel beside the bare tool panel', async ({ page }) => {
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
+
+    const surfaces = await page.evaluate(() => {
+      const read = (selector: string) => {
+        const element = document.querySelector(selector) as Element;
+        return {
+          background: getComputedStyle(element).backgroundColor,
+          field: getComputedStyle(element.querySelector('.panel__field') as Element)
+            .backgroundColor,
+        };
+      };
+
+      return { tool: read('.workshop-panel--tool'), artifact: read('.workshop-panel--artifact') };
+    });
+
+    expect(surfaces.tool.background).toBe('rgba(0, 0, 0, 0)');
+    expect(surfaces.tool.field).toBe('rgba(0, 0, 0, 0)');
+    expect(surfaces.artifact.background).not.toBe('rgba(0, 0, 0, 0)');
+    expect(surfaces.artifact.field).not.toBe('rgba(0, 0, 0, 0)');
+  });
+
+  /**
+   * The width the cap exists for. A tool panel with `flex-grow` and no maximum takes the whole
+   * bench, and the artifact opened beside it wraps underneath — reference below the fold, which
+   * is reference nobody reads. Asserted by geometry rather than by CSS, because what matters is
+   * where the two panels land, not which rule put them there.
+   */
+  test('sits an artifact beside the tool on a wide screen', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
+
+    const tool = await page.locator('.workshop-panel--tool').boundingBox();
+    const artifact = await page.locator('.workshop-panel--artifact').boundingBox();
+    expect(tool).not.toBeNull();
+    expect(artifact).not.toBeNull();
+    // Same row, artifact to the right: a wrap would put its top below the tool's bottom.
+    expect(artifact!.y).toBeLessThan(tool!.y + tool!.height);
+    expect(artifact!.x).toBeGreaterThan(tool!.x + tool!.width - 1);
+  });
+
   test('holds one tool at a time, swapping the last one out', async ({ page }) => {
     await mountTool(page, /^Culture/);
     await mountTool(page, /^Heraldry/);
