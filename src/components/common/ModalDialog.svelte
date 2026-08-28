@@ -36,7 +36,10 @@
   <p id="modal-dialog-message" class="modal-dialog-message">{message}</p>
   <div class="modal-dialog-actions">
     {#if kind === 'confirm'}
-      <BaseButton variant="quiet" onclick={() => onResolveConfirm?.(false)}>
+      <!-- The base plate rather than `quiet`: these two are peer actions in a dialog that exists to
+           ask which one you meant, and a tertiary treatment on one of a pair reads as the pair
+           being unequal. Quiet is for an action sitting beside work, not for half of a choice. -->
+      <BaseButton onclick={() => onResolveConfirm?.(false)}>
         {cancelLabel}
       </BaseButton>
       <BaseButton

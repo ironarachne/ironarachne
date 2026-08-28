@@ -108,11 +108,17 @@
 
   /* Labels, kickers, badges and buttons. The tracking and the uppercasing are part of the step,
      but `font` can carry neither, so they are separate: every use of `--t-micro` sets
-     `letter-spacing: var(--t-micro-tracking)` and `text-transform: uppercase` beside it. */
+     `letter-spacing: var(--t-micro-tracking)` and `text-transform: uppercase` beside it.
+
+     **The body face, not the display face**, and it is the one step where that is true of a face
+     the other five would have taken. Cinzel Decorative is a display face with a great deal of
+     modulation in its strokes; at 11px, uppercased, that detail lands between pixels and a button
+     label stops being quickly readable — which is the whole job of a button label. The other five
+     steps are unchanged, so a heading is still Cinzel and the smallest thing on the page is not. */
   --t-micro-size: 11px;
   --t-micro-line: 1.4;
   --t-micro-tracking: 0.08em;
-  --t-micro: 400 var(--t-micro-size) / var(--t-micro-line) var(--face-display);
+  --t-micro: 400 var(--t-micro-size) / var(--t-micro-line) var(--face-body);
 
   /* ---- Space ramp ----------------------------------------------------------------------
      Eight steps, and a component may not invent a value outside them. Nothing above `--s8`

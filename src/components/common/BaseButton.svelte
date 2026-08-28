@@ -136,12 +136,14 @@
   }
 
   /* Quiet has no fill, and a band is only visible against one: a transparent liner would show the
-     whole edge colour through instead of a pixel of it. So quiet stays single-layer and keeps the
-     ordinary border, which the clip shaves at the diagonals — the honest cost of a control with
-     nothing to paint over. */
+     whole edge colour through instead of a pixel of it. So quiet stays single-layer — and it drops
+     the cut with the liner, because a clipped border is shaved at the diagonals and a shaved edge
+     reads as a rendering fault rather than as a shape. A control with nothing to paint over does
+     not claim a cut edge; it is square, and square is in the corner vocabulary. */
   button.btn-quiet {
     background: var(--btn-fill);
     border: 1px solid var(--btn-edge);
+    clip-path: none;
     padding: var(--s2) var(--s5);
   }
 

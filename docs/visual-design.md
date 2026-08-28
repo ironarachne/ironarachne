@@ -34,6 +34,11 @@ clipped because a `clip-path` leaves an outline nothing to paint on; and the 44p
 grows the control itself wherever controls sit beside one another, rather than the invisible
 overlay the top bar's lone icon button can afford.
 
+**Amended 2026-08-28, again during implementation:** `--t-micro` moves to the body face. Cinzel
+Decorative at 11px uppercase is not quickly readable, and a button label that is not quickly
+readable is not doing its job — so every control, label, badge, kicker and nav item is Inclusive
+Sans, and the five larger steps are untouched.
+
 **Amended 2026-08-28 during implementation**, with [a button's two layers](#a-button-draws-its-own-edge-and-needs-a-liner-to-do-it).
 A cut corner and a border cannot both survive on one element, so a button is a `<button>` painting
 its edge and a liner painting its fill — which is what `BaseButton` is for, and why the variants
@@ -152,17 +157,25 @@ Read the diagram as four rules:
 
 ### Type ramp
 
-Six steps. Cinzel Decorative carries headings, controls and labels; Inclusive Sans carries
-anything read as a sentence.
+Six steps. Cinzel Decorative carries headings; Inclusive Sans carries anything read as a sentence,
+and the smallest step — the one controls and labels are set in.
 
-| Token         |   Size | Line height | Face                                  | Used for                         |
-| ------------- | -----: | ----------: | ------------------------------------- | -------------------------------- |
-| `--t-display` |   26px |        1.05 | Cinzel Decorative 700                 | Page title, one per page         |
-| `--t-title`   |   20px |        1.10 | Cinzel Decorative 700                 | Generated name, bench heading    |
-| `--t-heading` |   16px |        1.20 | Cinzel Decorative 700                 | Panel heading                    |
-| `--t-body`    |   14px |        1.45 | Inclusive Sans                        | Prose and generated output       |
-| `--t-small`   | 12.5px |        1.40 | Inclusive Sans                        | Lists, sublines, field values    |
-| `--t-micro`   |   11px |        1.40 | Cinzel Decorative, +0.08em, uppercase | Labels, kickers, badges, buttons |
+| Token         |   Size | Line height | Face                               | Used for                         |
+| ------------- | -----: | ----------: | ---------------------------------- | -------------------------------- |
+| `--t-display` |   26px |        1.05 | Cinzel Decorative 700              | Page title, one per page         |
+| `--t-title`   |   20px |        1.10 | Cinzel Decorative 700              | Generated name, bench heading    |
+| `--t-heading` |   16px |        1.20 | Cinzel Decorative 700              | Panel heading                    |
+| `--t-body`    |   14px |        1.45 | Inclusive Sans                     | Prose and generated output       |
+| `--t-small`   | 12.5px |        1.40 | Inclusive Sans                     | Lists, sublines, field values    |
+| `--t-micro`   |   11px |        1.40 | Inclusive Sans, +0.08em, uppercase | Labels, kickers, badges, buttons |
+
+**`--t-micro` is the body face, and it is the one step where the display face would have been the
+obvious choice.** Cinzel Decorative is a display face with a great deal of modulation in its
+strokes; at 11px, uppercased, that detail falls between pixels and a button label stops being
+quickly readable, which is the whole job of a button label. It reaches further than buttons —
+every nav item, badge, kicker and field label is this step — and that is the point: two 11px steps
+in two faces is exactly the split the ramp exists to prevent. Headings are unaffected, so the
+brand's face still carries every line that is read as a title.
 
 Two numbers do most of the work. Line height falls from today's global 1.75 to **1.45**, and the
 largest step falls from 40px to **26px**. The ramp is what makes the site read tighter — not
@@ -415,16 +428,16 @@ class. There are about 120 of them across `src/components` and `src/routes`; a s
 reached the ones somebody remembered to annotate would leave most of the app on the old gradient,
 which is the state this issue exists to end.
 
-| Property   | Value                                                      |
-| ---------- | ---------------------------------------------------------- |
-| Height     | 28px, as `min-height` — a label that wraps grows the plate |
-| Padding    | `--s3` block, `--s5` inline                                |
-| Type       | `--t-micro`, `--t-micro-tracking`, uppercase, `--ink`      |
-| Fill       | `--plate`                                                  |
-| Keyline    | 1px `--border-strong`                                      |
-| Highlight  | `--edge`                                                   |
-| Corner     | `--corner-control`                                         |
-| Transition | `--motion-swift` on border colour, colour and box shadow   |
+| Property   | Value                                                                  |
+| ---------- | ---------------------------------------------------------------------- |
+| Height     | 28px, as `min-height` — a label that wraps grows the plate             |
+| Padding    | `--s3` block, `--s5` inline                                            |
+| Type       | `--t-micro`, `--t-micro-tracking`, uppercase, `--ink` — Inclusive Sans |
+| Fill       | `--plate`                                                              |
+| Keyline    | 1px `--border-strong`                                                  |
+| Highlight  | `--edge`                                                               |
+| Corner     | `--corner-control`                                                     |
+| Transition | `--motion-swift` on border colour, colour and box shadow               |
 
 Four states, and the press is the one that has to feel like a press:
 
@@ -478,9 +491,9 @@ selector, differing only in the one thing it cannot draw.
 
 Two variants stay single-layer on purpose. An **icon** button is square and unclipped, so it has no
 diagonal to rescue. A **quiet** button has no fill, and a band is only visible against one: a
-transparent liner would show the whole edge colour rather than a pixel of it, so quiet keeps the
-ordinary border and the clip shaves its diagonals. A control with nothing to paint over cannot
-have a painted edge.
+transparent liner would show the whole edge colour rather than a pixel of it. So quiet is square
+too — a control with nothing to paint over cannot have a painted edge, and a shaved one reads as a
+rendering fault rather than as a shape.
 
 ### Focus on a clipped control is drawn inside it
 
@@ -518,14 +531,14 @@ the geometry — which is what makes "a skin may not touch control geometry"
 ([decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)) a rule with something
 behind it.
 
-| Variant         | Class              | Recipe                                                                                                                    |
-| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------- |
-| **Secondary**   | none               | The base plate. The default, and the reason an unannotated `button` is already correct.                                   |
-| **Primary**     | `.btn-primary`     | `--accent-quiet` keyline over `--plate-primary`, the base plate warmed toward gold. One per surface.                      |
-| **Quiet**       | `.btn-quiet`       | No fill, 1px `--border`, label `--ink-muted`. Hover fills `--surface-inset` and lifts to `--ink`.                         |
-| **Destructive** | `.btn-destructive` | `--danger` keyline over `--plate-danger`, the base plate mixed toward crimson, label `--ink`. Never crimson text — 2.2:1. |
-| **Icon**        | `.btn-icon`        | 28×28, square, no clip, no inline padding. A 7px cut on a 28px square eats the glyph.                                     |
-| **Small**       | `.btn-sm`          | 24px, `--s2` block and `--s4` inline padding. Type does not change: `--t-micro` is the floor.                             |
+| Variant         | Class              | Recipe                                                                                                                                                                                                       |
+| --------------- | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Secondary**   | none               | The base plate. The default, and the reason an unannotated `button` is already correct.                                                                                                                      |
+| **Primary**     | `.btn-primary`     | `--accent-quiet` keyline over `--plate-primary`, the base plate warmed toward gold. One per surface.                                                                                                         |
+| **Quiet**       | `.btn-quiet`       | No fill, 1px `--border`, label `--ink-muted`, and **square**: there is no fill to paint a band against, and a clipped border is shaved at the diagonals. Hover fills `--surface-inset` and lifts to `--ink`. |
+| **Destructive** | `.btn-destructive` | `--danger` keyline over `--plate-danger`, the base plate mixed toward crimson, label `--ink`. Never crimson text — 2.2:1.                                                                                    |
+| **Icon**        | `.btn-icon`        | 28×28, square, no clip, no inline padding. A 7px cut on a 28px square eats the glyph.                                                                                                                        |
+| **Small**       | `.btn-sm`          | 24px, `--s2` block and `--s4` inline padding. Type does not change: `--t-micro` is the floor.                                                                                                                |
 
 `.btn-sm` composes with any of the others; the rest are mutually exclusive, and a button wearing
 two of them gets whichever the stylesheet lists last, which is a bug rather than a feature. The
@@ -720,8 +733,10 @@ the four states and the three widths, and #114 built it.
 `ToolMaturityBadge` shows experimental in `--accent-quiet` and beta in cyan; release-ready shows
 nothing, which is already how it behaves. That is #116's, with the panels.
 
-**Modals** keep `modal.css`'s structure and lose its literals, which is #117's — with one
-exception taken here, because it is a button and not a modal: `.modal-dialog-action--danger`
+**Modals** keep `modal.css`'s structure and lose its literals, which is #117's. Their actions are
+plates: a dialog exists to ask which of two things you meant, and a tertiary treatment on one of a
+pair reads as the pair being unequal, so cancel is the base plate rather than `quiet`. One further
+exception is taken here, because it is a button and not a modal: `.modal-dialog-action--danger`
 writes out a second `rgb(92, 86, 73)` gradient of its own, and it becomes `.btn-destructive`.
 Deleting a copy of the gradient this issue exists to replace is this issue's job; the dialog
 around it can wait for #117.
