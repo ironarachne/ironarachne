@@ -12,6 +12,7 @@
   import { showAlertModal } from '$lib/ui';
   import type { RNG } from '@ironarachne/rng';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import ListButton from '$components/common/ListButton.svelte';
 
   type Props = {
     arms: Arms;
@@ -69,44 +70,136 @@
   }
 </script>
 
-<div class="modal-dialog-content modal-dialog-content--message heraldry-persistence-modal">
-  <h2 id="modal-dialog-title" class="modal-dialog-title">
-    {title ?? 'Heraldry'}
-  </h2>
+<div class="panel__field">
+  <header class="panel__header">
+    <div class="panel__header-field">
+      <h2 id="modal-dialog-title" class="panel__title">{title ?? 'Heraldry'}</h2>
+    </div>
+  </header>
 
-  <p class="heraldry-persistence-blazon">{arms.blazon}</p>
+  <div class="panel__body">
+    <p class="heraldry-persistence__blazon">{arms.blazon}</p>
 
-  <div class="heraldry-persistence-preview">
-    <!-- Renders app-generated markup (no external or user-supplied input). -->
-    <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-    {@html renderHeraldryDeviceSvg(arms.device, previewWidth, previewHeight, rng)}
+    <div class="heraldry-persistence__preview">
+      <!-- Renders app-generated markup (no external or user-supplied input). -->
+      <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+      {@html renderHeraldryDeviceSvg(arms.device, previewWidth, previewHeight, rng)}
+    </div>
+
+    <!-- A dialog is a question, so its answers sit where the eye finishes. -->
+    <div class="panel__footer">
+      <BaseButton onclick={saveCurrentHeraldry} disabled={isCurrentBlazonSaved}>Save</BaseButton>
+      <BaseButton onclick={onDismiss}>Close</BaseButton>
+    </div>
+
+    <div class="heraldry-persistence__saved">
+      <h3>Replace with saved heraldry</h3>
+
+      {#if savedHeraldries.length === 0}
+        <p class="heraldry-persistence__empty">No saved heraldry yet.</p>
+      {:else}
+        <!-- A well: a run of rows that has to read as held by the dialog rather than as continuing
+             past its edge, and the one surface allowed to be cut off mid-row. The rows are list
+             rows, so a saved coat of arms is picked the same way an artifact or a tool is —
+             the row itself is the choice, rather than a row with a button on the end of it. -->
+        <ul class="well heraldry-persistence__list">
+          {#each savedHeraldries as saved, index (index)}
+            <li>
+              <ListButton
+                onclick={() => replaceWithSavedHeraldry(saved)}
+                class="heraldry-persistence__row"
+              >
+                <span class="heraldry-persistence__row-preview">
+                  <!-- Renders app-generated markup (no external or user-supplied input). -->
+                  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                  {@html renderHeraldryDeviceSvg(
+                    heraldryFromSnapshot(saved).arms.device,
+                    48,
+                    53,
+                    rng,
+                  )}
+                </span>
+                <span class="heraldry-persistence__row-details">
+                  <span class="heraldry-persistence__row-name">{saved.name}</span>
+                  <span class="heraldry-persistence__row-seed">Seed: {saved.seed}</span>
+                </span>
+              </ListButton>
+            </li>
+          {/each}
+        </ul>
+      {/if}
+    </div>
   </div>
-
-  <div class="modal-dialog-actions heraldry-persistence-actions">
-    <BaseButton onclick={saveCurrentHeraldry} disabled={isCurrentBlazonSaved}>Save</BaseButton>
-    <BaseButton onclick={onDismiss}>Close</BaseButton>
-  </div>
-
-  <h3 class="heraldry-persistence-saved-heading">Replace with saved heraldry</h3>
-
-  {#if savedHeraldries.length === 0}
-    <p class="heraldry-persistence-empty">No saved heraldry yet.</p>
-  {:else}
-    <ul class="heraldry-persistence-list">
-      {#each savedHeraldries as saved, index (index)}
-        <li class="heraldry-persistence-item">
-          <div class="heraldry-persistence-item-preview">
-            <!-- Renders app-generated markup (no external or user-supplied input). -->
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html renderHeraldryDeviceSvg(heraldryFromSnapshot(saved).arms.device, 48, 53, rng)}
-          </div>
-          <div class="heraldry-persistence-item-details">
-            <p class="heraldry-persistence-item-name">{saved.name}</p>
-            <p class="heraldry-persistence-item-seed">Seed: {saved.seed}</p>
-          </div>
-          <BaseButton onclick={() => replaceWithSavedHeraldry(saved)}>Use</BaseButton>
-        </li>
-      {/each}
-    </ul>
-  {/if}
 </div>
+
+<style>
+  /* The frame, the plate, the well and the rows are all the system's. What is left here is the
+     preview's own geometry, which is a picture's size rather than a spacing decision, and the way
+     a row lays its three parts out. */
+
+  .heraldry-persistence__blazon {
+    color: var(--ink-muted);
+    font: var(--t-small);
+    margin: 0;
+    max-width: var(--measure);
+  }
+
+  /* The device's own aspect, not a spacing step: a shield is 120 by 132. */
+  .heraldry-persistence__preview {
+    height: 132px;
+    margin-inline: auto;
+    width: 120px;
+  }
+
+  .heraldry-persistence__saved {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s4);
+    min-height: 0;
+  }
+
+  .heraldry-persistence__saved h3 {
+    margin: 0;
+  }
+
+  .heraldry-persistence__empty {
+    color: var(--ink-muted);
+    font: var(--t-small);
+    margin: 0;
+  }
+
+  .heraldry-persistence__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s1);
+    list-style: none;
+    margin: 0;
+    max-height: 16rem;
+  }
+
+  :global(.heraldry-persistence__row) {
+    width: 100%;
+  }
+
+  .heraldry-persistence__row-preview {
+    flex: 0 0 48px;
+    height: 53px;
+    width: 48px;
+  }
+
+  .heraldry-persistence__row-details {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .heraldry-persistence__row-name {
+    overflow-wrap: anywhere;
+  }
+
+  .heraldry-persistence__row-seed {
+    color: var(--ink-muted);
+    font: var(--t-small);
+    overflow-wrap: anywhere;
+  }
+</style>

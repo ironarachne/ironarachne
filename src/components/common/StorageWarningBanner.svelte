@@ -4,6 +4,7 @@
   import { resolve } from '$app/paths';
   import { onArtifactsChanged } from '$lib/artifacts';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import Notice from '$components/common/Notice.svelte';
   import {
     dismissStorageWarning,
     hasDismissedStorageWarning,
@@ -56,43 +57,28 @@
 </script>
 
 {#if shown && warning !== null}
-  <div class="storage-warning" role="status">
+  <!-- `notice`-toned: a browser that is nearly full is a thing wanting attention, which is what
+       that tone says. The gold is the edge and the wash; the sentence stays `--ink`, because a
+       tone is never a word. -->
+  <Notice tone="notice" class="storage-warning">
     <p>
       <strong>This browser is nearly full for this site.</strong>
       {usageSentence(warning.usage)} If it fills, saving will start to fail — and a file is the only copy
       of this work that survives anything happening to this browser.
     </p>
-    <div class="storage-warning__actions">
+
+    {#snippet actions()}
       <!-- A fragment appended to a resolved route. -->
       <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
       <a href={storagePanelHref}>Storage and backup</a>
       <BaseButton onclick={dismiss}>Dismiss</BaseButton>
-    </div>
-  </div>
+    {/snippet}
+  </Notice>
 {/if}
 
 <style>
-  .storage-warning {
-    background: var(--slate);
-    border: 1px solid var(--gold);
-    border-radius: 4px;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    padding: 0.6rem 0.75rem;
-  }
-
-  .storage-warning p {
-    font-size: 0.9rem;
-    margin: 0;
-    max-width: var(--measure);
-  }
-
-  .storage-warning__actions {
-    align-items: center;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
+  /* Layout only: where the notice sits. The look is the panel's. */
+  :global(.storage-warning) {
+    margin-bottom: var(--s6);
   }
 </style>

@@ -1,6 +1,7 @@
 <script lang="ts">
   import HeraldryPersistenceModalContent from '$components/heraldry/HeraldryPersistenceModalContent.svelte';
   import ModalDialog from '$components/common/ModalDialog.svelte';
+  import { TONE_CLASS, type Tone } from '$components/common/Notice.svelte';
   import StorageFailureModalContent from '$components/common/StorageFailureModalContent.svelte';
   import {
     modalState,
@@ -28,6 +29,22 @@
       return 'error';
     }
     return current.style;
+  });
+
+  /* The three `AlertModalStyle` names map onto tones without changing their spelling: `message` is
+     plain, because a dialog is already the most interruptive thing the app does — top layer,
+     scrim, focus taken — and does not need a coloured edge on top of that. Every dialog used to be
+     gold-edged, which made gold the colour of "a dialog" rather than of "attention"; a tone every
+     instance wears is not a tone. Colour is spent on the two outcomes that differ. */
+  const tone = $derived.by((): Tone => {
+    switch (panelStyle) {
+      case 'error':
+        return 'danger';
+      case 'success':
+        return 'success';
+      default:
+        return 'plain';
+    }
   });
 
   const isAlertDialog = $derived(
@@ -71,12 +88,14 @@
   }
 </script>
 
+<!-- A dialog is a raised panel that happens to be in the top layer: the same liner, keyline, notch
+     and padding ramp as every other surface. It wears the panel classes directly rather than
+     holding a `Panel`, because a `<dialog>` is already a labelled thing with its own
+     `aria-labelledby` — a `<section aria-label>` inside it would give one object two accessible
+     names and two landmarks, and a screen reader would read the wrapper before the message. -->
 <dialog
   bind:this={dialogEl}
-  class="ironarachne-modal"
-  class:ironarachne-modal--message={panelStyle === 'message'}
-  class:ironarachne-modal--error={panelStyle === 'error'}
-  class:ironarachne-modal--success={panelStyle === 'success'}
+  class="panel {TONE_CLASS[tone]}"
   role={isAlertDialog ? 'alertdialog' : 'dialog'}
   aria-labelledby={modalState.current?.kind === 'heraldry' ||
   modalState.current?.kind === 'storage' ||
@@ -113,7 +132,6 @@
       kind={modalState.current.kind}
       message={modalState.current.message}
       title={modalState.current.title}
-      style={modalState.current.kind === 'alert' ? modalState.current.style : 'message'}
       okLabel={modalState.current.kind === 'confirm' ? modalState.current.okLabel : 'OK'}
       cancelLabel={modalState.current.kind === 'confirm'
         ? modalState.current.cancelLabel

@@ -112,7 +112,7 @@
   .potion-result {
     margin-top: 1.5rem;
     padding: 1rem;
-    border: 1px solid var(--border-color, #ccc);
+    border: 1px solid var(--border);
     border-radius: 0.5rem;
   }
 

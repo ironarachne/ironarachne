@@ -617,6 +617,47 @@ label {
   min-width: 0;
 }
 
+/* ---- Tones ----------------------------------------------------------------------------------
+   A message is a toned panel: the app has something to say, and it is saying it on a surface. A
+   tone sets the panel's two custom properties and nothing else, which is what makes it a variant
+   rather than a second panel — the same claim a level and a genre skin make.
+
+   One mix ratio for all three, for the reason there is one `--plate`: a per-tone number is three
+   things to keep in step and nobody can say what the right difference between them would be.
+
+   The tone is the edge and the wash, and the words are always `--ink`. Crimson is 2.2:1 on
+   charcoal and emerald is 2.65:1 — two of the three cannot be read as text at all, so a rule that
+   holds for two is not a rule. No message ever colours its own sentence.
+
+   A tone is only ever carried by a *raised* surface. There is deliberately no `.inset--danger`: a
+   red box inside a red box is two edges saying one thing, and an error message sitting on a panel
+   is an untoned inset. See docs/visual-design.md, "The message family". */
+
+.panel--notice {
+  --panel-edge: var(--accent-quiet);
+  --panel-surface: color-mix(in srgb, var(--accent-quiet) 12%, var(--surface-raised));
+}
+
+.panel--success {
+  --panel-edge: var(--success);
+  --panel-surface: color-mix(in srgb, var(--success) 12%, var(--surface-raised));
+}
+
+.panel--danger {
+  --panel-edge: var(--danger);
+  --panel-surface: color-mix(in srgb, var(--danger) 12%, var(--surface-raised));
+}
+
+/* The foot of a dialog. A dialog is a question, and a question's answers belong where the eye
+   finishes; a notice is a sentence, and its actions follow the text from the left, which is the
+   body's own flow and needs no class. `--s4` either way: the buttons are one group. */
+.panel__footer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s4);
+  justify-content: flex-end;
+}
+
 /* An inset is the panel inverted: sunk into the surface rather than raised off it, and unclipped,
    because it sits inside a panel's liner already and a second diagonal in the middle of a panel
    is a cut where nothing is cut. */

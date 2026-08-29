@@ -58,19 +58,23 @@
 
   --accent: var(--iron-arachne-green); /* 10.6:1 */
   --accent-quiet: var(--gold); /* 7.1:1 */
-  /* Crimson on charcoal is 2.2:1. Destructive intent is a crimson edge and fill under
-     `--ink`-coloured text; this is never a text colour. */
+  /* Crimson on charcoal is 2.2:1 and emerald is 2.65:1. Neither is readable, so both are an edge
+     and a fill under `--ink`-coloured text and neither is ever a text colour. That one fact is
+     what the message family is built on: two of the three tones a message can take cannot be said
+     in words at all, so a tone is always the surface and never the sentence. */
   --danger: var(--crimson);
+  --success: var(--emerald);
   --focus: var(--acid-green); /* 13.4:1 — the focus ring, and nothing else */
 
-  /* The modal system's roles. The brand file maps success/error/message to palette entries
-     itself, so the mapping is stated in one place too. The backdrop is not a brand colour, and
-     the shell's drawer scrim reads it as well — the page is dimmed by one amount from one
-     place. */
+  /* The scrim, and the only token the modal system owns. It is not a brand colour, and the
+     shell's drawer scrim reads it as well — the page is dimmed by one amount from one place.
+
+     `--modal-border-message` / `-error` / `-success` were here until issue 117 and are deliberately
+     gone. They mapped a role onto a palette entry in one place, which is the right shape, but
+     they were named after the one component that happened to need them first — and a banner, an
+     inline notice and anything later that has to say how something went want the same three
+     meanings. All three are already roles: `--accent-quiet`, `--success` and `--danger`. */
   --modal-backdrop: rgb(0 0 0 / 50%);
-  --modal-border-message: var(--ia-status-message);
-  --modal-border-error: var(--ia-status-error);
-  --modal-border-success: var(--ia-status-success);
 
   /* ---- Type ramp -----------------------------------------------------------------------
      Six steps, in `px`. Cinzel Decorative carries headings, controls and labels; Inclusive Sans
