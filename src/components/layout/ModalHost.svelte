@@ -92,10 +92,15 @@
      and padding ramp as every other surface. It wears the panel classes directly rather than
      holding a `Panel`, because a `<dialog>` is already a labelled thing with its own
      `aria-labelledby` — a `<section aria-label>` inside it would give one object two accessible
-     names and two landmarks, and a screen reader would read the wrapper before the message. -->
+     names and two landmarks, and a screen reader would read the wrapper before the message.
+
+     `modal-host` carries no styling and exists to name *which* dialog this is. Every dialog in the
+     app is a `.panel` now, and `LoadSnapshotDialog` is a second one rendered from inside a bench
+     panel — so `.panel` identifies a look and cannot identify this element. The suites address it
+     by this class. -->
 <dialog
   bind:this={dialogEl}
-  class="panel {TONE_CLASS[tone]}"
+  class="panel modal-host {TONE_CLASS[tone]}"
   role={isAlertDialog ? 'alertdialog' : 'dialog'}
   aria-labelledby={modalState.current?.kind === 'heraldry' ||
   modalState.current?.kind === 'storage' ||
