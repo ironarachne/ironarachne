@@ -14,12 +14,7 @@ const projectContext = (page: Page) => page.locator('section.project-context');
 const projectView = (page: Page) => page.locator('section.project-view');
 const toolBrowser = (page: Page) => page.locator('section.tool-browser');
 const panels = (page: Page) => page.locator('section.workshop-panel');
-// The panel's *own* header, by the child chain rather than by a descendant match. A dialog is a
-// panel too since #117 — same classes, same header plate — and `LoadSnapshotDialog` is rendered by
-// the heraldry tool from inside its panel, so a plain `.workshop-panel .panel__title` counts
-// "Load Saved Heraldry" as a third bench panel. It is in the DOM whether or not it is open.
-const panelTitles = (page: Page) =>
-  page.locator('.workshop-panel > .panel__field > .panel__header .panel__title');
+const panelTitles = (page: Page) => page.locator('.workshop-panel .panel__title');
 
 async function openWorkshop(page: Page): Promise<void> {
   await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
@@ -266,7 +261,7 @@ test.describe('the workshop bench', () => {
 
     // The dialog element is always in the DOM; ModalHost opens and closes it, so "not asked"
     // is hidden rather than absent.
-    await expect(page.locator('dialog.modal-host')).toBeHidden();
+    await expect(page.locator('dialog.panel')).toBeHidden();
     await expect(panelTitles(page)).toHaveText([/Heraldry/]);
   });
 
@@ -282,7 +277,7 @@ test.describe('the workshop bench', () => {
 
     await mountTool(page, /^Heraldry/);
 
-    const dialog = page.locator('dialog.modal-host');
+    const dialog = page.locator('dialog.panel');
     await expect(dialog).toContainText('you have not saved');
 
     // Refusing leaves the bench exactly as it was.
@@ -302,7 +297,7 @@ test.describe('the workshop bench', () => {
 
     // The dialog element is always in the DOM; ModalHost opens and closes it, so "not asked"
     // is hidden rather than absent.
-    await expect(page.locator('dialog.modal-host')).toBeHidden();
+    await expect(page.locator('dialog.panel')).toBeHidden();
     await expect(panelTitles(page)).toHaveText([/Heraldry/]);
   });
 
@@ -478,7 +473,7 @@ test.describe('the session log', () => {
     await mountTool(page, /^Culture/);
     await expect(logEntries(page)).toHaveCount(1);
 
-    const dialog = page.locator('dialog.modal-host');
+    const dialog = page.locator('dialog.panel');
 
     await sessionLog(page).getByRole('button', { name: 'Clear' }).click();
     await dialog.getByRole('button', { name: 'Cancel' }).click();
@@ -634,7 +629,7 @@ test.describe('saving what a tool made', () => {
  */
 test.describe('building one artifact from another', () => {
   const artifactPanel = (page: Page) => page.locator('.artifact-panel');
-  const confirmDialog = (page: Page) => page.locator('dialog.modal-host');
+  const confirmDialog = (page: Page) => page.locator('dialog.panel');
 
   test.beforeEach(async ({ page }) => {
     await openEmptyWorkshop(page);
@@ -843,7 +838,7 @@ test.describe('building one artifact from another', () => {
  */
 test.describe('editing a saved artifact', () => {
   const artifactPanel = (page: Page) => page.locator('.artifact-panel');
-  const confirmDialog = (page: Page) => page.locator('dialog.modal-host');
+  const confirmDialog = (page: Page) => page.locator('dialog.panel');
 
   /** A project with one saved artifact of the named tool in it, open in a panel of its own. */
   async function openASavedArtifact(
@@ -1617,7 +1612,7 @@ test.describe('vault export and import', () => {
   // Export is the storage panel's primary action; what is left in the transfer controls is the way
   // back in. See docs/storage-panel.md.
   const storagePanel = (page: Page) => page.locator('section.storage');
-  const confirmDialog = (page: Page) => page.locator('dialog.modal-host');
+  const confirmDialog = (page: Page) => page.locator('dialog.panel');
 
   test.beforeEach(async ({ page }) => {
     await openEmptyWorkshop(page);
@@ -1771,7 +1766,7 @@ test.describe('vault export and import', () => {
  * installed before the app boots so the app's own code path is what meets it.
  */
 test.describe('when the browser has no room to save', () => {
-  const storageDialog = (page: Page) => page.locator('dialog.modal-host .storage-failure');
+  const storageDialog = (page: Page) => page.locator('dialog.panel .storage-failure');
 
   /** Refuses writes to the artifact stores, leaving projects and reads alone. */
   async function fillTheDisk(page: Page): Promise<void> {

@@ -55,7 +55,7 @@ test.describe('a dialog is readable', () => {
     // The delete confirmation is the ordinary dialog: a title, a message, two peer actions.
     await projectCard(page, 'Ashfall').getByRole('button', { name: 'Delete' }).click();
 
-    const dialog = page.locator('dialog.modal-host');
+    const dialog = page.locator('dialog.panel');
     await expect(dialog).toBeVisible();
 
     const ink = await inkColor(page);
@@ -65,10 +65,10 @@ test.describe('a dialog is readable', () => {
     expect(ink).not.toBe('rgb(0, 0, 0)');
 
     // The element itself, so everything inheriting from it starts correct.
-    expect(await colorOf(page, 'dialog.modal-host')).toBe(ink);
+    expect(await colorOf(page, 'dialog.panel')).toBe(ink);
 
     // And the two things a reader actually reads.
-    expect(await colorOf(page, 'dialog.modal-host .panel__title')).toBe(ink);
-    expect(await colorOf(page, 'dialog.modal-host #modal-dialog-message')).toBe(ink);
+    expect(await colorOf(page, 'dialog.panel .panel__title')).toBe(ink);
+    expect(await colorOf(page, 'dialog.panel #modal-dialog-message')).toBe(ink);
   });
 });
