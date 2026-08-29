@@ -1,6 +1,21 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import ListButton from '$components/common/ListButton.svelte';
+
+  /**
+   * A dialog offering a saved thing to load.
+   *
+   * It is a raised panel that happens to be in the top layer, exactly as `ModalHost`'s dialog is,
+   * and it wears the same classes. Before #117 it was a second dialog implementation with its own
+   * frame, its own backdrop and its own keyline — written as `var(--gold, #c9a227)` over
+   * `var(--background, #1a1a1a)`, and `--background` is declared nowhere in the app, so that
+   * second fallback was not a fallback: this dialog painted `#1a1a1a`, a grey in no palette and
+   * not `--charcoal`'s `#1b1e24`. See docs/visual-design.md, "The message family".
+   *
+   * Folding it into `modalState`, so the app has literally one `<dialog>`, is behaviour rather
+   * than look and is left for whoever wants it.
+   */
 
   type Props = {
     title: string;
@@ -21,97 +36,83 @@
   export function close() {
     dialog?.close();
   }
+
+  function load(item: { name: string; seed: string }) {
+    onLoad(item);
+    close();
+  }
 </script>
 
-<dialog bind:this={dialog} class="load-snapshot-dialog">
-  <form method="dialog" class="load-snapshot-dialog-content">
-    <h2>{title}</h2>
+<dialog bind:this={dialog} class="panel">
+  <form method="dialog" class="panel__field">
+    <header class="panel__header">
+      <div class="panel__header-field">
+        <h2 class="panel__title">{title}</h2>
+      </div>
+    </header>
 
-    {#if items.length === 0}
-      <p>{emptyMessage}</p>
-    {:else}
-      <ul class="load-snapshot-list">
-        {#each items as item, index (index)}
-          <li class="load-snapshot-item">
-            <div class="load-snapshot-item-details">
-              <p class="load-snapshot-item-name">{item.name}</p>
-              <p class="load-snapshot-item-seed">Seed: {item.seed}</p>
-            </div>
-            <BaseButton onclick={() => onLoad(item)}>Load</BaseButton>
-          </li>
-        {/each}
-      </ul>
-    {/if}
+    <div class="panel__body">
+      {#if items.length === 0}
+        <p class="load-snapshot__empty">{emptyMessage}</p>
+      {:else}
+        <!-- A well of list rows: a saved snapshot is picked the same way an artifact or a tool is,
+             and the row itself is the choice rather than a row with a button on the end of it. -->
+        <ul class="well load-snapshot__list">
+          {#each items as item, index (index)}
+            <li>
+              <ListButton onclick={() => load(item)} class="load-snapshot__row">
+                <span class="load-snapshot__name">{item.name}</span>
+                <span class="load-snapshot__seed">Seed: {item.seed}</span>
+              </ListButton>
+            </li>
+          {/each}
+        </ul>
+      {/if}
 
-    {#if children}
-      {@render children()}
-    {/if}
+      {#if children}
+        {@render children()}
+      {/if}
 
-    <div class="load-snapshot-dialog-actions">
-      <BaseButton value="cancel">Cancel</BaseButton>
+      <!-- A dialog is a question, so its answer sits where the eye finishes. `submit` rather than
+           the default `button`, because this form is `method="dialog"` and submitting it is what
+           closes the dialog — as `value="cancel"` always meant it to. Until #117 neither this nor
+           the rows closed anything, and Escape was the only way out. -->
+      <div class="panel__footer">
+        <BaseButton type="submit" value="cancel">Cancel</BaseButton>
+      </div>
     </div>
   </form>
 </dialog>
 
 <style>
-  dialog.load-snapshot-dialog {
-    border: 1px solid var(--gold, #c9a227);
-    border-radius: 4px;
-    padding: 0;
-    max-width: 40rem;
-    width: calc(100% - 2rem);
-    background: var(--background, #1a1a1a);
-    color: inherit;
+  /* The frame, the plate, the well and the rows are all the system's. What is left is how a row
+     lays its two parts out. */
+
+  .load-snapshot__empty {
+    color: var(--ink-muted);
+    font: var(--t-small);
+    margin: 0;
   }
 
-  dialog.load-snapshot-dialog::backdrop {
-    background: rgb(0 0 0 / 50%);
-  }
-
-  .load-snapshot-dialog-content {
-    padding: 1rem 1.25rem;
-  }
-
-  .load-snapshot-list {
+  .load-snapshot__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s1);
     list-style: none;
     margin: 0;
-    padding: 0;
   }
 
-  .load-snapshot-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.75rem 0;
-    border-bottom: 1px solid rgb(255 255 255 / 10%);
+  :global(.load-snapshot__row) {
+    width: 100%;
   }
 
-  .load-snapshot-item:last-child {
-    border-bottom: none;
+  .load-snapshot__name {
+    overflow-wrap: anywhere;
   }
 
-  .load-snapshot-item-details {
-    min-width: 0;
-  }
-
-  .load-snapshot-item-name,
-  .load-snapshot-item-seed {
-    margin: 0;
-  }
-
-  .load-snapshot-item-name {
-    font-weight: 600;
-  }
-
-  .load-snapshot-item-seed {
-    font-size: 0.875rem;
-    opacity: 0.8;
-  }
-
-  .load-snapshot-dialog-actions {
-    margin-top: 1rem;
-    display: flex;
-    justify-content: flex-end;
+  .load-snapshot__seed {
+    color: var(--ink-muted);
+    font: var(--t-small);
+    overflow-wrap: anywhere;
   }
 </style>

@@ -79,6 +79,20 @@ function siteStylesheets(): { name: string; css: string }[] {
   }));
 }
 
+/**
+ * A component's `<style>` block, with its comments stripped.
+ *
+ * `siteStylesheets` hands back the whole `.svelte` file, which is what the checkbox sweep wants —
+ * it reads markup. A sweep looking for a CSS selector has to read the stylesheet alone, or the
+ * word `dialog` in a doc comment counts as a rule.
+ */
+function styleBlock(css: string): string {
+  return [...css.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)]
+    .map(([, block]) => block)
+    .join('\n')
+    .replace(/\/\*[\s\S]*?\*\//g, '');
+}
+
 describe('brand colour tokens', () => {
   const brandTokens = new Set(declaredProperties(brandSource));
 
@@ -152,11 +166,9 @@ describe('site colour tokens', () => {
       '--accent',
       '--accent-quiet',
       '--danger',
+      '--success',
       '--focus',
       '--modal-backdrop',
-      '--modal-border-message',
-      '--modal-border-error',
-      '--modal-border-success',
     ];
 
     const missing = roles.filter((role) => !tokens.has(role));
@@ -379,22 +391,76 @@ describe('the control system', () => {
   });
 });
 
+describe('the message family', () => {
+  // docs/visual-design.md, "What the message family enforces". Each of these guards a rule that
+  // was broken before #117: three implementations of one idea, one of them painting a grey that
+  // is in no palette.
+
+  it('leaves the dialog frame to the stylesheets', () => {
+    // A dialog is a raised panel in the top layer, and its frame is `main.css`'s panel classes
+    // plus the three rules in `modal.css`. A component's own `<style>` block reaching for
+    // `dialog` is the second implementation starting again — which is exactly what
+    // `LoadSnapshotDialog` was, with its own border, its own radius and its own backdrop.
+    const offenders = siteStylesheets()
+      .filter(({ name }) => name.endsWith('.svelte'))
+      .filter(({ css }) => /(^|[\s&>+~,(])dialog\b/.test(styleBlock(css)))
+      .map(({ name }) => name);
+
+    expect(offenders, 'a component declaring a dialog frame of its own').toEqual([]);
+  });
+
+  it('has no role named after a component', () => {
+    // The three `--modal-border-*` aliases mapped a role onto a palette entry in one place, which
+    // is the right shape — but they were named for the one component that needed them first, and
+    // a banner and an inline notice want the same three meanings. All three are already roles.
+    const offenders = [...siteStylesheets(), { name: 'tokens.css', css: tokensSource }]
+      .filter(({ css }) => css.replace(/\/\*[\s\S]*?\*\//g, '').includes('--modal-border'))
+      .map(({ name }) => name);
+
+    expect(offenders, 'a role named after the component that wanted it first').toEqual([]);
+  });
+
+  it('never hides a literal behind a custom-property fallback', () => {
+    // The sweep that would have caught `#1a1a1a`. `LoadSnapshotDialog` declared
+    // `background: var(--background, #1a1a1a)`, and `--background` is declared nowhere in the app
+    // — so that fallback was not a fallback, and the dialog rendered a grey that is in no palette
+    // for as long as it existed. A fallback is a hex the other sweeps cannot see, and a token that
+    // might not be declared is a token whose name is wrong. Every role and every `--ia-*` is in a
+    // stylesheet the app always loads, so there is nothing for a fallback to protect against.
+    // A *colour* fallback specifically. `var(--project-view-max-height, 20rem)` is a deliberate
+    // component API — a length a parent may set, with a stated default — and it is not what this
+    // is about. A hex behind a `var()` is.
+    const offenders: string[] = [];
+
+    for (const { name, css } of siteStylesheets()) {
+      const stripped = name.endsWith('.svelte')
+        ? styleBlock(css)
+        : css.replace(/\/\*[\s\S]*?\*\//g, '');
+      for (const [declaration] of stripped.matchAll(
+        /var\(\s*--[\w-]+\s*,[^)]*(?:#[0-9a-fA-F]{3,8}|rgba?\(|hsla?\()[^)]*\)?\s*\)/g,
+      )) {
+        offenders.push(`${name}: ${declaration}`);
+      }
+    }
+
+    expect(offenders, 'a literal hidden behind a var() fallback').toEqual([]);
+  });
+});
+
 describe('the panel language', () => {
   // docs/visual-design.md, "What the panel language enforces". Each of these guards a rule that
   // was broken in the files it checks before #116: nineteen components declared the same box, and
   // three of them hand-rolled the same pill with `--gold` written into two.
   //
-  // Two sets of files are deferred rather than exempt, and the design says which: the banners and
-  // the dialog belong to #117, and the surfaces that hold *generated output* belong to the skins
-  // in #119–#121, which is why #116 precedes them. Each name here is a file the panel language
-  // has not reached yet — the list is meant to shrink, and adding to it is how the sweep stops
-  // meaning anything.
+  // One set of files is deferred rather than exempt, and the design says which: the surfaces that
+  // hold *generated output* belong to the skins in #119–#121, which is why #116 precedes them.
+  // Each name here is a file the panel language has not reached yet — the list is meant to shrink,
+  // and adding to it is how the sweep stops meaning anything.
+  //
+  // #117's four entries — the two banners, the storage failure dialog and the snapshot dialog —
+  // are gone, which is the first time this list has shrunk. They are the message family now, and
+  // they are swept like everything else.
   const DEFERRED = new Set([
-    // #117: banners, notices and the modal dialog.
-    'src/components/common/StorageDisclosureNotice.svelte',
-    'src/components/common/StorageFailureModalContent.svelte',
-    'src/components/common/StorageWarningBanner.svelte',
-    'src/components/common/LoadSnapshotDialog.svelte',
     // #119-#121: surfaces that hold generated output, which is what a genre skin dresses.
     'src/components/characters/AdndCharacterBuilder.svelte',
     'src/components/factions/CultureArtifactEditor.svelte',

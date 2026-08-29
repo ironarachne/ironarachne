@@ -86,10 +86,19 @@ test.describe('the projects page', () => {
   test('asks before deleting, and says how much goes with it', async ({ page }) => {
     await create(page, 'Ashfall');
 
+    const dialog = page.locator('dialog.panel');
+
+    // The `[open]` trap, and the reason it is checked in a browser rather than by a source sweep.
+    // A `<dialog>` is `display: none` until it is opened, by a user-agent rule about `display` —
+    // and `.panel` declares `display: flex`. A dialog wearing the panel classes without
+    // `modal.css` restating the rule it overrode is a dialog that renders inline, in the page
+    // flow, permanently. That is invisible to a regex and obvious to a viewport, and a stylesheet
+    // edit is exactly what would reintroduce it. See docs/visual-design.md, "The message family".
+    await expect(dialog).toBeHidden();
+
     await projectCard(page, 'Ashfall').getByRole('button', { name: 'Delete' }).click();
 
     // There is no server copy to restore from, so the question has to carry the consequence.
-    const dialog = page.locator('dialog.ironarachne-modal');
     await expect(dialog).toContainText('cannot be undone');
 
     await dialog.getByRole('button', { name: 'Cancel' }).click();

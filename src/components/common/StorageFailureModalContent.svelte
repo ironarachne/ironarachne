@@ -65,96 +65,88 @@
   }
 </script>
 
-<div class="storage-failure">
-  <h2 id="modal-dialog-title">{title}</h2>
+<div class="panel__field">
+  <header class="panel__header">
+    <div class="panel__header-field">
+      <h2 id="modal-dialog-title" class="panel__title">{title}</h2>
+    </div>
+  </header>
 
-  <p class="storage-failure__what">{message}</p>
+  <div class="panel__body storage-failure">
+    <p class="storage-failure__what">{message}</p>
 
-  <!-- Said before anything is asked of them. The transaction rolled back, so there is no
-       half-written artifact to reconcile, and a user who thinks their whole project may be damaged
-       will act very differently from one who knows only this save did not happen. -->
-  <p class="storage-failure__safe">
-    Everything you had already saved is unharmed — this write was undone completely. What is on
-    screen has not been lost either; it is still there and still saveable.
-  </p>
-
-  {#if usage !== null}
-    <p class="storage-failure__usage">
-      This site is using {usage} in this browser.
-      {#if hasLargeProject}
-        Its largest project is one place to make room.
-      {/if}
+    <!-- Said before anything is asked of them. The transaction rolled back, so there is no
+         half-written artifact to reconcile, and a user who thinks their whole project may be damaged
+         will act very differently from one who knows only this save did not happen. -->
+    <p class="storage-failure__safe">
+      Everything you had already saved is unharmed — this write was undone completely. What is on
+      screen has not been lost either; it is still there and still saveable.
     </p>
-  {/if}
 
-  <div class="storage-failure__actions">
-    <!-- The primary action, and the only one that needs no storage at all — which is precisely the
-         situation the user is in. -->
-    <BaseButton variant="primary" onclick={download}>
-      {downloaded ? 'Downloaded — download again' : downloadLabel}
-    </BaseButton>
-    {#if onExportVault !== undefined}
-      <BaseButton onclick={exportVault}>
-        {exported ? 'Exported — export again' : 'Export everything'}
-      </BaseButton>
+    {#if usage !== null}
+      <p class="storage-failure__usage">
+        This site is using {usage} in this browser.
+        {#if hasLargeProject}
+          Its largest project is one place to make room.
+        {/if}
+      </p>
     {/if}
-  </div>
 
-  {#if problem !== null}
-    <p class="storage-failure__problem" role="alert">{problem}</p>
-  {/if}
+    <div class="storage-failure__actions">
+      <!-- The primary action, and the only one that needs no storage at all — which is precisely the
+           situation the user is in. -->
+      <BaseButton variant="primary" onclick={download}>
+        {downloaded ? 'Downloaded — download again' : downloadLabel}
+      </BaseButton>
+      {#if onExportVault !== undefined}
+        <BaseButton onclick={exportVault}>
+          {exported ? 'Exported — export again' : 'Export everything'}
+        </BaseButton>
+      {/if}
+    </div>
 
-  {#if downloaded}
-    <p class="storage-failure__saved" role="status">
-      Saved to your downloads. That file imports back into any project once there is room.
-    </p>
-  {/if}
+    {#if problem !== null}
+      <p class="inset storage-failure__problem" role="alert">{problem}</p>
+    {/if}
 
-  <div class="storage-failure__actions storage-failure__actions--closing">
-    <!-- Freeing space happens outside this page, so retry is the point of keeping the value on
-         screen: come back and press it. -->
-    <BaseButton onclick={onRetry}>Try saving again</BaseButton>
-    <BaseButton onclick={onDismiss}>Not now</BaseButton>
+    {#if downloaded}
+      <p class="storage-failure__saved" role="status">
+        Saved to your downloads. That file imports back into any project once there is room.
+      </p>
+    {/if}
+
+    <!-- A dialog is a question, so its answers sit where the eye finishes. Freeing space happens
+         outside this page, so retry is the point of keeping the value on screen: come back and
+         press it. -->
+    <div class="panel__footer">
+      <BaseButton onclick={onRetry}>Try saving again</BaseButton>
+      <BaseButton onclick={onDismiss}>Not now</BaseButton>
+    </div>
   </div>
 </div>
 
 <style>
+  /* The frame, the plate and the spacing are the panel's. What is left here is the two things
+     that are this dialog's own: how tightly its paragraphs sit, and which of them are asides. */
   .storage-failure {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    max-width: 32rem;
-  }
-
-  .storage-failure h2 {
-    margin: 0;
-    font-size: 1.2rem;
+    gap: var(--s5);
   }
 
   .storage-failure p {
     margin: 0;
-    font-size: 0.95rem;
+    max-width: var(--measure);
   }
 
+  /* The numbers and the receipt are asides beside the sentence that matters. */
   .storage-failure__usage,
   .storage-failure__saved {
-    font-size: 0.85rem;
-    opacity: 0.85;
+    color: var(--ink-muted);
+    font: var(--t-small);
   }
 
   .storage-failure__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .storage-failure__actions--closing {
-    margin-top: 0.25rem;
-  }
-
-  .storage-failure__problem {
-    padding: 0.4rem 0.6rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
+    gap: var(--s4);
   }
 </style>

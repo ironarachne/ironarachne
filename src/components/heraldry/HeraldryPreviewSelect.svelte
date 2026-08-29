@@ -167,7 +167,7 @@
     margin: 0;
     padding: 0.125rem 0;
     list-style: none;
-    background: var(--background, #1a1a1a);
+    background: var(--surface-raised);
     border: 1px solid rgb(255 255 255 / 25%);
     box-shadow: 0 0.25rem 0.75rem rgb(0 0 0 / 35%);
   }
