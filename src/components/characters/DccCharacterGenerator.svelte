@@ -160,11 +160,7 @@
   });
 </script>
 
-<GeneratorPage
-  toolPath="/fantasy/dcc/character"
-  theme="fantasy"
-  title="Dungeon Crawl Classics Character Generator"
->
+<GeneratorPage toolPath="/fantasy/dcc/character" title="Dungeon Crawl Classics Character Generator">
   {#snippet description()}
     <p>This is a DCC 0-level character generator.</p>
   {/snippet}

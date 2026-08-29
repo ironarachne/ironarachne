@@ -126,6 +126,43 @@ test.describe('the projects page', () => {
     await expect(projectCard(page, 'Ashfall')).not.toContainText('0 B');
   });
 
+  test('dresses the page in the open project genre, and follows a change live', async ({
+    page,
+  }) => {
+    // docs/visual-design.md, "Applying a skin". Checked in a browser rather than by a source
+    // sweep because both halves are computed relationships: which element ends up carrying the
+    // attribute, and whether it follows a change without the page being reloaded.
+    await projectsPage(page).getByLabel('New project').fill('Ashfall');
+    await projectsPage(page).getByLabel('Genre').selectOption('fantasy');
+    await projectsPage(page).getByRole('button', { name: 'Create project' }).click();
+    await expect(projectCard(page, 'Ashfall')).toBeVisible();
+
+    const pageRegion = page.locator('main.shell__page');
+    await expect(pageRegion).toHaveAttribute('data-genre', 'fantasy');
+
+    // A skin dresses the user's work, never the app's own voice. The bar and the sidebar are the
+    // page region's siblings in the shell grid, so they are neutral by position rather than by
+    // opting out of anything — there is no list for anyone to forget to add to.
+    await expect(page.locator('.top-bar')).not.toHaveAttribute('data-genre');
+    await expect(page.locator('.sidebar')).not.toHaveAttribute('data-genre');
+
+    // Live, with no reload in between: decision 7 in docs/workshop.md promises changing a genre
+    // invalidates nothing, and a skin that only followed at load would make that visibly untrue.
+    await projectCard(page, 'Ashfall').getByRole('button', { name: 'Rename' }).click();
+    await editingCard(page).getByLabel('Genre').selectOption('cyberpunk');
+    await editingCard(page).getByRole('button', { name: 'Save' }).click();
+
+    await expect(pageRegion).toHaveAttribute('data-genre', 'cyberpunk');
+
+    // And clearing it returns the page to the base appearance, which is the design rather than a
+    // degraded mode.
+    await projectCard(page, 'Ashfall').getByRole('button', { name: 'Rename' }).click();
+    await editingCard(page).getByLabel('Genre').selectOption('');
+    await editingCard(page).getByRole('button', { name: 'Save' }).click();
+
+    await expect(pageRegion).not.toHaveAttribute('data-genre');
+  });
+
   test('sets what a project is set in, and changes it again', async ({ page }) => {
     await projectsPage(page).getByLabel('New project').fill('Ashfall');
     await projectsPage(page).getByLabel('Genre').selectOption('fantasy');

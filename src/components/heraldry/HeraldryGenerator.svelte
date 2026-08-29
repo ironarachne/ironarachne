@@ -509,7 +509,7 @@
   }
 </script>
 
-<GeneratorPage toolPath={TOOL_PATH} theme="fantasy" title="Heraldry Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Heraldry Generator">
   {#snippet description()}
     <p>
       Generate fantasy coats-of-arms. Note: if you change the seed, the page URL won't change, but

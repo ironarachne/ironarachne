@@ -16,7 +16,7 @@
   generateChopShop();
 </script>
 
-<GeneratorPage toolPath="/chop-shop" theme="cyberpunk" title="Chop Shop Generator">
+<GeneratorPage toolPath="/chop-shop" title="Chop Shop Generator">
   {#snippet description()}
     <p>This is a cyberpunk chop shop generator.</p>
   {/snippet}

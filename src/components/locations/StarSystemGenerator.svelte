@@ -118,7 +118,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/star-system" theme="scifi" title="Star System Generator">
+<GeneratorPage toolPath="/star-system" title="Star System Generator">
   <RendererOverrideControls onchange={rebuildSystemPreviewImages} />
 
   <SeedControls bind:seed bind:lockSeed />

@@ -60,7 +60,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/fantasy/merchant" theme="fantasy" title="Fantasy Merchant Generator">
+<GeneratorPage toolPath="/fantasy/merchant" title="Fantasy Merchant Generator">
   {#snippet description()}
     <p>
       Generate a fantasy merchant with a proprietor, shop or traveling venue, merchant mark, and

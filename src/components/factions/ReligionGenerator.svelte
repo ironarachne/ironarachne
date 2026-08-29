@@ -561,7 +561,7 @@
   }
 </script>
 
-<GeneratorPage toolPath={TOOL_PATH} theme="fantasy" title="Fantasy Religion Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Fantasy Religion Generator">
   {#snippet description()}
     <p>Generate a fictional fantasy religion.</p>
   {/snippet}

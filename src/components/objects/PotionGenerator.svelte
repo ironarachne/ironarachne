@@ -38,7 +38,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/fantasy/potion-generator" theme="fantasy" title="Potion Generator">
+<GeneratorPage toolPath="/fantasy/potion-generator" title="Potion Generator">
   {#snippet description()}
     <p>
       Generate magical potions, oils, and ointments with procedural sensory details and SRD-based

@@ -1,7 +1,11 @@
 <script lang="ts">
   import { onMount } from 'svelte';
 
+  import { page } from '$app/state';
   import '$lib/styles/main.css';
+  import { resolveGenreSkin } from '$lib/genre_skin';
+  import { getActiveProject, hydrateProjects, onProjectsChanged } from '$lib/projects';
+  import type { Genre } from '$lib/tools';
   import Footer from '$components/layout/Footer.svelte';
   import ModalHost from '$components/layout/ModalHost.svelte';
   import Sidebar from '$components/layout/Sidebar.svelte';
@@ -18,6 +22,26 @@
    * off-canvas; above that the sidebar is simply part of the grid and this is ignored.
    */
   let drawerOpen = $state(false);
+
+  /**
+   * The open project's genre, or `undefined` for none — held rather than read inline because
+   * `getActiveProject` is a synchronous read of an index that has to be hydrated first.
+   */
+  let projectGenre = $state<Genre | undefined>(undefined);
+
+  /**
+   * Which genre the page region is wearing. Derived on every read and stored nowhere: decision 7
+   * in docs/workshop.md promises that changing a project's genre invalidates nothing, and a
+   * cached skin would make that a lie in the one place nobody would look for it.
+   *
+   * `page.route.id` rather than a pathname, because a catalog `path` *is* a route id — the two
+   * compare exactly, and neither has to know whether the app is served under a base path.
+   */
+  const genre = $derived(resolveGenreSkin(projectGenre, page.route.id));
+
+  function refreshProjectGenre(): void {
+    projectGenre = getActiveProject()?.genre;
+  }
 
   function closeDrawer(): void {
     drawerOpen = false;
@@ -42,6 +66,20 @@
     };
     drawerWidth.addEventListener('change', sync);
     return () => drawerWidth.removeEventListener('change', sync);
+  });
+
+  // The skin follows the project live rather than at load: a project can be created, opened, or
+  // have its genre changed from the projects page, from the context bar, or from a generator in a
+  // panel saving its first culture, and none of those reload the page. `onProjectsChanged` is the
+  // same event `ProjectContextBar` keeps up with, for the same reason.
+  //
+  // The read is deferred until the index is hydrated, which the adoption pass below also does —
+  // this is what covers a load where that pass failed before it got that far.
+  onMount(() => onProjectsChanged(refreshProjectGenre));
+
+  onMount(async () => {
+    await hydrateProjects();
+    refreshProjectGenre();
   });
 
   // Heraldry, cultures, and religions saved under the old per-generator scopes are adopted into a
@@ -102,7 +140,17 @@
     stops taking focus, stops taking clicks, and disappears from the accessibility tree, so Tab
     cycles inside the drawer because there is nowhere else to go.
   -->
-  <main class="shell__page" inert={drawerOpen}>
+  <!-- The one place `data-genre` is written. The top bar and the sidebar are this element's
+       *siblings* in the shell grid, not its descendants, so they are genre-neutral by position and
+       there is no opt-out list for anyone to maintain. A dialog is neutral for the same kind of
+       reason: `ModalHost` is outside `.shell` and a modal renders in the top layer, so the
+       attribute cannot reach it however the selector is written — which is correct, and is not a
+       gap to close later. A skin dresses the user's work, never the app's own voice.
+
+       An attribute rather than a class: an element has exactly one `data-genre`, so "one genre on
+       screen" is structurally true rather than a rule somebody has to keep, and it cannot collide
+       with a component's own class names. See docs/visual-design.md, "Applying a skin". -->
+  <main class="shell__page" data-genre={genre} inert={drawerOpen}>
     {@render children?.()}
     <Footer />
   </main>

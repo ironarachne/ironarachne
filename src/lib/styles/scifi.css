@@ -10,7 +10,7 @@
   }
 }
 
-.scifi {
+[data-genre='scifi'] {
   & h1,
   & h2,
   & h3,

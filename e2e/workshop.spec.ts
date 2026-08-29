@@ -14,7 +14,12 @@ const projectContext = (page: Page) => page.locator('section.project-context');
 const projectView = (page: Page) => page.locator('section.project-view');
 const toolBrowser = (page: Page) => page.locator('section.tool-browser');
 const panels = (page: Page) => page.locator('section.workshop-panel');
-const panelTitles = (page: Page) => page.locator('.workshop-panel .panel__title');
+// The panel's *own* header, by the child chain rather than by a descendant match. A dialog is a
+// panel too since #117 — same classes, same header plate — and `LoadSnapshotDialog` is rendered by
+// the heraldry tool from inside its panel, so a plain `.workshop-panel .panel__title` counts
+// "Load Saved Heraldry" as a third bench panel. It is in the DOM whether or not it is open.
+const panelTitles = (page: Page) =>
+  page.locator('.workshop-panel > .panel__field > .panel__header .panel__title');
 
 async function openWorkshop(page: Page): Promise<void> {
   await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });

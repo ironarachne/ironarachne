@@ -59,7 +59,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/fantasy/equipment-generator" theme="fantasy" title="Equipment Generator">
+<GeneratorPage toolPath="/fantasy/equipment-generator" title="Equipment Generator">
   {#snippet description()}
     <p>Generate random weapons and armor.</p>
     <p>"Refine" adds quality modifications to the items.</p>

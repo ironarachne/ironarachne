@@ -245,11 +245,7 @@
   });
 </script>
 
-<GeneratorPage
-  toolPath="/fantasy/adnd/character"
-  theme="fantasy"
-  title="AD&D 2e Character Generator"
->
+<GeneratorPage toolPath="/fantasy/adnd/character" title="AD&D 2e Character Generator">
   {#snippet description()}
     <p>This is an AD&D 2e character generator.</p>
 

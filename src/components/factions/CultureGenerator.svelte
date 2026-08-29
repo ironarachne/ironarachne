@@ -311,7 +311,7 @@
   }
 </script>
 
-<GeneratorPage toolPath={TOOL_PATH} theme="fantasy" title="Culture Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Culture Generator">
   {#snippet description()}
     <p>This generator lets you create fantasy cultures.</p>
   {/snippet}

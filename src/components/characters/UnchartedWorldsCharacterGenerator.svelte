@@ -143,11 +143,7 @@
   });
 </script>
 
-<GeneratorPage
-  toolPath="/unchartedworlds/character"
-  theme="scifi"
-  title="Uncharted Worlds Character Generator"
->
+<GeneratorPage toolPath="/unchartedworlds/character" title="Uncharted Worlds Character Generator">
   {#snippet description()}
     <p>Generate starting characters for Uncharted Worlds.</p>
   {/snippet}

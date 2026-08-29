@@ -103,9 +103,7 @@ export async function expectGeneratorOutput(
       });
       return;
     default: {
-      const main = page
-        .locator('section.main, section.fantasy, section.navigation, section.home')
-        .first();
+      const main = page.locator('section.main, section.navigation, section.home').first();
       await expect(main).toBeVisible();
       await expect(main).not.toHaveText(/^[\s]*$/);
       return;
