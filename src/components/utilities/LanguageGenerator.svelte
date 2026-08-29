@@ -50,7 +50,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/language" theme="default" title="Language Generator">
+<GeneratorPage toolPath="/language" title="Language Generator">
   {#snippet description()}
     <p>This generates fictional languages. This is mostly useful for debugging.</p>
   {/snippet}

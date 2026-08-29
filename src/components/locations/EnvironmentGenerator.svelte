@@ -105,7 +105,7 @@
   }
 </script>
 
-<GeneratorPage toolPath="/environment" theme="default" title="Environment Generator">
+<GeneratorPage toolPath="/environment" title="Environment Generator">
   {#snippet description()}
     <p>This generates fictional environments. This is mostly useful for debugging.</p>
   {/snippet}

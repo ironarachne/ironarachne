@@ -5,7 +5,6 @@
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
 
   type Props = {
-    theme?: string;
     title: string;
     /**
      * Catalog path of the tool this page renders. Required rather than optional, because it is
@@ -17,12 +16,16 @@
     children: Snippet;
   };
 
-  const { theme = '', title, toolPath, description, children }: Props = $props();
+  const { title, toolPath, description, children }: Props = $props();
 
   const maturity = $derived(toolMaturityForPath(toolPath));
 </script>
 
-<section class="{theme} main">
+<!-- No genre class. A tool's genre is the catalog's, and the page region wears it as `data-genre`
+     — one writer instead of the thirty this prop had. The prop was a free string besides: three
+     pages passed `"default"`, which names no stylesheet, and one of those three is a tool the
+     catalog calls `fantasy`. See docs/visual-design.md, "Applying a skin". -->
+<section class="main">
   <h1>{title}</h1>
   <!-- Directly under the title, above anything the tool renders: the point of the level is that a
        user reads it before they start, not after they have generated something they wanted to keep.

@@ -25,6 +25,8 @@ import { join, relative } from 'node:path';
 
 import { describe, expect, it } from 'vitest';
 
+import { GENRES } from '$lib/tools';
+
 const STYLES_DIR = join(process.cwd(), 'src/lib/styles');
 const COMPONENTS_DIR = join(process.cwd(), 'src/components');
 const BRAND_COLORS = join(STYLES_DIR, 'brand/colors.css');
@@ -77,6 +79,11 @@ function siteStylesheets(): { name: string; css: string }[] {
     name: relative(process.cwd(), path),
     css: readFileSync(path, 'utf8'),
   }));
+}
+
+/** Source with its CSS and HTML comments removed. A comment naming a thing is not a use of it. */
+function withoutComments(source: string): string {
+  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '');
 }
 
 /**
@@ -444,6 +451,66 @@ describe('the message family', () => {
     }
 
     expect(offenders, 'a literal hidden behind a var() fallback').toEqual([]);
+  });
+});
+
+describe('applying a skin', () => {
+  // docs/visual-design.md, "What applying a skin enforces". Each of these guards a rule that was
+  // broken before #118: the genre was written in thirty places, four of which disagreed with the
+  // tool catalog that already knew the answer.
+
+  const SKIN_FILES = ['fantasy.css', 'scifi.css', 'cyberpunk.css'];
+
+  it('writes the genre in one place', () => {
+    // One genre, one writer. `+layout.svelte` puts `data-genre` on the page region and nothing
+    // else touches it — which is the whole of the opt-out mechanism, since the top bar and the
+    // sidebar are that element's siblings rather than its descendants.
+    const offenders = siteStylesheets()
+      .filter(({ name }) => name.endsWith('.svelte'))
+      .filter(({ css }) => withoutComments(css).includes('data-genre'))
+      .map(({ name }) => name);
+
+    expect(offenders, 'a component writing data-genre of its own').toEqual([]);
+
+    const layout = readFileSync(join('src', 'routes', '+layout.svelte'), 'utf8');
+    expect(layout, 'the one writer stopped writing it').toContain('data-genre={genre}');
+  });
+
+  it('keeps skins in skin files, and leaves the old class name behind', () => {
+    // A `[data-genre=…]` rule outside a skin file is a skin leaking into the base system. A bare
+    // `.fantasy` inside one is the old selector surviving beside the new attribute, which is how
+    // both would end up half-working.
+    for (const { name, css } of siteStylesheets()) {
+      if (SKIN_FILES.some((skin) => name.endsWith(skin))) {
+        continue;
+      }
+      expect(withoutComments(css), `${name} declares a genre skin rule`).not.toMatch(
+        /\[data-genre/,
+      );
+    }
+
+    for (const name of SKIN_FILES) {
+      const css = readFileSync(join(STYLES_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      const genre = name.replace('.css', '');
+
+      expect(css, `${name} still declares the old bare class`).not.toMatch(
+        new RegExp(`(^|[\\s,>+~])\\.${genre}\\b`),
+      );
+    }
+  });
+
+  it('keys every skin off a genre that exists', () => {
+    // A stylesheet keyed to a genre the app does not have is dead CSS that looks live, and it is
+    // exactly what a typo produces. `horror` is in GENRES with no file yet — that direction is
+    // fine, and is why the resolver returns a genre rather than a stylesheet.
+    const genres = new Set<string>(GENRES);
+
+    for (const name of SKIN_FILES) {
+      const css = readFileSync(join(STYLES_DIR, name), 'utf8');
+      for (const [, keyed] of css.matchAll(/\[data-genre='([^']*)'\]/g)) {
+        expect(genres, `${name} keys off a genre that is not in GENRES`).toContain(keyed);
+      }
+    }
   });
 });
 

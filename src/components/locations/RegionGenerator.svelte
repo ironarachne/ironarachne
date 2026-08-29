@@ -108,7 +108,7 @@
   }
 </script>
 
-<GeneratorPage toolPath="/region" theme="fantasy" title="Region Generator">
+<GeneratorPage toolPath="/region" title="Region Generator">
   {#snippet description()}
     <p>Generate fantasy regions.</p>
   {/snippet}

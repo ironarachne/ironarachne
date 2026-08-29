@@ -29,7 +29,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/velgarth-gifts" theme="fantasy" title="Velgarth Gifts Generator">
+<GeneratorPage toolPath="/velgarth-gifts" title="Velgarth Gifts Generator">
   {#snippet description()}
     <p>This gives you a set of Gifts for a character from Mercedes Lackey's Velgarth setting.</p>
   {/snippet}

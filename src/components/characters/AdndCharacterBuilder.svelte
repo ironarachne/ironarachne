@@ -777,7 +777,7 @@
   }
 </script>
 
-<section class="fantasy main">
+<section class="main">
   <header class="builder-header">
     <h1>AD&D 2e Character Builder</h1>
     <BaseButton onclick={resetBuilderForm}>Reset</BaseButton>

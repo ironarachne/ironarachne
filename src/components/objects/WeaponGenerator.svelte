@@ -60,7 +60,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/fantasy/weapon" theme="fantasy" title="Magic Weapon Generator">
+<GeneratorPage toolPath="/fantasy/weapon" title="Magic Weapon Generator">
   {#snippet description()}
     <p>This generates a unique magical weapon.</p>
   {/snippet}

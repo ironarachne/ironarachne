@@ -28,7 +28,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/spooky-ship" theme="scifi" title="Spooky Ship Generator">
+<GeneratorPage toolPath="/spooky-ship" title="Spooky Ship Generator">
   {#snippet description()}
     <p>Generate a spooky ship description.</p>
   {/snippet}

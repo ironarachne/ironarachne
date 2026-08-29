@@ -193,7 +193,7 @@
   }
 </script>
 
-<GeneratorPage toolPath="/fantasy/family" theme="fantasy" title="Fantasy Family Generator">
+<GeneratorPage toolPath="/fantasy/family" title="Fantasy Family Generator">
   {#snippet description()}
     <p>
       This generator creates a family. Note that more than 10 iterations can be quite slow. More

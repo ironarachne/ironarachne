@@ -43,11 +43,7 @@
   });
 </script>
 
-<GeneratorPage
-  toolPath="/swn/starship"
-  theme="scifi"
-  title="Stars Without Number Starship Generator"
->
+<GeneratorPage toolPath="/swn/starship" title="Stars Without Number Starship Generator">
   <SeedControls bind:seed bind:lockSeed />
 
   <BaseButton onclick={generate}>Generate</BaseButton>
