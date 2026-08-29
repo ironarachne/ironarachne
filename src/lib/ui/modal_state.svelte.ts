@@ -47,6 +47,27 @@ export type ShowStorageFailureModalOptions = {
   downloadLabel?: string;
 };
 
+/** One saved thing offered for loading. Named and seeded, which is all a list row shows. */
+export type SnapshotChoice = { name: string; seed: string };
+
+export type LoadSnapshotModalResult =
+  | { action: 'dismiss' }
+  | { action: 'load'; choice: SnapshotChoice };
+
+/**
+ * Offer a list of saved things and report which one was picked.
+ *
+ * Deliberately knows nothing about what a snapshot *is*: the caller holds the real records and
+ * matches the returned choice back to one. That is what lets the heraldry generator restore a
+ * whole set of generator options from a pick without this library learning about heraldry.
+ */
+export type ShowLoadSnapshotModalOptions = {
+  title: string;
+  items: SnapshotChoice[];
+  /** Said when there is nothing saved yet. */
+  emptyMessage?: string;
+};
+
 export type HeraldryPersistenceModalResult =
   | { action: 'dismiss' }
   | { action: 'replaced'; arms: Arms };
@@ -86,6 +107,15 @@ type HeraldryPersistenceModalRequest = {
   resolve: (result: HeraldryPersistenceModalResult) => void;
 };
 
+type LoadSnapshotModalRequest = {
+  kind: 'snapshot';
+  id: number;
+  title: string;
+  items: SnapshotChoice[];
+  emptyMessage: string;
+  resolve: (result: LoadSnapshotModalResult) => void;
+};
+
 type StorageFailureModalRequest = {
   kind: 'storage';
   id: number;
@@ -101,6 +131,7 @@ export type ModalRequest =
   | AlertModalRequest
   | ConfirmModalRequest
   | HeraldryPersistenceModalRequest
+  | LoadSnapshotModalRequest
   | StorageFailureModalRequest;
 
 export type ModalState = {
@@ -165,6 +196,15 @@ export function resolveActiveHeraldryPersistenceModal(
   showNextFromQueue();
 }
 
+export function resolveActiveLoadSnapshotModal(result: LoadSnapshotModalResult): void {
+  const current = modalState.current;
+  if (!current || current.kind !== 'snapshot') {
+    return;
+  }
+  current.resolve(result);
+  showNextFromQueue();
+}
+
 export function resolveActiveStorageFailureModal(result: StorageFailureModalResult): void {
   const current = modalState.current;
   if (!current || current.kind !== 'storage') {
@@ -172,6 +212,29 @@ export function resolveActiveStorageFailureModal(result: StorageFailureModalResu
   }
   current.resolve(result);
   showNextFromQueue();
+}
+
+/**
+ * Offer saved work to load, and report what was picked.
+ *
+ * Goes through the modal host like everything else, so the app has exactly one `<dialog>`. It had
+ * its own before #143, mounted from inside whichever panel opened it — which put a second
+ * `dialog.panel` in the DOM and made `.panel` ambiguous as a selector, since #117 made every
+ * dialog a panel.
+ */
+export function showLoadSnapshotModal(
+  options: ShowLoadSnapshotModalOptions,
+): Promise<LoadSnapshotModalResult> {
+  return new Promise((resolve) => {
+    enqueue({
+      kind: 'snapshot',
+      id: nextId++,
+      title: options.title,
+      items: options.items,
+      emptyMessage: options.emptyMessage ?? 'No saved items yet.',
+      resolve,
+    });
+  });
 }
 
 /**

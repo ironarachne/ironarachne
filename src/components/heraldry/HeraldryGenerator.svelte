@@ -40,13 +40,12 @@
   import type { Arms, Charge } from '$lib/heraldry';
   import { clearLoadParamFromUrl, readLoadCueFromUrl } from '$lib/persistent_save';
   import { recordGeneration } from '$lib/session_log';
-  import { showAlertModal } from '$lib/ui';
+  import { showAlertModal, showLoadSnapshotModal, type SnapshotChoice } from '$lib/ui';
   import type { ToolCue } from '$lib/workshop';
   import HeraldryTinctureSelect from '$components/heraldry/HeraldryTinctureSelect.svelte';
   import HeraldryPreviewSelect from '$components/heraldry/HeraldryPreviewSelect.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
-  import LoadSnapshotDialog from '$components/common/LoadSnapshotDialog.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
@@ -108,7 +107,6 @@
   let image = $state('');
   let currentArms = $state<Arms | null>(null);
   let savedHeraldries = $state<HeraldrySnapshot[]>([]);
-  let loadDialogComponent: LoadSnapshotDialog | undefined = $state();
   let charges = Charges.all();
   const allCharges = Charges.all();
   let heraldryTag = $state(initialOptions.heraldryTag);
@@ -467,9 +465,20 @@
     currentArms === null ? null : toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()),
   );
 
-  function openLoadDialog() {
+  async function openLoadDialog() {
     refreshSavedHeraldries();
-    loadDialogComponent?.open();
+
+    // The app has one dialog, so this goes through the modal host like every other modal rather
+    // than mounting a second one from inside this panel. See #143.
+    const result = await showLoadSnapshotModal({
+      title: 'Load Saved Heraldry',
+      items: loadDialogItems,
+      emptyMessage: 'No saved heraldry yet. Generate a coat of arms and click Save.',
+    });
+
+    if (result.action === 'load') {
+      handleLoadHeraldryItem(result.choice);
+    }
   }
 
   function loadSavedHeraldry(snapshot: HeraldrySnapshot) {
@@ -492,10 +501,9 @@
     }
     rng.setSeed(seed);
     applyHeraldryToPreview(restored.arms);
-    loadDialogComponent?.close();
   }
 
-  function handleLoadHeraldryItem(item: { name: string; seed: string }) {
+  function handleLoadHeraldryItem(item: SnapshotChoice) {
     const snapshot = savedHeraldries.find((s) => s.seed === item.seed);
     if (snapshot !== undefined) {
       loadSavedHeraldry(snapshot);
@@ -638,14 +646,6 @@
   <p class="blazon">{blazon}</p>
   <div class="coat-of-arms"><img alt="" id="output" /></div>
 </GeneratorPage>
-
-<LoadSnapshotDialog
-  bind:this={loadDialogComponent}
-  title="Load Saved Heraldry"
-  items={loadDialogItems}
-  onLoad={handleLoadHeraldryItem}
-  emptyMessage="No saved heraldry yet. Generate a coat of arms and click Save."
-/>
 
 <style>
   div.coat-of-arms {

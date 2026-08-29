@@ -81,9 +81,19 @@ function siteStylesheets(): { name: string; css: string }[] {
   }));
 }
 
-/** Source with its CSS and HTML comments removed. A comment naming a thing is not a use of it. */
+/**
+ * Source with its comments removed. A comment naming a thing is not a use of it.
+ *
+ * All three kinds, because a `.svelte` file carries all three. The `//` case needs the guard: a
+ * bare `\/\/` would eat the rest of every line holding a URL, and these files are full of
+ * `https://svelte.dev/e/...` links. Requiring the slashes not to follow a colon leaves those
+ * alone.
+ */
 function withoutComments(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/<!--[\s\S]*?-->/g, '');
+  return source
+    .replace(/\/\*[\s\S]*?\*\//g, '')
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/(^|[^:])\/\/.*$/gm, '$1');
 }
 
 /**
@@ -402,6 +412,25 @@ describe('the message family', () => {
   // docs/visual-design.md, "What the message family enforces". Each of these guards a rule that
   // was broken before #117: three implementations of one idea, one of them painting a grey that
   // is in no palette.
+
+  it('declares exactly one dialog element', () => {
+    // #143. Every dialog is a `.panel` since #117, so `.panel` describes a look and cannot
+    // identify an element — and a second `<dialog>` mounted from inside a bench panel made
+    // `dialog.panel` and `.workshop-panel .panel__title` both ambiguous, which cost three red CI
+    // runs before anyone traced it. One dialog, in the modal host, outside `.shell`.
+    //
+    // It is also what makes "a dialog is genre-neutral for free" true rather than
+    // true-in-the-common-case: docs/visual-design.md, "Applying a skin", reasons from the host
+    // dialog being in the top layer and outside the page region.
+    const declaring = siteStylesheets()
+      .filter(({ name }) => name.endsWith('.svelte'))
+      .filter(({ css }) => /<dialog[\s>]/.test(withoutComments(css)))
+      .map(({ name }) => name);
+
+    expect(declaring, 'the app declares more than one dialog').toEqual([
+      'src/components/layout/ModalHost.svelte',
+    ]);
+  });
 
   it('leaves the dialog frame to the stylesheets', () => {
     // A dialog is a raised panel in the top layer, and its frame is `main.css`'s panel classes

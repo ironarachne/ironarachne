@@ -1,5 +1,6 @@
 <script lang="ts">
   import HeraldryPersistenceModalContent from '$components/heraldry/HeraldryPersistenceModalContent.svelte';
+  import LoadSnapshotContent from '$components/common/LoadSnapshotContent.svelte';
   import ModalDialog from '$components/common/ModalDialog.svelte';
   import { TONE_CLASS, type Tone } from '$components/common/Notice.svelte';
   import StorageFailureModalContent from '$components/common/StorageFailureModalContent.svelte';
@@ -8,6 +9,7 @@
     resolveActiveAlertModal,
     resolveActiveConfirmModal,
     resolveActiveHeraldryPersistenceModal,
+    resolveActiveLoadSnapshotModal,
     resolveActiveStorageFailureModal,
     type AlertModalStyle,
   } from '$lib/ui';
@@ -21,7 +23,7 @@
     if (!current) {
       return 'message';
     }
-    if (current.kind === 'confirm' || current.kind === 'heraldry') {
+    if (current.kind === 'confirm' || current.kind === 'heraldry' || current.kind === 'snapshot') {
       return 'message';
     }
     // A write that did not happen is an error, and looks like one.
@@ -78,6 +80,10 @@
       resolveActiveHeraldryPersistenceModal({ action: 'dismiss' });
       return;
     }
+    if (modalState.current?.kind === 'snapshot') {
+      resolveActiveLoadSnapshotModal({ action: 'dismiss' });
+      return;
+    }
     if (modalState.current?.kind === 'storage') {
       // Escape dismisses rather than being ignored. The work is still on screen either way, and a
       // dialog that cannot be closed is its own kind of trap.
@@ -94,20 +100,21 @@
      `aria-labelledby` — a `<section aria-label>` inside it would give one object two accessible
      names and two landmarks, and a screen reader would read the wrapper before the message.
 
-     `modal-host` carries no styling and exists to name *which* dialog this is. Every dialog in the
-     app is a `.panel` now, and `LoadSnapshotDialog` is a second one rendered from inside a bench
-     panel — so `.panel` identifies a look and cannot identify this element. The suites address it
-     by this class. -->
+     This is the app's only `<dialog>`, which `tokens.test.ts` holds. It briefly needed a
+     `modal-host` class to tell it apart from a second one mounted inside a bench panel; #143
+     removed the second dialog instead, so `dialog` identifies this element again. -->
 <dialog
   bind:this={dialogEl}
-  class="panel modal-host {TONE_CLASS[tone]}"
+  class="panel {TONE_CLASS[tone]}"
   role={isAlertDialog ? 'alertdialog' : 'dialog'}
   aria-labelledby={modalState.current?.kind === 'heraldry' ||
+  modalState.current?.kind === 'snapshot' ||
   modalState.current?.kind === 'storage' ||
   modalState.current?.title
     ? 'modal-dialog-title'
     : undefined}
   aria-describedby={modalState.current?.kind === 'heraldry' ||
+  modalState.current?.kind === 'snapshot' ||
   modalState.current?.kind === 'storage'
     ? undefined
     : 'modal-dialog-message'}
@@ -122,6 +129,14 @@
       onExportVault={modalState.current.onExportVault}
       onRetry={() => resolveActiveStorageFailureModal({ action: 'retry' })}
       onDismiss={() => resolveActiveStorageFailureModal({ action: 'dismiss' })}
+    />
+  {:else if modalState.current?.kind === 'snapshot'}
+    <LoadSnapshotContent
+      title={modalState.current.title}
+      items={modalState.current.items}
+      emptyMessage={modalState.current.emptyMessage}
+      onLoad={(choice) => resolveActiveLoadSnapshotModal({ action: 'load', choice })}
+      onDismiss={() => resolveActiveLoadSnapshotModal({ action: 'dismiss' })}
     />
   {:else if modalState.current?.kind === 'heraldry'}
     <HeraldryPersistenceModalContent

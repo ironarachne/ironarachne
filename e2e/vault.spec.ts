@@ -166,7 +166,7 @@ test.describe('the result vault', () => {
     await row(page, 'The Emberfolk').click();
     await inspector(page).getByRole('button', { name: 'Delete' }).click();
 
-    const dialog = page.locator('dialog.modal-host');
+    const dialog = page.locator('dialog.panel');
     await expect(dialog).toContainText('no copy anywhere else');
     await dialog.getByRole('button', { name: 'Delete', exact: true }).click();
 
