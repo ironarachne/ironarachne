@@ -52,9 +52,18 @@
   --border-strong: var(--tan);
 
   --ink: color-mix(in srgb, white 95%, var(--charcoal)); /* 15.2:1 */
-  --ink-muted: color-mix(in srgb, white 60%, var(--charcoal)); /* 6.8:1 */
-  /* 4.8:1 — labels and kickers only, never a sentence. */
-  --ink-faint: color-mix(in srgb, white 48%, var(--charcoal));
+  /* Ratios below are against `--surface-raised`, not `--surface-page`. A panel is the lightest
+     surface any text in this app sits on, and #119's skin rule holds it there — a skin may shift
+     its surface's hue but never raise its luminance above this one — so it is the worst case for
+     every ink role, in every present and future genre. Measuring against the page is what hid a
+     failure here until #149: these two read 7.9:1 and 5.8:1 on the page, and a label is never on
+     the page. */
+  --ink-muted: color-mix(in srgb, white 66%, var(--charcoal)); /* 6.3:1 on a panel */
+  /* 4.6:1 on a panel — labels and kickers only, never a sentence. Was 48%, which is 3.9:1 there
+     and below the 4.5:1 floor this role is held to. Raising it alone would have left it 1.17:1
+     from `--ink-muted`, so the pair moved together and the ramp kept its three distinguishable
+     steps. */
+  --ink-faint: color-mix(in srgb, white 54%, var(--charcoal));
 
   --accent: var(--iron-arachne-green); /* 10.6:1 */
   --accent-quiet: var(--gold); /* 7.1:1 */

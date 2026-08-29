@@ -79,11 +79,11 @@ may shift hue freely but its luminance may not rise above `--surface-raised`'s, 
 every ink role at least as readable on a skinned panel as on a base one without measuring four skins
 separately.
 
-It also records a failure in the approved taxonomy that this issue is what measured.
-**`--ink-faint` does not meet its 4.5:1 target on any panel** — it is 3.9:1 on `--surface-raised`,
-because the 4.8:1 in [colour roles](#colour-roles) is measured against the page and a label lives on
-a panel. Not fantasy's doing and not fantasy's to fix; see the section for why the fix moves two
-roles rather than one.
+It also found a failure in the approved taxonomy. **`--ink-faint` did not meet its 4.5:1 target on
+any panel** — 3.9:1 on `--surface-raised`, because the figure in [colour roles](#colour-roles) was
+measured against the page and a label lives on a panel. Fixed in
+[#149](https://github.com/ironarachne/ironarachne/issues/149), which moved both `--ink-faint` and
+`--ink-muted` and restated the whole table against `--surface-raised`.
 
 Awaiting approval, unlike the five amendments above it: #119 is still `needs-design`, and the rule
 and the finding are what CLAUDE.md's review gate asks a human to approve before implementation
@@ -258,7 +258,18 @@ no vocabulary for.
 ### Colour roles
 
 Thirteen roles. The middle column is the expression that goes in `tokens.css` — never a hex, so
-`tokens.test.ts` keeps holding. The ratio is measured against `--surface-page`.
+`tokens.test.ts` keeps holding.
+
+**The ratio is measured against `--surface-raised`, not against the page**, and that choice is
+load-bearing. A panel is the lightest surface any text in this app sits on, and
+[the skin contract](#a-skins-surface-is-never-lighter-than-the-bases) holds it there — a skin may
+shift its surface's hue but never raise its luminance above this one. So `--surface-raised` is the
+worst case for every ink role, in every present and future genre, and a role that clears its floor
+here clears it everywhere.
+
+This table measured against the page until [#149](https://github.com/ironarachne/ironarachne/issues/149),
+and that is precisely how `--ink-faint` came to sit below its own floor for as long as it did: it
+read 4.8:1 against the page, 3.9:1 against a panel, and a label is never on the page.
 
 | Role               | Resolves to                                      | Contrast | Used for                                  |
 | ------------------ | ------------------------------------------------ | -------: | ----------------------------------------- |
@@ -268,25 +279,36 @@ Thirteen roles. The middle column is the expression that goes in `tokens.css` �
 | `--surface-sunken` | `color-mix(in srgb, var(--charcoal) 60%, black)` |        — | Scroll wells behind an inset run          |
 | `--border`         | `var(--granite)`                                 |        — | Every neutral keyline                     |
 | `--border-strong`  | `var(--tan)`                                     |        — | Control edges, base skin keyline          |
-| `--ink`            | `color-mix(in srgb, white 95%, var(--charcoal))` |   15.2:1 | Body text, headings, control labels       |
-| `--ink-muted`      | `color-mix(in srgb, white 60%, var(--charcoal))` |    6.8:1 | Sublines, list detail, secondary values   |
-| `--ink-faint`      | `color-mix(in srgb, white 48%, var(--charcoal))` |    4.8:1 | Labels and kickers only, never a sentence |
-| `--accent`         | `var(--iron-arachne-green)`                      |   10.6:1 | Links, the active nav marker              |
-| `--accent-quiet`   | `var(--gold)`                                    |    7.1:1 | Kickers, primary control edge             |
-| `--danger`         | `var(--crimson)`                                 |    2.2:1 | Fills and edges — **never text**          |
-| `--success`        | `var(--emerald)`                                 |   2.65:1 | Fills and edges — **never text**          |
-| `--focus`          | `var(--acid-green)`                              |   13.4:1 | The focus ring, and nothing else          |
+| `--ink`            | `color-mix(in srgb, white 95%, var(--charcoal))` |   12.2:1 | Body text, headings, control labels       |
+| `--ink-muted`      | `color-mix(in srgb, white 66%, var(--charcoal))` |    6.3:1 | Sublines, list detail, secondary values   |
+| `--ink-faint`      | `color-mix(in srgb, white 54%, var(--charcoal))` |    4.6:1 | Labels and kickers only, never a sentence |
+| `--accent`         | `var(--iron-arachne-green)`                      |    8.6:1 | Links, the active nav marker              |
+| `--accent-quiet`   | `var(--gold)`                                    |    5.8:1 | Kickers, primary control edge             |
+| `--danger`         | `var(--crimson)`                                 |    1.8:1 | Fills and edges — **never text**          |
+| `--success`        | `var(--emerald)`                                 |    2.1:1 | Fills and edges — **never text**          |
+| `--focus`          | `var(--acid-green)`                              |   10.8:1 | The focus ring, and nothing else          |
 
-Three corrections to the mockup, all of them in this table:
+This table has been corrected twice, and both times for the same reason: a ratio that was
+believed rather than measured.
 
-- **`--ink-faint` was `#7b7f88`, which measures 4.16:1** — below the 4.5:1 it is held to, despite
-  the mockup labelling it 4.6. It is raised to a 48% mix, measuring **4.8:1**. This is the one
-  token where the mockup would have shipped a failure.
-- `--ink-muted` measures **6.8:1**, not 7.1.
-- `--accent-quiet` measures **7.1:1**, not 8.0.
+**Against the mockup**, which mislabelled three values. `--ink-faint` was `#7b7f88` at 4.16:1
+against the page, below the 4.5:1 it is held to, despite the mockup labelling it 4.6; `--ink-muted`
+measured 6.8:1 against the page and not 7.1; `--accent-quiet` 7.1:1 and not 8.0.
+
+**Against the wrong surface**, which is [#149](https://github.com/ironarachne/ironarachne/issues/149)
+and is the more instructive of the two. The first correction moved `--ink-faint` to a 48% mix and
+recorded 4.8:1 — a true number about `--surface-page`, and the wrong question, because a label is
+never on the page. On a panel that same token measured **3.9:1**, so the role went on failing its
+floor while the table said it passed. Both ink roles moved to fix it: `--ink-faint` to 54% and
+`--ink-muted` to 66%, together, because raising the first alone would have left the two 1.17:1
+apart and a three-step ink ramp reading as two.
+
+The lesson is in the reference surface rather than in either number. A ratio is a fact about a
+foreground **and a background**, and half of it was missing here.
 
 `--danger` and `--success` are listed with their ratios precisely so nobody uses either as a text
-colour later: crimson on charcoal is 2.2:1 and emerald is 2.65:1, and neither is readable.
+colour later: crimson is 1.8:1 on a panel and emerald 2.1:1, and neither is readable anywhere —
+2.2:1 and 2.65:1 even against the page, which is the most forgiving surface in the app.
 Destructive intent is carried by a crimson **edge and fill** under `--ink`-coloured text, and a
 successful outcome by an emerald one. **This is the single fact the [message
 family](#the-message-family) is built on** — two of the three tones a message can take cannot be
@@ -1984,27 +2006,28 @@ Measured, rather than assumed:
 
 | Surface                            | `--ink` | `--ink-muted` | `--ink-faint` | Gold heading |
 | ---------------------------------- | ------: | ------------: | ------------: | -----------: |
-| `--surface-page`, as documented    |  15.2:1 |         6.8:1 |         4.8:1 |        7.1:1 |
-| `--surface-raised` — **any panel** |  12.2:1 |         5.5:1 |     **3.9:1** |        5.8:1 |
-| Slate warmed 8% toward gold        |  10.7:1 |         4.8:1 |     **3.4:1** |        5.0:1 |
-| Charcoal warmed 12% toward gold    |  11.6:1 |         5.5:1 |     **3.9:1** |        5.8:1 |
+| `--surface-page`                   |  15.2:1 |         7.9:1 |         5.8:1 |        7.1:1 |
+| `--surface-raised` — **any panel** |  12.2:1 |         6.3:1 |         4.6:1 |        5.8:1 |
+| Slate warmed 8% toward gold        |  10.7:1 |         5.5:1 |         4.1:1 |        5.0:1 |
+| Charcoal warmed 12% toward gold    |  12.3:1 |         6.4:1 |         4.7:1 |        5.8:1 |
 
 Two things fall out of that table, and they are the substance of this design.
 
-### `--ink-faint` does not meet its own target on any panel, skin or no skin
+### `--ink-faint` did not meet its own target on any panel, and now does
 
-**It measures 3.9:1 on `--surface-raised`, against a 4.5:1 floor.** The 4.8:1 the document records
-is real and is measured against the page — but `--ink-faint` is for "labels and kickers", and a
-label lives on a panel. The role has been failing on the surface it is actually used on since it was
-defined.
+Designing this skin is what measured it. `--ink-faint` was 3.9:1 on `--surface-raised` against a
+4.5:1 floor — the 4.8:1 the document recorded was a true number about `--surface-page`, and a label
+is never on the page, so the role had been failing on the surface it is actually used on since it
+was defined.
 
-This is not the fantasy skin's doing and it is not the fantasy skin's to fix. It is recorded here
-because this issue is what measured it, and because the fix is a taxonomy change rather than a
-nudge: raising the mix from 48% to **54%** clears 4.5:1 on a base panel, and **58%** would be needed
-on a warmed one — but `--ink-muted` is 60%, so a faint role at 58% is a muted role with a different
-name. Fixing it properly means moving both, which is #113's table and wants its own issue.
+Fixed in [#149](https://github.com/ironarachne/ironarachne/issues/149) rather than here, and it took
+**two** roles rather than one: `--ink-faint` to 54% and `--ink-muted` to 66%, together, because
+raising the first alone would have left the pair 1.17:1 apart and a three-step ink ramp reading as
+two. [Colour roles](#colour-roles) now states its ratios against `--surface-raised` for the same
+reason this section exists — that is the surface the text is on.
 
-**What #119 owes here is only that it does not make it worse**, which the rule below guarantees.
+**What #119 owed here was only that it did not make things worse**, which the rule below
+guarantees; the base failure was never a skin's to carry.
 
 ### A skin's surface is never lighter than the base's
 
