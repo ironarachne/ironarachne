@@ -122,7 +122,10 @@ describe('brand colour tokens', () => {
   });
 
   it('is the only place a colour value is written down', () => {
-    const hexes = tokensSource.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
+    // Comments first. This file cites issue numbers, and `#149` is a hex as far as a regex is
+    // concerned — the sweep over `main.css` and `modal.css` has stripped comments since #115 for
+    // exactly this reason, and this one did not, so it failed twice on prose that named an issue.
+    const hexes = withoutComments(tokensSource).match(/#[0-9a-fA-F]{3,8}\b/g) ?? [];
     expect(hexes).toEqual([]);
   });
 
