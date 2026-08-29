@@ -408,6 +408,38 @@ describe('the control system', () => {
   });
 });
 
+describe('dark is the only mode', () => {
+  // Decision 1 in docs/visual-design.md, stated to the browser rather than only to ourselves.
+  it('declares the document colour scheme', () => {
+    const css = readFileSync(join(STYLES_DIR, 'main.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+
+    // Everything the user agent draws reads this: control chrome, scrollbars, and the `Canvas` /
+    // `CanvasText` system colours behind the defaults on anything the app has not styled. Without
+    // it they are all computed for a light page and drawn onto `--charcoal`, which is how every
+    // dialog came to have black text between #117 and #144.
+    expect(css, 'the document does not declare a colour scheme').toMatch(
+      /color-scheme:\s*dark\s*;/,
+    );
+  });
+
+  it('declares no light-scheme alternative', () => {
+    // The palette carries no light-surface pair for the brand green — `brand/colors.css` measures
+    // it at 1.57:1 on white — so a light mode could not use the brand's own accent. Decision 1
+    // settles that there is one mode, and a `light dark` pair or a `prefers-color-scheme: light`
+    // block would be the start of a second one.
+    for (const { name, css } of siteStylesheets()) {
+      const stripped = withoutComments(css);
+
+      expect(stripped, `${name} offers a light colour scheme`).not.toMatch(
+        /color-scheme:[^;]*\blight\b/,
+      );
+      expect(stripped, `${name} branches on a light preference`).not.toMatch(
+        /prefers-color-scheme:\s*light/,
+      );
+    }
+  });
+});
+
 describe('the message family', () => {
   // docs/visual-design.md, "What the message family enforces". Each of these guards a rule that
   // was broken before #117: three implementations of one idea, one of them painting a grey that

@@ -11,7 +11,22 @@
    2560px display, and the shell in docs/app-shell.md needs the viewport. The measure moved to the
    wrappers that actually hold prose — see `--measure` in tokens.css and `section.main` below. */
 html {
+  /* The app is dark-only — decision 1 in docs/visual-design.md — and this is where it says so to
+     the browser rather than only to itself.
+
+     Everything the user agent draws for us reads this: form control chrome, spinner buttons, the
+     scrollbars, and the `Canvas` / `CanvasText` system colours that back the defaults on elements
+     the app has not styled. Without it every one of those is computed for a light page and drawn
+     onto `--charcoal`.
+
+     That is not hypothetical. It is what made every dialog in the app render black text on a dark
+     surface between #117 and #144: the user-agent rule is `dialog { color: CanvasText }`, and with
+     no declared scheme `CanvasText` is black. Naming the colour on the dialog fixed that instance;
+     this is the reason the instance existed, and it closes the rest of the class — the next
+     element with a system-colour default gets a readable one without anyone noticing it needed
+     one. */
   background: var(--charcoal);
+  color-scheme: dark;
   color: color-mix(in srgb, var(--charcoal) 5%, white 95%);
   font-family: 'Inclusive Sans', system-ui, Helvetica, sans-serif;
   font-size: clamp(1em, 0.909em + 0.45vmin, 1.25em);
