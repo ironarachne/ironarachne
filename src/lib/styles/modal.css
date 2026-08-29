@@ -30,8 +30,18 @@ dialog.panel::backdrop {
 
 /* A dialog is a column of prose the same width as every other column of prose in the app.
    `--measure` rather than the 40rem that was written here: they resolve to about the same number
-   today, and naming the token means a dialog follows the measure if it ever moves. */
+   today, and naming the token means a dialog follows the measure if it ever moves.
+
+   `--ink` is not decoration here, it is the rule. "The message family" says the tone is the edge
+   and the wash and the words are always `--ink`, and this is the declaration that makes that true
+   — a dialog does not inherit from the page, because the user-agent stylesheet sets
+   `dialog { color: CanvasText }` and the app declares no `color-scheme`, so `CanvasText` is
+   **black**. The rule this file carried before #117 said `color: inherit`; rewriting the file
+   dropped it and every dialog in the app went black on `--surface-raised`. `--ink` rather than
+   `inherit` because the design names the colour, and a dialog that says which colour it is cannot
+   be broken by whatever it happens to be nested inside. `e2e/modal_ink.spec.ts` holds it. */
 dialog.panel {
+  color: var(--ink);
   max-width: var(--measure);
   width: calc(100% - var(--s8));
 }
