@@ -54,9 +54,18 @@ than a treatment; and `--halo` becomes the second shadow in the system, as a foc
 skin may touch, where `--lift` stays the only _elevation_ shadow. It also answers [open question
 2](#open-questions): `--surface-sunken` stays, as the well inside a scrolling panel.
 
-Awaiting approval, unlike the two amendments above it: #116 is still `needs-design`, and [the panel
-anatomy](#panel-anatomy) is the diagram CLAUDE.md's review gate asks a human to approve before the
-implementation starts.
+**Amended 2026-08-29 by [#117](https://github.com/ironarachne/ironarachne/issues/117)**, which
+adds [the message family](#the-message-family). Modals and banners are the last surfaces outside the
+system, and the section settles them as one thing rather than two: a notice and a dialog are the
+same toned panel at two levels of interruption. It changes the taxonomy in one place, and reverses a
+sentence in [colour roles](#colour-roles): the three `--modal-border-*` aliases do **not** stay. A
+role named after a component is the thing the taxonomy exists to prevent, so they go, `--success`
+joins `--danger` as a thirteenth role, and a tone is carried by the panel's own two custom
+properties rather than by a fourth border colour.
+
+Awaiting approval, unlike the three amendments above it: #117 is still `needs-design`, and [the
+message anatomy](#message-anatomy) is the diagram CLAUDE.md's review gate asks a human to approve
+before the implementation starts.
 
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
@@ -226,7 +235,7 @@ no vocabulary for.
 
 ### Colour roles
 
-Twelve roles. The middle column is the expression that goes in `tokens.css` — never a hex, so
+Thirteen roles. The middle column is the expression that goes in `tokens.css` — never a hex, so
 `tokens.test.ts` keeps holding. The ratio is measured against `--surface-page`.
 
 | Role               | Resolves to                                      | Contrast | Used for                                  |
@@ -243,6 +252,7 @@ Twelve roles. The middle column is the expression that goes in `tokens.css` — 
 | `--accent`         | `var(--iron-arachne-green)`                      |   10.6:1 | Links, the active nav marker              |
 | `--accent-quiet`   | `var(--gold)`                                    |    7.1:1 | Kickers, primary control edge             |
 | `--danger`         | `var(--crimson)`                                 |    2.2:1 | Fills and edges — **never text**          |
+| `--success`        | `var(--emerald)`                                 |   2.65:1 | Fills and edges — **never text**          |
 | `--focus`          | `var(--acid-green)`                              |   13.4:1 | The focus ring, and nothing else          |
 
 Three corrections to the mockup, all of them in this table:
@@ -253,14 +263,26 @@ Three corrections to the mockup, all of them in this table:
 - `--ink-muted` measures **6.8:1**, not 7.1.
 - `--accent-quiet` measures **7.1:1**, not 8.0.
 
-`--danger` is listed with its ratio precisely so nobody uses it as a text colour later: crimson on
-charcoal is 2.2:1 and is not readable. Destructive intent is carried by a crimson **edge and
-fill** under `--ink`-coloured text.
+`--danger` and `--success` are listed with their ratios precisely so nobody uses either as a text
+colour later: crimson on charcoal is 2.2:1 and emerald is 2.65:1, and neither is readable.
+Destructive intent is carried by a crimson **edge and fill** under `--ink`-coloured text, and a
+successful outcome by an emerald one. **This is the single fact the [message
+family](#the-message-family) is built on** — two of the three tones a message can take cannot be
+said in words at all, so a tone is always the surface and never the sentence.
 
-The eight remaining palette entries — emerald, amethyst, cyan, plasma blue, magenta, and tan
-outside `--border-strong` — are reached only through a genre skin or a domain marker. A component
-never names one directly. `--modal-border-message` / `-error` / `-success` stay as they are; they
-already follow this pattern, mapping a role onto a palette entry in one place.
+`--success` is added by [#117](https://github.com/ironarachne/ironarachne/issues/117) and pulls
+emerald out of the unused eight. The seven remaining palette entries — amethyst, cyan, plasma blue,
+magenta, and tan outside `--border-strong` — are reached only through a genre skin or a domain
+marker, and a component never names one directly.
+
+**`--modal-border-message` / `-error` / `-success` do not survive**, and the sentence that said they
+would is reversed here rather than quietly dropped. They map a role onto a palette entry in one
+place, which is the right shape — but they are named after the one component that happened to need
+them first, and the same three meanings are wanted by a banner, an inline notice, and anything later
+that has to say how something went. A role named for a component is how an app grows a second
+vocabulary for an idea it already has a word for. All three meanings are already roles:
+`--accent-quiet`, `--success` and `--danger`. `--modal-backdrop` stays, because it is genuinely the
+top layer's and nothing else's.
 
 ### Elevation
 
@@ -1333,6 +1355,284 @@ Nav labels are words.
 
 This narrows [open question 1](#open-questions) rather than answering it: the six destinations
 need no icons, and the control set and the tool catalog's domains still might.
+
+## The message family
+
+Every surface the app uses to say something to the person using it, settled: the dialog it puts in
+front of them, the notice it leaves beside their work, the four tones both are allowed to take, and
+the reason a tone is never a word. This is what
+[#117](https://github.com/ironarachne/ironarachne/issues/117) builds, and it is the last group of
+surfaces outside the system — after it, [#124](https://github.com/ironarachne/ironarachne/issues/124)
+walks a site with no hand-rolled boxes left in it.
+
+### The problem is two systems for one sentence
+
+`modal.css` is 128 lines and a system of its own. It sets its own keyline colours, its own 4px
+radius, its own `1rem 1.25rem` padding, its own 1.5rem title, and its own backdrop, none of which
+agrees with anything the last three issues settled. Beside it, `StorageWarningBanner` and
+`StorageDisclosureNotice` each write out `background: var(--slate)` over `border: 1px solid` over
+`border-radius: 4px` — the box [the panel language](#panel-language) exists to abolish, in the two
+files it deferred rather than converted.
+
+And there is a second dialog. `LoadSnapshotDialog` carries its own `<dialog>`, its own `::backdrop`
+and its own frame, written as `border: 1px solid var(--gold, #c9a227)` over
+`background: var(--background, #1a1a1a)`. **`--background` is declared nowhere in the app**, so that
+fallback is not a fallback: the snapshot dialog paints `#1a1a1a`, a grey that is in no palette and
+is not `--charcoal`'s `#1b1e24`. It has been slightly the wrong colour for as long as it has
+existed, and nothing catches it because the sweeps that would have run on a component's `<style>`
+block treat a hex behind `var(…, …)` as a fallback somebody meant.
+
+That is three implementations of one idea. The idea is: **the app has something to say, and it is
+saying it on a surface.** Everything below follows from treating it as one thing.
+
+### A message is a toned panel
+
+A dialog and a notice differ in exactly one respect — how much they interrupt — and in nothing else.
+Both are [raised panels](#three-levels-and-the-well-makes-four): the panel's liner, keyline, notch,
+padding ramp and `--lift`, with no new box and no second recipe.
+
+|                | **Dialog**                                  | **Notice**                                   |
+| -------------- | ------------------------------------------- | -------------------------------------------- |
+| Interruption   | Top layer, over a scrim, holding focus      | In the page flow, beside the work            |
+| Element        | `<dialog>`                                  | `<div role="status">`                        |
+| Frame          | `.panel` + `.panel__field`                  | `.panel` + `.panel__field`                   |
+| Head           | `.panel__header` plate, when it has a title | None — a notice is a sentence, not a section |
+| Body           | `.panel__body`                              | `.panel__body`                               |
+| Actions        | `.panel__footer` — right-aligned, `--s4`    | In the body flow, left-aligned, `--s4`       |
+| Width          | `min(var(--measure), 100% - var(--s8))`     | Whatever it is placed in                     |
+| Tone           | `--panel-edge` and `--panel-surface`        | `--panel-edge` and `--panel-surface`         |
+| Takes `--halo` | No                                          | No                                           |
+
+**The actions are aligned differently on purpose, and it is the one place the two shapes disagree.**
+A dialog is a question, and a question's answers belong where the eye finishes — at the bottom
+right, in the order the [modal dialog](#navigation-badges-and-modals) already puts them. A notice is
+a sentence, and its actions are what you may do about the sentence, so they follow the text from the
+left. Both use `--s4`, which is the ramp's gap inside a control group, because in both cases the
+buttons are one group.
+
+**Neither takes the halo.** `--halo` says which panel on the bench has focus, and a dialog is the
+only thing on screen that can have focus while a notice is not the thing being worked in. Adding it
+here would put a second focal claim on a screen that already has exactly one, which is the rule
+[the halo](#the-halo-and-the-second-shadow-in-the-system) is held to.
+
+**Neither animates.** `--motion-swift` is for a state change on a control, and a dialog arriving is
+not a state change on anything — it is a different thing being on screen. The scrim and the plate
+appear.
+
+### Four tones, and two of them cannot be said in words
+
+A tone sets the panel's two custom properties and nothing else, which is what makes it a variant
+rather than a second panel — the same claim [the panel language](#a-panel-draws-its-own-edge-and-needs-a-liner-to-do-it)
+makes about a level and a skin.
+
+| Tone        | Class             | `--panel-edge`   | `--panel-surface`                                      | Says                                 |
+| ----------- | ----------------- | ---------------- | ------------------------------------------------------ | ------------------------------------ |
+| **Plain**   | none              | `--border`       | `--surface-raised`                                     | A statement of fact                  |
+| **Notice**  | `.panel--notice`  | `--accent-quiet` | `color-mix(in srgb, var(--accent-quiet) 12%, …raised)` | Something wants attention            |
+| **Success** | `.panel--success` | `--success`      | `color-mix(in srgb, var(--success) 12%, …raised)`      | It worked                            |
+| **Danger**  | `.panel--danger`  | `--danger`       | `color-mix(in srgb, var(--danger) 12%, …raised)`       | It failed, or it is about to destroy |
+
+One mix ratio for all three, for the reason there is one `--plate`: a per-tone number is three
+things to keep in step and nobody can say what the right difference between them would be. Twelve
+per cent is what `modal.css` already used; where the light falls is a look to tune, not a rule.
+
+**Two of the three colours are unreadable as text.** [Colour roles](#colour-roles) measures crimson
+at 2.2:1 on charcoal and emerald at 2.65:1, and gold at 7.1:1 is the only one that passes. So a rule
+that holds for all three rather than for two: **the tone is the edge and the wash, and the words are
+always `--ink`.** No message ever colours its own sentence, no matter which tone it takes. Meaning
+that is carried only by a hue is meaning a colour-blind reader does not get, and here it would be
+meaning that two thirds of readers cannot see at any acuity.
+
+**The default dialog is plain, and this reverses today's behaviour.** Every dialog is currently
+gold-edged, because `--modal-border-message` is the fallback and `confirm` maps onto it. That makes
+gold the colour of "a dialog" rather than the colour of "attention", and a tone every instance wears
+is not a tone. A dialog is already the most interruptive thing the app does — top layer, scrim,
+focus taken — and it does not need a coloured edge to be noticed on top of that. So colour is spent
+on the three cases that differ from the ordinary one, and `AlertModalStyle`'s three names map on
+without changing: `message` → plain, `error` → danger, `success` → success. The type keeps its
+spelling; only what it paints moves.
+
+**A tone is only ever carried by a raised surface.** An [inset](#three-levels-and-the-well-makes-four)
+is the level for a message that lives on a panel, and #116 settled that it is untoned — a red box
+inside a red box is two edges saying one thing, and the inner one wins on proximity while the outer
+one wins on size. There are therefore no `.inset--danger` or `.well--danger` classes to reach for,
+which is enforcement by construction rather than by a sweep.
+
+**A tone may not be used to soften what a message says.** The storage disclosure is plain because it
+is a statement of fact, not because it matters less; `docs/storage-disclosure.md` owns its copy and
+this document owns none of it. Choosing a quieter tone to make a data-risk sentence read as less
+alarming would be a design decision about disclosure, which is not a decision this document is
+allowed to take.
+
+### A dialog is a panel in the top layer, and `[open]` is the trap
+
+A `<dialog>` is `display: none` until it is opened; the user agent's `dialog:not([open])` rule is
+what closes it, and it is a rule about `display`. `.panel` declares `display: flex`. **A dialog
+wearing `.panel` is therefore a dialog that is always on screen**, and the failure is not subtle —
+every modal in the app renders inline, in the page flow, permanently.
+
+`modal.css` restates the rule it overrode, and that is one of the three things left in the file:
+
+```css
+dialog.panel:not([open]) {
+  display: none;
+}
+```
+
+This is the same class of fact as [the clipped focus ring](#focus-on-a-clipped-control-is-drawn-inside-it)
+and [the sliced keyline](#a-panel-draws-its-own-edge-and-needs-a-liner-to-do-it): a browser rule
+that a system rule silently defeats. It is written down here so the implementation does not discover
+it as a bug.
+
+What remains of `modal.css` after this is the top layer's own business and nothing else — the rule
+above, `::backdrop { background: var(--modal-backdrop) }`, and the dialog's width. The 128 lines
+become roughly a dozen. `--modal-backdrop` is the one token that keeps its name, because a scrim
+really is the modal system's and no other surface wants one.
+
+**The width is `--measure`, not 40rem.** Today's `max-width: 40rem` is 640px, which is what
+`--measure` resolves to at `--t-body` — the width [the type ramp](#type-ramp) is designed at. Naming
+the token instead of the number means a dialog is a column of prose the same width as every other
+column of prose in the app, and stays that way if the measure ever moves.
+
+### `Panel`, `Notice` and the dialog are three assemblies of one set of classes
+
+`Panel.svelte` is not the panel. The panel is `.panel`, `.panel__field`, `.panel__header`,
+`.panel__title` and `.panel__body` in `main.css`; `Panel.svelte` is the assembly of those into a
+`<section>` with a region landmark, and [the panel language](#a-panel-draws-its-own-edge-and-needs-a-liner-to-do-it)
+already relies on that split when it says an unconverted surface "keeps reading the same system from
+a class".
+
+This section spends that split twice, and both times for the same reason: **the right element is not
+a styling question.**
+
+- **A dialog is not a `Panel`.** A `<dialog>` is already a labelled thing in the top layer with its
+  own `aria-labelledby`. Rendering a `<section aria-label>` inside it gives one object two
+  accessible names and two landmarks, and a screen reader reads the wrapper before it reaches the
+  message. `ModalHost`'s `<dialog>` wears the classes directly and its content root is the
+  `.panel__field` liner.
+- **A `Notice` is not a `Panel` either.** A notice is a live region — `role="status"` — and a
+  landmark is not a live region. It is also titleless, and `Panel`'s title is required because a
+  panel without a heading is a box. `Notice.svelte` is its own small component: the liner, no header
+  plate, a `tone`, an `actions` snippet, and its children.
+
+So there is one set of classes and three assemblies of it, and a fourth assembly later is a fourth
+`<element>` that needed one — never a fourth look.
+
+`Notice` takes the two banners and nothing else for now. Its props are `tone`, `actions` and
+`children`; it does not take a title, and giving it one later is how it becomes a second panel.
+
+### Message anatomy
+
+The markup, and the one type the family adds:
+
+```mermaid
+classDiagram
+    class PanelClasses {
+        <<main.css>>
+        +panel, paints --panel-edge
+        +panel__field, paints --panel-surface
+        +panel__header, the plate
+        +panel__body, pads --s5 and gaps --s6
+        +panel__footer, gaps --s4
+    }
+    class Tone {
+        <<plain, notice, success, danger>>
+        sets(--panel-edge)
+        sets(--panel-surface)
+    }
+    class Panel {
+        <<section, a region landmark>>
+        +string title
+        +boolean bare
+        +boolean focal
+    }
+    class Notice {
+        <<div, role status>>
+        +Tone tone
+        +Snippet actions
+    }
+    class Dialog {
+        <<dialog, the top layer>>
+        +Tone tone
+        +string title
+        paints(--modal-backdrop)
+        widthOf(--measure)
+    }
+    class DialogBody {
+        <<ModalDialog, StorageFailure, HeraldryPersistence, LoadSnapshot>>
+    }
+
+    Panel ..> PanelClasses : assembles
+    Notice ..> PanelClasses : assembles
+    Dialog ..> PanelClasses : assembles
+    Notice --> Tone : takes
+    Dialog --> Tone : takes
+    Panel ..> Tone : forbidden
+    Dialog "1" *-- "1" DialogBody : holds
+```
+
+`Panel ..> Tone` is forbidden and is the edge worth reading twice. A tone says how something went; a
+panel is furniture and nothing went any way at all inside it. A toned panel would be a panel that is
+also a message, which is the merge that produced three implementations in the first place — and the
+bench is where it would happen, because a generator that failed would tint the panel it ran in
+rather than say a sentence inside it.
+
+### What this converts
+
+- **The dialog frame** — `ModalHost`'s `<dialog>` takes the panel classes and the tone; `modal.css`
+  shrinks to the scrim, the `[open]` rule and the width.
+- **The dialog bodies** — `ModalDialog`, `StorageFailureModalContent` and
+  `HeraldryPersistenceModalContent` each become a `.panel__field` liner holding a header plate, a
+  `.panel__body` and a `.panel__footer`. `StorageFailureModalContent`'s `__problem` box is a plain
+  [inset](#three-levels-and-the-well-makes-four), untoned, inside a danger-toned dialog.
+- **The second dialog** — `LoadSnapshotDialog` stops declaring a `<dialog>` frame of its own and
+  wears the same classes. Its `#c9a227` and `#1a1a1a` go with it. Folding it into `modalState` so
+  the app has literally one `<dialog>` is behaviour, and behaviour is out of this issue's scope; the
+  look is not.
+- **The two banners** — `StorageWarningBanner` and `StorageDisclosureNotice` become `Notice`. The
+  warning is `notice`-toned, because a browser that is nearly full is a thing wanting attention. The
+  disclosure is plain.
+- **The lists inside dialogs** — the heraldry modal's saved arms and the snapshot dialog's snapshots
+  are both a run of rows in a scrolling box, which is a [well](#three-levels-and-the-well-makes-four)
+  of [list rows](#a-list-row). Their `rgb(255 255 255 / 10%)` separators and hand-set
+  `max-height: 16rem` go.
+- **The stowaway** — the fourteen `.heraldry-persistence-*` rules in `modal.css` are one component's
+  styles living in a global sheet, which is why no sweep has ever reached them. They move into
+  `HeraldryPersistenceModalContent.svelte`, and the sweep reaches them there.
+
+Left alone: the inline `role="alert"` and `role="status"` paragraphs on panels. #116 already made
+those insets and untoned text, and the rule above says they stay that way.
+
+### What this leaves to the skins
+
+Nothing new. A skin may set `--panel-edge` and `--panel-surface`, which it already may, and a toned
+message is a panel that has set them itself — so a skin's panel colours apply to a plain notice and
+a plain dialog, and a tone outranks the skin wherever there is one. That is the right precedence: a
+genre is decoration and a failed write is not.
+
+A skin may not touch the scrim, the tones, the footer alignment or the `[open]` rule.
+
+### What the message family enforces
+
+`tokens.test.ts` grows by three assertions, and one existing list shrinks:
+
+- **No component declares a `dialog` rule.** The frame is `main.css`'s and `modal.css`'s, and a
+  component's own `<style>` block reaching for `dialog` is the second implementation starting again.
+  This is the same shape as "no skin file declares a `button` rule".
+- **`--modal-border-message`, `-error` and `-success` appear nowhere in the tree**, and `--success`
+  resolves. The alias list in the existing token test loses three names and gains one.
+- **No `var(--token, <literal>)` fallback anywhere in `src`.** This is the sweep that would have
+  caught `#1a1a1a`, and it generalises: a fallback is a hex the linter cannot see, and a token that
+  might not be declared is a token whose name is wrong. Every `--ia-*` and every role is declared in
+  a stylesheet the app always loads, so there is nothing a fallback is protecting against.
+- **The `DEFERRED` list loses its four #117 entries**, leaving the nine that belong to #119–#121.
+  The list is meant only to shrink, and this is the first time it does.
+
+One check is a computed style rather than a source sweep, for the same reason [the bare
+panel](#what-the-panel-language-enforces) needed one: `e2e/projects.spec.ts` already opens a confirm
+dialog, and it gains an assertion that **before** it opens, the `<dialog>` is not visible. That is
+the `[open]` trap, it is invisible to a source sweep, and a stylesheet edit is exactly what would
+reintroduce it.
 
 ## Enforcement
 
