@@ -17,9 +17,14 @@ test.describe('the tool index', () => {
     // reading its constants, so a test cannot pass by agreeing with a catalog that failed to
     // render. The bar reads the catalog's length on every page, so "the index lists as many tools
     // as the shell says exist" is the whole claim — a tool added without an anchor fails here.
-    const declared = Number(
-      await page.locator('.top-bar .top-bar__stat--tools dd').first().innerText(),
-    );
+    // Waited for rather than sampled. The bar renders `—` until its hydration resolves, and
+    // `Number('—')` is `NaN` — so reading the text once is a race that a slow machine loses. It
+    // lost it on CI three merges running while passing locally every time, which is exactly the
+    // shape of bug a snapshot read produces.
+    const toolCount = page.locator('.top-bar .top-bar__stat--tools dd').first();
+    await expect(toolCount).toHaveText(/^\d+$/);
+
+    const declared = Number(await toolCount.innerText());
 
     expect(declared).toBeGreaterThan(0);
     await expect(toolLinks(page)).toHaveCount(declared);

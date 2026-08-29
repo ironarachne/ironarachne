@@ -266,7 +266,7 @@ test.describe('the workshop bench', () => {
 
     // The dialog element is always in the DOM; ModalHost opens and closes it, so "not asked"
     // is hidden rather than absent.
-    await expect(page.locator('dialog.panel')).toBeHidden();
+    await expect(page.locator('dialog.modal-host')).toBeHidden();
     await expect(panelTitles(page)).toHaveText([/Heraldry/]);
   });
 
@@ -282,7 +282,7 @@ test.describe('the workshop bench', () => {
 
     await mountTool(page, /^Heraldry/);
 
-    const dialog = page.locator('dialog.panel');
+    const dialog = page.locator('dialog.modal-host');
     await expect(dialog).toContainText('you have not saved');
 
     // Refusing leaves the bench exactly as it was.
@@ -302,7 +302,7 @@ test.describe('the workshop bench', () => {
 
     // The dialog element is always in the DOM; ModalHost opens and closes it, so "not asked"
     // is hidden rather than absent.
-    await expect(page.locator('dialog.panel')).toBeHidden();
+    await expect(page.locator('dialog.modal-host')).toBeHidden();
     await expect(panelTitles(page)).toHaveText([/Heraldry/]);
   });
 
@@ -478,7 +478,7 @@ test.describe('the session log', () => {
     await mountTool(page, /^Culture/);
     await expect(logEntries(page)).toHaveCount(1);
 
-    const dialog = page.locator('dialog.panel');
+    const dialog = page.locator('dialog.modal-host');
 
     await sessionLog(page).getByRole('button', { name: 'Clear' }).click();
     await dialog.getByRole('button', { name: 'Cancel' }).click();
@@ -634,7 +634,7 @@ test.describe('saving what a tool made', () => {
  */
 test.describe('building one artifact from another', () => {
   const artifactPanel = (page: Page) => page.locator('.artifact-panel');
-  const confirmDialog = (page: Page) => page.locator('dialog.panel');
+  const confirmDialog = (page: Page) => page.locator('dialog.modal-host');
 
   test.beforeEach(async ({ page }) => {
     await openEmptyWorkshop(page);
@@ -843,7 +843,7 @@ test.describe('building one artifact from another', () => {
  */
 test.describe('editing a saved artifact', () => {
   const artifactPanel = (page: Page) => page.locator('.artifact-panel');
-  const confirmDialog = (page: Page) => page.locator('dialog.panel');
+  const confirmDialog = (page: Page) => page.locator('dialog.modal-host');
 
   /** A project with one saved artifact of the named tool in it, open in a panel of its own. */
   async function openASavedArtifact(
@@ -1617,7 +1617,7 @@ test.describe('vault export and import', () => {
   // Export is the storage panel's primary action; what is left in the transfer controls is the way
   // back in. See docs/storage-panel.md.
   const storagePanel = (page: Page) => page.locator('section.storage');
-  const confirmDialog = (page: Page) => page.locator('dialog.panel');
+  const confirmDialog = (page: Page) => page.locator('dialog.modal-host');
 
   test.beforeEach(async ({ page }) => {
     await openEmptyWorkshop(page);
@@ -1771,7 +1771,7 @@ test.describe('vault export and import', () => {
  * installed before the app boots so the app's own code path is what meets it.
  */
 test.describe('when the browser has no room to save', () => {
-  const storageDialog = (page: Page) => page.locator('dialog.panel .storage-failure');
+  const storageDialog = (page: Page) => page.locator('dialog.modal-host .storage-failure');
 
   /** Refuses writes to the artifact stores, leaving projects and reads alone. */
   async function fillTheDisk(page: Page): Promise<void> {

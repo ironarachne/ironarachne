@@ -86,7 +86,7 @@ test.describe('the projects page', () => {
   test('asks before deleting, and says how much goes with it', async ({ page }) => {
     await create(page, 'Ashfall');
 
-    const dialog = page.locator('dialog.panel');
+    const dialog = page.locator('dialog.modal-host');
 
     // The `[open]` trap, and the reason it is checked in a browser rather than by a source sweep.
     // A `<dialog>` is `display: none` until it is opened, by a user-agent rule about `display` —
