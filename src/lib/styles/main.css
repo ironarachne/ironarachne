@@ -522,8 +522,16 @@ label {
    because everything was one. */
 
 .panel {
-  --panel-edge: var(--border);
-  --panel-surface: var(--surface-raised);
+  /* The two colours a level, a state and a genre skin each set are *not* declared here, and that
+     is the whole reason a skin works. A declaration on the element beats an inherited one, so
+     `--panel-surface: var(--surface-raised)` written here would silently outrank the value a
+     genre sets on the page region — which is exactly what it did until #119 measured a fantasy
+     panel and found it painting slate.
+
+     Written as fallbacks instead: an ancestor's value wins if there is one, the base value applies
+     if there is not, and a tone or `--panel--bare` still outranks a skin by declaring on the
+     element itself. That precedence is the one the design describes — a tone says how something
+     went and outranks a genre, which is decoration. */
   /* Composed the way `--btn-ring` is, so a panel that takes the halo keeps its lift underneath
      rather than replacing it — and so the halo can be set by a state without restating either. */
   --panel-halo: 0 0 rgb(0 0 0 / 0%);
@@ -533,7 +541,7 @@ label {
      carrying the corner treatment loses its keyline along both diagonals, at exactly the two
      corners the treatment exists to make visible. The liner below covers all of this but a pixel,
      and that pixel is the keyline. `padding: 1px` is its width. */
-  background: var(--panel-edge);
+  background: var(--panel-edge, var(--border));
   box-shadow: var(--lift), var(--panel-halo);
   box-sizing: border-box;
   clip-path: var(--notch);
@@ -548,7 +556,7 @@ label {
    parallel. `--s5` of padding and `--s6` between the blocks it holds: a panel holds sections, and
    `--s5` twice reads as one column. */
 .panel__field {
-  background: var(--panel-surface);
+  background: var(--panel-surface, var(--surface-raised));
   box-shadow: var(--edge);
   box-sizing: border-box;
   clip-path: var(--notch-inner);
