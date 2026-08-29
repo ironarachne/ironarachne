@@ -63,9 +63,17 @@ role named after a component is the thing the taxonomy exists to prevent, so the
 joins `--danger` as a thirteenth role, and a tone is carried by the panel's own two custom
 properties rather than by a fourth border colour.
 
-Awaiting approval, unlike the three amendments above it: #117 is still `needs-design`, and [the
-message anatomy](#message-anatomy) is the diagram CLAUDE.md's review gate asks a human to approve
-before the implementation starts.
+**Amended 2026-08-29 by [#118](https://github.com/ironarachne/ironarachne/issues/118)**, which adds
+[applying a skin](#applying-a-skin). [Decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)
+already said a skin follows the open project's genre and that the shell is neutral; this settles
+how, which is the piece every skin issue after it is written against. It changes nothing in the
+taxonomy. It does replace a mechanism: a skin is selected by `data-genre` on the page region rather
+than by a class, written in one place instead of thirty, and `GeneratorPage`'s free-string `theme`
+prop is deleted rather than joined.
+
+Awaiting approval, unlike the four amendments above it: #118 is still `needs-design`, and [the skin
+anatomy](#skin-anatomy) is the diagram CLAUDE.md's review gate asks a human to approve before the
+implementation starts.
 
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
@@ -362,7 +370,9 @@ The app is dark on a light-preference device, which is correct and deliberate.
 `fantasy.css`, `scifi.css` and `cyberpunk.css` **remain skins over the base system**, and the
 subset they may touch is now explicit. A skin follows the open project's genre and reaches every
 panel; the shell — top bar and sidebar — is genre-neutral by rule, so the frame never changes
-shape underneath the user.
+shape underneath the user. [Applying a skin](#applying-a-skin) settles the mechanism, and adds a
+third neutral surface for the same reason as the other two: a dialog is the app speaking in its own
+voice, and a skin dresses the user's work rather than the app.
 
 **A skin may set:**
 
@@ -381,7 +391,7 @@ shape underneath the user.
 | **Typeface**               | Cinzel Decorative and Inclusive Sans, in every genre      |
 | **Type scale and spacing** | One ramp, so two panels stay the same height side by side |
 | **Control geometry**       | Button and input size, hit target, focus ring             |
-| **The shell**              | Top bar and sidebar are genre-neutral                     |
+| **The shell**              | Top bar, sidebar and dialogs are genre-neutral            |
 | **Contrast floor**         | A skin that cannot hit its target ratio does not ship     |
 
 This settles the three concrete things wrong with the skins today. Each re-declares the whole
@@ -1633,6 +1643,246 @@ panel](#what-the-panel-language-enforces) needed one: `e2e/projects.spec.ts` alr
 dialog, and it gains an assertion that **before** it opens, the `<dialog>` is not visible. That is
 the `[open]` trap, it is invisible to a source sweep, and a stylesheet edit is exactly what would
 reintroduce it.
+
+## Applying a skin
+
+[Decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look) says a skin follows the open
+project's genre and reaches every panel, and that the shell is genre-neutral by rule. It does not
+say how, and "how" is the whole of
+[#118](https://github.com/ironarachne/ironarachne/issues/118): where the genre is written into the
+DOM, what resolves it, what happens when nothing answers, and what the four skin issues after it
+can rely on being there.
+
+This lands the mechanism and the base case. The looks are #119–#122's.
+
+### The premise is half wrong, and the half that is wrong is the useful half
+
+#118 says the `.fantasy` / `.scifi` / `.cyberpunk` classes are applied in exactly one place. They
+are applied in **thirty**. `GeneratorPage` takes a free-string `theme` prop and writes it straight
+onto `section.main`; twenty-seven tool routes pass a real genre through it, three pass `"default"`,
+and `AdndCharacterBuilder` writes `class="fantasy main"` by hand, bypassing the prop entirely.
+
+So the app already skins itself. It just never does it from the project, and never from one place —
+and a second mechanism added beside this one would make two wrong answers instead of one. Four of
+the thirty already disagree with the tool catalog:
+
+| Route            | Declares    | Catalog says      | Effect                                         |
+| ---------------- | ----------- | ----------------- | ---------------------------------------------- |
+| `/species-stats` | `"default"` | `fantasy`         | Renders unskinned, against its own entry       |
+| `/spooky-ship`   | `"scifi"`   | `scifi`, `horror` | Narrowed by hand, to whichever was typed first |
+| `/environment`   | `"default"` | none              | Agrees, but `"default"` names no stylesheet    |
+| `/language`      | `"default"` | none              | Agrees, but `"default"` names no stylesheet    |
+
+`"default"` is the tell. It is a class no stylesheet in the app defines, written in three places to
+mean "no skin" — which is what an absent class already means. A prop whose most-used value is a
+no-op is a prop nobody can read correctly, and it is duplicated data besides: **the tool catalog
+already knows every tool's genre.** Thirty-one of its thirty-five entries carry `genres`, and the
+four that do not are exactly the four genre-neutral tools `docs/workshop.md` names —
+`/environment`, `/language`, `/workshop` and `/word-generator-cheat-sheet`.
+
+So `theme` is deleted rather than joined. The genre comes from the catalog, which is where it is
+already written down, and `GeneratorPage` is already holding the `toolPath` that reaches it — it
+reads the tool's maturity from that same entry today.
+
+### A skin dresses the user's work, never the app's own voice
+
+The rule the rest of this section falls out of.
+
+Three surfaces are genre-neutral, and they are the three places the app speaks for itself rather
+than showing the user theirs: **the top bar**, **the sidebar**, and **a dialog**. A genre is
+something the user's project is; it is not something the application is. When the app says "this
+browser is nearly full" or "are you sure", it says it in its own voice, in every genre, because a
+warning that dresses up as fantasy is a warning that reads as decoration.
+
+Everything else — the bench, the rail, the log, the vault, a tool's output, every panel — is the
+user's work or the furniture holding it, and takes the skin.
+
+### The class goes on the page region, and the opt-out is structural
+
+The genre is written in **one place**: the page region, `.shell__page` in `+layout.svelte`.
+
+This is chosen over `<body>` and over `.shell` for a reason that is worth more than it looks. The
+top bar and the sidebar are the page region's **siblings** in the shell grid, not its descendants.
+So they are genre-neutral _by position_, and there is no opt-out list for anyone to maintain,
+forget, or get wrong. It is the same mechanism [the app shell](app-shell.md) uses for the measure:
+a page opts out of `--measure` by not being `section.main`, and that is the whole of the opt-out.
+
+| Surface                           | Skinned    | Why                                                                |
+| --------------------------------- | ---------- | ------------------------------------------------------------------ |
+| Top bar, sidebar, drawer          | No         | Siblings of the page region, not inside it                         |
+| A `<dialog>`                      | No         | In the top layer — see below                                       |
+| The bench, the rail, the log      | Yes        | Inside the page region                                             |
+| A panel, a card, a well, an inset | Yes        | Inside the page region                                             |
+| The main tool panel               | Indirectly | It has no surface; the skin reaches it through the output it holds |
+
+**A dialog is neutral for free, and that is not a bug to fix later.** `ModalHost` is a sibling of
+`.shell` entirely, and a dialog opened with `showModal()` renders in the top layer, so the page
+region's genre cannot reach it however the selector is written. That is the correct outcome
+arriving by construction: a dialog is the app talking, per [the message
+family](#the-message-family), and a skinned dialog floating over a skinned page is the second focal
+claim [the halo](#the-halo-and-the-second-shadow-in-the-system) exists to prevent. Someone will
+eventually notice the modal does not match and try to make it match. It should not.
+
+### It is an attribute, not a class
+
+`data-genre="fantasy"` on the page region, and the skin files key off `[data-genre='fantasy']`
+rather than `.fantasy`.
+
+An element has exactly one `data-genre`, where classes stack — so "there is one genre on screen" is
+structurally true rather than a rule someone has to keep. It cannot collide with a component's own
+class name, which is the worry that gave the button variants their `btn-` prefix; a bare `.fantasy`
+sits in the same global namespace as every component's class names, and "fantasy" is a word an
+app about fantasy games will want again. And it reads as state in a DOM inspector, which is what
+it is.
+
+Renaming the three selectors is the only edit this makes to `fantasy.css`, `scifi.css` and
+`cyberpunk.css`. Their contents are #119–#121's, and those issues rewrite them anyway.
+
+### One genre on screen, resolved in one place
+
+```
+data-genre = the open project's genre
+           ?? the route's own genre, when the catalog gives exactly one
+           ?? nothing
+```
+
+**The project wins.** It is the user's own answer to what they are working on, and it is the more
+specific of the two: a fantasy tool opened inside a science-fiction project is being used _for_
+that science-fiction project. The route's genre is a statement about the page; the project's is a
+statement about the work, and the work is what a skin dresses.
+
+**A tool with more than one genre gets no route skin.** `/spooky-ship` is `scifi` and `horror`, and
+picking the first entry is a coin toss dressed as a rule — ambiguity is not a look. This is only
+ever reachable with no project open, since a project's genre outranks it.
+
+The resolver is one function over two inputs, and it holds no state of its own. It is worth
+insisting on that: a genre that were stored anywhere would be a second copy of a field
+`docs/workshop.md` decision 7 promises is free to change.
+
+### The two empty cases are the same case, and it is not a fallback
+
+No project open, and a project with no genre, both resolve to **no `data-genre` at all** — the base
+appearance, exactly as the last four issues built it.
+
+Stated plainly because the phrasing matters to what gets built: the base is not a degraded mode
+that nobody looked at. It is the design. The tokens, the controls, the panels and the message
+family are all specified without reference to any genre, and a skin is a permitted variation on
+top. A user who never sets a genre sees a finished application, not an unpainted one.
+
+This is also the common case by some distance. `getActiveProject()` falls back to the
+most-recently-touched project rather than to nothing, so "no project open" happens only in an empty
+vault — but a project with no genre is ordinary, because genre is optional on create and
+`docs/workshop.md` is explicit that a project may be "a box of tools" that is neither a genre nor a
+system.
+
+### It follows the change live, because it is derived and never stored
+
+`onProjectsChanged` already announces created, changed, deleted and opened, and it is already how
+`ProjectContextBar` keeps up. The layout subscribes to the same event and recomputes. Nothing
+polls, nothing waits for a navigation, and nothing reloads.
+
+That the skin is **derived on every read** is what makes decision 7 of `docs/workshop.md` hold.
+That decision promises changing a project's genre invalidates nothing — no artifact records the
+genre it was saved under, no payload changes shape. A skin that were persisted, cached, or written
+into an artifact would quietly turn that promise into a lie, and it would do it in the one place
+nobody would look for it.
+
+### Skin anatomy
+
+```mermaid
+classDiagram
+    class ShellPage {
+        <<div.shell__page, the page region>>
+        +Genre dataGenre
+    }
+    class GenreSkin {
+        <<resolver, no state of its own>>
+        resolve(project, routePath)
+    }
+    class Project {
+        +string name
+        +Genre genre
+        +GameSystem system
+    }
+    class ToolCatalogEntry {
+        +RouteId path
+        +Genre genres
+    }
+    class Genre {
+        <<fantasy, scifi, cyberpunk, horror>>
+    }
+    class SkinStylesheet {
+        <<fantasy.css, scifi.css, cyberpunk.css>>
+        mayset(--panel-edge)
+        mayset(--panel-surface)
+        mayset(one ambient effect)
+    }
+    class Neutral {
+        <<TopBar, Sidebar, dialog>>
+    }
+
+    ShellPage --> GenreSkin : asks
+    GenreSkin --> Project : first
+    GenreSkin --> ToolCatalogEntry : then
+    GenreSkin --> Genre : returns none or one
+    SkinStylesheet --> Genre : keyed by
+    ShellPage "1" o-- "*" SkinStylesheet : dressed by
+    Neutral ..> GenreSkin : never asks
+    Project ..> SkinStylesheet : forbidden
+```
+
+`Project ..> SkinStylesheet : forbidden` is the edge to read twice, and it is the same shape as
+`Panel ..> Tone` in [the message family](#message-anatomy). A project names a genre; it never names
+a look. Nothing about a stylesheet reaches back into stored data, so a skin cannot be a thing a
+project _has_ — only a thing the page is currently wearing on its behalf. That is what keeps
+"changing a genre invalidates nothing" true.
+
+`Neutral ..> GenreSkin : never asks` is the second. The top bar, the sidebar and the dialog do not
+consult the resolver and opt out; they are never in a position to ask.
+
+### What this converts
+
+- **`GeneratorPage`'s `theme` prop is deleted**, along with its thirty call sites. The three
+  `"default"` values go with it, naming as they do a stylesheet that does not exist.
+- **`AdndCharacterBuilder`'s hand-written `class="fantasy main"`** becomes an ordinary
+  `section.main`. It is the one file that bypassed the prop, and it is why the sweep below is a
+  sweep rather than a code review.
+- **`+layout.svelte` gains the attribute and the subscription**, and is the only file that writes
+  `data-genre`.
+- **A resolver**, beside the projects library rather than inside it: it reads a project and the
+  tool catalog, and `$lib/projects` must not learn about `$lib/tools`' catalog for this — the
+  dependency `project_types.ts` already documents runs the other way.
+- **The three skin files change selector**, `.fantasy` to `[data-genre='fantasy']`, and nothing
+  else. Their contents are #119–#121's.
+
+### What this leaves to the skins
+
+Everything in [decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)'s permitted
+column, unchanged, and one new guarantee they can be written against: **the attribute is on an
+ancestor of every panel and of nothing else.** A skin never needs a selector that reaches upward,
+and it never needs to exclude the shell by hand.
+
+`horror` is in `GENRES` and has no stylesheet until #122. That resolves to `data-genre="horror"`
+with nothing keyed to it, which renders as base — the correct behaviour, and the reason the
+resolver returns a genre rather than a stylesheet.
+
+### What applying a skin enforces
+
+`tokens.test.ts` grows by three:
+
+- **No component writes `data-genre`** except `+layout.svelte`. One genre, one writer; this is the
+  "thirty places" problem stated as a test so it cannot come back.
+- **No stylesheet outside the three skin files declares a `[data-genre=…]` rule**, and no skin file
+  declares a bare `.fantasy` / `.scifi` / `.cyberpunk` selector. The first keeps skins in skin
+  files; the second is what stops the old class name surviving beside the new attribute.
+- **Every genre a skin file keys off is in `GENRES`.** A stylesheet keyed to a genre that does not
+  exist is dead CSS that looks live, and it is the failure mode a typo produces.
+
+And one in the browser, because it is a computed relationship rather than a source fact:
+`e2e/workshop.spec.ts` opens a project with a genre and asserts the page region carries the
+attribute while the top bar and the sidebar do not — then changes the project's genre and asserts
+the attribute follows **without a reload**, which is #118's second acceptance criterion and the one
+a future refactor is most likely to break by moving the subscription.
 
 ## Enforcement
 
