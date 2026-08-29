@@ -71,9 +71,23 @@ taxonomy. It does replace a mechanism: a skin is selected by `data-genre` on the
 than by a class, written in one place instead of thirty, and `GeneratorPage`'s free-string `theme`
 prop is deleted rather than joined.
 
-Awaiting approval, unlike the four amendments above it: #118 is still `needs-design`, and [the skin
-anatomy](#skin-anatomy) is the diagram CLAUDE.md's review gate asks a human to approve before the
-implementation starts.
+**Amended 2026-08-29 by [#119](https://github.com/ironarachne/ironarachne/issues/119)**, which adds
+[the skin contract, and the fantasy skin](#the-skin-contract-and-the-fantasy-skin). All three skin
+files do the same wrong thing, so the section settles the shape of a skin file once — for #119 to
+build and #120–#122 to copy — and then works fantasy out in full. It adds one rule: a skin's surface
+may shift hue freely but its luminance may not rise above `--surface-raised`'s, which is what keeps
+every ink role at least as readable on a skinned panel as on a base one without measuring four skins
+separately.
+
+It also records a failure in the approved taxonomy that this issue is what measured.
+**`--ink-faint` does not meet its 4.5:1 target on any panel** — it is 3.9:1 on `--surface-raised`,
+because the 4.8:1 in [colour roles](#colour-roles) is measured against the page and a label lives on
+a panel. Not fantasy's doing and not fantasy's to fix; see the section for why the fix moves two
+roles rather than one.
+
+Awaiting approval, unlike the five amendments above it: #119 is still `needs-design`, and the rule
+and the finding are what CLAUDE.md's review gate asks a human to approve before implementation
+starts.
 
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
@@ -1883,6 +1897,179 @@ And one in the browser, because it is a computed relationship rather than a sour
 attribute while the top bar and the sidebar do not — then changes the project's genre and asserts
 the attribute follows **without a reload**, which is #118's second acceptance criterion and the one
 a future refactor is most likely to break by moving the subscription.
+
+## The skin contract, and the fantasy skin
+
+[Decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look) says what a skin may touch,
+and [applying a skin](#applying-a-skin) settled how one is selected. Neither says what a skin file
+actually contains, and all three that exist do the same wrong thing — so this settles the shape
+once, for [#119](https://github.com/ironarachne/ironarachne/issues/119) to build and
+#120–#122 to copy, and then works fantasy out in full.
+
+### All three skins are the same file with different colours in it
+
+`fantasy.css`, `scifi.css` and `cyberpunk.css` each style `h1`–`h6` and nothing else. A shimmering
+gold foil, a cyan pulse, a neon flicker with dead spots — all of them animated, all of them on the
+type, and all of them written in hexes that no token names. They are the reason
+[decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look) says the ambient effect moves
+off type and onto the panel: **a heading that shimmers is a heading being animated while it is being
+read**, and the display face already carries the brand.
+
+The button rules they used to carry are already gone, removed by #115. What is left to remove is the
+type.
+
+### What a skin file contains
+
+Six declarations and one keyframe. That is the whole shape, and a skin file that wants a seventh is
+asking for something the system has not agreed to give it.
+
+| Line                                    | Sets                                                |
+| --------------------------------------- | --------------------------------------------------- |
+| `--panel-edge`                          | The keyline colour on every panel                   |
+| `--panel-surface`                       | The fill inside the liner                           |
+| `--accent` / `--accent-quiet`           | The hue for chips, kickers and figures              |
+| A heading colour, scoped to the panel   | The display ink, and nothing about its size or face |
+| A background layer on the panel surface | The one ambient effect                              |
+| A `prefers-reduced-motion` block        | Which turns that effect off                         |
+
+Everything else is inherited, and the list of what a skin may not touch is
+[decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)'s plus
+[the panel language](#what-this-leaves-to-the-skins-1)': the typeface, the type scale, the space ramp,
+control geometry, the notch, the liner, the halo, `--lift`, and a badge's shape.
+
+```mermaid
+classDiagram
+    class BaseSystem {
+        <<tokens.css, main.css>>
+        +type ramp, six steps
+        +space ramp, eight steps
+        +notch, corner-control, corner-nav
+        +lift, edge, sink, halo
+        +ink, ink-muted, ink-faint
+    }
+    class Skin {
+        <<fantasy, scifi, cyberpunk, horror>>
+        +panel-edge
+        +panel-surface
+        +accent hue
+        +heading colour
+        +one ambient effect
+    }
+    class Panel {
+        <<data-genre ancestor>>
+    }
+    class ContrastFloor {
+        <<measured against the skin surface>>
+        +every ink role >= its base figure
+    }
+
+    Skin --> Panel : dresses
+    BaseSystem --> Panel : builds
+    Skin ..> BaseSystem : may not touch
+    Skin --> ContrastFloor : must clear
+    ContrastFloor ..> BaseSystem : compares against
+```
+
+`Skin ..> BaseSystem : may not touch` is the edge that has been broken in every skin file the app
+has: three of them restyle the type ramp's own elements today. `Skin --> ContrastFloor` is the one
+this section adds, and it is the rest of the section.
+
+### A skin changes the background, so it changes every ratio in this document
+
+Every contrast figure in [colour roles](#colour-roles) is measured against `--surface-page`. Panels
+are not the page — they are `--surface-raised` — and a skinned panel is not that either. **No issue
+in #77 says a skin must re-measure, and until this one none of them would have.**
+
+Measured, rather than assumed:
+
+| Surface                            | `--ink` | `--ink-muted` | `--ink-faint` | Gold heading |
+| ---------------------------------- | ------: | ------------: | ------------: | -----------: |
+| `--surface-page`, as documented    |  15.2:1 |         6.8:1 |         4.8:1 |        7.1:1 |
+| `--surface-raised` — **any panel** |  12.2:1 |         5.5:1 |     **3.9:1** |        5.8:1 |
+| Slate warmed 8% toward gold        |  10.7:1 |         4.8:1 |     **3.4:1** |        5.0:1 |
+| Charcoal warmed 12% toward gold    |  11.6:1 |         5.5:1 |     **3.9:1** |        5.8:1 |
+
+Two things fall out of that table, and they are the substance of this design.
+
+### `--ink-faint` does not meet its own target on any panel, skin or no skin
+
+**It measures 3.9:1 on `--surface-raised`, against a 4.5:1 floor.** The 4.8:1 the document records
+is real and is measured against the page — but `--ink-faint` is for "labels and kickers", and a
+label lives on a panel. The role has been failing on the surface it is actually used on since it was
+defined.
+
+This is not the fantasy skin's doing and it is not the fantasy skin's to fix. It is recorded here
+because this issue is what measured it, and because the fix is a taxonomy change rather than a
+nudge: raising the mix from 48% to **54%** clears 4.5:1 on a base panel, and **58%** would be needed
+on a warmed one — but `--ink-muted` is 60%, so a faint role at 58% is a muted role with a different
+name. Fixing it properly means moving both, which is #113's table and wants its own issue.
+
+**What #119 owes here is only that it does not make it worse**, which the rule below guarantees.
+
+### A skin's surface is never lighter than the base's
+
+The rule this section adds, and the one that makes four skins safe to write without measuring each
+one:
+
+> Every ink role, measured against a skin's `--panel-surface`, is at least as readable as it is
+> against `--surface-raised`.
+
+Because ink is light and surfaces are dark, that reduces to a check anyone can make: **a skin's
+surface may shift hue freely, but its luminance may not rise above `--surface-raised`'s.** A skin
+that only re-hues cannot make text less readable, and it never has to argue about a floor.
+
+This has a consequence worth stating plainly, because it is the opposite of the obvious approach.
+**A warm panel is charcoal warmed toward gold, not slate warmed toward gold.** Warming slate
+lightens it, and every ink role pays; warming charcoal by the same amount lands at the same
+luminance as slate while reading warm. Searching the space of gold-into-slate mixes for one that is
+both visibly warm and no lighter than slate returns exactly one recipe, and it is charcoal-based.
+
+### The fantasy skin
+
+| Property          | Value                                                     | Measured                    |
+| ----------------- | --------------------------------------------------------- | --------------------------- |
+| `--panel-surface` | `color-mix(in srgb, var(--gold) 12%, var(--charcoal))`    | Warm; no lighter than slate |
+| `--panel-edge`    | `var(--border-strong)` — the tan keyline                  | —                           |
+| Heading colour    | `var(--accent-quiet)`, scoped to headings inside a panel  | 5.8:1, clears 4.5           |
+| `--accent-quiet`  | Unchanged. Gold is already the base's quiet accent        | —                           |
+| Corner            | **Unchanged.** Fantasy is the genre the cut was drawn for | —                           |
+| Ambient effect    | A slow gold sheen across the panel surface                | —                           |
+
+The corner line is not an omission. The vocabulary offers cut, bevelled and square, and the 9px cut
+in [elevation](#elevation) was designed for exactly this genre — so fantasy's contribution is to
+leave it alone, and the skins that want a different corner are the ones that pay for it.
+
+**The sheen is the shimmer, moved.** A gold gradient band crossing the panel surface on a long
+cycle, painted as a background layer on the liner rather than as an element, so it touches nothing
+the skin is forbidden to touch. Three constraints on it:
+
+- **Slow and low-contrast.** A bench holds several panels and they all wear the skin; the effect has
+  to survive being on screen five times at once without becoming a strobe. The heading shimmer it
+  replaces ran on an 8s cycle over text — this runs slower still, over a surface nobody is reading.
+- **Not on a bare panel.** The main tool panel has `--panel-surface: none`, so a sheen there would be
+  a gradient floating on the page. It is scoped to `.panel:not(.panel--bare)`.
+- **Off under `prefers-reduced-motion: reduce`**, with the surface still reading correctly static —
+  the effect is a moving highlight on a fill, not the fill itself.
+
+### What the fantasy skin enforces
+
+`tokens.test.ts` grows, and one exemption ends:
+
+- **`fantasy.css` joins the hex sweep.** The three skin files were exempted when the controls landed
+  — "their heading effects are full of hexes and belong to #119–#121" — and this is the first of the
+  three to come off that list. `scifi.css` and `cyberpunk.css` stay exempt until their own issues.
+- **No skin file declares a heading rule.** `h1`–`h6` belong to the type ramp. This is the same
+  shape as the existing "no skin file declares a `button` rule", and it is what stops the shimmer
+  coming back.
+- **A skin declares at most one `@keyframes` and one `animation`**, and declares a
+  `prefers-reduced-motion` block if it declares either. One effect per skin, stated as a test.
+- **No skin file mentions `--notch`, `--halo`, `--lift`, a `font-` property, or a spacing step.**
+  The "may not touch" list, swept.
+
+And one in the browser, because it is the whole point and cannot be read off the source: an e2e
+check that a fantasy panel's computed surface is **no lighter** than a base panel's. That is the
+rule above, and it is what a future skin — or a future tweak to this one — would otherwise break
+silently.
 
 ## Enforcement
 
