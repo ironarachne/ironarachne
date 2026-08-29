@@ -705,13 +705,82 @@ describe('the panel language', () => {
       // Decision 2 again, for the surfaces: a skin may set `--panel-edge` and `--panel-surface`
       // and put its one ambient effect on the panel, and may not touch the notch, the liner, the
       // padding or the halo.
-      const css = readFileSync(join(STYLES_DIR, name), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+      //
+      // Checked as *properties* rather than as selectors. This forbade a `.panel` selector outright
+      // until #119, which is stricter than the design: putting the ambient effect on the panel
+      // surface means selecting the liner that paints it. What a skin may not do is change the
+      // shape of what it selects.
+      const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
 
-      expect(css).not.toMatch(/\.panel(__|--)?[\w-]*\s*\{/);
+      const geometry =
+        /(?:^|[;{])\s*(padding|margin|gap|clip-path|border-radius|border-width|box-shadow|width|height|inset)\s*:/g;
+
+      expect(
+        [...css.matchAll(geometry)].map(([, property]) => property),
+        `${name} changes the shape of what it dresses`,
+      ).toEqual([]);
+
       expect(css).not.toMatch(/\.(badge|chip)(--)?[\w-]*\s*\{/);
       expect(css).not.toContain('--halo');
+      expect(css).not.toContain('--lift');
+      expect(css).not.toContain('--notch');
     },
   );
+
+  // The skins converted so far. `scifi.css` and `cyberpunk.css` join as #120 and #121 land; the
+  // list is meant only to grow, and a skin that is on it is held to the whole contract.
+  const CONVERTED_SKINS = ['fantasy.css'];
+
+  it.each(CONVERTED_SKINS)('writes no colour value of its own in %s', (name) => {
+    // The exemption granted when the controls landed — "their heading effects are full of hexes and
+    // belong to #119–#121" — ends for a skin the moment its issue does.
+    const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
+
+    expect(css.match(/#[0-9a-fA-F]{3,8}\b/g) ?? [], `${name} declares a hex`).toEqual([]);
+    expect(css.match(/rgba?\(\s*\d+\s*,/g) ?? [], `${name} declares a literal colour`).toEqual([]);
+  });
+
+  it.each(CONVERTED_SKINS)('leaves the type ramp alone in %s', (name) => {
+    // The genre moved off the type and onto the panel. Every skin styled `h1`-`h6` and only
+    // `h1`-`h6` before its rewrite, which is a heading being animated while it is being read.
+    // A heading *colour* inside a panel is permitted and is not this: what is forbidden is a rule
+    // that reaches the elements the type ramp owns, and any font property at all.
+    const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
+
+    // Every heading rule is scoped to a panel. A skin dresses panels, and a heading colour on one
+    // is permitted — what is forbidden is the old form, `[data-genre='fantasy'] h1, h2, …`, which
+    // reached every heading on the page including the page title the type ramp owns.
+    const selectors = css.match(/[^{}]+(?=\{)/g) ?? [];
+    const unscopedHeadings = selectors
+      .map((selector) => selector.trim())
+      .filter((selector) => /(?:^|[\s,>+~])h[1-6](?![\w-])/.test(selector))
+      .filter((selector) =>
+        selector
+          .split(',')
+          .some((part) => /(?:^|[\s,>+~])h[1-6](?![\w-])/.test(part) && !part.includes('.panel')),
+      );
+
+    expect(unscopedHeadings, `${name} restyles a heading outside a panel`).toEqual([]);
+    expect(css, `${name} sets a font property`).not.toMatch(
+      /(?:^|[;{])\s*(?:font|font-[\w-]+|letter-spacing|line-height|text-transform)\s*:/,
+    );
+  });
+
+  it.each(CONVERTED_SKINS)('caps ambient motion at one effect in %s', (name) => {
+    // "At most one ambient effect, off under reduced motion" is decision 2's, and it is the line
+    // the old skins broke hardest: cyberpunk ran two animations at once on the type.
+    const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
+
+    const keyframes = css.match(/@keyframes\s/g) ?? [];
+    expect(keyframes.length, `${name} declares more than one effect`).toBeLessThanOrEqual(1);
+
+    const animated = /(?:^|[;{])\s*animation\s*:\s*(?!none)/.test(css);
+    if (animated) {
+      expect(css, `${name} animates without a reduced-motion escape`).toContain(
+        'prefers-reduced-motion: reduce',
+      );
+    }
+  });
 });
 
 describe('motion', () => {

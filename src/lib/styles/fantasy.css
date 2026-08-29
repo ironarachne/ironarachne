@@ -1,42 +1,87 @@
-@keyframes shimmering-gold {
-  0% {
-    background-position: -200% center;
+/* The fantasy skin: a panel skin over the base system, and nothing more.
+ *
+ * Six declarations and one keyframe, which is the whole shape a skin file is allowed —
+ * see docs/visual-design.md, "The skin contract, and the fantasy skin". Before #119 this file
+ * styled `h1`-`h6` and only `h1`-`h6`: a shimmering gold foil, animated, over the type, written in
+ * hexes no token named. A heading that shimmers is a heading being animated while it is being
+ * read, and the display face already carries the brand — so the genre moved off the type and onto
+ * the panel.
+ *
+ * What this file may not touch: the typeface, the type scale, the space ramp, control geometry,
+ * the notch, the liner, the halo, `--lift`, and a badge's shape.
+ */
+
+/* The one ambient effect. A gold band crossing the panel surface, painted as a background layer
+   rather than as an element so it touches nothing the skin is forbidden to touch. */
+@keyframes fantasy-sheen {
+  from {
+    background-position: -150% 0;
   }
-  100% {
-    background-position: 200% center;
+  to {
+    background-position: 250% 0;
   }
 }
 
 [data-genre='fantasy'] {
-  & h1,
-  & h2,
-  & h3,
-  & h4,
-  & h5,
-  & h6 {
-    /* Create a metallic/shimmering gold foil effect instead of a flat color or glow */
-    background: linear-gradient(
-      120deg,
-      var(--gold) 20%,
-      #ffe169 40%,
-      #fffae6 50%,
-      #ffe169 60%,
-      var(--gold) 80%
-    );
-    background-size: 200% auto;
-    color: transparent;
-    -webkit-background-clip: text;
-    background-clip: text;
+  /* Charcoal warmed toward gold, and deliberately not slate warmed toward gold.
 
-    /* Keep the crimson shadow but use drop-shadow since the text color is transparent */
-    filter: drop-shadow(0 2px 2px var(--crimson));
+     Warming slate lightens it, and every ink role pays: `--ink-faint` measures 3.4:1 on slate
+     warmed 8% toward gold, against a 4.5:1 floor. Warming charcoal by more lands at the same
+     luminance as slate while reading warm, so nothing pays. That is the skin rule stated in one
+     declaration — a skin may shift its surface's hue but never raise its luminance above
+     `--surface-raised`, which is what makes that surface the worst case for the whole app and
+     lets colour roles measure against it. */
+  --panel-surface: color-mix(in srgb, var(--gold) 12%, var(--charcoal));
 
-    /* Animate the metallic shine slowly over the surface */
-    animation: shimmering-gold 8s linear infinite;
+  /* The tan keyline. `--border-strong` is already the base's stronger edge, so this is the skin
+     choosing between two roles the system has rather than introducing a colour. */
+  --panel-edge: var(--border-strong);
+
+  /* No `--accent` or `--accent-quiet` override: gold is already the base's quiet accent, so the
+     fantasy chip, kicker and figure colour is the one the app has. A skin that changes nothing
+     here is a skin agreeing with the base, not a skin that forgot.
+
+     No corner override either. The vocabulary offers cut, bevelled and square, and the 9px cut in
+     "Elevation" was drawn for exactly this genre — fantasy's contribution is to leave it alone. */
+}
+
+/* The display ink. Gold headings inside a panel, at 5.8:1 on the surface above — a colour, which a
+   skin may set, and not a size or a face, which it may not. Scoped to the panel because that is
+   what a skin dresses: a heading on the bare page belongs to the type ramp. */
+[data-genre='fantasy'] .panel .panel__title,
+[data-genre='fantasy'] .panel h2,
+[data-genre='fantasy'] .panel h3,
+[data-genre='fantasy'] .panel h4 {
+  color: var(--accent-quiet);
+}
+
+/* The sheen, on the liner that paints the surface.
+
+   `.panel:not(.panel--bare)` because the main tool panel has no surface of its own — a sheen there
+   would be a gradient floating on the page. `background-image` over the liner's own
+   `background-color`, so the fill is still `--panel-surface` and the effect is a highlight moving
+   across it rather than the fill itself.
+
+   40s and a 6% mix: a bench holds several panels and every one of them wears this, so the effect
+   has to survive being on screen five times at once without becoming a strobe. The heading shimmer
+   it replaces ran an 8s cycle over text somebody was reading. */
+[data-genre='fantasy'] .panel:not(.panel--bare) > .panel__field {
+  animation: fantasy-sheen 40s linear infinite;
+  background-image: linear-gradient(
+    100deg,
+    transparent 35%,
+    color-mix(in srgb, var(--gold) 6%, transparent) 50%,
+    transparent 65%
+  );
+  background-repeat: no-repeat;
+  background-size: 200% 100%;
+}
+
+/* Decision 2 caps ambient motion at one effect per skin and turns it off here. The surface still
+   reads correctly without it: the sheen is a moving highlight on a fill, not the fill. */
+@media (prefers-reduced-motion: reduce) {
+  [data-genre='fantasy'] .panel:not(.panel--bare) > .panel__field {
+    animation: none;
+    background-image: none;
   }
-
-  /* No `button` rule. A skin may set a surface, a keyline, a corner, an accent hue and one
-     ambient effect; control geometry is not on that list, and a skin's copy of the old gradient
-     would outrank the control system wherever a genre is applied. See docs/visual-design.md,
-     decision 2 and "What this leaves to the skins". */
 }
