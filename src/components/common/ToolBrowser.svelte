@@ -7,7 +7,9 @@
     systemDisplayName,
   } from '$lib/tools';
   import type { GameSystem, Genre, Tool } from '$lib/tools';
+  import { DOMAIN_MARKS } from '$lib/tool_marks';
   import Badge from '$components/common/Badge.svelte';
+  import Icon from '$components/common/Icon.svelte';
   import ListButton from '$components/common/ListButton.svelte';
   import Panel from '$components/common/Panel.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
@@ -135,7 +137,10 @@
 
   <div class="tool-browser__list well">
     {#each groups as group (group.domain)}
-      <h3>{group.heading}</h3>
+      <!-- The catalog's own classification, shown. Same marks the All Tools page uses, from the
+           same map, because two lists of the same catalog disagreeing about what a domain looks
+           like is worse than neither showing it. -->
+      <h3><Icon icon={DOMAIN_MARKS[group.domain]} class="tool-browser__mark" />{group.heading}</h3>
       <ul>
         {#each group.tools as tool (tool.path)}
           {@const isActive = loadedPaths.has(tool.path)}
@@ -145,7 +150,10 @@
               selected={isActive}
               onclick={() => selectTool(tool)}
             >
-              <span class="tool-browser__name">{tool.label}</span>
+              <span class="tool-browser__label">
+                <Icon icon={DOMAIN_MARKS[group.domain]} />
+                <span class="tool-browser__name">{tool.label}</span>
+              </span>
               <!-- The maturity rides along with every entry that has one to state. This list
                    used to mark all of them, on the grounds that marking only the unfinished tools
                    leaves the user reading absence; #43 settled it the other way, because
@@ -240,6 +248,19 @@
   li {
     list-style-type: none;
     margin: 0;
+  }
+
+  /* The mark and the name are one thing, so the row's own layout pushes the badges away from the
+     pair rather than the mark away from the name it classifies. */
+  .tool-browser__label {
+    align-items: baseline;
+    display: flex;
+    gap: var(--s3);
+    min-width: 0;
+  }
+
+  .tool-browser__list :global(.tool-browser__mark) {
+    margin-right: var(--s3);
   }
 
   .tool-browser__name {

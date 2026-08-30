@@ -1,3 +1,4 @@
+import shield from '$lib/assets/icons/set2/shild.svg?raw';
 import type { RNG } from '@ironarachne/rng';
 
 import {
@@ -189,6 +190,7 @@ export function migrateHeraldrySnapshot(
 export const heraldryArtifactKind = defineArtifactKind<RestoredHeraldry, HeraldrySnapshot>({
   kind: HERALDRY_ARTIFACT_KIND,
   displayName: 'Coat of Arms',
+  icon: shield,
   payloadVersion: HERALDRY_PAYLOAD_VERSION,
   // The import is written out rather than computed so the bundler can split it, and it is split
   // because `heraldry_rehydrate` reaches the charge art. Writing a snapshot does not, but both

@@ -2948,7 +2948,10 @@ decorated:
   things that are present without being read. A mark that outshines the text beside it has become
   the content.
 - **A mark is sized in `em`**, so it inherits the ramp step of the text it accompanies and is on the
-  type ramp for free. No mark declares a pixel size.
+  type ramp for free. No mark declares a pixel size. The exception is a mark on an **empty
+  surface**, which has no text to accompany: it takes a step from the ramp directly
+  (`--t-display-size`), because at `1em` a mark on an empty shelf reads as a typo beside the
+  sentence rather than as furniture.
 - **Never in running prose.** A mark sits beside a heading, in an empty state, or on a card — never
   inside a sentence, where it interrupts a line somebody is reading.
 - **Never inside a control that already has a label.** That is the original rule, and it is the one

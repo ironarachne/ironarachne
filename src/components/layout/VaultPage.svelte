@@ -18,7 +18,9 @@
   import { hydrateProjects, listProjects, onProjectsChanged } from '$lib/projects';
   import { showConfirmModal } from '$lib/ui';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
+  import chest from '$lib/assets/icons/set2/chest.svg?raw';
   import Chip from '$components/common/Chip.svelte';
+  import Icon from '$components/common/Icon.svelte';
   import ListButton from '$components/common/ListButton.svelte';
   import ArtifactInspector from '$components/common/ArtifactInspector.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
@@ -185,15 +187,28 @@
       {/if}
 
       {#if entries.length === 0}
+        <!-- An empty shelf with a mark on it reads as a shelf; an empty shelf with only a
+             sentence on it reads as a bug. The mark is `aria-hidden` and the sentence says
+             everything — remove the chest and nothing is lost but the flavour of one. -->
         <p class="vault__empty">
-          Nothing saved yet. Anything you keep in the workshop shows up here, whichever project it
-          went into.
+          <Icon icon={chest} class="vault__empty-mark" />
+          Nothing saved yet. Anything you keep in the workshop shows up here, whichever project it went
+          into.
         </p>
       {:else if visible.length === 0}
         <p class="vault__empty">Nothing matches that.</p>
       {:else}
         {#each groups as group (group.kind)}
-          <h2>{kindLabel(group.kind)}</h2>
+          <!-- The kind's own mark, from its registration. A kind without one shows none: the
+               fallback is nothing rather than a generic icon, because a placeholder mark is a
+               sticker. -->
+          {@const kindMark = artifactKindEntry(group.kind)?.icon}
+          <h2>
+            {#if kindMark !== undefined}
+              <Icon icon={kindMark} class="vault__kind-mark" />
+            {/if}
+            {kindLabel(group.kind)}
+          </h2>
           <ul>
             {#each group.artifacts as artifact (artifact.id)}
               <li>
@@ -313,6 +328,21 @@
     flex: 0 0 auto;
     font-size: 0.8rem;
     opacity: 0.7;
+  }
+
+  /* `:global`, because the class lands on `Icon`'s element rather than on one this component
+     writes, and Svelte scopes what it can see. */
+  .vault :global(.vault__kind-mark) {
+    margin-right: var(--s3);
+  }
+
+  .vault__empty :global(.vault__empty-mark) {
+    /* An empty surface has nothing for a mark to accompany, so this one takes a ramp step of its
+       own rather than inheriting one — at `1em` it reads as a typo beside the sentence. A step
+       from the ramp rather than a multiple of the text, which is what keeps it off a sixth scale. */
+    font-size: var(--t-display-size);
+    margin-right: var(--s3);
+    vertical-align: -0.15em;
   }
 
   .vault__empty {

@@ -4,6 +4,8 @@
   import ReleaseNotes from '$components/layout/ReleaseNotes.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
   import { featuredTools } from '$lib/tools';
+  import { DOMAIN_MARKS } from '$lib/tool_marks';
+  import Icon from '$components/common/Icon.svelte';
 
   const featured = featuredTools();
 </script>
@@ -40,7 +42,10 @@
           <li>
             <!-- `resolve` is typed against one route id at a time, so the union of every route id
                  does not satisfy it. Catalog paths are all parameterless static routes. -->
-            <a href={resolve(tool.path as '/')}>{tool.label}</a>
+            <a href={resolve(tool.path as '/')}>
+              <Icon icon={DOMAIN_MARKS[tool.domain]} />
+              {tool.label}
+            </a>
             <ToolMaturityBadge maturity={tool.maturity} />
           </li>
         {/each}
@@ -146,6 +151,14 @@
 
   .home__column h2 {
     margin-top: 0;
+  }
+
+  /* The mark sits with the link's own text, so a wrapped tool name keeps its classifier beside
+     the first line rather than stranded above it. */
+  .home__featured a {
+    align-items: baseline;
+    display: inline-flex;
+    gap: var(--s3);
   }
 
   .home__featured li {

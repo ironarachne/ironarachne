@@ -977,6 +977,69 @@ describe('the panel language', () => {
   });
 });
 
+describe('icons', () => {
+  // docs/visual-design.md, "Icons: the glyph that names, and the mark that decorates".
+  const COMPONENTS_ROOT = COMPONENTS_DIR;
+
+  function componentFiles(): string[] {
+    const walk = (dir: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const path = join(dir, entry.name);
+        if (entry.isDirectory()) {
+          return walk(path);
+        }
+        return entry.name.endsWith('.svelte') ? [path] : [];
+      });
+
+    return walk(COMPONENTS_ROOT);
+  }
+
+  it('draws no icon by hand', () => {
+    // The sixth icon is the one that gets pasted in as markup, and then the seventh is copied from
+    // it. An icon comes from the pack, through `Icon` or `RoundIconButton`; what is exempt is a
+    // component that *generates* SVG, which is a different thing from drawing a picture in a
+    // template — heraldry composes its output as SVG and that output is the tool's product.
+    const generators = ['HeraldryTinctureSelect.svelte'];
+
+    const offenders = componentFiles().filter((path) => {
+      if (generators.some((name) => path.endsWith(name))) {
+        return false;
+      }
+      return /<svg[\s>]/.test(readFileSync(path, 'utf8'));
+    });
+
+    expect(offenders, 'a component draws an icon by hand').toEqual([]);
+  });
+
+  it('hides every mark from the accessibility tree', () => {
+    // A mark decorates a surface that already reads without it, so a screen reader announcing
+    // "image" beside every tool in a list of thirty-four is noise it cannot skip. `Icon` decides
+    // this from whether it was given a label, which is the whole of the glyph/mark boundary: the
+    // component is the one place it can be enforced rather than remembered.
+    const icon = readFileSync(join(COMPONENTS_ROOT, 'common/Icon.svelte'), 'utf8');
+
+    expect(icon, 'Icon can render without deciding whether it is a mark').toContain(
+      "aria-hidden={label === undefined ? 'true' : undefined}",
+    );
+    expect(icon, 'a labelled icon is not announced as an image').toContain(
+      "role={label === undefined ? undefined : 'img'}",
+    );
+  });
+
+  it('sizes a mark in em rather than in pixels', () => {
+    // A mark belongs to the text it accompanies, so it takes that text's step and is on the type
+    // ramp without declaring a size. A pixel size here would be a sixth ramp.
+    const icon = readFileSync(join(COMPONENTS_ROOT, 'common/Icon.svelte'), 'utf8');
+    const sizes = [...icon.matchAll(/(?:height|width|font-size)\s*:\s*([^;]+);/g)].map(
+      ([, value]) => value.trim(),
+    );
+
+    for (const size of sizes) {
+      expect(/px/.test(size), `Icon sizes something in pixels: ${size}`).toBe(false);
+    }
+  });
+});
+
 describe('motion', () => {
   it('declares one duration, and it is swift', () => {
     expect(tokens.get('--motion-swift')).toBe('120ms');

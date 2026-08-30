@@ -1,3 +1,4 @@
+import helmet from '$lib/assets/icons/set2/helmet-2.svg?raw';
 import {
   acceptedPayload,
   asRecord,
@@ -230,6 +231,7 @@ function adndCharacterName(snapshot: AdndCharacterSnapshot): string {
 export const adndCharacterArtifactKind = defineArtifactKind<ADNDCharacter, AdndCharacterSnapshot>({
   kind: ADND_CHARACTER_ARTIFACT_KIND,
   displayName: 'AD&D 2E Character',
+  icon: helmet,
   payloadVersion: ADND_CHARACTER_PAYLOAD_VERSION,
   loadCodec: async () => {
     const { adndCharacterFromSnapshotWithRng, toAdndCharacterSnapshot } =
