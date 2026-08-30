@@ -786,9 +786,10 @@ describe('the panel language', () => {
     },
   );
 
-  // The skins converted so far. `cyberpunk.css` joins as #121 lands; the list is meant only to
-  // grow, and a skin that is on it is held to the whole contract.
-  const CONVERTED_SKINS = ['fantasy.css', 'scifi.css'];
+  // Every skin the app has. The list was created because the skins converted one issue at a time
+  // and the ones that had not were exempt from the sweeps; #121 is the last of them, so there is
+  // nothing carried and nothing left to exempt.
+  const CONVERTED_SKINS = ['fantasy.css', 'scifi.css', 'cyberpunk.css'];
 
   it.each(CONVERTED_SKINS)('writes no colour value of its own in %s', (name) => {
     // The exemption granted when the controls landed — "their heading effects are full of hexes and
@@ -866,6 +867,34 @@ describe('the panel language', () => {
       );
       expect(pixels, `${name} cuts deeper than --s5`).toBeLessThanOrEqual(12);
     }
+  });
+
+  it.each(CONVERTED_SKINS)('animates slowly enough to be ambient in %s', (name) => {
+    // The assertion #121 exists to leave behind. The cap on the *number* of effects never said
+    // anything about their rate, and `cyberpunk.css` used to run a 1.5s pulse and a 4s LED fault
+    // whose hard cuts landed 40ms apart — a strobe on text, and the only thing in the app that went
+    // near WCAG 2.3.1's three flashes per second. Ambient motion is measured in tens of seconds;
+    // anything quicker is a state change, which is `--motion-swift`'s business and not a skin's.
+    const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
+    const durations = [...css.matchAll(/(?:^|[;{])\s*animation\s*:\s*[^;]*?([\d.]+)s/g)];
+
+    for (const [, seconds] of durations) {
+      expect(Number.parseFloat(seconds), `${name} animates faster than 20s`).toBeGreaterThanOrEqual(
+        20,
+      );
+    }
+  });
+
+  it.each(CONVERTED_SKINS)('leaves the focus hue to the focus ring in %s', (name) => {
+    // `--focus` is acid green and `--halo` is mixed from `--accent`, so a skin taking acid for its
+    // accent would give a panel a focus halo, a focus ring and a set of chips in one colour — in
+    // the one place in the system where telling two things apart carries meaning. A corner mark in
+    // acid is not this: a mark is at the panel's corner, a ring is around the control.
+    const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
+
+    expect(css, `${name} takes the focus ring's hue for its accent`).not.toMatch(
+      /--accent\s*:\s*var\(--acid-green\)/,
+    );
   });
 
   it('gives every genre a shape of its own', () => {

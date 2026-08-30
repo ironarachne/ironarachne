@@ -180,3 +180,114 @@ test.describe('the sci-fi skin', () => {
     expect(paint.image, 'the scanlines went with the scan').toContain('repeating-linear-gradient');
   });
 });
+
+test.describe('the cyberpunk skin', () => {
+  test('marks the corners rather than outlining the panel', async ({ page }) => {
+    await openProject(page);
+    const base = await panelShape(page);
+
+    await setGenre(page, 'cyberpunk');
+    const cyberpunk = await panelShape(page);
+
+    expect(cyberpunk.surface, 'the skin did not reach the panel surface').not.toEqual(base.surface);
+
+    // Darker than a base panel, which the skin rule requires, and darker than the page, which is
+    // what "inset black" means: this genre's panels are cut into the page rather than raised off
+    // it. docs/visual-design.md, "The surface gives up its separation".
+    expect(
+      luminance(cyberpunk.surface),
+      'a cyberpunk panel is lighter than a base panel',
+    ).toBeLessThanOrEqual(luminance(base.surface));
+
+    // Four knife edges, which is the shape it revised #120's reserved slash into. The clip is
+    // still a polygon — at zero depth it is the panel's own rectangle, so every coordinate is a
+    // corner of the box and nothing is cut off.
+    expect(cyberpunk.clip, 'the skin did not reach the corner').not.toEqual(base.clip);
+    expect(cyberpunk.clip, 'the corner is not square').toMatch(
+      /^polygon\((?:\s*(?:0px|100%) (?:0px|100%),?)+\)$/,
+    );
+    expect(cyberpunk.box, 'a skinned panel is not the size of a base panel').toEqual(base.box);
+  });
+
+  test('earns its brightness by covering a fifth of the perimeter at most', async ({ page }) => {
+    // The rule that lets this skin wear undiluted acid and magenta where the register would
+    // otherwise forbid them: a corner mark is not a keyline. Checked in the browser because it is a
+    // relationship between what the skin paints and how big the panel it painted on turned out to
+    // be — which no source sweep can see.
+    await openProject(page);
+    await setGenre(page, 'cyberpunk');
+
+    const keyline = await page
+      .locator('.panel')
+      .first()
+      .evaluate((element) => {
+        const computed = getComputedStyle(element);
+        const { width, height } = element.getBoundingClientRect();
+        return {
+          // Counted by gradient rather than by comma: each layer's own `rgb(…)` stops carry
+          // commas of their own, so splitting the string counts sixteen of eight.
+          layers: (computed.backgroundImage.match(/linear-gradient\(/g) ?? []).length,
+          repeat: computed.backgroundRepeat,
+          sizes: computed.backgroundSize,
+          perimeter: 2 * (width + height),
+        };
+      });
+
+    // Eight layers: two arms at each of four corners.
+    expect(keyline.layers, 'the keyline is not painted as corner marks').toBe(8);
+    // Every layer, not just some: one repeating layer would run an arm the length of the panel and
+    // make the whole argument for full brightness untrue.
+    expect(
+      keyline.repeat.split(',').map((value) => value.trim()),
+      'a mark repeats, which would make it a hairline',
+    ).toEqual(Array.from({ length: 8 }, () => 'no-repeat'));
+
+    // Every arm's long side, totalled, against the perimeter it sits on.
+    const arms = keyline.sizes
+      .split(',')
+      .map((size) => Math.max(...size.trim().split(/\s+/).map(Number.parseFloat)));
+    const painted = arms.reduce((total, arm) => total + arm, 0);
+
+    expect(painted, 'the marks cover more than a fifth of the perimeter').toBeLessThanOrEqual(
+      keyline.perimeter / 5,
+    );
+  });
+
+  test('keeps a control readable on a surface that gave up its fill', async ({ page }) => {
+    // The one thing about this skin a later change could quietly break. A cyberpunk panel is 1.05:1
+    // against `--surface-inset`, so a control's fill no longer separates it from the panel — what
+    // says "sunken" is `--sink` and the border, both base-system and both untouchable by a skin.
+    await openProject(page);
+    await setGenre(page, 'cyberpunk');
+    await projectCard(page, 'Ashfall').getByRole('button', { name: 'Rename' }).click();
+
+    const field = await editingCard(page)
+      .getByLabel('Genre')
+      .evaluate((element) => {
+        const computed = getComputedStyle(element);
+        return { shadow: computed.boxShadow, border: computed.borderTopWidth };
+      });
+
+    expect(field.shadow, 'the control lost the shadow that says it is sunken').not.toBe('none');
+    expect(Number.parseFloat(field.border), 'the control lost its border').toBeGreaterThan(0);
+  });
+
+  test('keeps its marks when motion is switched off', async ({ page }) => {
+    // The flicker is the whole reason #121 needed deciding, and the reduced-motion state is where
+    // that decision shows: the fault goes, the marks stay, and the genre survives the switch.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await openProject(page);
+    await setGenre(page, 'cyberpunk');
+
+    const paint = await page
+      .locator('.panel')
+      .first()
+      .evaluate((element) => ({
+        animation: getComputedStyle(element).animationName,
+        image: getComputedStyle(element).backgroundImage,
+      }));
+
+    expect(paint.animation, 'the ballast still runs under reduced motion').toBe('none');
+    expect(paint.image, 'the corner marks went with the fault').toContain('linear-gradient');
+  });
+});

@@ -99,9 +99,33 @@ between 1.3:1 and 2.2:1 on its own surface — and settles that a skin setting `
 halo's hue with it, which is permitted because the halo's geometry, its opacity and the `--focus`
 ring are all untouched.
 
-Awaiting approval, unlike the amendments above it, which are built: #120 is `needs-design`, and the
-corner mechanism, the keyline band and the halo consequence are what CLAUDE.md's review gate asks a
-human to approve before implementation starts.
+Approved and built. One claim in it was wrong and is corrected where it stands: the formula was
+put on `:root`, where a `var()` inside a custom property resolves against `:root` rather than against
+the panel, and the browser suite caught a sci-fi panel wearing the right surface and the base's
+corner.
+
+**Amended 2026-08-30 by [#121](https://github.com/ironarachne/ironarachne/issues/121)**, which adds
+[the cyberpunk skin, and what a keyline is measured against](#the-cyberpunk-skin-and-what-a-keyline-is-measured-against).
+Two things in it are not another skin. The **flicker does not survive**: `cyberpunk.css` runs two
+animations at once on type, with hard cuts 40ms apart, and it is the only thing in the app that goes
+near WCAG 2.3.1's three flashes per second — so the genre keeps the idea at 0.04Hz on a hairline, and
+the document gains a floor on how fast a skin may animate at all. And the **keyline band is
+corrected**: #120 measured one surface and stated the rule as a ratio against a surface the skin
+itself sets, which asks a near-black genre to wear a grey keyline. It is a register in the keyline's
+own luminance now, 0.055 to 0.111, and every existing skin is already inside it — with one exception
+the same section adds, on area rather than taste: a **corner mark** covering under a fifth of the
+perimeter may go to full brightness, which is what lets this genre wear undiluted acid and magenta
+without putting a bright wire around every panel on the bench.
+
+Drawn against [Cyberpunk 2077's screen language](https://designbycurio.com/learn/cyberpunk-2077-screen),
+which supplies the L-bracket corner mark, the near-black ground and the knife-edge corner — and three
+techniques the contract refuses, listed where they are refused rather than dropped silently. It also
+revises #120's reserved shape for this genre from a 12px slash to four square corners: a cut corner
+truncates the bracket that is meant to sit in it.
+
+Awaiting approval, unlike the amendments above it, which are built: #121 is `needs-design`, and the
+motion floor, the corrected register and the surface that spends its own separation are what
+CLAUDE.md's review gate asks a human to approve before implementation starts.
 
 **Amended 2026-08-30, in review of the above:** every genre gets a panel shape of its own, which
 replaces the "three corner treatments" cap rather than extending it. The panel's polygon is written
@@ -2191,13 +2215,13 @@ and to the skin above it, and the control and nav treatments are untouched by an
 
 ### The four shapes, and why each is its genre's
 
-| Genre         | tl   | tr   | br   | bl   | Reads as                                                                     |
-| ------------- | ---- | ---- | ---- | ---- | ---------------------------------------------------------------------------- |
-| _Base_        | 0    | 9px  | 0    | 9px  | The app's own plate. Neutral, and what a projectless page keeps              |
-| **Fantasy**   | 0    | 0    | 12px | 12px | A shield's foot: square shoulders, both bottom corners taken deep            |
-| **Sci-fi**    | 9px  | 9px  | 9px  | 9px  | A machined plate, chamfered on every edge by the same amount                 |
-| **Cyberpunk** | 12px | 0    | 0    | 0    | Three hard corners and one deliberate slash — signage, cut once              |
-| **Horror**    | 3px  | 11px | 5px  | 8px  | Nothing agrees with anything. Wrong in a way the eye catches and cannot name |
+| Genre         | tl  | tr   | br   | bl   | Reads as                                                                                    |
+| ------------- | --- | ---- | ---- | ---- | ------------------------------------------------------------------------------------------- |
+| _Base_        | 0   | 9px  | 0    | 9px  | The app's own plate. Neutral, and what a projectless page keeps                             |
+| **Fantasy**   | 0   | 0    | 12px | 12px | A shield's foot: square shoulders, both bottom corners taken deep                           |
+| **Sci-fi**    | 9px | 9px  | 9px  | 9px  | A machined plate, chamfered on every edge by the same amount                                |
+| **Cyberpunk** | 0   | 0    | 0    | 0    | Four knife edges. Revised from a 12px slash by #121; its corner marks sit where the cut was |
+| **Horror**    | 3px | 11px | 5px  | 8px  | Nothing agrees with anything. Wrong in a way the eye catches and cannot name                |
 
 Sci-fi's is the one this issue builds, and it is the plainest of the four on purpose: the genre's
 argument is made by a cool plate, a plasma keyline and a scan, and a corner that shouted over them
@@ -2295,6 +2319,13 @@ That gives the skins a band rather than a taste: **a skin's keyline measures bet
 2.2:1 against its own surface.** #121's "acid keyline with a magenta edge" now has a number to hit
 instead of an argument to have.
 
+**Corrected by [#121](#the-band-was-measured-on-one-surface-and-it-does-not-generalise):** that band
+is measured against a surface the skin itself sets, so it punishes a dark genre for being dark. The
+rule is now a register in the keyline's own luminance — 0.055 to 0.111, `--border`'s to roughly twice
+it — and 1.3:1 to 2.2:1 is what that register produces _on a slate-luminance surface_, which is what
+made it look like the rule. Sci-fi's keyline is unchanged either way: 0.1107, at the top of the
+register.
+
 ### The accent moves, and the halo follows it
 
 Sci-fi is the first skin to set `--accent`, which fantasy did not need to: gold was already the
@@ -2340,7 +2371,7 @@ surface, and a scanline grid floating on the page is what a wider selector would
 | Property          | Value                                                         | Measured                               |
 | ----------------- | ------------------------------------------------------------- | -------------------------------------- |
 | `--panel-surface` | `color-mix(in srgb, var(--plasma-blue) 16%, var(--charcoal))` | `rgb(33 47 69)`; no lighter than slate |
-| `--panel-edge`    | `color-mix(in srgb, var(--plasma-blue) 40%, var(--granite))`  | 2.07:1 on that surface                 |
+| `--panel-edge`    | `color-mix(in srgb, var(--plasma-blue) 40%, var(--granite))`  | luminance 0.1107, top of the register  |
 | Corner depths     | `9px` at all four corners                                     | A machined plate; none past `--s5`     |
 | `--accent`        | `var(--cyan)`                                                 | 7.5:1; the halo follows the hue        |
 | `--accent-quiet`  | **Unchanged.** Gold is the message tone, not the genre's      | —                                      |
@@ -2383,6 +2414,242 @@ And two in the browser, because both are computed relationships:
   bounding box does not. That is the corner rule's whole claim, it is invisible to a source sweep,
   and it is what a future skin reaching for geometry would break. The same assertion covers the
   fantasy shield, since both are the same two lines of mechanism.
+
+## The cyberpunk skin, and what a keyline is measured against
+
+[#121](https://github.com/ironarachne/ironarachne/issues/121) is the third skin and the last file on
+the hex exemption, so it should be the cheap one: the contract is settled, the corner mechanism
+exists, and two skins have filled the shape in. It is not, for two reasons. Its ambient effect is the
+one animation in this app that could plausibly hurt somebody, and its stated look — an inset black
+surface under an acid keyline — is the case that breaks the keyline rule #120 wrote after measuring
+exactly one surface.
+
+### The flicker does not survive, and that is the point
+
+`cyberpunk.css` runs **two** animations at once on `h1`–`h6`: `rapid-pulse-neon`, a 1.5s neon
+drop-shadow pulse, and `defective-led`, a 4s background jump with hard cuts at 10%, 11%, 40%, 41%,
+43% of the cycle. Both are on type. Decision 2 caps a skin at one ambient effect, so at least one of
+them was always going; what the numbers say is that neither survives in that form.
+
+The hard cuts in `defective-led` land in pairs 40ms apart — four transitions inside one 4s loop,
+with two of them separated by a single percent of the cycle. That is a **strobe on text somebody is
+reading**, and it is the only thing in the app that goes anywhere near
+[WCAG 2.3.1](https://www.w3.org/WAI/WCAG22/Understanding/three-flashes-or-below-threshold)'s three
+flashes per second. Removing it is a fix rather than a loss, and it is worth saying plainly in the
+document that this genre's charm was implemented as an accessibility hazard.
+
+**The idea survives; the rate does not.** A sign with a failing ballast is a legitimate thing for
+this genre to say, and it can be said once every twenty-four seconds instead of twice a second:
+
+- **One dip per 24s cycle**, lasting about 250ms — 0.04Hz where the threshold is 3Hz, and the
+  document states the figure so the next person changing it knows what the number is for.
+- **On a hairline, not on a field.** The thing that dips is a 1px lit edge on the panel surface, far
+  under the 25%-of-viewport area the general flash threshold is about, and nowhere near the type.
+- **Off under `prefers-reduced-motion: reduce`,** where the lit edge stays and only the dip goes —
+  the standard sci-fi set, and the reason the genre survives the switch.
+
+### The surface gives up its separation, and the keyline takes it over
+
+"Inset black" is the instruction, and taken literally it is measurable. The skin's surface is the
+app's own sunken fill given a violet cast — `color-mix(in srgb, var(--amethyst) 10%, var(--surface-inset))`,
+`rgb(30 26 45)`:
+
+| Measured against the cyberpunk surface | Figure | On a base panel |
+| -------------------------------------- | ------ | --------------- |
+| `--ink`                                | 15.3:1 | 12.2:1          |
+| `--ink-muted`                          | 8.0:1  | 6.3:1           |
+| `--ink-faint`                          | 5.8:1  | 4.6:1           |
+| `--magenta`, the accent                | 5.9:1  | —               |
+
+Every ink role is better here than anywhere else in the app, which is what going dark buys. What it
+costs is separation, and the cost is specific rather than vague:
+
+- **Against the page.** The surface is luminance 0.0121 where `--surface-page` is 0.0129 — 1.01:1.
+  A cyberpunk panel is not a plate raised off the page; it is a rectangle cut into it, told apart by
+  hue, by `--lift` and by its keyline rather than by being lighter.
+- **Against a control.** `--surface-inset` is 0.0091, so a text field's fill is 1.05:1 against the
+  panel it sits on where on a base panel it is 1.32:1. The fill stops doing the work.
+
+Neither is a reason to refuse the look, because neither was ever the mechanism. [The control
+vocabulary](#inputs-selects-and-checkboxes) says a control is raised off its surface by `--edge` or
+sunk into it by `--sink`, and both are shadows a skin may not touch; a panel is identified by its
+keyline and its corner, not by its fill. **What this genre does is spend those affordances rather
+than duplicate them** — which is exactly why its keyline has to be allowed to be louder than the
+one the other two skins wear.
+
+### The band was measured on one surface, and it does not generalise
+
+[#120](#the-keyline-is-louder-than-the-bases-and-stays-in-the-same-register) states the rule as
+**1.3:1 to 2.2:1 against a skin's own surface**. That was measured on a surface at slate's
+luminance, where it is correct and where it says the right thing. On this surface it says something
+absurd: to hit 2.2:1 against `rgb(30 26 45)`, an "acid" keyline has to be diluted to
+`rgb(70 86 81)` — a grey with a hint of green in it, no brighter than the base's granite, on the one
+genre whose entire visual argument is a lit edge.
+
+The rule was right about the thing it was protecting and wrong about the quantity, for the second
+time in this document — the same shape as [`--ink-faint`](#ink-faint-did-not-meet-its-own-target-on-any-panel-and-now-does),
+which was a true figure about the wrong surface. **A ratio against the skin's own surface is a
+measurement a skin can move by changing the surface**, so it punishes a dark genre for being dark
+and lets a light one off. Restated against something a skin does not control:
+
+> A keyline's own relative luminance sits between `--border`'s and roughly twice it — **0.055 to
+> 0.111** — which is the register every keyline in the app already occupies.
+
+| Keyline                                  | Luminance | On its own surface |
+| ---------------------------------------- | --------- | ------------------ |
+| Base — `--border`, granite               | 0.0555    | 1.35:1 on slate    |
+| Fantasy — `--border-strong`, tan         | 0.0823    | 1.70:1             |
+| Sci-fi — plasma blue 40% into granite    | 0.1107    | 2.07:1             |
+| **Cyberpunk — acid 15% into granite**    | 0.1031    | 2.46:1             |
+| **Cyberpunk — magenta 35% into granite** | 0.1067    | 2.52:1             |
+| Acid green, undiluted                    | 0.7954    | 13.6:1             |
+
+The 1.3–2.2:1 band becomes what it always was: the figure this register produces _on a
+slate-luminance surface_, useful as a sanity check and not as the rule. Cyberpunk's keyline is
+2.5:1 on its own surface and is **no brighter than sci-fi's** — it looks louder because the thing
+behind it is darker, which is the genre working as designed rather than a skin overreaching.
+
+Undiluted acid green stays out, and the register is why: at 0.795 it is fourteen times its own
+panel, on every panel on the bench at once. A neon hairline at that contrast is halation, not
+signage.
+
+### The keyline is four corner marks, not a hairline
+
+"Acid keyline with a magenta edge" reads like two keylines. It is neither, and the reference this
+skin was drawn against ([Cyberpunk 2077's screen
+language](https://designbycurio.com/learn/cyberpunk-2077-screen)) is what settles the shape: its
+signature compositional device is the **L-bracket corner mark** — partial borders at the corners
+rather than a continuous rectangle, borrowed from targeting reticles and satellite overlays, so a
+panel reads as monitored rather than merely framed. A full rectangle is reserved there for inputs and
+table cells, which is the app's own division stated in someone else's words: `--sink` and a border
+say "control", a keyline says "plate".
+
+The panel language already built the mechanism without meaning to. `--panel-edge` is painted as the
+**background** of the box the liner sits a pixel inside, so it takes layered gradients exactly as
+well as it takes a colour, and that 1px ring is where they land. Eight no-repeat layers — two arms at
+each corner, 18px along and 1px thick — leave the runs between them unpainted, and what shows through
+is the page.
+
+**Each mark is one acid arm and one magenta arm**: horizontals acid green, verticals magenta. That is
+the issue's "acid keyline with a magenta edge" as one device rather than two, and it fixes the two
+hues in a relationship instead of blending them into a third that is neither.
+
+### A corner mark is not a keyline, and the register knows the difference
+
+Undiluted acid green is luminance 0.795 — fourteen times its own panel — and the register above
+exists to keep exactly that off a panel. It is on this one, and the rule bends on area rather than on
+taste:
+
+> A keyline that runs the **whole perimeter** stays in the register, 0.055 to 0.111. A **corner
+> mark**, covering no more than a fifth of it, may go to full palette brightness.
+
+Both halves come from the same reasoning. Halation is a property of a long bright line and a
+wireframe is a property of a closed one; eight 18px arms are neither, and what the register protects
+is not at risk from them. On a 400px panel the marks total about 12% of the perimeter, and the fifth
+is a cap rather than a target.
+
+**Anything that declares `--panel-edge` on itself opts out of the marks**, and that is the existing
+precedence rather than a new rule: a tone, a `.panel--bare`, and the open project's own
+`.project-card--active` all set that property on the element, which beats a genre's inherited value.
+What is new is how visible it is. Under fantasy or sci-fi being outranked changed a keyline's
+colour; here it changes the device, so a toned notice and the open project's card wear a continuous
+edge among bracketed panels. Checked on the page rather than assumed, and it reads as the right
+answer: the one card that is not decoration is the one that is not bracketed.
+
+It is also what pays for the surface giving up its separation. A panel at 1.01:1 against the page has
+to state its boundary somewhere, and stating it brightly at four corners is a stronger signal than
+stating it dimly all the way round — the trade this genre is making, rather than the same rule being
+bent twice in the same direction.
+
+### Acid green is spoken for, so the accent is magenta
+
+The obvious accent for this genre is acid green, and it is the one hue the skin may not take.
+`--focus` **is** acid green — [decision 3](#3-focus-and-contrast-are-targets-not-assumptions) gives
+it to the focus ring and to nothing else — and `--halo` is mixed from `--accent`. A skin setting
+`--accent: var(--acid-green)` would produce a panel whose focus halo, focus ring and chips are all
+the same colour, which is the one place in the system where telling two things apart carries meaning.
+
+So `--accent: var(--magenta)`, at 5.9:1 on this surface, for the chips, the kickers, the figures and
+the panel headings; the halo follows the hue as [sci-fi settled](#the-accent-moves-and-the-halo-follows-it)
+that it may; and acid green appears in the keyline gradient and in the focus ring, where it means
+"the app is speaking" rather than "this is a cyberpunk project".
+
+`--accent-quiet` is unchanged, for the third time and the same reason: gold is the message tone, and
+a tone outranks a genre.
+
+### Three things in the reference a skin may not take
+
+The reference is a whole interface and this is a skin over somebody else's, so most of what makes
+that screen work is out of reach here — and naming which parts is more useful than quietly dropping
+them.
+
+- **Glow-based elevation.** It replaces the shadow ladder with emitted light: brighter means nearer.
+  The app's ladder is `--lift` and `--halo`, both fixed across genres precisely so two panels beside
+  each other sit at the same height, and a skin may touch neither. The genre gets its light in the
+  corner marks instead, which are a keyline and not an elevation.
+- **The typography.** A condensed all-caps display face over monospace data, uppercase by default and
+  tracked out. That is the type ramp, which is the first thing on the list a skin may never touch —
+  and it is the same instinct that put a shimmer on `h1`–`h6` in the first place.
+- **Density-first layout.** "Cyberpunk interfaces do not breathe." This one breathes: the space ramp
+  is one ramp so that two panels are the same height side by side, and a genre that tightened its
+  gutters would be a genre that changed the app's shape under the user.
+
+What survives the filter is exactly the three things decision 2 hands a skin — a surface, a keyline
+and one effect — which is a reasonable check that the contract is drawn in the right place. The
+genre is still legible without the other three, because the surface is nearly black, the marks are
+bright, and the corners are square.
+
+### The cyberpunk skin
+
+| Property          | Value                                                                   | Measured                             |
+| ----------------- | ----------------------------------------------------------------------- | ------------------------------------ |
+| `--panel-surface` | `color-mix(in srgb, var(--amethyst) 10%, var(--surface-inset))`         | `rgb(30 26 45)`, luminance 0.0121    |
+| `--panel-edge`    | Eight corner-mark arms: horizontals acid, verticals magenta, 18px × 1px | ~12% of the perimeter, so unmixed    |
+| Corner depths     | `0` / `0` / `0` / `0`                                                   | Four knife edges; the marks carry it |
+| `--accent`        | `var(--magenta)`                                                        | 5.9:1; acid is `--focus`'s           |
+| `--accent-quiet`  | **Unchanged.** Gold is the message tone                                 | —                                    |
+| Heading colour    | `var(--accent)`, scoped to headings inside a panel                      | 5.9:1, clears 4.5                    |
+| Ambient effect    | The marks dip for 250ms, once every 24s                                 | 0.04Hz against a 3Hz threshold       |
+
+**The corner revises what [#120 reserved](#the-four-shapes-and-why-each-is-its-genres)**, which was a
+single 12px slash at the top-left. The reference is unambiguous — "zero border radius throughout,
+every corner is a knife edge" — and a cut corner truncates the bracket that is meant to sit in it, so
+the two devices were fighting. Four square corners is still nobody else's shape, the base being
+`0/9/0/9`, and this is the one genre whose shape is an _absence_ of the app's cut: the marks say
+where the panel ends, so the corner does not have to.
+
+The ambient effect moves onto the marks with it, which is better than the lit edge it replaces — the
+thing that dips is the genre's signature element rather than a line invented to have something to
+dim. A bad ballast in the sign, once every twenty-four seconds.
+
+### What the cyberpunk skin enforces
+
+- **`cyberpunk.css` joins `CONVERTED_SKINS`, and the exemption list empties.** The hex sweep, the
+  type-ramp sweep, the one-effect cap, the depth cap and the distinctness rule all apply to every
+  skin file the app has, with nothing carried. That list was created to shrink and this is the last
+  entry.
+- **No skin animates faster than 20s.** This is the assertion #121 exists to leave behind: the cap on
+  the _number_ of effects never said anything about their rate, and a single 1.5s strobe would have
+  passed every check in this document. A genre's ambient motion is ambient — measured in tens of
+  seconds, like fantasy's 40s and sci-fi's 45s — and anything quicker is a state change, which is
+  `--motion-swift`'s business and not a skin's.
+- **`--focus`'s hue is not an accent.** No skin sets `--accent` to `var(--acid-green)`, swept across
+  the skin files. The focus ring and the thing being focused inside cannot be the same colour. Acid
+  in a corner mark is not that: a mark is at the panel's corner and a ring is around the control, so
+  the two are never the same object.
+
+And two in the browser, because both are computed:
+
+- **Every continuous keyline's luminance is inside the register**, read off the rendered panel for
+  each genre in turn — the only place a `color-mix()` resolves — replacing a rule that could
+  otherwise only be checked by hand. Cyberpunk answers the other half of it: its keyline layers are
+  `no-repeat` and their arms total under a fifth of the rendered perimeter, which is what earns them
+  full brightness. A skin that painted a bright edge all the way round would fail one test or the
+  other, whichever way it was written.
+- **An input on a cyberpunk panel still reads as sunken.** Its `--sink` shadow and its border are
+  present and non-zero. The fill separation is gone by design; this is the assertion that says what
+  is carrying the affordance instead, and it is the one thing about this skin a later change could
+  quietly break.
 
 ## Enforcement
 
