@@ -90,8 +90,14 @@
    The scanlines are *texture*, which decision 2 lists under surface rather than under motion, and
    that is the whole reason to spend a layer on them: they say "screen" without animating, so a
    sci-fi panel is still visibly sci-fi when everything that moves is switched off. 1px on a 5px
-   pitch at 4%, both stated because a tighter or stronger grid moirés against a scrolling panel,
-   which is a shimmer nobody asked for.
+   pitch, stated because a tighter or stronger grid moirés against a scrolling panel, which is a
+   shimmer nobody asked for.
+
+   **Both layers darken**, which #158 made a rule and which is the better description besides: a
+   scanline is the gap between phosphor rows rather than a row, and a rolling bar on a CRT is dark.
+   They were cyan tints until then — 4% static and 7% moving — and a lightening layer on a surface
+   sitting 0.0026 below the readability ceiling took `--ink-faint` to 4.29:1 under every label on
+   every sci-fi panel. Dark costs nothing on a dark ground: 5.12:1 and 5.03:1 now.
 
    45s for the scan, where fantasy's sheen runs 40s: a band crossing the short axis of a panel is
    on screen more of the time, and a bench holds several panels all wearing this. */
@@ -101,12 +107,12 @@
     linear-gradient(
       180deg,
       transparent 40%,
-      color-mix(in srgb, var(--cyan) 7%, transparent) 50%,
+      color-mix(in srgb, black 12%, transparent) 50%,
       transparent 60%
     ),
     repeating-linear-gradient(
       180deg,
-      color-mix(in srgb, var(--cyan) 4%, transparent) 0 1px,
+      color-mix(in srgb, black 15%, transparent) 0 1px,
       transparent 1px 5px
     );
   background-repeat: no-repeat, repeat;
@@ -124,7 +130,7 @@
     animation: none;
     background-image: repeating-linear-gradient(
       180deg,
-      color-mix(in srgb, var(--cyan) 4%, transparent) 0 1px,
+      color-mix(in srgb, black 15%, transparent) 0 1px,
       transparent 1px 5px
     );
     background-repeat: repeat;

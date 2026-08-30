@@ -897,6 +897,35 @@ describe('the panel language', () => {
     );
   });
 
+  it.each(CONVERTED_SKINS)('paints nothing under text that lightens it in %s', (name) => {
+    // docs/visual-design.md, "A skin's surface is never lighter than the base's", second half.
+    // The rule held `--panel-surface` to `--surface-raised` and said nothing about the layers a skin
+    // paints on top of it — and every layer that existed lightened. `--ink-faint`'s floor puts the
+    // ceiling for a pixel under text at luminance 0.0303, both surfaces sit at 0.0277 and 0.0276,
+    // and a 2% gold sheen measures 4.49:1. There is no headroom for a highlight, so a skin's surface
+    // layers may only darken.
+    //
+    // The keyline is deliberately not swept here. A corner mark lives in the 1px ring where no text
+    // goes, and answers to the luminance register and its area exemption instead — which is why
+    // this reads the rules that paint `.panel__field` rather than every gradient in the file.
+    const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
+
+    // `var(--x)` comes out first: a nested paren would otherwise end a match early and report a stop
+    // that had been cut in half, which is a test failing on the wrong thing.
+    const flattened = css.replace(/var\([^)]*\)/g, 'TOKEN');
+    const surfaceRules = [...flattened.matchAll(/\.panel__field[^{]*\{([^}]*)\}/g)].map(
+      ([, body]) => body,
+    );
+
+    for (const body of surfaceRules) {
+      for (const [stop] of body.matchAll(/color-mix\([^)]*\)/g)) {
+        expect(stop.includes('black'), `${name} paints ${stop} under text, which lightens it`).toBe(
+          true,
+        );
+      }
+    }
+  });
+
   it('gives every genre a shape of its own', () => {
     // "A shape is a genre's, or it is furniture." The cap on corner treatments used to be three;
     // #120 replaced it with one shape per genre, and this is the half of that rule no source sweep
