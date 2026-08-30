@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DataTable, { type Column } from '$components/common/DataTable.svelte';
   import { valueToString, STANDARD_FANTASY, HISTORICAL_BRITISH } from '$lib/currency';
   import { FantasyEquipmentList } from '$lib/equipment';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -21,6 +22,8 @@
   function convertEnglishCost(cost: number) {
     return valueToString(cost * 0.25, HISTORICAL_BRITISH);
   }
+
+  const PRICE_COLUMNS: Column[] = [{ label: 'Name' }, { label: 'Cost', numeric: true }];
 </script>
 
 <GeneratorPage toolPath="/fantasy/equipment" title="Fantasy Equipment Lists">
@@ -67,30 +70,20 @@
   {#each equipmentLists as eList}
     <div class="equipment-list">
       <h2>{eList.title}</h2>
-      <table>
-        <thead>
+      <DataTable columns={PRICE_COLUMNS} rows={priceRows} />
+
+      {#snippet priceRows()}
+        {#each eList.items as equipment}
           <tr>
-            <th>Name</th>
-            <th>Cost</th>
+            <td data-label="Name">{equipment.name}</td>
+            {#if currency === 'D&D currency'}
+              <td class="numeric" data-label="Cost">{convertDNDCost(equipment.cost)}</td>
+            {:else if currency === 'English currency'}
+              <td class="numeric" data-label="Cost">{convertEnglishCost(equipment.cost)}</td>
+            {/if}
           </tr>
-        </thead>
-        <tbody>
-          {#each eList.items as equipment}
-            <tr>
-              <td>{equipment.name}</td>
-              {#if currency === 'D&D currency'}
-                <td>
-                  {convertDNDCost(equipment.cost)}
-                </td>
-              {:else if currency === 'English currency'}
-                <td>
-                  {convertEnglishCost(equipment.cost)}
-                </td>
-              {/if}
-            </tr>
-          {/each}
-        </tbody>
-      </table>
+        {/each}
+      {/snippet}
     </div>
   {/each}
 </GeneratorPage>
