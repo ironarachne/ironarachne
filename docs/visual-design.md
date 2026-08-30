@@ -141,9 +141,21 @@ look like a page of failed writes and hide the one panel that had really failed.
 contract used as intended: an institutional green surface with room under the readability ceiling, a
 blood stain that darkens, and the slowest ambient effect in the app at 60s.
 
-Awaiting approval, unlike the amendments above it, which are built: #122 is `needs-design`, and the
-tone rule, the surface and the 60s breath are what CLAUDE.md's review gate asks a human to approve
-before implementation starts.
+Approved and built.
+
+**Amended 2026-08-30 by [#123](https://github.com/ironarachne/ironarachne/issues/123)**, which adds
+[icons](#icons-the-glyph-that-names-and-the-mark-that-decorates) and closes the document's two
+remaining open questions. It moves one rule rather than adding a section beside it: "a glyph replaces
+a label there is no space for" was written to stop a codebase with 455 icons from acquiring them
+everywhere, and it reads as a ban on the other job an icon does. A glyph names; a **mark**
+decorates, is `aria-hidden`, and is governed by five rules that keep a page with character from
+becoming a page somebody decorated. The domains get marks — which is the domain marker
+[open question 3](#open-questions) speculated about, delivered as a glyph rather than a colour, so
+the eight unused palette entries stay unused.
+
+Awaiting approval, unlike the amendments above it, which are built: #123 is `needs-design`, and the
+second role, the density rules and the domain mapping are what CLAUDE.md's review gate asks a human
+to approve before implementation starts.
 
 **Amended 2026-08-30, in review of the above:** every genre gets a panel shape of its own, which
 replaces the "three corner treatments" cap rather than extending it. The panel's polygon is written
@@ -785,6 +797,13 @@ and onto the panel is [#119](https://github.com/ironarachne/ironarachne/issues/1
 that forward here would put four genres' worth of untested surface in a controls change.
 
 ### A round icon button
+
+**This section governs glyphs, not marks.** Its rule — a glyph replaces a label there is no space
+for, not one that already works — is about icons that carry meaning, and
+[icons](#icons-the-glyph-that-names-and-the-mark-that-decorates) adds the second role beside it: a
+mark, which decorates a surface that already reads without it and is hidden from the accessibility
+tree for exactly that reason. The rule below is unchanged and still binding on anything that names a
+control.
 
 Five controls are round: **move left**, **move right** and **close** on a workshop panel's header,
 and **export** and **delete** on a row in the project listing. `RoundIconButton` is what they
@@ -2886,6 +2905,176 @@ than red, the third of the four hue assertions after fantasy's warmth and sci-fi
 runs no faster than the floor, and under reduced motion the stain is still there while the vignette
 holds still.
 
+## Icons: the glyph that names, and the mark that decorates
+
+The pack is in. `src/lib/assets/icons` holds 455 icons from SunGraphica's _600 Minimal Icons_,
+split from the vendor's sheets, named, indexed, and credited in the footer as a licence term. Five
+controls use it — the five [the round icon button](#a-round-icon-button) identified as having no
+room for a label. Everything else about it is undecided, which is
+[open question 1](#open-questions), and this settles it.
+
+It also has to move a rule. The document says a glyph "replaces a label there is no space for, not
+one that already works", which was written to stop a codebase with 455 icons in it from acquiring
+them everywhere — a real risk, and the rule stays. But it describes only half of what an icon does
+here. This is a suite of generators for tabletop games, `set2` alone is ninety-nine shields,
+potions, scrolls, weapons and campfires, and **a site that never shows one is underselling what it
+is.** The answer is a second role beside the first rather than an exception to it.
+
+### Two roles, and the test that separates them
+
+|                  | **Glyph**                                     | **Mark**                                           |
+| ---------------- | --------------------------------------------- | -------------------------------------------------- |
+| Job              | Stands in for a label there was no room for   | Gives a surface character it already reads without |
+| Accessibility    | Carries an accessible name                    | `aria-hidden`, always                              |
+| If you delete it | The control cannot be identified              | The page loses flavour and nothing else            |
+| Governed by      | [The round icon button](#a-round-icon-button) | This section                                       |
+
+The test is the third row, and it is worth applying literally rather than by feel: **delete it and
+see what breaks.** If meaning goes, it is a glyph and it needs a name. If only flavour goes, it is a
+mark and it must be hidden from the accessibility tree — because a screen reader announcing "image"
+between a heading and its text is worse than the silence it replaces.
+
+Everything the five existing controls do stays exactly as it is. What follows is about marks.
+
+### What stops a mark becoming a sticker
+
+Five rules, and they are what makes the difference between a page with character and a page somebody
+decorated:
+
+- **One mark per surface.** A card with three marks on it is decorated; a card with one is
+  characterful. The exception is a mark used as a **classifier**, which repeats down a list on
+  purpose — see the domain marks below.
+- **A mark is never the brightest thing on its surface.** It paints `--ink-faint`, the role for
+  things that are present without being read. A mark that outshines the text beside it has become
+  the content.
+- **A mark is sized in `em`**, so it inherits the ramp step of the text it accompanies and is on the
+  type ramp for free. No mark declares a pixel size.
+- **Never in running prose.** A mark sits beside a heading, in an empty state, or on a card — never
+  inside a sentence, where it interrupts a line somebody is reading.
+- **Never inside a control that already has a label.** That is the original rule, and it is the one
+  a set this large erodes first.
+
+Marks survive the genre skins for free, because `--ink-faint` is a role every skin inherits and an
+icon paints `currentColor` through a mask. A skin may not swap a mark: a skin sets a surface, a
+keyline, a corner, an accent and one effect, and an icon is none of those.
+
+### The domain marks, which answer the question the palette could not
+
+The tool catalog has classified every tool by `domain` since it was written, and nothing has ever
+shown that classification. Five domains, five marks, **all from `set2`** so the family reads as one
+hand rather than as five icons that happened to be available:
+
+| Domain       | Mark            | Why                                                     |
+| ------------ | --------------- | ------------------------------------------------------- |
+| `characters` | `set2/helmet-1` | A helm — a person in a game, rather than a person       |
+| `factions`   | `set2/flag`     | The thing a faction plants                              |
+| `locations`  | `set2/map`      | Settlements, regions, dungeons: all read off a map      |
+| `objects`    | `set2/chest`    | What the objects are generated into                     |
+| `utilities`  | `set2/compass`  | Instruments rather than output — dice, names, languages |
+
+**This is the domain marker [open question 3](#open-questions) speculated about**, and it settles
+that question in a way the palette could not. The elevation section imagined domains reachable
+"through a genre skin or a domain marker"; a mark does it as a **glyph rather than a colour**, which
+means the eight unused palette entries stay unused — the other answer that question offered, and now
+the true one. A colour-coded domain would have collided with the genre skins (which own the panel's
+hue) and with the tone colours (which own meaning); a glyph collides with neither.
+
+A domain mark is the classifier exception to "one mark per surface": it repeats beside every tool in
+a list because that is what classifying is. It is still `aria-hidden` — the domain is already in the
+heading above the group, and announcing it once per row is noise.
+
+### An artifact kind carries its own mark
+
+`ArtifactKindEntry` gains an optional `icon`, beside the `displayName` it already has. A kind is
+registered once and read everywhere — the vault, the project view, the picker — so the mark belongs
+with the registration rather than in a lookup table each surface maintains.
+
+```mermaid
+classDiagram
+    class ArtifactKindEntry {
+        +ArtifactKind kind
+        +string displayName
+        +string icon
+        +number payloadVersion
+    }
+    class ToolDomain {
+        <<characters, factions, locations, objects, utilities>>
+    }
+    class DomainMark {
+        <<DOMAIN_MARKS>>
+        +string markup
+    }
+    class Icon {
+        <<component>>
+        +string markup
+        +string label
+    }
+
+    ToolDomain "1" --> "1" DomainMark : classified by
+    ArtifactKindEntry "1" --> "0..1" Icon : marked by
+    DomainMark --> Icon : rendered through
+    Icon ..> ArtifactKindEntry : label absent means aria-hidden
+```
+
+`icon` is optional because a kind without one is a kind that reads fine without one, and requiring it
+would produce a shrug emoji's worth of thought per new kind. The vault falls back to no mark rather
+than to a generic one: a placeholder mark is a sticker.
+
+### Where character goes
+
+Concretely, and the list is the scope rather than an illustration:
+
+- **`/tools`** — a domain mark beside each of the five group headings, and beside each tool in the
+  group.
+- **The workshop's tool browser** — the same marks, the same source.
+- **The home page's featured list** — the tool's domain mark per row.
+- **The vault and the session log's empty states** — the surfaces the app is plainest on, and the
+  ones a first-time user sees most. An empty shelf with a mark on it reads as a shelf; an empty
+  shelf with a sentence on it reads as a bug.
+- **Artifact rows in the vault and the project view** — the kind's mark, where it has one.
+
+And where it does not go: **the six nav destinations** (`docs/app-shell.md` decision 6 stands, and
+reopening it is its own issue), **a dialog** (the app's own voice, and neutral by rule), **inside any
+labelled control**, and **in running prose**.
+
+### The import is static, for the same reason `TOOL_PANELS` is
+
+`Icon` takes **markup**, not a name:
+
+```svelte
+<script lang="ts">
+  import flag from '$lib/assets/icons/set2/flag.svg?raw';
+</script>
+
+<Icon icon={flag} />
+```
+
+A component that took `name="set2/flag"` and resolved it would need a computed import, and a
+computed import cannot be statically analysed — so every one of the 455 icons would land in the
+bundle of any page that showed one. That is the same trap `TOOL_PANELS` documents for the tool
+panels, and it is the reason `DOMAIN_MARKS` is written out in full as five `?raw` imports rather
+than built from `DOMAINS`.
+
+`Icon` is otherwise thin: it inlines the markup, sets `aria-hidden` when no `label` is given and
+`role="img"` with the name when one is, and sizes itself at `1em`. `RoundIconButton` already does
+this by hand for its five, and keeps doing it — it owns a control, not a mark.
+
+### What this enforces
+
+- **No component inlines an `<svg>` literal.** The exceptions are the libraries that _generate_ SVG
+  — heraldry, the emblem renderers — which is a different thing from a component drawing a picture
+  by hand. This is the sweep that stops the sixth icon being pasted in as markup.
+- **An icon without a label is `aria-hidden`.** Asserted on the component, because the alternative is
+  a screen reader reading "image" beside every tool in a list of thirty-four.
+- **`DOMAIN_MARKS` covers `DOMAINS` exactly.** A sixth domain cannot be added without a mark, and a
+  mark cannot outlive its domain — the same shape as the test that keeps the tool catalog and
+  `TOOL_PANELS` in step.
+- **No mark declares a pixel size or a colour.** Both fall out of the existing ramp and hex sweeps
+  once a mark is `em`-sized and painted in a role.
+
+And one in the browser: a tool row in the catalog carries **exactly one** mark, which is the density
+rule stated as a number rather than as a paragraph.
+
 ## Enforcement
 
 The rule is that no component declares a hex and no component declares a size outside these ramps.
@@ -2941,12 +3130,20 @@ For the implementation issues that follow this one:
    the rule the rest of the answer should follow: a glyph replaces a label there is no space for,
    not one that already works.
 
+   **Answered by [icons](#icons-the-glyph-that-names-and-the-mark-that-decorates):** the control set
+   is those five and stays those five, and the rest of the pack is spent on the other job an icon
+   does — character, as a **mark** rather than a glyph. The domains are mapped, artifact kinds carry
+   their own, and the five rules that keep marks from becoming stickers are stated there.
+
 2. ~~**Whether `--surface-sunken` earns its place.**~~ **Answered by [the panel
    language](#three-levels-and-the-well-makes-four):** it stays. Four panels scroll their contents
    internally, and the well is the surface that says a run of rows is held by the panel rather than
    continuing past its edge. Four surface levels is one more than the elevation model claimed, and
    the model gains the fourth rather than the token being dropped.
-3. **Domain accent markers.** The eight unused palette entries are described as reachable "through
-   a genre skin or a domain marker", but no domain marker is designed here. The tool catalog has a
-   `domain` field and the mockup does not use it. Either a later document designs that, or the
-   eight entries are simply unused by the app, which is also a fine answer.
+3. ~~**Domain accent markers.**~~ **Answered by [the domain
+   marks](#the-domain-marks-which-answer-the-question-the-palette-could-not):** the domain marker
+   exists, and it is a **glyph rather than a colour** — one `set2` icon per domain, the same five
+   everywhere the catalog groups itself. So the second half of this question's own answer is the
+   true one: the eight unused palette entries stay unused. A colour-coded domain would have collided
+   with the genre skins, which own a panel's hue, and with the tone colours, which own meaning; a
+   glyph collides with neither.
