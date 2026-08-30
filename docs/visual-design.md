@@ -3180,6 +3180,43 @@ fixed, what became a test, and what was pushed back to this document as needing 
 than settled in a walk. An issue that needed a new rule is an issue this walk does not get to
 answer — the same boundary every skin issue was held to.
 
+### What the walk found
+
+Recorded here rather than only on the issue, because three of these are facts about the system
+rather than about one page.
+
+**Deleting the exemption made two more sweeps fire.** Clearing the nine files was expected to be
+twelve hexes and sixty-five sizes. It was also four hand-rolled panels and eight corners outside the
+vocabulary, which no one had seen because the list had been hiding those sweeps from those files
+too. An exemption is never as narrow as the sentence that grants it.
+
+**An exemption cannot state its own expiry.** The list's guard checked that a deferred file still
+existed, which is a check that a _file_ is alive, not that a _reason_ is. #119–#121 closed without
+touching any of the nine, and nothing failed. Where a future exemption is unavoidable, the thing to
+assert is the reason — the issue is open, the other suite exists — and where that cannot be
+asserted, the exemption should not be granted.
+
+**`fullPage` screenshots do not work on this app, and that is the shell working correctly.** The
+shell is a `100dvh` grid and scrolling happens inside the page region, so the document is always
+exactly one viewport tall and a full-page capture is a viewport capture. The capture harness grows
+the viewport to the page region's own scroll height instead. Anything else that reasons about page
+height — a future visual-diff tool, a PDF export, a crawler — meets the same wall.
+
+**Generated content carries its own colours, and the sweeps must not follow it there.** A species
+badge and an archetype badge are painted from `$lib/display_colors`, seeded from the name they
+belong to; heraldry composes SVG the same way. Those hues are the _product_, not the interface, and
+a sweep that widened to cover them would be enforcing the design system over a user's generated
+output. The line is the same one [icons](#what-this-enforces-4) draws for the SVG-generating
+components: a component that _draws_ is not a component that _decorates_.
+
+**Two findings needed a decision this walk does not get to make.** Tables
+([#154](https://github.com/ironarachne/ironarachne/issues/154)) are still styled in `main.css` with
+literal `black`, and three components have each invented their own rather than use that; stat
+blocks ([#153](https://github.com/ironarachne/ironarachne/issues/153)) are `<strong>Label:</strong>`
+229 times across 19 components. Both are the same gap, and it is worth naming: **this document
+settles the frame and says nothing about the content inside a panel.** Everything #77 converted was
+furniture. Those two issues are now in #77's scope, after this one.
+
 ## Enforcement
 
 The rule is that no component declares a hex and no component declares a size outside these ramps.

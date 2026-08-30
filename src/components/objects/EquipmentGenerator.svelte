@@ -17,6 +17,7 @@
   import SelectField from '$components/common/SelectField.svelte';
   import NumberField from '$components/common/NumberField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
+  import Badge from '$components/common/Badge.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
   const rng = new RNG.RNG(Date.now().toString());
@@ -104,51 +105,55 @@
 
   <div class="results">
     {#each generatedItems as item}
-      <div class="item-card">
-        <h3>{item.name}</h3>
-        <p class="description">{item.description}</p>
-        <div class="stats">
-          <span class="tag type">{item.itemMajorType}</span>
-          {#if item.itemMajorType === 'weapon'}
-            {@const weapon = item as Weapon}
-            {#if displaySystem === 'dnd5e' && weapon.actions && weapon.actions.length > 0}
-              <span class="tag damage"
-                >Damage: {convertPowerToDice(weapon.actions[0].baseDamage || 0)} ({weapon.actions[0]
-                  .damageType})</span
-              >
-              {#if weapon.actions[0].bonusDamage && weapon.actions[0].bonusDamage.length > 0}
-                {#each weapon.actions[0].bonusDamage as bonus}
-                  <span class="tag damage extra"
-                    >+ {convertPowerToDice(bonus.power)} ({bonus.type})</span
-                  >
-                {/each}
+      <!-- A card is a panel: the two layers, with the `li` painting the keyline across its box
+           and the field covering all but a pixel of it. See docs/visual-design.md, "Cards are
+           panels". This card wrote its own border, radius, fill and padding until #124. -->
+      <div class="item-card panel">
+        <div class="panel__field">
+          <h3>{item.name}</h3>
+          <p class="description">{item.description}</p>
+          <div class="stats">
+            <Badge>{item.itemMajorType}</Badge>
+            {#if item.itemMajorType === 'weapon'}
+              {@const weapon = item as Weapon}
+              {#if displaySystem === 'dnd5e' && weapon.actions && weapon.actions.length > 0}
+                <Badge
+                  >Damage: {convertPowerToDice(weapon.actions[0].baseDamage || 0)} ({weapon
+                    .actions[0].damageType})</Badge
+                >
+                {#if weapon.actions[0].bonusDamage && weapon.actions[0].bonusDamage.length > 0}
+                  {#each weapon.actions[0].bonusDamage as bonus}
+                    <Badge>+ {convertPowerToDice(bonus.power)} ({bonus.type})</Badge>
+                  {/each}
+                {/if}
+              {:else}
+                <Badge
+                  >Damage: {weapon.actions[0].baseDamage || 0} ({weapon.actions[0]
+                    .damageType})</Badge
+                >
               {/if}
-            {:else}
-              <span class="tag damage"
-                >Damage: {weapon.actions[0].baseDamage || 0} ({weapon.actions[0].damageType})</span
-              >
             {/if}
-          {/if}
-          {#if item.itemMajorType === 'armor'}
-            {@const armor = item as Armor}
-            {#if displaySystem === 'dnd5e'}
-              <span class="tag defense"
-                >AC: {convertToDnDArmorClass(armor.combatProfile.defense)}</span
-              >
-            {:else}
-              <span class="tag defense">Defense: {armor.combatProfile.defense}</span>
+            {#if item.itemMajorType === 'armor'}
+              {@const armor = item as Armor}
+              {#if displaySystem === 'dnd5e'}
+                <Badge>AC: {convertToDnDArmorClass(armor.combatProfile.defense)}</Badge>
+              {:else}
+                <Badge>Defense: {armor.combatProfile.defense}</Badge>
+              {/if}
             {/if}
-          {/if}
-          <span class="tag value">Value: {valueToString(item.value, COMMON_FANTASY)}</span>
-          <span class="tag weight">Weight: {kgToPounds(item.weight).toFixed(1)} lbs</span>
-        </div>
-        {#if item.properties && item.properties.length > 0}
-          <div class="tags">
-            {#each item.properties as tag}
-              <span class="property-tag">{tag}</span>
-            {/each}
+            <Badge>Value: {valueToString(item.value, COMMON_FANTASY)}</Badge>
+            <Badge>Weight: {kgToPounds(item.weight).toFixed(1)} lbs</Badge>
           </div>
-        {/if}
+          {#if item.properties && item.properties.length > 0}
+            <div class="tags">
+              {#each item.properties as tag}
+                <!-- `plain` because a card can carry a dozen of these: bordered pills stop
+                     annotating the item and start shouting over it. -->
+                <Badge plain>{tag}</Badge>
+              {/each}
+            </div>
+          {/if}
+        </div>
       </div>
     {/each}
   </div>
@@ -157,63 +162,30 @@
 <style>
   .results {
     display: grid;
+    gap: var(--s6);
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1rem;
   }
 
-  .item-card {
-    border: 1px solid #ccc;
-    padding: 1rem;
-    border-radius: 8px;
-    background: rgba(255, 255, 255, 0.05);
+  /* What is left after #124: the card's own border, radius, fill and padding are the panel's now,
+     and the three tag colours are gone. A hue meaning "damage", another meaning "defense" and a
+     third meaning "value" was a fourth colour system beside the roles, the tones and the genres —
+     the label already says which is which. */
+  .item-card .description {
+    color: var(--ink-muted);
+    font-style: italic;
+  }
 
-    h3 {
-      margin-top: 0;
-      text-transform: capitalize;
-    }
+  .item-card .stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s4);
+    margin: var(--s4) 0;
+  }
 
-    .description {
-      font-style: italic;
-      color: #aaa;
-    }
-
-    .stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin: 0.5rem 0;
-    }
-
-    .tag {
-      background: #333;
-      padding: 0.2rem 0.5rem;
-      border-radius: 4px;
-      font-size: 0.8rem;
-
-      &.damage {
-        color: #ff9999;
-      }
-      &.defense {
-        color: #9999ff;
-      }
-      &.value {
-        color: #ffff99;
-      }
-    }
-
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.3rem;
-      margin-top: 0.5rem;
-    }
-
-    .property-tag {
-      background: #444;
-      padding: 0.1rem 0.4rem;
-      border-radius: 3px;
-      font-size: 0.7rem;
-      color: #ddd;
-    }
+  .item-card .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s3);
+    margin-top: var(--s4);
   }
 </style>

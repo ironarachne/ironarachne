@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Notice from '$components/common/Notice.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
   import {
     ALL_RELIGION_DIMENSION_IDS,
@@ -88,10 +89,10 @@
 </script>
 
 {#if religion === undefined}
-  <p class="religion-editor__problem" role="alert">
+  <Notice tone="danger">
     These contents are stored as a religion but do not read as one, so there is nothing safe to edit
     here. {accepted.ok ? '' : accepted.message}
-  </p>
+  </Notice>
 {:else}
   <div class="religion-editor">
     <div class="input-group input-group--inline">
@@ -372,26 +373,28 @@
   .religion-editor {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: var(--s4);
     min-width: 0;
   }
 
   .religion-editor fieldset {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: var(--s3);
     align-items: flex-start;
     margin: 0;
-    padding: 0.5rem 0.6rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
+    /* No border and no radius. A fieldset inside an editor panel was a box inside a box, which
+       is what "the problem is nineteen copies of a box" is about: when everything is a box,
+       being one emphasises nothing. The legend and the spacing group these fields; the panel
+       around them is the only keyline in sight. */
+    padding: var(--s4) 0;
     min-width: 0;
   }
 
   .religion-editor legend {
-    padding: 0 0.3rem;
+    padding: 0 var(--s3);
     color: var(--gold);
-    font-size: 0.75rem;
+    font-size: var(--t-micro-size);
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
@@ -423,18 +426,19 @@
   .religion-editor__deity {
     display: flex;
     flex-direction: column;
-    gap: 0.35rem;
+    gap: var(--s3);
     width: 100%;
     min-width: 0;
-    padding: 0.4rem 0;
-    border-top: 1px solid var(--tan);
+    padding: var(--s3) 0;
+    /* A divider between rows, not a keyline around a box: `--border` rather than
+       `--border-strong`, which is the plate's edge and says more than a separator has
+       to. */
+    border-top: 1px solid var(--border);
   }
 
-  .religion-editor__note,
-  .religion-editor__problem {
-    margin: 0;
-    font-size: 0.9rem;
+  .religion-editor__note {
+    font-size: var(--t-small-size);
     font-style: italic;
-    opacity: 0.9;
+    margin: 0;
   }
 </style>

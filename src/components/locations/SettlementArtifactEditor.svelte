@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Notice from '$components/common/Notice.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
   import {
     addSettlementProblem,
@@ -97,10 +98,10 @@
 </script>
 
 {#if settlement === undefined}
-  <p class="settlement-editor__problem" role="alert">
+  <Notice tone="danger">
     These contents are stored as a settlement but do not read as one, so there is nothing safe to
     edit here. {accepted.ok ? '' : accepted.message}
-  </p>
+  </Notice>
 {:else}
   <div class="settlement-editor">
     <div class="input-group input-group--inline">
@@ -463,26 +464,28 @@
   .settlement-editor {
     display: flex;
     flex-direction: column;
-    gap: 0.6rem;
+    gap: var(--s4);
     min-width: 0;
   }
 
   .settlement-editor fieldset {
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: var(--s3);
     align-items: flex-start;
     margin: 0;
-    padding: 0.5rem 0.6rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
+    /* No border and no radius. A fieldset inside an editor panel was a box inside a box, which
+       is what "the problem is nineteen copies of a box" is about: when everything is a box,
+       being one emphasises nothing. The legend and the spacing group these fields; the panel
+       around them is the only keyline in sight. */
+    padding: var(--s4) 0;
     min-width: 0;
   }
 
   .settlement-editor legend {
-    padding: 0 0.3rem;
+    padding: 0 var(--s3);
     color: var(--gold);
-    font-size: 0.75rem;
+    font-size: var(--t-micro-size);
     letter-spacing: 0.04em;
     text-transform: uppercase;
   }
@@ -492,11 +495,14 @@
   .settlement-editor__row {
     display: flex;
     flex-direction: column;
-    gap: 0.3rem;
+    gap: var(--s3);
     width: 100%;
     min-width: 0;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--tan);
+    padding-bottom: var(--s4);
+    /* A divider between rows, not a keyline around a box: `--border` rather than
+       `--border-strong`, which is the plate's edge and says more than a separator has
+       to. */
+    border-bottom: 1px solid var(--border);
   }
 
   /* The row layout is `.input-group--inline`'s now — this file used to hand-roll it, as eight
@@ -523,11 +529,9 @@
     width: 100%;
   }
 
-  .settlement-editor__note,
-  .settlement-editor__problem {
-    margin: 0;
-    font-size: 0.9rem;
+  .settlement-editor__note {
+    font-size: var(--t-small-size);
     font-style: italic;
-    opacity: 0.9;
+    margin: 0;
   }
 </style>

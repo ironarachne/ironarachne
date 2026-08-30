@@ -58,66 +58,70 @@
   <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if potion}
-    <article class="potion-result">
-      <h2>{potion.displayName}</h2>
+    <!-- A result surface is a panel, not a box with a border on it: the two layers,
+         and the keyline, corner and padding are the system's. It wrote its own
+         border, radius and padding until #124. -->
+    <article class="potion-result panel">
+      <div class="panel__field">
+        <h2>{potion.displayName}</h2>
 
-      {#if potion.modifications.length > 0}
+        {#if potion.modifications.length > 0}
+          <p>
+            <strong>Modifications:</strong>
+            {potion.modifications.map((mod) => mod.kind).join(', ')}
+          </p>
+        {/if}
+
+        {#if potion.canonicalName && potion.canonicalName !== potion.displayName}
+          <p><strong>Base formula:</strong> {potion.canonicalName}</p>
+        {/if}
+        <p><strong>Rarity:</strong> {potion.liquid.rarity}</p>
+        <p><strong>Value:</strong> {valueToString(potion.liquid.value, COMMON_FANTASY)}</p>
         <p>
-          <strong>Modifications:</strong>
-          {potion.modifications.map((mod) => mod.kind).join(', ')}
+          <strong>Form:</strong>
+          {potion.liquid.properties.includes('oil')
+            ? 'oil'
+            : potion.liquid.properties.includes('ointment')
+              ? 'ointment'
+              : 'drink'}
         </p>
-      {/if}
 
-      {#if potion.canonicalName && potion.canonicalName !== potion.displayName}
-        <p><strong>Base formula:</strong> {potion.canonicalName}</p>
-      {/if}
-      <p><strong>Rarity:</strong> {potion.liquid.rarity}</p>
-      <p><strong>Value:</strong> {valueToString(potion.liquid.value, COMMON_FANTASY)}</p>
-      <p>
-        <strong>Form:</strong>
-        {potion.liquid.properties.includes('oil')
-          ? 'oil'
-          : potion.liquid.properties.includes('ointment')
-            ? 'ointment'
-            : 'drink'}
-      </p>
+        <h3>Effect</h3>
+        <p>{describeEffect(potion.effect)}</p>
+        <p><strong>Duration:</strong> {describeDurationShort(potion.effect.duration)}</p>
+        <p><strong>Magnitude:</strong> {potion.effect.magnitude}</p>
 
-      <h3>Effect</h3>
-      <p>{describeEffect(potion.effect)}</p>
-      <p><strong>Duration:</strong> {describeDurationShort(potion.effect.duration)}</p>
-      <p><strong>Magnitude:</strong> {potion.effect.magnitude}</p>
+        <h3>Sensory Profile</h3>
+        <ul>
+          <li><strong>Appearance:</strong> {potion.sensory.appearance}</li>
+          <li><strong>Viscosity:</strong> {potion.sensory.viscosity}</li>
+          <li><strong>Flavor:</strong> {potion.sensory.flavor}</li>
+          <li><strong>Scent:</strong> {potion.sensory.scent}</li>
+        </ul>
 
-      <h3>Sensory Profile</h3>
-      <ul>
-        <li><strong>Appearance:</strong> {potion.sensory.appearance}</li>
-        <li><strong>Viscosity:</strong> {potion.sensory.viscosity}</li>
-        <li><strong>Flavor:</strong> {potion.sensory.flavor}</li>
-        <li><strong>Scent:</strong> {potion.sensory.scent}</li>
-      </ul>
+        <h3>Container</h3>
+        <p>{potion.container.name}: {potion.container.description}</p>
+        <p>
+          <strong>Container value:</strong>
+          {valueToString(potion.container.value, COMMON_FANTASY)}
+        </p>
 
-      <h3>Container</h3>
-      <p>{potion.container.name}: {potion.container.description}</p>
-      <p>
-        <strong>Container value:</strong>
-        {valueToString(potion.container.value, COMMON_FANTASY)}
-      </p>
-
-      <h3>Description</h3>
-      <p>{potion.liquid.description}</p>
+        <h3>Description</h3>
+        <p>{potion.liquid.description}</p>
+      </div>
     </article>
   {/if}
 </GeneratorPage>
 
 <style>
+  /* The keyline, the corner and the padding are the panel's now. What is left is where the
+     result sits on the page. */
   .potion-result {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    border: 1px solid var(--border);
-    border-radius: 0.5rem;
+    margin-top: var(--s7);
   }
 
   .potion-result h3 {
-    margin-top: 1rem;
-    margin-bottom: 0.25rem;
+    margin-top: var(--s6);
+    margin-bottom: var(--s2);
   }
 </style>

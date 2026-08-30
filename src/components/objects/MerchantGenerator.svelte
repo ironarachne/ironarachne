@@ -146,86 +146,90 @@
   </ControlsPanel>
 
   {#if merchant}
-    <article class="merchant-result">
-      <header class="merchant-header">
-        <div class="merchant-heading">
-          <h2>{merchant.shop.name}</h2>
-          <p class="shop-meta">
-            {merchant.shop.shopTypeLabel} · {merchant.shop.venueTypeLabel}
-          </p>
-        </div>
-        {#if merchant.mark}
-          <div class="merchant-mark" aria-hidden="true">
-            <!-- Renders app-generated markup (no external or user-supplied input). -->
-            <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-            {@html renderMerchantMarkSvg(merchant.mark, 120, 120)}
+    <!-- A result surface is a panel, not a box with a border on it: the two layers,
+         and the keyline, corner and padding are the system's. It wrote its own
+         border, radius and padding until #124. -->
+    <article class="merchant-result panel">
+      <div class="panel__field">
+        <header class="merchant-header">
+          <div class="merchant-heading">
+            <h2>{merchant.shop.name}</h2>
+            <p class="shop-meta">
+              {merchant.shop.shopTypeLabel} · {merchant.shop.venueTypeLabel}
+            </p>
           </div>
+          {#if merchant.mark}
+            <div class="merchant-mark" aria-hidden="true">
+              <!-- Renders app-generated markup (no external or user-supplied input). -->
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              {@html renderMerchantMarkSvg(merchant.mark, 120, 120)}
+            </div>
+          {/if}
+        </header>
+
+        <p class="location">{merchant.shop.locationBlurb}</p>
+        <p>{merchant.shop.description}</p>
+
+        <h3>Proprietor</h3>
+        <p><strong>{merchant.proprietor.fullName}</strong></p>
+        <p>{merchant.proprietor.description}</p>
+        {#if merchant.proprietor.personalityTraits.length > 0}
+          <p><strong>Temperament:</strong> {merchant.proprietor.personalityTraits.join(', ')}</p>
         {/if}
-      </header>
 
-      <p class="location">{merchant.shop.locationBlurb}</p>
-      <p>{merchant.shop.description}</p>
+        <h3>Trading Character</h3>
+        <ul class="trading-notes">
+          <li><strong>Honesty:</strong> {merchant.honesty}</li>
+          <li><strong>Price level:</strong> {merchant.priceLevel}</li>
+          <li>
+            <strong>Price modifier:</strong>
+            {formatModifier(merchant.priceModifier)} of catalog value
+          </li>
+          <li>{merchant.honestyNotes}</li>
+          <li>{merchant.hagglingAdvice}</li>
+        </ul>
 
-      <h3>Proprietor</h3>
-      <p><strong>{merchant.proprietor.fullName}</strong></p>
-      <p>{merchant.proprietor.description}</p>
-      {#if merchant.proprietor.personalityTraits.length > 0}
-        <p><strong>Temperament:</strong> {merchant.proprietor.personalityTraits.join(', ')}</p>
-      {/if}
-
-      <h3>Trading Character</h3>
-      <ul class="trading-notes">
-        <li><strong>Honesty:</strong> {merchant.honesty}</li>
-        <li><strong>Price level:</strong> {merchant.priceLevel}</li>
-        <li>
-          <strong>Price modifier:</strong>
-          {formatModifier(merchant.priceModifier)} of catalog value
-        </li>
-        <li>{merchant.honestyNotes}</li>
-        <li>{merchant.hagglingAdvice}</li>
-      </ul>
-
-      <h3>Stock</h3>
-      <div class="stock-table-scroll">
-        <table class="stock-table">
-          <thead>
-            <tr>
-              <th>Item</th>
-              <th>Qty</th>
-              <th>Catalog</th>
-              <th>Ask Price</th>
-              <th>Note</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each merchant.stock as item}
+        <h3>Stock</h3>
+        <div class="stock-table-scroll">
+          <table class="stock-table">
+            <thead>
               <tr>
-                <td>{item.name}</td>
-                <td>{item.quantity}</td>
-                <td>{formatPrice(item.baseCost)}</td>
-                <td>{formatPrice(item.price)}</td>
-                <td>{item.note ?? ''}</td>
+                <th>Item</th>
+                <th>Qty</th>
+                <th>Catalog</th>
+                <th>Ask Price</th>
+                <th>Note</th>
               </tr>
-            {/each}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {#each merchant.stock as item}
+                <tr>
+                  <td>{item.name}</td>
+                  <td>{item.quantity}</td>
+                  <td>{formatPrice(item.baseCost)}</td>
+                  <td>{formatPrice(item.price)}</td>
+                  <td>{item.note ?? ''}</td>
+                </tr>
+              {/each}
+            </tbody>
+          </table>
+        </div>
       </div>
     </article>
   {/if}
 </GeneratorPage>
 
 <style>
+  /* The keyline, the corner and the padding are the panel's now. What is left is where the
+     result sits on the page. */
   .merchant-result {
-    margin-top: 1.5rem;
-    padding: 1rem;
-    border: 1px solid var(--border);
-    border-radius: 8px;
+    margin-top: var(--s7);
   }
 
   .merchant-header {
     display: flex;
     justify-content: space-between;
-    gap: 1rem;
+    gap: var(--s6);
     align-items: flex-start;
     /* A long shop name plus the 120px mark does not fit a phone on one line. */
     flex-wrap: wrap;
@@ -241,24 +245,26 @@
   }
 
   .shop-meta {
-    color: #aaa;
-    margin-top: 0.25rem;
+    color: var(--ink-muted);
+    margin-top: var(--s1);
   }
 
+  /* The mark is generated artwork rather than furniture, so it keeps a plain keyline and loses
+     the radius: 4px is outside the corner vocabulary, which offers a pill and the round icon
+     button and nothing between them. */
   .merchant-mark {
+    border: 1px solid var(--border);
     flex-shrink: 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
     overflow: hidden;
   }
 
   .location {
+    color: var(--ink-muted);
     font-style: italic;
-    color: #bbb;
   }
 
   .trading-notes {
-    padding-left: 1.25rem;
+    padding-left: var(--s6);
   }
 
   /* Five columns cannot compress to phone width without the item names turning
@@ -267,21 +273,24 @@
     overflow-x: auto;
   }
 
+  /* One of the three bespoke tables #154 will collapse into a shared one. What #124 does here is
+     take the literals out — the borders were `#555` and the header a raw `rgba` — and leave the
+     structure for that issue to settle rather than inventing a fourth table language in a walk. */
   .stock-table {
-    width: 100%;
-    min-width: 30rem;
     border-collapse: collapse;
-    margin-top: 0.5rem;
+    margin-top: var(--s4);
+    min-width: 30rem;
+    width: 100%;
   }
 
   .stock-table th,
   .stock-table td {
-    border: 1px solid #555;
-    padding: 0.4rem 0.6rem;
+    border: 1px solid var(--border);
+    padding: var(--s3) var(--s4);
     text-align: left;
   }
 
   .stock-table th {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--surface-inset);
   }
 </style>
