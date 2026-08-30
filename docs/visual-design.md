@@ -165,8 +165,23 @@ and a walk that ends in sweeps is done once.** It also names debt that needs no 
 nine components still exempted from the hex and ramp sweeps for three issues that have since closed
 without touching them.
 
-Awaiting approval, unlike the amendments above it, which are built: #124 is `needs-design`, and the
-corrected premise, the findings-become-sweeps rule and the capture-is-not-a-gate decision are what
+Approved and built. The walk it describes found two things it was not allowed to settle, which is
+the next amendment.
+
+**Amended 2026-08-30 by [#153](https://github.com/ironarachne/ironarachne/issues/153) and
+[#154](https://github.com/ironarachne/ironarachne/issues/154)**, which add [the content
+language](#the-content-language-stats-and-tables) — the first section in this document about what is
+_inside_ a panel rather than about the panel. Everything before it settles the frame, and the walk
+is what made that gap impossible to keep ignoring: a stat is `<strong>Label:</strong>` 229 times
+across 19 components, and the base table still draws `1px solid black` around every cell while three
+components have each written their own instead.
+
+**The two issues are one section**, on a fact neither of them mentions: a table flipped for a phone
+_is_ a stat block. Designed apart, the site would answer the same question twice and differently
+below 640px.
+
+Awaiting approval, unlike the amendments above it, which are built: #153 and #154 are `needs-design`,
+and the pair as the unit, the row-not-cell table, and the flip-unless-it-is-a-matrix rule are what
 CLAUDE.md's review gate asks a human to approve before implementation starts.
 
 **Amended 2026-08-30, in review of the above:** every genre gets a panel shape of its own, which
@@ -3216,6 +3231,155 @@ blocks ([#153](https://github.com/ironarachne/ironarachne/issues/153)) are `<str
 229 times across 19 components. Both are the same gap, and it is worth naming: **this document
 settles the frame and says nothing about the content inside a panel.** Everything #77 converted was
 furniture. Those two issues are now in #77's scope, after this one.
+
+## The content language: stats and tables
+
+Everything above this settles the **frame** — the panel a result sits in, the controls that produced
+it, the message when something goes wrong, the shell around all of it, the genre it wears and the
+marks that classify it. **None of it settles what is inside the panel**, and the
+[route walk](#what-the-walk-found) is what made that impossible to keep ignoring: two of its
+findings needed a decision it could not make, and both were about the output rather than the
+furniture.
+
+This settles them. [#153](https://github.com/ironarachne/ironarachne/issues/153) and
+[#154](https://github.com/ironarachne/ironarachne/issues/154) are one section rather than two,
+because of a fact neither issue mentions: **a table flipped for a phone is a stat block.** Design
+them apart and the site gets two answers to the same question, one of them on screens under 640px.
+
+### What is actually there
+
+Counted rather than characterised:
+
+|                                 |                                                                                               |
+| ------------------------------- | --------------------------------------------------------------------------------------------- |
+| `<strong>Label:</strong> value` | **229 instances across 19 components** — 139 of them wrapped in a bare `<p>`, 13 in an `<li>` |
+| `<dl>`                          | 3 components, each styling it themselves; `main.css` has no `dl`, `dt` or `dd` rules at all   |
+| `<table>`                       | 5 components, of which **3 have written their own**                                           |
+| The base table                  | `main.css`, with `3px solid black`, `1px solid black` and `padding: 0.25rem`                  |
+
+That last row is the last element rule in the app still holding a literal colour, and the three
+bespoke tables are [nineteen copies of a box](#the-problem-is-nineteen-copies-of-a-box) happening a
+second time, for the same reason: the shared thing is unusable, so everyone works around it.
+
+### A stat is a pair, and it is not a sentence
+
+`<strong>Hit Points:</strong> 14` is a sentence that has been made to look like data. It reads as
+prose to a screen reader, it cannot be aligned with the stat above it, and the colon is doing the
+work a layout should. The pair is the unit:
+
+| Part      | Element | Type step                       | Ink           |
+| --------- | ------- | ------------------------------- | ------------- |
+| **Key**   | `<dt>`  | `--t-micro`, tracked, uppercase | `--ink-faint` |
+| **Value** | `<dd>`  | `--t-body`                      | `--ink`       |
+
+**That is deliberately the same recipe as [a control's label](#the-field-around-a-control).** A stat
+is a field nobody can type in, so it should look like one: the app already teaches a reader that a
+small uppercase line above a value names that value, and teaching it twice with two different looks
+is the whole failure this document exists to prevent.
+
+Consequences that follow from choosing the pair:
+
+- **No borders, no boxes, no rules between stats.** Separation is the space ramp, and a stat block
+  inside a panel that drew its own box would be the nested box the
+  [panel language](#three-levels-and-the-well-makes-four) refuses.
+- **A block is a grid**, `repeat(auto-fill, minmax(11rem, 1fr))` with `--s5` between cells, so a
+  character sheet is a grid at desktop width and one column on a phone without a media query.
+- **Keys do not repeat a heading.** A block under a "Combat" heading has an `Attack Bonus`, not a
+  `Combat Attack Bonus`.
+- **A value may be anything** — a number, a name, a `Badge`, a link — so the component takes a
+  snippet rather than a string. Several of the 229 already carry markup in the value.
+
+### A table is rows, not a grid of cells
+
+The base table draws a box around every cell. That is what makes it look like a spreadsheet dropped
+into the page, and it is the wrong emphasis: what a reader follows across a table is the **row**.
+
+| Part          | Recipe                                                                                               |
+| ------------- | ---------------------------------------------------------------------------------------------------- |
+| Header cell   | `--t-micro`, tracked, uppercase, `--ink-faint`, left-aligned                                         |
+| Header rule   | 1px `--border` under the head, and nothing else above it                                             |
+| Row separator | 1px `--border` under each row; **no vertical rules anywhere**                                        |
+| Cell padding  | `--s3` block, `--s4` inline, and `0` on the leading edge so a column lines up with the text above it |
+| Numeric cells | Right-aligned, and the header with them                                                              |
+| Long tables   | Scroll inside a `--surface-sunken` well, which is what the fourth surface is for                     |
+
+Two rules and no vertical rules is the whole change, and it is why the same table reads as cleaner
+without reading as plainer: the hairlines that survive are the ones a reader's eye was using.
+
+### The phone answer, which is where the two halves meet
+
+Three components each answered this differently, which is one more answer than the question has.
+`e2e/pages.mobile.spec.ts` already forbids horizontal overflow at 320px, so a table has exactly two
+honest options, and **the test between them is what a row means**:
+
+> **Flip by default.** If a row makes sense read as a list of key/value pairs, it becomes one below
+> 640px: the head is hidden, each cell takes its key from `data-label`, and the row becomes a stat
+> block. `StoragePanel` already does exactly this and is the most developed of the three, so the
+> shared answer is its answer.
+>
+> **Scroll only when the columns are a matrix.** If the columns mean something only _beside_ each
+> other — the word-generator cheat sheet is a grid where the comparison across a row is the content
+> — the table keeps its shape and scrolls inside its own `overflow-x` container. Never the page.
+
+**The flipped row is a stat block**, wearing the same key and value recipe, which is the reason
+these two issues are one design. A reader who has learned to read a character's stats has already
+learned to read a table on their phone.
+
+### Two components, and the elements they are
+
+```mermaid
+classDiagram
+    class StatBlock {
+        <<dl, a grid of pairs>>
+        +Snippet children
+        +string class
+    }
+    class Stat {
+        <<div wrapping dt + dd>>
+        +string label
+        +Snippet children
+    }
+    class DataTable {
+        <<table>>
+        +Column[] columns
+        +Snippet rows
+        +"flip" | "scroll" narrow
+    }
+    class Column {
+        +string label
+        +boolean numeric
+    }
+
+    StatBlock "1" o-- "*" Stat : holds
+    DataTable "1" o-- "*" Column : heads
+    DataTable ..> Stat : a flipped row is one
+```
+
+`Stat` renders `<div><dt>…</dt><dd>…</dd></div>` inside `StatBlock`'s `<dl>`, because a `dl` may not
+hold anything else and a bare `dt`/`dd` pair cannot be laid out as a cell. `DataTable` owns the
+`data-label` plumbing rather than each caller writing it out, which is where `StoragePanel`'s
+version leaks: every cell has to remember its own label or the flip silently drops it.
+
+### The skins get nothing new
+
+A stat block and a table are **content inside a panel**, and a skin already dresses that panel. They
+inherit `--ink`, `--ink-faint` and `--border` like everything else, so all four genres work with no
+new permission and [decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look) does not
+move. #153 asks for "genre-skin treatments"; the answer is that it already has them, and a skin
+reaching further would be the second look decision 2 forbids.
+
+### What the content language enforces
+
+- **No component declares a `table`, `th` or `td` rule.** The table is `main.css`'s, and a component
+  reaching for one is the second implementation starting again — the same shape as "no skin file
+  declares a `button` rule". The three bespoke copies are deleted rather than tidied.
+- **No component writes `<strong>…:</strong>`.** That pattern is a stat that has not been converted,
+  and 229 of them are why the rule has to be a sweep rather than a guideline.
+- **The ramp sweep widens to every component.** It covers two named lists today, which is how
+  `StoragePanel`'s `0.8rem` and `0.35rem` survived the walk that deleted the exemption list. New
+  shared components make that gap indefensible.
+- **Every `DataTable` column declares its label**, so the flip cannot silently lose one — checked in
+  the browser at 320px, where a flipped row must show as many keys as the head had columns.
 
 ## Enforcement
 
