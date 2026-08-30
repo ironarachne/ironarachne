@@ -402,7 +402,7 @@ describe('the control system', () => {
     ).toEqual([]);
   });
 
-  it.each(['fantasy.css', 'scifi.css', 'cyberpunk.css'])(
+  it.each(['fantasy.css', 'scifi.css', 'cyberpunk.css', 'horror.css'])(
     'leaves control geometry alone in %s',
     (name) => {
       // Decision 2: a skin may set a surface, a keyline, a corner, an accent hue and one ambient
@@ -575,7 +575,7 @@ describe('applying a skin', () => {
   // broken before #118: the genre was written in thirty places, four of which disagreed with the
   // tool catalog that already knew the answer.
 
-  const SKIN_FILES = ['fantasy.css', 'scifi.css', 'cyberpunk.css'];
+  const SKIN_FILES = ['fantasy.css', 'scifi.css', 'cyberpunk.css', 'horror.css'];
 
   it('writes the genre in one place', () => {
     // One genre, one writer. `+layout.svelte` puts `data-genre` on the page region and nothing
@@ -590,6 +590,23 @@ describe('applying a skin', () => {
 
     const layout = readFileSync(join('src', 'routes', '+layout.svelte'), 'utf8');
     expect(layout, 'the one writer stopped writing it').toContain('data-genre={genre}');
+  });
+
+  it('gives every genre a skin, now that horror has one', () => {
+    // The other direction, which only became assertable with #122. `horror` sat in GENRES with no
+    // file from before this document existed until then, and a project set to it got the base
+    // appearance by omission rather than by decision — the resolver returns a genre rather than a
+    // stylesheet precisely so that gap could exist. It does not any more, and this is what keeps a
+    // fifth genre from being added without one.
+    const skinned = new Set(
+      SKIN_FILES.flatMap((name) =>
+        [...readFileSync(join(STYLES_DIR, name), 'utf8').matchAll(/\[data-genre='([^']*)'\]/g)].map(
+          ([, genre]) => genre,
+        ),
+      ),
+    );
+
+    expect([...skinned].sort(), 'a genre has no skin file').toEqual([...GENRES].sort());
   });
 
   it('keeps skins in skin files, and leaves the old class name behind', () => {
@@ -617,8 +634,7 @@ describe('applying a skin', () => {
 
   it('keys every skin off a genre that exists', () => {
     // A stylesheet keyed to a genre the app does not have is dead CSS that looks live, and it is
-    // exactly what a typo produces. `horror` is in GENRES with no file yet — that direction is
-    // fine, and is why the resolver returns a genre rather than a stylesheet.
+    // exactly what a typo produces.
     const genres = new Set<string>(GENRES);
 
     for (const name of SKIN_FILES) {
@@ -751,7 +767,7 @@ describe('the panel language', () => {
     }
   });
 
-  it.each(['fantasy.css', 'scifi.css', 'cyberpunk.css'])(
+  it.each(['fantasy.css', 'scifi.css', 'cyberpunk.css', 'horror.css'])(
     'leaves panel and badge geometry alone in %s',
     (name) => {
       // Decision 2 again, for the surfaces: a skin may set `--panel-edge` and `--panel-surface`
@@ -786,10 +802,11 @@ describe('the panel language', () => {
     },
   );
 
-  // Every skin the app has. The list was created because the skins converted one issue at a time
-  // and the ones that had not were exempt from the sweeps; #121 is the last of them, so there is
-  // nothing carried and nothing left to exempt.
-  const CONVERTED_SKINS = ['fantasy.css', 'scifi.css', 'cyberpunk.css'];
+  // Every skin the app has, and now every genre it has: #122 adds the fourth file, so `GENRES` and
+  // this directory finally hold the same four names. The list was created because the skins
+  // converted one issue at a time and the ones that had not were exempt from the sweeps; nothing is
+  // carried and there is nothing left to exempt.
+  const CONVERTED_SKINS = ['fantasy.css', 'scifi.css', 'cyberpunk.css', 'horror.css'];
 
   it.each(CONVERTED_SKINS)('writes no colour value of its own in %s', (name) => {
     // The exemption granted when the controls landed — "their heading effects are full of hexes and
@@ -923,6 +940,24 @@ describe('the panel language', () => {
           true,
         );
       }
+    }
+  });
+
+  it.each(CONVERTED_SKINS)('leaves the tones their own colours in %s', (name) => {
+    // docs/visual-design.md, "The keyline is old blood, and deliberately not `--danger`". Neat
+    // crimson is luminance 0.0882 and sits inside the keyline register, so the rules as they stood
+    // permitted it — and crimson *is* `--danger`. A toned panel sets `--panel-edge: var(--danger)`
+    // to say a write failed, so a genre wearing that edge would make a whole project look like a
+    // page of failures and hide the one panel that had really failed among them.
+    //
+    // A skin may mix a tone's palette entry with something else — horror's keyline is half crimson
+    // — but it may not paint the role itself, because that is the value the tone sets.
+    const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
+
+    for (const tone of ['--danger', '--success']) {
+      expect(css, `${name} paints ${tone}, which is a tone's to say and not a genre's`).not.toMatch(
+        new RegExp(`--panel-edge\\s*:\\s*var\\(${tone}\\)`),
+      );
     }
   });
 

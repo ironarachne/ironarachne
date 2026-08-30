@@ -5,6 +5,7 @@
 @import './fantasy.css';
 @import './scifi.css';
 @import './cyberpunk.css';
+@import './horror.css';
 @import './modal.css';
 
 /* No `max-width` here on purpose. Capping the document was what kept the site inside 70ch of a

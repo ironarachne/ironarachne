@@ -344,3 +344,82 @@ test.describe('the cyberpunk skin', () => {
     expect(paint.image, 'the corner marks went with the fault').toContain('linear-gradient');
   });
 });
+
+test.describe('the horror skin', () => {
+  test('goes green and keeps its stain when motion is switched off', async ({ page }) => {
+    await openProject(page);
+    const base = await panelShape(page);
+
+    await setGenre(page, 'horror');
+    const horror = await panelShape(page);
+
+    expect(horror.surface, 'the skin did not reach the panel surface').not.toEqual(base.surface);
+
+    // The morgue, not the blood: red is the obvious horror colour and the wrong one for a plate
+    // that holds a page of generated text. This is the third of the four hue assertions, after
+    // fantasy's warmth and sci-fi's cool. docs/visual-design.md, "The surface is the morgue".
+    expect(horror.surface[1], 'the horror surface is not green').toBeGreaterThan(horror.surface[0]);
+
+    expect(
+      luminance(horror.surface),
+      'a horror panel is lighter than a base panel',
+    ).toBeLessThanOrEqual(luminance(base.surface));
+
+    // Four depths that agree with nothing, which is the one shape a genre states no rule with.
+    expect(horror.clip, 'the skin did not reach the corner').not.toEqual(base.clip);
+    expect(horror.box, 'a skinned panel is not the size of a base panel').toEqual(base.box);
+  });
+
+  test('breathes slower than anything else, and never on the type', async ({ page }) => {
+    await openProject(page);
+    await setGenre(page, 'horror');
+
+    const paint = await page
+      .locator('.panel__field')
+      .first()
+      .evaluate((element) => {
+        const computed = getComputedStyle(element);
+        return {
+          duration: computed.animationDuration,
+          image: computed.backgroundImage,
+        };
+      });
+
+    // Three times #121's floor. The reference's devices are events — a flash, a glitch, a sudden
+    // change — and the whole argument of this skin is that none of them ships: a generator is open
+    // for an afternoon, and what startles you at minute ninety is what you turn off.
+    expect(
+      Number.parseFloat(paint.duration),
+      'the breath is faster than 20s',
+    ).toBeGreaterThanOrEqual(20);
+
+    // The stain and the vignette, both on the surface rather than on anything being read.
+    expect(paint.image, 'the stain is not on the panel surface').toContain('radial-gradient');
+
+    const headingPaint = await page
+      .locator('h1')
+      .first()
+      .evaluate((element) => getComputedStyle(element).backgroundImage);
+
+    expect(headingPaint, 'the skin is painting the type').toBe('none');
+  });
+
+  test('keeps the stain when the breathing stops', async ({ page }) => {
+    // Same standard the other three are held to: what reduced motion removes is the movement, not
+    // the genre. The vignette holds at its open state and the stain is untouched.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await openProject(page);
+    await setGenre(page, 'horror');
+
+    const paint = await page
+      .locator('.panel__field')
+      .first()
+      .evaluate((element) => ({
+        animation: getComputedStyle(element).animationName,
+        image: getComputedStyle(element).backgroundImage,
+      }));
+
+    expect(paint.animation, 'the breath still runs under reduced motion').toBe('none');
+    expect(paint.image, 'the stain went with the breath').toContain('radial-gradient');
+  });
+});
