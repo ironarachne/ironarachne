@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { onMount } from 'svelte';
   import { RNG } from '@ironarachne/rng';
   import {
@@ -59,18 +61,19 @@
 
   {#if language}
     <h2>{language.name}</h2>
-    <p><strong>Word order:</strong> {language.wordOrder}</p>
-    <p><strong>Article system:</strong> {language.articleSystem}</p>
-    <p><strong>Possession strategy:</strong> {language.possessionStrategy.kind}</p>
-    <p><strong>Syllable template:</strong> {language.syllableProfile}</p>
-    <p><strong>Orthography:</strong> {language.orthographySummary}</p>
-    <p>
-      <strong>Sample morphology:</strong>
+    <StatBlock>
+      <Stat label="Word order">{language.wordOrder}</Stat>
+      <Stat label="Article system">{language.articleSystem}</Stat>
+      <Stat label="Possession strategy">{language.possessionStrategy.kind}</Stat>
+      <Stat label="Syllable template">{language.syllableProfile}</Stat>
+      <Stat label="Orthography">{language.orthographySummary}</Stat>
+    </StatBlock>
+    <Stat label="Sample morphology">
       plural {language.morphology.pluralPlacement}
       <code>{language.morphology.pluralAffix}</code>
       · past {language.morphology.pastPlacement}
       <code>{language.morphology.pastAffix}</code>
-    </p>
+    </Stat>
 
     <h3>Simple sentence translation</h3>
     <p>

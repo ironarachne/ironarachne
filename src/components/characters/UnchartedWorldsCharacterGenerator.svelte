@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { CharGen, parseSkillDescription, downloadUwCharacterPdf } from '$lib/unchartedworlds';
   import type { UWCharacter } from '$lib/unchartedworlds';
   import * as RNG from '@ironarachne/rng';
@@ -172,11 +174,13 @@
   {#if character}
     <h3>Statistics</h3>
 
-    <p><strong>Physique:</strong> {character.stats.physique}</p>
-    <p><strong>Mettle:</strong> {character.stats.mettle}</p>
-    <p><strong>Expertise:</strong> {character.stats.expertise}</p>
-    <p><strong>Influence:</strong> {character.stats.influence}</p>
-    <p><strong>Interface:</strong> {character.stats.interface}</p>
+    <StatBlock>
+      <Stat label="Physique">{character.stats.physique}</Stat>
+      <Stat label="Mettle">{character.stats.mettle}</Stat>
+      <Stat label="Expertise">{character.stats.expertise}</Stat>
+      <Stat label="Influence">{character.stats.influence}</Stat>
+      <Stat label="Interface">{character.stats.interface}</Stat>
+    </StatBlock>
 
     <h2>Careers</h2>
 

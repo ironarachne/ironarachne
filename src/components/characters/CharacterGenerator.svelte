@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { RNG } from '@ironarachne/rng';
   import * as Measurements from '$lib/measurements';
   import {
@@ -266,27 +268,29 @@
         {/each}
       </ul>
     {/if}
-    <p><strong>Description:</strong> {character.description}</p>
-    <p><strong>Gender:</strong> {character.gender.name}</p>
-    <p><strong>Species:</strong> {character.species.name}</p>
-    {#if character.creatureTypes.length > 0}
-      <p><strong>Type:</strong> {character.creatureTypes.join(', ')}</p>
-    {/if}
-    {#if character.archetype}
-      <p><strong>Archetype:</strong> {character.archetype.name}</p>
-    {/if}
-    <p><strong>Age:</strong> {character.age} years ({character.ageCategory.name})</p>
-    <p>
-      <strong>Height:</strong>
+    <StatBlock>
+      <Stat label="Description">{character.description}</Stat>
+      <Stat label="Gender">{character.gender.name}</Stat>
+      <Stat label="Species">{character.species.name}</Stat>
+      {#if character.creatureTypes.length > 0}
+        <Stat label="Type">{character.creatureTypes.join(', ')}</Stat>
+      {/if}
+      {#if character.archetype}
+        <Stat label="Archetype">{character.archetype.name}</Stat>
+      {/if}
+      <Stat label="Age">{character.age} years ({character.ageCategory.name})</Stat>
+    </StatBlock>
+    <Stat label="Height">
       {Measurements.inchesToFeetExpression(Measurements.cmToInches(character.height))}
-    </p>
+    </Stat>
     {#if character.length > 0}
-      <p>
-        <strong>Length:</strong>
+      <Stat label="Length">
         {Measurements.inchesToFeetExpression(Measurements.cmToInches(character.length))}
-      </p>
+      </Stat>
     {/if}
-    <p><strong>Weight:</strong> {Measurements.kgToPounds(character.weight)} lbs.</p>
+    <StatBlock>
+      <Stat label="Weight">{Measurements.kgToPounds(character.weight)} lbs.</Stat>
+    </StatBlock>
 
     {#if character.physicalTraits.length > 0}
       <h3>Physical Traits</h3>

@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { RNG } from '@ironarachne/rng';
   import { onMount } from 'svelte';
 
@@ -380,8 +382,10 @@
 
     {#if settlement.primaryImports && settlement.primaryImports.length > 0}
       <h3>Trade</h3>
-      <p><strong>Exports:</strong> {settlement.primaryExports?.join(', ')}</p>
-      <p><strong>Imports:</strong> {settlement.primaryImports.join(', ')}</p>
+      <StatBlock>
+        <Stat label="Exports">{settlement.primaryExports?.join(', ')}</Stat>
+        <Stat label="Imports">{settlement.primaryImports.join(', ')}</Stat>
+      </StatBlock>
       {#if settlement.tradeBlurb}
         <p>{settlement.tradeBlurb}</p>
       {/if}

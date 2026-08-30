@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import * as RNG from '@ironarachne/rng';
   import { resolve } from '$app/paths';
   import * as Dice from '$lib/dice';
@@ -940,14 +942,13 @@
           Allocate exactly {getThiefSkillPointPool(thiefSkillKind)} points (max {ADND_THIEF_SKILL_BONUS_CAP}
           per skill). Base scores include Dexterity and racial modifiers.
         </p>
-        <p>
-          <strong>Allocated:</strong>
+        <Stat label="Allocated">
           {sumThiefSkillBonuses(thiefSkillBonuses)} /
           {getThiefSkillPointPool(
             thiefSkillKind,
           )}{#if thiefSkillKind && sumThiefSkillBonuses(thiefSkillBonuses) !== getThiefSkillPointPool(thiefSkillKind)}
             — must match total{/if}
-        </p>
+        </Stat>
         <div class="thief-skill-grid">
           {#each thiefSkillRowsForBuilder as row (row.name)}
             <label>
@@ -985,7 +986,9 @@
         Typical random roll for this class: {startingFundsDiceLine(selectedClass)}. Values below use
         gp, sp, and cp (the rules reference copper totals internally).
       </p>
-      <p><strong>Total:</strong> {formatWealthCp(startingWealthCp)}</p>
+      <StatBlock>
+        <Stat label="Total">{formatWealthCp(startingWealthCp)}</Stat>
+      </StatBlock>
       <p>
         <BaseButton onclick={rollStartingFunds}
           >Roll starting funds ({startingFundsDiceLine(selectedClass)})</BaseButton

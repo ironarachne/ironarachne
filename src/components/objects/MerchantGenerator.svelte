@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { onMount } from 'svelte';
   import { valueToString, COMMON_FANTASY } from '$lib/currency';
   import { generateMerchant, getDefaultMerchantConfig, type Merchant } from '$lib/merchants';
@@ -174,17 +176,20 @@
         <p><strong>{merchant.proprietor.fullName}</strong></p>
         <p>{merchant.proprietor.description}</p>
         {#if merchant.proprietor.personalityTraits.length > 0}
-          <p><strong>Temperament:</strong> {merchant.proprietor.personalityTraits.join(', ')}</p>
+          <StatBlock>
+            <Stat label="Temperament">{merchant.proprietor.personalityTraits.join(', ')}</Stat>
+          </StatBlock>
         {/if}
 
         <h3>Trading Character</h3>
         <ul class="trading-notes">
-          <li><strong>Honesty:</strong> {merchant.honesty}</li>
-          <li><strong>Price level:</strong> {merchant.priceLevel}</li>
-          <li>
-            <strong>Price modifier:</strong>
-            {formatModifier(merchant.priceModifier)} of catalog value
-          </li>
+          <StatBlock>
+            <Stat label="Honesty">{merchant.honesty}</Stat>
+            <Stat label="Price level">{merchant.priceLevel}</Stat>
+            <Stat label="Price modifier"
+              >{formatModifier(merchant.priceModifier)} of catalog value</Stat
+            >
+          </StatBlock>
           <li>{merchant.honestyNotes}</li>
           <li>{merchant.hagglingAdvice}</li>
         </ul>

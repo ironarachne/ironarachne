@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { onMount } from 'svelte';
   import { valueToString, COMMON_FANTASY } from '$lib/currency';
   import {
@@ -66,45 +68,50 @@
         <h2>{potion.displayName}</h2>
 
         {#if potion.modifications.length > 0}
-          <p>
-            <strong>Modifications:</strong>
+          <Stat label="Modifications">
             {potion.modifications.map((mod) => mod.kind).join(', ')}
-          </p>
+          </Stat>
         {/if}
 
         {#if potion.canonicalName && potion.canonicalName !== potion.displayName}
-          <p><strong>Base formula:</strong> {potion.canonicalName}</p>
+          <StatBlock>
+            <Stat label="Base formula">{potion.canonicalName}</Stat>
+          </StatBlock>
         {/if}
-        <p><strong>Rarity:</strong> {potion.liquid.rarity}</p>
-        <p><strong>Value:</strong> {valueToString(potion.liquid.value, COMMON_FANTASY)}</p>
-        <p>
-          <strong>Form:</strong>
+        <StatBlock>
+          <Stat label="Rarity">{potion.liquid.rarity}</Stat>
+          <Stat label="Value">{valueToString(potion.liquid.value, COMMON_FANTASY)}</Stat>
+        </StatBlock>
+        <Stat label="Form">
           {potion.liquid.properties.includes('oil')
             ? 'oil'
             : potion.liquid.properties.includes('ointment')
               ? 'ointment'
               : 'drink'}
-        </p>
+        </Stat>
 
         <h3>Effect</h3>
         <p>{describeEffect(potion.effect)}</p>
-        <p><strong>Duration:</strong> {describeDurationShort(potion.effect.duration)}</p>
-        <p><strong>Magnitude:</strong> {potion.effect.magnitude}</p>
+        <StatBlock>
+          <Stat label="Duration">{describeDurationShort(potion.effect.duration)}</Stat>
+          <Stat label="Magnitude">{potion.effect.magnitude}</Stat>
+        </StatBlock>
 
         <h3>Sensory Profile</h3>
         <ul>
-          <li><strong>Appearance:</strong> {potion.sensory.appearance}</li>
-          <li><strong>Viscosity:</strong> {potion.sensory.viscosity}</li>
-          <li><strong>Flavor:</strong> {potion.sensory.flavor}</li>
-          <li><strong>Scent:</strong> {potion.sensory.scent}</li>
+          <StatBlock>
+            <Stat label="Appearance">{potion.sensory.appearance}</Stat>
+            <Stat label="Viscosity">{potion.sensory.viscosity}</Stat>
+            <Stat label="Flavor">{potion.sensory.flavor}</Stat>
+            <Stat label="Scent">{potion.sensory.scent}</Stat>
+          </StatBlock>
         </ul>
 
         <h3>Container</h3>
         <p>{potion.container.name}: {potion.container.description}</p>
-        <p>
-          <strong>Container value:</strong>
+        <Stat label="Container value">
           {valueToString(potion.container.value, COMMON_FANTASY)}
-        </p>
+        </Stat>
 
         <h3>Description</h3>
         <p>{potion.liquid.description}</p>

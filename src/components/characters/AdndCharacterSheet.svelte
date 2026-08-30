@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import * as Words from '@ironarachne/words';
   import { Currency } from '$lib/currency';
   import { adndRaceDisplayName, type ADNDCharacter } from '$lib/adnd';
@@ -16,127 +18,135 @@
 
 <p>A level {character.level} {adndRaceDisplayName(character)} {character.class.name}</p>
 
-<p><strong>XP:</strong> {character.xp}</p>
-<p><strong>HP:</strong> {character.hp}</p>
-<p><strong>AC:</strong> {character.ac}</p>
-<p><strong>THAC0:</strong> {character.thaco}</p>
-<p><strong>Alignment:</strong> {character.alignment}</p>
-<p>
-  <strong>Currency:</strong>
+<StatBlock>
+  <Stat label="XP">{character.xp}</Stat>
+  <Stat label="HP">{character.hp}</Stat>
+  <Stat label="AC">{character.ac}</Stat>
+  <Stat label="THAC0">{character.thaco}</Stat>
+  <Stat label="Alignment">{character.alignment}</Stat>
+</StatBlock>
+<Stat label="Currency">
   {Currency.valueToGpSpCpString(Number.isFinite(character.currency) ? character.currency : 0)}
-</p>
+</Stat>
 
 <h3>Attributes</h3>
 
-<p>
-  <strong>Strength:</strong>
+<Stat label="Strength">
   {character.strength}{#if character.exceptionalStrength != -1}/{getEStrength(
       character.exceptionalStrength,
     )}{/if}
-</p>
-<p><strong>Dexterity:</strong> {character.dexterity}</p>
-<p><strong>Constitution:</strong> {character.constitution}</p>
-<p><strong>Charisma:</strong> {character.charisma}</p>
-<p><strong>Intelligence:</strong> {character.intelligence}</p>
-<p><strong>Wisdom:</strong> {character.wisdom}</p>
+</Stat>
+<StatBlock>
+  <Stat label="Dexterity">{character.dexterity}</Stat>
+  <Stat label="Constitution">{character.constitution}</Stat>
+  <Stat label="Charisma">{character.charisma}</Stat>
+  <Stat label="Intelligence">{character.intelligence}</Stat>
+  <Stat label="Wisdom">{character.wisdom}</Stat>
+</StatBlock>
 
 <h3>Saving Throws</h3>
 
-<p><strong>Paralyzation, Poison, or Death Magic:</strong> {character.poisonSavingThrow}</p>
-<p><strong>Rod, Staff, or Wand:</strong> {character.rodSavingThrow}</p>
-<p><strong>Petrification or Polymorph:</strong> {character.petrificationSavingThrow}</p>
-<p><strong>Breath Weapon:</strong> {character.breathSavingThrow}</p>
-<p><strong>Spell:</strong> {character.spellSavingThrow}</p>
+<StatBlock>
+  <Stat label="Paralyzation, Poison, or Death Magic">{character.poisonSavingThrow}</Stat>
+  <Stat label="Rod, Staff, or Wand">{character.rodSavingThrow}</Stat>
+  <Stat label="Petrification or Polymorph">{character.petrificationSavingThrow}</Stat>
+  <Stat label="Breath Weapon">{character.breathSavingThrow}</Stat>
+  <Stat label="Spell">{character.spellSavingThrow}</Stat>
+</StatBlock>
 
 <h3>Derived Stats</h3>
 
-<p><strong>Hit Probability:</strong> {character.hitProbability}</p>
-<p><strong>Damage Adjustment:</strong> {character.damageAdjustment}</p>
-<p><strong>Weight Allowance:</strong> {character.weightAllowance}</p>
-<p><strong>Maximum Press:</strong> {character.maxPress}</p>
-<p><strong>Open Doors:</strong> {character.openDoors}</p>
-<p><strong>Bend Bars/Lift Gates:</strong> {character.bendBarsLiftGates}%</p>
-<p>
-  <strong>Reaction Adjustment:</strong>
+<StatBlock>
+  <Stat label="Hit Probability">{character.hitProbability}</Stat>
+  <Stat label="Damage Adjustment">{character.damageAdjustment}</Stat>
+  <Stat label="Weight Allowance">{character.weightAllowance}</Stat>
+  <Stat label="Maximum Press">{character.maxPress}</Stat>
+  <Stat label="Open Doors">{character.openDoors}</Stat>
+  <Stat label="Bend Bars/Lift Gates">{character.bendBarsLiftGates}%</Stat>
+</StatBlock>
+<Stat label="Reaction Adjustment">
   {character.reactionAdjustment > 0
     ? `+${character.reactionAdjustment}`
     : character.reactionAdjustment}
-</p>
-<p>
-  <strong>Missile Attack Adjustment:</strong>
+</Stat>
+<Stat label="Missile Attack Adjustment">
   {character.missileAttackAdjustment > 0
     ? `+${character.missileAttackAdjustment}`
     : character.missileAttackAdjustment}
-</p>
-<p>
-  <strong>Defensive Adjustment:</strong>
+</Stat>
+<Stat label="Defensive Adjustment">
   {character.defensiveAdjustment > 0
     ? `+${character.defensiveAdjustment}`
     : character.defensiveAdjustment}
-</p>
-<p><strong>Hit Point Adjustment:</strong></p>
-<p><strong>System Shock:</strong> {character.systemShock}%</p>
-<p><strong>Resurrection Survival:</strong> {character.resurrectionSurvival}%</p>
-<p>
-  <strong>Poison Save:</strong>
+</Stat>
+<StatBlock>
+  <!-- The value was missing outright before #153: the sheet printed "Hit Point Adjustment:" with
+       nothing after it. Converting a label-and-value pattern into a component that needs both is
+       what found it — `character.hitPointAdjustment` has been on the type all along. -->
+  <Stat label="Hit Point Adjustment"
+    >{character.hitPointAdjustment > 0
+      ? `+${character.hitPointAdjustment}`
+      : character.hitPointAdjustment}</Stat
+  >
+  <Stat label="System Shock">{character.systemShock}%</Stat>
+  <Stat label="Resurrection Survival">{character.resurrectionSurvival}%</Stat>
+</StatBlock>
+<Stat label="Poison Save">
   {character.poisonSave > 0 ? `+${character.poisonSave}` : character.poisonSave}
-</p>
-<p><strong>Regeneration:</strong> {character.regeneration}</p>
-<p><strong>Number of Languages:</strong> {character.numberOfLanguages}</p>
-<p>
-  <strong>Spell Level:</strong>
+</Stat>
+<StatBlock>
+  <Stat label="Regeneration">{character.regeneration}</Stat>
+  <Stat label="Number of Languages">{character.numberOfLanguages}</Stat>
+</StatBlock>
+<Stat label="Spell Level">
   {character.spellLevel == -1
     ? 'N/A'
     : `${character.spellLevel}${Words.getOrdinal(character.spellLevel)}`}
-</p>
-<p>
-  <strong>Chance To Learn Spell:</strong>
+</Stat>
+<Stat label="Chance To Learn Spell">
   {character.chanceToLearnSpell == -1 ? 'N/A' : `${character.chanceToLearnSpell}%`}
-</p>
-<p>
-  <strong>Maximum Number of Spells Per Level:</strong>
+</Stat>
+<Stat label="Maximum Number of Spells Per Level">
   {character.maximumNumberOfSpellsPerLevel == -1
     ? 'N/A'
     : character.maximumNumberOfSpellsPerLevel == 99
       ? 'All'
       : character.maximumNumberOfSpellsPerLevel}
-</p>
-<p>
-  <strong>Illusion Immunity:</strong>
+</Stat>
+<Stat label="Illusion Immunity">
   {character.illusionImmunity == -1
     ? 'N/A'
     : `${character.illusionImmunity}${Words.getOrdinal(character.illusionImmunity)}-level`}
-</p>
-<p>
-  <strong>Magical Defense Adjustment:</strong>
+</Stat>
+<Stat label="Magical Defense Adjustment">
   {character.magicalDefenseAdjustment > 0
     ? `+${character.magicalDefenseAdjustment}`
     : character.magicalDefenseAdjustment}
-</p>
-<p>
-  <strong>Bonus Priest Spells:</strong>
+</Stat>
+<Stat label="Bonus Priest Spells">
   {character.bonusSpells.length == 0
     ? 'N/A'
     : character.bonusSpells[0] == 0
       ? '0'
       : character.bonusSpells.join(', ')}
-</p>
-<p><strong>Chance of Spell Failure:</strong> {character.chanceOfSpellFailure}%</p>
-<p>
-  <strong>Spell Immunity:</strong>
+</Stat>
+<StatBlock>
+  <Stat label="Chance of Spell Failure">{character.chanceOfSpellFailure}%</Stat>
+</StatBlock>
+<Stat label="Spell Immunity">
   {character.spellImmunity.length == 0 ? 'N/A' : character.spellImmunity.join(', ')}
-</p>
-<p><strong>Maximum Number of Henchmen:</strong> {character.maximumNumberOfHenchmen}</p>
-<p>
-  <strong>Loyalty Base:</strong>
+</Stat>
+<StatBlock>
+  <Stat label="Maximum Number of Henchmen">{character.maximumNumberOfHenchmen}</Stat>
+</StatBlock>
+<Stat label="Loyalty Base">
   {character.loyaltyBase > 0 ? `+${character.loyaltyBase}` : character.loyaltyBase}
-</p>
-<p>
-  <strong>Reaction Adjustment (NPCs):</strong>
+</Stat>
+<Stat label="Reaction Adjustment (NPCs)">
   {character.npcReactionAdjustment > 0
     ? `+${character.npcReactionAdjustment}`
     : character.npcReactionAdjustment}
-</p>
+</Stat>
 
 <h3>Weapons</h3>
 

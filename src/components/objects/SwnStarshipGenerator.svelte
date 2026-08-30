@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { onMount } from 'svelte';
   import * as RNG from '@ironarachne/rng';
   // Deep by necessity: `$lib/swn` also carries the character PDF renderer, which reaches
@@ -52,45 +54,46 @@
   {#if starship}
     <h2>{starship.name}</h2>
 
-    <p><strong>Owner Type:</strong> {starship.ownerType.name}</p>
-    <p><strong>Manufacturer:</strong> {starship.manufacturer}</p>
-    <p><strong>Model:</strong> {starship.className}</p>
-    <p><strong>Hull Type:</strong> {starship.hullType.name}</p>
-    <p><strong>Hull Class:</strong> {starship.hullType.hullClassName}</p>
-    <p><strong>Drive:</strong> {starship.drive.name}</p>
-    <p>
-      <strong>Mass:</strong>
+    <StatBlock>
+      <Stat label="Owner Type">{starship.ownerType.name}</Stat>
+      <Stat label="Manufacturer">{starship.manufacturer}</Stat>
+      <Stat label="Model">{starship.className}</Stat>
+      <Stat label="Hull Type">{starship.hullType.name}</Stat>
+      <Stat label="Hull Class">{starship.hullType.hullClassName}</Stat>
+      <Stat label="Drive">{starship.drive.name}</Stat>
+    </StatBlock>
+    <Stat label="Mass">
       {starship.usedMass}/{starship.hullType.mass}
       ({starship.hullType.mass - starship.usedMass} free)
-    </p>
-    <p>
-      <strong>Power:</strong>
+    </Stat>
+    <Stat label="Power">
       {starship.usedPower}/{starship.hullType.power}
       ({starship.hullType.power - starship.usedPower} free)
-    </p>
-    <p>
-      <strong>Hardpoints:</strong>
+    </Stat>
+    <Stat label="Hardpoints">
       {starship.usedHardPoints}/{starship.hullType.hardPoints}
       ({starship.hullType.hardPoints - starship.usedHardPoints} free)
-    </p>
-    <p><strong>Speed:</strong> {starship.hullType.speed}</p>
-    <p><strong>Armor:</strong> {starship.hullType.armor}</p>
-    <p><strong>AC:</strong> {starship.hullType.ac}</p>
-    <p><strong>HP:</strong> {starship.hullType.hp}</p>
-    <p><strong>Minimum Crew:</strong> {starship.hullType.crewMinimum}</p>
-    <p><strong>Maximum Crew:</strong> {starship.hullType.crewMaximum}</p>
-    <p><strong>Current Crew:</strong> {starship.currentCrew}</p>
-    <p>
-      <strong>Total Ship Value:</strong>
+    </Stat>
+    <StatBlock>
+      <Stat label="Speed">{starship.hullType.speed}</Stat>
+      <Stat label="Armor">{starship.hullType.armor}</Stat>
+      <Stat label="AC">{starship.hullType.ac}</Stat>
+      <Stat label="HP">{starship.hullType.hp}</Stat>
+      <Stat label="Minimum Crew">{starship.hullType.crewMinimum}</Stat>
+      <Stat label="Maximum Crew">{starship.hullType.crewMaximum}</Stat>
+      <Stat label="Current Crew">{starship.currentCrew}</Stat>
+    </StatBlock>
+    <Stat label="Total Ship Value">
       {new Intl.NumberFormat('en-US').format(starship.totalCost)} credits
-    </p>
-    <p>
-      <strong>Total Crew Cost:</strong>
+    </Stat>
+    <Stat label="Total Crew Cost">
       {new Intl.NumberFormat('en-US').format(starship.currentCrew * 43800)}
       credits per year
-    </p>
-    <p><strong>Crew Skill:</strong> {starship.hullType.crewSkill}</p>
-    <p><strong>Cargo Space:</strong> {starship.tonsOfCargo} tons</p>
+    </Stat>
+    <StatBlock>
+      <Stat label="Crew Skill">{starship.hullType.crewSkill}</Stat>
+      <Stat label="Cargo Space">{starship.tonsOfCargo} tons</Stat>
+    </StatBlock>
 
     <h4>Fittings</h4>
 

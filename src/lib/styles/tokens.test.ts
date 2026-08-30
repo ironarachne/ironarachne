@@ -1022,6 +1022,67 @@ describe('icons', () => {
   });
 });
 
+describe('the content language', () => {
+  // docs/visual-design.md, "The content language: stats and tables".
+  function componentFiles(): string[] {
+    const walk = (dir: string): string[] =>
+      readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+        const path = join(dir, entry.name);
+        return entry.isDirectory() ? walk(path) : entry.name.endsWith('.svelte') ? [path] : [];
+      });
+
+    return walk(COMPONENTS_DIR);
+  }
+
+  it('writes no stat as a sentence', () => {
+    // `<p><strong>Label:</strong> value</p>` was the house style — 229 of them across 19
+    // components — and it is a sentence made to look like data: prose to a screen reader, unable to
+    // align with the stat above it, with the colon doing a layout's job. `Stat` is the shape now.
+    //
+    // **Scoped to a constant key**, which is the line implementation drew and the design did not:
+    // `<strong>{trait.name}:</strong> {trait.description}` is a term and a sentence about it, which
+    // is a glossary rather than a stat block, and the document says so. A key that comes from the
+    // data is the discriminator, because a stat's key is written by the app and a glossary's is
+    // written by the generator.
+    const offenders = componentFiles().filter((path) => {
+      if (path.endsWith('Stat.svelte') || path.endsWith('StatBlock.svelte')) {
+        return false;
+      }
+      return /<strong>[A-Z][^<{]*?:<\/strong>/.test(readFileSync(path, 'utf8'));
+    });
+
+    expect(offenders, 'a stat is still written as a sentence').toEqual([]);
+  });
+
+  it('keeps a stat pair on the ramps', () => {
+    // The pair is the recipe a control's label already uses: `--t-micro` tracked and uppercase in
+    // `--ink-faint` over `--t-body` in `--ink`. A stat that invented its own steps would be the
+    // second answer to a question the field around a control already answered.
+    const stat = readFileSync(join(COMPONENTS_DIR, 'common/Stat.svelte'), 'utf8');
+
+    expect(stat).toContain('var(--t-micro)');
+    expect(stat).toContain('var(--t-micro-tracking)');
+    expect(stat).toContain('var(--ink-faint)');
+    expect(stat).toContain('var(--t-body)');
+
+    const sizes = [...stat.matchAll(/(?:font-size|padding|margin|gap)[^:;]*:\s*([^;{}]+);/g)]
+      .map(([, value]) => value.trim())
+      .filter((value) => /\d/.test(value) && !value.includes('var(') && value !== '0');
+
+    expect(sizes, 'a stat sizes something outside the ramps').toEqual([]);
+  });
+
+  it('draws no box around a stat', () => {
+    // A block sits inside a panel, and a block that drew its own box is the nested box the panel
+    // language refuses. Separation is the space ramp.
+    for (const name of ['common/Stat.svelte', 'common/StatBlock.svelte']) {
+      const css = withoutComments(readFileSync(join(COMPONENTS_DIR, name), 'utf8'));
+
+      expect(css, `${name} draws a box`).not.toMatch(/(?:^|[;{])\s*(?:border|box-shadow)\s*:/);
+    }
+  });
+});
+
 describe('motion', () => {
   it('declares one duration, and it is swift', () => {
     expect(tokens.get('--motion-swift')).toBe('120ms');

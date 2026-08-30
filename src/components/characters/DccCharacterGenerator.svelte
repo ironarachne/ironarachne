@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { RNG } from '@ironarachne/rng';
   import {
     buildCharacterNameSource,
@@ -194,59 +196,58 @@
 
     <p>A level {character.level} {character.occupation.name}</p>
 
-    <p><strong>XP:</strong> {character.xp}</p>
-    <p><strong>HP:</strong> {character.hp}</p>
-    <p><strong>AC:</strong> {character.armorClass}</p>
-    <p><strong>Currency:</strong> {DCC.formatDccCurrency(character.currency)}</p>
-    <p><strong>Alignment:</strong> {character.alignment}</p>
-    <p><strong>Gender:</strong> {character.gender}</p>
-    <p><strong>Speed:</strong> {character.speed}'</p>
+    <StatBlock>
+      <Stat label="XP">{character.xp}</Stat>
+      <Stat label="HP">{character.hp}</Stat>
+      <Stat label="AC">{character.armorClass}</Stat>
+      <Stat label="Currency">{DCC.formatDccCurrency(character.currency)}</Stat>
+      <Stat label="Alignment">{character.alignment}</Stat>
+      <Stat label="Gender">{character.gender}</Stat>
+      <Stat label="Speed">{character.speed}'</Stat>
+    </StatBlock>
 
     <h3>Attributes</h3>
 
-    <p>
-      <strong>Strength:</strong>
+    <Stat label="Strength">
       {character.strength.value} ({DCC.formatDccModifier(character.strength.modifier)})
-    </p>
-    <p>
-      <strong>Agility:</strong>
+    </Stat>
+    <Stat label="Agility">
       {character.agility.value} ({DCC.formatDccModifier(character.agility.modifier)})
-    </p>
-    <p>
-      <strong>Stamina:</strong>
+    </Stat>
+    <Stat label="Stamina">
       {character.stamina.value} ({DCC.formatDccModifier(character.stamina.modifier)})
-    </p>
-    <p>
-      <strong>Personality:</strong>
+    </Stat>
+    <Stat label="Personality">
       {character.personality.value} ({DCC.formatDccModifier(character.personality.modifier)})
-    </p>
-    <p>
-      <strong>Intelligence:</strong>
+    </Stat>
+    <Stat label="Intelligence">
       {character.intelligence.value} ({DCC.formatDccModifier(character.intelligence.modifier)})
-    </p>
-    <p>
-      <strong>Luck:</strong>
+    </Stat>
+    <Stat label="Luck">
       {character.luck.value} ({DCC.formatDccModifier(character.luck.modifier)})
-    </p>
+    </Stat>
 
     <h3>Other Stats</h3>
 
-    <p>
-      <strong>Lucky Roll:</strong>
+    <Stat label="Lucky Roll">
       {DCC.formatDccLuckySign(character.luckyRoll)}
-    </p>
+    </Stat>
 
     <h3>Saving Throws</h3>
 
-    <p><strong>Fortitude:</strong> {DCC.formatDccModifier(character.fortitudeSave)}</p>
-    <p><strong>Reflex:</strong> {DCC.formatDccModifier(character.reflexSave)}</p>
-    <p><strong>Willpower:</strong> {DCC.formatDccModifier(character.willpowerSave)}</p>
+    <StatBlock>
+      <Stat label="Fortitude">{DCC.formatDccModifier(character.fortitudeSave)}</Stat>
+      <Stat label="Reflex">{DCC.formatDccModifier(character.reflexSave)}</Stat>
+      <Stat label="Willpower">{DCC.formatDccModifier(character.willpowerSave)}</Stat>
+    </StatBlock>
 
     <h3>Spellcasting</h3>
 
-    <p><strong>Spells Known:</strong> {spellsKnown}</p>
-    <p><strong>Wizard Max Spell Level:</strong> {character.wizardMaxSpellLevel}</p>
-    <p><strong>Cleric Max Spell Level:</strong> {character.clericMaxSpellLevel}</p>
+    <StatBlock>
+      <Stat label="Spells Known">{spellsKnown}</Stat>
+      <Stat label="Wizard Max Spell Level">{character.wizardMaxSpellLevel}</Stat>
+      <Stat label="Cleric Max Spell Level">{character.clericMaxSpellLevel}</Stat>
+    </StatBlock>
 
     <h3>Weapons</h3>
 

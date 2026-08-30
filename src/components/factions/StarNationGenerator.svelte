@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import * as RNG from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
   import { renderStarSystemPreviewImage } from '$lib/renderers/astronomical_preview';
@@ -171,18 +173,21 @@
       <p>{extraDescription}</p>
     {/if}
 
-    <p><strong>Government Type:</strong> {nation.government_type.name}</p>
-    <p><strong>Economy:</strong> {nation.economy_type.name}</p>
-    <p><strong>Military:</strong> {nation.military.quality}</p>
-    <p>
-      <strong>Technology:</strong>
+    <StatBlock>
+      <Stat label="Government Type">{nation.government_type.name}</Stat>
+      <Stat label="Economy">{nation.economy_type.name}</Stat>
+      <Stat label="Military">{nation.military.quality}</Stat>
+    </StatBlock>
+    <Stat label="Technology">
       {nation.technology_level} (<span
         class="tooltip"
         title={getTechnologyLevelByLevel(nation.technology_level).description}
         >{getTechnologyLevelByLevel(nation.technology_level).name}</span
       >)
-    </p>
-    <p><strong>Home Planet:</strong> {homeSystem.planets[homePlanet].name}</p>
+    </Stat>
+    <StatBlock>
+      <Stat label="Home Planet">{homeSystem.planets[homePlanet].name}</Stat>
+    </StatBlock>
 
     <h3>The {homeSystemRegion.name} System</h3>
 
