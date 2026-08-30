@@ -1205,7 +1205,7 @@
     flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
-    gap: 1rem;
+    gap: var(--s6);
   }
 
   .builder-header h1 {
@@ -1213,35 +1213,35 @@
   }
 
   .builder-maturity {
-    margin: 0.5rem 0 0.75rem;
+    margin: var(--s4) 0 var(--s5);
   }
 
   .spell-pick-slots {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: var(--s6);
     align-items: flex-end;
-    margin-bottom: 1rem;
+    margin-bottom: var(--s6);
   }
 
   .spell-pick-slots label {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--s2);
   }
 
   .thief-skill-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: var(--s6);
     align-items: flex-end;
-    margin-bottom: 1rem;
+    margin-bottom: var(--s6);
   }
 
   .thief-skill-grid label {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--s2);
     min-width: 12rem;
   }
 
@@ -1252,14 +1252,14 @@
   .wealth-inputs {
     display: flex;
     flex-wrap: wrap;
-    gap: 1rem;
+    gap: var(--s6);
     align-items: flex-end;
   }
 
   .wealth-inputs label {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
+    gap: var(--s2);
   }
 
   .equipment-list {
@@ -1268,8 +1268,8 @@
   }
 
   .builder-result {
-    margin-top: 2rem;
-    padding-top: 1.5rem;
+    margin-top: var(--s8);
+    padding-top: var(--s7);
     border-top: 1px solid var(--border-strong);
   }
 </style>

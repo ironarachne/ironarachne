@@ -10,6 +10,7 @@
     validateHeraldrySnapshot,
   } from '$lib/heraldry';
   import type { ArtifactViewerProps } from '$lib/workshop';
+  import Notice from '$components/common/Notice.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
   const { snapshot }: ArtifactViewerProps = $props();
@@ -88,10 +89,10 @@
 
 <div class="heraldry-artifact">
   {#if restored === undefined}
-    <p class="heraldry-artifact__problem" role="alert">
+    <Notice tone="danger">
       These arms were written in a shape this version cannot draw. They are still stored, and still
       travel in an export.
-    </p>
+    </Notice>
   {:else}
     <!-- The blazon is the arms in words, and it is what a user reads out at the table. It is
          above the image because it is the part that can be searched, quoted, and copied. -->
@@ -107,7 +108,7 @@
       <BaseButton onclick={() => void downloadPng()}>Download PNG</BaseButton>
     </div>
     {#if error !== null}
-      <p class="heraldry-artifact__problem" role="alert">{error}</p>
+      <Notice tone="danger">{error}</Notice>
     {/if}
   {/if}
 </div>
@@ -116,7 +117,7 @@
   .heraldry-artifact {
     display: flex;
     flex-direction: column;
-    gap: 0.5rem;
+    gap: var(--s4);
   }
 
   .heraldry-artifact__blazon {
@@ -139,14 +140,6 @@
   .heraldry-artifact__actions {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .heraldry-artifact__problem {
-    margin: 0;
-    padding: 0.5rem 0.6rem;
-    border: 1px solid var(--tan);
-    border-radius: 4px;
-    font-size: 0.9rem;
+    gap: var(--s4);
   }
 </style>

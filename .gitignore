@@ -74,3 +74,4 @@ crash.log
 .claude/worktrees/
 # Per-machine tool permissions, not shared settings.
 .claude/settings.local.json
+capture/

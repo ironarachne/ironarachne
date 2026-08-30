@@ -86,9 +86,14 @@
   <BaseButton onclick={generate}>Generate</BaseButton>
 
   {#if encounter}
-    <div class="stat-block">
-      <div class="encounter-header">
-        <h2>{encounter.name}</h2>
+    <!-- A result surface is a panel, not a box with a border on it: the two layers,
+         and the keyline, corner and padding are the system's. It wrote its own
+         border, radius and padding until #124. -->
+    <div class="stat-block panel">
+      <div class="panel__field">
+        <div class="encounter-header">
+          <h2>{encounter.name}</h2>
+        </div>
       </div>
 
       {#each encounter.groups as group}
@@ -120,12 +125,10 @@
 </GeneratorPage>
 
 <style>
+  /* The keyline, the corner, the padding and the fill are the panel's now — the fill was a
+     40% mix of slate, which is a fourth surface level invented in one component. */
   .stat-block {
-    margin-top: 2rem;
-    padding: 1rem;
-    border: 1px solid var(--granite);
-    border-radius: 4px;
-    background: color-mix(in srgb, var(--slate) 40%, transparent);
+    margin-top: var(--s8);
   }
 
   .stat-block h2 {
@@ -134,7 +137,7 @@
   }
 
   .group-section {
-    margin-top: 1.5rem;
+    margin-top: var(--s7);
   }
 
   .group-section ul {
@@ -145,17 +148,17 @@
 
   .group-section li {
     margin-left: 0;
-    margin-bottom: 0.5rem;
-    padding: 0.5rem;
-    border: 1px solid var(--granite);
-    border-radius: 3px;
-    background: color-mix(in srgb, var(--charcoal) 85%, white 15%);
+    margin-bottom: var(--s4);
+    /* A row in a list inside a panel, which the panel language says is a row rather than a
+       third box: the well the list sits in already says the rows are held. The fill was a mix of
+       charcoal and white invented here, and the radius was outside the vocabulary. */
+    padding: var(--s4);
   }
 
   .mob-row {
     display: flex;
     align-items: center;
-    gap: 0.35rem;
+    gap: var(--s3);
     flex-wrap: wrap;
   }
 

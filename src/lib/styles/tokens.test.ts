@@ -659,32 +659,14 @@ describe('the panel language', () => {
   // #117's four entries — the two banners, the storage failure dialog and the snapshot dialog —
   // are gone, which is the first time this list has shrunk. They are the message family now, and
   // they are swept like everything else.
-  const DEFERRED = new Set([
-    // #119-#121: surfaces that hold generated output, which is what a genre skin dresses.
-    'src/components/characters/AdndCharacterBuilder.svelte',
-    'src/components/factions/CultureArtifactEditor.svelte',
-    'src/components/factions/EncounterGenerator.svelte',
-    'src/components/factions/ReligionArtifactEditor.svelte',
-    'src/components/heraldry/HeraldryArtifactView.svelte',
-    'src/components/locations/SettlementArtifactEditor.svelte',
-    'src/components/objects/EquipmentGenerator.svelte',
-    'src/components/objects/MerchantGenerator.svelte',
-    'src/components/objects/PotionGenerator.svelte',
-  ]);
-
-  const componentSheets = siteStylesheets().filter(
-    ({ name }) => name.endsWith('.svelte') && !DEFERRED.has(name),
-  );
-
-  it('defers only files another issue owns', () => {
-    // A deferred file that no longer exists is a list nobody pruned, and a list nobody prunes is
-    // how an exemption outlives the thing it was granted for.
-    const missing = [...DEFERRED].filter(
-      (name) => !siteStylesheets().some((sheet) => sheet.name === name),
-    );
-
-    expect(missing, 'a deferred file that is gone').toEqual([]);
-  });
+  // Every component, with nothing carried. A `DEFERRED` list of nine files sat here until #124,
+  // exempted on the grounds that they were "surfaces that hold generated output, which is what a
+  // genre skin dresses" and belonged to #119-#121. Those three issues closed without touching any
+  // of them, so the exemption had outlived its reason — which is exactly what the list's own guard
+  // test was written against, and exactly what that guard could not see, because it only checked
+  // that a deferred file still existed. Twelve hexes and sixty-five off-ramp values later, the
+  // list is gone rather than shorter.
+  const componentSheets = siteStylesheets().filter(({ name }) => name.endsWith('.svelte'));
 
   it('declares the two shadows, and the halo is a state rather than an elevation', () => {
     // `--lift` sits a panel off the page and is fixed across the genres so two panels beside each
