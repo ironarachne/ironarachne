@@ -11,8 +11,14 @@
  * the notch, the liner, the halo, `--lift`, and a badge's shape.
  */
 
-/* The one ambient effect. A gold band crossing the panel surface, painted as a background layer
-   rather than as an element so it touches nothing the skin is forbidden to touch. */
+/* The one ambient effect. A shadow crossing the panel surface, painted as a background layer rather
+   than as an element so it touches nothing the skin is forbidden to touch.
+
+   It was a gold gleam until #158, and a gleam is a *lightening* layer: at 6% it took `--ink-faint`
+   to 4.18:1 wherever the band crossed a label, against a 4.5:1 floor. The surface sits 0.0026 below
+   the readability ceiling, which is not room for any highlight at all — so what moves is the shadow
+   of something passing over the plate rather than the light on it. Anything a skin paints where
+   text can sit may only darken. */
 @keyframes fantasy-sheen {
   from {
     background-position: -150% 0;
@@ -90,7 +96,7 @@
    `background-color`, so the fill is still `--panel-surface` and the effect is a highlight moving
    across it rather than the fill itself.
 
-   40s and a 6% mix: a bench holds several panels and every one of them wears this, so the effect
+   40s and a 14% mix: a bench holds several panels and every one of them wears this, so the effect
    has to survive being on screen five times at once without becoming a strobe. The heading shimmer
    it replaces ran an 8s cycle over text somebody was reading. */
 [data-genre='fantasy'] .panel:not(.panel--bare) > .panel__field {
@@ -98,7 +104,7 @@
   background-image: linear-gradient(
     100deg,
     transparent 35%,
-    color-mix(in srgb, var(--gold) 6%, transparent) 50%,
+    color-mix(in srgb, black 14%, transparent) 50%,
     transparent 65%
   );
   background-repeat: no-repeat;

@@ -2092,6 +2092,30 @@ Because ink is light and surfaces are dark, that reduces to a check anyone can m
 surface may shift hue freely, but its luminance may not rise above `--surface-raised`'s.** A skin
 that only re-hues cannot make text less readable, and it never has to argue about a floor.
 
+**Amended by [#158](https://github.com/ironarachne/ironarachne/issues/158), which found the hole in
+it.** The rule says `--panel-surface` and says nothing about what a skin paints _on top_ of that
+surface — and both skins that painted anything did so by lightening. `--ink-faint`'s 4.5:1 floor
+puts the ceiling for any pixel under text at luminance 0.0303; the fantasy sheen peaked at 0.0365
+and measured 4.18:1, the sci-fi scan at 0.0399 and 4.02:1, and the sci-fi scanlines — static, and on
+every panel — at 0.0343 and 4.29:1. Both surfaces sit at 0.0277 and 0.0276, so they hold 0.0026 of
+headroom and **no** lightening layer fits in it. A 2% gold sheen measures 4.49:1.
+
+The same shape as [`--ink-faint`'s first failure](#ink-faint-did-not-meet-its-own-target-on-any-panel-and-now-does),
+one layer up: a true figure about the wrong surface. So the rule gains a second half, and it is
+stated as a place rather than as a number:
+
+> **Anything a skin paints where text can sit may only darken.**
+
+The keyline is not that place. The corner marks in [#121](#the-keyline-is-four-corner-marks-not-a-hairline)
+and [#156](#the-fantasy-skin) live in the 1px ring, which is exactly where no text goes, and they
+answer to the luminance register and its area exemption instead. This half is about the layers on
+`.panel__field`, which is where a label sits.
+
+Darkening on a dark ground cannot cost contrast, so this is satisfiable forever rather than a figure
+every future skin re-measures — and it is the more accurate description of both effects anyway. A
+CRT scanline **is** the dark gap between phosphor rows, and a rolling bar is dark. What a plate does
+under a moving light is show a shadow crossing it.
+
 This has a consequence worth stating plainly, because it is the opposite of the obvious approach.
 **A warm panel is charcoal warmed toward gold, not slate warmed toward gold.** Warming slate
 lightens it, and every ink role pays; warming charcoal by the same amount lands at the same
@@ -2108,7 +2132,7 @@ both visibly warm and no lighter than slate returns exactly one recipe, and it i
 | Heading colour    | `var(--accent-quiet)`, scoped to headings inside a panel          | 5.8:1, clears 4.5                                                                   |
 | `--accent-quiet`  | Unchanged. Gold is already the base's quiet accent                | —                                                                                   |
 | Corner            | A shield's foot — both bottom corners at `--s5`, square shoulders | Amended by #120; see [the four shapes](#the-four-shapes-and-why-each-is-its-genres) |
-| Ambient effect    | A slow gold sheen across the panel surface                        | —                                                                                   |
+| Ambient effect    | A slow shadow crossing the panel surface, `black 14%`             | 0.0211; `--ink-faint` 5.08:1                                                        |
 
 The corner line read **"unchanged"** until #120, and the reasoning was sound as far as it went: the
 9px cut in [elevation](#elevation) was drawn for this genre, so fantasy's contribution was to leave
@@ -2153,7 +2177,11 @@ the skin is forbidden to touch. Three constraints on it:
 - **Not on a bare panel.** The main tool panel has `--panel-surface: none`, so a sheen there would be
   a gradient floating on the page. It is scoped to `.panel:not(.panel--bare)`.
 - **Off under `prefers-reduced-motion: reduce`**, with the surface still reading correctly static —
-  the effect is a moving highlight on a fill, not the fill itself.
+  the effect is a moving shadow on a fill, not the fill itself.
+- **It darkens.** Until #158 it was a gold gleam at 6%, which took `--ink-faint` to 4.18:1 against a
+  4.5:1 floor wherever the band crossed a label. It is `black 14%` now — luminance 0.0211 and
+  `--ink-faint` at 5.08:1 — and reads as the shadow of something passing over the plate rather than
+  a highlight on it. The surface is untouched.
 
 ### What the fantasy skin enforces
 
@@ -2379,15 +2407,19 @@ what makes that true rather than merely stated.
 
 Two layers on the liner's `background-image`, and only one of them moves:
 
-- **The texture is static.** Horizontal scanlines — a `repeating-linear-gradient` of cyan at 4%,
-  one pixel on a five-pixel pitch. Decision 2 lists texture under _surface_, not under _motion_, and
+- **The texture is static, and it is dark.** Horizontal scanlines — a `repeating-linear-gradient` of
+  `black 15%`, one pixel on a five-pixel pitch. It was cyan at 4% until
+  [#158](https://github.com/ironarachne/ironarachne/issues/158), which is a _lightening_ layer on
+  every sci-fi panel at all times and took `--ink-faint` to 4.29:1 under every label. Dark is both
+  the fix and the better description: a scanline is the gap between phosphor rows, not a row. Decision 2 lists texture under _surface_, not under _motion_, and
   this is the whole reason to spend it here: it says "screen" without animating, so the sci-fi panel
   is still visibly sci-fi when everything that moves is switched off. Pitch and mix are stated
   because a tighter, stronger grid moirés against a scrolling panel, which is a shimmer nobody asked
   for and the one failure mode this layer has.
-- **The motion is a single scan.** A faint cyan band drifting down the surface on a 45s cycle — the
+- **The motion is a single scan.** A `black 12%` band drifting down the surface on a 45s cycle — the
   vertical counterpart of fantasy's sheen, one `@keyframes`, one `animation`, slower than fantasy's
-  40s because a band that crosses the short axis of a panel is on screen more of the time.
+  40s because a band that crosses the short axis of a panel is on screen more of the time. Dark for
+  #158's reason, and a rolling bar on a CRT is dark in any case.
 - **Reduced motion drops the band and keeps the lines.** This is a better reduced-motion state than
   fantasy's rather than a different one: fantasy's surface falls back to a flat warm fill because
   its effect _is_ the highlight, where sci-fi keeps its texture and loses only the travel.
@@ -2405,8 +2437,8 @@ surface, and a scanline grid floating on the page is what a wider selector would
 | `--accent`        | `var(--cyan)`                                                 | 7.5:1; the halo follows the hue        |
 | `--accent-quiet`  | **Unchanged.** Gold is the message tone, not the genre's      | —                                      |
 | Heading colour    | `var(--accent)`, scoped to headings inside a panel            | 7.5:1, clears 4.5                      |
-| Texture           | Cyan 4%, 1px on a 5px pitch, static                           | —                                      |
-| Ambient effect    | A cyan scan band drifting down the surface, 45s               | —                                      |
+| Texture           | `black 15%`, 1px on a 5px pitch, static                       | 0.0206; `--ink-faint` 5.12:1           |
+| Ambient effect    | A `black 12%` scan band drifting down the surface, 45s        | 0.0219; `--ink-faint` 5.03:1           |
 
 Seven declarations and one keyframe. The contract's table said six, and the seventh is the corner —
 which was always in [decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)'s list of
