@@ -153,9 +153,21 @@ becoming a page somebody decorated. The domains get marks — which is the domai
 [open question 3](#open-questions) speculated about, delivered as a glyph rather than a colour, so
 the eight unused palette entries stay unused.
 
-Awaiting approval, unlike the amendments above it, which are built: #123 is `needs-design`, and the
-second role, the density rules and the domain mapping are what CLAUDE.md's review gate asks a human
-to approve before implementation starts.
+Approved and built.
+
+**Amended 2026-08-30 by [#124](https://github.com/ironarachne/ironarachne/issues/124)**, which adds
+[walking it](#walking-it-and-what-a-walk-should-leave-behind) and is the issue that closes #77. It
+corrects that issue's own premise: there is no "before" to walk, because the redesign landed over
+ten issues and `main` has been the after since #113 — so the comparison is against this document
+rather than against a screenshot, and a pixel diff against the old look would report the work as one
+enormous regression. It states what a walk is for: **a walk that ends in an album has to be repeated,
+and a walk that ends in sweeps is done once.** It also names debt that needs no walking to find —
+nine components still exempted from the hex and ramp sweeps for three issues that have since closed
+without touching them.
+
+Awaiting approval, unlike the amendments above it, which are built: #124 is `needs-design`, and the
+corrected premise, the findings-become-sweeps rule and the capture-is-not-a-gate decision are what
+CLAUDE.md's review gate asks a human to approve before implementation starts.
 
 **Amended 2026-08-30, in review of the above:** every genre gets a panel shape of its own, which
 replaces the "three corner treatments" cap rather than extending it. The panel's polygon is written
@@ -3077,6 +3089,96 @@ this by hand for its five, and keeps doing it — it owns a control, not a mark.
 
 And one in the browser: a tool row in the catalog carries **exactly one** mark, which is the density
 rule stated as a number rather than as a paragraph.
+
+## Walking it, and what a walk should leave behind
+
+[#124](https://github.com/ironarachne/ironarachne/issues/124) is the issue that closes #77, and it
+says every route is walked "before and after". **There is no before.** The redesign landed over ten
+issues and `main` has been the after since #113; the only before is in git history, and recovering
+it would answer a question nobody asked. The whole point was to change how the site looks, so a
+pixel diff between then and now reports the work as one enormous regression.
+
+What the walk is actually for is finding what the conversion **missed** — and that is a different
+comparison, made against this document rather than against a screenshot.
+
+### A walk that ends in an album has to be repeated
+
+The temptation is to produce forty-one screenshots, look at them, and tick the issue off. That
+records that somebody looked once. Every finding this walk produces should leave behind one of two
+things:
+
+1. **A fix**, where the page disagrees with this document.
+2. **A sweep**, where the disagreement is of a kind a test can see.
+
+The second is the deliverable. `tokens.test.ts` exists because [the
+controls](#what-is-enforced) turned "no component declares a hex" from a style guide into a test, and
+every issue since has grown it. The walk's job is to convert what it finds into that same shape, so
+that closing #77 leaves the system defended rather than merely inspected.
+
+### The debt is already known, and it does not need a walk to find
+
+`tokens.test.ts` carries a `DEFERRED` list of nine components exempted from the hex and ramp sweeps.
+The comment on it says why: they are "surfaces that hold generated output, which is what a genre skin
+dresses", deferred to #119–#121. **Those three issues are closed and none of them touched these
+files.** The exemption has outlived its reason, which is exactly the failure the list's own guard
+test was written against — and that guard cannot see it, because it only checks that a deferred file
+still exists.
+
+Measured rather than assumed, and it is small:
+
+| File                       | Hexes | Off-ramp sizes |
+| -------------------------- | ----: | -------------: |
+| `AdndCharacterBuilder`     |     0 |             12 |
+| `EquipmentGenerator`       |     8 |             10 |
+| `ReligionArtifactEditor`   |     0 |              8 |
+| `SettlementArtifactEditor` |     0 |              8 |
+| `MerchantGenerator`        |     4 |              7 |
+| `CultureArtifactEditor`    |     0 |              6 |
+| `EncounterGenerator`       |     0 |              6 |
+| `HeraldryArtifactView`     |     0 |              4 |
+| `PotionGenerator`          |     0 |              4 |
+
+Twelve hexes and sixty-five off-ramp values across nine files. **Clearing them and deleting the list
+is the first half of #124**, and it is the half that needs no judgement at all: the sweeps already
+know what is wrong, they have simply been told not to look. A list that shrinks to nothing is the
+only honest end state for it — the same standard the skin exemption list was held to when
+[#122](#the-horror-skin-and-the-discipline-of-not-startling-anyone) emptied it.
+
+### What the walk covers that no sweep can
+
+The rest is judgement, and it is worth being precise about what kind. Three questions per route, at
+desktop width and at 320px:
+
+- **Does the same furniture look the same here as elsewhere?** A panel, a heading, a badge and a
+  control row appear on most of these forty-one pages. Two pages disagreeing about what a panel
+  looks like is the thing this whole document exists to prevent, and no test can see it because
+  each page passes its own assertions.
+- **Is anything unconverted?** A page that never got its ramp step, a box that is still a box rather
+  than a panel, a control that kept a bespoke style. These read as "not quite finished" and are
+  invisible to a per-file sweep that only checks the values a file _does_ declare.
+- **Does the page still work?** `e2e/pages.smoke.spec.ts` already walks all forty-one at desktop for
+  chrome and content, and `e2e/pages.mobile.spec.ts` walks them at five widths for overflow and
+  off-screen controls. Those are the mechanical half, they are green, and the walk does not repeat
+  them by eye.
+
+### The capture is a tool, not a gate
+
+A dispatch-only Playwright project that screenshots every manifest route at desktop and at the five
+mobile widths, written to a directory for the reviewer. Modelled on `goldens.yaml`, which renders
+baselines and gates nothing — for the same reason: an image comparison that fails a build on a
+deliberate visual change trains everyone to ignore it.
+
+It is not a golden-image suite and this document is not asking for one. Pixel baselines for
+forty-one routes would need regenerating on every deliberate change to any shared component, which
+is most changes, and the cost of that is paid every week to catch a class of bug the sweeps already
+catch by construction.
+
+### What this leaves behind
+
+The acceptance for #124 is the walk's **result**, recorded on the issue: what was found, what was
+fixed, what became a test, and what was pushed back to this document as needing a decision rather
+than settled in a walk. An issue that needed a new rule is an issue this walk does not get to
+answer — the same boundary every skin issue was held to.
 
 ## Enforcement
 
