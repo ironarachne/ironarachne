@@ -85,9 +85,28 @@ measured against the page and a label lives on a panel. Fixed in
 [#149](https://github.com/ironarachne/ironarachne/issues/149), which moved both `--ink-faint` and
 `--ink-muted` and restated the whole table against `--surface-raised`.
 
-Awaiting approval, unlike the five amendments above it: #119 is still `needs-design`, and the rule
-and the finding are what CLAUDE.md's review gate asks a human to approve before implementation
-starts.
+**Amended 2026-08-30 by [#120](https://github.com/ironarachne/ironarachne/issues/120)**, which adds
+[the sci-fi skin, and the corner every genre gets](#the-sci-fi-skin-and-the-corner-every-genre-gets).
+The skin itself is the contract filled in a second time; the corner is not. Decision 2 has always let
+a skin set one and [elevation](#elevation) has always named three treatments, but only the cut exists
+as a polygon and no skin has a way to ask for another — fantasy could decline the question and #120
+and #121 cannot. So the panel's polygon is written once with a depth at each corner, a skin sets the
+four depths, and the "three treatments" cap is replaced by a bound with a reason behind it: one shape
+per genre, capped at `--s5`, no two alike. It adds one measured band — a skin's keyline
+between 1.3:1 and 2.2:1 on its own surface — and settles that a skin setting `--accent` moves the
+halo's hue with it, which is permitted because the halo's geometry, its opacity and the `--focus`
+ring are all untouched.
+
+Awaiting approval, unlike the amendments above it, which are built: #120 is `needs-design`, and the
+corner mechanism, the keyline band and the halo consequence are what CLAUDE.md's review gate asks a
+human to approve before implementation starts.
+
+**Amended 2026-08-30, in review of the above:** every genre gets a panel shape of its own, which
+replaces the "three corner treatments" cap rather than extending it. The panel's polygon is written
+once with a depth at each corner, a skin sets the four depths, and the bound is `GENRES` — one shape
+per genre, none deeper than `--s5`, no two alike. Fantasy's "corner: unchanged" is reversed by it:
+the base's cut goes back to being the app's own neutral plate and fantasy takes a shield's foot,
+which is two lines in a file #119 already shipped.
 
 Written against the rough-cut mockup published from the [design
 canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
@@ -353,11 +372,14 @@ Supporting tokens:
   this.
 - `--edge` — `inset 0 1px 0 rgb(255 255 255 / 7%)`, the top highlight that makes a plate a plate.
 - `--lift` — `0 1px 0 rgb(0 0 0 / 60%), 0 6px 14px rgb(0 0 0 / 35%)`, the one shadow in the system.
-- `--notch` — the corner vocabulary: a 9px cut on the top-right and bottom-left, as a `clip-path`
-  polygon. Controls use a 7px cut of the same shape (`--corner-control`), and a nav item a 7px cut
-  of both corners on one edge (`--corner-nav`, added by [the shell](#the-nav-corner-is-a-third-treatment)).
-  **These are the only three corner treatments**; a skin picks between cut, bevelled and square
-  from this vocabulary rather than inventing one.
+- `--panel-corner` — the panel's clip, a polygon with a depth at each of its four corners,
+  defaulting to a 9px cut on the top-right and bottom-left. Controls use a 7px cut of that shape
+  (`--corner-control`), and a nav item a 7px cut of both corners on one edge (`--corner-nav`, added
+  by [the shell](#the-nav-corner-is-a-third-treatment)). Those two are fixed. The panel's four
+  depths are the one piece of geometry a genre may move, capped at `--s5` and unique per genre —
+  see [a skin sets four depths](#a-skin-sets-four-depths-and-the-polygon-stays-in-the-base), which
+  replaces the "three treatments" cap this section carried until #120. It was named `--notch`, and
+  still is the notch on any panel no skin has reached.
 
 **Density.** A panel differs from the page by surface, keyline and notch — not by padding, which
 is `--s5` everywhere. The bench differs from a panel by having no surface at all: it is the page,
@@ -1942,14 +1964,17 @@ type.
 
 ### What a skin file contains
 
-Six declarations and one keyframe. That is the whole shape, and a skin file that wants a seventh is
-asking for something the system has not agreed to give it.
+Six declarations and one keyframe. That is the whole shape, and a skin file that wants one the table
+does not list is asking for something the system has not agreed to give it. (The corner row is
+[#120](https://github.com/ironarachne/ironarachne/issues/120)'s, which is where a genre gets a shape
+of its own; it counts as one line however many of the four depths a genre moves.)
 
 | Line                                    | Sets                                                |
 | --------------------------------------- | --------------------------------------------------- |
 | `--panel-edge`                          | The keyline colour on every panel                   |
 | `--panel-surface`                       | The fill inside the liner                           |
 | `--accent` / `--accent-quiet`           | The hue for chips, kickers and figures              |
+| Four corner depths                      | How deep the panel's clip is cut at each corner     |
 | A heading colour, scoped to the panel   | The display ink, and nothing about its size or face |
 | A background layer on the panel surface | The one ambient effect                              |
 | A `prefers-reduced-motion` block        | Which turns that effect off                         |
@@ -2049,18 +2074,21 @@ both visibly warm and no lighter than slate returns exactly one recipe, and it i
 
 ### The fantasy skin
 
-| Property          | Value                                                     | Measured                    |
-| ----------------- | --------------------------------------------------------- | --------------------------- |
-| `--panel-surface` | `color-mix(in srgb, var(--gold) 12%, var(--charcoal))`    | Warm; no lighter than slate |
-| `--panel-edge`    | `var(--border-strong)` — the tan keyline                  | —                           |
-| Heading colour    | `var(--accent-quiet)`, scoped to headings inside a panel  | 5.8:1, clears 4.5           |
-| `--accent-quiet`  | Unchanged. Gold is already the base's quiet accent        | —                           |
-| Corner            | **Unchanged.** Fantasy is the genre the cut was drawn for | —                           |
-| Ambient effect    | A slow gold sheen across the panel surface                | —                           |
+| Property          | Value                                                             | Measured                                                                            |
+| ----------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `--panel-surface` | `color-mix(in srgb, var(--gold) 12%, var(--charcoal))`            | Warm; no lighter than slate                                                         |
+| `--panel-edge`    | `var(--border-strong)` — the tan keyline                          | —                                                                                   |
+| Heading colour    | `var(--accent-quiet)`, scoped to headings inside a panel          | 5.8:1, clears 4.5                                                                   |
+| `--accent-quiet`  | Unchanged. Gold is already the base's quiet accent                | —                                                                                   |
+| Corner            | A shield's foot — both bottom corners at `--s5`, square shoulders | Amended by #120; see [the four shapes](#the-four-shapes-and-why-each-is-its-genres) |
+| Ambient effect    | A slow gold sheen across the panel surface                        | —                                                                                   |
 
-The corner line is not an omission. The vocabulary offers cut, bevelled and square, and the 9px cut
-in [elevation](#elevation) was designed for exactly this genre — so fantasy's contribution is to
-leave it alone, and the skins that want a different corner are the ones that pay for it.
+The corner line read **"unchanged"** until #120, and the reasoning was sound as far as it went: the
+9px cut in [elevation](#elevation) was drawn for this genre, so fantasy's contribution was to leave
+it alone and let the skins that wanted a different corner pay for it. What that missed is that every
+genre wants one — so the base's shape stops being fantasy's by inheritance and fantasy takes a
+shield's foot instead, leaving the cut as the app's own neutral plate. The mechanism and the two
+lines that do it are #120's.
 
 **The sheen is the shimmer, moved.** A gold gradient band crossing the panel surface on a long
 cycle, painted as a background layer on the liner rather than as an element, so it touches nothing
@@ -2087,12 +2115,260 @@ the skin is forbidden to touch. Three constraints on it:
 - **A skin declares at most one `@keyframes` and one `animation`**, and declares a
   `prefers-reduced-motion` block if it declares either. One effect per skin, stated as a test.
 - **No skin file mentions `--notch`, `--halo`, `--lift`, a `font-` property, or a spacing step.**
-  The "may not touch" list, swept.
+  The "may not touch" list, swept. (`--notch` is `--panel-corner` after #120's rename, and the
+  four depth properties it reads are the one exception — see [what the sci-fi skin
+  enforces](#what-the-sci-fi-skin-enforces).)
 
 And one in the browser, because it is the whole point and cannot be read off the source: an e2e
 check that a fantasy panel's computed surface is **no lighter** than a base panel's. That is the
 rule above, and it is what a future skin — or a future tweak to this one — would otherwise break
 silently.
+
+## The sci-fi skin, and the corner every genre gets
+
+[The skin contract](#the-skin-contract-and-the-fantasy-skin) settled the shape of a skin file and
+fantasy filled it in. This settles [#120](https://github.com/ironarachne/ironarachne/issues/120),
+and it has to settle one thing fantasy was able to walk past: **the corner**. Decision 2 lists a
+corner among the five things a skin may set, [elevation](#elevation) says a skin picks between cut,
+bevelled and square "from this vocabulary", and the vocabulary contains no bevel, no square, and no
+way for a skin to name one. Fantasy's contribution was to leave the corner alone, which was an
+answer for the genre the cut was drawn for and no answer at all for the three genres after it —
+#120 wants a bevel and #121 wants hard corners. **Every genre gets a shape**, which is a firmer
+answer than the document had, and it is why the section below replaces a cap rather than filling a
+gap in one.
+
+### A skin sets four depths, and the polygon stays in the base
+
+Two sentences of the approved document point in opposite directions. Decision 2 says a skin may set
+the corner; [what the panel language leaves to the skins](#what-this-leaves-to-the-skins-1) says a
+skin may not touch the notch geometry. Both survive, because the thing a genre needs to move is not
+the geometry:
+
+> The panel's polygon is written once, in the base, with a depth at each of its four corners. A skin
+> sets **the four depths**. It never writes a `polygon()`, and there is no shape it can make that is
+> not a panel.
+
+`--notch` and `--notch-inner` are renamed `--panel-corner` and `--panel-corner-inner` and become that
+one formula, read at each corner from `--panel-corner-tl` / `-tr` / `-br` / `-bl`, which default to
+`0` / `9px` / `0` / `9px` — the cut the app has today, unchanged on an unskinned panel. Substitution
+is lazy, so the depths resolve against the element the clip is applied to: the formula lives on
+`:root` and a skin's depths, set on the page region, reach every panel below it. The liner's polygon
+is the same four depths a pixel shallower, `max(0px, d - 1px)`, so the two outlines stay parallel at
+whatever depth a genre picks — which is what `--notch-inner` was hand-written to do at one depth.
+`.panel--bare`'s own `clip-path: none` still outranks all of it. Every other `--notch` in this
+document — [panel anatomy](#panel-anatomy), the two-layer table, the shell's nav-corner argument — is
+this same token under its old name, and the rename is the only thing that happens to them: a
+component still picks one of `--panel-corner`, `--corner-control` and `--corner-nav`, and three is
+still the cap on what a **component** may pick from. What #120 opens is the panel's depths, and only
+to a skin.
+
+Two rules bound what a skin can do with the four numbers:
+
+- **No depth exceeds `--s5`.** 12px is the panel's padding, and a corner cut deeper than the padding
+  stops shaping the plate and starts eating the first character of the first line inside it.
+- **No two genres wear the same four.** A shape is a genre's, or it is furniture.
+
+This replaces the cap in [elevation](#elevation), which said three treatments and named cut,
+bevelled and square. That cap was the right instinct pointed at the wrong quantity: it bounded the
+number of _shapes_, when what needs bounding is who may make one. **One shape per genre, plus the
+base's, and `GENRES` is what closes the list** — four genres, four shapes, and a fifth arrives only
+when a fifth genre does. A component still picks nothing: the corner belongs to the panel language
+and to the skin above it, and the control and nav treatments are untouched by any of this.
+
+### The four shapes, and why each is its genre's
+
+| Genre         | tl   | tr   | br   | bl   | Reads as                                                                     |
+| ------------- | ---- | ---- | ---- | ---- | ---------------------------------------------------------------------------- |
+| _Base_        | 0    | 9px  | 0    | 9px  | The app's own plate. Neutral, and what a projectless page keeps              |
+| **Fantasy**   | 0    | 0    | 12px | 12px | A shield's foot: square shoulders, both bottom corners taken deep            |
+| **Sci-fi**    | 9px  | 9px  | 9px  | 9px  | A machined plate, chamfered on every edge by the same amount                 |
+| **Cyberpunk** | 12px | 0    | 0    | 0    | Three hard corners and one deliberate slash — signage, cut once              |
+| **Horror**    | 3px  | 11px | 5px  | 8px  | Nothing agrees with anything. Wrong in a way the eye catches and cannot name |
+
+Sci-fi's is the one this issue builds, and it is the plainest of the four on purpose: the genre's
+argument is made by a cool plate, a plasma keyline and a scan, and a corner that shouted over them
+would be a second statement of the same thing.
+
+The other three are **reserved rather than settled**. #121 and #122 own their skins and may move
+their own four numbers, and the shapes above are what those issues start from rather than what they
+inherit. What they may not do is take a shape another genre is already wearing, or go past `--s5`.
+
+Fantasy's row is a reversal, and worth naming as one. [The fantasy skin](#the-fantasy-skin) says the
+corner is "unchanged" because the 9px cut was drawn for that genre — true, and beside the point once
+every genre has a shape: a fantasy panel that keeps the base's corner is the one skinned panel
+shaped like an unskinned one. The shield foot is two lines in `fantasy.css` and ships with this
+issue rather than reopening #119, because the mechanism it needs does not exist until now.
+
+```mermaid
+classDiagram
+    class PanelCorner {
+        <<tokens.css>>
+        +panel-corner : polygon of four depths
+        +panel-corner-inner : the same, less 1px
+        +panel-corner-tl, -tr, -br, -bl : 0, 9px, 0, 9px
+    }
+    class Panel {
+        <<main.css>>
+        +clip-path = var(panel-corner)
+        +field.clip-path = var(panel-corner-inner)
+    }
+    class Skin {
+        <<fantasy, scifi, cyberpunk, horror>>
+        +panel-surface
+        +panel-edge
+        +four corner depths, each <= s5
+        +accent
+        +one ambient effect
+    }
+    class BarePanel {
+        <<panel--bare>>
+        +clip-path : none, declared on itself
+    }
+
+    PanelCorner --> Panel : supplies the one polygon
+    Skin --> Panel : sets depths, on an ancestor
+    Skin ..> PanelCorner : moves the numbers, never the shape
+    BarePanel --> Panel : outranks both
+```
+
+Nothing about this changes a panel's box. A `clip-path` paints; it does not lay out. A bevelled panel
+and a base panel beside each other are the same height, the same width and the same padding, which is
+the property [decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look) actually protects
+when it forbids a skin the geometry — and the depth cap is what keeps the clip off the content the
+padding is holding.
+
+### The surface is charcoal cooled, for the same reason fantasy's is charcoal warmed
+
+The rule from #119 — a skin's surface may shift hue freely but never rise above `--surface-raised`'s
+luminance — settles the recipe before any taste is involved. Cooling slate lightens it and every ink
+role pays; cooling charcoal by more lands at the same luminance and reads cool.
+
+| Surface                                                  | `--ink` | `--ink-muted` | `--ink-faint` |  Cyan |
+| -------------------------------------------------------- | ------: | ------------: | ------------: | ----: |
+| `--surface-raised`, the floor every ratio is measured to |  12.2:1 |         6.3:1 |         4.6:1 | 7.5:1 |
+| **Charcoal cooled 16% toward plasma blue** — sci-fi      |  12.3:1 |         6.4:1 |         4.7:1 | 7.5:1 |
+| Slate cooled 16% toward plasma blue                      |  11.5:1 |         6.0:1 |         4.4:1 | 7.1:1 |
+
+`color-mix(in srgb, var(--plasma-blue) 16%, var(--charcoal))` computes to `rgb(33 47 69)` at a
+relative luminance of 0.0276, against slate's 0.0281. Every ink role is a tenth of a point _better_
+than it is on a base panel, which is what the rule promises and is why no skin after this one has to
+re-measure the table.
+
+**Plasma blue is the fill and cyan is the ink**, and that split is forced rather than chosen. Plasma
+blue measures 3.8:1 on the surface it makes — the same class of colour as crimson and emerald in
+[colour roles](#colour-roles), which are an edge and a fill and never a sentence. Cyan measures
+7.5:1 there. So the genre's two hues divide by what they can legibly do: the darker one is the plate
+and the keyline, the brighter one is every word the skin colours.
+
+### The keyline is louder than the base's, and stays in the same register
+
+A panel is identified by its keyline, so a genre's keyline is the loudest thing it can honestly
+change — and the temptation is to make it a glow. Measured against the surface it sits on:
+
+| Keyline                                         |  Ratio |
+| ----------------------------------------------- | -----: |
+| Base — `--border`, granite on slate             | 1.35:1 |
+| Fantasy — `--border-strong`, tan on its surface | 1.70:1 |
+| **Sci-fi — plasma blue 40% into granite**       | 2.07:1 |
+| Plasma blue undiluted on the same surface       | 3.83:1 |
+
+The last row is what "plasma keyline" reads like as an instruction and it is the wrong answer: at
+2.8× the base's contrast the keyline stops identifying a plate and starts outlining a box, and a
+bench of six panels becomes a wireframe. `color-mix(in srgb, var(--plasma-blue) 40%, var(--granite))`
+is unmistakably a blue keyline in the register the other panels on the page are drawn in.
+
+That gives the skins a band rather than a taste: **a skin's keyline measures between 1.3:1 and
+2.2:1 against its own surface.** #121's "acid keyline with a magenta edge" now has a number to hit
+instead of an argument to have.
+
+### The accent moves, and the halo follows it
+
+Sci-fi is the first skin to set `--accent`, which fantasy did not need to: gold was already the
+base's quiet accent, and green is not a science-fiction hue. `--accent: var(--cyan)` colours the
+chips, the kickers, the figures and the selected list row inside the page region, and it is the
+heading colour on a panel at 7.5:1.
+
+It has one consequence the document should own rather than discover: **`--halo` is mixed from
+`--accent`, so under this skin the focus halo is cyan.** That is permitted, and the rule it looks
+like it breaks is intact. A skin may not touch `--halo` — its spread, its opacity, its two layers
+and the fact that there is exactly one on screen are all unchanged, and the ring that carries the
+meaning is `--focus`, which is acid green in every genre. What moved is a hue the skin is entitled
+to move. The alternative — pinning the halo to green while everything it surrounds is cyan — would
+be a skin leaking _out_ of the accent role rather than staying inside it.
+
+`--accent-quiet` is deliberately not set. It is the message tone's gold ([the message
+family](#the-message-family)), and a notice inside a science-fiction project is still the app
+saying something went a certain way. A tone outranks a genre; leaving the quiet accent alone is
+what makes that true rather than merely stated.
+
+### One effect, and a texture that survives without it
+
+Two layers on the liner's `background-image`, and only one of them moves:
+
+- **The texture is static.** Horizontal scanlines — a `repeating-linear-gradient` of cyan at 4%,
+  one pixel on a five-pixel pitch. Decision 2 lists texture under _surface_, not under _motion_, and
+  this is the whole reason to spend it here: it says "screen" without animating, so the sci-fi panel
+  is still visibly sci-fi when everything that moves is switched off. Pitch and mix are stated
+  because a tighter, stronger grid moirés against a scrolling panel, which is a shimmer nobody asked
+  for and the one failure mode this layer has.
+- **The motion is a single scan.** A faint cyan band drifting down the surface on a 45s cycle — the
+  vertical counterpart of fantasy's sheen, one `@keyframes`, one `animation`, slower than fantasy's
+  40s because a band that crosses the short axis of a panel is on screen more of the time.
+- **Reduced motion drops the band and keeps the lines.** This is a better reduced-motion state than
+  fantasy's rather than a different one: fantasy's surface falls back to a flat warm fill because
+  its effect _is_ the highlight, where sci-fi keeps its texture and loses only the travel.
+
+`.panel:not(.panel--bare) > .panel__field`, exactly as fantasy scopes it: the main tool panel has no
+surface, and a scanline grid floating on the page is what a wider selector would produce.
+
+### The sci-fi skin
+
+| Property          | Value                                                         | Measured                               |
+| ----------------- | ------------------------------------------------------------- | -------------------------------------- |
+| `--panel-surface` | `color-mix(in srgb, var(--plasma-blue) 16%, var(--charcoal))` | `rgb(33 47 69)`; no lighter than slate |
+| `--panel-edge`    | `color-mix(in srgb, var(--plasma-blue) 40%, var(--granite))`  | 2.07:1 on that surface                 |
+| Corner depths     | `9px` at all four corners                                     | A machined plate; none past `--s5`     |
+| `--accent`        | `var(--cyan)`                                                 | 7.5:1; the halo follows the hue        |
+| `--accent-quiet`  | **Unchanged.** Gold is the message tone, not the genre's      | —                                      |
+| Heading colour    | `var(--accent)`, scoped to headings inside a panel            | 7.5:1, clears 4.5                      |
+| Texture           | Cyan 4%, 1px on a 5px pitch, static                           | —                                      |
+| Ambient effect    | A cyan scan band drifting down the surface, 45s               | —                                      |
+
+Seven declarations and one keyframe. The contract's table said six, and the seventh is the corner —
+which was always in [decision 2](#2-genre-skins-are-a-permitted-subset-not-a-second-look)'s list of
+what a skin may set and was missing from the file shape only because the mechanism did not exist yet.
+The table in [what a skin file contains](#what-a-skin-file-contains) gains a corner-depths row, and
+every skin file now carries it, fantasy's included.
+
+### What the sci-fi skin enforces
+
+`tokens.test.ts` grows, and the deferred list shrinks again:
+
+- **`scifi.css` joins `CONVERTED_SKINS`**, which is the hex sweep, the type-ramp sweep and the
+  one-effect cap in one move. `cyberpunk.css` is the last file left on the exemption.
+- **A skin's corner is four numbers, not a polygon.** A skin file may set
+  `--panel-corner-tl` / `-tr` / `-br` / `-bl`; it may not contain `polygon(` or `clip-path`, and it
+  may not declare `--panel-corner` or `--panel-corner-inner` themselves. That is the line between
+  moving the depths and redrawing the panel, and without it the geometry sweep would pass on a skin
+  that redrew it.
+- **No depth exceeds `--s5`**, swept as a number across every skin file. 12px is the padding, and
+  past the padding the clip is taking the content.
+- **No two skins declare the same four depths**, and none matches the base's `0 / 9px / 0 / 9px`.
+  "A shape is a genre's, or it is furniture" is a rule a test can hold, and it is the one that would
+  otherwise erode a genre at a time as skins are tuned. It reads the skin files rather than a list,
+  so a fifth genre is covered on the day its file appears.
+- **A skin declares at most one `@keyframes`**, unchanged — the texture is a second background
+  layer, not a second effect, and the test measures effects.
+
+And two in the browser, because both are computed relationships:
+
+- `e2e/genre_skin.spec.ts` gains a sci-fi case beside the fantasy one — the skin reaches the panel,
+  the surface reads **cool** (more blue than red, the mirror of fantasy's warmth assertion), and its
+  luminance is no higher than a base panel's.
+- **A bevelled panel and a base panel are the same size.** Computed `clip-path` differs; the
+  bounding box does not. That is the corner rule's whole claim, it is invisible to a source sweep,
+  and it is what a future skin reaching for geometry would break. The same assertion covers the
+  fantasy shield, since both are the same two lines of mechanism.
 
 ## Enforcement
 

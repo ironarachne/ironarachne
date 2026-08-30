@@ -1,29 +1,133 @@
-@keyframes pulse-glow {
-  0% {
-    text-shadow: 0 0 6px var(--cyan);
+/* The sci-fi skin: a panel skin over the base system, and nothing more.
+ *
+ * Seven declarations and one keyframe, which is the whole shape a skin file is allowed — see
+ * docs/visual-design.md, "The sci-fi skin, and the corner every genre gets". Before #120 this file
+ * styled `h1`-`h6` and only `h1`-`h6`: a cyan glow pulsing on a 3s loop, over the type, written in
+ * a hex no token named. A heading that pulses is a heading being animated while it is being read,
+ * and the display face already carries the brand — so the genre moved off the type and onto the
+ * panel.
+ *
+ * What this file may not touch: the typeface, the type scale, the space ramp, control geometry,
+ * the liner, the halo, `--lift`, and a badge's shape. It may set four corner depths, and the
+ * panel's polygon stays in `tokens.css` where a skin cannot reach it.
+ */
+
+/* The one ambient effect. A scan crossing the panel surface, painted as a background layer rather
+   than as an element so it touches nothing the skin is forbidden to touch. Vertical, where
+   fantasy's sheen runs across: a scan travels down a screen. */
+@keyframes scifi-scan {
+  from {
+    background-position:
+      0 -60%,
+      0 0;
   }
-  50% {
-    text-shadow: 0 0 14px var(--cyan);
-  }
-  100% {
-    text-shadow: 0 0 6px var(--cyan);
+  to {
+    background-position:
+      0 160%,
+      0 0;
   }
 }
 
 [data-genre='scifi'] {
-  & h1,
-  & h2,
-  & h3,
-  & h4,
-  & h5,
-  & h6 {
-    animation: pulse-glow 3s infinite ease-in-out;
-    color: #a2d4ff;
-    text-shadow: 0 0 6px var(--cyan);
-  }
+  /* Charcoal cooled toward plasma blue, and deliberately not slate cooled toward plasma blue.
 
-  /* No `button` rule. A skin may set a surface, a keyline, a corner, an accent hue and one
-     ambient effect; control geometry is not on that list, and a skin's copy of the old gradient
-     would outrank the control system wherever a genre is applied. See docs/visual-design.md,
-     decision 2 and "What this leaves to the skins". */
+     Cooling slate lightens it and every ink role pays: `--ink-faint` measures 4.4:1 on slate
+     cooled 16%, against a 4.5:1 floor. Cooling charcoal by the same amount lands a hair *under*
+     slate's luminance while reading cool, so nothing pays — `rgb(33 47 69)` at 0.0276 against
+     slate's 0.0281, which puts every ink role a tenth of a point better here than on a base panel.
+     That is the skin rule from #119 stated in one declaration: a skin may shift its surface's hue
+     but never raise its luminance above `--surface-raised`. */
+  --panel-surface: color-mix(in srgb, var(--plasma-blue) 16%, var(--charcoal));
+
+  /* The plasma keyline, diluted into granite rather than used neat. Undiluted plasma blue measures
+     3.83:1 on the surface above — 2.8x the base keyline's 1.35:1 — and at that contrast the
+     keyline stops identifying a plate and starts outlining a box, which turns a bench of six
+     panels into a wireframe. At 40% it is 2.07:1: unmistakably a blue keyline, in the register the
+     rest of the app's panels are drawn in. A skin's keyline belongs between 1.3:1 and 2.2:1 on its
+     own surface. */
+  --panel-edge: color-mix(in srgb, var(--plasma-blue) 40%, var(--granite));
+
+  /* A machined plate: the base's 9px cut taken to all four corners rather than the diagonal pair.
+     The plainest of the four genre shapes on purpose — the cool plate, the keyline and the scan
+     are already making the argument, and a corner that shouted over them would say it twice. */
+  --panel-corner-tl: 9px;
+  --panel-corner-tr: 9px;
+  --panel-corner-br: 9px;
+  --panel-corner-bl: 9px;
+
+  /* Cyan is the genre's ink and plasma blue is its fill, and the split is forced rather than
+     chosen: plasma blue measures 3.8:1 on the surface it makes, which is the same class of colour
+     as crimson and emerald in "Colour roles" — an edge and a fill, never a sentence. Cyan is
+     7.5:1 there, so it takes the chips, the kickers, the figures and the selected row.
+
+     `--halo` is mixed from `--accent`, so the focus halo is cyan under this skin. That is a hue
+     the skin is entitled to move: the halo's spread, its opacity and the fact that there is one on
+     screen are untouched, and the ring that carries the meaning is `--focus`, acid green in every
+     genre. Pinning the halo to green while everything it surrounds is cyan would be the skin
+     leaking out of the accent role rather than staying inside it.
+
+     No `--accent-quiet` override. Gold is the message tone, and a notice inside a science-fiction
+     project is still the app saying how something went; a tone outranks a genre. */
+  --accent: var(--cyan);
+}
+
+/* The display ink. Cyan headings inside a panel, at 7.5:1 on the surface above — a colour, which a
+   skin may set, and not a size or a face, which it may not. Scoped to the panel because that is
+   what a skin dresses: a heading on the bare page belongs to the type ramp. */
+[data-genre='scifi'] .panel .panel__title,
+[data-genre='scifi'] .panel h2,
+[data-genre='scifi'] .panel h3,
+[data-genre='scifi'] .panel h4 {
+  color: var(--accent);
+}
+
+/* Two layers on the liner that paints the surface, and only the first of them moves.
+
+   `.panel:not(.panel--bare)` because the main tool panel has no surface of its own — a scanline
+   grid there would be a texture floating on the page. `background-image` over the liner's own
+   `background-color`, so the fill is still `--panel-surface`.
+
+   The scanlines are *texture*, which decision 2 lists under surface rather than under motion, and
+   that is the whole reason to spend a layer on them: they say "screen" without animating, so a
+   sci-fi panel is still visibly sci-fi when everything that moves is switched off. 1px on a 5px
+   pitch at 4%, both stated because a tighter or stronger grid moirés against a scrolling panel,
+   which is a shimmer nobody asked for.
+
+   45s for the scan, where fantasy's sheen runs 40s: a band crossing the short axis of a panel is
+   on screen more of the time, and a bench holds several panels all wearing this. */
+[data-genre='scifi'] .panel:not(.panel--bare) > .panel__field {
+  animation: scifi-scan 45s linear infinite;
+  background-image:
+    linear-gradient(
+      180deg,
+      transparent 40%,
+      color-mix(in srgb, var(--cyan) 7%, transparent) 50%,
+      transparent 60%
+    ),
+    repeating-linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--cyan) 4%, transparent) 0 1px,
+      transparent 1px 5px
+    );
+  background-repeat: no-repeat, repeat;
+  background-size:
+    100% 60%,
+    100% 5px;
+}
+
+/* Decision 2 caps ambient motion at one effect per skin and turns it off here. The scan goes; the
+   scanlines stay, because they are surface rather than motion — which makes this a better reduced
+   state than fantasy's rather than a different one: the genre survives the switch intact and loses
+   only the travel. */
+@media (prefers-reduced-motion: reduce) {
+  [data-genre='scifi'] .panel:not(.panel--bare) > .panel__field {
+    animation: none;
+    background-image: repeating-linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--cyan) 4%, transparent) 0 1px,
+      transparent 1px 5px
+    );
+    background-repeat: repeat;
+    background-size: 100% 5px;
+  }
 }

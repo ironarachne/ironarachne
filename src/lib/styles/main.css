@@ -536,7 +536,7 @@ label {
      rather than replacing it — and so the halo can be set by a state without restating either. */
   --panel-halo: 0 0 rgb(0 0 0 / 0%);
 
-  /* The edge, painted across the whole box. `--notch` is a `clip-path`, a `clip-path` cuts
+  /* The edge, painted across the whole box. `--panel-corner` is a `clip-path`, a `clip-path` cuts
      everything the element paints, and a `border` is something the element paints — so a panel
      carrying the corner treatment loses its keyline along both diagonals, at exactly the two
      corners the treatment exists to make visible. The liner below covers all of this but a pixel,
@@ -544,7 +544,7 @@ label {
   background: var(--panel-edge, var(--border));
   box-shadow: var(--lift), var(--panel-halo);
   box-sizing: border-box;
-  clip-path: var(--notch);
+  clip-path: var(--panel-corner);
   display: flex;
   flex-direction: column;
   min-width: 0;
@@ -559,7 +559,7 @@ label {
   background: var(--panel-surface, var(--surface-raised));
   box-shadow: var(--edge);
   box-sizing: border-box;
-  clip-path: var(--notch-inner);
+  clip-path: var(--panel-corner-inner);
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
@@ -598,9 +598,18 @@ label {
    running full-bleed to the keyline — one offset in both forms, so the same furniture looks the
    same on a framed panel as it does on a bare one. */
 .panel__header {
+  /* The base cut, restated rather than inherited. A genre skin sets the four corner depths on the
+     page region and every panel below it takes the shape; the header is a plate *inside* one, and
+     furniture that changed shape with the genre would put a fantasy panel's deep bottom cuts
+     halfway up its own face. The skin dresses the plate, not the parts of it. */
+  --panel-corner-tl: 0px;
+  --panel-corner-tr: 9px;
+  --panel-corner-br: 0px;
+  --panel-corner-bl: 9px;
+
   background: var(--border-strong);
   box-sizing: border-box;
-  clip-path: var(--notch);
+  clip-path: var(--panel-corner);
   padding: 1px;
 }
 
@@ -609,7 +618,7 @@ label {
   background: var(--plate);
   box-shadow: var(--edge);
   box-sizing: border-box;
-  clip-path: var(--notch-inner);
+  clip-path: var(--panel-corner-inner);
   display: flex;
   gap: var(--s4);
   justify-content: space-between;

@@ -195,28 +195,58 @@
     0 0 20px color-mix(in srgb, var(--accent) 14%, transparent);
 
   /* ---- Corners -------------------------------------------------------------------------
-     Three treatments, and three is a cap. A component picks one of these, and a skin picks
-     between cut, bevelled and square from this vocabulary; inventing a fourth is what the rule
-     exists to make awkward.
+     A control picks `--corner-control` and a nav item `--corner-nav`; both are fixed. The panel's
+     corner is not, because a genre skin sets it — and it is the one piece of geometry a skin may
+     move. See docs/visual-design.md, "A skin sets four depths, and the polygon stays in the base".
+
+     The panel's polygon is written *once*, here, with a depth at each of its four corners. A skin
+     sets the four depths and never the shape, so there is no value a skin can give them that is
+     not a panel. This replaces the "three treatments" cap: what needed bounding was never the
+     number of shapes but who may make one, which is now one shape per genre and nobody else.
+
+     Two rules on the depths, and both are swept by `tokens.test.ts`: none exceeds `--s5`, because
+     12px is the panel's padding and a deeper cut starts taking the first character of the first
+     line inside it; and no two genres wear the same four.
 
      A `clip-path` cuts everything the element paints, borders included — so an edge marker on a
      clipped element is an inset shadow, not a border, or the clip shaves it at both ends. */
 
-  /* A panel: 9px off the top-right and bottom-left. */
-  --notch: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+  /* The base cut: 9px off the top-right and bottom-left, and square at the other two. This is the
+     app's own plate — an unskinned panel, and every plate *inside* a panel, which is why
+     `.panel__header` sets these back to these values rather than wearing the genre. */
+  --panel-corner-tl: 0px;
+  --panel-corner-tr: 9px;
+  --panel-corner-br: 0px;
+  --panel-corner-bl: 9px;
 
-  /* The panel treatment again, for the liner a panel draws its keyline with. Same story as
-     `--corner-control-inner` below, at the panel's scale: the liner sits a pixel inside on every
-     edge, so its cut is a pixel shallower — 8px against the notch's 9px — and the two diagonals
-     run parallel instead of converging. Not a fourth treatment; the panel's own, drawn a pixel
-     in. */
-  --notch-inner: polygon(
-    0 0,
-    calc(100% - 8px) 0,
-    100% 8px,
-    100% 100%,
-    8px 100%,
-    0 calc(100% - 8px)
+  --panel-corner: polygon(
+    var(--panel-corner-tl) 0,
+    calc(100% - var(--panel-corner-tr)) 0,
+    100% var(--panel-corner-tr),
+    100% calc(100% - var(--panel-corner-br)),
+    calc(100% - var(--panel-corner-br)) 100%,
+    var(--panel-corner-bl) 100%,
+    0 calc(100% - var(--panel-corner-bl)),
+    0 var(--panel-corner-tl)
+  );
+
+  /* The same four depths a pixel shallower, for the liner a panel draws its keyline with. Same
+     story as `--corner-control-inner` below, at the panel's scale: the liner sits a pixel inside
+     on every edge, so its cut is a pixel shallower and the two outlines run parallel instead of
+     converging. `max()` because a square corner has nothing to take a pixel off — 0px - 1px is
+     -1px, and a negative coordinate would pull the outline outside the box.
+
+     Not a second treatment; the panel's own, drawn a pixel in — and it follows a skin's depths for
+     free, where `--notch-inner` was hand-written at the one depth the app used to have. */
+  --panel-corner-inner: polygon(
+    max(0px, calc(var(--panel-corner-tl) - 1px)) 0,
+    calc(100% - max(0px, calc(var(--panel-corner-tr) - 1px))) 0,
+    100% max(0px, calc(var(--panel-corner-tr) - 1px)),
+    100% calc(100% - max(0px, calc(var(--panel-corner-br) - 1px))),
+    calc(100% - max(0px, calc(var(--panel-corner-br) - 1px))) 100%,
+    max(0px, calc(var(--panel-corner-bl) - 1px)) 100%,
+    0 calc(100% - max(0px, calc(var(--panel-corner-bl) - 1px))),
+    0 max(0px, calc(var(--panel-corner-tl) - 1px))
   );
 
   /* A control: the same diagonal shape at 7px, because a control is not the size of a panel. */

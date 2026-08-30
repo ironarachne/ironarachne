@@ -38,7 +38,7 @@
 <style>
   /* The sidebar is flush to the left edge of the screen and square on that side: the items run
      edge to edge and carry their own inset padding, which is why the inline padding here is zero
-     at every width. No notch on the outer edge — `--notch` cuts a corner off a plate that sits on
+     at every width. No notch on the outer edge — `--panel-corner` cuts a corner off a plate that sits on
      a surface, and a cut on an edge with nothing beyond it reads as damage rather than as a cut.
      See docs/visual-design.md, "The shell". */
   .sidebar {
