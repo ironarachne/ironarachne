@@ -521,6 +521,45 @@ label {
    notice were all the same box at the same height, and nothing was emphasised by being a panel
    because everything was one. */
 
+/* The panel's two polygons, on the two elements that clip: a panel, and the header plate inside
+   it. Written here rather than in `tokens.css` because a `var()` inside a custom property is
+   substituted where that property is declared — on `:root` these would resolve their depths
+   against `:root` and every panel would wear the base cut whatever a skin set. Declared on the
+   clipping element, they resolve against the depths that element inherited, which is how a genre's
+   corner reaches a panel at all. The liners inherit them from their own parent.
+
+   The shape is the base's at whatever depth is in force: a skin sets the four depths on the page
+   region and never a polygon, so there is no value it can give them that is not a panel. See
+   docs/visual-design.md, "A skin sets four depths, and the polygon stays in the base". */
+.panel,
+.panel__header {
+  --panel-corner: polygon(
+    var(--panel-corner-tl) 0,
+    calc(100% - var(--panel-corner-tr)) 0,
+    100% var(--panel-corner-tr),
+    100% calc(100% - var(--panel-corner-br)),
+    calc(100% - var(--panel-corner-br)) 100%,
+    var(--panel-corner-bl) 100%,
+    0 calc(100% - var(--panel-corner-bl)),
+    0 var(--panel-corner-tl)
+  );
+
+  /* The same four depths a pixel shallower, for the liner that paints inside the keyline: it sits
+     a pixel inside on every edge, so its cut is a pixel shallower and the two outlines run
+     parallel instead of converging. `max()` because a square corner has nothing to take a pixel
+     off — 0px - 1px is -1px, and a negative coordinate would pull the outline outside the box. */
+  --panel-corner-inner: polygon(
+    max(0px, calc(var(--panel-corner-tl) - 1px)) 0,
+    calc(100% - max(0px, calc(var(--panel-corner-tr) - 1px))) 0,
+    100% max(0px, calc(var(--panel-corner-tr) - 1px)),
+    100% calc(100% - max(0px, calc(var(--panel-corner-br) - 1px))),
+    calc(100% - max(0px, calc(var(--panel-corner-br) - 1px))) 100%,
+    max(0px, calc(var(--panel-corner-bl) - 1px)) 100%,
+    0 calc(100% - max(0px, calc(var(--panel-corner-bl) - 1px))),
+    0 max(0px, calc(var(--panel-corner-tl) - 1px))
+  );
+}
+
 .panel {
   /* The two colours a level, a state and a genre skin each set are *not* declared here, and that
      is the whole reason a skin works. A declaration on the element beats an inherited one, so

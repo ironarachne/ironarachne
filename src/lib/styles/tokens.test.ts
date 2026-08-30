@@ -296,11 +296,17 @@ describe('elevation and corners', () => {
     // Three is a cap on what a *component* may pick from, and #120 left it there while opening the
     // panel's own corner to a skin: the shape is still one polygon, and what a genre moves is the
     // depth at each of its four corners.
-    const corners = ['--panel-corner', '--corner-control', '--corner-nav'];
+    const corners = ['--corner-control', '--corner-nav'];
 
     for (const corner of corners) {
       expect(tokens.get(corner), `${corner} is a clip-path polygon`).toMatch(/^polygon\(/);
     }
+
+    // The panel's is the third, and it is the one that is not here: a `var()` inside a custom
+    // property resolves where the property is declared, so a `--panel-corner` on `:root` would
+    // hand every panel the base depths however a skin set them. It is declared on `.panel` and
+    // `.panel__header` in `main.css` instead — see the test below, and tokens.css's own comment.
+    expect(tokens.get('--panel-corner'), 'the panel polygon is back on :root').toBeUndefined();
 
     // `--corner-control-inner` and `--panel-corner-inner` are those treatments a second time, not
     // two more treatments: a clipped border is shaved at the diagonals, so a button and a panel
@@ -314,7 +320,6 @@ describe('elevation and corners', () => {
       [
         ...corners,
         '--corner-control-inner',
-        '--panel-corner-inner',
         '--panel-corner-tl',
         '--panel-corner-tr',
         '--panel-corner-br',
@@ -334,18 +339,26 @@ describe('elevation and corners', () => {
       '--panel-corner-bl': '9px',
     };
 
+    const panels = readFileSync(join(STYLES_DIR, 'main.css'), 'utf8');
+    const polygon = /--panel-corner:\s*polygon\(([^;]+)\);/.exec(panels)?.[1] ?? '';
+    const liner = /--panel-corner-inner:\s*polygon\(([^;]+)\);/.exec(panels)?.[1] ?? '';
+
     for (const [name, value] of Object.entries(depths)) {
       expect(tokens.get(name), `${name} is not the base cut`).toBe(value);
-      expect(tokens.get('--panel-corner'), `${name} is not read by the polygon`).toContain(
-        `var(${name})`,
-      );
+      expect(polygon, `${name} is not read by the polygon`).toContain(`var(${name})`);
       // The liner is the same four depths a pixel shallower, so the two outlines stay parallel at
       // whatever depth a genre picks. `max()` because 0px - 1px is -1px, and a negative coordinate
       // would pull the liner's outline outside the box it is meant to sit inside.
-      expect(tokens.get('--panel-corner-inner'), `${name} is not read by the liner`).toContain(
+      expect(liner, `${name} is not read by the liner`).toContain(
         `max(0px, calc(var(${name}) - 1px))`,
       );
     }
+
+    // Declared on the elements that clip, and only those — anywhere higher and the depths resolve
+    // against that ancestor rather than against the panel, which is the bug this test exists for.
+    expect(panels, 'the panel polygon moved off the clipping elements').toContain(
+      '.panel,\n.panel__header {',
+    );
   });
 
   it('cuts the nav corner on one edge and the other two diagonally', () => {

@@ -92,7 +92,9 @@ a skin set one and [elevation](#elevation) has always named three treatments, bu
 as a polygon and no skin has a way to ask for another — fantasy could decline the question and #120
 and #121 cannot. So the panel's polygon is written once with a depth at each corner, a skin sets the
 four depths, and the "three treatments" cap is replaced by a bound with a reason behind it: one shape
-per genre, capped at `--s5`, no two alike. It adds one measured band — a skin's keyline
+per genre, capped at `--s5`, no two alike. The formula sits on the clipping elements rather than on
+`:root`, because a `var()` inside a custom property resolves where it is declared — a correction this
+document earned in a browser rather than reasoned out. It adds one measured band — a skin's keyline
 between 1.3:1 and 2.2:1 on its own surface — and settles that a skin setting `--accent` moves the
 halo's hue with it, which is permitted because the halo's geometry, its opacity and the `--focus`
 ring are all untouched.
@@ -2150,12 +2152,24 @@ the geometry:
 
 `--notch` and `--notch-inner` are renamed `--panel-corner` and `--panel-corner-inner` and become that
 one formula, read at each corner from `--panel-corner-tl` / `-tr` / `-br` / `-bl`, which default to
-`0` / `9px` / `0` / `9px` — the cut the app has today, unchanged on an unskinned panel. Substitution
-is lazy, so the depths resolve against the element the clip is applied to: the formula lives on
-`:root` and a skin's depths, set on the page region, reach every panel below it. The liner's polygon
-is the same four depths a pixel shallower, `max(0px, d - 1px)`, so the two outlines stay parallel at
-whatever depth a genre picks — which is what `--notch-inner` was hand-written to do at one depth.
-`.panel--bare`'s own `clip-path: none` still outranks all of it. Every other `--notch` in this
+`0` / `9px` / `0` / `9px` — the cut the app has today, unchanged on an unskinned panel. The liner's
+polygon is the same four depths a pixel shallower, `max(0px, d - 1px)`, so the two outlines stay
+parallel at whatever depth a genre picks — which is what `--notch-inner` was hand-written to do at
+one depth.
+
+**The formula is declared on `.panel` and `.panel__header`, not on `:root`, and that is not a
+stylistic choice.** A `var()` inside a custom property is substituted where that property is
+_declared_, not where it is used: a `--panel-corner` on `:root` resolves its four depths against
+`:root` and hands every panel the base cut however a skin sets them. This document said the opposite
+until it was measured — the first implementation put the formula on `:root`, and
+`e2e/genre_skin.spec.ts` failed with a sci-fi panel wearing the base's corner and the right surface,
+which is exactly the shape of the #119 bug that put `--panel-surface` on `.panel` and made the skin
+inert. Declared on the elements that clip, the depths resolve against what those elements inherited,
+and the liners inherit the finished polygon from their own parent. It is still written once each.
+`.panel--bare`'s own `clip-path: none` still outranks all of it, and `.panel__header` sets the four
+depths back to the base cut on itself: a genre shapes the plate, not the furniture inside it, and a
+fantasy header would otherwise carry the shield's deep bottom cuts halfway up the panel's own face.
+Every other `--notch` in this
 document — [panel anatomy](#panel-anatomy), the two-layer table, the shell's nav-corner argument — is
 this same token under its old name, and the rename is the only thing that happens to them: a
 component still picks one of `--panel-corner`, `--corner-control` and `--corner-nav`, and three is
