@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { AgeCategories } from '$lib/age';
   import { Sizes, convertMatrixToSummary } from '$lib/size';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -74,9 +76,11 @@
       {#each femaleData as entry}
         <div>
           <h5>{entry.ageCategoryName}</h5>
-          <p><strong>Age Range:</strong> {entry.minAge} to {entry.maxAge} years</p>
-          <p><strong>Female Height:</strong> {entry.heightRange}</p>
-          <p><strong>Female Weight:</strong> {entry.weightRange}</p>
+          <StatBlock>
+            <Stat label="Age Range">{entry.minAge} to {entry.maxAge} years</Stat>
+            <Stat label="Female Height">{entry.heightRange}</Stat>
+            <Stat label="Female Weight">{entry.weightRange}</Stat>
+          </StatBlock>
         </div>
       {/each}
     </div>
@@ -85,9 +89,11 @@
       {#each maleData as entry}
         <div>
           <h5>{entry.ageCategoryName}</h5>
-          <p><strong>Age Range:</strong> {entry.minAge} to {entry.maxAge} years</p>
-          <p><strong>Male Height:</strong> {entry.heightRange}</p>
-          <p><strong>Male Weight:</strong> {entry.weightRange}</p>
+          <StatBlock>
+            <Stat label="Age Range">{entry.minAge} to {entry.maxAge} years</Stat>
+            <Stat label="Male Height">{entry.heightRange}</Stat>
+            <Stat label="Male Weight">{entry.weightRange}</Stat>
+          </StatBlock>
         </div>
       {/each}
     </div>
@@ -97,10 +103,12 @@
 
   <p>This is for Ingenium Second Edition heritages.</p>
 
-  <p><strong>Female Height:</strong> {ingenium.femaleHeight}</p>
-  <p><strong>Male Height:</strong> {ingenium.maleHeight}</p>
-  <p><strong>Female Weight:</strong> {ingenium.femaleWeight}</p>
-  <p><strong>Male Weight:</strong> {ingenium.maleWeight}</p>
-  <p><strong>Adult Age:</strong> {ingenium.adultAge}</p>
-  <p><strong>Maximum Lifespan:</strong> {maximumAge}</p>
+  <StatBlock>
+    <Stat label="Female Height">{ingenium.femaleHeight}</Stat>
+    <Stat label="Male Height">{ingenium.maleHeight}</Stat>
+    <Stat label="Female Weight">{ingenium.femaleWeight}</Stat>
+    <Stat label="Male Weight">{ingenium.maleWeight}</Stat>
+    <Stat label="Adult Age">{ingenium.adultAge}</Stat>
+    <Stat label="Maximum Lifespan">{maximumAge}</Stat>
+  </StatBlock>
 </GeneratorPage>

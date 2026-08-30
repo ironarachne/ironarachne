@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import * as RNG from '@ironarachne/rng';
   import {
     renderPlanetPreviewImage,
@@ -159,26 +161,21 @@
         <div>
           <h5>{star.name}</h5>
           <p>{star.description}</p>
-          <p>
-            <strong>Star Type:</strong>
+          <Stat label="Star Type">
             {star.classification}
-          </p>
-          <p>
-            <strong>Radius:</strong>
+          </Stat>
+          <Stat label="Radius">
             {new Intl.NumberFormat().format(star.radius)} km
-          </p>
-          <p>
-            <strong>Mass:</strong>
+          </Stat>
+          <Stat label="Mass">
             {new Intl.NumberFormat().format(star.mass)} &times; 10<sup>30</sup> kg
-          </p>
-          <p>
-            <strong>Luminosity:</strong>
+          </Stat>
+          <Stat label="Luminosity">
             {new Intl.NumberFormat().format(star.luminosity)} &times; 10<sup>26</sup> W
-          </p>
-          <p>
-            <strong>Temperature:</strong>
+          </Stat>
+          <Stat label="Temperature">
             {new Intl.NumberFormat().format(star.surface_temperature)}K
-          </p>
+          </Stat>
         </div>
       </article>
     {/each}
@@ -193,39 +190,33 @@
         <div>
           <h5>{planet.name}</h5>
           <p>{planet.description}</p>
-          <p><strong>Planet Type:</strong> {planet.classification}</p>
-          <p>
-            <strong>Distance from Star:</strong>
+          <StatBlock>
+            <Stat label="Planet Type">{planet.classification}</Stat>
+          </StatBlock>
+          <Stat label="Distance from Star">
             {new Intl.NumberFormat().format(planet.orbital_distance)} AU
-          </p>
-          <p>
-            <strong>Mass:</strong>
+          </Stat>
+          <Stat label="Mass">
             {new Intl.NumberFormat().format(planet.mass)} &times; 10<sup>24</sup> kg
-          </p>
-          <p>
-            <strong>Radius:</strong>
+          </Stat>
+          <Stat label="Radius">
             {new Intl.NumberFormat().format(Math.floor(planet.radius))} km
-          </p>
-          <p>
-            <strong>Gravity:</strong>
+          </Stat>
+          <Stat label="Gravity">
             {new Intl.NumberFormat().format(planet.gravity)} m/s<sup>2</sup>
-          </p>
-          <p>
-            <strong>Orbital Period:</strong>
+          </Stat>
+          <Stat label="Orbital Period">
             {new Intl.NumberFormat().format(Math.floor(planet.orbital_period))} days
-          </p>
-          <p>
-            <strong>Rotation Period (Length of Day):</strong>
+          </Stat>
+          <Stat label="Rotation Period (Length of Day)">
             {new Intl.NumberFormat().format(Math.floor(planet.rotation_period))} hours
-          </p>
-          <p>
-            <strong>Surface Pressure:</strong>
+          </Stat>
+          <Stat label="Surface Pressure">
             {new Intl.NumberFormat().format(planet.surface_pressure)} atm
-          </p>
-          <p>
-            <strong>Average Temperature:</strong>
+          </Stat>
+          <Stat label="Average Temperature">
             {new Intl.NumberFormat().format(planet.surface_temperature)}K
-          </p>
+          </Stat>
         </div>
       </article>
     {/each}

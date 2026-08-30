@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import * as RNG from '@ironarachne/rng';
   import { Directions } from '$lib/geometry';
   import { Environments } from '$lib/environment';
@@ -146,75 +148,83 @@
   {#if environment}
     <h2>Terrain</h2>
 
-    <p>
-      <strong>Elevation Min:</strong>
+    <Stat label="Elevation Min">
       {environment.terrain.elevationMin} ({elevationToFeet(environment.terrain.elevationMin)} ft.)
-    </p>
-    <p>
-      <strong>Elevation Max:</strong>
+    </Stat>
+    <Stat label="Elevation Max">
       {environment.terrain.elevationMax} ({elevationToFeet(environment.terrain.elevationMax)} ft.)
-    </p>
-    <p><strong>Relief Energy:</strong> {environment.terrain.reliefEnergy}</p>
-    <p>
-      <strong>Normal Vector:</strong>
+    </Stat>
+    <StatBlock>
+      <Stat label="Relief Energy">{environment.terrain.reliefEnergy}</Stat>
+    </StatBlock>
+    <Stat label="Normal Vector">
       {environment.terrain.normalVector} ({describeSlope(environment.terrain.normalVector)})
-    </p>
+    </Stat>
 
     <h2>Water System</h2>
 
-    <p>
-      <strong>Water Level:</strong>
+    <Stat label="Water Level">
       {environment.waterSystem.surfaceLevel} ({elevationToFeet(
         environment.waterSystem.surfaceLevel,
       )} ft.)
-    </p>
-    <p><strong>Water Type:</strong> {environment.waterSystem.waterType}</p>
-    <p>
-      <strong>Temperature:</strong>
+    </Stat>
+    <StatBlock>
+      <Stat label="Water Type">{environment.waterSystem.waterType}</Stat>
+    </StatBlock>
+    <Stat label="Temperature">
       {Temperature.getComparativeString(environment.waterSystem.temperature, 'celsius')}
-    </p>
-    <p><strong>Current:</strong> {environment.waterSystem.current}</p>
+    </Stat>
+    <StatBlock>
+      <Stat label="Current">{environment.waterSystem.current}</Stat>
+    </StatBlock>
 
     <h2>Climate</h2>
 
     <p>{environment.climate.description}</p>
 
-    <p><strong>Climate Type:</strong> {environment.climate.name}</p>
-    <p><strong>Cloud Cover:</strong> {environment.climate.cloudCover}</p>
-    <p><strong>Wind:</strong> {environment.climate.wind}</p>
+    <StatBlock>
+      <Stat label="Climate Type">{environment.climate.name}</Stat>
+      <Stat label="Cloud Cover">{environment.climate.cloudCover}</Stat>
+      <Stat label="Wind">{environment.climate.wind}</Stat>
+    </StatBlock>
 
     <canvas id="windArrow" width="100" height="100"></canvas>
 
-    <p>
-      <strong>Temperature Min:</strong>
+    <Stat label="Temperature Min">
       {Temperature.getComparativeString(environment.climate.temperatureMin, 'celsius')}
-    </p>
-    <p>
-      <strong>Temperature Max:</strong>
+    </Stat>
+    <Stat label="Temperature Max">
       {Temperature.getComparativeString(environment.climate.temperatureMax, 'celsius')}
-    </p>
-    <p><strong>Precipitation Amount:</strong> {environment.climate.precipitationAmount}</p>
-    <p><strong>Precipitation Frequency:</strong> {environment.climate.precipitationFrequency}</p>
-    <p><strong>Humidity:</strong> {environment.climate.humidity}</p>
+    </Stat>
+    <StatBlock>
+      <Stat label="Precipitation Amount">{environment.climate.precipitationAmount}</Stat>
+      <Stat label="Precipitation Frequency">{environment.climate.precipitationFrequency}</Stat>
+      <Stat label="Humidity">{environment.climate.humidity}</Stat>
+    </StatBlock>
 
     <h3>Seasons</h3>
 
     {#each environment.climate.seasons as season}
-      <p><strong>Season Name:</strong> {season.name}</p>
-      <p><strong>Temperature Adjustment:</strong> {season.temperatureAdjustment}</p>
-      <p><strong>Humidity Adjustment:</strong> {season.humidityAdjustment}</p>
+      <StatBlock>
+        <Stat label="Season Name">{season.name}</Stat>
+        <Stat label="Temperature Adjustment">{season.temperatureAdjustment}</Stat>
+        <Stat label="Humidity Adjustment">{season.humidityAdjustment}</Stat>
+      </StatBlock>
     {/each}
 
     <h2>Biome</h2>
 
-    <p><strong>Biome Name:</strong> {environment.biome.name}</p>
-    <p><strong>Temperature:</strong> {environment.biome.temperature}</p>
-    <p>
-      <strong>Altitude:</strong>
+    <StatBlock>
+      <Stat label="Biome Name">{environment.biome.name}</Stat>
+      <Stat label="Temperature">{environment.biome.temperature}</Stat>
+    </StatBlock>
+    <Stat label="Altitude">
       {environment.biome.altitude} ({elevationToFeet(environment.biome.altitude)} ft.)
-    </p>
-    <p><strong>Humidity:</strong> {environment.biome.humidity}</p>
-    <p><strong>Is Aquatic:</strong> {environment.biome.isAquatic}</p>
+    </Stat>
+    <StatBlock>
+      <Stat label="Humidity">{environment.biome.humidity}</Stat>
+      <Stat label="Is Aquatic">{environment.biome.isAquatic}</Stat>
+    </StatBlock>
 
     <h3>Descriptions</h3>
 

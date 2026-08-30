@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import * as RNG from '@ironarachne/rng';
   import {
     getPlanetClassifications,
@@ -165,67 +167,62 @@
 
     <p>{planet.description}</p>
 
-    <p><strong>Planet Type:</strong> {planet.classification}</p>
+    <StatBlock>
+      <Stat label="Planet Type">{planet.classification}</Stat>
+    </StatBlock>
 
     {#if is_inhabited && civilization}
       <h3>Civilization</h3>
-      <p><strong>Name:</strong> {civilization.name}</p>
-      <p><strong>Population:</strong> {getFriendlyPopulation(civilization.population)}</p>
-      <p><strong>Government:</strong> {civilization.government_type.name}</p>
-      <p><strong>Economy:</strong> {civilization.economy_type.name}</p>
-      <p>
-        <strong>Technology Level:</strong>
+      <StatBlock>
+        <Stat label="Name">{civilization.name}</Stat>
+        <Stat label="Population">{getFriendlyPopulation(civilization.population)}</Stat>
+        <Stat label="Government">{civilization.government_type.name}</Stat>
+        <Stat label="Economy">{civilization.economy_type.name}</Stat>
+      </StatBlock>
+      <Stat label="Technology Level">
         <span
           class="tooltip"
           title={getTechnologyLevelByLevel(civilization.technology_level).description}
           >{getTechnologyLevelByLevel(civilization.technology_level).name}</span
         >
-      </p>
+      </Stat>
     {/if}
 
     <h3>Statistics</h3>
 
-    <p>
-      <strong>Distance from Star:</strong>
+    <Stat label="Distance from Star">
       {formatNumber(planet.orbital_distance)} AU
-    </p>
-    <p>
-      <strong>Mass:</strong>
+    </Stat>
+    <Stat label="Mass">
       {formatNumber(planet.mass)} &times; 10<sup>24</sup> kg ({formatNumber(
         Math.floor((planet.mass / 5.9722) * 100),
         0,
       )}% Earth's mass)
-    </p>
-    <p>
-      <strong>Radius:</strong>
+    </Stat>
+    <Stat label="Radius">
       {formatNumber(Math.floor(planet.radius))} km ({formatNumber(
         Math.floor((planet.radius / 6378) * 100),
         0,
       )}% Earth's radius)
-    </p>
-    <p>
-      <strong>Gravity:</strong>
+    </Stat>
+    <Stat label="Gravity">
       {formatNumber(planet.gravity)} m/s<sup>2</sup>
       ({formatNumber(Math.floor((planet.gravity / 9.81) * 100), 0)}% Earth's gravity)
-    </p>
-    <p>
-      <strong>Orbital Period:</strong>
+    </Stat>
+    <Stat label="Orbital Period">
       {formatNumber(Math.floor(planet.orbital_period), 0)} days
-    </p>
-    <p>
-      <strong>Rotation Period (Length of Day):</strong>
+    </Stat>
+    <Stat label="Rotation Period (Length of Day)">
       {formatNumber(Math.floor(planet.rotation_period), 0)} hours
-    </p>
-    <p>
-      <strong>Surface Pressure:</strong>
+    </Stat>
+    <Stat label="Surface Pressure">
       {formatNumber(planet.surface_pressure)} atm
-    </p>
-    <p>
-      <strong>Average Temperature:</strong>
+    </Stat>
+    <Stat label="Average Temperature">
       {formatNumber(planet.surface_temperature)} K ({Math.round(
         Measurements.kToC(planet.surface_temperature),
       )} °C, {Math.round(Measurements.kToF(planet.surface_temperature))} °F)
-    </p>
+    </Stat>
   {/if}
 
   {#if moons.length > 0}
@@ -235,40 +232,34 @@
         <li>
           <strong>{moon.name}</strong> - {moon.classification}
           <p>{moon.description}</p>
-          <p>
-            <strong>Orbital Distance:</strong>
+          <Stat label="Orbital Distance">
             {formatNumber(convertAUToKM(moon.orbital_distance))} km
-          </p>
-          <p>
-            <strong>Mass:</strong>
+          </Stat>
+          <Stat label="Mass">
             {formatNumber(moon.mass)} &times; 10<sup>24</sup> kg ({formatNumber(
               Math.floor((moon.mass / 0.0735) * 100),
               0,
             )}% Moon's mass)
-          </p>
-          <p>
-            <strong>Radius:</strong>
+          </Stat>
+          <Stat label="Radius">
             {formatNumber(Math.floor(moon.radius))} km ({formatNumber(
               Math.floor((moon.radius / 1737.4) * 100),
               0,
             )}% Moon's radius)
-          </p>
-          <p>
-            <strong>Gravity:</strong>
+          </Stat>
+          <Stat label="Gravity">
             {formatNumber(moon.gravity)} m/s<sup>2</sup> ({formatNumber(
               Math.floor((moon.gravity / 1.62) * 100),
               0,
             )}% Moon's gravity, {formatNumber(Math.floor((moon.gravity / 9.81) * 100), 0)}% Earth's
             gravity)
-          </p>
-          <p>
-            <strong>Orbital Period:</strong>
+          </Stat>
+          <Stat label="Orbital Period">
             {formatNumber(Math.floor(moon.orbital_period), 0)} days
-          </p>
-          <p>
-            <strong>Rotation Period (Length of Day):</strong>
+          </Stat>
+          <Stat label="Rotation Period (Length of Day)">
             {formatNumber(Math.floor(moon.rotation_period), 0)} days
-          </p>
+          </Stat>
         </li>
       {/each}
     </ul>

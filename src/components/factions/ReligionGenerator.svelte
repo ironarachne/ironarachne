@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import { onMount } from 'svelte';
   import * as Names from '$lib/names';
   import * as RNG from '@ironarachne/rng';
@@ -676,10 +678,9 @@
     {#if religion.nonTheisticDetail}
       <h3>Tradition detail (non-theistic)</h3>
       <p>{religion.nonTheisticDetail.mediationSummary}</p>
-      <p>
-        <strong>Purity and pollution:</strong>
+      <Stat label="Purity and pollution">
         {religion.nonTheisticDetail.pollutionOrPurityNotes}
-      </p>
+      </Stat>
     {/if}
 
     {#if religion.dimensions}
@@ -736,25 +737,30 @@
             <p>{deityTitleLine(member)}</p>
           {/if}
 
-          <p><strong>Domains:</strong> {listDomains(member.domains)}</p>
-
-          {#if member.holyItem !== null}
-            <p><strong>Holy Item:</strong> {member.holyItem}</p>
-          {/if}
-          {#if member.holySymbol !== null}
-            <p><strong>Holy Symbol:</strong> {member.holySymbol}</p>
-          {/if}
+          <StatBlock>
+            <Stat label="Domains">{listDomains(member.domains)}</Stat>
+            {#if member.holyItem !== null}
+              <Stat label="Holy Item">{member.holyItem}</Stat>
+            {/if}
+            {#if member.holySymbol !== null}
+              <Stat label="Holy Symbol">{member.holySymbol}</Stat>
+            {/if}
+          </StatBlock>
 
           <p>{member.description}</p>
 
           {#if member.relationships.length > 0}
             <div>
-              <strong>Relationships:</strong>
-              <ul>
-                {#each member.relationships as relationship}
-                  <li>{relationship.description}</li>
-                {/each}
-              </ul>
+              <!-- A pair whose value is a list, which is what `Stat` taking a snippet is for. -->
+              <StatBlock>
+                <Stat label="Relationships">
+                  <ul>
+                    {#each member.relationships as relationship}
+                      <li>{relationship.description}</li>
+                    {/each}
+                  </ul>
+                </Stat>
+              </StatBlock>
             </div>
           {/if}
         </div>

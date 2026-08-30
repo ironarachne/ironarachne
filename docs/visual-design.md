@@ -3368,13 +3368,39 @@ new permission and [decision 2](#2-genre-skins-are-a-permitted-subset-not-a-seco
 move. #153 asks for "genre-skin treatments"; the answer is that it already has them, and a skin
 reaching further would be the second look decision 2 forbids.
 
+### What converting 229 stats found
+
+**A stat with no value at all.** `AdndCharacterSheet` printed `Hit Point Adjustment:` and then
+nothing — in `main`, on every AD&D sheet, with `character.hitPointAdjustment` on the type the whole
+time. Converting a label-and-value pattern into a component that requires both is what surfaced it,
+which is the argument for components over conventions in one line: a convention cannot notice that
+half of it is missing.
+
+**A stat block written as a sentence.** The dungeon's room meta read
+`Purpose: x · Shape: y · Size: z` in one paragraph, where the middle dots were doing the work the
+grid does.
+
+**The colon was load-bearing in a test.** `e2e/helpers.ts` asserted on the text `Age Range:`, which
+stopped existing the moment the key became a `<dt>`. Worth stating because it generalises: a pattern
+that spans markup and prose leaks into anything that reads the page as text, and the punctuation is
+the part that leaks.
+
 ### What the content language enforces
 
 - **No component declares a `table`, `th` or `td` rule.** The table is `main.css`'s, and a component
   reaching for one is the second implementation starting again — the same shape as "no skin file
   declares a `button` rule". The three bespoke copies are deleted rather than tidied.
-- **No component writes `<strong>…:</strong>`.** That pattern is a stat that has not been converted,
-  and 229 of them are why the rule has to be a sweep rather than a guideline.
+- **No component writes `<strong>Label:</strong>` with a _constant_ key.** That pattern is a stat
+  that has not been converted, and 229 of them are why the rule has to be a sweep rather than a
+  guideline.
+
+  **The key's constancy is the line, and implementation drew it rather than this section.**
+  `<strong>{trait.name}:</strong> {trait.description}` is a term and a sentence about it — a
+  glossary, which is a content shape this document has not designed and should not be forced into a
+  grid of cells. A stat's key is written by the app; a glossary's comes from the generator, so
+  "constant" is a discriminator a sweep can see. Designing the glossary is a later issue's, and
+  eight sites are waiting for it.
+
 - **The ramp sweep widens to every component.** It covers two named lists today, which is how
   `StoragePanel`'s `0.8rem` and `0.35rem` survived the walk that deleted the exemption list. New
   shared components make that gap indefensible.

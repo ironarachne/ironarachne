@@ -92,7 +92,10 @@ export async function expectGeneratorOutput(
       return;
     case 'stats':
       await expect(page.getByRole('heading', { name: 'Calculated Stats' })).toBeVisible();
-      await expect(page.getByText('Age Range:').first()).toBeVisible();
+      // The colon went with the sentence: a stat is a `<dt>` holding "Age Range" and a `<dd>`
+      // holding the value, so the key is matched exactly rather than by the punctuation that used
+      // to separate it from what followed. docs/visual-design.md, "A stat is a pair".
+      await expect(page.getByText('Age Range', { exact: true }).first()).toBeVisible();
       await expect(
         page.getByRole('heading', { name: 'adult', level: 5, exact: true }).first(),
       ).toBeVisible();

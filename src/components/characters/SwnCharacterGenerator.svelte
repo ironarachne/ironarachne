@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import * as RNG from '@ironarachne/rng';
   import { characters as CharGen, downloadSwnCharacterPdf } from '$lib/swn';
   import type { SWNCharacter } from '$lib/swn';
@@ -166,21 +168,25 @@
   <h2>{firstName || lastName ? `${firstName} ${lastName}`.trim() : 'Character'}</h2>
 
   {#if character}
-    <p><strong>Background:</strong> {character.background.name}</p>
-    <p><strong>Class:</strong> {character.characterClass.name}</p>
-    <p><strong>Hit Points:</strong> {character.hitPoints}</p>
-    {#if character.effort > 0}
-      <p><strong>Effort:</strong> {character.effort}</p>
-    {/if}
-    <p><strong>Base Attack Bonus:</strong> +{character.attackBonus}</p>
-    <p><strong>Armor Class:</strong> {character.armorClassEquipped}</p>
-    <p><strong>Credits:</strong> {character.credits}</p>
+    <StatBlock>
+      <Stat label="Background">{character.background.name}</Stat>
+      <Stat label="Class">{character.characterClass.name}</Stat>
+      <Stat label="Hit Points">{character.hitPoints}</Stat>
+      {#if character.effort > 0}
+        <Stat label="Effort">{character.effort}</Stat>
+      {/if}
+      <Stat label="Base Attack Bonus">+{character.attackBonus}</Stat>
+      <Stat label="Armor Class">{character.armorClassEquipped}</Stat>
+      <Stat label="Credits">{character.credits}</Stat>
+    </StatBlock>
 
     <h3>Saving Throws</h3>
 
-    <p><strong>Evasion:</strong> {character.savingThrowEvasion}</p>
-    <p><strong>Mental:</strong> {character.savingThrowMental}</p>
-    <p><strong>Physical:</strong> {character.savingThrowPhysical}</p>
+    <StatBlock>
+      <Stat label="Evasion">{character.savingThrowEvasion}</Stat>
+      <Stat label="Mental">{character.savingThrowMental}</Stat>
+      <Stat label="Physical">{character.savingThrowPhysical}</Stat>
+    </StatBlock>
 
     <h3>Focuses</h3>
 

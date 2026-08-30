@@ -1,4 +1,5 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
   import { CommonSpecies } from '$lib/species';
   import * as Families from '$lib/families';
   import * as Names from '$lib/names';
@@ -350,14 +351,13 @@
     <p>{member.description}</p>
     {@const mate = getMate(family, member)}
     {#if mate}
-      <p>
-        <strong>Mate:</strong>
+      <Stat label="Mate">
         {mate.firstName}
         {mate.lastName}
         <span class="gender-symbol" title={mate.gender.name}>
           {getGenderSymbol(mate.gender.name)}
         </span>
-      </p>
+      </Stat>
     {/if}
     {@const children = getChildren(family, member)}
     {#if children.length > 0}

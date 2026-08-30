@@ -1,4 +1,6 @@
 <script lang="ts">
+  import Stat from '$components/common/Stat.svelte';
+  import StatBlock from '$components/common/StatBlock.svelte';
   import * as RNG from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
   import { onMount, tick } from 'svelte';
@@ -245,9 +247,11 @@
   {#if dungeon}
     <h2>{dungeon.name}</h2>
 
-    <p><strong>Theme:</strong> {dungeon.theme.name}</p>
-    <p><strong>Environment:</strong> {dungeon.theme.environment.description}</p>
-    <p><strong>Blueprint:</strong> {dungeon.theme.blueprint.description}</p>
+    <StatBlock>
+      <Stat label="Theme">{dungeon.theme.name}</Stat>
+      <Stat label="Environment">{dungeon.theme.environment.description}</Stat>
+      <Stat label="Blueprint">{dungeon.theme.blueprint.description}</Stat>
+    </StatBlock>
 
     <p class="map-legend">
       Doors are blue bars (open doors show a gap; secret doors have an <strong>S</strong> overlaid); locked
@@ -267,19 +271,22 @@
     {#each dungeon.rooms as room (room.id)}
       <div class="room">
         <h3>{Words.title(room.name)} <span class="room-id">(room {room.id})</span></h3>
-        <p class="room-meta">
-          <strong>Purpose:</strong>
-          {room.purpose} · <strong>Shape:</strong>
-          {room.primitive.style} · <strong>Size:</strong>
-          {room.primitive.width}×{room.primitive.height}
-        </p>
+        <!-- Three pairs run together with separators until #153, which is a stat block written as
+             a sentence: the middle dots were doing the work the grid does. -->
+        <StatBlock class="room-meta">
+          <Stat label="Purpose">{room.purpose}</Stat>
+          <Stat label="Shape">{room.primitive.style}</Stat>
+          <Stat label="Size">{room.primitive.width}×{room.primitive.height}</Stat>
+        </StatBlock>
         <div class="room-description">
           {room.description}
         </div>
         {#if room.encounter}
           <div class="encounter">
             <h4>Encounter</h4>
-            <p><strong>Difficulty:</strong> {room.encounter.difficulty}</p>
+            <StatBlock>
+              <Stat label="Difficulty">{room.encounter.difficulty}</Stat>
+            </StatBlock>
             <p>{room.encounter.description}</p>
             {#each room.encounter.groups as group, gi (`${room.id}-grp-${gi}`)}
               <p>
@@ -344,9 +351,14 @@
             <ul>
               {#each dungeon.keys.filter((k) => k.x >= room.x && k.x < room.x + room.primitive.width && k.y >= room.y && k.y < room.y + room.primitive.height) as key (key.id)}
                 <li>
-                  <strong>Key:</strong>
-                  {key.description}
-                  {getKeyDescription(key.id, key.doorId, dungeon)}
+                  <!-- One key per row, and each row is a pair: the label was a bold run inside the
+                       sentence until #153. -->
+                  <StatBlock>
+                    <Stat label="Key">
+                      {key.description}
+                      {getKeyDescription(key.id, key.doorId, dungeon)}
+                    </Stat>
+                  </StatBlock>
                 </li>
               {/each}
             </ul>
@@ -390,9 +402,11 @@
     font-size: 0.9em;
   }
 
-  .room-meta {
-    font-size: 0.95rem;
-    margin: 0.25rem 0 0.5rem;
+  /* `:global`, because the class lands on `StatBlock`'s own element. The font size went with the
+     conversion: a stat's key and value take their steps from the ramp, so a paragraph-wide 0.95rem
+     over the top of them was overriding one ramp with another. */
+  .room :global(.room-meta) {
+    margin: var(--s2) 0 var(--s4);
   }
 
   div.mobs {
