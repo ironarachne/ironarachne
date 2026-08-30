@@ -195,29 +195,39 @@
     0 0 20px color-mix(in srgb, var(--accent) 14%, transparent);
 
   /* ---- Corners -------------------------------------------------------------------------
-     Three treatments, and three is a cap. A component picks one of these, and a skin picks
-     between cut, bevelled and square from this vocabulary; inventing a fourth is what the rule
-     exists to make awkward.
+     A control picks `--corner-control` and a nav item `--corner-nav`; both are fixed. The panel's
+     corner is not, because a genre skin sets it — and it is the one piece of geometry a skin may
+     move. See docs/visual-design.md, "A skin sets four depths, and the polygon stays in the base".
+
+     The panel's polygon is written *once*, here, with a depth at each of its four corners. A skin
+     sets the four depths and never the shape, so there is no value a skin can give them that is
+     not a panel. This replaces the "three treatments" cap: what needed bounding was never the
+     number of shapes but who may make one, which is now one shape per genre and nobody else.
+
+     Two rules on the depths, and both are swept by `tokens.test.ts`: none exceeds `--s5`, because
+     12px is the panel's padding and a deeper cut starts taking the first character of the first
+     line inside it; and no two genres wear the same four.
 
      A `clip-path` cuts everything the element paints, borders included — so an edge marker on a
      clipped element is an inset shadow, not a border, or the clip shaves it at both ends. */
 
-  /* A panel: 9px off the top-right and bottom-left. */
-  --notch: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
+  /* The base cut: 9px off the top-right and bottom-left, and square at the other two. This is the
+     app's own plate — an unskinned panel, and every plate *inside* a panel, which is why
+     `.panel__header` sets these back to these values rather than wearing the genre. */
+  --panel-corner-tl: 0px;
+  --panel-corner-tr: 9px;
+  --panel-corner-br: 0px;
+  --panel-corner-bl: 9px;
 
-  /* The panel treatment again, for the liner a panel draws its keyline with. Same story as
-     `--corner-control-inner` below, at the panel's scale: the liner sits a pixel inside on every
-     edge, so its cut is a pixel shallower — 8px against the notch's 9px — and the two diagonals
-     run parallel instead of converging. Not a fourth treatment; the panel's own, drawn a pixel
-     in. */
-  --notch-inner: polygon(
-    0 0,
-    calc(100% - 8px) 0,
-    100% 8px,
-    100% 100%,
-    8px 100%,
-    0 calc(100% - 8px)
-  );
+  /* The polygon these four feed is **not here**, and it cannot be. A `var()` inside a custom
+     property is substituted where that property is *declared*, not where it is used — so a
+     `--panel-corner` declared on `:root` would resolve its depths against `:root` and hand every
+     panel the base cut however a skin set them. Measured in a browser rather than reasoned about:
+     the first cut of #120 did exactly that, and `e2e/genre_skin.spec.ts` caught it.
+
+     The two polygons are therefore declared on the elements that clip — `.panel` and
+     `.panel__header` in `main.css` — where the depths a skin sets on the page region are visible.
+     They are still written once each. */
 
   /* A control: the same diagonal shape at 7px, because a control is not the size of a panel. */
   --corner-control: polygon(

@@ -293,38 +293,90 @@ describe('elevation and corners', () => {
   });
 
   it('holds exactly three corner treatments', () => {
-    // Three is a cap, not a count. A component picks from these and a skin picks between cut,
-    // bevelled and square from the same vocabulary; a fourth is what the rule exists to prevent.
-    const corners = ['--notch', '--corner-control', '--corner-nav'];
+    // Three is a cap on what a *component* may pick from, and #120 left it there while opening the
+    // panel's own corner to a skin: the shape is still one polygon, and what a genre moves is the
+    // depth at each of its four corners.
+    const corners = ['--corner-control', '--corner-nav'];
 
     for (const corner of corners) {
       expect(tokens.get(corner), `${corner} is a clip-path polygon`).toMatch(/^polygon\(/);
     }
 
-    // `--corner-control-inner` and `--notch-inner` are those treatments a second time, not two
-    // more treatments: a clipped border is shaved at the diagonals, so a button and a panel each
-    // paint their edge as a box and cover all but a pixel of it with a liner cut to the same
+    // The panel's is the third, and it is the one that is not here: a `var()` inside a custom
+    // property resolves where the property is declared, so a `--panel-corner` on `:root` would
+    // hand every panel the base depths however a skin set them. It is declared on `.panel` and
+    // `.panel__header` in `main.css` instead — see the test below, and tokens.css's own comment.
+    expect(tokens.get('--panel-corner'), 'the panel polygon is back on :root').toBeUndefined();
+
+    // `--corner-control-inner` and `--panel-corner-inner` are those treatments a second time, not
+    // two more treatments: a clipped border is shaved at the diagonals, so a button and a panel
+    // each paint their edge as a box and cover all but a pixel of it with a liner cut to the same
     // shape. The cap counts treatments, and there are still three; a genuinely new shape would
     // not be named after one of these.
     const declared = [...tokens.keys()].filter(
-      (name) => name.startsWith('--notch') || name.startsWith('--corner-'),
+      (name) => name.startsWith('--panel-corner') || name.startsWith('--corner-'),
     );
-    expect(declared.sort()).toEqual([...corners, '--corner-control-inner', '--notch-inner'].sort());
+    expect(declared.sort()).toEqual(
+      [
+        ...corners,
+        '--corner-control-inner',
+        '--panel-corner-tl',
+        '--panel-corner-tr',
+        '--panel-corner-br',
+        '--panel-corner-bl',
+      ].sort(),
+    );
+  });
+
+  it('writes the panel polygon once, from four depths', () => {
+    // docs/visual-design.md, "A skin sets four depths, and the polygon stays in the base". The
+    // whole mechanism is that a skin has numbers to move and no shape to write, which only holds
+    // while the shape is built from the depths rather than beside them.
+    const depths = {
+      '--panel-corner-tl': '0px',
+      '--panel-corner-tr': '9px',
+      '--panel-corner-br': '0px',
+      '--panel-corner-bl': '9px',
+    };
+
+    const panels = readFileSync(join(STYLES_DIR, 'main.css'), 'utf8');
+    const polygon = /--panel-corner:\s*polygon\(([^;]+)\);/.exec(panels)?.[1] ?? '';
+    const liner = /--panel-corner-inner:\s*polygon\(([^;]+)\);/.exec(panels)?.[1] ?? '';
+
+    for (const [name, value] of Object.entries(depths)) {
+      expect(tokens.get(name), `${name} is not the base cut`).toBe(value);
+      expect(polygon, `${name} is not read by the polygon`).toContain(`var(${name})`);
+      // The liner is the same four depths a pixel shallower, so the two outlines stay parallel at
+      // whatever depth a genre picks. `max()` because 0px - 1px is -1px, and a negative coordinate
+      // would pull the liner's outline outside the box it is meant to sit inside.
+      expect(liner, `${name} is not read by the liner`).toContain(
+        `max(0px, calc(var(${name}) - 1px))`,
+      );
+    }
+
+    // Declared on the elements that clip, and only those — anywhere higher and the depths resolve
+    // against that ancestor rather than against the panel, which is the bug this test exists for.
+    expect(panels, 'the panel polygon moved off the clipping elements').toContain(
+      '.panel,\n.panel__header {',
+    );
   });
 
   it('cuts the nav corner on one edge and the other two diagonally', () => {
     // The three shapes are easy to confuse and impossible to tell apart by name. The nav item is
     // square on its flush edge and cut at both corners of the inner one; the notch and the
     // control cut diagonally opposite corners, at 9px and 7px respectively.
-    expect(tokens.get('--notch')).toContain('9px');
+    expect(tokens.get('--panel-corner-tr')).toBe('9px');
     expect(tokens.get('--corner-control')).toContain('7px');
     // A liner sits 1px inside on every edge, so its cut is 1px shallower — that is what keeps the
-    // two diagonals parallel instead of converging. Both liners, at both scales.
+    // two diagonals parallel instead of converging. The panel's is arithmetic now rather than a
+    // second polygon, so only the control's is a literal.
     expect(tokens.get('--corner-control-inner')).toContain('6px');
-    expect(tokens.get('--notch-inner')).toContain('8px');
 
     expect(tokens.get('--corner-nav')).toContain('100% calc(100% - 7px)');
-    expect(tokens.get('--notch')).not.toContain('100% calc(100% - 9px)');
+    // The base panel is square at the two corners the notch does not take, which is what makes it
+    // a diagonal pair rather than a bevel.
+    expect(tokens.get('--panel-corner-tl')).toBe('0px');
+    expect(tokens.get('--panel-corner-br')).toBe('0px');
   });
 });
 
@@ -723,13 +775,20 @@ describe('the panel language', () => {
       expect(css).not.toMatch(/\.(badge|chip)(--)?[\w-]*\s*\{/);
       expect(css).not.toContain('--halo');
       expect(css).not.toContain('--lift');
-      expect(css).not.toContain('--notch');
+
+      // The corner is the one geometry a skin may move, and it moves it as four numbers. The
+      // polygon itself, and the liner's, stay in `tokens.css` where a skin cannot reach them —
+      // which is the line between setting a depth and redrawing the panel.
+      expect(css, `${name} redeclares the panel polygon`).not.toMatch(
+        /--panel-corner(-inner)?\s*:/,
+      );
+      expect(css, `${name} draws a shape of its own`).not.toContain('polygon(');
     },
   );
 
-  // The skins converted so far. `scifi.css` and `cyberpunk.css` join as #120 and #121 land; the
-  // list is meant only to grow, and a skin that is on it is held to the whole contract.
-  const CONVERTED_SKINS = ['fantasy.css'];
+  // The skins converted so far. `cyberpunk.css` joins as #121 lands; the list is meant only to
+  // grow, and a skin that is on it is held to the whole contract.
+  const CONVERTED_SKINS = ['fantasy.css', 'scifi.css'];
 
   it.each(CONVERTED_SKINS)('writes no colour value of its own in %s', (name) => {
     // The exemption granted when the controls landed — "their heading effects are full of hexes and
@@ -780,6 +839,48 @@ describe('the panel language', () => {
         'prefers-reduced-motion: reduce',
       );
     }
+  });
+
+  /** The four corner depths a skin file declares, in `tl tr br bl` order, or `[]` if it sets none. */
+  function cornerDepths(name: string): string[] {
+    const css = withoutComments(readFileSync(join(STYLES_DIR, name), 'utf8'));
+    const corners = ['tl', 'tr', 'br', 'bl'];
+
+    return corners
+      .map((corner) => new RegExp(`--panel-corner-${corner}\\s*:\\s*([^;]+);`).exec(css)?.[1])
+      .filter((depth): depth is string => depth !== undefined)
+      .map((depth) => depth.trim());
+  }
+
+  it.each(CONVERTED_SKINS)('cuts no corner deeper than the padding in %s', (name) => {
+    // `--s5` is 12px and it is the panel's padding. A corner cut deeper than the padding stops
+    // shaping the plate and starts taking the first character of the first line inside it, which
+    // is the one way a corner can cost something the design refuses to spend.
+    const depths = cornerDepths(name);
+    expect(depths, `${name} sets some corners and not others`).toHaveLength(4);
+
+    for (const depth of depths) {
+      const pixels = Number.parseFloat(depth);
+      expect(Number.isNaN(pixels), `${name} writes a corner depth that is not a length`).toBe(
+        false,
+      );
+      expect(pixels, `${name} cuts deeper than --s5`).toBeLessThanOrEqual(12);
+    }
+  });
+
+  it('gives every genre a shape of its own', () => {
+    // "A shape is a genre's, or it is furniture." The cap on corner treatments used to be three;
+    // #120 replaced it with one shape per genre, and this is the half of that rule no source sweep
+    // of a single file could catch — it is a statement about the skins as a set. Reading the files
+    // rather than a list is what covers a fifth genre on the day its file appears.
+    const base = ['0px', '9px', '0px', '9px'];
+    const shapes = new Map(CONVERTED_SKINS.map((name) => [name, cornerDepths(name).join(' ')]));
+
+    for (const [name, shape] of shapes) {
+      expect(shape, `${name} wears the base's own corner`).not.toBe(base.join(' '));
+    }
+
+    expect(new Set(shapes.values()).size, 'two genres wear the same shape').toBe(shapes.size);
   });
 });
 

@@ -41,8 +41,16 @@
      fantasy chip, kicker and figure colour is the one the app has. A skin that changes nothing
      here is a skin agreeing with the base, not a skin that forgot.
 
-     No corner override either. The vocabulary offers cut, bevelled and square, and the 9px cut in
-     "Elevation" was drawn for exactly this genre — fantasy's contribution is to leave it alone. */
+     The corner is a shield's foot: square shoulders, both bottom corners taken to `--s5`. This
+     line reverses #119, which left the corner alone on the grounds that the base's 9px cut was
+     drawn for this genre. True, and beside the point once every genre has a shape of its own — a
+     fantasy panel wearing the base's corner is the one skinned panel shaped like an unskinned one,
+     so the cut goes back to being the app's own neutral plate. See docs/visual-design.md, "The
+     four shapes, and why each is its genre's". */
+  --panel-corner-tl: 0px;
+  --panel-corner-tr: 0px;
+  --panel-corner-br: 12px;
+  --panel-corner-bl: 12px;
 }
 
 /* The display ink. Gold headings inside a panel, at 5.8:1 on the surface above — a colour, which a

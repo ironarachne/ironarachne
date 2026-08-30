@@ -55,6 +55,22 @@ async function setGenre(page: Page, genre: string): Promise<void> {
   await expect(page.locator('main.shell__page')).toHaveAttribute('data-genre', genre);
 }
 
+/** The rendered surface, clip and box of the first panel liner on the page. */
+async function panelShape(
+  page: Page,
+): Promise<{ surface: [number, number, number]; clip: string; box: string }> {
+  const surface = await panelSurface(page);
+  const rest = await page
+    .locator('.panel')
+    .first()
+    .evaluate((element) => {
+      const { width, height } = element.getBoundingClientRect();
+      return { clip: getComputedStyle(element).clipPath, box: `${width}x${height}` };
+    });
+
+  return { surface, ...rest };
+}
+
 test.describe('the fantasy skin', () => {
   test('reaches the panel, warms it, and never lightens it', async ({ page }) => {
     await openProject(page);
@@ -112,5 +128,55 @@ test.describe('the fantasy skin', () => {
       .evaluate((element) => getComputedStyle(element).backgroundImage);
 
     expect(headingPaint, 'the skin is still painting the type').toBe('none');
+  });
+});
+
+test.describe('the sci-fi skin', () => {
+  test('cools the panel without lightening it, and takes a shape of its own', async ({ page }) => {
+    await openProject(page);
+    const base = await panelShape(page);
+
+    await setGenre(page, 'scifi');
+    const scifi = await panelShape(page);
+
+    expect(scifi.surface, 'the skin did not reach the panel surface').not.toEqual(base.surface);
+
+    // It reads cool: more blue than red, the mirror of the fantasy assertion. Without it, "no
+    // lighter" could be satisfied by a skin that simply went darker and dressed nothing.
+    expect(scifi.surface[2], 'the sci-fi surface is not cool').toBeGreaterThan(scifi.surface[0]);
+
+    expect(
+      luminance(scifi.surface),
+      'a sci-fi panel is lighter than a base panel',
+    ).toBeLessThanOrEqual(luminance(base.surface));
+
+    // The corner: a machined plate, chamfered on all four rather than the base's diagonal pair.
+    // docs/visual-design.md, "The four shapes, and why each is its genre's".
+    expect(scifi.clip, 'the skin did not reach the corner').not.toEqual(base.clip);
+
+    // And the whole claim the corner rests on: a `clip-path` paints, it does not lay out. Two
+    // panels wearing different shapes are the same box, which is what decision 2 protects when it
+    // keeps geometry away from a skin — and what a skin reaching past the four depths would break.
+    expect(scifi.box, 'a skinned panel is not the size of a base panel').toEqual(base.box);
+  });
+
+  test('keeps its texture when motion is switched off', async ({ page }) => {
+    // The sci-fi surface carries two layers and only one of them moves: the scan is the ambient
+    // effect and goes under reduced motion, where the scanlines are *texture* and stay. This is
+    // the assertion that the genre survives the switch rather than falling back to a plain fill.
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await openProject(page);
+    await setGenre(page, 'scifi');
+
+    const paint = await page
+      .locator('.panel__field')
+      .first()
+      .evaluate((element) => ({
+        image: getComputedStyle(element).backgroundImage,
+        animation: getComputedStyle(element).animationName,
+      }));
+
+    expect(paint.animation, 'the scan still runs under reduced motion').toBe('none');
+    expect(paint.image, 'the scanlines went with the scan').toContain('repeating-linear-gradient');
   });
 });

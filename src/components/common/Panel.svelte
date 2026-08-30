@@ -4,7 +4,7 @@
   /**
    * The site's panel, in the one markup that can draw its own keyline.
    *
-   * A panel is cut at two corners (`--notch`), and a `clip-path` cuts everything the element
+   * A panel is cut at two corners (`--panel-corner`), and a `clip-path` cuts everything the element
    * paints — a `border` included. On the two diagonal edges the keyline is therefore sliced off,
    * at exactly the corners the treatment exists to make visible. That is why this component
    * exists, and it is the same reason `BaseButton` does: the outer element paints the edge colour
