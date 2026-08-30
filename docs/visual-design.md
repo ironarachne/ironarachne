@@ -2103,7 +2103,8 @@ both visibly warm and no lighter than slate returns exactly one recipe, and it i
 | Property          | Value                                                             | Measured                                                                            |
 | ----------------- | ----------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | `--panel-surface` | `color-mix(in srgb, var(--gold) 12%, var(--charcoal))`            | Warm; no lighter than slate                                                         |
-| `--panel-edge`    | `var(--border-strong)` — the tan keyline                          | —                                                                                   |
+| `--panel-edge`    | `var(--border-strong)` — the tan keyline                          | luminance 0.0823, in the register                                                   |
+| Gilt              | Gold corner pieces on the two cut corners, 24px arms              | Added by #156; 4%–7.5% of the perimeter, so a corner mark                           |
 | Heading colour    | `var(--accent-quiet)`, scoped to headings inside a panel          | 5.8:1, clears 4.5                                                                   |
 | `--accent-quiet`  | Unchanged. Gold is already the base's quiet accent                | —                                                                                   |
 | Corner            | A shield's foot — both bottom corners at `--s5`, square shoulders | Amended by #120; see [the four shapes](#the-four-shapes-and-why-each-is-its-genres) |
@@ -2115,6 +2116,32 @@ it alone and let the skins that wanted a different corner pay for it. What that 
 genre wants one — so the base's shape stops being fantasy's by inheritance and fantasy takes a
 shield's foot instead, leaving the cut as the app's own neutral plate. The mechanism and the two
 lines that do it are #120's.
+
+**The gilt is the device, and it is on the foot.** Added by
+[#156](https://github.com/ironarachne/ironarachne/issues/156), which closed the gap the four skin
+issues left: fantasy was converted first and so was written before either of the ideas that made the
+other two skins legible — sci-fi's texture and cyberpunk's corner marks — and it stayed a surface, a
+flat keyline and a sheen while they gained a device each.
+
+It uses the mechanism [#121 proved](#the-keyline-is-four-corner-marks-not-a-hairline) rather than a
+new one: `--panel-edge` is the background of the 1px ring, so a gold block placed at a corner is
+visible only where that ring is. **Placed at the two _cut_ corners**, which is what separates it from
+cyberpunk's brackets and is the whole point of the choice: the clip runs a diagonal through that
+corner, the liner covers everything but a pixel of it, and what is left of a 24px block is the mitre
+itself with a short run of gilt flanking it on each edge. A bound book's metal corners, and the one
+place this skin's shape and its keyline say the same thing — where cyberpunk marks the four corners
+its shape leaves square, fantasy gilds the two its shape cuts.
+
+Gold is luminance 0.40, which the register forbids on a keyline that runs the whole perimeter and
+[#121's area exemption](#a-corner-mark-is-not-a-keyline-and-the-register-knows-the-difference)
+permits on a mark: 24px arms at two corners are 4% of a wide panel's perimeter and 7.5% of a small
+one's, against a fifth. **No rule moves for this** — it is the first thing built on that exemption
+rather than the reason for it, which is the test of whether the exemption was drawn at the right
+size.
+
+The tan hairline stays continuous around the rest at 0.0823. The gilt is not a second keyline
+replacing it; it is the same edge, richer at the two corners the eye already goes to because the
+shape changes there.
 
 **The sheen is the shimmer, moved.** A gold gradient band crossing the panel surface on a long
 cycle, painted as a background layer on the liner rather than as an element, so it touches nothing
@@ -2145,10 +2172,12 @@ the skin is forbidden to touch. Three constraints on it:
   four depth properties it reads are the one exception — see [what the sci-fi skin
   enforces](#what-the-sci-fi-skin-enforces).)
 
-And one in the browser, because it is the whole point and cannot be read off the source: an e2e
-check that a fantasy panel's computed surface is **no lighter** than a base panel's. That is the
-rule above, and it is what a future skin — or a future tweak to this one — would otherwise break
-silently.
+And two in the browser, because neither can be read off the source: an e2e check that a fantasy
+panel's computed surface is **no lighter** than a base panel's — the rule above, and what a future
+skin or a future tweak to this one would otherwise break silently — and, since #156, that its gilt
+is a corner mark by the same measurement cyberpunk's marks answer to. Gold at luminance 0.40 is only
+allowed on a panel while it stays under a fifth of the perimeter, and a panel's perimeter is a thing
+only the browser knows.
 
 ## The sci-fi skin, and the corner every genre gets
 

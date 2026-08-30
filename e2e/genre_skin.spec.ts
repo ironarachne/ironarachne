@@ -40,6 +40,59 @@ function luminance([r, g, b]: [number, number, number]): number {
   return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
 }
 
+/**
+ * What a skin paints into the 1px ring `--panel-edge` fills, measured against the box it painted on.
+ *
+ * docs/visual-design.md, "A corner mark is not a keyline, and the register knows the difference":
+ * a keyline running the whole perimeter is held to a luminance register, and a mark covering under a
+ * fifth of it may go to full palette brightness instead. Which of the two a skin has written is a
+ * relationship between its layers and the rendered size of the panel, so it is only answerable here.
+ *
+ * A layer at a corner paints along both edges that meet there, so its contribution is its width plus
+ * its height — 24 + 24 for a square gilt block, 18 + 1 for a bracket arm.
+ *
+ * Only the image-bearing layers count. `background: <gradient>, <gradient>, <colour>` is three
+ * layers, not two with a colour: the last one carries the fill and reports `none`, `repeat` and
+ * `auto auto`, and counting it would fail a skin for the hairline it wears everywhere the marks are
+ * not. Both skins that paint marks put their images first, which is the order this relies on.
+ */
+async function cornerMarks(
+  page: Page,
+): Promise<{ layers: number; repeats: string[]; painted: number; perimeter: number }> {
+  return page
+    .locator('.panel')
+    .first()
+    .evaluate((element) => {
+      const computed = getComputedStyle(element);
+      const { width, height } = element.getBoundingClientRect();
+      // Counted by gradient rather than by comma: each layer's own `rgb(…)` stops carry commas of
+      // their own, so splitting the string counts sixteen of eight.
+      const layers = (computed.backgroundImage.match(/linear-gradient\(/g) ?? []).length;
+
+      const painted = computed.backgroundSize
+        .split(',')
+        .slice(0, layers)
+        .map((size) =>
+          size
+            .trim()
+            .split(/\s+/)
+            .map(Number.parseFloat)
+            .reduce((total, side) => total + side, 0),
+        )
+        .reduce((total, layer) => total + layer, 0);
+
+      return {
+        layers,
+        repeats: computed.backgroundRepeat
+          .split(',')
+          .slice(0, layers)
+          .map((value) => value.trim()),
+        painted,
+        perimeter: 2 * (width + height),
+      };
+    });
+}
+
 /** A project with a panel on screen, and a genre that can be changed without a reload. */
 async function openProject(page: Page): Promise<void> {
   await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
@@ -105,6 +158,28 @@ test.describe('the fantasy skin', () => {
     expect(barPaint, 'the skin reached the top bar').toBe('none');
     await expect(page.locator('.top-bar')).not.toHaveAttribute('data-genre');
     await expect(page.locator('.sidebar')).not.toHaveAttribute('data-genre');
+  });
+
+  test('gilds the two corners its shape cuts, and stays a corner mark', async ({ page }) => {
+    // #156: the device fantasy went without while the other two skins gained one. Gold is luminance
+    // 0.40, which the register forbids on a keyline that runs the whole perimeter — so this is only
+    // permitted while it stays a mark, and that is a measurement against the rendered box.
+    await openProject(page);
+    await setGenre(page, 'fantasy');
+
+    const marks = await cornerMarks(page);
+
+    // Two blocks, at the two corners the shield's foot cuts. The tan hairline the rest of the
+    // perimeter wears is a background *colour*, so it is not one of these layers.
+    expect(marks.layers, 'the gilt is not painted at the corners').toBe(2);
+    expect(marks.repeats, 'the gilt repeats, which would make it a keyline').toEqual([
+      'no-repeat',
+      'no-repeat',
+    ]);
+
+    expect(marks.painted, 'the gilt covers more than a fifth of the perimeter').toBeLessThanOrEqual(
+      marks.perimeter / 5,
+    );
   });
 
   test('puts its one effect on the surface rather than on the type', async ({ page }) => {
@@ -211,45 +286,23 @@ test.describe('the cyberpunk skin', () => {
 
   test('earns its brightness by covering a fifth of the perimeter at most', async ({ page }) => {
     // The rule that lets this skin wear undiluted acid and magenta where the register would
-    // otherwise forbid them: a corner mark is not a keyline. Checked in the browser because it is a
-    // relationship between what the skin paints and how big the panel it painted on turned out to
-    // be — which no source sweep can see.
+    // otherwise forbid them: a corner mark is not a keyline.
     await openProject(page);
     await setGenre(page, 'cyberpunk');
 
-    const keyline = await page
-      .locator('.panel')
-      .first()
-      .evaluate((element) => {
-        const computed = getComputedStyle(element);
-        const { width, height } = element.getBoundingClientRect();
-        return {
-          // Counted by gradient rather than by comma: each layer's own `rgb(…)` stops carry
-          // commas of their own, so splitting the string counts sixteen of eight.
-          layers: (computed.backgroundImage.match(/linear-gradient\(/g) ?? []).length,
-          repeat: computed.backgroundRepeat,
-          sizes: computed.backgroundSize,
-          perimeter: 2 * (width + height),
-        };
-      });
+    const marks = await cornerMarks(page);
 
     // Eight layers: two arms at each of four corners.
-    expect(keyline.layers, 'the keyline is not painted as corner marks').toBe(8);
+    expect(marks.layers, 'the keyline is not painted as corner marks').toBe(8);
+
     // Every layer, not just some: one repeating layer would run an arm the length of the panel and
     // make the whole argument for full brightness untrue.
-    expect(
-      keyline.repeat.split(',').map((value) => value.trim()),
-      'a mark repeats, which would make it a hairline',
-    ).toEqual(Array.from({ length: 8 }, () => 'no-repeat'));
+    expect(marks.repeats, 'a mark repeats, which would make it a hairline').toEqual(
+      Array.from({ length: 8 }, () => 'no-repeat'),
+    );
 
-    // Every arm's long side, totalled, against the perimeter it sits on.
-    const arms = keyline.sizes
-      .split(',')
-      .map((size) => Math.max(...size.trim().split(/\s+/).map(Number.parseFloat)));
-    const painted = arms.reduce((total, arm) => total + arm, 0);
-
-    expect(painted, 'the marks cover more than a fifth of the perimeter').toBeLessThanOrEqual(
-      keyline.perimeter / 5,
+    expect(marks.painted, 'the marks cover more than a fifth of the perimeter').toBeLessThanOrEqual(
+      marks.perimeter / 5,
     );
   });
 
