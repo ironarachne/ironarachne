@@ -1,3 +1,4 @@
+import amulet from '$lib/assets/icons/set2/necklece.svg?raw';
 import {
   acceptedPayload,
   asRecord,
@@ -101,6 +102,7 @@ export function migrateReligionSnapshot(
 export const religionArtifactKind = defineArtifactKind<RestoredReligion, ReligionSnapshot>({
   kind: RELIGION_ARTIFACT_KIND,
   displayName: 'Religion',
+  icon: amulet,
   payloadVersion: RELIGION_PAYLOAD_VERSION,
   // Deferred like every kind's codec. A religion is the cheap case — the module it loads is
   // small — but a contract that some kinds follow and others do not is not a contract, and a

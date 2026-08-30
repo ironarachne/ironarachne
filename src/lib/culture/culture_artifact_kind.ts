@@ -1,3 +1,4 @@
+import book from '$lib/assets/icons/set3/book.svg?raw';
 import {
   acceptedPayload,
   asRecord,
@@ -166,6 +167,7 @@ export function migrateCultureSnapshot(
 export const cultureArtifactKind = defineArtifactKind<Culture, CultureSnapshot>({
   kind: CULTURE_ARTIFACT_KIND,
   displayName: 'Culture',
+  icon: book,
   payloadVersion: CULTURE_PAYLOAD_VERSION,
   // Deferred like every kind's codec, and for the same reason the heraldry one is: this side
   // reaches `$lib/names` and the made-up-names generators, which nothing that merely lists or

@@ -1,3 +1,4 @@
+import house from '$lib/assets/icons/set1/house.svg?raw';
 import {
   acceptedPayload,
   asRecord,
@@ -235,6 +236,7 @@ export function migrateSettlementSnapshot(
 export const settlementArtifactKind = defineArtifactKind<Settlement, SettlementSnapshot>({
   kind: SETTLEMENT_ARTIFACT_KIND,
   displayName: 'Settlement',
+  icon: house,
   payloadVersion: SETTLEMENT_PAYLOAD_VERSION,
   loadCodec: async () => {
     const [{ toSettlementSnapshot }, { settlementFromSnapshot }] = await Promise.all([

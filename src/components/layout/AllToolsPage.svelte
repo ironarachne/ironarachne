@@ -1,6 +1,8 @@
 <script lang="ts">
   import { resolve } from '$app/paths';
   import { allTools, groupToolsByDomain, searchTools } from '$lib/tools';
+  import { DOMAIN_MARKS } from '$lib/tool_marks';
+  import Icon from '$components/common/Icon.svelte';
   import ToolMaturityBadge from '$components/common/ToolMaturityBadge.svelte';
 
   const tools = allTools();
@@ -57,7 +59,12 @@
   <div class="all-tools__list">
     {#each groups as group (group.domain)}
       <section class="all-tools__group">
-        <h2>{group.heading}</h2>
+        <!-- The domain's mark, twice over: once on the heading and once per row. It is a
+             classifier rather than decoration, which is the one exception to "one mark per
+             surface" — repeating beside every tool is what classifying is. `aria-hidden` in both
+             places, because the domain is already in the heading and announcing it thirty-four
+             times is noise. See docs/visual-design.md, "The domain marks". -->
+        <h2><Icon icon={DOMAIN_MARKS[group.domain]} class="all-tools__mark" />{group.heading}</h2>
         <ul>
           {#each group.tools as tool (tool.path)}
             <li>
@@ -70,7 +77,10 @@
                    a value typed as the union of every route id does not satisfy it. Every catalog
                    path is a parameterless static route, as the home page's featured links are. -->
               <a class="all-tools__tool inset" href={resolve(tool.path as '/')}>
-                <span class="all-tools__name">{tool.label}</span>
+                <span class="all-tools__label">
+                  <Icon icon={DOMAIN_MARKS[group.domain]} />
+                  <span class="all-tools__name">{tool.label}</span>
+                </span>
                 <!-- Same rule the workshop's browser follows, settled in #43: a release-ready tool
                      says nothing, because the level is a qualifier on what will happen to the
                      user's work rather than a grade. An unmarked row is a finished tool. -->
@@ -124,6 +134,10 @@
     margin-top: 1.5rem;
   }
 
+  .all-tools__group :global(.all-tools__mark) {
+    margin-right: var(--s3);
+  }
+
   .all-tools__group h2 {
     color: var(--gold);
     font-size: 0.85rem;
@@ -165,6 +179,15 @@
   .all-tools__tool:hover,
   .all-tools__tool:focus-visible {
     border-color: var(--tan);
+  }
+
+  /* The mark and the name are one thing, so the row's `space-between` pushes the maturity badge
+     away from the pair rather than pushing the mark away from the name it classifies. */
+  .all-tools__label {
+    align-items: baseline;
+    display: flex;
+    gap: var(--s3);
+    min-width: 0;
   }
 
   .all-tools__name {

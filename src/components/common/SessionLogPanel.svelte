@@ -14,6 +14,8 @@
   import { findToolByPath } from '$lib/tools';
   import { showConfirmModal } from '$lib/ui';
   import { hasToolPanel } from '$lib/workshop';
+  import roll from '$lib/assets/icons/set3/roll.svg?raw';
+  import Icon from '$components/common/Icon.svelte';
   import ListButton from '$components/common/ListButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
   import Panel from '$components/common/Panel.svelte';
@@ -108,7 +110,13 @@
 
   <div class="session-log__list well">
     {#if visible.length === 0}
-      <p class="session-log__empty">Nothing rolled yet.</p>
+      <!-- Same reasoning as the vault's empty shelf: a mark makes an empty list read as a list
+           rather than as a failure to load. Hidden from the accessibility tree; the sentence is
+           the whole message. -->
+      <p class="session-log__empty">
+        <Icon icon={roll} class="session-log__empty-mark" />
+        Nothing rolled yet.
+      </p>
     {:else}
       <ul>
         {#each visible as entry (entry.id)}
@@ -183,6 +191,15 @@
     letter-spacing: normal;
     color: var(--ink-muted);
     overflow-wrap: anywhere;
+  }
+
+  .session-log__empty :global(.session-log__empty-mark) {
+    /* An empty surface has nothing for a mark to accompany, so this one takes a ramp step of its
+       own rather than inheriting one — at `1em` it reads as a typo beside the sentence. A step
+       from the ramp rather than a multiple of the text, which is what keeps it off a sixth scale. */
+    font-size: var(--t-display-size);
+    margin-right: var(--s3);
+    vertical-align: -0.15em;
   }
 
   .session-log__empty {

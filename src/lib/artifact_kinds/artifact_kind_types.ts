@@ -74,6 +74,19 @@ export type ArtifactKindEntry<TValue, TSnapshot> = {
   kind: ArtifactKind;
   /** What a user sees for the kind, e.g. "Coat of Arms". */
   displayName: string;
+  /**
+   * The kind's mark, imported from `src/lib/assets/icons` with `?raw`.
+   *
+   * Optional, and deliberately so: a kind that reads fine without one should not have to invent
+   * one, and a surface with no mark to show shows none rather than a generic placeholder — a
+   * placeholder mark is a sticker. See docs/visual-design.md, "An artifact kind carries its own
+   * mark".
+   *
+   * It lives with the registration because a kind is registered once and read everywhere: the
+   * vault, the project view and the picker would otherwise each keep a lookup table of the same
+   * five answers.
+   */
+  icon?: string;
   /** The version of the snapshot shape this build writes. Starts at 1 and only ever rises. */
   payloadVersion: number;
   /** Loads the conversion pair. See {@link ArtifactKindCodec} for why it is not inline. */
