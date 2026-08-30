@@ -123,9 +123,27 @@ techniques the contract refuses, listed where they are refused rather than dropp
 revises #120's reserved shape for this genre from a 12px slash to four square corners: a cut corner
 truncates the bracket that is meant to sit in it.
 
-Awaiting approval, unlike the amendments above it, which are built: #121 is `needs-design`, and the
-motion floor, the corrected register and the surface that spends its own separation are what
-CLAUDE.md's review gate asks a human to approve before implementation starts.
+Approved and built.
+
+**Amended 2026-08-30 by [#158](https://github.com/ironarachne/ironarachne/issues/158)**, which is a
+correction rather than a section: the surface rule governed `--panel-surface` and said nothing about
+the layers painted on it, and every layer that existed lightened — taking `--ink-faint` to 4.18:1,
+4.02:1 and 4.29:1 against its 4.5:1 floor. Anything a skin paints where text can sit may only darken
+now, which is stated in [the surface rule](#a-skins-surface-is-never-lighter-than-the-bases) and
+swept. No surface moved.
+
+**Amended 2026-08-30 by [#122](https://github.com/ironarachne/ironarachne/issues/122)**, which adds
+[the horror skin, and the discipline of not startling anyone](#the-horror-skin-and-the-discipline-of-not-startling-anyone)
+— the fourth genre, the only one with no file to rewrite, and the first written under the whole
+contract rather than converted into it. It adds one rule: **a skin may not paint a tone's colour as
+its keyline**, because neat crimson is `--danger`, and a genre wearing it would make a horror project
+look like a page of failed writes and hide the one panel that had really failed. The rest is the
+contract used as intended: an institutional green surface with room under the readability ceiling, a
+blood stain that darkens, and the slowest ambient effect in the app at 60s.
+
+Awaiting approval, unlike the amendments above it, which are built: #122 is `needs-design`, and the
+tone rule, the surface and the 60s breath are what CLAUDE.md's review gate asks a human to approve
+before implementation starts.
 
 **Amended 2026-08-30, in review of the above:** every genre gets a panel shape of its own, which
 replaces the "three corner treatments" cap rather than extending it. The panel's polygon is written
@@ -2272,13 +2290,13 @@ and to the skin above it, and the control and nav treatments are untouched by an
 
 ### The four shapes, and why each is its genre's
 
-| Genre         | tl  | tr   | br   | bl   | Reads as                                                                                    |
-| ------------- | --- | ---- | ---- | ---- | ------------------------------------------------------------------------------------------- |
-| _Base_        | 0   | 9px  | 0    | 9px  | The app's own plate. Neutral, and what a projectless page keeps                             |
-| **Fantasy**   | 0   | 0    | 12px | 12px | A shield's foot: square shoulders, both bottom corners taken deep                           |
-| **Sci-fi**    | 9px | 9px  | 9px  | 9px  | A machined plate, chamfered on every edge by the same amount                                |
-| **Cyberpunk** | 0   | 0    | 0    | 0    | Four knife edges. Revised from a 12px slash by #121; its corner marks sit where the cut was |
-| **Horror**    | 3px | 11px | 5px  | 8px  | Nothing agrees with anything. Wrong in a way the eye catches and cannot name                |
+| Genre         | tl  | tr   | br   | bl   | Reads as                                                                                        |
+| ------------- | --- | ---- | ---- | ---- | ----------------------------------------------------------------------------------------------- |
+| _Base_        | 0   | 9px  | 0    | 9px  | The app's own plate. Neutral, and what a projectless page keeps                                 |
+| **Fantasy**   | 0   | 0    | 12px | 12px | A shield's foot: square shoulders, both bottom corners taken deep                               |
+| **Sci-fi**    | 9px | 9px  | 9px  | 9px  | A machined plate, chamfered on every edge by the same amount                                    |
+| **Cyberpunk** | 0   | 0    | 0    | 0    | Four knife edges. Revised from a 12px slash by #121; its corner marks sit where the cut was     |
+| **Horror**    | 3px | 11px | 5px  | 8px  | Nothing agrees with anything. Wrong in a way the eye catches and cannot name. Confirmed by #122 |
 
 Sci-fi's is the one this issue builds, and it is the plainest of the four on purpose: the genre's
 argument is made by a cool plate, a plasma keyline and a scan, and a corner that shouted over them
@@ -2711,6 +2729,162 @@ And two in the browser, because both are computed:
   present and non-zero. The fill separation is gone by design; this is the assertion that says what
   is carrying the affordance instead, and it is the one thing about this skin a later change could
   quietly break.
+
+## The horror skin, and the discipline of not startling anyone
+
+[#122](https://github.com/ironarachne/ironarachne/issues/122) is the fourth genre and the only one
+with nothing to rewrite: `GENRES` has held `horror` since before this document existed, two tools are
+tagged with it, and a project set to horror gets the base appearance by omission rather than by
+decision. It is also the first skin written under the whole contract rather than converted into it,
+and the first with three finished siblings to be distinct **from** — a surface, a keyline, a shape, a
+device and an effect each have to miss three occupied positions.
+
+Drawn against [horror aesthetics in
+UX](https://medium.com/@yfxpdbw/designing-for-nightmares-the-role-of-horror-aesthetics-in-user-experience-1499b307de8a)
+and the genre's own reference points — Resident Evil's institutional corridors, Diablo's near-black
+grounds and dried blood.
+
+### What horror may not do in a tool somebody keeps open
+
+The reference's devices are mostly events: "a bright flash of red in an otherwise dark environment
+can create a sudden shock", glitch displacement, sudden visual change. **None of them ships**, and
+the reason is the same one that killed the cyberpunk flicker in
+[#121](#the-flicker-does-not-survive-and-that-is-the-point): a generator is open for an afternoon,
+and a thing that startles you at minute ninety is a thing you turn off — taking the genre with it.
+
+The reference is direct about that limit itself, warning against designs that "cross ethical
+boundaries", and it names its most-emphasised technique as sound. **Sound was already refused
+here**, by [decision 4](#4-sound-on-press-does-not-ship), for a different reason and before any of
+this was written. That the horror reference's first tool is the one the design had already declined
+is worth noting rather than quietly working around.
+
+What is left is the half that works in software people use: **dread rather than shock**. The genre
+comes from the surface being wrong — the wrong green, a stain that was there when you arrived, a
+shape whose corners do not agree — and never from something happening. The one moving thing in this
+skin is slower than anything else in the app.
+
+### The surface is the morgue, not the blood
+
+Red is the obvious horror colour and it is the wrong one for the plate: everything a panel holds
+sits on this, and a red field under a page of generated text is a page nobody reads. The
+institutional green-grey of a room designed to be hosed down is the horror surface, and the blood
+goes on it.
+
+`color-mix(in srgb, var(--emerald) 14%, var(--charcoal))` — `rgb(30 41 42)`, luminance 0.0201:
+
+| Measured against the horror surface | Figure | On a base panel |
+| ----------------------------------- | ------ | --------------- |
+| `--ink`                             | 13.6:1 | 12.2:1          |
+| `--ink-muted`                       | 7.1:1  | 6.3:1           |
+| `--ink-faint`                       | 5.15:1 | 4.65:1          |
+
+It is also **the first surface designed after [#158](#a-skins-surface-is-never-lighter-than-the-bases)**,
+and it shows: at 0.0201 it holds 0.0102 of headroom under the readability ceiling where fantasy and
+sci-fi hold 0.0026. Those two were drawn as close to the ceiling as the old rule allowed, which is
+what left them no room for the layers they went on to paint. This one is drawn with the layers in
+mind.
+
+### The keyline is old blood, and deliberately not `--danger`
+
+Neat crimson is luminance 0.0882, comfortably inside the register — so the rule would allow it, and
+it must not be used, because **crimson _is_ `--danger`**. [A toned
+panel](#four-tones-and-two-of-them-cannot-be-said-in-words) sets `--panel-edge: var(--danger)` to say
+a write failed, and a genre painting that same edge on every panel would make a horror project look
+like a page of failures — and would make the one panel that really had failed indistinguishable from
+its neighbours.
+
+> **A skin may not paint a tone's colour as its keyline.** `--danger` and `--success` mean something
+> the app says about an event; a genre means nothing about any event at all.
+
+So `color-mix(in srgb, var(--crimson) 50%, var(--granite))` — `rgb(100 63 69)`, luminance 0.0661,
+inside the register and a step off the tone. Old blood rather than fresh, which is the more horror
+answer in any case.
+
+### The stain, and the fourth device
+
+Three device positions are taken: sci-fi rules the surface with lines, fantasy gilds two corners of
+the ring, cyberpunk marks four. Horror takes the one shape none of them is — **a blot** — and puts
+it on the surface rather than in the ring: a bloom of dried blood in the bottom-right corner, soaked
+into the plate, there before you arrived and never explained.
+
+`color-mix(in srgb, var(--crimson) 45%, black)` laid over the surface at 35% — `rgb(41 36 36)`,
+luminance 0.0185, `--ink-faint` 5.28:1 across it. It **darkens**, which is #158's rule and which is
+also what a stain does: blood on a green floor is a dark patch, not a bright one. This is the first
+device built under that rule rather than corrected into it.
+
+Bottom-right because it is the corner a reader reaches last, and because the panel's own furniture —
+the header plate, the first line of text — all live at the top left. The stain is in the part of the
+panel you see without looking at.
+
+### The effect is a breath, and it is the slowest thing in the app
+
+One effect, and it is the article's tension-and-relief cycle rather than its shocks: a **vignette
+that closes and recedes on a 60s cycle**, darkening the surface toward its edges and easing back.
+Something in the room is breathing, and it is never doing anything else.
+
+| Skin       | Cycle   |
+| ---------- | ------- |
+| Cyberpunk  | 24s     |
+| Fantasy    | 40s     |
+| Sci-fi     | 45s     |
+| **Horror** | **60s** |
+
+Sixty seconds is three times [#121's floor](#what-the-cyberpunk-skin-enforces) and slow enough that a
+reader never catches it moving — they notice only that the panel is not quite as it was. That is the
+uncanny the reference asks for, at a rate that cannot startle anyone. It darkens in both directions,
+so it can never cost contrast, and under `prefers-reduced-motion: reduce` the vignette holds at its
+open state with the stain untouched: the genre survives the switch, as it does in the other three.
+
+### The shape nothing agrees with
+
+`3px / 11px / 5px / 8px`, reserved by [#120](#the-four-shapes-and-why-each-is-its-genres) and
+confirmed here. Every other genre's shape states a rule — the base cuts a diagonal pair, sci-fi
+chamfers all four, fantasy takes its foot, cyberpunk refuses to cut at all. This one states no rule:
+four different depths, none matching another, in a system whose whole argument is that the ramps
+agree with each other.
+
+**It is the one genre that can carry that**, which is why it was reserved rather than assigned. An
+uneven shape reads as a mistake anywhere else; here the mistake is the point, and it is legible only
+because three siblings are regular. Every depth is inside `--s5`, so it costs nothing but the
+disagreement.
+
+### The horror skin
+
+| Property          | Value                                                     | Measured                              |
+| ----------------- | --------------------------------------------------------- | ------------------------------------- |
+| `--panel-surface` | `color-mix(in srgb, var(--emerald) 14%, var(--charcoal))` | `rgb(30 41 42)`, luminance 0.0201     |
+| `--panel-edge`    | `color-mix(in srgb, var(--crimson) 50%, var(--granite))`  | 0.0661, in the register, off the tone |
+| Corner depths     | `3px` / `11px` / `5px` / `8px`                            | Nothing agrees; all inside `--s5`     |
+| `--accent`        | `color-mix(in srgb, var(--crimson) 45%, var(--ink))`      | `rgb(197 160 160)`, 6.35:1            |
+| `--accent-quiet`  | **Unchanged.** Gold is the message tone                   | —                                     |
+| Heading colour    | `var(--accent)`, scoped to headings inside a panel        | 6.35:1, clears 4.5                    |
+| Static device     | A crimson-into-black bloom in the bottom-right corner     | 0.0185; `--ink-faint` 5.28:1          |
+| Ambient effect    | A vignette breathing on a 60s cycle, darkening only       | The slowest cycle in the app          |
+
+**The accent is blood on bone, because crimson cannot be text.** Crimson is 2.2:1 on charcoal and is
+never a text colour — [colour roles](#colour-roles) has said so since it was written — so a genre
+whose colour is blood has to lighten it to say anything in words. Crimson 45% into `--ink` is
+`rgb(197 160 160)` at 6.35:1: a blanched, drained red that is legible at label size and reads as
+old rather than fresh. It is the fourth distinct accent, after gold, cyan and magenta, and the halo
+follows it as [sci-fi settled](#the-accent-moves-and-the-halo-follows-it) that it may.
+
+### What the horror skin enforces
+
+- **`horror.css` joins `CONVERTED_SKINS`, and the set is complete.** Four genres, four skin files,
+  every sweep applying to all of them: the hex sweep, the type-ramp sweep, the one-effect cap, the
+  20s motion floor, the depth cap, the darkening rule and the distinctness rule. `GENRES` and the
+  skin directory finally hold the same four names.
+- **No skin paints a tone's colour as its keyline.** `--panel-edge` in a skin file resolves to
+  neither `var(--danger)` nor `var(--success)`. This is the rule this issue adds, and it is the one
+  a future genre reaching for red would break first — the check costs nothing and the failure it
+  prevents is a horror project that looks like a page of failed writes.
+- **The distinctness sweep covers four shapes**, which is the number it was written for and the
+  first time it has had them.
+
+And in the browser: the surface is no lighter than a base panel's and reads **green** — more green
+than red, the third of the four hue assertions after fantasy's warmth and sci-fi's cool — the breath
+runs no faster than the floor, and under reduced motion the stain is still there while the vignette
+holds still.
 
 ## Enforcement
 
