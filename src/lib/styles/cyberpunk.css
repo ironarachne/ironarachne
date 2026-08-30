@@ -1,71 +1,126 @@
-@keyframes rapid-pulse-neon {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 5px var(--acid-green)) drop-shadow(0 0 10px var(--acid-green));
-  }
-  50% {
-    filter: drop-shadow(0 0 2px var(--acid-green)) drop-shadow(0 0 4px var(--acid-green));
-  }
-}
+/* The cyberpunk skin: a panel skin over the base system, and nothing more.
+ *
+ * See docs/visual-design.md, "The cyberpunk skin, and what a keyline is measured against". Before
+ * #121 this file styled `h1`-`h6` and only `h1`-`h6`, with *two* animations at once: a 1.5s neon
+ * pulse and a 4s LED fault whose hard cuts landed 40ms apart. That was a strobe on text somebody
+ * was reading, and the only thing in the app that went anywhere near WCAG 2.3.1's three flashes
+ * per second. The genre keeps the idea and loses the rate.
+ *
+ * Drawn against Cyberpunk 2077's screen language, which supplies the L-bracket corner mark, the
+ * near-black ground and the knife-edge corner. Three of its devices are refused because the
+ * contract refuses them — glow-based elevation is `--lift` and `--halo`, the condensed-caps-over-
+ * monospace type is the type ramp, and density-first layout is the space ramp. What is left is a
+ * surface, a keyline and one effect, which is exactly what decision 2 hands a skin.
+ */
 
-@keyframes defective-led {
+/* The one ambient effect: a bad ballast in the sign. Every mark drops out together for 250ms once
+   in twenty-four seconds — 0.04Hz, against a 3Hz threshold, on eight hairlines rather than a field.
+   The size list is the eight layers of `--panel-edge` below, in the same order, which is what makes
+   this a dip in the marks rather than a change to them. */
+@keyframes cyberpunk-ballast {
   0%,
-  10%,
-  12%,
-  40%,
-  42%,
-  44%,
-  80%,
-  100% {
-    background-position: 0% 0%;
+  96.9%,
+  99.9% {
+    background-size:
+      18px 1px,
+      1px 18px,
+      18px 1px,
+      1px 18px,
+      18px 1px,
+      1px 18px,
+      18px 1px,
+      1px 18px;
   }
-  11%,
-  41%,
-  43% {
-    background-position: 100% 0%;
+  97%,
+  99.8% {
+    background-size:
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0,
+      0 0;
   }
 }
 
 [data-genre='cyberpunk'] {
-  & h1,
-  & h2,
-  & h3,
-  & h4,
-  & h5,
-  & h6 {
-    /* Base broken/dim state for dark letters */
-    color: transparent;
+  /* The app's own sunken fill, given a violet cast. "Inset black" is the instruction and this is as
+     black as the palette goes: `brand/colors.css` says pure #000 is never used, so the genre gets
+     charcoal-into-black rather than black.
 
-    /* Active bright neon linear gradient map with "dead" spots */
-    background-image: linear-gradient(
-      90deg,
-      #d8f6b0 0%,
-      #d8f6b0 15%,
-      rgba(216, 246, 176, 0.2) 15%,
-      rgba(216, 246, 176, 0.2) 20%,
-      #d8f6b0 20%,
-      #d8f6b0 45%,
-      rgba(216, 246, 176, 0.2) 45%,
-      rgba(216, 246, 176, 0.2) 50%,
-      #d8f6b0 50%,
-      #d8f6b0 75%,
-      rgba(216, 246, 176, 0.2) 75%,
-      rgba(216, 246, 176, 0.2) 85%,
-      #d8f6b0 85%,
-      #d8f6b0 100%
-    );
-    background-size: 200% 100%;
-    -webkit-background-clip: text;
-    background-clip: text;
+     Every ink role is better here than anywhere else in the app — 15.3:1, 8.0:1 and 5.8:1 against
+     12.2, 6.3 and 4.6 on a base panel — which is what going dark buys. What it costs is separation:
+     1.01:1 against the page and 1.05:1 against a control's own fill, where a base panel is 1.32:1.
+     Neither was ever the mechanism. A control is raised by `--edge` or sunk by `--sink`, and a panel
+     is identified by its keyline and its corner; this genre spends those affordances rather than
+     duplicating them, which is why its keyline is allowed to be the loudest in the app. */
+  --panel-surface: color-mix(in srgb, var(--amethyst) 10%, var(--surface-inset));
 
-    /* Rapid pulsing glow + shifting background for broken letters */
-    animation:
-      rapid-pulse-neon 1.5s infinite ease-in-out,
-      defective-led 4s infinite;
+  /* Four L-bracket corner marks, not a hairline. `--panel-edge` is painted as the *background* of
+     the box the liner sits a pixel inside, so it takes layered gradients as well as it takes a
+     colour, and that 1px ring is where they land. Eight no-repeat layers — two arms per corner,
+     18px along and 1px thick — leave the runs between them unpainted, and what shows through is the
+     page.
+
+     Horizontals acid, verticals magenta: the issue's "acid keyline with a magenta edge" as one
+     device rather than two. Undiluted, which the register above a panel would otherwise forbid at
+     luminance 0.795 — a corner mark covering under a fifth of the perimeter is exempt, because
+     halation is a property of a long bright line and a wireframe of a closed one, and eight 18px
+     arms are neither. On a 400px panel they total about 12%. */
+  --panel-edge:
+    linear-gradient(var(--acid-green), var(--acid-green)) left top / 18px 1px no-repeat,
+    linear-gradient(var(--magenta), var(--magenta)) left top / 1px 18px no-repeat,
+    linear-gradient(var(--acid-green), var(--acid-green)) right top / 18px 1px no-repeat,
+    linear-gradient(var(--magenta), var(--magenta)) right top / 1px 18px no-repeat,
+    linear-gradient(var(--acid-green), var(--acid-green)) right bottom / 18px 1px no-repeat,
+    linear-gradient(var(--magenta), var(--magenta)) right bottom / 1px 18px no-repeat,
+    linear-gradient(var(--acid-green), var(--acid-green)) left bottom / 18px 1px no-repeat,
+    linear-gradient(var(--magenta), var(--magenta)) left bottom / 1px 18px no-repeat;
+
+  /* Four knife edges. This revises the 12px slash #120 reserved for the genre: a cut corner
+     truncates the bracket that is meant to sit in it, so the two devices were fighting. Square is
+     still nobody else's shape — the base is 0/9/0/9 — and it is the one genre whose shape is an
+     absence of the app's cut, because the marks say where the panel ends. */
+  --panel-corner-tl: 0px;
+  --panel-corner-tr: 0px;
+  --panel-corner-br: 0px;
+  --panel-corner-bl: 0px;
+
+  /* Magenta, at 5.9:1 on the surface above, and **not** acid green. `--focus` is acid green and
+     `--halo` is mixed from `--accent`, so a skin taking acid for its accent would hand a panel a
+     focus halo, a focus ring and a set of chips in one colour — in the one place in the system
+     where telling two things apart carries meaning. Acid appears in the corner marks instead, where
+     it is a keyline at the panel's corner and never a ring around a control.
+
+     No `--accent-quiet` override, for the third time and the same reason: gold is the message tone,
+     and a tone outranks a genre. */
+  --accent: var(--magenta);
+}
+
+/* The display ink. Magenta headings inside a panel, at 5.9:1 on the surface above — a colour, which
+   a skin may set, and not a size or a face, which it may not. Scoped to the panel because that is
+   what a skin dresses: a heading on the bare page belongs to the type ramp. */
+[data-genre='cyberpunk'] .panel .panel__title,
+[data-genre='cyberpunk'] .panel h2,
+[data-genre='cyberpunk'] .panel h3,
+[data-genre='cyberpunk'] .panel h4 {
+  color: var(--accent);
+}
+
+/* The dip, on the element that paints the marks. `.panel:not(.panel--bare)` because a bare panel
+   sets `--panel-edge: none` and has no marks to dim — an animation there would be a keyframe
+   running against nothing. */
+[data-genre='cyberpunk'] .panel:not(.panel--bare) {
+  animation: cyberpunk-ballast 24s steps(1, end) infinite;
+}
+
+/* Decision 2 caps ambient motion at one effect per skin and turns it off here. The marks stay and
+   only the fault goes, which is the same standard the sci-fi scanlines set: the genre survives the
+   switch rather than falling back to a plain fill. */
+@media (prefers-reduced-motion: reduce) {
+  [data-genre='cyberpunk'] .panel:not(.panel--bare) {
+    animation: none;
   }
-
-  /* No `button` rule. A skin may set a surface, a keyline, a corner, an accent hue and one
-     ambient effect; control geometry is not on that list, and a skin's copy of the old gradient
-     would outrank the control system wherever a genre is applied. See docs/visual-design.md,
-     decision 2 and "What this leaves to the skins". */
 }
