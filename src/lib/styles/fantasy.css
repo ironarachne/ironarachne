@@ -33,9 +33,29 @@
      lets colour roles measure against it. */
   --panel-surface: color-mix(in srgb, var(--gold) 12%, var(--charcoal));
 
-  /* The tan keyline. `--border-strong` is already the base's stronger edge, so this is the skin
-     choosing between two roles the system has rather than introducing a colour. */
-  --panel-edge: var(--border-strong);
+  /* The tan keyline, gilded at the foot.
+
+     `--border-strong` is already the base's stronger edge, so the continuous part of this is the
+     skin choosing between two roles the system has rather than introducing a colour: luminance
+     0.0823, inside the register a keyline that runs the whole perimeter is held to.
+
+     The two gold layers are the device, and they use the mechanism #121 proved rather than a new
+     one. `--panel-edge` is painted as the background of the 1px ring the liner sits inside, so a
+     24px block at a corner is visible only where that ring is — and these are at the two corners
+     the shape *cuts*, where the clip runs a diagonal and the liner covers all but a pixel of it.
+     What is left of each block is the mitre itself with a short run of gilt flanking it on both
+     edges: a bound book's metal corners, and the one place this skin's shape and its keyline say
+     the same thing. Cyberpunk marks the four corners its shape leaves square; fantasy gilds the two
+     its shape takes.
+
+     Gold is luminance 0.40, which the register forbids on a continuous keyline and #121's area
+     exemption permits on a corner mark: two 24px corners are 4% of a wide panel's perimeter and
+     7.5% of a small one's, against a fifth. `e2e/genre_skin.spec.ts` measures that against the
+     rendered box, because a panel's perimeter is a thing only the browser knows. */
+  --panel-edge:
+    linear-gradient(var(--gold), var(--gold)) left bottom / 24px 24px no-repeat,
+    linear-gradient(var(--gold), var(--gold)) right bottom / 24px 24px no-repeat,
+    var(--border-strong);
 
   /* No `--accent` or `--accent-quiet` override: gold is already the base's quiet accent, so the
      fantasy chip, kicker and figure colour is the one the app has. A skin that changes nothing
