@@ -2,8 +2,8 @@
 
 Which genre the page is currently wearing, if any. One function, no state.
 
-The app ships three genre skins — `fantasy.css`, `scifi.css`, `cyberpunk.css`, with `horror` still
-to come — and each is keyed off a `data-genre` attribute. This library answers what that attribute's
+The app ships a skin per genre — `fantasy.css`, `scifi.css`, `cyberpunk.css` and `horror.css` — and
+each is keyed off a `data-genre` attribute. This library answers what that attribute's
 value should be; `src/routes/+layout.svelte` is the only place that writes it.
 
 See [the visual design system](../../../docs/visual-design.md), "Applying a skin", for the design.

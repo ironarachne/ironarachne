@@ -11,9 +11,10 @@ brand/          # Vendored from the brand repo: the colour palette, as --ia-* to
 tokens.css      # Custom properties — colour roles, the type and space ramps, elevation, motion
 fonts.css       # The @font-face declarations
 modal.css       # The shared modal system's styles
-fantasy.css     # Genre themes, applied to generated output
+fantasy.css     # Genre skins, applied to the panels of a project's genre
 scifi.css
 cyberpunk.css
+horror.css
 ```
 
 ## Usage

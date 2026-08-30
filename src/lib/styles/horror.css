@@ -1,0 +1,138 @@
+/* The horror skin: a panel skin over the base system, and nothing more.
+ *
+ * See docs/visual-design.md, "The horror skin, and the discipline of not startling anyone". This is
+ * the fourth genre and the only one with nothing to rewrite — `GENRES` has held `horror` since
+ * before that document existed, and a project set to it got the base appearance by omission rather
+ * than by decision. It is also the first skin written under the whole contract rather than
+ * converted into it, and the first with three finished siblings to be distinct *from*.
+ *
+ * What this file may not touch: the typeface, the type scale, the space ramp, control geometry, the
+ * liner, the halo, `--lift`, and a badge's shape.
+ *
+ * The reference's devices are mostly events — a bright flash of red in a dark field, a glitch, a
+ * sudden change — and none of them is here. A generator is open for an afternoon, and a thing that
+ * startles you at minute ninety is a thing you turn off, taking the genre with it. What this skin
+ * has is dread: the surface is wrong, and nothing ever happens.
+ */
+
+/* The one ambient effect: a breath. The vignette closes and eases back on a 60s cycle — three times
+   #121's motion floor and the slowest thing in the app, against cyberpunk's 24s, fantasy's 40s and
+   sci-fi's 45s. Slow enough that nobody catches it moving; they notice only that the panel is not
+   quite as it was.
+
+   It darkens in both directions, so it can never cost contrast — #158's rule, and the reason a
+   vignette is the right shape for this effect rather than a compromise. */
+@keyframes horror-breath {
+  from {
+    background-size:
+      auto,
+      170% 170%;
+  }
+  to {
+    background-size:
+      auto,
+      120% 120%;
+  }
+}
+
+[data-genre='horror'] {
+  /* The morgue, not the blood. Red is the obvious horror colour and the wrong one for a plate:
+     everything a panel holds sits on this, and a red field under a page of generated text is a page
+     nobody reads. Institutional green-grey — a room designed to be hosed down — and the blood goes
+     on top of it.
+
+     `rgb(30 41 42)` at luminance 0.0201, which puts every ink role ahead of a base panel: 13.6:1,
+     7.1:1 and 5.15:1 against 12.2, 6.3 and 4.6. It is also the first surface drawn after #158, and
+     it shows — 0.0102 of headroom under the readability ceiling where fantasy and sci-fi have
+     0.0026, because those two were drawn as close to the old ceiling as the rule then allowed and
+     had nothing left for the layers they went on to paint. */
+  --panel-surface: color-mix(in srgb, var(--emerald) 14%, var(--charcoal));
+
+  /* Old blood, and deliberately not `--danger`.
+
+     Neat crimson is luminance 0.0882, comfortably inside the register — so the rules as they stood
+     would have allowed it, and it must not be used: crimson *is* `--danger`. A toned panel sets
+     `--panel-edge: var(--danger)` to say a write failed, so a genre painting that same edge would
+     make a horror project look like a page of failures and hide the one panel that had really
+     failed among them. A skin may not paint a tone's colour as its keyline.
+
+     50% into granite is 0.0661: inside the register, a step off the tone, and old blood rather than
+     fresh — which is the more horror answer in any case. */
+  --panel-edge: color-mix(in srgb, var(--crimson) 50%, var(--granite));
+
+  /* The shape nothing agrees with. Every other genre's shape states a rule — the base cuts a
+     diagonal pair, sci-fi chamfers all four, fantasy takes its foot, cyberpunk refuses to cut at
+     all. This one states none: four different depths, none matching another, in a system whose
+     whole argument is that the ramps agree with each other.
+
+     Horror is the only genre that can carry that, which is why #120 reserved it rather than
+     assigning it. An uneven shape reads as a mistake anywhere else; here the mistake is the point,
+     and it is legible only because three siblings are regular. */
+  --panel-corner-tl: 3px;
+  --panel-corner-tr: 11px;
+  --panel-corner-br: 5px;
+  --panel-corner-bl: 8px;
+
+  /* Blood on bone. Crimson is 2.2:1 on charcoal and is never a text colour — "Colour roles" has
+     said so since it was written — so a genre whose colour is blood has to lighten it to say
+     anything in words. 45% into `--ink` is `rgb(197 160 160)` at 6.35:1 on the surface above: a
+     blanched, drained red, legible at label size and old rather than fresh.
+
+     The halo follows the hue, as sci-fi settled that it may. No `--accent-quiet` override, for the
+     fourth time and the same reason: gold is the message tone, and a tone outranks a genre. */
+  --accent: color-mix(in srgb, var(--crimson) 45%, var(--ink));
+}
+
+/* The display ink. Drained red inside a panel, at 6.35:1 on the surface above — a colour, which a
+   skin may set, and not a size or a face, which it may not. Scoped to the panel because that is
+   what a skin dresses: a heading on the bare page belongs to the type ramp. */
+[data-genre='horror'] .panel .panel__title,
+[data-genre='horror'] .panel h2,
+[data-genre='horror'] .panel h3,
+[data-genre='horror'] .panel h4 {
+  color: var(--accent);
+}
+
+/* Two layers on the liner, and only the vignette moves.
+
+   The stain is the fourth device. Sci-fi rules the surface with lines, fantasy gilds two corners of
+   the ring and cyberpunk marks four, so horror takes the shape none of them is — a blot — and puts
+   it on the surface rather than in the ring: a bloom of dried blood soaked into the plate, there
+   before you arrived and never explained. Bottom-right, because that is the corner a reader reaches
+   last and the panel's own furniture is all at the top left; it is in the part of the panel you see
+   without looking at.
+
+   Both layers darken, which is #158's rule and also what these things do: blood on a green floor is
+   a dark patch, not a bright one, and a room's corners go dark before its middle does. The stain
+   measures 0.0185 with `--ink-faint` at 5.28:1 across it. */
+[data-genre='horror'] .panel:not(.panel--bare) > .panel__field {
+  animation: horror-breath 60s ease-in-out infinite alternate;
+  background-image:
+    radial-gradient(
+      ellipse 55% 45% at 88% 92%,
+      color-mix(in srgb, color-mix(in srgb, var(--crimson) 45%, black) 35%, transparent) 0%,
+      transparent 70%
+    ),
+    radial-gradient(
+      ellipse at center,
+      transparent 35%,
+      color-mix(in srgb, black 30%, transparent) 100%
+    );
+  background-position: center, center;
+  background-repeat: no-repeat, no-repeat;
+  background-size:
+    auto,
+    150% 150%;
+}
+
+/* Decision 2 caps ambient motion at one effect per skin and turns it off here. The stain stays and
+   the vignette holds at its open state — the genre survives the switch, as it does in the other
+   three, because what is switched off is only the breathing. */
+@media (prefers-reduced-motion: reduce) {
+  [data-genre='horror'] .panel:not(.panel--bare) > .panel__field {
+    animation: none;
+    background-size:
+      auto,
+      170% 170%;
+  }
+}
