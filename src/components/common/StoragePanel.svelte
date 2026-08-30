@@ -13,6 +13,7 @@
     type StoragePanelView,
   } from '$lib/storage_status';
   import { exportWholeVault } from '$lib/vault_file';
+  import DataTable, { type Column } from '$components/common/DataTable.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
   /**
@@ -104,6 +105,13 @@
       busy = false;
     }
   }
+  /** The head, and the keys the flip reads below 640px. */
+  const STORAGE_COLUMNS: Column[] = [
+    { label: 'Project' },
+    { label: 'Artifacts', numeric: true },
+    { label: 'Size', numeric: true },
+    { label: 'Last exported' },
+  ];
 </script>
 
 <!-- A literal id, not one from `$props.id()`: the workshop links to this section from another
@@ -159,33 +167,11 @@
       <p class="storage__usage">{usageSentence(view.usage)}</p>
 
       {#if view.projects.length > 0}
-        <table class="storage__table">
-          <thead>
-            <tr>
-              <th scope="col">Project</th>
-              <th scope="col">Artifacts</th>
-              <th scope="col">Size</th>
-              <th scope="col">Last exported</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each view.projects as row (row.projectId)}
-              <tr>
-                <td data-label="Project">
-                  <!-- A fragment on the page the reader is already on; there is nothing for
-                       resolve() to add, and a base path would point it off the page. -->
-                  <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
-                  <a href={projectAnchor(row.projectId)}>{row.name}</a>
-                </td>
-                <td data-label="Artifacts">{row.artifactCount}</td>
-                <!-- A sum of sizes recorded at write time, so it is exact and rendered exactly —
-                     unlike the estimate above it, which is not. -->
-                <td data-label="Size">{formatBytes(row.byteSize)}</td>
-                <td data-label="Last exported">{exportCell(row.lastExport)}</td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
+        <!-- This table's own flip is where the shared one came from: it was the most developed of
+             the three hand-rolled tables, so #154 made it everyone's rather than throwing it away.
+             What it no longer does is carry its own `data-label` on every cell — that is
+             `DataTable`'s, from the columns above. -->
+        <DataTable columns={STORAGE_COLUMNS} class="storage__table" rows={projectRows} />
       {:else}
         <p class="storage__empty">No projects yet, so nothing is taking up room.</p>
       {/if}
@@ -200,6 +186,26 @@
     </p>
   </div>
 </section>
+
+{#snippet projectRows()}
+  <!-- The snippet is defined outside the `{#if view !== null}` that surrounds its call site, so it
+       checks for itself rather than relying on where it happens to be rendered. -->
+  {#each view?.projects ?? [] as row (row.projectId)}
+    <tr>
+      <td data-label="Project">
+        <!-- A fragment on the page the reader is already on; there is nothing for resolve() to
+             add, and a base path would point it off the page. -->
+        <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+        <a href={projectAnchor(row.projectId)}>{row.name}</a>
+      </td>
+      <td class="numeric" data-label="Artifacts">{row.artifactCount}</td>
+      <!-- A sum of sizes recorded at write time, so it is exact and rendered exactly — unlike the
+           estimate above it, which is not. -->
+      <td class="numeric" data-label="Size">{formatBytes(row.byteSize)}</td>
+      <td data-label="Last exported">{exportCell(row.lastExport)}</td>
+    </tr>
+  {/each}
+{/snippet}
 
 <style>
   .storage {
@@ -299,58 +305,5 @@
     font-size: 0.75rem;
     min-width: 0;
     width: 100%;
-  }
-
-  .storage__table {
-    border-collapse: collapse;
-    width: 100%;
-  }
-
-  .storage__table th {
-    font-size: 0.8rem;
-    letter-spacing: 0.03em;
-    text-align: left;
-    text-transform: uppercase;
-  }
-
-  .storage__table th,
-  .storage__table td {
-    border-bottom: 1px solid var(--granite);
-    padding: 0.35rem 0.6rem 0.35rem 0;
-  }
-
-  .storage__table td {
-    font-size: 0.9rem;
-    overflow-wrap: anywhere;
-  }
-
-  @media (max-width: 40rem) {
-    /* A stack of labelled rows rather than a table that scrolls sideways: the page must never
-       scroll horizontally, and four columns cannot fit a phone honestly. */
-    .storage__table thead {
-      display: none;
-    }
-
-    .storage__table tr {
-      border-bottom: 1px solid var(--granite);
-      display: block;
-      padding: 0.4rem 0;
-    }
-
-    .storage__table td {
-      border: none;
-      display: flex;
-      gap: 0.75rem;
-      justify-content: space-between;
-      padding: 0.1rem 0;
-    }
-
-    .storage__table td::before {
-      content: attr(data-label);
-      font-size: 0.75rem;
-      letter-spacing: 0.03em;
-      opacity: 0.75;
-      text-transform: uppercase;
-    }
   }
 </style>

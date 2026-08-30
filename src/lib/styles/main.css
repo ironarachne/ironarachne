@@ -154,25 +154,48 @@ strong {
   font-weight: 700;
 }
 
+/* A table is rows, not a grid of cells.
+
+   The old rule drew a box around every cell in literal `black` and put a 3px black rule under the
+   head — the last element rule in this file holding a raw colour, and the reason three components
+   wrote their own table rather than use this one. What a reader follows across a table is the row,
+   so the hairlines that survive are the ones their eye was already using: one under the head, one
+   under each row, and none between columns.
+
+   See docs/visual-design.md, "A table is rows, not a grid of cells". */
 table {
+  border-collapse: collapse;
   width: 100%;
+}
 
-  & thead {
-    & tr {
-      border-bottom: 3px solid black;
+thead tr {
+  border-bottom: 1px solid var(--border);
+}
 
-      & th {
-        font-weight: 700;
-        text-align: left;
-      }
-    }
-  }
+th {
+  color: var(--ink-faint);
+  font: var(--t-micro);
+  letter-spacing: var(--t-micro-tracking);
+  text-align: left;
+  text-transform: uppercase;
+}
 
-  & th,
-  & td {
-    border: 1px solid black;
-    padding: 0.25rem;
-  }
+tbody tr {
+  border-bottom: 1px solid var(--border);
+}
+
+th,
+td {
+  /* `0` on the leading edge so a column lines up with the text above the table rather than sitting
+     a padding step inside it. */
+  padding: var(--s3) var(--s4) var(--s3) 0;
+}
+
+/* A numeric column reads down its digits, so it is right-aligned and its header goes with it. */
+th.numeric,
+td.numeric {
+  padding-right: 0;
+  text-align: right;
 }
 
 .center {

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DataTable, { type Column } from '$components/common/DataTable.svelte';
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
   import { onMount } from 'svelte';
@@ -60,6 +61,14 @@
   onMount(() => {
     generate();
   });
+
+  const STOCK_COLUMNS: Column[] = [
+    { label: 'Item' },
+    { label: 'Qty', numeric: true },
+    { label: 'Catalog', numeric: true },
+    { label: 'Ask Price', numeric: true },
+    { label: 'Note' },
+  ];
 </script>
 
 <GeneratorPage toolPath="/fantasy/merchant" title="Fantasy Merchant Generator">
@@ -195,30 +204,21 @@
         </ul>
 
         <h3>Stock</h3>
-        <div class="stock-table-scroll">
-          <table class="stock-table">
-            <thead>
-              <tr>
-                <th>Item</th>
-                <th>Qty</th>
-                <th>Catalog</th>
-                <th>Ask Price</th>
-                <th>Note</th>
-              </tr>
-            </thead>
-            <tbody>
-              {#each merchant.stock as item}
-                <tr>
-                  <td>{item.name}</td>
-                  <td>{item.quantity}</td>
-                  <td>{formatPrice(item.baseCost)}</td>
-                  <td>{formatPrice(item.price)}</td>
-                  <td>{item.note ?? ''}</td>
-                </tr>
-              {/each}
-            </tbody>
-          </table>
-        </div>
+        <!-- Five columns, and it scrolled sideways in its own container until #154. A stock row
+             reads perfectly well as a list of pairs, which is the test: it flips. -->
+        <DataTable columns={STOCK_COLUMNS} rows={stockRows} />
+
+        {#snippet stockRows()}
+          {#each merchant?.stock ?? [] as item}
+            <tr>
+              <td data-label="Item">{item.name}</td>
+              <td class="numeric" data-label="Qty">{item.quantity}</td>
+              <td class="numeric" data-label="Catalog">{formatPrice(item.baseCost)}</td>
+              <td class="numeric" data-label="Ask Price">{formatPrice(item.price)}</td>
+              <td data-label="Note">{item.note ?? ''}</td>
+            </tr>
+          {/each}
+        {/snippet}
       </div>
     </article>
   {/if}
@@ -274,28 +274,4 @@
 
   /* Five columns cannot compress to phone width without the item names turning
      into one letter per line, so let the table scroll on its own instead. */
-  .stock-table-scroll {
-    overflow-x: auto;
-  }
-
-  /* One of the three bespoke tables #154 will collapse into a shared one. What #124 does here is
-     take the literals out — the borders were `#555` and the header a raw `rgba` — and leave the
-     structure for that issue to settle rather than inventing a fourth table language in a walk. */
-  .stock-table {
-    border-collapse: collapse;
-    margin-top: var(--s4);
-    min-width: 30rem;
-    width: 100%;
-  }
-
-  .stock-table th,
-  .stock-table td {
-    border: 1px solid var(--border);
-    padding: var(--s3) var(--s4);
-    text-align: left;
-  }
-
-  .stock-table th {
-    background: var(--surface-inset);
-  }
 </style>

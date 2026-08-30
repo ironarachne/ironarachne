@@ -1072,6 +1072,28 @@ describe('the content language', () => {
     expect(sizes, 'a stat sizes something outside the ramps').toEqual([]);
   });
 
+  it('leaves the table to the table language', () => {
+    // The same shape as "no skin file declares a `button` rule". Three components each wrote their
+    // own table before #154 — borders, padding, a header treatment, and in one case a whole
+    // phone flip — because the shared one was unusable: `main.css` drew a box around every cell in
+    // literal `black`. It is rows now, and a component reaching for `table`, `th` or `td` is the
+    // second implementation starting again.
+    //
+    // `DataTable` is the exception, because it *is* the shared one: it owns the flip, and the
+    // `:global` rules that reach a caller's `<tr>` and `<td>` are why the callers no longer need
+    // any of their own.
+    const offenders = componentFiles().filter((path) => {
+      if (path.endsWith('DataTable.svelte')) {
+        return false;
+      }
+      const css = withoutComments(readFileSync(path, 'utf8'));
+      const style = /<style>([\s\S]*)<\/style>/.exec(css)?.[1] ?? '';
+      return /(?:^|[\s,{}])(?:table|thead|tbody|th|td)(?:[\s,:.[]|\s*\{)/m.test(style);
+    });
+
+    expect(offenders, 'a component writes its own table').toEqual([]);
+  });
+
   it('draws no box around a stat', () => {
     // A block sits inside a panel, and a block that drew its own box is the nested box the panel
     // language refuses. Separation is the space ramp.

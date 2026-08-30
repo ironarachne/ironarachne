@@ -1,4 +1,5 @@
 <script lang="ts">
+  import DataTable, { type Column } from '$components/common/DataTable.svelte';
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
   import * as Words from '@ironarachne/words';
@@ -12,6 +13,21 @@
     const estr = String(exStr).padStart(2, '0');
     return estr.substring(estr.length - 2);
   }
+
+  /** The two tables on a sheet, and the keys their rows show when they flip. */
+  const WEAPON_COLUMNS: Column[] = [
+    { label: 'Weapon' },
+    { label: 'Damage Type' },
+    { label: 'Damage (SM/L)', numeric: true },
+    { label: 'Spd. Factor', numeric: true },
+  ];
+
+  const THIEF_SKILL_COLUMNS: Column[] = [
+    { label: 'Skill' },
+    { label: 'Base', numeric: true },
+    { label: 'Allocated', numeric: true },
+    { label: 'Total', numeric: true },
+  ];
 </script>
 
 <h2>{character.firstName} {character.lastName}</h2>
@@ -150,26 +166,18 @@
 
 <h3>Weapons</h3>
 
-<table>
-  <thead>
+<DataTable columns={WEAPON_COLUMNS} rows={weaponRows} />
+
+{#snippet weaponRows()}
+  {#each character.weapons as weapon}
     <tr>
-      <th>Weapon</th>
-      <th>Damage Type</th>
-      <th>Damage (SM/L)</th>
-      <th>Spd. Factor</th>
+      <td data-label="Weapon">{weapon.name}</td>
+      <td data-label="Damage Type">{weapon.damageType}</td>
+      <td class="numeric" data-label="Damage (SM/L)">{weapon.damageSM}/{weapon.damageL}</td>
+      <td class="numeric" data-label="Spd. Factor">{weapon.speedFactor}</td>
     </tr>
-  </thead>
-  <tbody>
-    {#each character.weapons as weapon}
-      <tr>
-        <td>{weapon.name}</td>
-        <td>{weapon.damageType}</td>
-        <td>{weapon.damageSM}/{weapon.damageL}</td>
-        <td>{weapon.speedFactor}</td>
-      </tr>
-    {/each}
-  </tbody>
-</table>
+  {/each}
+{/snippet}
 
 <h3>Armor</h3>
 
@@ -186,26 +194,20 @@
 {#if character.thiefSkills.length > 0}
   <h3>Thief Skills</h3>
 
-  <table>
-    <thead>
+  <DataTable columns={THIEF_SKILL_COLUMNS} rows={thiefSkillRows} />
+
+  {#snippet thiefSkillRows()}
+    {#each character.thiefSkills as skill}
       <tr>
-        <th>Skill</th>
-        <th>Base</th>
-        <th>Allocated</th>
-        <th>Total</th>
+        <td data-label="Skill">{skill.name}</td>
+        <td class="numeric" data-label="Base">{skill.value}%</td>
+        <td class="numeric" data-label="Allocated">
+          {skill.points > 0 ? `+${skill.points}` : '—'}
+        </td>
+        <td class="numeric" data-label="Total">{skill.value + skill.points}%</td>
       </tr>
-    </thead>
-    <tbody>
-      {#each character.thiefSkills as skill}
-        <tr>
-          <td>{skill.name}</td>
-          <td>{skill.value}%</td>
-          <td>{skill.points > 0 ? `+${skill.points}` : '—'}</td>
-          <td>{skill.value + skill.points}%</td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+    {/each}
+  {/snippet}
 {/if}
 
 {#if character.spells.length > 0}
