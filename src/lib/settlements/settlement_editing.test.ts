@@ -212,8 +212,8 @@ describe('settlement notables', () => {
     expect(after.importantPeople?.[0]?.character.firstName).toBe('Maren');
     expect(after.importantPeople?.[0]?.character.lastName).toBe('Voss');
     // The rest of the character record is untouched; a rename is a rename.
-    expect(after.importantPeople?.[0]?.character.species).toEqual(
-      enriched().importantPeople?.[0]?.character.species,
+    expect(after.importantPeople?.[0]?.character.speciesName).toEqual(
+      enriched().importantPeople?.[0]?.character.speciesName,
     );
   });
 

@@ -4,21 +4,32 @@
   import { RNG } from '@ironarachne/rng';
   import * as Measurements from '$lib/measurements';
   import {
-    applyNameGeneratorsToCharacterGenerationConfig,
     buildCharacterNameSource,
-    generate,
-    getDefaultCharacterGenerationConfig,
-    isCustomCharacterNameSource,
-    resolveCharacterNameGeneratorSet,
-    restoreLockedCharacterName,
+    characterFileStem,
+    characterTitleLine,
+    characterToMarkdown,
+    characterToPlainText,
+    CHARACTER_ANY,
+    CHARACTER_ARTIFACT_KIND,
+    formatCharacterDisplayName,
+    nameGeneratorSetForSource,
+    rollCharacter,
     rollCharacterNameForSource,
+    toCharacterSnapshot,
     type Character,
-    type CharacterGenerationConfig,
-    type Title,
+    type CharacterGeneratorConfigRecord,
     loadCulturesForNaming,
   } from '$lib/characters';
-  import type { Arms } from '$lib/heraldry';
-  import { renderDeviceBlazon, renderHeraldryDeviceSvg } from '$lib/heraldry';
+  import type { ArtifactReference } from '$lib/artifacts';
+  import Download from '$lib/download';
+  import { downloadTextPdf } from '$lib/pdf';
+  import {
+    HERALDRY_ARTIFACT_KIND,
+    renderDeviceBlazon,
+    renderHeraldryDeviceSvg,
+    type Arms,
+    type RestoredHeraldry,
+  } from '$lib/heraldry';
   import { showHeraldryPersistenceModal } from '$lib/ui';
   import type { Culture } from '$lib/culture';
   import { sentientSpeciesList } from '$lib/species_sentients';
@@ -28,7 +39,12 @@
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
+  import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+
+  const TOOL_PATH = '/character';
 
   const heraldryWidth = 200;
   const heraldryHeight = 220;
@@ -36,111 +52,189 @@
   const speciesList = sentientSpeciesList;
   const archetypeOptions = getAllFantasyArchetypes().sort((a, b) => a.name.localeCompare(b.name));
   const ageCategories = getCategoryList();
-  const genderOptions = ['Random', 'Male', 'Female'];
+  const genderOptions = [CHARACTER_ANY, 'Male', 'Female'];
 
-  let seed = $state(new RNG(Date.now().toString()).randomString(13));
-  const rng = new RNG(seed);
-  let character = $state<null | Character>(null);
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. That is the whole of requirement 2.2's
+   * fix here: the clock decides where the sequence of seeds *starts*, and everything after it is a
+   * pure function of the seed on screen. This used to reseed from `Date.now()` inside every roll,
+   * so a locked seed reproduced nothing.
+   */
+  const rng = new RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
+  let lockSeed = $state(false);
+
+  /**
+   * The rolled character.
+   *
+   * `$state.raw`, and not as a preference. Deep-reactive `$state` wraps every array and object in
+   * the character in a Proxy, and `structuredClone` — what IndexedDB stores with — refuses a Proxy
+   * outright, so saving fails with `could not be cloned`. The same trap is written up in
+   * `$lib/workshop`'s README beside `saveToolArtifact`, and the AD&D generator hit it first.
+   */
+  let character = $state.raw<Character | null>(null);
+  /** The settings the character on screen was actually rolled with. Raw, for the same reason. */
+  let rolledConfig = $state.raw<Record<string, unknown>>({});
 
   let savedCultures = $state<Culture[]>([]);
-  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
+  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture' | 'referenced_culture'>(
+    'default',
+  );
   let presetSetName = $state('human');
   let savedCultureName = $state('');
   let firstName = $state('');
   let lastName = $state('');
   let lockName = $state(false);
+  /** The culture the picker loaded, and the link to record for it. */
+  let referencedCulture = $state<Culture | undefined>();
+  let cultureReference = $state<ArtifactReference | undefined>();
+  /**
+   * The culture link, recorded only when the character on screen was actually named from it.
+   *
+   * Gated on the roll rather than on the picker, as the AD&D generator gates its own: a reference
+   * is a record of what the tool was handed, and one written for a character whose names came from
+   * somewhere else would claim an input that was never used.
+   */
+  let rolledCultureReference = $state.raw<ArtifactReference | undefined>();
+
+  /** Filled in by the arms picker: a saved coat of arms to wear instead of rolling one. */
+  let useReferencedArms = $state(false);
+  let referencedArms = $state<RestoredHeraldry | undefined>();
+  let armsReference = $state<ArtifactReference | undefined>();
+  let armsProblem = $state<string | null>(null);
 
   let selectedSpeciesName = $state('human');
-  let selectedArchetypeName = $state('Random');
-  let selectedGenderName = $state('Random');
-  let selectedAgeCategoryName = $state('Random');
+  let selectedArchetypeName = $state<string>(CHARACTER_ANY);
+  let selectedGenderName = $state<string>(CHARACTER_ANY);
+  let selectedAgeCategoryName = $state<string>(CHARACTER_ANY);
 
-  let lockSeed = $state(false);
-  $effect(() => {
-    if (!lockSeed) {
-      rng.setSeed(seed);
-    }
-  });
+  /**
+   * Whether the character on screen is wearing a referenced coat of arms.
+   *
+   * Gated on the picker having actually loaded one, not on the checkbox: a ticked box whose
+   * artifact has not arrived would otherwise store `heraldry: null` beside no reference at all,
+   * which is a character with a hole where their arms were.
+   */
+  const wearingReferencedArms = $derived(useReferencedArms && referencedArms !== undefined);
 
-  function applyNameGeneratorsForCharacterGeneration(
-    config: CharacterGenerationConfig,
-    speciesName: string,
-  ) {
+  /** The arms to show: the character's own, or the saved ones standing in for them. */
+  const shownArms = $derived<Arms | null>(
+    wearingReferencedArms ? (referencedArms?.arms ?? null) : (character?.heraldry ?? null),
+  );
+
+  /**
+   * The character with the names the page is showing, which is what the sheet and the exports want.
+   *
+   * They differ from the roll's whenever the user has typed a name or locked one, and the display
+   * below already renders it this way. Saving the roll's name instead would keep something the user
+   * can see is not what they asked for.
+   */
+  const namedCharacter = $derived<Character | null>(
+    character === null
+      ? null
+      : {
+          ...character,
+          firstName,
+          lastName,
+          name: formatCharacterDisplayName(firstName, lastName),
+          ...(wearingReferencedArms && referencedArms !== undefined
+            ? { heraldry: referencedArms.arms }
+            : {}),
+        },
+  );
+
+  /**
+   * What a project stores. The generator owns the conversion — it is the `toSnapshot` half of its
+   * own kind — so what reaches the save button is already the payload.
+   *
+   * The referenced-arms flag is passed through because only this page knows whether the arms on
+   * screen came from a picker. Stored as `null` plus a reference, they stay one record that someone
+   * may edit later, rather than a copy forked at the moment of saving.
+   */
+  const characterSnapshot = $derived(
+    namedCharacter === null ? null : toCharacterSnapshot(namedCharacter, wearingReferencedArms),
+  );
+
+  const references = $derived(
+    [rolledCultureReference, wearingReferencedArms ? armsReference : undefined].filter(
+      (entry): entry is ArtifactReference => entry !== undefined,
+    ),
+  );
+
+  const defaultArtifactName = $derived(formatCharacterDisplayName(firstName, lastName));
+
+  /** The settings a roll takes, and the ones provenance records. */
+  function currentConfig(): CharacterGeneratorConfigRecord {
     const source = buildCharacterNameSource(
       nameSourceKind,
       presetSetName,
       savedCultureName,
       savedCultures,
+      referencedCulture,
     );
-    if (isCustomCharacterNameSource(source)) {
-      const nameSet = resolveCharacterNameGeneratorSet(rng, source, speciesName);
-      applyNameGeneratorsToCharacterGenerationConfig(config, nameSet);
-      return;
-    }
-
-    const nameSet = resolveCharacterNameGeneratorSet(rng, { kind: 'default' }, speciesName);
-    applyNameGeneratorsToCharacterGenerationConfig(config, nameSet);
+    const nameGeneratorSet = nameGeneratorSetForSource(source);
+    return {
+      speciesName: selectedSpeciesName,
+      archetypeName: selectedArchetypeName,
+      genderName: selectedGenderName,
+      ageCategoryName: selectedAgeCategoryName,
+      ...(nameGeneratorSet === '' ? {} : { nameGeneratorSet }),
+      namingGender: 'random',
+    };
   }
 
   function generateCharacter() {
     if (!lockSeed) {
-      seed = new RNG(Date.now().toString()).randomString(13);
-      rng.setSeed(seed);
+      seed = rng.randomString(13);
     }
 
     const lockedFirstName = firstName;
     const lockedLastName = lastName;
 
-    const config = getDefaultCharacterGenerationConfig(seed + '-character');
+    const config = currentConfig();
+    const rolled = rollCharacter(seed, config);
+    character = rolled.character;
+    // The resolved set, not the requested one: a set this build has since dropped would otherwise
+    // be recorded as provenance a re-roll could not honour.
+    rolledConfig = { ...config, nameGeneratorSet: rolled.nameGeneratorSet };
+    rolledCultureReference =
+      nameSourceKind === 'referenced_culture' && referencedCulture !== undefined
+        ? cultureReference
+        : undefined;
 
-    const species =
-      sentientSpeciesList.find((s) => s.name === selectedSpeciesName) || sentientSpeciesList[0];
-    config.species = species;
-
-    applyNameGeneratorsForCharacterGeneration(config, species.name);
-
-    if (selectedArchetypeName !== 'Random') {
-      const arch = archetypeOptions.find((a) => a.name === selectedArchetypeName);
-      if (arch) {
-        config.archetypeOptions = [arch];
-      }
-    }
-
-    if (selectedGenderName !== 'Random') {
-      config.allowedGenderNames = [selectedGenderName.toLowerCase()];
-    } else {
-      config.allowedGenderNames = undefined;
-    }
-
-    if (selectedAgeCategoryName !== 'Random') {
-      config.allowedAgeCategoryNames = [selectedAgeCategoryName];
-    } else {
-      config.allowedAgeCategoryNames = undefined;
-    }
-
-    character = generate(seed + '-character', config);
     if (lockName) {
-      restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
+      firstName = lockedFirstName;
+      lastName = lockedLastName;
     } else {
-      firstName = character.firstName;
-      lastName = character.lastName;
+      firstName = rolled.character.firstName;
+      lastName = rolled.character.lastName;
     }
   }
 
+  /**
+   * Another name for the character already on screen.
+   *
+   * An **edit**, not a generation, and so a fresh draw that does not touch the recorded seed:
+   * requirement 4.2 says the payload is what the user kept, and a name they asked for is not
+   * something a seed reproduces. The character itself is untouched — it is raw state, and every
+   * reader already composes the shown names over it.
+   */
   function generateNameOnly() {
     if (lockName) {
       return;
     }
     const speciesName = character?.species.name ?? selectedSpeciesName;
-    const nameRng = new RNG(`${Date.now()}-character-name`);
     const source = buildCharacterNameSource(
       nameSourceKind,
       presetSetName,
       savedCultureName,
       savedCultures,
+      referencedCulture,
     );
     const generated = rollCharacterNameForSource(
-      nameRng,
+      new RNG(`${Date.now()}-character-name`),
       source,
       speciesName,
       'random',
@@ -148,43 +242,45 @@
     );
     firstName = generated.firstName;
     lastName = generated.lastName;
-    if (character) {
-      character = {
-        ...character,
-        firstName: generated.firstName,
-        lastName: generated.lastName,
-        name: `${generated.firstName} ${generated.lastName}`.trim(),
-      };
-    }
   }
 
-  async function openHeraldryModal(
-    arms: Arms,
-    title: string,
-    applyReplacement: (arms: Arms) => void,
-  ) {
+  async function openHeraldryModal(arms: Arms, title: string) {
     const result = await showHeraldryPersistenceModal({ arms, seed, title });
-    if (result.action === 'replaced') {
-      applyReplacement(result.arms);
+    if (result.action === 'replaced' && character !== null) {
+      // A replacement is the character's own arms, whatever they were wearing before: the user has
+      // just made a coat of arms for this person, so the reference is no longer what they are
+      // showing.
+      useReferencedArms = false;
+      character = { ...character, heraldry: result.arms };
     }
   }
 
-  function replaceCharacterHeraldry(arms: Arms) {
-    if (character === null) {
+  function exportMarkdown() {
+    if (namedCharacter === null) {
       return;
     }
-    character = {
-      ...character,
-      heraldry: arms,
-    };
+    const markdown = characterToMarkdown(namedCharacter);
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
+    Download(url, `${characterFileStem(namedCharacter)}.md`);
+    URL.revokeObjectURL(url);
   }
 
-  function getDisplayTitle(title: Title, genderName: string): string {
-    const titleName = genderName.toLowerCase() === 'female' ? title.femaleTitle : title.maleTitle;
-    if (title.hasLands && title.landName) {
-      return `${titleName} of ${title.landName}`;
+  let downloadingPdf = $state(false);
+
+  async function exportPdf() {
+    if (namedCharacter === null || downloadingPdf) {
+      return;
     }
-    return titleName;
+    downloadingPdf = true;
+    try {
+      await downloadTextPdf(
+        namedCharacter.name,
+        characterToPlainText(namedCharacter),
+        `${characterFileStem(namedCharacter)}.pdf`,
+      );
+    } finally {
+      downloadingPdf = false;
+    }
   }
 
   onMount(() => {
@@ -200,7 +296,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/character" title="Character">
+<GeneratorPage toolPath={TOOL_PATH} title="Character">
   {#snippet description()}
     <p>This generator creates random characters.</p>
   {/snippet}
@@ -219,7 +315,7 @@
   <div class="input-group">
     <label for="archetype">Archetype</label>
     <select bind:value={selectedArchetypeName} id="archetype">
-      <option value="Random">Random</option>
+      <option value={CHARACTER_ANY}>{CHARACTER_ANY}</option>
       {#each archetypeOptions as archetype}
         <option value={archetype.name}>{archetype.name}</option>
       {/each}
@@ -238,7 +334,7 @@
   <div class="input-group">
     <label for="age">Age</label>
     <select bind:value={selectedAgeCategoryName} id="age">
-      <option value="Random">Random</option>
+      <option value={CHARACTER_ANY}>{CHARACTER_ANY}</option>
       {#each ageCategories as age}
         <option value={age}>{age}</option>
       {/each}
@@ -246,6 +342,9 @@
   </div>
 
   <CharacterNameSection
+    offerReferencedCulture
+    bind:referencedCulture
+    bind:cultureReference
     bind:nameSourceKind
     bind:presetSetName
     bind:savedCultureName
@@ -256,94 +355,121 @@
     onGenerateName={generateNameOnly}
   />
 
+  <SavedArtifactPicker
+    kind={HERALDRY_ARTIFACT_KIND}
+    role="arms"
+    checkboxLabel="Give this character a saved coat of arms"
+    selectLabel="Coat of arms"
+    bind:enabled={useReferencedArms}
+    bind:value={referencedArms}
+    bind:reference={armsReference}
+    bind:problem={armsProblem}
+  />
+
   <BaseButton onclick={generateCharacter}>Generate</BaseButton>
 
-  {#if character}
-    <h2>{character.name}</h2>
-    {#if character.titles && character.titles.length > 0}
+  <SaveArtifactButton
+    kind={CHARACTER_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={characterSnapshot}
+    {seed}
+    config={rolledConfig}
+    defaultName={defaultArtifactName}
+    {references}
+  />
+
+  {#if namedCharacter}
+    <h2>{namedCharacter.name}</h2>
+
+    <div class="character-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={exportPdf} downloading={downloadingPdf} />
+    </div>
+
+    {#if namedCharacter.titles && namedCharacter.titles.length > 0}
       <h3>Titles</h3>
       <ul>
-        {#each character.titles as title}
-          <li>{getDisplayTitle(title, character.gender.name)}</li>
+        {#each namedCharacter.titles as title}
+          <li>{characterTitleLine(title, namedCharacter.gender.name)}</li>
         {/each}
       </ul>
     {/if}
     <StatBlock>
-      <Stat label="Description">{character.description}</Stat>
-      <Stat label="Gender">{character.gender.name}</Stat>
-      <Stat label="Species">{character.species.name}</Stat>
-      {#if character.creatureTypes.length > 0}
-        <Stat label="Type">{character.creatureTypes.join(', ')}</Stat>
+      <Stat label="Description">{namedCharacter.description}</Stat>
+      <Stat label="Gender">{namedCharacter.gender.name}</Stat>
+      <Stat label="Species">{namedCharacter.species.name}</Stat>
+      {#if namedCharacter.creatureTypes.length > 0}
+        <Stat label="Type">{namedCharacter.creatureTypes.join(', ')}</Stat>
       {/if}
-      {#if character.archetype}
-        <Stat label="Archetype">{character.archetype.name}</Stat>
+      {#if namedCharacter.archetype}
+        <Stat label="Archetype">{namedCharacter.archetype.name}</Stat>
       {/if}
-      <Stat label="Age">{character.age} years ({character.ageCategory.name})</Stat>
+      <Stat label="Age">{namedCharacter.age} years ({namedCharacter.ageCategory.name})</Stat>
     </StatBlock>
     <Stat label="Height">
-      {Measurements.inchesToFeetExpression(Measurements.cmToInches(character.height))}
+      {Measurements.inchesToFeetExpression(Measurements.cmToInches(namedCharacter.height))}
     </Stat>
-    {#if character.length > 0}
+    {#if namedCharacter.length > 0}
       <Stat label="Length">
-        {Measurements.inchesToFeetExpression(Measurements.cmToInches(character.length))}
+        {Measurements.inchesToFeetExpression(Measurements.cmToInches(namedCharacter.length))}
       </Stat>
     {/if}
     <StatBlock>
-      <Stat label="Weight">{Measurements.kgToPounds(character.weight)} lbs.</Stat>
+      <Stat label="Weight">{Measurements.kgToPounds(namedCharacter.weight)} lbs.</Stat>
     </StatBlock>
 
-    {#if character.physicalTraits.length > 0}
+    {#if namedCharacter.physicalTraits.length > 0}
       <h3>Physical Traits</h3>
       <ul>
-        {#each character.physicalTraits as trait}
+        {#each namedCharacter.physicalTraits as trait}
           <li><strong>{trait.name}:</strong> {trait.description}</li>
         {/each}
       </ul>
     {/if}
 
-    {#if character.personalityTraits.length > 0}
+    {#if namedCharacter.personalityTraits.length > 0}
       <h3>Personality</h3>
-      <p>{character.personalityTraits.join(', ')}</p>
+      <p>{namedCharacter.personalityTraits.join(', ')}</p>
     {/if}
 
-    {#if character.heraldry}
+    {#if shownArms}
       <h3>Heraldry</h3>
+      {#if wearingReferencedArms}
+        <!-- Named as borrowed, because it is: the character stores a link, not a copy, so editing
+             those arms changes what this character bears. -->
+        <p class="character-referenced-arms">From a saved coat of arms.</p>
+      {/if}
       <button
         type="button"
         class="character-heraldry heraldry-block-target"
-        aria-label="View heraldry for {character.name}"
+        aria-label="View heraldry for {namedCharacter.name}"
         onclick={() => {
-          const current = character;
-          if (current?.heraldry) {
-            void openHeraldryModal(current.heraldry, current.name, replaceCharacterHeraldry);
+          const arms = shownArms;
+          if (arms !== null) {
+            void openHeraldryModal(arms, namedCharacter.name);
           }
         }}
       >
         <!-- Renders app-generated markup (no external or user-supplied input). -->
         <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-        {@html renderHeraldryDeviceSvg(
-          character.heraldry.device,
-          heraldryWidth,
-          heraldryHeight,
-          rng,
-        )}
+        {@html renderHeraldryDeviceSvg(shownArms.device, heraldryWidth, heraldryHeight, rng)}
       </button>
-      <p>{renderDeviceBlazon(character.heraldry.device)}</p>
+      <p>{renderDeviceBlazon(shownArms.device)}</p>
     {/if}
 
-    {#if character.abilities.length > 0}
+    {#if namedCharacter.abilities.length > 0}
       <h3>Abilities</h3>
       <ul>
-        {#each character.abilities as ability}
+        {#each namedCharacter.abilities as ability}
           <li><strong>{ability.name}:</strong> {ability.description}</li>
         {/each}
       </ul>
     {/if}
 
-    {#if character.carried.length > 0}
+    {#if namedCharacter.carried.length > 0}
       <h3>Equipment</h3>
       <ul>
-        {#each character.carried as item}
+        {#each namedCharacter.carried as item}
           <li>{item.name}</li>
         {/each}
       </ul>
@@ -352,6 +478,17 @@
 </GeneratorPage>
 
 <style>
+  .character-exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .character-referenced-arms {
+    font-style: italic;
+    opacity: 0.9;
+  }
+
   button.character-heraldry {
     width: 200px;
     height: 220px;

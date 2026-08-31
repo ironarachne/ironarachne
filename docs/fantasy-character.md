@@ -10,10 +10,10 @@ against [Tool release readiness](workshop.md#tool-release-readiness). Culture (#
 [docs/adnd-character.md](adnd-character.md)) are the worked examples, and this follows them rather
 than inventing a second shape.
 
-**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved,
-so [the plan](#the-plan) is clear to start. The one question in [Still open](#still-open) — whether
-the editor lets a saved character's species be changed — is still open, and item 6 of the plan is
-where it has to be answered.
+**Status:** implemented. The [domain model](#domain-model) was reviewed and approved, and
+[the plan](#the-plan) was carried out in one branch rather than eight. The question that was left
+[open](#still-open) — whether the editor lets a saved character's species be changed — was answered
+**no**: species is shown read-only and a re-roll is how a character becomes a different species.
 
 ## The problem
 
@@ -174,18 +174,19 @@ screen against what was read.
 
 Covering every field the generator displays (4.1):
 
-| What                                 | How it is edited                                                        |
-| ------------------------------------ | ----------------------------------------------------------------------- |
-| First and last name                  | Two fields; `name` is rederived by `formatCharacterDisplayName`.        |
-| Description, short description       | Textareas. Rewriting from the character is an explicit command.         |
-| Gender, species name, archetype name | Selects over the build's tables, with the stored value kept if unknown. |
-| Age and age category                 | A number and a select.                                                  |
-| Height, weight, length               | Numbers, in the units the sheet shows.                                  |
-| Personality traits                   | Add, rewrite, remove — one at a time.                                   |
-| Physical traits                      | Name and description per trait, add and remove.                         |
-| Abilities, carried equipment         | Name and description per entry, add and remove.                         |
-| Titles                               | Male and female forms, honorifics, land name, per title.                |
-| Heraldry                             | Shown, and re-rolled or replaced from a saved coat of arms.             |
+| What                           | How it is edited                                                 |
+| ------------------------------ | ---------------------------------------------------------------- |
+| First and last name            | Two fields; `name` is rederived by `formatCharacterDisplayName`. |
+| Description, short description | Textareas. Rewriting from the character is an explicit command.  |
+| Gender, archetype name         | A select and a field, with the stored value kept if unknown.     |
+| Species                        | Read-only. See [Still open](#still-open) for why.                |
+| Age and age category           | A number and a select.                                           |
+| Height, weight, length         | Numbers, in the units the sheet shows.                           |
+| Personality traits             | Add, rewrite, remove — one at a time.                            |
+| Physical traits                | Name and description per trait, add and remove.                  |
+| Abilities, carried equipment   | Name and description per entry, add and remove.                  |
+| Titles                         | Male and female forms, honorifics, land name, per title.         |
+| Heraldry                       | Shown, and re-rolled or replaced from a saved coat of arms.      |
 
 That is 4.4 satisfied by construction: nothing here re-rolls anything else.
 
@@ -537,11 +538,59 @@ already has, and the second is a bug fix that stands on its own whether or not t
 `npm run verify` gates each; `npm run verify:all` runs before merging items 5, 6 and 7, which touch
 components and routes.
 
+**It shipped as one branch rather than eight.** The eight items are still the order the work was
+done in, and the dependency column still says why; what changed is only how it was reviewed.
+
+## What shipped
+
+Assessed section by section against
+[Tool release readiness](workshop.md#tool-release-readiness), not declared.
+
+- **1.** Catalog entry unchanged but for `maturity`, and registered in `TOOL_PANELS` already.
+- **2.** `character_roll.ts` is the single path from a seed, and the clock is out of it: pressing
+  Generate draws a new seed from the page's RNG, seeded once at mount. The name has its own derived
+  stream, so choosing a naming source cannot shift the rest of the character. One defect fell out
+  of writing the roll and is fixed with it: `generate` asked
+  `getFantasyNameGeneratorSet(species.name)` for a noble's land name, which **throws** for the
+  twenty-odd species with no pattern set of their own — a noble aarakocra took the whole page down.
+  It goes through `fantasyHintToNameSetName` now.
+- **3.** `character_snapshot.ts` and `character_rehydrate.ts`, kind `character` at payload version
+  1, `SaveArtifactButton` on the tool's own route, provenance carrying the four selects and the
+  resolved pattern set.
+- **4.** `character_editing.ts` and `CharacterArtifactEditor.svelte`, every displayed field but
+  species, each function returning a new snapshot. Re-roll is the kind's registered roller, and it
+  reports which part of a stale config it had to substitute rather than rolling out of empty tables.
+- **5.** A naming culture through `CharacterNameSection`'s existing opt-in, and a coat of arms
+  through a `SavedArtifactPicker`; both by reference, both opt-in, arms stored as `null`.
+- **6.** Markdown and PDF exports **with their controls**, which is decision 8 honoured.
+- **7.** Round-trip, unknown-species, editing, presentation and roll tests in the library; the
+  settlement version 1 → 2 migration exercised against a real version 1 payload; `e2e/character.spec.ts`
+  for generate, save, reopen, edit across a reload.
+- **8.** `src/lib/characters/README.md` says plainly that this library implements no game system,
+  and where a system's character lives instead.
+
+Two things are worth recording for the kinds that follow.
+
+**The first real `payloadVersion` step was unremarkable to write, and that is the finding.** The
+registry's read path already routed an older payload to `migrate`; the settlement kind supplied one
+step and nothing generic changed. What the step actually cost was a fixture: the migration is only
+worth trusting against a payload of the shape the site really shipped, so the test builds one by
+putting the embedded species _back_ into a generated settlement rather than pasting a captured blob
+that would go stale.
+
+**A shared type is cheaper than a shared shape.** Moving `StoredCharacter` into `$lib/characters`
+cost the migration above and removed a whole `Species` record per notable, which is the bulk of
+what a stored notable was. The alternative, two types with one name, would have been free that day
+and wrong from the first change to either.
+
 ## Still open
 
-- **Whether the editor offers a species change at all.** Changing a saved character's species does
-  not recompute the height, weight or physical traits that species produced, so the result is an
-  elf with a halfling's build unless the user fixes the rest by hand. The table above includes it
-  on the grounds that 4.1 asks for every displayed field; the alternative is to show species as
-  read-only and let a re-roll be the way to change it. This is the one question in this document a
-  reviewer should answer deliberately.
+- ~~**Whether the editor offers a species change at all.**~~ **Answered: it does not.** Changing a
+  saved character's species does not recompute the height, weight or physical traits that species
+  produced, so the result would be an elf with a halfling's build unless the user fixed the rest by
+  hand. Species is shown read-only — including its name when this build no longer has that
+  species — and a re-roll is the way to change it. The field table above is amended accordingly:
+  4.1 asks for every displayed field to be _changeable_, and the honest reading is that a field
+  whose change would silently invalidate five others is better shown than half-edited.
+
+Nothing else in this document is open.

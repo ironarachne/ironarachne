@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { readArtifactPayload, type AnyArtifactKindEntry } from '$lib/artifact_kinds';
+import { sentientSpeciesList } from '$lib/species_sentients';
 
 import {
   migrateSettlementSnapshot,
@@ -114,11 +115,127 @@ describe('validateSettlementSnapshot', () => {
   });
 });
 
+/**
+ * A settlement as version 1 wrote it: every notable's and every organization member's character
+ * carrying the whole `Species` record that version 2 stores as a name.
+ *
+ * Built by putting the species back rather than by pasting a captured payload, so the fixture stays
+ * a *real* settlement of the shape the site actually shipped — every other field is exactly what
+ * the generator produces — instead of a hand-typed approximation that goes stale.
+ */
+function version1Snapshot(seed: string): Record<string, unknown> {
+  const snapshot = storedSnapshot(seed, {
+    size: 'large',
+    includeOrganizations: true,
+    includeNotables: true,
+  });
+
+  const embed = (value: unknown): unknown => {
+    const character = value as Record<string, unknown>;
+    const { speciesName, ...rest } = character;
+    const species = sentientSpeciesList.find((entry) => entry.name === speciesName);
+    return { ...rest, species: JSON.parse(JSON.stringify(species)) as unknown };
+  };
+
+  return {
+    ...snapshot,
+    importantPeople: (snapshot.importantPeople as Record<string, unknown>[]).map((notable) => ({
+      ...notable,
+      character: embed(notable.character),
+    })),
+    organizations: (snapshot.organizations as Record<string, unknown>[]).map((organization) => ({
+      ...organization,
+      leader: embed(organization.leader),
+      notableMembers: (organization.notableMembers as unknown[]).map(embed),
+    })),
+  };
+}
+
 describe('migrateSettlementSnapshot', () => {
-  it('rejects, because version 1 is the only shape there has been', () => {
+  /**
+   * Requirement 7.3, and the site's first real payload step. Every settlement saved before this
+   * release keeps every notable it had.
+   */
+  it('brings a version 1 settlement’s notables forward, species and all', () => {
+    const result = migrateSettlementSnapshot(version1Snapshot('greyhaven'), 1);
+
+    expect(result.ok).toBe(true);
+    const notables = result.ok ? (result.value.importantPeople ?? []) : [];
+    expect(notables.length).toBeGreaterThan(0);
+    for (const notable of notables) {
+      expect(notable.character.speciesName).not.toBe('');
+      expect(notable.character).not.toHaveProperty('species');
+      // The species is resolvable, which is what makes the migrated character a whole one again.
+      expect(sentientSpeciesList.some((s) => s.name === notable.character.speciesName)).toBe(true);
+    }
+  });
+
+  it('brings an organization’s leader and members forward too', () => {
+    const result = migrateSettlementSnapshot(version1Snapshot('greyhaven'), 1);
+
+    expect(result.ok).toBe(true);
+    const organizations = result.ok ? (result.value.organizations ?? []) : [];
+    expect(organizations.length).toBeGreaterThan(0);
+    for (const organization of organizations) {
+      expect(organization.leader.speciesName).not.toBe('');
+      for (const member of organization.notableMembers) {
+        expect(member.speciesName).not.toBe('');
+      }
+    }
+  });
+
+  it('leaves the rest of the settlement exactly as it was', () => {
+    const before = version1Snapshot('greyhaven');
+    const result = migrateSettlementSnapshot(before, 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.name).toBe(before.name);
+      expect(result.value.population).toBe(before.population);
+      expect(result.value.acuteProblems).toEqual(before.acuteProblems);
+    }
+  });
+
+  /**
+   * Enrichment is opt-in four times over, so a version 1 settlement may have neither notables nor
+   * organizations. One that has neither migrates by having nothing to do.
+   */
+  it('migrates an unenriched settlement by leaving it alone', () => {
+    const plain = storedSnapshot('greyhaven');
+    const result = migrateSettlementSnapshot(plain, 1);
+
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.value.name).toBe(plain.name);
+  });
+
+  it('does not lose a settlement over one malformed notable', () => {
+    const broken = version1Snapshot('greyhaven');
+    const notables = broken.importantPeople as Record<string, unknown>[];
+    notables[0] = {
+      ...notables[0],
+      character: { ...(notables[0].character as Record<string, unknown>), species: 'not a record' },
+    };
+    const result = migrateSettlementSnapshot(broken, 1);
+
+    expect(result.ok).toBe(true);
+    expect(result.ok && result.value.importantPeople?.[0]?.character.speciesName).toBe('');
+  });
+
+  it('rejects a version it has no step from', () => {
     const result = migrateSettlementSnapshot({}, 0);
     expect(result.ok).toBe(false);
     expect(result.ok === false && result.reason).toBe('unsupported-version');
+  });
+
+  it('rejects something that is not a settlement at all', () => {
+    expect(migrateSettlementSnapshot('a town, honestly', 1).ok).toBe(false);
+  });
+
+  /** The registry's own path: an older payload reaches `migrate` and comes back current. */
+  it('is reached by the registry when a stored payload is older than this build', () => {
+    const entry = settlementArtifactKind as unknown as AnyArtifactKindEntry;
+
+    expect(readArtifactPayload(entry, version1Snapshot('greyhaven'), 1).ok).toBe(true);
   });
 });
 

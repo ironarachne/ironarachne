@@ -1764,8 +1764,8 @@ recorded here because it is what the next kind will meet:
   is a megabyte with its organizations silently hollowed out. Converted by name — entries, charge
   names, archetype names — it is about forty kilobytes and round-trips exactly.
 - **A kind can have more than one legitimate shape.** `enrich_settlement.ts` is opt-in four times
-  over, so sixteen combinations are all current payloads at version 1. That is not a version
-  problem and must not be treated as one: `validate` accepts each optional layer when absent and
+  over, so sixteen combinations are all current payloads at whatever version is current. That is
+  not a version problem and must not be treated as one: `validate` accepts each optional layer when absent and
   checks it when present, which is also what makes a payload written by a build with different
   enrichment defaults readable rather than quarantined (requirement 3.3).
 - **Determinism needs a single roll path, and the page is not it.** The generator built its
@@ -1805,11 +1805,14 @@ recorded as provenance so a hand-built character is reproducible — is what the
 character kind will meet.
 
 The system-neutral **Fantasy Character** generator follows it in
-[The fantasy character artifact](fantasy-character.md), which is accepted and not yet built. It
-takes the same bargain one step further — a species and an archetype stored by
-name rather than embedded — and in doing so moves the `StoredCharacter` shape out of
-`$lib/settlements`, which is what makes the settlement payload the first here to advance a
-`payloadVersion`.
+[The fantasy character artifact](fantasy-character.md), which is **implemented** (#46). It took the
+same bargain one step further — a species and an archetype stored by name rather than embedded —
+and in doing so moved the `StoredCharacter` shape out of `$lib/settlements`, which is what made the
+settlement payload the first here to advance a `payloadVersion`. `SETTLEMENT_PAYLOAD_VERSION` is 2,
+and its migration rewrites every notable's and every organization member's embedded species record
+into a name. The step is unremarkable to write and that is the finding: the registry's read path
+already routed an older payload to `migrate`, so the kind supplied one step and nothing generic
+changed.
 
 **Everything else is designed together, in [the readiness pass](tool-readiness.md).** Twenty-eight
 tools remain, and taken one at a time they would answer the same questions twenty-eight times and

@@ -74,6 +74,15 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollSettlementSnapshot(provenance.seed, readSettlementGeneratorConfig(provenance.config));
     },
   },
+  character: {
+    loadEditor: () => import('$components/characters/CharacterArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readCharacterGeneratorConfig, rollCharacterSnapshot } =
+        await import('$lib/characters/character_roll.js');
+      return (provenance) =>
+        rollCharacterSnapshot(provenance.seed, readCharacterGeneratorConfig(provenance.config));
+    },
+  },
   /**
    * The first kind whose editor is a tool rather than a component written for the purpose.
    *

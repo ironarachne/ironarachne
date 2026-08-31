@@ -38,7 +38,12 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Character',
     kind: 'generator',
     domain: 'characters',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/fantasy-character.md (#46). It saves as the unqualified `character` kind, has an editor
+    // in `ARTIFACT_EDITORS`, composes a naming culture and a coat of arms by reference, and exports
+    // Markdown and PDF. Its roll is deterministic from the seed — the clock left the generation
+    // path with `character_roll.ts`, which is what 2.2 was failing on before.
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['character'],
   }),
