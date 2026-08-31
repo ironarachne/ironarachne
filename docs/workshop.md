@@ -1811,6 +1811,18 @@ name rather than embedded — and in doing so moves the `StoredCharacter` shape 
 `$lib/settlements`, which is what makes the settlement payload the first here to advance a
 `payloadVersion`.
 
+**Everything else is designed together, in [the readiness pass](tool-readiness.md).** Twenty-eight
+tools remain, and taken one at a time they would answer the same questions twenty-eight times and
+differently: where the stored form of a character lives, whether a rendered image is a payload,
+what a tool that returns a paragraph of prose is worth saving as. The pass settles those once and
+splits the per-tool work across five documents by catalog domain —
+[characters](readiness-characters.md), [factions](readiness-factions.md),
+[locations](readiness-locations.md), [objects](readiness-objects.md) and
+[utilities](readiness-utilities.md). Its most consequential finding is not about any one tool:
+**every remaining generator seeds from the clock**, in the component and often in its library's
+default-config helper too, so requirement 2.2 is failing site-wide and every re-roll from
+provenance depends on fixing it.
+
 The paragraph below refers to the **pre-migration** #45, which was about storage. Issue numbers all
 changed when the forge moved to GitHub, and today's #45 is the character builder above.
 
