@@ -306,9 +306,16 @@ above rather than contradicting it: the case it argues for is building a region 
 you can see, and those settlements are artifacts. What is single is the **instrument**, not the
 bench — a workbench has one thing clamped in it and as many references open around it as you like.
 
+**The tool is mounted at the left-hand end**, in front of whatever artifacts are already open;
+artifacts still open at the right. The instrument leads, and a bench that has collected a few
+references must not push the tool the user just asked for off to the right of them — on a phone,
+where the bench is a single column, that is the work below the fold and the notes above it. The
+seat is chosen only on the way in, so the move controls still mean what they say: a user who puts
+the tool to the right of an artifact keeps it there.
+
 The invariant is enforced in `renumberPanels`, which every mutation and every read passes through,
 so a bench stored before the rule existed comes back obeying it — keeping the rightmost tool, which
-is the one most recently opened. Swapping a tool out asks first when it is holding generated
+was the one most recently opened back when tools were appended. Swapping a tool out asks first when it is holding generated
 content nobody has saved, through the same unsaved-edits registry that guards closing a panel;
 `SaveArtifactButton` is what registers that answer for a generator.
 

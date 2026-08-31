@@ -31,8 +31,11 @@ function panelFromTarget(target: PanelTarget, order: number): PanelState {
 }
 
 /**
- * The bench holds at most one tool, keeping the rightmost — which is the most recently opened,
- * since {@link withPanelOpened} appends.
+ * The bench holds at most one tool, keeping the rightmost.
+ *
+ * Only a bench stored before the one-tool rule can hold two, and there the rightmost was the most
+ * recently opened, since {@link withPanelOpened} appended tools then. Nothing this build writes
+ * reaches here with a choice to make: opening a tool takes the previous one off first.
  *
  * Artifacts are not capped: the composition case in docs/workshop.md is a settlement open beside
  * the region generator being built from it, and that still wants several things visible. What is
@@ -101,12 +104,23 @@ export function isPanelOpen(workspace: ProjectWorkspace, target: PanelTarget): b
 }
 
 /**
- * Put something on the bench, at the right-hand end.
+ * Put something on the bench: an **artifact** at the right-hand end, a **tool** at the left.
+ *
+ * The sides differ because the two hold different things. A tool is the instrument being worked
+ * with, and a bench that has collected a few artifacts would otherwise push it off to the right
+ * of its own reference material — on a phone, where the bench is a single column, that is the
+ * work below the fold and the notes above it. Artifacts still append, so a second one opened is
+ * beside the first rather than in front of it.
+ *
+ * A tool is only placed on the way in. Nothing re-seats it afterwards, so the move controls still
+ * mean what they say: a user who puts a tool to the right of an artifact keeps it there.
  *
  * Opening what is already open returns the workspace unchanged rather than duplicating it, so a
  * user clicking a tool twice does not end up with two of it. A bench already holding
  * {@link MAX_PANELS} drops its leftmost panel to make room: refusing instead would leave the user
- * to work out which panel is in the way of the one they just asked for.
+ * to work out which panel is in the way of the one they just asked for. That is still the leftmost
+ * when a tool is arriving — the oldest panel goes, rather than the one nearest where the tool
+ * lands.
  *
  * Opening a **tool** takes the tool that was there off first: one instrument at a time. The
  * removal happens here rather than being left to `renumberPanels` so that replacing a tool costs
@@ -125,7 +139,11 @@ export function withPanelOpened(
       ? workspace.panels
       : workspace.panels.filter((panel) => panel.toolPath === undefined);
   const kept = existing.slice(Math.max(0, existing.length - (MAX_PANELS - 1)));
-  return withPanels(workspace, [...kept, panelFromTarget(target, kept.length)]);
+  const panels =
+    target.toolPath === undefined
+      ? [...kept, panelFromTarget(target, kept.length)]
+      : [panelFromTarget(target, 0), ...kept];
+  return withPanels(workspace, panels);
 }
 
 /** Take something off the bench. Closing what is not open changes nothing. */
