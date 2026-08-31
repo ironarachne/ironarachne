@@ -23,9 +23,9 @@ are culture (#40), religion (#41), settlement (#20), the AD&D 2E character
 ([docs/fantasy-character.md](fantasy-character.md)); nothing here invents a shape those five
 already have.
 
-**Status:** proposal. The [domain model](#domain-model) has not been reviewed. Implementation of
-any tool in the pass waits on that approval, because the vocabulary in
-[The stored vocabulary](#the-stored-vocabulary) is what the per-tool documents are written against.
+**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved,
+so the pass is clear to start — beginning with wave 0, because the vocabulary in
+[The stored vocabulary](#the-stored-vocabulary) is what every per-tool document is written against.
 
 ## What is already true, for all twenty-eight
 

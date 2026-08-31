@@ -14,7 +14,7 @@ Number starship generator ([#72](https://github.com/ironarachne/ironarachne/issu
 Part of [the readiness pass](tool-readiness.md). Measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** proposal, with [the pass](tool-readiness.md#domain-model). Not reviewed.
+**Status:** accepted; not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 The largest domain in the pass by count and the smallest by difficulty. Seven of the nine are flat
 payloads that the declared field editor serves; one is a reference tool with no kind at all; and

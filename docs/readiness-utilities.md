@@ -8,7 +8,7 @@ cheat sheet ([#76](https://github.com/ironarachne/ironarachne/issues/76)).
 Part of [the readiness pass](tool-readiness.md). Measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** proposal, with [the pass](tool-readiness.md#domain-model). Not reviewed.
+**Status:** accepted; not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 Two of these are reference tools with no artifact kind at all, which makes them the smallest jobs
 in the pass; they run in parallel with everything else rather than queueing behind it

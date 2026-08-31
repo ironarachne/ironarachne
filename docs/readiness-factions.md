@@ -10,7 +10,7 @@ Five tools: the arms manufacturer
 Part of [the readiness pass](tool-readiness.md). Measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** proposal, with [the pass](tool-readiness.md#domain-model). Not reviewed.
+**Status:** accepted; not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 This domain holds the pass's easiest tool and its second-hardest. The arms manufacturer is three
 files and a flat payload; the organization generator is the richest generator on the site, with a
