@@ -148,10 +148,23 @@ describe('normalizePanels', () => {
 });
 
 describe('withPanelOpened', () => {
-  it('adds a panel at the right-hand end', () => {
-    expect(keysOf(benchOf({ toolPath: '/culture' }, { artifactId: 'a1' }))).toEqual([
+  it('adds an artifact at the right-hand end', () => {
+    expect(keysOf(benchOf({ artifactId: 'a1' }, { artifactId: 'a2' }))).toEqual([
+      'artifact:a1',
+      'artifact:a2',
+    ]);
+  });
+
+  it('adds a tool at the left-hand end, in front of the artifacts already open', () => {
+    // The instrument leads. A bench that had collected artifacts would otherwise put the tool to
+    // the right of its own reference material, which on a single-column phone bench is the work
+    // below the fold and the notes above it.
+    const bench = benchOf({ artifactId: 'a1' }, { artifactId: 'a2' });
+
+    expect(keysOf(withPanelOpened(bench, { toolPath: '/culture' }))).toEqual([
       'tool:/culture',
       'artifact:a1',
+      'artifact:a2',
     ]);
   });
 
@@ -162,11 +175,15 @@ describe('withPanelOpened', () => {
   });
 
   it('does not move a panel that is reopened', () => {
+    // Including a tool a user has deliberately moved: placement happens on the way in, so opening
+    // what is already open is not a second chance to re-seat it.
     const bench = benchOf({ toolPath: '/culture' }, { artifactId: 'a1' });
+    const moved = withPanelMoved(bench, { toolPath: '/culture' }, 1);
+    expect(keysOf(moved)).toEqual(['artifact:a1', 'tool:/culture']);
 
-    expect(keysOf(withPanelOpened(bench, { toolPath: '/culture' }))).toEqual([
-      'tool:/culture',
+    expect(keysOf(withPanelOpened(moved, { toolPath: '/culture' }))).toEqual([
       'artifact:a1',
+      'tool:/culture',
     ]);
   });
 
@@ -182,9 +199,9 @@ describe('withPanelOpened', () => {
     const bench = benchOf({ artifactId: 'a1' }, { toolPath: '/culture' }, { artifactId: 'a2' });
 
     expect(keysOf(withPanelOpened(bench, { toolPath: '/heraldry' }))).toEqual([
+      'tool:/heraldry',
       'artifact:a1',
       'artifact:a2',
-      'tool:/heraldry',
     ]);
   });
 
@@ -201,11 +218,13 @@ describe('withPanelOpened', () => {
     const swapped = withPanelOpened(full, { toolPath: '/heraldry' });
 
     expect(swapped.panels).toHaveLength(MAX_PANELS);
-    expect(keysOf(swapped)[0]).toBe('artifact:a0');
-    expect(keysOf(swapped).at(-1)).toBe('tool:/heraldry');
+    expect(keysOf(swapped)[0]).toBe('tool:/heraldry');
+    expect(keysOf(swapped).at(-1)).toBe(`artifact:a${MAX_PANELS - 2}`);
   });
 
   it('drops the leftmost panel to make room on a full bench', () => {
+    // The oldest panel goes, not the one nearest where the tool lands: what is in the way is
+    // whatever the user opened longest ago, wherever the arriving panel is seated.
     const full = Array.from({ length: MAX_PANELS }, (_unused, index) => ({
       artifactId: `a${index}`,
     })).reduce((workspace, target) => withPanelOpened(workspace, target), emptyWorkspace('p1'));
@@ -213,8 +232,8 @@ describe('withPanelOpened', () => {
     const opened = withPanelOpened(full, { toolPath: '/culture' });
 
     expect(opened.panels).toHaveLength(MAX_PANELS);
-    expect(keysOf(opened)[0]).toBe('artifact:a1');
-    expect(keysOf(opened).at(-1)).toBe('tool:/culture');
+    expect(keysOf(opened)[0]).toBe('tool:/culture');
+    expect(keysOf(opened)[1]).toBe('artifact:a1');
   });
 });
 
@@ -230,13 +249,13 @@ describe('isPanelOpen', () => {
 
 describe('withPanelClosed', () => {
   it('removes the panel and renumbers what is left', () => {
-    const bench = benchOf({ artifactId: 'a1' }, { artifactId: 'a2' }, { toolPath: '/heraldry' });
+    const bench = benchOf({ toolPath: '/heraldry' }, { artifactId: 'a1' }, { artifactId: 'a2' });
 
-    const closed = withPanelClosed(bench, { artifactId: 'a2' });
+    const closed = withPanelClosed(bench, { artifactId: 'a1' });
 
     expect(closed.panels).toEqual([
-      { order: 0, artifactId: 'a1' },
-      { order: 1, toolPath: '/heraldry' },
+      { order: 0, toolPath: '/heraldry' },
+      { order: 1, artifactId: 'a2' },
     ]);
   });
 
@@ -248,7 +267,13 @@ describe('withPanelClosed', () => {
 });
 
 describe('withPanelMoved', () => {
-  const bench = benchOf({ artifactId: 'a1' }, { toolPath: '/heraldry' }, { artifactId: 'a2' });
+  // A tool sitting between two artifacts, which the bench only reaches by hand: an opened tool
+  // lands on the left, and a user moved it one to the right.
+  const bench = withPanelMoved(
+    benchOf({ toolPath: '/heraldry' }, { artifactId: 'a1' }, { artifactId: 'a2' }),
+    { toolPath: '/heraldry' },
+    1,
+  );
 
   it('swaps a panel with its left neighbour', () => {
     expect(keysOf(withPanelMoved(bench, { toolPath: '/heraldry' }, -1))).toEqual([

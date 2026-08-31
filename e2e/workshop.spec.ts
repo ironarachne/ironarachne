@@ -243,7 +243,26 @@ test.describe('the workshop bench', () => {
     await mountTool(page, /^Heraldry/);
 
     await expect(panels(page)).toHaveCount(2);
-    await expect(panelTitles(page)).toHaveText([/The Emberfolk/, /Heraldry/]);
+    await expect(panelTitles(page)).toHaveText([/Heraldry/, /The Emberfolk/]);
+  });
+
+  test('mounts a tool leftmost, in front of the artifacts already open', async ({ page }) => {
+    // The instrument leads. An artifact is reference for the work, so a bench that has collected
+    // a few of them must not push the tool the user just asked for off to their right — which on
+    // a phone, where the bench is one column, is the work below the fold and the notes above it.
+    await createProject(page, 'Ashfall');
+    await saveACulture(page, 'The Emberfolk');
+    await artifactRow(page, 'The Emberfolk').click();
+    await expect(panelTitles(page)).toHaveText([/Culture/, /The Emberfolk/]);
+
+    // Closing the tool and mounting one against a bench that already holds the artifact is the
+    // case the rule is about: the tool arrives second and still lands first.
+    await page.getByRole('button', { name: /^Close Culture/ }).click();
+    await expect(panelTitles(page)).toHaveText([/The Emberfolk/]);
+
+    await mountTool(page, /^Heraldry/);
+
+    await expect(panelTitles(page)).toHaveText([/Heraldry/, /The Emberfolk/]);
   });
 
   test('does not mount a second copy of a tool already on the bench', async ({ page }) => {
@@ -533,6 +552,40 @@ test.describe('the bench on a phone', () => {
 
     await expectNoHorizontalOverflow(page);
     await expectInteractiveControlsReachable(page);
+  });
+
+  /**
+   * On a phone the rail's two lists sit above the bench, so a tool mounted from the browser lands
+   * somewhere off the bottom of the screen: the tap changes a part of the page nobody can see, and
+   * reads as a control that did nothing. The page follows the panel instead.
+   *
+   * Asserted on where the panel ends up relative to the viewport rather than on a scroll offset,
+   * because what the user is owed is seeing the thing they opened, not a particular number of
+   * pixels having gone by.
+   */
+  test('scrolls to a panel mounted on a phone', async ({ page }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await openEmptyWorkshop(page);
+
+    await mountTool(page, /^Culture/);
+
+    const panel = panels(page).first();
+    await expect(panel).toBeVisible();
+    await expect
+      .poll(async () => {
+        const box = await panel.boundingBox();
+        const height = page.viewportSize()?.height ?? 0;
+        // Its top edge is on screen, which for a panel taller than the phone is the whole of what
+        // "scrolled to it" can mean — and the page moved to put it there, rather than the bench
+        // having happened to fit under the rail.
+        // The shell's page region is the scroller, not the document: `.shell__page` is a grid
+        // item with `overflow-y: auto`, so the window never scrolls on this site.
+        const scrolled = await page.evaluate(
+          () => document.querySelector('.shell__page')?.scrollTop ?? 0,
+        );
+        return box !== null && box.y >= 0 && box.y < height && scrolled > 0;
+      })
+      .toBe(true);
   });
 });
 

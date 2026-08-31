@@ -30,8 +30,13 @@ that content is its identity, which `panelKey` spells out. Opening something alr
 moves to it rather than putting a second copy beside the first, because two panels showing one tool
 are two copies of one thing with separately drifting state.
 
+A **tool** goes on at the left-hand end and an **artifact** at the right: the instrument leads, and
+the references it is being built from sit beside it rather than in front of it. Placement happens on
+the way in only — nothing re-seats a panel afterwards, so `withPanelMoved` is not fighting a rule.
+
 `MAX_PANELS` caps the bench. A full bench drops its leftmost panel to make room rather than
-refusing, so a user is never left working out which panel is in the way of the one they asked for.
+refusing, so a user is never left working out which panel is in the way of the one they asked for —
+the oldest panel goes, whichever end the arriving one lands at.
 
 ## Usage
 

@@ -197,6 +197,7 @@
       }
     }
     updateBench(withPanelOpened(bench, { toolPath: tool.path }));
+    void revealPanel({ toolPath: tool.path });
     return true;
   }
 
@@ -224,6 +225,41 @@
 
   function openArtifact(artifactId: string) {
     updateBench(withPanelOpened(bench, { artifactId }));
+    void revealPanel({ artifactId });
+  }
+
+  /**
+   * Bring a panel that has just been put on the bench into view.
+   *
+   * Only where the bench is stacked under the rail, which is the arrangement the same 48rem
+   * breakpoint below produces: on a phone the rail's two lists are between the user and the bench,
+   * so tapping a tool changes a part of the page nobody can see and reads as a control that did
+   * nothing. Where the columns sit side by side the bench is already beside the list that was
+   * tapped, and scrolling the page under someone who can see the result is the more disruptive
+   * of the two.
+   *
+   * The panel is found by position rather than by a selector of its own, the same way
+   * `placeFocusAfterClose` finds one: the bench renders panels in `bench.panels` order, and that
+   * is the only correspondence either needs.
+   */
+  async function revealPanel(target: PanelTarget): Promise<void> {
+    if (!window.matchMedia('(max-width: 48rem)').matches) {
+      return;
+    }
+    await tick();
+
+    const index = bench.panels.findIndex((panel) => panelKey(panel) === panelKey(target));
+    if (index === -1) {
+      return;
+    }
+    const element = benchElement?.querySelectorAll('section.workshop-panel')[index];
+    if (!(element instanceof HTMLElement)) {
+      return;
+    }
+    // Smoothly, so the movement is legible as the page travelling rather than as a jump to
+    // somewhere unrecognisable — but not for a user who has asked the site to stop moving.
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    element.scrollIntoView({ behavior: reducedMotion ? 'auto' : 'smooth', block: 'start' });
   }
 
   function targetOf(panel: PanelState): PanelTarget {
