@@ -10,8 +10,10 @@ against [Tool release readiness](workshop.md#tool-release-readiness). Culture (#
 [docs/adnd-character.md](adnd-character.md)) are the worked examples, and this follows them rather
 than inventing a second shape.
 
-**Status:** proposal. The [domain model](#domain-model) has not yet been reviewed;
-implementation does not start until it has been approved.
+**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved,
+so [the plan](#the-plan) is clear to start. The one question in [Still open](#still-open) — whether
+the editor lets a saved character's species be changed — is still open, and item 6 of the plan is
+where it has to be answered.
 
 ## The problem
 

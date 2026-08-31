@@ -1805,8 +1805,8 @@ recorded as provenance so a hand-built character is reproducible — is what the
 character kind will meet.
 
 The system-neutral **Fantasy Character** generator follows it in
-[The fantasy character artifact](fantasy-character.md), which is a proposal awaiting review of its
-domain model. It takes the same bargain one step further — a species and an archetype stored by
+[The fantasy character artifact](fantasy-character.md), which is accepted and not yet built. It
+takes the same bargain one step further — a species and an archetype stored by
 name rather than embedded — and in doing so moves the `StoredCharacter` shape out of
 `$lib/settlements`, which is what makes the settlement payload the first here to advance a
 `payloadVersion`.
