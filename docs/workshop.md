@@ -1804,6 +1804,13 @@ decisions, so what it settles — rule tables stored by name, every derived numb
 recorded as provenance so a hand-built character is reproducible — is what the next system-qualified
 character kind will meet.
 
+The system-neutral **Fantasy Character** generator follows it in
+[The fantasy character artifact](fantasy-character.md), which is a proposal awaiting review of its
+domain model. It takes the same bargain one step further — a species and an archetype stored by
+name rather than embedded — and in doing so moves the `StoredCharacter` shape out of
+`$lib/settlements`, which is what makes the settlement payload the first here to advance a
+`payloadVersion`.
+
 The paragraph below refers to the **pre-migration** #45, which was about storage. Issue numbers all
 changed when the forge moved to GitHub, and today's #45 is the character builder above.
 
