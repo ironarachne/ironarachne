@@ -17,6 +17,7 @@ describe('artifact kind catalog', () => {
       'settlement',
       'character.adnd-2e',
       'character',
+      'character.dcc',
     ]);
   });
 

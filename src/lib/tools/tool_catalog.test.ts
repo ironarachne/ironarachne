@@ -113,6 +113,7 @@ describe('TOOL_CATALOG', () => {
     const assessedHigher = [
       '/character',
       '/culture',
+      '/fantasy/dcc/character',
       '/fantasy/religion',
       '/fantasy/settlement',
       '/heraldry',
@@ -215,6 +216,7 @@ describe('toolsWithMaturity', () => {
       '/culture',
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
+      '/fantasy/dcc/character',
       '/fantasy/religion',
       '/fantasy/settlement',
     ]);
@@ -265,6 +267,7 @@ describe('filterTools', () => {
       '/fantasy/adnd/character/build',
       '/character',
       '/fantasy/adnd/character',
+      '/fantasy/dcc/character',
       '/culture',
       '/fantasy/religion',
       '/fantasy/settlement',

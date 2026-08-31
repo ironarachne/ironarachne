@@ -4,6 +4,31 @@ This library implements character generation for **Dungeon Crawl Classics**, who
 level-0 funnel: a player brings several ordinary people with an occupation, whatever that occupation
 left them carrying, and a lucky sign, and most of them do not survive to level 1.
 
+`rollDccCharacter(seed, config)` is the single path from a seed to a character; prefer it over
+calling `generateRandomDCCCharacter` directly, because it is where the settings a re-roll reads back
+are defined.
+
+## Which edition, and what is deliberately absent
+
+This is **Dungeon Crawl Classics as published in the core rulebook**, and only the part of it a
+zero-level character needs: the six attributes, the birth augur (lucky sign), the occupation tables
+for the four ancestries, starting equipment and coin, languages, and the four saves.
+
+What is **not** here, and is out of scope rather than missing:
+
+- **Levelled advancement.** Every character this library makes is level 0. There are no classes, no
+  class tables, no Mighty Deeds, no crit or fumble tables, and no spell lists — a zero-level
+  character has none of them, and a character who survives the funnel picks a class at a table
+  rather than in a generator.
+- **The published attribute-modifier table.** `getAttributeModifier` is the d20-style
+  `floor((value - 10) / 2)`, which differs from DCC's own table at the extremes. It is what this
+  library has always used and what every saved character was rolled with; changing it is a change
+  to the generator, not to the sheet.
+- **Anything from the third-party or licensed material.** Occupations, lucky signs and languages
+  come from the core tables only.
+
+Iron Arachne is unaffiliated with Goodman Games.
+
 ## Features
 
 - **Generation** — `generateRandomDCCCharacter` with `getDefaultDCCCharacterGeneratorConfig(seed)`.
@@ -13,6 +38,21 @@ left them carrying, and a lucky sign, and most of them do not survive to level 1
 - **Formatting** — the `formatDcc*` helpers (modifiers, currency, starting funds, weapon lines,
   lucky sign, notes) and `slugifyDccCharacterFilename`.
 - **PDF** — `buildDccCharacterPdf` returns a `Blob`; `downloadDccCharacterPdf` saves it.
+- **Rolling** — `rollDccCharacter` and `rollDccCharacterSnapshot`, with
+  `DccCharacterGeneratorConfigRecord` and `readDccCharacterGeneratorConfig` — the typed boundary
+  where an artifact's untyped provenance becomes settings a roll can take.
+- **Storing** — `toDccCharacterSnapshot` and `dccCharacterFromSnapshot`. The occupation and the
+  lucky sign travel as the rows the character drew, minus their `apply` handler, which is put back
+  by name on read; `isUnknownDccOccupationName` and `isUnknownDccLuckyRollName` say when it could
+  not be.
+- **The artifact kind** — `dccCharacterArtifactKind`, `DCC_CHARACTER_ARTIFACT_KIND`
+  (`character.dcc`), `validateDccCharacterSnapshot`, `migrateDccCharacterSnapshot`. One artifact is
+  one character: a funnel saves several.
+- **Editing a saved character** — `dcc_character_editing.ts`: one function per field, each taking a
+  snapshot and returning a new one. Nothing recomputes anything; `dccDerivedFromAttributes` offers
+  the arithmetic as an explicit command.
+- **Presentation** — `dccCharacterToDocument`, `dccCharacterToMarkdown`, `dccCharacterFileStem`,
+  for the Markdown export beside the drawn PDF sheet.
 
 ## Usage
 
