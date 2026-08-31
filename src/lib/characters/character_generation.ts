@@ -13,6 +13,7 @@ import { getAllFantasyArchetypes, type Archetype } from '$lib/archetypes';
 import { human } from '$lib/species_sentients';
 import { getFantasyNameGeneratorSet, type NameGeneratorSet } from '$lib/names';
 import { generateHeraldry, getDefaultHeraldryGeneratorConfig } from '$lib/heraldry';
+import { fantasyHintToNameSetName } from './character_name_generation';
 import { getStandardNobleTitles } from './titles';
 import { applyTagFilter } from '$lib/tags';
 
@@ -152,8 +153,11 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
 
     const possibleTitles = getStandardNobleTitles();
     const title = rng.item(possibleTitles);
+    /* Through the hint rather than straight off the species name: `getFantasyNameGeneratorSet`
+       throws for a set it does not have, and most of `sentientSpeciesList` — aarakocra, tabaxi,
+       tortle — has no patterns of its own, so a noble of one used to take the whole roll down. */
     title.landName = getFantasyNameGeneratorSet(
-      config.species.name.toLowerCase() || 'human',
+      fantasyHintToNameSetName(config.species.name),
       rng,
     ).country.generate(1)[0];
     titles.push(title);

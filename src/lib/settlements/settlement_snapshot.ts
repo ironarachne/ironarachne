@@ -5,7 +5,7 @@
  * stores, lists, or validates a settlement needs it.
  *
  * A settlement is the first artifact payload on the site built against the kind contract from
- * scratch rather than retrofitted, and three things in it are not plain data. Each is handled
+ * scratch rather than retrofitted, and four things in it are not plain data. Each is handled
  * explicitly here rather than left to a blanket strip, because requirement 3.2 in
  * docs/workshop.md asks for exactly that — stripped *or reconstructed*, and named either way:
  *
@@ -20,10 +20,13 @@
  *   about the character. Kept, one enriched settlement is a megabyte and a campaign's worth is a
  *   storage-quota problem; dropped and rebuilt from the archetype's name, the same settlement is
  *   about forty kilobytes. That is the trade the heraldry kind already makes with charge names.
+ * - **A character embeds a whole species.** Age categories, a size matrix, physical-trait configs
+ *   and abilities, none of it about this person and all of it repeated per notable. Stored by name
+ *   since payload version 2; see `migrateSettlementSnapshot`, which is what brings a version 1
+ *   settlement's notables forward.
  */
 
-import type { Archetype } from '$lib/archetypes';
-import type { Character } from '$lib/characters';
+import { toStoredCharacter, type StoredCharacter } from '$lib/characters';
 import { toStoredArms, type StoredArms } from '$lib/heraldry';
 import type { OrganizationHierarchy, Organization, RoleId, RoleInfo } from '$lib/organizations';
 import { stripFunctionValuesDeep } from '$lib/persistent_save';
@@ -32,16 +35,13 @@ import type { VisualEmblem, VisualIdentity } from '$lib/visual_identity';
 import type { Settlement, SettlementImportantPerson } from './settlement_types.js';
 
 /**
- * An archetype without the equipment tables it was rolled from. See the module comment: they are
- * generator input, not content, and they are rebuilt from the archetype's name on the way back.
+ * The two shapes a stored character is made of now live in `$lib/characters`, which is the library
+ * that owns the concept. They were declared here until #46, because a settlement's notables were
+ * the first characters anything stored — and the day the fantasy character generator needed the
+ * same shape, one of the two copies would have started drifting. Re-exported so the settlement
+ * kind's own consumers keep importing them from where they always did.
  */
-export type StoredArchetype = Omit<Archetype, 'equipmentGenerationConfigs'>;
-
-/** A character with the two parts of it that are not plain data stored as names. */
-export type StoredCharacter = Omit<Character, 'archetype' | 'heraldry'> & {
-  archetype?: StoredArchetype;
-  heraldry?: StoredArms;
-};
+export type { StoredArchetype, StoredCharacter } from '$lib/characters';
 
 export type StoredSettlementNotable = Omit<SettlementImportantPerson, 'character'> & {
   character: StoredCharacter;
@@ -82,20 +82,6 @@ export type SettlementSnapshot = Omit<Settlement, 'importantPeople' | 'organizat
   importantPeople?: StoredSettlementNotable[];
   organizations?: StoredOrganization[];
 };
-
-function toStoredArchetype(archetype: Archetype): StoredArchetype {
-  const { equipmentGenerationConfigs: _configs, ...rest } = archetype;
-  return rest;
-}
-
-function toStoredCharacter(character: Character): StoredCharacter {
-  const { archetype, heraldry, ...rest } = character;
-  return {
-    ...rest,
-    ...(archetype === undefined ? {} : { archetype: toStoredArchetype(archetype) }),
-    ...(heraldry === undefined ? {} : { heraldry: toStoredArms(heraldry) }),
-  };
-}
 
 function toStoredNotable(notable: SettlementImportantPerson): StoredSettlementNotable {
   return { ...notable, character: toStoredCharacter(notable.character) };

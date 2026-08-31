@@ -58,6 +58,10 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // it the registry chunk goes from 25.4 KB to 50.2 KB — it very nearly doubles, and every page
   // that lists what a project contains pays the difference.
   '$lib/adnd/adnd_character_artifact_kind',
+  // The sixth, and the same reason again: `$lib/characters`'s entry point reaches
+  // `character_generation`, and from there the sentient species tables, the fantasy archetypes and
+  // the heraldry generator. The kind module holds metadata and validation only.
+  '$lib/characters/character_artifact_kind',
 ]);
 
 /**

@@ -111,6 +111,7 @@ describe('TOOL_CATALOG', () => {
     // change that earns it. That is the point — a level should not be able to rise as a side
     // effect of editing a catalog entry for some other reason.
     const assessedHigher = [
+      '/character',
       '/culture',
       '/fantasy/religion',
       '/fantasy/settlement',
@@ -210,6 +211,7 @@ describe('toolsWithMaturity', () => {
     const releaseReady = toolsWithMaturity('release-ready');
 
     expect(releaseReady.map((tool) => tool.path).sort()).toEqual([
+      '/character',
       '/culture',
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
@@ -261,6 +263,7 @@ describe('filterTools', () => {
 
     expect(durableFantasy.map((tool) => tool.path)).toEqual([
       '/fantasy/adnd/character/build',
+      '/character',
       '/fantasy/adnd/character',
       '/culture',
       '/fantasy/religion',
