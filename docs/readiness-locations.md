@@ -11,7 +11,7 @@ Six tools: the cyberpunk chop shop
 Part of [the readiness pass](tool-readiness.md). Measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** proposal, with [the pass](tool-readiness.md#domain-model). Not reviewed.
+**Status:** accepted; not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 The pass's two heaviest tools are here — the dungeon and the region — and so is one of its
 cheapest. The environment generator goes first regardless of size, because two other tools

@@ -12,7 +12,7 @@ Part of [the readiness pass](tool-readiness.md); read that first for what all tw
 share — the determinism fix, the stored vocabulary, the kind ids, and the field-editor decision.
 Measured against [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** proposal, with [the pass](tool-readiness.md#domain-model). Not reviewed.
+**Status:** accepted; not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 ## The three system characters
 
