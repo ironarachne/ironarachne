@@ -66,7 +66,8 @@
 
   <h2>Element Reference</h2>
 
-  <div class="element-table-scroll">
+  <!-- Scrolls sideways on purpose; see `DELIBERATE_SCROLLER` in e2e/mobile_layout.ts. -->
+  <div class="element-table-scroll" data-scroll-x>
     <!-- Renders app-generated markup (no external or user-supplied input). -->
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html html}

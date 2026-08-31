@@ -45,7 +45,15 @@
   const { columns, rows, narrow = 'flip', label, class: extraClass = '' }: Props = $props();
 </script>
 
-<div class="data-table {extraClass}" class:data-table--scroll={narrow === 'scroll'}>
+<!-- `data-scroll-x` is what excuses this wrapper from the mobile overflow guard, and it is set
+     by the same condition that makes it scroll — see `DELIBERATE_SCROLLER` in e2e/mobile_layout.ts.
+     The flipping variant must not carry it: a stack of labelled rows has nothing to scroll, so an
+     exemption there would only hide a fault. -->
+<div
+  class="data-table {extraClass}"
+  class:data-table--scroll={narrow === 'scroll'}
+  data-scroll-x={narrow === 'scroll' ? '' : undefined}
+>
   <table aria-label={label}>
     <thead>
       <tr>

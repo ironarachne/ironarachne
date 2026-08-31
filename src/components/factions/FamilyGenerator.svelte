@@ -329,7 +329,8 @@
   <h2>The {family.name} Family</h2>
 
   <h3>Family Tree</h3>
-  <div class="family-tree">
+  <!-- Scrolls sideways on purpose; see `DELIBERATE_SCROLLER` in e2e/mobile_layout.ts. -->
+  <div class="family-tree" data-scroll-x>
     <!-- Renders app-generated markup (no external or user-supplied input). -->
     <!-- eslint-disable-next-line svelte/no-at-html-tags -->
     {@html familyTreeSVG}
