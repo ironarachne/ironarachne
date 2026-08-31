@@ -179,8 +179,16 @@
     height: 100dvh;
   }
 
+  /* `min-width: 0` for the same reason `.shell__page` has it, and it is the other half of the top
+     bar fitting a phone. A grid item's automatic minimum size is its min-content width, so a `1fr`
+     track does *not* cap its item at the track — it grows the track to fit. A long project name
+     therefore widened this column to the bar's min-content width, the grid to match, and with the
+     bar handed more room than the viewport the flex shrinking inside it never had a deficit to
+     resolve: every rule asking the name to ellipsize was satisfied at a width nobody could see.
+     Capping the item is what turns that into the shrink the bar's own styles are written for. */
   .shell > :global(.top-bar) {
     grid-area: bar;
+    min-width: 0;
   }
 
   /* The shell's widths are stated in `px` and not in `rem`. `main.css` sets a fluid root —

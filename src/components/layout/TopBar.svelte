@@ -151,16 +151,24 @@
 
   /* The status items sit together in the middle; the date is pushed to the far right by this
      margin rather than by `justify-content`, which would spread the identity too. */
+  /* `min-width: 0` on the status group and on each stat inside it, because a flex item's default
+     `min-width: auto` refuses to shrink below its content. The project name is the one value here
+     the user writes, so it is the one that can be arbitrarily long — and with the default a long
+     name pushes the bar past the viewport, which makes the *whole app* scroll sideways on every
+     page, the top bar being shell furniture rather than page content. Allowing the group to shrink
+     is what lets the ellipsis below actually happen. */
   .top-bar__status {
     display: flex;
     gap: var(--s6);
     margin: 0 auto 0 var(--s4);
+    min-width: 0;
   }
 
   .top-bar__stat {
     display: flex;
     align-items: baseline;
     gap: var(--s3);
+    min-width: 0;
     white-space: nowrap;
   }
 
@@ -179,10 +187,29 @@
     margin: 0;
   }
 
+  /* The label is fixed width and the name is not, so the name is the half that gives. It truncates
+     rather than wraps: the bar is exactly one hit target tall, and a second line would push the
+     page region down by the height of a row. The full name is a tap away on Projects, which is
+     where the link goes. */
+  .top-bar__stat--project dd {
+    min-width: 0;
+    overflow: hidden;
+  }
+
   /* The one status that is also a control, so it takes the accent every other link on the site
-     takes rather than reading as a value. */
+     takes rather than reading as a value.
+
+     It is also where the ellipsis has to live rather than on the `dd` above. An inline anchor
+     keeps its full content width even inside a clipping parent — the text is drawn cut off, but
+     the link's own box still reports itself off the side of the screen, which is exactly what
+     `expectInteractiveControlsReachable` is looking for and is right to flag. Making the anchor a
+     block gives it the `dd`'s width, so the box the user can tap and the text they can see are
+     the same thing. */
   .top-bar__stat--project dd a {
     color: var(--accent);
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 
   .top-bar__date {

@@ -37,7 +37,13 @@
   .stat-block {
     display: grid;
     gap: var(--s5);
-    grid-template-columns: repeat(auto-fill, minmax(11rem, 1fr));
+    /* `min(11rem, 100%)` and not a bare `11rem`. `auto-fill` lays down at least one track, and a
+       bare minimum makes that track 11rem wide even when the block has less room than that — so a
+       stat block nested a couple of levels in (a planet inside a star system, an age band inside a
+       species) pushed its pairs off the side of a 320px phone while reporting a tidy 176px width.
+       Wrapping the minimum in `min()` lets the track collapse to the space that actually exists.
+       The same idiom is already what `AllToolsPage`, `HomePage` and `ProjectsPage` use. */
+    grid-template-columns: repeat(auto-fill, minmax(min(11rem, 100%), 1fr));
     margin: 0;
   }
 </style>
