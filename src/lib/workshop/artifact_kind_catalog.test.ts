@@ -23,6 +23,7 @@ describe('artifact kind catalog', () => {
       'velgarth-gifts',
       'arms-manufacturer',
       'encounter',
+      'family',
     ]);
   });
 

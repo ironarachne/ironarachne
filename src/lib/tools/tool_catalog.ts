@@ -182,7 +182,14 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Family',
     kind: 'generator',
     domain: 'factions',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/readiness-factions.md (#55). It saves as `family` — the graph, flat: members as
+    // `StoredCharacter`, edges as id records, the two name generators as pattern sources — has a
+    // list editor in `ARTIFACT_EDITORS`, and exports Markdown, PDF and the tree as SVG, the first
+    // exports it has ever had. Its roll is deterministic from the seed and every control via
+    // `family_roll.ts`, names included. It takes a saved culture for naming, so 5.1 binds and is
+    // met; `Family` has no arms, so the heraldry reference the design describes waits on a field.
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['character'],
   }),

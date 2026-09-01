@@ -114,6 +114,7 @@ describe('TOOL_CATALOG', () => {
       '/arms-manufacturer',
       '/character',
       '/fantasy/encounter',
+      '/fantasy/family',
       '/culture',
       '/fantasy/dcc/character',
       '/fantasy/religion',
@@ -224,6 +225,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/adnd/character/build',
       '/fantasy/dcc/character',
       '/fantasy/encounter',
+      '/fantasy/family',
       '/fantasy/religion',
       '/fantasy/settlement',
       '/heraldry',
@@ -283,6 +285,7 @@ describe('filterTools', () => {
       '/velgarth-gifts',
       '/culture',
       '/fantasy/encounter',
+      '/fantasy/family',
       '/fantasy/religion',
       '/fantasy/settlement',
     ]);
