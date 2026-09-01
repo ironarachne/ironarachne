@@ -119,6 +119,7 @@ describe('TOOL_CATALOG', () => {
       '/heraldry',
       '/swn/character',
       '/unchartedworlds/character',
+      '/velgarth-gifts',
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
     ];
@@ -224,6 +225,7 @@ describe('toolsWithMaturity', () => {
       '/heraldry',
       '/swn/character',
       '/unchartedworlds/character',
+      '/velgarth-gifts',
     ]);
   });
 
@@ -274,6 +276,7 @@ describe('filterTools', () => {
       '/fantasy/adnd/character',
       '/fantasy/dcc/character',
       '/heraldry',
+      '/velgarth-gifts',
       '/culture',
       '/fantasy/religion',
       '/fantasy/settlement',

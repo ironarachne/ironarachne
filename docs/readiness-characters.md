@@ -12,9 +12,10 @@ Part of [the readiness pass](tool-readiness.md); read that first for what all tw
 share — the determinism fix, the stored vocabulary, the kind ids, and the field-editor decision.
 Measured against [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** accepted; the three system characters — [#48](#48--dungeon-crawl-classics),
-[#49](#49--stars-without-number) and [#50](#50--uncharted-worlds) — and
-[#51](#51--heraldry-from-beta-to-release-ready) are **implemented**; #52 is not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
+**Status:** accepted, and **implemented in full** — all five tools: the three system characters
+([#48](#48--dungeon-crawl-classics), [#49](#49--stars-without-number),
+[#50](#50--uncharted-worlds)), heraldry ([#51](#51--heraldry-from-beta-to-release-ready)) and
+Velgarth Gifts ([#52](#52--velgarth-gifts)). Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
 this document is clear to start.
 
 ## The three system characters
@@ -242,9 +243,29 @@ and the library has no dependency on any other.
   `gifts` would claim a concept this does not own.
 - **The editor is a `SnapshotFieldEditor` case** over a string list plus a number per gift — the
   simplest instance of decision 5 in the pass.
+
+  **As built it is not, and this is the one place this document was wrong.** `SnapshotFieldEditor`
+  is a list of labelled inputs bound to the fields of a _flat_ object; a set of Gifts is a list of
+  records — a name, a description and a strength each — with its own add and remove. There is no
+  descriptor in the declared language that says "repeat these three fields per row", and inventing
+  one is exactly what
+  [decision 5's own guard](tool-readiness.md#5-flat-payloads-get-a-declared-field-editor-not-twenty-five-bespoke-components)
+  refuses: a kind that needs a fifth control gets a bespoke editor instead. So Velgarth Gifts has a
+  bespoke editor of about a hundred lines, and **the component the pass declared is still unbuilt**
+  — it should be written by the first tool in the pass with a genuinely flat payload (the arms
+  manufacturer, the drug, the planet), which will shape it better than this one would have.
+
 - **8.4 applies to a setting as much as to a system.** The README says which of Velgarth's gifts
   are represented, that strength levels follow the published descriptions rather than any
   mechanical system, and that this is unofficial fan content.
+
+**Two things the issue asked to be settled out loud.** A set of Gifts is **an artifact of its own**,
+not a field on a character: the character kind is the _fantasy_ character, which knows nothing about
+Velgarth, and a setting's psychic talents on a generic payload would be a field only one setting
+could ever fill. The cost is that a character wearing these Gifts references them rather than
+containing them, and nothing does that yet. And **5.1 does not bind**: no input of this generator
+has an artifact kind, which is recorded here rather than answered by inventing one. 5.3 is met, as
+it always was.
 
 ## What every tool in this domain owes
 

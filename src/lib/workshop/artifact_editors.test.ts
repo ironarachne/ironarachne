@@ -137,6 +137,22 @@ describe('the artifact editor registry', () => {
     expect(hasArtifactEditor('heraldry')).toBe(true);
   });
 
+  /**
+   * The seed and nothing else, which is what this kind's provenance holds: the tool has one
+   * control, and how many Gifts a character has is the setting's business rather than the user's.
+   */
+  it('rolls a set of Velgarth gifts from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('velgarth-gifts')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/velgarth-gifts',
+      seed: 'registry-seed',
+      config: {},
+    }) as { gifts: { name: string }[] };
+
+    expect(rolled.gifts.length).toBeGreaterThan(0);
+    expect(rolled.gifts[0].name).not.toBe('');
+  });
+
   it('rolls a coat of arms from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('heraldry')!.loadRoller!();
     const rolled = roll({

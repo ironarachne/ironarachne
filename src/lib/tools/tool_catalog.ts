@@ -122,7 +122,13 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Velgarth Gifts',
     kind: 'generator',
     domain: 'characters',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/readiness-characters.md (#52). It saves as `velgarth-gifts` — named for the setting,
+    // because it is neither generic nor a game system — has an editor in `ARTIFACT_EDITORS`, and
+    // exports Markdown, which is the first export it has ever had. Its roll is deterministic from
+    // the seed via `velgarth_gifts_roll.ts`. Nothing it takes as input has an artifact kind, so
+    // requirement 5.1 does not bind; 5.3 is met, as it always was.
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['character', 'velgarth'],
   }),

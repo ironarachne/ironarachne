@@ -20,6 +20,7 @@ describe('artifact kind catalog', () => {
       'character.dcc',
       'character.swn',
       'character.uncharted-worlds',
+      'velgarth-gifts',
     ]);
   });
 
