@@ -1,5 +1,10 @@
 export type * from './dcc_types';
+export * from './dcc_character_artifact_kind';
+export * from './dcc_character_editing';
+export * from './dcc_character_roll';
+export * from './dcc_character_snapshot';
 export * from './dcc_characters';
 export * from './dcc_format';
+export * from './dcc_presentation';
 export * from './render_dcc_character_pdf';
 export * as HumanOccupations from './human_occupations';

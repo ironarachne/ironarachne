@@ -26,6 +26,10 @@ const TOOL_PAGES = [
 /** The release-ready tools, which must say nothing at all. */
 const SILENT_TOOL_PAGES = [
   { path: '/character', title: 'Character | Iron Arachne' },
+  {
+    path: '/fantasy/dcc/character',
+    title: 'Dungeon Crawl Classics Character Generator | Iron Arachne',
+  },
   { path: '/culture', title: 'Culture Generator | Iron Arachne' },
   { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
   { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
@@ -104,6 +108,9 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   await expect(browser.getByRole('button', { name: /^Fantasy Character/ })).not.toContainText(
     'Release-ready',
   );
+  await expect(
+    browser.getByRole('button', { name: /^Dungeon Crawl Classics Character/ }),
+  ).not.toContainText('Release-ready');
   await expect(browser.getByRole('button', { name: /^Heraldry/ })).toContainText('Beta');
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');
 });

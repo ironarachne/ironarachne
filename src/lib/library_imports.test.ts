@@ -62,6 +62,9 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // `character_generation`, and from there the sentient species tables, the fantasy archetypes and
   // the heraldry generator. The kind module holds metadata and validation only.
   '$lib/characters/character_artifact_kind',
+  // The seventh. `$lib/dcc`'s entry point re-exports the PDF renderer, and from there jsPDF, along
+  // with four occupation tables and the lucky-sign table.
+  '$lib/dcc/dcc_character_artifact_kind',
 ]);
 
 /**

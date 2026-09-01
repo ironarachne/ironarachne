@@ -83,6 +83,18 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollCharacterSnapshot(provenance.seed, readCharacterGeneratorConfig(provenance.config));
     },
   },
+  'character.dcc': {
+    loadEditor: () => import('$components/characters/DccCharacterArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readDccCharacterGeneratorConfig, rollDccCharacterSnapshot } =
+        await import('$lib/dcc/dcc_character_roll.js');
+      return (provenance) =>
+        rollDccCharacterSnapshot(
+          provenance.seed,
+          readDccCharacterGeneratorConfig(provenance.config),
+        );
+    },
+  },
   /**
    * The first kind whose editor is a tool rather than a component written for the purpose.
    *

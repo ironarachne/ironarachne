@@ -63,7 +63,12 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Dungeon Crawl Classics Character',
     kind: 'generator',
     domain: 'characters',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/readiness-characters.md (#48). It saves as `character.dcc` — one artifact per
+    // character, which is what makes a funnel survivor openable on their own — has an editor in
+    // `ARTIFACT_EDITORS`, composes a naming culture by reference, and exports a PDF sheet and
+    // Markdown. Its roll is deterministic from the seed via `dcc_character_roll.ts`.
+    maturity: 'release-ready',
     genres: ['fantasy'],
     systems: ['dcc'],
     tags: ['character'],

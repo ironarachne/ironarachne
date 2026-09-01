@@ -18,6 +18,7 @@ import {
 import { adndCharacterArtifactKind } from '$lib/adnd/adnd_character_artifact_kind';
 import { characterArtifactKind } from '$lib/characters/character_artifact_kind';
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
+import { dccCharacterArtifactKind } from '$lib/dcc/dcc_character_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -39,6 +40,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, settlementArtifactKind);
   registerArtifactKind(registry, adndCharacterArtifactKind);
   registerArtifactKind(registry, characterArtifactKind);
+  registerArtifactKind(registry, dccCharacterArtifactKind);
   return registry;
 }
 

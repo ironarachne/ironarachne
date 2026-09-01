@@ -12,7 +12,9 @@ Part of [the readiness pass](tool-readiness.md); read that first for what all tw
 share — the determinism fix, the stored vocabulary, the kind ids, and the field-editor decision.
 Measured against [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** accepted; not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
+**Status:** accepted; [#48](#48--dungeon-crawl-classics) is **implemented**, the other four are not
+yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
+this document is clear to start.
 
 ## The three system characters
 
@@ -71,6 +73,36 @@ one press of **Save** writes more than one artifact, and it is worth the special
 
 **8.4** — the README says DCC as published in the core rulebook, that the funnel implements
 zero-level characters only, and that levelled advancement is deliberately out of scope.
+
+#### What shipped, and the one place it departs from the shape above
+
+**The rule objects travel as the rows the character drew, minus `apply`, rather than as bare
+names.** `StoredDccOccupation = Omit<DCCOccupation, 'apply'>` and the lucky-sign equivalent; the
+handler is put back by name on read, and an inert one stands in when the name resolves to nothing.
+The design's `occupationName` / `luckyRollName` shape came from AD&D, where a race and a class are
+table rows the character merely points at. In DCC they are not, in two ways that were only visible
+in the code:
+
+- **A drawn row carries per-character data.** `randomLuckyRoll` copies its row and overwrites
+  `modifier` with the character's own Luck modifier, so the table's row is not the character's row.
+  Rebuilt from the name, every saved character's lucky sign would read `+0`.
+- **An `apply` handler may rewrite the row's own name.** The human farmer replaces its
+  `occupation.name` with the crop it rolled (`human_occupation_data.ts:372`), so a `potato farmer`
+  matches nothing in any table — and resolving by name would lose the pitchfork and the hen with it.
+
+Storing the row keeps the payload authoritative (4.2) and still keeps every closure out of it, which
+is what the by-name rule was protecting. The name lookup is kept for the one thing it is good for.
+The same question is worth asking of #49 and #50 before their snapshots are written: _does anything
+write to the row after it is drawn?_
+
+Two things beyond the design, both small:
+
+- **Generate is disabled when all four occupation tables are switched off.** The page could always
+  reach that state, and `randomOccupation` would have been drawing from an empty list. The provenance
+  reader drops such a config rather than storing an empty list a re-roll could not honour.
+- **A Markdown export beside the PDF.** The drawn PDF sheet is what a player writes on and it is
+  unchanged; `dcc_presentation.ts` is the character as _text_, and it is where 6.4 lives — a peasant
+  who cannot cast prints no Spellcasting heading rather than one reading "No spellcasting possible".
 
 ### #49 — Stars Without Number
 
