@@ -4,43 +4,29 @@
     Fields,
     Tinctures,
     Variations,
-    generateHeraldry,
     renderHeraldryDeviceSvg,
-    mergeHeraldryGeneratorConfig,
-    type HeraldryGeneratorConfig,
-    appendSavedHeraldry,
-    findSavedHeraldrySnapshotByBlazon,
-    loadSavedHeraldrySnapshots,
-    buildVariationSlotPreferences,
+    rollHeraldry,
     eligibleVariationTinctures,
-    fieldDivisionNameFromOption,
     fieldUiStateFromGeneratorOptions,
     fieldVariationSlotCountForDivision,
-    hasPinnedFieldTinctures,
-    resolveFieldOptions,
     variationTinctureCountForSlot,
     defaultHeraldryGeneratorOptions,
-    heraldryFromSnapshot,
     toHeraldrySnapshot,
     type HeraldryGeneratorOptionsSnapshot,
-    type HeraldrySnapshot,
     buildFieldDivisionPreviewSvg,
     buildVariationPreviewSvg,
     normalizeHeraldryGeneratorOptions,
     HERALDRY_ARTIFACT_KIND,
+    HERALDRY_WIDTH,
+    HERALDRY_HEIGHT,
   } from '$lib/heraldry';
-  import type { RNG } from '@ironarachne/rng';
   import { RNG as RngCtor } from '@ironarachne/rng';
   import Download from '$lib/download';
   import { saveSvgAsPng } from '$lib/download';
   import { renderSVGAsPNG } from '$lib/images';
-  import { afterNavigate } from '$app/navigation';
-  import { page } from '$app/state';
 
-  import type { Arms, Charge } from '$lib/heraldry';
-  import { clearLoadParamFromUrl, readLoadCueFromUrl } from '$lib/persistent_save';
+  import type { Arms } from '$lib/heraldry';
   import { recordGeneration } from '$lib/session_log';
-  import { showAlertModal, showLoadSnapshotModal, type SnapshotChoice } from '$lib/ui';
   import type { ToolCue } from '$lib/workshop';
   import HeraldryTinctureSelect from '$components/heraldry/HeraldryTinctureSelect.svelte';
   import HeraldryPreviewSelect from '$components/heraldry/HeraldryPreviewSelect.svelte';
@@ -106,16 +92,10 @@
   let blazon = $state('');
   let image = $state('');
   let currentArms = $state<Arms | null>(null);
-  let savedHeraldries = $state<HeraldrySnapshot[]>([]);
-  let charges = Charges.all();
-  const allCharges = Charges.all();
   let heraldryTag = $state(initialOptions.heraldryTag);
   let chargeTinctureName = $state(initialOptions.chargeTinctureName);
-  let chargeTincture = Tinctures.randomChargeTincture(rng);
   let numberOfChargesOption = $state(initialOptions.numberOfChargesOption);
   let chargePosition = $state(initialOptions.chargePosition);
-  let fieldTinctures1 = Tinctures.all();
-  let fieldTinctures2 = Tinctures.all();
   let fieldDivisionOption = $state(initialOptions.fieldDivisionOption!);
   let variationSlotOptions = $state([...initialOptions.variationSlotOptions!]);
   let variationTinctureOptions = $state(
@@ -164,40 +144,8 @@
       variationTinctureOptions = paddedTinctureRows;
     }
   });
-  const isCurrentBlazonSaved = $derived.by(() => {
-    const arms = currentArms;
-    return arms !== null && savedHeraldries.some((saved) => saved.blazon === arms.blazon);
-  });
-  const heraldryWidth = 600;
-  const heraldryHeight = 660;
-
-  afterNavigate(() => {
-    refreshSavedHeraldries();
-    tryLoadHeraldryFromBlazonParam();
-  });
-
-  /**
-   * The deep link `/saved-data` used to produce. Nothing generates these any more — that page is
-   * gone (#44) — but people bookmarked them, so the generator still honours one.
-   */
-  const HERALDRY_LOAD_PARAM = 'blazon';
-
-  function tryLoadHeraldryFromBlazonParam(): boolean {
-    const blazonParam = readLoadCueFromUrl(HERALDRY_LOAD_PARAM);
-    if (blazonParam === null) {
-      return false;
-    }
-    const snapshot = findSavedHeraldrySnapshotByBlazon(blazonParam);
-    if (snapshot !== undefined) {
-      loadSavedHeraldry(snapshot);
-    }
-    clearLoadParamFromUrl(HERALDRY_LOAD_PARAM);
-    return snapshot !== undefined;
-  }
-
-  function refreshSavedHeraldries() {
-    savedHeraldries = loadSavedHeraldrySnapshots();
-  }
+  const heraldryWidth = HERALDRY_WIDTH;
+  const heraldryHeight = HERALDRY_HEIGHT;
 
   function currentGeneratorOptions(): HeraldryGeneratorOptionsSnapshot {
     return {
@@ -219,52 +167,6 @@
     variationTinctureOptions = fieldUi.variationTinctureOptions.map((row) => [...row]);
   }
 
-  function changeCharges() {
-    if (heraldryTag === 'any') {
-      charges = allCharges;
-    } else {
-      charges = Charges.matchingTag(heraldryTag, allCharges);
-    }
-  }
-
-  function setChargeTincture(rng: RNG) {
-    if (chargeTinctureName === 'any') {
-      chargeTincture = Tinctures.randomChargeTincture(rng);
-    } else {
-      const tincture = Tinctures.byName(chargeTinctureName);
-      if (tincture !== undefined) {
-        chargeTincture = tincture;
-      }
-    }
-    setFieldTinctures(rng);
-  }
-
-  function setFieldTinctures(rng: RNG) {
-    if (hasPinnedFieldTinctures(variationTinctureOptions)) {
-      return;
-    }
-
-    let types1 = [];
-    let types2 = [];
-    if (chargeTincture.type === 'color' || chargeTincture.type === 'stain') {
-      types1 = ['metal'];
-      types2 = ['metal'];
-    } else {
-      types1 = ['color'];
-      types2 = ['color'];
-
-      if (rng.int(1, 100) > 70) {
-        types1.push('stain');
-      }
-      if (rng.int(1, 100) > 80) {
-        types2.push('stain');
-      }
-    }
-    types1.push('fur');
-    fieldTinctures1 = Tinctures.ofTypes(types1);
-    fieldTinctures2 = Tinctures.ofTypes(types2);
-  }
-
   function applyHeraldryToPreview(arms: Arms) {
     currentArms = arms;
     blazon = arms.blazon;
@@ -280,50 +182,25 @@
     numberOfChargesOption = defaults.numberOfChargesOption;
     chargePosition = defaults.chargePosition;
     applyFieldUiState(defaults);
-    charges = allCharges;
-    setChargeTincture(rng);
     generate();
   }
 
+  /**
+   * Roll, and put the result on screen.
+   *
+   * The roll itself is `rollHeraldry`, not this page: assembling the generator config draws from
+   * the RNG — the charge count, the charge tincture, the two field-tincture pools — so a page that
+   * assembled it inline was half of what a seed reproduced. Requirement 2.2 wants the seed to be
+   * the whole of it, and requirement 4.3 needs a re-roll that has a seed and a config and no page
+   * at all.
+   */
   function generate(keepSeed = false) {
     if (!keepSeed && !lockSeed) {
       seed = rng.randomString(13);
     }
     rng.setSeed(seed);
-    let numberOfCharges = randomNumberOfCharges(rng);
-    if (numberOfChargesOption === 'one') {
-      numberOfCharges = 1;
-    } else if (numberOfChargesOption === 'two') {
-      numberOfCharges = 2;
-    } else if (numberOfChargesOption === 'three') {
-      numberOfCharges = 3;
-    } else if (numberOfChargesOption === 'four') {
-      numberOfCharges = 4;
-    } else if (numberOfChargesOption === 'none') {
-      numberOfCharges = 0;
-    }
-    setChargeTincture(rng);
 
-    const config: HeraldryGeneratorConfig = mergeHeraldryGeneratorConfig({
-      chargeCount: numberOfCharges,
-      chargeOptions: charges as Charge[],
-      chargeTinctures: [chargeTincture],
-      chargePosition: chargePosition === 'normal' ? undefined : chargePosition,
-      fieldOptions: resolveFieldOptions(fieldDivisionOption),
-      fieldDivisionName: fieldDivisionNameFromOption(fieldDivisionOption),
-      variationSlotPreferences: buildVariationSlotPreferences(
-        variationSlotOptions,
-        variationTinctureOptions,
-      ),
-      variationOptions: variations,
-      fieldTinctures1,
-      fieldTinctures2,
-      width: heraldryWidth,
-      height: heraldryHeight,
-      rng: rng,
-    });
-
-    applyHeraldryToPreview(generateHeraldry(config));
+    applyHeraldryToPreview(rollHeraldry(seed, currentGeneratorOptions()).arms);
 
     // Read at the end of the roll rather than during a later render, because that is the one
     // moment the controls and the arms on screen are the same thing: every "any" above is resolved
@@ -406,24 +283,7 @@
     numberOfChargesOption = options.numberOfChargesOption;
     chargePosition = options.chargePosition;
     applyFieldUiState(options);
-    // The charge pool follows the tag, and it is a plain variable rather than reactive state, so
-    // it has to be refreshed by hand — exactly as loading a saved coat of arms does.
-    changeCharges();
     generate(true);
-  }
-
-  function randomNumberOfCharges(rng: RNG) {
-    const weights = [
-      { value: 0, commonality: 20 },
-      { value: 1, commonality: 55 },
-      { value: 2, commonality: 5 },
-      { value: 3, commonality: 3 },
-      { value: 4, commonality: 2 },
-    ];
-
-    const result = rng.weighted(weights);
-
-    return result;
   }
 
   function downloadSvg() {
@@ -439,82 +299,13 @@
     );
   }
 
-  function saveHeraldry() {
-    if (currentArms === null) {
-      return;
-    }
-    const result = appendSavedHeraldry(
-      toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()),
-    );
-    if (!result.ok) {
-      void showAlertModal({
-        message: 'This heraldry is already saved.',
-      });
-      return;
-    }
-    refreshSavedHeraldries();
-    void showAlertModal({
-      message: 'Heraldry saved.',
-      style: 'success',
-    });
-  }
-
   // What a project stores: the arms, the seed, and the options that produced them, so a saved
   // coat of arms can be picked back up and kept rolling from.
   const heraldrySnapshot = $derived(
     currentArms === null ? null : toHeraldrySnapshot(currentArms, seed, currentGeneratorOptions()),
   );
 
-  async function openLoadDialog() {
-    refreshSavedHeraldries();
-
-    // The app has one dialog, so this goes through the modal host like every other modal rather
-    // than mounting a second one from inside this panel. See #143.
-    const result = await showLoadSnapshotModal({
-      title: 'Load Saved Heraldry',
-      items: loadDialogItems,
-      emptyMessage: 'No saved heraldry yet. Generate a coat of arms and click Save.',
-    });
-
-    if (result.action === 'load') {
-      handleLoadHeraldryItem(result.choice);
-    }
-  }
-
-  function loadSavedHeraldry(snapshot: HeraldrySnapshot) {
-    const restored = heraldryFromSnapshot(snapshot);
-    seed = restored.seed;
-    lockSeed = restored.generatorOptions.lockSeed;
-    heraldryTag = restored.generatorOptions.heraldryTag;
-    chargeTinctureName = restored.generatorOptions.chargeTinctureName;
-    numberOfChargesOption = restored.generatorOptions.numberOfChargesOption;
-    chargePosition = restored.generatorOptions.chargePosition;
-    applyFieldUiState(restored.generatorOptions);
-    changeCharges();
-    if (restored.arms.device.chargeGroups.length > 0) {
-      chargeTincture = restored.arms.device.chargeGroups[0].charge.tincture;
-    } else if (chargeTinctureName !== 'any') {
-      const tincture = Tinctures.byName(chargeTinctureName);
-      if (tincture !== undefined) {
-        chargeTincture = tincture;
-      }
-    }
-    rng.setSeed(seed);
-    applyHeraldryToPreview(restored.arms);
-  }
-
-  function handleLoadHeraldryItem(item: SnapshotChoice) {
-    const snapshot = savedHeraldries.find((s) => s.seed === item.seed);
-    if (snapshot !== undefined) {
-      loadSavedHeraldry(snapshot);
-    }
-  }
-
-  const loadDialogItems = $derived(savedHeraldries.map((s) => ({ name: s.name, seed: s.seed })));
-
-  if (!page.url.searchParams.has(HERALDRY_LOAD_PARAM)) {
-    generate();
-  }
+  generate();
 </script>
 
 <GeneratorPage toolPath={TOOL_PATH} title="Heraldry Generator">
@@ -529,7 +320,7 @@
 
   <div class="input-group">
     <label for="tag">Charge Tag</label>
-    <select name="tag" bind:value={heraldryTag} onchange={changeCharges}>
+    <select id="tag" name="tag" bind:value={heraldryTag}>
       <option>any</option>
       {#each availableTags as tag}
         <option>{tag}</option>
@@ -538,7 +329,7 @@
   </div>
   <div class="input-group">
     <label for="num-charges">Number of Charges</label>
-    <select name="num-charges" bind:value={numberOfChargesOption}>
+    <select id="num-charges" name="num-charges" bind:value={numberOfChargesOption}>
       <option>any</option>
       <option>none</option>
       <option>one</option>
@@ -549,7 +340,7 @@
   </div>
   <div class="input-group">
     <label for="charge-position">Charge Position</label>
-    <select name="charge-position" bind:value={chargePosition}>
+    <select id="charge-position" name="charge-position" bind:value={chargePosition}>
       <option value="normal">normal</option>
       <option value="in chief">in chief</option>
     </select>
@@ -561,7 +352,6 @@
       bind:value={chargeTinctureName}
       tinctures={chargeTinctureOptions}
       labelForValue={chargeTinctureLabel}
-      onchange={() => setChargeTincture(rng)}
     />
   </div>
 
@@ -629,11 +419,6 @@
   <BaseButton onclick={() => generate()}>Generate</BaseButton>
   <BaseButton onclick={downloadSvg} disabled={currentArms === null}>Download SVG</BaseButton>
   <BaseButton onclick={downloadPng} disabled={currentArms === null}>Download PNG</BaseButton>
-  <BaseButton onclick={saveHeraldry} disabled={currentArms === null || isCurrentBlazonSaved}
-    >Save</BaseButton
-  >
-  <BaseButton onclick={openLoadDialog}>Load...</BaseButton>
-
   <SaveArtifactButton
     kind={HERALDRY_ARTIFACT_KIND}
     toolPath={TOOL_PATH}

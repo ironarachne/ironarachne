@@ -32,7 +32,7 @@
     type CharacterTitleField,
   } from '$lib/characters';
   import { armsFromStored, renderDeviceBlazon, toStoredArms } from '$lib/heraldry';
-  import { showHeraldryPersistenceModal } from '$lib/ui';
+  import { showHeraldryModal } from '$lib/ui';
 
   /**
    * The editing view for a saved character.
@@ -106,7 +106,7 @@
     if (current === undefined || current.heraldry === undefined || current.heraldry === null) {
       return;
     }
-    const result = await showHeraldryPersistenceModal({
+    const result = await showHeraldryModal({
       arms: armsFromStored(current.heraldry),
       seed: current.id,
       title: current.name,

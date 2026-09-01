@@ -120,16 +120,32 @@ describe('the artifact editor registry', () => {
   });
 
   /**
-   * Heraldry draws itself and hands over an SVG or a PNG (requirement 6.3) without having an
-   * editing view (4.1). That combination is why `/saved-data` could be retired: seeing a saved
-   * coat of arms and downloading it was the one thing that page did and the project view did not.
+   * Heraldry was the viewer-only kind until #51: it drew itself and handed over an SVG or a PNG
+   * (requirement 6.3) and could not be changed (4.1). It has an editor now, and the assertion is
+   * by name rather than by count for the reason culture's is — the point of taking *that tool* to
+   * Release-ready is that that tool is editable.
+   *
+   * `loadViewer` staying in the vocabulary is asserted separately, in the registry's own shape
+   * test above: a kind that can be shown and not sensibly edited is still a state the surface can
+   * render, and no entry using it today does not make it wrong.
    */
-  it('gives heraldry a view and no editor', () => {
+  it('gives heraldry an editor and a roller', () => {
     const heraldry = artifactEditorEntry('heraldry');
 
-    expect(heraldry?.loadViewer).toBeDefined();
-    expect(heraldry?.loadEditor).toBeUndefined();
-    expect(hasArtifactEditor('heraldry')).toBe(false);
+    expect(heraldry?.loadEditor).toBeDefined();
+    expect(heraldry?.loadRoller).toBeDefined();
+    expect(hasArtifactEditor('heraldry')).toBe(true);
+  });
+
+  it('rolls a coat of arms from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('heraldry')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/heraldry',
+      seed: 'registry-seed',
+      config: { heraldryTag: 'any' },
+    }) as { blazon: string };
+
+    expect(rolled.blazon).not.toBe('');
   });
 
   /**

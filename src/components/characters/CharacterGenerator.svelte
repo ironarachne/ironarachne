@@ -30,7 +30,7 @@
     type Arms,
     type RestoredHeraldry,
   } from '$lib/heraldry';
-  import { showHeraldryPersistenceModal } from '$lib/ui';
+  import { showHeraldryModal } from '$lib/ui';
   import type { Culture } from '$lib/culture';
   import { sentientSpeciesList } from '$lib/species_sentients';
   import { getAllFantasyArchetypes } from '$lib/archetypes';
@@ -245,7 +245,7 @@
   }
 
   async function openHeraldryModal(arms: Arms, title: string) {
-    const result = await showHeraldryPersistenceModal({ arms, seed, title });
+    const result = await showHeraldryModal({ arms, seed, title });
     if (result.action === 'replaced' && character !== null) {
       // A replacement is the character's own arms, whatever they were wearing before: the user has
       // just made a coat of arms for this person, so the reference is no longer what they are

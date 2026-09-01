@@ -100,7 +100,7 @@ describe('TOOL_CATALOG', () => {
     // user reads as a promise about their work, and a careless edit to one is otherwise invisible.
     expect(findToolByPath('/culture')?.maturity).toBe('release-ready');
     expect(findToolByPath('/fantasy/religion')?.maturity).toBe('release-ready');
-    expect(findToolByPath('/heraldry')?.maturity).toBe('beta');
+    expect(findToolByPath('/heraldry')?.maturity).toBe('release-ready');
     // The AD&D pair, assessed together because they share an artifact kind (#45, #47).
     expect(findToolByPath('/fantasy/adnd/character')?.maturity).toBe('release-ready');
     expect(findToolByPath('/fantasy/adnd/character/build')?.maturity).toBe('release-ready');
@@ -221,6 +221,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/dcc/character',
       '/fantasy/religion',
       '/fantasy/settlement',
+      '/heraldry',
       '/swn/character',
       '/unchartedworlds/character',
     ]);
@@ -238,7 +239,7 @@ describe('toolsWithMaturity', () => {
 
 describe('toolMaturityForPath', () => {
   it('returns the maturity recorded for that tool', () => {
-    expect(toolMaturityForPath('/heraldry')).toBe('beta');
+    expect(toolMaturityForPath('/heraldry')).toBe('release-ready');
   });
 
   it('throws on an unknown path rather than assuming a level', () => {
@@ -272,6 +273,7 @@ describe('filterTools', () => {
       '/character',
       '/fantasy/adnd/character',
       '/fantasy/dcc/character',
+      '/heraldry',
       '/culture',
       '/fantasy/religion',
       '/fantasy/settlement',
