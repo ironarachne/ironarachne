@@ -66,6 +66,12 @@ describe('generate', () => {
     expect(manufacturer.description.startsWith(manufacturer.name)).toBe(true);
   });
 
+  it('never doubles a space, because the exports do not collapse them', () => {
+    for (let index = 0; index < 20; index += 1) {
+      expect(generate(`spacing-${index}`).description).not.toMatch(/ {2}/);
+    }
+  });
+
   it('states a specialty, an outlook and a reputation', () => {
     const description = generate('described').description;
 

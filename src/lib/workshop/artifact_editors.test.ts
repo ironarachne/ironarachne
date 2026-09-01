@@ -137,6 +137,18 @@ describe('the artifact editor registry', () => {
     expect(hasArtifactEditor('heraldry')).toBe(true);
   });
 
+  it('rolls an arms manufacturer from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('arms-manufacturer')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/arms-manufacturer',
+      seed: 'registry-seed',
+      config: {},
+    }) as { name: string; models: unknown[] };
+
+    expect(rolled.name).not.toBe('');
+    expect(rolled.models.length).toBeGreaterThan(0);
+  });
+
   /**
    * The seed and nothing else, which is what this kind's provenance holds: the tool has one
    * control, and how many Gifts a character has is the setting's business rather than the user's.

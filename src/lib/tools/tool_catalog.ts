@@ -139,7 +139,14 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Arms Manufacturer',
     kind: 'generator',
     domain: 'factions',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/readiness-factions.md (#53). It saves as `arms-manufacturer` — its own kind rather than
+    // a discriminator on `organization`, because the two payloads share nothing but a name — has
+    // an editor in `ARTIFACT_EDITORS`, and exports Markdown and PDF, the first exports it has ever
+    // had. Its roll is deterministic from the seed via `arms_manufacturer_roll.ts`; the page had
+    // no seed control at all before. Nothing it takes as input has an artifact kind, so
+    // requirement 5.1 does not bind; 5.3 is met, as it always was.
+    maturity: 'release-ready',
     genres: ['scifi'],
     tags: ['organization'],
   }),
