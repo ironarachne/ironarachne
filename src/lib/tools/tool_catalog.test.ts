@@ -117,6 +117,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/religion',
       '/fantasy/settlement',
       '/heraldry',
+      '/swn/character',
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
     ];
@@ -219,6 +220,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/dcc/character',
       '/fantasy/religion',
       '/fantasy/settlement',
+      '/swn/character',
     ]);
   });
 

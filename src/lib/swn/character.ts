@@ -50,6 +50,31 @@ export type SWNCharacter = {
   savingThrowPhysical: number;
   firstName: string;
   lastName: string;
+  /**
+   * Which psychic disciplines the character has, and the ability each one drew.
+   *
+   * The decision, beside the effect it had. `applyPsychicDiscipline` resolves a discipline into
+   * `abilities` as prose — `"Psychic Succor-1: …"` and one randomly drawn ability — and prose is
+   * not something an editor can offer back as a choice, nor something levelling the character can
+   * read. Recording the pick is decision 2 of docs/readiness-characters.md, and the same finding
+   * the AD&D character had with its thief skills: a user decision that existed only as its
+   * consequence.
+   *
+   * The foci need no equivalent field. A `Focus` on `character.focuses` already carries its own
+   * name and `currentLevel`, so the pick is the row; a second list saying the same two things is a
+   * copy that can disagree with the one the sheet prints.
+   */
+  psychicPicks: PsychicPick[];
+};
+
+/** One psychic discipline the character has, at the level it was resolved at. */
+export type PsychicPick = {
+  /** The psychic skill's name, e.g. `Telepathy`. */
+  disciplineName: string;
+  /** The skill level the discipline's powers were granted at: 0 or 1 at character creation. */
+  level: number;
+  /** The ability drawn from that discipline at level 1, or `''` when the level granted none. */
+  abilityName: string;
 };
 
 export function createSwnCharacter(rng: RNG.RNG): SWNCharacter {
@@ -79,6 +104,7 @@ export function createSwnCharacter(rng: RNG.RNG): SWNCharacter {
     savingThrowPhysical: 0,
     firstName: '',
     lastName: '',
+    psychicPicks: [],
   };
 }
 
@@ -130,6 +156,7 @@ function applyPsychicDiscipline(character: SWNCharacter, skill: Skill, rng: RNG.
 
   if (skill.level === 0) {
     character.abilities.push(createSpecialAbility(power.levelZero));
+    character.psychicPicks.push({ disciplineName: skill.name, level: 0, abilityName: '' });
 
     return;
   }
@@ -147,6 +174,11 @@ function applyPsychicDiscipline(character: SWNCharacter, skill: Skill, rng: RNG.
   const ability = randomPsionicAbilityOfDiscipline(skill.name, rng);
 
   character.abilities.push(createSpecialAbility(`${ability.name}: ${ability.description}`));
+  character.psychicPicks.push({
+    disciplineName: skill.name,
+    level: 1,
+    abilityName: ability.name,
+  });
 }
 
 export function generate(rng: RNG.RNG): SWNCharacter {
@@ -490,6 +522,21 @@ export type Stat = {
   modifier: number;
 };
 
+/**
+ * The modifier a score gives, by the table every SWN stat is read from.
+ *
+ * Exported because two callers need the same table: the generator, which rolls the scores, and
+ * `swn_character_editing.ts`, where a user who has rewritten a score can ask for the arithmetic
+ * back. A second copy of the thresholds is a second copy to get wrong.
+ */
+export function statModifierForScore(score: number): number {
+  if (score < 4) return -2;
+  if (score < 8) return -1;
+  if (score < 14) return 0;
+  if (score < 18) return 1;
+  return 2;
+}
+
 export function createStat(
   name: string,
   abbreviation: string,
@@ -530,17 +577,7 @@ function randomStats(rng: RNG.RNG) {
   }
 
   for (let i = 0; i < stats.length; i++) {
-    if (stats[i].score < 4) {
-      stats[i].modifier = -2;
-    } else if (stats[i].score < 8) {
-      stats[i].modifier = -1;
-    } else if (stats[i].score < 14) {
-      stats[i].modifier = 0;
-    } else if (stats[i].score < 18) {
-      stats[i].modifier = 1;
-    } else {
-      stats[i].modifier = 2;
-    }
+    stats[i].modifier = statModifierForScore(stats[i].score);
   }
 
   return stats;

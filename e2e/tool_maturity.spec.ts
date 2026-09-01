@@ -31,6 +31,10 @@ const SILENT_TOOL_PAGES = [
     title: 'Dungeon Crawl Classics Character Generator | Iron Arachne',
   },
   { path: '/culture', title: 'Culture Generator | Iron Arachne' },
+  {
+    path: '/swn/character',
+    title: 'Stars Without Number Character Generator | Iron Arachne',
+  },
   { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
   { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
   { path: '/fantasy/adnd/character', title: 'AD&D 2e Character Generator | Iron Arachne' },
@@ -110,6 +114,9 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   );
   await expect(
     browser.getByRole('button', { name: /^Dungeon Crawl Classics Character/ }),
+  ).not.toContainText('Release-ready');
+  await expect(
+    browser.getByRole('button', { name: /^Stars Without Number Character/ }),
   ).not.toContainText('Release-ready');
   await expect(browser.getByRole('button', { name: /^Heraldry/ })).toContainText('Beta');
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');

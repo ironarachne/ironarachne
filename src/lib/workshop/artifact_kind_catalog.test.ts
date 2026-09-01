@@ -18,6 +18,7 @@ describe('artifact kind catalog', () => {
       'character.adnd-2e',
       'character',
       'character.dcc',
+      'character.swn',
     ]);
   });
 
@@ -38,7 +39,7 @@ describe('artifact kind catalog', () => {
     expect(artifactKindEntry('culture')?.displayName).toBe('Culture');
     // A kind this build does not have is the normal case for a file from a newer one, and the miss
     // is what routes it to quarantine rather than an exception.
-    expect(artifactKindEntry('character.swn')).toBeUndefined();
+    expect(artifactKindEntry('character.traveller')).toBeUndefined();
   });
 
   // Given its own timeout, because the default five seconds is not a budget this test can be held
@@ -66,7 +67,7 @@ describe('artifact kind catalog', () => {
   }, 30_000);
 
   it('quarantines a payload whose kind came from a newer build', () => {
-    const result = readRegisteredArtifactPayload('character.swn', { name: 'Vex' }, 1);
+    const result = readRegisteredArtifactPayload('character.traveller', { name: 'Vex' }, 1);
     expect(result.ok === false && result.reason).toBe('unknown-kind');
   });
 

@@ -95,6 +95,18 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         );
     },
   },
+  'character.swn': {
+    loadEditor: () => import('$components/characters/SwnCharacterArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readSwnCharacterGeneratorConfig, rollSwnCharacterSnapshot } =
+        await import('$lib/swn/swn_character_roll.js');
+      return (provenance) =>
+        rollSwnCharacterSnapshot(
+          provenance.seed,
+          readSwnCharacterGeneratorConfig(provenance.config),
+        );
+    },
+  },
   /**
    * The first kind whose editor is a tool rather than a component written for the purpose.
    *
