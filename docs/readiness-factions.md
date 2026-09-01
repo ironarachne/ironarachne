@@ -10,8 +10,8 @@ Five tools: the arms manufacturer
 Part of [the readiness pass](tool-readiness.md). Measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** accepted; the arms manufacturer ([#53](#53--arms-manufacturer)) is **implemented**;
-#54 to #57 are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
+**Status:** accepted; the arms manufacturer ([#53](#53--arms-manufacturer)) and the fantasy
+encounter ([#54](#54--fantasy-encounter)) are **implemented**; #55 to #57 are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 This domain holds the pass's easiest tool and its second-hardest. The arms manufacturer is three
 files and a flat payload; the organization generator is the richest generator on the site, with a
@@ -89,6 +89,30 @@ are `Creature`s and `Character`s, each embedding a whole `Species`.
 
 The editor is bespoke but small: a group is a repeating structure (name, count, creatures), so it
 is a list editor rather than a flat form.
+
+**As built.** Everything above landed as written, with three things worth recording.
+
+`StoredCreature` is declared in `$lib/creatures` as `creature_snapshot.ts` and
+`creature_rehydrate.ts`, split the way the character's halves are. `placeholderSpecies` moved
+there from `$lib/characters` with it — a placeholder species is a creature-level concept, and the
+character half re-exports it. The creature lookup searches every species this build has rather
+than the sentient list, because a species mutator can turn a band of cultists into ghouls and the
+stored name is whatever the mutator left.
+
+**A stored mob carries a `mobKind` discriminator**, written on the way in. `MobGroup` holds `Mob`s
+and a `Character` is a `Creature` with more, so a stored group is a list of `StoredCharacter` or
+`StoredCreature`; inferring which from field presence on the way out is exactly the kind of guess a
+migration later has to undo. The kind's validator delegates each mob to the vocabulary type's own
+validator rather than copying it.
+
+**The environment reference (5.1) is deferred**, not dropped: `environment` (#60) has not landed,
+and `Encounter` has no field for one yet. The encounter takes nothing today and works with nothing
+supplied (5.3). When #60 lands, the reference is a field on this payload and a version 2.
+
+6.4 turned out to bind on two fields the issue did not name. The generator writes an empty
+description and a difficulty of zero on every encounter (both marked TODO), so a document that
+printed them would print a blank paragraph and "Difficulty: 0" on every sheet ever made. Both are
+dropped when empty. There is no treasure or complication field to drop.
 
 ## #55 — Fantasy family
 

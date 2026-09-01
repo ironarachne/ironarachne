@@ -79,6 +79,13 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // `$lib/weapons` and the made-up-names package. The kind module holds metadata and validation
   // only.
   '$lib/arms_manufacturer/arms_manufacturer_artifact_kind',
+  // The twelfth, and the vocabulary validator it composes. `$lib/encounters`'s entry point
+  // reaches the generator, and from there the archetype and species tables and, through a
+  // character's arms, the charge art; `$lib/creatures`'s reaches the species tables. Measured on
+  // the build: the encounter kind module and everything it statically imports is 195 KB across
+  // 16 chunks through these two paths, and 19.6 MB across 35 chunks through the entry points.
+  '$lib/encounters/encounter_artifact_kind',
+  '$lib/creatures/creature_snapshot',
 ]);
 
 /**

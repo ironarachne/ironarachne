@@ -61,3 +61,31 @@ Because of that, **do not mix sentient and non-sentient groups** in one encounte
 | [`encounter_templates.ts`](./encounter_templates.ts)             | Fantasy encounter compositions                 |
 | [`encounter_generation.ts`](./encounter_generation.ts)           | `generateEncounter` / `generateEncounterGroup` |
 | [`encounter_templates.test.ts`](./encounter_templates.test.ts)   | Smoke tests for template graph and generation  |
+
+## Saving an encounter
+
+The generator is Release-ready (issue #54), which means a rolled encounter can be kept:
+
+- `encounter_snapshot.ts` — the stored form. **The payload holds the resolved groups, never the
+  template that produced them**: an `EncounterGroupTemplate` is three arrays of mutator functions
+  and two tag filters, and what they produced is in the creatures. Each mob is stored as a
+  `StoredCharacter` (from `$lib/characters`) or a `StoredCreature` (from `$lib/creatures`), with a
+  `mobKind` saying which; species and archetypes travel as names.
+- `encounter_rehydrate.ts` — the stored form back into an `Encounter`. Nothing is recomputed; a
+  species or archetype this build no longer has becomes an inert placeholder rather than a refusal.
+- `encounter_artifact_kind.ts` — the `encounter` kind. Validation of each mob is delegated to the
+  vocabulary type's own validator rather than copied.
+- `encounter_roll.ts` — the single path from a seed and the page's two controls (template, uniform
+  species) to an encounter, and the provenance record a re-roll reads back.
+- `encounter_editing.ts` — one function per field, each returning a new snapshot: the encounter's
+  name, a group's name, a combatant's name, and removing either. Species and archetype are not
+  edited; changing them is what a re-roll is for.
+- `encounter_presentation.ts` — the encounter as a document, and the Markdown and PDF exports
+  written from it. The generator's empty description and zero difficulty are dropped rather than
+  printed as a blank paragraph and "Difficulty: 0".
+
+The environment reference the design describes (5.1) waits on the `environment` kind (#60); until
+it lands no input of this tool has an artifact kind, and the tool works with nothing supplied (5.3).
+
+This tool implements no game system, so there is no edition to name: the templates, archetypes and
+species are this site's own.

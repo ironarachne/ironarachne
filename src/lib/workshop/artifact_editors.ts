@@ -126,6 +126,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollUwCharacterSnapshot(provenance.seed, readUwCharacterGeneratorConfig(provenance.config));
     },
   },
+  encounter: {
+    loadEditor: () => import('$components/factions/EncounterArtifactEditor.svelte'),
+    /** The page's two controls, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readEncounterGeneratorConfig, rollEncounterSnapshot } =
+        await import('$lib/encounters/encounter_roll.js');
+      return (provenance) =>
+        rollEncounterSnapshot(provenance.seed, readEncounterGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

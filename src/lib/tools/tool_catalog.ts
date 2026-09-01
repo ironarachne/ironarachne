@@ -166,7 +166,14 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Encounter',
     kind: 'generator',
     domain: 'factions',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/readiness-factions.md (#54). It saves as `encounter`, holding the resolved groups as
+    // `StoredCharacter` and `StoredCreature` from the stored vocabulary and never the template;
+    // has a list editor in `ARTIFACT_EDITORS`; and exports Markdown and PDF, the first exports it
+    // has ever had. Its roll is deterministic from the seed and the two controls via
+    // `encounter_roll.ts`. No input has an artifact kind yet — `environment` (#60) has not landed
+    // — so requirement 5.1 does not bind; 5.3 is met, as it always was.
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['encounter'],
   }),

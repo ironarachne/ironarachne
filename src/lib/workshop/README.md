@@ -224,7 +224,8 @@ artifact does not restamp contents nobody changed.
 
 `ARTIFACT_EDITORS` maps a kind to the component that edits it, alongside an optional roller.
 **Every registered kind now has one**: heraldry, culture, religion, settlement, Velgarth gifts, the
-arms manufacturer, and the AD&D 2E, fantasy, DCC, SWN and Uncharted Worlds characters. That is where the readiness pass has got to
+arms manufacturer, the encounter, and the AD&D 2E, fantasy, DCC, SWN and Uncharted Worlds
+characters. That is where the readiness pass has got to
 rather than a rule — a kind with no entry opens read-only, which is still a state the surface
 renders rather than an error it reports, and `loadViewer` is still in the vocabulary for a kind
 that can be shown and not sensibly edited. #39

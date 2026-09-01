@@ -137,6 +137,18 @@ describe('the artifact editor registry', () => {
     expect(hasArtifactEditor('heraldry')).toBe(true);
   });
 
+  it('rolls an encounter from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('encounter')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/fantasy/encounter',
+      seed: 'registry-seed',
+      config: { templateName: 'pack of ghouls' },
+    }) as { name: string; groups: unknown[] };
+
+    expect(rolled.name).toBe('pack of ghouls');
+    expect(rolled.groups.length).toBeGreaterThan(0);
+  });
+
   it('rolls an arms manufacturer from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('arms-manufacturer')!.loadRoller!();
     const rolled = roll({

@@ -41,6 +41,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne' },
   { path: '/velgarth-gifts', title: 'Velgarth Gifts Generator | Iron Arachne' },
   { path: '/arms-manufacturer', title: 'Arms Manufacturer Generator | Iron Arachne' },
+  { path: '/fantasy/encounter', title: 'Encounter | Iron Arachne' },
   { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
   { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
   { path: '/fantasy/adnd/character', title: 'AD&D 2e Character Generator | Iron Arachne' },
@@ -132,6 +133,9 @@ test('maturity: the tool browser marks every tool that has something to warn abo
     'Experimental',
   );
   await expect(browser.getByRole('button', { name: /^Arms Manufacturer/ })).not.toContainText(
+    'Experimental',
+  );
+  await expect(browser.getByRole('button', { name: /^Fantasy Encounter/ })).not.toContainText(
     'Experimental',
   );
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');

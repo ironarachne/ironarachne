@@ -13,6 +13,7 @@
  */
 
 import { getAllFantasyArchetypes, type Archetype } from '$lib/archetypes';
+import { placeholderSpecies } from '$lib/creatures';
 import { armsFromStored } from '$lib/heraldry';
 import type { Species } from '$lib/species';
 import { sentientSpeciesList } from '$lib/species_sentients';
@@ -49,38 +50,11 @@ export function archetypeFromStored(stored: StoredArchetype): Archetype {
 }
 
 /**
- * A species this build does not have, carrying nothing but the name it was stored under.
- *
- * The point of it is that it is inert. Every number a character needs — height, weight, age,
- * physical traits, abilities — is already in the payload, so a placeholder never has to produce
- * one; what it has to do is let the sheet say `a weary Thrennish smith` and the export render,
- * rather than losing the character to a lookup that missed. Quarantining instead would retire a
- * saved character permanently over a name nothing ever brings back.
- *
- * The adjective and plural are derived from the name because that is what the description prose
- * reads, and a blank adjective would print a sentence with a hole in it. The tables are empty
- * because a placeholder that answered questions about a species this build cannot describe would
- * be inventing one — see {@link isUnknownSpeciesName}, which is how a re-roll is kept from doing
- * exactly that.
+ * The placeholder a species this build does not have becomes. Declared by `$lib/creatures` since
+ * #54, because a placeholder species is a creature-level concept; re-exported so that everything
+ * that reached it here still can.
  */
-export function placeholderSpecies(name: string): Species {
-  return {
-    name,
-    pluralName: `${name}s`,
-    adjective: name,
-    breedType: '',
-    environments: [],
-    creatureTypes: [],
-    physicalTraitGeneratorConfigs: [],
-    ageCategories: [],
-    sizeGeneratorConfigMatrix: [],
-    abilities: [],
-    baseThreatLevel: 0,
-    genders: [],
-    commonality: 0,
-    tags: [],
-  };
-}
+export { placeholderSpecies };
 
 /** Whether a stored species name came back as a placeholder rather than a table this build has. */
 export function isUnknownSpeciesName(name: string): boolean {
