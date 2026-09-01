@@ -72,6 +72,9 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // along with the career, origin and asset tables. The kind module holds metadata and validation
   // only.
   '$lib/unchartedworlds/uw_character_artifact_kind',
+  // The tenth. `$lib/velgarth_gifts`'s entry point re-exports the gift table, which is four hundred
+  // lines of setting prose. The kind module holds metadata and validation only.
+  '$lib/velgarth_gifts/velgarth_gifts_artifact_kind',
 ]);
 
 /**

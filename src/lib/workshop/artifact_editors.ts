@@ -126,6 +126,18 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollUwCharacterSnapshot(provenance.seed, readUwCharacterGeneratorConfig(provenance.config));
     },
   },
+  'velgarth-gifts': {
+    loadEditor: () => import('$components/characters/VelgarthGiftsArtifactEditor.svelte'),
+    /**
+     * The seed and nothing else: this tool has one control, and the bounds on how many Gifts a
+     * character has are the setting's rather than the user's, so there is no config to read back.
+     */
+    loadRoller: async () => {
+      const { rollVelgarthGiftsSnapshot } =
+        await import('$lib/velgarth_gifts/velgarth_gifts_roll.js');
+      return (provenance) => rollVelgarthGiftsSnapshot(provenance.seed);
+    },
+  },
   /**
    * The first kind whose editor is a tool rather than a component written for the purpose.
    *

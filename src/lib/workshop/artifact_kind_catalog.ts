@@ -24,6 +24,7 @@ import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
 import { swnCharacterArtifactKind } from '$lib/swn/swn_character_artifact_kind';
 import { uwCharacterArtifactKind } from '$lib/unchartedworlds/uw_character_artifact_kind';
+import { velgarthGiftsArtifactKind } from '$lib/velgarth_gifts/velgarth_gifts_artifact_kind';
 
 /**
  * Assembled statically, in a single list, exactly like `TOOL_PANELS` beside it and the tool
@@ -45,6 +46,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, dccCharacterArtifactKind);
   registerArtifactKind(registry, swnCharacterArtifactKind);
   registerArtifactKind(registry, uwCharacterArtifactKind);
+  registerArtifactKind(registry, velgarthGiftsArtifactKind);
   return registry;
 }
 

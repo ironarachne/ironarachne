@@ -261,9 +261,15 @@ type SnapshotFieldDescriptor = {
 It takes `ArtifactEditorProps` like any other editor and calls `onChange` with a new snapshot. The
 kind supplies the descriptors; nothing in the framework learns what a drug or a star nation is.
 
-**Which tools it serves:** the arms manufacturer, chop shop, spooky ship, drug, Velgarth gifts,
-environment, planet, star nation, star system, potion, item, treasure hoard and merchant — thirteen
-of twenty-five, and every one of them a flat record of strings and numbers with at most a list.
+**Which tools it serves:** the arms manufacturer, chop shop, spooky ship, drug, environment,
+planet, star nation, star system, potion, item, treasure hoard and merchant — twelve of
+twenty-five, and every one of them a flat record of strings and numbers with at most a list.
+
+Velgarth gifts was the thirteenth until #52 built it and found it was not one: a set of Gifts is a
+list of _records_ — a name, a description and a strength each — and no descriptor in the language
+above says "repeat these three fields per row". It took a bespoke editor, per the guard at the end
+of this decision, and **`SnapshotFieldEditor` is still unbuilt**: the first of the twelve above to
+be taken to Release-ready should write it, on a payload that is actually flat.
 
 **Which tools it does not:** the three system characters, heraldry, organization, family, encounter,
 dungeon, region and language. Each of those is a structure — a hierarchy, a graph, a device, a
@@ -477,6 +483,11 @@ the pass composes what this wave declares, so it is the only strictly serial ste
 `velgarth-gifts`, `environment`, `potion`, `item`, and the three reference tools. Small flat
 payloads, no composition, and between them they prove the `SnapshotFieldEditor` decision before
 thirteen tools depend on it. `environment` is here because two other tools reference it.
+
+`velgarth-gifts` came out of this wave first, with the characters domain rather than with its
+neighbours, and it did **not** prove the decision: its payload turned out to be a list of records
+rather than a flat one, so it took a bespoke editor (see decision 5). The component is still owed by
+whichever of the others lands first.
 
 **Wave 2 — the structured.** `character.dcc`, `character.swn`, `character.uncharted-worlds`,
 `starship.swn`, `heraldry`'s editor, `encounter`, `family`, `organization`, `merchant`,

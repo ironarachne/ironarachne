@@ -39,6 +39,7 @@ const SILENT_TOOL_PAGES = [
     title: 'Uncharted Worlds Character Generator | Iron Arachne',
   },
   { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne' },
+  { path: '/velgarth-gifts', title: 'Velgarth Gifts Generator | Iron Arachne' },
   { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
   { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
   { path: '/fantasy/adnd/character', title: 'AD&D 2e Character Generator | Iron Arachne' },
@@ -126,5 +127,8 @@ test('maturity: the tool browser marks every tool that has something to warn abo
     browser.getByRole('button', { name: /^Uncharted Worlds Character/ }),
   ).not.toContainText('Release-ready');
   await expect(browser.getByRole('button', { name: /^Heraldry/ })).not.toContainText('Beta');
+  await expect(browser.getByRole('button', { name: /^Velgarth Gifts/ })).not.toContainText(
+    'Experimental',
+  );
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');
 });

@@ -4,6 +4,11 @@ export type { default as GiftStrengthLevel } from './gift_strength_level';
 export type { default as GiftGeneratorConfig } from './generator_config';
 export * from './gifts';
 export * from './gift_possibilities';
+export * from './velgarth_gifts_artifact_kind';
+export * from './velgarth_gifts_editing';
+export * from './velgarth_gifts_presentation';
+export * from './velgarth_gifts_roll';
+export * from './velgarth_gifts_snapshot';
 
 export * as VelgarthGiftPossibilities from './gift_possibilities';
 export * as VelgarthGifts from './gifts';
