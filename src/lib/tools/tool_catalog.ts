@@ -103,17 +103,17 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     tags: ['character'],
   }),
   defineTool({
-    // Beta, measured against the Beta bar rather than assumed from "approaching Beta" in the
-    // design document. It clears sections 1–3 (a registered kind with a validating v1→v2
-    // migration, a round-tripping snapshot, provenance and a name recorded on save), 6 (mobile,
-    // keyboard, SVG and PNG export), and 7.1–7.2. What holds it short of Release-ready is section
-    // 4: `ARTIFACT_EDITORS` registers a viewer for heraldry and no editor, so a saved coat of arms
-    // can be seen and downloaded but not changed.
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/readiness-characters.md (#51). It cleared 1-3, 6 and 7.1-7.2 at Beta already; what it
+    // had was a viewer, so a saved coat of arms could be seen and downloaded and not changed.
+    // `HeraldryArtifactEditor` is a form over the names the device is stored as, drawn beside the
+    // arms, and `heraldry_roll.ts` is the single path from a seed — which is also what a
+    // destructive re-roll needs. The legacy `generator.heraldry` save scope went with it.
     path: '/heraldry',
     label: 'Heraldry',
     kind: 'generator',
     domain: 'characters',
-    maturity: 'beta',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['heraldry'],
   }),

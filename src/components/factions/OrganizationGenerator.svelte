@@ -25,7 +25,7 @@
   import type { Arms } from '$lib/heraldry';
   import { renderMerchantMarkSvg } from '$lib/merchant_marks';
   import { renderPatternLatticeSvg } from '$lib/pattern_lattice';
-  import { showHeraldryPersistenceModal } from '$lib/ui';
+  import { showHeraldryModal } from '$lib/ui';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
@@ -110,7 +110,7 @@
     title: string,
     applyReplacement: (arms: Arms) => void,
   ) {
-    const result = await showHeraldryPersistenceModal({ arms, seed, title });
+    const result = await showHeraldryModal({ arms, seed, title });
     if (result.action === 'replaced') {
       applyReplacement(result.arms);
     }

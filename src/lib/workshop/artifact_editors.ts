@@ -37,15 +37,25 @@ import type { ArtifactEditorEntry, ArtifactEditorRegistry } from './workshop_typ
  */
 export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
   /**
-   * A viewer and no editor, which is heraldry's honest state: it can draw itself and hand you an
-   * SVG or a PNG (requirement 6.3), and it has no editing view (4.1). Registering it as an editor
-   * to get the drawing would claim a readiness it does not have.
+   * The kind that was viewer-only until #51, and the reason `loadViewer` exists at all.
    *
-   * The viewer is why `/saved-data` could be retired (#44): a saved coat of arms is seen and
-   * downloaded here now, which was the one affordance that page had and the project view did not.
+   * A saved coat of arms could be drawn and downloaded, and not changed — honest while it was
+   * true, and requirement 4.1 is what stood between heraldry and Release-ready. The editor draws
+   * the arms beside the controls and still hands over the SVG and the PNG, so nothing the viewer
+   * did was traded away to gain it.
+   *
+   * `loadViewer` stays in the registry's vocabulary. A kind that can be shown and not sensibly
+   * edited is a state the surface should still be able to render, and this entry having outgrown
+   * it is not a reason to make the next one unrepresentable.
    */
   heraldry: {
-    loadViewer: () => import('$components/heraldry/HeraldryArtifactView.svelte'),
+    loadEditor: () => import('$components/heraldry/HeraldryArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readHeraldryGeneratorConfig, rollHeraldrySnapshot } =
+        await import('$lib/heraldry/heraldry_roll.js');
+      return (provenance) =>
+        rollHeraldrySnapshot(provenance.seed, readHeraldryGeneratorConfig(provenance.config));
+    },
   },
   culture: {
     loadEditor: () => import('$components/factions/CultureArtifactEditor.svelte'),

@@ -8,12 +8,17 @@ import type { LegacySaveScope, LegacyScopeContents } from './legacy_adoption_typ
  *
  * Spelled out here rather than imported from the libraries that wrote them, and this is the one
  * place in adoption that repeats knowledge on purpose. `culture_saved_state` reaches
- * `culture_snapshot` and from there `$lib/names`; `heraldry_saved_state`'s reader dedupes by
- * blazon and *writes the deduped list back*. Adoption runs on page load and must not mutate legacy
- * data on the way past, so it reads the stored JSON itself and costs nothing to load.
+ * `culture_snapshot` and from there `$lib/names`, and adoption runs on page load, so it reads the
+ * stored JSON itself and costs nothing to load.
+ *
+ * **`generator.heraldry` no longer has a writer at all.** `heraldry_saved_state.ts` was retired
+ * with #51 — the heraldry generator saves to the vault now — so this entry is the only description
+ * of that scope left in the build, and it is what carries a coat of arms saved by an older build
+ * across. Do not delete it because nothing writes it: the data is in browsers.
  *
  * `legacy_saves.test.ts` asserts every field here against the constants and types the owning
- * libraries export, so the copy cannot drift without a test saying so.
+ * libraries export, and heraldry's against literals for the reason above, so the copy cannot drift
+ * without a test saying so.
  */
 export const LEGACY_SAVE_SCOPES: readonly LegacySaveScope[] = [
   {

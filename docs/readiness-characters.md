@@ -13,8 +13,8 @@ share — the determinism fix, the stored vocabulary, the kind ids, and the fiel
 Measured against [Tool release readiness](workshop.md#tool-release-readiness).
 
 **Status:** accepted; the three system characters — [#48](#48--dungeon-crawl-classics),
-[#49](#49--stars-without-number) and [#50](#50--uncharted-worlds) — are **implemented**; #51 and
-#52 are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
+[#49](#49--stars-without-number) and [#50](#50--uncharted-worlds) — and
+[#51](#51--heraldry-from-beta-to-release-ready) are **implemented**; #52 is not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
 this document is clear to start.
 
 ## The three system characters
@@ -201,6 +201,14 @@ a charge group is a repeating structure with its own add and remove, and the edi
 arms beside the controls. A flat list of inputs would be a worse editor than the viewer it
 replaces.
 
+**As built, one thing the design did not anticipate had to come first: the roll.** Assembling
+heraldry's generator config _consumes the RNG_ — the charge count, the charge tincture and the two
+field-tincture pools are all drawn before `generateHeraldry` is called — and that assembly lived in
+the component. So the seed alone never reproduced a coat of arms, and requirement 4.3 had nothing to
+re-roll from: a re-roll has a seed and a recorded config and no page. `heraldry_roll.ts` is that
+path, transcribed from the component and checked against it seed by seed before the component was
+changed to call it.
+
 ### Composition, and why heraldry is the kind that tests 5.4
 
 5.1 for heraldry itself is thin — a coat of arms takes no other artifact as an input — so what it
@@ -212,6 +220,15 @@ That makes heraldry the kind most likely to sit in a cycle — a region's author
 the organization the region references — and 5.4 is tested in whatever walks references, once, not
 in this tool. Retiring `heraldry_saved_state.ts` is part of this issue;
 `src/lib/legacy_adoption` is what carries existing saves across and does not change.
+
+**What retiring it actually cost, because it reached further than this tool.** The scope had three
+readers. The generator's own Save and Load controls and its `?blazon=` deep link are gone, replaced
+by the save control the vault already gave it. The modal a character, an organization or a region
+opens on its arms kept its "wear a different coat of arms" list, but that list now comes from the
+open project rather than from `localStorage` — the same affordance over the store that replaced the
+scope. What went with the scope and has no replacement is that modal's **Save** button: keeping a
+coat of arms is what the heraldry generator does, and a character's own arms travel inside the
+character's payload.
 
 ## #52 — Velgarth Gifts
 

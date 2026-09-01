@@ -1258,7 +1258,7 @@ implementation:
   `ArtifactInspector` and `ArtifactReferences`.
 - **Wells** — the four scrolling lists.
 - **Left alone by this issue** — `StorageFailureModalContent` and `StorageDisclosureNotice` are
-  #117's banners; the three artifact editors and `HeraldryArtifactView` hold generated output and
+  #117's banners; the three artifact editors and the heraldry artifact panel hold generated output and
   are the skins' business.
 
 `ToolPanel` itself needs no change: it already declares no surface. What is removed is the frame

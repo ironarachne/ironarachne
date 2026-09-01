@@ -883,11 +883,11 @@ test.describe('building one artifact from another', () => {
  * Editing (#39), end to end: the generic surface an artifact opens in, and the lifecycle around
  * what a kind plugs into it.
  *
- * Culture is the one kind with an editing component (#40); heraldry is the standing example of a
- * kind without one, which is the ordinary state for most of the site. Both are exercised here, so
- * what a browser settles is the framework itself: an artifact opens, changes, and keeps the change
- * across a reload; a kind with no editor opens read-only rather than breaking; and edits are not
- * lost quietly, whether the way out is the panel's close button or the site's own navigation.
+ * Culture is the first kind with an editing component (#40), and heraldry is the one that drew
+ * itself long before it could be edited. Both are exercised here, so what a browser settles is the
+ * framework itself: an artifact opens, changes, and keeps the change across a reload; a kind that
+ * renders something of its own does so inside the same lifecycle; and edits are not lost quietly,
+ * whether the way out is the panel's close button or the site's own navigation.
  */
 test.describe('editing a saved artifact', () => {
   const artifactPanel = (page: Page) => page.locator('.artifact-panel');
@@ -1042,12 +1042,15 @@ test.describe('editing a saved artifact', () => {
     );
   });
 
-  test('opens a kind with no editor read-only, and offers nothing destructive', async ({
-    page,
-  }) => {
-    // Heraldry is the standing example of a kind that stores artifacts long before anything can
-    // edit them. It draws itself (requirement 6.3) without having an editing view (4.1), and the
-    // panel has to tell those two apart.
+  /**
+   * Heraldry was the standing example of a kind that stores artifacts long before anything can
+   * edit them: it drew itself (requirement 6.3) without having an editing view (4.1), and the
+   * panel had to tell those two apart. #51 gave it an editor, and **every registered kind now has
+   * one**, so the read-only path is no longer reachable from any tool — what is asserted here is
+   * that the drawing survived becoming editable, which is the half a form could have quietly
+   * dropped.
+   */
+  test('draws a saved coat of arms in the panel that edits it', async ({ page }) => {
     await openASavedArtifact(page, /^Heraldry/, 'Emberhold arms');
     const panel = artifactPanel(page);
 
@@ -1057,9 +1060,10 @@ test.describe('editing a saved artifact', () => {
     await expect(panel.locator('.heraldry-artifact__blazon')).not.toBeEmpty();
     await expect(panel.getByRole('alert')).toHaveCount(0);
 
-    // Read-only all the same: nothing to save, and nothing that could overwrite the payload.
+    // Nothing has been changed yet, so there is nothing to save — and the destructive command is
+    // on offer now, which is what an editor brings with it (4.3).
     await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
-    await expect(panel.getByRole('button', { name: 'Roll again' })).toHaveCount(0);
+    await expect(panel.getByRole('button', { name: 'Roll again' })).toHaveCount(1);
   });
 
   /**

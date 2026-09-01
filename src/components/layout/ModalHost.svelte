@@ -1,5 +1,5 @@
 <script lang="ts">
-  import HeraldryPersistenceModalContent from '$components/heraldry/HeraldryPersistenceModalContent.svelte';
+  import HeraldryViewModalContent from '$components/heraldry/HeraldryViewModalContent.svelte';
   import LoadSnapshotContent from '$components/common/LoadSnapshotContent.svelte';
   import ModalDialog from '$components/common/ModalDialog.svelte';
   import { TONE_CLASS, type Tone } from '$components/common/Notice.svelte';
@@ -8,7 +8,7 @@
     modalState,
     resolveActiveAlertModal,
     resolveActiveConfirmModal,
-    resolveActiveHeraldryPersistenceModal,
+    resolveActiveHeraldryModal,
     resolveActiveLoadSnapshotModal,
     resolveActiveStorageFailureModal,
     type AlertModalStyle,
@@ -77,7 +77,7 @@
       return;
     }
     if (modalState.current?.kind === 'heraldry') {
-      resolveActiveHeraldryPersistenceModal({ action: 'dismiss' });
+      resolveActiveHeraldryModal({ action: 'dismiss' });
       return;
     }
     if (modalState.current?.kind === 'snapshot') {
@@ -139,13 +139,13 @@
       onDismiss={() => resolveActiveLoadSnapshotModal({ action: 'dismiss' })}
     />
   {:else if modalState.current?.kind === 'heraldry'}
-    <HeraldryPersistenceModalContent
+    <HeraldryViewModalContent
       arms={modalState.current.arms}
       seed={modalState.current.seed}
       title={modalState.current.title}
       rng={heraldryModalRng}
-      onDismiss={() => resolveActiveHeraldryPersistenceModal({ action: 'dismiss' })}
-      onReplace={(arms) => resolveActiveHeraldryPersistenceModal({ action: 'replaced', arms })}
+      onDismiss={() => resolveActiveHeraldryModal({ action: 'dismiss' })}
+      onReplace={(arms) => resolveActiveHeraldryModal({ action: 'replaced', arms })}
     />
   {:else if modalState.current}
     <ModalDialog

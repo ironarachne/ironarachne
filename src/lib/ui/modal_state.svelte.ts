@@ -68,11 +68,16 @@ export type ShowLoadSnapshotModalOptions = {
   emptyMessage?: string;
 };
 
-export type HeraldryPersistenceModalResult =
-  | { action: 'dismiss' }
-  | { action: 'replaced'; arms: Arms };
+/**
+ * A coat of arms shown at a size worth looking at, closed again, or swapped for another.
+ *
+ * "Replaced" carries the arms the user picked instead. Where that list comes from changed with
+ * #51 — it was the heraldry generator's own `localStorage` scope, and it is the coats of arms
+ * saved in the open project now — but the answer this modal gives back did not.
+ */
+export type HeraldryModalResult = { action: 'dismiss' } | { action: 'replaced'; arms: Arms };
 
-export type ShowHeraldryPersistenceModalOptions = {
+export type ShowHeraldryModalOptions = {
   arms: Arms;
   seed: string;
   title?: string;
@@ -98,13 +103,13 @@ type ConfirmModalRequest = {
   resolve: (confirmed: boolean) => void;
 };
 
-type HeraldryPersistenceModalRequest = {
+type HeraldryModalRequest = {
   kind: 'heraldry';
   id: number;
   arms: Arms;
   seed: string;
   title?: string;
-  resolve: (result: HeraldryPersistenceModalResult) => void;
+  resolve: (result: HeraldryModalResult) => void;
 };
 
 type LoadSnapshotModalRequest = {
@@ -130,7 +135,7 @@ type StorageFailureModalRequest = {
 export type ModalRequest =
   | AlertModalRequest
   | ConfirmModalRequest
-  | HeraldryPersistenceModalRequest
+  | HeraldryModalRequest
   | LoadSnapshotModalRequest
   | StorageFailureModalRequest;
 
@@ -185,9 +190,7 @@ export function resolveActiveConfirmModal(confirmed: boolean): void {
   showNextFromQueue();
 }
 
-export function resolveActiveHeraldryPersistenceModal(
-  result: HeraldryPersistenceModalResult,
-): void {
+export function resolveActiveHeraldryModal(result: HeraldryModalResult): void {
   const current = modalState.current;
   if (!current || current.kind !== 'heraldry') {
     return;
@@ -288,9 +291,7 @@ export function showConfirmModal(options: ShowConfirmModalOptions): Promise<bool
   });
 }
 
-export function showHeraldryPersistenceModal(
-  options: ShowHeraldryPersistenceModalOptions,
-): Promise<HeraldryPersistenceModalResult> {
+export function showHeraldryModal(options: ShowHeraldryModalOptions): Promise<HeraldryModalResult> {
   return new Promise((resolve) => {
     enqueue({
       kind: 'heraldry',

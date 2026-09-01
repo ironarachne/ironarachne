@@ -6,12 +6,7 @@ import {
   CULTURE_SAVE_SCOPE_ID,
   type CultureSavePayload,
 } from '$lib/culture';
-import {
-  HERALDRY_ARTIFACT_KIND,
-  HERALDRY_SAVE_PAYLOAD_VERSION,
-  HERALDRY_SAVE_SCOPE_ID,
-  type HeraldrySavePayload,
-} from '$lib/heraldry';
+import { HERALDRY_ARTIFACT_KIND } from '$lib/heraldry';
 import { writeScopedJson } from '$lib/persistent_save';
 import {
   RELIGION_ARTIFACT_KIND,
@@ -66,18 +61,24 @@ function scopeFor(scopeId: string): LegacySaveScope {
 
 /**
  * `legacy_saves.ts` writes the three scopes out rather than importing them, so that adoption does
- * not load `$lib/names` on every page view or trip heraldry's dedupe-and-write-back reader. These
- * are the checks that pay for that copy: every field of it is asserted against what the owning
- * library exports, so a rename over there fails here instead of quietly adopting nothing.
+ * not load `$lib/names` on every page view. These are the checks that pay for that copy: every
+ * field of it is asserted against what the owning library exports, so a rename over there fails
+ * here instead of quietly adopting nothing.
  *
  * The `itemsField` checks go through `satisfies`, which is what makes them real: the object has to
  * be assignable to the library's own save payload type, so a field renamed in that type stops
  * compiling here.
+ *
+ * **Heraldry is the exception, and is asserted against literals.** `heraldry_saved_state.ts` was
+ * retired with #51 — the heraldry generator saves to the vault now — so there is no longer a
+ * writer to cross-check against, and the copy in `legacy_saves.ts` is the only record of what that
+ * scope holds. That is precisely why adoption keeps reading it: the data is still in browsers, and
+ * nothing else in the build knows its shape any more.
  */
 describe('LEGACY_SAVE_SCOPES', () => {
   it('covers the three generators that could save, and nothing else', () => {
     expect(LEGACY_SAVE_SCOPES.map((scope) => scope.scopeId)).toEqual([
-      HERALDRY_SAVE_SCOPE_ID,
+      'generator.heraldry',
       CULTURE_SAVE_SCOPE_ID,
       RELIGION_SAVE_SCOPE_ID,
     ]);
@@ -95,10 +96,6 @@ describe('LEGACY_SAVE_SCOPES', () => {
   });
 
   it('names the array field each library stores its items under', () => {
-    const heraldry = {
-      payloadVersion: HERALDRY_SAVE_PAYLOAD_VERSION,
-      heraldries: [],
-    } satisfies HeraldrySavePayload;
     const culture = {
       payloadVersion: CULTURE_SAVE_PAYLOAD_VERSION,
       cultures: [],
@@ -108,7 +105,8 @@ describe('LEGACY_SAVE_SCOPES', () => {
       religions: [],
     } satisfies ReligionSavePayload;
 
-    expect(Object.keys(heraldry)).toContain(scopeFor(HERALDRY_SAVE_SCOPE_ID).itemsField);
+    // Literals, per the note above: the module that wrote this scope is gone.
+    expect(scopeFor('generator.heraldry').itemsField).toBe('heraldries');
     expect(Object.keys(culture)).toContain(scopeFor(CULTURE_SAVE_SCOPE_ID).itemsField);
     expect(Object.keys(religion)).toContain(scopeFor(RELIGION_SAVE_SCOPE_ID).itemsField);
   });

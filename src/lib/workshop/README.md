@@ -223,12 +223,15 @@ artifact does not restamp contents nobody changed.
 ## Artifact editors
 
 `ARTIFACT_EDITORS` maps a kind to the component that edits it, alongside an optional roller.
-**Culture, religion, settlement, and the AD&D 2E, fantasy, DCC, SWN and Uncharted Worlds
-characters are the entries**, and most kinds having none is the shipped state: #39
+**Every registered kind now has one**: heraldry, culture, religion, settlement, and the AD&D 2E,
+fantasy, DCC, SWN and Uncharted Worlds characters. That is where the readiness pass has got to
+rather than a rule — a kind with no entry opens read-only, which is still a state the surface
+renders rather than an error it reports, and `loadViewer` is still in the vocabulary for a kind
+that can be shown and not sensibly edited. #39
 built the frame, and an editing view for a particular kind is part of taking that tool to
 Release-ready (docs/workshop.md, section 4). A kind with no entry opens read-only — the stored
-snapshot, rendered honestly — which is a state the surface draws rather than an error it reports.
-Heraldry is the standing example.
+snapshot, rendered honestly — which is a state the surface draws rather than an error it reports;
+heraldry was the standing example of it until #51.
 
 ```ts
 export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {

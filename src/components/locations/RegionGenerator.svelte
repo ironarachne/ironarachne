@@ -8,7 +8,7 @@
   import type { Character } from '$lib/characters';
   import * as Names from '$lib/names';
   import { renderHeraldryDeviceSvg } from '$lib/heraldry';
-  import { showHeraldryPersistenceModal } from '$lib/ui';
+  import { showHeraldryModal } from '$lib/ui';
   import type { Arms } from '$lib/heraldry';
   import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -80,7 +80,7 @@
     title: string,
     applyReplacement: (arms: Arms) => void,
   ) {
-    const result = await showHeraldryPersistenceModal({ arms, seed, title });
+    const result = await showHeraldryModal({ arms, seed, title });
     if (result.action === 'replaced') {
       applyReplacement(result.arms);
     }

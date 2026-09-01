@@ -20,7 +20,6 @@ const maturityBadge = (page: Page) => page.locator('.maturity__level');
 
 const TOOL_PAGES = [
   { path: '/planet', title: 'Planet Generator | Iron Arachne', level: 'Experimental' },
-  { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne', level: 'Beta' },
 ] as const;
 
 /** The release-ready tools, which must say nothing at all. */
@@ -39,6 +38,7 @@ const SILENT_TOOL_PAGES = [
     path: '/unchartedworlds/character',
     title: 'Uncharted Worlds Character Generator | Iron Arachne',
   },
+  { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne' },
   { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
   { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
   { path: '/fantasy/adnd/character', title: 'AD&D 2e Character Generator | Iron Arachne' },
@@ -125,6 +125,6 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   await expect(
     browser.getByRole('button', { name: /^Uncharted Worlds Character/ }),
   ).not.toContainText('Release-ready');
-  await expect(browser.getByRole('button', { name: /^Heraldry/ })).toContainText('Beta');
+  await expect(browser.getByRole('button', { name: /^Heraldry/ })).not.toContainText('Beta');
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');
 });

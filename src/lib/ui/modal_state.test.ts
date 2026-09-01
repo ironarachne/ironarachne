@@ -7,11 +7,11 @@ import {
   resetModalStateForTests,
   resolveActiveAlertModal,
   resolveActiveConfirmModal,
-  resolveActiveHeraldryPersistenceModal,
+  resolveActiveHeraldryModal,
   resolveActiveStorageFailureModal,
   showAlertModal,
   showConfirmModal,
-  showHeraldryPersistenceModal,
+  showHeraldryModal,
   showStorageFailureModal,
 } from './modal_state.svelte';
 
@@ -100,10 +100,10 @@ describe('modal_state', () => {
     expect(modalState.open).toBe(false);
   });
 
-  it('opens a heraldry persistence modal and resolves on dismiss', async () => {
+  it('opens a heraldry modal and resolves on dismiss', async () => {
     const rng = new RNG('heraldry-modal-test');
     const arms = generateHeraldry(getDefaultHeraldryGeneratorConfig(rng));
-    const promise = showHeraldryPersistenceModal({
+    const promise = showHeraldryModal({
       arms,
       seed: 'test-seed',
       title: 'Test Arms',
@@ -116,7 +116,7 @@ describe('modal_state', () => {
       expect(modalState.current.title).toBe('Test Arms');
     }
 
-    resolveActiveHeraldryPersistenceModal({ action: 'dismiss' });
+    resolveActiveHeraldryModal({ action: 'dismiss' });
     await expect(promise).resolves.toEqual({ action: 'dismiss' });
     expect(modalState.open).toBe(false);
   });
@@ -173,18 +173,18 @@ describe('modal_state', () => {
     await expect(promise).resolves.toBe(true);
   });
 
-  it('resolves heraldry persistence modal with replaced arms', async () => {
+  it('resolves heraldry modal with replaced arms', async () => {
     const rng = new RNG('heraldry-modal-replace-test');
     const originalArms = generateHeraldry(getDefaultHeraldryGeneratorConfig(rng));
     const replacementArms = generateHeraldry(
       getDefaultHeraldryGeneratorConfig(new RNG('replacement')),
     );
-    const promise = showHeraldryPersistenceModal({
+    const promise = showHeraldryModal({
       arms: originalArms,
       seed: 'seed-a',
     });
 
-    resolveActiveHeraldryPersistenceModal({ action: 'replaced', arms: replacementArms });
+    resolveActiveHeraldryModal({ action: 'replaced', arms: replacementArms });
     await expect(promise).resolves.toEqual({ action: 'replaced', arms: replacementArms });
   });
 });

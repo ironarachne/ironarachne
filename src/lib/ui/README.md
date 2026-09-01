@@ -10,14 +10,14 @@ state — which is why it is a `.svelte.ts` file with a plain `modal.ts` facade 
 ## Features
 
 - **`modalState`** — the reactive state a single `<Modal>` component renders from.
-- **Showing a modal** — `showAlertModal`, `showConfirmModal`, `showHeraldryPersistenceModal`, and
+- **Showing a modal** — `showAlertModal`, `showConfirmModal`, `showHeraldryModal`, and
   `showStorageFailureModal`, each returning a promise that settles when the user answers.
 - **Resolving one** — `resolveActiveAlertModal`, `resolveActiveConfirmModal`,
-  `resolveActiveHeraldryPersistenceModal`, and `resolveActiveStorageFailureModal`, called by the
+  `resolveActiveHeraldryModal`, and `resolveActiveStorageFailureModal`, called by the
   modal component itself.
 - **Types** — `ModalState`, `ModalRequest`, `AlertModalStyle`, `ShowAlertModalOptions`,
-  `ShowConfirmModalOptions`, `ShowHeraldryPersistenceModalOptions`,
-  `HeraldryPersistenceModalResult`, `ShowStorageFailureModalOptions`, and
+  `ShowConfirmModalOptions`, `ShowHeraldryModalOptions`,
+  `HeraldryModalResult`, `ShowStorageFailureModalOptions`, and
   `StorageFailureModalResult`.
 
 ## Usage
