@@ -35,6 +35,10 @@ const SILENT_TOOL_PAGES = [
     path: '/swn/character',
     title: 'Stars Without Number Character Generator | Iron Arachne',
   },
+  {
+    path: '/unchartedworlds/character',
+    title: 'Uncharted Worlds Character Generator | Iron Arachne',
+  },
   { path: '/fantasy/settlement', title: 'Settlement Generator | Iron Arachne' },
   { path: '/fantasy/religion', title: 'Religion Generator | Iron Arachne' },
   { path: '/fantasy/adnd/character', title: 'AD&D 2e Character Generator | Iron Arachne' },
@@ -117,6 +121,9 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   ).not.toContainText('Release-ready');
   await expect(
     browser.getByRole('button', { name: /^Stars Without Number Character/ }),
+  ).not.toContainText('Release-ready');
+  await expect(
+    browser.getByRole('button', { name: /^Uncharted Worlds Character/ }),
   ).not.toContainText('Release-ready');
   await expect(browser.getByRole('button', { name: /^Heraldry/ })).toContainText('Beta');
   await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');

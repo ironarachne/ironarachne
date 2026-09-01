@@ -68,6 +68,10 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // The eighth. `$lib/swn`'s entry point re-exports the PDF renderer, and jsPDF with it, along with
   // the focus, psychic, and starship tables. The kind module holds metadata and validation only.
   '$lib/swn/swn_character_artifact_kind',
+  // The ninth. `$lib/unchartedworlds`'s entry point re-exports the PDF renderer, and jsPDF with it,
+  // along with the career, origin and asset tables. The kind module holds metadata and validation
+  // only.
+  '$lib/unchartedworlds/uw_character_artifact_kind',
 ]);
 
 /**

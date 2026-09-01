@@ -12,8 +12,9 @@ Part of [the readiness pass](tool-readiness.md); read that first for what all tw
 share — the determinism fix, the stored vocabulary, the kind ids, and the field-editor decision.
 Measured against [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** accepted; [#48](#48--dungeon-crawl-classics) and
-[#49](#49--stars-without-number) are **implemented**, the other three are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
+**Status:** accepted; the three system characters — [#48](#48--dungeon-crawl-classics),
+[#49](#49--stars-without-number) and [#50](#50--uncharted-worlds) — are **implemented**; #51 and
+#52 are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
 this document is clear to start.
 
 ## The three system characters
@@ -148,6 +149,18 @@ because the derivation takes no RNG and no user input: it is a lookup, not a rol
 The edit that follows: a user who rewrites a skill description is editing prose the library owns,
 so the editor does not offer that field. Careers, origin, workspace, assets and the stat block are
 what it offers.
+
+**As built, the rule applies to every rulebook row rather than only to a skill.** A career, an
+origin and a workspace each carry text this library owns too — and a career carries a list of skills
+with their descriptions, so storing the row whole would have frozen the very prose decision 3 says
+to derive. All four travel by name and are rebuilt from the tables; a name this build no longer has
+becomes a placeholder wearing it, and the character stays readable. What is stored in full is the
+**assets**, because an asset is not a row: it is a class, a type and a hand of upgrades assembled at
+generation time, with no table to look it up in.
+
+That also answers the question #48 and #49 left. Nothing here writes to a row after it is drawn —
+`rng.shuffle` reorders a copied origin's list of skills, and the order of a list of options is not
+data — so unlike the DCC occupation and the SWN lucky sign, a name really is enough.
 
 ## #51 — Heraldry, from Beta to Release-ready
 
@@ -292,10 +305,14 @@ classDiagram
     }
     class UwCharacterSnapshot {
         +StatBlock stats
-        +Career[] careers
-        +Origin origin
-        +Skill[] skills
+        +StoredUwRow[] careers
+        +StoredUwRow origin
+        +StoredUwRow workspace
+        +StoredUwRow[] skills
         +Asset[] assets
+    }
+    class StoredUwRow {
+        +string name
     }
 
     DCCCharacter "1" o-- "1" DCCOccupation
@@ -303,7 +320,8 @@ classDiagram
     DCCCharacter --> DccCharacterSnapshot : rule objects by name
     SWNCharacter --> SwnCharacterSnapshot : picks recorded beside effects
     SwnCharacterSnapshot "1" o-- "*" PsychicPick
-    UWCharacter --> UwCharacterSnapshot : identity, descriptions derived on read
+    UWCharacter --> UwCharacterSnapshot : rows by name, prose derived on read
+    UwCharacterSnapshot "1" o-- "*" StoredUwRow
 ```
 
 ### Heraldry, edited
@@ -364,6 +382,11 @@ migration. This is the AD&D thief-skills finding in a different system.
 The one thing in this domain deliberately not stored. It is a lookup with no RNG and no user input,
 so deriving it is safe, and a wording fix then reaches characters saved before it. The editor does
 not offer the field, because it is not the user's text.
+
+As implemented this covers every rulebook row — career, origin, workspace and skill — for the reason
+in the #50 section: a career carries its own skills and their descriptions, so a row stored whole
+would freeze exactly the prose this decision exists to keep live. Assets stay in the payload, being
+assembled rather than looked up.
 
 ### 4. Heraldry's editor is bespoke, and the blazon is derived
 
