@@ -10,7 +10,8 @@ Five tools: the arms manufacturer
 Part of [the readiness pass](tool-readiness.md). Measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** accepted; not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
+**Status:** accepted; the arms manufacturer ([#53](#53--arms-manufacturer)) is **implemented**;
+#54 to #57 are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 This domain holds the pass's easiest tool and its second-hardest. The arms manufacturer is three
 files and a flat payload; the organization generator is the richest generator on the site, with a
@@ -35,6 +36,29 @@ cross-library dependency except `$lib/weapons`, which nothing else on the site i
 
 The issue calls this a good tool to take through the whole spec early precisely because nothing
 about it is hard, and [wave 1](tool-readiness.md#the-order-of-the-work) agrees.
+
+**As built.** Everything above landed as written except the editor, which is bespoke — and this is
+the second time the document has been wrong about that in the same way. "A list of models" is a
+list of _records_: a `Weapon` is a name, a damage type and a description (and two string lists
+behind them), and the only repeating control `SnapshotFieldEditor`'s descriptor language declares
+is `string-list`. The guard at the end of
+[decision 5](tool-readiness.md#5-flat-payloads-get-a-declared-field-editor-not-twenty-five-bespoke-components)
+applies exactly as it did to Velgarth Gifts, so `ArmsManufacturerArtifactEditor.svelte` is the
+company's two fields and one row per model with its own add and remove, and **the declared
+component is still unbuilt**. Two of the twelve tools listed as flat have now turned out not to be,
+and both for the same reason — a catalogue, a set, a roster is a list of records — which is worth
+knowing before the next one is assumed to be.
+
+The kind question the issue asked was settled the way the kind table says: `arms-manufacturer` is
+its own kind, not a discriminator on `organization`. An `Organization` is a leader, members, a
+hierarchy and a visual identity; a manufacturer shares a `name` with it and nothing else, so one
+kind would be one validator and one migration path over two shapes.
+
+The PDF is `$lib/pdf`'s `downloadTextPdf` over the same document model the Markdown is written
+from, so the two cannot drift. `Weapon.maker`, which the generator leaves empty, is left empty:
+filling it would be a generator change nothing asked for, and a model added by hand in the editor
+is the one place it is set, to the company's name, because that is the one field a blank row can
+truthfully start with.
 
 **One thing to settle while here.** `$lib/weapons` is imported by `$lib/arms_manufacturer` and by
 nothing else in the application — its science-fiction weapon path belongs to this tool. #69 assumes

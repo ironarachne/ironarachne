@@ -75,6 +75,10 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // The tenth. `$lib/velgarth_gifts`'s entry point re-exports the gift table, which is four hundred
   // lines of setting prose. The kind module holds metadata and validation only.
   '$lib/velgarth_gifts/velgarth_gifts_artifact_kind',
+  // The eleventh. `$lib/arms_manufacturer`'s entry point reaches the generator, and from there
+  // `$lib/weapons` and the made-up-names package. The kind module holds metadata and validation
+  // only.
+  '$lib/arms_manufacturer/arms_manufacturer_artifact_kind',
 ]);
 
 /**

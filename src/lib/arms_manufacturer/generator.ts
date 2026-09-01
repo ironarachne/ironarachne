@@ -7,7 +7,9 @@ import type { ArmsManufacturer } from './arms_manufacturer.js';
 export function generate(rng: RNG): ArmsManufacturer {
   const name = randomName(rng);
 
-  let description = `${name} `;
+  // Every sentence appended below carries its own leading space, so the name is bare here: a
+  // second space after it collapses in HTML but not in the Markdown and PDF exports.
+  let description = name;
 
   const specialty = rng.item(SciFiWeaponTypes.all);
   const secondaryOptions = SciFiWeaponTypes.all.filter((wType) => wType.name !== specialty.name);
@@ -15,8 +17,8 @@ export function generate(rng: RNG): ArmsManufacturer {
   const secondary = rng.item(secondaryOptions);
 
   description += rng.item([
-    ` specializes in ${specialty.name}s. `,
-    ` is known for their ${specialty.name}s. `,
+    ` specializes in ${specialty.name}s.`,
+    ` is known for their ${specialty.name}s.`,
   ]);
 
   description += randomOutlook(rng);

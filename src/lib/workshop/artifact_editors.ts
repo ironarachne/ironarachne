@@ -126,6 +126,19 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollUwCharacterSnapshot(provenance.seed, readUwCharacterGeneratorConfig(provenance.config));
     },
   },
+  'arms-manufacturer': {
+    loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
+    /**
+     * The seed and nothing else: this tool has one control, and how many models a company lists
+     * and which weapon types it favours are the generator's decisions, so there is no config to
+     * read back.
+     */
+    loadRoller: async () => {
+      const { rollArmsManufacturerSnapshot } =
+        await import('$lib/arms_manufacturer/arms_manufacturer_roll.js');
+      return (provenance) => rollArmsManufacturerSnapshot(provenance.seed);
+    },
+  },
   'velgarth-gifts': {
     loadEditor: () => import('$components/characters/VelgarthGiftsArtifactEditor.svelte'),
     /**

@@ -268,8 +268,11 @@ twenty-five, and every one of them a flat record of strings and numbers with at 
 Velgarth gifts was the thirteenth until #52 built it and found it was not one: a set of Gifts is a
 list of _records_ — a name, a description and a strength each — and no descriptor in the language
 above says "repeat these three fields per row". It took a bespoke editor, per the guard at the end
-of this decision, and **`SnapshotFieldEditor` is still unbuilt**: the first of the twelve above to
-be taken to Release-ready should write it, on a payload that is actually flat.
+of this decision. The arms manufacturer (#53) then went the same way for the same reason: its
+"list of models" is a list of `Weapon` records, not a `string-list`. **`SnapshotFieldEditor` is
+still unbuilt**: the first of the remaining eleven above to be taken to Release-ready should write
+it, on a payload that is actually flat — and should check that it is, since two "flat" payloads
+have now turned out to carry a list of records.
 
 **Which tools it does not:** the three system characters, heraldry, organization, family, encounter,
 dungeon, region and language. Each of those is a structure — a hierarchy, a graph, a device, a
@@ -486,8 +489,9 @@ thirteen tools depend on it. `environment` is here because two other tools refer
 
 `velgarth-gifts` came out of this wave first, with the characters domain rather than with its
 neighbours, and it did **not** prove the decision: its payload turned out to be a list of records
-rather than a flat one, so it took a bespoke editor (see decision 5). The component is still owed by
-whichever of the others lands first.
+rather than a flat one, so it took a bespoke editor (see decision 5). `arms-manufacturer` came out
+second and did not prove it either — a catalogue of `Weapon`s is a list of records too. The
+component is still owed by whichever of the others lands first.
 
 **Wave 2 — the structured.** `character.dcc`, `character.swn`, `character.uncharted-worlds`,
 `starship.swn`, `heraldry`'s editor, `encounter`, `family`, `organization`, `merchant`,
