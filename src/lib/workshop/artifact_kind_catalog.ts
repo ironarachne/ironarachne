@@ -18,6 +18,7 @@ import {
 import { adndCharacterArtifactKind } from '$lib/adnd/adnd_character_artifact_kind';
 import { characterArtifactKind } from '$lib/characters/character_artifact_kind';
 import { armsManufacturerArtifactKind } from '$lib/arms_manufacturer/arms_manufacturer_artifact_kind';
+import { familyArtifactKind } from '$lib/families/family_artifact_kind';
 import { encounterArtifactKind } from '$lib/encounters/encounter_artifact_kind';
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
 import { dccCharacterArtifactKind } from '$lib/dcc/dcc_character_artifact_kind';
@@ -51,6 +52,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, velgarthGiftsArtifactKind);
   registerArtifactKind(registry, armsManufacturerArtifactKind);
   registerArtifactKind(registry, encounterArtifactKind);
+  registerArtifactKind(registry, familyArtifactKind);
   return registry;
 }
 

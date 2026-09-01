@@ -86,6 +86,11 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // 16 chunks through these two paths, and 19.6 MB across 35 chunks through the entry points.
   '$lib/encounters/encounter_artifact_kind',
   '$lib/creatures/creature_snapshot',
+  // The thirteenth. `$lib/families`'s entry point reaches the generator and the tree renderer,
+  // and from there the character generator, the species tables and xmlbuilder2. Measured on the
+  // build: the family kind module and everything it statically imports is 198 KB across 16 chunks through
+  // this path and 19.6 MB across 35 chunks through the entry point.
+  '$lib/families/family_artifact_kind',
 ]);
 
 /**

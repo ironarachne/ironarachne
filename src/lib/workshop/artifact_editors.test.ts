@@ -137,6 +137,19 @@ describe('the artifact editor registry', () => {
     expect(hasArtifactEditor('heraldry')).toBe(true);
   });
 
+  it('rolls a family from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('family')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/fantasy/family',
+      seed: 'registry-seed',
+      config: { speciesName: 'human', generations: 2 },
+    }) as { name: string; members: { speciesName: string }[] };
+
+    expect(rolled.name).not.toBe('');
+    expect(rolled.members.length).toBeGreaterThan(0);
+    expect(rolled.members[0].speciesName).toBe('human');
+  });
+
   it('rolls an encounter from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('encounter')!.loadRoller!();
     const rolled = roll({

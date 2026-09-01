@@ -10,8 +10,9 @@ Five tools: the arms manufacturer
 Part of [the readiness pass](tool-readiness.md). Measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** accepted; the arms manufacturer ([#53](#53--arms-manufacturer)) and the fantasy
-encounter ([#54](#54--fantasy-encounter)) are **implemented**; #55 to #57 are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
+**Status:** accepted; the arms manufacturer ([#53](#53--arms-manufacturer)), the fantasy encounter
+([#54](#54--fantasy-encounter)) and the fantasy family ([#55](#55--fantasy-family)) are
+**implemented**; #56 and #57 are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 This domain holds the pass's easiest tool and its second-hardest. The arms manufacturer is three
 files and a flat payload; the organization generator is the richest generator on the site, with a
@@ -137,6 +138,32 @@ the code: the diagram exists, and 6.3 here is a download control over a function
 works, plus the Markdown roster beside it. That is the cheapest 6.3 in the pass.
 
 **Composition:** a `culture` reference for naming, and `heraldry` for a family's arms.
+
+**As built.** Everything above landed as written, with three corrections worth recording.
+
+**The name generators are two pattern sources, not a `StoredNameGeneratorPatternSet`.** A family
+carries a female and a male generator; a culture's stored set has six. Storing the family's two
+as the six-field type would mean inventing four generators it never had, so the snapshot holds
+`namePatterns: { female, male }` and rebuilds each with the same call a culture uses. The
+principle — closures become patterns, rebuilt from the codec's RNG — is the one the design states.
+
+**2.2 was failing for the names.** `generateNewFamily` and `generateFamilyGeneration` take seeds
+throughout, but the page built its name generators from its own RNG, whose position depended on
+how many times Generate had been pressed and whether "any" species had drawn from it. A locked
+seed reproduced the people and not what they were called. `family_roll.ts` draws the species, the
+name set and the family from streams named for the seed alone.
+
+**Heraldry composition waits on a field.** `Family` has no arms, so there is nothing for a
+`heraldry` reference to fill; it is a field on this payload and a version 2 the day a family gets
+arms. The culture reference is built: the page takes a saved culture from the open project through
+`SavedArtifactPicker`, names the family from that culture's pattern set, records the set's name as
+provenance (as the character generator does) and the culture as an artifact reference, gated on
+the roll so a reference is never written for a family named from somewhere else. 5.1 binds and is
+met.
+
+The editor covers the family's name and each member's first and last name, with removal taking a
+member's edges with them. A member's other fields belong to the character kind's editor; the tree
+is drawn from a live `Family` and so is not drawn in the editor, which holds the stored one.
 
 ## #56 — Fantasy organization
 

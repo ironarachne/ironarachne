@@ -57,3 +57,34 @@ const graph = getFamilyGraph(family);
 ```
 
 Members carry a `familyId`, so a character generated as part of a family can be traced back to it.
+
+## Saving a family
+
+The generator is Release-ready (issue #55), which means a rolled family can be kept:
+
+- `family_snapshot.ts` — the stored form. **The payload is the graph, and it is flat**: members
+  as `StoredCharacter` (from `$lib/characters`), edges as id records, and the two name generators
+  as pattern sources. Nothing refers to another object directly, so the cycles a family contains
+  by construction never reach `structuredClone`; the graph is only a graph once `graph.ts` builds
+  it.
+- `family_rehydrate.ts` — the stored form back into a `Family`. Members are rebuilt by
+  `$lib/characters`; the generators are rebuilt from their patterns and the RNG the codec is
+  handed, as a culture's are.
+- `family_artifact_kind.ts` — the `family` kind. Each member is validated by the character kind's
+  own validator rather than a copy. An edge to a member who is gone is accepted: the readers below
+  answer nothing for it, which is the well-defined result.
+- `family_relations.ts` — `familyMateOf`, `familyChildrenOf`, `familyParentsOf`, the edge readers
+  the page, the editor and the export share. They tolerate dangling ids.
+- `family_roll.ts` — the single path from a seed and every control on the page to a family, names
+  included, and the provenance record a re-roll reads back. A species or name set this build no
+  longer has is substituted and reported.
+- `family_editing.ts` — the family's name and each member's first and last name (the display name
+  follows), and removing a member with their edges.
+- `family_presentation.ts` — the roster as a document, and the Markdown and PDF exports written
+  from it. The tree `getFamilyTreeSVG` has always drawn is offered as an SVG download beside them.
+
+The family can be named from a saved culture in the open project, recorded as an artifact
+reference (5.1). `Family` has no arms field, so the heraldry reference the design describes waits
+on one.
+
+This tool implements no game system, so there is no edition to name.
