@@ -12,8 +12,8 @@ Part of [the readiness pass](tool-readiness.md); read that first for what all tw
 share — the determinism fix, the stored vocabulary, the kind ids, and the field-editor decision.
 Measured against [Tool release readiness](workshop.md#tool-release-readiness).
 
-**Status:** accepted; [#48](#48--dungeon-crawl-classics) is **implemented**, the other four are not
-yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
+**Status:** accepted; [#48](#48--dungeon-crawl-classics) and
+[#49](#49--stars-without-number) are **implemented**, the other three are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in
 this document is clear to start.
 
 ## The three system characters
@@ -124,6 +124,14 @@ finding: a user decision that was never recorded as data, only as its consequenc
 
 **6.3 is largely in hand** — `render_swn_character_pdf.ts` already exists. What it needs is the
 presentation document beneath it so the PDF and any Markdown export cannot disagree.
+
+**As built, only the psychic half of `picks` exists.** `SWNCharacter` grew `psychicPicks`, because
+a discipline resolves into `abilities` as prose — `"Psychic Succor-1: …"` and one randomly drawn
+ability — and prose is not a decision an editor can offer back. It grew no focus-pick list: a
+`Focus` on `character.focuses` already carries its own `name` and `currentLevel`, so the row _is_
+the pick, and a second list of the same two fields is a copy that can disagree with the one the
+sheet prints. The question this leaves for [#50](#50--uncharted-worlds) is the same one #48 left:
+is the decision recoverable from the row that was drawn, or only from its consequence?
 
 ### #50 — Uncharted Worlds
 
@@ -258,19 +266,22 @@ classDiagram
         +Stat[] stats
         +Skill[] skills
         +Focus[] focuses
+        +PsychicPick[] psychicPicks
         +ClassAbility[] abilities
         +number hitPoints
     }
     class SwnCharacterSnapshot {
         +Stat[] stats
         +Skill[] skills
-        +FocusPick[] picks
+        +Focus[] focuses
+        +PsychicPick[] psychicPicks
         +ClassAbility[] abilities
         +number hitPoints
     }
-    class FocusPick {
-        +string focusName
+    class PsychicPick {
+        +string disciplineName
         +number level
+        +string abilityName
     }
     class UWCharacter {
         +StatBlock stats
@@ -291,7 +302,7 @@ classDiagram
     DCCCharacter "1" o-- "1" DCCLuckyRoll
     DCCCharacter --> DccCharacterSnapshot : rule objects by name
     SWNCharacter --> SwnCharacterSnapshot : picks recorded beside effects
-    SwnCharacterSnapshot "1" o-- "*" FocusPick
+    SwnCharacterSnapshot "1" o-- "*" PsychicPick
     UWCharacter --> UwCharacterSnapshot : identity, descriptions derived on read
 ```
 

@@ -1,135 +1,176 @@
 <script lang="ts">
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
-  import * as RNG from '@ironarachne/rng';
-  import { characters as CharGen, downloadSwnCharacterPdf } from '$lib/swn';
+  import { RNG } from '@ironarachne/rng';
+  import * as SWN from '$lib/swn';
   import type { SWNCharacter } from '$lib/swn';
   import {
     buildCharacterNameSource,
-    isCustomCharacterNameSource,
-    restoreLockedCharacterName,
+    nameGeneratorSetForSource,
     rollCharacterNameForSource,
     loadCulturesForNaming,
   } from '$lib/characters';
+  import type { ArtifactReference } from '$lib/artifacts';
   import type { Culture } from '$lib/culture';
+  import Download from '$lib/download';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
-  const rng = new RNG.RNG(Date.now().toString());
+  const TOOL_PATH = '/swn/character';
+
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. That is the whole of requirement 2.2's
+   * fix here: the clock decides where the sequence of seeds *starts*, and everything after it is a
+   * pure function of the seed on screen. The names in particular used to come from
+   * `` `${Date.now()}-swn-name` ``, so the same seed reproduced a body and never the person.
+   */
+  const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
-  $effect(() => {
-    rng.setSeed(seed);
-  });
-  let character: SWNCharacter | null = $state(null);
-  let downloadingPdf = $state(false);
 
   let savedCultures = $state<Culture[]>([]);
-  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
+  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture' | 'referenced_culture'>(
+    'default',
+  );
   let presetSetName = $state('human');
   let savedCultureName = $state('');
   let firstName = $state('');
   let lastName = $state('');
   let lockName = $state(false);
   let namingGender = $state<'male' | 'female' | 'random'>('random');
+  /** The culture the picker loaded, and the link to record for it. */
+  let referencedCulture = $state<Culture | undefined>();
+  let cultureReference = $state<ArtifactReference | undefined>();
+  /**
+   * The link, recorded only when the character on screen was actually named from that culture.
+   *
+   * Gated on the roll rather than on the picker, as the AD&D and DCC generators gate their own: a
+   * reference is a record of what the tool was handed, and one written for a character whose names
+   * came from somewhere else would claim an input that was never used.
+   */
+  let rolledCultureReference = $state.raw<ArtifactReference | undefined>();
 
-  function applyNamesToCharacter(target: CharGen.SWNCharacter) {
-    target.firstName = firstName;
-    target.lastName = lastName;
-  }
+  /**
+   * The rolled character.
+   *
+   * `$state.raw`, and not as a preference. Deep-reactive `$state` wraps every array and object in
+   * the character in a Proxy, and `structuredClone` — what IndexedDB stores with — refuses a Proxy
+   * outright, so saving fails with `could not be cloned`. The same trap is written up in
+   * `$lib/workshop`'s README beside `saveToolArtifact`.
+   */
+  let character = $state.raw<SWNCharacter | null>(null);
+  /** The settings the character on screen was actually rolled with. Raw, for the same reason. */
+  let rolledConfig = $state.raw<Record<string, unknown>>({});
+  let downloadingPdf = $state(false);
 
-  function rollNamesForCurrentSource() {
-    const source = buildCharacterNameSource(
+  /** The character with the names the page is showing, which is what the sheet and exports want. */
+  const namedCharacter = $derived<SWNCharacter | null>(
+    character === null ? null : { ...character, firstName, lastName },
+  );
+
+  const characterSnapshot = $derived(
+    namedCharacter === null ? null : SWN.toSwnCharacterSnapshot(namedCharacter),
+  );
+
+  const defaultArtifactName = $derived(`${firstName} ${lastName}`.trim());
+
+  function currentNameSource() {
+    return buildCharacterNameSource(
       nameSourceKind,
       presetSetName,
       savedCultureName,
       savedCultures,
+      referencedCulture,
     );
-    const nameRng = new RNG.RNG(`${Date.now()}-swn-name`);
-    return rollCharacterNameForSource(nameRng, source, 'human', namingGender);
   }
 
-  function applyGeneratedNamesFromSource(target: CharGen.SWNCharacter) {
-    const source = buildCharacterNameSource(
-      nameSourceKind,
-      presetSetName,
-      savedCultureName,
-      savedCultures,
-    );
-    if (!isCustomCharacterNameSource(source)) {
-      target.firstName = '';
-      target.lastName = '';
-      firstName = '';
-      lastName = '';
-      return;
-    }
-
-    const generated = rollNamesForCurrentSource();
-    target.firstName = generated.firstName;
-    target.lastName = generated.lastName;
-    firstName = generated.firstName;
-    lastName = generated.lastName;
+  /** The settings a roll takes, and the ones provenance records. */
+  function currentConfig(): SWN.SwnCharacterGeneratorConfigRecord {
+    const nameGeneratorSet = nameGeneratorSetForSource(currentNameSource());
+    return {
+      namingGender,
+      ...(nameGeneratorSet === '' ? {} : { nameGeneratorSet }),
+    };
   }
 
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    rng.setSeed(seed);
 
     const lockedFirstName = firstName;
     const lockedLastName = lastName;
 
-    character = CharGen.generate(rng);
+    const config = currentConfig();
+    const rolled = SWN.rollSwnCharacter(seed, config);
+    character = rolled.character;
+    // The resolved set, not the requested one: a set this build has since dropped would otherwise
+    // be recorded as provenance a re-roll could not honour.
+    rolledConfig = { ...config, nameGeneratorSet: rolled.nameGeneratorSet };
+    rolledCultureReference =
+      nameSourceKind === 'referenced_culture' && referencedCulture !== undefined
+        ? cultureReference
+        : undefined;
+
     if (lockName) {
-      restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
+      firstName = lockedFirstName;
+      lastName = lockedLastName;
     } else {
-      applyGeneratedNamesFromSource(character);
+      firstName = rolled.character.firstName;
+      lastName = rolled.character.lastName;
     }
   }
 
+  /**
+   * Another name for the character already on screen.
+   *
+   * An **edit**, not a generation, and so a fresh draw that does not touch the recorded seed:
+   * requirement 4.2 says the payload is what the user kept, and a name they asked for is not
+   * something a seed reproduces. This is also the one path that names from a chosen culture's own
+   * generators rather than from the pattern set recorded beside it.
+   */
   function generateNameOnly() {
-    if (lockName) {
+    if (lockName || character === null) {
       return;
     }
-    const generated = rollNamesForCurrentSource();
+    const generated = rollCharacterNameForSource(
+      new RNG(`${Date.now()}-swn-name`),
+      currentNameSource(),
+      'human',
+      namingGender,
+    );
     firstName = generated.firstName;
     lastName = generated.lastName;
-    if (character) {
-      character.firstName = generated.firstName;
-      character.lastName = generated.lastName;
-    }
-  }
-
-  function save() {
-    if (!character) return;
-    applyNamesToCharacter(character);
-    const saveData = CharGen.formatAsText(character);
-
-    const blob = new Blob([saveData], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = 'swn-character.txt';
-    link.click();
-    URL.revokeObjectURL(link.href);
   }
 
   async function downloadPdf() {
-    if (downloadingPdf || !character) {
+    if (downloadingPdf || namedCharacter === null) {
       return;
     }
 
-    applyNamesToCharacter(character);
     downloadingPdf = true;
     try {
-      await downloadSwnCharacterPdf(character);
+      await SWN.downloadSwnCharacterPdf(namedCharacter);
     } finally {
       downloadingPdf = false;
     }
+  }
+
+  function exportMarkdown() {
+    if (namedCharacter === null) {
+      return;
+    }
+    const markdown = SWN.swnCharacterToMarkdown(namedCharacter);
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
+    Download(url, `${SWN.swnCharacterFileStem(namedCharacter)}.md`);
+    URL.revokeObjectURL(url);
   }
 
   onMount(() => {
@@ -145,10 +186,17 @@
   });
 </script>
 
-<GeneratorPage toolPath="/swn/character" title="Stars Without Number Character Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Stars Without Number Character Generator">
+  {#snippet description()}
+    <p>This is a first-level Stars Without Number character generator.</p>
+  {/snippet}
+
   <SeedControls bind:seed bind:lockSeed />
 
   <CharacterNameSection
+    offerReferencedCulture
+    bind:referencedCulture
+    bind:cultureReference
     bind:nameSourceKind
     bind:presetSetName
     bind:savedCultureName
@@ -162,35 +210,50 @@
   />
 
   <BaseButton onclick={generate}>Generate</BaseButton>
-  <BaseButton onclick={save}>Save</BaseButton>
-  <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
 
-  <h2>{firstName || lastName ? `${firstName} ${lastName}`.trim() : 'Character'}</h2>
+  <SaveArtifactButton
+    kind={SWN.SWN_CHARACTER_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={characterSnapshot}
+    {seed}
+    config={rolledConfig}
+    defaultName={defaultArtifactName}
+    references={rolledCultureReference === undefined ? [] : [rolledCultureReference]}
+  />
 
-  {#if character}
+  {#if namedCharacter}
+    <h2>{SWN.swnCharacterDisplayName(namedCharacter)}</h2>
+
+    <p>A {namedCharacter.background.name} {namedCharacter.characterClass.name}</p>
+
+    <div class="swn-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
+    </div>
+
     <StatBlock>
-      <Stat label="Background">{character.background.name}</Stat>
-      <Stat label="Class">{character.characterClass.name}</Stat>
-      <Stat label="Hit Points">{character.hitPoints}</Stat>
-      {#if character.effort > 0}
-        <Stat label="Effort">{character.effort}</Stat>
+      <Stat label="Background">{namedCharacter.background.name}</Stat>
+      <Stat label="Class">{namedCharacter.characterClass.name}</Stat>
+      <Stat label="Hit Points">{namedCharacter.hitPoints}</Stat>
+      {#if namedCharacter.effort > 0}
+        <Stat label="Effort">{namedCharacter.effort}</Stat>
       {/if}
-      <Stat label="Base Attack Bonus">+{character.attackBonus}</Stat>
-      <Stat label="Armor Class">{character.armorClassEquipped}</Stat>
-      <Stat label="Credits">{character.credits}</Stat>
+      <Stat label="Base Attack Bonus">{SWN.formatSwnModifier(namedCharacter.attackBonus)}</Stat>
+      <Stat label="Armor Class">{namedCharacter.armorClassEquipped}</Stat>
+      <Stat label="Credits">{namedCharacter.credits}</Stat>
     </StatBlock>
 
     <h3>Saving Throws</h3>
 
     <StatBlock>
-      <Stat label="Evasion">{character.savingThrowEvasion}</Stat>
-      <Stat label="Mental">{character.savingThrowMental}</Stat>
-      <Stat label="Physical">{character.savingThrowPhysical}</Stat>
+      <Stat label="Evasion">{namedCharacter.savingThrowEvasion}</Stat>
+      <Stat label="Mental">{namedCharacter.savingThrowMental}</Stat>
+      <Stat label="Physical">{namedCharacter.savingThrowPhysical}</Stat>
     </StatBlock>
 
     <h3>Focuses</h3>
 
-    {#each character.focuses as focus}
+    {#each namedCharacter.focuses as focus}
       <div>
         <strong>{focus.name}</strong>, Level {focus.currentLevel}
       </div>
@@ -199,10 +262,10 @@
     <h3>Stats</h3>
 
     <div class="stats">
-      {#each character.stats as stat}
+      {#each namedCharacter.stats as stat}
         <div>
           <strong>{stat.abbreviation}:</strong>
-          <span>{stat.score} ({stat.modifier})</span>
+          <span>{stat.score} ({SWN.formatSwnModifier(stat.modifier)})</span>
         </div>
       {/each}
     </div>
@@ -210,9 +273,9 @@
     <h3>Skills</h3>
 
     <div class="skills">
-      {#each character.skills as skill}
+      {#each namedCharacter.skills as skill}
         <div>
-          {skill.name}-{skill.level}
+          {SWN.formatSwnSkill(skill)}
         </div>
       {/each}
     </div>
@@ -220,7 +283,7 @@
     <h3>Abilities</h3>
 
     <div class="abilities">
-      {#each character.abilities as ability}
+      {#each namedCharacter.abilities as ability}
         <div>
           {ability.description}
         </div>
@@ -230,14 +293,14 @@
     <h3>Weapons</h3>
 
     <div class="weapons">
-      {#each character.rangedWeapons as weapon}
+      {#each namedCharacter.rangedWeapons as weapon}
         <div>
-          {weapon.name}: {weapon.damage}, ATK +{character.rangedAttackBonus} (rng)
+          {SWN.formatSwnWeaponLine(weapon, namedCharacter.rangedAttackBonus)}
         </div>
       {/each}
-      {#each character.meleeWeapons as weapon}
+      {#each namedCharacter.meleeWeapons as weapon}
         <div>
-          {weapon.name}: {weapon.damage}, ATK +{character.meleeAttackBonus} (mel)
+          {SWN.formatSwnWeaponLine(weapon, namedCharacter.meleeAttackBonus)}
         </div>
       {/each}
     </div>
@@ -245,7 +308,7 @@
     <h3>Armor</h3>
 
     <div class="armor">
-      {#each character.armor as item}
+      {#each namedCharacter.armor as item}
         <div>{item.name}: AC {item.ac}</div>
       {/each}
     </div>
@@ -253,7 +316,7 @@
     <h3>Equipment</h3>
 
     <div class="equipment">
-      {#each character.equipment as item}
+      {#each namedCharacter.equipment as item}
         <div>{item.name}</div>
       {/each}
     </div>
@@ -261,6 +324,12 @@
 </GeneratorPage>
 
 <style>
+  .swn-exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
   .stats,
   .skills,
   .abilities,

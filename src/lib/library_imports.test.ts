@@ -65,6 +65,9 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // The seventh. `$lib/dcc`'s entry point re-exports the PDF renderer, and from there jsPDF, along
   // with four occupation tables and the lucky-sign table.
   '$lib/dcc/dcc_character_artifact_kind',
+  // The eighth. `$lib/swn`'s entry point re-exports the PDF renderer, and jsPDF with it, along with
+  // the focus, psychic, and starship tables. The kind module holds metadata and validation only.
+  '$lib/swn/swn_character_artifact_kind',
 ]);
 
 /**

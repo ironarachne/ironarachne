@@ -78,7 +78,11 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Stars Without Number Character',
     kind: 'generator',
     domain: 'characters',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/readiness-characters.md (#49). It saves as `character.swn`, has an editor in
+    // `ARTIFACT_EDITORS`, composes a naming culture by reference, and exports a PDF sheet and
+    // Markdown. Its roll is deterministic from the seed via `swn_character_roll.ts`.
+    maturity: 'release-ready',
     genres: ['scifi'],
     systems: ['swn'],
     tags: ['character'],
