@@ -7,6 +7,22 @@ Uncharted Worlds characters are defined by what they have done rather than by a 
 are the spine of generation — each contributes skills and assets, and a character is the
 accumulation of several.
 
+## What is implemented, and what is not
+
+This covers **Uncharted Worlds character creation**, and only that: the ten careers with their
+skills, workspaces, descriptors and advancements, the ten origins, the standard stat array
+(+2/+1/+1/0/-1), and the assets a starting character has accumulated.
+
+Deliberately absent: everything about play rather than creation — the moves, Data Points, factions,
+crew and ship sheets beyond the assets a character personally owns, and advancement past the first
+one a character picks. A character generated here is a starting character; a player who advances one
+edits the saved artifact rather than asking the tool for a veteran.
+
+**Which printing the tables were transcribed from is not recorded anywhere in this repository**, and
+this file is not the place to guess it. What requirement 8.4 asks for that can be stated honestly is
+above: what is here, and what is not. Anyone who knows the answer should replace this paragraph with
+it. Iron Arachne is unofficial and unaffiliated with the game's publisher.
+
 ## Features
 
 - **Types** — `UWCharacter`, `Origin`, `Career`, `Skill`, `Workspace`, `Asset`, `AssetType`,
@@ -36,6 +52,31 @@ row it actually uses — a chosen template, the two careers kept, the picked ori
 it apart. That copy is load bearing, because building a character shuffles those lists in place
 and pops from them; working on a table row directly would reorder it and gradually empty it for
 every character generated afterwards.
+
+## Saving a character
+
+The character generator is Release-ready (issue #50), which means everything it produces can be
+kept:
+
+- `uw_character_snapshot.ts` — the stored form. **Rulebook rows travel by name and their prose is
+  derived on read**: a career, an origin, a workspace and a skill are all rows a character points
+  at, so a corrected description reaches a character saved last month, and an artifact does not
+  carry several kilobytes of this repository's own text. Assets are the exception and are stored in
+  full, because an asset is assembled at generation time rather than looked up.
+- `uw_character_artifact_kind.ts` — the `character.uncharted-worlds` kind: validation, the payload
+  version, and what to call an artifact whose character was never named (their careers, because in
+  this game that is what a character is).
+- `uw_character_roll.ts` — the single path from a seed to a character, names included. Both the
+  generator page and a re-roll from the vault go through it.
+- `uw_character_editing.ts` — one function per field, each returning a new snapshot. There is no
+  function for a skill's description, and that is the point: what a user changes is _which_ skill
+  they have.
+- `uw_presentation.ts` — the character as a document, and the Markdown export written from it.
+  Empty sections are dropped here rather than in each renderer.
+
+A row this build no longer has rebuilds as a placeholder wearing the stored name, rather than
+throwing: a character whose career was renamed is still that character, and their stats, skills and
+assets are all still on the sheet.
 
 ## Usage
 

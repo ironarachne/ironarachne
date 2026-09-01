@@ -1,135 +1,177 @@
 <script lang="ts">
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
-  import { CharGen, parseSkillDescription, downloadUwCharacterPdf } from '$lib/unchartedworlds';
+  import * as UW from '$lib/unchartedworlds';
   import type { UWCharacter } from '$lib/unchartedworlds';
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import {
     buildCharacterNameSource,
-    isCustomCharacterNameSource,
-    restoreLockedCharacterName,
+    nameGeneratorSetForSource,
     rollCharacterNameForSource,
     loadCulturesForNaming,
   } from '$lib/characters';
+  import type { ArtifactReference } from '$lib/artifacts';
   import type { Culture } from '$lib/culture';
+  import Download from '$lib/download';
   import { onMount } from 'svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import CharacterNameSection from '$components/characters/CharacterNameSection.svelte';
   import DownloadPdfButton from '$components/common/DownloadPdfButton.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
-  const rng = new RNG.RNG(Date.now().toString());
+  const TOOL_PATH = '/unchartedworlds/character';
+
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. That is the whole of requirement 2.2's
+   * fix here: the clock decides where the sequence of seeds *starts*, and everything after it is a
+   * pure function of the seed on screen. The names in particular used to come from
+   * `` `${Date.now()}-uw-name` ``, so a locked seed reproduced a career and an origin belonging to
+   * somebody with a different name every time.
+   */
+  const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
-  $effect(() => {
-    rng.setSeed(seed);
-  });
-  let character: UWCharacter | null = $state(null);
-  let downloadingPdf = $state(false);
 
   let savedCultures = $state<Culture[]>([]);
-  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture'>('default');
+  let nameSourceKind = $state<'default' | 'preset' | 'saved_culture' | 'referenced_culture'>(
+    'default',
+  );
   let presetSetName = $state('human');
   let savedCultureName = $state('');
   let firstName = $state('');
   let lastName = $state('');
   let lockName = $state(false);
   let namingGender = $state<'male' | 'female' | 'random'>('random');
+  /** The culture the picker loaded, and the link to record for it. */
+  let referencedCulture = $state<Culture | undefined>();
+  let cultureReference = $state<ArtifactReference | undefined>();
+  /**
+   * The link, recorded only when the character on screen was actually named from that culture.
+   *
+   * Gated on the roll rather than on the picker, as the other character generators gate their own:
+   * a reference is a record of what the tool was handed, and one written for a character whose
+   * names came from somewhere else would claim an input that was never used.
+   */
+  let rolledCultureReference = $state.raw<ArtifactReference | undefined>();
 
-  function applyNamesToCharacter(target: CharGen.UWCharacter) {
-    target.firstName = firstName;
-    target.lastName = lastName;
-  }
+  /**
+   * The rolled character.
+   *
+   * `$state.raw`, and not as a preference. Deep-reactive `$state` wraps every array and object in
+   * the character in a Proxy, and `structuredClone` — what IndexedDB stores with — refuses a Proxy
+   * outright, so saving fails with `could not be cloned`. The same trap is written up in
+   * `$lib/workshop`'s README beside `saveToolArtifact`.
+   */
+  let character = $state.raw<UWCharacter | null>(null);
+  /** The settings the character on screen was actually rolled with. Raw, for the same reason. */
+  let rolledConfig = $state.raw<Record<string, unknown>>({});
+  let downloadingPdf = $state(false);
 
-  function rollNamesForCurrentSource() {
-    const source = buildCharacterNameSource(
+  /** The character with the names the page is showing, which is what the sheet and exports want. */
+  const namedCharacter = $derived<UWCharacter | null>(
+    character === null ? null : { ...character, firstName, lastName },
+  );
+
+  const characterSnapshot = $derived(
+    namedCharacter === null ? null : UW.toUwCharacterSnapshot(namedCharacter),
+  );
+
+  const defaultArtifactName = $derived(`${firstName} ${lastName}`.trim());
+
+  function currentNameSource() {
+    return buildCharacterNameSource(
       nameSourceKind,
       presetSetName,
       savedCultureName,
       savedCultures,
+      referencedCulture,
     );
-    const nameRng = new RNG.RNG(`${Date.now()}-uw-name`);
-    return rollCharacterNameForSource(nameRng, source, 'human', namingGender);
   }
 
-  function applyGeneratedNamesFromSource(target: CharGen.UWCharacter) {
-    const source = buildCharacterNameSource(
-      nameSourceKind,
-      presetSetName,
-      savedCultureName,
-      savedCultures,
-    );
-    if (!isCustomCharacterNameSource(source)) {
-      target.firstName = '';
-      target.lastName = '';
-      firstName = '';
-      lastName = '';
-      return;
-    }
-
-    const generated = rollNamesForCurrentSource();
-    target.firstName = generated.firstName;
-    target.lastName = generated.lastName;
-    firstName = generated.firstName;
-    lastName = generated.lastName;
+  /** The settings a roll takes, and the ones provenance records. */
+  function currentConfig(): UW.UwCharacterGeneratorConfigRecord {
+    const nameGeneratorSet = nameGeneratorSetForSource(currentNameSource());
+    return {
+      namingGender,
+      ...(nameGeneratorSet === '' ? {} : { nameGeneratorSet }),
+    };
   }
 
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    rng.setSeed(seed);
 
     const lockedFirstName = firstName;
     const lockedLastName = lastName;
 
-    character = CharGen.generate(rng);
+    const config = currentConfig();
+    const rolled = UW.rollUwCharacter(seed, config);
+    character = rolled.character;
+    // The resolved set, not the requested one: a set this build has since dropped would otherwise
+    // be recorded as provenance a re-roll could not honour.
+    rolledConfig = { ...config, nameGeneratorSet: rolled.nameGeneratorSet };
+    rolledCultureReference =
+      nameSourceKind === 'referenced_culture' && referencedCulture !== undefined
+        ? cultureReference
+        : undefined;
+
     if (lockName) {
-      restoreLockedCharacterName(character, lockedFirstName, lockedLastName);
+      firstName = lockedFirstName;
+      lastName = lockedLastName;
     } else {
-      applyGeneratedNamesFromSource(character);
+      firstName = rolled.character.firstName;
+      lastName = rolled.character.lastName;
     }
   }
 
+  /**
+   * Another name for the character already on screen.
+   *
+   * An **edit**, not a generation, and so a fresh draw that does not touch the recorded seed:
+   * requirement 4.2 says the payload is what the user kept, and a name they asked for is not
+   * something a seed reproduces. This is also the one path that names from a chosen culture's own
+   * generators rather than from the pattern set recorded beside it.
+   */
   function generateNameOnly() {
-    if (lockName) {
+    if (lockName || character === null) {
       return;
     }
-    const generated = rollNamesForCurrentSource();
+    const generated = rollCharacterNameForSource(
+      new RNG(`${Date.now()}-uw-name`),
+      currentNameSource(),
+      'human',
+      namingGender,
+    );
     firstName = generated.firstName;
     lastName = generated.lastName;
-    if (character) {
-      character.firstName = generated.firstName;
-      character.lastName = generated.lastName;
-    }
-  }
-
-  function save() {
-    if (!character) return;
-    applyNamesToCharacter(character);
-    const description = CharGen.formatAsText(character);
-
-    const blob = new Blob([description], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = 'uw-character.txt';
-    link.click();
-    URL.revokeObjectURL(link.href);
   }
 
   async function downloadPdf() {
-    if (downloadingPdf || !character) {
+    if (downloadingPdf || namedCharacter === null) {
       return;
     }
 
-    applyNamesToCharacter(character);
     downloadingPdf = true;
     try {
-      await downloadUwCharacterPdf(character);
+      await UW.downloadUwCharacterPdf(namedCharacter);
     } finally {
       downloadingPdf = false;
     }
+  }
+
+  function exportMarkdown() {
+    if (namedCharacter === null) {
+      return;
+    }
+    const markdown = UW.uwCharacterToMarkdown(namedCharacter);
+    const url = URL.createObjectURL(new Blob([markdown], { type: 'text/markdown' }));
+    Download(url, `${UW.uwCharacterFileStem(namedCharacter)}.md`);
+    URL.revokeObjectURL(url);
   }
 
   onMount(() => {
@@ -145,7 +187,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/unchartedworlds/character" title="Uncharted Worlds Character Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Uncharted Worlds Character Generator">
   {#snippet description()}
     <p>Generate starting characters for Uncharted Worlds.</p>
   {/snippet}
@@ -153,6 +195,9 @@
   <SeedControls bind:seed bind:lockSeed />
 
   <CharacterNameSection
+    offerReferencedCulture
+    bind:referencedCulture
+    bind:cultureReference
     bind:nameSourceKind
     bind:presetSetName
     bind:savedCultureName
@@ -166,43 +211,56 @@
   />
 
   <BaseButton onclick={generate}>Generate</BaseButton>
-  <BaseButton onclick={save}>Save</BaseButton>
-  <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
 
-  <h2>{firstName || lastName ? `${firstName} ${lastName}`.trim() : 'Character summary'}</h2>
+  <SaveArtifactButton
+    kind={UW.UW_CHARACTER_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={characterSnapshot}
+    {seed}
+    config={rolledConfig}
+    defaultName={defaultArtifactName}
+    references={rolledCultureReference === undefined ? [] : [rolledCultureReference]}
+  />
 
-  {#if character}
+  {#if namedCharacter}
+    <h2>{UW.uwCharacterDisplayName(namedCharacter)}</h2>
+
+    <div class="uw-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <DownloadPdfButton onclick={downloadPdf} downloading={downloadingPdf} />
+    </div>
+
     <h3>Statistics</h3>
 
     <StatBlock>
-      <Stat label="Physique">{character.stats.physique}</Stat>
-      <Stat label="Mettle">{character.stats.mettle}</Stat>
-      <Stat label="Expertise">{character.stats.expertise}</Stat>
-      <Stat label="Influence">{character.stats.influence}</Stat>
-      <Stat label="Interface">{character.stats.interface}</Stat>
+      <Stat label="Physique">{UW.formatUwStat(namedCharacter.stats.physique)}</Stat>
+      <Stat label="Mettle">{UW.formatUwStat(namedCharacter.stats.mettle)}</Stat>
+      <Stat label="Expertise">{UW.formatUwStat(namedCharacter.stats.expertise)}</Stat>
+      <Stat label="Influence">{UW.formatUwStat(namedCharacter.stats.influence)}</Stat>
+      <Stat label="Interface">{UW.formatUwStat(namedCharacter.stats.interface)}</Stat>
     </StatBlock>
 
     <h2>Careers</h2>
 
-    {#each character.careers as career}
+    {#each namedCharacter.careers as career}
       <div>{career.name}</div>
     {/each}
 
     <h2>Origin</h2>
 
-    <p>{character.origin.name}</p>
+    <p>{namedCharacter.origin.name}</p>
 
     <h2>Descriptors</h2>
 
-    <p>{character.descriptors}</p>
+    <p>{namedCharacter.descriptors}</p>
 
     <h2>Skills</h2>
 
     <ul class="skills">
-      {#each character.skills as skill}
+      {#each namedCharacter.skills as skill}
         <li class="skill">
           <p class="skill-name"><strong>{skill.name}</strong></p>
-          {#each parseSkillDescription(skill.description) as block}
+          {#each UW.parseSkillDescription(skill.description) as block}
             {#if block.kind === 'options'}
               <ul class="skill-options">
                 {#each block.items as item}
@@ -219,16 +277,16 @@
 
     <h2>Advancement</h2>
 
-    <p>{character.advancement}</p>
+    <p>{namedCharacter.advancement}</p>
 
     <h2>Assets</h2>
 
     <div class="asset">
-      <h4>Workspace: {character.workspace.name}</h4>
-      <p>{character.workspace.description}</p>
+      <h4>Workspace: {namedCharacter.workspace.name}</h4>
+      <p>{namedCharacter.workspace.description}</p>
     </div>
 
-    {#each character.assets as asset}
+    {#each namedCharacter.assets as asset}
       <div>
         <h4>{asset.name}</h4>
         <p>{asset.description}</p>
@@ -248,6 +306,12 @@
 </GeneratorPage>
 
 <style>
+  .uw-exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
   ul.skills > li.skill {
     list-style-type: none;
     margin-left: 0;

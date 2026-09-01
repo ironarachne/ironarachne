@@ -118,6 +118,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/settlement',
       '/heraldry',
       '/swn/character',
+      '/unchartedworlds/character',
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
     ];
@@ -221,6 +222,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/religion',
       '/fantasy/settlement',
       '/swn/character',
+      '/unchartedworlds/character',
     ]);
   });
 

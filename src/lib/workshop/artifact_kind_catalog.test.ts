@@ -19,6 +19,7 @@ describe('artifact kind catalog', () => {
       'character',
       'character.dcc',
       'character.swn',
+      'character.uncharted-worlds',
     ]);
   });
 

@@ -223,8 +223,8 @@ artifact does not restamp contents nobody changed.
 ## Artifact editors
 
 `ARTIFACT_EDITORS` maps a kind to the component that edits it, alongside an optional roller.
-**Culture, religion, settlement, and the AD&D 2E, fantasy, DCC and SWN characters are the
-entries**, and most kinds having none is the shipped state: #39
+**Culture, religion, settlement, and the AD&D 2E, fantasy, DCC, SWN and Uncharted Worlds
+characters are the entries**, and most kinds having none is the shipped state: #39
 built the frame, and an editing view for a particular kind is part of taking that tool to
 Release-ready (docs/workshop.md, section 4). A kind with no entry opens read-only — the stored
 snapshot, rendered honestly — which is a state the surface draws rather than an error it reports.

@@ -107,6 +107,15 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         );
     },
   },
+  'character.uncharted-worlds': {
+    loadEditor: () => import('$components/characters/UwCharacterArtifactEditor.svelte'),
+    loadRoller: async () => {
+      const { readUwCharacterGeneratorConfig, rollUwCharacterSnapshot } =
+        await import('$lib/unchartedworlds/uw_character_roll.js');
+      return (provenance) =>
+        rollUwCharacterSnapshot(provenance.seed, readUwCharacterGeneratorConfig(provenance.config));
+    },
+  },
   /**
    * The first kind whose editor is a tool rather than a component written for the purpose.
    *
