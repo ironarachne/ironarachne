@@ -27,10 +27,8 @@
  */
 
 import { toStoredCharacter, type StoredCharacter } from '$lib/characters';
-import { toStoredArms, type StoredArms } from '$lib/heraldry';
-import type { OrganizationHierarchy, Organization, RoleId, RoleInfo } from '$lib/organizations';
+import { toStoredOrganization, type StoredOrganization } from '$lib/organizations';
 import { stripFunctionValuesDeep } from '$lib/persistent_save';
-import type { VisualEmblem, VisualIdentity } from '$lib/visual_identity';
 
 import type { Settlement, SettlementImportantPerson } from './settlement_types.js';
 
@@ -47,31 +45,14 @@ export type StoredSettlementNotable = Omit<SettlementImportantPerson, 'character
   character: StoredCharacter;
 };
 
-/** The three `Map`s of an {@link OrganizationHierarchy} as entry arrays, in their own order. */
-export type StoredOrganizationHierarchy = {
-  childToParent: [RoleId, RoleId | null][];
-  idToOrder: [RoleId, number][];
-  roleById: [RoleId, RoleInfo][];
-};
-
-/** Every emblem variant but heraldry is already plain data and travels as it is. */
-export type StoredVisualEmblem =
-  | Exclude<VisualEmblem, { kind: 'heraldry' }>
-  | { kind: 'heraldry'; arms: StoredArms };
-
-export type StoredVisualIdentity = Omit<VisualIdentity, 'emblem'> & {
-  emblem: StoredVisualEmblem;
-};
-
-export type StoredOrganization = Omit<
-  Organization,
-  'hierarchy' | 'leader' | 'notableMembers' | 'visualIdentity'
-> & {
-  hierarchy: StoredOrganizationHierarchy;
-  leader: StoredCharacter;
-  notableMembers: StoredCharacter[];
-  visualIdentity: StoredVisualIdentity;
-};
+/**
+ * The stored organization and visual identity shapes now live in `$lib/organizations` and
+ * `$lib/visual_identity`, the libraries that own the concepts. They were declared here until #56,
+ * because a settlement's organizations were the first anything stored. Re-exported so the
+ * settlement kind's own consumers keep importing them from where they always did.
+ */
+export type { StoredOrganization, StoredOrganizationHierarchy } from '$lib/organizations';
+export type { StoredVisualEmblem, StoredVisualIdentity } from '$lib/visual_identity';
 
 /**
  * A settlement as it is stored. Everything the settlement itself holds travels straight through;
@@ -85,33 +66,6 @@ export type SettlementSnapshot = Omit<Settlement, 'importantPeople' | 'organizat
 
 function toStoredNotable(notable: SettlementImportantPerson): StoredSettlementNotable {
   return { ...notable, character: toStoredCharacter(notable.character) };
-}
-
-function toStoredHierarchy(hierarchy: OrganizationHierarchy): StoredOrganizationHierarchy {
-  return {
-    childToParent: [...hierarchy.childToParent],
-    idToOrder: [...hierarchy.idToOrder],
-    roleById: [...hierarchy.roleById],
-  };
-}
-
-function toStoredVisualIdentity(identity: VisualIdentity): StoredVisualIdentity {
-  const { emblem } = identity;
-  return {
-    ...identity,
-    emblem:
-      emblem.kind === 'heraldry' ? { kind: 'heraldry', arms: toStoredArms(emblem.arms) } : emblem,
-  };
-}
-
-function toStoredOrganization(organization: Organization): StoredOrganization {
-  return {
-    ...organization,
-    hierarchy: toStoredHierarchy(organization.hierarchy),
-    leader: toStoredCharacter(organization.leader),
-    notableMembers: organization.notableMembers.map(toStoredCharacter),
-    visualIdentity: toStoredVisualIdentity(organization.visualIdentity),
-  };
 }
 
 /**
@@ -132,7 +86,7 @@ export function toSettlementSnapshot(settlement: Settlement): SettlementSnapshot
       : { importantPeople: importantPeople.map(toStoredNotable) }),
     ...(organizations === undefined
       ? {}
-      : { organizations: organizations.map(toStoredOrganization) }),
+      : { organizations: organizations.map((organization) => toStoredOrganization(organization)) }),
   };
   return stripFunctionValuesDeep(converted) as SettlementSnapshot;
 }

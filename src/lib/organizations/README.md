@@ -91,3 +91,38 @@ import { addRandomRivalryBetweenPairs } from '$lib/organizations';
 ## Tests
 
 `generate_organization.test.ts` covers a valid `lineChain` and a full mercenary `generateOrganization` run.
+
+## Two registries, not one
+
+This library's **kind registry** (`kind_registry.ts`, `Organization.kindId`, values like
+`mercenary_company` and `noble_house`) says what sort of organization one is. The site's
+**artifact kind registry** (`$lib/artifact_kinds`, `ArtifactKind`, the value `organization`) says
+what sort of payload a saved artifact holds. They predate each other in opposite directions and
+mean different things; in code they stay `kindId` and `ArtifactKind`.
+
+## Saving an organization
+
+The generator is Release-ready (issue #56), which means a rolled organization can be kept:
+
+- `organization_snapshot.ts` — the stored form, `StoredOrganization`, declared here since #56 (it
+  lived in `$lib/settlements`, which now composes it). The hierarchy's three `Map`s travel as entry
+  arrays, the leader and notable members as `StoredCharacter`, and the visual identity as
+  `StoredVisualIdentity` from `$lib/visual_identity` — **imagery as parameters, never as a
+  rendered SVG**. `kindId` was already the right shape: the kind's closures never reached the
+  payload.
+- `organization_rehydrate.ts` — the stored form back into an `Organization`. Nothing is recomputed.
+- `organization_artifact_kind.ts` — the `organization` kind. Each person is validated by the
+  character kind's own validator; referenced arms (`arms: null`) are accepted.
+- `organization_roll.ts` — the single path from a seed and the page's five controls to an
+  organization, and the provenance record a re-roll reads back. A kind or name set this build no
+  longer has is substituted and reported.
+- `organization_editing.ts` — name, description, motto, palette, the profile's traits, goal,
+  weakness, standing and hook, and each person's names and line. Changing a facet does not rewrite
+  the description composed from it.
+- `organization_emblem.ts` — the emblem drawn from its stored parameters, whichever kind, and a
+  sentence about it for text that cannot carry a picture.
+- `organization_presentation.ts` — the sheet as a document, and the Markdown and PDF exports.
+
+The organization can be named from a saved culture and bear a saved coat of arms, both recorded as
+artifact references (5.1). A saved character as leader is not offered: the leader is shaped by the
+kind's role mutators, and a character rolled elsewhere would not fit the role.

@@ -91,6 +91,11 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // build: the family kind module and everything it statically imports is 198 KB across 16 chunks through
   // this path and 19.6 MB across 35 chunks through the entry point.
   '$lib/families/family_artifact_kind',
+  // The fourteenth. `$lib/organizations`'s entry point reaches the generator and the emblem
+  // renderers, and from there the character generator, every kind's heraldry config and the
+  // charge art. Measured on the build: the organization kind module and everything it statically
+  // imports is 204 KB across 16 chunks through this path and 19.7 MB across 35 chunks through the entry point.
+  '$lib/organizations/organization_artifact_kind',
 ]);
 
 /**

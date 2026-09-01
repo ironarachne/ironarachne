@@ -126,6 +126,19 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollUwCharacterSnapshot(provenance.seed, readUwCharacterGeneratorConfig(provenance.config));
     },
   },
+  organization: {
+    loadEditor: () => import('$components/factions/OrganizationArtifactEditor.svelte'),
+    /** The page's five controls, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readOrganizationGeneratorConfig, rollOrganizationSnapshot } =
+        await import('$lib/organizations/organization_roll.js');
+      return (provenance) =>
+        rollOrganizationSnapshot(
+          provenance.seed,
+          readOrganizationGeneratorConfig(provenance.config),
+        );
+    },
+  },
   family: {
     loadEditor: () => import('$components/factions/FamilyArtifactEditor.svelte'),
     /** Every control on the page, read back through the roll module's own reader. */

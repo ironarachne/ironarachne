@@ -115,6 +115,7 @@ describe('TOOL_CATALOG', () => {
       '/character',
       '/fantasy/encounter',
       '/fantasy/family',
+      '/fantasy/organization',
       '/culture',
       '/fantasy/dcc/character',
       '/fantasy/religion',
@@ -226,6 +227,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/dcc/character',
       '/fantasy/encounter',
       '/fantasy/family',
+      '/fantasy/organization',
       '/fantasy/religion',
       '/fantasy/settlement',
       '/heraldry',
@@ -286,6 +288,7 @@ describe('filterTools', () => {
       '/culture',
       '/fantasy/encounter',
       '/fantasy/family',
+      '/fantasy/organization',
       '/fantasy/religion',
       '/fantasy/settlement',
     ]);

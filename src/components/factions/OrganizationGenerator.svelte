@@ -1,51 +1,54 @@
 <script lang="ts">
-  import {
-    getOrganizationKindsForRegistry,
-    generateOrganization,
-    type OrganizationSizeInput,
-    FantasyOrganizations,
-  } from '$lib/organizations';
+  import { onMount } from 'svelte';
+  import { RNG } from '@ironarachne/rng';
+  import * as Organizations from '$lib/organizations';
   import type {
     Organization,
-    OrganizationProfile,
+    OrganizationGeneratorConfigRecord,
+    OrganizationGenreFilter,
+    OrganizationSizePreset,
     OrganizationWorldContextPreset,
   } from '$lib/organizations';
-  import { RNG } from '@ironarachne/rng';
   import * as Characters from '$lib/characters';
-  import * as Names from '$lib/names';
-  import { onMount } from 'svelte';
-  import { renderSVGAsPNG } from '$lib/images';
-  import {
-    isDiscEmblem,
-    isHeraldryEmblem,
-    isMerchantMarkEmblem,
-    isPatternLatticeEmblem,
-  } from '$lib/visual_identity';
-  import { renderDiscEmblemSvg } from '$lib/disc_emblem';
-  import type { Arms } from '$lib/heraldry';
-  import { renderMerchantMarkSvg } from '$lib/merchant_marks';
-  import { renderPatternLatticeSvg } from '$lib/pattern_lattice';
+  import type { ArtifactReference } from '$lib/artifacts';
+  import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
+  import { downloadTextFile } from '$lib/download';
+  import { HERALDRY_ARTIFACT_KIND, type Arms, type RestoredHeraldry } from '$lib/heraldry';
+  import { getFantasyNameGeneratorSetNames } from '$lib/names';
+  import { downloadTextPdf } from '$lib/pdf';
   import { showHeraldryModal } from '$lib/ui';
+  import { isHeraldryEmblem } from '$lib/visual_identity';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
+  import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
   import HeraldryEmblemButton from '$components/heraldry/HeraldryEmblemButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
 
-  const rng = new RNG(Date.now().toString());
-  let seed: string = $state(rng.randomString(13));
-  let lockSeed = $state(false);
-  $effect(() => {
-    rng.setSeed(seed);
-  });
+  const TOOL_PATH = '/fantasy/organization';
+  const ANY = Organizations.ORGANIZATION_ANY;
+  /** The value of the name-set select that means the culture the picker loaded. */
+  const NAMES_FROM_CULTURE = 'culture';
 
-  let genreFilter = $state<'any' | 'fantasy' | 'science_fiction'>('fantasy');
-  let organizationKindId = $state('any');
-  let nameSetName = $state('any');
-  const nameSets = Names.getAllFantasyNameGeneratorSets(rng);
-  let nameSet: Names.NameGeneratorSet = rng.item(nameSets);
-  let sizePreset = $state<'any' | 'small' | 'medium' | 'large'>('any');
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. It used to also be the generator's RNG,
+   * reseeded from the seed box on every press, and the kind list and the name set were drawn from
+   * it before the reseed — so what "any" gave you depended on how many times you had pressed
+   * Generate. `organization_roll.ts` draws all of that from the seed now.
+   */
+  const rng = new RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
+  let lockSeed = $state(false);
+
+  let genreFilter = $state<OrganizationGenreFilter>('fantasy');
+  let organizationKindId = $state<string>(ANY);
+  let nameSetName = $state<string>(ANY);
+  let sizePreset = $state<OrganizationSizePreset | typeof ANY>(ANY);
   let worldContextPreset = $state<'none' | OrganizationWorldContextPreset>('none');
+  const nameSetNames = getFantasyNameGeneratorSetNames();
   const worldPresetChoices: { value: 'none' | OrganizationWorldContextPreset; label: string }[] = [
     { value: 'none', label: 'No preset (no extra environment paragraph)' },
     { value: 'desert_route', label: 'Desert / arid trade routes' },
@@ -59,117 +62,192 @@
     { value: 'dome_sprawl', label: 'SF: dome / sealed habitats' },
   ];
 
-  function matchKinds() {
-    const all = getOrganizationKindsForRegistry(rng);
-    if (genreFilter === 'any') {
-      return all;
+  /**
+   * The kinds the genre filter offers.
+   *
+   * Built from a fixed RNG: the registry takes one because each kind draws a heraldry template
+   * from it, but the *list* of kinds does not vary and the dropdown must not either.
+   */
+  const kindChoices = $derived(
+    Organizations.organizationKindsForGenre(genreFilter, new RNG('organization-kind-list')).map(
+      (kind) => ({ value: kind.id, label: kind.typeLabel }),
+    ),
+  );
+
+  /** Filled in by the culture picker: a saved culture to name the people from (5.1). */
+  let useReferencedCulture = $state(false);
+  let referencedCulture = $state<Culture | undefined>();
+  let cultureReference = $state<ArtifactReference | undefined>();
+  const cultureLoaded = $derived(useReferencedCulture && referencedCulture !== undefined);
+
+  /** Filled in by the arms picker: a saved coat of arms to bear instead of rolling an emblem. */
+  let useReferencedArms = $state(false);
+  let referencedArms = $state<RestoredHeraldry | undefined>();
+  let armsReference = $state<ArtifactReference | undefined>();
+  const wearingReferencedArms = $derived(useReferencedArms && referencedArms !== undefined);
+
+  /**
+   * Follow the culture into and out of the name-set select, keyed on the culture arriving or
+   * leaving rather than on the select, so the user's own choice stands in between.
+   */
+  $effect(() => {
+    if (cultureLoaded) {
+      nameSetName = NAMES_FROM_CULTURE;
+    } else if (nameSetName === NAMES_FROM_CULTURE) {
+      nameSetName = ANY;
     }
-    return all.filter((k) => k.genre === genreFilter);
-  }
+  });
 
-  function buildCharacterConfig() {
-    const c = FantasyOrganizations.getDefaultOrganizationCharacterConfig(seed);
-    c.familyNameGenerator = nameSet.family;
-    c.femaleFirstNameGenerator = nameSet.female;
-    c.maleFirstNameGenerator = nameSet.male;
-    return c;
-  }
+  /**
+   * The rolled organization.
+   *
+   * `$state.raw`, and not as a preference. Deep-reactive `$state` wraps every object in the value
+   * in a Proxy, and `structuredClone` — what IndexedDB stores with — refuses a Proxy outright, so
+   * saving fails with `could not be cloned`. The same trap is written up in `$lib/workshop`'s
+   * README beside `saveToolArtifact`.
+   */
+  let organization = $state.raw<Organization | null>(null);
+  /** The settings the organization on screen was actually rolled with. Raw, for the same reason. */
+  let rolledConfig = $state.raw<OrganizationGeneratorConfigRecord>({});
+  /** The culture link, recorded only when the organization on screen was named from it. */
+  let rolledCultureReference = $state.raw<ArtifactReference | undefined>();
 
-  function orgFromGenerate(): Organization {
-    const sizeArg: OrganizationSizeInput | undefined =
-      sizePreset === 'any' ? undefined : { kind: 'preset', value: sizePreset };
-    const worldContext =
-      worldContextPreset === 'none'
-        ? undefined
-        : { kind: 'preset' as const, preset: worldContextPreset };
-    return generateOrganization({
-      rng,
-      characterConfig: buildCharacterConfig(),
-      genre: genreFilter === 'any' ? 'any' : genreFilter,
-      kindId: organizationKindId === 'any' ? 'any' : organizationKindId,
-      size: sizeArg,
-      seedPrefix: 'page',
-      worldContext,
-    });
-  }
+  /**
+   * The organization as shown: wearing the referenced arms when the picker says so.
+   *
+   * Composed over the rolled one rather than written into it, so unticking the picker gives the
+   * rolled emblem back without a re-roll.
+   */
+  const shown = $derived<Organization | null>(
+    organization === null
+      ? null
+      : wearingReferencedArms && referencedArms !== undefined
+        ? {
+            ...organization,
+            visualIdentity: {
+              ...organization.visualIdentity,
+              emblem: { kind: 'heraldry', arms: referencedArms.arms },
+            },
+          }
+        : organization,
+  );
 
-  let org = $state(orgFromGenerate());
-  let name = $state(org.name);
-  let orgDescription = $state(org.description);
-  let profile = $state<OrganizationProfile>(org.profile);
-  let leaderLine = $state(org.leader.description);
-  let notableMembers = $state(org.notableMembers);
-  let relationships = $state(org.relationships);
-  let motto = $state(org.visualIdentity.motto);
+  const snapshot = $derived(
+    shown === null ? null : Organizations.toOrganizationSnapshot(shown, wearingReferencedArms),
+  );
+  const defaultArtifactName = $derived(
+    shown === null ? '' : Organizations.organizationDisplayName(shown),
+  );
+  const references = $derived(
+    [rolledCultureReference, wearingReferencedArms ? armsReference : undefined].filter(
+      (entry): entry is ArtifactReference => entry !== undefined,
+    ),
+  );
 
-  const heraldryWidth = 200;
-  const heraldryHeight = 220;
+  /** The emblem drawn from its parameters, for every kind but a heraldic one, which has a button. */
+  const emblemSvg = $derived(
+    snapshot === null || snapshot.visualIdentity.emblem.kind === 'heraldry'
+      ? null
+      : Organizations.renderOrganizationEmblemSvg(snapshot.visualIdentity.emblem, new RNG(seed)),
+  );
 
-  async function openHeraldryModal(
-    arms: Arms,
-    title: string,
-    applyReplacement: (arms: Arms) => void,
-  ) {
-    const result = await showHeraldryModal({ arms, seed, title });
-    if (result.action === 'replaced') {
-      applyReplacement(result.arms);
+  function requestedNameSet(): string | undefined {
+    if (nameSetName === NAMES_FROM_CULTURE) {
+      return cultureLoaded ? referencedCulture?.nameGenerators.name : undefined;
     }
+    return nameSetName === ANY ? undefined : nameSetName;
   }
 
-  function replaceOrganizationHeraldry(arms: Arms) {
-    org = {
-      ...org,
-      visualIdentity: {
-        ...org.visualIdentity,
-        emblem: { kind: 'heraldry', arms },
-      },
+  /** The settings a roll takes, and the ones provenance records (3.6). */
+  function currentConfig(): OrganizationGeneratorConfigRecord {
+    const nameGeneratorSet = requestedNameSet();
+    return {
+      genre: genreFilter,
+      kindId: organizationKindId,
+      ...(sizePreset === ANY ? {} : { size: sizePreset }),
+      ...(nameGeneratorSet === undefined ? {} : { nameGeneratorSet }),
+      ...(worldContextPreset === 'none' ? {} : { worldContextPreset }),
     };
-  }
-
-  function renderArmsForOrg(o: Organization) {
-    const emblem = o.visualIdentity.emblem;
-    if (isHeraldryEmblem(emblem)) {
-      return;
-    } else if (isMerchantMarkEmblem(emblem)) {
-      const w = 200;
-      const h = 200;
-      const svg = renderMerchantMarkSvg(emblem.mark, w, h);
-      renderSVGAsPNG(svg, w, h, 'org-arms');
-    } else if (isPatternLatticeEmblem(emblem)) {
-      const w = 200;
-      const h = 200;
-      const svg = renderPatternLatticeSvg(emblem.lattice, w, h);
-      renderSVGAsPNG(svg, w, h, 'org-arms');
-    } else if (isDiscEmblem(emblem)) {
-      const w = 200;
-      const h = 200;
-      const svg = renderDiscEmblemSvg(emblem.disc, w, h);
-      renderSVGAsPNG(svg, w, h, 'org-arms');
-    }
   }
 
   function runGenerate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    rng.setSeed(seed);
-    if (nameSetName === 'any') {
-      nameSet = rng.item(nameSets);
-    } else {
-      const found = nameSets.find((s) => s.name === nameSetName);
-      if (found) {
-        nameSet = found;
-      }
+    const config = currentConfig();
+    const rolled = Organizations.rollOrganization(seed, config);
+    organization = rolled.organization;
+    // The resolved kind and set, not the requested ones: "any" or a kind this build has since
+    // dropped would otherwise be recorded as provenance a re-roll could not honour.
+    rolledConfig = {
+      ...config,
+      kindId: rolled.organization.kindId,
+      nameGeneratorSet: rolled.nameGeneratorSet,
+    };
+    rolledCultureReference =
+      nameSetName === NAMES_FROM_CULTURE && cultureLoaded ? cultureReference : undefined;
+  }
+
+  async function openHeraldryModal(arms: Arms) {
+    if (organization === null) {
+      return;
     }
-    org = orgFromGenerate();
-    name = org.name;
-    orgDescription = org.description;
-    profile = org.profile;
-    leaderLine = org.leader.description;
-    notableMembers = org.notableMembers;
-    relationships = org.relationships;
-    motto = org.visualIdentity.motto;
-    renderArmsForOrg(org);
+    const result = await showHeraldryModal({ arms, seed, title: organization.name });
+    if (result.action === 'replaced') {
+      // A replacement is the organization's own arms, whatever it was bearing before.
+      useReferencedArms = false;
+      organization = {
+        ...organization,
+        visualIdentity: {
+          ...organization.visualIdentity,
+          emblem: { kind: 'heraldry', arms: result.arms },
+        },
+      };
+    }
+  }
+
+  function exportMarkdown() {
+    if (snapshot === null) {
+      return;
+    }
+    downloadTextFile(
+      Organizations.organizationToMarkdown(snapshot),
+      `${Organizations.organizationFileStem(snapshot)}.md`,
+      'text/markdown',
+    );
+  }
+
+  async function exportPdf() {
+    if (snapshot === null) {
+      return;
+    }
+    await downloadTextPdf(
+      Organizations.organizationDisplayName(snapshot),
+      Organizations.organizationToText(snapshot),
+      `${Organizations.organizationFileStem(snapshot)}.pdf`,
+    );
+  }
+
+  /**
+   * The emblem as SVG, drawn from its parameters — the referenced arms included, since the page
+   * is the holder of that reference and has them.
+   */
+  function exportEmblem() {
+    if (shown === null) {
+      return;
+    }
+    const svg = Organizations.renderOrganizationEmblemSvg(
+      Organizations.toStoredOrganization(shown).visualIdentity.emblem,
+      new RNG(seed),
+    );
+    if (svg === null) {
+      return;
+    }
+    downloadTextFile(
+      svg,
+      `${Organizations.organizationFileStem(shown)}-emblem.svg`,
+      'image/svg+xml',
+    );
   }
 
   onMount(() => {
@@ -177,15 +255,15 @@
   });
 </script>
 
-<GeneratorPage toolPath="/fantasy/organization" title="Organization Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Organization Generator">
   {#snippet description()}
     <p>
       Generate organizations with hierarchy, visual identity, and member roles. Fantasy and science
       fiction kinds are available.
     </p>
     <p>
-      If you choose the Name Set &quot;any,&quot; names will follow the default species-driven
-      generators. Otherwise, names will follow the selected name set.
+      If you choose the Name Set &quot;any,&quot; the seed picks a name set. Otherwise, names will
+      follow the selected name set, or the saved culture you pick below.
     </p>
   {/snippet}
 
@@ -200,18 +278,15 @@
       { value: 'fantasy', label: 'Fantasy' },
       { value: 'science_fiction', label: 'Science fiction' },
     ]}
-    onchange={() => (organizationKindId = 'any')}
+    onchange={() => (organizationKindId = ANY)}
   />
 
-  <div class="input-group">
-    <label for="type">Organization kind</label>
-    <select name="type" id="type" bind:value={organizationKindId}>
-      <option value="any">any</option>
-      {#each matchKinds() as k}
-        <option value={k.id}>{k.typeLabel}</option>
-      {/each}
-    </select>
-  </div>
+  <SelectField
+    id="type"
+    label="Organization kind"
+    bind:value={organizationKindId}
+    options={[{ value: ANY, label: 'any' }, ...kindChoices]}
+  />
 
   <SelectField
     id="size"
@@ -225,11 +300,35 @@
     ]}
   />
 
+  <SavedArtifactPicker
+    kind={CULTURE_ARTIFACT_KIND}
+    role="naming-culture"
+    checkboxLabel="Name from a saved culture in this project"
+    selectLabel="Culture"
+    bind:enabled={useReferencedCulture}
+    bind:value={referencedCulture}
+    bind:reference={cultureReference}
+  />
+
   <SelectField
     id="nameSet"
     label="Name Set"
     bind:value={nameSetName}
-    options={['any', ...nameSets.map((ns) => ns.name)]}
+    options={[
+      { value: ANY, label: 'any' },
+      ...(cultureLoaded ? [{ value: NAMES_FROM_CULTURE, label: 'From the saved culture' }] : []),
+      ...nameSetNames.map((name) => ({ value: name, label: name })),
+    ]}
+  />
+
+  <SavedArtifactPicker
+    kind={HERALDRY_ARTIFACT_KIND}
+    role="arms"
+    checkboxLabel="Give this organization a saved coat of arms"
+    selectLabel="Coat of arms"
+    bind:enabled={useReferencedArms}
+    bind:value={referencedArms}
+    bind:reference={armsReference}
   />
 
   <SelectField
@@ -241,83 +340,110 @@
 
   <BaseButton onclick={runGenerate}>Generate</BaseButton>
 
-  <h2>{name}</h2>
+  <SaveArtifactButton
+    kind={Organizations.ORGANIZATION_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    {snapshot}
+    {seed}
+    config={rolledConfig}
+    defaultName={defaultArtifactName}
+    {references}
+  />
 
-  <div class="org-arms">
-    {#if isHeraldryEmblem(org.visualIdentity.emblem)}
-      <HeraldryEmblemButton
-        arms={org.visualIdentity.emblem.arms}
-        title={name}
-        width={heraldryWidth}
-        height={heraldryHeight}
-        {rng}
-        onclick={() => {
-          const emblem = org.visualIdentity.emblem;
-          if (isHeraldryEmblem(emblem)) {
-            void openHeraldryModal(emblem.arms, name, replaceOrganizationHeraldry);
-          }
-        }}
-      />
-    {:else}
-      <img alt="" id="org-arms" />
-    {/if}
-  </div>
+  {#if shown && snapshot}
+    <div class="organization-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+      {#if shown.visualIdentity.emblem.kind !== 'none'}
+        <BaseButton onclick={exportEmblem}>Download Emblem (SVG)</BaseButton>
+      {/if}
+    </div>
 
-  {#if motto}
-    <p class="motto">"{motto}"</p>
-  {/if}
+    <div class="organization">
+      <h2>{shown.name}</h2>
 
-  <p>{orgDescription}</p>
+      <div class="org-arms">
+        {#if isHeraldryEmblem(shown.visualIdentity.emblem)}
+          {@const arms = shown.visualIdentity.emblem.arms}
+          <HeraldryEmblemButton
+            {arms}
+            title={shown.name}
+            width={Organizations.ORGANIZATION_EMBLEM_WIDTH}
+            height={Organizations.ORGANIZATION_EMBLEM_HEIGHT}
+            rng={new RNG(seed)}
+            onclick={() => void openHeraldryModal(arms)}
+          />
+        {:else if emblemSvg !== null}
+          <!-- Drawn from the emblem's parameters, which is what the payload stores. -->
+          <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+          {@html emblemSvg}
+        {/if}
+      </div>
 
-  <h3>Profile</h3>
-  <ul class="org-profile">
-    <li>
-      <strong>Traits</strong>
-      {profile.personalityTraits.map((t) => t.label).join(' · ')}
-    </li>
-    <li><strong>Goal</strong> {profile.goal.label}</li>
-    <li><strong>Weakness</strong> {profile.weakness.label}</li>
-    <li><strong>Public standing</strong> {profile.publicStanding.label}</li>
-    {#if profile.environmentNarrative}
-      <li>
-        <strong>Environment</strong>
-        {profile.environmentNarrative.shortLabel}
-      </li>
-    {/if}
-  </ul>
-  <p class="org-hook"><strong>Hook</strong> {profile.hook}</p>
+      {#if shown.visualIdentity.motto}
+        <p class="motto">"{shown.visualIdentity.motto}"</p>
+      {/if}
 
-  <p>{leaderLine}</p>
+      <p>{shown.description}</p>
 
-  {#if relationships.length > 0}
-    <h3>Relationships</h3>
-    <ul>
-      {#each relationships as r}
-        <li>{r.kind} → {r.relatedOrganizationId}</li>
-      {/each}
-    </ul>
-  {/if}
+      <h3>Profile</h3>
+      <ul class="org-profile">
+        <li>
+          <strong>Traits</strong>
+          {shown.profile.personalityTraits.map((t) => t.label).join(' · ')}
+        </li>
+        <li><strong>Goal</strong> {shown.profile.goal.label}</li>
+        <li><strong>Weakness</strong> {shown.profile.weakness.label}</li>
+        <li><strong>Public standing</strong> {shown.profile.publicStanding.label}</li>
+        {#if shown.profile.environmentNarrative}
+          <li>
+            <strong>Environment</strong>
+            {shown.profile.environmentNarrative.shortLabel}
+          </li>
+        {/if}
+      </ul>
+      <p class="org-hook"><strong>Hook</strong> {shown.profile.hook}</p>
 
-  <h3>Notable Members</h3>
+      <p>{shown.leader.description}</p>
 
-  {#each notableMembers as member}
-    <p>
-      <strong>
-        {Characters.getHonorific(
+      {#if shown.relationships.length > 0}
+        <h3>Relationships</h3>
+        <ul>
+          {#each shown.relationships as r}
+            <li>{r.kind} → {r.relatedOrganizationId}</li>
+          {/each}
+        </ul>
+      {/if}
+
+      <h3>Notable Members</h3>
+
+      {#each shown.notableMembers as member (member.id)}
+        {@const honorific = Characters.getHonorific(
           member.gender.name,
           Characters.getHighestPrecedenceTitle(member.titles || []),
           member.gender.pronouns,
         )}
-        {member.firstName}
-        {member.lastName}{#if Characters.getHonorific(member.gender.name, Characters.getHighestPrecedenceTitle(member.titles || []), member.gender.pronouns) == ''}
-          ({Characters.getTitle(member)}){/if}:
-      </strong>
-      {member.description}
-    </p>
-  {/each}
+        <p class="member">
+          <strong>
+            {honorific}
+            {member.firstName}
+            {member.lastName}{#if honorific === ''}
+              ({Characters.getTitle(member)}){/if}:
+          </strong>
+          {member.description}
+        </p>
+      {/each}
+    </div>
+  {/if}
 </GeneratorPage>
 
 <style>
+  .organization-exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
   div.org-arms {
     width: 200px;
     height: 220px;

@@ -198,7 +198,16 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     label: 'Fantasy Organization',
     kind: 'generator',
     domain: 'factions',
-    maturity: 'experimental',
+    // Release-ready, assessed section by section against docs/workshop.md and recorded in
+    // docs/readiness-factions.md (#56). It saves as `organization` — the stored vocabulary the
+    // settlement kind has embedded all along, now declared in `$lib/organizations` and
+    // `$lib/visual_identity`: maps as entry arrays, people as `StoredCharacter`, imagery as
+    // parameters and never as SVG — has a bespoke editor in `ARTIFACT_EDITORS`, and exports
+    // Markdown, PDF and the emblem as SVG. Its roll is deterministic from the seed and the five
+    // controls via `organization_roll.ts`. It takes a saved culture for naming and a saved coat
+    // of arms to bear, so 5.1 binds for both and is met; a saved character as leader waits on
+    // the role machinery, as docs/readiness-factions.md records.
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['organization'],
   }),

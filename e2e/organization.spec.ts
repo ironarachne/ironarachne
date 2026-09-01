@@ -3,13 +3,13 @@ import { expect, test, type Page } from '@playwright/test';
 import { visitRoute } from './helpers';
 
 /**
- * Requirement 7.4 for the `family` kind: generate, save, reopen, edit.
+ * Requirement 7.4 for the `organization` kind: generate, save, reopen, edit.
  *
- * This is the half no unit test can settle. The library tests prove a multi-generation family
- * round-trips through the codec — members by name, edges as ids, generators as patterns — and that
- * each editing function changes one field; what they cannot prove is that a user can press
- * Generate, keep the result, come back to it in a different page, change something, and still
- * have the family they saved. Every step of that crosses a boundary the unit tests stub out — the
+ * This is the half no unit test can settle. The library tests prove an organization round-trips
+ * through the codec — maps as entries, people by name, imagery as parameters — and that each
+ * editing function changes one field; what they cannot prove is that a user can press Generate,
+ * keep the result, come back to it in a different page, change something, and still have the
+ * organization they saved. Every step of that crosses a boundary the unit tests stub out — the
  * artifact store, IndexedDB, the editor registry, and a page reload.
  *
  * Accessibility (6.2) is asserted here rather than in a separate spec because the only honest test
@@ -22,7 +22,7 @@ const vault = (page: Page) => page.locator('section.vault');
 const inspector = (page: Page) => page.getByRole('region', { name: 'Inspector' });
 const saveArtifact = (page: Page) => page.locator('.save-artifact');
 
-const FAMILY_TITLE = 'Fantasy Family Generator | Iron Arachne';
+const ORGANIZATION_TITLE = 'Organization Generator | Iron Arachne';
 
 async function openEmpty(page: Page): Promise<void> {
   await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
@@ -78,67 +78,71 @@ async function openInWorkshop(page: Page, name: string) {
   return panel;
 }
 
-test.describe('a family', () => {
+test.describe('an organization', () => {
   test.beforeEach(async ({ page }) => {
     await openEmpty(page);
     await createProject(page, 'The Marches');
   });
 
   test('is generated, saved, reopened, and edited', async ({ page }) => {
-    await visitRoute(page, '/fantasy/family', { title: FAMILY_TITLE });
+    await visitRoute(page, '/fantasy/organization', { title: ORGANIZATION_TITLE });
 
-    // The generator rolls on mount (2.4), so there is a family to keep straight away.
+    // The generator rolls on mount (2.4), so there is an organization to keep straight away.
     await expect(page.locator('.member').first()).toBeVisible();
-    await saveAs(page, 'House Ashford');
+    await saveAs(page, 'The Ashford Compact');
 
     // Reopened somewhere else entirely, after a reload, which is what makes this a durability test
     // rather than a state test.
-    const panel = await openInWorkshop(page, 'House Ashford');
+    const panel = await openInWorkshop(page, 'The Ashford Compact');
 
     // Typed rather than filled: `fill` sets the value in one go, and the point of this assertion is
     // that the editor's own bindings carry a user's keystrokes through to the snapshot it
     // announces. The value is one no roll produces, so there is always something to save.
-    const name = panel.getByRole('textbox', { name: 'Member 1 first name' });
-    await name.fill('');
-    await name.pressSequentially('Tam');
+    const goal = panel.getByRole('textbox', { name: 'Goal' });
+    await goal.fill('');
+    await goal.pressSequentially('to own every mill');
     await expect(panel.getByRole('button', { name: 'Save changes' })).toBeEnabled();
     await panel.getByRole('button', { name: 'Save changes' }).click();
     await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
 
     // And it survived the round trip through IndexedDB, which is the whole claim.
     await page.reload({ waitUntil: 'load' });
-    const reopened = await openInWorkshop(page, 'House Ashford');
-    await expect(reopened.getByRole('textbox', { name: 'Member 1 first name' })).toHaveValue('Tam');
+    const reopened = await openInWorkshop(page, 'The Ashford Compact');
+    await expect(reopened.getByRole('textbox', { name: 'Goal' })).toHaveValue('to own every mill');
   });
 
-  test('removes a member and the edges that named them', async ({ page }) => {
-    // Requirement 4.4: one part changes without re-rolling the whole, and 5.4: what is left still
-    // reads. The seed is pinned because a random one is not always more than one person — a
-    // founder who never married is a family of one — and `family_roll.test.ts` already relies on
-    // this seed rolling several generations of humans.
-    await visitRoute(page, '/fantasy/family', { title: FAMILY_TITLE });
-    await page.getByLabel('Species', { exact: true }).selectOption('human');
-    await page.getByLabel('Seed', { exact: true }).fill('generations');
-    await page.getByLabel('Lock Seed').check();
+  test('draws the emblem from its parameters and edits people without a re-roll', async ({
+    page,
+  }) => {
+    // Requirement 4.4 and the issue's own warning: imagery is parameters, so the editor draws it
+    // rather than showing a stored picture, and it is still there after a name changes.
+    await visitRoute(page, '/fantasy/organization', { title: ORGANIZATION_TITLE });
+    await page.getByLabel('Organization kind').selectOption('trading_company');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    await saveAs(page, 'House Kessler');
+    await saveAs(page, 'Kessler & Sons');
 
-    const panel = await openInWorkshop(page, 'House Kessler');
+    const panel = await openInWorkshop(page, 'Kessler & Sons');
+    await expect(panel.locator('.organization-editor__emblem > svg')).toBeVisible();
+
+    const leader = panel.getByRole('textbox', { name: 'Leader first name' });
+    const description = panel.getByRole('textbox', { name: 'Organization description' });
+    const before = await description.inputValue();
+    await leader.fill('Tam');
+    await expect(description).toHaveValue(before);
+    await expect(panel.locator('.organization-editor__emblem > svg')).toBeVisible();
+
     // The editor mounts through a dynamic import after the panel is visible, so the first thing
     // asserted must be one that retries; `count()` does not.
     const removers = panel.getByRole('button', { name: /^Remove member \d+$/ });
     await expect(removers.first()).toBeVisible();
     const count = await removers.count();
-    expect(count).toBeGreaterThan(1);
-
     await removers.first().click();
     await expect(removers).toHaveCount(count - 1);
-    await expect(panel.getByRole('textbox', { name: 'Member 1 first name' })).toBeVisible();
   });
 
-  test('downloads the roster and the tree a GM can put on the table', async ({ page }) => {
-    // Requirement 6.3: the tree was drawn all along and never offered; the roster is new.
-    await visitRoute(page, '/fantasy/family', { title: FAMILY_TITLE });
+  test('downloads the sheet and the emblem a GM can put on the table', async ({ page }) => {
+    // Requirement 6.3: the first exports this tool has ever had.
+    await visitRoute(page, '/fantasy/organization', { title: ORGANIZATION_TITLE });
 
     const markdown = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download Markdown' }).click();
@@ -149,29 +153,29 @@ test.describe('a family', () => {
     expect((await pdf).suggestedFilename()).toMatch(/\.pdf$/);
 
     const svg = page.waitForEvent('download');
-    await page.getByRole('button', { name: 'Download Tree (SVG)' }).click();
-    expect((await svg).suggestedFilename()).toMatch(/-tree\.svg$/);
+    await page.getByRole('button', { name: 'Download Emblem (SVG)' }).click();
+    expect((await svg).suggestedFilename()).toMatch(/-emblem\.svg$/);
   });
 
-  test('reproduces the same family, names included, from the same seed', async ({ page }) => {
-    // Requirement 2.2: the page used to build the name generators from its own RNG, so a locked
-    // seed reproduced the people and not what they were called.
-    await visitRoute(page, '/fantasy/family', { title: FAMILY_TITLE });
+  test('reproduces the same organization from the same seed and settings', async ({ page }) => {
+    // Requirement 2.2: the kind list and the name set used to be drawn from the page's RNG before
+    // it was reseeded, so "any" depended on how many times Generate had been pressed.
+    await visitRoute(page, '/fantasy/organization', { title: ORGANIZATION_TITLE });
 
-    const family = page.locator('.family');
+    const organization = page.locator('.organization');
 
     await page.getByLabel('Seed', { exact: true }).fill('a-fixed-seed');
     await page.getByLabel('Lock Seed').check();
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    const first = await family.innerText();
+    const first = await organization.innerText();
 
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    expect(await family.innerText()).toEqual(first);
+    expect(await organization.innerText()).toEqual(first);
 
-    // And a different seed is a different family, so the reproduction above is not the page
+    // And a different seed is a different organization, so the reproduction above is not the page
     // simply failing to re-roll.
     await page.getByLabel('Seed', { exact: true }).fill('a-different-seed');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    expect(await family.innerText()).not.toEqual(first);
+    expect(await organization.innerText()).not.toEqual(first);
   });
 });

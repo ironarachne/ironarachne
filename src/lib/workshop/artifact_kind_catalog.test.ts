@@ -24,6 +24,7 @@ describe('artifact kind catalog', () => {
       'arms-manufacturer',
       'encounter',
       'family',
+      'organization',
     ]);
   });
 

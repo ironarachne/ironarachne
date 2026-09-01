@@ -11,8 +11,8 @@ Part of [the readiness pass](tool-readiness.md). Measured against
 [Tool release readiness](workshop.md#tool-release-readiness).
 
 **Status:** accepted; the arms manufacturer ([#53](#53--arms-manufacturer)), the fantasy encounter
-([#54](#54--fantasy-encounter)) and the fantasy family ([#55](#55--fantasy-family)) are
-**implemented**; #56 and #57 are not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
+([#54](#54--fantasy-encounter)), the fantasy family ([#55](#55--fantasy-family)) and the fantasy
+organization ([#56](#56--fantasy-organization)) are **implemented**; #57 is not yet built. Reviewed and approved with [the pass](tool-readiness.md#domain-model), so the work in this document is clear to start.
 
 This domain holds the pass's easiest tool and its second-hardest. The arms manufacturer is three
 files and a flat payload; the organization generator is the richest generator on the site, with a
@@ -204,6 +204,45 @@ identity's parameters — with a redraw, not a re-roll, after each change.
 
 **Composition:** `heraldry` for the arms, `character` for the leader and notable members, `culture`
 for naming.
+
+**As built.** The wave 0 move happened here, since nothing before it needed it: `StoredOrganization`
+and `StoredOrganizationHierarchy` are declared in `$lib/organizations`, `StoredVisualIdentity` and
+`StoredVisualEmblem` in `$lib/visual_identity`, each split into a writing half and a reading half
+the way the character's are, and `$lib/settlements` composes them and re-exports the names. No
+settlement payload changed shape, so no version step.
+
+**`arms: null` on a heraldic emblem means a referenced coat of arms**, the convention
+`StoredCharacter.heraldry` set. The page takes a saved coat of arms through `SavedArtifactPicker`,
+shows the organization bearing it, stores `null` plus the reference, and reads it back as no emblem
+of its own for the holder of the reference to draw. A re-roll never wears referenced arms.
+
+**Two of the three compositions are built**: a saved culture for naming (the pattern set's name as
+provenance, the culture as a reference, gated on the roll) and a saved coat of arms. **A saved
+character as leader is not offered.** The leader is shaped by the kind's role mutators — a title,
+an age band, a species tweak per role — and a character rolled elsewhere would not fit the role it
+was put in. That is a design question for the character kind (a "fits role" mutation on read),
+not a picker, and it is recorded here rather than half-built.
+
+**2.2 was failing in the same way the family's was.** The page's RNG was the generator's, reseeded
+from the seed box on each press, but the kind list and the name set were drawn from it _before_
+the reseed, so "any" depended on how many times Generate had been pressed. `organization_roll.ts`
+draws the kind registry, the name set and the organization from streams named for the seed.
+
+**The editor is bespoke**, as designed: name and description, motto and palette, the profile's
+traits, goal, weakness, standing and hook, and each person's names and line, with the emblem drawn
+from its stored parameters — a redraw, not a re-roll — and the hierarchy's roles listed by standing.
+Each role's _holder_ is not a field the payload has: notables are generated for planned role ids
+but the id is not recorded on the character. Recording it is a generator change and a version 2,
+and is noted rather than done.
+
+6.4 bound on the motto, the environment line, the relationships list and the notable-members
+heading, each of which may be absent and none of which prints when it is.
+
+The editor's three palette fields are live surface over a field no kind fills today:
+`VisualColorPalette` is in the type and the rehydrate path, but `buildVisualExtras` sets a motto
+on one kind and colours on none. They are kept because the payload carries the field and a user
+may fill it, and clearing them on an organization that never had a palette leaves it without one
+rather than inventing one with an empty primary.
 
 ## #57 — Star nation
 

@@ -52,3 +52,13 @@ Add new variants to `VisualEmblem` in `visual_identity_types.ts` (e.g. `{ kind: 
 - **`VisualColorPalette`** — `primary` plus optional `secondary`, `accent` (strings, typically hex).
 - **`VisualEmblem`** — `none`, `heraldry` with `Arms`, `merchant_mark` with `MerchantMark`, `pattern_lattice` with `PatternLattice`, or `disc_emblem` with `DiscEmblem`.
 - **`VisualIdentity`** — bundles emblem and optional colors/motto.
+
+## Storing an identity
+
+`StoredVisualIdentity` and `StoredVisualEmblem` (`visual_identity_snapshot.ts`) are an identity as
+it is stored, declared here since #56 (they lived in `$lib/settlements`). Every emblem kind but
+heraldry is already plain data and travels as it is; a coat of arms travels as `StoredArms`, by the
+names of its parts. Imagery is stored as parameters, never as a rendered SVG. `arms: null` marks a
+referenced coat of arms — a saved artifact rather than the identity's own — and
+`visual_identity_rehydrate.ts` reads it back as no emblem, leaving the caller that holds the
+reference to draw it.
