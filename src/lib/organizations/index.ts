@@ -15,3 +15,10 @@ export type * from './organization_types';
 export * from './science_fiction';
 
 export * as FantasyOrganizations from './fantasy';
+export * from './organization_artifact_kind';
+export * from './organization_editing';
+export * from './organization_emblem';
+export * from './organization_presentation';
+export * from './organization_rehydrate';
+export * from './organization_roll';
+export * from './organization_snapshot';

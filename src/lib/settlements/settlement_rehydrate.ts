@@ -12,48 +12,13 @@
  */
 
 import { characterFromStored } from '$lib/characters';
-import { armsFromStored } from '$lib/heraldry';
-import type { OrganizationHierarchy, Organization } from '$lib/organizations';
-import type { VisualIdentity } from '$lib/visual_identity';
+import { organizationFromStored } from '$lib/organizations';
 
-import type {
-  SettlementSnapshot,
-  StoredOrganization,
-  StoredOrganizationHierarchy,
-  StoredSettlementNotable,
-  StoredVisualIdentity,
-} from './settlement_snapshot.js';
+import type { SettlementSnapshot, StoredSettlementNotable } from './settlement_snapshot.js';
 import type { Settlement, SettlementImportantPerson } from './settlement_types.js';
 
 function notableFromStored(stored: StoredSettlementNotable): SettlementImportantPerson {
   return { ...stored, character: characterFromStored(stored.character) };
-}
-
-function hierarchyFromStored(stored: StoredOrganizationHierarchy): OrganizationHierarchy {
-  return {
-    childToParent: new Map(stored.childToParent),
-    idToOrder: new Map(stored.idToOrder),
-    roleById: new Map(stored.roleById),
-  };
-}
-
-function visualIdentityFromStored(stored: StoredVisualIdentity): VisualIdentity {
-  const { emblem } = stored;
-  return {
-    ...stored,
-    emblem:
-      emblem.kind === 'heraldry' ? { kind: 'heraldry', arms: armsFromStored(emblem.arms) } : emblem,
-  };
-}
-
-function organizationFromStored(stored: StoredOrganization): Organization {
-  return {
-    ...stored,
-    hierarchy: hierarchyFromStored(stored.hierarchy),
-    leader: characterFromStored(stored.leader),
-    notableMembers: stored.notableMembers.map(characterFromStored),
-    visualIdentity: visualIdentityFromStored(stored.visualIdentity),
-  };
 }
 
 /**

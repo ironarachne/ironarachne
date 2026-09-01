@@ -128,10 +128,11 @@ shared concept **once, in the library that owns the concept**, and every payload
 | `StoredNameGeneratorPatternSet`                     | `$lib/names`           | `NameGenerator` — closures                                             | culture, family, civilization, region, merchant                        |
 | `StoredVisualIdentity`, `StoredVisualEmblem`        | `$lib/visual_identity` | An emblem that may be heraldry                                         | organization, settlement, merchant                                     |
 
-Three of these already exist in the wrong place: `StoredCharacter`, `StoredArchetype`,
+Three of these already existed in the wrong place: `StoredCharacter`, `StoredArchetype`,
 `StoredOrganization`, `StoredOrganizationHierarchy`, `StoredVisualIdentity` and
-`StoredVisualEmblem` are all declared in `src/lib/settlements/settlement_snapshot.ts`, because a
-settlement was the first payload that needed them. Moving each to the library that owns the
+`StoredVisualEmblem` were all declared in `src/lib/settlements/settlement_snapshot.ts`, because a
+settlement was the first payload that needed them. #46 moved the character pair and #56 moved the
+other four; the settlement kind re-exports every one of them. Moving each to the library that owns the
 concept is the first work item of the pass, and
 [docs/fantasy-character.md](fantasy-character.md#storedcharacter-moves-to-libcharacters-and-the-settlement-payload-advances-to-version-2)
 already designs the character half of that move, including the settlement payload's advance to
