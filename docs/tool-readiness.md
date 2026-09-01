@@ -144,7 +144,8 @@ against one real version 1 payload, is the whole of it.
 
 `StoredCreature` is new: a `Creature` embeds a whole `Species`, exactly as a `Character` does, and
 the encounter and dungeon payloads both need it. It is the character treatment applied one type
-up the hierarchy — species by name, rebuilt on read, unknown names becoming a placeholder.
+up the hierarchy — species by name, rebuilt on read, unknown names becoming a placeholder. #54
+declared it, in `$lib/creatures`, and moved `placeholderSpecies` there from `$lib/characters`.
 
 ## Kind ids
 

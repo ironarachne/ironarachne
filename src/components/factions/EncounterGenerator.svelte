@@ -1,58 +1,90 @@
 <script lang="ts">
   import { RNG } from '@ironarachne/rng';
   import { onMount } from 'svelte';
-  import {
-    generateEncounter,
-    getAllFantasyEncounterTemplates,
-    type Encounter,
-  } from '$lib/encounters';
+  import * as Encounters from '$lib/encounters';
+  import type { Encounter, EncounterGeneratorConfigRecord } from '$lib/encounters';
+  import type { Creature } from '$lib/creatures';
+  import { downloadTextFile } from '$lib/download';
+  import { downloadTextPdf } from '$lib/pdf';
   import ArchetypeBadge from '$components/characters/ArchetypeBadge.svelte';
   import SpeciesBadge from '$components/characters/SpeciesBadge.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import CheckboxField from '$components/common/CheckboxField.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
-  import type { Character } from '$lib/characters';
-  import type { Creature } from '$lib/creatures';
 
-  let seed = $state(new RNG(Date.now().toString()).randomString(13));
-  let rng = $state(new RNG(seed));
-  let encounter = $state<null | Encounter>(null);
+  const TOOL_PATH = '/fantasy/encounter';
 
-  const encounterTemplates = getAllFantasyEncounterTemplates().sort((a, b) =>
-    a.name.localeCompare(b.name),
-  );
-  let selectedTemplateName = $state('any');
-
-  let forceUniformSpecies = $state(false);
-
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. The page used to build a whole new
+   * `RNG` from `Date.now()` on every press to take one string from it, and held a second RNG in
+   * `$state` that nothing read.
+   */
+  const rng = new RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
 
-  $effect(() => {
-    if (!lockSeed) {
-      rng.setSeed(seed);
-    }
+  const encounterTemplates = Encounters.getAllFantasyEncounterTemplates()
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name));
+  let selectedTemplateName = $state('any');
+  let forceUniformSpecies = $state(false);
+
+  /**
+   * The rolled encounter.
+   *
+   * `$state.raw`, and not as a preference. Deep-reactive `$state` wraps every object in the value
+   * in a Proxy, and `structuredClone` — what IndexedDB stores with — refuses a Proxy outright, so
+   * saving fails with `could not be cloned`. The same trap is written up in `$lib/workshop`'s
+   * README beside `saveToolArtifact`.
+   */
+  let encounter = $state.raw<Encounter | null>(null);
+
+  /** What the roll records about itself: the page's two controls, as provenance (3.6). */
+  const generatorConfig = $derived<EncounterGeneratorConfigRecord>({
+    ...(selectedTemplateName === 'any' ? {} : { templateName: selectedTemplateName }),
+    forceUniformSpecies,
   });
+
+  const encounterSnapshot = $derived(
+    encounter === null ? null : Encounters.toEncounterSnapshot(encounter),
+  );
+
+  const defaultArtifactName = $derived(
+    encounter === null ? '' : Encounters.encounterDisplayName(encounter),
+  );
 
   function generate() {
     if (!lockSeed) {
-      seed = new RNG(Date.now().toString()).randomString(13);
-      rng = new RNG(seed);
+      seed = rng.randomString(13);
     }
+    encounter = Encounters.rollEncounter(seed, generatorConfig);
+  }
 
-    let templatesToUse = encounterTemplates;
-    if (selectedTemplateName !== 'any') {
-      const selected = encounterTemplates.find((t) => t.name === selectedTemplateName);
-      if (selected) {
-        templatesToUse = [selected];
-      }
+  function exportMarkdown() {
+    if (encounter === null) {
+      return;
     }
+    downloadTextFile(
+      Encounters.encounterToMarkdown(encounter),
+      `${Encounters.encounterFileStem(encounter)}.md`,
+      'text/markdown',
+    );
+  }
 
-    encounter = generateEncounter(seed, {
-      possibleTemplates: templatesToUse,
-      forceUniformSpecies: forceUniformSpecies,
-    });
+  async function exportPdf() {
+    if (encounter === null) {
+      return;
+    }
+    await downloadTextPdf(
+      Encounters.encounterDisplayName(encounter),
+      Encounters.encounterToText(encounter),
+      `${Encounters.encounterFileStem(encounter)}.pdf`,
+    );
   }
 
   onMount(() => {
@@ -60,7 +92,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/fantasy/encounter" title="Encounter Generation">
+<GeneratorPage toolPath={TOOL_PATH} title="Encounter Generation">
   {#snippet description()}
     <p>This generator creates random encounters.</p>
   {/snippet}
@@ -85,7 +117,21 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
+  <SaveArtifactButton
+    kind={Encounters.ENCOUNTER_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={encounterSnapshot}
+    {seed}
+    config={generatorConfig}
+    defaultName={defaultArtifactName}
+  />
+
   {#if encounter}
+    <div class="encounter-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
+
     <!-- A result surface is a panel, not a box with a border on it: the two layers,
          and the keyline, corner and padding are the system's. It wrote its own
          border, radius and padding until #124. -->
@@ -96,24 +142,23 @@
         </div>
       </div>
 
-      {#each encounter.groups as group}
+      {#each encounter.groups as group, index}
         <div class="group-section">
-          <h3>{group.name}</h3>
+          <h3>{Encounters.encounterGroupHeading(group, index)}</h3>
           <ul>
             {#each group.mobs as mob}
-              {@const asChar = mob as unknown as Character}
-              {@const asCreature = mob as unknown as Creature}
-              {@const mobSpecies = asCreature.species}
+              {@const line = Encounters.describeEncounterMob(mob)}
+              <!-- `Mob` itself carries no species; every mob an encounter rolls is a `Creature`
+                   or a `Character`, and both do. -->
+              {@const species = (mob as Creature).species}
               <li class="mob-row">
-                <strong>{mob.name}</strong>
-                {#if mobSpecies}
-                  <SpeciesBadge speciesName={mobSpecies.name} size="sm" />
-                  {#if asChar.archetype}
-                    <ArchetypeBadge archetypeName={asChar.archetype.name} size="sm" />
-                    <span class="mob-meta">— {mobSpecies.name} {asChar.archetype.name}</span>
-                  {:else}
-                    <span class="mob-meta">— {mobSpecies.name}</span>
-                  {/if}
+                <strong>{line.name}</strong>
+                <SpeciesBadge speciesName={species.name} size="sm" />
+                {#if Encounters.isEncounterCharacter(mob) && mob.archetype}
+                  <ArchetypeBadge archetypeName={mob.archetype.name} size="sm" />
+                {/if}
+                {#if line.kind !== ''}
+                  <span class="mob-meta">— {line.kind}</span>
                 {/if}
               </li>
             {/each}
@@ -125,6 +170,12 @@
 </GeneratorPage>
 
 <style>
+  .encounter-exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
   /* The keyline, the corner, the padding and the fill are the panel's now — the fill was a
      40% mix of slate, which is a fourth surface level invented in one component. */
   .stat-block {

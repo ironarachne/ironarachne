@@ -22,6 +22,7 @@ describe('artifact kind catalog', () => {
       'character.uncharted-worlds',
       'velgarth-gifts',
       'arms-manufacturer',
+      'encounter',
     ]);
   });
 

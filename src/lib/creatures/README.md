@@ -41,3 +41,15 @@ const wolf = generate(seed, config);
 
 Size comes from the species' size matrix rather than from this library, so a generated creature's
 dimensions stay plausible for what it is.
+
+## Storing a creature
+
+`StoredCreature` (`creature_snapshot.ts`) is a creature with its species written as a name — the
+character treatment applied one type up the hierarchy, because a `Creature` embeds a whole
+`Species` exactly as a `Character` does and a species is a set of generator tables, not content.
+`toStoredCreature` writes one and `validateStoredCreature` checks one; `creature_rehydrate.ts`
+reads one back, resolving the name across every species this build has and falling back to
+`placeholderSpecies` for one it does not. `placeholderSpecies` moved here from `$lib/characters`
+with #54, since a placeholder species is a creature-level concept; `$lib/characters` re-exports it.
+
+The encounter payload (`$lib/encounters`) composes `StoredCreature`; the dungeon (#59) will.

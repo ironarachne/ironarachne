@@ -113,6 +113,7 @@ describe('TOOL_CATALOG', () => {
     const assessedHigher = [
       '/arms-manufacturer',
       '/character',
+      '/fantasy/encounter',
       '/culture',
       '/fantasy/dcc/character',
       '/fantasy/religion',
@@ -222,6 +223,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
       '/fantasy/dcc/character',
+      '/fantasy/encounter',
       '/fantasy/religion',
       '/fantasy/settlement',
       '/heraldry',
@@ -280,6 +282,7 @@ describe('filterTools', () => {
       '/heraldry',
       '/velgarth-gifts',
       '/culture',
+      '/fantasy/encounter',
       '/fantasy/religion',
       '/fantasy/settlement',
     ]);
