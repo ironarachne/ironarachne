@@ -113,6 +113,7 @@ describe('TOOL_CATALOG', () => {
     const assessedHigher = [
       '/arms-manufacturer',
       '/chop-shop',
+      '/fantasy/dungeon',
       '/star-nation',
       '/character',
       '/fantasy/encounter',
@@ -228,6 +229,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
       '/fantasy/dcc/character',
+      '/fantasy/dungeon',
       '/fantasy/encounter',
       '/fantasy/family',
       '/fantasy/organization',
@@ -294,6 +296,7 @@ describe('filterTools', () => {
       '/fantasy/family',
       '/fantasy/organization',
       '/fantasy/religion',
+      '/fantasy/dungeon',
       '/fantasy/settlement',
     ]);
   });

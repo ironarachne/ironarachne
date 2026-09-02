@@ -257,12 +257,23 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     maturity: 'release-ready',
     genres: ['cyberpunk'],
   }),
+  // Assessed release-ready under #59 against docs/workshop.md, section by section. 1: catalog
+  // entry, `TOOL_PANELS`, and its own route. 2: `dungeon_roll.ts` is the one path from a seed, and
+  // the environment step it now holds used to live in the component where a re-roll could not
+  // reach it; the plan is drawn on a 2D canvas and the room list below it is the dungeon, which is
+  // 2.5. 3: kind `dungeon`, payload the blueprint and never the drawing (decision 4 of
+  // docs/readiness-locations.md), provenance carrying the seed and all six controls. 4: a bespoke
+  // room-shaped editor; retheming relabels and never re-rolls. 5: a saved encounter can be placed
+  // at the foot of the stairs; `environment` has no kind yet, so that half does not bind. 6:
+  // mobile widths via the page manifest, a named canvas over a written-out room list, Markdown and
+  // PDF exports, empty sections dropped. 7: round-trip, migration and Playwright tests. 8: the
+  // library README documents the six kind modules beside its seven subsystems.
   defineTool({
     path: '/fantasy/dungeon',
     label: 'Dungeon',
     kind: 'generator',
     domain: 'locations',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['map'],
   }),

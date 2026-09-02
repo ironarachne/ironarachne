@@ -100,6 +100,14 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // made-up-names package, and through the star nation roll module the whole of
   // `$lib/astronomical_bodies`. The kind module holds metadata and validation only.
   '$lib/civilizations/star_nation_artifact_kind',
+  // The sixteenth. `$lib/dungeon`'s entry point reaches the dungeon generator, and from there the
+  // encounter generator, the treasure hoard tables and the species tables. The kind module holds
+  // metadata and validation only; its codec is a dynamic import, which is what keeps the
+  // rehydrator's reach into the archetype tables and the charge art out of the registry's chunk.
+  // Measured on the build, the way the entries above were: through this path the registry chunk
+  // and everything it statically imports is 130 KB across 16 chunks, and through the entry point
+  // it is 19.2 MB across 39 — the dungeon alone is the difference between those two figures.
+  '$lib/dungeon/dungeon_artifact_kind',
 ]);
 
 /**

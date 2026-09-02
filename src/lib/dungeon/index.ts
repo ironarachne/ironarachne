@@ -19,3 +19,10 @@ export * from './generator/types';
 export * from './generator/generator';
 
 export * from './render/classic_module_map';
+
+export * from './dungeon_artifact_kind';
+export * from './dungeon_editing';
+export * from './dungeon_presentation';
+export * from './dungeon_rehydrate';
+export * from './dungeon_roll';
+export * from './dungeon_snapshot';
