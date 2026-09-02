@@ -125,6 +125,42 @@ export is a renderer this domain has been asked for twice.
 **#61 is featured on the home page**, and one of only two featured tools that is not already
 Release-ready. A regression here is visible on the first screen a visitor sees.
 
+**As built (#61; #63 is still to come).** The kind, the payload and the deferred `star-system`
+reference landed as written. Four things did not.
+
+- **The editor is bespoke, not a `SnapshotFieldEditor` case.** This document said both would be
+  one, and a planet is not flat: its moons are a list of `AstronomicalBody` records and its
+  civilization is a nested record of three more. That is the same finding #52, #53 and #60 each
+  reported, and it is now four of the twelve tools
+  [decision 5](tool-readiness.md#5-flat-payloads-get-a-declared-field-editor-not-twenty-five-bespoke-components)
+  counted as customers. **The claim needs re-checking against the types before #63 plans around
+  it** — a star system is "a list of planets plus a name and a description", and a list of planets
+  is a list of records.
+- **2.5 was already met before this issue started.** The design says the previews are WebGL and a
+  machine that cannot run WebGL must still get the numbers. #135 built the Canvas2D backend and the
+  capability probe that reaches for it, so such a machine already got a picture, and the numbers
+  were never behind the renderer. Nothing was owed.
+- **#17's premise has expired, and its request was worth granting anyway.** It asks for SVG _as a
+  fallback_ "since the GLSL shader generation takes a reasonably powerful graphics card" — true
+  when it was written, and not since #135. What SVG is still good for is 6.3: a file a referee can
+  print at any size. So `renderSceneToSvg` is a **download and not a backend** —
+  `RendererBackend` is untouched and the decision machinery knows nothing about it. #16 is untouched
+  here: an orbital view of planets around a star is `/star-system`'s picture, so it belongs to #63.
+- **The first planet a visitor met was not the same kind of thing as the second.** `onMount` called
+  `generatePlanet` directly rather than going through the page's own `generate`, so the planet on
+  the home page's featured tool never had moons and was never inhabited, however the dice fell. It
+  goes through `rollPlanet` now, like every press.
+
+**One determinism defect, in the library.** `getDefaultMoonGenerationConfig` seeded itself from
+`Date.now()`, so every moon was clock-driven however carefully the page threaded its seed — the last
+of the four this library carried under
+[decision 1](tool-readiness.md#1-every-generator-in-the-pass-grows-a-_rollts-and-the-clock-leaves-it),
+and the one its README already claimed was fixed. Seven of the pass's fifteen are now done.
+
+**A note for whoever writes #63.** Both featured tools on the home page are Release-ready now, so
+`tool_maturity.spec.ts` no longer has a featured Experimental tool to assert a badge against; the
+spec says so where it used to name `/planet`.
+
 ## #62 — Region
 
 The most composed payload on the site. `Region` is `{ name, environment, description,

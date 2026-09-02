@@ -29,6 +29,27 @@ The render entry points return a base64 data URL and are synchronous. That is de
 recorded as decision 5 in the design document — capability detection needs the pipeline to be
 stateful, which is not the same as needing it to be asynchronous.
 
+## Writing a scene out as SVG
+
+`renderSceneToSvg(scene, title)` turns the same `AstronomicalScene` into a standalone SVG document.
+
+**It is not a third backend, and deliberately not one.** `RendererBackend` stays
+`'webgl' | 'canvas2d'` and the decision machinery knows nothing about it. A backend answers "how
+does this machine draw a preview", and that question already has an answer for every machine because
+Canvas2D needs no GPU. SVG answers a different one — "what can a user take away and print" — which
+is requirement 6.3 in `docs/workshop.md`, and a file is not a backend.
+
+That is also the honest reading of
+[#17](https://github.com/ironarachne/ironarachne/issues/17), which asked for SVG _as a fallback_
+"since the GLSL shader generation takes a reasonably powerful graphics card". True when it was
+written; not since #135 built the Canvas2D backend and the probe that reaches for it. What was still
+missing was a scalable image, which is what this writes.
+
+It reproduces the Canvas2D composition exactly — the two radial gradients, the band overlay, the
+terminator and the ring's two halves are each one SVG construct, and the ring geometry comes from
+the same two functions — and it ignores `quality`, because the tier is a raster budget and a vector
+file has no fragments to save.
+
 ## Choosing a backend, and a quality
 
 Two questions that look alike and are not:

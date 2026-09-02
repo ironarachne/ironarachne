@@ -19,7 +19,9 @@ import { visitRoute } from './helpers';
 const maturityBadge = (page: Page) => page.locator('.maturity__level');
 
 const TOOL_PAGES = [
-  { path: '/planet', title: 'Planet Generator | Iron Arachne', level: 'Experimental' },
+  // Was `/planet` until #61 took it to Release-ready. Any Experimental tool serves here; the drug
+  // generator is one with a stable title and no renderer to wait for.
+  { path: '/drug', title: 'Cyberpunk Drug Generator | Iron Arachne', level: 'Experimental' },
 ] as const;
 
 /** The release-ready tools, which must say nothing at all. */
@@ -45,6 +47,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/chop-shop', title: 'Chop Shop Generator | Iron Arachne' },
   { path: '/fantasy/dungeon', title: 'Dungeon Generator | Iron Arachne' },
   { path: '/environment', title: 'Environment Generator | Iron Arachne' },
+  { path: '/planet', title: 'Planet Generator | Iron Arachne', webgl: true },
   { path: '/fantasy/encounter', title: 'Encounter | Iron Arachne' },
   { path: '/fantasy/family', title: 'Fantasy Family Generator | Iron Arachne' },
   { path: '/fantasy/organization', title: 'Organization Generator | Iron Arachne' },
@@ -62,15 +65,16 @@ const SILENT_TOOL_PAGES = [
 
 for (const { path, title, level } of TOOL_PAGES) {
   test(`maturity: ${path} shows ${level}`, async ({ page }) => {
-    await visitRoute(page, path, { title, webgl: path === '/planet' });
+    await visitRoute(page, path, { title });
 
     await expect(maturityBadge(page).first()).toHaveText(level);
   });
 }
 
-for (const { path, title } of SILENT_TOOL_PAGES) {
+for (const entry of SILENT_TOOL_PAGES) {
+  const { path, title } = entry;
   test(`maturity: ${path} shows no badge`, async ({ page }) => {
-    await visitRoute(page, path, { title });
+    await visitRoute(page, path, { title, webgl: 'webgl' in entry && entry.webgl === true });
 
     await expect(maturityBadge(page)).toHaveCount(0);
     // The paragraph that wrapped it goes too, not just its contents: an empty `<p>` keeps its
@@ -80,7 +84,7 @@ for (const { path, title } of SILENT_TOOL_PAGES) {
 }
 
 test('maturity: a tool page says what its level promises', async ({ page }) => {
-  await visitRoute(page, '/planet', { title: 'Planet Generator | Iron Arachne', webgl: true });
+  await visitRoute(page, '/drug', { title: 'Cyberpunk Drug Generator | Iron Arachne' });
 
   // The sentence, not just the pill: "Experimental" means nothing to a visitor who has not read
   // the design document, and the point is that they can decide before they invest work.
@@ -91,11 +95,14 @@ test('maturity: the home page does not advertise release-ready either', async ({
   await visitRoute(page, '/');
 
   // Culture is featured *and* release-ready, which is the one place outside the workshop the level
-  // used to reach. Planet is featured and experimental, so the list still marks what it should.
+  // used to reach. Both featured tools are release-ready since #61 took planet there, so the list
+  // shows no level at all — which is the rule holding rather than the check going quiet: a badge
+  // appearing here would be a regression whichever level it named.
   const featured = page.locator('.home__featured');
   await expect(featured.getByRole('link', { name: 'Culture' })).toBeVisible();
+  await expect(featured.getByRole('link', { name: 'Planet' })).toBeVisible();
   await expect(featured).not.toContainText('Release-ready');
-  await expect(featured).toContainText('Experimental');
+  await expect(featured.locator('.maturity__level')).toHaveCount(0);
 });
 
 test('maturity: the tool browser marks every tool that has something to warn about', async ({
@@ -150,5 +157,10 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   await expect(browser.getByRole('button', { name: /^Fantasy Organization/ })).not.toContainText(
     'Experimental',
   );
-  await expect(browser.getByRole('button', { name: /^Planet/ })).toContainText('Experimental');
+  // Planet was the still-marked case until #61 took it to Release-ready. The drug generator is
+  // Experimental and mountable, so it holds that end of the assertion now.
+  await expect(browser.getByRole('button', { name: /^Planet/ })).not.toContainText('Experimental');
+  await expect(browser.getByRole('button', { name: /^Cyberpunk Drug/ })).toContainText(
+    'Experimental',
+  );
 });

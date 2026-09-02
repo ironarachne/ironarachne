@@ -32,6 +32,7 @@ import { dungeonArtifactKind } from '$lib/dungeon/dungeon_artifact_kind';
 // library is tables of numbers and five small sub-generators, so the registry chunk is the same
 // 136.1 KB across 17 chunks either way. See the note in `library_imports.test.ts`.
 import { environmentArtifactKind } from '$lib/environment';
+import { planetArtifactKind } from '$lib/astronomical_bodies/planet_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -68,6 +69,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, chopShopArtifactKind);
   registerArtifactKind(registry, dungeonArtifactKind);
   registerArtifactKind(registry, environmentArtifactKind);
+  registerArtifactKind(registry, planetArtifactKind);
   return registry;
 }
 

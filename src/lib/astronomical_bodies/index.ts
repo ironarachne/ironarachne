@@ -6,3 +6,9 @@ export * from './planet/planet_classifications';
 export * from './planet/planets';
 export * from './star/star_classifications';
 export * from './star/stars';
+
+export * from './planet_artifact_kind';
+export * from './planet_editing';
+export * from './planet_presentation';
+export * from './planet_roll';
+export * from './planet_snapshot';
