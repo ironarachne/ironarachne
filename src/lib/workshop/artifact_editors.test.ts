@@ -149,6 +149,31 @@ describe('the artifact editor registry', () => {
     expect(rolled.kindId).toBe('noble_house');
   });
 
+  /**
+   * Every editor's loader resolves to a component. The specifiers are written out in full for
+   * the bundler's sake, which is also how one can be mistyped without anything noticing until a
+   * user opens that kind — this is the one place they are all followed.
+   */
+  it('loads a component for every registered editor', async () => {
+    for (const kind of kindsWithArtifactEditors()) {
+      const loaded = await artifactEditorEntry(kind)!.loadEditor!();
+
+      expect(loaded.default, kind).toBeDefined();
+    }
+  });
+
+  it('rolls a star nation from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('star-nation')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/star-nation',
+      seed: 'registry-seed',
+      config: { planetCount: 4 },
+    }) as { name: string; homeSystem: { planets: unknown[] } };
+
+    expect(rolled.name).not.toBe('');
+    expect(rolled.homeSystem.planets).toHaveLength(4);
+  });
+
   it('rolls a family from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('family')!.loadRoller!();
     const rolled = roll({

@@ -221,12 +221,21 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['worldbuilding'],
   }),
+  // Assessed release-ready under #57 against docs/workshop.md, section by section. 1: catalog
+  // entry, `TOOL_PANELS`, and its own route. 2: one roll module (`star_nation_roll.ts`) that the
+  // page and a re-roll both take, with the four config helpers it calls no longer seeding from
+  // the clock. 3: kind `star-nation` with a versioned, validated payload, provenance carrying the
+  // seed and the planet count, and `SaveArtifactButton` on the route. 4: an editor over every
+  // printed field, the description kept as the user's, re-roll destructive. 5: the home system is
+  // embedded because no `star-system` kind exists yet. 6: mobile widths via the page manifest,
+  // named controls, Markdown and PDF exports, empty sentences dropped. 7: round-trip, migration
+  // and Playwright tests. 8: README and entry point. #11's reframing is additive when it lands.
   defineTool({
     path: '/star-nation',
     label: 'Star Nation',
     kind: 'generator',
     domain: 'factions',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['scifi'],
     tags: ['organization', 'worldbuilding'],
   }),

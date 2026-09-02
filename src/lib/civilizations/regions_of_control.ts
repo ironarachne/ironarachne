@@ -50,13 +50,16 @@ export function generateRegionOfControl(config: RegionOfControlGenerationConfig)
   return region_of_control;
 }
 
-export function getDefaultRegionOfControlGenerationConfig(): RegionOfControlGenerationConfig {
+/** The RNG is required, not defaulted from the clock — see `getDefaultCivilizationGenerationConfig`. */
+export function getDefaultRegionOfControlGenerationConfig(
+  rng: RNG.RNG,
+): RegionOfControlGenerationConfig {
   return {
     region_types: getRegionTypes(),
     population_density_range: [0.5, 0.6],
     controlling_civilization: '',
     technology_level: 0,
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }
 

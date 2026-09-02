@@ -17,12 +17,12 @@ function configFor(seed: string, overrides: Record<string, unknown> = {}) {
 
 describe('getDefaultStarSystemGeneratorConfig', () => {
   it('defaults to a single star', () => {
-    expect(getDefaultStarSystemGeneratorConfig().star_count).toBe(1);
+    expect(getDefaultStarSystemGeneratorConfig(new RNG('default')).star_count).toBe(1);
   });
 
   it('defaults to between one and twelve planets', () => {
     for (let index = 0; index < 20; index++) {
-      const config = getDefaultStarSystemGeneratorConfig();
+      const config = getDefaultStarSystemGeneratorConfig(new RNG(`count-${index}`));
 
       expect(config.planet_count).toBeGreaterThanOrEqual(1);
       expect(config.planet_count).toBeLessThanOrEqual(12);
@@ -30,14 +30,19 @@ describe('getDefaultStarSystemGeneratorConfig', () => {
   });
 
   it('offers the full star and planet classification tables', () => {
-    const config = getDefaultStarSystemGeneratorConfig();
+    const config = getDefaultStarSystemGeneratorConfig(new RNG('tables'));
 
     expect(config.star_classifications).toHaveLength(getStarClassifications().length);
     expect(config.planet_classifications).toHaveLength(getPlanetClassifications().length);
   });
 
-  it('supplies an RNG', () => {
-    expect(getDefaultStarSystemGeneratorConfig().rng).toBeInstanceOf(RNG);
+  it('carries the RNG it was handed, and draws the planet count from it', () => {
+    const rng = new RNG('carried');
+
+    expect(getDefaultStarSystemGeneratorConfig(rng).rng).toBe(rng);
+    expect(getDefaultStarSystemGeneratorConfig(new RNG('same')).planet_count).toBe(
+      getDefaultStarSystemGeneratorConfig(new RNG('same')).planet_count,
+    );
   });
 });
 

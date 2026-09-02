@@ -41,6 +41,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/heraldry', title: 'Heraldry Generator | Iron Arachne' },
   { path: '/velgarth-gifts', title: 'Velgarth Gifts Generator | Iron Arachne' },
   { path: '/arms-manufacturer', title: 'Arms Manufacturer Generator | Iron Arachne' },
+  { path: '/star-nation', title: 'Star Nation Generator | Iron Arachne' },
   { path: '/fantasy/encounter', title: 'Encounter | Iron Arachne' },
   { path: '/fantasy/family', title: 'Fantasy Family Generator | Iron Arachne' },
   { path: '/fantasy/organization', title: 'Organization Generator | Iron Arachne' },

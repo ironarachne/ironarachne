@@ -27,23 +27,24 @@ export type StarSystemGenerationConfig = {
   rng: RNG.RNG;
 };
 
-export function getDefaultStarSystemGeneratorConfig(): StarSystemGenerationConfig {
-  const rng = new RNG.RNG(Date.now().toString());
-
+/**
+ * The RNG is required, not defaulted from the clock — see `getDefaultStarGeneratorConfig`. The
+ * planet count is drawn from it here, so two configs built from RNGs at the same state agree.
+ */
+export function getDefaultStarSystemGeneratorConfig(rng: RNG.RNG): StarSystemGenerationConfig {
   return {
     star_count: 1,
-    planet_count: Math.round(rng.bellFloat(1, 12)),
+    planet_count: Math.max(1, Math.round(rng.bellFloat(1, 12))),
     star_classifications: getStarClassifications(),
     planet_classifications: getPlanetClassifications(),
-    rng: rng,
+    rng,
   };
 }
 
 export function generateStarSystem(config: StarSystemGenerationConfig): StarSystem {
   const stars = [];
-  const star_config = getDefaultStarGeneratorConfig();
+  const star_config = getDefaultStarGeneratorConfig(config.rng);
   star_config.star_classifications = config.star_classifications;
-  star_config.rng = config.rng;
 
   for (let i = 0; i < config.star_count; i++) {
     const star = generateStar(star_config);
@@ -56,8 +57,7 @@ export function generateStarSystem(config: StarSystemGenerationConfig): StarSyst
   }
 
   const planets = [];
-  const planet_config = getDefaultPlanetGenerationConfig();
-  planet_config.rng = config.rng;
+  const planet_config = getDefaultPlanetGenerationConfig(config.rng);
   planet_config.possible_classifications = config.planet_classifications;
 
   for (let i = 0; i < config.planet_count; i++) {

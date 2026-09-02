@@ -4,8 +4,7 @@ import { generatePlanet, getDefaultPlanetGenerationConfig } from './planets';
 import { getPlanetClassificationByName, getPlanetClassifications } from './planet_classifications';
 
 function generate(seed: string) {
-  const config = getDefaultPlanetGenerationConfig();
-  config.rng = new RNG(seed);
+  const config = getDefaultPlanetGenerationConfig(new RNG(seed));
   return generatePlanet(config);
 }
 
@@ -15,25 +14,26 @@ function classificationOf(planet: { classification: string }) {
 
 describe('getDefaultPlanetGenerationConfig', () => {
   it('offers the full classification table', () => {
-    expect(getDefaultPlanetGenerationConfig().possible_classifications).toHaveLength(
-      getPlanetClassifications().length,
-    );
+    expect(
+      getDefaultPlanetGenerationConfig(new RNG('default')).possible_classifications,
+    ).toHaveLength(getPlanetClassifications().length);
   });
 
   it('defaults the star temperature to the Sun', () => {
-    expect(getDefaultPlanetGenerationConfig().star_temperature).toBe(5773);
+    expect(getDefaultPlanetGenerationConfig(new RNG('default')).star_temperature).toBe(5773);
   });
 
   it('defaults the rings, starport and habitable chances', () => {
-    const config = getDefaultPlanetGenerationConfig();
+    const config = getDefaultPlanetGenerationConfig(new RNG('default'));
 
     expect(config.rings_chance).toBe(5);
     expect(config.starport_chance).toBe(85);
     expect(config.habitable_chance).toBe(60);
   });
 
-  it('supplies an RNG', () => {
-    expect(getDefaultPlanetGenerationConfig().rng).toBeInstanceOf(RNG);
+  it('carries the RNG it was handed', () => {
+    const rng = new RNG('carried');
+    expect(getDefaultPlanetGenerationConfig(rng).rng).toBe(rng);
   });
 });
 
@@ -185,8 +185,7 @@ describe('generatePlanet', () => {
 
   it('never gives rings when the chance is zero', () => {
     for (let index = 0; index < 20; index++) {
-      const config = getDefaultPlanetGenerationConfig();
-      config.rng = new RNG(`norings-${index}`);
+      const config = getDefaultPlanetGenerationConfig(new RNG(`norings-${index}`));
       config.rings_chance = 0;
 
       expect(generatePlanet(config).has_ring_system).toBe(false);
@@ -195,8 +194,7 @@ describe('generatePlanet', () => {
 
   it('always gives rings when the chance is certain', () => {
     for (let index = 0; index < 20; index++) {
-      const config = getDefaultPlanetGenerationConfig();
-      config.rng = new RNG(`rings-${index}`);
+      const config = getDefaultPlanetGenerationConfig(new RNG(`rings-${index}`));
       config.rings_chance = 101;
 
       expect(generatePlanet(config).has_ring_system).toBe(true);
@@ -204,21 +202,18 @@ describe('generatePlanet', () => {
   });
 
   it('honours a config narrowed to a single classification', () => {
-    const config = getDefaultPlanetGenerationConfig();
-    config.rng = new RNG('narrow');
+    const config = getDefaultPlanetGenerationConfig(new RNG('narrow'));
     config.possible_classifications = [getPlanetClassificationByName('arid')];
 
     expect(generatePlanet(config).classification).toBe('arid planet');
   });
 
   it('makes a planet hotter around a hotter star', () => {
-    const cool = getDefaultPlanetGenerationConfig();
-    cool.rng = new RNG('temperature');
+    const cool = getDefaultPlanetGenerationConfig(new RNG('temperature'));
     cool.star_temperature = 3000;
     cool.possible_classifications = [getPlanetClassificationByName('arid')];
 
-    const hot = getDefaultPlanetGenerationConfig();
-    hot.rng = new RNG('temperature');
+    const hot = getDefaultPlanetGenerationConfig(new RNG('temperature'));
     hot.star_temperature = 30000;
     hot.possible_classifications = [getPlanetClassificationByName('arid')];
 

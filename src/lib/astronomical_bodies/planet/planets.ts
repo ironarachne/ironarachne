@@ -79,13 +79,14 @@ export function generatePlanet(config: PlanetGenerationConfig): AstronomicalBody
   };
 }
 
-export function getDefaultPlanetGenerationConfig(): PlanetGenerationConfig {
+/** The RNG is required, not defaulted from the clock — see `getDefaultStarGeneratorConfig`. */
+export function getDefaultPlanetGenerationConfig(rng: RNG.RNG): PlanetGenerationConfig {
   return {
     possible_classifications: getPlanetClassifications(),
     rings_chance: 5,
     starport_chance: 85,
     star_temperature: 5773, // default to the Sun's temperature
     habitable_chance: 60,
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }
