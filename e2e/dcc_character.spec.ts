@@ -122,17 +122,32 @@ test.describe('a DCC zero-level character', () => {
 
     const panel = await openInWorkshop(page, 'Bess Tanner');
     const fortitude = panel.getByRole('spinbutton', { name: 'Fortitude save' });
-    await fortitude.fill('7');
-    await expect(fortitude).toHaveValue('7');
+
+    // The rule the button applies is `fortitudeSave = baseSave + stamina modifier`, and `baseSave`
+    // is not a constant: the "saving throws" birth augur adds the luck modifier to it. So the
+    // expected value is read from the sheet rather than written down. This test used to set the
+    // save to 7 and assert it was no longer 7 afterwards, which failed on any character whose
+    // augur made `baseSave + 4` come to exactly 7 — roughly one seed in forty, and it rolls an
+    // unpinned character every run.
+    const baseSave = Number(
+      await panel.getByRole('spinbutton', { name: 'Base save', exact: true }).inputValue(),
+    );
+    // 18 is a +4 modifier: `Math.floor((18 - 10) / 2)`.
+    const expected = String(baseSave + 4);
+
+    // A sentinel no derivation can produce, so "unmoved" below means unmoved rather than coincided.
+    await fortitude.fill('99');
+    await expect(fortitude).toHaveValue('99');
 
     await panel.getByRole('spinbutton', { name: 'stamina score' }).fill('18');
     // Unmoved: changing the score did not touch the save.
-    await expect(fortitude).toHaveValue('7');
+    await expect(fortitude).toHaveValue('99');
 
     await panel
       .getByRole('button', { name: 'Recalculate modifiers and saves from the scores' })
       .click();
-    await expect(fortitude).not.toHaveValue('7');
+    // The arithmetic itself, not merely that something changed.
+    await expect(fortitude).toHaveValue(expected);
   });
 
   test('reproduces the same character from the same seed', async ({ page }) => {
