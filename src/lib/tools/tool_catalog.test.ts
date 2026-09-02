@@ -112,6 +112,7 @@ describe('TOOL_CATALOG', () => {
     // effect of editing a catalog entry for some other reason.
     const assessedHigher = [
       '/arms-manufacturer',
+      '/chop-shop',
       '/star-nation',
       '/character',
       '/fantasy/encounter',
@@ -222,6 +223,7 @@ describe('toolsWithMaturity', () => {
     expect(releaseReady.map((tool) => tool.path).sort()).toEqual([
       '/arms-manufacturer',
       '/character',
+      '/chop-shop',
       '/culture',
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',

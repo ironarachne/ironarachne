@@ -50,6 +50,16 @@ problem rather than an oversight.
 **One of two cyberpunk tools** on the site, with `/drug`. A cyberpunk project sees a very short tool
 list, which is a fact about the catalog rather than a bug in this tool.
 
+**As built.** Everything above landed as written, with one output change: the back-room sentence
+carried a doubled space between its tool and technician clauses, which the browser collapsed and a
+Markdown export did not, so the two read differently. The generator now joins them with one. The
+library is now `chop_shop_types.ts` (the one
+type), `chop_shop_generation.ts` (the phrase tables, with `generate` kept and `generateChopShop`
+wrapping it), and the five kind modules the pass prescribes. The kind's `nameOf` answers "Chop
+Shop" for every payload, because a paragraph has no name of its own and the user names the artifact
+on save. 5.1 does not bind and no input was invented for it; when a settlement kind is something a
+cyberpunk project can hold, a `SavedArtifactPicker` here is where the reference goes.
+
 ## #61 — Planet and #63 — Star system
 
 One library backs both — `$lib/astronomical_bodies` — and their payloads are the same plain shape,

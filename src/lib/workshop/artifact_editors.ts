@@ -169,6 +169,14 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollStarNationSnapshot(provenance.seed, readStarNationGeneratorConfig(provenance.config));
     },
   },
+  'chop-shop': {
+    loadEditor: () => import('$components/locations/ChopShopArtifactEditor.svelte'),
+    /** The seed and nothing else: the page has one control, and the paragraph is the whole roll. */
+    loadRoller: async () => {
+      const { rollChopShopSnapshot } = await import('$lib/chopshop/chop_shop_roll.js');
+      return (provenance) => rollChopShopSnapshot(provenance.seed);
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**
