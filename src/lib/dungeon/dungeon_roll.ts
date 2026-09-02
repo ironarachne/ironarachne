@@ -132,9 +132,8 @@ export function readDungeonGeneratorConfig(
  * thing that makes the biome control do anything.
  */
 export function buildDungeonEnvironment(seed: string, biomeName: string): Environment {
-  const config = getDefaultEnvironmentConfig();
   const rng = new RNG(`${seed}-env`);
-  config.rng = rng;
+  const config = getDefaultEnvironmentConfig(rng);
   config.latitude = rng.float(-70, 70);
   config.elevation = rng.float(0.1, 0.8);
   config.waterDirection = [rng.float(-20, 20), rng.float(-20, 20), 0];

@@ -186,7 +186,13 @@ export function getClimateTypes(): ClimateType[] {
   ];
 }
 
-export function getDefaultConfig(): ClimateGeneratorConfig {
+/**
+ * The default climate settings, with the RNG the caller is generating from.
+ *
+ * Required rather than clock-defaulted, per decision 1 of docs/tool-readiness.md; see
+ * `biomes.ts` for the whole of the reasoning.
+ */
+export function getDefaultConfig(rng: RNG.RNG): ClimateGeneratorConfig {
   return {
     elevation: 0.5,
     latitude: 0,
@@ -195,7 +201,7 @@ export function getDefaultConfig(): ClimateGeneratorConfig {
     current: [0, 0, 0], // current is not present
     temperatureAtEquator: 35,
     terrainNormalVector: [0, 0, 0], // flat terrain
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }
 

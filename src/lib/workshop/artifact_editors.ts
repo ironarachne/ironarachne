@@ -187,6 +187,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollDungeonSnapshot(provenance.seed, readDungeonGeneratorConfig(provenance.config));
     },
   },
+  environment: {
+    loadEditor: () => import('$components/locations/EnvironmentArtifactEditor.svelte'),
+    /** The page's eleven number fields, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readEnvironmentGeneratorConfig, rollEnvironmentSnapshot } =
+        await import('$lib/environment/environment_roll.js');
+      return (provenance) =>
+        rollEnvironmentSnapshot(provenance.seed, readEnvironmentGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

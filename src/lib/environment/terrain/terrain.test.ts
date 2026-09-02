@@ -6,14 +6,14 @@ import type { TerrainGeneratorConfig } from './terrain_types';
 describe('Terrain Generator', () => {
   it('should generate a terrain deterministically given a seed', () => {
     const config1: TerrainGeneratorConfig = {
-      ...getDefaultConfig(),
+      ...getDefaultConfig(new RNG('base-seed')),
       rng: new RNG('test-seed-1'),
     };
 
     const terrain1 = generate(config1);
 
     const config2: TerrainGeneratorConfig = {
-      ...getDefaultConfig(),
+      ...getDefaultConfig(new RNG('base-seed')),
       rng: new RNG('test-seed-1'),
     };
 
@@ -24,7 +24,7 @@ describe('Terrain Generator', () => {
 
   it('should assign valid geology materials to a generated terrain', () => {
     const config: TerrainGeneratorConfig = {
-      ...getDefaultConfig(),
+      ...getDefaultConfig(new RNG('base-seed')),
       rng: new RNG('geology-seed'),
     };
 

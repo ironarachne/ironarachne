@@ -28,6 +28,7 @@ describe('artifact kind catalog', () => {
       'star-nation',
       'chop-shop',
       'dungeon',
+      'environment',
     ]);
   });
 

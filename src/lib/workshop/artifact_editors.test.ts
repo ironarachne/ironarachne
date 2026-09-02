@@ -186,6 +186,22 @@ describe('the artifact editor registry', () => {
     expect(rolled.theme.blueprint.name).toBe('Tomb');
   });
 
+  it('rolls an environment from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('environment')!.loadRoller!();
+    const provenance = {
+      toolPath: '/environment' as const,
+      seed: 'registry-seed',
+      config: { latitude: 82 },
+    };
+    const rolled = roll(provenance) as { climate: { name: string }; description: string };
+
+    expect(rolled.description).not.toBe('');
+    // The recorded latitude is honoured rather than redrawn, which is the whole claim provenance
+    // makes about a re-roll: a polar latitude cannot produce a tropical climate.
+    expect(rolled.climate.name).not.toBe('tropical');
+    expect(rolled).toEqual(roll(provenance));
+  });
+
   it('rolls a star nation from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('star-nation')!.loadRoller!();
     const rolled = roll({

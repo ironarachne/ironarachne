@@ -47,7 +47,13 @@ export function generate(config: TerrainGeneratorConfig): Terrain {
   return result;
 }
 
-export function getDefaultConfig(): TerrainGeneratorConfig {
+/**
+ * The default terrain settings, with the RNG the caller is generating from.
+ *
+ * Required rather than clock-defaulted, per decision 1 of docs/tool-readiness.md; see
+ * `biomes.ts` for the whole of the reasoning.
+ */
+export function getDefaultConfig(rng: RNG): TerrainGeneratorConfig {
   return {
     elevationMin: 0,
     elevationMax: 1.0,
@@ -56,7 +62,7 @@ export function getDefaultConfig(): TerrainGeneratorConfig {
     normalVector: [0, 0, 0],
     erosionIterations: 3,
     erosionStrength: 2,
-    rng: new RNG(Date.now().toString()),
+    rng,
   };
 }
 

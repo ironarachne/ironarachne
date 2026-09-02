@@ -28,6 +28,10 @@ import { encounterArtifactKind } from '$lib/encounters/encounter_artifact_kind';
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
 import { dccCharacterArtifactKind } from '$lib/dcc/dcc_character_artifact_kind';
 import { dungeonArtifactKind } from '$lib/dungeon/dungeon_artifact_kind';
+// Through the entry point, unlike most of its neighbours, and measured rather than assumed: this
+// library is tables of numbers and five small sub-generators, so the registry chunk is the same
+// 136.1 KB across 17 chunks either way. See the note in `library_imports.test.ts`.
+import { environmentArtifactKind } from '$lib/environment';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -63,6 +67,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, starNationArtifactKind);
   registerArtifactKind(registry, chopShopArtifactKind);
   registerArtifactKind(registry, dungeonArtifactKind);
+  registerArtifactKind(registry, environmentArtifactKind);
   return registry;
 }
 

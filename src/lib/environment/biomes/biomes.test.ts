@@ -10,7 +10,7 @@ import { RNG } from '@ironarachne/rng';
 
 describe('biomes generator', () => {
   it('generates a biome successfully using default config', () => {
-    const config = getDefaultConfig();
+    const config = getDefaultConfig(new RNG('default-config-seed'));
     const biome = generate(config);
 
     expect(biome).toBeDefined();
@@ -20,7 +20,7 @@ describe('biomes generator', () => {
   });
 
   it('generates a terrestrial biome when isAquatic is false', () => {
-    const config = getDefaultConfig();
+    const config = getDefaultConfig(new RNG('base-seed'));
     config.isAquatic = false;
     config.temperatureMin = 25;
     config.temperatureMax = 40;
@@ -33,7 +33,7 @@ describe('biomes generator', () => {
   });
 
   it('generates an aquatic biome when isAquatic is true', () => {
-    const config = getDefaultConfig();
+    const config = getDefaultConfig(new RNG('base-seed'));
     config.isAquatic = true;
     config.temperatureMin = 25;
     config.temperatureMax = 35;

@@ -9,8 +9,7 @@ import Hamlet from './categories/hamlet';
 import type { SettlementEconomicRole } from './settlement_types';
 
 function sampleEnvironment(seed: string) {
-  const cfg = Environments.getDefaultConfig();
-  cfg.rng = new RNG(seed);
+  const cfg = Environments.getDefaultConfig(new RNG(seed));
   return Environments.generate(cfg);
 }
 
@@ -84,8 +83,7 @@ describe('generate', () => {
 
   it('adds trade, problems, orgs, and notables when enrichment is set', () => {
     const rng = new RNG('enrich-seed-aa');
-    const environmentConfig = Environments.getDefaultConfig();
-    environmentConfig.rng = rng;
+    const environmentConfig = Environments.getDefaultConfig(rng);
     const environment = Environments.generate(environmentConfig);
     const simpleNameGen = { generate: (_n: number) => [rng.randomString(8)] } as NameGenerator;
     const s = Settlements.generate({

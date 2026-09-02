@@ -100,6 +100,12 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // made-up-names package, and through the star nation roll module the whole of
   // `$lib/astronomical_bodies`. The kind module holds metadata and validation only.
   '$lib/civilizations/star_nation_artifact_kind',
+  // There is deliberately no entry for `$lib/environment`. Its kind module was written to sit here
+  // beside the other sixteen and the measurement said not to: through `$lib/environment`'s entry
+  // point the registry chunk is 136.1 KB across 17 chunks, and through the kind module it is
+  // 136.1 KB across 17 — the same, because the environment library is tables of numbers and five
+  // small sub-generators, with no generator reaching a species list or an image. It is the first
+  // kind in the readiness pass that did not need an exception, which is what this list is for.
   // The sixteenth. `$lib/dungeon`'s entry point reaches the dungeon generator, and from there the
   // encounter generator, the treasure hoard tables and the species tables. The kind module holds
   // metadata and validation only; its codec is a dynamic import, which is what keeps the

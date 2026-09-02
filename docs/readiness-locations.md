@@ -31,6 +31,41 @@ strings, numbers and number arrays. No closures, no `Map`s, no imagery.
   encounter and dungeon generators both reference it, and a genre-neutral kind is one every project
   can use.
 
+**As built.** The kind, the payload and the genre-neutrality landed as written. Three things did
+not.
+
+- **The editor is bespoke, not a `SnapshotFieldEditor` case.** This document said it would be one,
+  and the payload turned out not to be flat: an environment is four nested records, two of which
+  hold lists of strings and one of which holds a list of _season_ records. The descriptor language
+  in [decision 5](tool-readiness.md#5-flat-payloads-get-a-declared-field-editor-not-twenty-five-bespoke-components)
+  addresses `field: string` — a key on the snapshot — so it cannot reach `terrain.elevationMin`,
+  and none of its four controls says "repeat these three fields per row". That decision's own guard
+  is what applies. **`SnapshotFieldEditor` is still unbuilt, and this is the third tool to decline
+  to build it** after #52 and #53, each for the same reason: the payload was not as flat as the
+  design assumed. The remaining candidates on that list are worth re-checking against their actual
+  types before the next tool plans around it.
+- **The five clock-defaulting `getDefault*Config` helpers are gone**, which is
+  [decision 1](tool-readiness.md#1-every-generator-in-the-pass-grows-a-_rollts-and-the-clock-leaves-it)
+  reaching the library rather than the page. Every caller already overwrote the RNG on the next
+  line, so the clock never reached a generated environment; what the default did was make the
+  helper look like a source of randomness a caller could forget about. It is a required parameter
+  in all five now, and `$lib/dungeon`, `$lib/regions`, `$lib/settlements` and
+  `scripts/render_dungeon.ts` each lost the assignment line that followed the call.
+- **The kind needed no deep-import exception, and it is the first in the pass that did not.** The
+  module was written to sit in `ALLOWED_DEEP_IMPORTS` beside the other sixteen and the measurement
+  said not to: the registry chunk is 136.1 KB across 17 chunks whether the kind is imported through
+  `$lib/environment` or past it. This library is tables of numbers and five small sub-generators,
+  with no generator reaching a species list or an image.
+
+**Two defects found while assessing rather than building.** The wind arrow was fetched with
+`document.getElementById('windArrow')`, which finds the first element with that id on the page — so
+two of this tool mounted at once, which the workshop can do, would have drawn both arrows onto one
+canvas and left the other blank. That is 2.1, and it is now `bind:this`. And the page rendered its
+output as a debugging readout — raw floats for humidity, a bare `[0.4, -0.2, 0]` for the wind, and
+the environment's own generated description not shown at all. It renders the presentation document
+now, the same one the exports write, so what a referee reads on screen and what they take away
+cannot drift.
+
 ## #58 — Cyberpunk chop shop
 
 `src/lib/chopshop/index.ts` is a single file whose `generate(rng)` returns **a string** — a

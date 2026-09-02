@@ -146,8 +146,7 @@ function populateRegionInhabitants(
   latitude: number,
   nameGenSet: Names.NameGeneratorSet,
 ): void {
-  const environmentConfig = Environments.getDefaultConfig();
-  environmentConfig.rng = config.rng;
+  const environmentConfig = Environments.getDefaultConfig(config.rng);
   environmentConfig.latitude = latitude;
 
   // Here we would typically derive climate/biome mathematically from map majority
