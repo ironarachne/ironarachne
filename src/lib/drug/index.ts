@@ -8,3 +8,9 @@ export * as drugTypes from './drug_types';
 export * as effectTypes from './effect_types';
 
 export * as Drugs from './drugs';
+
+export * from './drug_artifact_kind';
+export * from './drug_editing';
+export * from './drug_presentation';
+export * from './drug_roll';
+export * from './drug_snapshot';

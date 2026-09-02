@@ -117,6 +117,41 @@ The issue calls this a good tool to run the whole spec against early, to find th
 of the process rather than of the tool. [Wave 1](tool-readiness.md#the-order-of-the-work) agrees,
 and pairs it with the arms manufacturer for exactly that purpose.
 
+**As built.** The kind and the payload landed as designed. Three corrections, and the first is to
+this document.
+
+- **`EffectType` carries no closure.** This section says it does — "`EffectType` carries a
+  `generate` closure in the effect tables (`src/lib/drug/drugs.ts`)" — and that is the reason it
+  gives for storing the effect by name. The type is `{ name, effects: string[] }`, entirely plain.
+  The only closures in the library are the three `generate` functions inside `randomName`'s local
+  `nameType` list, which never leave that function. So nothing in a `Drug` was ever at risk of
+  reaching storage as a function, and `stripFunctionValuesDeep` is not needed here.
+- **`DrugType` is stored by name too**, where this section says it "travels whole". The reason the
+  document gives for naming the effect turns out not to apply to either, but a better reason
+  applies to both: each is a row of a table, of which the payload uses the name and one drawn
+  entry — the method, or the effect sentence — and both of those are already fields of their own.
+  Storing a row whole copies every _other_ method into the payload, to go stale the day the table
+  changes. That is the treatment the pass gives species, archetypes and realm types.
+- **The page showed one paragraph.** `drug.description` was the whole of the output, with the ten
+  fields behind it invisible — which would also have left the editor with fields answering to
+  nothing on screen. The page renders the presentation document now, as the other tools in the pass
+  do.
+
+**The description is offered rather than recomputed**, which is the one genuinely interesting
+corner in a tool the issue rightly calls easy. `describe()` builds the paragraph from the other ten
+fields, so an editor that re-ran it on every field change would be the most natural thing to write
+and would throw away a hand-written description on the next keystroke — requirement 4.2 exactly. It
+is a button instead, the shape the DCC sheet uses for its derived saves.
+
+**On the editor.** This section calls it "the simplest `SnapshotFieldEditor` case in the pass", and
+once the two table rows reduce to names the payload really is eleven strings — the first and only
+payload in the pass that would have fitted the descriptor language, including its `select` control
+for the two named rows. It arrives one merge after
+[decision 5a](tool-readiness.md#5a-the-re-derive-none-of-the-twelve-was-a-customer) retired that
+component for want of customers, and the retirement still holds: one customer does not pay for a
+declarative layer, and this editor is shorter than the descriptor list that would have configured
+it. The re-derive's own reasoning about _this_ tool was wrong, though, and is corrected there.
+
 ## #71 — Spooky starship
 
 Like the chop shop, `src/lib/spooky_ship/index.ts` is a single file whose `generate(rng)` returns

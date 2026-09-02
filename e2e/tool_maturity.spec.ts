@@ -19,9 +19,10 @@ import { visitRoute } from './helpers';
 const maturityBadge = (page: Page) => page.locator('.maturity__level');
 
 const TOOL_PAGES = [
-  // Was `/planet` until #61 took it to Release-ready. Any Experimental tool serves here; the drug
-  // generator is one with a stable title and no renderer to wait for.
-  { path: '/drug', title: 'Cyberpunk Drug Generator | Iron Arachne', level: 'Experimental' },
+  // Was `/planet` until #61 and `/drug` until #64, both of which reached Release-ready. Any
+  // Experimental tool serves here; the spooky starship is one with a stable title and no renderer
+  // to wait for.
+  { path: '/spooky-ship', title: 'Spooky Ship Generator | Iron Arachne', level: 'Experimental' },
 ] as const;
 
 /** The release-ready tools, which must say nothing at all. */
@@ -50,6 +51,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/planet', title: 'Planet Generator | Iron Arachne', webgl: true },
   { path: '/star-system', title: 'Star System Generator | Iron Arachne', webgl: true },
   { path: '/region', title: 'Region Generator | Iron Arachne' },
+  { path: '/drug', title: 'Cyberpunk Drug Generator | Iron Arachne' },
   { path: '/fantasy/encounter', title: 'Encounter | Iron Arachne' },
   { path: '/fantasy/family', title: 'Fantasy Family Generator | Iron Arachne' },
   { path: '/fantasy/organization', title: 'Organization Generator | Iron Arachne' },
@@ -86,7 +88,7 @@ for (const entry of SILENT_TOOL_PAGES) {
 }
 
 test('maturity: a tool page says what its level promises', async ({ page }) => {
-  await visitRoute(page, '/drug', { title: 'Cyberpunk Drug Generator | Iron Arachne' });
+  await visitRoute(page, '/spooky-ship', { title: 'Spooky Ship Generator | Iron Arachne' });
 
   // The sentence, not just the pill: "Experimental" means nothing to a visitor who has not read
   // the design document, and the point is that they can decide before they invest work.
@@ -162,7 +164,8 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   // Planet was the still-marked case until #61 took it to Release-ready. The drug generator is
   // Experimental and mountable, so it holds that end of the assertion now.
   await expect(browser.getByRole('button', { name: /^Planet/ })).not.toContainText('Experimental');
-  await expect(browser.getByRole('button', { name: /^Cyberpunk Drug/ })).toContainText(
+  await expect(browser.getByRole('button', { name: /^Cyberpunk Drug/ })).not.toContainText(
     'Experimental',
   );
+  await expect(browser.getByRole('button', { name: /^Spooky Ship/ })).toContainText('Experimental');
 });

@@ -369,12 +369,21 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   }),
 
   // Objects & Items
+  // Assessed release-ready under #64 against docs/workshop.md, section by section. 1: catalog
+  // entry, `TOOL_PANELS`, its own route. 2: `drug_roll.ts` is the one path from a seed; the page
+  // drew its seed from the clock twice, at module load and on every press. 3: kind `drug`, its own
+  // rather than a share of `item` — a drug has no material, rarity or weight and an item has no
+  // method of ingestion — payload eleven strings, the two table rows stored by name. 4: a bespoke
+  // editor over all eleven, with the description offered rather than recomputed. 5: nothing it
+  // consumes has a kind, so 5.1 does not bind. 6: mobile widths via the page manifest, the ten
+  // fields shown at last, Markdown and PDF exports, empty lines dropped. 7: round-trip, migration
+  // and Playwright tests. 8: the README documents the five kind modules.
   defineTool({
     path: '/drug',
     label: 'Cyberpunk Drug',
     kind: 'generator',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['cyberpunk'],
   }),
   defineTool({

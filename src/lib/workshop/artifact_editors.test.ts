@@ -257,6 +257,16 @@ describe('the artifact editor registry', () => {
     expect(rolled).toEqual(roll(provenance));
   });
 
+  it('rolls a drug from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('drug')!.loadRoller!();
+    const provenance = { toolPath: '/drug' as const, seed: 'registry-seed', config: {} };
+    const rolled = roll(provenance) as { name: string; drugTypeName: string };
+
+    expect(rolled.name).not.toBe('');
+    expect(rolled.drugTypeName).not.toBe('');
+    expect(rolled).toEqual(roll(provenance));
+  });
+
   it('rolls a star nation from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('star-nation')!.loadRoller!();
     const rolled = roll({

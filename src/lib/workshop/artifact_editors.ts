@@ -227,6 +227,14 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollRegionSnapshot(provenance.seed, readRegionGeneratorConfig(provenance.config));
     },
   },
+  drug: {
+    loadEditor: () => import('$components/objects/DrugArtifactEditor.svelte'),
+    /** The seed and nothing else: this tool has one control, and the tables are the library's. */
+    loadRoller: async () => {
+      const { rollDrugSnapshot } = await import('$lib/drug/drug_roll.js');
+      return (provenance) => rollDrugSnapshot(provenance.seed);
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

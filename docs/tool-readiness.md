@@ -338,30 +338,38 @@ this list. The result is that **the list was wrong when it was written**, and th
 decision asks for ("should check that it is, since two 'flat' payloads have now turned out to carry
 a list of records") should have been run before the list existed.
 
-| Tool              | Payload                                                                     | Flat?  |
-| ----------------- | --------------------------------------------------------------------------- | ------ |
-| Chop shop         | `{ text }`                                                                  | Yes    |
-| Spooky ship       | `{ text }` — `generate(rng)` returns a string, same as the chop shop        | Yes    |
-| Drug              | 9 strings, plus `drugType` and `effectType` records                         | Nearly |
-| Arms manufacturer | a list of `Weapon` records                                                  | No     |
-| Star nation       | three records, `regionsOfControl[]`, an embedded star system                | No     |
-| Environment       | four nested records, two string lists, a list of `Season` records           | No     |
-| Planet            | a body, `moons: AstronomicalBody[]`, a nested civilization                  | No     |
-| Star system       | two lists of `AstronomicalBody`                                             | No     |
-| Potion            | `container`, `liquid`, `sensory`, `effect` records, `modifications[]`       | No     |
-| Item              | ~18 fields with nested material, enchantment, decoration and combat profile | No     |
-| Treasure hoard    | `Item[]` — a list of the above                                              | No     |
-| Merchant          | `proprietor`, `shop`, `mark` records, `stock[]`                             | No     |
+| Tool              | Payload                                                                     | Flat?   |
+| ----------------- | --------------------------------------------------------------------------- | ------- |
+| Chop shop         | `{ text }`                                                                  | Yes     |
+| Spooky ship       | `{ text }` — `generate(rng)` returns a string, same as the chop shop        | Yes     |
+| Drug              | 11 strings — both table rows stored by name (#64)                           | **Yes** |
+| Arms manufacturer | a list of `Weapon` records                                                  | No      |
+| Star nation       | three records, `regionsOfControl[]`, an embedded star system                | No      |
+| Environment       | four nested records, two string lists, a list of `Season` records           | No      |
+| Planet            | a body, `moons: AstronomicalBody[]`, a nested civilization                  | No      |
+| Star system       | two lists of `AstronomicalBody`                                             | No      |
+| Potion            | `container`, `liquid`, `sensory`, `effect` records, `modifications[]`       | No      |
+| Item              | ~18 fields with nested material, enchantment, decoration and combat profile | No      |
+| Treasure hoard    | `Item[]` — a list of the above                                              | No      |
+| Merchant          | `proprietor`, `shop`, `mark` records, `stock[]`                             | No      |
 
-Nine of the twelve are structures. Two are flat and are the _same_ case — the prose payload
+Nine of the twelve are structures. Two of the other three are the _same_ case — the prose payload
 [decision 4](#4-prose-generators-get-a-kind-and-it-holds-the-prose) describes, whose editing view is
 one textarea and which needs no descriptor framework to produce one. The chop shop's is fourteen
 lines.
 
-Drug is the only borderline entry, and it fails on this decision's own guard: `drugType` and
-`effectType` are rows of a table, so editing them means a `select` that maps a name back to a
-record, and the descriptor language addresses `field: string` — a key holding a value, not a key
-holding a name that resolves to one. That is the fifth control the guard refuses.
+Drug was recorded here as the only borderline entry, failing the guard because `drugType` and
+`effectType` are table rows. **That was wrong, and #64 proved it by building the tool.** The
+judgement was made against the _live_ `Drug` type rather than against the payload, and the payload
+stores both rows by name — so it is eleven strings, and the two named rows are exactly the `select`
+with `options` that the control union already has. Drug is the one tool on this list the descriptor
+language would have served.
+
+It changes the recommendation not at all. One customer does not pay for a declarative layer: the
+bespoke editor #64 shipped is shorter than the descriptor list that would have configured it, and
+the eleven other entries above still need components of their own. But the row is corrected here
+rather than left standing, because a reader checking this table against the code would find it
+does not match.
 
 **So `SnapshotFieldEditor` has no customers, and the recommendation is to retire it from this
 document rather than defer it again.** Six tools have been asked to write it and none could use it;
