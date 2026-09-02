@@ -206,16 +206,23 @@ test.describe('a star system', () => {
     // two controls that produced a given system.
     await visitRoute(page, '/star-system', { title: SYSTEM_TITLE, webgl: true });
 
+    // Two planets, and the body list rather than the whole page. This rolled twelve planets by
+    // default and compared `section.main` three times over, so it redrew thirty-odd WebGL previews
+    // to prove a claim one heading settles — and sat on the 30-second timeout doing it.
+    await page.getByLabel('Planet Count').selectOption('2');
     await page.getByLabel('Seed', { exact: true }).fill('a-fixed-seed');
     await page.getByLabel('Lock Seed').check();
+
+    const bodies = page.locator('article.media-banner h5');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    const first = await page.locator('section.main').innerText();
+    await expect(bodies.first()).toBeVisible();
+    const first = await bodies.allInnerTexts();
 
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    expect(await page.locator('section.main').innerText()).toEqual(first);
+    expect(await bodies.allInnerTexts()).toEqual(first);
 
     await page.getByLabel('Seed', { exact: true }).fill('a-different-seed');
     await page.getByRole('button', { name: 'Generate', exact: true }).click();
-    expect(await page.locator('section.main').innerText()).not.toEqual(first);
+    await expect(bodies.first()).not.toHaveText(first[0]);
   });
 });

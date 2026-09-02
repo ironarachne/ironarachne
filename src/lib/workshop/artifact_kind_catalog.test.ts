@@ -31,6 +31,7 @@ describe('artifact kind catalog', () => {
       'environment',
       'planet',
       'star-system',
+      'region',
     ]);
   });
 

@@ -34,6 +34,7 @@ import { dungeonArtifactKind } from '$lib/dungeon/dungeon_artifact_kind';
 import { environmentArtifactKind } from '$lib/environment';
 import { planetArtifactKind } from '$lib/astronomical_bodies/planet_artifact_kind';
 import { starSystemArtifactKind } from '$lib/astronomical_bodies/star_system_artifact_kind';
+import { regionArtifactKind } from '$lib/regions/region_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -72,6 +73,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, environmentArtifactKind);
   registerArtifactKind(registry, planetArtifactKind);
   registerArtifactKind(registry, starSystemArtifactKind);
+  registerArtifactKind(registry, regionArtifactKind);
   return registry;
 }
 

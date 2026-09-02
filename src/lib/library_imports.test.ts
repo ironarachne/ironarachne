@@ -108,6 +108,11 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // The eighteenth, the same library and the same reason: the star-system kind module holds
   // metadata and validation only, and its codec is a dynamic import.
   '$lib/astronomical_bodies/star_system_artifact_kind',
+  // The nineteenth, and the most composed: `$lib/regions`'s entry point reaches the region
+  // generator and through it the culture, settlement, organization and character generators, the
+  // species tables and the charge art. The kind module holds metadata and validation only, and
+  // composes four other kinds' validators — each reached the same deep way, for the same reason.
+  '$lib/regions/region_artifact_kind',
   // There is deliberately no entry for `$lib/environment`. Its kind module was written to sit here
   // beside the other sixteen and the measurement said not to: through `$lib/environment`'s entry
   // point the registry chunk is 136.1 KB across 17 chunks, and through the kind module it is
