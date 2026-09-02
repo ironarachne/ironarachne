@@ -43,8 +43,7 @@
 
   let planetType = $state('random');
   let forceRings = $state(false);
-  let planetGenConfig = getDefaultPlanetGenerationConfig();
-  planetGenConfig.rng = rng;
+  let planetGenConfig = getDefaultPlanetGenerationConfig(rng);
   let planet: AstronomicalBody | undefined = $state();
   let planetImageSrc = $state('');
   let planetImageSeed = $state('');
@@ -55,8 +54,7 @@
 
   let is_inhabited = $state(false);
 
-  let civilization_config = getDefaultCivilizationGenerationConfig();
-  civilization_config.rng = rng;
+  let civilization_config = getDefaultCivilizationGenerationConfig(rng);
   civilization_config.population_range = [100000, 1000000000];
   let civilization: Civilization | null = $state(null);
 
@@ -88,7 +86,7 @@
     if (forceRings) {
       planetGenConfig.rings_chance = 100;
     } else {
-      planetGenConfig.rings_chance = getDefaultPlanetGenerationConfig().rings_chance;
+      planetGenConfig.rings_chance = getDefaultPlanetGenerationConfig(rng).rings_chance;
     }
 
     planet = generatePlanet(planetGenConfig);
@@ -96,8 +94,7 @@
     is_inhabited = rng.int(1, 100) < 30;
 
     if (is_inhabited) {
-      civilization_config = getDefaultCivilizationGenerationConfig();
-      civilization_config.rng = rng;
+      civilization_config = getDefaultCivilizationGenerationConfig(rng);
       civilization_config.population_range = [100000, 1000000000];
       civilization = generateCivilization(civilization_config);
     }
@@ -124,8 +121,7 @@
   }
 
   onMount(() => {
-    planetGenConfig = getDefaultPlanetGenerationConfig();
-    planetGenConfig.rng = rng;
+    planetGenConfig = getDefaultPlanetGenerationConfig(rng);
     planet = generatePlanet(planetGenConfig);
     if (planet !== undefined) {
       planetImageSeed = rng.randomString(13);

@@ -34,7 +34,7 @@
     rng.setSeed(seed);
   });
 
-  let config = getDefaultStarSystemGeneratorConfig();
+  let config = getDefaultStarSystemGeneratorConfig(rng);
   let system: StarSystem | undefined = $state();
   let systemCompositeSrc = $state('');
   let starImageSrcs = $state<string[]>([]);
@@ -83,16 +83,14 @@
   }
 
   /**
-   * Builds the config from the controls and, importantly, from this page's RNG.
+   * Builds the config from the controls and from this page's RNG.
    *
-   * `getDefaultStarSystemGeneratorConfig` seeds itself from `Date.now()` and picks a planet count
-   * with it. Left unwired, as it was, the seed control changed nothing about the system: the same
-   * locked seed generated a different system on every click, and every reload. The mount path has
-   * to do this too, or the first system on screen is the one nobody can reproduce.
+   * `getDefaultStarSystemGeneratorConfig` takes the RNG it draws from, so the planet count it
+   * picks is the seed's rather than the clock's. The mount path has to go through here too, or
+   * the first system on screen is the one nobody can reproduce.
    */
   function applySystemConfig() {
-    config = getDefaultStarSystemGeneratorConfig();
-    config.rng = rng;
+    config = getDefaultStarSystemGeneratorConfig(rng);
     config.planet_count =
       planetCountControl === 'random'
         ? Math.max(1, Math.round(rng.bellFloat(1, 12)))

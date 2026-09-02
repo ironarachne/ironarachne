@@ -25,6 +25,7 @@ describe('artifact kind catalog', () => {
       'encounter',
       'family',
       'organization',
+      'star-nation',
     ]);
   });
 

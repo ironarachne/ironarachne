@@ -14,7 +14,7 @@ function configFor(
   seed: string,
   overrides: Partial<RegionOfControlGenerationConfig> = {},
 ): RegionOfControlGenerationConfig {
-  return { ...getDefaultRegionOfControlGenerationConfig(), rng: new RNG(seed), ...overrides };
+  return { ...getDefaultRegionOfControlGenerationConfig(new RNG(seed)), ...overrides };
 }
 
 describe('getRegionTypes', () => {
@@ -148,18 +148,20 @@ describe('getRegionTypesForTechnologyLevel', () => {
 describe('getDefaultRegionOfControlGenerationConfig', () => {
   it('offers every region type', () => {
     expect(
-      getDefaultRegionOfControlGenerationConfig().region_types.map((type) => type.name),
+      getDefaultRegionOfControlGenerationConfig(new RNG('default')).region_types.map(
+        (type) => type.name,
+      ),
     ).toEqual(getRegionTypes().map((type) => type.name));
   });
 
   it('defaults to a population density between 50 and 60 per cent of capacity', () => {
-    expect(getDefaultRegionOfControlGenerationConfig().population_density_range).toEqual([
-      0.5, 0.6,
-    ]);
+    expect(
+      getDefaultRegionOfControlGenerationConfig(new RNG('default')).population_density_range,
+    ).toEqual([0.5, 0.6]);
   });
 
   it('starts with no controlling civilization and technology level zero', () => {
-    const config = getDefaultRegionOfControlGenerationConfig();
+    const config = getDefaultRegionOfControlGenerationConfig(new RNG('default'));
 
     expect(config.controlling_civilization).toBe('');
     expect(config.technology_level).toBe(0);

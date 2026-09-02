@@ -123,12 +123,18 @@ export function generateMilitary(
   };
 }
 
-export function getDefaultCivilizationGenerationConfig(): CivilizationGenerationConfig {
+/**
+ * The RNG is required rather than defaulted from the clock. This helper used to seed itself from
+ * `Date.now()`, so a caller that forgot to overwrite `rng` got clock-driven output while looking
+ * seeded — the requirement 2.2 failure docs/tool-readiness.md counts fifteen times across six
+ * libraries. Taking the RNG as a parameter is the one-line fix it prescribes.
+ */
+export function getDefaultCivilizationGenerationConfig(rng: RNG.RNG): CivilizationGenerationConfig {
   return {
     population_range: [1000, 1000000000],
     technology_level_range: [1, 10],
     military_strength_range: [1, 10],
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }
 
@@ -165,7 +171,22 @@ export function getFriendlyPopulation(population: number): string {
   return `${Math.round(population / 1000000000000)} trillion`;
 }
 
-function getEconomyTypes(): EconomyType[] {
+/**
+ * The economy table, and a lookup by name.
+ *
+ * Exported so the star nation editor can offer the table as a select and resolve a choice back
+ * to its row. A row is plain data, so a saved nation embeds the one it was rolled with rather
+ * than a name to resolve on read — a renamed row then costs nothing anyone stored.
+ */
+export function getEconomyTypeByName(name: string): EconomyType | undefined {
+  return getEconomyTypes().find((type) => type.name === name);
+}
+
+export function getGovernmentTypeByName(name: string): GovernmentType | undefined {
+  return getGovernmentTypes().find((type) => type.name === name);
+}
+
+export function getEconomyTypes(): EconomyType[] {
   return [
     {
       name: 'Capitalist',
@@ -230,7 +251,7 @@ function getEconomyTypes(): EconomyType[] {
   ];
 }
 
-function getGovernmentTypes(): GovernmentType[] {
+export function getGovernmentTypes(): GovernmentType[] {
   return [
     {
       name: 'Democracy',

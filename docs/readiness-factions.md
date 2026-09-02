@@ -268,6 +268,39 @@ about to be removed is a migration nobody needed. So: **#57 does not start until
 It is the one tool in the pass with a hard external dependency, and pretending otherwise is how a
 payload version 2 gets written three weeks after version 1.
 
+**As built.** #57 landed with #11 still open, on a reading of #11's own scope: it is marked
+additive — "don't drop existing fields yet", with the numeric fields kept and disclosed — so the
+step it forces is version 1 to version 2 _adding_ optional prose fields with empty defaults, not
+the reshaping the paragraph above feared. That is the cheapest migration a kind can have, and
+`migrateStarNationSnapshot` is where it goes. If #11 is later decided the other way, the cost is
+the one this document predicted, and it was taken knowingly.
+
+Everything else landed as written, with three things to record:
+
+- **The editor is bespoke, though every control is one decision 5 allows** — text, number, and a
+  select over a named table. `SnapshotFieldEditor` is still unbuilt, because the two tools before
+  this that were called flat turned out not to be, and building the declared component against
+  its first genuinely flat consumer would be designing it from one example. Each fieldset in
+  `StarNationArtifactEditor.svelte` maps to one descriptor for the day it exists.
+- **The home system is embedded, not referenced.** There is no `star-system` kind yet, so the
+  payload carries the system's bodies — seventeen plain fields each, which is what
+  `renderStarSystemPreviewImage` takes. The nation's further systems are _not_ carried: the page
+  never showed them, only their count and what they add to the population, and a payload holding
+  twenty star systems nobody looks at would be the size case for no reason. When `star-system`
+  becomes a kind, the region of control is where the reference goes (5.2).
+- **The description is derived and kept.** `getCivilizationDescription` assembles it from the
+  figures, and editing a figure deliberately leaves it alone (4.2); `restoreStarNationDescription`
+  rebuilds it on an explicit command, which is 4.4 for the one field derived from the others.
+  The regions of control are found by their region type rather than by position, so a stored
+  nation with one missing still opens and the sentence that needed it is dropped (6.4).
+
+The clock left four config helpers on the way: `getDefaultCivilizationGenerationConfig`,
+`getDefaultRegionOfControlGenerationConfig`, `getDefaultStarSystemGeneratorConfig` and, beneath
+it, the star and planet helpers all take a required RNG now, which is decision 1 of the pass
+applied to the helpers this tool calls. `getDefaultMoonGenerationConfig` is the one in
+`$lib/astronomical_bodies` still on the clock; nothing here calls it, and it belongs to the planet
+tool's own item.
+
 ## Domain model
 
 ### The two flat payloads

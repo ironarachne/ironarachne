@@ -112,6 +112,7 @@ describe('TOOL_CATALOG', () => {
     // effect of editing a catalog entry for some other reason.
     const assessedHigher = [
       '/arms-manufacturer',
+      '/star-nation',
       '/character',
       '/fantasy/encounter',
       '/fantasy/family',
@@ -231,6 +232,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/religion',
       '/fantasy/settlement',
       '/heraldry',
+      '/star-nation',
       '/swn/character',
       '/unchartedworlds/character',
       '/velgarth-gifts',

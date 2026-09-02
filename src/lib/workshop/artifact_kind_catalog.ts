@@ -19,6 +19,7 @@ import { adndCharacterArtifactKind } from '$lib/adnd/adnd_character_artifact_kin
 import { characterArtifactKind } from '$lib/characters/character_artifact_kind';
 import { armsManufacturerArtifactKind } from '$lib/arms_manufacturer/arms_manufacturer_artifact_kind';
 import { organizationArtifactKind } from '$lib/organizations/organization_artifact_kind';
+import { starNationArtifactKind } from '$lib/civilizations/star_nation_artifact_kind';
 import { familyArtifactKind } from '$lib/families/family_artifact_kind';
 import { encounterArtifactKind } from '$lib/encounters/encounter_artifact_kind';
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
@@ -55,6 +56,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, encounterArtifactKind);
   registerArtifactKind(registry, familyArtifactKind);
   registerArtifactKind(registry, organizationArtifactKind);
+  registerArtifactKind(registry, starNationArtifactKind);
   return registry;
 }
 

@@ -34,13 +34,14 @@ set of numbers.
 ## Usage
 
 ```typescript
+import { RNG } from '@ironarachne/rng';
 import {
   convertAUToKM,
   generateStarSystem,
   getDefaultStarSystemGeneratorConfig,
 } from '$lib/astronomical_bodies';
 
-const config = getDefaultStarSystemGeneratorConfig();
+const config = getDefaultStarSystemGeneratorConfig(new RNG('my-seed'));
 const system = generateStarSystem(config);
 
 const firstPlanet = system.planets[0];
@@ -48,12 +49,14 @@ firstPlanet.surface_temperature; // Kelvin
 convertAUToKM(firstPlanet.orbital_distance); // km
 ```
 
-Generating a single body works the same way:
+Every `getDefault*Config` helper takes the RNG it should draw from — none seeds itself from the
+clock, so a run is reproducible from the seed that made its RNG. Generating a single body works
+the same way:
 
 ```typescript
 import { generatePlanet, getDefaultPlanetGenerationConfig } from '$lib/astronomical_bodies';
 
-const planet = generatePlanet(getDefaultPlanetGenerationConfig());
+const planet = generatePlanet(getDefaultPlanetGenerationConfig(new RNG('my-seed')));
 ```
 
 Rendering these bodies is a separate concern — see [`$lib/renderers`](../renderers/README.md) for

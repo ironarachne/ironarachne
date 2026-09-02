@@ -96,6 +96,10 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // charge art. Measured on the build: the organization kind module and everything it statically
   // imports is 204 KB across 16 chunks through this path and 19.7 MB across 35 chunks through the entry point.
   '$lib/organizations/organization_artifact_kind',
+  // The fifteenth. `$lib/civilizations`'s entry point reaches the civilization generator and the
+  // made-up-names package, and through the star nation roll module the whole of
+  // `$lib/astronomical_bodies`. The kind module holds metadata and validation only.
+  '$lib/civilizations/star_nation_artifact_kind',
 ]);
 
 /**

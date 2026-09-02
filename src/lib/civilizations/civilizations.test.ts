@@ -15,23 +15,26 @@ function configFor(
   seed: string,
   overrides: Partial<CivilizationGenerationConfig> = {},
 ): CivilizationGenerationConfig {
-  return { ...getDefaultCivilizationGenerationConfig(), rng: new RNG(seed), ...overrides };
+  return { ...getDefaultCivilizationGenerationConfig(new RNG(seed)), ...overrides };
 }
 
 describe('getDefaultCivilizationGenerationConfig', () => {
   it('spans populations from a thousand to a billion', () => {
-    expect(getDefaultCivilizationGenerationConfig().population_range).toEqual([1000, 1000000000]);
+    expect(getDefaultCivilizationGenerationConfig(new RNG('default')).population_range).toEqual([
+      1000, 1000000000,
+    ]);
   });
 
   it('spans technology and military strength from 1 to 10', () => {
-    const config = getDefaultCivilizationGenerationConfig();
+    const config = getDefaultCivilizationGenerationConfig(new RNG('default'));
 
     expect(config.technology_level_range).toEqual([1, 10]);
     expect(config.military_strength_range).toEqual([1, 10]);
   });
 
-  it('supplies an RNG', () => {
-    expect(getDefaultCivilizationGenerationConfig().rng).toBeInstanceOf(RNG);
+  it('carries the RNG it was handed', () => {
+    const rng = new RNG('default');
+    expect(getDefaultCivilizationGenerationConfig(rng).rng).toBe(rng);
   });
 });
 

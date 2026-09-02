@@ -159,6 +159,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollEncounterSnapshot(provenance.seed, readEncounterGeneratorConfig(provenance.config));
     },
   },
+  'star-nation': {
+    loadEditor: () => import('$components/factions/StarNationArtifactEditor.svelte'),
+    /** The page's one control besides the seed, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readStarNationGeneratorConfig, rollStarNationSnapshot } =
+        await import('$lib/civilizations/star_nation_roll.js');
+      return (provenance) =>
+        rollStarNationSnapshot(provenance.seed, readStarNationGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

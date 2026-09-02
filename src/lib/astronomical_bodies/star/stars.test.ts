@@ -4,20 +4,20 @@ import { generateStar, getDefaultStarGeneratorConfig } from './stars';
 import { getStarClassificationByName, getStarClassifications } from './star_classifications';
 
 function generate(seed: string) {
-  const config = getDefaultStarGeneratorConfig();
-  config.rng = new RNG(seed);
+  const config = getDefaultStarGeneratorConfig(new RNG(seed));
   return generateStar(config);
 }
 
 describe('getDefaultStarGeneratorConfig', () => {
   it('offers the full classification table', () => {
-    expect(getDefaultStarGeneratorConfig().star_classifications).toHaveLength(
+    expect(getDefaultStarGeneratorConfig(new RNG('default')).star_classifications).toHaveLength(
       getStarClassifications().length,
     );
   });
 
-  it('supplies an RNG', () => {
-    expect(getDefaultStarGeneratorConfig().rng).toBeInstanceOf(RNG);
+  it('carries the RNG it was handed', () => {
+    const rng = new RNG('carried');
+    expect(getDefaultStarGeneratorConfig(rng).rng).toBe(rng);
   });
 });
 
@@ -135,8 +135,7 @@ describe('generateStar', () => {
   });
 
   it('honours a config narrowed to a single classification', () => {
-    const config = getDefaultStarGeneratorConfig();
-    config.rng = new RNG('narrow');
+    const config = getDefaultStarGeneratorConfig(new RNG('narrow'));
     config.star_classifications = [getStarClassificationByName('G2V')];
 
     expect(generateStar(config).classification).toBe('G2V');

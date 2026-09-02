@@ -1,94 +1,90 @@
 <script lang="ts">
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
-  import * as RNG from '@ironarachne/rng';
-  import * as Words from '@ironarachne/words';
+  import { RNG } from '@ironarachne/rng';
   import { renderStarSystemPreviewImage } from '$lib/renderers/astronomical_preview';
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
-  import {
-    generateCivilization,
-    getCivilizationDescription,
-    getDefaultCivilizationGenerationConfig,
-    getFriendlyPopulation,
-    type Civilization,
-    generateRegionOfControl,
-    getDefaultRegionOfControlGenerationConfig,
-    getRegionTypeByName,
-    type RegionOfControl,
-    type RegionOfControlGenerationConfig,
-  } from '$lib/civilizations';
-  import {
-    generateStarSystem,
-    getDefaultStarSystemGeneratorConfig,
-    type StarSystem,
-    type StarSystemGenerationConfig,
-  } from '$lib/astronomical_bodies';
-  import { getTechnologyLevelByLevel } from '$lib/technology_levels';
+  import * as Nations from '$lib/civilizations';
+  import type { StarNation } from '$lib/civilizations';
+  import { downloadTextFile } from '$lib/download';
+  import { downloadTextPdf } from '$lib/pdf';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import RendererOverrideControls from '$components/common/RendererOverrideControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
 
-  const rng = new RNG.RNG(Date.now().toString());
+  const TOOL_PATH = '/star-nation';
+
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. The roll itself is a pure function of
+   * the seed box and the planet count control — `rollStarNation` in `$lib/civilizations` — so
+   * the same seed gives the same nation here, in a panel, and on a re-roll from provenance.
+   */
+  const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
 
-  const config = getDefaultCivilizationGenerationConfig();
-  config.rng = rng;
-  config.technology_level_range = [7, 9];
-  // Every config draws from the page's RNG. A config factory seeds itself from `Date.now()`, so
-  // one left unwired generates from a clock rather than from the seed, and the seed control stops
-  // meaning anything for whatever it produces.
-  const systemConfig: StarSystemGenerationConfig = $state(getDefaultStarSystemGeneratorConfig());
-  systemConfig.rng = rng;
-  const systemRegionConfig: RegionOfControlGenerationConfig =
-    getDefaultRegionOfControlGenerationConfig();
-  systemRegionConfig.region_types = [getRegionTypeByName('Star System')];
-  systemRegionConfig.population_density_range = [0.05, 0.3];
-  systemRegionConfig.technology_level = 7;
-  systemRegionConfig.rng = rng;
-  const homePlanetRegionConfig: RegionOfControlGenerationConfig =
-    getDefaultRegionOfControlGenerationConfig();
-  homePlanetRegionConfig.region_types = [getRegionTypeByName('Planet')];
-  homePlanetRegionConfig.technology_level = 7;
-  homePlanetRegionConfig.rng = rng;
-
-  let nation: Civilization | null = $state(null);
-  let homeSystem: StarSystem | null = $state(null);
-  let homeSystemRegion: RegionOfControl | null = $state(null);
-  let populatedPlanets = $state(1);
-  let homeSystemPopulatedPlanets = $state(1);
-  let extraDescription = $state('');
-
-  let homePlanet: number = $state(0);
-  let homePlanetRegion: RegionOfControl | null = $state(null);
-
-  let homeSystemCompositeSrc = $state('');
-  let homeSystemPreviewSeed = $state('');
+  /**
+   * The rolled nation.
+   *
+   * `$state.raw`, and not as a preference: deep-reactive `$state` wraps every object in a Proxy,
+   * and `structuredClone` — what IndexedDB stores with — refuses a Proxy outright. See the note
+   * beside `saveToolArtifact` in `$lib/workshop`'s README.
+   */
+  let nation = $state.raw<StarNation | null>(null);
 
   let planetCountControl: string = $state('random');
+
+  let homeSystemCompositeSrc = $state('');
 
   const imageWidth = 64;
   const imageHeight = 64;
 
-  const planetCountOptions = $derived([
+  const planetCountOptions = [
     { value: 'random', label: 'Random' },
-    ...Array.from({ length: 20 }, (_, i) => ({
+    ...Array.from({ length: Nations.STAR_NATION_MAX_PLANET_COUNT }, (_, i) => ({
       value: (i + 1).toString(),
       label: (i + 1).toString(),
     })),
-  ]);
+  ];
 
+  /** The one control besides the seed, as the roll reads it and as provenance records it. */
+  const generatorConfig = $derived<Nations.StarNationGeneratorConfigRecord>(
+    planetCountControl === 'random' ? {} : { planetCount: parseInt(planetCountControl, 10) },
+  );
+
+  const nationSnapshot = $derived(nation === null ? null : Nations.toStarNationSnapshot(nation));
+  const defaultArtifactName = $derived(
+    nation === null ? '' : Nations.starNationDisplayName(nation),
+  );
+
+  const homePlanet = $derived(nation === null ? undefined : Nations.homePlanetOf(nation));
+  const technology = $derived(
+    nation === null ? undefined : Nations.starNationTechnologyLevel(nation),
+  );
+  const territory = $derived(nation === null ? '' : Nations.starNationTerritorySentence(nation));
+  const homeSystemParagraph = $derived(
+    nation === null ? '' : Nations.starNationHomeSystemParagraph(nation),
+  );
+
+  /**
+   * The composite is drawn from the seed, not from a draw made after the roll: the seed control's
+   * promise is that a seed reproduces what you saw, previews included.
+   */
   function refreshHomeSystemComposite() {
-    if (!browser || homeSystemPreviewSeed === '' || !homeSystem) return;
+    if (!browser || nation === null) return;
+    const system = nation.homeSystem;
     homeSystemCompositeSrc = renderStarSystemPreviewImage(
       document,
-      homeSystem,
-      imageWidth * (homeSystem.stars.length + homeSystem.planets.length),
+      system,
+      imageWidth * (system.stars.length + system.planets.length),
       imageHeight,
-      homeSystemPreviewSeed,
+      Nations.starNationPreviewSeed(seed),
     );
   }
 
@@ -96,47 +92,30 @@
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    rng.setSeed(seed);
-    extraDescription = '';
+    nation = Nations.rollStarNation(seed, generatorConfig);
+    refreshHomeSystemComposite();
+  }
 
-    if (planetCountControl !== 'random') {
-      systemConfig.planet_count = parseInt(planetCountControl, 10);
-    } else {
-      systemConfig.planet_count = Math.max(1, Math.round(rng.bellFloat(1, 12)));
+  function exportMarkdown() {
+    if (nation === null) {
+      return;
     }
+    downloadTextFile(
+      Nations.starNationToMarkdown(nation),
+      `${Nations.starNationFileStem(nation)}.md`,
+      'text/markdown',
+    );
+  }
 
-    nation = generateCivilization(config);
-    homeSystem = generateStarSystem(systemConfig);
-    homePlanet = rng.int(0, homeSystem.planets.length - 1);
-    homeSystemRegion = generateRegionOfControl(systemRegionConfig);
-    homeSystemRegion.name = homeSystem.name;
-    homePlanetRegion = generateRegionOfControl(homePlanetRegionConfig);
-    homePlanetRegion.name = homeSystem.planets[homePlanet].name;
-    const populated = rng.int(1, homeSystem.planets.length - 1);
-    populatedPlanets = populated;
-    homeSystemPopulatedPlanets = populated;
-    nation.population = homeSystemRegion.population;
-
-    if (nation.technology_level > 7) {
-      const total_systems_controlled = rng.int(1, 20);
-      const systems = [];
-      let total_population = homeSystemRegion.population;
-      for (let i = 0; i < total_systems_controlled; i++) {
-        systems.push(generateStarSystem(systemConfig));
-        populatedPlanets += rng.int(1, systems[i].planets.length - 1);
-        total_population += rng.int(1, systems[i].planets.length - 1) * rng.int(100000, 10000000);
-      }
-      nation.population = total_population;
-      extraDescription = `The nation controls ${total_systems_controlled + 1} star systems, with a total of ${populatedPlanets} planets.`;
+  async function exportPdf() {
+    if (nation === null) {
+      return;
     }
-
-    nation.description = getCivilizationDescription(nation);
-    homePlanetRegion.population = nation.population / populatedPlanets;
-
-    if (browser) {
-      homeSystemPreviewSeed = rng.randomString(13);
-      refreshHomeSystemComposite();
-    }
+    await downloadTextPdf(
+      Nations.starNationDisplayName(nation),
+      Nations.starNationToText(nation),
+      `${Nations.starNationFileStem(nation)}.pdf`,
+    );
   }
 
   onMount(() => {
@@ -144,7 +123,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/star-nation" title="Star Nation Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Star Nation Generator">
   {#snippet description()}
     <p>
       The previews pick how to draw themselves from what this machine can do; the controls below
@@ -165,54 +144,74 @@
 
   <BaseButton onclick={generate}>Generate</BaseButton>
 
-  {#if nation && homeSystem && homeSystemRegion && homePlanetRegion}
-    <h2>{nation.name}</h2>
+  <SaveArtifactButton
+    kind={Nations.STAR_NATION_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={nationSnapshot}
+    {seed}
+    config={generatorConfig}
+    defaultName={defaultArtifactName}
+  />
 
-    <p>{nation.description}</p>
-    {#if extraDescription}
-      <p>{extraDescription}</p>
-    {/if}
+  {#if nation}
+    <div class="nation-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
 
-    <StatBlock>
-      <Stat label="Government Type">{nation.government_type.name}</Stat>
-      <Stat label="Economy">{nation.economy_type.name}</Stat>
-      <Stat label="Military">{nation.military.quality}</Stat>
-    </StatBlock>
-    <Stat label="Technology">
-      {nation.technology_level} (<span
-        class="tooltip"
-        title={getTechnologyLevelByLevel(nation.technology_level).description}
-        >{getTechnologyLevelByLevel(nation.technology_level).name}</span
-      >)
-    </Stat>
-    <StatBlock>
-      <Stat label="Home Planet">{homeSystem.planets[homePlanet].name}</Stat>
-    </StatBlock>
+    <div class="nation">
+      <h2>{Nations.starNationDisplayName(nation)}</h2>
 
-    <h3>The {homeSystemRegion.name} System</h3>
-
-    <p>
-      There are {homeSystemPopulatedPlanets} populated planets in this system. {homePlanetRegion.name}
-      is the {homePlanet + 1}{Words.getOrdinal(homePlanet + 1)} planet. It has a population of {getFriendlyPopulation(
-        homePlanetRegion.population,
-      )}.
-    </p>
-
-    <div class="star-system">
-      {#if browser && homeSystemCompositeSrc}
-        <div class="image-container-system" style="width: 100%;">
-          <img
-            alt="{homeSystem.name} system composite"
-            style="max-width: 100%; height: auto; display: block;"
-            src={homeSystemCompositeSrc}
-          />
-        </div>
+      <p>{nation.civilization.description}</p>
+      {#if territory}
+        <p>{territory}</p>
       {/if}
+
+      <StatBlock>
+        <Stat label="Government Type">{nation.civilization.government_type.name}</Stat>
+        <Stat label="Economy">{nation.civilization.economy_type.name}</Stat>
+        <Stat label="Military">{nation.civilization.military.quality}</Stat>
+      </StatBlock>
+      {#if technology}
+        <Stat label="Technology">
+          {nation.civilization.technology_level} (<span
+            class="tooltip"
+            title={technology.description}>{technology.name}</span
+          >)
+        </Stat>
+      {/if}
+      {#if homePlanet}
+        <StatBlock>
+          <Stat label="Home Planet">{homePlanet.name}</Stat>
+        </StatBlock>
+      {/if}
+
+      <h3>{Nations.starNationHomeSystemHeading(nation)}</h3>
+
+      <p>{homeSystemParagraph}</p>
+
+      <div class="star-system">
+        {#if browser && homeSystemCompositeSrc}
+          <div class="image-container-system" style="width: 100%;">
+            <img
+              alt="{nation.homeSystem.name} system composite"
+              style="max-width: 100%; height: auto; display: block;"
+              src={homeSystemCompositeSrc}
+            />
+          </div>
+        {/if}
+      </div>
     </div>
   {/if}
 </GeneratorPage>
 
 <style>
+  .nation-exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
   .star-system {
     display: flex;
     width: 100%;

@@ -46,10 +46,15 @@ export type StarGenerationConfig = {
   rng: RNG.RNG;
 };
 
-export function getDefaultStarGeneratorConfig(): StarGenerationConfig {
+/**
+ * The RNG is required rather than defaulted from the clock: a config that seeded itself from
+ * `Date.now()` gave clock-driven output to any caller that forgot to overwrite it, which is the
+ * requirement 2.2 failure docs/tool-readiness.md counts across this library four times.
+ */
+export function getDefaultStarGeneratorConfig(rng: RNG.RNG): StarGenerationConfig {
   return {
     star_classifications: getStarClassifications(),
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }
 
