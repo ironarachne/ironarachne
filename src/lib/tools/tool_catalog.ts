@@ -338,12 +338,22 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['worldbuilding'],
   }),
+  // Assessed release-ready under #63 against docs/workshop.md, section by section. 1: catalog
+  // entry, `TOOL_PANELS`, its own route. 2: `star_system_roll.ts` is the one path from a seed, and
+  // the preview seeds were already derived from it; 2.5 is met by the Canvas2D fallback #135 built
+  // and by every figure being written out beside the pictures. 3: kind `star-system`, payload the
+  // two body lists and the words, with the counts derived on read rather than stored beside the
+  // lists they count. 4: a bespoke editor over every body, recomputing nothing and re-sorting
+  // nothing. 5: a saved planet can be placed in the system, linked rather than copied. 6: mobile
+  // widths via the page manifest, named previews, Markdown, PDF and SVG exports, meaningless
+  // measurements dropped. 7: round-trip, migration and Playwright tests. 8: the README documents
+  // the five kind modules.
   defineTool({
     path: '/star-system',
     label: 'Star System',
     kind: 'generator',
     domain: 'locations',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['scifi'],
     tags: ['worldbuilding'],
   }),

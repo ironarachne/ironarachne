@@ -19,6 +19,15 @@ const registry: ArtifactEditorRegistry = {
   heraldry: { loadViewer: () => Promise.resolve({ default: (() => undefined) as never }) },
 };
 
+/**
+ * Long enough to compile every editor component on the site, which is what the test below does.
+ *
+ * That number grows with each tool the readiness pass finishes. It crossed the 5s default at
+ * seventeen editors and would have crossed it under load before that — a gate that fails on how
+ * busy the machine is teaches people to rerun it rather than read it.
+ */
+const EVERY_EDITOR_TIMEOUT_MS = 30_000;
+
 describe('the artifact editor registry', () => {
   it('answers whether a kind can be edited without loading anything', () => {
     expect(hasArtifactEditor('culture', registry)).toBe(true);
@@ -154,13 +163,17 @@ describe('the artifact editor registry', () => {
    * the bundler's sake, which is also how one can be mistyped without anything noticing until a
    * user opens that kind — this is the one place they are all followed.
    */
-  it('loads a component for every registered editor', async () => {
-    for (const kind of kindsWithArtifactEditors()) {
-      const loaded = await artifactEditorEntry(kind)!.loadEditor!();
+  it(
+    'loads a component for every registered editor',
+    async () => {
+      for (const kind of kindsWithArtifactEditors()) {
+        const loaded = await artifactEditorEntry(kind)!.loadEditor!();
 
-      expect(loaded.default, kind).toBeDefined();
-    }
-  });
+        expect(loaded.default, kind).toBeDefined();
+      }
+    },
+    EVERY_EDITOR_TIMEOUT_MS,
+  );
 
   it('rolls a chop shop from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('chop-shop')!.loadRoller!();
@@ -215,6 +228,22 @@ describe('the artifact editor registry', () => {
     // The recorded setting is honoured rather than redrawn, which is the whole claim provenance
     // makes about a re-roll.
     expect(rolled.has_ring_system).toBe(true);
+    expect(rolled).toEqual(roll(provenance));
+  });
+
+  it('rolls a star system from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('star-system')!.loadRoller!();
+    const provenance = {
+      toolPath: '/star-system' as const,
+      seed: 'registry-seed',
+      config: { planetCount: 4 },
+    };
+    const rolled = roll(provenance) as { name: string; planets: unknown[] };
+
+    expect(rolled.name).not.toBe('');
+    // The recorded count is honoured rather than redrawn, which is the whole claim provenance
+    // makes about a re-roll.
+    expect(rolled.planets).toHaveLength(4);
     expect(rolled).toEqual(roll(provenance));
   });
 

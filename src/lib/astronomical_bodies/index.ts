@@ -12,3 +12,9 @@ export * from './planet_editing';
 export * from './planet_presentation';
 export * from './planet_roll';
 export * from './planet_snapshot';
+
+export * from './star_system_artifact_kind';
+export * from './star_system_editing';
+export * from './star_system_presentation';
+export * from './star_system_roll';
+export * from './star_system_snapshot';

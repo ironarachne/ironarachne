@@ -30,6 +30,7 @@ describe('artifact kind catalog', () => {
       'dungeon',
       'environment',
       'planet',
+      'star-system',
     ]);
   });
 
