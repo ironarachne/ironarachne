@@ -318,12 +318,22 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     featured: true,
     tags: ['worldbuilding'],
   }),
+  // Assessed release-ready under #62 against docs/workshop.md, section by section. 1: catalog
+  // entry, `TOOL_PANELS`, its own route. 2: `region_roll.ts` is the one path from a seed, and
+  // `Regions.getDefaultConfig` stopped seeding both its RNG and its fallback name set from the
+  // clock. 3: kind `region`, payload the map as a graph, the realms, settlements, organizations
+  // and rulers through the libraries that own them; a rendered map is never stored. 4: a bespoke
+  // editor over the words and the seat, with the map and the arms shown and not edited. 5: the
+  // pass's best composition case — a saved culture names the region and a saved settlement sits on
+  // it, both linked rather than copied. 6: mobile widths via the page manifest, the map on the page
+  // at last, Markdown, PDF and SVG exports, empty sections dropped. 7: round-trip, migration and
+  // Playwright tests. 8: the README documents the six kind modules.
   defineTool({
     path: '/region',
     label: 'Region',
     kind: 'generator',
     domain: 'locations',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['map', 'worldbuilding'],
   }),

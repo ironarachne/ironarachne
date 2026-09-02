@@ -116,6 +116,7 @@ describe('TOOL_CATALOG', () => {
       '/environment',
       '/planet',
       '/star-system',
+      '/region',
       '/fantasy/dungeon',
       '/star-nation',
       '/character',
@@ -241,6 +242,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/settlement',
       '/heraldry',
       '/planet',
+      '/region',
       '/star-nation',
       '/star-system',
       '/swn/character',
@@ -303,6 +305,7 @@ describe('filterTools', () => {
       '/fantasy/organization',
       '/fantasy/religion',
       '/fantasy/dungeon',
+      '/region',
       '/fantasy/settlement',
     ]);
   });

@@ -217,6 +217,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollStarSystemSnapshot(provenance.seed, readStarSystemGeneratorConfig(provenance.config));
     },
   },
+  region: {
+    loadEditor: () => import('$components/locations/RegionArtifactEditor.svelte'),
+    /** The page's one control besides the seed, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readRegionGeneratorConfig, rollRegionSnapshot } =
+        await import('$lib/regions/region_roll.js');
+      return (provenance) =>
+        rollRegionSnapshot(provenance.seed, readRegionGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

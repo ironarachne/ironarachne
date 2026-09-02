@@ -223,6 +223,43 @@ of the ordering:
 - **6.3 is the map.** A region is a map and a map is the export — SVG through
   `region_map_svg.ts`, which exists, plus the Markdown gazetteer of settlements and realms.
 
+**As built.** The kind, the payload, the bespoke editor and the map-as-export all landed as
+written, and this was the tool the ordering was for: every part of a region already had a stored
+form, so the snapshot module composes converters rather than writing any. Four things are worth
+recording.
+
+- **`Region.dominantCulture` is now `Culture | null`, and that is a correction.** The generator only
+  ever set it when a caller supplied a culture, and left `{} as Culture` behind otherwise — an empty
+  object claiming to be a `Culture`, which the page guarded against by testing a field for
+  `undefined`. `null` says the same thing honestly, and it is the shape `Culture.religion` already
+  uses for exactly this situation.
+- **`Regions.getDefaultConfig` carried the clock defect twice over.** Its RNG _and_ its fallback
+  name generator set were each seeded from `Date.now()`, so a caller that overwrote the first still
+  got a clock-driven name set unless it also replaced the second. It takes the RNG as a required
+  parameter now — this library is not among the fifteen
+  [decision 1](tool-readiness.md#1-every-generator-in-the-pass-grows-a-_rollts-and-the-clock-leaves-it)
+  counted, which means the count was low.
+- **The page never drew the map.** `buildRegionMapSvgString` has existed in `$lib/map` the whole
+  time with exactly one caller, a CLI script. It has three now — the page, the download, and the
+  script — and the difference between the embedded copy and the saved one is the XML declaration,
+  which is right in a file and parses as a bogus comment inside HTML.
+- **A realm's type is stored by name**, resolved from the table on read, with an inert stand-in for
+  a name this build no longer has. An embedded copy of the table row goes stale the day the row
+  grows a field, and every stored region would carry the old shape forever.
+
+**Composition, which is what this tool is for.** A saved culture names the region and a saved
+settlement sits on it, both linked and neither copied; the settlement takes the slot the map marks
+as the capital and inherits that slot's `mapNodeId`, because its own node id was assigned on a
+different map. Organizations were left alone deliberately: a region's are generated as a set from
+its environment, and unlike a settlement (a place on the map) or a culture (the thing that names
+everything) there is no slot a single saved one would occupy. If that is wanted it is one more
+picker and one more role.
+
+**The editor is bespoke, and it is the sixth in a row.** That is
+[decision 5](tool-readiness.md#5-flat-payloads-get-a-declared-field-editor-not-twenty-five-bespoke-components)
+predicting correctly for once — a region was always on the bespoke side of its list — but the
+running total is now six tools built and `SnapshotFieldEditor` still unwritten.
+
 ## #59 — Dungeon
 
 The largest tool in the pass. `EngineeredDungeon` is `{ name, theme, layout, rooms, doors, keys,

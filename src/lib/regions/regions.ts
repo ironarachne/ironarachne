@@ -1,5 +1,4 @@
 import { type Character } from '$lib/characters';
-import { type Culture } from '$lib/culture';
 import type { Environment } from '$lib/environment';
 import { Environments } from '$lib/environment';
 import * as Characters from '$lib/characters';
@@ -30,7 +29,7 @@ function createEmptyRegion(): Region {
     name: '',
     environment: {} as Environment,
     description: '',
-    dominantCulture: {} as Culture,
+    dominantCulture: null,
     settlements: [] as Settlement[],
     mainRealm: 0,
     realms: [] as Realm[],
@@ -47,7 +46,7 @@ function resolveNameGeneratorSet(
 ): Names.NameGeneratorSet {
   if (config.dominantCulture != null) {
     region.dominantCulture = config.dominantCulture;
-    return region.dominantCulture.nameGenerators;
+    return config.dominantCulture.nameGenerators;
   }
 
   return config.nameGeneratorSet;
@@ -245,18 +244,23 @@ export function generate(config: RegionGeneratorConfig): Region {
   return region;
 }
 
-export function getDefaultConfig(): RegionGeneratorConfig {
+/**
+ * The default region settings, built around the RNG the caller is generating from.
+ *
+ * The RNG is a required parameter rather than a clock-seeded default — decision 1 of
+ * docs/tool-readiness.md. This one carried the defect twice over: the config's own RNG *and* the
+ * fallback name generator set were each seeded from `Date.now()`, so a caller that overwrote the
+ * first still got a clock-driven name set unless it also replaced the second.
+ */
+export function getDefaultConfig(rng: RNG.RNG): RegionGeneratorConfig {
   return {
-    nameGeneratorSet: Names.getFantasyNameGeneratorSet(
-      'tiefling',
-      new RNG.RNG(Date.now().toString()),
-    ),
+    nameGeneratorSet: Names.getFantasyNameGeneratorSet('tiefling', rng),
     dominantCulture: null,
     mapWidth: 40,
     mapHeight: 30,
     minRealms: 2,
     maxRealms: 4,
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }
 

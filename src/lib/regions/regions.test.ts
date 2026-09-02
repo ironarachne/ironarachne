@@ -24,25 +24,25 @@ function configFor(seed: string, overrides: Partial<RegionGeneratorConfig> = {})
 
 describe('getDefaultConfig', () => {
   it('defaults to a 40 by 30 map', () => {
-    const config = getDefaultConfig();
+    const config = getDefaultConfig(new RNG('base-seed'));
 
     expect(config.mapWidth).toBe(40);
     expect(config.mapHeight).toBe(30);
   });
 
   it('defaults to between two and four neighbouring realms', () => {
-    const config = getDefaultConfig();
+    const config = getDefaultConfig(new RNG('base-seed'));
 
     expect(config.minRealms).toBe(2);
     expect(config.maxRealms).toBe(4);
   });
 
   it('starts with no dominant culture, so the name generator set is used instead', () => {
-    expect(getDefaultConfig().dominantCulture).toBeNull();
+    expect(getDefaultConfig(new RNG('base-seed')).dominantCulture).toBeNull();
   });
 
   it('supplies a name generator set and an RNG', () => {
-    const config = getDefaultConfig();
+    const config = getDefaultConfig(new RNG('base-seed'));
 
     expect(config.nameGeneratorSet.country).toBeDefined();
     expect(config.rng).toBeInstanceOf(RNG);
@@ -138,7 +138,7 @@ describe('generate', () => {
 
     const region = generate(config);
 
-    expect(region.dominantCulture.nameGenerators).toBe(cultureNameGenerators);
+    expect(region.dominantCulture?.nameGenerators).toBe(cultureNameGenerators);
   });
 });
 

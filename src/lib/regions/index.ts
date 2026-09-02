@@ -5,3 +5,10 @@ export * from './settlement_tiles';
 export * from './terrain_tiles';
 
 export * as Regions from './regions';
+
+export * from './region_artifact_kind';
+export * from './region_editing';
+export * from './region_presentation';
+export * from './region_rehydrate';
+export * from './region_roll';
+export * from './region_snapshot';
