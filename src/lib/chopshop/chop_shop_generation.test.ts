@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { generate } from './index';
+import { generate, generateChopShop } from './chop_shop_generation';
 
 describe('generate', () => {
   it('is deterministic for a given seed', () => {
@@ -52,5 +52,17 @@ describe('generate', () => {
     expect(descriptions.some((text) => text.includes('screen'))).toBe(true);
     expect(descriptions.some((text) => text.includes('model cybernetic'))).toBe(true);
     expect(descriptions.some((text) => text.includes('attendants'))).toBe(true);
+  });
+});
+
+describe('generateChopShop', () => {
+  it('wraps the paragraph in the library’s one type', () => {
+    expect(generateChopShop(new RNG('typed'))).toEqual({ text: generate(new RNG('typed')) });
+  });
+
+  it('never doubles a space between sentences, so the page and the export read the same', () => {
+    for (const seed of ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h']) {
+      expect(generate(new RNG(seed))).not.toMatch(/ {2}/);
+    }
   });
 });

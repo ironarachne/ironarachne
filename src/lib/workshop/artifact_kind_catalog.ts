@@ -20,6 +20,9 @@ import { characterArtifactKind } from '$lib/characters/character_artifact_kind';
 import { armsManufacturerArtifactKind } from '$lib/arms_manufacturer/arms_manufacturer_artifact_kind';
 import { organizationArtifactKind } from '$lib/organizations/organization_artifact_kind';
 import { starNationArtifactKind } from '$lib/civilizations/star_nation_artifact_kind';
+// Through the entry point, unlike its neighbours: `$lib/chopshop` is a few kilobytes of prose and
+// nothing heavier, so there is no measurement that would justify a deep import.
+import { chopShopArtifactKind } from '$lib/chopshop';
 import { familyArtifactKind } from '$lib/families/family_artifact_kind';
 import { encounterArtifactKind } from '$lib/encounters/encounter_artifact_kind';
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
@@ -57,6 +60,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, familyArtifactKind);
   registerArtifactKind(registry, organizationArtifactKind);
   registerArtifactKind(registry, starNationArtifactKind);
+  registerArtifactKind(registry, chopShopArtifactKind);
   return registry;
 }
 

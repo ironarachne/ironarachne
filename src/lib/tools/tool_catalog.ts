@@ -241,12 +241,20 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   }),
 
   // Locations & Places
+  // Assessed release-ready under #58 against docs/workshop.md, section by section. 1: catalog
+  // entry, `TOOL_PANELS`, and its own route. 2: `chop_shop_roll.ts` is the one path from a seed,
+  // and the page grew the seed controls it never had. 3: kind `chop-shop`, payload `{ text }`
+  // (decision 4 of docs/tool-readiness.md), provenance carrying the seed, `SaveArtifactButton` on
+  // the route. 4: a textarea editor, re-roll destructive. 5: nothing generates the settlement a
+  // shop sits in, so 5.1 does not bind. 6: mobile widths via the page manifest, named controls,
+  // Markdown and PDF exports, an emptied paragraph dropped. 7: round-trip, migration and
+  // Playwright tests. 8: the library split into types, generation and the kind modules.
   defineTool({
     path: '/chop-shop',
     label: 'Cyberpunk Chop Shop',
     kind: 'generator',
     domain: 'locations',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['cyberpunk'],
   }),
   defineTool({

@@ -162,6 +162,16 @@ describe('the artifact editor registry', () => {
     }
   });
 
+  it('rolls a chop shop from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('chop-shop')!.loadRoller!();
+    const rolled = roll({ toolPath: '/chop-shop', seed: 'registry-seed', config: {} }) as {
+      text: string;
+    };
+
+    expect(rolled.text).not.toBe('');
+    expect(rolled).toEqual(roll({ toolPath: '/chop-shop', seed: 'registry-seed', config: {} }));
+  });
+
   it('rolls a star nation from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('star-nation')!.loadRoller!();
     const rolled = roll({
