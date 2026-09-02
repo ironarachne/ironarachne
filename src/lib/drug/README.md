@@ -37,4 +37,34 @@ const stimulant = generate(config, rng);
 ```
 
 The generator takes an existing `RNG` rather than a seed, because it is normally called as part of a
-larger run that already owns one.
+larger run that already owns one. `rollDrug(seed)` is the entry point for a caller that has a seed
+instead — it is the one path the generator page and a re-roll from provenance both take.
+
+## The artifact kind
+
+The five modules the readiness pass gives every Release-ready tool
+([docs/tool-readiness.md](../../../docs/tool-readiness.md)):
+
+- **`drug_roll.ts`** — a seed in, a drug out. There is no config record: this tool has one control
+  besides the seed, and it is the seed.
+- **`drug_snapshot.ts`** — writing a drug for storage and reading it back, both halves in one file
+  because reading pulls nothing. **The two table rows are stored by name**: a live `Drug` carries a
+  whole `DrugType` and `EffectType`, and what the generator used from each is the name plus the one
+  method and the one effect sentence it drew — both already fields of their own. Storing the rows
+  whole would copy every _other_ method and effect into the payload, to go stale the day the table
+  changes. An unknown name reads back as an inert row rather than a refusal.
+- **`drug_artifact_kind.ts`** — kind `drug`, payload version 1. Eleven strings, each of which may
+  be empty, because clearing a field is an edit rather than a broken payload.
+- **`drug_editing.ts`** — one setter over a field union, since every field is a string.
+- **`drug_presentation.ts`** — the drug as a document of paragraphs and labelled lines, empty ones
+  dropped, written once as Markdown and once as plain text for the PDF. It is also what the
+  generator page renders, so what a referee reads on screen and what they take away cannot drift.
+
+### The description is offered, never recomputed
+
+`describe()` builds the paragraph from the other ten fields during generation. The editor does
+**not** re-run it when a field changes: the description is the field a user is most likely to have
+rewritten by hand, and a form that regenerated it on the next keystroke elsewhere would throw that
+away — which is what requirement 4.2 forbids. `describeDrug` in `drug_presentation.ts` produces the
+generated wording from the fields as they now stand, and a button offers it. That is the same shape
+the DCC character sheet uses for its derived saves.

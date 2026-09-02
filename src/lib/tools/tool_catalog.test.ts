@@ -113,6 +113,7 @@ describe('TOOL_CATALOG', () => {
     const assessedHigher = [
       '/arms-manufacturer',
       '/chop-shop',
+      '/drug',
       '/environment',
       '/planet',
       '/star-system',
@@ -230,6 +231,7 @@ describe('toolsWithMaturity', () => {
       '/character',
       '/chop-shop',
       '/culture',
+      '/drug',
       '/environment',
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
