@@ -207,6 +207,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollPlanetSnapshot(provenance.seed, readPlanetGeneratorConfig(provenance.config));
     },
   },
+  'star-system': {
+    loadEditor: () => import('$components/locations/StarSystemArtifactEditor.svelte'),
+    /** The page's two controls, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readStarSystemGeneratorConfig, rollStarSystemSnapshot } =
+        await import('$lib/astronomical_bodies/star_system_roll.js');
+      return (provenance) =>
+        rollStarSystemSnapshot(provenance.seed, readStarSystemGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

@@ -48,6 +48,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/fantasy/dungeon', title: 'Dungeon Generator | Iron Arachne' },
   { path: '/environment', title: 'Environment Generator | Iron Arachne' },
   { path: '/planet', title: 'Planet Generator | Iron Arachne', webgl: true },
+  { path: '/star-system', title: 'Star System Generator | Iron Arachne', webgl: true },
   { path: '/fantasy/encounter', title: 'Encounter | Iron Arachne' },
   { path: '/fantasy/family', title: 'Fantasy Family Generator | Iron Arachne' },
   { path: '/fantasy/organization', title: 'Organization Generator | Iron Arachne' },

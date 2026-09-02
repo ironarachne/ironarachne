@@ -161,6 +161,34 @@ and the one its README already claimed was fixed. Seven of the pass's fifteen ar
 `tool_maturity.spec.ts` no longer has a featured Experimental tool to assert a badge against; the
 spec says so where it used to name `/planet`.
 
+**As built (#63).** The kind and the payload landed as written; the reference question the issue
+asked to settle was settled the way decision 2 says, and three other things moved.
+
+- **The editor is bespoke, and that is the fifth in a row.** This document expected a
+  `SnapshotFieldEditor` on the grounds that a star system is "a list of planets plus a name and a
+  description" — and a list of planets is a list of _records_, each with eleven measurements.
+  #52, #53, #60, #61 and now #63 have each reached the same conclusion.
+  [Decision 5](tool-readiness.md#5-flat-payloads-get-a-declared-field-editor-not-twenty-five-bespoke-components)
+  counted twelve customers for that component and has so far found none; **the claim should be
+  re-derived from the actual payload types before another tool plans around it.**
+- **`star_count` and `planet_count` are derived on read, not stored.** The domain model above draws
+  them as stored fields. The generator always sets each to its list's length, so a stored copy is a
+  second source of truth that disagrees with the list the first time the editor removes a planet —
+  and a payload claiming seven planets while holding six survives every validator that checks each
+  field on its own. This is the one place the implementation departs from the approved model.
+- **A referenced planet is not in the payload**, per rule 2 of workshop.md and the shape culture
+  uses for a religion. What follows is stated in the library README rather than left to be
+  discovered: a system saved with a referenced planet reads back with one fewer planet of its own,
+  and the link shows in the panel's reference list. 5.4 needed nothing — `collectReferencedArtifacts`
+  is what walks references, and it already visits every id once.
+
+**#16 is still open, and #63 is not the issue that closes it.** It asks for an orbital view —
+planets on their orbits around the star — and that is a picture `AstronomicalScene` deliberately
+cannot describe: `docs/renderers.md` records that a system's layout resolves to absolute positions
+inside the scene builder _on purpose_, so an orbital diagram needs a shape that document would have
+to grow first. What #63 did ship is #17's half for this tool: the composite strip as a scalable SVG
+download, the same writer `/planet` uses.
+
 ## #62 — Region
 
 The most composed payload on the site. `Region` is `{ name, environment, description,

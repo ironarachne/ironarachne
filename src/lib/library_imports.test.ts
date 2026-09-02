@@ -105,6 +105,9 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // the build: through the kind module the registry chunk and everything it statically imports is
   // 140.7 KB across 16 chunks, and through the entry point it is 214.8 KB across 24.
   '$lib/astronomical_bodies/planet_artifact_kind',
+  // The eighteenth, the same library and the same reason: the star-system kind module holds
+  // metadata and validation only, and its codec is a dynamic import.
+  '$lib/astronomical_bodies/star_system_artifact_kind',
   // There is deliberately no entry for `$lib/environment`. Its kind module was written to sit here
   // beside the other sixteen and the measurement said not to: through `$lib/environment`'s entry
   // point the registry chunk is 136.1 KB across 17 chunks, and through the kind module it is
