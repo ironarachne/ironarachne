@@ -1,7 +1,7 @@
 <script lang="ts">
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
-  import * as RNG from '@ironarachne/rng';
+  import { RNG } from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
   import { onMount, tick } from 'svelte';
   import { Currency } from '$lib/currency';
@@ -12,41 +12,92 @@
   import SelectField from '$components/common/SelectField.svelte';
   import NumberField from '$components/common/NumberField.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
+  import type { ArtifactReference } from '$lib/artifacts';
   import type { Character } from '$lib/characters';
   import type { Creature } from '$lib/creatures';
-  import {
-    generateDungeon,
-    type EngineeredDungeon,
-    BLUEPRINTS,
-    renderClassicModuleMapToCanvas,
-  } from '$lib/dungeon';
-  import {
-    generate as generateEnvironment,
-    getDefaultConfig as getDefaultEnvironmentConfig,
-    describeTerrain,
-    BiomeClassifications,
-    Biomes,
-  } from '$lib/environment';
+  import { ENCOUNTER_ARTIFACT_KIND, type Encounter } from '$lib/encounters';
+  import { downloadTextFile } from '$lib/download';
+  import { downloadTextPdf } from '$lib/pdf';
+  import * as Dungeons from '$lib/dungeon';
 
-  const blueprintOptions = BLUEPRINTS.map((b) => b.name);
-  const environmentOptions = BiomeClassifications.getAll()
-    .filter((b) => !b.isAquatic)
-    .map((b) => b.name);
+  const TOOL_PATH = '/fantasy/dungeon';
 
-  let seed = $state('');
+  /** The page's select value that means "let the seed choose". */
+  const RANDOM = 'Random';
+
+  const blueprintOptions = Dungeons.dungeonBlueprintNames();
+  const biomeOptions = Dungeons.dungeonBiomeNames();
+
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. It used to be rebuilt from `Date.now()`
+   * on every press to take one string from it, which is the shape every generator in the readiness
+   * pass has been corrected to.
+   */
+  const rng = new RNG(Date.now().toString());
+  let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
-  let mapWidth = $state(40);
-  let mapHeight = $state(60);
-  let blueprintName = $state('Random');
-  let environmentName = $state('Random');
-  let encounterChancePerRoom = $state(0.4);
-  let treasureChancePerRoom = $state(0.3);
+
+  let mapWidth = $state(Dungeons.DUNGEON_DEFAULT_WIDTH);
+  let mapHeight = $state(Dungeons.DUNGEON_DEFAULT_HEIGHT);
+  let blueprintName = $state(RANDOM);
+  let biomeName = $state(RANDOM);
+  let encounterChancePerRoom = $state(Dungeons.DUNGEON_DEFAULT_ENCOUNTER_CHANCE);
+  let treasureChancePerRoom = $state(Dungeons.DUNGEON_DEFAULT_TREASURE_CHANCE);
   let fullSize = $state(false);
 
-  let mapCanvas = $state<HTMLCanvasElement | undefined>(undefined);
-  let dungeon = $state<EngineeredDungeon | undefined>(undefined);
+  /** The saved encounter to put at the foot of the stairs, when the user has offered one (5.1). */
+  let useReferencedEncounter = $state(false);
+  let referencedEncounter = $state<Encounter | undefined>(undefined);
+  let encounterReference = $state<ArtifactReference | undefined>(undefined);
 
-  function getKeyDescription(keyId: string, doorId: string, d: EngineeredDungeon): string {
+  let mapCanvas = $state<HTMLCanvasElement | undefined>(undefined);
+
+  /**
+   * The rolled dungeon.
+   *
+   * `$state.raw`, and not as a preference. Deep-reactive `$state` wraps every object in the value
+   * in a Proxy, and `structuredClone` — what IndexedDB stores with — refuses a Proxy outright, so
+   * saving fails with `could not be cloned`. A dungeon is the largest value on the site to wrap,
+   * so this is also the difference between a page that renders and one that crawls.
+   */
+  let dungeon = $state.raw<Dungeons.EngineeredDungeon | undefined>(undefined);
+
+  /** What the roll records about itself: the page's six controls, as provenance (3.6). */
+  const generatorConfig = $derived<Dungeons.DungeonGeneratorConfigRecord>({
+    width: mapWidth,
+    height: mapHeight,
+    ...(blueprintName === RANDOM ? {} : { blueprintName }),
+    ...(biomeName === RANDOM ? {} : { biomeName }),
+    encounterChancePerRoom,
+    treasureChancePerRoom,
+  });
+
+  const dungeonSnapshot = $derived(
+    dungeon === undefined ? null : Dungeons.toDungeonSnapshot(dungeon),
+  );
+
+  /**
+   * Roughly what keeping this dungeon costs, shown because it is the one payload on the site that
+   * reaches megabytes: a 120×120 map with an encounter in every room is a storage decision, and a
+   * user making one is entitled to know before the browser tells them it has no room left.
+   */
+  const storedSize = $derived(
+    dungeonSnapshot === null
+      ? ''
+      : Dungeons.describeDungeonSize(Dungeons.dungeonSnapshotByteSize(dungeonSnapshot)),
+  );
+
+  const references = $derived(encounterReference === undefined ? [] : [encounterReference]);
+
+  const defaultArtifactName = $derived(
+    dungeon === undefined ? '' : Dungeons.dungeonDisplayName(dungeon),
+  );
+
+  function getKeyDescription(keyId: string, doorId: string, d: Dungeons.EngineeredDungeon): string {
     const door = d.doors.find((doObj) => doObj.id === doorId);
     if (!door) {
       return 'It unlocks a door elsewhere in the dungeon.';
@@ -93,86 +144,52 @@
     a.click();
   }
 
+  function exportMarkdown() {
+    if (dungeonSnapshot === null) {
+      return;
+    }
+    downloadTextFile(
+      Dungeons.dungeonToMarkdown(dungeonSnapshot),
+      `${Dungeons.dungeonFileStem(dungeonSnapshot)}.md`,
+      'text/markdown',
+    );
+  }
+
+  async function exportPdf() {
+    if (dungeonSnapshot === null) {
+      return;
+    }
+    await downloadTextPdf(
+      Dungeons.dungeonDisplayName(dungeonSnapshot),
+      Dungeons.dungeonToText(dungeonSnapshot),
+      `${Dungeons.dungeonFileStem(dungeonSnapshot)}.pdf`,
+    );
+  }
+
+  /**
+   * Draws the plan, when there is a canvas to draw it on.
+   *
+   * A missing canvas is an ordinary state rather than a failure (2.5): the room list below is the
+   * dungeon, and the plan is a picture of it. Nothing here throws, and nothing below depends on it
+   * having run.
+   */
   async function triggerRender() {
     await tick();
     if (mapCanvas && dungeon) {
-      renderClassicModuleMapToCanvas(dungeon, mapCanvas);
+      Dungeons.renderClassicModuleMapToCanvas(dungeon, mapCanvas);
     }
   }
 
   async function generate() {
-    const rng = new RNG.RNG(Date.now().toString());
-    if (!lockSeed || seed === '') {
+    if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    const dungeonRng = new RNG.RNG(seed);
-
-    let actualBlueprintName = blueprintName;
-    if (actualBlueprintName === 'Random') {
-      actualBlueprintName = dungeonRng.item(blueprintOptions);
-    }
-
-    let actualEnvironmentName = environmentName;
-    if (actualEnvironmentName === 'Random') {
-      actualEnvironmentName = dungeonRng.item(environmentOptions);
-    }
-
-    const environmentConfig = getDefaultEnvironmentConfig();
-    environmentConfig.rng = new RNG.RNG(`${seed}-env`);
-    environmentConfig.latitude = environmentConfig.rng.float(-70, 70);
-    environmentConfig.elevation = environmentConfig.rng.float(0.1, 0.8);
-    environmentConfig.waterDirection = [
-      environmentConfig.rng.float(-20, 20),
-      environmentConfig.rng.float(-20, 20),
-      0,
-    ];
-    environmentConfig.current = [
-      environmentConfig.rng.float(-1, 1),
-      environmentConfig.rng.float(-1, 1),
-      0,
-    ];
-    environmentConfig.terrainVector = [
-      environmentConfig.rng.float(-0.5, 0.5),
-      environmentConfig.rng.float(-0.5, 0.5),
-      0,
-    ];
-
-    let environment = generateEnvironment(environmentConfig);
-
-    if (environment.biome.name !== actualEnvironmentName) {
-      const biomeClassification = BiomeClassifications.getByName(actualEnvironmentName);
-      const forcedBiome = {
-        ...environment.biome,
-        name: biomeClassification.name,
-        features: Biomes.generateBiomeFeatures(biomeClassification, environmentConfig.rng),
-        descriptions: Biomes.generateBiomeDescriptions(biomeClassification, environmentConfig.rng),
-      };
-
-      const biomeDesc = environmentConfig.rng.item(forcedBiome.descriptions);
-      const biomeFeat = environmentConfig.rng.item(forcedBiome.features);
-      const terrainDesc = describeTerrain(environment.terrain, environmentConfig.rng);
-
-      environment = {
-        ...environment,
-        biome: forcedBiome,
-        description: `${biomeDesc} ${biomeFeat} ${environment.climate.description} ${terrainDesc}`,
-      };
-    }
-
-    dungeon = generateDungeon({
-      seed,
-      width: mapWidth,
-      height: mapHeight,
-      environment,
-      blueprintName: actualBlueprintName,
-      encounterChancePerRoom,
-      treasureChancePerRoom,
-    });
-
-    await tick();
-    if (mapCanvas) {
-      renderClassicModuleMapToCanvas(dungeon, mapCanvas);
-    }
+    const rolled = Dungeons.rollDungeon(seed, generatorConfig);
+    dungeon =
+      useReferencedEncounter && referencedEncounter !== undefined
+        ? Dungeons.withEncounterAtEntrance(rolled, referencedEncounter)
+        : rolled;
+    await triggerRender();
   }
 
   onMount(() => {
@@ -180,22 +197,34 @@
   });
 </script>
 
-<GeneratorPage toolPath="/fantasy/dungeon" title="Dungeon Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Dungeon Generator">
   {#snippet description()}
     <p>Grid-based dungeons with themed rooms, doors, keys, encounters, and treasure.</p>
   {/snippet}
 
   <SeedControls bind:seed bind:lockSeed inline />
 
-  <NumberField id="mapWidth" label="Map width" bind:value={mapWidth} min={15} max={120} />
-  <NumberField id="mapHeight" label="Map height" bind:value={mapHeight} min={15} max={120} />
+  <NumberField
+    id="mapWidth"
+    label="Map width"
+    bind:value={mapWidth}
+    min={Dungeons.DUNGEON_MIN_DIMENSION}
+    max={Dungeons.DUNGEON_MAX_DIMENSION}
+  />
+  <NumberField
+    id="mapHeight"
+    label="Map height"
+    bind:value={mapHeight}
+    min={Dungeons.DUNGEON_MIN_DIMENSION}
+    max={Dungeons.DUNGEON_MAX_DIMENSION}
+  />
 
   <SelectField
     id="blueprint"
     label="Blueprint"
     bind:value={blueprintName}
     options={[
-      { value: 'Random', label: 'Random' },
+      { value: RANDOM, label: 'Random' },
       ...blueprintOptions.map((n) => ({ value: n, label: n })),
     ]}
   />
@@ -203,10 +232,10 @@
   <SelectField
     id="environment"
     label="Environment (Biome)"
-    bind:value={environmentName}
+    bind:value={biomeName}
     options={[
-      { value: 'Random', label: 'Random' },
-      ...environmentOptions.map((n) => ({ value: n, label: n })),
+      { value: RANDOM, label: 'Random' },
+      ...biomeOptions.map((n) => ({ value: n, label: n })),
     ]}
   />
 
@@ -227,8 +256,20 @@
     step={0.05}
   />
 
+  <SavedArtifactPicker
+    kind={ENCOUNTER_ARTIFACT_KIND}
+    role="entrance-encounter"
+    checkboxLabel="Put a saved encounter at the foot of the stairs"
+    selectLabel="Encounter"
+    bind:enabled={useReferencedEncounter}
+    bind:value={referencedEncounter}
+    bind:reference={encounterReference}
+  />
+
   <div class="actions">
     <BaseButton onclick={() => void generate()}>Generate</BaseButton>
+    <BaseButton onclick={exportMarkdown} disabled={!dungeon}>Download Markdown</BaseButton>
+    <BaseButton onclick={exportPdf} disabled={!dungeon}>Download PDF</BaseButton>
     <BaseButton onclick={() => downloadMap('image/png')} disabled={!mapCanvas || !dungeon}>
       Download PNG
     </BaseButton>
@@ -236,6 +277,20 @@
       Download JPEG
     </BaseButton>
   </div>
+
+  <SaveArtifactButton
+    kind={Dungeons.DUNGEON_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={dungeonSnapshot}
+    {seed}
+    config={generatorConfig}
+    defaultName={defaultArtifactName}
+    {references}
+  />
+
+  {#if dungeon}
+    <p class="stored-size">Saving this dungeon keeps about {storedSize} in this browser.</p>
+  {/if}
 
   <div class="input-group">
     <label class="inline-label">
@@ -259,13 +314,25 @@
     </p>
   {/if}
 
+  <!-- A named canvas with fallback content inside it, because a bare canvas is announced as
+       nothing at all (6.2). The name says what the plan shows; the fallback says where the
+       dungeon itself is, which is the room list below — what a machine with no canvas still gets
+       (2.5), and what the Markdown and PDF exports carry. -->
   <canvas
     bind:this={mapCanvas}
+    aria-label={dungeon
+      ? `Plan of ${dungeon.name}: ${dungeon.rooms.length} rooms on a ${dungeon.layout.width} by ${dungeon.layout.height} grid.`
+      : 'Dungeon plan'}
     class="dungeon-map"
     class:full-size={fullSize}
     width={fullSize && dungeon ? dungeon.layout.width * 25 : 800}
     height={fullSize && dungeon ? dungeon.layout.height * 25 : 600}
-  ></canvas>
+  >
+    <p>
+      This plan is drawn on a canvas. Every room, door, key and encounter it shows is written out
+      below, and the Markdown and PDF downloads carry the same.
+    </p>
+  </canvas>
 
   {#if dungeon}
     {#each dungeon.rooms as room (room.id)}
@@ -395,6 +462,12 @@
   .map-legend {
     font-size: 0.9rem;
     margin: 0.5rem 0 1rem;
+  }
+
+  .stored-size {
+    font: var(--t-small);
+    color: var(--ink-muted);
+    margin: var(--s3) 0 0;
   }
 
   .room-id {

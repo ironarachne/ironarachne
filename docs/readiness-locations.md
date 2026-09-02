@@ -147,6 +147,45 @@ interactive, render, room and theme subdirectories drawing through Three.js and 
 - **`verify:all` more than once.** This tool touches rendering, and no Playwright suite runs against
   a pull request.
 
+**As built.** Everything above landed as written, with three corrections and one measurement.
+
+- **The dungeon does not draw through Three.js or GLSL, and never did.** Both this document and
+  [#59](https://github.com/ironarachne/ironarachne/issues/59) say it does. Nothing under
+  `src/lib/dungeon` imports `three`, the repository contains no `.glsl` file at all, and the plan is
+  drawn by `render/classic_module_map.ts` onto a 2D canvas. `three` belongs to `$lib/renderers`,
+  which draws the astronomical previews. So 2.5 binds far more mildly here than the design feared:
+  the canvas carries an accessible name and fallback content, the room list under it is the whole
+  dungeon in text, and the Markdown and PDF exports carry the same. There was no WebGL path to
+  degrade from.
+- **The library's determinism defect was in the page, not in the library.** `generateDungeon` was
+  already a pure function of its config — one of the few generators in the pass that was. What was
+  wrong is that the thirty-line environment step feeding it lived in `DungeonGenerator.svelte`,
+  where a re-roll from provenance could not reach it. `dungeon_roll.ts` holds it now, in the order
+  the page drew it, and a golden diff over forty seeds confirms the module reproduces exactly what
+  the page produced before it existed. The five `getDefault*Config` helpers in `$lib/environment`
+  still default their RNG to the clock; every one of them is overwritten on this path before it is
+  used, so the fix stays with [#60](https://github.com/ironarachne/ironarachne/issues/60), which
+  owns them.
+- **5.1 binds on `encounter` only.** `environment` has no kind yet, so the second half does not
+  bind. A saved encounter goes in the room the stairs come up in — a place on the map a referee can
+  point at, where "room 23 of 44" would be a search — and the room's name is re-derived so it stops
+  reading as abandoned. The reference sits beside the payload, so a re-roll does not wear it, which
+  is the position `$lib/organizations` already takes.
+
+**The size measurement this document left open.** A live dungeon runs from 1.2 MB at 20×20 to
+48 MB at the 120×120 maximum, almost all of it combatants embedding a whole `Species` each. As a
+snapshot the same four sizes are 64 KB, 304 KB, 700 KB and 2.7 MB: the stored vocabulary is what
+makes this storable, and the ratio is pinned by a test. So the answer to "tens or hundreds of
+kilobytes" is hundreds at the default and low megabytes at the extreme — nothing about the shape
+changes, and the page now says what saving one will cost before it is saved.
+
+**Editing.** The editor is bespoke and room-shaped as designed. Retheming relabels the dungeon and
+leaves every room as it was rolled, which is 4.2 rather than a shortcut: silently re-rolling forty
+rooms' purposes because a user changed a label would be regenerating over their work, and the
+editor says so in as many words. The geometry — positions, room shapes, door and key coordinates —
+is shown and not edited, because `keys.ts` guarantees a key sits in a zone reachable before the
+door it opens and a text box over a coordinate would break that quietly.
+
 ## Domain model
 
 ### The plain payloads

@@ -27,6 +27,7 @@ import { familyArtifactKind } from '$lib/families/family_artifact_kind';
 import { encounterArtifactKind } from '$lib/encounters/encounter_artifact_kind';
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
 import { dccCharacterArtifactKind } from '$lib/dcc/dcc_character_artifact_kind';
+import { dungeonArtifactKind } from '$lib/dungeon/dungeon_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -61,6 +62,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, organizationArtifactKind);
   registerArtifactKind(registry, starNationArtifactKind);
   registerArtifactKind(registry, chopShopArtifactKind);
+  registerArtifactKind(registry, dungeonArtifactKind);
   return registry;
 }
 

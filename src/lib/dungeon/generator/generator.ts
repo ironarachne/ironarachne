@@ -245,8 +245,17 @@ function doorsOnRoomWalls(room: PlacedRoom, doors: Door[]): { door: Door; wall: 
   return roomDoors;
 }
 
-/** What a room is called, given what ended up in it. */
-function roomName(purpose: string, encounter: Encounter | undefined, treasure: Item[] | undefined) {
+/**
+ * What a room is called, given what ended up in it.
+ *
+ * Exported because composition re-derives it: dropping a saved encounter into a room the roll left
+ * empty would otherwise leave it labelled "Abandoned Crypt" with a guard standing in it.
+ */
+export function roomName(
+  purpose: string,
+  encounter: Encounter | undefined,
+  treasure: Item[] | undefined,
+) {
   if (encounter) {
     return `Occupied ${purpose}`;
   }

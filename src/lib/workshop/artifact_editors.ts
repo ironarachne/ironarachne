@@ -177,6 +177,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
       return (provenance) => rollChopShopSnapshot(provenance.seed);
     },
   },
+  dungeon: {
+    loadEditor: () => import('$components/locations/DungeonArtifactEditor.svelte'),
+    /** The page's six controls, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readDungeonGeneratorConfig, rollDungeonSnapshot } =
+        await import('$lib/dungeon/dungeon_roll.js');
+      return (provenance) =>
+        rollDungeonSnapshot(provenance.seed, readDungeonGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

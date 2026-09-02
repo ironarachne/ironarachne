@@ -172,6 +172,20 @@ describe('the artifact editor registry', () => {
     expect(rolled).toEqual(roll({ toolPath: '/chop-shop', seed: 'registry-seed', config: {} }));
   });
 
+  it('rolls a dungeon from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('dungeon')!.loadRoller!();
+    const rolled = roll({
+      toolPath: '/fantasy/dungeon',
+      seed: 'registry-seed',
+      config: { width: 20, height: 20, blueprintName: 'Tomb' },
+    }) as { name: string; theme: { blueprint: { name: string } } };
+
+    expect(rolled.name).not.toBe('');
+    // The recorded blueprint is honoured rather than redrawn, which is the whole claim provenance
+    // makes about a re-roll.
+    expect(rolled.theme.blueprint.name).toBe('Tomb');
+  });
+
   it('rolls a star nation from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('star-nation')!.loadRoller!();
     const rolled = roll({
