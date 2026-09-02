@@ -277,12 +277,24 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['map'],
   }),
+  // Assessed release-ready under #60 against docs/workshop.md, section by section. 1: catalog
+  // entry, `TOOL_PANELS`, its own route, and no genre tag because a place belongs to no setting.
+  // 2: `environment_roll.ts` is the one path from a seed, and the five `getDefault*Config` helpers
+  // this library owns now take the RNG rather than defaulting to the clock (decision 1 of
+  // docs/tool-readiness.md); the wind arrow moved off `getElementById`, which is 2.1. 3: kind
+  // `environment`, payload the type as it stands less `dominantEcosystem`, which is rebuilt from
+  // the list. 4: a bespoke editor covering every field, because the payload is nested rather than
+  // flat. 5: nothing it consumes has a kind, so 5.1 does not bind — it is a producer, and the
+  // dungeon and region generators are what it unblocks. 6: mobile widths via the page manifest,
+  // a named wind canvas over a written-out direction, Markdown and PDF exports, the empty
+  // ecosystem section dropped. 7: round-trip, migration and Playwright tests. 8: the README
+  // documents the five kind modules and still says the ecosystem sub-generator is a stub.
   defineTool({
     path: '/environment',
     label: 'Environment',
     kind: 'generator',
     domain: 'locations',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     tags: ['worldbuilding'],
   }),
   defineTool({

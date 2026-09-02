@@ -62,7 +62,7 @@ export function generate(config: EnvironmentGeneratorConfig): Environment {
 }
 
 export function generateForClimate(climateName: string, rng: RNG.RNG): Environment {
-  const config = getDefaultConfig();
+  const config = getDefaultConfig(rng);
   const climateType = Climates.getClimateTypeByName(climateName);
   config.latitude = rng.float(climateType.latitudeMin, climateType.latitudeMax);
   config.rng = rng;
@@ -119,10 +119,20 @@ export function describeTerrain(terrain: Terrain, rng: RNG.RNG): string {
   return description;
 }
 
-export function getDefaultConfig(): EnvironmentGeneratorConfig {
+/**
+ * The default environment settings, built around the RNG the caller is generating from.
+ *
+ * The RNG is a required parameter rather than a clock-seeded default — decision 1 of
+ * docs/tool-readiness.md, and the last of the five this library owned. Every caller already
+ * overwrote it on the next line, so the clock never actually reached a generated environment; what
+ * it did was make the helper *look* like a source of randomness a caller could safely forget
+ * about. It is handed to the four sub-configs here for the same reason, so a caller that reaches
+ * past `generate` into one of them gets a seeded config rather than a clock-seeded one.
+ */
+export function getDefaultConfig(rng: RNG.RNG): EnvironmentGeneratorConfig {
   return {
-    biomeConfig: Biomes.getDefaultConfig(),
-    climateConfig: Climates.getDefaultConfig(),
+    biomeConfig: Biomes.getDefaultConfig(rng),
+    climateConfig: Climates.getDefaultConfig(rng),
     current: [0, 0, 0],
     ecosystemConfig: EcosystemGeneration.getDefaultConfig(),
     elevation: 0.35,
@@ -131,10 +141,10 @@ export function getDefaultConfig(): EnvironmentGeneratorConfig {
     latitude: 35,
     reliefEnergy: 0.05,
     terrainVector: [0, 0, 0],
-    terrainConfig: TerrainGeneration.getDefaultConfig(),
+    terrainConfig: TerrainGeneration.getDefaultConfig(rng),
     waterDirection: [0, 0, 0], // water is present
-    waterSystemConfig: WaterSystems.getDefaultConfig(),
-    rng: new RNG.RNG(Date.now().toString()),
+    waterSystemConfig: WaterSystems.getDefaultConfig(rng),
+    rng,
   };
 }
 

@@ -17,7 +17,13 @@ export function generate(config: WaterSystemGeneratorConfig): WaterSystem {
   };
 }
 
-export function getDefaultConfig(): WaterSystemGeneratorConfig {
+/**
+ * The default water-system settings, with the RNG the caller is generating from.
+ *
+ * Required rather than clock-defaulted, per decision 1 of docs/tool-readiness.md; see
+ * `biomes.ts` for the whole of the reasoning.
+ */
+export function getDefaultConfig(rng: RNG.RNG): WaterSystemGeneratorConfig {
   return {
     current: [0, 0, 0],
     latitude: 0,
@@ -26,6 +32,6 @@ export function getDefaultConfig(): WaterSystemGeneratorConfig {
     surfaceLevelMin: 0, // default to sea level
     surfaceLevelMax: 0, // default to sea level
     waterTypes: ['fresh', 'salt'],
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }

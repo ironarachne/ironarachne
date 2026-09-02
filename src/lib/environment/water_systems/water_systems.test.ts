@@ -30,7 +30,7 @@ describe('Water Systems Generator', () => {
 
   it('calculates temperature based on latitude', () => {
     const configEquator: WaterSystemGeneratorConfig = {
-      ...WaterSystems.getDefaultConfig(),
+      ...WaterSystems.getDefaultConfig(new RNG('base-seed')),
       latitude: 0,
       temperatureMin: 0,
       temperatureMax: 30,

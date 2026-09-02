@@ -7,8 +7,7 @@ import Hamlet from './categories/hamlet';
 import type { Environment } from '$lib/environment';
 
 function sampleEnv(seed: string): Environment {
-  const cfg = Environments.getDefaultConfig();
-  cfg.rng = new RNG(seed);
+  const cfg = Environments.getDefaultConfig(new RNG(seed));
   return Environments.generate(cfg);
 }
 

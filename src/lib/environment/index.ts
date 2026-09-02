@@ -14,6 +14,12 @@ export * as PrecipitationTypes from './precipitationtypes';
 export * as Terrain from './terrain';
 export * as WaterSystems from './water_systems';
 
+export * from './environment_artifact_kind';
+export * from './environment_editing';
+export * from './environment_presentation';
+export * from './environment_roll';
+export * from './environment_snapshot';
+
 export * as BiomeClassifications from './biomes/biome_classifications';
 export * as Environments from './environments';
 export type * from './biomes/biome_types';

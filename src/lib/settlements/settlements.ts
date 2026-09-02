@@ -33,8 +33,7 @@ export function generate(config: SettlementGeneratorConfig): Settlement {
 export function getDefaultConfig(
   rng: RNG.RNG = new RNG.RNG(Date.now().toString()),
 ): SettlementGeneratorConfig {
-  const environmentConfig = Environments.getDefaultConfig();
-  environmentConfig.rng = rng;
+  const environmentConfig = Environments.getDefaultConfig(rng);
 
   const environment = Environments.generate(environmentConfig);
   const genSet = Names.getFantasyNameGeneratorSet('tiefling', rng);

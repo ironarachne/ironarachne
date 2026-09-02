@@ -54,7 +54,7 @@ describe('Climates Generator', () => {
 
   it('returns valid seasons', () => {
     const config: ClimateGeneratorConfig = {
-      ...Climates.getDefaultConfig(),
+      ...Climates.getDefaultConfig(new RNG('base-seed')),
       latitude: 80, // Polar
     };
     const climate = Climates.generate(config);
@@ -64,7 +64,7 @@ describe('Climates Generator', () => {
   });
 
   it('describes a climate', () => {
-    const config = Climates.getDefaultConfig();
+    const config = Climates.getDefaultConfig(new RNG('base-seed'));
     const climate = Climates.generate(config);
     const description = Climates.describe(climate, 'test-seed');
     expect(description).toContain('seasons');

@@ -129,7 +129,14 @@ export function generateBiomeFeatures(
   return features;
 }
 
-export function getDefaultConfig(): BiomeGeneratorConfig {
+/**
+ * The default biome settings, with the RNG the caller is generating from.
+ *
+ * The RNG is a required parameter rather than a clock-seeded default. It defaulted to
+ * `new RNG(Date.now())`, which made a caller that forgot to overwrite it look seeded and not be —
+ * decision 1 of docs/tool-readiness.md, and one of the fifteen helpers that shared the shape.
+ */
+export function getDefaultConfig(rng: RNG.RNG): BiomeGeneratorConfig {
   return {
     altitude: 0,
     humidityMin: 0,
@@ -137,7 +144,7 @@ export function getDefaultConfig(): BiomeGeneratorConfig {
     isAquatic: false,
     temperatureMin: 0,
     temperatureMax: 30,
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }
 

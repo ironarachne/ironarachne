@@ -28,7 +28,7 @@ function renderDungeonTerminal() {
   const passedSeed = typeof values.seed === 'string' ? values.seed : `dungeon-test-${Date.now()}`;
   const seedRng = new RNG(passedSeed);
 
-  const environmentConfig = getDefaultEnvironmentConfig();
+  const environmentConfig = getDefaultEnvironmentConfig(seedRng);
   const environment = generateEnvironment(environmentConfig);
 
   const availableBlueprints = BLUEPRINTS.map((b) => b.name);

@@ -12,8 +12,7 @@ import {
 } from './settlement_organizations';
 
 function sampleEnvironment(seed: string) {
-  const cfg = Environments.getDefaultConfig();
-  cfg.rng = new RNG(seed);
+  const cfg = Environments.getDefaultConfig(new RNG(seed));
   return Environments.generate(cfg);
 }
 
