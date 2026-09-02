@@ -197,6 +197,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollEnvironmentSnapshot(provenance.seed, readEnvironmentGeneratorConfig(provenance.config));
     },
   },
+  planet: {
+    loadEditor: () => import('$components/locations/PlanetArtifactEditor.svelte'),
+    /** The page's two controls, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readPlanetGeneratorConfig, rollPlanetSnapshot } =
+        await import('$lib/astronomical_bodies/planet_roll.js');
+      return (provenance) =>
+        rollPlanetSnapshot(provenance.seed, readPlanetGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

@@ -297,12 +297,23 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     maturity: 'release-ready',
     tags: ['worldbuilding'],
   }),
+  // Assessed release-ready under #61 against docs/workshop.md, section by section. 1: catalog
+  // entry, `TOOL_PANELS`, its own route, featured on the home page. 2: `planet_roll.ts` is the one
+  // path from a seed, the moon config stopped defaulting its RNG to the clock, and the page's
+  // `onMount` goes through the same roll every press does — it used to call `generatePlanet`
+  // directly, so the first planet a visitor met never had moons and was never inhabited. 2.5 was
+  // already met by the Canvas2D fallback #135 built. 3: kind `planet`, payload the body's own
+  // fields with its moons and any civilization beside them; the preview is never stored. 4: a
+  // bespoke editor over every field, recomputing nothing. 5: `star-system` has no kind yet, so 5.1
+  // does not bind — #63 wires the reference. 6: mobile widths via the page manifest, a named
+  // preview, Markdown, PDF and SVG exports, empty sections dropped. 7: round-trip, migration and
+  // Playwright tests. 8: the README documents the five kind modules.
   defineTool({
     path: '/planet',
     label: 'Planet',
     kind: 'generator',
     domain: 'locations',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['scifi'],
     featured: true,
     tags: ['worldbuilding'],

@@ -84,7 +84,13 @@ export function generateMoon(config: MoonGenerationConfig): AstronomicalBody {
   };
 }
 
-export function getDefaultMoonGenerationConfig(): MoonGenerationConfig {
+/**
+ * The RNG is required rather than defaulted from the clock, matching the star and planet configs
+ * beside it: a config that seeded itself from `Date.now()` gave clock-driven output to any caller
+ * that forgot to overwrite it. This was the last of the four this library carried, which
+ * docs/tool-readiness.md counts under decision 1.
+ */
+export function getDefaultMoonGenerationConfig(rng: RNG.RNG): MoonGenerationConfig {
   return {
     possible_classifications: getStandardMoonClassifications(), // by default, use standard classifications
     star_temperature: 5778, // Average temperature of the Sun in Kelvin
@@ -92,7 +98,7 @@ export function getDefaultMoonGenerationConfig(): MoonGenerationConfig {
     parent_orbital_distance: 1, // Assuming the parent body is at 1 AU from the star
     parent_mass: 5.972, // Mass of Earth in 10^24 kg
     parent_radius: 6371, // Radius of Earth in km
-    rng: new RNG.RNG(Date.now().toString()),
+    rng,
   };
 }
 

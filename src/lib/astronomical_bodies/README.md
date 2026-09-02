@@ -59,5 +59,31 @@ import { generatePlanet, getDefaultPlanetGenerationConfig } from '$lib/astronomi
 const planet = generatePlanet(getDefaultPlanetGenerationConfig(new RNG('my-seed')));
 ```
 
+## The planet artifact kind
+
+The five modules the readiness pass gives every Release-ready tool
+([docs/tool-readiness.md](../../../docs/tool-readiness.md)), flat at the library root beside the
+generators:
+
+- **`planet_roll.ts`** — the one path from a seed to a planet, its moons and any civilization on it,
+  taken by the generator page and by a re-roll from provenance. It owns the whole roll, which used
+  to live in `PlanetGenerator.svelte`. `planetPreviewSeed` derives the preview's seed from the
+  roll's rather than drawing it afterwards, so a seed reproduces what you saw.
+- **`planet_snapshot.ts`** — writing a planet for storage and reading it back, both halves in one
+  file because reading pulls nothing heavy. The body's own fields sit at the top level with the
+  moons and the civilization beside them, so a stored planet reads as the `AstronomicalBody` it is.
+  The preview image is never stored: it is a rendering of the numbers above it, and a stored image
+  cannot be re-rendered larger or on the other backend.
+- **`planet_artifact_kind.ts`** — kind `planet`, payload version 1, with the validator and the
+  migration stub. Every measurement is checked for being _finite_, not merely for being a number:
+  `NaN` is what an emptied field in a hand-edited payload produces and it propagates silently.
+- **`planet_editing.ts`** — pure snapshot-to-snapshot field edits. Nothing recomputes: changing a
+  mass does not recompute the gravity, even though `getGravityFromMassAndRadius` is one import
+  away, because a referee who set a gravity made a decision.
+- **`planet_presentation.ts`** — the planet as a document of titled sections, empty ones dropped,
+  written once as Markdown and once as plain text for the PDF. It is also what the generator page
+  renders, so what a referee reads on screen and what they take away cannot drift. A planet's
+  luminosity is never printed: it is always zero, and the field exists because a star needs it.
+
 Rendering these bodies is a separate concern — see [`$lib/renderers`](../renderers/README.md) for
 the star and planet renderers that draw them.

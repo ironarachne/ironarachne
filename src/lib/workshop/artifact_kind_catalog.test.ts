@@ -29,6 +29,7 @@ describe('artifact kind catalog', () => {
       'chop-shop',
       'dungeon',
       'environment',
+      'planet',
     ]);
   });
 

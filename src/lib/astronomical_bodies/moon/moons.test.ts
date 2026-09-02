@@ -13,7 +13,7 @@ import {
 import type { AstronomicalBody } from '../astronomical_bodies';
 
 function generate(seed: string) {
-  const config = getDefaultMoonGenerationConfig();
+  const config = getDefaultMoonGenerationConfig(new RNG('base-seed'));
   config.rng = new RNG(seed);
   return generateMoon(config);
 }
@@ -42,13 +42,15 @@ function body(overrides: Partial<AstronomicalBody> = {}): AstronomicalBody {
 
 describe('getDefaultMoonGenerationConfig', () => {
   it('defaults to the standard classifications', () => {
-    expect(getDefaultMoonGenerationConfig().possible_classifications.map((c) => c.name)).toEqual(
-      getStandardMoonClassifications().map((c) => c.name),
-    );
+    expect(
+      getDefaultMoonGenerationConfig(new RNG('base-seed')).possible_classifications.map(
+        (c) => c.name,
+      ),
+    ).toEqual(getStandardMoonClassifications().map((c) => c.name));
   });
 
   it('defaults the parent body to Earth', () => {
-    const config = getDefaultMoonGenerationConfig();
+    const config = getDefaultMoonGenerationConfig(new RNG('base-seed'));
 
     expect(config.parent_mass).toBe(5.972);
     expect(config.parent_radius).toBe(6371);
@@ -56,11 +58,11 @@ describe('getDefaultMoonGenerationConfig', () => {
   });
 
   it('defaults the star temperature to the Sun', () => {
-    expect(getDefaultMoonGenerationConfig().star_temperature).toBe(5778);
+    expect(getDefaultMoonGenerationConfig(new RNG('base-seed')).star_temperature).toBe(5778);
   });
 
   it('supplies an RNG', () => {
-    expect(getDefaultMoonGenerationConfig().rng).toBeInstanceOf(RNG);
+    expect(getDefaultMoonGenerationConfig(new RNG('base-seed')).rng).toBeInstanceOf(RNG);
   });
 });
 
@@ -132,11 +134,11 @@ describe('generateMoon', () => {
   });
 
   it('scales a moon up with a larger parent body', () => {
-    const small = getDefaultMoonGenerationConfig();
+    const small = getDefaultMoonGenerationConfig(new RNG('base-seed'));
     small.rng = new RNG('scale');
     small.possible_classifications = [getMoonClassificationByName('rocky')];
 
-    const large = getDefaultMoonGenerationConfig();
+    const large = getDefaultMoonGenerationConfig(new RNG('base-seed'));
     large.rng = new RNG('scale');
     large.possible_classifications = [getMoonClassificationByName('rocky')];
     large.parent_radius = 6371 * 10;
@@ -146,11 +148,11 @@ describe('generateMoon', () => {
   });
 
   it('scales orbital distance with the parent distance from the star', () => {
-    const near = getDefaultMoonGenerationConfig();
+    const near = getDefaultMoonGenerationConfig(new RNG('base-seed'));
     near.rng = new RNG('orbit');
     near.possible_classifications = [getMoonClassificationByName('rocky')];
 
-    const far = getDefaultMoonGenerationConfig();
+    const far = getDefaultMoonGenerationConfig(new RNG('base-seed'));
     far.rng = new RNG('orbit');
     far.possible_classifications = [getMoonClassificationByName('rocky')];
     far.parent_orbital_distance = 10;
@@ -168,7 +170,7 @@ describe('generateMoon', () => {
   });
 
   it('honours a config narrowed to a single classification', () => {
-    const config = getDefaultMoonGenerationConfig();
+    const config = getDefaultMoonGenerationConfig(new RNG('base-seed'));
     config.rng = new RNG('narrow');
     config.possible_classifications = [getMoonClassificationByName('icy')];
 

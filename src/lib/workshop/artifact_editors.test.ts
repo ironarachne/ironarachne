@@ -202,6 +202,22 @@ describe('the artifact editor registry', () => {
     expect(rolled).toEqual(roll(provenance));
   });
 
+  it('rolls a planet from provenance through the registered roller', async () => {
+    const roll = await artifactEditorEntry('planet')!.loadRoller!();
+    const provenance = {
+      toolPath: '/planet' as const,
+      seed: 'registry-seed',
+      config: { forceRings: true },
+    };
+    const rolled = roll(provenance) as { name: string; has_ring_system: boolean };
+
+    expect(rolled.name).not.toBe('');
+    // The recorded setting is honoured rather than redrawn, which is the whole claim provenance
+    // makes about a re-roll.
+    expect(rolled.has_ring_system).toBe(true);
+    expect(rolled).toEqual(roll(provenance));
+  });
+
   it('rolls a star nation from provenance through the registered roller', async () => {
     const roll = await artifactEditorEntry('star-nation')!.loadRoller!();
     const rolled = roll({

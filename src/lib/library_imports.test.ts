@@ -100,6 +100,11 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // made-up-names package, and through the star nation roll module the whole of
   // `$lib/astronomical_bodies`. The kind module holds metadata and validation only.
   '$lib/civilizations/star_nation_artifact_kind',
+  // The seventeenth. `$lib/astronomical_bodies`'s entry point reaches the planet, star, moon and
+  // star-system generators and, through the planet roll module, `$lib/civilizations`. Measured on
+  // the build: through the kind module the registry chunk and everything it statically imports is
+  // 140.7 KB across 16 chunks, and through the entry point it is 214.8 KB across 24.
+  '$lib/astronomical_bodies/planet_artifact_kind',
   // There is deliberately no entry for `$lib/environment`. Its kind module was written to sit here
   // beside the other sixteen and the measurement said not to: through `$lib/environment`'s entry
   // point the registry chunk is 136.1 KB across 17 chunks, and through the kind module it is
