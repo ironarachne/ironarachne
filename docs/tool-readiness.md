@@ -211,6 +211,49 @@ between a generator that looks seeded and one that is. A tool's own work item co
 calls; nothing is centralised, because a shared "fix the clock" item would touch six libraries at
 once and block every tool behind one review.
 
+**Audited after the locations domain finished, and the count was low.** Fifteen was what a grep for
+`getDefault*Config` found; the defect is not confined to helpers with that name. The real total is
+**twenty sites across ten libraries**, plus one of a different kind:
+
+| Library               | Sites | State                                                                                        |
+| --------------------- | ----- | -------------------------------------------------------------------------------------------- |
+| `environment`         | 5     | Fixed by [#60](https://github.com/ironarachne/ironarachne/issues/60)                         |
+| `astronomical_bodies` | 4     | Fixed by #57 (three) and [#61](https://github.com/ironarachne/ironarachne/issues/61) (moons) |
+| `civilizations`       | 2     | Fixed by #57                                                                                 |
+| `regions`             | 2     | **Not counted.** Fixed by [#62](https://github.com/ironarachne/ironarachne/issues/62)        |
+| `culture`             | 1     | Outstanding                                                                                  |
+| `heraldry`            | 1     | Outstanding                                                                                  |
+| `adnd`                | 1     | Outstanding                                                                                  |
+| `dice`                | 1     | Outstanding                                                                                  |
+| `realms`              | 1     | **Not counted.** Outstanding                                                                 |
+| `religion`            | 1     | **Not counted.** Outstanding                                                                 |
+| `settlements`         | 1     | **Not counted.** Outstanding                                                                 |
+
+Thirteen are fixed and seven remain. **Every one of the seven is latent**: traced call site by call
+site, each in-app caller either passes an RNG or overwrites the field before anything is drawn from
+it, so the clock reaches no generated output today. That is the same finding #60 recorded for
+`environment` and it is what the decision already says the defect is — a helper that _looks_ like a
+source of randomness a caller can safely forget about.
+
+**Two shapes, and the second is the one that bites.** A bare `rng` field is easy to overwrite and
+easy to see. `realms`, `religion`, `settlements` and the old `regions` helper instead use the clock
+RNG _inside the helper_ to build a derived value — a name generator set, or in `settlements` an
+entire generated environment — so a caller that overwrites `.rng` and nothing else still gets a
+clock-driven name set. That is exactly what #62 found in `regions`, and it is why the grep that
+produced "fifteen" was the wrong instrument: the tell is `new RNG(Date.now())` anywhere in a
+library, not a function name.
+
+`settlements.getDefaultConfig` is also the pass's only performance instance: it generates a whole
+`Environment` that its single caller discards on the next line.
+
+**One defect of a different kind, in dead code.** `treasure_hoard.ts` builds container ids as
+`` `container-${n}-${Date.now()}` `` — a clock value inside a _payload field_ rather than an RNG
+seed, so two hoards rolled from one seed would differ. It sits in `getTreasureHoardForValue`, which
+is exported and has no callers; the path the dungeon actually uses,
+`generateRandomContainersForCapacity`, is seeded correctly.
+[#70](https://github.com/ironarachne/ironarachne/issues/70) should fix or delete it before reaching
+for that function.
+
 ### 2. The stored vocabulary is declared once, by the library that owns the concept
 
 Stated above. The alternative is five spellings of `StoredArms`, and the failure mode is silent:
@@ -285,6 +328,51 @@ The risk in this decision is the usual one for a declarative layer: a descriptor
 grows a case for every kind until it is a framework nobody can read. The guard is the `control`
 union above — four controls and a list. **A kind that needs a fifth control does not get one; it
 gets a bespoke editor.**
+
+### 5a. The re-derive: none of the twelve was a customer
+
+Six of the twelve have now been built — the arms manufacturer (#53), chop shop (#58), star nation
+(#57), environment (#60), planet (#61) and star system (#63) — and every one took a bespoke editor.
+That prompted an audit of the remaining six against their actual payload types rather than against
+this list. The result is that **the list was wrong when it was written**, and the check this
+decision asks for ("should check that it is, since two 'flat' payloads have now turned out to carry
+a list of records") should have been run before the list existed.
+
+| Tool              | Payload                                                                     | Flat?  |
+| ----------------- | --------------------------------------------------------------------------- | ------ |
+| Chop shop         | `{ text }`                                                                  | Yes    |
+| Spooky ship       | `{ text }` — `generate(rng)` returns a string, same as the chop shop        | Yes    |
+| Drug              | 9 strings, plus `drugType` and `effectType` records                         | Nearly |
+| Arms manufacturer | a list of `Weapon` records                                                  | No     |
+| Star nation       | three records, `regionsOfControl[]`, an embedded star system                | No     |
+| Environment       | four nested records, two string lists, a list of `Season` records           | No     |
+| Planet            | a body, `moons: AstronomicalBody[]`, a nested civilization                  | No     |
+| Star system       | two lists of `AstronomicalBody`                                             | No     |
+| Potion            | `container`, `liquid`, `sensory`, `effect` records, `modifications[]`       | No     |
+| Item              | ~18 fields with nested material, enchantment, decoration and combat profile | No     |
+| Treasure hoard    | `Item[]` — a list of the above                                              | No     |
+| Merchant          | `proprietor`, `shop`, `mark` records, `stock[]`                             | No     |
+
+Nine of the twelve are structures. Two are flat and are the _same_ case — the prose payload
+[decision 4](#4-prose-generators-get-a-kind-and-it-holds-the-prose) describes, whose editing view is
+one textarea and which needs no descriptor framework to produce one. The chop shop's is fourteen
+lines.
+
+Drug is the only borderline entry, and it fails on this decision's own guard: `drugType` and
+`effectType` are rows of a table, so editing them means a `select` that maps a name back to a
+record, and the descriptor language addresses `field: string` — a key holding a value, not a key
+holding a name that resolves to one. That is the fifth control the guard refuses.
+
+**So `SnapshotFieldEditor` has no customers, and the recommendation is to retire it from this
+document rather than defer it again.** Six tools have been asked to write it and none could use it;
+of the six unbuilt, at most one is a candidate and it is one the guard excludes. What the pass
+actually produced is six bespoke editors that share a shape — a `validate`-narrowed snapshot, an
+`edit()` funnel calling `onChange` once, `{@render}` snippets for the repeated row types — and that
+shared shape is worth more as a convention than as a component, because it costs nothing to follow
+and imposes nothing on the kinds that differ.
+
+The estimate this decision rests on ("section 4 is the expensive half of this pass") still holds.
+What was wrong is the belief that half of it could be avoided by a declared layer.
 
 ### 6. Composition follows the kinds that exist, so the order of the work is part of the design
 
