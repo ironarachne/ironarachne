@@ -112,6 +112,12 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // build: through the kind module the registry chunk and everything it statically imports is
   // 292 KB across 31 chunks, and through the entry point it is 408 KB across 35.
   '$lib/equipment/item_artifact_kind',
+  // The sharpest case since settlement: `$lib/merchants`'s entry point reaches `generate_merchant`,
+  // and from there the character generator, the species tables and — through the merchant mark —
+  // the whole charge library. Measured on the build: through the kind module the registry chunk and
+  // everything it statically imports is 296 KB across 31 chunks, and through the entry point it is
+  // 19.7 MB across 47.
+  '$lib/merchants/merchant_artifact_kind',
   // The eighteenth, the same library and the same reason: the star-system kind module holds
   // metadata and validation only, and its codec is a dynamic import.
   '$lib/astronomical_bodies/star_system_artifact_kind',

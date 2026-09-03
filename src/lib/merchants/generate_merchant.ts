@@ -116,6 +116,9 @@ export function generateMerchant(seed: string, config: MerchantGeneratorConfig):
       venueTypeLabel: getVenueTypeLabel(venueType),
       description: venueDescription,
       locationBlurb,
+      ...(config.settlementName === undefined || config.settlementName === ''
+        ? {}
+        : { settlementName: config.settlementName }),
     },
     mark,
     honesty,

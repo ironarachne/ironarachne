@@ -252,6 +252,23 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollItemSnapshot(provenance.seed, readEquipmentGeneratorConfig(provenance.config));
     },
   },
+  merchant: {
+    loadEditor: () => import('$components/objects/MerchantArtifactEditor.svelte'),
+    /**
+     * The page's six controls, read back through the roll module's own reader.
+     *
+     * No name source is passed, so a merchant named from a referenced culture re-rolls from that
+     * culture's *pattern set name* rather than from the artifact — which is what the record stores
+     * and why. A re-roll cannot ask the store for an artifact it has only a reference to, and
+     * naming of the same tongue is what the user was actually choosing.
+     */
+    loadRoller: async () => {
+      const { readMerchantGeneratorConfig, rollMerchantSnapshot } =
+        await import('$lib/merchants/merchant_roll.js');
+      return (provenance) =>
+        rollMerchantSnapshot(provenance.seed, readMerchantGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

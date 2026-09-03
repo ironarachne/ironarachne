@@ -125,6 +125,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/equipment',
       '/fantasy/equipment-generator',
       '/fantasy/family',
+      '/fantasy/merchant',
       '/fantasy/organization',
       '/culture',
       '/fantasy/dcc/character',
@@ -139,6 +140,7 @@ describe('TOOL_CATALOG', () => {
       '/species-stats',
       '/word-generator-cheat-sheet',
       '/fantasy/equipment-generator',
+      '/fantasy/merchant',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -246,6 +248,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/equipment',
       '/fantasy/equipment-generator',
       '/fantasy/family',
+      '/fantasy/merchant',
       '/fantasy/organization',
       '/fantasy/religion',
       '/fantasy/settlement',
@@ -320,6 +323,7 @@ describe('filterTools', () => {
       '/fantasy/settlement',
       '/fantasy/equipment',
       '/fantasy/equipment-generator',
+      '/fantasy/merchant',
     ]);
   });
 

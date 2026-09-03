@@ -462,6 +462,13 @@ it found it late is exactly [decision 8](#8-a-reference-tool-with-no-logic-still
 the conversion lived in the component, where no unit test could reach it. The two remaining
 reference tools should expect the same shape of finding.
 
+**The generator pages share two faults, found three times running.** #66, #67 and every tool that
+follows should expect both: a page that reseeds its own RNG from the seed field inside an
+`$effect`, which makes each press's seed depend on the _text_ of the previous one and is
+requirement 2.2 failing in a form the pass had not seen when it was written; and a payload held in
+deep-reactive `$state`, which IndexedDB refuses to store because `structuredClone` will not clone a
+Proxy. `$state.raw` is the fix for the second and is what every converted page now uses.
+
 **#75 found two bugs outside itself**, which is the other thing a reference tool's pass turns up:
 `$lib/age`'s `getVariant` rewrote the age categories it was handed rather than returning new ones —
 so `averageAgeCategories` in `species/common.ts` permanently aged a species by averaging it — and it

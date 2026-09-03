@@ -45,6 +45,12 @@ import { drugArtifactKind } from '$lib/drug';
 // chunks; through the entry point it is 408 KB across 35. Every page that lists what a project
 // contains pays that difference.
 import { itemArtifactKind } from '$lib/equipment/item_artifact_kind';
+// Deep, and the sharpest of the lot: `$lib/merchants`'s entry point reaches `generate_merchant`,
+// and from there the character generator, the species tables and — through the merchant mark —
+// the whole charge library. Measured on the build: through the kind module the registry chunk and
+// everything it statically imports is 296 KB across 31 chunks; through the entry point it is
+// 19.7 MB across 47.
+import { merchantArtifactKind } from '$lib/merchants/merchant_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -86,6 +92,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, regionArtifactKind);
   registerArtifactKind(registry, drugArtifactKind);
   registerArtifactKind(registry, itemArtifactKind);
+  registerArtifactKind(registry, merchantArtifactKind);
   return registry;
 }
 
