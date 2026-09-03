@@ -86,6 +86,47 @@ What this tool actually owes:
 - **#19 (expand the calculator for specific settings)** is the other open issue here, and it is a
   feature rather than a readiness gap. Read before scoping; not folded in.
 
+**As assessed.** 1.2 and 1.4 landed as written: the `fantasy` tag is gone, and the page, its
+`<title>` and the catalog all read **Species Height and Weight Calculator**. The prediction about
+section 6 was half right and half wrong, in the same shape #65 found.
+
+- **6.1 was never at risk and is not what needed doing.** The numbers did render as `Stat` pairs
+  rather than a wide table, and `pages.mobile.spec.ts` was already green at every width. What was
+  wrong was that they should not have been `Stat` pairs at all: a ladder of seven age categories
+  by age range, height and weight is a table, and rendering it as a stack of stat blocks inside
+  `<div style="display:flex">` is what made it two hand-built columns nothing could check. It is a
+  `DataTable` per gender now, which flips on a phone by the repository's own rule.
+- **6.2 was worse than "confirm rather than assume".** Two heading levels were skipped —
+  `<h5>` directly under `<h3>` — and four of the five fields were labelled `% of Base Height` and
+  `% of Base Weight` twice over, told apart only by an `<h3>` a screen reader user would have to
+  remember. The labels name their gender now, and the two tables carry `aria-label`s that differ.
+- **6.4 was the real failure, and it is the same failure #65 found.** A cleared number field binds
+  to `null`, `null / 100` is `0`, and an age modifier of zero drove each category's scaled
+  `maxAge` below the `minAge` chained from the row above it — so the sheet came back reading
+  "2 to 1 years". The fix is in two places: `$lib/age`'s `getVariant` never emits such a row now,
+  and `$lib/size`'s `species_stats.ts` floors the inputs.
+- **7.1 needed the arithmetic to exist somewhere testable first**, which is why the above shipped.
+  `speciesStatsDocument` holds it, and the page renders exactly what the exports write.
+- **6.3 was not skipped.** An author working out a species wants the sheet, so it exports Markdown
+  and a PDF. The filename names the proportions, because the species has no name yet — that is
+  what the tool is for.
+
+**Two findings beyond this tool**, both in `$lib/age`'s `getVariant` and both fixed here because
+6.4 depends on the first:
+
+- It **rewrote the categories it was handed** rather than returning new ones. `getHumanVariant`
+  hands it a fresh `humanStandard()` so no caller through that path noticed, but
+  `averageAgeCategories` in `species/common.ts` hands it a species' own `ageCategories` — and so
+  permanently aged that species for the rest of the session. `averageSizes`, the function
+  immediately below it, deep-clones for exactly this reason.
+- It could **emit a category ending before it begins**. No shipped species scales small enough to
+  reach it; a tool where the user types the lifespan does.
+
+**The lifespan the sheet reports is the ladder's, not the request's.** Each category scales and
+rounds up, so `100 * 0.07` being `7.000000000000001` turns a seven-year lifespan into a ladder that
+ends at eight. Reporting the request would have left the opening sentence contradicting the last
+row of the table.
+
 ## #76 — Word generator cheat sheet
 
 The smallest job in the pass. A reference tool with no artifact kind, no seed, and no logic — and

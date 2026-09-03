@@ -274,8 +274,8 @@ export const PAGE_MANIFEST: PageEntry[] = [
   },
   {
     path: '/species-stats',
-    title: 'Species Stats Tool | Iron Arachne',
-    heading: 'Species Stats Tool',
+    title: 'Species Height and Weight Calculator | Iron Arachne',
+    heading: 'Species Height and Weight Calculator',
     kind: 'tool',
     outputCheck: 'stats',
   },

@@ -479,13 +479,22 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     maturity: 'experimental',
     tags: ['naming', 'worldbuilding'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-utilities.md (#75). A reference tool, so sections 3, 4 and 5 do not apply, nor
+  // do 2.2-2.4 and 7.2-7.4. #25's placeholder species sizes are not a blocker: the calculator
+  // never reads the species list, it scales a human baseline, and #25 is a fact about data this
+  // tool is used to author. What was wrong was 6.4 — a cleared field produced age rows reading
+  // "2 to 1 years" — and 7.1, the arithmetic having lived in the component. `$lib/size`'s
+  // `species_stats.ts` holds it now, with Markdown and PDF exports for 6.3.
   defineTool({
     path: '/species-stats',
     label: 'Species Height and Weight Calculator',
     kind: 'reference',
     domain: 'utilities',
-    maturity: 'experimental',
-    genres: ['fantasy'],
+    maturity: 'release-ready',
+    // No genre. Height and weight as a proportion of a human baseline is arithmetic, and a sci-fi
+    // setting inventing a heavy-worlder does it identically; the `fantasy` tag would have hidden
+    // the tool from every project that is not one (1.2).
     tags: ['species'],
   }),
   defineTool({

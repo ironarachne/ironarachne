@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Species Stats Tool | Iron Arachne</title>
+  <title>Species Height and Weight Calculator | Iron Arachne</title>
 </svelte:head>
 
 <SpeciesStatsCalculator />
