@@ -45,6 +45,39 @@ here for the same reason.
 - **Provenance tells the two tools apart.** `toolPath` is `/fantasy/equipment-generator` or
   `/fantasy/weapon`, which is what the roller reads to know which config shape it is holding.
 
+**As built (#66).** The kind and the payload landed as designed, and the composition is stored as
+the records the document asks for. Four things this section did not anticipate:
+
+- **A press is a list; an artifact is one item.** The generator rolls ten at once, and the kind is
+  `item` — so each card carries its own save button, and the seed it records is
+  `itemSeed(pageSeed, index)` rather than the page's. Deriving it keeps the whole list a pure
+  function of the one seed the user sees while still letting the third sword re-roll to the third
+  sword. Nothing else in the pass has this shape.
+- **The card showed less than it had rolled.** The material, refinement, enchantment and decoration
+  were folded into one sentence and never named: a user could read that a blade was _"finely
+  balanced"_ and not that the refinement was called "balanced". The card and both exports render
+  the presentation document now, which names all four — which is the visible half of what storing
+  the records buys, the editable half being the other.
+- **`weaponType` and `armorType` are not stored**, though `Weapon` and `Armor` carry them.
+  Everything the page shows from either is already a field of its own: `itemMinorType` is the
+  type's name, the armour's defence is in the combat profile, and the weapon's attacks are in
+  `actions`, which the snapshot does keep. Keeping the row whole would copy a table into every
+  sword.
+- **The description cannot be recomputed from a stored item.** `generateItem` writes the composed
+  paragraph back over the base type's own description, the field the composer builds _from_, so
+  re-running it on a saved item would nest the paragraph inside itself. `itemBaseDescription`
+  resolves the base sentence from the type table instead — which is the one place the store-by-name
+  treatment does apply here.
+
+**Two bugs found on the way**, both invisible until the tool was taken seriously:
+
+- **The page reseeded its own RNG from the seed field**, inside an `$effect`, so the next press's
+  seed depended on the text of the previous one. Requirement 2.2's usual failure in a form the pass
+  had not seen before: the generator was pure and the page was not.
+- **A `$state` list of payloads cannot be saved.** Svelte's deep proxy wraps every array in the
+  payload, and IndexedDB's structured clone refuses one — `[object Array] could not be cloned`. The
+  list is `$state.raw`, which is what a payload the page only ever replaces wholesale wants anyway.
+
 **#69's genre question answers itself.** The issue asks whether the tool should carry a sci-fi tag
 because `src/lib/weapons` has a `scifi.ts`. `WeaponGenerator.svelte` does not import
 `$lib/weapons` at all — the only importer anywhere is `$lib/arms_manufacturer`, which is #53 and is
@@ -379,10 +412,14 @@ a haunted freighter. They are the pass's cheapest complete tools and go first fo
 
 ## Still open
 
-- **Whether `item` should carry the generator's config in provenance in enough detail to re-roll a
-  _similar_ item rather than the same one.** Re-roll means "the same seed and config again", which
-  for an item is the identical item — arguably useless. The alternative reading, "roll me another
-  like this", is a different feature and this document does not smuggle it in.
+- ~~**Whether `item` should carry the generator's config in provenance in enough detail to re-roll a
+  _similar_ item rather than the same one.**~~ **Settled by building it (#66).** Re-roll does mean
+  "the same seed and config again", and for an item that is the identical item — which turns out
+  not to be useless at all, because that is exactly what requirement 4.3 describes: the destructive
+  command that throws away a user's edits and puts the rolled item back. "Roll me another like
+  this" is a different feature and is still not smuggled in; what the provenance carries is the
+  page's four controls, and the display system is not among them because it changes how the same
+  item reads rather than what was rolled.
 - **Whether the price lists should offer a downloadable table (6.3).** It is a SHOULD for a
   reference tool and the tables are already data; a CSV or Markdown download is a small addition
   that #65 may take or leave.

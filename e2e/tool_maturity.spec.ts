@@ -52,6 +52,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/star-system', title: 'Star System Generator | Iron Arachne', webgl: true },
   { path: '/region', title: 'Region Generator | Iron Arachne' },
   { path: '/drug', title: 'Cyberpunk Drug Generator | Iron Arachne' },
+  { path: '/fantasy/equipment-generator', title: 'Equipment Generator | Iron Arachne' },
   {
     // The first reference tool in this list, and the reason it is worth naming: most of the spec
     // does not apply to a tool that produces no artifacts, so its silence was earned by sections

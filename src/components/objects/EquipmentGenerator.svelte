@@ -1,58 +1,93 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import * as RNG from '@ironarachne/rng';
-  import {
-    type Item,
-    type Weapon,
-    type Armor,
-    generateItem,
-    getDefaultGenerationConfig,
-  } from '$lib/equipment';
-  import { kgToPounds } from '$lib/measurements';
-  import { valueToString, COMMON_FANTASY } from '$lib/currency';
-  import { convertPowerToDice, convertToDnDArmorClass } from '$lib/combat_system';
-  import GeneratorPage from '$components/layout/GeneratorPage.svelte';
-  import SeedControls from '$components/common/SeedControls.svelte';
-  import ControlsPanel from '$components/common/ControlsPanel.svelte';
-  import SelectField from '$components/common/SelectField.svelte';
-  import NumberField from '$components/common/NumberField.svelte';
-  import CheckboxField from '$components/common/CheckboxField.svelte';
+  import { RNG } from '@ironarachne/rng';
+
   import Badge from '$components/common/Badge.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import CheckboxField from '$components/common/CheckboxField.svelte';
+  import ControlsPanel from '$components/common/ControlsPanel.svelte';
+  import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import NumberField from '$components/common/NumberField.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import SeedControls from '$components/common/SeedControls.svelte';
+  import SelectField from '$components/common/SelectField.svelte';
+  import { downloadTextFile } from '$lib/download';
+  import {
+    ITEM_ARTIFACT_KIND,
+    itemDisplayName,
+    itemFileStem,
+    itemListToMarkdown,
+    itemListToText,
+    itemToMarkdown,
+    itemSeed,
+    itemToDocument,
+    rollItems,
+    toItemSnapshot,
+    defaultEquipmentGeneratorConfig,
+    type EquipmentGeneratorConfigRecord,
+    type ItemDisplaySystem,
+    type ItemMajorTypeChoice,
+    type ItemSnapshot,
+  } from '$lib/equipment';
+  import { downloadTextPdf } from '$lib/pdf';
 
-  const rng = new RNG.RNG(Date.now().toString());
+  const TOOL_PATH = '/fantasy/equipment-generator';
+
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. It used to be reseeded from the seed
+   * field inside an `$effect`, which made the next press's seed depend on the text of the previous
+   * one — a seed control that worked and a stream nobody could reproduce, which is requirement
+   * 2.2's usual failure in a form this pass had not seen before.
+   */
+  const rng = new RNG(Date.now().toString());
+
   let seed = $state(rng.randomString(13));
-  $effect(() => {
-    rng.setSeed(seed);
-  });
   let lockSeed = $state(false);
 
-  let itemType = $state('any');
+  let itemType: ItemMajorTypeChoice = $state('any');
   let itemCount = $state(10);
   let useRefine = $state(true);
   let useEnchant = $state(true);
   let useDecorate = $state(true);
-  let displaySystem = $state('dnd5e');
+  let displaySystem: ItemDisplaySystem = $state('dnd5e');
 
-  let generatedItems: Item[] = $state([]);
+  /**
+   * The seed and settings the items on screen were rolled from, which is what their provenance
+   * records. Empty until the first press, which `onMount` makes immediately.
+   */
+  let rolledSeed = $state('');
+  let rolledConfig: EquipmentGeneratorConfigRecord = $state(defaultEquipmentGeneratorConfig());
+  /**
+   * `$state.raw`, not `$state`: a deep `$state` wraps every array in the payload — `properties`,
+   * `actions`, `bonusDamage` — in a reactive Proxy, and IndexedDB's structured clone refuses one
+   * with "[object Array] could not be cloned". The page only ever replaces this list wholesale, so
+   * the deep proxy buys nothing and costs every save.
+   */
+  let items: ItemSnapshot[] = $state.raw([]);
+
+  function rollConfig(): EquipmentGeneratorConfigRecord {
+    return { itemMajorType: itemType, useRefine, useEnchant, useDecorate };
+  }
 
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    rng.setSeed(seed);
+    rolledSeed = seed;
+    rolledConfig = rollConfig();
+    // Stored as snapshots straight away: the page renders the same shape a saved item is read
+    // back in, so a card and a reopened artifact cannot show different things.
+    items = rollItems(rolledSeed, itemCount, rolledConfig).map(toItemSnapshot);
+  }
 
-    const config = getDefaultGenerationConfig();
-    config.itemMajorType = itemType as 'any' | 'weapon' | 'armor';
-    config.useRefine = useRefine;
-    config.useEnchant = useEnchant;
-    config.useDecorate = useDecorate;
+  function exportMarkdown() {
+    downloadTextFile(itemListToMarkdown(items, displaySystem), 'equipment.md', 'text/markdown');
+  }
 
-    const items: Item[] = [];
-    for (let i = 0; i < itemCount; i++) {
-      items.push(generateItem(`${seed}-item-${i}`, config));
-    }
-    generatedItems = items;
+  async function exportPdf() {
+    await downloadTextPdf('Equipment', itemListToText(items, displaySystem), 'equipment.pdf');
   }
 
   onMount(() => {
@@ -60,7 +95,7 @@
   });
 </script>
 
-<GeneratorPage toolPath="/fantasy/equipment-generator" title="Equipment Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Equipment Generator">
   {#snippet description()}
     <p>Generate random weapons and armor.</p>
     <p>"Refine" adds quality modifications to the items.</p>
@@ -80,6 +115,8 @@
       ]}
     />
 
+    <!-- Not part of the roll, and so not part of the provenance: it chooses between D&D dice and
+         this site's own numbers for the *same* rolled item. -->
     <SelectField
       id="displaySystem"
       label="System"
@@ -103,56 +140,63 @@
     <BaseButton onclick={generate}>Generate</BaseButton>
   </ControlsPanel>
 
+  <div class="actions">
+    <BaseButton onclick={exportMarkdown} disabled={items.length === 0}>
+      Download Markdown
+    </BaseButton>
+    <BaseButton onclick={exportPdf} disabled={items.length === 0}>Download PDF</BaseButton>
+  </div>
+
   <div class="results">
-    {#each generatedItems as item}
+    {#each items as item, index (item.id)}
+      {@const document_ = itemToDocument(item, displaySystem)}
       <!-- A card is a panel: the two layers, with the `li` painting the keyline across its box
            and the field covering all but a pixel of it. See docs/visual-design.md, "Cards are
            panels". This card wrote its own border, radius, fill and padding until #124. -->
       <div class="item-card panel">
         <div class="panel__field">
-          <h3>{item.name}</h3>
-          <p class="description">{item.description}</p>
+          <h3>{document_.title}</h3>
+          <p class="description">{document_.description}</p>
           <div class="stats">
             <Badge>{item.itemMajorType}</Badge>
-            {#if item.itemMajorType === 'weapon'}
-              {@const weapon = item as Weapon}
-              {#if displaySystem === 'dnd5e' && weapon.actions && weapon.actions.length > 0}
-                <Badge
-                  >Damage: {convertPowerToDice(weapon.actions[0].baseDamage || 0)} ({weapon
-                    .actions[0].damageType})</Badge
-                >
-                {#if weapon.actions[0].bonusDamage && weapon.actions[0].bonusDamage.length > 0}
-                  {#each weapon.actions[0].bonusDamage as bonus}
-                    <Badge>+ {convertPowerToDice(bonus.power)} ({bonus.type})</Badge>
-                  {/each}
-                {/if}
-              {:else}
-                <Badge
-                  >Damage: {weapon.actions[0].baseDamage || 0} ({weapon.actions[0]
-                    .damageType})</Badge
-                >
-              {/if}
-            {/if}
-            {#if item.itemMajorType === 'armor'}
-              {@const armor = item as Armor}
-              {#if displaySystem === 'dnd5e'}
-                <Badge>AC: {convertToDnDArmorClass(armor.combatProfile.defense)}</Badge>
-              {:else}
-                <Badge>Defense: {armor.combatProfile.defense}</Badge>
-              {/if}
-            {/if}
-            <Badge>Value: {valueToString(item.value, COMMON_FANTASY)}</Badge>
-            <Badge>Weight: {kgToPounds(item.weight).toFixed(1)} lbs</Badge>
+            {#each document_.lines as line (line.label)}
+              <Badge>{line.label}: {line.value}</Badge>
+            {/each}
           </div>
-          {#if item.properties && item.properties.length > 0}
+          {#if document_.properties.length > 0}
             <div class="tags">
-              {#each item.properties as tag}
+              {#each document_.properties as tag (tag)}
                 <!-- `plain` because a card can carry a dozen of these: bordered pills stop
                      annotating the item and start shouting over it. -->
                 <Badge plain>{tag}</Badge>
               {/each}
             </div>
           {/if}
+
+          <div class="card-actions">
+            <!-- One save per card, because the kind is `item` and an artifact is one item. Each
+                 card's seed is the one that rolls *that* item, so a saved sword re-rolls to a
+                 sword rather than to the list it arrived in. -->
+            <SaveArtifactButton
+              kind={ITEM_ARTIFACT_KIND}
+              toolPath={TOOL_PATH}
+              snapshot={item}
+              seed={itemSeed(rolledSeed, index)}
+              config={{ ...rolledConfig }}
+              defaultName={itemDisplayName(item)}
+            />
+            <BaseButton
+              onclick={() =>
+                downloadTextFile(
+                  itemToMarkdown(item, displaySystem),
+                  `${itemFileStem(item)}.md`,
+                  'text/markdown',
+                )}
+              aria-label="Download {document_.title} as Markdown"
+            >
+              Markdown
+            </BaseButton>
+          </div>
         </div>
       </div>
     {/each}
@@ -160,6 +204,13 @@
 </GeneratorPage>
 
 <style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
   .results {
     display: grid;
     gap: var(--s6);
@@ -187,5 +238,12 @@
     flex-wrap: wrap;
     gap: var(--s3);
     margin-top: var(--s4);
+  }
+
+  .item-card .card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s4);
+    margin-top: var(--s5);
   }
 </style>

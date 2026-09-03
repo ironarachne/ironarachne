@@ -19,6 +19,11 @@ export * from './generation';
 
 export * as FantasyEquipmentList from './fantasylist';
 export * from './fantasylist';
+export * from './item_artifact_kind';
+export * from './item_editing';
+export * from './item_presentation';
+export * from './item_roll';
+export * from './item_snapshot';
 export * from './price_lists';
 export type * from './list';
 export type * from './price_list_types';
