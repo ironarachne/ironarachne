@@ -418,12 +418,20 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['equipment'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-objects.md (#67). It saves as `merchant` — the person, the venue and the
+  // inventory, with the stock stored rather than regenerated because a referee who crosses two
+  // things off has edited the shop — has an editor in `ARTIFACT_EDITORS`, and exports Markdown and
+  // PDF, the first exports it has ever had. Its roll is deterministic from the seed via
+  // `merchant_roll.ts`, and the payload's own `seed` is the provenance seed rather than a second
+  // answer to the same question. It is the first tool in the pass to compose two kinds: a culture
+  // for naming and a settlement for where the shop stands (5.1).
   defineTool({
     path: '/fantasy/merchant',
     label: 'Fantasy Merchant',
     kind: 'generator',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['equipment'],
   }),

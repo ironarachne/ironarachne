@@ -1,25 +1,52 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { RNG } from '@ironarachne/rng';
+
+  import BaseButton from '$components/common/BaseButton.svelte';
+  import CheckboxField from '$components/common/CheckboxField.svelte';
+  import ControlsPanel from '$components/common/ControlsPanel.svelte';
   import DataTable, { type Column } from '$components/common/DataTable.svelte';
+  import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import NumberField from '$components/common/NumberField.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
+  import SeedControls from '$components/common/SeedControls.svelte';
+  import SelectField from '$components/common/SelectField.svelte';
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
-  import { onMount } from 'svelte';
-  import { valueToString, COMMON_FANTASY } from '$lib/currency';
-  import { generateMerchant, getDefaultMerchantConfig, type Merchant } from '$lib/merchants';
+  import type { ArtifactReference } from '$lib/artifacts';
+  import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
+  import { downloadTextFile } from '$lib/download';
+  import {
+    MAXIMUM_STOCK_COUNT,
+    MERCHANT_ARTIFACT_KIND,
+    MINIMUM_STOCK_COUNT,
+    merchantFileStem,
+    merchantPriceText,
+    merchantToDocument,
+    merchantToMarkdown,
+    merchantToText,
+    rollMerchant,
+    toMerchantSnapshot,
+    type MerchantGeneratorConfigRecord,
+    type MerchantSnapshot,
+  } from '$lib/merchants';
   import { renderMerchantMarkSvg } from '$lib/merchant_marks';
-  import { RNG } from '@ironarachne/rng';
-  import GeneratorPage from '$components/layout/GeneratorPage.svelte';
-  import SeedControls from '$components/common/SeedControls.svelte';
-  import ControlsPanel from '$components/common/ControlsPanel.svelte';
-  import SelectField from '$components/common/SelectField.svelte';
-  import NumberField from '$components/common/NumberField.svelte';
-  import CheckboxField from '$components/common/CheckboxField.svelte';
-  import BaseButton from '$components/common/BaseButton.svelte';
+  import { downloadTextPdf } from '$lib/pdf';
+  import { SETTLEMENT_ARTIFACT_KIND, type Settlement } from '$lib/settlements';
 
+  const TOOL_PATH = '/fantasy/merchant';
+
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. It used to be reseeded from the seed
+   * field inside an `$effect`, so the next press's seed depended on the *text* of the previous
+   * one — the same requirement 2.2 failure #66 found in the equipment generator.
+   */
   const rng = new RNG(Date.now().toString());
+
   let seed = $state(rng.randomString(13));
-  $effect(() => {
-    rng.setSeed(seed);
-  });
   let lockSeed = $state(false);
 
   let shopType = $state('any');
@@ -29,33 +56,88 @@
   let stockCount = $state(12);
   let includeMerchantMark = $state(true);
 
-  let merchant: Merchant | null = $state(null);
+  /** Composition, opt-in twice over (rule 1, docs/workshop.md). */
+  let useCulture = $state(false);
+  let referencedCulture: Culture | undefined = $state();
+  let cultureReference: ArtifactReference | undefined = $state();
+  let useSettlement = $state(false);
+  let referencedSettlement: Settlement | undefined = $state();
+  let settlementReference: ArtifactReference | undefined = $state();
 
-  function buildConfig() {
-    const config = getDefaultMerchantConfig();
-    config.shopType = shopType as typeof config.shopType;
-    config.venueType = venueType as typeof config.venueType;
-    config.honesty = honesty as typeof config.honesty;
-    config.priceLevel = priceLevel as typeof config.priceLevel;
-    config.stockCount = { min: stockCount, max: stockCount };
-    config.includeMerchantMark = includeMerchantMark;
-    return config;
+  /**
+   * The rolled merchant.
+   *
+   * `$state.raw`, and not as a preference. Deep-reactive `$state` wraps every array and object in
+   * the payload in a Proxy, and `structuredClone` — what IndexedDB stores with — refuses one
+   * outright, so saving fails with `could not be cloned`. #66 hit exactly this.
+   */
+  let merchant: MerchantSnapshot | null = $state.raw(null);
+
+  /** The seed and settings the merchant on screen was rolled from, which is its provenance. */
+  let rolledSeed = $state('');
+  let rolledConfig: MerchantGeneratorConfigRecord = $state(configRecord());
+
+  const references = $derived(
+    [cultureReference, settlementReference].filter(
+      (reference): reference is ArtifactReference => reference !== undefined,
+    ),
+  );
+
+  const document_ = $derived(merchant === null ? null : merchantToDocument(merchant));
+
+  function configRecord(): MerchantGeneratorConfigRecord {
+    return {
+      shopType: shopType as MerchantGeneratorConfigRecord['shopType'],
+      venueType: venueType as MerchantGeneratorConfigRecord['venueType'],
+      honesty: honesty as MerchantGeneratorConfigRecord['honesty'],
+      priceLevel: priceLevel as MerchantGeneratorConfigRecord['priceLevel'],
+      stockCount,
+      includeMerchantMark,
+      // The culture's *pattern set name*, not its id: a re-roll cannot ask the store for an
+      // artifact it has only a reference to, and naming of the same tongue is what was chosen.
+      // The link itself is an artifact reference and lives beside the payload.
+      ...(useCulture && referencedCulture !== undefined
+        ? { nameGeneratorSet: referencedCulture.nameGenerators.name }
+        : {}),
+      ...(useSettlement && referencedSettlement !== undefined
+        ? { settlementName: referencedSettlement.name }
+        : {}),
+    };
   }
 
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    rng.setSeed(seed);
-    merchant = generateMerchant(seed, buildConfig());
+    rolledSeed = seed;
+    rolledConfig = configRecord();
+    merchant = toMerchantSnapshot(
+      rollMerchant(
+        rolledSeed,
+        rolledConfig,
+        useCulture && referencedCulture !== undefined
+          ? { kind: 'referenced_culture', culture: referencedCulture }
+          : undefined,
+      ),
+    );
   }
 
-  function formatPrice(cost: number) {
-    return valueToString(cost, COMMON_FANTASY);
+  function exportMarkdown() {
+    if (merchant === null) return;
+    downloadTextFile(
+      merchantToMarkdown(merchant),
+      `${merchantFileStem(merchant)}.md`,
+      'text/markdown',
+    );
   }
 
-  function formatModifier(modifier: number) {
-    return `${Math.round(modifier * 100)}%`;
+  async function exportPdf() {
+    if (merchant === null) return;
+    await downloadTextPdf(
+      merchant.shop.name,
+      merchantToText(merchant),
+      `${merchantFileStem(merchant)}.pdf`,
+    );
   }
 
   onMount(() => {
@@ -71,7 +153,7 @@
   ];
 </script>
 
-<GeneratorPage toolPath="/fantasy/merchant" title="Fantasy Merchant Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Fantasy Merchant Generator">
   {#snippet description()}
     <p>
       Generate a fantasy merchant with a proprietor, shop or traveling venue, merchant mark, and
@@ -141,7 +223,13 @@
       ]}
     />
 
-    <NumberField id="stockCount" label="Stock Items" bind:value={stockCount} min={4} max={30} />
+    <NumberField
+      id="stockCount"
+      label="Stock Items"
+      bind:value={stockCount}
+      min={MINIMUM_STOCK_COUNT}
+      max={MAXIMUM_STOCK_COUNT}
+    />
 
     <div class="checkbox-group">
       <CheckboxField
@@ -156,7 +244,45 @@
     <BaseButton onclick={generate}>Generate</BaseButton>
   </ControlsPanel>
 
-  {#if merchant}
+  <!-- Requirement 5.1, twice. Both are offers: the checkboxes start off, and a merchant handed
+       nothing names its proprietor from the default patterns and invents its own corner of an
+       unnamed town, exactly as it always did (5.3). -->
+  <SavedArtifactPicker
+    kind={CULTURE_ARTIFACT_KIND}
+    role="naming-culture"
+    checkboxLabel="Name the proprietor from a saved culture"
+    selectLabel="Naming culture"
+    bind:enabled={useCulture}
+    bind:value={referencedCulture}
+    bind:reference={cultureReference}
+  />
+
+  <SavedArtifactPicker
+    kind={SETTLEMENT_ARTIFACT_KIND}
+    role="settlement"
+    checkboxLabel="Put this shop in a saved settlement"
+    selectLabel="Settlement"
+    bind:enabled={useSettlement}
+    bind:value={referencedSettlement}
+    bind:reference={settlementReference}
+  />
+
+  <SaveArtifactButton
+    kind={MERCHANT_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={merchant}
+    seed={rolledSeed}
+    config={{ ...rolledConfig }}
+    defaultName={merchant?.shop.name ?? ''}
+    {references}
+  />
+
+  <div class="actions">
+    <BaseButton onclick={exportMarkdown} disabled={merchant === null}>Download Markdown</BaseButton>
+    <BaseButton onclick={exportPdf} disabled={merchant === null}>Download PDF</BaseButton>
+  </div>
+
+  {#if merchant && document_}
     <!-- A result surface is a panel, not a box with a border on it: the two layers,
          and the keyline, corner and padding are the system's. It wrote its own
          border, radius and padding until #124. -->
@@ -164,10 +290,8 @@
       <div class="panel__field">
         <header class="merchant-header">
           <div class="merchant-heading">
-            <h2>{merchant.shop.name}</h2>
-            <p class="shop-meta">
-              {merchant.shop.shopTypeLabel} · {merchant.shop.venueTypeLabel}
-            </p>
+            <h2>{document_.title}</h2>
+            <p class="shop-meta">{document_.subtitle}</p>
           </div>
           {#if merchant.mark}
             <div class="merchant-mark" aria-hidden="true">
@@ -178,53 +302,75 @@
           {/if}
         </header>
 
-        <p class="location">{merchant.shop.locationBlurb}</p>
-        <p>{merchant.shop.description}</p>
+        {#if document_.location !== ''}
+          <p class="location">{document_.location}</p>
+        {/if}
+        {#each document_.paragraphs as paragraph, index (index)}
+          <p>{paragraph}</p>
+        {/each}
 
-        <h3>Proprietor</h3>
-        <p><strong>{merchant.proprietor.fullName}</strong></p>
-        <p>{merchant.proprietor.description}</p>
-        {#if merchant.proprietor.personalityTraits.length > 0}
-          <StatBlock>
-            <Stat label="Temperament">{merchant.proprietor.personalityTraits.join(', ')}</Stat>
-          </StatBlock>
+        {#if document_.proprietor.name !== ''}
+          <h3>Proprietor</h3>
+          <p><strong>{document_.proprietor.name}</strong></p>
+          {#each document_.proprietor.paragraphs as paragraph, index (index)}
+            <p>{paragraph}</p>
+          {/each}
+          {#if document_.proprietor.lines.length > 0}
+            <StatBlock>
+              {#each document_.proprietor.lines as line (line.label)}
+                <Stat label={line.label}>{line.value}</Stat>
+              {/each}
+            </StatBlock>
+          {/if}
         {/if}
 
         <h3>Trading Character</h3>
-        <ul class="trading-notes">
-          <StatBlock>
-            <Stat label="Honesty">{merchant.honesty}</Stat>
-            <Stat label="Price level">{merchant.priceLevel}</Stat>
-            <Stat label="Price modifier"
-              >{formatModifier(merchant.priceModifier)} of catalog value</Stat
-            >
-          </StatBlock>
-          <li>{merchant.honestyNotes}</li>
-          <li>{merchant.hagglingAdvice}</li>
-        </ul>
-
-        <h3>Stock</h3>
-        <!-- Five columns, and it scrolled sideways in its own container until #154. A stock row
-             reads perfectly well as a list of pairs, which is the test: it flips. -->
-        <DataTable columns={STOCK_COLUMNS} rows={stockRows} />
-
-        {#snippet stockRows()}
-          {#each merchant?.stock ?? [] as item}
-            <tr>
-              <td data-label="Item">{item.name}</td>
-              <td class="numeric" data-label="Qty">{item.quantity}</td>
-              <td class="numeric" data-label="Catalog">{formatPrice(item.baseCost)}</td>
-              <td class="numeric" data-label="Ask Price">{formatPrice(item.price)}</td>
-              <td data-label="Note">{item.note ?? ''}</td>
-            </tr>
+        <StatBlock>
+          {#each document_.trading as line (line.label)}
+            <Stat label={line.label}>{line.value}</Stat>
           {/each}
-        {/snippet}
+        </StatBlock>
+        {#if document_.notes.length > 0}
+          <ul class="trading-notes">
+            {#each document_.notes as note, index (index)}
+              <li>{note}</li>
+            {/each}
+          </ul>
+        {/if}
+
+        <!-- 6.4: an empty shop shows no heading at all rather than a table head with nothing
+             under it. A referee can empty one from the editor. -->
+        {#if document_.stock.length > 0}
+          <h3>Stock</h3>
+          <!-- Five columns, and it scrolled sideways in its own container until #154. A stock row
+               reads perfectly well as a list of pairs, which is the test: it flips. -->
+          <DataTable columns={STOCK_COLUMNS} rows={stockRows} label="Stock" />
+
+          {#snippet stockRows()}
+            {#each document_?.stock ?? [] as item, index (index)}
+              <tr>
+                <td data-label="Item">{item.name}</td>
+                <td class="numeric" data-label="Qty">{item.quantity}</td>
+                <td class="numeric" data-label="Catalog">{merchantPriceText(item.baseCost)}</td>
+                <td class="numeric" data-label="Ask Price">{merchantPriceText(item.price)}</td>
+                <td data-label="Note">{item.note ?? ''}</td>
+              </tr>
+            {/each}
+          {/snippet}
+        {/if}
       </div>
     </article>
   {/if}
 </GeneratorPage>
 
 <style>
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
   /* The keyline, the corner and the padding are the panel's now. What is left is where the
      result sits on the page. */
   .merchant-result {
@@ -271,7 +417,4 @@
   .trading-notes {
     padding-left: var(--s6);
   }
-
-  /* Five columns cannot compress to phone width without the item names turning
-     into one letter per line, so let the table scroll on its own instead. */
 </style>

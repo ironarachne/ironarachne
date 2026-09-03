@@ -134,6 +134,32 @@ quantity, note? }` — five fields, not a full `Item` — so a fifty-line invent
 - **6.3 matters here.** A shop inventory is a thing a GM wants on paper; the presentation document
   is the proprietor, the shop, the haggling advice and the stock table.
 
+**As built (#67).** The kind and the payload landed as designed, and the size worry the issue
+raises turned out to be as small as this section predicted: a `MerchantStockItem` is five fields,
+so a twelve-line inventory is under a kilobyte. Four things worth recording:
+
+- **The payload's `seed` and the provenance seed are the same value**, which is what this section
+  warned about. `merchantSeedMatchesProvenance` asserts it out loud and the roll module keeps it
+  true; a second seed would have been a shape where two answers to "what rolled this" can disagree.
+- **Re-rolling a merchant named from a culture would have crashed.** The provenance records the
+  culture's _pattern set name_, which is the treatment `character_roll.ts` settled — but
+  `getFantasyNameGeneratorSet` **throws** for a name it does not have, and a culture's set name is a
+  generated name, nothing like the twelve fantasy presets. `nameSourceForSet` falls back to the
+  default patterns instead, which is the discipline 3.3 asks of every other read path.
+- **5.1 binds twice, and the second half needed a generation change.** A culture for naming was
+  already reachable through `nameSource`. Where the shop _stands_ was not: `generateVenueDescription`
+  invents a location blurb — "on the market square", "beside the temple district" — and had never
+  known which town that square was in. `MerchantShop` gains an optional `settlementName`, the
+  location line reads "…​ In Ashford.", and the two answer different halves of the question rather
+  than one replacing the other. It is the first tool in the pass to compose two kinds.
+- **The town's name is the settlement's, not the vault entry's.** A settlement a user labelled
+  "starting town" is still called whatever the generator called it, so the reference reads the
+  payload's `name` rather than the artifact's.
+
+**The same two page-level faults #66 found were here too**, which is now three tools in a row: the
+page reseeded its own RNG from the seed field inside an `$effect`, and the payload had to move to
+`$state.raw` before IndexedDB would take it.
+
 ## #64 — Cyberpunk drug
 
 `Drug` is `{ name, description, drugType, method, effectType, effectDescription, strength, color,

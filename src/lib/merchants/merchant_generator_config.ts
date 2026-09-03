@@ -9,6 +9,8 @@ export type MerchantGeneratorConfig = {
   stockCount: { min: number; max: number };
   includeMerchantMark: boolean;
   nameSource: CharacterNameSource;
+  /** The settlement the shop stands in, when the caller supplied one (requirement 5.1). */
+  settlementName?: string;
 };
 
 export function getDefaultMerchantConfig(): MerchantGeneratorConfig {

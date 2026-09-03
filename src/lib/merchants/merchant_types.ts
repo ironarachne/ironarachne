@@ -51,6 +51,15 @@ export type MerchantShop = {
   venueTypeLabel: string;
   description: string;
   locationBlurb: string;
+  /**
+   * The settlement the shop stands in, when one was supplied.
+   *
+   * Absent by default: the generator invents a location blurb — "on the market square", "beside
+   * the temple district" — and has never known which town that square is in. Requirement 5.1 is
+   * what puts it here: `settlement` is a registered kind, so a merchant that would otherwise
+   * invent its setting must be able to take one by reference.
+   */
+  settlementName?: string;
 };
 
 export type Merchant = {
