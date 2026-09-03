@@ -26,6 +26,16 @@ import { DECORATIONS } from './decorations';
 export type EquipmentGenerationConfig = {
   itemMajorType: 'any' | 'weapon' | 'armor';
   itemMinorType?: string;
+  /**
+   * Narrow the weapon table to melee or to ranged.
+   *
+   * Separate from `itemMinorType`, which names a *type* — "battleaxe", "crossbow". The magic weapon
+   * generator's Category control passed "melee" and "ranged" through `itemMinorType` until #69,
+   * where they matched no type at all: the filter came back empty, `rng.item([])` returned
+   * `undefined`, and generation threw `Cannot read properties of undefined`. Two of that control's
+   * three options crashed the page.
+   */
+  weaponRangeCategory?: 'melee' | 'ranged';
   useRefine: boolean;
   useEnchant: boolean;
   useDecorate: boolean;
@@ -103,6 +113,32 @@ export function roundValue(value: number): number {
   return Math.round(value / 10000) * 10000; // > 10000 gp: Round to 100 gp
 }
 
+/**
+ * The rows a name narrows a table to, or the whole table when it narrows it to nothing.
+ *
+ * Widening rather than throwing is the same discipline the rest of the pass applies to a stored
+ * value this build no longer recognises: an item from a table that has lost the type asked for is a
+ * better answer than no item at all, and `rng.item([])` is `undefined` rather than an error anybody
+ * could read.
+ */
+function narrowByName<T extends { name: string }>(table: T[], name: string | undefined): T[] {
+  if (name === undefined) {
+    return table;
+  }
+  const narrowed = table.filter((entry) => entry.name === name);
+  return narrowed.length > 0 ? narrowed : table;
+}
+
+/** The weapon types a config allows: narrowed by range category first, then by type name. */
+function chooseWeaponTypes(config: EquipmentGenerationConfig): WeaponType[] {
+  const byRange =
+    config.weaponRangeCategory === undefined
+      ? weaponTypes
+      : weaponTypes.filter((type) => type.rangeCategory === config.weaponRangeCategory);
+  const usable = byRange.length > 0 ? byRange : weaponTypes;
+  return narrowByName(usable, config.itemMinorType);
+}
+
 export function generateItem(seed: string, config: EquipmentGenerationConfig): Item {
   const rng = new RNG.RNG(seed);
 
@@ -114,23 +150,9 @@ export function generateItem(seed: string, config: EquipmentGenerationConfig): I
   }
 
   if (typeChoice === 'weapon') {
-    if (config.itemMinorType) {
-      const filteredTypes = weaponTypes.filter((t) => t.name === config.itemMinorType);
-      const type = rng.item(filteredTypes);
-      baseItem = createBaseWeapon(type, rng);
-    } else {
-      const type = rng.item(weaponTypes);
-      baseItem = createBaseWeapon(type, rng);
-    }
+    baseItem = createBaseWeapon(rng.item(chooseWeaponTypes(config)), rng);
   } else {
-    if (config.itemMinorType) {
-      const filteredTypes = armorTypes.filter((t) => t.name === config.itemMinorType);
-      const type = rng.item(filteredTypes);
-      baseItem = createBaseArmor(type, rng);
-    } else {
-      const type = rng.item(armorTypes);
-      baseItem = createBaseArmor(type, rng);
-    }
+    baseItem = createBaseArmor(rng.item(narrowByName(armorTypes, config.itemMinorType)), rng);
   }
 
   // Phase 1: Foundry (Always run)
@@ -188,6 +210,7 @@ export function getDefaultGenerationConfig(): EquipmentGenerationConfig {
   return {
     itemMajorType: 'any',
     itemMinorType: undefined,
+    weaponRangeCategory: undefined,
     useRefine: true,
     useEnchant: true,
     useDecorate: true,

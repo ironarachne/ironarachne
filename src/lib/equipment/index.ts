@@ -25,5 +25,6 @@ export * from './item_presentation';
 export * from './item_roll';
 export * from './item_snapshot';
 export * from './price_lists';
+export * from './weapon_roll';
 export type * from './list';
 export type * from './price_list_types';

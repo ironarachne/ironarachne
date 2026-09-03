@@ -450,12 +450,22 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['magic'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-objects.md (#69). It saves as `item`, the kind decision 1 of that document gives
+  // it to share with /fantasy/equipment-generator, and the two are told apart by the provenance's
+  // tool path — which is also what picks the right re-roll, because their controls differ. It has
+  // an editor in `ARTIFACT_EDITORS`, composes a religion by reference (5.1), and exports Markdown
+  // and PDF. Its roll is deterministic from the seed via `weapon_roll.ts`, theme included.
+  //
+  // The genre question the issue raises answers itself: `WeaponGenerator.svelte` never imported
+  // `$lib/weapons`, whose only importer is `$lib/arms_manufacturer` (already `scifi`). Nothing
+  // science-fictional is reachable from here, so `fantasy` alone is right.
   defineTool({
     path: '/fantasy/weapon',
     label: 'Fantasy Magic Weapon',
     kind: 'generator',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['equipment', 'magic'],
   }),

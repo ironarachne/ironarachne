@@ -165,7 +165,10 @@
           </div>
           {#if document_.properties.length > 0}
             <div class="tags">
-              {#each document_.properties as tag (tag)}
+              <!-- Keyed by index, not by the tag: a weapon's properties can repeat — the type name, the
+                     damage type and an enchantment's `tagsAdded` all land in the same list — and a duplicate
+                     key is a Svelte error that takes the whole page down with it. -->
+              {#each document_.properties as tag, index (index)}
                 <!-- `plain` because a card can carry a dozen of these: bordered pills stop
                      annotating the item and start shouting over it. -->
                 <Badge plain>{tag}</Badge>

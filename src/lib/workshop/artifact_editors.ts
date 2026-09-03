@@ -7,6 +7,13 @@ import type { ArtifactKind } from '$lib/artifact_kinds';
  */
 const ADND_BUILDER_TOOL_PATH = '/fantasy/adnd/character/build';
 
+/**
+ * The magic weapon generator's catalog path, which is how an `item`'s provenance says a weapon
+ * generator rolled it rather than the equipment generator. Written out rather than imported from
+ * `$lib/tools` so that this module keeps to the registries it belongs beside.
+ */
+const WEAPON_TOOL_PATH = '/fantasy/weapon';
+
 import type { ArtifactEditorEntry, ArtifactEditorRegistry } from './workshop_types';
 
 /**
@@ -238,18 +245,34 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
   item: {
     loadEditor: () => import('$components/objects/ItemArtifactEditor.svelte'),
     /**
-     * The page's four controls, read back through the roll module's own reader.
+     * One kind, two tools, two provenance shapes, told apart by the tool path.
      *
-     * One kind, two tools, and unlike the AD&D pair they re-roll the same way: `/fantasy/weapon`
-     * is this generator with the major type fixed, so its provenance is a config this reader
-     * already understands. The tool path is what tells a vault listing which made an item, not
-     * what tells a re-roll how.
+     * `/fantasy/weapon` is the equipment generator with the major type fixed and the enchantment
+     * tables narrowed to one religious domain — but its *controls* are a theme and a range
+     * category, where the equipment generator's are a major type and three switches. #69 assumed
+     * one reader would serve both; it would have re-rolled a consecrated sword out of the wrong
+     * settings.
+     *
+     * The two readers are separate on purpose and neither may accept the other's record, which is
+     * the shape the AD&D pair settled for the same reason.
      */
     loadRoller: async () => {
-      const { readEquipmentGeneratorConfig, rollItemSnapshot } =
-        await import('$lib/equipment/item_roll.js');
-      return (provenance) =>
-        rollItemSnapshot(provenance.seed, readEquipmentGeneratorConfig(provenance.config));
+      const [equipment, weapon] = await Promise.all([
+        import('$lib/equipment/item_roll.js'),
+        import('$lib/equipment/weapon_roll.js'),
+      ]);
+      return (provenance) => {
+        if (provenance.toolPath === WEAPON_TOOL_PATH) {
+          return weapon.rollWeaponSnapshot(
+            provenance.seed,
+            weapon.readWeaponGeneratorConfig(provenance.config),
+          );
+        }
+        return equipment.rollItemSnapshot(
+          provenance.seed,
+          equipment.readEquipmentGeneratorConfig(provenance.config),
+        );
+      };
     },
   },
   merchant: {

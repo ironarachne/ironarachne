@@ -78,6 +78,40 @@ the records the document asks for. Four things this section did not anticipate:
   payload, and IndexedDB's structured clone refuses one — `[object Array] could not be cloned`. The
   list is `$state.raw`, which is what a payload the page only ever replaces wholesale wants anyway.
 
+**As built (#69).** The kind is shared as designed, and the tool needed nothing new to store: the
+snapshot, the editor and the presentation are all #66's, reached through the kind. What it needed
+was its own roll module and four corrections.
+
+- **Two of the three Category options crashed the page.** "melee" and "ranged" were passed through
+  `itemMinorType`, which matches a weapon _type's name_ — "battleaxe", "crossbow". The filter came
+  back empty, `rng.item([])` was `undefined`, and generation threw
+  `Cannot read properties of undefined`. `EquipmentGenerationConfig` gains a
+  `weaponRangeCategory`, and a type name that matches nothing now widens to the whole table rather
+  than throwing.
+- **One kind, two provenance shapes.** This section says the two tools are told apart by the tool
+  path, and that is true of a vault listing — but it is also true of the **re-roll**, which the
+  section does not say. Their controls differ, so `ARTIFACT_EDITORS` branches on the path exactly as
+  the AD&D pair does; one reader would have re-rolled a consecrated sword out of the wrong settings.
+- **The theme is resolved before it is recorded.** The page drew a domain from its own RNG when the
+  control read "any", so the roll depended on something the provenance did not record. Resolving
+  from the seed and storing the result is what 3.6 asks for, and it is also what keeps
+  `$lib/equipment` from importing `$lib/religion` — which is a **cycle**: religion reaches
+  characters, which reaches archetypes, which reaches back here for their gear. The symptom was
+  every archetype table reading `undefined` at module load in seventeen unrelated test files.
+- **The page showed a heading and one paragraph.** The damage, the value, the weight, the material
+  and the enchantment it had just rolled were all invisible, which would also have left the editor
+  with fields answering to nothing on screen. It renders `itemToDocument` now, as #66 does.
+
+**5.1 binds, and the issue guessed right about why.** The `$lib/religion` import is the theme list:
+a weapon is themed on a religious domain. A saved religion narrows that list to the domains its own
+gods claim, because a weapon consecrated to a domain no god in that religion holds is not a weapon
+of that religion. `religionDomainNames` is new in `$lib/religion` and is the whole of it.
+
+**One bug found in #66's own work**: the card keyed its property badges by the tag value, and a
+weapon's properties repeat — the type name, the damage type and an enchantment's `tagsAdded` all
+land in the same list. A duplicate key is a Svelte error that takes the page down with it, which is
+what an empty result article turned out to be. Both cards key by index now.
+
 **#69's genre question answers itself.** The issue asks whether the tool should carry a sci-fi tag
 because `src/lib/weapons` has a `scifi.ts`. `WeaponGenerator.svelte` does not import
 `$lib/weapons` at all — the only importer anywhere is `$lib/arms_manufacturer`, which is #53 and is
