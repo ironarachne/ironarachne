@@ -435,12 +435,18 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['equipment'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-objects.md (#68). It saves as `potion` — its own kind rather than a share of
+  // `item`, per decision 2 of that document, because an item editor has no field for a duration or
+  // a flavour — has an editor in `ARTIFACT_EDITORS`, and exports Markdown and PDF, the first
+  // exports it has ever had. Its roll is deterministic from the seed via `potion_roll.ts`. 1.4
+  // needed nothing: this label has always read `Fantasy Potion`, whatever the issue says.
   defineTool({
     path: '/fantasy/potion-generator',
     label: 'Fantasy Potion',
     kind: 'generator',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['magic'],
   }),

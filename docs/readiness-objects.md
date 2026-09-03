@@ -98,6 +98,31 @@ canonicalName?, sensory, effect, modifications }` — a richer shape with its ow
 - **1.4 is already satisfied.** The issue says the label reads "Fantasy Potion Generator"; the
   catalog reads `Fantasy Potion`. Nothing is owed.
 
+**As built (#68).** Decision 2 held: the kind is `potion`, not a share of `item`, and the editor's
+sensory and effect fields are what that decision buys — an item editor has no place for a duration
+or a flavour. **1.4 needed nothing**, as this section said: the catalog has always read
+`Fantasy Potion`, whatever the issue claimed.
+
+Three things this section did not anticipate:
+
+- **The payload stored the same thing twice.** `generatePotion` writes the effect, the sensory
+  profile and the display name into the liquid _and_ onto the potion beside it —
+  `liquid.effect === effect`, `liquid.sensory === sensory`, `liquid.name === displayName`. Two
+  copies of one fact is a shape where an editor changes one and the other goes stale, which is 4.2's
+  failure mode dressed as a data model. The snapshot keeps the potion's copy and rebuilds the
+  liquid's on read, so there is one place to edit an effect and one answer to what it is.
+- **The page decided the potion's form by sniffing its properties**, three levels of nested ternary
+  deep, where nothing could test it. `potionForm` owns that now — the same shape of finding the
+  reference tools kept producing, in a generator.
+- **The sensory profile was a `<ul>` wrapped around a `<dl>`.** A list whose only child is a
+  definition list is invalid markup and announces a one-item list around four pairs. It is a
+  `StatBlock` alone now (6.2).
+
+**The seed came from the clock inside every press**, which is requirement 2.2's oldest failure in
+the pass rather than the newer `$effect` form #66 and #67 had — this page built a whole
+`new RNG(Date.now().toString())` per press to draw the next seed. The `$state.raw` trap was here
+too, making it three tools in a row.
+
 ## #70 — Fantasy treasure hoard
 
 `generateRandomTreasureHoard(seed, config)` returns `Item[]` — coins packed into piles, gems, art

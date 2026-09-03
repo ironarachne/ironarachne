@@ -35,6 +35,7 @@ describe('artifact kind catalog', () => {
       'drug',
       'item',
       'merchant',
+      'potion',
     ]);
   });
 

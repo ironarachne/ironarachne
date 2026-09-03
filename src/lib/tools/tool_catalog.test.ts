@@ -127,6 +127,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/family',
       '/fantasy/merchant',
       '/fantasy/organization',
+      '/fantasy/potion-generator',
       '/culture',
       '/fantasy/dcc/character',
       '/fantasy/religion',
@@ -141,6 +142,7 @@ describe('TOOL_CATALOG', () => {
       '/word-generator-cheat-sheet',
       '/fantasy/equipment-generator',
       '/fantasy/merchant',
+      '/fantasy/potion-generator',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -250,6 +252,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/family',
       '/fantasy/merchant',
       '/fantasy/organization',
+      '/fantasy/potion-generator',
       '/fantasy/religion',
       '/fantasy/settlement',
       '/heraldry',
@@ -324,6 +327,7 @@ describe('filterTools', () => {
       '/fantasy/equipment',
       '/fantasy/equipment-generator',
       '/fantasy/merchant',
+      '/fantasy/potion-generator',
     ]);
   });
 

@@ -118,6 +118,11 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // everything it statically imports is 296 KB across 31 chunks, and through the entry point it is
   // 19.7 MB across 47.
   '$lib/merchants/merchant_artifact_kind',
+  // `$lib/potions`'s entry point reaches the generator, and from there the whole potion catalog,
+  // the sensory tables and `$lib/equipment`'s container generator. Measured on the build: through
+  // the kind module the registry chunk and everything it statically imports is 304 KB across 32
+  // chunks, and through the entry point it is 445 KB across 36.
+  '$lib/potions/potion_artifact_kind',
   // The eighteenth, the same library and the same reason: the star-system kind module holds
   // metadata and validation only, and its codec is a dynamic import.
   '$lib/astronomical_bodies/star_system_artifact_kind',
