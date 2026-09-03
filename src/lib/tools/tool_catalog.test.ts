@@ -132,6 +132,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/dcc/character',
       '/fantasy/religion',
       '/fantasy/settlement',
+      '/fantasy/treasure-hoard',
       '/fantasy/weapon',
       '/heraldry',
       '/swn/character',
@@ -145,6 +146,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/merchant',
       '/fantasy/potion-generator',
       '/fantasy/weapon',
+      '/fantasy/treasure-hoard',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -257,6 +259,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/potion-generator',
       '/fantasy/religion',
       '/fantasy/settlement',
+      '/fantasy/treasure-hoard',
       '/fantasy/weapon',
       '/heraldry',
       '/planet',
@@ -332,6 +335,7 @@ describe('filterTools', () => {
       '/fantasy/merchant',
       '/fantasy/potion-generator',
       '/fantasy/weapon',
+      '/fantasy/treasure-hoard',
     ]);
   });
 

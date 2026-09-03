@@ -123,6 +123,11 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // the kind module the registry chunk and everything it statically imports is 304 KB across 32
   // chunks, and through the entry point it is 445 KB across 36.
   '$lib/potions/potion_artifact_kind',
+  // `$lib/treasure`'s entry point reaches the hoard generator, and from there the item, container,
+  // gem, art-object and potion generators. Measured on the build: through the kind module the
+  // registry chunk and everything it statically imports is 426 KB across 40 chunks, and through the
+  // entry point it is 477 KB across 43.
+  '$lib/treasure/treasure_hoard_artifact_kind',
   // The eighteenth, the same library and the same reason: the star-system kind module holds
   // metadata and validation only, and its codec is a dynamic import.
   '$lib/astronomical_bodies/star_system_artifact_kind',

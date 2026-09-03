@@ -50,3 +50,28 @@ The high-level orchestrator for generating complete treasure drops.
   - It intelligently splits the total value among coins, art, and gems.
   - It delegates to the specific modules to generate the actual items.
   - It returns a unified list of `Item` objects (including containers for coins).
+
+## The `treasure-hoard` artifact kind
+
+A hoard is a durable artifact (#70), and it is **one artifact holding the whole pile rather than
+forty** — decision 3 of [docs/readiness-objects.md](../../../docs/readiness-objects.md). A hoard is
+read out at a table as a unit, its contents are not things a user names individually, and forty
+artifacts per hoard is a vault nobody can browse.
+
+- **`treasure_hoard_snapshot.ts`** — `TreasureHoardSnapshot` and the codec. A hoard item is an item
+  **plus what its own kind adds**: `ItemSnapshot` drops `contents`, `containerId` and the capacity
+  fields because for a lone item the container is not part of the artifact — and here it is. The
+  subtype fields go too, or "12 gems" replaces the "12 cushion-cut emeralds" that was rolled.
+- **`treasure_hoard_artifact_kind.ts`** — the kind, its version, and a validator that normalises
+  rather than refuses. An item with no id is the one thing dropped: the id is what a container's
+  `contents` points at, so an item that has lost it would appear twice.
+- **`treasure_hoard_roll.ts`** — the one path from a seed, and the page's twelve controls as a
+  provenance record. The value is recorded in gold, as the page's field is, and converted to copper
+  in one place.
+- **`treasure_hoard_editing.ts`** — the setters. Removing an item also takes it out of whatever
+  chest held it; nothing recomputes, and `targetValue` is what the hoard was _rolled for_, which
+  stays true however much of it the party carries off.
+- **`treasure_hoard_presentation.ts`** — the sheet, and the Markdown and PDF written from it. The
+  gem tally lives here: below twelve they are listed one by one, up to twenty-four they are grouped
+  by name, and beyond that they are one assorted line. That rule was three untested branches in the
+  component.

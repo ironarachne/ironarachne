@@ -56,6 +56,11 @@ import { merchantArtifactKind } from '$lib/merchants/merchant_artifact_kind';
 // container generator. Through the kind module the registry chunk and everything it statically
 // imports is 304 KB across 32 chunks; through the entry point it is 445 KB across 36.
 import { potionArtifactKind } from '$lib/potions/potion_artifact_kind';
+// Deep, and measured the way its neighbours were: `$lib/treasure`'s entry point reaches the hoard
+// generator, and from there the item, container, gem, art-object and potion generators. Through the
+// kind module the registry chunk and everything it statically imports is 426 KB across 40 chunks;
+// through the entry point it is 477 KB across 43.
+import { treasureHoardArtifactKind } from '$lib/treasure/treasure_hoard_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -99,6 +104,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, itemArtifactKind);
   registerArtifactKind(registry, merchantArtifactKind);
   registerArtifactKind(registry, potionArtifactKind);
+  registerArtifactKind(registry, treasureHoardArtifactKind);
   return registry;
 }
 

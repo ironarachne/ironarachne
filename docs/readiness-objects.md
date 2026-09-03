@@ -173,6 +173,28 @@ objects, mundane and magic items, and potions flattened into items.
 - **The generator is already seeded properly** — it takes a `seed` string and builds its own RNG.
   The clock is in the component, and the roll module is where it stops.
 
+**As built (#70).** Decisions 3 held: one artifact holding the pile, embedded rather than
+referenced, which is the same answer `/star-system` gives for its planets and is what the issue asks
+the two to agree on. Three things this section did not anticipate:
+
+- **A hoard item is an item plus what its own kind adds.** `ItemSnapshot` — the shape #66 settled
+  for a _lone_ item — drops `contents` and `containerId` on the grounds that "the container is not
+  part of this artifact". In a hoard it is: the chest and what is in it are the same artifact, and
+  the pairing is the structure a referee reads out. The container's capacity and the subtype fields
+  go the same way — dropping them would leave "12 gems" where "12 cushion-cut emeralds" was rolled.
+- **The largest piece of display logic the pass has found in a component.** The page held the
+  gem-tallying rule — list them individually below twelve, group by name up to twenty-four, collapse
+  to "N assorted gems" beyond that — plus the loose-item sorting, the container contents lookup and
+  four value formatters. Three untested branches in the middle of a Svelte file. That is
+  `treasure_hoard_presentation.ts` now, and it is what makes 6.4 checkable at all.
+- **Removing an item has to unpack it.** A chest whose `contents` names something no longer in the
+  hoard reads as holding a ghost, and the presentation counts it as packed and then finds nothing to
+  print. `removeHoardItem` drops the id from every container, which a caller would forget.
+
+**The seed fault was the `$effect` form, twice over**: the page reseeded its own RNG from the seed
+field in an effect _and_ again inside `generate()`. That is four tools running, and `$state.raw` was
+needed here more than anywhere — a hoard is dozens of items each carrying their own arrays.
+
 ## #67 — Fantasy merchant
 
 `Merchant` is `{ seed, proprietor, shop, mark, honesty, priceLevel, priceModifier, honestyNotes,

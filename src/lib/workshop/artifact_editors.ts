@@ -302,6 +302,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollPotionSnapshot(provenance.seed, readPotionGeneratorConfig(provenance.config));
     },
   },
+  'treasure-hoard': {
+    loadEditor: () => import('$components/objects/TreasureHoardArtifactEditor.svelte'),
+    /** The page's twelve controls, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readTreasureHoardConfig, rollTreasureHoardSnapshot } =
+        await import('$lib/treasure/treasure_hoard_roll.js');
+      return (provenance) =>
+        rollTreasureHoardSnapshot(provenance.seed, readTreasureHoardConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

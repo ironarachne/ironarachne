@@ -56,6 +56,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/fantasy/merchant', title: 'Fantasy Merchant Generator | Iron Arachne' },
   { path: '/fantasy/potion-generator', title: 'Potion Generator | Iron Arachne' },
   { path: '/fantasy/weapon', title: 'Magic Weapon Generator | Iron Arachne' },
+  { path: '/fantasy/treasure-hoard', title: 'Treasure Hoard Generator | Iron Arachne' },
   {
     // The first reference tool in this list, and the reason it is worth naming: most of the spec
     // does not apply to a tool that produces no artifacts, so its silence was earned by sections

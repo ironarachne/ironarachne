@@ -469,12 +469,19 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['equipment', 'magic'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-objects.md (#70). It saves as `treasure-hoard` — one artifact holding the whole
+  // pile rather than forty, per decision 3 of that document, because a hoard is read out at a table
+  // as a unit — has an editor in `ARTIFACT_EDITORS`, and exports Markdown and PDF, the first
+  // exports it has ever had. Its roll is deterministic from the seed via `treasure_hoard_roll.ts`.
+  // The gem tally, the loose-item sorting and the container lookup were all in the component; they
+  // are `treasure_hoard_presentation.ts` now, which is what makes 6.4 testable.
   defineTool({
     path: '/fantasy/treasure-hoard',
     label: 'Fantasy Treasure Hoard',
     kind: 'generator',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['treasure'],
   }),
