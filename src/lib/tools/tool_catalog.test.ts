@@ -147,6 +147,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/potion-generator',
       '/fantasy/weapon',
       '/fantasy/treasure-hoard',
+      '/spooky-ship',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -265,6 +266,7 @@ describe('toolsWithMaturity', () => {
       '/planet',
       '/region',
       '/species-stats',
+      '/spooky-ship',
       '/star-nation',
       '/star-system',
       '/swn/character',

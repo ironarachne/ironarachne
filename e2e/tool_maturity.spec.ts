@@ -19,10 +19,11 @@ import { visitRoute } from './helpers';
 const maturityBadge = (page: Page) => page.locator('.maturity__level');
 
 const TOOL_PAGES = [
-  // Was `/planet` until #61 and `/drug` until #64, both of which reached Release-ready. Any
-  // Experimental tool serves here; the spooky starship is one with a stable title and no renderer
-  // to wait for.
-  { path: '/spooky-ship', title: 'Spooky Ship Generator | Iron Arachne', level: 'Experimental' },
+  // Was `/planet` until #61, `/drug` until #64 and `/spooky-ship` until #71, all of which reached
+  // Release-ready. Any Experimental tool serves here; the language generator is one with a stable
+  // title and no renderer to wait for, and it is in another domain, so this list stops being
+  // rewritten every time the objects pass finishes a tool.
+  { path: '/language', title: 'Language Generator | Iron Arachne', level: 'Experimental' },
 ] as const;
 
 /** The release-ready tools, which must say nothing at all. */
@@ -57,6 +58,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/fantasy/potion-generator', title: 'Potion Generator | Iron Arachne' },
   { path: '/fantasy/weapon', title: 'Magic Weapon Generator | Iron Arachne' },
   { path: '/fantasy/treasure-hoard', title: 'Treasure Hoard Generator | Iron Arachne' },
+  { path: '/spooky-ship', title: 'Spooky Ship Generator | Iron Arachne' },
   {
     // The first reference tool in this list, and the reason it is worth naming: most of the spec
     // does not apply to a tool that produces no artifacts, so its silence was earned by sections
@@ -112,7 +114,7 @@ for (const entry of SILENT_TOOL_PAGES) {
 }
 
 test('maturity: a tool page says what its level promises', async ({ page }) => {
-  await visitRoute(page, '/spooky-ship', { title: 'Spooky Ship Generator | Iron Arachne' });
+  await visitRoute(page, '/language', { title: 'Language Generator | Iron Arachne' });
 
   // The sentence, not just the pill: "Experimental" means nothing to a visitor who has not read
   // the design document, and the point is that they can decide before they invest work.
@@ -185,11 +187,16 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   await expect(browser.getByRole('button', { name: /^Fantasy Organization/ })).not.toContainText(
     'Experimental',
   );
-  // Planet was the still-marked case until #61 took it to Release-ready. The drug generator is
-  // Experimental and mountable, so it holds that end of the assertion now.
+  // Planet was the still-marked case until #61 took it to Release-ready, then the drug until #64
+  // and the spooky starship until #71. The language generator holds that end of the assertion now,
+  // and it is in another domain, so this stops being rewritten every time the objects pass finishes
+  // a tool.
   await expect(browser.getByRole('button', { name: /^Planet/ })).not.toContainText('Experimental');
   await expect(browser.getByRole('button', { name: /^Cyberpunk Drug/ })).not.toContainText(
     'Experimental',
   );
-  await expect(browser.getByRole('button', { name: /^Spooky Ship/ })).toContainText('Experimental');
+  await expect(browser.getByRole('button', { name: /^Spooky Ship/ })).not.toContainText(
+    'Experimental',
+  );
+  await expect(browser.getByRole('button', { name: /^Language/ })).toContainText('Experimental');
 });

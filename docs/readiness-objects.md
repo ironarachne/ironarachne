@@ -305,6 +305,26 @@ Like the chop shop, `src/lib/spooky_ship/index.ts` is a single file whose `gener
   this tool and the four genre-neutral ones and nothing else — a fact about the catalog, worth
   knowing when the project-genre work lands.
 
+**As built (#71).** The cheapest tool of the pass, and it landed as designed: `{ text }`, a
+textarea, and the library split into types and generation for 8.3. Three things worth recording:
+
+- **The kind question the issue asks to be settled deliberately is settled, and building it
+  confirms the answer.** A `StarshipSWN` is a hull with a mass, a power budget and a hardpoint
+  allocation; this is a sentence about something adrift. One kind would put a fittings editor in
+  front of a paragraph, and a vault listing could not keep a haunted freighter apart from a corvette
+  a player is flying. Two registrations is the whole cost.
+- **The seed fault was here too**, in both of its forms: reseeded from the field inside an
+  `$effect`, and again inside `generate()`. That is five tools running.
+- **The registry imports this one through its entry point**, unlike its neighbours, and the
+  measurement is what says so rather than a feeling: 431 KB across 43 chunks through the entry point
+  against 429 KB across 41 through the kind module. Two kilobytes does not buy an allowlist entry,
+  and an entry with nothing behind it is how that rule rots.
+
+**The maturity suite's Experimental exemplar moved to `/language`.** `e2e/tool_maturity.spec.ts`
+needs one Experimental tool to prove a badge reaches a screen, and it had been rewritten three times
+— planet, drug, spooky ship — as each reached Release-ready. `/language` is in another domain, so
+the objects pass stops rewriting it.
+
 ## #72 — Stars Without Number starship
 
 `SWNStarship` is `{ name, className, manufacturer, hullType, currentCrew, totalCost, tonsOfCargo,
