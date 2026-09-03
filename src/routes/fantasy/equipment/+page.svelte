@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-  <title>Fantasy Equipment Lists | Iron Arachne</title>
+  <title>Fantasy Equipment Price Lists | Iron Arachne</title>
 </svelte:head>
 
 <EquipmentPriceLists />

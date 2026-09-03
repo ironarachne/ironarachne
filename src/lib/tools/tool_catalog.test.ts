@@ -122,6 +122,7 @@ describe('TOOL_CATALOG', () => {
       '/star-nation',
       '/character',
       '/fantasy/encounter',
+      '/fantasy/equipment',
       '/fantasy/family',
       '/fantasy/organization',
       '/culture',
@@ -238,6 +239,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/dcc/character',
       '/fantasy/dungeon',
       '/fantasy/encounter',
+      '/fantasy/equipment',
       '/fantasy/family',
       '/fantasy/organization',
       '/fantasy/religion',
@@ -309,6 +311,7 @@ describe('filterTools', () => {
       '/fantasy/dungeon',
       '/region',
       '/fantasy/settlement',
+      '/fantasy/equipment',
     ]);
   });
 

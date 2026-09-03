@@ -58,7 +58,10 @@
     <thead>
       <tr>
         {#each columns as column (column.label)}
-          <th class:numeric={column.numeric}>{column.label}</th>
+          <!-- `scope` is implicit for a head cell in a simple table, and stated anyway: it is what
+               a screen reader announces the column by, and requirement 6.2 asks for a name a
+               reader can actually hear rather than one a specification says they should. -->
+          <th scope="col" class:numeric={column.numeric}>{column.label}</th>
         {/each}
       </tr>
     </thead>

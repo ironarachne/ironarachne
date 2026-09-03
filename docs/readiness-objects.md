@@ -199,6 +199,45 @@ than a grid of cells — this tool adopts that, it does not invent anything.
 6.2 is the other half: column headers associated with their columns, and every control keyboard
 reachable.
 
+**As assessed.** 6.1 was already met, and by the repository's own mechanism: the page has used
+`DataTable` since #154, so each table flips to a stack of labelled rows below 640px and
+`e2e/tables.spec.ts` has been holding the page to it at 320px and 375px all along. This section
+expected the work to be there and it was not. What the section-by-section pass found instead was
+6.4, in three places that had nothing to do with layout and everything to do with what the page
+says:
+
+- **An item costing nothing printed an empty cell.** `valueToString(0)` is the empty string, and
+  the club, the quarterstaff and the sling stone are free. They read `Free` now.
+- **The key described coins no price was ever quoted in**, and omitted one that was. It listed
+  electrum, platinum and a crown — the first two are filtered out of the D&D display system, and
+  no currency system in `$lib/currency` has ever had a crown — while English prices came back in
+  guineas, because the guinea outranks the pound at 252 pence to 240 and `valueToString` spends
+  every denomination it is given. The farthing printed its name, `$lib/currency` giving it no
+  symbol, in a column of `cp` and `sp`.
+- **The fix is that the key is derived from the currency the prices are written in**, so the two
+  cannot drift again. Both currencies are display systems local to `$lib/equipment` rather than
+  `$lib/currency`'s own: a denomination that must never appear in a price has to be absent, not
+  merely unlikely.
+
+**7.1 needed the logic to exist somewhere testable first.** The currency conversion, the D&D
+system's filtered denominations and the copper-is-a-farthing rate lived in the component, where no
+unit test could reach them — which is why all three of the above shipped. `price_lists.ts` holds
+them now, along with the search and the exports, and `price_lists.test.ts` covers them.
+
+**6.3 applies to a reference tool and was not skipped.** A five-hundred-row price list is exactly
+the thing a referee wants on paper, so the page exports Markdown and a PDF, written from the same
+document it renders. They export what is on screen, filtered rows included.
+
+**One addition beyond the spec**, recorded because it is a judgment rather than a requirement: a
+search box. Five hundred rows in twenty-three tables is legible on a phone in the sense 6.1 means
+and unusable in the sense a reader means, and the fix is one text input over
+`filterEquipmentLists`. A category with nothing left in it is dropped rather than shown empty.
+
+**The page and the catalog now agree on the tool's name.** The heading read "Fantasy Equipment
+Lists" while the catalog entry — and therefore the panel title, the tool browser and `/tools` —
+read "Fantasy Equipment Price Lists". 1.4 is about a label reading correctly out of context, and a
+link that lands on a differently-named page is the same failure from the other end.
+
 ## Domain model
 
 ### Items, potions and hoards
