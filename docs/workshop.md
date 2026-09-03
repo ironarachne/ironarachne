@@ -123,8 +123,11 @@ likeliest thing that will happen here.
 
 **A tool with no genre is always listed, and so is a tool with no system.** That rule is the whole
 filter and it is load-bearing: only four tools carry no genre — `/environment`, `/language`,
-`/workshop`, and `/word-generator-cheat-sheet` — so a filter that dropped genre-neutral tools would
-take the environment generator away from a fantasy project, which is the opposite of the point. A
+`/species-stats`, and `/word-generator-cheat-sheet` — so a filter that dropped genre-neutral tools
+would take the environment generator away from a fantasy project, which is the opposite of the
+point. (`/workshop` was on that list until [decision 9](#9-the-workshop-is-a-surface-not-a-tool)
+took it out of the catalog, and `/species-stats` joined it when #75 dropped a `fantasy` tag that
+scaling a human baseline never earned.) A
 tool carrying several genres matches if any of them does: `/spooky-ship` is `scifi` and `horror`
 and belongs in both lists. `isCompatibleWithSystem` in `src/lib/tools/tool_search.ts` is already
 exactly this shape; `isCompatibleWithGenre` joins it, and the genre criterion in `searchTools`
@@ -133,14 +136,14 @@ has one caller, a checkbox that is about to go, so nothing depends on the old me
 
 **There is one way past the filter, and it is one control.** The catalog is not evenly spread:
 
-| Project setting | Tools listed, of 35     |
+| Project setting | Tools listed, of 34     |
 | --------------- | ----------------------- |
-| No genre        | 35                      |
-| `fantasy`       | 25 (21 + the 4 neutral) |
+| No genre        | 34                      |
+| `fantasy`       | 24 (20 + the 4 neutral) |
 | `scifi`         | 12 (8 + 4)              |
 | `cyberpunk`     | 6 (2 + 4)               |
 | `horror`        | 5 (1 + 4)               |
-| Any system      | 30 or 31 of 35          |
+| Any system      | 29 or 30 of 34          |
 
 A `horror` project seeing five tools is a fact about the catalog rather than a bug in the filter —
 but a panel that hides thirty tools with no way to say "show me anyway" is a wall, and the one

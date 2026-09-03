@@ -446,13 +446,25 @@ migration. They are days of work in total, they are independent of everything ab
 table-shaped ones (#65 and #76) are the site's most likely 6.1 failures — wide tables at 320px.
 They run in parallel with the rest of the pass rather than after it.
 
-**#65 is done, and it corrects the prediction above.** 6.1 was already met: the price lists have
+**#65 and #75 are done, and they correct the prediction above the same way.** Both were expected to
+fail 6.1 and neither did; both failed **6.4**, and in both the reason was
+[decision 8](#8-a-reference-tool-with-no-logic-still-gets-a-library) — logic sitting in a component
+where no unit test could reach it. #76 should expect the same shape of finding.
+
+**#65 in particular.** 6.1 was already met: the price lists have
 used `DataTable` since #154, so the tables flip on a phone rather than pushing the page sideways,
 and `e2e/tables.spec.ts` was already holding them to it. What the pass found instead was 6.4 —
 free items printing an empty cost, and a key naming coins no price was quoted in — and the reason
 it found it late is exactly [decision 8](#8-a-reference-tool-with-no-logic-still-gets-a-library):
 the conversion lived in the component, where no unit test could reach it. The two remaining
 reference tools should expect the same shape of finding.
+
+**#75 found two bugs outside itself**, which is the other thing a reference tool's pass turns up:
+`$lib/age`'s `getVariant` rewrote the age categories it was handed rather than returning new ones —
+so `averageAgeCategories` in `species/common.ts` permanently aged a species by averaging it — and it
+could emit a category whose maximum age was below its minimum. No shipped species scales small
+enough to hit the second; a calculator where the user types the lifespan does. The tool's own
+failure, rows reading "2 to 1 years" from a cleared field, was that bug seen from the page.
 
 **#75 carries a caveat the other two do not.** The species height and weight calculator returns
 confident numbers from placeholder data: #25 records that 182 of 239 species carry placeholder

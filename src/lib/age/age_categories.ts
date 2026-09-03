@@ -55,22 +55,45 @@ export function getMaxAge(categories: AgeCategory[]): number {
   return maxAge;
 }
 
+/**
+ * The same age ladder scaled to a different lifespan.
+ *
+ * Two things here are not obvious and both were found by taking the species height and weight
+ * calculator through the readiness spec (#75):
+ *
+ * - **It returns new categories rather than rewriting the ones it is given.** It used to assign
+ *   straight into the array, which is fine for `getHumanVariant` — that hands it a fresh
+ *   `humanStandard()` every time — and is not fine for `averageAgeCategories` in
+ *   `species/common.ts`, which hands it a species' own `ageCategories` and so permanently aged
+ *   that species for the rest of the session. `averageSizes`, immediately below it, deep-clones
+ *   for exactly this reason.
+ * - **A category never ends before it begins.** `minAge` chains from the previous category's
+ *   scaled `maxAge`, so a small enough modifier drove `maxAge` below the `minAge` that had just
+ *   been derived, and the ladder came back reading "2 to 1 years". No shipped species scales
+ *   small enough to hit it; the calculator, where a user types the lifespan, does.
+ */
 export function getVariant(ageModifier: number, categories: AgeCategory[]): AgeCategory[] {
+  const result: AgeCategory[] = [];
+
   for (let i = 0; i < categories.length; i++) {
+    const category = { ...categories[i], genderedNoun: [...categories[i].genderedNoun] };
+
     if (i > 0) {
-      categories[i].minAge = categories[i - 1].maxAge + 1;
+      category.minAge = result[i - 1].maxAge + 1;
     }
-    categories[i].maxAge = Math.ceil(categories[i].maxAge * ageModifier);
+    category.maxAge = Math.max(Math.ceil(category.maxAge * ageModifier), category.minAge);
 
     // Since "teenager" would be inappropriate if the ages aren't in the teenaged years, we'll change it to "young adult".
-    if (categories[i].name == 'teenager') {
-      categories[i].name = 'young adult';
-      categories[i].noun = 'young adult';
-      categories[i].genderedNoun = ['young woman', 'young man', 'young adult'];
+    if (category.name == 'teenager') {
+      category.name = 'young adult';
+      category.noun = 'young adult';
+      category.genderedNoun = ['young woman', 'young man', 'young adult'];
     }
+
+    result.push(category);
   }
 
-  return categories;
+  return result;
 }
 
 export function humanStandard(): AgeCategory[] {

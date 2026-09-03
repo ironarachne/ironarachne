@@ -1821,6 +1821,10 @@ the thirty already disagree with the tool catalog:
 | `/environment`   | `"default"` | none              | Agrees, but `"default"` names no stylesheet    |
 | `/language`      | `"default"` | none              | Agrees, but `"default"` names no stylesheet    |
 
+(That first row is history twice over now: `theme` is gone, and #75 dropped the `fantasy` tag as
+well, so the catalog agrees with what the page always rendered. `/species-stats` took `/workshop`'s
+place among the genre-neutral four when decision 9 took the workshop out of the catalog.)
+
 `"default"` is the tell. It is a class no stylesheet in the app defines, written in three places to
 mean "no skin" — which is what an absent class already means. A prop whose most-used value is a
 no-op is a prop nobody can read correctly, and it is duplicated data besides: **the tool catalog

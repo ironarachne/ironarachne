@@ -38,3 +38,9 @@ import { getVariant } from '$lib/age';
 
 const elfCategories = getVariant(10, humanStandard()); // ten times the human lifespan
 ```
+
+`getVariant` returns new categories rather than rewriting the ones it is handed, and it never emits
+a category whose `maxAge` is below its `minAge`. Both were fixed by #75: it used to assign straight
+into the array, which permanently aged any species that passed its own `ageCategories` in, and a
+small enough modifier drove a category's scaled `maxAge` below the `minAge` chained from the row
+above it, so the ladder came back reading "2 to 1 years".

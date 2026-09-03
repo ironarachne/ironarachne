@@ -135,6 +135,7 @@ describe('TOOL_CATALOG', () => {
       '/velgarth-gifts',
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
+      '/species-stats',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -247,6 +248,7 @@ describe('toolsWithMaturity', () => {
       '/heraldry',
       '/planet',
       '/region',
+      '/species-stats',
       '/star-nation',
       '/star-system',
       '/swn/character',

@@ -92,12 +92,24 @@ export async function expectGeneratorOutput(
       return;
     case 'stats':
       await expect(page.getByRole('heading', { name: 'Calculated Stats' })).toBeVisible();
-      // The colon went with the sentence: a stat is a `<dt>` holding "Age Range" and a `<dd>`
-      // holding the value, so the key is matched exactly rather than by the punctuation that used
-      // to separate it from what followed. docs/visual-design.md, "A stat is a pair".
-      await expect(page.getByText('Age Range', { exact: true }).first()).toBeVisible();
+      // The size ladder is a `DataTable` per gender since #75, where it was a stack of `StatBlock`s
+      // under an `<h5>` that followed an `<h3>` — a heading level skipped, and a table of four
+      // columns rendered as anything but a table.
+      //
+      // The cells rather than the column heads: this helper runs at every mobile width too, and
+      // below 640px a flipping `DataTable` hides its `<thead>` and each cell wears its key from
+      // `data-label` instead. `species_stats.spec.ts` checks the heads at desktop width, where
+      // they exist. The key is asserted here because a cell that lost it would lose it silently
+      // on exactly these screens.
+      // Located by `data-label` rather than by role and name: below 640px the flip paints the key
+      // as `::before` content, which Chromium folds into the cell's accessible name, so the adult
+      // row is named "Age categoryadult" there and "adult" here.
+      await expect(page.locator('td[data-label="Age range"]').first()).toBeVisible();
       await expect(
-        page.getByRole('heading', { name: 'adult', level: 5, exact: true }).first(),
+        page
+          .locator('td[data-label="Age category"]')
+          .filter({ hasText: /^adult$/ })
+          .first(),
       ).toBeVisible();
       return;
     case 'preview-image':
