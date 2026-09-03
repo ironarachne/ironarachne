@@ -123,6 +123,7 @@ describe('TOOL_CATALOG', () => {
       '/character',
       '/fantasy/encounter',
       '/fantasy/equipment',
+      '/fantasy/equipment-generator',
       '/fantasy/family',
       '/fantasy/organization',
       '/culture',
@@ -137,6 +138,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/adnd/character/build',
       '/species-stats',
       '/word-generator-cheat-sheet',
+      '/fantasy/equipment-generator',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -242,6 +244,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/dungeon',
       '/fantasy/encounter',
       '/fantasy/equipment',
+      '/fantasy/equipment-generator',
       '/fantasy/family',
       '/fantasy/organization',
       '/fantasy/religion',
@@ -316,6 +319,7 @@ describe('filterTools', () => {
       '/region',
       '/fantasy/settlement',
       '/fantasy/equipment',
+      '/fantasy/equipment-generator',
     ]);
   });
 

@@ -38,6 +38,13 @@ import { regionArtifactKind } from '$lib/regions/region_artifact_kind';
 // Through the entry point: `$lib/drug` is two phrase tables and a generator, with no species list
 // or image behind it. Measured the way the entries in `library_imports.test.ts` were.
 import { drugArtifactKind } from '$lib/drug';
+// Deep, and measured the way its neighbours were: `$lib/equipment`'s entry point reaches the
+// generator and from there the weapon, armour, material, refinement, enchantment and decoration
+// tables, the made-up-names package, and the whole twenty-three-list fantasy price list. Through
+// the kind module the registry chunk and everything it statically imports is 292 KB across 31
+// chunks; through the entry point it is 408 KB across 35. Every page that lists what a project
+// contains pays that difference.
+import { itemArtifactKind } from '$lib/equipment/item_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -78,6 +85,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, starSystemArtifactKind);
   registerArtifactKind(registry, regionArtifactKind);
   registerArtifactKind(registry, drugArtifactKind);
+  registerArtifactKind(registry, itemArtifactKind);
   return registry;
 }
 

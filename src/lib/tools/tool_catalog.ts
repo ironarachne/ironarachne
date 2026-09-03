@@ -402,12 +402,19 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['equipment'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-objects.md (#66). It saves as `item` — the kind decision 1 of that document
+  // gives it and `/fantasy/weapon` to share, because two kinds for one payload shape would split a
+  // user's gear across two vault entries — has an editor in `ARTIFACT_EDITORS`, and exports
+  // Markdown and PDF, the first exports it has ever had. Its roll is deterministic from the seed
+  // via `item_roll.ts`. Nothing it takes as input has an artifact kind, so requirement 5.1 does
+  // not bind; 5.3 is met, as it always was.
   defineTool({
     path: '/fantasy/equipment-generator',
     label: 'Fantasy Equipment',
     kind: 'generator',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['equipment'],
   }),

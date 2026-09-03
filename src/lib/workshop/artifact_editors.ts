@@ -235,6 +235,23 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
       return (provenance) => rollDrugSnapshot(provenance.seed);
     },
   },
+  item: {
+    loadEditor: () => import('$components/objects/ItemArtifactEditor.svelte'),
+    /**
+     * The page's four controls, read back through the roll module's own reader.
+     *
+     * One kind, two tools, and unlike the AD&D pair they re-roll the same way: `/fantasy/weapon`
+     * is this generator with the major type fixed, so its provenance is a config this reader
+     * already understands. The tool path is what tells a vault listing which made an item, not
+     * what tells a re-roll how.
+     */
+    loadRoller: async () => {
+      const { readEquipmentGeneratorConfig, rollItemSnapshot } =
+        await import('$lib/equipment/item_roll.js');
+      return (provenance) =>
+        rollItemSnapshot(provenance.seed, readEquipmentGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

@@ -105,6 +105,13 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // the build: through the kind module the registry chunk and everything it statically imports is
   // 140.7 KB across 16 chunks, and through the entry point it is 214.8 KB across 24.
   '$lib/astronomical_bodies/planet_artifact_kind',
+  // Shared by `/fantasy/equipment-generator` and `/fantasy/weapon`, which is one kind by decision 1
+  // of docs/readiness-objects.md. `$lib/equipment`'s entry point reaches the generator and from
+  // there the weapon, armour, material, refinement, enchantment and decoration tables, the
+  // made-up-names package, and the whole twenty-three-list fantasy price list. Measured on the
+  // build: through the kind module the registry chunk and everything it statically imports is
+  // 292 KB across 31 chunks, and through the entry point it is 408 KB across 35.
+  '$lib/equipment/item_artifact_kind',
   // The eighteenth, the same library and the same reason: the star-system kind module holds
   // metadata and validation only, and its codec is a dynamic import.
   '$lib/astronomical_bodies/star_system_artifact_kind',

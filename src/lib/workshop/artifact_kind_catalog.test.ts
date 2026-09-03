@@ -33,6 +33,7 @@ describe('artifact kind catalog', () => {
       'star-system',
       'region',
       'drug',
+      'item',
     ]);
   });
 
