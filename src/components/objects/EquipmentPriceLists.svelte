@@ -1,32 +1,69 @@
 <script lang="ts">
+  import BaseButton from '$components/common/BaseButton.svelte';
+  import ControlsPanel from '$components/common/ControlsPanel.svelte';
   import DataTable, { type Column } from '$components/common/DataTable.svelte';
-  import { valueToString, STANDARD_FANTASY, HISTORICAL_BRITISH } from '$lib/currency';
-  import { FantasyEquipmentList } from '$lib/equipment';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import InputGroup from '$components/common/InputGroup.svelte';
   import SelectField from '$components/common/SelectField.svelte';
+  import { downloadTextFile } from '$lib/download';
+  import {
+    FantasyEquipmentList,
+    PRICE_CURRENCIES,
+    PRICE_LIST_TITLE,
+    countEquipmentItems,
+    filterEquipmentLists,
+    priceCurrency,
+    priceListDocument,
+    priceListFileStem,
+    priceListToMarkdown,
+    priceListToText,
+  } from '$lib/equipment';
+  import { downloadTextPdf } from '$lib/pdf';
 
-  let currency = $state('D&D currency');
+  const TOOL_PATH = '/fantasy/equipment';
+
+  /**
+   * The whole reference, read once.
+   *
+   * `all()` rebuilds the clothing list on every call, so reading it in a `$derived` would rebuild
+   * five hundred rows on every keystroke of the search box.
+   */
   const equipmentLists = FantasyEquipmentList.all();
+  const totalItems = countEquipmentItems(equipmentLists);
 
-  const DND_CURRENCY = {
-    ...STANDARD_FANTASY,
-    denominations: STANDARD_FANTASY.denominations.filter(
-      (d) => d.name !== 'electrum' && d.name !== 'platinum',
-    ),
-  };
+  const CURRENCY_OPTIONS = PRICE_CURRENCIES.map((option) => ({
+    value: option.id,
+    label: option.label,
+  }));
 
-  function convertDNDCost(cost: number) {
-    return valueToString(cost, DND_CURRENCY);
+  const PRICE_COLUMNS: Column[] = [{ label: 'Item' }, { label: 'Cost', numeric: true }];
+
+  let currencyId = $state(PRICE_CURRENCIES[0].id);
+  let search = $state('');
+
+  const currency = $derived(priceCurrency(currencyId));
+  const shownLists = $derived(filterEquipmentLists(equipmentLists, search));
+  const shownItems = $derived(countEquipmentItems(shownLists));
+  const document_ = $derived(priceListDocument(currency, shownLists));
+
+  function exportMarkdown() {
+    downloadTextFile(
+      priceListToMarkdown(document_),
+      `${priceListFileStem(currency)}.md`,
+      'text/markdown',
+    );
   }
 
-  function convertEnglishCost(cost: number) {
-    return valueToString(cost * 0.25, HISTORICAL_BRITISH);
+  async function exportPdf() {
+    await downloadTextPdf(
+      document_.title,
+      priceListToText(document_),
+      `${priceListFileStem(currency)}.pdf`,
+    );
   }
-
-  const PRICE_COLUMNS: Column[] = [{ label: 'Name' }, { label: 'Cost', numeric: true }];
 </script>
 
-<GeneratorPage toolPath="/fantasy/equipment" title="Fantasy Equipment Lists">
+<GeneratorPage toolPath={TOOL_PATH} title={PRICE_LIST_TITLE}>
   {#snippet description()}
     <p>
       This page is meant to be a comprehensive list of equipment for fantasy games. It will be
@@ -38,52 +75,78 @@
     </p>
   {/snippet}
 
-  <SelectField
-    id="currency"
-    label="Currency Type"
-    bind:value={currency}
-    options={['D&D currency', 'English currency']}
-  />
+  <ControlsPanel>
+    <SelectField
+      id="currency"
+      label="Currency Type"
+      bind:value={currencyId}
+      options={CURRENCY_OPTIONS}
+    />
+    <InputGroup id="equipment-search" label="Search">
+      <input
+        id="equipment-search"
+        type="search"
+        placeholder="rope, sword, ale…"
+        bind:value={search}
+      />
+    </InputGroup>
+  </ControlsPanel>
 
-  {#if currency === 'D&D currency'}
-    <div>
-      <ul>
-        <li>cp: copper piece</li>
-        <li>sp: silver piece (worth 10 copper pieces)</li>
-        <li>ep: electrum piece (worth 50 copper pieces, rare)</li>
-        <li>gp: gold piece (worth 10 silver pieces)</li>
-        <li>pp: platinum piece (worth 10 gold pieces, rare)</li>
-      </ul>
-    </div>
-  {:else if currency === 'English currency'}
-    <div>
-      <ul>
-        <li>f: farthing</li>
-        <li>d: pence (worth 4 farthings)</li>
-        <li>s: shilling (worth 12 pence)</li>
-        <li>c: crown (worth 5 shillings)</li>
-        <li>£: pound (worth 20 shillings)</li>
-      </ul>
-    </div>
-  {/if}
+  <!-- The key is derived from the same currency the Cost column is written in, so it cannot list a
+       coin the tables never print or omit one they do. It listed electrum, platinum and a crown
+       before #65, none of which any price was ever quoted in. -->
+  <h2>Reading the prices</h2>
+  <ul class="legend">
+    {#each currency.legend as entry (entry.symbol)}
+      <li>
+        <strong>{entry.symbol}</strong>: {entry.name}{entry.worth === '' ? '' : ` (${entry.worth})`}
+      </li>
+    {/each}
+  </ul>
 
-  {#each equipmentLists as eList}
+  <p class="count" role="status">
+    {#if search.trim() === ''}
+      {totalItems} items in {equipmentLists.length} categories.
+    {:else}
+      {shownItems} of {totalItems} items match “{search.trim()}”.
+    {/if}
+  </p>
+
+  <div class="actions">
+    <BaseButton onclick={exportMarkdown} disabled={shownItems === 0}>Download Markdown</BaseButton>
+    <BaseButton onclick={exportPdf} disabled={shownItems === 0}>Download PDF</BaseButton>
+  </div>
+
+  {#each document_.lists as list (list.title)}
     <div class="equipment-list">
-      <h2>{eList.title}</h2>
+      <h2>{list.title}</h2>
       <DataTable columns={PRICE_COLUMNS} rows={priceRows} />
 
       {#snippet priceRows()}
-        {#each eList.items as equipment}
+        {#each list.items as item (item.name)}
           <tr>
-            <td data-label="Name">{equipment.name}</td>
-            {#if currency === 'D&D currency'}
-              <td class="numeric" data-label="Cost">{convertDNDCost(equipment.cost)}</td>
-            {:else if currency === 'English currency'}
-              <td class="numeric" data-label="Cost">{convertEnglishCost(equipment.cost)}</td>
-            {/if}
+            <td data-label="Item">{item.name}</td>
+            <td class="numeric" data-label="Cost">{item.cost}</td>
           </tr>
         {/each}
       {/snippet}
     </div>
   {/each}
 </GeneratorPage>
+
+<style>
+  .legend {
+    margin-bottom: var(--s6);
+  }
+
+  .count {
+    color: var(--ink-faint);
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+</style>

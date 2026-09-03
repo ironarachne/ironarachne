@@ -52,6 +52,13 @@ const SILENT_TOOL_PAGES = [
   { path: '/star-system', title: 'Star System Generator | Iron Arachne', webgl: true },
   { path: '/region', title: 'Region Generator | Iron Arachne' },
   { path: '/drug', title: 'Cyberpunk Drug Generator | Iron Arachne' },
+  {
+    // The only reference tool in this list, and the reason it is worth naming: most of the spec
+    // does not apply to a tool that produces no artifacts, so it is the one entry here whose
+    // silence was earned by sections 1, 2.1, 2.5, 6, 7.1 and 8 alone (#65).
+    path: '/fantasy/equipment',
+    title: 'Fantasy Equipment Price Lists | Iron Arachne',
+  },
   { path: '/fantasy/encounter', title: 'Encounter | Iron Arachne' },
   { path: '/fantasy/family', title: 'Fantasy Family Generator | Iron Arachne' },
   { path: '/fantasy/organization', title: 'Organization Generator | Iron Arachne' },

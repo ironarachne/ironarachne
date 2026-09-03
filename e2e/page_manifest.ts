@@ -193,8 +193,8 @@ export const PAGE_MANIFEST: PageEntry[] = [
   },
   {
     path: '/fantasy/equipment',
-    title: 'Fantasy Equipment Lists | Iron Arachne',
-    heading: 'Fantasy Equipment Lists',
+    title: 'Fantasy Equipment Price Lists | Iron Arachne',
+    heading: 'Fantasy Equipment Price Lists',
     kind: 'static',
   },
   {

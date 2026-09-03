@@ -386,12 +386,19 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     maturity: 'release-ready',
     genres: ['cyberpunk'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-objects.md (#65). The first reference tool taken there, so most of the spec
+  // does not apply: it produces no artifacts, which takes out sections 3, 4 and 5 along with
+  // 2.2-2.4 and 7.2-7.4. What was assessed is 1, 2.1, 2.5, 6, 7.1 and 8. 6.1 was already met by
+  // `DataTable`'s flip and is held by e2e/tables.spec.ts; what failed was 6.4 — an item costing
+  // nothing printed an empty Cost cell, and the key named coins no price was ever quoted in. The
+  // pricing, the key and both exports live in `$lib/equipment`'s `price_lists.ts` now, under test.
   defineTool({
     path: '/fantasy/equipment',
     label: 'Fantasy Equipment Price Lists',
     kind: 'reference',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['fantasy'],
     tags: ['equipment'],
   }),

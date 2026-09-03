@@ -16,7 +16,7 @@ test.describe('a flipped table', () => {
   test('shows one key per column it had', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 800 });
     await visitRoute(page, '/fantasy/equipment', {
-      title: 'Fantasy Equipment Lists | Iron Arachne',
+      title: 'Fantasy Equipment Price Lists | Iron Arachne',
     });
 
     const rows = page.locator('.data-table tbody tr');
@@ -42,7 +42,7 @@ test.describe('a flipped table', () => {
     // checks the mechanism itself, on the narrowest width the app supports.
     await page.setViewportSize({ width: 320, height: 800 });
     await visitRoute(page, '/fantasy/equipment', {
-      title: 'Fantasy Equipment Lists | Iron Arachne',
+      title: 'Fantasy Equipment Price Lists | Iron Arachne',
     });
 
     const overflow = await page.evaluate(() => {
