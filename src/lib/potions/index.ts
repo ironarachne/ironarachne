@@ -6,3 +6,8 @@ export * from './potion_descriptor';
 export * from './potion_sensory';
 export * from './potion_value';
 export * from './potion_naming';
+export * from './potion_artifact_kind';
+export * from './potion_editing';
+export * from './potion_presentation';
+export * from './potion_roll';
+export * from './potion_snapshot';

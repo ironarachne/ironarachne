@@ -269,6 +269,16 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollMerchantSnapshot(provenance.seed, readMerchantGeneratorConfig(provenance.config));
     },
   },
+  potion: {
+    loadEditor: () => import('$components/objects/PotionArtifactEditor.svelte'),
+    /** The page's two checkboxes, read back through the roll module's own reader. */
+    loadRoller: async () => {
+      const { readPotionGeneratorConfig, rollPotionSnapshot } =
+        await import('$lib/potions/potion_roll.js');
+      return (provenance) =>
+        rollPotionSnapshot(provenance.seed, readPotionGeneratorConfig(provenance.config));
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

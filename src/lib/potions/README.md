@@ -58,3 +58,27 @@ the catalog under their usual names.
 
 Containers come from [`$lib/equipment`](../equipment/README.md) via `config.containerConfig`, which
 defaults to unlocked, liquid-capable containers.
+
+## The `potion` artifact kind
+
+A potion is a durable artifact (#68), and it is **its own kind rather than a share of `item`** —
+decision 2 of [docs/readiness-objects.md](../../../docs/readiness-objects.md). An item editor has no
+field for a duration or a flavour, and a potion editor has none for a combat profile; folding the
+two together would give one of them an editor that is wrong for half of what it opens.
+
+- **`potion_snapshot.ts`** — `PotionSnapshot` and the codec. `Potion` is plain throughout, so
+  nothing is converted; what the snapshot does is **stop storing the same thing twice**.
+  `generatePotion` writes the effect, the sensory profile and the display name into the liquid _and_
+  onto the potion beside it, so the stored liquid drops all three and they are rebuilt on read.
+  There is one place to edit an effect and one answer to what it is.
+- **`potion_artifact_kind.ts`** — the kind, its version, and a validator that normalises rather than
+  refuses: a missing sensory field reads as empty prose, an unreadable modification is dropped, and
+  an effect `parameters` union this build does not know is kept as it is rather than rejected.
+- **`potion_roll.ts`** — the one path from a seed, and the page's two checkboxes as a provenance
+  record.
+- **`potion_editing.ts`** — the setters, none of which recompute. Changing the magnitude does not
+  reprice the potion, and `describePotionSnapshot` offers the generated wording as an explicit
+  command.
+- **`potion_presentation.ts`** — the sheet, and the Markdown and PDF written from it. `potionForm`
+  lives here too: the page used to work out whether a potion was a drink, an oil or an ointment by
+  sniffing `liquid.properties` three levels of nested ternary deep, where nothing could test it.

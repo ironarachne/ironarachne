@@ -51,6 +51,11 @@ import { itemArtifactKind } from '$lib/equipment/item_artifact_kind';
 // everything it statically imports is 296 KB across 31 chunks; through the entry point it is
 // 19.7 MB across 47.
 import { merchantArtifactKind } from '$lib/merchants/merchant_artifact_kind';
+// Deep, and measured the way its neighbours were: `$lib/potions`'s entry point reaches the
+// generator, and from there the whole potion catalog, the sensory tables and `$lib/equipment`'s
+// container generator. Through the kind module the registry chunk and everything it statically
+// imports is 304 KB across 32 chunks; through the entry point it is 445 KB across 36.
+import { potionArtifactKind } from '$lib/potions/potion_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
@@ -93,6 +98,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, drugArtifactKind);
   registerArtifactKind(registry, itemArtifactKind);
   registerArtifactKind(registry, merchantArtifactKind);
+  registerArtifactKind(registry, potionArtifactKind);
   return registry;
 }
 
