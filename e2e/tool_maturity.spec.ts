@@ -65,6 +65,12 @@ const SILENT_TOOL_PAGES = [
     path: '/species-stats',
     title: 'Species Height and Weight Calculator | Iron Arachne',
   },
+  {
+    // The third and last reference tool of the pass (#76), and the one that forced the question
+    // decision 8 answers: a tool with no library gets one rather than an exemption.
+    path: '/word-generator-cheat-sheet',
+    title: 'Word Generator Cheat Sheet | Iron Arachne',
+  },
   { path: '/fantasy/encounter', title: 'Encounter | Iron Arachne' },
   { path: '/fantasy/family', title: 'Fantasy Family Generator | Iron Arachne' },
   { path: '/fantasy/organization', title: 'Organization Generator | Iron Arachne' },

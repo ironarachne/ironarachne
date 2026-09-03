@@ -136,6 +136,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/adnd/character',
       '/fantasy/adnd/character/build',
       '/species-stats',
+      '/word-generator-cheat-sheet',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -254,6 +255,7 @@ describe('toolsWithMaturity', () => {
       '/swn/character',
       '/unchartedworlds/character',
       '/velgarth-gifts',
+      '/word-generator-cheat-sheet',
     ]);
   });
 

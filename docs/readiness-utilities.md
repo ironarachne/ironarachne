@@ -153,6 +153,39 @@ terms set a minimum width, so the table scrolls on its own rather than the page 
 That is exactly the repository rule. This is a case where the issue's expectation — "6.1 and 6.2
 are the real work" — is half met already.
 
+**As assessed.** The library landed as designed: `src/lib/word_patterns` holds the element table
+and, which this section did not anticipate, the **pattern syntax** — three paragraphs of prose above
+the controls that were the only place in the repository that syntax was written down. Both are data
+now, so both reach the exports.
+
+6.1 was already handled, as predicted, and `DataTable`'s `narrow="scroll"` is the same mechanism
+with the hand-rolled wrapper removed. **6.4 is what actually failed**, in two places — the third
+tool in a row where the finding is 6.4 rather than the 6.1 the pass expected:
+
+- **The page opened with an empty pattern**, and generating from one produces empty strings. Ten
+  blank bullets, on arrival, from the button the page is built around. It opens on `cvcv` now, and
+  Generate is disabled while the pattern is blank.
+- **The clicks element set is `|`, `||`, `|!`** — the vocabulary genuinely contains the character a
+  Markdown table separates columns with. Unescaped, that one row splits into five columns and takes
+  the rest of the table's alignment with it. Only writing the export revealed it; there was no
+  export before.
+
+**6.2 was met in the letter and not in the mechanism**, which is the point decision 8 makes. The
+headers did exist — inside a string the component concatenated, where nothing could check them and
+`{@html}` was needed to render them. They are `DataTable` columns now, the one
+`svelte/no-at-html-tags` suppression on the page is gone, and both tables carry names, because two
+tables that look alike need names that do not.
+
+**A seed, which the spec does not require of a reference tool.** 2.2 and 2.3 are G/E only, and this
+tool is R — but it has a Generate button, and it built a `new WordGenerator()` with no RNG, so
+nothing it produced could be quoted, written down, or reproduced by whoever was asked what the
+pattern did. `SeedControls` costs one row and is what every other tool in the pass has. Recorded
+here as a judgment rather than a requirement.
+
+**One thing the library caught for free**: the package's own doc comment lists thirty-six symbols
+and the package ships forty-five. Reading `allElements` rather than copying it is why the sheet was
+right anyway, and the test that counts them is why it stays right.
+
 ## Domain model
 
 ```mermaid

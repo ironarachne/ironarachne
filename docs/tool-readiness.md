@@ -446,10 +446,13 @@ migration. They are days of work in total, they are independent of everything ab
 table-shaped ones (#65 and #76) are the site's most likely 6.1 failures — wide tables at 320px.
 They run in parallel with the rest of the pass rather than after it.
 
-**#65 and #75 are done, and they correct the prediction above the same way.** Both were expected to
-fail 6.1 and neither did; both failed **6.4**, and in both the reason was
-[decision 8](#8-a-reference-tool-with-no-logic-still-gets-a-library) — logic sitting in a component
-where no unit test could reach it. #76 should expect the same shape of finding.
+**All three are done, and all three correct the prediction above the same way.** Each was expected
+to fail 6.1 and none did; each failed **6.4**, and in each the reason was
+[decision 8](#8-a-reference-tool-with-no-logic-still-gets-a-library) — content or logic sitting in a
+component where no unit test could reach it. The prediction that the wide tables were the risk was
+wrong three times out of three, and it was wrong for an instructive reason: a table that overflows
+is visible to anyone who looks, and `pages.mobile.spec.ts` had been looking. What nobody was
+looking at was the text inside it.
 
 **#65 in particular.** 6.1 was already met: the price lists have
 used `DataTable` since #154, so the tables flip on a phone rather than pushing the page sideways,
@@ -466,6 +469,13 @@ could emit a category whose maximum age was below its minimum. No shipped specie
 enough to hit the second; a calculator where the user types the lifespan does. The tool's own
 failure, rows reading "2 to 1 years" from a cleared field, was that bug seen from the page.
 
+**#76 settles the spec question this pass raised**, and settles it where decision 8 already put it:
+`src/lib/word_patterns` holds the element table and the pattern syntax as data, where the component
+held them as a concatenated HTML string rendered with `{@html}`. No sentence is added to
+`docs/workshop.md` exempting a logic-free reference tool from 8.1 and 8.2, because there turned out
+to be no such tool — the "no logic" one had a Generate button, an undocumented pattern syntax, and
+two 6.4 failures, one of which (the clicks element set being made of Markdown table separators) only
+appeared once there was an export to write.
 **#75 carries a caveat the other two do not.** The species height and weight calculator returns
 confident numbers from placeholder data: #25 records that 182 of 239 species carry placeholder
 human sizes. Section 6 polish does not fix that, and this document does not pretend otherwise —
