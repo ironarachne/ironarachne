@@ -497,12 +497,20 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     // the tool from every project that is not one (1.2).
     tags: ['species'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-utilities.md (#76). The third and last reference tool of the pass. It is the
+  // one that forced the spec question — does a tool with no library satisfy 8.1 and 8.2? — and
+  // decision 8 of docs/tool-readiness.md answered it: `src/lib/word_patterns` holds the element
+  // table and the pattern syntax as data, where the component held them as a concatenated HTML
+  // string. 6.1 was already met by the table's own scroll container. What failed was 6.4, twice:
+  // Generate on the empty pattern the page opened with produced ten blank bullets, and the clicks
+  // element set is made of the character a Markdown table separates columns with.
   defineTool({
     path: '/word-generator-cheat-sheet',
     label: 'Word Generator Cheat Sheet',
     kind: 'reference',
     domain: 'utilities',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     tags: ['naming'],
   }),
 ];
