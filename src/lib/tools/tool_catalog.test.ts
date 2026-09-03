@@ -132,6 +132,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/dcc/character',
       '/fantasy/religion',
       '/fantasy/settlement',
+      '/fantasy/weapon',
       '/heraldry',
       '/swn/character',
       '/unchartedworlds/character',
@@ -143,6 +144,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/equipment-generator',
       '/fantasy/merchant',
       '/fantasy/potion-generator',
+      '/fantasy/weapon',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -255,6 +257,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/potion-generator',
       '/fantasy/religion',
       '/fantasy/settlement',
+      '/fantasy/weapon',
       '/heraldry',
       '/planet',
       '/region',
@@ -328,6 +331,7 @@ describe('filterTools', () => {
       '/fantasy/equipment-generator',
       '/fantasy/merchant',
       '/fantasy/potion-generator',
+      '/fantasy/weapon',
     ]);
   });
 

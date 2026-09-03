@@ -31,6 +31,11 @@ by only one of the two tools that made it. The provenance's tool path says which
   generated wording as an explicit command.
 - **`item_presentation.ts`** — the sheet, and the Markdown and PDF written from it, for one item or
   for a whole press.
+- **`weapon_roll.ts`** — `/fantasy/weapon`'s own roll. That tool is this generator with the major
+  type fixed and the enchantment tables narrowed to one religious domain, so it shares the kind and
+  needs its own settings: a theme and a range category rather than a major type and three switches.
+  `ARTIFACT_EDITORS` tells the two provenance shapes apart by the tool path, as the AD&D pair does.
+  `resolveWeaponTheme` takes an `any` theme from the seed, so a re-roll produces the same weapon.
 
 ## The fantasy price lists
 
