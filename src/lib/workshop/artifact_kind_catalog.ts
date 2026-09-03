@@ -23,6 +23,12 @@ import { starNationArtifactKind } from '$lib/civilizations/star_nation_artifact_
 // Through the entry point, unlike its neighbours: `$lib/chopshop` is a few kilobytes of prose and
 // nothing heavier, so there is no measurement that would justify a deep import.
 import { chopShopArtifactKind } from '$lib/chopshop';
+// Through the entry point, like the chop shop beside it and for the same reason — and measured
+// rather than assumed: `$lib/spooky_ship` is four phrase tables, so the registry chunk and
+// everything it statically imports is 431 KB across 43 chunks through the entry point and 429 KB
+// across 41 through the kind module. Two kilobytes is not a deep import; an allowlist entry with
+// nothing behind it is how that rule rots.
+import { spookyShipArtifactKind } from '$lib/spooky_ship';
 import { familyArtifactKind } from '$lib/families/family_artifact_kind';
 import { encounterArtifactKind } from '$lib/encounters/encounter_artifact_kind';
 import { cultureArtifactKind } from '$lib/culture/culture_artifact_kind';
@@ -105,6 +111,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, merchantArtifactKind);
   registerArtifactKind(registry, potionArtifactKind);
   registerArtifactKind(registry, treasureHoardArtifactKind);
+  registerArtifactKind(registry, spookyShipArtifactKind);
   return registry;
 }
 

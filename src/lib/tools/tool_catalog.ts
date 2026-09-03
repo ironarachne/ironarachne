@@ -485,12 +485,21 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['fantasy'],
     tags: ['treasure'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-objects.md (#71). It saves as `spooky-ship` — its own kind rather than a
+  // `starship` shared with /swn/starship, which the issue asks to be settled deliberately and
+  // decision 6 of that document settles: one shape, two kinds, so a vault listing can keep a
+  // haunted freighter apart from a corvette a player is flying. It has an editor in
+  // `ARTIFACT_EDITORS` and exports Markdown and PDF, the first exports it has ever had, and the
+  // library is split into types, generation and the five kind modules for 8.3.
+  //
+  // Still the only tool on the site carrying two genres, and the only one carrying `horror`.
   defineTool({
     path: '/spooky-ship',
     label: 'Spooky Ship',
     kind: 'generator',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['scifi', 'horror'],
     tags: ['starship'],
   }),

@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
-import { generate } from './index';
+import { generate, generateSpookyShip } from './spooky_ship_generation';
 
 const SIZES = ['gigantic', 'immense', 'large', 'huge', 'colossal', 'vast'];
 const SHIPS = [
@@ -12,6 +12,15 @@ const SHIPS = [
   'passenger liner',
   'merchant ship',
 ];
+
+describe('generateSpookyShip', () => {
+  it('wraps the paragraph in the library one type', () => {
+    // What the snapshot, the editor and the exports all hold, rather than a bare string passed
+    // around. The chop shop settled this shape; decision 6 of docs/readiness-objects.md gives the
+    // two prose generators one shape and two kinds.
+    expect(generateSpookyShip(new RNG('wrapped'))).toEqual({ text: generate(new RNG('wrapped')) });
+  });
+});
 
 describe('generate', () => {
   it('is deterministic for a given seed', () => {

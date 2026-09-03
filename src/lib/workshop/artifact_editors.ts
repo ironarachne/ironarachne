@@ -312,6 +312,14 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
         rollTreasureHoardSnapshot(provenance.seed, readTreasureHoardConfig(provenance.config));
     },
   },
+  'spooky-ship': {
+    loadEditor: () => import('$components/objects/SpookyShipArtifactEditor.svelte'),
+    /** The seed and nothing else: the page has one control, and the paragraph is the whole roll. */
+    loadRoller: async () => {
+      const { rollSpookyShipSnapshot } = await import('$lib/spooky_ship/spooky_ship_roll.js');
+      return (provenance) => rollSpookyShipSnapshot(provenance.seed);
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**
