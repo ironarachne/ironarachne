@@ -149,6 +149,7 @@ describe('TOOL_CATALOG', () => {
       '/fantasy/weapon',
       '/fantasy/treasure-hoard',
       '/spooky-ship',
+      '/language',
     ];
 
     const claimingMore = TOOL_CATALOG.filter(
@@ -264,6 +265,7 @@ describe('toolsWithMaturity', () => {
       '/fantasy/treasure-hoard',
       '/fantasy/weapon',
       '/heraldry',
+      '/language',
       '/planet',
       '/region',
       '/species-stats',

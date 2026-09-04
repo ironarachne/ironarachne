@@ -74,6 +74,13 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // everything it statically imports is 425.2 KB across 44 chunks and `/swn/starship` is 501.5 KB
   // across 64; through the entry point they are 19.4 MB across 61 and 19.4 MB across 77. The kind
   // module holds metadata and validation only, and its codec is a dynamic import.
+  // `$lib/languages`'s entry point reaches the lexicon's eleven word-bucket lists and the
+  // themed-noun table, plus the whole English↔conlang translation layer. Measured on the build:
+  // through the kind module the registry chunk and everything it statically imports is 429.5 KB
+  // across 45 chunks, and through the entry point it is 474.5 KB across 47 — the same band that
+  // bought `$lib/treasure` its entry. The kind module holds metadata and validation only, and its
+  // codec is a dynamic import.
+  '$lib/languages/language_artifact_kind',
   '$lib/swn/swn_starship_artifact_kind',
   '$lib/swn/swn_starship_editing',
   '$lib/swn/swn_starship_presentation',

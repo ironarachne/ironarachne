@@ -51,6 +51,45 @@ translation machinery, not in the language.
 - **6.3 is a real loss today.** A conlang is a document — the phonology, the typology, and the
   lexicon as a two-column glossary. Markdown and PDF, from one presentation document.
 
+**As built (#74).** It landed as designed — kind `language`, the lexicon stored whole, a bespoke
+searchable editor, and the `SeedControls` the tool had never had. Four things worth recording:
+
+- **The measurement the issue asked for: 1,760 words and about 144 KB of JSON.** That is the
+  largest payload the site stores and it is not close to mattering. `$lib/storage_status` warns at
+  80% of what `navigator.storage.estimate()` reports, so a user would need thousands of languages
+  to reach the first thing the vault would say to them. Storing the lexicon whole was never the
+  risk the issue was right to check for.
+
+- **Determinism holds, and the test compares the lexicon word for word** rather than comparing two
+  objects and trusting `toEqual` to have looked. That is the test #74 asks for, and it is what makes
+  the re-roll honest: this design stores the lexicon rather than relying on regeneration, but 4.3
+  does rely on it, and a re-roll that returned a different language each press would be a button
+  that lies.
+
+- **The failure was 2.3, not 2.2.** Every other tool in the pass had a seed control that worked and
+  an RNG reseeded in the wrong place. This one rendered no `SeedControls` at all and drew a fresh
+  seed from `Date.now()` inside `generate()` — so a language a user liked could not be got back,
+  because there was nothing to write down. Different fault, same fix.
+
+- **`/language` was the last Experimental tool, and `e2e/tool_maturity.spec.ts` changed shape.**
+  That spec exists to prove a maturity level reaches a screen, and it had a list of one — rewritten
+  four times as planet, drug, spooky ship and finally this tool each reached Release-ready. The
+  catalog is now release-ready end to end, so no page can show a badge and the list has nowhere to
+  point. It asserts site-wide silence instead, and carries a note saying to restore the two tests
+  the day a tool ships below Release-ready. The badge's own logic stays covered by
+  `src/lib/tools/tools.test.ts`; what is genuinely no longer covered is the wiring from that logic
+  to `ToolMaturityBadge` on a real page, and keeping a fixture route alive to exercise it would cost
+  more than it is worth.
+
+**On #28.** This kind is the one that issue declined to mint, and building it is not a reversal of
+it. #28's warning was specific: naming a kind after a language while storing only the
+`NameGeneratorSet` a culture consumes would be a mismatch expensive to undo once artifacts existed
+in users' browsers. This payload is the whole language — phonology, typology, morphology and the
+entire lexicon — so that mismatch cannot arise. What #28 left open stays open: culture still owns
+its `nameGenerators` outright, there is no `payloadVersion` step for culture, and whether a
+_name-generator set_ deserves a kind of its own remains the smaller question to ask if settlement,
+region, family and character ever justify it.
+
 ## #75 — Species height and weight calculator
 
 A reference tool: sections 3, 4 and 5 do not apply, and neither do 2.2–2.4. The bar is sections 1,

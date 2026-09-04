@@ -68,6 +68,13 @@ import { potionArtifactKind } from '$lib/potions/potion_artifact_kind';
 // through the entry point it is 477 KB across 43.
 import { treasureHoardArtifactKind } from '$lib/treasure/treasure_hoard_artifact_kind';
 import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
+// Deep, and measured the way its neighbours were: `$lib/languages`'s entry point reaches the
+// lexicon's eleven word-bucket lists and the themed-noun table, plus the whole English↔conlang
+// translation layer. Through the kind module the registry chunk and everything it statically
+// imports is 429.5 KB across 45 chunks; through the entry point it is 474.5 KB across 47. Forty-five
+// kilobytes is the same band that bought `$lib/treasure` its entry, and well clear of the two that
+// did not buy `$lib/spooky_ship` one.
+import { languageArtifactKind } from '$lib/languages/language_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
 import { swnCharacterArtifactKind } from '$lib/swn/swn_character_artifact_kind';
@@ -116,6 +123,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, treasureHoardArtifactKind);
   registerArtifactKind(registry, spookyShipArtifactKind);
   registerArtifactKind(registry, swnStarshipArtifactKind);
+  registerArtifactKind(registry, languageArtifactKind);
   return registry;
 }
 

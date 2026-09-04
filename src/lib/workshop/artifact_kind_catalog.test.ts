@@ -39,6 +39,7 @@ describe('artifact kind catalog', () => {
       'treasure-hoard',
       'spooky-ship',
       'starship.swn',
+      'language',
     ]);
   });
 
