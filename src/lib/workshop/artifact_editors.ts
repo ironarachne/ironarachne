@@ -320,6 +320,17 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
       return (provenance) => rollSpookyShipSnapshot(provenance.seed);
     },
   },
+  'starship.swn': {
+    loadEditor: () => import('$components/objects/SwnStarshipArtifactEditor.svelte'),
+    /**
+     * The seed and nothing else: the page has one control, and the owner type, the hull, the drive
+     * and everything bolted to it are the generator's own decisions drawn from that seed.
+     */
+    loadRoller: async () => {
+      const { rollSwnStarshipSnapshot } = await import('$lib/swn/swn_starship_roll.js');
+      return (provenance) => rollSwnStarshipSnapshot(provenance.seed);
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**
