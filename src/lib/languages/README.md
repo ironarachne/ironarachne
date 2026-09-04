@@ -145,4 +145,20 @@ Run: `npm test -- --run src/lib/languages/`
 - **Conlang parse** — Expects tokens in an order consistent with the language’s **`wordOrder`** and **`possessionStrategy`**; ambiguous noun sequences can be mis-parsed.
 - **Possession `none`** — Conlang string does not encode the possessor; round-trip English may omit the possessor when translating back from conlang.
 
+## Saving a language
+
+The language generator is Release-ready (issue [#74](https://github.com/ironarachne/ironarachne/issues/74)), which means everything it produces can be kept:
+
+- [`language_snapshot.ts`](language_snapshot.ts) — the stored form. It is very nearly the identity function, because a `ConstructedLanguage` carries no closures; the module says so explicitly rather than leaving a reader to wonder what was stripped. The `Map`s and `Set`s this library uses live in the translation machinery, which builds them from a language rather than storing them in one.
+- [`language_artifact_kind.ts`](language_artifact_kind.ts) — the `language` kind: validation, the payload version, and what to call an artifact whose language was never named.
+- [`language_roll.ts`](language_roll.ts) — the single path from a seed to a language. Both the generator page and a re-roll from the vault go through it.
+- [`language_editing.ts`](language_editing.ts) — one function per field, each returning a new snapshot. Nothing recomputes anything, and `filterLexicon` is what makes a 1,760-word glossary editable at all.
+- [`language_presentation.ts`](language_presentation.ts) — the language as a document, and the Markdown and PDF exports written from it. Empty sections are dropped here rather than in each renderer.
+
+**The lexicon is stored whole rather than regenerated from the seed.** A user who renames one word has edited the language, and requirement 4.2 of [the readiness spec](../../../docs/workshop.md#tool-release-readiness) says a seed may not overrule that. Regeneration is a re-roll, and a re-roll is the destructive command.
+
+The size is measured rather than feared: a generated language is **1,760 words and about 144 KB of JSON**. That is the largest payload the site stores, and still two orders of magnitude below the point at which [`$lib/storage_status`](../storage_status/README.md) says anything — it warns at 80% of what `navigator.storage.estimate()` reports.
+
+**This is the kind [#28](https://github.com/ironarachne/ironarachne/issues/28) declined to mint, and minting it now is not a reversal.** #28 warned that naming a kind after a language and storing only the `NameGeneratorSet` a culture consumes would be expensive to undo. This kind stores the larger thing whole, so that mismatch cannot arise. What #28 left open stays open: a culture still owns its `nameGenerators` outright, there is no `payloadVersion` step for culture, and whether a _name-generator set_ deserves a kind of its own is still the smaller question to ask if settlement, region, family and character ever justify it.
+
 For a small interactive demo, see the **`/language`** route in the app.

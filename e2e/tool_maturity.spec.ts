@@ -14,17 +14,32 @@ import { visitRoute } from './helpers';
  *
  * The expected levels are written out rather than imported from `$lib/tools`, in keeping with the
  * rest of `e2e/`: a spec that read the catalog would pass whatever the catalog happened to say.
+ *
+ * **Since #74 there is no Experimental tool left, and this file changed shape because of it.** It
+ * had a list of one — rewritten four times as planet, drug, spooky ship and finally the language
+ * generator each reached Release-ready — whose job was to prove a level reaches a screen. The
+ * catalog is now release-ready end to end, so no page can show a badge, and a list of one has
+ * nowhere left to point.
+ *
+ * What replaces it is the assertion that the site is silent everywhere, plus the note below on what
+ * to restore. The badge's own logic — which levels show, what each promises — is unit-tested in
+ * `src/lib/tools/tools.test.ts` and is not what was lost here; what is no longer covered is the
+ * wiring from that logic to `ToolMaturityBadge` on a real page. **The day a tool is added at
+ * Experimental or Beta, put it back in `TOOL_PAGES` below and restore the two tests that read it.**
+ * That is cheaper than keeping a fixture route alive to exercise a badge nothing currently shows.
  */
 
 const maturityBadge = (page: Page) => page.locator('.maturity__level');
 
-const TOOL_PAGES = [
-  // Was `/planet` until #61, `/drug` until #64 and `/spooky-ship` until #71, all of which reached
-  // Release-ready. Any Experimental tool serves here; the language generator is one with a stable
-  // title and no renderer to wait for, and it is in another domain, so this list stops being
-  // rewritten every time the objects pass finishes a tool.
-  { path: '/language', title: 'Language Generator | Iron Arachne', level: 'Experimental' },
-] as const;
+/**
+ * The tools that must show a level, and there are none.
+ *
+ * Was `/planet` until #61, `/drug` until #64, `/spooky-ship` until #71 and `/language` until #74 —
+ * each in turn the last Experimental tool on the site, and each promoted out of the role. Kept as
+ * an empty list rather than deleted so that adding one entry is all it takes to get the assertion
+ * back; see the note at the top of this file.
+ */
+const TOOL_PAGES: { path: string; title: string; level: string }[] = [];
 
 /** The release-ready tools, which must say nothing at all. */
 const SILENT_TOOL_PAGES = [
@@ -59,6 +74,7 @@ const SILENT_TOOL_PAGES = [
   { path: '/fantasy/weapon', title: 'Magic Weapon Generator | Iron Arachne' },
   { path: '/fantasy/treasure-hoard', title: 'Treasure Hoard Generator | Iron Arachne' },
   { path: '/spooky-ship', title: 'Spooky Ship Generator | Iron Arachne' },
+  { path: '/language', title: 'Language Generator | Iron Arachne' },
   {
     path: '/swn/starship',
     title: 'Stars Without Number Starship Generator | Iron Arachne',
@@ -117,12 +133,17 @@ for (const entry of SILENT_TOOL_PAGES) {
   });
 }
 
-test('maturity: a tool page says what its level promises', async ({ page }) => {
+test('maturity: no tool page says anything, every tool being release-ready', async ({ page }) => {
+  // The counterpart to `TOOL_PAGES` being empty, and the reason it is asserted rather than left
+  // implied: this is a true statement about the site today, and it stops being true the moment a
+  // tool ships below Release-ready. A spec that simply dropped the check would go quiet instead.
+  //
+  // The sentence a badge shows — "Experimental" means nothing to a visitor who has not read the
+  // design document — is covered by `maturityDescription` in `src/lib/tools/tools.test.ts`.
   await visitRoute(page, '/language', { title: 'Language Generator | Iron Arachne' });
 
-  // The sentence, not just the pill: "Experimental" means nothing to a visitor who has not read
-  // the design document, and the point is that they can decide before they invest work.
-  await expect(page.locator('.maturity__detail').first()).toContainText('may change or disappear');
+  await expect(page.locator('.maturity__detail')).toHaveCount(0);
+  await expect(maturityBadge(page)).toHaveCount(0);
 });
 
 test('maturity: the home page does not advertise release-ready either', async ({ page }) => {
@@ -148,11 +169,13 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   const tools = browser.locator('.tool-browser__tool');
   await expect(tools.first()).toBeVisible();
 
-  // Exactly the release-ready tools are unmarked, and every one of them is mountable so every one
-  // is listed here. Counted rather than spot-checked: a tool that quietly lost its badge would
-  // otherwise pass every assertion below it.
+  // Every tool in the browser is unmarked, the catalog being release-ready end to end since #74.
+  // Counted against the rendered total rather than against `SILENT_TOOL_PAGES`, which is the subset
+  // with a route this file also visits: the claim here is that *nothing* is marked, and comparing
+  // two numbers that must now both equal the whole would say less than it appears to.
   const unmarked = tools.filter({ hasNot: page.locator('.maturity__level') });
-  await expect(unmarked).toHaveCount(SILENT_TOOL_PAGES.length);
+  await expect(unmarked).toHaveCount(await tools.count());
+  await expect(browser.locator('.maturity__level')).toHaveCount(0);
 
   await expect(browser.getByRole('button', { name: /^Culture/ })).not.toContainText(
     'Release-ready',
@@ -202,5 +225,10 @@ test('maturity: the tool browser marks every tool that has something to warn abo
   await expect(browser.getByRole('button', { name: /^Spooky Ship/ })).not.toContainText(
     'Experimental',
   );
-  await expect(browser.getByRole('button', { name: /^Language/ })).toContainText('Experimental');
+  // Was the still-marked case until #74 took it to Release-ready — as planet, the drug and the
+  // spooky starship were before it. There is no still-marked case now, which is what the count
+  // above asserts.
+  await expect(browser.getByRole('button', { name: /^Language/ })).not.toContainText(
+    'Experimental',
+  );
 });

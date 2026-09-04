@@ -331,6 +331,17 @@ export const ARTIFACT_EDITORS: ArtifactEditorRegistry = {
       return (provenance) => rollSwnStarshipSnapshot(provenance.seed);
     },
   },
+  language: {
+    loadEditor: () => import('$components/utilities/LanguageArtifactEditor.svelte'),
+    /**
+     * The seed and nothing else: the tool has one control, and the phoneme-set table the generator
+     * draws from is the library's rather than the user's.
+     */
+    loadRoller: async () => {
+      const { rollLanguageSnapshot } = await import('$lib/languages/language_roll.js');
+      return (provenance) => rollLanguageSnapshot(provenance.seed);
+    },
+  },
   'arms-manufacturer': {
     loadEditor: () => import('$components/factions/ArmsManufacturerArtifactEditor.svelte'),
     /**

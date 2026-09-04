@@ -12,6 +12,11 @@ export {
 export { getDefaultLanguageGeneratorConfig } from './generatorconfig.js';
 export { applyMorphologicalAffix, generateConstructedLanguage } from './generator.js';
 export { createLexicon, getLexiconWordsBySpeechPart } from './lexicon.js';
+export * from './language_artifact_kind.js';
+export * from './language_editing.js';
+export * from './language_presentation.js';
+export * from './language_roll.js';
+export * from './language_snapshot.js';
 export {
   buildLexiconTranslationIndex,
   lookupWordByMeaning,

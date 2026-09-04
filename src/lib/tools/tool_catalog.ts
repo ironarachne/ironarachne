@@ -527,12 +527,23 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
   // The workshop is deliberately absent. It is a surface rather than an instrument — the bench
   // the tools below are worked on — and this catalog holds instruments; see decision 9 in
   // docs/workshop.md. It is reached from `NAV_DESTINATIONS`, as Projects and the Result Vault are.
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-utilities.md (#74). It saves as `language`, holding the whole
+  // `ConstructedLanguage` — phonology, typology, morphology and the entire lexicon — which is the
+  // one thing that keeps it clear of the mismatch #28 warned about: the kind is named after the
+  // larger thing and stores the larger thing. Culture still owns its `NameGeneratorSet` outright,
+  // so nothing here is a payload step for culture.
+  //
+  // The largest payload the site stores: 1,760 words and about 144 KB of JSON, measured, which is
+  // two orders of magnitude below anything `$lib/storage_status` reports on. It has an editor in
+  // `ARTIFACT_EDITORS` and exports Markdown and PDF, the first exports it has ever had, and it
+  // gained the `SeedControls` it had never had — 2.3, not 2.2, was the failure here.
   defineTool({
     path: '/language',
     label: 'Language',
     kind: 'generator',
     domain: 'utilities',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     tags: ['naming', 'worldbuilding'],
   }),
   // Release-ready, assessed section by section against docs/workshop.md and recorded in
