@@ -7,6 +7,7 @@ import {
   rejectedPayload,
   type PayloadResult,
 } from '$lib/artifact_kinds';
+import { validateMechanicsSet, withLegacyItemMechanics } from '$lib/rulesets';
 
 import {
   DEFAULT_ITEM_DENSITY,
@@ -29,8 +30,8 @@ import type { DensityCategory, Rarity } from './equipment_types';
  */
 export const ITEM_ARTIFACT_KIND = 'item' as const;
 
-/** Version 1. The first shape an item has been stored in. */
-export const ITEM_PAYLOAD_VERSION = 1 as const;
+/** Version 2 adds ruleset-qualified mechanics while retaining transitional compatibility fields. */
+export const ITEM_PAYLOAD_VERSION = 2 as const;
 
 function isRarity(value: unknown): value is Rarity {
   return typeof value === 'string' && (ITEM_RARITIES as string[]).includes(value);
@@ -93,6 +94,13 @@ export function validateItemSnapshot(payload: unknown): PayloadResult<ItemSnapsh
   const combatProfile = optionalRecord<ItemSnapshot['combatProfile']>(record.combatProfile);
   const uniqueName = optionalText(record.uniqueName);
   const itemMinorType = optionalText(record.itemMinorType);
+  const mechanics = validateMechanicsSet(record.mechanics, 'item');
+  if (!mechanics.ok) {
+    return rejectedPayload(
+      'invalid-payload',
+      `Item payload has invalid mechanics: ${mechanics.message}`,
+    );
+  }
 
   return acceptedPayload({
     id: record.id as string,
@@ -108,6 +116,7 @@ export function validateItemSnapshot(payload: unknown): PayloadResult<ItemSnapsh
       : DEFAULT_ITEM_DENSITY,
     weight: record.weight as number,
     properties: isStringArray(record.properties) ? record.properties : [],
+    mechanics: mechanics.value,
     ...(combatProfile.present ? { combatProfile: combatProfile.value } : {}),
     ...(Array.isArray(record.actions)
       ? { actions: record.actions as ItemSnapshot['actions'] }
@@ -119,18 +128,18 @@ export function validateItemSnapshot(payload: unknown): PayloadResult<ItemSnapsh
   } as ItemSnapshot);
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day
- * the shape changes — a kind without one looks complete right up until it silently drops someone's
- * work, and local-only means there is no server-side migration to fall back on.
- */
-export function migrateItemSnapshot(_payload: unknown, from: number): PayloadResult<ItemSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `Items have no migration from payload version ${from}; version ${ITEM_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+/** Copies the version-1 mechanical fields into an Iron Arachne item variant. */
+export function migrateItemSnapshot(payload: unknown, from: number): PayloadResult<ItemSnapshot> {
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `Items have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  return record === null
+    ? rejectedPayload('invalid-payload', 'Item payload is not an object')
+    : validateItemSnapshot(withLegacyItemMechanics(record, 'migrated'));
 }
 
 /**

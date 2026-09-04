@@ -27,6 +27,16 @@ const marked = JSON.parse(
 const identity = heraldic.visualIdentity as Record<string, unknown>;
 const profile = heraldic.profile as Record<string, unknown>;
 
+function withoutMechanics(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutMechanics);
+  if (typeof value !== 'object' || value === null) return value;
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([key, entry]) =>
+      key === 'mechanics' ? [] : [[key, withoutMechanics(entry)]],
+    ),
+  );
+}
+
 describe('the organization artifact kind', () => {
   it('is registered under its own unqualified name, apart from the organization kind registry', () => {
     expect(ORGANIZATION_ARTIFACT_KIND).toBe('organization');
@@ -136,7 +146,20 @@ describe('the organization artifact kind', () => {
     ).toBe(false);
   });
 
-  it('has no migration to offer, and says so rather than guessing', () => {
+  it('migrates every embedded person through the shared actor helper', () => {
+    const result = migrateOrganizationSnapshot(withoutMechanics(heraldic), 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.name).toBe(heraldic.name);
+      expect(result.value.leader.mechanics.variants[0]).toMatchObject({ origin: 'migrated' });
+      expect(result.value.notableMembers[0].mechanics.variants[0]).toMatchObject({
+        origin: 'migrated',
+      });
+    }
+  });
+
+  it('rejects an unsupported migration version', () => {
     const result = migrateOrganizationSnapshot(heraldic, 0);
 
     expect(result.ok).toBe(false);

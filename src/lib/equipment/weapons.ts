@@ -1,4 +1,5 @@
 import * as RNG from '@ironarachne/rng';
+import { withLegacyItemMechanics } from '$lib/rulesets';
 import type { Weapon, WeaponType } from './equipment_types';
 import { applyMaterial, getRandomMaterialForItem } from './foundry';
 
@@ -295,5 +296,5 @@ export function generateWeapon(seed: string): Weapon {
   const material = getRandomMaterialForItem(baseWeapon, rng);
   const foundryWeapon = applyMaterial(baseWeapon, material) as Weapon;
 
-  return foundryWeapon;
+  return withLegacyItemMechanics(foundryWeapon, 'generated');
 }

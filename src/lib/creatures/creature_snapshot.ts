@@ -23,12 +23,14 @@ import {
   rejectedPayload,
   type PayloadResult,
 } from '$lib/artifact_kinds';
+import { validateMechanicsSet, withLegacyActorMechanics, type MechanicsSet } from '$lib/rulesets';
 
 import type { Creature } from './creature_types.js';
 
 /** A creature with its species written as a name. */
-export type StoredCreature = Omit<Creature, 'species'> & {
+export type StoredCreature = Omit<Creature, 'species' | 'mechanics'> & {
   speciesName: string;
+  mechanics: MechanicsSet;
 };
 
 /**
@@ -39,7 +41,10 @@ export type StoredCreature = Omit<Creature, 'species'> & {
  */
 export function toStoredCreature(creature: Creature): StoredCreature {
   const { species, ...rest } = creature;
-  return { ...rest, speciesName: species.name };
+  return withLegacyActorMechanics(
+    { ...rest, speciesName: species.name },
+    'generated',
+  ) as StoredCreature;
 }
 
 const CREATURE_STRING_FIELDS = ['id', 'name', 'description', 'shortDescription', 'speciesName'];
@@ -104,6 +109,13 @@ export function validateStoredCreature(payload: unknown): PayloadResult<StoredCr
       return rejectedPayload('invalid-payload', `creature ${field} is not a list of named entries`);
     }
   }
+  const mechanics = validateMechanicsSet(record.mechanics, 'actor');
+  if (!mechanics.ok) {
+    return rejectedPayload(
+      'invalid-payload',
+      `creature has invalid mechanics: ${mechanics.message}`,
+    );
+  }
 
-  return acceptedPayload(record as unknown as StoredCreature);
+  return acceptedPayload({ ...record, mechanics: mechanics.value } as unknown as StoredCreature);
 }

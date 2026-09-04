@@ -34,10 +34,11 @@ function gems(count: number, name = 'emerald'): HoardItemSnapshot[] {
     densityCategory: 'standard',
     weight: 0.1,
     properties: [],
+    mechanics: { variants: [] },
   })) as HoardItemSnapshot[];
 }
 
-const EMPTY: TreasureHoardSnapshot = { targetValue: 0, items: [] };
+const EMPTY: TreasureHoardSnapshot = { targetValue: 0, items: [], mechanics: { variants: [] } };
 
 describe('tallyGems', () => {
   it('lists them one by one below the list limit', () => {
@@ -89,6 +90,7 @@ describe('hoardLines', () => {
         densityCategory: 'standard',
         weight: 1,
         properties: [],
+        mechanics: { variants: [] },
         denomination: 'gold',
         quantity: 5,
       } as HoardItemSnapshot,
@@ -110,6 +112,7 @@ describe('hoardLines', () => {
         densityCategory: 'standard',
         weight: 1,
         properties: [],
+        mechanics: { variants: [] },
       } as HoardItemSnapshot,
     ]);
 
@@ -179,6 +182,7 @@ describe('hoardToMarkdown', () => {
     // 6.4 with teeth.
     const emptyChest: TreasureHoardSnapshot = {
       targetValue: 0,
+      mechanics: { variants: [] },
       items: [
         {
           id: 'c',
@@ -190,6 +194,7 @@ describe('hoardToMarkdown', () => {
           densityCategory: 'standard',
           weight: 5,
           properties: [],
+          mechanics: { variants: [] },
           contents: [],
         } as HoardItemSnapshot,
       ],

@@ -96,6 +96,7 @@ describe('itemToMarkdown', () => {
       densityCategory: 'standard',
       weight: 0,
       properties: [],
+      mechanics: { variants: [] },
     };
 
     expect(itemToMarkdown(bare)).toBe(

@@ -30,6 +30,7 @@ import type {
   CombatProfile,
   DamageType as CombatDamageType,
 } from '$lib/combat_system';
+import { withLegacyItemMechanics, type MechanicsSet } from '$lib/rulesets';
 
 import type {
   DensityCategory,
@@ -68,6 +69,7 @@ export type ItemSnapshot = {
   densityCategory: DensityCategory;
   weight: number;
   properties: string[];
+  mechanics: MechanicsSet;
   combatProfile?: CombatProfile;
   /** A weapon's attacks. Absent on armour and on anything else. */
   actions?: CombatAction[];
@@ -90,25 +92,28 @@ export const DEFAULT_ITEM_RARITY: Rarity = 'common';
 export const DEFAULT_ITEM_DENSITY: DensityCategory = 'standard';
 
 export function toItemSnapshot(item: RolledItem): ItemSnapshot {
-  return {
-    id: item.id,
-    name: item.name,
-    ...(item.uniqueName === undefined ? {} : { uniqueName: item.uniqueName }),
-    itemMajorType: item.itemMajorType,
-    ...(item.itemMinorType === undefined ? {} : { itemMinorType: item.itemMinorType }),
-    description: item.description,
-    value: item.value,
-    rarity: item.rarity,
-    densityCategory: item.densityCategory,
-    weight: item.weight,
-    properties: [...item.properties],
-    ...(item.combatProfile === undefined ? {} : { combatProfile: { ...item.combatProfile } }),
-    ...(item.actions === undefined ? {} : { actions: item.actions.map(copyAction) }),
-    ...(item.material === undefined ? {} : { material: { ...item.material } }),
-    ...(item.refinement === undefined ? {} : { refinement: { ...item.refinement } }),
-    ...(item.enchantment === undefined ? {} : { enchantment: { ...item.enchantment } }),
-    ...(item.decoration === undefined ? {} : { decoration: { ...item.decoration } }),
-  };
+  return withLegacyItemMechanics(
+    {
+      id: item.id,
+      name: item.name,
+      ...(item.uniqueName === undefined ? {} : { uniqueName: item.uniqueName }),
+      itemMajorType: item.itemMajorType,
+      ...(item.itemMinorType === undefined ? {} : { itemMinorType: item.itemMinorType }),
+      description: item.description,
+      value: item.value,
+      rarity: item.rarity,
+      densityCategory: item.densityCategory,
+      weight: item.weight,
+      properties: [...item.properties],
+      ...(item.combatProfile === undefined ? {} : { combatProfile: { ...item.combatProfile } }),
+      ...(item.actions === undefined ? {} : { actions: item.actions.map(copyAction) }),
+      ...(item.material === undefined ? {} : { material: { ...item.material } }),
+      ...(item.refinement === undefined ? {} : { refinement: { ...item.refinement } }),
+      ...(item.enchantment === undefined ? {} : { enchantment: { ...item.enchantment } }),
+      ...(item.decoration === undefined ? {} : { decoration: { ...item.decoration } }),
+    },
+    'generated',
+  ) as ItemSnapshot;
 }
 
 function copyAction(action: CombatAction): CombatAction {

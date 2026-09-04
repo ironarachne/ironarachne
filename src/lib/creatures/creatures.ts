@@ -2,6 +2,7 @@ import * as RNG from '@ironarachne/rng';
 import { AgeCategories } from '$lib/age';
 import * as CombatSystem from '$lib/combat_system';
 import { CommonSpecies } from '$lib/species';
+import { withLegacyActorMechanics } from '$lib/rulesets';
 import { getSizeConfig } from '$lib/size';
 import type { Creature } from './creature_types';
 import type { CreatureGenerationConfig } from './creature_types';
@@ -61,7 +62,7 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
     creatureTypes: creatureSpecies.creatureTypes,
   };
 
-  return creature;
+  return withLegacyActorMechanics(creature, 'generated');
 }
 
 export function getDefaultCreatureGenerationConfig(): CreatureGenerationConfig {

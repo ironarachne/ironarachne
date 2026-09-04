@@ -8,6 +8,7 @@ import {
   rejectedPayload,
   type PayloadResult,
 } from '$lib/artifact_kinds';
+import { withLegacyActorMechanics } from '$lib/rulesets';
 
 import type { SettlementSnapshot } from './settlement_snapshot';
 import type { Settlement } from './settlement_types';
@@ -19,18 +20,19 @@ import type { Settlement } from './settlement_types';
 export const SETTLEMENT_ARTIFACT_KIND = 'settlement' as const;
 
 /**
- * Version 2: a notable's character stores `speciesName` where version 1 embedded a whole `Species`.
+ * Version 3 qualifies every embedded actor's compatibility mechanics. Version 2 changed a
+ * notable's character to store `speciesName` where version 1 embedded a whole `Species`.
  *
  * The site's first real payload step, and it exists because `StoredCharacter` moved to
  * `$lib/characters` for #46 — one shape in the library that owns the concept, rather than two types
  * with one name drifting apart. The shape change is not free: a settlement written by an older
- * build carries the embedded record, and reading it as a version 2 payload would leave every
+ * build carries the embedded record, and reading it as a later payload would leave every
  * notable without a species. {@link migrateSettlementSnapshot} is what stops that.
  *
  * It also drops a whole `Species` record per notable, which was the bulk of what a stored notable
  * was.
  */
-export const SETTLEMENT_PAYLOAD_VERSION = 2 as const;
+export const SETTLEMENT_PAYLOAD_VERSION = 3 as const;
 
 const SETTLEMENT_STRING_FIELDS = ['name', 'description', 'economicRole'];
 
@@ -227,31 +229,37 @@ export function validateSettlementSnapshot(payload: unknown): PayloadResult<Sett
  * one has never seen, so anything it assumes beyond "an object, possibly with a species that has a
  * name" is an assumption that can be wrong on someone's real data.
  */
-function migratedCharacter(value: unknown): unknown {
+function migratedCharacter(value: unknown, convertSpecies: boolean): unknown {
   const character = asRecord(value);
   if (character === null) {
     return value;
   }
+  if (!convertSpecies) {
+    return withLegacyActorMechanics(character, 'migrated');
+  }
   const { species, ...rest } = character;
   const speciesRecord = asRecord(species);
-  return {
-    ...rest,
-    // The name off the embedded record, or an empty one. A version 1 settlement with a malformed
-    // species is still a settlement; `character_rehydrate.ts` turns an unresolvable name into an
-    // inert placeholder, and losing the whole town over one notable would be the worse trade.
-    speciesName: typeof speciesRecord?.name === 'string' ? speciesRecord.name : '',
-  };
+  return withLegacyActorMechanics(
+    {
+      ...rest,
+      // The name off the embedded record, or an empty one. A version 1 settlement with a malformed
+      // species is still a settlement; `character_rehydrate.ts` turns an unresolvable name into an
+      // inert placeholder, and losing the whole town over one notable would be the worse trade.
+      speciesName: typeof speciesRecord?.name === 'string' ? speciesRecord.name : '',
+    },
+    'migrated',
+  );
 }
 
-function migratedNotable(value: unknown): unknown {
+function migratedNotable(value: unknown, convertSpecies: boolean): unknown {
   const notable = asRecord(value);
   if (notable === null) {
     return value;
   }
-  return { ...notable, character: migratedCharacter(notable.character) };
+  return { ...notable, character: migratedCharacter(notable.character, convertSpecies) };
 }
 
-function migratedOrganization(value: unknown): unknown {
+function migratedOrganization(value: unknown, convertSpecies: boolean): unknown {
   const organization = asRecord(value);
   if (organization === null) {
     return value;
@@ -260,20 +268,23 @@ function migratedOrganization(value: unknown): unknown {
     ...organization,
     ...(organization.leader === undefined
       ? {}
-      : { leader: migratedCharacter(organization.leader) }),
+      : { leader: migratedCharacter(organization.leader, convertSpecies) }),
     ...(Array.isArray(organization.notableMembers)
-      ? { notableMembers: organization.notableMembers.map(migratedCharacter) }
+      ? {
+          notableMembers: organization.notableMembers.map((member) =>
+            migratedCharacter(member, convertSpecies),
+          ),
+        }
       : {}),
   };
 }
 
 /**
- * Bring a settlement written before {@link SETTLEMENT_PAYLOAD_VERSION} 2 forward.
+ * Bring a settlement written before the current payload version forward.
  *
- * Every notable and every organization member is rewritten so its embedded species becomes a
- * `speciesName`; nothing else about the settlement is touched. Enrichment is opt-in four times
- * over, so a settlement may have neither notables nor organizations, and one that has neither
- * migrates by having nothing to do rather than by being rejected.
+ * Every notable and organization member gains its Iron Arachne actor variant. Version 1 also has
+ * its embedded species rewritten as `speciesName`; version 2 already did that. Nothing else about
+ * the settlement is touched. Enrichment is opt-in, so an unenriched settlement migrates cleanly.
  *
  * The result goes back through `validateSettlementSnapshot` rather than being trusted: a migration
  * that produced something unreadable should say so here, where the reason reaches the user as a
@@ -283,12 +294,13 @@ export function migrateSettlementSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<SettlementSnapshot> {
-  if (from !== 1) {
+  if (from !== 1 && from !== 2) {
     return rejectedPayload(
       'unsupported-version',
-      `settlement has no migration from payload version ${from}; version 1 is the only older shape there has been`,
+      `settlement has no migration from payload version ${from}; versions 1 and 2 are the older shapes`,
     );
   }
+  const convertSpecies = from === 1;
   const record = asRecord(payload);
   if (record === null) {
     return rejectedPayload('invalid-payload', 'settlement payload is not an object');
@@ -297,10 +309,18 @@ export function migrateSettlementSnapshot(
   return validateSettlementSnapshot({
     ...record,
     ...(Array.isArray(record.importantPeople)
-      ? { importantPeople: record.importantPeople.map(migratedNotable) }
+      ? {
+          importantPeople: record.importantPeople.map((notable) =>
+            migratedNotable(notable, convertSpecies),
+          ),
+        }
       : {}),
     ...(Array.isArray(record.organizations)
-      ? { organizations: record.organizations.map(migratedOrganization) }
+      ? {
+          organizations: record.organizations.map((organization) =>
+            migratedOrganization(organization, convertSpecies),
+          ),
+        }
       : {}),
   });
 }

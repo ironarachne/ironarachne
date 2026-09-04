@@ -8,6 +8,7 @@ import {
   rejectedPayload,
   type PayloadResult,
 } from '$lib/artifact_kinds';
+import { validateMechanicsSet, withLegacyActorMechanics } from '$lib/rulesets';
 
 import type { CharacterSnapshot } from './character_snapshot';
 import type { Character } from './character_types';
@@ -29,8 +30,8 @@ import type { Character } from './character_types';
  */
 export const CHARACTER_ARTIFACT_KIND = 'character' as const;
 
-/** Version 1. The first shape a fantasy character has been stored in. */
-export const CHARACTER_PAYLOAD_VERSION = 1 as const;
+/** Version 2 adds an Iron Arachne actor mechanics variant. */
+export const CHARACTER_PAYLOAD_VERSION = 2 as const;
 
 const CHARACTER_STRING_FIELDS = [
   'id',
@@ -191,6 +192,13 @@ export function validateCharacterSnapshot(payload: unknown): PayloadResult<Chara
   if (!isStringArray(record.tags)) {
     return rejectedPayload('invalid-payload', 'character tags is not an array of strings');
   }
+  const mechanics = validateMechanicsSet(record.mechanics, 'actor');
+  if (!mechanics.ok) {
+    return rejectedPayload(
+      'invalid-payload',
+      `character has invalid mechanics: ${mechanics.message}`,
+    );
+  }
 
   const checks: PayloadResult<unknown>[] = [
     validateNamedRecord(record.gender, 'gender'),
@@ -210,21 +218,21 @@ export function validateCharacterSnapshot(payload: unknown): PayloadResult<Chara
   return acceptedPayload(record as unknown as CharacterSnapshot);
 }
 
-/**
- * Characters have only ever been stored at version 1, so there is nothing older to bring forward
- * and this rejects rather than pretending. It is here because the contract requires it, and it is
- * where the step goes the day the shape changes — a kind without one looks complete right up until
- * it silently drops someone's work, and local-only means there is no server-side migration to fall
- * back on.
- */
+/** Copies version-1 actor mechanics into an Iron Arachne variant without recomputation. */
 export function migrateCharacterSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<CharacterSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `character has no migration from payload version ${from}; version ${CHARACTER_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `character has no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  return record === null
+    ? rejectedPayload('invalid-payload', 'character payload is not an object')
+    : validateCharacterSnapshot(withLegacyActorMechanics(record, 'migrated'));
 }
 
 /** What to call a character that was saved without a name: what they are, which they always have. */

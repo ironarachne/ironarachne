@@ -1,3 +1,4 @@
+export * from './legacy_migrations.js';
 export * from './ruleset_catalog.js';
 export * from './ruleset_definitions.js';
 export * from './ruleset_results.js';

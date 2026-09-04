@@ -8,6 +8,7 @@ import {
   rejectedPayload,
   type PayloadResult,
 } from '$lib/artifact_kinds';
+import { withLegacyActorMechanics } from '$lib/rulesets';
 import { validateCharacterSnapshot } from '$lib/characters/character_artifact_kind';
 
 import type { FamilySnapshot } from './family_snapshot';
@@ -19,8 +20,8 @@ import type { Family } from './family_types';
  */
 export const FAMILY_ARTIFACT_KIND = 'family' as const;
 
-/** Version 1. The first shape a family has been stored in. */
-export const FAMILY_PAYLOAD_VERSION = 1 as const;
+/** Version 2 qualifies every family member's compatibility mechanics. */
+export const FAMILY_PAYLOAD_VERSION = 2 as const;
 
 /** A pattern source: a list of patterns, or patterns with combinations. */
 function isPatternSource(value: unknown): boolean {
@@ -104,21 +105,30 @@ export function validateFamilySnapshot(payload: unknown): PayloadResult<FamilySn
   return acceptedPayload(record as unknown as FamilySnapshot);
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day the
- * shape changes — a kind without one looks complete right up until it silently drops someone's
- * work, and local-only means there is no server-side migration to fall back on.
- */
+/** Qualifies every embedded member without changing the family graph or prose. */
 export function migrateFamilySnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<FamilySnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `Families have no migration from payload version ${from}; version ${FAMILY_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `Families have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  if (record === null) {
+    return rejectedPayload('invalid-payload', 'family payload is not an object');
+  }
+  return validateFamilySnapshot({
+    ...record,
+    members: Array.isArray(record.members)
+      ? record.members.map((member) => {
+          const person = asRecord(member);
+          return person === null ? member : withLegacyActorMechanics(person, 'migrated');
+        })
+      : record.members,
+  });
 }
 
 /** What to call a saved family: "the X family", as the page heads it. */

@@ -16,6 +16,7 @@ import { generateHeraldry, getDefaultHeraldryGeneratorConfig } from '$lib/herald
 import { fantasyHintToNameSetName } from './character_name_generation';
 import { getStandardNobleTitles } from './titles';
 import { applyTagFilter } from '$lib/tags';
+import { withLegacyActorMechanics } from '$lib/rulesets';
 
 export function describe(character: Character, rng: RNG.RNG): string {
   let description = '';
@@ -201,7 +202,7 @@ export function generate(seed: string, config: CharacterGenerationConfig): Chara
 
   character.description = describe(character, rng);
 
-  return character;
+  return withLegacyActorMechanics(character, 'generated');
 }
 
 /**

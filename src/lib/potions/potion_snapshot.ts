@@ -18,6 +18,7 @@
  */
 
 import type { Container } from '$lib/equipment';
+import { withLegacyPotionMechanics, type MechanicsSet } from '$lib/rulesets';
 
 import type {
   Potion,
@@ -32,17 +33,20 @@ import type {
  *
  * `name`, `effect` and `sensory` are rebuilt on read from `displayName`, `effect` and `sensory`.
  */
-export type StoredPotionLiquid = Omit<PotionLiquid, 'name' | 'effect' | 'sensory'>;
+export type StoredPotionLiquid = Omit<PotionLiquid, 'name' | 'effect' | 'sensory' | 'mechanics'> & {
+  mechanics: MechanicsSet;
+};
 
 /** A potion as it is stored. */
 export type PotionSnapshot = {
-  container: Container;
+  container: Container & { mechanics: MechanicsSet };
   liquid: StoredPotionLiquid;
   displayName: string;
   canonicalName?: string;
   sensory: PotionSensoryProfile;
   effect: PotionEffect;
   modifications: PotionModification[];
+  mechanics: MechanicsSet;
 };
 
 function copyEffect(effect: PotionEffect): PotionEffect {
@@ -74,15 +78,18 @@ function copyStoredLiquid(liquid: PotionLiquid | StoredPotionLiquid): StoredPoti
 }
 
 export function toPotionSnapshot(potion: Potion): PotionSnapshot {
-  return {
-    container: copyContainer(potion.container),
-    liquid: copyStoredLiquid(potion.liquid),
-    displayName: potion.displayName,
-    ...(potion.canonicalName === undefined ? {} : { canonicalName: potion.canonicalName }),
-    sensory: { ...potion.sensory },
-    effect: copyEffect(potion.effect),
-    modifications: potion.modifications.map((modification) => ({ ...modification })),
-  };
+  return withLegacyPotionMechanics(
+    {
+      container: copyContainer(potion.container),
+      liquid: copyStoredLiquid(potion.liquid),
+      displayName: potion.displayName,
+      ...(potion.canonicalName === undefined ? {} : { canonicalName: potion.canonicalName }),
+      sensory: { ...potion.sensory },
+      effect: copyEffect(potion.effect),
+      modifications: potion.modifications.map((modification) => ({ ...modification })),
+    },
+    'generated',
+  ) as PotionSnapshot;
 }
 
 /**
@@ -110,6 +117,7 @@ export function potionFromSnapshot(snapshot: PotionSnapshot): Potion {
     sensory,
     effect,
     modifications: snapshot.modifications.map((modification) => ({ ...modification })),
+    mechanics: { variants: [...snapshot.mechanics.variants] },
   };
 }
 

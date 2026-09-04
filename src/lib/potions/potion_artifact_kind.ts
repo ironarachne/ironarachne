@@ -8,6 +8,7 @@ import {
   type PayloadResult,
 } from '$lib/artifact_kinds';
 import type { Container } from '$lib/equipment';
+import { validateMechanicsSet, withLegacyPotionMechanics } from '$lib/rulesets';
 
 import type { PotionSnapshot, StoredPotionLiquid } from './potion_snapshot';
 import type { PotionEffect, PotionModification, PotionSensoryProfile } from './potion_types';
@@ -25,8 +26,8 @@ import type { PotionEffect, PotionModification, PotionSensoryProfile } from './p
  */
 export const POTION_ARTIFACT_KIND = 'potion' as const;
 
-/** Version 1. The first shape a potion has been stored in. */
-export const POTION_PAYLOAD_VERSION = 1 as const;
+/** Version 2 adds ruleset-qualified mechanics while retaining transitional compatibility fields. */
+export const POTION_PAYLOAD_VERSION = 2 as const;
 
 function readNumber(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -110,10 +111,31 @@ export function validatePotionSnapshot(payload: unknown): PayloadResult<PotionSn
   if (liquid === null) {
     return rejectedPayload('invalid-payload', 'Potion payload has no usable liquid');
   }
+  const containerMechanics = validateMechanicsSet(container.mechanics, 'item');
+  if (!containerMechanics.ok) {
+    return rejectedPayload(
+      'invalid-payload',
+      `Potion container has invalid mechanics: ${containerMechanics.message}`,
+    );
+  }
+  const liquidMechanics = validateMechanicsSet(liquid.mechanics, 'item');
+  if (!liquidMechanics.ok) {
+    return rejectedPayload(
+      'invalid-payload',
+      `Potion liquid has invalid mechanics: ${liquidMechanics.message}`,
+    );
+  }
 
   const effect = readEffect(record.effect);
   if (effect === undefined) {
     return rejectedPayload('invalid-payload', 'Potion payload has no usable effect');
+  }
+  const mechanics = validateMechanicsSet(record.mechanics, 'potion');
+  if (!mechanics.ok) {
+    return rejectedPayload(
+      'invalid-payload',
+      `Potion payload has invalid mechanics: ${mechanics.message}`,
+    );
   }
 
   return acceptedPayload({
@@ -124,6 +146,7 @@ export function validatePotionSnapshot(payload: unknown): PayloadResult<PotionSn
       value: readNumber(container.value, 0),
       properties: isStringArray(container.properties) ? container.properties : [],
       contents: isStringArray(container.contents) ? container.contents : [],
+      mechanics: containerMechanics.value,
     },
     liquid: {
       ...(liquid as unknown as StoredPotionLiquid),
@@ -132,6 +155,7 @@ export function validatePotionSnapshot(payload: unknown): PayloadResult<PotionSn
       value: readNumber(liquid.value, 0),
       weight: readNumber(liquid.weight, 0),
       properties: isStringArray(liquid.properties) ? liquid.properties : [],
+      mechanics: liquidMechanics.value,
     },
     displayName: record.displayName,
     ...(typeof record.canonicalName === 'string' && record.canonicalName !== ''
@@ -144,24 +168,25 @@ export function validatePotionSnapshot(payload: unknown): PayloadResult<PotionSn
           .map(readModification)
           .filter((modification): modification is PotionModification => modification !== undefined)
       : [],
+    mechanics: mechanics.value,
   });
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day
- * the shape changes — a kind without one looks complete right up until it silently drops someone's
- * work, and local-only means there is no server-side migration to fall back on.
- */
+/** Copies potion mechanics and composes the item migration through its container and liquid. */
 export function migratePotionSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<PotionSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `Potions have no migration from payload version ${from}; version ${POTION_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `Potions have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  return record === null
+    ? rejectedPayload('invalid-payload', 'Potion payload is not an object')
+    : validatePotionSnapshot(withLegacyPotionMechanics(record, 'migrated'));
 }
 
 /** What to call a saved potion: its display name, which is what the bottle's label would say. */

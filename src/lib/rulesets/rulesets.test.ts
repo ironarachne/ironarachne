@@ -17,6 +17,7 @@ import {
   rejectedRuleset,
   rulesetNotices,
   sameRulesetRef,
+  validateMechanicsSet,
   validateQualifiedMechanics,
   type MechanicsCodec,
   type QualifiedMechanics,
@@ -284,6 +285,35 @@ describe('qualified mechanics', () => {
       ok: false,
       reason: 'unsupported-version',
     });
+  });
+});
+
+describe('mechanics sets', () => {
+  it('validates variants and rejects duplicate refs', () => {
+    expect(validateMechanicsSet({ variants: [genericItem] })).toEqual({
+      ok: true,
+      value: { variants: [genericItem] },
+    });
+    expect(validateMechanicsSet({ variants: [genericItem, genericItem] })).toMatchObject({
+      ok: false,
+      reason: 'variant-conflict',
+    });
+  });
+
+  it('rejects a valid variant attached to the wrong kind of entity', () => {
+    expect(validateMechanicsSet({ variants: [genericItem] }, 'actor')).toMatchObject({
+      ok: false,
+      reason: 'invalid-mechanics',
+    });
+  });
+
+  it('rejects malformed and unknown variants so their artifacts can be quarantined intact', () => {
+    expect(validateMechanicsSet(null)).toMatchObject({ ok: false, reason: 'invalid-mechanics' });
+    expect(
+      validateMechanicsSet({
+        variants: [{ ...genericItem, ruleset: { id: 'future-system', release: '1' } }],
+      }),
+    ).toMatchObject({ ok: false, reason: 'unknown-ruleset' });
   });
 });
 

@@ -21,6 +21,7 @@
  */
 
 import type { RNG } from '@ironarachne/rng';
+import type { RulesetRef } from '$lib/rulesets';
 
 import type ADNDCharacter from './adndcharacter.js';
 import { createAdndCharacter } from './adndcharacter.js';
@@ -33,7 +34,14 @@ import * as races from './races/races.js';
  * A character as it is stored: everything `ADNDCharacter` holds, with its race and class written
  * as the names they are looked up by.
  */
+/** Stable identity for the pre-audit tables; it asserts no source or licence provenance. */
+export const ADND_CHARACTER_RULESET_REF = {
+  id: 'adnd-2e',
+  release: 'legacy',
+} as const satisfies RulesetRef;
+
 export type AdndCharacterSnapshot = Omit<ADNDCharacter, 'race' | 'class'> & {
+  ruleset: RulesetRef;
   raceName: string;
   className: string;
 };
@@ -130,6 +138,7 @@ export function toAdndCharacterSnapshot(character: ADNDCharacter): AdndCharacter
   const { race, class: characterClass, ...rest } = character;
   return {
     ...rest,
+    ruleset: ADND_CHARACTER_RULESET_REF,
     raceName: race?.name ?? '',
     className: characterClass?.name ?? '',
   };
@@ -144,7 +153,7 @@ export function toAdndCharacterSnapshot(character: ADNDCharacter): AdndCharacter
  * be regenerating over the user's edits — the one thing requirement 4.2 forbids.
  */
 export function adndCharacterFromSnapshot(snapshot: AdndCharacterSnapshot): ADNDCharacter {
-  const { raceName, className, ...rest } = snapshot;
+  const { ruleset: _ruleset, raceName, className, ...rest } = snapshot;
   const race = races.getAll().find((entry) => entry.name === raceName);
   const characterClass = classes.getAll().find((entry) => entry.name === className);
   const resolvedRace = race ?? unknownAdndRace(raceName);

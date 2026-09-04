@@ -9,7 +9,7 @@ import {
   type PayloadResult,
 } from '$lib/artifact_kinds';
 
-import type { DccCharacterSnapshot } from './dcc_character_snapshot';
+import { DCC_CHARACTER_RULESET_REF, type DccCharacterSnapshot } from './dcc_character_snapshot';
 import type { DCCCharacter } from './dcc_types';
 
 /**
@@ -29,8 +29,17 @@ import type { DCCCharacter } from './dcc_types';
  */
 export const DCC_CHARACTER_ARTIFACT_KIND = 'character.dcc' as const;
 
-/** Version 1. The first shape a DCC character has been stored in. */
-export const DCC_CHARACTER_PAYLOAD_VERSION = 1 as const;
+/** Version 2 pins the ruleset identity without claiming unaudited source provenance. */
+export const DCC_CHARACTER_PAYLOAD_VERSION = 2 as const;
+
+function hasDccRulesetRef(value: unknown): boolean {
+  const ref = asRecord(value);
+  return (
+    ref !== null &&
+    ref.id === DCC_CHARACTER_RULESET_REF.id &&
+    ref.release === DCC_CHARACTER_RULESET_REF.release
+  );
+}
 
 const CHARACTER_STRING_FIELDS = ['firstName', 'lastName', 'gender', 'alignment'];
 
@@ -169,6 +178,9 @@ export function validateDccCharacterSnapshot(
       `DCC character payload needs numeric ${CHARACTER_NUMBER_FIELDS.join(', ')}`,
     );
   }
+  if (!hasDccRulesetRef(record.ruleset)) {
+    return rejectedPayload('invalid-payload', 'DCC character has no supported ruleset ref');
+  }
 
   const checks: PayloadResult<unknown>[] = [
     validateAttributes(record),
@@ -188,21 +200,21 @@ export function validateDccCharacterSnapshot(
   return acceptedPayload(record as unknown as DccCharacterSnapshot);
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day the
- * shape changes. A kind without one looks complete right up until it silently drops someone's work
- * — and local-only means there is no server-side migration to fall back on.
- */
+/** Adds only the pinned system identity; every existing system-owned field remains untouched. */
 export function migrateDccCharacterSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<DccCharacterSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `DCC character has no migration from payload version ${from}; version ${DCC_CHARACTER_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `DCC character has no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  return record === null
+    ? rejectedPayload('invalid-payload', 'DCC character payload is not an object')
+    : validateDccCharacterSnapshot({ ...record, ruleset: DCC_CHARACTER_RULESET_REF });
 }
 
 /** What to call a character that was saved unnamed: their occupation, which they always have. */

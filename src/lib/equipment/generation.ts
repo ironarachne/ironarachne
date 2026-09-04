@@ -1,5 +1,6 @@
 import * as RNG from '@ironarachne/rng';
 import * as MUN from '@ironarachne/made-up-names';
+import { withLegacyItemMechanics } from '$lib/rulesets';
 import {
   type Item,
   type Weapon,
@@ -198,7 +199,7 @@ export function generateItem(seed: string, config: EquipmentGenerationConfig): I
   item.value = roundValue(item.value);
   item.description = generateDescription(item);
 
-  return item;
+  return withLegacyItemMechanics(item, 'generated');
 }
 
 export function getDefaultGenerationConfig(): EquipmentGenerationConfig {

@@ -11,7 +11,10 @@ import {
 // reaches the encounter generator and from there the species and archetype tables. This module is
 // metadata and validation only, and the registry that imports it is loaded by any page that lists
 // what a project contains.
-import { validateEncounterSnapshot } from '$lib/encounters/encounter_artifact_kind';
+import {
+  migrateEncounterSnapshot,
+  validateEncounterSnapshot,
+} from '$lib/encounters/encounter_artifact_kind';
 
 import type { DungeonSnapshot } from './dungeon_snapshot.js';
 import type { EngineeredDungeon } from './generator/types.js';
@@ -22,8 +25,8 @@ import type { EngineeredDungeon } from './generator/types.js';
  */
 export const DUNGEON_ARTIFACT_KIND = 'dungeon' as const;
 
-/** Version 1. The first shape a dungeon has been stored in. */
-export const DUNGEON_PAYLOAD_VERSION = 1 as const;
+/** Version 2 composes the actor migration through every room encounter. */
+export const DUNGEON_PAYLOAD_VERSION = 2 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -244,21 +247,34 @@ export function validateDungeonSnapshot(payload: unknown): PayloadResult<Dungeon
   return acceptedPayload(record as unknown as DungeonSnapshot);
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day the
- * shape changes — a kind without one looks complete right up until it silently drops someone's
- * work, and local-only means there is no server-side migration to fall back on.
- */
+/** Composes the encounter migration through every populated room. */
 export function migrateDungeonSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<DungeonSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `Dungeons have no migration from payload version ${from}; version ${DUNGEON_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `Dungeons have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  if (record === null) {
+    return rejectedPayload('invalid-payload', 'dungeon payload is not an object');
+  }
+  return validateDungeonSnapshot({
+    ...record,
+    rooms: Array.isArray(record.rooms)
+      ? record.rooms.map((room) => {
+          const storedRoom = asRecord(room);
+          if (storedRoom === null || storedRoom.encounter === undefined) {
+            return room;
+          }
+          const migrated = migrateEncounterSnapshot(storedRoom.encounter, 1);
+          return { ...storedRoom, encounter: migrated.ok ? migrated.value : storedRoom.encounter };
+        })
+      : record.rooms,
+  });
 }
 
 /** What to call a saved dungeon: its name, or the kind when the name has been emptied. */

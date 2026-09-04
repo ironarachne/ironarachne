@@ -107,7 +107,7 @@ export type Potion = {
   displayName: string;
   canonicalName?: string;
   sensory: PotionSensoryProfile;
-  /** Ruleset-qualified mechanics. Optional until the payload migrations in #209 land. */
+  /** Ruleset-qualified mechanics. Optional while remaining live consumers transition in #213. */
   mechanics?: MechanicsSet;
   /** @deprecated Compatibility field for Iron Arachne mechanics; see #210 and #213. */
   effect: PotionEffect;

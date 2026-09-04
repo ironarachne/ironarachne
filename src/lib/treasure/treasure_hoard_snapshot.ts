@@ -26,6 +26,7 @@
 
 import { toItemSnapshot, type ItemSnapshot, type RolledItem } from '$lib/equipment';
 import type { Item } from '$lib/equipment';
+import { withLegacyHoardMechanics, type MechanicsSet } from '$lib/rulesets';
 
 /**
  * One item of a hoard, as it is stored.
@@ -63,6 +64,7 @@ export type TreasureHoardSnapshot = {
   /** What the hoard was rolled to be worth, in copper. */
   targetValue: number;
   items: HoardItemSnapshot[];
+  mechanics: MechanicsSet;
 };
 
 /** The optional numbers a hoard item may carry, and the key each is stored under. */
@@ -108,7 +110,10 @@ export function toHoardItemSnapshot(item: Item): HoardItemSnapshot {
 }
 
 export function toTreasureHoardSnapshot(items: Item[], targetValue: number): TreasureHoardSnapshot {
-  return { targetValue, items: items.map(toHoardItemSnapshot) };
+  return withLegacyHoardMechanics(
+    { targetValue, items: items.map(toHoardItemSnapshot) },
+    'generated',
+  ) as TreasureHoardSnapshot;
 }
 
 /**
@@ -122,6 +127,7 @@ export function treasureHoardFromSnapshot(snapshot: TreasureHoardSnapshot): Trea
   return {
     targetValue: snapshot.targetValue,
     items: snapshot.items.map((item) => toHoardItemSnapshot(item as unknown as Item)),
+    mechanics: { variants: [...snapshot.mechanics.variants] },
   };
 }
 

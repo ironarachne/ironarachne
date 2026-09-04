@@ -11,6 +11,16 @@ import { rollRegionSnapshot } from './region_roll';
 
 const snapshot = rollRegionSnapshot('kind-seed');
 
+function withoutMechanics(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutMechanics);
+  if (typeof value !== 'object' || value === null) return value;
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([key, entry]) =>
+      key === 'mechanics' ? [] : [[key, withoutMechanics(entry)]],
+    ),
+  );
+}
+
 /** A copy of the good payload with one part replaced, for the rejection cases. */
 function broken(changes: Record<string, unknown>): unknown {
   return { ...(snapshot as unknown as Record<string, unknown>), ...changes };
@@ -137,9 +147,23 @@ describe('validating a stored region', () => {
 });
 
 describe('migrating a stored region (7.3)', () => {
-  it('rejects every version, because version 1 is the only shape there has been', () => {
-    // The whole of this kind's migration story today, asserted so that the day a version 2 lands
-    // this test is what has to change rather than something that silently drops a user's work.
+  it('migrates direct and composed actors without changing region prose', () => {
+    const result = migrateRegionSnapshot(withoutMechanics(snapshot), 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.description).toBe(snapshot.description);
+      expect(result.value.authority.mechanics.variants[0]).toMatchObject({ origin: 'migrated' });
+      expect(result.value.realms[0].authority.mechanics.variants[0]).toMatchObject({
+        origin: 'migrated',
+      });
+      expect(result.value.organizations[0].leader.mechanics.variants[0]).toMatchObject({
+        origin: 'migrated',
+      });
+    }
+  });
+
+  it('rejects an unsupported migration version', () => {
     const result = migrateRegionSnapshot(snapshot, 0);
     expect(result).toMatchObject({ ok: false, reason: 'unsupported-version' });
     expect(result.ok ? '' : result.message).toContain('version 0');

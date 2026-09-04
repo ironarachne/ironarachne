@@ -20,6 +20,16 @@ const snapshot = JSON.parse(
 const members = snapshot.members as Record<string, unknown>[];
 const relationships = snapshot.relationships as Record<string, unknown>[];
 
+function withoutMechanics(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutMechanics);
+  if (typeof value !== 'object' || value === null) return value;
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([key, entry]) =>
+      key === 'mechanics' ? [] : [[key, withoutMechanics(entry)]],
+    ),
+  );
+}
+
 describe('the family artifact kind', () => {
   it('is registered under its own unqualified name', () => {
     expect(FAMILY_ARTIFACT_KIND).toBe('family');
@@ -108,7 +118,17 @@ describe('the family artifact kind', () => {
     ).toBe(true);
   });
 
-  it('has no migration to offer, and says so rather than guessing', () => {
+  it('migrates every member through the shared actor helper', () => {
+    const result = migrateFamilySnapshot(withoutMechanics(snapshot), 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.name).toBe(snapshot.name);
+      expect(result.value.members[0].mechanics.variants[0]).toMatchObject({ origin: 'migrated' });
+    }
+  });
+
+  it('rejects an unsupported migration version', () => {
     const result = migrateFamilySnapshot(snapshot, 0);
 
     expect(result.ok).toBe(false);

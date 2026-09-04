@@ -25,7 +25,7 @@ describe('potionArtifactKind', () => {
     expect(potionArtifactKind.kind).toBe(POTION_ARTIFACT_KIND);
     expect(POTION_ARTIFACT_KIND).toBe('potion');
     expect(potionArtifactKind.payloadVersion).toBe(POTION_PAYLOAD_VERSION);
-    expect(POTION_PAYLOAD_VERSION).toBe(1);
+    expect(POTION_PAYLOAD_VERSION).toBe(2);
   });
 
   it('is its own kind rather than a share of `item`', () => {
@@ -111,8 +111,36 @@ describe('validatePotionSnapshot', () => {
 });
 
 describe('migratePotionSnapshot', () => {
+  it('copies potion and nested item mechanics while preserving edited prose', () => {
+    const {
+      mechanics: _mechanics,
+      container: { mechanics: _containerMechanics, ...container },
+      liquid: { mechanics: _liquidMechanics, ...liquid },
+      ...rest
+    } = POTION;
+    const legacy = {
+      ...rest,
+      displayName: 'The referee renamed this',
+      container,
+      liquid: { ...liquid, value: 733 },
+    };
+    const result = migratePotionSnapshot(legacy, 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.displayName).toBe('The referee renamed this');
+      expect(result.value.liquid.value).toBe(733);
+      expect(result.value.mechanics.variants[0]).toMatchObject({
+        subject: 'potion',
+        origin: 'migrated',
+        payload: { effect: legacy.effect, modifications: legacy.modifications, value: 733 },
+      });
+      expect(result.value.container.mechanics.variants[0]).toMatchObject({ subject: 'item' });
+      expect(result.value.liquid.mechanics.variants[0]).toMatchObject({ subject: 'item' });
+    }
+  });
+
   it('rejects rather than pretending there has been another shape', () => {
-    // Requirement 7.3 has one step to exercise and it is the absence of one.
     const result = migratePotionSnapshot({ displayName: 'x' }, 0);
 
     expect(result.ok).toBe(false);
