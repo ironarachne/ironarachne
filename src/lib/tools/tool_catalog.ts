@@ -503,12 +503,21 @@ export const TOOL_CATALOG: ToolTypes.Tool[] = [
     genres: ['scifi', 'horror'],
     tags: ['starship'],
   }),
+  // Release-ready, assessed section by section against docs/workshop.md and recorded in
+  // docs/readiness-objects.md (#72). It saves as `starship.swn` — system-qualified, because a
+  // hull's mass, power and hardpoint budget mean something only under that ruleset — with the
+  // fittings allocation stored beside the three derived totals, which is decision 5 of that
+  // document. It has an editor in `ARTIFACT_EDITORS` and exports Markdown and PDF.
+  //
+  // Section 5 does not bind. An owner type is a table category — `pirate`, `free merchant` — not a
+  // character the generator rolls, so there is no input it produces for which an artifact kind
+  // exists; 5.3 holds trivially.
   defineTool({
     path: '/swn/starship',
     label: 'Stars Without Number Starship',
     kind: 'generator',
     domain: 'objects',
-    maturity: 'experimental',
+    maturity: 'release-ready',
     genres: ['scifi'],
     systems: ['swn'],
     tags: ['starship'],

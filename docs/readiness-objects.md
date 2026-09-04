@@ -344,6 +344,33 @@ usedMass, usedPower, usedHardPoints, ownerType, weapons, defenses, fittings, dri
 - **8.4**: the README says which SWN edition the hulls and fittings come from, and what is
   deliberately omitted.
 
+**As built (#72).** It landed as designed — `starship.swn`, the owner type stored by name and
+resolved on read, the allocation kept beside the totals, and a bespoke editor whose budget lines
+recompute on a button. Four things worth recording:
+
+- **The deep-import measurement is the sharpest in the repository, by an order of magnitude.**
+  `$lib/swn`'s entry point re-exports the character PDF renderer, which reaches `$lib/characters`
+  and from there the whole species table: through the starship's own modules the registry chunk and
+  everything it statically imports is 425.2 KB across 44 chunks and `/swn/starship` is 501.5 KB
+  across 64; through the entry point they are 19.4 MB across 61 and 19.4 MB across 77. The old
+  component already carried an allowlisted `$lib/swn/starship` for exactly this reason, so the
+  finding is not new — what is new is that five modules now need the same exception, and each is
+  named rather than the directory being waved through.
+- **Section 5 does not bind, and it is worth saying why rather than leaving it unassessed.** The
+  issue asks the starship and the SWN character to be coordinated because "a ship has an owner". An
+  `OwnerType` is a table category — `pirate`, `free merchant`, `military patroller` — with naming
+  rules attached, not a person the generator rolls. There is no input this tool produces for which
+  an artifact kind exists, so 5.1 has nothing to accept and 5.3 holds trivially. A ship that _is_
+  crewed by a saved character is a reference the vault can hold once anything asks for one; nothing
+  here asks.
+- **6.4 was failing on screen as well as in the export**, and on most ships. `formatAsText` prints
+  Fittings, Weapons and Defenses headings unconditionally, and the component did the same with
+  `<h4>` — so every unarmed civilian, merchant, mining ship and smuggler, which is four of the eight
+  owner types, showed two headings over nothing. The document model drops an empty section once, and
+  the page guards its three lists.
+- **The seed fault was here in both of its forms**, reseeded from the field inside an `$effect` and
+  again inside `generate()`. That is six tools running, and the last of them in this domain.
+
 ## #65 — Fantasy equipment price lists
 
 A **reference** tool. Sections 3, 4 and 5 do not apply, and neither do 2.2–2.4. What remains is

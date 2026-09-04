@@ -1,43 +1,84 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { RNG } from '@ironarachne/rng';
+
+  import BaseButton from '$components/common/BaseButton.svelte';
+  import GeneratorPage from '$components/layout/GeneratorPage.svelte';
+  import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import SeedControls from '$components/common/SeedControls.svelte';
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
-  import { onMount } from 'svelte';
-  import * as RNG from '@ironarachne/rng';
+  import { downloadTextFile } from '$lib/download';
+  import { downloadTextPdf } from '$lib/pdf';
   // Deep by necessity: `$lib/swn` also carries the character PDF renderer, which reaches
   // `$lib/characters` and from there the whole species table. Going through the entry point put
-  // 19 MB of it on a page that only builds a starship. The type import below is free — it erases.
-  import * as Gen from '$lib/swn/starship';
-  import type { SWNStarship } from '$lib/swn';
-  import GeneratorPage from '$components/layout/GeneratorPage.svelte';
-  import SeedControls from '$components/common/SeedControls.svelte';
-  import BaseButton from '$components/common/BaseButton.svelte';
+  // 19 MB of it on a page that only builds a starship. The four modules below are the starship's
+  // own, and none of them reaches the character side.
+  import { SWN_STARSHIP_ARTIFACT_KIND, swnStarshipName } from '$lib/swn/swn_starship_artifact_kind';
+  import {
+    formatSwnCredits,
+    formatSwnStarshipFitting,
+    formatSwnStarshipWeapon,
+    swnStarshipDisplayName,
+    swnStarshipFileStem,
+    swnStarshipToMarkdown,
+    swnStarshipToText,
+    SWN_CREW_COST_PER_YEAR,
+  } from '$lib/swn/swn_starship_presentation';
+  import { rollSwnStarship } from '$lib/swn/swn_starship_roll';
+  import { toSwnStarshipSnapshot } from '$lib/swn/swn_starship_snapshot';
+  import type { SwnStarshipSnapshot } from '$lib/swn/swn_starship_snapshot';
 
-  const rng = new RNG.RNG(Date.now().toString());
+  const TOOL_PATH = '/swn/starship';
+
+  /**
+   * The page's own RNG, which is what a new seed is drawn from.
+   *
+   * Seeded from the clock once, at mount, and never again. That is the whole of requirement 2.2's
+   * fix here: the page used to reseed this from the seed field inside an `$effect` *and* again
+   * inside `generate()`, so the seed of the next press depended on the text of the previous one.
+   */
+  const rng = new RNG(Date.now().toString());
   let seed = $state(rng.randomString(13));
   let lockSeed = $state(false);
-  $effect(() => {
-    rng.setSeed(seed);
-  });
-  let starship: SWNStarship | null = $state(null);
+
+  /**
+   * The ship on screen, held as its stored form.
+   *
+   * `$state.raw`, and not as a preference. Deep-reactive `$state` wraps every array and object in a
+   * Proxy, and `structuredClone` — what IndexedDB stores with — refuses a Proxy outright, so saving
+   * fails with `could not be cloned`. The same trap is written up in `$lib/workshop`'s README
+   * beside `saveToolArtifact`.
+   *
+   * The snapshot rather than the live `SWNStarship` because it is what every consumer on this page
+   * wants: the save control stores it, and the exports read it. The live form differs only in
+   * holding the whole owner type, whose closures nothing here calls.
+   */
+  let ship = $state.raw<SwnStarshipSnapshot | null>(null);
 
   function generate() {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    rng.setSeed(seed);
-    starship = Gen.generate(rng);
+    ship = toSwnStarshipSnapshot(rollSwnStarship(seed));
   }
 
-  function save() {
-    if (!starship) return;
-    const starshipDescription = Gen.formatAsText(starship);
+  function exportMarkdown() {
+    if (ship === null) return;
+    downloadTextFile(
+      swnStarshipToMarkdown(ship),
+      `${swnStarshipFileStem(ship)}.md`,
+      'text/markdown',
+    );
+  }
 
-    const blob = new Blob([starshipDescription], { type: 'text/plain' });
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.download = 'swn-starship.txt';
-    link.click();
-    URL.revokeObjectURL(link.href);
+  async function exportPdf() {
+    if (ship === null) return;
+    await downloadTextPdf(
+      swnStarshipDisplayName(ship),
+      swnStarshipToText(ship),
+      `${swnStarshipFileStem(ship)}.pdf`,
+    );
   }
 
   onMount(() => {
@@ -45,78 +86,114 @@
   });
 </script>
 
-<GeneratorPage toolPath="/swn/starship" title="Stars Without Number Starship Generator">
+<GeneratorPage toolPath={TOOL_PATH} title="Stars Without Number Starship Generator">
+  {#snippet description()}
+    <p>
+      Generate a starship for Stars Without Number: a hull, a crew, and everything bolted to it.
+    </p>
+  {/snippet}
+
   <SeedControls bind:seed bind:lockSeed />
 
   <BaseButton onclick={generate}>Generate</BaseButton>
-  <BaseButton onclick={save}>Save</BaseButton>
 
-  {#if starship}
-    <h2>{starship.name}</h2>
+  <SaveArtifactButton
+    kind={SWN_STARSHIP_ARTIFACT_KIND}
+    toolPath={TOOL_PATH}
+    snapshot={ship}
+    {seed}
+    defaultName={ship === null ? '' : swnStarshipName(ship)}
+  />
+
+  {#if ship}
+    <h2>{swnStarshipDisplayName(ship)}</h2>
+
+    <div class="ship-exports">
+      <BaseButton onclick={exportMarkdown}>Download Markdown</BaseButton>
+      <BaseButton onclick={exportPdf}>Download PDF</BaseButton>
+    </div>
 
     <StatBlock>
-      <Stat label="Owner Type">{starship.ownerType.name}</Stat>
-      <Stat label="Manufacturer">{starship.manufacturer}</Stat>
-      <Stat label="Model">{starship.className}</Stat>
-      <Stat label="Hull Type">{starship.hullType.name}</Stat>
-      <Stat label="Hull Class">{starship.hullType.hullClassName}</Stat>
-      <Stat label="Drive">{starship.drive.name}</Stat>
+      <Stat label="Owner Type">{ship.ownerTypeName}</Stat>
+      <Stat label="Manufacturer">{ship.manufacturer}</Stat>
+      <Stat label="Model">{ship.className}</Stat>
+      <Stat label="Hull Type">{ship.hullType.name}</Stat>
+      <Stat label="Hull Class">{ship.hullType.hullClassName}</Stat>
+      <Stat label="Drive">{ship.drive.name}</Stat>
     </StatBlock>
     <Stat label="Mass">
-      {starship.usedMass}/{starship.hullType.mass}
-      ({starship.hullType.mass - starship.usedMass} free)
+      {ship.usedMass}/{ship.hullType.mass}
+      ({ship.hullType.mass - ship.usedMass} free)
     </Stat>
     <Stat label="Power">
-      {starship.usedPower}/{starship.hullType.power}
-      ({starship.hullType.power - starship.usedPower} free)
+      {ship.usedPower}/{ship.hullType.power}
+      ({ship.hullType.power - ship.usedPower} free)
     </Stat>
     <Stat label="Hardpoints">
-      {starship.usedHardPoints}/{starship.hullType.hardPoints}
-      ({starship.hullType.hardPoints - starship.usedHardPoints} free)
+      {ship.usedHardPoints}/{ship.hullType.hardPoints}
+      ({ship.hullType.hardPoints - ship.usedHardPoints} free)
     </Stat>
     <StatBlock>
-      <Stat label="Speed">{starship.hullType.speed}</Stat>
-      <Stat label="Armor">{starship.hullType.armor}</Stat>
-      <Stat label="AC">{starship.hullType.ac}</Stat>
-      <Stat label="HP">{starship.hullType.hp}</Stat>
-      <Stat label="Minimum Crew">{starship.hullType.crewMinimum}</Stat>
-      <Stat label="Maximum Crew">{starship.hullType.crewMaximum}</Stat>
-      <Stat label="Current Crew">{starship.currentCrew}</Stat>
+      <Stat label="Speed">{ship.hullType.speed}</Stat>
+      <Stat label="Armor">{ship.hullType.armor}</Stat>
+      <Stat label="AC">{ship.hullType.ac}</Stat>
+      <Stat label="HP">{ship.hullType.hp}</Stat>
+      <Stat label="Minimum Crew">{ship.hullType.crewMinimum}</Stat>
+      <Stat label="Maximum Crew">{ship.hullType.crewMaximum}</Stat>
+      <Stat label="Current Crew">{ship.currentCrew}</Stat>
     </StatBlock>
-    <Stat label="Total Ship Value">
-      {new Intl.NumberFormat('en-US').format(starship.totalCost)} credits
-    </Stat>
+    <Stat label="Total Ship Value">{formatSwnCredits(ship.totalCost)}</Stat>
     <Stat label="Total Crew Cost">
-      {new Intl.NumberFormat('en-US').format(starship.currentCrew * 43800)}
-      credits per year
+      {formatSwnCredits(ship.currentCrew * SWN_CREW_COST_PER_YEAR)} per year
     </Stat>
     <StatBlock>
-      <Stat label="Crew Skill">{starship.hullType.crewSkill}</Stat>
-      <Stat label="Cargo Space">{starship.tonsOfCargo} tons</Stat>
+      <Stat label="Crew Skill">{ship.hullType.crewSkill}</Stat>
+      <Stat label="Cargo Space">{ship.tonsOfCargo} tons</Stat>
     </StatBlock>
 
-    <h4>Fittings</h4>
+    <!-- 6.4 on screen as well as in the exports: an unarmed free merchant, which is most of what
+         this generator rolls, used to show a Weapons heading and a Defenses heading over nothing. -->
+    {#if ship.fittings.length > 0}
+      <h3>Fittings</h3>
 
-    {#each starship.fittings as fitting}
-      <div>
-        {fitting.name} - {fitting.effect}
-      </div>
-    {/each}
+      <ul class="ship-list">
+        {#each ship.fittings as fitting, index (index)}
+          <li>{formatSwnStarshipFitting(fitting)}</li>
+        {/each}
+      </ul>
+    {/if}
 
-    <h4>Weapons</h4>
+    {#if ship.weapons.length > 0}
+      <h3>Weapons</h3>
 
-    {#each starship.weapons as weapon}
-      <div>
-        {weapon.name} ({weapon.damage}, {weapon.qualities.join(', ')})
-      </div>
-    {/each}
+      <ul class="ship-list">
+        {#each ship.weapons as weapon, index (index)}
+          <li>{formatSwnStarshipWeapon(weapon)}</li>
+        {/each}
+      </ul>
+    {/if}
 
-    <h4>Defenses</h4>
+    {#if ship.defenses.length > 0}
+      <h3>Defenses</h3>
 
-    {#each starship.defenses as defense}
-      <div>
-        {defense.name}: {defense.effect}
-      </div>
-    {/each}
+      <ul class="ship-list">
+        {#each ship.defenses as defense, index (index)}
+          <li>{formatSwnStarshipFitting(defense)}</li>
+        {/each}
+      </ul>
+    {/if}
   {/if}
 </GeneratorPage>
+
+<style>
+  .ship-exports {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .ship-list {
+    margin: 0 0 var(--s4);
+    padding-left: 1.25rem;
+  }
+</style>

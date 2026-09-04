@@ -60,6 +60,10 @@ const SILENT_TOOL_PAGES = [
   { path: '/fantasy/treasure-hoard', title: 'Treasure Hoard Generator | Iron Arachne' },
   { path: '/spooky-ship', title: 'Spooky Ship Generator | Iron Arachne' },
   {
+    path: '/swn/starship',
+    title: 'Stars Without Number Starship Generator | Iron Arachne',
+  },
+  {
     // The first reference tool in this list, and the reason it is worth naming: most of the spec
     // does not apply to a tool that produces no artifacts, so its silence was earned by sections
     // 1, 2.1, 2.5, 6, 7.1 and 8 alone (#65).

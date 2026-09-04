@@ -9,8 +9,20 @@ export * from './swn_character_editing';
 export * from './swn_character_roll';
 export * from './swn_character_snapshot';
 export * from './swn_presentation';
+export * from './swn_starship_artifact_kind';
+export * from './swn_starship_editing';
+export * from './swn_starship_presentation';
+export * from './swn_starship_roll';
+export * from './swn_starship_snapshot';
 
 // Named for the same reason: starring the types would re-collide the names the namespaces exist to
 // keep apart.
 export type { Focus, PsychicPick, SWNCharacter } from './character';
-export type { SWNStarship } from './starship';
+export type {
+  DefenseFitting,
+  DriveFitting,
+  Fitting,
+  HullType,
+  OwnerType,
+  SWNStarship,
+} from './starship';

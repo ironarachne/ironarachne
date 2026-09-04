@@ -68,6 +68,17 @@ const ALLOWED_DEEP_IMPORTS = new Set([
   // The eighth. `$lib/swn`'s entry point re-exports the PDF renderer, and jsPDF with it, along with
   // the focus, psychic, and starship tables. The kind module holds metadata and validation only.
   '$lib/swn/swn_character_artifact_kind',
+  // The starship's four modules, and the sharpest measurement in this list. `$lib/swn`'s entry
+  // point re-exports the character PDF renderer, which reaches `$lib/characters` and from there the
+  // whole species table. Measured on the build: through these modules the registry chunk and
+  // everything it statically imports is 425.2 KB across 44 chunks and `/swn/starship` is 501.5 KB
+  // across 64; through the entry point they are 19.4 MB across 61 and 19.4 MB across 77. The kind
+  // module holds metadata and validation only, and its codec is a dynamic import.
+  '$lib/swn/swn_starship_artifact_kind',
+  '$lib/swn/swn_starship_editing',
+  '$lib/swn/swn_starship_presentation',
+  '$lib/swn/swn_starship_roll',
+  '$lib/swn/swn_starship_snapshot',
   // The ninth. `$lib/unchartedworlds`'s entry point re-exports the PDF renderer, and jsPDF with it,
   // along with the career, origin and asset tables. The kind module holds metadata and validation
   // only.

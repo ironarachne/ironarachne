@@ -71,6 +71,9 @@ import { heraldryArtifactKind } from '$lib/heraldry/heraldry_artifact_kind';
 import { religionArtifactKind } from '$lib/religion/religion_artifact_kind';
 import { settlementArtifactKind } from '$lib/settlements/settlement_artifact_kind';
 import { swnCharacterArtifactKind } from '$lib/swn/swn_character_artifact_kind';
+// Deep, for the same reason its character sibling is: `$lib/swn`'s entry point carries the
+// character PDF renderer, which reaches `$lib/characters` and from there the whole species table.
+import { swnStarshipArtifactKind } from '$lib/swn/swn_starship_artifact_kind';
 import { uwCharacterArtifactKind } from '$lib/unchartedworlds/uw_character_artifact_kind';
 import { velgarthGiftsArtifactKind } from '$lib/velgarth_gifts/velgarth_gifts_artifact_kind';
 
@@ -112,6 +115,7 @@ function buildArtifactKindRegistry(): ArtifactKindRegistry {
   registerArtifactKind(registry, potionArtifactKind);
   registerArtifactKind(registry, treasureHoardArtifactKind);
   registerArtifactKind(registry, spookyShipArtifactKind);
+  registerArtifactKind(registry, swnStarshipArtifactKind);
   return registry;
 }
 
