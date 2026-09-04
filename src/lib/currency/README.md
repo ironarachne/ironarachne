@@ -1,6 +1,11 @@
 # Currency
 
-This library presents types and methods for handling various currency systems. It is designed to be robust enough to handle conversions and transactions in any common fictional currency system, whether it's D&D's coin system, Star Wars credits, or even real-world historical currency systems.
+**Compatibility facade.** Currency types, predefined systems, and helpers are now owned by
+`$lib/rulesets/ironarachne`. Existing `$lib/currency` imports remain stable while consumers migrate;
+new code imports the compatibility package or a published ruleset package directly.
+
+These helpers handle several fictional and historical denomination sets. A denomination set is
+not assumed to be the currency of every fantasy ruleset.
 
 ## Features
 

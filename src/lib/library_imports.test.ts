@@ -28,6 +28,11 @@ const libRoot = join(repoRoot, 'src/lib');
  * Add to this list only with a build measurement behind it. "It felt heavy" is how the rule rots.
  */
 const ALLOWED_DEEP_IMPORTS = new Set([
+  // The old combat, magic, and currency entry points are compatibility facades over this nested
+  // ruleset package until #213 removes them. Re-exporting the implementation from `$lib/rulesets`
+  // would make it statically reachable from the registry entry point and defeat the dynamic import
+  // boundary introduced by #206; the nested package is the intentional implementation entry point.
+  '$lib/rulesets/ironarachne',
   // Statically imports every planet GLSL module; see the comment atop `shaders/index.ts`.
   '$lib/shaders/planets/planets',
   // `renderers/index.ts` says the same about these two in its own header: the preview renderers

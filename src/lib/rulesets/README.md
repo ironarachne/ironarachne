@@ -14,5 +14,15 @@ Rules-data licensing is attached to exact `RulesDataSource` records. Production 
 approved for redistribution. A descriptor cites source ids; `rulesetNotices` resolves and
 deduplicates the notices required by selected releases.
 
+## Iron Arachne compatibility package
+
+`$lib/rulesets/ironarachne` owns the normalized 0–100 combat profile, generic magic taxonomy, and
+existing currency helpers that previously lived in the common `combat_system`, `magic`, and
+`currency` libraries. Those old libraries are compatibility facades until #213 removes them.
+
+The package also supplies version-1 actor, item, potion, spell, and hoard payload codecs. Shared
+live types may carry a `MechanicsSet`; their legacy fields remain during the persistence migration
+in #209 so current generators and saved data do not change shape in this step.
+
 The full contract, dependency rules, and migration plan are in
 [`docs/rules-system.md`](../../../docs/rules-system.md).

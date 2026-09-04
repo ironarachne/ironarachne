@@ -1,14 +1,2 @@
-import type { CombatAction } from './types';
-
-export function getDefaultCombatActions(): CombatAction[] {
-  return [
-    {
-      name: 'basic attack',
-      description: 'A simple melee attack.',
-      type: 'attack',
-      attackType: 'melee',
-      damageType: 'bludgeoning',
-      baseDamage: 1,
-    },
-  ];
-}
+/** @deprecated Use ruleset-qualified mechanics from `$lib/rulesets` for new code. */
+export { getDefaultCombatActions } from '$lib/rulesets/ironarachne';

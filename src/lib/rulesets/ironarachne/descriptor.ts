@@ -13,6 +13,6 @@ export const IRONARACHNE_RULESET_REF: RulesetRef = {
 export const IRONARACHNE_RULESET_DESCRIPTOR: RulesetDescriptor = {
   ref: IRONARACHNE_RULESET_REF,
   displayName: 'Iron Arachne',
-  capabilities: [],
+  capabilities: ['actor', 'item', 'potion', 'spell', 'hoard', 'currency'],
   sourceIds: [IRONARACHNE_ORIGINAL_SOURCE.id],
 };

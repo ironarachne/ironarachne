@@ -1,5 +1,6 @@
 import type { Container, Item, Rarity } from '$lib/equipment';
 import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic';
+import type { MechanicsSet } from '$lib/rulesets';
 
 export type PotionForm = 'drink' | 'oil' | 'ointment';
 
@@ -106,7 +107,11 @@ export type Potion = {
   displayName: string;
   canonicalName?: string;
   sensory: PotionSensoryProfile;
+  /** Ruleset-qualified mechanics. Optional until the payload migrations in #209 land. */
+  mechanics?: MechanicsSet;
+  /** @deprecated Compatibility field for Iron Arachne mechanics; see #210 and #213. */
   effect: PotionEffect;
+  /** @deprecated Compatibility field for Iron Arachne mechanics; see #210 and #213. */
   modifications: PotionModification[];
 };
 
