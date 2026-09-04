@@ -72,7 +72,7 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 1. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 2. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.

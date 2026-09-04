@@ -22,6 +22,16 @@ const beasts = JSON.parse(
 
 const groups = people.groups as { mobs: Record<string, unknown>[] }[];
 
+function withoutMechanics(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutMechanics);
+  if (typeof value !== 'object' || value === null) return value;
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([key, entry]) =>
+      key === 'mechanics' ? [] : [[key, withoutMechanics(entry)]],
+    ),
+  );
+}
+
 describe('the encounter artifact kind', () => {
   it('is registered under its own unqualified name', () => {
     expect(ENCOUNTER_ARTIFACT_KIND).toBe('encounter');
@@ -109,7 +119,20 @@ describe('the encounter artifact kind', () => {
     ).toBe(false);
   });
 
-  it('has no migration to offer, and says so rather than guessing', () => {
+  it('migrates character and creature mobs through the shared actor helper', () => {
+    for (const legacy of [withoutMechanics(people), withoutMechanics(beasts)]) {
+      const result = migrateEncounterSnapshot(legacy, 1);
+      expect(result.ok).toBe(true);
+      if (result.ok) {
+        expect(result.value.groups[0].mobs[0].mechanics.variants[0]).toMatchObject({
+          subject: 'actor',
+          origin: 'migrated',
+        });
+      }
+    }
+  });
+
+  it('rejects an unsupported migration version', () => {
     const result = migrateEncounterSnapshot(people, 0);
 
     expect(result.ok).toBe(false);

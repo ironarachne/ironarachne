@@ -128,9 +128,27 @@ describe('validating a stored dungeon', () => {
 });
 
 describe('migrating a stored dungeon (7.3)', () => {
-  it('rejects every version, because version 1 is the only shape there has been', () => {
-    // The whole of this kind's migration story today, asserted so that the day a version 2 lands
-    // this test is what has to change rather than something that silently drops a user's dungeon.
+  it('migrates every nested encounter actor without changing room prose', () => {
+    const legacy = JSON.parse(JSON.stringify(snapshot), (key, value) =>
+      key === 'mechanics' ? undefined : value,
+    ) as DungeonSnapshot;
+    const result = migrateDungeonSnapshot(legacy, 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.rooms.map((room) => room.description)).toEqual(
+        snapshot.rooms.map((room) => room.description),
+      );
+      const mob = result.value.rooms
+        .flatMap((room) => room.encounter?.groups ?? [])
+        .flatMap((group) => group.mobs)[0];
+      if (mob !== undefined) {
+        expect(mob.mechanics.variants[0]).toMatchObject({ origin: 'migrated' });
+      }
+    }
+  });
+
+  it('rejects an unsupported migration version', () => {
     const result = migrateDungeonSnapshot(snapshot as unknown as DungeonSnapshot, 0);
     expect(result).toMatchObject({ ok: false, reason: 'unsupported-version' });
     expect(result.ok ? '' : result.message).toContain('version 0');

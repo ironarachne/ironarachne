@@ -21,8 +21,14 @@ existing currency helpers that previously lived in the common `combat_system`, `
 `currency` libraries. Those old libraries are compatibility facades until #213 removes them.
 
 The package also supplies version-1 actor, item, potion, spell, and hoard payload codecs. Shared
-live types may carry a `MechanicsSet`; their legacy fields remain during the persistence migration
-in #209 so current generators and saved data do not change shape in this step.
+live types may carry a `MechanicsSet`; their legacy fields remain while consumers transition in
+#213.
+
+`legacy_migrations.ts` is the one pure compatibility path used by standalone and composed artifact
+codecs. It copies saved values into `ironarachne@1` variants, marks old records as `migrated`, and
+never recomputes a rule value or changes prose. AD&D and DCC character snapshots instead gain a
+top-level `legacy` ruleset ref: their payloads were already system-owned, and the ref deliberately
+adds no source ids before each package's separate source/licence audit.
 
 The full contract, dependency rules, and migration plan are in
 [`docs/rules-system.md`](../../../docs/rules-system.md).

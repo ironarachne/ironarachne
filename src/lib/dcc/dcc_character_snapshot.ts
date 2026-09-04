@@ -34,6 +34,7 @@
  */
 
 import type { RNG } from '@ironarachne/rng';
+import type { RulesetRef } from '$lib/rulesets';
 
 import type { DCCCharacter, DCCLuckyRoll, DCCOccupation } from './dcc_types.js';
 import * as DwarfOccupations from './dwarf_occupations.js';
@@ -49,7 +50,14 @@ export type StoredDccOccupation = Omit<DCCOccupation, 'apply'>;
 export type StoredDccLuckyRoll = Omit<DCCLuckyRoll, 'apply'>;
 
 /** A DCC character as it is stored. */
+/** Stable identity for the pre-audit tables; it asserts no source or licence provenance. */
+export const DCC_CHARACTER_RULESET_REF = {
+  id: 'dcc',
+  release: 'legacy',
+} as const satisfies RulesetRef;
+
 export type DccCharacterSnapshot = Omit<DCCCharacter, 'occupation' | 'luckyRoll'> & {
+  ruleset: RulesetRef;
   occupation: StoredDccOccupation;
   luckyRoll: StoredDccLuckyRoll;
 };
@@ -98,7 +106,12 @@ export function toDccCharacterSnapshot(character: DCCCharacter): DccCharacterSna
   const { occupation, luckyRoll, ...rest } = character;
   const { apply: _occupationApply, ...storedOccupation } = occupation;
   const { apply: _luckyApply, ...storedLuckyRoll } = luckyRoll;
-  return { ...rest, occupation: storedOccupation, luckyRoll: storedLuckyRoll };
+  return {
+    ...rest,
+    ruleset: DCC_CHARACTER_RULESET_REF,
+    occupation: storedOccupation,
+    luckyRoll: storedLuckyRoll,
+  };
 }
 
 /**
@@ -109,7 +122,7 @@ export function toDccCharacterSnapshot(character: DCCCharacter): DccCharacterSna
  * docs/workshop.md.
  */
 export function dccCharacterFromSnapshot(snapshot: DccCharacterSnapshot): DCCCharacter {
-  const { occupation, luckyRoll, ...rest } = snapshot;
+  const { ruleset: _ruleset, occupation, luckyRoll, ...rest } = snapshot;
   return {
     ...rest,
     occupation: { ...occupation, apply: occupationApplyFor(occupation.name) },

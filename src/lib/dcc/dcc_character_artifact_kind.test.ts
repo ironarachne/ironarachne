@@ -11,6 +11,7 @@ import {
 } from './dcc_character_artifact_kind.js';
 import { rollDccCharacter, rollDccCharacterSnapshot } from './dcc_character_roll.js';
 import type { DccCharacterSnapshot } from './dcc_character_snapshot.js';
+import { DCC_CHARACTER_RULESET_REF } from './dcc_character_snapshot.js';
 
 /** A stored payload, as anything reading one actually receives it. */
 function storedSnapshot(seed = 'kind-fixture'): Record<string, unknown> {
@@ -150,7 +151,18 @@ describe('validating a DCC character payload', () => {
 });
 
 describe('migrating a DCC character payload', () => {
-  it('rejects, because version 1 is the only shape there has been', () => {
+  it('pins the legacy ruleset ref without inventing source provenance', () => {
+    const { ruleset: _ruleset, ...legacy } = snapshot;
+    const result = migrateDccCharacterSnapshot(legacy, 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toEqual({ ...legacy, ruleset: DCC_CHARACTER_RULESET_REF });
+      expect(result.value).not.toHaveProperty('sourceIds');
+    }
+  });
+
+  it('rejects an unsupported version', () => {
     const result = migrateDccCharacterSnapshot(snapshot, 0);
 
     expect(result.ok).toBe(false);

@@ -8,7 +8,7 @@ import {
   migrateAdndCharacterSnapshot,
   validateAdndCharacterSnapshot,
 } from './adnd_character_artifact_kind.js';
-import { toAdndCharacterSnapshot } from './adnd_character_snapshot.js';
+import { ADND_CHARACTER_RULESET_REF, toAdndCharacterSnapshot } from './adnd_character_snapshot.js';
 import type { AdndCharacterSnapshot } from './adnd_character_snapshot.js';
 import { generateCharacter } from './adndcharactergenerator.js';
 import { getDefaultConfig } from './adndcharactergeneratorconfig.js';
@@ -31,9 +31,9 @@ describe('the AD&D character kind', () => {
     expect(ADND_CHARACTER_ARTIFACT_KIND).toBe('character.adnd-2e');
   });
 
-  it('starts at payload version 1', () => {
-    expect(ADND_CHARACTER_PAYLOAD_VERSION).toBe(1);
-    expect(adndCharacterArtifactKind.payloadVersion).toBe(1);
+  it('pins system identity at payload version 2', () => {
+    expect(ADND_CHARACTER_PAYLOAD_VERSION).toBe(2);
+    expect(adndCharacterArtifactKind.payloadVersion).toBe(2);
   });
 
   it('names an artifact after the character', () => {
@@ -152,7 +152,18 @@ describe('validateAdndCharacterSnapshot', () => {
 });
 
 describe('migrateAdndCharacterSnapshot', () => {
-  it('rejects, because version 1 is the only shape there has been', () => {
+  it('pins the legacy ruleset ref without inventing source provenance', () => {
+    const { ruleset: _ruleset, ...legacy } = aSnapshot();
+    const result = migrateAdndCharacterSnapshot(legacy, 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value).toEqual({ ...legacy, ruleset: ADND_CHARACTER_RULESET_REF });
+      expect(result.value).not.toHaveProperty('sourceIds');
+    }
+  });
+
+  it('rejects an unsupported version', () => {
     const result = migrateAdndCharacterSnapshot({}, 0);
 
     expect(result.ok).toBe(false);

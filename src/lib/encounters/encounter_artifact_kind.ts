@@ -10,6 +10,7 @@ import {
 } from '$lib/artifact_kinds';
 import { validateCharacterSnapshot } from '$lib/characters/character_artifact_kind';
 import { validateStoredCreature } from '$lib/creatures/creature_snapshot';
+import { withLegacyActorMechanics } from '$lib/rulesets';
 
 import type { EncounterSnapshot } from './encounter_snapshot';
 import type { Encounter } from './encounter_types';
@@ -20,8 +21,8 @@ import type { Encounter } from './encounter_types';
  */
 export const ENCOUNTER_ARTIFACT_KIND = 'encounter' as const;
 
-/** Version 1. The first shape an encounter has been stored in. */
-export const ENCOUNTER_PAYLOAD_VERSION = 1 as const;
+/** Version 2 qualifies every character and creature mob's compatibility mechanics. */
+export const ENCOUNTER_PAYLOAD_VERSION = 2 as const;
 
 /**
  * One stored mob, checked by the validator of the vocabulary type it says it is.
@@ -96,21 +97,39 @@ export function validateEncounterSnapshot(payload: unknown): PayloadResult<Encou
   return acceptedPayload(record as unknown as EncounterSnapshot);
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day the
- * shape changes — a kind without one looks complete right up until it silently drops someone's
- * work, and local-only means there is no server-side migration to fall back on.
- */
+/** Qualifies every stored mob without changing encounter groups or prose. */
 export function migrateEncounterSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<EncounterSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `Encounters have no migration from payload version ${from}; version ${ENCOUNTER_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `Encounters have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  if (record === null) {
+    return rejectedPayload('invalid-payload', 'encounter payload is not an object');
+  }
+  return validateEncounterSnapshot({
+    ...record,
+    groups: Array.isArray(record.groups)
+      ? record.groups.map((group) => {
+          const storedGroup = asRecord(group);
+          if (storedGroup === null || !Array.isArray(storedGroup.mobs)) {
+            return group;
+          }
+          return {
+            ...storedGroup,
+            mobs: storedGroup.mobs.map((mob) => {
+              const storedMob = asRecord(mob);
+              return storedMob === null ? mob : withLegacyActorMechanics(storedMob, 'migrated');
+            }),
+          };
+        })
+      : record.groups,
+  });
 }
 
 /** What to call a saved encounter: its name, or the kind when the name has been emptied. */

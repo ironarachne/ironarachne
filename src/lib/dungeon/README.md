@@ -65,7 +65,7 @@ face, where the seven subsystems above are how it works inside.
   never the drawing. The two halves are split because reading rebuilds every room's encounter and
   reaches the archetype tables and the charge art through it; writing, listing and validating reach
   none of that.
-- **`dungeon_artifact_kind.ts`**: kind `dungeon`, payload version 1, with the validator and the
+- **`dungeon_artifact_kind.ts`**: kind `dungeon`, payload version 2, with the validator and the
   migration stub. Metadata and validation only; the codec is a dynamic import.
 - **`dungeon_editing.ts`**: pure snapshot-to-snapshot field edits — the dungeon's name and
   blueprint, and per room the name, purpose, description, encounter, combatants, treasure and keys.

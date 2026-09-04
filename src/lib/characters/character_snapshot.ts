@@ -28,6 +28,7 @@
 import type { Archetype } from '$lib/archetypes';
 import { toStoredArms, type StoredArms } from '$lib/heraldry';
 import { stripFunctionValuesDeep } from '$lib/persistent_save';
+import { withLegacyActorMechanics, type MechanicsSet } from '$lib/rulesets';
 
 import type { Character } from './character_types.js';
 
@@ -45,8 +46,12 @@ export type StoredArchetype = Omit<Archetype, 'equipmentGenerationConfigs'>;
  * one name drifting apart the first time either changes. The move is what
  * `SETTLEMENT_PAYLOAD_VERSION` 2 migrates.
  */
-export type StoredCharacter = Omit<Character, 'species' | 'archetype' | 'heraldry'> & {
+export type StoredCharacter = Omit<
+  Character,
+  'species' | 'archetype' | 'heraldry' | 'mechanics'
+> & {
   speciesName: string;
+  mechanics: MechanicsSet;
   archetype?: StoredArchetype;
   /**
    * `undefined` for a character with no arms, a value for one carrying its own, and `null` for one
@@ -81,12 +86,15 @@ export function toStoredArchetype(archetype: Archetype): StoredArchetype {
  */
 export function toStoredCharacter(character: Character): StoredCharacter {
   const { species, archetype, heraldry, ...rest } = character;
-  return {
-    ...rest,
-    speciesName: species.name,
-    ...(archetype === undefined ? {} : { archetype: toStoredArchetype(archetype) }),
-    ...(heraldry === undefined ? {} : { heraldry: toStoredArms(heraldry) }),
-  };
+  return withLegacyActorMechanics(
+    {
+      ...rest,
+      speciesName: species.name,
+      ...(archetype === undefined ? {} : { archetype: toStoredArchetype(archetype) }),
+      ...(heraldry === undefined ? {} : { heraldry: toStoredArms(heraldry) }),
+    },
+    'generated',
+  ) as StoredCharacter;
 }
 
 /**

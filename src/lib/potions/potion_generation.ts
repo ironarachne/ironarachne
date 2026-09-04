@@ -2,6 +2,7 @@ import { RNG } from '@ironarachne/rng';
 import { generateRandomContainer, DENSITY_MAP } from '$lib/equipment';
 import type { DensityCategory, Rarity } from '$lib/equipment';
 import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic';
+import { withLegacyPotionMechanics } from '$lib/rulesets';
 import {
   filterCatalogEntries,
   getDefaultPotionConfig,
@@ -130,15 +131,18 @@ export function generatePotion(
   container.currentVolume = parseFloat((container.currentVolume + volume).toFixed(2));
   container.currentWeight = parseFloat((container.currentWeight + weight).toFixed(2));
 
-  return {
-    container,
-    liquid,
-    displayName,
-    canonicalName,
-    sensory,
-    effect,
-    modifications,
-  };
+  return withLegacyPotionMechanics(
+    {
+      container,
+      liquid,
+      displayName,
+      canonicalName,
+      sensory,
+      effect,
+      modifications,
+    },
+    'generated',
+  ) as Potion;
 }
 
 export { buildPotionDescription as describePotion };

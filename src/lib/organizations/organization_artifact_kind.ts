@@ -7,6 +7,7 @@ import {
   rejectedPayload,
   type PayloadResult,
 } from '$lib/artifact_kinds';
+import { withLegacyActorMechanics } from '$lib/rulesets';
 import { validateCharacterSnapshot } from '$lib/characters/character_artifact_kind';
 
 import type { OrganizationSnapshot } from './organization_snapshot';
@@ -21,8 +22,8 @@ import type { Organization } from './organization_types';
  */
 export const ORGANIZATION_ARTIFACT_KIND = 'organization' as const;
 
-/** Version 1. The first shape an organization has been stored on its own in. */
-export const ORGANIZATION_PAYLOAD_VERSION = 1 as const;
+/** Version 2 qualifies the leader and notable members' compatibility mechanics. */
+export const ORGANIZATION_PAYLOAD_VERSION = 2 as const;
 
 const EMBLEM_KINDS = ['none', 'heraldry', 'merchant_mark', 'pattern_lattice', 'disc_emblem'];
 const GENRES = ['fantasy', 'science_fiction'];
@@ -186,21 +187,32 @@ export function validateOrganizationSnapshot(
   return acceptedPayload(record as unknown as OrganizationSnapshot);
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day the
- * shape changes — a kind without one looks complete right up until it silently drops someone's
- * work, and local-only means there is no server-side migration to fall back on.
- */
+/** Qualifies the leader and every notable member without changing organization data. */
 export function migrateOrganizationSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<OrganizationSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `Organizations have no migration from payload version ${from}; version ${ORGANIZATION_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `Organizations have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  if (record === null) {
+    return rejectedPayload('invalid-payload', 'organization payload is not an object');
+  }
+  const leader = asRecord(record.leader);
+  return validateOrganizationSnapshot({
+    ...record,
+    leader: leader === null ? record.leader : withLegacyActorMechanics(leader, 'migrated'),
+    notableMembers: Array.isArray(record.notableMembers)
+      ? record.notableMembers.map((member) => {
+          const person = asRecord(member);
+          return person === null ? member : withLegacyActorMechanics(person, 'migrated');
+        })
+      : record.notableMembers,
+  });
 }
 
 /** What to call a saved organization: its name, or the kind when the name has been emptied. */

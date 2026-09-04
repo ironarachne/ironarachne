@@ -9,6 +9,11 @@ import {
 } from '$lib/artifact_kinds';
 import { DEFAULT_ITEM_DENSITY, DEFAULT_ITEM_RARITY } from '$lib/equipment';
 import type { DensityCategory, Rarity } from '$lib/equipment';
+import {
+  validateMechanicsSet,
+  withLegacyHoardMechanics,
+  withLegacyItemMechanics,
+} from '$lib/rulesets';
 
 import type { HoardItemSnapshot, TreasureHoardSnapshot } from './treasure_hoard_snapshot';
 
@@ -21,8 +26,8 @@ import type { HoardItemSnapshot, TreasureHoardSnapshot } from './treasure_hoard_
  */
 export const TREASURE_HOARD_ARTIFACT_KIND = 'treasure-hoard' as const;
 
-/** Version 1. The first shape a hoard has been stored in. */
-export const TREASURE_HOARD_PAYLOAD_VERSION = 1 as const;
+/** Version 2 qualifies the hoard and every embedded item's compatibility mechanics. */
+export const TREASURE_HOARD_PAYLOAD_VERSION = 2 as const;
 
 function readNumber(value: unknown, fallback: number): number {
   return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
@@ -75,6 +80,11 @@ function readHoardItem(value: unknown): HoardItemSnapshot | undefined {
     weight: readNumber(record.weight, 0),
     properties: isStringArray(record.properties) ? record.properties : [],
   };
+  const mechanics = validateMechanicsSet(record.mechanics, 'item');
+  if (!mechanics.ok) {
+    return undefined;
+  }
+  item.mechanics = mechanics.value;
 
   copyOptional(record, item, ['uniqueName', 'itemMinorType'], isText);
   copyOptional(record, item, ['containerId', 'cut', 'size', 'artist', 'denomination'], isText);
@@ -121,30 +131,53 @@ export function validateTreasureHoardSnapshot(
   if (!Array.isArray(record.items)) {
     return rejectedPayload('invalid-payload', 'Treasure hoard payload has no usable item list');
   }
+  const mechanics = validateMechanicsSet(record.mechanics, 'hoard');
+  if (!mechanics.ok) {
+    return rejectedPayload(
+      'invalid-payload',
+      `Treasure hoard payload has invalid mechanics: ${mechanics.message}`,
+    );
+  }
+
+  const invalidItemMechanics = record.items.find((item) => {
+    const itemRecord = asRecord(item);
+    return itemRecord !== null && !validateMechanicsSet(itemRecord.mechanics, 'item').ok;
+  });
+  if (invalidItemMechanics !== undefined) {
+    return rejectedPayload('invalid-payload', 'Treasure hoard item has invalid mechanics');
+  }
 
   return acceptedPayload({
     targetValue: readNumber(record.targetValue, 0),
     items: record.items
       .map(readHoardItem)
       .filter((item): item is HoardItemSnapshot => item !== undefined),
+    mechanics: mechanics.value,
   });
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day
- * the shape changes — a kind without one looks complete right up until it silently drops someone's
- * work, and local-only means there is no server-side migration to fall back on.
- */
+/** Qualifies the hoard and composes the item migration through every embedded item. */
 export function migrateTreasureHoardSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<TreasureHoardSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `Treasure hoards have no migration from payload version ${from}; version ${TREASURE_HOARD_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `Treasure hoards have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  if (record === null) {
+    return rejectedPayload('invalid-payload', 'Treasure hoard payload is not an object');
+  }
+  const items = Array.isArray(record.items)
+    ? record.items.map((item) => {
+        const itemRecord = asRecord(item);
+        return itemRecord === null ? item : withLegacyItemMechanics(itemRecord, 'migrated');
+      })
+    : record.items;
+  return validateTreasureHoardSnapshot(withLegacyHoardMechanics({ ...record, items }, 'migrated'));
 }
 
 /**

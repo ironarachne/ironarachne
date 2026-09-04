@@ -104,7 +104,26 @@ describe('validating a character payload', () => {
 });
 
 describe('migrating a character payload', () => {
-  it('rejects, because version 1 is the only shape there has been', () => {
+  it('copies actor mechanics and preserves user-edited prose exactly', () => {
+    const { mechanics: _mechanics, ...legacy } = snapshot();
+    legacy.description = 'A user-authored history that must survive.';
+    const result = migrateCharacterSnapshot(legacy, 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.description).toBe(legacy.description);
+      expect(result.value.mechanics.variants[0]).toMatchObject({
+        subject: 'actor',
+        origin: 'migrated',
+        payload: {
+          combatProfile: legacy.combatProfile,
+          actions: legacy.actions,
+        },
+      });
+    }
+  });
+
+  it('rejects an unsupported older version', () => {
     const result = migrateCharacterSnapshot(snapshot(), 0);
 
     expect(result.ok).toBe(false);

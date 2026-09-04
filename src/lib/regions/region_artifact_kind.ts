@@ -13,8 +13,15 @@ import {
 // lists what a project contains.
 import { validateCharacterSnapshot } from '$lib/characters/character_artifact_kind';
 import { validateCultureSnapshot } from '$lib/culture/culture_artifact_kind';
-import { validateOrganizationSnapshot } from '$lib/organizations/organization_artifact_kind';
-import { validateSettlementSnapshot } from '$lib/settlements/settlement_artifact_kind';
+import {
+  migrateOrganizationSnapshot,
+  validateOrganizationSnapshot,
+} from '$lib/organizations/organization_artifact_kind';
+import { withLegacyActorMechanics } from '$lib/rulesets';
+import {
+  migrateSettlementSnapshot,
+  validateSettlementSnapshot,
+} from '$lib/settlements/settlement_artifact_kind';
 
 import type Region from './region.js';
 import type { RegionSnapshot } from './region_snapshot.js';
@@ -25,8 +32,8 @@ import type { RegionSnapshot } from './region_snapshot.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 1. The first shape a region has been stored in. */
-export const REGION_PAYLOAD_VERSION = 1 as const;
+/** Version 2 qualifies every direct and composed actor's compatibility mechanics. */
+export const REGION_PAYLOAD_VERSION = 2 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -146,21 +153,54 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
   return acceptedPayload(record as unknown as RegionSnapshot);
 }
 
-/**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
- *
- * It is here because the contract requires it, and it is where the first real step goes the day the
- * shape changes — a kind without one looks complete right up until it silently drops someone's
- * work, and local-only means there is no server-side migration to fall back on.
- */
+/** Qualifies direct actors and composes the settlement and organization migrations. */
 export function migrateRegionSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  return rejectedPayload(
-    'unsupported-version',
-    `Regions have no migration from payload version ${from}; version ${REGION_PAYLOAD_VERSION} is the only shape there has been`,
-  );
+  if (from !== 1) {
+    return rejectedPayload(
+      'unsupported-version',
+      `Regions have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+    );
+  }
+  const record = asRecord(payload);
+  if (record === null) {
+    return rejectedPayload('invalid-payload', 'region payload is not an object');
+  }
+
+  const migrateActor = (value: unknown): unknown => {
+    const actor = asRecord(value);
+    return actor === null ? value : withLegacyActorMechanics(actor, 'migrated');
+  };
+  const settlements = Array.isArray(record.settlements)
+    ? record.settlements.map((settlement) => {
+        const migrated = migrateSettlementSnapshot(settlement, 2);
+        return migrated.ok ? migrated.value : settlement;
+      })
+    : record.settlements;
+  const organizations = Array.isArray(record.organizations)
+    ? record.organizations.map((organization) => {
+        const migrated = migrateOrganizationSnapshot(organization, 1);
+        return migrated.ok ? migrated.value : organization;
+      })
+    : record.organizations;
+  const realms = Array.isArray(record.realms)
+    ? record.realms.map((realm) => {
+        const storedRealm = asRecord(realm);
+        return storedRealm === null
+          ? realm
+          : { ...storedRealm, authority: migrateActor(storedRealm.authority) };
+      })
+    : record.realms;
+
+  return validateRegionSnapshot({
+    ...record,
+    authority: migrateActor(record.authority),
+    settlements,
+    organizations,
+    realms,
+  });
 }
 
 /** What to call a saved region: its name, or the kind when the name has been emptied. */

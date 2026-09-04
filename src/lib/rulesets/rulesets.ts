@@ -143,6 +143,40 @@ export function validateQualifiedMechanics(value: unknown): RulesetResult<Qualif
   });
 }
 
+/** Validates a mechanics collection without discarding unknown or malformed stored data. */
+export function validateMechanicsSet(
+  value: unknown,
+  subject?: MechanicsSubject,
+): RulesetResult<MechanicsSet> {
+  const record = asRecord(value);
+  if (record === undefined || !Array.isArray(record.variants)) {
+    return rejectedRuleset('invalid-mechanics', 'mechanics set has no variant list');
+  }
+
+  const variants: QualifiedMechanics[] = [];
+  for (const candidate of record.variants) {
+    const checked = validateQualifiedMechanics(candidate);
+    if (!checked.ok) {
+      return checked;
+    }
+    if (subject !== undefined && checked.value.subject !== subject) {
+      return rejectedRuleset(
+        'invalid-mechanics',
+        `${subject} mechanics contains a ${checked.value.subject} variant`,
+      );
+    }
+    if (variants.some((current) => sameRulesetRef(current.ruleset, checked.value.ruleset))) {
+      return rejectedRuleset(
+        'variant-conflict',
+        `mechanics contains more than one "${checked.value.ruleset.id}@${checked.value.ruleset.release}" variant`,
+      );
+    }
+    variants.push(checked.value);
+  }
+
+  return acceptedRuleset({ variants });
+}
+
 export function addMechanicsVariant(
   set: Readonly<MechanicsSet>,
   variant: QualifiedMechanics,

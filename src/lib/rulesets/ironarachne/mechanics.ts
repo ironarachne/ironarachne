@@ -17,6 +17,11 @@ export type IronArachneActorMechanics = {
   combatProfile: CombatProfile;
   actions: CombatAction[];
   casterProfile?: CasterProfile;
+  archetype?: {
+    basePowerModifier?: number;
+    actions?: CombatAction[];
+    casterProfile?: CasterProfile;
+  };
 };
 
 export type IronArachneItemMechanics = {
@@ -93,6 +98,16 @@ function isCasterProfile(value: unknown): value is CasterProfile {
   );
 }
 
+function isArchetype(value: unknown): boolean {
+  const record = asRecord(value);
+  return (
+    record !== undefined &&
+    (record.basePowerModifier === undefined || isFiniteNumber(record.basePowerModifier)) &&
+    (record.actions === undefined || isActions(record.actions)) &&
+    (record.casterProfile === undefined || isCasterProfile(record.casterProfile))
+  );
+}
+
 function isNamedDescription(value: unknown): value is { name: string; description: string } {
   const record = asRecord(value);
   return (
@@ -107,7 +122,8 @@ function validateActor(payload: unknown): RulesetResult<unknown> {
   return record !== undefined &&
     isCombatProfile(record.combatProfile) &&
     isActions(record.actions) &&
-    (record.casterProfile === undefined || isCasterProfile(record.casterProfile))
+    (record.casterProfile === undefined || isCasterProfile(record.casterProfile)) &&
+    (record.archetype === undefined || isArchetype(record.archetype))
     ? acceptedRuleset(payload)
     : rejectedRuleset('invalid-mechanics', 'Iron Arachne actor mechanics is invalid');
 }

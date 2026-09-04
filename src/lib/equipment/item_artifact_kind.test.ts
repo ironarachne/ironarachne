@@ -33,7 +33,7 @@ describe('itemArtifactKind', () => {
     expect(itemArtifactKind.kind).toBe(ITEM_ARTIFACT_KIND);
     expect(ITEM_ARTIFACT_KIND).toBe('item');
     expect(itemArtifactKind.payloadVersion).toBe(ITEM_PAYLOAD_VERSION);
-    expect(ITEM_PAYLOAD_VERSION).toBe(1);
+    expect(ITEM_PAYLOAD_VERSION).toBe(2);
   });
 
   it('loads a codec that round-trips', async () => {
@@ -102,12 +102,54 @@ describe('validateItemSnapshot', () => {
     expect(accepted({ ...ITEM, uniqueName: '' }).uniqueName).toBeUndefined();
     expect(accepted({ ...ITEM, itemMinorType: '' }).itemMinorType).toBeUndefined();
   });
+
+  it('rejects unknown ruleset data without changing the payload kept for quarantine', () => {
+    const payload = {
+      ...ITEM,
+      mechanics: {
+        variants: [
+          {
+            ruleset: { id: 'future-system', release: '9' },
+            subject: 'item',
+            schemaVersion: 4,
+            origin: 'user',
+            sourceIds: ['future.source'],
+            payload: { edited: 'keep this exactly' },
+          },
+        ],
+      },
+    };
+    const before = structuredClone(payload);
+
+    expect(validateItemSnapshot(payload)).toMatchObject({ ok: false, reason: 'invalid-payload' });
+    expect(payload).toEqual(before);
+  });
 });
 
 describe('migrateItemSnapshot', () => {
+  it('copies legacy mechanics and user-edited prose without recomputation', () => {
+    const { mechanics: _mechanics, ...legacy } = {
+      ...ITEM,
+      name: 'hand-edited sword',
+      description: 'Kept exactly as written.',
+      value: 317,
+    };
+    const result = migrateItemSnapshot(legacy, 1);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.name).toBe('hand-edited sword');
+      expect(result.value.description).toBe('Kept exactly as written.');
+      expect(result.value.value).toBe(317);
+      expect(result.value.mechanics.variants[0]).toMatchObject({
+        subject: 'item',
+        origin: 'migrated',
+        payload: { value: 317 },
+      });
+    }
+  });
+
   it('rejects rather than pretending there has been another shape', () => {
-    // Requirement 7.3 has one step to exercise and it is the absence of one: version 1 is the only
-    // shape there has been, and a migration that quietly accepted anything would be worse than none.
     const result = migrateItemSnapshot({ name: 'sword' }, 0);
 
     expect(result.ok).toBe(false);

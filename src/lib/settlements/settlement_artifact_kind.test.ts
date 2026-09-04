@@ -20,6 +20,16 @@ function storedSnapshot(seed: string, config = {}): Record<string, unknown> {
   return JSON.parse(JSON.stringify(snapshot)) as Record<string, unknown>;
 }
 
+function withoutMechanics(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(withoutMechanics);
+  if (typeof value !== 'object' || value === null) return value;
+  return Object.fromEntries(
+    Object.entries(value).flatMap(([key, entry]) =>
+      key === 'mechanics' ? [] : [[key, withoutMechanics(entry)]],
+    ),
+  );
+}
+
 describe('validateSettlementSnapshot', () => {
   /**
    * The two shapes of the same kind. `enrich_settlement.ts` is opt-in four times over, so a
@@ -124,11 +134,13 @@ describe('validateSettlementSnapshot', () => {
  * the generator produces — instead of a hand-typed approximation that goes stale.
  */
 function version1Snapshot(seed: string): Record<string, unknown> {
-  const snapshot = storedSnapshot(seed, {
-    size: 'large',
-    includeOrganizations: true,
-    includeNotables: true,
-  });
+  const snapshot = withoutMechanics(
+    storedSnapshot(seed, {
+      size: 'large',
+      includeOrganizations: true,
+      includeNotables: true,
+    }),
+  ) as Record<string, unknown>;
 
   const embed = (value: unknown): unknown => {
     const character = value as Record<string, unknown>;
@@ -152,6 +164,29 @@ function version1Snapshot(seed: string): Record<string, unknown> {
 }
 
 describe('migrateSettlementSnapshot', () => {
+  it('brings a version 2 settlement forward with migrated actor mechanics', () => {
+    const legacy = withoutMechanics(
+      storedSnapshot('greyhaven', {
+        size: 'large',
+        includeOrganizations: true,
+        includeNotables: true,
+      }),
+    );
+    const result = migrateSettlementSnapshot(legacy, 2);
+
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.importantPeople?.[0].character.mechanics.variants[0]).toMatchObject({
+        subject: 'actor',
+        origin: 'migrated',
+      });
+      expect(result.value.organizations?.[0].leader.mechanics.variants[0]).toMatchObject({
+        subject: 'actor',
+        origin: 'migrated',
+      });
+    }
+  });
+
   /**
    * Requirement 7.3, and the site's first real payload step. Every settlement saved before this
    * release keeps every notable it had.
