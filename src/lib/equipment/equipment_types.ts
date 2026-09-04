@@ -1,5 +1,6 @@
 import type { Element, MagicSphere, MagicIntent } from '../magic';
 import type { CombatAction, CombatProfile, Damage } from '$lib/combat_system';
+import type { MechanicsSet } from '$lib/rulesets';
 
 export type Armor = Item & {
   armorType: ArmorType;
@@ -109,6 +110,9 @@ export type Item = {
   weight: number; // Weight in kg
   properties: string[];
   containerId?: string; // The ID of the container holding this item
+  /** Ruleset-qualified mechanics. Optional until the payload migrations in #209 land. */
+  mechanics?: MechanicsSet;
+  /** @deprecated Compatibility field for Iron Arachne mechanics; see #210 and #213. */
   combatProfile?: CombatProfile;
   material?: Material;
   refinement?: Refinement;

@@ -1,6 +1,12 @@
 # Combat System
 
-This implements a common combat system for Iron Arachne. It is meant to present a common system that can be used either by itself or to convert from other systems.
+**Compatibility facade.** The normalized combat model is now owned by
+`$lib/rulesets/ironarachne`. Existing imports from `$lib/combat_system` remain stable during the
+migration described by issues #210, #209, and #213; new code imports the Iron Arachne ruleset
+package directly.
+
+This implements the legacy combat system for Iron Arachne. It can still be used by itself, but it
+is not a lossless common representation for published game systems.
 
 ## Core Concepts
 
@@ -15,9 +21,10 @@ The system uses a normalized 0-100 scale for most statistics, where 50 represent
 - **Speed**: Initiative and movement speed.
 - **Health**: Overall durability and hit points.
 
-## Converters
+## Legacy converters
 
-The system includes converters to translate these abstract values into specific game system mechanics.
+The package retains the existing 5e-shaped presentation converter for compatibility. New
+published-system mechanics belong to their own ruleset package rather than passing through it.
 
 ### Dungeons & Dragons 5e
 

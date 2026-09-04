@@ -41,7 +41,7 @@ describe('ruleset catalog', () => {
       expect.objectContaining({
         ref: IRONARACHNE_RULESET_REF,
         displayName: 'Iron Arachne',
-        capabilities: [],
+        capabilities: ['actor', 'item', 'potion', 'spell', 'hoard', 'currency'],
       }),
     ]);
   });
@@ -271,12 +271,16 @@ describe('qualified mechanics', () => {
     expect(mechanicsFor(set, { id: 'ironarachne', release: '2' })).toBeUndefined();
   });
 
-  it('reports that the compatibility descriptor has no codec yet', async () => {
-    expect(await migrateQualifiedMechanics(genericItem)).toMatchObject({
-      ok: false,
-      reason: 'unsupported-capability',
+  it('validates current compatibility mechanics through the loaded codec', async () => {
+    expect(await migrateQualifiedMechanics(genericItem)).toEqual({
+      ok: true,
+      value: genericItem,
     });
     expect(await migrateQualifiedMechanics({ ...genericItem, schemaVersion: 0 })).toMatchObject({
+      ok: false,
+      reason: 'unsupported-version',
+    });
+    expect(await migrateQualifiedMechanics({ ...genericItem, schemaVersion: 2 })).toMatchObject({
       ok: false,
       reason: 'unsupported-version',
     });

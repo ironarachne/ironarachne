@@ -1,6 +1,11 @@
 # Magic System
 
-This directory contains the core magic system for Iron Arachne. It is designed to be a "common tongue" for magic, allowing for conversion between different magic systems (like D&D, Pathfinder, or custom systems) and a standardized internal representation.
+**Compatibility facade.** The normalized magic model is now owned by
+`$lib/rulesets/ironarachne`. Existing imports from `$lib/magic` remain stable during the migration;
+new code imports the Iron Arachne ruleset package directly.
+
+This is the legacy Iron Arachne magic taxonomy. It is not a lossless common representation for
+published systems; system-native magic belongs in each ruleset package.
 
 ## Core Concepts
 
@@ -20,4 +25,5 @@ The system is built around abstract concepts rather than specific game mechanics
 
 ## Usage
 
-This system is primarily used as an intermediate layer. When generating content that involves magic, convert specific system rules into this common format for storage or cross-system compatibility, and then convert back to specific rules when displaying to the user if necessary.
+Existing generators may continue using this taxonomy until their payloads migrate in #209. New
+published-system work must not convert through it for storage or cross-system compatibility.
