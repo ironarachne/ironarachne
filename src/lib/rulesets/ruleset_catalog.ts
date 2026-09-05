@@ -1,5 +1,6 @@
 import { ADND_2E_RULESET_DESCRIPTOR, ADND_2E_RULESET_REF } from './adnd_2e/descriptor';
 import { ADND_2E_OPEN_RULES_SOURCE } from './adnd_2e/source_manifest';
+import { DCC_LEGACY_RULESET_DESCRIPTOR, DCC_LEGACY_RULESET_REF } from './dcc/descriptor';
 import { IRONARACHNE_RULESET_DESCRIPTOR, IRONARACHNE_RULESET_REF } from './ironarachne/descriptor';
 import { IRONARACHNE_ORIGINAL_SOURCE } from './ironarachne/source_manifest';
 import type {
@@ -27,6 +28,13 @@ const RULESET_CATALOG: RulesetCatalogEntry[] = [
     load: async () => {
       const { adnd2eRuleset } = await import('./adnd_2e/definition.js');
       return adnd2eRuleset;
+    },
+  },
+  {
+    descriptor: DCC_LEGACY_RULESET_DESCRIPTOR,
+    load: async () => {
+      const { dccLegacyRuleset } = await import('./dcc/definition.js');
+      return dccLegacyRuleset;
     },
   },
 ];
@@ -68,4 +76,4 @@ export function findRulesDataSource(id: string): RulesDataSource | undefined {
   return RULES_DATA_SOURCES.find((source) => source.id === id);
 }
 
-export { ADND_2E_RULESET_REF, IRONARACHNE_RULESET_REF };
+export { ADND_2E_RULESET_REF, DCC_LEGACY_RULESET_REF, IRONARACHNE_RULESET_REF };

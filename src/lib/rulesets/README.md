@@ -41,5 +41,17 @@ The pre-existing `$lib/adnd` generator tables remain `adnd-2e@legacy`: they pred
 provenance and are not silently relabelled. The detailed source inventory and boundary are recorded
 in [`docs/adnd-2e-source-audit.md`](../../../docs/adnd-2e-source-audit.md).
 
+## Dungeon Crawl Classics package
+
+`$lib/rulesets/dcc` registers the existing `dcc@legacy` snapshot identity with zero capabilities
+and zero sources. Goodman Games' public third-party programme requires a formal licence and
+approval, while the Quick Start Rules' OGL designation does not open the core tables the first
+consumers need. The package therefore exposes candidate payload types but no production codec,
+currency, equipment, or treasure service.
+
+The pre-existing `$lib/dcc` generator remains readable as legacy data and gains no invented source
+history. The evidence, existing-data inventory, and enablement gate are recorded in
+[`docs/dcc-source-audit.md`](../../../docs/dcc-source-audit.md).
+
 The full contract, dependency rules, and migration plan are in
 [`docs/rules-system.md`](../../../docs/rules-system.md).

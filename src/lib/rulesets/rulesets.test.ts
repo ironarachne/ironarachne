@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import {
   IRONARACHNE_RULESET_REF,
   ADND_2E_RULESET_REF,
+  DCC_LEGACY_RULESET_REF,
   RULESET_IDS,
   acceptedRuleset,
   addMechanicsVariant,
@@ -52,6 +53,13 @@ describe('ruleset catalog', () => {
         gameSystem: 'adnd-2e',
         capabilities: ['actor', 'item', 'currency', 'equipment', 'treasure-items'],
       }),
+      expect.objectContaining({
+        ref: DCC_LEGACY_RULESET_REF,
+        displayName: 'Dungeon Crawl Classics (legacy)',
+        gameSystem: 'dcc',
+        capabilities: [],
+        sourceIds: [],
+      }),
     ]);
   });
 
@@ -99,7 +107,7 @@ describe('ruleset catalog', () => {
       release: '1',
     } as unknown as RulesetRef);
     const unknownRelease = await getRuleset({ id: 'ironarachne', release: 'newer' });
-    const unregisteredKnownId = await getRuleset({ id: 'dcc', release: '1' });
+    const unregisteredKnownId = await getRuleset({ id: 'dcc', release: 'not-registered' });
     const emptyRelease = await getRuleset({ id: 'ironarachne', release: '' });
     const blankRelease = await getRuleset({ id: 'ironarachne', release: '   ' });
 

@@ -10,9 +10,11 @@ are defined.
 
 ## Which edition, and what is deliberately absent
 
-This is **Dungeon Crawl Classics as published in the core rulebook**, and only the part of it a
-zero-level character needs: the six attributes, the birth augur (lucky sign), the occupation tables
-for the four ancestries, starting equipment and coin, languages, and the four saves.
+This legacy library represents **Dungeon Crawl Classics core-rulebook material**, and only the part
+of it a zero-level character needs: the six attributes, the birth augur (lucky sign), the occupation
+tables for the four ancestries, starting equipment and coin, languages, and the four saves. Its rows
+predate source-level provenance and are not admitted into the production ruleset package; see
+[`docs/dcc-source-audit.md`](../../../docs/dcc-source-audit.md).
 
 What is **not** here, and is out of scope rather than missing:
 
