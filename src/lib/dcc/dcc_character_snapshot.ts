@@ -34,7 +34,7 @@
  */
 
 import type { RNG } from '@ironarachne/rng';
-import type { RulesetRef } from '$lib/rulesets';
+import { DCC_LEGACY_RULESET_REF, type RulesetRef } from '$lib/rulesets';
 
 import type { DCCCharacter, DCCLuckyRoll, DCCOccupation } from './dcc_types.js';
 import * as DwarfOccupations from './dwarf_occupations.js';
@@ -51,10 +51,7 @@ export type StoredDccLuckyRoll = Omit<DCCLuckyRoll, 'apply'>;
 
 /** A DCC character as it is stored. */
 /** Stable identity for the pre-audit tables; it asserts no source or licence provenance. */
-export const DCC_CHARACTER_RULESET_REF = {
-  id: 'dcc',
-  release: 'legacy',
-} as const satisfies RulesetRef;
+export const DCC_CHARACTER_RULESET_REF = DCC_LEGACY_RULESET_REF;
 
 export type DccCharacterSnapshot = Omit<DCCCharacter, 'occupation' | 'luckyRoll'> & {
   ruleset: RulesetRef;
