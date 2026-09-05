@@ -1,4 +1,4 @@
-import type { CombatAction, CombatProfile } from '$lib/combat_system';
+import type { CombatAction, CombatProfile } from '$lib/rulesets/ironarachne';
 import type { MechanicsSet } from '$lib/rulesets';
 import type { TaggedItem } from '$lib/tags';
 
@@ -7,11 +7,11 @@ export type Mob = TaggedItem & {
   name: string;
   description: string;
   shortDescription: string;
-  /** Ruleset-qualified mechanics. Optional until the payload migrations in #209 land. */
+  /** Ruleset-qualified mechanics for persisted and composed actors. */
   mechanics?: MechanicsSet;
-  /** @deprecated Compatibility field for Iron Arachne mechanics; see #210 and #213. */
+  /** Iron Arachne normalized combat data used by the live encounter generator. */
   combatProfile: CombatProfile;
-  /** @deprecated Compatibility field for Iron Arachne mechanics; see #210 and #213. */
+  /** Iron Arachne normalized actions used by the live encounter generator. */
   actions: CombatAction[];
 };
 

@@ -1,6 +1,6 @@
 import * as RNG from '@ironarachne/rng';
 import { AgeCategories } from '$lib/age';
-import * as CombatSystem from '$lib/combat_system';
+import * as IronArachneRules from '$lib/rulesets/ironarachne';
 import { CommonSpecies } from '$lib/species';
 import { withLegacyActorMechanics } from '$lib/rulesets';
 import { getSizeConfig } from '$lib/size';
@@ -44,10 +44,10 @@ export function generate(seed: string, config: CreatureGenerationConfig): Creatu
     name: creatureSpecies.name,
     description: '',
     shortDescription: summary,
-    combatProfile: CombatSystem.getDefaultCombatProfile(),
+    combatProfile: IronArachneRules.getDefaultCombatProfile(),
     species: creatureSpecies,
     abilities: abilities,
-    actions: CombatSystem.getDefaultCombatActions(),
+    actions: IronArachneRules.getDefaultCombatActions(),
     behaviors: behaviors,
     physicalTraits,
     gender,

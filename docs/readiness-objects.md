@@ -376,7 +376,7 @@ recompute on a button. Four things worth recording:
 A **reference** tool. Sections 3, 4 and 5 do not apply, and neither do 2.2–2.4. What remains is
 sections 1, 2.1, 2.5, 6, 7.1 and 8 — and 6.1 is the whole job.
 
-`EquipmentPriceLists.svelte` renders price tables from `$lib/equipment` and `$lib/currency`. Wide
+`EquipmentPriceLists.svelte` renders price tables from `$lib/equipment` and `$lib/rulesets/ironarachne`. Wide
 tables at 320px are the classic horizontal-overflow failure, and `e2e/pages.mobile.spec.ts` fails
 on exactly that. The fix is the repository's own rule: **a table scrolls inside its own
 `overflow-x: auto` container; the page never scrolls sideways.** The site's table conventions were
@@ -397,13 +397,13 @@ says:
   the club, the quarterstaff and the sling stone are free. They read `Free` now.
 - **The key described coins no price was ever quoted in**, and omitted one that was. It listed
   electrum, platinum and a crown — the first two are filtered out of the D&D display system, and
-  no currency system in `$lib/currency` has ever had a crown — while English prices came back in
+  no currency system in `$lib/rulesets/ironarachne` has ever had a crown — while English prices came back in
   guineas, because the guinea outranks the pound at 252 pence to 240 and `valueToString` spends
-  every denomination it is given. The farthing printed its name, `$lib/currency` giving it no
+  every denomination it is given. The farthing printed its name, `$lib/rulesets/ironarachne` giving it no
   symbol, in a column of `cp` and `sp`.
 - **The fix is that the key is derived from the currency the prices are written in**, so the two
   cannot drift again. Both currencies are display systems local to `$lib/equipment` rather than
-  `$lib/currency`'s own: a denomination that must never appear in a price has to be absent, not
+  `$lib/rulesets/ironarachne`'s own: a denomination that must never appear in a price has to be absent, not
   merely unlikely.
 
 **7.1 needed the logic to exist somewhere testable first.** The currency conversion, the D&D

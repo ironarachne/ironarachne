@@ -18,8 +18,8 @@ const CONFIG = defaultEquipmentGeneratorConfig();
 const WEAPON = toItemSnapshot(rollItem('weapon-seed', { ...CONFIG, itemMajorType: 'weapon' }));
 const ARMOR = toItemSnapshot(rollItem('armor-seed', { ...CONFIG, itemMajorType: 'armor' }));
 
-function labels(item: ItemSnapshot, system: 'dnd5e' | 'ironarachne' = 'dnd5e'): string[] {
-  return itemToDocument(item, system).lines.map((line) => line.label);
+function labels(item: ItemSnapshot): string[] {
+  return itemToDocument(item).lines.map((line) => line.label);
 }
 
 describe('itemDisplayName', () => {
@@ -44,16 +44,10 @@ describe('itemToDocument', () => {
     expect(composed.lines).toContainEqual({ label: 'Refinement', value: 'master-forged' });
   });
 
-  it('quotes a weapon damage and an armour class', () => {
+  it('quotes generic weapon damage and armour defence', () => {
     expect(labels(WEAPON)).toContain('Damage');
-    expect(labels(ARMOR)).toContain('Armour class');
-  });
-
-  it('changes only how the numbers read when the display system changes', () => {
-    // The reason the display system is not part of the roll: both describe the same item.
-    expect(labels(ARMOR, 'ironarachne')).toContain('Defence');
-    expect(labels(ARMOR, 'ironarachne')).not.toContain('Armour class');
-    expect(itemToDocument(ARMOR, 'dnd5e').title).toBe(itemToDocument(ARMOR, 'ironarachne').title);
+    expect(labels(ARMOR)).toContain('Defence');
+    expect(labels(ARMOR)).not.toContain('Armour class');
   });
 
   it('drops every line whose field is empty', () => {

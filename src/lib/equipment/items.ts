@@ -1,5 +1,5 @@
 import { DENSITY_MAP, type Item } from './equipment_types';
-import * as Currency from '$lib/currency';
+import * as Currency from '$lib/rulesets/ironarachne';
 
 /**
  * Given a list of items, return an array of descriptions combining identical items into groups.

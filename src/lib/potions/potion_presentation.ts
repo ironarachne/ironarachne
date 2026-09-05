@@ -11,7 +11,7 @@
  * everything exports its name alone.
  */
 
-import { COMMON_FANTASY, valueToString } from '$lib/currency';
+import { COMMON_FANTASY, valueToString } from '$lib/rulesets/ironarachne';
 
 import { describeDurationShort, describeEffect } from './potion_descriptor';
 import type { PotionSnapshot } from './potion_snapshot';

@@ -1,4 +1,4 @@
-import type { CurrencySystem } from '$lib/currency';
+import type { CurrencySystem } from '$lib/rulesets/ironarachne';
 
 /** The currencies the fantasy price lists can be read in. */
 export type PriceCurrencyId = 'dnd' | 'english';
@@ -20,7 +20,7 @@ export type PriceLegendEntry = {
 /**
  * A currency the lists can be priced in.
  *
- * The `system` is a display system rather than one of `$lib/currency`'s own: the lists quote a
+ * The `system` is a display system rather than one of `$lib/rulesets/ironarachne`'s own: the lists quote a
  * price in every denomination it carries, so a denomination that should never appear in a price
  * has to be absent rather than merely unlikely. See `PRICE_CURRENCIES`.
  */

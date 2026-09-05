@@ -10,7 +10,7 @@
  * construction when the field behind it is empty.
  */
 
-import { COMMON_FANTASY, valueToString } from '$lib/currency';
+import { COMMON_FANTASY, valueToString } from '$lib/rulesets/ironarachne';
 
 import type { MerchantSnapshot } from './merchant_snapshot';
 import type { MerchantStockItem } from './merchant_types';

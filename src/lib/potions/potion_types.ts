@@ -1,5 +1,5 @@
 import type { Container, Item, Rarity } from '$lib/equipment';
-import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/magic';
+import type { Duration, Element, MagicIntent, MagicSphere } from '$lib/rulesets/ironarachne';
 import type { MechanicsSet } from '$lib/rulesets';
 
 export type PotionForm = 'drink' | 'oil' | 'ointment';
@@ -107,11 +107,11 @@ export type Potion = {
   displayName: string;
   canonicalName?: string;
   sensory: PotionSensoryProfile;
-  /** Ruleset-qualified mechanics. Optional while remaining live consumers transition in #213. */
+  /** Ruleset-qualified mechanics, attached when a generated potion becomes a snapshot. */
   mechanics?: MechanicsSet;
-  /** @deprecated Compatibility field for Iron Arachne mechanics; see #210 and #213. */
+  /** Iron Arachne normalized effect used by the live generator and editor. */
   effect: PotionEffect;
-  /** @deprecated Compatibility field for Iron Arachne mechanics; see #210 and #213. */
+  /** Iron Arachne normalized modifications used by the live generator and editor. */
   modifications: PotionModification[];
 };
 

@@ -11,7 +11,7 @@ import {
   valueToGpSpCpString,
   valueToString,
 } from './currency';
-import { STANDARD_FANTASY, HISTORICAL_BRITISH, IMPERIAL_CREDITS } from './systems';
+import { STANDARD_FANTASY, HISTORICAL_BRITISH, IMPERIAL_CREDITS } from './currency_systems';
 
 describe('Currency Library', () => {
   describe('convert', () => {

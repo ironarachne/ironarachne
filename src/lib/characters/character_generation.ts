@@ -7,7 +7,7 @@ import { getSizeConfig } from '$lib/size';
 import { Genders } from '$lib/gender';
 import * as PersonalityTraits from './personality_traits';
 import { randomTraits } from '$lib/species';
-import { getDefaultCombatActions, getDefaultCombatProfile } from '$lib/combat_system';
+import { getDefaultCombatActions, getDefaultCombatProfile } from '$lib/rulesets/ironarachne';
 import type { PhysicalTrait } from '$lib/physical_traits';
 import { getAllFantasyArchetypes, type Archetype } from '$lib/archetypes';
 import { human } from '$lib/species_sentients';

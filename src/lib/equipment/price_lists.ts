@@ -13,8 +13,8 @@
  * has always said so, and `baseUnitPerCopper` is where that claim now lives.
  */
 
-import { HISTORICAL_BRITISH, STANDARD_FANTASY, valueToString } from '$lib/currency';
-import type { CurrencyDenomination, CurrencySystem } from '$lib/currency';
+import { HISTORICAL_BRITISH, STANDARD_FANTASY, valueToString } from '$lib/rulesets/ironarachne';
+import type { CurrencyDenomination, CurrencySystem } from '$lib/rulesets/ironarachne';
 
 import { all } from './fantasylist/index.js';
 import type { EquipmentList } from './list.js';
@@ -69,7 +69,7 @@ const DND_SYSTEM: CurrencySystem = {
  *
  * The guinea goes for the same reason electrum does — at 252 pence against the pound's 240 it
  * outranks the pound, so every price over a pound was quoted in guineas. The farthing is given a
- * symbol because it has none in `$lib/currency` and `valueToString` falls back to the
+ * symbol because it has none in `$lib/rulesets/ironarachne` and `valueToString` falls back to the
  * denomination's name, which printed "3 farthing" in a column of `cp` and `sp`. Historically the
  * farthing was written as a fraction of a penny; `f` is what this page's key has always called it.
  */

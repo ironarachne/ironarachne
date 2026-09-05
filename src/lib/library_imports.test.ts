@@ -28,10 +28,10 @@ const libRoot = join(repoRoot, 'src/lib');
  * Add to this list only with a build measurement behind it. "It felt heavy" is how the rule rots.
  */
 const ALLOWED_DEEP_IMPORTS = new Set([
-  // The old combat, magic, and currency entry points are compatibility facades over this nested
-  // ruleset package until #213 removes them. Re-exporting the implementation from `$lib/rulesets`
-  // would make it statically reachable from the registry entry point and defeat the dynamic import
-  // boundary introduced by #206; the nested package is the intentional implementation entry point.
+  // Re-exporting a ruleset implementation from `$lib/rulesets` would make it statically reachable
+  // from the registry entry point and defeat the dynamic import boundary introduced by #206. The
+  // nested compatibility package is the intentional implementation entry point for normalized
+  // mechanics consumers.
   '$lib/rulesets/ironarachne',
   // Statically imports every planet GLSL module; see the comment atop `shaders/index.ts`.
   '$lib/shaders/planets/planets',
@@ -252,11 +252,41 @@ function collectImports(): Import[] {
 }
 
 const imports = collectImports();
+const RETIRED_RULES_LIBRARIES = new Set(['$lib/combat_system', '$lib/currency', '$lib/magic']);
+const PUBLISHED_RULESET_PACKAGES = [
+  '$lib/rulesets/adnd_2e',
+  '$lib/rulesets/dcc',
+  '$lib/rulesets/dnd_5e',
+];
 
 describe('library imports', () => {
   it('finds the imports it is meant to be checking', () => {
     // Guards against the walk silently matching nothing and the suite passing on an empty set.
     expect(imports.length).toBeGreaterThan(500);
+  });
+
+  it('does not restore a retired generic-rules facade', () => {
+    const retired = imports
+      .filter(({ specifier }) => RETIRED_RULES_LIBRARIES.has(specifier))
+      .map(({ file, specifier }) => `${file}: '${specifier}' is a retired compatibility facade`);
+
+    expect(retired).toEqual([]);
+  });
+
+  it('keeps common domain libraries out of published-system packages', () => {
+    const published = imports
+      .filter(
+        ({ specifier, ownerLib }) =>
+          ownerLib !== null &&
+          ownerLib !== 'rulesets' &&
+          PUBLISHED_RULESET_PACKAGES.some(
+            (rulesetPackage) =>
+              specifier === rulesetPackage || specifier.startsWith(`${rulesetPackage}/`),
+          ),
+      )
+      .map(({ file, specifier }) => `${file}: '${specifier}' bypasses the shared ruleset boundary`);
+
+    expect(published).toEqual([]);
   });
 
   it('reaches other libraries through their entry point, not past it', () => {

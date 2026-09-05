@@ -25,7 +25,6 @@
     toItemSnapshot,
     defaultEquipmentGeneratorConfig,
     type EquipmentGeneratorConfigRecord,
-    type ItemDisplaySystem,
     type ItemMajorTypeChoice,
     type ItemSnapshot,
   } from '$lib/equipment';
@@ -51,7 +50,6 @@
   let useRefine = $state(true);
   let useEnchant = $state(true);
   let useDecorate = $state(true);
-  let displaySystem: ItemDisplaySystem = $state('dnd5e');
 
   /**
    * The seed and settings the items on screen were rolled from, which is what their provenance
@@ -83,11 +81,11 @@
   }
 
   function exportMarkdown() {
-    downloadTextFile(itemListToMarkdown(items, displaySystem), 'equipment.md', 'text/markdown');
+    downloadTextFile(itemListToMarkdown(items), 'equipment.md', 'text/markdown');
   }
 
   async function exportPdf() {
-    await downloadTextPdf('Equipment', itemListToText(items, displaySystem), 'equipment.pdf');
+    await downloadTextPdf('Equipment', itemListToText(items), 'equipment.pdf');
   }
 
   onMount(() => {
@@ -115,18 +113,6 @@
       ]}
     />
 
-    <!-- Not part of the roll, and so not part of the provenance: it chooses between D&D dice and
-         this site's own numbers for the *same* rolled item. -->
-    <SelectField
-      id="displaySystem"
-      label="System"
-      bind:value={displaySystem}
-      options={[
-        { value: 'dnd5e', label: 'D&D 5e' },
-        { value: 'ironarachne', label: 'Iron Arachne' },
-      ]}
-    />
-
     <NumberField id="itemCount" label="Count" bind:value={itemCount} min={1} max={50} />
 
     <div class="checkbox-group">
@@ -149,7 +135,7 @@
 
   <div class="results">
     {#each items as item, index (item.id)}
-      {@const document_ = itemToDocument(item, displaySystem)}
+      {@const document_ = itemToDocument(item)}
       <!-- A card is a panel: the two layers, with the `li` painting the keyline across its box
            and the field covering all but a pixel of it. See docs/visual-design.md, "Cards are
            panels". This card wrote its own border, radius, fill and padding until #124. -->
@@ -190,11 +176,7 @@
             />
             <BaseButton
               onclick={() =>
-                downloadTextFile(
-                  itemToMarkdown(item, displaySystem),
-                  `${itemFileStem(item)}.md`,
-                  'text/markdown',
-                )}
+                downloadTextFile(itemToMarkdown(item), `${itemFileStem(item)}.md`, 'text/markdown')}
               aria-label="Download {document_.title} as Markdown"
             >
               Markdown

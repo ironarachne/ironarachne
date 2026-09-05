@@ -1,5 +1,5 @@
 import type { RNG } from '@ironarachne/rng';
-import type { MagicIntent } from '$lib/magic';
+import type { MagicIntent } from '$lib/rulesets/ironarachne';
 import type {
   PotionForm,
   PotionModification,

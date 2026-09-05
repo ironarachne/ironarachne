@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import * as Currency from '$lib/currency';
+import * as Currency from '$lib/rulesets/ironarachne';
 import { DENSITY_MAP, type Item } from './equipment_types';
 import { applyStatOffsets, createCombinedDescriptions, getVolume } from './items';
 
