@@ -53,5 +53,16 @@ The pre-existing `$lib/dcc` generator remains readable as legacy data and gains 
 history. The evidence, existing-data inventory, and enablement gate are recorded in
 [`docs/dcc-source-audit.md`](../../../docs/dcc-source-audit.md).
 
+## D&D 5e package
+
+`$lib/rulesets/dnd_5e` registers `dnd-5e@srd-5.1-cc`, pinned to _System Reference Document 5.1_
+under Creative Commons Attribution 4.0. It implements actor and item codecs, SRD 5.1 currency,
+equipment validation/presentation, and deterministic treasure-item qualification. Potion, spell,
+and hoard mechanics remain honest unsupported capabilities.
+
+SRD 5.2 and later material, non-SRD books, settings, and named characters are outside this release.
+The exact attribution, admitted data, and version boundary are recorded in
+[`docs/dnd-5e-srd-source-audit.md`](../../../docs/dnd-5e-srd-source-audit.md).
+
 The full contract, dependency rules, and migration plan are in
 [`docs/rules-system.md`](../../../docs/rules-system.md).
