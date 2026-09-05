@@ -8,6 +8,7 @@ import {
   type Artifact,
 } from '$lib/artifacts';
 import { closeVault } from '$lib/vault_db';
+import { IRONARACHNE_RULESET_REF } from '$lib/rulesets';
 
 import { ARTIFACT_KINDS } from './artifact_kind_catalog';
 import { saveToolArtifact } from './artifact_saving';
@@ -92,6 +93,18 @@ describe('saveToolArtifact', () => {
       seed: 'abc123',
       config: { nameSet: 'human' },
     });
+  });
+
+  it('records a ruleset only when the generating tool supplies one', async () => {
+    const result = await saveToolArtifact('p1', {
+      kind: 'culture',
+      payload: cultureSnapshot(),
+      toolPath: '/culture',
+      seed: 'abc123',
+      ruleset: IRONARACHNE_RULESET_REF,
+    });
+
+    expect(result.ok && result.value.provenance?.ruleset).toEqual(IRONARACHNE_RULESET_REF);
   });
 
   it('records no provenance at all rather than an invented seed', async () => {

@@ -119,6 +119,7 @@ const GENRE_NAMES: Record<ToolTypes.Genre, string> = {
 const SYSTEM_NAMES: Record<ToolTypes.GameSystem, string> = {
   'adnd-2e': 'AD&D 2E',
   dcc: 'Dungeon Crawl Classics',
+  'dnd-5e': 'D&D 5E',
   swn: 'Stars Without Number',
   'uncharted-worlds': 'Uncharted Worlds',
 };

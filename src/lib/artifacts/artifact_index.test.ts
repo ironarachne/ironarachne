@@ -2,6 +2,7 @@ import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { closeVault, writeArtifactSummaryRecord } from '$lib/vault_db';
+import { IRONARACHNE_RULESET_REF } from '$lib/rulesets';
 
 import {
   artifactsHydrated,
@@ -52,6 +53,26 @@ describe('toArtifactSummary', () => {
     expect(toArtifactSummary(aSummary({ provenance }))?.provenance).toEqual(provenance);
     expect(
       toArtifactSummary({ ...aSummary(), provenance: { toolPath: '/culture' } }),
+    ).toBeUndefined();
+  });
+
+  it('keeps a known provenance ruleset and rejects an unknown future one', () => {
+    const provenance: ArtifactProvenance = {
+      toolPath: '/culture',
+      seed: 'seed-1',
+      config: {},
+      ruleset: IRONARACHNE_RULESET_REF,
+    };
+    expect(toArtifactSummary(aSummary({ provenance }))?.provenance).toEqual(provenance);
+
+    expect(
+      toArtifactSummary({
+        ...aSummary(),
+        provenance: {
+          ...provenance,
+          ruleset: { id: 'dcc', release: 'from-a-later-build' },
+        },
+      }),
     ).toBeUndefined();
   });
 

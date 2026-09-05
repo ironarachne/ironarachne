@@ -14,12 +14,12 @@ the `domain` it is listed under, and its `maturity`. Beyond that it is a `Tagged
 
 **Genre** and **game system** are both optional and are stored as namespaced tags:
 
-| Tag           | Meaning                                     |
-| ------------- | ------------------------------------------- |
-| `genre:*`     | `fantasy`, `scifi`, `cyberpunk`, `horror`   |
-| `system:*`    | `adnd-2e`, `dcc`, `swn`, `uncharted-worlds` |
-| `maturity:*`  | `experimental`, `beta`, `release-ready`     |
-| anything else | free-form, e.g. `character`, `map`, `magic` |
+| Tag           | Meaning                                               |
+| ------------- | ----------------------------------------------------- |
+| `genre:*`     | `fantasy`, `scifi`, `cyberpunk`, `horror`             |
+| `system:*`    | `adnd-2e`, `dcc`, `dnd-5e`, `swn`, `uncharted-worlds` |
+| `maturity:*`  | `experimental`, `beta`, `release-ready`               |
+| anything else | free-form, e.g. `character`, `map`, `magic`           |
 
 Storing them as tags rather than as fields means `applyTagFilter` works on tools unchanged, so
 a genre filter, a system filter, and a free-form tag filter are all the same operation and

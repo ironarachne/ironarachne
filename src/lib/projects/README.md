@@ -14,15 +14,16 @@ the project set — never reaches back. Both persist to
 
 ## The type
 
-| Field                     | Notes                                                          |
-| ------------------------- | -------------------------------------------------------------- |
-| `id`                      | Stable, never reused — including after a delete.               |
-| `name`                    | User-facing and editable. **Not** required to be unique.       |
-| `description`             | Optional, and absent rather than empty when there is not one.  |
-| `genre`                   | Optional. What the project is set in; see below.               |
-| `system`                  | Optional. What it is played with; see below.                   |
-| `tags`                    | Free-form. A `Project` is a [`TaggedItem`](../tags/README.md). |
-| `createdAt` / `updatedAt` | Epoch milliseconds, per decision 2 in the design document.     |
+| Field                     | Notes                                                               |
+| ------------------------- | ------------------------------------------------------------------- |
+| `id`                      | Stable, never reused — including after a delete.                    |
+| `name`                    | User-facing and editable. **Not** required to be unique.            |
+| `description`             | Optional, and absent rather than empty when there is not one.       |
+| `genre`                   | Optional. What the project is set in; see below.                    |
+| `system`                  | Optional tool-catalog filter. What it is played with; see below.    |
+| `ruleset`                 | Optional default rules release for future generation; see below.    |
+| `tags`                    | Free-form. A `Project` is a [`TaggedItem`](../tags/README.md).      |
+| `createdAt` / `updatedAt` | Epoch milliseconds, per decision 2 in the workshop design document. |
 
 ## Usage
 
@@ -79,8 +80,11 @@ and writing it back unaltered cannot reorder the list.
 `genre` and `system` are the tool catalog's own vocabularies — imported from
 [`$lib/tools`](../tools/README.md), never restated here, and the reason this library knows about
 that one while it must never learn about this one. They narrow the workshop's tool list and nothing
-else: no artifact records the genre of the project it was saved into, so **both may be changed as
-often as the user likes**, which is decision 7 in the design document.
+else. `ruleset` is different: it is a pinned `$lib/rulesets` release used as the default for future
+generator actions. Changing it never rewrites an artifact. When a ruleset has a `gameSystem`, its
+value and `system` must agree; selecting the ruleset sets that filter. Clearing the ruleset leaves
+the filter in place. Changing to an incompatible filter requires an explicit `ruleset: null`,
+which is how the UI proves it obtained confirmation first.
 
 Because a field is the only shape that gives every reader one answer, the matching `genre:` and
 `system:` tags are **derived** — `deriveSettingTags` rebuilds them from the fields on every read and
@@ -91,9 +95,10 @@ an import carrying a contradictory tag, unable to produce a project whose tag an
 await createProject({ name: 'Ashfall', genre: 'fantasy', system: 'adnd-2e' });
 await updateProject(id, { genre: 'cyberpunk' }); // a value sets
 await updateProject(id, { system: null }); // null clears — an enum has no empty member
+await updateProject(id, { ruleset: null, system: 'dcc' }); // confirmed incompatible change
 ```
 
-A stored genre or system this build does not recognise **drops the field and keeps the project**.
+A stored genre, system, or ruleset this build does not recognise **drops the field and keeps the project**.
 Rejecting the record would lose a project's name, description, tags and id — and spill its
 artifacts into the recovered-artifacts bucket — over a field that only decides which tools appear
 in a list.

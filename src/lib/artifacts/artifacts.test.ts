@@ -291,6 +291,16 @@ describe('createArtifact', () => {
     });
   });
 
+  it('copies an optional ruleset into provenance', async () => {
+    const ruleset = { id: 'ironarachne', release: '1' } as const;
+    const artifact = await create({
+      provenance: { toolPath: '/culture', seed: 'seed-1', config: {}, ruleset },
+    });
+
+    expect(artifact.provenance?.ruleset).toEqual(ruleset);
+    expect(artifact.provenance?.ruleset).not.toBe(ruleset);
+  });
+
   it('leaves provenance absent rather than inventing one', async () => {
     expect(await create()).not.toHaveProperty('provenance');
   });

@@ -11,6 +11,7 @@ import {
 } from '$lib/artifact_kinds';
 import { createArtifact, listArtifacts, resetArtifactIndex } from '$lib/artifacts';
 import { createProject, resetProjectIndex } from '$lib/projects';
+import { IRONARACHNE_RULESET_REF } from '$lib/rulesets';
 import { closeVault, writeArtifactSummaryRecord } from '$lib/vault_db';
 import { writeProjectWorkspace } from '$lib/workspaces';
 
@@ -147,6 +148,39 @@ describe('buildProjectExportFile', () => {
       'First',
       'Second',
     ]);
+  });
+
+  it('preserves project and artifact-generation ruleset history', async () => {
+    const project = await createProject({
+      name: 'Aldia',
+      ruleset: IRONARACHNE_RULESET_REF,
+    });
+    if (!project.ok) {
+      expect.unreachable('the test project should be created');
+      return;
+    }
+    const artifact = await createArtifact(testKinds(), {
+      projectId: project.value.id,
+      kind: anythingKind.kind,
+      payload: { text: 'a' },
+      provenance: {
+        toolPath: '/culture',
+        seed: 'seed-1',
+        config: {},
+        ruleset: IRONARACHNE_RULESET_REF,
+      },
+    });
+    expect(artifact.ok).toBe(true);
+
+    const built = await buildProjectExportFile(project.value.id, { now: EXPORTED_AT });
+    if (!built.ok || built.value.envelope.scope !== 'project') {
+      expect.unreachable('the project should export');
+      return;
+    }
+    expect(built.value.envelope.body.project.ruleset).toEqual(IRONARACHNE_RULESET_REF);
+    expect(built.value.envelope.body.artifacts[0].provenance?.ruleset).toEqual(
+      IRONARACHNE_RULESET_REF,
+    );
   });
 
   it('sorts artifacts by id, so two exports of unchanged content are byte-identical', async () => {

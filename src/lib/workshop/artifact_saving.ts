@@ -38,6 +38,7 @@ export function saveToolArtifact(
             toolPath: draft.toolPath,
             seed: draft.seed,
             config: draft.config ?? {},
+            ...(draft.ruleset === undefined ? {} : { ruleset: draft.ruleset }),
           },
         }),
   });

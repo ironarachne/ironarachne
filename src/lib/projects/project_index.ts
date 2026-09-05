@@ -1,4 +1,5 @@
 import { isGameSystem, isGenre } from '$lib/tools';
+import { findRulesetDescriptor, validateRulesetRef } from '$lib/rulesets';
 import { readAllProjectRecords, type VaultResult } from '$lib/vault_db';
 
 import { deriveSettingTags } from './project_setting';
@@ -69,6 +70,12 @@ export function toProject(value: unknown): Project | undefined {
   }
   if (isGameSystem(record.system)) {
     project.system = record.system;
+  }
+  if (record.ruleset !== undefined) {
+    const ruleset = validateRulesetRef(record.ruleset);
+    if (ruleset.ok && findRulesetDescriptor(ruleset.value)?.gameSystem === project.system) {
+      project.ruleset = ruleset.value;
+    }
   }
   // Derived on the way in as well as on the way out: a file may carry a `genre:` tag that disagrees
   // with the field, or one this build could not read, and neither may survive the read.

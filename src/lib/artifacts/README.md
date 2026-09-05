@@ -27,6 +27,10 @@ rename a deity, the seed in `provenance` no longer reproduces what is on their s
 is recorded so a user can see where a thing came from and deliberately re-roll it, and re-rolling
 replaces the payload destructively, on purpose, when asked.
 
+Provenance may also carry the pinned ruleset default the generating tool actually consumed. It is
+optional history, not an instruction to reinterpret the payload; legacy artifacts retain their
+existing provenance with no inferred ruleset.
+
 There is no code path in this library that regenerates a payload from provenance, and there must
 never be one.
 

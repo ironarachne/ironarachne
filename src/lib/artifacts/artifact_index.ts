@@ -1,4 +1,5 @@
 import { readAllArtifactRecords, type VaultResult } from '$lib/vault_db';
+import { validateRulesetRef } from '$lib/rulesets';
 
 import type { ArtifactProvenance, ArtifactReference, ArtifactSummary } from './artifact_types';
 
@@ -31,16 +32,31 @@ function isArtifactReference(value: unknown): value is ArtifactReference {
  * Provenance is present or absent, never partial. A record missing its seed cannot answer the one
  * question provenance exists to answer, and half of an origin is worse than an honest none.
  */
-function isArtifactProvenance(value: unknown): value is ArtifactProvenance {
+function readArtifactProvenance(value: unknown): ArtifactProvenance | undefined {
   const record = asRecord(value);
   if (record === null) {
-    return false;
+    return undefined;
   }
-  return (
-    typeof record.toolPath === 'string' &&
-    typeof record.seed === 'string' &&
-    asRecord(record.config) !== null
-  );
+  if (
+    typeof record.toolPath !== 'string' ||
+    typeof record.seed !== 'string' ||
+    asRecord(record.config) === null
+  ) {
+    return undefined;
+  }
+  const provenance: ArtifactProvenance = {
+    toolPath: record.toolPath as ArtifactProvenance['toolPath'],
+    seed: record.seed,
+    config: record.config as Record<string, unknown>,
+  };
+  if (record.ruleset !== undefined) {
+    const ruleset = validateRulesetRef(record.ruleset);
+    if (!ruleset.ok) {
+      return undefined;
+    }
+    provenance.ruleset = ruleset.value;
+  }
+  return provenance;
 }
 
 function isFiniteNumber(value: unknown): value is number {
@@ -89,9 +105,9 @@ export function toArtifactSummary(value: unknown): ArtifactSummary | undefined {
   if (!Array.isArray(record.references) || !record.references.every(isArtifactReference)) {
     return undefined;
   }
-  if (record.provenance !== undefined && !isArtifactProvenance(record.provenance)) {
-    return undefined;
-  }
+  const provenance =
+    record.provenance === undefined ? undefined : readArtifactProvenance(record.provenance);
+  if (record.provenance !== undefined && provenance === undefined) return undefined;
   if (!isFiniteNumber(record.createdAt) || !isFiniteNumber(record.updatedAt)) {
     return undefined;
   }
@@ -108,8 +124,8 @@ export function toArtifactSummary(value: unknown): ArtifactSummary | undefined {
     createdAt: record.createdAt,
     updatedAt: record.updatedAt,
   };
-  if (record.provenance !== undefined) {
-    summary.provenance = record.provenance;
+  if (provenance !== undefined) {
+    summary.provenance = provenance;
   }
   return summary;
 }

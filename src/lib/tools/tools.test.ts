@@ -75,6 +75,14 @@ describe('featured', () => {
 describe('systemTag', () => {
   it('namespaces the system', () => {
     expect(systemTag('adnd-2e')).toBe('system:adnd-2e');
+    expect(systemTag('dnd-5e')).toBe('system:dnd-5e');
+  });
+
+  it('filters D&D 5E through the same system metadata as every other game', () => {
+    const dnd = defineTool({ ...environment, systems: ['dnd-5e'] });
+
+    expect(toolSystems(dnd)).toEqual(['dnd-5e']);
+    expect(hasSystem(dnd, 'dnd-5e')).toBe(true);
   });
 });
 
@@ -242,6 +250,7 @@ describe('genreDisplayName', () => {
 describe('systemDisplayName', () => {
   it('returns prose for a system', () => {
     expect(systemDisplayName('adnd-2e')).toBe('AD&D 2E');
+    expect(systemDisplayName('dnd-5e')).toBe('D&D 5E');
   });
 });
 

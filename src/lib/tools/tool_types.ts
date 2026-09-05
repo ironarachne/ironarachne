@@ -16,7 +16,7 @@ export type Genre = (typeof GENRES)[number];
  * Every game system the site knows about, in display order. Tools that produce system-agnostic
  * content carry no system at all rather than a placeholder value.
  */
-export const SYSTEMS = ['adnd-2e', 'dcc', 'swn', 'uncharted-worlds'] as const;
+export const SYSTEMS = ['adnd-2e', 'dcc', 'dnd-5e', 'swn', 'uncharted-worlds'] as const;
 
 export type GameSystem = (typeof SYSTEMS)[number];
 

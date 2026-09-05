@@ -8,6 +8,7 @@ import type {
   ArtifactReference,
   ArtifactSummary,
 } from '$lib/artifacts';
+import type { RulesetRef } from '$lib/rulesets';
 
 /**
  * A request to a tool that is already mounted: roll this seed, with these settings.
@@ -88,6 +89,8 @@ export type ToolArtifactDraft = {
   seed?: string;
   /** Generator settings as the tool understood them. */
   config?: Record<string, unknown>;
+  /** The pinned project default this generation consumed, when it consumed one. */
+  ruleset?: RulesetRef;
   /** What to call it. The kind's `nameOf` decides when this is blank. */
   name?: string;
   tags?: string[];
