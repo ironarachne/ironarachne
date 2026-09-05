@@ -5,6 +5,7 @@ import {
   IRONARACHNE_RULESET_REF,
   ADND_2E_RULESET_REF,
   DCC_LEGACY_RULESET_REF,
+  DND_5E_RULESET_REF,
   RULESET_IDS,
   acceptedRuleset,
   addMechanicsVariant,
@@ -59,6 +60,12 @@ describe('ruleset catalog', () => {
         gameSystem: 'dcc',
         capabilities: [],
         sourceIds: [],
+      }),
+      expect.objectContaining({
+        ref: DND_5E_RULESET_REF,
+        displayName: 'D&D 5e (SRD 5.1)',
+        gameSystem: 'dnd-5e',
+        capabilities: ['actor', 'item', 'currency', 'equipment', 'treasure-items'],
       }),
     ]);
   });
