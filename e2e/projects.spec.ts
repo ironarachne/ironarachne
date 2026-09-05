@@ -203,6 +203,12 @@ test.describe('the projects page', () => {
     await expect(projectCard(page, 'Ashfall')).not.toContainText('Ruleset:');
 
     await projectCard(page, 'Ashfall').getByRole('button', { name: 'Rename' }).click();
+    await editingCard(page).getByLabel('Ruleset').selectOption('adnd-2e@fgag-2.0.1');
+    await editingCard(page).getByRole('button', { name: 'Save' }).click();
+    await expect(projectCard(page, 'Ashfall')).toContainText('AD&D 2E');
+    await expect(projectCard(page, 'Ashfall')).toContainText('Ruleset: AD&D 2E fgag-2.0.1');
+
+    await projectCard(page, 'Ashfall').getByRole('button', { name: 'Rename' }).click();
     await editingCard(page).getByLabel('Ruleset').selectOption('ironarachne@1');
     await editingCard(page).getByLabel('System').selectOption('dnd-5e');
     await editingCard(page).getByRole('button', { name: 'Save' }).click();

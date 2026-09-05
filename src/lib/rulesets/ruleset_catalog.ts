@@ -1,3 +1,5 @@
+import { ADND_2E_RULESET_DESCRIPTOR, ADND_2E_RULESET_REF } from './adnd_2e/descriptor';
+import { ADND_2E_OPEN_RULES_SOURCE } from './adnd_2e/source_manifest';
 import { IRONARACHNE_RULESET_DESCRIPTOR, IRONARACHNE_RULESET_REF } from './ironarachne/descriptor';
 import { IRONARACHNE_ORIGINAL_SOURCE } from './ironarachne/source_manifest';
 import type {
@@ -20,9 +22,19 @@ const RULESET_CATALOG: RulesetCatalogEntry[] = [
       return ironArachneRuleset;
     },
   },
+  {
+    descriptor: ADND_2E_RULESET_DESCRIPTOR,
+    load: async () => {
+      const { adnd2eRuleset } = await import('./adnd_2e/definition.js');
+      return adnd2eRuleset;
+    },
+  },
 ];
 
-const RULES_DATA_SOURCES: RulesDataSource[] = [IRONARACHNE_ORIGINAL_SOURCE];
+const RULES_DATA_SOURCES: RulesDataSource[] = [
+  IRONARACHNE_ORIGINAL_SOURCE,
+  ADND_2E_OPEN_RULES_SOURCE,
+];
 
 export function sameRulesetRef(left: RulesetRef, right: RulesetRef): boolean {
   return left.id === right.id && left.release === right.release;
@@ -56,4 +68,4 @@ export function findRulesDataSource(id: string): RulesDataSource | undefined {
   return RULES_DATA_SOURCES.find((source) => source.id === id);
 }
 
-export { IRONARACHNE_RULESET_REF };
+export { ADND_2E_RULESET_REF, IRONARACHNE_RULESET_REF };

@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   IRONARACHNE_RULESET_REF,
+  ADND_2E_RULESET_REF,
   RULESET_IDS,
   acceptedRuleset,
   addMechanicsVariant,
@@ -44,6 +45,12 @@ describe('ruleset catalog', () => {
         ref: IRONARACHNE_RULESET_REF,
         displayName: 'Iron Arachne',
         capabilities: ['actor', 'item', 'potion', 'spell', 'hoard', 'currency'],
+      }),
+      expect.objectContaining({
+        ref: ADND_2E_RULESET_REF,
+        displayName: 'AD&D 2E',
+        gameSystem: 'adnd-2e',
+        capabilities: ['actor', 'item', 'currency', 'equipment', 'treasure-items'],
       }),
     ]);
   });
