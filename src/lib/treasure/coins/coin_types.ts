@@ -1,5 +1,5 @@
 import type { Item } from '$lib/equipment';
-import type { CurrencySystem, CurrencyDenomination } from '$lib/currency';
+import type { CurrencySystem, CurrencyDenomination } from '$lib/rulesets/ironarachne';
 
 export type CoinGenerationConfig = {
   allowedDenominations?: CurrencyDenomination[];

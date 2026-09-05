@@ -18,11 +18,11 @@ deduplicates the notices required by selected releases.
 
 `$lib/rulesets/ironarachne` owns the normalized 0–100 combat profile, generic magic taxonomy, and
 existing currency helpers that previously lived in the common `combat_system`, `magic`, and
-`currency` libraries. Those old libraries are compatibility facades until #213 removes them.
+`currency` libraries. Issue #213 removed those facades after migrating every consumer here.
 
 The package also supplies version-1 actor, item, potion, spell, and hoard payload codecs. Shared
-live types may carry a `MechanicsSet`; their legacy fields remain while consumers transition in
-#213.
+live types may carry a `MechanicsSet`; their retained normalized fields use the types from this
+package and remain stable for seeded generation and migrated artifacts.
 
 `legacy_migrations.ts` is the one pure compatibility path used by standalone and composed artifact
 codecs. It copies saved values into `ironarachne@1` variants, marks old records as `migrated`, and

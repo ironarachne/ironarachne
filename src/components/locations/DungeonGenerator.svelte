@@ -4,7 +4,7 @@
   import { RNG } from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
   import { onMount, tick } from 'svelte';
-  import { Currency } from '$lib/currency';
+  import * as Currency from '$lib/rulesets/ironarachne';
   import ArchetypeBadge from '$components/characters/ArchetypeBadge.svelte';
   import SpeciesBadge from '$components/characters/SpeciesBadge.svelte';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -406,7 +406,11 @@
               {#each room.treasure as item (item.id)}
                 <li>
                   <strong>{item.name}:</strong>
-                  {item.description} — {Currency.valueToString(item.value, undefined, true)}
+                  {item.description} — {Currency.valueToString(
+                    item.value,
+                    Currency.STANDARD_FANTASY,
+                    true,
+                  )}
                 </li>
               {/each}
             </ul>

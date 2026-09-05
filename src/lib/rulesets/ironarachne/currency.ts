@@ -1,5 +1,4 @@
 import type { CurrencySystem, CurrencyAmount, CurrencyDenomination } from './currency_types';
-import { STANDARD_FANTASY } from './currency_systems';
 
 /**
  * Formats wealth using gold, silver, and copper only (no electrum/platinum),
@@ -7,7 +6,7 @@ import { STANDARD_FANTASY } from './currency_systems';
  */
 export function valueToGpSpCpString(
   value: number,
-  system: CurrencySystem = STANDARD_FANTASY,
+  system: CurrencySystem,
   exact: boolean = true,
 ): string {
   return valueToString(value, system, exact, ['electrum', 'platinum']);
@@ -24,7 +23,7 @@ export function valueToGpSpCpString(
  */
 export function valueToString(
   value: number,
-  system: CurrencySystem = STANDARD_FANTASY,
+  system: CurrencySystem,
   exact: boolean = true,
   excludedDenominations?: string[],
 ): string {
@@ -70,10 +69,7 @@ export function valueToString(
  * @param system The currency system to use.
  * @returns An array of CurrencyAmount objects.
  */
-export function valueToAmounts(
-  value: number,
-  system: CurrencySystem = STANDARD_FANTASY,
-): CurrencyAmount[] {
+export function valueToAmounts(value: number, system: CurrencySystem): CurrencyAmount[] {
   let remaining = value;
   const result: CurrencyAmount[] = [];
 
@@ -105,10 +101,7 @@ export function valueToAmounts(
  * @param system The currency system to use.
  * @returns The total value in the base unit.
  */
-export function amountsToValue(
-  amounts: CurrencyAmount[],
-  system: CurrencySystem = STANDARD_FANTASY,
-): number {
+export function amountsToValue(amounts: CurrencyAmount[], system: CurrencySystem): number {
   let total = 0;
   for (const amount of amounts) {
     const denom = system.denominations.find((d) => d.name === amount.denomination);
@@ -132,7 +125,7 @@ export function convert(
   amount: number,
   fromDenom: string,
   toDenom: string,
-  system: CurrencySystem = STANDARD_FANTASY,
+  system: CurrencySystem,
 ): number {
   const from = system.denominations.find((d) => d.name === fromDenom);
   const to = system.denominations.find((d) => d.name === toDenom);

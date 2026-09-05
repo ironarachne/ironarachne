@@ -25,5 +25,6 @@ function totalHealth(group: MobGroup): number {
 ```
 
 Because both are `TaggedItem`s, groups and their members filter with `applyTagFilter` like anything
-else. See [`$lib/combat_system`](../combat_system/README.md) for `CombatProfile` and `CombatAction`,
-and [`$lib/encounters`](../encounters/README.md) for what assembles groups.
+else. The legacy `CombatProfile` and `CombatAction` types are owned by
+[`$lib/rulesets/ironarachne`](../rulesets/README.md); see
+[`$lib/encounters`](../encounters/README.md) for what assembles groups.

@@ -1,5 +1,5 @@
 import * as Words from '@ironarachne/words';
-import { Currency } from '$lib/currency';
+import * as Currency from '$lib/rulesets/ironarachne';
 import type ADNDCharacter from './adndcharacter';
 
 export function formatAdndSignedNumber(value: number): string {
@@ -61,7 +61,7 @@ export function formatAdndIllusionImmunity(illusionImmunity: number): string {
 
 export function formatAdndCurrency(currency: number): string {
   const safeCurrency = Number.isFinite(currency) ? currency : 0;
-  return Currency.valueToGpSpCpString(safeCurrency);
+  return Currency.valueToGpSpCpString(safeCurrency, Currency.STANDARD_FANTASY);
 }
 
 export function formatAdndWeaponsSection(character: ADNDCharacter): string {

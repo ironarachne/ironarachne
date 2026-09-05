@@ -13,14 +13,10 @@
  * price lists seen from the other side.
  */
 
-import { COMMON_FANTASY, valueToString } from '$lib/currency';
-import { convertPowerToDice, convertToDnDArmorClass } from '$lib/combat_system';
+import { COMMON_FANTASY, valueToString } from '$lib/rulesets/ironarachne';
 import { kgToPounds } from '$lib/measurements';
 
 import type { ItemSnapshot } from './item_snapshot';
-
-/** Which numbers the page and the exports quote. */
-export type ItemDisplaySystem = 'dnd5e' | 'ironarachne';
 
 /** One line of the sheet: a label and what it says. */
 export type ItemLine = {
@@ -69,58 +65,40 @@ export function itemWeightText(item: ItemSnapshot): string {
 }
 
 /**
- * The line naming an item's damage or its armour class.
+ * The lines naming an item's generic damage and defence values.
  *
- * The one place the display system reaches: D&D quotes damage as dice and armour as a class, and
- * this site's own numbers are the raw power and defence the combat profile carries. Both describe
- * the same rolled item, which is why the choice is not part of the roll.
+ * Published-system presentation belongs to a qualified ruleset payload. These snapshots carry
+ * Iron Arachne's normalized mechanics, so this path presents those values without relabelling
+ * them as D&D dice or armour class.
  */
-export function itemCombatLines(item: ItemSnapshot, system: ItemDisplaySystem): ItemLine[] {
+export function itemCombatLines(item: ItemSnapshot): ItemLine[] {
   const lines: ItemLine[] = [];
   const attack = item.actions?.[0];
 
   if (attack !== undefined) {
     const base = attack.baseDamage ?? 0;
-    const damage =
-      system === 'dnd5e'
-        ? `${convertPowerToDice(base)} (${attack.damageType})`
-        : `${base} (${attack.damageType})`;
-    lines.push({ label: 'Damage', value: damage });
+    lines.push({ label: 'Damage', value: `${base} (${attack.damageType})` });
 
     for (const bonus of attack.bonusDamage ?? []) {
-      const value =
-        system === 'dnd5e'
-          ? `${convertPowerToDice(bonus.power)} (${bonus.type})`
-          : `${bonus.power} (${bonus.type})`;
-      lines.push({ label: 'Bonus damage', value });
+      lines.push({ label: 'Bonus damage', value: `${bonus.power} (${bonus.type})` });
     }
   }
 
   if (item.itemMajorType === 'armor' && item.combatProfile !== undefined) {
-    lines.push(
-      system === 'dnd5e'
-        ? {
-            label: 'Armour class',
-            value: String(convertToDnDArmorClass(item.combatProfile.defense)),
-          }
-        : { label: 'Defence', value: String(item.combatProfile.defense) },
-    );
+    lines.push({ label: 'Defence', value: String(item.combatProfile.defense) });
   }
 
   return lines;
 }
 
 /** Arrange an item for reading. */
-export function itemToDocument(
-  item: ItemSnapshot,
-  system: ItemDisplaySystem = 'dnd5e',
-): ItemDocument {
+export function itemToDocument(item: ItemSnapshot): ItemDocument {
   const lines: ItemLine[] = [
     { label: 'Type', value: item.itemMinorType ?? item.itemMajorType },
     { label: 'Rarity', value: item.rarity },
     { label: 'Value', value: itemValueText(item) },
     { label: 'Weight', value: itemWeightText(item) },
-    ...itemCombatLines(item, system),
+    ...itemCombatLines(item),
     // The composition, named rather than only described. This is what storing the records buys
     // that storing the paragraph would not.
     { label: 'Material', value: item.material?.name ?? '' },
@@ -138,8 +116,8 @@ export function itemToDocument(
 }
 
 /** An item as Markdown, for a player who keeps their gear in their own notes. */
-export function itemToMarkdown(item: ItemSnapshot, system: ItemDisplaySystem = 'dnd5e'): string {
-  const document = itemToDocument(item, system);
+export function itemToMarkdown(item: ItemSnapshot): string {
+  const document = itemToDocument(item);
   const blocks = [`# ${document.title}`];
 
   if (isPrintable(document.description)) {
@@ -156,8 +134,8 @@ export function itemToMarkdown(item: ItemSnapshot, system: ItemDisplaySystem = '
 }
 
 /** The body of the PDF: the same document without the title the PDF draws itself. */
-export function itemToText(item: ItemSnapshot, system: ItemDisplaySystem = 'dnd5e'): string {
-  const document = itemToDocument(item, system);
+export function itemToText(item: ItemSnapshot): string {
+  const document = itemToDocument(item);
   const blocks: string[] = [];
 
   if (isPrintable(document.description)) {
@@ -179,14 +157,11 @@ export function itemToText(item: ItemSnapshot, system: ItemDisplaySystem = 'dnd5
  * Beside `itemToMarkdown` rather than instead of it: the page offers both, because a user wants
  * either the ten items they just rolled or the one they are about to give a player.
  */
-export function itemListToMarkdown(
-  items: ItemSnapshot[],
-  system: ItemDisplaySystem = 'dnd5e',
-): string {
+export function itemListToMarkdown(items: ItemSnapshot[]): string {
   const blocks = ['# Equipment'];
 
   for (const item of items) {
-    const document = itemToDocument(item, system);
+    const document = itemToDocument(item);
     const entry = [`## ${document.title}`];
     if (isPrintable(document.description)) {
       entry.push(document.description);
@@ -201,11 +176,11 @@ export function itemListToMarkdown(
 }
 
 /** The same list as plain text, for the PDF. */
-export function itemListToText(items: ItemSnapshot[], system: ItemDisplaySystem = 'dnd5e'): string {
+export function itemListToText(items: ItemSnapshot[]): string {
   return items
     .map((item) => {
-      const document = itemToDocument(item, system);
-      const body = itemToText(item, system);
+      const document = itemToDocument(item);
+      const body = itemToText(item);
       return isPrintable(body) ? `${document.title}\n\n${body}` : document.title;
     })
     .join('\n\n');

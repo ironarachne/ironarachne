@@ -1,11 +1,11 @@
-import { STANDARD_FANTASY } from '$lib/currency';
+import { STANDARD_FANTASY } from '$lib/rulesets/ironarachne';
 export {
   getAppropriateCoinTypes,
   getCoinTypesAboveValue,
   getCoinTypesBelowValue,
   getIndexOfCoinType,
   getMaxCoinTypeForValue,
-} from '$lib/currency';
+} from '$lib/rulesets/ironarachne';
 
 /**
  * Get the default coin system.

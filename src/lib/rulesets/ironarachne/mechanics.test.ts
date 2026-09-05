@@ -1,20 +1,14 @@
 import { describe, expect, it } from 'vitest';
 
-import * as LegacyCombat from '$lib/combat_system';
-import * as LegacyCurrency from '$lib/currency';
-import * as LegacyMagic from '$lib/magic';
-
 import { getRuleset } from '../rulesets';
 import {
   IRONARACHNE_CURRENCY_RULES,
   IRONARACHNE_MECHANICS_CODEC,
   IRONARACHNE_RULESET_REF,
   STANDARD_FANTASY,
-  convertToDnDArmorClass,
   emptyMechanicsSet,
   getDefaultCombatActions,
   getDefaultCombatProfile,
-  getSpellSummary,
   qualifyIronArachneMechanics,
 } from './index.js';
 
@@ -22,20 +16,6 @@ const combatProfile = getDefaultCombatProfile();
 const actions = getDefaultCombatActions();
 
 describe('compatibility ownership', () => {
-  it('keeps the old public combat exports as the same implementations', () => {
-    expect(LegacyCombat.getDefaultCombatProfile).toBe(getDefaultCombatProfile);
-    expect(LegacyCombat.convertToDnDArmorClass).toBe(convertToDnDArmorClass);
-  });
-
-  it('keeps the old public magic exports as the same implementations', () => {
-    expect(LegacyMagic.getSpellSummary).toBe(getSpellSummary);
-  });
-
-  it('keeps the old public currency exports as the same data and implementations', () => {
-    expect(LegacyCurrency.STANDARD_FANTASY).toBe(STANDARD_FANTASY);
-    expect(LegacyCurrency.valueToString(1234)).toBe('1 pp 2 gp 3 sp 4 cp');
-  });
-
   it('loads only capabilities backed by compatibility services', async () => {
     const result = await getRuleset(IRONARACHNE_RULESET_REF);
     expect(result).toMatchObject({

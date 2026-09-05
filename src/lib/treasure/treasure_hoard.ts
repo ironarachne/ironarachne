@@ -34,7 +34,7 @@ import {
 } from './potion_loot';
 import type { TreasureHoardGeneratorConfig } from './treasure_types';
 import type { CoinGenerationConfig, PileOfCoins } from './coins';
-import type { CurrencySystem } from '../currency';
+import type { CurrencySystem } from '$lib/rulesets/ironarachne';
 import type { Gem } from './gems';
 import { RNG } from '@ironarachne/rng';
 

@@ -73,7 +73,7 @@
     | 'maximumNumberOfHenchmen'
     | 'numberOfLanguages';
   import type { ADNDClass } from '$lib/adnd';
-  import { Currency } from '$lib/currency';
+  import * as Currency from '$lib/rulesets/ironarachne';
   import { showsMaturityBadge, toolMaturityForPath } from '$lib/tools';
   import { showAlertModal } from '$lib/ui';
   import {
@@ -348,7 +348,7 @@
   }
 
   function formatWealthCp(cp: number): string {
-    return Currency.valueToGpSpCpString(cp);
+    return Currency.valueToGpSpCpString(cp, Currency.STANDARD_FANTASY);
   }
 
   $effect(() => {

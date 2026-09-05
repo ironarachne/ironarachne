@@ -12,7 +12,7 @@
  * construction when what would go under it is empty.
  */
 
-import { COMMON_FANTASY, valueToString } from '$lib/currency';
+import { COMMON_FANTASY, valueToString } from '$lib/rulesets/ironarachne';
 import { kgToPounds } from '$lib/measurements';
 import * as Words from '@ironarachne/words';
 

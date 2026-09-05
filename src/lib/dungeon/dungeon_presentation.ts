@@ -18,7 +18,7 @@
  * wants to print where a live one carries the whole species.
  */
 
-import { Currency } from '$lib/currency';
+import * as Currency from '$lib/rulesets/ironarachne';
 import { describeEncounterMob, encounterGroupHeading } from '$lib/encounters';
 
 import type { DungeonSnapshot, StoredPopulatedRoom } from './dungeon_snapshot.js';
@@ -93,7 +93,7 @@ function treasureList(room: StoredPopulatedRoom): DungeonList[] {
       heading: 'Treasure',
       items: treasure.map(
         (item) =>
-          `${item.name} — ${item.description} (${Currency.valueToString(item.value, undefined, true)})`,
+          `${item.name} — ${item.description} (${Currency.valueToString(item.value, Currency.STANDARD_FANTASY, true)})`,
       ),
     },
   ];

@@ -29,7 +29,7 @@ import type {
   CombatAction,
   CombatProfile,
   DamageType as CombatDamageType,
-} from '$lib/combat_system';
+} from '$lib/rulesets/ironarachne';
 import { withLegacyItemMechanics, type MechanicsSet } from '$lib/rulesets';
 
 import type {

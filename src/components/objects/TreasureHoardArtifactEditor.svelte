@@ -12,7 +12,7 @@
     type HoardItemTextField,
     type TreasureHoardSnapshot,
   } from '$lib/treasure';
-  import { COMMON_FANTASY, valueToString } from '$lib/currency';
+  import { COMMON_FANTASY, valueToString } from '$lib/rulesets/ironarachne';
 
   /**
    * The editing view for a saved treasure hoard.

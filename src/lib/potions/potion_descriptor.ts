@@ -1,5 +1,5 @@
-import type { Duration } from '$lib/magic';
-import { valueToString, COMMON_FANTASY } from '$lib/currency';
+import type { Duration } from '$lib/rulesets/ironarachne';
+import { valueToString, COMMON_FANTASY } from '$lib/rulesets/ironarachne';
 import type { Potion, PotionEffect, PotionForm } from './potion_types';
 
 function describeDuration(duration: Duration): string {

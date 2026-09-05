@@ -3,7 +3,7 @@
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
   import * as Words from '@ironarachne/words';
-  import { Currency } from '$lib/currency';
+  import * as Currency from '$lib/rulesets/ironarachne';
   import { adndRaceDisplayName, type ADNDCharacter } from '$lib/adnd';
 
   type Props = { character: ADNDCharacter };
@@ -42,7 +42,10 @@
   <Stat label="Alignment">{character.alignment}</Stat>
 </StatBlock>
 <Stat label="Currency">
-  {Currency.valueToGpSpCpString(Number.isFinite(character.currency) ? character.currency : 0)}
+  {Currency.valueToGpSpCpString(
+    Number.isFinite(character.currency) ? character.currency : 0,
+    Currency.STANDARD_FANTASY,
+  )}
 </Stat>
 
 <h3>Attributes</h3>

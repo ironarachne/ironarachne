@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Duration } from '$lib/magic';
+import type { Duration } from '$lib/rulesets/ironarachne';
 import { describeDurationShort, describeEffect, describePotion } from './potion_descriptor';
 import type {
   Potion,

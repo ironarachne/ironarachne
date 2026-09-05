@@ -8,16 +8,17 @@ It designs [#205](https://github.com/ironarachne/ironarachne/issues/205) and is 
 for the system-specific treasure work in
 [#172](https://github.com/ironarachne/ironarachne/issues/172).
 
-**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved on
-2026-09-04. Implementation may proceed through the [staged plan](#staged-implementation-plan).
+**Status:** implemented. The [domain model](#domain-model) was reviewed and approved on 2026-09-04;
+the staged implementation was completed by issues #206–#213.
 
 ## The problem
 
-`$lib/combat_system` and `$lib/magic` describe themselves as common tongues, but their values are
-not merely descriptions. A six-number `CombatProfile`, a `CombatAction`, a spell magnitude, and a
-spell duration are rules. They are stored in items and potions and consumed by mobs, archetypes,
-creatures, and characters. The combat converter then interprets the common profile using D&D 5e
-assumptions, while the default fantasy currency is explicitly 5e-shaped.
+The former `$lib/combat_system` and `$lib/magic` facades described themselves as common tongues,
+but their values were not merely descriptions. A six-number `CombatProfile`, a `CombatAction`, a
+spell magnitude, and a spell duration are rules. They were stored in items and potions and consumed
+by mobs, archetypes, creatures, and characters. The former combat converter then interpreted the
+common profile using D&D 5e assumptions, while the default fantasy currency was explicitly
+5e-shaped.
 
 That makes the current model neither truly generic nor honestly system-specific. Adding an AD&D
 2E armour class, a DCC weapon entry, or a 5e potion by converting the current numbers would lose
