@@ -1,5 +1,6 @@
 import type { RouteId } from '$app/types';
 import type { ArtifactKind, QuarantineReason } from '$lib/artifact_kinds';
+import type { RulesetRef } from '$lib/rulesets';
 import type { TaggedItem } from '$lib/tags';
 import type { VaultFailureReason } from '$lib/vault_db';
 
@@ -17,6 +18,8 @@ export type ArtifactProvenance = {
   seed: string;
   /** Generator settings as the tool understood them. `{}` when the tool has none. */
   config: Record<string, unknown>;
+  /** The project default used for this generation, when the generating tool consumed one. */
+  ruleset?: RulesetRef;
 };
 
 /**

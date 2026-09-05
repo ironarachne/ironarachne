@@ -17,6 +17,7 @@ import {
   type Artifact,
 } from '$lib/artifacts';
 import { closeVault, type VaultResult } from '$lib/vault_db';
+import { IRONARACHNE_RULESET_REF } from '$lib/rulesets';
 
 import { readActiveProjectPayload, writeActiveProjectPayload } from './active_project_state';
 import { onProjectsChanged, resetProjectChangeListeners } from './project_events';
@@ -398,6 +399,65 @@ describe("a project's genre and system", () => {
     );
     expect(updated.genre).toBe('fantasy');
     expect(updated.tags).toEqual(['homebrew', 'genre:fantasy']);
+  });
+});
+
+describe("a project's ruleset default", () => {
+  it('stores a registered default and derives its game-system filter', async () => {
+    const created = await make(
+      { name: 'Ashfall', ruleset: IRONARACHNE_RULESET_REF },
+      { id: 'p1', now: 1000 },
+    );
+
+    expect(created.ruleset).toEqual(IRONARACHNE_RULESET_REF);
+    expect(created).not.toHaveProperty('system');
+    expect(created.tags).toEqual([]);
+  });
+
+  it('refuses a draft whose explicit system contradicts its ruleset', async () => {
+    await expect(
+      make({ name: 'Ashfall', system: 'dcc', ruleset: IRONARACHNE_RULESET_REF }, { id: 'p1' }),
+    ).rejects.toThrow(/must describe the same game system/);
+  });
+
+  it('clears a default while retaining the newly selected system filter', async () => {
+    await make({ name: 'Ashfall', ruleset: IRONARACHNE_RULESET_REF }, { id: 'p1', now: 1000 });
+
+    const updated = stored(
+      await updateProject('p1', { ruleset: null, system: 'dnd-5e' }, { now: 2000 }),
+    );
+
+    expect(updated).not.toHaveProperty('ruleset');
+    expect(updated.system).toBe('dnd-5e');
+    expect(updated.tags).toEqual(['system:dnd-5e']);
+  });
+
+  it('requires an incompatible filter change to explicitly clear the default', async () => {
+    await make({ name: 'Ashfall', ruleset: IRONARACHNE_RULESET_REF }, { id: 'p1', now: 1000 });
+
+    await expect(updateProject('p1', { system: 'dnd-5e' })).rejects.toThrow(
+      /explicitly clear the project ruleset/,
+    );
+    expect(getProject('p1')?.ruleset).toEqual(IRONARACHNE_RULESET_REF);
+  });
+
+  it('changes only the project and leaves its existing artifacts untouched', async () => {
+    await make({ name: 'Ashfall', ruleset: IRONARACHNE_RULESET_REF }, { id: 'p1', now: 1000 });
+    const artifact = await addNote('p1', 'a1');
+
+    await updateProject('p1', { ruleset: null, system: 'dnd-5e' }, { now: 2000 });
+
+    expect(listArtifacts('p1')).toEqual([
+      expect.objectContaining({ id: artifact.id, updatedAt: artifact.updatedAt }),
+    ]);
+    const read = await readArtifact(NOTE_KINDS, 'p1', artifact.id);
+    expect(read?.ok && read.artifact.payload).toEqual(note);
+  });
+
+  it('refuses to author an unregistered release', async () => {
+    await expect(
+      make({ name: 'Ashfall', ruleset: { id: 'dcc', release: 'unregistered' } }, { id: 'p1' }),
+    ).rejects.toThrow(/is not registered/);
   });
 });
 

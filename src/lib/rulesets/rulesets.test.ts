@@ -19,6 +19,7 @@ import {
   sameRulesetRef,
   validateMechanicsSet,
   validateQualifiedMechanics,
+  validateRulesetRef,
   type MechanicsCodec,
   type QualifiedMechanics,
   type RulesDataSource,
@@ -100,6 +101,18 @@ describe('ruleset catalog', () => {
     expect(unregisteredKnownId).toMatchObject({ ok: false, reason: 'unknown-release' });
     expect(emptyRelease).toMatchObject({ ok: false, reason: 'unknown-release' });
     expect(blankRelease).toMatchObject({ ok: false, reason: 'unknown-release' });
+  });
+
+  it('validates a registered durable ref without returning its input object', () => {
+    const ref = { ...IRONARACHNE_RULESET_REF };
+    const result = validateRulesetRef(ref);
+
+    expect(result).toEqual({ ok: true, value: IRONARACHNE_RULESET_REF });
+    expect(result.ok && result.value).not.toBe(ref);
+    expect(validateRulesetRef({ id: 'dcc', release: 'unregistered' })).toMatchObject({
+      ok: false,
+      reason: 'unknown-release',
+    });
   });
 });
 

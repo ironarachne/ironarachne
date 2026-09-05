@@ -1,4 +1,5 @@
 import { forgetProjectArtifacts, hydrateArtifacts } from '$lib/artifacts';
+import { findRulesetDescriptor, sameRulesetRef, type RulesetRef } from '$lib/rulesets';
 import { deleteProjectCascade, writeProjectRecord, type VaultResult } from '$lib/vault_db';
 
 import { readActiveProjectPayload, writeActiveProjectPayload } from './active_project_state';
@@ -43,6 +44,24 @@ function normalizeTags(tags: string[] | undefined): string[] {
     }
   }
   return [...seen];
+}
+
+/**
+ * Apply a known ruleset default and keep the catalog filter beside it consistent. A ruleset such
+ * as Iron Arachne has no game-system filter; selecting it therefore clears `system` rather than
+ * manufacturing one.
+ */
+function setRulesetDefault(project: Project, ruleset: RulesetRef): void {
+  const descriptor = findRulesetDescriptor(ruleset);
+  if (descriptor === undefined) {
+    throw new Error(`ruleset "${ruleset.id}@${ruleset.release}" is not registered`);
+  }
+  project.ruleset = { ...descriptor.ref };
+  if (descriptor.gameSystem === undefined) {
+    delete project.system;
+  } else {
+    project.system = descriptor.gameSystem;
+  }
 }
 
 /**
@@ -107,6 +126,13 @@ export function toProjectRecord(
   if (draft.system !== undefined) {
     project.system = draft.system;
   }
+  if (draft.ruleset !== undefined) {
+    const descriptor = findRulesetDescriptor(draft.ruleset);
+    if (draft.system !== undefined && descriptor?.gameSystem !== draft.system) {
+      throw new Error('a project ruleset and system must describe the same game system');
+    }
+    setRulesetDefault(project, draft.ruleset);
+  }
   project.tags = deriveSettingTags(project.tags, project);
   return project;
 }
@@ -144,6 +170,10 @@ function sameProject(a: Project, b: Project): boolean {
     a.description === b.description &&
     a.genre === b.genre &&
     a.system === b.system &&
+    ((a.ruleset === undefined && b.ruleset === undefined) ||
+      (a.ruleset !== undefined &&
+        b.ruleset !== undefined &&
+        sameRulesetRef(a.ruleset, b.ruleset))) &&
     a.tags.length === b.tags.length &&
     a.tags.every((tag, index) => tag === b.tags[index])
   );
@@ -182,9 +212,9 @@ export async function updateProject(
       next.description = description;
     }
   }
-  // `null` clears and a value sets, per `ProjectChanges`. Both may be changed as often as the user
-  // likes: nothing keys off either field but which tools the workshop lists, so a change here
-  // invalidates no artifact and breaks no reference (docs/workshop.md, decision 7).
+  // `null` clears and a value sets, per `ProjectChanges`. Genre is independent. System also acts
+  // as the ruleset compatibility filter, so an incompatible change must name `ruleset: null` —
+  // the UI obtains confirmation before making that explicit request.
   if (changes.genre !== undefined) {
     if (changes.genre === null) {
       delete next.genre;
@@ -193,10 +223,34 @@ export async function updateProject(
     }
   }
   if (changes.system !== undefined) {
+    const desiredSystem = changes.system === null ? undefined : changes.system;
+    const rulesetSystem =
+      next.ruleset === undefined ? undefined : findRulesetDescriptor(next.ruleset)?.gameSystem;
+    if (
+      next.ruleset !== undefined &&
+      changes.ruleset === undefined &&
+      desiredSystem !== rulesetSystem
+    ) {
+      throw new Error('an incompatible system change must explicitly clear the project ruleset');
+    }
     if (changes.system === null) {
       delete next.system;
     } else {
       next.system = changes.system;
+    }
+  }
+  if (changes.ruleset !== undefined) {
+    if (changes.ruleset === null) {
+      delete next.ruleset;
+    } else {
+      if (changes.system !== undefined) {
+        const descriptor = findRulesetDescriptor(changes.ruleset);
+        const desiredSystem = changes.system === null ? undefined : changes.system;
+        if (descriptor === undefined || descriptor.gameSystem !== desiredSystem) {
+          throw new Error('a project ruleset and system must describe the same game system');
+        }
+      }
+      setRulesetDefault(next, changes.ruleset);
     }
   }
   // Last, and unconditionally: the setting tags are derived from the fields as they now stand, so a

@@ -2,6 +2,7 @@ import { IDBFactory } from 'fake-indexeddb';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { closeVault, writeProjectRecord } from '$lib/vault_db';
+import { IRONARACHNE_RULESET_REF } from '$lib/rulesets';
 
 import {
   forgetProject,
@@ -71,6 +72,26 @@ describe('toProject', () => {
     expect(read?.genre).toBe('horror');
     expect(read?.system).toBe('dcc');
     expect(read?.tags).toEqual(['homebrew', 'genre:horror', 'system:dcc']);
+  });
+
+  it('reads a registered ruleset only when its game-system filter agrees', () => {
+    expect(toProject({ ...aProject(), ruleset: IRONARACHNE_RULESET_REF })?.ruleset).toEqual(
+      IRONARACHNE_RULESET_REF,
+    );
+    expect(
+      toProject({ ...aProject(), system: 'dcc', ruleset: IRONARACHNE_RULESET_REF }),
+    ).not.toHaveProperty('ruleset');
+  });
+
+  it('drops an unknown ruleset and keeps the project without inventing a replacement', () => {
+    const read = toProject({
+      ...aProject(),
+      system: 'dcc',
+      ruleset: { id: 'dcc', release: 'from-a-later-build' },
+    });
+
+    expect(read?.system).toBe('dcc');
+    expect(read).not.toHaveProperty('ruleset');
   });
 
   it.each<[string, unknown, string]>([

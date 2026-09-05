@@ -187,6 +187,41 @@ test.describe('the projects page', () => {
     await expect(projectCard(page, 'Ashfall')).toContainText('Cyberpunk');
   });
 
+  test('sets and clears a ruleset default, confirming an incompatible system change', async ({
+    page,
+  }) => {
+    await projectsPage(page).getByLabel('New project').fill('Ashfall');
+    await projectsPage(page).getByLabel('Ruleset').selectOption('ironarachne@1');
+    await projectsPage(page).getByRole('button', { name: 'Create project' }).click();
+
+    let card = projectCard(page, 'Ashfall');
+    await expect(card).toContainText('Ruleset: Iron Arachne 1');
+
+    await card.getByRole('button', { name: 'Rename' }).click();
+    await editingCard(page).getByLabel('Ruleset').selectOption('');
+    await editingCard(page).getByRole('button', { name: 'Save' }).click();
+    await expect(projectCard(page, 'Ashfall')).not.toContainText('Ruleset:');
+
+    await projectCard(page, 'Ashfall').getByRole('button', { name: 'Rename' }).click();
+    await editingCard(page).getByLabel('Ruleset').selectOption('ironarachne@1');
+    await editingCard(page).getByLabel('System').selectOption('dnd-5e');
+    await editingCard(page).getByRole('button', { name: 'Save' }).click();
+
+    const dialog = page.locator('dialog.panel');
+    await expect(dialog).toContainText('Existing artifacts will not be changed');
+    await dialog.getByRole('button', { name: 'Cancel' }).click();
+    await expect(editingCard(page)).toBeVisible();
+
+    await editingCard(page).getByRole('button', { name: 'Save' }).click();
+    await dialog.getByRole('button', { name: 'Change and clear' }).click();
+    card = projectCard(page, 'Ashfall');
+    await expect(card).toContainText('D&D 5E');
+    await expect(card).not.toContainText('Ruleset:');
+
+    await page.reload({ waitUntil: 'load' });
+    await expect(projectCard(page, 'Ashfall')).toContainText('D&D 5E');
+  });
+
   test('leaves a project set in nothing when nothing is chosen', async ({ page }) => {
     await create(page, 'A box of tools');
 

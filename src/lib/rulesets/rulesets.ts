@@ -45,7 +45,8 @@ function isMechanicsOrigin(value: unknown): value is MechanicsOrigin {
   return typeof value === 'string' && (MECHANICS_ORIGINS as readonly string[]).includes(value);
 }
 
-function readRulesetRef(value: unknown): RulesetResult<RulesetRef> {
+/** A durable ref this build has registered, copied across the runtime boundary. */
+export function validateRulesetRef(value: unknown): RulesetResult<RulesetRef> {
   const record = asRecord(value);
   if (record === undefined || !isRulesetId(record.id)) {
     return rejectedRuleset('unknown-ruleset', 'mechanics names no supported ruleset id');
@@ -65,7 +66,7 @@ function readRulesetRef(value: unknown): RulesetResult<RulesetRef> {
 }
 
 export async function getRuleset(ref: RulesetRef): Promise<RulesetResult<RulesetDefinition>> {
-  const checked = readRulesetRef(ref);
+  const checked = validateRulesetRef(ref);
   if (!checked.ok) {
     return checked;
   }
@@ -103,7 +104,7 @@ export function validateQualifiedMechanics(value: unknown): RulesetResult<Qualif
     return rejectedRuleset('invalid-mechanics', 'qualified mechanics is not an object');
   }
 
-  const ruleset = readRulesetRef(record.ruleset);
+  const ruleset = validateRulesetRef(record.ruleset);
   if (!ruleset.ok) {
     return ruleset;
   }

@@ -24,6 +24,7 @@ import {
   toCultureSnapshot,
 } from '$lib/culture';
 import { createProject, getProject, listProjects, resetProjectIndex } from '$lib/projects';
+import { IRONARACHNE_RULESET_REF } from '$lib/rulesets';
 import { closeVault, deleteProjectCascade, readVaultId } from '$lib/vault_db';
 import { ARTIFACT_KINDS } from '$lib/workshop';
 import { readProjectWorkspace, writeProjectWorkspace } from '$lib/workspaces';
@@ -533,6 +534,28 @@ describe('importExportFile: what a project is set in', () => {
     expect(restored.genre).toBe('horror');
     expect(restored.system).toBe('dcc');
     expect(restored.tags).toEqual(['genre:horror', 'system:dcc']);
+  });
+
+  it('round trips optional project and provenance ruleset refs', async () => {
+    const file = handBuiltFile('project', {
+      project: { ...handBuiltProject, ruleset: IRONARACHNE_RULESET_REF },
+      artifacts: [
+        exportedArtifact({
+          provenance: {
+            toolPath: '/culture',
+            seed: 'seed-1',
+            config: {},
+            ruleset: IRONARACHNE_RULESET_REF,
+          },
+        }),
+      ],
+    });
+
+    const result = await importExportFile(testKinds(), file);
+    expect(result.ok).toBe(true);
+    const [restored] = listProjects();
+    expect(restored.ruleset).toEqual(IRONARACHNE_RULESET_REF);
+    expect(listArtifacts(restored.id)[0].provenance?.ruleset).toEqual(IRONARACHNE_RULESET_REF);
   });
 
   it('keeps a project whose genre this build has never heard of', async () => {

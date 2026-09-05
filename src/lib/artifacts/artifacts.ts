@@ -91,6 +91,7 @@ function normalizeProvenance(
     toolPath: provenance.toolPath,
     seed: provenance.seed,
     config: provenance.config ?? {},
+    ...(provenance.ruleset === undefined ? {} : { ruleset: { ...provenance.ruleset } }),
   };
 }
 

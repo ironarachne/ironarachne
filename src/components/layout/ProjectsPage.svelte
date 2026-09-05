@@ -17,6 +17,12 @@
     type ProjectDraft,
   } from '$lib/projects';
   import {
+    allRulesets,
+    findRulesetDescriptor,
+    type RulesetDescriptor,
+    type RulesetRef,
+  } from '$lib/rulesets';
+  import {
     hasSeenStorageDisclosure,
     recordStorageDisclosureShown,
     requestPersistenceIfWarranted,
@@ -57,12 +63,39 @@
     { value: '', label: 'Any system' },
     ...SYSTEMS.map((system) => ({ value: system, label: systemDisplayName(system) })),
   ];
+  const RULESETS = allRulesets();
+  const RULESET_OPTIONS = [
+    { value: '', label: 'No ruleset default' },
+    ...RULESETS.map((descriptor) => ({
+      value: rulesetValue(descriptor.ref),
+      label: `${descriptor.displayName} (${descriptor.ref.release})`,
+    })),
+  ];
+
+  function rulesetValue(ref: RulesetRef): string {
+    return `${ref.id}@${ref.release}`;
+  }
+
+  function selectedRuleset(value: string): RulesetDescriptor | undefined {
+    return RULESETS.find((descriptor) => rulesetValue(descriptor.ref) === value);
+  }
+
+  function rulesetSummary(project: Project): string | undefined {
+    if (project.ruleset === undefined) {
+      return undefined;
+    }
+    const descriptor = findRulesetDescriptor(project.ruleset);
+    return descriptor === undefined
+      ? undefined
+      : `Ruleset: ${descriptor.displayName} ${descriptor.ref.release}`;
+  }
 
   /** The genre and system of a project, as the card's fact line says them. Empty when it has none. */
   function settingSummary(project: Project): string {
     return [
       project.genre === undefined ? undefined : genreDisplayName(project.genre),
       project.system === undefined ? undefined : systemDisplayName(project.system),
+      rulesetSummary(project),
     ]
       .filter((name) => name !== undefined)
       .join(' · ');
@@ -78,6 +111,7 @@
   let newName = $state('');
   let newGenre = $state('');
   let newSystem = $state('');
+  let newRuleset = $state('');
   let storageError: string | null = $state(null);
   /** The project whose name and description are being edited, if any. */
   let editingId: string | undefined = $state(undefined);
@@ -85,6 +119,7 @@
   let editDescription = $state('');
   let editGenre = $state('');
   let editSystem = $state('');
+  let editRuleset = $state('');
   /** The local-only disclosure, shown once ever and dismissible. See docs/storage-disclosure.md. */
   let showDisclosure = $state(false);
 
@@ -179,6 +214,10 @@
     if (newSystem !== '') {
       draft.system = newSystem as GameSystem;
     }
+    const ruleset = selectedRuleset(newRuleset);
+    if (ruleset !== undefined) {
+      draft.ruleset = ruleset.ref;
+    }
     const created = await createProject(draft);
     report(created);
     if (created.ok) {
@@ -195,6 +234,9 @@
       }
       if (newSystem === (draft.system ?? '')) {
         newSystem = '';
+      }
+      if (newRuleset === (draft.ruleset === undefined ? '' : rulesetValue(draft.ruleset))) {
+        newRuleset = '';
       }
     }
     refresh();
@@ -214,6 +256,7 @@
     editDescription = project.description ?? '';
     editGenre = project.genre ?? '';
     editSystem = project.system ?? '';
+    editRuleset = project.ruleset === undefined ? '' : rulesetValue(project.ruleset);
   }
 
   function cancelEditing(): void {
@@ -226,16 +269,45 @@
     // action. An empty description clears it, which is what the field's placeholder promises.
     // `null` clears rather than an empty string, which is what "Any genre" has to mean: the field
     // is an enum and there is no empty member of one to stand in for absent.
+    const descriptor = selectedRuleset(editRuleset);
+    let ruleset: RulesetRef | null = descriptor?.ref ?? null;
+    const desiredSystem = editSystem === '' ? undefined : (editSystem as GameSystem);
+    if (descriptor !== undefined && descriptor.gameSystem !== desiredSystem) {
+      const confirmed = await showConfirmModal({
+        title: 'Change system and clear ruleset?',
+        message: `The selected system is not compatible with ${descriptor.displayName} ${descriptor.ref.release}. Change the system and clear the ruleset default? Existing artifacts will not be changed.`,
+        okLabel: 'Change and clear',
+      });
+      if (!confirmed) {
+        return;
+      }
+      ruleset = null;
+    }
     report(
       await updateProject(id, {
         name: editName,
         description: editDescription.trim(),
         genre: editGenre === '' ? null : (editGenre as Genre),
         system: editSystem === '' ? null : (editSystem as GameSystem),
+        ruleset,
       }),
     );
     editingId = undefined;
     refresh();
+  }
+
+  function chooseNewRuleset(): void {
+    const descriptor = selectedRuleset(newRuleset);
+    if (descriptor !== undefined) {
+      newSystem = descriptor.gameSystem ?? '';
+    }
+  }
+
+  function chooseEditRuleset(): void {
+    const descriptor = selectedRuleset(editRuleset);
+    if (descriptor !== undefined) {
+      editSystem = descriptor.gameSystem ?? '';
+    }
   }
 
   async function remove(row: Row): Promise<void> {
@@ -304,6 +376,13 @@
       bind:value={newSystem}
       options={SYSTEM_OPTIONS}
     />
+    <SelectField
+      id="{uid}-new-ruleset"
+      label="Ruleset"
+      bind:value={newRuleset}
+      options={RULESET_OPTIONS}
+      onchange={chooseNewRuleset}
+    />
     <!-- The page's one primary action. Primary is a claim about the page rather than about the
          button: everything else here — rename, delete, export — acts on something that already
          exists, and this is the thing a visitor with no projects came to do. -->
@@ -362,6 +441,13 @@
                   label="System"
                   bind:value={editSystem}
                   options={SYSTEM_OPTIONS}
+                />
+                <SelectField
+                  id="{uid}-ruleset-{row.project.id}"
+                  label="Ruleset"
+                  bind:value={editRuleset}
+                  options={RULESET_OPTIONS}
+                  onchange={chooseEditRuleset}
                 />
                 <div class="project-card__actions">
                   <BaseButton onclick={() => saveEdits(row.project.id)}>Save</BaseButton>
