@@ -1,6 +1,8 @@
 import { ADND_2E_RULESET_DESCRIPTOR, ADND_2E_RULESET_REF } from './adnd_2e/descriptor';
 import { ADND_2E_OPEN_RULES_SOURCE } from './adnd_2e/source_manifest';
 import { DCC_LEGACY_RULESET_DESCRIPTOR, DCC_LEGACY_RULESET_REF } from './dcc/descriptor';
+import { DND_5E_RULESET_DESCRIPTOR, DND_5E_RULESET_REF } from './dnd_5e/descriptor';
+import { DND_5E_SRD_SOURCE } from './dnd_5e/source_manifest';
 import { IRONARACHNE_RULESET_DESCRIPTOR, IRONARACHNE_RULESET_REF } from './ironarachne/descriptor';
 import { IRONARACHNE_ORIGINAL_SOURCE } from './ironarachne/source_manifest';
 import type {
@@ -37,11 +39,19 @@ const RULESET_CATALOG: RulesetCatalogEntry[] = [
       return dccLegacyRuleset;
     },
   },
+  {
+    descriptor: DND_5E_RULESET_DESCRIPTOR,
+    load: async () => {
+      const { dnd5eRuleset } = await import('./dnd_5e/definition.js');
+      return dnd5eRuleset;
+    },
+  },
 ];
 
 const RULES_DATA_SOURCES: RulesDataSource[] = [
   IRONARACHNE_ORIGINAL_SOURCE,
   ADND_2E_OPEN_RULES_SOURCE,
+  DND_5E_SRD_SOURCE,
 ];
 
 export function sameRulesetRef(left: RulesetRef, right: RulesetRef): boolean {
@@ -76,4 +86,4 @@ export function findRulesDataSource(id: string): RulesDataSource | undefined {
   return RULES_DATA_SOURCES.find((source) => source.id === id);
 }
 
-export { ADND_2E_RULESET_REF, DCC_LEGACY_RULESET_REF, IRONARACHNE_RULESET_REF };
+export { ADND_2E_RULESET_REF, DCC_LEGACY_RULESET_REF, DND_5E_RULESET_REF, IRONARACHNE_RULESET_REF };
