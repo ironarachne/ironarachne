@@ -54,6 +54,16 @@ test('static hosting: an unknown route falls back to the error document with a 4
   expect(body).toBe(errorDocument);
 });
 
+test('static hosting: distributes the Open Game License used by rules data', async () => {
+  const response = await fetch(`${host.origin}/legal/open-game-license-1.0a.txt`);
+  const body = await response.text();
+
+  expect(response.status).toBe(200);
+  expect(body).toContain('OPEN GAME LICENSE Version 1.0a');
+  expect(body).toContain('For Gold & Glory™, Copyright 2014; Justen Brown.');
+  expect(body).toContain('END OF LICENSE');
+});
+
 test('static hosting: the error document renders the site error page in a browser', async ({
   page,
 }) => {
