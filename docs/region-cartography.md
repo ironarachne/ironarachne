@@ -5,8 +5,10 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** proposal. The [domain model](#domain-model) has not been reviewed. Implementation of
-[the plan](#the-plan) does not start until it has been, per the design process in `CLAUDE.md`.
+**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved, so
+the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
+not advisory. The one [open question](#open-question) is deferred to a future update and does not
+block any of it.
 
 Tracked as [#229](https://github.com/ironarachne/ironarachne/issues/229), which holds the release
 gate: **no version is promoted to staging or prod while that issue is open.**
@@ -120,8 +122,11 @@ one drawn outside it is not.
 **What does a map unit mean?** A scale bar needs miles or leagues per map unit, and the region
 generator defines no such relationship anywhere. Either the region gains a physical extent — which
 is a change to generated data and therefore outside this document's rendering-only scope — or the
-scale bar is dropped. Recommendation: drop it rather than invent a number. Recorded here so the
-decision is made deliberately rather than by omission.
+scale bar is dropped.
+
+**Deferred to a future update of this document**, by decision at review. It blocks nothing: it
+reaches only the scale bar in item 8, the last of [the plan](#the-plan), and that item already says
+to drop the bar rather than invent a number if the question is still open when it is worked.
 
 ## Domain model
 
