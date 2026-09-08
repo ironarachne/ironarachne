@@ -1,5 +1,15 @@
 import type { MapEdge, MapNode, RegionMap } from './map_graph.js';
-import type Vertex from '../geometry/vertex.js';
+import type { Vertex } from '$lib/geometry';
+import {
+  CARTOGRAPHY,
+  STROKE_WIDTHS,
+  INK_WASH,
+  MASK_PAINT,
+  hash01,
+  toBipolar,
+  cartographyFilterDefs,
+  parchmentRect,
+} from '$lib/cartography';
 import { buildRoadCentroidPolylines } from './road_polylines.js';
 
 export type RegionMapSvgSettlement = {
@@ -14,7 +24,7 @@ export type RegionMapSvgSettlement = {
 const DEFAULT_SVG_MAX_WIDTH = 900;
 const DEFAULT_SVG_MAX_HEIGHT = 600;
 
-const PARCHMENT_FILL = '#ede4d3';
+const PARCHMENT_FILL = CARTOGRAPHY.ground.fill;
 
 let oceanCoastInnerClipSerial = 0;
 let riverTaperMaskSerial = 0;
@@ -74,75 +84,6 @@ function polygonToPathD(vertices: Vertex[]): string {
 
 function mapHasOcean(map: RegionMap): boolean {
   return map.nodes.some((n) => n.isOcean);
-}
-
-/** Lighten a `#rrggbb` color toward white (t in 0..1). */
-function mixHexWithWhite(hex: string, t: number): string {
-  const h = hex.replace('#', '');
-  if (h.length !== 6) return hex;
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  const L = (x: number) => Math.min(255, Math.round(x + (255 - x) * t));
-  const rr = L(r).toString(16).padStart(2, '0');
-  const gg = L(g).toString(16).padStart(2, '0');
-  const bb = L(b).toString(16).padStart(2, '0');
-  return `#${rr}${gg}${bb}`;
-}
-
-/** Darken a `#rrggbb` color toward black (t in 0..1). */
-function mixHexWithBlack(hex: string, t: number): string {
-  const h = hex.replace('#', '');
-  if (h.length !== 6) return hex;
-  const r = parseInt(h.slice(0, 2), 16);
-  const g = parseInt(h.slice(2, 4), 16);
-  const b = parseInt(h.slice(4, 6), 16);
-  const L = (x: number) => Math.max(0, Math.round(x * (1 - t)));
-  const rr = L(r).toString(16).padStart(2, '0');
-  const gg = L(g).toString(16).padStart(2, '0');
-  const bb = L(b).toString(16).padStart(2, '0');
-  return `#${rr}${gg}${bb}`;
-}
-
-/** Deterministic [0, 1) — stable SVG output per edge geometry. */
-function hash01(a: number, b: number, c: number): number {
-  const t = Math.sin(a * 12.9898 + b * 78.233 + c * 37.719) * 43758.5453123;
-  return t - Math.floor(t);
-}
-
-/** Map u in [0,1) to [-1, 1]. */
-function toBipolar(u: number): number {
-  return u * 2 - 1;
-}
-
-/** Extra points along a Voronoi boundary chord; Voronoi corners stay fixed — only these move. */
-function interiorPointsAlongBoundaryChord(
-  x0: number,
-  y0: number,
-  x1: number,
-  y1: number,
-  salt: number,
-): Vertex[] {
-  const dx = x1 - x0;
-  const dy = y1 - y0;
-  const len = Math.hypot(dx, dy);
-  if (len < 1e-10) return [];
-
-  const nx = -dy / len;
-  const ny = dx / len;
-  const count = Math.max(1, Math.min(4, Math.floor(len / 2.1)));
-  const out: Vertex[] = [];
-
-  for (let j = 1; j <= count; j++) {
-    const t = j / (count + 1);
-    const bx = x0 + dx * t;
-    const by = y0 + dy * t;
-    const h = hash01(salt, j * 2.718281828, t * 3.14159265);
-    const ampScale = 0.012 + hash01(salt * 1.3, j, len) * 0.018;
-    const off = toBipolar(h) * len * ampScale;
-    out.push({ x: bx + nx * off, y: by + ny * off });
-  }
-  return out;
 }
 
 /** Open path: cubic Beziers through points (Catmull-Rom → Bézier, /6 tension). */
@@ -356,30 +297,13 @@ function riverChainToSubdividedVertices(map: RegionMap, chain: MapEdge[]): Verte
   return all;
 }
 
-/** Ordered corner ids from Hierholzer (last may repeat first). */
+/** Resolve graph corners here; cartography owns their deterministic edge treatment. */
 function cornerLoopToVertices(map: RegionMap, loop: number[]): Vertex[] {
   const trimmed =
     loop.length > 1 && loop[0] === loop[loop.length - 1] ? loop.slice(0, -1) : [...loop];
-  const n = trimmed.length;
-  if (n < 3) return [];
-
-  const pts: Vertex[] = [];
-  for (let i = 0; i < n; i++) {
-    const ca = trimmed[i]!;
-    const cb = trimmed[(i + 1) % n]!;
-    const pa = map.corners[ca]?.point;
-    const pb = map.corners[cb]?.point;
-    if (!pa || !pb) return [];
-
-    if (i === 0) {
-      pts.push({ x: pa.x, y: pa.y });
-    }
-    const salt = ca * 49999 + cb * 1103515245 + i * 1009;
-    for (const p of interiorPointsAlongBoundaryChord(pa.x, pa.y, pb.x, pb.y, salt)) {
-      pts.push(p);
-    }
-  }
-  return pts;
+  const points = trimmed.map((id) => map.corners[id]?.point);
+  if (points.some((point) => point === undefined)) return [];
+  return CARTOGRAPHY.edges.displace(points as Vertex[], trimmed);
 }
 
 function isComponentBoundaryEdge(edge: MapEdge, component: Set<number>): boolean {
@@ -514,23 +438,23 @@ function connectedComponentsByNodeRule(
 }
 
 /**
- * Outer dark coast ink, then a lighter blue stroke clipped to the ocean interior so it reads as an
+ * Outer dark coast ink, then a parchment stroke clipped to the ocean interior so it reads as an
  * inner rim inside the fill (not a second outer line like the old parchment channel).
  */
-function appendOceanCoastPathD(d: string, parts: string[], oceanFillHex: string): void {
+function appendOceanCoastPathD(d: string, parts: string[]): void {
   const clipId = `oceIn${oceanCoastInnerClipSerial++}`;
-  const innerBlue = mixHexWithWhite(oceanFillHex, 0.26);
+  const innerInk = CARTOGRAPHY.ground.fill;
   parts.push(
     `<defs><clipPath id="${clipId}"><path d="${d}"/></clipPath></defs>`,
-    `<path d="${d}" fill="none" stroke="#1e2a32" stroke-width="0.36" stroke-linejoin="round" stroke-linecap="round"/>`,
-    `<path d="${d}" fill="none" stroke="${innerBlue}" stroke-width="0.2" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#${clipId})"/>`,
+    `<path d="${d}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.heavy}" stroke-linejoin="round" stroke-linecap="round"/>`,
+    `<path d="${d}" fill="none" stroke="${innerInk}" stroke-width="${STROKE_WIDTHS.medium}" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#${clipId})"/>`,
   );
 }
 
-function appendLakeCoastPathD(d: string, parts: string[], lakeFillHex: string): void {
-  const strokeColor = mixHexWithBlack(lakeFillHex, 0.4);
+function appendLakeCoastPathD(d: string, parts: string[]): void {
+  const strokeColor = CARTOGRAPHY.palette.secondary.color;
   parts.push(
-    `<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="0.11" stroke-linejoin="round" stroke-linecap="round" opacity="0.42"/>`,
+    `<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round" stroke-linecap="round" opacity="0.42"/>`,
   );
 }
 
@@ -572,12 +496,12 @@ function appendFilledRegionPathD(
 ): void {
   layer.inked.push(`<path d="${d}" fill="${fill}" fill-opacity="${fillOpacity}" stroke="none"/>`);
   if (strokeKind === 'ocean') {
-    appendOceanCoastPathD(d, layer.plain, fill);
+    appendOceanCoastPathD(d, layer.plain);
   } else if (strokeKind === 'lake') {
-    appendLakeCoastPathD(d, layer.plain, fill);
+    appendLakeCoastPathD(d, layer.plain);
   } else {
     layer.inked.push(
-      `<path d="${d}" fill="none" stroke="#6e6252" stroke-width="0.11" stroke-linejoin="round" stroke-linecap="round" opacity="0.62"/>`,
+      `<path d="${d}" fill="none" stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round" stroke-linecap="round" opacity="0.62"/>`,
     );
   }
 }
@@ -607,8 +531,8 @@ type WaterPolygonItem = {
 };
 
 function listWaterPolygonsForMap(map: RegionMap): WaterPolygonItem[] {
-  const oceanFill = '#9eb8c9';
-  const lakeFill = '#a8caba';
+  const oceanFill = INK_WASH;
+  const lakeFill = INK_WASH;
   const fillOpacity = 0.92;
   const out: WaterPolygonItem[] = [];
   const waterComps = connectedComponentsByNodeRule(map, isWaterNode);
@@ -657,7 +581,7 @@ function isMountainLandNode(node: MapNode): boolean {
 
 function appendMountainTerrainBodies(map: RegionMap, layer: InkedLayer): void {
   const comps = connectedComponentsByNodeRule(map, isMountainLandNode);
-  const fill = '#bdb2a1';
+  const fill = INK_WASH;
   const fillOpacity = 0.9;
 
   for (const comp of comps) {
@@ -674,8 +598,8 @@ function appendChartDoubleLineIfOcean(map: RegionMap, parts: string[]): void {
   const w = map.width;
   const h = map.height;
   parts.push(
-    `<rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="#1e2a32" stroke-width="0.38"/>`,
-    `<rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="${PARCHMENT_FILL}" stroke-width="0.14"/>`,
+    `<rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.heavy}"/>`,
+    `<rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="${PARCHMENT_FILL}" stroke-width="${STROKE_WIDTHS.fine}"/>`,
   );
 }
 
@@ -777,9 +701,9 @@ function riverDryEndAndTaperRadius(
 /** Radial fade from transparent at a river's dry end to fully opaque at `taperR`. */
 function riverTaperGradientDef(dry: Vertex, taperR: number, serial: number): string {
   return `<radialGradient id="rvTapG${serial}" gradientUnits="userSpaceOnUse" cx="${n(dry.x)}" cy="${n(dry.y)}" r="${n(taperR)}" fx="${n(dry.x)}" fy="${n(dry.y)}">
-    <stop offset="0" stop-color="rgb(0,0,0)"/>
-    <stop offset="0.42" stop-color="rgb(210,210,210)"/>
-    <stop offset="1" stop-color="rgb(255,255,255)"/>
+    <stop offset="0" stop-color="${MASK_PAINT.hidden}"/>
+    <stop offset="0.42" stop-color="${MASK_PAINT.taper}"/>
+    <stop offset="1" stop-color="${MASK_PAINT.visible}"/>
   </radialGradient>`;
 }
 
@@ -806,11 +730,11 @@ function riverLayerMaskDef(
     (t) =>
       `<circle cx="${n(t.dry.x)}" cy="${n(t.dry.y)}" r="${n(t.taperR)}" fill="url(#rvTapG${t.serial})"/>`,
   );
-  const cutouts = waterPolygons.map((wp) => `<path d="${wp.d}" fill="black"/>`);
+  const cutouts = waterPolygons.map((wp) => `<path d="${wp.d}" fill="${MASK_PAINT.hidden}"/>`);
   return `<defs>
 ${gradients.join('\n')}
   <mask id="riverInk" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
-    <rect x="0" y="0" width="${w}" height="${h}" fill="white"/>
+    <rect x="0" y="0" width="${w}" height="${h}" fill="${MASK_PAINT.visible}"/>
     ${taperCircles.join('\n    ')}
     ${cutouts.join('\n    ')}
   </mask>
@@ -829,7 +753,7 @@ function appendRiversAndRoads(
     if (!rv || rv.length < 2) continue;
     const d = openCurvePathDThroughPoints(rv);
     riverLines.push(
-      `<path d="${d}" fill="none" stroke="#5a7a6e" stroke-width="0.2" stroke-linejoin="round" stroke-linecap="round" opacity="0.88"/>`,
+      `<path d="${d}" fill="none" stroke="${CARTOGRAPHY.palette.water.color}" stroke-width="${STROKE_WIDTHS.medium}" stroke-linejoin="round" stroke-linecap="round" opacity="0.88"/>`,
     );
     const { dry, taperR } = riverDryEndAndTaperRadius(rv, map);
     tapers.push({ dry, taperR, serial: riverTaperMaskSerial++ });
@@ -837,7 +761,7 @@ function appendRiversAndRoads(
 
   const roads = buildRoadCentroidPolylines(map).map(
     (poly) =>
-      `<path d="${openRoadPolylinePathD(poly)}" fill="none" stroke="#5c4a3a" stroke-width="0.14" stroke-dasharray="0.45 0.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.92"/>`,
+      `<path d="${openRoadPolylinePathD(poly)}" fill="none" stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-dasharray="0.45 0.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.92"/>`,
   );
   if (roads.length === 0 && riverLines.length === 0) return;
 
@@ -1189,7 +1113,7 @@ function collectForestScatterSymbols(map: RegionMap): ScatterSymbol[] {
 
 function appendForestTerrainBodies(map: RegionMap, layer: InkedLayer): void {
   const comps = connectedComponentsByNodeRule(map, isForestNode);
-  const fill = '#c2d7c2'; // Soft sage green
+  const fill = INK_WASH;
   const fillOpacity = 0.42;
 
   for (const comp of comps) {
@@ -1247,7 +1171,7 @@ function appendLandBiomeSymbols(map: RegionMap, parts: string[]): void {
   }
   if (glyphs.length === 0) return;
   parts.push(
-    `<g font-family="Georgia, serif" fill="#4a3d32" text-anchor="middle" dominant-baseline="middle">
+    `<g font-family="Georgia, serif" fill="${CARTOGRAPHY.palette.body.color}" text-anchor="middle" dominant-baseline="middle">
 ${glyphs.join('\n')}
 </g>`,
   );
@@ -1255,7 +1179,7 @@ ${glyphs.join('\n')}
 
 const MAP_TEXT_FONT_FAMILY = '&apos;Times New Roman&apos;, Times, serif';
 /** Very dark brown, so map text reads as ink on parchment rather than fading into the terrain. */
-const MAP_TEXT_INK = '#2a1d12';
+const MAP_TEXT_INK = CARTOGRAPHY.palette.text.color;
 
 /** Marker radius in map units: the ring's radius, and the basis for the capital's star. */
 function settlementMarkerRadius(node: MapNode, map: RegionMap): number {
@@ -1298,11 +1222,11 @@ function appendSettlements(
       // less work.
       stars.push(
         `<text x="${n(x + 0.05)}" y="${n(y + 0.07)}" font-size="${n(r * 3)}" fill="${SYMBOL_SHADOW_INK}" fill-opacity="${SYMBOL_SHADOW_OPACITY}">${escapeXml('★')}</text>`,
-        `<text x="${n(x)}" y="${n(y)}" font-size="${n(r * 3)}" fill="#5c2828">${escapeXml('★')}</text>`,
+        `<text x="${n(x)}" y="${n(y)}" font-size="${n(r * 3)}" fill="${CARTOGRAPHY.palette.text.color}">${escapeXml('★')}</text>`,
       );
     } else {
       rings.push(
-        `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="#4a3228" stroke-width="0.12"/>`,
+        `<circle cx="${n(x)}" cy="${n(y)}" r="${n(r)}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}"/>`,
       );
     }
   }
@@ -1629,69 +1553,52 @@ const MOUNTAIN_LOW_BODY_D = 'M -1.0 0 L -0.3 -1.0 L 0.1 -0.6 L 0.5 -0.8 L 1.0 0 
  * Each filtered element costs its own offscreen buffer and blur pass, which dominated render time.
  * The offset runs slightly longer than the old filter's to read as soft without an actual blur.
  */
-const SYMBOL_SHADOW_INK = '#3d2e24';
+const SYMBOL_SHADOW_INK = CARTOGRAPHY.palette.body.color;
 const SYMBOL_SHADOW_OPACITY = 0.3;
 const SYMBOL_SHADOW_OFFSET = 'translate(0.05, 0.07)';
 
 /** Offset silhouette drawn under a symbol's artwork; `stroked` widens thin art so it casts at all. */
 function symbolShadowPath(d: string, stroked = false): string {
   const paint = stroked
-    ? `fill="none" stroke="${SYMBOL_SHADOW_INK}" stroke-width="0.16" stroke-opacity="${SYMBOL_SHADOW_OPACITY}" stroke-linecap="round"`
+    ? `fill="none" stroke="${SYMBOL_SHADOW_INK}" stroke-width="${STROKE_WIDTHS.fine}" stroke-opacity="${SYMBOL_SHADOW_OPACITY}" stroke-linecap="round"`
     : `fill="${SYMBOL_SHADOW_INK}" fill-opacity="${SYMBOL_SHADOW_OPACITY}" stroke="none"`;
   return `<path d="${d}" transform="${SYMBOL_SHADOW_OFFSET}" ${paint}/>`;
 }
 
 function svgDefs(map: RegionMap): string {
-  // `inkEdge` is pinned to user space so a group-wide filter gets one map-sized buffer instead of a
-  // region scaled off the group's bounding box.
-  const inkX = -1;
-  const inkY = -1;
-  const inkW = map.width + 2;
-  const inkH = map.height + 2;
   return `<defs>
-  <!-- One octave each: at 0.9 the grain's extra octaves land below a device pixel, and at 0.04 the
-       displacement field is smooth enough that a second octave is not visible in the wobble. Each
-       octave is a full pass of Perlin noise over the whole canvas. -->
-  <filter id="paperGrain" x="-5%" y="-5%" width="110%" height="110%">
-    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" result="noise" seed="42"/>
-    <feColorMatrix type="matrix" values="0 0 0 0 0.55  0 0 0 0 0.48  0 0 0 0 0.38  0 0 0 0.12 0" in="noise" result="colored"/>
-    <feBlend in="SourceGraphic" in2="colored" mode="multiply"/>
-  </filter>
-  <filter id="inkEdge" filterUnits="userSpaceOnUse" x="${inkX}" y="${inkY}" width="${inkW}" height="${inkH}">
-    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="turb"/>
-    <feDisplacementMap in="SourceGraphic" in2="turb" scale="0.28" xChannelSelector="R" yChannelSelector="G"/>
-  </filter>
+  ${cartographyFilterDefs(map.width, map.height)}
   <g id="tree-oak">
     ${symbolShadowPath(TREE_OAK_CANOPY_D)}
-    <path d="M 0 0 L 0 -0.5" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
-    <path d="${TREE_OAK_CANOPY_D}" fill="#c3d9b0" fill-opacity="0.95" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round"/>
+    <path d="M 0 0 L 0 -0.5" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
+    <path d="${TREE_OAK_CANOPY_D}" fill="${CARTOGRAPHY.ground.fill}" fill-opacity="0.95" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linejoin="round"/>
   </g>
   <g id="tree-pine">
     ${symbolShadowPath(TREE_PINE_BODY_D)}
-    <path d="M 0 0 L 0 -0.4" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
-    <path d="${TREE_PINE_BODY_D}" fill="#b2cdac" fill-opacity="0.95" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round"/>
+    <path d="M 0 0 L 0 -0.4" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
+    <path d="${TREE_PINE_BODY_D}" fill="${CARTOGRAPHY.ground.fill}" fill-opacity="0.95" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linejoin="round"/>
   </g>
   <g id="tree-palm">
     ${symbolShadowPath(TREE_PALM_TRUNK_D, true)}
     ${symbolShadowPath(TREE_PALM_FRONDS_D, true)}
-    <path d="${TREE_PALM_TRUNK_D}" fill="none" stroke="#4a3d32" stroke-width="0.15" stroke-linecap="round"/>
-    <path d="${TREE_PALM_FRONDS_D}" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linecap="round"/>
+    <path d="${TREE_PALM_TRUNK_D}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
+    <path d="${TREE_PALM_FRONDS_D}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
   </g>
   <g id="mountain-high">
     ${symbolShadowPath(MOUNTAIN_HIGH_BODY_D)}
-    <path d="${MOUNTAIN_HIGH_BODY_D}" fill="#dcd2c4" fill-opacity="0.9" stroke="none"/>
-    <path d="M -1.4 0 L -0.4 -1.8 L 0.1 -1.1 L 0.6 -1.5 L 1.4 0" fill="none" stroke="#4a3d32" stroke-width="0.12" stroke-linejoin="round" stroke-linecap="round"/>
-    <path d="M -0.4 -1.8 L -0.6 -0.6" fill="none" stroke="#4a3d32" stroke-width="0.12" stroke-linecap="round"/>
-    <path d="M 0.6 -1.5 L 0.4 -0.5" fill="none" stroke="#4a3d32" stroke-width="0.12" stroke-linecap="round"/>
-    <path d="M -0.35 -1.5 L -0.2 -1.5 M -0.3 -1.2 L -0.1 -1.2 M -0.25 -0.9 L -0.05 -0.9 M -0.2 -0.6 L 0.0 -0.6" fill="none" stroke="#4a3d32" stroke-width="0.08" stroke-linecap="round"/>
-    <path d="M 0.65 -1.2 L 0.8 -1.2 M 0.6 -0.9 L 0.75 -0.9 M 0.55 -0.6 L 0.7 -0.6 M 0.5 -0.3 L 0.65 -0.3" fill="none" stroke="#4a3d32" stroke-width="0.08" stroke-linecap="round"/>
+    <path d="${MOUNTAIN_HIGH_BODY_D}" fill="${CARTOGRAPHY.ground.fill}" fill-opacity="0.9" stroke="none"/>
+    <path d="M -1.4 0 L -0.4 -1.8 L 0.1 -1.1 L 0.6 -1.5 L 1.4 0" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M -0.4 -1.8 L -0.6 -0.6" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
+    <path d="M 0.6 -1.5 L 0.4 -0.5" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
+    <path d="M -0.35 -1.5 L -0.2 -1.5 M -0.3 -1.2 L -0.1 -1.2 M -0.25 -0.9 L -0.05 -0.9 M -0.2 -0.6 L 0.0 -0.6" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
+    <path d="M 0.65 -1.2 L 0.8 -1.2 M 0.6 -0.9 L 0.75 -0.9 M 0.55 -0.6 L 0.7 -0.6 M 0.5 -0.3 L 0.65 -0.3" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
   </g>
   <g id="mountain-low">
     ${symbolShadowPath(MOUNTAIN_LOW_BODY_D)}
-    <path d="${MOUNTAIN_LOW_BODY_D}" fill="#e5dec9" fill-opacity="0.9" stroke="none"/>
-    <path d="M -1.0 0 L -0.3 -1.0 L 0.1 -0.6 L 0.5 -0.8 L 1.0 0" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linejoin="round" stroke-linecap="round"/>
-    <path d="M -0.3 -1.0 L -0.4 -0.3" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linecap="round"/>
-    <path d="M 0.5 -0.8 L 0.4 -0.3" fill="none" stroke="#4a3d32" stroke-width="0.1" stroke-linecap="round"/>
+    <path d="${MOUNTAIN_LOW_BODY_D}" fill="${CARTOGRAPHY.ground.fill}" fill-opacity="0.9" stroke="none"/>
+    <path d="M -1.0 0 L -0.3 -1.0 L 0.1 -0.6 L 0.5 -0.8 L 1.0 0" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M -0.3 -1.0 L -0.4 -0.3" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
+    <path d="M 0.5 -0.8 L 0.4 -0.3" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
   </g>
 </defs>`;
 }
@@ -1710,9 +1617,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
 
   const body: string[] = [];
   const waterPolygons = listWaterPolygonsForMap(map);
-  body.push(
-    `<rect width="${w}" height="${h}" fill="${PARCHMENT_FILL}" filter="url(#paperGrain)"/>`,
-  );
+  body.push(parchmentRect(w, h));
   // Water, mountains and forests are disjoint regions, so they share a single displacement pass
   // rather than paying for a full-canvas feTurbulence each.
   const terrain = newInkedLayer();

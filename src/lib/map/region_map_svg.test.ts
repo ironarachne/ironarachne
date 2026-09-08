@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { CARTOGRAPHY } from '$lib/cartography';
+import { readFileSync } from 'node:fs';
 import { RNG } from '@ironarachne/rng';
 import { buildBaseMapGraph } from './builder.js';
 import { buildRegionMapSvgString } from './region_map_svg.js';
@@ -480,7 +482,7 @@ describe('buildRegionMapSvgString', () => {
       expect(r).toBeGreaterThan(b);
 
       // The halo copy is stroke-only and comes first, so the ink lands on top of it.
-      const haloIndex = svg.indexOf(`fill="none" stroke="${'#ede4d3'}"`);
+      const haloIndex = svg.indexOf(`fill="none" stroke="${CARTOGRAPHY.ground.fill}"`);
       expect(haloIndex).toBeGreaterThan(-1);
       expect(svg.indexOf(`fill="${label.fill}">${label.text}`)).toBeGreaterThan(haloIndex);
     }
@@ -591,7 +593,7 @@ describe('buildRegionMapSvgString', () => {
     };
 
     const svg = buildRegionMapSvgString(map);
-    expect(svg).toContain('stroke="#1e2a32"');
+    expect(svg).toContain(`stroke="${CARTOGRAPHY.palette.body.color}"`);
   });
 
   it('renders rivers, roads, and settlements on a connected map', () => {
@@ -708,7 +710,7 @@ describe('buildRegionMapSvgString', () => {
       settlements: [{ mapNodeId: 0 }, { mapNodeId: 1, isCapital: true }],
     });
 
-    expect(svg).toContain('stroke="#5a7a6e"');
+    expect(svg).toContain(`stroke="${CARTOGRAPHY.palette.water.color}"`);
     expect(svg).toContain('stroke-dasharray="0.45 0.4"');
     expect(svg).toContain('<circle ');
     expect(svg).toContain('★');
@@ -730,14 +732,19 @@ describe('buildRegionMapSvgString', () => {
     const hasOcean = map.nodes.some((n) => n.isOcean);
 
     if (hasRiver) {
-      expect(svg).toContain('stroke="#5a7a6e"');
+      expect(svg).toContain(`stroke="${CARTOGRAPHY.palette.water.color}"`);
     }
     if (hasRoad) {
       expect(svg).toContain('stroke-dasharray="0.45 0.4"');
     }
     if (hasOcean) {
-      expect(svg).toContain('stroke="#1e2a32"');
+      expect(svg).toContain(`stroke="${CARTOGRAPHY.palette.body.color}"`);
     }
     expect(svg).toContain('Generated Region');
   });
+});
+
+it('keeps all color literals in the cartography vocabulary, including mask paints', () => {
+  const source = readFileSync(new URL('./region_map_svg.ts', import.meta.url), 'utf8');
+  expect(source).not.toMatch(/#[0-9a-f]{6}\b|rgba?\(|["'](?:black|white)["']/i);
 });
