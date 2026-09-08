@@ -5,7 +5,7 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; ink vocabulary (#230) and water outlines (#231) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
+**Status:** accepted; ink vocabulary (#230), water outlines (#231), and sea hatching (#232) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
 the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
 not advisory. The one [open question](#open-question) is deferred to a future update and does not
 block any of it.
@@ -297,6 +297,26 @@ maximum displacement, and coordinate-rounding slack. Keep this geometry in the r
 The outside-of-map parts of a water boundary extend beyond the viewBox before smoothing so water
 still reaches the page edge. The map remains an image clipped by its viewBox, as required by
 decision 9. Reference renders and SVG size changes are recorded in [the #231 visual review](region_cartography_231/README.md).
+
+## Sea hatching method (#232)
+
+Use **interior distance contours** of the processed water outline as parallel inset bands. A
+bounded grid samples distance to the shore inside the water; marching squares traces each inset
+level into connected polylines. Unlike vertex-normal offsets, distance contours split or disappear
+when an inlet becomes too narrow instead of crossing each other. This implements the approved
+`Hatching` → `InkedPath` model without changing stored geography.
+
+Ocean gets up to four bands with increasing spacing and decreasing ink opacity. Large lakes get
+two closer bands; lakes smaller than six square units at the reference-map scale get bare
+parchment inside their outline. All water loses its flat wash. Terrain ink is masked out of water,
+so the underlying parchment grain remains visible even where a raw terrain region overlaps the
+smoothed shore. Existing coast ink, glyph placement, labels, rivers, and the image embedding stay.
+
+Distance is measured to visible shoreline segments, not the artificial closing runs outside the
+viewBox. This prevents hatch lines along the rectangular crop. The grid scales with the shorter
+map dimension; it has bounded resolution independent of cell count. Contours are joined and
+simplified before serialization, and each shoreline is defined once and referenced by its
+strokes, clips, and masks. SVG sizes and the three seed comparisons are recorded in [the #232 visual review](region_cartography_232/README.md).
 
 ## The plan
 

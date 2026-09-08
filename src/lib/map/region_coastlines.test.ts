@@ -87,8 +87,15 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
     const region = generate(config);
     const original = structuredClone(region.map);
     const svg = buildRegionMapSvgString(region.map);
-    const water = [...svg.matchAll(/<path data-water-body="(?:ocean|lake)" d="([^"]+)"/g)];
+    const water = [
+      ...svg.matchAll(/<path data-water-body="(?:ocean|lake)" d="([^"]+)" id="([^"]+)"/g),
+    ];
     expect(water.length).toBeGreaterThan(0);
+    expect(svg).not.toContain('fill-opacity="0.92"');
+    expect(svg).toContain('data-water-hatching="ocean"');
+    expect(svg).not.toContain('<line ');
+    const previousSizes: Record<string, number> = { alpha: 285558, bravo: 229217, charlie: 308770 };
+    expect(Buffer.byteLength(svg)).toBeLessThan(previousSizes[seed]);
     const loops = water.map((match) => parseLoop(match[1]));
     for (let i = 0; i < loops.length; i++) {
       const points = loops[i];
@@ -99,8 +106,9 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
         expect(Math.hypot(a.x - b.x, a.y - b.y)).toBeLessThanOrEqual(0.302);
       }
       expect(visibleCrossings(points)).toBe(0);
-      // Fill and stroke, plus river mask and the ocean clip where applicable, reuse the same path.
-      expect(svg.split(`d="${water[i][1]}"`).length - 1).toBeGreaterThanOrEqual(2);
+      // A single definition is referenced by the coastline, clips, and masks.
+      expect(svg.split(`d="${water[i][1]}"`).length - 1).toBe(1);
+      expect(svg.split(`href="#${water[i][2]}"`).length - 1).toBeGreaterThanOrEqual(3);
     }
     const clear = makeWaterClearanceTest(loops, 0.18);
     const glyphs = [
