@@ -5,7 +5,7 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; ink vocabulary (#230), water outlines (#231), sea hatching (#232), and removal of terrain fills (#233) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
+**Status:** accepted; ink vocabulary (#230), water outlines (#231), sea hatching (#232), removal of terrain fills (#233), and glyph scatter (#194) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
 the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
 not advisory. The one [open question](#open-question) is deferred to a future update and does not
 block any of it.
@@ -317,6 +317,34 @@ viewBox. This prevents hatch lines along the rectangular crop. The grid scales w
 map dimension; it has bounded resolution independent of cell count. Contours are joined and
 simplified before serialization, and each shoreline is defined once and referenced by its
 strokes, clips, and masks. SVG sizes and the three seed comparisons are recorded in [the #232 visual review](region_cartography_232/README.md).
+
+## Glyph scatter method (#194)
+
+Use one map-wide Bridson candidate set for trees and peaks, with a locally constructed RNG derived
+from map width, height, and node count. Candidate spacing is 1.1 units at the 60×35 reference size,
+scaled by the shorter map dimension. This sets the overall density; the old per-cell density and
+40-dart limit are removed. Up to 12,000 accepted terrain candidates may be returned. Glyphs are
+larger than the old scatter, with a map-relative size floor, and retain scale and rotation jitter.
+
+The geometry sampler's optional acceptance predicate filters its returned points. Hidden samples
+remain active across rejected ground so separate islands and forests can all be reached. Its
+optional point budget counts accepted output, not that hidden scaffold. Callers without options
+retain their existing sample sequence, including the Voronoi map builder.
+
+Fit candidates against the existing terrain containment and processed-water clearance tests. A
+single spatial index then enforces a radius of 0.55 times each glyph's drawn half-width, plus SVG
+rounding slack. The sum of two such radii is the minimum base-point separation; partial silhouette
+overlap remains, and base-y ordering supplies depth. The result is a greedily thinned subset of a
+uniform Poisson set, not a true variable-radius Poisson distribution.
+
+Mountain cells take precedence over forest cells when assigning glyphs, removing the independent
+second layer of trees on ranges. Trees are restricted to the remaining forest/woodland cells.
+Open biomes have no cell-centre text marks, including the former dust-like dots and commas. This
+changes only the drawing: Alpha's stored land is entirely forest/woodland, while Charlie has actual
+grassland cells; the renderer does not invent plains by changing those biomes.
+
+Reference images, spacing counts, SVG sizes, and rendering measurements are recorded in
+[the #194 visual review](region_cartography_194/README.md).
 
 ## The plan
 
