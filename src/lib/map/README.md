@@ -44,7 +44,8 @@ The map is a Voronoi diagram over Poisson-disk points, built with
 - **Rendering** — `buildRegionMapSvgString(map, options)`. Water outlines use the shared
   cartography Chaikin strategy, with bounded noise at a scale set by map dimensions. Coast ink, water hatching,
   clips, and river cutouts reuse the same outline, defined once in SVG. Water is bare parchment
-  with coast-following hatch bands; a mask keeps terrain ink out of it. Glyph scale fitting checks full
+  with coast-following hatch bands. Forests and ranges are drawn only through their glyphs, with no
+  region washes or outlines. Glyph scale fitting checks full
   silhouettes against that drawn water (with stroke/filter clearance), using row bins to avoid
   scanning every coast segment for every candidate. Terrain membership still uses the raw cells.
 

@@ -2,7 +2,7 @@
 
 Each comparison has **before on the left, after on the right**, rasterized with `rsvg-convert` at
 1400 pixels per map. These are review illustrations, not golden-image tests. Human visual review
-is pending.
+was approved by Ben in [PR #240](https://github.com/ironarachne/ironarachne/pull/240).
 
 Water is now parchment with parallel coast-following bands. Ocean bands spread apart and become
 lighter seaward; larger lakes have two closer bands, and small lakes keep a bare interior.

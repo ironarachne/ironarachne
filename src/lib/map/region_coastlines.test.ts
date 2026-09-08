@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { getFantasyNameGeneratorSet } from '$lib/names';
 import { generate, getDefaultConfig } from '$lib/regions';
+import { INK_WASH } from '$lib/cartography';
 import type { Vertex } from '$lib/geometry';
 import { buildRegionMapSvgString } from './region_map_svg';
 import { makeWaterClearanceTest } from './water_clearance';
@@ -92,6 +93,8 @@ describe.each(['alpha', 'bravo', 'charlie'])('reference coastline: %s', (seed) =
     ];
     expect(water.length).toBeGreaterThan(0);
     expect(svg).not.toContain('fill-opacity="0.92"');
+    // Terrain remains glyph-only: no regional wash beneath the trees or peaks.
+    expect(svg).not.toContain(`fill="${INK_WASH}"`);
     expect(svg).toContain('data-water-hatching="ocean"');
     expect(svg).not.toContain('<line ');
     const previousSizes: Record<string, number> = { alpha: 285558, bravo: 229217, charlie: 308770 };
