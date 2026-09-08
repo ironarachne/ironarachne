@@ -25,6 +25,10 @@ export const INK_WASH = '#ded3c1';
 /** Mask luminance is coverage, independent of the visible palette. */
 export const MASK_PAINT = { hidden: 'black', visible: 'white', taper: 'rgb(210,210,210)' };
 
+/** SVG displacement scale is a full signed range on each axis. */
+export const INK_EDGE_DISPLACEMENT_SCALE = 0.28;
+export const INK_EDGE_MAX_OFFSET = (Math.SQRT2 * INK_EDGE_DISPLACEMENT_SCALE) / 2;
+
 /** Keep one map-sized displacement buffer per layer and the existing single-octave grain. */
 export function cartographyFilterDefs(width: number, height: number): string {
   return `<filter id="${CARTOGRAPHY.ground.grainFilterId}" x="-5%" y="-5%" width="110%" height="110%">
@@ -34,7 +38,7 @@ export function cartographyFilterDefs(width: number, height: number): string {
   </filter>
   <filter id="inkEdge" filterUnits="userSpaceOnUse" x="-1" y="-1" width="${width + 2}" height="${height + 2}">
     <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="1" result="turb"/>
-    <feDisplacementMap in="SourceGraphic" in2="turb" scale="0.28" xChannelSelector="R" yChannelSelector="G"/>
+    <feDisplacementMap in="SourceGraphic" in2="turb" scale="${INK_EDGE_DISPLACEMENT_SCALE}" xChannelSelector="R" yChannelSelector="G"/>
   </filter>`;
 }
 

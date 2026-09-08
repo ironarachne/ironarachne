@@ -5,7 +5,7 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; ink vocabulary implemented in #230, remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
+**Status:** accepted; ink vocabulary (#230) and water outlines (#231) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
 the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
 not advisory. The one [open question](#open-question) is deferred to a future update and does not
 block any of it.
@@ -260,9 +260,9 @@ classDiagram
 
 - **`Ink` and `StrokeWeight` are separate.** A coastline and a river may share an ink and differ in
   weight; keeping them one type would force a new entry per combination.
-- **`EdgeTreatment` is a strategy, not a function.** Which of midpoint displacement, Chaikin, or
-  Catmull-Rom produces the best coastline is not yet settled, and the amplitude has to be
-  independent of cell size or the roughness will vary with `pointSpacing`. Naming the method as data
+- **`EdgeTreatment` is a strategy, not a function.** The coastline method is settled in
+  [Coastline method](#coastline-method-231). Its amplitude is independent of cell size so the
+  roughness does not vary with `pointSpacing`. Naming the method as data
   keeps that choice changeable without touching callers.
 - **`Hatching` takes a shoreline, not a region.** It is defined by the curve it follows, which is
   what makes it reusable for a lake and correct after the coastline work changes that curve.
@@ -270,6 +270,33 @@ classDiagram
   invites building it.
 
 The palette-first review comparisons are in [the #230 visual review](region_cartography_230/README.md).
+
+## Coastline method (#231)
+
+Use the approved `EdgeTreatment` strategy with **Chaikin smoothing followed by bounded,
+continuous displacement**. Resample the source loop at uniform arc length before smoothing;
+otherwise the rounding radius would still depend on Voronoi cell size. Three corner-cutting
+passes remove angular joins. Two scales of smooth deterministic noise along the resulting loop
+supply the irregularity a fitted curve alone lacks. A final resampling bounds every emitted
+line segment. Dimensions and amplitudes scale with the shorter map dimension, never with cell
+size or graph ids. Equivalent loops with a different start, orientation, or redundant collinear
+corners must produce the same shore.
+
+Midpoint displacement alone is not selected: retaining the original corners would preserve the
+strongest cell-shaped bends, even with short noisy segments between them. Catmull-Rom is not
+selected because its overshoot makes narrow inlets harder to keep under control. The existing
+terrain-fill edge strategy remains in place until #233 removes those fills.
+
+Use the same processed outline for the water fill, coastline strokes, inner-coast clip, river
+cutout, and glyph clearance. Glyph containment must account for the drawn shore rather than
+inflating the raw-cell margin by a guessed smoothing radius. The existing terrain-region margin
+stays for terrain boundaries; water clearance includes half the coast stroke, the ink filter's
+maximum displacement, and coordinate-rounding slack. Keep this geometry in the render only;
+`RegionMap` and saved artifacts remain unchanged.
+
+The outside-of-map parts of a water boundary extend beyond the viewBox before smoothing so water
+still reaches the page edge. The map remains an image clipped by its viewBox, as required by
+decision 9. Reference renders and SVG size changes are recorded in [the #231 visual review](region_cartography_231/README.md).
 
 ## The plan
 

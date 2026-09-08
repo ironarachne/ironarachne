@@ -2,6 +2,8 @@ import type { MapEdge, MapNode, RegionMap } from './map_graph.js';
 import type { Vertex } from '$lib/geometry';
 import {
   CARTOGRAPHY,
+  createWaterEdgeTreatment,
+  INK_EDGE_MAX_OFFSET,
   STROKE_WIDTHS,
   INK_WASH,
   MASK_PAINT,
@@ -10,6 +12,7 @@ import {
   cartographyFilterDefs,
   parchmentRect,
 } from '$lib/cartography';
+import { makeWaterClearanceTest } from './water_clearance';
 import { buildRoadCentroidPolylines } from './road_polylines.js';
 
 export type RegionMapSvgSettlement = {
@@ -524,6 +527,7 @@ function appendClosedRegionFromLoops(
 }
 
 type WaterPolygonItem = {
+  outline: Vertex[];
   d: string;
   fill: string;
   fillOpacity: number;
@@ -531,6 +535,7 @@ type WaterPolygonItem = {
 };
 
 function listWaterPolygonsForMap(map: RegionMap): WaterPolygonItem[] {
+  const edges = createWaterEdgeTreatment(map.width, map.height);
   const oceanFill = INK_WASH;
   const lakeFill = INK_WASH;
   const fillOpacity = 0.92;
@@ -543,11 +548,15 @@ function listWaterPolygonsForMap(map: RegionMap): WaterPolygonItem[] {
     const strokeKind = waterClusterContainsOcean(comp, map) ? 'ocean' : 'lake';
     const fill = strokeKind === 'ocean' ? oceanFill : lakeFill;
     for (const loop of loops) {
-      const verts = cornerLoopToVertices(map, loop);
+      const points = loop.map((id) => map.corners[id]?.point);
+      if (points.some((point) => point === undefined)) continue;
+      const verts = edges
+        .displace(points as Vertex[])
+        .map((p) => ({ x: Number(n(p.x)), y: Number(n(p.y)) }));
       if (verts.length < 3) continue;
       const d = polygonToPathD(verts);
       if (!d) continue;
-      out.push({ d, fill, fillOpacity, strokeKind });
+      out.push({ outline: verts, d, fill, fillOpacity, strokeKind });
     }
   }
   return out;
@@ -567,7 +576,11 @@ function waterClusterContainsOcean(comp: Set<number>, map: RegionMap): boolean {
  */
 function appendWaterBodiesFromItems(items: WaterPolygonItem[], layer: InkedLayer): void {
   for (const item of items) {
-    appendFilledRegionPathD(layer, item.d, item.fill, item.fillOpacity, item.strokeKind);
+    layer.inked.push(
+      `<path data-water-body="${item.strokeKind}" d="${item.d}" fill="${item.fill}" fill-opacity="${item.fillOpacity}" stroke="none"/>`,
+    );
+    if (item.strokeKind === 'ocean') appendOceanCoastPathD(item.d, layer.plain);
+    else appendLakeCoastPathD(item.d, layer.plain);
   }
 }
 
@@ -902,11 +915,15 @@ const SYMBOL_FIT_OUTLINES: Record<string, Vertex[]> = Object.fromEntries(
 );
 
 /**
- * Slack in map units between a glyph and its region's edge. The drawn edge is not the raw cell
+ * Slack in map units between a glyph and its terrain region's edge. The drawn edge is not the raw cell
  * boundary this test uses: `cornerLoopToVertices` jitters it and `inkEdge` displaces the fill again,
- * so a glyph has to stand back from the boundary by roughly the sum of both wobbles.
+ * so a glyph has to stand back from that boundary. Water clearance is checked separately against
+ * the processed shore, not against this raw-cell margin.
  */
 const REGION_EDGE_MARGIN = 0.14;
+
+// Half the heaviest coast stroke + maximum 2-axis ink displacement + SVG rounding slack.
+const WATER_EDGE_MARGIN = STROKE_WIDTHS.heavy / 2 + INK_EDGE_MAX_OFFSET + 0.01;
 
 /** Cells within two graph steps — the only cells a glyph anchored in `nodeId` can reach. */
 function localCellNeighborhood(map: RegionMap, nodeId: number): number[] {
@@ -985,9 +1002,12 @@ function largestFittingScale(
   rotation: number,
   nodeId: number,
   contains: (point: Vertex, nodeId: number) => boolean,
+  clearOfWater: (outline: Vertex[]) => boolean,
 ): number | null {
-  const fits = (scale: number) =>
-    outline.every((o) => contains(outlinePointInMapSpace(anchor, o, scale, rotation), nodeId));
+  const fits = (scale: number) => {
+    const placed = outline.map((o) => outlinePointInMapSpace(anchor, o, scale, rotation));
+    return placed.every((point) => contains(point, nodeId)) && clearOfWater(placed);
+  };
 
   if (fits(wanted)) return wanted;
   if (!fits(minimum)) return null;
@@ -1027,7 +1047,11 @@ type ScatterSpec = {
 
 const SCATTER_PLACEMENT_ATTEMPTS = 40;
 
-function collectScatterSymbols(map: RegionMap, spec: ScatterSpec): ScatterSymbol[] {
+function collectScatterSymbols(
+  map: RegionMap,
+  spec: ScatterSpec,
+  clearOfWater: (outline: Vertex[]) => boolean,
+): ScatterSymbol[] {
   const contains = makeRegionContainmentTest(map, spec.inRegion);
   const out: ScatterSymbol[] = [];
 
@@ -1065,6 +1089,7 @@ function collectScatterSymbols(map: RegionMap, spec: ScatterSpec): ScatterSymbol
         rotation,
         node.id,
         contains,
+        clearOfWater,
       );
       if (scale === null) continue;
 
@@ -1095,20 +1120,27 @@ function appendScatterSymbolsBackToFront(symbols: ScatterSymbol[], parts: string
 /** Tree height relative to the cell's symbol size. */
 const TREE_SCALE_FACTOR = 0.42;
 
-function collectForestScatterSymbols(map: RegionMap): ScatterSymbol[] {
-  return collectScatterSymbols(map, {
-    density: 0.45,
-    hashSalt: 17.31,
-    scaleJitter: 0.18,
-    rotationJitter: 5,
-    minScaleFactor: 0.45,
-    inRegion: isForestNode,
-    symbolIdForNode: (node) => {
-      const forestType = getForestType(node);
-      return forestType === null ? null : `tree-${forestType}`;
+function collectForestScatterSymbols(
+  map: RegionMap,
+  clearOfWater: (outline: Vertex[]) => boolean,
+): ScatterSymbol[] {
+  return collectScatterSymbols(
+    map,
+    {
+      density: 0.45,
+      hashSalt: 17.31,
+      scaleJitter: 0.18,
+      rotationJitter: 5,
+      minScaleFactor: 0.45,
+      inRegion: isForestNode,
+      symbolIdForNode: (node) => {
+        const forestType = getForestType(node);
+        return forestType === null ? null : `tree-${forestType}`;
+      },
+      scaleForNode: (node) => symbolFontSizeForNode(node, map) * TREE_SCALE_FACTOR,
     },
-    scaleForNode: (node) => symbolFontSizeForNode(node, map) * TREE_SCALE_FACTOR,
-  });
+    clearOfWater,
+  );
 }
 
 function appendForestTerrainBodies(map: RegionMap, layer: InkedLayer): void {
@@ -1136,20 +1168,27 @@ function getMountainType(node: MapNode): 'high' | 'low' | null {
 /** Peak height relative to the cell's symbol size; a peak stays narrower than the cell it sits in. */
 const MOUNTAIN_SCALE_FACTOR = 0.7;
 
-function collectMountainScatterSymbols(map: RegionMap): ScatterSymbol[] {
-  return collectScatterSymbols(map, {
-    density: 0.4,
-    hashSalt: 23.87,
-    scaleJitter: 0.12,
-    rotationJitter: 3,
-    minScaleFactor: 0.4,
-    inRegion: isMountainLandNode,
-    symbolIdForNode: (node) => {
-      const mountainType = getMountainType(node);
-      return mountainType === null ? null : `mountain-${mountainType}`;
+function collectMountainScatterSymbols(
+  map: RegionMap,
+  clearOfWater: (outline: Vertex[]) => boolean,
+): ScatterSymbol[] {
+  return collectScatterSymbols(
+    map,
+    {
+      density: 0.4,
+      hashSalt: 23.87,
+      scaleJitter: 0.12,
+      rotationJitter: 3,
+      minScaleFactor: 0.4,
+      inRegion: isMountainLandNode,
+      symbolIdForNode: (node) => {
+        const mountainType = getMountainType(node);
+        return mountainType === null ? null : `mountain-${mountainType}`;
+      },
+      scaleForNode: (node) => symbolFontSizeForNode(node, map) * MOUNTAIN_SCALE_FACTOR,
     },
-    scaleForNode: (node) => symbolFontSizeForNode(node, map) * MOUNTAIN_SCALE_FACTOR,
-  });
+    clearOfWater,
+  );
 }
 
 /**
@@ -1617,6 +1656,10 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
 
   const body: string[] = [];
   const waterPolygons = listWaterPolygonsForMap(map);
+  const clearOfWater = makeWaterClearanceTest(
+    waterPolygons.map((item) => item.outline),
+    WATER_EDGE_MARGIN,
+  );
   body.push(parchmentRect(w, h));
   // Water, mountains and forests are disjoint regions, so they share a single displacement pass
   // rather than paying for a full-canvas feTurbulence each.
@@ -1629,7 +1672,10 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendChartDoubleLineIfOcean(map, body);
   appendLandBiomeSymbols(map, body);
   appendScatterSymbolsBackToFront(
-    [...collectForestScatterSymbols(map), ...collectMountainScatterSymbols(map)],
+    [
+      ...collectForestScatterSymbols(map, clearOfWater),
+      ...collectMountainScatterSymbols(map, clearOfWater),
+    ],
     body,
   );
   appendSettlements(map, settlements, body);
