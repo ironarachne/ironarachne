@@ -32,4 +32,13 @@ of graph ids, winding, starting vertex, and collinear subdivisions. Neither stra
 
 Water boundaries are clipped to a padded crop before smoothing, including vertices far outside
 the map, so unbounded Voronoi cells cannot inflate the output or create diagonal coastlines.
-The viewBox clips the remaining geometry. `InkedPath` and `Hatching` belong to subsequent issues.
+The viewBox clips the remaining geometry. `createHatching({ shoreline, spacing, falloff, maxBands }, width, height)` returns the approved
+`Hatching` model. `toPaths()` samples an interior distance field and traces up to eight inset bands,
+using a grid step of `min(width, height) / 175`. Marching squares splits contours at narrow necks;
+joined contours are rounded at grid scale and simplified before serialization. Increasing spacing
+and decreasing opacity leave open water mostly empty. Off-crop closing edges do not produce bands.
+
+Each contour is an `InkedPath` with points, ink, weight, a closed flag, and `toSvg()`. The serializer
+emits one unfilled path per connected contour. The region renderer chooses four ocean bands, two
+closer lake bands, and no bands for small lakes. It defines each coastline once for reuse by SVG
+strokes, clips, and masks; no water wash remains.

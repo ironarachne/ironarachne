@@ -13,3 +13,19 @@ export type EdgeTreatment = {
   displace: (points: Vertex[], cornerIds?: number[]) => Vertex[];
 };
 export type Cartography = { ground: Parchment; palette: InkPalette; edges: EdgeTreatment };
+
+export type InkedPath = {
+  points: Vertex[];
+  ink: Ink;
+  weight: StrokeWeight;
+  closed: boolean;
+  toSvg: () => string;
+};
+
+export type Hatching = {
+  shoreline: Vertex[];
+  spacing: number;
+  falloff: number;
+  maxBands: number;
+  toPaths: () => InkedPath[];
+};

@@ -748,3 +748,53 @@ it('keeps all color literals in the cartography vocabulary, including mask paint
   const source = readFileSync(new URL('./region_map_svg.ts', import.meta.url), 'utf8');
   expect(source).not.toMatch(/#[0-9a-f]{6}\b|rgba?\(|["'](?:black|white)["']/i);
 });
+
+it('leaves small lakes as bare parchment and gives larger lakes two hatch bands', () => {
+  const lakeMap = (size: number): RegionMap => {
+    const node = {
+      ...squareCellNode(0, 10, 10, size),
+      isWater: true,
+      corners: [0, 1, 2, 3],
+      edges: [0, 1, 2, 3],
+    };
+    const vertices = node.polygon.vertices;
+    return {
+      width: 35,
+      height: 35,
+      nodes: [node],
+      corners: vertices.map((point, id) => ({
+        id,
+        point,
+        touches: [0],
+        protrudes: [id, (id + 3) % 4],
+        adjacent: [(id + 1) % 4, (id + 3) % 4],
+        elevation: 0,
+        moisture: 1,
+        temperature: 15,
+        isWater: true,
+        isOcean: false,
+        isCoast: true,
+        river: 0,
+      })),
+      edges: vertices.map((point, id) => ({
+        id,
+        d0: 0,
+        v0: id,
+        v1: (id + 1) % 4,
+        river: 0,
+        midpoint: {
+          x: (point.x + vertices[(id + 1) % 4].x) / 2,
+          y: (point.y + vertices[(id + 1) % 4].y) / 2,
+        },
+      })),
+    };
+  };
+  const small = buildRegionMapSvgString(lakeMap(2));
+  expect(small).toContain('data-water-body="lake"');
+  expect(small).not.toContain('data-water-hatching=');
+  expect(small).not.toContain('fill-opacity="0.92"');
+  const large = buildRegionMapSvgString(lakeMap(4));
+  const hatching = large.match(/<g data-water-hatching="lake"[^>]*>([\s\S]*?)<\/g>/)![1];
+  expect(hatching.match(/<path /g)).toHaveLength(2);
+  expect(hatching.match(/fill="none"/g)).toHaveLength(2);
+});

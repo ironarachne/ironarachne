@@ -2,7 +2,7 @@
 
 Each image has **before on the left, after on the right**, rendered at 1400 pixels per map with
 `rsvg-convert`. These are review illustrations, not golden-image tests. Human visual acceptance
-is pending.
+was completed in PR #239.
 
 Water now follows uniformly sampled, rounded outlines with bounded irregularity. This removes
 cell-sized straight segments and angular corners while keeping the stored graph unchanged.

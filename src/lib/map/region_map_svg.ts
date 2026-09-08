@@ -3,6 +3,7 @@ import type { Vertex } from '$lib/geometry';
 import {
   CARTOGRAPHY,
   createWaterEdgeTreatment,
+  createHatching,
   INK_EDGE_MAX_OFFSET,
   STROKE_WIDTHS,
   INK_WASH,
@@ -29,7 +30,6 @@ const DEFAULT_SVG_MAX_HEIGHT = 600;
 
 const PARCHMENT_FILL = CARTOGRAPHY.ground.fill;
 
-let oceanCoastInnerClipSerial = 0;
 let riverTaperMaskSerial = 0;
 
 export type RegionMapSvgOptions = {
@@ -440,17 +440,11 @@ function connectedComponentsByNodeRule(
   return components;
 }
 
-/**
- * Outer dark coast ink, then a parchment stroke clipped to the ocean interior so it reads as an
- * inner rim inside the fill (not a second outer line like the old parchment channel).
- */
-function appendOceanCoastPathD(d: string, parts: string[]): void {
-  const clipId = `oceIn${oceanCoastInnerClipSerial++}`;
-  const innerInk = CARTOGRAPHY.ground.fill;
+/** Coast ink and its inner parchment rim share the water's one stored SVG path. */
+function appendOceanCoast(item: WaterPolygonItem, parts: string[]): void {
   parts.push(
-    `<defs><clipPath id="${clipId}"><path d="${d}"/></clipPath></defs>`,
-    `<path d="${d}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.heavy}" stroke-linejoin="round" stroke-linecap="round"/>`,
-    `<path d="${d}" fill="none" stroke="${innerInk}" stroke-width="${STROKE_WIDTHS.medium}" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#${clipId})"/>`,
+    `<use href="#${item.id}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.heavy}" stroke-linejoin="round" stroke-linecap="round"/>`,
+    `<use href="#${item.id}" fill="none" stroke="${CARTOGRAPHY.ground.fill}" stroke-width="${STROKE_WIDTHS.medium}" stroke-linejoin="round" stroke-linecap="round" clip-path="url(#${item.id}Clip)"/>`,
   );
 }
 
@@ -495,12 +489,10 @@ function appendFilledRegionPathD(
   d: string,
   fill: string,
   fillOpacity: number,
-  strokeKind: 'ocean' | 'lake' | 'mountain',
+  strokeKind: 'lake' | 'mountain',
 ): void {
   layer.inked.push(`<path d="${d}" fill="${fill}" fill-opacity="${fillOpacity}" stroke="none"/>`);
-  if (strokeKind === 'ocean') {
-    appendOceanCoastPathD(d, layer.plain);
-  } else if (strokeKind === 'lake') {
+  if (strokeKind === 'lake') {
     appendLakeCoastPathD(d, layer.plain);
   } else {
     layer.inked.push(
@@ -515,7 +507,7 @@ function appendClosedRegionFromLoops(
   layer: InkedLayer,
   fill: string,
   fillOpacity: number,
-  strokeKind: 'ocean' | 'lake' | 'mountain',
+  strokeKind: 'lake' | 'mountain',
 ): void {
   for (const loop of loops) {
     const verts = cornerLoopToVertices(map, loop);
@@ -527,18 +519,14 @@ function appendClosedRegionFromLoops(
 }
 
 type WaterPolygonItem = {
+  id: string;
   outline: Vertex[];
   d: string;
-  fill: string;
-  fillOpacity: number;
   strokeKind: 'ocean' | 'lake';
 };
 
 function listWaterPolygonsForMap(map: RegionMap): WaterPolygonItem[] {
   const edges = createWaterEdgeTreatment(map.width, map.height);
-  const oceanFill = INK_WASH;
-  const lakeFill = INK_WASH;
-  const fillOpacity = 0.92;
   const out: WaterPolygonItem[] = [];
   const waterComps = connectedComponentsByNodeRule(map, isWaterNode);
   for (const comp of waterComps) {
@@ -546,7 +534,6 @@ function listWaterPolygonsForMap(map: RegionMap): WaterPolygonItem[] {
     if (adj.size === 0) continue;
     const loops = traceBoundaryCornerLoops(adj);
     const strokeKind = waterClusterContainsOcean(comp, map) ? 'ocean' : 'lake';
-    const fill = strokeKind === 'ocean' ? oceanFill : lakeFill;
     for (const loop of loops) {
       const points = loop.map((id) => map.corners[id]?.point);
       if (points.some((point) => point === undefined)) continue;
@@ -556,7 +543,7 @@ function listWaterPolygonsForMap(map: RegionMap): WaterPolygonItem[] {
       if (verts.length < 3) continue;
       const d = polygonToPathD(verts);
       if (!d) continue;
-      out.push({ outline: verts, d, fill, fillOpacity, strokeKind });
+      out.push({ id: `waterBody${out.length}`, outline: verts, d, strokeKind });
     }
   }
   return out;
@@ -574,13 +561,51 @@ function waterClusterContainsOcean(comp: Set<number>, map: RegionMap): boolean {
  * whole cluster is drawn as ocean (coastal lakes merge into the sea shape); lake-only clusters stay
  * inland lakes.
  */
-function appendWaterBodiesFromItems(items: WaterPolygonItem[], layer: InkedLayer): void {
+function waterGeometryDefs(items: WaterPolygonItem[], width: number, height: number): string {
+  return `<defs>
+${items
+  .map(
+    (item) => `<path data-water-body="${item.strokeKind}" d="${item.d}" id="${item.id}"/>
+<clipPath id="${item.id}Clip"><use href="#${item.id}"/></clipPath>`,
+  )
+  .join('\n')}
+<mask id="landInk" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
+<rect width="${width}" height="${height}" fill="${MASK_PAINT.visible}"/>
+${items.map((item) => `<use href="#${item.id}" fill="${MASK_PAINT.hidden}"/>`).join('\n')}
+</mask>
+</defs>`;
+}
+
+function appendWaterBodiesFromItems(
+  items: WaterPolygonItem[],
+  parts: string[],
+  width: number,
+  height: number,
+): void {
+  const scale = Math.min(width, height) / 35;
   for (const item of items) {
-    layer.inked.push(
-      `<path data-water-body="${item.strokeKind}" d="${item.d}" fill="${item.fill}" fill-opacity="${item.fillOpacity}" stroke="none"/>`,
+    const ocean = item.strokeKind === 'ocean';
+    const largeLake = polygonArea(item.outline) >= 6 * scale * scale;
+    const hatching = createHatching(
+      {
+        shoreline: item.outline,
+        spacing: (ocean ? 0.45 : 0.28) * scale,
+        falloff: 1.4,
+        maxBands: ocean ? 4 : largeLake ? 2 : 0,
+      },
+      width,
+      height,
     );
-    if (item.strokeKind === 'ocean') appendOceanCoastPathD(item.d, layer.plain);
-    else appendLakeCoastPathD(item.d, layer.plain);
+    const paths = hatching.toPaths();
+    if (paths.length > 0)
+      parts.push(`<g data-water-hatching="${item.strokeKind}" clip-path="url(#${item.id}Clip)">
+${paths.map((path) => path.toSvg()).join('\n')}
+</g>`);
+    if (ocean) appendOceanCoast(item, parts);
+    else
+      parts.push(
+        `<use href="#${item.id}" fill="none" stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round" stroke-linecap="round" opacity="0.42"/>`,
+      );
   }
 }
 
@@ -743,7 +768,7 @@ function riverLayerMaskDef(
     (t) =>
       `<circle cx="${n(t.dry.x)}" cy="${n(t.dry.y)}" r="${n(t.taperR)}" fill="url(#rvTapG${t.serial})"/>`,
   );
-  const cutouts = waterPolygons.map((wp) => `<path d="${wp.d}" fill="${MASK_PAINT.hidden}"/>`);
+  const cutouts = waterPolygons.map((wp) => `<use href="#${wp.id}" fill="${MASK_PAINT.hidden}"/>`);
   return `<defs>
 ${gradients.join('\n')}
   <mask id="riverInk" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
@@ -1660,14 +1685,16 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     waterPolygons.map((item) => item.outline),
     WATER_EDGE_MARGIN,
   );
-  body.push(parchmentRect(w, h));
-  // Water, mountains and forests are disjoint regions, so they share a single displacement pass
-  // rather than paying for a full-canvas feTurbulence each.
+  body.push(waterGeometryDefs(waterPolygons, w, h), parchmentRect(w, h));
+  // Keep terrain ink off the processed water, leaving the parchment visible between hatch bands.
+  // Terrain still shares one displacement pass; its raw region edges are removed in #233.
   const terrain = newInkedLayer();
-  appendWaterBodiesFromItems(waterPolygons, terrain);
   appendMountainTerrainBodies(map, terrain);
   appendForestTerrainBodies(map, terrain);
+  body.push('<g mask="url(#landInk)">');
   appendInkedLayer(body, terrain);
+  body.push('</g>');
+  appendWaterBodiesFromItems(waterPolygons, body, w, h);
   appendRiversAndRoads(map, body, waterPolygons);
   appendChartDoubleLineIfOcean(map, body);
   appendLandBiomeSymbols(map, body);
