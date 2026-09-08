@@ -6,7 +6,6 @@ import {
   createHatching,
   INK_EDGE_MAX_OFFSET,
   STROKE_WIDTHS,
-  INK_WASH,
   MASK_PAINT,
   hash01,
   toBipolar,
@@ -300,15 +299,6 @@ function riverChainToSubdividedVertices(map: RegionMap, chain: MapEdge[]): Verte
   return all;
 }
 
-/** Resolve graph corners here; cartography owns their deterministic edge treatment. */
-function cornerLoopToVertices(map: RegionMap, loop: number[]): Vertex[] {
-  const trimmed =
-    loop.length > 1 && loop[0] === loop[loop.length - 1] ? loop.slice(0, -1) : [...loop];
-  const points = trimmed.map((id) => map.corners[id]?.point);
-  if (points.some((point) => point === undefined)) return [];
-  return CARTOGRAPHY.edges.displace(points as Vertex[], trimmed);
-}
-
 function isComponentBoundaryEdge(edge: MapEdge, component: Set<number>): boolean {
   const in0 = component.has(edge.d0);
   const in1 = edge.d1 !== undefined && component.has(edge.d1);
@@ -448,76 +438,6 @@ function appendOceanCoast(item: WaterPolygonItem, parts: string[]): void {
   );
 }
 
-function appendLakeCoastPathD(d: string, parts: string[]): void {
-  const strokeColor = CARTOGRAPHY.palette.secondary.color;
-  parts.push(
-    `<path d="${d}" fill="none" stroke="${strokeColor}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round" stroke-linecap="round" opacity="0.42"/>`,
-  );
-}
-
-/**
- * A terrain layer's geometry, split by whether it is displaced by `inkEdge`. Everything inked is
- * emitted under a single filtered group per layer: `feTurbulence` is the most expensive primitive in
- * SVG, and running it once per layer instead of once per path is most of this module's render budget.
- * Coast strokes stay unfiltered, matching how they were drawn before the filter was hoisted.
- */
-type InkedLayer = {
-  inked: string[];
-  plain: string[];
-};
-
-function newInkedLayer(): InkedLayer {
-  return { inked: [], plain: [] };
-}
-
-/**
- * Flushes a layer: one filtered group, then the unfiltered strokes over it. Grouping reorders fills
- * ahead of strokes across a layer's polygons, which is invisible here because each polygon is its own
- * connected component — no two overlap.
- */
-function appendInkedLayer(parts: string[], layer: InkedLayer): void {
-  if (layer.inked.length > 0) {
-    parts.push(`<g filter="url(#inkEdge)">
-${layer.inked.join('\n')}
-</g>`);
-  }
-  parts.push(...layer.plain);
-}
-
-function appendFilledRegionPathD(
-  layer: InkedLayer,
-  d: string,
-  fill: string,
-  fillOpacity: number,
-  strokeKind: 'lake' | 'mountain',
-): void {
-  layer.inked.push(`<path d="${d}" fill="${fill}" fill-opacity="${fillOpacity}" stroke="none"/>`);
-  if (strokeKind === 'lake') {
-    appendLakeCoastPathD(d, layer.plain);
-  } else {
-    layer.inked.push(
-      `<path d="${d}" fill="none" stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round" stroke-linecap="round" opacity="0.62"/>`,
-    );
-  }
-}
-
-function appendClosedRegionFromLoops(
-  map: RegionMap,
-  loops: number[][],
-  layer: InkedLayer,
-  fill: string,
-  fillOpacity: number,
-  strokeKind: 'lake' | 'mountain',
-): void {
-  for (const loop of loops) {
-    const verts = cornerLoopToVertices(map, loop);
-    if (verts.length < 3) continue;
-    const d = polygonToPathD(verts);
-    if (!d) continue;
-    appendFilledRegionPathD(layer, d, fill, fillOpacity, strokeKind);
-  }
-}
-
 type WaterPolygonItem = {
   id: string;
   outline: Vertex[];
@@ -561,7 +481,7 @@ function waterClusterContainsOcean(comp: Set<number>, map: RegionMap): boolean {
  * whole cluster is drawn as ocean (coastal lakes merge into the sea shape); lake-only clusters stay
  * inland lakes.
  */
-function waterGeometryDefs(items: WaterPolygonItem[], width: number, height: number): string {
+function waterGeometryDefs(items: WaterPolygonItem[]): string {
   return `<defs>
 ${items
   .map(
@@ -569,10 +489,6 @@ ${items
 <clipPath id="${item.id}Clip"><use href="#${item.id}"/></clipPath>`,
   )
   .join('\n')}
-<mask id="landInk" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${width}" height="${height}">
-<rect width="${width}" height="${height}" fill="${MASK_PAINT.visible}"/>
-${items.map((item) => `<use href="#${item.id}" fill="${MASK_PAINT.hidden}"/>`).join('\n')}
-</mask>
 </defs>`;
 }
 
@@ -615,19 +531,6 @@ function isMountainLandNode(node: MapNode): boolean {
   if (node.elevation > 0.58) return true;
   const b = node.biomeId?.toLowerCase() ?? '';
   return b.includes('mountain') || b.includes('alpine');
-}
-
-function appendMountainTerrainBodies(map: RegionMap, layer: InkedLayer): void {
-  const comps = connectedComponentsByNodeRule(map, isMountainLandNode);
-  const fill = INK_WASH;
-  const fillOpacity = 0.9;
-
-  for (const comp of comps) {
-    const adj = buildBoundaryAdjacency(map, comp);
-    if (adj.size === 0) continue;
-    const loops = traceBoundaryCornerLoops(adj);
-    appendClosedRegionFromLoops(map, loops, layer, fill, fillOpacity, 'mountain');
-  }
 }
 
 /** Outer chart edge when the region includes sea — matches double-line ocean style. */
@@ -940,10 +843,9 @@ const SYMBOL_FIT_OUTLINES: Record<string, Vertex[]> = Object.fromEntries(
 );
 
 /**
- * Slack in map units between a glyph and its terrain region's edge. The drawn edge is not the raw cell
- * boundary this test uses: `cornerLoopToVertices` jitters it and `inkEdge` displaces the fill again,
- * so a glyph has to stand back from that boundary. Water clearance is checked separately against
- * the processed shore, not against this raw-cell margin.
+ * Slack in map units between a glyph and its terrain region's raw-cell boundary. Retained from
+ * the former terrain washes so removing them does not change glyph placement. Water clearance
+ * is checked separately against the processed shore.
  */
 const REGION_EDGE_MARGIN = 0.14;
 
@@ -965,7 +867,7 @@ function localCellNeighborhood(map: RegionMap, nodeId: number): number[] {
 /**
  * Point-in-terrain-region test for glyph placement. Region membership is what matters, not cell
  * membership: a glyph may straddle the interior cell boundaries of its own range or forest, but
- * never the outer edge where the region's fill stops.
+ * never the outer edge into another terrain region.
  */
 function makeRegionContainmentTest(
   map: RegionMap,
@@ -1166,19 +1068,6 @@ function collectForestScatterSymbols(
     },
     clearOfWater,
   );
-}
-
-function appendForestTerrainBodies(map: RegionMap, layer: InkedLayer): void {
-  const comps = connectedComponentsByNodeRule(map, isForestNode);
-  const fill = INK_WASH;
-  const fillOpacity = 0.42;
-
-  for (const comp of comps) {
-    const adj = buildBoundaryAdjacency(map, comp);
-    if (adj.size === 0) continue;
-    const loops = traceBoundaryCornerLoops(adj);
-    appendClosedRegionFromLoops(map, loops, layer, fill, fillOpacity, 'lake');
-  }
 }
 
 function getMountainType(node: MapNode): 'high' | 'low' | null {
@@ -1668,9 +1557,8 @@ function svgDefs(map: RegionMap): string {
 }
 
 /**
- * Builds an SVG string for a region map: parchment land; ocean/lake/mountain areas as one closed path
- * per region (Hierholzer boundary + jittered mid-edge vertices; Voronoi corners fixed); rivers/roads;
- * biome symbols; optional settlements with names.
+ * Builds a region map on parchment: coast-following water hatching, rivers and roads, terrain
+ * glyphs, and optional named settlements. Forests and ranges are represented only by their glyphs.
  */
 export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOptions): string {
   const w = map.width;
@@ -1685,15 +1573,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     waterPolygons.map((item) => item.outline),
     WATER_EDGE_MARGIN,
   );
-  body.push(waterGeometryDefs(waterPolygons, w, h), parchmentRect(w, h));
-  // Keep terrain ink off the processed water, leaving the parchment visible between hatch bands.
-  // Terrain still shares one displacement pass; its raw region edges are removed in #233.
-  const terrain = newInkedLayer();
-  appendMountainTerrainBodies(map, terrain);
-  appendForestTerrainBodies(map, terrain);
-  body.push('<g mask="url(#landInk)">');
-  appendInkedLayer(body, terrain);
-  body.push('</g>');
+  body.push(waterGeometryDefs(waterPolygons), parchmentRect(w, h));
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
   appendRiversAndRoads(map, body, waterPolygons);
   appendChartDoubleLineIfOcean(map, body);

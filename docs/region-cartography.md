@@ -5,7 +5,7 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; ink vocabulary (#230), water outlines (#231), and sea hatching (#232) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
+**Status:** accepted; ink vocabulary (#230), water outlines (#231), sea hatching (#232), and removal of terrain fills (#233) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
 the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
 not advisory. The one [open question](#open-question) is deferred to a future update and does not
 block any of it.
