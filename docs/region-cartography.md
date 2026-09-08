@@ -5,7 +5,7 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; not yet built. The [domain model](#domain-model) was reviewed and approved, so
+**Status:** accepted; ink vocabulary implemented in #230, remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
 the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
 not advisory. The one [open question](#open-question) is deferred to a future update and does not
 block any of it.
@@ -268,6 +268,8 @@ classDiagram
   what makes it reusable for a lake and correct after the coastline work changes that curve.
 - **There is no `Legend`.** An endpaper map generally does not carry one, and adding the type
   invites building it.
+
+The palette-first review comparisons are in [the #230 visual review](region_cartography_230/README.md).
 
 ## The plan
 
