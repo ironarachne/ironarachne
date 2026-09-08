@@ -1,7 +1,7 @@
 # Region map ink review (#230)
 
 Each comparison has **before on the left, after on the right**, at 1400 pixels per map.
-These are review illustrations, not golden-image tests. Human visual acceptance is still pending.
+These are review illustrations, not golden-image tests. Human visual acceptance was completed in PR #238.
 
 The palette is now near-monochrome sepia. The geometry, glyph scatter, label placement, opacities,
 and filter parameters are identical across these three seeds, verified by comparing the SVG trees

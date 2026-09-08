@@ -41,7 +41,11 @@ The map is a Voronoi diagram over Poisson-disk points, built with
   `minDistanceSquaredToRoads`, `minDistanceSquaredToRivers`, and
   `minDistanceSquaredToRoadPolylines` (squared, so callers comparing distances can skip the square
   root).
-- **Rendering** — `buildRegionMapSvgString(map, options)`.
+- **Rendering** — `buildRegionMapSvgString(map, options)`. Water outlines use the shared
+  cartography Chaikin strategy, with bounded noise at a scale set by map dimensions. Fill, coast
+  ink, inner clip, and river cutouts reuse the same outline. Glyph scale fitting checks full
+  silhouettes against that drawn water (with stroke/filter clearance), using row bins to avoid
+  scanning every coast segment for every candidate. Terrain membership still uses the raw cells.
 
 ## Usage
 

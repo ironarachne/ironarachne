@@ -20,7 +20,16 @@ loop to use point indices. Supply an unclosed loop (do not repeat the first poin
 `hash01` and `toBipolar` also serve existing river jitter and glyph placement, without an RNG or a
 seed added to saved artifacts.
 
-The edge strategy's amplitude and depth describe this preserved implementation; they are not
-runtime tuning controls. Organic coastline strategies, `InkedPath`, and `Hatching` from the accepted
-model belong to subsequent issues. This extraction deliberately retains even the legacy loop's
-omission of subsequent original corners, so #230 does not silently change geometry.
+The legacy edge strategy's amplitude and depth describe its preserved implementation; they are
+not runtime tuning controls. It retains the old loop's omission of subsequent original corners
+until terrain fills are removed in #233.
+
+Water uses `createWaterEdgeTreatment(width, height)` instead. This is a separate `EdgeTreatment`
+with method `chaikin`: uniformly resample, round with three Chaikin passes, add smooth periodic
+noise, and resample to a maximum segment length of `0.3 * min(width, height) / 35`. Noise amplitude
+is bounded by `0.22 * min(width, height) / 35`. Equivalent loops have identical output regardless
+of graph ids, winding, starting vertex, and collinear subdivisions. Neither strategy mutates input.
+
+Water boundaries are clipped to a padded crop before smoothing, including vertices far outside
+the map, so unbounded Voronoi cells cannot inflate the output or create diagonal coastlines.
+The viewBox clips the remaining geometry. `InkedPath` and `Hatching` belong to subsequent issues.
