@@ -2,7 +2,7 @@
 
 Each comparison has **before on the left, after on the right**, rasterized with `rsvg-convert` at
 1400 pixels per map. These are review illustrations, not golden-image tests. Human visual review
-is pending.
+was approved, and PR #243 was merged.
 
 The title now sits in a compact bordered parchment panel. It reserves its whole footprint,
 including its border, and leaves markers visible. Near the top edge, it leaves enough room for a
