@@ -50,7 +50,10 @@ The map is a Voronoi diagram over Poisson-disk points, built with
   scanning every coast segment for every candidate. Terrain membership still uses the raw cells. A shared Poisson candidate set and variable glyph
   spacing keep trees and peaks from stacking, with partial overlap drawn in base-y order. Forested
   mountain cells use peaks; open biomes remain bare. The local RNG is derived from map dimensions
-  and node count, so saved graphs render without an extra seed.
+  and node count, so saved graphs render without an extra seed. Text uses conservative serif bounds
+  including halo and rounding clearance. Labels stay within the sheet and outside marker footprints
+  and the title cartouche; only other-label overlap is best-effort. Names that cannot fit are omitted.
+  Browser tests check actual font geometry against the emitted `data-text-box` reservations.
 
 ## Usage
 

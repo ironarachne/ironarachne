@@ -2,7 +2,7 @@
 
 Each comparison has **before on the left, after on the right**, rasterized with `rsvg-convert` at
 1400 pixels per map. These are review illustrations, not golden-image tests. Human visual review
-is pending.
+was approved by Ben in [PR #242](https://github.com/ironarachne/ironarachne/pull/242).
 
 Trees and peaks now share one Poisson candidate set and one spacing index. Larger glyphs carry
 the terrain, with parchment between them. Mountain cells get peaks instead of a second independent

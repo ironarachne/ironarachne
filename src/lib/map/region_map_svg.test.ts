@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { CARTOGRAPHY } from '$lib/cartography';
 import { readFileSync } from 'node:fs';
+import { generate, getDefaultConfig } from '$lib/regions';
+import { getFantasyNameGeneratorSet } from '$lib/names';
 import { RNG } from '@ironarachne/rng';
 import { buildBaseMapGraph } from './builder.js';
 import { buildRegionMapSvgString } from './region_map_svg.js';
@@ -49,11 +51,12 @@ type MapLabel = {
   anchor: string;
   fill: string;
   text: string;
+  bounds: number[];
 };
 
 /** Matches the inked copy of a label, not the parchment halo drawn underneath it. */
 const MAP_LABEL_PATTERN =
-  /<text x="(-?[\d.]+)" y="(-?[\d.]+)" font-family="&apos;Times New Roman[^"]*" font-size="([\d.]+)" text-anchor="(\w+)" fill="(#[0-9a-f]{6})">([^<]*)<\/text>/g;
+  /<text x="(-?[\d.]+)" y="(-?[\d.]+)" font-family="&apos;Times New Roman[^"]*" font-size="([\d.]+)" text-anchor="(\w+)" data-text-box="([^"]+)" fill="(#[0-9a-f]{6})">([^<]*)<\/text>/g;
 
 /** Every label the text layer emits: the title plus any placed settlement names. */
 function parseMapLabels(svg: string): MapLabel[] {
@@ -64,28 +67,30 @@ function parseMapLabels(svg: string): MapLabel[] {
       baselineY: Number(m[2]),
       fontSize: Number(m[3]),
       anchor: m[4],
-      fill: m[5],
-      text: m[6],
+      bounds: m[5].split(' ').map(Number),
+      fill: m[6],
+      text: m[7],
     });
   }
   return out;
 }
 
-/** Same box model the layout uses, so overlap assertions match what was reserved. */
+/** Reserved bounds emitted alongside the ink; browser tests also measure actual glyph bounds. */
 function labelBox(label: MapLabel) {
-  const width = label.text.length * label.fontSize * 0.55;
-  const left =
-    label.anchor === 'middle'
-      ? label.x - width / 2
-      : label.anchor === 'start'
-        ? label.x
-        : label.x - width;
-  return {
-    minX: left,
-    maxX: left + width,
-    minY: label.baselineY - label.fontSize * 0.76,
-    maxY: label.baselineY + label.fontSize * 0.24,
-  };
+  const [minX, minY, maxX, maxY] = label.bounds;
+  return { minX, minY, maxX, maxY };
+}
+
+function boxesOverlap(a: ReturnType<typeof labelBox>, b: ReturnType<typeof labelBox>) {
+  return a.minX < b.maxX && b.minX < a.maxX && a.minY < b.maxY && b.minY < a.maxY;
+}
+
+function cartoucheBox(svg: string) {
+  const match = svg.match(
+    /<rect id="title-cartouche" x="([^"]+)" y="([^"]+)" width="([^"]+)" height="([^"]+)"/,
+  )!;
+  const [x, y, width, height] = match.slice(1).map(Number);
+  return { minX: x, minY: y, maxX: x + width, maxY: y + height };
 }
 
 function squareCellNode(id: number, minX: number, minY: number, size: number) {
@@ -568,7 +573,9 @@ describe('buildRegionMapSvgString', () => {
     expect(label).toBeDefined();
     // Pushed clear of the title rather than dropped or stacked on it.
     const title = labels.find((l) => l.text.startsWith('the Grand'))!;
-    expect(labelBox(label!).minY).toBeGreaterThan(labelBox(title).maxY);
+    const a = labelBox(label!);
+    const b = labelBox(title);
+    expect(a.maxY <= b.minY || a.minY >= b.maxY || a.maxX <= b.minX || a.minX >= b.maxX).toBe(true);
   });
 
   it('moves settlement labels aside rather than stacking them on each other', () => {
@@ -601,6 +608,77 @@ describe('buildRegionMapSvgString', () => {
         const overlaps = a.minX < b.maxX && b.minX < a.maxX && a.minY < b.maxY && b.minY < a.maxY;
         expect(overlaps).toBe(false);
       }
+    }
+  });
+
+  it.each(['alpha', 'bravo', 'charlie', 'delta', 'echo', 'foxtrot'])(
+    'keeps reference text inside the map and clear of hard obstacles: %s',
+    (seed) => {
+      const config = getDefaultConfig(new RNG(seed));
+      config.rng = new RNG(seed);
+      config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
+      config.mapWidth = 60;
+      config.mapHeight = 35;
+      const region = generate(config);
+      const settlements = region.settlements.map((item, i) => ({
+        mapNodeId: item.mapNodeId,
+        name: item.name,
+        population: item.population,
+        isCapital: i === 0,
+      }));
+      const svg = buildRegionMapSvgString(region.map, { title: region.name, settlements });
+      const labels = parseMapLabels(svg);
+      const panel = cartoucheBox(svg);
+      expect(labels.length).toBeGreaterThan(1);
+      for (const label of labels) {
+        const box = labelBox(label);
+        expect(box.minX).toBeGreaterThanOrEqual(-0.001);
+        expect(box.minY).toBeGreaterThanOrEqual(-0.001);
+        expect(box.maxX).toBeLessThanOrEqual(region.map.width + 0.001);
+        expect(box.maxY).toBeLessThanOrEqual(region.map.height + 0.001);
+        if (label === labels.at(-1)) continue;
+        expect(boxesOverlap(box, panel)).toBe(false);
+      }
+      // Marker footprints are checked independently, using the emitted ring geometry.
+      for (const match of svg.matchAll(
+        /<circle cx="([^"]+)" cy="([^"]+)" r="([^"]+)" fill="none"/g,
+      )) {
+        const [x, y, r] = match.slice(1).map(Number);
+        const marker = { minX: x - r, maxX: x + r, minY: y - r, maxY: y + r };
+        for (const label of labels) expect(boxesOverlap(labelBox(label), marker)).toBe(false);
+        expect(boxesOverlap(panel, marker)).toBe(false);
+      }
+    },
+  );
+
+  it('drops impossible names and contains long titles and edge labels', () => {
+    const map: RegionMap = {
+      width: 20,
+      height: 12,
+      nodes: [
+        { ...squareCellNode(0, 0, 0, 2), center: { x: 19.8, y: 11.8 } },
+        { ...squareCellNode(1, 0, 0, 2), center: { x: 0.2, y: 0.2 } },
+      ],
+      edges: [],
+      corners: [],
+    };
+    const svg = buildRegionMapSvgString(map, {
+      title: 'The Long Principality of Widewater',
+      settlements: [
+        { mapNodeId: 0, name: 'WWWW Harbor', population: 10000 },
+        { mapNodeId: 1, name: 'Éléonore', population: 100 },
+        { mapNodeId: 0, name: 'W'.repeat(500), population: 100000 },
+      ],
+    });
+    expect(svg).not.toContain('W'.repeat(500));
+    const labels = parseMapLabels(svg);
+    expect(labels).toHaveLength(3);
+    for (const label of labels) {
+      const box = labelBox(label);
+      expect(box.minX).toBeGreaterThanOrEqual(-0.001);
+      expect(box.minY).toBeGreaterThanOrEqual(-0.001);
+      expect(box.maxX).toBeLessThanOrEqual(map.width + 0.001);
+      expect(box.maxY).toBeLessThanOrEqual(map.height + 0.001);
     }
   });
 

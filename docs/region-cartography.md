@@ -5,7 +5,7 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; ink vocabulary (#230), water outlines (#231), sea hatching (#232), removal of terrain fills (#233), and glyph scatter (#194) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
+**Status:** accepted; ink vocabulary (#230), water outlines (#231), sea hatching (#232), removal of terrain fills (#233), glyph scatter (#194), and label placement/cartouche (#234) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
 the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
 not advisory. The one [open question](#open-question) is deferred to a future update and does not
 block any of it.
@@ -345,6 +345,28 @@ grassland cells; the renderer does not invent plains by changing those biomes.
 
 Reference images, spacing counts, SVG sizes, and rendering measurements are recorded in
 [the #194 visual review](region_cartography_194/README.md).
+
+## Label placement and title (#234)
+
+The title sits in a compact parchment panel with a fine sepia border. It scales down for long
+names, tries modest size reductions before moving, and stays clear of marker footprints. If a
+marker sits at the top edge, panel placement leaves room for its name nearby. Settlement labels
+remain smaller than the title and retain population-based sizing. Halos are slightly lighter on
+the bare parchment.
+
+Text reservations use conservative serif advance bounds, ascent/descent clearance, halo width,
+and serialization slack. This matters for exported SVG: `rsvg-convert` ignores `textLength`, so a
+forced-width attribute cannot repair an underestimated reservation. Each ink text element records
+its reserved box for regression checks; browser tests separately compare actual glyph bounds
+against those reservations.
+
+Candidate label positions are clamped onto the sheet, then rejected if they intersect a marker
+or the entire cartouche. These are hard constraints. Only overlaps with other settlement labels
+remain a soft preference. Additional candidates can clear an obstacle vertically; text too large
+to fit or with no legal placement is omitted. Marker reservations include their stroke/filter or
+shadow extent. No saved data, geography, or glyph placement changes.
+
+The reference comparisons and sizes are in [the #234 visual review](region_cartography_234/README.md).
 
 ## The plan
 
