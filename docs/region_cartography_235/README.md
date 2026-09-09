@@ -23,9 +23,9 @@ Bravo, and draws 121 of 133 in Charlie. No geography or settlement data changes.
 
 | Seed    | Before SVG bytes | After SVG bytes | River edges drawn |
 | ------- | ---------------: | --------------: | ----------------: |
-| alpha   |          161,029 |         204,083 |        146 of 146 |
-| bravo   |          121,048 |         167,848 |        131 of 131 |
-| charlie |          153,989 |         181,573 |        121 of 133 |
+| alpha   |          161,029 |         203,802 |        146 of 146 |
+| bravo   |          121,048 |         166,805 |        131 of 131 |
+| charlie |          153,989 |         180,914 |        121 of 133 |
 
 Separate bank/channel geometry increases size, but simplification removes detail smaller than
 0.01 map units at this scale. All three maps remain under their existing SVG size limits.

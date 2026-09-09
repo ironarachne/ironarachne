@@ -38,7 +38,9 @@ export function connectedRiverReaches(map: RegionMap, outlets: ReadonlySet<numbe
     edge,
     from,
     to,
-    source: !incoming.has(from) && !outlets.has(from),
+    // A neighbouring water cell can make a corner a valid destination without making
+    // the actual inland spring an inlet. Every inland headwater still needs a pointed tip.
+    source: !incoming.has(from) && !atMapEdge(map.corners[from].point, map),
     startFlow: Math.max(edge.river, incoming.get(from) ?? 0),
     // A mouth corner has zero stored flow: use its incoming edge, not that zero.
     endFlow: Math.max(edge.river, directed.get(to)?.edge.river ?? 0),

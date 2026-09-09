@@ -102,6 +102,16 @@ describe('river paths', () => {
     expect(connectedRiverReaches({ ...map, edges: [] }, new Set())).toEqual([]);
   });
 
+  it('tapers inland headwaters even beside mapped water, but keeps crop entries full width', () => {
+    const map = network();
+    const reaches = connectedRiverReaches(map, new Set([0, 3]));
+    expect(reaches.find((reach) => reach.from === 0)?.source).toBe(true);
+    map.corners[0].point.x = 0;
+    expect(
+      connectedRiverReaches(map, new Set([0, 3])).find((reach) => reach.from === 0)?.source,
+    ).toBe(false);
+  });
+
   it('does not retain a branch that leaves water and ends in open country', () => {
     const map = network();
     map.corners[3].downslope = 4;
