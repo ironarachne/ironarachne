@@ -7,7 +7,7 @@ import { atMapEdge } from './river_paths';
 
 for (const seed of ['alpha', 'bravo', 'charlie']) {
   describe(`reference routes: ${seed}`, () => {
-    it('keeps corner rivers connected downstream and draws routes above terrain', () => {
+    it('keeps corner rivers connected downstream and draws rivers below terrain and roads above it', () => {
       const config = getDefaultConfig(new RNG(seed));
       config.rng = new RNG(seed);
       config.nameGeneratorSet = getFantasyNameGeneratorSet('tiefling', new RNG(seed));
@@ -65,7 +65,9 @@ for (const seed of ['alpha', 'bravo', 'charlie']) {
         svg.lastIndexOf('<use href="#mountain-'),
       );
       expect(svg.indexOf('data-map-roads')).toBeGreaterThan(lastGlyph);
-      expect(svg.indexOf('data-map-rivers')).toBeGreaterThan(lastGlyph);
+      const firstGlyph = [...svg.matchAll(/<use href="#(?:tree|mountain)-/g)][0]?.index;
+      expect(firstGlyph).toBeDefined();
+      expect(svg.indexOf('data-map-rivers')).toBeLessThan(firstGlyph!);
       expect(svg.indexOf('id="map-text"')).toBeGreaterThan(svg.indexOf('data-map-rivers'));
       expect(svg).not.toMatch(/NaN|Infinity|rvTapG/);
       expect(buildRegionMapSvgString(map, options)).toBe(svg);

@@ -7,7 +7,7 @@ is pending.
 Rivers now have fine sepia banks around a pale parchment channel, sharing the water's parallel-line
 vocabulary. Width increases with flow. Natural headwaters taper to points; tributaries join at full
 width and mouths connect to the processed coast. The shared radial fade is gone, so one source
-cannot erase a nearby river. Routes draw above terrain artwork, keeping their course visible.
+cannot erase a nearby river. Rivers draw below trees, mountains, and hills; roads remain above terrain artwork, keeping their course visible.
 
 The road audit found no dropped-settlement stubs in Alpha, Bravo, or Charlie: every degree-one road
 node is a settlement. Alpha's intermediate endpoint at node 27 is a three-way junction; Charlie
@@ -30,7 +30,7 @@ Bravo, and draws 121 of 133 in Charlie. No geography or settlement data changes.
 Separate bank/channel geometry increases size, but simplification removes detail smaller than
 0.01 map units at this scale. All three maps remain under their existing SVG size limits.
 Processed water definitions, terrain glyph placements, and label markup are identical before and
-after. The land ink beneath a route is covered locally so the route stays visible.
+after. The land ink beneath a road is covered locally so the road stays visible. Terrain symbols can overlap rivers.
 
 ## Alpha
 
@@ -56,4 +56,4 @@ rsvg-convert -w 1400 /tmp/alpha.svg -o /tmp/alpha.png
 Repeat with `bravo` and `charlie`. The supplied lossless WebP comparisons join each pair at its
 original 1400-pixel width. Tests cover downstream destinations, flow at confluences and mouths,
 headwater taper, crop exits, disconnected branches, degenerate geometry, stable output, and graph
-immutability. Reference tests check the Charlie defect and ensure routes draw after terrain.
+immutability. Reference tests check the Charlie defect and ensure rivers draw before terrain and roads after it.

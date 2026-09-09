@@ -57,7 +57,7 @@ The map is a Voronoi diagram over Poisson-disk points, built with
   reach mapped water or the crop; only natural sources taper. The internal `river_paths` helpers
   handle connectivity, curve sampling, and simplified bank geometry without changing the graph.
   Road leaves require settlements, water, or the crop; a faint continuous stroke joins their dashes.
-  Routes draw above terrain glyphs and below markers and labels.
+  Rivers draw below terrain glyphs; roads draw above terrain glyphs and below markers and labels.
   Browser tests check actual font geometry against the emitted `data-text-box` reservations.
 
 ## Usage

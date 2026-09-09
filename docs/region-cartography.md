@@ -390,7 +390,7 @@ Roads still use the existing routed cell-centre polylines. Iterative pruning rem
 leaf has no settlement, water, or map-edge destination. The three reference graphs have no such
 branches: every degree-one road node is a settlement. Intermediate polyline endpoints can be valid
 junctions. A narrow parchment clearance and faint continuous centre stroke keep the dashed line
-connected at junctions. Roads and rivers draw after terrain glyphs, before settlement markers and
+connected at junctions. Rivers draw below terrain glyphs. Roads draw above terrain glyphs, before settlement markers and
 labels. They do not use displacement, so exact graph joins remain exact in the drawing.
 
 The reference comparisons, omitted-edge audit, and sizes are in [the #235 visual review](region_cartography_235/README.md).

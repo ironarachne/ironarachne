@@ -460,12 +460,7 @@ function connectedRoadMap(map: RegionMap, settlements: RegionMapSvgSettlement[])
   return { ...map, edges };
 }
 
-function appendRiversAndRoads(
-  map: RegionMap,
-  parts: string[],
-  waterPolygons: WaterPolygonItem[],
-  settlements: RegionMapSvgSettlement[],
-): void {
+function appendRivers(map: RegionMap, parts: string[], waterPolygons: WaterPolygonItem[]): void {
   const scale = Math.min(map.width, map.height) / 35;
   const clearOfWater = makeWaterClearanceTest(
     waterPolygons.map((water) => water.outline),
@@ -530,17 +525,6 @@ function appendRiversAndRoads(
     );
     channels.push(`<circle cx="${n(p.x)}" cy="${n(p.y)}" r="${n(width / 2)}"/>`);
   }
-  const roads = buildRoadCentroidPolylines(connectedRoadMap(map, settlements)).map(
-    openRoadPolylinePathD,
-  );
-  if (roads.length) {
-    const paths = roads.map((d) => `<path d="${d}"/>`).join('\n');
-    parts.push(`<g data-map-roads="true" fill="none" stroke-linejoin="round" stroke-linecap="round">
-<g stroke="${PARCHMENT_FILL}" stroke-width="${n(0.34 * scale)}">${paths}</g>
-<g stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${n(0.06 * scale)}" opacity="0.45">${paths}</g>
-<g stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${n(STROKE_WIDTHS.fine * scale)}" stroke-dasharray="0.45 0.4" opacity="0.92">${paths}</g>
-</g>`);
-  }
   // Paint all banks, then all channel interiors: tributaries join without crossbars, and no
   // headwater mask can erase a neighbouring reach. Clip only inside actual processed water.
   const cutouts = waterPolygons.map(
@@ -553,6 +537,21 @@ function appendRiversAndRoads(
     parts.push(
       `<g data-map-rivers="true" mask="url(#riverInk)"><g fill="${CARTOGRAPHY.palette.water.color}">${banks.join('\n')}</g><g fill="${PARCHMENT_FILL}">${channels.join('\n')}</g></g>`,
     );
+}
+
+function appendRoads(map: RegionMap, parts: string[], settlements: RegionMapSvgSettlement[]): void {
+  const scale = Math.min(map.width, map.height) / 35;
+  const roads = buildRoadCentroidPolylines(connectedRoadMap(map, settlements)).map(
+    openRoadPolylinePathD,
+  );
+  if (roads.length) {
+    const paths = roads.map((d) => `<path d="${d}"/>`).join('\n');
+    parts.push(`<g data-map-roads="true" fill="none" stroke-linejoin="round" stroke-linecap="round">
+<g stroke="${PARCHMENT_FILL}" stroke-width="${n(0.34 * scale)}">${paths}</g>
+<g stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${n(0.06 * scale)}" opacity="0.45">${paths}</g>
+<g stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${n(STROKE_WIDTHS.fine * scale)}" stroke-dasharray="0.45 0.4" opacity="0.92">${paths}</g>
+</g>`);
+  }
 }
 
 function isForestNode(node: MapNode): boolean {
@@ -1455,8 +1454,9 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   body.push(waterGeometryDefs(waterPolygons), parchmentRect(w, h));
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
   appendChartDoubleLineIfOcean(map, body);
+  appendRivers(map, body, waterPolygons);
   appendScatterSymbolsBackToFront(collectScatterSymbols(map, clearOfWater), body);
-  appendRiversAndRoads(map, body, waterPolygons, settlements);
+  appendRoads(map, body, settlements);
   appendSettlements(map, settlements, body);
 
   if (titleLayout !== null) {
