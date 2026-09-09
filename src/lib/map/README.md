@@ -53,6 +53,11 @@ The map is a Voronoi diagram over Poisson-disk points, built with
   and node count, so saved graphs render without an extra seed. Text uses conservative serif bounds
   including halo and rounding clearance. Labels stay within the sheet and outside marker footprints
   and the title cartouche; only other-label overlap is best-effort. Names that cannot fit are omitted.
+  Rivers use fine banks around a flow-scaled parchment channel. Their stored corner paths must
+  reach mapped water or the crop; only natural sources taper. The internal `river_paths` helpers
+  handle connectivity, curve sampling, and simplified bank geometry without changing the graph.
+  Road leaves require settlements, water, or the crop; a faint continuous stroke joins their dashes.
+  Routes draw above terrain glyphs and below markers and labels.
   Browser tests check actual font geometry against the emitted `data-text-box` reservations.
 
 ## Usage

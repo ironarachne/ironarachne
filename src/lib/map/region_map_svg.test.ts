@@ -843,11 +843,12 @@ describe('buildRegionMapSvgString', () => {
       ],
     };
 
+    map.corners[2].downslope = 0; // Inland source drains to the crop boundary.
     const svg = buildRegionMapSvgString(map, {
       settlements: [{ mapNodeId: 0 }, { mapNodeId: 1, isCapital: true }],
     });
 
-    expect(svg).toContain(`stroke="${CARTOGRAPHY.palette.water.color}"`);
+    expect(svg).toContain('data-river-edge="0" data-flow="2"');
     expect(svg).toContain('stroke-dasharray="0.45 0.4"');
     expect(svg).toContain('<circle ');
     expect(svg).toContain('★');

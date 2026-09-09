@@ -5,7 +5,7 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; ink vocabulary (#230), water outlines (#231), sea hatching (#232), removal of terrain fills (#233), glyph scatter (#194), and label placement/cartouche (#234) implemented; remaining steps not yet built. The [domain model](#domain-model) was reviewed and approved, so
+**Status:** accepted; ink vocabulary (#230), water outlines (#231), sea hatching (#232), removal of terrain fills (#233), glyph scatter (#194), label placement/cartouche (#234) implemented; rivers and roads (#235) implemented pending visual review; furniture (#236) not yet built. The [domain model](#domain-model) was reviewed and approved, so
 the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
 not advisory. The one [open question](#open-question) is deferred to a future update and does not
 block any of it.
@@ -367,6 +367,33 @@ to fit or with no legal placement is omitted. Marker reservations include their 
 shadow extent. No saved data, geography, or glyph placement changes.
 
 The reference comparisons and sizes are in [the #234 visual review](region_cartography_234/README.md).
+
+## Rivers and roads (#235)
+
+River reaches follow stored corner `downslope` links and positive-flow edges. Keep a reach only
+when its downstream chain reaches mapped water or the sheet edge. Ocean flags on isolated corners
+are insufficient: the water must exist in the drawn cell geometry. A local connector of at most two
+units at the reference scale closes gaps caused by coastline smoothing. This does not change the
+graph. The inconsistent Charlie outlets discovered during this audit are tracked separately in
+[#244](https://github.com/ironarachne/ironarachne/issues/244); their tributaries are omitted.
+
+Fine sepia banks surround a parchment channel, carrying the water's parallel-line vocabulary inland.
+Channel width scales with the square root of edge flow and interpolates toward the downstream
+width. A mouth retains its incoming flow even when the terminal corner stores zero. All banks are
+painted before all interiors so tributaries meet without crossbars. Only natural headwaters taper
+to a point; confluences and mouths retain their width. This treats a pointed headwater as a natural
+source, while disallowing disconnected downstream ends. The former shared radial fade and its
+module-global ID counter are removed. Bank polylines discard detail below 0.01 map units at the
+reference scale, bounding SVG size without visible faceting.
+
+Roads still use the existing routed cell-centre polylines. Iterative pruning removes branches whose
+leaf has no settlement, water, or map-edge destination. The three reference graphs have no such
+branches: every degree-one road node is a settlement. Intermediate polyline endpoints can be valid
+junctions. A narrow parchment clearance and faint continuous centre stroke keep the dashed line
+connected at junctions. Roads and rivers draw after terrain glyphs, before settlement markers and
+labels. They do not use displacement, so exact graph joins remain exact in the drawing.
+
+The reference comparisons, omitted-edge audit, and sizes are in [the #235 visual review](region_cartography_235/README.md).
 
 ## The plan
 

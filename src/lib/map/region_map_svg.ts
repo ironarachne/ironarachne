@@ -15,6 +15,13 @@ import {
 } from '$lib/cartography';
 import { makeWaterClearanceTest } from './water_clearance';
 import { buildRoadCentroidPolylines } from './road_polylines.js';
+import {
+  atMapEdge,
+  connectedRiverReaches,
+  riverChannelWidth,
+  riverRibbon,
+  sampleRiverCurve,
+} from './river_paths';
 
 export type RegionMapSvgSettlement = {
   mapNodeId?: number;
@@ -29,8 +36,6 @@ const DEFAULT_SVG_MAX_WIDTH = 900;
 const DEFAULT_SVG_MAX_HEIGHT = 600;
 
 const PARCHMENT_FILL = CARTOGRAPHY.ground.fill;
-
-let riverTaperMaskSerial = 0;
 
 export type RegionMapSvgOptions = {
   title?: string;
@@ -85,7 +90,7 @@ function mapHasOcean(map: RegionMap): boolean {
   return map.nodes.some((n) => n.isOcean);
 }
 
-/** Open path: cubic Beziers through points (Catmull-Rom → Bézier, /6 tension). */
+/** Roads follow the routed cell centres exactly, including branch junctions. */
 function openRoadPolylinePathD(vertices: Vertex[]): string {
   if (vertices.length === 0) return '';
   const first = vertices[0]!;
@@ -93,29 +98,6 @@ function openRoadPolylinePathD(vertices: Vertex[]): string {
   for (let i = 1; i < vertices.length; i++) {
     const v = vertices[i]!;
     bits.push(`L ${n(v.x)} ${n(v.y)}`);
-  }
-  return bits.join(' ');
-}
-
-function openCurvePathDThroughPoints(vertices: Vertex[]): string {
-  const count = vertices.length;
-  if (count === 0) return '';
-  if (count === 1) {
-    const p = vertices[0]!;
-    return `M ${n(p.x)} ${n(p.y)}`;
-  }
-  const first = vertices[0]!;
-  const bits = [`M ${n(first.x)} ${n(first.y)}`];
-  for (let i = 0; i < count - 1; i++) {
-    const p0 = i === 0 ? first : vertices[i - 1]!;
-    const p1 = vertices[i]!;
-    const p2 = vertices[i + 1]!;
-    const p3 = i + 2 < count ? vertices[i + 2]! : p2;
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    bits.push(`C ${n(c1x)} ${n(c1y)} ${n(c2x)} ${n(c2y)} ${n(p2.x)} ${n(p2.y)}`);
   }
   return bits.join(' ');
 }
@@ -154,146 +136,6 @@ function subdivideRiverChordJittered(
   }
   verts.push({ x: x1, y: y1 });
   return verts;
-}
-
-type RiverCornerIncidence = { edge: MapEdge; other: number };
-
-function buildRiverCornerAdjacency(map: RegionMap): Map<number, RiverCornerIncidence[]> {
-  const adj = new Map<number, RiverCornerIncidence[]>();
-  for (const e of map.edges) {
-    if (e.river <= 0) continue;
-    const add = (a: number, b: number) => {
-      if (!adj.has(a)) adj.set(a, []);
-      adj.get(a)!.push({ edge: e, other: b });
-    };
-    add(e.v0, e.v1);
-    add(e.v1, e.v0);
-  }
-  return adj;
-}
-
-function riverIncidentsSorted(
-  adj: Map<number, RiverCornerIncidence[]>,
-  corner: number,
-  pred: (it: RiverCornerIncidence) => boolean,
-): RiverCornerIncidence[] {
-  return (adj.get(corner) ?? []).filter(pred).sort((a, b) => a.edge.id - b.edge.id);
-}
-
-function extendRiverChainLeft(
-  adj: Map<number, RiverCornerIncidence[]>,
-  used: Set<number>,
-  startCorner: number,
-  excludeEdge: MapEdge,
-): MapEdge[] {
-  const out: MapEdge[] = [];
-  let c = startCorner;
-  let exclude: MapEdge | null = excludeEdge;
-  while (true) {
-    const opts = riverIncidentsSorted(
-      adj,
-      c,
-      (it) => !used.has(it.edge.id) && (exclude === null || it.edge.id !== exclude.id),
-    );
-    if (opts.length !== 1) break;
-    const { edge, other } = opts[0]!;
-    out.unshift(edge);
-    used.add(edge.id);
-    c = other;
-    exclude = null;
-  }
-  return out;
-}
-
-function extendRiverChainRight(
-  adj: Map<number, RiverCornerIncidence[]>,
-  used: Set<number>,
-  startCorner: number,
-): MapEdge[] {
-  const out: MapEdge[] = [];
-  let c = startCorner;
-  while (true) {
-    const opts = riverIncidentsSorted(adj, c, (it) => !used.has(it.edge.id));
-    if (opts.length !== 1) break;
-    const { edge, other } = opts[0]!;
-    out.push(edge);
-    used.add(edge.id);
-    c = other;
-  }
-  return out;
-}
-
-function extractOrderedRiverChain(
-  adj: Map<number, RiverCornerIncidence[]>,
-  used: Set<number>,
-  seed: MapEdge,
-): MapEdge[] {
-  const left = extendRiverChainLeft(adj, used, seed.v0, seed);
-  used.add(seed.id);
-  const right = extendRiverChainRight(adj, used, seed.v1);
-  return [...left, seed, ...right];
-}
-
-function listOrderedRiverChains(map: RegionMap): MapEdge[][] {
-  const adj = buildRiverCornerAdjacency(map);
-  const used = new Set<number>();
-  const chains: MapEdge[][] = [];
-  for (const e of map.edges) {
-    if (e.river <= 0 || used.has(e.id)) continue;
-    chains.push(extractOrderedRiverChain(adj, used, e));
-  }
-  return chains;
-}
-
-function sharedMapEdgeCorner(a: MapEdge, b: MapEdge): number | null {
-  if (a.v0 === b.v0 || a.v0 === b.v1) return a.v0;
-  if (a.v1 === b.v0 || a.v1 === b.v1) return a.v1;
-  return null;
-}
-
-/** Chain order is upstream-to-downstream along the extracted path; corners stay fixed between edges. */
-function riverChainToSubdividedVertices(map: RegionMap, chain: MapEdge[]): Vertex[] | null {
-  if (chain.length === 0) return null;
-  const all: Vertex[] = [];
-
-  for (let i = 0; i < chain.length; i++) {
-    const e = chain[i]!;
-    const c0 = map.corners[e.v0];
-    const c1 = map.corners[e.v1];
-    if (!c0 || !c1) return null;
-
-    let fromC: number;
-    let toC: number;
-    if (i === 0) {
-      if (chain.length === 1) {
-        fromC = e.v0;
-        toC = e.v1;
-      } else {
-        const sh = sharedMapEdgeCorner(chain[0]!, chain[1]!)!;
-        fromC = sh === e.v0 ? e.v1 : e.v0;
-        toC = sh;
-      }
-    } else {
-      const sh = sharedMapEdgeCorner(chain[i - 1]!, e)!;
-      fromC = sh;
-      toC = sh === e.v0 ? e.v1 : e.v0;
-    }
-
-    const pFrom = map.corners[fromC]!.point;
-    const pTo = map.corners[toC]!.point;
-    const vLo = Math.min(fromC, toC);
-    const vHi = Math.max(fromC, toC);
-    const salt = vLo * 49999 + vHi * 1103515245 + e.id * 1009;
-    const seg = subdivideRiverChordJittered(pFrom.x, pFrom.y, pTo.x, pTo.y, salt);
-
-    if (i === 0) {
-      all.push(...seg);
-    } else {
-      all.push(...seg.slice(1));
-    }
-  }
-
-  return all;
 }
 
 function isComponentBoundaryEdge(edge: MapEdge, component: Set<number>): boolean {
@@ -565,123 +407,152 @@ function symbolFontSizeForNode(node: MapNode, map: RegionMap): number {
   return Math.max(0.35, Math.min(2.8, base));
 }
 
-function polylineLength(vertices: Vertex[]): number {
-  let s = 0;
-  for (let i = 1; i < vertices.length; i++) {
-    const a = vertices[i - 1]!;
-    const b = vertices[i]!;
-    s += Math.hypot(b.x - a.x, b.y - a.y);
-  }
-  return s;
-}
-
-function minDistanceToWaterCellCenter(x: number, y: number, map: RegionMap): number {
-  let best = Infinity;
-  for (const n of map.nodes) {
-    if (!isWaterNode(n)) continue;
-    const d = Math.hypot(n.center.x - x, n.center.y - y);
-    if (d < best) best = d;
+/** Nearest point on the processed coast, used only for corners already touching mapped water. */
+function nearestWaterPoint(point: Vertex, waterPolygons: WaterPolygonItem[]): Vertex | null {
+  let best: Vertex | null = null;
+  let distance = Infinity;
+  for (const water of waterPolygons) {
+    for (let i = 0; i < water.outline.length; i++) {
+      const a = water.outline[i],
+        b = water.outline[(i + 1) % water.outline.length];
+      const dx = b.x - a.x,
+        dy = b.y - a.y;
+      const t = Math.max(
+        0,
+        Math.min(1, ((point.x - a.x) * dx + (point.y - a.y) * dy) / (dx * dx + dy * dy || 1)),
+      );
+      const candidate = { x: a.x + dx * t, y: a.y + dy * t };
+      const d = Math.hypot(candidate.x - point.x, candidate.y - point.y);
+      if (d < distance) {
+        distance = d;
+        best = candidate;
+      }
+    }
   }
   return best;
 }
 
-/** Endpoint of the river chain farthest from water; used to taper stroke to nothing there. */
-function riverDryEndAndTaperRadius(
-  vertices: Vertex[],
-  map: RegionMap,
-): { dry: Vertex; taperR: number } {
-  const first = vertices[0]!;
-  const last = vertices[vertices.length - 1]!;
-  const da = minDistanceToWaterCellCenter(first.x, first.y, map);
-  const db = minDistanceToWaterCellCenter(last.x, last.y, map);
-  const dry = da >= db ? first : last;
-  const len = polylineLength(vertices);
-  const taperR = Math.max(0.65, Math.min(5.5, len * 0.2));
-  return { dry, taperR };
-}
-
-/** Radial fade from transparent at a river's dry end to fully opaque at `taperR`. */
-function riverTaperGradientDef(dry: Vertex, taperR: number, serial: number): string {
-  return `<radialGradient id="rvTapG${serial}" gradientUnits="userSpaceOnUse" cx="${n(dry.x)}" cy="${n(dry.y)}" r="${n(taperR)}" fx="${n(dry.x)}" fy="${n(dry.y)}">
-    <stop offset="0" stop-color="${MASK_PAINT.hidden}"/>
-    <stop offset="0.42" stop-color="${MASK_PAINT.taper}"/>
-    <stop offset="1" stop-color="${MASK_PAINT.visible}"/>
-  </radialGradient>`;
-}
-
-/**
- * One mask for the whole river layer, replacing a per-river map-sized mask plus a shared one — every
- * mask costs its own full offscreen buffer, and a map with two dozen rivers was allocating two dozen
- * canvas-sized surfaces to draw a few thin lines.
- *
- * Both effects are multiplicative over white so they compose in a single pass: each taper gradient
- * reaches white exactly at its radius, so painting it as a bounded circle over the white ground is
- * seamless, and the water cutouts go on last so open water always wins. The one behaviour this gives
- * up is isolation between rivers — where one river's taper radius reaches another river's course it
- * now fades that river slightly too. Rivers are sparse enough that this is rare.
- */
-function riverLayerMaskDef(
-  map: RegionMap,
-  tapers: { dry: Vertex; taperR: number; serial: number }[],
-  waterPolygons: WaterPolygonItem[],
-): string {
-  const w = map.width;
-  const h = map.height;
-  const gradients = tapers.map((t) => riverTaperGradientDef(t.dry, t.taperR, t.serial));
-  const taperCircles = tapers.map(
-    (t) =>
-      `<circle cx="${n(t.dry.x)}" cy="${n(t.dry.y)}" r="${n(t.taperR)}" fill="url(#rvTapG${t.serial})"/>`,
-  );
-  const cutouts = waterPolygons.map((wp) => `<use href="#${wp.id}" fill="${MASK_PAINT.hidden}"/>`);
-  return `<defs>
-${gradients.join('\n')}
-  <mask id="riverInk" maskUnits="userSpaceOnUse" maskContentUnits="userSpaceOnUse" x="0" y="0" width="${w}" height="${h}">
-    <rect x="0" y="0" width="${w}" height="${h}" fill="${MASK_PAINT.visible}"/>
-    ${taperCircles.join('\n    ')}
-    ${cutouts.join('\n    ')}
-  </mask>
-</defs>`;
+/** Prune dangling road branches without changing the stored routing graph. */
+function connectedRoadMap(map: RegionMap, settlements: RegionMapSvgSettlement[]): RegionMap {
+  const anchors = new Set(settlements.map((settlement) => settlement.mapNodeId));
+  for (const node of map.nodes)
+    if (isWaterNode(node) || atMapEdge(node.center, map)) anchors.add(node.id);
+  const edges = map.edges.map((edge) => ({ ...edge }));
+  let changed = true;
+  while (changed) {
+    changed = false;
+    const incident = new Map<number, MapEdge[]>();
+    for (const edge of edges) {
+      if (!edge.road || edge.d1 === undefined) continue;
+      for (const id of [edge.d0, edge.d1]) {
+        const bucket = incident.get(id) ?? [];
+        bucket.push(edge);
+        incident.set(id, bucket);
+      }
+    }
+    for (const [id, roads] of incident) {
+      if (roads.length === 1 && !anchors.has(id)) {
+        roads[0].road = 0;
+        changed = true;
+      }
+    }
+  }
+  return { ...map, edges };
 }
 
 function appendRiversAndRoads(
   map: RegionMap,
   parts: string[],
   waterPolygons: WaterPolygonItem[],
+  settlements: RegionMapSvgSettlement[],
 ): void {
-  const riverLines: string[] = [];
-  const tapers: { dry: Vertex; taperR: number; serial: number }[] = [];
-  for (const chain of listOrderedRiverChains(map)) {
-    const rv = riverChainToSubdividedVertices(map, chain);
-    if (!rv || rv.length < 2) continue;
-    const d = openCurvePathDThroughPoints(rv);
-    riverLines.push(
-      `<path d="${d}" fill="none" stroke="${CARTOGRAPHY.palette.water.color}" stroke-width="${STROKE_WIDTHS.medium}" stroke-linejoin="round" stroke-linecap="round" opacity="0.88"/>`,
-    );
-    const { dry, taperR } = riverDryEndAndTaperRadius(rv, map);
-    tapers.push({ dry, taperR, serial: riverTaperMaskSerial++ });
-  }
-
-  const roads = buildRoadCentroidPolylines(map).map(
-    (poly) =>
-      `<path d="${openRoadPolylinePathD(poly)}" fill="none" stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-dasharray="0.45 0.4" stroke-linejoin="round" stroke-linecap="round" opacity="0.92"/>`,
+  const scale = Math.min(map.width, map.height) / 35;
+  const clearOfWater = makeWaterClearanceTest(
+    waterPolygons.map((water) => water.outline),
+    0,
   );
-  if (roads.length === 0 && riverLines.length === 0) return;
-
-  if (riverLines.length > 0) {
-    parts.push(riverLayerMaskDef(map, tapers, waterPolygons));
+  const outlets = new Set<number>();
+  const mouthPoints = new Map<number, Vertex>();
+  for (const corner of map.corners) {
+    if (atMapEdge(corner.point, map)) {
+      outlets.add(corner.id);
+      continue;
+    }
+    if (!corner.touches.some((id) => isWaterNode(map.nodes[id]))) continue;
+    if (!clearOfWater([corner.point])) {
+      outlets.add(corner.id);
+      continue;
+    }
+    const shore = nearestWaterPoint(corner.point, waterPolygons);
+    // Smoothing can pull the visible shore away from its original graph corner. Bridge only
+    // this local drawing gap; a distant or nonexistent water body is a simulation defect.
+    if (shore && Math.hypot(shore.x - corner.point.x, shore.y - corner.point.y) <= 2 * scale) {
+      outlets.add(corner.id);
+      const dx = shore.x - corner.point.x,
+        dy = shore.y - corner.point.y;
+      const length = Math.hypot(dx, dy) || 1;
+      mouthPoints.set(corner.id, {
+        x: shore.x + (dx / length) * 0.15 * scale,
+        y: shore.y + (dy / length) * 0.15 * scale,
+      });
+    }
   }
-  // Roads and rivers share one displacement pass. The river mask sits on an inner group so it still
-  // applies to rivers alone, which keeps roads out of the water cutouts without a second filter.
-  const masked =
-    riverLines.length > 0
-      ? `<g mask="url(#riverInk)">
-${riverLines.join('\n')}
-</g>`
-      : '';
-  parts.push(`<g filter="url(#inkEdge)">
-${roads.join('\n')}
-${masked}
+  const reaches = connectedRiverReaches(map, outlets);
+  const banks: string[] = [],
+    channels: string[] = [];
+  const joins = new Map<number, number>();
+  for (const reach of reaches) {
+    const from = map.corners[reach.from].point;
+    const to = map.corners[reach.to].point;
+    const salt =
+      Math.min(reach.from, reach.to) * 49999 +
+      Math.max(reach.from, reach.to) * 1103515245 +
+      reach.edge.id * 1009;
+    const knots = subdivideRiverChordJittered(from.x, from.y, to.x, to.y, salt);
+    const mouth = mouthPoints.get(reach.to);
+    if (mouth) knots.push(mouth);
+    const points = sampleRiverCurve(knots);
+    const start = riverChannelWidth(reach.startFlow, scale),
+      end = riverChannelWidth(reach.endFlow, scale);
+    banks.push(
+      `<path data-river-edge="${reach.edge.id}" data-flow="${reach.edge.river}" d="${polygonToPathD(riverRibbon(points, start, end, reach.source, STROKE_WIDTHS.hairline * scale, scale))}"/>`,
+    );
+    channels.push(
+      `<path d="${polygonToPathD(riverRibbon(points, start, end, reach.source, 0, scale))}"/>`,
+    );
+    if (!reach.source) joins.set(reach.from, Math.max(joins.get(reach.from) ?? 0, start));
+    joins.set(reach.to, Math.max(joins.get(reach.to) ?? 0, end));
+  }
+  for (const [id, width] of joins) {
+    const p = map.corners[id].point;
+    banks.push(
+      `<circle cx="${n(p.x)}" cy="${n(p.y)}" r="${n(width / 2 + STROKE_WIDTHS.hairline * scale)}"/>`,
+    );
+    channels.push(`<circle cx="${n(p.x)}" cy="${n(p.y)}" r="${n(width / 2)}"/>`);
+  }
+  const roads = buildRoadCentroidPolylines(connectedRoadMap(map, settlements)).map(
+    openRoadPolylinePathD,
+  );
+  if (roads.length) {
+    const paths = roads.map((d) => `<path d="${d}"/>`).join('\n');
+    parts.push(`<g data-map-roads="true" fill="none" stroke-linejoin="round" stroke-linecap="round">
+<g stroke="${PARCHMENT_FILL}" stroke-width="${n(0.34 * scale)}">${paths}</g>
+<g stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${n(0.06 * scale)}" opacity="0.45">${paths}</g>
+<g stroke="${CARTOGRAPHY.palette.secondary.color}" stroke-width="${n(STROKE_WIDTHS.fine * scale)}" stroke-dasharray="0.45 0.4" opacity="0.92">${paths}</g>
 </g>`);
+  }
+  // Paint all banks, then all channel interiors: tributaries join without crossbars, and no
+  // headwater mask can erase a neighbouring reach. Clip only inside actual processed water.
+  const cutouts = waterPolygons.map(
+    (water) => `<use href="#${water.id}" fill="${MASK_PAINT.hidden}"/>`,
+  );
+  parts.push(
+    `<defs><mask id="riverInk" maskUnits="userSpaceOnUse" x="0" y="0" width="${map.width}" height="${map.height}"><rect width="${map.width}" height="${map.height}" fill="${MASK_PAINT.visible}"/>${cutouts.join('')}</mask></defs>`,
+  );
+  if (banks.length)
+    parts.push(
+      `<g data-map-rivers="true" mask="url(#riverInk)"><g fill="${CARTOGRAPHY.palette.water.color}">${banks.join('\n')}</g><g fill="${PARCHMENT_FILL}">${channels.join('\n')}</g></g>`,
+    );
 }
 
 function isForestNode(node: MapNode): boolean {
@@ -1583,9 +1454,9 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   );
   body.push(waterGeometryDefs(waterPolygons), parchmentRect(w, h));
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
-  appendRiversAndRoads(map, body, waterPolygons);
   appendChartDoubleLineIfOcean(map, body);
   appendScatterSymbolsBackToFront(collectScatterSymbols(map, clearOfWater), body);
+  appendRiversAndRoads(map, body, waterPolygons, settlements);
   appendSettlements(map, settlements, body);
 
   if (titleLayout !== null) {
