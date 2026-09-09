@@ -2,7 +2,7 @@
 
 Each comparison has **before on the left, after on the right**, rasterized with `rsvg-convert` at
 1400 pixels per map. These are review illustrations, not golden-image tests. Human visual review
-is pending.
+was approved by Ben in [PR #241](https://github.com/ironarachne/ironarachne/pull/241).
 
 Forests and mountain ranges now show only their glyphs on parchment. Their regional washes and
 outlines are gone, including the visible cell-shaped boundary around Charlie's mountain band.

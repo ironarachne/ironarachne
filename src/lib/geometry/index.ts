@@ -10,3 +10,5 @@ export * from './poisson';
 export * from './voronoi';
 
 export * as Directions from './directions';
+
+export type { PoissonDiskOptions } from './poisson_types';

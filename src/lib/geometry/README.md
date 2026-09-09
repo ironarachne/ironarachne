@@ -11,7 +11,10 @@ them with Delaunay, take the Voronoi dual, and treat the resulting cells as regi
 ## Features
 
 - **Types** — `Vertex`, `Edge`, `Triangle`, and `Polygon`.
-- **Point distribution** — `generatePoissonDisk` for evenly-spaced-but-not-gridded points.
+- **Point distribution** — `generatePoissonDisk` for evenly-spaced-but-not-gridded points. Its
+  optional sixth argument accepts `accept(point)` and `maxPoints`: the predicate filters returned
+  points, and the budget counts only those accepted. Hidden samples bridge disconnected accepted
+  areas. Runtime and grid memory still scale with rectangle area divided by radius squared.
 - **Triangulation** — `triangulate`, with `createTriangle`, `getCircumcircle`, and `inCircumcircle`
   exposed for callers doing their own incremental work.
 - **Voronoi** — `computeVoronoi` builds the dual diagram from sites and their triangulation.

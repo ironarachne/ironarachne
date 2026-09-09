@@ -389,6 +389,65 @@ describe('buildRegionMapSvgString', () => {
     expect(kindSwitches).toBeGreaterThan(1);
   });
 
+  it('spaces the combined tree and mountain set while retaining partial overlap', () => {
+    const map: RegionMap = {
+      width: 20,
+      height: 20,
+      nodes: [
+        { ...squareCellNode(0, 0, 0, 10), biomeId: 'temperate deciduous forest' },
+        { ...squareCellNode(1, 10, 0, 10), biomeId: 'boreal forest', elevation: 0.9 },
+        { ...squareCellNode(2, 0, 10, 10), biomeId: 'boreal forest' },
+        { ...squareCellNode(3, 10, 10, 10), biomeId: 'hills', elevation: 0.65 },
+      ],
+      edges: [],
+      corners: [],
+    };
+    const original = structuredClone(map);
+    const svg = buildRegionMapSvgString(map);
+    expect(buildRegionMapSvgString(structuredClone(map))).toEqual(svg);
+    expect(map).toEqual(original);
+    const placed = parsePlacedSymbols(svg);
+    const widths: Record<string, number> = {
+      'tree-oak': 1.2,
+      'tree-pine': 0.8,
+      'tree-palm': 0.8,
+      'mountain-high': 1.4,
+      'mountain-low': 1,
+    };
+    const overlappingKinds = new Set<string>();
+    for (let i = 0; i < placed.length; i++) {
+      const a = placed[i];
+      for (const b of placed.slice(i + 1)) {
+        const widthsSum = widths[a.id] * a.scale + widths[b.id] * b.scale;
+        const distance = Math.hypot(a.x - b.x, a.y - b.y);
+        expect(distance).toBeGreaterThanOrEqual(0.55 * widthsSum - 0.002);
+        if (distance < widthsSum)
+          overlappingKinds.add([a.id.split('-')[0], b.id.split('-')[0]].sort().join('-'));
+      }
+    }
+    expect(overlappingKinds).toContain('tree-tree');
+    expect(overlappingKinds).toContain('mountain-mountain');
+    // Forested high ground gets peaks, not a second independent carpet of trees.
+    expect(
+      placed.filter((symbol) => symbol.x > 10).every((symbol) => symbol.id.startsWith('mountain-')),
+    ).toBe(true);
+  });
+
+  it('leaves open biomes free of glyphs and the old dust-speck text marks', () => {
+    for (const biomeId of ['temperate grassland', 'desert', 'tundra', 'savanna', 'unknown']) {
+      const map: RegionMap = {
+        width: 10,
+        height: 10,
+        nodes: [{ ...squareCellNode(0, 0, 0, 10), elevation: 0.1, biomeId }],
+        edges: [],
+        corners: [],
+      };
+      const svg = buildRegionMapSvgString(map);
+      expect(parsePlacedSymbols(svg)).toEqual([]);
+      expect(svg).not.toContain('<text');
+    }
+  });
+
   it('titles the map in Times New Roman, centered near the top and larger than any label', () => {
     const map: RegionMap = {
       width: 40,

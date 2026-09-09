@@ -1,5 +1,6 @@
 import type { MapEdge, MapNode, RegionMap } from './map_graph.js';
-import type { Vertex } from '$lib/geometry';
+import { generatePoissonDisk, type Vertex } from '$lib/geometry';
+import { RNG } from '@ironarachne/rng';
 import {
   CARTOGRAPHY,
   createWaterEdgeTreatment,
@@ -34,10 +35,6 @@ let riverTaperMaskSerial = 0;
 export type RegionMapSvgOptions = {
   title?: string;
   settlements?: RegionMapSvgSettlement[];
-};
-
-type BiomeVisual = {
-  symbol: string;
 };
 
 /**
@@ -568,42 +565,6 @@ function symbolFontSizeForNode(node: MapNode, map: RegionMap): number {
   return Math.max(0.35, Math.min(2.8, base));
 }
 
-/**
- * Land-only symbols (mirrors ASCII biome intent); water is shown by coast fills, not glyphs.
- */
-function biomeSymbolForLandNode(node: MapNode): BiomeVisual {
-  const b = node.biomeId?.toLowerCase() || '';
-
-  if (isMountainLandNode(node)) {
-    return { symbol: '' };
-  }
-  if (node.elevation > 0.85) {
-    return { symbol: '▲' };
-  }
-  if (b.includes('forest') || b.includes('woodland')) {
-    return { symbol: '' };
-  }
-  if (b.includes('desert') || b.includes('arid') || b.includes('dry')) {
-    return { symbol: '∴' };
-  }
-  if (b.includes('tundra') || b.includes('ice') || b.includes('polar')) {
-    return { symbol: '✻' };
-  }
-  if (b.includes('grassland') || b.includes('plains') || b.includes('savanna')) {
-    return { symbol: '·' };
-  }
-  if (b.includes('tropical') || b.includes('jungle')) {
-    return { symbol: '❧' };
-  }
-  if (node.elevation > 0.6) {
-    return { symbol: '△' };
-  }
-  if (node.elevation > 0.4) {
-    return { symbol: '⌂' };
-  }
-  return { symbol: ',' };
-}
-
 function polylineLength(vertices: Vertex[]): number {
   let s = 0;
   for (let i = 1; i < vertices.length; i++) {
@@ -959,76 +920,115 @@ type ScatterSymbol = {
   el: string;
 };
 
-type ScatterSpec = {
-  /** Symbols per square map unit of cell area. */
-  density: number;
-  hashSalt: number;
-  scaleJitter: number;
-  rotationJitter: number;
-  /** Fraction of the desired scale below which a glyph is dropped instead of shrunk further. */
-  minScaleFactor: number;
-  inRegion: (node: MapNode) => boolean;
-  symbolIdForNode: (node: MapNode) => string | null;
-  scaleForNode: (node: MapNode) => number;
-};
+/** A shared disk index lets different glyph kinds keep partial overlap without stacking. */
+function makeGlyphSpacingTest(cellSize: number): (point: Vertex, radius: number) => boolean {
+  const bins = new Map<string, { point: Vertex; radius: number }[]>();
+  let largestRadius = 0;
+  return (point, radius) => {
+    const col = Math.floor(point.x / cellSize);
+    const row = Math.floor(point.y / cellSize);
+    const reach = Math.ceil((radius + largestRadius + 0.003) / cellSize);
+    for (let x = col - reach; x <= col + reach; x++) {
+      for (let y = row - reach; y <= row + reach; y++) {
+        for (const other of bins.get(`${x},${y}`) ?? []) {
+          if (
+            Math.hypot(point.x - other.point.x, point.y - other.point.y) <
+            radius + other.radius + 0.003
+          )
+            return false;
+        }
+      }
+    }
+    const key = `${col},${row}`;
+    const bin = bins.get(key) ?? [];
+    bin.push({ point, radius });
+    bins.set(key, bin);
+    largestRadius = Math.max(largestRadius, radius);
+    return true;
+  };
+}
 
-const SCATTER_PLACEMENT_ATTEMPTS = 40;
+/** Spatial bins avoid scanning every terrain cell for every Poisson candidate. */
+function makeScatterNodeLookup(map: RegionMap): (point: Vertex) => MapNode | undefined {
+  const step = Math.max(map.width, map.height) / 32;
+  const bins = new Map<string, MapNode[]>();
+  for (const node of map.nodes) {
+    if (!isMountainLandNode(node) && !isForestNode(node)) continue;
+    const box = getPolygonBoundingBox(node.polygon.vertices);
+    for (let x = Math.floor(box.minX / step); x <= Math.floor(box.maxX / step); x++) {
+      for (let y = Math.floor(box.minY / step); y <= Math.floor(box.maxY / step); y++) {
+        const key = `${x},${y}`;
+        const bin = bins.get(key) ?? [];
+        bin.push(node);
+        bins.set(key, bin);
+      }
+    }
+  }
+  return (point) =>
+    bins
+      .get(`${Math.floor(point.x / step)},${Math.floor(point.y / step)}`)
+      ?.find((node) => isPointInPolygon(point, node.polygon.vertices));
+}
 
 function collectScatterSymbols(
   map: RegionMap,
-  spec: ScatterSpec,
   clearOfWater: (outline: Vertex[]) => boolean,
 ): ScatterSymbol[] {
-  const contains = makeRegionContainmentTest(map, spec.inRegion);
+  if (
+    map.width <= 0 ||
+    map.height <= 0 ||
+    !map.nodes.some((node) => isMountainLandNode(node) || isForestNode(node))
+  )
+    return [];
+  const mapScale = Math.min(map.width, map.height) / 35;
+  // A map-relative floor leaves parchment between glyphs even when edge fitting shrinks them.
+  // Larger glyphs are thinned further by the shared half-width check below.
+  const candidateRadius = 1.1 * mapScale;
+  const nodeAt = makeScatterNodeLookup(map);
+  const rng = new RNG(`region-glyphs:${map.width}:${map.height}:${map.nodes.length}`);
+  const candidates = generatePoissonDisk(map.width, map.height, candidateRadius, rng, 30, {
+    accept: (point) => nodeAt(point) !== undefined,
+    maxPoints: 12000,
+  });
+  const forestContains = makeRegionContainmentTest(
+    map,
+    (node) => isForestNode(node) && !isMountainLandNode(node),
+  );
+  const mountainContains = makeRegionContainmentTest(map, isMountainLandNode);
+  const acceptSpacing = makeGlyphSpacingTest(mapScale);
   const out: ScatterSymbol[] = [];
-
-  for (const node of map.nodes) {
-    const symbolId = spec.symbolIdForNode(node);
-    if (symbolId === null) continue;
+  for (const anchor of candidates) {
+    const node = nodeAt(anchor)!;
+    const mountain = isMountainLandNode(node);
+    const symbolId = mountain ? `mountain-${getMountainType(node)}` : `tree-${getForestType(node)}`;
     const outline = SYMBOL_FIT_OUTLINES[symbolId];
-    if (outline === undefined) continue;
-
-    const wantedCount = Math.round(polygonArea(node.polygon.vertices) * spec.density);
-    if (wantedCount <= 0) continue;
-
-    const bbox = getPolygonBoundingBox(node.polygon.vertices);
-    const desiredScale = spec.scaleForNode(node);
-    const minimumScale = desiredScale * spec.minScaleFactor;
-
-    let seedCounter = 0;
-    const nextRandom = () => hash01(node.id, ++seedCounter, spec.hashSalt);
-
-    let placed = 0;
-    for (let attempt = 0; attempt < SCATTER_PLACEMENT_ATTEMPTS && placed < wantedCount; attempt++) {
-      const anchor = {
-        x: bbox.minX + nextRandom() * (bbox.maxX - bbox.minX),
-        y: bbox.minY + nextRandom() * (bbox.maxY - bbox.minY),
-      };
-      const rotation = toBipolar(nextRandom()) * spec.rotationJitter;
-      const wantedScale = desiredScale * (1 + toBipolar(nextRandom()) * spec.scaleJitter);
-      if (!isPointInPolygon(anchor, node.polygon.vertices)) continue;
-
-      const scale = largestFittingScale(
-        anchor,
-        outline,
-        wantedScale,
-        minimumScale,
-        rotation,
-        node.id,
-        contains,
-        clearOfWater,
-      );
-      if (scale === null) continue;
-
-      out.push({
-        x: anchor.x,
-        y: anchor.y,
-        el: `<use href="#${symbolId}" transform="translate(${anchor.x.toFixed(3)}, ${anchor.y.toFixed(3)}) rotate(${rotation.toFixed(1)}) scale(${scale.toFixed(3)})"/>`,
-      });
-      placed++;
-    }
+    const rotation = rng.float(-1, 1) * (mountain ? 3 : 5);
+    const desiredScale = Math.max(
+      symbolFontSizeForNode(node, map) * (mountain ? 0.9 : 0.6),
+      mapScale * (mountain ? 0.65 : 0.5),
+    );
+    const wantedScale = desiredScale * (1 + rng.float(-1, 1) * (mountain ? 0.12 : 0.18));
+    const scale = largestFittingScale(
+      anchor,
+      outline,
+      wantedScale,
+      desiredScale * (mountain ? 0.4 : 0.45),
+      rotation,
+      node.id,
+      mountain ? mountainContains : forestContains,
+      clearOfWater,
+    );
+    if (scale === null) continue;
+    const halfWidth =
+      Math.max(...SYMBOL_SILHOUETTES[symbolId].map((point) => Math.abs(point.x))) * scale;
+    // The extra serialization slack in the index protects this minimum after SVG rounding.
+    if (!acceptSpacing(anchor, halfWidth * 0.55)) continue;
+    out.push({
+      x: anchor.x,
+      y: anchor.y,
+      el: `<use href="#${symbolId}" transform="translate(${anchor.x.toFixed(3)}, ${anchor.y.toFixed(3)}) rotate(${rotation.toFixed(1)}) scale(${scale.toFixed(3)})"/>`,
+    });
   }
-
   return out;
 }
 
@@ -1044,32 +1044,6 @@ function appendScatterSymbolsBackToFront(symbols: ScatterSymbol[], parts: string
   }
 }
 
-/** Tree height relative to the cell's symbol size. */
-const TREE_SCALE_FACTOR = 0.42;
-
-function collectForestScatterSymbols(
-  map: RegionMap,
-  clearOfWater: (outline: Vertex[]) => boolean,
-): ScatterSymbol[] {
-  return collectScatterSymbols(
-    map,
-    {
-      density: 0.45,
-      hashSalt: 17.31,
-      scaleJitter: 0.18,
-      rotationJitter: 5,
-      minScaleFactor: 0.45,
-      inRegion: isForestNode,
-      symbolIdForNode: (node) => {
-        const forestType = getForestType(node);
-        return forestType === null ? null : `tree-${forestType}`;
-      },
-      scaleForNode: (node) => symbolFontSizeForNode(node, map) * TREE_SCALE_FACTOR,
-    },
-    clearOfWater,
-  );
-}
-
 function getMountainType(node: MapNode): 'high' | 'low' | null {
   if (!isMountainLandNode(node)) return null;
   const b = node.biomeId?.toLowerCase() ?? '';
@@ -1077,57 +1051,6 @@ function getMountainType(node: MapNode): 'high' | 'low' | null {
     return 'high';
   }
   return 'low';
-}
-
-/** Peak height relative to the cell's symbol size; a peak stays narrower than the cell it sits in. */
-const MOUNTAIN_SCALE_FACTOR = 0.7;
-
-function collectMountainScatterSymbols(
-  map: RegionMap,
-  clearOfWater: (outline: Vertex[]) => boolean,
-): ScatterSymbol[] {
-  return collectScatterSymbols(
-    map,
-    {
-      density: 0.4,
-      hashSalt: 23.87,
-      scaleJitter: 0.12,
-      rotationJitter: 3,
-      minScaleFactor: 0.4,
-      inRegion: isMountainLandNode,
-      symbolIdForNode: (node) => {
-        const mountainType = getMountainType(node);
-        return mountainType === null ? null : `mountain-${mountainType}`;
-      },
-      scaleForNode: (node) => symbolFontSizeForNode(node, map) * MOUNTAIN_SCALE_FACTOR,
-    },
-    clearOfWater,
-  );
-}
-
-/**
- * Every glyph shares font, fill and anchoring, so those live on one wrapper group rather than being
- * repeated on each of a couple hundred elements. These marks are a fraction of a pixel of ink apiece
- * (`·`, `,`, `∴`), so they carry no drop shadow — a per-glyph blur filter cost more to render than
- * the glyph itself and was invisible at this size.
- */
-function appendLandBiomeSymbols(map: RegionMap, parts: string[]): void {
-  const glyphs: string[] = [];
-  for (const node of map.nodes) {
-    if (isWaterNode(node)) continue;
-    const { symbol } = biomeSymbolForLandNode(node);
-    if (symbol === '') continue;
-    const fs = symbolFontSizeForNode(node, map);
-    glyphs.push(
-      `<text x="${n(node.center.x)}" y="${n(node.center.y)}" font-size="${n(fs)}">${escapeXml(symbol)}</text>`,
-    );
-  }
-  if (glyphs.length === 0) return;
-  parts.push(
-    `<g font-family="Georgia, serif" fill="${CARTOGRAPHY.palette.body.color}" text-anchor="middle" dominant-baseline="middle">
-${glyphs.join('\n')}
-</g>`,
-  );
 }
 
 const MAP_TEXT_FONT_FAMILY = '&apos;Times New Roman&apos;, Times, serif';
@@ -1577,14 +1500,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
   appendRiversAndRoads(map, body, waterPolygons);
   appendChartDoubleLineIfOcean(map, body);
-  appendLandBiomeSymbols(map, body);
-  appendScatterSymbolsBackToFront(
-    [
-      ...collectForestScatterSymbols(map, clearOfWater),
-      ...collectMountainScatterSymbols(map, clearOfWater),
-    ],
-    body,
-  );
+  appendScatterSymbolsBackToFront(collectScatterSymbols(map, clearOfWater), body);
   appendSettlements(map, settlements, body);
 
   const reserved = settlementMarkerBoxes(map, settlements);

@@ -47,7 +47,10 @@ The map is a Voronoi diagram over Poisson-disk points, built with
   with coast-following hatch bands. Forests and ranges are drawn only through their glyphs, with no
   region washes or outlines. Glyph scale fitting checks full
   silhouettes against that drawn water (with stroke/filter clearance), using row bins to avoid
-  scanning every coast segment for every candidate. Terrain membership still uses the raw cells.
+  scanning every coast segment for every candidate. Terrain membership still uses the raw cells. A shared Poisson candidate set and variable glyph
+  spacing keep trees and peaks from stacking, with partial overlap drawn in base-y order. Forested
+  mountain cells use peaks; open biomes remain bare. The local RNG is derived from map dimensions
+  and node count, so saved graphs render without an extra seed.
 
 ## Usage
 
