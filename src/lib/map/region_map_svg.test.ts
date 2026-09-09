@@ -133,7 +133,7 @@ describe('buildRegionMapSvgString', () => {
 
     expect(svg.startsWith('<?xml')).toBe(true);
     expect(svg).toContain('<svg ');
-    expect(svg).toContain('viewBox="0 0 14 12"');
+    expect(svg).toContain('viewBox="-0.7 -0.6 15.4 13.2"');
     // Fits inside 900×600: scale = min(900/14, 600/12) = 50 → 700×600
     expect(svg).toContain('width="700"');
     expect(svg).toContain('height="600"');
@@ -449,7 +449,9 @@ describe('buildRegionMapSvgString', () => {
       };
       const svg = buildRegionMapSvgString(map);
       expect(parsePlacedSymbols(svg)).toEqual([]);
-      expect(svg).not.toContain('<text');
+      expect([...svg.matchAll(/<text\b[^>]*>(.*?)<\/text>/g)].map((match) => match[1])).toEqual([
+        'N',
+      ]);
     }
   });
 
@@ -697,7 +699,7 @@ describe('buildRegionMapSvgString', () => {
     expect(parseMapLabels(svg)).toHaveLength(0);
   });
 
-  it('renders ocean chart border when the map includes ocean', () => {
+  it('renders the inset frame when the map includes ocean', () => {
     const map: RegionMap = {
       width: 20,
       height: 15,

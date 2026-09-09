@@ -86,10 +86,6 @@ function polygonToPathD(vertices: Vertex[]): string {
   return parts.join(' ');
 }
 
-function mapHasOcean(map: RegionMap): boolean {
-  return map.nodes.some((n) => n.isOcean);
-}
-
 /** Roads follow the routed cell centres exactly, including branch junctions. */
 function openRoadPolylinePathD(vertices: Vertex[]): string {
   if (vertices.length === 0) return '';
@@ -372,17 +368,6 @@ function isMountainLandNode(node: MapNode): boolean {
   return b.includes('mountain') || b.includes('alpine');
 }
 
-/** Outer chart edge when the region includes sea — matches double-line ocean style. */
-function appendChartDoubleLineIfOcean(map: RegionMap, parts: string[]): void {
-  if (!mapHasOcean(map)) return;
-  const w = map.width;
-  const h = map.height;
-  parts.push(
-    `<rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.heavy}"/>`,
-    `<rect x="0" y="0" width="${w}" height="${h}" fill="none" stroke="${PARCHMENT_FILL}" stroke-width="${STROKE_WIDTHS.fine}"/>`,
-  );
-}
-
 function nearestNeighborDistance(node: MapNode, map: RegionMap): number {
   let best = Infinity;
   for (const nid of node.neighbors) {
@@ -460,7 +445,12 @@ function connectedRoadMap(map: RegionMap, settlements: RegionMapSvgSettlement[])
   return { ...map, edges };
 }
 
-function appendRivers(map: RegionMap, parts: string[], waterPolygons: WaterPolygonItem[]): void {
+function appendRivers(
+  map: RegionMap,
+  parts: string[],
+  waterPolygons: WaterPolygonItem[],
+  routeBoxes: TextBox[],
+): void {
   const scale = Math.min(map.width, map.height) / 35;
   const clearOfWater = makeWaterClearanceTest(
     waterPolygons.map((water) => water.outline),
@@ -509,6 +499,14 @@ function appendRivers(map: RegionMap, parts: string[], waterPolygons: WaterPolyg
     const points = sampleRiverCurve(knots);
     const start = riverChannelWidth(reach.startFlow, scale),
       end = riverChannelWidth(reach.endFlow, scale);
+    for (let i = 1; i < points.length; i++)
+      routeBoxes.push(
+        segmentBox(
+          points[i - 1],
+          points[i],
+          Math.max(start, end) / 2 + (STROKE_WIDTHS.hairline + 0.1) * scale,
+        ),
+      );
     banks.push(
       `<path data-river-edge="${reach.edge.id}" data-flow="${reach.edge.river}" d="${polygonToPathD(riverRibbon(points, start, end, reach.source, STROKE_WIDTHS.hairline * scale, scale))}"/>`,
     );
@@ -539,11 +537,18 @@ function appendRivers(map: RegionMap, parts: string[], waterPolygons: WaterPolyg
     );
 }
 
-function appendRoads(map: RegionMap, parts: string[], settlements: RegionMapSvgSettlement[]): void {
+function appendRoads(
+  map: RegionMap,
+  parts: string[],
+  settlements: RegionMapSvgSettlement[],
+  routeBoxes: TextBox[],
+): void {
   const scale = Math.min(map.width, map.height) / 35;
-  const roads = buildRoadCentroidPolylines(connectedRoadMap(map, settlements)).map(
-    openRoadPolylinePathD,
-  );
+  const polylines = buildRoadCentroidPolylines(connectedRoadMap(map, settlements));
+  for (const points of polylines)
+    for (let i = 1; i < points.length; i++)
+      routeBoxes.push(segmentBox(points[i - 1], points[i], 0.3 * scale));
+  const roads = polylines.map(openRoadPolylinePathD);
   if (roads.length) {
     const paths = roads.map((d) => `<path d="${d}"/>`).join('\n');
     parts.push(`<g data-map-roads="true" fill="none" stroke-linejoin="round" stroke-linecap="round">
@@ -788,6 +793,7 @@ type ScatterSymbol = {
   x: number;
   y: number;
   el: string;
+  box: TextBox;
 };
 
 /** A shared disk index lets different glyph kinds keep partial overlap without stacking. */
@@ -896,6 +902,7 @@ function collectScatterSymbols(
     out.push({
       x: anchor.x,
       y: anchor.y,
+      box: glyphBox(anchor, SYMBOL_FIT_OUTLINES[symbolId], scale, rotation),
       el: `<use href="#${symbolId}" transform="translate(${anchor.x.toFixed(3)}, ${anchor.y.toFixed(3)}) rotate(${rotation.toFixed(1)}) scale(${scale.toFixed(3)})"/>`,
     });
   }
@@ -1061,6 +1068,7 @@ function boxIsInsideMap(box: TextBox, map: RegionMap): boolean {
  * largest text on the sheet, eat into any settlement name it was placed near.
  */
 type TextParts = {
+  box: TextBox;
   halo: string;
   ink: string;
 };
@@ -1089,6 +1097,7 @@ function textElement(
   );
   const bounds = [box.minX, box.minY, box.maxX, box.maxY].map(n).join(' ');
   return {
+    box,
     halo: `<text ${shared} fill="none" stroke="${PARCHMENT_FILL}" stroke-width="${(fontSize * haloEms).toFixed(3)}" stroke-linejoin="round">${safe}</text>`,
     ink: `<text ${shared} data-text-box="${bounds}" fill="${MAP_TEXT_INK}">${safe}</text>`,
   };
@@ -1168,6 +1177,92 @@ function titlePanelAt(
       TITLE_HALO_EMS,
     ),
   };
+}
+
+/** Use the same boxes and hard collision rule for compass, title, markers, and labels. */
+function glyphBox(anchor: Vertex, outline: Vertex[], scale: number, rotation: number): TextBox {
+  const angle = (rotation * Math.PI) / 180;
+  const points = outline.map((point) => ({
+    x: anchor.x + scale * (point.x * Math.cos(angle) - point.y * Math.sin(angle)),
+    y: anchor.y + scale * (point.x * Math.sin(angle) + point.y * Math.cos(angle)),
+  }));
+  return {
+    minX: Math.min(...points.map((point) => point.x)) - 0.15,
+    maxX: Math.max(...points.map((point) => point.x)) + 0.15,
+    minY: Math.min(...points.map((point) => point.y)) - 0.15,
+    maxY: Math.max(...points.map((point) => point.y)) + 0.15,
+  };
+}
+
+function segmentBox(a: Vertex, b: Vertex, padding: number): TextBox {
+  return {
+    minX: Math.min(a.x, b.x) - padding,
+    maxX: Math.max(a.x, b.x) + padding,
+    minY: Math.min(a.y, b.y) - padding,
+    maxY: Math.max(a.y, b.y) + padding,
+  };
+}
+
+function layoutCompass(
+  map: RegionMap,
+  reserved: TextBox[],
+  symbols: ScatterSymbol[],
+  water: WaterPolygonItem[],
+  routeBoxes: TextBox[],
+): TextBox | null {
+  const scale = Math.min(map.width, map.height) / 35;
+  const obstacles = [...reserved, ...routeBoxes, ...symbols.map((symbol) => symbol.box)];
+  for (const body of water)
+    for (let i = 0; i < body.outline.length; i++)
+      obstacles.push(
+        segmentBox(body.outline[i], body.outline[(i + 1) % body.outline.length], 0.3 * scale),
+      );
+  // Search from the corners inward; shrink modestly before giving up on a crowded drawing.
+  for (const size of [1, 0.8, 0.6]) {
+    const width = 3.4 * scale * size,
+      height = 4.3 * scale * size;
+    const gap = 0.5 * scale;
+    const candidates: TextBox[] = [];
+    for (let y = gap; y + height <= map.height - gap; y += scale)
+      for (let x = gap; x + width <= map.width - gap; x += scale)
+        candidates.push({ minX: x, maxX: x + width, minY: y, maxY: y + height });
+    const cornerDistance = (box: TextBox) =>
+      Math.min(box.minX, map.width - box.maxX) + Math.min(box.minY, map.height - box.maxY);
+    candidates.sort(
+      (a, b) => cornerDistance(a) - cornerDistance(b) || a.minY - b.minY || b.minX - a.minX,
+    );
+    const empty = candidates.find(
+      (box) =>
+        boxIsInsideMap(box, map) && !obstacles.some((obstacle) => overlapArea(box, obstacle) > 0),
+    );
+    if (empty) return empty;
+  }
+  return null;
+}
+
+function compassRose(box: TextBox): string {
+  const size = (box.maxX - box.minX) / 3.4;
+  const x = (box.minX + box.maxX) / 2,
+    y = box.minY + 2.55 * size;
+  const bounds = [box.minX, box.minY, box.maxX, box.maxY].map(n).join(' ');
+  return `<g id="map-compass" data-reserved-box="${bounds}" transform="translate(${n(x)} ${n(y)}) scale(${n(size)})" aria-label="North">
+<rect x="-1.65" y="-2.5" width="3.3" height="4.2" rx="1.4" fill="${PARCHMENT_FILL}"/>
+<g stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round">
+<path d="M 0 -1.35 L 0.28 -0.28 L 1.35 0 L 0.28 0.28 L 0 1.35 L -0.28 0.28 L -1.35 0 L -0.28 -0.28 Z" fill="${PARCHMENT_FILL}"/>
+<path d="M 0 -1.35 L 0 0 L -0.28 -0.28 Z M 1.35 0 L 0 0 L 0.28 -0.28 Z M 0 1.35 L 0 0 L 0.28 0.28 Z M -1.35 0 L 0 0 L -0.28 0.28 Z" fill="${CARTOGRAPHY.palette.body.color}"/>
+</g>
+<text x="0" y="-1.7" text-anchor="middle" font-family="${MAP_TEXT_FONT_FAMILY}" font-size="0.7" fill="${MAP_TEXT_INK}">N</text>
+</g>`;
+}
+
+/** Two quiet ruled lines surround the clipped drawing, entirely inside the parchment margin. */
+function mapFrame(map: RegionMap, marginX: number, marginY: number): string {
+  return `<g id="map-frame" fill="none" stroke="${CARTOGRAPHY.palette.body.color}">${[0, 0.35]
+    .map(
+      (fraction, i) =>
+        `<rect x="${n(-marginX * fraction)}" y="${n(-marginY * fraction)}" width="${n(map.width + marginX * fraction * 2)}" height="${n(map.height + marginY * fraction * 2)}" stroke-width="${n(((i === 0 ? STROKE_WIDTHS.fine : STROKE_WIDTHS.hairline) * Math.min(map.width, map.height)) / 35)}"/>`,
+    )
+    .join('')}</g>`;
 }
 
 /** Largest label a settlement may take, as a fraction of the title — the title has to stay biggest. */
@@ -1446,22 +1541,20 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   const titleLayout = layoutMapTitle(title, map, reserved);
 
   const body: string[] = [];
+  const routeBoxes: TextBox[] = [];
   const waterPolygons = listWaterPolygonsForMap(map);
   const clearOfWater = makeWaterClearanceTest(
     waterPolygons.map((item) => item.outline),
     WATER_EDGE_MARGIN,
   );
-  body.push(waterGeometryDefs(waterPolygons), parchmentRect(w, h));
+  const symbols = collectScatterSymbols(map, clearOfWater);
+  if (titleLayout !== null) reserved.push(titleLayout.box);
+  body.push(waterGeometryDefs(waterPolygons));
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
-  appendChartDoubleLineIfOcean(map, body);
-  appendRivers(map, body, waterPolygons);
-  appendScatterSymbolsBackToFront(collectScatterSymbols(map, clearOfWater), body);
-  appendRoads(map, body, settlements);
+  appendRivers(map, body, waterPolygons, routeBoxes);
+  appendScatterSymbolsBackToFront(symbols, body);
+  appendRoads(map, body, settlements, routeBoxes);
   appendSettlements(map, settlements, body);
-
-  if (titleLayout !== null) {
-    reserved.push(titleLayout.box);
-  }
 
   // Only other-label crowding is soft. The sheet, cartouche, and marker boundaries are hard.
   const textParts = layoutSettlementLabels(
@@ -1475,6 +1568,13 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   if (titleLayout !== null) {
     textParts.push(titleLayout.parts);
   }
+  const compass = layoutCompass(
+    map,
+    [...reserved, ...textParts.map((part) => part.box)],
+    symbols,
+    waterPolygons,
+    routeBoxes,
+  );
   const textLayer =
     textParts.length === 0
       ? ''
@@ -1483,19 +1583,29 @@ ${textParts.map((t) => t.halo).join('\n')}
 ${textParts.map((t) => t.ink).join('\n')}
 </g>`;
 
+  const marginX = w * 0.05,
+    marginY = h * 0.05;
+  const sheetW = w + marginX * 2,
+    sheetH = h + marginY * 2;
   const inner = `${svgDefs(map)}
+<g transform="translate(${n(-marginX)} ${n(-marginY)})">${parchmentRect(sheetW, sheetH)}</g>
+<defs><clipPath id="map-content-clip"><rect width="${w}" height="${h}"/></clipPath></defs>
+<g id="map-content" clip-path="url(#map-content-clip)">
 <g id="map-layers">
 ${body.join('\n')}
 </g>
 ${titleLayout?.panel ?? ''}
-${textLayer}`;
+${compass === null ? '' : compassRose(compass)}
+${textLayer}
+</g>
+${mapFrame(map, marginX, marginY)}`;
 
   const scale = Math.min(DEFAULT_SVG_MAX_WIDTH / w, DEFAULT_SVG_MAX_HEIGHT / h);
   const pixelW = w * scale;
   const pixelH = h * scale;
 
   return `<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${pixelW}" height="${pixelH}">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="${n(-marginX)} ${n(-marginY)} ${n(sheetW)} ${n(sheetH)}" width="${n(pixelW)}" height="${n(pixelH)}">
 ${inner}
 </svg>`;
 }
