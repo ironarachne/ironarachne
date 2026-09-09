@@ -1075,7 +1075,9 @@ function settlementMarkerExtent(
   map: RegionMap,
 ): number {
   const radius = settlementMarkerRadius(node, map);
-  return settlement.isCapital === true ? radius * CAPITAL_MARKER_EXTENT_FACTOR : radius;
+  return settlement.isCapital === true
+    ? radius * CAPITAL_MARKER_EXTENT_FACTOR + 0.07
+    : radius + STROKE_WIDTHS.fine / 2 + INK_EDGE_MAX_OFFSET;
 }
 
 function appendSettlements(
@@ -1128,24 +1130,27 @@ type TextBox = {
 };
 
 /**
- * Advance widths as fractions of the font size, roughly matching Times New Roman. Only used to
- * reserve space for a label, so a close estimate beats pulling in font metrics.
+ * Conservative advance bounds for Times New Roman and its serif fallbacks. Export renderers such
+ * as librsvg ignore textLength, so safety must come from reserved space, not forced glyph fitting.
+ * Decomposed accents use their base letter's advance; unfamiliar characters get a full em.
  */
 function estimateTextWidth(text: string, fontSize: number): number {
   let ems = 0;
-  for (const ch of text) {
-    if (/\s/.test(ch)) ems += 0.25;
-    else if (/[ijlIt.,;:'!]/.test(ch)) ems += 0.33;
-    else if (/[mwMW]/.test(ch)) ems += 0.82;
-    else if (/[A-Z0-9]/.test(ch)) ems += 0.67;
-    else ems += 0.48;
+  for (const ch of text.normalize('NFD')) {
+    if (/\p{Mark}/u.test(ch)) continue;
+    if (/\s/.test(ch)) ems += 0.34;
+    else if (/[ijlIt.,;:'!|]/.test(ch)) ems += 0.4;
+    else if (/[mwMW@%]/.test(ch)) ems += 1.05;
+    else if (/[A-Z]/.test(ch)) ems += 0.8;
+    else if (/[a-z0-9]/.test(ch)) ems += 0.6;
+    else ems += 1.1;
   }
   return ems * fontSize;
 }
 
 /** Cap height above the baseline and descender below it, as fractions of the font size. */
-const TEXT_ASCENT = 0.76;
-const TEXT_DESCENT = 0.24;
+const TEXT_ASCENT = 1.0;
+const TEXT_DESCENT = 0.35;
 /** Breathing room around a label so neighbouring text does not touch. */
 const TEXT_BOX_PADDING = 0.12;
 
@@ -1157,12 +1162,13 @@ function textBox(
   anchor: 'middle' | 'start' | 'end',
 ): TextBox {
   const width = estimateTextWidth(text, fontSize);
+  const padding = TEXT_BOX_PADDING + (fontSize * LABEL_HALO_EMS) / 2 + 0.005;
   const left = anchor === 'middle' ? x - width / 2 : anchor === 'start' ? x : x - width;
   return {
-    minX: left - TEXT_BOX_PADDING,
-    maxX: left + width + TEXT_BOX_PADDING,
-    minY: baselineY - fontSize * TEXT_ASCENT - TEXT_BOX_PADDING,
-    maxY: baselineY + fontSize * TEXT_DESCENT + TEXT_BOX_PADDING,
+    minX: left - padding,
+    maxX: left + width + padding,
+    minY: baselineY - fontSize * TEXT_ASCENT - padding,
+    maxY: baselineY + fontSize * TEXT_DESCENT + padding,
   };
 }
 
@@ -1204,17 +1210,27 @@ function textElement(
 ): TextParts {
   const shared = `x="${x.toFixed(3)}" y="${baselineY.toFixed(3)}" font-family="${MAP_TEXT_FONT_FAMILY}" font-size="${fontSize.toFixed(3)}" text-anchor="${anchor}"`;
   const safe = escapeXml(text);
+  const box = textBox(
+    text,
+    Number(x.toFixed(3)),
+    Number(baselineY.toFixed(3)),
+    Number(fontSize.toFixed(3)),
+    anchor,
+  );
+  const bounds = [box.minX, box.minY, box.maxX, box.maxY].map(n).join(' ');
   return {
     halo: `<text ${shared} fill="none" stroke="${PARCHMENT_FILL}" stroke-width="${(fontSize * haloEms).toFixed(3)}" stroke-linejoin="round">${safe}</text>`,
-    ink: `<text ${shared} fill="${MAP_TEXT_INK}">${safe}</text>`,
+    ink: `<text ${shared} data-text-box="${bounds}" fill="${MAP_TEXT_INK}">${safe}</text>`,
   };
 }
 
 /** The title sits on open parchment; settlement names have to cut through terrain symbols. */
 const TITLE_HALO_EMS = 0.1;
-const LABEL_HALO_EMS = 0.16;
+const LABEL_HALO_EMS = 0.12;
 
 type MapTitleLayout = {
+  panel: string;
+  fontSize: number;
   parts: TextParts;
   box: TextBox;
 };
@@ -1224,15 +1240,63 @@ function mapTitleFontSize(map: RegionMap): number {
   return Math.max(1.2, Math.min(map.width * 0.05, map.height * 0.09, 4));
 }
 
-/** The title is the largest text on the sheet: centered, near the top, clear of the neatline. */
-function layoutMapTitle(title: string, map: RegionMap): MapTitleLayout | null {
-  if (title.length === 0) return null;
-  const fontSize = mapTitleFontSize(map);
-  const baselineY = fontSize * 1.5;
-  const x = map.width / 2;
+/** A restrained parchment panel, positioned clear of settlement markers and inside the sheet. */
+function layoutMapTitle(title: string, map: RegionMap, markers: TextBox[]): MapTitleLayout | null {
+  if (title.trim().length === 0) return null;
+  const margin = Math.min(map.width, map.height) * 0.015;
+  const availableWidth = map.width - margin * 2;
+  const fontSize = Math.min(
+    mapTitleFontSize(map) * 0.65,
+    availableWidth / (estimateTextWidth(title, 1) + 1.6),
+  );
+  if (fontSize < 0.25) return null;
+  // Leave room for a name beside a marker at the top edge, so moving the panel does not send
+  // that name far down the map. Try a modestly smaller panel before moving it below a marker.
+  const topLabelHeight =
+    fontSize * 0.9 * (TEXT_ASCENT + TEXT_DESCENT + LABEL_HALO_EMS) + TEXT_BOX_PADDING * 2 + 0.01;
+  const tops = [margin, ...markers.map((box) => Math.max(box.maxY, topLabelHeight) + margin)].sort(
+    (a, b) => a - b,
+  );
+  for (const minY of tops) {
+    for (const factor of [1, 0.95, 0.9, 0.85]) {
+      const layout = titlePanelAt(title, map, fontSize * factor, minY);
+      if (
+        boxIsInsideMap(layout.box, map) &&
+        !markers.some((marker) => overlapArea(layout.box, marker) > 0)
+      )
+        return layout;
+    }
+  }
+  return null;
+}
+
+function titlePanelAt(
+  title: string,
+  map: RegionMap,
+  fontSize: number,
+  minY: number,
+): MapTitleLayout {
+  const padding = fontSize * 0.2;
+  const label = textBox(title, map.width / 2, 0, fontSize, 'middle');
+  const width = label.maxX - label.minX + padding * 2;
+  const height = label.maxY - label.minY + padding * 2;
+  const minX = (map.width - width) / 2;
+  const box = { minX, maxX: minX + width, minY, maxY: minY + height };
+  const stroke = Math.min(STROKE_WIDTHS.fine, fontSize * 0.05);
+  // The reserved box includes the border; inset its centreline by half the stroke.
+  const panel = `<rect id="title-cartouche" x="${n(minX + stroke / 2)}" y="${n(minY + stroke / 2)}" width="${n(width - stroke)}" height="${n(height - stroke)}" rx="${n(fontSize * 0.08)}" fill="${PARCHMENT_FILL}" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${n(stroke)}"/>`;
   return {
-    parts: textElement(title, x, baselineY, fontSize, 'middle', TITLE_HALO_EMS),
-    box: textBox(title, x, baselineY, fontSize, 'middle'),
+    panel,
+    fontSize,
+    box,
+    parts: textElement(
+      title,
+      map.width / 2,
+      minY + padding - label.minY,
+      fontSize,
+      'middle',
+      TITLE_HALO_EMS,
+    ),
   };
 }
 
@@ -1324,31 +1388,51 @@ function listPlaceableLabels(
 type LabelPlacement = {
   candidate: LabelCandidate;
   box: TextBox;
-  /** Total area this placement would cover of the title, markers, and labels already placed. */
+  /** Overlap with other labels only; cartouche and marker collisions are forbidden. */
   collision: number;
 };
 
-/**
- * First candidate that collides with nothing wins. Failing that — a settlement sitting under the
- * title, say — the least-obstructed candidate is used, since losing the name outright costs the
- * reader more than a clipped corner. A name that fits nowhere on the sheet is dropped.
- */
+/** Clamp candidates onto the sheet, reject hard obstacles, then minimize other-label overlap. */
 function bestLabelPlacement(
   label: PlaceableLabel,
   map: RegionMap,
   taken: TextBox[],
+  forbidden: TextBox[],
 ): LabelPlacement | null {
   let best: LabelPlacement | null = null;
 
-  for (const candidate of labelCandidates(label.point, label.markerExtent, label.fontSize)) {
-    const box = textBox(
+  const candidates = labelCandidates(label.point, label.markerExtent, label.fontSize);
+  // Names near a cartouche can move just beyond its top or bottom instead of being lost.
+  for (const obstacle of forbidden) {
+    candidates.push(
+      {
+        x: label.point.x,
+        baselineY: obstacle.maxY + label.fontSize * (TEXT_ASCENT + 0.2) + TEXT_BOX_PADDING,
+        anchor: 'middle',
+      },
+      {
+        x: label.point.x,
+        baselineY: obstacle.minY - label.fontSize * (TEXT_DESCENT + 0.2) - TEXT_BOX_PADDING,
+        anchor: 'middle',
+      },
+    );
+  }
+  for (const original of candidates) {
+    let candidate = { ...original };
+    let box = textBox(
       label.name,
       candidate.x,
       candidate.baselineY,
       label.fontSize,
       candidate.anchor,
     );
-    if (!boxIsInsideMap(box, map)) continue;
+    if (box.maxX - box.minX > map.width || box.maxY - box.minY > map.height) continue;
+    const dx = Math.max(0, -box.minX) - Math.max(0, box.maxX - map.width);
+    const dy = Math.max(0, -box.minY) - Math.max(0, box.maxY - map.height);
+    candidate = { ...candidate, x: candidate.x + dx, baselineY: candidate.baselineY + dy };
+    box = textBox(label.name, candidate.x, candidate.baselineY, label.fontSize, candidate.anchor);
+    if (!boxIsInsideMap(box, map) || forbidden.some((obstacle) => overlapArea(box, obstacle) > 0))
+      continue;
 
     const collision = taken.reduce((sum, other) => sum + overlapArea(box, other), 0);
     if (collision === 0) return { candidate, box, collision };
@@ -1367,11 +1451,11 @@ function layoutSettlementLabels(
   titleFontSize: number,
   occupied: TextBox[],
 ): TextParts[] {
-  const taken = [...occupied];
+  const taken: TextBox[] = [];
   const parts: TextParts[] = [];
 
   for (const label of listPlaceableLabels(map, settlements, titleFontSize)) {
-    const placement = bestLabelPlacement(label, map, taken);
+    const placement = bestLabelPlacement(label, map, taken, occupied);
     if (placement === null) continue;
 
     taken.push(placement.box);
@@ -1488,7 +1572,8 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   const h = map.height;
   const title = options?.title ?? '';
   const settlements = options?.settlements ?? [];
-  const titleLayout = layoutMapTitle(title, map);
+  const reserved = settlementMarkerBoxes(map, settlements);
+  const titleLayout = layoutMapTitle(title, map, reserved);
 
   const body: string[] = [];
   const waterPolygons = listWaterPolygonsForMap(map);
@@ -1503,16 +1588,19 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendScatterSymbolsBackToFront(collectScatterSymbols(map, clearOfWater), body);
   appendSettlements(map, settlements, body);
 
-  const reserved = settlementMarkerBoxes(map, settlements);
   if (titleLayout !== null) {
     reserved.push(titleLayout.box);
   }
 
-  // Every piece of map text goes in one layer above the terrain, halos first and ink second. Label
-  // placement is best-effort — `bestLabelPlacement` takes the least-bad candidate when nothing is
-  // clear — so text does sometimes end up close together, and the two passes make that degrade into
-  // slightly crowded names rather than names with their letters cut away.
-  const textParts = layoutSettlementLabels(map, settlements, mapTitleFontSize(map), reserved);
+  // Only other-label crowding is soft. The sheet, cartouche, and marker boundaries are hard.
+  const textParts = layoutSettlementLabels(
+    map,
+    settlements,
+    titleLayout === null
+      ? mapTitleFontSize(map)
+      : Math.min(mapTitleFontSize(map), (titleLayout.fontSize * 0.9) / MAX_LABEL_FRACTION_OF_TITLE),
+    reserved,
+  );
   if (titleLayout !== null) {
     textParts.push(titleLayout.parts);
   }
@@ -1528,6 +1616,7 @@ ${textParts.map((t) => t.ink).join('\n')}
 <g id="map-layers">
 ${body.join('\n')}
 </g>
+${titleLayout?.panel ?? ''}
 ${textLayer}`;
 
   const scale = Math.min(DEFAULT_SVG_MAX_WIDTH / w, DEFAULT_SVG_MAX_HEIGHT / h);
