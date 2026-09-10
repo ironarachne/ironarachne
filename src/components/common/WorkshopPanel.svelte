@@ -24,6 +24,8 @@
      * is not the work.
      */
     holds: 'tool' | 'artifact';
+    /** Whether this tool has saved reference material open beside it on the bench. */
+    hasArtifactSibling: boolean;
     onClose: () => void;
     onMoveLeft: () => void;
     onMoveRight: () => void;
@@ -36,6 +38,7 @@
     position,
     total,
     holds,
+    hasArtifactSibling,
     onClose,
     onMoveLeft,
     onMoveRight,
@@ -46,6 +49,15 @@
   // alongside it to be operable at all, and two buttons are that equivalent without the drag.
   const canMoveLeft = $derived(position > 1);
   const canMoveRight = $derived(position < total);
+  const panelClass = $derived(
+    [
+      'workshop-panel',
+      `workshop-panel--${holds}`,
+      holds === 'tool' && hasArtifactSibling ? 'workshop-panel--tool-with-artifact' : '',
+    ]
+      .filter(Boolean)
+      .join(' '),
+  );
 
   // `$state`, because these are bound through the button component's `element` prop rather than by
   // `bind:this` on an element: a component binding writes back through the reactive graph, and a
@@ -89,14 +101,7 @@
      because a tool must behave identically in a panel and on its own route — the cost of that is
      an inverted heading level, and the alternative is a tool that is a different component in
      each place. -->
-<Panel
-  {title}
-  {subtitle}
-  bare={holds === 'tool'}
-  focal
-  class="workshop-panel workshop-panel--{holds}"
-  label="{title} panel"
->
+<Panel {title} {subtitle} bare={holds === 'tool'} focal class={panelClass} label="{title} panel">
   {#snippet actions()}
     <MoveLeftButton
       bind:element={moveLeftButton}
@@ -130,13 +135,13 @@
     flex: 1 1 32rem;
   }
 
-  /* The cap is what makes a third column possible. Without it the tool takes the whole bench and
-     an artifact opened beside it wraps underneath — which is the one arrangement the bench should
-     never produce, because the artifact is *reference* for the work and reference below the fold
-     is reference nobody reads. 32rem is measured rather than chosen: at 1920 the bench is a little
-     over 52rem once the rail stops growing, and 32 + a 1rem gap + the artifact's 18rem basis is
-     what fits inside that with room to spare. */
-  :global(.workshop-panel--tool) {
+  /* The cap is only for a tool with reference material beside it. Without it the tool takes the
+     whole bench and an artifact wraps underneath — which is the one arrangement the bench should
+     never produce, because reference below the fold is reference nobody reads. A lone tool has no
+     reference column to reserve and grows across the available bench instead. 32rem is measured
+     rather than chosen: at 1920 the bench is a little over 52rem once the rail stops growing, and
+     32 + a 1rem gap + the artifact's 18rem basis fits inside that with room to spare. */
+  :global(.workshop-panel--tool-with-artifact) {
     max-width: 32rem;
   }
 
