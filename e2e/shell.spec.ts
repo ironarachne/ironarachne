@@ -57,6 +57,23 @@ test.describe('the application shell', () => {
     expect(Number(await tools.innerText())).toBeGreaterThan(0);
   });
 
+  test('links the browser-only storage explanation to backup and restore', async ({ page }) => {
+    await page.setViewportSize(DESKTOP);
+    await visitRoute(page, '/');
+
+    const storageLink = page
+      .locator('.home__lede')
+      .getByRole('link', { name: 'Back up or restore your work' });
+    await expect(storageLink).toBeVisible();
+    await expect(storageLink).toHaveAttribute('href', '/projects#storage');
+
+    await storageLink.click();
+    await expect(page).toHaveURL(/\/projects\/#storage$/);
+    await expect(
+      page.locator('section.storage').getByRole('heading', { name: 'Storage' }),
+    ).toBeInViewport();
+  });
+
   test('reports what the vault holds on a page it did not save anything on', async ({ page }) => {
     // The regression this exists for: the bar reads indexes that are empty until someone reads the
     // database, and hydration publishes no event. A bar that only read at mount said "0 artifacts,

@@ -8,6 +8,7 @@
   import Icon from '$components/common/Icon.svelte';
 
   const featured = featuredTools();
+  const storagePanelHref = `${resolve('/projects')}#storage`;
 </script>
 
 <svelte:head>
@@ -27,6 +28,8 @@
       a culture, a religion, a settlement, or a star system, keep what you like in a project, edit
       it until it is yours, and build the next piece out of the last. Everything you make stays in
       your browser — there is no account to create and nothing is sent anywhere.
+      <!-- eslint-disable-next-line svelte/no-navigation-without-resolve -->
+      <a href={storagePanelHref}>Back up or restore your work</a>.
     </p>
     <p class="home__cta">
       <a href={resolve('/workshop')}>Open the workshop</a>
