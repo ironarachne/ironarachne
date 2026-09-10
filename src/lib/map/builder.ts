@@ -1,10 +1,13 @@
 import type { RNG } from '@ironarachne/rng';
-import { generatePoissonDisk } from '../geometry/poisson.js';
-import { triangulate } from '../geometry/delaunay.js';
-import { computeVoronoi, type VoronoiCell } from '../geometry/voronoi.js';
+import {
+  generatePoissonDisk,
+  triangulate,
+  computeVoronoi,
+  getMidpoint,
+  type VoronoiCell,
+  type Vertex,
+} from '$lib/geometry';
 import type { RegionMap, MapNode, MapEdge, MapCorner } from './map_graph.js';
-import type Vertex from '../geometry/vertex.js';
-import { getMidpoint } from '../geometry/geometry.js';
 
 export interface MapBuilderConfig {
   width: number;
@@ -57,17 +60,25 @@ type GraphAccumulator = {
 };
 
 function createGraphAccumulator(regionMap: RegionMap): GraphAccumulator {
-  const cornerMap = new Map<string, MapCorner>();
+  const cornerMap = new Map<string, MapCorner[]>();
   const edgeMap = new Map<string, MapEdge>();
 
-  // A fuzzy coordinate hash to merge floating point corners safely
-  const coordHash = (v: Vertex) => `${v.x.toFixed(1)},${v.y.toFixed(1)}`;
+  // A distance tolerance, not coordinate rounding: close vertices may straddle a bucket edge.
+  const tolerance = 0.1;
 
   const getOrCreateCorner = (v: Vertex): MapCorner => {
-    const hash = coordHash(v);
-    if (cornerMap.has(hash)) {
-      return cornerMap.get(hash) as MapCorner;
+    const x = Math.floor(v.x / tolerance);
+    const y = Math.floor(v.y / tolerance);
+    for (let dx = -1; dx <= 1; dx++) {
+      for (let dy = -1; dy <= 1; dy++) {
+        for (const corner of cornerMap.get(`${x + dx},${y + dy}`) ?? []) {
+          if (Math.hypot(corner.point.x - v.x, corner.point.y - v.y) <= tolerance) {
+            return corner;
+          }
+        }
+      }
     }
+    const hash = `${x},${y}`;
     const newCorner: MapCorner = {
       id: regionMap.corners.length,
       point: v,
@@ -82,7 +93,9 @@ function createGraphAccumulator(regionMap: RegionMap): GraphAccumulator {
       isCoast: false,
       river: 0,
     };
-    cornerMap.set(hash, newCorner);
+    const bucket = cornerMap.get(hash) ?? [];
+    bucket.push(newCorner);
+    cornerMap.set(hash, bucket);
     regionMap.corners.push(newCorner);
     return newCorner;
   };
@@ -142,7 +155,10 @@ function addNodeForCell(
   nodeId: number,
   config: MapBuilderConfig,
 ): void {
-  const nodeCorners = cell.polygon.vertices.map((v) => accumulator.getOrCreateCorner(v));
+  // Merging a short Voronoi edge must not leave a self-loop or duplicate polygon vertex.
+  const nodeCorners = [
+    ...new Set(cell.polygon.vertices.map((v) => accumulator.getOrCreateCorner(v))),
+  ];
   const nodeEdges: MapEdge[] = [];
 
   // Link node back to corners
@@ -155,12 +171,13 @@ function addNodeForCell(
   // Build edges sequentially connecting corners
   for (let j = 0; j < nodeCorners.length; j++) {
     const nextIdx = (j + 1) % nodeCorners.length;
+    if (nodeCorners[j] === nodeCorners[nextIdx]) continue;
     const edge = accumulator.getOrCreateEdge(nodeCorners[j], nodeCorners[nextIdx]);
 
     // Link the node to the edge, edge to the node
     if (edge.d0 === -1) {
       edge.d0 = nodeId;
-    } else if (edge.d1 === undefined) {
+    } else if (edge.d1 === undefined && edge.d0 !== nodeId) {
       edge.d1 = nodeId;
     }
 
@@ -170,7 +187,13 @@ function addNodeForCell(
   const mapNode: MapNode = {
     id: nodeId,
     center: cell.site,
-    polygon: cell.polygon,
+    polygon: {
+      vertices: nodeCorners.map((c) => c.point),
+      edges: nodeCorners.map((c, i) => ({
+        a: c.point,
+        b: nodeCorners[(i + 1) % nodeCorners.length].point,
+      })),
+    },
     neighbors: [], // Populate after graph is formed
     edges: nodeEdges.map((e) => e.id),
     corners: nodeCorners.map((c) => c.id),

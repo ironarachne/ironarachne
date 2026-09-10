@@ -79,11 +79,16 @@ describe('a region whose culture came from an artifact', () => {
 
 describe('a region with a referenced settlement', () => {
   it('leaves that settlement out of the payload', () => {
-    const first = region.settlements[0];
-    expect(first).toBeDefined();
-    const snapshot = toRegionSnapshot(region, { referencedSettlementName: first.name });
+    expect(region.settlements[0]).toBeDefined();
+    // Generated settlements can share a name; this fixture references exactly one settlement.
+    const first = { ...region.settlements[0], name: 'Unique referenced settlement' };
+    const fixture = { ...region, settlements: [first, ...region.settlements.slice(1)] };
+    const snapshot = toRegionSnapshot(fixture, { referencedSettlementName: first.name });
     expect(snapshot.settlements.map((s) => s.name)).not.toContain(first.name);
     expect(snapshot.settlements).toHaveLength(region.settlements.length - 1);
+    expect(snapshot.settlements.map((s) => s.name)).toEqual(
+      region.settlements.slice(1).map((s) => s.name),
+    );
   });
 });
 

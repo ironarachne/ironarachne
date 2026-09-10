@@ -18,19 +18,30 @@ The map is a Voronoi diagram over Poisson-disk points, built with
   computed on corners, because water flows along edges rather than through cell middles.
 - **`MapEdge`** — the border between two cells, and the segment between two corners.
 
+Corners within 0.1 map units are interned by distance, including across spatial-hash bucket
+boundaries. Collapsed edges are removed from the cell ring, and polygons use the canonical corner
+positions so their geometry agrees with the graph.
+
 ## Pipeline
 
-| Stage                                 | What it does                                  |
-| ------------------------------------- | --------------------------------------------- |
-| `buildBaseMapGraph`                   | Points, triangulation, Voronoi, empty graph   |
-| `assignElevation`                     | Raises land and marks water, ocean, and coast |
-| `simulateWater`                       | Flows water downhill into rivers and lakes    |
-| `assignTemperature`, `assignMoisture` | Climate from latitude, elevation, and water   |
-| `assignBiomes`                        | A biome per cell from its climate             |
-| `generateRoads`                       | Routes roads over the finished terrain        |
+| Stage                                 | What it does                                           |
+| ------------------------------------- | ------------------------------------------------------ |
+| `buildBaseMapGraph`                   | Points, triangulation, Voronoi, empty graph            |
+| `assignElevation`                     | Raises land and averages corner elevations per cell    |
+| `simulateWater`                       | Classifies water and flows rivers into ocean and lakes |
+| `assignTemperature`, `assignMoisture` | Climate from latitude, elevation, and water            |
+| `assignBiomes`                        | A biome per cell from its climate                      |
+| `generateRoads`                       | Routes roads over the finished terrain                 |
 
 ## Features
 
+- **Water simulation** — a cell is submerged when its elevation is below sea level or at least
+  half its corners are below sea level. The builder's boundary-site cells seed the ocean; a flood
+  fill reaches submerged neighbors, while disconnected submerged cells are lakes. Corner water
+  flags follow their touching cells, and rivers stop at mapped ocean or lake shores. A river
+  reaching an unmapped local minimum makes its touching cells lake water. Thus a low corner alone
+  cannot masquerade as an ocean outlet in dry country. This changes seeded geography, including
+  downstream settlement placement, from the pre-#244 simulation.
 - **Types** — `RegionMap`, `MapNode`, `MapCorner`, `MapEdge`, `MapBuilderConfig`, and one config per
   stage (`ElevationConfig`, `WaterConfig`, `TemperatureConfig`, `MoistureConfig`,
   `BiomeAssignmentConfig`, `RoadConfig`).
