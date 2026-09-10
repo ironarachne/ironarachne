@@ -7,9 +7,56 @@ export interface WaterConfig {
   rng: RNG;
 }
 
+/** Water occupies cells; only water connected to a boundary-site cell is ocean. */
+function classifyWaterBodies(map: RegionMap, seaLevel: number): void {
+  const ocean = map.nodes.filter((node) => node.isOcean).map((node) => node.id);
+  for (const node of map.nodes) {
+    const submergedCorners = node.corners.filter(
+      (id) => map.corners[id].elevation < seaLevel,
+    ).length;
+    node.isWater =
+      node.isOcean ||
+      node.elevation < seaLevel ||
+      (node.corners.length > 0 && submergedCorners >= node.corners.length / 2);
+  }
+
+  for (let i = 0; i < ocean.length; i++) {
+    for (const id of map.nodes[ocean[i]].neighbors) {
+      const neighbor = map.nodes[id];
+      if (neighbor.isWater && !neighbor.isOcean) {
+        neighbor.isOcean = true;
+        ocean.push(id);
+      }
+    }
+  }
+}
+
+/** Corner outlets and coasts follow the polygons that will actually appear as water. */
+function updateWaterBoundaries(map: RegionMap): void {
+  for (const corner of map.corners) {
+    corner.isOcean = corner.touches.some((id) => map.nodes[id].isOcean);
+    corner.isWater = corner.touches.some((id) => map.nodes[id].isWater);
+    corner.isCoast = corner.isOcean && corner.touches.some((id) => !map.nodes[id].isWater);
+  }
+  for (const node of map.nodes) {
+    node.isCoast = !node.isWater && node.neighbors.some((id) => map.nodes[id].isOcean);
+  }
+}
+
+/** An unmapped local minimum becomes a lake when a river supplies it. */
+function fillLake(map: RegionMap, corner: MapCorner): void {
+  for (const id of corner.touches) {
+    const node = map.nodes[id];
+    node.isWater = true;
+    for (const cornerId of node.corners) {
+      map.corners[cornerId].isWater = true;
+    }
+  }
+}
+
 /**
  * Simulates downhill water flow from springs to calculate rivers and lakes.
- * Identifies oceans and coasts based on an elevation threshold.
+ * Identifies ocean by rim connectivity through submerged cells; inland water is lake.
  *
  * @param {RegionMap} map The input MapGraph with elevation already calculated.
  * @param {WaterConfig} config Algorithm parameters.
@@ -20,58 +67,9 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
   const newMap: RegionMap = structuredClone(map);
   const { seaLevel, springCountPercentage, rng } = config;
 
-  // 1. Identify Ocean corners
-  for (const corner of newMap.corners) {
-    if (corner.elevation < seaLevel) {
-      corner.isOcean = true;
-      corner.isWater = true;
-    }
-  }
-
-  // Identify Ocean nodes
-  for (const node of newMap.nodes) {
-    let waterCorners = 0;
-    for (const cid of node.corners) {
-      if (newMap.corners[cid].isWater) waterCorners++;
-    }
-
-    // If the majority of corners are water, the node is water/ocean
-    if (node.elevation < seaLevel || waterCorners >= node.corners.length / 2) {
-      node.isOcean = true;
-      node.isWater = true;
-    }
-  }
-
-  // 2. Identify Coasts (Land nodes bordering Ocean nodes)
-  for (const node of newMap.nodes) {
-    if (node.isOcean) continue;
-
-    // Check neighbors
-    for (const neighborId of node.neighbors) {
-      const neighbor = newMap.nodes[neighborId];
-      if (neighbor.isOcean) {
-        node.isCoast = true;
-        break;
-      }
-    }
-  }
-
-  // Set coast for corners
-  for (const corner of newMap.corners) {
-    if (corner.isOcean) continue;
-    let touchesOcean = false;
-    let touchesLand = false;
-
-    for (const nodeId of corner.touches) {
-      const node = newMap.nodes[nodeId];
-      if (node.isOcean) touchesOcean = true;
-      else touchesLand = true;
-    }
-
-    if (touchesOcean && touchesLand) {
-      corner.isCoast = true;
-    }
-  }
+  // 1–2. Classify mapped water before deriving corner outlets and coasts.
+  classifyWaterBodies(newMap, seaLevel);
+  updateWaterBoundaries(newMap);
 
   // 3. Compute Downslopes
   for (const corner of newMap.corners) {
@@ -89,7 +87,7 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
   }
 
   // 4. Generate Rivers using Downslopes
-  const landCorners = newMap.corners.filter((c) => !c.isOcean);
+  const landCorners = newMap.corners.filter((c) => !c.isWater);
   const riverCount = Math.floor(landCorners.length * springCountPercentage);
 
   if (landCorners.length > 0) {
@@ -102,20 +100,11 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
       let current: number | undefined = spring.id;
       while (current !== undefined) {
         const currentCorner: MapCorner = newMap.corners[current as number];
-        if (currentCorner.isOcean) break; // River reached ocean
+        if (currentCorner.isWater) break; // River reached mapped ocean or lake
 
         const next: number | undefined = currentCorner.downslope;
         if (next === undefined) {
-          // Local minima: a lake forms
-          currentCorner.isWater = true;
-
-          // Mark surrounding polygon node as Lake (water, but not ocean)
-          for (const touchId of currentCorner.touches) {
-            const n = newMap.nodes[touchId];
-            if (!n.isOcean) {
-              n.isWater = true;
-            }
-          }
+          fillLake(newMap, currentCorner);
           break; // Stop river flow
         }
 
@@ -144,5 +133,6 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
     }
   }
 
+  updateWaterBoundaries(newMap);
   return newMap;
 }

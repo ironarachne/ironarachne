@@ -458,7 +458,13 @@
     display: grid;
     column-gap: 1rem;
     margin-bottom: 1rem;
-    grid-template-columns: 210px auto;
+    grid-template-columns: 210px minmax(0, 1fr);
+  }
+
+  @media (max-width: 480px) {
+    div.ruler {
+      grid-template-columns: minmax(0, 1fr);
+    }
   }
 
   button.heraldry-inline-target {
