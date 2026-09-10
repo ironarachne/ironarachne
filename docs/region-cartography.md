@@ -5,12 +5,41 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; steps #230, #231, #232, #233, #194, #234, and #235 implemented and visually approved. Furniture (#236) is implemented pending visual review. The [domain model](#domain-model) was reviewed and approved. The scale decision below records why no scale bar is drawn.
+**Status:** implemented and visually approved. All eight work items are merged, including the final
+furniture review in [PR #246](https://github.com/ironarachne/ironarachne/pull/246). The
+[domain model](#domain-model) and the rendered reference maps were approved by the human reviewer.
 
-Tracked as [#229](https://github.com/ironarachne/ironarachne/issues/229), which holds the release
-gate: **no version is promoted to staging or prod while that issue is open.**
+Tracked as [#229](https://github.com/ironarachne/ironarachne/issues/229). Closing that tracker
+satisfies its cartography release gate. Release creation and promotion remain separate operations;
+this completion work does not change either deployment version.
 
-## The problem
+## Completion record (2026-09-10)
+
+The [completed work items](#completed-work-items) link every implementation and its visual review.
+The final Alpha, Bravo, and Charlie comparisons are in [the furniture review](region_cartography_236/README.md).
+The resulting maps use sepia ink on parchment, organic water outlines, coast-following hatching,
+terrain glyphs without region fills, bounded labels and a title cartouche, flow-scaled river
+channels, visible roads, a paper margin, a ruled frame, and a north-up compass. Rivers render below
+terrain symbols; roads render above them, as approved during #235 review.
+
+The absence of a scale bar and legend is deliberate. Drawing units have no physical distance;
+[the scale decision](#scale-decision-236) records why a bar would invent a measurement. The final
+glyph vocabulary does not require a legend. Neither is unfinished work in this plan.
+
+The final rendering change passed `npm run verify:all`: 6,355 unit tests, coverage for all 99
+libraries, and 638 browser tests with five skipped. After #246 merged, main at `15792ad9` also
+passed [CI](https://github.com/ironarachne/ironarachne/actions/runs/34458323697),
+[the browser suite](https://github.com/ironarachne/ironarachne/actions/runs/34458323685), and
+[the build](https://github.com/ironarachne/ironarachne/actions/runs/34458323735).
+
+One separate simulation defect remains in [#244](https://github.com/ironarachne/ironarachne/issues/244):
+some river mouths can be ocean corners surrounded by dry cells. The renderer omits branches that
+never reach mapped water or the crop. Fixing that geography is outside this rendering plan, as
+required by #235 and [Scope](#scope).
+
+## Original problem
+
+The following diagnosis records the baseline before this work was implemented.
 
 `/region` was assessed Release-ready under #62 against `docs/workshop.md`, section by section. That
 assessment was sound on its own terms — it covered the seed path, the artifact kind, the editor,
@@ -22,10 +51,10 @@ and in `v2.5.0` the `/region` catalog entry carried no `maturity` field and `reg
 did not exist — there was no map on the page and no SVG export. Both arrived in `f0030696` (2026-09-02),
 which is unreleased. The exposure is that the next release ships it.
 
-### What the current renders show
+### What the baseline renders showed
 
 Reproduce with `npm run render:region -- --svg-out <path> --seed <seed>` on `alpha`, `bravo` and
-`charlie`. These three seeds are the reference set for the whole of [the plan](#the-plan); every
+`charlie`. These three seeds are the reference set for the whole of [the work items](#completed-work-items); every
 change is judged against them.
 
 **Structural** — coastlines and lake outlines are visibly polygonal, straight segments meeting at
@@ -418,22 +447,23 @@ and square/wide/tall inland maps. Browser checks also inspect the actual rasteri
 ink and compare the compass reservation with actual glyph and text bounds. The before/after images
 and sizes are in [the #236 visual review](region_cartography_236/README.md).
 
-## The plan
+## Completed work items
 
-Dependency order. Items 2, 6 and 7 can run in parallel once 1 lands; 3 waits on 2; 5 waits on 4.
-`src/lib/map/region_map_svg.ts` is 1,767 lines and items 1–4 touch most of it, so the ordering is
-not advisory.
+All items below were visually approved and merged. The original dependency order is retained for
+context. Items 2, 6 and 7 could run in parallel once 1 landed; 3 waited on 2, and 5 waited on 4.
+At the start, `src/lib/map/region_map_svg.ts` was 1,767 lines and items 1–4 touched most of it, so
+the ordering prevented overlapping rewrites.
 
-| #   | Issue                                                         | Work                                                        |
-| --- | ------------------------------------------------------------- | ----------------------------------------------------------- |
-| 1   | [#230](https://github.com/ironarachne/ironarachne/issues/230) | The `cartography` library, and the renderer converted to it |
-| 2   | [#231](https://github.com/ironarachne/ironarachne/issues/231) | Organic coastlines and water outlines                       |
-| 3   | [#232](https://github.com/ironarachne/ironarachne/issues/232) | The sea as line hatching                                    |
-| 4   | [#233](https://github.com/ironarachne/ironarachne/issues/233) | Drop the terrain region fills                               |
-| 5   | [#194](https://github.com/ironarachne/ironarachne/issues/194) | Rework the glyph scatter                                    |
-| 6   | [#234](https://github.com/ironarachne/ironarachne/issues/234) | Label placement and the map title                           |
-| 7   | [#235](https://github.com/ironarachne/ironarachne/issues/235) | Rivers and roads                                            |
-| 8   | [#236](https://github.com/ironarachne/ironarachne/issues/236) | Cartographic furniture                                      |
+| #   | Issue                                                         | Work                                                        | Approved PR                                                 |
+| --- | ------------------------------------------------------------- | ----------------------------------------------------------- | ----------------------------------------------------------- |
+| 1   | [#230](https://github.com/ironarachne/ironarachne/issues/230) | The `cartography` library, and the renderer converted to it | [#238](https://github.com/ironarachne/ironarachne/pull/238) |
+| 2   | [#231](https://github.com/ironarachne/ironarachne/issues/231) | Organic coastlines and water outlines                       | [#239](https://github.com/ironarachne/ironarachne/pull/239) |
+| 3   | [#232](https://github.com/ironarachne/ironarachne/issues/232) | The sea as line hatching                                    | [#240](https://github.com/ironarachne/ironarachne/pull/240) |
+| 4   | [#233](https://github.com/ironarachne/ironarachne/issues/233) | Drop the terrain region fills                               | [#241](https://github.com/ironarachne/ironarachne/pull/241) |
+| 5   | [#194](https://github.com/ironarachne/ironarachne/issues/194) | Rework the glyph scatter                                    | [#242](https://github.com/ironarachne/ironarachne/pull/242) |
+| 6   | [#234](https://github.com/ironarachne/ironarachne/issues/234) | Label placement and the map title                           | [#243](https://github.com/ironarachne/ironarachne/pull/243) |
+| 7   | [#235](https://github.com/ironarachne/ironarachne/issues/235) | Rivers and roads                                            | [#245](https://github.com/ironarachne/ironarachne/pull/245) |
+| 8   | [#236](https://github.com/ironarachne/ironarachne/issues/236) | Cartographic furniture                                      | [#246](https://github.com/ironarachne/ironarachne/pull/246) |
 
 Furniture is last because it frames finished content: adding a margin changes the drawable area,
 which changes where every glyph, label and coastline sits.
@@ -442,7 +472,7 @@ which changes where every glyph, label and coastline sits.
 
 This document is about **rendering**. The terrain simulation — `elevation.ts`, `water.ts`,
 `climate.ts`, `biome.ts` — and the placement of settlements and roads are out of scope, and the
-`/region` tool's own readiness assessment under #62 stands. If work under [the plan](#the-plan)
+`/region` tool's own readiness assessment under #62 stands. If work under [the work items](#completed-work-items)
 uncovers a defect in what the map _is_ rather than in how it is drawn — a river that flows uphill, a
 road routed to a settlement that no longer exists — that is filed separately rather than absorbed
 here.

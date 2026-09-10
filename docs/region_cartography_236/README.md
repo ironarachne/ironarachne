@@ -1,8 +1,9 @@
 # Cartographic furniture review (#236)
 
 Each comparison has **before on the left, after on the right**, rasterized with `rsvg-convert` at
-1400 pixels per map. Human visual review is pending. These are review illustrations, not golden
-images.
+1400 pixels per map. Human visual review was approved in
+[PR #246](https://github.com/ironarachne/ironarachne/pull/246), which is merged. These are review
+illustrations, not golden images.
 
 Every map now has a parchment margin and a restrained two-line frame. The drawing is clipped at
 the inner ruled line, so geometry and filters cannot bleed to the sheet edge. The viewBox grows by
