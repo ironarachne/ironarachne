@@ -58,6 +58,10 @@ The map is a Voronoi diagram over Poisson-disk points, built with
   handle connectivity, curve sampling, and simplified bank geometry without changing the graph.
   Road leaves require settlements, water, or the crop; a faint continuous stroke joins their dashes.
   Rivers draw below terrain glyphs; roads draw above terrain glyphs and below markers and labels.
+  A proportionally enlarged parchment sheet and two inset ruled lines frame every map. The drawing
+  is explicitly clipped inside that margin. A north-up compass searches for space clear of the final
+  label/marker reservations, terrain silhouettes, shores, and routes. No physical distance is defined,
+  so the renderer omits a scale bar; the glyphs need no legend.
   Browser tests check actual font geometry against the emitted `data-text-box` reservations.
 
 ## Usage

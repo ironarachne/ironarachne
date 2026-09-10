@@ -2,7 +2,7 @@
 
 Each comparison has **before on the left, after on the right**, rasterized with `rsvg-convert` at
 1400 pixels per map. These are review illustrations, not golden-image tests. Human visual review
-is pending.
+was approved, and PR #245 was merged.
 
 Rivers now have fine sepia banks around a pale parchment channel, sharing the water's parallel-line
 vocabulary. Width increases with flow. Natural headwaters taper to points; tributaries join at full

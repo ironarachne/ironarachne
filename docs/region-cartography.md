@@ -5,10 +5,7 @@ vocabulary it needs in order to look like that. It covers the style target, the 
 reach it, and — in [Domain model](#domain-model) — the types of the new `cartography` library those
 decisions require.
 
-**Status:** accepted; ink vocabulary (#230), water outlines (#231), sea hatching (#232), removal of terrain fills (#233), glyph scatter (#194), label placement/cartouche (#234) implemented; rivers and roads (#235) implemented pending visual review; furniture (#236) not yet built. The [domain model](#domain-model) was reviewed and approved, so
-the work in [the plan](#the-plan) is clear to start — in the dependency order given there, which is
-not advisory. The one [open question](#open-question) is deferred to a future update and does not
-block any of it.
+**Status:** accepted; steps #230, #231, #232, #233, #194, #234, and #235 implemented and visually approved. Furniture (#236) is implemented pending visual review. The [domain model](#domain-model) was reviewed and approved. The scale decision below records why no scale bar is drawn.
 
 Tracked as [#229](https://github.com/ironarachne/ironarachne/issues/229), which holds the release
 gate: **no version is promoted to staging or prod while that issue is open.**
@@ -117,16 +114,13 @@ paths are drawn in viewBox units and extend past the viewBox that clips them, so
 `pages.mobile.spec.ts` reads that as horizontal overflow. A frame drawn at the viewBox edge is fine;
 one drawn outside it is not.
 
-### Open question
+### Scale decision (#236)
 
-**What does a map unit mean?** A scale bar needs miles or leagues per map unit, and the region
-generator defines no such relationship anywhere. Either the region gains a physical extent — which
-is a change to generated data and therefore outside this document's rendering-only scope — or the
-scale bar is dropped.
-
-**Deferred to a future update of this document**, by decision at review. It blocks nothing: it
-reaches only the scale bar in item 8, the last of [the plan](#the-plan), and that item already says
-to drop the bar rather than invent a number if the question is still open when it is worked.
+**Omit the scale bar.** Map width and height are drawing units; the region configuration and stored
+map graph define no relationship to miles, leagues, or another physical distance. Adding a physical
+extent would change generated data and exceeds this rendering-only work. A bar would therefore
+invent a measurement. This resolves the previously deferred question using the option approved
+with this design. A future geography change can introduce physical extent and a meaningful bar.
 
 ## Domain model
 
@@ -394,6 +388,35 @@ connected at junctions. Rivers draw below terrain glyphs. Roads draw above terra
 labels. They do not use displacement, so exact graph joins remain exact in the drawing.
 
 The reference comparisons, omitted-edge audit, and sizes are in [the #235 visual review](region_cartography_235/README.md).
+
+## Cartographic furniture (#236)
+
+Add five percent of the map width on each side and five percent of its height above and below the
+drawing. This expands the viewBox proportionally while preserving the delivered image aspect ratio
+and 900×600 pixel cap. Keep existing graph and drawing coordinates: their geometry is uniformly
+inset when the larger sheet is fitted into the image. The parchment extends across the whole sheet.
+An explicit clip on the map content keeps off-sheet Voronoi geometry, filters, labels, and glyphs
+inside the old drawing rectangle. A fine line at that crop and a lighter parallel outer line form
+the frame on every map, including inland maps. Both lines are fully inside the outer paper edge.
+
+A small four-point compass uses alternating ink and parchment halves with an `N` above it. North
+is up, as a drawing convention. Placement reuses `TextBox` reservations and the existing overlap
+rule after the title and settlement labels are settled. It checks their boxes and marker footprints,
+transformed terrain silhouettes, processed coast segments, and conservatively padded river/road
+segments. The deterministic search tries positions near the corners first, then moves inward. If
+necessary it tries 80% and 60% size; when no clear reservation exists it omits the rose rather than
+covering meaningful content. All three reference maps have room for the full-size compass.
+
+The compass has a small parchment backing to quiet water hatching beneath it. Its reservation
+covers that backing and the north label. It does not move existing labels or terrain. Rivers remain
+below terrain, roads above terrain, and markers and names above both. There is no legend: the
+current trees, peaks, settlement symbols, roads, and water linework are readable without one. The
+[scale decision](#scale-decision-236) above records the omission of a scale bar.
+
+Unit checks cover frame bounds, the clip, compass/text clearance, determinism, graph immutability,
+and square/wide/tall inland maps. Browser checks also inspect the actual rasterized outer rim for
+ink and compare the compass reservation with actual glyph and text bounds. The before/after images
+and sizes are in [the #236 visual review](region_cartography_236/README.md).
 
 ## The plan
 
