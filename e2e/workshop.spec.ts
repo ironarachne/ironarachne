@@ -199,6 +199,29 @@ test.describe('the workshop bench', () => {
     expect(surfaces.artifact.field).not.toBe('rgba(0, 0, 0, 0)');
   });
 
+  test('lets a lone tool use the full bench width', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await mountTool(page, /^Culture/);
+
+    const bench = await page.locator('.workshop__bench').boundingBox();
+    const tool = await page.locator('.workshop-panel--tool').boundingBox();
+    expect(bench).not.toBeNull();
+    expect(tool).not.toBeNull();
+    expect(Math.abs(tool!.width - bench!.width)).toBeLessThan(1);
+  });
+
+  test('continues to let a lone artifact use the full bench width', async ({ page }) => {
+    await page.setViewportSize({ width: 1920, height: 1080 });
+    await benchWithToolAndArtifact(page, 'The Emberfolk');
+    await page.getByRole('button', { name: /^Close Culture/ }).click();
+
+    const bench = await page.locator('.workshop__bench').boundingBox();
+    const artifact = await page.locator('.workshop-panel--artifact').boundingBox();
+    expect(bench).not.toBeNull();
+    expect(artifact).not.toBeNull();
+    expect(Math.abs(artifact!.width - bench!.width)).toBeLessThan(1);
+  });
+
   /**
    * The width the cap exists for. A tool panel with `flex-grow` and no maximum takes the whole
    * bench, and the artifact opened beside it wraps underneath — reference below the fold, which

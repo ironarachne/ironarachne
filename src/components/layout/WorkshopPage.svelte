@@ -383,6 +383,7 @@
           title={panelTitle(panel)}
           subtitle={panel.toolPath === undefined ? 'Artifact' : 'Tool'}
           holds={panel.toolPath === undefined ? 'artifact' : 'tool'}
+          hasArtifactSibling={openArtifactIds.length > 0}
           position={panel.order + 1}
           total={bench.panels.length}
           onClose={() => void closePanel(panel)}
