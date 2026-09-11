@@ -33,7 +33,7 @@ name: CI
 # request first drags the lower one's commits into `main` with it, closing that
 # pull request as already-merged without it ever being reviewed. And **only add
 # commits to a branch someone has stacked on**: restacking after a rewrite needs
-# a force-push, which `.claude/hooks/guard_protected_branch.sh` refuses outright.
+# a force-push, which `.codex/hooks/guard_protected_branch.sh` refuses outright.
 
 on:
   pull_request:

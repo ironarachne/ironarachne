@@ -1,13 +1,7 @@
 #!/usr/bin/env bash
 #
-# PreToolUse hook on Bash. Before a `git commit` runs, looks at what is actually
-# about to be committed and refuses if it contains something shaped like a
-# credential. A secret that reaches a published branch has to be treated as
-# leaked even after it is deleted, because the object stays in history and the
-# remote is public — so the only cheap moment to catch it is here.
-#
-# Only added lines are scanned, so a pre-existing false positive elsewhere in a
-# file does not block every later commit that touches it.
+# PreToolUse hook on Bash. Before `git commit`, scans the added lines and names
+# that are about to be committed for common credential shapes.
 #
 # Exits 0 unless it has a specific reason to object. A scanner that blocks on
 # its own failure would be a scanner people disable.
@@ -35,8 +29,6 @@ added=$(printf '%s' "$staged" | grep -E '^\+' | grep -Ev '^\+\+\+' || true)
 hits=""
 note() { hits="${hits}  - ${1}"$'\n'; }
 
-# `--` matters: several patterns start with a hyphen, which grep would otherwise
-# read as an option.
 content_check() {
   local label=$1 pattern=$2 line
   line=$(printf '%s' "$added" | grep -Eim1 -- "$pattern" || true)
@@ -62,7 +54,7 @@ name_check "environment file" '(^|/)\.env($|\.)'
 name_check "private key file" '\.(pem|p12|pfx|key)$'
 name_check "SSH private key" '(^|/)id_(rsa|dsa|ecdsa|ed25519)$'
 name_check "npm auth config" '(^|/)\.npmrc$'
-name_check "Claude local settings" '(^|/)\.claude/settings\.local\.json$'
+name_check "Codex auth file" '(^|/)\.codex/auth\.json$'
 
 [ -n "$hits" ] || exit 0
 
@@ -77,7 +69,7 @@ already compromised.
 
 If it is a false positive (test fixture, sample data, generated prose), commit
 that specific change outside the agent, or narrow the pattern in
-.claude/hooks/scan_staged_secrets.sh so the next one does not trip either." '{
+.codex/hooks/scan_staged_secrets.sh so the next one does not trip either." '{
   hookSpecificOutput: {
     hookEventName: "PreToolUse",
     permissionDecision: "deny",

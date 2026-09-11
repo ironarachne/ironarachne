@@ -446,7 +446,7 @@ closes the open question the first draft of this document carried.
 | `e2e/page_manifest.ts`                                         | Index-page entries out; `/projects` and `/vault` in              |
 | `e2e/`                                                         | New shell spec: sidebar, drawer, status counts                   |
 
-Every new library under `src/lib` must reach 80% line and function coverage; per `CLAUDE.md` a new
+Every new library under `src/lib` must reach 80% line and function coverage; per `AGENTS.md` a new
 entry in `scripts/library_coverage_baseline.json` is not an option.
 
 ## The plan

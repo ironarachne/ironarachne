@@ -1,6 +1,6 @@
 # AGENTS.md
 
-This file provides guidance to OpenCode when working with code in this repository.
+This file provides guidance to Codex and ChatGPT when working with code in this repository.
 
 ## Project overview
 
@@ -47,10 +47,16 @@ Notes:
   rendering.** This is not optional politeness: no Playwright runs against a PR, so you are the
   only thing standing between a browser-visible regression and `main`.
 - CI is two workflows. `.github/workflows/ci.yaml` runs `verify` on every PR and every merge,
-  and is the only required check. `.github/workflows/e2e.yaml` runs the browser suite on
+  and is the only required check. It carries no base-branch filter, so a PR based on another
+  branch is checked like any other — see [Stacked pull requests](#stacked-pull-requests).
+  `.github/workflows/e2e.yaml` runs the browser suite on
   merges to `main` only — never on a PR, because the suite takes about seventeen minutes and
   `npm run verify:all` locally is the faster loop for a rendering change. A red run there is a
   signal to investigate, not a blocked merge; `e2e.yaml` carries the full reasoning.
+  `.github/workflows/goldens.yaml` is the third workflow and gates nothing: it is dispatch-only,
+  renders the golden-image baselines, and pushes them to a branch for review. `build.yaml`,
+  `promote-staging.yaml`, `promote-prod.yaml` and `publish-landing.yaml` deploy; see
+  `docs/deployment.md`.
 - **Coverage is enforced per library, not project-wide.** `scripts/check_library_coverage.ts`
   requires every directory under `src/lib` to reach 80% line and function coverage. The
   exception is the debt recorded in `scripts/library_coverage_baseline.json`: those libraries
@@ -61,6 +67,13 @@ Notes:
   to prevent. Note that `vite.config.js` sets `coverage.include` deliberately: without it v8
   reports only files some test happened to load, so an untested library is missing from the
   report rather than showing as zero.
+- **There is exactly one `coverage.exclude` entry that is not a test file**, and it is not a
+  precedent to copy casually. `src/lib/renderers/webgl_scene_draw.ts` submits an already-decided
+  draw list to the GPU and cannot run without a GL context; `e2e/preview_pixels.spec.ts` covers
+  it in a real browser instead. An exclusion claims "verified by another suite", where a baseline
+  entry admits "untested debt" — so it is honest only while that suite exists, it must name what
+  covers it in a comment, and it must be **file-scoped**: a directory pattern would silently
+  swallow every file added beside it. If you cannot name the other suite, the answer is tests.
 - Unit tests (Vitest) live beside their source in `src/lib/**/*.test.ts` and are excluded from
   e2e collection. E2e tests (Playwright) live in `e2e/` and run against a built+served preview,
   not the dev server.
@@ -158,11 +171,14 @@ matching `scripts/render_*.ts` CLI entry point used to preview output outside th
 
 ### Vendored brand assets
 
-The icons in `static/` are copies from `ironarachne/ironarachne_branding`, pinned to a commit in
-`brand-assets.json` and copied by `scripts/sync_brand_assets.sh` (`--check` reports drift). **Never
-edit a vendored asset in place** — change it in the brand repo and sync, because editing both sides
-is exactly how these silently diverged twice. Anything else vendored from that repo (fonts, lockups)
-goes in the same pin rather than growing a second mechanism. See `docs/brand-assets.md`.
+The icons in `static/`, the fonts in `src/lib/assets/fonts/`, and the colour palette in
+`src/lib/styles/brand/` are copies from
+`ironarachne/ironarachne_branding`, pinned to a commit in `brand-assets.json` and copied by
+`scripts/sync_brand_assets.sh` (`--check` reports drift). **Never edit or rename a vendored asset in
+place** — change it in the brand repo and sync, because editing both sides is exactly how these
+silently diverged twice, and a rename makes the next sync add a duplicate rather than overwrite.
+Anything else vendored from that repo (lockups) goes in the same pin rather than growing a second
+mechanism. See `docs/brand-assets.md`.
 
 ## Design process
 
@@ -218,55 +234,73 @@ Break a design into work items only after the model is approved.
   does not gate a PR (see `.github/workflows/e2e.yaml`). Work on a branch and open a PR; there
   is no path that bypasses this.
 
+### Stacked pull requests
+
+A PR may be based on another branch rather than on `main`. This used not to work at all:
+`ci.yaml` filtered `pull_request` by base branch, so a stacked PR never triggered it, the
+required `verify` context was never posted, and `enforce_admins` meant nobody could merge past
+the gap. The filter is gone, and a stacked PR is now verified against the cumulative state of
+the stack below it, which is what the merge-commit checkout gives you for free.
+
+Two rules make a stack behave, and neither is enforceable by CI:
+
+- **Merge the bottom first.** An upper PR merged first drags the lower branch's commits into
+  `main` along with it, and the lower PR then closes as already-merged without ever having been
+  reviewed on its own.
+- **Only add commits to a branch someone has stacked on.** Restacking after a rewrite needs a
+  force-push, and `.codex/hooks/guard_protected_branch.sh` refuses every force-push including
+  `--force-with-lease`. Adding a commit is what the guard's own message tells you to do instead.
+
+Squash-merging would undo all of this — `main` would hold a commit the upper branch does not
+have, so every stack would need a rebase after each merge and would show phantom conflicts. The
+merge-commit strategy is what keeps retargeting clean, and it is worth keeping for that reason.
+
+Stacking earns its keep for independent work reviewed in parallel. Steps of one feature that
+genuinely depend on each other are usually better merged one at a time, because e2e only runs
+after a merge to `main`.
+
 ## Agent configuration
 
-`.opencode/opencode.json` is checked in and applies to everyone. It holds the shared permission
-allowlist — this project's own tooling and the `gh` calls the workflow depends on — plus
-three plugins that enforce safety constraints:
+`.codex/config.toml` is checked in and applies to trusted Codex sessions in this repository. It
+registers three hooks that enforce safety constraints:
 
-- **Format on edit** (`.opencode/plugins/format-on-edit.ts`) runs Prettier on any file written or
+- **Format on edit** (`.codex/hooks/format_edited_files.mjs`) runs Prettier on any file written or
   edited by the agent, so formatting never becomes a review comment or a failed `lint` in CI.
-- **Protected-branch guard** (`.opencode/plugins/guard-protected-branch.ts`) refuses a commit, merge,
+- **Protected-branch guard** (`.codex/hooks/guard_protected_branch.sh`) refuses a commit, merge,
   rebase, cherry-pick, or revert while on `main`/`master`, refuses any force-push, and refuses a
   push aimed at a protected branch. `git pull` is deliberately allowed — fast-forwarding `main` is
   how you keep it current.
-- **Secret scan** (`.opencode/plugins/scan-secrets.ts`) inspects what a `git commit` is about to
+- **Secret scan** (`.codex/hooks/scan_staged_secrets.sh`) inspects what a `git commit` is about to
   record and refuses recognisable credentials: AWS keys, private key blocks, GitHub/Slack/npm/PyPI
   tokens, long values assigned to a `password`/`secret`/`token` variable, and files such as `.env`,
   `*.pem`, or `id_rsa`. Only added lines are scanned.
 
-All three plugins fail open — if a plugin itself errors, the command proceeds. A guard that blocked
+All three hooks fail open — if a hook itself errors, the command proceeds. A guard that blocked
 all work whenever it broke would be turned off, and then it would guard nothing. They are a safety
 net for the ordinary mistake, not a barrier against a determined bypass; the binding controls are
 branch protection and required status checks on the remote.
 
-The plugins use OpenCode's `permission.ask` hook to intercept bash commands and deny those that
-violate the rules. The permission config in `opencode.json` sets bash to `"ask"` for unmatched
-patterns, which triggers the plugin checks.
+Project hooks load only when Codex trusts the repository. Review or disable them with `/hooks`.
+Personal, machine-specific settings belong in `~/.codex/config.toml`, never in the repository.
 
-Plugins are auto-discovered from `.opencode/plugins/` — any `.ts` or `.js` file in that directory
-is loaded on startup. To disable a plugin, move it out of the directory or delete it.
+### Skills and custom agents
 
-### Slash commands
-
-`.opencode/commands` holds four commands covering the workflows that repeat here. Each encodes
+`.agents/skills` holds four reusable workflows. Each encodes
 what was learned doing the job by hand, so the knowledge lives with the task rather than in
 someone's memory:
 
-- **`/ci [pr]`** — waits for a PR's checks and, on failure, fetches the job log and says what
+- **`$ci`** — waits for a PR's checks and, on failure, fetches the job log and says what
   actually broke. Carries the two traps that have produced wrong reports before: the commit-statuses
   API returns every status ever posted, and a _skipped_ job reports as `success`.
-- **`/triage <issue>`** — verifies an issue's claims rather than trusting them, records findings and
+- **`$triage`** — verifies an issue's claims rather than trusting them, records findings and
   the decisions they force, and moves the label along `needs-triage` → `needs-design` →
   `ready-for-agent`.
-- **`/promote <env> <version>`** — opens the `deploy/<env>.version` PR that deploys a released
+- **`$promote`** — opens the `deploy/<env>.version` PR that deploys a released
   version. Checks the release exists _authenticated_ first, because a draft release is invisible to
   unauthenticated callers and will pass a casual check then fail the deploy.
-- **`/release <major|minor|patch>`** — bumps `package.json` and opens the PR that cuts the tag and
+- **`$release`** — bumps `package.json` and opens the PR that cuts the tag and
   release.
 
-The commands are mirrored between `.claude/commands` and `.opencode/commands`, the same way agents
-and hooks are. Keep them in step; the bodies are identical and only the frontmatter differs.
-
-Personal, machine-specific permissions belong in a local config file that is gitignored. Put nothing
-secret in any config file; neither is a place for credentials.
+`.codex/agents` defines the repository's read-only reviewer, test runner, and PR author roles.
+Their model and reasoning settings inherit from the parent session so they stay compatible with
+the Codex/ChatGPT surface that invoked them.

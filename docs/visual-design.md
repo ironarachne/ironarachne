@@ -13,7 +13,7 @@ works and does not look finished, because spacing, type and colour are decided p
 so nothing lines up between two pages.
 
 **Status:** accepted. The [token taxonomy](#token-taxonomy) was reviewed and approved on
-2026-08-26, which is the gate CLAUDE.md puts in front of implementation: the tokens issue can be
+2026-08-26, which is the gate AGENTS.md puts in front of implementation: the tokens issue can be
 built from it without further design work. Nothing here is built yet — see [What this
 changes](#what-this-changes) for what the implementation covers.
 
@@ -182,7 +182,7 @@ below 640px.
 
 Awaiting approval, unlike the amendments above it, which are built: #153 and #154 are `needs-design`,
 and the pair as the unit, the row-not-cell table, and the flip-unless-it-is-a-matrix rule are what
-CLAUDE.md's review gate asks a human to approve before implementation starts.
+AGENTS.md's review gate asks a human to approve before implementation starts.
 
 **Amended 2026-08-30, in review of the above:** every genre gets a panel shape of its own, which
 replaces the "three corner treatments" cap rather than extending it. The panel's polygon is written
@@ -191,8 +191,7 @@ per genre, none deeper than `--s5`, no two alike. Fantasy's "corner: unchanged" 
 the base's cut goes back to being the app's own neutral plate and fantasy takes a shield's foot,
 which is two lines in a file #119 already shipped.
 
-Written against the rough-cut mockup published from the [design
-canvas](https://claude.ai/code/artifact/c2f18fd6-1a76-46bd-9044-c8cfc888befb) — five artboards:
+Written against the rough-cut interactive mockup — five artboards:
 the workshop at 1440, the phone at 390 with its drawer, genre skins, the token taxonomy, and the
 control vocabulary. Where this document and the mockup disagree, this document is right: it
 corrects three of the mockup's stated contrast ratios and raises one token that failed its own

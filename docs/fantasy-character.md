@@ -243,7 +243,7 @@ walks references.
   for saying so — the shape `migrateCultureSnapshot` established.
 - **7.4.** An end-to-end spec beside `e2e/adnd_character.spec.ts`: generate, save into a project,
   reopen from the vault, edit a field, confirm it persisted across a reload.
-- **7.5.** Mutation testing on `$lib/characters`, run by a human per CLAUDE.md.
+- **7.5.** Mutation testing on `$lib/characters`, run by a human per AGENTS.md.
 
 ### Documentation
 

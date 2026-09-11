@@ -39,7 +39,7 @@ Two escapes exist today and neither covers it:
   be used, not the one that produced what is on screen: once Generate has run with a fresh seed, the
   seed behind the thing the user liked is not anywhere.
 
-Meanwhile the RNG contract in CLAUDE.md says a generation run is fully determined by its seed and its
+Meanwhile the RNG contract in AGENTS.md says a generation run is fully determined by its seed and its
 configuration. **Everything needed to get any roll back is small, cheap, and currently discarded.**
 The session log stops discarding it.
 
