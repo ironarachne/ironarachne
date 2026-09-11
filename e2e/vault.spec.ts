@@ -106,6 +106,31 @@ test.describe('the result vault', () => {
 
     await vault(page).getByLabel('Search').fill('nothing matches this');
     await expect(vault(page).getByText('Nothing matches that.')).toBeVisible();
+    await expect(vault(page).getByRole('button', { name: 'Roll from these' })).toBeDisabled();
+    await expect(vault(page).getByText('0 results')).toBeVisible();
+  });
+
+  test('rolls among the filtered results without repeating the selection', async ({ page }) => {
+    await createProject(page, 'Ashfall');
+    await saveACulture(page, 'The Emberfolk');
+    await saveACulture(page, 'The Cinderborn');
+    await createProject(page, 'Dolmenwood');
+    await saveACulture(page, 'The Drune');
+
+    await visitRoute(page, '/vault', { title: 'Result Vault | Iron Arachne' });
+    await vault(page).getByLabel('Project').selectOption({ label: 'Ashfall' });
+
+    const roll = vault(page).getByRole('button', { name: 'Roll from these' });
+    await expect(vault(page).getByText('2 results')).toBeVisible();
+    await roll.click();
+
+    const firstName = await inspector(page).getByRole('heading').first().textContent();
+    expect(['The Emberfolk', 'The Cinderborn']).toContain(firstName);
+    await roll.click();
+
+    const secondName = await inspector(page).getByRole('heading').first().textContent();
+    expect(['The Emberfolk', 'The Cinderborn']).toContain(secondName);
+    expect(secondName).not.toBe(firstName);
   });
 
   test('inspects a selection without offering a way to edit its contents', async ({ page }) => {

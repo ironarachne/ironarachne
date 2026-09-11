@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { RNG } from '@ironarachne/rng';
   import { onMount } from 'svelte';
 
   import {
@@ -9,6 +10,7 @@
     hydrateArtifacts,
     listAllArtifacts,
     onArtifactsChanged,
+    pickRandomVaultEntry,
     searchArtifacts,
     toVaultEntries,
     vaultProjectNames,
@@ -32,6 +34,7 @@
 
   /** Registry order, so kinds group the way they are declared rather than alphabetically. */
   const kindOrder = registeredArtifactKinds().map((entry) => entry.kind);
+  const rng = new RNG(Date.now().toString());
 
   let entries: VaultEntry[] = $state([]);
   let query = $state('');
@@ -112,6 +115,10 @@
       : [...selectedTags, tag];
   }
 
+  function rollFromVisible(): void {
+    selectedId = pickRandomVaultEntry(visible, rng, selectedId)?.artifact.id;
+  }
+
   async function remove(summary: ArtifactSummary): Promise<void> {
     const confirmed = await showConfirmModal({
       title: 'Delete artifact',
@@ -174,6 +181,12 @@
               <option value={kind}>{kindLabel(kind)}</option>
             {/each}
           </select>
+        </div>
+        <div class="vault__roll">
+          <BaseButton variant="primary" onclick={rollFromVisible} disabled={visible.length === 0}>
+            Roll from these
+          </BaseButton>
+          <span>{visible.length} {visible.length === 1 ? 'result' : 'results'}</span>
         </div>
       </div>
 
@@ -295,6 +308,17 @@
   .vault__filters select {
     flex: 1 1 8rem;
     min-width: 0;
+  }
+
+  .vault__roll {
+    align-items: center;
+    display: flex;
+    gap: var(--s4);
+  }
+
+  .vault__roll span {
+    font-size: var(--t-small-size);
+    opacity: 0.8;
   }
 
   /* An inset, and the fieldset's own layout on top of it. */

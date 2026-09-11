@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { RNG } from '@ironarachne/rng';
 
 import type { ArtifactSummary } from './artifact_types';
 import {
   ORPHANED_PROJECT_NAME,
   filterVaultEntriesByProject,
+  pickRandomVaultEntry,
   toVaultEntries,
   vaultProjectNames,
 } from './vault_entries';
@@ -86,5 +88,28 @@ describe('filterVaultEntriesByProject', () => {
 
   it('returns nothing for a project that is not present', () => {
     expect(filterVaultEntriesByProject(entries, 'Nowhere')).toEqual([]);
+  });
+});
+
+describe('pickRandomVaultEntry', () => {
+  const entries = toVaultEntries(
+    [summary('a', 'p1'), summary('b', 'p1'), summary('c', 'p2')],
+    names,
+  );
+
+  it('picks an entry from the listing', () => {
+    expect(entries).toContain(pickRandomVaultEntry(entries, new RNG('vault-roll')));
+  });
+
+  it('does not repeat the current selection when another entry exists', () => {
+    expect(pickRandomVaultEntry(entries, new RNG('vault-roll'), 'a')?.artifact.id).not.toBe('a');
+  });
+
+  it('keeps the only entry available even when it is selected', () => {
+    expect(pickRandomVaultEntry([entries[0]], new RNG('vault-roll'), 'a')).toBe(entries[0]);
+  });
+
+  it('returns nothing for an empty listing', () => {
+    expect(pickRandomVaultEntry([], new RNG('vault-roll'))).toBeUndefined();
   });
 });

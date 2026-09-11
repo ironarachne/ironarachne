@@ -1,3 +1,5 @@
+import type { RNG } from '@ironarachne/rng';
+
 import type { ArtifactSummary } from './artifact_types';
 
 /**
@@ -58,4 +60,27 @@ export function filterVaultEntriesByProject(
   return projectName === undefined || projectName === ''
     ? entries
     : entries.filter((entry) => entry.projectName === projectName);
+}
+
+/**
+ * Picks one entry from the current vault listing.
+ *
+ * A current selection is left out when another choice exists so rolling always has a visible
+ * effect. A one-entry listing remains rollable: that single artifact is still the honest result.
+ */
+export function pickRandomVaultEntry(
+  entries: VaultEntry[],
+  rng: RNG,
+  excludeId?: string,
+): VaultEntry | undefined {
+  if (entries.length === 0) {
+    return undefined;
+  }
+
+  const alternatives =
+    entries.length > 1 && excludeId !== undefined
+      ? entries.filter((entry) => entry.artifact.id !== excludeId)
+      : entries;
+
+  return rng.item(alternatives.length > 0 ? alternatives : entries);
 }
