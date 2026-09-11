@@ -632,7 +632,7 @@ goldens did.
 - `ringSemicircleAngles` and `ringBackHalfIsHalfZero` are real geometry, currently private inside a
   canvas module and reachable only through a context. They move to the scene builder, where they are
   ordinary testable functions.
-- `renderers` has neither an `index.ts` nor a README, against the convention in CLAUDE.md that every
+- `renderers` has neither an `index.ts` nor a README, against the convention in AGENTS.md that every
   directory under `src/lib` carries both — 69 of 88 libraries have the index today. A change that
   reorganises the whole library is the moment to add them, not a later tidy-up nobody schedules.
 - `render()` returns a base64 data URL, and a 1024px PNG as a string in Svelte state is heavy.

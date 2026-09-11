@@ -1,0 +1,32 @@
+[features]
+hooks = true
+
+[agents]
+max_concurrent_threads_per_session = 6
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = 'bash "$(git rev-parse --show-toplevel)/.codex/hooks/guard_protected_branch.sh"'
+timeout = 10
+statusMessage = "Checking branch"
+
+[[hooks.PreToolUse]]
+matcher = "^Bash$"
+
+[[hooks.PreToolUse.hooks]]
+type = "command"
+command = 'bash "$(git rev-parse --show-toplevel)/.codex/hooks/scan_staged_secrets.sh"'
+timeout = 15
+statusMessage = "Scanning staged changes for secrets"
+
+[[hooks.PostToolUse]]
+matcher = "Edit|Write"
+
+[[hooks.PostToolUse.hooks]]
+type = "command"
+command = 'node "$(git rev-parse --show-toplevel)/.codex/hooks/format_edited_files.mjs"'
+timeout = 30
+statusMessage = "Formatting"

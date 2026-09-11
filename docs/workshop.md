@@ -1612,7 +1612,7 @@ a printout.
 | 7.2 | MUST have a snapshot round-trip test proving `fromSnapshot(toSnapshot(x))` preserves everything that matters. | G E        |
 | 7.3 | MUST have a migration test for every `payloadVersion` step, exercising a real payload of the older shape.     | G E        |
 | 7.4 | MUST have an end-to-end test covering generate, save, reopen, edit.                                           | G E        |
-| 7.5 | SHOULD hold up under mutation testing. Run by humans, per CLAUDE.md — not in CI.                              | G E R      |
+| 7.5 | SHOULD hold up under mutation testing. Run by humans, per AGENTS.md — not in CI.                              | G E R      |
 
 ### 8. Documentation
 

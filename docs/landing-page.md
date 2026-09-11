@@ -20,7 +20,7 @@ is the resource graph, the cutover sequence, and the corrections that came out o
 against the live zone and the pinned provider. The page design was approved on #72, and its outcome
 is recorded in [The page design](#the-page-design).
 
-Per the design process in CLAUDE.md this feature introduces no TypeScript types, so the class diagram
+Per the design process in AGENTS.md this feature introduces no TypeScript types, so the class diagram
 that process asks for does not apply. The equivalent artefact — the resource graph and the decisions
 behind it — is below, following the precedent set by `docs/infrastructure.md`.
 

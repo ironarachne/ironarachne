@@ -284,7 +284,7 @@ The README's **Not here** list loses its "#178" line and gains a paragraph on th
 | 6    | `storage_status/README.md` and the two `docs/workshop.md` sections updated to point here                           | 1–4        |
 
 Steps 1 and 2 are independent and are where the coverage lives. Step 3 is the one that needs
-`npm run verify:all`, per `CLAUDE.md` — it touches a component and a route.
+`npm run verify:all`, per `AGENTS.md` — it touches a component and a route.
 
 ### Testing
 

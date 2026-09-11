@@ -42,7 +42,7 @@ write it asks its author to predict a number they do not own. `/release` fills i
 topmost unversioned entry in the same pull request that bumps `package.json` — the two are the same
 fact recorded twice, and keeping them in one commit is what stops them drifting apart.
 
-This is the one thing besides the `version` field that belongs in a release PR. `.claude/commands/release.md`
+This is the one thing besides the `version` field that belongs in a release PR. The `$release` skill
 is otherwise right that a release PR changes no behaviour: a version stamp is not behaviour.
 
 Entries older than this scheme have no `version` and are not backfilled — see that library's README.

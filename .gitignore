@@ -68,10 +68,4 @@ crash.log
 *.tfvars
 *.tfvars.json
 
-# Claude Code
-# Worktrees are throwaway checkouts of this repo that Claude Code creates under here; the
-# subagent definitions in .claude/agents are shared and stay tracked.
-.claude/worktrees/
-# Per-machine tool permissions, not shared settings.
-.claude/settings.local.json
 capture/

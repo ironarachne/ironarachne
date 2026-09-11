@@ -8,7 +8,7 @@ over HTTPS on their own subdomains. A fourth stack, `environments/landing`, reus
 for the one-page site on `www.ironarachne.com` and the apex; it is not an environment of the app and is
 documented in `docs/landing-page.md` rather than here.
 
-Per the design process in CLAUDE.md this feature introduces no TypeScript types, so the class
+Per the design process in AGENTS.md this feature introduces no TypeScript types, so the class
 diagram that process asks for does not apply. The equivalent artefact — the resource graph and the
 decisions behind it — is below.
 

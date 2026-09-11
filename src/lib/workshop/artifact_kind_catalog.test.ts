@@ -74,7 +74,7 @@ describe('artifact kind catalog', () => {
   // coverage on a developer machine while staying green on CI — so the failure tracks how busy the
   // machine is rather than anything about the code. A local gate that goes red for a reason
   // unrelated to the change in front of you is the kind that stops being trusted, which is the one
-  // thing CLAUDE.md asks of this suite.
+  // thing AGENTS.md asks of this suite.
   //
   // The number is deliberately generous: nothing here is waiting on a timer, so a larger ceiling
   // costs nothing on a run that passes and only changes whether a slow machine reports a failure

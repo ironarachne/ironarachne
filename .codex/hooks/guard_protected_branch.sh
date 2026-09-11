@@ -3,13 +3,8 @@
 # PreToolUse hook on Bash. Refuses, before the command runs, anything that would
 # put a commit directly onto a protected branch or rewrite pushed history.
 #
-# The repo's conventions already say "never commit to main, never force-push",
-# but a convention written in prose is advice. This makes it a constraint: an
-# agent that has not read CLAUDE.md, or has forgotten it, still cannot do it.
-#
 # Reads the hook payload on stdin and, to deny, prints a PreToolUse decision.
-# Exits 0 in every other case — a guard that fails closed on its own bugs would
-# block all work, which is a worse failure than the one it prevents.
+# Exits 0 in every other case so a bug in the guard does not block all work.
 
 set -uo pipefail
 
@@ -18,7 +13,6 @@ PROTECTED='^(main|master)$'
 payload=$(cat)
 cmd=$(printf '%s' "$payload" | jq -r '.tool_input.command // ""' 2>/dev/null) || exit 0
 
-# Cheap bail-out: the overwhelming majority of Bash calls are not git at all.
 case "$cmd" in
 *git*) ;;
 *) exit 0 ;;
@@ -44,8 +38,8 @@ matches() { printf '%s' "$cmd" | grep -Eq "$1"; }
 if matches '(^|[;&|[:space:]])git[[:space:]]+(commit|merge|rebase|cherry-pick|revert)([[:space:]]|$)'; then
   if [[ $branch =~ $PROTECTED ]]; then
     deny "Refused: this would write directly to '$branch', which is a protected branch.
-Branch first (git checkout -b <name>), commit there, and open a pull request.
-CI must report CI / verify and CI / e2e green before it can merge."
+Branch first (git switch -c <name>), commit there, and open a pull request.
+CI / verify must report green before it can merge."
   fi
 fi
 
