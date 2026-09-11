@@ -7,9 +7,8 @@ export interface WaterConfig {
   rng: RNG;
 }
 
-/** Water occupies cells; only water connected to a boundary-site cell is ocean. */
-function classifyWaterBodies(map: RegionMap, seaLevel: number): void {
-  const ocean = map.nodes.filter((node) => node.isOcean).map((node) => node.id);
+/** Marks the cells covered by water before rivers add lakes at local minima. */
+function classifyWaterCells(map: RegionMap, seaLevel: number): void {
   for (const node of map.nodes) {
     const submergedCorners = node.corners.filter(
       (id) => map.corners[id].elevation < seaLevel,
@@ -19,7 +18,11 @@ function classifyWaterBodies(map: RegionMap, seaLevel: number): void {
       node.elevation < seaLevel ||
       (node.corners.length > 0 && submergedCorners >= node.corners.length / 2);
   }
+}
 
+/** Every connected water cell reached from a boundary ocean seed belongs to the ocean. */
+function normalizeOceanConnectedWater(map: RegionMap): void {
+  const ocean = map.nodes.filter((node) => node.isOcean).map((node) => node.id);
   for (let i = 0; i < ocean.length; i++) {
     for (const id of map.nodes[ocean[i]].neighbors) {
       const neighbor = map.nodes[id];
@@ -67,8 +70,8 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
   const newMap: RegionMap = structuredClone(map);
   const { seaLevel, springCountPercentage, rng } = config;
 
-  // 1–2. Classify mapped water before deriving corner outlets and coasts.
-  classifyWaterBodies(newMap, seaLevel);
+  // 1–2. Classify mapped water before deriving the corner outlets rivers terminate at.
+  classifyWaterCells(newMap, seaLevel);
   updateWaterBoundaries(newMap);
 
   // 3. Compute Downslopes
@@ -133,6 +136,9 @@ export function simulateWater(map: RegionMap, config: WaterConfig): RegionMap {
     }
   }
 
+  // River sinks can create new water cells beside mapped ocean. Normalize only after every lake
+  // exists, then derive coasts from the geography the rest of generation will consume.
+  normalizeOceanConnectedWater(newMap);
   updateWaterBoundaries(newMap);
   return newMap;
 }
