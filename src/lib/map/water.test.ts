@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { RNG } from '@ironarachne/rng';
 import { generate, getDefaultConfig } from '$lib/regions';
 import type { RegionMap } from './map_graph';
+import { evaluateSuitability, standardRules } from './suitability';
 import { simulateWater } from './water';
 
 /** A strip of square cells; all elevations start above sea level, with no ocean seed. */
@@ -129,6 +130,47 @@ describe('simulateWater', () => {
     expect(map).toEqual(original);
   });
 
+  it('promotes a river-created lake chain connected to ocean before settlement scoring', () => {
+    const map = stripMap(4);
+    map.nodes[0].isOcean = true;
+    map.nodes[1].elevation = -0.2;
+
+    // A private corner models a local minimum wholly inside node 2. It lets the river create one
+    // new lake cell without also filling node 3 across their shared boundary.
+    const sinkId = map.corners.length;
+    map.corners.push({
+      id: sinkId,
+      point: map.nodes[2].center,
+      touches: [2],
+      protrudes: [],
+      adjacent: [],
+      elevation: 0.5,
+      moisture: 0,
+      temperature: 0,
+      isWater: false,
+      isOcean: false,
+      isCoast: false,
+      river: 0,
+    });
+    map.nodes[2].corners.push(sinkId);
+
+    const rng = new RNG('ocean-connected-lake');
+    vi.spyOn(rng, 'int').mockReturnValue(4);
+    const result = simulateWater(map, { seaLevel: -0.1, springCountPercentage: 0.2, rng });
+
+    expect(result.nodes.map((node) => node.isOcean)).toEqual([true, true, true, false]);
+    expect(result.nodes.map((node) => node.isWater)).toEqual([true, true, true, false]);
+    expect(result.nodes.map((node) => node.isCoast)).toEqual([false, false, false, true]);
+    expect(result.corners[6]).toMatchObject({ isOcean: true, isWater: true, isCoast: true });
+
+    const scores = evaluateSuitability(result, {
+      rules: [standardRules.notOcean(), standardRules.nearFreshWater()],
+      strict: true,
+    });
+    expect(scores.get(1)).toBe(0);
+    expect(scores.get(2)).toBe(0);
+  });
+
   it('stops rivers on the shore of an existing inland lake', () => {
     const map = stripMap(3);
     map.nodes[2].elevation = -0.2;
@@ -157,6 +199,7 @@ const seeds = [
   'hotel',
   'india',
   'juliet',
+  'issue-247-16',
 ];
 
 describe.each([
@@ -176,17 +219,17 @@ describe.each([
           node.center.y <= 0.001 ||
           node.center.y >= height - 0.001),
     );
-    const connected = new Set(rimOcean.map((node) => node.id));
-    const queue = [...connected];
+    const oceanConnectedWater = new Set(rimOcean.map((node) => node.id));
+    const queue = [...oceanConnectedWater];
     for (let i = 0; i < queue.length; i++) {
       for (const id of map.nodes[queue[i]].neighbors) {
-        if (map.nodes[id].isOcean && !connected.has(id)) {
-          connected.add(id);
+        if (map.nodes[id].isWater && !oceanConnectedWater.has(id)) {
+          oceanConnectedWater.add(id);
           queue.push(id);
         }
       }
     }
-    expect(connected).toEqual(
+    expect(oceanConnectedWater).toEqual(
       new Set(map.nodes.filter((node) => node.isOcean).map((node) => node.id)),
     );
     for (const corner of map.corners) {
