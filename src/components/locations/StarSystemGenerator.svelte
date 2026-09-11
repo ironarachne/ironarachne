@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import { RNG } from '@ironarachne/rng';
   import { browser } from '$app/environment';
   import Stat from '$components/common/Stat.svelte';
@@ -70,6 +70,9 @@
 
   let starImageSrcs = $state<string[]>([]);
   let planetImageSrcs = $state<string[]>([]);
+
+  /** The first roll waits for its status line to paint before doing synchronous preview work. */
+  let initialGenerationState = $state<'pending' | 'ready' | 'failed'>('pending');
 
   const planetCountOptions = [
     { value: Bodies.STAR_SYSTEM_ANY, label: 'Random' },
@@ -183,6 +186,32 @@
     rebuildSystemPreviewImages();
   }
 
+  /**
+   * Let Svelte write the pending state and the browser paint it before generating previews.
+   *
+   * The initial roll can render a composite and a figure for every body. Starting that work in
+   * the same task as hydration leaves the standalone route looking empty until it is all done;
+   * the workshop's module-loading message happened to hide that gap, but only there.
+   */
+  async function generateInitially(): Promise<void> {
+    await tick();
+    if (typeof requestAnimationFrame === 'function') {
+      await new Promise<void>((done) => requestAnimationFrame(() => done()));
+    }
+
+    try {
+      generate();
+      initialGenerationState = 'ready';
+    } catch {
+      initialGenerationState = 'failed';
+    }
+  }
+
+  function generateFromControls(): void {
+    generate();
+    initialGenerationState = 'ready';
+  }
+
   function exportMarkdown() {
     if (snapshot === null) {
       return;
@@ -233,7 +262,7 @@
   }
 
   onMount(() => {
-    generate();
+    void generateInitially();
   });
 </script>
 
@@ -244,6 +273,14 @@
       what this machine can do; every number below is written out regardless.
     </p>
   {/snippet}
+
+  {#if initialGenerationState === 'pending'}
+    <p class="initial-generation-status" role="status">Generating the initial star system…</p>
+  {:else if initialGenerationState === 'failed'}
+    <p class="initial-generation-status" role="status">
+      The initial star system could not be generated. Change the settings and try Generate again.
+    </p>
+  {/if}
 
   <RendererOverrideControls onchange={rebuildSystemPreviewImages} />
 
@@ -269,7 +306,7 @@
   />
 
   <div class="actions">
-    <BaseButton onclick={generate}>Generate</BaseButton>
+    <BaseButton onclick={generateFromControls}>Generate</BaseButton>
     <BaseButton onclick={exportMarkdown} disabled={!system}>Download Markdown</BaseButton>
     <BaseButton onclick={exportPdf} disabled={!system}>Download PDF</BaseButton>
     <BaseButton onclick={exportSvg} disabled={!system}>Download SVG</BaseButton>
@@ -369,6 +406,11 @@
     font: var(--t-small);
     color: var(--ink-muted);
     margin: var(--s3) 0 0;
+  }
+
+  .initial-generation-status {
+    font-style: italic;
+    color: var(--ink-muted);
   }
 
   article.media-banner {
