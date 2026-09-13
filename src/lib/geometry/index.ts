@@ -7,6 +7,7 @@ export * from './directions';
 export * from './distance_point_to_segment';
 export * from './geometry';
 export * from './poisson';
+export * from './polygon_clipping';
 export * from './voronoi';
 
 export * as Directions from './directions';

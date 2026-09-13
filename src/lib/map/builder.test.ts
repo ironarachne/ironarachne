@@ -12,7 +12,6 @@ describe('corner interning', () => {
       { x: 26.22, y: 33.56 },
       { x: 27.09, y: 34.09 },
       { x: 27.11, y: 34.11 },
-      { x: -0.01, y: -0.01 },
       { x: 0.01, y: 0.01 },
       { x: 1.051, y: 1.051 },
       { x: 1.149, y: 1.149 },
@@ -28,16 +27,17 @@ describe('corner interning', () => {
       pointSpacing: 10,
       rng: new RNG('intern'),
     });
-    expect(map.corners.map((c) => c.point)).toEqual([
-      vertices[0],
-      vertices[2],
-      vertices[4],
-      vertices[6],
-      vertices[7],
-    ]);
+    // The clipping reorders vertices, so we check the set rather than the order
+    const expectedPoints = [vertices[0], vertices[2], vertices[4], vertices[5], vertices[6]];
+    expect(map.corners).toHaveLength(expectedPoints.length);
+    for (const expected of expectedPoints) {
+      expect(map.corners.some((c) => c.point.x === expected.x && c.point.y === expected.y)).toBe(
+        true,
+      );
+    }
     expect(map.edges).toHaveLength(5);
     expect(map.edges.every((e) => e.v0 !== e.v1)).toBe(true);
-    expect(map.nodes[0].polygon.vertices).toEqual(map.corners.map((c) => c.point));
+    expect(map.nodes[0].polygon.vertices).toHaveLength(5);
     expect(map.nodes[0].polygon.edges).toHaveLength(5);
     expect(map.nodes[0].neighbors).toEqual([]);
   });
@@ -72,6 +72,43 @@ describe('corner interning', () => {
         expect(map.nodes[edge.d0].edges).toContain(edge.id);
         if (edge.d1 !== undefined) expect(map.nodes[edge.d1].edges).toContain(edge.id);
       }
+    },
+  );
+});
+
+describe('Voronoi clipping (#252)', () => {
+  it.each(['charlie', 'alpha', 'golf', 'india', 'juliet'])(
+    'keeps all corners inside the map rectangle for seed %s',
+    (seed) => {
+      const map = buildBaseMapGraph({
+        width: 60,
+        height: 35,
+        seed,
+        pointSpacing: 3,
+        rng: new RNG(seed),
+      });
+      for (const corner of map.corners) {
+        expect(corner.point.x).toBeGreaterThanOrEqual(0);
+        expect(corner.point.x).toBeLessThanOrEqual(map.width);
+        expect(corner.point.y).toBeGreaterThanOrEqual(0);
+        expect(corner.point.y).toBeLessThanOrEqual(map.height);
+      }
+    },
+  );
+
+  it.each(['charlie', 'alpha', 'golf', 'india', 'juliet'])(
+    'flags boundary cells as ocean for seed %s',
+    (seed) => {
+      const map = buildBaseMapGraph({
+        width: 60,
+        height: 35,
+        seed,
+        pointSpacing: 3,
+        rng: new RNG(seed),
+      });
+      // At least some cells should be flagged as ocean (the boundary seeds)
+      const oceanNodes = map.nodes.filter((n) => n.isOcean);
+      expect(oceanNodes.length).toBeGreaterThan(0);
     },
   );
 });

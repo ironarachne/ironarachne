@@ -4,6 +4,7 @@ import {
   triangulate,
   computeVoronoi,
   getMidpoint,
+  clipPolygonToRect,
   type VoronoiCell,
   type Vertex,
 } from '$lib/geometry';
@@ -155,10 +156,25 @@ function addNodeForCell(
   nodeId: number,
   config: MapBuilderConfig,
 ): void {
+  // Clip the cell's polygon to the map rectangle so no corner exists outside it.
+  // This is the fix for #252: near-collinear Delaunay triangles produce circumcenters
+  // that shoot off to near-infinity, and without clipping they become corners far outside
+  // the map that are accepted as river outlets.
+  const clippedVertices = clipPolygonToRect(cell.polygon.vertices, {
+    x: 0,
+    y: 0,
+    width: config.width,
+    height: config.height,
+  });
+
+  // A cell that clips to empty is a boundary seed whose Voronoi cell extended to infinity
+  // and was entirely outside the rectangle. Skip it: no node, no corners, no edges.
+  if (clippedVertices.length === 0) {
+    return;
+  }
+
   // Merging a short Voronoi edge must not leave a self-loop or duplicate polygon vertex.
-  const nodeCorners = [
-    ...new Set(cell.polygon.vertices.map((v) => accumulator.getOrCreateCorner(v))),
-  ];
+  const nodeCorners = [...new Set(clippedVertices.map((v) => accumulator.getOrCreateCorner(v)))];
   const nodeEdges: MapEdge[] = [];
 
   // Link node back to corners
