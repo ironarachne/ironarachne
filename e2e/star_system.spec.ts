@@ -144,6 +144,10 @@ test.describe('a star system', () => {
     // The decision this issue asked to take: a planet the user supplied is referenced, so a system
     // holding its own copy cannot show a stale one after that planet is edited.
     await visitRoute(page, '/planet', { title: PLANET_TITLE, webgl: true });
+    // #263: the planet's internal name (from the h2) is what appears in the system, not the
+    // artifact name the vault stores it under. Reading it here proves the composed body has the
+    // normal flat AstronomicalBody shape rather than a nested `planet` field.
+    const planetName = await page.locator('h2').first().innerText();
     await saveAs(page, 'Cinder');
 
     await visitRoute(page, '/star-system', { title: SYSTEM_TITLE, webgl: true });
@@ -153,6 +157,7 @@ test.describe('a star system', () => {
 
     // On the page the system has the planet in it, and says what it did with it.
     await expect(page.locator('.referenced-note')).toBeVisible();
+    await expect(page.locator('article.media-banner h5')).toContainText([planetName]);
 
     await saveAs(page, 'Kepler');
     const panel = await openInWorkshop(page, 'Kepler');

@@ -14,7 +14,7 @@
   import type { ArtifactReference } from '$lib/artifacts';
   import * as Bodies from '$lib/astronomical_bodies';
   import type {
-    PlanetSnapshot,
+    PlanetRoll,
     StarSystem,
     StarSystemGeneratorConfigRecord,
   } from '$lib/astronomical_bodies';
@@ -51,7 +51,7 @@
 
   /** The saved planet to place in the system, when the user has offered one (5.1). */
   let useReferencedPlanet = $state(false);
-  let referencedPlanet = $state<PlanetSnapshot | undefined>(undefined);
+  let referencedPlanet = $state<PlanetRoll | undefined>(undefined);
   let planetReference = $state<ArtifactReference | undefined>(undefined);
 
   /**
@@ -170,7 +170,7 @@
     const rolled = Bodies.rollStarSystem(seed, generatorConfig);
 
     if (useReferencedPlanet && referencedPlanet !== undefined) {
-      const body = Bodies.planetBodyFromSnapshot(referencedPlanet);
+      const body = referencedPlanet.planet;
       system = Bodies.withReferencedPlanet(rolled, body);
       referencedBody = body;
       usedReferencedPlanet = true;
