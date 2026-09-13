@@ -423,3 +423,41 @@ test.describe('the horror skin', () => {
     expect(paint.image, 'the stain went with the breath').toContain('radial-gradient');
   });
 });
+
+test.describe('the All Tools flow', () => {
+  // #259: the standalone tool links the All Tools page renders are plain anchors to each tool's
+  // own route. The resolver already falls back to the route's catalog genre when no project is
+  // open; this is the wiring test that proves the navigation path actually dresses the page.
+
+  test('skins a single-genre tool from its catalog entry, with no project open', async ({
+    page,
+  }) => {
+    await visitRoute(page, '/tools', { title: 'All Tools | Iron Arachne' });
+
+    // No project is open, so the page starts unskinned.
+    await expect(page.locator('main.shell__page')).not.toHaveAttribute('data-genre');
+
+    // Follow a fantasy tool into its standalone route.
+    await page.getByRole('link', { name: 'Fantasy Potion' }).click();
+    await expect(page).toHaveTitle(/Potion/);
+
+    // The resolver fell back to the route's catalog genre.
+    await expect(page.locator('main.shell__page')).toHaveAttribute('data-genre', 'fantasy');
+  });
+
+  test('leaves a genre-neutral tool unskinned', async ({ page }) => {
+    await visitRoute(page, '/environment');
+
+    // `/environment` carries no genre in the catalog, and with no project open there is nothing
+    // to resolve. The page keeps the base appearance, which is the design rather than a gap.
+    await expect(page.locator('main.shell__page')).not.toHaveAttribute('data-genre');
+  });
+
+  test('leaves a two-genre tool unskinned without a project', async ({ page }) => {
+    // `/spooky-ship` is `scifi` and `horror`. Picking the first entry would be arbitrary, so the
+    // resolver refuses the ambiguity. A project's genre would break the tie; without one, base.
+    await visitRoute(page, '/spooky-ship');
+
+    await expect(page.locator('main.shell__page')).not.toHaveAttribute('data-genre');
+  });
+});
