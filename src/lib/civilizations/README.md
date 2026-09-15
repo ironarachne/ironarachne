@@ -82,9 +82,12 @@ starNationToMarkdown(nation);
 The same seed and config give the same nation, on the page and on a re-roll from a saved
 artifact's provenance. The stored shape (`StarNationSnapshot`) is flat: the civilization's fields at
 the top level, the regions of control beside them, and the home system embedded as the parameters
-the preview renderer takes — never the image it draws. The home system is embedded rather than
-referenced because no `star-system` artifact kind exists yet; when one does, the region of control
-is where the reference goes.
+the preview renderer takes — never the image it draws.
+
+The home system and homeworld can be supplied as saved artifact references instead of generated
+(docs/star-nation-composition.md). When a saved `star-system` or `planet` is passed to
+`rollStarNation`, the nation links to it rather than copying it: the snapshot excludes the
+referenced payload and the artifact's reference list records the link.
 
 The description is assembled from the figures when the nation is rolled, and editing a figure
 does not rewrite it: `restoreStarNationDescription` rebuilds it on request, and nothing else does.

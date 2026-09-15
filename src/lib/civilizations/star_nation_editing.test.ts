@@ -81,11 +81,11 @@ describe('editing a star nation', () => {
   });
 
   it('moves the homeworld and renames the planet region with it', () => {
-    const index = (snapshot.homePlanetIndex + 1) % snapshot.homeSystem.planets.length;
+    const index = (snapshot.homePlanetIndex + 1) % snapshot.homeSystem!.planets.length;
     const edited = setStarNationHomePlanet(snapshot, index);
 
     expect(edited.homePlanetIndex).toBe(index);
-    expect(homePlanetRegionOf(edited)?.name).toBe(snapshot.homeSystem.planets[index].name);
+    expect(homePlanetRegionOf(edited)?.name).toBe(snapshot.homeSystem!.planets[index].name);
     expect(homeSystemRegionOf(edited)?.name).toBe(homeSystemRegionOf(snapshot)?.name);
   });
 
@@ -98,21 +98,21 @@ describe('editing a star nation', () => {
   it('renames the home system and the region that stands for it', () => {
     const edited = setStarNationHomeSystemName(snapshot, 'Tau Ceti');
 
-    expect(edited.homeSystem.name).toBe('Tau Ceti');
+    expect(edited.homeSystem!.name).toBe('Tau Ceti');
     expect(homeSystemRegionOf(edited)?.name).toBe('Tau Ceti');
     expect(homePlanetRegionOf(edited)?.name).toBe(homePlanetRegionOf(snapshot)?.name);
   });
 
   it('renames a planet, and the planet region only when it is the homeworld', () => {
     const home = snapshot.homePlanetIndex;
-    const other = (home + 1) % snapshot.homeSystem.planets.length;
+    const other = (home + 1) % snapshot.homeSystem!.planets.length;
 
     const renamedHome = setStarNationPlanetName(snapshot, home, 'Vesh Prime');
-    expect(renamedHome.homeSystem.planets[home].name).toBe('Vesh Prime');
+    expect(renamedHome.homeSystem!.planets[home].name).toBe('Vesh Prime');
     expect(homePlanetRegionOf(renamedHome)?.name).toBe('Vesh Prime');
 
     const renamedOther = setStarNationPlanetName(snapshot, other, 'Vesh Minor');
-    expect(renamedOther.homeSystem.planets[other].name).toBe('Vesh Minor');
+    expect(renamedOther.homeSystem!.planets[other].name).toBe('Vesh Minor');
     expect(homePlanetRegionOf(renamedOther)?.name).toBe(homePlanetRegionOf(snapshot)?.name);
 
     expect(setStarNationPlanetName(snapshot, 9, 'Nowhere')).toBe(snapshot);

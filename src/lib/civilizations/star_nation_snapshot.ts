@@ -21,7 +21,12 @@ import type { StarNation } from './star_nation_types';
 /** A star system as stored: the bodies' parameters, which is what the preview renderer takes. */
 export type StoredStarSystem = StarSystem;
 
-/** A star nation as it is stored. Flat, as the design's diagram declared it. */
+/**
+ * A star nation as it is stored. Flat, as the design's diagram declared it.
+ *
+ * `homeSystem` is `undefined` when the system was supplied as a reference (docs/star-nation-composition.md).
+ * The link lives on the artifact's reference list; the payload does not carry a copy.
+ */
 export type StarNationSnapshot = {
   name: string;
   description: string;
@@ -31,7 +36,7 @@ export type StarNationSnapshot = {
   economyType: EconomyType;
   military: Military;
   regionsOfControl: RegionOfControl[];
-  homeSystem: StoredStarSystem;
+  homeSystem: StoredStarSystem | undefined;
   homePlanetIndex: number;
   homeSystemPopulatedPlanets: number;
   systemsControlled: number;
@@ -69,7 +74,7 @@ export function toStarNationSnapshot(nation: StarNation): StarNationSnapshot {
     economyType: { ...civilization.economy_type },
     military: { ...civilization.military },
     regionsOfControl: nation.regionsOfControl.map(copyRegion),
-    homeSystem: copyStarSystem(nation.homeSystem),
+    homeSystem: nation.homeSystemIsReferenced ? undefined : copyStarSystem(nation.homeSystem),
     homePlanetIndex: nation.homePlanetIndex,
     homeSystemPopulatedPlanets: nation.homeSystemPopulatedPlanets,
     systemsControlled: nation.systemsControlled,
@@ -92,15 +97,23 @@ export function civilizationFromStarNationSnapshot(snapshot: StarNationSnapshot)
 
 /** A stored nation back into the value the library works with. */
 export function starNationFromSnapshot(snapshot: StarNationSnapshot): StarNation {
+  const homeSystemIsReferenced = snapshot.homeSystem === undefined;
   return {
     civilization: civilizationFromStarNationSnapshot(snapshot),
-    homeSystem: copyStarSystem(snapshot.homeSystem),
+    homeSystem:
+      snapshot.homeSystem !== undefined ? copyStarSystem(snapshot.homeSystem) : emptyStarSystem(),
     homePlanetIndex: snapshot.homePlanetIndex,
     regionsOfControl: snapshot.regionsOfControl.map(copyRegion),
     homeSystemPopulatedPlanets: snapshot.homeSystemPopulatedPlanets,
     systemsControlled: snapshot.systemsControlled,
     populatedPlanets: snapshot.populatedPlanets,
+    homeSystemIsReferenced,
+    homePlanetIsReferenced: false,
   };
+}
+
+function emptyStarSystem(): StarSystem {
+  return { name: '', description: '', star_count: 0, planet_count: 0, stars: [], planets: [] };
 }
 
 /**

@@ -67,10 +67,15 @@ describe('the star nation artifact kind', () => {
     }
   });
 
-  it('rejects a payload missing any top-level field', () => {
+  it('rejects a payload missing any top-level field except homeSystem, which is optional for referenced systems', () => {
     for (const field of Object.keys(snapshot)) {
+      if (field === 'homeSystem') continue;
       expect(validateStarNationSnapshot(without({ ...snapshot }, field)).ok).toBe(false);
     }
+  });
+
+  it('accepts a payload with homeSystem undefined, which is a referenced system', () => {
+    expect(validateStarNationSnapshot(withField('homeSystem', undefined)).ok).toBe(true);
   });
 
   it('rejects a technology level the table has no row for', () => {
@@ -143,13 +148,13 @@ describe('the star nation artifact kind', () => {
   });
 
   it('rejects a home system whose bodies lack a parameter the renderer reads', () => {
-    const planet = without({ ...snapshot.homeSystem.planets[0] }, 'radius');
+    const planet = without({ ...snapshot.homeSystem!.planets[0] }, 'radius');
     expect(
       validateStarNationSnapshot(
         withField('homeSystem', { ...snapshot.homeSystem, planets: [planet] }),
       ).ok,
     ).toBe(false);
-    const star = { ...snapshot.homeSystem.stars[0], has_atmosphere: 'no' };
+    const star = { ...snapshot.homeSystem!.stars[0], has_atmosphere: 'no' };
     expect(
       validateStarNationSnapshot(withField('homeSystem', { ...snapshot.homeSystem, stars: [star] }))
         .ok,

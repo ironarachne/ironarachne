@@ -237,59 +237,69 @@
     <fieldset>
       <legend>Home system</legend>
 
-      <div class="input-group input-group--inline">
-        <label for="{uid}-system-name">Home system name</label>
-        <input
-          id="{uid}-system-name"
-          type="text"
-          value={nation.homeSystem.name}
-          oninput={(event) =>
-            edit((current) => setStarNationHomeSystemName(current, event.currentTarget.value))}
-          autocomplete="off"
-        />
-      </div>
-
-      <div class="input-group input-group--inline">
-        <label for="{uid}-home-planet">Home planet</label>
-        <select
-          id="{uid}-home-planet"
-          value={String(nation.homePlanetIndex)}
-          onchange={(event) =>
-            edit((current) => setStarNationHomePlanet(current, Number(event.currentTarget.value)))}
-        >
-          {#each nation.homeSystem.planets as planet, index (index)}
-            <option value={String(index)}>{index + 1}: {planet.name}</option>
-          {/each}
-        </select>
-      </div>
-
-      <div class="input-group input-group--inline">
-        <label for="{uid}-home-populated">Populated planets in the home system</label>
-        <input
-          id="{uid}-home-populated"
-          type="number"
-          min="0"
-          step="1"
-          value={nation.homeSystemPopulatedPlanets}
-          oninput={(event) => editNumber('homeSystemPopulatedPlanets', event.currentTarget.value)}
-        />
-      </div>
-
-      <!-- Keyed by position rather than by name: two planets may read the same while one is being
-           typed, and a key that changed as the user typed would lose focus on every keystroke. -->
-      {#each nation.homeSystem.planets as planet, index (index)}
+      {#if nation.homeSystem === undefined}
+        <p class="referenced-note">
+          The home system is a referenced artifact. Edit it on its own artifact.
+        </p>
+      {:else}
         <div class="input-group input-group--inline">
-          <label for="{uid}-planet-{index}">Planet {index + 1} name</label>
+          <label for="{uid}-system-name">Home system name</label>
           <input
-            id="{uid}-planet-{index}"
+            id="{uid}-system-name"
             type="text"
-            value={planet.name}
+            value={nation.homeSystem.name}
             oninput={(event) =>
-              edit((current) => setStarNationPlanetName(current, index, event.currentTarget.value))}
+              edit((current) => setStarNationHomeSystemName(current, event.currentTarget.value))}
             autocomplete="off"
           />
         </div>
-      {/each}
+
+        <div class="input-group input-group--inline">
+          <label for="{uid}-home-planet">Home planet</label>
+          <select
+            id="{uid}-home-planet"
+            value={String(nation.homePlanetIndex)}
+            onchange={(event) =>
+              edit((current) =>
+                setStarNationHomePlanet(current, Number(event.currentTarget.value)),
+              )}
+          >
+            {#each nation.homeSystem.planets as planet, index (index)}
+              <option value={String(index)}>{index + 1}: {planet.name}</option>
+            {/each}
+          </select>
+        </div>
+
+        <div class="input-group input-group--inline">
+          <label for="{uid}-home-populated">Populated planets in the home system</label>
+          <input
+            id="{uid}-home-populated"
+            type="number"
+            min="0"
+            step="1"
+            value={nation.homeSystemPopulatedPlanets}
+            oninput={(event) => editNumber('homeSystemPopulatedPlanets', event.currentTarget.value)}
+          />
+        </div>
+
+        <!-- Keyed by position rather than by name: two planets may read the same while one is being
+             typed, and a key that changed as the user typed would lose focus on every keystroke. -->
+        {#each nation.homeSystem.planets as planet, index (index)}
+          <div class="input-group input-group--inline">
+            <label for="{uid}-planet-{index}">Planet {index + 1} name</label>
+            <input
+              id="{uid}-planet-{index}"
+              type="text"
+              value={planet.name}
+              oninput={(event) =>
+                edit((current) =>
+                  setStarNationPlanetName(current, index, event.currentTarget.value),
+                )}
+              autocomplete="off"
+            />
+          </div>
+        {/each}
+      {/if}
     </fieldset>
   </div>
 {/if}
@@ -335,5 +345,11 @@
     min-width: 0;
     flex: 1 1 4rem;
     width: 100%;
+  }
+
+  .referenced-note {
+    font: var(--t-small);
+    color: var(--ink-muted);
+    margin: 0;
   }
 </style>

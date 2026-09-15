@@ -14,7 +14,14 @@
 
 import { RNG } from '@ironarachne/rng';
 
-import { generateStarSystem, getDefaultStarSystemGeneratorConfig } from '$lib/astronomical_bodies';
+import {
+  generateStarSystem,
+  getDefaultStarSystemGeneratorConfig,
+  planetBodyFromSnapshot,
+  type PlanetSnapshot,
+  type StarSystem,
+  withReferencedPlanet,
+} from '$lib/astronomical_bodies';
 
 import {
   generateCivilization,
@@ -46,6 +53,21 @@ const SPACEFARING_TECHNOLOGY_LEVEL = 7;
  */
 export type StarNationGeneratorConfigRecord = {
   planetCount?: number;
+};
+
+/**
+ * Saved artifacts the user supplied for the roll to use instead of generating its own.
+ *
+ * Both are optional. When neither is supplied, the roll is the current behavior (everything
+ * generated). When a star system is supplied, it replaces the generated home system. When a
+ * planet is supplied, it is placed into the home system (generated or referenced) and becomes
+ * the homeworld. When both are supplied, the planet is placed into the referenced system.
+ *
+ * docs/star-nation-composition.md has the full composition model.
+ */
+export type StarNationReferencedArtifacts = {
+  starSystem?: StarSystem;
+  planet?: PlanetSnapshot;
 };
 
 /**
@@ -104,10 +126,16 @@ function rollFurtherTerritory(rng: RNG): {
 /**
  * Roll a star nation from a seed and a set of options — the one path the generator page and a
  * re-roll both take.
+ *
+ * The optional `referenced` parameter supplies saved artifacts the user chose to use instead of
+ * generated ones (docs/star-nation-composition.md). When a star system is supplied, it replaces
+ * the generated home system. When a planet is supplied, it is placed into the home system and
+ * becomes the homeworld. When both are supplied, the planet is placed into the referenced system.
  */
 export function rollStarNation(
   seed: string,
   config: StarNationGeneratorConfigRecord = {},
+  referenced: StarNationReferencedArtifacts = {},
 ): StarNation {
   const rng = new RNG(seed);
 
@@ -115,12 +143,28 @@ export function rollStarNation(
   civilizationConfig.technology_level_range = TECHNOLOGY_LEVEL_RANGE;
   const civilization = generateCivilization(civilizationConfig);
 
-  const systemConfig = getDefaultStarSystemGeneratorConfig(rng);
-  if (config.planetCount !== undefined) {
-    systemConfig.planet_count = config.planetCount;
+  const homeSystemIsReferenced = referenced.starSystem !== undefined;
+  let homeSystem: StarSystem;
+  if (referenced.starSystem !== undefined) {
+    homeSystem = referenced.starSystem;
+  } else {
+    const systemConfig = getDefaultStarSystemGeneratorConfig(rng);
+    if (config.planetCount !== undefined) {
+      systemConfig.planet_count = config.planetCount;
+    }
+    homeSystem = generateStarSystem(systemConfig);
   }
-  const homeSystem = generateStarSystem(systemConfig);
-  const homePlanetIndex = rng.int(0, homeSystem.planets.length - 1);
+
+  let homePlanetIndex: number;
+  let homePlanetIsReferenced = false;
+  if (referenced.planet !== undefined) {
+    const body = planetBodyFromSnapshot(referenced.planet);
+    homeSystem = withReferencedPlanet(homeSystem, body);
+    homePlanetIndex = homeSystem.planets.findIndex((p) => p === body);
+    homePlanetIsReferenced = true;
+  } else {
+    homePlanetIndex = rng.int(0, homeSystem.planets.length - 1);
+  }
 
   const systemRegionConfig = regionConfigFor(
     rng,
@@ -160,6 +204,8 @@ export function rollStarNation(
     homeSystemPopulatedPlanets,
     systemsControlled,
     populatedPlanets,
+    homeSystemIsReferenced,
+    homePlanetIsReferenced,
   };
 }
 
@@ -170,8 +216,9 @@ export function rollStarNation(
 export function rollStarNationSnapshot(
   seed: string,
   config: StarNationGeneratorConfigRecord = {},
+  referenced: StarNationReferencedArtifacts = {},
 ): StarNationSnapshot {
-  return toStarNationSnapshot(rollStarNation(seed, config));
+  return toStarNationSnapshot(rollStarNation(seed, config, referenced));
 }
 
 /** The seed the home system's preview is drawn with: the page's seed, and nothing drawn after it. */
