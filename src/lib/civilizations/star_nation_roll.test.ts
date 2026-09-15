@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
 
+import { generateStarSystem, rollPlanet, toPlanetSnapshot } from '$lib/astronomical_bodies';
+import { getDefaultStarSystemGeneratorConfig } from '$lib/astronomical_bodies';
+import { RNG } from '@ironarachne/rng';
+
 import { homePlanetRegionOf, homeSystemRegionOf } from './star_nation';
 import {
   readStarNationGeneratorConfig,
@@ -125,5 +129,99 @@ describe('rollStarNation', () => {
   it('derives the preview seed from the page seed', () => {
     expect(starNationPreviewSeed('abc')).toBe(starNationPreviewSeed('abc'));
     expect(starNationPreviewSeed('abc')).not.toBe(starNationPreviewSeed('abd'));
+  });
+
+  describe('composition with referenced artifacts', () => {
+    function makeReferencedSystem(seed: string) {
+      const rng = new RNG(seed);
+      const config = getDefaultStarSystemGeneratorConfig(rng);
+      config.planet_count = 3;
+      return generateStarSystem(config);
+    }
+
+    function makeReferencedPlanet(seed: string) {
+      return toPlanetSnapshot(rollPlanet(seed));
+    }
+
+    it('uses a referenced star system as the home system when supplied', () => {
+      const referencedSystem = makeReferencedSystem('ref-system');
+      const nation = rollStarNation('nation-seed', {}, { starSystem: referencedSystem });
+
+      expect(nation.homeSystem).toBe(referencedSystem);
+      expect(nation.homeSystemIsReferenced).toBe(true);
+      expect(nation.homePlanetIsReferenced).toBe(false);
+      expect(nation.homePlanetIndex).toBeGreaterThanOrEqual(0);
+      expect(nation.homePlanetIndex).toBeLessThan(referencedSystem.planets.length);
+    });
+
+    it('places a referenced planet into the generated system when only a planet is supplied', () => {
+      const referencedPlanet = makeReferencedPlanet('ref-planet');
+      const nation = rollStarNation('nation-seed', {}, { planet: referencedPlanet });
+
+      expect(nation.homeSystemIsReferenced).toBe(false);
+      expect(nation.homePlanetIsReferenced).toBe(true);
+      const placedBody = nation.homeSystem.planets[nation.homePlanetIndex];
+      expect(placedBody.name).toBe(referencedPlanet.name);
+    });
+
+    it('places a referenced planet into a referenced system when both are supplied', () => {
+      const referencedSystem = makeReferencedSystem('ref-system');
+      const referencedPlanet = makeReferencedPlanet('ref-planet');
+      const nation = rollStarNation(
+        'nation-seed',
+        {},
+        {
+          starSystem: referencedSystem,
+          planet: referencedPlanet,
+        },
+      );
+
+      expect(nation.homeSystemIsReferenced).toBe(true);
+      expect(nation.homePlanetIsReferenced).toBe(true);
+      expect(nation.homeSystem.name).toBe(referencedSystem.name);
+      const placedBody = nation.homeSystem.planets[nation.homePlanetIndex];
+      expect(placedBody.name).toBe(referencedPlanet.name);
+    });
+
+    it('generates both when no references are supplied', () => {
+      const nation = rollStarNation('nation-seed');
+
+      expect(nation.homeSystemIsReferenced).toBe(false);
+      expect(nation.homePlanetIsReferenced).toBe(false);
+    });
+
+    it('ignores planetCount config when a system is referenced', () => {
+      const referencedSystem = makeReferencedSystem('ref-system');
+      const originalPlanetCount = referencedSystem.planets.length;
+      const nation = rollStarNation(
+        'nation-seed',
+        { planetCount: 7 },
+        { starSystem: referencedSystem },
+      );
+
+      expect(nation.homeSystem.planets.length).toBe(originalPlanetCount);
+    });
+
+    it('names the planet region after the referenced planet when one is supplied', () => {
+      const referencedPlanet = makeReferencedPlanet('ref-planet');
+      const nation = rollStarNation('nation-seed', {}, { planet: referencedPlanet });
+      const planetRegion = homePlanetRegionOf(nation);
+
+      expect(planetRegion?.name).toBe(referencedPlanet.name);
+    });
+
+    it('produces a snapshot that excludes the referenced system', () => {
+      const referencedSystem = makeReferencedSystem('ref-system');
+      const snapshot = rollStarNationSnapshot('nation-seed', {}, { starSystem: referencedSystem });
+
+      expect(snapshot.homeSystem).toBeUndefined();
+    });
+
+    it('produces a snapshot that includes the system when only a planet is referenced', () => {
+      const referencedPlanet = makeReferencedPlanet('ref-planet');
+      const snapshot = rollStarNationSnapshot('nation-seed', {}, { planet: referencedPlanet });
+
+      expect(snapshot.homeSystem).toBeDefined();
+    });
   });
 });

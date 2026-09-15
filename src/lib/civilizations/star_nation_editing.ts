@@ -140,12 +140,16 @@ export function setStarNationEconomyType(
 
 /**
  * Picks a different homeworld from the home system's planets, and renames the planet region to
- * match. An index outside the system changes nothing.
+ * match. An index outside the system changes nothing. A referenced system (homeSystem undefined)
+ * changes nothing — the homeworld is a reference, not an editable planet in the payload.
  */
 export function setStarNationHomePlanet(
   snapshot: StarNationSnapshot,
   index: number,
 ): StarNationSnapshot {
+  if (snapshot.homeSystem === undefined) {
+    return snapshot;
+  }
   const planet = snapshot.homeSystem.planets[index];
   if (!Number.isInteger(index) || planet === undefined) {
     return snapshot;
@@ -161,11 +165,17 @@ export function setStarNationHomePlanet(
   };
 }
 
-/** Renames the home system, and the region that stands for it. */
+/**
+ * Renames the home system, and the region that stands for it. A referenced system (homeSystem
+ * undefined) changes nothing — the system name lives on the referenced artifact.
+ */
 export function setStarNationHomeSystemName(
   snapshot: StarNationSnapshot,
   name: string,
 ): StarNationSnapshot {
+  if (snapshot.homeSystem === undefined) {
+    return snapshot;
+  }
   return {
     ...snapshot,
     homeSystem: { ...snapshot.homeSystem, name },
@@ -177,13 +187,16 @@ export function setStarNationHomeSystemName(
   };
 }
 
-/** Renames one of the home system's planets. Renaming the homeworld renames its region with it. */
+/**
+ * Renames one of the home system's planets. Renaming the homeworld renames its region with it.
+ * A referenced system (homeSystem undefined) changes nothing — the planets are not in the payload.
+ */
 export function setStarNationPlanetName(
   snapshot: StarNationSnapshot,
   index: number,
   name: string,
 ): StarNationSnapshot {
-  if (snapshot.homeSystem.planets[index] === undefined) {
+  if (snapshot.homeSystem === undefined || snapshot.homeSystem.planets[index] === undefined) {
     return snapshot;
   }
   const planets = snapshot.homeSystem.planets.map((planet, position) =>

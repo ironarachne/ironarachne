@@ -6,7 +6,10 @@
   import { browser } from '$app/environment';
   import { onMount } from 'svelte';
   import * as Nations from '$lib/civilizations';
-  import type { StarNation } from '$lib/civilizations';
+  import type { StarNation, StarNationReferencedArtifacts } from '$lib/civilizations';
+  import * as Bodies from '$lib/astronomical_bodies';
+  import type { PlanetSnapshot, StarSystem } from '$lib/astronomical_bodies';
+  import type { ArtifactReference } from '$lib/artifacts';
   import { downloadTextFile } from '$lib/download';
   import { downloadTextPdf } from '$lib/pdf';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
@@ -15,6 +18,7 @@
   import SelectField from '$components/common/SelectField.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
+  import SavedArtifactPicker from '$components/common/SavedArtifactPicker.svelte';
 
   const TOOL_PATH = '/star-nation';
 
@@ -40,6 +44,16 @@
 
   let planetCountControl: string = $state('random');
 
+  /** The saved star system to use as the home system, when the user has offered one (5.1). */
+  let useReferencedStarSystem = $state(false);
+  let referencedStarSystem = $state<StarSystem | undefined>(undefined);
+  let starSystemReference = $state<ArtifactReference | undefined>(undefined);
+
+  /** The saved planet to use as the homeworld, when the user has offered one (5.1). */
+  let useReferencedPlanet = $state(false);
+  let referencedPlanet = $state<PlanetSnapshot | undefined>(undefined);
+  let planetReference = $state<ArtifactReference | undefined>(undefined);
+
   let homeSystemCompositeSrc = $state('');
 
   const imageWidth = 64;
@@ -58,9 +72,22 @@
     planetCountControl === 'random' ? {} : { planetCount: parseInt(planetCountControl, 10) },
   );
 
+  /**
+   * What is stored.
+   *
+   * A referenced system or planet is **not** in it. The link lives on the artifact's reference
+   * list, per rule 2 of docs/workshop.md: a nation holding its own copy of a system or planet
+   * somebody later edits would show the stale one forever.
+   */
   const nationSnapshot = $derived(nation === null ? null : Nations.toStarNationSnapshot(nation));
   const defaultArtifactName = $derived(
     nation === null ? '' : Nations.starNationDisplayName(nation),
+  );
+
+  const references = $derived(
+    [starSystemReference, planetReference].filter(
+      (ref): ref is ArtifactReference => ref !== undefined,
+    ),
   );
 
   const homePlanet = $derived(nation === null ? undefined : Nations.homePlanetOf(nation));
@@ -92,7 +119,14 @@
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
-    nation = Nations.rollStarNation(seed, generatorConfig);
+    const referenced: StarNationReferencedArtifacts = {};
+    if (useReferencedStarSystem && referencedStarSystem !== undefined) {
+      referenced.starSystem = referencedStarSystem;
+    }
+    if (useReferencedPlanet && referencedPlanet !== undefined) {
+      referenced.planet = referencedPlanet;
+    }
+    nation = Nations.rollStarNation(seed, generatorConfig, referenced);
     refreshHomeSystemComposite();
   }
 
@@ -142,6 +176,26 @@
     options={planetCountOptions}
   />
 
+  <SavedArtifactPicker
+    kind={Bodies.STAR_SYSTEM_ARTIFACT_KIND}
+    role="star-system"
+    checkboxLabel="Use a saved star system as the home system"
+    selectLabel="Star System"
+    bind:enabled={useReferencedStarSystem}
+    bind:value={referencedStarSystem}
+    bind:reference={starSystemReference}
+  />
+
+  <SavedArtifactPicker
+    kind={Bodies.PLANET_ARTIFACT_KIND}
+    role="planet"
+    checkboxLabel="Use a saved planet as the homeworld"
+    selectLabel="Planet"
+    bind:enabled={useReferencedPlanet}
+    bind:value={referencedPlanet}
+    bind:reference={planetReference}
+  />
+
   <BaseButton onclick={generate}>Generate</BaseButton>
 
   <SaveArtifactButton
@@ -151,7 +205,23 @@
     {seed}
     config={generatorConfig}
     defaultName={defaultArtifactName}
+    {references}
   />
+
+  {#if useReferencedStarSystem || useReferencedPlanet}
+    <p class="referenced-note">
+      {#if useReferencedStarSystem && useReferencedPlanet}
+        This nation uses a saved star system and a saved planet. They are linked rather than copied,
+        so the saved nation holds a reference to each.
+      {:else if useReferencedStarSystem}
+        This nation uses a saved star system. It is linked rather than copied, so the saved nation
+        holds a reference to it.
+      {:else}
+        This nation uses a saved planet. It is linked rather than copied, so the saved nation holds
+        a reference to it.
+      {/if}
+    </p>
+  {/if}
 
   {#if nation}
     <div class="nation-exports">
@@ -216,5 +286,11 @@
     display: flex;
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .referenced-note {
+    font: var(--t-small);
+    color: var(--ink-muted);
+    margin: var(--s3) 0 0;
   }
 </style>

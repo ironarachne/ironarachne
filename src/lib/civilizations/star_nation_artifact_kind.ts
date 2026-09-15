@@ -28,8 +28,11 @@ import type { StarNation } from './star_nation_types';
  */
 export const STAR_NATION_ARTIFACT_KIND = 'star-nation' as const;
 
-/** Version 1. The first shape a star nation has been stored in. */
-export const STAR_NATION_PAYLOAD_VERSION = 1 as const;
+/**
+ * Version 2. Version 1 always had `homeSystem` defined; version 2 allows it to be `undefined`
+ * when the system was supplied as a reference (docs/star-nation-composition.md).
+ */
+export const STAR_NATION_PAYLOAD_VERSION = 2 as const;
 
 /** Every numeric field of an `AstronomicalBody`, which is what the preview renderer reads. */
 const BODY_NUMBER_FIELDS = [
@@ -192,41 +195,58 @@ export function validateStarNationSnapshot(payload: unknown): PayloadResult<Star
       'Star nation payload needs a list of regions of control, each with a region type and a population',
     );
   }
-  if (!isStoredStarSystem(record.homeSystem)) {
+  const homeSystemIsUndefined = record.homeSystem === undefined || record.homeSystem === null;
+  if (!homeSystemIsUndefined && !isStoredStarSystem(record.homeSystem)) {
     return rejectedPayload(
       'invalid-payload',
       'Star nation payload needs a home system whose stars and planets each carry every parameter the preview draws from',
     );
   }
-  const planets = (record.homeSystem as { planets: unknown[] }).planets;
-  if (
-    !Number.isInteger(record.homePlanetIndex) ||
-    (record.homePlanetIndex as number) < 0 ||
-    (record.homePlanetIndex as number) >= planets.length
-  ) {
-    return rejectedPayload(
-      'invalid-payload',
-      'Star nation payload needs a home planet that is one of the home system’s planets',
-    );
+  if (!homeSystemIsUndefined) {
+    const planets = (record.homeSystem as { planets: unknown[] }).planets;
+    if (
+      !Number.isInteger(record.homePlanetIndex) ||
+      (record.homePlanetIndex as number) < 0 ||
+      (record.homePlanetIndex as number) >= planets.length
+    ) {
+      return rejectedPayload(
+        'invalid-payload',
+        "Star nation payload needs a home planet that is one of the home system's planets",
+      );
+    }
+  } else {
+    if (!Number.isInteger(record.homePlanetIndex) || (record.homePlanetIndex as number) < 0) {
+      return rejectedPayload(
+        'invalid-payload',
+        'Star nation payload needs a non-negative home planet index',
+      );
+    }
   }
 
   return acceptedPayload(record as unknown as StarNationSnapshot);
 }
 
 /**
- * There has only ever been version 1, so this rejects rather than pretending otherwise.
+ * Migrate a star nation snapshot from an older payload version.
  *
- * It is here because the contract requires it, and it is where the first real step goes the day
- * the shape changes. #11 proposes adding setting flavour to a civilization; when it lands, the
- * step from 1 to 2 belongs here and is additive.
+ * Version 1 → 2: no field changes. A v1 snapshot always has `homeSystem` defined; it is already
+ * valid as a v2 snapshot with no references. The version bump records that the codec now tolerates
+ * `homeSystem: undefined` (docs/star-nation-composition.md).
  */
 export function migrateStarNationSnapshot(
-  _payload: unknown,
+  payload: unknown,
   from: number,
 ): PayloadResult<StarNationSnapshot> {
+  if (from === 1) {
+    const record = asRecord(payload);
+    if (record === null) {
+      return rejectedPayload('invalid-payload', 'Star nation v1 payload is not an object');
+    }
+    return acceptedPayload(record as unknown as StarNationSnapshot);
+  }
   return rejectedPayload(
     'unsupported-version',
-    `Star nations have no migration from payload version ${from}; version ${STAR_NATION_PAYLOAD_VERSION} is the only shape there has been`,
+    `Star nations have no migration from payload version ${from}; version ${STAR_NATION_PAYLOAD_VERSION} is the current shape`,
   );
 }
 

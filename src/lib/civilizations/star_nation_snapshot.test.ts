@@ -45,15 +45,15 @@ describe('the star nation snapshot', () => {
 
   it('does not hand out the objects it was given', () => {
     const snapshot = toStarNationSnapshot(nation);
-    snapshot.homeSystem.planets[0].name = 'Something else entirely';
+    snapshot.homeSystem!.planets[0].name = 'Something else entirely';
     snapshot.regionsOfControl[0].population = 1;
     snapshot.governmentType.name_options.push('{name} Hegemony');
-    snapshot.homeSystem.planets.pop();
+    snapshot.homeSystem!.planets.pop();
 
     expect(nation.homeSystem.planets[0].name).not.toBe('Something else entirely');
     expect(nation.regionsOfControl[0].population).not.toBe(1);
     expect(nation.civilization.government_type.name_options).not.toContain('{name} Hegemony');
-    expect(nation.homeSystem.planets.length).toBe(snapshot.homeSystem.planets.length + 1);
+    expect(nation.homeSystem.planets.length).toBe(snapshot.homeSystem!.planets.length + 1);
   });
 
   it('does not hand a restored value the snapshot’s own objects', () => {
@@ -62,7 +62,7 @@ describe('the star nation snapshot', () => {
     restored.homeSystem.stars[0].name = 'Sol';
     restored.regionsOfControl[1].region_type.name = 'Moon';
 
-    expect(snapshot.homeSystem.stars[0].name).not.toBe('Sol');
+    expect(snapshot.homeSystem!.stars[0].name).not.toBe('Sol');
     expect(snapshot.regionsOfControl[1].region_type.name).not.toBe('Moon');
   });
 });
