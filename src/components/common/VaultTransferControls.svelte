@@ -13,6 +13,8 @@
     buildVaultExportFile,
     describeImportSummary,
     importExportFile,
+    importBinaryExportFile,
+    isBinaryExportBytes,
     inspectExportFile,
     readExportFileText,
     type ImportMode,
@@ -137,18 +139,22 @@
 
     // The file is read before anything is asked, so every question below can be about what is
     // actually in it rather than about what the button was labelled.
-    let text: string;
-    try {
-      text = await readExportFileText(new Uint8Array(await file.arrayBuffer()));
-    } catch {
-      error = `“${file.name}” could not be read. Nothing was changed.`;
-      return;
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    const binary = isBinaryExportBytes(bytes);
+    let text = '';
+    if (!binary) {
+      try {
+        text = await readExportFileText(bytes);
+      } catch {
+        error = `“${file.name}” could not be read. Nothing was changed.`;
+        return;
+      }
     }
 
     if (mode === 'restore' && !(await confirmRestore())) {
       return;
     }
-    if (!(await confirmOwnBackup(text))) {
+    if (text !== '' && !(await confirmOwnBackup(text))) {
       return;
     }
     if (!(await confirmOtherTabs())) {
@@ -158,14 +164,20 @@
     busy = true;
     controller = new AbortController();
     try {
-      const result = await importExportFile(ARTIFACT_KINDS, text, {
-        mode,
-        ...(projectId === undefined ? {} : { targetProjectId: projectId }),
-        onProgress: (next) => (progress = next),
-        signal: controller.signal,
-        // The pre-restore export is the undo, so a restore does not run unless it was saved.
-        onBackup: (backup) => saveFile(backup),
-      });
+      const result = binary
+        ? await importBinaryExportFile(ARTIFACT_KINDS, bytes, {
+            mode,
+            signal: controller.signal,
+            onBackup: (backup) => saveFile(backup),
+          })
+        : await importExportFile(ARTIFACT_KINDS, text, {
+            mode,
+            ...(projectId === undefined ? {} : { targetProjectId: projectId }),
+            onProgress: (next) => (progress = next),
+            signal: controller.signal,
+            // The pre-restore export is the undo, so a restore does not run unless it was saved.
+            onBackup: (backup) => saveFile(backup),
+          });
       if (!result.ok) {
         error = result.message;
         return;
@@ -239,7 +251,7 @@
     <input
       bind:this={importInput}
       type="file"
-      accept="application/json,.json,.gz"
+      accept="application/json,.json,.zip,.gz"
       style="display: none"
       onchange={handleFileChange}
     />

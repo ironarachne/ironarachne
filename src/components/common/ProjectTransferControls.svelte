@@ -2,9 +2,11 @@
   import Download from '$lib/download';
   import { recordProjectExport, requestPersistenceIfWarranted } from '$lib/storage_status';
   import {
-    buildProjectExportFile,
+    buildProjectBinaryExportFile,
     describeImportSummary,
     importExportFile,
+    importBinaryExportFile,
+    isBinaryExportBytes,
     type ImportSummary,
   } from '$lib/vault_file';
   import { ARTIFACT_KINDS } from '$lib/workshop';
@@ -46,12 +48,15 @@
     busy = true;
     reset();
     try {
-      const built = await buildProjectExportFile(projectId);
+      const built = await buildProjectBinaryExportFile(projectId);
       if (!built.ok) {
         error = `That could not be exported (${built.reason}). Nothing was changed.`;
         return;
       }
-      const url = URL.createObjectURL(new Blob([built.value.text], { type: 'application/json' }));
+      const bytes = built.value.bytes.slice();
+      const url = URL.createObjectURL(
+        new Blob([bytes.buffer as ArrayBuffer], { type: 'application/zip' }),
+      );
       Download(url, built.value.fileName);
       URL.revokeObjectURL(url);
       // The stamp's own result is deliberately dropped: the file is already saved, and telling
@@ -88,9 +93,14 @@
     busy = true;
     reset();
     try {
-      const result = await importExportFile(ARTIFACT_KINDS, await file.text(), {
-        ...(projectId === undefined ? {} : { targetProjectId: projectId }),
-      });
+      const bytes = new Uint8Array(await file.arrayBuffer());
+      const result = isBinaryExportBytes(bytes)
+        ? await importBinaryExportFile(ARTIFACT_KINDS, bytes, {
+            ...(projectId === undefined ? {} : { targetProjectId: projectId }),
+          })
+        : await importExportFile(ARTIFACT_KINDS, new TextDecoder().decode(bytes), {
+            ...(projectId === undefined ? {} : { targetProjectId: projectId }),
+          });
       if (!result.ok) {
         error = result.message;
         return;

@@ -1,11 +1,15 @@
 import {
   readArtifact,
+  readArtifactAssets,
+  artifactSourceFingerprint,
+  isArtifactAssetCurrent,
   updateArtifact,
   updateArtifactPayload,
   type ArtifactSummary,
 } from '$lib/artifacts';
 
 import { artifactEditorEntry, ARTIFACT_EDITORS } from './artifact_editors';
+import { artifactPreviewRenderer } from './artifact_visuals';
 import { ARTIFACT_KINDS } from './artifact_kind_catalog';
 import type {
   ArtifactEditingTarget,
@@ -46,8 +50,45 @@ export async function openArtifactForEditing(
     loadRoller: entry?.loadRoller,
     loadViewer: entry?.loadViewer,
   };
+  const assets = read.ok ? await readArtifactAssets(id) : undefined;
+  const validAssets =
+    read.ok && assets?.ok
+      ? {
+          ok: true as const,
+          value: assets.value.filter((asset) => asset.metadata.role === 'primary-preview'),
+        }
+      : assets;
+  if (read.ok && validAssets?.ok) {
+    const renderer = artifactPreviewRenderer(summary.kind);
+    const checked = [];
+    for (const asset of validAssets.value) {
+      if (renderer === undefined) {
+        continue;
+      }
+      const fingerprint = await artifactSourceFingerprint(
+        read.artifact.payload,
+        renderer.rendererId,
+        renderer.rendererVersion,
+      );
+      if (
+        isArtifactAssetCurrent(
+          asset.metadata,
+          fingerprint,
+          renderer.rendererId,
+          renderer.rendererVersion,
+        )
+      ) {
+        checked.push(asset);
+      }
+    }
+    validAssets.value = checked;
+  }
   return read.ok
-    ? { ...editing, snapshot: read.artifact.payload }
+    ? {
+        ...editing,
+        snapshot: read.artifact.payload,
+        assets: validAssets?.ok ? validAssets.value : [],
+      }
     : { ...editing, problem: { reason: read.reason, message: read.message } };
 }
 

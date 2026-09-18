@@ -6,6 +6,7 @@ import {
 import {
   hydrateArtifacts,
   listArtifacts,
+  newArtifactAssetId,
   newArtifactId,
   notifyArtifactsChanged,
   resetArtifactIndex,
@@ -34,6 +35,8 @@ import {
   readVaultId,
   VAULT_META_KEYS,
   writeVaultContents,
+  type VaultArtifactAssetBlobRecord,
+  type VaultArtifactAssetRecord,
   type VaultContents,
   type VaultMetaRecord,
 } from '$lib/vault_db';
@@ -91,6 +94,15 @@ export type ImportExportFileOptions = {
   newQuarantineId?: () => string;
   /** Skips the advisory capacity check. The transaction is the guarantee either way. */
   skipCapacityCheck?: boolean;
+  /** Binary assets validated by the ZIP reader, staged with the artifact transaction. */
+  assetInputs?: ImportedAsset[];
+  /** Binary assets that could not be restored, reported after the payload import. */
+  assetIssues?: string[];
+};
+
+export type ImportedAsset = {
+  metadata: VaultArtifactAssetRecord;
+  blob: Blob;
 };
 
 /** What a file turns out to be, without writing any of it. */
@@ -186,7 +198,15 @@ type Staging = {
 };
 
 function emptyContents(): VaultContents {
-  return { projects: [], artifacts: [], payloads: [], workspaces: [], quarantine: [] };
+  return {
+    projects: [],
+    artifacts: [],
+    payloads: [],
+    assets: [],
+    assetBlobs: [],
+    workspaces: [],
+    quarantine: [],
+  };
 }
 
 /**
@@ -242,6 +262,9 @@ export async function importExportFile(
       fromThisVault: await isFromThisVault(envelope.vaultId),
       checksum: parsed.checksum,
       formatMigrated: parsed.formatMigrated,
+      ...(options.assetIssues === undefined || options.assetIssues.length === 0
+        ? {}
+        : { assetIssues: [...options.assetIssues] }),
     },
     contents: emptyContents(),
     idMap: new Map(),
@@ -265,6 +288,7 @@ export async function importExportFile(
   if (staged !== undefined) {
     return staged;
   }
+  stageAssets(staging, options.assetInputs ?? []);
   return commit(staging, mode === 'restore', options);
 }
 
@@ -413,6 +437,31 @@ function stageArtifact(
 function rewriteStagedReferences(staging: Staging): void {
   for (const summary of staging.contents.artifacts as ArtifactSummary[]) {
     summary.references = rewriteReferences(summary.references, staging.idMap);
+  }
+}
+
+function stageAssets(staging: Staging, inputs: ImportedAsset[]): void {
+  const artifactIds = new Set(staging.contents.artifacts.map((artifact) => artifact.id));
+  for (const input of inputs) {
+    const artifactId = staging.idMap.get(input.metadata.artifactId) ?? input.metadata.artifactId;
+    if (!artifactIds.has(artifactId)) {
+      staging.summary.assetIssues ??= [];
+      staging.summary.assetIssues.push(
+        `Preview ${input.metadata.id} belonged to an artifact that was not imported.`,
+      );
+      continue;
+    }
+    const id = staging.summary.mode === 'restore' ? input.metadata.id : newArtifactAssetId();
+    const metadata: VaultArtifactAssetRecord = {
+      ...input.metadata,
+      id,
+      artifactId,
+      byteSize: input.blob.size,
+    };
+    const blob: VaultArtifactAssetBlobRecord = { assetId: id, blob: input.blob };
+    staging.contents.assets?.push(metadata);
+    staging.contents.assetBlobs?.push(blob);
+    staging.bytes += input.blob.size;
   }
 }
 

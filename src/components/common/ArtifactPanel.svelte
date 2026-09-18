@@ -3,11 +3,11 @@
 
   import { beforeNavigate } from '$app/navigation';
 
-  import { onArtifactsChanged } from '$lib/artifacts';
+  import { onArtifactsChanged, writeArtifactAsset } from '$lib/artifacts';
   import { downloadTextFile } from '$lib/download';
   import { showConfirmModal, showStorageFailureModal } from '$lib/ui';
   import { buildUnsavedArtifactExportFile, buildVaultExportFile } from '$lib/vault_file';
-  import { ARTIFACT_KINDS } from '$lib/workshop';
+  import { ARTIFACT_KINDS, hasArtifactPreviewProvider, renderArtifactPreview } from '$lib/workshop';
   import {
     artifactKindEntry,
     artifactRerollAvailability,
@@ -51,6 +51,7 @@
   let status: string | null = $state(null);
   /** Set when another panel changed this artifact while there were edits here to protect. */
   let changedElsewhere = $state(false);
+  let previewUrl = $state<string | null>(null);
 
   const summary = $derived(target?.summary);
   const kindName = $derived(
@@ -63,6 +64,47 @@
   const reroll = $derived(
     target === undefined ? 'unsupported' : artifactRerollAvailability(target),
   );
+
+  function clearPreview(): void {
+    if (previewUrl !== null) {
+      URL.revokeObjectURL(previewUrl);
+      previewUrl = null;
+    }
+  }
+
+  function sameSnapshotForPreview(left: unknown, right: unknown): boolean {
+    return JSON.stringify(left) === JSON.stringify(right);
+  }
+
+  async function repairPreview(opened: ArtifactEditingTarget): Promise<void> {
+    if (
+      opened.snapshot === undefined ||
+      !hasArtifactPreviewProvider(opened.summary.kind) ||
+      previewUrl !== null
+    ) {
+      return;
+    }
+    status = 'Regenerating preview…';
+    try {
+      const asset = await renderArtifactPreview(opened.summary.kind, opened.snapshot, {
+        document,
+        seed: opened.summary.provenance?.seed,
+      });
+      if (
+        asset === undefined ||
+        target?.summary.id !== opened.summary.id ||
+        dirty ||
+        editorSnapshot !== opened.snapshot
+      ) {
+        return;
+      }
+      const written = await writeArtifactAsset(opened.summary.id, asset);
+      previewUrl = URL.createObjectURL(asset.blob);
+      status = written.ok ? 'Preview saved.' : 'Preview regenerated but could not be saved.';
+    } catch {
+      status = 'Preview could not be regenerated. The stored contents remain available.';
+    }
+  }
 
   /**
    * Read the artifact and adopt what is stored.
@@ -79,13 +121,21 @@
     }
     gone = false;
     target = opened;
+    clearPreview();
+    const preview = opened.assets?.find((asset) => asset.metadata.role === 'primary-preview');
+    previewUrl = preview === undefined ? null : URL.createObjectURL(preview.blob);
     name = opened.summary.name;
     draft = undefined;
     revision += 1;
     changedElsewhere = false;
     status = opened.migrated
       ? 'These contents were written by an older version and were brought forward on the way out. Saving stores them at the current version.'
-      : null;
+      : preview === undefined && hasArtifactPreviewProvider(opened.summary.kind)
+        ? 'No saved preview is available. This artifact can still be edited and saved.'
+        : null;
+    if (preview === undefined) {
+      void repairPreview(opened);
+    }
   }
 
   onMount(() => {
@@ -118,6 +168,7 @@
       stopTracking();
       stopListening();
       window.removeEventListener('beforeunload', warnOnUnload);
+      clearPreview();
     };
   });
 
@@ -136,6 +187,12 @@
   function editorChanged(snapshot: unknown) {
     draft = snapshot;
     status = null;
+    if (target !== undefined && !sameSnapshotForPreview(snapshot, target.snapshot)) {
+      clearPreview();
+      if (hasArtifactPreviewProvider(target.summary.kind)) {
+        status = 'Preview will be regenerated when you save.';
+      }
+    }
   }
 
   async function save() {
@@ -146,6 +203,7 @@
     saving = true;
     error = null;
     try {
+      const payloadChanged = draft !== undefined;
       // `$state.snapshot` because what an editor handed back is held in reactive state, and
       // reactive state is a proxy: IndexedDB structure-clones what it stores, and a proxy is not
       // something the structured clone algorithm will take.
@@ -164,15 +222,22 @@
         error = `That could not be saved (${result.reason}). ${result.message}`;
         return;
       }
-      target = {
-        ...current,
-        summary: result.summary,
-        snapshot: result.snapshot ?? current.snapshot,
-      };
-      name = result.summary.name;
-      draft = undefined;
-      changedElsewhere = false;
-      status = 'Saved.';
+      if (payloadChanged) {
+        await load();
+        if (!hasArtifactPreviewProvider(current.summary.kind)) {
+          status = 'Saved.';
+        }
+      } else {
+        target = {
+          ...current,
+          summary: result.summary,
+          snapshot: result.snapshot ?? current.snapshot,
+        };
+        name = result.summary.name;
+        draft = undefined;
+        changedElsewhere = false;
+        status = 'Saved.';
+      }
     } finally {
       saving = false;
     }
@@ -311,6 +376,17 @@
     <!-- Below the metadata and above the contents, because a link that has gone missing is
          something the user has to see on the way past rather than something to go looking for. -->
     <ArtifactReferences {projectId} {summary} />
+
+    {#if previewUrl !== null}
+      <figure class="artifact-panel__preview">
+        <img src={previewUrl} alt="Saved preview of {summary.name}" />
+        <figcaption>Saved preview</figcaption>
+      </figure>
+    {:else if hasArtifactPreviewProvider(summary.kind)}
+      <p class="artifact-panel__status">
+        Preview unavailable; the stored contents remain authoritative.
+      </p>
+    {/if}
 
     {#if target?.problem !== undefined}
       <!-- A payload this build cannot read is still an artifact the user can name and export, so
@@ -454,6 +530,21 @@
   .artifact-panel__contents summary {
     cursor: pointer;
     color: var(--accent-quiet);
+  }
+
+  .artifact-panel__preview {
+    margin: 0;
+  }
+
+  .artifact-panel__preview img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+
+  .artifact-panel__preview figcaption {
+    font: var(--t-micro);
+    color: var(--ink-muted);
   }
 
   .artifact-panel__status,

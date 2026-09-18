@@ -6,6 +6,8 @@ export type VaultStoreName =
   | 'projects'
   | 'artifacts'
   | 'artifact_payloads'
+  | 'artifact_assets'
+  | 'artifact_asset_blobs'
   | 'workspaces'
   | 'quarantine'
   | 'meta';
@@ -63,6 +65,22 @@ export type VaultArtifactRecord = { id: string; projectId: string };
 /** A record in the `artifact_payloads` store: one payload, loaded only when an artifact is opened. */
 export type VaultArtifactPayloadRecord = { artifactId: string; payload: unknown };
 
+export type VaultArtifactAssetRecord = {
+  id: string;
+  artifactId: string;
+  role: string;
+  mediaType: string;
+  byteSize: number;
+  width?: number;
+  height?: number;
+  sourceFingerprint: string;
+  rendererId: string;
+  rendererVersion: string;
+  createdAt: number;
+};
+
+export type VaultArtifactAssetBlobRecord = { assetId: string; blob: Blob };
+
 /** A record in the `workspaces` store: one project's bench. Not user work; see decision 3. */
 export type VaultWorkspaceRecord = { projectId: string; value: unknown };
 
@@ -83,6 +101,8 @@ export type VaultContents = {
   projects: VaultProjectRecord[];
   artifacts: VaultArtifactRecord[];
   payloads: VaultArtifactPayloadRecord[];
+  assets?: VaultArtifactAssetRecord[];
+  assetBlobs?: VaultArtifactAssetBlobRecord[];
   workspaces: VaultWorkspaceRecord[];
   quarantine: VaultQuarantineRecord[];
 };

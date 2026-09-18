@@ -15,6 +15,7 @@
   import Stat from '$components/common/Stat.svelte';
   import StatBlock from '$components/common/StatBlock.svelte';
   import type { ArtifactReference } from '$lib/artifacts';
+  import { textToDataUrl } from '$lib/artifacts';
   import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
   import { downloadTextFile } from '$lib/download';
   import {
@@ -84,6 +85,10 @@
   );
 
   const document_ = $derived(merchant === null ? null : merchantToDocument(merchant));
+  function currentMarkSvg(value: MerchantSnapshot | null): string {
+    return value === null || value.mark === null ? '' : renderMerchantMarkSvg(value.mark, 120, 120);
+  }
+  const markSvg = $derived(currentMarkSvg(merchant));
 
   function configRecord(): MerchantGeneratorConfigRecord {
     return {
@@ -275,6 +280,12 @@
     config={{ ...rolledConfig }}
     defaultName={merchant?.shop.name ?? ''}
     {references}
+    previewSrc={markSvg === '' ? '' : textToDataUrl(markSvg, 'image/svg+xml')}
+    previewMediaType="image/svg+xml"
+    previewWidth={120}
+    previewHeight={120}
+    previewRendererId="merchant-mark"
+    previewRendererVersion="1"
   />
 
   <div class="actions">

@@ -186,6 +186,11 @@
     {seed}
     config={generatorConfig}
     defaultName={defaultArtifactName}
+    {previewSrc}
+    previewWidth={PREVIEW_WIDTH}
+    previewHeight={PREVIEW_HEIGHT}
+    previewRendererId="planet-preview"
+    previewRendererVersion="1"
   />
 
   {#if document_}

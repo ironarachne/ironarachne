@@ -241,6 +241,10 @@
     config={generatorConfig}
     defaultName={defaultArtifactName}
     {references}
+    previewSrc={mapSrc}
+    previewMediaType="image/svg+xml"
+    previewRendererId="region-map"
+    previewRendererVersion="1"
   />
 
   {#if region}

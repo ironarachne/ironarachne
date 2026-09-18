@@ -198,6 +198,8 @@ export type ImportSummary = {
   fromThisVault: boolean;
   checksum: ChecksumState;
   formatMigrated: boolean;
+  /** Binary assets that could not be restored; the canonical artifact payload was kept. */
+  assetIssues?: string[];
   /**
    * The automatic pre-restore export. That download **is** the undo, and it costs nothing to
    * produce in an application where the whole vault is already in memory. Absent for a merge,
@@ -298,6 +300,8 @@ export type VaultExportResult = {
   fileName?: string;
   /** The file's contents, carried only when the download was `blocked` and must be offered by hand. */
   text?: string;
+  /** Binary ZIP contents when the vault contains persisted assets. */
+  bytes?: Uint8Array;
   /** What could not be exported cleanly, said rather than thrown. Never absent, often empty. */
   issues: string[];
   /** Why the file could not be built, present only on `failed`. */

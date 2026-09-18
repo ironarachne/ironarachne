@@ -114,6 +114,7 @@ export type ArtifactDraft = {
   tags?: string[];
   references?: ArtifactReference[];
   provenance?: ArtifactProvenance;
+  assets?: import('./artifact_assets').ArtifactAssetDraft[];
 };
 
 /**

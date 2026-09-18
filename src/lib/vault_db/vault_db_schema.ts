@@ -12,15 +12,17 @@ export const VAULT_DATABASE_NAME = 'ironarachne.vault' as const;
  * has one version and one upgrade transaction, so a record no longer has to describe its own
  * schema (docs/workshop.md, "The storage layer").
  */
-export const VAULT_SCHEMA_VERSION = 2;
+export const VAULT_SCHEMA_VERSION = 3;
 
 /** The index on the `artifacts` store that replaces the per-project summary array. */
 export const ARTIFACTS_BY_PROJECT_INDEX = 'by_projectId' as const;
+export const ASSETS_BY_ARTIFACT_INDEX = 'by_artifactId' as const;
+export const ASSETS_BY_ARTIFACT_ROLE_INDEX = 'by_artifactId_role' as const;
 
 type StoreDefinition = {
   name: VaultStoreName;
   keyPath: string;
-  indexes?: { name: string; keyPath: string }[];
+  indexes?: { name: string; keyPath: string | string[] }[];
 };
 
 /**
@@ -40,6 +42,15 @@ export const VAULT_STORES: StoreDefinition[] = [
     indexes: [{ name: ARTIFACTS_BY_PROJECT_INDEX, keyPath: 'projectId' }],
   },
   { name: 'artifact_payloads', keyPath: 'artifactId' },
+  {
+    name: 'artifact_assets',
+    keyPath: 'id',
+    indexes: [
+      { name: ASSETS_BY_ARTIFACT_INDEX, keyPath: 'artifactId' },
+      { name: ASSETS_BY_ARTIFACT_ROLE_INDEX, keyPath: ['artifactId', 'role'] },
+    ],
+  },
+  { name: 'artifact_asset_blobs', keyPath: 'assetId' },
   { name: 'workspaces', keyPath: 'projectId' },
   { name: 'quarantine', keyPath: 'recordId' },
   { name: 'meta', keyPath: 'key' },

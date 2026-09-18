@@ -90,6 +90,10 @@ export function describeImportSummary(summary: ImportSummary): string[] {
     );
   }
 
+  for (const issue of summary.assetIssues ?? []) {
+    lines.push(`A saved preview was not restored: ${issue}`);
+  }
+
   // Named for what actually collided, because "something here" is not a thing a user can go and
   // look at. Names were never unique, so this reports rather than resolves: renaming one is
   // theirs to do, and doing it for them would rewrite something they wrote.

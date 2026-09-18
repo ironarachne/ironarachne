@@ -1611,7 +1611,7 @@ test.describe('project export and import', () => {
         page.waitForEvent('download'),
         transfer(page).getByRole('button', { name: 'Export project' }).click(),
       ]);
-      expect(download.suggestedFilename()).toMatch(/^ironarachne-ashfall-\d{4}-\d{2}-\d{2}\.json$/);
+      expect(download.suggestedFilename()).toMatch(/^ironarachne-ashfall-\d{4}-\d{2}-\d{2}\.zip$/);
       await expect(transfer(page).getByText(/^Saved ironarachne-ashfall-/)).toBeVisible();
       return download.path();
     });
