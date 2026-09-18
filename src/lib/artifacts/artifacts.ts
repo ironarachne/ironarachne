@@ -16,6 +16,7 @@ import {
 } from '$lib/vault_db';
 
 import { notifyArtifactsChanged } from './artifact_events';
+import { assetWrite } from './artifact_assets';
 import {
   forgetArtifact,
   hydrateArtifacts,
@@ -247,7 +248,11 @@ export async function createArtifact(
 
   const summary = toArtifactSummaryRecord(entry, draft, validated.value, { ...options, id });
 
-  const written = await writeArtifactRecord(summary, validated.value);
+  const written = await writeArtifactRecord(
+    summary,
+    validated.value,
+    (draft.assets ?? []).map((asset) => assetWrite(summary.id, asset)),
+  );
   if (!written.ok) {
     return written;
   }
@@ -354,7 +359,7 @@ export async function updateArtifactPayload(
     byteSize: payloadByteSize(validated.value),
     updatedAt: options.now ?? Date.now(),
   };
-  const written = await writeArtifactRecord(next, validated.value);
+  const written = await writeArtifactRecord(next, validated.value, [], true);
   if (!written.ok) {
     return written;
   }

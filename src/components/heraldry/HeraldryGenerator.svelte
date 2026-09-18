@@ -27,6 +27,7 @@
 
   import type { Arms } from '$lib/heraldry';
   import { recordGeneration } from '$lib/session_log';
+  import { textToDataUrl } from '$lib/artifacts';
   import type { ToolCue } from '$lib/workshop';
   import HeraldryTinctureSelect from '$components/heraldry/HeraldryTinctureSelect.svelte';
   import HeraldryPreviewSelect from '$components/heraldry/HeraldryPreviewSelect.svelte';
@@ -426,6 +427,12 @@
     {seed}
     config={{ ...currentGeneratorOptions() }}
     defaultName={blazon}
+    previewSrc={textToDataUrl(image, 'image/svg+xml')}
+    previewMediaType="image/svg+xml"
+    previewWidth={heraldryWidth}
+    previewHeight={heraldryHeight}
+    previewRendererId="heraldry-device"
+    previewRendererVersion="1"
   />
 
   <p class="blazon">{blazon}</p>

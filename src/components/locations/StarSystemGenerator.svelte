@@ -320,6 +320,13 @@
     config={generatorConfig}
     defaultName={defaultArtifactName}
     {references}
+    previewSrc={systemCompositeSrc}
+    previewWidth={system === undefined
+      ? undefined
+      : width * (system.stars.length + system.planets.length) * 0.5}
+    previewHeight={height}
+    previewRendererId="astronomical-system-composite"
+    previewRendererVersion="1"
   />
 
   {#if usedReferencedPlanet}

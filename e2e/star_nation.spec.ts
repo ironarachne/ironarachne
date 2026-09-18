@@ -93,6 +93,9 @@ test.describe('a star nation', () => {
     // Reopened somewhere else entirely, after a reload, which is what makes this a durability test
     // rather than a state test.
     const panel = await openInWorkshop(page, 'Kingdom of Vesh');
+    await expect(
+      panel.getByRole('img', { name: 'Saved preview of Kingdom of Vesh' }),
+    ).toBeVisible();
 
     // Typed rather than filled: `fill` sets the value in one go, and the point of this assertion is
     // that the editor's own bindings carry a user's keystrokes through to the snapshot it

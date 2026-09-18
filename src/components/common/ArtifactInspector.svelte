@@ -6,7 +6,7 @@
   import Download from '$lib/download';
   import { formatBytes } from '$lib/format';
   import { setActiveProject } from '$lib/projects';
-  import { buildArtifactExportFile } from '$lib/vault_file';
+  import { buildArtifactBinaryExportFile } from '$lib/vault_file';
   import {
     artifactKindEntry,
     openArtifactForEditing,
@@ -100,12 +100,14 @@
   }
 
   async function exportArtifact(): Promise<void> {
-    const built = await buildArtifactExportFile(projectId, artifactId);
+    const built = await buildArtifactBinaryExportFile(projectId, artifactId);
     if (!built.ok) {
       error = `That could not be exported (${built.reason}).`;
       return;
     }
-    const url = URL.createObjectURL(new Blob([built.value.text], { type: 'application/json' }));
+    const url = URL.createObjectURL(
+      new Blob([built.value.bytes.buffer as ArrayBuffer], { type: 'application/zip' }),
+    );
     Download(url, built.value.fileName);
     URL.revokeObjectURL(url);
     error = null;

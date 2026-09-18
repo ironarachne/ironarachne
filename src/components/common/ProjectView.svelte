@@ -15,7 +15,7 @@
   } from '$lib/artifacts';
   import Download from '$lib/download';
   import { showConfirmModal } from '$lib/ui';
-  import { buildArtifactExportFile } from '$lib/vault_file';
+  import { buildArtifactBinaryExportFile } from '$lib/vault_file';
   import { artifactKindEntry, registeredArtifactKinds } from '$lib/workshop';
   import Badge from '$components/common/Badge.svelte';
   import Chip from '$components/common/Chip.svelte';
@@ -150,12 +150,14 @@
     if (projectId === undefined) {
       return;
     }
-    const built = await buildArtifactExportFile(projectId, summary.id);
+    const built = await buildArtifactBinaryExportFile(projectId, summary.id);
     if (!built.ok) {
       error = `“${summary.name}” could not be exported (${built.reason}).`;
       return;
     }
-    const url = URL.createObjectURL(new Blob([built.value.text], { type: 'application/json' }));
+    const url = URL.createObjectURL(
+      new Blob([built.value.bytes.buffer as ArrayBuffer], { type: 'application/zip' }),
+    );
     Download(url, built.value.fileName);
     URL.revokeObjectURL(url);
     error = null;

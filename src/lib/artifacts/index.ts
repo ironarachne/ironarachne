@@ -5,3 +5,4 @@ export * from './artifact_references';
 export * from './artifact_search';
 export * from './vault_entries';
 export type * from './artifact_types';
+export * from './artifact_assets';

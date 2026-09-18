@@ -73,7 +73,7 @@ async function openInWorkshop(page: Page, name: string) {
     .locator('section.project-view')
     .getByRole('button', { name: new RegExp(`^${name}( |$)`) })
     .click();
-  const panel = page.locator('.artifact-panel');
+  const panel = page.locator('.artifact-panel').last();
   await expect(panel).toBeVisible();
   return panel;
 }
@@ -105,6 +105,7 @@ test.describe('a star system', () => {
     // Reopened somewhere else entirely, after a reload, which is what makes this a durability test
     // rather than a state test.
     const panel = await openInWorkshop(page, 'Kepler');
+    await expect(panel.getByRole('img', { name: 'Saved preview of Kepler' })).toBeVisible();
 
     // Typed rather than filled: the point is that the editor's own binding carries keystrokes
     // through to the snapshot it announces. The value is one no roll produces.
@@ -149,6 +150,8 @@ test.describe('a star system', () => {
     // normal flat AstronomicalBody shape rather than a nested `planet` field.
     const planetName = await page.locator('h2').first().innerText();
     await saveAs(page, 'Cinder');
+    const planetPanel = await openInWorkshop(page, 'Cinder');
+    await expect(planetPanel.getByRole('img', { name: 'Saved preview of Cinder' })).toBeVisible();
 
     await visitRoute(page, '/star-system', { title: SYSTEM_TITLE, webgl: true });
     await page.getByLabel('Put a saved planet in this system').check();

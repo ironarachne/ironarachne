@@ -1,6 +1,7 @@
 import { adoptLocalStorageVault } from './vault_db_adoption';
 import {
   ARTIFACTS_BY_PROJECT_INDEX,
+  ASSETS_BY_ARTIFACT_INDEX,
   VAULT_DATABASE_NAME,
   VAULT_SCHEMA_VERSION,
   upgradeVaultDatabase,
@@ -9,6 +10,8 @@ import { requestToPromise, runTransaction, vaultFailure } from './vault_db_trans
 import {
   VAULT_META_KEYS,
   type VaultArtifactPayloadRecord,
+  type VaultArtifactAssetBlobRecord,
+  type VaultArtifactAssetRecord,
   type VaultArtifactRecord,
   type VaultContents,
   type VaultMetaKey,
@@ -244,13 +247,118 @@ export function readArtifactPayloadRecord(
 export function writeArtifactRecord(
   summary: VaultArtifactRecord,
   payload: unknown,
+  assets: VaultArtifactAssetWrite[] = [],
+  replaceAssets = false,
 ): Promise<VaultResult<void>> {
-  return withStores(['artifacts', 'artifact_payloads'], 'readwrite', async (transaction) => {
-    transaction.objectStore('artifacts').put(summary);
-    await requestToPromise(
-      transaction.objectStore('artifact_payloads').put({ artifactId: summary.id, payload }),
-    );
-  });
+  return withStores(
+    ['artifacts', 'artifact_payloads', 'artifact_assets', 'artifact_asset_blobs'],
+    'readwrite',
+    async (transaction) => {
+      transaction.objectStore('artifacts').put(summary);
+      transaction.objectStore('artifact_payloads').put({ artifactId: summary.id, payload });
+      const assetStore = transaction.objectStore('artifact_assets');
+      const blobStore = transaction.objectStore('artifact_asset_blobs');
+      if (replaceAssets) {
+        const old = (await requestToPromise(
+          assetStore.index(ASSETS_BY_ARTIFACT_INDEX).getAll(summary.id),
+        )) as VaultArtifactAssetRecord[];
+        for (const record of old) {
+          assetStore.delete(record.id);
+          blobStore.delete(record.id);
+        }
+      }
+      for (const asset of assets) {
+        transaction.objectStore('artifact_assets').put(asset.metadata);
+        transaction.objectStore('artifact_asset_blobs').put(asset.blob);
+      }
+      await requestToPromise(transaction.objectStore('artifact_payloads').get(summary.id));
+    },
+  );
+}
+
+export type VaultArtifactAssetWrite = {
+  metadata: VaultArtifactAssetRecord;
+  blob: VaultArtifactAssetBlobRecord;
+};
+
+export function readArtifactAssetRecords(
+  artifactId: string,
+): Promise<VaultResult<VaultArtifactAssetRecord[]>> {
+  return withStores(
+    ['artifact_assets'],
+    'readonly',
+    async (transaction) =>
+      (await requestToPromise(
+        transaction
+          .objectStore('artifact_assets')
+          .index(ASSETS_BY_ARTIFACT_INDEX)
+          .getAll(artifactId),
+      )) as VaultArtifactAssetRecord[],
+  );
+}
+
+export function readArtifactAsset(
+  assetId: string,
+): Promise<VaultResult<VaultArtifactAssetBlobRecord | undefined>> {
+  return withStores(
+    ['artifact_asset_blobs'],
+    'readonly',
+    async (transaction) =>
+      (await requestToPromise(transaction.objectStore('artifact_asset_blobs').get(assetId))) as
+        | VaultArtifactAssetBlobRecord
+        | undefined,
+  );
+}
+
+export function readAllArtifactAssetRecords(): Promise<VaultResult<VaultArtifactAssetRecord[]>> {
+  return withStores(
+    ['artifact_assets'],
+    'readonly',
+    async (transaction) =>
+      (await requestToPromise(
+        transaction.objectStore('artifact_assets').getAll(),
+      )) as VaultArtifactAssetRecord[],
+  );
+}
+
+export function readAllArtifactAssetBlobs(): Promise<VaultResult<VaultArtifactAssetBlobRecord[]>> {
+  return withStores(
+    ['artifact_asset_blobs'],
+    'readonly',
+    async (transaction) =>
+      (await requestToPromise(
+        transaction.objectStore('artifact_asset_blobs').getAll(),
+      )) as VaultArtifactAssetBlobRecord[],
+  );
+}
+
+export function writeArtifactAssets(assets: VaultArtifactAssetWrite[]): Promise<VaultResult<void>> {
+  return withStores(
+    ['artifact_assets', 'artifact_asset_blobs'],
+    'readwrite',
+    async (transaction) => {
+      const metadata = transaction.objectStore('artifact_assets');
+      const blobs = transaction.objectStore('artifact_asset_blobs');
+      for (const asset of assets) {
+        const old = (await requestToPromise(
+          metadata.index(ASSETS_BY_ARTIFACT_INDEX).getAll(asset.metadata.artifactId),
+        )) as VaultArtifactAssetRecord[];
+        for (const record of old.filter((entry) => entry.role === asset.metadata.role)) {
+          metadata.delete(record.id);
+          blobs.delete(record.id);
+        }
+        metadata.put(asset.metadata);
+        blobs.put(asset.blob);
+      }
+      await requestToPromise(metadata.getAll());
+    },
+  );
+}
+
+export function readAllArtifactAssetRecordsForExport(): Promise<
+  VaultResult<VaultArtifactAssetRecord[]>
+> {
+  return readAllArtifactAssetRecords();
 }
 
 /**
@@ -267,10 +375,23 @@ export function writeArtifactSummaryRecord(
 
 /** Remove an artifact and its payload in one transaction. */
 export function deleteArtifactRecord(artifactId: string): Promise<VaultResult<void>> {
-  return withStores(['artifacts', 'artifact_payloads'], 'readwrite', async (transaction) => {
-    transaction.objectStore('artifacts').delete(artifactId);
-    await requestToPromise(transaction.objectStore('artifact_payloads').delete(artifactId));
-  });
+  return withStores(
+    ['artifacts', 'artifact_payloads', 'artifact_assets', 'artifact_asset_blobs'],
+    'readwrite',
+    async (transaction) => {
+      transaction.objectStore('artifacts').delete(artifactId);
+      await requestToPromise(transaction.objectStore('artifact_payloads').delete(artifactId));
+      const assets = transaction.objectStore('artifact_assets');
+      const blobs = transaction.objectStore('artifact_asset_blobs');
+      const records = (await requestToPromise(
+        assets.index(ASSETS_BY_ARTIFACT_INDEX).getAll(artifactId),
+      )) as VaultArtifactAssetRecord[];
+      for (const asset of records) {
+        assets.delete(asset.id);
+        blobs.delete(asset.id);
+      }
+    },
+  );
 }
 
 /**
@@ -283,7 +404,14 @@ export function deleteArtifactRecord(artifactId: string): Promise<VaultResult<vo
  */
 export function deleteProjectCascade(projectId: string): Promise<VaultResult<string[]>> {
   return withStores(
-    ['projects', 'artifacts', 'artifact_payloads', 'workspaces'],
+    [
+      'projects',
+      'artifacts',
+      'artifact_payloads',
+      'artifact_assets',
+      'artifact_asset_blobs',
+      'workspaces',
+    ],
     'readwrite',
     async (transaction) => {
       const artifacts = transaction.objectStore('artifacts');
@@ -293,9 +421,18 @@ export function deleteProjectCascade(projectId: string): Promise<VaultResult<str
       const artifactIds = keys.filter((key): key is string => typeof key === 'string');
 
       const payloads = transaction.objectStore('artifact_payloads');
+      const assets = transaction.objectStore('artifact_assets');
+      const blobs = transaction.objectStore('artifact_asset_blobs');
       for (const artifactId of artifactIds) {
         artifacts.delete(artifactId);
         payloads.delete(artifactId);
+        const owned = (await requestToPromise(
+          assets.index(ASSETS_BY_ARTIFACT_INDEX).getAll(artifactId),
+        )) as VaultArtifactAssetRecord[];
+        for (const asset of owned) {
+          assets.delete(asset.id);
+          blobs.delete(asset.id);
+        }
       }
       transaction.objectStore('workspaces').delete(projectId);
       await requestToPromise(transaction.objectStore('projects').delete(projectId));
@@ -376,6 +513,8 @@ const VAULT_CONTENT_STORES: VaultStoreName[] = [
   'projects',
   'artifacts',
   'artifact_payloads',
+  'artifact_assets',
+  'artifact_asset_blobs',
   'workspaces',
   'quarantine',
   'meta',
@@ -417,6 +556,8 @@ export function writeVaultContents(
         'projects',
         'artifacts',
         'artifact_payloads',
+        'artifact_assets',
+        'artifact_asset_blobs',
         'workspaces',
         'quarantine',
       ] as const) {
@@ -431,6 +572,12 @@ export function writeVaultContents(
     }
     for (const payload of contents.payloads) {
       transaction.objectStore('artifact_payloads').put(payload);
+    }
+    for (const asset of contents.assets ?? []) {
+      transaction.objectStore('artifact_assets').put(asset);
+    }
+    for (const blob of contents.assetBlobs ?? []) {
+      transaction.objectStore('artifact_asset_blobs').put(blob);
     }
     for (const workspace of contents.workspaces) {
       transaction.objectStore('workspaces').put(workspace);

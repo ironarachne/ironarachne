@@ -41,5 +41,6 @@ export function saveToolArtifact(
             ...(draft.ruleset === undefined ? {} : { ruleset: draft.ruleset }),
           },
         }),
+    assets: draft.assets,
   });
 }

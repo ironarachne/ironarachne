@@ -100,6 +100,7 @@ export type ToolArtifactDraft = {
    * is opt-in, per rule 1 in docs/workshop.md.
    */
   references?: ArtifactReference[];
+  assets?: import('$lib/artifacts').ArtifactAssetDraft[];
 };
 
 /**
@@ -212,6 +213,7 @@ export type ArtifactEditorEntry = {
    * names is not a coat of arms.
    */
   loadViewer?: ArtifactViewerLoader;
+  assets?: import('$lib/artifacts').ArtifactAssetRead[];
 };
 
 /**
@@ -251,6 +253,7 @@ export type ArtifactEditingTarget = {
   loadRoller?: ArtifactRollerLoader;
   /** The kind's read-only view, used when it has no editor. Absent falls back to the generic one. */
   loadViewer?: ArtifactViewerLoader;
+  assets?: import('$lib/artifacts').ArtifactAssetRead[];
 };
 
 /**

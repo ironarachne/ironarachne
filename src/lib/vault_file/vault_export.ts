@@ -1,7 +1,8 @@
-import { downloadTextFile } from '$lib/download';
+import Download, { downloadTextFile } from '$lib/download';
 import { recordVaultExport, requestPersistenceIfWarranted } from '$lib/storage_status';
 
 import { buildVaultExportFile } from './vault_file_export';
+import { buildVaultBinaryExportFile } from './vault_file_binary';
 import type { VaultExportResult } from './vault_file_types';
 
 /**
@@ -26,6 +27,25 @@ import type { VaultExportResult } from './vault_file_types';
  * Never rejects. Every way this can end is a status the caller renders.
  */
 export async function exportWholeVault(): Promise<VaultExportResult> {
+  const binary = await buildVaultBinaryExportFile();
+  if (!binary.ok) {
+    return { status: 'failed', issues: [], reason: binary.reason };
+  }
+
+  const hasAssets =
+    Array.isArray(binary.value.manifest.assets) && binary.value.manifest.assets.length > 0;
+  if (hasAssets) {
+    const { bytes, fileName, issues } = binary.value;
+    const url = URL.createObjectURL(
+      new Blob([bytes.buffer as ArrayBuffer], { type: 'application/zip' }),
+    );
+    Download(url, fileName);
+    URL.revokeObjectURL(url);
+    await recordVaultExport();
+    await requestPersistenceIfWarranted('vaultExported');
+    return { status: 'saved', fileName, bytes, issues };
+  }
+
   const built = await buildVaultExportFile();
   if (!built.ok) {
     return { status: 'failed', issues: [], reason: built.reason };

@@ -55,6 +55,7 @@
   let encounterReference = $state<ArtifactReference | undefined>(undefined);
 
   let mapCanvas = $state<HTMLCanvasElement | undefined>(undefined);
+  let mapPreviewSrc = $state('');
 
   /**
    * The rolled dungeon.
@@ -177,6 +178,7 @@
     await tick();
     if (mapCanvas && dungeon) {
       Dungeons.renderClassicModuleMapToCanvas(dungeon, mapCanvas);
+      mapPreviewSrc = mapCanvas.toDataURL('image/png');
     }
   }
 
@@ -286,6 +288,11 @@
     config={generatorConfig}
     defaultName={defaultArtifactName}
     {references}
+    previewSrc={mapPreviewSrc}
+    previewWidth={fullSize && dungeon ? dungeon.layout.width * 25 : 800}
+    previewHeight={fullSize && dungeon ? dungeon.layout.height * 25 : 600}
+    previewRendererId="dungeon-map"
+    previewRendererVersion="1"
   />
 
   {#if dungeon}

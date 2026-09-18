@@ -11,6 +11,7 @@
   } from '$lib/organizations';
   import * as Characters from '$lib/characters';
   import type { ArtifactReference } from '$lib/artifacts';
+  import { textToDataUrl } from '$lib/artifacts';
   import { CULTURE_ARTIFACT_KIND, type Culture } from '$lib/culture';
   import { downloadTextFile } from '$lib/download';
   import { HERALDRY_ARTIFACT_KIND, type Arms, type RestoredHeraldry } from '$lib/heraldry';
@@ -146,7 +147,7 @@
 
   /** The emblem drawn from its parameters, for every kind but a heraldic one, which has a button. */
   const emblemSvg = $derived(
-    snapshot === null || snapshot.visualIdentity.emblem.kind === 'heraldry'
+    snapshot === null
       ? null
       : Organizations.renderOrganizationEmblemSvg(snapshot.visualIdentity.emblem, new RNG(seed)),
   );
@@ -348,6 +349,12 @@
     config={rolledConfig}
     defaultName={defaultArtifactName}
     {references}
+    previewSrc={emblemSvg === null ? '' : textToDataUrl(emblemSvg, 'image/svg+xml')}
+    previewMediaType="image/svg+xml"
+    previewWidth={Organizations.ORGANIZATION_EMBLEM_WIDTH}
+    previewHeight={Organizations.ORGANIZATION_EMBLEM_HEIGHT}
+    previewRendererId="organization-emblem"
+    previewRendererVersion="1"
   />
 
   {#if shown && snapshot}
@@ -371,6 +378,7 @@
             width={Organizations.ORGANIZATION_EMBLEM_WIDTH}
             height={Organizations.ORGANIZATION_EMBLEM_HEIGHT}
             rng={new RNG(seed)}
+            svg={emblemSvg ?? undefined}
             onclick={() => void openHeraldryModal(arms)}
           />
         {:else if emblemSvg !== null}
