@@ -5,6 +5,8 @@ import { generate, getDefaultConfig } from './regions';
 import * as SettlementTiles from './settlement_tiles';
 import * as TerrainTiles from './terrain_tiles';
 import type RegionGeneratorConfig from './region_generator_config';
+import { rollRegion } from './region_roll';
+import { classifyRegionLandforms } from '$lib/map';
 
 // Region generation builds a whole map graph, so keep the map small and the realm count low.
 function configFor(seed: string, overrides: Partial<RegionGeneratorConfig> = {}) {
@@ -139,6 +141,23 @@ describe('generate', () => {
     const region = generate(config);
 
     expect(region.dominantCulture?.nameGenerators).toBe(cultureNameGenerators);
+  });
+
+  it('keeps the reported environment dominant in the map for the reported seed', () => {
+    const region = rollRegion('5pkjdquccl04i').region;
+    const land = region.map.nodes.filter((node) => !node.isOcean && !node.isWater);
+    const matchingBiomeCount = land.filter(
+      (node) => node.biomeId === region.environment.biome.name,
+    ).length;
+    const terrain = classifyRegionLandforms(region.map);
+
+    expect(matchingBiomeCount / land.length).toBeGreaterThanOrEqual(0.5);
+    if (region.description.includes('flat')) {
+      expect(terrain.metrics.mountainFraction + terrain.metrics.highMountainFraction).toBe(0);
+    }
+    if (region.description.includes('low-altitude')) {
+      expect(terrain.metrics.medianElevation).toBeLessThan(0.2);
+    }
   });
 });
 

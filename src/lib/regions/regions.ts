@@ -22,7 +22,11 @@ import {
   MapBiome,
   MapRoad,
   Suitability,
+  type AltitudeBand,
+  type ReliefClass,
 } from '$lib/map';
+
+type RegionTerrainProfile = { altitude: AltitudeBand; relief: ReliefClass };
 
 function createEmptyRegion(): Region {
   return {
@@ -56,15 +60,16 @@ function resolveNameGeneratorSet(
  * Builds the map and runs the physical passes over it in order — elevation, water, temperature,
  * moisture, biomes — since each reads what the one before it wrote.
  *
- * The latitude is drawn here rather than alongside the other environment settings because it is
- * needed by the temperature pass, and returned because the region's environment needs the same
- * value. Every draw below comes off `config.rng` in this order, so moving one changes every
- * region generated from a given seed.
+ * Latitude and the profile are selected before this pass so the map and overview environment use
+ * the same physical inputs. Every draw below comes off `config.rng` in this order, so moving one
+ * changes every region generated from a given seed.
  */
-function buildRegionTerrain(config: RegionGeneratorConfig): {
-  map: RegionMap;
-  latitude: number;
-} {
+function buildRegionTerrain(
+  config: RegionGeneratorConfig,
+  environment: Environment,
+  profile: RegionTerrainProfile,
+  latitude: number,
+): RegionMap {
   let map = MapBuilder.buildBaseMapGraph({
     width: config.mapWidth,
     height: config.mapHeight,
@@ -90,23 +95,10 @@ function buildRegionTerrain(config: RegionGeneratorConfig): {
     seed: config.rng.randomString(8),
     islandShape: startShape,
     frequency: 0.95,
-    hasMountainRange: config.rng.int(1, 100) > 50, // 50% chance of distinct mountain range
+    hasMountainRange: profile.relief === 'mountainous',
+    targetAltitude: profile.altitude,
+    targetRelief: profile.relief,
   });
-
-  const latitude = config.rng.weighted([
-    {
-      value: 40,
-      commonality: 10,
-    },
-    {
-      value: 15,
-      commonality: 5,
-    },
-    {
-      value: 65,
-      commonality: 5,
-    },
-  ]);
 
   map = MapWater.simulateWater(map, {
     seaLevel: -0.1,
@@ -122,7 +114,7 @@ function buildRegionTerrain(config: RegionGeneratorConfig): {
     frequency: 2.5,
   });
 
-  const regionalMoisture = config.rng.int(10, 90) / 100;
+  const regionalMoisture = environment.climate.humidity;
 
   map = MapClimate.assignMoisture(map, {
     seed: config.rng.randomString(8),
@@ -133,31 +125,27 @@ function buildRegionTerrain(config: RegionGeneratorConfig): {
   map = MapBiome.assignBiomes(map, {
     rng: config.rng,
     paletteSize: 5,
+    dominantBiome: environment.biome.name,
+    dominantBiomeFraction: 0.6,
   });
 
-  return { map, latitude };
+  return map;
 }
 
 /** What lives on the map: the environment description, its settlements, roads and organizations. */
 function populateRegionInhabitants(
   region: Region,
   config: RegionGeneratorConfig,
-  latitude: number,
+  environment: Environment,
   nameGenSet: Names.NameGeneratorSet,
 ): void {
-  const environmentConfig = Environments.getDefaultConfig(config.rng);
-  environmentConfig.latitude = latitude;
-
-  // Here we would typically derive climate/biome mathematically from map majority
-  // For now we continue building via config as an overarching description
-  region.environment = Environments.generate(environmentConfig);
-  region.settlements = randomSettlements(region.environment, nameGenSet, config.rng, region.map);
+  region.settlements = randomSettlements(environment, nameGenSet, config.rng, region.map);
   const townIds = region.settlements
     .map((s) => s.mapNodeId)
     .filter((id) => id !== undefined) as number[];
   region.map = MapRoad.generateRoads(region.map, townIds);
-  region.organizations = randomOrganizations(config.rng, region.environment);
-  region.description = region.environment.description;
+  region.organizations = randomOrganizations(config.rng, environment);
+  region.description = environment.description;
 }
 
 /** A realm that is not standalone needs the realm above it generated too. */
@@ -235,13 +223,40 @@ export function generate(config: RegionGeneratorConfig): Region {
   const region = createEmptyRegion();
   const nameGenSet = resolveNameGeneratorSet(region, config);
 
-  const { map, latitude } = buildRegionTerrain(config);
+  const profile = chooseTerrainProfile(config.rng);
+  const latitude = chooseLatitude(config.rng);
+  const environmentConfig = Environments.getDefaultConfig(config.rng);
+  environmentConfig.latitude = latitude;
+  environmentConfig.elevation =
+    profile.altitude === 'low' ? 0.05 : profile.altitude === 'high' ? 0.9 : 0.5;
+  environmentConfig.reliefEnergy =
+    profile.relief === 'flat' ? 0.05 : profile.relief === 'hilly' ? 0.4 : 0.7;
+  environmentConfig.erosionIterations = 0;
+  const environment = Environments.generate(environmentConfig);
+
+  const map = buildRegionTerrain(config, environment, profile, latitude);
   region.map = map;
 
-  populateRegionInhabitants(region, config, latitude, nameGenSet);
+  region.environment = environment;
+  populateRegionInhabitants(region, config, environment, nameGenSet);
   addRealmsToRegion(region, config, nameGenSet);
 
   return region;
+}
+
+function chooseLatitude(rng: RNG.RNG): number {
+  return rng.weighted([
+    { value: 40, commonality: 10 },
+    { value: 15, commonality: 5 },
+    { value: 65, commonality: 5 },
+  ]);
+}
+
+function chooseTerrainProfile(rng: RNG.RNG): RegionTerrainProfile {
+  return {
+    altitude: rng.item(['low', 'mid', 'high'] as AltitudeBand[]),
+    relief: rng.item(['flat', 'hilly', 'mountainous'] as ReliefClass[]),
+  };
 }
 
 /**
