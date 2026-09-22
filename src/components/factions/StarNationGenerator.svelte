@@ -4,7 +4,7 @@
   import { RNG } from '@ironarachne/rng';
   import { renderStarSystemPreviewImage } from '$lib/renderers/astronomical_preview';
   import { browser } from '$app/environment';
-  import { onMount } from 'svelte';
+  import { onMount, tick } from 'svelte';
   import * as Nations from '$lib/civilizations';
   import type { StarNation, StarNationReferencedArtifacts } from '$lib/civilizations';
   import * as Bodies from '$lib/astronomical_bodies';
@@ -56,6 +56,12 @@
 
   let homeSystemCompositeSrc = $state('');
 
+  /** The nation is usable while its slower, synchronous preview waits for a paint boundary. */
+  let previewGenerationState = $state<'pending' | 'ready' | 'failed'>('pending');
+
+  /** Prevent an older deferred render from replacing the preview for a newer roll. */
+  let previewGeneration = 0;
+
   const imageWidth = 64;
   const imageHeight = 64;
 
@@ -103,19 +109,49 @@
    * The composite is drawn from the seed, not from a draw made after the roll: the seed control's
    * promise is that a seed reproduces what you saw, previews included.
    */
-  function refreshHomeSystemComposite() {
+  function refreshHomeSystemComposite(): void {
     if (!browser || nation === null) return;
-    const system = nation.homeSystem;
-    homeSystemCompositeSrc = renderStarSystemPreviewImage(
-      document,
-      system,
-      imageWidth * (system.stars.length + system.planets.length),
-      imageHeight,
-      Nations.starNationPreviewSeed(seed),
-    );
+    const currentNation = nation;
+    const currentSeed = seed;
+    const generation = ++previewGeneration;
+
+    homeSystemCompositeSrc = '';
+    previewGenerationState = 'pending';
+    void renderHomeSystemComposite(currentNation, currentSeed, generation);
   }
 
-  function generate() {
+  /** Let the new nation and pending status paint before starting the blocking renderer. */
+  async function renderHomeSystemComposite(
+    currentNation: StarNation,
+    currentSeed: string,
+    generation: number,
+  ): Promise<void> {
+    await tick();
+    if (typeof requestAnimationFrame === 'function') {
+      await new Promise<void>((done) => requestAnimationFrame(() => done()));
+    }
+
+    if (generation !== previewGeneration) return;
+
+    try {
+      const system = currentNation.homeSystem;
+      const preview = renderStarSystemPreviewImage(
+        document,
+        system,
+        imageWidth * (system.stars.length + system.planets.length),
+        imageHeight,
+        Nations.starNationPreviewSeed(currentSeed),
+      );
+      if (generation !== previewGeneration) return;
+      homeSystemCompositeSrc = preview;
+      previewGenerationState = 'ready';
+    } catch {
+      if (generation !== previewGeneration) return;
+      previewGenerationState = 'failed';
+    }
+  }
+
+  function generate(): void {
     if (!lockSeed) {
       seed = rng.randomString(13);
     }
@@ -267,7 +303,13 @@
       <p>{homeSystemParagraph}</p>
 
       <div class="star-system">
-        {#if browser && homeSystemCompositeSrc}
+        {#if previewGenerationState === 'pending'}
+          <p class="preview-status" role="status">Generating the home system image…</p>
+        {:else if previewGenerationState === 'failed'}
+          <p class="preview-status" role="status">
+            The home system image could not be generated. The nation details are still available.
+          </p>
+        {:else if browser && homeSystemCompositeSrc}
           <div class="image-container-system" style="width: 100%;">
             <img
               alt="{nation.homeSystem.name} system composite"
@@ -292,6 +334,11 @@
     display: flex;
     width: 100%;
     flex-wrap: wrap;
+  }
+
+  .preview-status {
+    color: var(--ink-muted);
+    margin: 0;
   }
 
   .referenced-note {
