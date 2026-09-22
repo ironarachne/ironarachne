@@ -40,6 +40,7 @@
   import type { ImportSummary } from '$lib/vault_file';
   import Badge from '$components/common/Badge.svelte';
   import ProjectTransferControls from '$components/common/ProjectTransferControls.svelte';
+  import ProjectPdfButton from '$components/common/ProjectPdfButton.svelte';
   import SelectField from '$components/common/SelectField.svelte';
   import StorageDisclosureNotice from '$components/common/StorageDisclosureNotice.svelte';
   import StoragePanel from '$components/common/StoragePanel.svelte';
@@ -486,6 +487,7 @@
                   <BaseButton onclick={() => open(row.project.id)}>Open</BaseButton>
                 {/if}
                 <BaseButton onclick={() => startEditing(row.project)}>Rename</BaseButton>
+                <ProjectPdfButton projectId={row.project.id} />
                 <BaseButton onclick={() => remove(row)}>Delete</BaseButton>
               </div>
             {/if}
