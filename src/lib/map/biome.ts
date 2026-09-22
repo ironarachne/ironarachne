@@ -6,6 +6,8 @@ import type { RNG } from '@ironarachne/rng';
 export interface BiomeAssignmentConfig {
   rng: RNG;
   paletteSize?: number;
+  dominantBiome?: string;
+  dominantBiomeFraction?: number;
 }
 
 /**
@@ -100,6 +102,9 @@ export function assignBiomes(map: RegionMap, config: BiomeAssignmentConfig): Reg
   const palette = buildBiomePalette(newMap, config);
   const allowedBiomes = allBiomes.filter((b) => palette.includes(b.name) || b.isAquatic);
 
+  let dominantAssignments = 0;
+  const landCount = newMap.nodes.filter((node) => !node.isOcean && !node.isWater).length;
+
   // Phase 1: Initial assignment
   for (const node of newMap.nodes) {
     if (node.isOcean) {
@@ -108,6 +113,15 @@ export function assignBiomes(map: RegionMap, config: BiomeAssignmentConfig): Reg
     }
     if (node.isWater) {
       node.biomeId = 'lake'; // Fallback / placeholder for fresh water
+      continue;
+    }
+
+    if (
+      config.dominantBiome &&
+      dominantAssignments < Math.ceil(landCount * (config.dominantBiomeFraction ?? 0.6))
+    ) {
+      node.biomeId = config.dominantBiome;
+      dominantAssignments++;
       continue;
     }
 

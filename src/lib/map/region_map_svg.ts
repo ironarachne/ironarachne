@@ -1203,20 +1203,11 @@ function segmentBox(a: Vertex, b: Vertex, padding: number): TextBox {
   };
 }
 
-function layoutCompass(
-  map: RegionMap,
-  reserved: TextBox[],
-  symbols: ScatterSymbol[],
-  water: WaterPolygonItem[],
-  routeBoxes: TextBox[],
-): TextBox | null {
+function layoutCompass(map: RegionMap, reserved: TextBox[], routeBoxes: TextBox[]): TextBox | null {
   const scale = Math.min(map.width, map.height) / 35;
-  const obstacles = [...reserved, ...routeBoxes, ...symbols.map((symbol) => symbol.box)];
-  for (const body of water)
-    for (let i = 0; i < body.outline.length; i++)
-      obstacles.push(
-        segmentBox(body.outline[i], body.outline[(i + 1) % body.outline.length], 0.3 * scale),
-      );
+  // Terrain, water, and routes are drawn below the compass. Only furniture and text are hard
+  // obstacles; dense terrain must not make the compass disappear from an otherwise usable map.
+  const obstacles = [...reserved, ...routeBoxes];
   // Search from the corners inward; shrink modestly before giving up on a crowded drawing.
   for (const size of [1, 0.8, 0.6]) {
     const width = 3.4 * scale * size,
@@ -1571,8 +1562,6 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   const compass = layoutCompass(
     map,
     [...reserved, ...textParts.map((part) => part.box)],
-    symbols,
-    waterPolygons,
     routeBoxes,
   );
   const textLayer =

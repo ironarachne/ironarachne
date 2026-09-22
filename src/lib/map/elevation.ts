@@ -21,6 +21,8 @@ export interface ElevationConfig {
     | 'coast-se';
   frequency: number; // The zoom/scale of the noise (e.g. 2.5)
   hasMountainRange?: boolean; // Whether the map generates an organized mountain spine
+  targetAltitude?: 'low' | 'mid' | 'high';
+  targetRelief?: 'flat' | 'hilly' | 'mountainous';
 }
 
 /**
@@ -152,5 +154,27 @@ export function assignElevation(map: RegionMap, config: ElevationConfig): Region
     n.elevation = sumElevation / n.corners.length;
   }
 
+  if (config.targetAltitude || config.targetRelief) {
+    constrainElevation(newMap, config.targetAltitude ?? 'mid', config.targetRelief ?? 'hilly');
+  }
+
   return newMap;
+}
+
+function constrainElevation(
+  map: RegionMap,
+  altitude: 'low' | 'mid' | 'high',
+  relief: 'flat' | 'hilly' | 'mountainous',
+): void {
+  const land = map.nodes.filter((node) => !node.isOcean && !node.isWater);
+  if (land.length === 0) return;
+  const min = Math.min(...land.map((node) => node.elevation));
+  const max = Math.max(...land.map((node) => node.elevation));
+  const base = altitude === 'low' ? 0.05 : altitude === 'high' ? 0.9 : 0.45;
+  const spread = relief === 'flat' ? 0.16 : relief === 'hilly' ? 0.4 : 0.9;
+  const scale = max === min ? 0 : spread / (max - min);
+  const remap = (value: number) => Math.max(-1, Math.min(2, base + (value - min) * scale));
+
+  for (const corner of map.corners) corner.elevation = remap(corner.elevation);
+  for (const node of land) node.elevation = remap(node.elevation);
 }
