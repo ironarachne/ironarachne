@@ -788,7 +788,7 @@
   {#if wouldRederive}
     <p class="builder-rederive-warning" role="status">
       <strong>This will re-roll the character.</strong> Changing race, class, or an attribute means everything
-      that follows from them — proficiencies, the kit, exceptional strength, and the derived numbers —
+      that follows from them &mdash; proficiencies, the kit, exceptional strength, and the derived numbers &mdash;
       is worked out afresh. Edits to those will be lost.
     </p>
   {/if}
@@ -800,9 +800,7 @@
   {/if}
 
   <p>
-    Roll attributes, then choose race, class, and alignment. Caster level 1 spells, thief
-    discretionary points, hit points, funds, and equipment are yours to set; attribute dice, HP
-    rolls, and starting money rolls share one RNG stream. The random generator still rolls spells
+    Roll attributes, then choose race, class, and alignment. Most things are your choice. The random generator still rolls spells
     and thief points from the class features seed.
     <a href={resolve('/fantasy/adnd/character')}>Random full generator</a>
   </p>
@@ -888,7 +886,7 @@
         </select>
       </label>
 
-      <h2>5. Class features (RNG seed)</h2>
+      <h2>5. Class features</h2>
       <p>
         Used by the random generator for rolled class features. In this builder, level 1 spells and
         thief / bard skill points are chosen explicitly below.
@@ -939,7 +937,7 @@
       {#if thiefSkillKind && thiefSkillRowsForBuilder.length > 0}
         <h2>{builderSteps.thiefSkills}. Thief skills (discretionary points)</h2>
         <p>
-          Allocate exactly {getThiefSkillPointPool(thiefSkillKind)} points (max {ADND_THIEF_SKILL_BONUS_CAP}
+          Allocate {getThiefSkillPointPool(thiefSkillKind)} points (max {ADND_THIEF_SKILL_BONUS_CAP}
           per skill). Base scores include Dexterity and racial modifiers.
         </p>
         <Stat label="Allocated">
@@ -984,7 +982,7 @@
       <h2>{builderSteps.funds}. Starting funds</h2>
       <p>
         Typical random roll for this class: {startingFundsDiceLine(selectedClass)}. Values below use
-        gp, sp, and cp (the rules reference copper totals internally).
+        gp, sp, and cp.
       </p>
       <StatBlock>
         <Stat label="Total">{formatWealthCp(startingWealthCp)}</Stat>
@@ -1092,9 +1090,7 @@
           <summary>Details</summary>
 
           <p class="builder-details-note">
-            Everything below is stored exactly as you leave it. Changing a value here makes this
-            character's own numbers authoritative, so the rules stop being recalculated underneath
-            them.
+            If you edit things here, they'll be stored that way when you save it. Recalculations will cease to apply.
           </p>
 
           <h3>Experience</h3>

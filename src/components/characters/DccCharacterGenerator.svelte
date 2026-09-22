@@ -252,7 +252,7 @@
 
   {#if noTablesChosen}
     <p class="dcc-no-tables">
-      Allow at least one kind of occupation. With all four switched off there is no table to roll a
+      Allow at least one kind of occupation! With all four switched off there is no table to roll a
       villager from.
     </p>
   {/if}
