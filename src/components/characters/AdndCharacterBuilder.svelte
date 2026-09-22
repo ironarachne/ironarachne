@@ -788,8 +788,8 @@
   {#if wouldRederive}
     <p class="builder-rederive-warning" role="status">
       <strong>This will re-roll the character.</strong> Changing race, class, or an attribute means everything
-      that follows from them &mdash; proficiencies, the kit, exceptional strength, and the derived numbers &mdash;
-      is worked out afresh. Edits to those will be lost.
+      that follows from them &mdash; proficiencies, the kit, exceptional strength, and the derived numbers
+      &mdash; is worked out afresh. Edits to those will be lost.
     </p>
   {/if}
 
@@ -800,8 +800,8 @@
   {/if}
 
   <p>
-    Roll attributes, then choose race, class, and alignment. Most things are your choice. The random generator still rolls spells
-    and thief points from the class features seed.
+    Roll attributes, then choose race, class, and alignment. Most things are your choice. The random
+    generator still rolls spells and thief points from the class features seed.
     <a href={resolve('/fantasy/adnd/character')}>Random full generator</a>
   </p>
 
@@ -1090,7 +1090,8 @@
           <summary>Details</summary>
 
           <p class="builder-details-note">
-            If you edit things here, they'll be stored that way when you save it. Recalculations will cease to apply.
+            If you edit things here, they'll be stored that way when you save it. Recalculations
+            will cease to apply.
           </p>
 
           <h3>Experience</h3>
