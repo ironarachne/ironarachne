@@ -9,6 +9,38 @@ import type ReleaseNote from './release_note';
  */
 const entries: ReleaseNote[] = [
   {
+    date: '2026-09-22',
+    version: '3.0.0',
+    summary:
+      'The Workshop comes out of prototype with a new app shell, release-ready tools, game rules, session history, project books, and illustrated region maps',
+    features: [
+      'Finished the Workshop: dozens of generators now open as full workbench panels with consistent controls and results, plus saving and editing wherever a tool supports it',
+      'Added a session log beside the workbench that remembers recent rolls and can reproduce one with the same seed and settings before it is lost to the next result',
+      'Projects can now choose a genre and game system, which focuses the tool browser on the right material and records the rules used by what you make',
+      "Added rules support for AD&D 2E, Dungeon Crawl Classics, and the D&D 5E SRD alongside Iron Arachne's system-neutral rules, with source and licence information kept with the mechanics",
+      'Added project books: download a whole project as one readable PDF with a cover, its setting details, saved work in project order, and its generated images',
+      'Star nations can now be built around a star system or planet you saved earlier, with those links kept intact instead of copying the source',
+    ],
+    improvements: [
+      'Rebuilt the site around a pinned top bar and a six-place sidebar, including a searchable All Tools page, a clearer open-project indicator, and a mobile drawer',
+      'Redesigned the site with distinct fantasy, science-fiction, cyberpunk, and horror treatments, clearer controls, readable tables and stat blocks, and a shared set of tool icons',
+      'Reworked region maps into parchment-and-ink illustrations with organic coastlines, sea hatching, terrain glyphs, scaled rivers, connected roads, safer labels, a title cartouche, and a compass rose',
+      'Made region descriptions, climates, terrain, settlements, and maps agree about features such as coasts, lakes, rivers, mountains, forests, and roads',
+      'Saved generated pictures with their artifacts, so project books, backups, and restored projects retain the image that belonged to the original roll',
+      'Added Quick Roll to the Result Vault for making another artifact without leaving the work you have already saved',
+      'Expanded the AD&D 2E character builder with editable rolls, thief skills, subraces, and culture references',
+      'Added loading states and deferred expensive previews so star systems and star nations become usable sooner',
+    ],
+    fixes: [
+      'Fixed rivers, lake connections, coast geometry, terrain placement, and labels that could escape or contradict a region map',
+      'Fixed a saved planet being shown with the wrong values when used to build a star system',
+      'Fixed tool panels, genre styling, dialogs, controls, and navigation that could overflow or become hard to use on narrow screens',
+    ],
+    housekeeping: [
+      'Audited the tool catalog for release readiness and reproducible seeded output, and added browser coverage for every supported route and phone width',
+    ],
+  },
+  {
     date: '2026-08-17',
     version: '2.5.0',
     summary:

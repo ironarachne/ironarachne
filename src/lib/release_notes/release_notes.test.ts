@@ -163,7 +163,9 @@ describe('releaseNoteEntries', () => {
    * recategorisation honest: moving a line between buckets is fine, losing one is not.
    */
   it('still holds every one of the 270 lines the change log had', () => {
-    const total = releaseNoteEntries.reduce((sum, entry) => sum + updateCount(entry), 0);
+    const total = releaseNoteEntries
+      .filter((entry) => entry.date <= '2026-08-17')
+      .reduce((sum, entry) => sum + updateCount(entry), 0);
 
     expect(total).toBe(270);
   });
@@ -171,7 +173,11 @@ describe('releaseNoteEntries', () => {
   it('gives a version only to entries that had a real release, in a SemVer shape', () => {
     const versioned = releaseNoteEntries.filter((entry) => entry.version !== undefined);
 
-    expect(versioned.map((entry) => entry.date)).toEqual(['2026-08-17', '2026-08-13']);
+    expect(versioned.map((entry) => entry.date)).toEqual([
+      '2026-09-22',
+      '2026-08-17',
+      '2026-08-13',
+    ]);
 
     for (const entry of versioned) {
       expect(entry.version).toMatch(/^\d+\.\d+\.\d+$/);
