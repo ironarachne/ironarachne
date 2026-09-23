@@ -12,7 +12,7 @@ designed result. The PDF should read and look like a **published tabletop RPG su
 coherent book assembled from the user's saved work, suitable for reading, printing, and sharing.
 The separate JSON project export remains the complete, reimportable backup.
 
-The PDF publishes *saved snapshots*. It never rerolls, rewrites an edited description, or
+The PDF publishes _saved snapshots_. It never rerolls, rewrites an edited description, or
 substitutes current generator defaults for the work the user saved. It preserves the content and
 meaningful presentation of those results in one book design. Pixel-for-pixel identity with each
 tool page is not the goal; editorial fidelity is.
@@ -72,15 +72,15 @@ and a small running motif; the content stays dominant.
 Narrative prose uses one reading column. Other blocks provide the structure an RPG supplement
 needs:
 
-| Block | Book treatment |
-| --- | --- |
-| Paragraph and list | Comfortable measure, real bullets or numbering, paragraph spacing |
-| Key facts / stat block | Aligned reader-facing labels and values, never raw object keys |
-| Table | Column headings, wrapped rows, repeated header across page breaks |
-| Callout / quotation | Bordered or tinted inset with label and interior spacing |
-| Image | Preserved aspect ratio, optional caption, print-safe size |
-| Section | Heading kept with the first content lines |
-| Publication note | Visible explanation of what could not be presented |
+| Block                  | Book treatment                                                    |
+| ---------------------- | ----------------------------------------------------------------- |
+| Paragraph and list     | Comfortable measure, real bullets or numbering, paragraph spacing |
+| Key facts / stat block | Aligned reader-facing labels and values, never raw object keys    |
+| Table                  | Column headings, wrapped rows, repeated header across page breaks |
+| Callout / quotation    | Bordered or tinted inset with label and interior spacing          |
+| Image                  | Preserved aspect ratio, optional caption, print-safe size         |
+| Section                | Heading kept with the first content lines                         |
+| Publication note       | Visible explanation of what could not be presented                |
 
 Images come from saved artifact assets, not regenerated previews. The primary visual appears
 near the artifact opening; additional images sit with the relevant section. SVG is rasterized for
