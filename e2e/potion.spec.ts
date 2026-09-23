@@ -121,6 +121,26 @@ test.describe('a potion', () => {
     await expect(reopened.getByRole('textbox', { name: 'Flavor' })).toHaveValue('like cold iron');
   });
 
+  test('keeps the save prompt fields to one line', async ({ page }) => {
+    await visitRoute(page, '/fantasy/potion-generator', { title: POTION_TITLE });
+    const prompt = saveArtifact(page);
+    await prompt.getByRole('button', { name: 'Save to project' }).click();
+
+    await expect(prompt.getByLabel('Name', { exact: true })).toBeVisible();
+    await prompt.getByLabel('Project', { exact: true }).selectOption({ label: 'New project…' });
+    await expect(prompt.getByLabel('New project name')).toBeVisible();
+
+    // The component's controls live in a flex column. A width-sized flex basis here becomes
+    // height, making all three controls about five lines tall (#315).
+    const heights = await prompt
+      .locator('input[type="text"], select')
+      .evaluateAll((controls) => controls.map((control) => control.getBoundingClientRect().height));
+    expect(heights).toHaveLength(3);
+    for (const height of heights) {
+      expect(height).toBeLessThan(50);
+    }
+  });
+
   test('reaches the fields an item editor has no place for', async ({ page }) => {
     // Decision 2 of docs/readiness-objects.md as a user meets it: the sensory profile and the
     // effect are why a potion is its own kind rather than a share of `item`.
