@@ -1,66 +1,24 @@
 import Download from '$lib/download';
-import { getProject, hydrateProjects, type Project } from '$lib/projects';
+import { hydrateProjects, getProject } from '$lib/projects';
+import { hydrateArtifacts, listArtifacts, readArtifact, readArtifactAssets } from '$lib/artifacts';
+import { ARTIFACT_KINDS, loadArtifactValue } from '$lib/workshop';
+import { readArtifactAssetRecords } from '$lib/vault_db';
+
+import { renderProjectBook } from './project_book_layout';
 import {
-  hydrateArtifacts,
-  listArtifacts,
-  readArtifact,
-  readArtifactAssets,
-  type ArtifactAssetRead,
-  type Artifact,
-  type ArtifactSummary,
-} from '$lib/artifacts';
+  incompleteEntry,
+  presentArtifact,
+  publicationNeedsLiveValue,
+  projectPublication,
+  type PublicationEntry,
+} from './project_publication';
 
-const PAGE_WIDTH = 215.9;
-const PAGE_HEIGHT = 279.4;
-const MARGIN = 15;
-const BODY_FONT_SIZE = 9;
-const HEADING_FONT_SIZE = 13;
-const TITLE_FONT_SIZE = 22;
-const LINE_HEIGHT = 4.5;
-
-type PdfDoc = import('jspdf').jsPDF;
-
-export type ProjectPdfArtifact = {
-  summary: ArtifactSummary;
-  artifact: Artifact;
-  assets: ArtifactAssetRead[];
+export type ProjectPdfResult = { blob: Blob; warnings: string[]; incompleteEntries: string[] };
+export type ProjectPdfDownload = {
+  filename: string;
+  warnings: string[];
+  incompleteEntries: string[];
 };
-
-function displaySetting(project: Project): string[] {
-  return [
-    project.genre === undefined ? undefined : `Genre: ${project.genre}`,
-    project.system === undefined ? undefined : `System: ${project.system}`,
-    project.ruleset === undefined
-      ? undefined
-      : `Ruleset: ${project.ruleset.id} ${project.ruleset.release}`,
-  ].filter((line): line is string => line !== undefined);
-}
-
-function printable(value: unknown): string {
-  if (value === null) return 'None';
-  if (typeof value === 'string') return value;
-  if (typeof value === 'number' || typeof value === 'boolean') return String(value);
-  return JSON.stringify(value);
-}
-
-export function projectArtifactPayloadToLines(value: unknown, indent = ''): string[] {
-  if (value === null || typeof value !== 'object') return [`${indent}${printable(value)}`];
-  if (Array.isArray(value)) {
-    if (value.length === 0) return [`${indent}None`];
-    return value.flatMap((item) => [
-      `${indent}-`,
-      ...projectArtifactPayloadToLines(item, `${indent}  `),
-    ]);
-  }
-  const entries = Object.entries(value);
-  if (entries.length === 0) return [`${indent}None`];
-  return entries.flatMap(([key, item]) => {
-    if (item !== null && typeof item === 'object') {
-      return [`${indent}${key}:`, ...projectArtifactPayloadToLines(item, `${indent}  `)];
-    }
-    return [`${indent}${key}: ${printable(item)}`];
-  });
-}
 
 export function projectPdfFilename(name: string): string {
   const stem = name
@@ -70,155 +28,89 @@ export function projectPdfFilename(name: string): string {
   return `${stem === '' ? 'project' : stem}.pdf`;
 }
 
-function writeLines(doc: PdfDoc, lines: string[], state: { y: number }): void {
-  doc.setFontSize(BODY_FONT_SIZE);
-  doc.setFont('helvetica', 'normal');
-  for (const line of lines) {
-    const wrapped = doc.splitTextToSize(line, PAGE_WIDTH - MARGIN * 2);
-    for (const part of wrapped) {
-      if (state.y > PAGE_HEIGHT - MARGIN) {
-        doc.addPage();
-        state.y = MARGIN;
-      }
-      doc.text(part, MARGIN, state.y);
-      state.y += LINE_HEIGHT;
-    }
-  }
-}
-
-function heading(doc: PdfDoc, text: string, state: { y: number }): void {
-  if (state.y > PAGE_HEIGHT - MARGIN - 12) {
-    doc.addPage();
-    state.y = MARGIN;
-  }
-  doc.setFontSize(HEADING_FONT_SIZE);
-  doc.setFont('helvetica', 'bold');
-  doc.text(text, MARGIN, state.y);
-  state.y += 8;
-}
-
-async function blobToDataUrl(blob: Blob): Promise<string> {
-  const bytes = new Uint8Array(await blob.arrayBuffer());
-  let binary = '';
-  for (const byte of bytes) binary += String.fromCharCode(byte);
-  return `data:${blob.type || 'application/octet-stream'};base64,${btoa(binary)}`;
-}
-
-async function writeAssets(
-  doc: PdfDoc,
-  artifact: ProjectPdfArtifact,
-  state: { y: number },
-): Promise<void> {
-  for (const asset of artifact.assets) {
-    if (!asset.blob.type.startsWith('image/')) continue;
-    if (asset.blob.type === 'image/svg+xml') {
-      // jsPDF's SVG plugin rasterises through the browser DOM. A non-browser caller can still
-      // export the readable artifact; it simply cannot embed this optional preview.
-      if (typeof document === 'undefined') continue;
-      const svg = await asset.blob.text();
-      const width = Math.min(asset.metadata.width ?? 120, PAGE_WIDTH - MARGIN * 2);
-      const height = Math.min(asset.metadata.height ?? 80, 80);
-      if (state.y > PAGE_HEIGHT - height - MARGIN) {
-        doc.addPage();
-        state.y = MARGIN;
-      }
-      doc.addSvgAsImage(svg, MARGIN, state.y, width, height);
-      state.y += height + 8;
+/**
+ * Read every artifact in project order, including ones this build cannot understand. A
+ * publication note is more honest than dropping an entry from a book the user expects to be
+ * complete. Rehydration uses the kind codec, which rebuilds live helpers without rerolling the
+ * saved content; the same path is used when a generator opens a saved artifact.
+ */
+export async function collectProjectPdfArtifacts(projectId: string): Promise<PublicationEntry[]> {
+  await hydrateArtifacts();
+  const entries: PublicationEntry[] = [];
+  for (const summary of listArtifacts(projectId)) {
+    const kindLabel = ARTIFACT_KINDS.byKind.get(summary.kind)?.displayName ?? summary.kind;
+    const read = await readArtifact(ARTIFACT_KINDS, projectId, summary.id);
+    if (read === undefined || !read.ok) {
+      entries.push(
+        incompleteEntry(summary, kindLabel, 'The saved contents cannot be read by this version.'),
+      );
       continue;
     }
-    const dataUrl = await blobToDataUrl(asset.blob);
-    const format =
-      asset.blob.type === 'image/png'
-        ? 'PNG'
-        : asset.blob.type === 'image/jpeg'
-          ? 'JPEG'
-          : undefined;
-    if (format === undefined) continue;
-    if (state.y > PAGE_HEIGHT - 80) {
-      doc.addPage();
-      state.y = MARGIN;
+    let value: unknown = read.artifact.payload;
+    if (publicationNeedsLiveValue(summary.kind)) {
+      const loaded = await loadArtifactValue(projectId, summary.id);
+      if (!loaded.ok) {
+        entries.push(
+          incompleteEntry(
+            summary,
+            kindLabel,
+            'The saved contents could not be prepared for the book.',
+          ),
+        );
+        continue;
+      }
+      value = loaded.value;
     }
-    const width = Math.min(asset.metadata.width ?? 120, PAGE_WIDTH - MARGIN * 2);
-    const height = Math.min(asset.metadata.height ?? 80, 80);
-    doc.addImage(dataUrl, format, MARGIN, state.y, width, height, undefined, 'FAST');
-    state.y += height + 8;
-  }
-}
-
-export async function collectProjectPdfArtifacts(projectId: string): Promise<ProjectPdfArtifact[]> {
-  const { ARTIFACT_KINDS } = await import('$lib/workshop');
-  await hydrateArtifacts();
-  const result: ProjectPdfArtifact[] = [];
-  for (const summary of listArtifacts(projectId)) {
-    const read = await readArtifact(ARTIFACT_KINDS, projectId, summary.id);
-    if (read === undefined || !read.ok) continue;
     const assets = await readArtifactAssets(summary.id);
-    result.push({
-      summary,
-      artifact: read.artifact,
-      assets: assets.ok ? assets.value : [],
-    });
+    const assetRecords = await readArtifactAssetRecords(summary.id);
+    const entry = await presentArtifact(
+      read.artifact,
+      assets.ok ? assets.value : [],
+      kindLabel,
+      value,
+    );
+    if (!assets.ok || !assetRecords.ok || assetRecords.value.length !== assets.value.length) {
+      const message = `Saved images for “${summary.name}” could not be read.`;
+      entry.status = 'incomplete';
+      entry.warnings.push(message);
+      entry.blocks.push({ type: 'notice', text: message });
+    }
+    entries.push(entry);
   }
-  return result;
+  return entries;
 }
 
-export async function buildProjectPdf(projectId: string): Promise<Blob | undefined> {
+export async function buildProjectPdfResult(
+  projectId: string,
+): Promise<ProjectPdfResult | undefined> {
   await hydrateProjects();
   const project = getProject(projectId);
   if (project === undefined) return undefined;
-  const artifacts = await collectProjectPdfArtifacts(projectId);
-  const { ARTIFACT_KINDS } = await import('$lib/workshop');
-  const { jsPDF } = await import('jspdf');
-  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'letter' });
-
-  doc.setFont('helvetica', 'bold');
-  doc.setFontSize(TITLE_FONT_SIZE);
-  doc.text(project.name, PAGE_WIDTH / 2, 80, {
-    align: 'center',
-    maxWidth: PAGE_WIDTH - MARGIN * 2,
-  });
-  doc.setFont('helvetica', 'normal');
-  doc.setFontSize(BODY_FONT_SIZE);
-  if (project.description !== undefined) {
-    doc.text(
-      doc.splitTextToSize(project.description, PAGE_WIDTH - MARGIN * 2),
-      PAGE_WIDTH / 2,
-      100,
-      {
-        align: 'center',
-        maxWidth: PAGE_WIDTH - MARGIN * 2,
-      },
-    );
-  }
-  doc.text(displaySetting(project), PAGE_WIDTH / 2, 125, { align: 'center' });
-
-  const state = { y: MARGIN };
-  for (const artifact of artifacts) {
-    doc.addPage();
-    state.y = MARGIN;
-    heading(doc, artifact.summary.name, state);
-    doc.setFontSize(BODY_FONT_SIZE - 1);
-    doc.setFont('helvetica', 'italic');
-    doc.text(
-      ARTIFACT_KINDS.byKind.get(artifact.summary.kind)?.displayName ?? artifact.summary.kind,
-      MARGIN,
-      state.y,
-    );
-    state.y += 7;
-    writeLines(doc, projectArtifactPayloadToLines(artifact.artifact.payload), state);
-    await writeAssets(doc, artifact, state);
-  }
-
-  return doc.output('blob');
+  const entries = await collectProjectPdfArtifacts(projectId);
+  return renderProjectBook(projectPublication(project, entries));
 }
 
-export async function downloadProjectPdf(projectId: string): Promise<string | undefined> {
+export async function buildProjectPdf(projectId: string): Promise<Blob | undefined> {
+  return (await buildProjectPdfResult(projectId))?.blob;
+}
+
+export async function downloadProjectPdf(
+  projectId: string,
+): Promise<ProjectPdfDownload | undefined> {
   const project = getProject(projectId);
   if (project === undefined) return undefined;
-  const blob = await buildProjectPdf(projectId);
-  if (blob === undefined) return undefined;
-  const url = URL.createObjectURL(blob);
-  Download(url, projectPdfFilename(project.name));
-  URL.revokeObjectURL(url);
-  return projectPdfFilename(project.name);
+  const result = await buildProjectPdfResult(projectId);
+  if (result === undefined) return undefined;
+  const filename = projectPdfFilename(project.name);
+  const url = URL.createObjectURL(result.blob);
+  try {
+    Download(url, filename);
+  } finally {
+    URL.revokeObjectURL(url);
+  }
+  return {
+    filename,
+    warnings: result.warnings,
+    incompleteEntries: result.incompleteEntries,
+  };
 }

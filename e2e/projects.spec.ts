@@ -126,6 +126,50 @@ test.describe('the projects page', () => {
     await expect(projectCard(page, 'Ashfall')).not.toContainText('0 B');
   });
 
+  test('downloads a project book from saved content', async ({ page }, testInfo) => {
+    await create(page, 'Ashfall');
+    await visitRoute(page, '/chop-shop', { title: 'Chop Shop Generator | Iron Arachne' });
+    await page.locator('.save-artifact').getByRole('button', { name: 'Save to project' }).click();
+    await page
+      .locator('.save-artifact')
+      .getByLabel('Name', { exact: true })
+      .fill('The Copper Garâge');
+    await page.locator('.save-artifact').getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(page.locator('.save-artifact').getByRole('status')).toContainText('Saved');
+
+    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    const download = page.waitForEvent('download');
+    await projectCard(page, 'Ashfall')
+      .getByRole('button', { name: 'Download project PDF' })
+      .click();
+    const file = await download;
+    expect(file.suggestedFilename()).toBe('ashfall.pdf');
+    const bytes = new Uint8Array(await new Response(await file.createReadStream()).arrayBuffer());
+    expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe('%PDF-');
+    expect(bytes.length).toBeGreaterThan(10000);
+    await file.saveAs(testInfo.outputPath('project-book.pdf'));
+    await expect(projectCard(page, 'Ashfall').getByRole('alert')).toHaveCount(0);
+  });
+
+  test('puts a saved coat of arms image into the project book', async ({ page }, testInfo) => {
+    await create(page, 'The Marches');
+    await visitRoute(page, '/heraldry', { title: 'Heraldry Generator | Iron Arachne' });
+    await expect(page.locator('p.blazon')).not.toBeEmpty();
+    await page.locator('.save-artifact').getByRole('button', { name: 'Save to project' }).click();
+    await page.locator('.save-artifact').getByLabel('Name', { exact: true }).fill('Emberhold arms');
+    await page.locator('.save-artifact').getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(page.locator('.save-artifact').getByRole('status')).toContainText('Saved');
+
+    await visitRoute(page, '/projects', { title: 'Projects | Iron Arachne' });
+    const download = page.waitForEvent('download');
+    await projectCard(page, 'The Marches')
+      .getByRole('button', { name: 'Download project PDF' })
+      .click();
+    const file = await download;
+    await file.saveAs(testInfo.outputPath('illustrated-project-book.pdf'));
+    await expect(projectCard(page, 'The Marches').getByRole('status')).toHaveCount(0);
+  });
+
   test('dresses the page in the open project genre, and follows a change live', async ({
     page,
   }) => {
