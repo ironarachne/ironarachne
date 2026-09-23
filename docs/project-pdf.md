@@ -1,7 +1,8 @@
 # Project PDF
 
-**Status:** proposal; replaces the implemented raw-payload export after human approval of the
-domain model.
+**Status:** accepted; the domain model and visual direction were approved for implementation,
+with a white page background for easier printing. The raw-payload export remains in place until
+the replacement is built.
 
 ## Problem and goal
 
@@ -50,7 +51,7 @@ pages if needed. The body follows the existing project listing order. Each artif
 new page with title, kind label, optional lead, and content. A long artifact continues under a
 running heading. Body pages carry quiet folios and the project title; the cover carries neither.
 
-Use near-white paper, dark charcoal ink, restrained lines, and one muted accent. The brand green
+Use white pages, dark charcoal ink, restrained lines, and one muted accent. The brand green
 is unsuitable for body text on white according to the brand palette's contrast data. Use a clear
 scale for book title, artifact title, section heading, body, caption, and metadata. Display type
 may use the branded Cinzel face; body type must be comfortable at print size. Both must be
@@ -59,8 +60,8 @@ WOFF/WOFF2; implementation must obtain PDF-compatible licensed files through the
 process or document a compatible alternative, without editing vendored assets in place. Text must
 remain selectable and wrap using actual embedded-font metrics.
 
-The reference art direction is a warm off-white page (approximately `#f7f4ec`) with charcoal
-(`#1b1e24`) text, granite (`#3c4350`) secondary labels, and thin tan (`#5c5031`) rules.
+The reference art direction is a white page (`#ffffff`, with no full-page background fill) with
+charcoal (`#1b1e24`) text, granite (`#3c4350`) secondary labels, and thin tan (`#5c5031`) rules.
 Gold (`#c8a46e`) or a genre accent can appear in rules and ornaments, not small text. A rough
 type target is 30–36 pt on the cover, 20–24 pt for artifact openings, 13–15 pt for section
 heads, 10–11 pt body with generous leading, and at least 8.5 pt for captions and folios.
