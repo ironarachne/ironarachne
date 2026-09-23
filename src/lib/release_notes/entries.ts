@@ -9,6 +9,18 @@ import type ReleaseNote from './release_note';
  */
 const entries: ReleaseNote[] = [
   {
+    date: '2026-09-23',
+    version: '3.1.0',
+    summary: 'Projects can now be downloaded as print-friendly books made from saved work',
+    features: [
+      'Download a project as a book with a cover, contents, page numbers, readable text, and saved images',
+    ],
+    improvements: [
+      'Project books present saved results as readable entries instead of lists of data fields, and show which entries could not be included completely',
+    ],
+    fixes: ['Fixed save-to-project fields that could appear at the wrong height'],
+  },
+  {
     date: '2026-09-22',
     version: '3.0.0',
     summary:

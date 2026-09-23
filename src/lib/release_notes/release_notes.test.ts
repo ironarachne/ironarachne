@@ -174,6 +174,7 @@ describe('releaseNoteEntries', () => {
     const versioned = releaseNoteEntries.filter((entry) => entry.version !== undefined);
 
     expect(versioned.map((entry) => entry.date)).toEqual([
+      '2026-09-23',
       '2026-09-22',
       '2026-08-17',
       '2026-08-13',
