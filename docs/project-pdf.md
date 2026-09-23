@@ -1,8 +1,12 @@
 # Project PDF
 
-**Status:** accepted; the domain model and visual direction were approved for implementation,
-with a white page background for easier printing. The raw-payload export remains in place until
-the replacement is built.
+**Status:** implemented; the domain model and visual direction were approved with a white page
+background for easier printing.
+
+The implementation uses the existing per-kind Markdown presentation functions as its semantic
+source, adapts them into publication blocks, and composes the pages in `src/lib/pdf`. Crimson Text
+is embedded from licensed TTF files in `src/lib/pdf/fonts`. Long project descriptions continue
+after contents; saved primary images can appear on the cover and in their artifact section.
 
 ## Problem and goal
 
