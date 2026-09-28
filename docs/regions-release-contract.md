@@ -3,8 +3,8 @@
 This is the design for [#326](https://github.com/ironarachne/ironarachne/issues/326), the foundation
 of the [Regions release](https://github.com/ironarachne/ironarachne/issues/322).
 
-**Status:** proposal; domain model and release boundary await human review. No implementation work
-under #328–#349 begins until the model is approved.
+**Status:** accepted. The human reviewer approved the release boundary and domain model on
+2026-09-28. Implementation remains tracked by #328–#349.
 
 ## User flow and release boundary
 
