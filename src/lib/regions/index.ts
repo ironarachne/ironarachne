@@ -12,3 +12,5 @@ export * from './region_presentation';
 export * from './region_rehydrate';
 export * from './region_roll';
 export * from './region_snapshot';
+export * from './region_fact_types';
+export * from './region_facts';

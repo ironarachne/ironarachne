@@ -99,10 +99,24 @@ export function setRegionPlaceText(
   value: string,
 ): RegionSnapshot {
   const places = snapshot[list];
+  if (list === 'settlements') {
+    return hasIndex(snapshot.settlements.length, index)
+      ? {
+          ...snapshot,
+          settlements: replaceAt(snapshot.settlements, index, {
+            ...snapshot.settlements[index],
+            snapshot: { ...snapshot.settlements[index].snapshot, [field]: value },
+          }),
+        }
+      : snapshot;
+  }
   return hasIndex(places.length, index)
     ? {
         ...snapshot,
-        [list]: replaceAt(places, index, { ...places[index], [field]: value }),
+        organizations: replaceAt(snapshot.organizations, index, {
+          ...snapshot.organizations[index],
+          [field]: value,
+        }),
       }
     : snapshot;
 }
@@ -114,7 +128,61 @@ export function removeRegionPlace(
   index: number,
 ): RegionSnapshot {
   const places = snapshot[list];
-  return hasIndex(places.length, index)
-    ? { ...snapshot, [list]: places.filter((_place, position) => position !== index) }
-    : snapshot;
+  if (!hasIndex(places.length, index)) return snapshot;
+  if (list === 'settlements') {
+    const removedId = snapshot.settlements[index].id;
+    const removedRoleIds = new Set(
+      snapshot.facts.settlementRoles
+        .filter(
+          (role) =>
+            role.settlement.kind === 'embedded' && role.settlement.settlementId === removedId,
+        )
+        .map((role) => role.id),
+    );
+    let claims = snapshot.facts.claims;
+    while (true) {
+      const retained = claims.filter(
+        (claim) =>
+          !removedRoleIds.has(claim.subjectId) &&
+          !claim.relatedIds.some((id) => removedRoleIds.has(id)),
+      );
+      if (retained.length === claims.length) break;
+      const keptIds = new Set(retained.map((claim) => claim.id));
+      for (const claim of claims) if (!keptIds.has(claim.id)) removedRoleIds.add(claim.id);
+      claims = retained;
+    }
+    const staleIfDependent = <
+      T extends {
+        reason?: { status: 'current' | 'stale'; sources: { kind: string; factId?: string }[] };
+      },
+    >(
+      fact: T,
+    ): T =>
+      fact.reason?.sources.some(
+        (source) => source.kind === 'fact' && removedRoleIds.has(source.factId ?? ''),
+      )
+        ? { ...fact, reason: { ...fact.reason, status: 'stale' as const } }
+        : fact;
+    return {
+      ...snapshot,
+      settlements: snapshot.settlements.filter((_place, position) => position !== index),
+      facts: {
+        ...snapshot.facts,
+        settlementRoles: snapshot.facts.settlementRoles
+          .filter(
+            (role) =>
+              role.settlement.kind !== 'embedded' || role.settlement.settlementId !== removedId,
+          )
+          .map(staleIfDependent),
+        areas: snapshot.facts.areas.map(staleIfDependent),
+        habitats: snapshot.facts.habitats.map(staleIfDependent),
+        notables: snapshot.facts.notables.map(staleIfDependent),
+        claims: claims.map(staleIfDependent),
+      },
+    };
+  }
+  return {
+    ...snapshot,
+    organizations: snapshot.organizations.filter((_place, position) => position !== index),
+  };
 }

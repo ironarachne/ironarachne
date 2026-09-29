@@ -168,7 +168,7 @@
 
       <!-- Keyed by position rather than by name: two may read the same while one is being typed,
            and a key that changed as the user typed would lose focus on every keystroke. -->
-      {#each region[group.list] as place, index (index)}
+      {#each group.list === 'settlements' ? region.settlements.map((entry) => entry.snapshot) : region.organizations as place, index (index)}
         <fieldset>
           <legend>{group.noun} {index + 1}</legend>
 

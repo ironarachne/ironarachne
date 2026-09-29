@@ -95,7 +95,10 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
     paragraphs,
     sections: [
       ...(realmLines.length === 0 ? [] : [{ heading: 'Realms', lines: realmLines }]),
-      ...namedList('Settlements', snapshot.settlements),
+      ...namedList(
+        'Settlements',
+        snapshot.settlements.map(({ snapshot: settlement }) => settlement),
+      ),
       ...namedList('Organizations', snapshot.organizations),
     ],
   };
@@ -134,12 +137,14 @@ export function regionToText(snapshot: RegionSnapshot): string {
  * by "the capital" whatever the payload calls it.
  */
 export function regionToMapSvg(snapshot: RegionSnapshot): string {
-  const settlements: RegionMapSvgSettlement[] = snapshot.settlements.map((settlement, index) => ({
-    ...(settlement.mapNodeId === undefined ? {} : { mapNodeId: settlement.mapNodeId }),
-    isCapital: index === 0,
-    name: settlement.name,
-    population: settlement.population,
-  }));
+  const settlements: RegionMapSvgSettlement[] = snapshot.settlements.map(
+    ({ snapshot: settlement }, index) => ({
+      ...(settlement.mapNodeId === undefined ? {} : { mapNodeId: settlement.mapNodeId }),
+      isCapital: index === 0,
+      name: settlement.name,
+      population: settlement.population,
+    }),
+  );
 
   return buildRegionMapSvgString(snapshot.map, {
     title: regionDisplayName(snapshot),

@@ -48,6 +48,21 @@ describe('a region snapshot', () => {
     );
   });
 
+  it('keeps local settlement identities and semantic facts across read and write', () => {
+    const area = {
+      id: 'area:one',
+      name: 'Hills',
+      description: '',
+      origin: 'authored' as const,
+      mapNodeIds: [snapshot.map.nodes[0].id],
+    };
+    const enriched = { ...snapshot, facts: { ...snapshot.facts, areas: [area] } };
+    const back = toRegionSnapshot(regionFromSnapshot(enriched, new RNG('rehydrate')));
+    expect(back.settlements.map(({ id }) => id)).toEqual(enriched.settlements.map(({ id }) => id));
+    expect(back.facts).toEqual(enriched.facts);
+    expect(() => structuredClone(back)).not.toThrow();
+  });
+
   it('keeps the region’s own ruler', () => {
     expect(restored.authority.firstName).toEqual(region.authority.firstName);
     expect(restored.authority.species.name).toEqual(region.authority.species.name);
@@ -84,9 +99,9 @@ describe('a region with a referenced settlement', () => {
     const first = { ...region.settlements[0], name: 'Unique referenced settlement' };
     const fixture = { ...region, settlements: [first, ...region.settlements.slice(1)] };
     const snapshot = toRegionSnapshot(fixture, { referencedSettlementName: first.name });
-    expect(snapshot.settlements.map((s) => s.name)).not.toContain(first.name);
+    expect(snapshot.settlements.map((s) => s.snapshot.name)).not.toContain(first.name);
     expect(snapshot.settlements).toHaveLength(region.settlements.length - 1);
-    expect(snapshot.settlements.map((s) => s.name)).toEqual(
+    expect(snapshot.settlements.map((s) => s.snapshot.name)).toEqual(
       region.settlements.slice(1).map((s) => s.name),
     );
   });

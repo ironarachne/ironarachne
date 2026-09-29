@@ -8,6 +8,7 @@ import {
   setRegionText,
 } from './region_editing';
 import { rollRegionSnapshot } from './region_roll';
+import { validateRegionSnapshot } from './region_artifact_kind';
 
 const snapshot = rollRegionSnapshot('editing-seed');
 
@@ -82,21 +83,68 @@ describe('editing one realm', () => {
 describe('editing the settlements and organizations', () => {
   it('renames one settlement and leaves the rest', () => {
     const edited = setRegionPlaceText(snapshot, 'settlements', 0, 'name', 'Coldwater');
-    expect(edited.settlements[0].name).toEqual('Coldwater');
+    expect(edited.settlements[0].snapshot.name).toEqual('Coldwater');
     expect(edited.settlements.slice(1)).toEqual(snapshot.settlements.slice(1));
     expect(edited.organizations).toEqual(snapshot.organizations);
   });
 
   it('rewrites a description without touching the name', () => {
     const edited = setRegionPlaceText(snapshot, 'settlements', 0, 'description', 'A mill town.');
-    expect(edited.settlements[0].description).toEqual('A mill town.');
-    expect(edited.settlements[0].name).toEqual(snapshot.settlements[0].name);
+    expect(edited.settlements[0].snapshot.description).toEqual('A mill town.');
+    expect(edited.settlements[0].snapshot.name).toEqual(snapshot.settlements[0].snapshot.name);
   });
 
   it('takes one out and leaves the rest', () => {
     const edited = removeRegionPlace(snapshot, 'settlements', 0);
     expect(edited.settlements).toHaveLength(snapshot.settlements.length - 1);
     expect(edited.settlements[0]).toEqual(snapshot.settlements[1]);
+  });
+
+  it('removes dependent roles and claims and marks other reasons stale', () => {
+    const nodeId = snapshot.map.nodes[0].id;
+    const facts = {
+      ...snapshot.facts,
+      settlementRoles: [
+        {
+          id: 'role:one',
+          name: 'Crossing',
+          description: '',
+          origin: 'authored' as const,
+          settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
+          areaIds: [],
+          anchor: { nodeIds: [nodeId], edgeIds: [] },
+        },
+      ],
+      habitats: [
+        {
+          id: 'habitat:one',
+          name: 'Moor',
+          description: '',
+          origin: 'authored' as const,
+          areaIds: [],
+          reason: {
+            ruleId: 'fantasy.habitat.v1',
+            status: 'current' as const,
+            sources: [{ kind: 'fact' as const, factId: 'role:one' }],
+          },
+        },
+      ],
+      claims: [
+        {
+          id: 'claim:one',
+          name: 'Traffic',
+          description: '',
+          origin: 'authored' as const,
+          subjectId: 'role:one',
+          relatedIds: [],
+        },
+      ],
+    };
+    const edited = removeRegionPlace({ ...snapshot, facts }, 'settlements', 0);
+    expect(edited.facts.settlementRoles).toEqual([]);
+    expect(edited.facts.claims).toEqual([]);
+    expect(edited.facts.habitats[0].reason?.status).toBe('stale');
+    expect(validateRegionSnapshot(edited).ok).toBe(true);
   });
 
   it('ignores an index that is not there', () => {

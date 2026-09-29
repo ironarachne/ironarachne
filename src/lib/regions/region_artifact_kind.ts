@@ -25,6 +25,7 @@ import {
 
 import type Region from './region.js';
 import type { RegionSnapshot } from './region_snapshot.js';
+import { emptyRegionFacts, regionFactsError } from './region_facts.js';
 
 /**
  * Stable artifact kind id. Unqualified: a region is neither a game system's nor a setting's, per
@@ -32,8 +33,8 @@ import type { RegionSnapshot } from './region_snapshot.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 2 qualifies every direct and composed actor's compatibility mechanics. */
-export const REGION_PAYLOAD_VERSION = 2 as const;
+/** Version 3 adds region-local settlement identities and semantic facts. */
+export const REGION_PAYLOAD_VERSION = 3 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -106,6 +107,19 @@ function validateList(
   return value.map(check).find((result) => !result.ok) ?? acceptedPayload(value);
 }
 
+function validateRegionSettlement(value: unknown, index: number): PayloadResult<unknown> {
+  const wrapped = asRecord(value);
+  if (
+    wrapped === null ||
+    typeof wrapped.id !== 'string' ||
+    !wrapped.id.startsWith('settlement:') ||
+    wrapped.id.length === 'settlement:'.length
+  ) {
+    return rejectedPayload('invalid-payload', `region settlement ${index} has no local ID`);
+  }
+  return validateSettlementSnapshot(wrapped.snapshot);
+}
+
 /**
  * Checks a region's own words, its map, and each of the four lists it composes.
  *
@@ -139,7 +153,7 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
   const checks = [
     validateMap(record.map),
     validateCharacterSnapshot(record.authority),
-    validateList(record.settlements, 'settlements', (entry) => validateSettlementSnapshot(entry)),
+    validateList(record.settlements, 'settlements', validateRegionSettlement),
     validateList(record.realms, 'realms', validateRealm),
     validateList(record.organizations, 'organizations', (entry) =>
       validateOrganizationSnapshot(entry),
@@ -150,18 +164,29 @@ export function validateRegionSnapshot(payload: unknown): PayloadResult<RegionSn
     return failed as PayloadResult<RegionSnapshot>;
   }
 
+  const settlements = record.settlements as RegionSnapshot['settlements'];
+  if (new Set(settlements.map((settlement) => settlement.id)).size !== settlements.length) {
+    return rejectedPayload('invalid-payload', 'region settlements have duplicate local IDs');
+  }
+  const factsError = regionFactsError(
+    record.facts,
+    record.map as RegionSnapshot['map'],
+    settlements,
+  );
+  if (factsError !== null) return rejectedPayload('invalid-payload', factsError);
+
   return acceptedPayload(record as unknown as RegionSnapshot);
 }
 
-/** Qualifies direct actors and composes the settlement and organization migrations. */
+/** Adds semantic identities without inventing absent facts; version 1 also migrates actors. */
 export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (from !== 1) {
+  if (from !== 1 && from !== 2) {
     return rejectedPayload(
       'unsupported-version',
-      `Regions have no migration from payload version ${from}; version 1 is the only older shape there has been`,
+      `Regions have no migration from payload version ${from}`,
     );
   }
   const record = asRecord(payload);
@@ -174,32 +199,38 @@ export function migrateRegionSnapshot(
     return actor === null ? value : withLegacyActorMechanics(actor, 'migrated');
   };
   const settlements = Array.isArray(record.settlements)
-    ? record.settlements.map((settlement) => {
-        const migrated = migrateSettlementSnapshot(settlement, 2);
-        return migrated.ok ? migrated.value : settlement;
+    ? record.settlements.map((settlement, index) => {
+        const migrated = from === 1 ? migrateSettlementSnapshot(settlement, 2) : null;
+        return {
+          id: `settlement:${index + 1}`,
+          snapshot: migrated?.ok ? migrated.value : settlement,
+        };
       })
     : record.settlements;
-  const organizations = Array.isArray(record.organizations)
-    ? record.organizations.map((organization) => {
-        const migrated = migrateOrganizationSnapshot(organization, 1);
-        return migrated.ok ? migrated.value : organization;
-      })
-    : record.organizations;
-  const realms = Array.isArray(record.realms)
-    ? record.realms.map((realm) => {
-        const storedRealm = asRecord(realm);
-        return storedRealm === null
-          ? realm
-          : { ...storedRealm, authority: migrateActor(storedRealm.authority) };
-      })
-    : record.realms;
+  const organizations =
+    from === 1 && Array.isArray(record.organizations)
+      ? record.organizations.map((organization) => {
+          const migrated = migrateOrganizationSnapshot(organization, 1);
+          return migrated.ok ? migrated.value : organization;
+        })
+      : record.organizations;
+  const realms =
+    from === 1 && Array.isArray(record.realms)
+      ? record.realms.map((realm) => {
+          const storedRealm = asRecord(realm);
+          return storedRealm === null
+            ? realm
+            : { ...storedRealm, authority: migrateActor(storedRealm.authority) };
+        })
+      : record.realms;
 
   return validateRegionSnapshot({
     ...record,
-    authority: migrateActor(record.authority),
+    authority: from === 1 ? migrateActor(record.authority) : record.authority,
     settlements,
     organizations,
     realms,
+    facts: emptyRegionFacts('legacy'),
   });
 }
 

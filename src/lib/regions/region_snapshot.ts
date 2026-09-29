@@ -31,10 +31,12 @@ import { toStoredArms, type StoredArms } from '$lib/heraldry';
 import type { RegionMap } from '$lib/map';
 import { toStoredOrganization, type StoredOrganization } from '$lib/organizations';
 import type { Realm } from '$lib/realms';
-import { toSettlementSnapshot, type SettlementSnapshot } from '$lib/settlements';
+import { toSettlementSnapshot } from '$lib/settlements';
 import { stripFunctionValuesDeep } from '$lib/persistent_save';
 
 import type Region from './region.js';
+import { emptyRegionFacts } from './region_facts.js';
+import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 /** A realm as it is stored: its arms and its ruler converted, its type named. */
 export type StoredRealm = Omit<Realm, 'heraldry' | 'authority' | 'realmType'> & {
@@ -50,7 +52,8 @@ export type RegionSnapshot = {
   environment: Environment;
   /** `null` when a referenced culture artifact supplies it. See the header. */
   dominantCulture: CultureSnapshot | null;
-  settlements: SettlementSnapshot[];
+  settlements: RegionSettlement[];
+  facts: RegionFacts;
   mainRealm: number;
   realms: StoredRealm[];
   authority: StoredCharacter;
@@ -88,11 +91,13 @@ export function toRegionSnapshot(
   region: Region,
   options: RegionReferenceOptions = {},
 ): RegionSnapshot {
-  const settlements = region.settlements.filter(
-    (settlement) =>
-      options.referencedSettlementName === undefined ||
-      settlement.name !== options.referencedSettlementName,
-  );
+  const settlements = region.settlements
+    .map((settlement, index) => ({ settlement, index }))
+    .filter(
+      ({ settlement }) =>
+        options.referencedSettlementName === undefined ||
+        settlement.name !== options.referencedSettlementName,
+    );
 
   const snapshot: RegionSnapshot = {
     name: region.name,
@@ -102,7 +107,11 @@ export function toRegionSnapshot(
       options.cultureIsReferenced === true || region.dominantCulture === null
         ? null
         : toCultureSnapshot(region.dominantCulture),
-    settlements: settlements.map(toSettlementSnapshot),
+    settlements: settlements.map(({ settlement, index }) => ({
+      id: region.settlementIds?.[index] ?? `settlement:${index + 1}`,
+      snapshot: toSettlementSnapshot(settlement),
+    })),
+    facts: region.facts ?? emptyRegionFacts('current'),
     mainRealm: region.mainRealm,
     realms: region.realms.map(toStoredRealm),
     authority: toStoredCharacter(region.authority),
