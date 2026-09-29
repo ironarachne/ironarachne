@@ -158,8 +158,7 @@ describe('validating a stored region', () => {
     const nodeId = snapshot.map.nodes[0].id;
     const edgeId = snapshot.map.edges[0].id;
     const facts = {
-      version: 1,
-      state: 'current',
+      ...snapshot.facts,
       areas: [
         {
           id: 'area:one',
@@ -204,13 +203,50 @@ describe('validating a stored region', () => {
           origin: 'authored',
         },
       ],
+      resources: [
+        {
+          id: 'resource:one',
+          kind: 'freshwater',
+          name: 'Springs',
+          description: '',
+          areaIds: ['area:one'],
+          habitatIds: ['habitat:one'],
+          origin: 'generated',
+          reason: {
+            ruleId: 'fantasy.resource.v1',
+            status: 'current',
+            sources: [{ kind: 'map-node', nodeId, property: 'moisture', observedValue: '0.8' }],
+          },
+        },
+      ],
+      routes: [
+        {
+          id: 'route:one',
+          kind: 'road',
+          name: 'Valley Road',
+          description: '',
+          areaIds: ['area:one'],
+          anchor: { nodeIds: [], edgeIds: [edgeId] },
+          endpoints: [
+            {
+              kind: 'settlement',
+              settlement: { kind: 'embedded', settlementId: snapshot.settlements[0].id },
+            },
+            {
+              kind: 'settlement',
+              settlement: { kind: 'artifact', targetId: 'outside-settlement' },
+            },
+          ],
+          origin: 'generated',
+        },
+      ],
       claims: [
         {
           id: 'claim:one',
           name: 'Trade',
           description: '',
           subjectId: 'role:one',
-          relatedIds: ['habitat:one'],
+          relatedIds: ['resource:one', 'route:one'],
           origin: 'generated',
           reason: {
             ruleId: 'fantasy.trade.v1',
@@ -251,6 +287,56 @@ describe('validating a stored region', () => {
         broken({ facts: { ...facts, claims: [{ ...facts.claims[0], relatedIds: ['missing'] }] } }),
       ),
     ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: { ...facts, resources: [{ ...facts.resources[0], habitatIds: ['missing'] }] },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: {
+            ...facts,
+            routes: [{ ...facts.routes[0], anchor: { nodeIds: [], edgeIds: [-1] } }],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: {
+            ...facts,
+            routes: [
+              {
+                ...facts.routes[0],
+                endpoints: [facts.routes[0].endpoints[0], facts.routes[0].endpoints[0]],
+              },
+            ],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: {
+            ...facts,
+            routes: [
+              {
+                ...facts.routes[0],
+                endpoints: [
+                  { kind: 'notable', notableId: 'missing' },
+                  facts.routes[0].endpoints[1],
+                ],
+              },
+            ],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
   });
 
   it('rejects duplicate identities and unknown future fact kinds', () => {
@@ -273,6 +359,78 @@ describe('validating a stored region', () => {
         broken({ settlements: [{ ...snapshot.settlements[0], id: 'wrong:one' }] }),
       ),
     ).toMatchObject({ ok: false });
+  });
+
+  it('validates anchored resources and boundary route endpoints', () => {
+    const edge = { ...snapshot.map.edges[0], d1: undefined };
+    const map = { ...snapshot.map, edges: [edge, ...snapshot.map.edges.slice(1)] };
+    const resource = {
+      id: 'resource:one',
+      kind: 'timber',
+      name: 'Woodland',
+      description: '',
+      areaIds: [],
+      habitatIds: [],
+      anchor: { nodeIds: [snapshot.map.nodes[0].id], edgeIds: [] },
+      origin: 'authored',
+    };
+    const route = {
+      id: 'route:one',
+      kind: 'road',
+      name: 'North Road',
+      description: '',
+      areaIds: [],
+      anchor: { nodeIds: [], edgeIds: [edge.id] },
+      origin: 'authored',
+      endpoints: [
+        { kind: 'boundary', edgeId: edge.id },
+        { kind: 'settlement', settlement: { kind: 'artifact', targetId: 'outside' } },
+      ],
+    };
+    const facts = { ...snapshot.facts, resources: [resource], routes: [route] };
+    expect(validateRegionSnapshot(broken({ map, facts })).ok).toBe(true);
+    expect(
+      validateRegionSnapshot(
+        broken({ map, facts: { ...facts, resources: [{ ...resource, kind: 'ore' }] } }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({ map, facts: { ...facts, resources: [{ ...resource, anchor: undefined }] } }),
+      ),
+    ).toMatchObject({ ok: false });
+    const nonBoundaryMap = { ...map, edges: [{ ...edge, d1: edge.d0 }, ...map.edges.slice(1)] };
+    expect(validateRegionSnapshot(broken({ map: nonBoundaryMap, facts }))).toMatchObject({
+      ok: false,
+    });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          map,
+          facts: {
+            ...facts,
+            routes: [{ ...route, endpoints: [{ kind: 'boundary', edgeId: edge.id }] }],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          map,
+          facts: { ...facts, routes: [{ ...route, anchor: { nodeIds: [], edgeIds: [] } }] },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+  });
+
+  it('requires resources and routes lists in the current payload', () => {
+    const { resources: _resources, ...missingResources } = snapshot.facts;
+    const { routes: _routes, ...missingRoutes } = snapshot.facts;
+    expect(validateRegionSnapshot(broken({ facts: missingResources }))).toMatchObject({
+      ok: false,
+    });
+    expect(validateRegionSnapshot(broken({ facts: missingRoutes }))).toMatchObject({ ok: false });
   });
 
   it('accepts stale missing sources but never an unknown source kind', () => {
@@ -318,6 +476,8 @@ describe('migrating a stored region (7.3)', () => {
       expect(result.value.description).toBe(snapshot.description);
       expect(result.value.facts.state).toBe('legacy');
       expect(result.value.facts.claims).toEqual([]);
+      expect(result.value.facts.resources).toEqual([]);
+      expect(result.value.facts.routes).toEqual([]);
       expect(result.value.settlements.map((entry) => entry.id)).toEqual(
         snapshot.settlements.map((entry) => entry.id),
       );
@@ -341,6 +501,8 @@ describe('migrating a stored region (7.3)', () => {
     if (result.ok) {
       expect(result.value.map).toEqual(snapshot.map);
       expect(result.value.facts).toMatchObject({ state: 'legacy', areas: [], claims: [] });
+      expect(result.value.facts.resources).toEqual([]);
+      expect(result.value.facts.routes).toEqual([]);
       expect(result.value.settlements[0].snapshot).toEqual(snapshot.settlements[0].snapshot);
       expect(regionToMarkdown(result.value)).toContain(result.value.name);
       expect(regionToMapSvg(result.value)).toContain('<svg');

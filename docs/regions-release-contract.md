@@ -278,11 +278,10 @@ the source path and saved payload let the UI detect when an edit or migration in
 allowed environment fields and map properties are typed enums in the implementation, rather than
 arbitrary executable paths. `ruleId` is data, never code to evaluate from a saved artifact.
 
-## Proposed resource and route extension for #328
+## Resource and route extension for #328
 
-**Status:** proposal awaiting human approval. The accepted model above has no dedicated resource or
-route fact, although #328 names both. This section proposes the missing nouns and relationships;
-it does not change the accepted model or authorize implementation yet.
+**Status:** accepted on 2026-09-29. This extends the accepted model above with the dedicated
+resource and route facts named in #328.
 
 A resource is a named occurrence grounded in a habitat, area, or observed map feature. It
 does not store a duplicate biome, a quantity, or an economy forecast. A route is a named corridor
@@ -290,7 +289,7 @@ over saved map edges between two identifiable endpoints. It does not store trave
 miles, or a second road graph. Both are facts with the same editable text, origin, and optional
 reason as the approved fact types.
 
-### Proposed domain model
+### Domain model
 
 ```mermaid
 classDiagram
@@ -377,13 +376,10 @@ generation checks whether the cited map edges actually support the proposed road
 whether the resource's environment and habitat support its kind. A missing or changed source marks
 a generated reason stale rather than asserting an unsupported cause.
 
-If this extension is implemented before the first release of the version 3 payload, add the two
-required arrays to that same payload with `RegionFacts.version` remaining `1`; migrations from
-payload versions 1 and 2 initialize both arrays empty alongside the other legacy fact lists. If
-version 3 ships first, the extension instead needs a new payload and semantic schema version with
-a migration that adds only empty arrays. In either case, old regions reopen and
-export without newly invented resources or routes. Derived route drawing remains outside the
-payload, just like the current SVG map.
+The two required arrays are part of the version 3 payload, with `RegionFacts.version` remaining
+`1`; migrations from payload versions 1 and 2 initialize both arrays empty alongside the other
+legacy fact lists. Old regions reopen and export without newly invented resources or routes.
+Derived route drawing remains outside the payload, just like the current SVG map.
 
 ## Representative result
 

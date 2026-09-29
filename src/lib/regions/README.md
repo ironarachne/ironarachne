@@ -76,9 +76,10 @@ The modules the readiness pass gives every Release-ready tool
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
-  notable places and causal claims cite those IDs or IDs in the saved map. Versions 1 and 2 migrate
-  to an empty `legacy` facts container. Migration preserves the original map, environment and
-  composed snapshots; it does not infer missing causes.
+  notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
+  Versions 1 and 2 migrate to an empty `legacy` facts container, including empty resource and route
+  lists. Migration preserves the original map, environment and composed snapshots; it does not
+  infer missing causes.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
 - **`region_presentation.ts`** — the gazetteer, as Markdown and as text, plus `regionToMapSvg` for

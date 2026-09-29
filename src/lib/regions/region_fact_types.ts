@@ -52,6 +52,24 @@ export type NotableFact = FactBase & {
   areaIds: string[];
   anchor?: SpatialAnchor;
 };
+export type ResourceKind = 'freshwater' | 'arable-land' | 'fish' | 'timber';
+export type ResourceFact = FactBase & {
+  kind: ResourceKind;
+  areaIds: string[];
+  habitatIds: string[];
+  anchor?: SpatialAnchor;
+};
+export type RouteKind = 'road' | 'river';
+export type RouteEndpoint =
+  | { kind: 'settlement'; settlement: SettlementTarget }
+  | { kind: 'notable'; notableId: string }
+  | { kind: 'boundary'; edgeId: number };
+export type RouteFact = FactBase & {
+  kind: RouteKind;
+  areaIds: string[];
+  anchor: SpatialAnchor;
+  endpoints: [RouteEndpoint, RouteEndpoint];
+};
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
@@ -61,5 +79,7 @@ export type RegionFacts = {
   habitats: HabitatFact[];
   settlementRoles: SettlementRoleFact[];
   notables: NotableFact[];
+  resources: ResourceFact[];
+  routes: RouteFact[];
   claims: CausalFact[];
 };

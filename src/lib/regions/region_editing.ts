@@ -54,8 +54,16 @@ function settlementRemovalDependencies(
   const roles = snapshot.facts.settlementRoles.filter(
     (role) => role.settlement.kind === 'embedded' && role.settlement.settlementId === settlementId,
   );
-  if (roles.some((role) => role.origin === 'authored')) return null;
-  const removedIds = new Set(roles.map((role) => role.id));
+  const routes = snapshot.facts.routes.filter((route) =>
+    route.endpoints.some(
+      (endpoint) =>
+        endpoint.kind === 'settlement' &&
+        endpoint.settlement.kind === 'embedded' &&
+        endpoint.settlement.settlementId === settlementId,
+    ),
+  );
+  if ([...roles, ...routes].some((fact) => fact.origin === 'authored')) return null;
+  const removedIds = new Set([...roles, ...routes].map((fact) => fact.id));
   while (true) {
     const dependents = snapshot.facts.claims.filter(
       (claim) =>
@@ -185,6 +193,10 @@ export function removeRegionPlace(
         areas: snapshot.facts.areas.map(staleIfDependent),
         habitats: snapshot.facts.habitats.map(staleIfDependent),
         notables: snapshot.facts.notables.map(staleIfDependent),
+        resources: snapshot.facts.resources.map(staleIfDependent),
+        routes: snapshot.facts.routes
+          .filter((route) => !removedIds.has(route.id))
+          .map(staleIfDependent),
         claims: snapshot.facts.claims
           .filter((claim) => !removedIds.has(claim.id))
           .map(staleIfDependent),

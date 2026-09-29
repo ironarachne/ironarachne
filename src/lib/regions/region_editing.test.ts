@@ -130,6 +130,47 @@ describe('editing the settlements and organizations', () => {
           },
         },
       ],
+      resources: [
+        {
+          id: 'resource:one',
+          kind: 'freshwater' as const,
+          name: 'Springs',
+          description: '',
+          origin: 'generated' as const,
+          areaIds: [],
+          habitatIds: [],
+          anchor: { nodeIds: [nodeId], edgeIds: [] },
+          reason: {
+            ruleId: 'fantasy.resource.v1',
+            status: 'current' as const,
+            sources: [{ kind: 'fact' as const, factId: 'route:one' }],
+          },
+        },
+      ],
+      routes: [
+        {
+          id: 'route:one',
+          kind: 'road' as const,
+          name: 'Town Road',
+          description: '',
+          origin: 'generated' as const,
+          areaIds: [],
+          anchor: { nodeIds: [], edgeIds: [snapshot.map.edges[0].id] },
+          endpoints: [
+            {
+              kind: 'settlement' as const,
+              settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
+            },
+            {
+              kind: 'settlement' as const,
+              settlement: { kind: 'artifact' as const, targetId: 'outside' },
+            },
+          ] as [
+            { kind: 'settlement'; settlement: { kind: 'embedded'; settlementId: string } },
+            { kind: 'settlement'; settlement: { kind: 'artifact'; targetId: string } },
+          ],
+        },
+      ],
       claims: [
         {
           id: 'claim:one',
@@ -143,8 +184,10 @@ describe('editing the settlements and organizations', () => {
     };
     const edited = removeRegionPlace({ ...snapshot, facts }, 'settlements', 0);
     expect(edited.facts.settlementRoles).toEqual([]);
+    expect(edited.facts.routes).toEqual([]);
     expect(edited.facts.claims).toEqual([]);
     expect(edited.facts.habitats[0].reason?.status).toBe('stale');
+    expect(edited.facts.resources[0].reason?.status).toBe('stale');
     expect(validateRegionSnapshot(edited).ok).toBe(true);
   });
 
@@ -185,6 +228,38 @@ describe('editing the settlements and organizations', () => {
     };
     expect(canRemoveRegionSettlement(withAuthoredClaim, 0)).toBe(false);
     expect(removeRegionPlace(withAuthoredClaim, 'settlements', 0)).toBe(withAuthoredClaim);
+    const withAuthoredRoute = {
+      ...snapshot,
+      facts: {
+        ...snapshot.facts,
+        routes: [
+          {
+            id: 'route:one',
+            kind: 'road' as const,
+            name: 'Home Road',
+            description: '',
+            origin: 'authored' as const,
+            areaIds: [],
+            anchor: { nodeIds: [], edgeIds: [snapshot.map.edges[0].id] },
+            endpoints: [
+              {
+                kind: 'settlement' as const,
+                settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
+              },
+              {
+                kind: 'settlement' as const,
+                settlement: { kind: 'artifact' as const, targetId: 'outside' },
+              },
+            ] as [
+              { kind: 'settlement'; settlement: { kind: 'embedded'; settlementId: string } },
+              { kind: 'settlement'; settlement: { kind: 'artifact'; targetId: string } },
+            ],
+          },
+        ],
+      },
+    };
+    expect(canRemoveRegionSettlement(withAuthoredRoute, 0)).toBe(false);
+    expect(removeRegionPlace(withAuthoredRoute, 'settlements', 0)).toBe(withAuthoredRoute);
   });
 
   it('ignores an index that is not there', () => {

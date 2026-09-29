@@ -9,6 +9,8 @@ export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
     habitats: [],
     settlementRoles: [],
     notables: [],
+    resources: [],
+    routes: [],
     claims: [],
   };
 }
@@ -47,8 +49,16 @@ export function regionFactsError(
   ) {
     return 'region facts have an unsupported version or state';
   }
-  const keys = ['areas', 'habitats', 'settlementRoles', 'notables', 'claims'] as const;
-  if (keys.some((key) => !Array.isArray(facts[key]))) return 'region facts need all five lists';
+  const keys = [
+    'areas',
+    'habitats',
+    'settlementRoles',
+    'notables',
+    'resources',
+    'routes',
+    'claims',
+  ] as const;
+  if (keys.some((key) => !Array.isArray(facts[key]))) return 'region facts need all seven lists';
   const entries = keys.flatMap((key) => facts[key] as unknown[]);
   const factIds = new Set<string>();
   for (const key of keys) {
@@ -61,9 +71,13 @@ export function regionFactsError(
             ? 'habitat:'
             : key === 'settlementRoles'
               ? 'role:'
-              : key === 'claims'
-                ? 'claim:'
-                : `${fact?.kind}:`;
+              : key === 'resources'
+                ? 'resource:'
+                : key === 'routes'
+                  ? 'route:'
+                  : key === 'claims'
+                    ? 'claim:'
+                    : `${fact?.kind}:`;
       if (
         fact === null ||
         !nonempty(fact.id) ||
@@ -81,10 +95,26 @@ export function regionFactsError(
   const nodeIds = graphIds(map.nodes);
   const edgeIds = graphIds(map.edges);
   const areaIds = new Set((facts.areas as RecordValue[]).map((area) => area.id as string));
+  const habitatIds = new Set(
+    (facts.habitats as RecordValue[]).map((habitat) => habitat.id as string),
+  );
+  const notableIds = new Set(
+    (facts.notables as RecordValue[]).map((notable) => notable.id as string),
+  );
   const settlementIds = new Set(settlements.map((settlement) => settlement.id));
   const anchorValid = (value: unknown): boolean => {
     const anchor = object(value);
     return anchor !== null && ids(anchor.nodeIds, nodeIds) && ids(anchor.edgeIds, edgeIds);
+  };
+  const settlementTargetValid = (value: unknown): boolean => {
+    const target = object(value);
+    return (
+      target !== null &&
+      ((target.kind === 'embedded' &&
+        nonempty(target.settlementId) &&
+        settlementIds.has(target.settlementId)) ||
+        (target.kind === 'artifact' && nonempty(target.targetId)))
+    );
   };
   for (const entry of facts.areas as RecordValue[]) {
     if (!ids(entry.mapNodeIds, nodeIds)) return 'region area cites an unknown map node';
@@ -99,17 +129,74 @@ export function regionFactsError(
         return 'region notable has an unknown kind';
       }
       if (key === 'settlementRoles') {
-        const target = object(entry.settlement);
-        if (
-          target === null ||
-          (target.kind === 'embedded' &&
-            (!nonempty(target.settlementId) || !settlementIds.has(target.settlementId))) ||
-          (target.kind === 'artifact' && !nonempty(target.targetId)) ||
-          (target.kind !== 'embedded' && target.kind !== 'artifact')
-        )
+        if (!settlementTargetValid(entry.settlement))
           return 'region role cites an unknown settlement';
       }
     }
+  }
+  for (const entry of facts.resources as RecordValue[]) {
+    if (!['freshwater', 'arable-land', 'fish', 'timber'].includes(String(entry.kind))) {
+      return 'region resource has an unknown kind';
+    }
+    if (!strings(entry.areaIds, areaIds) || !strings(entry.habitatIds, habitatIds)) {
+      return 'region resource cites an unknown area or habitat';
+    }
+    if (entry.anchor !== undefined && !anchorValid(entry.anchor)) {
+      return 'region resource anchor cites an unknown map feature';
+    }
+    const anchor = object(entry.anchor);
+    if (
+      (entry.areaIds as string[]).length === 0 &&
+      (anchor === null ||
+        ((anchor.nodeIds as number[]).length === 0 && (anchor.edgeIds as number[]).length === 0))
+    ) {
+      return 'region resource has no location';
+    }
+  }
+  const mapEdges = new Map(
+    map.edges.flatMap((edge) => {
+      const record = object(edge);
+      return record !== null && Number.isInteger(record.id)
+        ? ([[record.id as number, record]] as const)
+        : [];
+    }),
+  );
+  for (const entry of facts.routes as RecordValue[]) {
+    if (!['road', 'river'].includes(String(entry.kind))) return 'region route has an unknown kind';
+    if (!strings(entry.areaIds, areaIds)) return 'region route cites an unknown area';
+    if (!anchorValid(entry.anchor)) return 'region route anchor cites an unknown map feature';
+    const anchor = entry.anchor as { edgeIds: number[] };
+    if (anchor.edgeIds.length === 0) return 'region route has no map edges';
+    if (!Array.isArray(entry.endpoints) || entry.endpoints.length !== 2) {
+      return 'region route needs exactly two endpoints';
+    }
+    const endpointKeys: string[] = [];
+    for (const value of entry.endpoints) {
+      const endpoint = object(value);
+      if (endpoint === null) return 'region route has an invalid endpoint';
+      if (endpoint.kind === 'settlement' && settlementTargetValid(endpoint.settlement)) {
+        const target = object(endpoint.settlement)!;
+        endpointKeys.push(
+          `${target.kind}:${target.kind === 'embedded' ? target.settlementId : target.targetId}`,
+        );
+      } else if (
+        endpoint.kind === 'notable' &&
+        nonempty(endpoint.notableId) &&
+        notableIds.has(endpoint.notableId)
+      ) {
+        endpointKeys.push(`notable:${endpoint.notableId}`);
+      } else if (
+        endpoint.kind === 'boundary' &&
+        Number.isInteger(endpoint.edgeId) &&
+        mapEdges.get(endpoint.edgeId as number)?.d1 === undefined &&
+        anchor.edgeIds.includes(endpoint.edgeId as number)
+      ) {
+        endpointKeys.push(`boundary:${endpoint.edgeId}`);
+      } else {
+        return 'region route endpoint cites an unknown place or boundary';
+      }
+    }
+    if (endpointKeys[0] === endpointKeys[1]) return 'region route endpoints are identical';
   }
   for (const entry of facts.claims as RecordValue[]) {
     if (

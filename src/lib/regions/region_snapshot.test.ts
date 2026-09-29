@@ -4,6 +4,7 @@ import { RNG } from '@ironarachne/rng';
 import { rollRegion } from './region_roll';
 import { regionFromSnapshot, realmTypeFromStoredName } from './region_rehydrate';
 import { toRegionSnapshot } from './region_snapshot';
+import type { RegionFacts } from './region_fact_types';
 
 /**
  * Requirement 7.2: `fromSnapshot(toSnapshot(x))` preserves everything that matters.
@@ -56,7 +57,40 @@ describe('a region snapshot', () => {
       origin: 'authored' as const,
       mapNodeIds: [snapshot.map.nodes[0].id],
     };
-    const enriched = { ...snapshot, facts: { ...snapshot.facts, areas: [area] } };
+    const facts: RegionFacts = {
+      ...snapshot.facts,
+      areas: [area],
+      resources: [
+        {
+          id: 'resource:one',
+          kind: 'freshwater',
+          name: 'Spring',
+          description: '',
+          areaIds: [area.id],
+          habitatIds: [],
+          origin: 'authored',
+        },
+      ],
+      routes: [
+        {
+          id: 'route:one',
+          kind: 'road',
+          name: 'Hills Road',
+          description: '',
+          areaIds: [area.id],
+          anchor: { nodeIds: [], edgeIds: [snapshot.map.edges[0].id] },
+          endpoints: [
+            {
+              kind: 'settlement',
+              settlement: { kind: 'embedded', settlementId: snapshot.settlements[0].id },
+            },
+            { kind: 'settlement', settlement: { kind: 'artifact', targetId: 'outside' } },
+          ],
+          origin: 'authored',
+        },
+      ],
+    };
+    const enriched = { ...snapshot, facts };
     const back = toRegionSnapshot(regionFromSnapshot(enriched, new RNG('rehydrate')));
     expect(back.settlements.map(({ id }) => id)).toEqual(enriched.settlements.map(({ id }) => id));
     expect(back.facts).toEqual(enriched.facts);
