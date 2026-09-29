@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  canRemoveRegionSettlement,
   removeRegionPlace,
   setRealmText,
   setRegionMainRealm,
@@ -109,7 +110,7 @@ describe('editing the settlements and organizations', () => {
           id: 'role:one',
           name: 'Crossing',
           description: '',
-          origin: 'authored' as const,
+          origin: 'generated' as const,
           settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
           areaIds: [],
           anchor: { nodeIds: [nodeId], edgeIds: [] },
@@ -120,7 +121,7 @@ describe('editing the settlements and organizations', () => {
           id: 'habitat:one',
           name: 'Moor',
           description: '',
-          origin: 'authored' as const,
+          origin: 'generated' as const,
           areaIds: [],
           reason: {
             ruleId: 'fantasy.habitat.v1',
@@ -134,7 +135,7 @@ describe('editing the settlements and organizations', () => {
           id: 'claim:one',
           name: 'Traffic',
           description: '',
-          origin: 'authored' as const,
+          origin: 'generated' as const,
           subjectId: 'role:one',
           relatedIds: [],
         },
@@ -145,6 +146,45 @@ describe('editing the settlements and organizations', () => {
     expect(edited.facts.claims).toEqual([]);
     expect(edited.facts.habitats[0].reason?.status).toBe('stale');
     expect(validateRegionSnapshot(edited).ok).toBe(true);
+  });
+
+  it('protects authored dependencies when a settlement is removed', () => {
+    const facts = {
+      ...snapshot.facts,
+      settlementRoles: [
+        {
+          id: 'role:one',
+          name: 'Home',
+          description: '',
+          origin: 'authored' as const,
+          settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
+          areaIds: [],
+          anchor: { nodeIds: [], edgeIds: [] },
+        },
+      ],
+    };
+    const authored = { ...snapshot, facts };
+    expect(canRemoveRegionSettlement(authored, 0)).toBe(false);
+    expect(removeRegionPlace(authored, 'settlements', 0)).toBe(authored);
+    const withAuthoredClaim = {
+      ...authored,
+      facts: {
+        ...facts,
+        settlementRoles: [{ ...facts.settlementRoles[0], origin: 'generated' as const }],
+        claims: [
+          {
+            id: 'claim:one',
+            name: 'Memory',
+            description: '',
+            origin: 'authored' as const,
+            subjectId: 'role:one',
+            relatedIds: [],
+          },
+        ],
+      },
+    };
+    expect(canRemoveRegionSettlement(withAuthoredClaim, 0)).toBe(false);
+    expect(removeRegionPlace(withAuthoredClaim, 'settlements', 0)).toBe(withAuthoredClaim);
   });
 
   it('ignores an index that is not there', () => {

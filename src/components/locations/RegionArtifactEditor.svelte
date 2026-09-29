@@ -2,6 +2,7 @@
   import Notice from '$components/common/Notice.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
   import {
+    canRemoveRegionSettlement,
     removeRegionPlace,
     setRealmText,
     setRegionMainRealm,
@@ -204,11 +205,17 @@
 
           <BaseButton
             aria-label="Remove {group.noun.toLowerCase()} {index + 1} from this region"
+            disabled={group.list === 'settlements' && !canRemoveRegionSettlement(region, index)}
             onclick={() => edit((current) => removeRegionPlace(current, group.list, index))}
           >
             Remove {group.noun.toLowerCase()}
             {index + 1}
           </BaseButton>
+          {#if group.list === 'settlements' && !canRemoveRegionSettlement(region, index)}
+            <p class="region-editor__note">
+              Authored region facts refer to this settlement, so it cannot be removed here.
+            </p>
+          {/if}
         </fieldset>
       {/each}
     {/each}
