@@ -15,6 +15,7 @@ import type Region from './region.js';
 import {
   createRegionStageRng,
   generateHabitatFacts,
+  generateEcologyInhabitants,
   generateResourceFacts,
   generateHabitationFacts,
   generateNotableFacts,
@@ -253,6 +254,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   recordPhysicalFacts(region, profile);
 
   generateHabitatFacts(region, createRegionStageRng(seed, 'habitats'));
+  generateEcologyInhabitants(region, createRegionStageRng(seed, 'ecology-inhabitants'));
   generateResourceFacts(region, createRegionStageRng(seed, 'resources'));
 
   const habitationConfig = stageConfig('habitation');

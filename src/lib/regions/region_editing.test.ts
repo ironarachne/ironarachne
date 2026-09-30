@@ -268,3 +268,53 @@ describe('editing the settlements and organizations', () => {
     expect(removeRegionPlace(snapshot, 'settlements', 99)).toEqual(snapshot);
   });
 });
+
+describe('settlement removal with ecological uses', () => {
+  it('removes generated uses and their claims while preserving inhabitants, and protects authored uses', () => {
+    const saved = structuredClone(snapshot);
+    saved.facts.ecologyInhabitants = [
+      {
+        id: 'inhabitant:reed',
+        name: 'Reeds',
+        description: '',
+        origin: 'generated',
+        category: 'flora',
+        roles: ['producer'],
+        source: { kind: 'described', label: 'reeds' },
+        habitatIds: [saved.facts.habitats[0].id],
+      },
+    ];
+    saved.facts.ecologyRelationships = [
+      {
+        id: 'ecology:reed-use',
+        name: 'Reed use',
+        description: '',
+        origin: 'generated',
+        subjectId: 'inhabitant:reed',
+        habitatIds: [saved.facts.habitats[0].id],
+        relation: {
+          kind: 'used-by',
+          settlement: { kind: 'embedded', settlementId: saved.settlements[0].id },
+          use: 'material',
+        },
+      },
+    ];
+    saved.facts.claims.push({
+      id: 'claim:reed-use',
+      name: 'Reed roofs',
+      description: '',
+      origin: 'generated',
+      subjectId: 'ecology:reed-use',
+      relatedIds: [],
+    });
+    expect(validateRegionSnapshot(saved).ok).toBe(true);
+    const removed = removeRegionPlace(saved, 'settlements', 0);
+    expect(removed.facts.ecologyRelationships).toEqual([]);
+    expect(removed.facts.claims.some((entry) => entry.id === 'claim:reed-use')).toBe(false);
+    expect(removed.facts.ecologyInhabitants).toEqual(saved.facts.ecologyInhabitants);
+    expect(validateRegionSnapshot(removed).ok).toBe(true);
+    saved.facts.ecologyRelationships[0].origin = 'authored';
+    expect(canRemoveRegionSettlement(saved, 0)).toBe(false);
+    expect(removeRegionPlace(saved, 'settlements', 0)).toBe(saved);
+  });
+});

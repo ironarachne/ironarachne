@@ -4,6 +4,8 @@ import type { AltitudeBand, ReliefClass } from '$lib/map';
 export type RegionGenerationStage =
   | 'physical-geography'
   | 'habitats'
+  | 'ecology-inhabitants'
+  | 'ecology-relationships'
   | 'resources'
   | 'habitation'
   | 'notable-places'

@@ -72,13 +72,13 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 3. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 4. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
-  Versions 1 and 2 migrate to an empty `legacy` facts container, including empty resource and route
-  lists. Migration preserves the original map, environment and composed snapshots; it does not
+  Versions 1 and 2 migrate to an empty `legacy` facts container. Version 3 preserves all existing
+  facts and adds empty ecology lists; facts are now version 2. Migration preserves the original map, environment and composed snapshots; it does not
   infer missing causes.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
@@ -103,7 +103,7 @@ derived from the saved `RegionMap` and stays outside the payload.
 
 ## Dependent passes
 
-New rolls run physical geography, habitats, resources, habitation, notable places, and presentation
+New rolls run physical geography, habitats, ecology inhabitants, resources, habitation, notable places, and presentation
 with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
 habitation, so their internal RNG does not couple names to geography. Generated semantic facts carry
 saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
@@ -146,3 +146,47 @@ notable section. Wording and selection use the isolated presentation RNG without
 Opening a snapshot never runs presentation. Saved descriptions, including user edits and intentional
 blanks, remain authoritative in the editor and exports.
 See [grounded landmarks and hazards](../../../docs/region-notable-places.md).
+
+## Characteristic inhabitants (#335)
+
+`generateEcologyInhabitants` runs on the isolated `ecology-inhabitants` stream after habitats.
+It selects up to four major habitats in prevalence order with semantic-ID ties, at most two flora
+and three fauna/fantastical inhabitants per habitat, one fantastical inhabitant per habitat and two
+distinct fantastical inhabitants overall. Repeated source/role occurrences merge into one saved
+fact with sorted habitat IDs; at most twenty distinct inhabitants are generated. No minimum forces
+an organism or a fantasy creature into unsupported conditions.
+
+Candidates reuse terrestrial biome vegetation/fauna labels, exact species-name aliases and a small
+curated suitability/role table in `region_ecology_rules.ts`. Each supporting cell must satisfy the
+biome's temperature, moisture and altitude ranges. Additional rules require compatible species
+environments, the shared landform classification and observed freshwater/coastal access as needed.
+The same cell must support all conditions; a river in a disconnected unsuitable patch cannot
+justify a wet-bank organism. Ecosystem strings contribute saved provenance only when the native
+biome label or a curated rule independently supports that candidate. Unknown ecosystem strings
+are omitted rather than treating a region-wide list as habitat metadata.
+
+Reasons retain habitat IDs and the actual map/environment observations tested. Species sources
+store names, descriptive sources store labels, and neither embeds a catalog entry or creature.
+Unknown species names remain readable in saved facts. Loading, JSON export and editing retain
+those facts without selecting again. Generic validation checks ecology IDs, roles, sources,
+habitats, relationship endpoints, pollination, settlement uses and duplicate relations. The
+relationship list is empty on new rolls until #336; display work belongs to #344, regeneration and
+structural editing to #347, and named creature-reference integration to #337. See the
+[approved ecology model](../../../docs/region-ecology.md).
+
+### Catalog gaps and conservative omissions
+
+The ecosystem generator currently supplies empty organism lists. There is no plant species
+registry, and most animal species lack explicit niches, diets and suitability ranges. Native
+unknown biome labels stay descriptive with role `other`; only the listed plant metadata and
+curated animal rules establish more specific roles. Broad environment labels use a fixed alias
+map; no biology is extracted from prose or threat levels. Species with missing/incompatible
+metadata are omitted. Unknown biome labels and contradictory local conditions can yield no ecology.
+
+Open-water communities, water lilies, algae, marine ice fauna, mudskippers and oasis-dependent date
+palms are omitted until habitat/suitability data supports them. Rules deliberately use coarse
+ranges, not scientific range maps. Follow-on catalog work should add reviewed plant identities,
+water-specific and seasonal suitability, then explicit relationship metadata for #336. Adding a
+rule means defining its role and local evidence requirements, adding a contrast/omission test,
+and retaining the existing versioned rule ID for old saves (use a new rule version if semantics
+change). Do not force a feeding chain from co-occurrence.
