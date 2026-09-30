@@ -29,7 +29,9 @@ The passes run in this order:
    unplaced settlement is rejected. Low-elevation fallback sites have an explicit fallback reason.
 5. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
    Richer notable rules follow in #332.
-6. **Presentation:** retains the existing overview description; #333 adds causal overview rendering.
+6. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
+   settlement site cause, resources, a road connection and a localized hazard. Choices use only the
+   presentation stream. Empty optional systems and stale facts contribute no filler.
 
 Every generated semantic fact carries a versioned `fantasy:region:*:v1` rule ID and references to
 saved observations or prior facts. A random choice decides among supported candidates; randomness
@@ -51,8 +53,9 @@ finished maps do not always achieve the requested altitude/relief profile. The p
 actual median elevation, relief spread, and mountain fractions using the existing map classifiers.
 A mismatch is explicitly explained in the regional land fact rather than silently remapping the
 saved graph. Downstream facts use actual map observations. Enforcing all nine profile combinations
-remains a terrain-generation defect to resolve in the release acceptance work; the original
-profile-based environment prose is retained and may disagree with the explicit map explanation.
+remains a terrain-generation defect to resolve in the release acceptance work. The environment
+record retains its original profile-based description; the regional overview instead uses the
+realized map classifications, so it does not repeat that mismatch.
 
 ## Verification
 

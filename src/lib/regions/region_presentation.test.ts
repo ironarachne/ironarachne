@@ -119,7 +119,8 @@ describe('exporting a region (6.3)', () => {
   it('writes the same document as plain text, without repeating the title', () => {
     const text = regionToText(snapshot);
     expect(text).toContain('REALMS');
-    expect(text.startsWith(snapshot.name)).toBe(false);
+    expect(text.startsWith(snapshot.description)).toBe(true);
+    expect(text.split('\n\n')).not.toContain(snapshot.name);
   });
 
   it('never leaves a blank line where a part had nothing to say', () => {
