@@ -32,7 +32,7 @@ describe('dependent generation passes', () => {
     expect(regionFactsError(result.facts, result.map, result.settlements)).toBeNull();
     expect(result.facts.areas.length).toBeGreaterThan(0);
     expect(result.facts.habitats.length).toBeGreaterThan(0);
-    expect(result.facts.settlementRoles.length).toBe(result.settlements.length);
+    expect(result.facts.settlementRoles.length).toBe(result.settlements.length + 1);
   });
 
   it('changes the payload with the seed', () => {

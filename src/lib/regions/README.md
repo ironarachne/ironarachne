@@ -118,3 +118,12 @@ connected zones become `RegionArea` facts linked from their habitats. Descriptio
 climate and altitude plus observed coasts and rivers; they never alter or regenerate the map.
 Zone IDs use the smallest member node ID, and habitat IDs use the biome name; ties and graph
 traversal are deterministic. See [spatial habitats](../../../docs/region-habitats.md).
+
+## Settlement sites
+
+The habitation pass records geographic site roles, road routes between stable settlement targets,
+and related causal claims without changing saved placements or names. A separate capital role
+preserves the seat's identity when settlements are reordered. Rules use observed river/road edges,
+coastal ocean access, and suitable grassland or forest cells; unsupported sites retain a land-role
+explanation. Loading preserves authored snapshots and facts. See
+[geographic settlement sites](../../../docs/region-settlement-sites.md).
