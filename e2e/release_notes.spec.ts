@@ -1,19 +1,31 @@
 import { expect, test } from '@playwright/test';
 
 import { visitRoute } from './helpers';
+import { releaseNoteEntries } from '../src/lib/release_notes';
 
 test.describe('release notes', () => {
   test('splits an entry into headed categories', async ({ page }) => {
     await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
 
-    // The newest entry is the one that exercises all four categories, which is why the assertion
-    // is scoped to it rather than to the page — an older entry with only fixes is equally correct.
-    const newest = page.locator('section.release-notes > div').first();
+    // Choose a recorded entry containing all four categories; newer releases may omit some.
+    const index = releaseNoteEntries.findIndex((entry) =>
+      [entry.features, entry.improvements, entry.fixes, entry.housekeeping].every(
+        (items) => (items?.length ?? 0) > 0,
+      ),
+    );
+    expect(index).toBeGreaterThanOrEqual(0);
+    const categorized = page.locator('section.release-notes > div').nth(index);
 
-    await expect(newest.getByRole('heading', { name: 'New features', level: 3 })).toBeVisible();
-    await expect(newest.getByRole('heading', { name: 'Improvements', level: 3 })).toBeVisible();
-    await expect(newest.getByRole('heading', { name: 'Bug fixes', level: 3 })).toBeVisible();
-    await expect(newest.getByRole('heading', { name: 'Housekeeping', level: 3 })).toBeVisible();
+    await expect(
+      categorized.getByRole('heading', { name: 'New features', level: 3 }),
+    ).toBeVisible();
+    await expect(
+      categorized.getByRole('heading', { name: 'Improvements', level: 3 }),
+    ).toBeVisible();
+    await expect(categorized.getByRole('heading', { name: 'Bug fixes', level: 3 })).toBeVisible();
+    await expect(
+      categorized.getByRole('heading', { name: 'Housekeeping', level: 3 }),
+    ).toBeVisible();
   });
 
   test('shows a version on the entries that had a release, and nothing where there was none', async ({
@@ -21,12 +33,10 @@ test.describe('release notes', () => {
   }) => {
     await visitRoute(page, '/release-notes', { title: 'Release Notes | Iron Arachne' });
 
-    await expect(page.getByText('v2.5.0', { exact: true })).toBeVisible();
-    await expect(page.getByText('v2.4.0', { exact: true })).toBeVisible();
-
-    // Only two of the entries were ever released under a version, so a page full of badges would
-    // mean the other seventy-three had been given invented ones.
-    await expect(page.locator('.version')).toHaveCount(2);
+    const versions = releaseNoteEntries.flatMap((entry) =>
+      entry.version ? [`v${entry.version}`] : [],
+    );
+    await expect(page.locator('.version')).toHaveText(versions);
   });
 
   test('gives every entry a summary', async ({ page }) => {
