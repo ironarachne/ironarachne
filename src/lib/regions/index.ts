@@ -15,3 +15,7 @@ export * from './region_snapshot';
 export * from './region_fact_types';
 export * from './region_facts';
 export * from './region_overview';
+
+export * from './region_ecology_types';
+export * from './region_ecology';
+export type { RegionEcologyCatalog } from './region_ecology_rule_types';

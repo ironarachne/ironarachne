@@ -428,4 +428,12 @@ consume the optional creature-reference contract later.
 
 On 2026-09-30 the human reviewer explicitly approved this design and domain model, including
 the inhabitant and relationship types, bounded vocabulary, validation and editing contracts,
-and payload version 4 / facts version 2 migration policy. Implementation has not started.
+and payload version 4 / facts version 2 migration policy.
+
+## Implementation status
+
+#335 implements inhabitant selection, the declared ecology vocabulary and structural validation,
+and payload version 4 / facts version 2 migration. Generation persists inhabitants and leaves
+relationships empty for #336. [The regions README](../src/lib/regions/README.md#characteristic-inhabitants-335)
+records selection rules and catalog gaps. Gazetteer display (#344), structural edit/regeneration
+integration (#347) and creature-artifact attachment/resolution (#337) remain follow-on work.

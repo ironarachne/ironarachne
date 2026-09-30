@@ -33,8 +33,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 3 adds region-local settlement identities and semantic facts. */
-export const REGION_PAYLOAD_VERSION = 3 as const;
+/** Version 4 adds saved ecological inhabitants and relationships. */
+export const REGION_PAYLOAD_VERSION = 4 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -183,7 +183,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (from !== 1 && from !== 2) {
+  if (from !== 1 && from !== 2 && from !== 3) {
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
@@ -192,6 +192,17 @@ export function migrateRegionSnapshot(
   const record = asRecord(payload);
   if (record === null) {
     return rejectedPayload('invalid-payload', 'region payload is not an object');
+  }
+
+  if (from === 3) {
+    const facts = asRecord(record.facts);
+    if (facts === null || facts.version !== 1) {
+      return rejectedPayload('unsupported-version', 'Version 3 requires region facts version 1');
+    }
+    return validateRegionSnapshot({
+      ...record,
+      facts: { ...facts, version: 2, ecologyInhabitants: [], ecologyRelationships: [] },
+    });
   }
 
   const migrateActor = (value: unknown): unknown => {

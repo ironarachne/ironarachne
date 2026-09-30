@@ -1,3 +1,4 @@
+import type { EcologyInhabitantFact, EcologyRelationshipFact } from './region_ecology_types';
 import type { SettlementSnapshot } from '$lib/settlements';
 
 /** Identity in this saved region, independent of a settlement's editable name. */
@@ -11,7 +12,8 @@ export type EnvironmentFactField =
   | 'terrain'
   | 'biome'
   | 'waterSystem'
-  | 'dominantEcosystem';
+  | 'dominantEcosystem'
+  | 'ecosystems';
 export type MapNodeFactProperty =
   | 'elevation'
   | 'moisture'
@@ -73,7 +75,7 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 1;
+  version: 2;
   state: FactState;
   areas: RegionArea[];
   habitats: HabitatFact[];
@@ -82,4 +84,6 @@ export type RegionFacts = {
   resources: ResourceFact[];
   routes: RouteFact[];
   claims: CausalFact[];
+  ecologyInhabitants: EcologyInhabitantFact[];
+  ecologyRelationships: EcologyRelationshipFact[];
 };

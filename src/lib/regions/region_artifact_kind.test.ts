@@ -352,7 +352,7 @@ describe('validating a stored region', () => {
     };
     expect(validateRegionSnapshot(broken({ facts }))).toMatchObject({ ok: false });
     expect(
-      validateRegionSnapshot(broken({ facts: { ...emptyRegionFacts('current'), version: 2 } })),
+      validateRegionSnapshot(broken({ facts: { ...emptyRegionFacts('current'), version: 99 } })),
     ).toMatchObject({ ok: false });
     expect(
       validateRegionSnapshot(
@@ -482,6 +482,8 @@ describe('migrating a stored region (7.3)', () => {
     if (result.ok) {
       expect(result.value.description).toBe(snapshot.description);
       expect(result.value.facts.state).toBe('legacy');
+      expect(result.value.facts.ecologyInhabitants).toEqual([]);
+      expect(result.value.facts.ecologyRelationships).toEqual([]);
       expect(result.value.facts.claims).toEqual([]);
       expect(result.value.facts.resources).toEqual([]);
       expect(result.value.facts.routes).toEqual([]);
@@ -507,7 +509,13 @@ describe('migrating a stored region (7.3)', () => {
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.value.map).toEqual(snapshot.map);
-      expect(result.value.facts).toMatchObject({ state: 'legacy', areas: [], claims: [] });
+      expect(result.value.facts).toMatchObject({
+        state: 'legacy',
+        areas: [],
+        claims: [],
+        ecologyInhabitants: [],
+        ecologyRelationships: [],
+      });
       expect(result.value.facts.resources).toEqual([]);
       expect(result.value.facts.routes).toEqual([]);
       expect(result.value.settlements[0].snapshot).toEqual(snapshot.settlements[0].snapshot);
@@ -520,5 +528,68 @@ describe('migrating a stored region (7.3)', () => {
     const result = migrateRegionSnapshot(snapshot, 0);
     expect(result).toMatchObject({ ok: false, reason: 'unsupported-version' });
     expect(result.ok ? '' : result.message).toContain('version 0');
+  });
+});
+
+describe('ecology save compatibility', () => {
+  it('migrates v3 with all previous facts, identities, reasons and edits intact', () => {
+    const {
+      ecologyInhabitants: _inhabitants,
+      ecologyRelationships: _relationships,
+      ...oldFacts
+    } = structuredClone(snapshot.facts);
+    const legacy = {
+      ...structuredClone(snapshot),
+      description: 'Authored overview',
+      facts: { ...oldFacts, version: 1 },
+    };
+    const original = structuredClone(legacy);
+    const result = migrateRegionSnapshot(legacy, 3);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.message);
+    expect(result.value).toEqual({
+      ...legacy,
+      facts: { ...legacy.facts, version: 2, ecologyInhabitants: [], ecologyRelationships: [] },
+    });
+    expect(result.value.facts.state).toBe('current');
+    expect(legacy).toEqual(original);
+    expect(regionToMarkdown(result.value)).toContain('Authored overview');
+    expect(regionToMapSvg(result.value)).toContain('<svg');
+    expect(validateRegionSnapshot(legacy).ok).toBe(false);
+  });
+
+  it('rejects malformed and future v3 fact containers rather than replacing them with empty facts', () => {
+    expect(migrateRegionSnapshot({ ...snapshot, facts: undefined }, 3)).toMatchObject({
+      ok: false,
+    });
+    expect(
+      migrateRegionSnapshot({ ...snapshot, facts: { ...snapshot.facts, version: 99 } }, 3),
+    ).toMatchObject({ ok: false, reason: 'unsupported-version' });
+    expect(
+      migrateRegionSnapshot(
+        { ...snapshot, facts: { ...snapshot.facts, version: 1, habitats: undefined } },
+        3,
+      ),
+    ).toMatchObject({ ok: false });
+  });
+
+  it('preserves saved ecology, including unresolved authored names, through JSON and the codec', async () => {
+    const saved = structuredClone(snapshot);
+    expect(saved.facts.habitats.length).toBeGreaterThan(0);
+    saved.facts.ecologyInhabitants.push({
+      id: 'inhabitant:authored',
+      name: 'The silver reed',
+      description: 'Written by the referee',
+      origin: 'authored',
+      category: 'flora',
+      roles: ['other'],
+      source: { kind: 'species', speciesName: 'absent future species' },
+      habitatIds: [saved.facts.habitats[0].id],
+    });
+    const json = JSON.parse(JSON.stringify(saved));
+    expect(validateRegionSnapshot(json).ok).toBe(true);
+    const codec = await regionArtifactKind.loadCodec();
+    const back = codec.toSnapshot(codec.fromSnapshot(json, undefined as never));
+    expect(back.facts).toEqual(saved.facts);
   });
 });

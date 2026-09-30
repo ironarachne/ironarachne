@@ -9,7 +9,8 @@ The previous region generator shared one RNG across geography, settlement compos
 and presentation. A new draw in one part shifted unrelated later output. Name generators also held
 closures over the caller's RNG, so replacing only `config.rng` did not isolate a stage.
 
-Generation now captures one root token from the caller's RNG and derives six streams from the tuple
+Generation now captures one root token from the caller's RNG and derives independent named streams
+from the tuple
 `['region-passes-v1', rootToken, stageName]`. Child seeds never depend on stage execution order or draws
 made by a sibling. Same seed and configuration reproduce the entire saved payload; this refactor
 intentionally changes newly rolled results. Existing snapshots are never regenerated on read.
@@ -21,15 +22,19 @@ The passes run in this order:
 2. **Habitats:** habitats rank dry-land cells by realized biome prevalence. Up to four connected
    zones identify major patches, with stored node membership and terrain, climate and water evidence.
    See [spatial habitats](region-habitats.md) for selection and identity rules.
-3. **Resources:** a freshwater fact is selected only from a realized river adjoining regional land,
+3. **Ecology inhabitants:** #335 selects a bounded set of flora, fauna and supported fantasy life
+   from local habitat observations using `ecology-inhabitants`. Saved occurrences merge repeated
+   source/role combinations. The `ecology-relationships` stream is reserved for #336; the relationship
+   list remains empty until that pass lands. See [regional ecology](region-ecology.md).
+4. **Resources:** a freshwater fact is selected only from a realized river adjoining regional land,
    citing its edge, area and supporting habitat. No river means no freshwater fact.
-4. **Habitation:** settlements, roads, organizations and realms consume the realized environment and
+5. **Habitation:** settlements, roads, organizations and realms consume the realized environment and
    map. Name pattern inputs are reconstructed with this stream, including supplied culture patterns.
    Settlement identities and placement reasons are recorded. Lakes and ocean are excluded; an
    unplaced settlement is rejected. Low-elevation fallback sites have an explicit fallback reason.
-5. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
+6. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
    Richer notable rules follow in #332.
-6. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
+7. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
    settlement site cause, resources, a road connection and a localized hazard. Choices use only the
    presentation stream. Empty optional systems and stale facts contribute no filler.
 
@@ -43,8 +48,8 @@ inferred from these foundation facts.
 The persisted domain model is the accepted `RegionFacts`, `RegionArea`, `HabitatFact`, `ResourceFact`,
 `SettlementRoleFact`, `NotableFact`, `FactReason` and `FactSource` model in
 [the release contract](regions-release-contract.md#domain-model), including its accepted resource
-extension. This implementation adds no fields to that model. The only new transient type is the
-six-name `RegionGenerationStage` union, which identifies an RNG boundary rather than a saved fact.
+extension. #329 added no fields to that model; #335 extends it with the approved ecology facts.
+`RegionGenerationStage` identifies each RNG boundary rather than a saved fact.
 
 ## Terrain contract
 

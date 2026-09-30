@@ -41,6 +41,7 @@ describe('dependent generation passes', () => {
 
   it.each([
     'generateHabitatFacts',
+    'generateEcologyInhabitants',
     'generateResourceFacts',
     'generateHabitationFacts',
     'generateNotableFacts',
@@ -57,6 +58,8 @@ describe('dependent generation passes', () => {
     expect(after.environment).toEqual(before.environment);
     expect(after.facts.areas).toEqual(before.facts.areas);
     expect(after.facts.habitats).toEqual(before.facts.habitats);
+    if (name !== 'generateEcologyInhabitants')
+      expect(after.facts.ecologyInhabitants).toEqual(before.facts.ecologyInhabitants);
     if (name !== 'generateResourceFacts') {
       expect(after.facts.resources).toEqual(before.facts.resources);
       if (name !== 'generateNotableFacts')
@@ -92,10 +95,17 @@ describe('dependent generation passes', () => {
 
   it('grounds freshwater and notable places in recorded map evidence', () => {
     let resources = 0;
+    let inhabitants = 0;
     for (const seed of ['alpha', 'beta', 'gamma']) {
       const result = snapshot(seed);
       expect(regionFactsError(result.facts, result.map, result.settlements)).toBeNull();
       resources += result.facts.resources.length;
+      inhabitants += result.facts.ecologyInhabitants.length;
+      expect(result.facts.ecologyInhabitants.length).toBeLessThanOrEqual(20);
+      for (const entry of result.facts.ecologyInhabitants) {
+        expect(entry.reason?.status).toBe('current');
+        expect(entry.habitatIds.length).toBeGreaterThan(0);
+      }
       for (const resource of result.facts.resources) {
         expect(
           resource.anchor!.edgeIds.every(
@@ -113,6 +123,7 @@ describe('dependent generation passes', () => {
       }
     }
     expect(resources).toBeGreaterThan(0);
+    expect(inhabitants).toBeGreaterThan(0);
   });
 
   it('does not invent a water resource or river obstacle on a map without rivers', () => {

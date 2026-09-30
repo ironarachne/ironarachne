@@ -1,9 +1,10 @@
+import { ecologyFactsError } from './region_ecology_validation';
 import type { RegionMap } from '$lib/map';
 import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
   return {
-    version: 1,
+    version: 2,
     state,
     areas: [],
     habitats: [],
@@ -12,6 +13,8 @@ export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
     resources: [],
     routes: [],
     claims: [],
+    ecologyInhabitants: [],
+    ecologyRelationships: [],
   };
 }
 
@@ -44,7 +47,7 @@ export function regionFactsError(
   const facts = object(value);
   if (
     facts === null ||
-    facts.version !== 1 ||
+    facts.version !== 2 ||
     !['current', 'legacy'].includes(String(facts.state))
   ) {
     return 'region facts have an unsupported version or state';
@@ -57,8 +60,10 @@ export function regionFactsError(
     'resources',
     'routes',
     'claims',
+    'ecologyInhabitants',
+    'ecologyRelationships',
   ] as const;
-  if (keys.some((key) => !Array.isArray(facts[key]))) return 'region facts need all seven lists';
+  if (keys.some((key) => !Array.isArray(facts[key]))) return 'region facts need all nine lists';
   const entries = keys.flatMap((key) => facts[key] as unknown[]);
   const factIds = new Set<string>();
   for (const key of keys) {
@@ -75,9 +80,13 @@ export function regionFactsError(
                 ? 'resource:'
                 : key === 'routes'
                   ? 'route:'
-                  : key === 'claims'
-                    ? 'claim:'
-                    : `${fact?.kind}:`;
+                  : key === 'ecologyInhabitants'
+                    ? 'inhabitant:'
+                    : key === 'ecologyRelationships'
+                      ? 'ecology:'
+                      : key === 'claims'
+                        ? 'claim:'
+                        : `${fact?.kind}:`;
       if (
         fact === null ||
         !nonempty(fact.id) ||
@@ -207,6 +216,8 @@ export function regionFactsError(
       return 'region claim cites an unknown fact';
     }
   }
+  const ecologyError = ecologyFactsError(facts, habitatIds, settlementTargetValid);
+  if (ecologyError !== null) return ecologyError;
   for (const entry of entries) {
     const reason = object((entry as RecordValue).reason);
     if ((entry as RecordValue).reason === undefined) continue;
@@ -243,9 +254,14 @@ export function regionFactsError(
             !['river', 'road'].includes(String(source.property)) ||
             typeof source.observedValue !== 'string')) ||
         (source.kind === 'environment' &&
-          (!['climate', 'terrain', 'biome', 'waterSystem', 'dominantEcosystem'].includes(
-            String(source.field),
-          ) ||
+          (![
+            'climate',
+            'terrain',
+            'biome',
+            'waterSystem',
+            'dominantEcosystem',
+            'ecosystems',
+          ].includes(String(source.field)) ||
             typeof source.observedValue !== 'string'))
       )
         return 'region reason has an invalid source';
