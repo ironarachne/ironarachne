@@ -87,10 +87,11 @@ describe('generate', () => {
     expect(Object.keys(region.map).length).toBeGreaterThan(0);
   });
 
-  it('describes the region with its environment description', () => {
+  it('describes the region from its realized geography and semantic facts', () => {
     const region = generate(configFor('described'));
 
-    expect(region.description).toBe(region.environment.description);
+    expect(region.description).not.toBe(region.environment.description);
+    expect(region.description).toContain(region.name);
     expect(region.description).toBeTruthy();
   });
 

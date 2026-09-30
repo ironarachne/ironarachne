@@ -14,3 +14,4 @@ export * from './region_roll';
 export * from './region_snapshot';
 export * from './region_fact_types';
 export * from './region_facts';
+export * from './region_overview';

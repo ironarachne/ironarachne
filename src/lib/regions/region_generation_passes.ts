@@ -6,6 +6,7 @@ export { generateHabitationFacts } from './region_settlement_roles.js';
 export { generateNotableFacts } from './region_notables.js';
 import type { RegionGenerationStage, RegionTerrainProfile } from './region_generation_types.js';
 import type { FactReason, FactSource } from './region_fact_types.js';
+import { generateRegionOverview } from './region_overview.js';
 
 /** Derive by name, never by drawing child seeds in pass order. */
 export function createRegionStageRng(seed: string, stage: RegionGenerationStage): RNG {
@@ -81,7 +82,7 @@ export function generateResourceFacts(region: Region, rng: RNG): void {
   });
 }
 
-/** Keep existing prose until #333 adds causal overview rendering. */
-export function presentRegion(region: Region, _rng: RNG): void {
-  region.description = region.environment.description;
+/** Compose the overview after all supporting facts have been recorded. */
+export function presentRegion(region: Region, rng: RNG): void {
+  region.description = generateRegionOverview(region, rng);
 }

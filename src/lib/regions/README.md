@@ -133,4 +133,16 @@ explanation. Loading preserves authored snapshots and facts. See
 The notable-places pass selects a small set of supported natural and inhabited landmarks plus
 river, terrain or climate obstacles. Each stores a reason, saved-map anchor, compass location and
 suggested adventure hook. The generator, saved view and gazetteer use those stored descriptions.
+
+### Causal overview (#333)
+
+The presentation pass calls `generateRegionOverview` after all semantic passes. It describes the
+realized land classification and the two most prevalent habitats, then selects a supported settlement
+site cause, a resource, a road connection and a localized hazard. Farming, coastal trade and woodland
+access appear only through their recorded settlement rules; richer ecological and livelihood systems
+remain optional future inputs. Absent systems and stale facts are omitted. Hazard hooks stay in the
+notable section. Wording and selection use the isolated presentation RNG without changing facts.
+
+Opening a snapshot never runs presentation. Saved descriptions, including user edits and intentional
+blanks, remain authoritative in the editor and exports.
 See [grounded landmarks and hazards](../../../docs/region-notable-places.md).
