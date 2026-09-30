@@ -3,6 +3,7 @@ import { classifyAltitude, classifyRelief, measureRegionTerrain } from '$lib/map
 import type Region from './region.js';
 export { generateHabitatFacts } from './region_habitats.js';
 export { generateHabitationFacts } from './region_settlement_roles.js';
+export { generateNotableFacts } from './region_notables.js';
 import type { RegionGenerationStage, RegionTerrainProfile } from './region_generation_types.js';
 import type { FactReason, FactSource } from './region_fact_types.js';
 
@@ -77,22 +78,6 @@ export function generateResourceFacts(region: Region, rng: RNG): void {
       ...habitats.map((habitat) => factSource(habitat.id)),
       { kind: 'map-edge', edgeId: edge.id, property: 'river', observedValue: String(edge.river) },
     ]),
-  });
-}
-
-/** A grounded river landmark; richer notable rules follow in #332. */
-export function generateNotableFacts(region: Region, _rng: RNG): void {
-  const resource = region.facts!.resources[0];
-  if (resource === undefined) return;
-  region.facts!.notables.push({
-    id: 'landmark:river',
-    kind: 'landmark',
-    name: 'River reach',
-    origin: 'generated',
-    description: 'This river reach is the recorded freshwater source.',
-    areaIds: [...resource.areaIds],
-    anchor: structuredClone(resource.anchor),
-    reason: reason('river-landmark', [factSource(resource.id)]),
   });
 }
 

@@ -184,7 +184,7 @@ test.describe('a DCC zero-level character', () => {
     }
 
     await expect(page.getByRole('button', { name: 'Generate', exact: true })).toBeDisabled();
-    await expect(page.getByText('Allow at least one kind of occupation.')).toBeVisible();
+    await expect(page.getByText(/Allow at least one kind of occupation/)).toBeVisible();
 
     await page.getByLabel('Allow Humans').check();
     await expect(page.getByRole('button', { name: 'Generate', exact: true })).toBeEnabled();

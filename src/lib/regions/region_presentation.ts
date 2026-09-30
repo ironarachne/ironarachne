@@ -100,6 +100,14 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
         snapshot.settlements.map(({ snapshot: settlement }) => settlement),
       ),
       ...namedList('Organizations', snapshot.organizations),
+      ...namedList(
+        'Landmarks',
+        snapshot.facts.notables.filter((fact) => fact.kind === 'landmark'),
+      ),
+      ...namedList(
+        'Hazards',
+        snapshot.facts.notables.filter((fact) => fact.kind === 'hazard'),
+      ),
     ],
   };
 }

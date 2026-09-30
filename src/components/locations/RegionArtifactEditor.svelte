@@ -1,5 +1,6 @@
 <script lang="ts">
   import Notice from '$components/common/Notice.svelte';
+  import RegionNotables from '$components/locations/RegionNotables.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
   import {
     canRemoveRegionSettlement,
@@ -219,6 +220,7 @@
         </fieldset>
       {/each}
     {/each}
+    <RegionNotables places={region.facts.notables} />
   </div>
 {/if}
 
