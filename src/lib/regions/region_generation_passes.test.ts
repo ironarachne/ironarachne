@@ -59,7 +59,8 @@ describe('dependent generation passes', () => {
     expect(after.facts.habitats).toEqual(before.facts.habitats);
     if (name !== 'generateResourceFacts') {
       expect(after.facts.resources).toEqual(before.facts.resources);
-      expect(after.facts.notables).toEqual(before.facts.notables);
+      if (name !== 'generateNotableFacts')
+        expect(after.facts.notables).toEqual(before.facts.notables);
     }
     expect(after.settlements).toEqual(before.settlements);
     expect(after.realms).toEqual(before.realms);
@@ -89,7 +90,7 @@ describe('dependent generation passes', () => {
     expect(regionFactsError(after.facts, after.map, after.settlements)).toBeNull();
   });
 
-  it('grounds freshwater and river landmarks in recorded map evidence', () => {
+  it('grounds freshwater and notable places in recorded map evidence', () => {
     let resources = 0;
     for (const seed of ['alpha', 'beta', 'gamma']) {
       const result = snapshot(seed);
@@ -101,10 +102,6 @@ describe('dependent generation passes', () => {
             (id) => result.map.edges.find((edge) => edge.id === id)!.river > 0,
           ),
         ).toBe(true);
-        expect(result.facts.notables[0].reason!.sources).toContainEqual({
-          kind: 'fact',
-          factId: resource.id,
-        });
       }
       for (const role of result.facts.settlementRoles) {
         expect(
@@ -118,7 +115,7 @@ describe('dependent generation passes', () => {
     expect(resources).toBeGreaterThan(0);
   });
 
-  it('does not invent a water resource or landmark on a map without rivers', () => {
+  it('does not invent a water resource or river obstacle on a map without rivers', () => {
     const result = generate({
       rng: new RNG('dry'),
       nameGeneratorSet: getFantasyNameGeneratorSet('human', new RNG('names')),
@@ -136,7 +133,9 @@ describe('dependent generation passes', () => {
     Passes.generateResourceFacts(result, new RNG('resources'));
     Passes.generateNotableFacts(result, new RNG('notables'));
     expect(result.facts!.resources).toEqual([]);
-    expect(result.facts!.notables).toEqual([]);
+    expect(
+      result.facts!.notables.some((fact) => fact.reason!.ruleId.includes('river-obstacle')),
+    ).toBe(false);
   });
 
   it('explains a profile mismatch using the realized graph without rewriting it', () => {

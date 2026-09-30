@@ -101,6 +101,21 @@ describe('exporting a region (6.3)', () => {
     expect(markdown.endsWith('\n')).toBe(true);
   });
 
+  it('includes stored landmarks and hazards with hooks in both gazetteer formats', () => {
+    expect(snapshot.facts.notables.length).toBeGreaterThan(0);
+    for (const fact of snapshot.facts.notables) {
+      expect(regionToMarkdown(snapshot)).toContain(`${fact.name}: ${fact.description}`);
+      expect(regionToText(snapshot)).toContain(`${fact.name}: ${fact.description}`);
+      expect(fact.description).toContain('Hook:');
+    }
+    const legacy = { ...snapshot, facts: { ...snapshot.facts, notables: [] } };
+    expect(
+      regionToDocument(legacy).sections.some((section) =>
+        ['Landmarks', 'Hazards'].includes(section.heading),
+      ),
+    ).toBe(false);
+  });
+
   it('writes the same document as plain text, without repeating the title', () => {
     const text = regionToText(snapshot);
     expect(text).toContain('REALMS');

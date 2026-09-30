@@ -127,3 +127,10 @@ preserves the seat's identity when settlements are reordered. Rules use observed
 coastal ocean access, and suitable grassland or forest cells; unsupported sites retain a land-role
 explanation. Loading preserves authored snapshots and facts. See
 [geographic settlement sites](../../../docs/region-settlement-sites.md).
+
+## Notable places
+
+The notable-places pass selects a small set of supported natural and inhabited landmarks plus
+river, terrain or climate obstacles. Each stores a reason, saved-map anchor, compass location and
+suggested adventure hook. The generator, saved view and gazetteer use those stored descriptions.
+See [grounded landmarks and hazards](../../../docs/region-notable-places.md).

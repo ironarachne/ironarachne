@@ -101,9 +101,19 @@ test.describe('a region', () => {
     // The generator rolls on mount (2.4), so there is a region to keep straight away.
     await saveAs(page, 'The Cold Marches');
 
+    const notableIds = await page
+      .locator('[data-notable-id]')
+      .evaluateAll((places) => places.map((place) => place.getAttribute('data-notable-id')));
+
     // Reopened somewhere else entirely, after a reload, which is what makes this a durability test
     // rather than a state test.
     const panel = await openInWorkshop(page, 'The Cold Marches');
+    await expect(panel.locator('[data-notable-id]')).toHaveCount(notableIds.length);
+    expect(
+      await panel
+        .locator('[data-notable-id]')
+        .evaluateAll((places) => places.map((place) => place.getAttribute('data-notable-id'))),
+    ).toEqual(notableIds);
 
     // Typed rather than filled: the point is that the editor's own binding carries keystrokes
     // through to the snapshot it announces. The value is one no roll produces.
@@ -168,6 +178,13 @@ test.describe('a region', () => {
     const contents = await new Response(await markdownFile.createReadStream()).text();
     expect(contents.toLowerCase()).toContain(heading.toLowerCase());
     expect(contents).toContain('## Realms');
+    const places = page.locator('[data-notable-id]');
+    expect(await places.count()).toBeGreaterThan(0);
+    for (const place of await places.all()) {
+      expect(contents).toContain(await place.locator('h4').innerText());
+      expect(contents).toContain(await place.locator('p').first().innerText());
+    }
+    expect(contents).toContain('Hook:');
 
     const pdf = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download PDF' }).click();

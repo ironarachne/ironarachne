@@ -21,6 +21,7 @@
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
   import HeraldryEmblemButton from '$components/heraldry/HeraldryEmblemButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import RegionNotables from '$components/locations/RegionNotables.svelte';
 
   const TOOL_PATH = '/region';
 
@@ -434,6 +435,7 @@
         <p>{settlement.description}</p>
       </article>
     {/each}
+    <RegionNotables places={region.facts?.notables ?? []} />
     <h3>Notable Organizations</h3>
     {#each region.organizations as organization}
       <article>
