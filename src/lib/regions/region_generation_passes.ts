@@ -1,7 +1,8 @@
 import { RNG } from '@ironarachne/rng';
-import { classifyAltitude, classifyRelief, measureRegionTerrain, Suitability } from '$lib/map';
+import { classifyAltitude, classifyRelief, measureRegionTerrain } from '$lib/map';
 import type Region from './region.js';
 export { generateHabitatFacts } from './region_habitats.js';
+export { generateHabitationFacts } from './region_settlement_roles.js';
 import type { RegionGenerationStage, RegionTerrainProfile } from './region_generation_types.js';
 import type { FactReason, FactSource } from './region_fact_types.js';
 
@@ -77,53 +78,6 @@ export function generateResourceFacts(region: Region, rng: RNG): void {
       { kind: 'map-edge', edgeId: edge.id, property: 'river', observedValue: String(edge.river) },
     ]),
   });
-}
-
-/** Record placement evidence without claiming port/crossing roles ahead of #331. */
-export function generateHabitationFacts(region: Region, _rng: RNG): void {
-  for (const [index, settlement] of region.settlements.entries()) {
-    const node = region.map.nodes.find((node) => node.id === settlement.mapNodeId);
-    if (node === undefined || node.isOcean || node.isWater)
-      throw new Error('Settlement has no valid land placement.');
-    const fallback = Suitability.standardRules.flatTerrain()(node, region.map) === 0;
-    const habitats = region.facts!.habitats.filter((habitat) =>
-      habitat.anchor?.nodeIds.includes(node.id),
-    );
-    const resources = region.facts!.resources.filter((resource) =>
-      resource.anchor?.nodeIds.includes(node.id),
-    );
-    region.facts!.settlementRoles.push({
-      id: `role:${index + 1}`,
-      name: 'Land settlement',
-      origin: 'generated',
-      description: fallback
-        ? 'No preferred site remained for this settlement; the placement fallback selected dry land despite its unsuitable elevation.'
-        : 'Selected from dry-land sites ranked by freshwater access, elevation and temperature.',
-      settlement: { kind: 'embedded', settlementId: region.settlementIds![index] },
-      areaIds: region
-        .facts!.areas.filter((area) => area.mapNodeIds.includes(node.id))
-        .map((area) => area.id),
-      anchor: { nodeIds: [node.id], edgeIds: [] },
-      reason: reason(fallback ? 'land-placement-fallback' : 'land-placement', [
-        ...habitats.map((habitat) => factSource(habitat.id)),
-        ...resources.map((resource) => factSource(resource.id)),
-        { kind: 'map-node', nodeId: node.id, property: 'isOcean', observedValue: 'false' },
-        { kind: 'map-node', nodeId: node.id, property: 'isWater', observedValue: 'false' },
-        {
-          kind: 'map-node',
-          nodeId: node.id,
-          property: 'elevation',
-          observedValue: String(node.elevation),
-        },
-        {
-          kind: 'map-node',
-          nodeId: node.id,
-          property: 'temperature',
-          observedValue: String(node.temperature),
-        },
-      ]),
-    });
-  }
 }
 
 /** A grounded river landmark; richer notable rules follow in #332. */

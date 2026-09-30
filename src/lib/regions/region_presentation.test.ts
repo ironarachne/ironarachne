@@ -122,6 +122,16 @@ describe('exporting a region (6.3)', () => {
     expect(svg).not.toContain('NaN');
   });
 
+  it('keeps the capital marker on its saved site after settlement reordering', () => {
+    const stars = (svg: string) => svg.match(/<text[^>]*>★<\/text>/g);
+    const reordered = { ...snapshot, settlements: [...snapshot.settlements].reverse() };
+    expect(stars(regionToMapSvg(reordered))).toEqual(stars(regionToMapSvg(snapshot)));
+    const removed = removeRegionPlace(snapshot, 'settlements', 0);
+    expect(stars(regionToMapSvg(removed))).toBeNull();
+    const legacy = { ...snapshot, facts: { ...snapshot.facts, settlementRoles: [] } };
+    expect(stars(regionToMapSvg(legacy))).toEqual(stars(regionToMapSvg(snapshot)));
+  });
+
   it('offers the map as a data URL for the page to show', () => {
     // An image rather than inline markup: the map's paths extend past the viewBox that clips them,
     // and the mobile overflow sweep measures every element's real bounding box.

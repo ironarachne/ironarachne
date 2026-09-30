@@ -137,10 +137,15 @@ export function regionToText(snapshot: RegionSnapshot): string {
  * by "the capital" whatever the payload calls it.
  */
 export function regionToMapSvg(snapshot: RegionSnapshot): string {
+  const capital = snapshot.facts.settlementRoles.find((role) => role.id === 'role:capital');
   const settlements: RegionMapSvgSettlement[] = snapshot.settlements.map(
-    ({ snapshot: settlement }, index) => ({
+    ({ id, snapshot: settlement }, index) => ({
       ...(settlement.mapNodeId === undefined ? {} : { mapNodeId: settlement.mapNodeId }),
-      isCapital: index === 0,
+      isCapital:
+        capital === undefined
+          ? index === 0 &&
+            !snapshot.facts.settlementRoles.some((role) => role.id.startsWith('role:site:'))
+          : capital.settlement.kind === 'embedded' && capital.settlement.settlementId === id,
       name: settlement.name,
       population: settlement.population,
     }),

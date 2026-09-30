@@ -28,6 +28,23 @@ describe('a region snapshot', () => {
     expect(restored.mainRealm).toEqual(region.mainRealm);
   });
 
+  it('loads edited settlement sites and roles without moving, renaming or regenerating them', () => {
+    const edited = structuredClone(snapshot);
+    edited.settlements.reverse();
+    edited.settlements[0].snapshot.name = 'Authored Town';
+    edited.settlements[0].snapshot.mapNodeId = edited.map.nodes.find(
+      (node) => !node.isOcean && !node.isWater,
+    )!.id;
+    edited.settlements[0].snapshot.location = { x: 7, y: 8 };
+    edited.facts.settlementRoles[0].name = 'Authored site';
+    edited.facts.settlementRoles[0].origin = 'authored';
+    const back = toRegionSnapshot(regionFromSnapshot(edited, new RNG('different-read-seed')));
+    expect(back.settlements).toEqual(edited.settlements);
+    expect(back.facts).toEqual(edited.facts);
+    expect(back.map).toEqual(edited.map);
+    expect(back.realms).toEqual(edited.realms);
+  });
+
   it('keeps every realm, its type and its ruler’s name', () => {
     expect(restored.realms).toHaveLength(region.realms.length);
     for (const [index, realm] of region.realms.entries()) {
@@ -138,6 +155,22 @@ describe('a region with a referenced settlement', () => {
     expect(snapshot.settlements).toHaveLength(region.settlements.length - 1);
     expect(validateRegionSnapshot(snapshot).ok).toBe(true);
     expect(snapshot.facts.settlementRoles).toHaveLength(region.settlements.length - 1);
+    expect(snapshot.map).toEqual(region.map);
+    expect(snapshot.realms).toEqual(toRegionSnapshot(region).realms);
+    const removedId = region.settlementIds![0];
+    expect(
+      snapshot.facts.routes.every((route) =>
+        route.endpoints.every(
+          (endpoint) =>
+            endpoint.kind !== 'settlement' ||
+            endpoint.settlement.kind !== 'embedded' ||
+            endpoint.settlement.settlementId !== removedId,
+        ),
+      ),
+    ).toBe(true);
+    const restored = toRegionSnapshot(regionFromSnapshot(snapshot, new RNG('reference-read')));
+    expect(restored.settlements).toEqual(snapshot.settlements);
+    expect(restored.facts).toEqual(snapshot.facts);
     expect(snapshot.settlements.map((s) => s.snapshot.name)).toEqual(
       region.settlements.slice(1).map((s) => s.name),
     );
