@@ -5,6 +5,7 @@ import * as Passes from './region_generation_passes';
 import { generate } from './regions';
 import { toRegionSnapshot } from './region_snapshot';
 import { regionFactsError } from './region_facts';
+import type Region from './region';
 
 function snapshot(seed: string) {
   const rng = new RNG(seed);
@@ -47,7 +48,7 @@ describe('dependent generation passes', () => {
   ] as const)('isolates extra draws in %s from every other pass', (name) => {
     const original = Passes[name];
     const before = snapshot('isolated');
-    vi.spyOn(Passes, name).mockImplementation((region, rng) => {
+    vi.spyOn(Passes, name).mockImplementation((region: Region, rng: RNG) => {
       for (let i = 0; i < 25; i++) rng.randomString(12);
       original(region, rng);
     });

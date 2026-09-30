@@ -18,8 +18,9 @@ The passes run in this order:
 
 1. **Physical geography:** the existing shared profile, environment, elevation, water, climate and
    biome passes produce the saved graph. A regional land area records actual node elevations.
-2. **Habitats:** coarse habitats group dry-land nodes by their realized biome and cite those nodes.
-   These are a foundation for #330's spatial subdivisions, not claims about a contiguous zone.
+2. **Habitats:** habitats rank dry-land cells by realized biome prevalence. Up to four connected
+   zones identify major patches, with stored node membership and terrain, climate and water evidence.
+   See [spatial habitats](region-habitats.md) for selection and identity rules.
 3. **Resources:** a freshwater fact is selected only from a realized river adjoining regional land,
    citing its edge, area and supporting habitat. No river means no freshwater fact.
 4. **Habitation:** settlements, roads, organizations and realms consume the realized environment and
