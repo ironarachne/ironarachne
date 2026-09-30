@@ -9,6 +9,7 @@ import {
   setRegionText,
 } from './region_editing';
 import { rollRegionSnapshot } from './region_roll';
+import { emptyRegionFacts } from './region_facts';
 import { validateRegionSnapshot } from './region_artifact_kind';
 
 const snapshot = rollRegionSnapshot('editing-seed');
@@ -104,7 +105,7 @@ describe('editing the settlements and organizations', () => {
   it('removes dependent roles and claims and marks other reasons stale', () => {
     const nodeId = snapshot.map.nodes[0].id;
     const facts = {
-      ...snapshot.facts,
+      ...emptyRegionFacts('current'),
       settlementRoles: [
         {
           id: 'role:one',
@@ -193,7 +194,7 @@ describe('editing the settlements and organizations', () => {
 
   it('protects authored dependencies when a settlement is removed', () => {
     const facts = {
-      ...snapshot.facts,
+      ...emptyRegionFacts('current'),
       settlementRoles: [
         {
           id: 'role:one',
@@ -231,7 +232,7 @@ describe('editing the settlements and organizations', () => {
     const withAuthoredRoute = {
       ...snapshot,
       facts: {
-        ...snapshot.facts,
+        ...emptyRegionFacts('current'),
         routes: [
           {
             id: 'route:one',

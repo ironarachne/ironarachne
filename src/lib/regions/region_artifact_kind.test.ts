@@ -8,6 +8,7 @@ import {
   validateRegionSnapshot,
 } from './region_artifact_kind';
 import { rollRegionSnapshot } from './region_roll';
+import { emptyRegionFacts } from './region_facts';
 import { regionToMarkdown, regionToMapSvg } from './region_presentation';
 
 const snapshot = rollRegionSnapshot('kind-seed');
@@ -74,7 +75,11 @@ describe('validating a stored region', () => {
 
   it('accepts one a user has emptied of settlements and organizations', () => {
     // Both are things the editor can remove; 3.3 asks for a well-defined empty result.
-    expect(validateRegionSnapshot(broken({ settlements: [], organizations: [] })).ok).toBe(true);
+    expect(
+      validateRegionSnapshot(
+        broken({ settlements: [], organizations: [], facts: emptyRegionFacts('current') }),
+      ).ok,
+    ).toBe(true);
   });
 
   it('rejects something that is not an object at all', () => {
@@ -158,7 +163,7 @@ describe('validating a stored region', () => {
     const nodeId = snapshot.map.nodes[0].id;
     const edgeId = snapshot.map.edges[0].id;
     const facts = {
-      ...snapshot.facts,
+      ...emptyRegionFacts('current'),
       areas: [
         {
           id: 'area:one',
@@ -342,12 +347,12 @@ describe('validating a stored region', () => {
   it('rejects duplicate identities and unknown future fact kinds', () => {
     const area = { id: 'area:same', name: '', description: '', origin: 'authored', mapNodeIds: [] };
     const facts = {
-      ...snapshot.facts,
+      ...emptyRegionFacts('current'),
       areas: [area, { ...area }],
     };
     expect(validateRegionSnapshot(broken({ facts }))).toMatchObject({ ok: false });
     expect(
-      validateRegionSnapshot(broken({ facts: { ...snapshot.facts, version: 2 } })),
+      validateRegionSnapshot(broken({ facts: { ...emptyRegionFacts('current'), version: 2 } })),
     ).toMatchObject({ ok: false });
     expect(
       validateRegionSnapshot(
@@ -387,7 +392,7 @@ describe('validating a stored region', () => {
         { kind: 'settlement', settlement: { kind: 'artifact', targetId: 'outside' } },
       ],
     };
-    const facts = { ...snapshot.facts, resources: [resource], routes: [route] };
+    const facts = { ...emptyRegionFacts('current'), resources: [resource], routes: [route] };
     expect(validateRegionSnapshot(broken({ map, facts })).ok).toBe(true);
     expect(
       validateRegionSnapshot(
@@ -448,13 +453,15 @@ describe('validating a stored region', () => {
       reason,
     };
     expect(
-      validateRegionSnapshot(broken({ facts: { ...snapshot.facts, habitats: [habitat] } })).ok,
+      validateRegionSnapshot(
+        broken({ facts: { ...emptyRegionFacts('current'), habitats: [habitat] } }),
+      ).ok,
     ).toBe(true);
     expect(
       validateRegionSnapshot(
         broken({
           facts: {
-            ...snapshot.facts,
+            ...emptyRegionFacts('current'),
             habitats: [{ ...habitat, reason: { ...reason, sources: [{ kind: 'future' }] } }],
           },
         }),

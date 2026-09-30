@@ -4,6 +4,7 @@ import { RNG } from '@ironarachne/rng';
 import { rollRegion } from './region_roll';
 import { regionFromSnapshot, realmTypeFromStoredName } from './region_rehydrate';
 import { toRegionSnapshot } from './region_snapshot';
+import { validateRegionSnapshot } from './region_artifact_kind';
 import type { RegionFacts } from './region_fact_types';
 
 /**
@@ -135,6 +136,8 @@ describe('a region with a referenced settlement', () => {
     const snapshot = toRegionSnapshot(fixture, { referencedSettlementName: first.name });
     expect(snapshot.settlements.map((s) => s.snapshot.name)).not.toContain(first.name);
     expect(snapshot.settlements).toHaveLength(region.settlements.length - 1);
+    expect(validateRegionSnapshot(snapshot).ok).toBe(true);
+    expect(snapshot.facts.settlementRoles).toHaveLength(region.settlements.length - 1);
     expect(snapshot.settlements.map((s) => s.snapshot.name)).toEqual(
       region.settlements.slice(1).map((s) => s.name),
     );
