@@ -72,8 +72,14 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 2. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 3. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
+- **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
+  graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
+  notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
+  Versions 1 and 2 migrate to an empty `legacy` facts container, including empty resource and route
+  lists. Migration preserves the original map, environment and composed snapshots; it does not
+  infer missing causes.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
 - **`region_presentation.ts`** — the gazetteer, as Markdown and as text, plus `regionToMapSvg` for
@@ -91,3 +97,6 @@ gives species and archetypes; an unknown name reads back as an inert stand-in ra
 A **referenced** culture or settlement is not in the payload at all — `dominantCulture` is `null`
 and the settlement is absent from the list — because a reference is by identity, and a region
 holding its own copy of something somebody later edits would show the stale one forever.
+
+`RegionFacts` stores only authored or generated facts and their sources. The SVG map is still
+derived from the saved `RegionMap` and stays outside the payload.

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import {
+  canRemoveRegionSettlement,
   removeRegionPlace,
   setRealmText,
   setRegionMainRealm,
@@ -8,6 +9,7 @@ import {
   setRegionText,
 } from './region_editing';
 import { rollRegionSnapshot } from './region_roll';
+import { validateRegionSnapshot } from './region_artifact_kind';
 
 const snapshot = rollRegionSnapshot('editing-seed');
 
@@ -82,21 +84,182 @@ describe('editing one realm', () => {
 describe('editing the settlements and organizations', () => {
   it('renames one settlement and leaves the rest', () => {
     const edited = setRegionPlaceText(snapshot, 'settlements', 0, 'name', 'Coldwater');
-    expect(edited.settlements[0].name).toEqual('Coldwater');
+    expect(edited.settlements[0].snapshot.name).toEqual('Coldwater');
     expect(edited.settlements.slice(1)).toEqual(snapshot.settlements.slice(1));
     expect(edited.organizations).toEqual(snapshot.organizations);
   });
 
   it('rewrites a description without touching the name', () => {
     const edited = setRegionPlaceText(snapshot, 'settlements', 0, 'description', 'A mill town.');
-    expect(edited.settlements[0].description).toEqual('A mill town.');
-    expect(edited.settlements[0].name).toEqual(snapshot.settlements[0].name);
+    expect(edited.settlements[0].snapshot.description).toEqual('A mill town.');
+    expect(edited.settlements[0].snapshot.name).toEqual(snapshot.settlements[0].snapshot.name);
   });
 
   it('takes one out and leaves the rest', () => {
     const edited = removeRegionPlace(snapshot, 'settlements', 0);
     expect(edited.settlements).toHaveLength(snapshot.settlements.length - 1);
     expect(edited.settlements[0]).toEqual(snapshot.settlements[1]);
+  });
+
+  it('removes dependent roles and claims and marks other reasons stale', () => {
+    const nodeId = snapshot.map.nodes[0].id;
+    const facts = {
+      ...snapshot.facts,
+      settlementRoles: [
+        {
+          id: 'role:one',
+          name: 'Crossing',
+          description: '',
+          origin: 'generated' as const,
+          settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
+          areaIds: [],
+          anchor: { nodeIds: [nodeId], edgeIds: [] },
+        },
+      ],
+      habitats: [
+        {
+          id: 'habitat:one',
+          name: 'Moor',
+          description: '',
+          origin: 'generated' as const,
+          areaIds: [],
+          reason: {
+            ruleId: 'fantasy.habitat.v1',
+            status: 'current' as const,
+            sources: [{ kind: 'fact' as const, factId: 'role:one' }],
+          },
+        },
+      ],
+      resources: [
+        {
+          id: 'resource:one',
+          kind: 'freshwater' as const,
+          name: 'Springs',
+          description: '',
+          origin: 'generated' as const,
+          areaIds: [],
+          habitatIds: [],
+          anchor: { nodeIds: [nodeId], edgeIds: [] },
+          reason: {
+            ruleId: 'fantasy.resource.v1',
+            status: 'current' as const,
+            sources: [{ kind: 'fact' as const, factId: 'route:one' }],
+          },
+        },
+      ],
+      routes: [
+        {
+          id: 'route:one',
+          kind: 'road' as const,
+          name: 'Town Road',
+          description: '',
+          origin: 'generated' as const,
+          areaIds: [],
+          anchor: { nodeIds: [], edgeIds: [snapshot.map.edges[0].id] },
+          endpoints: [
+            {
+              kind: 'settlement' as const,
+              settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
+            },
+            {
+              kind: 'settlement' as const,
+              settlement: { kind: 'artifact' as const, targetId: 'outside' },
+            },
+          ] as [
+            { kind: 'settlement'; settlement: { kind: 'embedded'; settlementId: string } },
+            { kind: 'settlement'; settlement: { kind: 'artifact'; targetId: string } },
+          ],
+        },
+      ],
+      claims: [
+        {
+          id: 'claim:one',
+          name: 'Traffic',
+          description: '',
+          origin: 'generated' as const,
+          subjectId: 'role:one',
+          relatedIds: [],
+        },
+      ],
+    };
+    const edited = removeRegionPlace({ ...snapshot, facts }, 'settlements', 0);
+    expect(edited.facts.settlementRoles).toEqual([]);
+    expect(edited.facts.routes).toEqual([]);
+    expect(edited.facts.claims).toEqual([]);
+    expect(edited.facts.habitats[0].reason?.status).toBe('stale');
+    expect(edited.facts.resources[0].reason?.status).toBe('stale');
+    expect(validateRegionSnapshot(edited).ok).toBe(true);
+  });
+
+  it('protects authored dependencies when a settlement is removed', () => {
+    const facts = {
+      ...snapshot.facts,
+      settlementRoles: [
+        {
+          id: 'role:one',
+          name: 'Home',
+          description: '',
+          origin: 'authored' as const,
+          settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
+          areaIds: [],
+          anchor: { nodeIds: [], edgeIds: [] },
+        },
+      ],
+    };
+    const authored = { ...snapshot, facts };
+    expect(canRemoveRegionSettlement(authored, 0)).toBe(false);
+    expect(removeRegionPlace(authored, 'settlements', 0)).toBe(authored);
+    const withAuthoredClaim = {
+      ...authored,
+      facts: {
+        ...facts,
+        settlementRoles: [{ ...facts.settlementRoles[0], origin: 'generated' as const }],
+        claims: [
+          {
+            id: 'claim:one',
+            name: 'Memory',
+            description: '',
+            origin: 'authored' as const,
+            subjectId: 'role:one',
+            relatedIds: [],
+          },
+        ],
+      },
+    };
+    expect(canRemoveRegionSettlement(withAuthoredClaim, 0)).toBe(false);
+    expect(removeRegionPlace(withAuthoredClaim, 'settlements', 0)).toBe(withAuthoredClaim);
+    const withAuthoredRoute = {
+      ...snapshot,
+      facts: {
+        ...snapshot.facts,
+        routes: [
+          {
+            id: 'route:one',
+            kind: 'road' as const,
+            name: 'Home Road',
+            description: '',
+            origin: 'authored' as const,
+            areaIds: [],
+            anchor: { nodeIds: [], edgeIds: [snapshot.map.edges[0].id] },
+            endpoints: [
+              {
+                kind: 'settlement' as const,
+                settlement: { kind: 'embedded' as const, settlementId: snapshot.settlements[0].id },
+              },
+              {
+                kind: 'settlement' as const,
+                settlement: { kind: 'artifact' as const, targetId: 'outside' },
+              },
+            ] as [
+              { kind: 'settlement'; settlement: { kind: 'embedded'; settlementId: string } },
+              { kind: 'settlement'; settlement: { kind: 'artifact'; targetId: string } },
+            ],
+          },
+        ],
+      },
+    };
+    expect(canRemoveRegionSettlement(withAuthoredRoute, 0)).toBe(false);
+    expect(removeRegionPlace(withAuthoredRoute, 'settlements', 0)).toBe(withAuthoredRoute);
   });
 
   it('ignores an index that is not there', () => {

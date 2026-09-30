@@ -5,6 +5,7 @@ import type { Organization } from '$lib/organizations';
 import type { Realm } from '$lib/realms';
 import type { Settlement } from '$lib/settlements';
 import type { RegionMap } from '$lib/map';
+import type { RegionFacts } from './region_fact_types.js';
 
 export default interface Region {
   name: string;
@@ -21,6 +22,9 @@ export default interface Region {
    */
   dominantCulture: Culture | null;
   settlements: Settlement[];
+  /** Local identities survive a snapshot read and subsequent edit/save cycle. */
+  settlementIds?: string[];
+  facts?: RegionFacts;
   mainRealm: number;
   realms: Realm[];
   authority: Character;

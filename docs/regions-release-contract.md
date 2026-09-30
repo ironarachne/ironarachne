@@ -278,6 +278,109 @@ the source path and saved payload let the UI detect when an edit or migration in
 allowed environment fields and map properties are typed enums in the implementation, rather than
 arbitrary executable paths. `ruleId` is data, never code to evaluate from a saved artifact.
 
+## Resource and route extension for #328
+
+**Status:** accepted on 2026-09-29. This extends the accepted model above with the dedicated
+resource and route facts named in #328.
+
+A resource is a named occurrence grounded in a habitat, area, or observed map feature. It
+does not store a duplicate biome, a quantity, or an economy forecast. A route is a named corridor
+over saved map edges between two identifiable endpoints. It does not store travel time, distance in
+miles, or a second road graph. Both are facts with the same editable text, origin, and optional
+reason as the approved fact types.
+
+### Domain model
+
+```mermaid
+classDiagram
+    class RegionFacts {
+        +ResourceFact[] resources
+        +RouteFact[] routes
+    }
+    class ResourceFact {
+        +string id
+        +ResourceKind kind
+        +string name
+        +string description
+        +string[] areaIds
+        +string[] habitatIds
+        +SpatialAnchor? anchor
+        +FactOrigin origin
+        +FactReason? reason
+    }
+    class RouteFact {
+        +string id
+        +RouteKind kind
+        +string name
+        +string description
+        +string[] areaIds
+        +SpatialAnchor anchor
+        +RouteEndpoint[] endpoints
+        +FactOrigin origin
+        +FactReason? reason
+    }
+    class RouteEndpoint {
+        <<union>>
+    }
+    class SettlementRouteEndpoint {
+        +string kind
+        +SettlementTarget settlement
+    }
+    class NotableRouteEndpoint {
+        +string kind
+        +string notableId
+    }
+    class BoundaryRouteEndpoint {
+        +string kind
+        +number edgeId
+    }
+    RegionFacts "1" o-- "*" ResourceFact : contains
+    RegionFacts "1" o-- "*" RouteFact : contains
+    ResourceFact "*" --> "*" RegionArea : located in
+    ResourceFact "*" --> "*" HabitatFact : supported by
+    RouteFact "*" --> "*" RegionArea : crosses
+    RouteFact "1" o-- "2" RouteEndpoint : connects
+    RouteEndpoint <|-- SettlementRouteEndpoint
+    RouteEndpoint <|-- NotableRouteEndpoint
+    RouteEndpoint <|-- BoundaryRouteEndpoint
+    SettlementRouteEndpoint "*" --> "1" SettlementTarget : identifies
+    NotableRouteEndpoint "*" --> "1" NotableFact : identifies
+    BoundaryRouteEndpoint "*" --> "1" RegionMap : identifies edge in
+```
+
+`ResourceKind = 'freshwater' | 'arable-land' | 'fish' | 'timber'` and
+`RouteKind = 'road' | 'river'`. These resource kinds can be supported by the saved water, climate,
+biome, and habitat data; ore or other geological claims need a new observed input before a
+generator may assert them. A river route means a corridor following the river, not a claim that
+boats can navigate it. The exact `RouteEndpoint` union is:
+
+```typescript
+type RouteEndpoint =
+  | { kind: 'settlement'; settlement: SettlementTarget }
+  | { kind: 'notable'; notableId: string }
+  | { kind: 'boundary'; edgeId: number };
+```
+
+The existing `SettlementTarget` variant distinguishes an embedded `RegionSettlement.id` from an
+artifact `targetId`; the route stores neither settlement
+snapshot nor display name. A route has exactly two endpoints. A boundary endpoint means its edge
+ID is on the saved map boundary, not that a neighboring region or destination has been invented.
+
+Resource IDs use `resource:` and route IDs use `route:`. They join the existing one-region semantic
+ID namespace and can be cited by `FactSource.kind = 'fact'` and `CausalFact` relationships. Every
+`areaId`, `habitatId`, `notableId`, embedded settlement ID, and map node/edge ID must resolve in the
+same saved snapshot; artifact settlement targets retain the existing dangling-reference behavior.
+A resource needs at least one area or anchored map node/edge. A route needs at least one anchored
+edge and two distinct endpoints. The generic validator checks structure and references; fantasy
+generation checks whether the cited map edges actually support the proposed road or river and
+whether the resource's environment and habitat support its kind. A missing or changed source marks
+a generated reason stale rather than asserting an unsupported cause.
+
+The two required arrays are part of the version 3 payload, with `RegionFacts.version` remaining
+`1`; migrations from payload versions 1 and 2 initialize both arrays empty alongside the other
+legacy fact lists. Old regions reopen and export without newly invented resources or routes.
+Derived route drawing remains outside the payload, just like the current SVG map.
+
 ## Representative result
 
 For an illustrative seed, the map contains a western hill belt, a river crossing its lower edge,

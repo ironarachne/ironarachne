@@ -80,7 +80,11 @@ export function regionFromSnapshot(snapshot: RegionSnapshot, rng: RNG): Region {
     environment: snapshot.environment,
     dominantCulture:
       snapshot.dominantCulture === null ? null : cultureFromSnapshot(snapshot.dominantCulture, rng),
-    settlements: snapshot.settlements.map(settlementFromSnapshot),
+    settlements: snapshot.settlements.map(({ snapshot: settlement }) =>
+      settlementFromSnapshot(settlement),
+    ),
+    settlementIds: snapshot.settlements.map(({ id }) => id),
+    facts: snapshot.facts,
     mainRealm: snapshot.mainRealm,
     realms: snapshot.realms.map(realmFromStored),
     authority: characterFromStored(snapshot.authority),

@@ -8,6 +8,7 @@ import {
   validateRegionSnapshot,
 } from './region_artifact_kind';
 import { rollRegionSnapshot } from './region_roll';
+import { regionToMarkdown, regionToMapSvg } from './region_presentation';
 
 const snapshot = rollRegionSnapshot('kind-seed');
 
@@ -105,6 +106,12 @@ describe('validating a stored region', () => {
     ).toMatchObject({ ok: false });
   });
 
+  it('does not crash when a saved map has a malformed node', () => {
+    expect(() =>
+      validateRegionSnapshot(broken({ map: { ...snapshot.map, nodes: [null] } })),
+    ).not.toThrow();
+  });
+
   it('rejects a region with no ruler', () => {
     expect(validateRegionSnapshot(broken({ authority: undefined }))).toMatchObject({ ok: false });
   });
@@ -140,19 +147,340 @@ describe('validating a stored region', () => {
     // Through `$lib/settlements`' validator rather than a copy of it: a copy is the half that goes
     // stale the day a field is added.
     const settlements = snapshot.settlements.map((settlement, index) =>
-      index === 0 ? { ...settlement, name: undefined } : settlement,
+      index === 0
+        ? { ...settlement, snapshot: { ...settlement.snapshot, name: undefined } }
+        : settlement,
     );
     expect(validateRegionSnapshot(broken({ settlements }))).toMatchObject({ ok: false });
+  });
+
+  it('accepts linked semantic facts and rejects broken local or map references', () => {
+    const nodeId = snapshot.map.nodes[0].id;
+    const edgeId = snapshot.map.edges[0].id;
+    const facts = {
+      ...snapshot.facts,
+      areas: [
+        {
+          id: 'area:one',
+          name: 'Valley',
+          description: '',
+          mapNodeIds: [nodeId],
+          origin: 'generated',
+        },
+      ],
+      habitats: [
+        {
+          id: 'habitat:one',
+          name: 'Wetland',
+          description: '',
+          areaIds: ['area:one'],
+          origin: 'generated',
+          reason: {
+            ruleId: 'fantasy.habitat.v1',
+            status: 'current',
+            sources: [{ kind: 'map-node', nodeId, property: 'moisture', observedValue: '0.8' }],
+          },
+        },
+      ],
+      settlementRoles: [
+        {
+          id: 'role:one',
+          name: 'Crossing',
+          description: '',
+          settlement: { kind: 'embedded', settlementId: snapshot.settlements[0].id },
+          areaIds: ['area:one'],
+          anchor: { nodeIds: [nodeId], edgeIds: [edgeId] },
+          origin: 'generated',
+        },
+      ],
+      notables: [
+        {
+          id: 'hazard:one',
+          kind: 'hazard',
+          name: 'Ford',
+          description: '',
+          areaIds: ['area:one'],
+          origin: 'authored',
+        },
+      ],
+      resources: [
+        {
+          id: 'resource:one',
+          kind: 'freshwater',
+          name: 'Springs',
+          description: '',
+          areaIds: ['area:one'],
+          habitatIds: ['habitat:one'],
+          origin: 'generated',
+          reason: {
+            ruleId: 'fantasy.resource.v1',
+            status: 'current',
+            sources: [{ kind: 'map-node', nodeId, property: 'moisture', observedValue: '0.8' }],
+          },
+        },
+      ],
+      routes: [
+        {
+          id: 'route:one',
+          kind: 'road',
+          name: 'Valley Road',
+          description: '',
+          areaIds: ['area:one'],
+          anchor: { nodeIds: [], edgeIds: [edgeId] },
+          endpoints: [
+            {
+              kind: 'settlement',
+              settlement: { kind: 'embedded', settlementId: snapshot.settlements[0].id },
+            },
+            {
+              kind: 'settlement',
+              settlement: { kind: 'artifact', targetId: 'outside-settlement' },
+            },
+          ],
+          origin: 'generated',
+        },
+      ],
+      claims: [
+        {
+          id: 'claim:one',
+          name: 'Trade',
+          description: '',
+          subjectId: 'role:one',
+          relatedIds: ['resource:one', 'route:one'],
+          origin: 'generated',
+          reason: {
+            ruleId: 'fantasy.trade.v1',
+            status: 'current',
+            sources: [{ kind: 'fact', factId: 'role:one' }],
+          },
+        },
+      ],
+    };
+    expect(validateRegionSnapshot(broken({ facts })).ok).toBe(true);
+    expect(
+      validateRegionSnapshot(
+        broken({ facts: { ...facts, habitats: [{ ...facts.habitats[0], areaIds: ['missing'] }] } }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({ facts: { ...facts, areas: [{ ...facts.areas[0], mapNodeIds: [-1] }] } }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: {
+            ...facts,
+            settlementRoles: [
+              {
+                ...facts.settlementRoles[0],
+                settlement: { kind: 'embedded', settlementId: 'missing' },
+              },
+            ],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({ facts: { ...facts, claims: [{ ...facts.claims[0], relatedIds: ['missing'] }] } }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: { ...facts, resources: [{ ...facts.resources[0], habitatIds: ['missing'] }] },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: {
+            ...facts,
+            routes: [{ ...facts.routes[0], anchor: { nodeIds: [], edgeIds: [-1] } }],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: {
+            ...facts,
+            routes: [
+              {
+                ...facts.routes[0],
+                endpoints: [facts.routes[0].endpoints[0], facts.routes[0].endpoints[0]],
+              },
+            ],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: {
+            ...facts,
+            routes: [
+              {
+                ...facts.routes[0],
+                endpoints: [
+                  { kind: 'notable', notableId: 'missing' },
+                  facts.routes[0].endpoints[1],
+                ],
+              },
+            ],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+  });
+
+  it('rejects duplicate identities and unknown future fact kinds', () => {
+    const area = { id: 'area:same', name: '', description: '', origin: 'authored', mapNodeIds: [] };
+    const facts = {
+      ...snapshot.facts,
+      areas: [area, { ...area }],
+    };
+    expect(validateRegionSnapshot(broken({ facts }))).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(broken({ facts: { ...snapshot.facts, version: 2 } })),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({ settlements: [snapshot.settlements[0], snapshot.settlements[0]] }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({ settlements: [{ ...snapshot.settlements[0], id: 'wrong:one' }] }),
+      ),
+    ).toMatchObject({ ok: false });
+  });
+
+  it('validates anchored resources and boundary route endpoints', () => {
+    const edge = { ...snapshot.map.edges[0], d1: undefined };
+    const map = { ...snapshot.map, edges: [edge, ...snapshot.map.edges.slice(1)] };
+    const resource = {
+      id: 'resource:one',
+      kind: 'timber',
+      name: 'Woodland',
+      description: '',
+      areaIds: [],
+      habitatIds: [],
+      anchor: { nodeIds: [snapshot.map.nodes[0].id], edgeIds: [] },
+      origin: 'authored',
+    };
+    const route = {
+      id: 'route:one',
+      kind: 'road',
+      name: 'North Road',
+      description: '',
+      areaIds: [],
+      anchor: { nodeIds: [], edgeIds: [edge.id] },
+      origin: 'authored',
+      endpoints: [
+        { kind: 'boundary', edgeId: edge.id },
+        { kind: 'settlement', settlement: { kind: 'artifact', targetId: 'outside' } },
+      ],
+    };
+    const facts = { ...snapshot.facts, resources: [resource], routes: [route] };
+    expect(validateRegionSnapshot(broken({ map, facts })).ok).toBe(true);
+    expect(
+      validateRegionSnapshot(
+        broken({ map, facts: { ...facts, resources: [{ ...resource, kind: 'ore' }] } }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({ map, facts: { ...facts, resources: [{ ...resource, anchor: undefined }] } }),
+      ),
+    ).toMatchObject({ ok: false });
+    const nonBoundaryMap = { ...map, edges: [{ ...edge, d1: edge.d0 }, ...map.edges.slice(1)] };
+    expect(validateRegionSnapshot(broken({ map: nonBoundaryMap, facts }))).toMatchObject({
+      ok: false,
+    });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          map,
+          facts: {
+            ...facts,
+            routes: [{ ...route, endpoints: [{ kind: 'boundary', edgeId: edge.id }] }],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+    expect(
+      validateRegionSnapshot(
+        broken({
+          map,
+          facts: { ...facts, routes: [{ ...route, anchor: { nodeIds: [], edgeIds: [] } }] },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
+  });
+
+  it('requires resources and routes lists in the current payload', () => {
+    const { resources: _resources, ...missingResources } = snapshot.facts;
+    const { routes: _routes, ...missingRoutes } = snapshot.facts;
+    expect(validateRegionSnapshot(broken({ facts: missingResources }))).toMatchObject({
+      ok: false,
+    });
+    expect(validateRegionSnapshot(broken({ facts: missingRoutes }))).toMatchObject({ ok: false });
+  });
+
+  it('accepts stale missing sources but never an unknown source kind', () => {
+    const reason = {
+      ruleId: 'fantasy.habitat.v1',
+      status: 'stale',
+      sources: [{ kind: 'fact', factId: 'removed' }],
+    };
+    const habitat = {
+      id: 'habitat:one',
+      name: 'Marsh',
+      description: '',
+      areaIds: [],
+      origin: 'generated',
+      reason,
+    };
+    expect(
+      validateRegionSnapshot(broken({ facts: { ...snapshot.facts, habitats: [habitat] } })).ok,
+    ).toBe(true);
+    expect(
+      validateRegionSnapshot(
+        broken({
+          facts: {
+            ...snapshot.facts,
+            habitats: [{ ...habitat, reason: { ...reason, sources: [{ kind: 'future' }] } }],
+          },
+        }),
+      ),
+    ).toMatchObject({ ok: false });
   });
 });
 
 describe('migrating a stored region (7.3)', () => {
   it('migrates direct and composed actors without changing region prose', () => {
-    const result = migrateRegionSnapshot(withoutMechanics(snapshot), 1);
+    const legacy = {
+      ...snapshot,
+      settlements: snapshot.settlements.map((entry) => entry.snapshot),
+    };
+    const result = migrateRegionSnapshot(withoutMechanics(legacy), 1);
 
     expect(result.ok).toBe(true);
     if (result.ok) {
       expect(result.value.description).toBe(snapshot.description);
+      expect(result.value.facts.state).toBe('legacy');
+      expect(result.value.facts.claims).toEqual([]);
+      expect(result.value.facts.resources).toEqual([]);
+      expect(result.value.facts.routes).toEqual([]);
+      expect(result.value.settlements.map((entry) => entry.id)).toEqual(
+        snapshot.settlements.map((entry) => entry.id),
+      );
       expect(result.value.authority.mechanics.variants[0]).toMatchObject({ origin: 'migrated' });
       expect(result.value.realms[0].authority.mechanics.variants[0]).toMatchObject({
         origin: 'migrated',
@@ -160,6 +488,24 @@ describe('migrating a stored region (7.3)', () => {
       expect(result.value.organizations[0].leader.mechanics.variants[0]).toMatchObject({
         origin: 'migrated',
       });
+    }
+  });
+
+  it('migrates version 2 without altering the map or inventing facts', () => {
+    const legacy = {
+      ...snapshot,
+      settlements: snapshot.settlements.map((entry) => entry.snapshot),
+    };
+    const result = migrateRegionSnapshot(legacy, 2);
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.value.map).toEqual(snapshot.map);
+      expect(result.value.facts).toMatchObject({ state: 'legacy', areas: [], claims: [] });
+      expect(result.value.facts.resources).toEqual([]);
+      expect(result.value.facts.routes).toEqual([]);
+      expect(result.value.settlements[0].snapshot).toEqual(snapshot.settlements[0].snapshot);
+      expect(regionToMarkdown(result.value)).toContain(result.value.name);
+      expect(regionToMapSvg(result.value)).toContain('<svg');
     }
   });
 

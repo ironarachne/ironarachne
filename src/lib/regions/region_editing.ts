@@ -45,6 +45,44 @@ function replaceAt<T>(list: T[], index: number, value: T): T[] {
   return list.map((entry, position) => (position === index ? value : entry));
 }
 
+/** IDs of generated dependent facts to remove, or null when authored work depends on the place. */
+function settlementRemovalDependencies(
+  snapshot: RegionSnapshot,
+  index: number,
+): Set<string> | null {
+  const settlementId = snapshot.settlements[index].id;
+  const roles = snapshot.facts.settlementRoles.filter(
+    (role) => role.settlement.kind === 'embedded' && role.settlement.settlementId === settlementId,
+  );
+  const routes = snapshot.facts.routes.filter((route) =>
+    route.endpoints.some(
+      (endpoint) =>
+        endpoint.kind === 'settlement' &&
+        endpoint.settlement.kind === 'embedded' &&
+        endpoint.settlement.settlementId === settlementId,
+    ),
+  );
+  if ([...roles, ...routes].some((fact) => fact.origin === 'authored')) return null;
+  const removedIds = new Set([...roles, ...routes].map((fact) => fact.id));
+  while (true) {
+    const dependents = snapshot.facts.claims.filter(
+      (claim) =>
+        !removedIds.has(claim.id) &&
+        (removedIds.has(claim.subjectId) || claim.relatedIds.some((id) => removedIds.has(id))),
+    );
+    if (dependents.length === 0) return removedIds;
+    if (dependents.some((claim) => claim.origin === 'authored')) return null;
+    for (const claim of dependents) removedIds.add(claim.id);
+  }
+}
+
+export function canRemoveRegionSettlement(snapshot: RegionSnapshot, index: number): boolean {
+  return (
+    hasIndex(snapshot.settlements.length, index) &&
+    settlementRemovalDependencies(snapshot, index) !== null
+  );
+}
+
 export function setRegionText(
   snapshot: RegionSnapshot,
   field: RegionTextField,
@@ -99,10 +137,24 @@ export function setRegionPlaceText(
   value: string,
 ): RegionSnapshot {
   const places = snapshot[list];
+  if (list === 'settlements') {
+    return hasIndex(snapshot.settlements.length, index)
+      ? {
+          ...snapshot,
+          settlements: replaceAt(snapshot.settlements, index, {
+            ...snapshot.settlements[index],
+            snapshot: { ...snapshot.settlements[index].snapshot, [field]: value },
+          }),
+        }
+      : snapshot;
+  }
   return hasIndex(places.length, index)
     ? {
         ...snapshot,
-        [list]: replaceAt(places, index, { ...places[index], [field]: value }),
+        organizations: replaceAt(snapshot.organizations, index, {
+          ...snapshot.organizations[index],
+          [field]: value,
+        }),
       }
     : snapshot;
 }
@@ -114,7 +166,45 @@ export function removeRegionPlace(
   index: number,
 ): RegionSnapshot {
   const places = snapshot[list];
-  return hasIndex(places.length, index)
-    ? { ...snapshot, [list]: places.filter((_place, position) => position !== index) }
-    : snapshot;
+  if (!hasIndex(places.length, index)) return snapshot;
+  if (list === 'settlements') {
+    const removedIds = settlementRemovalDependencies(snapshot, index);
+    if (removedIds === null) return snapshot;
+    const staleIfDependent = <
+      T extends {
+        reason?: { status: 'current' | 'stale'; sources: { kind: string; factId?: string }[] };
+      },
+    >(
+      fact: T,
+    ): T =>
+      fact.reason?.sources.some(
+        (source) => source.kind === 'fact' && removedIds.has(source.factId ?? ''),
+      )
+        ? { ...fact, reason: { ...fact.reason, status: 'stale' as const } }
+        : fact;
+    return {
+      ...snapshot,
+      settlements: snapshot.settlements.filter((_place, position) => position !== index),
+      facts: {
+        ...snapshot.facts,
+        settlementRoles: snapshot.facts.settlementRoles
+          .filter((role) => !removedIds.has(role.id))
+          .map(staleIfDependent),
+        areas: snapshot.facts.areas.map(staleIfDependent),
+        habitats: snapshot.facts.habitats.map(staleIfDependent),
+        notables: snapshot.facts.notables.map(staleIfDependent),
+        resources: snapshot.facts.resources.map(staleIfDependent),
+        routes: snapshot.facts.routes
+          .filter((route) => !removedIds.has(route.id))
+          .map(staleIfDependent),
+        claims: snapshot.facts.claims
+          .filter((claim) => !removedIds.has(claim.id))
+          .map(staleIfDependent),
+      },
+    };
+  }
+  return {
+    ...snapshot,
+    organizations: snapshot.organizations.filter((_place, position) => position !== index),
+  };
 }
