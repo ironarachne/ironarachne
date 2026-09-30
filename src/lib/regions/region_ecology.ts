@@ -106,7 +106,7 @@ function patchesFor(
     });
 }
 
-function candidatesFor(
+export function ecologyCandidatesFor(
   region: Pick<Region, 'map' | 'environment'>,
   habitat: HabitatFact,
   catalog: RegionEcologyCatalog,
@@ -145,7 +145,17 @@ function candidatesFor(
         ? (['producer'] as const)
         : (['other'] as const));
     const key = JSON.stringify([category, source, roles]);
-    if (candidates.has(key)) return;
+    const sources: FactSource[] = [
+      { kind: 'fact', factId: habitat.id },
+      ...observations(patch.node),
+      ...(rule?.water === undefined ? [] : patch.waterSources),
+      ...(patch.environments.includes('coastal') ? waterSources(region, patch.node, true) : []),
+    ];
+    const existing = candidates.get(key);
+    if (existing !== undefined) {
+      existing.nodeSources.set(patch.node.id, sources);
+      return;
+    }
     candidates.set(key, {
       key,
       name,
@@ -155,12 +165,8 @@ function candidatesFor(
       description:
         rule?.description ?? `${name} occur in the supported land patches of the listed habitats.`,
       ruleId: `fantasy:region:ecology:${encodeURIComponent(name)}:v1`,
-      sources: [
-        { kind: 'fact', factId: habitat.id },
-        ...observations(patch.node),
-        ...(rule?.water === undefined ? [] : patch.waterSources),
-        ...(patch.environments.includes('coastal') ? waterSources(region, patch.node, true) : []),
-      ],
+      sources,
+      nodeSources: new Map([[patch.node.id, [...sources]]]),
     });
   };
   for (const patch of patchesFor(region, habitat, catalog)) {
@@ -196,18 +202,22 @@ function candidatesFor(
       (candidate.category === 'flora' ? ecosystem.flora : ecosystem.fauna).some(
         (label) => labelKey(label) === candidate.name,
       );
+    const environmentSources: FactSource[] = [];
     if (region.environment.ecosystems.some(contains))
-      candidate.sources.push({
+      environmentSources.push({
         kind: 'environment',
         field: 'ecosystems',
         observedValue: JSON.stringify(region.environment.ecosystems),
       });
     if (contains(region.environment.dominantEcosystem))
-      candidate.sources.push({
+      environmentSources.push({
         kind: 'environment',
         field: 'dominantEcosystem',
         observedValue: JSON.stringify(region.environment.dominantEcosystem),
       });
+    candidate.sources.push(...environmentSources);
+    for (const [id, sources] of candidate.nodeSources)
+      candidate.nodeSources.set(id, [...sources, ...environmentSources]);
   }
   return [...candidates.values()].sort((a, b) => lexical(a.key, b.key));
 }
@@ -232,7 +242,7 @@ export function generateEcologyInhabitants(
   const selected = new Map<string, EcologyInhabitantFact>();
   const fantasyKeys = new Set<string>();
   for (const habitat of habitats) {
-    const candidates = candidatesFor(region, habitat, catalog);
+    const candidates = ecologyCandidatesFor(region, habitat, catalog);
     const flora = rng.shuffle(candidates.filter((entry) => entry.category === 'flora')).slice(0, 2);
     const fantasy = rng
       .shuffle(

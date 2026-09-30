@@ -191,3 +191,47 @@ describe('a realm type this build no longer has', () => {
     expect(realmTypeFromStoredName(known).minTiles).toEqual(region.realms[0].realmType.minTiles);
   });
 });
+
+describe('saved ecological interactions', () => {
+  it('retains authored names, relations and seasonal qualifications across JSON and reopening without another roll', () => {
+    const saved = structuredClone(toRegionSnapshot(region));
+    const habitatId = saved.facts.habitats[0].id;
+    saved.facts.ecologyInhabitants.push(
+      {
+        id: 'inhabitant:authored-heron',
+        name: 'Silver herons',
+        description: 'Authored birds',
+        origin: 'authored',
+        category: 'fauna',
+        roles: ['predator'],
+        source: { kind: 'species', speciesName: 'heron' },
+        habitatIds: [habitatId],
+      },
+      {
+        id: 'inhabitant:authored-crayfish',
+        name: 'Blue crayfish',
+        description: 'Authored food',
+        origin: 'authored',
+        category: 'fauna',
+        roles: ['scavenger'],
+        source: { kind: 'species', speciesName: 'crayfish' },
+        habitatIds: [habitatId],
+      },
+    );
+    saved.facts.ecologyRelationships.push({
+      id: 'ecology:authored-food',
+      name: 'River-bank feeding',
+      description: 'An authored seasonal qualification is authoritative.',
+      origin: 'authored',
+      subjectId: 'inhabitant:authored-heron',
+      habitatIds: [habitatId],
+      relation: { kind: 'feeds-on', targetId: 'inhabitant:authored-crayfish' },
+    });
+    const json = JSON.parse(JSON.stringify(saved));
+    expect(validateRegionSnapshot(json).ok).toBe(true);
+    const reopened = toRegionSnapshot(regionFromSnapshot(json, new RNG('different-opening-seed')));
+    expect(reopened.facts).toEqual(saved.facts);
+    expect(reopened.map).toEqual(saved.map);
+    expect(reopened.description).toBe(saved.description);
+  });
+});

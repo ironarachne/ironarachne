@@ -29,6 +29,7 @@ export type EcologyCandidate = {
   description: string;
   ruleId: string;
   sources: FactSource[];
+  nodeSources: Map<number, FactSource[]>;
 };
 export type EcologyPatch = {
   node: MapNode;
