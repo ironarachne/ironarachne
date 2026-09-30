@@ -109,3 +109,12 @@ habitation, so their internal RNG does not couple names to geography. Generated 
 saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
 for stage responsibilities and the recorded terrain-profile limitation. Existing saved maps and facts
 are loaded as written.
+
+## Spatial habitats
+
+The habitat pass derives dominant and secondary habitats from saved dry-land biome cells. Each
+habitat retains its complete node footprint, including disconnected patches. Up to four named
+connected zones become `RegionArea` facts linked from their habitats. Descriptions report measured
+climate and altitude plus observed coasts and rivers; they never alter or regenerate the map.
+Zone IDs use the smallest member node ID, and habitat IDs use the biome name; ties and graph
+traversal are deterministic. See [spatial habitats](../../../docs/region-habitats.md).

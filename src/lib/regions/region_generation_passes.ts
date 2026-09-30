@@ -1,6 +1,7 @@
 import { RNG } from '@ironarachne/rng';
 import { classifyAltitude, classifyRelief, measureRegionTerrain, Suitability } from '$lib/map';
 import type Region from './region.js';
+export { generateHabitatFacts } from './region_habitats.js';
 import type { RegionGenerationStage, RegionTerrainProfile } from './region_generation_types.js';
 import type { FactReason, FactSource } from './region_fact_types.js';
 
@@ -48,37 +49,6 @@ export function recordPhysicalFacts(region: Region, requested: RegionTerrainProf
       })),
     ),
   });
-}
-
-/** Coarse biome-backed habitats; spatial subdivisions are the responsibility of #330. */
-export function generateHabitatFacts(region: Region, _rng: RNG): void {
-  const area = region.facts!.areas[0];
-  const nodes = region.map.nodes.filter((node) => area.mapNodeIds.includes(node.id));
-  const biomes = [
-    ...new Set(nodes.map((node) => node.biomeId).filter((id) => id !== undefined)),
-  ].sort();
-  for (const [index, biome] of biomes.entries()) {
-    const matching = nodes.filter((node) => node.biomeId === biome);
-    region.facts!.habitats.push({
-      id: `habitat:${index + 1}`,
-      name: biome,
-      description: `The saved map supports ${biome} habitat.`,
-      origin: 'generated',
-      areaIds: [area.id],
-      anchor: { nodeIds: matching.map((node) => node.id), edgeIds: [] },
-      reason: reason('biome-habitat', [
-        factSource(area.id),
-        ...matching.map(
-          (node): FactSource => ({
-            kind: 'map-node',
-            nodeId: node.id,
-            property: 'biomeId',
-            observedValue: biome,
-          }),
-        ),
-      ]),
-    });
-  }
 }
 
 /** Freshwater is asserted only where the saved graph contains a river. */
