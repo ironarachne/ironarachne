@@ -1038,6 +1038,9 @@ function textBox(
   fontSize: number,
   anchor: 'middle' | 'start' | 'end',
 ): TextBox {
+  // Measure the font size emitted by textElement, so rounding cannot expand a long label
+  // beyond the bounds used to place it.
+  fontSize = Number(fontSize.toFixed(3));
   const width = estimateTextWidth(text, fontSize);
   const padding = TEXT_BOX_PADDING + (fontSize * LABEL_HALO_EMS) / 2 + 0.005;
   const left = anchor === 'middle' ? x - width / 2 : anchor === 'start' ? x : x - width;
@@ -1543,7 +1546,7 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   body.push(waterGeometryDefs(waterPolygons));
   appendWaterBodiesFromItems(waterPolygons, body, w, h);
   appendRivers(map, body, waterPolygons, routeBoxes);
-  appendScatterSymbolsBackToFront(symbols, body);
+  const scatterLayerIndex = body.length;
   appendRoads(map, body, settlements, routeBoxes);
   appendSettlements(map, settlements, body);
 
@@ -1564,6 +1567,13 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
     [...reserved, ...textParts.map((part) => part.box)],
     routeBoxes,
   );
+  // Furniture reserves space in the illustration: do not hide terrain glyphs beneath its paper.
+  const scatterLayer: string[] = [];
+  appendScatterSymbolsBackToFront(
+    compass === null ? symbols : symbols.filter((symbol) => overlapArea(symbol.box, compass) === 0),
+    scatterLayer,
+  );
+  body.splice(scatterLayerIndex, 0, ...scatterLayer);
   const textLayer =
     textParts.length === 0
       ? ''

@@ -12,6 +12,16 @@ import * as Names from '$lib/names';
 import * as RNG from '@ironarachne/rng';
 
 import type Region from './region.js';
+import {
+  createRegionStageRng,
+  generateHabitatFacts,
+  generateResourceFacts,
+  generateHabitationFacts,
+  generateNotableFacts,
+  presentRegion,
+  recordPhysicalFacts,
+} from './region_generation_passes.js';
+import { emptyRegionFacts } from './region_facts.js';
 import type RegionGeneratorConfig from './region_generator_config.js';
 import type { RegionMap } from '$lib/map';
 import {
@@ -26,7 +36,7 @@ import {
   type ReliefClass,
 } from '$lib/map';
 
-type RegionTerrainProfile = { altitude: AltitudeBand; relief: ReliefClass };
+import type { RegionTerrainProfile } from './region_generation_types.js';
 
 function createEmptyRegion(): Region {
   return {
@@ -61,8 +71,7 @@ function resolveNameGeneratorSet(
  * moisture, biomes — since each reads what the one before it wrote.
  *
  * Latitude and the profile are selected before this pass so the map and overview environment use
- * the same physical inputs. Every draw below comes off `config.rng` in this order, so moving one
- * changes every region generated from a given seed.
+ * the same physical inputs. This config owns only the physical-geography child stream.
  */
 function buildRegionTerrain(
   config: RegionGeneratorConfig,
@@ -145,7 +154,6 @@ function populateRegionInhabitants(
     .filter((id) => id !== undefined) as number[];
   region.map = MapRoad.generateRoads(region.map, townIds);
   region.organizations = randomOrganizations(config.rng, environment);
-  region.description = environment.description;
 }
 
 /** A realm that is not standalone needs the realm above it generated too. */
@@ -222,25 +230,39 @@ function addRealmsToRegion(
 export function generate(config: RegionGeneratorConfig): Region {
   const region = createEmptyRegion();
   const nameGenSet = resolveNameGeneratorSet(region, config);
-
-  const profile = chooseTerrainProfile(config.rng);
-  const latitude = chooseLatitude(config.rng);
-  const environmentConfig = Environments.getDefaultConfig(config.rng);
+  // Capture pattern inputs rather than sharing generators whose closures own the caller's RNG.
+  const patterns = Names.nameGeneratorSetToStoredPatternSet(nameGenSet);
+  const seed = config.rng.randomString(32);
+  const stageConfig = (stage: Parameters<typeof createRegionStageRng>[1]) => ({
+    ...config,
+    rng: createRegionStageRng(seed, stage),
+  });
+  const physicalConfig = stageConfig('physical-geography');
+  const profile = chooseTerrainProfile(physicalConfig.rng);
+  const latitude = chooseLatitude(physicalConfig.rng);
+  const environmentConfig = Environments.getDefaultConfig(physicalConfig.rng);
   environmentConfig.latitude = latitude;
   environmentConfig.elevation =
     profile.altitude === 'low' ? 0.05 : profile.altitude === 'high' ? 0.9 : 0.5;
   environmentConfig.reliefEnergy =
     profile.relief === 'flat' ? 0.05 : profile.relief === 'hilly' ? 0.4 : 0.7;
   environmentConfig.erosionIterations = 0;
-  const environment = Environments.generate(environmentConfig);
+  region.environment = Environments.generate(environmentConfig);
+  region.map = buildRegionTerrain(physicalConfig, region.environment, profile, latitude);
+  region.facts = emptyRegionFacts('current');
+  recordPhysicalFacts(region, profile);
 
-  const map = buildRegionTerrain(config, environment, profile, latitude);
-  region.map = map;
+  generateHabitatFacts(region, createRegionStageRng(seed, 'habitats'));
+  generateResourceFacts(region, createRegionStageRng(seed, 'resources'));
 
-  region.environment = environment;
-  populateRegionInhabitants(region, config, environment, nameGenSet);
-  addRealmsToRegion(region, config, nameGenSet);
-
+  const habitationConfig = stageConfig('habitation');
+  const habitationNames = Names.nameGeneratorSetFromPatternSources(patterns, habitationConfig.rng);
+  populateRegionInhabitants(region, habitationConfig, region.environment, habitationNames);
+  addRealmsToRegion(region, habitationConfig, habitationNames);
+  region.settlementIds = region.settlements.map((_, index) => `settlement:${index + 1}`);
+  generateHabitationFacts(region, habitationConfig.rng);
+  generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'));
+  presentRegion(region, createRegionStageRng(seed, 'presentation'));
   return region;
 }
 
@@ -308,7 +330,7 @@ function randomSettlements(
   rng: RNG.RNG,
   map: RegionMap,
 ): Settlement[] {
-  const settlementGenConfig = Settlements.getDefaultConfig();
+  const settlementGenConfig = Settlements.getDefaultConfig(rng);
   settlementGenConfig.rng = rng;
   settlementGenConfig.nameGenerator = nameGeneratorSet.town;
   settlementGenConfig.size = 'large';
@@ -339,6 +361,7 @@ function randomSettlements(
   const suitabilityEngine: Suitability.SuitabilityEngine = {
     rules: [
       Suitability.standardRules.notOcean(),
+      (node) => (node.isWater ? 0 : 1),
       Suitability.standardRules.nearFreshWater(),
       Suitability.standardRules.flatTerrain(),
       Suitability.standardRules.temperateClimate(),
@@ -359,7 +382,7 @@ function randomSettlements(
   // do a second pass just checking for land
   if (bestNodes.length < totalSettlements) {
     const fallbackEngine: Suitability.SuitabilityEngine = {
-      rules: [Suitability.standardRules.notOcean()],
+      rules: [Suitability.standardRules.notOcean(), (node) => (node.isWater ? 0 : 1)],
       strict: true,
     };
     const fallbackScores = Suitability.evaluateSuitability(map, fallbackEngine);

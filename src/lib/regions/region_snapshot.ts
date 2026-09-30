@@ -35,6 +35,7 @@ import { toSettlementSnapshot } from '$lib/settlements';
 import { stripFunctionValuesDeep } from '$lib/persistent_save';
 
 import type Region from './region.js';
+import { removeRegionPlace } from './region_editing.js';
 import { emptyRegionFacts } from './region_facts.js';
 import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
@@ -91,14 +92,7 @@ export function toRegionSnapshot(
   region: Region,
   options: RegionReferenceOptions = {},
 ): RegionSnapshot {
-  const settlements = region.settlements
-    .map((settlement, index) => ({ settlement, index }))
-    .filter(
-      ({ settlement }) =>
-        options.referencedSettlementName === undefined ||
-        settlement.name !== options.referencedSettlementName,
-    );
-
+  const settlements = region.settlements.map((settlement, index) => ({ settlement, index }));
   const snapshot: RegionSnapshot = {
     name: region.name,
     description: region.description,
@@ -119,5 +113,17 @@ export function toRegionSnapshot(
     map: region.map,
   };
 
-  return stripFunctionValuesDeep(snapshot) as RegionSnapshot;
+  // Omitting an embedded settlement must also remove its generated dependents. Authored
+  // dependencies cannot be silently discarded when converting a referenced settlement.
+  let result = snapshot;
+  if (options.referencedSettlementName !== undefined) {
+    for (let index = result.settlements.length - 1; index >= 0; index--) {
+      if (result.settlements[index].snapshot.name !== options.referencedSettlementName) continue;
+      const edited = removeRegionPlace(result, 'settlements', index);
+      if (edited === result)
+        throw new Error('Referenced settlement has authored regional dependencies.');
+      result = edited;
+    }
+  }
+  return stripFunctionValuesDeep(result) as RegionSnapshot;
 }

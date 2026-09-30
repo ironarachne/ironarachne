@@ -1,0 +1,61 @@
+# Deterministic region generation passes
+
+**Status:** implemented under the accepted [Regions release contract](regions-release-contract.md),
+for #329. This uses the existing approved semantic model; it adds no persisted types or payload version.
+
+## Problem and decisions
+
+The previous region generator shared one RNG across geography, settlement composition, realm names,
+and presentation. A new draw in one part shifted unrelated later output. Name generators also held
+closures over the caller's RNG, so replacing only `config.rng` did not isolate a stage.
+
+Generation now captures one root token from the caller's RNG and derives six streams from the tuple
+`['region-passes-v1', rootToken, stageName]`. Child seeds never depend on stage execution order or draws
+made by a sibling. Same seed and configuration reproduce the entire saved payload; this refactor
+intentionally changes newly rolled results. Existing snapshots are never regenerated on read.
+
+The passes run in this order:
+
+1. **Physical geography:** the existing shared profile, environment, elevation, water, climate and
+   biome passes produce the saved graph. A regional land area records actual node elevations.
+2. **Habitats:** coarse habitats group dry-land nodes by their realized biome and cite those nodes.
+   These are a foundation for #330's spatial subdivisions, not claims about a contiguous zone.
+3. **Resources:** a freshwater fact is selected only from a realized river adjoining regional land,
+   citing its edge, area and supporting habitat. No river means no freshwater fact.
+4. **Habitation:** settlements, roads, organizations and realms consume the realized environment and
+   map. Name pattern inputs are reconstructed with this stream, including supplied culture patterns.
+   Settlement identities and placement reasons are recorded. Lakes and ocean are excluded; an
+   unplaced settlement is rejected. Low-elevation fallback sites have an explicit fallback reason.
+5. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
+   Richer notable rules follow in #332.
+6. **Presentation:** retains the existing overview description; #333 adds causal overview rendering.
+
+Every generated semantic fact carries a versioned `fantasy:region:*:v1` rule ID and references to
+saved observations or prior facts. A random choice decides among supported candidates; randomness
+is never evidence for a physical claim. No ore, navigability, port, crossing or economic claim is
+inferred from these foundation facts.
+
+## Domain model
+
+The persisted domain model is the accepted `RegionFacts`, `RegionArea`, `HabitatFact`, `ResourceFact`,
+`SettlementRoleFact`, `NotableFact`, `FactReason` and `FactSource` model in
+[the release contract](regions-release-contract.md#domain-model), including its accepted resource
+extension. This implementation adds no fields to that model. The only new transient type is the
+six-name `RegionGenerationStage` union, which identifies an RNG boundary rather than a saved fact.
+
+## Terrain contract
+
+The map generation algorithms and #249 thresholds are retained. As recorded in the workflow audit,
+finished maps do not always achieve the requested altitude/relief profile. The physical pass checks
+actual median elevation, relief spread, and mountain fractions using the existing map classifiers.
+A mismatch is explicitly explained in the regional land fact rather than silently remapping the
+saved graph. Downstream facts use actual map observations. Enforcing all nine profile combinations
+remains a terrain-generation defect to resolve in the release acceptance work; the original
+profile-based environment prose is retained and may disagree with the explicit map explanation.
+
+## Verification
+
+Tests compare full plain snapshots, validate their semantic references, and inject extra random draws
+into each later pass. Geography and earlier facts remain identical, while downstream facts may
+legitimately change when their input fact changes. Tests also check river evidence, absence of
+fabricated water facts, and rejection of geography without habitable land.

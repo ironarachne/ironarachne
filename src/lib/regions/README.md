@@ -100,3 +100,12 @@ holding its own copy of something somebody later edits would show the stale one 
 
 `RegionFacts` stores only authored or generated facts and their sources. The SVG map is still
 derived from the saved `RegionMap` and stays outside the payload.
+
+## Dependent passes
+
+New rolls run physical geography, habitats, resources, habitation, notable places, and presentation
+with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
+habitation, so their internal RNG does not couple names to geography. Generated semantic facts carry
+saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
+for stage responsibilities and the recorded terrain-profile limitation. Existing saved maps and facts
+are loaded as written.
