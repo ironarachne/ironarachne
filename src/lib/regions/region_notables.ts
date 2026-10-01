@@ -1,3 +1,4 @@
+import { isUsableRegionResource } from './region_resources';
 import { ecologyHarvestRisks } from './region_ecology_relationships';
 import type { RNG } from '@ironarachne/rng';
 import type { MapNode, MapEdge } from '$lib/map';
@@ -45,6 +46,7 @@ function notable(
 
 function naturalPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
   const resources = region.facts!.resources.flatMap((resource) => {
+    if (!isUsableRegionResource(resource) || resource.reason?.status === 'stale') return [];
     const node = nodes.find((node) => resource.anchor?.nodeIds.includes(node.id));
     if (!node) return [];
     const edges = region.map.edges.filter((edge) => resource.anchor?.edgeIds.includes(edge.id));
@@ -55,7 +57,7 @@ function naturalPlaces(region: Region, nodes: MapNode[]): NotableFact[] {
         'landmark',
         'resource-reach',
         `${resource.name} reach`,
-        `${resource.description} Hook: survey access to this resource and identify a suitable gathering place.`,
+        `${resource.description} Hook: survey access to this source and assess the requirements for its use.`,
         [{ kind: 'fact', factId: resource.id }],
         edges,
       ),

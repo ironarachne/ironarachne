@@ -108,3 +108,13 @@ sub-generators are implemented. That stub is why the presentation drops its Ecos
 why the editor has no ecosystem fields: every environment this build makes carries one nameless
 ecosystem with no flora and no fauna, and a section over it would be an empty heading on every
 sheet ever exported. Both are written to fill themselves in when the sub-generator is.
+
+## Coarse geological settings
+
+`generateGeologicalSetting(makeup, rng)` consumes saved terrain rock/soil hints and generates a
+compatible fictional assemblage of host rocks and geological processes, with optional petroleum
+source/reservoir/seal, maturity and trap attributes. Associated subsurface rocks expand the surface
+vocabulary without changing the established surface-rock draw pool or standalone snapshot shape.
+Settings permit compatible deposits; they do not guarantee minerals. Regions save and locate them
+as geological provinces before selecting deposits on a separate RNG stream. See
+[regional geology](../../../docs/region-resources.md).

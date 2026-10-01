@@ -82,6 +82,8 @@ describe('a region snapshot', () => {
         {
           id: 'resource:one',
           kind: 'freshwater',
+          availability: 'limited' as const,
+          depositIds: [],
           name: 'Spring',
           description: '',
           areaIds: [area.id],
@@ -233,5 +235,26 @@ describe('saved ecological interactions', () => {
     expect(reopened.facts).toEqual(saved.facts);
     expect(reopened.map).toEqual(saved.map);
     expect(reopened.description).toBe(saved.description);
+  });
+});
+
+describe('geological snapshot durability', () => {
+  it('preserves geological settings, deposits, raw inventory and authored text through JSON and another read seed', () => {
+    const edited = JSON.parse(JSON.stringify(toRegionSnapshot(region))) as ReturnType<
+      typeof toRegionSnapshot
+    >;
+    expect(edited.facts.geology.length).toBeGreaterThan(0);
+    expect(edited.facts.resourceDeposits.length).toBeGreaterThan(0);
+    edited.facts.geology[0].name = 'Authored formation';
+    edited.facts.geology[0].origin = 'authored';
+    edited.facts.resourceDeposits[0].description = 'Saved survey notes';
+    edited.facts.resourceDeposits[0].origin = 'authored';
+    edited.facts.resources[0].description = 'Saved gathering notes';
+    edited.facts.resources[0].origin = 'authored';
+    expect(validateRegionSnapshot(edited).ok).toBe(true);
+    const restored = toRegionSnapshot(regionFromSnapshot(edited, new RNG('unrelated-read')));
+    expect(restored.facts).toEqual(edited.facts);
+    expect(restored.map).toEqual(edited.map);
+    expect(restored.environment).toEqual(edited.environment);
   });
 });

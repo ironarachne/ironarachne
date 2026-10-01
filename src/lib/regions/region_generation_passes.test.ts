@@ -40,6 +40,7 @@ describe('dependent generation passes', () => {
   });
 
   it.each([
+    'generateGeologyFacts',
     'generateHabitatFacts',
     'generateEcologyInhabitants',
     'generateEcologyRelationships',
@@ -59,11 +60,16 @@ describe('dependent generation passes', () => {
     expect(after.environment).toEqual(before.environment);
     expect(after.facts.areas).toEqual(before.facts.areas);
     expect(after.facts.habitats).toEqual(before.facts.habitats);
+    if (name !== 'generateGeologyFacts') expect(after.facts.geology).toEqual(before.facts.geology);
     if (name !== 'generateEcologyInhabitants')
       expect(after.facts.ecologyInhabitants).toEqual(before.facts.ecologyInhabitants);
     if (!['generateEcologyInhabitants', 'generateEcologyRelationships'].includes(name))
       expect(after.facts.ecologyRelationships).toEqual(before.facts.ecologyRelationships);
-    if (name !== 'generateResourceFacts') {
+    if (
+      !['generateResourceFacts', 'generateEcologyInhabitants', 'generateGeologyFacts'].includes(
+        name,
+      )
+    ) {
       expect(after.facts.resources).toEqual(before.facts.resources);
       if (
         ![
@@ -124,7 +130,9 @@ describe('dependent generation passes', () => {
         expect(entry.reason?.status).toBe('current');
         expect(entry.habitatIds.length).toBeGreaterThan(0);
       }
-      for (const resource of result.facts.resources) {
+      for (const resource of result.facts.resources.filter(
+        (entry) => entry.kind === 'freshwater' && entry.id === 'resource:freshwater',
+      )) {
         expect(
           resource.anchor!.edgeIds.every(
             (id) => result.map.edges.find((edge) => edge.id === id)!.river > 0,
@@ -162,7 +170,7 @@ describe('dependent generation passes', () => {
     result.facts!.notables = [];
     Passes.generateResourceFacts(result, new RNG('resources'));
     Passes.generateNotableFacts(result, new RNG('notables'));
-    expect(result.facts!.resources).toEqual([]);
+    expect(result.facts!.resources.some((entry) => entry.id === 'resource:freshwater')).toBe(false);
     expect(
       result.facts!.notables.some((fact) => fact.reason!.ruleId.includes('river-obstacle')),
     ).toBe(false);

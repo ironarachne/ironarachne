@@ -133,6 +133,8 @@ describe('grounded regional places', () => {
     region.facts!.resources.push({
       id: 'resource:water',
       kind: 'freshwater',
+      availability: 'limited' as const,
+      depositIds: [],
       name: 'Water',
       description: 'A freshwater source.',
       areaIds: ['area:land'],
@@ -150,6 +152,8 @@ describe('grounded regional places', () => {
     region.facts!.resources.push({
       id: 'resource:water',
       kind: 'freshwater',
+      availability: 'limited' as const,
+      depositIds: [],
       name: 'Water',
       description: '',
       areaIds: ['area:land'],

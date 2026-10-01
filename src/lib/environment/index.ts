@@ -23,3 +23,6 @@ export * from './environment_snapshot';
 export * as BiomeClassifications from './biomes/biome_classifications';
 export * as Environments from './environments';
 export type * from './biomes/biome_types';
+
+export type * from './geology_types';
+export * from './geology';

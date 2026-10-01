@@ -200,6 +200,8 @@ export function removeRegionPlace(
         ecologyRelationships: snapshot.facts.ecologyRelationships
           .filter((entry) => !removedIds.has(entry.id))
           .map(staleIfDependent),
+        geology: snapshot.facts.geology.map(staleIfDependent),
+        resourceDeposits: snapshot.facts.resourceDeposits.map(staleIfDependent),
         areas: snapshot.facts.areas.map(staleIfDependent),
         habitats: snapshot.facts.habitats.map(staleIfDependent),
         notables: snapshot.facts.notables.map(staleIfDependent),

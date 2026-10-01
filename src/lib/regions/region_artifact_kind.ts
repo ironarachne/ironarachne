@@ -33,8 +33,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 4 adds saved ecological inhabitants and relationships. */
-export const REGION_PAYLOAD_VERSION = 4 as const;
+/** Version 5 adds geological settings, deposits and resource availability. */
+export const REGION_PAYLOAD_VERSION = 5 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -183,7 +183,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (from !== 1 && from !== 2 && from !== 3) {
+  if (from !== 1 && from !== 2 && from !== 3 && from !== 4) {
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
@@ -194,14 +194,40 @@ export function migrateRegionSnapshot(
     return rejectedPayload('invalid-payload', 'region payload is not an object');
   }
 
-  if (from === 3) {
+  if (from === 3 || from === 4) {
     const facts = asRecord(record.facts);
-    if (facts === null || facts.version !== 1) {
-      return rejectedPayload('unsupported-version', 'Version 3 requires region facts version 1');
+    if (facts === null || facts.version !== (from === 3 ? 1 : 2)) {
+      return rejectedPayload(
+        'unsupported-version',
+        `Version ${from} requires region facts version ${from === 3 ? 1 : 2}`,
+      );
     }
+    if (!Array.isArray(facts.resources))
+      return rejectedPayload('invalid-payload', 'region resources is not a list');
+    if (
+      facts.resources.some((value) => {
+        const entry = asRecord(value);
+        return (
+          entry === null ||
+          !['freshwater', 'arable-land', 'fish', 'timber'].includes(String(entry.kind))
+        );
+      })
+    )
+      return rejectedPayload('invalid-payload', 'legacy region resource has an unknown kind');
+    const resources = facts.resources.map((value) => {
+      const resource = asRecord(value);
+      return resource === null ? value : { ...resource, availability: 'unknown', depositIds: [] };
+    });
     return validateRegionSnapshot({
       ...record,
-      facts: { ...facts, version: 2, ecologyInhabitants: [], ecologyRelationships: [] },
+      facts: {
+        ...facts,
+        version: 3,
+        resources,
+        geology: [],
+        resourceDeposits: [],
+        ...(from === 3 ? { ecologyInhabitants: [], ecologyRelationships: [] } : {}),
+      },
     });
   }
 

@@ -2,6 +2,8 @@ import { RNG } from '@ironarachne/rng';
 import type { Terrain, TerrainGeneratorConfig } from './terrain_types';
 
 export const possibleSoils = ['loam', 'sand', 'clay', 'peat', 'gravel', 'silt'];
+// Keep the established surface draw pool stable; the geology pass adds subsurface assemblages.
+const surfaceRocks = ['granite', 'basalt', 'limestone', 'sandstone', 'obsidian', 'slate', 'marble'];
 export const possibleRocks = [
   'granite',
   'basalt',
@@ -10,6 +12,14 @@ export const possibleRocks = [
   'obsidian',
   'slate',
   'marble',
+  'shale',
+  'quartzite',
+  'schist',
+  'gneiss',
+  'pegmatite',
+  'kimberlite',
+  'dolomite',
+  'evaporite',
 ];
 
 export function generate(config: TerrainGeneratorConfig): Terrain {
@@ -26,7 +36,7 @@ export function generate(config: TerrainGeneratorConfig): Terrain {
   const soilTypes: string[] = config.rng.randomSet(numSoils, possibleSoils);
 
   const numRocks = config.rng.int(1, 3);
-  const rockTypes: string[] = config.rng.randomSet(numRocks, possibleRocks);
+  const rockTypes: string[] = config.rng.randomSet(numRocks, surfaceRocks);
 
   let result: Terrain = {
     elevationMin: elevationMin,
