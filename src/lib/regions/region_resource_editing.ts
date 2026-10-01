@@ -1,7 +1,8 @@
 import type { FactBase, RegionFacts } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionResourceFactList, RegionSemanticFact } from './region_resource_types';
-const lists = [
+export const regionSemanticFactLists = [
+  'dailyLife',
   'products',
   'areas',
   'habitats',
@@ -15,9 +16,11 @@ const lists = [
   'geology',
   'resourceDeposits',
 ] as const;
+const lists = regionSemanticFactLists;
 
-function targets(fact: RegionSemanticFact): string[] {
+export function regionFactTargets(fact: RegionSemanticFact): string[] {
   const direct: string[] = [];
+  if ('siteRoleId' in fact) direct.push(fact.siteRoleId, ...fact.areaIds);
   if ('inputs' in fact)
     for (const input of fact.inputs) {
       if (input.kind === 'resource') direct.push(input.resourceId, ...input.depositIds);
@@ -37,7 +40,7 @@ function staleDependents(facts: RegionFacts, changed: Set<string>): RegionFacts 
     for (const fact of all) {
       if (
         !changed.has(fact.id) &&
-        (targets(fact).some((id) => changed.has(id)) ||
+        (regionFactTargets(fact).some((id) => changed.has(id)) ||
           fact.reason?.sources.some(
             (source) => source.kind === 'fact' && changed.has(source.factId),
           ))
@@ -60,6 +63,19 @@ function staleDependents(facts: RegionFacts, changed: Set<string>): RegionFacts 
       ]),
     ),
   } as RegionFacts;
+}
+
+/** Apply an already checked removal closure and stale all transitive reason dependents. */
+export function removeRegionFactIds(facts: RegionFacts, removed: Set<string>): RegionFacts {
+  return staleDependents(
+    {
+      ...facts,
+      ...Object.fromEntries(
+        lists.map((key) => [key, facts[key].filter((fact) => !removed.has(fact.id))]),
+      ),
+    } as RegionFacts,
+    removed,
+  );
 }
 
 /** Text edits preserve semantic links and conservatively stale dependent explanations. */
@@ -93,7 +109,7 @@ export function removeRegionResourceFact(
   while (grew) {
     grew = false;
     for (const fact of all) {
-      const linked = targets(fact).some((target) => removed.has(target));
+      const linked = regionFactTargets(fact).some((target) => removed.has(target));
       const reasonLinked = fact.reason?.sources.some(
         (source) => source.kind === 'fact' && removed.has(source.factId),
       );
@@ -104,11 +120,5 @@ export function removeRegionResourceFact(
       }
     }
   }
-  const facts = {
-    ...snapshot.facts,
-    ...Object.fromEntries(
-      lists.map((key) => [key, snapshot.facts[key].filter((fact) => !removed.has(fact.id))]),
-    ),
-  } as RegionFacts;
-  return { ...snapshot, facts: staleDependents(facts, removed) };
+  return { ...snapshot, facts: removeRegionFactIds(snapshot.facts, removed) };
 }

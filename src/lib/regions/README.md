@@ -72,14 +72,14 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 6. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 7. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
   Versions 1 and 2 migrate to an empty `legacy` facts container. Version 3 preserves all existing
   facts and adds empty ecology lists. Versions 3 and 4 add empty geology/deposit lists and
-  unknown availability for old resources; version 5 adds an empty product list; facts are now version 4. Migration preserves the map,
+  unknown availability for old resources; version 5 adds an empty product list; version 6 adds an empty daily-life list; facts are now version 5. Migration preserves the map,
   environment and composed snapshots without inferring missing causes.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
@@ -105,7 +105,7 @@ derived from the saved `RegionMap` and stays outside the payload.
 ## Dependent passes
 
 New rolls run physical geography, geology, habitats, ecology inhabitants, resources, habitation,
-ecology relationships, processing, notable places, and presentation
+ecology relationships, processing, livelihoods, notable places, and presentation
 with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
 habitation, so their internal RNG does not couple names to geography. Generated semantic facts carry
 saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
@@ -287,7 +287,35 @@ Authored inputs can record imports with an explicit resource and explanation.
 imports and diagnostic issues without choosing recipes again. Unknown saved recipe/output keys
 remain readable. Source/product text edits stale dependent explanations; removals preserve authored
 dependencies. Payload v6 adds `products: []` to older saves, preserving their map, facts and edits.
-Display, livelihoods and trade build on these saved facts in later issues. See the
+Daily-life rules use these saved facts; dedicated displays and trade remain later issues. See the
 [approved processing model](../../../docs/region-processing.md), and fantasy catalog follow-ups
 [#364](https://github.com/ironarachne/ironarachne/issues/364) and
 [#365](https://github.com/ironarachne/ironarachne/issues/365).
+
+## Settlement daily life (#340)
+
+`generateLivelihoodFacts` runs on the isolated `livelihoods` stream after processing. It records
+representative livelihoods, food choices, building materials, fuel and household crafts in
+`facts.dailyLife`, linked to stable settlement/site IDs and explicit raw-resource or product inputs.
+Each settlement has at most three livelihoods, three foods, three building materials, two fuels
+and three crafts. Category limits never sever processing chains.
+
+Sources need current positive supply and coarse access through the saved land graph; fish need
+actual shore access at the settlement. Geological inputs retain only accessible workable/rich
+surface/shallow deposits. Complete same-settlement local chains are required for processed goods;
+imports, drilling and missing inputs never become invented local production. Role rule IDs guide
+livelihood priority without changing geographic roles or matching editable names.
+
+Cultivation requires freshwater and arable-land facts but invents no named crop. Reed/papyrus stems
+can supply thatch; linen needs the saved flax-and-water chain. Representative meat/provisions are
+an incomplete food picture, not a complete diet or guaranteed sustainable yield. The current catalog
+has no fish carcass subtype, so a controlled catalog fixture tests fishing without fabricating
+production data. There is no numerical economy or established commercial industry.
+
+`settlementDailyLifeContext(facts, target)` groups saved facts by category with their inputs and
+reasons intact. `describeSettlementDailyLife(facts, target)` composes their stored descriptions,
+marking stale support as needing review and leaving empty categories empty. These APIs supply
+settlement and gazetteer consumers; dedicated UI/assembly remains #344. Text edits, source removals
+and settlement removal preserve authored dependencies and stale downstream explanations. Old saves
+gain an empty daily-life list without rerolling. See the
+[approved livelihood model](../../../docs/region-livelihoods.md).

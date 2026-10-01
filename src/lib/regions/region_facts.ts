@@ -1,4 +1,5 @@
 import { processingFactsError } from './region_processing_validation';
+import { dailyLifeFactsError } from './region_livelihood_validation';
 import { resourceKinds } from './region_resource_constants';
 import { resourceFactsError } from './region_resource_validation';
 import type { ResourceKind } from './region_fact_types';
@@ -8,7 +9,8 @@ import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
   return {
-    version: 4,
+    version: 5,
+    dailyLife: [],
     products: [],
     geology: [],
     resourceDeposits: [],
@@ -54,12 +56,13 @@ export function regionFactsError(
   const facts = object(value);
   if (
     facts === null ||
-    facts.version !== 4 ||
+    facts.version !== 5 ||
     !['current', 'legacy'].includes(String(facts.state))
   ) {
     return 'region facts have an unsupported version or state';
   }
   const keys = [
+    'dailyLife',
     'products',
     'geology',
     'resourceDeposits',
@@ -73,36 +76,38 @@ export function regionFactsError(
     'ecologyInhabitants',
     'ecologyRelationships',
   ] as const;
-  if (keys.some((key) => !Array.isArray(facts[key]))) return 'region facts need all twelve lists';
+  if (keys.some((key) => !Array.isArray(facts[key]))) return 'region facts need all semantic lists';
   const entries = keys.flatMap((key) => facts[key] as unknown[]);
   const factIds = new Set<string>();
   for (const key of keys) {
     for (const entry of facts[key] as unknown[]) {
       const fact = object(entry);
       const prefix =
-        key === 'products'
-          ? 'product:'
-          : key === 'geology'
-            ? 'geology:'
-            : key === 'resourceDeposits'
-              ? 'deposit:'
-              : key === 'areas'
-                ? 'area:'
-                : key === 'habitats'
-                  ? 'habitat:'
-                  : key === 'settlementRoles'
-                    ? 'role:'
-                    : key === 'resources'
-                      ? 'resource:'
-                      : key === 'routes'
-                        ? 'route:'
-                        : key === 'ecologyInhabitants'
-                          ? 'inhabitant:'
-                          : key === 'ecologyRelationships'
-                            ? 'ecology:'
-                            : key === 'claims'
-                              ? 'claim:'
-                              : `${fact?.kind}:`;
+        key === 'dailyLife'
+          ? 'daily-life:'
+          : key === 'products'
+            ? 'product:'
+            : key === 'geology'
+              ? 'geology:'
+              : key === 'resourceDeposits'
+                ? 'deposit:'
+                : key === 'areas'
+                  ? 'area:'
+                  : key === 'habitats'
+                    ? 'habitat:'
+                    : key === 'settlementRoles'
+                      ? 'role:'
+                      : key === 'resources'
+                        ? 'resource:'
+                        : key === 'routes'
+                          ? 'route:'
+                          : key === 'ecologyInhabitants'
+                            ? 'inhabitant:'
+                            : key === 'ecologyRelationships'
+                              ? 'ecology:'
+                              : key === 'claims'
+                                ? 'claim:'
+                                : `${fact?.kind}:`;
       if (
         fact === null ||
         !nonempty(fact.id) ||
@@ -297,5 +302,5 @@ export function regionFactsError(
         return 'current region reason cites an unknown source';
     }
   }
-  return null;
+  return dailyLifeFactsError(facts, map, settlements, settlementTargetValid);
 }

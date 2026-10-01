@@ -20,6 +20,7 @@ import {
   generateResourceFacts,
   generateGeologyFacts,
   generateProcessingFacts,
+  generateLivelihoodFacts,
   generateHabitationFacts,
   generateNotableFacts,
   presentRegion,
@@ -269,6 +270,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   generateHabitationFacts(region, habitationConfig.rng);
   generateEcologyRelationships(region, createRegionStageRng(seed, 'ecology-relationships'));
   generateProcessingFacts(region, createRegionStageRng(seed, 'processing'));
+  generateLivelihoodFacts(region, createRegionStageRng(seed, 'livelihoods'));
   generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'));
   presentRegion(region, createRegionStageRng(seed, 'presentation'));
   return region;
