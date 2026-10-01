@@ -16,6 +16,7 @@ import {
   createRegionStageRng,
   generateHabitatFacts,
   generateEcologyInhabitants,
+  generateEcologyRelationships,
   generateResourceFacts,
   generateHabitationFacts,
   generateNotableFacts,
@@ -263,6 +264,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   addRealmsToRegion(region, habitationConfig, habitationNames);
   region.settlementIds = region.settlements.map((_, index) => `settlement:${index + 1}`);
   generateHabitationFacts(region, habitationConfig.rng);
+  generateEcologyRelationships(region, createRegionStageRng(seed, 'ecology-relationships'));
   generateNotableFacts(region, createRegionStageRng(seed, 'notable-places'));
   presentRegion(region, createRegionStageRng(seed, 'presentation'));
   return region;

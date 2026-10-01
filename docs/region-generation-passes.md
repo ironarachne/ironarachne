@@ -24,17 +24,22 @@ The passes run in this order:
    See [spatial habitats](region-habitats.md) for selection and identity rules.
 3. **Ecology inhabitants:** #335 selects a bounded set of flora, fauna and supported fantasy life
    from local habitat observations using `ecology-inhabitants`. Saved occurrences merge repeated
-   source/role combinations. The `ecology-relationships` stream is reserved for #336; the relationship
-   list remains empty until that pass lands. See [regional ecology](region-ecology.md).
+   source/role combinations. See [regional ecology](region-ecology.md).
 4. **Resources:** a freshwater fact is selected only from a realized river adjoining regional land,
    citing its edge, area and supporting habitat. No river means no freshwater fact.
 5. **Habitation:** settlements, roads, organizations and realms consume the realized environment and
    map. Name pattern inputs are reconstructed with this stream, including supplied culture patterns.
    Settlement identities and placement reasons are recorded. Lakes and ocean are excluded; an
    unplaced settlement is rejected. Low-elevation fallback sites have an explicit fallback reason.
-6. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
-   Richer notable rules follow in #332.
-7. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
+6. **Ecology relationships:** #336 uses `ecology-relationships` after habitation to select up to
+   two interactions per major habitat and six overall. Feeding requires compatible saved organisms
+   supported by the same cell; material use cites an existing site role and connected habitat access.
+   Qualitative cold-browse constraints cite named cooling periods from the saved climate. Inhabitants,
+   settlements and geography remain unchanged.
+7. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
+   #332 adds terrain and inhabited sites; #336 adds bank-gathering hazards supported by current
+   material-use relationships and explicit dangerous organisms. All share the four-place cap.
+8. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
    settlement site cause, resources, a road connection and a localized hazard. Choices use only the
    presentation stream. Empty optional systems and stale facts contribute no filler.
 

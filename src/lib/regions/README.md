@@ -103,7 +103,7 @@ derived from the saved `RegionMap` and stays outside the payload.
 
 ## Dependent passes
 
-New rolls run physical geography, habitats, ecology inhabitants, resources, habitation, notable places, and presentation
+New rolls run physical geography, habitats, ecology inhabitants, resources, habitation, ecology relationships, notable places, and presentation
 with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
 habitation, so their internal RNG does not couple names to geography. Generated semantic facts carry
 saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
@@ -170,7 +170,7 @@ store names, descriptive sources store labels, and neither embeds a catalog entr
 Unknown species names remain readable in saved facts. Loading, JSON export and editing retain
 those facts without selecting again. Generic validation checks ecology IDs, roles, sources,
 habitats, relationship endpoints, pollination, settlement uses and duplicate relations. The
-relationship list is empty on new rolls until #336; display work belongs to #344, regeneration and
+relationship pass now runs after settlement site roles; display work belongs to #344, regeneration and
 structural editing to #347, and named creature-reference integration to #337. See the
 [approved ecology model](../../../docs/region-ecology.md).
 
@@ -190,3 +190,41 @@ water-specific and seasonal suitability, then explicit relationship metadata for
 rule means defining its role and local evidence requirements, adding a contrast/omission test,
 and retaining the existing versioned rule ID for old saves (use a new rule version if semantics
 change). Do not force a feeding chain from co-occurrence.
+
+## Ecological interactions (#336)
+
+`generateEcologyRelationships` runs after habitation on `ecology-relationships`, before notable
+places and presentation. It uses the same per-cell candidate support as inhabitants, without
+rolling or rewriting their saved facts. Source identity and roles select explicit feeding rules;
+editable names only supply wording. A heron/crayfish feeding link requires a common supported
+freshwater-bank cell. Deer, rabbits and ibex can feed on specific represented browse plants;
+a grazer/predator role alone supplies no diet. Disconnected or mutually unsuitable cells in one
+habitat cannot establish an interaction.
+
+Reed/papyrus material use and woodland woodwork cite an existing embedded settlement, its current
+access role and a suitable organism patch reachable through that same connected dry-land habitat.
+A generic land role, a missing settlement, or a named artifact without a resolved site supplies no
+access. IDs include the rule, endpoint identities and habitat; candidates are sorted before seeded
+selection. Each of at most four major habitats contributes at most two relationships, with at most
+six overall. No relationship is required when supporting data is absent.
+
+Browse rules may append a qualitative cold constraint when the supporting cell is at or below
+5°C and the saved climate contains a valid named period with a negative temperature adjustment.
+The reason cites both that cell and the entire saved climate. Coarse adjustments establish the
+cooling direction only; they are never interpreted as a seasonal temperature forecast, annual
+flood, breeding event or migration route. Empty, warm-only or malformed periods contribute no
+qualification. No calendar, structured seasonal state or new payload version is introduced.
+
+The notable-place pass can reuse a current reed-material relationship and an explicitly supported
+alligator/crocodile occurrence at the same gathering patch to produce a bank-gathering hazard.
+Its reason cites the relationship, dangerous inhabitant and local observations. This joins the
+existing obstacle candidate group, preserving the four-place cap. Fantasy labels and generic
+predator roles do not establish hazards. Later livelihood rules (#340) should consume saved
+`used-by` links and cite their semantic IDs, rather than reconstructing access or copying organisms.
+
+Competition needs evidence of a specific limited resource, pollination/pests need compatible
+organism metadata, and domestication needs more than a wild species occurrence. These are omitted
+by the first rule table. Their union variants remain available to authored saves and future
+reviewed rules; no interaction is invented to complete a food web. Creature-artifact occurrences
+remain outside automatic rule resolution until #337. Reopening/exporting a saved relationship
+retains its description, references and seasonal qualification, including author edits.

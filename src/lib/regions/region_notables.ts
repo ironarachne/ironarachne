@@ -1,3 +1,4 @@
+import { ecologyHarvestRisks } from './region_ecology_relationships';
 import type { RNG } from '@ironarachne/rng';
 import type { MapNode, MapEdge } from '$lib/map';
 import type Region from './region.js';
@@ -178,6 +179,20 @@ function terrainObstacles(region: Region, nodes: MapNode[]): NotableFact[] {
   });
 }
 
+function ecologyGatheringHazards(region: Region): NotableFact[] {
+  return ecologyHarvestRisks(region).map((risk) =>
+    notable(
+      region,
+      risk.node,
+      'hazard',
+      'ecology-bank-gathering',
+      'Hazardous bank gathering',
+      `the freshwater patch used for ${risk.use.name} also supports ${risk.inhabitant.name}. Gathering here calls for care. Hook: scout the banks before bringing gatherers to this site.`,
+      risk.sources,
+    ),
+  );
+}
+
 /** Select at most four supported places using only the notable-places stream. */
 export function generateNotableFacts(region: Region, rng: RNG): void {
   const nodes = region.map.nodes
@@ -187,7 +202,7 @@ export function generateNotableFacts(region: Region, rng: RNG): void {
     naturalPlaces(region, nodes),
     inhabitedPlaces(region, nodes),
     riverObstacles(region, nodes),
-    terrainObstacles(region, nodes),
+    [...terrainObstacles(region, nodes), ...ecologyGatheringHazards(region)],
   ];
   for (const candidates of groups) {
     candidates.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

@@ -433,7 +433,8 @@ and payload version 4 / facts version 2 migration policy.
 ## Implementation status
 
 #335 implements inhabitant selection, the declared ecology vocabulary and structural validation,
-and payload version 4 / facts version 2 migration. Generation persists inhabitants and leaves
-relationships empty for #336. [The regions README](../src/lib/regions/README.md#characteristic-inhabitants-335)
+and payload version 4 / facts version 2 migration. Generation persists inhabitants. #336 adds bounded feeding and material-use
+relationships, shared-cell support, settlement access, qualitative cold-browse qualifications
+and gathering hazards that cite the saved relationships. [The regions README](../src/lib/regions/README.md#characteristic-inhabitants-335)
 records selection rules and catalog gaps. Gazetteer display (#344), structural edit/regeneration
 integration (#347) and creature-artifact attachment/resolution (#337) remain follow-on work.

@@ -17,5 +17,6 @@ export * from './region_facts';
 export * from './region_overview';
 
 export * from './region_ecology_types';
-export * from './region_ecology';
+export { generateEcologyInhabitants } from './region_ecology';
 export type { RegionEcologyCatalog } from './region_ecology_rule_types';
+export { generateEcologyRelationships } from './region_ecology_relationships';
