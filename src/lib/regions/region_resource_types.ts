@@ -27,7 +27,13 @@ export type ResourceCatalogSource =
   | { kind: 'geological-resource'; resourceName: string }
   | { kind: 'plant-product'; plantName: string; resourceName: string };
 
-export type RegionResourceFactList = 'geology' | 'resourceDeposits' | 'resources' | 'products';
+export type RegionResourceFactList =
+  | 'geology'
+  | 'resourceDeposits'
+  | 'resources'
+  | 'products'
+  | 'dailyLife'
+  | 'settlementRoles';
 export type RegionSemanticFact = RegionFacts[Exclude<
   keyof RegionFacts,
   'version' | 'state'

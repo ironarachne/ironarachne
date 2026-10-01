@@ -27,6 +27,12 @@
  */
 
 import type { RegionSnapshot, StoredRealm } from './region_snapshot.js';
+import type { RegionSemanticFact } from './region_resource_types';
+import {
+  regionSemanticFactLists,
+  regionFactTargets,
+  removeRegionFactIds,
+} from './region_resource_editing';
 
 /** The region's own two strings. */
 export type RegionTextField = 'name' | 'description';
@@ -72,18 +78,36 @@ function settlementRemovalDependencies(
     (entry) =>
       entry.settlement.kind === 'embedded' && entry.settlement.settlementId === settlementId,
   );
-  if ([...roles, ...routes, ...uses, ...products].some((fact) => fact.origin === 'authored'))
+  const dailyLife = snapshot.facts.dailyLife.filter(
+    (entry) =>
+      entry.settlement.kind === 'embedded' && entry.settlement.settlementId === settlementId,
+  );
+  if (
+    [...roles, ...routes, ...uses, ...products, ...dailyLife].some(
+      (fact) => fact.origin === 'authored',
+    )
+  )
     return null;
-  const removedIds = new Set([...roles, ...routes, ...uses, ...products].map((fact) => fact.id));
+  const removedIds = new Set(
+    [...roles, ...routes, ...uses, ...products, ...dailyLife].map((fact) => fact.id),
+  );
+  const all = regionSemanticFactLists.flatMap<RegionSemanticFact>((key) => snapshot.facts[key]);
   while (true) {
-    const dependents = snapshot.facts.claims.filter(
-      (claim) =>
-        !removedIds.has(claim.id) &&
-        (removedIds.has(claim.subjectId) || claim.relatedIds.some((id) => removedIds.has(id))),
+    const dependents = all.filter(
+      (fact) =>
+        !removedIds.has(fact.id) && regionFactTargets(fact).some((id) => removedIds.has(id)),
     );
+    const authoredInbound = all.some(
+      (fact) =>
+        !removedIds.has(fact.id) &&
+        fact.origin === 'authored' &&
+        fact.reason?.sources.some(
+          (source) => source.kind === 'fact' && removedIds.has(source.factId),
+        ),
+    );
+    if (authoredInbound || dependents.some((fact) => fact.origin === 'authored')) return null;
     if (dependents.length === 0) return removedIds;
-    if (dependents.some((claim) => claim.origin === 'authored')) return null;
-    for (const claim of dependents) removedIds.add(claim.id);
+    for (const fact of dependents) removedIds.add(fact.id);
   }
 }
 
@@ -181,46 +205,10 @@ export function removeRegionPlace(
   if (list === 'settlements') {
     const removedIds = settlementRemovalDependencies(snapshot, index);
     if (removedIds === null) return snapshot;
-    const staleIfDependent = <
-      T extends {
-        reason?: { status: 'current' | 'stale'; sources: { kind: string; factId?: string }[] };
-      },
-    >(
-      fact: T,
-    ): T =>
-      fact.reason?.sources.some(
-        (source) => source.kind === 'fact' && removedIds.has(source.factId ?? ''),
-      )
-        ? { ...fact, reason: { ...fact.reason, status: 'stale' as const } }
-        : fact;
     return {
       ...snapshot,
       settlements: snapshot.settlements.filter((_place, position) => position !== index),
-      facts: {
-        ...snapshot.facts,
-        settlementRoles: snapshot.facts.settlementRoles
-          .filter((role) => !removedIds.has(role.id))
-          .map(staleIfDependent),
-        ecologyInhabitants: snapshot.facts.ecologyInhabitants.map(staleIfDependent),
-        ecologyRelationships: snapshot.facts.ecologyRelationships
-          .filter((entry) => !removedIds.has(entry.id))
-          .map(staleIfDependent),
-        products: snapshot.facts.products
-          .filter((entry) => !removedIds.has(entry.id))
-          .map(staleIfDependent),
-        geology: snapshot.facts.geology.map(staleIfDependent),
-        resourceDeposits: snapshot.facts.resourceDeposits.map(staleIfDependent),
-        areas: snapshot.facts.areas.map(staleIfDependent),
-        habitats: snapshot.facts.habitats.map(staleIfDependent),
-        notables: snapshot.facts.notables.map(staleIfDependent),
-        resources: snapshot.facts.resources.map(staleIfDependent),
-        routes: snapshot.facts.routes
-          .filter((route) => !removedIds.has(route.id))
-          .map(staleIfDependent),
-        claims: snapshot.facts.claims
-          .filter((claim) => !removedIds.has(claim.id))
-          .map(staleIfDependent),
-      },
+      facts: removeRegionFactIds(snapshot.facts, removedIds),
     };
   }
   return {

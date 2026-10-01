@@ -1,6 +1,6 @@
 import type { RegionFacts } from './region_fact_types';
 import type { ResolvedProcessingChain } from './region_processing_types';
-import { processingEvidenceCurrent } from './region_processing_resources';
+import { processingEvidenceCurrent } from './region_evidence';
 
 /** Resolve saved data only; never replace stale/unknown products with a fresh recipe. */
 export function resolveProcessingChain(

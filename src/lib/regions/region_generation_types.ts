@@ -8,6 +8,7 @@ export type RegionGenerationStage =
   | 'ecology-inhabitants'
   | 'ecology-relationships'
   | 'processing'
+  | 'livelihoods'
   | 'resources'
   | 'habitation'
   | 'notable-places'

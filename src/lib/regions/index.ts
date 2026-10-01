@@ -30,3 +30,9 @@ export * from './region_resource_editing';
 export type * from './region_processing_types';
 export { generateProcessingFacts } from './region_processing';
 export { resolveProcessingChain } from './region_processing_chain';
+export type * from './region_livelihood_types';
+export { generateLivelihoodFacts } from './region_livelihoods';
+export {
+  settlementDailyLifeContext,
+  describeSettlementDailyLife,
+} from './region_livelihood_presentation';

@@ -572,7 +572,8 @@ describe('ecology save compatibility', () => {
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 4,
+        version: 5,
+        dailyLife: [],
         products: [],
         geology: [],
         resourceDeposits: [],
@@ -700,13 +701,66 @@ describe('processing save migration', () => {
     const result = migrateRegionSnapshot(input, 5);
     expect(result.ok).toBe(true);
     if (!result.ok) throw new Error(result.message);
-    expect(result.value).toEqual({ ...input, facts: { ...input.facts, version: 4, products: [] } });
+    expect(result.value).toEqual({
+      ...input,
+      facts: { ...input.facts, version: 5, products: [], dailyLife: [] },
+    });
     expect(input).toEqual(original);
     expect(validateRegionSnapshot(result.value).ok).toBe(true);
   });
   it('rejects missing or incompatible v5 facts', () => {
     expect(migrateRegionSnapshot({ ...snapshot, facts: undefined }, 5).ok).toBe(false);
     expect(migrateRegionSnapshot(snapshot, 5).ok).toBe(false);
+  });
+});
+
+describe('daily-life save migration', () => {
+  it('upgrades v6 without selecting new livelihoods or changing products, roles or edited snapshots', () => {
+    const { dailyLife: _dailyLife, ...facts } = structuredClone(snapshot.facts);
+    const input = {
+      ...structuredClone(snapshot),
+      description: 'My saved overview',
+      facts: { ...facts, version: 4 },
+    };
+    const original = structuredClone(input);
+    const result = migrateRegionSnapshot(input, 6);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.message);
+    expect(result.value).toEqual({
+      ...input,
+      facts: { ...input.facts, version: 5, dailyLife: [] },
+    });
+    expect(input).toEqual(original);
+    expect(validateRegionSnapshot(result.value).ok).toBe(true);
+    expect(regionToMarkdown(result.value)).toContain('My saved overview');
+  });
+
+  it('rejects missing, malformed or incompatible v6 facts', () => {
+    expect(migrateRegionSnapshot({ ...snapshot, facts: undefined }, 6).ok).toBe(false);
+    expect(migrateRegionSnapshot(snapshot, 6).ok).toBe(false);
+    expect(
+      migrateRegionSnapshot(
+        { ...snapshot, facts: { ...snapshot.facts, version: 4, products: undefined } },
+        6,
+      ).ok,
+    ).toBe(false);
+  });
+
+  it('preserves edited daily-life assertions and inputs through JSON and the codec', async () => {
+    const saved = structuredClone(snapshot);
+    expect(saved.facts.dailyLife.length).toBeGreaterThan(0);
+    const fact = saved.facts.dailyLife[0];
+    fact.description = 'My authored daily life';
+    fact.name = 'My local work';
+    fact.origin = 'authored';
+    fact.activityKey = 'future:activity';
+    const json = JSON.parse(JSON.stringify(saved));
+    expect(validateRegionSnapshot(json).ok).toBe(true);
+    const codec = await regionArtifactKind.loadCodec();
+    const back = codec.toSnapshot(codec.fromSnapshot(json, undefined as never));
+    expect(back.facts.dailyLife).toEqual(saved.facts.dailyLife);
+    expect(back.map).toEqual(saved.map);
+    expect(back.settlements).toEqual(saved.settlements);
   });
 });
 

@@ -33,8 +33,8 @@ import { emptyRegionFacts, regionFactsError } from './region_facts.js';
  */
 export const REGION_ARTIFACT_KIND = 'region' as const;
 
-/** Version 6 adds saved processing products and plant catalog references. */
-export const REGION_PAYLOAD_VERSION = 6 as const;
+/** Version 7 adds saved settlement daily-life facts. */
+export const REGION_PAYLOAD_VERSION = 7 as const;
 
 function isFiniteNumber(value: unknown): value is number {
   return typeof value === 'number' && Number.isFinite(value);
@@ -183,7 +183,7 @@ export function migrateRegionSnapshot(
   payload: unknown,
   from: number,
 ): PayloadResult<RegionSnapshot> {
-  if (from !== 1 && from !== 2 && from !== 3 && from !== 4 && from !== 5) {
+  if (from !== 1 && from !== 2 && from !== 3 && from !== 4 && from !== 5 && from !== 6) {
     return rejectedPayload(
       'unsupported-version',
       `Regions have no migration from payload version ${from}`,
@@ -194,11 +194,21 @@ export function migrateRegionSnapshot(
     return rejectedPayload('invalid-payload', 'region payload is not an object');
   }
 
+  if (from === 6) {
+    const facts = asRecord(record.facts);
+    if (facts === null || facts.version !== 4)
+      return rejectedPayload('unsupported-version', 'Version 6 requires region facts version 4');
+    return validateRegionSnapshot({ ...record, facts: { ...facts, version: 5, dailyLife: [] } });
+  }
+
   if (from === 5) {
     const facts = asRecord(record.facts);
     if (facts === null || facts.version !== 3)
       return rejectedPayload('unsupported-version', 'Version 5 requires region facts version 3');
-    return validateRegionSnapshot({ ...record, facts: { ...facts, version: 4, products: [] } });
+    return validateRegionSnapshot({
+      ...record,
+      facts: { ...facts, version: 5, products: [], dailyLife: [] },
+    });
   }
 
   if (from === 3 || from === 4) {
@@ -229,7 +239,8 @@ export function migrateRegionSnapshot(
       ...record,
       facts: {
         ...facts,
-        version: 4,
+        version: 5,
+        dailyLife: [],
         products: [],
         resources,
         geology: [],
