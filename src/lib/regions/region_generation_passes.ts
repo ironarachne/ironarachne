@@ -1,3 +1,4 @@
+export { generateProcessingFacts } from './region_processing';
 export { generateGeologyFacts } from './region_geology';
 export { generateResourceFacts } from './region_resources';
 import { RNG } from '@ironarachne/rng';

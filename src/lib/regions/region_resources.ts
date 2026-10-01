@@ -3,6 +3,7 @@ import { BiomeClassifications } from '$lib/environment';
 import { allSpecies } from '$lib/species';
 import {
   deriveResourcesFromSpecies,
+  getPlantProducts,
   getBuildingMaterialResources,
   getGeologicalResources,
   supportsGeologicalResource,
@@ -277,8 +278,12 @@ function organicCandidates(
             known ? { kind: 'building-material', resourceName: known.name } : undefined,
           );
         }
-        if (['reeds', 'papyrus'].includes(support.name))
-          add('fiber', `${support.name} stems`, habitat.id, nodeIds, sources);
+        for (const plantProduct of getPlantProducts(support.name))
+          add('fiber', plantProduct.name, habitat.id, nodeIds, sources, {
+            kind: 'plant-product',
+            plantName: support.name,
+            resourceName: plantProduct.name,
+          });
       }
       if (inhabitant.category !== 'fauna' || inhabitant.source.kind !== 'species') continue;
       const speciesName = inhabitant.source.speciesName;

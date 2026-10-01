@@ -40,6 +40,7 @@ describe('dependent generation passes', () => {
   });
 
   it.each([
+    'generateProcessingFacts',
     'generateGeologyFacts',
     'generateHabitatFacts',
     'generateEcologyInhabitants',
@@ -80,6 +81,8 @@ describe('dependent generation passes', () => {
       )
         expect(after.facts.notables).toEqual(before.facts.notables);
     }
+    if (['generateEcologyRelationships', 'generateNotableFacts', 'presentRegion'].includes(name))
+      expect(after.facts.products).toEqual(before.facts.products);
     expect(after.settlements).toEqual(before.settlements);
     expect(after.realms).toEqual(before.realms);
     expect(after.name).toEqual(before.name);
@@ -112,9 +115,12 @@ describe('dependent generation passes', () => {
     let resources = 0;
     let inhabitants = 0;
     let relationships = 0;
+    let products = 0;
     for (const seed of ['alpha', 'beta', 'gamma']) {
       const result = snapshot(seed);
       expect(regionFactsError(result.facts, result.map, result.settlements)).toBeNull();
+      products += result.facts.products.length;
+      expect(result.facts.products.length).toBeLessThanOrEqual(12);
       resources += result.facts.resources.length;
       inhabitants += result.facts.ecologyInhabitants.length;
       relationships += result.facts.ecologyRelationships.length;
@@ -148,6 +154,7 @@ describe('dependent generation passes', () => {
         ).toBe(true);
       }
     }
+    expect(products).toBeGreaterThan(0);
     expect(resources).toBeGreaterThan(0);
     expect(inhabitants).toBeGreaterThan(0);
     expect(relationships).toBeGreaterThan(0);

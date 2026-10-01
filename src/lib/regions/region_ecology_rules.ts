@@ -65,6 +65,7 @@ export const PRODUCER_LABELS = new Set([
   'sagebrush',
   'manzanita',
   'olive tree',
+  'flax',
   'grass',
   'wildflower',
   'clover',
@@ -89,6 +90,16 @@ export const PRODUCER_LABELS = new Set([
 
 /** Small authored suitability/niche rules supplement catalogs; no diets or relationships. */
 export const ECOLOGY_RULES: readonly EcologyRule[] = [
+  {
+    label: 'flax',
+    category: 'flora',
+    roles: ['producer'],
+    environments: ['grassland'],
+    temperature: [10, 25],
+    moisture: [0.3, 0.5],
+    description:
+      'Flax occurs in moderately moist temperate grassland; no cultivated acreage is implied.',
+  },
   {
     label: 'papyrus',
     category: 'flora',

@@ -8,3 +8,7 @@ export type * from './structural_affordance';
 
 export type * from './geological_resource_types';
 export * from './geological_resources';
+
+export type * from './processing_types';
+export * from './processing';
+export * from './plant_products';

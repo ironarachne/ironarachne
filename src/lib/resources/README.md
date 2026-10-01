@@ -30,6 +30,25 @@ The ore table's physical properties describe the metal rather than ore mineralog
 not be interpreted as deposit grade, composition or extraction economics.
 
 Building materials still mix timber with processed blocks, tiles, plaster and thatch. The geological
-catalog adds raw stone and mineral inputs; processing chains belong to #339. Plant edibility,
-raw plant fiber catalogs, population density and sustainable yield remain metadata gaps.
+catalog adds raw stone and mineral inputs; representative processing chains are implemented under #339. Plant edibility,
+broader plant fiber catalogs, population density and sustainable yield remain metadata gaps.
 See [regional resource generation](../../../docs/region-resources.md).
+
+## Qualitative processing recipes
+
+`getPlantProducts(plantName)` supplies typed raw stems for reeds, papyrus and flax. Unknown plants
+return no products. `getProcessingRecipes()` defines twelve versioned steps across timber, matting,
+linen, iron, preserved provisions and stone. Each declares an output key, technique, assumed tools
+or facilities and required inputs with material/fuel/water roles. Inputs match raw `Resource`
+classification and optional exact catalog names, or a previous product's stable key.
+`matchesProcessingInput(selector, input)` shares that compatibility rule with future item consumers.
+
+These recipes describe possible transformations without inventing numeric yields, duration or
+technology levels. They complement the existing quantitative `RefinementProcess` model. Regions
+adds supply/access evidence and stores complete chains; the shared catalog itself imports no
+regional types. For example, iron tools require bloomery iron, charcoal fuel and wood for handles;
+linen requires prepared flax and spinning, including freshwater for fiber preparation.
+
+The catalog is representative rather than exhaustive. Additional fantasy raw inputs and finished
+goods are tracked in [#364](https://github.com/ironarachne/ironarachne/issues/364) and
+[#365](https://github.com/ironarachne/ironarachne/issues/365).

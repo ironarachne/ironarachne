@@ -1,3 +1,4 @@
+import type { RegionalProductFact } from './region_processing_types';
 import type {
   GeologyFact,
   ResourceDepositFact,
@@ -97,7 +98,8 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 3;
+  version: 4;
+  products: RegionalProductFact[];
   geology: GeologyFact[];
   resourceDeposits: ResourceDepositFact[];
   state: FactState;

@@ -127,9 +127,15 @@ export function resourceFactsError(
       const source = object(resource.catalogSource);
       if (
         !source ||
-        !oneOf(source.kind, ['building-material', 'species-product', 'geological-resource']) ||
+        !oneOf(source.kind, [
+          'building-material',
+          'species-product',
+          'geological-resource',
+          'plant-product',
+        ]) ||
         !text(source.resourceName) ||
-        (source.kind === 'species-product' && !text(source.speciesName))
+        (source.kind === 'species-product' && !text(source.speciesName)) ||
+        (source.kind === 'plant-product' && !text(source.plantName))
       )
         return 'region resource has an invalid catalog source';
       if (deposits.length && source.kind !== 'geological-resource')
