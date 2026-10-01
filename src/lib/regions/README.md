@@ -72,14 +72,15 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 4. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 5. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
   Versions 1 and 2 migrate to an empty `legacy` facts container. Version 3 preserves all existing
-  facts and adds empty ecology lists; facts are now version 2. Migration preserves the original map, environment and composed snapshots; it does not
-  infer missing causes.
+  facts and adds empty ecology lists. Versions 3 and 4 add empty geology/deposit lists and
+  unknown availability for old resources; facts are now version 3. Migration preserves the map,
+  environment and composed snapshots without inferring missing causes.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
 - **`region_presentation.ts`** — the gazetteer, as Markdown and as text, plus `regionToMapSvg` for
@@ -103,7 +104,8 @@ derived from the saved `RegionMap` and stays outside the payload.
 
 ## Dependent passes
 
-New rolls run physical geography, habitats, ecology inhabitants, resources, habitation, ecology relationships, notable places, and presentation
+New rolls run physical geography, geology, habitats, ecology inhabitants, resources, habitation,
+ecology relationships, notable places, and presentation
 with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
 habitation, so their internal RNG does not couple names to geography. Generated semantic facts carry
 saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
@@ -228,3 +230,38 @@ by the first rule table. Their union variants remain available to authored saves
 reviewed rules; no interaction is invented to complete a food web. Creature-artifact occurrences
 remain outside automatic rule resolution until #337. Reopening/exporting a saved relationship
 retains its description, references and seasonal qualification, including author edits.
+
+## Raw resources and geology (#338)
+
+The named `geology` stage follows physical geography. `$lib/environment` generates compatible
+rock/process assemblages from saved surface-rock hints, including associated subsurface rocks.
+Up to four saved provinces cover dry land exactly once. The established terrain surface draw
+pool stays stable; the richer rock vocabulary belongs to these newly generated assemblages.
+These provinces are coarse material zones and can group separated patches.
+
+The existing `resources` stage selects at most three deposits per province from
+`$lib/resources` occurrence rules. Metal ores, gems, eight raw stone types, industrial minerals,
+coal, oil and natural gas have actual generation rules. Each deposit records its province,
+material, concentration (`trace`, `workable`, `rich`), exposure and extraction method. Oil/gas
+require a complete trapped petroleum setting and the relevant maturity window. Diamond needs
+kimberlite and a volcanic-pipe setting; ordinary basalt does not establish a diamond deposit.
+These are fictional procedural settings, not measured deposits or reserve estimates.
+
+The inventory selects at most three sources per kind and thirty-nine overall. Trace deposits
+remain geological facts but do not become usable resources. Raw biological sources recheck
+current saved inhabitants against local habitat support; timber and reed/papyrus stems use
+explicit rules, while animal food/materials reuse species-product derivation. Water comes from
+actual rivers or lakes, and potential cultivation ground needs suitable land and soil evidence.
+
+Availability distinguishes `available`, `limited`, `not-observed` and `unknown`. The first two
+mean potential raw supply; they do not imply safe access, sustainability, purity or extraction
+technology. Deep oil/gas remain recorded for later sci-fi consumers without inventing a fantasy
+fuel industry. Negative assessments refer to the modeled inventory, not a complete natural survey.
+`isUsableRegionResource` identifies positive availability; consumers must also reject stale reasons.
+
+Payload v5 adds empty geology/deposit lists to older saves and gives old resources unknown
+availability with empty deposit links. It preserves all existing edits, reasons and map data.
+Nothing is generated on read. `setRegionResourceFactText` retains identity and stales dependent
+explanations; `removeRegionResourceFact` protects authored dependencies, removes direct generated
+links and retains reason-only dependents as stale. Full presentation and partial regeneration
+remain #344/#347. See [the approved resource model](../../../docs/region-resources.md).

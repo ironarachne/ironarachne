@@ -5,3 +5,6 @@ export * from './species_product_overrides';
 export * from './species_resource_derivation';
 export type * from './resource_types';
 export type * from './structural_affordance';
+
+export type * from './geological_resource_types';
+export * from './geological_resources';

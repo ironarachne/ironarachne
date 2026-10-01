@@ -19,34 +19,40 @@ The passes run in this order:
 
 1. **Physical geography:** the existing shared profile, environment, elevation, water, climate and
    biome passes produce the saved graph. A regional land area records actual node elevations.
-2. **Habitats:** habitats rank dry-land cells by realized biome prevalence. Up to four connected
+2. **Geology:** #338 generates up to four coarse rock/process provinces on `geology`, covering
+   dry land and saving compatible petroleum settings before deposit selection. Existing surface-rock
+   draws and physical map generation remain unchanged. See [resources and geology](region-resources.md).
+3. **Habitats:** habitats rank dry-land cells by realized biome prevalence. Up to four connected
    zones identify major patches, with stored node membership and terrain, climate and water evidence.
    See [spatial habitats](region-habitats.md) for selection and identity rules.
-3. **Ecology inhabitants:** #335 selects a bounded set of flora, fauna and supported fantasy life
+4. **Ecology inhabitants:** #335 selects a bounded set of flora, fauna and supported fantasy life
    from local habitat observations using `ecology-inhabitants`. Saved occurrences merge repeated
    source/role combinations. See [regional ecology](region-ecology.md).
-4. **Resources:** a freshwater fact is selected only from a realized river adjoining regional land,
-   citing its edge, area and supporting habitat. No river means no freshwater fact.
-5. **Habitation:** settlements, roads, organizations and realms consume the realized environment and
+5. **Resources:** #338 selects at most three compatible geological deposits per province, keeping
+   trace presence distinct from workable/rich concentration. The bounded raw inventory combines
+   deposits with locally supported ecology, water and cultivation sources. Availability, catalog
+   links and explicit absent/unknown assessments are saved. Oil/gas extraction is not a claim of
+   current technology or industry.
+6. **Habitation:** settlements, roads, organizations and realms consume the realized environment and
    map. Name pattern inputs are reconstructed with this stream, including supplied culture patterns.
    Settlement identities and placement reasons are recorded. Lakes and ocean are excluded; an
    unplaced settlement is rejected. Low-elevation fallback sites have an explicit fallback reason.
-6. **Ecology relationships:** #336 uses `ecology-relationships` after habitation to select up to
+7. **Ecology relationships:** #336 uses `ecology-relationships` after habitation to select up to
    two interactions per major habitat and six overall. Feeding requires compatible saved organisms
    supported by the same cell; material use cites an existing site role and connected habitat access.
    Qualitative cold-browse constraints cite named cooling periods from the saved climate. Inhabitants,
    settlements and geography remain unchanged.
-7. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
+8. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
    #332 adds terrain and inhabited sites; #336 adds bank-gathering hazards supported by current
    material-use relationships and explicit dangerous organisms. All share the four-place cap.
-8. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
+9. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
    settlement site cause, resources, a road connection and a localized hazard. Choices use only the
    presentation stream. Empty optional systems and stale facts contribute no filler.
 
 Every generated semantic fact carries a versioned `fantasy:region:*:v1` rule ID and references to
 saved observations or prior facts. A random choice decides among supported candidates; randomness
-is never evidence for a physical claim. No ore, navigability, port, crossing or economic claim is
-inferred from these foundation facts.
+is never evidence for a physical claim. Ore claims cite newly saved geological settings and deposits. Navigability, port, crossing and
+economic claims still require their own supporting facts.
 
 ## Domain model
 

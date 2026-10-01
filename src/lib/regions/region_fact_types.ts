@@ -1,3 +1,9 @@
+import type {
+  GeologyFact,
+  ResourceDepositFact,
+  ResourceAvailability,
+  ResourceCatalogSource,
+} from './region_resource_types';
 import type { EcologyInhabitantFact, EcologyRelationshipFact } from './region_ecology_types';
 import type { SettlementSnapshot } from '$lib/settlements';
 
@@ -54,9 +60,25 @@ export type NotableFact = FactBase & {
   areaIds: string[];
   anchor?: SpatialAnchor;
 };
-export type ResourceKind = 'freshwater' | 'arable-land' | 'fish' | 'timber';
+export type ResourceKind =
+  | 'freshwater'
+  | 'arable-land'
+  | 'fish'
+  | 'timber'
+  | 'stone'
+  | 'ore'
+  | 'gemstone'
+  | 'fiber'
+  | 'animal-material'
+  | 'food'
+  | 'geological-material'
+  | 'oil'
+  | 'gas';
 export type ResourceFact = FactBase & {
   kind: ResourceKind;
+  availability: ResourceAvailability;
+  depositIds: string[];
+  catalogSource?: ResourceCatalogSource;
   areaIds: string[];
   habitatIds: string[];
   anchor?: SpatialAnchor;
@@ -75,7 +97,9 @@ export type RouteFact = FactBase & {
 export type CausalFact = FactBase & { subjectId: string; relatedIds: string[] };
 
 export type RegionFacts = {
-  version: 2;
+  version: 3;
+  geology: GeologyFact[];
+  resourceDeposits: ResourceDepositFact[];
   state: FactState;
   areas: RegionArea[];
   habitats: HabitatFact[];

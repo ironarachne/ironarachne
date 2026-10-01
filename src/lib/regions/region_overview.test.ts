@@ -37,8 +37,10 @@ describe('causal regional overview', () => {
       expect(region.description).toContain(classifyRelief(metrics.reliefSpread));
       expect(region.description).toContain(region.facts!.habitats[0].name.toLowerCase());
       expect(region.description).not.toContain('Hook:');
-      if (region.facts!.resources.some((fact) => fact.kind === 'freshwater'))
-        expect(region.description).toContain('A river provides a freshwater source.');
+      for (const resource of region.facts!.resources.filter((fact) =>
+        ['not-observed', 'unknown'].includes(fact.availability),
+      ))
+        expect(region.description).not.toContain(`${resource.name}:`);
       const saved = toRegionSnapshot(region);
       expect(regionToMarkdown(saved)).toContain(region.description);
       expect(regionToText(saved)).toContain(region.description);
@@ -126,6 +128,8 @@ describe('causal regional overview', () => {
     region.facts.resources.push({
       id: 'resource:timber',
       kind: 'timber',
+      availability: 'limited' as const,
+      depositIds: [],
       name: 'Timber',
       description: 'The woodland supplies timber.',
       origin: 'generated',

@@ -18,6 +18,7 @@ import {
   generateEcologyInhabitants,
   generateEcologyRelationships,
   generateResourceFacts,
+  generateGeologyFacts,
   generateHabitationFacts,
   generateNotableFacts,
   presentRegion,
@@ -254,6 +255,7 @@ export function generate(config: RegionGeneratorConfig): Region {
   region.facts = emptyRegionFacts('current');
   recordPhysicalFacts(region, profile);
 
+  generateGeologyFacts(region, createRegionStageRng(seed, 'geology'));
   generateHabitatFacts(region, createRegionStageRng(seed, 'habitats'));
   generateEcologyInhabitants(region, createRegionStageRng(seed, 'ecology-inhabitants'));
   generateResourceFacts(region, createRegionStageRng(seed, 'resources'));

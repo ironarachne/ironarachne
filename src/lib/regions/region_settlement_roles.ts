@@ -1,3 +1,4 @@
+import { isUsableRegionResource } from './region_resources';
 import type { RNG } from '@ironarachne/rng';
 import { Suitability, type MapNode, type MapEdge, type RegionMap } from '$lib/map';
 import type Region from './region.js';
@@ -222,8 +223,11 @@ export function generateHabitationFacts(region: Region, _rng: RNG): void {
     const habitats = region.facts!.habitats.filter((habitat) =>
       habitat.anchor?.nodeIds.includes(node.id),
     );
-    const resources = region.facts!.resources.filter((resource) =>
-      resource.anchor?.nodeIds.includes(node.id),
+    const resources = region.facts!.resources.filter(
+      (resource) =>
+        isUsableRegionResource(resource) &&
+        resource.reason?.status !== 'stale' &&
+        resource.anchor?.nodeIds.includes(node.id),
     );
     const role: SettlementRoleFact = {
       id: `role:site:${id}`,

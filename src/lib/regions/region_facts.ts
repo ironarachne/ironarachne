@@ -1,10 +1,15 @@
+import { resourceKinds } from './region_resource_constants';
+import { resourceFactsError } from './region_resource_validation';
+import type { ResourceKind } from './region_fact_types';
 import { ecologyFactsError } from './region_ecology_validation';
 import type { RegionMap } from '$lib/map';
 import type { RegionFacts, RegionSettlement } from './region_fact_types.js';
 
 export function emptyRegionFacts(state: RegionFacts['state']): RegionFacts {
   return {
-    version: 2,
+    version: 3,
+    geology: [],
+    resourceDeposits: [],
     state,
     areas: [],
     habitats: [],
@@ -47,12 +52,14 @@ export function regionFactsError(
   const facts = object(value);
   if (
     facts === null ||
-    facts.version !== 2 ||
+    facts.version !== 3 ||
     !['current', 'legacy'].includes(String(facts.state))
   ) {
     return 'region facts have an unsupported version or state';
   }
   const keys = [
+    'geology',
+    'resourceDeposits',
     'areas',
     'habitats',
     'settlementRoles',
@@ -63,30 +70,34 @@ export function regionFactsError(
     'ecologyInhabitants',
     'ecologyRelationships',
   ] as const;
-  if (keys.some((key) => !Array.isArray(facts[key]))) return 'region facts need all nine lists';
+  if (keys.some((key) => !Array.isArray(facts[key]))) return 'region facts need all eleven lists';
   const entries = keys.flatMap((key) => facts[key] as unknown[]);
   const factIds = new Set<string>();
   for (const key of keys) {
     for (const entry of facts[key] as unknown[]) {
       const fact = object(entry);
       const prefix =
-        key === 'areas'
-          ? 'area:'
-          : key === 'habitats'
-            ? 'habitat:'
-            : key === 'settlementRoles'
-              ? 'role:'
-              : key === 'resources'
-                ? 'resource:'
-                : key === 'routes'
-                  ? 'route:'
-                  : key === 'ecologyInhabitants'
-                    ? 'inhabitant:'
-                    : key === 'ecologyRelationships'
-                      ? 'ecology:'
-                      : key === 'claims'
-                        ? 'claim:'
-                        : `${fact?.kind}:`;
+        key === 'geology'
+          ? 'geology:'
+          : key === 'resourceDeposits'
+            ? 'deposit:'
+            : key === 'areas'
+              ? 'area:'
+              : key === 'habitats'
+                ? 'habitat:'
+                : key === 'settlementRoles'
+                  ? 'role:'
+                  : key === 'resources'
+                    ? 'resource:'
+                    : key === 'routes'
+                      ? 'route:'
+                      : key === 'ecologyInhabitants'
+                        ? 'inhabitant:'
+                        : key === 'ecologyRelationships'
+                          ? 'ecology:'
+                          : key === 'claims'
+                            ? 'claim:'
+                            : `${fact?.kind}:`;
       if (
         fact === null ||
         !nonempty(fact.id) ||
@@ -144,7 +155,7 @@ export function regionFactsError(
     }
   }
   for (const entry of facts.resources as RecordValue[]) {
-    if (!['freshwater', 'arable-land', 'fish', 'timber'].includes(String(entry.kind))) {
+    if (!resourceKinds.includes(String(entry.kind) as ResourceKind)) {
       return 'region resource has an unknown kind';
     }
     if (!strings(entry.areaIds, areaIds) || !strings(entry.habitatIds, habitatIds)) {
@@ -162,6 +173,8 @@ export function regionFactsError(
       return 'region resource has no location';
     }
   }
+  const resourceError = resourceFactsError(facts, map, areaIds);
+  if (resourceError !== null) return resourceError;
   const mapEdges = new Map(
     map.edges.flatMap((edge) => {
       const record = object(edge);

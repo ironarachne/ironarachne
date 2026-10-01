@@ -135,6 +135,8 @@ describe('editing the settlements and organizations', () => {
         {
           id: 'resource:one',
           kind: 'freshwater' as const,
+          availability: 'limited' as const,
+          depositIds: [],
           name: 'Springs',
           description: '',
           origin: 'generated' as const,
@@ -272,6 +274,15 @@ describe('editing the settlements and organizations', () => {
 describe('settlement removal with ecological uses', () => {
   it('removes generated uses and their claims while preserving inhabitants, and protects authored uses', () => {
     const saved = structuredClone(snapshot);
+    saved.facts.resources = [];
+    saved.facts.notables = [];
+    saved.facts.claims = [];
+    saved.facts.settlementRoles.forEach((entry) => {
+      if (entry.reason)
+        entry.reason.sources = entry.reason.sources.filter(
+          (source) => source.kind !== 'fact' || !source.factId.startsWith('resource:'),
+        );
+    });
     saved.facts.ecologyInhabitants = [
       {
         id: 'inhabitant:reed',

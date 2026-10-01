@@ -212,6 +212,8 @@ describe('validating a stored region', () => {
         {
           id: 'resource:one',
           kind: 'freshwater',
+          availability: 'limited' as const,
+          depositIds: [],
           name: 'Springs',
           description: '',
           areaIds: ['area:one'],
@@ -372,6 +374,8 @@ describe('validating a stored region', () => {
     const resource = {
       id: 'resource:one',
       kind: 'timber',
+      availability: 'limited' as const,
+      depositIds: [],
       name: 'Woodland',
       description: '',
       areaIds: [],
@@ -396,7 +400,7 @@ describe('validating a stored region', () => {
     expect(validateRegionSnapshot(broken({ map, facts })).ok).toBe(true);
     expect(
       validateRegionSnapshot(
-        broken({ map, facts: { ...facts, resources: [{ ...resource, kind: 'ore' }] } }),
+        broken({ map, facts: { ...facts, resources: [{ ...resource, kind: 'unsupported' }] } }),
       ),
     ).toMatchObject({ ok: false });
     expect(
@@ -533,11 +537,27 @@ describe('migrating a stored region (7.3)', () => {
 
 describe('ecology save compatibility', () => {
   it('migrates v3 with all previous facts, identities, reasons and edits intact', () => {
-    const {
-      ecologyInhabitants: _inhabitants,
-      ecologyRelationships: _relationships,
-      ...oldFacts
-    } = structuredClone(snapshot.facts);
+    const oldFacts = {
+      ...emptyRegionFacts('current'),
+      areas: structuredClone(snapshot.facts.areas),
+      habitats: structuredClone(snapshot.facts.habitats),
+      resources: [
+        {
+          id: 'resource:legacy',
+          kind: 'freshwater' as const,
+          name: 'Authored spring',
+          description: 'Saved words',
+          origin: 'authored' as const,
+          areaIds: [snapshot.facts.areas[0].id],
+          habitatIds: [],
+          reason: {
+            ruleId: 'legacy-water',
+            status: 'current' as const,
+            sources: [{ kind: 'fact' as const, factId: snapshot.facts.areas[0].id }],
+          },
+        },
+      ],
+    };
     const legacy = {
       ...structuredClone(snapshot),
       description: 'Authored overview',
@@ -549,7 +569,19 @@ describe('ecology save compatibility', () => {
     if (!result.ok) throw new Error(result.message);
     expect(result.value).toEqual({
       ...legacy,
-      facts: { ...legacy.facts, version: 2, ecologyInhabitants: [], ecologyRelationships: [] },
+      facts: {
+        ...legacy.facts,
+        version: 3,
+        geology: [],
+        resourceDeposits: [],
+        resources: legacy.facts.resources.map((entry) => ({
+          ...entry,
+          availability: 'unknown',
+          depositIds: [],
+        })),
+        ecologyInhabitants: [],
+        ecologyRelationships: [],
+      },
     });
     expect(result.value.facts.state).toBe('current');
     expect(legacy).toEqual(original);
@@ -591,5 +623,65 @@ describe('ecology save compatibility', () => {
     const codec = await regionArtifactKind.loadCodec();
     const back = codec.toSnapshot(codec.fromSnapshot(json, undefined as never));
     expect(back.facts).toEqual(saved.facts);
+  });
+});
+
+describe('geology save migration', () => {
+  it('upgrades v4 without inventing formations, deposits or availability and retains ecological edits', () => {
+    const old = {
+      ...emptyRegionFacts('current'),
+      version: 2,
+      areas: structuredClone(snapshot.facts.areas),
+      habitats: structuredClone(snapshot.facts.habitats),
+      ecologyInhabitants: structuredClone(snapshot.facts.ecologyInhabitants),
+      ecologyRelationships: [],
+      resources: [
+        {
+          id: 'resource:old',
+          kind: 'timber',
+          name: 'Authored timber',
+          description: 'Saved availability prose',
+          origin: 'authored',
+          areaIds: [snapshot.facts.areas[0].id],
+          habitatIds: [],
+          reason: {
+            ruleId: 'old-wood',
+            status: 'stale',
+            sources: [{ kind: 'fact', factId: 'inhabitant:missing' }],
+          },
+        },
+      ],
+    };
+    const input = { ...structuredClone(snapshot), facts: old };
+    const original = structuredClone(input);
+    const result = migrateRegionSnapshot(input, 4);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.message);
+    expect(result.value.facts.geology).toEqual([]);
+    expect(result.value.facts.resourceDeposits).toEqual([]);
+    expect(result.value.facts.ecologyInhabitants).toEqual(old.ecologyInhabitants);
+    expect(result.value.facts.resources).toEqual(
+      old.resources.map((entry) => ({ ...entry, availability: 'unknown', depositIds: [] })),
+    );
+    expect(result.value.map).toEqual(input.map);
+    expect(input).toEqual(original);
+    expect(validateRegionSnapshot(result.value).ok).toBe(true);
+  });
+  it('rejects malformed old inventories and incompatible fact versions', () => {
+    expect(
+      migrateRegionSnapshot(
+        { ...snapshot, facts: { ...snapshot.facts, version: 2, resources: null } },
+        4,
+      ).ok,
+    ).toBe(false);
+    expect(
+      migrateRegionSnapshot(
+        { ...snapshot, facts: { ...snapshot.facts, version: 2, resources: [{ kind: 'gas' }] } },
+        4,
+      ).ok,
+    ).toBe(false);
+    expect(
+      migrateRegionSnapshot({ ...snapshot, facts: { ...snapshot.facts, version: 3 } }, 4).ok,
+    ).toBe(false);
   });
 });

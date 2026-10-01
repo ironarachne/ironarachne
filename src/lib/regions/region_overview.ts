@@ -1,3 +1,4 @@
+import { isUsableRegionResource } from './region_resources';
 import type { RNG } from '@ironarachne/rng';
 import { classifyAltitude, classifyRelief, measureRegionTerrain } from '$lib/map';
 import type Region from './region.js';
@@ -76,7 +77,8 @@ function roadConnection(region: Region, rng: RNG): string {
 
 function resource(region: Region, rng: RNG): string {
   const resources = (region.facts?.resources ?? []).filter(
-    (fact) => usable(fact) && fact.name.trim() && fact.description.trim(),
+    (fact) =>
+      usable(fact) && isUsableRegionResource(fact) && fact.name.trim() && fact.description.trim(),
   );
   if (resources.length === 0) return '';
   const fact = rng.item(resources);

@@ -1,3 +1,5 @@
+export { generateGeologyFacts } from './region_geology';
+export { generateResourceFacts } from './region_resources';
 import { RNG } from '@ironarachne/rng';
 import { classifyAltitude, classifyRelief, measureRegionTerrain } from '$lib/map';
 import type Region from './region.js';
@@ -20,7 +22,6 @@ const reason = (rule: string, sources: FactSource[]): FactReason => ({
   status: 'current',
   sources,
 });
-const factSource = (factId: string): FactSource => ({ kind: 'fact', factId });
 
 /** Preserve the realized map, including an explicit explanation of the known #249 mismatch. */
 export function recordPhysicalFacts(region: Region, requested: RegionTerrainProfile): void {
@@ -53,34 +54,6 @@ export function recordPhysicalFacts(region: Region, requested: RegionTerrainProf
         observedValue: String(node.elevation),
       })),
     ),
-  });
-}
-
-/** Freshwater is asserted only where the saved graph contains a river. */
-export function generateResourceFacts(region: Region, rng: RNG): void {
-  const candidates = region.map.edges.filter(
-    (edge) => edge.river > 0 && region.facts!.areas[0].mapNodeIds.includes(edge.d0),
-  );
-  if (candidates.length === 0) return;
-  const edge = rng.item(candidates);
-  const area = region.facts!.areas[0];
-  const habitats = region.facts!.habitats.filter((habitat) =>
-    habitat.anchor?.nodeIds.includes(edge.d0),
-  );
-  region.facts!.resources.push({
-    id: 'resource:freshwater',
-    kind: 'freshwater',
-    name: 'River water',
-    description: 'A river on the saved map provides a freshwater source.',
-    origin: 'generated',
-    areaIds: [area.id],
-    habitatIds: habitats.map((habitat) => habitat.id),
-    anchor: { nodeIds: [edge.d0], edgeIds: [edge.id] },
-    reason: reason('river-water', [
-      factSource(area.id),
-      ...habitats.map((habitat) => factSource(habitat.id)),
-      { kind: 'map-edge', edgeId: edge.id, property: 'river', observedValue: String(edge.river) },
-    ]),
   });
 }
 

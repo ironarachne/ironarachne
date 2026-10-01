@@ -20,3 +20,9 @@ export * from './region_ecology_types';
 export { generateEcologyInhabitants } from './region_ecology';
 export type { RegionEcologyCatalog } from './region_ecology_rule_types';
 export { generateEcologyRelationships } from './region_ecology_relationships';
+
+export type * from './region_resource_types';
+export { generateGeologyFacts } from './region_geology';
+export { generateResourceFacts, isUsableRegionResource } from './region_resources';
+export type { RegionResourceCatalog } from './region_resource_rule_types';
+export * from './region_resource_editing';
