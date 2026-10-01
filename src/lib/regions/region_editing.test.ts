@@ -274,6 +274,7 @@ describe('editing the settlements and organizations', () => {
 describe('settlement removal with ecological uses', () => {
   it('removes generated uses and their claims while preserving inhabitants, and protects authored uses', () => {
     const saved = structuredClone(snapshot);
+    saved.facts.products = [];
     saved.facts.resources = [];
     saved.facts.notables = [];
     saved.facts.claims = [];

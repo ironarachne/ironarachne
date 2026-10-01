@@ -24,9 +24,10 @@ export type ResourceAvailability = 'available' | 'limited' | 'not-observed' | 'u
 export type ResourceCatalogSource =
   | { kind: 'building-material'; resourceName: string }
   | { kind: 'species-product'; speciesName: string; resourceName: string }
-  | { kind: 'geological-resource'; resourceName: string };
+  | { kind: 'geological-resource'; resourceName: string }
+  | { kind: 'plant-product'; plantName: string; resourceName: string };
 
-export type RegionResourceFactList = 'geology' | 'resourceDeposits' | 'resources';
+export type RegionResourceFactList = 'geology' | 'resourceDeposits' | 'resources' | 'products';
 export type RegionSemanticFact = RegionFacts[Exclude<
   keyof RegionFacts,
   'version' | 'state'

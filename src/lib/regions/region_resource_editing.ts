@@ -2,6 +2,7 @@ import type { FactBase, RegionFacts } from './region_fact_types';
 import type { RegionSnapshot } from './region_snapshot';
 import type { RegionResourceFactList, RegionSemanticFact } from './region_resource_types';
 const lists = [
+  'products',
   'areas',
   'habitats',
   'settlementRoles',
@@ -17,6 +18,11 @@ const lists = [
 
 function targets(fact: RegionSemanticFact): string[] {
   const direct: string[] = [];
+  if ('inputs' in fact)
+    for (const input of fact.inputs) {
+      if (input.kind === 'resource') direct.push(input.resourceId, ...input.depositIds);
+      if (input.kind === 'product') direct.push(input.productId);
+    }
   if ('geologyId' in fact) direct.push(fact.geologyId);
   if ('depositIds' in fact) direct.push(...fact.depositIds);
   if ('subjectId' in fact) direct.push(fact.subjectId);

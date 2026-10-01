@@ -72,14 +72,14 @@ The modules the readiness pass gives every Release-ready tool
   charge art. Writing, listing and validating reach none of it. Almost no conversion work is here:
   every part of a region already had a stored form by the time this tool reached the front of the
   pass, which is the whole point of the ordering.
-- **`region_artifact_kind.ts`** — kind `region`, payload version 5. Its validator composes the
+- **`region_artifact_kind.ts`** — kind `region`, payload version 6. Its validator composes the
   culture, settlement, organization and character validators rather than reimplementing them.
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
   Versions 1 and 2 migrate to an empty `legacy` facts container. Version 3 preserves all existing
   facts and adds empty ecology lists. Versions 3 and 4 add empty geology/deposit lists and
-  unknown availability for old resources; facts are now version 3. Migration preserves the map,
+  unknown availability for old resources; version 5 adds an empty product list; facts are now version 4. Migration preserves the map,
   environment and composed snapshots without inferring missing causes.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
@@ -105,7 +105,7 @@ derived from the saved `RegionMap` and stays outside the payload.
 ## Dependent passes
 
 New rolls run physical geography, geology, habitats, ecology inhabitants, resources, habitation,
-ecology relationships, notable places, and presentation
+ecology relationships, processing, notable places, and presentation
 with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
 habitation, so their internal RNG does not couple names to geography. Generated semantic facts carry
 saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
@@ -249,7 +249,7 @@ These are fictional procedural settings, not measured deposits or reserve estima
 
 The inventory selects at most three sources per kind and thirty-nine overall. Trace deposits
 remain geological facts but do not become usable resources. Raw biological sources recheck
-current saved inhabitants against local habitat support; timber and reed/papyrus stems use
+current saved inhabitants against local habitat support; timber and reed/papyrus/flax stems use
 explicit rules, while animal food/materials reuse species-product derivation. Water comes from
 actual rivers or lakes, and potential cultivation ground needs suitable land and soil evidence.
 
@@ -265,3 +265,29 @@ Nothing is generated on read. `setRegionResourceFactText` retains identity and s
 explanations; `removeRegionResourceFact` protects authored dependencies, removes direct generated
 links and retains reason-only dependents as stale. Full presentation and partial regeneration
 remain #344/#347. See [the approved resource model](../../../docs/region-resources.md).
+
+## Local processing (#339)
+
+`generateProcessingFacts` uses the isolated `processing` stream after habitation and ecology
+relationships. It selects up to three supported craft families and twelve product facts, including
+all necessary intermediate steps. Timber construction, reed/papyrus mats, flax linen, charcoal and
+bloomery iron tools, preserved animal provisions and dressed stone use the shared qualitative
+recipe catalog in `$lib/resources`. Supported flax grows only in the curated temperate grassland
+conditions; its stems provide textile fiber, while reeds and papyrus provide matting fiber.
+
+Each product is a possible output at an embedded settlement with a current site role. Its inputs
+retain raw-resource IDs, reachable dry-land anchors and the usable deposit subset, or earlier
+products at that same settlement. All saved upstream evidence must be current. Trace, deep and
+drilling deposits supply no fantasy processing inputs. Requirements explicitly state assumed
+tools and facilities; the facts do not assert existing industries, cultivated acreage, workforce,
+quantities or sustainable yield. Missing inputs cause omission rather than automatic imports.
+Authored inputs can record imports with an explicit resource and explanation.
+
+`resolveProcessingChain(facts, productId)` returns saved steps in dependency order, raw leaves,
+imports and diagnostic issues without choosing recipes again. Unknown saved recipe/output keys
+remain readable. Source/product text edits stale dependent explanations; removals preserve authored
+dependencies. Payload v6 adds `products: []` to older saves, preserving their map, facts and edits.
+Display, livelihoods and trade build on these saved facts in later issues. See the
+[approved processing model](../../../docs/region-processing.md), and fantasy catalog follow-ups
+[#364](https://github.com/ironarachne/ironarachne/issues/364) and
+[#365](https://github.com/ironarachne/ironarachne/issues/365).

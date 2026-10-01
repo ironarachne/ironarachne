@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import type { RegionalProductFact } from './region_processing_types';
 
 import {
   REGION_ARTIFACT_KIND,
@@ -547,7 +548,7 @@ describe('ecology save compatibility', () => {
           kind: 'freshwater' as const,
           name: 'Authored spring',
           description: 'Saved words',
-          origin: 'authored' as const,
+          origin: 'authored',
           areaIds: [snapshot.facts.areas[0].id],
           habitatIds: [],
           reason: {
@@ -571,7 +572,8 @@ describe('ecology save compatibility', () => {
       ...legacy,
       facts: {
         ...legacy.facts,
-        version: 3,
+        version: 4,
+        products: [],
         geology: [],
         resourceDeposits: [],
         resources: legacy.facts.resources.map((entry) => ({
@@ -684,4 +686,57 @@ describe('geology save migration', () => {
       migrateRegionSnapshot({ ...snapshot, facts: { ...snapshot.facts, version: 3 } }, 4).ok,
     ).toBe(false);
   });
+});
+
+describe('processing save migration', () => {
+  it('upgrades v5 by adding an empty product list without generating or changing saved work', () => {
+    const { products: _products, ...facts } = structuredClone(snapshot.facts);
+    const input = { ...structuredClone(snapshot), facts: { ...facts, version: 3 } };
+    input.facts.resources.forEach((entry) => {
+      entry.name = 'Authored raw supply';
+      entry.origin = 'authored';
+    });
+    const original = structuredClone(input);
+    const result = migrateRegionSnapshot(input, 5);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error(result.message);
+    expect(result.value).toEqual({ ...input, facts: { ...input.facts, version: 4, products: [] } });
+    expect(input).toEqual(original);
+    expect(validateRegionSnapshot(result.value).ok).toBe(true);
+  });
+  it('rejects missing or incompatible v5 facts', () => {
+    expect(migrateRegionSnapshot({ ...snapshot, facts: undefined }, 5).ok).toBe(false);
+    expect(migrateRegionSnapshot(snapshot, 5).ok).toBe(false);
+  });
+});
+
+it('preserves authored product chains through JSON and the saved codec without regeneration', async () => {
+  const saved = structuredClone(snapshot);
+  const product: RegionalProductFact = {
+    id: 'product:saved-craft',
+    name: 'My local craft',
+    description: '',
+    origin: 'authored',
+    productKey: 'future:product',
+    recipeId: 'future:recipe',
+    technique: 'woodworking',
+    requirements: ['joinery tools'],
+    inputs: [
+      {
+        kind: 'import',
+        role: 'material',
+        resourceName: 'caravan cargo',
+        explanation: 'An authored import',
+      },
+    ],
+    settlement: { kind: 'embedded', settlementId: saved.settlements[0].id },
+    areaIds: [],
+    anchor: { nodeIds: [saved.settlements[0].snapshot.mapNodeId!], edgeIds: [] },
+  };
+  saved.facts.products.push(product);
+  const json = JSON.parse(JSON.stringify(saved));
+  expect(validateRegionSnapshot(json).ok).toBe(true);
+  const codec = await regionArtifactKind.loadCodec();
+  const back = codec.toSnapshot(codec.fromSnapshot(json, undefined as never));
+  expect(back.facts.products).toEqual(saved.facts.products);
 });

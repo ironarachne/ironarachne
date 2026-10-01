@@ -367,4 +367,43 @@ describe('resource editing dependencies', () => {
     expect(removeRegionResourceFact(snapshot, 'geology', deposit.geologyId)).toBe(snapshot);
     expect(removeRegionResourceFact(snapshot, 'resources', 'missing')).toBe(snapshot);
   });
+  it('derives typed flax stems only from supported saved grassland flora', () => {
+    const ecology = {
+      ...catalog.ecology,
+      species: [],
+      biomes: [
+        {
+          ...BiomeClassifications.getByName('temperate grassland'),
+          vegetationTypes: ['flax'],
+          faunaTypes: [],
+        },
+      ],
+    };
+    const create = (temperature: number, moisture: number) => {
+      const region = fixture();
+      region.map.nodes.forEach((entry) => {
+        entry.biomeId = 'temperate grassland';
+        entry.temperature = temperature;
+        entry.moisture = moisture;
+      });
+      generateHabitatFacts(region, new RNG('flax-habitat'));
+      generateEcologyInhabitants(region, new RNG('flax-flora'), ecology);
+      generateResourceFacts(region, new RNG('flax-stems'), { ...catalog, ecology });
+      return region;
+    };
+    const supported = create(20, 0.4);
+    expect(
+      supported.facts!.resources.find((entry) => entry.catalogSource?.kind === 'plant-product'),
+    ).toMatchObject({
+      kind: 'fiber',
+      availability: 'limited',
+      catalogSource: { kind: 'plant-product', plantName: 'flax', resourceName: 'flax stems' },
+    });
+    expect(regionFactsError(supported.facts, supported.map, [])).toBeNull();
+    for (const region of [create(0, 0.4), create(20, 0.1), create(20, 0.8)]) {
+      expect(
+        region.facts!.resources.some((entry) => entry.catalogSource?.kind === 'plant-product'),
+      ).toBe(false);
+    }
+  });
 });

@@ -126,7 +126,7 @@ const classifications: BiomeClassification[] = [
     temperatureMin: -10,
     faunaTypes: ['bison', 'prairie dog', 'antelope', 'hawk', 'badger'],
     faunaDensity: 0.5,
-    vegetationTypes: ['grass', 'wildflower', 'clover'],
+    vegetationTypes: ['grass', 'wildflower', 'clover', 'flax'],
     vegetationDensity: 0.6,
     waterFeatures: ['river', 'stream'],
     waterFeatureDensity: 0.3,

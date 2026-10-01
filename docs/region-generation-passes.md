@@ -42,12 +42,16 @@ The passes run in this order:
    supported by the same cell; material use cites an existing site role and connected habitat access.
    Qualitative cold-browse constraints cite named cooling periods from the saved climate. Inhabitants,
    settlements and geography remain unchanged.
-8. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
+8. **Processing:** #339 uses `processing` to save up to three supported craft families and twelve
+   possible product facts with complete input chains. Local sources require current evidence and
+   dry-land access from a current settlement site; missing inputs never become automatic imports.
+   Tools and facilities remain explicit assumptions. See [local processing](region-processing.md).
+9. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
    #332 adds terrain and inhabited sites; #336 adds bank-gathering hazards supported by current
    material-use relationships and explicit dangerous organisms. All share the four-place cap.
-9. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
-   settlement site cause, resources, a road connection and a localized hazard. Choices use only the
-   presentation stream. Empty optional systems and stale facts contribute no filler.
+10. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
+    settlement site cause, resources, a road connection and a localized hazard. Choices use only the
+    presentation stream. Empty optional systems and stale facts contribute no filler.
 
 Every generated semantic fact carries a versioned `fantasy:region:*:v1` rule ID and references to
 saved observations or prior facts. A random choice decides among supported candidates; randomness
