@@ -1,30 +1,19 @@
-/**
- * A region arranged for reading, and the exports written from it.
- *
- * A region is a map, and the map is the export — that is what the design says 6.3 means here, and
- * this tool had neither the map on screen nor any export at all. `buildRegionMapSvgString` has
- * existed in `$lib/map` the whole time with one caller, a CLI script. It has two now.
- *
- * The Markdown is a gazetteer rather than a transcript of the page: the realms with who rules them,
- * the settlements, and the organizations. What it deliberately leaves out is the heraldry — a coat
- * of arms is a picture, its blazon is a sentence only a herald reads, and the map carries the
- * region's identity to the table.
- *
- * 6.4 has teeth in the ordinary way. Most regions have no organizations worth listing and some have
- * no settlements; both sections are dropped when empty, and so is the culture line when the region
- * was named from a referenced culture the payload does not own.
- */
+/** Shared sourcebook presentation for the page, Markdown and PDF. Saved prose is never rerolled. */
 
 import { getHonorific, type StoredCharacter } from '$lib/characters';
 import { buildRegionMapSvgString, type RegionMapSvgSettlement } from '$lib/map';
 
 import type { RegionSnapshot, StoredRealm } from './region_snapshot.js';
 import { regionFactsNeedingReview } from './region_editing';
+import type { FactBase, SettlementTarget, RouteEndpoint } from './region_fact_types';
+import { regionSemanticFactLists } from './region_resource_editing';
 
 /** A titled list of lines; dropped entirely when it has no lines. */
 export type RegionSection = {
   heading: string;
   lines: string[];
+  /** Optional semantic identities for links to supporting explanations on screen. */
+  factIds?: string[];
 };
 
 /** A region arranged for reading, independent of the format it is finally written in. */
@@ -61,7 +50,7 @@ function realmLine(realm: StoredRealm, snapshot: RegionSnapshot, index: number):
   const name = isPrintable(realm.name) ? realm.name.trim() : `Realm ${index + 1}`;
   const kind = isPrintable(realm.realmTypeName) ? ` (${realm.realmTypeName})` : '';
   const seat = index === snapshot.mainRealm ? ' — the seat of this region' : '';
-  return `${name}${kind}: ${describeRuler(realm.authority)}${seat}`;
+  return `${name}${kind}: ${describeRuler(realm.authority)}${seat}${isPrintable(realm.description) ? `. ${realm.description}` : ''}`;
 }
 
 function namedList(
@@ -76,6 +65,88 @@ function namedList(
     })
     .filter(isPrintable);
   return lines.length === 0 ? [] : [{ heading, lines }];
+}
+
+/** Resolve identities against current saved names, never array order or cached prose. */
+function targetName(snapshot: RegionSnapshot, target: SettlementTarget): string {
+  return target.kind === 'embedded'
+    ? snapshot.settlements
+        .find((entry) => entry.id === target.settlementId)
+        ?.snapshot.name.trim() || 'Unnamed settlement'
+    : 'Referenced settlement';
+}
+
+function endpointName(snapshot: RegionSnapshot, endpoint: RouteEndpoint): string {
+  if (endpoint.kind === 'settlement') return targetName(snapshot, endpoint.settlement);
+  if (endpoint.kind === 'boundary') return 'the map boundary';
+  return (
+    snapshot.facts.notables.find((fact) => fact.id === endpoint.notableId)?.name.trim() ||
+    'Unnamed notable place'
+  );
+}
+
+function factSections(heading: string, facts: FactBase[]): RegionSection[] {
+  const printable = facts.filter((fact) => isPrintable(fact.name) || isPrintable(fact.description));
+  return printable.length === 0
+    ? []
+    : [
+        {
+          heading,
+          lines: printable.map(
+            (fact) =>
+              [fact.name.trim(), fact.description.trim()].filter(isPrintable).join(': ') +
+              (fact.reason?.status === 'stale' ? ' [Supporting explanation needs review.]' : ''),
+          ),
+          factIds: printable.map((fact) => fact.id),
+        },
+      ];
+}
+
+/** One generated example per topic; all authored entries survive the concise selection. */
+function representativeFacts<T extends FactBase>(facts: T[], topic: (fact: T) => string): T[] {
+  const seen = new Set<string>();
+  return facts.filter((fact) => {
+    if (!isPrintable(fact.name) && !isPrintable(fact.description)) return false;
+    const key = topic(fact);
+    const first = !seen.has(key);
+    seen.add(key);
+    return fact.origin === 'authored' || first;
+  });
+}
+
+function atSettlement<T extends FactBase & { settlement: SettlementTarget }>(
+  snapshot: RegionSnapshot,
+  facts: T[],
+): T[] {
+  return facts
+    .filter((fact) => isPrintable(fact.name) || isPrintable(fact.description))
+    .map((fact) => ({
+      ...fact,
+      name: `${targetName(snapshot, fact.settlement)} — ${fact.name}`,
+    }));
+}
+
+/** All supporting saved assertions remain inspectable, even those omitted from the short entry. */
+export function regionSupportingFacts(snapshot: RegionSnapshot): FactBase[] {
+  return regionSemanticFactLists.flatMap<FactBase>((list) => snapshot.facts[list]);
+}
+
+/** Read saved evidence without treating a stale reason as a current explanation. */
+export function regionFactExplanation(snapshot: RegionSnapshot, fact: FactBase): string[] {
+  if (!fact.reason) return ['No generated explanation is recorded.'];
+  if (fact.reason.status === 'stale')
+    return ['Supporting information changed; this explanation needs review.'];
+  const facts = regionSupportingFacts(snapshot);
+  return fact.reason.sources.map((source) => {
+    if (source.kind === 'fact') {
+      const supporting = facts.find((entry) => entry.id === source.factId);
+      return supporting
+        ? `${supporting.name || 'Unnamed fact'}: ${supporting.description}${supporting.reason?.status === 'stale' ? ' [Needs review.]' : ''}`
+        : 'Supporting fact is unavailable.';
+    }
+    if (source.kind === 'environment') return `Recorded ${source.field}: ${source.observedValue}.`;
+    return `Recorded map ${source.kind === 'map-node' ? 'site' : 'connection'} ${source.kind === 'map-node' ? source.nodeId : source.edgeId}: ${source.property} = ${source.observedValue}.`;
+  });
 }
 
 /** Arrange a region for reading. */
@@ -102,21 +173,47 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
           description: 'Supporting information changed; saved text has not been recomputed.',
         })),
       ),
+      ...factSections('Landscape', [...snapshot.facts.areas, ...snapshot.facts.habitats]),
+      ...factSections(
+        'Flora and fauna',
+        snapshot.facts.ecologyInhabitants.filter((fact) => fact.category !== 'fantastical'),
+      ),
+      ...factSections('Inhabitants', [
+        ...atSettlement(snapshot, snapshot.facts.settlementRoles),
+        ...snapshot.facts.ecologyInhabitants.filter((fact) => fact.category === 'fantastical'),
+      ]),
+      ...factSections(
+        'Livelihoods',
+        atSettlement(snapshot, [
+          ...representativeFacts(snapshot.facts.dailyLife, (fact) =>
+            JSON.stringify([fact.settlement, fact.category]),
+          ),
+          ...representativeFacts(snapshot.facts.supply, (fact) => JSON.stringify(fact.settlement)),
+        ]),
+      ),
+      ...factSections(
+        'Notable places',
+        snapshot.facts.notables.filter((fact) => fact.kind === 'landmark'),
+      ),
+      ...factSections(
+        'Travel',
+        snapshot.facts.routes
+          .filter((fact) => isPrintable(fact.name) || isPrintable(fact.description))
+          .map((fact) => ({
+            ...fact,
+            name: `${fact.name} (${fact.endpoints.map((endpoint) => endpointName(snapshot, endpoint)).join(' to ')})`,
+          })),
+      ),
+      ...factSections(
+        'Hazards',
+        snapshot.facts.notables.filter((fact) => fact.kind === 'hazard'),
+      ),
       ...(realmLines.length === 0 ? [] : [{ heading: 'Realms', lines: realmLines }]),
       ...namedList(
         'Settlements',
         snapshot.settlements.map(({ snapshot: settlement }) => settlement),
       ),
       ...namedList('Organizations', snapshot.organizations),
-      ...namedList('Habitats', snapshot.facts.habitats),
-      ...namedList(
-        'Landmarks',
-        snapshot.facts.notables.filter((fact) => fact.kind === 'landmark'),
-      ),
-      ...namedList(
-        'Hazards',
-        snapshot.facts.notables.filter((fact) => fact.kind === 'hazard'),
-      ),
     ],
   };
 }

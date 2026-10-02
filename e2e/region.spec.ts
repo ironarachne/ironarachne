@@ -202,10 +202,18 @@ test.describe('a region', () => {
     const places = page.locator('[data-notable-id]');
     expect(await places.count()).toBeGreaterThan(0);
     for (const place of await places.all()) {
-      expect(contents).toContain(await place.locator('h4').innerText());
-      expect(contents).toContain(await place.locator('p').first().innerText());
+      expect(contents).toContain(await place.locator('[data-gazetteer-text]').innerText());
+    }
+    for (const paragraph of await page.locator('[data-gazetteer-text]').all()) {
+      expect(contents).toContain(await paragraph.innerText());
     }
     expect(contents).toContain('Hook:');
+
+    await page.getByRole('link', { name: 'Supporting explanation', exact: true }).first().click();
+    const evidence = page.locator('.gazetteer > details');
+    await expect(evidence).toHaveAttribute('open', '');
+    await expect(evidence.locator('details[open]')).toHaveCount(1);
+    await expect(evidence.locator('details[open] p').first()).toBeVisible();
 
     const pdf = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download PDF' }).click();
