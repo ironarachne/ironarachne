@@ -958,7 +958,12 @@ test.describe('editing a saved artifact', () => {
     ).toBeVisible();
     await expect(panel.getByLabel('Region description')).toHaveValue(overview);
     await panel.getByRole('button', { name: 'Save changes' }).click();
-    await expect(panel.getByText('Saved.', { exact: true })).toBeVisible();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    await expect
+      .poll(async () =>
+        (await storedPanels(page)).some((stored) => stored.artifactId !== undefined),
+      )
+      .toBe(true);
     await page.reload({ waitUntil: 'load' });
     await expect(panel.getByLabel('Settlement 1 name', { exact: true })).toHaveValue('Coldwater');
     await expect(
