@@ -3,7 +3,8 @@ import { parseArgs } from 'node:util';
 import { RNG } from '@ironarachne/rng';
 import * as Names from '../src/lib/names/index.js';
 import * as Regions from '../src/lib/regions/regions.js';
-import { buildRegionMapSvgString } from '../src/lib/map/region_map_svg.js';
+import { regionToMapSvg } from '../src/lib/regions/region_presentation.js';
+import { toRegionSnapshot } from '../src/lib/regions/region_snapshot.js';
 import { buildRoadCentroidPolylines } from '../src/lib/map/road_polylines.js';
 
 import type { MapNode } from '../src/lib/map/map_graph.js';
@@ -107,15 +108,7 @@ function renderMap() {
   const map = region.map;
 
   if (svgOutPath !== undefined && svgOutPath.length > 0) {
-    const svg = buildRegionMapSvgString(map, {
-      title: region.name,
-      settlements: region.settlements.map((s, i) => ({
-        mapNodeId: s.mapNodeId,
-        isCapital: i === 0,
-        name: s.name,
-        population: s.population,
-      })),
-    });
+    const svg = regionToMapSvg(toRegionSnapshot(region));
     writeFileSync(svgOutPath, svg, 'utf8');
     console.log(`Wrote SVG to ${svgOutPath}\n`);
   }

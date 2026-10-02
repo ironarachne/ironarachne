@@ -108,6 +108,7 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
         snapshot.settlements.map(({ snapshot: settlement }) => settlement),
       ),
       ...namedList('Organizations', snapshot.organizations),
+      ...namedList('Habitats', snapshot.facts.habitats),
       ...namedList(
         'Landmarks',
         snapshot.facts.notables.filter((fact) => fact.kind === 'landmark'),
@@ -156,6 +157,7 @@ export function regionToMapSvg(snapshot: RegionSnapshot): string {
   const capital = snapshot.facts.settlementRoles.find((role) => role.id === 'role:capital');
   const settlements: RegionMapSvgSettlement[] = snapshot.settlements.map(
     ({ id, snapshot: settlement }, index) => ({
+      id,
       ...(settlement.mapNodeId === undefined ? {} : { mapNodeId: settlement.mapNodeId }),
       isCapital:
         capital === undefined
@@ -170,6 +172,16 @@ export function regionToMapSvg(snapshot: RegionSnapshot): string {
   return buildRegionMapSvgString(snapshot.map, {
     title: regionDisplayName(snapshot),
     settlements,
+    features: [
+      ...snapshot.facts.habitats.map((fact) => ({ ...fact, kind: 'habitat' as const })),
+      ...snapshot.facts.notables,
+    ].map((fact) => ({
+      id: fact.id,
+      name: fact.name,
+      kind: fact.kind,
+      nodeIds: fact.anchor?.nodeIds ?? [],
+      edgeIds: fact.anchor?.edgeIds ?? [],
+    })),
   });
 }
 

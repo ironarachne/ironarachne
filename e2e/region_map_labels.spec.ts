@@ -25,11 +25,27 @@ for (const seed of [...new Set([...REGION_SEED_BANK.map(({ seed }) => seed), 'de
         const panelBox = panel.getBBox();
         const markers = [
           ...root.querySelectorAll<SVGGraphicsElement>(
-            '#map-layers circle[fill="none"], #map-layers text',
+            '#map-layers circle[fill="none"], #map-layers text, #map-layers [data-feature-marker]',
           ),
         ].map((marker) => marker.getBBox());
         const labels = [...root.querySelectorAll<SVGTextElement>('text[data-text-box]')];
         const errors: string[] = [];
+        for (const text of labels) {
+          const feature = text.closest('[data-feature-id]');
+          if (!feature || feature.getAttribute('data-feature-kind') === 'settlement') continue;
+          const bounds = text.getBBox();
+          for (const other of labels) {
+            if (text === other) continue;
+            const box = other.getBBox();
+            if (
+              bounds.x < box.x + box.width &&
+              bounds.x + bounds.width > box.x &&
+              bounds.y < box.y + box.height &&
+              bounds.y + bounds.height > box.y
+            )
+              errors.push(`Optional fact label overlaps text: ${text.textContent}`);
+          }
+        }
         if (labels.length < 2) errors.push('Expected a title and settlement labels');
         for (const [index, text] of labels.entries()) {
           const bounds = text.getAttribute('data-text-box')!.split(' ').map(Number);
