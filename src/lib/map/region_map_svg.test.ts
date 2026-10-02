@@ -7,6 +7,8 @@ import { RNG } from '@ironarachne/rng';
 import { buildBaseMapGraph } from './builder.js';
 import { buildRegionMapSvgString } from './region_map_svg.js';
 import type { RegionMap } from './map_graph.js';
+import { TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
+const variants = new Map(TERRAIN_GLYPH_VARIANTS.map((v) => [v.id, v]));
 
 type PlacedSymbol = {
   id: string;
@@ -219,20 +221,20 @@ describe('buildRegionMapSvgString', () => {
     const svg = buildRegionMapSvgString(map);
 
     // Verify SVG contains tree symbols in defs
-    expect(svg).toContain('<g id="tree-oak">');
-    expect(svg).toContain('<g id="tree-pine">');
-    expect(svg).toContain('<g id="tree-palm">');
+    expect(svg).toMatch(/<g id="tree-oak-[0-3]"/);
+    expect(svg).toMatch(/<g id="tree-pine-[0-3]"/);
+    expect(svg).toMatch(/<g id="tree-palm-[0-3]"/);
 
     // Verify SVG references the tree symbols
-    expect(svg).toContain('href="#tree-oak"');
-    expect(svg).toContain('href="#tree-pine"');
-    expect(svg).toContain('href="#tree-palm"');
+    expect(svg).toMatch(/href="#tree-oak-[0-3]"/);
+    expect(svg).toMatch(/href="#tree-pine-[0-3]"/);
+    expect(svg).toMatch(/href="#tree-palm-[0-3]"/);
 
     // Verify the old biome symbol for forest (♣) is NOT present
     expect(svg).not.toContain('♣');
   });
 
-  it('correctly maps mountain/hill nodes to high/low peak symbols and renders them', () => {
+  it('uses shared landforms to render high and ordinary mountain symbols', () => {
     const vertices1 = [
       { x: 0, y: 0 },
       { x: 10, y: 0 },
@@ -257,7 +259,7 @@ describe('buildRegionMapSvgString', () => {
           neighbors: [],
           edges: [],
           corners: [],
-          elevation: 0.85, // triggers 'high' peak symbol
+          elevation: 1.1, // high mountain relative to the plain baseline
           moisture: 0.2,
           temperature: 10,
           isWater: false,
@@ -272,7 +274,7 @@ describe('buildRegionMapSvgString', () => {
           neighbors: [],
           edges: [],
           corners: [],
-          elevation: 0.65, // triggers 'low' peak symbol
+          elevation: 0.6, // ordinary mountain relative to the plain baseline
           moisture: 0.2,
           temperature: 10,
           isWater: false,
@@ -280,6 +282,10 @@ describe('buildRegionMapSvgString', () => {
           isCoast: false,
           biomeId: 'hills',
         },
+        ...[0, 1, 2].map((col) => ({
+          ...squareCellNode(col + 2, col * 10, 10, 10),
+          biomeId: 'desert',
+        })),
       ],
       edges: [],
       corners: [],
@@ -288,12 +294,12 @@ describe('buildRegionMapSvgString', () => {
     const svg = buildRegionMapSvgString(map);
 
     // Verify SVG contains mountain symbols in defs
-    expect(svg).toContain('<g id="mountain-high">');
-    expect(svg).toContain('<g id="mountain-low">');
+    expect(svg).toMatch(/<g id="mountain-high-[0-3]"/);
+    expect(svg).toMatch(/<g id="mountain-low-[0-3]"/);
 
     // Verify SVG references the mountain symbols
-    expect(svg).toContain('href="#mountain-high"');
-    expect(svg).toContain('href="#mountain-low"');
+    expect(svg).toMatch(/href="#mountain-high-[0-3]"/);
+    expect(svg).toMatch(/href="#mountain-low-[0-3]"/);
 
     // Verify the old mountain text symbols (▲ and △) are NOT present
     expect(svg).not.toContain('▲');
@@ -320,13 +326,10 @@ describe('buildRegionMapSvgString', () => {
     );
     expect(peaks.length).toBeGreaterThan(0);
 
-    // Silhouette extremes of #mountain-high: both base corners and the apex.
     for (const peak of peaks) {
-      const outline = [
-        placeSilhouettePoint(peak, -1.4, 0),
-        placeSilhouettePoint(peak, 1.4, 0),
-        placeSilhouettePoint(peak, -0.4, -1.8),
-      ];
+      const outline = variants
+        .get(peak.id)!
+        .footprint.map((p) => placeSilhouettePoint(peak, p.x, p.y));
       for (const p of outline) {
         expect(p.x).toBeGreaterThanOrEqual(0);
         expect(p.x).toBeLessThanOrEqual(10);
@@ -352,13 +355,10 @@ describe('buildRegionMapSvgString', () => {
     );
     expect(trees.length).toBeGreaterThan(0);
 
-    // Canopy extremes of #tree-oak: widest points and crown.
     for (const tree of trees) {
-      const outline = [
-        placeSilhouettePoint(tree, -1.2, -1.1),
-        placeSilhouettePoint(tree, 1.2, -1.1),
-        placeSilhouettePoint(tree, 0, -2.2),
-      ];
+      const outline = variants
+        .get(tree.id)!
+        .footprint.map((p) => placeSilhouettePoint(tree, p.x, p.y));
       for (const p of outline) {
         expect(p.x).toBeGreaterThanOrEqual(0);
         expect(p.x).toBeLessThanOrEqual(10);
@@ -412,13 +412,9 @@ describe('buildRegionMapSvgString', () => {
     expect(buildRegionMapSvgString(structuredClone(map))).toEqual(svg);
     expect(map).toEqual(original);
     const placed = parsePlacedSymbols(svg);
-    const widths: Record<string, number> = {
-      'tree-oak': 1.2,
-      'tree-pine': 0.8,
-      'tree-palm': 0.8,
-      'mountain-high': 1.4,
-      'mountain-low': 1,
-    };
+    const widths = Object.fromEntries(
+      TERRAIN_GLYPH_VARIANTS.map((v) => [v.id, Math.max(...v.footprint.map((p) => Math.abs(p.x)))]),
+    );
     const overlappingKinds = new Set<string>();
     for (let i = 0; i < placed.length; i++) {
       const a = placed[i];
@@ -439,7 +435,7 @@ describe('buildRegionMapSvgString', () => {
   });
 
   it('leaves open biomes free of glyphs and the old dust-speck text marks', () => {
-    for (const biomeId of ['temperate grassland', 'desert', 'tundra', 'savanna', 'unknown']) {
+    for (const biomeId of ['montane grassland', 'desert', 'tundra', 'savanna', 'unknown']) {
       const map: RegionMap = {
         width: 10,
         height: 10,

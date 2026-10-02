@@ -18,3 +18,7 @@ export * as MapRoad from './road';
 export * as MapWater from './water';
 export * as MapTerrain from './region_terrain';
 export * as Suitability from './suitability';
+
+// Vector inspection tools use the same authored geometry and taper as the region renderer.
+export { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
+export { inkStrokePath } from './terrain_glyph_ink';

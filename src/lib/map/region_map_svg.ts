@@ -14,6 +14,10 @@ import {
   parchmentRect,
 } from '$lib/cartography';
 import { makeWaterClearanceTest } from './water_clearance';
+import { assignTerrainGlyphs } from './terrain_glyph_assignment';
+import { TERRAIN_GLYPHS, TERRAIN_GLYPH_VARIANTS } from './terrain_glyph_catalog';
+import { inkStrokePath } from './terrain_glyph_ink';
+import type { PlacedTerrainGlyph, TerrainGlyphAssignment, TextBox } from './terrain_glyph_types';
 import { buildRoadCentroidPolylines } from './road_polylines.js';
 import {
   atMapEdge,
@@ -358,14 +362,6 @@ ${paths.map((path) => path.toSvg()).join('\n')}
   }
 }
 
-function isMountainLandNode(node: MapNode): boolean {
-  if (isWaterNode(node)) return false;
-  if (node.elevation > 0.82) return true;
-  if (node.elevation > 0.58) return true;
-  const b = node.biomeId?.toLowerCase() ?? '';
-  return b.includes('mountain') || b.includes('alpine');
-}
-
 function nearestNeighborDistance(node: MapNode, map: RegionMap): number {
   let best = Infinity;
   for (const nid of node.neighbors) {
@@ -557,29 +553,6 @@ function appendRoads(
   }
 }
 
-function isForestNode(node: MapNode): boolean {
-  if (isWaterNode(node)) return false;
-  const b = node.biomeId?.toLowerCase() ?? '';
-  return b.includes('forest') || b.includes('woodland');
-}
-
-function getForestType(node: MapNode): 'oak' | 'pine' | 'palm' | null {
-  if (!isForestNode(node)) return null;
-  const b = node.biomeId?.toLowerCase() ?? '';
-  if (b.includes('tropical') || b.includes('mangrove') || b.includes('jungle')) {
-    return 'palm';
-  }
-  if (
-    b.includes('boreal') ||
-    b.includes('montane') ||
-    b.includes('coniferous') ||
-    b.includes('pine')
-  ) {
-    return 'pine';
-  }
-  return 'oak';
-}
-
 function getPolygonBoundingBox(vertices: Vertex[]): {
   minX: number;
   maxX: number;
@@ -613,54 +586,6 @@ function isPointInPolygon(p: Vertex, vertices: Vertex[]): boolean {
   return inside;
 }
 
-/**
- * Silhouette of each scattered glyph in symbol space, anchored at its base (0, 0) with -y pointing
- * up. Placement uses these to keep a glyph inside the terrain region it belongs to, so the outlines
- * must stay in step with the symbol geometry in `svgDefs`.
- */
-const SYMBOL_SILHOUETTES: Record<string, Vertex[]> = {
-  'tree-oak': [
-    { x: 0, y: 0 },
-    { x: -0.8, y: -0.5 },
-    { x: -1.2, y: -1.1 },
-    { x: -0.7, y: -1.8 },
-    { x: 0, y: -2.2 },
-    { x: 0.7, y: -1.8 },
-    { x: 1.2, y: -1.1 },
-    { x: 0.8, y: -0.5 },
-  ],
-  'tree-pine': [
-    { x: 0, y: 0 },
-    { x: -0.8, y: -0.4 },
-    { x: -0.6, y: -1.1 },
-    { x: 0, y: -2.0 },
-    { x: 0.6, y: -1.1 },
-    { x: 0.8, y: -0.4 },
-  ],
-  'tree-palm': [
-    { x: 0, y: 0 },
-    { x: -0.8, y: -1.3 },
-    { x: -0.55, y: -1.75 },
-    { x: 0, y: -1.85 },
-    { x: 0.55, y: -1.75 },
-    { x: 0.8, y: -1.3 },
-  ],
-  'mountain-high': [
-    { x: -1.4, y: 0 },
-    { x: -0.4, y: -1.8 },
-    { x: 0.1, y: -1.1 },
-    { x: 0.6, y: -1.5 },
-    { x: 1.4, y: 0 },
-  ],
-  'mountain-low': [
-    { x: -1.0, y: 0 },
-    { x: -0.3, y: -1.0 },
-    { x: 0.1, y: -0.6 },
-    { x: 0.5, y: -0.8 },
-    { x: 1.0, y: 0 },
-  ],
-};
-
 /** Adds the midpoint of every silhouette leg so a long straight side cannot span a region boundary. */
 function densifyOutline(points: Vertex[]): Vertex[] {
   const out: Vertex[] = [];
@@ -673,7 +598,7 @@ function densifyOutline(points: Vertex[]): Vertex[] {
 }
 
 const SYMBOL_FIT_OUTLINES: Record<string, Vertex[]> = Object.fromEntries(
-  Object.entries(SYMBOL_SILHOUETTES).map(([id, points]) => [id, densifyOutline(points)]),
+  TERRAIN_GLYPH_VARIANTS.map((variant) => [variant.id, densifyOutline(variant.footprint)]),
 );
 
 /**
@@ -786,14 +711,6 @@ function largestFittingScale(
   return low;
 }
 
-/** A placed glyph plus the base point it stands on, which is what the draw order sorts by. */
-type ScatterSymbol = {
-  x: number;
-  y: number;
-  el: string;
-  box: TextBox;
-};
-
 /** A shared disk index lets different glyph kinds keep partial overlap without stacking. */
 function makeGlyphSpacingTest(cellSize: number): (point: Vertex, radius: number) => boolean {
   const bins = new Map<string, { point: Vertex; radius: number }[]>();
@@ -823,11 +740,14 @@ function makeGlyphSpacingTest(cellSize: number): (point: Vertex, radius: number)
 }
 
 /** Spatial bins avoid scanning every terrain cell for every Poisson candidate. */
-function makeScatterNodeLookup(map: RegionMap): (point: Vertex) => MapNode | undefined {
+function makeScatterNodeLookup(
+  map: RegionMap,
+  assignments: Map<number, TerrainGlyphAssignment>,
+): (point: Vertex) => MapNode | undefined {
   const step = Math.max(map.width, map.height) / 32;
   const bins = new Map<string, MapNode[]>();
   for (const node of map.nodes) {
-    if (!isMountainLandNode(node) && !isForestNode(node)) continue;
+    if (!assignments.has(node.id)) continue;
     const box = getPolygonBoundingBox(node.polygon.vertices);
     for (let x = Math.floor(box.minX / step); x <= Math.floor(box.maxX / step); x++) {
       for (let y = Math.floor(box.minY / step); y <= Math.floor(box.maxY / step); y++) {
@@ -847,85 +767,85 @@ function makeScatterNodeLookup(map: RegionMap): (point: Vertex) => MapNode | und
 function collectScatterSymbols(
   map: RegionMap,
   clearOfWater: (outline: Vertex[]) => boolean,
-): ScatterSymbol[] {
-  if (
-    map.width <= 0 ||
-    map.height <= 0 ||
-    !map.nodes.some((node) => isMountainLandNode(node) || isForestNode(node))
-  )
-    return [];
+): PlacedTerrainGlyph[] {
+  if (map.width <= 0 || map.height <= 0) return [];
+  const assignments = assignTerrainGlyphs(map);
+  if (assignments.size === 0) return [];
   const mapScale = Math.min(map.width, map.height) / 35;
-  // A map-relative floor leaves parchment between glyphs even when edge fitting shrinks them.
-  // Larger glyphs are thinned further by the shared half-width check below.
-  const candidateRadius = 1.1 * mapScale;
-  const nodeAt = makeScatterNodeLookup(map);
-  const rng = new RNG(`region-glyphs:${map.width}:${map.height}:${map.nodes.length}`);
-  const candidates = generatePoissonDisk(map.width, map.height, candidateRadius, rng, 30, {
-    accept: (point) => nodeAt(point) !== undefined,
-    maxPoints: 12000,
-  });
-  const forestContains = makeRegionContainmentTest(
-    map,
-    (node) => isForestNode(node) && !isMountainLandNode(node),
+  const nodeAt = makeScatterNodeLookup(map, assignments);
+  const seedKey = `region-glyphs:${map.width}:${map.height}:${map.nodes.length}`;
+  // Candidate generation owns its stream; catalog selection never consumes its RNG draws.
+  const candidates = generatePoissonDisk(
+    map.width,
+    map.height,
+    1.1 * mapScale,
+    new RNG(seedKey),
+    30,
+    {
+      accept: (point) => nodeAt(point) !== undefined,
+      maxPoints: 12000,
+    },
   );
-  const mountainContains = makeRegionContainmentTest(map, isMountainLandNode);
+  const containment = new Map(
+    Object.values(TERRAIN_GLYPHS).map((definition) => [
+      definition.family,
+      makeRegionContainmentTest(
+        map,
+        (node) => assignments.get(node.id)?.family === definition.family,
+      ),
+    ]),
+  );
   const acceptSpacing = makeGlyphSpacingTest(mapScale);
-  const out: ScatterSymbol[] = [];
-  for (const anchor of candidates) {
+  const out: PlacedTerrainGlyph[] = [];
+  for (const [index, anchor] of candidates.entries()) {
     const node = nodeAt(anchor)!;
-    const mountain = isMountainLandNode(node);
-    const symbolId = mountain ? `mountain-${getMountainType(node)}` : `tree-${getForestType(node)}`;
-    const outline = SYMBOL_FIT_OUTLINES[symbolId];
-    const rotation = rng.float(-1, 1) * (mountain ? 3 : 5);
+    const family = assignments.get(node.id)!.family;
+    const definition = TERRAIN_GLYPHS[family];
+    const key = `${seedKey}:${node.id}:${index}`;
+    if (new RNG(`${key}:density`).float(0, 1) >= definition.densityRatio) continue;
+    const variant = new RNG(`${key}:variant`).item(definition.variants);
+    const styleRng = new RNG(`${key}:style`);
+    const outline = SYMBOL_FIT_OUTLINES[variant.id];
+    const mountain = family === 'mountain' || family === 'mountainHigh';
+    const rotation = styleRng.float(-1, 1) * definition.rotationLimitDegrees;
     const desiredScale = Math.max(
-      symbolFontSizeForNode(node, map) * (mountain ? 0.9 : 0.6),
+      symbolFontSizeForNode(node, map) * definition.scaleFactor,
       mapScale * (mountain ? 0.65 : 0.5),
     );
-    const wantedScale = desiredScale * (1 + rng.float(-1, 1) * (mountain ? 0.12 : 0.18));
+    const wantedScale = desiredScale * (1 + styleRng.float(-1, 1) * (mountain ? 0.12 : 0.18));
     const scale = largestFittingScale(
       anchor,
       outline,
       wantedScale,
-      desiredScale * (mountain ? 0.4 : 0.45),
+      desiredScale * definition.minimumScaleRatio,
       rotation,
       node.id,
-      mountain ? mountainContains : forestContains,
+      containment.get(family)!,
       clearOfWater,
     );
     if (scale === null) continue;
-    const halfWidth =
-      Math.max(...SYMBOL_SILHOUETTES[symbolId].map((point) => Math.abs(point.x))) * scale;
-    // The extra serialization slack in the index protects this minimum after SVG rounding.
+    const halfWidth = Math.max(...variant.footprint.map((point) => Math.abs(point.x))) * scale;
     if (!acceptSpacing(anchor, halfWidth * 0.55)) continue;
     out.push({
-      x: anchor.x,
-      y: anchor.y,
-      box: glyphBox(anchor, SYMBOL_FIT_OUTLINES[symbolId], scale, rotation),
-      el: `<use href="#${symbolId}" transform="translate(${anchor.x.toFixed(3)}, ${anchor.y.toFixed(3)}) rotate(${rotation.toFixed(1)}) scale(${scale.toFixed(3)})"/>`,
+      nodeId: node.id,
+      variantId: variant.id,
+      anchor,
+      scale,
+      rotationDegrees: rotation,
+      bounds: glyphBox(anchor, outline, scale, rotation),
     });
   }
   return out;
 }
 
-/**
- * Painter's algorithm over the scattered glyphs: every one is anchored at its base, so drawing in
- * order of increasing base y makes a symbol nearer the bottom of the map overlap the ones standing
- * behind it. Trees and mountains share the ordering, so a tree in front of a peak covers its slope.
- */
-function appendScatterSymbolsBackToFront(symbols: ScatterSymbol[], parts: string[]): void {
-  const ordered = [...symbols].sort((a, b) => a.y - b.y || a.x - b.x);
+/** One painter ordering for all terrain; each glyph is anchored at its ground contact. */
+function appendScatterSymbolsBackToFront(symbols: PlacedTerrainGlyph[], parts: string[]): void {
+  const ordered = [...symbols].sort((a, b) => a.anchor.y - b.anchor.y || a.anchor.x - b.anchor.x);
   for (const symbol of ordered) {
-    parts.push(symbol.el);
+    parts.push(
+      `<use href="#${symbol.variantId}" transform="translate(${symbol.anchor.x.toFixed(3)}, ${symbol.anchor.y.toFixed(3)}) rotate(${symbol.rotationDegrees.toFixed(1)}) scale(${symbol.scale.toFixed(3)})"/>`,
+    );
   }
-}
-
-function getMountainType(node: MapNode): 'high' | 'low' | null {
-  if (!isMountainLandNode(node)) return null;
-  const b = node.biomeId?.toLowerCase() ?? '';
-  if (node.elevation > 0.82 || b.includes('alpine') || b.includes('high mountain')) {
-    return 'high';
-  }
-  return 'low';
 }
 
 const MAP_TEXT_FONT_FAMILY = '&apos;Times New Roman&apos;, Times, serif';
@@ -974,7 +894,7 @@ function appendSettlements(
       // offset copy rather than a blur filter, which for a single element is the same picture for far
       // less work.
       stars.push(
-        `<text x="${n(x + 0.05)}" y="${n(y + 0.07)}" font-size="${n(r * 3)}" fill="${SYMBOL_SHADOW_INK}" fill-opacity="${SYMBOL_SHADOW_OPACITY}">${escapeXml('★')}</text>`,
+        `<text x="${n(x + 0.05)}" y="${n(y + 0.07)}" font-size="${n(r * 3)}" fill="${CARTOGRAPHY.palette.body.color}" fill-opacity="0.3">${escapeXml('★')}</text>`,
         `<text x="${n(x)}" y="${n(y)}" font-size="${n(r * 3)}" ${featureIdentity(s.id, 'settlement')} fill="${CARTOGRAPHY.palette.text.color}">${escapeXml('★')}</text>`,
       );
     } else {
@@ -996,13 +916,6 @@ ${stars.join('\n')}
     );
   }
 }
-
-type TextBox = {
-  minX: number;
-  maxX: number;
-  minY: number;
-  maxY: number;
-};
 
 /**
  * Conservative advance bounds for Times New Roman and its serif fallbacks. Export renderers such
@@ -1564,75 +1477,18 @@ function settlementMarkerBoxes(map: RegionMap, settlements: RegionMapSvgSettleme
   return out;
 }
 
-/**
- * Body outlines shared between a symbol's artwork and its baked shadow, so the two can never drift
- * apart. Only the outermost shape of each symbol is listed: a symbol's interior detail lines sit
- * inside its own silhouette, where a shadow would be hidden by the artwork drawn over it.
- */
-const TREE_OAK_CANOPY_D =
-  'M -0.8 -0.5 C -1.2 -0.8, -1.2 -1.4, -0.6 -1.6 C -0.8 -2.0, -0.2 -2.3, 0 -2.0 C 0.2 -2.3, 0.8 -2.0, 0.6 -1.6 C 1.2 -1.4, 1.2 -0.8, 0.8 -0.5 Z';
-const TREE_PINE_BODY_D =
-  'M 0 -2.0 L -0.6 -1.1 L -0.2 -1.1 L -0.8 -0.4 L 0.8 -0.4 L 0.2 -1.1 L 0.6 -1.1 Z';
-const TREE_PALM_TRUNK_D = 'M 0 0 Q -0.15 -0.5, 0 -1.2';
-const TREE_PALM_FRONDS_D =
-  'M 0 -1.2 Q -0.4 -1.5, -0.8 -1.3 M 0 -1.2 Q -0.5 -1.7, -0.5 -0.9 M 0 -1.2 Q 0.1 -1.8, -0.1 -1.5 M 0 -1.2 Q 0.5 -1.7, 0.5 -0.9 M 0 -1.2 Q 0.4 -1.5, 0.8 -1.3';
-const MOUNTAIN_HIGH_BODY_D = 'M -1.4 0 L -0.4 -1.8 L 0.1 -1.1 L 0.6 -1.5 L 1.4 0 Z';
-const MOUNTAIN_LOW_BODY_D = 'M -1.0 0 L -0.3 -1.0 L 0.1 -0.6 L 0.5 -0.8 L 1.0 0 Z';
+/** Expand each authored variant once; maps reference only the definitions they actually use. */
+const TERRAIN_SYMBOL_DEFS = new Map(
+  TERRAIN_GLYPH_VARIANTS.map((variant) => [
+    variant.id,
+    `<g id="${variant.id}"><path d="${variant.bodyPaths.join(' ')}" fill="${PARCHMENT_FILL}"/><path data-terrain-ink="true" d="${variant.strokes.map(inkStrokePath).join(' ')}" fill="${CARTOGRAPHY.palette.body.color}"/></g>`,
+  ]),
+);
 
-/**
- * Shadow ink baked into the symbol definitions as an offset copy of the silhouette, replacing the
- * per-instance `feDropShadow` filter that used to sit on every one of the ~1000 scattered glyphs.
- * Each filtered element costs its own offscreen buffer and blur pass, which dominated render time.
- * The offset runs slightly longer than the old filter's to read as soft without an actual blur.
- */
-const SYMBOL_SHADOW_INK = CARTOGRAPHY.palette.body.color;
-const SYMBOL_SHADOW_OPACITY = 0.3;
-const SYMBOL_SHADOW_OFFSET = 'translate(0.05, 0.07)';
-
-/** Offset silhouette drawn under a symbol's artwork; `stroked` widens thin art so it casts at all. */
-function symbolShadowPath(d: string, stroked = false): string {
-  const paint = stroked
-    ? `fill="none" stroke="${SYMBOL_SHADOW_INK}" stroke-width="${STROKE_WIDTHS.fine}" stroke-opacity="${SYMBOL_SHADOW_OPACITY}" stroke-linecap="round"`
-    : `fill="${SYMBOL_SHADOW_INK}" fill-opacity="${SYMBOL_SHADOW_OPACITY}" stroke="none"`;
-  return `<path d="${d}" transform="${SYMBOL_SHADOW_OFFSET}" ${paint}/>`;
-}
-
-function svgDefs(map: RegionMap): string {
-  return `<defs>
-  ${cartographyFilterDefs(map.width, map.height)}
-  <g id="tree-oak">
-    ${symbolShadowPath(TREE_OAK_CANOPY_D)}
-    <path d="M 0 0 L 0 -0.5" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
-    <path d="${TREE_OAK_CANOPY_D}" fill="${CARTOGRAPHY.ground.fill}" fill-opacity="0.95" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linejoin="round"/>
-  </g>
-  <g id="tree-pine">
-    ${symbolShadowPath(TREE_PINE_BODY_D)}
-    <path d="M 0 0 L 0 -0.4" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
-    <path d="${TREE_PINE_BODY_D}" fill="${CARTOGRAPHY.ground.fill}" fill-opacity="0.95" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linejoin="round"/>
-  </g>
-  <g id="tree-palm">
-    ${symbolShadowPath(TREE_PALM_TRUNK_D, true)}
-    ${symbolShadowPath(TREE_PALM_FRONDS_D, true)}
-    <path d="${TREE_PALM_TRUNK_D}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
-    <path d="${TREE_PALM_FRONDS_D}" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
-  </g>
-  <g id="mountain-high">
-    ${symbolShadowPath(MOUNTAIN_HIGH_BODY_D)}
-    <path d="${MOUNTAIN_HIGH_BODY_D}" fill="${CARTOGRAPHY.ground.fill}" fill-opacity="0.9" stroke="none"/>
-    <path d="M -1.4 0 L -0.4 -1.8 L 0.1 -1.1 L 0.6 -1.5 L 1.4 0" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linejoin="round" stroke-linecap="round"/>
-    <path d="M -0.4 -1.8 L -0.6 -0.6" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
-    <path d="M 0.6 -1.5 L 0.4 -0.5" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.fine}" stroke-linecap="round"/>
-    <path d="M -0.35 -1.5 L -0.2 -1.5 M -0.3 -1.2 L -0.1 -1.2 M -0.25 -0.9 L -0.05 -0.9 M -0.2 -0.6 L 0.0 -0.6" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
-    <path d="M 0.65 -1.2 L 0.8 -1.2 M 0.6 -0.9 L 0.75 -0.9 M 0.55 -0.6 L 0.7 -0.6 M 0.5 -0.3 L 0.65 -0.3" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
-  </g>
-  <g id="mountain-low">
-    ${symbolShadowPath(MOUNTAIN_LOW_BODY_D)}
-    <path d="${MOUNTAIN_LOW_BODY_D}" fill="${CARTOGRAPHY.ground.fill}" fill-opacity="0.9" stroke="none"/>
-    <path d="M -1.0 0 L -0.3 -1.0 L 0.1 -0.6 L 0.5 -0.8 L 1.0 0" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linejoin="round" stroke-linecap="round"/>
-    <path d="M -0.3 -1.0 L -0.4 -0.3" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
-    <path d="M 0.5 -0.8 L 0.4 -0.3" fill="none" stroke="${CARTOGRAPHY.palette.body.color}" stroke-width="${STROKE_WIDTHS.hairline}" stroke-linecap="round"/>
-  </g>
-</defs>`;
+function svgDefs(map: RegionMap, symbols: PlacedTerrainGlyph[]): string {
+  const used = [...new Set(symbols.map((symbol) => symbol.variantId))].sort();
+  return `<defs>${cartographyFilterDefs(map.width, map.height)}
+${used.map((id) => TERRAIN_SYMBOL_DEFS.get(id)).join('\n')}</defs>`;
 }
 
 /**
@@ -1688,8 +1544,8 @@ export function buildRegionMapSvgString(map: RegionMap, options?: RegionMapSvgOp
   appendScatterSymbolsBackToFront(
     symbols.filter(
       (symbol) =>
-        !featureBoxes.some((box) => overlapArea(symbol.box, box) > 0) &&
-        (compass === null || overlapArea(symbol.box, compass) === 0),
+        !featureBoxes.some((box) => overlapArea(symbol.bounds, box) > 0) &&
+        (compass === null || overlapArea(symbol.bounds, compass) === 0),
     ),
     scatterLayer,
   );
@@ -1706,7 +1562,7 @@ ${textParts.map((t) => t.ink).join('\n')}
     marginY = h * 0.05;
   const sheetW = w + marginX * 2,
     sheetH = h + marginY * 2;
-  const inner = `${svgDefs(map)}
+  const inner = `${svgDefs(map, symbols)}
 <g transform="translate(${n(-marginX)} ${n(-marginY)})">${parchmentRect(sheetW, sheetH)}</g>
 <defs><clipPath id="map-content-clip"><rect width="${w}" height="${h}"/></clipPath></defs>
 <g id="map-content" clip-path="url(#map-content-clip)">
