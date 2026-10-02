@@ -52,3 +52,26 @@ linen requires prepared flax and spinning, including freshwater for fiber prepar
 The catalog is representative rather than exhaustive. Additional fantasy raw inputs and finished
 goods are tracked in [#364](https://github.com/ironarachne/ironarachne/issues/364) and
 [#365](https://github.com/ironarachne/ironarachne/issues/365).
+
+## Catalogs versus regional occurrences
+
+This library defines reusable possibilities and matching rules. `$lib/regions` establishes saved
+local support: geological provinces and deposits, qualified raw-resource facts, complete possible
+product chains, settlement daily life and supply assessments. Catalog presence is not evidence of
+local occurrence, access, an existing workshop or a trade flow. Match stable catalog identities and
+product keys, never user-editable regional names.
+
+Generated processing needs current usable sources reachable through the saved dry-land graph and
+records the accessible workable/rich deposit subset. It uses a shared fantasy technique policy and
+complete input closure, including intermediates, fuel and water. Missing inputs cause omission;
+authored imported inputs retain explicit explanations. Supply assesses possible chains before
+representative selection, so a product omitted by the display cap does not prove scarcity.
+
+Regions saves recipe IDs, keys, techniques, requirements and source links. Reopening resolves the
+saved chain without applying today's recipes to old data. A new recipe inside existing types needs
+a versioned rule ID and matching/chain tests; a new persisted variant needs an approved model,
+validation and migration. Shared catalogs must not import regional types or presentation code.
+
+See the [accepted Regions contract](../../../docs/regions-release-contract.md),
+[processing design](../../../docs/region-processing.md) and
+[resource-chain extension guide](../../../docs/region-authoring.md#add-a-resource-chain).

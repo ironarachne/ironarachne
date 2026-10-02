@@ -118,3 +118,22 @@ vocabulary without changing the established surface-rock draw pool or standalone
 Settings permit compatible deposits; they do not guarantee minerals. Regions save and locate them
 as geological provinces before selecting deposits on a separate RNG stream. See
 [regional geology](../../../docs/region-resources.md).
+
+## Environment inputs to Regions
+
+Standalone environments keep their own snapshot and editing behavior. A region saves a realized
+`Environment` alongside its `RegionMap`; the physical-geography pass supplies shared latitude and
+terrain-profile inputs, then downstream regional rules consume saved observations. The environment
+overview can retain the requested profile when the map realizes another one. Regional facts and
+the regional overview use measured map classifications and record that mismatch explicitly.
+
+Physical biome ranges belong to `biomes/biome_classifications.ts`. Regional habitats group the
+map's actual dry-land biome cells; regional ecology rechecks local temperature, moisture, altitude
+and required water/landform support. A region-wide environment label or the ecosystem stub cannot
+establish a local occurrence. Geological settings describe compatible fictional possibilities;
+regional deposit facts establish selected occurrences. Do not regenerate an environment or change
+terrain to justify a later regional claim.
+
+See the accepted [Regions contract](../../../docs/regions-release-contract.md) and
+[data-flow and authoring guide](../../../docs/region-authoring.md) for stage ownership, source
+semantics and adding a supported habitat or inhabitant.

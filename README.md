@@ -112,3 +112,14 @@ To check for TypeScript and Svelte issues:
 ```bash
 npm run check
 ```
+
+## Contributing regional rules
+
+Start with the accepted [Regions release contract](docs/regions-release-contract.md) and the
+[regional data-flow and authoring guide](docs/region-authoring.md). The guide follows a seed through
+saved facts and derived output, explains identity, references, migrations and edit consistency, and
+gives concrete paths for adding a habitat, resource chain or landmark without duplicating the map
+renderer. Library entry points are documented in the [regions](src/lib/regions/README.md),
+[environment](src/lib/environment/README.md), [map](src/lib/map/README.md) and
+[resources](src/lib/resources/README.md) READMEs. Follow [CODE_STYLE.md](CODE_STYLE.md) and
+[AGENTS.md](AGENTS.md) for architecture, approved model changes and verification requirements.
