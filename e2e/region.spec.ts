@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import { visitRoute } from './helpers';
+import { expectNoHorizontalOverflow } from './mobile_layout';
 import { REGION_SEED_BANK } from '../test_fixtures/region_seeds';
 
 /**
@@ -152,6 +153,68 @@ test.describe('a region', () => {
       await expect(reopened).toContainText('These saved facts need review');
     });
   }
+
+  test('keeps the displayed seed when next-roll controls change', async ({ page }) => {
+    await openGenerator(page);
+    await page.getByLabel('Seed', { exact: true }).fill('inspection-seed');
+    await page.getByLabel('Lock Seed').check();
+    await page.getByRole('button', { name: 'Generate', exact: true }).click();
+    await page.getByLabel('Seed', { exact: true }).fill('next-region-seed');
+    await expect(page.locator('.result-seed')).toContainText('inspection-seed');
+    await saveAs(page, 'Inspection region');
+    const panel = await openInWorkshop(page, 'Inspection region');
+    await expect(panel).toContainText('seed inspection-seed');
+    await expect(panel.getByRole('region', { name: 'Region map inspection' })).toBeVisible();
+    await expect(panel.getByRole('textbox', { name: 'Region description' })).toBeVisible();
+    const download = page.waitForEvent('download');
+    await panel.getByRole('button', { name: 'Download Map (SVG)' }).click();
+    expect((await download).suggestedFilename()).toMatch(/\.svg$/);
+  });
+
+  test('offers map inspection and a few explanations in a narrow workshop panel', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 740 });
+    await visitRoute(page, '/workshop', { title: 'Workshop | Iron Arachne' });
+    await page
+      .locator('section.tool-browser')
+      .getByRole('button', { name: /^Region/ })
+      .click();
+    const panel = page.locator('section.workshop-panel');
+    const map = panel.getByRole('region', { name: 'Region map inspection' });
+    await expect(map.locator('img.region-map')).toBeVisible({ timeout: 30_000 });
+    await map.getByRole('button', { name: 'Zoom in', exact: true }).focus();
+    await page.keyboard.press('Enter');
+    await expect(map.getByRole('status')).toHaveText('150%');
+    await expectNoHorizontalOverflow(page);
+    const viewport = map.getByRole('region', { name: /^Map of/ });
+    await viewport.focus();
+    await page.keyboard.press('ArrowRight');
+    await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBeGreaterThan(0);
+    await map.getByRole('button', { name: 'Fit map' }).click();
+    await expect(map.getByRole('status')).toHaveText('100%');
+    const reasons = panel.getByRole('region', { name: 'Why this region looks this way' });
+    await expect(reasons.locator('details')).toHaveCount(3);
+    await reasons.locator('summary').first().focus();
+    await page.keyboard.press('Enter');
+    await expect(reasons.locator('details').first()).toHaveAttribute('open', '');
+    await expect(panel.getByRole('button', { name: 'Download Map (SVG)' })).toBeVisible();
+  });
+
+  test('can save with no project open and reopen through the vault link', async ({ page }) => {
+    await openEmpty(page);
+    await openGenerator(page);
+    await saveArtifact(page).getByRole('button', { name: 'Save to project' }).click();
+    await saveArtifact(page).getByLabel('Name', { exact: true }).fill('First region');
+    await saveArtifact(page).getByLabel('New project name').fill('First campaign');
+    await saveArtifact(page).getByRole('button', { name: 'Save', exact: true }).click();
+    await expect(saveArtifact(page).getByRole('status')).toContainText('Saved “First region”');
+    await page
+      .locator('section.main')
+      .getByRole('link', { name: 'Result Vault', exact: true })
+      .click();
+    await expect(vaultRow(page, 'First region')).toBeVisible();
+  });
 
   test('moves the seat without rewriting the prose that named the old one', async ({ page }) => {
     // Requirement 4.2: the description may have been rewritten by hand, and a generator that

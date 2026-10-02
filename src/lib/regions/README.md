@@ -366,3 +366,17 @@ Follow the [authoring guide](../../../docs/region-authoring.md#extend-a-rule) to
 resource chain or landmark. Shared environment/resource catalogs define possibilities; regional
 passes establish local support and save identity, anchors and reasons. The SVG renderer consumes
 the graph and embedded settlement labels; it does not generate facts or validate their causes.
+
+## Region inspection flow (#346)
+
+The standalone route and workshop generator share configuration for the next roll, a displayed
+seed recorded with that result, save-to-project controls, and Markdown/PDF/SVG exports. Changing
+seed or saved-input selections does not change the provenance of the displayed result. With no
+project open, saving offers project creation; the Result Vault leads back to the saved editor.
+
+`RegionMapInspection` provides fit/zoom and a focusable scrolling viewport for keyboard panning
+on both generated and reopened snapshots. `RegionExports` exports the currently displayed
+snapshot, including unsaved field edits in the editor. Map inspection never edits geography.
+The gazetteer offers up to three expandable examples drawn from stored settlement roles,
+habitats and resources; all supporting facts remain available below the sourcebook text.
+Saved region fields remain editable, with existing stale-evidence notices and reroll confirmation.

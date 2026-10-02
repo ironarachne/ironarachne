@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { resolve } from '$app/paths';
   import { RNG } from '@ironarachne/rng';
   import * as Words from '@ironarachne/words';
   import * as Characters from '$lib/characters';
@@ -12,8 +13,6 @@
   import * as Regions from '$lib/regions';
   import type { Region, RegionGeneratorConfigRecord } from '$lib/regions';
   import type { ArtifactReference } from '$lib/artifacts';
-  import { downloadTextFile } from '$lib/download';
-  import { downloadTextPdf } from '$lib/pdf';
   import GeneratorPage from '$components/layout/GeneratorPage.svelte';
   import SeedControls from '$components/common/SeedControls.svelte';
   import SelectField from '$components/common/SelectField.svelte';
@@ -21,9 +20,14 @@
   import SaveArtifactButton from '$components/common/SaveArtifactButton.svelte';
   import HeraldryEmblemButton from '$components/heraldry/HeraldryEmblemButton.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
+  import RegionExports from '$components/locations/RegionExports.svelte';
+  import RegionMapInspection from '$components/locations/RegionMapInspection.svelte';
   import RegionGazetteer from '$components/locations/RegionGazetteer.svelte';
 
   const TOOL_PATH = '/region';
+  const uid = $props.id();
+  let rolledSeed = $state('');
+  let rolledReferences = $state.raw<ArtifactReference[]>([]);
 
   /**
    * The page's own RNG, which is what a new seed is drawn from, and what the heraldry previews are
@@ -97,13 +101,6 @@
 
   const defaultArtifactName = $derived(region === null ? '' : Regions.regionDisplayName(region));
 
-  const references = $derived(
-    [
-      usedCulture ? cultureReference : undefined,
-      usedSettlementName === undefined ? undefined : settlementReference,
-    ].filter((reference): reference is ArtifactReference => reference !== undefined),
-  );
-
   /**
    * Puts a saved settlement into the region in place of one it generated.
    *
@@ -132,6 +129,7 @@
         : { nameSet: nameSetName };
 
     const rolled = Regions.rollRegion(seed, config, chosen);
+    rolledSeed = seed;
     usedCulture = chosen !== null;
     rolledNameSet = rolled.nameSet;
 
@@ -142,34 +140,10 @@
       region = rolled.region;
       usedSettlementName = undefined;
     }
-  }
-
-  function exportMarkdown() {
-    if (presentationSnapshot === null) return;
-    downloadTextFile(
-      Regions.regionToMarkdown(presentationSnapshot),
-      `${Regions.regionFileStem(presentationSnapshot)}.md`,
-      'text/markdown',
-    );
-  }
-
-  async function exportPdf() {
-    if (presentationSnapshot === null) return;
-    await downloadTextPdf(
-      Regions.regionDisplayName(presentationSnapshot),
-      Regions.regionToText(presentationSnapshot),
-      `${Regions.regionFileStem(presentationSnapshot)}.pdf`,
-    );
-  }
-
-  /** The map, which is what a region is (6.3). It had neither an export nor a picture until now. */
-  function exportMapSvg() {
-    if (presentationSnapshot === null) return;
-    downloadTextFile(
-      Regions.regionToMapSvg(presentationSnapshot),
-      `${Regions.regionFileStem(presentationSnapshot)}.svg`,
-      'image/svg+xml',
-    );
+    rolledReferences = [
+      usedCulture ? cultureReference : undefined,
+      usedSettlementName === undefined ? undefined : settlementReference,
+    ].filter((reference): reference is ArtifactReference => reference !== undefined);
   }
 
   async function openHeraldryModal(
@@ -177,7 +151,7 @@
     title: string,
     applyReplacement: (arms: Arms) => void,
   ) {
-    const result = await showHeraldryModal({ arms, seed, title });
+    const result = await showHeraldryModal({ arms, seed: rolledSeed, title });
     if (result.action === 'replaced') {
       applyReplacement(result.arms);
     }
@@ -208,35 +182,46 @@
     <p>Generate fantasy regions.</p>
   {/snippet}
 
-  <SeedControls bind:seed bind:lockSeed />
-
-  <SelectField id="nameSet" label="Name Set" bind:value={nameSetName} options={nameSetOptions} />
-
-  <SavedArtifactPicker
-    kind={CULTURE_ARTIFACT_KIND}
-    role="naming-culture"
-    checkboxLabel="Use a saved culture for naming?"
-    bind:enabled={useSavedCulture}
-    bind:value={culture}
-    bind:reference={cultureReference}
-  />
-
-  <SavedArtifactPicker
-    kind={SETTLEMENT_ARTIFACT_KIND}
-    role="settlement"
-    checkboxLabel="Put a saved settlement in this region"
-    selectLabel="Settlement"
-    bind:enabled={useSavedSettlement}
-    bind:value={savedSettlement}
-    bind:reference={settlementReference}
-  />
-
-  <div class="actions">
+  <fieldset class="configuration">
+    <legend>Configure the next region</legend>
+    <SeedControls bind:seed bind:lockSeed />
+    <p>
+      Lock the seed to repeat a region with the same settings. Otherwise Generate chooses a new
+      seed.
+    </p>
+    <SelectField
+      id="{uid}-name-set"
+      label="Name Set"
+      bind:value={nameSetName}
+      options={nameSetOptions}
+      disabled={useSavedCulture && culture !== undefined}
+    />
+    <details>
+      <summary>Use saved inputs</summary>
+      <p>
+        A saved culture supplies names instead of the name set. A saved settlement replaces the
+        first generated settlement.
+      </p>
+      <SavedArtifactPicker
+        kind={CULTURE_ARTIFACT_KIND}
+        role="naming-culture"
+        checkboxLabel="Use a saved culture for naming?"
+        bind:enabled={useSavedCulture}
+        bind:value={culture}
+        bind:reference={cultureReference}
+      />
+      <SavedArtifactPicker
+        kind={SETTLEMENT_ARTIFACT_KIND}
+        role="settlement"
+        checkboxLabel="Put a saved settlement in this region"
+        selectLabel="Settlement"
+        bind:enabled={useSavedSettlement}
+        bind:value={savedSettlement}
+        bind:reference={settlementReference}
+      />
+    </details>
     <BaseButton onclick={generate}>Generate</BaseButton>
-    <BaseButton onclick={exportMarkdown} disabled={!region}>Download Markdown</BaseButton>
-    <BaseButton onclick={exportPdf} disabled={!region}>Download PDF</BaseButton>
-    <BaseButton onclick={exportMapSvg} disabled={!region}>Download Map (SVG)</BaseButton>
-  </div>
+  </fieldset>
 
   <p>
     Generate replaces the whole displayed region, including any heraldry edits. Partial regeneration
@@ -249,28 +234,30 @@
     kind={Regions.REGION_ARTIFACT_KIND}
     toolPath={TOOL_PATH}
     {snapshot}
-    {seed}
+    seed={rolledSeed}
     config={generatorConfig}
     defaultName={defaultArtifactName}
-    {references}
+    references={rolledReferences}
     previewSrc={mapSrc}
     previewMediaType="image/svg+xml"
     previewRendererId="region-map"
     previewRendererVersion="1"
   />
 
-  {#if region}
-    {#if presentationSnapshot}
-      <RegionGazetteer snapshot={presentationSnapshot} />
-    {/if}
+  <p>
+    Reopen saved regions in the <a href={resolve('/vault')}>Result Vault</a>, then choose Open in
+    workshop to inspect, export or edit their fields.
+  </p>
 
-    {#if mapSrc}
-      <!-- The map, which is the tool's actual output and was never shown. `region_map_svg.ts` had
-           existed the whole time with one caller, a CLI script. An `<img>` rather than inline
-           markup: the map's paths extend past the viewBox that clips them, so inlining puts
-           1,888px-wide elements inside a 320px phone as far as the mobile overflow sweep is
-           concerned. -->
-      <img class="region-map" src={mapSrc} alt="Map of {region.name}" />
+  {#if region}
+    <p class="result-seed">
+      Displayed region seed: <code>{rolledSeed}</code>. Configuration changes apply when you
+      Generate.
+    </p>
+    {#if presentationSnapshot}
+      <RegionExports snapshot={presentationSnapshot} />
+      <RegionMapInspection snapshot={presentationSnapshot} />
+      <RegionGazetteer snapshot={presentationSnapshot} />
     {/if}
 
     <details>
@@ -443,17 +430,19 @@
 </GeneratorPage>
 
 <style>
-  .actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    margin: 1rem 0;
+  .configuration {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
   }
 
-  .region-map {
-    max-width: 100%;
-    height: auto;
-    display: block;
+  .configuration details {
+    margin-block: 1rem;
+  }
+
+  .result-seed {
+    overflow-wrap: anywhere;
   }
 
   div.ruler {
