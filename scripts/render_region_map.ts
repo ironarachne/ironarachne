@@ -96,11 +96,9 @@ function renderMap() {
     console.log(`Seed: ${seed}\n`);
   }
 
-  const config = Regions.getDefaultConfig();
-  if (seed !== undefined) {
-    config.rng = new RNG(seed);
-    config.nameGeneratorSet = Names.getFantasyNameGeneratorSet('tiefling', new RNG(seed));
-  }
+  const rng = new RNG(seed ?? String(Date.now()));
+  const config = Regions.getDefaultConfig(rng);
+  config.nameGeneratorSet = Names.getFantasyNameGeneratorSet('tiefling', rng);
   // Adjust config sizes to fit terminal better
   config.mapWidth = 60;
   config.mapHeight = 35;
