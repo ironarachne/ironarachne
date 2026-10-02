@@ -11,6 +11,13 @@
   let activeFact = $state<string | undefined>();
   const document = $derived(regionToDocument(snapshot));
   const facts = $derived(regionSupportingFacts(snapshot));
+  const highlights = $derived(
+    [
+      snapshot.facts.settlementRoles[0],
+      snapshot.facts.habitats[0],
+      snapshot.facts.resources[0],
+    ].filter((fact) => fact !== undefined),
+  );
   const notableIds = $derived(new Set(snapshot.facts.notables.map((fact) => fact.id)));
 </script>
 
@@ -19,6 +26,20 @@
   {#each document.paragraphs as paragraph}
     <p data-gazetteer-text>{paragraph}</p>
   {/each}
+  {#if highlights.length > 0}
+    <section aria-label="Why this region looks this way">
+      <h3>Why this region looks this way</h3>
+      {#each highlights as fact (fact.id)}
+        <details>
+          <summary>{fact.name || 'Unnamed fact'}</summary>
+          <p>{fact.description}</p>
+          {#each regionFactExplanation(snapshot, fact) as explanation}
+            <p>{explanation}</p>
+          {/each}
+        </details>
+      {/each}
+    </section>
+  {/if}
   {#each document.sections as section}
     <section aria-label={section.heading}>
       <h3>{section.heading}</h3>

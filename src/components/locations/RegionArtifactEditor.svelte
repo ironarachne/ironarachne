@@ -1,5 +1,7 @@
 <script lang="ts">
   import Notice from '$components/common/Notice.svelte';
+  import RegionExports from '$components/locations/RegionExports.svelte';
+  import RegionMapInspection from '$components/locations/RegionMapInspection.svelte';
   import RegionGazetteer from '$components/locations/RegionGazetteer.svelte';
   import BaseButton from '$components/common/BaseButton.svelte';
   import {
@@ -145,6 +147,9 @@
         </select>
       </div>
     {/if}
+
+    <RegionExports snapshot={region} />
+    <RegionMapInspection snapshot={region} />
 
     <!-- Shown and not edited: the map is what the realms' tiles point into. -->
     <p class="region-editor__note">
