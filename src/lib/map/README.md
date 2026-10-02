@@ -126,3 +126,24 @@ Optional saved region facts can be supplied through `RegionMapSvgOptions.feature
 names, landmark diamonds and hazard triangles share stored IDs and names with regional prose.
 Optional labels yield to settlements and furniture and are omitted when crowded or unanchored.
 See [regional map facts](../../../docs/region-map-facts.md).
+
+## The regional semantic boundary
+
+Regions stores this graph in its payload and builds meaning in `$lib/regions`. Regional areas and
+habitats cite saved node IDs; routes, resources and notable places may also cite edge IDs. Those
+IDs belong to that map, so a whole-region reroll replaces the graph and its anchors together.
+Loading or rendering a saved region never reruns the physical or semantic passes.
+
+Use `classifyRegionLandforms`, `classifyAltitude`, `classifyRelief` and `measureRegionTerrain` for shared
+terrain rules. Use graph flags, adjacency and recorded river/road values for spatial evidence.
+Glyph membership, smoothed coast ink and label placement are drawing decisions, not evidence for
+a habitat, crossing, navigable river, resource source or livelihood. Roads are generated during
+habitation after settlement placement; a saved settlement removal keeps existing road geometry.
+
+`regionToMapSvg` supplies the current embedded settlement labels and stable capital role to this
+renderer, along with selected saved habitat and notable facts. Optional landmark and hazard symbols
+yield to settlement labels; anchors remain valid even when a symbol cannot fit.
+SVG remains derived output; no semantic rule should parse it or copy its placement logic.
+See the [accepted Regions contract](../../../docs/regions-release-contract.md) and
+[regional authoring guide](../../../docs/region-authoring.md) for storage, reference semantics and
+concrete rule extensions.

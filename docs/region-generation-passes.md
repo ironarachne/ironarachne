@@ -51,10 +51,15 @@ The passes run in this order:
    processing chains. Site roles guide priorities; source IDs, accessible deposit subsets and
    limited-supply qualifications are retained. No crops, workshops or imports are invented.
    See [daily life](region-livelihoods.md).
-10. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
+10. **Supply:** #341 uses `supply` after livelihoods to save at most three needs per settlement.
+    It assesses all accessible raw sources and complete possible processing chains, including
+    outputs omitted by representative selection. Limited provision and unsupported local provision
+    remain distinct; optional imports are conditional suggestions without suppliers or trade flows.
+    See [scarcity and plausible imports](region-scarcity.md).
+11. **Notable places:** a river landmark cites the freshwater fact and reuses its saved anchor.
     #332 adds terrain and inhabited sites; #336 adds bank-gathering hazards supported by current
     material-use relationships and explicit dangerous organisms. All share the four-place cap.
-11. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
+12. **Presentation:** #333 composes an overview from realized terrain, dominant habitats, a supported
     settlement site cause, resources, a road connection and a localized hazard. Choices use only the
     presentation stream. Empty optional systems and stale facts contribute no filler.
 
@@ -88,3 +93,10 @@ Tests compare full plain snapshots, validate their semantic references, and inje
 into each later pass. Geography and earlier facts remain identical, while downstream facts may
 legitimately change when their input fact changes. Tests also check river evidence, absence of
 fabricated water facts, and rejection of geography without habitable land.
+
+## Contributor entry point
+
+The [data-flow and rule-authoring guide](region-authoring.md) maps these stages to their source
+modules, explains payload/fact versions and references, and gives concrete extension paths.
+Separate streams isolate random draws; they do not provide a partial-regeneration API. The
+implemented [edit contract](region-edit-consistency.md) supports whole-region rerolls only.

@@ -1,7 +1,7 @@
 # Regions
 
-This library generates a **region**: the largest single thing the site produces in one go. It builds
-a map, derives an environment from it, places settlements on the cells best suited to them, runs
+This library generates a **region**: the largest single thing the site produces in one go. It generates
+an environment and map from shared physical inputs, places settlements on suitable cells, runs
 roads between those settlements, invents the realms that claim the territory and the organizations
 operating in it, and takes its own name and ruler from the realm that holds it.
 
@@ -9,7 +9,12 @@ It is a composition library — nearly all the work belongs to
 [`$lib/map`](../map/README.md), [`$lib/environment`](../environment/README.md),
 [`$lib/settlements`](../settlements/README.md), [`$lib/realms`](../realms/README.md), and
 [`$lib/organizations`](../organizations/README.md) — and its job is to run them in the right order
-and pass each one the results of the last.
+and pass each one the results of the last. The semantic passes then save the reasons that connect
+geography to habitats, inhabitants, materials, daily life and notable places.
+
+Start with the accepted [Regions release contract](../../../docs/regions-release-contract.md) and
+the [data-flow and rule-authoring guide](../../../docs/region-authoring.md) for ownership, evidence,
+seed streams, migrations and concrete extension examples.
 
 ## Features
 
@@ -48,7 +53,7 @@ Give the region a culture and everything inside it is named consistently — the
 generators are used in place of the config's own:
 
 ```typescript
-const config = getDefaultConfig();
+const config = getDefaultConfig(rng);
 config.dominantCulture = culture;
 
 const region = generate(config);
@@ -82,15 +87,17 @@ The modules the readiness pass gives every Release-ready tool
 - **`region_fact_types.ts`** / **`region_facts.ts`** — the versioned semantic fact vocabulary and
   graph validation. Embedded settlements have region-local IDs; areas, habitats, settlement roles,
   notable places, resources, routes and causal claims cite those IDs or IDs in the saved map.
-  Versions 1 and 2 migrate to an empty `legacy` facts container. Version 3 preserves all existing
-  facts and adds empty ecology lists. Versions 3 and 4 add empty geology/deposit lists and
-  unknown availability for old resources; version 5 adds an empty product list; version 6 adds an empty daily-life list; version 7 adds an empty supply list; facts are now version 6. Migration preserves the map,
-  environment and composed snapshots without inferring missing causes.
+  Current facts are version 6, independently of payload version 8. Migration initializes missing
+  lists without generating causes; payloads 1–2 receive empty `legacy` facts. See the
+  [migration table](../../../docs/region-authoring.md#migrations-and-authored-content) for each
+  supported version. Existing map, environment, identities and authored text are preserved.
 - **`region_editing.ts`** — pure snapshot-to-snapshot edits over the region's words, its seat, its
   realms, its settlements and its organizations.
 - **`region_presentation.ts`** — the gazetteer, as Markdown and as text, plus `regionToMapSvg` for
-  the file and `regionMapSvgMarkup` for the copy the page embeds. The two differ by the XML
-  declaration, which is right in a file and parses as a bogus comment inside HTML.
+  the file and `regionMapDataUrl` for the page's image. `regionToDocument` is shared by Markdown
+  and PDF text; its current sections are realms, settlements, organizations, landmarks, hazards
+  and facts needing review. Full ecology/material-culture gazetteer assembly remains
+  [#344](https://github.com/ironarachne/ironarachne/issues/344); those facts are already stored.
 
 ### What is stored, and what is not
 
@@ -104,13 +111,13 @@ A **referenced** culture or settlement is not in the payload at all — `dominan
 and the settlement is absent from the list — because a reference is by identity, and a region
 holding its own copy of something somebody later edits would show the stale one forever.
 
-`RegionFacts` stores only authored or generated facts and their sources. The SVG map is still
-derived from the saved `RegionMap` and stays outside the payload.
+`RegionFacts` stores authored or generated facts, their sources and explanation status. The SVG
+map is derived from the saved `RegionMap` and stays outside the payload.
 
 ## Dependent passes
 
 New rolls run physical geography, geology, habitats, ecology inhabitants, resources, habitation,
-ecology relationships, processing, livelihoods, notable places, and presentation
+ecology relationships, processing, livelihoods, supply, notable places, and presentation
 with separate named RNG streams. Name generators are rebuilt from their pattern inputs for
 habitation, so their internal RNG does not couple names to geography. Generated semantic facts carry
 saved map evidence and versioned rule IDs. See [generation passes](../../../docs/region-generation-passes.md)
@@ -147,8 +154,8 @@ The presentation pass calls `generateRegionOverview` after all semantic passes. 
 realized land classification and the two most prevalent habitats, then selects a supported settlement
 site cause, a resource, a road connection and a localized hazard. Farming, coastal trade and woodland
 access appear only through their recorded settlement rules; richer ecological and livelihood systems
-remain optional future inputs. Absent systems and stale facts are omitted. Hazard hooks stay in the
-notable section. Wording and selection use the isolated presentation RNG without changing facts.
+are stored separately and do not yet contribute complete gazetteer sections. Absent systems and
+stale facts are omitted. Hazard hooks stay in the notable section. Wording and selection use the isolated presentation RNG without changing facts.
 
 Opening a snapshot never runs presentation. Saved descriptions, including user edits and intentional
 blanks, remain authoritative in the editor and exports.
@@ -177,8 +184,9 @@ store names, descriptive sources store labels, and neither embeds a catalog entr
 Unknown species names remain readable in saved facts. Loading, JSON export and editing retain
 those facts without selecting again. Generic validation checks ecology IDs, roles, sources,
 habitats, relationship endpoints, pollination, settlement uses and duplicate relations. The
-relationship pass now runs after settlement site roles; display work belongs to #344, regeneration and
-structural editing to #347, and named creature-reference integration to #337. See the
+relationship pass runs after settlement site roles. Complete gazetteer display remains #344;
+[edit consistency](../../../docs/region-edit-consistency.md) implements #347 with whole-region rerolls
+only. Named creature-reference integration remains #337. See the
 [approved ecology model](../../../docs/region-ecology.md).
 
 ### Catalog gaps and conservative omissions
@@ -268,8 +276,10 @@ Payload v5 adds empty geology/deposit lists to older saves and gives old resourc
 availability with empty deposit links. It preserves all existing edits, reasons and map data.
 Nothing is generated on read. `setRegionResourceFactText` retains identity and stales dependent
 explanations; `removeRegionResourceFact` protects authored dependencies, removes direct generated
-links and retains reason-only dependents as stale. Full presentation and partial regeneration
-remain #344/#347. See [the approved resource model](../../../docs/region-resources.md).
+links and retains reason-only dependents as stale. Full presentation remains #344; partial
+regeneration is unavailable under the implemented
+[#347 editing contract](../../../docs/region-edit-consistency.md). See
+[the approved resource model](../../../docs/region-resources.md).
 
 ## Local processing (#339)
 
@@ -292,7 +302,8 @@ Authored inputs can record imports with an explicit resource and explanation.
 imports and diagnostic issues without choosing recipes again. Unknown saved recipe/output keys
 remain readable. Source/product text edits stale dependent explanations; removals preserve authored
 dependencies. Payload v6 adds `products: []` to older saves, preserving their map, facts and edits.
-Daily-life rules use these saved facts; dedicated displays and trade remain later issues. See the
+Daily-life rules use these saved facts; dedicated gazetteer sections remain #344. Supply rules
+record conditional import suggestions without simulating trade. See the
 [approved processing model](../../../docs/region-processing.md), and fantasy catalog follow-ups
 [#364](https://github.com/ironarachne/ironarachne/issues/364) and
 [#365](https://github.com/ironarachne/ironarachne/issues/365).
@@ -341,3 +352,10 @@ additions change their inventory membership and require stale reasons before per
 Existing dependency removal protects authored work. Payload version 8 / facts version 6 adds
 `supply: []` to older payloads without inventing scarcity or imports. Gazetteer assembly remains
 separate from these library APIs. See [the approved design](../../../docs/region-scarcity.md).
+
+## Extending regional rules
+
+Follow the [authoring guide](../../../docs/region-authoring.md#extend-a-rule) to add a habitat,
+resource chain or landmark. Shared environment/resource catalogs define possibilities; regional
+passes establish local support and save identity, anchors and reasons. The SVG renderer consumes
+the graph and embedded settlement labels; it does not generate facts or validate their causes.
