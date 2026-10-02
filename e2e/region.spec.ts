@@ -208,6 +208,10 @@ test.describe('a region', () => {
       expect(contents).toContain(await paragraph.innerText());
     }
     expect(contents).toContain('Hook:');
+    expect(contents).toContain('## Supporting facts and explanations');
+    for (const detail of await page.locator('.gazetteer > details p').allTextContents()) {
+      expect(contents).toContain(detail);
+    }
 
     await page.getByRole('link', { name: 'Supporting explanation', exact: true }).first().click();
     const evidence = page.locator('.gazetteer > details');
@@ -217,7 +221,12 @@ test.describe('a region', () => {
 
     const pdf = page.waitForEvent('download');
     await page.getByRole('button', { name: 'Download PDF' }).click();
-    expect((await pdf).suggestedFilename()).toMatch(/\.pdf$/);
+    const pdfFile = await pdf;
+    expect(pdfFile.suggestedFilename()).toMatch(/\.pdf$/);
+    const pdfBytes = await new Response(await pdfFile.createReadStream()).arrayBuffer();
+    const pdfContents = new TextDecoder('latin1').decode(pdfBytes);
+    expect(pdfContents.startsWith('%PDF')).toBe(true);
+    expect(pdfContents).toContain('SUPPORTING FACTS AND EXPLANATIONS');
   });
 
   test('reproduces the same region from the same seed', async ({ page }) => {

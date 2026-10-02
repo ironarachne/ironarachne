@@ -100,6 +100,11 @@ The modules the readiness pass gives every Release-ready tool
   supply one per settlement; all authored entries remain. Every saved supporting fact is available
   through the page's expandable explanation links. Stale assertions are marked in all formats.
   Realms (including saved descriptions), settlements and organizations remain in the entry.
+  `regionToExportDocument` adds a complete supporting-facts appendix for Markdown, standalone
+  PDF text and project PDF publication, including generated entries omitted from the short entry.
+  PDF pagination has no fixed page cap. The illustrative map remains a separate SVG rendered
+  from the same snapshot; no new map or facts are generated on export. See
+  [region export decisions](../../../docs/region-exports.md).
 
 ### What is stored, and what is not
 
