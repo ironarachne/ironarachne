@@ -5,6 +5,7 @@
   import {
     canRemoveRegionSettlement,
     removeRegionPlace,
+    regionFactsNeedingReview,
     setRealmText,
     setRegionMainRealm,
     setRegionPlaceText,
@@ -49,6 +50,7 @@
    */
   const accepted = $derived(validateRegionSnapshot(snapshot));
   const region = $derived<RegionSnapshot | undefined>(accepted.ok ? accepted.value : undefined);
+  const reviewFacts = $derived(region === undefined ? [] : regionFactsNeedingReview(region));
 
   /** Applies one edit. Every handler goes through here so `onChange` is called in one place. */
   function edit(change: (current: RegionSnapshot) => RegionSnapshot): void {
@@ -84,6 +86,31 @@
   </Notice>
 {:else}
   <div class="region-editor">
+    <Notice>
+      Only whole-region reroll is available. Roll again replaces the map, environment, realms,
+      settlements, organizations, regional facts and descriptions, including saved and unsaved
+      edits, after confirmation. It uses the original seed and settings.
+    </Notice>
+    <p class="region-editor__note">
+      Editing a field keeps the rest of the region. Review the overview and other saved prose after
+      changing names, descriptions, the seat or removing a place: text is never rewritten
+      automatically. Changing the seat does not move the capital marker or change the stored ruler.
+      Settlement edits flag recorded site, route, use and economic explanations for review; facts
+      without recorded explanations also need manual review. Map labels follow settlement names;
+      removing a settlement removes its marker and generated dependent facts, while road geometry
+      stays on the map.
+    </p>
+    {#if reviewFacts.length > 0}
+      <Notice>
+        <p>These saved facts need review after their supporting information changed:</p>
+        <ul>
+          {#each reviewFacts as fact (fact.id)}
+            <li>{fact.name || fact.id}</li>
+          {/each}
+        </ul>
+        <p>Their text and your edits are retained. They have not been recomputed.</p>
+      </Notice>
+    {/if}
     <!-- Qualified as "Region name" rather than "Name": the panel above already has a field
          labelled "Name" that renames the artifact, and every realm and settlement has a name of
          its own further down. Two fields with the same accessible name in one region is the 6.2

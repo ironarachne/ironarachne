@@ -21,6 +21,12 @@ const lists = regionSemanticFactLists;
 
 export function regionFactTargets(fact: RegionSemanticFact): string[] {
   const direct: string[] = [];
+  if ('areaIds' in fact) direct.push(...fact.areaIds);
+  if ('habitatIds' in fact) direct.push(...fact.habitatIds);
+  if ('endpoints' in fact)
+    for (const endpoint of fact.endpoints)
+      if (endpoint.kind === 'notable') direct.push(endpoint.notableId);
+  if ('relation' in fact && 'targetId' in fact.relation) direct.push(fact.relation.targetId);
   if ('siteRoleId' in fact) direct.push(fact.siteRoleId, ...fact.areaIds);
   if ('inputs' in fact)
     for (const input of fact.inputs) {
@@ -34,7 +40,7 @@ export function regionFactTargets(fact: RegionSemanticFact): string[] {
   if ('relatedIds' in fact) direct.push(...fact.relatedIds);
   return direct;
 }
-function staleDependents(facts: RegionFacts, changed: Set<string>): RegionFacts {
+export function staleRegionFactDependents(facts: RegionFacts, changed: Set<string>): RegionFacts {
   // Negative assessments depend on inventory membership, including newly added sources.
   const inventoryChanged = [...changed].some((id) => !id.startsWith('supply:'));
   if (inventoryChanged) for (const fact of facts.supply) changed.add(fact.id);
@@ -72,7 +78,7 @@ function staleDependents(facts: RegionFacts, changed: Set<string>): RegionFacts 
 
 /** Apply an already checked removal closure and stale all transitive reason dependents. */
 export function removeRegionFactIds(facts: RegionFacts, removed: Set<string>): RegionFacts {
-  return staleDependents(
+  return staleRegionFactDependents(
     {
       ...facts,
       ...Object.fromEntries(
@@ -98,7 +104,7 @@ export function setRegionResourceFactText(
       fact.id === id ? { ...fact, [field]: value, origin: 'authored' } : fact,
     ),
   } as RegionFacts;
-  return { ...snapshot, facts: staleDependents(facts, new Set([id])) };
+  return { ...snapshot, facts: staleRegionFactDependents(facts, new Set([id])) };
 }
 
 /** Direct generated links are removed; reason-only dependents remain with stale explanations. */

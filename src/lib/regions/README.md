@@ -60,6 +60,11 @@ meaning to.
 
 ## The artifact kind
 
+Only whole-region reroll is supported. Saved field edits retain geometry and authored prose;
+settlement edits flag recorded dependent explanations for review. See
+[edit consistency](../../../docs/region-edit-consistency.md) for dependencies and the visible
+regeneration limits.
+
 The modules the readiness pass gives every Release-ready tool
 ([docs/tool-readiness.md](../../../docs/tool-readiness.md)):
 

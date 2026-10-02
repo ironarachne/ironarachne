@@ -234,6 +234,13 @@
     <BaseButton onclick={exportMapSvg} disabled={!region}>Download Map (SVG)</BaseButton>
   </div>
 
+  <p>
+    Generate replaces the whole displayed region, including any heraldry edits. Partial regeneration
+    is unavailable because later facts depend on earlier geography, resources and settlement sites.
+    Save this result before generating another to keep it. Saved regions support field editing; Roll
+    again replaces all saved contents after confirmation.
+  </p>
+
   <SaveArtifactButton
     kind={Regions.REGION_ARTIFACT_KIND}
     toolPath={TOOL_PATH}

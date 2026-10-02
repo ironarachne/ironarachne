@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import {
   canRemoveRegionSettlement,
   removeRegionPlace,
+  regionFactsNeedingReview,
   setRealmText,
   setRegionMainRealm,
   setRegionPlaceText,
@@ -11,6 +12,7 @@ import {
 import { rollRegionSnapshot } from './region_roll';
 import { emptyRegionFacts } from './region_facts';
 import { validateRegionSnapshot } from './region_artifact_kind';
+import { regionToMarkdown, regionToText, regionToMapSvg } from './region_presentation';
 
 const snapshot = rollRegionSnapshot('editing-seed');
 
@@ -83,6 +85,61 @@ describe('editing one realm', () => {
 });
 
 describe('editing the settlements and organizations', () => {
+  it('flags settlement explanations and transitive claims without rerolling or overwriting prose', () => {
+    const saved = structuredClone(snapshot);
+    const role = saved.facts.settlementRoles.find(
+      (entry) =>
+        entry.settlement.kind === 'embedded' &&
+        entry.settlement.settlementId === saved.settlements[0].id,
+    )!;
+    saved.facts.claims.push({
+      id: 'claim:edited-site',
+      name: 'Hand-written claim',
+      description: 'Keep my words.',
+      origin: 'authored',
+      subjectId: role.id,
+      relatedIds: [],
+      reason: {
+        ruleId: 'test:claim',
+        status: 'current',
+        sources: [{ kind: 'fact', factId: role.id }],
+      },
+    });
+    const edited = setRegionPlaceText(saved, 'settlements', 0, 'description', 'A floating city.');
+    expect(edited.description).toBe(saved.description);
+    expect(edited.map).toBe(saved.map);
+    expect(edited.environment).toBe(saved.environment);
+    expect(edited.realms).toBe(saved.realms);
+    expect(edited.facts.habitats).toEqual(saved.facts.habitats);
+    expect(edited.facts.resources).toEqual(saved.facts.resources);
+    expect(edited.facts.settlementRoles.find((entry) => entry.id === role.id)?.reason?.status).toBe(
+      'stale',
+    );
+    const claim = edited.facts.claims.find((entry) => entry.id === 'claim:edited-site')!;
+    expect(claim.description).toBe('Keep my words.');
+    expect(claim.origin).toBe('authored');
+    expect(claim.reason?.status).toBe('stale');
+    expect(regionFactsNeedingReview(edited)).toContain(claim);
+    expect(regionToMarkdown(edited)).toContain('## Facts needing review');
+    expect(regionToText(edited)).toContain('Hand-written claim');
+    expect(
+      regionToMapSvg(setRegionPlaceText(saved, 'settlements', 0, 'name', 'Coldwater')),
+    ).toContain('Coldwater');
+    expect(saved.facts.claims.at(-1)?.reason?.status).toBe('current');
+    const reopened = JSON.parse(JSON.stringify(edited));
+    expect(validateRegionSnapshot(reopened).ok).toBe(true);
+    expect(regionFactsNeedingReview(reopened)).toEqual(regionFactsNeedingReview(edited));
+  });
+
+  it('does not invalidate facts for an unchanged settlement field or an organization edit', () => {
+    expect(
+      setRegionPlaceText(snapshot, 'settlements', 0, 'name', snapshot.settlements[0].snapshot.name),
+    ).toBe(snapshot);
+    expect(setRegionPlaceText(snapshot, 'settlements', 99, 'name', 'Missing')).toBe(snapshot);
+    expect(setRegionPlaceText(snapshot, 'organizations', 0, 'name', 'Guild').facts).toBe(
+      snapshot.facts,
+    );
+  });
   it('renames one settlement and leaves the rest', () => {
     const edited = setRegionPlaceText(snapshot, 'settlements', 0, 'name', 'Coldwater');
     expect(edited.settlements[0].snapshot.name).toEqual('Coldwater');
