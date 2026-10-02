@@ -1,6 +1,7 @@
 import { expect, test, type Page } from '@playwright/test';
 
 import { visitRoute } from './helpers';
+import { REGION_SEED_BANK } from '../test_fixtures/region_seeds';
 
 /**
  * Requirement 7.4 for the `region` kind: generate, save, reopen, edit.
@@ -95,42 +96,62 @@ test.describe('a region', () => {
     await createProject(page, 'The Marches');
   });
 
-  test('is generated, saved, reopened, and edited', async ({ page }) => {
-    await openGenerator(page);
+  for (const { seed, contrast } of REGION_SEED_BANK) {
+    test(`is generated, saved, reopened, and edited: ${contrast}`, async ({ page }) => {
+      await openGenerator(page);
+      await page.getByLabel('Seed', { exact: true }).fill(seed);
+      await page.getByLabel('Lock Seed').check();
+      await page.getByRole('button', { name: 'Generate', exact: true }).click();
 
-    // The generator rolls on mount (2.4), so there is a region to keep straight away.
-    await saveAs(page, 'The Cold Marches');
+      // Save the pinned fixture produced through the page's seed controls.
+      await saveAs(page, 'The Cold Marches');
 
-    const notableIds = await page
-      .locator('[data-notable-id]')
-      .evaluateAll((places) => places.map((place) => place.getAttribute('data-notable-id')));
-
-    // Reopened somewhere else entirely, after a reload, which is what makes this a durability test
-    // rather than a state test.
-    const panel = await openInWorkshop(page, 'The Cold Marches');
-    await expect(panel.locator('[data-notable-id]')).toHaveCount(notableIds.length);
-    expect(
-      await panel
+      const notableIds = await page
         .locator('[data-notable-id]')
-        .evaluateAll((places) => places.map((place) => place.getAttribute('data-notable-id'))),
-    ).toEqual(notableIds);
+        .evaluateAll((places) => places.map((place) => place.getAttribute('data-notable-id')));
 
-    // Typed rather than filled: the point is that the editor's own binding carries keystrokes
-    // through to the snapshot it announces. The value is one no roll produces.
-    const realmName = panel.getByRole('textbox', { name: 'Realm 1 name', exact: true });
-    await realmName.fill('');
-    await realmName.pressSequentially('Ashmarch');
-    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeEnabled();
-    await panel.getByRole('button', { name: 'Save changes' }).click();
-    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+      // Reopened somewhere else entirely, after a reload, which is what makes this a durability test
+      // rather than a state test.
+      const panel = await openInWorkshop(page, 'The Cold Marches');
+      await expect(panel.locator('[data-notable-id]')).toHaveCount(notableIds.length);
+      expect(
+        await panel
+          .locator('[data-notable-id]')
+          .evaluateAll((places) => places.map((place) => place.getAttribute('data-notable-id'))),
+      ).toEqual(notableIds);
 
-    // And it survived the round trip through IndexedDB, which is the whole claim.
-    await page.reload({ waitUntil: 'load' });
-    const reopened = await openInWorkshop(page, 'The Cold Marches');
-    await expect(reopened.getByRole('textbox', { name: 'Realm 1 name', exact: true })).toHaveValue(
-      'Ashmarch',
-    );
-  });
+      // Keep a real keystroke to verify the binding. Filling the prefix avoids eight full
+      // gazetteer redraws on the larger fixtures; this checks durability, not typing throughput.
+      const realmName = panel.getByRole('textbox', { name: 'Realm 1 name', exact: true });
+      await realmName.fill('Ashmarc');
+      await realmName.press('End');
+      await realmName.pressSequentially('h');
+      const description = panel.getByRole('textbox', { name: 'Region description' });
+      await description.fill('An authored gazetteer entry.');
+      await panel
+        .getByRole('textbox', { name: 'Settlement 1 name', exact: true })
+        .fill('Reviewtown');
+      await expect(panel).toContainText('These saved facts need review');
+      await expect(panel).toContainText('Only whole-region reroll is available');
+      await expect(panel.getByRole('button', { name: 'Save changes' })).toBeEnabled();
+      await panel.getByRole('button', { name: 'Save changes' }).click();
+      await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+
+      // And it survived the round trip through IndexedDB, which is the whole claim.
+      await page.reload({ waitUntil: 'load' });
+      const reopened = await openInWorkshop(page, 'The Cold Marches');
+      await expect(
+        reopened.getByRole('textbox', { name: 'Realm 1 name', exact: true }),
+      ).toHaveValue('Ashmarch');
+      await expect(
+        reopened.getByRole('textbox', { name: 'Settlement 1 name', exact: true }),
+      ).toHaveValue('Reviewtown');
+      await expect(reopened.getByRole('textbox', { name: 'Region description' })).toHaveValue(
+        'An authored gazetteer entry.',
+      );
+      await expect(reopened).toContainText('These saved facts need review');
+    });
+  }
 
   test('moves the seat without rewriting the prose that named the old one', async ({ page }) => {
     // Requirement 4.2: the description may have been rewritten by hand, and a generator that
