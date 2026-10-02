@@ -218,9 +218,36 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
   };
 }
 
-/** A region as Markdown, for a referee who wants the gazetteer in their own notes. */
-export function regionToMarkdown(snapshot: RegionSnapshot): string {
+/**
+ * The reading entry plus the saved detail available through the page's disclosure controls.
+ * Exports cannot offer those controls, so include every fact and its explanation in an appendix.
+ * No page-count limit or representative selection is applied to this appendix.
+ */
+export function regionToExportDocument(snapshot: RegionSnapshot): RegionDocument {
   const document = regionToDocument(snapshot);
+  const facts = regionSupportingFacts(snapshot);
+  if (facts.length === 0) return document;
+  return {
+    ...document,
+    sections: [
+      ...document.sections,
+      {
+        heading: 'Supporting facts and explanations',
+        lines: facts.map((fact) =>
+          [
+            `${fact.name.trim() || 'Unnamed fact'}: ${fact.description}`,
+            `Supporting explanation: ${regionFactExplanation(snapshot, fact).join(' ')}`,
+          ].join(' '),
+        ),
+        factIds: facts.map((fact) => fact.id),
+      },
+    ],
+  };
+}
+
+/** A complete region as Markdown; the illustrative map remains a separate SVG export. */
+export function regionToMarkdown(snapshot: RegionSnapshot): string {
+  const document = regionToExportDocument(snapshot);
   const blocks = [`# ${document.title}`, ...document.paragraphs];
 
   for (const section of document.sections) {
@@ -232,7 +259,7 @@ export function regionToMarkdown(snapshot: RegionSnapshot): string {
 
 /** The body of the PDF: the same document as plain text, without the title the PDF draws itself. */
 export function regionToText(snapshot: RegionSnapshot): string {
-  const document = regionToDocument(snapshot);
+  const document = regionToExportDocument(snapshot);
   const blocks = [...document.paragraphs];
 
   for (const section of document.sections) {

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { buildTextPdf } from '$lib/pdf';
 
 import { removeRegionPlace, setRegionPlaceText, setRegionText } from './region_editing';
 import {
@@ -7,6 +8,7 @@ import {
   regionDisplayName,
   regionFileStem,
   regionToDocument,
+  regionToExportDocument,
   regionToMapSvg,
   regionToMarkdown,
   regionToText,
@@ -220,6 +222,91 @@ describe('stored regional facts on the illustrative map', () => {
   });
 });
 
+describe('complete gazetteer exports', () => {
+  it('exports every supporting fact and explanation, including entries omitted from the short entry', () => {
+    const before = structuredClone(snapshot);
+    const document = regionToExportDocument(snapshot);
+    const appendix = document.sections.at(-1)!;
+    const facts = regionSupportingFacts(snapshot);
+    expect(appendix.heading).toBe('Supporting facts and explanations');
+    expect(appendix.factIds).toEqual(facts.map((fact) => fact.id));
+    expect(appendix.lines).toHaveLength(facts.length);
+    for (const prose of [regionToMarkdown(snapshot), regionToText(snapshot)]) {
+      for (const fact of facts) {
+        expect(prose).toContain(fact.description);
+        for (const explanation of regionFactExplanation(snapshot, fact)) {
+          expect(prose).toContain(explanation);
+        }
+      }
+    }
+    expect(snapshot).toEqual(before);
+  });
+
+  it('preserves unnamed authored facts and suppresses stale evidence in the appendix', () => {
+    const edited = {
+      ...snapshot,
+      facts: {
+        ...emptyRegionFacts('legacy'),
+        habitats: [
+          {
+            ...snapshot.facts.habitats[0],
+            name: ' ',
+            description: 'A saved detail with no name.',
+            origin: 'authored' as const,
+            reason: {
+              ruleId: 'saved-rule',
+              status: 'stale' as const,
+              sources: [
+                {
+                  kind: 'environment' as const,
+                  field: 'climate' as const,
+                  observedValue: 'obsolete climate',
+                },
+              ],
+            },
+          },
+        ],
+      },
+    };
+    for (const prose of [regionToMarkdown(edited), regionToText(edited)]) {
+      expect(prose).toContain('Unnamed fact: A saved detail with no name.');
+      expect(prose).toContain('Supporting information changed; this explanation needs review.');
+      expect(prose).not.toContain('obsolete climate');
+    }
+  });
+
+  it('keeps migrated legacy exports free of invented appendix content', () => {
+    const legacy = { ...snapshot, facts: emptyRegionFacts('legacy') };
+    expect(regionToExportDocument(legacy)).toEqual(regionToDocument(legacy));
+    expect(regionToMarkdown(legacy)).not.toContain('Supporting facts and explanations');
+    expect(regionToText(legacy)).not.toContain('SUPPORTING FACTS AND EXPLANATIONS');
+    expect(regionToMapSvg(legacy)).toContain('<svg');
+  });
+
+  it('paginates long authored content beyond two pages without truncating the final fact', async () => {
+    const edited = {
+      ...snapshot,
+      description: 'A whole line of saved regional history.\n'.repeat(160),
+      facts: {
+        ...emptyRegionFacts('legacy'),
+        habitats: [
+          {
+            ...snapshot.facts.habitats[0],
+            name: 'Final fact',
+            description: 'END OF SAVED DETAIL',
+            reason: undefined,
+          },
+        ],
+      },
+    };
+    const blob = await buildTextPdf(edited.name, regionToText(edited));
+    const pdf = new TextDecoder('latin1').decode(await blob.arrayBuffer());
+    expect(Number(/\/Count (\d+)/.exec(pdf)?.[1])).toBeGreaterThan(2);
+    expect(pdf).toContain('END OF SAVED DETAIL');
+    expect(pdf).toContain('SUPPORTING FACTS AND EXPLANATIONS');
+  });
+});
+
 describe('sourcebook gazetteer', () => {
   it('uses one document for every exported paragraph and section, without mutating the snapshot', () => {
     const before = structuredClone(snapshot);
@@ -293,7 +380,9 @@ describe('sourcebook gazetteer', () => {
         ],
       },
     };
-    const prose = regionToMarkdown(edited);
+    const prose = regionToDocument(edited)
+      .sections.flatMap((section) => section.lines)
+      .join('\n');
     expect(prose).toContain('Representative work.');
     expect(prose).not.toContain('More generated work.');
     expect(prose).toContain('My special trade.');
