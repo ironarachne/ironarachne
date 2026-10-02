@@ -20,7 +20,7 @@
  * — and the generator page opens it in a modal. Reproducing it inside this editor would be a second
  * copy of the site's most intricate component.
  *
- * **Nothing here recomputes anything.** Changing which realm is the seat does not re-derive the
+ * **Nothing here regenerates anything.** Changing which realm is the seat does not re-derive the
  * description that mentions the old one, because that description may have been rewritten by hand;
  * 4.2 says the edited payload is authoritative, and a generator that quietly corrects prose is
  * regenerating over the user's work.
@@ -32,7 +32,36 @@ import {
   regionSemanticFactLists,
   regionFactTargets,
   removeRegionFactIds,
+  staleRegionFactDependents,
 } from './region_resource_editing';
+
+/** Recorded explanations needing review; prose without evidence is reviewed manually. */
+export function regionFactsNeedingReview(snapshot: RegionSnapshot): RegionSemanticFact[] {
+  return regionSemanticFactLists
+    .flatMap<RegionSemanticFact>((list) => snapshot.facts[list])
+    .filter((fact) => fact.reason?.status === 'stale');
+}
+
+/** Settlement text can contradict its site, uses, routes and downstream economic assertions. */
+function staleSettlementExplanations(snapshot: RegionSnapshot, index: number) {
+  const settlementId = snapshot.settlements[index].id;
+  const isTarget = (target: { kind: string; settlementId?: string }) =>
+    target.kind === 'embedded' && target.settlementId === settlementId;
+  const affected = regionSemanticFactLists
+    .flatMap<RegionSemanticFact>((list) => snapshot.facts[list])
+    .filter(
+      (fact) =>
+        ('settlement' in fact && isTarget(fact.settlement)) ||
+        ('endpoints' in fact &&
+          fact.endpoints.some(
+            (endpoint) => endpoint.kind === 'settlement' && isTarget(endpoint.settlement),
+          )) ||
+        ('relation' in fact &&
+          fact.relation.kind === 'used-by' &&
+          isTarget(fact.relation.settlement)),
+    );
+  return staleRegionFactDependents(snapshot.facts, new Set(affected.map((fact) => fact.id)));
+}
 
 /** The region's own two strings. */
 export type RegionTextField = 'name' | 'description';
@@ -177,9 +206,15 @@ export function setRegionPlaceText(
 ): RegionSnapshot {
   const places = snapshot[list];
   if (list === 'settlements') {
+    if (
+      hasIndex(snapshot.settlements.length, index) &&
+      snapshot.settlements[index].snapshot[field] === value
+    )
+      return snapshot;
     return hasIndex(snapshot.settlements.length, index)
       ? {
           ...snapshot,
+          facts: staleSettlementExplanations(snapshot, index),
           settlements: replaceAt(snapshot.settlements, index, {
             ...snapshot.settlements[index],
             snapshot: { ...snapshot.settlements[index].snapshot, [field]: value },

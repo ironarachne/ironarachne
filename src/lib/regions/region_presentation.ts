@@ -19,6 +19,7 @@ import { getHonorific, type StoredCharacter } from '$lib/characters';
 import { buildRegionMapSvgString, type RegionMapSvgSettlement } from '$lib/map';
 
 import type { RegionSnapshot, StoredRealm } from './region_snapshot.js';
+import { regionFactsNeedingReview } from './region_editing';
 
 /** A titled list of lines; dropped entirely when it has no lines. */
 export type RegionSection = {
@@ -94,6 +95,13 @@ export function regionToDocument(snapshot: RegionSnapshot): RegionDocument {
     title: regionDisplayName(snapshot),
     paragraphs,
     sections: [
+      ...namedList(
+        'Facts needing review',
+        regionFactsNeedingReview(snapshot).map((fact) => ({
+          name: fact.name || fact.id,
+          description: 'Supporting information changed; saved text has not been recomputed.',
+        })),
+      ),
       ...(realmLines.length === 0 ? [] : [{ heading: 'Realms', lines: realmLines }]),
       ...namedList(
         'Settlements',

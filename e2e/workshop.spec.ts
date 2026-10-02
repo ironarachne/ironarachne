@@ -942,6 +942,41 @@ test.describe('editing a saved artifact', () => {
     return openASavedArtifact(page, /^Culture/, name);
   }
 
+  test('retains region edits and dependency warnings across save and reopen at 320px', async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width: 320, height: 720 });
+    await openASavedArtifact(page, /^Region/, 'The Marches');
+    const panel = artifactPanel(page);
+    await expect(
+      panel.getByText('Only whole-region reroll is available.', { exact: false }),
+    ).toBeVisible();
+    const overview = await panel.getByLabel('Region description').inputValue();
+    await panel.getByLabel('Settlement 1 name', { exact: true }).fill('Coldwater');
+    await expect(
+      panel.getByText('These saved facts need review after their supporting information changed:'),
+    ).toBeVisible();
+    await expect(panel.getByLabel('Region description')).toHaveValue(overview);
+    await panel.getByRole('button', { name: 'Save changes' }).click();
+    await expect(panel.getByRole('button', { name: 'Save changes' })).toBeDisabled();
+    await expect
+      .poll(async () =>
+        (await storedPanels(page)).some((stored) => stored.artifactId !== undefined),
+      )
+      .toBe(true);
+    await page.reload({ waitUntil: 'load' });
+    await expect(panel.getByLabel('Settlement 1 name', { exact: true })).toHaveValue('Coldwater');
+    await expect(
+      panel.getByText('These saved facts need review after their supporting information changed:'),
+    ).toBeVisible();
+    await expectNoHorizontalOverflow(page);
+    await expectInteractiveControlsReachable(page);
+    await panel.getByRole('button', { name: 'Roll again', exact: true }).click();
+    await expect(confirmDialog(page)).toContainText('replaces these contents');
+    await confirmDialog(page).getByRole('button', { name: 'Cancel', exact: true }).click();
+    await expect(panel.getByLabel('Settlement 1 name', { exact: true })).toHaveValue('Coldwater');
+  });
+
   /**
    * A project with one saved religion in it — one that has gods — open in a panel of its own.
    *
